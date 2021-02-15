@@ -6,8 +6,14 @@ from . import models
 from .actions import get_promo_codes
 from .models import Membership
 from ..front.serializer_utils import RoutesField
-from ..lib.serializers import FlexibleFieldsMixin
-from ..lib.utils import front_url
+from agir.lib.geo import get_commune
+from agir.lib.serializers import (
+    FlexibleFieldsMixin,
+    LocationSerializer,
+    ContactMixinSerializer,
+)
+from agir.people.serializers import PersonSerializer
+from ..lib.utils import front_url, admin_url
 
 
 class SupportGroupLegacySerializer(CountryFieldMixin, serializers.ModelSerializer):
@@ -123,3 +129,188 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_isFull(self, obj):
         return obj.is_full
+
+
+class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
+    id = serializers.UUIDField()
+
+    isMember = serializers.SerializerMethodField()
+    isManager = serializers.SerializerMethodField()
+
+    name = serializers.CharField()
+    type = serializers.SerializerMethodField()
+    description = serializers.CharField(source="html_description")
+    is2022 = serializers.SerializerMethodField()
+    isFull = serializers.SerializerMethodField()
+    location = LocationSerializer(source="*")
+    contact = ContactMixinSerializer(source="*")
+
+    referents = serializers.SerializerMethodField()
+    # TODO: add links to SupporGroup model
+    links = []
+
+    facts = serializers.SerializerMethodField()
+    iconConfiguration = serializers.SerializerMethodField()
+
+    routes = serializers.SerializerMethodField()
+    discountCodes = serializers.SerializerMethodField()
+    commune = serializers.SerializerMethodField()
+
+    hasUpcomingEvents = serializers.SerializerMethodField()
+    hasPastEvents = serializers.SerializerMethodField()
+    hasPastEventReports = serializers.SerializerMethodField()
+    hasMessages = serializers.SerializerMethodField()
+
+    def to_representation(self, instance):
+        user = self.context["request"].user
+        self.membership = None
+        self.user = user
+        if not user.is_anonymous and user.person:
+            self.membership = Membership.objects.filter(
+                person=user.person, supportgroup=instance
+            ).first()
+        return super().to_representation(instance)
+
+    def get_isMember(self, obj):
+        return self.membership is not None
+
+    def get_isManager(self, obj):
+        return (
+            self.membership is not None
+            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+        )
+
+    def get_type(self, obj):
+        return obj.get_type_display()
+
+    def get_is2022(self, obj):
+        return obj.is_2022
+
+    def get_isFull(self, obj):
+        return obj.is_full
+
+    def get_referents(self, obj):
+        return PersonSerializer(
+            obj.referents,
+            context=self.context,
+            many=True,
+            fields=[
+                "id",
+                "displayName",
+                "gender",
+                # "avatar",
+            ],
+        ).data
+
+    def get_facts(self, obj):
+        facts = {
+            "memberCount": obj.members_count,
+            "eventCount": obj.events_count,
+            "creationDate": obj.created,
+            "isCertified": obj.is_certified,
+            # TODO: define what "last activity" means for a group
+            "lastActivityDate": None,
+        }
+        return facts
+
+    def get_iconConfiguration(self, obj):
+        if obj.type in models.SupportGroup.TYPE_PARAMETERS:
+            configuration = models.SupportGroup.TYPE_PARAMETERS[obj.type]
+            return {
+                "color": configuration["color"],
+                "iconName": configuration["icon_name"],
+            }
+
+    def get_routes(self, obj):
+        routes = {}
+        if obj.is_certified:
+            routes["donations"] = front_url("donation_amount", query={"group": obj.pk})
+        if self.membership is not None:
+            routes["quit"] = front_url("quit_group", kwargs={"pk": obj.pk})
+        if (
+            self.membership is not None
+            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+        ):
+            routes["createEvent"] = f'{front_url("create_event")}?group={str(obj.pk)}'
+            routes["settings"] = front_url("manage_group", kwargs={"pk": obj.pk})
+            routes["edit"] = front_url("edit_group", kwargs={"pk": obj.pk})
+            routes["members"] = front_url(
+                "manage_group", query={"active": "membership"}, kwargs={"pk": obj.pk}
+            )
+            routes["animation"] = front_url(
+                "manage_group", query={"active": "animation"}, kwargs={"pk": obj.pk}
+            )
+            routes["membershipTransfer"] = front_url(
+                "transfer_group_members", kwargs={"pk": obj.pk}
+            )
+            if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
+                routes["materiel"] = front_url(
+                    "manage_group", query={"active": "materiel"}, kwargs={"pk": obj.pk}
+                )
+            if not obj.is_2022:
+                routes["invitation"] = front_url(
+                    "manage_group",
+                    query={"active": "invitation"},
+                    kwargs={"pk": obj.pk},
+                )
+            if obj.is_certified:
+                routes["financement"] = front_url(
+                    "manage_group",
+                    query={"active": "financement"},
+                    kwargs={"pk": obj.pk},
+                )
+            elif (
+                obj.type in settings.CERTIFIABLE_GROUP_TYPES
+                or obj.subtypes.filter(
+                    label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
+                ).exists()
+            ):
+                routes["certification"] = front_url(
+                    "manage_group",
+                    query={"active": "certification"},
+                    kwargs={"pk": obj.pk},
+                )
+        if (
+            not self.user.is_anonymous
+            and self.user.person
+            and self.user.is_staff
+            and self.user.has_perm("groups.change_supportgroup")
+        ):
+            routes["admin"] = admin_url("groups_supportgroup_change", args=[obj.pk])
+
+        return routes
+
+    def get_discountCodes(self, obj):
+        if (
+            self.membership is not None
+            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+            and obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
+        ):
+            return [
+                {"code": code, "expirationDate": date}
+                for code, date in get_promo_codes(obj)
+            ]
+        return []
+
+    def get_commune(self, obj):
+        commune = get_commune(obj)
+        if commune is not None:
+            commune = {
+                "name": commune.nom_complet,
+                "nameOf": commune.nom_avec_charniere,
+            }
+        return commune
+
+    def get_hasUpcomingEvents(self, obj):
+        return obj.organized_events.upcoming().exists()
+
+    def get_hasPastEvents(self, obj):
+        return obj.organized_events.past().exists()
+
+    def get_hasPastEventReports(self, obj):
+        return obj.organized_events.past().exclude(report_content="").exists()
+
+    def get_hasMessages(self, obj):
+        return (
+            self.membership is not None and obj.messages.filter(deleted=False).exists()
+        )

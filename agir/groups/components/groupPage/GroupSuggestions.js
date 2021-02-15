@@ -7,7 +7,9 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import Button from "@agir/front/genericComponents/Button";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import GroupSuggestionCard from "./GroupSuggestionCard";
 
 SwiperCore.use([A11y]);
@@ -15,12 +17,22 @@ SwiperCore.use([A11y]);
 export const Carousel = styled(animated.div)``;
 export const Block = styled(animated.div)``;
 export const StyledWrapper = styled.div`
+  padding-top: 48px;
+  padding-bottom: 56px;
+  text-align: center;
+
+  @media (max-width: ${style.collapse}px) {
+    text-align: left;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
   & > * {
     margin-left: 1.5rem;
   }
 
   h4 {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     font-size: 1.25rem;
     line-height: 1.5;
     font-weight: 700;
@@ -31,8 +43,18 @@ export const StyledWrapper = styled.div`
     }
   }
 
+  ${Button} {
+    margin-bottom: 1.5rem;
+  }
+
   ${Carousel} {
+    @media (max-width: ${style.collapse}px) {
+      margin-left: 0;
+    }
     .swiper-container {
+      @media (max-width: ${style.collapse}px) {
+        padding-left: 1.5rem;
+      }
       .swiper-slide {
         width: auto;
       }
@@ -42,10 +64,17 @@ export const StyledWrapper = styled.div`
   ${Block} {
     display: flex;
     flex-flow: row nowrap;
+    justify-content: center;
+
+    @media (max-width: ${style.collapse}px) {
+      justify-content: flex-start;
+    }
 
     & > * {
-      margin-right: 2rem;
       flex: 1 1 auto;
+      @media (min-width: ${style.collapse}px) {
+        margin-right: 2rem;
+      }
     }
   }
 `;
@@ -108,18 +137,21 @@ export const GroupSuggestionBlock = (props) => {
 
 export const GroupSuggestions = (props) => {
   const { groups } = props;
-  if (groups.length === 0) {
-    return null;
-  }
+
   return (
-    <StyledWrapper>
-      <h4>Autres groupes qui peuvent vous intéresser</h4>
-      <ResponsiveLayout
-        MobileLayout={GroupSuggestionCarousel}
-        DesktopLayout={GroupSuggestionBlock}
-        {...props}
-      />
-    </StyledWrapper>
+    <PageFadeIn ready={Array.isArray(groups) && groups.length > 0}>
+      <StyledWrapper>
+        <h4>Autres groupes qui peuvent vous intéresser</h4>
+        <Button as="Link" route="groupMapPage" icon="map" small>
+          Carte des groupes
+        </Button>
+        <ResponsiveLayout
+          MobileLayout={GroupSuggestionCarousel}
+          DesktopLayout={GroupSuggestionBlock}
+          {...props}
+        />
+      </StyledWrapper>
+    </PageFadeIn>
   );
 };
 

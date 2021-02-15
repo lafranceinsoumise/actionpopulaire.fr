@@ -15,6 +15,7 @@ class UserContextSerializer(serializers.Serializer):
     id = serializers.UUIDField(source="pk")
     firstName = serializers.CharField(source="first_name")
     displayName = serializers.SerializerMethodField(method_name="get_full_name")
+    fullName = serializers.SerializerMethodField(method_name="get_full_name")
     isInsoumise = serializers.BooleanField(source="is_insoumise")
     is2022 = serializers.BooleanField(source="is_2022")
     isAgir = serializers.BooleanField(source="is_agir")
@@ -73,7 +74,7 @@ class SessionSerializer(serializers.Serializer):
                     link = {
                         "id": group.id,
                         "label": group.name,
-                        "href": reverse("view_group", kwargs={"pk": group.pk}),
+                        "to": reverse("view_group", kwargs={"pk": group.pk}),
                     }
                     routes["groups__personGroups"].append(link)
 

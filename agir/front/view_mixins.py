@@ -57,11 +57,12 @@ class ObjectOpengraphMixin(SimpleOpengraphMixin):
 
     # noinspection PyUnresolvedReferences
     def get_meta_image(self):
+        url = static("front/assets/og_image_LFI.jpg")
         if hasattr(self.object, "image") and self.object.image:
-            return urljoin(settings.FRONT_DOMAIN, self.object.image.url)
-        if self.is_2022_object():
-            return static("front/assets/og_image_NSP.jpg")
-        return static("front/assets/og_image_LFI.jpg")
+            url = self.object.image.url
+        elif self.is_2022_object():
+            url = static("front/assets/og_image_NSP.jpg")
+        return urljoin(settings.FRONT_DOMAIN, url)
 
     # noinspection PyUnresolvedReferences
     def get_meta_description(self):

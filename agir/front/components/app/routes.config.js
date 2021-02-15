@@ -11,6 +11,10 @@ const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
 const FullGroupPage = lazy(() =>
   import("@agir/groups/fullGroupPage/FullGroupPage")
 );
+const GroupPage = lazy(() => import("@agir/groups/groupPage/GroupPage"));
+const GroupMessagePage = lazy(() =>
+  import("@agir/groups/groupPage/GroupMessagePage")
+);
 const GroupMap = lazy(() => import("@agir/carte/page__groupMap/GroupMap"));
 
 const ActivityPage = lazy(() =>
@@ -25,13 +29,16 @@ const NavigationPage = lazy(() =>
 
 export const BASE_PATH = "/";
 
-class RouteConfig {
+export class RouteConfig {
   constructor(props) {
     Object.keys(props).forEach((key) => (this[key] = props[key]));
 
     this.__keys__ = [];
+    const pathname = Array.isArray(this.pathname)
+      ? this.pathname[0]
+      : this.pathname;
     this.__re__ = pathToRegexp(this.pathname, this.__keys__);
-    this.__toPath__ = pathToRegexp.compile(this.pathname);
+    this.__toPath__ = pathToRegexp.compile(pathname);
 
     this.match = this.match.bind(this);
     this.getLink = this.getLink.bind(this);
@@ -53,10 +60,13 @@ class RouteConfig {
    */
   getLink(params) {
     try {
-      params = params || {};
+      params = {
+        ...(this.params || {}),
+        ...(params || {}),
+      };
       return this.__toPath__(params);
     } catch (e) {
-      return this.pathname;
+      return Array.isArray(this.pathname) ? this.pathname[0] : this.pathname;
     }
   }
 }
@@ -87,6 +97,11 @@ export const routeConfig = {
     exact: true,
     label: "Details de l'événement",
     Component: EventPage,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
   }),
   groups: new RouteConfig({
     id: "groups",
@@ -99,6 +114,13 @@ export const routeConfig = {
       smallBackgroundColor: style.black25,
     },
   }),
+  groupMap: new RouteConfig({
+    id: "groupMap",
+    pathname: "/groupes/carte/",
+    exact: true,
+    label: "Carte des groupes",
+    Component: GroupMap,
+  }),
   fullGroup: new RouteConfig({
     id: "fullGroup",
     pathname: "/groupes/:groupPk/complet/",
@@ -107,12 +129,25 @@ export const routeConfig = {
     Component: FullGroupPage,
     hasLayout: false,
   }),
-  groupMap: new RouteConfig({
-    id: "groupMap",
-    pathname: "/groupes/carte/",
+  groupMessage: new RouteConfig({
+    id: "groupMessage",
+    pathname: "/groupes/:groupPk/messages/:messagePk/",
     exact: true,
-    label: "Carte des groupes",
-    Component: GroupMap,
+    label: "Message du groupe",
+    Component: GroupMessagePage,
+    hideFeedbackButton: true,
+  }),
+  groupDetails: new RouteConfig({
+    id: "groupDetails",
+    pathname: "/groupes/:groupPk/:activeTab?/",
+    exact: true,
+    label: "Details du groupe",
+    Component: GroupPage,
+    backLink: {
+      route: "groups",
+      label: "Retour à l'accueil",
+      isProtected: true,
+    },
   }),
   activities: new RouteConfig({
     id: "activities",

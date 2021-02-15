@@ -19,10 +19,13 @@ const Template = (args) => {
         zip: args.locationZip,
         state: args.locationState,
         country: args.locationCountry,
-        coordinates:
-          args.latitude && args.longitude
-            ? [args.latitude, args.longitude]
-            : null,
+        coordinates: {
+          type: "Point",
+          coordinates:
+            args.latitude && args.longitude
+              ? [args.latitude, args.longitude]
+              : null,
+        },
       }}
     />
   );
@@ -41,4 +44,11 @@ Default.args = {
   latitude: -97.14704,
   longitude: 49.8844,
   iconConfiguration: { color: "#49b37d", iconName: "book" },
+};
+
+export const NoMap = Template.bind({});
+NoMap.args = {
+  ...Default.args,
+  latitude: null,
+  longitude: null,
 };

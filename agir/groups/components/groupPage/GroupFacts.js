@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
 import { timeAgo } from "@agir/lib/utils/time";
 
 import Card from "./GroupPageCard";
@@ -10,22 +11,19 @@ import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 const StyledList = styled.ul`
   display: inline-flex;
   flex-flow: column wrap;
-  align-items: flex-start;
-  justify-content: flex-start;
   list-style: none;
   padding: 0;
+  margin: 0;
   font-size: 14px;
   font-weight: 400;
-  max-height: 6rem;
 
-  @media (max-width: 360px) {
-    flex-wrap: nowrap;
-    max-height: none;
+  @media (max-width: ${style.collapse}px) {
+    display: block;
   }
 
   li {
-    display: inline-flex;
-    width: 160px;
+    display: flex;
+    min-width: 160px;
     align-items: baseline;
     min-height: 26px;
 
@@ -52,7 +50,7 @@ const GroupFacts = (props) => {
   return (
     <Card title="À propos">
       <StyledList>
-        {eventCount && (
+        {!!eventCount && (
           <li>
             <FeatherIcon name="calendar" small inline />
             <span>
@@ -60,7 +58,7 @@ const GroupFacts = (props) => {
             </span>
           </li>
         )}
-        {memberCount && (
+        {!!memberCount && (
           <li>
             <FeatherIcon name="users" small inline />
             <span>
@@ -68,19 +66,19 @@ const GroupFacts = (props) => {
             </span>
           </li>
         )}
-        {isCertified && (
+        {!!isCertified && (
           <li>
             <FeatherIcon name="check-circle" small inline />
             <span>Groupe certifié</span>
           </li>
         )}
-        {creationDate && (
+        {!!creationDate && (
           <li>
             <FeatherIcon name="clock" small inline />
             <span>Créé {timeAgo(creationDate)}</span>
           </li>
         )}
-        {lastActivityDate && (
+        {!!lastActivityDate && (
           <li>
             <FeatherIcon name="rss" small inline />
             <span>Dernière activité&nbsp;: {timeAgo(lastActivityDate)}</span>

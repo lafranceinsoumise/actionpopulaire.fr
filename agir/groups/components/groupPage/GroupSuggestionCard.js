@@ -1,7 +1,9 @@
 import PropTypes from "prop-types";
 import React from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
+import { routeConfig } from "@agir/front/app/routes.config";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -16,9 +18,11 @@ const StyledCard = styled(Card)`
   max-width: 397px;
   border: 1px solid ${style.black100};
   box-shadow: none;
+  cursor: pointer;
 
   @media (max-width: ${style.collapse}px) {
     max-width: 294px;
+    width: calc(100vw - 4rem);
   }
 
   ${StyledMap} {
@@ -59,17 +63,28 @@ const StyledCard = styled(Card)`
 
 const GroupSuggestionCard = (props) => {
   const {
+    id,
     name,
-    url,
     location: { city, zip, coordinates },
     iconConfiguration,
   } = props;
 
+  const history = useHistory();
+  const handleClick = React.useCallback(() => {
+    id &&
+      routeConfig.groupDetails &&
+      history.push(routeConfig.groupDetails.getLink({ groupPk: id }));
+  }, [history, id]);
+
   return (
-    <StyledCard>
+    <StyledCard onClick={handleClick}>
       <StyledMap>
         <Map
-          center={coordinates}
+          center={
+            coordinates && Array.isArray(coordinates.coordinates)
+              ? coordinates.coordinates
+              : [0, 0]
+          }
           iconConfiguration={iconConfiguration}
           isStatic
         />
@@ -77,13 +92,16 @@ const GroupSuggestionCard = (props) => {
       <StyledBody>
         <h4>{name}</h4>
         <p>
-          <FeatherIcon name="map-pin" small inline />
+          {(zip || city) && <FeatherIcon name="map-pin" small inline />}
           &nbsp;
-          {(zip || city) && (
-            <span>{[zip, city].filter(Boolean).join(" ")}</span>
-          )}
+          {(zip || city) && <span>{`${zip} ${city}`.trim()}</span>}
         </p>
-        <Button as="a" href={url} small color="secondary">
+        <Button
+          as="Link"
+          to={routeConfig.groupDetails.getLink({ groupPk: id })}
+          small
+          color="secondary"
+        >
           Voir le groupe
         </Button>
       </StyledBody>
@@ -92,13 +110,15 @@ const GroupSuggestionCard = (props) => {
 };
 
 GroupSuggestionCard.propTypes = {
+  id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  url: PropTypes.string.isRequired,
   iconConfiguration: PropTypes.object,
   location: PropTypes.shape({
     city: PropTypes.string.isRequired,
     zip: PropTypes.string.isRequired,
-    coordinates: PropTypes.arrayOf(PropTypes.number).isRequired,
+    coordinates: PropTypes.shape({
+      coordinates: PropTypes.arrayOf(PropTypes.number),
+    }).isRequired,
   }).isRequired,
 };
 export default GroupSuggestionCard;

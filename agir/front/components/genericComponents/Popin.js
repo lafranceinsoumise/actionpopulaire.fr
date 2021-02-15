@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTransition, animated } from "react-spring";
 import styled from "styled-components";
 
@@ -12,12 +12,13 @@ const fadeInTransition = {
   delay: 200,
 };
 
-const BasePopin = styled(animated.p)`
+const BasePopin = styled(animated.div)`
   position: absolute;
+  z-index: 1;
   width: 250px;
   padding: 1rem;
   background-color: ${style.white};
-  border: 1px solid ${style.black200};
+  border: 1px solid ${style.black100};
   box-shadow: 0px 3px 2px rgba(0, 35, 44, 0.05);
 `;
 
@@ -25,19 +26,45 @@ const Popins = {
   "bottom-right": styled(BasePopin)`
     right: 0;
     bottom: 0;
-    transform: translateY(110%);
+    transform: translateY(100%);
+  `,
+  bottom: styled(BasePopin)`
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    transform: translateY(100%);
   `,
 };
 
 export const PopinContainer = (props) => {
-  const { isOpen, position = "bottom-right", children } = props;
+  const { isOpen, onDismiss, position = "bottom-right", children } = props;
 
+  const popinRef = useRef();
   const popinTransition = useTransition(isOpen, null, fadeInTransition);
-  const Popin = React.useMemo(() => Popins[position], [position]);
+  const Popin = useMemo(() => Popins[position], [position]);
+
+  const closeOnClickOutside = useCallback(
+    (event) => {
+      popinRef.current &&
+        !popinRef.current.contains(event.target) &&
+        onDismiss &&
+        onDismiss();
+    },
+    [onDismiss]
+  );
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      isOpen && document.addEventListener("click", closeOnClickOutside);
+      return () => {
+        document.removeEventListener("click", closeOnClickOutside);
+      };
+    }
+  }, [isOpen, closeOnClickOutside]);
 
   return popinTransition.map(({ item, key, props }) =>
     item ? (
-      <Popin key={key} style={props}>
+      <Popin ref={popinRef} key={key} style={props}>
         {children}
       </Popin>
     ) : null

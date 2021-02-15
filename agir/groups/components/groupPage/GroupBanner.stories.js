@@ -1,5 +1,7 @@
 import React from "react";
 
+import group from "./group.json";
+
 import GroupBanner from "./GroupBanner";
 
 const groupTypes = [
@@ -26,28 +28,19 @@ export default {
 };
 
 const Template = (args) => {
-  return (
-    <GroupBanner
-      {...args}
-      location={{
-        city: args.city,
-        zip: args.zip,
-        coordinates:
-          args.latitude && args.longitude
-            ? [args.latitude, args.longitude]
-            : null,
-      }}
-    />
-  );
+  return <GroupBanner {...args} />;
 };
 
 export const Default = Template.bind({});
 Default.args = {
-  name: "Comités d'appui et de travail pour une Vienne Insoumise",
-  type: groupTypes[0],
-  city: "Poitiers",
-  zip: "86000",
-  latitude: -97.14704,
-  longitude: 49.8844,
-  iconConfiguration: { color: "#49b37d", iconName: "book" },
+  ...group,
+};
+
+export const NoMap = Template.bind({});
+NoMap.args = {
+  ...group,
+  location: {
+    ...location,
+    coordinates: null,
+  },
 };

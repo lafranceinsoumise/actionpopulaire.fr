@@ -14,17 +14,46 @@ const StyledCard = styled(Card)`
   flex-flow: column nowrap;
   align-items: stretch;
   justify-content: flex-start;
-  padding: 1.5rem;
+  padding: 0;
+  border: none;
+
+  && {
+    @media (min-width: ${style.collapse}px) {
+      background-color: transparent;
+      margin-bottom: 1.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: ${style.collapse}px) {
+      padding: 1.5rem 1rem;
+      box-shadow: rgba(0, 35, 44, 0.5) 0px 0px 1px,
+        rgba(0, 35, 44, 0.08) 0px 2px 0px;
+    }
+  }
 
   ${({ highlight }) =>
     highlight
       ? `
     @media (min-width: ${style.collapse}px) {
+      padding: 1.5rem;
       border: none;
       background-color: white;
       background: linear-gradient(0, white 1.5rem, transparent 1.5rem),
         linear-gradient(180deg, white 1.5rem, transparent 1.5rem),
         linear-gradient(90deg, ${highlight} 3px, transparent 3px);
+    }
+  `
+      : ""}
+
+  ${({ outlined }) =>
+    outlined
+      ? `
+    @media (min-width: ${style.collapse}px) {
+      padding: 1.5rem;
+      border: 1px solid ${style.black100};
     }
   `
       : ""}
@@ -35,7 +64,7 @@ const StyledCard = styled(Card)`
     flex-flow: row nowrap;
     align-items: center;
     height: 1.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 
     &:empty {
       display: none;
@@ -105,5 +134,6 @@ GroupPageCard.propTypes = {
   title: PropTypes.string,
   editUrl: PropTypes.string,
   highlight: PropTypes.string,
+  outlined: PropTypes.bool,
 };
 export default GroupPageCard;

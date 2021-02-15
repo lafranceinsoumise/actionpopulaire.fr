@@ -48,7 +48,7 @@ const Card = styled.div`
     ${({ onClick }) =>
       onClick
         ? `
-      border-color: ${style.black200};
+      border-color: ${style.black100};
     `
         : ""}
   }

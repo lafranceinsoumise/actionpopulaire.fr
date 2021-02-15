@@ -6,5 +6,31 @@
 
   "ADD_TOASTS": "addToasts",
   "CLEAR_TOAST": "clearToast",
-  "CLEAR_ALL_TOASTS": "clearAllToasts"
+  "CLEAR_ALL_TOASTS": "clearAllToasts",
+
+  "SET_BACK_LINK_ACTION": "setBackLink",
+  "SET_TOP_BAR_RIGHT_LINK_ACTION": "setTopBarRightLink",
+
+  "SET_MESSAGES_ACTION": "setMessages",
+
+  "LOADING_MESSAGES_ACTION": "loadingMessages",
+  "REFRESHING_MESSAGES_ACTION": "refreshingMessages",
+  "REFRESHED_MESSAGES_ACTION": "refreshedMessages",
+  "SET_MESSAGES_ACTION": "setMessages",
+  "CLEAR_MESSAGES_ACTION": "clearMessages",
+  "SET_MESSAGE_ACTION": "setMessage",
+  "CREATING_MESSAGE_ACTION": "creatingMessage",
+  "CREATED_MESSAGE_ACTION": "createdMessage",
+  "UPDATING_MESSAGE_ACTION": "updatingMessage",
+  "UPDATED_MESSAGE_ACTION": "updatedMessage",
+  "DELETING_MESSAGE_ACTION": "deletingMessage",
+  "DELETED_MESSAGE_ACTION": "deletedMessage",
+  "REPORTING_MESSAGE_ACTION": "reportingMessage",
+  "REPORTED_MESSAGE_ACTION": "reportedMessage",
+  "CREATING_COMMENT_ACTION": "creatingComment",
+  "CREATED_COMMENT_ACTION": "createdComment",
+  "DELETING_COMMENT_ACTION": "deletingComment",
+  "DELETED_COMMENT_ACTION": "deletedComment",
+  "REPORTING_COMMENT_ACTION": "reportingComment",
+  "REPORTED_COMMENT_ACTION": "reportedComment"
 }

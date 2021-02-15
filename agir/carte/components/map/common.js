@@ -13,6 +13,7 @@ import Feature from "ol/Feature";
 import VectorSource from "ol/source/Vector";
 import Point from "ol/geom/Point";
 import VectorLayer from "ol/layer/Vector";
+import Zoom from "ol/control/Zoom";
 import fontawesome from "fontawesome";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -147,7 +148,7 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
   feature.setStyle(styles);
   const map = new Map({
     target,
-    controls: [],
+    controls: isStatic ? [] : [new Zoom()],
     interactions: isStatic ? [] : undefined,
     layers: [
       new TileLayer({

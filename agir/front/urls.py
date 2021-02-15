@@ -28,9 +28,37 @@ urlpatterns = [
     ),
     path("groupes/carte/", views.GroupMapView.as_view(), name="group_map_page"),
     path(
+        "groupes/<uuid:pk>/", views.SupportGroupDetailView.as_view(), name="view_group"
+    ),
+    path(
         "groupes/<uuid:pk>/complet/",
         views.FullSupportGroupView.as_view(),
         name="full_group",
+    ),
+    path(
+        "groupes/<uuid:pk>/agenda/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_events",
+    ),
+    path(
+        "groupes/<uuid:pk>/comptes-rendus/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_reports",
+    ),
+    path(
+        "groupes/<uuid:pk>/accueil/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_info",
+    ),
+    path(
+        "groupes/<uuid:pk>/messages/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_messages",
+    ),
+    path(
+        "groupes/<uuid:pk>/messages/<uuid:message_pk>/",
+        views.SupportGroupMessageDetailView.as_view(),
+        name="view_group_message",
     ),
     path("activite/", views.ActivityView.as_view(), name="list_activities",),
     path(

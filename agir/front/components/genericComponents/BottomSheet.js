@@ -1,6 +1,6 @@
 import { transparentize } from "polished";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useCallback, useRef } from "react";
 import { BottomSheet as RSBS } from "react-spring-bottom-sheet";
 import styled from "styled-components";
 
@@ -41,11 +41,36 @@ const StyledBottomSheet = styled(RSBS)`
 `;
 
 export const BottomSheet = (props) => {
-  const { isOpen, onDismiss, children } = props;
+  const { isOpen, onDismiss, shouldDismissOnClick, children } = props;
+
+  const contentRef = useRef();
+
+  const handleSpringStart = useCallback(
+    (e) => {
+      let content = contentRef.current;
+      if (!content || !shouldDismissOnClick) {
+        return;
+      }
+      const targets = content.querySelectorAll("a, button");
+      if (e.type === "OPEN") {
+        targets.forEach((element) => {
+          element.addEventListener("click", onDismiss);
+        });
+      }
+      if (e.type === "CLOSE") {
+        targets.forEach((element) => {
+          element.removeEventListener("click", onDismiss);
+        });
+      }
+    },
+    [onDismiss, shouldDismissOnClick]
+  );
+
   return (
     <StyledBottomSheet
       open={isOpen}
       onDismiss={onDismiss}
+      onSpringStart={handleSpringStart}
       defaultSnap={({ snapPoints, minHeight, lastSnap }) =>
         lastSnap || Math.min(minHeight, snapPoints[0])
       }
@@ -60,7 +85,7 @@ export const BottomSheet = (props) => {
         </StyledBottomSheetFooter>
       }
     >
-      {children}
+      <div ref={contentRef}>{children}</div>
     </StyledBottomSheet>
   );
 };
@@ -68,6 +93,7 @@ export const BottomSheet = (props) => {
 BottomSheet.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onDismiss: PropTypes.func.isRequired,
+  shouldDismissOnClick: PropTypes.bool,
   children: PropTypes.node,
 };
 export default BottomSheet;

@@ -1,11 +1,10 @@
-from django.urls import path
+from django.urls import path, include
 from django.views.generic import RedirectView
 
 from . import views
 
 uuid = r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}"
 simple_id = r"[0-9]+"
-
 
 urlpatterns = [
     # groups views
@@ -23,9 +22,6 @@ urlpatterns = [
         "api/groupes/sous-types/",
         views.GroupSubtypesView.as_view(),
         name="api_group_subtypes",
-    ),
-    path(
-        "groupes/<uuid:pk>/", views.SupportGroupDetailView.as_view(), name="view_group"
     ),
     path(
         "groupes/<uuid:pk>/icalendar/",
@@ -108,4 +104,54 @@ urlpatterns = [
         name="report_invitation_abuse",
     ),
     path("api/groupes/", views.UserGroupsView.as_view(), name="api_user_groups"),
+    path(
+        "api/groupes/<uuid:pk>/",
+        views.GroupDetailAPIView.as_view(),
+        name="api_group_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/suggestions/",
+        views.NearGroupsAPIView.as_view(),
+        name="api_near_groups_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/evenements/",
+        views.GroupEventsAPIView.as_view(),
+        name="api_group_events_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/evenements/passes/",
+        views.GroupPastEventsAPIView.as_view(),
+        name="api_group_past_events_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/evenements/a-venir/",
+        views.GroupUpcomingEventsAPIView.as_view(),
+        name="api_group_upcoming_events_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/evenements/compte-rendus/",
+        views.GroupPastEventReportsAPIView.as_view(),
+        name="api_group_past_event_reports_view",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/messages/",
+        views.GroupMessagesAPIView.as_view(),
+        name="api_group_message_list",
+    ),
+    path(
+        "api/groupes/messages/<uuid:pk>/",
+        views.GroupSingleMessageAPIView.as_view(),
+        name="api_group_message_detail",
+    ),
+    path(
+        "api/groupes/messages/<uuid:pk>/comments/",
+        views.GroupMessageCommentsAPIView.as_view(),
+        name="api_group_message_comment_list",
+    ),
+    path(
+        "api/groupes/messages/comments/<uuid:pk>/",
+        views.GroupSingleCommentAPIView.as_view(),
+        name="api_group_message_comment_detail",
+    ),
 ]

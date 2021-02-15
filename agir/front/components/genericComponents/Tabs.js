@@ -9,7 +9,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 const StyledMenu = styled.nav`
   position: sticky;
   z-index: 1;
-  top: -1px;
+  top: ${({ $stickyOffset }) => ($stickyOffset || 0) - 1}px;
   left: 0;
   right: 0;
   display: flex;
@@ -54,33 +54,74 @@ const StyledTabs = styled.div`
   overflow-y: auto;
 `;
 
-export const Tabs = (props) => {
-  const { children, tabs } = props;
+const useTabs = (props) => {
+  const {
+    tabs,
+    activeTab,
+    activeTabIndex,
+    onTabChange,
+    onNextTab,
+    onPrevTab,
+  } = props;
+
+  const isControlled =
+    !!activeTab &&
+    typeof activeTabIndex === "number" &&
+    typeof onTabChange === "function";
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const handleClick = useCallback((e) => {
-    setActiveIndex(e.target.dataset.index);
-  }, []);
+  const handleClick = useCallback(
+    (e) => {
+      const index = e.target.dataset.index;
+      if (isControlled) {
+        onTabChange && onTabChange(tabs[index]);
+      } else {
+        setActiveIndex(index);
+      }
+    },
+    [tabs, onTabChange, isControlled]
+  );
 
   const handleNext = useCallback(() => {
-    setActiveIndex((state) => Math.min(state + 1, tabs.length - 1));
-  }, [tabs.length]);
+    if (isControlled) {
+      onNextTab();
+    } else {
+      setActiveIndex((state) => Math.min(state + 1, tabs.length - 1));
+    }
+  }, [isControlled, onNextTab, tabs.length]);
 
   const handlePrev = useCallback(() => {
-    setActiveIndex((state) => Math.max(0, state - 1));
-  }, []);
+    if (isControlled) {
+      onPrevTab();
+    } else {
+      setActiveIndex((state) => Math.max(0, state - 1));
+    }
+  }, [isControlled, onPrevTab]);
 
   const active = useMemo(() => tabs[activeIndex] || tabs[0], [
     activeIndex,
     tabs,
   ]);
 
+  return {
+    active: isControlled ? activeTab : active,
+    activeIndex: isControlled ? activeTabIndex : activeIndex,
+    handleClick,
+    handleNext,
+    handlePrev,
+  };
+};
+
+export const Tabs = (props) => {
+  const { children, tabs, stickyOffset } = props;
+
+  const { active, activeIndex, handleClick, handleNext, handlePrev } = useTabs(
+    props
+  );
+
   const ActiveStep = useMemo(() => {
-    if (Array.isArray(children)) {
-      return children.find((child) => child?.props?.id === active.id);
-    }
-    return children || null;
-  }, [active, children]);
+    return (Array.isArray(children) && children[activeIndex]) || null;
+  }, [activeIndex, children]);
 
   const [{ xy }, set] = useSpring(() => ({ xy: [0, 0] }));
 
@@ -103,7 +144,7 @@ export const Tabs = (props) => {
 
   return (
     <>
-      <StyledMenu>
+      <StyledMenu $stickyOffset={stickyOffset}>
         {tabs.map((tab, i) => (
           <button
             key={tab.id}
@@ -120,10 +161,13 @@ export const Tabs = (props) => {
         <StyledContent
           {...bind(50)}
           style={{
-            transform: xy.interpolate((x) => `translate3d(${x}px, 0px, 0)`),
+            transform:
+              xy && xy.interpolate((x) => `translate3d(${x}px, 0px, 0)`),
           }}
         >
-          {ActiveStep}
+          {typeof ActiveStep === "function"
+            ? ActiveStep({ active, handleNext, handlePrev })
+            : ActiveStep}
         </StyledContent>
       </StyledTabs>
     </>
@@ -136,6 +180,12 @@ Tabs.propTypes = {
       label: PropTypes.string,
     })
   ).isRequired,
-  children: PropTypes.node,
+  activeTab: PropTypes.object,
+  activeTabIndex: PropTypes.number,
+  onTabChange: PropTypes.func,
+  onNextTab: PropTypes.func,
+  onPrevTab: PropTypes.func,
+  stickyOffset: PropTypes.number,
+  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 };
 export default Tabs;

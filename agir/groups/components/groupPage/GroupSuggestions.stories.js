@@ -1,5 +1,6 @@
 import React from "react";
 
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import GroupSuggestions from "./GroupSuggestions";
 
 export default {
@@ -8,7 +9,13 @@ export default {
 };
 
 const Template = (args) => {
-  return <GroupSuggestions {...args} />;
+  return (
+    <TestGlobalContextProvider
+      value={{ routes: { groupMapPage: "#groupMapPage" } }}
+    >
+      <GroupSuggestions {...args} />
+    </TestGlobalContextProvider>
+  );
 };
 
 export const Default = Template.bind({});
@@ -22,7 +29,7 @@ Default.args = {
       location: {
         city: "Poitiers",
         zip: "86000",
-        coordinates: [-97.14704, 49.8844],
+        coordinates: { coordinates: [-97.14704, 49.8844] },
       },
     },
     {
@@ -33,7 +40,7 @@ Default.args = {
       location: {
         city: "Poitiers",
         zip: "86000",
-        coordinates: [-97.14704, 49.8844],
+        coordinates: { coordinates: [-97.14704, 49.8844] },
       },
     },
     {
@@ -44,7 +51,7 @@ Default.args = {
       location: {
         city: "Poitiers",
         zip: "86000",
-        coordinates: [-97.14704, 49.8844],
+        coordinates: { coordinates: [-97.14704, 49.8844] },
       },
     },
   ],

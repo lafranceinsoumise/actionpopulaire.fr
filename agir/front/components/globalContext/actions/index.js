@@ -1,4 +1,4 @@
-import ACTION_TYPE from "./actionTypes";
+import ACTION_TYPE from "@agir/front/globalContext/actionTypes";
 
 export const initFromScriptTag = () => {
   const globalContextScript = document.getElementById("globalContext");
@@ -44,6 +44,18 @@ export const clearToast = (toastId) => ({
 });
 export const clearAllToasts = () => ({
   type: ACTION_TYPE.CLEAR_ALL_TOASTS,
+});
+
+// BACK LINK
+export const setBackLink = (backLink) => ({
+  type: ACTION_TYPE.SET_BACK_LINK_ACTION,
+  backLink,
+});
+
+// TOP BAR RIGHT LINK
+export const setTopBarRightLink = (topBarRightLink) => ({
+  type: ACTION_TYPE.SET_TOP_BAR_RIGHT_LINK_ACTION,
+  topBarRightLink,
 });
 
 const createDispatch = (dispatchFunction) => (action) => {

@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
-import React, { useLayoutEffect, useRef } from "react";
+import React, { forwardRef, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import { mergeRefs } from "@agir/lib/utils/react";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
@@ -90,7 +91,7 @@ const StyledField = styled.label`
   }
 `;
 
-const TextField = (props) => {
+const TextField = forwardRef((props, ref) => {
   const {
     id,
     type,
@@ -101,16 +102,21 @@ const TextField = (props) => {
     helpText,
     maxLength,
     textArea,
+    hasCounter,
     ...rest
   } = props;
 
   const textAreaRef = useRef(null);
   useLayoutEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = "inherit";
-      textAreaRef.current.style.height =
-        textAreaRef.current.scrollHeight + 4 + "px";
+    const textArea = textAreaRef.current;
+    if (value && textArea) {
+      textArea.style.height = textArea.scrollHeight + 4 + "px";
     }
+    return () => {
+      if (textArea) {
+        textArea.style.height = "inherit";
+      }
+    };
   }, [value]);
 
   return (
@@ -125,15 +131,17 @@ const TextField = (props) => {
       {textArea ? (
         <StyledTextArea
           {...rest}
-          ref={textAreaRef}
+          ref={mergeRefs(ref, textAreaRef)}
           id={id}
           type={type}
           onChange={onChange}
           value={value}
+          rows={1}
         />
       ) : (
         <StyledInput
           {...rest}
+          ref={ref}
           id={id}
           type={type}
           onChange={onChange}
@@ -144,14 +152,14 @@ const TextField = (props) => {
         <FeatherIcon name="alert-circle" />
       </StyledIcon>
       <StyledError>{error}</StyledError>
-      {typeof maxLength === "number" ? (
+      {hasCounter && typeof maxLength === "number" ? (
         <StyledCounter $invalid={!!error || value.length > maxLength}>
           {value.length}/{maxLength}
         </StyledCounter>
       ) : null}
     </StyledField>
   );
-};
+});
 
 TextField.propTypes = {
   value: PropTypes.any,
@@ -163,11 +171,15 @@ TextField.propTypes = {
   error: PropTypes.string,
   maxLength: PropTypes.number,
   textArea: PropTypes.bool,
+  hasCounter: PropTypes.bool,
 };
 
 TextField.defaultProps = {
   type: "text",
   textArea: false,
+  hasCounter: true,
 };
+
+TextField.displayName = "TextField";
 
 export default TextField;

@@ -1,19 +1,55 @@
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.generics import ListAPIView
+from rest_framework import status
+from rest_framework.exceptions import NotFound
+from rest_framework.generics import (
+    ListAPIView,
+    RetrieveAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+    UpdateAPIView,
+    DestroyAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
+from agir.events.models import Event
+from agir.events.serializers import EventSerializer
 from agir.groups.filters import GroupAPIFilterSet
 from agir.groups.models import SupportGroup, SupportGroupSubtype
 from agir.groups.serializers import (
     SupportGroupLegacySerializer,
     SupportGroupSubtypeSerializer,
     SupportGroupSerializer,
+    SupportGroupDetailSerializer,
 )
 from agir.lib.pagination import APIPaginator
+from agir.groups.tasks import send_message_notification
 
-__all__ = ["GroupSearchAPIView", "GroupSubtypesView", "UserGroupsView"]
+__all__ = [
+    "GroupSearchAPIView",
+    "GroupSubtypesView",
+    "UserGroupsView",
+    "GroupDetailAPIView",
+    "NearGroupsAPIView",
+    "GroupEventsAPIView",
+    "GroupPastEventsAPIView",
+    "GroupUpcomingEventsAPIView",
+    "GroupPastEventReportsAPIView",
+    "GroupMessagesAPIView",
+    "GroupSingleMessageAPIView",
+    "GroupMessageCommentsAPIView",
+    "GroupSingleCommentAPIView",
+]
+
+from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
+from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
+
+from agir.msgs.serializers import (
+    SupportGroupMessageSerializer,
+    MessageCommentSerializer,
+)
 
 
 class GroupSearchAPIView(ListAPIView):
@@ -57,3 +93,231 @@ class UserGroupsView(ListAPIView):
                 group.membership = None
 
         return person_groups
+
+
+class GroupDetailAPIView(RetrieveAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = SupportGroupDetailSerializer
+    queryset = SupportGroup.objects.active()
+
+
+class NearGroupsAPIView(ListAPIView):
+    serializer_class = SupportGroupDetailSerializer
+    queryset = SupportGroup.objects.active()
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=["id", "name", "iconConfiguration", "location",], **kwargs
+        )
+
+    def get_queryset(self):
+        if self.supportgroup.coordinates is None:
+            return SupportGroup.objects.none()
+
+        groups = (
+            SupportGroup.objects.active()
+            .exclude(pk=self.supportgroup.pk)
+            .exclude(coordinates__isnull=True)
+        )
+
+        if self.supportgroup.is_2022:
+            groups = groups.is_2022()
+
+        groups = groups.annotate(
+            distance=Distance("coordinates", self.supportgroup.coordinates)
+        ).order_by("distance")
+
+        return groups[:3]
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.active().get(pk=pk)
+        except SupportGroup.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GroupEventsAPIView(ListAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = EventSerializer
+    queryset = Event.objects.listed()
+
+    def get_queryset(self):
+        events = (
+            self.supportgroup.organized_events.listed()
+            .distinct()
+            .order_by("-start_time")
+        )
+        return events
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=pk)
+        except SupportGroup.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GroupUpcomingEventsAPIView(ListAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = EventSerializer
+    queryset = Event.objects.listed().upcoming()
+
+    def get_queryset(self):
+        events = (
+            self.supportgroup.organized_events.listed()
+            .upcoming()
+            .distinct()
+            .order_by("start_time")
+        )
+        return events
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=pk)
+        except SupportGroup.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GroupPastEventsAPIView(ListAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = EventSerializer
+    queryset = Event.objects.listed().past()
+    pagination_class = APIPaginator
+
+    def get_queryset(self):
+        events = (
+            self.supportgroup.organized_events.listed()
+            .past()
+            .distinct()
+            .order_by("-start_time")
+        )
+        return events
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=pk)
+        except SupportGroup.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GroupPastEventReportsAPIView(ListAPIView):
+    permission_ = ("groups.view_supportgroup",)
+    serializer_class = EventSerializer
+    queryset = Event.objects.listed().past()
+
+    def get_queryset(self):
+        events = (
+            self.supportgroup.organized_events.listed()
+            .past()
+            .exclude(report_content="")
+            .distinct()
+            .order_by("-start_time")
+        )
+        return events
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=pk)
+        except SupportGroup.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class GroupMessagesPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "POST": []}
+    object_perms_map = {
+        "GET": ["msgs.view_supportgroupmessage"],
+        "POST": ["msgs.add_supportgroupmessage"],
+    }
+
+
+class GroupMessagesAPIView(ListCreateAPIView):
+    serializer_class = SupportGroupMessageSerializer
+    permission_classes = (IsAuthenticated, GroupMessagesPermissions)
+    pagination_class = APIPaginator
+
+    def initial(self, request, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=kwargs["pk"])
+        except SupportGroup.DoesNotExist:
+            raise NotFound()
+
+        self.check_object_permissions(request, self.supportgroup)
+
+        super().initial(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.supportgroup.messages.filter(deleted=False).order_by("-created")
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=self.serializer_class.LIST_FIELDS, **kwargs
+        )
+
+    def perform_create(self, serializer):
+        message = serializer.save(
+            author=self.request.user.person, supportgroup=self.supportgroup
+        )
+        send_message_notification.delay(message.pk)
+
+
+class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = SupportGroupMessage.objects.filter(deleted=False)
+    serializer_class = SupportGroupMessageSerializer
+    permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=self.serializer_class.DETAIL_FIELDS, **kwargs
+        )
+
+    def perform_destroy(self, instance):
+        instance.deleted = True
+        instance.save()
+
+
+class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "POST": []}
+    object_perms_map = {
+        "GET": ["msgs.view_supportgroupmessage"],
+        "POST": ["msgs.add_supportgroupmessagecomment"],
+    }
+
+
+class GroupMessageCommentsAPIView(ListCreateAPIView):
+    serializer_class = MessageCommentSerializer
+    permission_classes = (IsAuthenticated, GroupMessageCommentsPermissions)
+
+    def initial(self, request, *args, **kwargs):
+        try:
+            self.message = SupportGroupMessage.objects.get(pk=kwargs["pk"])
+        except SupportGroupMessage.DoesNotExist:
+            raise NotFound()
+
+        self.check_object_permissions(request, self.message)
+
+        super().initial(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.message.comments.filter(deleted=False)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user.person, message=self.message)
+
+
+class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
+    queryset = SupportGroupMessageComment.objects.filter(deleted=False)
+    serializer_class = MessageCommentSerializer
+    permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
+
+    def perform_destroy(self, instance):
+        instance.deleted = True
+        instance.save()

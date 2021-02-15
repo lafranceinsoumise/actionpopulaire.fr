@@ -1,10 +1,13 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import { getGenderedWord } from "@agir/lib/utils/display";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+
 import Card from "./GroupPageCard";
 
 const StyledReferentSection = styled.section`
@@ -43,9 +46,12 @@ const StyledContactSection = styled.p`
   line-height: 1.5;
   display: flex;
   flex-flow: column nowrap;
+  margin: 0;
 
   && strong {
     font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
   }
 
   && a {
@@ -57,7 +63,23 @@ const StyledContactSection = styled.p`
 `;
 
 const GroupContactCard = (props) => {
-  const { referents, contact } = props;
+  const { referents, contact, routes } = props;
+
+  const referentTitle = useMemo(() => {
+    if (!Array.isArray(referents) || referents.length === 0) {
+      return "";
+    }
+    const gender = referents.reduce((genders, referent) => {
+      const gender = referent.gender || "?";
+      return gender === genders ? genders : genders + gender;
+    }, "");
+    return `${getGenderedWord(
+      gender,
+      "Animateur·ice",
+      "Animatrice",
+      "Animateur"
+    )}${referents.length > 1 ? "s" : ""}`;
+  }, [referents]);
 
   if (!referents && !contact) {
     return null;
@@ -71,7 +93,7 @@ const GroupContactCard = (props) => {
             {referents.map((referent, i) => (
               <React.Fragment key={i}>
                 {i > 0 ? " " : null}
-                <Avatar {...referent} />
+                <Avatar {...referent} name={referent.displayName} />
               </React.Fragment>
             ))}
           </p>
@@ -79,16 +101,31 @@ const GroupContactCard = (props) => {
             {referents.map((referent, i) => (
               <React.Fragment key={i}>
                 {i > 0 ? " & " : null}
-                <strong>{referent.name}</strong>
+                <strong>{referent.displayName}</strong>
               </React.Fragment>
             ))}
           </p>
-          <p>Animateur·ices de l’équipe</p>
+          <p>{referentTitle} de l’équipe</p>
         </StyledReferentSection>
       ) : null}
       {contact ? (
         <StyledContactSection>
-          {contact.name && <strong>Contacter {contact.name}&nbsp;:</strong>}
+          {contact.name && (
+            <strong>
+              Contact&ensp;
+              {routes && routes.edit && (
+                <a href={routes.edit}>
+                  <RawFeatherIcon
+                    name="edit-2"
+                    color={style.black1000}
+                    width="1rem"
+                    height="1rem"
+                  />
+                </a>
+              )}
+            </strong>
+          )}
+          {contact.name && <span>{contact.name}</span>}
           {contact.email && (
             <a href={`mailto:${contact.email}`}>{contact.email}</a>
           )}
@@ -102,8 +139,9 @@ const GroupContactCard = (props) => {
 GroupContactCard.propTypes = {
   referents: PropTypes.arrayOf(
     PropTypes.shape({
-      name: PropTypes.string.isRequired,
+      displayName: PropTypes.string.isRequired,
       avatar: PropTypes.string,
+      gender: PropTypes.string,
     })
   ),
   contact: PropTypes.shape({
@@ -111,5 +149,6 @@ GroupContactCard.propTypes = {
     email: PropTypes.string,
     phone: PropTypes.string,
   }),
+  routes: PropTypes.object,
 };
 export default GroupContactCard;

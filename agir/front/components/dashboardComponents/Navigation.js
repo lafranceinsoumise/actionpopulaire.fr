@@ -315,7 +315,7 @@ const MenuLink = (props) => {
                 to={
                   link.to && routeConfig[link.to]
                     ? routeConfig[link.to].pathname
-                    : undefined
+                    : link.to || undefined
                 }
               >
                 {link.label}

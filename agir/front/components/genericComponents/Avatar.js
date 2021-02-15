@@ -9,7 +9,6 @@ const UI_AVATARS_BASE_URL = "https://eu.ui-avatars.com/api/";
 const UI_AVATARS_BASE_CONFIG = {
   size: 512,
   rounded: true,
-  bold: true,
   background: style.primary100,
   color: style.primary500,
   format: "svg",
@@ -26,8 +25,8 @@ const getAvatarImageURL = (name, image) => {
   }
   return null;
 };
-const Avatar = styled.span.attrs(({ name, avatar }) => ({
-  image: getAvatarImageURL(name, avatar),
+const Avatar = styled.span.attrs(({ name, displayName, avatar }) => ({
+  image: getAvatarImageURL(name || displayName, avatar),
   title: name,
 }))`
   border-radius: 100%;
@@ -42,6 +41,7 @@ const Avatar = styled.span.attrs(({ name, avatar }) => ({
 `;
 Avatar.propTypes = {
   name: PropTypes.string,
+  displayName: PropTypes.string,
   avatar: PropTypes.string,
 };
 export default Avatar;

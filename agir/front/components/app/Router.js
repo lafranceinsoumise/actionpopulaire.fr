@@ -1,8 +1,25 @@
 import PropTypes from "prop-types";
-import React, { Suspense, useMemo } from "react";
-import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";
+import React, { Suspense, useEffect, useMemo } from "react";
+import {
+  BrowserRouter,
+  Switch,
+  Route,
+  useParams,
+  useLocation,
+} from "react-router-dom";
+
+import {
+  useDispatch,
+  useSelector,
+} from "@agir/front/globalContext/GlobalContext";
+import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
+import {
+  setBackLink,
+  setTopBarRightLink,
+} from "@agir/front/globalContext/actions";
 
 import Layout from "@agir/front/dashboardComponents/Layout";
+import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 import ErrorBoundary from "./ErrorBoundary";
 import routes, { BASE_PATH } from "./routes.config";
 
@@ -11,16 +28,39 @@ const NotFound = () => <div>404 NOT FOUND !</div>;
 const Page = (props) => {
   const { Component, routeConfig, ...rest } = props;
   const routeParams = useParams();
+  const dispatch = useDispatch();
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    isSessionLoaded &&
+      routeConfig.backLink &&
+      dispatch(setBackLink(routeConfig.backLink));
+  }, [pathname, isSessionLoaded, dispatch, routeConfig.backLink]);
 
   useMemo(() => {
     typeof window !== "undefined" && window.scrollTo && window.scrollTo(0, 0);
   }, []);
 
+  useMemo(() => {
+    dispatch(setBackLink(null));
+    dispatch(setTopBarRightLink(null));
+    //eslint-disable-next-line
+  }, [pathname]);
+
   if (!routeConfig.hasLayout) {
     return (
       <ErrorBoundary>
         <Suspense fallback={<div />}>
-          <Component {...routeParams} {...rest} data={[]} />
+          <Component
+            {...(routeConfig.routeProps || {})}
+            {...routeParams}
+            {...rest}
+            data={[]}
+          />
+          {routeConfig.hideFeedbackButton ? null : (
+            <FeedbackButton style={{ bottom: "1rem" }} />
+          )}
         </Suspense>
       </ErrorBoundary>
     );
@@ -30,7 +70,13 @@ const Page = (props) => {
     <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
       <ErrorBoundary>
         <Suspense fallback={<div />}>
-          <Component {...routeParams} {...rest} data={[]} />
+          <Component
+            {...(routeConfig.routeProps || {})}
+            {...routeParams}
+            {...rest}
+            data={[]}
+          />
+          {routeConfig.hideFeedbackButton ? null : <FeedbackButton />}
         </Suspense>
       </ErrorBoundary>
     </Layout>

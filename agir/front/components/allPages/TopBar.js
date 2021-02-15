@@ -1,19 +1,24 @@
-import React from "react";
 import PropTypes from "prop-types";
+import React from "react";
 import styled from "styled-components";
-import FeatherIcon, { RawFeatherIcon } from "../genericComponents/FeatherIcon";
+
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import {
+  getRoutes,
+  getUser,
+  getIsSessionLoaded,
+  getBackLink,
+  getTopBarRightLink,
+} from "@agir/front/globalContext/reducers";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import LogoAP from "../genericComponents/LogoAP";
-import {
-  useGlobalContext,
-  useSelector,
-} from "@agir/front/globalContext/GlobalContext";
-import { getRoutes, getUser } from "@agir/front/globalContext/reducers";
-import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
-import logger from "@agir/lib/utils/logger";
-const log = logger(__filename);
+import Link from "@agir/front/app/Link";
+import LogoAP from "@agir/front/genericComponents/LogoAP";
+import FeatherIcon, {
+  RawFeatherIcon,
+} from "@agir/front/genericComponents/FeatherIcon";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 const TopBarBar = styled.div`
   position: fixed;
@@ -67,7 +72,7 @@ const HorizontalFlex = styled.div`
   }
 `;
 
-const MenuLink = styled.a`
+const MenuLink = styled(Link)`
   display: flex;
   align-items: center;
   color: ${style.black1000};
@@ -148,20 +153,51 @@ const SearchBarInput = styled.input.attrs(() => ({ type: "text", name: "q" }))`
   }
 `;
 
-const ConnectionInfo = ({ user, routes }) =>
-  !user ? (
-    <>
-      <MenuLink href={routes.login} className="small-only">
-        <FeatherIcon name="user" />
-      </MenuLink>
-      <MenuLink href={routes.login} className="large-only">
-        <span>Connexion</span>
-      </MenuLink>
-      <MenuLink href={routes.join} className="large-only">
-        <span>Inscription</span>
-      </MenuLink>
-    </>
-  ) : (
+const TopBarRightLink = ({ user, routes, settingsLink }) => {
+  if (!user) {
+    return (
+      <>
+        <MenuLink href={routes.login} className="small-only">
+          <FeatherIcon name="user" />
+        </MenuLink>
+        <MenuLink href={routes.login} className="large-only">
+          <span>Connexion</span>
+        </MenuLink>
+        <MenuLink href={routes.join} className="large-only">
+          <span>Inscription</span>
+        </MenuLink>
+      </>
+    );
+  }
+  if (settingsLink) {
+    return (
+      <>
+        <MenuLink
+          to={settingsLink.to}
+          href={settingsLink.href}
+          route={settingsLink.route}
+          className="small-only"
+          title={settingsLink.label}
+          aria-label={settingsLink.label}
+        >
+          <FeatherIcon name="settings" />
+        </MenuLink>
+        <MenuLink
+          className="large-only"
+          href={
+            user.isInsoumise
+              ? routes.personalInformation
+              : routes.contactConfiguration
+          }
+        >
+          <FeatherIcon name="user" />
+          <span>{user.displayName}</span>
+        </MenuLink>
+      </>
+    );
+  }
+
+  return (
     <MenuLink
       href={
         user.isInsoumise
@@ -173,8 +209,8 @@ const ConnectionInfo = ({ user, routes }) =>
       <span className="large-only">{user.displayName}</span>
     </MenuLink>
   );
-
-ConnectionInfo.propTypes = {
+};
+TopBarRightLink.propTypes = {
   user: PropTypes.shape({
     displayName: PropTypes.string,
     isInsoumise: PropTypes.bool,
@@ -192,6 +228,12 @@ ConnectionInfo.propTypes = {
       ),
     ])
   ),
+  settingsLink: PropTypes.shape({
+    to: PropTypes.string,
+    href: PropTypes.string,
+    route: PropTypes.string,
+    label: PropTypes.string,
+  }),
 };
 
 export const PureTopBar = () => {
@@ -199,14 +241,31 @@ export const PureTopBar = () => {
 
   const routes = useSelector(getRoutes);
   const user = useSelector(getUser);
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
+  const backLink = useSelector(getBackLink);
+  const topBarRightLink = useSelector(getTopBarRightLink);
 
   return (
     <TopBarBar>
       <TopBarContainer>
-        <MenuLink href={routes.search} className="small-only">
-          <FeatherIcon name="search" />
-        </MenuLink>
-
+        {isSessionLoaded ? (
+          backLink ? (
+            <MenuLink
+              to={backLink.to}
+              href={backLink.href}
+              route={backLink.route}
+              className="small-only"
+              title={backLink.label}
+              aria-label={backLink.label}
+            >
+              <FeatherIcon name="arrow-left" />
+            </MenuLink>
+          ) : (
+            <MenuLink href={routes.search} className="small-only">
+              <FeatherIcon name="search" />
+            </MenuLink>
+          )
+        ) : null}
         <HorizontalFlex className="grow justify">
           <MenuLink href={routes.dashboard}>
             <LogoAP height="3.5rem" />
@@ -247,7 +306,11 @@ export const PureTopBar = () => {
               <FeatherIcon name="help-circle" />
               <span>Aide</span>
             </MenuLink>
-            <ConnectionInfo routes={routes} user={user} />
+            <TopBarRightLink
+              settingsLink={(isSessionLoaded && topBarRightLink) || undefined}
+              routes={routes}
+              user={user}
+            />
           </HorizontalFlex>
         </PageFadeIn>
       </TopBarContainer>
