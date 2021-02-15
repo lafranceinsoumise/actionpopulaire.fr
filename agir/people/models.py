@@ -485,9 +485,9 @@ class Person(
         if not value and self.subscribed:
             self.newsletters.remove(self.NEWSLETTER_LFI)
 
-    def get_display_name(self):
+    def get_display_name(self, fallback="Quelqu'un"):
         full_name = "%s %s" % (self.first_name, self.last_name)
-        return full_name.strip() or "Quelqu'un"
+        return full_name.strip() or fallback
 
     def get_full_name(self):
         """

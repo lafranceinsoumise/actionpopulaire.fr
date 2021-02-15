@@ -409,7 +409,9 @@ const MessageCard = (props) => {
         <StyledHeader>
           <Avatar {...author} />
           <h4>
-            <strong>{author.displayName}</strong>
+            <strong>
+              {author.displayName || (isAuthor && "Moi") || "Quelqu'un"}
+            </strong>
             <em onClick={handleClick} style={{ cursor: "pointer" }}>
               {created ? timeAgo(created) : null}
             </em>

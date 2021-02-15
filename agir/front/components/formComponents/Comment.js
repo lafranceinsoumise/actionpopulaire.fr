@@ -200,7 +200,9 @@ const Comment = (props) => {
       <StyledMessage>
         <StyledMessageContent>
           <StyledMessageHeader>
-            <strong>{author.displayName}</strong>
+            <strong>
+              {author.displayName || (isAuthor && "Moi") || "Quelqu'un"}
+            </strong>
             <em>{created ? timeAgo(created) : null}</em>
           </StyledMessageHeader>
           <article>

@@ -12,9 +12,15 @@ from agir.people.serializers import PersonSerializer
 class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
     created = serializers.DateTimeField(read_only=True)
-    author = PersonSerializer(read_only=True, fields=["id", "displayName"])
+    author = serializers.SerializerMethodField()
     text = serializers.CharField()
     image = serializers.ImageField(required=False)
+
+    def get_author(self, obj):
+        return {
+            "id": str(obj.author.id),
+            "displayName": obj.author.get_display_name(fallback=""),
+        }
 
 
 class MessageCommentSerializer(BaseMessageSerializer):
