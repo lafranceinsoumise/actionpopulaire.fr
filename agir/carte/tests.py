@@ -74,10 +74,10 @@ class EventsMapTestCase(TestCase):
         self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
 
-    def test_2022_only_person_can_search_through_2022_events_only(self):
+    def test_2022_only_person_can_search_through_all_events(self):
         self.client.force_login(self.person_2022.role)
         res = self.client.get(reverse("carte:event_list") + "?var=nsp_only")
-        self.assertNotContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
 
 
@@ -104,8 +104,8 @@ class GroupsMapTestCase(TestCase):
         self.assertContains(res, self.group_insoumis.name)
         self.assertContains(res, self.group_2022.name)
 
-    def test_2022_only_person_can_search_through_2022_groups_only(self):
+    def test_2022_only_person_can_search_through_all_groups(self):
         self.client.force_login(self.person_2022.role)
         res = self.client.get(reverse("carte:group_list") + "?var=nsp_only")
-        self.assertNotContains(res, self.group_insoumis.name)
+        self.assertContains(res, self.group_insoumis.name)
         self.assertContains(res, self.group_2022.name)

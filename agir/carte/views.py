@@ -91,9 +91,6 @@ class EventsView(ListAPIView):
     def get_queryset(self):
         qs = Event.objects.listed()
 
-        if self.request.GET.get("var") == "nsp_only":
-            qs = qs.is_2022()
-
         return qs.filter(coordinates__isnull=False).select_related("subtype")
 
     @method_decorator(cache.cache_page(300))
@@ -133,8 +130,6 @@ class GroupsView(ListAPIView):
             .filter(coordinates__isnull=False)
             .prefetch_related("subtypes")
         )
-        if self.request.GET.get("var") == "nsp_only":
-            qs = qs.is_2022()
 
         return (
             qs.filter(coordinates__isnull=False)
@@ -196,13 +191,6 @@ class AbstractListMapView(MapViewMixin, TemplateView):
 
         if self.request.GET.get("include_hidden"):
             params["include_hidden"] = "1"
-
-        if (
-            self.request.user.is_authenticated
-            and hasattr(self.request.user, "person")
-            and self.request.user.person.is_2022_only
-        ):
-            params["var"] = "nsp_only"
 
         subtype_info = [
             dict_to_camelcase(st.get_subtype_information()) for st in subtypes
