@@ -15,7 +15,11 @@ import GroupDonation from "@agir/groups/groupPage/GroupDonation";
 import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
 import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
-import { AgendaRoutePreview, MessagesRoutePreview } from "./RoutePreviews";
+import {
+  ShortAgendaRoutePreview,
+  AgendaRoutePreview,
+  MessagesRoutePreview,
+} from "./RoutePreviews";
 
 const StyledShareCard = styled.div`
   box-shadow: rgba(0, 35, 44, 0.5) 0px 0px 1px,
@@ -31,7 +35,11 @@ const MobileInfoRoute = (props) => {
   return (
     <>
       {group && (group.hasUpcomingEvents || group.hasPastEvents) ? (
-        <AgendaRoutePreview {...props} />
+        group.isMember ? (
+          <ShortAgendaRoutePreview {...props} />
+        ) : (
+          <AgendaRoutePreview {...props} />
+        )
       ) : null}
       {group && group.hasMessages ? <MessagesRoutePreview {...props} /> : null}
       <GroupContactCard {...group} />
@@ -62,7 +70,11 @@ const DesktopInfoRoute = (props) => {
   return (
     <>
       {group && (group.hasUpcomingEvents || group.hasPastEvents) ? (
-        <AgendaRoutePreview {...props} />
+        group.isMember ? (
+          <ShortAgendaRoutePreview {...props} />
+        ) : (
+          <AgendaRoutePreview {...props} />
+        )
       ) : null}
       {group && group.hasMessages ? <MessagesRoutePreview {...props} /> : null}
       {group &&
