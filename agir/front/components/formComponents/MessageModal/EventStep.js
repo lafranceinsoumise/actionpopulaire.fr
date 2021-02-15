@@ -186,7 +186,7 @@ const EventStep = (props) => {
 
   return (
     <StyledWrapper>
-      <h4>De quoi souhaitez-vous parler&nbsp;?</h4>
+      <h4>Associer un événement au message&nbsp;?</h4>
       {hasEmailWarning && (
         <StyledWarning>
           <span>
