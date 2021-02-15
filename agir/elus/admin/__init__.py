@@ -398,7 +398,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                     "communautaire",
                     "is_insoumise",
                     "is_2022",
-                    "is_2022_appel_elus",
+                    "signataire_appel",
                     "reference",
                     "commentaires",
                 )
