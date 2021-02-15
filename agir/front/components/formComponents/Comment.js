@@ -91,6 +91,7 @@ const StyledAction = styled.div``;
 const StyledMessage = styled.div``;
 const StyledWrapper = styled(animated.div)`
   display: flex;
+  flex-flow: row nowrap;
   max-width: 100%;
 
   & + & {
@@ -107,10 +108,9 @@ const StyledWrapper = styled(animated.div)`
 
   ${StyledMessage} {
     display: flex;
-    flex: 1 1 auto;
     border-radius: 8px;
     background-color: ${style.black50};
-    flex-flow: row nowrap;
+    flex-direction: row;
     padding: 0.75rem;
   }
 
@@ -142,7 +142,6 @@ const StyledWrapper = styled(animated.div)`
   }
 
   ${StyledMessageContent} {
-    flex: 1 1 auto;
     font-size: 0.875rem;
 
     strong {
@@ -151,7 +150,6 @@ const StyledWrapper = styled(animated.div)`
     }
 
     article {
-      flex: 1 1 auto;
       margin: 0;
       padding: 0;
       font-size: inherit;
@@ -169,6 +167,7 @@ const StyledWrapper = styled(animated.div)`
 
   ${StyledAction} {
     flex: 0 0 auto;
+    margin-left: 1rem;
   }
 `;
 
