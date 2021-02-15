@@ -5,7 +5,7 @@ from rest_framework import serializers
 from . import models
 from .actions import get_promo_codes
 from .models import Membership
-from ..front.serializer_utils import RoutesField
+from ..front.serializer_utils import MediaURLField, RoutesField
 from agir.lib.geo import get_commune
 from agir.lib.serializers import (
     FlexibleFieldsMixin,
@@ -144,6 +144,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isFull = serializers.SerializerMethodField()
     location = LocationSerializer(source="*")
     contact = ContactMixinSerializer(source="*")
+    image = MediaURLField()
 
     referents = serializers.SerializerMethodField()
     # TODO: add links to SupporGroup model
