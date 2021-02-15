@@ -240,17 +240,30 @@ class EventTypeStep extends FormStep {
 class OrganizerStep extends FormStep {
   constructor(props) {
     super(props);
-    this.setIndividual = this.setIndividual.bind(this);
+    this.setForUsers = this.setForUsers.bind(this);
+
+    if (this.props.isInsoumise && !this.props.is2022) {
+      this.defaultForUsers = "I";
+    } else if (this.props.is2022 && !this.props.isInsoumise) {
+      this.defaultForUsers = "2";
+    }
   }
 
-  setIndividual(forUsers) {
-    this.props.setFields({ organizerGroup: null, forUsers });
+  componentDidMount() {
+    this.props.setFields({ forUsers: this.defaultForUsers });
+
+    if (this.props.groups.length === 0 && this.defaultForUsers) {
+      this.props.jumpToStep(1);
+    }
+  }
+
+  setForUsers(forUsers) {
+    this.props.setFields({ forUsers });
   }
 
   setGroup(group) {
     this.props.setFields({
-      organizerGroup: group.id,
-      forUsers: group.forUsers,
+      organizerGroup: group && group.id,
     });
   }
 
@@ -260,18 +273,6 @@ class OrganizerStep extends FormStep {
 
   render() {
     const { organizerGroup, forUsers } = this.props.fields;
-
-    let defaultForUsers;
-    if (this.props.isInsoumise && !this.props.is2022) {
-      defaultForUsers = "I";
-    } else if (this.props.is2022 && !this.props.isInsoumise) {
-      defaultForUsers = "2";
-    }
-
-    if (this.props.groups.length === 0 && defaultForUsers === "2") {
-      this.setIndividual(defaultForUsers);
-      this.props.jumpToStep(1);
-    }
 
     return (
       <div className="row padtopmore padbottommore">
@@ -287,7 +288,7 @@ class OrganizerStep extends FormStep {
           <h3>L'événement est organisé</h3>
           {this.props.groups.length > 0 && (
             <>
-              <h4>par un groupe d'action</h4>
+              <h4>1. par</h4>
               <SubtypeSelector>
                 {this.props.groups.map((group) => (
                   <CheckBox
@@ -299,45 +300,39 @@ class OrganizerStep extends FormStep {
                     onClick={() => this.setGroup(group)}
                   />
                 ))}
-              </SubtypeSelector>
-              <h4>à titre individuel</h4>
-            </>
-          )}
-          <SubtypeSelector>
-            {this.props.is2022 && this.props.isInsoumise ? (
-              <>
                 <CheckBox
                   iconName="user"
-                  color="#0098b6"
-                  active={!organizerGroup && forUsers === "I"}
-                  label="pour la France insoumise"
-                  onClick={() => this.setIndividual("I")}
+                  color="#333"
+                  key={"user"}
+                  active={organizerGroup === null}
+                  label="À titre individuel"
+                  onClick={() => this.setGroup(null)}
                 />
+              </SubtypeSelector>
+            </>
+          )}
+          {this.props.is2022 && this.props.isInsoumise ? (
+            <>
+              <h4>2. pour</h4>
+              <SubtypeSelector>
                 <CheckBox
                   iconName="user"
                   color="#571AFF"
-                  active={!organizerGroup && forUsers === "2"}
-                  label="pour la campagne « Nous Sommes Pour ! »"
-                  onClick={() => this.setIndividual("2")}
+                  active={forUsers === "2"}
+                  label="la campagne « Nous Sommes Pour ! » pour 2022"
+                  onClick={() => this.setForUsers("2")}
                 />
-              </>
-            ) : (
-              <>
                 <CheckBox
                   iconName="user"
                   color="#0098b6"
-                  active={!organizerGroup}
-                  label={
-                    defaultForUsers === "I"
-                      ? "pour la France insoumise"
-                      : "pour la campagne « Nous Sommes Pour ! »"
-                  }
-                  onClick={() => this.setIndividual(defaultForUsers)}
+                  active={forUsers === "I"}
+                  label="une autre campagne de la France insoumise"
+                  onClick={() => this.setForUsers("I")}
                 />
-              </>
-            )}
-          </SubtypeSelector>
-          {defaultForUsers === "I" && (
+              </SubtypeSelector>
+            </>
+          ) : null}
+          {this.defaultForUsers === "I" && (
             <p>
               Pour organiser des événements « Nous Sommes Pour ! », vous devez
               d'abord parrainer la candidature sur{" "}
