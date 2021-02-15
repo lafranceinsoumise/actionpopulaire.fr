@@ -116,19 +116,14 @@ export const GroupMessages = (props) => {
           Messages
         </PageFadeIn>
       </h3>
-      <PageFadeIn
-        ready={!isLoading && Array.isArray(messages)}
-        wait={<Skeleton boxes={1} style={{ height: "3.375rem", margin: 0 }} />}
-      >
-        {Array.isArray(messages) && messages.length > 0 && writeNewMessage ? (
-          <ResponsiveLayout
-            MobileLayout={FloatingMessageModalTrigger}
-            DesktopLayout={MessageModalTrigger}
-            onClick={writeNewMessage}
-            outlined
-          />
-        ) : null}
-      </PageFadeIn>
+      {Array.isArray(messages) && writeNewMessage ? (
+        <ResponsiveLayout
+          MobileLayout={FloatingMessageModalTrigger}
+          DesktopLayout={MessageModalTrigger}
+          onClick={writeNewMessage}
+          outlined
+        />
+      ) : null}
       {saveMessage ? (
         <MessageModal
           shouldShow={hasMessageModal}

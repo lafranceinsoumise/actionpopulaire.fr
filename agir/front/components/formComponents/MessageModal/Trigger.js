@@ -26,6 +26,7 @@ const StyledFloatingButton = styled.button`
   bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 20;
 
   &:focus,
   &:hover {

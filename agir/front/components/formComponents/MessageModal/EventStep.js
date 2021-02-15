@@ -74,6 +74,7 @@ const StyledOption = styled.button`
 
     strong {
       font-weight: 600;
+      color: ${style.primary500};
     }
 
     em {
@@ -100,14 +101,18 @@ const StyledOption = styled.button`
 const StyledWarning = styled.p`
   display: flex;
   flex-flow: column nowrap;
-  padding: 0.75rem;
+  padding: 0 1rem;
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 0 1.5rem 1rem;
-  border: 1px solid ${style.black100};
+  border-left: 2px solid ${style.primary500};
 
   strong {
     font-weight: 600;
+  }
+
+  span + span {
+    margin-top: 0.5rem;
   }
 `;
 const StyledWrapper = styled.div`
@@ -131,7 +136,7 @@ const StyledWrapper = styled.div`
   }
 
   h4 {
-    color: ${style.primary500};
+    color: ${style.black1000};
     font-weight: 600;
     font-size: 1rem;
     line-height: 1.5;
@@ -154,7 +159,7 @@ const EventStepOption = (props) => {
 
   return (
     <StyledOption onClick={handleClick}>
-      <Icon size={20} />
+      <Icon size={20} color={style.primary500} />
       <span>
         <strong>{event.name}</strong>
         <br />
@@ -162,7 +167,7 @@ const EventStepOption = (props) => {
           {event.startTime ? displayHumanDateString(event.startTime) : null}
         </em>
       </span>
-      <RawFeatherIcon name="chevron-right" />
+      <RawFeatherIcon name="chevron-right" color={style.primary500} />
     </StyledOption>
   );
 };
@@ -181,19 +186,20 @@ const EventStep = (props) => {
 
   return (
     <StyledWrapper>
+      <h4>Associer un événement au message&nbsp;?</h4>
       {hasEmailWarning && (
         <StyledWarning>
-          <strong>
-            Tous vos membres recevront un e-mail avec le contenu de votre
-            message et pourront y répondre&nbsp;!
-          </strong>
+          <span>
+            Tous vos membres <strong>recevront un e-mail</strong> avec le
+            contenu de votre message et{" "}
+            <strong>pourront y répondre&nbsp;!</strong>
+          </span>
           <span>
             (Il ne recevront pas d’e-mails pour chaque commentaire ou
             modification de messages)
           </span>
         </StyledWarning>
       )}
-      <h4>De quoi souhaitez-vous parler&nbsp;?</h4>
       {events.map((event) => (
         <EventStepOption
           key={event.id}

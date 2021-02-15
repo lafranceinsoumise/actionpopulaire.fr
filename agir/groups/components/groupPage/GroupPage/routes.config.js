@@ -110,7 +110,7 @@ export const useTabs = (props, isMobile = true) => {
   }, [handleTabChange, activeTabIndex, tabs]);
 
   useEffect(() => {
-    shouldRedirect && handleTabChange(activeRoute);
+    shouldRedirect && handleTabChange(activeRoute, null, true);
   }, [shouldRedirect, handleTabChange, activeRoute]);
 
   useEffect(() => {
