@@ -166,10 +166,19 @@ const StyledHeader = styled.div`
     font-size: inherit;
     display: flex;
     flex-flow: column nowrap;
+    font-size: 0.875rem;
 
     strong {
-      font-weight: 600;
+      font-weight: 700;
       font-size: inherit;
+      vertical-align: baseline;
+
+      a {
+        margin-left: 0.25rem;
+        text-decoration: underline;
+        font-weight: 500;
+        line-height: inherit;
+      }
     }
 
     em {
@@ -411,6 +420,10 @@ const MessageCard = (props) => {
           <h4>
             <strong>
               {author.displayName || (isAuthor && "Moi") || "Quelqu'un"}
+              &nbsp;
+              {!author.displayName && isAuthor && (
+                <Link route="personalInformation">Ajouter mon nom</Link>
+              )}
             </strong>
             <em onClick={handleClick} style={{ cursor: "pointer" }}>
               {created ? timeAgo(created) : null}

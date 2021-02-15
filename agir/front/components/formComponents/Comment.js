@@ -8,6 +8,7 @@ import { timeAgo } from "@agir/lib/utils/time";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Link from "@agir/front/app/Link";
 import InlineMenu from "@agir/front/genericComponents/InlineMenu";
 
 const StyledInlineMenuItems = styled.div`
@@ -118,14 +119,23 @@ const StyledWrapper = styled(animated.div)`
     font-size: 0.875rem;
     display: flex;
     flex-direction: row;
+    align-items: baseline;
 
     @media (max-width: ${style.collapse}px) {
       flex-direction: column;
+      align-items: flex-start;
     }
 
     strong {
-      font-weight: 600;
-      font-size: inherit;
+      font-weight: 700;
+      font-size: 0.875rem;
+
+      a {
+        margin-left: 0.25rem;
+        text-decoration: underline;
+        font-weight: 500;
+        line-height: inherit;
+      }
     }
 
     em {
@@ -202,6 +212,9 @@ const Comment = (props) => {
           <StyledMessageHeader>
             <strong>
               {author.displayName || (isAuthor && "Moi") || "Quelqu'un"}
+              {!author.displayName && isAuthor && (
+                <Link route="personalInformation">Ajouter mon nom</Link>
+              )}
             </strong>
             <em>{created ? timeAgo(created) : null}</em>
           </StyledMessageHeader>
