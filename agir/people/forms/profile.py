@@ -242,7 +242,7 @@ class InformationConfidentialityForm(Form):
             format_html(
                 """<p>{description}<a href="{link_url}">{link_text}</a></p>""",
                 description="Vous pouvez en savoir plus sur le traitement de vos données personnelles en lisant ",
-                link_url="https://lafranceinsoumise.fr/mentions-legales/",
+                link_url="https://infos.actionpopulaire.fr/mentions-legales/",
                 link_text="nos mentions légales.",
             )
         )
