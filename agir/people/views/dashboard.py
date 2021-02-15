@@ -59,7 +59,6 @@ class SearchView(TemplateView):
         ):
             upcoming_events = upcoming_events.is_2022()
             past_events = past_events.is_2022()
-            support_groups = support_groups.is_2022()
 
         support_groups = support_groups.search(q).order_by("name")[:20]
 
