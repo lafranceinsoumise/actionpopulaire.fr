@@ -129,7 +129,7 @@ const StyledButton = styled.button`
 `;
 
 export const FloatingTrigger = (props) => {
-  const { onClick } = props;
+  const { label, onClick } = props;
 
   return (
     <StyledFloatingButton onClick={onClick}>
@@ -140,13 +140,13 @@ export const FloatingTrigger = (props) => {
         height="1rem"
         strokeWidth={3}
       />
-      <span>Nouveau message</span>
+      <span>{label || "Nouveau message"}</span>
     </StyledFloatingButton>
   );
 };
 
 const Trigger = (props) => {
-  const { onClick, outlined } = props;
+  const { label, onClick, outlined } = props;
 
   return (
     <StyledButton onClick={onClick} $outlined={outlined}>
@@ -157,11 +157,12 @@ const Trigger = (props) => {
         height="13px"
         strokeWidth={3}
       />
-      <span>Envoyer un message au groupe</span>
+      <span>{label || "Envoyer un message au groupe"}</span>
     </StyledButton>
   );
 };
 FloatingTrigger.propTypes = Trigger.propTypes = {
+  label: PropTypes.string,
   onClick: PropTypes.func.isRequired,
   outlined: PropTypes.bool,
 };

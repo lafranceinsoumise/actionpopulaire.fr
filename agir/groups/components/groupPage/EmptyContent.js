@@ -189,7 +189,7 @@ export const EmptyReports = () => (
   </EmptyContent>
 );
 
-export const EmptyMessages = ({ onClickSendMessage }) => (
+export const EmptyMessages = ({ onClickSendMessage, goToMessages }) => (
   <EmptyContent
     style={{
       marginTop: "1.5rem",
@@ -200,7 +200,7 @@ export const EmptyMessages = ({ onClickSendMessage }) => (
   >
     <EmptyContentIllustration aria-hidden="true" />
     <h6>Nouveau</h6>
-    <h3>Lancez une première conversation dans votre groupe&nbsp;!</h3>
+    <h3>Envoyez un premier message aux membres de votre groupe&nbsp;!</h3>
     <ul>
       <li>
         <RawFeatherIcon name="heart" />
@@ -236,9 +236,18 @@ export const EmptyMessages = ({ onClickSendMessage }) => (
         <MessageModalTrigger onClick={onClickSendMessage} />
       </div>
     ) : null}
+    {goToMessages ? (
+      <div style={{ marginTop: "1.5rem" }}>
+        <MessageModalTrigger
+          onClick={goToMessages}
+          label="Voir l'onglet messages"
+        />
+      </div>
+    ) : null}
   </EmptyContent>
 );
 EmptyMessages.propTypes = {
   onClickSendMessage: PropTypes.func,
+  goToMessages: PropTypes.func,
 };
 export default EmptyContent;

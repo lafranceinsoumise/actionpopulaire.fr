@@ -15,6 +15,8 @@ import GroupDonation from "@agir/groups/groupPage/GroupDonation";
 import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
 import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
+import { EmptyMessages } from "@agir/groups/groupPage/EmptyContent";
+
 import {
   ShortAgendaRoutePreview,
   AgendaRoutePreview,
@@ -31,7 +33,7 @@ const StyledShareCard = styled.div`
 `;
 
 const MobileInfoRoute = (props) => {
-  const { group, groupSuggestions } = props;
+  const { group, groupSuggestions, goToMessagesTab } = props;
   return (
     <>
       {group && (group.hasUpcomingEvents || group.hasPastEvents) ? (
@@ -41,7 +43,11 @@ const MobileInfoRoute = (props) => {
           <AgendaRoutePreview {...props} />
         )
       ) : null}
-      {group && group.hasMessages ? <MessagesRoutePreview {...props} /> : null}
+      {group && group.hasMessages ? (
+        <MessagesRoutePreview {...props} />
+      ) : group.isManager ? (
+        <EmptyMessages goToMessages={goToMessagesTab} />
+      ) : null}
       <GroupContactCard {...group} />
       <GroupOrders {...group} />
       <GroupDescription {...group} />
@@ -65,7 +71,7 @@ const MobileInfoRoute = (props) => {
 };
 
 const DesktopInfoRoute = (props) => {
-  const { group } = props;
+  const { group, goToMessagesTab } = props;
 
   return (
     <>
@@ -76,7 +82,11 @@ const DesktopInfoRoute = (props) => {
           <AgendaRoutePreview {...props} />
         )
       ) : null}
-      {group && group.hasMessages ? <MessagesRoutePreview {...props} /> : null}
+      {group && group.hasMessages ? (
+        <MessagesRoutePreview {...props} />
+      ) : group.isManager ? (
+        <EmptyMessages goToMessages={goToMessagesTab} />
+      ) : null}
       {group &&
       (group.hasUpcomingEvents || group.hasPastEvents || group.hasMessages) ? (
         <>
