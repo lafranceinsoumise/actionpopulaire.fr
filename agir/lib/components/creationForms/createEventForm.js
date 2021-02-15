@@ -288,7 +288,7 @@ class OrganizerStep extends FormStep {
           <h3>L'événement est organisé</h3>
           {this.props.groups.length > 0 && (
             <>
-              <h4>1. par</h4>
+              <h4>Par&nbsp;:</h4>
               <SubtypeSelector>
                 {this.props.groups.map((group) => (
                   <CheckBox
@@ -313,7 +313,7 @@ class OrganizerStep extends FormStep {
           )}
           {this.props.is2022 && this.props.isInsoumise ? (
             <>
-              <h4>2. pour</h4>
+              <h4>Pour&nbsp;:</h4>
               <SubtypeSelector>
                 <CheckBox
                   iconName="user"
