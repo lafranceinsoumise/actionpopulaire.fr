@@ -73,6 +73,19 @@ const GroupLocation = (props) => {
     coordinates,
   } = location;
 
+  if (
+    !name &&
+    !address1 &&
+    !address2 &&
+    !city &&
+    !zip &&
+    !state &&
+    !country &&
+    !coordinates
+  ) {
+    return null;
+  }
+
   return (
     <Card title="Accès" editUrl={routes && routes.edit} outlined>
       {coordinates && Array.isArray(coordinates.coordinates) ? (
@@ -102,6 +115,8 @@ const GroupLocation = (props) => {
               href={`https://www.google.com/maps/dir/?api=1&destination=${
                 coordinates.coordinates[1] + "," + coordinates.coordinates[0]
               }`}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Itinéraire
             </a>
