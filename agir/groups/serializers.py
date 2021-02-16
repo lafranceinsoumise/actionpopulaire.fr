@@ -253,6 +253,10 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
                     query={"active": "invitation"},
                     kwargs={"pk": obj.pk},
                 )
+                routes["orders"] = "https://materiel.lafranceinsoumise.fr/"
+            else:
+                routes["orders"] = "https://noussommespour.fr/boutique/"
+
             if obj.is_certified:
                 routes["financement"] = front_url(
                     "manage_group",
