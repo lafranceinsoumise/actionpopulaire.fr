@@ -10,7 +10,7 @@ import Modal from "@agir/front/genericComponents/Modal";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import GroupLocation from "@agir/groups/groupPage/GroupLocation";
 
-import bannerMapBackground from "@agir/groups/groupPage/images/banner-map-background.svg";
+import defaultGroupImage from "@agir/groups/groupPage/images/banner-map-background.svg";
 
 const StyledModalBody = styled.div`
   display: flex;
@@ -55,6 +55,7 @@ const StyledModalBody = styled.div`
     padding-bottom: 2.5rem;
   }
 `;
+const StyledGroupImage = styled.div``;
 const StyledMap = styled.div``;
 const StyledBanner = styled.div`
   display: flex;
@@ -117,29 +118,51 @@ const StyledBanner = styled.div`
       outline: none;
       border: none;
       cursor: pointer;
+      text-decoration: underline;
     }
   }
 
   ${StyledMap} {
     flex: 0 0 424px;
     clip-path: polygon(100% 0%, 100% 100%, 0% 100%, 11% 0%);
-    cursor: pointer;
+    position: relative;
+    background-size: 0 0;
 
     @media (max-width: ${style.collapse}px) {
       clip-path: none;
       width: 100%;
       height: 155px;
       flex-basis: 155px;
-      background-image: url(${bannerMapBackground});
+      background-size: contain;
       background-position: center center;
-      background-size: cover;
       background-repeat: no-repeat;
+    }
+
+    & > * {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    ${StyledGroupImage} {
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: contain;
+
+      &:first-child {
+        background-size: cover;
+        opacity: 0.2;
+      }
     }
   }
 `;
 
 const GroupBanner = (props) => {
-  const { name, type, location, commune, iconConfiguration } = props;
+  const { name, type, location, commune, iconConfiguration, image } = props;
   const [shouldShowModal, setShouldShowModal] = useState();
 
   const subtitle = useMemo(
@@ -155,22 +178,41 @@ const GroupBanner = (props) => {
     setShouldShowModal(false);
   }, []);
 
+  const hasLocation = !!location;
   const hasMap =
     location.coordinates && Array.isArray(location.coordinates.coordinates);
 
   return (
     <StyledBanner>
-      <StyledMap onClick={hasMap ? openModal : undefined}>
-        {hasMap && (
+      <StyledMap
+        onClick={hasMap && !image ? openModal : undefined}
+        style={{
+          backgroundColor: image ? style.white : style.secondary500,
+          backgroundImage: !image ? `url(${defaultGroupImage})` : undefined,
+          cursor: hasMap && !image ? "pointer" : "default",
+        }}
+      >
+        {image ? (
+          <>
+            <StyledGroupImage
+              aria-hidden="true"
+              style={{ backgroundImage: `url(${image})` }}
+            />
+            <StyledGroupImage
+              aria-hidden="true"
+              style={{ backgroundImage: `url(${image})` }}
+            />
+          </>
+        ) : hasMap ? (
           <Map
             zoom={11}
             center={location.coordinates.coordinates}
             iconConfiguration={iconConfiguration}
             isStatic
           />
-        )}
+        ) : null}
       </StyledMap>
-      {hasMap && (
+      {hasLocation && (
         <Modal shouldShow={shouldShowModal} onClose={closeModal} noScroll>
           <StyledModalBody>
             <button onClick={closeModal} aria-label="Fermer">
@@ -183,7 +225,11 @@ const GroupBanner = (props) => {
       <header>
         <h2>{name}</h2>
         <h4>
-          {hasMap ? <button onClick={openModal}>{subtitle}</button> : subtitle}
+          {hasLocation ? (
+            <button onClick={openModal}>{subtitle}</button>
+          ) : (
+            subtitle
+          )}
         </h4>
       </header>
     </StyledBanner>
@@ -192,6 +238,7 @@ const GroupBanner = (props) => {
 GroupBanner.propTypes = {
   name: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
+  image: PropTypes.string,
   iconConfiguration: PropTypes.object,
   location: PropTypes.shape({
     name: PropTypes.string,
