@@ -86,7 +86,7 @@ const IndexLinkAnchor = styled(Link)`
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  margin: 20px 0 20px -1rem;
+  margin: 20px 0;
 
   &,
   &:hover,
@@ -166,7 +166,14 @@ const MobileLayout = (props) => {
 
 const DesktopLayout = (props) => {
   return (
-    <Container style={{ margin: "4rem auto", padding: "0 4rem" }}>
+    <Container
+      style={{
+        margin: "0 auto 4rem",
+        padding: "0 4rem",
+        maxWidth: "1336px",
+        width: "100%",
+      }}
+    >
       {props.logged ? <IndexLink /> : null}
       <Row gutter={32}>
         <Column grow>
