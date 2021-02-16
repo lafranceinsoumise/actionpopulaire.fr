@@ -39,8 +39,8 @@ const MobileInlineMenu = (props) => (
 );
 
 const DesktopInlineMenu = (props) => (
-  <StyledInlineMenu onMouseEnter={props.onOpen} onMouseLeave={props.onDismiss}>
-    <Trigger type="button" $size={props.triggerSize} disabled>
+  <StyledInlineMenu>
+    <Trigger type="button" onClick={props.onOpen} $size={props.triggerSize}>
       <RawFeatherIcon name={props.triggerIconName} />
     </Trigger>
     <Popin {...props}>{props.children}</Popin>
