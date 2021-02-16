@@ -5,8 +5,6 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { parseDiscountCodes } from "@agir/groups/groupPage/utils";
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getRouteById } from "@agir/front/globalContext/reducers";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "./GroupPageCard";
@@ -34,8 +32,8 @@ const StyledCard = styled(Card)`
 `;
 
 const GroupOrders = (props) => {
-  const { isManager, discountCodes } = props;
-  const orderURL = useSelector((state) => getRouteById(state, "materiel"));
+  const { isManager, discountCodes, routes } = props;
+  const orderURL = routes && routes.orders;
   const codes = useMemo(() => parseDiscountCodes(discountCodes), [
     discountCodes,
   ]);
@@ -69,5 +67,8 @@ GroupOrders.propTypes = {
     })
   ),
   isManager: PropTypes.bool,
+  routes: PropTypes.shape({
+    orders: PropTypes.string,
+  }),
 };
 export default GroupOrders;

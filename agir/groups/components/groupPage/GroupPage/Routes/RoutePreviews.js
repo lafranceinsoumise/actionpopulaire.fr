@@ -101,6 +101,92 @@ const RoutePreview = styled.div`
 `;
 
 export const AgendaRoutePreview = (props) => {
+  const { group, upcomingEvents, pastEvents, goToAgendaTab } = props;
+
+  const nextEvents = useMemo(() => {
+    if (Array.isArray(upcomingEvents) && upcomingEvents.length > 0) {
+      return upcomingEvents.slice(0, 3);
+    }
+    return [];
+  }, [upcomingEvents]);
+
+  const lastEvents = useMemo(() => {
+    if (
+      Array.isArray(pastEvents) &&
+      pastEvents.length > 0 &&
+      nextEvents.length < 3
+    ) {
+      return pastEvents.slice(0, 3 - nextEvents.length);
+    }
+    return [];
+  }, [nextEvents.length, pastEvents]);
+
+  return (
+    <>
+      {group.hasUpcomingEvents && (
+        <RoutePreview>
+          <PageFadeIn
+            ready={nextEvents.length + lastEvents.length > 0}
+            wait={<Skeleton boxes={1} />}
+          >
+            {nextEvents.length > 0 && (
+              <>
+                <h3>
+                  <span>À venir</span>
+                  {goToAgendaTab && (
+                    <button onClick={goToAgendaTab}>
+                      Agenda{" "}
+                      <RawFeatherIcon
+                        name="arrow-right"
+                        width="1rem"
+                        height="1rem"
+                        strokeWidth={3}
+                      />
+                    </button>
+                  )}
+                </h3>
+                <GroupEventList events={nextEvents} />
+              </>
+            )}
+          </PageFadeIn>
+        </RoutePreview>
+      )}
+      {group.hasPastEvents && (
+        <RoutePreview>
+          <PageFadeIn
+            ready={nextEvents.length + lastEvents.length > 0}
+            wait={<Skeleton boxes={1} />}
+          >
+            {lastEvents.length > 0 && (
+              <>
+                <h3>
+                  <span>
+                    Dernier{lastEvents.length > 1 ? "s" : ""} événement
+                    {lastEvents.length > 1 ? "s" : ""}
+                  </span>
+                  {goToAgendaTab && (
+                    <button onClick={goToAgendaTab}>
+                      Agenda{" "}
+                      <RawFeatherIcon
+                        name="arrow-right"
+                        width="1rem"
+                        height="1rem"
+                        strokeWidth={3}
+                      />
+                    </button>
+                  )}
+                </h3>
+                <GroupEventList events={lastEvents} />
+              </>
+            )}
+          </PageFadeIn>
+        </RoutePreview>
+      )}
+    </>
+  );
+};
+
+export const ShortAgendaRoutePreview = (props) => {
   const { upcomingEvents, pastEvents, goToAgendaTab } = props;
 
   const { lastEvent, isUpcoming } = useMemo(() => {
@@ -135,7 +221,8 @@ export const AgendaRoutePreview = (props) => {
     </RoutePreview>
   );
 };
-AgendaRoutePreview.propTypes = {
+ShortAgendaRoutePreview.propTypes = AgendaRoutePreview.propTypes = {
+  group: PropTypes.object,
   upcomingEvents: PropTypes.arrayOf(PropTypes.object),
   pastEvents: PropTypes.arrayOf(PropTypes.object),
   goToAgendaTab: PropTypes.func,

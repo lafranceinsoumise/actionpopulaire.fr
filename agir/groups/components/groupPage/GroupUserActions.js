@@ -200,6 +200,22 @@ const StyledContent = styled.div`
   }
 `;
 
+const StyledAdminButton = styled.div`
+  width: 100%;
+  margin-bottom: 0.75rem;
+  text-align: center;
+
+  ${Button} {
+    justify-content: center;
+    width: 100%;
+    cursor: pointer;
+
+    @media (max-width: ${style.collapse}px) {
+      width: auto;
+    }
+  }
+`;
+
 const ManagerActions = (props) => {
   const { is2022 = false, routes } = props;
 
@@ -295,17 +311,6 @@ const ManagerActions = (props) => {
                 name="users"
               />
               <a href={routes.invitation}>Inviter</a>
-            </li>
-          )}
-          {routes.admin && (
-            <li>
-              <RawFeatherIcon
-                inline
-                small
-                name="settings"
-                color={style.primary500}
-              />
-              <a href={routes.admin}>Administration</a>
             </li>
           )}
         </ul>
@@ -424,13 +429,26 @@ const NonMemberActions = (props) => {
 };
 
 const GroupUserActions = (props) => {
+  let Actions = NonMemberActions;
+
   if (props.isManager) {
-    return <ManagerActions {...props} />;
+    Actions = ManagerActions;
+  } else if (props.isMember) {
+    Actions = MemberActions;
   }
-  if (props.isMember) {
-    return <MemberActions {...props} />;
-  }
-  return <NonMemberActions {...props} />;
+
+  return (
+    <>
+      {props.routes && props.routes.admin && (
+        <StyledAdminButton>
+          <Button as="a" href={props.routes.admin} icon="settings" inline small>
+            Administration
+          </Button>
+        </StyledAdminButton>
+      )}
+      <Actions {...props} />
+    </>
+  );
 };
 
 ManagerActions.propTypes = MemberActions.propTypes = NonMemberActions.propTypes = GroupUserActions.propTypes = {

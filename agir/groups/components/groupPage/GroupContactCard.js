@@ -19,8 +19,12 @@ const StyledReferentSection = styled.section`
   }
 
   ${Avatar} {
-    width: 4rem;
-    height: 4rem;
+    width: ${({ $length }) => ($length > 3 ? "3rem" : "4rem")};
+    height: ${({ $length }) => ($length > 3 ? "3rem" : "4rem")};
+  }
+
+  ${Avatar} + ${Avatar} {
+    margin-left: 4px;
   }
 
   && p {
@@ -88,13 +92,10 @@ const GroupContactCard = (props) => {
   return (
     <Card>
       {Array.isArray(referents) && referents.length > 0 ? (
-        <StyledReferentSection>
+        <StyledReferentSection $length={referents.length}>
           <p>
             {referents.map((referent, i) => (
-              <React.Fragment key={i}>
-                {i > 0 ? " " : null}
-                <Avatar {...referent} name={referent.displayName} />
-              </React.Fragment>
+              <Avatar key={i} {...referent} name={referent.displayName} />
             ))}
           </p>
           <p>

@@ -79,7 +79,8 @@
     "invitation": "#invitation",
     "financement": "#financement",
     "certification": "#certification",
-    "admin": "#admin"
+    "admin": "#admin",
+    "orders": "#orders"
   },
   "discountCodes": [
     {

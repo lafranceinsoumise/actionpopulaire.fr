@@ -1,6 +1,6 @@
 import * as proj from "ol/proj";
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -101,6 +101,8 @@ const Map = (props) => {
     },
     [center, zoom, iconConfiguration, isStatic]
   );
+
+  isLoaded && mapObject.current && mapObject.current.updateSize();
 
   return <StyledMapWrapper ref={mapRef} $isLoaded={isLoaded} {...rest} />;
 };
