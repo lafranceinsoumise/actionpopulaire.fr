@@ -173,7 +173,7 @@ const RequiredActionCard = (props) => {
   }, [id, status, onDismiss]);
 
   const [isEmailCopied, copyEmail] = useCopyToClipboard(
-    (individual && individual.email) || "",
+    (meta && meta.email) || "",
     1000
   );
 
