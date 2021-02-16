@@ -197,7 +197,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             many=True,
             fields=[
                 "id",
-                "displayName",
                 "gender",
                 # "avatar",
             ],

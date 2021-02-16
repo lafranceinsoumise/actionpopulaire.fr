@@ -92,20 +92,7 @@ const GroupContactCard = (props) => {
   return (
     <Card>
       {Array.isArray(referents) && referents.length > 0 ? (
-        <StyledReferentSection $length={referents.length}>
-          <p>
-            {referents.map((referent, i) => (
-              <Avatar key={i} {...referent} name={referent.displayName} />
-            ))}
-          </p>
-          <p>
-            {referents.map((referent, i) => (
-              <React.Fragment key={i}>
-                {i > 0 ? " & " : null}
-                <strong>{referent.displayName}</strong>
-              </React.Fragment>
-            ))}
-          </p>
+        <StyledReferentSection>
           <p>{referentTitle} de l’équipe</p>
         </StyledReferentSection>
       ) : null}
