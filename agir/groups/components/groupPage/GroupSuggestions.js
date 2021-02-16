@@ -71,7 +71,8 @@ export const StyledWrapper = styled.div`
     }
 
     & > * {
-      flex: 1 1 auto;
+      flex: 1 1 397px;
+
       @media (min-width: ${style.collapse}px) {
         margin-right: 2rem;
       }
