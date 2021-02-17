@@ -8,7 +8,7 @@ export async function listMap() {
 }
 
 export async function itemMap() {
-  const itemMapModule = (await import("./itemMap")).default();
+  const itemMapModule = (await import("./itemMap")).default;
 
   itemMapModule.apply(null, arguments);
 }
