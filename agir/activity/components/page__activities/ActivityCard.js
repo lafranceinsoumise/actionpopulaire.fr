@@ -49,6 +49,10 @@ const LowMarginCard = styled(Card)`
       font-weight: 600;
       text-decoration: none;
     }
+
+    & > a {
+      color: ${style.primary500};
+    }
   }
 `;
 
