@@ -99,6 +99,24 @@ class PersonQueryset(models.QuerySet):
         )
 
 
+def get_default_display_name(
+    email="", first_name="", last_name="", display_name="", **kwargs
+):
+    if display_name:
+        return display_name
+
+    if first_name and last_name:
+        base = "{}{}".format(first_name[:1], last_name[:1])
+    elif first_name:
+        base = first_name[:2]
+    elif last_name:
+        base = last_name[:2]
+    elif email:
+        base = email[:2]
+
+    return base.upper()
+
+
 class PersonManager(models.Manager.from_queryset(PersonQueryset)):
     def get(self, *args, **kwargs):
         if "email" in kwargs:
@@ -151,6 +169,14 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
                 role.save()
             else:
                 role = None
+
+            if (
+                not hasattr(extra_fields, "display_name")
+                or not extra_fields["display_name"]
+            ):
+                extra_fields["display_name"] = get_default_display_name(
+                    email=email, **extra_fields
+                )
 
             person = self.model(role=role, **extra_fields)
             person.save(using=self._db)
