@@ -49,6 +49,10 @@ const LowMarginCard = styled(Card)`
       font-weight: 600;
       text-decoration: none;
     }
+
+    & > a {
+      color: ${style.primary500};
+    }
   }
 `;
 
@@ -276,6 +280,36 @@ const ActivityCard = (props) => {
         <ActivityCardContainer {...props}>
           {Individual || "Quelqu'un"} a rejoint {SupportGroup}. Prenez le temps
           de l’accueillir&nbsp;!
+        </ActivityCardContainer>
+      );
+    case "new-message":
+      return (
+        <ActivityCardContainer {...props}>
+          {Individual || "Quelqu'un"} a posté{" "}
+          <Link
+            to={routeConfig.groupMessage.getLink({
+              groupPk: supportGroup.id,
+              messagePk: meta.message,
+            })}
+          >
+            un nouveau message
+          </Link>{" "}
+          dans le groupe {SupportGroup}.
+        </ActivityCardContainer>
+      );
+    case "new-comment":
+      return (
+        <ActivityCardContainer {...props}>
+          {Individual || "Quelqu'un"} a posté une réponse dans{" "}
+          <Link
+            to={routeConfig.groupMessage.getLink({
+              groupPk: supportGroup.id,
+              messagePk: meta.message,
+            })}
+          >
+            une discussion à laquelle vous avez participé
+          </Link>{" "}
+          de {SupportGroup}.
         </ActivityCardContainer>
       );
     case "waiting-location-group":

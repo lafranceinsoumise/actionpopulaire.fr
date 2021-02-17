@@ -423,7 +423,7 @@ const NonMemberActions = (props) => {
           Rejoindre {is2022 ? "l'équipe" : "le groupe"}
         </Button>
       </CSRFProtectedForm>
-      <p>Votre email sera communiquée aux animateur-ices</p>
+      <p>Votre email sera communiqué aux animateur·ices</p>
     </StyledContent>
   );
 };

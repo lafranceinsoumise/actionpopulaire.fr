@@ -2,6 +2,7 @@ import pathToRegexp from "path-to-regexp-es";
 import { lazy } from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import logger from "@agir/lib/utils/logger";
 
 const AgendaPage = lazy(() => import("@agir/events/agendaPage/AgendaPage"));
 const EventMap = lazy(() => import("@agir/carte/page__eventMap/EventMap"));
@@ -28,6 +29,8 @@ const NavigationPage = lazy(() =>
 );
 
 export const BASE_PATH = "/";
+
+const log = logger(__filename);
 
 export class RouteConfig {
   constructor(props) {
@@ -66,6 +69,7 @@ export class RouteConfig {
       };
       return this.__toPath__(params);
     } catch (e) {
+      log.error("Failed to generate path", e);
       return Array.isArray(this.pathname) ? this.pathname[0] : this.pathname;
     }
   }

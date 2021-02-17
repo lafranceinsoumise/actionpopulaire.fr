@@ -449,7 +449,7 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 
 
 @emailing_task
-def send_message_notification(message_pk):
+def send_message_notification_email(message_pk):
     try:
         message = SupportGroupMessage.objects.get(pk=message_pk)
     except (SupportGroupMessage.DoesNotExist):

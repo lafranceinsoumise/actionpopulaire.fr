@@ -7,6 +7,7 @@ from agir.groups.tasks import (
     GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS,
     send_joined_notification_email,
     send_alert_capacity_email,
+    send_message_notification_email,
 )
 
 
@@ -66,3 +67,45 @@ def someone_joined_notification(membership, membership_count=1):
         )
 
     transaction.on_commit(partial(send_joined_notification_email.delay, membership.pk))
+
+
+@transaction.atomic()
+def new_message_notifications(message):
+    recipients = message.supportgroup.members.filter(group_notifications=True)
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                individual=message.author,
+                supportgroup=message.supportgroup,
+                type=Activity.TYPE_NEW_MESSAGE,
+                recipient=r,
+                status=Activity.STATUS_UNDISPLAYED,
+                meta={"message": str(message.pk),},
+            )
+            for r in recipients
+            if r.pk != message.author.pk
+        ]
+    )
+
+    send_message_notification_email.delay(message.pk)
+
+
+@transaction.atomic()
+def new_comment_notifications(comment):
+    recipients = [comment.message.author] + [
+        comment.author for comment in comment.message.comments.all()
+    ]
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                individual=comment.author,
+                supportgroup=comment.message.supportgroup,
+                type=Activity.TYPE_NEW_COMMENT,
+                recipient=r,
+                status=Activity.STATUS_UNDISPLAYED,
+                meta={"message": str(comment.message.pk),},
+            )
+            for r in recipients
+            if r.pk != comment.author.pk
+        ]
+    )

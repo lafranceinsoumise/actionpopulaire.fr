@@ -66,19 +66,27 @@ export const useTabs = (props, isMobile = true) => {
 
   const tabs = useMemo(() => routes.filter((route) => route.hasTab), [routes]);
 
-  const { activeRoute, shouldRedirect } = useMemo(() => {
-    const result = {
-      activeRoute: tabs[0],
-      shouldRedirect: true,
-    };
+  const shouldReplaceURL = useMemo(() => {
+    return new RouteConfig({
+      id: "base",
+      pathname: "/groupes/:groupPk/",
+      label: "Groupe",
+    }).match(location.pathname);
+  }, [location.pathname]);
+
+  const activeRoute = useMemo(() => {
+    let result = tabs[0];
     routes.forEach((route) => {
       if (route.match(location.pathname)) {
-        result.activeRoute = route;
-        result.shouldRedirect = false;
+        result = route;
       }
     });
     return result;
   }, [tabs, routes, location.pathname]);
+
+  useEffect(() => {
+    shouldReplaceURL && handleTabChange(activeRoute, null, true);
+  }, [shouldReplaceURL, handleTabChange, activeRoute]);
 
   const activeTabIndex = useMemo(() => {
     for (let i = 0; tabs[i]; i++) {
@@ -108,10 +116,6 @@ export const useTabs = (props, isMobile = true) => {
     const prevIndex = Math.max(0, activeTabIndex - 1);
     handleTabChange(tabs[prevIndex]);
   }, [handleTabChange, activeTabIndex, tabs]);
-
-  useEffect(() => {
-    shouldRedirect && handleTabChange(activeRoute, null, true);
-  }, [shouldRedirect, handleTabChange, activeRoute]);
 
   useEffect(() => {
     const { isManager, routes } = group || {};
