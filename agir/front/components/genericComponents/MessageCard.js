@@ -545,7 +545,7 @@ const MessageCard = (props) => {
 MessageCard.propTypes = {
   user: PropTypes.shape({
     id: PropTypes.string.isRequired,
-    avatar: PropTypes.string,
+    image: PropTypes.string,
   }).isRequired,
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -555,7 +555,7 @@ MessageCard.propTypes = {
     author: PropTypes.shape({
       id: PropTypes.string.isRequired,
       displayName: PropTypes.string.isRequired,
-      avatar: PropTypes.string,
+      image: PropTypes.string,
     }).isRequired,
     created: PropTypes.string.isRequired,
     text: PropTypes.string.isRequired,

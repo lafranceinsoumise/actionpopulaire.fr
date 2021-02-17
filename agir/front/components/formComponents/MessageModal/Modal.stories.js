@@ -36,7 +36,7 @@ Default.args = {
   message: null,
   user: {
     displayName: "Bill Murray",
-    avatar: "https://www.fillmurray.com/200/200",
+    image: "https://www.fillmurray.com/200/200",
   },
   isLoading: false,
 };

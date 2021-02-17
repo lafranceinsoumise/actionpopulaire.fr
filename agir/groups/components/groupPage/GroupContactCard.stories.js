@@ -20,7 +20,7 @@ const Template = (args) => {
     { displayName: "Isabelle Guérini", gender: "F" },
     {
       displayName: referentName,
-      avatar: referentAvatar,
+      image: referentAvatar,
       gender: referentGender,
     },
   ];

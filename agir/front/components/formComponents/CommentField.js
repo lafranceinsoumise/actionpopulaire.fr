@@ -339,9 +339,9 @@ const CommentField = (props) => {
       $disabled={disabled || isLoading}
       onSubmit={handleSend}
     >
-      <Avatar name={user.displayName} avatar={user.avatar} />
+      <Avatar name={user.displayName} image={user.image} />
       <StyledMessage>
-        <Avatar name={user.displayName} avatar={user.avatar} />
+        <Avatar name={user.displayName} image={user.image} />
         <StyledField
           ref={fieldWrapperRef}
           onClick={!disabled ? handleFocus : undefined}
@@ -403,7 +403,7 @@ const CommentField = (props) => {
 CommentField.propTypes = {
   user: PropTypes.shape({
     displayName: PropTypes.string.isRequired,
-    avatar: PropTypes.string,
+    image: PropTypes.string,
   }).isRequired,
   initialValue: PropTypes.string,
   id: PropTypes.string,

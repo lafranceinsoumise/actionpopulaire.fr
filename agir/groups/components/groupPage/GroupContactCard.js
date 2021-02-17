@@ -127,7 +127,7 @@ const GroupContactCard = (props) => {
 GroupContactCard.propTypes = {
   referents: PropTypes.arrayOf(
     PropTypes.shape({
-      avatar: PropTypes.string,
+      image: PropTypes.string,
       gender: PropTypes.string,
     })
   ),

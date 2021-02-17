@@ -13,7 +13,7 @@ export default {
 
 const user = {
   displayName: "Bill Murray",
-  avatar: "https://www.fillmurray.com/200/200",
+  image: "https://www.fillmurray.com/200/200",
 };
 
 export const Default = () => {
@@ -86,7 +86,7 @@ export const WithComments = () => {
       text: "Bonjour !",
       author: {
         displayName: "Quelqu'un",
-        avatar: `https://avatars.dicebear.com/api/human/${String(
+        image: `https://images.dicebear.com/api/human/${String(
           Math.random()
         ).replace(".", "")}.svg?background=%23ffffff`,
       },
