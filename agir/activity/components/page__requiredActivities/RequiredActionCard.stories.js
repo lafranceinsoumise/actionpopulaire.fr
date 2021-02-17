@@ -42,7 +42,7 @@ WaitingPayment.args = {
     },
   },
   individual: {
-    firstName: "Foo Bar",
+    displayName: "Foo Bar",
     email: "foo@bar.com",
   },
   routes: {

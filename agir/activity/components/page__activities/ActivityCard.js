@@ -223,7 +223,7 @@ const ActivityCard = (props) => {
       SupportGroup: supportGroup && (
         <a href={supportGroup.url}>{supportGroup.name}</a>
       ),
-      Individual: individual && <strong>{individual.firstName}</strong>,
+      Individual: individual && <strong>{individual.displayName}</strong>,
     }),
     [event, supportGroup, individual]
   );
@@ -319,7 +319,9 @@ const ActivityCard = (props) => {
     case "new-attendee":
       return (
         <ActivityCardContainer {...props}>
-          <strong>{(individual && individual.firstName) || "Quelqu'un"}</strong>{" "}
+          <strong>
+            {(individual && individual.displayName) || "Quelqu'un"}
+          </strong>{" "}
           s'est {getGenderedWord(individual && individual.gender, "inscrit·e")}{" "}
           à votre événement {Event}
         </ActivityCardContainer>
