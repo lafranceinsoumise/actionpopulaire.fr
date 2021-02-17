@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
                 ),
                 validators=[
                     django.core.validators.FileExtensionValidator(
-                        allowed_extensions=["jpg", "jpeg", "gif", "png", "svg"]
+                        allowed_extensions=["jpg", "jpeg", "gif", "png"]
                     )
                 ],
                 verbose_name="image de profil",

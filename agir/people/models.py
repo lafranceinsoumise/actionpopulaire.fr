@@ -382,9 +382,7 @@ class Person(
         blank=True,
         help_text=_("Vous pouvez ajouter une image publique de profil"),
         validators=[
-            FileExtensionValidator(
-                allowed_extensions=["jpg", "jpeg", "gif", "png", "svg"]
-            )
+            FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "gif", "png"])
         ],
     )
 
