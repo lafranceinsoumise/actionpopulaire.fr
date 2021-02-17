@@ -52,6 +52,7 @@ class PersonalInformationsForm(ImageFormMixin, forms.ModelForm):
         self.fields["location_address1"].label = _("Adresse")
         self.fields["location_address2"].label = False
         self.fields["location_country"].required = True
+        self.fields["display_name"].required = True
 
         description_gender = HTML(
             format_html(
@@ -82,7 +83,7 @@ class PersonalInformationsForm(ImageFormMixin, forms.ModelForm):
         description_display_name = HTML(
             format_html(
                 """<p class="help-block">{help_text}</p>""",
-                help_text="Le nom que les autres personnes verront sur Action Populaire. Vous pouvez indiquer, par exemple, votre prénom ou un pseudonyme.",
+                help_text="Votre nom tel que les autres personnes le verront sur Action Populaire. Vous pouvez indiquer, par exemple, votre prénom ou un pseudonyme.",
             )
         )
 
