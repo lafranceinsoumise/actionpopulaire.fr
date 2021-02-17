@@ -6,6 +6,7 @@ import {
   Route,
   useParams,
   useLocation,
+  useHistory,
 } from "react-router-dom";
 
 import {
@@ -22,10 +23,14 @@ import Layout from "@agir/front/dashboardComponents/Layout";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 import ErrorBoundary from "./ErrorBoundary";
 import routes, { BASE_PATH } from "./routes.config";
+import logger from "@agir/lib/utils/logger";
+
+const log = logger(__filename);
 
 const NotFound = () => <div>404 NOT FOUND !</div>;
 
 const Page = (props) => {
+  const history = useHistory();
   const { Component, routeConfig, ...rest } = props;
   const routeParams = useParams();
   const dispatch = useDispatch();
@@ -37,6 +42,17 @@ const Page = (props) => {
       routeConfig.backLink &&
       dispatch(setBackLink(routeConfig.backLink));
   }, [pathname, isSessionLoaded, dispatch, routeConfig.backLink]);
+
+  useEffect(() => {
+    let unlisten = history.listen((location, action) => {
+      log.debug(
+        `Navigate ${action} ${location.pathname}${location.search}${location.hash}`,
+        JSON.stringify(history, null, 2)
+      );
+    });
+
+    return () => unlisten();
+  }, [history]);
 
   useMemo(() => {
     typeof window !== "undefined" && window.scrollTo && window.scrollTo(0, 0);
