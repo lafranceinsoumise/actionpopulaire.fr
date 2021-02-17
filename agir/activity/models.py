@@ -31,6 +31,8 @@ class Activity(TimeStampedModel):
     TYPE_NEW_ATTENDEE = "new-attendee"
     TYPE_EVENT_UPDATE = "event-update"
     TYPE_NEW_EVENT_MYGROUPS = "new-event-mygroups"
+    TYPE_NEW_MESSAGE = "new-message"
+    TYPE_NEW_COMMENT = "new-comment"
     TYPE_NEW_REPORT = "new-report"
     TYPE_CANCELLED_EVENT = "cancelled-event"
     TYPE_REFERRAL = "referral-accepted"
@@ -71,6 +73,8 @@ class Activity(TimeStampedModel):
         TYPE_GROUP_CREATION_CONFIRMATION,
         TYPE_TRANSFERRED_GROUP_MEMBER,
         TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+        TYPE_NEW_MESSAGE,
+        TYPE_NEW_COMMENT,
     )
 
     REQUIRED_ACTION_ACTIVITY_TYPES = (
@@ -92,6 +96,8 @@ class Activity(TimeStampedModel):
             TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
             "Les membres du groupes sont de plus en plus nombreux",
         ),
+        (TYPE_NEW_MESSAGE, "Nouveau message dans un de vos groupes"),
+        (TYPE_NEW_COMMENT, "Nouveau commentaire dans une de vos discussions"),
         (TYPE_WAITING_LOCATION_GROUP, "Préciser la localisation du groupe"),
         (TYPE_GROUP_COORGANIZATION_INVITE, "Invitation à coorganiser un groupe reçue"),
         (TYPE_WAITING_LOCATION_EVENT, "Préciser la localisation d'un événement"),

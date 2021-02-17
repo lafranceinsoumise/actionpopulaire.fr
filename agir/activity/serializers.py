@@ -16,7 +16,7 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
     event = EventSerializer(fields=EventSerializer.EVENT_CARD_FIELDS, read_only=True,)
     supportGroup = SupportGroupSerializer(
-        source="supportgroup", fields=["name", "url", "routes"], read_only=True
+        source="supportgroup", fields=["id", "name", "url", "routes"], read_only=True
     )
     individual = PersonSerializer(fields=["firstName", "gender"], read_only=True)
 
