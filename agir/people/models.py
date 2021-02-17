@@ -1,6 +1,7 @@
 import secrets
 import warnings
 from datetime import datetime
+from dynamic_filenames import FilePattern
 from functools import reduce
 from operator import or_
 
@@ -8,6 +9,7 @@ import phonenumbers
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.db import models, transaction, IntegrityError
 from django.db.models import JSONField
 from django.db.models import Q
@@ -18,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 from nuntius.models import AbstractSubscriber
 from phonenumber_field.modelfields import PhoneNumberField
+from stdimage.models import StdImageField
 
 from agir.authentication.models import Role
 from agir.lib.models import (
@@ -42,6 +45,11 @@ __all__ = [
     "PersonFormSubmission",
     "PersonValidationSMS",
 ]
+
+
+person_image_path = FilePattern(
+    filename_pattern="{app_label}/{model_name}/{instance.id}{ext}"
+)
 
 
 class PersonQueryset(models.QuerySet):
@@ -339,6 +347,21 @@ class Person(
     first_name = models.CharField(_("prénom"), max_length=255, blank=True)
     last_name = models.CharField(_("nom de famille"), max_length=255, blank=True)
 
+    display_name = models.CharField(_("nom d'affichage"), max_length=255)
+
+    image = StdImageField(
+        _("image de profil"),
+        upload_to=person_image_path,
+        variations={"thumbnail": (200, 200, True), "admin_thumbnail": (100, 100, True)},
+        blank=True,
+        help_text=_("Vous pouvez ajouter une image publique de profil"),
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=["jpg", "jpeg", "gif", "png", "svg"]
+            )
+        ],
+    )
+
     tags = models.ManyToManyField("PersonTag", related_name="people", blank=True)
 
     CONTACT_PHONE_UNVERIFIED = "U"
@@ -484,10 +507,6 @@ class Person(
             self.newsletters.append(self.NEWSLETTER_LFI)
         if not value and self.subscribed:
             self.newsletters.remove(self.NEWSLETTER_LFI)
-
-    def get_display_name(self, fallback="Quelqu'un"):
-        full_name = "%s %s" % (self.first_name, self.last_name)
-        return full_name.strip() or fallback
 
     def get_full_name(self):
         """

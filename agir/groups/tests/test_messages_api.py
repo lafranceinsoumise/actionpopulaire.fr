@@ -49,7 +49,11 @@ class GroupMessagesTestAPICase(APITestCase):
         self.assertEqual(res.data["results"][0]["id"], str(message.id))
         self.assertEqual(
             res.data["results"][0]["author"],
-            {"id": str(self.manager.id), "displayName": "Jean-Luc Mélenchon"},
+            {
+                "id": str(self.manager.id),
+                "displayName": self.manager.display_name,
+                "image": None,
+            },
         )
         self.assertEqual(res.data["results"][0]["text"], "Lorem")
         # self.assertEqual(res.data["results"][0]["image"], None)
@@ -135,7 +139,11 @@ class GroupMessagesTestAPICase(APITestCase):
         self.assertEqual(res.data["id"], str(message.id))
         self.assertEqual(
             res.data["author"],
-            {"id": str(self.manager.id), "displayName": "Jean-Luc Mélenchon"},
+            {
+                "id": str(self.manager.id),
+                "displayName": self.manager.display_name,
+                "image": None,
+            },
         )
         self.assertEqual(res.data["text"], "Lorem")
         # self.assertEqual(res.data["image"], None)
@@ -211,6 +219,7 @@ class GroupMessageCommentAPITestCase(APITestCase):
         self.manager = Person.objects.create(
             first_name="Jean-Luc",
             last_name="Mélenchon",
+            display_name="JLM",
             email="manager@example.com",
             create_role=True,
         )
@@ -222,6 +231,7 @@ class GroupMessageCommentAPITestCase(APITestCase):
         self.member = Person.objects.create(
             first_name="Jill Maud",
             last_name="Royer",
+            display_name="Jill",
             email="member@example.com",
             create_role=True,
         )
@@ -253,7 +263,11 @@ class GroupMessageCommentAPITestCase(APITestCase):
         self.assertEqual(res.data[0]["id"], str(comment.pk))
         self.assertEqual(
             res.data[0]["author"],
-            {"id": str(self.member.id), "displayName": "Jill Maud Royer"},
+            {
+                "id": str(self.member.id),
+                "displayName": self.member.display_name,
+                "image": None,
+            },
         )
         self.assertEqual(res.data[0]["text"], "Lorem")
         self.assertEqual(res.data[0]["image"], None)

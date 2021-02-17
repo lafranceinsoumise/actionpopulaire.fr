@@ -11,7 +11,7 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from agir.lib.form_components import HalfCol, FullCol, ThirdCol
-from agir.lib.form_mixins import TagMixin, MetaFieldsMixin
+from agir.lib.form_mixins import TagMixin, MetaFieldsMixin, ImageFormMixin
 from agir.lib.forms import MediaInHead
 from agir.lib.models import RE_FRENCH_ZIPCODE
 from agir.lib.tasks import geocode_person
@@ -39,7 +39,9 @@ def cut_list(list, parts):
     return lst
 
 
-class PersonalInformationsForm(forms.ModelForm):
+class PersonalInformationsForm(ImageFormMixin, forms.ModelForm):
+    image_field = "image"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -73,22 +75,41 @@ class PersonalInformationsForm(forms.ModelForm):
         )
 
         description = HTML(
-            """<p>Ces informations nous permettront de nous adresser à vous plus correctement et
+            """<p class="marginbottommore">Ces informations nous permettront de nous adresser à vous plus correctement et
             en fonction de votre situation géographique.</p>"""
+        )
+
+        description_display_name = HTML(
+            format_html(
+                """<p class="help-block">{help_text}</p>""",
+                help_text="Le nom que les autres personnes verront sur Action Populaire. Vous pouvez indiquer, par exemple, votre prénom ou un pseudonyme.",
+            )
         )
 
         self.helper.layout = Layout(
             Row(
                 FullCol(description),
                 HalfCol(
-                    Row(HalfCol("first_name"), HalfCol("last_name")),
+                    Row(HalfCol("first_name"), HalfCol("last_name"),),
                     Row(
-                        HalfCol("gender"),
-                        HalfCol(Field("date_of_birth", placeholder=_("JJ/MM/AAAA"))),
+                        FullCol(
+                            Field("display_name"),
+                            description_display_name,
+                            css_class="field-with-help",
+                        )
                     ),
-                    Row(HalfCol(description_gender), HalfCol(description_birth_date)),
-                ),
-                HalfCol(
+                    Row(
+                        FullCol(
+                            "gender", description_gender, css_class="field-with-help"
+                        )
+                    ),
+                    Row(
+                        FullCol(
+                            Field("date_of_birth", placeholder=_("JJ/MM/AAAA")),
+                            description_birth_date,
+                            css_class="field-with-help",
+                        )
+                    ),
                     Row(
                         FullCol(
                             Field("location_address1", placeholder=_("1ère ligne"))
@@ -98,14 +119,20 @@ class PersonalInformationsForm(forms.ModelForm):
                         ),
                         HalfCol("location_zip"),
                         HalfCol("location_city"),
+                        FullCol(
+                            "location_country",
+                            description_address,
+                            css_class="field-with-help",
+                        ),
                     ),
-                    Row(FullCol("location_country")),
-                    Row(FullCol(description_address)),
                 ),
+                HalfCol(Row(FullCol("image")), Row(FullCol("image_accept_license")),),
             )
         )
 
     def clean(self):
+        super().clean()
+
         if self.cleaned_data.get("location_country") == "FR":
             if self.cleaned_data["location_zip"] == "":
                 self.add_error(
@@ -142,6 +169,8 @@ class PersonalInformationsForm(forms.ModelForm):
         fields = (
             "first_name",
             "last_name",
+            "display_name",
+            "image",
             "gender",
             "date_of_birth",
             "location_address1",

@@ -14,7 +14,7 @@ from agir.lib.utils import front_url
 class UserContextSerializer(serializers.Serializer):
     id = serializers.UUIDField(source="pk")
     firstName = serializers.CharField(source="first_name")
-    displayName = serializers.SerializerMethodField(method_name="get_full_name")
+    displayName = serializers.CharField(source="display_name")
     fullName = serializers.SerializerMethodField(method_name="get_full_name")
     isInsoumise = serializers.BooleanField(source="is_insoumise")
     is2022 = serializers.BooleanField(source="is_2022")

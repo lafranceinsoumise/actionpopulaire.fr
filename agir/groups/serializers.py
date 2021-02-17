@@ -195,11 +195,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             obj.referents,
             context=self.context,
             many=True,
-            fields=[
-                "id",
-                "gender",
-                # "avatar",
-            ],
+            fields=["id", "displayName", "image", "gender",],
         ).data
 
     def get_facts(self, obj):
