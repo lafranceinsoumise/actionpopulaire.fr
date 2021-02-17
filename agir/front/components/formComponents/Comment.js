@@ -257,7 +257,7 @@ Comment.propTypes = {
     id: PropTypes.string.isRequired,
     author: PropTypes.shape({
       displayName: PropTypes.string.isRequired,
-      avatar: PropTypes.string,
+      image: PropTypes.string,
     }).isRequired,
     text: PropTypes.string.isRequired,
     created: PropTypes.string,
