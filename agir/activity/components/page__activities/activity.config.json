@@ -8,6 +8,12 @@
   "new-member": {
     "icon": "user-plus"
   },
+  "new-message": {
+    "icon": "mail"
+  },
+  "new-comment": {
+    "icon": "mail"
+  },
   "waiting-location-group": {
     "icon": "alert-circle"
   },

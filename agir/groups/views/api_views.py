@@ -1,4 +1,5 @@
 from django.contrib.gis.db.models.functions import Distance
+from django.db import transaction
 from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -16,6 +17,10 @@ from rest_framework.response import Response
 
 from agir.events.models import Event
 from agir.events.serializers import EventSerializer
+from agir.groups.actions.notifications import (
+    new_message_notifications,
+    new_comment_notifications,
+)
 from agir.groups.filters import GroupAPIFilterSet
 from agir.groups.models import SupportGroup, SupportGroupSubtype
 from agir.groups.serializers import (
@@ -25,7 +30,7 @@ from agir.groups.serializers import (
     SupportGroupDetailSerializer,
 )
 from agir.lib.pagination import APIPaginator
-from agir.groups.tasks import send_message_notification
+from agir.groups.tasks import send_message_notification_email
 
 __all__ = [
     "GroupSearchAPIView",
@@ -263,10 +268,11 @@ class GroupMessagesAPIView(ListCreateAPIView):
         )
 
     def perform_create(self, serializer):
-        message = serializer.save(
-            author=self.request.user.person, supportgroup=self.supportgroup
-        )
-        send_message_notification.delay(message.pk)
+        with transaction.atomic():
+            message = serializer.save(
+                author=self.request.user.person, supportgroup=self.supportgroup
+            )
+            new_message_notifications(message)
 
 
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
@@ -310,7 +316,11 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
         return self.message.comments.filter(deleted=False)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user.person, message=self.message)
+        with transaction.atomic():
+            comment = serializer.save(
+                author=self.request.user.person, message=self.message
+            )
+            new_comment_notifications(comment)
 
 
 class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
