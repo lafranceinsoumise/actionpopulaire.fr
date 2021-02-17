@@ -255,7 +255,7 @@ const RequiredActionCard = (props) => {
           disabled={isEmailCopied}
           text={
             <>
-              <strong>{individual.firstName || "Quelqu'un"}</strong> a rejoint
+              <strong>{individual.displayName || "Quelqu'un"}</strong> a rejoint
               votre groupe <a href={supportGroup.url}>{supportGroup.name}</a>.
               Prenez le temps de l’accueillir !
             </>
@@ -293,7 +293,7 @@ const RequiredActionCard = (props) => {
           timestamp={timestamp}
           text={
             <>
-              <strong>{props.individual.firstName || "Quelqu'un"}</strong> a
+              <strong>{props.individual.displayName || "Quelqu'un"}</strong> a
               proposé à votre groupe{" "}
               <a href={supportGroup.url}>{supportGroup.name}</a> de co-organiser
               : {Event}
@@ -388,7 +388,7 @@ RequiredActionCard.propTypes = {
     }).isRequired,
   }),
   individual: PropTypes.shape({
-    firstName: PropTypes.string,
+    displayName: PropTypes.string,
     email: PropTypes.string,
   }),
   onDismiss: PropTypes.func,

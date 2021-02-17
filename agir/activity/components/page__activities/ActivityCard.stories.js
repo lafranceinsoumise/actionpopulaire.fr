@@ -72,7 +72,7 @@ Default.args = {
     },
   },
   individual: {
-    firstName: "Clara",
+    displayName: "Clara",
     email: "clara@example.com",
   },
   timestamp: DateTime.local().minus({ hours: 5 }).toISO(),

@@ -346,7 +346,11 @@ class ImageFormMixin(forms.Form):
         report_image = cleaned_data.get(self.image_field, None)
         accept_license = cleaned_data.get("image_accept_license", False)
 
-        if report_image and not accept_license:
+        if (
+            report_image
+            and self.image_field in self.changed_data
+            and not accept_license
+        ):
             self.add_error(
                 "image_accept_license",
                 self.fields["image_accept_license"].error_messages["required"],

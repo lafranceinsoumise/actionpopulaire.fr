@@ -82,6 +82,30 @@ class BasicPersonTestCase(TestCase):
 
         self.assertEqual(str(person), "test1@domain.com")
 
+    def test_default_display_name_is_not_set_upon_creation_if_present(self):
+        person = Person.objects.create_insoumise(
+            "test1@domain.com", first_name="Jane", last_name="Doe", display_name="JJDD"
+        )
+        self.assertEqual(person.display_name, "JJDD")
+
+    def test_default_display_name_is_set_upon_creation_based_on_full_name(self):
+        person = Person.objects.create_insoumise(
+            "test1@domain.com", first_name="Jane", last_name="Doe"
+        )
+        self.assertEqual(person.display_name, "JD")
+
+    def test_default_display_name_is_set_upon_creation_based_on_first_name(self):
+        person = Person.objects.create_insoumise("test1@domain.com", first_name="Jane")
+        self.assertEqual(person.display_name, "JA")
+
+    def test_default_display_name_is_set_upon_creation_based_on_last_name(self):
+        person = Person.objects.create_insoumise("test1@domain.com", last_name="Doe")
+        self.assertEqual(person.display_name, "DO")
+
+    def test_default_display_name_is_set_upon_creation_based_on_email(self):
+        person = Person.objects.create_insoumise("test1@domain.com")
+        self.assertEqual(person.display_name, "TE")
+
 
 class ContactPhoneTestCase(TestCase):
     def setUp(self):

@@ -15,7 +15,7 @@ from ..polls.models import Poll, PollOption, PollChoice
 class NavbarTestCase(TestCase):
     def setUp(self):
         self.person = Person.objects.create_insoumise(
-            "test@test.com", first_name="Arthur", last_name="Machin", create_role=True
+            "test@test.com", display_name="Arthur Machin", create_role=True
         )
 
         self.group = SupportGroup.objects.create(name="group")

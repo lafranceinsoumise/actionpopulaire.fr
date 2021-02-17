@@ -296,6 +296,7 @@ class ProfileFormTestCase(TestCase):
         self.sample_data = {
             "first_name": "Jean",
             "last_name": "Forgeron",
+            "display_name": "J.F.",
             "gender": "M",
             "location_address1": "",
             "location_address2": "",
@@ -432,6 +433,7 @@ class InformationPersonalFormTestCases(TestCase):
             data={
                 "first_name": "first_name",
                 "last_name": "last_name",
+                "display_name": "display_name",
                 "gender": "M",
                 "date_of_birth": "27/10/1992",
                 "location_address1": "",
@@ -451,6 +453,7 @@ class InformationPersonalFormTestCases(TestCase):
         self.person = Person.objects.get(pk=self.person.pk)
         self.assertEqual(self.person.first_name, "first_name")
         self.assertEqual(self.person.last_name, "last_name")
+        self.assertEqual(self.person.display_name, "display_name")
         self.assertEqual(self.person.gender, "M")
         self.assertEqual(self.person.date_of_birth, datetime.date(1992, 10, 27))
         self.assertEqual(self.person.location_address1, "")

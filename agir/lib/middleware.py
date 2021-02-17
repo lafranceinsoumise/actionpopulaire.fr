@@ -41,7 +41,6 @@ class NoVaryCookieMiddleWare:
 
         new_header = []
         for vary in vary_header:
-            print(vary)
             if not vary.lower() == "cookie":
                 new_header.append(vary)
         if len(new_header) > 0:

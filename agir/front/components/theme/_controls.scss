@@ -29,6 +29,34 @@ fieldset {
   color: #777777;
 }
 
+#div_id_image {
+  a {
+    display: block;
+  }
+
+  input[type="checkbox"],
+  input[type="checkbox"] + label {
+    display: inline-block;
+    font-weight: normal;
+    font-size: inherit;
+    margin: 0.5rem 0 1rem;
+    line-height: 1rem;
+    vertical-align: middle;
+  }
+}
+
+.field-with-help {
+  margin-bottom: 1rem;
+
+  & > * {
+    margin: 0;
+  }
+
+  & > * + * {
+    margin-top: 0.5rem;
+  }
+}
+
 // Buttons
 // 	@include button-size($padding-base-vertical, $padding-base-horizontal, $font-size, $line-height-base, $btn-border-radius-base);
 .btn {
@@ -59,13 +87,7 @@ fieldset {
   );
 }
 .btn-xs {
-  @include button-size(
-    3px,
-    7px,
-    12px,
-    1,
-    $btn-border-radius-small
-  );
+  @include button-size(3px, 7px, 12px, 1, $btn-border-radius-small);
 }
 
 button,
@@ -105,12 +127,13 @@ a.alt-color {
     padding-top: 20px;
     padding-bottom: 30px;
     border: none;
-    box-shadow: 0px 0px 6px rgba(0, 35, 44, 0.1), 0px 3px 2px rgba(0, 35, 44, 0.05);
+    box-shadow: 0px 0px 6px rgba(0, 35, 44, 0.1),
+      0px 3px 2px rgba(0, 35, 44, 0.05);
     width: 100vw;
   }
 
   li {
-    color: #4F4F4F;
+    color: #4f4f4f;
 
     & > a,
     &.active > a {

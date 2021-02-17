@@ -459,7 +459,7 @@ def send_message_notification_email(message_pk):
         "MESSAGE_HTML": format_html_join(
             "", "<p>{}</p>", ((p,) for p in message.text.split("\n"))
         ),
-        "DISPLAY_NAME": message.author.get_display_name(),
+        "DISPLAY_NAME": message.author.display_name,
         "MESSAGE_LINK": front_url(
             "view_group_message", args=[message.supportgroup.pk, message_pk]
         ),
@@ -473,7 +473,7 @@ def send_message_notification_email(message_pk):
 
     send_mosaico_email(
         code="NEW_MESSAGE",
-        subject=f"Vous avez un nouveau message de {message.author.get_display_name()}",
+        subject=f"Vous avez un nouveau message de {message.author.display_name}",
         from_email=settings.EMAIL_FROM,
         recipients=message.supportgroup.members.filter(group_notifications=True),
         bindings=bindings,

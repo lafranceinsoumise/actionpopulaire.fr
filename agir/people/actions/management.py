@@ -217,6 +217,8 @@ MERGE_STRATEGIES = {
     "tags": merge_tags,
     "referrer_id": None,
     "transferoperation": None,
+    "display_name": merge_text_fields,
+    "image": merge_text_fields,
 }
 
 

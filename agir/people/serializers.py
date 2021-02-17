@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
+from agir.front.serializer_utils import MediaURLField
 from agir.lib.data import french_zipcode_to_country_code, FRANCE_COUNTRY_CODES
 from agir.lib.serializers import (
     LegacyBaseAPISerializer,
@@ -290,7 +291,8 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     firstName = serializers.CharField(source="first_name")
     lastName = serializers.CharField(source="last_name")
-    displayName = serializers.SerializerMethodField()
+    displayName = serializers.CharField(source="display_name")
+    image = MediaURLField()
     contactPhone = PhoneNumberField(source="contact_phone")
 
     isInsoumise = serializers.BooleanField(source="is_insoumise")
@@ -301,6 +303,3 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
     newsletters = serializers.ListField()
 
     gender = serializers.CharField()
-
-    def get_displayName(self, obj: Person):
-        return obj.get_display_name()
