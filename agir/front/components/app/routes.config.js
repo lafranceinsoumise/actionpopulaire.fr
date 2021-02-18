@@ -7,6 +7,9 @@ import logger from "@agir/lib/utils/logger";
 const AgendaPage = lazy(() => import("@agir/events/agendaPage/AgendaPage"));
 const EventMap = lazy(() => import("@agir/carte/page__eventMap/EventMap"));
 const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
+const CreateEvent = lazy(() =>
+  import("@agir/events/createEventPage/CreateEvent")
+);
 
 const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
 const FullGroupPage = lazy(() =>
@@ -94,6 +97,18 @@ export const routeConfig = {
     exact: true,
     label: "Carte des événements",
     Component: EventMap,
+  }),
+  createEvent: new RouteConfig({
+    id: "createEvent",
+    pathname: "/evenements/creation/",
+    exact: true,
+    label: "Nouvel événement",
+    Component: CreateEvent,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
   }),
   eventDetails: new RouteConfig({
     id: "eventDetails",
