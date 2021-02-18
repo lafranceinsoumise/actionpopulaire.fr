@@ -25,10 +25,9 @@ import ErrorBoundary from "./ErrorBoundary";
 import routes, { BASE_PATH } from "./routes.config";
 import logger from "@agir/lib/utils/logger";
 import useTracking from "./useTracking";
+import NotFoundPage from "@agir/front/offline/NotFoundPage";
 
 const log = logger(__filename);
-
-const NotFound = () => <div>404 NOT FOUND !</div>;
 
 const Page = (props) => {
   const history = useHistory();
@@ -115,7 +114,7 @@ const Router = ({ children }) => (
         </Route>
       ))}
       <Route key="not-found">
-        <NotFound />
+        <NotFoundPage />
       </Route>
     </Switch>
     {children}
