@@ -111,7 +111,7 @@ const DisplayNameAnnouncement = () => {
       <p>
         <strong>Nouveau&nbsp;: nom d'affichage et avatar</strong>
         <span>
-          Pour que vos camarades puissent vous reconnaitre, prenez le temps de{" "}
+          Pour que les autres puissent vous reconnaitre, prenez le temps de{" "}
           <Link route="personalInformation">
             modifier ces informations dans votre profil
           </Link>
