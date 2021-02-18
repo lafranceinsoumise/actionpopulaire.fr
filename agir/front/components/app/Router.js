@@ -24,6 +24,7 @@ import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 import ErrorBoundary from "./ErrorBoundary";
 import routes, { BASE_PATH } from "./routes.config";
 import logger from "@agir/lib/utils/logger";
+import useTracking from "./useTracking";
 
 const log = logger(__filename);
 
@@ -36,6 +37,8 @@ const Page = (props) => {
   const dispatch = useDispatch();
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const { pathname } = useLocation();
+
+  useTracking();
 
   useEffect(() => {
     isSessionLoaded &&
