@@ -1,3 +1,4 @@
+import reversion
 from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
 from django.db.models import F
@@ -285,6 +286,10 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
             *args, fields=self.serializer_class.DETAIL_FIELDS, **kwargs
         )
 
+    def perform_update(self, serializer):
+        with reversion.create_revision():
+            super().perform_update(serializer)
+
     def perform_destroy(self, instance):
         instance.deleted = True
         instance.save()
@@ -327,6 +332,10 @@ class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
     queryset = SupportGroupMessageComment.objects.filter(deleted=False)
     serializer_class = MessageCommentSerializer
     permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
+
+    def perform_update(self, serializer):
+        with reversion.create_revision():
+            super().perform_update(serializer)
 
     def perform_destroy(self, instance):
         instance.deleted = True
