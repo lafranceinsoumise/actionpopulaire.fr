@@ -182,14 +182,7 @@ const TopBarRightLink = ({ user, routes, settingsLink }) => {
         >
           <FeatherIcon name="settings" />
         </MenuLink>
-        <MenuLink
-          className="large-only"
-          href={
-            user.isInsoumise
-              ? routes.personalInformation
-              : routes.contactConfiguration
-          }
-        >
+        <MenuLink className="large-only" href={routes.personalInformation}>
           <FeatherIcon name="user" />
           <span>{user.displayName}</span>
         </MenuLink>
