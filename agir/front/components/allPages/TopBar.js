@@ -300,7 +300,7 @@ export const PureTopBar = () => {
             </SearchBar>
           </form>
         </HorizontalFlex>
-        <PageFadeIn ready={user !== null}>
+        <PageFadeIn ready={isSessionLoaded}>
           <HorizontalFlex>
             <MenuLink href={routes.help} className="large-only">
               <FeatherIcon name="help-circle" />
