@@ -39,6 +39,7 @@ const StyledField = styled.label`
   ${StyledHelpText} {
     grid-row: 2;
     grid-column: 1/3;
+    line-height: 1.5;
   }
 
   ${StyledInput}, ${StyledTextArea} {

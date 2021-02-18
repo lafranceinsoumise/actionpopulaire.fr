@@ -2,7 +2,7 @@ import styled from "styled-components";
 import PropTypes from "prop-types";
 import Card from "./Card";
 import style from "@agir/front/genericComponents/_variables.scss";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import React from "react";
 
 /**
@@ -189,4 +189,27 @@ ResponsiveLayout.propTypes = {
   DesktopLayout: PropTypes.oneOfType([PropTypes.element, PropTypes.func])
     .isRequired,
   breakpoint: PropTypes.number,
+};
+
+export const useResponsiveMemo = (mobileValue, desktopValue, breakpoint) => {
+  breakpoint = breakpoint || collapse;
+  const [isDesktop, setDesktop] = useState(window.innerWidth > breakpoint);
+  const refresh = useCallback(
+    () => setDesktop(window.innerWidth > breakpoint),
+    [breakpoint]
+  );
+  useEffect(() => {
+    window.addEventListener("resize", refresh);
+    return () => {
+      window.removeEventListener("resize", refresh);
+    };
+  }, [refresh]);
+
+  const value = useMemo(() => (isDesktop ? desktopValue : mobileValue), [
+    isDesktop,
+    mobileValue,
+    desktopValue,
+  ]);
+
+  return value;
 };

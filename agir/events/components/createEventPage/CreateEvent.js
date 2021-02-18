@@ -13,7 +13,7 @@ import {
 } from "@agir/front/globalContext/reducers";
 
 import Link from "@agir/front/app/Link";
-import { Column, Container, Row } from "@agir/front/genericComponents/grid";
+import { Container } from "@agir/front/genericComponents/grid";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -80,14 +80,24 @@ const StyledContainer = styled(Container)`
   margin: 4rem auto;
   padding: 0;
   background-color: white;
+  width: 100%;
   max-width: 1004px;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  grid-gap: 1.5rem;
 
   @media (max-width: ${style.collapse}px) {
     margin: 0;
-    max-width: 100%;
+    display: block;
   }
 
-  ${Column} + ${Column} {
+  & > div {
+    padding: 0 2rem;
+  }
+
+  & > div + div {
+    padding: 0;
+
     @media (max-width: ${style.collapse}px) {
       display: none;
     }
@@ -102,14 +112,12 @@ const StyledContainer = styled(Container)`
 
 const CreateEventSkeleton = () => (
   <StyledContainer>
-    <Row gutter={32}>
-      <Column grow>
-        <Skeleton />
-      </Column>
-      <Column width="348px">
-        <Skeleton />
-      </Column>
-    </Row>
+    <div>
+      <Skeleton boxes={5} />
+    </div>
+    <div width="348px">
+      <Skeleton boxes={2} />
+    </div>
   </StyledContainer>
 );
 
@@ -152,29 +160,27 @@ const CreateEvent = () => {
       </Helmet>
       <PageFadeIn wait={<CreateEventSkeleton />} ready={isSessionLoaded}>
         <StyledContainer>
-          <Row gutter={32}>
-            <Column grow>
-              {!!backLink && (
-                <IndexLinkAnchor
-                  to={backLink.to}
-                  href={backLink.href}
-                  route={backLink.route}
-                  aria-label={backLink.label || "Retour à l'accueil"}
-                  title={backLink.label || "Retour à l'accueil"}
-                >
-                  <RawFeatherIcon name="arrow-left" color={style.black1000} />
-                </IndexLinkAnchor>
-              )}
-              <Spacer size="1.5rem" />
-              <h2>Nouvel événement</h2>
-              <InfoBlock $mobile />
-              <Spacer size="1.5rem" />
-              <EventForm />
-            </Column>
-            <Column width="348px">
-              <InfoBlock $desktop />
-            </Column>
-          </Row>
+          <div>
+            {!!backLink && (
+              <IndexLinkAnchor
+                to={backLink.to}
+                href={backLink.href}
+                route={backLink.route}
+                aria-label={backLink.label || "Retour à l'accueil"}
+                title={backLink.label || "Retour à l'accueil"}
+              >
+                <RawFeatherIcon name="arrow-left" color={style.black1000} />
+              </IndexLinkAnchor>
+            )}
+            <Spacer size="1.5rem" />
+            <h2>Nouvel événement</h2>
+            <InfoBlock $mobile />
+            <Spacer size="1.5rem" />
+            <EventForm user={user} />
+          </div>
+          <div>
+            <InfoBlock $desktop />
+          </div>
         </StyledContainer>
       </PageFadeIn>
     </>

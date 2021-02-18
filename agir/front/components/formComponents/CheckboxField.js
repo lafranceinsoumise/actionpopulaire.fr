@@ -14,13 +14,9 @@ const StyledField = styled.label`
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
-  font-size: 1rem;
+  font-size: 0.875rem;
   line-height: 1.5;
   cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
-
-  @media (max-width: ${style.collapse}px) {
-    font-size: 0.875rem;
-  }
 
   input {
     position: absolute;
@@ -33,7 +29,7 @@ const StyledField = styled.label`
     justify-content: center;
     align-items: center;
     flex: 0 0 auto;
-    margin-top: 0.25rem;
+    margin-top: 0.15rem;
     margin-right: 0.5rem;
     width: 1rem;
     height: 1rem;
