@@ -4,7 +4,7 @@ import DiscussionAnnouncement from "./DiscussionAnnouncement";
 
 export default {
   component: DiscussionAnnouncement,
-  title: "Group/DiscussionAnnouncement",
+  title: "Group/Announcements/DiscussionAnnouncement",
 };
 
 const Template = (args) => {

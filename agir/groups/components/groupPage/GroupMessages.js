@@ -18,7 +18,7 @@ import MessageModalTrigger, {
 } from "@agir/front/formComponents/MessageModal/Trigger";
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
-
+import DisplayNameAnnouncement from "@agir/groups/groupPage/Announcements/DisplayNameAnnouncement";
 import { EmptyMessages } from "./EmptyContent";
 
 const StyledButton = styled.div`
@@ -116,6 +116,7 @@ export const GroupMessages = (props) => {
           Messages
         </PageFadeIn>
       </h3>
+      <DisplayNameAnnouncement />
       {Array.isArray(messages) && writeNewMessage ? (
         <ResponsiveLayout
           MobileLayout={FloatingMessageModalTrigger}
