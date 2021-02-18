@@ -18,3 +18,8 @@
   {% endif %}
   {{ export_data|json_script:data_script_id }}
 {% endblock %}
+
+
+{% block matomo_extra_tracking %}
+  _paq.push(['HeatmapSessionRecording::disable']);
+{% endblock %}
