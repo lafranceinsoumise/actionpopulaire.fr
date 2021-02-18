@@ -27,20 +27,24 @@ class Migration(migrations.Migration):
                   people_person
                 SET
                   display_name = UPPER(
-                    CASE WHEN first_name <> ''
-                    AND last_name <> '' THEN concat(
+                    CASE
+                    WHEN first_name <> '' AND last_name <> '' THEN concat(
                       SUBSTRING(first_name, 1, 1),
                       SUBSTRING(last_name, 1, 1)
-                    ) WHEN first_name <> '' THEN SUBSTRING(first_name, 1, 2) WHEN last_name <> '' THEN SUBSTRING(last_name, 1, 2) ELSE (
-                      SELECT
-                        SUBSTRING(address, 1, 2)
-                      FROM
-                        people_personemail
-                      WHERE
-                        people_personemail.person_id = people_person.id
-                      LIMIT
-                        1
-                    ) END
+                    )
+                    WHEN first_name <> '' THEN SUBSTRING(first_name, 1, 2)
+                    WHEN last_name <> '' THEN SUBSTRING(last_name, 1, 2)
+                    WHEN (
+                      SELECT address FROM people_personemail
+                      WHERE people_personemail.person_id = people_person.id
+                      LIMIT 1
+                    ) IS NOT NULL THEN (
+                      SELECT SUBSTRING(address, 1, 2)
+                      FROM people_personemail
+                      WHERE people_personemail.person_id = people_person.id
+                      LIMIT 1
+                    )
+                    ELSE '?' END
                   )
             """,
             "",
