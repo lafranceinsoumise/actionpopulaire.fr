@@ -9,15 +9,13 @@ import FeatherIcon, {
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import {
-  getRequiredActionActivityCount,
-  getRoutes,
-} from "@agir/front/globalContext/reducers";
+import { getRoutes } from "@agir/front/globalContext/reducers";
 
 import Link from "@agir/front/app/Link";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
+import { useRequiredActivityCount } from "@agir/activity/common/hooks";
 
 const MAIN_LINKS = CONFIG.menuLinks.filter(({ mobile }) => mobile === false);
 
