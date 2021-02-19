@@ -19,6 +19,7 @@ import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
+import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 
 const TopBarBar = styled.div`
   position: fixed;

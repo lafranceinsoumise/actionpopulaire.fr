@@ -33,6 +33,10 @@ const ProdProvider = ({ hasToasts = false, children }) => {
   useEffect(() => {
     if (!sessionContext) return;
 
+    if (!sessionContext.user) {
+      self.caches.delete("session");
+    }
+
     doDispatch(setSessionContext(sessionContext));
     log.debug("Update session context", sessionContext);
   }, [doDispatch, sessionContext]);

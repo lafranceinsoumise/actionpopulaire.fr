@@ -10,6 +10,7 @@ const BundleTracker = require("webpack-bundle-tracker");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { InjectManifest } = require("workbox-webpack-plugin");
 const webpack = require("webpack");
 
 const DISTPATH = path.resolve(__dirname, "assets/components");
@@ -65,6 +66,20 @@ module.exports = {
     new MiniCssExtractPlugin({ filename: "[name]-[chunkhash].css" }),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new BundleAnalyzerPlugin({ analyzerMode: "static", openAnalyzer: false }),
+    new InjectManifest({
+      swSrc: path.resolve(
+        __dirname,
+        "agir/front/components/serviceWorker/index.js"
+      ),
+      swDest: "service-worker.js",
+      maximumFileSizeToCacheInBytes: 7000000,
+      exclude: [
+        /richEditor/,
+        /adminJsonWidget/,
+        /serviceWorker/,
+        /front\/skins/,
+      ],
+    }),
   ],
   output: {
     libraryTarget: "window",

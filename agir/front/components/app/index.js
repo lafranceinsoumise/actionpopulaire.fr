@@ -1,4 +1,7 @@
 import onDOMReady from "@agir/lib/utils/onDOMReady";
+import logger from "@agir/lib/utils/logger";
+
+const log = logger(__filename);
 
 (async function () {
   const [
@@ -20,3 +23,14 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
   };
   onDOMReady(init);
 })();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    try {
+      navigator.serviceWorker.register("/sw.js");
+      log.debug("Registered service worker");
+    } catch (e) {
+      log.error("Failed to register service worker");
+    }
+  });
+}

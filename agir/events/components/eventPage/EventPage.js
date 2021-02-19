@@ -249,7 +249,6 @@ EventPage.propTypes = {
     address: PropTypes.string,
     shortAddress: PropTypes.string,
   }),
-  participantCount: PropTypes.number.isRequired,
   contact: PropTypes.shape(ContactCard.propTypes),
   options: PropTypes.shape({ price: PropTypes.string }),
   groups: PropTypes.arrayOf(PropTypes.shape(GroupCard.propTypes)),
@@ -305,7 +304,7 @@ export const ConnectedEventPage = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const dispatch = useDispatch();
 
-  const { data: eventData } = useSWR(`/api/evenements/${eventPk}`);
+  const { data: eventData } = useSWR(`/api/evenements/${eventPk}/`);
   log.debug("Event data", eventData);
 
   let { is2022 } = eventData || {};

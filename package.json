@@ -50,6 +50,7 @@
     "masonry-layout": "^4.2.2",
     "moment": "^2.29.1",
     "normalize.css": "^8.0.1",
+    "object-hash": "^2.1.1",
     "ol": "^6.5.0",
     "path-to-regexp-es": "^3.0.0",
     "polished": "^4.1.0",
@@ -82,7 +83,12 @@
     "tinymce": "^5.7.0",
     "tinymce-i18n": "^17.12.31",
     "turbolinks": "^5.2.0",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "workbox-cacheable-response": "^6.1.0",
+    "workbox-expiration": "^6.1.0",
+    "workbox-precaching": "^6.1.0",
+    "workbox-routing": "^6.1.0",
+    "workbox-strategies": "^6.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.13",
@@ -127,7 +133,8 @@
     "webpack-cli": "^4.5.0",
     "webpack-dev-server": "^3.11.1",
     "webpack-merge": "^5.7.3",
-    "webpack-stats-plugin": "^1.0.3"
+    "webpack-stats-plugin": "^1.0.3",
+    "workbox-webpack-plugin": "^6.1.0"
   },
   "browserslist": "cover 98% in FR, last 2 versions, Firefox ESR, not dead"
 }

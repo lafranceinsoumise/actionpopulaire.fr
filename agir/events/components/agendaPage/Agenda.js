@@ -269,7 +269,7 @@ const Agenda = () => {
   const is2022 = useSelector(getIs2022);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
-  const { data: rsvped } = useSWR("/api/evenements/rsvped");
+  const { data: rsvped } = useSWR("/api/evenements/rsvped/");
   const { data: suggestions } = useSWR("/api/evenements/suggestions/");
 
   const rsvpedEvents = React.useMemo(

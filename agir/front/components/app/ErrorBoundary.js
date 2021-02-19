@@ -37,12 +37,15 @@ class ErrorBoundary extends React.Component {
 
     return (
       <div>
-        <h2>Une erreur est survenue !</h2>
-        <p>{errorMessage}</p>
+        <h2>
+          Une erreur est survenue. Nous faisons notre possible pour la corriger.
+        </h2>
+        {process.env.NODE_ENV === "production" ? null : <p>{errorMessage}</p>}
       </div>
     );
   }
 }
+
 ErrorBoundary.propTypes = {
   children: PropTypes.node,
   Fallback: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),

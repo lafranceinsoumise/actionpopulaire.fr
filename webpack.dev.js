@@ -37,6 +37,7 @@ module.exports = merge.merge(common, {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
+    writeToDisk: true,
     allowedHosts: ["agir.local"], // l'appli Django est toujours sur agir.local
   },
   optimization: {
