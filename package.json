@@ -85,6 +85,7 @@
     "turbolinks": "^5.2.0",
     "url": "^0.11.0",
     "workbox-cacheable-response": "^6.1.0",
+    "workbox-expiration": "^6.1.0",
     "workbox-precaching": "^6.1.0",
     "workbox-routing": "^6.1.0",
     "workbox-strategies": "^6.1.0"

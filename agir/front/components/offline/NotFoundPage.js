@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import illustration from "./illustration.svg";
 import styled from "styled-components";
 import useSWR from "swr";
+import { useIsOffline } from "@agir/front/offline/hooks";
 
 const PageStyle = styled.div`
   display: flex;
@@ -22,27 +23,27 @@ const PageStyle = styled.div`
 
 // Most of the time, if we are in the app on unknow URL, it is because of service worker no network handling
 const NotFoundPage = () => {
-  const { data, error } = useSWR("/api/session");
+  const isOffline = useIsOffline();
 
   // We try to reload every 5 second
   useEffect(() => {
-    if (!error) {
+    if (!isOffline) {
       return;
     }
 
     setTimeout(() => {
       window.location.reload();
     }, 5000);
-  }, [error]);
+  }, [isOffline]);
 
-  if (!data && !error) return null;
+  if (isOffline === null) return null;
 
   return (
     <PageStyle>
-      {error ? (
+      {isOffline ? (
         <>
           <img src={illustration} style={{ marginBottom: "32px" }} />
-          <h1 style={{ marginBottom: "8px" }}>Recherche de connexion...</h1>
+          <h1 style={{ marginBottom: "8px" }}>Pas de connexion</h1>
           <p>
             Connectez-vous à un
             <br />

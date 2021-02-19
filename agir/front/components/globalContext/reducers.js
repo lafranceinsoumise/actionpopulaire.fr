@@ -35,6 +35,9 @@ export const is2022 = (state = false, action) => {
 
 export const user = (state = null, action) => {
   if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
+    if (!action.user) {
+      self.caches.delete("session");
+    }
     return action.user || state;
   }
   return state;

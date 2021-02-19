@@ -2,11 +2,11 @@ import PropTypes from "prop-types";
 import React, { Suspense, useEffect, useMemo } from "react";
 import {
   BrowserRouter,
-  Switch,
   Route,
-  useParams,
-  useLocation,
+  Switch,
   useHistory,
+  useLocation,
+  useParams,
 } from "react-router-dom";
 
 import {
@@ -26,6 +26,7 @@ import routes, { BASE_PATH } from "./routes.config";
 import logger from "@agir/lib/utils/logger";
 import useTracking from "./useTracking";
 import NotFoundPage from "@agir/front/offline/NotFoundPage";
+import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 
 const log = logger(__filename);
 
@@ -68,36 +69,42 @@ const Page = (props) => {
 
   if (!routeConfig.hasLayout) {
     return (
-      <ErrorBoundary>
-        <Suspense fallback={<div />}>
-          <Component
-            {...(routeConfig.routeProps || {})}
-            {...routeParams}
-            {...rest}
-            data={[]}
-          />
-          {routeConfig.hideFeedbackButton ? null : (
-            <FeedbackButton style={{ bottom: "1rem" }} />
-          )}
-        </Suspense>
-      </ErrorBoundary>
+      <>
+        <ConnectivityWarning />
+        <ErrorBoundary>
+          <Suspense fallback={<div />}>
+            <Component
+              {...(routeConfig.routeProps || {})}
+              {...routeParams}
+              {...rest}
+              data={[]}
+            />
+            {routeConfig.hideFeedbackButton ? null : (
+              <FeedbackButton style={{ bottom: "1rem" }} />
+            )}
+          </Suspense>
+        </ErrorBoundary>
+      </>
     );
   }
 
   return (
-    <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
-      <ErrorBoundary>
-        <Suspense fallback={<div />}>
-          <Component
-            {...(routeConfig.routeProps || {})}
-            {...routeParams}
-            {...rest}
-            data={[]}
-          />
-          {routeConfig.hideFeedbackButton ? null : <FeedbackButton />}
-        </Suspense>
-      </ErrorBoundary>
-    </Layout>
+    <>
+      <ConnectivityWarning />
+      <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
+        <ErrorBoundary>
+          <Suspense fallback={<div />}>
+            <Component
+              {...(routeConfig.routeProps || {})}
+              {...routeParams}
+              {...rest}
+              data={[]}
+            />
+            {routeConfig.hideFeedbackButton ? null : <FeedbackButton />}
+          </Suspense>
+        </ErrorBoundary>
+      </Layout>
+    </>
   );
 };
 Page.propTypes = {

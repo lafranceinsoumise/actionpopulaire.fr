@@ -72,7 +72,13 @@ module.exports = {
         "agir/front/components/serviceWorker/index.js"
       ),
       swDest: "service-worker.js",
-      maximumFileSizeToCacheInBytes: 10000000,
+      maximumFileSizeToCacheInBytes: 7000000,
+      exclude: [
+        /richEditor/,
+        /adminJsonWidget/,
+        /serviceWorker/,
+        /front\/skins/,
+      ],
     }),
   ],
   output: {

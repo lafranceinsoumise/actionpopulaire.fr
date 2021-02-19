@@ -74,7 +74,7 @@ const GroupsPage = () => {
   const routes = useSelector(getRoutes);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
-  const { data: groupList } = useSWR("/api/groupes");
+  const { data: groupList } = useSWR("/api/groupes/");
 
   const groups = React.useMemo(
     () =>
