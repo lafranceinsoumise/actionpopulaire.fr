@@ -91,6 +91,13 @@ class GroupMessagesTestAPICase(APITestCase):
         res = self.client.get(f"/api/groupes/{self.group.pk}/messages/")
         self.assertEqual(res.status_code, 403)
 
+    def test_not_login_cannot_get_messages(self):
+        SupportGroupMessage.objects.create(
+            supportgroup=self.group, author=self.manager, text="Lorem"
+        )
+        res = self.client.get(f"/api/groupes/{self.group.pk}/messages/")
+        self.assertEqual(res.status_code, 401)
+
     def test_manager_can_post_message_without_event(self):
         self.client.force_login(self.manager.role)
         res = self.client.post(

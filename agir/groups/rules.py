@@ -145,13 +145,26 @@ rules.add_perm(
 rules.add_perm(
     "groups.transfer_members", is_authenticated_person & is_at_least_manager_for_group
 )
-rules.add_perm("msgs.view_supportgroupmessage", is_group_member)
-rules.add_perm("msgs.add_supportgroupmessage", is_at_least_manager_for_group)
-rules.add_perm("msgs.change_supportgroupmessage", is_msg_author)
-rules.add_perm("msgs.delete_supportgroupmessage", is_msg_author)
-rules.add_perm("msgs.add_supportgroupmessagecomment", is_group_member)
-rules.add_perm("msgs.change_supportgroupmessagecomment", is_msg_author)
+rules.add_perm(
+    "msgs.view_supportgroupmessage", is_authenticated_person & is_group_member
+)
+rules.add_perm(
+    "msgs.add_supportgroupmessage",
+    is_authenticated_person & is_at_least_manager_for_group,
+)
+rules.add_perm(
+    "msgs.change_supportgroupmessage", is_authenticated_person & is_msg_author
+)
+rules.add_perm(
+    "msgs.delete_supportgroupmessage", is_authenticated_person & is_msg_author
+)
+rules.add_perm(
+    "msgs.add_supportgroupmessagecomment", is_authenticated_person & is_group_member
+)
+rules.add_perm(
+    "msgs.change_supportgroupmessagecomment", is_authenticated_person & is_msg_author
+)
 rules.add_perm(
     "msgs.delete_supportgroupmessagecomment",
-    is_msg_author | is_at_least_manager_for_group,
+    is_authenticated_person & (is_msg_author | is_at_least_manager_for_group),
 )

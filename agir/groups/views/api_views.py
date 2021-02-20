@@ -246,7 +246,7 @@ class GroupMessagesPermissions(GlobalOrObjectPermissions):
 
 class GroupMessagesAPIView(ListCreateAPIView):
     serializer_class = SupportGroupMessageSerializer
-    permission_classes = (IsAuthenticated, GroupMessagesPermissions)
+    permission_classes = (GroupMessagesPermissions,)
     pagination_class = APIPaginator
 
     def initial(self, request, *args, **kwargs):
@@ -278,7 +278,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
     queryset = SupportGroupMessage.objects.filter(deleted=False)
     serializer_class = SupportGroupMessageSerializer
-    permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
+    permission_classes = (GlobalOrObjectPermissions,)
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -300,7 +300,7 @@ class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
 
 class GroupMessageCommentsAPIView(ListCreateAPIView):
     serializer_class = MessageCommentSerializer
-    permission_classes = (IsAuthenticated, GroupMessageCommentsPermissions)
+    permission_classes = (GroupMessageCommentsPermissions,)
 
     def initial(self, request, *args, **kwargs):
         try:
@@ -326,7 +326,7 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
 class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
     queryset = SupportGroupMessageComment.objects.filter(deleted=False)
     serializer_class = MessageCommentSerializer
-    permission_classes = (IsAuthenticated, GlobalOrObjectPermissions)
+    permission_classes = (GlobalOrObjectPermissions,)
 
     def perform_destroy(self, instance):
         instance.deleted = True
