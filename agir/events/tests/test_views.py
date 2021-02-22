@@ -155,6 +155,7 @@ class EventPagesTestCase(TestCase):
             legal={legal.QUESTION_SALLE: True, legal.QUESTION_MATERIEL_CAMPAGNE: True},
         )
 
+        RSVP.objects.create(person=self.person, event=self.organized_event)
         OrganizerConfig.objects.create(
             event=self.organized_event, person=self.person, is_creator=True
         )
@@ -234,6 +235,27 @@ class EventPagesTestCase(TestCase):
         )
 
         self.the_rsvp = RSVP.objects.create(person=self.person, event=self.past_event)
+
+    def test_cannot_access_upload_image_page_if_not_rsvp_or_organizer(self):
+        self.client.force_login(self.person.role)
+        response = self.client.get(
+            reverse("upload_event_image", kwargs={"pk": self.other_event.pk})
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_access_upload_image_page_if_rsvp(self):
+        self.client.force_login(self.person.role)
+        response = self.client.get(
+            reverse("upload_event_image", kwargs={"pk": self.rsvped_event.pk})
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_can_access_upload_image_page_if_organizer(self):
+        self.client.force_login(self.person.role)
+        response = self.client.get(
+            reverse("upload_event_image", kwargs={"pk": self.organized_event.pk})
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_can_see_public_event(self):
         res = self.client.get(

@@ -259,10 +259,19 @@ class UploadEventImageView(
 
         return super().get_context_data(event=self.event, **kwargs)
 
+    def get_permission_object(self):
+        return self.event
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        try:
+            self.event = Event.objects.get(pk=pk)
+        except Event.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
         self.object = None
-        self.event = self.get_object()
-
         if not self.event.rsvps.filter(person=request.user.person).exists():
             raise PermissionDenied(
                 _("Seuls les participants à l'événement peuvent poster des images")
@@ -272,8 +281,6 @@ class UploadEventImageView(
 
     def post(self, request, *args, **kwargs):
         self.object = None
-        self.event = self.get_object()
-
         if not self.event.rsvps.filter(person=request.user.person).exists():
             raise PermissionDenied(
                 _("Seuls les participants à l'événement peuvent poster des images")
