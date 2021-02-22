@@ -1,6 +1,6 @@
 [
   {
-    "id": "1",
+    "id": 1,
     "label": "Reunion régulière",
     "iconName": "comments",
     "type": "G",
@@ -8,7 +8,7 @@
     "color": "dodgerblue"
   },
   {
-    "id": "10",
+    "id": 10,
     "label": "Accueil des nouveaux membres",
     "iconName": "thumbs-up",
     "type": "G",
@@ -16,21 +16,21 @@
     "color": "crimson"
   },
   {
-    "id": "2",
+    "id": 2,
     "label": "Écoute collective",
     "iconName": "desktop",
     "type": "M",
     "typeLabel": "Événement public"
   },
   {
-    "id": "3",
+    "id": 3,
     "label": "Caravane d’accès aux droits",
     "iconName": "truck",
     "type": "A",
     "typeLabel": "Action publique"
   },
   {
-    "id": "4",
+    "id": 4,
     "label": "Tout autre type d’événement",
     "iconName": "",
     "type": "O",

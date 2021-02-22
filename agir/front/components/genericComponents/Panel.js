@@ -208,7 +208,6 @@ const Panel = (props) => {
           <PanelContent
             ref={panelContentRef}
             style={props}
-            aria-panel="true"
             role="dialog"
             $position={position}
           >

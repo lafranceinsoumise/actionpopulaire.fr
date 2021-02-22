@@ -1,7 +1,9 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 // import style from "@agir/front/genericComponents/_variables.scss";
+
+import { validateData } from "./eventForm.config";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -63,8 +65,13 @@ const TEST_GROUPS = [
 
 const EventForm = () => {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
+  const [errors, setErrors] = useState({});
 
   const updateValue = useCallback((name, value) => {
+    setErrors((state) => ({
+      ...state,
+      [name]: undefined,
+    }));
     setFormData((state) => ({
       ...state,
       [name]: value,
@@ -72,6 +79,10 @@ const EventForm = () => {
   }, []);
 
   const updateDate = useCallback((startTime, endTime) => {
+    setErrors((state) => ({
+      ...state,
+      [name]: undefined,
+    }));
     setFormData((state) => ({
       ...state,
       startTime,
@@ -81,17 +92,25 @@ const EventForm = () => {
 
   const handleSubmit = useCallback(
     (e) => {
+      setErrors({});
       e.preventDefault();
-      console.log(formData);
+      console.dir(formData);
+      const errors = validateData(formData);
+      if (errors) {
+        setErrors(errors);
+      }
     },
     [formData]
   );
 
-  const errors = {};
   const isLoading = false;
-  const maySubmit = true;
   const groups = TEST_GROUPS;
   const subtypes = TEST_SUBTYPES;
+
+  const maySubmit = useMemo(
+    () => !isLoading && Object.values(errors).filter(Boolean).length === 0,
+    [errors, isLoading]
+  );
 
   return (
     <StyledForm onSubmit={handleSubmit}>
@@ -101,7 +120,7 @@ const EventForm = () => {
         onChange={updateValue}
         error={errors && errors.name}
         disabled={isLoading}
-        required
+        required={false}
       />
       <Spacer size="1rem" />
       <OrganizerGroupField
@@ -111,7 +130,7 @@ const EventForm = () => {
         error={errors && errors.organizerGroup}
         disabled={isLoading}
         groups={groups}
-        required
+        required={false}
       />
       <Spacer size="1rem" />
       <DateField
@@ -120,7 +139,7 @@ const EventForm = () => {
         error={errors && (errors.startTime || errors.endTime)}
         onChange={updateDate}
         disabled={isLoading}
-        required
+        required={false}
       />
       <Spacer size="1rem" />
       <SubtypeField
@@ -130,7 +149,7 @@ const EventForm = () => {
         onChange={updateValue}
         error={errors && errors.subtype}
         disabled={isLoading}
-        required
+        required={false}
       />
       <Spacer size="1.5rem" />
       <fieldset>
@@ -148,7 +167,7 @@ const EventForm = () => {
           onChange={updateValue}
           error={errors && errors.location}
           disabled={isLoading}
-          required
+          required={false}
         />
       </fieldset>
       <Spacer size="1.5rem" />
@@ -164,7 +183,7 @@ const EventForm = () => {
           onChange={updateValue}
           error={errors && errors.contact}
           disabled={isLoading}
-          required
+          required={false}
         />
       </fieldset>
       <Spacer size="2rem" />

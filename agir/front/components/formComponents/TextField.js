@@ -82,7 +82,7 @@ const StyledField = styled.label`
   ${StyledError} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
     grid-row: 4;
-    grid-column: 1/3;
+    grid-column: ${({ $hasCounter }) => ($hasCounter ? "1/2" : "1/3")};
     color: ${style.redNSP};
   }
   ${StyledCounter} {
@@ -126,6 +126,7 @@ const TextField = forwardRef((props, ref) => {
       $valid={!error}
       $invalid={!!error}
       $empty={!!value}
+      $hasCounter={!!maxLength && !!hasCounter}
     >
       {label && <StyledLabel>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}

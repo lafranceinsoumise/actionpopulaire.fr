@@ -30,7 +30,7 @@ const OrganizerGroupField = (props) => {
 };
 OrganizerGroupField.propTypes = {
   onChange: PropTypes.func.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.object,
   name: PropTypes.string.isRequired,
   groups: PropTypes.arrayOf(PropTypes.object),
   error: PropTypes.string,

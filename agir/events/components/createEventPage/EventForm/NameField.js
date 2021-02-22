@@ -23,6 +23,8 @@ const NameField = (props) => {
       error={error}
       required={required}
       disabled={disabled}
+      maxLength={100}
+      hasCounter={value && value.length >= 50}
     />
   );
 };

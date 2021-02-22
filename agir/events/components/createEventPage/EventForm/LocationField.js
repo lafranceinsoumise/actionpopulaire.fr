@@ -1,4 +1,3 @@
-import countries from "localized-countries/data/fr";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -8,24 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import SelectField from "@agir/front/formComponents/SelectField";
 import TextField from "@agir/front/formComponents/TextField";
 
-const FIRST_COUNTRY_CODES = ["FR", "PT", "DZ", "MA", "TR", "IT", "GB", "ES"];
-const FIRST_COUNTRIES = FIRST_COUNTRY_CODES.map((countryCode) => ({
-  value: countryCode,
-  label: countries[countryCode],
-}));
-const OTHER_COUNTRIES = Object.keys(countries)
-  .map((countryCode) => {
-    if (!FIRST_COUNTRY_CODES.includes(countryCode)) {
-      return {
-        value: countryCode,
-        label: countries[countryCode],
-      };
-    }
-  })
-  .filter(Boolean)
-  .sort(({ label: label1 }, { label: label2 }) => label1.localeCompare(label2));
-
-const COUNTRIES = [...FIRST_COUNTRIES, ...OTHER_COUNTRIES];
+import { COUNTRIES } from "./eventForm.config";
 
 const StyledField = styled.div`
   display: grid;
@@ -122,7 +104,7 @@ const LocationField = (props) => {
       />
       <TextField
         label="Adresse du lieu"
-        autocomplete="address-line1"
+        autoComplete="address-line1"
         name="address1"
         value={address1}
         onChange={handleChange}
@@ -134,7 +116,7 @@ const LocationField = (props) => {
         <TextField
           label=""
           name="address2"
-          autocomplete="address-line2"
+          autoComplete="address-line2"
           value={address2}
           onChange={handleChange}
           disabled={disabled}
@@ -150,7 +132,7 @@ const LocationField = (props) => {
       <TextField
         label="Code postal"
         name="zip"
-        autocomplete="postal-code"
+        autoComplete="postal-code"
         value={zip}
         onChange={handleChange}
         required={required}
@@ -160,7 +142,7 @@ const LocationField = (props) => {
       <TextField
         label="Ville"
         name="city"
-        autocomplete="city"
+        autoComplete="city"
         value={city}
         onChange={handleChange}
         required={required}
@@ -170,7 +152,7 @@ const LocationField = (props) => {
       <SelectField
         label="Pays"
         name="country"
-        autocomplete="country-name"
+        autoComplete="country-name"
         placeholder=""
         value={selectedCountry}
         options={COUNTRIES}

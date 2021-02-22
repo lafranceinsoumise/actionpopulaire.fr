@@ -168,7 +168,7 @@ SubtypeOption.propTypes = DefaultOption.propTypes = {
 };
 
 const SubtypeField = (props) => {
-  const { onChange, value, name, error, required, disabled } = props;
+  const { onChange, value, name, error, disabled } = props;
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const openPanel = useCallback(() => {
     setIsPanelOpen(true);
@@ -232,12 +232,6 @@ const SubtypeField = (props) => {
           {error}
         </p>
       )}
-      <input
-        type="hidden"
-        name={name}
-        value={value ? value.id : ""}
-        required={required}
-      />
       <StyledDefaultOptions>
         {value ? (
           <DefaultOption key={value.id} option={value} selected />

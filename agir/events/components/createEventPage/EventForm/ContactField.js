@@ -93,7 +93,7 @@ const ContactField = (props) => {
           <TextField
             label="Nom de la personne à contacter"
             name="name"
-            autocomplete="name"
+            autoComplete="name"
             value={name}
             onChange={handleChange}
             disabled={disabled}
@@ -103,7 +103,7 @@ const ContactField = (props) => {
           <TextField
             label="Adresse e-mail de contact"
             name="email"
-            autocomplete="email"
+            autoComplete="email"
             type="email"
             value={email}
             onChange={handleChange}
@@ -115,7 +115,7 @@ const ContactField = (props) => {
             label="Numéro de téléphone de contact"
             helpText="Obligatoire pour que l’équipe de coordination puisse vous contacter mais peut être caché aux participant·e·s."
             name="phone"
-            autocomplete="tel"
+            autoComplete="tel"
             value={phone}
             onChange={handleChange}
             disabled={disabled}
