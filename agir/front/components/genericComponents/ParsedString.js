@@ -2,7 +2,6 @@
 
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
-import regexifyString from "regexify-string";
 import styled from "styled-components";
 
 const StyledContent = styled.p`
@@ -16,10 +15,38 @@ const StyledContent = styled.p`
 
 const URL_RE = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
 
+const replaceSubstrings = (options) => {
+  const { pattern, formatter, input } = options;
+  const output = [];
+  let matchIndex = 0;
+  let processedInput = input;
+  let result = pattern.exec(processedInput);
+  while (result !== null) {
+    const matchStartAt = result.index;
+    const match = result[0];
+    const contentBeforeMatch = processedInput.substring(0, matchStartAt);
+    const decoratedMatch = formatter(match, matchIndex);
+    output.push(contentBeforeMatch);
+    output.push(decoratedMatch);
+    processedInput = processedInput.substring(
+      matchStartAt + match.length,
+      processedInput.length + 1
+    );
+    pattern.lastIndex = 0;
+    result = pattern.exec(processedInput);
+    matchIndex += 1;
+  }
+  if (processedInput) {
+    output.push(processedInput);
+  }
+
+  return output;
+};
+
 const parseString = (input) =>
-  regexifyString({
+  replaceSubstrings({
     pattern: URL_RE,
-    decorator: (match, index) => (
+    formatter: (match, index) => (
       <a
         target="_blank"
         rel="noopener noreferrer"
