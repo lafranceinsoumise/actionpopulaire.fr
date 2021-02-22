@@ -10,6 +10,7 @@ import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
 import InlineMenu from "@agir/front/genericComponents/InlineMenu";
+import ParsedString from "@agir/front/genericComponents/ParsedString";
 
 const StyledInlineMenuItems = styled.div`
   cursor: pointer;
@@ -165,13 +166,6 @@ const StyledWrapper = styled(animated.div)`
       font-size: inherit;
       font-family: inherit;
       line-height: 1.65;
-
-      span {
-        display: block;
-        min-height: 1em;
-        font-size: inherit;
-        line-height: inherit;
-      }
     }
   }
 
@@ -218,11 +212,7 @@ const Comment = (props) => {
             </strong>
             <em>{created ? timeAgo(created) : null}</em>
           </StyledMessageHeader>
-          <article>
-            {text.split("\n").map((paragraph, i) => (
-              <span key={i + "__" + paragraph}>{paragraph}</span>
-            ))}
-          </article>
+          <ParsedString as="article">{text}</ParsedString>
         </StyledMessageContent>
         {hasActions ? (
           <StyledAction>

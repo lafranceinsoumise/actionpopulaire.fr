@@ -16,6 +16,7 @@ import Card from "@agir/front/genericComponents/Card";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import InlineMenu from "@agir/front/genericComponents/InlineMenu";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import ParsedString from "@agir/front/genericComponents/ParsedString";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
@@ -126,7 +127,7 @@ const StyledAction = styled.div`
   }
 `;
 const StyledGroupLink = styled(Link)``;
-const StyledContent = styled.div`
+const StyledContent = styled(ParsedString)`
   padding: 0;
   font-size: inherit;
   line-height: 1.65;
@@ -135,13 +136,6 @@ const StyledContent = styled.div`
   @media (max-width: ${style.collapse}px) {
     font-size: 0.875rem;
     line-height: 1.6;
-  }
-
-  span {
-    display: block;
-    min-height: 1em;
-    font-size: inherit;
-    line-height: inherit;
   }
 `;
 const StyledHeader = styled.div`
@@ -485,11 +479,7 @@ const MessageCard = (props) => {
             ) : null}
           </StyledAction>
         </StyledHeader>
-        <StyledContent onClick={handleClick}>
-          {text.split("\n").map((paragraph, i) => (
-            <span key={i + "__" + paragraph}>{paragraph}</span>
-          ))}
-        </StyledContent>
+        <StyledContent onClick={handleClick}>{text}</StyledContent>
         {event ? <EventCard {...event} /> : null}
         {commentCount ? (
           <StyledCommentCount onClick={handleClick}>
