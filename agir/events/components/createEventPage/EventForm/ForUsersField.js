@@ -1,9 +1,9 @@
 import PropTypes from "prop-types";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import RadioField from "@agir/front/formComponents/RadioField";
 
-const NameField = (props) => {
+const ForUsersField = (props) => {
   const { onChange, value, options, name, error, required, disabled } = props;
 
   const handleChange = useCallback(
@@ -13,7 +13,13 @@ const NameField = (props) => {
     [name, onChange]
   );
 
-  return (
+  useEffect(() => {
+    Array.isArray(options) &&
+      options.length === 1 &&
+      handleChange(options[0].value);
+  }, [options, handleChange]);
+
+  return Array.isArray(options) && options.length > 1 ? (
     <RadioField
       label="Que cela concerne-t-il ?"
       id={name}
@@ -25,9 +31,9 @@ const NameField = (props) => {
       required={required}
       disabled={disabled}
     />
-  );
+  ) : null;
 };
-NameField.propTypes = {
+ForUsersField.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
   options: PropTypes.arrayOf(PropTypes.object),
@@ -36,4 +42,4 @@ NameField.propTypes = {
   required: PropTypes.bool,
   disabled: PropTypes.bool,
 };
-export default NameField;
+export default ForUsersField;

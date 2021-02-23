@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react";
+import axios from "@agir/lib/utils/axios";
+import qs from "querystring";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-
-// import style from "@agir/front/genericComponents/_variables.scss";
+import useSWR from "swr";
 
 import { validateData } from "./eventForm.config";
 
@@ -11,7 +12,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import NameField from "./NameField";
 import OrganizerGroupField from "./OrganizerGroupField";
 import DateField from "./DateField";
-import CampaignField from "./CampaignField";
+import ForUsersField from "./ForUsersField";
 import SubtypeField from "./SubtypeField";
 import LocationField from "./LocationField";
 import ContactField from "./ContactField";
@@ -52,21 +53,79 @@ const StyledForm = styled.form`
     text-align: center;
   }
 `;
-import { DEFAULT_FORM_DATA, CAMPAIGN_OPTIONS } from "./eventForm.config";
+import { DEFAULT_FORM_DATA } from "./eventForm.config";
 
-import TEST_SUBTYPES from "./eventSubtypes.json";
-const TEST_GROUPS = [
-  {
-    id: "abx123",
-    value: "abx123",
-    label: "Equipe de soutien « Nous Sommes Pour » à Angers",
-  },
-  { id: null, value: null, label: "À titre individuel" },
-];
+const createEvent = async (data) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = "/evenements/creer/form/";
+  const body = qs.stringify({
+    name: data.name,
+    contact_email: data.contact.email,
+    contact_name: data.contact.name,
+    contact_phone: data.contact.phone,
+    contact_hide_phone: data.contact.hidePhone,
+    start_time: data.startTime,
+    end_time: data.endTime,
+    location_name: data.location.name,
+    location_address1: data.location.address1,
+    location_address2: data.location.address2,
+    location_zip: data.location.zip,
+    location_city: data.location.city,
+    location_country: data.location.country,
+    subtype: data.subtype.label,
+    as_group: data.organizerGroup.id,
+    for_users: data.forUsers,
+    legal: JSON.stringify({}),
+  });
+
+  try {
+    const response = await axios.post(url, body);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+const useEventFormOptions = () => {
+  const { data: eventOptions } = useSWR(`/api/evenements/options/`);
+
+  const organizerGroup = useMemo(() => {
+    if (eventOptions && Array.isArray(eventOptions.organizerGroup)) {
+      return [
+        ...eventOptions.organizerGroup.map((group) => ({
+          ...group,
+          label: group.name,
+          value: group.id,
+        })),
+        {
+          id: null,
+          value: null,
+          label: "À titre individuel",
+          contact: eventOptions.defaultContact,
+        },
+      ];
+    }
+  }, [eventOptions]);
+
+  return eventOptions
+    ? {
+        ...eventOptions,
+        organizerGroup,
+      }
+    : {};
+};
 
 const EventForm = () => {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const options = useEventFormOptions();
 
   const updateValue = useCallback((name, value) => {
     setErrors((state) => ({
@@ -91,23 +150,64 @@ const EventForm = () => {
     }));
   }, []);
 
+  useEffect(() => {
+    if (formData.contact.isDefault && formData.organizerGroup) {
+      const contact = formData.organizerGroup.contact
+        ? Object.keys(DEFAULT_FORM_DATA.contact).reduce(
+            (result, key) => ({
+              ...result,
+              [key]:
+                formData.organizerGroup.contact[key] ||
+                DEFAULT_FORM_DATA.contact[key],
+            }),
+            {}
+          )
+        : DEFAULT_FORM_DATA.contact;
+      setFormData((state) => ({
+        ...state,
+        contact,
+      }));
+    }
+
+    if (formData.location.isDefault && formData.organizerGroup) {
+      const location = formData.organizerGroup.location
+        ? Object.keys(DEFAULT_FORM_DATA.location).reduce(
+            (result, key) => ({
+              ...result,
+              [key]:
+                formData.organizerGroup.location[key] ||
+                DEFAULT_FORM_DATA.location[key],
+            }),
+            {}
+          )
+        : DEFAULT_FORM_DATA.location;
+      setFormData((state) => ({
+        ...state,
+        location,
+      }));
+    }
+  }, [
+    formData.location.isDefault,
+    formData.contact.isDefault,
+    formData.organizerGroup,
+  ]);
+
   const handleSubmit = useCallback(
-    (e) => {
-      setErrors({});
+    async (e) => {
       e.preventDefault();
-      console.dir(formData);
+      setErrors({});
       const errors = validateData(formData);
       if (errors) {
         setErrors(errors);
+        return;
       }
+      setIsLoading(true);
+      const result = await createEvent(formData);
+      console.log(result);
+      setIsLoading(false);
     },
     [formData]
   );
-
-  const isLoading = false;
-  const groups = TEST_GROUPS;
-  const subtypes = TEST_SUBTYPES;
-  const campaigns = CAMPAIGN_OPTIONS;
 
   const maySubmit = useMemo(
     () => !isLoading && Object.values(errors).filter(Boolean).length === 0,
@@ -131,8 +231,8 @@ const EventForm = () => {
         onChange={updateValue}
         error={errors && errors.organizerGroup}
         disabled={isLoading}
-        groups={groups}
         required
+        options={options.organizerGroup}
       />
       <Spacer size="1rem" />
       <DateField
@@ -144,11 +244,11 @@ const EventForm = () => {
         required
       />
       <Spacer size="1rem" />
-      <CampaignField
+      <ForUsersField
         name="forUsers"
         value={formData.forUsers}
         onChange={updateValue}
-        options={campaigns}
+        options={options.forUsers}
         error={errors && errors.forUsers}
         disabled={isLoading}
         required
@@ -157,7 +257,7 @@ const EventForm = () => {
       <SubtypeField
         name="subtype"
         value={formData.subtype}
-        subtypes={subtypes}
+        options={options.subtype}
         onChange={updateValue}
         error={errors && errors.subtype}
         disabled={isLoading}
@@ -213,5 +313,4 @@ const EventForm = () => {
     </StyledForm>
   );
 };
-
 export default EventForm;

@@ -8,7 +8,6 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 
 import {
   getIsSessionLoaded,
-  getUser,
   getBackLink,
 } from "@agir/front/globalContext/reducers";
 
@@ -150,7 +149,6 @@ const InfoBlock = (props) => (
 
 const CreateEvent = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
-  const user = useSelector(getUser);
   const backLink = useSelector(getBackLink);
 
   return (
@@ -176,7 +174,7 @@ const CreateEvent = () => {
             <h2>Nouvel événement</h2>
             <InfoBlock $mobile />
             <Spacer size="1.5rem" />
-            <EventForm user={user} />
+            <EventForm />
           </div>
           <div>
             <InfoBlock $desktop />

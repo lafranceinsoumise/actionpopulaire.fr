@@ -7,14 +7,35 @@ from agir.lib.serializers import (
     FlexibleFieldsMixin,
 )
 from . import models
-from .models import OrganizerConfig, RSVP
-from ..groups.serializers import SupportGroupSerializer
+from .models import OrganizerConfig, RSVP, Event, EventSubtype
+from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
+from ..groups.models import Membership, SupportGroup
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
+    typeLabel = serializers.SerializerMethodField()
+    typeDescription = serializers.SerializerMethodField()
+    iconName = serializers.CharField(source="icon_name")
+
+    def get_typeLabel(self, obj):
+        return dict(EventSubtype.TYPE_CHOICES)[obj.type]
+
+    def get_typeDescription(self, obj):
+        return dict(EventSubtype.TYPE_DESCRIPTION)[obj.type]
+
     class Meta:
         model = models.EventSubtype
-        fields = ("label", "description", "color", "icon", "type")
+        fields = (
+            "id",
+            "label",
+            "description",
+            "color",
+            "icon",
+            "iconName",
+            "type",
+            "typeLabel",
+            "typeDescription",
+        )
 
 
 EVENT_ROUTES = {
@@ -183,3 +204,66 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     class Meta:
         list_serializer_class = EventListSerializer
+
+
+class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
+    organizerGroup = serializers.SerializerMethodField()
+    forUsers = serializers.SerializerMethodField()
+    subtype = serializers.SerializerMethodField()
+    defaultContact = serializers.SerializerMethodField()
+
+    def to_representation(self, instance):
+        user = self.context["request"].user
+        self.person = None
+        if not user.is_anonymous and user.person:
+            self.person = user.person
+        return super().to_representation(instance)
+
+    def get_organizerGroup(self, request):
+        return SupportGroupDetailSerializer(
+            SupportGroup.objects.filter(
+                memberships__person=self.person,
+                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+            ).active(),
+            context=self.context,
+            many=True,
+            fields=["id", "name", "is2022", "contact", "location"],
+        ).data
+
+    def get_subtype(self, request):
+        return EventSubtypeSerializer(
+            EventSubtype.objects.filter(
+                visibility=EventSubtype.VISIBILITY_ALL
+            ).distinct(),
+            context=self.context,
+            many=True,
+        ).data
+
+    def get_forUsers(self, request):
+        options = [
+            {"value": Event.FOR_USERS_2022, "label": "La campagne présidentielle",},
+            {
+                "value": Event.FOR_USERS_INSOUMIS,
+                "label": "Une autre campagne France insoumise",
+            },
+        ]
+
+        if self.person and self.person.is_2022 and not self.person.is_insoumise:
+            return options[:1]
+
+        if self.person and not self.person.is_2022 and self.person.is_insoumise:
+            return options[1:]
+
+        return options
+
+    def get_defaultContact(self, request):
+        contact = {
+            "hidePhone": False,
+        }
+        if self.person and self.person.display_name:
+            contact["name"] = self.person.display_name
+        if self.person and self.person.contact_phone:
+            contact["phone"] = self.person.contact_phone
+        if self.person and self.person.email:
+            contact["email"] = self.person.email
+        return contact

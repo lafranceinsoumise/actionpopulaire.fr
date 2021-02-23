@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -60,6 +60,7 @@ const LocationField = (props) => {
         onChange(props.name, {
           ...location,
           [e.target.name]: e.target.value,
+          isDefault: false,
         });
     },
     [location, props.name, onChange]
@@ -76,15 +77,9 @@ const LocationField = (props) => {
     [location, props.name, onChange]
   );
 
-  useEffect(() => {
-    !country && handleChangeCountry(COUNTRIES[0]);
-  }, [country, handleChangeCountry]);
-
   const selectedCountry = useMemo(
-    () =>
-      location.country &&
-      COUNTRIES.find((country) => country.value === location.country),
-    [location.country]
+    () => country && COUNTRIES.find((c) => c.value === country),
+    [country]
   );
 
   const displayAddress2 = useCallback(() => {

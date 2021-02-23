@@ -7,12 +7,13 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from agir.events.models import Event
-from agir.events.serializers import EventSerializer
+from agir.events.serializers import EventSerializer, EventCreateOptionsSerializer
 
 __all__ = [
     "EventDetailAPIView",
     "EventRsvpedAPIView",
     "EventSuggestionsAPIView",
+    "EventCreateOptionsAPIView",
 ]
 
 from agir.lib.tasks import geocode_person
@@ -153,3 +154,19 @@ class EventSuggestionsAPIView(ListAPIView):
             result = result.order_by("start_time")
 
         return result
+
+
+class EventCreateOptionsAPIView(RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = EventCreateOptionsSerializer
+    queryset = None
+
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        if user.is_anonymous or not user.person:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        self.person = user.person
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self):
+        return self.request

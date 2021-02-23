@@ -92,6 +92,11 @@ urlpatterns = [
         "conference/<int:pk>", views.jitsi_delete_conference_view, name="jitsi_delete"
     ),
     path(
+        "api/evenements/options/",
+        views.EventCreateOptionsAPIView.as_view(),
+        name="api_event_create_options",
+    ),
+    path(
         "api/evenements/rsvped/",
         views.EventRsvpedAPIView.as_view(),
         name="api_event_rsvped",

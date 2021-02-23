@@ -163,7 +163,7 @@ const RadioField = (props) => {
 };
 
 RadioField.propTypes = {
-  value: PropTypes.bool,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(
     PropTypes.shape({

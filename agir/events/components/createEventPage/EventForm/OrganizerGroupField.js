@@ -4,7 +4,7 @@ import React, { useCallback } from "react";
 import SelectField from "@agir/front/formComponents/SelectField";
 
 const OrganizerGroupField = (props) => {
-  const { onChange, value, name, groups, error, required, disabled } = props;
+  const { onChange, value, name, options, error, required, disabled } = props;
 
   const handleChange = useCallback(
     (selected) => {
@@ -20,7 +20,7 @@ const OrganizerGroupField = (props) => {
       name={name}
       value={value}
       onChange={handleChange}
-      options={groups}
+      options={options}
       placeholder="Choisissez un organisateur"
       required={required}
       disabled={disabled}
@@ -32,7 +32,7 @@ OrganizerGroupField.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.object,
   name: PropTypes.string.isRequired,
-  groups: PropTypes.arrayOf(PropTypes.object),
+  options: PropTypes.arrayOf(PropTypes.object),
   error: PropTypes.string,
   required: PropTypes.bool,
   disabled: PropTypes.bool,

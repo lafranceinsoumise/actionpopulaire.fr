@@ -117,9 +117,10 @@ const SubtypeOption = (props) => {
   }, [option, onClick]);
 
   return (
-    <StyledOption $selected={selected}>
+    <StyledOption $selected={selected} title={option.description}>
       <span className={`fa fa-${option.iconName || "calendar"}`} />
-      {option.label}
+      {option.label[0].toUpperCase()}
+      {option.label.slice(1)}
       <Button type="button" color="choose" onClick={handleClick} small>
         Choisir
       </Button>
@@ -137,6 +138,7 @@ const DefaultOption = (props) => {
   return (
     <StyledDefaultOption
       type="button"
+      title={option.description}
       color="choose"
       onClick={onClick ? handleClick : undefined}
       disabled={selected || disabled}
@@ -151,7 +153,8 @@ const DefaultOption = (props) => {
         className={`fa fa-${option.iconName || "calendar"}`}
         style={{ color: option.color }}
       />
-      {option.label}
+      {option.label[0].toUpperCase()}
+      {option.label.slice(1)}
     </StyledDefaultOption>
   );
 };
@@ -161,6 +164,7 @@ SubtypeOption.propTypes = DefaultOption.propTypes = {
     label: PropTypes.string,
     iconName: PropTypes.string,
     color: PropTypes.String,
+    description: PropTypes.string,
   }),
   onClick: PropTypes.func,
   selected: PropTypes.bool,
@@ -187,8 +191,8 @@ const SubtypeField = (props) => {
   );
 
   const subtypes = useMemo(
-    () => (Array.isArray(props.subtypes) ? props.subtypes : []),
-    [props.subtypes]
+    () => (Array.isArray(props.options) ? props.options : []),
+    [props.options]
   );
 
   const options = useMemo(() => {
@@ -203,11 +207,15 @@ const SubtypeField = (props) => {
       if (!categories[subtype.type]) {
         categories[subtype.type] = {
           label: subtype.typeLabel,
+          description: subtype.typeDescription,
           subtypes: [],
         };
       }
       if (!categories[subtype.type].label) {
         categories[subtype.type].label = subtype.typeLabel;
+      }
+      if (!categories[subtype.type].description) {
+        categories[subtype.type].description = subtype.typeDescription;
       }
       categories[subtype.type].subtypes.push(subtype);
     });
@@ -260,7 +268,7 @@ const SubtypeField = (props) => {
         <StyledOptions>
           {options.map((category) => (
             <ul key={category.label}>
-              <strong>{category.label}</strong>
+              <strong title={category.description}>{category.label}</strong>
               {category.subtypes.map((subtype) => (
                 <SubtypeOption
                   key={subtype.id}
@@ -280,7 +288,7 @@ SubtypeField.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.object,
   name: PropTypes.string.isRequired,
-  subtypes: PropTypes.arrayOf(PropTypes.object),
+  options: PropTypes.arrayOf(PropTypes.object),
   error: PropTypes.string,
   disabled: PropTypes.bool,
   required: PropTypes.bool,

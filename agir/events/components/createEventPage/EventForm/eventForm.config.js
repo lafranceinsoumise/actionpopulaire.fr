@@ -57,7 +57,7 @@ export const CAMPAIGN_OPTIONS = [
 
 export const DEFAULT_FORM_DATA = {
   name: "",
-  organizerGroup: "",
+  organizerGroup: null,
   startTime: new Date().toUTCString(),
   endTime: new Date().toUTCString(),
   subtype: null,
@@ -68,13 +68,15 @@ export const DEFAULT_FORM_DATA = {
     address2: "",
     city: "",
     zip: "",
-    country: "",
+    country: COUNTRIES[0].value,
+    isDefault: true,
   },
   contact: {
     name: "",
     email: "",
     phone: "",
     hidePhone: false,
+    isDefault: true,
   },
 };
 

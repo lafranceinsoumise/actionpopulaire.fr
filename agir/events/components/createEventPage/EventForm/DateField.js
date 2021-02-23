@@ -107,7 +107,6 @@ DateField.propTypes = {
   onChange: PropTypes.func.isRequired,
   startTime: PropTypes.string,
   endTime: PropTypes.string,
-  name: PropTypes.string.isRequired,
   error: PropTypes.string,
   required: PropTypes.bool,
   disabled: PropTypes.bool,

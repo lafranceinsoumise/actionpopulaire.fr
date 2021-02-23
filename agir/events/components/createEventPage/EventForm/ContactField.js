@@ -47,14 +47,11 @@ const StyledField = styled.div`
 
 const ContactField = (props) => {
   const { onChange, contact = {}, error, disabled, required } = props;
-  const { name, email, phone, hidePhone } = contact;
+  const { name, email, phone, hidePhone, isDefault } = contact;
 
-  const [hasDefaultContact, setHasDefaultContact] = useState(
-    !!name && !!email && !!phone
-  );
-
+  const [isEditable, setIsEditable] = useState(false);
   const editDefaultContact = useCallback(() => {
-    setHasDefaultContact(false);
+    setIsEditable(true);
   }, []);
 
   const handleChange = useCallback(
@@ -63,6 +60,7 @@ const ContactField = (props) => {
         onChange(props.name, {
           ...contact,
           [e.target.name]: e.target.value,
+          isDefault: false,
         });
     },
     [contact, props.name, onChange]
@@ -81,7 +79,7 @@ const ContactField = (props) => {
 
   return (
     <StyledField>
-      {hasDefaultContact ? (
+      {!isEditable && name && email && phone && isDefault ? (
         <StyledDefaultField>
           <p>{name}</p>
           <p>{email}</p>
