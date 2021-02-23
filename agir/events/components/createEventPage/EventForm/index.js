@@ -11,6 +11,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import NameField from "./NameField";
 import OrganizerGroupField from "./OrganizerGroupField";
 import DateField from "./DateField";
+import CampaignField from "./CampaignField";
 import SubtypeField from "./SubtypeField";
 import LocationField from "./LocationField";
 import ContactField from "./ContactField";
@@ -51,7 +52,7 @@ const StyledForm = styled.form`
     text-align: center;
   }
 `;
-import { DEFAULT_FORM_DATA } from "./eventForm.config";
+import { DEFAULT_FORM_DATA, CAMPAIGN_OPTIONS } from "./eventForm.config";
 
 import TEST_SUBTYPES from "./eventSubtypes.json";
 const TEST_GROUPS = [
@@ -106,6 +107,7 @@ const EventForm = () => {
   const isLoading = false;
   const groups = TEST_GROUPS;
   const subtypes = TEST_SUBTYPES;
+  const campaigns = CAMPAIGN_OPTIONS;
 
   const maySubmit = useMemo(
     () => !isLoading && Object.values(errors).filter(Boolean).length === 0,
@@ -113,14 +115,14 @@ const EventForm = () => {
   );
 
   return (
-    <StyledForm onSubmit={handleSubmit}>
+    <StyledForm onSubmit={handleSubmit} disabled={!maySubmit}>
       <NameField
         name="name"
         value={formData.name}
         onChange={updateValue}
         error={errors && errors.name}
         disabled={isLoading}
-        required={false}
+        required
       />
       <Spacer size="1rem" />
       <OrganizerGroupField
@@ -130,7 +132,7 @@ const EventForm = () => {
         error={errors && errors.organizerGroup}
         disabled={isLoading}
         groups={groups}
-        required={false}
+        required
       />
       <Spacer size="1rem" />
       <DateField
@@ -139,7 +141,17 @@ const EventForm = () => {
         error={errors && (errors.startTime || errors.endTime)}
         onChange={updateDate}
         disabled={isLoading}
-        required={false}
+        required
+      />
+      <Spacer size="1rem" />
+      <CampaignField
+        name="forUsers"
+        value={formData.forUsers}
+        onChange={updateValue}
+        options={campaigns}
+        error={errors && errors.forUsers}
+        disabled={isLoading}
+        required
       />
       <Spacer size="1rem" />
       <SubtypeField
@@ -149,7 +161,7 @@ const EventForm = () => {
         onChange={updateValue}
         error={errors && errors.subtype}
         disabled={isLoading}
-        required={false}
+        required
       />
       <Spacer size="1.5rem" />
       <fieldset>
@@ -167,7 +179,7 @@ const EventForm = () => {
           onChange={updateValue}
           error={errors && errors.location}
           disabled={isLoading}
-          required={false}
+          required
         />
       </fieldset>
       <Spacer size="1.5rem" />
@@ -183,7 +195,7 @@ const EventForm = () => {
           onChange={updateValue}
           error={errors && errors.contact}
           disabled={isLoading}
-          required={false}
+          required
         />
       </fieldset>
       <Spacer size="2rem" />

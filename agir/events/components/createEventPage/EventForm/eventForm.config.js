@@ -44,12 +44,24 @@ export const EVENT_DEFAULT_DURATIONS = [
   },
 ];
 
+export const CAMPAIGN_OPTIONS = [
+  {
+    value: "2",
+    label: "La campagne présidentielle",
+  },
+  {
+    value: "I",
+    label: "Une autre campagne France insoumise",
+  },
+];
+
 export const DEFAULT_FORM_DATA = {
   name: "",
   organizerGroup: "",
   startTime: new Date().toUTCString(),
   endTime: new Date().toUTCString(),
   subtype: null,
+  forUsers: "",
   location: {
     name: "",
     address1: "",
@@ -103,6 +115,12 @@ export const FORM_FIELD_CONSTRAINTS = {
     },
     datetime: {
       message: "Indiquez une date et heure valides",
+    },
+  },
+  forUsers: {
+    presence: {
+      allowEmpty: false,
+      message: "Choisissez parmi les options proposées",
     },
   },
   subtype: {
