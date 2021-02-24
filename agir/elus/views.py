@@ -41,11 +41,13 @@ class BaseMandatMunicipal(BaseMandatView):
     mandat_adjectif = "municipal⋅e"
 
     def get_conseil_avec_charniere(self):
-        return self.object.conseil.nom_avec_charniere
+        if self.object.conseil:
+            return self.object.conseil.nom_avec_charniere
+        return "d'une commune inconnue"
 
 
 class CreerMandatMunicipalView(BaseMandatMunicipal, CreateView):
-    form_class = forms.CreerMandatMunicipalForm
+    form_class = forms.MandatMunicipalForm
     template_name = "elus/creer_mandat_conseil.html"
 
 
@@ -72,11 +74,13 @@ class BaseMandatDepartemental(BaseMandatView):
         return "départemental⋅e ou métropolitain⋅e"
 
     def get_conseil_avec_charniere(self):
-        return f"du {self.object.conseil.nom}"
+        if self.object.conseil:
+            return self.object.conseil.nom_avec_charniere
+        return "d'un département inconnu"
 
 
 class CreerMandatDepartementalView(BaseMandatDepartemental, CreateView):
-    form_class = forms.CreerMandatDepartementalForm
+    form_class = forms.MandatDepartementalForm
     template_name = "elus/creer_mandat_conseil.html"
 
 
@@ -93,21 +97,20 @@ class BaseMandatRegional(BaseMandatView):
     model = models.MandatRegional
 
     def get_mandat_adjectif(self):
-        if getattr(self, "object"):
+        if getattr(self, "object") and self.object.conseil:
             if self.object.conseil.type == CollectiviteRegionale.TYPE_CONSEIL_REGIONAL:
                 return "régional⋅e"
             return "de collectivité unique"
         return "régional⋅e ou de collectivité unique"
 
     def get_conseil_avec_charniere(self):
-        nom = self.object.conseil.nom
-        if nom.startswith("Assemblée"):
-            return f"de l'{nom}"
-        return f"du {nom}"
+        if self.object.conseil:
+            return self.object.conseil.nom_avec_charniere
+        return "d'une région inconnue"
 
 
 class CreerMandatRegionalView(BaseMandatRegional, CreateView):
-    form_class = forms.CreerMandatRegionalForm
+    form_class = forms.MandatRegionalForm
     template_name = "elus/creer_mandat_conseil.html"
 
 

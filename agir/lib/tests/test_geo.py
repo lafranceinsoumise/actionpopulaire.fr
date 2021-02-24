@@ -3,85 +3,18 @@ from pathlib import Path
 from unittest.mock import patch, Mock
 
 import requests
-from data_france.models import Commune, Departement, Region, CodePostal
-from data_france.typologies import TypeNom
-from django.contrib.gis.geos import MultiPolygon, Polygon
-from django.db import transaction
-from django.db.transaction import get_connection
 from functools import wraps
 
 from django.test import TestCase
 
 from agir.lib.geo import geocode_france, get_commune
 from agir.lib.models import LocationMixin
+from agir.lib.tests.utils import import_communes_test_data
 from agir.people.models import Person
 
 
 JSON_DIR = Path(__file__).parent / "geoban_json"
 DATA_DIR = Path(__file__).parent / "data"
-
-
-def import_communes_test_data():
-
-    with transaction.atomic():
-        reg = Region.objects.create(
-            code="01", nom="Région", type_nom=TypeNom.ARTICLE_LA, chef_lieu_id=1,
-        )
-        dep = Departement.objects.create(
-            code="01",
-            nom="Département",
-            type_nom=TypeNom.ARTICLE_LE,
-            region=reg,
-            chef_lieu_id=1,
-        )
-        c1 = Commune.objects.create(
-            id=1,
-            code="00001",
-            type=Commune.TYPE_COMMUNE,
-            nom="Première",
-            type_nom=TypeNom.ARTICLE_LA,
-            geometry=MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))),
-            departement=dep,
-        )
-        c2 = Commune.objects.create(
-            id=2,
-            code="00002",
-            type=Commune.TYPE_COMMUNE,
-            nom="Seconde",
-            type_nom=TypeNom.ARTICLE_LA,
-            geometry=MultiPolygon(Polygon(((0, 0), (0, -1), (1, -1), (1, 0), (0, 0)))),
-            departement=dep,
-        )
-        c3 = Commune.objects.create(
-            id=3,
-            code="00003",
-            type=Commune.TYPE_COMMUNE,
-            nom="Troisième",
-            type_nom=TypeNom.ARTICLE_LA,
-            geometry=MultiPolygon(
-                Polygon(((0, 0), (0, -1), (-1, -1), (-1, 0), (0, 0)))
-            ),
-            departement=dep,
-        )
-        arr1 = Commune.objects.create(
-            id=4,
-            code="10001",
-            type=Commune.TYPE_ARRONDISSEMENT_PLM,
-            nom="Arrondissement",
-            type_nom=TypeNom.VOYELLE,
-            commune_parent=c1,
-            geometry=MultiPolygon(
-                Polygon(((0, 0), (0, 0.5), (1, 0.5), (1, 0), (0, 0)))
-            ),
-        )
-
-        cp1 = CodePostal.objects.create(code="12345")
-        cp2 = CodePostal.objects.create(code="54321")
-        cp3 = CodePostal.objects.create(code="12300")
-
-        cp1.communes.set([c1])
-        cp2.communes.set([c2, c3])
-        cp3.communes.set([arr1])
 
 
 def with_json_response(file_name):
