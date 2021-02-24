@@ -100,7 +100,7 @@ export const routeConfig = {
   }),
   createEvent: new RouteConfig({
     id: "createEvent",
-    pathname: "/evenements/creation/",
+    pathname: "/evenements/creer/",
     exact: true,
     label: "Nouvel événement",
     Component: CreateEvent,

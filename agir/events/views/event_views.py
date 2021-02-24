@@ -57,7 +57,6 @@ from ..tasks import (
 from ...groups.models import Membership, SupportGroup
 
 __all__ = [
-    "CreateEventView",
     "ManageEventView",
     "ModifyEventView",
     "QuitEventView",
@@ -318,83 +317,6 @@ class EventIcsView(EventDetailMixin, DetailView):
 
 # CREATION VIEWS
 # ==============
-
-
-class CreateEventView(SoftLoginRequiredMixin, TemplateView):
-    template_name = "events/create.html"
-
-    def get_context_data(self, **kwargs):
-        person = self.request.user.person
-
-        groups = [
-            {
-                "id": str(m.supportgroup.pk),
-                "name": m.supportgroup.name,
-                "iconName": SupportGroup.TYPE_PARAMETERS[m.supportgroup.type][
-                    "icon_name"
-                ],
-                "color": SupportGroup.TYPE_PARAMETERS[m.supportgroup.type]["color"],
-                "forUsers": Event.FOR_USERS_2022
-                if (m.supportgroup.type == SupportGroup.TYPE_2022)
-                else Event.FOR_USERS_INSOUMIS,
-            }
-            for m in person.memberships.filter(
-                supportgroup__published=True,
-                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-            )
-        ]
-
-        initial = {"email": person.email}
-
-        if person.contact_phone:
-            initial["phone"] = person.contact_phone.as_e164
-
-        if person.first_name and person.last_name:
-            initial["name"] = "{} {}".format(person.first_name, person.last_name)
-
-        initial_group_id = self.request.GET.get("group")
-        initial_group = next(
-            (group for group in groups if group["id"] == initial_group_id), None
-        )
-        if initial_group is not None:
-            initial["organizerGroup"] = initial_group["id"]
-            initial["forUsers"] = initial_group["forUsers"]
-
-        subtype_queryset = EventSubtype.objects.filter(
-            visibility=EventSubtype.VISIBILITY_ALL
-        )
-
-        if "subtype" in self.request.GET:
-            try:
-                subtype = subtype_queryset.get(label=self.request.GET["subtype"])
-                initial["subtype"] = subtype.label
-            except EventSubtype.DoesNotExist:
-                pass
-
-        types = [
-            {
-                "id": elem["type"],
-                "label": dict(EventSubtype.TYPE_CHOICES)[elem["type"]],
-                "description": str(EventSubtype.TYPE_DESCRIPTION[elem["type"]]),
-            }
-            for elem in subtype_queryset.values("type").distinct()
-        ]
-
-        subtypes = [
-            dict_to_camelcase(s.get_subtype_information()) for s in subtype_queryset
-        ]
-
-        return super().get_context_data(
-            props={
-                "isInsoumise": person.is_insoumise,
-                "is2022": person.is_2022,
-                "initial": initial,
-                "groups": groups,
-                "types": types,
-                "subtypes": subtypes,
-            },
-            **kwargs,
-        )
 
 
 class PerformCreateEventView(SoftLoginRequiredMixin, FormMixin, ProcessFormView):
