@@ -56,25 +56,16 @@ const ContactField = (props) => {
 
   const handleChange = useCallback(
     (e) => {
-      onChange &&
-        onChange(props.name, {
-          ...contact,
-          [e.target.name]: e.target.value,
-          isDefault: false,
-        });
+      onChange && onChange(props.name, e.target.name, e.target.value);
     },
-    [contact, props.name, onChange]
+    [props.name, onChange]
   );
 
   const handleChangeHidePhone = useCallback(
     (e) => {
-      onChange &&
-        onChange(props.name, {
-          ...contact,
-          [e.target.name]: e.target.checked,
-        });
+      onChange && onChange(props.name, e.target.name, e.target.checked);
     },
-    [contact, props.name, onChange]
+    [props.name, onChange]
   );
 
   return (

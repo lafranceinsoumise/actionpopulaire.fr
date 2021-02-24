@@ -10,6 +10,8 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import useSWR from "swr";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import { validateData } from "./eventForm.config";
 import { routeConfig } from "@agir/front/app/routes.config";
 
@@ -24,6 +26,13 @@ import SubtypeField from "./SubtypeField";
 import LocationField from "./LocationField";
 import ContactField from "./ContactField";
 
+const StyledGlobalError = styled.p`
+  padding: 0 0 1rem;
+  margin: 0;
+  font-size: 0.813rem;
+  text-align: center;
+  color: ${style.redNSP};
+`;
 const StyledForm = styled.form`
   padding-bottom: 3rem;
 
@@ -62,6 +71,23 @@ const StyledForm = styled.form`
 `;
 import { DEFAULT_FORM_DATA } from "./eventForm.config";
 
+const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
+  if (typeof errors !== "object") {
+    return errors;
+  }
+  return Object.entries(errors).reduce(
+    (errors, [field, error]) => ({
+      ...errors,
+      [typeof fields[field] !== "undefined" ? field : "global"]: Array.isArray(
+        error
+      )
+        ? error[0]
+        : formatErrors(error, fields[field]),
+    }),
+    {}
+  );
+};
+
 const createEvent = async (data) => {
   const result = {
     data: null,
@@ -83,13 +109,7 @@ const createEvent = async (data) => {
   }
 
   if (result.errors && typeof result.errors === "object") {
-    result.errors = Object.entries(result.errors).reduce(
-      (errors, [field, error]) => ({
-        ...errors,
-        [field]: Array.isArray(error) ? error[0] : error,
-      }),
-      {}
-    );
+    result.errors = formatErrors(result.errors);
   }
 
   return result;
@@ -133,6 +153,14 @@ const EventForm = () => {
   const history = useHistory();
   const options = useEventFormOptions();
 
+  const nameRef = useRef(null);
+  const organizerGroupRef = useRef(null);
+  const dateRef = useRef(null);
+  const forUsersRef = useRef(null);
+  const subtypeRef = useRef(null);
+  const locationRef = useRef(null);
+  const contactRef = useRef(null);
+
   const updateValue = useCallback((name, value) => {
     setErrors((state) => ({
       ...state,
@@ -141,6 +169,30 @@ const EventForm = () => {
     setFormData((state) => ({
       ...state,
       [name]: value,
+    }));
+  }, []);
+
+  const updateNestedValue = useCallback((parentName, name, value) => {
+    setErrors((state) => {
+      if (!state[parentName] || !state[parentName][name]) {
+        return state;
+      }
+      const newState = { ...state };
+      if (Object.keys(newState[parentName]).length > 1) {
+        newState[parentName] = { ...newState[parentName] };
+        delete newState[parentName][name];
+      } else {
+        newState[parentName] = undefined;
+      }
+      return newState;
+    });
+    setFormData((state) => ({
+      ...state,
+      [parentName]: {
+        ...(state[parentName] || {}),
+        [name]: value,
+        isDefault: false,
+      },
     }));
   }, []);
 
@@ -170,6 +222,10 @@ const EventForm = () => {
             {}
           )
         : DEFAULT_FORM_DATA.contact;
+      setErrors((state) => ({
+        ...state,
+        contact: undefined,
+      }));
       setFormData((state) => ({
         ...state,
         contact,
@@ -188,6 +244,10 @@ const EventForm = () => {
             {}
           )
         : DEFAULT_FORM_DATA.location;
+      setErrors((state) => ({
+        ...state,
+        location: undefined,
+      }));
       setFormData((state) => ({
         ...state,
         location,
@@ -198,48 +258,7 @@ const EventForm = () => {
     formData.contact.isDefault,
     formData.organizerGroup,
   ]);
-
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      setErrors({});
-      const errors = validateData(formData);
-      if (errors) {
-        setErrors(errors);
-        return;
-      }
-      setIsLoading(true);
-      const result = await createEvent(formData);
-      setIsLoading(false);
-      if (result.errors) {
-        setErrors(result.errors);
-        return;
-      }
-      if (!result.data || !result.data.id) {
-        setErrors({ global: "Une erreur est survenue" });
-        return;
-      }
-      setNewEventPk(result.data.id);
-    },
-    [formData]
-  );
-
-  useEffect(() => {
-    if (newEventPk) {
-      const route = routeConfig.eventDetails.getLink({ eventPk: newEventPk });
-      history.push(route);
-    }
-  }, [history, newEventPk]);
-
-  const nameRef = useRef(null);
-  const organizerGroupRef = useRef(null);
-  const dateRef = useRef(null);
-  const forUsersRef = useRef(null);
-  const subtypeRef = useRef(null);
-  const locationRef = useRef(null);
-  const contactRef = useRef(null);
-
-  useEffect(() => {
+  const scrollToError = useCallback((errors) => {
     if (
       typeof window === "undefined" ||
       !errors ||
@@ -276,15 +295,44 @@ const EventForm = () => {
         top: scrollTarget.offsetTop - 100,
       });
     }
-  }, [errors]);
+  }, []);
 
-  const maySubmit = useMemo(
-    () => !isLoading && Object.values(errors).filter(Boolean).length === 0,
-    [errors, isLoading]
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setErrors({});
+      const errors = validateData(formData);
+      if (errors) {
+        setErrors(errors);
+        scrollToError(errors);
+        return;
+      }
+      setIsLoading(true);
+      const result = await createEvent(formData);
+      setIsLoading(false);
+      if (result.errors) {
+        setErrors(result.errors);
+        scrollToError(result.errors);
+        return;
+      }
+      if (!result.data || !result.data.id) {
+        setErrors({ global: "Une erreur est survenue" });
+        return;
+      }
+      setNewEventPk(result.data.id);
+    },
+    [formData, scrollToError]
   );
 
+  useEffect(() => {
+    if (newEventPk) {
+      const route = routeConfig.eventDetails.getLink({ eventPk: newEventPk });
+      history.push(route);
+    }
+  }, [history, newEventPk]);
+
   return (
-    <StyledForm onSubmit={handleSubmit} disabled={!maySubmit} noValidate>
+    <StyledForm onSubmit={handleSubmit} disabled={isLoading} noValidate>
       <Spacer size="0" ref={nameRef} />
       <NameField
         name="name"
@@ -346,7 +394,7 @@ const EventForm = () => {
         <LocationField
           name="location"
           location={formData.location}
-          onChange={updateValue}
+          onChange={updateNestedValue}
           error={errors && errors.location}
           disabled={isLoading}
           required
@@ -362,19 +410,17 @@ const EventForm = () => {
         <ContactField
           name="contact"
           contact={formData.contact}
-          onChange={updateValue}
+          onChange={updateNestedValue}
           error={errors && errors.contact}
           disabled={isLoading}
           required
         />
       </fieldset>
       <Spacer size="2rem" />
-      <Button
-        disabled={isLoading || !maySubmit}
-        type="submit"
-        color="secondary"
-        block
-      >
+      {errors && errors.global && (
+        <StyledGlobalError>{errors.global}</StyledGlobalError>
+      )}
+      <Button disabled={isLoading} type="submit" color="secondary" block>
         Créer l'événement
       </Button>
       <p>

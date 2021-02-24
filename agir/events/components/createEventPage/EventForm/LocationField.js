@@ -11,7 +11,7 @@ import { COUNTRIES } from "./eventForm.config";
 
 const StyledField = styled.div`
   display: grid;
-  grid-template-columns: 140px 1fr;
+  grid-template-columns: 160px 1fr;
   grid-template-rows: repeat(6, auto);
   grid-gap: 0 0.5rem;
 
@@ -56,25 +56,16 @@ const LocationField = (props) => {
 
   const handleChange = useCallback(
     (e) => {
-      onChange &&
-        onChange(props.name, {
-          ...location,
-          [e.target.name]: e.target.value,
-          isDefault: false,
-        });
+      onChange && onChange(props.name, e.target.name, e.target.value);
     },
-    [location, props.name, onChange]
+    [props.name, onChange]
   );
 
   const handleChangeCountry = useCallback(
     (country) => {
-      onChange &&
-        onChange(props.name, {
-          ...location,
-          country: country && country.value,
-        });
+      onChange && onChange(props.name, "country", country && country.value);
     },
-    [location, props.name, onChange]
+    [props.name, onChange]
   );
 
   const selectedCountry = useMemo(

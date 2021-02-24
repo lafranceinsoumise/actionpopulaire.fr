@@ -27,7 +27,7 @@ const IndexLinkAnchor = styled(Link)`
   font-size: 12px;
   line-height: 1.4;
   text-transform: uppercase;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   margin: 0;
 
