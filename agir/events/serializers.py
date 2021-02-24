@@ -1,13 +1,24 @@
+from datetime import timedelta
 from rest_framework import serializers
 
 from agir.front.serializer_utils import MediaURLField, RoutesField
 from agir.lib.serializers import (
     LocationSerializer,
     ContactMixinSerializer,
+    NestedLocationSerializer,
+    NestedContactSerializer,
     FlexibleFieldsMixin,
+    CurrentPersonDefault,
 )
 from . import models
+from .actions.legal import needs_approval
 from .models import OrganizerConfig, RSVP, Event, EventSubtype
+from .tasks import (
+    send_event_creation_notification,
+    send_secretariat_notification,
+    geocode_event,
+)
+from ..groups.tasks import notify_new_group_event
 from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
 from ..groups.models import Membership, SupportGroup
 
@@ -267,3 +278,113 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
         if self.person and self.person.email:
             contact["email"] = self.person.email
         return contact
+
+
+class EventOrganizerGroupField(serializers.RelatedField):
+    queryset = SupportGroup.objects.all()
+
+    def to_representation(self, obj):
+        if obj is None:
+            return None
+        return SupportGroupSerializer(
+            obj,
+            context=self.context,
+            fields=["id", "name", "is2022", "contact", "location"],
+        ).data
+
+    def to_internal_value(self, pk):
+        if pk is None:
+            return None
+        return self.queryset.model.objects.get(pk=pk)
+
+
+class CreateEventSerializer(serializers.Serializer):
+    id = serializers.UUIDField(read_only=True)
+    url = serializers.HyperlinkedIdentityField(
+        read_only=True, view_name="api_event_view"
+    )
+
+    name = serializers.CharField(max_length=100, min_length=3)
+    startTime = serializers.DateTimeField(source="start_time")
+    endTime = serializers.DateTimeField(source="end_time")
+    contact = NestedContactSerializer(source="*")
+    location = NestedLocationSerializer(source="*")
+    forUsers = serializers.CharField(source="for_users", required=True)
+    subtype = serializers.PrimaryKeyRelatedField(
+        queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
+    )
+    organizerGroup = EventOrganizerGroupField(
+        write_only=True, required=False, allow_null=True
+    )
+    organizerPerson = serializers.HiddenField(
+        default=CurrentPersonDefault(), write_only=True,
+    )
+
+    class Meta:
+        model = Event
+
+    def validate(self, data):
+        if data.get("organizerGroup") and data["organizerGroup"] is not None:
+            if (
+                not data["organizerPerson"] in data["organizerGroup"].referents
+                and not data["organizerPerson"] in data["organizerGroup"].managers
+            ):
+                raise serializers.ValidationError(
+                    {
+                        "organizerGroup": "Veuillez choisir un groupe dont vous êtes animateur·ice"
+                    }
+                )
+
+        if (
+            data.get("end_time")
+            and data.get("start_time")
+            and data["end_time"] - data["start_time"] > timedelta(days=7)
+        ):
+            raise serializers.ValidationError(
+                {"endTime": "Votre événement doit durer moins d’une semaine"}
+            )
+
+        return data
+
+    def schedule_tasks(self, event, data):
+        organizer_config = OrganizerConfig.objects.filter(event=event).first()
+        # Send the confirmation notification and geolocate the event
+        send_event_creation_notification.delay(organizer_config.pk)
+        geocode_event.delay(event.pk)
+        if event.visibility == Event.VISIBILITY_ORGANIZER:
+            send_secretariat_notification.delay(
+                organizer_config.event.pk, organizer_config.person.pk, complete=False,
+            )
+        # Also notify members if it is organized by a group
+        if data["organizerGroup"]:
+            notify_new_group_event.delay(data["organizerGroup"].pk, event.pk)
+
+    def create(self, validated_data):
+        if isinstance(validated_data.get("legal"), dict) and needs_approval(
+            validated_data.get("legal")
+        ):
+            validated_data["visibility"] = Event.VISIBILITY_ORGANIZER
+
+        event = Event.objects.create(
+            name=validated_data["name"],
+            start_time=validated_data["start_time"],
+            end_time=validated_data["end_time"],
+            contact_name=validated_data["contact_name"],
+            contact_email=validated_data["contact_email"],
+            contact_phone=validated_data["contact_phone"],
+            contact_hide_phone=validated_data["contact_hide_phone"],
+            location_name=validated_data["location_name"],
+            location_address1=validated_data["location_address1"],
+            location_address2=validated_data["location_address2"],
+            location_zip=validated_data["location_zip"],
+            location_city=validated_data["location_city"],
+            location_country=validated_data["location_country"],
+            for_users=validated_data["for_users"],
+            subtype=validated_data["subtype"],
+            organizer_group=validated_data["organizerGroup"],
+            organizer_person=validated_data["organizerPerson"],
+        )
+
+        self.schedule_tasks(event, validated_data)
+
+        return event

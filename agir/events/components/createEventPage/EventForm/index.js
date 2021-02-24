@@ -1,10 +1,17 @@
 import axios from "@agir/lib/utils/axios";
-import qs from "querystring";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import useSWR from "swr";
 
 import { validateData } from "./eventForm.config";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -58,34 +65,31 @@ import { DEFAULT_FORM_DATA } from "./eventForm.config";
 const createEvent = async (data) => {
   const result = {
     data: null,
-    error: null,
+    errors: null,
   };
-  const url = "/evenements/creer/form/";
-  const body = qs.stringify({
-    name: data.name,
-    contact_email: data.contact.email,
-    contact_name: data.contact.name,
-    contact_phone: data.contact.phone,
-    contact_hide_phone: data.contact.hidePhone,
-    start_time: data.startTime,
-    end_time: data.endTime,
-    location_name: data.location.name,
-    location_address1: data.location.address1,
-    location_address2: data.location.address2,
-    location_zip: data.location.zip,
-    location_city: data.location.city,
-    location_country: data.location.country,
-    subtype: data.subtype.label,
-    as_group: data.organizerGroup.id,
-    for_users: data.forUsers,
-    legal: JSON.stringify({}),
-  });
+  const url = "/api/evenements/creer/";
+  const body = {
+    ...data,
+    subtype: data.subtype && data.subtype.id,
+    organizerGroup: data.organizerGroup && data.organizerGroup.id,
+    legal: {},
+  };
 
   try {
     const response = await axios.post(url, body);
     result.data = response.data;
   } catch (e) {
-    result.error = (e.response && e.response.data) || e.message;
+    result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  if (result.errors && typeof result.errors === "object") {
+    result.errors = Object.entries(result.errors).reduce(
+      (errors, [field, error]) => ({
+        ...errors,
+        [field]: Array.isArray(error) ? error[0] : error,
+      }),
+      {}
+    );
   }
 
   return result;
@@ -124,7 +128,9 @@ const EventForm = () => {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [newEventPk, setNewEventPk] = useState(null);
 
+  const history = useHistory();
   const options = useEventFormOptions();
 
   const updateValue = useCallback((name, value) => {
@@ -141,7 +147,8 @@ const EventForm = () => {
   const updateDate = useCallback((startTime, endTime) => {
     setErrors((state) => ({
       ...state,
-      [name]: undefined,
+      startTime: undefined,
+      endTime: undefined,
     }));
     setFormData((state) => ({
       ...state,
@@ -203,11 +210,73 @@ const EventForm = () => {
       }
       setIsLoading(true);
       const result = await createEvent(formData);
-      console.log(result);
       setIsLoading(false);
+      if (result.errors) {
+        setErrors(result.errors);
+        return;
+      }
+      if (!result.data || !result.data.id) {
+        setErrors({ global: "Une erreur est survenue" });
+        return;
+      }
+      setNewEventPk(result.data.id);
     },
     [formData]
   );
+
+  useEffect(() => {
+    if (newEventPk) {
+      const route = routeConfig.eventDetails.getLink({ eventPk: newEventPk });
+      history.push(route);
+    }
+  }, [history, newEventPk]);
+
+  const nameRef = useRef(null);
+  const organizerGroupRef = useRef(null);
+  const dateRef = useRef(null);
+  const forUsersRef = useRef(null);
+  const subtypeRef = useRef(null);
+  const locationRef = useRef(null);
+  const contactRef = useRef(null);
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      !errors ||
+      Object.values(errors).filter(Boolean).length === 0
+    ) {
+      return;
+    }
+    let scrollTarget = null;
+    switch (true) {
+      case !!(errors["name"] && nameRef.current):
+        scrollTarget = nameRef.current;
+        break;
+      case !!(errors["organizerGroup"] && organizerGroupRef.current):
+        scrollTarget = organizerGroupRef.current;
+        break;
+      case !!((errors["startTime"] || errors["endTime"]) && dateRef.current):
+        scrollTarget = dateRef.current;
+        break;
+      case !!(errors["forUsers"] && forUsersRef.current):
+        scrollTarget = forUsersRef.current;
+        break;
+      case !!(errors["subtype"] && subtypeRef.current):
+        scrollTarget = subtypeRef.current;
+        break;
+      case !!(errors["location"] && locationRef.current):
+        scrollTarget = locationRef.current;
+        break;
+      case !!(errors["contact"] && contactRef.current):
+        scrollTarget = contactRef.current;
+        break;
+    }
+    if (scrollTarget) {
+      window.scrollTo({
+        top: scrollTarget.offsetTop - 100,
+      });
+    }
+  }, [errors]);
 
   const maySubmit = useMemo(
     () => !isLoading && Object.values(errors).filter(Boolean).length === 0,
@@ -215,7 +284,8 @@ const EventForm = () => {
   );
 
   return (
-    <StyledForm onSubmit={handleSubmit} disabled={!maySubmit}>
+    <StyledForm onSubmit={handleSubmit} disabled={!maySubmit} noValidate>
+      <Spacer size="0" ref={nameRef} />
       <NameField
         name="name"
         value={formData.name}
@@ -224,7 +294,7 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
-      <Spacer size="1rem" />
+      <Spacer size="1rem" ref={organizerGroupRef} />
       <OrganizerGroupField
         name="organizerGroup"
         value={formData.organizerGroup}
@@ -234,7 +304,7 @@ const EventForm = () => {
         required
         options={options.organizerGroup}
       />
-      <Spacer size="1rem" />
+      <Spacer size="1rem" ref={dateRef} />
       <DateField
         startTime={formData.startTime}
         endTime={formData.endTime}
@@ -243,7 +313,7 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
-      <Spacer size="1rem" />
+      <Spacer size="1rem" ref={forUsersRef} />
       <ForUsersField
         name="forUsers"
         value={formData.forUsers}
@@ -253,7 +323,7 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
-      <Spacer size="1rem" />
+      <Spacer size="1rem" ref={subtypeRef} />
       <SubtypeField
         name="subtype"
         value={formData.subtype}
@@ -263,7 +333,7 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
-      <Spacer size="1.5rem" />
+      <Spacer size="1.5rem" ref={locationRef} />
       <fieldset>
         <legend>
           <strong>Lieu de l'événement</strong>
@@ -282,7 +352,7 @@ const EventForm = () => {
           required
         />
       </fieldset>
-      <Spacer size="1.5rem" />
+      <Spacer size="1.5rem" ref={contactRef} />
       <fieldset>
         <legend>
           <strong>Contact</strong>
