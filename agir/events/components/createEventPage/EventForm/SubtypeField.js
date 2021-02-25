@@ -10,6 +10,8 @@ import Button from "@agir/front/genericComponents/Button";
 import Panel from "@agir/front/genericComponents/Panel";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
+import { EVENT_TYPES } from "./eventForm.config";
+
 const StyledOption = styled.li`
   display: flex;
   flex-flow: row nowrap;
@@ -196,32 +198,16 @@ const SubtypeField = (props) => {
   );
 
   const options = useMemo(() => {
-    const categories = {
-      G: { subtypes: [] },
-      M: { subtypes: [] },
-      A: { subtypes: [] },
-      O: { subtypes: [] },
-    };
+    const categories = { ...EVENT_TYPES };
     subtypes.forEach((subtype) => {
-      subtype.type = subtype.type || "O";
-      if (!categories[subtype.type]) {
-        categories[subtype.type] = {
-          label: subtype.typeLabel,
-          description: subtype.typeDescription,
-          subtypes: [],
-        };
-      }
-      if (!categories[subtype.type].label) {
-        categories[subtype.type].label = subtype.typeLabel;
-      }
-      if (!categories[subtype.type].description) {
-        categories[subtype.type].description = subtype.typeDescription;
-      }
-      categories[subtype.type].subtypes.push(subtype);
+      const category =
+        subtype.type && categories[subtype.type] ? subtype.type : "O";
+      categories[category].subtypes = categories[category].subtypes || [];
+      categories[category].subtypes.push(subtype);
     });
 
-    return Object.values(categories).filter(
-      (category) => category.subtypes.length > 0
+    return Object.values(categories).filter((category) =>
+      Array.isArray(category.subtypes)
     );
   }, [subtypes]);
 

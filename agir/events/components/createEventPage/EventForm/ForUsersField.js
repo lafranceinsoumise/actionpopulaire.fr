@@ -1,5 +1,7 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
+
+import { FOR_USERS_OPTIONS } from "./eventForm.config";
 
 import RadioField from "@agir/front/formComponents/RadioField";
 
@@ -14,10 +16,20 @@ const ForUsersField = (props) => {
   );
 
   useEffect(() => {
-    Array.isArray(options) &&
-      options.length === 1 &&
-      handleChange(options[0].value);
+    Array.isArray(options) && options.length === 1 && handleChange(options[0]);
   }, [options, handleChange]);
+
+  const forUsersOptions = useMemo(
+    () =>
+      Array.isArray(options)
+        ? options
+            .map((option) =>
+              FOR_USERS_OPTIONS.find(({ value }) => value === option)
+            )
+            .filter(Boolean)
+        : [],
+    [options]
+  );
 
   return Array.isArray(options) && options.length > 1 ? (
     <RadioField
@@ -26,7 +38,7 @@ const ForUsersField = (props) => {
       name={name}
       value={value}
       onChange={handleChange}
-      options={options}
+      options={forUsersOptions}
       error={error}
       required={required}
       disabled={disabled}
@@ -36,7 +48,7 @@ const ForUsersField = (props) => {
 ForUsersField.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
-  options: PropTypes.arrayOf(PropTypes.object),
+  options: PropTypes.arrayOf(PropTypes.string),
   name: PropTypes.string.isRequired,
   error: PropTypes.string,
   required: PropTypes.bool,

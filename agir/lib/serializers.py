@@ -160,7 +160,7 @@ class NestedContactSerializer(serializers.Serializer):
     """
 
     name = serializers.CharField(
-        label=_("Nom du contact"),
+        label="Nom du contact",
         required=True,
         allow_blank=True,
         max_length=255,
@@ -168,14 +168,14 @@ class NestedContactSerializer(serializers.Serializer):
     )
 
     email = serializers.EmailField(
-        label=_("Adresse email du contact"),
+        label="Adresse email du contact",
         required=True,
         allow_blank=True,
         source="contact_email",
     )
 
     phone = PhoneField(
-        label=_("Numéro de téléphone du contact"),
+        label="Numéro de téléphone du contact",
         required=True,
         allow_blank=True,
         max_length=30,
@@ -183,7 +183,7 @@ class NestedContactSerializer(serializers.Serializer):
     )
 
     hidePhone = serializers.BooleanField(
-        label=_("Ne pas rendre le numéro de téléphone public"),
+        label="Ne pas rendre le numéro de téléphone public",
         required=False,
         default=False,
         source="contact_hide_phone",
@@ -202,37 +202,37 @@ class NestedLocationSerializer(serializers.Serializer):
     """
 
     name = NullableCharField(
-        label=_("nom du lieu"), max_length=255, required=True, source="location_name",
+        label="nom du lieu", max_length=255, required=True, source="location_name",
     )
     address = NullableCharField(
-        label=_("adresse complète"),
+        label="adresse complète",
         max_length=255,
         required=False,
         source="location_address",
     )
     address1 = NullableCharField(
-        label=_("adresse (1ère ligne)"),
+        label="adresse (1ère ligne)",
         max_length=100,
         required=True,
         source="location_address1",
     )
     address2 = NullableCharField(
-        label=_("adresse (2ème ligne)"),
+        label="adresse (2ème ligne)",
         max_length=100,
         required=False,
         source="location_address2",
     )
     city = NullableCharField(
-        label=_("ville"), max_length=100, required=True, source="location_city"
+        label="ville", max_length=100, required=True, source="location_city"
     )
     zip = NullableCharField(
-        label=_("code postal"), max_length=20, required=True, source="location_zip"
+        label="code postal", max_length=20, required=True, source="location_zip"
     )
     state = NullableCharField(
-        label=_("état"), max_length=40, required=False, source="location_state"
+        label="état", max_length=40, required=False, source="location_state"
     )
     country = NullableCountryField(
-        label=_("pays"), required=True, source="location_country"
+        label="pays", required=True, source="location_country"
     )
 
     def __init__(self, instance=None, data=empty, **kwargs):

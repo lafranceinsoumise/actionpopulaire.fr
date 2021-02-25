@@ -24,15 +24,7 @@ from ..groups.models import Membership, SupportGroup
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
-    typeLabel = serializers.SerializerMethodField()
-    typeDescription = serializers.SerializerMethodField()
     iconName = serializers.CharField(source="icon_name")
-
-    def get_typeLabel(self, obj):
-        return dict(EventSubtype.TYPE_CHOICES)[obj.type]
-
-    def get_typeDescription(self, obj):
-        return dict(EventSubtype.TYPE_DESCRIPTION)[obj.type]
 
     class Meta:
         model = models.EventSubtype
@@ -44,8 +36,6 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
             "icon",
             "iconName",
             "type",
-            "typeLabel",
-            "typeDescription",
         )
 
 
@@ -251,21 +241,13 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
         ).data
 
     def get_forUsers(self, request):
-        options = [
-            {"value": Event.FOR_USERS_2022, "label": "La campagne présidentielle",},
-            {
-                "value": Event.FOR_USERS_INSOUMIS,
-                "label": "Une autre campagne France insoumise",
-            },
-        ]
-
         if self.person and self.person.is_2022 and not self.person.is_insoumise:
-            return options[:1]
+            return [Event.FOR_USERS_2022]
 
         if self.person and not self.person.is_2022 and self.person.is_insoumise:
-            return options[1:]
+            return [Event.FOR_USERS_INSOUMIS]
 
-        return options
+        return [Event.FOR_USERS_2022, Event.FOR_USERS_INSOUMIS]
 
     def get_defaultContact(self, request):
         contact = {
@@ -344,6 +326,9 @@ class CreateEventSerializer(serializers.Serializer):
                 {"endTime": "Votre événement doit durer moins d’une semaine"}
             )
 
+        data["organizer_group"] = data.pop("organizerGroup")
+        data["organizer_person"] = data.pop("organizerPerson")
+
         return data
 
     def schedule_tasks(self, event, data):
@@ -356,35 +341,10 @@ class CreateEventSerializer(serializers.Serializer):
                 organizer_config.event.pk, organizer_config.person.pk, complete=False,
             )
         # Also notify members if it is organized by a group
-        if data["organizerGroup"]:
-            notify_new_group_event.delay(data["organizerGroup"].pk, event.pk)
+        if data["organizer_group"]:
+            notify_new_group_event.delay(data["organizer_group"].pk, event.pk)
 
     def create(self, validated_data):
-        if isinstance(validated_data.get("legal"), dict) and needs_approval(
-            validated_data.get("legal")
-        ):
-            validated_data["visibility"] = Event.VISIBILITY_ORGANIZER
-
-        event = Event.objects.create(
-            name=validated_data["name"],
-            start_time=validated_data["start_time"],
-            end_time=validated_data["end_time"],
-            contact_name=validated_data["contact_name"],
-            contact_email=validated_data["contact_email"],
-            contact_phone=validated_data["contact_phone"],
-            contact_hide_phone=validated_data["contact_hide_phone"],
-            location_name=validated_data["location_name"],
-            location_address1=validated_data["location_address1"],
-            location_address2=validated_data["location_address2"],
-            location_zip=validated_data["location_zip"],
-            location_city=validated_data["location_city"],
-            location_country=validated_data["location_country"],
-            for_users=validated_data["for_users"],
-            subtype=validated_data["subtype"],
-            organizer_group=validated_data["organizerGroup"],
-            organizer_person=validated_data["organizerPerson"],
-        )
-
+        event = Event.objects.create(**validated_data)
         self.schedule_tasks(event, validated_data)
-
         return event

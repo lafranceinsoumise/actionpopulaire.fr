@@ -5,7 +5,6 @@ from django.core.exceptions import PermissionDenied
 from django.http import (
     Http404,
     HttpResponseRedirect,
-    JsonResponse,
     HttpResponse,
     HttpResponseGone,
 )
@@ -19,12 +18,10 @@ from django.views import View
 from django.views.generic import (
     CreateView,
     UpdateView,
-    TemplateView,
     DeleteView,
     DetailView,
 )
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import ProcessFormView, FormMixin
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
@@ -36,7 +33,6 @@ from agir.front.view_mixins import (
     ChangeLocationBaseView,
     FilterView,
 )
-from agir.lib.export import dict_to_camelcase
 from agir.lib.views import ImageSizeWarningMixin
 from ..filters import EventFilter
 from ..forms import (
@@ -48,13 +44,12 @@ from ..forms import (
     AuthorForm,
     EventLegalForm,
 )
-from ..models import Event, RSVP, EventSubtype
+from ..models import Event, RSVP
 from ..tasks import (
     send_cancellation_notification,
     send_event_report,
     send_secretariat_notification,
 )
-from ...groups.models import Membership, SupportGroup
 
 __all__ = [
     "ManageEventView",
@@ -69,7 +64,6 @@ __all__ = [
     "EditEventLegalView",
     "UploadEventImageView",
     "EventSearchView",
-    "PerformCreateEventView",
     "EventDetailMixin",
 ]
 
@@ -313,44 +307,6 @@ class EventIcsView(EventDetailMixin, DetailView):
         ics_calendar = ics.Calendar(events=[context["event"].to_ics()])
 
         return HttpResponse(ics_calendar, content_type="text/calendar")
-
-
-# CREATION VIEWS
-# ==============
-
-
-class PerformCreateEventView(SoftLoginRequiredMixin, FormMixin, ProcessFormView):
-    model = Event
-    form_class = EventForm
-
-    def get_form_kwargs(self):
-        """Add user person profile to the form kwargs"""
-
-        kwargs = super().get_form_kwargs()
-
-        person = self.request.user.person
-        kwargs["person"] = person
-        return kwargs
-
-    def form_invalid(self, form):
-        return JsonResponse({"errors": form.errors}, status=400)
-
-    def form_valid(self, form):
-        messages.add_message(
-            request=self.request,
-            level=messages.SUCCESS,
-            message="Votre événement a été correctement créé.",
-        )
-
-        form.save()
-
-        return JsonResponse(
-            {
-                "status": "OK",
-                "id": form.instance.id,
-                "url": reverse("view_event", args=[form.instance.id]),
-            }
-        )
 
 
 # ADMIN VIEWS

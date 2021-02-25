@@ -98,7 +98,6 @@ const createEvent = async (data) => {
     ...data,
     subtype: data.subtype && data.subtype.id,
     organizerGroup: data.organizerGroup && data.organizerGroup.id,
-    legal: {},
   };
 
   try {

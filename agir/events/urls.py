@@ -3,11 +3,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path(
-        "evenements/creer/form/",
-        views.PerformCreateEventView.as_view(),
-        name="perform_create_event",
-    ),
     path("evenements/liste/", views.EventSearchView.as_view(), name="search_event"),
     path(
         "evenements/<uuid:pk>/participer/",
