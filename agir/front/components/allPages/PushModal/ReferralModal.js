@@ -106,7 +106,7 @@ export const ReferralModal = ({
     [referralURL]
   );
   return (
-    <Modal shouldShow={href && shouldShow}>
+    <Modal shouldShow={!!href && shouldShow}>
       <StyledModalContent>
         <img src={modalImage} alt="Opération 300000 signatures !" />
         <h2>
@@ -117,7 +117,13 @@ export const ReferralModal = ({
           signatures !
         </p>
         <Buttons>
-          <Button color="primary" as="a" href={href}>
+          <Button
+            color="primary"
+            as="a"
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Partager mon lien
           </Button>
           <Button onClick={onClose}>Pas maintenant</Button>

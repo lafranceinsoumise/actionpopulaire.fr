@@ -15,7 +15,7 @@ const fadeInTransition = {
 const BasePopin = styled(animated.div)`
   position: absolute;
   z-index: 1;
-  width: 250px;
+  min-width: 250px;
   padding: 1rem;
   background-color: ${style.white};
   border: 1px solid ${style.black100};
