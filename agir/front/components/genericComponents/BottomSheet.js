@@ -72,7 +72,7 @@ export const BottomSheet = (props) => {
       onDismiss={onDismiss}
       onSpringStart={handleSpringStart}
       defaultSnap={({ snapPoints, minHeight, lastSnap }) =>
-        lastSnap || Math.min(minHeight, snapPoints[0])
+        lastSnap || Math.max(minHeight, snapPoints[0])
       }
       snapPoints={({ maxHeight }) => [
         2 * (maxHeight / 3),

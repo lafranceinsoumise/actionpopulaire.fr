@@ -120,7 +120,9 @@ def get_instant_stats():
         "ga_LFI": SupportGroup.objects.filter(
             type=SupportGroup.TYPE_LOCAL_GROUP, published=True
         ).count(),
-        "ga_LFI_certifies": SupportGroup.objects.certified().count(),
+        "ga_LFI_certifies": SupportGroup.objects.certified()
+        .filter(published=True)
+        .count(),
         "equipes_NSP": SupportGroup.objects.active()
         .filter(type=SupportGroup.TYPE_2022)
         .count(),
@@ -157,11 +159,13 @@ def get_instant_stats():
         "insoumis_non_NSP": Person.objects.filter(
             is_insoumise=True,
             is_2022=False,
+            emails___bounced=False,
             newsletters__contains=[Person.NEWSLETTER_LFI],
         ).count(),
         "insoumis_non_NSP_newsletter": Person.objects.filter(
             is_insoumise=True,
             is_2022=False,
+            emails___bounced=False,
             newsletters__contains=[Person.NEWSLETTER_LFI],
             campaignsentevent__datetime__gt=(now() - timedelta(days=90)),
             campaignsentevent__open_count__gt=0,

@@ -1,13 +1,13 @@
 import React from "react";
-import { PureTopBar } from "./TopBar";
+import TopBar from "./TopBar";
 
 export default {
-  component: PureTopBar,
+  component: TopBar,
   title: "Layout/TopBar",
 };
 
 const Template = ({ loggedIn, displayName, isInsoumise }) => (
-  <PureTopBar user={loggedIn ? { displayName, isInsoumise } : null} />
+  <TopBar user={loggedIn ? { displayName, isInsoumise } : null} />
 );
 
 export const Default = Template.bind({});

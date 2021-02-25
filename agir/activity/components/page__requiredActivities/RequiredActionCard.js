@@ -255,9 +255,14 @@ const RequiredActionCard = (props) => {
           disabled={isEmailCopied}
           text={
             <>
-              <strong>{individual.displayName || "Quelqu'un"}</strong> a rejoint
-              votre groupe <a href={supportGroup.url}>{supportGroup.name}</a>.
-              Prenez le temps de l’accueillir !
+              <strong>
+                {`${individual.displayName || "Quelqu'un"} ${
+                  meta && meta.email ? `<${meta.email}>` : ""
+                }`.trim()}
+              </strong>{" "}
+              a rejoint votre groupe{" "}
+              <a href={supportGroup.url}>{supportGroup.name}</a>. Prenez le
+              temps de l’accueillir !
             </>
           }
         />
