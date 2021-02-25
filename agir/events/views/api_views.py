@@ -3,16 +3,23 @@ from datetime import timedelta
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import Q
 from django.utils import timezone
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from agir.events.models import Event
-from agir.events.serializers import EventSerializer
+from agir.events.serializers import (
+    EventSerializer,
+    EventCreateOptionsSerializer,
+    CreateEventSerializer,
+)
+from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
 
 __all__ = [
     "EventDetailAPIView",
     "EventRsvpedAPIView",
     "EventSuggestionsAPIView",
+    "EventCreateOptionsAPIView",
+    "CreateEventAPIView",
 ]
 
 from agir.lib.tasks import geocode_person
@@ -153,3 +160,25 @@ class EventSuggestionsAPIView(ListAPIView):
             result = result.order_by("start_time")
 
         return result
+
+
+class EventCreateOptionsAPIView(RetrieveAPIView):
+    permission_ = ("events.add_event",)
+    serializer_class = EventCreateOptionsSerializer
+    queryset = Event.objects.all()
+
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        if user.is_anonymous or not user.person:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        self.person = user.person
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self):
+        return self.request
+
+
+class CreateEventAPIView(CreateAPIView):
+    permission_ = ("events.add_event",)
+    serializer_class = CreateEventSerializer
+    queryset = Event.objects.all()

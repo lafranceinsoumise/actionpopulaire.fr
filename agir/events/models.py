@@ -8,7 +8,7 @@ from django.db.models import JSONField, Prefetch
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Case, Sum, Count, When, CharField, F, Q
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
@@ -209,6 +209,28 @@ report_image_path = FilePattern(
 )
 
 
+class EventManager(models.Manager.from_queryset(EventQuerySet)):
+    def create(self, *args, **kwargs):
+        return self.create_event(*args, **kwargs)
+
+    def create_event(
+        self, organizer_person=None, organizer_group=None, *args, **kwargs
+    ):
+        with transaction.atomic():
+            event = self.model(**kwargs)
+            event.save(using=self._db)
+
+            if organizer_person is not None:
+                organizer_config = OrganizerConfig.objects.create(
+                    person=organizer_person, event=event, as_group=organizer_group,
+                )
+                organizer_config.save()
+                rsvp = RSVP.objects.create(person=organizer_person, event=event)
+                rsvp.save()
+
+            return event
+
+
 class Event(
     ExportModelOperationsMixin("event"),
     BaseAPIResource,
@@ -221,7 +243,7 @@ class Event(
     Model that represents an event
     """
 
-    objects = EventQuerySet.as_manager()
+    objects = EventManager()
 
     name = models.CharField(
         _("nom"), max_length=255, blank=False, help_text=_("Le nom de l'événement")

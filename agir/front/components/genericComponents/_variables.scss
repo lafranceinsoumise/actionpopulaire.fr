@@ -44,6 +44,7 @@ $zindex__topBar: 10;
 $zindex__navigationCounter: 10;
 $zindex__feedback-button: 15;
 $zindex__modal: 20;
+$zindex__panel: 20;
 
 :export {
   white: $white;
@@ -89,5 +90,6 @@ $zindex__modal: 20;
   zindexTopBar: $zindex__topBar;
   zindexNavigationCounter: $zindex__navigationCounter;
   zindexModal: $zindex__modal;
+  zindexPanel: $zindex__panel;
   zindexFeedbackButton: $zindex__feedback-button;
 }

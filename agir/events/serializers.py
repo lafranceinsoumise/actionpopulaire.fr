@@ -1,20 +1,42 @@
+from datetime import timedelta
 from rest_framework import serializers
 
 from agir.front.serializer_utils import MediaURLField, RoutesField
 from agir.lib.serializers import (
     LocationSerializer,
     ContactMixinSerializer,
+    NestedLocationSerializer,
+    NestedContactSerializer,
     FlexibleFieldsMixin,
+    CurrentPersonDefault,
 )
 from . import models
-from .models import OrganizerConfig, RSVP
-from ..groups.serializers import SupportGroupSerializer
+from .actions.legal import needs_approval
+from .models import OrganizerConfig, RSVP, Event, EventSubtype
+from .tasks import (
+    send_event_creation_notification,
+    send_secretariat_notification,
+    geocode_event,
+)
+from ..groups.tasks import notify_new_group_event
+from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
+from ..groups.models import Membership, SupportGroup
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
+    iconName = serializers.CharField(source="icon_name")
+
     class Meta:
         model = models.EventSubtype
-        fields = ("label", "description", "color", "icon", "type")
+        fields = (
+            "id",
+            "label",
+            "description",
+            "color",
+            "icon",
+            "iconName",
+            "type",
+        )
 
 
 EVENT_ROUTES = {
@@ -183,3 +205,146 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     class Meta:
         list_serializer_class = EventListSerializer
+
+
+class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
+    organizerGroup = serializers.SerializerMethodField()
+    forUsers = serializers.SerializerMethodField()
+    subtype = serializers.SerializerMethodField()
+    defaultContact = serializers.SerializerMethodField()
+
+    def to_representation(self, instance):
+        user = self.context["request"].user
+        self.person = None
+        if not user.is_anonymous and user.person:
+            self.person = user.person
+        return super().to_representation(instance)
+
+    def get_organizerGroup(self, request):
+        return SupportGroupDetailSerializer(
+            SupportGroup.objects.filter(
+                memberships__person=self.person,
+                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+            ).active(),
+            context=self.context,
+            many=True,
+            fields=["id", "name", "is2022", "contact", "location"],
+        ).data
+
+    def get_subtype(self, request):
+        return EventSubtypeSerializer(
+            EventSubtype.objects.filter(
+                visibility=EventSubtype.VISIBILITY_ALL
+            ).distinct(),
+            context=self.context,
+            many=True,
+        ).data
+
+    def get_forUsers(self, request):
+        if self.person and self.person.is_2022 and not self.person.is_insoumise:
+            return [Event.FOR_USERS_2022]
+
+        if self.person and not self.person.is_2022 and self.person.is_insoumise:
+            return [Event.FOR_USERS_INSOUMIS]
+
+        return [Event.FOR_USERS_2022, Event.FOR_USERS_INSOUMIS]
+
+    def get_defaultContact(self, request):
+        contact = {
+            "hidePhone": False,
+        }
+        if self.person and self.person.display_name:
+            contact["name"] = self.person.display_name
+        if self.person and self.person.contact_phone:
+            contact["phone"] = self.person.contact_phone
+        if self.person and self.person.email:
+            contact["email"] = self.person.email
+        return contact
+
+
+class EventOrganizerGroupField(serializers.RelatedField):
+    queryset = SupportGroup.objects.all()
+
+    def to_representation(self, obj):
+        if obj is None:
+            return None
+        return SupportGroupSerializer(
+            obj,
+            context=self.context,
+            fields=["id", "name", "is2022", "contact", "location"],
+        ).data
+
+    def to_internal_value(self, pk):
+        if pk is None:
+            return None
+        return self.queryset.model.objects.get(pk=pk)
+
+
+class CreateEventSerializer(serializers.Serializer):
+    id = serializers.UUIDField(read_only=True)
+    url = serializers.HyperlinkedIdentityField(
+        read_only=True, view_name="api_event_view"
+    )
+
+    name = serializers.CharField(max_length=100, min_length=3)
+    startTime = serializers.DateTimeField(source="start_time")
+    endTime = serializers.DateTimeField(source="end_time")
+    contact = NestedContactSerializer(source="*")
+    location = NestedLocationSerializer(source="*")
+    forUsers = serializers.CharField(source="for_users", required=True)
+    subtype = serializers.PrimaryKeyRelatedField(
+        queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
+    )
+    organizerGroup = EventOrganizerGroupField(
+        write_only=True, required=False, allow_null=True
+    )
+    organizerPerson = serializers.HiddenField(
+        default=CurrentPersonDefault(), write_only=True,
+    )
+
+    class Meta:
+        model = Event
+
+    def validate(self, data):
+        if data.get("organizerGroup") and data["organizerGroup"] is not None:
+            if (
+                not data["organizerPerson"] in data["organizerGroup"].referents
+                and not data["organizerPerson"] in data["organizerGroup"].managers
+            ):
+                raise serializers.ValidationError(
+                    {
+                        "organizerGroup": "Veuillez choisir un groupe dont vous êtes animateur·ice"
+                    }
+                )
+
+        if (
+            data.get("end_time")
+            and data.get("start_time")
+            and data["end_time"] - data["start_time"] > timedelta(days=7)
+        ):
+            raise serializers.ValidationError(
+                {"endTime": "Votre événement doit durer moins d’une semaine"}
+            )
+
+        data["organizer_group"] = data.pop("organizerGroup")
+        data["organizer_person"] = data.pop("organizerPerson")
+
+        return data
+
+    def schedule_tasks(self, event, data):
+        organizer_config = OrganizerConfig.objects.filter(event=event).first()
+        # Send the confirmation notification and geolocate the event
+        send_event_creation_notification.delay(organizer_config.pk)
+        geocode_event.delay(event.pk)
+        if event.visibility == Event.VISIBILITY_ORGANIZER:
+            send_secretariat_notification.delay(
+                organizer_config.event.pk, organizer_config.person.pk, complete=False,
+            )
+        # Also notify members if it is organized by a group
+        if data["organizer_group"]:
+            notify_new_group_event.delay(data["organizer_group"].pk, event.pk)
+
+    def create(self, validated_data):
+        event = Event.objects.create(**validated_data)
+        self.schedule_tasks(event, validated_data)
+        return event
