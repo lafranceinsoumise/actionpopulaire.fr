@@ -11,9 +11,21 @@ export const addQueryStringParams = (url, params = {}) => {
   ) {
     return url;
   }
-  const parsedURL = parseURL(url);
-  Object.entries(params).forEach(([key, value]) => {
-    parsedURL.searchParams.set(key, value);
-  });
-  return parsedURL.toString();
+  let parsedURL = url;
+  try {
+    parsedURL = parseURL(url);
+    Object.entries(params).forEach(([key, value]) => {
+      parsedURL.searchParams.set(key, value);
+    });
+    return parsedURL.toString();
+  } catch (e) {
+    Object.entries(params).forEach(([key, value], i) => {
+      if (value) {
+        parsedURL += `${i === 0 ? "?" : "&"}${encodeURIComponent(
+          key
+        )}=${encodeURIComponent(value)}`;
+      }
+    });
+    return parsedURL;
+  }
 };
