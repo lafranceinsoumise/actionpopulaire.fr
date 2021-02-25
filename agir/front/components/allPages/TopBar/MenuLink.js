@@ -13,6 +13,7 @@ const MenuLink = styled(Link)`
   height: 3rem;
   border: none;
   background-color: transparent;
+  cursor: pointer;
 
   * + * {
     margin-left: 0.5em;

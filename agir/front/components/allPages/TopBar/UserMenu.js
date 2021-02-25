@@ -133,7 +133,16 @@ export const UserMenu = (props) => {
           </Button>
         </article>
         <footer>
-          <Button as="Link" route="signOut" icon="power" color="logout" small>
+          <Button
+            as="Link"
+            route="signOut"
+            icon="power"
+            $background={style.white}
+            $labelColor={style.black1000}
+            $hoverBackground={style.black25}
+            $borderColor={style.black200}
+            small
+          >
             Me déconnecter
           </Button>
         </footer>

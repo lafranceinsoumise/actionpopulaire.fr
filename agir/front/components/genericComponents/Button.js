@@ -61,12 +61,6 @@ export const buttonColors = {
     $labelColor: style.white,
     $hoverBackground: darken(0.1, style.redNSP),
   },
-  logout: {
-    $background: "white",
-    $labelColor: style.black1000,
-    $hoverBackground: style.black25,
-    $borderColor: style.black200,
-  },
 };
 
 /**
