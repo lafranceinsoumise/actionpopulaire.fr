@@ -75,7 +75,18 @@ const ActionButtons = (props) => {
   } = props;
 
   if (past) {
-    return <Button color="unavailable">Événement terminé</Button>;
+    return (
+      <>
+        <Button disabled color="unavailable">
+          Événement terminé
+        </Button>
+        {isOrganizer && (
+          <ActionButton icon="settings" as="a" href={routes.manage}>
+            Gérer l'événement
+          </ActionButton>
+        )}
+      </>
+    );
   }
 
   if (!logged) {
