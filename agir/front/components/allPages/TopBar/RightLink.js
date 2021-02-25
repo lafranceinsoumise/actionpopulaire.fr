@@ -1,42 +1,11 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
-import styled from "styled-components";
-
-import style from "@agir/front/genericComponents/_variables.scss";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 import MenuLink from "./MenuLink";
 import UserMenu from "./UserMenu";
-
-const SettingsMenuLink = styled(MenuLink)`
-  @media (min-width: ${style.collapse}px) {
-    position: absolute;
-    padding: 6px 5px;
-    bottom: 0;
-    right: 0;
-    background-color: ${style.black1000};
-    color: ${style.black25};
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
-    transform: translateY(100%);
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 0);
-    transition: all 100ms ease-in-out;
-    cursor: pointer;
-    opacity: 0.75;
-
-    &:hover,
-    &:focus {
-      background-color: ${style.black1000};
-      color: ${style.white};
-      opacity: 1;
-    }
-  }
-`;
 
 const AnonymousLink = ({ routes }) => {
   return (
@@ -84,15 +53,16 @@ const SettingsLink = (props) => {
   return (
     <>
       <UserLink {...props} className="large-only" />
-      <SettingsMenuLink
+      <MenuLink
         to={settingsLink.to}
         href={settingsLink.href}
         route={settingsLink.route}
         title={settingsLink.label}
         aria-label={settingsLink.label}
+        className="small-only"
       >
         <FeatherIcon name="settings" />
-      </SettingsMenuLink>
+      </MenuLink>
     </>
   );
 };

@@ -10,6 +10,7 @@ import {
 import {
   setIs2022,
   setTopBarRightLink,
+  setAdminLink,
 } from "@agir/front/globalContext/actions";
 import {
   getIsConnected,
@@ -327,6 +328,14 @@ export const ConnectedEventPage = (props) => {
         setTopBarRightLink({
           href: eventData.routes.manage,
           label: "Gestion de l'événement",
+        })
+      );
+    }
+    if (eventData && eventData.routes && eventData.routes.admin) {
+      dispatch(
+        setAdminLink({
+          href: eventData.routes.admin,
+          label: "Administrtion",
         })
       );
     }

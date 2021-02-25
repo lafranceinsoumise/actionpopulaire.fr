@@ -13,6 +13,7 @@ import {
 import {
   setBackLink,
   setTopBarRightLink,
+  setAdminLink,
 } from "@agir/front/globalContext/actions";
 import {
   getIsSessionLoaded,
@@ -83,6 +84,14 @@ const Page = ({ groupPk, messagePk }) => {
         setTopBarRightLink({
           href: group.routes.settings,
           label: "Gestion du groupe",
+        })
+      );
+    }
+    if (group && group.routes && group.routes.admin) {
+      dispatch(
+        setAdminLink({
+          href: group.routes.admin,
+          label: "Administration",
         })
       );
     }

@@ -17,6 +17,7 @@ import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
 import {
   setBackLink,
   setTopBarRightLink,
+  setAdminLink,
 } from "@agir/front/globalContext/actions";
 
 import Layout from "@agir/front/dashboardComponents/Layout";
@@ -64,6 +65,7 @@ const Page = (props) => {
   useMemo(() => {
     dispatch(setBackLink(null));
     dispatch(setTopBarRightLink(null));
+    dispatch(setAdminLink(null));
     //eslint-disable-next-line
   }, [pathname]);
 

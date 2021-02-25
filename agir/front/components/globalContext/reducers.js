@@ -102,6 +102,16 @@ export const topBarRightLink = (state = null, action) => {
   return state;
 };
 
+export const adminLink = (state = null, action) => {
+  if (action.type === ACTION_TYPE.INIT_ACTION) {
+    return action.adminLink || state;
+  }
+  if (action.type === ACTION_TYPE.SET_ADMIN_LINK_ACTION) {
+    return action.adminLink || null;
+  }
+  return state;
+};
+
 export const messages = (state = {}, action) => {
   switch (action.type) {
     case ACTION_TYPE.SET_MESSAGES_ACTION: {
@@ -272,6 +282,11 @@ export const getTopBarRightLink = (state) => {
   return state.topBarRightLink;
 };
 
+export const getAdminLink = (state) => {
+  if (!state.adminLink) return null;
+  return state.adminLink;
+};
+
 export const getMessages = (state) =>
   Object.values(state.messages).filter(Boolean);
 export const getMessageById = (state, id) =>
@@ -291,6 +306,7 @@ const reducers = {
   toasts,
   backLink,
   topBarRightLink,
+  adminLink,
   messages,
   isLoadingMessages,
   isUpdatingMessages,

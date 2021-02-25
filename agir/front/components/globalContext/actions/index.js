@@ -58,6 +58,12 @@ export const setTopBarRightLink = (topBarRightLink) => ({
   topBarRightLink,
 });
 
+// ADMIN LINK
+export const setAdminLink = (adminLink) => ({
+  type: ACTION_TYPE.SET_ADMIN_LINK_ACTION,
+  adminLink,
+});
+
 const createDispatch = (dispatchFunction) => (action) => {
   if (typeof action === "function") {
     return action(dispatchFunction);
