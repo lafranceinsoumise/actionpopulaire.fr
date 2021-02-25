@@ -9,6 +9,7 @@ from agir.lib.serializers import (
 from . import models
 from .models import OrganizerConfig, RSVP
 from ..groups.serializers import SupportGroupSerializer
+from ..lib.utils import admin_url
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
@@ -146,6 +147,10 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_routes(self, obj):
         routes = {}
+        user = self.context["request"].user
+
+        if user.is_staff and user.has_perm("events.change_event"):
+            routes["admin"] = admin_url("events_event_change", args=[obj.pk])
 
         if obj.facebook:
             routes["facebook"] = f"https://www.facebook.com/events/{obj.facebook}"
