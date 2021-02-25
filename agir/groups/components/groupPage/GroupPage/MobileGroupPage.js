@@ -41,7 +41,7 @@ const StyledTab = styled.div`
   scroll-margin-top: 160px;
 
   @media (max-width: ${style.collapse}px) {
-    scroll-margin-top: 120px;
+    scroll-margin-top: 100px;
   }
 `;
 
@@ -119,7 +119,7 @@ const MobileGroupPage = (props) => {
     >
       <GroupBanner {...group} />
       <GroupUserActions {...group} />
-      <GroupPageMenu tabs={tabs} hasTabs={hasTabs} stickyOffset={72} />
+      <GroupPageMenu tabs={tabs} hasTabs={hasTabs} stickyOffset={56} />
       <Switch>
         {tabs.map((tab) => {
           const R = Routes[tab.id];
