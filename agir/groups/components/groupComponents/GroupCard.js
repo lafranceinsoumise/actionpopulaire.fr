@@ -177,7 +177,7 @@ const GroupCard = ({
         </DiscountCodesSection>
       )}
       <Row gutter={6} style={{ marginTop: "1.5rem" }}>
-        {!isMember ? (
+        {!isEmbedded && !isMember ? (
           <GroupButton
             color="primary"
             as="Link"
@@ -191,6 +191,7 @@ const GroupCard = ({
         ) : null}
         <GroupButton
           as="Link"
+          color={isEmbedded || isMember ? "primary" : "default"}
           to={routeConfig.groupDetails.getLink({ groupPk: id })}
         >
           Voir le groupe
