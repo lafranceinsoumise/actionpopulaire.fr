@@ -13,9 +13,19 @@ from ..lib.utils import admin_url
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
+    iconName = serializers.CharField(source="icon_name")
+
     class Meta:
         model = models.EventSubtype
-        fields = ("label", "description", "color", "icon", "type")
+        fields = (
+            "id",
+            "label",
+            "description",
+            "color",
+            "icon",
+            "iconName",
+            "type",
+        )
 
 
 EVENT_ROUTES = {
@@ -60,6 +70,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "location",
         "rsvp",
         "routes",
+        "subtype",
     ]
 
     id = serializers.UUIDField()
@@ -96,6 +107,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     forUsers = serializers.CharField(source="for_users")
 
     canRSVP = serializers.SerializerMethodField()
+
+    subtype = EventSubtypeSerializer()
 
     def to_representation(self, instance):
         user = self.context["request"].user

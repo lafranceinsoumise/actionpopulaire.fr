@@ -18,6 +18,8 @@ import fontawesome from "fontawesome";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import markerIcon from "./marker.svg";
+
 import { element } from "./utils";
 
 const ARROW_SIZE = 20;
@@ -97,17 +99,16 @@ export function makeStyle(style, options = {}) {
   if (style.color && style.iconName) {
     return [
       new Style({
-        image: new Circle({
-          radius: 12,
-          fill: new Fill({
-            color: "white",
-          }),
+        image: new Icon({
+          offset: [0, -2],
+          opacity: 1,
+          src: markerIcon,
         }),
       }),
       new Style({
         text: new Text({
           text: fontawesome(style.iconName),
-          font: "normal 18px FontAwesome",
+          font: "normal 16px FontAwesome",
           fill: new Fill({
             color: options.color ? style.color : "#999",
           }),
@@ -134,11 +135,10 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
     ? makeStyle(iconConfiguration)
     : [
         new Style({
-          image: new Circle({
-            radius: 12,
-            fill: new Fill({
-              color: style.primary500,
-            }),
+          image: new Icon({
+            offset: [0, -2],
+            opacity: 1,
+            src: markerIcon,
           }),
         }),
       ];
