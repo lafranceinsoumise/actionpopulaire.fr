@@ -429,26 +429,13 @@ const NonMemberActions = (props) => {
 };
 
 const GroupUserActions = (props) => {
-  let Actions = NonMemberActions;
-
   if (props.isManager) {
-    Actions = ManagerActions;
-  } else if (props.isMember) {
-    Actions = MemberActions;
+    return <ManagerActions {...props} />;
   }
-
-  return (
-    <>
-      {props.routes && props.routes.admin && (
-        <StyledAdminButton>
-          <Button as="a" href={props.routes.admin} icon="settings" inline small>
-            Administration
-          </Button>
-        </StyledAdminButton>
-      )}
-      <Actions {...props} />
-    </>
-  );
+  if (props.isMember) {
+    return <MemberActions {...props} />;
+  }
+  return <NonMemberActions {...props} />;
 };
 
 ManagerActions.propTypes = MemberActions.propTypes = NonMemberActions.propTypes = GroupUserActions.propTypes = {
