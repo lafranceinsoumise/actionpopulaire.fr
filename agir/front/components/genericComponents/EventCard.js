@@ -84,17 +84,17 @@ const Buttons = styled.div`
 const Illustration = styled.div`
   background-color: #e5e5e5;
   display: grid;
-  z-index: 1;
+  z-index: 0;
 
   & > * {
     grid-column: 1/2;
     grid-row: 1/2;
-    z-index: 2;
+    z-index: 1;
   }
 
   &::before {
     content: "";
-    z-index: 1;
+    z-index: 0;
     grid-column: 1/2;
     grid-row: 1/2;
     display: block;
@@ -107,13 +107,18 @@ const Illustration = styled.div`
     opacity: 0.25;
   }
 
-  @media only screen and (max-width: ${style.collapse}px) {
+  @media (max-width: ${style.collapse}px) {
     margin: -1rem -1rem 1rem;
   }
 
   img {
-    max-height: 200px;
     margin: 0 auto;
+    align-self: center;
+    max-height: 100%;
+
+    @media (max-width: ${style.collapse}px) {
+      max-height: 200px;
+    }
   }
 `;
 
@@ -128,7 +133,7 @@ const StyledCard = styled(Card)`
 
   @media only screen and (min-width: ${style.collapse}px) {
     display: grid;
-    grid-template-columns: 359px 1fr;
+    grid-template-columns: 270px 1fr;
     grid-template-rows: auto auto;
     grid-gap: 1.5rem;
     padding: 0;
@@ -232,13 +237,13 @@ const EventCard = (props) => {
               <p
                 key={group.name}
                 style={{
-                  fontWeight: "500",
+                  fontWeight: "400",
                   fontSize: "14px",
                   lineHeight: "1",
-                  color: style.black500,
+                  color: style.black1000,
                 }}
               >
-                {group.name}
+                &mdash;&nbsp;{group.name}
               </p>
             ))
           : null}

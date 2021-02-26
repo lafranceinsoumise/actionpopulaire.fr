@@ -109,11 +109,6 @@ const StyledAgenda = styled.div`
     }
   }
 
-  & ${Card} {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-
   & ${Card} + ${Card} {
     margin-top: 1rem;
   }
