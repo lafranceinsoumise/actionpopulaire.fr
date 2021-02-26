@@ -74,17 +74,25 @@ class SupportGroupMessageAdmin(VersionAdmin):
         "text",
         "image",
     )
-    list_display = ("text_excerpt", "created", "supportgroup", "linked_event", "comment_count")
+    list_display = (
+        "text_excerpt",
+        "created",
+        "supportgroup",
+        "linked_event",
+        "comment_count",
+    )
     inlines = [
         InlineSupportGroupMessageCommentAdmin,
     ]
 
     def text_excerpt(self, object):
         return truncatechars(object.text, 20)
+
     text_excerpt.short_description = "Texte"
 
     def comment_count(self, object):
         return SupportGroupMessageComment.objects.filter(message=object.pk).count()
+
     comment_count.short_description = "Nombre de commentaires"
 
     def has_add_permission(self, request, obj=None):
