@@ -52,17 +52,17 @@ const SettingsLink = (props) => {
   const { settingsLink } = props;
   return (
     <>
+      <UserLink {...props} className="large-only" />
       <MenuLink
         to={settingsLink.to}
         href={settingsLink.href}
         route={settingsLink.route}
-        className="small-only"
         title={settingsLink.label}
         aria-label={settingsLink.label}
+        className="small-only"
       >
         <FeatherIcon name="settings" />
       </MenuLink>
-      <UserLink {...props} className="large-only" />
     </>
   );
 };

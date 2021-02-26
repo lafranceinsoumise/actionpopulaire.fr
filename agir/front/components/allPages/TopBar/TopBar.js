@@ -9,6 +9,7 @@ import {
   getIsSessionLoaded,
   getBackLink,
   getTopBarRightLink,
+  getAdminLink,
 } from "@agir/front/globalContext/reducers";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -20,6 +21,7 @@ import MenuLink from "./MenuLink";
 import Logo from "./Logo";
 import RightLink from "./RightLink";
 import SearchBar from "./SearchBar";
+import AdminLink from "./AdminLink";
 
 const TopBarBar = styled.div`
   position: fixed;
@@ -83,9 +85,11 @@ export const TopBar = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const backLink = useSelector(getBackLink);
   const topBarRightLink = useSelector(getTopBarRightLink);
+  const adminLink = useSelector(getAdminLink);
 
   return (
     <TopBarBar>
+      <AdminLink link={adminLink} />
       <TopBarContainer>
         {isSessionLoaded ? (
           backLink ? (

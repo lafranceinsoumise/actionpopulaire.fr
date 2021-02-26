@@ -1,13 +1,17 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import {
   useDispatch,
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
-import { setIs2022 } from "@agir/front/globalContext/actions";
+import {
+  setIs2022,
+  setTopBarRightLink,
+  setAdminLink,
+} from "@agir/front/globalContext/actions";
 import {
   getIsConnected,
   getIsSessionLoaded,
@@ -312,6 +316,30 @@ export const ConnectedEventPage = (props) => {
   React.useEffect(() => {
     is2022 === true && dispatch(setIs2022());
   }, [is2022, dispatch]);
+
+  useEffect(() => {
+    if (
+      eventData &&
+      eventData.isOrganizer &&
+      eventData.routes &&
+      eventData.routes.manage
+    ) {
+      dispatch(
+        setTopBarRightLink({
+          href: eventData.routes.manage,
+          label: "Gestion de l'événement",
+        })
+      );
+    }
+    if (eventData && eventData.routes && eventData.routes.admin) {
+      dispatch(
+        setAdminLink({
+          href: eventData.routes.admin,
+          label: "Administrtion",
+        })
+      );
+    }
+  }, [eventData, dispatch]);
 
   return (
     <>
