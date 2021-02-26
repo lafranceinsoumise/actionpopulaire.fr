@@ -26,25 +26,26 @@ const AnonymousLink = ({ routes }) => {
 const UserLink = ({ user, routes, ...rest }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const openMenu = useCallback(() => setIsMenuOpen(true), []);
-  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+  const openMenu = useCallback(() => {
+    setIsMenuOpen(true);
+  }, []);
+  const closeMenu = useCallback(() => {
+    setIsMenuOpen(false);
+  }, []);
 
   return (
-    <MenuLink
-      {...rest}
-      style={{ position: "relative" }}
-      as="button"
-      onClick={openMenu}
-    >
-      <Avatar displayName={user.displayName} image={user.image} />
-      <span className="large-only">{user.displayName}</span>
+    <div style={{ position: "relative", padding: 0 }}>
+      <MenuLink {...rest} style={{ padding: 0 }} as="button" onClick={openMenu}>
+        <Avatar displayName={user.displayName} image={user.image} />
+        <span className="large-only">{user.displayName}</span>
+      </MenuLink>
       <UserMenu
         isOpen={isMenuOpen}
         onDismiss={closeMenu}
         user={user}
         routes={routes}
       />
-    </MenuLink>
+    </div>
   );
 };
 
