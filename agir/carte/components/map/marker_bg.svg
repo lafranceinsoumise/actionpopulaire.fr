@@ -1,8 +1,7 @@
 <svg width="40" height="47" viewBox="0 0 40 47" fill="none" xmlns="http://www.w3.org/2000/svg">
-<ellipse opacity="0.4" cx="19.7102" cy="33.0779" rx="13.0779" ry="13.0779" fill="#000A2C"/>
 <path
   d="M19.7578 39.7222L10.5697 30.1031C5.48893 24.784 5.45879 16.2157 10.4741 10.9652C15.4894 5.71462 23.6739 5.74618 28.7546 11.0653C33.8354 16.3844 33.8656 24.9527 28.8503 30.2032L19.7578 39.7222Z"
-  fill="white"
-  stroke="transparent"
-  stroke-width="3"/>
+  fill="#FFFFFF"
+  stroke="#FFFFFF"
+  stroke-width="2"/>
 </svg>

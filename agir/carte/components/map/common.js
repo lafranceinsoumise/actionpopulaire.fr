@@ -4,7 +4,6 @@ import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
 import Style from "ol/style/Style";
 import Text from "ol/style/Text";
-import Circle from "ol/style/Circle";
 import Fill from "ol/style/Fill";
 import Icon from "ol/style/Icon";
 import Overlay from "ol/Overlay";
@@ -16,9 +15,8 @@ import VectorLayer from "ol/layer/Vector";
 import Zoom from "ol/control/Zoom";
 import fontawesome from "fontawesome";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-
 import markerIcon from "./marker.svg";
+import markerIconBg from "./marker_bg.svg";
 
 import { element } from "./utils";
 
@@ -98,6 +96,14 @@ export function makeStyle(style, options = {}) {
 
   if (style.color && style.iconName) {
     return [
+      new Style({
+        image: new Icon({
+          offset: [0, -2],
+          opacity: 1,
+          src: markerIconBg,
+          color: options.color ? style.color : "#FFFFFF",
+        }),
+      }),
       new Style({
         image: new Icon({
           offset: [0, -2],
