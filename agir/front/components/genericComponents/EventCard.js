@@ -12,12 +12,18 @@ import { displayIntervalStart } from "@agir/lib/utils/time";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
-import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
+import {
+  Column,
+  Hide,
+  Row,
+  useResponsiveMemo,
+} from "@agir/front/genericComponents/grid";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
 import Map from "@agir/carte/common/Map";
+import eventCardDefaultBackground from "@agir/front/genericComponents/images/event-card-default-bg.svg";
 
 const RSVPButton = ({ id, hasSubscriptionForm, rsvped, routes, schedule }) => {
   if (schedule.isBefore(DateTime.local())) {
@@ -82,7 +88,7 @@ const Buttons = styled.div`
   }
 `;
 const Illustration = styled.div`
-  background-color: #e5e5e5;
+  background-color: ${({ $img }) => ($img ? "#e5e5e5" : "#fafafa")};
   display: grid;
   z-index: 0;
 
@@ -164,6 +170,44 @@ const StyledCard = styled(Card)`
   }
 `;
 
+const EventCardIllustration = (props) => {
+  const { image, coordinates, subtype } = props;
+
+  const isVisible = useResponsiveMemo(!!image, true);
+
+  if (!isVisible) {
+    return null;
+  }
+
+  if (image) {
+    return (
+      <Illustration $img={image}>
+        <img src={image} alt="Image d'illustration" />
+      </Illustration>
+    );
+  }
+  if (Array.isArray(coordinates)) {
+    return (
+      <Illustration $img={image}>
+        <Map center={coordinates} iconConfiguration={subtype} isStatic />
+      </Illustration>
+    );
+  }
+  return (
+    <Illustration>
+      <img
+        src={eventCardDefaultBackground}
+        alt="Image d'illustration par défaut"
+      />
+    </Illustration>
+  );
+};
+EventCardIllustration.propTypes = {
+  image: PropTypes.string,
+  coordinates: PropTypes.array,
+  subtype: PropTypes.object,
+};
+
 const EventCard = (props) => {
   const {
     id,
@@ -194,19 +238,13 @@ const EventCard = (props) => {
 
   return (
     <StyledCard onClick={handleClick}>
-      <Illustration $img={illustration}>
-        {illustration ? (
-          <img src={illustration} alt="Image d'illustration" />
-        ) : location &&
-          location.coordinates &&
-          location.coordinates.coordinates ? (
-          <Map
-            center={location.coordinates.coordinates}
-            iconConfiguration={subtype}
-            isStatic
-          />
-        ) : null}
-      </Illustration>
+      <EventCardIllustration
+        image={illustration}
+        subtype={subtype}
+        coordinates={
+          location && location.coordinates && location.coordinates.coordinates
+        }
+      />
       <header>
         <p
           style={{
