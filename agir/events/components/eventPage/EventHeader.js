@@ -188,7 +188,7 @@ const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
   }
 
   return (
-    <SmallText>Votre email sera communiquée à l'organisateur.rice</SmallText>
+    <SmallText>Votre email sera communiqué à l'organisateur·ice</SmallText>
   );
 };
 AdditionalMessage.propTypes = {
