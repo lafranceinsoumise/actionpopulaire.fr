@@ -1,6 +1,17 @@
 body {
   margin: auto;
   padding-bottom: 40px;
+  padding-top: 72px;
+  @media (max-width: 992px) {
+    padding-top: 56px;
+  }
+}
+
+.wrap.container {
+  padding-top: 72px;
+  @media (max-width: 992px) {
+    padding-top: 56px;
+  }
 }
 
 .bottom-margin {
