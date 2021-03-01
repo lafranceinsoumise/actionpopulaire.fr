@@ -15,6 +15,8 @@ import VectorLayer from "ol/layer/Vector";
 import Zoom from "ol/control/Zoom";
 import fontawesome from "fontawesome";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import markerIcon from "./marker.svg";
 import markerIconBg from "./marker_bg.svg";
 
@@ -91,32 +93,31 @@ export function setUpPopup(map) {
   });
 }
 
-export function makeStyle(style, options = {}) {
+export function makeStyle(config, options = {}) {
   options = Object.assign({ color: true }, options);
 
-  if (style.color && style.iconName) {
+  if (config.color && config.iconName) {
     return [
       new Style({
         image: new Icon({
-          offset: [0, -2],
           opacity: 1,
-          src: markerIconBg,
-          color: options.color ? style.color : "#FFFFFF",
+          src: markerIcon,
+          color: options.color ? config.color : style.primary500,
         }),
       }),
       new Style({
         image: new Icon({
-          offset: [0, -2],
           opacity: 1,
-          src: markerIcon,
+          src: markerIconBg,
         }),
       }),
       new Style({
         text: new Text({
-          text: fontawesome(style.iconName),
+          offsetY: -6,
+          text: fontawesome(config.iconName),
           font: "normal 16px FontAwesome",
           fill: new Fill({
-            color: options.color ? style.color : "#999",
+            color: "#FFFFFF",
           }),
         }),
       }),
@@ -142,9 +143,15 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
     : [
         new Style({
           image: new Icon({
-            offset: [0, -2],
             opacity: 1,
             src: markerIcon,
+            color: style.primary500,
+          }),
+        }),
+        new Style({
+          image: new Icon({
+            opacity: 1,
+            src: markerIconBg,
           }),
         }),
       ];

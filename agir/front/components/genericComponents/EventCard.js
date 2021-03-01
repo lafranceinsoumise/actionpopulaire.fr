@@ -50,7 +50,7 @@ const RSVPButton = ({ id, hasSubscriptionForm, rsvped, routes, schedule }) => {
 
   if (hasSubscriptionForm) {
     return (
-      <Button small as="a" color="primary" href={routes.rsvp}>
+      <Button small as="a" href={routes.rsvp}>
         Participer
       </Button>
     );
@@ -62,7 +62,7 @@ const RSVPButton = ({ id, hasSubscriptionForm, rsvped, routes, schedule }) => {
       action={routes.rsvp}
       style={{ display: "inline-block" }}
     >
-      <Button small type="submit" color="primary" icon="calendar">
+      <Button small type="submit" icon="calendar">
         Participer
       </Button>
     </CSRFProtectedForm>
@@ -91,11 +91,20 @@ const Illustration = styled.div`
   background-color: ${({ $img }) => ($img ? "#e5e5e5" : "#fafafa")};
   display: grid;
   z-index: 0;
+  max-height: 200px;
+  max-width: 270px;
+
+  @media (max-width: ${style.collapse}px) {
+    margin: -1rem -1rem 1rem;
+    max-width: 100vw;
+  }
 
   & > * {
     grid-column: 1/2;
     grid-row: 1/2;
     z-index: 1;
+    max-height: inherit;
+    max-width: inherit;
   }
 
   &::before {
@@ -111,20 +120,15 @@ const Illustration = styled.div`
     background-repeat: no-repeat;
     background-position: center center;
     opacity: 0.25;
-  }
 
-  @media (max-width: ${style.collapse}px) {
-    margin: -1rem -1rem 1rem;
+    @media (max-width: ${style.collapse}px) {
+      width: calc(100% - 2rem);
+    }
   }
 
   img {
     margin: 0 auto;
     align-self: center;
-    max-height: 100%;
-
-    @media (max-width: ${style.collapse}px) {
-      max-height: 200px;
-    }
   }
 `;
 
@@ -188,7 +192,7 @@ const EventCardIllustration = (props) => {
   }
   if (Array.isArray(coordinates)) {
     return (
-      <Illustration $img={image}>
+      <Illustration>
         <Map center={coordinates} iconConfiguration={subtype} isStatic />
       </Illustration>
     );
