@@ -133,7 +133,7 @@ const Illustration = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  header {
+  && header {
     margin-bottom: 1.25rem;
   }
 
@@ -193,7 +193,12 @@ const EventCardIllustration = (props) => {
   if (Array.isArray(coordinates)) {
     return (
       <Illustration>
-        <Map center={coordinates} iconConfiguration={subtype} isStatic />
+        <Map
+          zoom={11}
+          center={coordinates}
+          iconConfiguration={subtype}
+          isStatic
+        />
       </Illustration>
     );
   }
