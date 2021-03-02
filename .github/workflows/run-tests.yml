@@ -1,8 +1,9 @@
-name: run-tests
+name: Tests
 on: [push]
 jobs:
 
   python-tests:
+    name: Django
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -48,6 +49,7 @@ jobs:
           WEBPACK_LOADER_SKIP: true
 
   js-tests:
+    name: Frontend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
