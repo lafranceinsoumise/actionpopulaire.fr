@@ -50,7 +50,7 @@ def update_telegram_groups(self, pk):
             )
 
             chat_empty_slots = {
-                chat_id: 200 - client.get_chat_members_count(chat_id)
+                chat_id: 50 - client.get_chat_members_count(chat_id)
                 for chat_id in instance.telegram_ids
             }
 
