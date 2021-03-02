@@ -80,7 +80,7 @@ const StyledContainer = styled(Container)`
   padding: 0;
   background-color: white;
   width: 100%;
-  max-width: 1004px;
+  max-width: 1098px;
   display: grid;
   grid-template-columns: 1fr 300px;
   grid-gap: 1.5rem;
@@ -125,11 +125,11 @@ const InfoBlock = (props) => (
     <Illustration aria-hidden="true" />
     <Spacer size="1rem" />
     <p>
-      En publiant votre événement, ce dernier sera visible à tous les membres
-      aux alentours.
+      En publiant votre événement, ce dernier sera visible à toutes les
+      personnes aux alentours.
       <Spacer size="0.5rem" />
       <a
-        href="https://infos.actionpopulaire.fr/evenements/"
+        href="https://infos.actionpopulaire.fr/groupes/nouvelle-equipe/"
         target="_blank"
         rel="noopener noreferrer"
       >
