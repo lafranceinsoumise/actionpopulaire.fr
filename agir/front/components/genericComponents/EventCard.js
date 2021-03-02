@@ -91,7 +91,6 @@ const Illustration = styled.div`
   background-color: ${({ $img }) => ($img ? "#e5e5e5" : "#fafafa")};
   display: grid;
   z-index: 0;
-  max-height: 200px;
   max-width: 270px;
 
   @media (max-width: ${style.collapse}px) {
@@ -112,7 +111,7 @@ const Illustration = styled.div`
     z-index: 0;
     grid-column: 1/2;
     grid-row: 1/2;
-    display: block;
+    display: ${({ $img }) => ($img ? "block" : "none")};
     width: 100%;
     height: 100%;
     background-image: url(${({ $img }) => $img});
@@ -127,13 +126,14 @@ const Illustration = styled.div`
   }
 
   img {
+    max-height: 200px;
     margin: 0 auto;
     align-self: center;
   }
 `;
 
 const StyledCard = styled(Card)`
-  header {
+  && header {
     margin-bottom: 1.25rem;
   }
 
@@ -193,7 +193,12 @@ const EventCardIllustration = (props) => {
   if (Array.isArray(coordinates)) {
     return (
       <Illustration>
-        <Map center={coordinates} iconConfiguration={subtype} isStatic />
+        <Map
+          zoom={11}
+          center={coordinates}
+          iconConfiguration={subtype}
+          isStatic
+        />
       </Illustration>
     );
   }
