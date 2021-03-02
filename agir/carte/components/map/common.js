@@ -103,22 +103,25 @@ export function makeStyle(config, options = {}) {
           opacity: 1,
           src: markerIcon,
           color: options.color ? config.color : style.primary500,
+          scale: 0.75,
         }),
       }),
       new Style({
         image: new Icon({
           opacity: 1,
           src: markerIconBg,
+          scale: 0.75,
         }),
       }),
       new Style({
         text: new Text({
-          offsetY: -6,
+          offsetY: -4,
           text: fontawesome(config.iconName),
           font: "normal 16px FontAwesome",
           fill: new Fill({
             color: "#FFFFFF",
           }),
+          scale: 0.75,
         }),
       }),
     ];
@@ -146,12 +149,14 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
             opacity: 1,
             src: markerIcon,
             color: style.primary500,
+            scale: 0.75,
           }),
         }),
         new Style({
           image: new Icon({
             opacity: 1,
             src: markerIconBg,
+            scale: 0.75,
           }),
         }),
       ];
