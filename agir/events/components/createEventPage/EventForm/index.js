@@ -53,6 +53,11 @@ const StyledForm = styled.form`
         line-height: 1.6;
         font-weight: 500;
       }
+
+      em {
+        font-weight: 700;
+        font-style: normal;
+      }
     }
   }
 
@@ -384,8 +389,8 @@ const EventForm = () => {
       <fieldset>
         <legend>
           <strong>Lieu de l'événement</strong>
-          Même si il se déroule en ligne, indiquez un lieu pour suggérer
-          l’événement aux membres à proximité.
+          <em>Même si il se déroule en ligne</em>, indiquez un lieu pour
+          suggérer l’événement aux personnes à proximité.
           <br />
           Indiquez votre mairie ou un café proche de chez vous pour ne pas
           rendre publique votre adresse personnelle.

@@ -17,7 +17,7 @@ const Field = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: 1fr;
   }
 `;
 

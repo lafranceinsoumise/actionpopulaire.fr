@@ -11,19 +11,20 @@ import { COUNTRIES } from "./eventForm.config";
 
 const StyledField = styled.div`
   display: grid;
-  grid-template-columns: 160px 1fr;
+  grid-template-columns: 160px 1fr 160px;
   grid-template-rows: repeat(6, auto);
   grid-gap: 0 0.5rem;
 
   & > * {
-    grid-column: span 2;
+    grid-column: span 3;
 
     &:nth-child(4),
-    &:nth-child(5) {
+    &:nth-child(5),
+    &:nth-child(6) {
       grid-column: span 1;
 
       @media (max-width: ${style.collapse}px) {
-        grid-column: span 2;
+        grid-column: span 3;
       }
     }
   }
@@ -87,6 +88,7 @@ const LocationField = (props) => {
         required={required}
         disabled={disabled}
         error={error && error.name}
+        helpText="Si l'événement se déroule en ligne, vous pouvez le préciser ici"
       />
       <TextField
         label="Adresse du lieu"

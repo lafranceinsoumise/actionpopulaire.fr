@@ -256,7 +256,7 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
         if self.person and self.person.display_name:
             contact["name"] = self.person.display_name
         if self.person and self.person.contact_phone:
-            contact["phone"] = self.person.contact_phone
+            contact["phone"] = str(self.person.contact_phone)
         if self.person and self.person.email:
             contact["email"] = self.person.email
         return contact

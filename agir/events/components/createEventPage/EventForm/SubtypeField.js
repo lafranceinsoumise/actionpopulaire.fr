@@ -21,6 +21,7 @@ const StyledOption = styled.li`
   line-height: 1.3;
   color: ${({ $selected }) => ($selected ? style.primary500 : style.black1000)};
   font-weight: ${({ $selected }) => ($selected ? 600 : 400)};
+  cursor: ${({ $selected }) => ($selected ? "default" : "pointer")};
 
   button {
     display: ${({ $selected }) => ($selected ? "none" : "inline")};
@@ -119,7 +120,11 @@ const SubtypeOption = (props) => {
   }, [option, onClick]);
 
   return (
-    <StyledOption $selected={selected} title={option.description}>
+    <StyledOption
+      $selected={selected}
+      title={option.description}
+      onClick={handleClick}
+    >
       <span className={`fa fa-${option.iconName || "calendar"}`} />
       {option.label[0].toUpperCase()}
       {option.label.slice(1)}
@@ -142,8 +147,8 @@ const DefaultOption = (props) => {
       type="button"
       title={option.description}
       color="choose"
-      onClick={onClick ? handleClick : undefined}
-      disabled={selected || disabled}
+      onClick={handleClick}
+      disabled={disabled}
       small
     >
       <RawFeatherIcon
@@ -228,7 +233,12 @@ const SubtypeField = (props) => {
       )}
       <StyledDefaultOptions>
         {value ? (
-          <DefaultOption key={value.id} option={value} selected />
+          <DefaultOption
+            key={value.id}
+            option={value}
+            onClick={openPanel}
+            selected
+          />
         ) : (
           defaultOptions.map((subtype) => (
             <DefaultOption
