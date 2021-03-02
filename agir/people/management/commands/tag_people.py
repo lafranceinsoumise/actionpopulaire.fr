@@ -87,9 +87,8 @@ class Command(BaseCommand):
 
             for n in numbers:
                 progress.update(1)
-                try:
-                    person = Person.objects.get(contact_phone=n)
-                except Person.DoesNotExist:
+                person = Person.objects.filter(contact_phone=n).first()
+                if person is None:
                     missing += 1
                     if create:
                         person = Person.objects.create_person(
