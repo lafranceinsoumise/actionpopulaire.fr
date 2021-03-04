@@ -10,6 +10,7 @@
 
   "SET_BACK_LINK_ACTION": "setBackLink",
   "SET_TOP_BAR_RIGHT_LINK_ACTION": "setTopBarRightLink",
+  "SET_ADMIN_LINK_ACTION": "setAdminLink",
 
   "SET_MESSAGES_ACTION": "setMessages",
 

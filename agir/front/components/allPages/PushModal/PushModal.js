@@ -15,7 +15,7 @@ export const PushModal = ({ isActive = true }) => {
   const routes = useSelector(getRoutes);
   const [shouldShow, setShouldShow] = useState(false);
   const [ReferralModalAnnouncement, onClose] = useCustomAnnouncement(
-    isActive && isSessionLoaded ? "ReferralModalAnnouncement" : null
+    "ReferralModalAnnouncement"
   );
   const handleClose = useCallback(() => {
     setShouldShow(false);
@@ -23,14 +23,19 @@ export const PushModal = ({ isActive = true }) => {
   }, [onClose]);
 
   useEffect(() => {
-    !!ReferralModalAnnouncement && setShouldShow(true);
-  }, [ReferralModalAnnouncement]);
+    isActive &&
+      isSessionLoaded &&
+      !!ReferralModalAnnouncement &&
+      setShouldShow(true);
+  }, [isActive, isSessionLoaded, ReferralModalAnnouncement]);
 
   return (
     <ReferralModal
       onClose={handleClose}
       shouldShow={shouldShow}
-      referralURL={isSessionLoaded ? routes.nspReferral : ""}
+      referralURL={
+        isSessionLoaded && routes.nspReferral ? routes.nspReferral : ""
+      }
     />
   );
 };

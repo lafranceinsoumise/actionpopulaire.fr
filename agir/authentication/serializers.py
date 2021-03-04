@@ -16,6 +16,7 @@ class UserContextSerializer(serializers.Serializer):
     id = serializers.UUIDField(source="pk")
     firstName = serializers.CharField(source="first_name")
     displayName = serializers.CharField(source="display_name")
+    email = serializers.CharField()
     image = MediaURLField()
     fullName = serializers.SerializerMethodField(method_name="get_full_name")
     isInsoumise = serializers.BooleanField(source="is_insoumise")

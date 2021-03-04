@@ -42,6 +42,7 @@ class EventRsvpedAPIView(ListAPIView):
                 "groups",
                 "distance",
                 "compteRendu",
+                "subtype",
             ],
             **kwargs
         )
@@ -97,6 +98,7 @@ class EventSuggestionsAPIView(ListAPIView):
                 "groups",
                 "distance",
                 "compteRendu",
+                "subtype",
             ],
             **kwargs
         )

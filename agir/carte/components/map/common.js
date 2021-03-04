@@ -4,7 +4,6 @@ import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
 import Style from "ol/style/Style";
 import Text from "ol/style/Text";
-import Circle from "ol/style/Circle";
 import Fill from "ol/style/Fill";
 import Icon from "ol/style/Icon";
 import Overlay from "ol/Overlay";
@@ -17,6 +16,9 @@ import Zoom from "ol/control/Zoom";
 import fontawesome from "fontawesome";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+
+import markerIcon from "./marker.svg";
+import markerIconBg from "./marker_bg.svg";
 
 import { element } from "./utils";
 
@@ -91,26 +93,35 @@ export function setUpPopup(map) {
   });
 }
 
-export function makeStyle(style, options = {}) {
+export function makeStyle(config, options = {}) {
   options = Object.assign({ color: true }, options);
 
-  if (style.color && style.iconName) {
+  if (config.color && config.iconName) {
     return [
       new Style({
-        image: new Circle({
-          radius: 12,
-          fill: new Fill({
-            color: "white",
-          }),
+        image: new Icon({
+          opacity: 1,
+          src: markerIcon,
+          color: options.color ? config.color : style.primary500,
+          scale: 0.75,
+        }),
+      }),
+      new Style({
+        image: new Icon({
+          opacity: 1,
+          src: markerIconBg,
+          scale: 0.75,
         }),
       }),
       new Style({
         text: new Text({
-          text: fontawesome(style.iconName),
-          font: "normal 18px FontAwesome",
+          offsetY: -4,
+          text: fontawesome(config.iconName),
+          font: "normal 16px FontAwesome",
           fill: new Fill({
-            color: options.color ? style.color : "#999",
+            color: "#FFFFFF",
           }),
+          scale: 0.75,
         }),
       }),
     ];
@@ -134,11 +145,18 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
     ? makeStyle(iconConfiguration)
     : [
         new Style({
-          image: new Circle({
-            radius: 12,
-            fill: new Fill({
-              color: style.primary500,
-            }),
+          image: new Icon({
+            opacity: 1,
+            src: markerIcon,
+            color: style.primary500,
+            scale: 0.75,
+          }),
+        }),
+        new Style({
+          image: new Icon({
+            opacity: 1,
+            src: markerIconBg,
+            scale: 0.75,
           }),
         }),
       ];

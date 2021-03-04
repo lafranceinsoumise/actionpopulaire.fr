@@ -43,25 +43,36 @@ const SmallText = styled.div`
   font-color: ${style.black500};
 `;
 
-/* Bouton qui prend 100 % de la largeur en petits écrans */
-const ActionButton = styled(Button)`
-  margin: 0.5rem 0;
-  display: block;
-  width: 100%;
-
-  @media only screen and (min-width: 501px) {
-    display: inline-block;
-    width: auto;
-
-    & + & {
-      margin-left: 0.5rem;
-    }
-  }
-`;
-
+const ActionButton = styled(Button)``;
 const ActionLink = styled.a`
   font-weight: 700;
   text-decoration: underline;
+`;
+
+const StyledActionButtons = styled.div`
+  display: inline-grid;
+  grid-gap: 0.5rem;
+  grid-template-columns: auto auto;
+  padding: 0.5rem 0;
+
+  @media (max-width: ${style.collapse}px) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  ${Button} {
+    margin: 0;
+    justify-content: center;
+
+    && *,
+    && *::before {
+      flex: 0 0 auto;
+    }
+  }
+
+  ${Button} + ${Button} {
+    margin-left: 0;
+  }
 `;
 
 const ActionButtons = (props) => {
@@ -76,7 +87,7 @@ const ActionButtons = (props) => {
 
   if (past) {
     return (
-      <>
+      <StyledActionButtons>
         <Button disabled color="unavailable">
           Événement terminé
         </Button>
@@ -85,21 +96,23 @@ const ActionButtons = (props) => {
             Gérer l'événement
           </ActionButton>
         )}
-      </>
+      </StyledActionButtons>
     );
   }
 
   if (!logged) {
     return (
-      <ActionButton color="secondary" disabled={true}>
-        Participer à l'événement
-      </ActionButton>
+      <StyledActionButtons>
+        <ActionButton color="secondary" disabled={true}>
+          Participer à l'événement
+        </ActionButton>
+      </StyledActionButtons>
     );
   }
 
   if (rsvped) {
     return (
-      <>
+      <StyledActionButtons>
         <ActionButton icon="check" color="confirmed">
           Je participe
         </ActionButton>
@@ -108,24 +121,28 @@ const ActionButtons = (props) => {
             Gérer l'événement
           </ActionButton>
         )}
-      </>
+      </StyledActionButtons>
     );
   }
 
   if (hasSubscriptionForm) {
     return (
-      <ActionButton as="a" color="secondary" href={`${routes.rsvp}`}>
-        Participer à l'événement
-      </ActionButton>
+      <StyledActionButtons>
+        <ActionButton as="a" color="secondary" href={`${routes.rsvp}`}>
+          Participer à l'événement
+        </ActionButton>
+      </StyledActionButtons>
     );
   }
 
   return (
-    <CSRFProtectedForm method="post" action={routes.rsvp}>
-      <ActionButton type="submit" color="secondary">
-        Participer à l'événement
-      </ActionButton>
-    </CSRFProtectedForm>
+    <StyledActionButtons>
+      <CSRFProtectedForm method="post" action={routes.rsvp}>
+        <ActionButton type="submit" color="secondary">
+          Participer à l'événement
+        </ActionButton>
+      </CSRFProtectedForm>
+    </StyledActionButtons>
   );
 };
 ActionButtons.propTypes = {
@@ -171,7 +188,7 @@ const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
   }
 
   return (
-    <SmallText>Votre email sera communiquée à l'organisateur.rice</SmallText>
+    <SmallText>Votre email sera communiqué à l'organisateur·ice</SmallText>
   );
 };
 AdditionalMessage.propTypes = {
