@@ -1,4 +1,5 @@
-export const parseURL = (url) => new URL(url);
+export const parseURL = (url) =>
+  new URL(url, window.location && window.location.origin);
 
 export const addQueryStringParams = (url, params = {}) => {
   if (!url) {
@@ -11,9 +12,14 @@ export const addQueryStringParams = (url, params = {}) => {
   ) {
     return url;
   }
-  const parsedURL = parseURL(url);
-  Object.entries(params).forEach(([key, value]) => {
-    parsedURL.searchParams.set(key, value);
-  });
-  return parsedURL.toString();
+  try {
+    let parsedURL = url;
+    parsedURL = parseURL(url);
+    Object.entries(params).forEach(([key, value]) => {
+      parsedURL.searchParams.set(key, value);
+    });
+    return parsedURL.toString();
+  } catch (e) {
+    return url;
+  }
 };

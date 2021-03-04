@@ -3,7 +3,10 @@ import { useHistory, useLocation } from "react-router-dom";
 import { RouteConfig } from "@agir/front/app/routes.config";
 
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
-import { setTopBarRightLink } from "@agir/front/globalContext/actions";
+import {
+  setTopBarRightLink,
+  setAdminLink,
+} from "@agir/front/globalContext/actions";
 
 const routeConfig = {
   info: {
@@ -124,6 +127,14 @@ export const useTabs = (props, isMobile = true) => {
         setTopBarRightLink({
           href: routes.settings,
           label: "Gestion du groupe",
+        })
+      );
+    }
+    if (routes && routes.admin) {
+      dispatch(
+        setAdminLink({
+          href: routes.admin,
+          label: "Administration",
         })
       );
     }

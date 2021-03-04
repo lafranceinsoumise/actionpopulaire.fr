@@ -1,19 +1,29 @@
+import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React from "react";
+import { useHistory } from "react-router-dom";
+import styled from "styled-components";
 
-import { DateTime, Interval } from "luxon";
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 
-import Card from "./Card";
-import FeatherIcon from "./FeatherIcon";
 import { displayIntervalStart } from "@agir/lib/utils/time";
-import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
-import style from "@agir/front/genericComponents/_variables.scss";
-import styled from "styled-components";
+
 import Button from "@agir/front/genericComponents/Button";
+import Card from "@agir/front/genericComponents/Card";
+import {
+  Column,
+  Hide,
+  Row,
+  useResponsiveMemo,
+} from "@agir/front/genericComponents/grid";
 import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
-import { useHistory } from "react-router-dom";
+import FeatherIcon, {
+  RawFeatherIcon,
+} from "@agir/front/genericComponents/FeatherIcon";
+import Map from "@agir/carte/common/Map";
+import eventCardDefaultBackground from "@agir/front/genericComponents/images/event-card-default-bg.svg";
 
 const RSVPButton = ({ id, hasSubscriptionForm, rsvped, routes, schedule }) => {
   if (schedule.isBefore(DateTime.local())) {
@@ -40,7 +50,7 @@ const RSVPButton = ({ id, hasSubscriptionForm, rsvped, routes, schedule }) => {
 
   if (hasSubscriptionForm) {
     return (
-      <Button small as="a" color="primary" href={routes.rsvp}>
+      <Button small as="a" href={routes.rsvp}>
         Participer
       </Button>
     );
@@ -52,7 +62,7 @@ const RSVPButton = ({ id, hasSubscriptionForm, rsvped, routes, schedule }) => {
       action={routes.rsvp}
       style={{ display: "inline-block" }}
     >
-      <Button small type="submit" color="primary" icon="calendar">
+      <Button small type="submit" icon="calendar">
         Participer
       </Button>
     </CSRFProtectedForm>
@@ -62,7 +72,7 @@ const RSVPButton = ({ id, hasSubscriptionForm, rsvped, routes, schedule }) => {
 RSVPButton.propTypes = {
   id: PropTypes.string,
   hasSubscriptionForm: PropTypes.bool,
-  rsvp: PropTypes.bool,
+  rsvped: PropTypes.bool,
   routes: PropTypes.shape({
     details: PropTypes.string,
     rsvp: PropTypes.string,
@@ -78,16 +88,134 @@ const Buttons = styled.div`
   }
 `;
 const Illustration = styled.div`
-  margin: -1.5rem -1.5rem 1.5rem;
-  text-align: center;
-  background-color: ${style.black50};
-  @media only screen and (max-width: ${style.collapse}px) {
+  background-color: ${({ $img }) => ($img ? "#e5e5e5" : "#fafafa")};
+  display: grid;
+  z-index: 0;
+  max-width: 270px;
+
+  @media (max-width: ${style.collapse}px) {
     margin: -1rem -1rem 1rem;
+    max-width: 100vw;
   }
+
+  & > * {
+    grid-column: 1/2;
+    grid-row: 1/2;
+    z-index: 1;
+    max-height: inherit;
+    max-width: inherit;
+  }
+
+  &::before {
+    content: "";
+    z-index: 0;
+    grid-column: 1/2;
+    grid-row: 1/2;
+    display: ${({ $img }) => ($img ? "block" : "none")};
+    width: 100%;
+    height: 100%;
+    background-image: url(${({ $img }) => $img});
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    opacity: 0.25;
+
+    @media (max-width: ${style.collapse}px) {
+      width: calc(100% - 2rem);
+    }
+  }
+
   img {
     max-height: 200px;
+    margin: 0 auto;
+    align-self: center;
   }
 `;
+
+const StyledCard = styled(Card)`
+  && header {
+    margin-bottom: 1.25rem;
+  }
+
+  ${Row} {
+    font-size: 0.875rem;
+  }
+
+  @media only screen and (min-width: ${style.collapse}px) {
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    grid-template-rows: auto auto;
+    grid-gap: 1.5rem;
+    padding: 0;
+
+    ${Illustration} {
+      grid-row: span 2;
+      margin: 0;
+    }
+
+    header,
+    ${Row} {
+      margin: 0;
+      padding: 0;
+      padding-right: 1.5rem;
+    }
+
+    header {
+      padding-top: 1.5rem;
+    }
+
+    ${Row} {
+      padding-bottom: 1.5rem;
+
+      ${Column} {
+        padding: 0;
+      }
+    }
+  }
+`;
+
+const EventCardIllustration = (props) => {
+  const { image, coordinates, subtype } = props;
+
+  const isVisible = useResponsiveMemo(!!image, true);
+
+  if (!isVisible) {
+    return null;
+  }
+
+  if (image) {
+    return (
+      <Illustration $img={image}>
+        <img src={image} alt="Image d'illustration" />
+      </Illustration>
+    );
+  }
+  if (Array.isArray(coordinates)) {
+    return (
+      <Illustration>
+        <Map
+          zoom={11}
+          center={coordinates}
+          iconConfiguration={subtype}
+          isStatic
+        />
+      </Illustration>
+    );
+  }
+  return (
+    <Illustration>
+      <img
+        src={eventCardDefaultBackground}
+        alt="Image d'illustration par défaut"
+      />
+    </Illustration>
+  );
+};
+EventCardIllustration.propTypes = {
+  image: PropTypes.string,
+  coordinates: PropTypes.array,
+  subtype: PropTypes.object,
+};
 
 const EventCard = (props) => {
   const {
@@ -96,6 +224,7 @@ const EventCard = (props) => {
     hasSubscriptionForm,
     schedule,
     location,
+    subtype,
     name,
     participantCount,
     rsvp,
@@ -117,11 +246,15 @@ const EventCard = (props) => {
   );
 
   return (
-    <Card onClick={handleClick}>
-      <Illustration>
-        {illustration && <img src={illustration} alt="Image d'illustration" />}
-      </Illustration>
-      <header style={{ marginBottom: 20 }}>
+    <StyledCard onClick={handleClick}>
+      <EventCardIllustration
+        image={illustration}
+        subtype={subtype}
+        coordinates={
+          location && location.coordinates && location.coordinates.coordinates
+        }
+      />
+      <header>
         <p
           style={{
             fontSize: "14px",
@@ -151,20 +284,38 @@ const EventCard = (props) => {
               <p
                 key={group.name}
                 style={{
-                  fontWeight: "500",
+                  fontWeight: "400",
                   fontSize: "14px",
                   lineHeight: "1",
-                  color: style.black500,
+                  color: style.black1000,
                 }}
               >
-                {group.name}
+                &mdash;&nbsp;{group.name}
               </p>
             ))
           : null}
       </header>
-      <Row style={{ fontSize: "14px" }}>
+      <Row>
         <Column grow collapse={0}>
           <Buttons>
+            <Button
+              small
+              color="primary"
+              as="Link"
+              to={
+                routeConfig.eventDetails
+                  ? routeConfig.eventDetails.getLink({ eventPk: id })
+                  : routes.details
+              }
+            >
+              Voir l'événement
+              <RawFeatherIcon
+                name="arrow-right"
+                width="1rem"
+                height="1rem"
+                style={{ marginLeft: "0.5rem" }}
+              />
+            </Button>
             <RSVPButton
               id={id}
               hasSubscriptionForm={hasSubscriptionForm}
@@ -187,17 +338,6 @@ const EventCard = (props) => {
                 Voir le compte-rendu
               </Button>
             ) : null}
-            <Button
-              small
-              as="Link"
-              to={
-                routeConfig.eventDetails
-                  ? routeConfig.eventDetails.getLink({ eventPk: id })
-                  : routes.details
-              }
-            >
-              Détails
-            </Button>
           </Buttons>
         </Column>
         {participantCount > 1 && (
@@ -215,7 +355,7 @@ const EventCard = (props) => {
           </Column>
         )}
       </Row>
-    </Card>
+    </StyledCard>
   );
 };
 
@@ -230,6 +370,9 @@ EventCard.propTypes = {
     name: PropTypes.string,
     address: PropTypes.string,
     shortLocation: PropTypes.string,
+    coordinates: PropTypes.shape({
+      coordinates: PropTypes.arrayOf(PropTypes.number),
+    }),
   }),
   rsvp: PropTypes.string,
   routes: PropTypes.shape({
@@ -245,6 +388,7 @@ EventCard.propTypes = {
     })
   ),
   compteRendu: PropTypes.string,
+  subtype: PropTypes.object,
 };
 
 export default EventCard;

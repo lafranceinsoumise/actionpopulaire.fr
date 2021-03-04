@@ -6,50 +6,38 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIsSessionLoaded,
   getRoutes,
-  getUser,
 } from "@agir/front/globalContext/reducers";
 
+import { useCustomAnnouncement } from "@agir/activity/common/hooks";
+
 export const PushModal = ({ isActive = true }) => {
-  const user = useSelector(getUser);
-  const routes = useSelector(getRoutes);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
-
+  const routes = useSelector(getRoutes);
   const [shouldShow, setShouldShow] = useState(false);
-  const [activeModal, setActiveModal] = useState(null);
-
+  const [ReferralModalAnnouncement, onClose] = useCustomAnnouncement(
+    "ReferralModalAnnouncement"
+  );
   const handleClose = useCallback(() => {
     setShouldShow(false);
-  }, []);
+    onClose && onClose();
+  }, [onClose]);
 
   useEffect(() => {
-    if (!isActive || typeof window === "undefined" || !window.localStorage) {
-      setActiveModal(null);
-      setShouldShow(false);
-      return;
-    }
-    if (isSessionLoaded && !!user && user.is2022) {
-      const shouldHide = window.localStorage.getItem("AP_refmod");
-      if (!shouldHide) {
-        window.localStorage.setItem("AP_refmod", "1");
-        setActiveModal("referral");
-        setShouldShow(true);
-        return;
-      }
-    }
-  }, [isSessionLoaded, user, isActive]);
+    isActive &&
+      isSessionLoaded &&
+      !!ReferralModalAnnouncement &&
+      setShouldShow(true);
+  }, [isActive, isSessionLoaded, ReferralModalAnnouncement]);
 
-  switch (activeModal) {
-    case "referral":
-      return (
-        <ReferralModal
-          onClose={handleClose}
-          shouldShow={shouldShow}
-          referralURL={routes.nspReferral}
-        />
-      );
-    default:
-      return null;
-  }
+  return (
+    <ReferralModal
+      onClose={handleClose}
+      shouldShow={shouldShow}
+      referralURL={
+        isSessionLoaded && routes.nspReferral ? routes.nspReferral : ""
+      }
+    />
+  );
 };
 PushModal.propTypes = {
   isActive: PropTypes.bool,

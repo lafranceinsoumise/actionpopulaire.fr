@@ -64,7 +64,7 @@ class BaseMandatForm(forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.add_input(Submit("valider", "Valider"))
-        self.helper.layout = Layout("mandat", "dates", "delegations")
+        self.helper.layout = Layout("conseil", "mandat", "dates", "delegations")
         if "membre_reseau_elus" in self.fields:
             self.helper.layout.fields.insert(0, "membre_reseau_elus")
 
@@ -84,7 +84,7 @@ class BaseMandatForm(forms.ModelForm):
         return super().save(commit=commit)
 
     class Meta:
-        fields = ("dates", "mandat")
+        fields = ("conseil", "dates", "mandat")
         error_messages = {
             NON_FIELD_ERRORS: {
                 "dates_overlap": "Vous avez déjà indiqué un autre mandat pour ce conseil à des dates qui se"
@@ -95,6 +95,7 @@ class BaseMandatForm(forms.ModelForm):
 
 class MandatMunicipalForm(BaseMandatForm):
     default_date_range = MUNICIPAL_DEFAULT_DATE_RANGE
+    conseil = CommuneField(types=["COM", "SRM"], label="Commune")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -120,7 +121,9 @@ class MandatMunicipalForm(BaseMandatForm):
             else:
                 del self.fields["communautaire"]
 
-        self.helper.layout = Layout("mandat", "communautaire", "dates", "delegations")
+        self.helper.layout = Layout(
+            "conseil", "mandat", "communautaire", "dates", "delegations"
+        )
         if "membre_reseau_elus" in self.fields:
             self.helper.layout.fields.insert(2, "membre_reseau_elus")
 
@@ -129,27 +132,7 @@ class MandatMunicipalForm(BaseMandatForm):
         fields = BaseMandatForm.Meta.fields + ("communautaire", "delegations",)
 
 
-class CreerMandatMunicipalForm(MandatMunicipalForm):
-    conseil = CommuneField(types=["COM", "SRM"], label="Commune")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper.layout.fields.insert(0, "conseil")
-
-    class Meta(MandatMunicipalForm.Meta):
-        fields = ("conseil",) + MandatMunicipalForm.Meta.fields
-
-
 class MandatDepartementalForm(BaseMandatForm):
-    default_date_range = DEPARTEMENTAL_DEFAULT_DATE_RANGE
-
-    class Meta(BaseMandatForm.Meta):
-        model = MandatDepartemental
-        fields = BaseMandatForm.Meta.fields + ("delegations",)
-
-
-class CreerMandatDepartementalForm(MandatDepartementalForm):
     conseil = forms.ModelChoiceField(
         CollectiviteDepartementale.objects.all(),
         label="Département ou métropole",
@@ -157,24 +140,15 @@ class CreerMandatDepartementalForm(MandatDepartementalForm):
         required=True,
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    default_date_range = DEPARTEMENTAL_DEFAULT_DATE_RANGE
 
-        self.helper.layout.fields.insert(0, "conseil")
-
-    class Meta(MandatDepartementalForm.Meta):
-        fields = ("conseil",) + MandatDepartementalForm.Meta.fields
+    class Meta(BaseMandatForm.Meta):
+        model = MandatDepartemental
+        fields = BaseMandatForm.Meta.fields + ("delegations",)
 
 
 class MandatRegionalForm(BaseMandatForm):
     default_date_range = REGIONAL_DEFAULT_DATE_RANGE
-
-    class Meta(BaseMandatForm.Meta):
-        model = MandatRegional
-        fields = BaseMandatForm.Meta.fields + ("delegations",)
-
-
-class CreerMandatRegionalForm(MandatRegionalForm):
     conseil = forms.ModelChoiceField(
         CollectiviteRegionale.objects.all(),
         label="Région ou collectivité unique",
@@ -182,10 +156,6 @@ class CreerMandatRegionalForm(MandatRegionalForm):
         required=True,
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper.layout.fields.insert(0, "conseil")
-
-    class Meta(MandatRegionalForm.Meta):
-        fields = ("conseil",) + MandatRegionalForm.Meta.fields
+    class Meta(BaseMandatForm.Meta):
+        model = MandatRegional
+        fields = BaseMandatForm.Meta.fields + ("conseil", "delegations",)

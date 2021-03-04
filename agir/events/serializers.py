@@ -9,12 +9,23 @@ from agir.lib.serializers import (
 from . import models
 from .models import OrganizerConfig, RSVP
 from ..groups.serializers import SupportGroupSerializer
+from ..lib.utils import admin_url
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
+    iconName = serializers.CharField(source="icon_name")
+
     class Meta:
         model = models.EventSubtype
-        fields = ("label", "description", "color", "icon", "type")
+        fields = (
+            "id",
+            "label",
+            "description",
+            "color",
+            "icon",
+            "iconName",
+            "type",
+        )
 
 
 EVENT_ROUTES = {
@@ -59,6 +70,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "location",
         "rsvp",
         "routes",
+        "subtype",
     ]
 
     id = serializers.UUIDField()
@@ -95,6 +107,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     forUsers = serializers.CharField(source="for_users")
 
     canRSVP = serializers.SerializerMethodField()
+
+    subtype = EventSubtypeSerializer()
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -146,6 +160,10 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_routes(self, obj):
         routes = {}
+        user = self.context["request"].user
+
+        if user.is_staff and user.has_perm("events.change_event"):
+            routes["admin"] = admin_url("events_event_change", args=[obj.pk])
 
         if obj.facebook:
             routes["facebook"] = f"https://www.facebook.com/events/{obj.facebook}"
