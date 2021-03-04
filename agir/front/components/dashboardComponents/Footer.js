@@ -172,7 +172,7 @@ const StyledFooter = styled.div`
     @media (max-width: ${style.collapse}px) {
       flex-flow: column nowrap;
       width: 100%;
-      padding: 1.5rem 1.5rem 100px;
+      padding: 1.5rem 1.5rem 0;
     }
 
     & > div {

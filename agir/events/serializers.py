@@ -172,7 +172,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return None
 
     def get_compteRenduPhotos(self, obj):
-        return [instance.image.thumbnail.url for instance in obj.images.all()]
+        return [instance.image.url for instance in obj.images.all()]
 
     def get_routes(self, obj):
         routes = {}

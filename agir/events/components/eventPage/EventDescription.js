@@ -9,17 +9,22 @@ import Button from "@agir/front/genericComponents/Button";
 import Collapsible from "@agir/front/genericComponents/Collapsible.js";
 
 const DescriptionSection = styled.div`
-  margin: 0 0 2rem;
+  margin: 0;
 
   &:empty {
     margin: 0;
+  }
+
+  & + & {
+    margin-top: 1rem;
   }
 
   & > * {
     margin-top: 0;
     margin-bottom: 1rem;
 
-    &:empty {
+    &:empty,
+    &:last-child {
       margin-bottom: 0;
     }
   }
@@ -48,12 +53,16 @@ const EventDescription = ({
           <DescriptionSection>
             <h2>Photos de l'événement</h2>
             {compteRenduPhotos.length > 0 ? (
-              <Row gutter={12}>
+              <Row gutter={12} align="center">
                 {compteRenduPhotos.map((url, key) => (
                   <Column collapse={500} key={key} width={["50%", "content"]}>
                     <img
                       src={url}
                       alt="Photo de l'événement postée par l'utilisateur"
+                      style={{
+                        maxWidth: 200,
+                        maxHeight: 200,
+                      }}
                     />
                   </Column>
                 ))}

@@ -123,6 +123,7 @@ export function displayInterval(interval, relativeTo) {
     year: showYear ? "numeric" : undefined,
     month: "long",
     day: "numeric",
+    weekday: "long",
   };
 
   if (scheduleCalendarDays === 1) {
