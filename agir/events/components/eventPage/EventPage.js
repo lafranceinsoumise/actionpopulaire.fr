@@ -235,7 +235,7 @@ EventPage.propTypes = {
   isOrganizer: PropTypes.bool,
   rsvp: PropTypes.string,
   compteRendu: PropTypes.string,
-  compteRenduPhotos: PropTypes.arrayOf(PropTypes.string),
+  compteRenduPhotos: PropTypes.arrayOf(PropTypes.object),
   illustration: PropTypes.string,
   description: PropTypes.string,
   startTime: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
