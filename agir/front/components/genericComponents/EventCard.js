@@ -85,6 +85,7 @@ RSVPButton.propTypes = {
 const Buttons = styled.div`
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   line-height: 3.125rem;
   margin-top: -0.5rem;
 
