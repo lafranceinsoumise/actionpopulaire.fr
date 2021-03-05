@@ -134,9 +134,9 @@ const DesktopGroupPage = (props) => {
         width: "100%",
       }}
     >
-      {!!backLink && (
-        <Row gutter={32}>
-          <Column grow>
+      <Row style={{ minHeight: 56 }}>
+        <Column grow>
+          {!!backLink && (
             <IndexLinkAnchor
               to={backLink.to}
               href={backLink.href}
@@ -145,9 +145,9 @@ const DesktopGroupPage = (props) => {
               <span>&#10140;</span>
               &ensp; {backLink.label || "Retour à l'accueil"}
             </IndexLinkAnchor>
-          </Column>
-        </Row>
-      )}
+          )}
+        </Column>
+      </Row>
       <Row gutter={32}>
         <Column grow>
           <GroupBanner {...group} />
