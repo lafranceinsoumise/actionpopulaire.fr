@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useIsOffline } from "@agir/front/offline/hooks";
 import logger from "@agir/lib/utils/logger";
 import { animated, useTransition } from "react-spring";
@@ -38,22 +38,21 @@ const ConnectivityWarning = () => {
   const [display, setDisplay] = useState(offline);
   log.debug(`Display ${display}`);
 
-  useEffect(() => {
-    let timeout = setTimeout(() => setDisplay(offline), offline ? 0 : 5000);
-    return () => clearTimeout(timeout);
+  const [backgroundColor, color, warning] = useMemo(() => {
+    switch (offline) {
+      case false:
+        return [styles.green500, styles.green100, "Connexion rétablie"];
+      case true:
+        return [styles.redNSP, styles.red100, "Aucune connexion internet"];
+      default:
+        return [styles.primary500, styles.primary100, "Connexion en cours..."];
+    }
   }, [offline]);
 
-  let params;
-  switch (offline) {
-    case false:
-      params = [styles.green500, styles.green100, "Connexion rétablie"];
-      break;
-    case true:
-      params = [styles.redNSP, styles.red100, "Aucune connexion internet"];
-      break;
-    default:
-      params = [styles.primary500, styles.primary100, "Connexion en cours..."];
-  }
+  useEffect(() => {
+    let timeout = setTimeout(() => setDisplay(!!offline), offline ? 0 : 5000);
+    return () => clearTimeout(timeout);
+  }, [offline]);
 
   const transitions = useTransition(display, null, {
     initial: null,
@@ -67,12 +66,12 @@ const ConnectivityWarning = () => {
         <StyledWarning
           key={key}
           style={{
-            backgroundColor: params[0],
-            color: params[1],
             ...props,
+            backgroundColor,
+            color,
           }}
         >
-          <div>{params[2]}</div>
+          <div>{warning}</div>
         </StyledWarning>
       )
   );
