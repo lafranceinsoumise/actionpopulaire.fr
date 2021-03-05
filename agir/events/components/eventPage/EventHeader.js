@@ -1,15 +1,16 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
+import { mutate } from "swr";
 import { Interval, DateTime } from "luxon";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes, getIsConnected } from "@agir/front/globalContext/reducers";
+import * as api from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
-import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 import { displayHumanDate } from "@agir/lib/utils/time";
 
 const EventHeaderContainer = styled.div`
@@ -75,15 +76,49 @@ const StyledActionButtons = styled.div`
   }
 `;
 
+const RSVPButton = (props) => {
+  const { id } = props;
+  const [isLoading, setIsLoading] = useState(false);
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setIsLoading(true);
+      let redirectTo = "";
+      try {
+        const response = await api.rsvpEvent(id);
+        if (response.error) {
+          redirectTo = response.error.redirectTo;
+        }
+      } catch (err) {
+        // Reload current page if an unhandled error occurs
+        window.location.reload();
+      }
+      if (redirectTo) {
+        window.location = redirectTo;
+        return;
+      }
+      setIsLoading(false);
+      mutate(api.getEventEndpoint("getEvent", { eventPk: id }), (event) => ({
+        ...event,
+        rsvped: true,
+      }));
+    },
+    [id]
+  );
+
+  return (
+    <StyledActionButtons>
+      <form onSubmit={handleSubmit}>
+        <ActionButton type="submit" color="secondary" disabled={isLoading}>
+          Participer à l'événement
+        </ActionButton>
+      </form>
+    </StyledActionButtons>
+  );
+};
+
 const ActionButtons = (props) => {
-  const {
-    hasSubscriptionForm,
-    past,
-    rsvped,
-    logged,
-    isOrganizer,
-    routes,
-  } = props;
+  const { past, rsvped, logged, isOrganizer, routes } = props;
 
   if (past) {
     return (
@@ -125,27 +160,10 @@ const ActionButtons = (props) => {
     );
   }
 
-  if (hasSubscriptionForm) {
-    return (
-      <StyledActionButtons>
-        <ActionButton as="a" color="secondary" href={`${routes.rsvp}`}>
-          Participer à l'événement
-        </ActionButton>
-      </StyledActionButtons>
-    );
-  }
-
-  return (
-    <StyledActionButtons>
-      <CSRFProtectedForm method="post" action={routes.rsvp}>
-        <ActionButton type="submit" color="secondary">
-          Participer à l'événement
-        </ActionButton>
-      </CSRFProtectedForm>
-    </StyledActionButtons>
-  );
+  return <RSVPButton {...props} />;
 };
-ActionButtons.propTypes = {
+RSVPButton.propTypes = ActionButtons.propTypes = {
+  id: PropTypes.string,
   hasSubscriptionForm: PropTypes.bool,
   past: PropTypes.bool,
   rsvped: PropTypes.bool,
@@ -203,13 +221,13 @@ AdditionalMessage.propTypes = {
 };
 
 const EventHeader = ({
+  id,
   name,
   rsvp,
   options,
   schedule,
   routes,
   isOrganizer,
-  hasSubscriptionForm,
   forUsers,
 }) => {
   const globalRoutes = useSelector(getRoutes);
@@ -228,7 +246,7 @@ const EventHeader = ({
         <EventDate>{eventString}</EventDate>
       </Hide>
       <ActionButtons
-        hasSubscriptionForm={hasSubscriptionForm}
+        id={id}
         past={past}
         logged={logged}
         rsvped={rsvped}
@@ -251,6 +269,7 @@ const EventHeader = ({
 };
 
 EventHeader.propTypes = {
+  id: PropTypes.string,
   name: PropTypes.string,
   schedule: PropTypes.instanceOf(Interval),
   hasSubscriptionForm: PropTypes.bool,
