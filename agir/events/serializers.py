@@ -13,7 +13,23 @@ from ..lib.utils import admin_url
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
-    iconName = serializers.CharField(source="icon_name")
+    iconName = serializers.SerializerMethodField()
+    icon = serializers.SerializerMethodField()
+    color = serializers.SerializerMethodField()
+
+    def get_iconName(self, obj):
+        return obj.icon_name or obj.TYPES_PARAMETERS[obj.type]["icon_name"]
+
+    def get_color(self, obj):
+        return obj.color or obj.TYPES_PARAMETERS[obj.type]["color"]
+
+    def get_icon(self, obj):
+        if obj.icon:
+            return {
+                "iconUrl": obj.icon.url,
+                "iconAnchor": [obj.icon_anchor_x or 0, obj.icon_anchor_y or 0],
+                "popupAnchor": obj.popup_anchor_y,
+            }
 
     class Meta:
         model = models.EventSubtype
