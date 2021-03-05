@@ -33,11 +33,6 @@
           ? darkFavicons[i] || favicons[i].href
           : lightFavicons[i] || favicons[i].href
       }
-
-      var themesMeta = document.querySelectorAll('meta[name="theme-color"]')
-      for (var i = 0; themesMeta[i]; i++) {
-        themesMeta[i].setAttribute("content", "#571AFF");
-      }
     }
     handleDarkmode(darkModeMediaQuery);
     darkModeMediaQuery.addListener(handleDarkmode);
