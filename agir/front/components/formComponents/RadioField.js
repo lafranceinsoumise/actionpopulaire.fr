@@ -58,16 +58,17 @@ const StyledOption = styled.label`
       }
       return style.white;
     }};
-    transition: all 200ms ease-in;
+    transition: all 100ms ease-in;
   }
 
-  input:focus + ${StyledBox}, &:hover ${StyledBox} {
+  &:hover ${StyledBox} {
     ${({ $checked, $disabled }) =>
-      !$disabled
-        ? $checked
-          ? "opacity: .5;"
-          : `background: ${style.black50};`
-        : ""};
+      !$disabled && !$checked ? `background: ${style.black50};` : ""};
+  }
+
+  input:focus + ${StyledBox} {
+    box-shadow: ${({ $disabled }) =>
+      !$disabled ? `0 0 0 4px ${style.primary100}` : "none"};
   }
 
   ${StyledOptionLabel} {
@@ -133,7 +134,12 @@ const RadioField = (props) => {
   );
 
   return (
-    <StyledField $valid={!error} $invalid={!!error} $empty={!!value}>
+    <StyledField
+      $valid={!error}
+      $invalid={!!error}
+      $empty={!!value}
+      tabIndex="1"
+    >
       {label && <StyledLabel>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
       <StyledError>{error}</StyledError>
