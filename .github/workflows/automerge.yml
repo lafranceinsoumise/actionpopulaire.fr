@@ -27,5 +27,5 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           MERGE_LABELS: "ready, !do not merge, !wait next release"
           MERGE_REMOVE_LABELS: "ready"
-          MERGE_RETRIES: 10
+          MERGE_RETRIES: 20
           MERGE_RETRY_SLEEP: 30000
