@@ -77,14 +77,16 @@ test("displayInterval renvoie des valeurs correctes pour deux horaires le même 
       Interval.fromDateTimes(date("21/3 10:00"), date("21/3 12:00")),
       relativeTo
     )
-  ).toEqual("le 21 mars, de 10:00 à 12:00");
+  ).toEqual("le dimanche 21 mars, de 10:00 à 12:00");
 
   expect(
     displayInterval(
       Interval.fromDateTimes(date("21/9 19:00"), date("22/9 12:00")),
       relativeTo
     )
-  ).toEqual("du 21 septembre 2021 à 19:00 au 22 septembre à 12:00");
+  ).toEqual(
+    "du mardi 21 septembre 2021 à 19:00 au mercredi 22 septembre à 12:00"
+  );
 });
 
 test("displayHumanDate n'a pas de problème quand on franchit la fin d'un mois", () => {

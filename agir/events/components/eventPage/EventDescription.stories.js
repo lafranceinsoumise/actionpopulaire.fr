@@ -33,8 +33,14 @@ export const Default = Template.bind({});
 Default.args = {
   compteRendu: htmlDummyText,
   compteRenduPhotos: [
-    "https://picsum.photos/200/200",
-    "https://picsum.photos/200/200",
+    {
+      thumbnail: "https://picsum.photos/200/200",
+      image: "https://picsum.photos/200/200",
+    },
+    {
+      thumbnail: "https://picsum.photos/200/200",
+      image: "https://picsum.photos/200/200",
+    },
   ],
   illustration:
     "https://i.picsum.photos/id/523/1920/1080.jpg?hmac=sy_3fHrsxYu8cmYYWmQ2yWzPMfGNI42qloxWKF97ISk",
