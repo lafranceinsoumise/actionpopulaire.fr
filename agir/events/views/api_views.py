@@ -2,10 +2,21 @@ from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import Q
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
+from django.utils.functional import cached_property
 
+from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from agir.events.actions.rsvps import (
+    rsvp_to_free_event,
+    is_participant,
+    RSVPException,
+)
 from agir.events.models import Event
 from agir.events.serializers import EventSerializer
 
@@ -13,6 +24,7 @@ __all__ = [
     "EventDetailAPIView",
     "EventRsvpedAPIView",
     "EventSuggestionsAPIView",
+    "RSVPEventAPIView",
 ]
 
 from agir.lib.tasks import geocode_person
@@ -44,7 +56,7 @@ class EventRsvpedAPIView(ListAPIView):
                 "compteRendu",
                 "subtype",
             ],
-            **kwargs
+            **kwargs,
         )
 
     def get(self, request, *args, **kwargs):
@@ -100,7 +112,7 @@ class EventSuggestionsAPIView(ListAPIView):
                 "compteRendu",
                 "subtype",
             ],
-            **kwargs
+            **kwargs,
         )
 
     def get_queryset(self):
@@ -155,3 +167,56 @@ class EventSuggestionsAPIView(ListAPIView):
             result = result.order_by("start_time")
 
         return result
+
+
+class RSVPEventAPIView(CreateAPIView):
+    queryset = Event.objects.public()
+    permission_ = ("events.view_event",)
+
+    @cached_property
+    def user_is_already_rsvped(self):
+        return is_participant(self.object, self.request.user.person)
+
+    def initial(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.check_object_permissions(request, self.object)
+        super().initial(request, *args, **kwargs)
+
+    def check_permissions(self, request):
+        if not request.user.is_authenticated or request.user.person is None:
+            raise PermissionDenied(
+                detail={
+                    "redirectTo": f'{reverse_lazy("short_code_login")}?next={reverse("view_event", kwargs={"pk": self.object.pk})}'
+                },
+            )
+        if not self.object.can_rsvp(request.user.person):
+            raise PermissionDenied(
+                detail={
+                    "redirectTo": f'{reverse("join")}?type={self.object.for_users}'
+                },
+            )
+
+        if bool(self.object.subscription_form_id):
+            raise PermissionDenied(
+                detail={
+                    "redirectTo": reverse("rsvp_event", kwargs={"pk": self.object.pk})
+                },
+            )
+
+        if self.user_is_already_rsvped:
+            raise PermissionDenied(
+                detail={
+                    "redirectTo": reverse("view_event", kwargs={"pk": self.object.pk})
+                },
+            )
+
+        if not self.object.is_free:
+            if "rsvp_submission" in request.session:
+                del request.session["rsvp_submission"]
+            request.session["rsvp_event"] = str(self.object.pk)
+            request.session["is_guest"] = False
+            raise PermissionDenied(detail={"redirectTo": reverse("pay_event")},)
+
+    def create(self, request, *args, **kwargs):
+        rsvp_to_free_event(self.object, request.user.person)
+        return Response(status=status.HTTP_201_CREATED)
