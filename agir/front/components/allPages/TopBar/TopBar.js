@@ -74,18 +74,8 @@ const HorizontalFlex = styled.div`
   display: flex;
   align-items: center;
 
-  & > * + * {
+  & > * {
     margin-left: 1.25em;
-  }
-  & > .large-only + * {
-    @media only screen and (max-width: ${+style.collapse - 1}px) {
-      margin-left: 0;
-    }
-  }
-  & > .small-only + * {
-    @media only screen and (min-width: ${style.collapse}px) {
-      margin-left: 0;
-    }
   }
 `;
 
