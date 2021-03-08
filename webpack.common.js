@@ -48,7 +48,7 @@ const components = applications
 
 // create import aliases with the django app names leading to their `components` folders
 const aliases = applications.reduce((obj, app) => {
-  obj["@agir/" + path.basename(app)] = path.resolve(app, "components") + "/";
+  obj["@agir/" + path.basename(app)] = path.resolve(app, "components/");
   return obj;
 }, {});
 
@@ -64,7 +64,10 @@ module.exports = {
     new CleanWebpackPlugin(),
     new BundleTracker({ path: DISTPATH }),
     new MiniCssExtractPlugin({ filename: "[name]-[chunkhash].css" }),
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+    new webpack.IgnorePlugin(
+      new RegExp("^.\\" + path.sep + "locale$"),
+      /moment$/
+    ),
     new BundleAnalyzerPlugin({ analyzerMode: "static", openAnalyzer: false }),
     new InjectManifest({
       swSrc: path.resolve(
@@ -77,7 +80,7 @@ module.exports = {
         /richEditor/,
         /adminJsonWidget/,
         /serviceWorker/,
-        /front\/skins/,
+        new RegExp("front\\" + path.sep + "skins"),
       ],
     }),
   ],
@@ -95,7 +98,7 @@ module.exports = {
           path.resolve(__dirname, "agir"),
           path.resolve(__dirname, "node_modules/react-spring"),
         ],
-        exclude: [/node_modules\//],
+        exclude: [new RegExp("node_modules\\" + path.sep)],
         use: {
           loader: "babel-loader",
           options: {
@@ -109,7 +112,7 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        exclude: [/theme\/theme.scss/],
+        exclude: [new RegExp("theme\\" + path.sep + "theme.scss")],
         use: [
           "style-loader",
           {
@@ -123,12 +126,12 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        exclude: [/node_modules\/tinymce/],
+        exclude: [new RegExp("node_modules\\" + path.sep + "tinymce")],
         use: ["style-loader", "css-loader"],
       },
       {
         test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/,
-        exclude: [/node_modules\/tinymce/],
+        exclude: [new RegExp("node_modules\\" + path.sep + "tinymce")],
         type: "asset/resource",
       },
     ],
