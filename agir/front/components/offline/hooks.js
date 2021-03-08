@@ -1,29 +1,25 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
+
+import logger from "@agir/lib/utils/logger";
+
+const log = logger(__filename);
 
 export const useIsOffline = () => {
   const { data, error, isValidating } = useSWR("/api/session");
-  const [isOffline, setIsOffline] = useState(false);
-  const timeout = useRef(null);
-  const clear = useCallback(() => {
-    if (timeout.current) {
-      clearTimeout(timeout.current);
-      timeout.current = null;
-    }
-  }, [timeout]);
+  const [unloading, setUnloading] = useState(false);
+
+  log.debug(`Unloading : ${unloading}`, unloading);
+  log.debug(`Error : ${error}`, error);
+
   useEffect(() => {
-    const isOffline = !data && !error && isValidating ? null : !!error;
+    let cb = () => setUnloading(true);
+    window.addEventListener("beforeunload", cb);
 
-    if (isOffline !== false) {
-      setIsOffline(isOffline);
-    } else {
-      timeout.current = setTimeout(() => {
-        setIsOffline(isOffline);
-      }, 1000);
-    }
+    return () => {
+      window.removeEventListener("beforeunload", cb);
+    };
+  });
 
-    return clear;
-  }, [clear, data, error, isValidating]);
-
-  return isOffline;
+  return unloading || (!data && !error && isValidating) ? null : !!error;
 };
