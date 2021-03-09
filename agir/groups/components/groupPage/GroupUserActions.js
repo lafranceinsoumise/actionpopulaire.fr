@@ -244,7 +244,7 @@ const ManagerActions = (props) => {
               <a href={routes.settings}>Informations</a>
             </li>
           )}
-          {routes.members && (
+          {routes.animation && (
             <li>
               <RawFeatherIcon
                 small
@@ -252,7 +252,7 @@ const ManagerActions = (props) => {
                 color={style.primary500}
                 name="lock"
               />
-              <a href={routes.members}>Animateur·ices et gestionnaires</a>
+              <a href={routes.animation}>Animateur·ices et gestionnaires</a>
             </li>
           )}
           {routes.financement && (
