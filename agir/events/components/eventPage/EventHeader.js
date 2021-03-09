@@ -13,6 +13,8 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
 import { displayHumanDate } from "@agir/lib/utils/time";
 
+import QuitEventButton from "./QuitEventButton";
+
 const EventHeaderContainer = styled.div`
   @media (min-width: ${style.collapse}px) {
     margin-bottom: 4rem;
@@ -175,7 +177,15 @@ RSVPButton.propTypes = ActionButtons.propTypes = {
   }),
 };
 
-const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
+const AdditionalMessage = ({
+  id,
+  name,
+  logged,
+  rsvped,
+  price,
+  routes,
+  forUsers,
+}) => {
   if (!logged) {
     return (
       <div>
@@ -189,11 +199,7 @@ const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
   }
 
   if (rsvped) {
-    return (
-      <SmallText>
-        <a href={routes.cancel}>Annuler ma participation</a>
-      </SmallText>
-    );
+    return <QuitEventButton id={id} name={name} />;
   }
 
   if (price) {
@@ -210,6 +216,8 @@ const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
   );
 };
 AdditionalMessage.propTypes = {
+  id: PropTypes.string,
+  name: PropTypes.string,
   hasSubscriptionForm: PropTypes.bool,
   past: PropTypes.bool,
   rsvped: PropTypes.bool,
@@ -256,6 +264,8 @@ const EventHeader = ({
       />
       {!past && (
         <AdditionalMessage
+          id={id}
+          name={name}
           past={past}
           logged={logged}
           rsvped={rsvped}
