@@ -3,18 +3,18 @@
 1. [Vagrant installation](#vagrant)
 2. [Useful commands](#frontend-pages)
 
-## Vagrant installation
+## Vagrant installation 
 
 You can use Vagrant to create a virtual machine running the project out of the box.
-You need to have Vagrant and VirtualBox installed on your computer. 
+You need to have Vagrant and VirtualBox installed on your computer.
 
 
 If this is not already installed, install vagrant-hostmanager plugin :
-```bash 
+```bash
 $ vagrant plugin install vagrant-hostmanager
 ```
 Then just launch the box :
-```bash 
+```bash
 $ vagrant up
 ```
 
@@ -62,7 +62,7 @@ be ran from inside the `/vagrant` folder in the vagrant box).
 $ black agir/
 $ node_modules/.bin/esling --fix agir/
 $ pipenv run ./manage.py test
-``` 
+```
 
 # Mise à jour suite au squashing des migrations du 7 janvier 2021
 
@@ -77,7 +77,7 @@ from django.db import connection
 
 QUERY = """
 INSERT INTO django_migrations (app, name, applied)
-VALUES 
+VALUES
 ('people', '0001_creer_modeles', NOW()),
 ('people', '0002_objets_initiaux', NOW()),
 ('people', '0003_segments', NOW()),
