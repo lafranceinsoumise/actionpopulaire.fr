@@ -28,9 +28,7 @@ const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
 );
 
-const IntroAppPage = lazy(() =>
-  import("@agir/front/app/IntroApp")
-);
+const IntroAppPage = lazy(() => import("@agir/front/app/IntroApp"));
 
 export const BASE_PATH = "/";
 
