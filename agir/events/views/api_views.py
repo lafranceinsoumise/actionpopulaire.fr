@@ -7,8 +7,13 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
+from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework.generics import (
+    ListAPIView,
+    RetrieveAPIView,
+    CreateAPIView,
+    DestroyAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -17,7 +22,7 @@ from agir.events.actions.rsvps import (
     is_participant,
     RSVPException,
 )
-from agir.events.models import Event
+from agir.events.models import Event, RSVP
 from agir.events.serializers import EventSerializer
 
 __all__ = [
@@ -25,6 +30,7 @@ __all__ = [
     "EventRsvpedAPIView",
     "EventSuggestionsAPIView",
     "RSVPEventAPIView",
+    "QuitEventAPIView",
 ]
 
 from agir.lib.tasks import geocode_person
@@ -220,3 +226,42 @@ class RSVPEventAPIView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         rsvp_to_free_event(self.object, request.user.person)
         return Response(status=status.HTTP_201_CREATED)
+
+
+class QuitEventAPIView(DestroyAPIView):
+    permission_ = (
+        IsAuthenticated,
+        "events.delete_rsvp",
+    )
+
+    def get_queryset(self):
+        return RSVP.objects.filter(event__end_time__gte=timezone.now())
+
+    def get_object(self):
+        try:
+            rsvp = (
+                self.get_queryset()
+                .select_related("event")
+                .get(event__pk=self.kwargs["pk"], person=self.request.user.person)
+            )
+        except RSVP.DoesNotExist:
+            raise NotFound()
+
+        return rsvp
+
+    def initial(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or request.user.person is None:
+            raise PermissionDenied()
+
+        self.object = self.get_object()
+
+        if not self.request.user.has_perm("events.view_event", self.object.event):
+            raise NotFound()
+
+        self.check_object_permissions(request, self.object)
+
+        super().initial(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

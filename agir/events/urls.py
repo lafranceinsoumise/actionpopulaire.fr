@@ -111,4 +111,9 @@ urlpatterns = [
         views.RSVPEventAPIView.as_view(),
         name="api_rsvp_event",
     ),
+    path(
+        "api/evenements/<uuid:pk>/quitter/",
+        views.QuitEventAPIView.as_view(),
+        name="api_quit_event",
+    ),
 ]
