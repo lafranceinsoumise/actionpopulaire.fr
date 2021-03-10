@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 
 import illustration from "./illustration.svg";
 import styled from "styled-components";
-import useSWR from "swr";
+
 import { useIsOffline } from "@agir/front/offline/hooks";
 
 const PageStyle = styled.div`
