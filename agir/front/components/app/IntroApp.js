@@ -10,6 +10,7 @@ const Mark = styled.span`
   height: 4px;
   margin: 3px;
   display: inline-block;
+  transition: ease 0.2s;
   background-color: ${(props) =>
     props.$active ? style.primary500 : style.black200};
 `;
@@ -126,6 +127,7 @@ const IntroApp = () => {
               alignItems: "center",
               position: "relative",
               width: "100%",
+              minHeight: "375px",
               textAlign: "center",
             }}
           >
