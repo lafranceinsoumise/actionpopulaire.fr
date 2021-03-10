@@ -28,6 +28,8 @@ const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
 );
 
+const IntroAppPage = lazy(() => import("@agir/front/app/IntroApp"));
+
 export const BASE_PATH = "/";
 
 const log = logger(__filename);
@@ -76,6 +78,18 @@ export class RouteConfig {
 }
 
 export const routeConfig = {
+  intro: new RouteConfig({
+    id: "intro",
+    pathname: "/intro/",
+    exact: true,
+    label: "Intro",
+    Component: IntroAppPage,
+    hasLayout: false,
+    layoutProps: {
+      smallBackgroundColor: style.black25,
+      hasBanner: false,
+    },
+  }),
   events: new RouteConfig({
     id: "events",
     pathname: "/",

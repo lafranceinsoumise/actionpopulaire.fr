@@ -10,6 +10,7 @@ urlpatterns = [
     path("offline", views.OfflineApp.as_view(), name="offline"),
     path("sw.js", (views.ServiceWorker.as_view()), name="sw.js"),
     path("rejoindre/", views.JoinView.as_view(), name="join"),
+    path("intro/", views.IntroAppView.as_view(), name="intro"),
     path("nsp/", views.NSPView.as_view(), name="nsp"),
     path("nsp/referral/", views.NSPReferralView.as_view(), name="nsp_referral"),
     # https://lafranceinsoumise.fr/
