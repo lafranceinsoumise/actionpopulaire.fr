@@ -29,6 +29,7 @@ const NavigationPage = lazy(() =>
 );
 
 const IntroAppPage = lazy(() => import("@agir/front/app/IntroApp"));
+const ConnexionPage = lazy(() => import("@agir/front/app/Connexion"));
 
 export const BASE_PATH = "/";
 
@@ -83,7 +84,8 @@ export const routeConfig = {
     pathname: "/intro/",
     exact: true,
     label: "Intro",
-    Component: IntroAppPage,
+    Component: ConnexionPage,
+    // Component: IntroAppPage,
     hasLayout: false,
     layoutProps: {
       smallBackgroundColor: style.black25,

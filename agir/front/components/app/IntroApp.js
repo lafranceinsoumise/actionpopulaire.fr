@@ -5,10 +5,12 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import img1 from "../genericComponents/images/introApp1.jpg";
 import logo from "../genericComponents/images/logoActionPopulaire.png";
 
+// import Connexion from "./Connexion";
+
 const Mark = styled.span`
-  width: 24px;
-  height: 4px;
-  margin: 3px;
+  width: 1.5rem;
+  height: 0.25rem;
+  margin: 0.188rem;
   display: inline-block;
   transition: ease 0.2s;
   background-color: ${(props) =>
@@ -53,6 +55,8 @@ const items = [
 const IntroApp = () => {
   const [index, setIndex] = useState(0);
 
+  const showConnexion = index >= items.length;
+
   const handleClick = useCallback(() => {
     setIndex((index) => index + 1);
   }, []);
@@ -60,8 +64,6 @@ const IntroApp = () => {
   const handleClickBack = useCallback(() => {
     setIndex((index) => index - 1);
   }, []);
-
-  const showConnexion = index >= items.length;
 
   return (
     <>
