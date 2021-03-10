@@ -27,6 +27,8 @@ const RequiredActivityPage = lazy(() =>
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
 );
+const LoginPage = lazy(() => import("@agir/front/authentication/LoginPage"));
+const SignupPage = lazy(() => import("@agir/front/authentication/SignupPage"));
 
 export const BASE_PATH = "/";
 
@@ -80,6 +82,7 @@ export const routeConfig = {
     id: "events",
     pathname: "/",
     exact: true,
+    protected: true,
     label: "Événements",
     Component: AgendaPage,
     hasLayout: true,
@@ -92,6 +95,7 @@ export const routeConfig = {
     id: "eventMap",
     pathname: "/evenements/carte/",
     exact: true,
+    protected: false,
     label: "Carte des événements",
     Component: EventMap,
   }),
@@ -99,6 +103,7 @@ export const routeConfig = {
     id: "eventDetails",
     pathname: "/evenements/:eventPk/",
     exact: true,
+    protected: false,
     label: "Details de l'événement",
     Component: EventPage,
     backLink: {
@@ -111,6 +116,7 @@ export const routeConfig = {
     id: "groups",
     pathname: "/mes-groupes/",
     exact: true,
+    protected: true,
     label: "Groupes",
     Component: GroupsPage,
     hasLayout: true,
@@ -122,6 +128,8 @@ export const routeConfig = {
     id: "groupMap",
     pathname: "/groupes/carte/",
     exact: true,
+    // TODO: set to false
+    protected: true,
     label: "Carte des groupes",
     Component: GroupMap,
   }),
@@ -129,6 +137,7 @@ export const routeConfig = {
     id: "fullGroup",
     pathname: "/groupes/:groupPk/complet/",
     exact: true,
+    protected: false,
     label: "Groupe complet",
     Component: FullGroupPage,
     hasLayout: false,
@@ -137,6 +146,7 @@ export const routeConfig = {
     id: "groupMessage",
     pathname: "/groupes/:groupPk/messages/:messagePk/",
     exact: true,
+    protected: true,
     label: "Message du groupe",
     Component: GroupMessagePage,
     hideFeedbackButton: true,
@@ -145,6 +155,7 @@ export const routeConfig = {
     id: "groupDetails",
     pathname: "/groupes/:groupPk/:activeTab?/",
     exact: true,
+    protected: false,
     label: "Details du groupe",
     Component: GroupPage,
     backLink: {
@@ -157,6 +168,7 @@ export const routeConfig = {
     id: "activities",
     pathname: "/activite/",
     exact: true,
+    protected: true,
     label: "Actualités",
     Component: ActivityPage,
     hasLayout: true,
@@ -170,6 +182,7 @@ export const routeConfig = {
     id: "requiredActivities",
     pathname: "/a-traiter/",
     exact: true,
+    protected: true,
     label: "À traiter",
     Component: RequiredActivityPage,
     hasLayout: true,
@@ -178,12 +191,29 @@ export const routeConfig = {
     id: "menu",
     pathname: "/navigation/",
     exact: true,
+    protected: true,
     label: "Menu",
     Component: NavigationPage,
     hasLayout: true,
     layoutProps: {
       desktopOnlyFooter: false,
     },
+  }),
+  login: new RouteConfig({
+    id: "login",
+    pathname: "/connexion/",
+    exact: true,
+    protected: false,
+    label: "Connexion",
+    Component: LoginPage,
+  }),
+  signup: new RouteConfig({
+    id: "signup",
+    pathname: "/inscription/",
+    exact: true,
+    protected: false,
+    label: "Inscription",
+    Component: SignupPage,
   }),
 };
 
