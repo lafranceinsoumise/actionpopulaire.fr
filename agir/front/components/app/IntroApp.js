@@ -137,9 +137,14 @@ const IntroApp = () => {
             </p>
           </div>
 
-          <div style={{width: "100%", backgroundColor: style.secondary500}}>
-            <div style={{backgroundColor: "white", height: "100px", 
-              clipPath: "polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%)"}}></div>
+          <div style={{ width: "100%", backgroundColor: style.secondary500 }}>
+            <div
+              style={{
+                backgroundColor: "white",
+                height: "100px",
+                clipPath: "polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%)",
+              }}
+            ></div>
           </div>
 
           <div
