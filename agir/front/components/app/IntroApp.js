@@ -135,12 +135,11 @@ const IntroApp = () => {
               Mélenchon
               <InlineBlock>en 2022 !</InlineBlock>
             </p>
-            {/* <div style={{overflow:"none", backgroundColor: "transparent", postition: "absolute", 
-                bottom: "0px", left: "0px"}}>
-                <div style={{position:"absolute", bottom:"0", width: "200%", height: "100px", backgroundColor: "white",
-                  border: "1px solid red", transform: "rotate(-10deg)" }}>
-                </div>
-              </div> */}
+          </div>
+
+          <div style={{width: "100%", backgroundColor: style.secondary500}}>
+            <div style={{backgroundColor: "white", height: "100px", 
+              clipPath: "polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%)"}}></div>
           </div>
 
           <div
