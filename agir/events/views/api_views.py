@@ -2,11 +2,11 @@ from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import Q
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from rest_framework import status
-from rest_framework.exceptions import NotFound, PermissionDenied, MethodNotAllowed
+from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
@@ -20,13 +20,20 @@ from agir.events.actions.rsvps import (
     rsvp_to_free_event,
     is_participant,
 )
-from agir.events.models import Event, RSVP
-from agir.events.serializers import EventSerializer
+from agir.events.models import Event
+from agir.events.models import RSVP
+from agir.events.serializers import (
+    EventSerializer,
+    EventCreateOptionsSerializer,
+    CreateEventSerializer,
+)
 
 __all__ = [
     "EventDetailAPIView",
     "EventRsvpedAPIView",
     "EventSuggestionsAPIView",
+    "EventCreateOptionsAPIView",
+    "CreateEventAPIView",
     "RSVPEventAPIView",
 ]
 
@@ -172,6 +179,28 @@ class EventSuggestionsAPIView(ListAPIView):
             result = result.order_by("start_time")
 
         return result
+
+
+class EventCreateOptionsAPIView(RetrieveAPIView):
+    permission_ = ("events.add_event",)
+    serializer_class = EventCreateOptionsSerializer
+    queryset = Event.objects.all()
+
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        if user.is_anonymous or not user.person:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        self.person = user.person
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self):
+        return self.request
+
+
+class CreateEventAPIView(CreateAPIView):
+    permission_ = ("events.add_event",)
+    serializer_class = CreateEventSerializer
+    queryset = Event.objects.all()
 
 
 class RSVPEventPermissions(GlobalOrObjectPermissions):

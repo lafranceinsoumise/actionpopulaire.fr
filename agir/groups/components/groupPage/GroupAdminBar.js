@@ -49,7 +49,7 @@ const GroupAdminBar = (props) => {
   return (
     <StyledBar>
       <LeftSection>
-        <Button as="a" href={routes.createEvent} color="primary" icon="plus">
+        <Button as="Link" route="createEvent" color="primary" icon="plus">
           Créer un événement du groupe
         </Button>
       </LeftSection>
@@ -95,11 +95,6 @@ const GroupAdminBar = (props) => {
 };
 
 GroupAdminBar.propTypes = {
-  routes: PropTypes.shape({
-    createEvent: PropTypes.string,
-    settings: PropTypes.string,
-    members: PropTypes.string,
-    admin: PropTypes.string,
-  }),
+  routes: PropTypes.object,
 };
 export default GroupAdminBar;

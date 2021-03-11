@@ -11,6 +11,7 @@ import Card from "@agir/front/genericComponents/Card";
 import { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
 import Button from "@agir/front/genericComponents/Button";
 import EventCard from "@agir/front/genericComponents/EventCard";
+import Link from "@agir/front/app/Link";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
@@ -237,7 +238,7 @@ const SuggestionsEvents = ({ suggestions }) => {
           ) : (
             <p>
               Pas d'événement prévu dans votre ville ?{" "}
-              <a href={routes.createEvent}>Commencez par en créer un</a>.
+              <Link route="createEvent">Commencez par en créer un</Link>.
             </p>
           )}
         </EmptyAgenda>
@@ -290,9 +291,9 @@ const Agenda = () => {
             {routes.createEvent ? (
               <Button
                 small
-                as="a"
+                as="Link"
                 color="secondary"
-                href={routes["createEvent"]}
+                route="createEvent"
                 icon="plus"
               >
                 Créer un événement

@@ -468,68 +468,6 @@ class EventPagesTestCase(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_can_create_event(self):
-        self.client.force_login(self.person.role)
-
-        res = self.client.get(reverse("create_event"))
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        res = self.client.post(
-            path=reverse("perform_create_event"),
-            data={
-                "name": "Mon événement",
-                "subtype": self.subtype.label,
-                "start_time": formats.localize_input(
-                    self.now + timezone.timedelta(days=1), "%d/%m/%Y %H:%M"
-                ),
-                "end_time": formats.localize_input(
-                    self.now + timezone.timedelta(days=1, hours=1), "%d/%m/%Y %H:%M"
-                ),
-                "for_users": "I",
-                "contact_name": "Moi",
-                "contact_email": "moi@moi.fr",
-                "contact_phone": "01 23 45 67 89",
-                "contact_hide_phone": True,
-                "location_name": "Chez moi",
-                "location_address1": "123 rue truc",
-                "location_address2": "",
-                "location_city": "Paris",
-                "location_zip": "75014",
-                "location_country": "FR",
-            },
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-    def test_cannot_create_too_long_event(self):
-        self.client.force_login(self.person.role)
-
-        res = self.client.post(
-            path=reverse("perform_create_event"),
-            data={
-                "name": "Mon événement",
-                "subtype": self.subtype.label,
-                "start_time": formats.localize_input(
-                    self.now + timezone.timedelta(days=1), "%d/%m/%Y %H:%M"
-                ),
-                "end_time": formats.localize_input(
-                    self.now + timezone.timedelta(days=10, hours=1), "%d/%m/%Y %H:%M"
-                ),
-                "contact_name": "Moi",
-                "contact_email": "moi@moi.fr",
-                "contact_phone": "01 23 45 67 89",
-                "contact_hide_phone": True,
-                "location_name": "Chez moi",
-                "location_address1": "123 rue truc",
-                "location_address2": "",
-                "location_city": "Paris",
-                "location_zip": "75014",
-                "location_country": "FR",
-            },
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
     def test_can_edit_legal_fields(self):
         self.client.force_login(self.person.role)
         res = self.client.get(

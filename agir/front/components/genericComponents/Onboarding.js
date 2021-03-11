@@ -30,7 +30,7 @@ const ONBOARDING_TYPE = {
     body:
       "Créez votre équipe en quelques clics, et commencez dès aujourd’hui à organiser des actions pour soutenir la candidature de Jean-Luc Mélenchon. Besoin d’inspiration pour animer votre équipe ? Voici quelques pistes.",
     createLabel: "Créer une équipe de soutien",
-    createRoute: "createGroup",
+    createRouteId: "createGroup",
   },
   fullGroup__creation: {
     title: "Ou bien animez votre propre équipe et invitez-y vos amis !",
@@ -47,7 +47,7 @@ const ONBOARDING_TYPE = {
       ) : null,
     ],
     createLabel: "Créer une équipe de soutien",
-    createRoute: "createGroup",
+    createRouteId: "createGroup",
   },
   group__nsp: {
     img: onboardingActionImage,
@@ -57,7 +57,7 @@ const ONBOARDING_TYPE = {
     createLabel: "Créer une équipe",
     mapLabel: "Voir les équipes dans ma ville",
     mapRoute: "groupMapPage",
-    createRoute: "createGroup",
+    createRouteId: "createGroup",
   },
   group__action: {
     img: onboardingActionImage,
@@ -68,7 +68,7 @@ const ONBOARDING_TYPE = {
     createLabel: "Créer un groupe",
     mapLabel: "Voir les groupes dans ma ville",
     mapRoute: "groupMapPage",
-    createRoute: "createGroup",
+    createRouteId: "createGroup",
   },
   group__thematic: {
     img: onboardingThematicImage,
@@ -84,7 +84,7 @@ const ONBOARDING_TYPE = {
     createLabel: "Créer un groupe",
     mapLabel: "Voir les groupes dans ma ville",
     mapRoute: "thematicTeams",
-    createRoute: "createGroup",
+    createRouteId: "createGroup",
   },
 };
 
@@ -173,6 +173,7 @@ const Onboarding = (props) => {
     mapIframe,
     createLabel,
     createRoute,
+    createRouteId,
   } = ONBOARDING_TYPE[type];
   return (
     <StyledBlock>
@@ -187,8 +188,13 @@ const Onboarding = (props) => {
         <p>{typeof body === "function" ? body(props) : body}</p>
       </article>
       <footer>
-        {routes[createRoute] ? (
-          <Button as="a" color="secondary" href={routes[createRoute]}>
+        {createRoute ? (
+          <Button as="Link" color="secondary" route={createRoute}>
+            {createLabel || "Créer"}
+          </Button>
+        ) : null}
+        {createRouteId && routes[createRouteId] ? (
+          <Button as="a" color="secondary" href={routes[createRouteId]}>
             {createLabel || "Créer"}
           </Button>
         ) : null}
