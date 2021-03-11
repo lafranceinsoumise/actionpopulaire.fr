@@ -1,20 +1,16 @@
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIsSessionLoaded,
-  getIsConnected,
+  getAuthentication,
 } from "@agir/front/globalContext/reducers";
 
 export const useAuthentication = (route) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
-  const isUserAuthenticated = useSelector(getIsConnected);
-
-  if (route.protected === false) {
-    return true;
-  }
+  const authentication = useSelector(getAuthentication);
 
   if (!isSessionLoaded) {
     return null;
   }
 
-  return !!isUserAuthenticated;
+  return authentication >= route.neededAuthentication;
 };

@@ -1,6 +1,8 @@
 import shortUUID from "short-uuid";
 import ACTION_TYPE from "@agir/front/globalContext/actionTypes";
 
+import { AUTHENTICATION } from "@agir/front/authentication/common";
+
 // Reducers
 export const domain = (state = "https://actionpopulaire.fr", action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
@@ -36,6 +38,13 @@ export const is2022 = (state = false, action) => {
 export const user = (state = null, action) => {
   if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
     return action.user || state;
+  }
+  return state;
+};
+
+export const authentication = (state = AUTHENTICATION.NONE, action) => {
+  if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
+    return action.authentication || state;
   }
   return state;
 };
@@ -260,6 +269,7 @@ export const getIs2022 = (state) => state.is2022;
 
 export const getUser = (state) => state.user;
 export const getIsConnected = (state) => !!state.user;
+export const getAuthentication = (state) => state.authentication;
 
 export const getCsrfToken = (state) => state.csrfToken;
 
@@ -300,6 +310,7 @@ const reducers = {
   isSessionLoaded,
   is2022,
   user,
+  authentication,
   domain,
   csrfToken,
   routes,
