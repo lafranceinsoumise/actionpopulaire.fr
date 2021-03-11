@@ -122,7 +122,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     forUsers = serializers.CharField(source="for_users")
 
-    canRSVP = serializers.SerializerMethodField()
+    hasRightSubscription = serializers.SerializerMethodField()
 
     subtype = EventSubtypeSerializer()
 
@@ -165,7 +165,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_rsvp(self, obj):
         return self.rsvp and self.rsvp.status
 
-    def get_canRSVP(self, obj):
+    def get_hasRightSubscription(self, obj):
         user = self.context["request"].user
         if hasattr(user, "person"):
             return obj.can_rsvp(user.person)

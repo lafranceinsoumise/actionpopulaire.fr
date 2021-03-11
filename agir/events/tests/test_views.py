@@ -792,39 +792,6 @@ class RSVPTestCase(TestCase):
             "contact_phone": "06 45 78 98 45",
         }
 
-    @mock.patch("agir.events.actions.rsvps.send_rsvp_notification")
-    def test_can_rsvp_to_simple_event_and_quit(self, rsvp_notification):
-        self.client.force_login(self.person.role)
-
-        # can see the form
-        response = self.client.get(
-            reverse("api_event_view", kwargs={"pk": self.simple_event.pk})
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(response.json()["rsvp"])
-
-        # can actually post the form
-        response = self.client.post(
-            reverse("rsvp_event", kwargs={"pk": self.simple_event.pk})
-        )
-        self.assertRedirects(
-            response, reverse("view_event", kwargs={"pk": self.simple_event.pk})
-        )
-        self.assertIn(self.person, self.simple_event.attendees.all())
-        self.assertEqual(2, self.simple_event.participants)
-
-        rsvp_notification.delay.assert_called_once()
-
-        rsvp = RSVP.objects.get(person=self.person, event=self.simple_event)
-        self.assertEqual(rsvp_notification.delay.call_args[0][0], rsvp.pk)
-
-        res = self.client.post(
-            reverse("quit_event", kwargs={"pk": self.simple_event.pk})
-        )
-        self.assertRedirects(res, reverse("dashboard"))
-        self.assertNotIn(self.person, self.simple_event.attendees.all())
-        self.assertEqual(1, self.simple_event.participants)
-
     def test_can_view_rsvp(self):
         self.client.force_login(self.already_rsvped.role)
 

@@ -8,13 +8,14 @@ import {
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
 import {
+  setAdminLink,
   setIs2022,
   setTopBarRightLink,
-  setAdminLink,
 } from "@agir/front/globalContext/actions";
 import {
   getIsConnected,
   getIsSessionLoaded,
+  getUser,
 } from "@agir/front/globalContext/reducers";
 
 import Link from "@agir/front/app/Link";
@@ -42,6 +43,8 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 import logger from "@agir/lib/utils/logger";
+import * as api from "@agir/events/common/api";
+
 const log = logger(__filename);
 
 const GroupCards = styled.div`
@@ -301,7 +304,9 @@ export const ConnectedEventPage = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const dispatch = useDispatch();
 
-  const { data: eventData } = useSWR(`/api/evenements/${eventPk}/`);
+  const { data: eventData } = useSWR(
+    api.getEventEndpoint("getEvent", { eventPk })
+  );
   log.debug("Event data", eventData);
 
   let { is2022 } = eventData || {};
@@ -328,7 +333,7 @@ export const ConnectedEventPage = (props) => {
       dispatch(
         setAdminLink({
           href: eventData.routes.admin,
-          label: "Administrtion",
+          label: "Administration",
         })
       );
     }
