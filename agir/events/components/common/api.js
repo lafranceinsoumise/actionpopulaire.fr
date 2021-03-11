@@ -3,6 +3,7 @@ import axios from "@agir/lib/utils/axios";
 export const ENDPOINT = {
   getEvent: "/api/evenements/:eventPk/",
   rsvpEvent: "/api/evenements/:eventPk/inscription/",
+  quitEvent: "/api/evenements/:eventPk/inscription/",
 };
 
 export const getEventEndpoint = (key, params) => {
@@ -37,7 +38,7 @@ export const quitEvent = async (eventPk) => {
     data: null,
     error: null,
   };
-  const url = getEventEndpoint("rsvpEvent", { eventPk });
+  const url = getEventEndpoint("quitEvent", { eventPk });
   try {
     const response = await axios.delete(url);
     result.data = response.data;
