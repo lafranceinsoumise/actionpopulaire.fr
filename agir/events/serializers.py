@@ -1,4 +1,5 @@
 from datetime import timedelta
+
 from rest_framework import serializers
 
 from agir.front.serializer_utils import MediaURLField, RoutesField
@@ -11,19 +12,39 @@ from agir.lib.serializers import (
     CurrentPersonDefault,
 )
 from . import models
-from .actions.legal import needs_approval
-from .models import OrganizerConfig, RSVP, Event, EventSubtype
+from .models import Event, EventSubtype
+from .models import OrganizerConfig, RSVP
 from .tasks import (
     send_event_creation_notification,
     send_secretariat_notification,
     geocode_event,
 )
-from ..groups.tasks import notify_new_group_event
-from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
 from ..groups.models import Membership, SupportGroup
+from ..groups.serializers import SupportGroupDetailSerializer
+from ..groups.serializers import SupportGroupSerializer
+from ..groups.tasks import notify_new_group_event
+from ..lib.utils import admin_url
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
+    iconName = serializers.SerializerMethodField()
+    icon = serializers.SerializerMethodField()
+    color = serializers.SerializerMethodField()
+
+    def get_iconName(self, obj):
+        return obj.icon_name or obj.TYPES_PARAMETERS[obj.type]["icon_name"]
+
+    def get_color(self, obj):
+        return obj.color or obj.TYPES_PARAMETERS[obj.type]["color"]
+
+    def get_icon(self, obj):
+        if obj.icon:
+            return {
+                "iconUrl": obj.icon.url,
+                "iconAnchor": [obj.icon_anchor_x or 0, obj.icon_anchor_y or 0],
+                "popupAnchor": obj.popup_anchor_y,
+            }
+
     iconName = serializers.CharField(source="icon_name")
 
     class Meta:
@@ -81,6 +102,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "location",
         "rsvp",
         "routes",
+        "subtype",
     ]
 
     id = serializers.UUIDField()
@@ -116,7 +138,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     forUsers = serializers.CharField(source="for_users")
 
-    canRSVP = serializers.SerializerMethodField()
+    hasRightSubscription = serializers.SerializerMethodField()
+
+    subtype = EventSubtypeSerializer()
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -157,17 +181,28 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_rsvp(self, obj):
         return self.rsvp and self.rsvp.status
 
-    def get_canRSVP(self, obj):
+    def get_hasRightSubscription(self, obj):
         user = self.context["request"].user
         if hasattr(user, "person"):
             return obj.can_rsvp(user.person)
         return None
 
     def get_compteRenduPhotos(self, obj):
-        return [instance.image.thumbnail.url for instance in obj.images.all()]
+        return [
+            {
+                "image": instance.image.url,
+                "thumbnail": instance.image.thumbnail.url,
+                "legend": instance.legend,
+            }
+            for instance in obj.images.all()
+        ]
 
     def get_routes(self, obj):
         routes = {}
+        user = self.context["request"].user
+
+        if user.is_staff and user.has_perm("events.change_event"):
+            routes["admin"] = admin_url("events_event_change", args=[obj.pk])
 
         if obj.facebook:
             routes["facebook"] = f"https://www.facebook.com/events/{obj.facebook}"

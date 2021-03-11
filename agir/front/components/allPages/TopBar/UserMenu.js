@@ -17,12 +17,11 @@ const IconLink = styled(Link)``;
 const StyledUserMenu = styled.div`
   margin: -1rem;
   padding: 1.5rem 0 0;
-  min-width: 300px;
+  text-align: center;
+  cursor: default;
 
   @media (max-width: ${style.collapse}px) {
-    margin: 0;
     padding: 1.5rem 0;
-    text-align: center;
     margin: 0 auto;
   }
 

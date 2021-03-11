@@ -9,23 +9,58 @@ import Button from "@agir/front/genericComponents/Button";
 import Collapsible from "@agir/front/genericComponents/Collapsible.js";
 
 const DescriptionSection = styled.div`
-  margin: 0 0 2rem;
+  margin: 0;
 
   &:empty {
     margin: 0;
+  }
+
+  & + & {
+    margin-top: 1rem;
   }
 
   & > * {
     margin-top: 0;
     margin-bottom: 1rem;
 
-    &:empty {
+    &:empty,
+    &:last-child {
       margin-bottom: 0;
     }
   }
 
   h2 {
     font-size: 1.25rem;
+  }
+`;
+
+const Thumbnails = styled.div`
+  display: grid;
+  grid-gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, 160px);
+  grid-auto-rows: 160px;
+  align-items: center;
+  justify-items: center;
+
+  a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  img {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    transform: scale(1);
+    transition: transform 100ms ease-in-out;
+
+    &:hover,
+    &:focus {
+      transform: scale(1.01);
+      transform-origin: center center;
+    }
   }
 `;
 
@@ -48,16 +83,28 @@ const EventDescription = ({
           <DescriptionSection>
             <h2>Photos de l'événement</h2>
             {compteRenduPhotos.length > 0 ? (
-              <Row gutter={12}>
-                {compteRenduPhotos.map((url, key) => (
-                  <Column collapse={500} key={key} width={["50%", "content"]}>
+              <Thumbnails>
+                {compteRenduPhotos.map((url) => (
+                  <a
+                    key={url.image}
+                    href={url.image}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
                     <img
-                      src={url}
-                      alt="Photo de l'événement postée par l'utilisateur"
+                      src={url.thumbnail}
+                      alt={
+                        url.legend ||
+                        "Photo de l'événement postée par l'utilisateur"
+                      }
+                      title={
+                        url.legend ||
+                        "Photo de l'événement postée par l'utilisateur"
+                      }
                     />
-                  </Column>
+                  </a>
                 ))}
-              </Row>
+              </Thumbnails>
             ) : (
               <p>Il n'y a pas encore de photo de cet événement.</p>
             )}
@@ -144,7 +191,12 @@ const EventDescription = ({
 
 EventDescription.propTypes = {
   compteRendu: PropTypes.string,
-  compteRenduPhotos: PropTypes.arrayOf(PropTypes.string),
+  compteRenduPhotos: PropTypes.arrayOf(
+    PropTypes.shape({
+      image: PropTypes.string,
+      thumbnail: PropTypes.string,
+    })
+  ),
   illustration: PropTypes.string,
   description: PropTypes.string,
   isOrganizer: PropTypes.bool,

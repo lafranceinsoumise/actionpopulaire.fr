@@ -5,7 +5,12 @@ import styled, { keyframes } from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import logger from "@agir/lib/utils/logger";
+
+import { fontIsLoaded } from "../map/utils";
 import { createMap } from "../map/common";
+
+const log = logger(__filename);
 
 const skeleton = keyframes`
   to {
@@ -81,22 +86,27 @@ const Map = (props) => {
   const mapObject = useRef(null);
 
   const mapRef = useCallback(
-    (mapElement) => {
+    async (mapElement) => {
       if (mapObject.current && mapElement) {
         mapObject.current.getView().setCenter(proj.fromLonLat(center));
         mapObject.current.getView().setZoom(zoom);
         setIsLoaded(true);
       } else if (mapElement) {
-        mapObject.current = createMap(
-          center,
-          zoom,
-          mapElement,
-          iconConfiguration,
-          isStatic
-        );
-        mapObject.current.once("postrender", () => {
-          setIsLoaded(true);
-        });
+        try {
+          await fontIsLoaded("FontAwesome");
+          mapObject.current = createMap(
+            center,
+            zoom,
+            mapElement,
+            iconConfiguration,
+            isStatic
+          );
+          mapObject.current.once("postrender", () => {
+            setIsLoaded(true);
+          });
+        } catch (e) {
+          log.error(e.message);
+        }
       }
     },
     [center, zoom, iconConfiguration, isStatic]

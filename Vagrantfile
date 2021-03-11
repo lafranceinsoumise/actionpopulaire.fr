@@ -23,8 +23,7 @@ Vagrant.configure("2") do |config|
   # using a specific IP.
   config.vm.network "private_network", ip: "192.168.33.12"
 
-
-  NOW = Time.now.strftime("%d.%m.%Y.%H:%M:%S")
+  NOW = Time.now.strftime("%d.%m.%Y.%H-%M-%S")
   FILENAME = "serial-debug-%s.log" % NOW
 
   # Provider-specific configuration so you can fine-tune various

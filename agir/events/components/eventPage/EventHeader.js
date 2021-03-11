@@ -1,16 +1,23 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import { Interval, DateTime } from "luxon";
+import { mutate } from "swr";
+import { DateTime, Interval } from "luxon";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getRoutes, getIsConnected } from "@agir/front/globalContext/reducers";
+import { getIsConnected, getRoutes } from "@agir/front/globalContext/reducers";
+import * as api from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
-import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 import { displayHumanDate } from "@agir/lib/utils/time";
+
+import QuitEventButton from "./QuitEventButton";
+
+import logger from "@agir/lib/utils/logger";
+
+const log = logger(__filename);
 
 const EventHeaderContainer = styled.div`
   @media (min-width: ${style.collapse}px) {
@@ -43,40 +50,96 @@ const SmallText = styled.div`
   font-color: ${style.black500};
 `;
 
-/* Bouton qui prend 100 % de la largeur en petits écrans */
-const ActionButton = styled(Button)`
-  margin: 0.5rem 0;
-  display: block;
-  width: 100%;
-
-  @media only screen and (min-width: 501px) {
-    display: inline-block;
-    width: auto;
-
-    & + & {
-      margin-left: 0.5rem;
-    }
-  }
-`;
-
+const ActionButton = styled(Button)``;
 const ActionLink = styled.a`
   font-weight: 700;
   text-decoration: underline;
 `;
 
+const StyledActionButtons = styled.div`
+  display: inline-grid;
+  grid-gap: 0.5rem;
+  grid-template-columns: auto auto;
+  padding: 0.5rem 0;
+
+  @media (max-width: ${style.collapse}px) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  ${Button} {
+    margin: 0;
+    justify-content: center;
+
+    && *,
+    && *::before {
+      flex: 0 0 auto;
+    }
+  }
+
+  ${Button} + ${Button} {
+    margin-left: 0;
+  }
+`;
+
+const RSVPButton = (props) => {
+  const { id, forUsers } = props;
+  const [isLoading, setIsLoading] = useState(false);
+  const globalRoutes = useSelector(getRoutes);
+  const handleRSVP = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setIsLoading(true);
+
+      if (!props.hasRightSubscription) {
+        log.debug("Has not right subscribtion, redirection.");
+        window.location.href = `${globalRoutes.join}?type=${forUsers}`;
+        return;
+      }
+
+      try {
+        const response = await api.rsvpEvent(id);
+        if (response.error) {
+          log.error(response.error);
+          await mutate(api.getEventEndpoint("getEvent", { eventPk: id }));
+        }
+      } catch (err) {
+        window.location.reload();
+      }
+
+      setIsLoading(false);
+
+      await mutate(
+        api.getEventEndpoint("getEvent", { eventPk: id }),
+        (event) => ({
+          ...event,
+          rsvped: true,
+        })
+      );
+    },
+    [id, forUsers, globalRoutes]
+  );
+
+  return (
+    <StyledActionButtons>
+      <ActionButton
+        type="submit"
+        color="secondary"
+        disabled={isLoading}
+        onClick={handleRSVP}
+      >
+        Participer à l'événement
+      </ActionButton>
+    </StyledActionButtons>
+  );
+};
+
 const ActionButtons = (props) => {
-  const {
-    hasSubscriptionForm,
-    past,
-    rsvped,
-    logged,
-    isOrganizer,
-    routes,
-  } = props;
+  const { past, rsvped, logged, isOrganizer, routes } = props;
 
   if (past) {
     return (
-      <>
+      <StyledActionButtons>
         <Button disabled color="unavailable">
           Événement terminé
         </Button>
@@ -85,21 +148,23 @@ const ActionButtons = (props) => {
             Gérer l'événement
           </ActionButton>
         )}
-      </>
+      </StyledActionButtons>
     );
   }
 
   if (!logged) {
     return (
-      <ActionButton color="secondary" disabled={true}>
-        Participer à l'événement
-      </ActionButton>
+      <StyledActionButtons>
+        <ActionButton color="secondary" disabled={true}>
+          Participer à l'événement
+        </ActionButton>
+      </StyledActionButtons>
     );
   }
 
   if (rsvped) {
     return (
-      <>
+      <StyledActionButtons>
         <ActionButton icon="check" color="confirmed">
           Je participe
         </ActionButton>
@@ -108,27 +173,14 @@ const ActionButtons = (props) => {
             Gérer l'événement
           </ActionButton>
         )}
-      </>
+      </StyledActionButtons>
     );
   }
 
-  if (hasSubscriptionForm) {
-    return (
-      <ActionButton as="a" color="secondary" href={`${routes.rsvp}`}>
-        Participer à l'événement
-      </ActionButton>
-    );
-  }
-
-  return (
-    <CSRFProtectedForm method="post" action={routes.rsvp}>
-      <ActionButton type="submit" color="secondary">
-        Participer à l'événement
-      </ActionButton>
-    </CSRFProtectedForm>
-  );
+  return <RSVPButton {...props} />;
 };
-ActionButtons.propTypes = {
+RSVPButton.propTypes = ActionButtons.propTypes = {
+  id: PropTypes.string,
   hasSubscriptionForm: PropTypes.bool,
   past: PropTypes.bool,
   rsvped: PropTypes.bool,
@@ -140,7 +192,15 @@ ActionButtons.propTypes = {
   }),
 };
 
-const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
+const AdditionalMessage = ({
+  id,
+  name,
+  logged,
+  rsvped,
+  price,
+  routes,
+  forUsers,
+}) => {
   if (!logged) {
     return (
       <div>
@@ -154,11 +214,7 @@ const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
   }
 
   if (rsvped) {
-    return (
-      <SmallText>
-        <a href={routes.cancel}>Annuler ma participation</a>
-      </SmallText>
-    );
+    return <QuitEventButton id={id} name={name} />;
   }
 
   if (price) {
@@ -171,10 +227,12 @@ const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
   }
 
   return (
-    <SmallText>Votre email sera communiquée à l'organisateur.rice</SmallText>
+    <SmallText>Votre email sera communiqué à l'organisateur·ice</SmallText>
   );
 };
 AdditionalMessage.propTypes = {
+  id: PropTypes.string,
+  name: PropTypes.string,
   hasSubscriptionForm: PropTypes.bool,
   past: PropTypes.bool,
   rsvped: PropTypes.bool,
@@ -186,14 +244,15 @@ AdditionalMessage.propTypes = {
 };
 
 const EventHeader = ({
+  id,
   name,
   rsvp,
   options,
   schedule,
   routes,
   isOrganizer,
-  hasSubscriptionForm,
   forUsers,
+  hasRightSubscription,
 }) => {
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
@@ -211,16 +270,19 @@ const EventHeader = ({
         <EventDate>{eventString}</EventDate>
       </Hide>
       <ActionButtons
-        hasSubscriptionForm={hasSubscriptionForm}
+        id={id}
         past={past}
         logged={logged}
         rsvped={rsvped}
         routes={routes}
         isOrganizer={isOrganizer}
         forUsers={forUsers}
+        hasRightSubscription={hasRightSubscription}
       />
       {!past && (
         <AdditionalMessage
+          id={id}
+          name={name}
           past={past}
           logged={logged}
           rsvped={rsvped}
@@ -234,6 +296,7 @@ const EventHeader = ({
 };
 
 EventHeader.propTypes = {
+  id: PropTypes.string,
   name: PropTypes.string,
   schedule: PropTypes.instanceOf(Interval),
   hasSubscriptionForm: PropTypes.bool,
@@ -244,7 +307,7 @@ EventHeader.propTypes = {
   rsvp: PropTypes.string,
   routes: PropTypes.object,
   forUsers: PropTypes.string,
-  canRSVP: PropTypes.bool,
+  hasRightSubscription: PropTypes.bool,
 };
 
 export default EventHeader;

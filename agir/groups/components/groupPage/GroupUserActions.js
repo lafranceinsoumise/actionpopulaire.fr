@@ -1,11 +1,13 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
+import { mutate } from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import * as api from "@agir/groups/groupPage/api";
+
 import Button from "@agir/front/genericComponents/Button";
-import CSRFProtectedForm from "@agir/front/genericComponents/CSRFProtectedForm";
 import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
@@ -200,22 +202,6 @@ const StyledContent = styled.div`
   }
 `;
 
-const StyledAdminButton = styled.div`
-  width: 100%;
-  margin-bottom: 0.75rem;
-  text-align: center;
-
-  ${Button} {
-    justify-content: center;
-    width: 100%;
-    cursor: pointer;
-
-    @media (max-width: ${style.collapse}px) {
-      width: auto;
-    }
-  }
-`;
-
 const ManagerActions = (props) => {
   const { is2022 = false, routes } = props;
 
@@ -256,7 +242,7 @@ const ManagerActions = (props) => {
               <a href={routes.settings}>Informations</a>
             </li>
           )}
-          {routes.members && (
+          {routes.animation && (
             <li>
               <RawFeatherIcon
                 small
@@ -264,7 +250,7 @@ const ManagerActions = (props) => {
                 color={style.primary500}
                 name="lock"
               />
-              <a href={routes.members}>Animateur·ices et gestionnaires</a>
+              <a href={routes.animation}>Animateur·ices et gestionnaires</a>
             </li>
           )}
           {routes.financement && (
@@ -411,42 +397,56 @@ const MemberActions = (props) => {
 };
 
 const NonMemberActions = (props) => {
-  const { is2022 = false, routes } = props;
+  const { id, is2022 = false } = props;
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setIsLoading(true);
+      let redirectTo = "";
+      try {
+        const response = await api.joinGroup(id);
+        if (response.error) {
+          redirectTo = response.error.redirectTo;
+        }
+      } catch (err) {
+        // Reload current page if an unhandled error occurs
+        window.location.reload();
+      }
+      if (redirectTo) {
+        window.location = redirectTo;
+        return;
+      }
+      setIsLoading(false);
+      mutate(
+        api.getGroupPageEndpoint("getGroup", { groupPk: id }),
+        (group) => ({ ...group, isMember: true })
+      );
+    },
+    [id]
+  );
 
   return (
     <StyledContent>
-      <CSRFProtectedForm method="post" action={(routes && routes.join) || ""}>
-        <input type="hidden" name="action" value="join" />
-        <Button type="submit" color="success">
+      <form onSubmit={handleSubmit}>
+        <Button type="submit" color="success" disabled={isLoading}>
           Rejoindre {is2022 ? "l'équipe" : "le groupe"}
         </Button>
-      </CSRFProtectedForm>
+      </form>
       <p>Votre email sera communiqué aux animateur·ices</p>
     </StyledContent>
   );
 };
 
 const GroupUserActions = (props) => {
-  let Actions = NonMemberActions;
-
   if (props.isManager) {
-    Actions = ManagerActions;
-  } else if (props.isMember) {
-    Actions = MemberActions;
+    return <ManagerActions {...props} />;
   }
-
-  return (
-    <>
-      {props.routes && props.routes.admin && (
-        <StyledAdminButton>
-          <Button as="a" href={props.routes.admin} icon="settings" inline small>
-            Administration
-          </Button>
-        </StyledAdminButton>
-      )}
-      <Actions {...props} />
-    </>
-  );
+  if (props.isMember) {
+    return <MemberActions {...props} />;
+  }
+  return <NonMemberActions {...props} />;
 };
 
 ManagerActions.propTypes = MemberActions.propTypes = NonMemberActions.propTypes = GroupUserActions.propTypes = {

@@ -1,8 +1,10 @@
 {% load static %}
 <link rel="apple-touch-icon" sizes="180x180" href="{% static "front/assets/apple-touch-icon.png" %}" />
-<link rel="icon" type="image/png" sizes="32x32" href="{% static "front/assets/favicon-32x32.png" %}" />
-<link rel="icon" type="image/png" sizes="16x16" href="{% static "front/assets/favicon-16x16.png" %}" />
+
 <link rel="icon" type="image/png" href="{% static "front/assets/favicon.ico" %}" />
+<link rel="icon" type="image/png" sizes="16x16" href="{% static "front/assets/favicon-16x16.png" %}" />
+<link rel="icon" type="image/png" sizes="32x32" href="{% static "front/assets/favicon-32x32.png" %}" />
+
 <link rel="mask-icon" href="{% static "front/assets/safari-pinned-tab.svg" %}" color="#5bbad5">
 <meta name="msapplication-TileImage" content="{% static "front/assets/mstile-150x150.png" %}" />
 <meta name="msapplication-TileColor" content="#ffffff" />
@@ -11,20 +13,25 @@
 <script>
   // Change favicon on light/dark mode changes (if supported)
   (function () {
+    var lightFavicons = [
+      "{% static "front/assets/favicon.ico" %}",
+      "{% static "front/assets/favicon-16x16.png" %}",
+      "{% static "front/assets/favicon-32x32.png" %}"
+    ];
+    var darkFavicons = [
+      "{% static "front/assets/dark-favicon.ico" %}",
+      "{% static "front/assets/dark-favicon-16x16.png" %}",
+      "{% static "front/assets/dark-favicon-32x32.png" %}"
+    ];
     var darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     function handleDarkmode(e){
       var darkModeOn = e.matches;
+
       var favicons = document.querySelectorAll('link[rel="icon"]');
-      if (!favicons || favicons.length === 0) {
-        return;
-      }
-      for (var i =0; favicons[i]; i++) {
+      for (var i = 0; favicons[i]; i++) {
         favicons[i].href = darkModeOn
-          ? favicons[i].href
-            .replace("/dark-favicon", "/favicon")
-            .replace("/favicon", "/dark-favicon")
-          : favicons[i].href = favicons[i].href
-            .replace("/dark-favicon", "/favicon");
+          ? darkFavicons[i] || favicons[i].href
+          : lightFavicons[i] || favicons[i].href
       }
     }
     handleDarkmode(darkModeMediaQuery);

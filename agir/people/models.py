@@ -113,6 +113,8 @@ def get_default_display_name(
         base = last_name[:2]
     elif email:
         base = email[:2]
+    else:
+        return "?"
 
     return base.upper()
 
