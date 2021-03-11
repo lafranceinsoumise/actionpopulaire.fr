@@ -48,7 +48,7 @@ const MainBlock = styled.div`
     justify-content: center;
     font-weight: normal;
     background-color: white;
-    border: 1px solid #C4C4C4;
+    border: 1px solid #c4c4c4;
   }
 
   @media (max-width: ${style.collapse}px) {
@@ -87,35 +87,35 @@ const mockMails = ["mgoaziou@gmail.com"];
 const Login = () => {
   return (
     <>
-    <div
-      style={{
-        boxSizing: "border-box",
-        margin: "0 auto",
-        marginTop: "24px",
-      }}
-    >
-      <TextField
-        error=""
-        id="field"
-        label="Adresse e-mail"
-        placeholder="Adresse e-mail"
-        onChange={() => {}}
-        value=""
-      />
-    </div>
-    <Button
-      color="primary"
-      style={{
-        marginTop: "0.5rem",
-        maxWidth: "100%",
-        width: "400px",
-        justifyContent: "center",
-      }}
-    >
-      Me connecter
-    </Button>
+      <div
+        style={{
+          boxSizing: "border-box",
+          margin: "0 auto",
+          marginTop: "24px",
+        }}
+      >
+        <TextField
+          error=""
+          id="field"
+          label="Adresse e-mail"
+          placeholder="Adresse e-mail"
+          onChange={() => {}}
+          value=""
+        />
+      </div>
+      <Button
+        color="primary"
+        style={{
+          marginTop: "0.5rem",
+          maxWidth: "100%",
+          width: "400px",
+          justifyContent: "center",
+        }}
+      >
+        Me connecter
+      </Button>
     </>
-  )
+  );
 };
 
 const FacebookLogin = () => {
@@ -129,14 +129,30 @@ const FacebookLogin = () => {
 
 const ToastNotConnected = () => {
   return (
-  <div style={{ padding: "16px", border: "1px solid #000A2C", position: "relative", marginTop: "32px" }}>
-    <div style={{position: "absolute", left: "0", top: "0", height: "100%", width: "6px", backgroundColor: "#E93A55"}}></div>
-    Vous devez vous connecter pour accéder à cette page
-  </div>);
+    <div
+      style={{
+        padding: "16px",
+        border: "1px solid #000A2C",
+        position: "relative",
+        marginTop: "32px",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          left: "0",
+          top: "0",
+          height: "100%",
+          width: "6px",
+          backgroundColor: "#E93A55",
+        }}
+      ></div>
+      Vous devez vous connecter pour accéder à cette page
+    </div>
+  );
 };
 
 const Connexion = () => {
-
   const [existantMails, setExistantMails] = useState(mockMails);
   const [showMore, setShowMore] = useState(false);
 
@@ -166,7 +182,7 @@ const Connexion = () => {
           </div>
 
           {/* <img src={bgDesktop} style={{width: "100%", marginTop: "100px"}} alt=""/> */}
-          <div style={{width:"100%", height:"450px"}}></div>
+          <div style={{ width: "100%", height: "450px" }}></div>
 
           <div
             style={{
@@ -183,10 +199,23 @@ const Connexion = () => {
         </LeftBlock>
 
         <MainBlock>
-
-          <InlineBlock style={{ width: "400px", maxWidth: "100%", paddingLeft: "32px", paddingRight: "32px" }}>
-            <div className="mobile-only" style={{ textAlign: "center", marginTop: "69px" }}>
-              <img src={logoMobile} style={{ width: "69px", marginBottom: "24px" }} alt="" />
+          <InlineBlock
+            style={{
+              width: "400px",
+              maxWidth: "100%",
+              paddingLeft: "32px",
+              paddingRight: "32px",
+            }}
+          >
+            <div
+              className="mobile-only"
+              style={{ textAlign: "center", marginTop: "69px" }}
+            >
+              <img
+                src={logoMobile}
+                style={{ width: "69px", marginBottom: "24px" }}
+                alt=""
+              />
             </div>
             <h1>Je me connecte</h1>
 
@@ -201,51 +230,77 @@ const Connexion = () => {
             <ToastNotConnected />
 
             {/* EXISTANT MAILS */}
-            {(existantMails.length > 0) &&
-            <div style={{marginTop: "24px"}}>
-              <span style={{fontWeight:500}}>À mon compte :</span>
-                
-              {existantMails.map((mail, id) => (
-              <Button
-                key={id}
-                color="primary"
+            {existantMails.length > 0 && (
+              <div style={{ marginTop: "24px" }}>
+                <span style={{ fontWeight: 500 }}>À mon compte :</span>
+
+                {existantMails.map((mail, id) => (
+                  <Button
+                    key={id}
+                    color="primary"
+                    style={{
+                      marginTop: "0.5rem",
+                      marginLeft: "0px",
+                      maxWidth: "100%",
+                      width: "400px",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    {mail}
+                    <img src={arrowRight} style={{ color: "white" }} alt="" />
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {!showMore && (
+              <InlineBlock
+                onClick={handleShowMore}
                 style={{
-                  marginTop: "0.5rem",
-                  marginLeft: "0px",
-                  maxWidth: "100%",
-                  width: "400px",
-                  justifyContent: "space-between",
+                  fontWeight: "700",
+                  color: style.primary500,
+                  marginTop: "21px",
+                  cursor: "pointer",
                 }}
               >
-                {mail}
-                <img src={arrowRight} style={{color:"white"}} alt=""/>
-              </Button>
-              ))}
-            </div>}
-
-            {!showMore && <InlineBlock onClick={handleShowMore}
-                style={{fontWeight: "700", color: style.primary500, marginTop: "21px", cursor: "pointer" }}>
-                Afficher tout <img src={chevronDown} alt=""/>
-            </InlineBlock>}
-
-            {showMore && 
-            <div style={{ textAlign: "center", margin: "6px", fontSize: "14px" }} >
-              OU
-            </div>}
-
-            {(showMore || !(existantMails.length > 0)) && <>
-            <Login />
-            <div style={{ textAlign: "center", margin: "21px", fontSize: "14px" }} >OU</div>
-            <FacebookLogin />
-            </>}
-
-            {showMore && <div className="mobile-center" style={{marginTop: "24px"}}>
-              Pas encore de compte ? <br/>
-              <InlineBlock style={{fontWeight: "700", color: style.primary500}}>
-                  Rejoignez Action Populaire
+                Afficher tout <img src={chevronDown} alt="" />
               </InlineBlock>
-            </div>}
+            )}
 
+            {showMore && (
+              <div
+                style={{ textAlign: "center", margin: "6px", fontSize: "14px" }}
+              >
+                OU
+              </div>
+            )}
+
+            {(showMore || !(existantMails.length > 0)) && (
+              <>
+                <Login />
+                <div
+                  style={{
+                    textAlign: "center",
+                    margin: "21px",
+                    fontSize: "14px",
+                  }}
+                >
+                  OU
+                </div>
+                <FacebookLogin />
+              </>
+            )}
+
+            {showMore && (
+              <div className="mobile-center" style={{ marginTop: "24px" }}>
+                Pas encore de compte ? <br />
+                <InlineBlock
+                  style={{ fontWeight: "700", color: style.primary500 }}
+                >
+                  Rejoignez Action Populaire
+                </InlineBlock>
+              </div>
+            )}
           </InlineBlock>
 
           <div
@@ -258,7 +313,6 @@ const Connexion = () => {
               backgroundRepeat: "no-repeat",
             }}
           ></div>
-
         </MainBlock>
       </div>
     </>
