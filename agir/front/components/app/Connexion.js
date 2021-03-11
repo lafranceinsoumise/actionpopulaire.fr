@@ -2,10 +2,12 @@ import React from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 
-// import logo from "../genericComponents/images/logoActionPopulaire.png";
-import logo from "../genericComponents/logos/action-populaire_small.svg";
+import logoDesktop from "../genericComponents/logos/action-populaire.svg";
+import logoMobile from "../genericComponents/logos/action-populaire_mini.svg";
+
 import bgDesktop from "../genericComponents/images/login_bg_desktop.svg";
-import facebookImg from "../genericComponents/images/facebook_circle.png";
+import bgMobile from "../genericComponents/images/login_bg_mobile.svg";
+import facebookImg from "../genericComponents/images/facebook_circle.svg";
 
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -19,8 +21,27 @@ const LeftBlock = styled.div`
 
 const MainBlock = styled.div`
   width: 60%;
+
+  h1 {
+    margin: 0px;
+    font-weight: 700;
+    font-size: 40px;
+  }
+
+  .mobile-only {
+    display: none;
+  }
+
   @media (max-width: ${style.collapse}px) {
     width: 100%;
+
+    h1 {
+      font-size: 28px;
+    }
+
+    .mobile-only {
+      display: block;
+    }
   }
 `;
 
@@ -40,19 +61,20 @@ const Connexion = () => {
           }}
         >
           <div style={{ padding: "37px" }}>
-            <img src={logo} alt="" style={{ maxWidth: "400px" }} />
-          </div>
-          <div style={{ textAlign: "center" }}>
-            <InlineBlock
-              style={{
-                maxWidth: "350px",
-                lineHeight: "21px",
-                textAlign: "left",
-              }}
-            >
-              Le réseau social d’action pour la candidature de Jean-Luc
-              Mélenchon <InlineBlock>pour 2022</InlineBlock>
-            </InlineBlock>
+            <img src={logoDesktop} alt="" style={{ width: "200px" }} />
+
+            <div style={{ textAlign: "center" }}>
+              <InlineBlock
+                style={{
+                  maxWidth: "350px",
+                  lineHeight: "21px",
+                  textAlign: "left",
+                }}
+              >
+                Le réseau social d’action pour la candidature de Jean-Luc
+                Mélenchon <InlineBlock>pour 2022</InlineBlock>
+              </InlineBlock>
+            </div>
           </div>
 
           {/* <img src={bgDesktop} style={{width: "100%", marginTop: "100px"}} alt=""/> */}
@@ -78,17 +100,21 @@ const Connexion = () => {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
+            position: "relative",
           }}
         >
           <div style={{ maxWidth: "400px" }}>
-            <h1 style={{ margin: "0px", fontWeight: 700, fontSize: "48px" }}>
-              Connexion
-            </h1>
-            <span style={{ marginTop: "8px" }}>Pas encore de compte ?</span>
-            &nbsp;
-            <span style={{ color: style.primary500, fontWeight: 500 }}>
-              Je m'inscris
-            </span>
+            <div className="mobile-only" style={{ textAlign: "center" }}>
+              <img src={logoMobile} style={{ width: "69px" }} alt="" />
+            </div>
+            <h1>Je me connecte</h1>
+            <InlineBlock style={{ marginTop: "8px" }}>
+              <span>Pas encore de compte ?</span>
+              &nbsp;
+              <span style={{ color: style.primary500, fontWeight: 700 }}>
+                Je m'inscris
+              </span>
+            </InlineBlock>
             <div
               style={{
                 boxSizing: "border-box",
@@ -126,6 +152,8 @@ const Connexion = () => {
                 width: "330px",
                 justifyContent: "center",
                 fontWeight: "normal",
+                backgroundColor: "white",
+                border: "1px solid #C4C4C4",
               }}
             >
               <img
@@ -136,6 +164,25 @@ const Connexion = () => {
               &nbsp; Connexion avec Facebook
             </Button>
           </div>
+
+          <div
+            className="mobile-only"
+            style={{ width: "100%", height: "150px" }}
+          ></div>
+
+          <div
+            className="mobile-only"
+            style={{
+              position: "absolute",
+              bottom: "0px",
+              left: "0px",
+              width: "100%",
+              height: "150px",
+              backgroundImage: `url(${bgMobile})`,
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat",
+            }}
+          ></div>
         </MainBlock>
       </div>
     </>
