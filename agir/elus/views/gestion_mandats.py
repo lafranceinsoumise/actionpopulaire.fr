@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DeleteView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
-from agir.elus import forms, models
+from agir.elus import models, forms
 
 
 class BaseMandatView(SoftLoginRequiredMixin):
