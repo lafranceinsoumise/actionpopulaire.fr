@@ -190,3 +190,25 @@ class CheckCodeTestCase(APITestCase):
         self.assertEqual(res.status_code, 200)
         email = self.person.emails.get_by_natural_key(self.person.email)
         self.assertFalse(email.bounced)
+
+
+class LogoutTestCase(APITestCase):
+    def setUp(self):
+        self.primary_email = "person@email.com"
+        self.person = Person.objects.create(
+            email=self.primary_email, create_role=True, is_insoumise=True, is_2022=True,
+        )
+
+    def test_person_can_logout(self):
+        self.client.force_login(self.person.role)
+        session_res = self.client.get("/api/session/")
+        self.assertIn("user", session_res.data)
+        self.assertIn("email", session_res.data["user"])
+        self.assertEqual(session_res.data["user"]["email"], self.person.email)
+
+        res = self.client.get(f"/api/deconnexion/")
+        self.assertEqual(res.status_code, 200)
+
+        session_res = self.client.get("/api/session/")
+        self.assertIn("user", session_res.data)
+        self.assertEqual(session_res.data["user"], False)

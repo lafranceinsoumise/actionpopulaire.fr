@@ -1,10 +1,11 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
 from rest_framework import exceptions, permissions, status
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from agir.authentication.serializers import SessionSerializer
 from agir.authentication.tasks import send_login_email, send_no_account_email
@@ -17,6 +18,7 @@ __all__ = [
     "SessionContextAPIView",
     "LoginAPIView",
     "CheckCodeAPIView",
+    "LogoutAPIView",
 ]
 
 send_mail_email_bucket = TokenBucket("SendMail", 5, 600)
@@ -133,4 +135,13 @@ class CheckCodeAPIView(CreateAPIView):
         code = request.data.get("code", "").replace(" ", "").upper()
         role = self.validate(email, code)
         self.authenticate(email, role)
+        return Response(status=status.HTTP_200_OK)
+
+
+class LogoutAPIView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    queryset = Person.objects.all()
+
+    def get(self, request):
+        logout(request)
         return Response(status=status.HTTP_200_OK)

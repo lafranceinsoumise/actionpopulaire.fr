@@ -10,6 +10,7 @@ from .views import (
     SessionContextAPIView,
     LoginAPIView,
     CheckCodeAPIView,
+    LogoutAPIView,
 )
 
 
@@ -34,4 +35,5 @@ urlpatterns = [
     path("api/session/", SessionContextAPIView.as_view(), name="api_session"),
     path("api/connexion/", LoginAPIView.as_view(), name="api_login"),
     path("api/connexion/code/", CheckCodeAPIView.as_view(), name="api_check_code"),
+    path("api/deconnexion/", LogoutAPIView.as_view(), name="api_logout"),
 ]
