@@ -26,7 +26,7 @@ FILE_DESC = {
     ),
     "No_et_Voie": Coalesce(
         "person.location_address1",
-        "subscription.meta.first_name",
+        "subscription.meta.location_address1",
         skip=("",),
         default="",
     ),
