@@ -104,6 +104,7 @@ export function makeStyle(config, options = {}) {
           src: markerIcon,
           color: options.color ? config.color : style.primary500,
           scale: 0.75,
+          anchor: [0.5, 1],
         }),
       }),
       new Style({
@@ -111,11 +112,12 @@ export function makeStyle(config, options = {}) {
           opacity: 1,
           src: markerIconBg,
           scale: 0.75,
+          anchor: [0.5, 1],
         }),
       }),
       new Style({
         text: new Text({
-          offsetY: -4,
+          offsetY: -21,
           text: fontawesome(config.iconName),
           font: "normal 16px FontAwesome",
           fill: new Fill({
@@ -150,6 +152,7 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
             src: markerIcon,
             color: style.primary500,
             scale: 0.75,
+            anchor: [0.5, 1],
           }),
         }),
         new Style({
@@ -157,6 +160,7 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
             opacity: 1,
             src: markerIconBg,
             scale: 0.75,
+            anchor: [0.5, 1],
           }),
         }),
       ];

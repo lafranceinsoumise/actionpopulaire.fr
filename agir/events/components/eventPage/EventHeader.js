@@ -2,16 +2,22 @@ import React, { useCallback, useState } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { mutate } from "swr";
-import { Interval, DateTime } from "luxon";
+import { DateTime, Interval } from "luxon";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getRoutes, getIsConnected } from "@agir/front/globalContext/reducers";
+import { getIsConnected, getRoutes } from "@agir/front/globalContext/reducers";
 import * as api from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
 import { displayHumanDate } from "@agir/lib/utils/time";
+
+import QuitEventButton from "./QuitEventButton";
+
+import logger from "@agir/lib/utils/logger";
+
+const log = logger(__filename);
 
 const EventHeaderContainer = styled.div`
   @media (min-width: ${style.collapse}px) {
@@ -77,42 +83,53 @@ const StyledActionButtons = styled.div`
 `;
 
 const RSVPButton = (props) => {
-  const { id } = props;
+  const { id, forUsers } = props;
   const [isLoading, setIsLoading] = useState(false);
-  const handleSubmit = useCallback(
+  const globalRoutes = useSelector(getRoutes);
+  const handleRSVP = useCallback(
     async (e) => {
       e.preventDefault();
       setIsLoading(true);
-      let redirectTo = "";
+
+      if (!props.hasRightSubscription) {
+        log.debug("Has not right subscribtion, redirection.");
+        window.location.href = `${globalRoutes.join}?type=${forUsers}`;
+        return;
+      }
+
       try {
         const response = await api.rsvpEvent(id);
         if (response.error) {
-          redirectTo = response.error.redirectTo;
+          log.error(response.error);
+          await mutate(api.getEventEndpoint("getEvent", { eventPk: id }));
         }
       } catch (err) {
-        // Reload current page if an unhandled error occurs
         window.location.reload();
       }
-      if (redirectTo) {
-        window.location = redirectTo;
-        return;
-      }
+
       setIsLoading(false);
-      mutate(api.getEventEndpoint("getEvent", { eventPk: id }), (event) => ({
-        ...event,
-        rsvped: true,
-      }));
+
+      await mutate(
+        api.getEventEndpoint("getEvent", { eventPk: id }),
+        (event) => ({
+          ...event,
+          rsvped: true,
+        })
+      );
     },
-    [id]
+    [id, forUsers, globalRoutes]
   );
 
   return (
     <StyledActionButtons>
-      <form onSubmit={handleSubmit}>
-        <ActionButton type="submit" color="secondary" disabled={isLoading}>
-          Participer à l'événement
-        </ActionButton>
-      </form>
+      <ActionButton
+        type="submit"
+        color="secondary"
+        disabled={isLoading}
+        onClick={handleRSVP}
+      >
+        Participer à l'événement
+      </ActionButton>
     </StyledActionButtons>
   );
 };
@@ -175,7 +192,15 @@ RSVPButton.propTypes = ActionButtons.propTypes = {
   }),
 };
 
-const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
+const AdditionalMessage = ({
+  id,
+  name,
+  logged,
+  rsvped,
+  price,
+  routes,
+  forUsers,
+}) => {
   if (!logged) {
     return (
       <div>
@@ -189,11 +214,7 @@ const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
   }
 
   if (rsvped) {
-    return (
-      <SmallText>
-        <a href={routes.cancel}>Annuler ma participation</a>
-      </SmallText>
-    );
+    return <QuitEventButton id={id} name={name} />;
   }
 
   if (price) {
@@ -210,6 +231,8 @@ const AdditionalMessage = ({ logged, rsvped, price, routes, forUsers }) => {
   );
 };
 AdditionalMessage.propTypes = {
+  id: PropTypes.string,
+  name: PropTypes.string,
   hasSubscriptionForm: PropTypes.bool,
   past: PropTypes.bool,
   rsvped: PropTypes.bool,
@@ -229,6 +252,7 @@ const EventHeader = ({
   routes,
   isOrganizer,
   forUsers,
+  hasRightSubscription,
 }) => {
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
@@ -253,9 +277,12 @@ const EventHeader = ({
         routes={routes}
         isOrganizer={isOrganizer}
         forUsers={forUsers}
+        hasRightSubscription={hasRightSubscription}
       />
       {!past && (
         <AdditionalMessage
+          id={id}
+          name={name}
           past={past}
           logged={logged}
           rsvped={rsvped}
@@ -280,7 +307,7 @@ EventHeader.propTypes = {
   rsvp: PropTypes.string,
   routes: PropTypes.object,
   forUsers: PropTypes.string,
-  canRSVP: PropTypes.bool,
+  hasRightSubscription: PropTypes.bool,
 };
 
 export default EventHeader;
