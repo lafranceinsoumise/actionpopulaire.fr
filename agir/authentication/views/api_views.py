@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate, login
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
@@ -10,15 +11,17 @@ from agir.authentication.tasks import send_login_email, send_no_account_email
 from agir.authentication.tokens import short_code_generator
 from agir.lib.token_bucket import TokenBucket
 from agir.lib.utils import get_client_ip
-from agir.people.models import Person
+from agir.people.models import Person, PersonEmail
 
 __all__ = [
     "SessionContextAPIView",
     "LoginAPIView",
+    "CheckCodeAPIView",
 ]
 
 send_mail_email_bucket = TokenBucket("SendMail", 5, 600)
 send_mail_ip_bucket = TokenBucket("SendMailIP", 5, 600)
+check_short_code_bucket = TokenBucket("CheckShortCode", 5, 180)
 
 
 class SessionContextAPIView(RetrieveAPIView):
@@ -71,4 +74,63 @@ class LoginAPIView(CreateAPIView):
         email = request.data.get("email", "").lower()
         self.validate(email)
         self.send_authentication_email(email)
+        return Response(status=status.HTTP_200_OK)
+
+
+class CheckCodeAPIView(CreateAPIView):
+    permission_classes = (permissions.AllowAny,)
+    queryset = Person.objects.all()
+    messages = {
+        "invalid_format": "Le code que vous avez entré n'est pas au bon format. Il est constitué de 5 lettres ou"
+        " chiffres et se trouve dans l'email qui vous a été envoyé.",
+        "invalid_code": "Le code que vous avez entré n'est pas ou plus valide. Vérifiez que vous l'avez saisi"
+        " correctement, et qu'il est bien valide, comme indiqué dans l'email reçu.",
+        "throttled": "Vous avez fait plusieurs tentatives de connexions erronées d'affilée. Merci de patienter un"
+        " peu avant de retenter.",
+    }
+
+    def validate(self, email, code):
+        if not short_code_generator.is_allowed_pattern(code):
+            raise exceptions.ValidationError(
+                detail={"code": self.messages["invalid_format"]}, code="invalid_format"
+            )
+        if not check_short_code_bucket.has_tokens(email):
+            raise exceptions.Throttled(
+                detail=self.messages["throttled"], code="throttled"
+            )
+
+        role = authenticate(email=email, short_code=code)
+
+        if not role:
+            raise exceptions.ValidationError(
+                detail={"code": self.messages["invalid_code"]}, code="invalid_code"
+            )
+
+        return role
+
+    def authenticate(self, email, role):
+        login(self.request, role)
+
+        if role.person.primary_email.bounced:
+            try:
+                validated_email_instance = role.person.emails.get_by_natural_key(email)
+            except PersonEmail.DoesNotExist:
+                # en cas de connexion pile au moment de la suppression d'une adresse email...
+                pass
+            else:
+                if validated_email_instance.bounced:
+                    validated_email_instance.bounced = False
+                    validated_email_instance.bounced_date = None
+                    validated_email_instance.save()
+
+                if validated_email_instance != role.person.primary_email:
+                    role.person.set_primary_email(validated_email_instance)
+
+    def post(self, request, *args, **kwargs):
+        email = request.session.get("login_email")
+        if not email:
+            raise exceptions.MethodNotAllowed(method="post", code="method_not_allowed")
+        code = request.data.get("code", "").replace(" ", "").upper()
+        role = self.validate(email, code)
+        self.authenticate(email, role)
         return Response(status=status.HTTP_200_OK)
