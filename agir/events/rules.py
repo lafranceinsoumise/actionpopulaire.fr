@@ -60,7 +60,7 @@ rules.add_perm(
 )
 rules.add_perm(
     "events.delete_rsvp_for_event",
-    is_public_event & is_free_event & is_authenticated_person & has_rsvp_for_event,
+    is_public_event & is_free_event & is_authenticated_person,
 )
 
 
