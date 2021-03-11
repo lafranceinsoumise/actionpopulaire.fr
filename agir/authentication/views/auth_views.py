@@ -10,15 +10,22 @@ from django.utils.http import is_safe_url, urlquote
 from django.utils.safestring import mark_safe
 from django.views.generic import FormView, RedirectView
 from oauth2_provider.views import AuthorizationView
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.permissions import AllowAny
 
+from agir.authentication.forms import EmailForm, CodeForm
 from agir.authentication.utils import is_soft_logged, is_hard_logged
 from agir.authentication.view_mixins import HardLoginRequiredMixin
+from agir.lib.utils import get_client_ip
 from agir.people.models import PersonEmail
-from .forms import EmailForm, CodeForm
-from .serializers import SessionSerializer
-from ..lib.utils import get_client_ip
+
+
+__all__ = [
+    "RedirectToMixin",
+    "LoginView",
+    "CheckCodeView",
+    "DisconnectView",
+    "Oauth2AuthorizationView",
+    "SocialLoginError",
+]
 
 
 def valid_emails(candidate_emails):
@@ -235,12 +242,3 @@ class SocialLoginError(RedirectView):
             )
 
         return super().get(request, *args, **kwargs)
-
-
-class SessionContextAPIView(RetrieveAPIView):
-    permission_classes = (AllowAny,)
-    serializer_class = SessionSerializer
-    queryset = None
-
-    def get_object(self):
-        return self.request
