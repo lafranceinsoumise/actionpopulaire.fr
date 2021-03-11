@@ -279,6 +279,8 @@ class CreateEventAPITestCase(APITestCase):
         )
         self.assertEqual(res.status_code, 422)
         self.assertIn("organizerGroup", res.data)
+
+
 from agir.events.models import Event, RSVP
 from agir.people.models import Person, PersonForm
 
