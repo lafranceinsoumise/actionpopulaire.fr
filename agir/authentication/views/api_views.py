@@ -135,8 +135,9 @@ class CheckCodeAPIView(APIView):
             raise exceptions.MethodNotAllowed(method="post", code="method_not_allowed")
         code = request.data.get("code", "").replace(" ", "").upper()
         role = self.validate(email, code)
+        last_login = role.last_login
         self.do_login(email, role)
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK, data={"lastLogin": last_login,})
 
 
 class LogoutAPIView(APIView):

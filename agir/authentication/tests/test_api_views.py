@@ -172,6 +172,7 @@ class CheckCodeTestCase(APITestCase):
         code, expiry = short_code_generator.generate_short_code(self.person.email)
         res = self.client.post(f"/api/connexion/code/", data={"code": code})
         self.assertEqual(res.status_code, 200)
+        self.assertIn("lastLogin", res.data)
 
         session_res = self.client.get("/api/session/")
         self.assertIn("user", session_res.data)

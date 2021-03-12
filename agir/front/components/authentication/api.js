@@ -29,14 +29,14 @@ export const login = async (email) => {
 
 export const checkCode = async (code) => {
   const result = {
-    success: false,
+    data: null,
     error: null,
   };
   const url = ENDPOINT.checkCode;
   const body = { code };
   try {
     const response = await axios.post(url, body);
-    result.success = response.status === 200;
+    result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
   }
