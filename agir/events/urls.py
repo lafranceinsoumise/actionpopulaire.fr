@@ -3,12 +3,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("evenements/creer/", views.CreateEventView.as_view(), name="create_event"),
-    path(
-        "evenements/creer/form/",
-        views.PerformCreateEventView.as_view(),
-        name="perform_create_event",
-    ),
     path("evenements/liste/", views.EventSearchView.as_view(), name="search_event"),
     path(
         "evenements/<uuid:pk>/participer/",
@@ -92,6 +86,16 @@ urlpatterns = [
         "conference/<int:pk>", views.jitsi_delete_conference_view, name="jitsi_delete"
     ),
     path(
+        "api/evenements/options/",
+        views.EventCreateOptionsAPIView.as_view(),
+        name="api_event_create_options",
+    ),
+    path(
+        "api/evenements/creer/",
+        views.CreateEventAPIView.as_view(),
+        name="api_create_event",
+    ),
+    path(
         "api/evenements/rsvped/",
         views.EventRsvpedAPIView.as_view(),
         name="api_event_rsvped",
@@ -105,5 +109,10 @@ urlpatterns = [
         "api/evenements/<uuid:pk>/",
         views.EventDetailAPIView.as_view(),
         name="api_event_view",
+    ),
+    path(
+        "api/evenements/<uuid:pk>/inscription/",
+        views.RSVPEventAPIView.as_view(),
+        name="api_rsvp_event",
     ),
 ]

@@ -23,6 +23,8 @@ import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
 import Map from "@agir/carte/common/Map";
+import Spacer from "@agir/front/genericComponents/Spacer";
+
 import eventCardDefaultBackground from "@agir/front/genericComponents/images/event-card-default-bg.svg";
 
 const RSVPButton = ({ id, hasSubscriptionForm, rsvped, routes, schedule }) => {
@@ -82,19 +84,25 @@ RSVPButton.propTypes = {
 
 const Buttons = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  line-height: 3.125rem;
+  margin-top: -0.5rem;
 
-  * + ${Button} {
-    margin-left: 0.5rem;
+  ${Button} {
+    margin-top: 0.5rem;
   }
 `;
 const Illustration = styled.div`
   background-color: ${({ $img }) => ($img ? "#e5e5e5" : "#fafafa")};
   display: grid;
   z-index: 0;
+  width: 100%;
   max-width: 270px;
 
   @media (max-width: ${style.collapse}px) {
     margin: -1rem -1rem 1rem;
+    width: calc(100% + 2rem);
     max-width: 100vw;
   }
 
@@ -103,7 +111,7 @@ const Illustration = styled.div`
     grid-row: 1/2;
     z-index: 1;
     max-height: inherit;
-    max-width: inherit;
+    max-width: 100%;
   }
 
   &::before {
@@ -112,17 +120,13 @@ const Illustration = styled.div`
     grid-column: 1/2;
     grid-row: 1/2;
     display: ${({ $img }) => ($img ? "block" : "none")};
-    width: 100%;
     height: 100%;
+    width: 100%;
     background-image: url(${({ $img }) => $img});
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
     opacity: 0.25;
-
-    @media (max-width: ${style.collapse}px) {
-      width: calc(100% - 2rem);
-    }
   }
 
   img {
@@ -133,12 +137,19 @@ const Illustration = styled.div`
 `;
 
 const StyledCard = styled(Card)`
+  width: 100%;
+
   && header {
     margin-bottom: 1.25rem;
   }
 
   ${Row} {
     font-size: 0.875rem;
+    max-width: calc(100% - 2rem);
+  }
+
+  ${Column} {
+    max-width: 100%;
   }
 
   @media only screen and (min-width: ${style.collapse}px) {
@@ -166,6 +177,7 @@ const StyledCard = styled(Card)`
 
     ${Row} {
       padding-bottom: 1.5rem;
+      max-width: auto;
 
       ${Column} {
         padding: 0;
@@ -316,6 +328,7 @@ const EventCard = (props) => {
                 style={{ marginLeft: "0.5rem" }}
               />
             </Button>
+            <Spacer size=".5rem" />
             <RSVPButton
               id={id}
               hasSubscriptionForm={hasSubscriptionForm}
@@ -324,19 +337,22 @@ const EventCard = (props) => {
               schedule={schedule}
             />
             {compteRendu ? (
-              <Button
-                small
-                color="tertiary"
-                icon="file-text"
-                as="Link"
-                to={
-                  routeConfig.eventDetails
-                    ? routeConfig.eventDetails.getLink({ eventPk: id })
-                    : routes.details
-                }
-              >
-                Voir le compte-rendu
-              </Button>
+              <>
+                <Spacer size=".5rem" />
+                <Button
+                  small
+                  color="tertiary"
+                  icon="file-text"
+                  as="Link"
+                  to={
+                    routeConfig.eventDetails
+                      ? routeConfig.eventDetails.getLink({ eventPk: id })
+                      : routes.details
+                  }
+                >
+                  Voir le compte-rendu
+                </Button>
+              </>
             ) : null}
           </Buttons>
         </Column>

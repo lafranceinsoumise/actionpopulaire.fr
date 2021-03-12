@@ -39,6 +39,7 @@ const StyledField = styled.label`
   ${StyledHelpText} {
     grid-row: 2;
     grid-column: 1/3;
+    line-height: 1.5;
   }
 
   ${StyledInput}, ${StyledTextArea} {
@@ -81,7 +82,7 @@ const StyledField = styled.label`
   ${StyledError} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
     grid-row: 4;
-    grid-column: 1/3;
+    grid-column: ${({ $hasCounter }) => ($hasCounter ? "1/2" : "1/3")};
     color: ${style.redNSP};
   }
   ${StyledCounter} {
@@ -125,6 +126,7 @@ const TextField = forwardRef((props, ref) => {
       $valid={!error}
       $invalid={!!error}
       $empty={!!value}
+      $hasCounter={!!maxLength && !!hasCounter}
     >
       {label && <StyledLabel>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}

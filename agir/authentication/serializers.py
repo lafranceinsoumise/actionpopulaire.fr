@@ -17,7 +17,7 @@ class UserContextSerializer(serializers.Serializer):
     firstName = serializers.CharField(source="first_name")
     displayName = serializers.CharField(source="display_name")
     email = serializers.CharField()
-    image = MediaURLField()
+    image = serializers.SerializerMethodField()
     fullName = serializers.SerializerMethodField(method_name="get_full_name")
     isInsoumise = serializers.BooleanField(source="is_insoumise")
     is2022 = serializers.BooleanField(source="is_2022")
@@ -28,6 +28,10 @@ class UserContextSerializer(serializers.Serializer):
 
     def get_full_name(self, obj):
         return obj.get_full_name()
+
+    def get_image(self, obj):
+        if obj.image and obj.image.thumbnail:
+            return obj.image.thumbnail.url
 
 
 class SessionSerializer(serializers.Serializer):

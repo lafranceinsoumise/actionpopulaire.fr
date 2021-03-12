@@ -8,13 +8,14 @@ import {
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
 import {
+  setAdminLink,
   setIs2022,
   setTopBarRightLink,
-  setAdminLink,
 } from "@agir/front/globalContext/actions";
 import {
   getIsConnected,
   getIsSessionLoaded,
+  getUser,
 } from "@agir/front/globalContext/reducers";
 
 import Link from "@agir/front/app/Link";
@@ -42,6 +43,8 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 import logger from "@agir/lib/utils/logger";
+import * as api from "@agir/events/common/api";
+
 const log = logger(__filename);
 
 const GroupCards = styled.div`
@@ -104,22 +107,7 @@ const IndexLinkAnchor = styled(Link)`
     transform: rotate(180deg) translateY(-1.5px);
     transform-origin: center center;
   }
-
-  @media (max-width: ${style.collapse}px) {
-    padding: 0.5rem 1.375rem 0;
-    margin-bottom: -1rem;
-  }
 `;
-const IndexLink = () => (
-  <Row>
-    <Column grow>
-      <IndexLinkAnchor route="events">
-        <span>&#10140;</span>
-        &ensp; Liste des événements
-      </IndexLinkAnchor>
-    </Column>
-  </Row>
-);
 
 const MobileLayout = (props) => {
   return (
@@ -142,7 +130,6 @@ const MobileLayout = (props) => {
               />
             </div>
           )}
-          {props.logged ? <IndexLink /> : null}
           <Card>
             <EventHeader {...props} />
           </Card>
@@ -178,7 +165,16 @@ const DesktopLayout = (props) => {
         width: "100%",
       }}
     >
-      {props.logged ? <IndexLink /> : null}
+      <Row style={{ minHeight: 56 }}>
+        <Column grow>
+          {props.logged && (
+            <IndexLinkAnchor route="events">
+              <span>&#10140;</span>
+              &ensp; Liste des événements
+            </IndexLinkAnchor>
+          )}
+        </Column>
+      </Row>
       <Row gutter={32}>
         <Column grow>
           <div>
@@ -242,7 +238,7 @@ EventPage.propTypes = {
   isOrganizer: PropTypes.bool,
   rsvp: PropTypes.string,
   compteRendu: PropTypes.string,
-  compteRenduPhotos: PropTypes.arrayOf(PropTypes.string),
+  compteRenduPhotos: PropTypes.arrayOf(PropTypes.object),
   illustration: PropTypes.string,
   description: PropTypes.string,
   startTime: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
@@ -308,7 +304,9 @@ export const ConnectedEventPage = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const dispatch = useDispatch();
 
-  const { data: eventData } = useSWR(`/api/evenements/${eventPk}/`);
+  const { data: eventData } = useSWR(
+    api.getEventEndpoint("getEvent", { eventPk })
+  );
   log.debug("Event data", eventData);
 
   let { is2022 } = eventData || {};
@@ -335,7 +333,7 @@ export const ConnectedEventPage = (props) => {
       dispatch(
         setAdminLink({
           href: eventData.routes.admin,
-          label: "Administrtion",
+          label: "Administration",
         })
       );
     }

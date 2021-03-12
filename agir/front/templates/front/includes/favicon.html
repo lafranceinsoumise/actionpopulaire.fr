@@ -26,11 +26,9 @@
     var darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     function handleDarkmode(e){
       var darkModeOn = e.matches;
+
       var favicons = document.querySelectorAll('link[rel="icon"]');
-      if (!favicons || favicons.length === 0) {
-        return;
-      }
-      for (var i =0; favicons[i]; i++) {
+      for (var i = 0; favicons[i]; i++) {
         favicons[i].href = darkModeOn
           ? darkFavicons[i] || favicons[i].href
           : lightFavicons[i] || favicons[i].href

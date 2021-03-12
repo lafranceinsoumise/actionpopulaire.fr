@@ -42,18 +42,20 @@ class NullableCountryField(NullAsBlankMixin, CountryField):
 class LocationSerializer(serializers.Serializer):
     name = serializers.CharField(source="location_name")
     address1 = serializers.CharField(source="location_address1")
-    address2 = serializers.CharField(source="location_address2")
+    address2 = serializers.CharField(
+        source="location_address2", required=False, allow_blank=True
+    )
     zip = serializers.CharField(source="location_zip")
     city = serializers.CharField(source="location_city")
     country = CountryField(source="location_country")
 
     address = serializers.SerializerMethodField()
 
-    shortAddress = serializers.CharField(source="short_address")
+    shortAddress = serializers.CharField(source="short_address", required=False)
 
-    shortLocation = serializers.CharField(source="short_location")
+    shortLocation = serializers.CharField(source="short_location", required=False)
 
-    coordinates = GeometryField()
+    coordinates = GeometryField(required=False)
 
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)
@@ -158,30 +160,30 @@ class NestedContactSerializer(serializers.Serializer):
     """
 
     name = serializers.CharField(
-        label=_("Nom du contact"),
-        required=False,
+        label="Nom du contact",
+        required=True,
         allow_blank=True,
         max_length=255,
         source="contact_name",
     )
 
     email = serializers.EmailField(
-        label=_("Adresse email du contact"),
-        required=False,
+        label="Adresse email du contact",
+        required=True,
         allow_blank=True,
         source="contact_email",
     )
 
     phone = PhoneField(
-        label=_("Numéro de téléphone du contact"),
-        required=False,
+        label="Numéro de téléphone du contact",
+        required=True,
         allow_blank=True,
         max_length=30,
         source="contact_phone",
     )
 
-    hide_phone = serializers.BooleanField(
-        label=_("Ne pas rendre le numéro de téléphone public"),
+    hidePhone = serializers.BooleanField(
+        label="Ne pas rendre le numéro de téléphone public",
         required=False,
         default=False,
         source="contact_hide_phone",
@@ -200,38 +202,37 @@ class NestedLocationSerializer(serializers.Serializer):
     """
 
     name = NullableCharField(
-        label=_("nom du lieu"), max_length=255, required=False, source="location_name"
+        label="nom du lieu", max_length=255, required=True, source="location_name",
     )
     address = NullableCharField(
-        label=_("adresse complète"),
+        label="adresse complète",
         max_length=255,
         required=False,
         source="location_address",
     )
     address1 = NullableCharField(
-        label=_("adresse (1ère ligne)"),
+        label="adresse (1ère ligne)",
         max_length=100,
-        required=False,
+        required=True,
         source="location_address1",
     )
     address2 = NullableCharField(
-        label=_("adresse (2ème ligne)"),
+        label="adresse (2ème ligne)",
         max_length=100,
         required=False,
         source="location_address2",
     )
     city = NullableCharField(
-        label=_("ville"), max_length=100, required=False, source="location_city"
+        label="ville", max_length=100, required=True, source="location_city"
     )
     zip = NullableCharField(
-        label=_("code postal"), max_length=20, required=False, source="location_zip"
+        label="code postal", max_length=20, required=True, source="location_zip"
     )
     state = NullableCharField(
-        label=_("état"), max_length=40, required=False, source="location_state"
+        label="état", max_length=40, required=False, source="location_state"
     )
-
-    country_code = NullableCountryField(
-        label=_("pays"), required=False, source="location_country"
+    country = NullableCountryField(
+        label="pays", required=True, source="location_country"
     )
 
     def __init__(self, instance=None, data=empty, **kwargs):
@@ -356,3 +357,19 @@ class FlexibleFieldsMixin(BaseSerializer):
         if fields is not None:
             for f in set(self.fields).difference(fields):
                 del self.fields[f]
+
+
+class CurrentPersonDefault:
+    """
+    May be applied as a `default=...` value on a serializer field.
+    Returns the current user's person.
+    """
+
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        user = serializer_field.context["request"].user
+        if user is None or user.is_anonymous or not user.person:
+            return None
+
+        return user.person

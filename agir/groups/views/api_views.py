@@ -3,8 +3,9 @@ from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
 from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
+from django.urls import reverse_lazy, reverse
 from rest_framework import status
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
@@ -12,6 +13,7 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
     UpdateAPIView,
     DestroyAPIView,
+    CreateAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -21,9 +23,10 @@ from agir.events.serializers import EventSerializer
 from agir.groups.actions.notifications import (
     new_message_notifications,
     new_comment_notifications,
+    someone_joined_notification,
 )
 from agir.groups.filters import GroupAPIFilterSet
-from agir.groups.models import SupportGroup, SupportGroupSubtype
+from agir.groups.models import SupportGroup, SupportGroupSubtype, Membership
 from agir.groups.serializers import (
     SupportGroupLegacySerializer,
     SupportGroupSubtypeSerializer,
@@ -48,6 +51,7 @@ __all__ = [
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
+    "GroupJoinAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -355,3 +359,50 @@ class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
     def perform_destroy(self, instance):
         instance.deleted = True
         instance.save()
+
+
+class GroupJoinAPIView(CreateAPIView):
+    queryset = SupportGroup.objects.active()
+    permission_ = ("groups.view_supportgroup",)
+
+    def initial(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.check_object_permissions(request, self.object)
+
+        super().initial(request, *args, **kwargs)
+
+    def check_permissions(self, request):
+        if not request.user.is_authenticated or request.user.person is None:
+            raise PermissionDenied(
+                detail={
+                    "redirectTo": f'{reverse_lazy("short_code_login")}?next={reverse("view_group", kwargs={"pk": self.object.pk})}'
+                },
+            )
+        if self.object.is_2022 and not request.user.person.is_2022:
+            raise PermissionDenied(detail={"redirectTo": f'{reverse("join")}?type=2'},)
+        if not self.object.is_2022 and not request.user.person.is_insoumise:
+            raise PermissionDenied(detail={"redirectTo": f'{reverse("join")}?type=I'},)
+        if self.object.is_full:
+            raise PermissionDenied(
+                detail={
+                    "redirectTo": reverse("full_group", kwargs={"pk": self.object.pk})
+                }
+            )
+        if Membership.objects.filter(
+            person=request.user.person, supportgroup=self.object
+        ).exists():
+            raise PermissionDenied(
+                detail={
+                    "redirectTo": reverse("view_group", kwargs={"pk": self.object.pk})
+                },
+            )
+
+    def create(self, request, *args, **kwargs):
+        with transaction.atomic():
+            membership = Membership.objects.create(
+                supportgroup=self.object, person=request.user.person
+            )
+            someone_joined_notification(
+                membership, membership_count=self.object.members_count
+            )
+            return Response(status=status.HTTP_201_CREATED)
