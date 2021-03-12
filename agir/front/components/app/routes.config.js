@@ -33,6 +33,9 @@ const ConnexionPage = lazy(() => import("@agir/front/app/Connexion/Connexion"));
 const CodeConnexionPage = lazy(() =>
   import("@agir/front/app/Connexion/CodeConnexion")
 );
+const CodeSigninPage = lazy(() =>
+  import("@agir/front/app/Connexion/CodeSignin")
+);
 
 export const BASE_PATH = "/";
 
@@ -89,7 +92,8 @@ export const routeConfig = {
     label: "Intro",
     // Component: IntroAppPage,
     // Component: ConnexionPage,
-    Component: CodeConnexionPage,
+    // Component: CodeConnexionPage,
+    Component: CodeSigninPage,
     hasLayout: false,
     layoutProps: {
       smallBackgroundColor: style.black25,

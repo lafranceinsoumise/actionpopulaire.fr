@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import styled from "styled-components";
+import style from "@agir/front/genericComponents/_variables.scss";
 
 const Container = styled.div`
   height: 100vh;
@@ -31,9 +31,39 @@ const Form = styled.div`
   margin: 0 auto;
   margin-top: 36px;
   display: flex;
+
+  Button {
+    margin-top: 24px;
+    margin-left: 10px;
+    width: 140px;
+    height: 41px;
+    justify-content: center;
+  }
+
+  //& > TextField {
+  & > label {
+    font-weight: 600;
+    width: 100%;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    flex-flow: wrap;
+    //& > TextField {
+    & > label {
+      width: 100%;
+    }
+    div {
+      width: 100%;
+      Button {
+        width: 100%;
+        margin-left: 0px;
+        margin-top: 14px;
+      }
+    }
+  }
 `;
 
-const CodeConnexionDesktop = () => {
+const CodeConnexion = () => {
   const [code, setCode] = useState("");
 
   const handleCode = (e) => {
@@ -44,10 +74,7 @@ const CodeConnexionDesktop = () => {
     <Container>
       <RawFeatherIcon name="mail" width="41px" height="41px" />
 
-      <h1>
-        Votre code de connexion <br />
-        vous a été envoyé par e-mail
-      </h1>
+      <h1>Plus qu’une étape pour rejoindre l’action !</h1>
       <p style={{ marginTop: "32px" }}>
         Entrez le code de connexion que nous avons envoyé à{" "}
         <strong>danielle@simonnet.fr</strong>
@@ -60,40 +87,16 @@ const CodeConnexionDesktop = () => {
       <Form>
         <TextField
           error=""
-          id="field"
           label="Code de connexion"
           placeholder=""
-          style={{ fontWeight: 600 }}
           onChange={handleCode}
           value={code}
         />
         <div>
-          <Button
-            color="primary"
-            style={{
-              marginTop: "24px",
-              marginLeft: "10px",
-              width: "140px",
-              height: "41px",
-              justifyContent: "center",
-            }}
-          >
-            Valider
-          </Button>
+          <Button color="primary">Valider</Button>
         </div>
       </Form>
     </Container>
-  );
-};
-
-const CodeConnexion = () => {
-  return (
-    <>
-      <ResponsiveLayout
-        MobileLayout={CodeConnexionDesktop}
-        DesktopLayout={CodeConnexionDesktop}
-      ></ResponsiveLayout>
-    </>
   );
 };
 
