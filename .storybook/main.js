@@ -1,6 +1,9 @@
 const webpackConfig = require("../webpack.common");
 
 module.exports = {
+  core: {
+    builder: "webpack5",
+  },
   stories: ["../agir/*/components/**/*.stories.js"],
   addons: ["@storybook/addon-links", "@storybook/addon-essentials"],
   webpackFinal: (config) => {
