@@ -49,6 +49,13 @@ export const authentication = (state = AUTHENTICATION.NONE, action) => {
   return state;
 };
 
+export const bookmarkedEmails = (state = [], action) => {
+  if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
+    return action.bookmarkedEmails || state;
+  }
+  return state;
+};
+
 export const csrfToken = (state = null, action) => {
   if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
     return action.csrfToken || state;
@@ -270,6 +277,7 @@ export const getIs2022 = (state) => state.is2022;
 export const getUser = (state) => state.user;
 export const getIsConnected = (state) => !!state.user;
 export const getAuthentication = (state) => state.authentication;
+export const getBookmarkedEmails = (state) => state.bookmarkedEmails;
 
 export const getCsrfToken = (state) => state.csrfToken;
 
@@ -311,6 +319,7 @@ const reducers = {
   is2022,
   user,
   authentication,
+  bookmarkedEmails,
   domain,
   csrfToken,
   routes,
