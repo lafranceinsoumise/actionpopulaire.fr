@@ -35,7 +35,7 @@ class SessionContextAPIView(RetrieveAPIView):
         return self.request
 
 
-class LoginAPIView(CreateAPIView):
+class LoginAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
     queryset = Person.objects.all()
     messages = {
@@ -79,9 +79,8 @@ class LoginAPIView(CreateAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class CheckCodeAPIView(CreateAPIView):
+class CheckCodeAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
-    queryset = Person.objects.all()
     messages = {
         "invalid_format": "Le code que vous avez entré n'est pas au bon format. Il est constitué de 5 lettres ou"
         " chiffres et se trouve dans l'email qui vous a été envoyé.",
@@ -110,23 +109,25 @@ class CheckCodeAPIView(CreateAPIView):
 
         return role
 
-    def authenticate(self, email, role):
+    def do_login(self, email, role):
         login(self.request, role)
 
-        if role.person.primary_email.bounced:
-            try:
-                validated_email_instance = role.person.emails.get_by_natural_key(email)
-            except PersonEmail.DoesNotExist:
-                # en cas de connexion pile au moment de la suppression d'une adresse email...
-                pass
-            else:
-                if validated_email_instance.bounced:
-                    validated_email_instance.bounced = False
-                    validated_email_instance.bounced_date = None
-                    validated_email_instance.save()
+        try:
+            validated_email_instance = role.person.emails.get_by_natural_key(email)
+        except PersonEmail.DoesNotExist:
+            # en cas de connexion pile au moment de la suppression d'une adresse email...
+            pass
+        else:
+            if validated_email_instance.bounced:
+                validated_email_instance.bounced = False
+                validated_email_instance.bounced_date = None
+                validated_email_instance.save()
 
-                if validated_email_instance != role.person.primary_email:
-                    role.person.set_primary_email(validated_email_instance)
+            if (
+                validated_email_instance != role.person.primary_email
+                and role.person.primary_email.bounced
+            ):
+                role.person.set_primary_email(validated_email_instance)
 
     def post(self, request, *args, **kwargs):
         email = request.session.get("login_email")
@@ -134,13 +135,12 @@ class CheckCodeAPIView(CreateAPIView):
             raise exceptions.MethodNotAllowed(method="post", code="method_not_allowed")
         code = request.data.get("code", "").replace(" ", "").upper()
         role = self.validate(email, code)
-        self.authenticate(email, role)
+        self.do_login(email, role)
         return Response(status=status.HTTP_200_OK)
 
 
 class LogoutAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
-    queryset = Person.objects.all()
 
     def get(self, request):
         logout(request)
