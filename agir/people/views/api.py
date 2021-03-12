@@ -3,7 +3,12 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
 from rest_framework import status
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
+from rest_framework.generics import (
+    GenericAPIView,
+    RetrieveAPIView,
+    RetrieveUpdateAPIView,
+    get_object_or_404,
+)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -31,6 +36,45 @@ class SubscriptionAPIView(GenericAPIView):
         serializer.save()
 
         return Response(serializer.result_data, status=status.HTTP_201_CREATED)
+
+
+class PersonProfilePermissions(GlobalOrObjectPermissions):
+    perms_map = {"OPTIONS": [], "GET": [], "PUT": [], "PATCH": []}
+    object_perms_map = {
+        "OPTIONS": ["people.view_person"],
+        "GET": ["people.view_person"],
+        "PUT": ["people.change_person"],
+        "PATCH": ["people.change_person"],
+    }
+
+
+class PersonProfileAPIView(RetrieveUpdateAPIView):
+    serializer_class = PersonSerializer
+    queryset = Person.objects.all()
+    permission_classes = (PersonProfilePermissions,)
+
+    def get_object(self):
+        person = None
+        if hasattr(self.request.user, "person"):
+            person = self.request.user.person
+        self.check_object_permissions(self.request, person)
+        return person
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args,
+            fields=[
+                "displayName",
+                "firstName",
+                "lastName",
+                "zip",
+                "contactPhone",
+                "isInsoumise",
+                "is2022",
+                "mandates",
+            ],
+            **kwargs,
+        )
 
 
 class CounterAPIView(GenericAPIView):
