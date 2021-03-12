@@ -5,9 +5,9 @@ export const ENDPOINT = {
   checkCode: "/api/connexion/code/",
   logout: "/api/deconnexion",
   signUp: "api/people/subscription/",
-  getProfile: "/api/profil/",
-  getProfileOptions: "/api/profil/",
-  updateProfile: "/api/profil/",
+  getProfile: "/api/user/profile/",
+  getProfileOptions: "/api/user/profile/",
+  updateProfile: "/api/user/profile/",
 };
 
 export const login = async (email) => {

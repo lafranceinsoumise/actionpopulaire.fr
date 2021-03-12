@@ -443,17 +443,17 @@ class PersonProfileTestCase(APITestCase):
         )
 
     def test_can_retrieve_profile_options(self):
-        res = self.client.options("/api/profil/")
+        res = self.client.options("/api/user/profile/")
         self.assertEqual(res.status_code, 200)
 
     def test_anonymous_user_cannot_retrieve_profile(self):
         self.client.logout()
-        res = self.client.get("/api/profil/")
+        res = self.client.get("/api/user/profile/")
         self.assertEqual(res.status_code, 401)
 
     def test_authenticated_user_can_retrieve_her_profile(self):
         self.client.force_login(self.person.role)
-        res = self.client.get("/api/profil/")
+        res = self.client.get("/api/user/profile/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data["displayName"], self.person.display_name)
 
@@ -462,13 +462,13 @@ class PersonProfileTestCase(APITestCase):
         new_data = {
             "displayName": "PP",
         }
-        res = self.client.put("/api/profil/", data=new_data)
+        res = self.client.put("/api/user/profile/", data=new_data)
         self.assertEqual(res.status_code, 401)
 
     def test_authenticated_user_can_update_her_profile(self):
         self.client.force_login(self.person.role)
         new_data = {"displayName": "PP"}
-        res = self.client.put("/api/profil/", data=new_data)
+        res = self.client.put("/api/user/profile/", data=new_data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data["displayName"], "PP")
         self.person.refresh_from_db()

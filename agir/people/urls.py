@@ -15,7 +15,11 @@ api_urls = [
         api.SubscriptionAPIView.as_view(),
         name="api_people_subscription",
     ),
-    path("api/profil/", api.PersonProfileAPIView.as_view(), name="api_people_profile",),
+    path(
+        "api/user/profile/",
+        api.PersonProfileAPIView.as_view(),
+        name="api_people_profile",
+    ),
     path(
         "api/people/newsletters/",
         api.ManageNewslettersAPIView.as_view(),
