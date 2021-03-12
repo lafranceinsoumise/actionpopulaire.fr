@@ -45,8 +45,6 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
                 "popupAnchor": obj.popup_anchor_y,
             }
 
-    iconName = serializers.CharField(source="icon_name")
-
     class Meta:
         model = models.EventSubtype
         fields = (
