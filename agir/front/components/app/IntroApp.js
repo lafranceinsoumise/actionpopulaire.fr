@@ -28,6 +28,44 @@ const Block = styled.div`
   height: 100vh;
 `;
 
+const BlockConnexion = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify: center;
+  align-items: center;
+`;
+
+const ButtonContainer = styled.div`
+  margin-bottom: 40px;
+  display: flex;
+  flex-align: center;
+  flex-direction: column;
+`;
+
+const BackgroundTriangle = styled.div`
+  width: 100%;
+  background-color: ${style.secondary500};
+  div {
+    background-color: white;
+    height: 100px;
+    clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
+  }
+`;
+
+const DescriptionContainer = styled.div`
+  background-color: ${style.secondary500};
+  padding: 1.4rem;
+  // height: 618px;
+  min-height: 375px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  text-align: center;
+`;
+
 const InlineBlock = styled.span`
   display: inline-block;
 `;
@@ -35,17 +73,30 @@ const InlineBlock = styled.span`
 const items = [
   {
     name: "Rencontrez",
-    description: "d'autres membres et agissez ensemble !",
+    description: (
+      <>
+        d'autres membres et&nbsp;<InlineBlock>agissez ensemble !</InlineBlock>
+      </>
+    ),
     image: img1,
   },
   {
     name: "Agissez concrètement",
-    description: "formez-vous et commandez du matériel, tracts et affiches !",
+    description: (
+      <>
+        formez-vous et commandez du matériel, tracts&nbsp;
+        <InlineBlock>et affiches !</InlineBlock>
+      </>
+    ),
     image: img1,
   },
   {
     name: "Organisez et rejoignez",
-    description: "une équipe de soutien autour de vous !",
+    description: (
+      <>
+        une équipe de soutien&nbsp;<InlineBlock>autour de vous !</InlineBlock>
+      </>
+    ),
     image: img1,
   },
 ];
@@ -108,55 +159,21 @@ const IntroApp = () => {
         </Block>
       )}
       {showConnexion && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justify: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: style.secondary500,
-              padding: "1.4rem",
-              // height: "618px",
-              display: "flex",
-              justifyContent: "center",
-              flexDirection: "column",
-              alignItems: "center",
-              position: "relative",
-              width: "100%",
-              minHeight: "375px",
-              textAlign: "center",
-            }}
-          >
+        <BlockConnexion>
+          <DescriptionContainer>
             <img src={logo} alt="" style={{ maxWidth: "400px" }} />
             <p style={{ fontSize: "1.375rem" }}>
               Agissez concrètement dans votre quartier et faites gagner Jean-Luc
-              Mélenchon
+              Mélenchon&nbsp;
               <InlineBlock>en 2022 !</InlineBlock>
             </p>
-          </div>
+          </DescriptionContainer>
 
-          <div style={{ width: "100%", backgroundColor: style.secondary500 }}>
-            <div
-              style={{
-                backgroundColor: "white",
-                height: "100px",
-                clipPath: "polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%)",
-              }}
-            ></div>
-          </div>
+          <BackgroundTriangle>
+            <div></div>
+          </BackgroundTriangle>
 
-          <div
-            style={{
-              marginBottom: "40px",
-              display: "flex",
-              flexAlign: "center",
-              flexDirection: "column",
-            }}
-          >
+          <ButtonContainer>
             <Button
               color="primary"
               onClick={handleClickBack}
@@ -182,8 +199,8 @@ const IntroApp = () => {
             >
               Je dispose déjà d'un compte
             </Button>
-          </div>
-        </div>
+          </ButtonContainer>
+        </BlockConnexion>
       )}
     </>
   );

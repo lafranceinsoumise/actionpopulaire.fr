@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Button from "@agir/front/genericComponents/Button";
 import facebookImg from "@agir/front/genericComponents/images/facebook_circle.svg";
 import styled from "styled-components";

@@ -2,33 +2,33 @@ import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import arrowRight from "@agir/front/genericComponents/images/arrow-right.svg";
 import chevronDown from "@agir/front/genericComponents/images/chevron-down.svg";
-
 import style from "@agir/front/genericComponents/_variables.scss";
 import LoginMailEmpty from "./LoginMailEmpty";
 import LoginFacebook from "./LoginFacebook";
+import styled from "styled-components";
+
+const Toast = styled.div`
+  padding: 16px;
+  border: 1px solid #000a2c;
+  position: relative;
+  margin-top: 32px;
+
+  div {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 6px;
+    background-color: #e93a55;
+  }
+`;
 
 const ToastNotConnected = () => {
   return (
-    <div
-      style={{
-        padding: "16px",
-        border: "1px solid #000A2C",
-        position: "relative",
-        marginTop: "32px",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          left: "0",
-          top: "0",
-          height: "100%",
-          width: "6px",
-          backgroundColor: "#E93A55",
-        }}
-      ></div>
+    <Toast>
+      <div></div>
       Vous devez vous connecter pour accéder à cette page
-    </div>
+    </Toast>
   );
 };
 
@@ -38,7 +38,6 @@ const mockMails = ["nom.prenom@email.com"];
 const Login = () => {
   const [existantMails, setExistantMails] = useState(mockMails);
   const [showMore, setShowMore] = useState(false);
-  const [isSignin, setIsSignin] = useState(false);
 
   const handleShowMore = () => {
     setShowMore(true);
@@ -47,7 +46,6 @@ const Login = () => {
   return (
     <>
       <h1>Je me connecte</h1>
-
       <div
         style={{ marginTop: "8px", display: "inline-block", textAlign: "left" }}
       >

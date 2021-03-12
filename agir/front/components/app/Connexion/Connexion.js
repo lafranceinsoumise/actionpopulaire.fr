@@ -1,21 +1,18 @@
 import React from "react";
-
-import logoDesktop from "@agir/front/genericComponents/logos/action-populaire.svg";
+import LogoAP from "@agir/front/genericComponents/LogoAP";
 import logoMobile from "@agir/front/genericComponents/logos/action-populaire_mini.svg";
 import bgDesktop from "@agir/front/genericComponents/images/login_bg_desktop.svg";
 import bgMobile from "@agir/front/genericComponents/images/login_bg_mobile.svg";
-
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
-// import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+import { Hide } from "@agir/front/genericComponents/grid";
 
 import Login from "./Login";
 import SignIn from "./Signin";
 
 const LeftBlock = styled.div`
   width: 40%;
-  height: 100vh;
   background-color: ${style.secondary100};
   position: relative;
   @media (max-width: ${style.collapse}px) {
@@ -25,7 +22,6 @@ const LeftBlock = styled.div`
 
 const MainBlock = styled.div`
   width: 60%;
-  height: 100vh;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -38,10 +34,6 @@ const MainBlock = styled.div`
     font-size: 40px;
   }
 
-  .mobile-only {
-    display: none;
-  }
-
   @media (max-width: ${style.collapse}px) {
     width: 100%;
     display: block;
@@ -49,10 +41,6 @@ const MainBlock = styled.div`
 
     h1 {
       font-size: 28px;
-    }
-
-    .mobile-only {
-      display: block;
     }
 
     .mobile-center {
@@ -68,7 +56,8 @@ const InlineBlock = styled.span`
 const Container = styled.div`
   display: inline-block;
   text-align: left;
-  width: 500px;
+  //width: 500px; // For Signin
+  width: 400px;
   max-width: 100%;
 
   @media (max-width: ${style.collapse}px) {
@@ -77,77 +66,70 @@ const Container = styled.div`
   }
 `;
 
+const BackgroundDesktop = styled.div`
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  height: 450px;
+  background-image: url(${bgDesktop});
+  background-size: cover;
+  background-repeat: no-repeat;
+`;
+
+const BackgroundMobile = styled.div`
+  width: 100%;
+  height: 150px;
+  background-image: url(${bgMobile});
+  background-size: cover;
+  background-repeat: no-repeat;
+`;
+
+const Title = styled.div`
+  text-align: center;
+  div {
+    display: inline-block;
+    text-align: left;
+    line-height: 21px;
+    max-width: 350px;
+  }
+`;
+
 const Connexion = () => {
   return (
-    <>
-      <div style={{ display: "flex" }}>
-        <LeftBlock>
-          <div style={{ padding: "37px" }}>
-            <img src={logoDesktop} alt="" style={{ width: "200px" }} />
-
-            <div style={{ textAlign: "center" }}>
-              <div
-                style={{
-                  display: "inline-block",
-                  textAlign: "left",
-                  maxWidth: "350px",
-                  lineHeight: "21px",
-                  textAlign: "left",
-                }}
-              >
-                Le réseau social d’action pour la candidature de Jean-Luc
-                Mélenchon <InlineBlock>pour 2022</InlineBlock>
-              </div>
+    <div style={{ display: "flex", height: "100vh" }}>
+      <LeftBlock>
+        <div style={{ padding: "37px", paddingBottom: "450px" }}>
+          <LogoAP style={{ width: "200px" }} />
+          <Title>
+            <div>
+              Le réseau social d’action pour la candidature de Jean-Luc
+              Mélenchon <InlineBlock>pour 2022</InlineBlock>
             </div>
-          </div>
+          </Title>
+        </div>
+        <BackgroundDesktop />
+      </LeftBlock>
 
-          {/* <img src={bgDesktop} style={{width: "100%", marginTop: "100px"}} alt=""/> */}
-          <div style={{ width: "100%", height: "450px" }}></div>
+      <MainBlock>
+        <Container>
+          <Hide over style={{ textAlign: "center", marginTop: "69px" }}>
+            <img
+              src={logoMobile}
+              alt="logo"
+              style={{ width: "69px", marginBottom: "24px" }}
+            />
+          </Hide>
 
-          <div
-            style={{
-              position: "absolute",
-              bottom: "0px",
-              left: "0px",
-              width: "100%",
-              height: "450px",
-              backgroundImage: `url(${bgDesktop})`,
-              backgroundSize: "cover",
-              backgroundRepeat: "no-repeat",
-            }}
-          ></div>
-        </LeftBlock>
+          {/* <Login /> */}
+          <SignIn />
+        </Container>
 
-        <MainBlock>
-          <Container>
-            <div
-              className="mobile-only"
-              style={{ textAlign: "center", marginTop: "69px" }}
-            >
-              <img
-                src={logoMobile}
-                style={{ width: "69px", marginBottom: "24px" }}
-                alt=""
-              />
-            </div>
-
-            {/* <Login /> */}
-            <SignIn />
-          </Container>
-
-          <div
-            className="mobile-only"
-            style={{
-              width: "100%",
-              height: "150px",
-              backgroundImage: `url(${bgMobile})`,
-              backgroundSize: "cover",
-              backgroundRepeat: "no-repeat",
-            }}
-          ></div>
-        </MainBlock>
-      </div>
-    </>
+        <Hide over>
+          <BackgroundMobile />
+        </Hide>
+      </MainBlock>
+    </div>
   );
 };
 

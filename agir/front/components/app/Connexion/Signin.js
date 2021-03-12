@@ -2,7 +2,16 @@ import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import style from "@agir/front/genericComponents/_variables.scss";
-// import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+import styled from "styled-components";
+
+const InputContainer = styled.div`
+  box-sizing: border-box;
+  margin: 0 auto;
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+`;
 
 const defaultData = {
   email: "",
@@ -18,13 +27,13 @@ const SignIn = () => {
     setRgpdChecked(!rgpdChecked);
   };
 
-  const handleChecked = (value) => {
+  const handleReasonChecked = (value) => {
     setFormData({ ...formData, reasonChecked: value });
   };
 
-  const handleChange = (e, name) => {
+  const handleChange = (e) => {
     const newFormData = { ...formData };
-    newFormData[name] = e.target.value;
+    newFormData[e.target.name] = e.target.value;
     setFormData(newFormData);
   };
 
@@ -46,7 +55,7 @@ const SignIn = () => {
       </span>
 
       <ul style={{ padding: "0", listStyleType: "none" }}>
-        <li onClick={() => handleChecked(0)}>
+        <li onClick={() => handleReasonChecked(0)}>
           <label style={{ cursor: "pointer", fontWeight: 400 }}>
             <input
               type="radio"
@@ -57,7 +66,7 @@ const SignIn = () => {
             <span>&nbsp; La présidentielle de 2022</span>
           </label>
         </li>
-        <li onClick={() => handleChecked(1)}>
+        <li onClick={() => handleReasonChecked(1)}>
           <label style={{ cursor: "pointer", fontWeight: 400 }}>
             <input
               type="radio"
@@ -70,21 +79,13 @@ const SignIn = () => {
         </li>
       </ul>
 
-      <div
-        style={{
-          boxSizing: "border-box",
-          margin: "0 auto",
-          marginTop: "24px",
-          display: "flex",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-        }}
-      >
+      <InputContainer>
         <TextField
           error=""
           label="Adresse e-mail"
+          name="email"
           placeholder="Adresse e-mail"
-          onChange={(e) => handleChange(e, "email")}
+          onChange={handleChange}
           value={formData.email}
           style={{ width: "340px" }}
         />
@@ -92,20 +93,27 @@ const SignIn = () => {
         <TextField
           error=""
           label="Code postal"
+          name="postalCode"
           placeholder=""
-          onChange={(e) => handleChange(e, "postalCode")}
+          onChange={handleChange}
           value={formData.postalCode}
           style={{ width: "140px" }}
         />
-      </div>
+      </InputContainer>
 
       <div
         onClick={handleRgpdCheck}
         style={{ marginTop: "16px", marginBottom: "32px", cursor: "pointer" }}
       >
-        <input type="checkbox" checked={rgpdChecked} /> &nbsp; J'accepte que mes
-        informations soient traitées par Action Populaire, conformément à la
-        politique de conservation des données
+        <input type="checkbox" checked={rgpdChecked} onChange={null} />
+        &nbsp;J'accepte que mes informations soient traitées par Action
+        Populaire, conformément à la&nbsp;
+        <a
+          href="https://infos.actionpopulaire.fr/mentions-legales/"
+          target="_blank"
+        >
+          politique de conservation des données
+        </a>
       </div>
 
       <Button
@@ -122,18 +130,5 @@ const SignIn = () => {
     </div>
   );
 };
-
-// const SignIn = () => {
-
-//   return (
-//     <>
-//       <ResponsiveLayout
-//         MobileLayout={SignInDesktop}
-//         DesktopLayout={SignInDesktop}
-//       >
-//       </ResponsiveLayout>
-//     </>
-//   );
-// };
 
 export default SignIn;
