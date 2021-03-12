@@ -2,10 +2,8 @@ import React, { useState, useCallback } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
-import img1 from "../genericComponents/images/introApp1.jpg";
-import logo from "../genericComponents/images/logoActionPopulaire.png";
-
-// import Connexion from "./Connexion";
+import img1 from "@agir/front/genericComponents/images/introApp1.jpg";
+import logo from "@agir/front/genericComponents/images/logoActionPopulaire.png";
 
 const Mark = styled.span`
   width: 1.5rem;
