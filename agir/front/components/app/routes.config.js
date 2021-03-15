@@ -123,6 +123,7 @@ export const routeConfig = {
     id: "createEvent",
     pathname: "/evenements/creer/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Nouvel événement",
     Component: CreateEvent,
     backLink: {
