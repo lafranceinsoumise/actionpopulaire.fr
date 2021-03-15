@@ -50,7 +50,7 @@ def send_no_account_email(email, subscription_type=SUBSCRIPTION_TYPE_AP, **kwarg
 
     send_mosaico_email(
         code="LOGIN_SIGN_UP_MESSAGE",
-        subject="Vous n'avez pas encore de compte sur la platefome",
+        subject="Vous n'avez pas encore de compte sur Action Populaire",
         from_email=settings.EMAIL_FROM,
         recipients=[email],
         bindings={"SUBSCRIPTION_URL": confirm_subscription_url},
