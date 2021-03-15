@@ -37,6 +37,8 @@ const CodeSigninPage = lazy(() =>
   import("@agir/front/app/Connexion/CodeSignin")
 );
 
+const TellMorePage = lazy(() => import("@agir/front/app/Connexion/TellMore"));
+
 export const BASE_PATH = "/";
 
 const log = logger(__filename);
@@ -93,7 +95,8 @@ export const routeConfig = {
     // Component: IntroAppPage,
     // Component: ConnexionPage,
     // Component: CodeConnexionPage,
-    Component: CodeSigninPage,
+    //Component: CodeSigninPage,
+    Component: TellMorePage,
     hasLayout: false,
     layoutProps: {
       smallBackgroundColor: style.black25,
