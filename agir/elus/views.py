@@ -38,6 +38,7 @@ class BaseMandatView(SoftLoginRequiredMixin):
 
 class BaseMandatMunicipal(BaseMandatView):
     model = models.MandatMunicipal
+    form_class = forms.MandatMunicipalForm
     mandat_adjectif = "municipal⋅e"
 
     def get_conseil_avec_charniere(self):
@@ -47,12 +48,10 @@ class BaseMandatMunicipal(BaseMandatView):
 
 
 class CreerMandatMunicipalView(BaseMandatMunicipal, CreateView):
-    form_class = forms.MandatMunicipalForm
     template_name = "elus/creer_mandat_conseil.html"
 
 
 class ModifierMandatMunicipalView(BaseMandatMunicipal, UpdateView):
-    form_class = forms.MandatMunicipalForm
     template_name = "elus/modifier_mandat_conseil.html"
 
 
