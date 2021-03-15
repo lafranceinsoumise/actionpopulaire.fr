@@ -185,7 +185,7 @@ const ReferralUpdateActivityText = (props) => {
         Grâce à vous, 20 personnes ont parrainé la candidature de Jean-Luc
         Mélenchon !<br />
         Beau travail ! Prochaine étape :{" "}
-        <a href={routes.createEvent}>organiser un événement en ligne</a> pour
+        <Link route="createEvent">organiser un événement en ligne</Link> pour
         récolter encore plus de signatures !
       </ActivityCardContainer>
     );
@@ -203,7 +203,6 @@ ReferralUpdateActivityText.propTypes = {
     totalReferrals: PropTypes.number.isRequired,
   }).isRequired,
   routes: PropTypes.shape({
-    createEvent: PropTypes.string,
     createGroup: PropTypes.string,
   }),
 };

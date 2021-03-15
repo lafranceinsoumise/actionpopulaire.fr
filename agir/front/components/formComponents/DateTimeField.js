@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import PropTypes from "prop-types";
 import React, { useMemo, useCallback } from "react";
 import styled from "styled-components";
@@ -35,6 +36,7 @@ const StyledField = styled.label`
   ${StyledHelpText} {
     grid-row: 2;
     grid-column: 1/3;
+    line-height: 1.5;
   }
   ${StyledInputs} {
     grid-row: 3;
@@ -44,7 +46,7 @@ const StyledField = styled.label`
     flex-flow: row nowrap;
   }
   ${StyledInput} {
-    flex: 1 1 100%;
+    flex: 1 1 200px;
     border-radius: 0;
     border: 1px solid;
     border-color: ${({ $invalid }) =>
@@ -69,7 +71,7 @@ const StyledField = styled.label`
 
   ${StyledInput} + ${StyledInput} {
     margin-left: 0.5rem;
-    flex-basis: 50%;
+    flex: 1 1 120px;
   }
 
   ${StyledIcon} {
@@ -94,20 +96,33 @@ const parseDatetime = (datetime) => {
     date: "",
     time: "",
   };
-  if (datetime && typeof datetime === "string") {
-    result.date = datetime.match(/(\d{4}-\d{2}-\d{1,2}).*/);
-    result.date = result.date
-      ? result.date[1]
-      : new Date().toISOString().substr(0, 10);
+  try {
+    datetime = DateTime.fromISO(datetime, { locale: "fr" });
+    result.date = datetime.toFormat("yyyy-MM-dd");
+    result.time = datetime.toFormat("HH:mm");
+  } catch (e) {
+    if (datetime && typeof datetime === "string") {
+      result.date = datetime.match(/(\d{4}-\d{2}-\d{1,2}).*/);
+      result.date = result.date
+        ? result.date[1]
+        : new Date().toISOString().substr(0, 10);
 
-    result.time = datetime.match(/(\d{2}:\d{2}).*/);
-    result.time = result.time ? result.time[1] : "00:00";
+      result.time = datetime.match(/(\d{2}:\d{2}).*/);
+      result.time = result.time ? result.time[1] : "00:00";
+    }
   }
   return result;
 };
 
-const stringifyDatetime = (datetime) =>
-  datetime.date + " " + (datetime.time || "00:00") + ":00";
+const stringifyDatetime = (datetime) => {
+  let result = datetime.date + "T" + (datetime.time || "00:00") + ":00";
+  try {
+    result = DateTime.fromISO(result, { locale: "fr" });
+    return result.toISO({ includeOffset: false, locale: "fr" });
+  } catch (e) {
+    return result;
+  }
+};
 
 const DateTimeField = (props) => {
   const {
@@ -125,16 +140,17 @@ const DateTimeField = (props) => {
   } = props;
 
   const { time, date } = useMemo(() => parseDatetime(value), [value]);
+
   const handleChange = useCallback(
     (e) => {
       const datetime = { time, date };
+      const now = parseDatetime(new Date().toISOString());
       if (e.target.type === "date") {
-        datetime.date = e.target.value;
+        datetime.date = e.target.value || now.date;
       }
       if (e.target.type === "time") {
-        datetime.time = e.target.value;
+        datetime.time = e.target.value || now.time;
       }
-
       onChange && onChange(stringifyDatetime(datetime));
     },
     [onChange, time, date]

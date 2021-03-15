@@ -209,18 +209,16 @@ const ManagerActions = (props) => {
     <StyledContent>
       <StyledPanel>
         <h6>Gestion du groupe</h6>
-        {routes.createEvent && (
-          <Button
-            as="a"
-            href={routes.createEvent}
-            color="primary"
-            icon="plus"
-            small
-            inline
-          >
-            Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
-          </Button>
-        )}
+        <Button
+          as="Link"
+          route="createEvent"
+          color="primary"
+          icon="plus"
+          small
+          inline
+        >
+          Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
+        </Button>
         <ul>
           {routes.members && (
             <li>

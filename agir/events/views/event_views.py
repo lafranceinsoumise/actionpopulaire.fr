@@ -5,7 +5,6 @@ from django.core.exceptions import PermissionDenied
 from django.http import (
     Http404,
     HttpResponseRedirect,
-    JsonResponse,
     HttpResponse,
     HttpResponseGone,
 )
@@ -19,12 +18,10 @@ from django.views import View
 from django.views.generic import (
     CreateView,
     UpdateView,
-    TemplateView,
     DeleteView,
     DetailView,
 )
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import ProcessFormView, FormMixin
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
@@ -36,7 +33,6 @@ from agir.front.view_mixins import (
     ChangeLocationBaseView,
     FilterView,
 )
-from agir.lib.export import dict_to_camelcase
 from agir.lib.views import ImageSizeWarningMixin
 from ..filters import EventFilter
 from ..forms import (
@@ -48,16 +44,14 @@ from ..forms import (
     AuthorForm,
     EventLegalForm,
 )
-from ..models import Event, RSVP, EventSubtype
+from ..models import Event, RSVP
 from ..tasks import (
     send_cancellation_notification,
     send_event_report,
     send_secretariat_notification,
 )
-from ...groups.models import Membership, SupportGroup
 
 __all__ = [
-    "CreateEventView",
     "ManageEventView",
     "ModifyEventView",
     "QuitEventView",
@@ -70,7 +64,6 @@ __all__ = [
     "EditEventLegalView",
     "UploadEventImageView",
     "EventSearchView",
-    "PerformCreateEventView",
     "EventDetailMixin",
 ]
 
@@ -321,121 +314,6 @@ class EventIcsView(EventDetailMixin, DetailView):
         ics_calendar = ics.Calendar(events=[context["event"].to_ics()])
 
         return HttpResponse(ics_calendar, content_type="text/calendar")
-
-
-# CREATION VIEWS
-# ==============
-
-
-class CreateEventView(SoftLoginRequiredMixin, TemplateView):
-    template_name = "events/create.html"
-
-    def get_context_data(self, **kwargs):
-        person = self.request.user.person
-
-        groups = [
-            {
-                "id": str(m.supportgroup.pk),
-                "name": m.supportgroup.name,
-                "iconName": SupportGroup.TYPE_PARAMETERS[m.supportgroup.type][
-                    "icon_name"
-                ],
-                "color": SupportGroup.TYPE_PARAMETERS[m.supportgroup.type]["color"],
-                "forUsers": Event.FOR_USERS_2022
-                if (m.supportgroup.type == SupportGroup.TYPE_2022)
-                else Event.FOR_USERS_INSOUMIS,
-            }
-            for m in person.memberships.filter(
-                supportgroup__published=True,
-                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-            )
-        ]
-
-        initial = {"email": person.email}
-
-        if person.contact_phone:
-            initial["phone"] = person.contact_phone.as_e164
-
-        if person.first_name and person.last_name:
-            initial["name"] = "{} {}".format(person.first_name, person.last_name)
-
-        initial_group_id = self.request.GET.get("group")
-        initial_group = next(
-            (group for group in groups if group["id"] == initial_group_id), None
-        )
-        if initial_group is not None:
-            initial["organizerGroup"] = initial_group["id"]
-            initial["forUsers"] = initial_group["forUsers"]
-
-        subtype_queryset = EventSubtype.objects.filter(
-            visibility=EventSubtype.VISIBILITY_ALL
-        )
-
-        if "subtype" in self.request.GET:
-            try:
-                subtype = subtype_queryset.get(label=self.request.GET["subtype"])
-                initial["subtype"] = subtype.label
-            except EventSubtype.DoesNotExist:
-                pass
-
-        types = [
-            {
-                "id": elem["type"],
-                "label": dict(EventSubtype.TYPE_CHOICES)[elem["type"]],
-                "description": str(EventSubtype.TYPE_DESCRIPTION[elem["type"]]),
-            }
-            for elem in subtype_queryset.values("type").distinct()
-        ]
-
-        subtypes = [
-            dict_to_camelcase(s.get_subtype_information()) for s in subtype_queryset
-        ]
-
-        return super().get_context_data(
-            props={
-                "isInsoumise": person.is_insoumise,
-                "is2022": person.is_2022,
-                "initial": initial,
-                "groups": groups,
-                "types": types,
-                "subtypes": subtypes,
-            },
-            **kwargs,
-        )
-
-
-class PerformCreateEventView(SoftLoginRequiredMixin, FormMixin, ProcessFormView):
-    model = Event
-    form_class = EventForm
-
-    def get_form_kwargs(self):
-        """Add user person profile to the form kwargs"""
-
-        kwargs = super().get_form_kwargs()
-
-        person = self.request.user.person
-        kwargs["person"] = person
-        return kwargs
-
-    def form_invalid(self, form):
-        return JsonResponse({"errors": form.errors}, status=400)
-
-    def form_valid(self, form):
-        messages.add_message(
-            request=self.request,
-            level=messages.SUCCESS,
-            message="Votre événement a été correctement créé.",
-        )
-
-        form.save()
-
-        return JsonResponse(
-            {
-                "status": "OK",
-                "id": form.instance.id,
-                "url": reverse("view_event", args=[form.instance.id]),
-            }
-        )
 
 
 # ADMIN VIEWS

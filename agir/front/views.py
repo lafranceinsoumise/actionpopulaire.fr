@@ -238,3 +238,7 @@ class ServiceWorker(View):
 
 class OfflineApp(ReactBaseView):
     bundle_name = "front/app"
+
+
+class CreateEventView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/app"

@@ -10,7 +10,9 @@ export const useIsOffline = () => {
   const [unloading, setUnloading] = useState(false);
 
   log.debug(`Unloading : ${unloading}`, unloading);
-  log.debug(`Error : ${error}`, error);
+  if (error) {
+    log.debug(`Error : ${error}`, error);
+  }
 
   useEffect(() => {
     let cb = () => setUnloading(true);

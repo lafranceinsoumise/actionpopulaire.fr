@@ -2,30 +2,42 @@ from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import Q
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
-
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
+from rest_framework.exceptions import NotFound, MethodNotAllowed
+from rest_framework.generics import (
+    ListAPIView,
+    RetrieveAPIView,
+    CreateAPIView,
+    DestroyAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from agir.events.actions.rsvps import (
     rsvp_to_free_event,
     is_participant,
-    RSVPException,
 )
 from agir.events.models import Event
-from agir.events.serializers import EventSerializer
+from agir.events.models import RSVP
+from agir.events.serializers import (
+    EventSerializer,
+    EventCreateOptionsSerializer,
+    CreateEventSerializer,
+)
 
 __all__ = [
     "EventDetailAPIView",
     "EventRsvpedAPIView",
     "EventSuggestionsAPIView",
+    "EventCreateOptionsAPIView",
+    "CreateEventAPIView",
     "RSVPEventAPIView",
 ]
+
+from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
 
 from agir.lib.tasks import geocode_person
 
@@ -48,7 +60,7 @@ class EventRsvpedAPIView(ListAPIView):
                 "location",
                 "isOrganizer",
                 "rsvp",
-                "canRSVP",
+                "hasRightSubscription",
                 "is2022",
                 "routes",
                 "groups",
@@ -104,7 +116,7 @@ class EventSuggestionsAPIView(ListAPIView):
                 "location",
                 "isOrganizer",
                 "rsvp",
-                "canRSVP",
+                "hasRightSubscription",
                 "is2022",
                 "routes",
                 "groups",
@@ -169,9 +181,39 @@ class EventSuggestionsAPIView(ListAPIView):
         return result
 
 
-class RSVPEventAPIView(CreateAPIView):
+class EventCreateOptionsAPIView(RetrieveAPIView):
+    permission_ = ("events.add_event",)
+    serializer_class = EventCreateOptionsSerializer
+    queryset = Event.objects.all()
+
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        if user.is_anonymous or not user.person:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        self.person = user.person
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self):
+        return self.request
+
+
+class CreateEventAPIView(CreateAPIView):
+    permission_ = ("events.add_event",)
+    serializer_class = CreateEventSerializer
+    queryset = Event.objects.all()
+
+
+class RSVPEventPermissions(GlobalOrObjectPermissions):
+    perms_map = {"POST": [], "DELETE": []}
+    object_perms_map = {
+        "POST": ["events.create_rsvp_for_event"],
+        "DELETE": ["events.delete_rsvp_for_event"],
+    }
+
+
+class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
     queryset = Event.objects.public()
-    permission_ = ("events.view_event",)
+    permission_classes = (RSVPEventPermissions,)
 
     @cached_property
     def user_is_already_rsvped(self):
@@ -179,34 +221,29 @@ class RSVPEventAPIView(CreateAPIView):
 
     def initial(self, request, *args, **kwargs):
         self.object = self.get_object()
+
         self.check_object_permissions(request, self.object)
+
         super().initial(request, *args, **kwargs)
 
-    def check_permissions(self, request):
-        if not request.user.is_authenticated or request.user.person is None:
-            raise PermissionDenied(
+    def create(self, request, *args, **kwargs):
+        rsvp_to_free_event(self.object, request.user.person)
+        return Response(status=status.HTTP_201_CREATED)
+
+    def post(self, request, *args, **kwargs):
+        if self.user_is_already_rsvped:
+            raise MethodNotAllowed(
+                "POST",
                 detail={
-                    "redirectTo": f'{reverse_lazy("short_code_login")}?next={reverse("view_event", kwargs={"pk": self.object.pk})}'
-                },
-            )
-        if not self.object.can_rsvp(request.user.person):
-            raise PermissionDenied(
-                detail={
-                    "redirectTo": f'{reverse("join")}?type={self.object.for_users}'
+                    "redirectTo": reverse("view_event", kwargs={"pk": self.object.pk})
                 },
             )
 
         if bool(self.object.subscription_form_id):
-            raise PermissionDenied(
+            raise MethodNotAllowed(
+                "POST",
                 detail={
                     "redirectTo": reverse("rsvp_event", kwargs={"pk": self.object.pk})
-                },
-            )
-
-        if self.user_is_already_rsvped:
-            raise PermissionDenied(
-                detail={
-                    "redirectTo": reverse("view_event", kwargs={"pk": self.object.pk})
                 },
             )
 
@@ -215,8 +252,22 @@ class RSVPEventAPIView(CreateAPIView):
                 del request.session["rsvp_submission"]
             request.session["rsvp_event"] = str(self.object.pk)
             request.session["is_guest"] = False
-            raise PermissionDenied(detail={"redirectTo": reverse("pay_event")},)
+            raise MethodNotAllowed(
+                "POST", detail={"redirectTo": reverse("pay_event")},
+            )
 
-    def create(self, request, *args, **kwargs):
-        rsvp_to_free_event(self.object, request.user.person)
-        return Response(status=status.HTTP_201_CREATED)
+        return super().post(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            rsvp = (
+                RSVP.objects.filter(event__end_time__gte=timezone.now())
+                .select_related("event")
+                .get(event=self.object, person=self.request.user.person)
+            )
+        except RSVP.DoesNotExist:
+            raise NotFound()
+
+        rsvp.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

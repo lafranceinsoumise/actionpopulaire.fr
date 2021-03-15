@@ -1,11 +1,12 @@
 import PropTypes from "prop-types";
 import React from "react";
+import * as Sentry from "@sentry/react";
 
 import generateLogger from "@agir/lib/utils/logger";
 
 const logger = generateLogger(__filename);
 
-class ErrorBoundary extends React.Component {
+class DevErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -24,31 +25,61 @@ class ErrorBoundary extends React.Component {
   }
 
   render() {
-    const { children, Fallback } = this.props;
-
+    const { children, Fallback: CustomFallback } = this.props;
     const { errorMessage } = this.state;
 
     if (!errorMessage) {
       return children;
     }
-    if (Fallback) {
-      return <Fallback {...this.props} errorMessage={errorMessage} />;
+
+    if (CustomFallback) {
+      return <CustomFallback {...this.props} errorMessage={errorMessage} />;
     }
 
     return (
       <div>
-        <h2>
-          Une erreur est survenue. Nous faisons notre possible pour la corriger.
-        </h2>
+        <h2>Erreur</h2>
         {process.env.NODE_ENV === "production" ? null : <p>{errorMessage}</p>}
       </div>
     );
   }
 }
 
-ErrorBoundary.propTypes = {
+const ProdErrorBoundary = (props) => {
+  const { children, Fallback: CustomFallback } = props;
+
+  const fallback = ({ error }) => {
+    const errorMessage = error.toString();
+
+    if (CustomFallback) {
+      return <CustomFallback {...props} errorMessage={errorMessage} />;
+    } else {
+      return (
+        <div>
+          <h2>
+            Une erreur est survenue. Nous faisons notre possible pour la
+            corriger.
+          </h2>
+        </div>
+      );
+    }
+  };
+
+  return (
+    <Sentry.ErrorBoundary fallback={fallback}>{children}</Sentry.ErrorBoundary>
+  );
+};
+
+DevErrorBoundary.propTypes = ProdErrorBoundary.propTypes = {
   children: PropTypes.node,
   Fallback: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),
 };
+
+let ErrorBoundary;
+if (process.env.NODE_ENV === "production") {
+  ErrorBoundary = ProdErrorBoundary;
+} else {
+  ErrorBoundary = DevErrorBoundary;
+}
 
 export default ErrorBoundary;
