@@ -8,10 +8,10 @@ import LoginFacebook from "./LoginFacebook";
 import styled from "styled-components";
 
 const Toast = styled.div`
-  padding: 16px;
+  padding: 1rem;
   border: 1px solid #000a2c;
   position: relative;
-  margin-top: 32px;
+  margin-top: 2rem;
 
   div {
     position: absolute;
@@ -38,16 +38,16 @@ const mockMails = ["nom.prenom@email.com"];
 const Login = () => {
   const [existantMails, setExistantMails] = useState(mockMails);
   const [showMore, setShowMore] = useState(false);
-
+  
   const handleShowMore = () => {
     setShowMore(true);
   };
 
   return (
-    <>
+    <div style={{width: "400px", maxWidth: "100%"}}>
       <h1>Je me connecte</h1>
       <div
-        style={{ marginTop: "8px", display: "inline-block", textAlign: "left" }}
+        style={{ marginTop: "0.5rem", display: "inline-block", textAlign: "left" }}
       >
         <span>Pas encore de compte ?</span>
         &nbsp;
@@ -69,7 +69,7 @@ const Login = () => {
               color="primary"
               style={{
                 marginTop: "0.5rem",
-                marginLeft: "0px",
+                marginLeft: "0",
                 maxWidth: "100%",
                 width: "400px",
                 justifyContent: "space-between",
@@ -131,7 +131,7 @@ const Login = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

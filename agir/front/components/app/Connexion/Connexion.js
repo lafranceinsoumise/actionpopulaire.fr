@@ -116,12 +116,12 @@ const Connexion = () => {
             <img
               src={logoMobile}
               alt="logo"
-              style={{ width: "69px", marginBottom: "24px" }}
+              style={{ width: "69px", marginBottom: "1.5rem" }}
             />
           </Hide>
 
-          {/* <Login /> */}
-          <SignIn />
+          <Login />
+          {/* <SignIn /> */}
         </Container>
 
         <Hide over>
