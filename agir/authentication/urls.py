@@ -1,5 +1,4 @@
 from django.urls import path, include
-from django.views.generic import TemplateView
 from oauth2_provider import views as oauth2_views
 
 from .views import (
@@ -9,6 +8,9 @@ from .views import (
     Oauth2AuthorizationView,
     SocialLoginError,
     SessionContextAPIView,
+    LoginAPIView,
+    CheckCodeAPIView,
+    LogoutAPIView,
 )
 
 
@@ -31,4 +33,7 @@ urlpatterns = [
         name="social_login_error",
     ),
     path("api/session/", SessionContextAPIView.as_view(), name="api_session"),
+    path("api/connexion/", LoginAPIView.as_view(), name="api_login"),
+    path("api/connexion/code/", CheckCodeAPIView.as_view(), name="api_check_code"),
+    path("api/deconnexion/", LogoutAPIView.as_view(), name="api_logout"),
 ]

@@ -285,21 +285,62 @@ class RetrievePersonRequestSerializer(serializers.Serializer):
             raise Http404("Aucune personne trouvée")
 
 
-class PersonSerializer(FlexibleFieldsMixin, serializers.Serializer):
-    id = serializers.UUIDField()
-    email = serializers.EmailField()
+class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    email = serializers.EmailField(read_only=True)
 
-    firstName = serializers.CharField(source="first_name")
-    lastName = serializers.CharField(source="last_name")
-    displayName = serializers.CharField(source="display_name")
-    image = MediaURLField()
-    contactPhone = PhoneNumberField(source="contact_phone")
+    firstName = serializers.CharField(
+        label="Prénom",
+        max_length=person_fields["first_name"].max_length,
+        required=False,
+        source="first_name",
+    )
+    lastName = serializers.CharField(
+        label="Nom",
+        max_length=person_fields["last_name"].max_length,
+        required=False,
+        source="last_name",
+    )
+    displayName = serializers.CharField(
+        label="Nom public",
+        help_text="Le nom que tout le monde pourra voir. Indiquez par exemple votre prénom ou un pseudonyme.",
+        max_length=person_fields["display_name"].max_length,
+        required=True,
+        source="display_name",
+    )
+    image = MediaURLField(required=False, label="Image de profil")
+    contactPhone = PhoneNumberField(
+        source="contact_phone", required=False, label="Numéro de téléphone"
+    )
 
-    isInsoumise = serializers.BooleanField(source="is_insoumise")
-    is2022 = serializers.BooleanField(source="is_2022")
+    isInsoumise = serializers.BooleanField(source="is_insoumise", required=False)
+    is2022 = serializers.BooleanField(source="is_2022", required=False)
 
-    referrerId = serializers.CharField(source="referrer_id")
+    referrerId = serializers.CharField(source="referrer_id", required=False)
 
-    newsletters = serializers.ListField()
+    newsletters = serializers.ListField(required=False)
 
-    gender = serializers.CharField()
+    gender = serializers.CharField(required=False)
+
+    zip = serializers.RegexField(
+        regex=r"^[0-9]{5}$", required=False, source="location_zip", label="Code postal"
+    )
+
+    class Meta:
+        model = models.Person
+        fields = (
+            "id",
+            "email",
+            "firstName",
+            "lastName",
+            "displayName",
+            "image",
+            "contactPhone",
+            "isInsoumise",
+            "is2022",
+            "referrerId",
+            "newsletters",
+            "gender",
+            "zip",
+            "mandates",
+        )

@@ -4,6 +4,8 @@ import { lazy } from "react";
 import style from "@agir/front/genericComponents/_variables.scss";
 import logger from "@agir/lib/utils/logger";
 
+import { AUTHENTICATION } from "@agir/front/authentication/common";
+
 const AgendaPage = lazy(() => import("@agir/events/agendaPage/AgendaPage"));
 const EventMap = lazy(() => import("@agir/carte/page__eventMap/EventMap"));
 const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
@@ -87,6 +89,7 @@ export const routeConfig = {
     id: "intro",
     pathname: "/intro/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Intro",
     Component: IntroAppPage,
     hasLayout: false,
@@ -99,7 +102,7 @@ export const routeConfig = {
     id: "events",
     pathname: "/",
     exact: true,
-    protected: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Événements",
     Component: AgendaPage,
     hasLayout: true,
@@ -112,7 +115,7 @@ export const routeConfig = {
     id: "eventMap",
     pathname: "/evenements/carte/",
     exact: true,
-    protected: false,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Carte des événements",
     Component: EventMap,
   }),
@@ -120,6 +123,7 @@ export const routeConfig = {
     id: "createEvent",
     pathname: "/evenements/creer/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Nouvel événement",
     Component: CreateEvent,
     backLink: {
@@ -132,7 +136,7 @@ export const routeConfig = {
     id: "eventDetails",
     pathname: "/evenements/:eventPk/",
     exact: true,
-    protected: false,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Details de l'événement",
     Component: EventPage,
     backLink: {
@@ -145,7 +149,7 @@ export const routeConfig = {
     id: "groups",
     pathname: "/mes-groupes/",
     exact: true,
-    protected: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Groupes",
     Component: GroupsPage,
     hasLayout: true,
@@ -157,8 +161,7 @@ export const routeConfig = {
     id: "groupMap",
     pathname: "/groupes/carte/",
     exact: true,
-    // TODO: set to false
-    protected: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Carte des groupes",
     Component: GroupMap,
   }),
@@ -166,7 +169,7 @@ export const routeConfig = {
     id: "fullGroup",
     pathname: "/groupes/:groupPk/complet/",
     exact: true,
-    protected: false,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Groupe complet",
     Component: FullGroupPage,
     hasLayout: false,
@@ -175,7 +178,7 @@ export const routeConfig = {
     id: "groupMessage",
     pathname: "/groupes/:groupPk/messages/:messagePk/",
     exact: true,
-    protected: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Message du groupe",
     Component: GroupMessagePage,
     hideFeedbackButton: true,
@@ -184,7 +187,7 @@ export const routeConfig = {
     id: "groupDetails",
     pathname: "/groupes/:groupPk/:activeTab?/",
     exact: true,
-    protected: false,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Details du groupe",
     Component: GroupPage,
     backLink: {
@@ -197,7 +200,7 @@ export const routeConfig = {
     id: "activities",
     pathname: "/activite/",
     exact: true,
-    protected: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Actualités",
     Component: ActivityPage,
     hasLayout: true,
@@ -211,7 +214,7 @@ export const routeConfig = {
     id: "requiredActivities",
     pathname: "/a-traiter/",
     exact: true,
-    protected: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "À traiter",
     Component: RequiredActivityPage,
     hasLayout: true,
@@ -220,7 +223,7 @@ export const routeConfig = {
     id: "menu",
     pathname: "/navigation/",
     exact: true,
-    protected: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Menu",
     Component: NavigationPage,
     hasLayout: true,
@@ -232,7 +235,7 @@ export const routeConfig = {
     id: "login",
     pathname: "/connexion/",
     exact: true,
-    protected: false,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Connexion",
     Component: LoginPage,
   }),
@@ -240,7 +243,7 @@ export const routeConfig = {
     id: "signup",
     pathname: "/inscription/",
     exact: true,
-    protected: false,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Inscription",
     Component: SignupPage,
   }),

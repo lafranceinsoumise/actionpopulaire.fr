@@ -1,8 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout, REDIRECT_FIELD_NAME
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -10,52 +8,27 @@ from django.utils.http import is_safe_url, urlquote
 from django.utils.safestring import mark_safe
 from django.views.generic import FormView, RedirectView
 from oauth2_provider.views import AuthorizationView
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.permissions import AllowAny
 
-from agir.authentication.utils import is_soft_logged, is_hard_logged
+from agir.authentication.forms import EmailForm, CodeForm
+from agir.authentication.utils import (
+    is_soft_logged,
+    is_hard_logged,
+    get_bookmarked_emails,
+    bookmark_email,
+)
 from agir.authentication.view_mixins import HardLoginRequiredMixin
+from agir.lib.utils import get_client_ip
 from agir.people.models import PersonEmail
-from .forms import EmailForm, CodeForm
-from .serializers import SessionSerializer
-from ..lib.utils import get_client_ip
 
 
-def valid_emails(candidate_emails):
-    for email in candidate_emails:
-        try:
-            validate_email(email)
-            yield email
-        except ValidationError:
-            pass
-
-
-def get_bookmarked_emails(request):
-    if "knownEmails" not in request.COOKIES:
-        return []
-    candidate_emails = request.COOKIES.get("knownEmails").split(",")
-    return list(valid_emails(candidate_emails))
-
-
-def bookmark_email(email, request, response):
-    domain = ".".join(request.META.get("HTTP_HOST", "").split(":")[0].split(".")[-2:])
-    emails = get_bookmarked_emails(request)
-
-    if email in emails:
-        emails.remove(email)
-
-    emails.insert(0, email)
-
-    response.set_cookie(
-        "knownEmails",
-        value=",".join(emails[0:4]),
-        max_age=365 * 24 * 3600,
-        domain=domain,
-        secure=not settings.DEBUG,
-        httponly=True,
-    )
-
-    return response
+__all__ = [
+    "RedirectToMixin",
+    "LoginView",
+    "CheckCodeView",
+    "DisconnectView",
+    "Oauth2AuthorizationView",
+    "SocialLoginError",
+]
 
 
 class RedirectToMixin:
@@ -235,12 +208,3 @@ class SocialLoginError(RedirectView):
             )
 
         return super().get(request, *args, **kwargs)
-
-
-class SessionContextAPIView(RetrieveAPIView):
-    permission_classes = (AllowAny,)
-    serializer_class = SessionSerializer
-    queryset = None
-
-    def get_object(self):
-        return self.request

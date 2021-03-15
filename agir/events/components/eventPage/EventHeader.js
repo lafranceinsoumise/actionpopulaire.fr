@@ -1,14 +1,20 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { mutate } from "swr";
 import { DateTime, Interval } from "luxon";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getIsConnected, getRoutes } from "@agir/front/globalContext/reducers";
+import {
+  getIsConnected,
+  getRoutes,
+  getUser,
+} from "@agir/front/globalContext/reducers";
 import * as api from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
+import SubscriptionTypeModal from "@agir/front/authentication/SubscriptionTypeModal";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
 import { displayHumanDate } from "@agir/lib/utils/time";
@@ -84,18 +90,24 @@ const StyledActionButtons = styled.div`
 
 const RSVPButton = (props) => {
   const { id, forUsers } = props;
+  const user = useSelector(getUser);
   const [isLoading, setIsLoading] = useState(false);
-  const globalRoutes = useSelector(getRoutes);
+  const [hasSubscriptionTypeModal, setHasSubscriptionTypeModal] = useState(
+    false
+  );
+
+  const openSubscriptionTypeModal = useCallback(() => {
+    setHasSubscriptionTypeModal(true);
+  }, []);
+
+  const closeSubscriptionTypeModal = useCallback(() => {
+    setHasSubscriptionTypeModal(false);
+  }, []);
+
   const handleRSVP = useCallback(
     async (e) => {
-      e.preventDefault();
+      e && e.preventDefault();
       setIsLoading(true);
-
-      if (!props.hasRightSubscription) {
-        log.debug("Has not right subscribtion, redirection.");
-        window.location.href = `${globalRoutes.join}?type=${forUsers}`;
-        return;
-      }
 
       try {
         const response = await api.rsvpEvent(id);
@@ -108,6 +120,7 @@ const RSVPButton = (props) => {
       }
 
       setIsLoading(false);
+      setHasSubscriptionTypeModal(false);
 
       await mutate(
         api.getEventEndpoint("getEvent", { eventPk: id }),
@@ -117,8 +130,21 @@ const RSVPButton = (props) => {
         })
       );
     },
-    [id, forUsers, globalRoutes]
+    [id]
   );
+
+  const shouldUpdateSubscription = useMemo(() => {
+    if (!user) {
+      return null;
+    }
+    if (forUsers === "2" && user.is2022) {
+      return null;
+    }
+    if (forUsers === "I" && user.isInsoumise) {
+      return null;
+    }
+    return forUsers === "2" ? "NSP" : "LFI";
+  }, [user, forUsers]);
 
   return (
     <StyledActionButtons>
@@ -126,10 +152,22 @@ const RSVPButton = (props) => {
         type="submit"
         color="secondary"
         disabled={isLoading}
-        onClick={handleRSVP}
+        onClick={
+          shouldUpdateSubscription ? openSubscriptionTypeModal : handleRSVP
+        }
       >
         Participer à l'événement
       </ActionButton>
+      {shouldUpdateSubscription ? (
+        <SubscriptionTypeModal
+          shouldShow={hasSubscriptionTypeModal}
+          type={shouldUpdateSubscription}
+          target="event"
+          onConfirm={handleRSVP}
+          onCancel={closeSubscriptionTypeModal}
+          isLoading={isLoading}
+        />
+      ) : null}
     </StyledActionButtons>
   );
 };
