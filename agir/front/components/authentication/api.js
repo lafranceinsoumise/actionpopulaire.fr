@@ -20,6 +20,7 @@ export const login = async (email) => {
   try {
     const response = await axios.post(url, body);
     result.success = response.status === 200;
+    result.data = response.data || null;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
   }

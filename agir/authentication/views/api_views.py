@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -62,6 +63,8 @@ class LoginAPIView(APIView):
 
     def send_authentication_email(self, email):
         self.request.session["login_email"] = email
+        short_code = None
+        expiration = None
         try:
             Person.objects.get_by_natural_key(email)
         except Person.DoesNotExist:
@@ -71,11 +74,17 @@ class LoginAPIView(APIView):
             send_login_email.apply_async(
                 args=(email, short_code, expiration.timestamp(),), expires=10 * 60,
             )
+        return short_code, expiration
 
     def post(self, request, *args, **kwargs):
         email = request.data.get("email", "").lower()
         self.validate(email)
-        self.send_authentication_email(email)
+        short_code, expiration = self.send_authentication_email(email)
+        if settings.DEBUG:
+            return Response(
+                status=status.HTTP_200_OK,
+                data={"code": short_code, "expiration": expiration},
+            )
         return Response(status=status.HTTP_200_OK)
 
 
