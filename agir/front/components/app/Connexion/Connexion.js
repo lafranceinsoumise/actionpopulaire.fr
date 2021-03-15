@@ -56,13 +56,12 @@ const InlineBlock = styled.span`
 const Container = styled.div`
   display: inline-block;
   text-align: left;
-  //width: 500px; // For Signin
-  width: 400px;
+  width: 500px;
   max-width: 100%;
 
   @media (max-width: ${style.collapse}px) {
-    padding-left: 32px;
-    padding-right: 32px;
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 `;
 

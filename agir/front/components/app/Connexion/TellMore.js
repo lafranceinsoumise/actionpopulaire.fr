@@ -36,9 +36,9 @@ const MainBlock = styled.div`
 
   h1 {
     margin: 0px;
-    margin-bottom: 18px;
+    margin-bottom: 1.125rem;
     font-weight: 700;
-    font-size: 32px;
+    font-size: 2rem;
   }
 
   @media (max-width: ${style.collapse}px) {
@@ -71,7 +71,7 @@ const InputCheckbox = styled.div`
   display: flex;
   cursor: pointer;
   user-select: none;
-  margin-top: 10px;
+  margin-top: 0.625rem;
 `;
 
 const TellMore = () => {
@@ -165,7 +165,7 @@ const TellMore = () => {
             style={{
               width: "356px",
               maxWidth: "100%",
-              marginTop: "16px",
+              marginTop: "1rem",
               justifyContent: "center",
             }}
           >

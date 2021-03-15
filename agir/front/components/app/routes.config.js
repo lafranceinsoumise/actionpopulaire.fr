@@ -93,10 +93,10 @@ export const routeConfig = {
     exact: true,
     label: "Intro",
     // Component: IntroAppPage,
-    // Component: ConnexionPage,
+    Component: ConnexionPage,
     // Component: CodeConnexionPage,
-    //Component: CodeSigninPage,
-    Component: TellMorePage,
+    // Component: CodeSigninPage,
+    // Component: TellMorePage,
     hasLayout: false,
     layoutProps: {
       smallBackgroundColor: style.black25,

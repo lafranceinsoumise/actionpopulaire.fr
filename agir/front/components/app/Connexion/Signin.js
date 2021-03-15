@@ -4,13 +4,26 @@ import TextField from "@agir/front/formComponents/TextField";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
-const InputContainer = styled.div`
-  box-sizing: border-box;
-  margin: 0 auto;
-  margin-top: 24px;
-  display: flex;
+const InputGroup = styled.div`
+  display: inline-flex;
   justify-content: space-between;
-  flex-wrap: wrap;
+  width: 100%;
+  margin-top: 1.25rem;
+  > div:nth-child(1) {
+    width: 340px;
+  }
+  > div:nth-child(2) {
+    width: 140px;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    display:block;
+    > div:nth-child(1) {
+      width: 100%;
+    }
+    > div:nth-child(2) {
+      width: 100%;
+  }
 `;
 
 const defaultData = {
@@ -18,6 +31,8 @@ const defaultData = {
   postalCode: "",
   reasonChecked: 0,
 };
+
+const fromGroupEvent = false;
 
 const SignIn = () => {
   const [rgpdChecked, setRgpdChecked] = useState(false);
@@ -39,71 +54,92 @@ const SignIn = () => {
 
   return (
     <div style={{ width: "500px", maxWidth: "100%" }}>
-      <h1>Je m'inscris</h1>
+      {!fromGroupEvent ? (
+        <h1>Je m'inscris</h1>
+      ) : (
+        <h1 style={{ fontSize: "26px" }}>
+          Je m’inscris pour participer à l’événement
+        </h1>
+      )}
 
-      <div style={{ display: "inline-block", marginTop: "8px" }}>
+      <div style={{ display: "inline-block", marginTop: "0.5rem" }}>
         <span>Déjà inscrit·e ?</span>
         &nbsp;
         <span style={{ color: style.primary500, fontWeight: 700 }}>
           Je me connecte
         </span>
       </div>
-      <span
-        style={{ display: "inline-block", margin: "20px 0px", fontWeight: 500 }}
-      >
-        Pour quelle campagne rejoignez-vous Action Populaire ?
-      </span>
 
-      <ul style={{ padding: "0", listStyleType: "none" }}>
-        <li onClick={() => handleReasonChecked(0)}>
-          <label style={{ cursor: "pointer", fontWeight: 400 }}>
-            <input
-              type="radio"
-              value="0"
-              onChange={() => {}}
-              checked={0 === formData.reasonChecked}
-            />
-            <span>&nbsp; La présidentielle de 2022</span>
-          </label>
-        </li>
-        <li onClick={() => handleReasonChecked(1)}>
-          <label style={{ cursor: "pointer", fontWeight: 400 }}>
-            <input
-              type="radio"
-              value="1"
-              onChange={() => {}}
-              checked={1 === formData.reasonChecked}
-            />
-            <span>&nbsp; Une autre campagne de la France Insoumise</span>
-          </label>
-        </li>
-      </ul>
+      {!fromGroupEvent && (
+        <>
+          <span
+            style={{
+              display: "inline-block",
+              margin: "1.25rem 0",
+              fontWeight: 500,
+            }}
+          >
+            Pour quelle campagne rejoignez-vous Action Populaire ?
+          </span>
 
-      <InputContainer>
-        <TextField
-          error=""
-          label="Adresse e-mail"
-          name="email"
-          placeholder="Adresse e-mail"
-          onChange={handleChange}
-          value={formData.email}
-          style={{ width: "340px" }}
-        />
+          <ul style={{ padding: "0", listStyleType: "none" }}>
+            <li onClick={() => handleReasonChecked(0)}>
+              <label style={{ cursor: "pointer", fontWeight: 400 }}>
+                <input
+                  type="radio"
+                  value="0"
+                  onChange={() => {}}
+                  checked={0 === formData.reasonChecked}
+                />
+                <span>&nbsp; La présidentielle de 2022</span>
+              </label>
+            </li>
+            <li onClick={() => handleReasonChecked(1)}>
+              <label style={{ cursor: "pointer", fontWeight: 400 }}>
+                <input
+                  type="radio"
+                  value="1"
+                  onChange={() => {}}
+                  checked={1 === formData.reasonChecked}
+                />
+                <span>&nbsp; Une autre campagne de la France Insoumise</span>
+              </label>
+            </li>
+          </ul>
+        </>
+      )}
 
-        <TextField
-          error=""
-          label="Code postal"
-          name="postalCode"
-          placeholder=""
-          onChange={handleChange}
-          value={formData.postalCode}
-          style={{ width: "140px" }}
-        />
-      </InputContainer>
+      <InputGroup>
+        <div>
+          <label htmlFor="">Email</label>
+          <TextField
+            error=""
+            name="email"
+            placeholder="Adresse e-mail"
+            onChange={handleChange}
+            value={formData.postalCode}
+          />
+        </div>
+        <div>
+          <label htmlFor="">Code postal</label>
+          <TextField
+            error=""
+            name="postalCode"
+            placeholder=""
+            onChange={handleChange}
+            value={formData.phone}
+          />
+        </div>
+      </InputGroup>
 
       <div
         onClick={handleRgpdCheck}
-        style={{ marginTop: "16px", marginBottom: "32px", cursor: "pointer" }}
+        style={{
+          marginTop: "1rem",
+          marginBottom: "2rem",
+          cursor: "pointer",
+          userSelect: "none",
+        }}
       >
         <input type="checkbox" checked={rgpdChecked} onChange={null} />
         &nbsp;J'accepte que mes informations soient traitées par Action
@@ -125,7 +161,7 @@ const SignIn = () => {
           justifyContent: "center",
         }}
       >
-        Créer mon compte
+        {!fromGroupEvent ? "Créer mon compte" : "Je participe !"}
       </Button>
     </div>
   );
