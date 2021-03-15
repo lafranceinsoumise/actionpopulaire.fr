@@ -1,11 +1,8 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import { mutate } from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-
-import * as api from "@agir/groups/groupPage/api";
 
 import Button from "@agir/front/genericComponents/Button";
 import FeatherIcon, {
@@ -14,6 +11,8 @@ import FeatherIcon, {
 import Popin from "@agir/front/genericComponents/Popin";
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+
+import JoinGroupButton from "./JoinGroupButton";
 
 const StyledList = styled.ul`
   width: 100%;
@@ -397,43 +396,9 @@ const MemberActions = (props) => {
 };
 
 const NonMemberActions = (props) => {
-  const { id, is2022 = false } = props;
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      setIsLoading(true);
-      let redirectTo = "";
-      try {
-        const response = await api.joinGroup(id);
-        if (response.error) {
-          redirectTo = response.error.redirectTo;
-        }
-      } catch (err) {
-        // Reload current page if an unhandled error occurs
-        window.location.reload();
-      }
-      if (redirectTo) {
-        window.location = redirectTo;
-        return;
-      }
-      setIsLoading(false);
-      mutate(
-        api.getGroupPageEndpoint("getGroup", { groupPk: id }),
-        (group) => ({ ...group, isMember: true })
-      );
-    },
-    [id]
-  );
-
   return (
     <StyledContent>
-      <form onSubmit={handleSubmit}>
-        <Button type="submit" color="success" disabled={isLoading}>
-          Rejoindre {is2022 ? "l'équipe" : "le groupe"}
-        </Button>
-      </form>
+      <JoinGroupButton {...props} />
       <p>Votre email sera communiqué aux animateur·ices</p>
     </StyledContent>
   );
