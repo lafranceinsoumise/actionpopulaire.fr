@@ -219,6 +219,7 @@ MERGE_STRATEGIES = {
     "transferoperation": None,
     "display_name": merge_text_fields,
     "image": merge_text_fields,
+    "rechercheparrainagemaire": merge_reassign_related,
 }
 
 
