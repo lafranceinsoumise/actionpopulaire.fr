@@ -20,4 +20,4 @@ def est_elu_verifie(role, obj=None):
     )
 
 
-rules.add_perm("elus.acces_parrainages", is_authenticated_person & est_elu_verifie)
+# rules.add_perm("elus.acces_parrainages", is_authenticated_person & est_elu_verifie)
