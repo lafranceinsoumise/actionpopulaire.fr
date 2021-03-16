@@ -98,19 +98,6 @@ export class RouteConfig {
 }
 
 export const routeConfig = {
-  intro: new RouteConfig({
-    id: "intro",
-    pathname: "/intro/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.NONE,
-    label: "Intro",
-    Component: LoginPage,
-    hasLayout: false,
-    layoutProps: {
-      smallBackgroundColor: style.black25,
-      hasBanner: false,
-    },
-  }),
   events: new RouteConfig({
     id: "events",
     pathname: "/",
@@ -289,8 +276,13 @@ export const routeConfig = {
     pathname: "/intro/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Introduction",
+    label: "Intro",
     Component: IntroAppPage,
+    hasLayout: false,
+    layoutProps: {
+      smallBackgroundColor: style.black25,
+      hasBanner: false,
+    },
   }),
 };
 

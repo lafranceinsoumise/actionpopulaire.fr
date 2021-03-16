@@ -6,6 +6,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import LoginMailEmpty from "./LoginMailEmpty";
 import LoginFacebook from "./LoginFacebook";
 import styled from "styled-components";
+import Link from "@agir/front/app/Link";
 
 const Toast = styled.div`
   padding: 1rem;
@@ -21,6 +22,15 @@ const Toast = styled.div`
     width: 6px;
     background-color: #e93a55;
   }
+`;
+
+const ShowMore = styled.div`
+  font-weight: 700;
+  color: ${style.primary500};
+  margin-top: 21px;
+  cursor: pointer;
+  display: inline-block;
+  text-align: left;
 `;
 
 const ToastNotConnected = () => {
@@ -56,7 +66,7 @@ const Login = () => {
         <span>Pas encore de compte ?</span>
         &nbsp;
         <span style={{ color: style.primary500, fontWeight: 700 }}>
-          Je m'inscris
+          <Link route="signup">Je m'inscris</Link>
         </span>
       </div>
 
@@ -87,19 +97,9 @@ const Login = () => {
       )}
 
       {!showMore && (
-        <div
-          onClick={handleShowMore}
-          style={{
-            fontWeight: 700,
-            color: style.primary500,
-            marginTop: "21px",
-            cursor: "pointer",
-            display: "inline-block",
-            textAlign: "left",
-          }}
-        >
+        <ShowMore onClick={handleShowMore}>
           Afficher tout <img src={chevronDown} alt="" />
-        </div>
+        </ShowMore>
       )}
 
       {showMore && (
@@ -131,7 +131,7 @@ const Login = () => {
               textAlign: "left",
             }}
           >
-            Rejoignez Action Populaire
+            <Link route="signup">Rejoignez Action Populaire</Link>
           </div>
         </div>
       )}

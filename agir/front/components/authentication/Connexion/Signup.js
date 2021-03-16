@@ -3,6 +3,10 @@ import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
+import Link from "@agir/front/app/Link";
+import { signUp } from "@agir/front/authentication/api";
+import { routeConfig } from "@agir/front/app/routes.config";
+import { useHistory } from "react-router-dom";
 
 const InputGroup = styled.div`
   display: inline-flex;
@@ -35,8 +39,10 @@ const defaultData = {
 const fromGroupEvent = false;
 
 const SignUp = () => {
+  const history = useHistory();
   const [rgpdChecked, setRgpdChecked] = useState(false);
   const [formData, setFormData] = useState(defaultData);
+  const [error, setError] = useState({});
 
   const handleRgpdCheck = () => {
     setRgpdChecked(!rgpdChecked);
@@ -50,6 +56,18 @@ const SignUp = () => {
     const newFormData = { ...formData };
     newFormData[e.target.name] = e.target.value;
     setFormData(newFormData);
+  };
+
+  const handleSubmit = async () => {
+    setError({});
+    const data = await signUp(formData);
+    console.log("data : ", data);
+    if (data.error) {
+      setError(data.error);
+      return;
+    }
+    const route = routeConfig.codeSignup.getLink();
+    history.push(route);
   };
 
   return (
@@ -66,7 +84,7 @@ const SignUp = () => {
         <span>Déjà inscrit·e ?</span>
         &nbsp;
         <span style={{ color: style.primary500, fontWeight: 700 }}>
-          Je me connecte
+          <Link route="login">Je me connecte</Link>
         </span>
       </div>
 
@@ -114,18 +132,20 @@ const SignUp = () => {
           <label htmlFor="">Email</label>
           <TextField
             name="email"
+            error={error && error.email}
             placeholder="Adresse e-mail"
             onChange={handleChange}
-            value={formData.postalCode}
+            value={formData.email}
           />
         </div>
         <div>
           <label htmlFor="">Code postal</label>
           <TextField
             name="postalCode"
+            error={error && error.postalCode}
             placeholder=""
             onChange={handleChange}
-            value={formData.phone}
+            value={formData.posatalCode}
           />
         </div>
       </InputGroup>
@@ -151,6 +171,7 @@ const SignUp = () => {
       </div>
 
       <Button
+        onClick={handleSubmit}
         color="primary"
         style={{
           marginTop: "0.5rem",
