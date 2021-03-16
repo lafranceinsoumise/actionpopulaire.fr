@@ -9,7 +9,6 @@ from ..front.sitemaps import sitemaps
 urlpatterns = [
     path("connexion/", views.LoginView.as_view(), name="short_code_login"),
     path("inscription/", views.SignupView.as_view(), name="signup"),
-    # path("code-connexion/", views.CodeLoginView.as_view(), name="code-login"),
     path("connexion/code/", views.CodeLoginView.as_view(), name="check_short_code",),
     path("inscription/code/", views.CodeSignupView.as_view(), name="check_code_signup"),
     path("bienvenue/", views.TellMoreView.as_view(), name="tell_more"),
