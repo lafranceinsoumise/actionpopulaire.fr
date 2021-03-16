@@ -1,7 +1,5 @@
 import React from "react";
 import logoMobile from "@agir/front/genericComponents/logos/action-populaire_mini.svg";
-// import LogoAP from "@agir/front/genericComponents/LogoAP";
-// import bgDesktop from "@agir/front/genericComponents/images/login_bg_desktop.svg";
 import bgMobile from "@agir/front/genericComponents/images/login_bg_mobile.svg";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
