@@ -37,36 +37,30 @@ const Container = styled.div`
 const Form = styled.div`
   box-sizing: border-box;
   margin: 0 auto;
-  margin-top: 36px;
+  margin-top: 2rem;
   display: flex;
   text-align: left;
 
   Button {
-    margin-top: 24px;
-    margin-left: 10px;
+    margin-top: 1.5rem;
+    margin-left: 0.625rem;
     width: 140px;
     height: 41px;
     justify-content: center;
   }
 
-  //& > TextField {
-  & > label {
-    font-weight: 600;
+  & > :first-child {
     width: 100%;
   }
 
   @media (max-width: ${style.collapse}px) {
     flex-flow: wrap;
-    //& > TextField {
-    & > label {
-      width: 100%;
-    }
     div {
       width: 100%;
       Button {
         width: 100%;
-        margin-left: 0px;
-        margin-top: 14px;
+        margin-left: 0;
+        margin-top: 0.875rem;
       }
     }
   }
@@ -181,7 +175,7 @@ const stepItems = [
           Entrez le code de connexion que nous avons envoyé à{" "}
           <strong>danielle@simonnet.fr</strong>
         </p>
-        <p style={{ marginBottom: "0px" }}>
+        <p style={{ marginBottom: "0" }}>
           Si l’adresse e-mail n’est pas reconnue, il vous sera proposé de vous
           inscrire.
         </p>
@@ -200,7 +194,7 @@ const stepItems = [
         <p>
           Vous allez créer un compte pour <strong>danielle@simonnet.fr</strong>
         </p>
-        <p style={{ marginBottom: "0px" }}>
+        <p style={{ marginBottom: "0" }}>
           Si vous aviez déjà un compte, vous pouvez vous connecter avec un autre
           e-mail
         </p>
@@ -215,7 +209,7 @@ const stepItems = [
           name="check"
           color="green"
           strokeWidth={4}
-          width="16px"
+          width="1rem"
         />{" "}
         &nbsp;Votre compte a été créé
       </div>
@@ -249,7 +243,7 @@ const CodeSignin = () => {
     <Container>
       {stepItems[step].img}
       <h1>{stepItems[step].title}</h1>
-      <div style={{ marginTop: "32px" }}>{stepItems[step].description}</div>
+      <div style={{ marginTop: "2rem" }}>{stepItems[step].description}</div>
 
       {2 === step && (
         <ContainerRadio>
@@ -288,7 +282,6 @@ const CodeSignin = () => {
       {0 === step && (
         <Form>
           <TextField
-            error=""
             label="Code de connexion"
             placeholder=""
             onChange={handleCode}
@@ -309,7 +302,7 @@ const CodeSignin = () => {
           style={{
             width: "356px",
             maxWidth: "100%",
-            marginTop: "36px",
+            marginTop: "2rem",
             justifyContent: "center",
           }}
         >

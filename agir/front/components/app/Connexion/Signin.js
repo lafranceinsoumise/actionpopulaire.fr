@@ -113,7 +113,6 @@ const SignIn = () => {
         <div>
           <label htmlFor="">Email</label>
           <TextField
-            error=""
             name="email"
             placeholder="Adresse e-mail"
             onChange={handleChange}
@@ -123,7 +122,6 @@ const SignIn = () => {
         <div>
           <label htmlFor="">Code postal</label>
           <TextField
-            error=""
             name="postalCode"
             placeholder=""
             onChange={handleChange}

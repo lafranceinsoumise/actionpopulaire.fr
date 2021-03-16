@@ -29,14 +29,14 @@ const NavigationPage = lazy(() =>
 );
 
 const IntroAppPage = lazy(() => import("@agir/front/app/IntroApp"));
-const ConnexionPage = lazy(() => import("@agir/front/app/Connexion/Connexion"));
+const SigninPage = lazy(() => import("@agir/front/app/Connexion/SigninPage"));
+const LoginPage = lazy(() => import("@agir/front/app/Connexion/LoginPage"));
 const CodeConnexionPage = lazy(() =>
   import("@agir/front/app/Connexion/CodeConnexion")
 );
 const CodeSigninPage = lazy(() =>
   import("@agir/front/app/Connexion/CodeSignin")
 );
-
 const TellMorePage = lazy(() => import("@agir/front/app/Connexion/TellMore"));
 
 export const BASE_PATH = "/";
@@ -92,11 +92,7 @@ export const routeConfig = {
     pathname: "/intro/",
     exact: true,
     label: "Intro",
-    // Component: IntroAppPage,
-    Component: ConnexionPage,
-    // Component: CodeConnexionPage,
-    // Component: CodeSigninPage,
-    // Component: TellMorePage,
+    Component: LoginPage,
     hasLayout: false,
     layoutProps: {
       smallBackgroundColor: style.black25,

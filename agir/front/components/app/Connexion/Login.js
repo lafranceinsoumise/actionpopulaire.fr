@@ -38,16 +38,20 @@ const mockMails = ["nom.prenom@email.com"];
 const Login = () => {
   const [existantMails, setExistantMails] = useState(mockMails);
   const [showMore, setShowMore] = useState(false);
-  
+
   const handleShowMore = () => {
     setShowMore(true);
   };
 
   return (
-    <div style={{width: "400px", maxWidth: "100%"}}>
+    <div style={{ width: "400px", maxWidth: "100%" }}>
       <h1>Je me connecte</h1>
       <div
-        style={{ marginTop: "0.5rem", display: "inline-block", textAlign: "left" }}
+        style={{
+          marginTop: "0.5rem",
+          display: "inline-block",
+          textAlign: "left",
+        }}
       >
         <span>Pas encore de compte ?</span>
         &nbsp;
