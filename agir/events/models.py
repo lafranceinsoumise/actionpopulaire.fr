@@ -211,6 +211,12 @@ report_image_path = FilePattern(
 
 class EventManager(models.Manager.from_queryset(EventQuerySet)):
     def create(self, *args, **kwargs):
+        subtype = kwargs.get("subtype", None)
+        if subtype:
+            kwargs["description"] = kwargs.get(
+                "description", subtype.default_description
+            )
+            kwargs["image"] = kwargs.get("image", subtype.default_image)
         return self.create_event(*args, **kwargs)
 
     def create_event(
