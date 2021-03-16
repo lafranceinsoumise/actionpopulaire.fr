@@ -32,19 +32,23 @@ const RequiredActivityPage = lazy(() =>
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
 );
-const LoginPage = lazy(() => import("@agir/front/authentication/LoginPage"));
-const SignupPage = lazy(() => import("@agir/front/authentication/SignupPage"));
 
 const IntroAppPage = lazy(() => import("@agir/front/app/IntroApp"));
-const SigninPage = lazy(() => import("@agir/front/app/Connexion/SigninPage"));
-const LoginPage = lazy(() => import("@agir/front/app/Connexion/LoginPage"));
-const CodeConnexionPage = lazy(() =>
-  import("@agir/front/app/Connexion/CodeConnexion")
+const SignupPage = lazy(() =>
+  import("@agir/front/authentication/Connexion/SignupPage")
 );
-const CodeSigninPage = lazy(() =>
-  import("@agir/front/app/Connexion/CodeSignin")
+const LoginPage = lazy(() =>
+  import("@agir/front/authentication/Connexion/LoginPage")
 );
-const TellMorePage = lazy(() => import("@agir/front/app/Connexion/TellMore"));
+const CodeLoginPage = lazy(() =>
+  import("@agir/front/authentication/Connexion/CodeLogin")
+);
+const CodeSignupPage = lazy(() =>
+  import("@agir/front/authentication/Connexion/CodeSignup")
+);
+const TellMorePage = lazy(() =>
+  import("@agir/front/authentication/Connexion/TellMore")
+);
 
 export const BASE_PATH = "/";
 
@@ -255,6 +259,38 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Inscription",
     Component: SignupPage,
+  }),
+  codeLogin: new RouteConfig({
+    id: "codeLogin",
+    pathname: "/connexion/code/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Code de connexion",
+    Component: CodeLoginPage,
+  }),
+  codeSignup: new RouteConfig({
+    id: "codeSignup",
+    pathname: "/inscription/code/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Code d'inscription'",
+    Component: CodeSignupPage,
+  }),
+  tellMore: new RouteConfig({
+    id: "tellMore",
+    pathname: "/bienvenue/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "J'en dis plus",
+    Component: TellMorePage,
+  }),
+  introApp: new RouteConfig({
+    id: "introApp",
+    pathname: "/intro/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Introduction",
+    Component: IntroAppPage,
   }),
 };
 

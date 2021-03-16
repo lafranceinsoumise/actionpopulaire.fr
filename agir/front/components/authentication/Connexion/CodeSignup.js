@@ -6,13 +6,11 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
-
 import JLM_rounded from "@agir/front/genericComponents/images/JLM_rounded.png";
 import LFI_rounded from "@agir/front/genericComponents/images/LFI_rounded.png";
 import checkCirclePrimary from "@agir/front/genericComponents/images/check-circle-primary.svg";
 
 const Container = styled.div`
-  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;

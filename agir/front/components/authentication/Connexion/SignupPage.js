@@ -4,7 +4,7 @@ import bgMobile from "@agir/front/genericComponents/images/login_bg_mobile.svg";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
-import SignIn from "./Signin";
+import Signup from "./Signup";
 import LeftBlockDesktop from "./LeftBlockDesktop";
 
 const MainBlock = styled.div`
@@ -56,9 +56,9 @@ const BackgroundMobile = styled.div`
   background-repeat: no-repeat;
 `;
 
-const SigninPage = () => {
+const SignupPage = () => {
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div style={{ display: "flex" }}>
       <LeftBlockDesktop />
       <MainBlock>
         <Container>
@@ -70,7 +70,7 @@ const SigninPage = () => {
             />
           </Hide>
 
-          <SignIn />
+          <Signup />
         </Container>
 
         <Hide over>
@@ -81,4 +81,4 @@ const SigninPage = () => {
   );
 };
 
-export default SigninPage;
+export default SignupPage;

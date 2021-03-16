@@ -6,12 +6,12 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 const Container = styled.div`
-  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px;
+  text-align: center;
+  padding: 2rem;
 
   h1 {
     font-size: 28px;
@@ -19,45 +19,48 @@ const Container = styled.div`
     line-height: 39px;
     text-align: center;
     margin-bottom: 0px;
-    margin-top: 16px;
+    margin-top: 1rem;
   }
   p {
     text-align: center;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    display: block;
   }
 `;
 
 const Form = styled.div`
   box-sizing: border-box;
   margin: 0 auto;
-  margin-top: 36px;
+  margin-top: 2rem;
   display: flex;
+  text-align: left;
 
   Button {
-    margin-top: 24px;
-    margin-left: 10px;
+    margin-top: 1.5rem;
+    margin-left: 0.625rem;
     width: 140px;
     height: 41px;
     justify-content: center;
   }
 
-  //& > TextField {
-  & > label {
+  & > :first-child {
     font-weight: 600;
     width: 100%;
   }
 
   @media (max-width: ${style.collapse}px) {
     flex-flow: wrap;
-    //& > TextField {
-    & > label {
+    & > :first-child {
       width: 100%;
     }
     div {
       width: 100%;
       Button {
         width: 100%;
-        margin-left: 0px;
-        margin-top: 14px;
+        margin-left: 0;
+        margin-top: 0.875rem;
       }
     }
   }
@@ -75,7 +78,7 @@ const CodeConnexion = () => {
       <RawFeatherIcon name="mail" width="41px" height="41px" />
 
       <h1>Plus qu’une étape pour rejoindre l’action !</h1>
-      <p style={{ marginTop: "32px" }}>
+      <p style={{ marginTop: "2rem" }}>
         Entrez le code de connexion que nous avons envoyé à{" "}
         <strong>danielle@simonnet.fr</strong>
       </p>

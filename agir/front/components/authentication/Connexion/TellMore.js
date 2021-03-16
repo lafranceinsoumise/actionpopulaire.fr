@@ -104,7 +104,7 @@ const TellMore = () => {
       <MainBlock>
         <div style={{ width: "100%", maxWidth: "517px" }}>
           <h1>J’en dis plus sur moi</h1>
-          <label htmlFor="">Nom public</label>&nbsp;(obligatoire)
+          <label htmlFor="">Nom public</label> (obligatoire)
           <br />
           <span>
             Le nom que tout le monde pourra voir. Indiquez par exemple votre

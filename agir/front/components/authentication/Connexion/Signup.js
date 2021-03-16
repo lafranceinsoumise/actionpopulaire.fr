@@ -34,7 +34,7 @@ const defaultData = {
 
 const fromGroupEvent = false;
 
-const SignIn = () => {
+const SignUp = () => {
   const [rgpdChecked, setRgpdChecked] = useState(false);
   const [formData, setFormData] = useState(defaultData);
 
@@ -53,7 +53,7 @@ const SignIn = () => {
   };
 
   return (
-    <div style={{ width: "500px", maxWidth: "100%" }}>
+    <div style={{ width: "500px", maxWidth: "100%", paddingBottom: "1.5rem" }}>
       {!fromGroupEvent ? (
         <h1>Je m'inscris</h1>
       ) : (
@@ -165,4 +165,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignUp;

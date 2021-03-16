@@ -81,6 +81,26 @@ class IntroAppView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
 
 
+class SignupView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class LoginView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class CodeLoginView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class CodeSignupView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class TellMoreView(ReactBaseView):
+    bundle_name = "front/app"
+
+
 class WelcomeView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
 

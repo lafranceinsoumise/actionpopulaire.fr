@@ -58,7 +58,7 @@ const BackgroundMobile = styled.div`
 
 const LoginPage = () => {
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div style={{ display: "flex" }}>
       <LeftBlockDesktop />
       <MainBlock>
         <Container>
