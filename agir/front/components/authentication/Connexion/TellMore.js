@@ -20,7 +20,7 @@ const LeftBlock = styled.div`
 
 const MainBlock = styled.div`
   width: 60%;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
