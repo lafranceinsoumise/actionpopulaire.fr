@@ -7,6 +7,7 @@ import Link from "@agir/front/app/Link";
 import { signUp } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useHistory } from "react-router-dom";
+import { BlockSwitchLink } from "./styledComponents";
 
 const InputGroup = styled.div`
   display: inline-flex;
@@ -25,18 +26,15 @@ const InputGroup = styled.div`
     > div:nth-child(1) {
       width: 100%;
     }
-    > div:nth-child(2) {
-      width: 100%;
-  }
 `;
+
+const fromGroupEvent = false;
 
 const defaultData = {
   email: "",
   postalCode: "",
-  reasonChecked: 0,
+  reasonChecked: !fromGroupEvent ? 0 : null,
 };
-
-const fromGroupEvent = false;
 
 const SignUp = () => {
   const history = useHistory();
@@ -59,7 +57,12 @@ const SignUp = () => {
   };
 
   const handleSubmit = async () => {
+    if (!rgpdChecked) {
+      console.log("error : NO RGPD Checked");
+      return;
+    }
     setError({});
+    console.log("formData", formData);
     const data = await signUp(formData);
     console.log("data : ", data);
     if (data.error) {
@@ -80,13 +83,13 @@ const SignUp = () => {
         </h1>
       )}
 
-      <div style={{ display: "inline-block", marginTop: "0.5rem" }}>
+      <BlockSwitchLink>
         <span>Déjà inscrit·e ?</span>
         &nbsp;
-        <span style={{ color: style.primary500, fontWeight: 700 }}>
+        <span>
           <Link route="login">Je me connecte</Link>
         </span>
-      </div>
+      </BlockSwitchLink>
 
       {!fromGroupEvent && (
         <>
@@ -94,13 +97,15 @@ const SignUp = () => {
             style={{
               display: "inline-block",
               margin: "1.25rem 0",
-              fontWeight: 500,
+              marginBottom: "10px",
+              fontWeight: 600,
+              fontSize: "13px",
             }}
           >
             Pour quelle campagne rejoignez-vous Action Populaire ?
           </span>
 
-          <ul style={{ padding: "0", listStyleType: "none" }}>
+          <ul style={{ padding: "0", margin: "0", listStyleType: "none" }}>
             <li onClick={() => handleReasonChecked(0)}>
               <label style={{ cursor: "pointer", fontWeight: 400 }}>
                 <input
@@ -129,18 +134,18 @@ const SignUp = () => {
 
       <InputGroup>
         <div>
-          <label htmlFor="">Email</label>
           <TextField
+            label="Email"
             name="email"
             error={error && error.email}
-            placeholder="Adresse e-mail"
+            placeholder=""
             onChange={handleChange}
             value={formData.email}
           />
         </div>
         <div>
-          <label htmlFor="">Code postal</label>
           <TextField
+            label="Code postal"
             name="postalCode"
             error={error && error.postalCode}
             placeholder=""
@@ -159,7 +164,7 @@ const SignUp = () => {
           userSelect: "none",
         }}
       >
-        <input type="checkbox" checked={rgpdChecked} onChange={null} />
+        <input type="checkbox" checked={rgpdChecked} onChange={() => {}} />
         &nbsp;J'accepte que mes informations soient traitées par Action
         Populaire, conformément à la&nbsp;
         <a

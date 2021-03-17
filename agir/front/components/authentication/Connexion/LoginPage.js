@@ -7,7 +7,7 @@ import { MainBlock, Container, BackgroundMobile } from "./styledComponents";
 
 const LoginPage = () => {
   return (
-    <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", minHeight: "100vh" }}>
       <LeftBlockDesktop />
       <MainBlock>
         <Container>

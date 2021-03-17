@@ -4,6 +4,7 @@ import TextField from "@agir/front/formComponents/TextField";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
+import { updateProfile, getProfile } from "@agir/front/authentication/api";
 
 const LeftBlock = styled.div`
   width: 40%;
@@ -75,8 +76,8 @@ const InputCheckbox = styled.div`
 `;
 
 const TellMore = () => {
-  const [formData, setFormData] = useState({});
-  const [hasMandate, setHasMandate] = useState(false);
+  const [formData, setFormData] = useState({ hasMandate: false });
+  const [error, setError] = useState({});
 
   const handleInputChange = (e) => {
     const newFormData = { ...formData };
@@ -85,11 +86,18 @@ const TellMore = () => {
   };
 
   const handleHasMandate = () => {
-    setHasMandate(!hasMandate);
+    setFormData({ ...formData, hasMandate: !formData.hasMandate });
   };
 
-  const handleSubmit = () => {
-    console.log("formData : ", formData);
+  const handleSubmit = async () => {
+    setError({});
+    console.log("formData", formData);
+    const data = await updateProfile(formData);
+    console.log("data : ", data);
+    if (data.error) {
+      setError(data.error);
+      return;
+    }
   };
 
   return (
@@ -97,37 +105,36 @@ const TellMore = () => {
       <LeftBlock>
         <img
           src={helloDesktop}
-          alt=""
+          alt="Bienvenue"
           style={{ width: "220px", paddingRight: "60px" }}
         />
       </LeftBlock>
       <MainBlock>
         <div style={{ width: "100%", maxWidth: "517px" }}>
           <h1>J’en dis plus sur moi</h1>
-          <label htmlFor="">Nom public</label> (obligatoire)
+          <label>Nom public</label> (obligatoire)
           <br />
           <span>
             Le nom que tout le monde pourra voir. Indiquez par exemple votre
             prénom ou un pseudonyme.
           </span>
           <TextField
-            error=""
-            name="name"
+            error={error && error.displayName}
+            name="displayName"
             placeholder="Exemple : Marie R."
             onChange={handleInputChange}
-            value={formData.name}
+            value={formData.displayName}
           />
-          <label htmlFor="">Prénom</label> (facultatif)
+          <label>Prénom</label> (facultatif)
           <TextField
-            error=""
             name="firstName"
             placeholder=""
             onChange={handleInputChange}
             value={formData.firstName}
           />
-          <label htmlFor="">Nom</label> (facultatif)
+          <label htmlFor="lastName">Nom</label> (facultatif)
           <TextField
-            error=""
+            id="lastName"
             name="lastName"
             placeholder=""
             onChange={handleInputChange}
@@ -135,9 +142,10 @@ const TellMore = () => {
           />
           <InputGroup>
             <div>
-              <label htmlFor="">Code postal</label>
+              <label htmlFor="postalCode">Code postal</label>
               <TextField
-                error=""
+                id="postalCode"
+                error={error && error.postalCode}
                 name="postalCode"
                 placeholder=""
                 onChange={handleInputChange}
@@ -145,18 +153,23 @@ const TellMore = () => {
               />
             </div>
             <div>
-              <label htmlFor="">Numéro de téléphone</label> (facultatif)
+              <label htmlFor="phone">Numéro de téléphone</label> (facultatif)
               <TextField
-                error=""
+                id="phone"
+                error={error && error.phone}
                 name="phone"
-                placeholder=""
                 onChange={handleInputChange}
                 value={formData.phone}
               />
             </div>
           </InputGroup>
           <InputCheckbox onClick={handleHasMandate}>
-            <input type="checkbox" name="mandat" checked={hasMandate} />
+            <input
+              type="checkbox"
+              name="mandat"
+              checked={formData.hasMandate}
+              onChange={() => {}}
+            />
             <span style={{ fontSize: "16px" }}>&nbsp; J'ai un mandat</span>
           </InputCheckbox>
           <Button

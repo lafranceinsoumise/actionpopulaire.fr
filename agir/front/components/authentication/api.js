@@ -66,9 +66,13 @@ export const signUp = async (data) => {
     data: null,
     error: null,
   };
+  const formData = {
+    email: data.email,
+    location_zip: data.postalCode,
+  };
   const url = ENDPOINT.signUp;
   try {
-    const response = await axios.post(url, data);
+    const response = await axios.post(url, formData);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
@@ -114,9 +118,18 @@ export const updateProfile = async (data) => {
     data: null,
     error: null,
   };
+  const formData = {
+    displayName: data.displayName || null,
+    firstName: data.firstName || null,
+    lastName: data.lastName || null,
+    is2022: data.reasonChecked === 0 || null,
+    isInsoumise: data.reasonChecked === 1 || null,
+    contactPhone: data.phone || null,
+    mandat: data.mandat || null,
+  };
   const url = ENDPOINT.updateProfile;
   try {
-    const response = await axios.patch(url, data);
+    const response = await axios.patch(url, formData);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

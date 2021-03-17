@@ -46,9 +46,11 @@ const ButtonContainer = styled.div`
 const BackgroundTriangle = styled.div`
   width: 100%;
   background-color: ${style.secondary500};
+  margin-top: -1px;
   div {
     background-color: white;
     height: 80px;
+    margin-bottom: -1px;
     clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
   }
 `;
@@ -119,7 +121,7 @@ const IntroApp = () => {
   }, []);
 
   const handleClickBack = useCallback(() => {
-    setIndex((index) => index - 1);
+    setIndex((index) => 0);
   }, []);
 
   return (

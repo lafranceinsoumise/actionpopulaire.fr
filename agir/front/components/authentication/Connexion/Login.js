@@ -7,6 +7,11 @@ import LoginMailEmpty from "./LoginMailEmpty";
 import LoginFacebook from "./LoginFacebook";
 import styled from "styled-components";
 import Link from "@agir/front/app/Link";
+import { BlockSwitchLink } from "@agir/front/authentication/Connexion/styledComponents";
+import { login } from "@agir/front/authentication/api";
+import { routeConfig } from "@agir/front/app/routes.config";
+import { useHistory } from "react-router-dom";
+import { useBookmarkedEmails } from "@agir/front/authentication/hooks";
 
 const Toast = styled.div`
   padding: 1rem;
@@ -33,6 +38,19 @@ const ShowMore = styled.div`
   text-align: left;
 `;
 
+const ContainerConnexion = styled.div`
+  width: 400px;
+  max-width: 100%;
+`;
+
+const LoginMailButton = styled(Button)`
+  margin-top: 0.5rem;
+  margin-left: 0;
+  max-width: 100%;
+  width: 400px;
+  justify-content: space-between;
+`;
+
 const ToastNotConnected = () => {
   return (
     <Toast>
@@ -43,99 +61,73 @@ const ToastNotConnected = () => {
 };
 
 //const mockMails = ["nom.prenom@email.com", "test@franceinsoumise.org"];
-const mockMails = ["nom.prenom@email.com"];
 
 const Login = () => {
-  const [existantMails, setExistantMails] = useState(mockMails);
+  const history = useHistory();
+  const bookmarkedEmails = useBookmarkedEmails();
   const [showMore, setShowMore] = useState(false);
 
   const handleShowMore = () => {
     setShowMore(true);
   };
 
+  const loginBookmarkedMail = async (email) => {
+    const data = await login(email);
+    console.log("data", data);
+    const route = routeConfig.codeLogin.getLink();
+    history.push(route);
+  };
+
   return (
-    <div style={{ width: "400px", maxWidth: "100%" }}>
+    <ContainerConnexion>
       <h1>Je me connecte</h1>
-      <div
-        style={{
-          marginTop: "0.5rem",
-          display: "inline-block",
-          textAlign: "left",
-        }}
-      >
+
+      <BlockSwitchLink>
         <span>Pas encore de compte ?</span>
         &nbsp;
-        <span style={{ color: style.primary500, fontWeight: 700 }}>
+        <span>
           <Link route="signup">Je m'inscris</Link>
         </span>
-      </div>
+      </BlockSwitchLink>
 
       {/* <ToastNotConnected /> */}
 
-      {/* EXISTANT MAILS */}
-      {existantMails.length > 0 && (
+      {bookmarkedEmails[0].length > 0 && (
         <div style={{ marginTop: "24px" }}>
           <span style={{ fontWeight: 500 }}>À mon compte :</span>
 
-          {existantMails.map((mail, id) => (
-            <Button
+          {bookmarkedEmails[0].map((mail, id) => (
+            <LoginMailButton
               key={id}
               color="primary"
-              style={{
-                marginTop: "0.5rem",
-                marginLeft: "0",
-                maxWidth: "100%",
-                width: "400px",
-                justifyContent: "space-between",
-              }}
+              onClick={() => loginBookmarkedMail(mail)}
             >
               {mail}
-              <img src={arrowRight} style={{ color: "white" }} alt="" />
-            </Button>
+              <img src={arrowRight} style={{ color: "white" }} />
+            </LoginMailButton>
           ))}
         </div>
       )}
 
-      {!showMore && (
+      {!showMore ? (
         <ShowMore onClick={handleShowMore}>
-          Afficher tout <img src={chevronDown} alt="" />
+          Afficher tout <img src={chevronDown} alt="Afficher plus" />
         </ShowMore>
-      )}
-
-      {showMore && (
-        <div style={{ textAlign: "center", margin: "6px", fontSize: "14px" }}>
+      ) : (
+        <div
+          style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}
+        >
           OU
         </div>
       )}
 
-      {(showMore || !(existantMails.length > 0)) && (
-        <>
-          <LoginMailEmpty />
-          <div
-            style={{ textAlign: "center", margin: "21px", fontSize: "14px" }}
-          >
-            OU
-          </div>
-          <LoginFacebook />
-        </>
-      )}
+      {(showMore || !(bookmarkedEmails[0].length > 0)) && <LoginMailEmpty />}
 
-      {showMore && (
-        <div className="mobile-center" style={{ marginTop: "24px" }}>
-          Pas encore de compte ? <br />
-          <div
-            style={{
-              fontWeight: "700",
-              color: style.primary500,
-              display: "inline-block",
-              textAlign: "left",
-            }}
-          >
-            <Link route="signup">Rejoignez Action Populaire</Link>
-          </div>
-        </div>
-      )}
-    </div>
+      <div style={{ textAlign: "center", margin: "20px", fontSize: "14px" }}>
+        OU
+      </div>
+      <LoginFacebook />
+    </ContainerConnexion>
   );
 };
 

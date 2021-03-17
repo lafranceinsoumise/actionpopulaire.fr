@@ -9,9 +9,11 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import JLM_rounded from "@agir/front/genericComponents/images/JLM_rounded.png";
 import LFI_rounded from "@agir/front/genericComponents/images/LFI_rounded.png";
 import checkCirclePrimary from "@agir/front/genericComponents/images/check-circle-primary.svg";
+import { checkCode } from "@agir/front/authentication/api";
 
 const Container = styled.div`
   display: flex;
+  min-height: 100vh;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -19,7 +21,7 @@ const Container = styled.div`
   padding: 24px;
 
   h1 {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 700,
     line-height: 39px;
     text-align: center;
@@ -29,6 +31,11 @@ const Container = styled.div`
   }
   p {
     text-align: center;
+  }
+  @media (max-width: ${style.collapse}px) {
+    h1 {
+      font-size: 18px;
+    }
   }
 `;
 
@@ -48,11 +55,16 @@ const Form = styled.div`
   }
 
   & > :first-child {
+    max-width: 212px;
     width: 100%;
   }
 
   @media (max-width: ${style.collapse}px) {
     flex-flow: wrap;
+    & > :first-child {
+      max-width: 100%;
+      width: 100%;
+    }
     div {
       width: 100%;
       Button {
@@ -72,6 +84,7 @@ const ContainerRadio = styled.div`
   display: flex;
   max-width: 525px;
   width: 100%;
+  user-select: none;
   @media (max-width: ${style.collapse}px) {
     flex-direction: column;
   }
@@ -236,6 +249,17 @@ const CodeSignin = () => {
       else return 0;
     });
   });
+
+  const handleSubmitCode = async () => {
+    setError({});
+    const data = await checkCode(code);
+    console.log("data : ", data);
+    if (data.error) {
+      setError(data.error);
+      return;
+    }
+    setStep(1);
+  };
 
   return (
     <Container>

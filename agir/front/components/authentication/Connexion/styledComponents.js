@@ -3,7 +3,8 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import bgMobile from "@agir/front/genericComponents/images/login_bg_mobile.svg";
 
 export const MainBlock = styled.div`
-  width: 60%;
+  width: calc(100% - 500px);
+  min-width: 60%;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -24,6 +25,7 @@ export const MainBlock = styled.div`
 
     h1 {
       font-size: 28px;
+      text-align: center;
     }
 
     .mobile-center {
@@ -54,4 +56,21 @@ export const BackgroundMobile = styled.div`
   background-image: url(${bgMobile});
   background-size: cover;
   background-repeat: no-repeat;
+`;
+
+export const BlockSwitchLink = styled.div`
+  margin-top: 0.5rem;
+  display: inline-block;
+  text-align: left;
+
+  span:nth-child(2) {
+    color: ${style.primary500};
+    font-weight: 700;
+    display: inline-block;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    text-align: center;
+    width: 100%;
+  }
 `;
