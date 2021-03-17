@@ -145,10 +145,10 @@ const DateTimeField = (props) => {
     (e) => {
       const datetime = { time, date };
       const now = parseDatetime(new Date().toISOString());
-      if (e.target.type === "date") {
+      if (e.target.dataset.type === "date") {
         datetime.date = e.target.value || now.date;
       }
-      if (e.target.type === "time") {
+      if (e.target.dataset.type === "time") {
         datetime.time = e.target.value || now.time;
       }
       onChange && onChange(stringifyDatetime(datetime));
@@ -171,6 +171,7 @@ const DateTimeField = (props) => {
             {...rest}
             {...dateFieldProps}
             type="date"
+            data-type="date"
             pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
             onChange={handleChange}
             value={date}
@@ -182,6 +183,7 @@ const DateTimeField = (props) => {
             {...rest}
             {...timeFieldProps}
             type="time"
+            data-type="time"
             pattern="[0-9]{2}:[0-9]{2}"
             step="60"
             onChange={handleChange}
