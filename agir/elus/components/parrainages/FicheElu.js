@@ -80,12 +80,12 @@ const CadreAvertissement = styled.div`
 `;
 
 const BoutonCreerParrainage = ({ elu, onStatusChange }) => {
-  const [state, setState] = useState(RequestStatus.IDLE);
+  const [state, setState] = useState(RequestStatus.IDLE());
   const callback = useCallback(async () => {
-    setState(RequestStatus.LOADING);
+    setState(RequestStatus.LOADING());
     try {
       const res = await creerRechercheParrainage(elu.id);
-      setState(RequestStatus.IDLE);
+      setState(RequestStatus.IDLE());
       onStatusChange({
         ...elu,
         statut: ELU_STATUTS.A_CONTACTER,
@@ -112,10 +112,10 @@ BoutonCreerParrainage.propTypes = {
 };
 
 const BoutonAnnuler = ({ elu, onStatusChange }) => {
-  const [state, setState] = useState(RequestStatus.IDLE);
+  const [state, setState] = useState(RequestStatus.IDLE());
   const annuler = useCallback(async () => {
     try {
-      setState(RequestStatus.LOADING);
+      setState(RequestStatus.LOADING());
       await terminerParrainage(elu.idRechercheParrainage, {
         statut: ISSUE.ANNULE,
       });
@@ -124,7 +124,7 @@ const BoutonAnnuler = ({ elu, onStatusChange }) => {
         idRechercheParrainage: null,
         statut: ELU_STATUTS.DISPONIBLE,
       });
-      setState(RequestStatus.IDLE);
+      setState(RequestStatus.IDLE());
     } catch (e) {
       setState(RequestStatus.ERROR(e.message));
     }
@@ -155,14 +155,14 @@ BoutonAnnuler.propTypes = {
 };
 
 const FormulaireTerminerParrainage = ({ elu, onStatusChange }) => {
-  const [state, setState] = useState(RequestStatus.IDLE);
+  const [state, setState] = useState(RequestStatus.IDLE());
   const [decision, setDecision] = useState(null);
   const fileInput = useRef();
   const commentaireInput = useRef();
 
   const soumettreFormulaire = useCallback(async (e) => {
     e.preventDefault();
-    setState(RequestStatus.LOADING);
+    setState(RequestStatus.LOADING());
 
     const file =
       fileInput.current.files.length > 0 ? fileInput.current.files[0] : null;
@@ -175,7 +175,7 @@ const FormulaireTerminerParrainage = ({ elu, onStatusChange }) => {
         commentaire,
         formulaire: file,
       });
-      setState(RequestStatus.IDLE);
+      setState(RequestStatus.IDLE());
       onStatusChange({
         ...elu,
         statut: ELU_STATUTS.PERSONNELLEMENT_VU,

@@ -4,8 +4,12 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 export const RequestStatus = {
-  IDLE: { isIdle: true, isLoading: false, isError: false },
-  LOADING: { isIdle: false, isLoading: true, isError: false },
+  IDLE: () => ({ isIdle: true, isLoading: false, isError: false }),
+  LOADING: () => ({
+    isIdle: false,
+    isLoading: true,
+    isError: false,
+  }),
   ERROR: (message) => ({
     isIdle: false,
     isLoading: false,
