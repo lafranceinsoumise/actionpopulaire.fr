@@ -4,39 +4,11 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import ResultBox from "./ResultBox";
 import { InfosElu } from "./types";
-import axios from "@agir/lib/utils/axios";
 import defaultAxios from "axios";
 import { useDebounce } from "../../../lib/components/utils/hooks";
 import AnimatedMoreHorizontal from "../../../front/components/genericComponents/AnimatedMoreHorizontal";
 import ScrollableBlock from "./ScrollableBlock";
-
-const SEARCH_URL = "/api/parrainages/chercher/";
-
-const chercherElus = async (query, cancelToken = null) => {
-  if (query.trim().length < 3) {
-    return null;
-  }
-
-  const params = new URLSearchParams([["q", query]]);
-
-  try {
-    const res = await axios.get(SEARCH_URL, {
-      params,
-      cancelToken: cancelToken,
-      headers: { Accept: "application/json" },
-    });
-
-    console.log("Got it !!!");
-    console.log(res.data);
-
-    return res.data;
-  } catch (e) {
-    if (defaultAxios.isCancel(e)) {
-      return null;
-    }
-    throw new Error("Problème de connexion.");
-  }
-};
+import { chercherElus } from "./queries";
 
 const SearchInputLayout = styled.div`
   flex-grow: 0;

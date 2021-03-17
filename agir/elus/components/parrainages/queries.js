@@ -9,10 +9,6 @@ const DISCONNECTED_MESSAGE =
   "Vous n'êtes plus connectés à Action Populaire. Rechargez la page pour vours reconnecter.";
 
 export const chercherElus = async (query, cancelToken = null) => {
-  if (query.trim().length < 3) {
-    return null;
-  }
-
   const params = new URLSearchParams([["q", query]]);
 
   try {
@@ -21,8 +17,6 @@ export const chercherElus = async (query, cancelToken = null) => {
       cancelToken: cancelToken,
       headers: { Accept: "application/json" },
     });
-
-    console.log(res.data);
 
     return res.data;
   } catch (e) {
