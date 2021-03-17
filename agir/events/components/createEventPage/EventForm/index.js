@@ -367,6 +367,20 @@ const EventForm = () => {
     }
   }, [search, options, formData]);
 
+  useEffect(() => {
+    if (
+      options &&
+      options.organizerGroup &&
+      options.organizerGroup.length === 1 &&
+      !formData.organizerGroup
+    ) {
+      setFormData((state) => ({
+        ...state,
+        organizerGroup: options.organizerGroup[0],
+      }));
+    }
+  }, [options, formData]);
+
   return (
     <StyledForm onSubmit={handleSubmit} disabled={isLoading} noValidate>
       <Spacer size="0" ref={nameRef} />
