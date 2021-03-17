@@ -75,6 +75,8 @@ const InputCheckbox = styled.div`
   margin-top: 0.625rem;
 `;
 
+const facultatif = <span style={{ fontWeight: 400 }}>(facultatif)</span>;
+
 const TellMore = () => {
   const [formData, setFormData] = useState({ hasMandate: false });
   const [error, setError] = useState({});
@@ -112,7 +114,7 @@ const TellMore = () => {
       <MainBlock>
         <div style={{ width: "100%", maxWidth: "517px" }}>
           <h1>J’en dis plus sur moi</h1>
-          <label>Nom public</label> (obligatoire)
+          <label style={{ marginBottom: "0" }}>Nom public</label> (obligatoire)
           <br />
           <span>
             Le nom que tout le monde pourra voir. Indiquez par exemple votre
@@ -125,15 +127,15 @@ const TellMore = () => {
             onChange={handleInputChange}
             value={formData.displayName}
           />
-          <label>Prénom</label> (facultatif)
           <TextField
+            label={<>Prénom {facultatif}</>}
             name="firstName"
             placeholder=""
             onChange={handleInputChange}
             value={formData.firstName}
           />
-          <label htmlFor="lastName">Nom</label> (facultatif)
           <TextField
+            label={<>Nom {facultatif}</>}
             id="lastName"
             name="lastName"
             placeholder=""
@@ -142,8 +144,8 @@ const TellMore = () => {
           />
           <InputGroup>
             <div>
-              <label htmlFor="postalCode">Code postal</label>
               <TextField
+                label="Code postal"
                 id="postalCode"
                 error={error && error.postalCode}
                 name="postalCode"
@@ -153,8 +155,8 @@ const TellMore = () => {
               />
             </div>
             <div>
-              <label htmlFor="phone">Numéro de téléphone</label> (facultatif)
               <TextField
+                label={<>Numéro de téléphone {facultatif}</>}
                 id="phone"
                 error={error && error.phone}
                 name="phone"
