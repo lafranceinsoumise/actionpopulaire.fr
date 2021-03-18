@@ -97,6 +97,10 @@ class CodeSignupView(ReactBaseView):
     bundle_name = "front/app"
 
 
+class ChooseCampaignView(ReactBaseView):
+    bundle_name = "front/app"
+
+
 class TellMoreView(ReactBaseView):
     bundle_name = "front/app"
 

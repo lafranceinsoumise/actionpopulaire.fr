@@ -22,7 +22,7 @@ const Block = styled.div`
   flex-direction: column;
   text-align: center;
 
-  & > div {
+  & > div:nth-child(2) {
     max-width: 100%;
     padding-left: 2rem;
     padding-right: 2rem;
@@ -37,10 +37,12 @@ const BlockConnexion = styled.div`
 `;
 
 const ButtonContainer = styled.div`
-  margin-bottom: 40px;
   display: flex;
   flex-align: center;
   flex-direction: column;
+  width: 100%;
+  align-items: center;
+  padding: 1rem;
 `;
 
 const BackgroundTriangle = styled.div`
@@ -52,6 +54,35 @@ const BackgroundTriangle = styled.div`
     height: 80px;
     margin-bottom: -1px;
     clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
+  }
+`;
+
+const PurpleTriangle = styled.div`
+  width: 100%;
+  background-color: ${style.primary500};
+  margin-top: -1px;
+  div {
+    background-color: white;
+    height: 80px;
+    margin-bottom: -1px;
+    clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
+  }
+`;
+
+const HeaderImage = styled.div`
+  background-color: #fff;
+  position: relative;
+  padding-bottom: 90px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  img {
+    width: 90%;
+    max-width: 358px;
+    position: absolute;
+    bottom: 0;
   }
 `;
 
@@ -121,16 +152,22 @@ const IntroApp = () => {
   }, []);
 
   const handleClickBack = useCallback(() => {
-    setIndex((index) => 0);
+    setIndex(0);
   }, []);
 
   return (
     <>
       {!showConnexion && (
         <Block>
-          <div>
-            <img src={items[index].image} alt="" style={{ maxWidth: "100%" }} />
+          <HeaderImage>
+            <PurpleTriangle style={{ paddingTop: "120px" }}>
+              <div></div>
+            </PurpleTriangle>
 
+            <img src={items[index].image} />
+          </HeaderImage>
+
+          <div style={{ paddingTop: "47px" }}>
             <p
               style={{
                 color: style.primary500,
@@ -149,7 +186,7 @@ const IntroApp = () => {
               Continuer
             </StyledButton>
 
-            <div style={{ marginTop: "3rem" }}>
+            <div style={{ marginTop: "3rem", marginBottom: "1.5rem" }}>
               <Mark $active={0 === index}></Mark>
               <Mark $active={1 === index}></Mark>
               <Mark $active={2 === index}></Mark>

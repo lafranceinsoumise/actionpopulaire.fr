@@ -1,10 +1,13 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { checkCode } from "@agir/front/authentication/api";
+import { routeConfig } from "@agir/front/app/routes.config";
+import { useHistory } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -71,7 +74,8 @@ const Form = styled.div`
   }
 `;
 
-const CodeConnexion = () => {
+const CodeConnexion = ({ localCode = "" }) => {
+  const history = useHistory();
   const [code, setCode] = useState("");
   const [error, setError] = useState({});
 
@@ -87,6 +91,10 @@ const CodeConnexion = () => {
       setError(data.error);
       return;
     }
+    const route = routeConfig.events.getLink();
+    history.push(route);
+    // need to reload navbar
+    // window.location.href = "/";
   };
 
   return (
@@ -95,11 +103,24 @@ const CodeConnexion = () => {
 
       <h1>Votre code de connexion vous a été envoyé par e-mail</h1>
 
+      {localCode && (
+        <h2
+          style={{
+            padding: "1rem 2rem",
+            margin: "0",
+            marginTop: "1rem",
+            backgroundColor: style.green100,
+          }}
+        >
+          {localCode}
+        </h2>
+      )}
+
       <p style={{ marginTop: "2rem" }}>
         Entrez le code de connexion que nous avons envoyé à{" "}
         <strong>danielle@simonnet.fr</strong>
       </p>
-      <p style={{ marginBottom: "0px" }}>
+      <p style={{ marginBottom: "0" }}>
         Si l’adresse e-mail n’est pas reconnue, il vous sera proposé de vous
         inscrire.
       </p>
@@ -119,6 +140,10 @@ const CodeConnexion = () => {
       </Form>
     </Container>
   );
+};
+
+CodeConnexion.propTypes = {
+  localCode: PropTypes.string,
 };
 
 export default CodeConnexion;

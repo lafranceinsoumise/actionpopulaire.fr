@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
+import Toast from "@agir/front/genericComponents/Toast";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import Link from "@agir/front/app/Link";
@@ -177,9 +178,8 @@ const SignUp = () => {
           politique de conservation des données
         </a>
       </div>
-      {error && !!error.rgpd && (
-        <div style={{ color: "red", padding: "0.5rem 0" }}>{error.rgpd}</div>
-      )}
+
+      {error && !!error.rgpd && <Toast>{error.rgpd}</Toast>}
 
       <Button
         onClick={handleSubmit}

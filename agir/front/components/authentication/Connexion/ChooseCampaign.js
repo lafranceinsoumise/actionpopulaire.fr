@@ -134,6 +134,8 @@ const ChoseCampaign = () => {
     setReasonChecked(value);
   };
 
+  const handleSubmit = () => {};
+
   return (
     <Container>
       {fromSignup && (
@@ -195,7 +197,7 @@ const ChoseCampaign = () => {
 
       <Button
         color="primary"
-        onClick={handleCodeValidation}
+        onClick={handleSubmit}
         style={{
           width: "356px",
           maxWidth: "100%",

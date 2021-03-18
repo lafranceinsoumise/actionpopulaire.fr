@@ -49,6 +49,9 @@ const CodeSignupPage = lazy(() =>
 const TellMorePage = lazy(() =>
   import("@agir/front/authentication/Connexion/TellMore")
 );
+const ChooseCampaignPage = lazy(() =>
+  import("@agir/front/authentication/Connexion/ChooseCampaign")
+);
 
 export const BASE_PATH = "/";
 
@@ -249,7 +252,7 @@ export const routeConfig = {
   }),
   codeLogin: new RouteConfig({
     id: "codeLogin",
-    pathname: "/connexion/code/",
+    pathname: "/connexion/code/:localCode?",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Code de connexion",
@@ -262,6 +265,14 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Code d'inscription'",
     Component: CodeSignupPage,
+  }),
+  chooseCampaign: new RouteConfig({
+    id: "chooseCampaign",
+    pathname: "/choix-campagne/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Choisir une campagne",
+    Component: ChooseCampaignPage,
   }),
   tellMore: new RouteConfig({
     id: "tellMore",

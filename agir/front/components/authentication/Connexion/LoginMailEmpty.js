@@ -22,7 +22,10 @@ const LoginMailEmpty = () => {
       setError(data.error);
       return;
     }
-    const route = routeConfig.codeLogin.getLink();
+
+    const localCode = data.data.code;
+    const sendCode = localCode ? { localCode: data.data.code } : {};
+    const route = routeConfig.codeLogin.getLink(sendCode);
     history.push(route);
   };
 
@@ -38,7 +41,7 @@ const LoginMailEmpty = () => {
         <TextField
           id="field"
           label="Adresse e-mail"
-          error={error && error.email}
+          error={error && (error.email || error.detail)}
           placeholder="Adresse e-mail"
           onChange={handleInputChange}
           value={email}
