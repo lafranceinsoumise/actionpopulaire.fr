@@ -87,9 +87,6 @@ const CodeConnexion = () => {
       setError(data.error);
       return;
     }
-    // redirect to home
-    // const route = routeConfig..getLink();
-    // history.push(route);
   };
 
   return (

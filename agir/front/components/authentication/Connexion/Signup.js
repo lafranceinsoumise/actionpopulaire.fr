@@ -154,7 +154,7 @@ const SignUp = () => {
             error={error && error.location_zip}
             placeholder=""
             onChange={handleChange}
-            value={formData.posatalCode}
+            value={formData.postalCode}
           />
         </div>
       </InputGroup>
