@@ -27,6 +27,7 @@ const Template = (args) => {
     >
       <DateTimeField {...args} value={value} onChange={handleChange} />
       <pre>Value : {value ? <strong>{value}</strong> : <em>empty</em>}</pre>
+      <button onClick={() => setValue(args.value)}>Reset</button>
     </div>
   );
 };

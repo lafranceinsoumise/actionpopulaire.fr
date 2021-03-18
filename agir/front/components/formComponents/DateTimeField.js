@@ -1,16 +1,34 @@
-import { DateTime } from "luxon";
+import moment from "moment";
 import PropTypes from "prop-types";
-import React, { useMemo, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import Datetime from "react-datetime";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
+import "moment/locale/fr";
+import "react-datetime/css/react-datetime.css";
+
 const StyledLabel = styled.span``;
 const StyledHelpText = styled.span``;
 const StyledInputs = styled.span``;
-const StyledInput = styled.input``;
+const StyledInput = styled(Datetime)`
+  .rdtPicker {
+    width: calc(100% + 2px);
+    margin-top: 0px;
+    margin-left: -1px;
+    background-color: ${style.white};
+    border: 1px solid ${style.black100};
+    box-shadow: 0px 3px 2px rgba(0, 35, 44, 0.05);
+
+    @media (max-width: ${style.collapse}px) {
+      width: ${({ $type }) =>
+        $type === "date" ? "250px" : "calc(100% + 2px)"};
+    }
+  }
+`;
 const StyledIcon = styled.span``;
 const StyledError = styled.span``;
 
@@ -51,12 +69,22 @@ const StyledField = styled.label`
     border: 1px solid;
     border-color: ${({ $invalid }) =>
       $invalid ? style.redNSP : style.black100};
-    padding: 0.5rem;
     height: 40px;
     font-size: 1rem;
+    padding: 0;
+
+    input,
+    input:focus {
+      margin: 0;
+      padding: 0.5rem;
+      border: none;
+      outline: none;
+      width: 100%;
+      height: 100%;
+    }
 
     &:last-child {
-      padding-right: ${({ $invalid }) => ($invalid ? "2.25rem" : "0.5rem")};
+      padding-right: ${({ $invalid }) => ($invalid ? "2.25rem" : "0")};
     }
 
     &:focus {
@@ -92,36 +120,18 @@ const StyledField = styled.label`
 `;
 
 const parseDatetime = (datetime) => {
-  const result = {
-    date: "",
-    time: "",
+  const date = moment(datetime).isValid() ? moment(datetime) : moment();
+  return {
+    date: date.format("DD/MM/YYYY"),
+    time: date.format("HH:mm"),
   };
-  try {
-    datetime = DateTime.fromISO(datetime, { locale: "fr" });
-    result.date = datetime.toFormat("yyyy-MM-dd");
-    result.time = datetime.toFormat("HH:mm");
-  } catch (e) {
-    if (datetime && typeof datetime === "string") {
-      result.date = datetime.match(/(\d{4}-\d{2}-\d{1,2}).*/);
-      result.date = result.date
-        ? result.date[1]
-        : new Date().toISOString().substr(0, 10);
-
-      result.time = datetime.match(/(\d{2}:\d{2}).*/);
-      result.time = result.time ? result.time[1] : "00:00";
-    }
-  }
-  return result;
 };
 
 const stringifyDatetime = (datetime) => {
-  let result = datetime.date + "T" + (datetime.time || "00:00") + ":00";
-  try {
-    result = DateTime.fromISO(result, { locale: "fr" });
-    return result.toISO({ includeOffset: false, locale: "fr" });
-  } catch (e) {
-    return result;
-  }
+  return moment(
+    datetime.date + " " + datetime.time,
+    "DD/MM/YYYY HH:mm"
+  ).format();
 };
 
 const DateTimeField = (props) => {
@@ -133,28 +143,43 @@ const DateTimeField = (props) => {
     error,
     label,
     helpText,
-    autoFocus,
     dateFieldProps,
     timeFieldProps,
     ...rest
   } = props;
+  const parsedValue = useMemo(() => parseDatetime(value), [value]);
+  const [time, setTime] = useState(parsedValue.time);
+  const [date, setDate] = useState(parsedValue.date);
 
-  const { time, date } = useMemo(() => parseDatetime(value), [value]);
-
-  const handleChange = useCallback(
-    (e) => {
-      const datetime = { time, date };
-      const now = parseDatetime(new Date().toISOString());
-      if (e.target.dataset.type === "date") {
-        datetime.date = e.target.value || now.date;
-      }
-      if (e.target.dataset.type === "time") {
-        datetime.time = e.target.value || now.time;
-      }
-      onChange && onChange(stringifyDatetime(datetime));
+  const handleChangeDate = useCallback(
+    (value) => {
+      const isValid = typeof value !== "string";
+      value = isValid ? value.format("DD/MM/YYYY") : value;
+      setDate(value);
+      isValid && onChange && onChange(stringifyDatetime({ date: value, time }));
     },
-    [onChange, time, date]
+    [onChange, time]
   );
+
+  const handleChangeTime = useCallback(
+    (value) => {
+      const isValid = typeof value !== "string";
+      value = isValid ? value.format("HH:mm") : value;
+      setTime(value);
+      isValid && onChange && onChange(stringifyDatetime({ date, time: value }));
+    },
+    [onChange, date]
+  );
+
+  useEffect(() => {
+    if (!value) {
+      onChange && onChange(stringifyDatetime(parseDatetime(value)));
+    } else {
+      const newValue = parseDatetime(value);
+      setDate(newValue.date);
+      setTime(newValue.time);
+    }
+  }, [value, onChange]);
 
   return (
     <StyledField
@@ -168,26 +193,26 @@ const DateTimeField = (props) => {
       <StyledInputs>
         {type.includes("date") ? (
           <StyledInput
-            {...rest}
+            $type="date"
+            locale="fr"
+            inputProps={rest}
             {...dateFieldProps}
-            type="date"
-            data-type="date"
-            pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
-            onChange={handleChange}
+            onChange={handleChangeDate}
             value={date}
-            autoFocus={autoFocus}
+            dateFormat="DD/MM/YYYY"
+            timeFormat={false}
           />
         ) : null}
         {type.includes("time") ? (
           <StyledInput
-            {...rest}
+            $type="time"
+            locale="fr"
+            inputProps={rest}
             {...timeFieldProps}
-            type="time"
-            data-type="time"
-            pattern="[0-9]{2}:[0-9]{2}"
-            step="60"
-            onChange={handleChange}
+            onChange={handleChangeTime}
             value={time}
+            timeFormat="HH:mm"
+            dateFormat={false}
           />
         ) : null}
       </StyledInputs>
@@ -207,7 +232,6 @@ DateTimeField.propTypes = {
   label: PropTypes.string,
   helpText: PropTypes.string,
   error: PropTypes.string,
-  autoFocus: PropTypes.bool,
   dateFieldProps: PropTypes.object,
   timeFieldProps: PropTypes.object,
 };
