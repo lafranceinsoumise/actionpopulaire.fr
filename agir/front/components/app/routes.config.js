@@ -37,7 +37,7 @@ const SignupPage = lazy(() => import("@agir/front/authentication/SignupPage"));
 
 const IntroAppPage = lazy(() => import("@agir/front/app/IntroApp"));
 const SigninPage = lazy(() => import("@agir/front/app/Connexion/SigninPage"));
-const LoginPage = lazy(() => import("@agir/front/app/Connexion/LoginPage"));
+// const LoginPage = lazy(() => import("@agir/front/app/Connexion/LoginPage"));
 const CodeConnexionPage = lazy(() =>
   import("@agir/front/app/Connexion/CodeConnexion")
 );
@@ -111,14 +111,10 @@ export const routeConfig = {
     id: "events",
     pathname: "/",
     exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Événements",
     Component: AgendaPage,
-    hasLayout: true,
-    layoutProps: {
-      smallBackgroundColor: style.black25,
-      hasBanner: true,
-    },
+    hasLayout: false,
   }),
   eventMap: new RouteConfig({
     id: "eventMap",
