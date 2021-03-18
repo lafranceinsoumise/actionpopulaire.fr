@@ -158,7 +158,7 @@ class SimpleSubscriptionFormTestCase(TestCase):
     def test_cannot_subscribe_without_location_zip(self):
         data = {"email": "example@example.com"}
         response = self.client.post("/inscription/", data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_france_country_is_set_by_default(self):
         data = {"email": "my@e.mail", "location_zip": "01337", "type": "LFI"}

@@ -28,7 +28,7 @@ from agir.people.serializers import (
 class SubscriptionAPIView(GenericAPIView):
     serializer_class = SubscriptionRequestSerializer
     queryset = Person.objects.all()  # pour les permissions
-    permission_classes = ()
+    permission_classes = (GlobalOnlyPermissions,)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

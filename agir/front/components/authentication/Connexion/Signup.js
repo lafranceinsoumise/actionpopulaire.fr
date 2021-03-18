@@ -28,6 +28,14 @@ const InputGroup = styled.div`
     }
 `;
 
+const UlTitle = styled.span`
+  display: inline-block;
+  margin: 1.25rem 0;
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 13px;
+`;
+
 const fromGroupEvent = false;
 
 const defaultData = {
@@ -44,6 +52,7 @@ const SignUp = () => {
 
   const handleRgpdCheck = () => {
     setRgpdChecked(!rgpdChecked);
+    setError({ ...error, rgpd: null });
   };
 
   const handleReasonChecked = (value) => {
@@ -57,11 +66,14 @@ const SignUp = () => {
   };
 
   const handleSubmit = async () => {
+    setError({});
     if (!rgpdChecked) {
-      console.log("error : NO RGPD Checked");
+      setError({
+        rgpd:
+          "Vous devez accepter la politique de conservation des données pour continuer",
+      });
       return;
     }
-    setError({});
     console.log("formData", formData);
     const data = await signUp(formData);
     console.log("data : ", data);
@@ -93,17 +105,9 @@ const SignUp = () => {
 
       {!fromGroupEvent && (
         <>
-          <span
-            style={{
-              display: "inline-block",
-              margin: "1.25rem 0",
-              marginBottom: "10px",
-              fontWeight: 600,
-              fontSize: "13px",
-            }}
-          >
+          <UlTitle>
             Pour quelle campagne rejoignez-vous Action Populaire ?
-          </span>
+          </UlTitle>
 
           <ul style={{ padding: "0", margin: "0", listStyleType: "none" }}>
             <li onClick={() => handleReasonChecked(0)}>
@@ -159,7 +163,6 @@ const SignUp = () => {
         onClick={handleRgpdCheck}
         style={{
           marginTop: "1rem",
-          marginBottom: "2rem",
           cursor: "pointer",
           userSelect: "none",
         }}
@@ -174,12 +177,15 @@ const SignUp = () => {
           politique de conservation des données
         </a>
       </div>
+      {error && !!error.rgpd && (
+        <div style={{ color: "red", padding: "0.5rem 0" }}>{error.rgpd}</div>
+      )}
 
       <Button
         onClick={handleSubmit}
         color="primary"
         style={{
-          marginTop: "0.5rem",
+          marginTop: "2rem",
           maxWidth: "100%",
           width: "100%",
           justifyContent: "center",
