@@ -129,8 +129,12 @@ const SubtypeOption = (props) => {
       onClick={handleClick}
     >
       <span className={`fa fa-${option.iconName || "calendar"}`} />
-      {option.description[0].toUpperCase()}
-      {option.description.slice(1)}
+      {option.description && (
+        <>
+          {option.description[0].toUpperCase()}
+          {option.description.slice(1)}
+        </>
+      )}
       <Button type="button" color="choose" onClick={handleClick} small>
         Choisir
       </Button>
@@ -163,8 +167,12 @@ const DefaultOption = (props) => {
         className={`fa fa-${option.iconName || "calendar"}`}
         style={{ color: option.color }}
       />
-      {option.description[0].toUpperCase()}
-      {option.description.slice(1)}
+      {option.description && (
+        <>
+          {option.description[0].toUpperCase()}
+          {option.description.slice(1)}
+        </>
+      )}
     </StyledDefaultOption>
   );
 };
