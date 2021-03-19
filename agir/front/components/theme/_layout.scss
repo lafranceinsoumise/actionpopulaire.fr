@@ -7,13 +7,6 @@ body {
   }
 }
 
-.wrap.container {
-  padding-top: 72px;
-  @media (max-width: 992px) {
-    padding-top: 56px;
-  }
-}
-
 .bottom-margin {
   margin-bottom: 20px;
 }
@@ -33,7 +26,6 @@ body {
 .col-responsive {
   @include make-one-main-column();
 }
-
 
 @media (max-width: 992px) {
   .mobile-vertical {
