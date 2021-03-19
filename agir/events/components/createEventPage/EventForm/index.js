@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import useSWR from "swr";
 
@@ -155,6 +155,7 @@ const EventForm = () => {
   const [newEventPk, setNewEventPk] = useState(null);
 
   const history = useHistory();
+  const { search } = useLocation();
   const options = useEventFormOptions();
 
   const nameRef = useRef(null);
@@ -334,6 +335,51 @@ const EventForm = () => {
       history.push(route);
     }
   }, [history, newEventPk]);
+
+  useEffect(() => {
+    if (!search) {
+      return;
+    }
+    const params = new URLSearchParams(search);
+    if (
+      !formData.organizerGroup &&
+      params.get("group") &&
+      options.organizerGroup
+    ) {
+      const organizerGroup = options.organizerGroup.find(
+        (g) => g.id === params.get("group")
+      );
+      organizerGroup &&
+        setFormData((state) => ({
+          ...state,
+          organizerGroup,
+        }));
+    }
+    if (!formData.subtype && params.get("subtype") && options.subtype) {
+      const subtype = options.subtype.find(
+        (g) => g.label === params.get("subtype")
+      );
+      subtype &&
+        setFormData((state) => ({
+          ...state,
+          subtype,
+        }));
+    }
+  }, [search, options, formData]);
+
+  useEffect(() => {
+    if (
+      options &&
+      options.organizerGroup &&
+      options.organizerGroup.length === 1 &&
+      !formData.organizerGroup
+    ) {
+      setFormData((state) => ({
+        ...state,
+        organizerGroup: options.organizerGroup[0],
+      }));
+    }
+  }, [options, formData]);
 
   return (
     <StyledForm onSubmit={handleSubmit} disabled={isLoading} noValidate>
