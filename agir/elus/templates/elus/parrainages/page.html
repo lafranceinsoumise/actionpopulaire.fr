@@ -1,0 +1,15 @@
+{% extends "front/layout.html" %}
+{% load webpack_loader %}
+
+{% block title %}
+  Collecte des parrainages
+{% endblock %}
+
+{% block additional_headers %}
+  {{ elus|json_script:"elusInitiaux" }}
+{% endblock %}
+
+{% block whole_page %}
+  <div id="app"></div>
+  {% render_bundle "elus/parrainages" %}
+{% endblock %}

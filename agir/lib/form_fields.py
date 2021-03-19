@@ -287,9 +287,7 @@ class CommuneWidget(forms.Widget):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         if value is not None:
-            context[
-                "label"
-            ] = f"{value.nom} ({value.code_departement}, {value.get_type_display()})"
+            context["widget"]["label"] = f"{value.nom} ({value.code_departement})"
 
         return context
 
@@ -312,6 +310,8 @@ class CommuneField(forms.CharField):
 
     def commune(self, value):
         try:
+            if isinstance(value, int):
+                return Commune.objects.get(pk=value)
             type, code = value.split("-")
             return Commune.objects.get(type=type, code=code)
         except (ValueError, Commune.DoesNotExist):

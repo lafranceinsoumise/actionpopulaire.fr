@@ -619,9 +619,17 @@ class EventSubtype(BaseSubtype):
         help_text=_("L'image associée par défaut à un événement de ce sous-type."),
     )
 
+    has_priority = models.BooleanField(
+        "Le sous-type d'événement est prioritaire",
+        default=False,
+        help_text="Le sous-type d'événement apparaîtra en premier dans la liste des sous-types disponibles, "
+        "par exemple lors de la création d'un événement.",
+    )
+
     class Meta:
         verbose_name = _("Sous-type d'événement")
         verbose_name_plural = _("Sous-types d'événement")
+        ordering = ["-has_priority"]
 
     def __str__(self):
         return self.description
