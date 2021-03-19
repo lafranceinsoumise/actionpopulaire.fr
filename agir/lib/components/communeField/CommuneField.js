@@ -16,8 +16,8 @@ const defaultSearch = debounce(search, 200);
 
 const defaultValueGetter = ({ code, type }) => `${type}-${code}`;
 
-const defaultLabelGetter = ({ nom, code, type }) =>
-  `${nom} (${code.slice(0, 2)}${types[type]})`;
+const defaultLabelGetter = ({ nom, type, code_departement }) =>
+  `${nom} (${code_departement}${types[type]})`;
 
 const CommuneField = ({
   value,

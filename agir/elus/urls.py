@@ -1,52 +1,72 @@
 from django.urls import path
 
-from . import views
+from .views import gestion_mandats, recherche_parrainages
 
 app_name = "elus"
 urlpatterns = [
     path(
         "mandat/municipal/",
-        views.CreerMandatMunicipalView.as_view(),
+        gestion_mandats.CreerMandatMunicipalView.as_view(),
         name="creer_mandat_municipal",
     ),
     path(
         "mandat/municipal/<int:pk>/",
-        views.ModifierMandatMunicipalView.as_view(),
+        gestion_mandats.ModifierMandatMunicipalView.as_view(),
         name="modifier_mandat_municipal",
     ),
     path(
         "mandat/municipal/<int:pk>/supprimer/",
-        views.SupprimerMandatMunicipalView.as_view(),
+        gestion_mandats.SupprimerMandatMunicipalView.as_view(),
         name="supprimer_mandat_municipal",
     ),
     path(
         "mandat/departemental/",
-        views.CreerMandatDepartementalView.as_view(),
+        gestion_mandats.CreerMandatDepartementalView.as_view(),
         name="creer_mandat_departemental",
     ),
     path(
         "mandat/departemental/<int:pk>/",
-        views.ModifierMandatDepartementalView.as_view(),
+        gestion_mandats.ModifierMandatDepartementalView.as_view(),
         name="modifier_mandat_departemental",
     ),
     path(
         "mandat/departemental/<int:pk>/supprimer/",
-        views.SupprimerMandatDepartementalView.as_view(),
+        gestion_mandats.SupprimerMandatDepartementalView.as_view(),
         name="supprimer_mandat_departemental",
     ),
     path(
         "mandat/regional/",
-        views.CreerMandatRegionalView.as_view(),
+        gestion_mandats.CreerMandatRegionalView.as_view(),
         name="creer_mandat_regional",
     ),
     path(
         "mandat/regional/<int:pk>/",
-        views.ModifierMandatRegionalView.as_view(),
+        gestion_mandats.ModifierMandatRegionalView.as_view(),
         name="modifier_mandat_regional",
     ),
     path(
         "mandat/regional/<int:pk>/supprimer/",
-        views.SupprimerMandatRegionalView.as_view(),
+        gestion_mandats.SupprimerMandatRegionalView.as_view(),
         name="supprimer_mandat_regional",
+    ),
+    path(
+        "parrainages/",
+        recherche_parrainages.RechercheParrainagesView.as_view(),
+        name="parrainages",
+    ),
+    path(
+        "api/parrainages/chercher/",
+        recherche_parrainages.ChercherEluView.as_view(),
+        name="rechercher_parrainage",
+    ),
+    path(
+        "api/parrainages/",
+        recherche_parrainages.CreerRechercheParrainageView.as_view(),
+        name="creer_parrainage",
+    ),
+    path(
+        "api/parrainages/<int:pk>/",
+        recherche_parrainages.ModifierRechercheParrainageView.as_view(),
+        name="modifier_parrainage",
     ),
 ]
