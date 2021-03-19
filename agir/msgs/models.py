@@ -10,8 +10,9 @@ from agir.lib.models import TimeStampedModel, BaseAPIResource
 class UserReport(TimeStampedModel):
     reporter = models.ForeignKey(
         "people.Person",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         verbose_name="Personne à l'origine du signalement",
+        null=True,
     )
 
     content_type = models.ForeignKey(
@@ -27,7 +28,11 @@ class UserReport(TimeStampedModel):
 
 class AbstractMessage(BaseAPIResource):
     author = models.ForeignKey(
-        "people.Person", editable=False, on_delete=models.PROTECT, verbose_name="Auteur"
+        "people.Person",
+        editable=False,
+        on_delete=models.SET_NULL,
+        verbose_name="Auteur",
+        null=True,
     )
     text = models.TextField("Contenu", max_length=2000)
     image = StdImageField()
