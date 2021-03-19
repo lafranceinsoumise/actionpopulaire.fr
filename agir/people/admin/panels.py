@@ -311,7 +311,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
         mandats = []
 
-        for attr, model in list(types_elus.items())[1:]:
+        for attr, model in list(types_elus.items()):
             for m in model.objects.filter(person=obj):
                 mandats.append(
                     (
