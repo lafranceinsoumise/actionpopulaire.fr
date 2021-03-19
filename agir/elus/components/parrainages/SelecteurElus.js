@@ -47,7 +47,6 @@ const SELECTEUR_STATES = {
 };
 
 const SelecteurElusLayout = styled.section`
-  width: 470px;
   display: flex;
   flex-direction: column;
 
@@ -59,6 +58,10 @@ const SelecteurElusLayout = styled.section`
 
   ${ResultBox.Layout} {
     border-top: 10px solid ${(props) => props.theme.black50};
+  }
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    width: 100%;
   }
 `;
 export const SelecteurElus = ({
@@ -171,4 +174,4 @@ SelecteurElus.propTypes = {
   onSearchResults: PropTypes.func,
 };
 
-SelecteurElus.layout = SelecteurElusLayout;
+SelecteurElus.Layout = SelecteurElusLayout;

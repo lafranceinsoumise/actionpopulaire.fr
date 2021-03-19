@@ -306,12 +306,16 @@ InteractionBox.propTypes = {
 const Layout = styled.div`
   padding: 60px;
 
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    padding: 0 35px;
+  }
+
   ${Block} {
     font-size: 16px;
   }
 
   h2 {
-    margin-bottom: 0;
+    margin-bottom: 0.5rem;
   }
   .subtitle {
     font-size: 16px;
