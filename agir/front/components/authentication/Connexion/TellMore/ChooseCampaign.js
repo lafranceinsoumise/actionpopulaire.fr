@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import styled from "styled-components";
@@ -6,6 +6,8 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import JLM_rounded from "@agir/front/genericComponents/images/JLM_rounded.png";
 import LFI_rounded from "@agir/front/genericComponents/images/LFI_rounded.png";
 import checkCirclePrimary from "@agir/front/genericComponents/images/check-circle-primary.svg";
+import { TellMoreContext } from "./TellMoreContext";
+import { updateProfile } from "../../api";
 
 const Container = styled.div`
   display: flex;
@@ -126,89 +128,100 @@ const InputRadio = styled.div`
   }
 `;
 
-const ChoseCampaign = () => {
+const ChooseCampaign = () => {
   const [reasonChecked, setReasonChecked] = useState(0);
   const fromSignup = true;
+
+  const { page, setPage } = useContext(TellMoreContext);
+  console.log("page context: ", page);
 
   const handleReasonChecked = (value) => {
     setReasonChecked(value);
   };
 
-  const handleSubmit = () => {};
+  const handleSubmit = async () => {
+    const data = updateProfile({ reasonChecked: reasonChecked });
+    console.log("data", data);
+    setPage(1);
+  };
 
   return (
-    <Container>
-      {fromSignup && (
-        <div
-          style={{
-            display: "inline-flex",
-            fontWeight: 600,
-            padding: "0.5rem 1rem",
-            backgroundColor: style.green100,
-          }}
-        >
-          <FeatherIcon
-            name="check"
-            color="green"
-            strokeWidth={4}
-            width="1rem"
-            style={{ marginRight: "12px" }}
-          />
-          Votre compte a été créé
-        </div>
+    <>
+      {0 === page && (
+        <Container>
+          {fromSignup && (
+            <div
+              style={{
+                display: "inline-flex",
+                fontWeight: 600,
+                padding: "0.5rem 1rem",
+                backgroundColor: style.green100,
+              }}
+            >
+              <FeatherIcon
+                name="check"
+                color="green"
+                strokeWidth={4}
+                width="1rem"
+                style={{ marginRight: "12px" }}
+              />
+              Votre compte a été créé
+            </div>
+          )}
+
+          <h1>Pour quelle campagne rejoignez-vous Action Populaire ?</h1>
+          <div style={{ marginTop: "2rem" }}>
+            Nous vous suggérerons des actions qui vous intéressent
+          </div>
+
+          <ContainerRadio>
+            <RadioBlock
+              onClick={() => handleReasonChecked(0)}
+              $checked={0 === reasonChecked}
+            >
+              <img src={JLM_rounded} alt="Jean-Luc Mélenchon" />
+              <span>La campagne présidentielle 2022</span>
+              <InputRadio>
+                {0 === reasonChecked ? (
+                  <img src={checkCirclePrimary} alt="" />
+                ) : (
+                  <div></div>
+                )}
+              </InputRadio>
+            </RadioBlock>
+            <RadioBlock
+              onClick={() => handleReasonChecked(1)}
+              $checked={1 === reasonChecked}
+              className="responsive-margin"
+            >
+              <img src={LFI_rounded} alt="La France Insoumise" />
+              <span>Une autre campagne de la France Insoumise</span>
+              <InputRadio>
+                {1 === reasonChecked ? (
+                  <img src={checkCirclePrimary} alt="" />
+                ) : (
+                  <div></div>
+                )}
+              </InputRadio>
+            </RadioBlock>
+          </ContainerRadio>
+
+          <Button
+            color="primary"
+            onClick={handleSubmit}
+            style={{
+              width: "356px",
+              maxWidth: "100%",
+              marginTop: "2rem",
+              justifyContent: "center",
+            }}
+          >
+            Continuer
+          </Button>
+        </Container>
       )}
-
-      <h1>Pour quelle campagne rejoignez-vous Action Populaire ?</h1>
-      <div style={{ marginTop: "2rem" }}>
-        Nous vous suggérerons des actions qui vous intéressent
-      </div>
-
-      <ContainerRadio>
-        <RadioBlock
-          onClick={() => handleReasonChecked(0)}
-          $checked={0 === reasonChecked}
-        >
-          <img src={JLM_rounded} alt="Jean-Luc Mélenchon" />
-          <span>La campagne présidentielle 2022</span>
-          <InputRadio>
-            {0 === reasonChecked ? (
-              <img src={checkCirclePrimary} alt="" />
-            ) : (
-              <div></div>
-            )}
-          </InputRadio>
-        </RadioBlock>
-        <RadioBlock
-          onClick={() => handleReasonChecked(1)}
-          $checked={1 === reasonChecked}
-          className="responsive-margin"
-        >
-          <img src={LFI_rounded} alt="La France Insoumise" />
-          <span>Une autre campagne de la France Insoumise</span>
-          <InputRadio>
-            {1 === reasonChecked ? (
-              <img src={checkCirclePrimary} alt="" />
-            ) : (
-              <div></div>
-            )}
-          </InputRadio>
-        </RadioBlock>
-      </ContainerRadio>
-
-      <Button
-        color="primary"
-        onClick={handleSubmit}
-        style={{
-          width: "356px",
-          maxWidth: "100%",
-          marginTop: "2rem",
-          justifyContent: "center",
-        }}
-      >
-        Continuer
-      </Button>
-    </Container>
+    </>
   );
 };
 
-export default ChoseCampaign;
+export default ChooseCampaign;

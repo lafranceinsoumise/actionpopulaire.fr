@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import arrowRight from "@agir/front/genericComponents/images/arrow-right.svg";
 import chevronDown from "@agir/front/genericComponents/images/chevron-down.svg";
@@ -13,6 +13,7 @@ import { login } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useHistory } from "react-router-dom";
 import { useBookmarkedEmails } from "@agir/front/authentication/hooks";
+import useSWR from "swr";
 
 const ShowMore = styled.div`
   font-weight: 700;
@@ -47,6 +48,9 @@ const Login = () => {
   const bookmarkedEmails = useBookmarkedEmails();
   const [showMore, setShowMore] = useState(false);
   const [error, setError] = useState({});
+  let { data: session } = useSWR("/api/session/");
+  console.log("swr session", session);
+  // redirect if session connected
 
   const handleShowMore = () => {
     setShowMore(true);

@@ -68,7 +68,7 @@ export const signUp = async (data) => {
   };
   const formData = {
     email: data.email,
-    location_zip: data.postalCode,
+    zip: data.postalCode,
   };
   const url = ENDPOINT.signUp;
   try {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
@@ -8,6 +8,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { checkCode } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useHistory } from "react-router-dom";
+import useSWR, { mutate } from "swr";
 
 const Container = styled.div`
   display: flex;
@@ -78,10 +79,12 @@ const CodeConnexion = ({ localCode = "" }) => {
   const history = useHistory();
   const [code, setCode] = useState("");
   const [error, setError] = useState({});
+  let { data: session } = useSWR("/api/session/");
+  console.log("SWR session", session);
 
-  const handleCode = (e) => {
+  const handleCode = useCallback((e) => {
     setCode(e.target.value);
-  };
+  }, []);
 
   const handleSubmit = async () => {
     setError({});
@@ -91,11 +94,19 @@ const CodeConnexion = ({ localCode = "" }) => {
       setError(data.error);
       return;
     }
+
+    async () => {
+      await mutate("/api/session/", async (session) => ({
+        ...session,
+      }));
+    };
+  };
+
+  useEffect(() => {
+    if (session.user === false) return;
     const route = routeConfig.events.getLink();
     history.push(route);
-    // need to reload navbar
-    // window.location.href = "/";
-  };
+  }, [session]);
 
   return (
     <Container>

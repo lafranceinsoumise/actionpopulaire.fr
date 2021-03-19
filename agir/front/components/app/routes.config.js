@@ -41,16 +41,16 @@ const LoginPage = lazy(() =>
   import("@agir/front/authentication/Connexion/LoginPage")
 );
 const CodeLoginPage = lazy(() =>
-  import("@agir/front/authentication/Connexion/CodeLogin")
+  import("@agir/front/authentication/Connexion/Code/CodeLogin")
 );
 const CodeSignupPage = lazy(() =>
-  import("@agir/front/authentication/Connexion/CodeSignup")
+  import("@agir/front/authentication/Connexion/Code/CodeSignup")
 );
 const TellMorePage = lazy(() =>
-  import("@agir/front/authentication/Connexion/TellMore")
+  import("@agir/front/authentication/Connexion/TellMore/TellMorePage")
 );
 const ChooseCampaignPage = lazy(() =>
-  import("@agir/front/authentication/Connexion/ChooseCampaign")
+  import("@agir/front/authentication/Connexion/TellMore/ChooseCampaign")
 );
 
 export const BASE_PATH = "/";
