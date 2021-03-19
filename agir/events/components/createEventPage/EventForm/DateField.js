@@ -1,3 +1,4 @@
+import moment from "moment";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -8,6 +9,8 @@ import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import SelectField from "@agir/front/formComponents/SelectField";
 
 import { EVENT_DEFAULT_DURATIONS } from "./eventForm.config";
+
+import "moment/locale/fr";
 
 const Field = styled.div`
   display: inline-grid;
@@ -27,16 +30,16 @@ const DateField = (props) => {
 
   const updateStartTime = useCallback(
     (startTime) => {
-      let start = new Date(startTime).valueOf();
-      let end = new Date(endTime).valueOf();
+      let start = moment(startTime);
+      let end = moment(endTime);
+      if (start.isAfter(end)) {
+        end = moment(startTime);
+      }
       if (duration && duration.value) {
-        end = start + duration.value * 60000;
+        end = moment(startTime).add(duration.value, "minutes");
       }
-      if (start > end) {
-        end = start;
-      }
-      start = new Date(start).toISOString();
-      end = new Date(end).toISOString();
+      start = start.format();
+      end = end.format();
       onChange(start, end);
     },
     [endTime, duration, onChange]
@@ -48,13 +51,13 @@ const DateField = (props) => {
 
   const updateEndTime = useCallback(
     (endTime) => {
-      let start = new Date(startTime).valueOf();
-      let end = new Date(endTime).valueOf();
-      if (start > end) {
-        start = end;
+      let start = moment(startTime);
+      let end = moment(endTime);
+      if (start.isAfter(end)) {
+        start = moment(endTime);
       }
-      start = new Date(start).toISOString();
-      end = new Date(end).toISOString();
+      start = start.format();
+      end = end.format();
       onChange(start, end);
     },
     [startTime, onChange]
