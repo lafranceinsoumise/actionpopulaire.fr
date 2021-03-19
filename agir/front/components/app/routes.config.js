@@ -266,14 +266,6 @@ export const routeConfig = {
     label: "Code d'inscription'",
     Component: CodeSignupPage,
   }),
-  chooseCampaign: new RouteConfig({
-    id: "chooseCampaign",
-    pathname: "/choix-campagne/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.NONE,
-    label: "Choisir une campagne",
-    Component: ChooseCampaignPage,
-  }),
   tellMore: new RouteConfig({
     id: "tellMore",
     pathname: "/bienvenue/",

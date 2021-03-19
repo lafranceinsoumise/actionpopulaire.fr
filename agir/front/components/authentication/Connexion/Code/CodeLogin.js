@@ -8,7 +8,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { checkCode } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useHistory } from "react-router-dom";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 
 const Container = styled.div`
   display: flex;
@@ -79,7 +79,9 @@ const CodeConnexion = ({ localCode = "" }) => {
   const history = useHistory();
   const [code, setCode] = useState("");
   const [error, setError] = useState({});
-  let { data: session } = useSWR("/api/session/");
+  const [submitted, setSubmitted] = useState(false);
+
+  let { data: session, mutate: mutate } = useSWR("/api/session/");
   console.log("SWR session", session);
 
   const handleCode = useCallback((e) => {
@@ -87,19 +89,17 @@ const CodeConnexion = ({ localCode = "" }) => {
   }, []);
 
   const handleSubmit = async () => {
+    setSubmitted(true);
     setError({});
     const data = await checkCode(code);
+    setSubmitted(false);
     console.log("data : ", data);
     if (data.error) {
       setError(data.error);
       return;
     }
 
-    async () => {
-      await mutate("/api/session/", async (session) => ({
-        ...session,
-      }));
-    };
+    mutate("/api/session/");
   };
 
   useEffect(() => {
@@ -144,7 +144,7 @@ const CodeConnexion = ({ localCode = "" }) => {
           value={code}
         />
         <div>
-          <Button color="primary" onClick={handleSubmit}>
+          <Button color="primary" onClick={handleSubmit} disabled={submitted}>
             Valider
           </Button>
         </div>

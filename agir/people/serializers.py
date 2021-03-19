@@ -173,9 +173,6 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         choices=("municipal", "maire", "departemental", "regional"), required=False
     )
 
-    # isInsoumise = serializers.BooleanField(source="is_insoumise", required=False)
-    # is2022 = serializers.BooleanField(source="is_2022", required=False)
-
     referrer = serializers.CharField(required=False)
 
     PERSON_FIELDS = ["location_zip", "first_name", "last_name", "contact_phone"]

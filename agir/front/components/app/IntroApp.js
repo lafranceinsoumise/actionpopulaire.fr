@@ -187,9 +187,9 @@ const IntroApp = () => {
             </StyledButton>
 
             <div style={{ marginTop: "3rem", marginBottom: "1.5rem" }}>
-              <Mark $active={0 === index}></Mark>
-              <Mark $active={1 === index}></Mark>
-              <Mark $active={2 === index}></Mark>
+              <Mark $active={0 === index} />
+              <Mark $active={1 === index} />
+              <Mark $active={2 === index} />
             </div>
           </div>
         </Block>

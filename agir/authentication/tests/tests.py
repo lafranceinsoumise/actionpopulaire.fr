@@ -75,15 +75,10 @@ class MailLinkTestCase(TestCase):
         self.client.force_login(self.person.role, self.soft_backend)
 
         response = self.client.get(reverse("create_group"), follow=True)
-        self.assertContains(
-            response,
-            f"Pour vous authentifier, un e-mail vous a été envoyé à l'adresse <strong>{self.person.email}</strong>.",
-        )
 
         self.assertRedirects(
-            response, reverse("check_short_code") + "?next=" + reverse("create_group"),
+            response, reverse("short_code_login") + "?next=" + reverse("create_group"),
         )
-        send_login_email.apply_async.assert_called_once()
 
     def test_unsubscribe_shows_direct_unsubscribe_form_when_logged_in(self):
         message_preferences_path = reverse("contact")
@@ -94,152 +89,6 @@ class MailLinkTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.person.email)
         self.assertContains(response, 'action="{}"'.format(message_preferences_path))
-
-
-@using_separate_redis_server
-class ShortCodeTestCase(TestCase):
-    def setUp(self):
-        self.person = Person.objects.create_insoumise("test@test.com")
-
-    def test_using_send_mail_form(self):
-        send_mail_link = reverse("short_code_login")
-
-        res = self.client.get(send_mail_link)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        res = self.client.post(send_mail_link, {"email": "test@test.com"})
-        self.assertRedirects(res, reverse("check_short_code"))
-
-    def test_checking_code(self):
-        check_short_code_link = reverse("check_short_code")
-        code, expiry = short_code_generator.generate_short_code(self.person.email)
-        session = self.client.session
-        session["login_email"] = self.person.email
-        session.save()
-
-        res = self.client.get(check_short_code_link + "?next=/profil/identite/")
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        res = self.client.post(check_short_code_link, {"code": code})
-        self.assertRedirects(res, "/profil/identite/")
-
-    def test_warned_if_using_wrong_format(self):
-        check_short_code_link = reverse("check_short_code",)
-        session = self.client.session
-        session["login_email"] = self.person.email
-        session.save()
-
-        res = self.client.post(check_short_code_link, {"code": "mù**2,;"})
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.context_data["form"].has_error("code", "incorrect_format"))
-
-    def test_cannot_send_mail_with_invalid_email(self):
-        send_mail_link = reverse("short_code_login")
-
-        res = self.client.post(send_mail_link, {"email": "testtest.com"})
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.context_data["form"].has_error("email", "invalid"))
-
-    @mock.patch("agir.authentication.tasks.send_no_account_email.delay")
-    def test_will_get_unknown_account_email_with_unknown_address(
-        self, send_no_account_email
-    ):
-        send_mail_link = reverse("short_code_login")
-
-        res = self.client.post(send_mail_link, {"email": "unknown@test.com"})
-        self.assertRedirects(res, reverse("check_short_code"))
-
-        send_no_account_email.assert_called_once()
-        self.assertEqual(send_no_account_email.call_args[0][0], "unknown@test.com")
-
-    def test_known_mails_feature(self):
-        res = self.client.post(reverse("short_code_login"), {"email": "test@test.com"})
-        self.assertRedirects(res, reverse("check_short_code"))
-
-        self.assertEqual(res.cookies["knownEmails"].value, "test@test.com")
-
-    @mock.patch("agir.lib.token_bucket.get_current_timestamp")
-    def test_send_mail_rate_limiting(self, current_timestamp_mock):
-        send_mail_link = reverse("short_code_login")
-        send_mail = lambda: self.client.post(send_mail_link, {"email": "test@test.com"})
-
-        # we should be limited when sending 10 mails in a go
-        for i in range(10):
-            current_timestamp_mock.return_value = i
-            res = send_mail()
-
-            if res.status_code == status.HTTP_200_OK and res.context_data[
-                "form"
-            ].has_error("email", "rate_limited"):
-                break
-        else:
-            self.fail("Not rate limited")
-
-        # we should be able to send another mail 30 minutes later
-        current_timestamp_mock.return_value = 30 * 60
-        res = send_mail()
-        self.assertRedirects(res, reverse("check_short_code"))
-
-    def test_cannot_check_code_without_filling_email_first(self):
-        check_code_link = reverse("check_short_code")
-        self.assertRedirects(
-            self.client.post(check_code_link), reverse("short_code_login")
-        )
-
-    @mock.patch("agir.lib.token_bucket.get_current_timestamp")
-    def test_check_code_rate_limiting(self, current_timestamp_mock):
-        check_code_link = reverse("check_short_code",)
-
-        session = self.client.session
-        session["login_email"] = self.person.email
-        session.save()
-
-        wrong_code = short_code_generator._make_code()
-        try_code = lambda: self.client.post(check_code_link, {"code": wrong_code})
-
-        # should be rate limited when trying 10 times
-        for i in range(10):
-            current_timestamp_mock.return_value = i
-            res = try_code()
-
-            if res.status_code == status.HTTP_200_OK and res.context_data[
-                "form"
-            ].has_error("code", "rate_limited"):
-                break
-        else:
-            self.fail("Not rate limited")
-
-        # should be able to try again half an hour later
-        current_timestamp_mock.return_value = 30 * 60
-        res = try_code()
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(res.context_data["form"].has_error("code", "wrong_code"))
-
-    def test_get_debounced_when_connecting(self):
-        primary_email = self.person.primary_email
-        primary_email.bounced = True
-        primary_email.save()
-
-        self.person.add_email("another_address@example.com", _bounced=True)
-
-        check_short_code_url = reverse("check_short_code",)
-
-        res = self.client.post(
-            reverse("short_code_login"), data={"email": "another_address@example.com"}
-        )
-        self.assertRedirects(res, check_short_code_url)
-
-        code_email = mail.outbox[0]
-        code = re.search(
-            r"^ {4}([A-Z0-9]{3} [A-Z0-9]{2})", code_email.body, re.MULTILINE
-        ).group(1)
-
-        res = self.client.post(check_short_code_url, data={"code": code})
-        self.assertRedirects(res, "/")
-
-        new_primary_email = self.person.emails.first()
-        self.assertEqual(new_primary_email.address, "another_address@example.com")
-        self.assertFalse(new_primary_email.bounced)
 
 
 class AuthorizationTestCase(TestCase):
@@ -286,11 +135,3 @@ class AuthorizationTestCase(TestCase):
 
         response = self.client.post(reverse("edit_group", args=[self.group.pk]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_deconnexion_link_when_hard_login_in(self):
-        self.client.force_login(self.person.role)
-
-        response = self.client.get(reverse("short_code_login"))
-        self.assertContains(
-            response, "Vous êtes déjà connecté", count=1, status_code=200, msg_prefix=""
-        )
