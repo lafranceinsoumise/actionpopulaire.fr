@@ -37,6 +37,7 @@ const Template = decorateArgs(
       name: "locationName",
       address: "locationAddress",
       shortLocation: "shortLocation",
+      coordinates: "locationCoordinates",
     },
   }),
   EventCard
@@ -57,6 +58,9 @@ Default.args = {
   locationName: "Place de la République",
   locationAddress: "Place de la République\n75011 Paris",
   shortLocation: "Place de la République, 75011, Paris",
+  locationCoordinates: {
+    coordinates: [5.03586, 43.83125],
+  },
   routes: {
     join: "#join",
     cancel: "#cancel",
@@ -67,4 +71,17 @@ Default.args = {
     { id: "A", name: "Groupe d'action 1" },
     { id: "B", name: "Groupe d'action B" },
   ],
+};
+
+export const WithMap = Template.bind({});
+WithMap.args = {
+  ...Default.args,
+  illustration: null,
+};
+
+export const WithoutImageAndMap = Template.bind({});
+WithoutImageAndMap.args = {
+  ...Default.args,
+  illustration: null,
+  locationCoordinates: null,
 };
