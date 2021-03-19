@@ -12,7 +12,7 @@ const LeftBlock = styled.div`
 
   > :first-child {
     padding: 37px;
-    padding-bottom: 700px;
+    padding-bottom: calc(100vh - 213px);
   }
 
   @media (max-width: ${style.collapse}px) {
@@ -35,7 +35,7 @@ const BackgroundDesktop = styled.div`
   bottom: 0px;
   left: 0px;
   width: 100%;
-  height: 700px;
+  height: calc(100vh - 213px);
   background-image: url(${bgDesktop});
   background-size: cover;
   background-repeat: no-repeat;
