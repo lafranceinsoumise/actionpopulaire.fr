@@ -11,7 +11,7 @@ import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import "moment/locale/fr";
 import "react-datetime/css/react-datetime.css";
 
-const StyledLabel = styled.span``;
+const StyledLabel = styled.label``;
 const StyledHelpText = styled.span``;
 const StyledInputs = styled.span``;
 const StyledInput = styled(Datetime)`
@@ -32,7 +32,7 @@ const StyledInput = styled(Datetime)`
 const StyledIcon = styled.span``;
 const StyledError = styled.span``;
 
-const StyledField = styled.label`
+const StyledField = styled.div`
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto auto auto;
@@ -182,13 +182,8 @@ const DateTimeField = (props) => {
   }, [value, onChange]);
 
   return (
-    <StyledField
-      htmlFor={id}
-      $valid={!error}
-      $invalid={!!error}
-      $empty={!!value}
-    >
-      {label && <StyledLabel>{label}</StyledLabel>}
+    <StyledField $valid={!error} $invalid={!!error} $empty={!!value}>
+      {label && <StyledLabel htmlFor={id}>{label}</StyledLabel>}
       {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
       <StyledInputs>
         {type.includes("date") ? (
