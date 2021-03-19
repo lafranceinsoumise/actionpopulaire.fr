@@ -10,12 +10,15 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.html import format_html
+from dynamic_filenames import FilePattern
 from psycopg2._range import DateRange
 
 from agir.lib.display import genrer
 from agir.lib.history import HistoryMixin
 
 __all__ = ["MandatMunicipal", "MandatDepartemental", "MandatRegional", "StatutMandat"]
+
+from agir.lib.models import TimeStampedModel
 
 MUNICIPAL_DEFAULT_DATE_RANGE = DateRange(date(2020, 6, 28), date(2026, 3, 31))
 DEPARTEMENTAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 3, 29), date(2021, 3, 31))
@@ -572,8 +575,69 @@ class MandatRegional(MandatAbstrait):
 
 
 types_elus = {
-    "maire": MandatMunicipal,
     "municipal": MandatMunicipal,
     "departemental": MandatDepartemental,
     "regional": MandatRegional,
 }
+
+
+formulaire_parrainage_pattern = FilePattern(
+    filename_pattern="elus/parrainages/{uuid:.30base32}{ext}"
+)
+
+
+class StatutRechercheParrainage(models.IntegerChoices):
+    EN_COURS = 1, "En cours"
+    REUSSITE = 2, "Promesse obtenue"
+    VALIDEE = 3, "Promesse bien reçue et validée"
+    ECHEC = 4, "Promesse refusée"
+    ANNULEE = 5, "Recherche annulée"
+
+
+class RechercheParrainageMaireQueryset(models.QuerySet):
+    def bloquant(self):
+        return self.exclude(statut=RechercheParrainageMaire.Statut.ANNULEE)
+
+
+class RechercheParrainageMaire(TimeStampedModel):
+    objects = RechercheParrainageMaireQueryset.as_manager()
+
+    Statut = StatutRechercheParrainage
+    elu = models.ForeignKey(
+        to="data_france.EluMunicipal",
+        on_delete=models.CASCADE,
+        related_name="recherches_parrainages",
+        related_query_name="rechercher_parrainage",
+    )
+    person = models.ForeignKey(to="people.Person", on_delete=models.CASCADE)
+
+    statut = models.IntegerField(choices=Statut.choices, default=Statut.EN_COURS)
+
+    commentaires = models.TextField(
+        verbose_name="Commentaires",
+        blank=True,
+        help_text="Indiquez-ici tout détail supplémentaire pertinent.",
+    )
+
+    formulaire = models.FileField(
+        verbose_name="Formulaire de promesse signé",
+        upload_to=formulaire_parrainage_pattern,
+        null=True,
+    )
+
+    class Meta:
+        verbose_name = "Recherche de parrainage de maire"
+        verbose_name_plural = "Recherches de parrainages de maires"
+        # TODO: rajouter une contrainte qui garantit qu'il n'existe qu'une recherche active par élu
+
+        permissions = [
+            ("acces_parrainages", "Donne l'accès à l'interface de parrainage")
+        ]
+
+        constraints = [
+            models.UniqueConstraint(
+                name="recherche_parrainage_un_seul_actif",
+                fields=["elu"],
+                condition=~models.Q(statut=StatutRechercheParrainage.ANNULEE),
+            )
+        ]
