@@ -32,7 +32,6 @@ const RequiredActivityPage = lazy(() =>
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
 );
-const LoginPage = lazy(() => import("@agir/front/authentication/LoginPage"));
 const SignupPage = lazy(() => import("@agir/front/authentication/SignupPage"));
 
 const IntroAppPage = lazy(() => import("@agir/front/app/IntroApp"));

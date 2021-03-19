@@ -8,6 +8,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     RetrieveUpdateAPIView,
     get_object_or_404,
+    CreateAPIView,
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,6 +23,7 @@ from agir.people.serializers import (
     ManageNewslettersRequestSerializer,
     RetrievePersonRequestSerializer,
     PersonSerializer,
+    CreatePersonSerializer,
 )
 
 
@@ -36,6 +38,12 @@ class SubscriptionAPIView(GenericAPIView):
         serializer.save()
 
         return Response(serializer.result_data, status=status.HTTP_201_CREATED)
+
+
+class SignupAPIView(CreateAPIView):
+    serializer_class = CreatePersonSerializer
+    queryset = Person.objects.all()
+    permission_classes = ()
 
 
 class PersonProfilePermissions(GlobalOrObjectPermissions):

@@ -21,7 +21,7 @@ from .actions.subscription import (
     SUBSCRIPTION_TYPE_CHOICES,
     subscription_success_redirect_url,
     save_subscription_information,
-    SUBSCRIPTION_TYPE_NSP,
+    SUBSCRIPTION_TYPE_AP,
     SUBSCRIPTION_EMAIL_SENT_REDIRECT,
 )
 from .models import Person
@@ -283,6 +283,65 @@ class RetrievePersonRequestSerializer(serializers.Serializer):
             return Person.objects.get_by_natural_key(self.validated_data["email"])
         except Person.DoesNotExist:
             raise Http404("Aucune personne trouvée")
+
+
+class CreatePersonSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    email = serializers.EmailField(required=True)
+    zip = serializers.RegexField(
+        regex=r"^[0-9]{5}$", required=True, source="location_zip"
+    )
+    country = CountryField(required=False, source="location_country")
+    isInsoumise = serializers.BooleanField(source="is_insoumise", required=False)
+    is2022 = serializers.BooleanField(source="is_2022", required=False)
+    type = serializers.ChoiceField(
+        choices=SUBSCRIPTION_TYPE_CHOICES, default=SUBSCRIPTION_TYPE_AP, required=False
+    )
+
+    def validate_email(self, value):
+        if not subscription_mail_bucket.has_tokens(value):
+            raise serializers.ValidationError(
+                "Si vous n'avez pas encore reçu votre email de validation, attendez quelques instants."
+            )
+        return value
+
+    def validate(self, data):
+        if (
+            not data.get("location_country")
+            or data.get("location_country") in FRANCE_COUNTRY_CODES
+        ):
+            data["location_country"] = french_zipcode_to_country_code(
+                data["location_zip"]
+            )
+
+        return data
+
+    def save(self):
+        """Saves the subscription information.
+        If there's already a person with that email address in the database, just update that row.
+        If not, create and send a message with a confirmation link to that email address.
+        """
+        email = self.validated_data["email"]
+        type = self.validated_data["type"]
+
+        try:
+            person = Person.objects.get_by_natural_key(email)
+        except Person.DoesNotExist:
+            send_confirmation_email.delay(**self.validated_data)
+        else:
+            save_subscription_information(person, type, self.validated_data)
+
+    class Meta:
+        model = models.Person
+        fields = (
+            "id",
+            "email",
+            "zip",
+            "country",
+            "isInsoumise",
+            "is2022",
+            "type",
+        )
 
 
 class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
