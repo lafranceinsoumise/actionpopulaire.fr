@@ -101,7 +101,7 @@ export const routeConfig = {
   createEvent: new RouteConfig({
     id: "createEvent",
     pathname: "/evenements/creer/",
-    exact: true,
+    exact: false,
     label: "Nouvel événement",
     Component: CreateEvent,
     backLink: {
