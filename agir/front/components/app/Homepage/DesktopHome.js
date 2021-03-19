@@ -101,7 +101,7 @@ const Home = () => {
       {routes && routes.eventsMap && (
         <StyledMap
           $isLoaded={isLoaded}
-          src={routes.eventsMap}
+          src={routes.eventsMap + "?no_controls=1"}
           onLoad={() => setIsLoaded(true)}
         />
       )}
