@@ -36,43 +36,47 @@ ID_RECHERCHE_PARRAINAGE_SUBQUERY = Subquery(
 
 
 def queryset_elus(person):
-    qs = EluMunicipal.objects.filter(CRITERE_INCLUSION_ELUS).annotate(
-        statut=Coalesce(
-            Subquery(
-                RechercheParrainageMaire.objects.filter(elu_id=OuterRef("id"))
-                .bloquant()
-                .annotate(
-                    statut_composite=Case(
-                        When(
-                            Q(person_id=person.id)
-                            & ~Q(statut=StatutRechercheParrainage.EN_COURS),
-                            then=Value(
-                                EluMunicipalSerializer.Statut.PERSONNELLEMENT_VU
+    qs = (
+        EluMunicipal.objects.filter(CRITERE_INCLUSION_ELUS)
+        .select_related("commune")
+        .annotate(
+            statut=Coalesce(
+                Subquery(
+                    RechercheParrainageMaire.objects.filter(elu_id=OuterRef("id"))
+                    .bloquant()
+                    .annotate(
+                        statut_composite=Case(
+                            When(
+                                Q(person_id=person.id)
+                                & ~Q(statut=StatutRechercheParrainage.EN_COURS),
+                                then=Value(
+                                    EluMunicipalSerializer.Statut.PERSONNELLEMENT_VU
+                                ),
                             ),
+                            When(
+                                ~Q(statut=StatutRechercheParrainage.EN_COURS),
+                                then=Value(EluMunicipalSerializer.Statut.TERMINE),
+                            ),
+                            When(
+                                person_id=person.id,
+                                then=Value(EluMunicipalSerializer.Statut.A_CONTACTER),
+                            ),
+                            default=Value(EluMunicipalSerializer.Statut.EN_COURS),
+                            output_field=CharField(),
                         ),
-                        When(
-                            ~Q(statut=StatutRechercheParrainage.EN_COURS),
-                            then=Value(EluMunicipalSerializer.Statut.TERMINE),
-                        ),
-                        When(
-                            person_id=person.id,
-                            then=Value(EluMunicipalSerializer.Statut.A_CONTACTER),
-                        ),
-                        default=Value(EluMunicipalSerializer.Statut.EN_COURS),
-                        output_field=CharField(),
-                    ),
-                )
-                .values("statut_composite")[:1]
+                    )
+                    .values("statut_composite")[:1]
+                ),
+                Value(EluMunicipalSerializer.Statut.DISPONIBLE),
             ),
-            Value(EluMunicipalSerializer.Statut.DISPONIBLE),
-        ),
-        recherche_parrainage_maire_id=Case(
-            When(
-                Q(statut=EluMunicipalSerializer.Statut.A_CONTACTER),
-                ID_RECHERCHE_PARRAINAGE_SUBQUERY,
+            recherche_parrainage_maire_id=Case(
+                When(
+                    Q(statut=EluMunicipalSerializer.Statut.A_CONTACTER),
+                    ID_RECHERCHE_PARRAINAGE_SUBQUERY,
+                ),
+                default=None,
             ),
-            default=None,
-        ),
+        )
     )
 
     if person.coordinates is not None:
@@ -95,6 +99,7 @@ class RechercheParrainagesView(
 
         a_contacter_qs = (
             EluMunicipal.objects.filter(CRITERE_INCLUSION_ELUS)
+            .select_related("commune")
             .filter(
                 rechercher_parrainage__statut=RechercheParrainageMaire.Statut.EN_COURS,
                 rechercher_parrainage__person_id=person.id,
@@ -109,6 +114,7 @@ class RechercheParrainagesView(
         )
         elus_proches_qs = (
             EluMunicipal.objects.filter(CRITERE_INCLUSION_ELUS)
+            .select_related("commune")
             .annotate(
                 statut=Value(
                     EluMunicipalSerializer.Statut.DISPONIBLE, output_field=CharField()
