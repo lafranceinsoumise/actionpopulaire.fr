@@ -3,12 +3,19 @@ import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import { login } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 const LoginMailEmpty = () => {
   const history = useHistory();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [error, setError] = useState({});
+
+  let next = "";
+  if (location.search !== undefined)
+    next = new URLSearchParams(location.search).get("next");
+
+  console.log("location", location);
 
   const handleInputChange = (e) => {
     setEmail(e.target.value);
@@ -23,10 +30,8 @@ const LoginMailEmpty = () => {
       return;
     }
 
-    const localCode = data.data.code;
-    const sendCode = localCode ? { localCode: data.data.code } : {};
-    const route = routeConfig.codeLogin.getLink(sendCode);
-    history.push(route);
+    const route = routeConfig.codeLogin.getLink();
+    history.push(route, { email: email, code: data.data.code, next: next });
   };
 
   return (

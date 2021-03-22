@@ -11,9 +11,8 @@ import Link from "@agir/front/app/Link";
 import { BlockSwitchLink } from "@agir/front/authentication/Connexion/styledComponents";
 import { login } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useBookmarkedEmails } from "@agir/front/authentication/hooks";
-import useSWR from "swr";
 
 const ShowMore = styled.div`
   font-weight: 700;
@@ -45,12 +44,14 @@ const ToastNotConnected = () => {
 
 const Login = () => {
   const history = useHistory();
+  const location = useLocation();
   const bookmarkedEmails = useBookmarkedEmails();
   const [showMore, setShowMore] = useState(false);
   const [error, setError] = useState({});
-  let { data: session } = useSWR("/api/session/");
-  console.log("swr session", session);
-  // redirect if session connected
+
+  let next = "";
+  if (location.search !== undefined)
+    next = new URLSearchParams(location.search).get("next");
 
   const handleShowMore = () => {
     setShowMore(true);
@@ -65,10 +66,8 @@ const Login = () => {
       return;
     }
 
-    const localCode = data.data.code;
-    const sendCode = localCode ? { localCode: data.data.code } : {};
-    const route = routeConfig.codeLogin.getLink(sendCode);
-    history.push(route);
+    const route = routeConfig.codeLogin.getLink();
+    history.push(route, { email: email, code: data.data.code, next: next });
   };
 
   return (
@@ -83,7 +82,7 @@ const Login = () => {
         </span>
       </BlockSwitchLink>
 
-      <ToastNotConnected />
+      {!!next && next.length > 0 && <ToastNotConnected />}
 
       {bookmarkedEmails[0].length > 0 && (
         <div style={{ marginTop: "24px" }}>

@@ -7,7 +7,7 @@ import styled from "styled-components";
 import Link from "@agir/front/app/Link";
 import { signUp } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { BlockSwitchLink } from "./styledComponents";
 
 const InputGroup = styled.div`
@@ -47,6 +47,7 @@ const defaultData = {
 
 const SignUp = () => {
   const history = useHistory();
+  const location = useLocation();
   const [rgpdChecked, setRgpdChecked] = useState(false);
   const [formData, setFormData] = useState(defaultData);
   const [error, setError] = useState({});
@@ -75,13 +76,12 @@ const SignUp = () => {
       });
       return;
     }
-    console.log("formData", formData);
     const data = await signUp(formData);
-    console.log("data : ", data);
     if (data.error) {
       setError(data.error);
       return;
     }
+    location.state.email = formData.email;
     const route = routeConfig.codeSignup.getLink();
     history.push(route);
   };
@@ -152,7 +152,7 @@ const SignUp = () => {
           <TextField
             label="Code postal"
             name="postalCode"
-            error={error && error.zip}
+            error={error && error.location_zip}
             placeholder=""
             onChange={handleChange}
             value={formData.postalCode}

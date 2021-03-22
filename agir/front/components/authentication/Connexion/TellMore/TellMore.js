@@ -1,13 +1,10 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
 import { updateProfile, getProfile } from "@agir/front/authentication/api";
-import { TellMoreContext } from "./TellMoreContext";
-import { routeConfig } from "@agir/front/app/routes.config";
-import { useHistory } from "react-router-dom";
 
 const LeftBlock = styled.div`
   width: 40%;
@@ -80,12 +77,34 @@ const InputCheckbox = styled.div`
 
 const optional = <span style={{ fontWeight: 400 }}>(facultatif)</span>;
 
-const TellMore = () => {
-  const history = useHistory();
-  const [formData, setFormData] = useState({ hasMandate: false });
+const TellMore = ({ dismiss }) => {
+  const defaultData = {
+    displayName: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    postalCode: "",
+    hasMandate: [],
+  };
+  const [formData, setFormData] = useState(defaultData);
   const [error, setError] = useState({});
-  const { page, setPage } = useContext(TellMoreContext);
-  console.log("tellmore page context: ", page);
+
+  const getProfileInfos = async () => {
+    const data = await getProfile();
+    console.log("data : ", data);
+  };
+
+  useEffect(() => {
+    const data = getProfileInfos();
+    setFormData({
+      displayName: data.displayName,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phone: data.contactPhone,
+      postalCode: data.zip,
+      hasMandate: data.mandates,
+    });
+  }, []);
 
   const handleInputChange = (e) => {
     const newFormData = { ...formData };
@@ -106,102 +125,96 @@ const TellMore = () => {
       setError(data.error);
       return;
     }
-    const route = routeConfig.events.getLink();
-    history.push(route);
+    dismiss();
   };
 
   return (
-    <>
-      {1 === page && (
-        <div style={{ display: "flex" }}>
-          <LeftBlock>
-            <img
-              src={helloDesktop}
-              alt="Bienvenue"
-              style={{ width: "220px", paddingRight: "60px" }}
-            />
-          </LeftBlock>
-          <MainBlock>
-            <div style={{ width: "100%", maxWidth: "517px" }}>
-              <h1>J’en dis plus sur moi</h1>
-              <label style={{ marginBottom: "0" }}>Nom public</label>{" "}
-              (obligatoire)
-              <br />
-              <span>
-                Le nom que tout le monde pourra voir. Indiquez par exemple votre
-                prénom ou un pseudonyme.
-              </span>
+    <div style={{ display: "flex" }}>
+      <LeftBlock>
+        <img
+          src={helloDesktop}
+          alt="Bienvenue"
+          style={{ width: "220px", paddingRight: "60px" }}
+        />
+      </LeftBlock>
+      <MainBlock>
+        <div style={{ width: "100%", maxWidth: "517px" }}>
+          <h1>J’en dis plus sur moi</h1>
+          <label style={{ marginBottom: "0" }}>Nom public</label> (obligatoire)
+          <br />
+          <span>
+            Le nom que tout le monde pourra voir. Indiquez par exemple votre
+            prénom ou un pseudonyme.
+          </span>
+          <TextField
+            error={error && error.displayName}
+            name="displayName"
+            placeholder="Exemple : Marie R."
+            onChange={handleInputChange}
+            value={formData.displayName}
+          />
+          <TextField
+            label={<>Prénom {optional}</>}
+            name="firstName"
+            placeholder=""
+            onChange={handleInputChange}
+            value={formData.firstName}
+          />
+          <TextField
+            label={<>Nom {optional}</>}
+            id="lastName"
+            name="lastName"
+            placeholder=""
+            onChange={handleInputChange}
+            value={formData.lastName}
+          />
+          <InputGroup>
+            <div>
               <TextField
-                error={error && error.displayName}
-                name="displayName"
-                placeholder="Exemple : Marie R."
-                onChange={handleInputChange}
-                value={formData.displayName}
-              />
-              <TextField
-                label={<>Prénom {optional}</>}
-                name="firstName"
+                label="Code postal"
+                id="postalCode"
+                error={error && error.zip}
+                name="postalCode"
                 placeholder=""
                 onChange={handleInputChange}
-                value={formData.firstName}
+                value={formData.postalCode}
               />
-              <TextField
-                label={<>Nom {optional}</>}
-                id="lastName"
-                name="lastName"
-                placeholder=""
-                onChange={handleInputChange}
-                value={formData.lastName}
-              />
-              <InputGroup>
-                <div>
-                  <TextField
-                    label="Code postal"
-                    id="postalCode"
-                    error={error && error.postalCode}
-                    name="postalCode"
-                    placeholder=""
-                    onChange={handleInputChange}
-                    value={formData.postalCode}
-                  />
-                </div>
-                <div>
-                  <TextField
-                    label={<>Numéro de téléphone {optional}</>}
-                    id="phone"
-                    error={error && error.phone}
-                    name="phone"
-                    onChange={handleInputChange}
-                    value={formData.phone}
-                  />
-                </div>
-              </InputGroup>
-              <InputCheckbox onClick={handleHasMandate}>
-                <input
-                  type="checkbox"
-                  name="mandat"
-                  checked={formData.hasMandate}
-                  onChange={() => {}}
-                />
-                <span style={{ fontSize: "16px" }}>&nbsp; J'ai un mandat</span>
-              </InputCheckbox>
-              <Button
-                color="primary"
-                onClick={handleSubmit}
-                style={{
-                  width: "356px",
-                  maxWidth: "100%",
-                  marginTop: "1rem",
-                  justifyContent: "center",
-                }}
-              >
-                Enregistrer
-              </Button>
             </div>
-          </MainBlock>
+            <div>
+              <TextField
+                label={<>Numéro de téléphone {optional}</>}
+                id="phone"
+                error={error && error.phone}
+                name="phone"
+                onChange={handleInputChange}
+                value={formData.phone}
+              />
+            </div>
+          </InputGroup>
+          <InputCheckbox onClick={handleHasMandate}>
+            <input
+              type="checkbox"
+              name="mandat"
+              checked={formData.hasMandate}
+              onChange={() => {}}
+            />
+            <span style={{ fontSize: "16px" }}>&nbsp; J'ai un mandat</span>
+          </InputCheckbox>
+          <Button
+            color="primary"
+            onClick={handleSubmit}
+            style={{
+              width: "356px",
+              maxWidth: "100%",
+              marginTop: "1rem",
+              justifyContent: "center",
+            }}
+          >
+            Enregistrer
+          </Button>
         </div>
-      )}
-    </>
+      </MainBlock>
+    </div>
   );
 };
 

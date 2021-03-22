@@ -252,7 +252,7 @@ export const routeConfig = {
   }),
   codeLogin: new RouteConfig({
     id: "codeLogin",
-    pathname: "/connexion/code/:localCode?",
+    pathname: "/connexion/code/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Code de connexion",

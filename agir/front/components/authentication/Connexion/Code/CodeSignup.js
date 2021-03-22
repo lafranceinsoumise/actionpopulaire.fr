@@ -2,6 +2,7 @@ import React from "react";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
+import { useLocation } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -32,6 +33,7 @@ const Container = styled.div`
 `;
 
 const CodeSignup = () => {
+  const location = useLocation();
   return (
     <Container>
       <RawFeatherIcon name="mail" width="41px" height="41px" />
@@ -42,7 +44,7 @@ const CodeSignup = () => {
       <div style={{ marginTop: "2rem" }}>
         <p>
           Entrez le code de connexion que nous avons envoyé à{" "}
-          <strong>danielle@simonnet.fr</strong>
+          <strong>{location.state?.email}</strong>
         </p>
         <p style={{ marginBottom: "0" }}>
           Si l’adresse e-mail n’est pas reconnue, il vous sera proposé de vous
