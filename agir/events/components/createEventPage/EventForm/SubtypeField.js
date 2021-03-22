@@ -235,7 +235,7 @@ const SubtypeField = (props) => {
     );
   }, [subtypes]);
 
-  const defaultOptions = useMemo(() => subtypes.slice(0, 4), [subtypes]);
+  const defaultOptions = useMemo(() => subtypes.slice(0, 5), [subtypes]);
 
   return (
     <StyledField>
