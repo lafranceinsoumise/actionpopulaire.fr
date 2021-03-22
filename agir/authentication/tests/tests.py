@@ -258,7 +258,6 @@ class AuthorizationTestCase(TestCase):
 
     def test_redirect_when_unauth(self):
         for url in [
-            "/",
             "/evenements/creer/",
             "/groupes/creer/",
             reverse("edit_event", args=[self.group.pk]),

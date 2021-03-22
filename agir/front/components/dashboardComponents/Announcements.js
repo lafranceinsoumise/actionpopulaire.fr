@@ -110,7 +110,9 @@ const Announcements = (props) => {
 
   const { data } = useSWR("/api/session/");
   const announcements =
-    data && data.announcements.filter((a) => !a.customDisplay);
+    data &&
+    data.announcements &&
+    data.announcements.filter((a) => !a.customDisplay);
 
   useEffect(() => {
     if (!Array.isArray(announcements)) {
