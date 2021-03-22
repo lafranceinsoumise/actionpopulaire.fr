@@ -105,14 +105,10 @@ export const routeConfig = {
     id: "events",
     pathname: "/",
     exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Événements",
     Component: AgendaPage,
-    hasLayout: true,
-    layoutProps: {
-      smallBackgroundColor: style.black25,
-      hasBanner: true,
-    },
+    hasLayout: false,
   }),
   eventMap: new RouteConfig({
     id: "eventMap",

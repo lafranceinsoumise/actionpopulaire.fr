@@ -212,11 +212,20 @@ class AbstractListMapView(MapViewMixin, TemplateView):
 
         querystring = ("?" + params.urlencode()) if params else ""
 
+        controls = {}
+
+        if (
+            self.request.GET.get("no_controls")
+            and self.request.GET.get("no_controls") == "1"
+        ):
+            controls = {"search": False, "active": False, "layers": False}
+
         return super().get_context_data(
             type_config=type_info,
             subtype_config=subtype_info,
             bounds=bounds,
             querystring=mark_safe(querystring),
+            controls=controls,
             **kwargs
         )
 

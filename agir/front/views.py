@@ -157,7 +157,7 @@ class FullSupportGroupView(SoftLoginRequiredMixin, ReactSingleObjectView):
         }
 
 
-class AgendaView(SoftLoginRequiredMixin, ReactBaseView):
+class AgendaView(ReactBaseView):
     bundle_name = "front/app"
 
 
