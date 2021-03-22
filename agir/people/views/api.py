@@ -23,11 +23,15 @@ from agir.people.serializers import (
     ManageNewslettersRequestSerializer,
     RetrievePersonRequestSerializer,
     PersonSerializer,
-    CreatePersonSerializer,
 )
+from agir.people.actions.subscription import SUBSCRIPTION_TYPE_AP
 
 
 class SubscriptionAPIView(GenericAPIView):
+    """
+    Sign-up first step endpoint for external users (e.g. Wordpress)
+    """
+
     serializer_class = SubscriptionRequestSerializer
     queryset = Person.objects.all()  # pour les permissions
     permission_classes = (GlobalOnlyPermissions,)
@@ -40,10 +44,16 @@ class SubscriptionAPIView(GenericAPIView):
         return Response(serializer.result_data, status=status.HTTP_201_CREATED)
 
 
-class SignupAPIView(CreateAPIView):
-    serializer_class = CreatePersonSerializer
-    queryset = Person.objects.all()
+class SignupAPIView(SubscriptionAPIView):
+    """
+    Sign-up first step endpoint for Action Populaire users
+    """
+
     permission_classes = ()
+
+    def post(self, request, *args, **kwargs):
+        request.data.update({"type": SUBSCRIPTION_TYPE_AP})
+        return super().post(request, *args, **kwargs)
 
 
 class PersonProfilePermissions(GlobalOrObjectPermissions):

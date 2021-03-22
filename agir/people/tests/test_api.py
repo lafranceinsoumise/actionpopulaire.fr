@@ -486,7 +486,7 @@ class SignupAPITestCase(APITestCase):
         res = self.client.post("/api/inscription/")
         self.assertEqual(res.status_code, 422)
         self.assertIn("email", res.data)
-        self.assertIn("zip", res.data)
+        self.assertIn("location_zip", res.data)
 
     def test_cannot_subscribe_without_email(self):
         self.client.logout()
@@ -497,33 +497,33 @@ class SignupAPITestCase(APITestCase):
 
     def test_cannot_subscribe_with_invalid_email(self):
         self.client.logout()
-        data = {"email": "not an email", "zip": "75019"}
+        data = {"email": "not an email", "location_zip": "75019"}
         res = self.client.post("/api/inscription/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("email", res.data)
 
     def test_cannot_subscribe_without_zip(self):
         self.client.logout()
-        data = {"email": "valid@ema.il", "zip": ""}
+        data = {"email": "valid@ema.il", "location_zip": ""}
         res = self.client.post("/api/inscription/", data=data)
         self.assertEqual(res.status_code, 422)
-        self.assertIn("zip", res.data)
+        self.assertIn("location_zip", res.data)
 
     def test_cannot_subscribe_with_invalid_zip(self):
         self.client.logout()
-        data = {"email": "valid@ema.il", "zip": "not a ZIP"}
+        data = {"email": "valid@ema.il", "location_zip": "not a ZIP"}
         res = self.client.post("/api/inscription/", data=data)
         self.assertEqual(res.status_code, 422)
-        self.assertIn("zip", res.data)
+        self.assertIn("location_zip", res.data)
 
     def test_can_subscribe_with_valid_data(self):
         self.client.logout()
-        data = {"email": "valid@ema.il", "zip": "75019"}
+        data = {"email": "valid@ema.il", "location_zip": "75019"}
         res = self.client.post("/api/inscription/", data=data)
         self.assertEqual(res.status_code, 201)
 
     def test_no_error_is_returned_for_existing_email(self):
         self.client.logout()
-        data = {"email": self.existing_person.email, "zip": "75019"}
+        data = {"email": self.existing_person.email, "location_zip": "75019"}
         res = self.client.post("/api/inscription/", data=data)
         self.assertEqual(res.status_code, 201)
