@@ -5,9 +5,16 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 const LeftBlock = styled.div`
-  width: 40%;
+  width: 500px;
+  max-width: 40%;
   background-color: ${style.secondary100};
   position: relative;
+
+  > :first-child {
+    padding: 37px;
+    padding-bottom: calc(100vh - 213px);
+  }
+
   @media (max-width: ${style.collapse}px) {
     display: none;
   }
@@ -28,7 +35,7 @@ const BackgroundDesktop = styled.div`
   bottom: 0px;
   left: 0px;
   width: 100%;
-  height: 450px;
+  height: calc(100vh - 213px);
   background-image: url(${bgDesktop});
   background-size: cover;
   background-repeat: no-repeat;
@@ -41,7 +48,7 @@ const InlineBlock = styled.span`
 const LeftBlockDesktop = () => {
   return (
     <LeftBlock>
-      <div style={{ padding: "37px", paddingBottom: "450px" }}>
+      <div>
         <LogoAP style={{ width: "200px" }} />
         <Title>
           <div>

@@ -4,7 +4,7 @@ import { Link as RouterLink } from "react-router-dom";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
-import { getRouteByPathname } from "@agir/front/app/routes.config";
+import { routeConfig, getRouteByPathname } from "@agir/front/app/routes.config";
 
 const ExternalLink = (props) => {
   const { href, component, ...rest } = props;
@@ -25,13 +25,23 @@ const RouteLink = (props) => {
   const { route, ...rest } = props;
   const routes = useSelector(getRoutes);
 
-  const { url, isExternal = false } = React.useMemo(
-    () => ({
-      url: routes[route],
-      isExternal: !getRouteByPathname(routes[route]),
-    }),
-    [routes, route]
-  );
+  const { url, isExternal = false } = React.useMemo(() => {
+    if (routes[route]) {
+      return {
+        url: routes[route],
+        isExternal: !getRouteByPathname(routes[route]),
+      };
+    }
+    if (routeConfig[route]) {
+      return {
+        url: routeConfig[route].getLink(),
+        isExternal: false,
+      };
+    }
+    return {
+      url: route,
+    };
+  }, [routes, route]);
 
   return isExternal ? (
     <ExternalLink {...rest} href={url} />

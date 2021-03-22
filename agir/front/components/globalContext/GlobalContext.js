@@ -34,7 +34,7 @@ const ProdProvider = ({ hasToasts = false, children }) => {
     if (!sessionContext) return;
 
     if (!sessionContext.user) {
-      self.caches.delete("session");
+      self.cache && self.caches.delete("session");
     }
 
     doDispatch(setSessionContext(sessionContext));

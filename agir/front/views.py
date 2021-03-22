@@ -77,7 +77,31 @@ class NBUrlsView(View):
         raise Http404()
 
 
-class IntroAppView(SoftLoginRequiredMixin, ReactBaseView):
+class IntroAppView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class SignupView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class LoginView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class CodeLoginView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class CodeSignupView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class ChooseCampaignView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class TellMoreView(ReactBaseView):
     bundle_name = "front/app"
 
 

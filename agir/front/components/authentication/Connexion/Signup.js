@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
+import Toast from "@agir/front/genericComponents/Toast";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
+import Link from "@agir/front/app/Link";
+import { signUp } from "@agir/front/authentication/api";
+import { routeConfig } from "@agir/front/app/routes.config";
+import { useHistory, useLocation } from "react-router-dom";
+import { BlockSwitchLink } from "./styledComponents";
 
 const InputGroup = styled.div`
   display: inline-flex;
@@ -21,25 +27,34 @@ const InputGroup = styled.div`
     > div:nth-child(1) {
       width: 100%;
     }
-    > div:nth-child(2) {
-      width: 100%;
-  }
 `;
+
+const UlTitle = styled.span`
+  display: inline-block;
+  margin: 1.25rem 0;
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 13px;
+`;
+
+const fromGroupEvent = false;
 
 const defaultData = {
   email: "",
   postalCode: "",
-  reasonChecked: 0,
+  reasonChecked: !fromGroupEvent ? 0 : null,
 };
 
-const fromGroupEvent = false;
-
-const SignIn = () => {
+const SignUp = () => {
+  const history = useHistory();
+  const location = useLocation();
   const [rgpdChecked, setRgpdChecked] = useState(false);
   const [formData, setFormData] = useState(defaultData);
+  const [error, setError] = useState({});
 
   const handleRgpdCheck = () => {
     setRgpdChecked(!rgpdChecked);
+    setError({ ...error, rgpd: null });
   };
 
   const handleReasonChecked = (value) => {
@@ -52,8 +67,27 @@ const SignIn = () => {
     setFormData(newFormData);
   };
 
+  const handleSubmit = async () => {
+    setError({});
+    if (!rgpdChecked) {
+      setError({
+        rgpd:
+          "Vous devez accepter la politique de conservation des données pour continuer",
+      });
+      return;
+    }
+    const data = await signUp(formData);
+    if (data.error) {
+      setError(data.error);
+      return;
+    }
+    location.state.email = formData.email;
+    const route = routeConfig.codeSignup.getLink();
+    history.push(route);
+  };
+
   return (
-    <div style={{ width: "500px", maxWidth: "100%" }}>
+    <div style={{ width: "500px", maxWidth: "100%", paddingBottom: "1.5rem" }}>
       {!fromGroupEvent ? (
         <h1>Je m'inscris</h1>
       ) : (
@@ -62,27 +96,21 @@ const SignIn = () => {
         </h1>
       )}
 
-      <div style={{ display: "inline-block", marginTop: "0.5rem" }}>
+      <BlockSwitchLink>
         <span>Déjà inscrit·e ?</span>
         &nbsp;
-        <span style={{ color: style.primary500, fontWeight: 700 }}>
-          Je me connecte
+        <span>
+          <Link route="login">Je me connecte</Link>
         </span>
-      </div>
+      </BlockSwitchLink>
 
       {!fromGroupEvent && (
         <>
-          <span
-            style={{
-              display: "inline-block",
-              margin: "1.25rem 0",
-              fontWeight: 500,
-            }}
-          >
+          <UlTitle>
             Pour quelle campagne rejoignez-vous Action Populaire ?
-          </span>
+          </UlTitle>
 
-          <ul style={{ padding: "0", listStyleType: "none" }}>
+          <ul style={{ padding: "0", margin: "0", listStyleType: "none" }}>
             <li onClick={() => handleReasonChecked(0)}>
               <label style={{ cursor: "pointer", fontWeight: 400 }}>
                 <input
@@ -111,21 +139,23 @@ const SignIn = () => {
 
       <InputGroup>
         <div>
-          <label htmlFor="">Email</label>
           <TextField
+            label="Email"
             name="email"
-            placeholder="Adresse e-mail"
+            error={error && error.email}
+            placeholder=""
             onChange={handleChange}
-            value={formData.postalCode}
+            value={formData.email}
           />
         </div>
         <div>
-          <label htmlFor="">Code postal</label>
           <TextField
+            label="Code postal"
             name="postalCode"
+            error={error && error.location_zip}
             placeholder=""
             onChange={handleChange}
-            value={formData.phone}
+            value={formData.postalCode}
           />
         </div>
       </InputGroup>
@@ -134,12 +164,11 @@ const SignIn = () => {
         onClick={handleRgpdCheck}
         style={{
           marginTop: "1rem",
-          marginBottom: "2rem",
           cursor: "pointer",
           userSelect: "none",
         }}
       >
-        <input type="checkbox" checked={rgpdChecked} onChange={null} />
+        <input type="checkbox" checked={rgpdChecked} onChange={() => {}} />
         &nbsp;J'accepte que mes informations soient traitées par Action
         Populaire, conformément à la&nbsp;
         <a
@@ -150,10 +179,13 @@ const SignIn = () => {
         </a>
       </div>
 
+      {error && !!error.rgpd && <Toast>{error.rgpd}</Toast>}
+
       <Button
+        onClick={handleSubmit}
         color="primary"
         style={{
-          marginTop: "0.5rem",
+          marginTop: "2rem",
           maxWidth: "100%",
           width: "100%",
           justifyContent: "center",
@@ -165,4 +197,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignUp;
