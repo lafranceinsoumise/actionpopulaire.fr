@@ -121,24 +121,20 @@ export const updateProfile = async (data) => {
 
   let formData = {};
 
-  if (data.reasonChecked) {
+  if (data.reasonChecked !== undefined) {
     formData = {
       ...formData,
-      is2022: data.reasonChecked === 0 || null,
-      isInsoumise: data.reasonChecked === 1 || null,
+      is2022: data.reasonChecked === 0,
+      isInsoumise: data.reasonChecked === 1,
     };
   }
 
-  if (data.displayName) {
-    formData = {
-      ...formData,
-      displayName: data.displayName,
-      firstName: data.firstName || "",
-      lastName: data.lastName || "",
-      contactPhone: data.phone || "",
-      mandat: data.mandat || [],
-    };
-  }
+  if (data.displayName)
+    formData = { ...formData, displayName: data.displayName };
+  if (data.firstName) formData = { ...formData, firstName: data.firstName };
+  if (data.lastName) formData = { ...formData, lastName: data.lastName };
+  if (data.phone) formData = { ...formData, contactPhone: data.phone };
+  if (data.mandates) formData = { ...formData, mandates: data.mandates };
 
   const url = ENDPOINT.updateProfile;
   try {

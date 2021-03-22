@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import styled from "styled-components";
@@ -129,6 +129,7 @@ const InputRadio = styled.div`
 
 const ChooseCampaign = ({ dismiss }) => {
   const [reasonChecked, setReasonChecked] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
   const fromSignup = true;
 
   const handleReasonChecked = (value) => {
@@ -136,8 +137,9 @@ const ChooseCampaign = ({ dismiss }) => {
   };
 
   const handleSubmit = async () => {
-    const data = updateProfile({ reasonChecked: reasonChecked });
-    console.log("data", data);
+    setSubmitted(true);
+    await updateProfile({ reasonChecked: reasonChecked });
+    setSubmitted(false);
     dismiss();
   };
 
@@ -203,6 +205,7 @@ const ChooseCampaign = ({ dismiss }) => {
       <Button
         color="primary"
         onClick={handleSubmit}
+        disabled={submitted}
         style={{
           width: "356px",
           maxWidth: "100%",

@@ -60,7 +60,6 @@ const Login = () => {
   const loginBookmarkedMail = async (email) => {
     setError({});
     const data = await login(email);
-    console.log("data bookmarked", data);
     if (data.error) {
       setError(data.error);
       return;

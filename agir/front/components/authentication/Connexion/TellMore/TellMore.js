@@ -75,35 +75,74 @@ const InputCheckbox = styled.div`
   margin-top: 0.625rem;
 `;
 
+const SelectField = styled.select`
+  display: block;
+  width: 100%;
+  height: 36px;
+  padding: 6px 12px;
+  font-size: 16px;
+  line-height: 1.428571429;
+  color: #555555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 0px;
+  -webkit-box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
+`;
+
 const optional = <span style={{ fontWeight: 400 }}>(facultatif)</span>;
+const defaultData = {
+  displayName: "",
+  firstName: "",
+  lastName: "",
+  phone: "",
+  postalCode: "",
+  mandates: [],
+};
+const mandatList = [
+  {
+    name: "Maire",
+    value: "maire",
+  },
+  {
+    name: "Autre mandat municipal",
+    value: "municipal",
+  },
+  {
+    name: "Mandat départemental",
+    value: "departemental",
+  },
+  {
+    name: "Mandat régional",
+    value: "regional",
+  },
+];
 
 const TellMore = ({ dismiss }) => {
-  const defaultData = {
-    displayName: "",
-    firstName: "",
-    lastName: "",
-    phone: "",
-    postalCode: "",
-    hasMandate: [],
-  };
   const [formData, setFormData] = useState(defaultData);
   const [error, setError] = useState({});
+  const [showMandate, setShowMandate] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [firstMandate, setFirstMandate] = useState("");
 
   const getProfileInfos = async () => {
-    const data = await getProfile();
-    console.log("data : ", data);
-  };
+    const { data } = await getProfile();
 
-  useEffect(() => {
-    const data = getProfileInfos();
     setFormData({
       displayName: data.displayName,
       firstName: data.firstName,
       lastName: data.lastName,
       phone: data.contactPhone,
       postalCode: data.zip,
-      hasMandate: data.mandates,
+      mandates: data.mandates,
     });
+    setShowMandate(data.mandates?.length > 0);
+    if (data.mandates?.length) setFirstMandate(data.mandates[0]);
+  };
+
+  useEffect(() => {
+    getProfileInfos();
   }, []);
 
   const handleInputChange = (e) => {
@@ -112,15 +151,17 @@ const TellMore = ({ dismiss }) => {
     setFormData(newFormData);
   };
 
-  const handleHasMandate = () => {
-    setFormData({ ...formData, hasMandate: !formData.hasMandate });
+  const toggleShowMandate = () => setShowMandate(!showMandate);
+
+  const handleMandateChange = (e) => {
+    setFormData({ ...formData, mandates: [e.target.value] });
   };
 
   const handleSubmit = async () => {
+    setSubmitted(true);
     setError({});
-    console.log("formData", formData);
     const data = await updateProfile(formData);
-    console.log("data : ", data);
+    setSubmitted(false);
     if (data.error) {
       setError(data.error);
       return;
@@ -191,18 +232,35 @@ const TellMore = ({ dismiss }) => {
               />
             </div>
           </InputGroup>
-          <InputCheckbox onClick={handleHasMandate}>
+          <InputCheckbox onClick={toggleShowMandate}>
             <input
               type="checkbox"
               name="mandat"
-              checked={formData.hasMandate}
+              checked={showMandate}
               onChange={() => {}}
             />
             <span style={{ fontSize: "16px" }}>&nbsp; J'ai un mandat</span>
           </InputCheckbox>
+          {showMandate && (
+            <div style={{ marginTop: "10px" }}>
+              <label>Mandat</label>
+              <SelectField onChange={handleMandateChange}>
+                {mandatList.map((elt, id) => (
+                  <option
+                    key={id}
+                    value={elt.name}
+                    selected={elt.value === firstMandate}
+                  >
+                    {elt.name}
+                  </option>
+                ))}
+              </SelectField>
+            </div>
+          )}
           <Button
             color="primary"
             onClick={handleSubmit}
+            disabled={submitted}
             style={{
               width: "356px",
               maxWidth: "100%",
