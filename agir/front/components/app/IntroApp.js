@@ -16,16 +16,17 @@ const Mark = styled.span`
 `;
 
 const Block = styled.div`
-  max-width: 500px;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  border: 1px solid #ddd;
   text-align: center;
-  overflow: auto;
-  max-height: 100%;
-  height: 100vh;
+
+  & > div:nth-child(2) {
+    max-width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 `;
 
 const BlockConnexion = styled.div`
@@ -36,27 +37,58 @@ const BlockConnexion = styled.div`
 `;
 
 const ButtonContainer = styled.div`
-  margin-bottom: 40px;
   display: flex;
   flex-align: center;
   flex-direction: column;
+  width: 100%;
+  align-items: center;
+  padding: 1rem;
 `;
 
 const BackgroundTriangle = styled.div`
   width: 100%;
   background-color: ${style.secondary500};
+  margin-top: -1px;
   div {
     background-color: white;
-    height: 100px;
+    height: 80px;
+    margin-bottom: -1px;
     clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
+  }
+`;
+
+const PurpleTriangle = styled.div`
+  width: 100%;
+  background-color: ${style.primary500};
+  margin-top: -1px;
+  div {
+    background-color: white;
+    height: 80px;
+    margin-bottom: -1px;
+    clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
+  }
+`;
+
+const HeaderImage = styled.div`
+  background-color: #fff;
+  position: relative;
+  padding-bottom: 90px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  img {
+    width: 90%;
+    max-width: 358px;
+    position: absolute;
+    bottom: 0;
   }
 `;
 
 const DescriptionContainer = styled.div`
   background-color: ${style.secondary500};
   padding: 1.4rem;
-  // height: 618px;
-  min-height: 375px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -68,6 +100,15 @@ const DescriptionContainer = styled.div`
 
 const InlineBlock = styled.span`
   display: inline-block;
+`;
+
+const StyledButton = styled(Button)`
+  max-width: 100%;
+  width: 330px;
+  height: 70px;
+  font-size: 20px;
+  justify-content: center;
+  margin-top: 2.5rem;
 `;
 
 const items = [
@@ -111,16 +152,22 @@ const IntroApp = () => {
   }, []);
 
   const handleClickBack = useCallback(() => {
-    setIndex((index) => index - 1);
+    setIndex(0);
   }, []);
 
   return (
     <>
       {!showConnexion && (
         <Block>
-          <div style={{ padding: "1.4rem" }}>
-            <img src={items[index].image} alt="" style={{ maxWidth: "100%" }} />
+          <HeaderImage>
+            <PurpleTriangle style={{ paddingTop: "120px" }}>
+              <div></div>
+            </PurpleTriangle>
 
+            <img src={items[index].image} />
+          </HeaderImage>
+
+          <div style={{ paddingTop: "47px" }}>
             <p
               style={{
                 color: style.primary500,
@@ -135,25 +182,14 @@ const IntroApp = () => {
               {items[index].description}
             </p>
 
-            <Button
-              color="secondary"
-              onClick={handleClick}
-              style={{
-                marginTop: "2.5rem",
-                maxWidth: "100%",
-                width: "330px",
-                justifyContent: "center",
-              }}
-            >
+            <StyledButton color="secondary" onClick={handleClick}>
               Continuer
-            </Button>
+            </StyledButton>
 
-            <div style={{ marginTop: "2.5rem" }}></div>
-
-            <div style={{ postition: "absolute", bottom: "3rem" }}>
-              <Mark $active={0 === index}></Mark>
-              <Mark $active={1 === index}></Mark>
-              <Mark $active={2 === index}></Mark>
+            <div style={{ marginTop: "3rem", marginBottom: "1.5rem" }}>
+              <Mark $active={0 === index} />
+              <Mark $active={1 === index} />
+              <Mark $active={2 === index} />
             </div>
           </div>
         </Block>
@@ -161,12 +197,20 @@ const IntroApp = () => {
       {showConnexion && (
         <BlockConnexion>
           <DescriptionContainer>
-            <img src={logo} alt="" style={{ maxWidth: "400px" }} />
-            <p style={{ fontSize: "1.375rem" }}>
-              Agissez concrètement dans votre quartier et faites gagner Jean-Luc
-              Mélenchon&nbsp;
-              <InlineBlock>en 2022 !</InlineBlock>
-            </p>
+            <div>
+              <img src={logo} alt="" style={{ maxWidth: "300px" }} />
+              <p
+                style={{
+                  fontSize: "1.375rem",
+                  fontSize: "20px",
+                  paddingTop: "2rem",
+                }}
+              >
+                Agissez concrètement dans votre quartier et faites gagner
+                Jean-Luc Mélenchon&nbsp;
+                <InlineBlock>en 2022 !</InlineBlock>
+              </p>
+            </div>
           </DescriptionContainer>
 
           <BackgroundTriangle>
@@ -174,31 +218,16 @@ const IntroApp = () => {
           </BackgroundTriangle>
 
           <ButtonContainer>
-            <Button
-              color="primary"
-              onClick={handleClickBack}
-              style={{
-                marginTop: "2.5rem",
-                maxWidth: "100%",
-                width: "330px",
-                justifyContent: "center",
-              }}
-            >
+            <StyledButton color="primary" onClick={handleClickBack}>
               Je crée mon compte
-            </Button>
-            <Button
+            </StyledButton>
+            <StyledButton
               color="secondary"
               onClick={handleClickBack}
-              style={{
-                marginTop: "0.5rem",
-                marginLeft: "0px",
-                maxWidth: "100%",
-                width: "330px",
-                justifyContent: "center",
-              }}
+              style={{ marginTop: "0.5rem", marginLeft: "0px" }}
             >
               Je dispose déjà d'un compte
-            </Button>
+            </StyledButton>
           </ButtonContainer>
         </BlockConnexion>
       )}
