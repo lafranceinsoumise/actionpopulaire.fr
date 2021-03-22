@@ -72,6 +72,7 @@ class PersonProfileAPIView(RetrieveUpdateAPIView):
         return super().get_serializer(
             *args,
             fields=[
+                "id",
                 "displayName",
                 "firstName",
                 "lastName",
@@ -79,7 +80,7 @@ class PersonProfileAPIView(RetrieveUpdateAPIView):
                 "contactPhone",
                 "isInsoumise",
                 "is2022",
-                "mandates",
+                "mandat",
             ],
             **kwargs,
         )
