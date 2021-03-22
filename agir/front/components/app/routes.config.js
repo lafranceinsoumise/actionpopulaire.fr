@@ -36,7 +36,7 @@ const SignupPage = lazy(() => import("@agir/front/authentication/SignupPage"));
 
 const IntroAppPage = lazy(() => import("@agir/front/app/IntroApp"));
 const SigninPage = lazy(() => import("@agir/front/app/Connexion/SigninPage"));
-// const LoginPage = lazy(() => import("@agir/front/app/Connexion/LoginPage"));
+const LoginPage = lazy(() => import("@agir/front/app/Connexion/LoginPage"));
 const CodeConnexionPage = lazy(() =>
   import("@agir/front/app/Connexion/CodeConnexion")
 );
