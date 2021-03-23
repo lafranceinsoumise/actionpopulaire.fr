@@ -2,9 +2,6 @@ from django.urls import path, include
 from oauth2_provider import views as oauth2_views
 
 from .views import (
-    LoginView,
-    CheckCodeView,
-    DisconnectView,
     Oauth2AuthorizationView,
     SocialLoginError,
     SessionContextAPIView,
@@ -15,7 +12,6 @@ from .views import (
 
 
 urlpatterns = [
-    path("deconnexion/", DisconnectView.as_view(), name="disconnect"),
     path("o/authorize/", Oauth2AuthorizationView.as_view(), name="authorize"),
     path("o/token/", oauth2_views.TokenView.as_view(), name="token"),
     path(

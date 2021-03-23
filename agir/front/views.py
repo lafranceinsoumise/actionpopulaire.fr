@@ -1,6 +1,7 @@
 import os
 
 from django.conf import settings
+from django.contrib.auth import logout
 from django.contrib.gis.db.models.functions import Distance
 from django.http import HttpResponsePermanentRedirect, Http404, FileResponse
 from django.urls import reverse_lazy
@@ -91,6 +92,14 @@ class LoginView(ReactBaseView):
 
 class CodeLoginView(ReactBaseView):
     bundle_name = "front/app"
+
+
+class LogoutView(ReactBaseView):
+    bundle_name = "front/app"
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return super().get(request, *args, **kwargs)
 
 
 class CodeSignupView(ReactBaseView):

@@ -52,6 +52,9 @@ const TellMorePage = lazy(() =>
 const ChooseCampaignPage = lazy(() =>
   import("@agir/front/authentication/Connexion/TellMore/ChooseCampaign")
 );
+const LogoutPage = lazy(() =>
+  import("@agir/front/authentication/Connexion/Logout")
+);
 
 export const BASE_PATH = "/";
 
@@ -282,6 +285,14 @@ export const routeConfig = {
       smallBackgroundColor: style.black25,
       hasBanner: false,
     },
+  }),
+  logout: new RouteConfig({
+    id: "logout",
+    pathname: "/deconnexion/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Déconnexion",
+    Component: LogoutPage,
   }),
 };
 
