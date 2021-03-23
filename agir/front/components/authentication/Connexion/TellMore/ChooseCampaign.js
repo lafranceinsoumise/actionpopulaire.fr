@@ -9,6 +9,8 @@ import LFI_rounded from "@agir/front/genericComponents/images/LFI_rounded.png";
 import checkCirclePrimary from "@agir/front/genericComponents/images/check-circle-primary.svg";
 import { updateProfile } from "../../api";
 
+const RadioLabel = styled.div``;
+
 const Container = styled.div`
   display: flex;
   min-height: 100vh;
@@ -16,23 +18,38 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 24px;
+  padding: 1.5rem;
 
   h1 {
     font-size: 26px;
     font-weight: 700,
     line-height: 39px;
     text-align: center;
-    margin-bottom: 0px;
-    margin-top: 16px;
+    margin-bottom: 0;
+    margin-top: 0;
+    max-width: 450px;
+  }
+  h2 {
+    font-size: 1rem;
+    font-weight: 700,
+    margin-bottom: 0;
+    margin-top: 0;
     max-width: 450px;
   }
   p {
     text-align: center;
   }
+  ${RadioLabel} {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+  }
   @media (max-width: ${style.collapse}px) {
     h1 {
-      font-size: 18px;
+      font-size: 1rem;
+      text-align: left;
+    }
+    ${RadioLabel} {
+      text-align: left;
     }
   }
 `;
@@ -55,8 +72,7 @@ const RadioBlock = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding: 24px;
-  margin-top: 38px;
+  padding: 1.5rem;
   position: relative;
   cursor: pointer;
   transition: ease 0.2s;
@@ -67,10 +83,10 @@ const RadioBlock = styled.div`
   }
   &.responsive-margin {
     @media (max-width: ${style.collapse}px) {
-      margin-top: 16px;
+      margin-top: 1rem;
     }
     @media (min-width: ${style.collapse}px) {
-      margin-left: 24px;
+      margin-left: 1.5rem;
     }
   }
 
@@ -109,7 +125,7 @@ const RadioBlock = styled.div`
     margin-top: 14px;
     padding: 10px;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 1rem;
   }
   img {
     width: 114px;
@@ -118,13 +134,13 @@ const RadioBlock = styled.div`
 
 const InputRadio = styled.div`
   div {
-    width: 16px;
-    height: 16px;
+    width: 1rem;
+    height: 1rem;
     border: 1px solid #000a2c;
     border-radius: 20px;
   }
   img {
-    width: 16px;
+    width: 1rem;
   }
 `;
 
@@ -195,6 +211,7 @@ const ChooseCampaign = ({ dismiss }) => {
             fontWeight: 600,
             padding: "0.5rem 1rem",
             backgroundColor: style.green100,
+            marginBottom: "2rem",
           }}
         >
           <FeatherIcon
@@ -209,9 +226,9 @@ const ChooseCampaign = ({ dismiss }) => {
       )}
 
       <h1>Pour quelle campagne rejoignez-vous Action Populaire ?</h1>
-      <div style={{ marginTop: "2rem" }}>
+      <RadioLabel>
         Nous vous suggérerons des actions qui vous intéressent
-      </div>
+      </RadioLabel>
 
       <ContainerRadio>
         <RadioBlock
@@ -245,7 +262,12 @@ const ChooseCampaign = ({ dismiss }) => {
         </RadioBlock>
       </ContainerRadio>
 
-      <div style={{ textAlign: "left", marginTop: "1rem" }}>
+      <div style={{ textAlign: "left", marginTop: "1.5rem" }}>
+        {is2022 === reasonChecked && (
+          <h2 style={{ textAlign: "left", marginBottom: "0.5rem" }}>
+            Recevez des informations sur la campagne
+          </h2>
+        )}
         {notifs.map((e, id) => (
           <CheckboxField
             key={id}
