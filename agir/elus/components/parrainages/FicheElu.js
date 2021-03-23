@@ -178,11 +178,11 @@ const FormulaireTerminerParrainage = ({ elu, onStatusChange }) => {
           ? formulaireInput.current.files[0]
           : null;
 
-      const commentaires = commentairesInput.value;
+      const commentaires = commentairesInput.current.value;
 
       try {
         await terminerParrainage(elu.idRechercheParrainage, {
-          statut: decision ? ISSUE.ENGAGEMENT : ISSUE.REFUSE,
+          statut: decision.value,
           commentaires,
           formulaire,
         });
