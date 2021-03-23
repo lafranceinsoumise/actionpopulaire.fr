@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -127,13 +128,55 @@ const InputRadio = styled.div`
   }
 `;
 
+const [is2022, isInsoumise] = [0, 1];
+
+const notificationList = {
+  0: [
+    {
+      label: "Les lettres d'informations, environ une fois par semaine",
+      value: "newsHebdo",
+      selected: true,
+    },
+    {
+      label: "Actions en ligne",
+      value: "actOnline",
+      selected: false,
+    },
+    {
+      label: "Agir près de chez moi",
+      value: "nearMe",
+      selected: false,
+    },
+    {
+      label: "L’actualité sur le programme",
+      value: "newsProgram",
+      selected: false,
+    },
+  ],
+  1: [
+    {
+      label: "Recevez des informations sur la France insoumise",
+      value: "newsInsoumises",
+      selected: true,
+    },
+  ],
+};
+
 const ChooseCampaign = ({ dismiss }) => {
   const [reasonChecked, setReasonChecked] = useState(0);
+  const [notifs, setNotifs] = useState(notificationList[is2022]);
   const [submitted, setSubmitted] = useState(false);
   const fromSignup = true;
 
   const handleReasonChecked = (value) => {
     setReasonChecked(value);
+    setNotifs(notificationList[value]);
+  };
+
+  const handleToggleNotif = (index) => {
+    const newNotifs = [...notifs];
+    newNotifs[index].selected = !newNotifs[index].selected;
+    setNotifs(newNotifs);
   };
 
   const handleSubmit = async () => {
@@ -173,12 +216,12 @@ const ChooseCampaign = ({ dismiss }) => {
       <ContainerRadio>
         <RadioBlock
           onClick={() => handleReasonChecked(0)}
-          $checked={0 === reasonChecked}
+          $checked={is2022 === reasonChecked}
         >
           <img src={JLM_rounded} alt="Jean-Luc Mélenchon" />
           <span>La campagne présidentielle 2022</span>
           <InputRadio>
-            {0 === reasonChecked ? (
+            {is2022 === reasonChecked ? (
               <img src={checkCirclePrimary} alt="" />
             ) : (
               <div></div>
@@ -187,13 +230,13 @@ const ChooseCampaign = ({ dismiss }) => {
         </RadioBlock>
         <RadioBlock
           onClick={() => handleReasonChecked(1)}
-          $checked={1 === reasonChecked}
+          $checked={isInsoumise === reasonChecked}
           className="responsive-margin"
         >
           <img src={LFI_rounded} alt="La France Insoumise" />
           <span>Une autre campagne de la France Insoumise</span>
           <InputRadio>
-            {1 === reasonChecked ? (
+            {isInsoumise === reasonChecked ? (
               <img src={checkCirclePrimary} alt="" />
             ) : (
               <div></div>
@@ -201,6 +244,18 @@ const ChooseCampaign = ({ dismiss }) => {
           </InputRadio>
         </RadioBlock>
       </ContainerRadio>
+
+      <div style={{ textAlign: "left", marginTop: "1rem" }}>
+        {notifs.map((e, id) => (
+          <CheckboxField
+            key={id}
+            name={e.value}
+            label={e.label}
+            value={e.selected}
+            onChange={() => handleToggleNotif(id)}
+          />
+        ))}
+      </div>
 
       <Button
         color="primary"
