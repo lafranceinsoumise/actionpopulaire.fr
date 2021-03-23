@@ -285,6 +285,10 @@ class RetrievePersonRequestSerializer(serializers.Serializer):
             raise Http404("Aucune personne trouvée")
 
 
+class PersonNewsletterListField(serializers.ListField):
+    child = serializers.ChoiceField(choices=Person.NEWSLETTERS_CHOICES)
+
+
 class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
     email = serializers.EmailField(read_only=True)
@@ -318,7 +322,7 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
     referrerId = serializers.CharField(source="referrer_id", required=False)
 
-    newsletters = serializers.ListField(required=False)
+    newsletters = PersonNewsletterListField(required=False, allow_empty=True)
 
     gender = serializers.CharField(required=False)
 
