@@ -7,6 +7,7 @@ from data_france.models import (
     CollectiviteRegionale,
 )
 from django.contrib import admin
+from django.contrib.postgres.search import SearchQuery
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
@@ -20,6 +21,7 @@ from agir.elus.models import (
     MUNICIPAL_DEFAULT_DATE_RANGE,
     DEPARTEMENTAL_DEFAULT_DATE_RANGE,
     REGIONAL_DEFAULT_DATE_RANGE,
+    RechercheParrainageMaire,
 )
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
@@ -594,3 +596,25 @@ class MandatRegionalAdmin(BaseMandatAdmin):
 
     class Media:
         pass
+
+
+@admin.register(RechercheParrainageMaire)
+class RechercherParrainageMaireAdmin(admin.ModelAdmin):
+    list_display = ("elu", "person", "statut", "formulaire")
+
+    list_filter = ("statut",)
+
+    fields = ("elu", "person", "statut", "commentaires", "formulaire")
+
+    search_fields = ("elu__person",)
+
+    def get_search_results(self, request, queryset, search_term):
+        use_distinct = False
+        if search_term:
+            return (
+                queryset.filter(
+                    elu__search=SearchQuery(search_term, config="data_france_search")
+                ),
+                use_distinct,
+            )
+        return queryset, use_distinct
