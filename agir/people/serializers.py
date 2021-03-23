@@ -291,7 +291,8 @@ class PersonNewsletterListField(serializers.ListField):
 
 class PersonMandatField(serializers.Field):
     requires_context = True
-    choices = tuple(types_elus.keys())
+    types = tuple(types_elus.keys())
+    choices = dict([(mandat, mandat) for mandat in types_elus.keys()])
     default_error_messages = {
         "invalid": "Le type de mandat n'est pas valide",
     }
@@ -311,7 +312,7 @@ class PersonMandatField(serializers.Field):
     def to_representation(self, person):
         return [
             mandat
-            for mandat in self.choices
+            for mandat in self.types
             if types_elus[mandat]
             .objects.filter(person=person, **self.get_defaults(mandat))
             .exists()
@@ -322,7 +323,7 @@ class PersonMandatField(serializers.Field):
             return None
         mandat_type = data.pop("mandat")
         mandat = None
-        if not mandat_type in self.choices:
+        if not mandat_type in self.types:
             return self.fail("invalid", data=data)
         try:
             types_elus[mandat_type].objects.get_or_create(
