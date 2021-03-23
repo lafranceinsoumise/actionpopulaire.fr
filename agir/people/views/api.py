@@ -91,6 +91,7 @@ class PersonProfileAPIView(RetrieveUpdateAPIView):
                 "isInsoumise",
                 "is2022",
                 "mandat",
+                "newsletters",
             ],
             **kwargs,
         )

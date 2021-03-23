@@ -50,7 +50,7 @@ export const logout = async () => {
     success: false,
     error: null,
   };
-  const url = ENDPOINT.checkCode;
+  const url = ENDPOINT.logout;
   try {
     const response = await axios.get(url);
     result.success = response.status === 200;
