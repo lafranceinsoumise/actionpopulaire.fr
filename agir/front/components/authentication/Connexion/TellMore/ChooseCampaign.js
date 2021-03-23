@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -149,58 +149,85 @@ const [is2022, isInsoumise] = [0, 1];
 const notificationList = {
   0: [
     {
-      label: "Les lettres d'informations, environ une fois par semaine",
-      value: "newsHebdo",
+      label: "Grands événements de la campagne",
+      value: "2022_exceptionnel",
+      selected: true,
+    },
+    {
+      label: "Lettres d'informations, environ une fois par semaine",
+      value: "2022",
       selected: true,
     },
     {
       label: "Actions en ligne",
-      value: "actOnline",
+      value: "2022_en_ligne",
       selected: false,
     },
     {
       label: "Agir près de chez moi",
-      value: "nearMe",
+      value: "2022_chez_moi",
       selected: false,
     },
     {
       label: "L’actualité sur le programme",
-      value: "newsProgram",
+      value: "2022_programme",
       selected: false,
     },
   ],
   1: [
     {
       label: "Recevez des informations sur la France insoumise",
-      value: "newsInsoumises",
+      value: "LFI",
       selected: true,
     },
   ],
 };
 
+// return array of newsletter value as string
+const filterNewsletter = (newsList) => {
+  const res = newsList
+    .map((e) => {
+      if (e.selected) return e.value;
+    })
+    .filter((e) => {
+      if (e !== undefined) return e;
+    });
+  return res;
+};
+
 const ChooseCampaign = ({ dismiss }) => {
-  const [reasonChecked, setReasonChecked] = useState(0);
   const [notifs, setNotifs] = useState(notificationList[is2022]);
+  const [reasonChecked, setReasonChecked] = useState(0);
+  const [newsLetters, setNewsletters] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const fromSignup = true;
 
   const handleReasonChecked = (value) => {
     setReasonChecked(value);
     setNotifs(notificationList[value]);
+    setNewsletters(filterNewsletter(notifs));
   };
 
   const handleToggleNotif = (index) => {
     const newNotifs = [...notifs];
     newNotifs[index].selected = !newNotifs[index].selected;
     setNotifs(newNotifs);
+    setNewsletters(filterNewsletter(newNotifs));
   };
 
   const handleSubmit = async () => {
     setSubmitted(true);
-    await updateProfile({ reasonChecked: reasonChecked });
+    await updateProfile({
+      reasonChecked: reasonChecked,
+      newsletter: newsLetters,
+    });
     setSubmitted(false);
     dismiss();
   };
+
+  useEffect(() => {
+    setNewsletters(filterNewsletter(notifs));
+  }, [notifs]);
 
   return (
     <Container>
