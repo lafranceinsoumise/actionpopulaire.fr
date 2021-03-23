@@ -90,12 +90,12 @@ export const SelecteurElus = ({
       // après que la requête se soit terminée mais avant qu'on ai mis à jour les résultats
       if (cancelSource === lastRequestCancelSource.current) {
         onSearchResults(results);
-        setState(state.MONTRER_RESULTATS);
+        setState(SELECTEUR_STATES.MONTRER_RESULTATS);
       }
     } catch (e) {
       if (cancelSource === lastRequestCancelSource.current) {
         console.log(e.message);
-        setState(state.ERREUR_REQUETE);
+        setState(SELECTEUR_STATES.ERREUR_REQUETE);
       }
     }
   }, 600);
