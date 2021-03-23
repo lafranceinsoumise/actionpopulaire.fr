@@ -2,6 +2,8 @@ import React from "react";
 import Button from "@agir/front/genericComponents/Button";
 import facebookImg from "@agir/front/genericComponents/images/facebook_circle.svg";
 import styled from "styled-components";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getRoutes } from "@agir/front/globalContext/reducers";
 
 const ButtonFacebook = styled(Button)`
   max-width: 100%;
@@ -24,12 +26,10 @@ const ButtonFacebook = styled(Button)`
 `;
 
 const LoginFacebook = () => {
-  const handleLoginFacebook = () => {
-    console.log("login with facebook");
-  };
+  const routes = useSelector(getRoutes);
 
   return (
-    <ButtonFacebook onClick={handleLoginFacebook}>
+    <ButtonFacebook href={routes.facebookLogin} as={"a"}>
       <img src={facebookImg} />
       &nbsp; Connexion avec Facebook
     </ButtonFacebook>
