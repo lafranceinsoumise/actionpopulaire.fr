@@ -58,7 +58,9 @@ export const terminerParrainage = async (id, data) => {
 
   const formData = new FormData();
   for (const key of Object.keys(data)) {
-    formData.append(key, data[key]);
+    if (data[key] !== null) {
+      formData.append(key, data[key]);
+    }
   }
   try {
     const res = await axios({
