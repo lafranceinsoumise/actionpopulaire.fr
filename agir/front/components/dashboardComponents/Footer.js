@@ -331,9 +331,7 @@ export const Footer = (props) => {
               {routes.help && <Link route="help">Besoin d'aide ?</Link>}
               {routes.legal && <Link route="legal">Mentions légales</Link>}
               {routes.contact && <Link route="contact">Contact</Link>}
-              {isSignedIn && routes.signOut && (
-                <Link route="signOut">Se déconnecter</Link>
-              )}
+              {isSignedIn && <Link route="logout">Se déconnecter</Link>}
             </p>
           </div>
           {isSignedIn ? (
