@@ -50,7 +50,6 @@ module.exports = merge.merge(common, {
     new ReactRefreshWebpackPlugin(),
     new webpack.EnvironmentPlugin({
       DEBUG: "agir:*", // default value if not defined in .env
-      SOCIAL_AUTH_FACEBOOK_KEY: 42
     }),
   ],
 });

@@ -30,10 +30,14 @@ const ContainerConnexion = styled.div`
 
 const LoginMailButton = styled(Button)`
   margin-top: 0.5rem;
-  margin-left: 0 !important;
+  margin-left: 0;
   max-width: 100%;
   width: 400px;
   justify-content: space-between;
+
+  & + & {
+    margin-left: 0;
+  }
 `;
 
 const ToastNotConnected = () => {
@@ -43,7 +47,8 @@ const ToastNotConnected = () => {
 const Login = () => {
   const history = useHistory();
   const location = useLocation();
-  const bookmarkedEmails = useBookmarkedEmails();
+  //const bookmarkedEmails = useBookmarkedEmails();
+  const bookmarkedEmails = [["test@test.fr", "test@test.fr", "test@test.fr"]];
   const [showMore, setShowMore] = useState(false);
   const [error, setError] = useState({});
 
@@ -91,6 +96,8 @@ const Login = () => {
               key={id}
               color="primary"
               onClick={() => loginBookmarkedMail(mail)}
+              block
+              $block
             >
               {mail}
               <img src={arrowRight} style={{ color: "white" }} />
