@@ -101,7 +101,7 @@ class RechercheParrainagesView(
             EluMunicipal.objects.filter(CRITERE_INCLUSION_ELUS)
             .select_related("commune")
             .filter(
-                rechercher_parrainage__statut=RechercheParrainageMaire.Statut.EN_COURS,
+                rechercher_parrainage__statut=StatutRechercheParrainage.EN_COURS,
                 rechercher_parrainage__person_id=person.id,
             )
             .annotate(
@@ -172,6 +172,5 @@ class ModifierRechercheParrainageView(UpdateAPIView):
 
     def get_queryset(self):
         return RechercheParrainageMaire.objects.filter(
-            person=self.request.user.person,
-            statut=RechercheParrainageMaire.Statut.EN_COURS,
+            person=self.request.user.person, statut=StatutRechercheParrainage.EN_COURS,
         )

@@ -72,8 +72,10 @@ class CreerRechercheSerializer(serializers.Serializer):
 class ModifierRechercheSerializer(serializers.Serializer):
     statut = serializers.ChoiceField(
         choices=[
-            RechercheParrainageMaire.Statut.REUSSITE,
-            RechercheParrainageMaire.Statut.ECHEC,
+            RechercheParrainageMaire.Statut.ENGAGEMENT,
+            RechercheParrainageMaire.Statut.REFUS,
+            RechercheParrainageMaire.Statut.NE_SAIT_PAS,
+            RechercheParrainageMaire.Statut.AUTRE_ENGAGEMENT,
             RechercheParrainageMaire.Statut.ANNULEE,
         ]
     )
@@ -92,6 +94,18 @@ class ModifierRechercheSerializer(serializers.Serializer):
             )
 
         return value
+
+    def validate(self, attrs):
+        if attrs["statut"] in [
+            RechercheParrainageMaire.Statut.NE_SAIT_PAS,
+            RechercheParrainageMaire.Statut.AUTRE_ENGAGEMENT,
+        ] and not attrs.get("commentaires"):
+            raise serializers.ValidationError(
+                detail={"commentaires": "Ce champ est requis avec ce statut."},
+                code="commentaires_requis",
+            )
+
+        return attrs
 
     def save(self):
         self.instance.statut = self.validated_data["statut"]

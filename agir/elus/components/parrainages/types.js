@@ -76,9 +76,53 @@ const statutsConfig = {
 
 export const ISSUE = {
   ANNULE: 5,
-  ACCEPTE: 2,
+  ENGAGEMENT: 2,
   REFUSE: 4,
+  NE_SAIT_PAS: 6,
+  AUTRE_ENGAGEMENT: 7,
 };
+
+export const DECISIONS = [
+  {
+    id: "engagement-formulaire",
+    label: "S'est engagé à parrainer la candidature et a signé le formulaire",
+    formulaire: true,
+    commentairesRequis: false,
+    value: ISSUE.ENGAGEMENT,
+  },
+  {
+    id: "engagement-sans-formulaire",
+    label:
+      "S'est engagé à parrainer la candidature et transmettra le formulaire d'engagement par ses propres moyens",
+    formulaire: false,
+    commentairesRequis: false,
+    value: ISSUE.ENGAGEMENT,
+  },
+  {
+    id: "ne-sait-pas",
+    label: "Ne s'est pas encore décidé quand à son parrainage",
+    formulaire: false,
+    commentairesRequis: true,
+    commentairesTitre:
+      "Indiquer les raisons de son hésitation et sous quels délais il est utile de le recontacter.",
+    value: ISSUE.NE_SAIT_PAS,
+  },
+  {
+    id: "autre-candidat",
+    label: "S'est engagé ou souhaite soutenir un autre candidat",
+    formulaire: false,
+    commentairesRequis: true,
+    commentairesTitre: "Qui est cet autre candidat ?",
+    value: ISSUE.AUTRE_ENGAGEMENT,
+  },
+  {
+    id: "refus",
+    label: "Refuse de parrainer la candidature de Jean-Luc Mélenchon",
+    formulaire: false,
+    commentairesRequis: false,
+    value: ISSUE.REFUSE,
+  },
+];
 
 const StatutPillLayout = styled.span`
   display: inline-block;
