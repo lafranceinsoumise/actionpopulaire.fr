@@ -600,13 +600,13 @@ class MandatRegionalAdmin(BaseMandatAdmin):
 
 @admin.register(RechercheParrainageMaire)
 class RechercherParrainageMaireAdmin(admin.ModelAdmin):
+    autocomplete_fields = ("elu", "person")
     list_display = ("elu", "person", "statut", "formulaire")
 
     list_filter = ("statut",)
-
     fields = ("elu", "person", "statut", "commentaires", "formulaire")
 
-    search_fields = ("elu__person",)
+    search_fields = ("elu__search",)
 
     def get_search_results(self, request, queryset, search_term):
         use_distinct = False
