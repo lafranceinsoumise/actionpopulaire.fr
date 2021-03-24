@@ -34,13 +34,15 @@ const LoginMailButton = styled(Button)`
   max-width: 100%;
   width: 400px;
   justify-content: space-between;
+
+  & + & {
+    margin-left: 0;
+  }
 `;
 
 const ToastNotConnected = () => {
   return <Toast>Vous devez vous connecter pour accéder à cette page</Toast>;
 };
-
-//const mockMails = ["nom.prenom@email.com", "test@franceinsoumise.org"];
 
 const Login = () => {
   const history = useHistory();
@@ -50,7 +52,8 @@ const Login = () => {
   const [error, setError] = useState({});
 
   let next = "";
-  if (location.search !== undefined)
+  if (location.state?.next) next = location.state.next;
+  else if (location.search)
     next = new URLSearchParams(location.search).get("next");
 
   const handleShowMore = () => {
@@ -84,7 +87,7 @@ const Login = () => {
       {!!next && next.length > 0 && <ToastNotConnected />}
 
       {bookmarkedEmails[0].length > 0 && (
-        <div style={{ marginTop: "24px" }}>
+        <div style={{ marginTop: "1.5rem" }}>
           <span style={{ fontWeight: 500 }}>À mon compte :</span>
 
           {bookmarkedEmails[0].map((mail, id) => (
@@ -92,6 +95,8 @@ const Login = () => {
               key={id}
               color="primary"
               onClick={() => loginBookmarkedMail(mail)}
+              block
+              $block
             >
               {mail}
               <img src={arrowRight} style={{ color: "white" }} />

@@ -29,20 +29,11 @@ const InputGroup = styled.div`
     }
 `;
 
-const UlTitle = styled.span`
-  display: inline-block;
-  margin: 1.25rem 0;
-  margin-bottom: 10px;
-  font-weight: 600;
-  font-size: 13px;
-`;
-
 const fromGroupEvent = false;
 
 const defaultData = {
   email: "",
   postalCode: "",
-  reasonChecked: !fromGroupEvent ? 0 : null,
 };
 
 const SignUp = () => {
@@ -55,10 +46,6 @@ const SignUp = () => {
   const handleRgpdCheck = () => {
     setRgpdChecked(!rgpdChecked);
     setError({ ...error, rgpd: null });
-  };
-
-  const handleReasonChecked = (value) => {
-    setFormData({ ...formData, reasonChecked: value });
   };
 
   const handleChange = (e) => {
@@ -103,39 +90,6 @@ const SignUp = () => {
           <Link route="login">Je me connecte</Link>
         </span>
       </BlockSwitchLink>
-
-      {!fromGroupEvent && (
-        <>
-          <UlTitle>
-            Pour quelle campagne rejoignez-vous Action Populaire ?
-          </UlTitle>
-
-          <ul style={{ padding: "0", margin: "0", listStyleType: "none" }}>
-            <li onClick={() => handleReasonChecked(0)}>
-              <label style={{ cursor: "pointer", fontWeight: 400 }}>
-                <input
-                  type="radio"
-                  value="0"
-                  onChange={() => {}}
-                  checked={0 === formData.reasonChecked}
-                />
-                <span>&nbsp; La présidentielle de 2022</span>
-              </label>
-            </li>
-            <li onClick={() => handleReasonChecked(1)}>
-              <label style={{ cursor: "pointer", fontWeight: 400 }}>
-                <input
-                  type="radio"
-                  value="1"
-                  onChange={() => {}}
-                  checked={1 === formData.reasonChecked}
-                />
-                <span>&nbsp; Une autre campagne de la France Insoumise</span>
-              </label>
-            </li>
-          </ul>
-        </>
-      )}
 
       <InputGroup>
         <div>

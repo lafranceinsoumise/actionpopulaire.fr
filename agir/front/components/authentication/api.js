@@ -128,6 +128,9 @@ export const updateProfile = async (data) => {
       isInsoumise: data.reasonChecked === 1,
     };
   }
+  if (data.newsletter) {
+    formData = { ...formData, newsletter: data.newsletter };
+  }
 
   if (data.displayName)
     formData = { ...formData, displayName: data.displayName };

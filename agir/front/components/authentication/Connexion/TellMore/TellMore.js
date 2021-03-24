@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
+import SelectField from "@agir/front/formComponents/SelectField";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
@@ -75,22 +76,6 @@ const InputCheckbox = styled.div`
   margin-top: 0.625rem;
 `;
 
-const SelectField = styled.select`
-  display: block;
-  width: 100%;
-  height: 36px;
-  padding: 6px 12px;
-  font-size: 16px;
-  line-height: 1.428571429;
-  color: #555555;
-  background-color: #fff;
-  background-image: none;
-  border: 1px solid #ccc;
-  border-radius: 0px;
-  -webkit-box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
-  box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
-`;
-
 const optional = <span style={{ fontWeight: 400 }}>(facultatif)</span>;
 const defaultData = {
   displayName: "",
@@ -102,19 +87,19 @@ const defaultData = {
 };
 const mandatList = [
   {
-    name: "Maire",
+    label: "Maire",
     value: "maire",
   },
   {
-    name: "Autre mandat municipal",
+    label: "Autre mandat municipal",
     value: "municipal",
   },
   {
-    name: "Mandat départemental",
+    label: "Mandat départemental",
     value: "departemental",
   },
   {
-    name: "Mandat régional",
+    label: "Mandat régional",
     value: "regional",
   },
 ];
@@ -124,7 +109,7 @@ const TellMore = ({ dismiss }) => {
   const [error, setError] = useState({});
   const [showMandate, setShowMandate] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [firstMandate, setFirstMandate] = useState("");
+  const [mandat, setMandat] = useState(mandatList[0]);
 
   const getProfileInfos = async () => {
     const { data } = await getProfile();
@@ -138,7 +123,6 @@ const TellMore = ({ dismiss }) => {
       mandates: data.mandates,
     });
     setShowMandate(data.mandates?.length > 0);
-    if (data.mandates?.length) setFirstMandate(data.mandates[0]);
   };
 
   useEffect(() => {
@@ -154,7 +138,8 @@ const TellMore = ({ dismiss }) => {
   const toggleShowMandate = () => setShowMandate(!showMandate);
 
   const handleMandateChange = (e) => {
-    setFormData({ ...formData, mandates: [e.target.value] });
+    setMandat(e);
+    setFormData({ ...formData, mandates: [e.value] });
   };
 
   const handleSubmit = async () => {
@@ -243,18 +228,14 @@ const TellMore = ({ dismiss }) => {
           </InputCheckbox>
           {showMandate && (
             <div style={{ marginTop: "10px" }}>
-              <label>Mandat</label>
-              <SelectField onChange={handleMandateChange}>
-                {mandatList.map((elt, id) => (
-                  <option
-                    key={id}
-                    value={elt.name}
-                    selected={elt.value === firstMandate}
-                  >
-                    {elt.name}
-                  </option>
-                ))}
-              </SelectField>
+              <SelectField
+                label="Mandat"
+                name="mandat"
+                placeholder=""
+                value={mandat}
+                options={mandatList}
+                onChange={handleMandateChange}
+              />
             </div>
           )}
           <Button
