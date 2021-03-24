@@ -15,8 +15,6 @@ const LoginMailEmpty = () => {
   if (location.search !== undefined)
     next = new URLSearchParams(location.search).get("next");
 
-  console.log("location", location);
-
   const handleInputChange = (e) => {
     setEmail(e.target.value);
   };
@@ -24,12 +22,10 @@ const LoginMailEmpty = () => {
   const handleSubmit = async () => {
     setError({});
     const data = await login(email);
-    console.log("data : ", data);
     if (data.error) {
       setError(data.error);
       return;
     }
-
     const route = routeConfig.codeLogin.getLink();
     history.push(route, { email: email, code: data.data.code, next: next });
   };
