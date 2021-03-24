@@ -44,15 +44,19 @@ const StyledHome = styled.main`
 const Home = () => {
   return (
     <StyledHome>
-      <Spacer size="184px" />
+      <Spacer size="126px" />
       <header>
         <h2>Passez à l'action&nbsp;!</h2>
         <h5>
           Agissez concrètement dans votre quartier et faites gagner Jean-Luc
           Mélenchon en 2022 !
         </h5>
-        <Button color="primary" as="Link" to="/inscription/">
+        <Button color="primary" as="Link" route="signup">
           S'inscrire
+        </Button>
+        <Spacer size="11px" />
+        <Button color="white" as="Link" to="login">
+          Se connecter
         </Button>
       </header>
       <Spacer size="130px" />
