@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
@@ -133,37 +132,6 @@ export const TopBar = () => {
       </TopBarContainer>
     </TopBarBar>
   );
-};
-TopBar.propTypes = {
-  user: PropTypes.shape({
-    displayName: PropTypes.string,
-    isInsoumise: PropTypes.bool,
-  }),
-  routes: PropTypes.objectOf(
-    PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.object,
-      PropTypes.arrayOf(
-        PropTypes.shape({
-          id: PropTypes.string,
-          label: PropTypes.string,
-          href: PropTypes.string,
-        })
-      ),
-    ])
-  ),
-};
-TopBar.defaultProps = {
-  user: null,
-  routes: {
-    dashboard: "#dashboard",
-    search: "#search",
-    help: "#help",
-    personalInformation: "#personalInformation",
-    contactConfiguration: "#contactConfiguration",
-    join: "#join",
-    login: "#login",
-  },
 };
 
 export default TopBar;

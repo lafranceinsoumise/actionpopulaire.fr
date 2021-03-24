@@ -10,12 +10,12 @@ const log = logger(__filename);
 
 const StyledWarning = styled(animated.div)`
   position: fixed;
-  top: 72px;
+  top: ${({ $hasTopBar }) => ($hasTopBar ? "72px" : "0")};
   width: 100%;
   z-index: ${style.zindexTopBar};
 
   @media (max-width: ${style.collapse}px) {
-    top: 56px;
+    top: ${({ $hasTopBar }) => ($hasTopBar ? "56px" : "0")};
   }
 
   & > div {
@@ -31,10 +31,9 @@ const StyledWarning = styled(animated.div)`
   }
 `;
 
-const ConnectivityWarning = () => {
+const ConnectivityWarning = ({ hasTopBar }) => {
   const offline = useIsOffline();
   log.debug(`Offline ${offline}`);
-
   const [display, setDisplay] = useState(offline);
   log.debug(`Display ${display}`);
 
@@ -70,6 +69,7 @@ const ConnectivityWarning = () => {
             backgroundColor,
             color,
           }}
+          $hasTopBar={hasTopBar}
         >
           <div>{warning}</div>
         </StyledWarning>
