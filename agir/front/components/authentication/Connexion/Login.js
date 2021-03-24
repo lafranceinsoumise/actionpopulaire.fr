@@ -47,8 +47,7 @@ const ToastNotConnected = () => {
 const Login = () => {
   const history = useHistory();
   const location = useLocation();
-  //const bookmarkedEmails = useBookmarkedEmails();
-  const bookmarkedEmails = [["test@test.fr", "test@test.fr", "test@test.fr"]];
+  const bookmarkedEmails = useBookmarkedEmails();
   const [showMore, setShowMore] = useState(false);
   const [error, setError] = useState({});
 
