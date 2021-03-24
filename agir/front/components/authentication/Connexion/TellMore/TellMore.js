@@ -77,7 +77,7 @@ const defaultData = {
   lastName: "",
   phone: "",
   postalCode: "",
-  mandates: [],
+  mandat: [],
 };
 const mandatList = [
   {
@@ -114,9 +114,9 @@ const TellMore = ({ dismiss }) => {
       lastName: data.lastName,
       phone: data.contactPhone,
       postalCode: data.zip,
-      mandates: data.mandates,
+      mandat: data.mandat,
     });
-    if (data.mandates?.length > 0) {
+    if (data.mandat?.length > 0) {
       setShowMandat(true);
       setMandat(mandatList[0]);
     }
@@ -144,7 +144,7 @@ const TellMore = ({ dismiss }) => {
 
   const handleMandateChange = (e) => {
     setMandat(e);
-    setFormData({ ...formData, mandates: [e.value] });
+    setFormData({ ...formData, mandat: [e.value] });
   };
 
   const handleSubmit = async () => {
