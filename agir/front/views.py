@@ -174,11 +174,11 @@ class MyGroupsView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
 
 
-class EventMapView(SoftLoginRequiredMixin, ReactBaseView):
+class EventMapView(ReactBaseView):
     bundle_name = "front/app"
 
 
-class GroupMapView(SoftLoginRequiredMixin, ReactBaseView):
+class GroupMapView(ReactBaseView):
     bundle_name = "front/app"
 
 

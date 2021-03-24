@@ -43,6 +43,7 @@ const StyledArticle = styled.article`
   p {
     font-size: 0.875rem;
     padding: 1rem 0 1.25rem;
+    line-height: 1.7;
 
     @media (min-width: ${style.collapse}px) {
       padding: 0.5rem 0 1.5rem;
@@ -68,6 +69,10 @@ const StyledArticle = styled.article`
 
       @media (min-width: ${style.collapse}px) {
         flex: 1 1 270px;
+      }
+
+      &:hover {
+        border-color: ${style.black500};
       }
     }
   }

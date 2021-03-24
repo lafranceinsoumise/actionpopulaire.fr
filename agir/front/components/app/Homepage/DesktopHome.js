@@ -89,11 +89,11 @@ const Home = () => {
           Mélenchon en 2022 !
         </h5>
         <div>
-          <Button color="primary" as="Link" to="/inscription/">
+          <Button color="primary" as="Link" route="signup">
             Je crée mon compte
           </Button>
           <Spacer size="1rem" />
-          <Button color="white" as="Link" to="/connexion/">
+          <Button color="white" as="Link" route="login">
             Je me connecte
           </Button>
         </div>

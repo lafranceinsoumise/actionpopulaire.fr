@@ -5,12 +5,13 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
+import Link from "@agir/front/app/Link";
 
 import actImage from "./images/act.jpg";
 import meetImage from "./images/meet.jpg";
 import organizeImage from "./images/organize.jpg";
 
-const StyledArticle = styled.article``;
+const StyledArticle = styled(Link)``;
 
 const StyledActions = styled.main`
   display: grid;
@@ -25,9 +26,14 @@ const StyledActions = styled.main`
   ${StyledArticle} {
     text-align: center;
     padding: 0 1rem;
+    color: ${style.black1000};
 
     @media (min-width: ${style.collapse}px) {
       padding: 0;
+    }
+
+    &:hover {
+      text-decoration: none;
     }
 
     & > * {
@@ -57,7 +63,7 @@ const StyledActions = styled.main`
 const HomeActions = () => {
   return (
     <StyledActions>
-      <StyledArticle>
+      <StyledArticle route="groupMapPage">
         <img src={meetImage} alt="manifestation" />
         <h4>Rencontrez</h4>
         <p>
@@ -69,19 +75,15 @@ const HomeActions = () => {
           Voir les groupes
         </Button>
       </StyledArticle>
-      <StyledArticle>
+      <StyledArticle route="help">
         <img src={actImage} alt="distribution de tracts" />
         <h4>Agissez concrètement</h4>
         <p>formez-vous et convainquez des gens près de chez vous&nbsp;!</p>
-        <Button
-          color="secondary"
-          as="Link"
-          href="https://infos.actionpopulaire.fr/"
-        >
+        <Button color="secondary" as="Link" route="info">
           Lisez les fiches pratiques
         </Button>
       </StyledArticle>
-      <StyledArticle>
+      <StyledArticle route="login">
         <img
           src={organizeImage}
           alt="le premier cahier du programme l'Avenir en Commun"
@@ -91,7 +93,7 @@ const HomeActions = () => {
           Créez une équipe de soutien, commandez du matériel, tracts et
           affiches&nbsp;!
         </p>
-        <Button color="secondary" as="Link" to="/connexion/">
+        <Button color="secondary" as="Link" route="login">
           Passez à l'action
         </Button>
       </StyledArticle>
