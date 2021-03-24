@@ -227,7 +227,7 @@ const TellMore = ({ dismiss }) => {
               name="mandat"
               label="J'ai un mandat"
               value={showMandat}
-              onChange={() => toggleShowMandat()}
+              onChange={toggleShowMandat}
             />
           </div>
           {showMandat && (
