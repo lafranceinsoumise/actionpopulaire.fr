@@ -1,5 +1,8 @@
 name: Sentry
-on: [push]
+on:
+  push:
+    branches:
+      - production
 jobs:
   sentry:
     name: Create release
