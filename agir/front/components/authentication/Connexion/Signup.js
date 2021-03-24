@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Toast from "@agir/front/genericComponents/Toast";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
@@ -114,23 +115,24 @@ const SignUp = () => {
         </div>
       </InputGroup>
 
-      <div
-        onClick={handleRgpdCheck}
-        style={{
-          marginTop: "1rem",
-          cursor: "pointer",
-          userSelect: "none",
-        }}
-      >
-        <input type="checkbox" checked={rgpdChecked} onChange={() => {}} />
-        &nbsp;J'accepte que mes informations soient traitées par Action
-        Populaire, conformément à la&nbsp;
-        <a
-          href="https://infos.actionpopulaire.fr/mentions-legales/"
-          target="_blank"
-        >
-          politique de conservation des données
-        </a>
+      <div style={{ marginTop: "1rem" }}>
+        <CheckboxField
+          name="rgpd"
+          label={
+            <>
+              J'accepte que mes informations soient traitées par Action
+              Populaire, conformément à la&nbsp;
+              <a
+                href="https://infos.actionpopulaire.fr/mentions-legales/"
+                target="_blank"
+              >
+                politique de conservation des données
+              </a>
+            </>
+          }
+          value={rgpdChecked}
+          onChange={handleRgpdCheck}
+        />
       </div>
 
       {error && !!error.rgpd && <Toast>{error.rgpd}</Toast>}

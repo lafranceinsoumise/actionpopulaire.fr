@@ -222,13 +222,14 @@ const TellMore = ({ dismiss }) => {
               />
             </div>
           </InputGroup>
-          <CheckboxField
-            style={{ marginTop: "0.625rem" }}
-            name="mandat"
-            label="J'ai un mandat"
-            value={showMandat}
-            onChange={() => toggleShowMandat()}
-          />
+          <div style={{ marginTop: "0.625rem" }}>
+            <CheckboxField
+              name="mandat"
+              label="J'ai un mandat"
+              value={showMandat}
+              onChange={() => toggleShowMandat()}
+            />
+          </div>
           {showMandat && (
             <div style={{ marginTop: "10px" }}>
               <SelectField
