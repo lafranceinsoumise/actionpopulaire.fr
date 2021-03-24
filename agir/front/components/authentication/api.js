@@ -68,7 +68,7 @@ export const signUp = async (data) => {
   };
   const formData = {
     email: data.email,
-    location_zip: data.postalCode,
+    zip: data.postalCode,
   };
   const url = ENDPOINT.signUp;
   try {
@@ -137,7 +137,7 @@ export const updateProfile = async (data) => {
   if (data.firstName) formData = { ...formData, firstName: data.firstName };
   if (data.lastName) formData = { ...formData, lastName: data.lastName };
   if (data.phone) formData = { ...formData, contactPhone: data.phone };
-  if (data.mandates) formData = { ...formData, mandates: data.mandates };
+  if (data.mandat) formData = { ...formData, mandat: data.mandat };
 
   const url = ENDPOINT.updateProfile;
   try {

@@ -107,17 +107,18 @@ const Login = () => {
 
       {error && !!error.detail && <Toast>{error.detail}</Toast>}
 
-      {!showMore ? (
-        <ShowMore onClick={handleShowMore}>
-          Afficher tout <img src={chevronDown} alt="Afficher plus" />
-        </ShowMore>
-      ) : (
-        <div
-          style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}
-        >
-          OU
-        </div>
-      )}
+      {bookmarkedEmails[0].length > 0 &&
+        (!showMore ? (
+          <ShowMore onClick={handleShowMore}>
+            Afficher tout <img src={chevronDown} alt="Afficher plus" />
+          </ShowMore>
+        ) : (
+          <div
+            style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}
+          >
+            OU
+          </div>
+        ))}
 
       {(showMore || !(bookmarkedEmails[0].length > 0)) && <LoginMailEmpty />}
 

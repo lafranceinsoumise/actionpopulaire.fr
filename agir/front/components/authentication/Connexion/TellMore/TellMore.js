@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import SelectField from "@agir/front/formComponents/SelectField";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
@@ -69,13 +70,6 @@ const InputGroup = styled.div`
   }
 `;
 
-const InputCheckbox = styled.div`
-  display: flex;
-  cursor: pointer;
-  user-select: none;
-  margin-top: 0.625rem;
-`;
-
 const optional = <span style={{ fontWeight: 400 }}>(facultatif)</span>;
 const defaultData = {
   displayName: "",
@@ -83,7 +77,7 @@ const defaultData = {
   lastName: "",
   phone: "",
   postalCode: "",
-  mandates: [],
+  mandat: [],
 };
 const mandatList = [
   {
@@ -106,10 +100,10 @@ const mandatList = [
 
 const TellMore = ({ dismiss }) => {
   const [formData, setFormData] = useState(defaultData);
-  const [error, setError] = useState({});
-  const [showMandate, setShowMandate] = useState(false);
+  const [showMandat, setShowMandat] = useState(false);
+  const [mandat, setMandat] = useState([]);
   const [submitted, setSubmitted] = useState(false);
-  const [mandat, setMandat] = useState(mandatList[0]);
+  const [error, setError] = useState({});
 
   const getProfileInfos = async () => {
     const { data } = await getProfile();
@@ -120,9 +114,12 @@ const TellMore = ({ dismiss }) => {
       lastName: data.lastName,
       phone: data.contactPhone,
       postalCode: data.zip,
-      mandates: data.mandates,
+      mandat: data.mandat,
     });
-    setShowMandate(data.mandates?.length > 0);
+    if (data.mandat?.length > 0) {
+      setShowMandat(true);
+      setMandat(mandatList[0]);
+    }
   };
 
   useEffect(() => {
@@ -135,11 +132,19 @@ const TellMore = ({ dismiss }) => {
     setFormData(newFormData);
   };
 
-  const toggleShowMandate = () => setShowMandate(!showMandate);
+  const toggleShowMandat = () => {
+    const isMandat = !showMandat;
+    setShowMandat(isMandat);
+    if (isMandat) {
+      setMandat(mandatList[0]);
+      return;
+    }
+    setMandat([]);
+  };
 
   const handleMandateChange = (e) => {
     setMandat(e);
-    setFormData({ ...formData, mandates: [e.value] });
+    setFormData({ ...formData, mandat: [e.value] });
   };
 
   const handleSubmit = async () => {
@@ -217,21 +222,19 @@ const TellMore = ({ dismiss }) => {
               />
             </div>
           </InputGroup>
-          <InputCheckbox onClick={toggleShowMandate}>
-            <input
-              type="checkbox"
+          <div style={{ marginTop: "0.625rem" }}>
+            <CheckboxField
               name="mandat"
-              checked={showMandate}
-              onChange={() => {}}
+              label="J'ai un mandat"
+              value={showMandat}
+              onChange={toggleShowMandat}
             />
-            <span style={{ fontSize: "16px" }}>&nbsp; J'ai un mandat</span>
-          </InputCheckbox>
-          {showMandate && (
+          </div>
+          {showMandat && (
             <div style={{ marginTop: "10px" }}>
               <SelectField
                 label="Mandat"
                 name="mandat"
-                placeholder=""
                 value={mandat}
                 options={mandatList}
                 onChange={handleMandateChange}

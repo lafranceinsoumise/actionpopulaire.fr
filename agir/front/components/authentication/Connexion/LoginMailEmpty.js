@@ -22,12 +22,10 @@ const LoginMailEmpty = () => {
   const handleSubmit = async () => {
     setError({});
     const data = await login(email);
-
     if (data.error) {
       setError(data.error);
       return;
     }
-
     const route = routeConfig.codeLogin.getLink();
     history.push(route, { email: email, code: data.data.code, next: next });
   };
