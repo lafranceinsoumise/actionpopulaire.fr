@@ -49,7 +49,7 @@ const Login = () => {
   const location = useLocation();
   const bookmarkedEmails = useBookmarkedEmails();
   const [showMore, setShowMore] = useState(false);
-  const [error, setError] = useState({});
+  const [error, setError] = useState(null);
 
   let next = "";
   if (location.state?.next) next = location.state.next;
@@ -61,15 +61,19 @@ const Login = () => {
   };
 
   const loginBookmarkedMail = async (email) => {
-    setError({});
-    const data = await login(email);
-    if (data.error) {
-      setError(data.error);
+    setError(null);
+    const result = await login(email);
+    if (result.error) {
+      setError(result.error);
       return;
     }
 
     const route = routeConfig.codeLogin.getLink();
-    history.push(route, { email: email, code: data.data.code, next: next });
+    history.push(route, {
+      email: email,
+      code: result.data && result.data.code,
+      next: next,
+    });
   };
 
   return (
