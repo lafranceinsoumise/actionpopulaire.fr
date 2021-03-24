@@ -27,7 +27,7 @@ const log = logger(__filename);
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     try {
-      navigator.serviceWorker.register("/sw.js");
+      navigator.serviceWorker.register("/service-worker.js");
       log.debug("Registered service worker");
     } catch (e) {
       log.error("Failed to register service worker");
