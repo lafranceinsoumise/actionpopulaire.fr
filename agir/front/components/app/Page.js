@@ -1,6 +1,9 @@
 import PropTypes from "prop-types";
 import React, { Suspense, useEffect, useMemo } from "react";
 import { useHistory, useLocation, useParams } from "react-router-dom";
+import styled from "styled-components";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import {
   useDispatch,
@@ -13,13 +16,29 @@ import {
   setAdminLink,
 } from "@agir/front/globalContext/actions";
 
+import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
+import TopBar from "@agir/front/allPages/TopBar";
+
 import ErrorBoundary from "./ErrorBoundary";
 import logger from "@agir/lib/utils/logger";
 import useTracking from "./useTracking";
 
 const log = logger(__filename);
+
+const StyledPage = styled.div`
+  ${({ $hasTopBar }) =>
+    $hasTopBar
+      ? `
+        padding-top: 72px;
+
+        @media (max-width: ${style.collapse}px) {
+          padding-top: 56px;
+        }
+      `
+      : ""}
+`;
 
 const Page = (props) => {
   const { Component, routeConfig, ...rest } = props;
@@ -63,35 +82,43 @@ const Page = (props) => {
   if (!routeConfig.hasLayout) {
     return (
       <ErrorBoundary>
-        <Suspense fallback={<div />}>
-          <Component
-            {...(routeConfig.routeProps || {})}
-            {...routeParams}
-            {...rest}
-            data={[]}
-          />
-          {routeConfig.hideFeedbackButton ? null : (
-            <FeedbackButton style={{ bottom: "1rem" }} />
-          )}
-        </Suspense>
+        <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
+          {routeConfig.hideTopBar ? null : <TopBar />}
+          <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
+          <Suspense fallback={<div />}>
+            <Component
+              {...(routeConfig.routeProps || {})}
+              {...routeParams}
+              {...rest}
+              data={[]}
+            />
+            {routeConfig.hideFeedbackButton ? null : (
+              <FeedbackButton style={{ bottom: "1rem" }} />
+            )}
+          </Suspense>
+        </StyledPage>
       </ErrorBoundary>
     );
   }
 
   return (
-    <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
-      <ErrorBoundary>
-        <Suspense fallback={<div />}>
-          <Component
-            {...(routeConfig.routeProps || {})}
-            {...routeParams}
-            {...rest}
-            data={[]}
-          />
-          {routeConfig.hideFeedbackButton ? null : <FeedbackButton />}
-        </Suspense>
-      </ErrorBoundary>
-    </Layout>
+    <ErrorBoundary>
+      {routeConfig.hideTopBar ? null : <TopBar />}
+      <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
+      <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
+        <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
+          <Suspense fallback={<div />}>
+            <Component
+              {...(routeConfig.routeProps || {})}
+              {...routeParams}
+              {...rest}
+              data={[]}
+            />
+            {routeConfig.hideFeedbackButton ? null : <FeedbackButton />}
+          </Suspense>
+        </Layout>
+      </StyledPage>
+    </ErrorBoundary>
   );
 };
 Page.propTypes = {

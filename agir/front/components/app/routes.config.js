@@ -49,9 +49,6 @@ const CodeSignupPage = lazy(() =>
 const TellMorePage = lazy(() =>
   import("@agir/front/authentication/Connexion/TellMore/TellMorePage")
 );
-const ChooseCampaignPage = lazy(() =>
-  import("@agir/front/authentication/Connexion/TellMore/ChooseCampaign")
-);
 const LogoutPage = lazy(() =>
   import("@agir/front/authentication/Connexion/Logout")
 );
@@ -240,6 +237,8 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Connexion",
     Component: LoginPage,
+    hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   signup: new RouteConfig({
     id: "signup",
@@ -248,6 +247,8 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Inscription",
     Component: SignupPage,
+    hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   codeLogin: new RouteConfig({
     id: "codeLogin",
@@ -256,6 +257,8 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Code de connexion",
     Component: CodeLoginPage,
+    hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   codeSignup: new RouteConfig({
     id: "codeSignup",
@@ -264,6 +267,8 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Code d'inscription'",
     Component: CodeSignupPage,
+    hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   tellMore: new RouteConfig({
     id: "tellMore",
@@ -272,6 +277,8 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "J'en dis plus",
     Component: TellMorePage,
+    hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   introApp: new RouteConfig({
     id: "introApp",
@@ -281,6 +288,8 @@ export const routeConfig = {
     label: "Intro",
     Component: IntroAppPage,
     hasLayout: false,
+    hideTopBar: true,
+    hideFeedbackButton: true,
     layoutProps: {
       smallBackgroundColor: style.black25,
       hasBanner: false,
