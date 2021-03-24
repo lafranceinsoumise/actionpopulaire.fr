@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import arrowRight from "@agir/front/genericComponents/images/arrow-right.svg";
 import chevronDown from "@agir/front/genericComponents/images/chevron-down.svg";
@@ -124,12 +124,17 @@ const Login = () => {
           </div>
         ))}
 
-      {(showMore || !(bookmarkedEmails[0].length > 0)) && <LoginMailEmpty />}
-
-      <div style={{ textAlign: "center", margin: "20px", fontSize: "14px" }}>
-        OU
-      </div>
-      <LoginFacebook />
+      {(showMore || bookmarkedEmails[0]?.length === 0) && (
+        <>
+          <LoginMailEmpty />
+          <div
+            style={{ textAlign: "center", margin: "20px", fontSize: "14px" }}
+          >
+            OU
+          </div>
+          <LoginFacebook />
+        </>
+      )}
     </ContainerConnexion>
   );
 };

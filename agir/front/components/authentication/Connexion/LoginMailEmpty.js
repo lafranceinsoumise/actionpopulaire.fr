@@ -4,6 +4,44 @@ import TextField from "@agir/front/formComponents/TextField";
 import { login } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useHistory, useLocation } from "react-router-dom";
+import style from "@agir/front/genericComponents/_variables.scss";
+import styled from "styled-components";
+
+const Form = styled.div`
+  box-sizing: border-box;
+  margin: 0 auto;
+  margin-top: 2rem;
+  display: flex;
+  text-align: left;
+
+  Button {
+    margin-top: 1.5rem;
+    margin-left: 0.625rem;
+    width: 140px;
+    height: 41px;
+    justify-content: center;
+  }
+
+  & > :first-child {
+    width: 100%;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    flex-flow: wrap;
+    & > :first-child {
+      max-width: 100%;
+      width: 100%;
+    }
+    div {
+      width: 100%;
+      Button {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 0.875rem;
+      }
+    }
+  }
+`;
 
 const LoginMailEmpty = () => {
   const history = useHistory();
@@ -32,13 +70,7 @@ const LoginMailEmpty = () => {
 
   return (
     <>
-      <div
-        style={{
-          boxSizing: "border-box",
-          margin: "0 auto",
-          marginTop: "24px",
-        }}
-      >
+      <Form>
         <TextField
           id="field"
           label="Adresse e-mail"
@@ -47,19 +79,12 @@ const LoginMailEmpty = () => {
           onChange={handleInputChange}
           value={email}
         />
-      </div>
-      <Button
-        color="primary"
-        onClick={handleSubmit}
-        style={{
-          marginTop: "0.5rem",
-          maxWidth: "100%",
-          width: "400px",
-          justifyContent: "center",
-        }}
-      >
-        Me connecter
-      </Button>
+        <div>
+          <Button color="primary" onClick={handleSubmit}>
+            Me connecter
+          </Button>
+        </div>
+      </Form>
     </>
   );
 };

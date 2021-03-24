@@ -5,13 +5,12 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 const LeftBlock = styled.div`
-  width: 500px;
+  width: 524px;
   max-width: 40%;
   background-color: ${style.secondary100};
   position: relative;
 
   > :first-child {
-    padding: 37px;
     padding-bottom: calc(100vh - 213px);
   }
 
@@ -21,13 +20,10 @@ const LeftBlock = styled.div`
 `;
 
 const Title = styled.div`
-  text-align: center;
-  div {
-    display: inline-block;
-    text-align: left;
-    line-height: 21px;
-    max-width: 350px;
-  }
+  text-align: left;
+  line-height: 21px;
+  padding-left: 93px;
+  padding-right: 10px;
 `;
 
 const BackgroundDesktop = styled.div`
@@ -49,12 +45,12 @@ const LeftBlockDesktop = () => {
   return (
     <LeftBlock>
       <div>
-        <LogoAP style={{ width: "200px" }} />
+        <LogoAP
+          style={{ marginTop: "38px", paddingLeft: "37px", width: "200px" }}
+        />
         <Title>
-          <div>
-            Le réseau social d’action pour la candidature de Jean-Luc Mélenchon{" "}
-            <InlineBlock>pour 2022</InlineBlock>
-          </div>
+          Le réseau social d’action pour la candidature{" "}
+          <InlineBlock>de Jean-Luc Mélenchon pour 2022</InlineBlock>
         </Title>
       </div>
       <BackgroundDesktop />
