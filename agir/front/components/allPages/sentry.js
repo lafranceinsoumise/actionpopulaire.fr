@@ -6,6 +6,8 @@ if (process.env.NODE_ENV === "production") {
     dsn:
       "https://208ef75bce0a46f6b20b69c2952957d7@erreurs.lafranceinsoumise.fr/4",
     autoSessionTracking: true,
+    // eslint-disable-next-line no-undef
+    release: SENTRY_RELEASE,
     integrations: [new Integrations.BrowserTracing()],
 
     // We recommend adjusting this value in production, or using tracesSampler
