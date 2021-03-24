@@ -16,8 +16,8 @@ const ScrollableBlockLayout = styled.div`
   }
 `;
 
-const ScrollableBlock = ({ children }) => (
-  <ScrollableBlockLayout>
+const ScrollableBlock = ({ children, ...props }) => (
+  <ScrollableBlockLayout {...props}>
     <div>{children}</div>
   </ScrollableBlockLayout>
 );

@@ -588,10 +588,14 @@ formulaire_parrainage_pattern = FilePattern(
 
 class StatutRechercheParrainage(models.IntegerChoices):
     EN_COURS = 1, "En cours"
-    REUSSITE = 2, "Promesse obtenue"
-    VALIDEE = 3, "Promesse bien reçue et validée"
-    ECHEC = 4, "Promesse refusée"
     ANNULEE = 5, "Recherche annulée"
+
+    ENGAGEMENT = 2, "S'engage à parrainer"
+    REFUS = 4, "Refuse de parrainer"
+    NE_SAIT_PAS = 6, "Pas encore décidé"
+    AUTRE_ENGAGEMENT = 7, "S'est engagé envers un autre candidat"
+
+    VALIDEE = 3, "Promesse reçue et validée"
 
 
 class RechercheParrainageMaireQueryset(models.QuerySet):

@@ -2,7 +2,13 @@ import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import { InfosElu } from "@agir/elus/parrainages/types";
-import { ELU_STATUTS, ISSUE, RequestStatus, StatutPill } from "./types";
+import {
+  DECISIONS,
+  ELU_STATUTS,
+  ISSUE,
+  RequestStatus,
+  StatutPill,
+} from "./types";
 import Button from "@agir/front/genericComponents/Button";
 import { creerRechercheParrainage, terminerParrainage } from "./queries";
 import AnimatedMoreHorizontal from "../../../front/components/genericComponents/AnimatedMoreHorizontal";
@@ -157,33 +163,40 @@ BoutonAnnuler.propTypes = {
 const FormulaireTerminerParrainage = ({ elu, onStatusChange }) => {
   const [state, setState] = useState(RequestStatus.IDLE());
   const [decision, setDecision] = useState(null);
-  const fileInput = useRef();
-  const commentaireInput = useRef();
+  const formulaireInput = useRef();
+  const commentairesInput = useRef();
 
-  const soumettreFormulaire = useCallback(async (e) => {
-    e.preventDefault();
-    setState(RequestStatus.LOADING());
+  const soumettreFormulaire = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setState(RequestStatus.LOADING());
 
-    const file =
-      fileInput.current.files.length > 0 ? fileInput.current.files[0] : null;
+      const formulaire =
+        decision &&
+        decision.formulaire &&
+        formulaireInput.current.files.length > 0
+          ? formulaireInput.current.files[0]
+          : null;
 
-    const commentaire = commentaireInput.value;
+      const commentaires = commentairesInput.current.value;
 
-    try {
-      await terminerParrainage(elu.idRechercheParrainage, {
-        statut: decision ? ISSUE.ACCEPTE : ISSUE.REFUSE,
-        commentaire,
-        formulaire: file,
-      });
-      setState(RequestStatus.IDLE());
-      onStatusChange({
-        ...elu,
-        statut: ELU_STATUTS.PERSONNELLEMENT_VU,
-      });
-    } catch (e) {
-      setState(RequestStatus.ERROR(e.message));
-    }
-  });
+      try {
+        await terminerParrainage(elu.idRechercheParrainage, {
+          statut: decision.value,
+          commentaires,
+          formulaire,
+        });
+        setState(RequestStatus.IDLE());
+        onStatusChange({
+          ...elu,
+          statut: ELU_STATUTS.PERSONNELLEMENT_VU,
+        });
+      } catch (e) {
+        setState(RequestStatus.ERROR(e.message));
+      }
+    },
+    [elu, decision, onStatusChange]
+  );
 
   return (
     <div>
@@ -202,37 +215,43 @@ const FormulaireTerminerParrainage = ({ elu, onStatusChange }) => {
       </CadreAvertissement>
       <form onSubmit={soumettreFormulaire}>
         <h4>Conclusion de l'échange</h4>
-        <label htmlFor="statut-oui">
-          <input
-            type="radio"
-            name="statut"
-            id="statut-oui"
-            checked={decision === true}
-            onChange={() => setDecision(true)}
-          />{" "}
-          Soutient la candidature
-        </label>
-        <label htmlFor="statut-non">
-          <input
-            type="radio"
-            name="statut"
-            id="statut-non"
-            checked={decision === false}
-            onChange={() => setDecision(false)}
-          />{" "}
-          Ne soutient pas la candidature
-        </label>
+        {DECISIONS.map((d) => (
+          <label htmlFor={d.id} key={d.id}>
+            <input
+              type="radio"
+              name="statut"
+              id={d.id}
+              checked={decision && d.id === decision.id}
+              onChange={() => setDecision(d)}
+            />{" "}
+            {d.label}
+          </label>
+        ))}
 
-        <label className="title" htmlFor="commentaire">
-          Commentaire
+        <label className="title" htmlFor="commentaires">
+          {(decision && decision.commentairesTitre) || "Commentaires"}
         </label>
-        <textarea id="commentaire" name="commentaire" ref={commentaireInput} />
+        <textarea
+          id="commentaires"
+          name="commentaires"
+          ref={commentairesInput}
+          required={decision && decision.commentairesRequis}
+        />
 
-        <label className="title" htmlFor="formulaire">
-          Formulaire signé
-        </label>
-        <input id="formulaire" type="file" name="formulaire" ref={fileInput} />
-
+        {decision && decision.formulaire && (
+          <>
+            <label className="title" htmlFor="formulaire">
+              Formulaire signé
+            </label>
+            <input
+              id="formulaire"
+              type="file"
+              name="formulaire"
+              ref={formulaireInput}
+              required={true}
+            />
+          </>
+        )}
         <Button
           color="primary"
           disabled={state.isLoading || decision === null}
@@ -306,12 +325,16 @@ InteractionBox.propTypes = {
 const Layout = styled.div`
   padding: 60px;
 
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    padding: 0 35px;
+  }
+
   ${Block} {
     font-size: 16px;
   }
 
   h2 {
-    margin-bottom: 0;
+    margin-bottom: 0.5rem;
   }
   .subtitle {
     font-size: 16px;
@@ -389,7 +412,15 @@ const FicheElu = ({ elu, onStatusChange }) => {
           <Block>
             <h3>Adresse email de la mairie</h3>
             <div>
-              <a href={`mailto:${mairie.email}`}>{mairie.email}</a>
+              <a
+                href={
+                  mairie.email.match(/https?:\/\//)
+                    ? mairie.email
+                    : `mailto:${mairie.email}`
+                }
+              >
+                {mairie.email}
+              </a>
             </div>
           </Block>
         )}

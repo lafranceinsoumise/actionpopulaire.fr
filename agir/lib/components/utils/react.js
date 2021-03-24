@@ -1,6 +1,7 @@
 import ReactDOM from "react-dom";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 
 const defaultGetInitial = (field) => field.value || null;

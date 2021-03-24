@@ -1,12 +1,14 @@
-import React, { useReducer } from "react";
+import React, { useCallback, useReducer } from "react";
 import styled from "styled-components";
 import FicheElu from "@agir/elus/parrainages/FicheElu";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import LogoAP from "@agir/front/genericComponents/LogoAP";
+import Logo from "@agir/front/allPages/TopBar/Logo";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { SelecteurElus } from "./SelecteurElus";
 import { ELU_STATUTS } from "./types";
 import ScrollableBlock from "./ScrollableBlock";
+import PropTypes from "prop-types";
+import { useIsDesktop } from "../../../front/components/genericComponents/grid";
 
 const ACTION_TYPES = {
   CHANGER_STATUT: "changer-statut",
@@ -74,6 +76,7 @@ const HeaderLayout = styled.nav`
 
   display: flex;
   justify-content: space-between;
+  margin: 0;
 
   @media (max-width: ${+style.collapse - 1}px) {
     padding: 1rem 1.5rem;
@@ -93,16 +96,30 @@ const HeaderLayout = styled.nav`
     flex-grow: 1;    
   }
 `;
-const Header = () => (
-  <HeaderLayout>
-    <a href="/" aria-label="Retour">
-      <FeatherIcon name="arrow-left" />
-    </a>
-    <a href="/" aria-label="Action populaire">
-      <LogoAP />
-    </a>
-  </HeaderLayout>
-);
+const Header = ({ onClose }) => {
+  const isDesktop = useIsDesktop();
+  const backCallback = useCallback(
+    (e) => {
+      if (isDesktop || onClose === null) return;
+
+      e.preventDefault();
+      onClose();
+    },
+    [isDesktop, onClose]
+  );
+
+  return (
+    <HeaderLayout>
+      <a href="/" aria-label="Retour" onClick={backCallback}>
+        <FeatherIcon name="arrow-left" color={style.black1000} />
+      </a>
+      <a href="/" aria-label="Action populaire">
+        <Logo />
+      </a>
+    </HeaderLayout>
+  );
+};
+Header.propTypes = { onClose: PropTypes.func };
 
 const Layout = styled.div`
   display: flex;
@@ -117,6 +134,10 @@ const Layout = styled.div`
   height: 100vh;
   max-height: 100vh;
   overflow: hidden;
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    margin-top: -56px;
+  }
 `;
 
 const MainLayout = styled.main`
@@ -124,8 +145,35 @@ const MainLayout = styled.main`
   align-items: stretch;
   flex-grow: 1;
 
-  ${ScrollableBlock.Layout} {
+  > ${SelecteurElus.Layout} {
+    width: 470px;
+  }
+
+  > ${ScrollableBlock.Layout} {
     flex-grow: 1;
+  }
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    position: relative;
+
+    > ${SelecteurElus.Layout} {
+      width: 100%;
+    }
+
+    > ${ScrollableBlock.Layout} {
+      background-color: #fff;
+
+      display: none;
+
+      &.selection {
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+    }
   }
 `;
 
@@ -135,7 +183,12 @@ const App = () => {
 
   return (
     <Layout>
-      <Header />
+      <Header
+        onClose={
+          state.selection &&
+          (() => dispatch({ type: ACTION_TYPES.SELECTION, elu: null }))
+        }
+      />
       <MainLayout>
         <SelecteurElus
           {...state}
@@ -147,7 +200,7 @@ const App = () => {
           }
           onSelect={(elu) => dispatch({ type: ACTION_TYPES.SELECTION, elu })}
         />
-        <ScrollableBlock>
+        <ScrollableBlock className={state.selection ? "selection" : ""}>
           <FicheElu
             elu={state.selection}
             onStatusChange={(elu) => {

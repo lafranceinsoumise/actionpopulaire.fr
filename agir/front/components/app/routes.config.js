@@ -1,8 +1,8 @@
 import pathToRegexp from "path-to-regexp-es";
-import { lazy } from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import logger from "@agir/lib/utils/logger";
+import { lazy } from "./utils";
 
 const AgendaPage = lazy(() => import("@agir/events/agendaPage/AgendaPage"));
 const EventMap = lazy(() => import("@agir/carte/page__eventMap/EventMap"));
@@ -101,7 +101,7 @@ export const routeConfig = {
   createEvent: new RouteConfig({
     id: "createEvent",
     pathname: "/evenements/creer/",
-    exact: true,
+    exact: false,
     label: "Nouvel événement",
     Component: CreateEvent,
     backLink: {
