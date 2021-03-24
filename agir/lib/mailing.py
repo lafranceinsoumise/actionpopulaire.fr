@@ -58,7 +58,7 @@ def add_params_to_urls(url, params):
     )
 
 
-def get_context_from_bindings(code, recipient: Person, bindings):
+def get_context_from_bindings(code, recipient, bindings):
     """Finalizes the bindings and create a Context for templating
     """
     if code not in settings.EMAIL_TEMPLATES:
@@ -67,14 +67,17 @@ def get_context_from_bindings(code, recipient: Person, bindings):
     url = settings.EMAIL_TEMPLATES[code]
 
     res = dict(bindings)
-    res["email"] = res["EMAIL"] = recipient.email
 
-    res["greetings"] = res["formule_adresse"] = res[
-        "GREETINGS"
-    ] = recipient.formule_adresse
-    res["greetings_insoumise"] = res[
-        "formule_adresse_insoumise"
-    ] = recipient.formule_adresse_insoumise
+    if isinstance(recipient, Person):
+        res["email"] = res["EMAIL"] = recipient.email
+        res["greetings"] = res["formule_adresse"] = res[
+            "GREETINGS"
+        ] = recipient.formule_adresse
+        res["greetings_insoumise"] = res[
+            "formule_adresse_insoumise"
+        ] = recipient.formule_adresse_insoumise
+    else:
+        res["email"] = res["EMAIL"] = recipient
 
     qs = QueryDict(mutable=True)
     qs.update(res)
@@ -155,11 +158,7 @@ def send_mosaico_email(
                         bindings[key] = add_params_to_urls(value, connection_params)
                 bindings["MERGE_LOGIN"] = urlencode(connection_params)
 
-            if isinstance(recipient, Person):
-                context = get_context_from_bindings(code, recipient, bindings)
-            else:
-                context = dict(bindings)
-
+            context = get_context_from_bindings(code, recipient, bindings)
             html_message = html_template.render(context=context)
             text_message = (
                 text_template.render(
