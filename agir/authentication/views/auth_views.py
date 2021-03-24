@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login, logout, REDIRECT_FIELD_NAME
+from django.contrib.auth import login, REDIRECT_FIELD_NAME
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -25,7 +25,6 @@ __all__ = [
     "RedirectToMixin",
     "LoginView",
     "CheckCodeView",
-    "DisconnectView",
     "Oauth2AuthorizationView",
     "SocialLoginError",
 ]
@@ -178,17 +177,6 @@ class CheckCodeView(RedirectToMixin, FormView):
             {"is_soft_logged": is_soft_logged(self.request), "email": self.login_email}
         )
         return super().get_context_data(**kwargs)
-
-
-class DisconnectView(RedirectToMixin, RedirectView):
-    url = reverse_lazy("short_code_login")
-
-    def get(self, request, *args, **kwargs):
-        logout(request)
-        return super().get(request, *args, **kwargs)
-
-    def get_redirect_url(self, *args, **kwargs):
-        return super().get_redirect_url() or self.url
 
 
 class Oauth2AuthorizationView(HardLoginRequiredMixin, AuthorizationView):

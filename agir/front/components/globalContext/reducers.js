@@ -37,7 +37,7 @@ export const is2022 = (state = false, action) => {
 
 export const user = (state = null, action) => {
   if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
-    return action.user || state;
+    return action.user;
   }
   return state;
 };

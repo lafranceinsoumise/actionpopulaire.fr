@@ -4,7 +4,7 @@ export const ENDPOINT = {
   login: "/api/connexion/",
   checkCode: "/api/connexion/code/",
   logout: "/api/deconnexion",
-  signUp: "/api/people/subscription/",
+  signUp: "/api/inscription/",
   getProfile: "/api/user/profile/",
   getProfileOptions: "/api/user/profile/",
   updateProfile: "/api/user/profile/",
@@ -50,7 +50,7 @@ export const logout = async () => {
     success: false,
     error: null,
   };
-  const url = ENDPOINT.checkCode;
+  const url = ENDPOINT.logout;
   try {
     const response = await axios.get(url);
     result.success = response.status === 200;

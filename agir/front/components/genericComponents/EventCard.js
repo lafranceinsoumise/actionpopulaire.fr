@@ -134,6 +134,12 @@ const Illustration = styled.div`
     margin: 0 auto;
     align-self: center;
   }
+
+  & > * {
+    @media (max-width: ${style.collapse}px) {
+      height: 150px;
+    }
+  }
 `;
 
 const StyledCard = styled(Card)`
@@ -185,7 +191,10 @@ const StyledCard = styled(Card)`
 const EventCardIllustration = (props) => {
   const { image, coordinates, subtype } = props;
 
-  const isVisible = useResponsiveMemo(!!image, true);
+  const isVisible = useResponsiveMemo(
+    !!image || Array.isArray(coordinates),
+    true
+  );
 
   if (!isVisible) {
     return null;

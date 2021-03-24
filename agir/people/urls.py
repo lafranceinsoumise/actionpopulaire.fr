@@ -15,6 +15,7 @@ api_urls = [
         api.SubscriptionAPIView.as_view(),
         name="api_people_subscription",
     ),
+    path("api/inscription/", api.SignupAPIView.as_view(), name="api_people_signup",),
     path(
         "api/user/profile/",
         api.PersonProfileAPIView.as_view(),

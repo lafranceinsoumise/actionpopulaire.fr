@@ -160,12 +160,7 @@ export const Container = styled.section`
   }
 `;
 
-export const ResponsiveLayout = ({
-  MobileLayout,
-  DesktopLayout,
-  breakpoint,
-  ...props
-}) => {
+export const useIsDesktop = (breakpoint) => {
   breakpoint = breakpoint || collapse;
   const [isDesktop, setDesktop] = useState(window.innerWidth > breakpoint);
 
@@ -181,6 +176,17 @@ export const ResponsiveLayout = ({
     };
   }, [refresh]);
 
+  return isDesktop;
+};
+
+export const ResponsiveLayout = ({
+  MobileLayout,
+  DesktopLayout,
+  breakpoint,
+  ...props
+}) => {
+  const isDesktop = useIsDesktop(breakpoint);
+
   return isDesktop ? <DesktopLayout {...props} /> : <MobileLayout {...props} />;
 };
 ResponsiveLayout.propTypes = {
@@ -192,18 +198,7 @@ ResponsiveLayout.propTypes = {
 };
 
 export const useResponsiveMemo = (mobileValue, desktopValue, breakpoint) => {
-  breakpoint = breakpoint || collapse;
-  const [isDesktop, setDesktop] = useState(window.innerWidth > breakpoint);
-  const refresh = useCallback(
-    () => setDesktop(window.innerWidth > breakpoint),
-    [breakpoint]
-  );
-  useEffect(() => {
-    window.addEventListener("resize", refresh);
-    return () => {
-      window.removeEventListener("resize", refresh);
-    };
-  }, [refresh]);
+  const isDesktop = useIsDesktop(breakpoint);
 
   const value = useMemo(() => (isDesktop ? desktopValue : mobileValue), [
     isDesktop,

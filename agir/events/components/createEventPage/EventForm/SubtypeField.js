@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -11,6 +12,8 @@ import Panel from "@agir/front/genericComponents/Panel";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import { EVENT_TYPES } from "./eventForm.config";
+
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledOption = styled.li`
   display: flex;
@@ -126,8 +129,12 @@ const SubtypeOption = (props) => {
       onClick={handleClick}
     >
       <span className={`fa fa-${option.iconName || "calendar"}`} />
-      {option.description[0].toUpperCase()}
-      {option.description.slice(1)}
+      {option.description && (
+        <>
+          {option.description[0].toUpperCase()}
+          {option.description.slice(1)}
+        </>
+      )}
       <Button type="button" color="choose" onClick={handleClick} small>
         Choisir
       </Button>
@@ -160,8 +167,12 @@ const DefaultOption = (props) => {
         className={`fa fa-${option.iconName || "calendar"}`}
         style={{ color: option.color }}
       />
-      {option.description[0].toUpperCase()}
-      {option.description.slice(1)}
+      {option.description && (
+        <>
+          {option.description[0].toUpperCase()}
+          {option.description.slice(1)}
+        </>
+      )}
     </StyledDefaultOption>
   );
 };
@@ -178,23 +189,31 @@ SubtypeOption.propTypes = DefaultOption.propTypes = {
   disabled: PropTypes.bool,
 };
 
+const BASE_ROUTE = routeConfig.createEvent.getLink();
+const PANEL_ROUTE = BASE_ROUTE + "type/";
+
 const SubtypeField = (props) => {
   const { onChange, value, name, error, disabled } = props;
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
+
+  const isPanelOpen = useRouteMatch(PANEL_ROUTE);
+  const history = useHistory();
+
   const openPanel = useCallback(() => {
-    setIsPanelOpen(true);
-  }, []);
+    history.push(PANEL_ROUTE);
+  }, [history]);
+
   const closePanel = useCallback(() => {
-    setIsPanelOpen(false);
-  }, []);
+    history.replace(BASE_ROUTE);
+  }, [history]);
+
   const panelPosition = useResponsiveMemo("right", "left");
 
   const handleChange = useCallback(
     (subtype) => {
       onChange(name, subtype);
-      setIsPanelOpen(false);
+      closePanel();
     },
-    [onChange, name]
+    [onChange, name, closePanel]
   );
 
   const subtypes = useMemo(
@@ -216,7 +235,7 @@ const SubtypeField = (props) => {
     );
   }, [subtypes]);
 
-  const defaultOptions = useMemo(() => subtypes.slice(0, 4), [subtypes]);
+  const defaultOptions = useMemo(() => subtypes.slice(0, 5), [subtypes]);
 
   return (
     <StyledField>

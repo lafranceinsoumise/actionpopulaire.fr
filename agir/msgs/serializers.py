@@ -17,9 +17,11 @@ class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
 
     def get_author(self, obj):
-        return PersonSerializer(
-            obj.author, context=self.context, fields=["id", "displayName", "image"],
-        ).data
+        if obj.author is not None:
+            return PersonSerializer(
+                obj.author, context=self.context, fields=["id", "displayName", "image"],
+            ).data
+        return {"id": None, "displayName": "Utilisateur·ice supprimé·e", "image": None}
 
 
 class MessageCommentSerializer(BaseMessageSerializer):

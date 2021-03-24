@@ -62,7 +62,15 @@ SUBSCRIPTIONS_EMAILS = {
         )
     },
     SUBSCRIPTION_TYPE_EXTERNAL: {},
-    SUBSCRIPTION_TYPE_AP: {},
+    SUBSCRIPTION_TYPE_AP: {
+        "already_subscribed": SubscriptionMessageInfo(
+            code="EXISTING_EMAIL_SUBSCRIPTION", subject="Vous êtes déjà inscrits !",
+        ),
+        "confirmation": SubscriptionMessageInfo(
+            code="SUBSCRIPTION_CONFIRMATION_MESSAGE",
+            subject="Plus qu'un clic pour vous inscrire",
+        ),
+    },
 }
 SUBSCRIPTION_NEWSLETTERS = {
     SUBSCRIPTION_TYPE_LFI: {Person.NEWSLETTER_LFI},
@@ -74,6 +82,7 @@ SUBSCRIPTION_NEWSLETTERS = {
 SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
     SUBSCRIPTION_TYPE_LFI: f"{settings.MAIN_DOMAIN}/consulter-vos-emails/",
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/validez-votre-e-mail/",
+    SUBSCRIPTION_TYPE_AP: f"{settings.MAIN_DOMAIN}/inscription/code/",
 }
 
 SUBSCRIPTION_SUCCESS_REDIRECT = {
@@ -123,14 +132,14 @@ def save_subscription_information(person, type, data, new=False):
 
     with transaction.atomic():
         if data.get("mandat"):
+            defaults = {"statut": StatutMandat.INSCRIPTION_VIA_PROFIL}
+            if data["mandat"] == "maire":
+                defaults["mandat"] = MandatMunicipal.MANDAT_MAIRE
+                data["mandat"] = "municipal"
+            model = types_elus[data["mandat"]]
             try:
-                defaults = {"statut": StatutMandat.INSCRIPTION_VIA_PROFIL}
-                if data["mandat"] == "maire":
-                    defaults["mandat"] = MandatMunicipal.MANDAT_MAIRE
-                types_elus[data["mandat"]].objects.get_or_create(
-                    person=person, defaults=defaults
-                )
-            except types_elus[data["mandat"]].MultipleObjectsReturned:
+                model.objects.get_or_create(person=person, defaults=defaults)
+            except model.MultipleObjectsReturned:
                 pass
 
         person.save()

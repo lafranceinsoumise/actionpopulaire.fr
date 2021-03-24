@@ -388,7 +388,7 @@ export const SecondaryNavigation = () => {
     <SecondaryMenu style={{ padding: 0 }}>
       <SecondaryMenuItem key="title">LIENS</SecondaryMenuItem>
       {CONFIG.secondaryLinks.map((link) =>
-        link.href || routes[link.route] ? (
+        link.href || routes[link.route] || routeConfig[link.to] ? (
           <SecondaryMenuItem key={link.id}>
             <Link
               href={link.href || routes[link.route]}

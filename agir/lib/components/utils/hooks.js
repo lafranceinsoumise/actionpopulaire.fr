@@ -49,19 +49,27 @@ export const useThrottle = (func, wait) => {
  *
  * @param {Function} func la fonction à debouncer
  * @param {number} wait le nombre de millisecondes pour lesquelles debouncer la fonction
+ * @param {Array} deps éventuels paramètres supplémentaires dont le changement déclenche le "reset" du debounce.
  */
-export const useDebounce = (func, wait) => {
+export const useDebounce = (func, wait, deps = []) => {
   const ref = useRef(null);
   ref.current = func;
 
-  /* Idem, exhaustive-deps n'arrive pas à identifier les dépendances. */
+  /* L'utilisation d'une fonction arrow pour appeler ref.current, plutôt
+  que d'utiliser ref.current directe est délibérée ! Elle permet de s'assurer
+  que c'est la valeur actuelle de la référence qui est utilisée à chaque fois
+  que la fonction debounce s'active, alors qu'en indiquant directement ref.current,
+  ç'aurait été la version au moment de la production du callback qui aurait été
+  utilisée.
+
+  exhaustive-deps n'arrive pas à identifier les dépendances et est désactivé ici. */
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return useCallback(
     debounce((...args) => ref.current(...args), wait, {
       leading: false,
       trailing: true,
     }),
-    [wait]
+    [wait, ...deps]
   );
 };
 

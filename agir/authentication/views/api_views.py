@@ -53,7 +53,11 @@ class LoginAPIView(APIView):
                 detail={"email": self.messages["invalid_format"]}, code="invalid_format"
             )
 
+        if settings.DEBUG:
+            return
+
         client_ip = get_client_ip(self.request)
+
         if not send_mail_email_bucket.has_tokens(
             email
         ) or not send_mail_ip_bucket.has_tokens(client_ip):

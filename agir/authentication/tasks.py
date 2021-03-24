@@ -49,7 +49,7 @@ def send_no_account_email(email, subscription_type=SUBSCRIPTION_TYPE_AP, **kwarg
     confirm_subscription_url += "?" + urlencode(query_args)
 
     send_mosaico_email(
-        code="LOGIN_SIGN_UP_MESSAGE",
+        code="UNEXISTING_EMAIL_LOGIN",
         subject="Vous n'avez pas encore de compte sur Action Populaire",
         from_email=settings.EMAIL_FROM,
         recipients=[email],
