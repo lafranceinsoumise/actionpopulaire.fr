@@ -9,13 +9,13 @@ import { routeConfig } from "@agir/front/app/routes.config";
 import { useHistory, useLocation } from "react-router-dom";
 import { useBookmarkedEmails } from "@agir/front/authentication/hooks";
 import useSWR from "swr";
-
 import {
   useSelector,
   useDispatch,
 } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 import { setSessionContext } from "@agir/front/globalContext/actions";
+
 const Container = styled.div`
   display: flex;
   min-height: 100vh;
@@ -81,6 +81,13 @@ const Form = styled.div`
   }
 `;
 
+const LocalCode = styled.h2`
+  padding: 1rem 2rem;
+  margin: 0;
+  margin-top: 1rem;
+  background-color: ${style.green100};
+`;
+
 const CodeConnexion = () => {
   const dispatch = useDispatch();
   const user = useSelector(getUser);
@@ -115,11 +122,11 @@ const CodeConnexion = () => {
 
   useEffect(() => {
     if (!user) return;
-    // add bookmarkedEmail
+    // add to bookmarkedEmails
     bookmarkedEmails[1](location.state.email);
 
-    if (!!location.next) {
-      history.push(next);
+    if (!!location.state.next) {
+      history.push(location.state.next);
       return;
     }
     const route = routeConfig.events.getLink();
@@ -132,18 +139,7 @@ const CodeConnexion = () => {
 
       <h1>Votre code de connexion vous a été envoyé par e-mail</h1>
 
-      {location.state?.code !== undefined && location.state.code?.length > 0 && (
-        <h2
-          style={{
-            padding: "1rem 2rem",
-            margin: "0",
-            marginTop: "1rem",
-            backgroundColor: style.green100,
-          }}
-        >
-          {location.state.code}
-        </h2>
-      )}
+      {!!location.state?.code && <LocalCode>{location.state.code}</LocalCode>}
 
       <p style={{ marginTop: "2rem" }}>
         Entrez le code de connexion que nous avons envoyé à{" "}

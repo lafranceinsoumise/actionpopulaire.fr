@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@agir/front/genericComponents/Button";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -8,6 +9,8 @@ import LFI_rounded from "@agir/front/genericComponents/images/LFI_rounded.png";
 import checkCirclePrimary from "@agir/front/genericComponents/images/check-circle-primary.svg";
 import { updateProfile } from "../../api";
 
+const RadioLabel = styled.div``;
+
 const Container = styled.div`
   display: flex;
   min-height: 100vh;
@@ -15,23 +18,38 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 24px;
+  padding: 1.5rem;
 
   h1 {
     font-size: 26px;
     font-weight: 700,
     line-height: 39px;
     text-align: center;
-    margin-bottom: 0px;
-    margin-top: 16px;
+    margin-bottom: 0;
+    margin-top: 0;
+    max-width: 450px;
+  }
+  h2 {
+    font-size: 1rem;
+    font-weight: 700,
+    margin-bottom: 0;
+    margin-top: 0;
     max-width: 450px;
   }
   p {
     text-align: center;
   }
+  ${RadioLabel} {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+  }
   @media (max-width: ${style.collapse}px) {
     h1 {
-      font-size: 18px;
+      font-size: 1rem;
+      text-align: left;
+    }
+    ${RadioLabel} {
+      text-align: left;
     }
   }
 `;
@@ -54,8 +72,7 @@ const RadioBlock = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding: 24px;
-  margin-top: 38px;
+  padding: 1.5rem;
   position: relative;
   cursor: pointer;
   transition: ease 0.2s;
@@ -66,10 +83,10 @@ const RadioBlock = styled.div`
   }
   &.responsive-margin {
     @media (max-width: ${style.collapse}px) {
-      margin-top: 16px;
+      margin-top: 1rem;
     }
     @media (min-width: ${style.collapse}px) {
-      margin-left: 24px;
+      margin-left: 1.5rem;
     }
   }
 
@@ -108,7 +125,7 @@ const RadioBlock = styled.div`
     margin-top: 14px;
     padding: 10px;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 1rem;
   }
   img {
     width: 114px;
@@ -117,31 +134,100 @@ const RadioBlock = styled.div`
 
 const InputRadio = styled.div`
   div {
-    width: 16px;
-    height: 16px;
+    width: 1rem;
+    height: 1rem;
     border: 1px solid #000a2c;
     border-radius: 20px;
   }
   img {
-    width: 16px;
+    width: 1rem;
   }
 `;
 
+const [is2022, isInsoumise] = [0, 1];
+
+const notificationList = {
+  0: [
+    {
+      label: "Grands événements de la campagne",
+      value: "2022_exceptionnel",
+      selected: true,
+    },
+    {
+      label: "Lettres d'informations, environ une fois par semaine",
+      value: "2022",
+      selected: true,
+    },
+    {
+      label: "Actions en ligne",
+      value: "2022_en_ligne",
+      selected: false,
+    },
+    {
+      label: "Agir près de chez moi",
+      value: "2022_chez_moi",
+      selected: false,
+    },
+    {
+      label: "L’actualité sur le programme",
+      value: "2022_programme",
+      selected: false,
+    },
+  ],
+  1: [
+    {
+      label: "Recevez des informations sur la France insoumise",
+      value: "LFI",
+      selected: true,
+    },
+  ],
+};
+
+// return array of newsletter value as string
+const filterNewsletter = (newsList) => {
+  const res = newsList
+    .map((e) => {
+      if (e.selected) return e.value;
+    })
+    .filter((e) => {
+      if (e !== undefined) return e;
+    });
+  return res;
+};
+
 const ChooseCampaign = ({ dismiss }) => {
+  const [notifs, setNotifs] = useState(notificationList[is2022]);
   const [reasonChecked, setReasonChecked] = useState(0);
+  const [newsLetters, setNewsletters] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const fromSignup = true;
 
   const handleReasonChecked = (value) => {
     setReasonChecked(value);
+    setNotifs(notificationList[value]);
+    setNewsletters(filterNewsletter(notifs));
+  };
+
+  const handleToggleNotif = (index) => {
+    const newNotifs = [...notifs];
+    newNotifs[index].selected = !newNotifs[index].selected;
+    setNotifs(newNotifs);
+    setNewsletters(filterNewsletter(newNotifs));
   };
 
   const handleSubmit = async () => {
     setSubmitted(true);
-    await updateProfile({ reasonChecked: reasonChecked });
+    await updateProfile({
+      reasonChecked: reasonChecked,
+      newsletter: newsLetters,
+    });
     setSubmitted(false);
     dismiss();
   };
+
+  useEffect(() => {
+    setNewsletters(filterNewsletter(notifs));
+  }, [notifs]);
 
   return (
     <Container>
@@ -152,6 +238,7 @@ const ChooseCampaign = ({ dismiss }) => {
             fontWeight: 600,
             padding: "0.5rem 1rem",
             backgroundColor: style.green100,
+            marginBottom: "2rem",
           }}
         >
           <FeatherIcon
@@ -166,19 +253,19 @@ const ChooseCampaign = ({ dismiss }) => {
       )}
 
       <h1>Pour quelle campagne rejoignez-vous Action Populaire ?</h1>
-      <div style={{ marginTop: "2rem" }}>
+      <RadioLabel>
         Nous vous suggérerons des actions qui vous intéressent
-      </div>
+      </RadioLabel>
 
       <ContainerRadio>
         <RadioBlock
           onClick={() => handleReasonChecked(0)}
-          $checked={0 === reasonChecked}
+          $checked={is2022 === reasonChecked}
         >
           <img src={JLM_rounded} alt="Jean-Luc Mélenchon" />
           <span>La campagne présidentielle 2022</span>
           <InputRadio>
-            {0 === reasonChecked ? (
+            {is2022 === reasonChecked ? (
               <img src={checkCirclePrimary} alt="" />
             ) : (
               <div></div>
@@ -187,13 +274,13 @@ const ChooseCampaign = ({ dismiss }) => {
         </RadioBlock>
         <RadioBlock
           onClick={() => handleReasonChecked(1)}
-          $checked={1 === reasonChecked}
+          $checked={isInsoumise === reasonChecked}
           className="responsive-margin"
         >
           <img src={LFI_rounded} alt="La France Insoumise" />
           <span>Une autre campagne de la France Insoumise</span>
           <InputRadio>
-            {1 === reasonChecked ? (
+            {isInsoumise === reasonChecked ? (
               <img src={checkCirclePrimary} alt="" />
             ) : (
               <div></div>
@@ -201,6 +288,23 @@ const ChooseCampaign = ({ dismiss }) => {
           </InputRadio>
         </RadioBlock>
       </ContainerRadio>
+
+      <div style={{ textAlign: "left", marginTop: "1.5rem" }}>
+        {is2022 === reasonChecked && (
+          <h2 style={{ textAlign: "left", marginBottom: "0.5rem" }}>
+            Recevez des informations sur la campagne
+          </h2>
+        )}
+        {notifs.map((e, id) => (
+          <CheckboxField
+            key={id}
+            name={e.value}
+            label={e.label}
+            value={e.selected}
+            onChange={() => handleToggleNotif(id)}
+          />
+        ))}
+      </div>
 
       <Button
         color="primary"
