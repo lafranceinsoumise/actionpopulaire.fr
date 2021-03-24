@@ -83,17 +83,25 @@ const StyledActionButtons = styled.div`
 `;
 
 const RSVPButton = (props) => {
-  const { id, forUsers } = props;
+  const { id, forUsers, hasRightSubscription, hasPrice, routes } = props;
+
   const [isLoading, setIsLoading] = useState(false);
   const globalRoutes = useSelector(getRoutes);
+
   const handleRSVP = useCallback(
     async (e) => {
       e.preventDefault();
       setIsLoading(true);
 
-      if (!props.hasRightSubscription) {
+      if (!hasRightSubscription) {
         log.debug("Has not right subscribtion, redirection.");
         window.location.href = `${globalRoutes.join}?type=${forUsers}`;
+        return;
+      }
+
+      if (hasPrice) {
+        log.debug("Has price, redirection.");
+        window.location.href = routes.rsvp;
         return;
       }
 
@@ -117,7 +125,7 @@ const RSVPButton = (props) => {
         })
       );
     },
-    [id, forUsers, globalRoutes]
+    [id, forUsers, globalRoutes, hasRightSubscription, hasPrice, routes]
   );
 
   return (
@@ -278,6 +286,7 @@ const EventHeader = ({
         isOrganizer={isOrganizer}
         forUsers={forUsers}
         hasRightSubscription={hasRightSubscription}
+        hasPrice={!!options && !!options.price}
       />
       {!past && (
         <AdditionalMessage
