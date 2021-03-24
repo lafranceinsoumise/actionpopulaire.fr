@@ -238,6 +238,7 @@ export const routeConfig = {
     label: "Connexion",
     Component: LoginPage,
     hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   signup: new RouteConfig({
     id: "signup",
@@ -247,6 +248,7 @@ export const routeConfig = {
     label: "Inscription",
     Component: SignupPage,
     hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   codeLogin: new RouteConfig({
     id: "codeLogin",
@@ -256,6 +258,7 @@ export const routeConfig = {
     label: "Code de connexion",
     Component: CodeLoginPage,
     hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   codeSignup: new RouteConfig({
     id: "codeSignup",
@@ -265,6 +268,7 @@ export const routeConfig = {
     label: "Code d'inscription'",
     Component: CodeSignupPage,
     hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   tellMore: new RouteConfig({
     id: "tellMore",
@@ -274,6 +278,7 @@ export const routeConfig = {
     label: "J'en dis plus",
     Component: TellMorePage,
     hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   introApp: new RouteConfig({
     id: "introApp",
@@ -284,6 +289,7 @@ export const routeConfig = {
     Component: IntroAppPage,
     hasLayout: false,
     hideTopBar: true,
+    hideFeedbackButton: true,
     layoutProps: {
       smallBackgroundColor: style.black25,
       hasBanner: false,
