@@ -4,7 +4,7 @@ export const ENDPOINT = {
   login: "/api/connexion/",
   checkCode: "/api/connexion/code/",
   logout: "/api/deconnexion",
-  signUp: "/api/people/subscription/",
+  signUp: "/api/inscription/",
   getProfile: "/api/user/profile/",
   getProfileOptions: "/api/user/profile/",
   updateProfile: "/api/user/profile/",

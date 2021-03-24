@@ -68,9 +68,8 @@ const SignUp = () => {
       setError(data.error);
       return;
     }
-    location.state.email = formData.email;
     const route = routeConfig.codeSignup.getLink();
-    history.push(route);
+    history.push(route, { ...location.state, email: formData.email });
   };
 
   return (
@@ -128,6 +127,7 @@ const SignUp = () => {
         <a
           href="https://infos.actionpopulaire.fr/mentions-legales/"
           target="_blank"
+          rel="noopener noreferrer"
         >
           politique de conservation des données
         </a>

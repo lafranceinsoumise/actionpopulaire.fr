@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
+from agir.elus.models import MandatMunicipal, StatutMandat, types_elus
 from agir.front.serializer_utils import MediaURLField
 from agir.lib.data import french_zipcode_to_country_code, FRANCE_COUNTRY_CODES
 from agir.lib.serializers import (
@@ -21,12 +22,10 @@ from .actions.subscription import (
     SUBSCRIPTION_TYPE_CHOICES,
     subscription_success_redirect_url,
     save_subscription_information,
-    SUBSCRIPTION_TYPE_NSP,
     SUBSCRIPTION_EMAIL_SENT_REDIRECT,
 )
 from .models import Person
 from .tasks import send_confirmation_email
-from .validators import BlackListEmailValidator
 from ..lib.token_bucket import TokenBucket
 
 person_fields = {f.name: f for f in models.Person._meta.get_fields()}
@@ -289,6 +288,53 @@ class PersonNewsletterListField(serializers.ListField):
     child = serializers.ChoiceField(choices=Person.NEWSLETTERS_CHOICES)
 
 
+class PersonMandatField(serializers.Field):
+    requires_context = True
+    types = tuple(types_elus.keys())
+    choices = dict([(mandat, mandat) for mandat in types_elus.keys()])
+    default_error_messages = {
+        "invalid": "Le type de mandat n'est pas valide",
+    }
+
+    def get_defaults(self, mandat_type):
+        defaults = {"statut": StatutMandat.INSCRIPTION_VIA_PROFIL}
+        if mandat_type == "maire":
+            defaults["mandat"] = MandatMunicipal.MANDAT_MAIRE
+        return defaults
+
+    def get_value(self, dictionary):
+        return dictionary
+
+    def get_attribute(self, instance):
+        return instance
+
+    def to_representation(self, person):
+        return [
+            mandat
+            for mandat in self.types
+            if types_elus[mandat]
+            .objects.filter(person=person, **self.get_defaults(mandat))
+            .exists()
+        ]
+
+    def to_internal_value(self, data):
+        if not hasattr(data, "mandat") or not data["mandat"]:
+            return None
+        mandat_type = data.pop("mandat")
+        mandat = None
+        if not mandat_type in self.types:
+            return self.fail("invalid", data=data)
+        try:
+            types_elus[mandat_type].objects.get_or_create(
+                person=self.context["request"].user.person,
+                defaults=self.get_defaults(mandat_type),
+            )
+        except types_elus[mandat_type].MultipleObjectsReturned:
+            pass
+
+        return data
+
+
 class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
     email = serializers.EmailField(read_only=True)
@@ -320,6 +366,8 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     isInsoumise = serializers.BooleanField(source="is_insoumise", required=False)
     is2022 = serializers.BooleanField(source="is_2022", required=False)
 
+    mandat = PersonMandatField(required=False)
+
     referrerId = serializers.CharField(source="referrer_id", required=False)
 
     newsletters = PersonNewsletterListField(required=False, allow_empty=True)
@@ -346,5 +394,5 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "newsletters",
             "gender",
             "zip",
-            "mandates",
+            "mandat",
         )
