@@ -208,11 +208,11 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         email = self.validated_data["email"]
         type = self.validated_data["type"]
 
+        send_confirmation_email.delay(**self.validated_data)
+
         try:
             person = Person.objects.get_by_natural_key(email)
         except Person.DoesNotExist:
-            send_confirmation_email.delay(**self.validated_data)
-
             self.result_data = {
                 "status": "new",
                 "url": SUBSCRIPTION_EMAIL_SENT_REDIRECT[type],

@@ -62,7 +62,15 @@ SUBSCRIPTIONS_EMAILS = {
         )
     },
     SUBSCRIPTION_TYPE_EXTERNAL: {},
-    SUBSCRIPTION_TYPE_AP: {},
+    SUBSCRIPTION_TYPE_AP: {
+        "already_subscribed": SubscriptionMessageInfo(
+            code="EXISTING_EMAIL_SUBSCRIPTION", subject="Vous êtes déjà inscrits !",
+        ),
+        "confirmation": SubscriptionMessageInfo(
+            code="SUBSCRIPTION_CONFIRMATION_MESSAGE",
+            subject="Plus qu'un clic pour vous inscrire",
+        ),
+    },
 }
 SUBSCRIPTION_NEWSLETTERS = {
     SUBSCRIPTION_TYPE_LFI: {Person.NEWSLETTER_LFI},
@@ -74,6 +82,7 @@ SUBSCRIPTION_NEWSLETTERS = {
 SUBSCRIPTION_EMAIL_SENT_REDIRECT = {
     SUBSCRIPTION_TYPE_LFI: f"{settings.MAIN_DOMAIN}/consulter-vos-emails/",
     SUBSCRIPTION_TYPE_NSP: f"{settings.NSP_DOMAIN}/validez-votre-e-mail/",
+    SUBSCRIPTION_TYPE_AP: f"{settings.MAIN_DOMAIN}/inscription/code/",
 }
 
 SUBSCRIPTION_SUCCESS_REDIRECT = {
