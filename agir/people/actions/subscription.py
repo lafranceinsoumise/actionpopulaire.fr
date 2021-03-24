@@ -132,14 +132,14 @@ def save_subscription_information(person, type, data, new=False):
 
     with transaction.atomic():
         if data.get("mandat"):
+            defaults = {"statut": StatutMandat.INSCRIPTION_VIA_PROFIL}
+            if data["mandat"] == "maire":
+                defaults["mandat"] = MandatMunicipal.MANDAT_MAIRE
+                data["mandat"] = "municipal"
+            model = types_elus[data["mandat"]]
             try:
-                defaults = {"statut": StatutMandat.INSCRIPTION_VIA_PROFIL}
-                if data["mandat"] == "maire":
-                    defaults["mandat"] = MandatMunicipal.MANDAT_MAIRE
-                types_elus[data["mandat"]].objects.get_or_create(
-                    person=person, defaults=defaults
-                )
-            except types_elus[data["mandat"]].MultipleObjectsReturned:
+                model.objects.get_or_create(person=person, defaults=defaults)
+            except model.MultipleObjectsReturned:
                 pass
 
         person.save()

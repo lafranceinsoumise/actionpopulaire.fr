@@ -89,8 +89,9 @@ const StyledActionButtons = styled.div`
 `;
 
 const RSVPButton = (props) => {
-  const { id, forUsers } = props;
   const user = useSelector(getUser);
+  const { id, forUsers, hasRightSubscription, hasPrice, routes } = props;
+
   const [isLoading, setIsLoading] = useState(false);
   const [hasSubscriptionTypeModal, setHasSubscriptionTypeModal] = useState(
     false
@@ -104,10 +105,18 @@ const RSVPButton = (props) => {
     setHasSubscriptionTypeModal(false);
   }, []);
 
+  const globalRoutes = useSelector(getRoutes);
+
   const handleRSVP = useCallback(
     async (e) => {
       e && e.preventDefault();
       setIsLoading(true);
+
+      if (hasPrice) {
+        log.debug("Has price, redirection.");
+        window.location.href = routes.rsvp;
+        return;
+      }
 
       try {
         const response = await api.rsvpEvent(id);
@@ -130,7 +139,7 @@ const RSVPButton = (props) => {
         })
       );
     },
-    [id]
+    [id, hasPrice, routes]
   );
 
   const shouldUpdateSubscription = useMemo(() => {
@@ -316,6 +325,7 @@ const EventHeader = ({
         isOrganizer={isOrganizer}
         forUsers={forUsers}
         hasRightSubscription={hasRightSubscription}
+        hasPrice={!!options && !!options.price}
       />
       {!past && (
         <AdditionalMessage

@@ -1,8 +1,8 @@
 import pathToRegexp from "path-to-regexp-es";
-import { lazy } from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import logger from "@agir/lib/utils/logger";
+import { lazy } from "./utils";
 
 import { AUTHENTICATION } from "@agir/front/authentication/common";
 
@@ -124,7 +124,7 @@ export const routeConfig = {
   createEvent: new RouteConfig({
     id: "createEvent",
     pathname: "/evenements/creer/",
-    exact: true,
+    exact: false,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Nouvel événement",
     Component: CreateEvent,

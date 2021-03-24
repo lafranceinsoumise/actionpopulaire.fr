@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from rest_framework import status
-from rest_framework.exceptions import NotFound, MethodNotAllowed
+from rest_framework.exceptions import NotFound, MethodNotAllowed, PermissionDenied
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
@@ -186,12 +186,12 @@ class EventCreateOptionsAPIView(RetrieveAPIView):
     serializer_class = EventCreateOptionsSerializer
     queryset = Event.objects.all()
 
-    def dispatch(self, request, *args, **kwargs):
+    def initial(self, request, *args, **kwargs):
         user = request.user
         if user.is_anonymous or not user.person:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            raise PermissionDenied()
         self.person = user.person
-        return super().dispatch(request, *args, **kwargs)
+        return super().initial(request, *args, **kwargs)
 
     def get_object(self):
         return self.request
