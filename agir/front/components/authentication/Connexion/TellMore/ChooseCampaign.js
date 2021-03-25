@@ -1,13 +1,18 @@
+import Proptypes from "prop-types";
 import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import styled from "styled-components";
-import style from "@agir/front/genericComponents/_variables.scss";
+
 import JLM_rounded from "@agir/front/genericComponents/images/JLM_rounded.png";
 import LFI_rounded from "@agir/front/genericComponents/images/LFI_rounded.png";
 import checkCirclePrimary from "@agir/front/genericComponents/images/check-circle-primary.svg";
-import { updateProfile } from "../../api";
+
+import { updateProfile } from "@agir/front/authentication/api";
 
 const RadioLabel = styled.div``;
 
@@ -20,36 +25,68 @@ const Container = styled.div`
   text-align: center;
   padding: 1.5rem;
 
+  @media (max-width: ${style.collapse}px) {
+    align-items: stretch;
+  }
+
   h1 {
     font-size: 26px;
-    font-weight: 700,
+    font-weight: 700;
     line-height: 39px;
     text-align: center;
     margin-bottom: 0;
     margin-top: 0;
     max-width: 450px;
+
+    @media (max-width: ${style.collapse}px) {
+      font-size: 1.125rem;
+      line-height: 1.5;
+      text-align: left;
+      max-width: 100%;
+    }
+
+    span {
+      display: block;
+
+      @media (max-width: ${style.collapse}px) {
+        display: inline;
+      }
+    }
   }
+
   h2 {
     font-size: 1rem;
-    font-weight: 700,
+    font-weight: 700;
     margin-bottom: 0;
     margin-top: 0;
     max-width: 450px;
+
+    @media (max-width: ${style.collapse}px) {
+      max-width: 100%;
+    }
   }
+
   p {
     text-align: center;
   }
+
   ${RadioLabel} {
     margin-top: 0.5rem;
     margin-bottom: 1rem;
-  }
-  @media (max-width: ${style.collapse}px) {
-    h1 {
-      font-size: 1rem;
+
+    @media (max-width: ${style.collapse}px) {
       text-align: left;
     }
-    ${RadioLabel} {
-      text-align: left;
+  }
+
+  & > ${Button} {
+    width: 356px;
+    max-width: 100%;
+    margin-top: 2rem;
+    justify-content: center;
+
+    @media (max-width: ${style.collapse}px) {
+      width: 100%;
     }
   }
 `;
@@ -59,8 +96,10 @@ const ContainerRadio = styled.div`
   max-width: 525px;
   width: 100%;
   user-select: none;
+
   @media (max-width: ${style.collapse}px) {
     flex-direction: column;
+    max-width: 100%;
   }
 `;
 
@@ -79,8 +118,11 @@ const RadioBlock = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     flex-direction: row;
+    justify-content: flex-start;
     width: 100%;
+    text-align: left;
   }
+
   &.responsive-margin {
     @media (max-width: ${style.collapse}px) {
       margin-top: 1rem;
@@ -93,8 +135,8 @@ const RadioBlock = styled.div`
   ${(props) => {
     if (props.$checked) {
       return `
-        border 2px solid ${style.primary500};
-        box-shadow: 0px 0px 3px #571AFF, 0px 2px 0px rgba(87, 26, 255, 0.2);
+        border 1px solid ${style.primary500};
+        box-shadow: 0px 0px 3px ${style.primary500}, 0px 2px 0px rgba(87, 26, 255, 0.2);
         `;
     } else {
       return `
@@ -126,21 +168,29 @@ const RadioBlock = styled.div`
     padding: 10px;
     font-weight: 600;
     font-size: 1rem;
+
+    @media (max-width: ${style.collapse}px) {
+      margin-top: 0;
+    }
   }
   img {
     width: 114px;
+
+    @media (max-width: ${style.collapse}px) {
+      width: 80px;
+    }
   }
 `;
 
 const InputRadio = styled.div`
   div {
-    width: 1rem;
-    height: 1rem;
+    width: 1.3rem;
+    height: 1.3rem;
     border: 1px solid #000a2c;
     border-radius: 20px;
   }
   img {
-    width: 1rem;
+    width: 1.3rem;
   }
 `;
 
@@ -185,6 +235,9 @@ const notificationList = {
 
 // return array of newsletter value as string
 const filterNewsletter = (newsList) => {
+  if (!Array.isArray(newsList)) {
+    return [];
+  }
   const res = newsList
     .map((e) => {
       if (e.selected) return e.value;
@@ -196,10 +249,11 @@ const filterNewsletter = (newsList) => {
 };
 
 const ChooseCampaign = ({ dismiss }) => {
-  const [notifs, setNotifs] = useState(notificationList[is2022]);
-  const [reasonChecked, setReasonChecked] = useState(0);
+  const [notifs, setNotifs] = useState(null);
+  const [reasonChecked, setReasonChecked] = useState();
   const [newsLetters, setNewsletters] = useState([]);
   const [submitted, setSubmitted] = useState(false);
+
   const fromSignup = true;
 
   const handleReasonChecked = (value) => {
@@ -239,6 +293,8 @@ const ChooseCampaign = ({ dismiss }) => {
             padding: "0.5rem 1rem",
             backgroundColor: style.green100,
             marginBottom: "2rem",
+            flex: "0 0 auto",
+            alignSelf: "center",
           }}
         >
           <FeatherIcon
@@ -252,7 +308,10 @@ const ChooseCampaign = ({ dismiss }) => {
         </div>
       )}
 
-      <h1>Pour quelle campagne rejoignez-vous Action Populaire ?</h1>
+      <h1>
+        <span>Pour quelle campagne</span>{" "}
+        <span>rejoignez-vous Action Populaire&nbsp;?</span>
+      </h1>
       <RadioLabel>
         Nous vous suggérerons des actions qui vous intéressent
       </RadioLabel>
@@ -268,7 +327,7 @@ const ChooseCampaign = ({ dismiss }) => {
             {is2022 === reasonChecked ? (
               <img src={checkCirclePrimary} alt="" />
             ) : (
-              <div></div>
+              <div />
             )}
           </InputRadio>
         </RadioBlock>
@@ -283,7 +342,7 @@ const ChooseCampaign = ({ dismiss }) => {
             {isInsoumise === reasonChecked ? (
               <img src={checkCirclePrimary} alt="" />
             ) : (
-              <div></div>
+              <div />
             )}
           </InputRadio>
         </RadioBlock>
@@ -295,32 +354,25 @@ const ChooseCampaign = ({ dismiss }) => {
             Recevez des informations sur la campagne
           </h2>
         )}
-        {notifs.map((e, id) => (
-          <CheckboxField
-            key={id}
-            name={e.value}
-            label={e.label}
-            value={e.selected}
-            onChange={() => handleToggleNotif(id)}
-          />
-        ))}
+        {Array.isArray(notifs) &&
+          notifs.map((notif) => (
+            <CheckboxField
+              key={notif.value}
+              name={notif.value}
+              label={notif.label}
+              value={notif.selected}
+              onChange={() => handleToggleNotif(notif)}
+            />
+          ))}
       </div>
 
-      <Button
-        color="primary"
-        onClick={handleSubmit}
-        disabled={submitted}
-        style={{
-          width: "356px",
-          maxWidth: "100%",
-          marginTop: "2rem",
-          justifyContent: "center",
-        }}
-      >
+      <Button color="primary" onClick={handleSubmit} disabled={submitted}>
         Continuer
       </Button>
     </Container>
   );
 };
-
+ChooseCampaign.propTypes = {
+  dismiss: Proptypes.func.isRequired,
+};
 export default ChooseCampaign;
