@@ -23,6 +23,8 @@ const Block = styled.div`
   align-items: center;
   flex-direction: column;
   text-align: center;
+  height: 100vh;
+  justify-content: space-between;
 
   & > div:nth-child(2) {
     max-width: 100%;
@@ -64,7 +66,17 @@ const PurpleTriangle = styled.div`
   width: 100%;
   background-color: ${style.primary500};
   margin-top: -1px;
-  div {
+  flex-basis: 120px;
+  flex-grow: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  div:nth-child(1) {
+    flex-grow: 1;
+  }
+
+  div:nth-child(2) {
     background-color: white;
     height: 80px;
     margin-bottom: -1px;
@@ -75,7 +87,9 @@ const PurpleTriangle = styled.div`
 const HeaderImage = styled.div`
   background-color: #fff;
   position: relative;
-  padding-bottom: 90px;
+  flex-basis: 90px;
+  flex-shrink: 1;
+  flex-grow: 0;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -83,10 +97,18 @@ const HeaderImage = styled.div`
 
   img {
     width: 90%;
-    max-width: 358px;
+    max-width: 330px;
     position: absolute;
     bottom: 0;
   }
+`;
+
+const IntroDescriptionContainer = styled.div`
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
 `;
 
 const DescriptionContainer = styled.div`
@@ -159,15 +181,16 @@ const IntroApp = () => {
     <>
       {!showConnexion && (
         <Block>
-          <HeaderImage>
-            <PurpleTriangle style={{ paddingTop: "120px" }}>
-              <div />
-            </PurpleTriangle>
+          <PurpleTriangle>
+            <div />
+            <div />
+          </PurpleTriangle>
 
+          <HeaderImage>
             <img alt="Illustration" src={items[index].image} />
           </HeaderImage>
 
-          <div style={{ paddingTop: "47px" }}>
+          <IntroDescriptionContainer>
             <p
               style={{
                 color: style.primary500,
@@ -178,7 +201,7 @@ const IntroApp = () => {
               {items[index].name}
             </p>
 
-            <p style={{ fontSize: "1.375rem", marginTop: "0.375rem" }}>
+            <p style={{ fontSize: "1.2rem", marginTop: "0.375rem" }}>
               {items[index].description}
             </p>
 
@@ -186,12 +209,12 @@ const IntroApp = () => {
               Continuer
             </StyledButton>
 
-            <div style={{ marginTop: "3rem", marginBottom: "1.5rem" }}>
+            <div style={{ marginTop: "2rem", marginBottom: "1.5rem" }}>
               <Mark $active={0 === index} />
               <Mark $active={1 === index} />
               <Mark $active={2 === index} />
             </div>
-          </div>
+          </IntroDescriptionContainer>
         </Block>
       )}
       {showConnexion && (
