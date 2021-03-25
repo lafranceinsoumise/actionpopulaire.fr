@@ -57,20 +57,23 @@ const BackgroundTriangle = styled.div`
   }
 `;
 
-const PurpleTriangle = styled.div`
+const WhiteTriangle = styled.div`
   width: 100%;
-  background-color: ${style.primary500};
-  margin-top: -1px;
+  height: 190px;
   div {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     background-color: white;
     height: 80px;
-    margin-bottom: -1px;
     clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
   }
 `;
 
 const HeaderImage = styled.div`
-  background-color: #fff;
+  background-size: cover;
+  background-position: cover;
   position: relative;
   padding-bottom: 90px;
   width: 100%;
@@ -159,15 +162,15 @@ const IntroApp = () => {
     <>
       {!showConnexion && (
         <Block>
-          <HeaderImage>
-            <PurpleTriangle style={{ paddingTop: "120px" }}>
+          <HeaderImage
+            style={{ backgroundImage: `url(${items[index].image})` }}
+          >
+            <WhiteTriangle>
               <div></div>
-            </PurpleTriangle>
-
-            <img src={items[index].image} />
+            </WhiteTriangle>
           </HeaderImage>
 
-          <div style={{ paddingTop: "47px" }}>
+          <div style={{ paddingTop: "0.5rem" }}>
             <p
               style={{
                 color: style.primary500,

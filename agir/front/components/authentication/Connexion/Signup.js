@@ -97,7 +97,6 @@ const SignUp = () => {
             label="Email"
             name="email"
             error={error && error.email}
-            placeholder=""
             onChange={handleChange}
             value={formData.email}
           />
@@ -107,7 +106,6 @@ const SignUp = () => {
             label="Code postal"
             name="postalCode"
             error={error && error.zip}
-            placeholder=""
             onChange={handleChange}
             value={formData.postalCode}
           />
