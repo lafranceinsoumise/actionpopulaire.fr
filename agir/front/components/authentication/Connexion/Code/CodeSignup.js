@@ -15,11 +15,11 @@ const Container = styled.div`
 
   h1 {
     font-size: 26px;
-    font-weight: 700,
-    line-height: 39px;
+    font-weight: 700;
+    line-height: 1.5;
     text-align: center;
     margin-bottom: 0px;
-    margin-top: 16px;
+    margin-top: 1rem;
     max-width: 450px;
   }
   p {
@@ -43,8 +43,9 @@ const CodeSignup = () => {
       </h1>
       <div style={{ marginTop: "2rem" }}>
         <p>
-          Entrez le code de connexion que nous avons envoyé à{" "}
-          <strong>{location.state?.email}</strong>
+          Cliquez sur le lien que nous vous avons envoyé à{" "}
+          <strong>{location.state?.email}</strong> pour valider votre
+          inscription.
         </p>
         <p style={{ marginBottom: "0" }}>
           Si l’adresse e-mail n’est pas reconnue, il vous sera proposé de vous
