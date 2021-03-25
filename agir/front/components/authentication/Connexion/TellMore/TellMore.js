@@ -47,6 +47,7 @@ const MainBlock = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     width: 100%;
+    align-items: center;
   }
 `;
 
