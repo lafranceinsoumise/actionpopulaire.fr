@@ -74,6 +74,7 @@ const InputGroup = styled.div`
 
 const optional = <span style={{ fontWeight: 400 }}>(facultatif)</span>;
 const defaultData = {
+  isTellMore: true,
   displayName: "",
   firstName: "",
   lastName: "",
@@ -109,9 +110,11 @@ const TellMore = ({ dismiss }) => {
 
   const getProfileInfos = async () => {
     const { data } = await getProfile();
+    const displayName = data.displayName?.length > 2 ? data.displayName : "";
 
     setFormData({
-      displayName: data.displayName,
+      isTellMore: true,
+      displayName: displayName,
       firstName: data.firstName,
       lastName: data.lastName,
       phone: data.contactPhone,
@@ -182,7 +185,7 @@ const TellMore = ({ dismiss }) => {
           <TextField
             error={error && error.displayName}
             name="displayName"
-            placeholder="Exemple : Marie R."
+            placeholder="Jean-Luc M."
             onChange={handleInputChange}
             value={formData.displayName}
           />

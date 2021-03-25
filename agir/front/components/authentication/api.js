@@ -132,12 +132,13 @@ export const updateProfile = async (data) => {
     formData = { ...formData, newsletter: data.newsletter };
   }
 
-  if (data.displayName)
-    formData = { ...formData, displayName: data.displayName };
-  if (data.firstName) formData = { ...formData, firstName: data.firstName };
-  if (data.lastName) formData = { ...formData, lastName: data.lastName };
-  if (data.phone) formData = { ...formData, contactPhone: data.phone };
-  if (data.mandat) formData = { ...formData, mandat: data.mandat };
+  if (data.isTellMore) {
+    formData = { ...formData, displayName: data.displayName || "" };
+    if (data.firstName) formData = { ...formData, firstName: data.firstName };
+    if (data.lastName) formData = { ...formData, lastName: data.lastName };
+    if (data.phone) formData = { ...formData, contactPhone: data.phone };
+    if (data.mandat) formData = { ...formData, mandat: data.mandat };
+  }
 
   const url = ENDPOINT.updateProfile;
   try {
