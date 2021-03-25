@@ -12,6 +12,7 @@ import {
 import Layout from "@agir/front/dashboardComponents/Layout";
 import Agenda from "@agir/events/agendaPage/Agenda";
 import Homepage from "@agir/front/app/Homepage/Home";
+import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
 
 const AgendaPage = (props) => {
   const isConnected = useSelector(getIsConnected);
@@ -26,12 +27,15 @@ const AgendaPage = (props) => {
   }
 
   return (
-    <Layout active="events" smallBackgroundColor={style.black25} hasBanner>
-      <Helmet>
-        <title>Événements - Action populaire</title>
-      </Helmet>
-      <Agenda {...props} />
-    </Layout>
+    <>
+      <TellMorePage />
+      <Layout active="events" smallBackgroundColor={style.black25} hasBanner>
+        <Helmet>
+          <title>Événements - Action populaire</title>
+        </Helmet>
+        <Agenda {...props} />
+      </Layout>
+    </>
   );
 };
 

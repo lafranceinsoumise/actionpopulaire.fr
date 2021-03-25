@@ -3,6 +3,7 @@ import LogoAP from "@agir/front/genericComponents/LogoAP";
 import bgDesktop from "@agir/front/genericComponents/images/login_bg_desktop.svg";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
+import Link from "@agir/front/app/Link";
 
 const LeftBlock = styled.div`
   width: 524px;
@@ -45,9 +46,11 @@ const LeftBlockDesktop = () => {
   return (
     <LeftBlock>
       <div>
-        <LogoAP
-          style={{ marginTop: "38px", paddingLeft: "37px", width: "200px" }}
-        />
+        <Link route="events">
+          <LogoAP
+            style={{ marginTop: "38px", paddingLeft: "37px", width: "200px" }}
+          />
+        </Link>
         <Title>
           Le réseau social d’action pour la candidature{" "}
           <InlineBlock>de Jean-Luc Mélenchon pour 2022</InlineBlock>

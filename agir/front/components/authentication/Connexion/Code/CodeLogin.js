@@ -26,9 +26,9 @@ const Container = styled.div`
   padding: 2rem;
 
   h1 {
-    font-size: 26px;
-    font-weight: 700,
-    line-height: 39px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.5;
     text-align: center;
     margin-bottom: 0px;
     margin-top: 1rem;
