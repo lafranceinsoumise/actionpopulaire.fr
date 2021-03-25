@@ -79,7 +79,11 @@ const HomeActions = () => {
         <img src={actImage} alt="distribution de tracts" />
         <h4>Agissez concrètement</h4>
         <p>formez-vous et convainquez des gens près de chez vous&nbsp;!</p>
-        <Button color="secondary" as="Link" route="info">
+        <Button
+          color="secondary"
+          as="a"
+          href="https://infos.actionpopulaire.fr/"
+        >
           Lisez les fiches pratiques
         </Button>
       </StyledArticle>

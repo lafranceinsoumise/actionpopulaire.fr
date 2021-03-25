@@ -55,7 +55,7 @@ const Home = () => {
           S'inscrire
         </Button>
         <Spacer size="11px" />
-        <Button color="white" as="Link" to="login">
+        <Button color="white" as="Link" route="login">
           Se connecter
         </Button>
       </header>

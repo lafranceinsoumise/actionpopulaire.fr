@@ -47,6 +47,7 @@ const MainBlock = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     width: 100%;
+    align-items: center;
   }
 `;
 
@@ -175,7 +176,7 @@ const TellMore = ({ dismiss }) => {
           <label style={{ marginBottom: "0" }}>Nom public</label> (obligatoire)
           <br />
           <span>
-            Le nom que pourrons voir les membres avec qui vous intéragissez.
+            Le nom que pourrons voir les membres avec qui vous interagissez.
             Indiquez par exemple votre prénom ou un pseudonyme.
           </span>
           <TextField
