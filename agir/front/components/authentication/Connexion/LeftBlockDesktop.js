@@ -21,7 +21,7 @@ const LeftBlock = styled.div`
 
 const Title = styled.div`
   text-align: left;
-  line-height: 21px;
+  line-height: 1.625rem;
   padding-left: 93px;
   padding-right: 10px;
 `;

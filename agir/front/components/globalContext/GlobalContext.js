@@ -34,7 +34,7 @@ const ProdProvider = ({ hasToasts = false, children }) => {
     if (!sessionContext) return;
 
     if (!sessionContext.user) {
-      self.caches.delete("session").catch((e) => {
+      self.caches?.delete("session").catch((e) => {
         if (e.name !== "SecurityError") {
           throw e;
         }

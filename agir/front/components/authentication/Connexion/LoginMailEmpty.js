@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
+import Link from "@agir/front/app/Link";
 import { login } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useHistory, useLocation } from "react-router-dom";
@@ -71,14 +72,21 @@ const LoginMailEmpty = () => {
   return (
     <>
       <Form>
-        <TextField
-          id="field"
-          label="Adresse e-mail"
-          error={error && (error.email || error.detail)}
-          placeholder="Adresse e-mail"
-          onChange={handleInputChange}
-          value={email}
-        />
+        <div>
+          <TextField
+            id="field"
+            label="Adresse e-mail"
+            error={error && (error.email || error.detail)}
+            placeholder="Adresse e-mail"
+            onChange={handleInputChange}
+            value={email}
+          />
+          {!!error.detail && (
+            <Link route="codeLogin">
+              Accéder à la page pour demander son code
+            </Link>
+          )}
+        </div>
         <div>
           <Button color="primary" onClick={handleSubmit}>
             Me connecter
