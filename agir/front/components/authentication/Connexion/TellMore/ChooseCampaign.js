@@ -1,5 +1,5 @@
-import Proptypes from "prop-types";
-import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -7,6 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import JLM_rounded from "@agir/front/genericComponents/images/JLM_rounded.png";
 import LFI_rounded from "@agir/front/genericComponents/images/LFI_rounded.png";
@@ -18,12 +19,10 @@ const RadioLabel = styled.div``;
 
 const Container = styled.div`
   display: flex;
-  min-height: 100vh;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
-  padding: 1.5rem;
+  padding: 3rem 1.5rem 1.5rem;
 
   @media (max-width: ${style.collapse}px) {
     align-items: stretch;
@@ -194,10 +193,8 @@ const InputRadio = styled.div`
   }
 `;
 
-const [is2022, isInsoumise] = [0, 1];
-
-const notificationList = {
-  0: [
+const NEWSLETTER_OPTIONS = {
+  is2022: [
     {
       label: "Grands événements de la campagne",
       value: "2022_exceptionnel",
@@ -224,7 +221,7 @@ const notificationList = {
       selected: false,
     },
   ],
-  1: [
+  isInsoumise: [
     {
       label: "Recevez des informations sur la France insoumise",
       value: "LFI",
@@ -233,55 +230,97 @@ const notificationList = {
   ],
 };
 
-// return array of newsletter value as string
-const filterNewsletter = (newsList) => {
-  if (!Array.isArray(newsList)) {
-    return [];
-  }
-  const res = newsList
-    .map((e) => {
-      if (e.selected) return e.value;
-    })
-    .filter((e) => {
-      if (e !== undefined) return e;
-    });
-  return res;
+const CampaignOption = (props) => {
+  const { value, img, label, selected, onChange } = props;
+
+  const handleChange = useCallback(() => {
+    onChange && onChange(value);
+  }, [value, onChange]);
+  return (
+    <RadioBlock onClick={handleChange} $checked={selected}>
+      <img src={img} alt="Jean-Luc Mélenchon" />
+      <span>{label}</span>
+      <InputRadio>
+        {selected ? <img src={checkCirclePrimary} alt="" /> : <div />}
+      </InputRadio>
+    </RadioBlock>
+  );
+};
+CampaignOption.propTypes = {
+  value: PropTypes.string,
+  label: PropTypes.string,
+  img: PropTypes.string,
+  selected: PropTypes.bool,
+  onChange: PropTypes.func,
+};
+
+const NewsletterOption = (props) => {
+  const { value, label, selected, onChange } = props;
+
+  const handleChange = useCallback(
+    (e) => {
+      onChange && onChange(value, e.target.checked);
+    },
+    [value, onChange]
+  );
+
+  return (
+    <CheckboxField
+      name={value}
+      label={label}
+      value={selected}
+      onChange={handleChange}
+    />
+  );
+};
+NewsletterOption.propTypes = {
+  value: PropTypes.string,
+  label: PropTypes.string,
+  selected: PropTypes.bool,
+  onChange: PropTypes.func,
 };
 
 const ChooseCampaign = ({ dismiss }) => {
-  const [notifs, setNotifs] = useState(null);
-  const [reasonChecked, setReasonChecked] = useState();
-  const [newsLetters, setNewsletters] = useState([]);
+  const [campaign, setCampaign] = useState();
+  const [newsletters, setNewsletters] = useState([]);
   const [submitted, setSubmitted] = useState(false);
 
   const fromSignup = true;
 
-  const handleReasonChecked = (value) => {
-    setReasonChecked(value);
-    setNotifs(notificationList[value]);
-    setNewsletters(filterNewsletter(notifs));
-  };
+  const handleCampaignChange = useCallback((value) => {
+    setCampaign(value);
+  }, []);
 
-  const handleToggleNotif = (index) => {
-    const newNotifs = [...notifs];
-    newNotifs[index].selected = !newNotifs[index].selected;
-    setNotifs(newNotifs);
-    setNewsletters(filterNewsletter(newNotifs));
-  };
+  const handleChangeNewsletter = useCallback((value, checked) => {
+    if (checked) {
+      setNewsletters((state) => [...state, value]);
+    } else {
+      setNewsletters((state) => state.filter((item) => item !== value));
+    }
+  }, []);
 
   const handleSubmit = async () => {
     setSubmitted(true);
     await updateProfile({
-      reasonChecked: reasonChecked,
-      newsletter: newsLetters,
+      is2022: campaign === "is2022",
+      isInsoumise: campaign === "isInsoumise",
+      newsletters,
     });
     setSubmitted(false);
     dismiss();
   };
 
   useEffect(() => {
-    setNewsletters(filterNewsletter(notifs));
-  }, [notifs]);
+    if (!campaign || !NEWSLETTER_OPTIONS[campaign]) {
+      setNewsletters([]);
+      return;
+    }
+    setNewsletters(
+      NEWSLETTER_OPTIONS[campaign]
+        .filter((option) => option.selected)
+        .map((option) => option.value)
+    );
+  }, [campaign]);
 
   return (
     <Container>
@@ -317,62 +356,52 @@ const ChooseCampaign = ({ dismiss }) => {
       </RadioLabel>
 
       <ContainerRadio>
-        <RadioBlock
-          onClick={() => handleReasonChecked(0)}
-          $checked={is2022 === reasonChecked}
-        >
-          <img src={JLM_rounded} alt="Jean-Luc Mélenchon" />
-          <span>La campagne présidentielle 2022</span>
-          <InputRadio>
-            {is2022 === reasonChecked ? (
-              <img src={checkCirclePrimary} alt="" />
-            ) : (
-              <div />
-            )}
-          </InputRadio>
-        </RadioBlock>
-        <RadioBlock
-          onClick={() => handleReasonChecked(1)}
-          $checked={isInsoumise === reasonChecked}
-          className="responsive-margin"
-        >
-          <img src={LFI_rounded} alt="La France Insoumise" />
-          <span>Une autre campagne de la France Insoumise</span>
-          <InputRadio>
-            {isInsoumise === reasonChecked ? (
-              <img src={checkCirclePrimary} alt="" />
-            ) : (
-              <div />
-            )}
-          </InputRadio>
-        </RadioBlock>
+        <CampaignOption
+          onChange={handleCampaignChange}
+          value="is2022"
+          selected={campaign === "is2022"}
+          img={JLM_rounded}
+          label="La campagne présidentielle 2022"
+        />
+        <Spacer size="1rem" />
+        <CampaignOption
+          onChange={handleCampaignChange}
+          value="isInsoumise"
+          selected={campaign === "isInsoumise"}
+          img={LFI_rounded}
+          label="Une autre campagne de la France Insoumise"
+        />
       </ContainerRadio>
 
       <div style={{ textAlign: "left", marginTop: "1.5rem" }}>
-        {is2022 === reasonChecked && (
+        {campaign === "is2022" && (
           <h2 style={{ textAlign: "left", marginBottom: "0.5rem" }}>
             Recevez des informations sur la campagne
           </h2>
         )}
-        {Array.isArray(notifs) &&
-          notifs.map((notif) => (
-            <CheckboxField
-              key={notif.value}
-              name={notif.value}
-              label={notif.label}
-              value={notif.selected}
-              onChange={() => handleToggleNotif(notif)}
+        {campaign &&
+          Array.isArray(NEWSLETTER_OPTIONS[campaign]) &&
+          NEWSLETTER_OPTIONS[campaign].map((option) => (
+            <NewsletterOption
+              key={option.value}
+              {...option}
+              selected={newsletters.includes(option.value)}
+              onChange={handleChangeNewsletter}
             />
           ))}
       </div>
 
-      <Button color="primary" onClick={handleSubmit} disabled={submitted}>
+      <Button
+        color="primary"
+        onClick={handleSubmit}
+        disabled={!campaign || submitted}
+      >
         Continuer
       </Button>
     </Container>
   );
 };
 ChooseCampaign.propTypes = {
-  dismiss: Proptypes.func.isRequired,
+  dismiss: PropTypes.func.isRequired,
 };
 export default ChooseCampaign;
