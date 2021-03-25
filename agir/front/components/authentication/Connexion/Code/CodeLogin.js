@@ -51,35 +51,26 @@ const Form = styled.div`
   box-sizing: border-box;
   margin: 0 auto;
   margin-top: 2rem;
-  display: flex;
   text-align: left;
-
-  Button {
-    margin-top: 1.5rem;
-    margin-left: 0.625rem;
-    width: 140px;
-    height: 41px;
-    justify-content: center;
-  }
-
-  & > :first-child {
-    max-width: 212px;
-    width: 100%;
-  }
+  display: grid;
+  grid-template-columns: 212px 140px;
+  grid-gap: 0.625rem;
+  width: 100%;
+  max-width: 600px;
+  justify-content: center;
 
   @media (max-width: ${style.collapse}px) {
-    flex-flow: wrap;
-    & > :first-child {
-      max-width: 100%;
-      width: 100%;
-    }
-    div {
-      width: 100%;
-      Button {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 0.875rem;
-      }
+    grid-template-columns: 100%;
+  }
+
+  ${Button} {
+    height: 41px;
+    justify-content: center;
+    margin-top: 1.5rem;
+    width: 100%;
+
+    @media (max-width: ${style.collapse}px) {
+      margin-top: 0;
     }
   }
 `;
@@ -104,6 +95,7 @@ const CodeConnexion = () => {
   let { data: session, mutate: mutate } = useSWR("/api/session/");
 
   const handleCode = useCallback((e) => {
+    setError({});
     setCode(e.target.value);
   }, []);
 
@@ -178,7 +170,7 @@ const CodeConnexion = () => {
           disabled={submitted}
         />
         <div>
-          <Button color="primary" disabled={!code || submitted}>
+          <Button color="primary" disabled={submitted}>
             Valider
           </Button>
         </div>
