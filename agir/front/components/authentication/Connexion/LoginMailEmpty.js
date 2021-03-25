@@ -66,7 +66,11 @@ const LoginMailEmpty = () => {
       return;
     }
     const route = routeConfig.codeLogin.getLink();
-    history.push(route, { email: email, code: result.data && result.data.code, next: next });
+    history.push(route, {
+      email: email,
+      code: result.data && result.data.code,
+      next: next,
+    });
   };
 
   return (
