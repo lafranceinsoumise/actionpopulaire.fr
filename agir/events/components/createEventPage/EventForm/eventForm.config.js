@@ -1,25 +1,6 @@
-import countries from "localized-countries/data/fr";
-
 import validate from "@agir/lib/utils/validate";
 
-const FIRST_COUNTRY_CODES = ["FR", "PT", "DZ", "MA", "TR", "IT", "GB", "ES"];
-const FIRST_COUNTRIES = FIRST_COUNTRY_CODES.map((countryCode) => ({
-  value: countryCode,
-  label: countries[countryCode],
-}));
-const OTHER_COUNTRIES = Object.keys(countries)
-  .map((countryCode) => {
-    if (!FIRST_COUNTRY_CODES.includes(countryCode)) {
-      return {
-        value: countryCode,
-        label: countries[countryCode],
-      };
-    }
-  })
-  .filter(Boolean)
-  .sort(({ label: label1 }, { label: label2 }) => label1.localeCompare(label2));
-
-export const COUNTRIES = [...FIRST_COUNTRIES, ...OTHER_COUNTRIES];
+import { COUNTRIES } from "@agir/front/formComponents/CountryField";
 
 export const EVENT_DEFAULT_DURATIONS = [
   {

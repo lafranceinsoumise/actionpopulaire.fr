@@ -69,13 +69,36 @@ export const signUp = async (data) => {
   const formData = {
     email: data.email,
     location_zip: data.postalCode,
+    location_country: data.country,
   };
   const url = ENDPOINT.signUp;
   try {
     const response = await axios.post(url, formData);
     result.data = response.data;
   } catch (e) {
-    result.error = (e.response && e.response.data) || e.message;
+    result.error = {};
+    if (!e.response || !e.response.data) {
+      result.error = e.message;
+      return result;
+    }
+    const {
+      email,
+      location_zip,
+      location_country,
+      non_field_errors,
+    } = e.response.data;
+    if (email) {
+      result.error.email = email;
+    }
+    if (location_zip) {
+      result.error.postalCode = location_zip;
+    }
+    if (location_country) {
+      result.error.country = location_country;
+    }
+    if (non_field_errors) {
+      result.error.global = non_field_errors;
+    }
   }
 
   return result;

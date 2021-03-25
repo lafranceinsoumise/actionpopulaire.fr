@@ -1,13 +1,11 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import SelectField from "@agir/front/formComponents/SelectField";
+import CountryField from "@agir/front/formComponents/CountryField";
 import TextField from "@agir/front/formComponents/TextField";
-
-import { COUNTRIES } from "./eventForm.config";
 
 const StyledField = styled.div`
   display: grid;
@@ -64,14 +62,9 @@ const LocationField = (props) => {
 
   const handleChangeCountry = useCallback(
     (country) => {
-      onChange && onChange(props.name, "country", country && country.value);
+      onChange && onChange(props.name, "country", country);
     },
     [props.name, onChange]
-  );
-
-  const selectedCountry = useMemo(
-    () => country && COUNTRIES.find((c) => c.value === country),
-    [country]
   );
 
   const displayAddress2 = useCallback(() => {
@@ -137,13 +130,12 @@ const LocationField = (props) => {
         disabled={disabled}
         error={error && error.city}
       />
-      <SelectField
+      <CountryField
         label="Pays"
         name="country"
         autoComplete="country-name"
         placeholder=""
-        value={selectedCountry}
-        options={COUNTRIES}
+        value={country}
         onChange={handleChangeCountry}
         required={required}
         disabled={disabled}
