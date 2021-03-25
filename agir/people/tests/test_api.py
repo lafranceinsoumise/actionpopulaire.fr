@@ -509,12 +509,13 @@ class SignupAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("location_zip", res.data)
 
-    def test_cannot_subscribe_with_invalid_zip(self):
-        self.client.logout()
-        data = {"email": "valid@ema.il", "location_zip": "not a ZIP"}
-        res = self.client.post("/api/inscription/", data=data)
-        self.assertEqual(res.status_code, 422)
-        self.assertIn("location_zip", res.data)
+    # TODO: Restore zip code validation with international zip code handling
+    # def test_cannot_subscribe_with_invalid_zip(self):
+    #     self.client.logout()
+    #     data = {"email": "valid@ema.il", "location_zip": "not a ZIP"}
+    #     res = self.client.post("/api/inscription/", data=data)
+    #     self.assertEqual(res.status_code, 422)
+    #     self.assertIn("location_zip", res.data)
 
     def test_can_subscribe_with_valid_data(self):
         self.client.logout()
