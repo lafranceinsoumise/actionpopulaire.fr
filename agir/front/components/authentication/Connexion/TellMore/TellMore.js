@@ -150,11 +150,11 @@ const TellMore = ({ dismiss }) => {
 
   const handleSubmit = async () => {
     setSubmitted(true);
-    setError({});
+    setError(null);
     const data = await updateProfile(formData);
-    setSubmitted(false);
     if (data.error) {
       setError(data.error);
+      setSubmitted(false);
       return;
     }
     dismiss();
