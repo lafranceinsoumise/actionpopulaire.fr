@@ -31,6 +31,10 @@ const CountryToggle = styled.button`
     outline: none;
     text-decoration: underline;
   }
+
+  @media (max-width: ${style.collapse}px) {
+    text-align: left;
+  }
 `;
 const InputGroup = styled.div`
   display: grid;
