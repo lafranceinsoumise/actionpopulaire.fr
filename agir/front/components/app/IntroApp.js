@@ -2,9 +2,9 @@ import React, { useCallback, useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
-import actImage from "@agir/front/app/Homepage/images/act.jpg";
-import meetImage from "@agir/front/app/Homepage/images/meet.jpg";
-import organizeImage from "@agir/front/app/Homepage/images/organize.jpg";
+import img1 from "@agir/front/genericComponents/images/introApp1.jpg";
+import img2 from "@agir/front/genericComponents/images/introApp2.jpg";
+import img3 from "@agir/front/genericComponents/images/introApp3.jpg";
 import logo from "@agir/front/genericComponents/images/logoActionPopulaire.png";
 
 const Mark = styled.span`
@@ -64,28 +64,13 @@ const BackgroundTriangle = styled.div`
 
 const WhiteTriangle = styled.div`
   width: 100%;
-<<<<<<< HEAD
-  background-color: ${style.primary500};
-  margin-top: -1px;
-  flex-basis: 120px;
-  flex-grow: 1;
-
-  display: flex;
-  flex-direction: column;
-
-  div:nth-child(1) {
-    flex-grow: 1;
-  }
-
-  div:nth-child(2) {
-=======
   height: 190px;
+  height: calc(100vh - 345px);
   div {
     position: absolute;
-    bottom: 0;
+    bottom: -1px;
     left: 0;
     width: 100%;
->>>>>>> 5bfe04df... styles: new design introApp
     background-color: white;
     height: 80px;
     clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
@@ -94,11 +79,8 @@ const WhiteTriangle = styled.div`
 
 const HeaderImage = styled.div`
   background-size: cover;
-  background-position: cover;
+  background-position: center;
   position: relative;
-  flex-basis: 90px;
-  flex-shrink: 1;
-  flex-grow: 0;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -118,6 +100,29 @@ const IntroDescriptionContainer = styled.div`
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
+  `;
+  
+const FixedBlock = styled.div`
+  padding-top: 0.5rem;
+  background-color: #fff;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 330px;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    max-width: 430px;
+    display: inline-block;
+    margin-bottom: 0;
+    margin-top: 0;
+  }
 `;
 
 const DescriptionContainer = styled.div`
@@ -143,7 +148,7 @@ const StyledButton = styled(Button)`
   height: 70px;
   font-size: 20px;
   justify-content: center;
-  margin-top: 2.5rem;
+  margin-top: 2rem;
 `;
 
 const items = [
@@ -154,7 +159,7 @@ const items = [
         d'autres membres et&nbsp;<InlineBlock>agissez ensemble !</InlineBlock>
       </>
     ),
-    image: meetImage,
+    image: img1,
   },
   {
     name: "Agissez concrètement",
@@ -164,7 +169,7 @@ const items = [
         <InlineBlock>du matériel</InlineBlock>
       </>
     ),
-    image: actImage,
+    image: img2,
   },
   {
     name: "Organisez et rejoignez",
@@ -173,7 +178,7 @@ const items = [
         une équipe de soutien&nbsp;<InlineBlock>autour de vous !</InlineBlock>
       </>
     ),
-    image: organizeImage,
+    image: img3,
   },
 ];
 
@@ -198,7 +203,7 @@ const IntroApp = () => {
             </WhiteTriangle>
           </HeaderImage>
 
-          <div style={{ paddingTop: "0.5rem" }}>
+          <FixedBlock>
             <p
               style={{
                 color: style.primary500,
@@ -217,12 +222,12 @@ const IntroApp = () => {
               Continuer
             </StyledButton>
 
-            <div style={{ marginTop: "2rem", marginBottom: "1.5rem" }}>
+            <div style={{ marginTop: "2rem" }}>
               <Mark $active={0 === index} />
               <Mark $active={1 === index} />
               <Mark $active={2 === index} />
             </div>
-          </IntroDescriptionContainer>
+          </FixedBlock>
         </Block>
       )}
       {showConnexion && (
