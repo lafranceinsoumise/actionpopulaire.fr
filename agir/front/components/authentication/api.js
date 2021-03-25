@@ -142,25 +142,16 @@ export const updateProfile = async (data) => {
     error: null,
   };
 
-  let formData = {};
-
-  if (data.reasonChecked !== undefined) {
-    formData = {
-      ...formData,
-      is2022: data.reasonChecked === 0,
-      isInsoumise: data.reasonChecked === 1,
-    };
-  }
-  if (data.newsletter) {
-    formData = { ...formData, newsletter: data.newsletter };
-  }
-
-  if (data.displayName)
-    formData = { ...formData, displayName: data.displayName };
-  if (data.firstName) formData = { ...formData, firstName: data.firstName };
-  if (data.lastName) formData = { ...formData, lastName: data.lastName };
-  if (data.phone) formData = { ...formData, contactPhone: data.phone };
-  if (data.mandat) formData = { ...formData, mandat: data.mandat };
+  let formData = {
+    is2022: data.is2022,
+    isInsoumise: data.isInsoumise,
+    newsletters: data.newsletters,
+    displayName: data.displayName,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    contactPhone: data.phone,
+    mandat: data.mandat,
+  };
 
   const url = ENDPOINT.updateProfile;
   try {
