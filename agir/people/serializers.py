@@ -159,7 +159,11 @@ class SubscriptionRequestSerializer(serializers.Serializer):
     )
 
     email = serializers.EmailField(required=True,)
-    location_zip = serializers.RegexField(regex=r"^[0-9]{5}$", required=True)
+    location_zip = serializers.RegexField(
+        regex=r"^[0-9]{5}$",
+        required=True,
+        error_messages={"invalid": "Indiquez un code postal valide"},
+    )
     first_name = serializers.CharField(
         max_length=person_fields["first_name"].max_length, required=False
     )
