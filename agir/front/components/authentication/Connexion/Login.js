@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import arrowRight from "@agir/front/genericComponents/images/arrow-right.svg";
 import chevronDown from "@agir/front/genericComponents/images/chevron-down.svg";
@@ -24,7 +24,6 @@ const ShowMore = styled.div`
 `;
 
 const ContainerConnexion = styled.div`
-  width: 400px;
   max-width: 100%;
 `;
 
@@ -32,7 +31,7 @@ const LoginMailButton = styled(Button)`
   margin-top: 0.5rem;
   margin-left: 0;
   max-width: 100%;
-  width: 400px;
+  width: 100%;
   justify-content: space-between;
 
   & + & {
@@ -100,7 +99,6 @@ const Login = () => {
               color="primary"
               onClick={() => loginBookmarkedMail(mail)}
               block
-              $block
             >
               {mail}
               <img src={arrowRight} style={{ color: "white" }} />
@@ -109,7 +107,14 @@ const Login = () => {
         </div>
       )}
 
-      {error && !!error.detail && <Toast>{error.detail}</Toast>}
+      {error && !!error.detail && (
+        <Toast>
+          {error.detail} <br />
+          <Link route="codeLogin">
+            Accéder à la page pour demander son code
+          </Link>
+        </Toast>
+      )}
 
       {bookmarkedEmails[0].length > 0 &&
         (!showMore ? (
@@ -124,12 +129,17 @@ const Login = () => {
           </div>
         ))}
 
-      {(showMore || !(bookmarkedEmails[0].length > 0)) && <LoginMailEmpty />}
-
-      <div style={{ textAlign: "center", margin: "20px", fontSize: "14px" }}>
-        OU
-      </div>
-      <LoginFacebook />
+      {(showMore || bookmarkedEmails[0]?.length === 0) && (
+        <>
+          <LoginMailEmpty />
+          <div
+            style={{ textAlign: "center", margin: "20px", fontSize: "14px" }}
+          >
+            OU
+          </div>
+          <LoginFacebook />
+        </>
+      )}
     </ContainerConnexion>
   );
 };
