@@ -318,7 +318,7 @@ class PersonMandatField(serializers.Field):
         ]
 
     def to_internal_value(self, data):
-        if not hasattr(data, "mandat") or not data["mandat"]:
+        if not data.get("mandat", None):
             return None
         mandat_type = data.pop("mandat")
         mandat = None
@@ -343,12 +343,14 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
         label="Prénom",
         max_length=person_fields["first_name"].max_length,
         required=False,
+        allow_blank=True,
         source="first_name",
     )
     lastName = serializers.CharField(
         label="Nom",
         max_length=person_fields["last_name"].max_length,
         required=False,
+        allow_blank=True,
         source="last_name",
     )
     displayName = serializers.CharField(
@@ -360,7 +362,10 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     )
     image = MediaURLField(required=False, label="Image de profil")
     contactPhone = PhoneNumberField(
-        source="contact_phone", required=False, label="Numéro de téléphone"
+        source="contact_phone",
+        required=False,
+        allow_blank=True,
+        label="Numéro de téléphone",
     )
 
     isInsoumise = serializers.BooleanField(source="is_insoumise", required=False)
@@ -375,7 +380,7 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     gender = serializers.CharField(required=False)
 
     zip = serializers.CharField(
-        required=False, source="location_zip", label="Code postal"
+        required=False, allow_blank=True, source="location_zip", label="Code postal"
     )
 
     class Meta:
