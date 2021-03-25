@@ -3,6 +3,8 @@ import Button from "@agir/front/genericComponents/Button";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import img1 from "@agir/front/genericComponents/images/introApp1.jpg";
+import img2 from "@agir/front/genericComponents/images/introApp2.jpg";
+import img3 from "@agir/front/genericComponents/images/introApp3.jpg";
 import logo from "@agir/front/genericComponents/images/logoActionPopulaire.png";
 
 const Mark = styled.span`
@@ -59,10 +61,10 @@ const BackgroundTriangle = styled.div`
 
 const WhiteTriangle = styled.div`
   width: 100%;
-  height: 190px;
+  height: calc(100vh - 345px);
   div {
     position: absolute;
-    bottom: 0;
+    bottom: -1px;
     left: 0;
     width: 100%;
     background-color: white;
@@ -73,9 +75,8 @@ const WhiteTriangle = styled.div`
 
 const HeaderImage = styled.div`
   background-size: cover;
-  background-position: cover;
+  background-position: center;
   position: relative;
-  padding-bottom: 90px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -86,6 +87,29 @@ const HeaderImage = styled.div`
     max-width: 358px;
     position: absolute;
     bottom: 0;
+  }
+`;
+
+const FixedBlock = styled.div`
+  padding-top: 0.5rem;
+  background-color: #fff;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 330px;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    max-width: 430px;
+    display: inline-block;
+    margin-bottom: 0;
+    margin-top: 0;
   }
 `;
 
@@ -111,7 +135,7 @@ const StyledButton = styled(Button)`
   height: 70px;
   font-size: 20px;
   justify-content: center;
-  margin-top: 2.5rem;
+  margin-top: 2rem;
 `;
 
 const items = [
@@ -132,7 +156,7 @@ const items = [
         <InlineBlock>et affiches !</InlineBlock>
       </>
     ),
-    image: img1,
+    image: img2,
   },
   {
     name: "Organisez et rejoignez",
@@ -141,7 +165,7 @@ const items = [
         une équipe de soutien&nbsp;<InlineBlock>autour de vous !</InlineBlock>
       </>
     ),
-    image: img1,
+    image: img3,
   },
 ];
 
@@ -170,7 +194,7 @@ const IntroApp = () => {
             </WhiteTriangle>
           </HeaderImage>
 
-          <div style={{ paddingTop: "0.5rem" }}>
+          <FixedBlock>
             <p
               style={{
                 color: style.primary500,
@@ -189,12 +213,12 @@ const IntroApp = () => {
               Continuer
             </StyledButton>
 
-            <div style={{ marginTop: "3rem", marginBottom: "1.5rem" }}>
+            <div style={{ marginTop: "2rem" }}>
               <Mark $active={0 === index} />
               <Mark $active={1 === index} />
               <Mark $active={2 === index} />
             </div>
-          </div>
+          </FixedBlock>
         </Block>
       )}
       {showConnexion && (
