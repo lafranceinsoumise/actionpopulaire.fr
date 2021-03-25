@@ -7,7 +7,7 @@ import PushModal from "@agir/front/allPages/PushModal";
 
 export default function App() {
   return (
-    <GlobalContextProvider>
+    <GlobalContextProvider hasRouter>
       <Router>
         <Helmet>
           <title>Plateforme d'action - Action populaire</title>

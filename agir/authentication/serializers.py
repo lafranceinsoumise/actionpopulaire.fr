@@ -65,24 +65,36 @@ class SessionSerializer(serializers.Serializer):
         return 0
 
     def get_user_routes(self, request):
+        routes = {
+            "search": reverse("dashboard_search"),
+            "signup": reverse("signup"),
+            "login": reverse("short_code_login"),
+            "help": "https://infos.actionpopulaire.fr",
+            "logout": reverse("disconnect"),
+            "personalInformation": reverse("personal_information"),
+            "nspReferral": front_url("nsp_referral"),
+        }
+
         if request.user.is_authenticated:
             person = request.user.person
 
             if person.is_insoumise:
-                routes = {
-                    "materiel": "https://materiel.lafranceinsoumise.fr/",
-                    "resources": "https://lafranceinsoumise.fr/fiches_pour_agir/",
-                    "news": "https://lafranceinsoumise.fr/actualites/",
-                    "thematicTeams": front_url("thematic_teams_list"),
-                    "nspReferral": front_url("nsp_referral"),
-                }
+                routes.update(
+                    {
+                        "materiel": "https://materiel.lafranceinsoumise.fr/",
+                        "resources": "https://lafranceinsoumise.fr/fiches_pour_agir/",
+                        "news": "https://lafranceinsoumise.fr/actualites/",
+                        "thematicTeams": front_url("thematic_teams_list"),
+                    }
+                )
             else:
-                routes = {
-                    "materiel": "https://noussommespour.fr/boutique/",
-                    "resources": "https://noussommespour.fr/sinformer/",
-                    "donations": "https://noussommespour.fr/don/",
-                    "nspReferral": front_url("nsp_referral"),
-                }
+                routes.update(
+                    {
+                        "materiel": "https://noussommespour.fr/boutique/",
+                        "resources": "https://noussommespour.fr/sinformer/",
+                        "donations": "https://noussommespour.fr/don/",
+                    }
+                )
 
             person_groups = (
                 SupportGroup.objects.filter(memberships__person=person)

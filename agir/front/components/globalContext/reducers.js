@@ -11,6 +11,13 @@ export const domain = (state = "https://actionpopulaire.fr", action) => {
   return state;
 };
 
+export const hasRouter = (state = false, action) => {
+  if (action.type === ACTION_TYPE.INIT_ACTION) {
+    return !!action.hasRouter;
+  }
+  return state;
+};
+
 export const isSessionLoaded = (state = false, action) => {
   if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
     return true;
@@ -268,6 +275,8 @@ export const isUpdatingMessages = (state = false, action) => {
 // Selectors
 export const getDomain = (state) => state.domain;
 
+export const getHasRouter = (state) => state.hasRouter;
+
 export const getHasFeedbackButton = (state) => state.hasFeedbackButton;
 
 export const getIsSessionLoaded = (state) => state.isSessionLoaded;
@@ -314,6 +323,7 @@ export const getIsUpdatingMessages = (state) => state.isUpdatingMessages;
 
 // Root reducer
 const reducers = {
+  hasRouter,
   hasFeedbackButton,
   isSessionLoaded,
   is2022,

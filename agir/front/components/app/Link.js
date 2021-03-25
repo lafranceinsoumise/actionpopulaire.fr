@@ -3,7 +3,7 @@ import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getRoutes } from "@agir/front/globalContext/reducers";
+import { getHasRouter, getRoutes } from "@agir/front/globalContext/reducers";
 import { routeConfig, getRouteByPathname } from "@agir/front/app/routes.config";
 
 const ExternalLink = (props) => {
@@ -24,18 +24,19 @@ ExternalLink.propTypes = {
 const RouteLink = (props) => {
   const { route, ...rest } = props;
   const routes = useSelector(getRoutes);
+  const hasRouter = useSelector(getHasRouter);
 
-  const { url, isExternal = false } = React.useMemo(() => {
+  const { url, isInternal = false } = React.useMemo(() => {
     if (routes[route]) {
       return {
         url: routes[route],
-        isExternal: !getRouteByPathname(routes[route]),
+        isInternal: !!getRouteByPathname(routes[route]),
       };
     }
     if (routeConfig[route]) {
       return {
         url: routeConfig[route].getLink(),
-        isExternal: false,
+        isInternal: true,
       };
     }
     return {
@@ -43,10 +44,10 @@ const RouteLink = (props) => {
     };
   }, [routes, route]);
 
-  return isExternal ? (
-    <ExternalLink {...rest} href={url} />
-  ) : (
+  return hasRouter && isInternal ? (
     <RouterLink {...rest} to={url} />
+  ) : (
+    <ExternalLink {...rest} href={url} />
   );
 };
 RouteLink.propTypes = {
