@@ -102,7 +102,7 @@
       "route": "contact"
     },
     {
-      "id": "signOut",
+      "id": "logout",
       "title": "Déconnexion",
       "to": "logout"
     }

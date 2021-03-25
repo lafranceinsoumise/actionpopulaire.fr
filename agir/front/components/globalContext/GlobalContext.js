@@ -18,10 +18,10 @@ const log = logger(__filename);
 
 const GlobalContext = React.createContext({});
 
-const ProdProvider = ({ hasToasts = false, children }) => {
+const ProdProvider = ({ hasRouter = false, hasToasts = false, children }) => {
   const [state, dispatch] = useReducer(
     rootReducer,
-    rootReducer({}, initFromScriptTag()),
+    rootReducer({}, initFromScriptTag(hasRouter)),
     (state) => state,
     "GC"
   );
@@ -64,23 +64,29 @@ const DevProvider = (props) => {
 DevProvider.propTypes = ProdProvider.propTypes = {
   children: PropTypes.element,
   hasToasts: PropTypes.bool,
+  hasRouter: PropTypes.bool,
 };
 
 export const GlobalContextProvider =
   process.env.NODE_ENV === "production" ? ProdProvider : DevProvider;
 
-export const TestGlobalContextProvider = ({ children, value }) => {
+export const TestGlobalContextProvider = ({
+  hasRouter = false,
+  children,
+  value,
+}) => {
   const [state] = useReducer(rootReducer, rootReducer({}, initFromScriptTag()));
   const doDispatch = useMemo(() => () => {}, []);
   const currentState = useMemo(
     () => ({
       state: {
+        hasRouter,
         ...state,
         ...value,
       },
       dispatch: doDispatch,
     }),
-    [state, value, doDispatch]
+    [hasRouter, state, value, doDispatch]
   );
 
   return (
@@ -90,6 +96,7 @@ export const TestGlobalContextProvider = ({ children, value }) => {
   );
 };
 TestGlobalContextProvider.propTypes = {
+  hasRouter: ProdProvider.bool,
   children: PropTypes.node,
   value: PropTypes.object,
 };
