@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Button from "@agir/front/genericComponents/Button";
-import TextField from "@agir/front/formComponents/TextField";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
+import useSWR from "swr";
+
 import style from "@agir/front/genericComponents/_variables.scss";
+
+import Button from "@agir/front/genericComponents/Button";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import TextField from "@agir/front/formComponents/TextField";
+
 import { checkCode } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
-import { useHistory, useLocation } from "react-router-dom";
 import { useBookmarkedEmails } from "@agir/front/authentication/hooks";
-import useSWR from "swr";
 import {
   useSelector,
   useDispatch,
@@ -16,7 +19,7 @@ import {
 import { getUser } from "@agir/front/globalContext/reducers";
 import { setSessionContext } from "@agir/front/globalContext/actions";
 
-const Container = styled.div`
+const Container = styled.form`
   display: flex;
   min-height: 100vh;
   flex-direction: column;
@@ -96,7 +99,7 @@ const CodeConnexion = () => {
   const [code, setCode] = useState("");
   const [error, setError] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  const bookmarkedEmails = useBookmarkedEmails();
+  const [, bookmarkEmail] = useBookmarkedEmails();
 
   let { data: session, mutate: mutate } = useSWR("/api/session/");
 
@@ -104,17 +107,23 @@ const CodeConnexion = () => {
     setCode(e.target.value);
   }, []);
 
-  const handleSubmit = async () => {
-    setSubmitted(true);
-    setError({});
-    const data = await checkCode(code);
-    setSubmitted(false);
-    if (data.error) {
-      setError(data.error);
-      return;
-    }
-    mutate("/api/session/");
-  };
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setSubmitted(true);
+      setError({});
+      const data = await checkCode(code);
+      setSubmitted(false);
+
+      if (data.error) {
+        setError(data.error);
+        return;
+      }
+
+      mutate("/api/session/");
+    },
+    [code, mutate]
+  );
 
   useEffect(() => {
     dispatch(setSessionContext(session));
@@ -122,29 +131,39 @@ const CodeConnexion = () => {
 
   useEffect(() => {
     if (!user) return;
-    // add to bookmarkedEmails
-    bookmarkedEmails[1](location.state.email);
 
-    if (!!location.state.next) {
-      history.push(location.state.next);
-      return;
+    if (location.state) {
+      location.state.email && bookmarkEmail(location.state.email);
+
+      if (location.state.next) {
+        history.push(location.state.next);
+        return;
+      }
     }
+
     const route = routeConfig.events.getLink();
     history.push(route);
-  }, [user]);
+  }, [user, bookmarkEmail, location, history]);
 
   return (
-    <Container>
+    <Container onSubmit={handleSubmit}>
       <RawFeatherIcon name="mail" width="41px" height="41px" />
 
       <h1>Votre code de connexion vous a été envoyé par e-mail</h1>
 
-      {!!location.state?.code && <LocalCode>{location.state.code}</LocalCode>}
+      {location.state && location.state.code && (
+        <LocalCode>{location.state.code}</LocalCode>
+      )}
 
       <p style={{ marginTop: "2rem" }}>
-        Entrez le code de connexion que nous avons envoyé à{" "}
-        <strong>{location.state?.email}</strong>
+        Entrez le code de connexion que nous avons envoyé{" "}
+        {location.state && location.state.email && (
+          <>
+            à <strong>{location.state.email}</strong>
+          </>
+        )}
       </p>
+
       <p style={{ marginBottom: "0" }}>
         Si l’adresse e-mail n’est pas reconnue, il vous sera proposé de vous
         inscrire.
@@ -156,9 +175,10 @@ const CodeConnexion = () => {
           label="Code de connexion"
           onChange={handleCode}
           value={code}
+          disabled={submitted}
         />
         <div>
-          <Button color="primary" onClick={handleSubmit} disabled={submitted}>
+          <Button color="primary" disabled={!code || submitted}>
             Valider
           </Button>
         </div>
