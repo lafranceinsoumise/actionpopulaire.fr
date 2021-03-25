@@ -12,7 +12,7 @@ const TellMorePage = () => {
   );
   const [hasTellMore, dismissTellMore] = useCustomAnnouncement("tellMore");
 
-  if ((location.pathname !== "/bienvenue/") && (hasCampaign || hasTellMore))
+  if (location.pathname !== "/bienvenue/" && (hasCampaign || hasTellMore))
     return <Redirect to="/bienvenue/" />;
 
   if (hasCampaign) return <ChooseCampaign dismiss={dismissCampaign} />;

@@ -28,7 +28,7 @@ const AgendaPage = (props) => {
 
   return (
     <>
-      <TellMorePage/>
+      <TellMorePage />
       <Layout active="events" smallBackgroundColor={style.black25} hasBanner>
         <Helmet>
           <title>Événements - Action populaire</title>

@@ -6,6 +6,7 @@ import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
+import { Hide } from "@agir/front/genericComponents/grid";
 import { updateProfile, getProfile } from "@agir/front/authentication/api";
 
 const LeftBlock = styled.div`
@@ -174,8 +175,8 @@ const TellMore = ({ dismiss }) => {
           <label style={{ marginBottom: "0" }}>Nom public</label> (obligatoire)
           <br />
           <span>
-            Le nom que pourrons voir les membres avec qui vous intéragissez. Indiquez par exemple votre
-            prénom ou un pseudonyme.
+            Le nom que pourrons voir les membres avec qui vous intéragissez.
+            Indiquez par exemple votre prénom ou un pseudonyme.
           </span>
           <TextField
             error={error && error.displayName}
@@ -255,6 +256,7 @@ const TellMore = ({ dismiss }) => {
           >
             Enregistrer
           </Button>
+          {!showMandat && <Hide under style={{ paddingBottom: "79px" }}></Hide>}
         </div>
       </MainBlock>
     </div>
