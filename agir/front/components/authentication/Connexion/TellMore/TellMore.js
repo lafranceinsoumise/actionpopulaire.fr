@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from "react";
-import Button from "@agir/front/genericComponents/Button";
-import TextField from "@agir/front/formComponents/TextField";
-import SelectField from "@agir/front/formComponents/SelectField";
-import CheckboxField from "@agir/front/formComponents/CheckboxField";
+import PropTypes from "prop-types";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
+
 import style from "@agir/front/genericComponents/_variables.scss";
-import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
+
+import Button from "@agir/front/genericComponents/Button";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import { Hide } from "@agir/front/genericComponents/grid";
+import PhoneField from "@agir/front/formComponents/PhoneField";
+import SelectField from "@agir/front/formComponents/SelectField";
+import TextField from "@agir/front/formComponents/TextField";
+
 import { updateProfile, getProfile } from "@agir/front/authentication/api";
+
+import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
 
 const LeftBlock = styled.div`
   width: 40%;
@@ -16,6 +22,7 @@ const LeftBlock = styled.div`
   position: relative;
   align-items: center;
   justify-content: flex-end;
+
   @media (max-width: ${style.collapse}px) {
     display: none;
   }
@@ -31,9 +38,15 @@ const MainBlock = styled.div`
   font-size: 13px;
   padding: 32px;
 
+  @media (max-width: ${style.collapse}px) {
+    width: 100%;
+    align-items: center;
+  }
+
   input {
     border-color: #c4c4c4;
   }
+
   label {
     font-weight: 600;
   }
@@ -44,50 +57,45 @@ const MainBlock = styled.div`
     font-weight: 700;
     font-size: 2rem;
   }
-
-  @media (max-width: ${style.collapse}px) {
-    width: 100%;
-    align-items: center;
-  }
 `;
 
 const InputGroup = styled.div`
   display: inline-flex;
   justify-content: space-between;
   width: 100%;
+
   > div:nth-child(1) {
     width: 155px;
   }
+
   > div:nth-child(2) {
     width: 346px;
   }
 
   @media (max-width: ${style.collapse}px) {
-    display:block;
+    display: block;
+
     > div:nth-child(1) {
       width: 100%;
     }
+
     > div:nth-child(2) {
       width: 100%;
+    }
   }
 `;
 
-const optional = <span style={{ fontWeight: 400 }}>(facultatif)</span>;
-const defaultData = {
+const DEFAULT_DATA = {
   displayName: "",
   firstName: "",
   lastName: "",
-  phone: "",
-  postalCode: "",
-  mandat: [],
+  contactPhone: "",
+  zip: "",
+  mandat: null,
 };
-const mandatList = [
+const MANDAT_OPTIONS = [
   {
-    label: "Maire",
-    value: "maire",
-  },
-  {
-    label: "Autre mandat municipal",
+    label: "Mandat municipal",
     value: "municipal",
   },
   {
@@ -101,65 +109,61 @@ const mandatList = [
 ];
 
 const TellMore = ({ dismiss }) => {
-  const [formData, setFormData] = useState(defaultData);
-  const [showMandat, setShowMandat] = useState(false);
-  const [mandat, setMandat] = useState([]);
-  const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState(DEFAULT_DATA);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState({});
 
-  const getProfileInfos = async () => {
+  const getProfileInfos = useCallback(async () => {
+    setIsLoading(true);
     const { data } = await getProfile();
-
+    setIsLoading(false);
     setFormData({
-      displayName: data.displayName,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      phone: data.contactPhone,
-      postalCode: data.zip,
-      mandat: data.mandat,
+      displayName: data.displayName || DEFAULT_DATA.displayName,
+      firstName: data.firstName || DEFAULT_DATA.firstName,
+      lastName: data.lastName || DEFAULT_DATA.lastName,
+      contactPhone: data.contactPhone || DEFAULT_DATA.contactPhone,
+      zip: data.zip || DEFAULT_DATA.zip,
+      mandat:
+        Array.isArray(data.mandat) && data.mandat.length > 0
+          ? data.mandat[0]
+          : null,
     });
-    if (data.mandat?.length > 0) {
-      setShowMandat(true);
-      setMandat(mandatList[0]);
-    }
-  };
-
-  useEffect(() => {
-    getProfileInfos();
   }, []);
 
-  const handleInputChange = (e) => {
-    const newFormData = { ...formData };
-    newFormData[e.target.name] = e.target.value;
-    setFormData(newFormData);
-  };
+  const handleInputChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormData((formData) => ({
+      ...formData,
+      [name]: value,
+    }));
+  }, []);
 
-  const toggleShowMandat = () => {
-    const isMandat = !showMandat;
-    setShowMandat(isMandat);
-    if (isMandat) {
-      setMandat(mandatList[0]);
-      return;
-    }
-    setMandat([]);
-  };
+  const toggleShowMandat = useCallback(() => {
+    setFormData((formData) => ({
+      ...formData,
+      mandat: formData.mandat ? null : MANDAT_OPTIONS[0].value,
+    }));
+  }, []);
 
-  const handleMandateChange = (e) => {
-    setMandat(e);
-    setFormData({ ...formData, mandat: [e.value] });
-  };
+  const handleChangeMandat = useCallback((option) => {
+    setFormData((formData) => ({ ...formData, mandat: option.value }));
+  }, []);
 
-  const handleSubmit = async () => {
-    setSubmitted(true);
+  const handleSubmit = useCallback(async () => {
+    setIsLoading(true);
     setError(null);
     const data = await updateProfile(formData);
+    setIsLoading(false);
     if (data.error) {
       setError(data.error);
-      setSubmitted(false);
       return;
     }
     dismiss();
-  };
+  }, [dismiss, formData]);
+
+  useEffect(() => {
+    getProfileInfos();
+  }, [getProfileInfos]);
 
   return (
     <div style={{ display: "flex" }}>
@@ -185,42 +189,60 @@ const TellMore = ({ dismiss }) => {
             placeholder="Exemple : Marie R."
             onChange={handleInputChange}
             value={formData.displayName}
+            disabled={isLoading}
           />
           <TextField
-            label={<>Prénom {optional}</>}
+            label={
+              <>
+                Prénom <span style={{ fontWeight: 400 }}>(facultatif)</span>
+              </>
+            }
             name="firstName"
             placeholder=""
             onChange={handleInputChange}
             value={formData.firstName}
+            disabled={isLoading}
           />
           <TextField
-            label={<>Nom {optional}</>}
+            label={
+              <>
+                Nom <span style={{ fontWeight: 400 }}>(facultatif)</span>
+              </>
+            }
             id="lastName"
             name="lastName"
             placeholder=""
             onChange={handleInputChange}
             value={formData.lastName}
+            disabled={isLoading}
           />
           <InputGroup>
             <div>
               <TextField
                 label="Code postal"
-                id="postalCode"
+                id="zip"
                 error={error && error.zip}
-                name="postalCode"
+                name="zip"
                 placeholder=""
                 onChange={handleInputChange}
-                value={formData.postalCode}
+                value={formData.zip}
+                disabled={isLoading}
               />
             </div>
             <div>
-              <TextField
-                label={<>Numéro de téléphone {optional}</>}
-                id="phone"
-                error={error && error.phone}
-                name="phone"
+              <PhoneField
+                label={
+                  <>
+                    Numéro de téléphone{" "}
+                    <span style={{ fontWeight: 400 }}>(facultatif)</span>
+                  </>
+                }
+                id="contactPhone"
+                name="contactPhone"
+                error={error && error.contactPhone}
                 onChange={handleInputChange}
-                value={formData.phone}
+                value={formData.contactPhone}
+                disabled={isLoading}
               />
             </div>
           </InputGroup>
@@ -228,25 +250,29 @@ const TellMore = ({ dismiss }) => {
             <CheckboxField
               name="mandat"
               label="Je suis élu·e"
-              value={showMandat}
+              value={formData.mandat !== null}
               onChange={toggleShowMandat}
+              disabled={isLoading}
             />
           </div>
-          {showMandat && (
+          {formData.mandat !== null && (
             <div style={{ marginTop: "10px" }}>
               <SelectField
                 label="Mandat"
                 name="mandat"
-                value={mandat}
-                options={mandatList}
-                onChange={handleMandateChange}
+                value={MANDAT_OPTIONS.find(
+                  (option) => option.value === formData.mandat
+                )}
+                options={MANDAT_OPTIONS}
+                onChange={handleChangeMandat}
+                disabled={isLoading}
               />
             </div>
           )}
           <Button
             color="primary"
             onClick={handleSubmit}
-            disabled={submitted}
+            disabled={isLoading}
             style={{
               width: "356px",
               maxWidth: "100%",
@@ -257,11 +283,16 @@ const TellMore = ({ dismiss }) => {
           >
             Enregistrer
           </Button>
-          {!showMandat && <Hide under style={{ paddingBottom: "79px" }}></Hide>}
+          {formData.mandat === null && (
+            <Hide under style={{ paddingBottom: "79px" }}></Hide>
+          )}
         </div>
       </MainBlock>
     </div>
   );
 };
 
+TellMore.propTypes = {
+  dismiss: PropTypes.func.isRequired,
+};
 export default TellMore;
