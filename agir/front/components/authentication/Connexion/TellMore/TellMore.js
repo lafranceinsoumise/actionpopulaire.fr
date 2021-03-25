@@ -174,7 +174,7 @@ const TellMore = ({ dismiss }) => {
           <label style={{ marginBottom: "0" }}>Nom public</label> (obligatoire)
           <br />
           <span>
-            Le nom que tout le monde pourra voir. Indiquez par exemple votre
+            Le nom que pourrons voir les membres avec qui vous intéragissez. Indiquez par exemple votre
             prénom ou un pseudonyme.
           </span>
           <TextField
@@ -225,7 +225,7 @@ const TellMore = ({ dismiss }) => {
           <div style={{ marginTop: "0.625rem" }}>
             <CheckboxField
               name="mandat"
-              label="J'ai un mandat"
+              label="Je suis élu·e"
               value={showMandat}
               onChange={toggleShowMandat}
             />
@@ -249,6 +249,7 @@ const TellMore = ({ dismiss }) => {
               width: "356px",
               maxWidth: "100%",
               marginTop: "1rem",
+              marginBottom: "2rem",
               justifyContent: "center",
             }}
           >
