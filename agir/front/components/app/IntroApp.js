@@ -1,8 +1,10 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
-import img1 from "@agir/front/genericComponents/images/introApp1.jpg";
+import actImage from "@agir/front/app/Homepage/images/act.jpg";
+import meetImage from "@agir/front/app/Homepage/images/meet.jpg";
+import organizeImage from "@agir/front/app/Homepage/images/organize.jpg";
 import logo from "@agir/front/genericComponents/images/logoActionPopulaire.png";
 
 const Mark = styled.span`
@@ -34,6 +36,7 @@ const BlockConnexion = styled.div`
   flex-direction: column;
   justify: center;
   align-items: center;
+  height: 100vh;
 `;
 
 const ButtonContainer = styled.div`
@@ -42,7 +45,7 @@ const ButtonContainer = styled.div`
   flex-direction: column;
   width: 100%;
   align-items: center;
-  padding: 1rem;
+  padding: 2rem;
 `;
 
 const BackgroundTriangle = styled.div`
@@ -96,6 +99,7 @@ const DescriptionContainer = styled.div`
   align-items: center;
   position: relative;
   text-align: center;
+  flex-grow: 1;
 `;
 
 const InlineBlock = styled.span`
@@ -119,7 +123,7 @@ const items = [
         d'autres membres et&nbsp;<InlineBlock>agissez ensemble !</InlineBlock>
       </>
     ),
-    image: img1,
+    image: meetImage,
   },
   {
     name: "Agissez concrètement",
@@ -129,7 +133,7 @@ const items = [
         <InlineBlock>et affiches !</InlineBlock>
       </>
     ),
-    image: img1,
+    image: actImage,
   },
   {
     name: "Organisez et rejoignez",
@@ -138,7 +142,7 @@ const items = [
         une équipe de soutien&nbsp;<InlineBlock>autour de vous !</InlineBlock>
       </>
     ),
-    image: img1,
+    image: organizeImage,
   },
 ];
 
@@ -151,20 +155,16 @@ const IntroApp = () => {
     setIndex((index) => index + 1);
   }, []);
 
-  const handleClickBack = useCallback(() => {
-    setIndex(0);
-  }, []);
-
   return (
     <>
       {!showConnexion && (
         <Block>
           <HeaderImage>
             <PurpleTriangle style={{ paddingTop: "120px" }}>
-              <div></div>
+              <div />
             </PurpleTriangle>
 
-            <img src={items[index].image} />
+            <img alt="Illustration" src={items[index].image} />
           </HeaderImage>
 
           <div style={{ paddingTop: "47px" }}>
@@ -198,35 +198,29 @@ const IntroApp = () => {
         <BlockConnexion>
           <DescriptionContainer>
             <div>
-              <img src={logo} alt="" style={{ maxWidth: "300px" }} />
-              <p
-                style={{
-                  fontSize: "1.375rem",
-                  fontSize: "20px",
-                  paddingTop: "2rem",
-                }}
-              >
-                Agissez concrètement dans votre quartier et faites gagner
-                Jean-Luc Mélenchon&nbsp;
-                <InlineBlock>en 2022 !</InlineBlock>
-              </p>
+              <img
+                src={logo}
+                alt=""
+                style={{ maxWidth: "300px", marginTop: "2rem" }}
+              />
             </div>
           </DescriptionContainer>
 
           <BackgroundTriangle>
-            <div></div>
+            <div />
           </BackgroundTriangle>
 
           <ButtonContainer>
-            <StyledButton color="primary" onClick={handleClickBack}>
+            <StyledButton color="primary" as="Link" route="signup">
               Je crée mon compte
             </StyledButton>
             <StyledButton
               color="secondary"
-              onClick={handleClickBack}
               style={{ marginTop: "0.5rem", marginLeft: "0px" }}
+              as="Link"
+              route="login"
             >
-              Je dispose déjà d'un compte
+              Je me connecte
             </StyledButton>
           </ButtonContainer>
         </BlockConnexion>
