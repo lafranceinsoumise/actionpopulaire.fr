@@ -60,13 +60,13 @@ const LoginMailEmpty = () => {
 
   const handleSubmit = async () => {
     setError({});
-    const data = await login(email);
-    if (data.error) {
-      setError(data.error);
+    const result = await login(email);
+    if (result.error) {
+      setError(result.error);
       return;
     }
     const route = routeConfig.codeLogin.getLink();
-    history.push(route, { email: email, code: data.data.code, next: next });
+    history.push(route, { email: email, code: result.data && result.data.code, next: next });
   };
 
   return (
