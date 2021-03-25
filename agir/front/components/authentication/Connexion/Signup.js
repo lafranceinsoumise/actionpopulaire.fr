@@ -1,33 +1,65 @@
-import React, { useState } from "react";
-import Button from "@agir/front/genericComponents/Button";
-import TextField from "@agir/front/formComponents/TextField";
-import CheckboxField from "@agir/front/formComponents/CheckboxField";
-import Toast from "@agir/front/genericComponents/Toast";
-import style from "@agir/front/genericComponents/_variables.scss";
+import React, { useCallback, useState } from "react";
+import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
+
+import style from "@agir/front/genericComponents/_variables.scss";
+
+import { BlockSwitchLink } from "./styledComponents";
+import Button from "@agir/front/genericComponents/Button";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
+import CountryField from "@agir/front/formComponents/CountryField";
 import Link from "@agir/front/app/Link";
+import TextField from "@agir/front/formComponents/TextField";
+import Toast from "@agir/front/genericComponents/Toast";
+
 import { signUp } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
-import { useHistory, useLocation } from "react-router-dom";
-import { BlockSwitchLink } from "./styledComponents";
 
+const CountryToggle = styled.button`
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  line-height: 1rem;
+  cursor: pointer;
+  text-align: right;
+  width: 100%;
+  padding: 0;
+  margin-top: -4px;
+
+  &:hover,
+  &:focus {
+    outline: none;
+    text-decoration: underline;
+  }
+`;
 const InputGroup = styled.div`
-  display: inline-flex;
-  justify-content: space-between;
+  display: grid;
   width: 100%;
   margin-top: 1.25rem;
-  > div:nth-child(1) {
-    width: 340px;
-  }
-  > div:nth-child(2) {
-    width: 140px;
-  }
+  grid-template-columns: 340px 140px;
+  grid-gap: 0.5rem;
 
   @media (max-width: ${style.collapse}px) {
-    display:block;
-    > div:nth-child(1) {
-      width: 100%;
+    grid-template-columns: 140px 1fr;
+  }
+
+  & > div {
+    &:nth-child(1) {
+      @media (max-width: ${style.collapse}px) {
+        grid-column: span 2;
+      }
     }
+
+    &:nth-child(3) {
+      @media (min-width: ${style.collapse}px) {
+        grid-column: span 2;
+      }
+    }
+
+    & > label {
+      margin-bottom: 0;
+    }
+  }
 `;
 
 const fromGroupEvent = false;
@@ -35,46 +67,66 @@ const fromGroupEvent = false;
 const defaultData = {
   email: "",
   postalCode: "",
+  country: "FR",
 };
 
 const SignUp = () => {
   const history = useHistory();
   const location = useLocation();
+
+  const [hasCountryField, setHasCountryField] = useState(false);
+
   const [rgpdChecked, setRgpdChecked] = useState(false);
   const [formData, setFormData] = useState(defaultData);
   const [error, setError] = useState({});
 
-  const handleRgpdCheck = () => {
-    setRgpdChecked(!rgpdChecked);
+  const showCountryField = useCallback(() => {
+    setHasCountryField(true);
+  }, []);
+
+  const handleRgpdCheck = useCallback(() => {
     setError({ ...error, rgpd: null });
-  };
+    setRgpdChecked(!rgpdChecked);
+  }, [error, rgpdChecked]);
 
-  const handleChange = (e) => {
-    const newFormData = { ...formData };
-    newFormData[e.target.name] = e.target.value;
-    setFormData(newFormData);
-  };
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setError((state) => state && { ...state, [name]: null });
+    setFormData((state) => ({ ...state, [name]: value }));
+  }, []);
 
-  const handleSubmit = async () => {
-    setError({});
-    if (!rgpdChecked) {
-      setError({
-        rgpd:
-          "Vous devez accepter la politique de conservation des données pour continuer",
-      });
-      return;
-    }
-    const data = await signUp(formData);
-    if (data.error) {
-      setError(data.error);
-      return;
-    }
-    const route = routeConfig.codeSignup.getLink();
-    history.push(route, { ...location.state, email: formData.email });
-  };
+  const handleChangeCountry = useCallback((country) => {
+    setError((state) => state && { ...state, country: null });
+    setFormData((state) => ({ ...state, country }));
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setError({});
+      if (!rgpdChecked) {
+        setError({
+          rgpd:
+            "Vous devez accepter la politique de conservation des données pour continuer",
+        });
+        return;
+      }
+      const data = await signUp(formData);
+      if (data.error) {
+        setError(data.error);
+        return;
+      }
+      const route = routeConfig.codeSignup.getLink();
+      history.push(route, { ...location.state, email: formData.email });
+    },
+    [formData, history, location, rgpdChecked]
+  );
 
   return (
-    <div style={{ width: "500px", maxWidth: "100%", paddingBottom: "1.5rem" }}>
+    <form
+      style={{ width: "500px", maxWidth: "100%", paddingBottom: "1.5rem" }}
+      onSubmit={handleSubmit}
+    >
       {!fromGroupEvent ? (
         <h1>Je m'inscris</h1>
       ) : (
@@ -106,15 +158,37 @@ const SignUp = () => {
           <TextField
             label="Code postal"
             name="postalCode"
-            error={error && error.zip}
+            error={error && error.postalCode}
             placeholder=""
             onChange={handleChange}
             value={formData.postalCode}
           />
+          {hasCountryField === false ? (
+            <CountryToggle type="button" onClick={showCountryField}>
+              J'habite à l'étranger
+            </CountryToggle>
+          ) : null}
         </div>
+        {hasCountryField && (
+          <div>
+            <CountryField
+              label="Pays"
+              name="country"
+              error={error && error.country}
+              placeholder=""
+              onChange={handleChangeCountry}
+              value={formData.country}
+            />
+            {hasCountryField === false ? (
+              <CountryToggle type="button" onClick={showCountryField}>
+                J'habite à l'étranger
+              </CountryToggle>
+            ) : null}
+          </div>
+        )}
       </InputGroup>
 
-      <div style={{ marginTop: "1rem" }}>
+      <div style={{ paddingTop: "1rem" }}>
         <CheckboxField
           name="rgpd"
           label={
@@ -124,6 +198,7 @@ const SignUp = () => {
               <a
                 href="https://infos.actionpopulaire.fr/mentions-legales/"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 politique de conservation des données
               </a>
@@ -135,9 +210,10 @@ const SignUp = () => {
       </div>
 
       {error && !!error.rgpd && <Toast>{error.rgpd}</Toast>}
+      {error && !!error.global && <Toast>{error.global}</Toast>}
 
       <Button
-        onClick={handleSubmit}
+        type="submit"
         color="primary"
         style={{
           marginTop: "2rem",
@@ -148,7 +224,7 @@ const SignUp = () => {
       >
         {!fromGroupEvent ? "Créer mon compte" : "Je participe !"}
       </Button>
-    </div>
+    </form>
   );
 };
 
