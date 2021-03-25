@@ -70,10 +70,12 @@ const Container = styled.div`
   }
 
   ${RadioLabel} {
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
 
     @media (max-width: ${style.collapse}px) {
+      padding-top: 0.5rem;
+      padding-bottom: 1rem;
       text-align: left;
     }
   }
