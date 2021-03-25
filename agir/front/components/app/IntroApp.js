@@ -152,14 +152,13 @@ const items = [
     name: "Agissez concrètement",
     description: (
       <>
-        formez-vous et commandez du matériel, tracts&nbsp;
-        <InlineBlock>et affiches !</InlineBlock>
+        participez aux action, diffusez notre programme et commandez&nbsp;<InlineBlock>du matériel</InlineBlock>
       </>
     ),
     image: img2,
   },
   {
-    name: "Organisez et rejoignez",
+    name: "Rejoignez ou créer",
     description: (
       <>
         une équipe de soutien&nbsp;<InlineBlock>autour de vous !</InlineBlock>
