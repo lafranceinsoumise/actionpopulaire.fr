@@ -7,9 +7,18 @@ from . import views
 from ..front.sitemaps import sitemaps
 
 urlpatterns = [
+    path("connexion/", views.LoginView.as_view(), name="short_code_login"),
+    path("inscription/", views.SignupView.as_view(), name="signup"),
+    path("connexion/code/", views.CodeLoginView.as_view(), name="check_short_code",),
+    path("inscription/code/", views.CodeSignupView.as_view(), name="check_code_signup"),
+    path("bienvenue/", views.TellMoreView.as_view(), name="tell_more"),
+    path("deconnexion/", views.LogoutView.as_view(), name="disconnect"),
     path("offline", views.OfflineApp.as_view(), name="offline"),
     path("sw.js", (views.ServiceWorker.as_view()), name="sw.js"),
     path("rejoindre/", views.JoinView.as_view(), name="join"),
+    path("intro/", views.IntroAppView.as_view(), name="intro"),
+    path("choix-campagne/", views.ChooseCampaignView.as_view(), name="choose_campaign"),
+    path("bienvenue/", views.WelcomeView.as_view(), name="welcome"),
     path("nsp/", views.NSPView.as_view(), name="nsp"),
     path("nsp/referral/", views.NSPReferralView.as_view(), name="nsp_referral"),
     # https://lafranceinsoumise.fr/

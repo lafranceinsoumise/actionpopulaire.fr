@@ -351,6 +351,12 @@ EMAIL_TEMPLATES = {
     "GROUP_ALERT_CAPACITY_30": "https://mosaico.lafranceinsoumise.fr/emails/a4cb42b0-1417-446a-af66-5d8e67b2047e.html",
     # NEW_MESSAGE variables: DISPLAY_NAME, AUTHOR_STATUS, MESSAGE_HTML, DISPLAY_NAME
     "NEW_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/0f9f599a-1dcf-4a49-963e-56078ce9d587.html",
+    # EXISTING_EMAIL_SUBSCRIPTION
+    "EXISTING_EMAIL_SUBSCRIPTION": "https://mosaico.lafranceinsoumise.fr/emails/f175251e-ad1a-430a-9c07-bb0d415263ff.html",
+    # UNEXISTING_EMAIL_LOGIN variables: SUBSCRIPTION_URL
+    "UNEXISTING_EMAIL_LOGIN": "https://mosaico.lafranceinsoumise.fr/emails/1cc10994-38d6-45ea-8f70-a3102eb955e9.html",
+    # SUBSCRIPTION_CONFIRMATION_MESSAGE variables: CONFIRMATION_URL
+    "SUBSCRIPTION_CONFIRMATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/315b969b-87a7-4b2e-9d61-697af4cbd4a7.html",
 }
 
 EMAIL_FROM = os.environ.get(

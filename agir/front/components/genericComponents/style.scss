@@ -29,12 +29,6 @@ body {
   color: $text-color;
   background-color: #fff;
   margin: 0;
-  padding: 0;
-  padding-top: 72px;
-
-  @media (max-width: 992px) {
-    padding-top: 56px;
-  }
 }
 
 input,

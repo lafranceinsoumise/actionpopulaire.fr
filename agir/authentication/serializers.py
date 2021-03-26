@@ -7,6 +7,11 @@ from rest_framework import serializers
 from agir.activity.actions import get_announcements
 from agir.activity.models import Activity
 from agir.activity.serializers import AnnouncementSerializer
+from agir.authentication.utils import (
+    is_hard_logged,
+    is_soft_logged,
+    get_bookmarked_emails,
+)
 from agir.groups.models import SupportGroup
 from agir.front.serializer_utils import MediaURLField
 from agir.lib.utils import front_url
@@ -47,26 +52,49 @@ class SessionSerializer(serializers.Serializer):
     requiredActionActivitiesCount = serializers.SerializerMethodField(
         method_name="get_required_action_activities_count"
     )
+    authentication = serializers.SerializerMethodField()
+    bookmarkedEmails = serializers.SerializerMethodField(
+        method_name="get_bookmarked_emails"
+    )
+
+    def get_authentication(self, request):
+        if is_hard_logged(request):
+            return 2
+        if is_soft_logged(request):
+            return 1
+        return 0
 
     def get_user_routes(self, request):
+        routes = {
+            "search": reverse("dashboard_search"),
+            "signup": reverse("signup"),
+            "login": reverse("short_code_login"),
+            "help": "https://infos.actionpopulaire.fr",
+            "logout": reverse("disconnect"),
+            "personalInformation": reverse("personal_information"),
+            "nspReferral": front_url("nsp_referral"),
+        }
+
         if request.user.is_authenticated:
             person = request.user.person
 
             if person.is_insoumise:
-                routes = {
-                    "materiel": "https://materiel.lafranceinsoumise.fr/",
-                    "resources": "https://lafranceinsoumise.fr/fiches_pour_agir/",
-                    "news": "https://lafranceinsoumise.fr/actualites/",
-                    "thematicTeams": front_url("thematic_teams_list"),
-                    "nspReferral": front_url("nsp_referral"),
-                }
+                routes.update(
+                    {
+                        "materiel": "https://materiel.lafranceinsoumise.fr/",
+                        "resources": "https://lafranceinsoumise.fr/fiches_pour_agir/",
+                        "news": "https://lafranceinsoumise.fr/actualites/",
+                        "thematicTeams": front_url("thematic_teams_list"),
+                    }
+                )
             else:
-                routes = {
-                    "materiel": "https://noussommespour.fr/boutique/",
-                    "resources": "https://noussommespour.fr/sinformer/",
-                    "donations": "https://noussommespour.fr/don/",
-                    "nspReferral": front_url("nsp_referral"),
-                }
+                routes.update(
+                    {
+                        "materiel": "https://noussommespour.fr/boutique/",
+                        "resources": "https://noussommespour.fr/sinformer/",
+                        "donations": "https://noussommespour.fr/don/",
+                    }
+                )
 
             person_groups = (
                 SupportGroup.objects.filter(memberships__person=person)
@@ -134,3 +162,6 @@ class SessionSerializer(serializers.Serializer):
                 .distinct()
                 .count()
             )
+
+    def get_bookmarked_emails(self, request):
+        return get_bookmarked_emails(request)

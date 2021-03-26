@@ -97,13 +97,11 @@ FeedbackButton.propTypes = {
   href: PropTypes.string,
 };
 const ConnectedFeedbackButton = (props) => {
-  const hasFeedbackButton = useSelector(getHasFeedbackButton);
   const user = useSelector(getUser);
   const routes = useSelector(getRoutes);
 
   const href = routes && routes.feedbackForm;
 
-  const [isActive, setIsActive] = useState(false);
   const [shouldPushTooltip, setShouldPushTooltip] = useState(false);
 
   useEffect(() => {
@@ -114,7 +112,6 @@ const ConnectedFeedbackButton = (props) => {
     visitCount = !isNaN(parseInt(visitCount)) ? parseInt(visitCount) : 0;
     visitCount += 1;
     visitCount % 20 === 3 && setShouldPushTooltip(true);
-    setIsActive(true);
     window.localStorage.setItem("AP_vcount", visitCount);
   }, []);
 
@@ -122,9 +119,8 @@ const ConnectedFeedbackButton = (props) => {
     <FeedbackButton
       {...props}
       href={href}
-      // isActive={!!user && hasFeedbackButton && isActive}
       shouldPushTooltip={shouldPushTooltip}
-      isActive
+      isActive={!!user}
     />
   );
 };

@@ -145,10 +145,6 @@ const Illustration = styled.div`
 const StyledCard = styled(Card)`
   width: 100%;
 
-  && header {
-    margin-bottom: 1.25rem;
-  }
-
   ${Row} {
     font-size: 0.875rem;
     max-width: calc(100% - 2rem);
@@ -162,7 +158,7 @@ const StyledCard = styled(Card)`
     display: grid;
     grid-template-columns: 270px 1fr;
     grid-template-rows: auto auto;
-    grid-gap: 1.5rem;
+    grid-gap: 1rem 1.5rem;
     padding: 0;
 
     ${Illustration} {
@@ -182,7 +178,7 @@ const StyledCard = styled(Card)`
     }
 
     ${Row} {
-      padding-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
       max-width: auto;
 
       ${Column} {

@@ -168,7 +168,7 @@ TextField.propTypes = {
   onChange: PropTypes.func.isRequired,
   type: PropTypes.oneOf(["text", "email", "password"]),
   id: PropTypes.string,
-  label: PropTypes.string,
+  label: PropTypes.node,
   helpText: PropTypes.string,
   error: PropTypes.string,
   maxLength: PropTypes.number,

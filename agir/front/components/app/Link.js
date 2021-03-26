@@ -3,11 +3,18 @@ import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getRoutes } from "@agir/front/globalContext/reducers";
-import { getRouteByPathname } from "@agir/front/app/routes.config";
+import { getHasRouter, getRoutes } from "@agir/front/globalContext/reducers";
+import { routeConfig, getRouteByPathname } from "@agir/front/app/routes.config";
+
+import { addQueryStringParams } from "@agir/lib/utils/url";
 
 const ExternalLink = (props) => {
-  const { href, component, ...rest } = props;
+  const { component, params, ...rest } = props;
+
+  let href = props.href;
+  if (params) {
+    href = addQueryStringParams(href, params);
+  }
 
   if (component) {
     const Component = component;
@@ -19,24 +26,48 @@ const ExternalLink = (props) => {
 ExternalLink.propTypes = {
   href: PropTypes.string.isRequired,
   component: PropTypes.elementType,
+  params: PropTypes.object,
+};
+
+const InternalLink = (props) => {
+  const { to, params, ...rest } = props;
+
+  const next = params ? { pathname: to, state: { ...params } } : to;
+
+  return <RouterLink {...rest} to={next} />;
+};
+InternalLink.propTypes = {
+  to: PropTypes.string.isRequired,
+  params: PropTypes.object,
 };
 
 const RouteLink = (props) => {
   const { route, ...rest } = props;
   const routes = useSelector(getRoutes);
+  const hasRouter = useSelector(getHasRouter);
 
-  const { url, isExternal = false } = React.useMemo(
-    () => ({
-      url: routes[route],
-      isExternal: !getRouteByPathname(routes[route]),
-    }),
-    [routes, route]
-  );
+  const { url, isInternal = false } = React.useMemo(() => {
+    if (routes[route]) {
+      return {
+        url: routes[route],
+        isInternal: !!getRouteByPathname(routes[route]),
+      };
+    }
+    if (routeConfig[route]) {
+      return {
+        url: routeConfig[route].getLink(),
+        isInternal: true,
+      };
+    }
+    return {
+      url: route,
+    };
+  }, [routes, route]);
 
-  return isExternal ? (
-    <ExternalLink {...rest} href={url} />
+  return hasRouter && isInternal ? (
+    <InternalLink {...rest} to={url} />
   ) : (
-    <RouterLink {...rest} to={url} />
+    <ExternalLink {...rest} href={url} />
   );
 };
 RouteLink.propTypes = {

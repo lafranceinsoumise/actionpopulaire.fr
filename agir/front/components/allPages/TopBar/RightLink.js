@@ -7,16 +7,16 @@ import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import MenuLink from "./MenuLink";
 import UserMenu from "./UserMenu";
 
-const AnonymousLink = ({ routes }) => {
+const AnonymousLink = () => {
   return (
     <>
-      <MenuLink href={routes.login} className="small-only">
+      <MenuLink route="login" className="small-only">
         <FeatherIcon name="user" />
       </MenuLink>
-      <MenuLink href={routes.login} className="large-only">
+      <MenuLink route="login" className="large-only">
         <span>Connexion</span>
       </MenuLink>
-      <MenuLink href={routes.join} className="large-only">
+      <MenuLink route="signup" className="large-only">
         <span>Inscription</span>
       </MenuLink>
     </>

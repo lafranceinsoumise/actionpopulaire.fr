@@ -4,6 +4,8 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import logger from "@agir/lib/utils/logger";
 import { lazy } from "./utils";
 
+import { AUTHENTICATION } from "@agir/front/authentication/common";
+
 const AgendaPage = lazy(() => import("@agir/events/agendaPage/AgendaPage"));
 const EventMap = lazy(() => import("@agir/carte/page__eventMap/EventMap"));
 const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
@@ -29,6 +31,26 @@ const RequiredActivityPage = lazy(() =>
 );
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
+);
+
+const IntroAppPage = lazy(() => import("@agir/front/app/IntroApp"));
+const SignupPage = lazy(() =>
+  import("@agir/front/authentication/Connexion/SignupPage")
+);
+const LoginPage = lazy(() =>
+  import("@agir/front/authentication/Connexion/LoginPage")
+);
+const CodeLoginPage = lazy(() =>
+  import("@agir/front/authentication/Connexion/Code/CodeLogin")
+);
+const CodeSignupPage = lazy(() =>
+  import("@agir/front/authentication/Connexion/Code/CodeSignup")
+);
+const TellMorePage = lazy(() =>
+  import("@agir/front/authentication/Connexion/TellMore/TellMorePage")
+);
+const LogoutPage = lazy(() =>
+  import("@agir/front/authentication/Connexion/Logout")
 );
 
 export const BASE_PATH = "/";
@@ -83,18 +105,16 @@ export const routeConfig = {
     id: "events",
     pathname: "/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Événements",
     Component: AgendaPage,
-    hasLayout: true,
-    layoutProps: {
-      smallBackgroundColor: style.black25,
-      hasBanner: true,
-    },
+    hasLayout: false,
   }),
   eventMap: new RouteConfig({
     id: "eventMap",
     pathname: "/evenements/carte/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Carte des événements",
     Component: EventMap,
   }),
@@ -102,6 +122,7 @@ export const routeConfig = {
     id: "createEvent",
     pathname: "/evenements/creer/",
     exact: false,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Nouvel événement",
     Component: CreateEvent,
     backLink: {
@@ -114,6 +135,7 @@ export const routeConfig = {
     id: "eventDetails",
     pathname: "/evenements/:eventPk/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Details de l'événement",
     Component: EventPage,
     backLink: {
@@ -126,6 +148,7 @@ export const routeConfig = {
     id: "groups",
     pathname: "/mes-groupes/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Groupes",
     Component: GroupsPage,
     hasLayout: true,
@@ -137,6 +160,7 @@ export const routeConfig = {
     id: "groupMap",
     pathname: "/groupes/carte/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Carte des groupes",
     Component: GroupMap,
   }),
@@ -144,6 +168,7 @@ export const routeConfig = {
     id: "fullGroup",
     pathname: "/groupes/:groupPk/complet/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Groupe complet",
     Component: FullGroupPage,
     hasLayout: false,
@@ -152,6 +177,7 @@ export const routeConfig = {
     id: "groupMessage",
     pathname: "/groupes/:groupPk/messages/:messagePk/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Message du groupe",
     Component: GroupMessagePage,
     hideFeedbackButton: true,
@@ -160,6 +186,7 @@ export const routeConfig = {
     id: "groupDetails",
     pathname: "/groupes/:groupPk/:activeTab?/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
     label: "Details du groupe",
     Component: GroupPage,
     backLink: {
@@ -172,6 +199,7 @@ export const routeConfig = {
     id: "activities",
     pathname: "/activite/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Actualités",
     Component: ActivityPage,
     hasLayout: true,
@@ -185,6 +213,7 @@ export const routeConfig = {
     id: "requiredActivities",
     pathname: "/a-traiter/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "À traiter",
     Component: RequiredActivityPage,
     hasLayout: true,
@@ -193,12 +222,86 @@ export const routeConfig = {
     id: "menu",
     pathname: "/navigation/",
     exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
     label: "Menu",
     Component: NavigationPage,
     hasLayout: true,
     layoutProps: {
       desktopOnlyFooter: false,
     },
+  }),
+  login: new RouteConfig({
+    id: "login",
+    pathname: "/connexion/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Connexion",
+    Component: LoginPage,
+    hideTopBar: true,
+    hideFeedbackButton: true,
+  }),
+  signup: new RouteConfig({
+    id: "signup",
+    pathname: "/inscription/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Inscription",
+    Component: SignupPage,
+    hideTopBar: true,
+    hideFeedbackButton: true,
+  }),
+  codeLogin: new RouteConfig({
+    id: "codeLogin",
+    pathname: "/connexion/code/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Code de connexion",
+    Component: CodeLoginPage,
+    hideTopBar: true,
+    hideFeedbackButton: true,
+  }),
+  codeSignup: new RouteConfig({
+    id: "codeSignup",
+    pathname: "/inscription/code/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Code d'inscription'",
+    Component: CodeSignupPage,
+    hideTopBar: true,
+    hideFeedbackButton: true,
+  }),
+  tellMore: new RouteConfig({
+    id: "tellMore",
+    pathname: "/bienvenue/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "J'en dis plus",
+    Component: TellMorePage,
+    hideTopBar: true,
+    hideFeedbackButton: true,
+  }),
+  introApp: new RouteConfig({
+    id: "introApp",
+    pathname: "/intro/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Intro",
+    Component: IntroAppPage,
+    hasLayout: false,
+    hideTopBar: true,
+    hideFeedbackButton: true,
+    layoutProps: {
+      smallBackgroundColor: style.black25,
+      hasBanner: false,
+    },
+  }),
+  logout: new RouteConfig({
+    id: "logout",
+    pathname: "/deconnexion/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Déconnexion",
+    Component: LogoutPage,
   }),
 };
 

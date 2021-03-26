@@ -8,6 +8,7 @@
   {{ type_config|json_script:"typeConfig" }}
   {{ subtype_config|json_script:"subtypeConfig" }}
   {{ bounds|json_script:"boundsConfig" }}
+  {{ controls|json_script:"controls" }}
   {% if commune %}
     {{ commune|json_script:"communeScript" }}
   {% endif %}
@@ -15,6 +16,7 @@
     var types = JSON.parse(document.getElementById("typeConfig").textContent);
     var subtypes = JSON.parse(document.getElementById("subtypeConfig").textContent);
     var bounds = JSON.parse(document.getElementById("boundsConfig").textContent);
+    var controls = JSON.parse(document.getElementById("controls").textContent);
 
     var commune = null;
     var communeScriptElement = document.getElementById("communeScript");
@@ -28,7 +30,10 @@
       types,
       subtypes,
       bounds,
-      focusGeometry: commune
+      focusGeometry: commune,
+      showSearch: controls.search,
+      showActiveControl: controls.active,
+      showLayerControl: controls.layers,
     });
   </script>
 {% endblock %}

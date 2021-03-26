@@ -225,10 +225,12 @@ const FooterWrapper = styled.footer`
 `;
 
 export const Footer = (props) => {
-  const { isSignedIn, is2022, routes, desktopOnly } = props;
+  const { hideBanner, isSignedIn, is2022, routes, desktopOnly } = props;
+  const hasBanner = !hideBanner && isSignedIn === false;
+
   return (
     <FooterWrapper desktopOnly={desktopOnly}>
-      {isSignedIn === false ? (
+      {hasBanner ? (
         <FooterBanner>
           <FooterForm>
             <h3>Agissez dans votre ville!</h3>
@@ -331,9 +333,7 @@ export const Footer = (props) => {
               {routes.help && <Link route="help">Besoin d'aide ?</Link>}
               {routes.legal && <Link route="legal">Mentions légales</Link>}
               {routes.contact && <Link route="contact">Contact</Link>}
-              {isSignedIn && routes.signOut && (
-                <Link route="signOut">Se déconnecter</Link>
-              )}
+              {isSignedIn && <Link route="logout">Se déconnecter</Link>}
             </p>
           </div>
           {isSignedIn ? (
@@ -436,11 +436,13 @@ Footer.propTypes = {
   is2022: PropTypes.bool,
   routes: PropTypes.object,
   desktopOnly: PropTypes.bool,
+  hideBanner: PropTypes.bool,
 };
 Footer.defaultProps = {
   isSignedIn: false,
   is2022: false,
   desktopOnly: false,
+  hideBanner: false,
 };
 const ConnectedFooter = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
@@ -450,12 +452,7 @@ const ConnectedFooter = (props) => {
 
   return (
     <PageFadeIn ready={isSessionLoaded}>
-      <Footer
-        {...props}
-        routes={routes}
-        isSignedIn={user !== null}
-        is2022={is2022}
-      />
+      <Footer {...props} routes={routes} isSignedIn={!!user} is2022={is2022} />
     </PageFadeIn>
   );
 };

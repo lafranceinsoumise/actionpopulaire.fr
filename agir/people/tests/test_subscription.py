@@ -139,53 +139,6 @@ class APISubscriptionTestCase(WordpressClientMixin, TestCase):
         self.assertEqual(person.location_zip, "75001")
 
 
-class SimpleSubscriptionFormTestCase(TestCase):
-    @mock.patch("agir.people.forms.subscription.send_confirmation_email")
-    def test_can_subscribe(self, patched_send_confirmation_email):
-        for zipcode, country_code in [("75018", "FR"), ("97400", "RE")]:
-            data = {"email": "example@example.com", "location_zip": zipcode}
-            response = self.client.post("/inscription/", data)
-
-            self.assertRedirects(response, reverse("subscription_mail_sent"))
-
-            patched_send_confirmation_email.delay.assert_called_once()
-            self.assertEqual(
-                patched_send_confirmation_email.delay.call_args[1],
-                {"location_country": country_code, **data},
-            )
-            patched_send_confirmation_email.delay.reset_mock()
-
-    def test_cannot_subscribe_without_location_zip(self):
-        data = {"email": "example@example.com"}
-        response = self.client.post("/inscription/", data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_france_country_is_set_by_default(self):
-        data = {"email": "my@e.mail", "location_zip": "01337", "type": "LFI"}
-
-        send_confirmation_email(**data)
-
-        self.assertEqual(len(mail.outbox), 1)
-
-        confirmation_url = reverse("subscription_confirm")
-        match = re.search(confirmation_url + r'\?[^" \n)]+', mail.outbox[0].body)
-
-        self.assertIsNotNone(match)
-        url_with_params = match.group(0)
-
-        response = self.client.get(url_with_params)
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertTrue(
-            response.url.startswith("https://lafranceinsoumise.fr/bienvenue/",)
-        )
-
-        # check that the person has been created
-        person = Person.objects.get_by_natural_key("my@e.mail")
-
-        # check if france is set by default
-        self.assertEqual("France", person.location_country.name)
-
-
 class OverseasSubscriptionTestCase(TestCase):
     @mock.patch("agir.people.forms.subscription.send_confirmation_email")
     def test_can_subscribe(self, patched_send_confirmation_email):
