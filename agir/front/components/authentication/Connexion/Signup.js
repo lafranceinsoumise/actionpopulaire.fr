@@ -66,8 +66,6 @@ const InputGroup = styled.div`
   }
 `;
 
-const fromGroupEvent = false;
-
 const defaultData = {
   email: "",
   postalCode: "",
@@ -121,7 +119,7 @@ const SignUp = () => {
         return;
       }
       const route = routeConfig.codeSignup.getLink();
-      history.push(route, { ...location.state, email: formData.email });
+      history.push(route, { ...(location.state || {}), email: formData.email });
     },
     [formData, history, location, rgpdChecked]
   );
@@ -131,19 +129,25 @@ const SignUp = () => {
       style={{ width: "500px", maxWidth: "100%", paddingBottom: "1.5rem" }}
       onSubmit={handleSubmit}
     >
-      {!fromGroupEvent ? (
-        <h1>Je m'inscris</h1>
-      ) : (
+      {location.state?.from === "event" ? (
         <h1 style={{ fontSize: "26px" }}>
           Je m’inscris pour participer à l’événement
         </h1>
+      ) : location.state?.from === "group" ? (
+        <h1 style={{ fontSize: "26px" }}>
+          Je m’inscris pour rejoindre le groupe
+        </h1>
+      ) : (
+        <h1>Je m'inscris</h1>
       )}
 
       <BlockSwitchLink>
         <span>Déjà inscrit·e ?</span>
         &nbsp;
         <span>
-          <Link route="login">Je me connecte</Link>
+          <Link route="login" params={location.state}>
+            Je me connecte
+          </Link>
         </span>
       </BlockSwitchLink>
 
@@ -181,11 +185,6 @@ const SignUp = () => {
               onChange={handleChangeCountry}
               value={formData.country}
             />
-            {hasCountryField === false ? (
-              <CountryToggle type="button" onClick={showCountryField}>
-                J'habite à l'étranger
-              </CountryToggle>
-            ) : null}
           </div>
         )}
       </InputGroup>
@@ -224,7 +223,9 @@ const SignUp = () => {
           justifyContent: "center",
         }}
       >
-        {!fromGroupEvent ? "Créer mon compte" : "Je participe !"}
+        {location.state?.from === "event"
+          ? "Je participe !"
+          : "Créer mon compte"}
       </Button>
     </form>
   );
