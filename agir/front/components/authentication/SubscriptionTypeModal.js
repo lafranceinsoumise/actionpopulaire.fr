@@ -21,7 +21,7 @@ const StyledModalContent = styled.div`
   align-items: center;
   justify-content: flex-start;
   max-width: 600px;
-  padding: 0 0 2.5rem;
+  padding: 0 0 2.75rem;
   margin: 40px auto 0;
   box-shadow: ${style.elaborateShadow};
   background-color: ${style.white};
@@ -58,11 +58,16 @@ const StyledModalContent = styled.div`
     text-align: center;
     margin: 0;
     padding-top: 2rem;
-    padding-bottom: 2.875rem;
+    padding-bottom: 1rem;
 
     @media (max-width: ${style.collapse}px) {
       font-size: 1.25rem;
     }
+  }
+
+  p {
+    margin: 0;
+    padding-bottom: 2rem;
   }
 
   ${Button} {
@@ -84,6 +89,8 @@ const SUBSCRIPTION_TYPE = {
       event: "participer à cet événement",
       group: "rejoindre cette équipe",
     },
+    content:
+      "Vous êtes membre de la France Insoumise mais vous n’avez pas encore soutenu la campagne de Jean-Luc Mélenchon pour 2022. Confirmez votre soutien pour participer",
     update: {
       is2022: true,
     },
@@ -97,6 +104,8 @@ const SUBSCRIPTION_TYPE = {
       event: "participer à cet événement",
       group: "rejoindre ce groupe d'action",
     },
+    content:
+      "L’inscription est réservée aux membres de la France Insoumise. Confirmez que vous souhaitez rejoindre le mouvement",
     update: {
       isInsoumise: true,
     },
@@ -105,7 +114,13 @@ const SUBSCRIPTION_TYPE = {
 
 export const SubscriptionTypeModal = (props) => {
   const { type, target, onConfirm, onCancel, shouldShow, isLoading } = props;
-  const { image, title, confirmLabel, confirmColor } = SUBSCRIPTION_TYPE[type];
+  const {
+    image,
+    title,
+    content,
+    confirmLabel,
+    confirmColor,
+  } = SUBSCRIPTION_TYPE[type];
   const targetLabel = SUBSCRIPTION_TYPE[type].target[target];
 
   return (
@@ -115,6 +130,9 @@ export const SubscriptionTypeModal = (props) => {
         <h3>
           {title} pour {targetLabel}
         </h3>
+        <p>
+          {content} pour {targetLabel}.
+        </p>
         <footer>
           <Button
             onClick={onConfirm}

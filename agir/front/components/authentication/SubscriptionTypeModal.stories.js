@@ -15,7 +15,7 @@ const Template = (args) => <SubscriptionTypeModal {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
-  type: "LFI",
+  type: "NSP",
   target: "event",
   shouldShow: true,
   isLoading: false,
