@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo, useState } from "react";
+import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
+import React, { useCallback, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { mutate } from "swr";
-import { DateTime, Interval } from "luxon";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
@@ -13,10 +14,11 @@ import {
 import * as api from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
+import Link from "@agir/front/app/Link";
+import { Hide } from "@agir/front/genericComponents/grid";
 import SubscriptionTypeModal from "@agir/front/authentication/SubscriptionTypeModal";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { Hide } from "@agir/front/genericComponents/grid";
 import { displayHumanDate } from "@agir/lib/utils/time";
 
 import QuitEventButton from "./QuitEventButton";
@@ -57,7 +59,7 @@ const SmallText = styled.div`
 `;
 
 const ActionButton = styled(Button)``;
-const ActionLink = styled.a`
+const ActionLink = styled(Link)`
   font-weight: 700;
   text-decoration: underline;
 `;
@@ -90,7 +92,7 @@ const StyledActionButtons = styled.div`
 
 const RSVPButton = (props) => {
   const user = useSelector(getUser);
-  const { id, forUsers, hasRightSubscription, hasPrice, routes } = props;
+  const { id, forUsers, hasPrice, routes } = props;
 
   const [isLoading, setIsLoading] = useState(false);
   const [hasSubscriptionTypeModal, setHasSubscriptionTypeModal] = useState(
@@ -104,8 +106,6 @@ const RSVPButton = (props) => {
   const closeSubscriptionTypeModal = useCallback(() => {
     setHasSubscriptionTypeModal(false);
   }, []);
-
-  const globalRoutes = useSelector(getRoutes);
 
   const handleRSVP = useCallback(
     async (e) => {
@@ -239,20 +239,23 @@ RSVPButton.propTypes = ActionButtons.propTypes = {
   }),
 };
 
-const AdditionalMessage = ({
-  id,
-  name,
-  logged,
-  rsvped,
-  price,
-  routes,
-  forUsers,
-}) => {
+const AdditionalMessage = ({ id, name, logged, rsvped, price, forUsers }) => {
+  const location = useLocation();
+
   if (!logged) {
     return (
       <div>
-        <ActionLink href={routes.login}>Je me connecte</ActionLink> ou{" "}
-        <ActionLink href={`${routes.join}?type=${forUsers}`}>
+        <ActionLink
+          route="login"
+          params={{ from: "event", forUsers, next: location.pathname }}
+        >
+          Je me connecte
+        </ActionLink>{" "}
+        ou{" "}
+        <ActionLink
+          route="signup"
+          params={{ from: "event", forUsers, next: location.pathname }}
+        >
           je m'inscris
         </ActionLink>{" "}
         pour participer à l'événement

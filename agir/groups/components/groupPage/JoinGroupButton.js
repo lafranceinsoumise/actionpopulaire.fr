@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo, useState } from "react";
+import { useHistory, useLocation } from "react-router-dom";
 import { mutate } from "swr";
 
 import * as api from "@agir/groups/groupPage/api";
@@ -12,6 +13,8 @@ import SubscriptionTypeModal from "@agir/front/authentication/SubscriptionTypeMo
 
 const JoinGroupButton = (props) => {
   const { id, is2022 = false } = props;
+  const history = useHistory();
+  const location = useLocation();
 
   const user = useSelector(getUser);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +72,25 @@ const JoinGroupButton = (props) => {
     }
     return is2022 ? "NSP" : "LFI";
   }, [user, is2022]);
+
+  if (!user) {
+    return (
+      <div>
+        <Button
+          as="Link"
+          color="success"
+          route="login"
+          params={{
+            from: "group",
+            forUsers: is2022 ? "2" : "I",
+            next: location.pathname,
+          }}
+        >
+          Rejoindre {is2022 ? "l'équipe" : "le groupe"}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <form
