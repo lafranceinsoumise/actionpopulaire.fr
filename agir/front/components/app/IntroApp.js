@@ -33,40 +33,14 @@ const Block = styled.div`
   }
 `;
 
-const BlockConnexion = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify: center;
-  align-items: center;
-  height: 100vh;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-align: center;
-  flex-direction: column;
-  width: 100%;
-  align-items: center;
-  padding: 2rem;
-`;
-
-const BackgroundTriangle = styled.div`
-  width: 100%;
-  background-color: ${style.secondary500};
-  margin-top: -1px;
-  div {
-    background-color: white;
-    height: 80px;
-    margin-bottom: -1px;
-    clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
-  }
-`;
-
 const WhiteTriangle = styled.div`
   width: 100%;
   height: 190px;
   height: calc(100vh - 345px);
-  div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  div:first-child {
     position: absolute;
     bottom: -1px;
     left: 0;
@@ -115,19 +89,6 @@ const FixedBlock = styled.div`
     margin-bottom: 0;
     margin-top: 0;
   }
-`;
-
-const DescriptionContainer = styled.div`
-  background-color: ${style.secondary500};
-  padding: 1.4rem;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  text-align: center;
-  flex-grow: 1;
 `;
 
 const InlineBlock = styled.span`
@@ -191,7 +152,7 @@ const IntroApp = () => {
             style={{ backgroundImage: `url(${items[index].image})` }}
           >
             <WhiteTriangle>
-              <div></div>
+              <div />
             </WhiteTriangle>
           </HeaderImage>
 
@@ -223,22 +184,19 @@ const IntroApp = () => {
         </Block>
       )}
       {showConnexion && (
-        <BlockConnexion>
-          <DescriptionContainer>
-            <div>
+        <Block>
+          <HeaderImage style={{ backgroundColor: style.secondary500 }}>
+            <WhiteTriangle>
+              <div />
               <img
                 src={logo}
-                alt=""
-                style={{ maxWidth: "300px", marginTop: "2rem" }}
+                alt="Action Populaire"
+                style={{ maxWidth: "330px", position: "relative" }}
               />
-            </div>
-          </DescriptionContainer>
+            </WhiteTriangle>
+          </HeaderImage>
 
-          <BackgroundTriangle>
-            <div />
-          </BackgroundTriangle>
-
-          <ButtonContainer>
+          <FixedBlock>
             <StyledButton color="primary" as="Link" route="signup">
               Je crée mon compte
             </StyledButton>
@@ -250,8 +208,8 @@ const IntroApp = () => {
             >
               Je me connecte
             </StyledButton>
-          </ButtonContainer>
-        </BlockConnexion>
+          </FixedBlock>
+        </Block>
       )}
     </>
   );
