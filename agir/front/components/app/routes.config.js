@@ -33,7 +33,6 @@ const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
 );
 
-const IntroAppPage = lazy(() => import("@agir/front/app/IntroApp"));
 const SignupPage = lazy(() =>
   import("@agir/front/authentication/Connexion/SignupPage")
 );
@@ -110,6 +109,7 @@ export const routeConfig = {
     Component: AgendaPage,
     hasLayout: false,
     hideFeedbackButton: true,
+    hideTopBar: true,
   }),
   eventMap: new RouteConfig({
     id: "eventMap",
@@ -280,21 +280,6 @@ export const routeConfig = {
     Component: TellMorePage,
     hideTopBar: true,
     hideFeedbackButton: true,
-  }),
-  introApp: new RouteConfig({
-    id: "introApp",
-    pathname: "/intro/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.NONE,
-    label: "Intro",
-    Component: IntroAppPage,
-    hasLayout: false,
-    hideTopBar: true,
-    hideFeedbackButton: true,
-    layoutProps: {
-      smallBackgroundColor: style.black25,
-      hasBanner: false,
-    },
   }),
   logout: new RouteConfig({
     id: "logout",
