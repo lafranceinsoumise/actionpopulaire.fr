@@ -109,6 +109,7 @@ export const routeConfig = {
     label: "Événements",
     Component: AgendaPage,
     hasLayout: false,
+    hideFeedbackButton: true,
   }),
   eventMap: new RouteConfig({
     id: "eventMap",

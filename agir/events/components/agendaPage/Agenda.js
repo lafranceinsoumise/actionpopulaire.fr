@@ -13,6 +13,8 @@ import Button from "@agir/front/genericComponents/Button";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import Link from "@agir/front/app/Link";
 
+import FeedbackButton from "@agir/front/allPages/FeedbackButton";
+
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIs2022,
@@ -359,6 +361,7 @@ const Agenda = () => {
           </Column>
         </Row>
       </PageFadeIn>
+      <FeedbackButton />
     </StyledAgenda>
   );
 };
