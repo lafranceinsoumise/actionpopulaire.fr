@@ -1,14 +1,14 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-
 import style from "@agir/front/genericComponents/_variables.scss";
-
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
-
+import Link from "@agir/front/app/Link";
+import { Hide } from "@agir/front/genericComponents/grid";
+import LogoAP from "@agir/front/genericComponents/LogoAP";
 import JLM_rounded from "@agir/front/genericComponents/images/JLM_rounded.png";
 import LFI_rounded from "@agir/front/genericComponents/images/LFI_rounded.png";
 import checkCirclePrimary from "@agir/front/genericComponents/images/check-circle-primary.svg";
@@ -329,78 +329,89 @@ const ChooseCampaign = ({ dismiss }) => {
   }, [campaign]);
 
   return (
-    <Container onSubmit={handleSubmit}>
-      {fromSignup && (
-        <div
-          style={{
-            display: "inline-flex",
-            fontWeight: 600,
-            padding: "0.5rem 1rem",
-            backgroundColor: style.green100,
-            marginBottom: "2rem",
-            flex: "0 0 auto",
-            alignSelf: "center",
-          }}
-        >
-          <FeatherIcon
-            name="check"
-            color="green"
-            strokeWidth={4}
-            width="1rem"
-            style={{ marginRight: "12px" }}
-          />
-          Votre compte a été créé
-        </div>
-      )}
-
-      <h1>
-        <span>Pour quelle campagne</span>{" "}
-        <span>rejoignez-vous Action Populaire&nbsp;?</span>
-      </h1>
-      <RadioLabel>
-        Nous vous suggérerons des actions qui vous intéressent
-      </RadioLabel>
-
-      <ContainerRadio>
-        <CampaignOption
-          onChange={handleCampaignChange}
-          value="is2022"
-          selected={campaign === "is2022"}
-          img={JLM_rounded}
-          label="La campagne présidentielle 2022"
-        />
-        <Spacer size="1rem" />
-        <CampaignOption
-          onChange={handleCampaignChange}
-          value="isInsoumise"
-          selected={campaign === "isInsoumise"}
-          img={LFI_rounded}
-          label="Une autre campagne de la France Insoumise"
-        />
-      </ContainerRadio>
-
-      <div style={{ textAlign: "left", marginTop: "1.5rem" }}>
-        {campaign === "is2022" && (
-          <h2 style={{ textAlign: "left", marginBottom: "0.5rem" }}>
-            Recevez des informations sur la campagne
-          </h2>
-        )}
-        {campaign &&
-          Array.isArray(NEWSLETTER_OPTIONS[campaign]) &&
-          NEWSLETTER_OPTIONS[campaign].map((option) => (
-            <NewsletterOption
-              key={option.value}
-              {...option}
-              selected={newsletters.includes(option.value)}
-              onChange={handleChangeNewsletter}
+    <div>
+      <Hide under>
+        <div style={{ textAlign: "left" }}>
+          <Link route="events">
+            <LogoAP
+              style={{ marginTop: "2rem", paddingLeft: "2rem", width: "200px" }}
             />
-          ))}
-      </div>
+          </Link>
+        </div>
+      </Hide>
+      <Container onSubmit={handleSubmit}>
+        {fromSignup && (
+          <div
+            style={{
+              display: "inline-flex",
+              fontWeight: 600,
+              padding: "0.5rem 1rem",
+              backgroundColor: style.green100,
+              marginBottom: "2rem",
+              flex: "0 0 auto",
+              alignSelf: "center",
+            }}
+          >
+            <FeatherIcon
+              name="check"
+              color="green"
+              strokeWidth={4}
+              width="1rem"
+              style={{ marginRight: "12px" }}
+            />
+            Votre compte a été créé
+          </div>
+        )}
 
-      <Button color="primary" type="submit" disabled={!campaign || submitted}>
-        Continuer
-      </Button>
-    </Container>
+        <h1>
+          <span>Pour quelle campagne</span>{" "}
+          <span>rejoignez-vous Action Populaire&nbsp;?</span>
+        </h1>
+        <RadioLabel>
+          Nous vous suggérerons des actions qui vous intéressent
+        </RadioLabel>
+
+        <ContainerRadio>
+          <CampaignOption
+            onChange={handleCampaignChange}
+            value="is2022"
+            selected={campaign === "is2022"}
+            img={JLM_rounded}
+            label="La campagne présidentielle 2022"
+          />
+          <Spacer size="1rem" />
+          <CampaignOption
+            onChange={handleCampaignChange}
+            value="isInsoumise"
+            selected={campaign === "isInsoumise"}
+            img={LFI_rounded}
+            label="Une autre campagne de la France Insoumise"
+          />
+        </ContainerRadio>
+
+        <div style={{ textAlign: "left", marginTop: "1.5rem" }}>
+          {campaign === "is2022" && (
+            <h2 style={{ textAlign: "left", marginBottom: "0.5rem" }}>
+              Recevez des informations sur la campagne
+            </h2>
+          )}
+          {campaign &&
+            Array.isArray(NEWSLETTER_OPTIONS[campaign]) &&
+            NEWSLETTER_OPTIONS[campaign].map((option) => (
+              <NewsletterOption
+                key={option.value}
+                {...option}
+                selected={newsletters.includes(option.value)}
+                onChange={handleChangeNewsletter}
+              />
+            ))}
+        </div>
+
+        <Button color="primary" type="submit" disabled={!campaign || submitted}>
+          Continuer
+        </Button>
+      </Container>
+    </div>
   );
 };
 ChooseCampaign.propTypes = {
