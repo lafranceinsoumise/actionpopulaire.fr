@@ -94,14 +94,6 @@ const HeaderImage = styled.div`
   }
 `;
 
-const IntroDescriptionContainer = styled.div`
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  `;
-  
 const FixedBlock = styled.div`
   padding-top: 0.5rem;
   background-color: #fff;
@@ -165,7 +157,8 @@ const items = [
     name: "Agissez concrètement",
     description: (
       <>
-        participez aux actions, diffusez notre programme et commandez&nbsp;<InlineBlock>du matériel</InlineBlock>
+        participez aux actions, diffusez notre programme et commandez&nbsp;
+        <InlineBlock>du matériel</InlineBlock>
       </>
     ),
     image: img2,
