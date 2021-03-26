@@ -13,6 +13,7 @@ import Layout from "@agir/front/dashboardComponents/Layout";
 import Agenda from "@agir/events/agendaPage/Agenda";
 import Homepage from "@agir/front/app/Homepage/Home";
 import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
+import TopBar from "@agir/front/allPages/TopBar";
 
 const AgendaPage = (props) => {
   const isConnected = useSelector(getIsConnected);
@@ -28,6 +29,7 @@ const AgendaPage = (props) => {
 
   return (
     <>
+      <TopBar />
       <TellMorePage />
       <Layout active="events" smallBackgroundColor={style.black25} hasBanner>
         <Helmet>
