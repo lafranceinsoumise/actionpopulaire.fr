@@ -51,9 +51,11 @@ const Login = () => {
   const [error, setError] = useState(null);
 
   let next = "";
-  if (location.state?.next) next = location.state.next;
-  else if (location.search)
+  if (location.state?.next) {
+    next = location.state.next;
+  } else if (location.search) {
     next = new URLSearchParams(location.search).get("next");
+  }
 
   const handleShowMore = () => {
     setShowMore(true);

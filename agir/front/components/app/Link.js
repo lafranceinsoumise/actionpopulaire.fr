@@ -6,8 +6,15 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getHasRouter, getRoutes } from "@agir/front/globalContext/reducers";
 import { routeConfig, getRouteByPathname } from "@agir/front/app/routes.config";
 
+import { addQueryStringParams } from "@agir/lib/utils/url";
+
 const ExternalLink = (props) => {
-  const { href, component, ...rest } = props;
+  const { component, params, ...rest } = props;
+
+  let href = props.href;
+  if (params) {
+    href = addQueryStringParams(href, params);
+  }
 
   if (component) {
     const Component = component;
@@ -19,6 +26,19 @@ const ExternalLink = (props) => {
 ExternalLink.propTypes = {
   href: PropTypes.string.isRequired,
   component: PropTypes.elementType,
+  params: PropTypes.object,
+};
+
+const InternalLink = (props) => {
+  const { to, params, ...rest } = props;
+
+  const next = params ? { pathname: to, state: { ...params } } : to;
+
+  return <RouterLink {...rest} to={next} />;
+};
+InternalLink.propTypes = {
+  to: PropTypes.string.isRequired,
+  params: PropTypes.object,
 };
 
 const RouteLink = (props) => {
@@ -45,7 +65,7 @@ const RouteLink = (props) => {
   }, [routes, route]);
 
   return hasRouter && isInternal ? (
-    <RouterLink {...rest} to={url} />
+    <InternalLink {...rest} to={url} />
   ) : (
     <ExternalLink {...rest} href={url} />
   );
