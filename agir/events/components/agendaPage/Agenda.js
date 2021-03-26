@@ -1,6 +1,6 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -162,13 +162,15 @@ const SuggestionsEvents = ({ suggestions }) => {
 
   const events = React.useMemo(
     () =>
-      suggestions.map((event) => ({
-        ...event,
-        schedule: Interval.fromDateTimes(
-          dateFromISOString(event.startTime),
-          dateFromISOString(event.endTime)
-        ),
-      })),
+      Array.isArray(suggestions)
+        ? suggestions.map((event) => ({
+            ...event,
+            schedule: Interval.fromDateTimes(
+              dateFromISOString(event.startTime),
+              dateFromISOString(event.endTime)
+            ),
+          }))
+        : [],
     [suggestions]
   );
   const byType = React.useMemo(
@@ -264,9 +266,18 @@ const Agenda = () => {
   const routes = useSelector(getRoutes);
   const is2022 = useSelector(getIs2022);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
+  const user = useSelector(getUser);
 
-  const { data: rsvped } = useSWR("/api/evenements/rsvped/");
-  const { data: suggestions } = useSWR("/api/evenements/suggestions/");
+  const isPaused = useCallback(() => {
+    return !user;
+  }, [user]);
+
+  const { data: rsvped } = useSWR("/api/evenements/rsvped/", {
+    isPaused,
+  });
+  const { data: suggestions } = useSWR("/api/evenements/suggestions/", {
+    isPaused,
+  });
 
   const rsvpedEvents = React.useMemo(
     () =>
