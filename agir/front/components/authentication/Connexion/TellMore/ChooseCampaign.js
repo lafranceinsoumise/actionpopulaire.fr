@@ -331,7 +331,7 @@ const ChooseCampaign = ({ dismiss }) => {
   return (
     <div>
       <Hide under>
-        <div style={{ textAlign: "left" }}>
+        <div style={{ position: "fixed" }}>
           <Link route="events">
             <LogoAP
               style={{ marginTop: "2rem", paddingLeft: "2rem", width: "200px" }}
