@@ -186,7 +186,7 @@ const TellMore = ({ dismiss }) => {
           <TextField
             error={error && error.displayName}
             name="displayName"
-            placeholder="Jean-Luc M."
+            placeholder="Mathilde P."
             onChange={handleInputChange}
             value={formData.displayName}
             disabled={isLoading}
