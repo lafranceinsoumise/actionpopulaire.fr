@@ -33,9 +33,20 @@ const LoginMailButton = styled(Button)`
   width: 100%;
   justify-content: space-between;
 
+  span {
+    max-width: 90%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
   & + & {
     margin-left: 0;
   }
+`;
+
+const InlineBlock = styled.span`
+  display: inline-block;
 `;
 
 const ToastNotConnected = () => {
@@ -107,7 +118,7 @@ const Login = () => {
                 onClick={() => loginBookmarkedMail(mail)}
                 block
               >
-                {mail}
+                <span>{mail}</span>
                 <img src={arrowRight} style={{ color: "white" }} />
               </LoginMailButton>
             ))}
@@ -140,8 +151,10 @@ const Login = () => {
 
           {!showMore ? (
             <ShowMore onClick={handleShowMore}>
-              Se connecter avec un autre e-mail{" "}
-              <img src={chevronDown} alt="Afficher plus" />
+              Se connecter avec un autre{" "}
+              <InlineBlock>
+                e-mail <img src={chevronDown} alt="Afficher plus" />
+              </InlineBlock>
             </ShowMore>
           ) : (
             <LoginMailEmpty />
