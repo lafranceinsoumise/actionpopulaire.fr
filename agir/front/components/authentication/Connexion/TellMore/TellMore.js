@@ -53,9 +53,16 @@ const MainBlock = styled.div`
 
   h1 {
     margin: 0px;
-    margin-bottom: 1.125rem;
     font-weight: 700;
     font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1rem;
+    line-height: 24px;
+    font-weight: 400;
+    margin-bottom: 40px;
+    margin-top: 0;
   }
 `;
 
@@ -110,6 +117,7 @@ const MANDAT_OPTIONS = [
 
 const TellMore = ({ dismiss }) => {
   const [formData, setFormData] = useState(DEFAULT_DATA);
+  const [existantData, setExistantData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState({});
 
@@ -118,7 +126,10 @@ const TellMore = ({ dismiss }) => {
     const { data } = await getProfile();
     setIsLoading(false);
     setFormData({
-      displayName: data.displayName?.length > 2 ? data.displayName : DEFAULT_DATA.displayName,
+      displayName:
+        data.displayName?.length > 2
+          ? data.displayName
+          : DEFAULT_DATA.displayName,
       firstName: data.firstName || DEFAULT_DATA.firstName,
       lastName: data.lastName || DEFAULT_DATA.lastName,
       contactPhone: data.contactPhone || DEFAULT_DATA.contactPhone,
@@ -128,6 +139,7 @@ const TellMore = ({ dismiss }) => {
           ? data.mandat[0]
           : null,
     });
+    setExistantData({ firstName: !!data.firstName, lastName: !!data.lastName });
   }, []);
 
   const handleInputChange = useCallback((e) => {
@@ -176,7 +188,8 @@ const TellMore = ({ dismiss }) => {
       </LeftBlock>
       <MainBlock>
         <div style={{ width: "100%", maxWidth: "517px" }}>
-          <h1>J’en dis plus sur moi</h1>
+          <h1>Je complète mon profil</h1>
+          <h2>Complétez les informations vous concernant</h2>
           <label style={{ marginBottom: "0" }}>Nom public</label> (obligatoire)
           <br />
           <span>
@@ -191,31 +204,35 @@ const TellMore = ({ dismiss }) => {
             value={formData.displayName}
             disabled={isLoading}
           />
-          <TextField
-            label={
-              <>
-                Prénom <span style={{ fontWeight: 400 }}>(facultatif)</span>
-              </>
-            }
-            name="firstName"
-            placeholder=""
-            onChange={handleInputChange}
-            value={formData.firstName}
-            disabled={isLoading}
-          />
-          <TextField
-            label={
-              <>
-                Nom <span style={{ fontWeight: 400 }}>(facultatif)</span>
-              </>
-            }
-            id="lastName"
-            name="lastName"
-            placeholder=""
-            onChange={handleInputChange}
-            value={formData.lastName}
-            disabled={isLoading}
-          />
+          {existantData?.firstName && (
+            <TextField
+              label={
+                <>
+                  Prénom <span style={{ fontWeight: 400 }}>(facultatif)</span>
+                </>
+              }
+              name="firstName"
+              placeholder=""
+              onChange={handleInputChange}
+              value={formData.firstName}
+              disabled={isLoading}
+            />
+          )}
+          {existantData?.firstName && (
+            <TextField
+              label={
+                <>
+                  Nom <span style={{ fontWeight: 400 }}>(facultatif)</span>
+                </>
+              }
+              id="lastName"
+              name="lastName"
+              placeholder=""
+              onChange={handleInputChange}
+              value={formData.lastName}
+              disabled={isLoading}
+            />
+          )}
           <InputGroup>
             <div>
               <TextField
