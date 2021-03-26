@@ -238,6 +238,7 @@ const SelectField = (props) => {
         onChange={onChange}
         value={value}
         theme={selectFieldTheme}
+        captureMenuScroll={false}
         components={{
           Control: StyledControl,
           SelectContainer: StyledSelectContainer,
