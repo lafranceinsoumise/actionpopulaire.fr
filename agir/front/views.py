@@ -78,10 +78,6 @@ class NBUrlsView(View):
         raise Http404()
 
 
-class IntroAppView(ReactBaseView):
-    bundle_name = "front/app"
-
-
 class SignupView(ReactBaseView):
     bundle_name = "front/app"
 
@@ -103,10 +99,6 @@ class LogoutView(ReactBaseView):
 
 
 class CodeSignupView(ReactBaseView):
-    bundle_name = "front/app"
-
-
-class ChooseCampaignView(ReactBaseView):
     bundle_name = "front/app"
 
 

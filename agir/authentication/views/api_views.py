@@ -23,7 +23,7 @@ __all__ = [
 ]
 
 send_mail_email_bucket = TokenBucket("SendMail", 5, 600)
-send_mail_ip_bucket = TokenBucket("SendMailIP", 5, 600)
+send_mail_ip_bucket = TokenBucket("SendMailIP", 5, 120)
 check_short_code_bucket = TokenBucket("CheckShortCode", 5, 180)
 
 
