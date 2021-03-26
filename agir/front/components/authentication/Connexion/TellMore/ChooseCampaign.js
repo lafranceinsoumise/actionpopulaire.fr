@@ -17,7 +17,7 @@ import { updateProfile } from "@agir/front/authentication/api";
 
 const RadioLabel = styled.div``;
 
-const Container = styled.div`
+const Container = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -301,16 +301,20 @@ const ChooseCampaign = ({ dismiss }) => {
     }
   }, []);
 
-  const handleSubmit = async () => {
-    setSubmitted(true);
-    await updateProfile({
-      is2022: campaign === "is2022",
-      isInsoumise: campaign === "isInsoumise",
-      newsletters,
-    });
-    setSubmitted(false);
-    dismiss();
-  };
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setSubmitted(true);
+      await updateProfile({
+        is2022: campaign === "is2022",
+        isInsoumise: campaign === "isInsoumise",
+        newsletters,
+      });
+      setSubmitted(false);
+      dismiss();
+    },
+    [campaign, dismiss, newsletters]
+  );
 
   useEffect(() => {
     if (!campaign || !NEWSLETTER_OPTIONS[campaign]) {
@@ -325,7 +329,7 @@ const ChooseCampaign = ({ dismiss }) => {
   }, [campaign]);
 
   return (
-    <Container>
+    <Container onSubmit={handleSubmit}>
       {fromSignup && (
         <div
           style={{
@@ -393,11 +397,7 @@ const ChooseCampaign = ({ dismiss }) => {
           ))}
       </div>
 
-      <Button
-        color="primary"
-        onClick={handleSubmit}
-        disabled={!campaign || submitted}
-      >
+      <Button color="primary" type="submit" disabled={!campaign || submitted}>
         Continuer
       </Button>
     </Container>
