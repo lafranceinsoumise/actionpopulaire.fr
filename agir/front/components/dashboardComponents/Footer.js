@@ -25,7 +25,7 @@ const FooterForm = styled.div`
   align-items: flex-start;
   justify-content: center;
   color: ${style.white};
-  padding: 0 144px;
+  padding: 0 10%;
   width: 100%;
 
   @media (max-width: ${style.collapse}px) {
@@ -159,13 +159,13 @@ const StyledFooter = styled.div`
 
   article {
     width: 100%;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
     color: ${style.black1000};
     margin: 0 auto;
     display: flex;
     flex-flow: row nowrap;
-    justify-content: flex-start;
+    justify-content: space-around;
     align-items: stretch;
     padding: 60px 0;
 
@@ -177,7 +177,7 @@ const StyledFooter = styled.div`
 
     & > div {
       flex: 0 0 auto;
-      padding: 20px 40px;
+      padding: 20px 0;
       color: inherit;
 
       @media (max-width: ${style.collapse}px) {
@@ -247,73 +247,15 @@ export const Footer = (props) => {
                   insoumise.
                 </p>
               )}
-              {is2022 ? (
-                <p>Parrainez la candidature pour vous connecter :</p>
-              ) : (
-                <p>Inscrivez-vous d’une de ces façons :</p>
-              )}
             </article>
-            <div className="small-only">
-              <Button
-                as="a"
-                color="secondary"
-                small
-                href={routes.noussommespour && routes.noussommespour.home}
-              >
-                Parrainer la candidature
+            <div>
+              <Button as="Link" color="secondary" route="signup">
+                Créer mon compte
               </Button>
-              {!is2022 ? (
-                <span style={{ overflowWrap: "normal" }}>&nbsp;ou&nbsp;</span>
-              ) : null}
-              {is2022 ? (
-                <Button small as="a" color="white" href={routes.login}>
-                  J'ai déjà parrainé
-                </Button>
-              ) : (
-                <Button
-                  as="a"
-                  color="white"
-                  small
-                  href={
-                    routes.lafranceinsoumise && routes.lafranceinsoumise.home
-                  }
-                >
-                  Rejoindre la France insoumise
-                </Button>
-              )}
-            </div>
-            <div className="large-only">
-              <Button
-                as="a"
-                color="secondary"
-                href={routes.noussommespour && routes.noussommespour.home}
-              >
-                Parrainer la candidature
-              </Button>
-              {!is2022 ? (
-                <span style={{ overflowWrap: "normal" }}>&nbsp;ou&nbsp;</span>
-              ) : null}
-              {is2022 ? (
-                <Button as="a" color="white" href={routes.login}>
-                  J'ai déjà parrainé
-                </Button>
-              ) : (
-                <Button
-                  as="a"
-                  color="white"
-                  href={
-                    routes.lafranceinsoumise && routes.lafranceinsoumise.home
-                  }
-                >
-                  Rejoindre la France insoumise
-                </Button>
-              )}
             </div>
             <p>
-              {is2022
-                ? "Vous avez déjà un compte ? "
-                : "Vous avez déjà rejoint la France Insoumise ? "}
-              <Link href={routes.login}>Je me connecte</Link>
+              Vous avez déjà un compte&nbsp;?
+              <Link route="login">Je me connecte</Link>
             </p>
           </FooterForm>
         </FooterBanner>
@@ -408,6 +350,11 @@ export const Footer = (props) => {
           <div>
             <h3>Les autres sites</h3>
             <p>
+              {routes.programme && (
+                <Link href={routes.programme}>
+                  Le programme l'Avenir en commun
+                </Link>
+              )}
               {routes.noussommespour && (
                 <Link href={routes.noussommespour.home}>
                   Nous Sommes Pour !
