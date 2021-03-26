@@ -90,7 +90,7 @@ const SUBSCRIPTION_TYPE = {
       group: "rejoindre cette équipe",
     },
     content:
-      "Vous êtes membre de la France Insoumise mais vous n’avez pas encore soutenu la campagne de Jean-Luc Mélenchon pour 2022. Confirmez votre soutien pour participer",
+      "Vous êtes membre de la France Insoumise mais vous n’avez pas encore soutenu la campagne de Jean-Luc Mélenchon pour 2022. Confirmez votre soutien",
     update: {
       is2022: true,
     },
