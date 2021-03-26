@@ -85,13 +85,7 @@ const InputGroup = styled.div`
   }
 `;
 
-<<<<<<< HEAD
 const DEFAULT_DATA = {
-=======
-const optional = <span style={{ fontWeight: 400 }}>(facultatif)</span>;
-const defaultData = {
-  isTellMore: true,
->>>>>>> 40599be5... wording & API for displayName
   displayName: "",
   firstName: "",
   lastName: "",
@@ -122,10 +116,9 @@ const TellMore = ({ dismiss }) => {
   const getProfileInfos = useCallback(async () => {
     setIsLoading(true);
     const { data } = await getProfile();
-<<<<<<< HEAD
     setIsLoading(false);
     setFormData({
-      displayName: data.displayName || DEFAULT_DATA.displayName,
+      displayName: data.displayName?.length > 2 ? data.displayName : DEFAULT_DATA.displayName,
       firstName: data.firstName || DEFAULT_DATA.firstName,
       lastName: data.lastName || DEFAULT_DATA.lastName,
       contactPhone: data.contactPhone || DEFAULT_DATA.contactPhone,
@@ -134,18 +127,6 @@ const TellMore = ({ dismiss }) => {
         Array.isArray(data.mandat) && data.mandat.length > 0
           ? data.mandat[0]
           : null,
-=======
-    const displayName = data.displayName?.length > 2 ? data.displayName : "";
-
-    setFormData({
-      isTellMore: true,
-      displayName: displayName,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      phone: data.contactPhone,
-      postalCode: data.zip,
-      mandat: data.mandat,
->>>>>>> 40599be5... wording & API for displayName
     });
   }, []);
 

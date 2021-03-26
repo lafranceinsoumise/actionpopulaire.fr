@@ -142,7 +142,6 @@ export const updateProfile = async (data) => {
     error: null,
   };
 
-<<<<<<< HEAD
   let formData = {
     is2022: data.is2022,
     isInsoumise: data.isInsoumise,
@@ -153,28 +152,6 @@ export const updateProfile = async (data) => {
     contactPhone: data.phone,
     mandat: data.mandat,
   };
-=======
-  let formData = {};
-
-  if (data.reasonChecked !== undefined) {
-    formData = {
-      ...formData,
-      is2022: data.reasonChecked === 0,
-      isInsoumise: data.reasonChecked === 1,
-    };
-  }
-  if (data.newsletter) {
-    formData = { ...formData, newsletter: data.newsletter };
-  }
-
-  if (data.isTellMore) {
-    formData = { ...formData, displayName: data.displayName || "" };
-    if (data.firstName) formData = { ...formData, firstName: data.firstName };
-    if (data.lastName) formData = { ...formData, lastName: data.lastName };
-    if (data.phone) formData = { ...formData, contactPhone: data.phone };
-    if (data.mandat) formData = { ...formData, mandat: data.mandat };
-  }
->>>>>>> 40599be5... wording & API for displayName
 
   const url = ENDPOINT.updateProfile;
   try {
