@@ -1,17 +1,18 @@
 from datetime import datetime
 
 import reversion
+from data_france.admin import EluMunicipalAdmin as OriginalEluMunicipalAdmin
 from data_france.models import (
     Commune,
     CollectiviteDepartementale,
     CollectiviteRegionale,
+    EluMunicipal,
 )
 from django.contrib import admin
 from django.contrib.postgres.search import SearchQuery
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
-from django.utils.html import format_html, format_html_join
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from psycopg2._range import DateRange
 
 from agir.elus.models import (
@@ -33,12 +34,14 @@ from .filters import (
     DatesFilter,
     AppelEluFilter,
     ReferenceFilter,
+    MandatsFilter,
 )
 from .forms import (
     PERSON_FIELDS,
     CreerMandatForm,
     CreerMandatMunicipalForm,
 )
+from ...lib.admin import display_list_of_links
 
 
 class BaseMandatAdmin(admin.ModelAdmin):
@@ -305,17 +308,8 @@ class BaseMandatAdmin(admin.ModelAdmin):
 
         mandats = MandatMunicipal.objects.filter(person=person)
 
-        return format_html_join(
-            mark_safe("<br>"),
-            '<a href="{}">{}</a>',
-            (
-                (
-                    reverse("admin:elus_mandatmunicipal_change", args=(m.id,)),
-                    m.titre_complet(conseil_avant=True),
-                )
-                for m in mandats
-                if m != obj
-            ),
+        return display_list_of_links(
+            (m, m.titre_complet(conseil_avant=True),) for m in mandats if m != obj
         )
 
     mandats_municipaux.short_description = "Mandats municipaux"
@@ -324,17 +318,8 @@ class BaseMandatAdmin(admin.ModelAdmin):
         person = obj.person
 
         mandats = MandatDepartemental.objects.filter(person=person)
-        return format_html_join(
-            mark_safe("<br>"),
-            '<a href="{}">{}</a>',
-            (
-                (
-                    reverse("admin:elus_mandatdepartemental_change", args=(m.id,)),
-                    m.titre_complet(conseil_avant=True),
-                )
-                for m in mandats
-                if m != obj
-            ),
+        return display_list_of_links(
+            (m, m.titre_complet(conseil_avant=True),) for m in mandats if m != obj
         )
 
     mandats_departementaux.short_description = "Mandats départementaux"
@@ -343,17 +328,8 @@ class BaseMandatAdmin(admin.ModelAdmin):
         person = obj.person
 
         mandats = MandatRegional.objects.filter(person=person)
-        return format_html_join(
-            mark_safe("<br>"),
-            '<a href="{}">{}</a>',
-            (
-                (
-                    reverse("admin:elus_mandatregional_change", args=(m.id,)),
-                    m.titre_complet(conseil_avant=True),
-                )
-                for m in mandats
-                if m != obj
-            ),
+        return display_list_of_links(
+            (m, m.titre_complet(conseil_avant=True),) for m in mandats if m != obj
         )
 
     mandats_regionaux.short_description = "Mandats régionaux"
@@ -618,3 +594,23 @@ class RechercherParrainageMaireAdmin(admin.ModelAdmin):
                 use_distinct,
             )
         return queryset, use_distinct
+
+
+admin.site.unregister(EluMunicipal)
+
+
+@admin.register(EluMunicipal)
+class EluMunicipalAdmin(OriginalEluMunicipalAdmin):
+    list_filter = OriginalEluMunicipalAdmin.list_filter + (MandatsFilter,)
+
+    fieldsets = OriginalEluMunicipalAdmin.fieldsets + (
+        ("Élus référencés", {"fields": ("mandats_associes",)}),
+    )
+
+    def mandats_associes(self, obj):
+        if obj.id:
+            ms = MandatMunicipal.objects.filter(reference=obj).select_related("person")
+
+            return display_list_of_links((m, str(m.person)) for m in ms)
+
+    mandats_associes.short_description = "Personnes associées à cette fiche"

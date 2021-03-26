@@ -1,4 +1,5 @@
 from django.contrib.admin import SimpleListFilter
+from django.db.models import Count, Exists, OuterRef
 from django.utils import timezone
 
 from agir.elus.models import MandatMunicipal
@@ -104,4 +105,28 @@ class ReferenceFilter(SimpleListFilter):
         value = self.value()
         if value:
             return queryset.filter(reference__isnull=value == "N")
+        return queryset
+
+
+class MandatsFilter(SimpleListFilter):
+    parameter_name = "mandats"
+    title = "Mandats associés aux fiches"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("O", "Avec un mandat référencé"),
+            ("D", "Avec plus d'un mandat référencé (doublon)"),
+            ("N", "Sans mandat référencé"),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "D":
+            return queryset.annotate(n=Count("mandatmunicipal")).filter(n__gt=1)
+        elif value in ["O", "N"]:
+            return queryset.annotate(
+                avec_mandat=Exists(
+                    MandatMunicipal.objects.filter(reference_id=OuterRef("id"))
+                )
+            ).filter(avec_mandat=value == "O")
         return queryset
