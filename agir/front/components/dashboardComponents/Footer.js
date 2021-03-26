@@ -159,13 +159,13 @@ const StyledFooter = styled.div`
 
   article {
     width: 100%;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
     color: ${style.black1000};
     margin: 0 auto;
     display: flex;
     flex-flow: row nowrap;
-    justify-content: flex-start;
+    justify-content: space-around;
     align-items: stretch;
     padding: 60px 0;
 
@@ -177,7 +177,7 @@ const StyledFooter = styled.div`
 
     & > div {
       flex: 0 0 auto;
-      padding: 20px 40px;
+      padding: 20px 0;
       color: inherit;
 
       @media (max-width: ${style.collapse}px) {
@@ -408,6 +408,11 @@ export const Footer = (props) => {
           <div>
             <h3>Les autres sites</h3>
             <p>
+              {routes.programme && (
+                <Link href={routes.programme}>
+                  Le programme l'Avenir en commun
+                </Link>
+              )}
               {routes.noussommespour && (
                 <Link href={routes.noussommespour.home}>
                   Nous Sommes Pour !
