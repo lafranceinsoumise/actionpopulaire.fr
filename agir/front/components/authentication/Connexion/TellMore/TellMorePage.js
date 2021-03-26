@@ -3,7 +3,7 @@ import TellMore from "./TellMore";
 import ChooseCampaign from "./ChooseCampaign";
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 import { Redirect } from "react-router-dom";
-import { useHistory, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const TellMorePage = () => {
   const location = useLocation();
