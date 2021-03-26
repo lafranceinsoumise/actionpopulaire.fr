@@ -38,14 +38,14 @@ from .filters import (
 )
 from .forms import (
     PERSON_FIELDS,
-    CreerMandatForm,
-    CreerMandatMunicipalForm,
+    MandatForm,
+    MandatMunicipalForm,
 )
 from ...lib.admin import display_list_of_links
 
 
 class BaseMandatAdmin(admin.ModelAdmin):
-    form = CreerMandatForm
+    form = MandatForm
     add_form_template = "admin/change_form.html"
     change_form_template = "elus/admin/history_change_form.html"
     search_fields = ("person",)
@@ -343,7 +343,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
 
 @admin.register(MandatMunicipal)
 class MandatMunicipalAdmin(BaseMandatAdmin):
-    form = CreerMandatMunicipalForm
+    form = MandatMunicipalForm
     autocomplete_fields = (
         "conseil",
         "reference",
