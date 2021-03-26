@@ -1,18 +1,16 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-
 import style from "@agir/front/genericComponents/_variables.scss";
-
+import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import { Hide } from "@agir/front/genericComponents/grid";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import SelectField from "@agir/front/formComponents/SelectField";
 import TextField from "@agir/front/formComponents/TextField";
-
+import LogoAP from "@agir/front/genericComponents/LogoAP";
 import { updateProfile, getProfile } from "@agir/front/authentication/api";
-
 import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
 
 const LeftBlock = styled.div`
@@ -117,7 +115,7 @@ const MANDAT_OPTIONS = [
 
 const TellMore = ({ dismiss }) => {
   const [formData, setFormData] = useState(DEFAULT_DATA);
-  const [existantData, setExistantData] = useState({});
+  const [existingData, setExistingData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState({});
 
@@ -139,7 +137,7 @@ const TellMore = ({ dismiss }) => {
           ? data.mandat[0]
           : null,
     });
-    setExistantData({ firstName: !!data.firstName, lastName: !!data.lastName });
+    setExistingData({ firstName: !!data.firstName, lastName: !!data.lastName });
   }, []);
 
   const handleInputChange = useCallback((e) => {
@@ -178,133 +176,145 @@ const TellMore = ({ dismiss }) => {
   }, [getProfileInfos]);
 
   return (
-    <div style={{ display: "flex" }}>
-      <LeftBlock>
-        <img
-          src={helloDesktop}
-          alt="Bienvenue"
-          style={{ width: "220px", paddingRight: "60px" }}
-        />
-      </LeftBlock>
-      <MainBlock>
-        <div style={{ width: "100%", maxWidth: "517px" }}>
-          <h1>Je complète mon profil</h1>
-          <h2>Complétez les informations vous concernant</h2>
-          <label style={{ marginBottom: "0" }}>Nom public</label> (obligatoire)
-          <br />
-          <span>
-            Le nom que pourrons voir les membres avec qui vous interagissez.
-            Indiquez par exemple votre prénom ou un pseudonyme.
-          </span>
-          <TextField
-            error={error && error.displayName}
-            name="displayName"
-            placeholder="Mathilde P."
-            onChange={handleInputChange}
-            value={formData.displayName}
-            disabled={isLoading}
+    <div>
+      <Hide under>
+        <div style={{ textAlign: "left" }}>
+          <Link route="events">
+            <LogoAP
+              style={{ marginTop: "2rem", paddingLeft: "2rem", width: "200px" }}
+            />
+          </Link>
+        </div>
+      </Hide>
+      <div style={{ display: "flex" }}>
+        <LeftBlock>
+          <img
+            src={helloDesktop}
+            alt="Bienvenue"
+            style={{ width: "220px", paddingRight: "60px" }}
           />
-          {existantData?.firstName && (
+        </LeftBlock>
+        <MainBlock>
+          <div style={{ width: "100%", maxWidth: "517px" }}>
+            <h1>Je complète mon profil</h1>
+            <h2>Complétez les informations vous concernant</h2>
+            <label style={{ marginBottom: "0" }}>Nom public</label>{" "}
+            (obligatoire)
+            <br />
+            <span>
+              Le nom que pourrons voir les membres avec qui vous interagissez.
+              Indiquez par exemple votre prénom ou un pseudonyme.
+            </span>
             <TextField
-              label={
-                <>
-                  Prénom <span style={{ fontWeight: 400 }}>(facultatif)</span>
-                </>
-              }
-              name="firstName"
-              placeholder=""
+              error={error && error.displayName}
+              name="displayName"
+              placeholder="Mathilde P."
               onChange={handleInputChange}
-              value={formData.firstName}
+              value={formData.displayName}
               disabled={isLoading}
             />
-          )}
-          {existantData?.firstName && (
-            <TextField
-              label={
-                <>
-                  Nom <span style={{ fontWeight: 400 }}>(facultatif)</span>
-                </>
-              }
-              id="lastName"
-              name="lastName"
-              placeholder=""
-              onChange={handleInputChange}
-              value={formData.lastName}
-              disabled={isLoading}
-            />
-          )}
-          <InputGroup>
-            <div>
+            {!existingData.firstName && (
               <TextField
-                label="Code postal"
-                id="zip"
-                error={error && error.zip}
-                name="zip"
-                placeholder=""
-                onChange={handleInputChange}
-                value={formData.zip}
-                disabled={isLoading}
-              />
-            </div>
-            <div>
-              <PhoneField
                 label={
                   <>
-                    Numéro de téléphone{" "}
-                    <span style={{ fontWeight: 400 }}>(facultatif)</span>
+                    Prénom <span style={{ fontWeight: 400 }}>(facultatif)</span>
                   </>
                 }
-                id="contactPhone"
-                name="contactPhone"
-                error={error && error.contactPhone}
+                name="firstName"
+                placeholder=""
                 onChange={handleInputChange}
-                value={formData.contactPhone}
+                value={formData.firstName}
                 disabled={isLoading}
               />
-            </div>
-          </InputGroup>
-          <div style={{ marginTop: "0.625rem" }}>
-            <CheckboxField
-              name="mandat"
-              label="Je suis élu·e"
-              value={formData.mandat !== null}
-              onChange={toggleShowMandat}
-              disabled={isLoading}
-            />
-          </div>
-          {formData.mandat !== null && (
-            <div style={{ marginTop: "10px" }}>
-              <SelectField
-                label="Mandat"
+            )}
+            {!existingData.lastName && (
+              <TextField
+                label={
+                  <>
+                    Nom <span style={{ fontWeight: 400 }}>(facultatif)</span>
+                  </>
+                }
+                id="lastName"
+                name="lastName"
+                placeholder=""
+                onChange={handleInputChange}
+                value={formData.lastName}
+                disabled={isLoading}
+              />
+            )}
+            <InputGroup>
+              <div>
+                <TextField
+                  label="Code postal"
+                  id="zip"
+                  error={error && error.zip}
+                  name="zip"
+                  placeholder=""
+                  onChange={handleInputChange}
+                  value={formData.zip}
+                  disabled={isLoading}
+                />
+              </div>
+              <div>
+                <PhoneField
+                  label={
+                    <>
+                      Numéro de téléphone{" "}
+                      <span style={{ fontWeight: 400 }}>(facultatif)</span>
+                    </>
+                  }
+                  id="contactPhone"
+                  name="contactPhone"
+                  error={error && error.contactPhone}
+                  onChange={handleInputChange}
+                  value={formData.contactPhone}
+                  disabled={isLoading}
+                />
+              </div>
+            </InputGroup>
+            <div style={{ marginTop: "0.625rem" }}>
+              <CheckboxField
                 name="mandat"
-                value={MANDAT_OPTIONS.find(
-                  (option) => option.value === formData.mandat
-                )}
-                options={MANDAT_OPTIONS}
-                onChange={handleChangeMandat}
+                label="Je suis élu·e"
+                value={formData.mandat !== null}
+                onChange={toggleShowMandat}
                 disabled={isLoading}
               />
             </div>
-          )}
-          <Button
-            color="primary"
-            onClick={handleSubmit}
-            disabled={isLoading}
-            style={{
-              width: "356px",
-              maxWidth: "100%",
-              marginTop: "1rem",
-              marginBottom: "2rem",
-              justifyContent: "center",
-            }}
-          >
-            Enregistrer
-          </Button>
-          {formData.mandat === null && (
-            <Hide under style={{ paddingBottom: "79px" }}></Hide>
-          )}
-        </div>
-      </MainBlock>
+            {formData.mandat !== null && (
+              <div style={{ marginTop: "10px" }}>
+                <SelectField
+                  label="Mandat"
+                  name="mandat"
+                  value={MANDAT_OPTIONS.find(
+                    (option) => option.value === formData.mandat
+                  )}
+                  options={MANDAT_OPTIONS}
+                  onChange={handleChangeMandat}
+                  disabled={isLoading}
+                />
+              </div>
+            )}
+            <Button
+              color="primary"
+              onClick={handleSubmit}
+              disabled={isLoading}
+              style={{
+                width: "356px",
+                maxWidth: "100%",
+                marginTop: "1rem",
+                marginBottom: "2rem",
+                justifyContent: "center",
+              }}
+            >
+              Enregistrer
+            </Button>
+            {formData.mandat === null && (
+              <Hide under style={{ paddingBottom: "79px" }}></Hide>
+            )}
+          </div>
+        </MainBlock>
+      </div>
     </div>
   );
 };
