@@ -93,7 +93,7 @@ const Page = (props) => {
               data={[]}
             />
             {routeConfig.hideFeedbackButton ? null : (
-              <FeedbackButton style={{ bottom: "1rem" }} />
+              <FeedbackButton />
             )}
           </Suspense>
         </StyledPage>
