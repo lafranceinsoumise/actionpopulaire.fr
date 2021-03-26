@@ -19,8 +19,7 @@ const ShowMore = styled.div`
   color: ${style.primary500};
   margin-top: 21px;
   cursor: pointer;
-  display: inline-block;
-  text-align: left;
+  text-align: center;
 `;
 
 const ContainerConnexion = styled.div`
@@ -92,50 +91,62 @@ const Login = () => {
       {!!next && next.length > 0 && <ToastNotConnected />}
 
       {bookmarkedEmails[0].length > 0 && (
-        <div style={{ marginTop: "1.5rem" }}>
-          <span style={{ fontWeight: 500 }}>À mon compte :</span>
+        <>
+          <div style={{ marginTop: "1.5rem" }}>
+            {bookmarkedEmails[0].map((mail, id) => (
+              <LoginMailButton
+                key={id}
+                color="primary"
+                onClick={() => loginBookmarkedMail(mail)}
+                block
+              >
+                {mail}
+                <img src={arrowRight} style={{ color: "white" }} />
+              </LoginMailButton>
+            ))}
+          </div>
+          <div
+            style={{
+              textAlign: "center",
+              margin: "20px",
+              marginBottom: "0",
+              fontSize: "14px",
+            }}
+          >
+            OU
+          </div>
 
-          {bookmarkedEmails[0].map((mail, id) => (
-            <LoginMailButton
-              key={id}
-              color="primary"
-              onClick={() => loginBookmarkedMail(mail)}
-              block
-            >
-              {mail}
-              <img src={arrowRight} style={{ color: "white" }} />
-            </LoginMailButton>
-          ))}
-        </div>
-      )}
-
-      {error && !!error.detail && (
-        <Toast>
-          {error.detail} <br />
-          <Link route="codeLogin">
-            Accéder à la page pour demander son code
-          </Link>
-        </Toast>
-      )}
-
-      {bookmarkedEmails[0].length > 0 &&
-        (!showMore ? (
-          <ShowMore onClick={handleShowMore}>
-            Afficher tout <img src={chevronDown} alt="Afficher plus" />
-          </ShowMore>
-        ) : (
+          {error && !!error.detail && (
+            <Toast>
+              {error.detail} <br />
+              <Link route="codeLogin">
+                Accéder à la page pour demander son code
+              </Link>
+            </Toast>
+          )}
+          <LoginFacebook />
           <div
             style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}
           >
             OU
           </div>
-        ))}
 
-      {(showMore || bookmarkedEmails[0]?.length === 0) && (
+          {!showMore ? (
+            <ShowMore onClick={handleShowMore}>
+              Se connecter avec un autre e-mail{" "}
+              <img src={chevronDown} alt="Afficher plus" />
+            </ShowMore>
+          ) : (
+            <LoginMailEmpty />
+          )}
+        </>
+      )}
+
+      {bookmarkedEmails[0]?.length === 0 && (
         <>
           <LoginMailEmpty />
           <div
-            style={{ textAlign: "center", margin: "20px", fontSize: "14px" }}
+            style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}
           >
             OU
           </div>

@@ -118,7 +118,7 @@ const TellMore = ({ dismiss }) => {
     const { data } = await getProfile();
     setIsLoading(false);
     setFormData({
-      displayName: data.displayName || DEFAULT_DATA.displayName,
+      displayName: data.displayName?.length > 2 ? data.displayName : DEFAULT_DATA.displayName,
       firstName: data.firstName || DEFAULT_DATA.firstName,
       lastName: data.lastName || DEFAULT_DATA.lastName,
       contactPhone: data.contactPhone || DEFAULT_DATA.contactPhone,
@@ -186,7 +186,7 @@ const TellMore = ({ dismiss }) => {
           <TextField
             error={error && error.displayName}
             name="displayName"
-            placeholder="Exemple : Marie R."
+            placeholder="Mathilde P."
             onChange={handleInputChange}
             value={formData.displayName}
             disabled={isLoading}
