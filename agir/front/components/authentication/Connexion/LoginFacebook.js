@@ -8,6 +8,7 @@ import { getRoutes } from "@agir/front/globalContext/reducers";
 const ButtonFacebook = styled(Button)`
   max-width: 100%;
   width: 100%;
+  margin-top: 20px;
   justify-content: center;
   font-weight: normal;
   background-color: white;
