@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import arrowRight from "@agir/front/genericComponents/images/arrow-right.svg";
 import chevronDown from "@agir/front/genericComponents/images/chevron-down.svg";
@@ -49,32 +49,37 @@ const Login = () => {
   const [showMore, setShowMore] = useState(false);
   const [error, setError] = useState(null);
 
-  let next = "";
-  if (location.state?.next) {
-    next = location.state.next;
-  } else if (location.search) {
-    next = new URLSearchParams(location.search).get("next");
-  }
-
-  const handleShowMore = () => {
-    setShowMore(true);
-  };
-
-  const loginBookmarkedMail = async (email) => {
-    setError(null);
-    const result = await login(email);
-    if (result.error) {
-      setError(result.error);
-      return;
+  const next = useMemo(() => {
+    if (location.state?.next) {
+      return location.state.next;
+    } else if (location.search) {
+      return new URLSearchParams(location.search).get("next");
     }
+  }, [location.state, location.search]);
 
-    const route = routeConfig.codeLogin.getLink();
-    history.push(route, {
-      email: email,
-      code: result.data && result.data.code,
-      next: next,
-    });
-  };
+  const handleShowMore = useCallback(() => {
+    setShowMore(true);
+  }, []);
+
+  const loginBookmarkedMail = useCallback(
+    async (email) => {
+      setError(null);
+      const result = await login(email);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+
+      const route = routeConfig.codeLogin.getLink();
+      history.push(route, {
+        ...(location.state || {}),
+        next,
+        email: email,
+        code: result.data && result.data.code,
+      });
+    },
+    [next, history, location.state]
+  );
 
   return (
     <ContainerConnexion>
@@ -84,7 +89,9 @@ const Login = () => {
         <span>Pas encore de compte ?</span>
         &nbsp;
         <span>
-          <Link route="signup">Je m'inscris</Link>
+          <Link route="signup" params={{ ...(location.state || {}), next }}>
+            Je m'inscris
+          </Link>
         </span>
       </BlockSwitchLink>
 
