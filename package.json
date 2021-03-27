@@ -46,7 +46,6 @@
     "localized-countries": "^1.0.2",
     "lodash": "^4.17.20",
     "luxon": "^1.25.0",
-    "masonry-layout": "^4.2.2",
     "moment": "^2.29.1",
     "normalize.css": "^8.0.1",
     "object-hash": "^2.1.1",
