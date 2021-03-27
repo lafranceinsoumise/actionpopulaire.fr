@@ -43,41 +43,6 @@ class WordpressClientMixin:
 
 class APISubscriptionTestCase(WordpressClientMixin, TestCase):
     @mock.patch("agir.people.serializers.send_confirmation_email")
-    def test_can_subscribe_with_old_api(self, patched_send_confirmation_mail):
-        data = {"email": "guillaume@email.com", "location_zip": "75004"}
-
-        response = self.client.post(
-            reverse("legacy:person-subscribe"),
-            data=data,
-            HTTP_X_WORDPRESS_CLIENT="192.168.0.1",
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        patched_send_confirmation_mail.delay.assert_called_once()
-        self.assertEqual(
-            patched_send_confirmation_mail.delay.call_args[1],
-            {"location_country": "FR", "type": "LFI", **data},
-        )
-
-    def test_cannot_subscribe_with_old_api_and_unauthorized_client(self):
-        self.client.force_login(self.unauthorized_client.role)
-        data = {"email": "guillaume@email.com", "location_zip": "75004"}
-
-        response = self.client.post(
-            reverse("legacy:person-subscribe"),
-            data=data,
-            HTTP_X_WORDPRESS_CLIENT="192.168.0.1",
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_cannot_subscribe_without_client_ip_on_old_api(self):
-        data = {"email": "guillaume@email.com", "location_zip": "75004"}
-
-        response = self.client.post(reverse("legacy:person-subscribe"), data=data)
-
-        self.assertEqual(response.status_code, 403)
-
-    @mock.patch("agir.people.serializers.send_confirmation_email")
     def test_can_subscribe_with_new_api(self, send_confirmation_email):
         data = {
             "email": "ragah@fez.com",
