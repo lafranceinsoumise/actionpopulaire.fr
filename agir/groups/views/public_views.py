@@ -32,7 +32,6 @@ from agir.people.views import ConfirmSubscriptionView
 
 __all__ = [
     "SupportGroupListView",
-    "SupportGroupDetailView",
     "SupportGroupIcsView",
     "QuitSupportGroupView",
     "ExternalJoinSupportGroupView",
@@ -51,77 +50,6 @@ class SupportGroupListView(FilterView):
     paginate_by = 20
     queryset = SupportGroup.objects.filter(published=True)
     filter_class = GroupFilterSet
-
-
-# Legacy View
-class SupportGroupDetailView(
-    ObjectOpengraphMixin, GlobalOrObjectPermissionRequiredMixin, DetailView
-):
-    permission_required = ("groups.view_supportgroup",)
-    template_name = "groups/detail.html"
-    model = SupportGroup
-
-    meta_description = "Rejoignez les groupes d'action de la France insoumise."
-    meta_description_2022 = "Rejoignez les équipes de soutien de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
-
-    def can_join(self):
-        return self.request.user.is_authenticated and (
-            (self.request.user.person.is_insoumise and not self.object.is_2022)
-            or (self.request.user.person.is_2022 and self.object.is_2022)
-        )
-
-    def handle_no_permission(self):
-        return HttpResponseGone()
-
-    def get_template_names(self):
-        return ["groups/detail.html"]
-
-    def get_context_data(self, **kwargs):
-        events_future = Paginator(
-            self.object.organized_events.upcoming().distinct().order_by("start_time"), 5
-        ).get_page(self.request.GET.get("events_future_page"))
-        events_past = Paginator(
-            self.object.organized_events.past().distinct().order_by("-start_time"), 5
-        ).get_page(self.request.GET.get("events_past_page"))
-
-        return super().get_context_data(
-            events_future=events_future,
-            events_past=events_past,
-            is_member=self.request.user.is_authenticated
-            and self.object.memberships.filter(
-                person=self.request.user.person
-            ).exists(),
-            can_join=self.can_join(),
-            **kwargs,
-        )
-
-    @method_decorator(login_required(login_url=reverse_lazy("short_code_login")))
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if not self.can_join():
-            return HttpResponseForbidden()
-
-        if request.POST["action"] == "join":
-            if self.object.is_full:
-                return HttpResponseRedirect(
-                    reverse("full_group", kwargs={"pk": self.object.pk})
-                )
-            try:
-                with transaction.atomic():
-                    membership = Membership.objects.create(
-                        supportgroup=self.object, person=request.user.person
-                    )
-                    someone_joined_notification(
-                        membership, membership_count=self.object.members_count
-                    )
-            except IntegrityError:
-                pass  # the person is already a member of the group
-            return HttpResponseRedirect(
-                reverse("view_group", kwargs={"pk": self.object.pk})
-            )
-
-        return HttpResponseBadRequest()
 
 
 class SupportGroupIcsView(DetailView):
