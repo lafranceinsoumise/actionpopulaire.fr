@@ -31,9 +31,6 @@
     <div class="padtop padbottom">
       <h4>Les informations de mon événement</h4>
       <div class="panel panel-default">
-        <div class="help-dialog" data-hint="Les informations de votre événement">
-          Vous trouverez ici le rappel des informations de votre événement.
-        </div>
         <div class="panel-heading">
           <strong>{{ event.name }}</strong>{% if event.is_past %} (cet événement est
           terminé){% endif %}
@@ -91,34 +88,22 @@
           <div class="row">
             {% if not event.is_past %}
               <div class="col-md-4 margintop marginbottomless">
-                <div class="help-dialog">
-                  Vous pouvez les modifier en cliquant sur ce bouton.
-                </div>
                 <a class="btn btn-block btn-wrap btn-primary" href="{% url "edit_event" event.pk %}" data-turbolinks="false">
                   Modifier ces informations
                 </a>
               </div>
               <div class="col-md-4 margintop marginbottomless">
-                <div class="help-dialog">
-                  Vous pouvez aussi changer l'endroit où votre événement apparaît sur la carte si celui-ci n'était pas correct.
-                </div>
                 <a class="btn btn-block btn-wrap btn-default" href="{% url "change_event_location" event.pk %}">
                   Corriger la localisation de l'événement
                 </a>
               </div>
               <div class="col-md-4 margintop marginbottomless">
-                <div class="help-dialog">
-                  Vous pouvez enfin annuler votre événement. Un message sera envoyé à tous les participants pour leur signaler.
-                </div>
                 <a class="btn btn-block btn-wrap btn-default" href="{% url "cancel_event" event.pk %}">
                   Annuler l'événement
                 </a>
               </div>
             {% else %}
               <div class="col-md-6 margintop marginbottomless">
-                <div class="help-dialog">
-                  Une fois l'événement terminé, vous pouvez seulement rédiger ou modifier son compte-rendu.
-                </div>
                 <a class="btn btn-block btn-default" href="{% url "edit_event_report" event.pk %}">
                   {% if event.report_content %}Modifier{% else %}Rédiger{% endif %} le compte-rendu
                 </a>
@@ -178,9 +163,6 @@
       </div>
     {% endif %}
     <div class="padtop padbottom">
-      <div class="help-dialog">
-        Apparaissent ici la liste des organisateur de votre événement.
-      </div>
       <h4>Les organisateurs de l'événement</h4>
       <div class="row">
         <div class="col-md-6">
@@ -197,9 +179,6 @@
           </ul>
         </div>
         <div class="col-md-6">
-          <div class="help-dialog">
-            Utilisez ce formulaire pour sélectionner d'autres organisateurs. Pour pouvoir les sélectionner, elles doivent s'êtres inscrites comme participants.
-          </div>
           <p>
             Vous pouvez sélectionner d'autres personnes pour co-organiser l'événement avec vous parmi celles qui ont indiqué participer à l'événement.
           </p>
@@ -209,9 +188,6 @@
     </div>
     {% if event.visibility == "P" %}
       <div class="padtop padbottom">
-        <div class="help-dialog">
-          Finalement, voici la liste des participants.
-        </div>
         <h3>Liste des participants</h3>
 
         <p class="alert alert-info">
@@ -223,10 +199,6 @@
         </p>
 
         <ul class="list-group">
-          <div class="help-dialog">
-            Copiez/collez simplement cette section dans votre logiciel de messagerie pour envoyer un message à tous
-            les participants à votre événement.
-          </div>
           {% for rsvp in rsvps %}
             {% with person=rsvp.person %}
               <li class="list-group-item col-sm-6">
