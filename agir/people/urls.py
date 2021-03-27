@@ -35,16 +35,10 @@ api_urls = [
 ]
 
 subscribe_urls = [
-    path("inscription/", views.SimpleSubscriptionView.as_view(), name="subscription"),
     path(
         "inscription/etranger/",
-        views.OverseasSubscriptionView.as_view(),
+        RedirectView.as_view(url=reverse_lazy("signup")),
         name="subscription_overseas",
-    ),
-    path(
-        "inscription/attente/",
-        views.ConfirmationMailSentView.as_view(),
-        name="subscription_mail_sent",
     ),
     path(
         "inscription/confirmer/",

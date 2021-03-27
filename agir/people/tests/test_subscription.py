@@ -139,25 +139,6 @@ class APISubscriptionTestCase(WordpressClientMixin, TestCase):
         self.assertEqual(person.location_zip, "75001")
 
 
-class OverseasSubscriptionTestCase(TestCase):
-    @mock.patch("agir.people.forms.subscription.send_confirmation_email")
-    def test_can_subscribe(self, patched_send_confirmation_email):
-        data = {
-            "email": "example@example.com",
-            "location_address1": "1 ZolaStraße",
-            "location_address2": "",
-            "location_zip": "10178",
-            "location_city": "Berlin",
-            "location_country": "DE",
-        }
-
-        response = self.client.post("/inscription/etranger/", data)
-        self.assertRedirects(response, reverse("subscription_mail_sent"))
-
-        patched_send_confirmation_email.delay.assert_called_once()
-        self.assertEqual(patched_send_confirmation_email.delay.call_args[1], data)
-
-
 class SubscriptionConfirmationTestCase(TestCase):
     def test_can_receive_mail_and_confirm_subscription(self):
         data = {"email": "guillaume@email.com", "location_zip": "75001"}
