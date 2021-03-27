@@ -53,7 +53,6 @@
   {% block cdn_assets %}{% endblock %}
 
   {% render_bundle 'runtime' %}
-  {% render_bundle 'front/allPages' %}
 
   {% block extra_scripts %}{% endblock %}
   {% block additional_headers %}{% endblock %}
@@ -68,6 +67,7 @@
   <div id="top-bar"></div>
   <div id="release-modal"></div>
   <div id="feedback-button"></div>
+  {% render_bundle 'front/legacyPages' %}
   {% block full_width %}
     <div class="wrap container" role="document">
       <main class="main marginbottommore">
