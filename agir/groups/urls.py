@@ -64,11 +64,6 @@ urlpatterns = [
         name="change_group_location",
     ),
     path(
-        "groupes/<uuid:pk>/rejoindre/",
-        views.ExternalJoinSupportGroupView.as_view(),
-        name="external_join_group",
-    ),
-    path(
         "groupes/<uuid:pk>/impression/",
         views.RedirectToPresseroView.as_view(),
         name="redirect_to_pressero",

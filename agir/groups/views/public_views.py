@@ -1,11 +1,9 @@
 import ics
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
 from django.http import (
     HttpResponseGone,
-    HttpResponseForbidden,
     HttpResponseRedirect,
     HttpResponseBadRequest,
     HttpResponse,
@@ -15,26 +13,22 @@ from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.translation import ugettext as _
-from django.views.generic import DetailView, DeleteView, FormView, ListView
+from django.views.generic import DetailView, DeleteView, ListView
 
 from agir.authentication.view_mixins import (
     GlobalOrObjectPermissionRequiredMixin,
     HardLoginRequiredMixin,
 )
-from agir.front.view_mixins import ObjectOpengraphMixin, FilterView
-from agir.groups.filters import GroupFilterSet
-from agir.groups.forms import ExternalJoinForm
-from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
+from agir.front.view_mixins import FilterView
 from agir.groups.actions.notifications import someone_joined_notification
+from agir.groups.filters import GroupFilterSet
+from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.lib.utils import front_url
-from agir.people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
-from agir.people.views import ConfirmSubscriptionView
 
 __all__ = [
     "SupportGroupListView",
     "SupportGroupIcsView",
     "QuitSupportGroupView",
-    "ExternalJoinSupportGroupView",
     "ThematicTeamsViews",
     "SupportGroupDetailMixin",
 ]
@@ -117,52 +111,6 @@ class QuitSupportGroupView(
         )
 
         return HttpResponseRedirect(success_url)
-
-
-class ExternalJoinSupportGroupView(ConfirmSubscriptionView, FormView, DetailView):
-    queryset = SupportGroup.objects.filter(subtypes__allow_external=True)
-    form_class = ExternalJoinForm
-    show_already_created_message = False
-    default_type = SUBSCRIPTION_TYPE_EXTERNAL
-
-    def dispatch(self, request, *args, **kwargs):
-        self.group = self.object = self.get_object()
-        return super().dispatch(request, *args, **kwargs)
-
-    def success_page(self, params):
-        if Membership.objects.filter(
-            person=self.person, supportgroup=self.group
-        ).exists():
-            messages.add_message(
-                request=self.request,
-                level=messages.INFO,
-                message=_("Vous êtes déjà membre."),
-            )
-            return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
-
-        Membership.objects.get_or_create(person=self.person, supportgroup=self.group)
-        messages.add_message(
-            request=self.request,
-            level=messages.INFO,
-            message=_("Vous avez bien rejoint le groupe."),
-        )
-
-        return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
-
-    def form_valid(self, form):
-        form.send_confirmation_email(self.group)
-        messages.add_message(
-            request=self.request,
-            level=messages.INFO,
-            message=_(
-                "Un email vous a été envoyé. Merci de cliquer sur le "
-                "lien qu'il contient pour confirmer."
-            ),
-        )
-        return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
-
-    def form_invalid(self, form):
-        return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
 
 
 class ThematicTeamsViews(ListView):

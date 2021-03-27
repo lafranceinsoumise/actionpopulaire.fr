@@ -217,33 +217,6 @@ def send_alert_capacity_email(supportgroup_pk, count):
 
 
 @emailing_task
-def send_external_join_confirmation(group_pk, email, **kwargs):
-    try:
-        group = SupportGroup.objects.get(pk=group_pk)
-    except SupportGroup.DoesNotExist:
-        return
-
-    subscription_token = subscription_confirmation_token_generator.make_token(
-        email=email, **kwargs
-    )
-    confirm_subscription_url = front_url(
-        "external_join_group", args=[group_pk], auto_login=False
-    )
-    query_args = {"email": email, **kwargs, "token": subscription_token}
-    confirm_subscription_url += "?" + urlencode(query_args)
-
-    bindings = {"GROUP_NAME": group.name, "JOIN_LINK": confirm_subscription_url}
-
-    send_mosaico_email(
-        code="GROUP_EXTERNAL_JOIN_OPTIN",
-        subject=_(f"Confirmez que vous souhaitez rejoindre « {group.name} »"),
-        from_email=settings.EMAIL_FROM,
-        recipients=[email],
-        bindings=bindings,
-    )
-
-
-@emailing_task
 def invite_to_group(group_id, invited_email, inviter_id):
     try:
         group = SupportGroup.objects.get(pk=group_id)
