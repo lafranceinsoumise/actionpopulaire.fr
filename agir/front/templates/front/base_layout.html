@@ -53,7 +53,7 @@
   {% block cdn_assets %}{% endblock %}
 
   {% render_bundle 'runtime' %}
-  {% render_bundle 'front/allPages' attrs='data-turbolinks-track="reload"' %}
+  {% render_bundle 'front/allPages' %}
 
   {% block extra_scripts %}{% endblock %}
   {% block additional_headers %}{% endblock %}
@@ -65,9 +65,9 @@
         Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
     <![endif]-->
 {% block whole_page %}
-  <div id="top-bar" data-turbolinks-permanent></div>
-  <div id="release-modal" data-turbolinks-permanent></div>
-  <div id="feedback-button" data-turbolinks-permanent></div>
+  <div id="top-bar"></div>
+  <div id="release-modal"></div>
+  <div id="feedback-button"></div>
   {% block full_width %}
     <div class="wrap container" role="document">
       <main class="main marginbottommore">

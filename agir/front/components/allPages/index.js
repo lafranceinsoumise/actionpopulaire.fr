@@ -1,4 +1,3 @@
-import "./style.css";
 import "../genericComponents/style.scss";
 
 import "./renderTopBar";

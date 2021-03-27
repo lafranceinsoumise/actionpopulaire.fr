@@ -5,8 +5,7 @@
 {% block title %}Créer un groupe{% endblock %}
 
 {% block extra_scripts %}
-  {% render_bundle 'lib/creationForms' attrs='defer data-turbolinks-track="reload"' %}
-  <meta name="turbolinks-cache-control" content="no-cache">
+  {% render_bundle 'lib/creationForms' attrs='defer' %}
 {% endblock %}
 
 {% block main %}
@@ -22,7 +21,7 @@
           {% endfor %}
         </ul>
       {% endif %}
-      <div id="create-group-react-app" data-turbolinks="false">
+      <div id="create-group-react-app">
         <div class="text-center"><i class="fa fa-refresh fa-spin fa-3x fa-fw"></i></div>
       </div>
       {{ props | json_script:"react-json-script" }}

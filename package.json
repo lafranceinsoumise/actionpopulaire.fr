@@ -80,7 +80,6 @@
     "swr": "^0.5.0",
     "tinymce": "^5.7.0",
     "tinymce-i18n": "^17.12.31",
-    "turbolinks": "^5.2.0",
     "url": "^0.11.0",
     "validate.js": "^0.13.1",
     "workbox-cacheable-response": "^6.1.0",
