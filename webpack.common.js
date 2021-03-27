@@ -72,15 +72,26 @@ module.exports = {
     new InjectManifest({
       swSrc: path.resolve(
         __dirname,
-        "agir/front/components/serviceWorker/index.js"
+        "agir/front/components/serviceWorker/serviceWorker.js"
       ),
       swDest: "service-worker.js",
       maximumFileSizeToCacheInBytes: 7000000,
       exclude: [
-        /richEditor/,
-        /adminJsonWidget/,
-        /serviceWorker/,
+        /donations/,
+        /elus/,
         new RegExp("front\\" + path.sep + "skins"),
+        /legacyPages/,
+        /richEditor/,
+        /groups/,
+        /adminJsonWidget/,
+        /communeField/,
+        /creationForms/,
+        /IBANField/,
+        /locationSearchField/,
+        /serviceWorker/,
+        /theme/,
+        /\.map$/,
+        /\.LICENSE\.txt$/,
       ],
     }),
   ],
@@ -130,9 +141,13 @@ module.exports = {
         use: ["style-loader", "css-loader"],
       },
       {
-        test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/,
+        test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf)$/,
         exclude: [new RegExp("node_modules\\" + path.sep + "tinymce")],
         type: "asset/resource",
+      },
+      {
+        test: /\.svg$/,
+        type: "asset/inline",
       },
     ],
   },
