@@ -15,7 +15,7 @@ urlpatterns = [
     path("deconnexion/", views.LogoutView.as_view(), name="disconnect"),
     path("offline", views.OfflineApp.as_view(), name="offline"),
     path("sw.js", (views.ServiceWorker.as_view()), name="sw.js"),
-    path("rejoindre/", views.JoinView.as_view(), name="join"),
+    path("rejoindre/", RedirectView.as_view(pattern_name="signup"), name="join"),
     path("bienvenue/", views.WelcomeView.as_view(), name="welcome"),
     path("nsp/", views.NSPView.as_view(), name="nsp"),
     path("nsp/referral/", views.NSPReferralView.as_view(), name="nsp_referral"),
