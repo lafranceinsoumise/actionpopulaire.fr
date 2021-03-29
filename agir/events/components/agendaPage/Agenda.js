@@ -94,12 +94,6 @@ const EmptyAgenda = styled.div`
 `;
 
 const StyledAgenda = styled.div`
-  padding-top: 72px;
-
-  @media (max-width: ${style.collapse}px) {
-    padding-top: 56px;
-  }
-
   & header {
     margin-bottom: 0;
   }

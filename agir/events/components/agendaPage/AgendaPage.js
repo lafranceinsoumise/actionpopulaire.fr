@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet";
 import React from "react";
+import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -14,6 +15,14 @@ import Agenda from "@agir/events/agendaPage/Agenda";
 import Homepage from "@agir/front/app/Homepage/Home";
 import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
 import TopBar from "@agir/front/allPages/TopBar";
+
+const StyledWrapper = styled.div`
+  padding-top: 72px;
+
+  @media (max-width: ${style.collapse}px) {
+    padding-top: 56px;
+  }
+`;
 
 const AgendaPage = (props) => {
   const isConnected = useSelector(getIsConnected);
@@ -31,12 +40,14 @@ const AgendaPage = (props) => {
     <>
       <TopBar />
       <TellMorePage />
-      <Layout active="events" smallBackgroundColor={style.black25} hasBanner>
-        <Helmet>
-          <title>Événements - Action populaire</title>
-        </Helmet>
-        <Agenda {...props} />
-      </Layout>
+      <StyledWrapper>
+        <Layout active="events" smallBackgroundColor={style.black25} hasBanner>
+          <Helmet>
+            <title>Événements - Action populaire</title>
+          </Helmet>
+          <Agenda {...props} />
+        </Layout>
+      </StyledWrapper>
     </>
   );
 };
