@@ -1,10 +1,9 @@
 import ACTION_TYPE from "@agir/front/globalContext/actionTypes";
 
-export const initFromScriptTag = () => {
+export const initFromScriptTag = (hasRouter = false) => {
   const globalContextScript = document.getElementById("globalContext");
   const extraContextScript = document.getElementById("extraContext");
-
-  let globalContextData = {};
+  let globalContextData = { hasRouter };
   if (globalContextScript) {
     globalContextData = {
       ...globalContextData,

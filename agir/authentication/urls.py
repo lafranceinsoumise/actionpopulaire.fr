@@ -1,21 +1,17 @@
 from django.urls import path, include
-from django.views.generic import TemplateView
 from oauth2_provider import views as oauth2_views
 
 from .views import (
-    LoginView,
-    CheckCodeView,
-    DisconnectView,
     Oauth2AuthorizationView,
     SocialLoginError,
     SessionContextAPIView,
+    LoginAPIView,
+    CheckCodeAPIView,
+    LogoutAPIView,
 )
 
 
 urlpatterns = [
-    path("connexion/", LoginView.as_view(), name="short_code_login"),
-    path("connexion/code/", CheckCodeView.as_view(), name="check_short_code",),
-    path("deconnexion/", DisconnectView.as_view(), name="disconnect"),
     path("o/authorize/", Oauth2AuthorizationView.as_view(), name="authorize"),
     path("o/token/", oauth2_views.TokenView.as_view(), name="token"),
     path(
@@ -31,4 +27,7 @@ urlpatterns = [
         name="social_login_error",
     ),
     path("api/session/", SessionContextAPIView.as_view(), name="api_session"),
+    path("api/connexion/", LoginAPIView.as_view(), name="api_login"),
+    path("api/connexion/code/", CheckCodeAPIView.as_view(), name="api_check_code"),
+    path("api/deconnexion/", LogoutAPIView.as_view(), name="api_logout"),
 ]

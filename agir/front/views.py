@@ -1,6 +1,7 @@
 import os
 
 from django.conf import settings
+from django.contrib.auth import logout
 from django.contrib.gis.db.models.functions import Distance
 from django.http import HttpResponsePermanentRedirect, Http404, FileResponse
 from django.urls import reverse_lazy
@@ -77,6 +78,38 @@ class NBUrlsView(View):
         raise Http404()
 
 
+class SignupView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class LoginView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class CodeLoginView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class LogoutView(ReactBaseView):
+    bundle_name = "front/app"
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return super().get(request, *args, **kwargs)
+
+
+class CodeSignupView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class TellMoreView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class WelcomeView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/app"
+
+
 class ReactAppView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
 
@@ -125,7 +158,7 @@ class FullSupportGroupView(SoftLoginRequiredMixin, ReactSingleObjectView):
         }
 
 
-class AgendaView(SoftLoginRequiredMixin, ReactBaseView):
+class AgendaView(ReactBaseView):
     bundle_name = "front/app"
 
 
@@ -133,11 +166,11 @@ class MyGroupsView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
 
 
-class EventMapView(SoftLoginRequiredMixin, ReactBaseView):
+class EventMapView(ReactBaseView):
     bundle_name = "front/app"
 
 
-class GroupMapView(SoftLoginRequiredMixin, ReactBaseView):
+class GroupMapView(ReactBaseView):
     bundle_name = "front/app"
 
 

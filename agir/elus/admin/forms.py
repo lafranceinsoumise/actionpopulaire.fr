@@ -36,7 +36,7 @@ creer_mandat_declared_fields = {
 }
 
 
-class CreerMandatForm(forms.ModelForm):
+class MandatForm(forms.ModelForm):
     email_officiel = forms.ModelChoiceField(
         label="Email officiel", queryset=PersonEmail.objects.none(), required=False
     )
@@ -202,13 +202,11 @@ class CreerMandatForm(forms.ModelForm):
 
 # Inspiré du code de DeclarativeFieldsMetaclass et ModelFormMetaclass
 # base_fields et declared_fields semblent toujours etre le meme objet
-creer_mandat_declared_fields.update(CreerMandatForm.declared_fields)
-CreerMandatForm.base_fields = (
-    CreerMandatForm.declared_fields
-) = creer_mandat_declared_fields
+creer_mandat_declared_fields.update(MandatForm.declared_fields)
+MandatForm.base_fields = MandatForm.declared_fields = creer_mandat_declared_fields
 
 
-def legender_depuis_fiche_rne(form, reference):
+def legender_elu_municipal_depuis_fiche_rne(form, reference):
     form.fields["reference"].help_text = format_html(
         '<a href="{}">{}</a>',
         reverse("admin:data_france_elumunicipal_change", args=(reference.id,)),
@@ -216,6 +214,9 @@ def legender_depuis_fiche_rne(form, reference):
     )
 
     form.fields["mandat"].help_text = f"Dans la fiche RNE : {reference.fonction}"
+    form.fields[
+        "communautaire"
+    ].help_text = f"Dans la fiche RNE : {reference.fonction_epci}"
 
     form.fields["last_name"].help_text = f"Dans la fiche RNE : {reference.nom}"
     form.fields["first_name"].help_text = f"Dans la fiche RNE : {reference.prenom}"
@@ -247,7 +248,7 @@ def legender_depuis_fiche_rne(form, reference):
             )
 
 
-class CreerMandatMunicipalForm(CreerMandatForm):
+class MandatMunicipalForm(MandatForm):
     def __init__(self, *args, instance=None, **kwargs):
         super().__init__(*args, instance=instance, **kwargs)
 
@@ -259,4 +260,4 @@ class CreerMandatMunicipalForm(CreerMandatForm):
                 self.fields["communautaire"].label = f"Mandat auprès de la {epci.nom}"
 
         if instance and instance.reference:
-            legender_depuis_fiche_rne(self, instance.reference)
+            legender_elu_municipal_depuis_fiche_rne(self, instance.reference)

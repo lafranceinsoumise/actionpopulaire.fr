@@ -1,16 +1,24 @@
-import React, { useCallback, useState } from "react";
+import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
+import React, { useCallback, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { mutate } from "swr";
-import { DateTime, Interval } from "luxon";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getIsConnected, getRoutes } from "@agir/front/globalContext/reducers";
+import {
+  getIsConnected,
+  getRoutes,
+  getUser,
+} from "@agir/front/globalContext/reducers";
 import * as api from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
-import style from "@agir/front/genericComponents/_variables.scss";
+import Link from "@agir/front/app/Link";
 import { Hide } from "@agir/front/genericComponents/grid";
+import SubscriptionTypeModal from "@agir/front/authentication/SubscriptionTypeModal";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 import { displayHumanDate } from "@agir/lib/utils/time";
 
 import QuitEventButton from "./QuitEventButton";
@@ -51,7 +59,7 @@ const SmallText = styled.div`
 `;
 
 const ActionButton = styled(Button)``;
-const ActionLink = styled.a`
+const ActionLink = styled(Link)`
   font-weight: 700;
   text-decoration: underline;
 `;
@@ -83,17 +91,30 @@ const StyledActionButtons = styled.div`
 `;
 
 const RSVPButton = (props) => {
-  const { id, forUsers } = props;
+  const user = useSelector(getUser);
+  const { id, forUsers, hasPrice, routes } = props;
+
   const [isLoading, setIsLoading] = useState(false);
-  const globalRoutes = useSelector(getRoutes);
+  const [hasSubscriptionTypeModal, setHasSubscriptionTypeModal] = useState(
+    false
+  );
+
+  const openSubscriptionTypeModal = useCallback(() => {
+    setHasSubscriptionTypeModal(true);
+  }, []);
+
+  const closeSubscriptionTypeModal = useCallback(() => {
+    setHasSubscriptionTypeModal(false);
+  }, []);
+
   const handleRSVP = useCallback(
     async (e) => {
-      e.preventDefault();
+      e && e.preventDefault();
       setIsLoading(true);
 
-      if (!props.hasRightSubscription) {
-        log.debug("Has not right subscribtion, redirection.");
-        window.location.href = `${globalRoutes.join}?type=${forUsers}`;
+      if (hasPrice) {
+        log.debug("Has price, redirection.");
+        window.location.href = routes.rsvp;
         return;
       }
 
@@ -108,6 +129,7 @@ const RSVPButton = (props) => {
       }
 
       setIsLoading(false);
+      setHasSubscriptionTypeModal(false);
 
       await mutate(
         api.getEventEndpoint("getEvent", { eventPk: id }),
@@ -117,8 +139,21 @@ const RSVPButton = (props) => {
         })
       );
     },
-    [id, forUsers, globalRoutes]
+    [id, hasPrice, routes]
   );
+
+  const shouldUpdateSubscription = useMemo(() => {
+    if (!user) {
+      return null;
+    }
+    if (forUsers === "2" && user.is2022) {
+      return null;
+    }
+    if (forUsers === "I" && user.isInsoumise) {
+      return null;
+    }
+    return forUsers === "2" ? "NSP" : "LFI";
+  }, [user, forUsers]);
 
   return (
     <StyledActionButtons>
@@ -126,10 +161,22 @@ const RSVPButton = (props) => {
         type="submit"
         color="secondary"
         disabled={isLoading}
-        onClick={handleRSVP}
+        onClick={
+          shouldUpdateSubscription ? openSubscriptionTypeModal : handleRSVP
+        }
       >
         Participer à l'événement
       </ActionButton>
+      {shouldUpdateSubscription ? (
+        <SubscriptionTypeModal
+          shouldShow={hasSubscriptionTypeModal}
+          type={shouldUpdateSubscription}
+          target="event"
+          onConfirm={handleRSVP}
+          onCancel={closeSubscriptionTypeModal}
+          isLoading={isLoading}
+        />
+      ) : null}
     </StyledActionButtons>
   );
 };
@@ -192,20 +239,23 @@ RSVPButton.propTypes = ActionButtons.propTypes = {
   }),
 };
 
-const AdditionalMessage = ({
-  id,
-  name,
-  logged,
-  rsvped,
-  price,
-  routes,
-  forUsers,
-}) => {
+const AdditionalMessage = ({ id, name, logged, rsvped, price, forUsers }) => {
+  const location = useLocation();
+
   if (!logged) {
     return (
       <div>
-        <ActionLink href={routes.login}>Je me connecte</ActionLink> ou{" "}
-        <ActionLink href={`${routes.join}?type=${forUsers}`}>
+        <ActionLink
+          route="login"
+          params={{ from: "event", forUsers, next: location.pathname }}
+        >
+          Je me connecte
+        </ActionLink>{" "}
+        ou{" "}
+        <ActionLink
+          route="signup"
+          params={{ from: "event", forUsers, next: location.pathname }}
+        >
           je m'inscris
         </ActionLink>{" "}
         pour participer à l'événement
@@ -278,6 +328,7 @@ const EventHeader = ({
         isOrganizer={isOrganizer}
         forUsers={forUsers}
         hasRightSubscription={hasRightSubscription}
+        hasPrice={!!options && !!options.price}
       />
       {!past && (
         <AdditionalMessage

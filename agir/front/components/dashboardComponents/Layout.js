@@ -1,21 +1,25 @@
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
+import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+
+import Announcements from "@agir/front/dashboardComponents/Announcements";
+import Button from "@agir/front/genericComponents/Button";
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
+import Footer from "@agir/front/dashboardComponents/Footer";
 import Navigation, {
   SecondaryNavigation,
 } from "@agir/front/dashboardComponents/Navigation";
-import Announcements from "@agir/front/dashboardComponents/Announcements";
-import Footer from "@agir/front/dashboardComponents/Footer";
-import facebookLogo from "@agir/front/genericComponents/logos/facebook.svg";
-import facebookWhiteLogo from "@agir/front/genericComponents/logos/facebook_white.svg";
-import Button from "@agir/front/genericComponents/Button";
+
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
-import useSWR from "swr";
+import { useMobileApp } from "@agir/front/app/hooks";
+
+import facebookLogo from "@agir/front/genericComponents/logos/facebook.svg";
+import facebookWhiteLogo from "@agir/front/genericComponents/logos/facebook_white.svg";
 
 export const LayoutSubtitle = styled.h2`
   color: ${style.black700};
@@ -119,8 +123,9 @@ const FacebookLoginAd = () => {
     "facebook-login-ad"
   );
   const { data: session } = useSWR("/api/session/");
+  const { isIOS } = useMobileApp();
 
-  return session && !session.facebookLogin && announcement ? (
+  return session && !session.facebookLogin && !isIOS && announcement ? (
     <FacebookLoginContainer>
       <img
         src={facebookLogo}

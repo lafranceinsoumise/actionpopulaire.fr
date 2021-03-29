@@ -1,8 +1,12 @@
 from django.conf import settings
 from django.utils import timezone
+from django.utils.http import urlencode
 
+from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.lib.celery import emailing_task
 from agir.lib.mailing import send_mosaico_email
+from agir.lib.utils import front_url
+from agir.people.actions.subscription import SUBSCRIPTION_TYPE_AP
 
 
 def interleave_spaces(s, n=3):
@@ -29,10 +33,25 @@ def send_login_email(email, short_code, expiry_time):
 
 
 @emailing_task
-def send_no_account_email(email):
+def send_no_account_email(email, subscription_type=SUBSCRIPTION_TYPE_AP, **kwargs):
+    subscription_token = subscription_confirmation_token_generator.make_token(
+        email=email, type=subscription_type, **kwargs
+    )
+    confirm_subscription_url = front_url(
+        "subscription_confirm", auto_login=False, nsp=False
+    )
+    query_args = {
+        "email": email,
+        "type": subscription_type,
+        **kwargs,
+        "token": subscription_token,
+    }
+    confirm_subscription_url += "?" + urlencode(query_args)
+
     send_mosaico_email(
-        code="LOGIN_SIGN_UP_MESSAGE",
-        subject="Vous n'avez pas encore de compte sur la plateforme",
+        code="UNEXISTING_EMAIL_LOGIN",
+        subject="Vous n'avez pas encore de compte sur Action Populaire",
         from_email=settings.EMAIL_FROM,
         recipients=[email],
+        bindings={"SUBSCRIPTION_URL": confirm_subscription_url},
     )

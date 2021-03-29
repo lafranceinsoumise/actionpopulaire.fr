@@ -15,6 +15,12 @@ api_urls = [
         api.SubscriptionAPIView.as_view(),
         name="api_people_subscription",
     ),
+    path("api/inscription/", api.SignupAPIView.as_view(), name="api_people_signup",),
+    path(
+        "api/user/profile/",
+        api.PersonProfileAPIView.as_view(),
+        name="api_people_profile",
+    ),
     path(
         "api/people/newsletters/",
         api.ManageNewslettersAPIView.as_view(),
@@ -29,16 +35,10 @@ api_urls = [
 ]
 
 subscribe_urls = [
-    path("inscription/", views.SimpleSubscriptionView.as_view(), name="subscription"),
     path(
         "inscription/etranger/",
-        views.OverseasSubscriptionView.as_view(),
+        RedirectView.as_view(url=reverse_lazy("signup")),
         name="subscription_overseas",
-    ),
-    path(
-        "inscription/attente/",
-        views.ConfirmationMailSentView.as_view(),
-        name="subscription_mail_sent",
     ),
     path(
         "inscription/confirmer/",

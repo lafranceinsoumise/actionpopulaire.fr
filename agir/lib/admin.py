@@ -3,8 +3,9 @@ from typing import Iterable
 import django_countries
 from django.contrib import admin
 from django.contrib.admin import helpers
+from django.db.models import Model
 from django.urls import reverse
-from django.utils.html import escape
+from django.utils.html import escape, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views import View
@@ -138,3 +139,28 @@ class PersonLinkMixin:
         return "Aucune"
 
     person_link.short_description = "Personne"
+
+
+def get_admin_link(instance):
+    return reverse(
+        f"admin:{instance._meta.app_label}_{instance._meta.model_name}_change",
+        args=(instance.pk,),
+    )
+
+
+def display_list_of_links(links):
+    """Retourne une liste de liens à afficher dans l'admin Django
+
+    :param links: un itérateur de tuples (link_target, link_text) ou (model_instance, link_text)
+    :return: le code html de la liste de liens
+    """
+    links = (
+        (
+            get_admin_link(link_or_instance)
+            if isinstance(link_or_instance, Model)
+            else link_or_instance,
+            text,
+        )
+        for link_or_instance, text in links
+    )
+    return format_html_join(mark_safe("<br>"), '<a href="{}">{}</a>', links)

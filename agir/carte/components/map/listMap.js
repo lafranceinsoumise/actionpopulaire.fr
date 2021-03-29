@@ -146,6 +146,7 @@ export default async function listMap(
     focusGeometry,
     showSearch = true,
     showActiveControl = true,
+    showLayerControl = true,
   }
 ) {
   const display = new Display(types, subtypes, listType);
@@ -207,7 +208,7 @@ export default async function listMap(
     layerControl,
   ] = display.getControls(res.data);
 
-  if (types.length > 1) {
+  if (showLayerControl && types.length > 1) {
     layerControlButton.setMap(map);
     layerControl.setMap(map);
   }

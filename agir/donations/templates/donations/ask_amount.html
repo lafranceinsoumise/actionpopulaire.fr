@@ -8,8 +8,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-  {% render_bundle 'donations/donationForm' attrs='defer data-turbolinks-track="reload"' %}
-  <meta name="turbolinks-cache-control" content="no-cache">
+  {% render_bundle 'donations/donationForm' attrs='defer' %}
 
   <style>
     body {

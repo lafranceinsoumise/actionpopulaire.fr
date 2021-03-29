@@ -43,41 +43,6 @@ class WordpressClientMixin:
 
 class APISubscriptionTestCase(WordpressClientMixin, TestCase):
     @mock.patch("agir.people.serializers.send_confirmation_email")
-    def test_can_subscribe_with_old_api(self, patched_send_confirmation_mail):
-        data = {"email": "guillaume@email.com", "location_zip": "75004"}
-
-        response = self.client.post(
-            reverse("legacy:person-subscribe"),
-            data=data,
-            HTTP_X_WORDPRESS_CLIENT="192.168.0.1",
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        patched_send_confirmation_mail.delay.assert_called_once()
-        self.assertEqual(
-            patched_send_confirmation_mail.delay.call_args[1],
-            {"location_country": "FR", "type": "LFI", **data},
-        )
-
-    def test_cannot_subscribe_with_old_api_and_unauthorized_client(self):
-        self.client.force_login(self.unauthorized_client.role)
-        data = {"email": "guillaume@email.com", "location_zip": "75004"}
-
-        response = self.client.post(
-            reverse("legacy:person-subscribe"),
-            data=data,
-            HTTP_X_WORDPRESS_CLIENT="192.168.0.1",
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_cannot_subscribe_without_client_ip_on_old_api(self):
-        data = {"email": "guillaume@email.com", "location_zip": "75004"}
-
-        response = self.client.post(reverse("legacy:person-subscribe"), data=data)
-
-        self.assertEqual(response.status_code, 403)
-
-    @mock.patch("agir.people.serializers.send_confirmation_email")
     def test_can_subscribe_with_new_api(self, send_confirmation_email):
         data = {
             "email": "ragah@fez.com",
@@ -137,72 +102,6 @@ class APISubscriptionTestCase(WordpressClientMixin, TestCase):
         self.assertEqual(person.first_name, "Marc")
         self.assertEqual(person.last_name, "Polo")
         self.assertEqual(person.location_zip, "75001")
-
-
-class SimpleSubscriptionFormTestCase(TestCase):
-    @mock.patch("agir.people.forms.subscription.send_confirmation_email")
-    def test_can_subscribe(self, patched_send_confirmation_email):
-        for zipcode, country_code in [("75018", "FR"), ("97400", "RE")]:
-            data = {"email": "example@example.com", "location_zip": zipcode}
-            response = self.client.post("/inscription/", data)
-
-            self.assertRedirects(response, reverse("subscription_mail_sent"))
-
-            patched_send_confirmation_email.delay.assert_called_once()
-            self.assertEqual(
-                patched_send_confirmation_email.delay.call_args[1],
-                {"location_country": country_code, **data},
-            )
-            patched_send_confirmation_email.delay.reset_mock()
-
-    def test_cannot_subscribe_without_location_zip(self):
-        data = {"email": "example@example.com"}
-        response = self.client.post("/inscription/", data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_france_country_is_set_by_default(self):
-        data = {"email": "my@e.mail", "location_zip": "01337", "type": "LFI"}
-
-        send_confirmation_email(**data)
-
-        self.assertEqual(len(mail.outbox), 1)
-
-        confirmation_url = reverse("subscription_confirm")
-        match = re.search(confirmation_url + r'\?[^" \n)]+', mail.outbox[0].body)
-
-        self.assertIsNotNone(match)
-        url_with_params = match.group(0)
-
-        response = self.client.get(url_with_params)
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertTrue(
-            response.url.startswith("https://lafranceinsoumise.fr/bienvenue/",)
-        )
-
-        # check that the person has been created
-        person = Person.objects.get_by_natural_key("my@e.mail")
-
-        # check if france is set by default
-        self.assertEqual("France", person.location_country.name)
-
-
-class OverseasSubscriptionTestCase(TestCase):
-    @mock.patch("agir.people.forms.subscription.send_confirmation_email")
-    def test_can_subscribe(self, patched_send_confirmation_email):
-        data = {
-            "email": "example@example.com",
-            "location_address1": "1 ZolaStraße",
-            "location_address2": "",
-            "location_zip": "10178",
-            "location_city": "Berlin",
-            "location_country": "DE",
-        }
-
-        response = self.client.post("/inscription/etranger/", data)
-        self.assertRedirects(response, reverse("subscription_mail_sent"))
-
-        patched_send_confirmation_email.delay.assert_called_once()
-        self.assertEqual(patched_send_confirmation_email.delay.call_args[1], data)
 
 
 class SubscriptionConfirmationTestCase(TestCase):
