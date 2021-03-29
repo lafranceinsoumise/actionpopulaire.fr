@@ -55,7 +55,7 @@ const LoginMailEmpty = () => {
     next = new URLSearchParams(location.search).get("next");
 
   const handleInputChange = useCallback((e) => {
-    setEmail(e.target.value.trim());
+    setEmail(e.target.value);
   }, []);
 
   const handleSubmit = useCallback(

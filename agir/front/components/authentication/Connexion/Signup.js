@@ -92,10 +92,7 @@ const SignUp = () => {
   }, [error, rgpdChecked]);
 
   const handleChange = useCallback((e) => {
-    let { name, value } = e.target;
-    if ("email" === name) {
-      value = value.trim();
-    }
+    const { name, value } = e.target;
     setError((state) => state && { ...state, [name]: null });
     setFormData((state) => ({ ...state, [name]: value }));
   }, []);
