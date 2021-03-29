@@ -94,7 +94,7 @@ const SignUp = () => {
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setError((state) => state && { ...state, [name]: null });
-    setFormData((state) => ({ ...state, [name]: value }));
+    setFormData((state) => ({ ...state, [name]: value.trim() }));
   }, []);
 
   const handleChangeCountry = useCallback((country) => {
