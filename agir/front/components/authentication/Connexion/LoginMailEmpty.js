@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import Link from "@agir/front/app/Link";
@@ -8,7 +8,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
-const Form = styled.div`
+const Form = styled.form`
   box-sizing: border-box;
   margin: 0 auto;
   margin-top: 2rem;
@@ -54,31 +54,32 @@ const LoginMailEmpty = () => {
   if (location.search !== undefined)
     next = new URLSearchParams(location.search).get("next");
 
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    const i = value.indexOf(" ");
-    if (-1 !== i) value = value.substr(0, value.indexOf(" "));
-    setEmail(value);
-  };
+  const handleInputChange = useCallback((e) => {
+    setEmail(e.target.value.trim());
+  }, []);
 
-  const handleSubmit = async () => {
-    setError({});
-    const result = await login(email);
-    if (result.error) {
-      setError(result.error);
-      return;
-    }
-    const route = routeConfig.codeLogin.getLink();
-    history.push(route, {
-      email: email,
-      code: result.data && result.data.code,
-      next: next,
-    });
-  };
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setError({});
+      const result = await login(email);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      const route = routeConfig.codeLogin.getLink();
+      history.push(route, {
+        email: email,
+        code: result.data && result.data.code,
+        next: next,
+      });
+    },
+    [history, email]
+  );
 
   return (
     <>
-      <Form>
+      <Form onSubmit={handleSubmit}>
         <div>
           <TextField
             id="field"
@@ -95,7 +96,7 @@ const LoginMailEmpty = () => {
           )}
         </div>
         <div>
-          <Button color="primary" onClick={handleSubmit}>
+          <Button color="primary" type="submit">
             Me connecter
           </Button>
         </div>
