@@ -55,7 +55,10 @@ const LoginMailEmpty = () => {
     next = new URLSearchParams(location.search).get("next");
 
   const handleInputChange = (e) => {
-    setEmail(e.target.value);
+    const value = e.target.value;
+    const i = value.indexOf(" ");
+    if (-1 !== i) value = value.substr(0, value.indexOf(" "));
+    setEmail(value);
   };
 
   const handleSubmit = async () => {
