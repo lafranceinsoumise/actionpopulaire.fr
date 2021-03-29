@@ -4,21 +4,21 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
   const [
     { default: React },
     { renderReactComponent },
-    { default: TopBar },
+    { default: PushModal },
     { GlobalContextProvider },
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),
-    import("./TopBar"),
-    import("../globalContext/GlobalContext"),
+    import("../allPages/PushModal"),
+    import("@agir/front/globalContext/GlobalContext"),
   ]);
 
   const showHeader = () => {
     renderReactComponent(
       <GlobalContextProvider>
-        <TopBar />
+        <PushModal isActive />
       </GlobalContextProvider>,
-      document.getElementById("top-bar")
+      document.getElementById("release-modal")
     );
   };
   onDOMReady(showHeader);

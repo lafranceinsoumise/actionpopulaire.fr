@@ -10,7 +10,7 @@
     "plugin:react-hooks/recommended",
     "plugin:jest/recommended",
     "plugin:prettier/recommended",
-    "prettier/react"
+    "prettier"
   ],
   "settings": {
     "react": {

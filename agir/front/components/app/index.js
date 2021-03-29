@@ -1,6 +1,9 @@
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 import logger from "@agir/lib/utils/logger";
 
+import "@agir/front/allPages/sentry";
+import "@agir/front/genericComponents/style.scss";
+
 const log = logger(__filename);
 
 (async function () {
@@ -32,5 +35,10 @@ if ("serviceWorker" in navigator) {
     } catch (e) {
       log.error("Failed to register service worker");
     }
+  });
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
   });
 }

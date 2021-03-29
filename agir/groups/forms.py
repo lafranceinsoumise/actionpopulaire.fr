@@ -5,7 +5,6 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Exists, OuterRef
-from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from functools import reduce
 from operator import or_
@@ -19,7 +18,6 @@ from agir.groups.models import (
 from agir.groups.tasks import (
     send_support_group_changed_notification,
     send_support_group_creation_notification,
-    send_external_join_confirmation,
     invite_to_group,
     create_group_creation_confirmation_activity,
     create_accepted_invitation_member_activity,
@@ -349,13 +347,6 @@ class GroupGeocodingForm(GeocodingBaseForm):
 
 class SearchGroupForm(SearchByZipCodeFormBase):
     pass
-
-
-class ExternalJoinForm(forms.Form):
-    email = forms.EmailField()
-
-    def send_confirmation_email(self, event):
-        send_external_join_confirmation.delay(event.pk, **self.cleaned_data)
 
 
 class InvitationWithSubscriptionConfirmationForm(forms.Form):
