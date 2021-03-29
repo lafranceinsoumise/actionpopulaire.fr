@@ -55,7 +55,7 @@ const LoginMailEmpty = () => {
     next = new URLSearchParams(location.search).get("next");
 
   const handleInputChange = useCallback((e) => {
-    setEmail(e.target.value.trim());
+    setEmail(e.target.value);
   }, []);
 
   const handleSubmit = useCallback(
@@ -78,30 +78,30 @@ const LoginMailEmpty = () => {
   );
 
   return (
-    <>
-      <Form onSubmit={handleSubmit}>
-        <div>
-          <TextField
-            id="field"
-            label="Adresse e-mail"
-            error={error && (error.email || error.detail)}
-            placeholder="Adresse e-mail"
-            onChange={handleInputChange}
-            value={email}
-          />
-          {!!error.detail && (
-            <Link route="codeLogin">
-              Accéder à la page pour demander son code
-            </Link>
-          )}
-        </div>
-        <div>
-          <Button color="primary" type="submit">
-            Me connecter
-          </Button>
-        </div>
-      </Form>
-    </>
+    <Form onSubmit={handleSubmit}>
+      <div>
+        <TextField
+          id="email"
+          label="Adresse e-mail"
+          error={error && (error.email || error.detail)}
+          placeholder="Adresse e-mail"
+          onChange={handleInputChange}
+          value={email}
+          name="email"
+          autoComplete="email"
+        />
+        {!!error.detail && (
+          <Link route="codeLogin">
+            Accéder à la page pour demander son code
+          </Link>
+        )}
+      </div>
+      <div>
+        <Button color="primary" type="submit">
+          Me connecter
+        </Button>
+      </div>
+    </Form>
   );
 };
 
