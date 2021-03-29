@@ -10,9 +10,10 @@ import {
   getIsSessionLoaded,
 } from "@agir/front/globalContext/reducers";
 
-import Layout from "@agir/front/dashboardComponents/Layout";
 import Agenda from "@agir/events/agendaPage/Agenda";
+import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 import Homepage from "@agir/front/app/Homepage/Home";
+import Layout from "@agir/front/dashboardComponents/Layout";
 import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
 import TopBar from "@agir/front/allPages/TopBar";
 
@@ -33,12 +34,18 @@ const AgendaPage = (props) => {
   }
 
   if (!isConnected) {
-    return <Homepage />;
+    return (
+      <>
+        <ConnectivityWarning hasTopBar={false} />
+        <Homepage />
+      </>
+    );
   }
 
   return (
     <>
       <TopBar />
+      <ConnectivityWarning hasTopBar />
       <TellMorePage />
       <StyledWrapper>
         <Layout active="events" smallBackgroundColor={style.black25} hasBanner>
