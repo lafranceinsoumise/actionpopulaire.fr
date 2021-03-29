@@ -137,7 +137,6 @@ const items = [
 
 const IntroApp = () => {
   const [index, setIndex] = useState(0);
-
   const showConnexion = index >= items.length;
 
   const handleClick = useCallback(() => {
@@ -145,18 +144,28 @@ const IntroApp = () => {
   }, []);
 
   return (
-    <>
-      {!showConnexion && (
-        <Block>
-          <HeaderImage
-            style={{ backgroundImage: `url(${items[index].image})` }}
-          >
-            <WhiteTriangle>
-              <div />
-            </WhiteTriangle>
-          </HeaderImage>
+    <Block>
+      <HeaderImage
+        style={{
+          backgroundImage: !showConnexion ? `url(${items[index].image})` : "",
+          backgroundColor: style.secondary500,
+        }}
+      >
+        <WhiteTriangle>
+          <div />
+          {showConnexion && (
+            <img
+              src={logo}
+              alt="Action Populaire"
+              style={{ maxWidth: "330px", position: "relative" }}
+            />
+          )}
+        </WhiteTriangle>
+      </HeaderImage>
 
-          <FixedBlock>
+      <FixedBlock>
+        {!showConnexion && (
+          <>
             <p
               style={{
                 color: style.primary500,
@@ -180,23 +189,11 @@ const IntroApp = () => {
               <Mark $active={1 === index} />
               <Mark $active={2 === index} />
             </div>
-          </FixedBlock>
-        </Block>
-      )}
-      {showConnexion && (
-        <Block>
-          <HeaderImage style={{ backgroundColor: style.secondary500 }}>
-            <WhiteTriangle>
-              <div />
-              <img
-                src={logo}
-                alt="Action Populaire"
-                style={{ maxWidth: "330px", position: "relative" }}
-              />
-            </WhiteTriangle>
-          </HeaderImage>
+          </>
+        )}
 
-          <FixedBlock>
+        {showConnexion && (
+          <>
             <StyledButton color="primary" as="Link" route="signup">
               Je crée mon compte
             </StyledButton>
@@ -208,10 +205,10 @@ const IntroApp = () => {
             >
               Je me connecte
             </StyledButton>
-          </FixedBlock>
-        </Block>
-      )}
-    </>
+          </>
+        )}
+      </FixedBlock>
+    </Block>
   );
 };
 
