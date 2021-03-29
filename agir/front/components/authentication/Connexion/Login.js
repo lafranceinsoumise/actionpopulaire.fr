@@ -13,6 +13,7 @@ import { login } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useHistory, useLocation } from "react-router-dom";
 import { useBookmarkedEmails } from "@agir/front/authentication/hooks";
+import { useMobileApp } from "@agir/front/app/hooks";
 
 const ShowMore = styled.div`
   font-weight: 700;
@@ -56,9 +57,10 @@ const ToastNotConnected = () => {
 const Login = () => {
   const history = useHistory();
   const location = useLocation();
-  const bookmarkedEmails = useBookmarkedEmails();
+  const [bookmarkedEmails] = useBookmarkedEmails();
   const [showMore, setShowMore] = useState(false);
   const [error, setError] = useState(null);
+  const { isIOS } = useMobileApp();
 
   const next = useMemo(() => {
     if (location.state?.next) {
@@ -108,10 +110,10 @@ const Login = () => {
 
       {!!next && next.length > 0 && <ToastNotConnected />}
 
-      {bookmarkedEmails[0].length > 0 && (
+      {bookmarkedEmails.length > 0 && (
         <>
           <div style={{ marginTop: "1.5rem" }}>
-            {bookmarkedEmails[0].map((mail, id) => (
+            {bookmarkedEmails.map((mail, id) => (
               <LoginMailButton
                 key={id}
                 color="primary"
@@ -142,12 +144,20 @@ const Login = () => {
               </Link>
             </Toast>
           )}
-          <LoginFacebook />
-          <div
-            style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}
-          >
-            OU
-          </div>
+          {!isIOS && (
+            <>
+              <LoginFacebook />
+              <div
+                style={{
+                  textAlign: "center",
+                  marginTop: "20px",
+                  fontSize: "14px",
+                }}
+              >
+                OU
+              </div>
+            </>
+          )}
 
           {!showMore ? (
             <ShowMore onClick={handleShowMore}>
@@ -162,15 +172,23 @@ const Login = () => {
         </>
       )}
 
-      {bookmarkedEmails[0]?.length === 0 && (
+      {bookmarkedEmails.length === 0 && (
         <>
           <LoginMailEmpty />
-          <div
-            style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}
-          >
-            OU
-          </div>
-          <LoginFacebook />
+          {!isIOS && (
+            <>
+              <div
+                style={{
+                  textAlign: "center",
+                  marginTop: "20px",
+                  fontSize: "14px",
+                }}
+              >
+                OU
+              </div>
+              <LoginFacebook />
+            </>
+          )}
         </>
       )}
     </ContainerConnexion>
