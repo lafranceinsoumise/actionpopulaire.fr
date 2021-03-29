@@ -163,12 +163,13 @@ const TellMore = ({ dismiss }) => {
     setIsLoading(true);
     setError(null);
     const data = await updateProfile(formData);
-    setIsLoading(false);
     if (data.error) {
+      setIsLoading(false);
       setError(data.error);
       return;
     }
-    dismiss();
+    await dismiss();
+    setIsLoading(false);
   }, [dismiss, formData]);
 
   useEffect(() => {
