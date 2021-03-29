@@ -2,7 +2,6 @@ import datetime
 from unittest import mock
 
 import re
-from django.contrib.gis.geos import Point
 from django.core import mail
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -12,9 +11,6 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 
 from agir.api.redis import using_separate_redis_server
-from agir.events.models import Event, OrganizerConfig
-from agir.groups.models import SupportGroup, Membership
-from agir.lib.tests.mixins import FakeDataMixin
 from agir.people.actions.validation_codes import _initialize_buckets
 from agir.people.models import Person, PersonValidationSMS, generate_code
 from agir.people.tasks import (

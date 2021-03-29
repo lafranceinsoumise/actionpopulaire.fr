@@ -1,9 +1,4 @@
-import uuid
-from unittest import mock
-
-import re
 from django.contrib.auth import get_user
-from django.core import mail
 from django.http import QueryDict
 from django.test import TestCase
 from django.urls import reverse
@@ -11,7 +6,7 @@ from django.utils import timezone
 from rest_framework import status
 
 from agir.api.redis import using_separate_redis_server
-from agir.authentication.tokens import connection_token_generator, short_code_generator
+from agir.authentication.tokens import connection_token_generator
 from agir.events.models import Event
 from agir.groups.models import SupportGroup
 from agir.people.models import Person
@@ -68,10 +63,7 @@ class MailLinkTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @mock.patch("agir.authentication.forms.send_login_email")
-    def test_short_code_page_when_access_hard_loggin_page_while_soft_logged_in(
-        self, send_login_email
-    ):
+    def test_short_code_page_when_access_hard_loggin_page_while_soft_logged_in(self):
         self.client.force_login(self.person.role, self.soft_backend)
 
         response = self.client.get(reverse("create_group"), follow=True)
