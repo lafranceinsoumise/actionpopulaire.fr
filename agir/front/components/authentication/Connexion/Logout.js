@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Redirect } from "react-router-dom";
+import { Redirect, useLocation } from "react-router-dom";
 import useSWR from "swr";
 
 import { logout } from "@agir/front/authentication/api";
@@ -17,6 +17,7 @@ import { setSessionContext } from "@agir/front/globalContext/actions";
 
 const Logout = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const user = useSelector(getUser);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +40,14 @@ const Logout = () => {
   }, [dispatch, session]);
 
   if (!isLoading && isSessionLoaded && !user) {
-    return <Redirect to={routeConfig.login.getLink()} />;
+    return (
+      <Redirect
+        to={{
+          pathname: routeConfig.login.getLink(),
+          state: { ...(location.state || {}) },
+        }}
+      />
+    );
   }
 
   return null;
