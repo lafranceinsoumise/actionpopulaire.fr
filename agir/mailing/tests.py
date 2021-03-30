@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.test import TestCase
+from django.utils.timezone import now
 
 # Create your tests here.
 from agir.mailing.models import Segment
@@ -26,3 +29,14 @@ class SegmentTestCase(TestCase):
         role.save()
 
         self.assertNotIn(self.person_with_account, s.get_subscribers_queryset())
+
+    def test_segment_with_registration_duration(self):
+        old_person = Person.objects.create_person(
+            email="old@agir.local", created=now() - timedelta(hours=2)
+        )
+        new_person = Person.objects.create_person(email="new@agir.local", created=now())
+        s = Segment.objects.create(
+            newsletters=[], is_insoumise=None, registration_duration=1
+        )
+        self.assertIn(old_person, s.get_subscribers_queryset())
+        self.assertNotIn(new_person, s.get_subscribers_queryset())
