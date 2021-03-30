@@ -86,6 +86,7 @@ export const routes = (state = {}, action) => {
 
 export const toasts = (state = [], action) => {
   if (
+    action.type === ACTION_TYPE.INIT_ACTION ||
     action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION ||
     action.type === ACTION_TYPE.ADD_TOASTS
   ) {
