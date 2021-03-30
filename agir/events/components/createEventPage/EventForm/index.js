@@ -25,7 +25,7 @@ import ForUsersField from "./ForUsersField";
 import SubtypeField from "./SubtypeField";
 import LocationField from "./LocationField";
 import ContactField from "./ContactField";
-import VisioConfUrlerenceField from "./VisioConfUrlerenceField";
+import VisioConferenceField from "./VisioConferenceField";
 
 const StyledGlobalError = styled.p`
   padding: 0 0 1rem;
