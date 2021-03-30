@@ -25,6 +25,7 @@ import ForUsersField from "./ForUsersField";
 import SubtypeField from "./SubtypeField";
 import LocationField from "./LocationField";
 import ContactField from "./ContactField";
+import VisioConferenceField from "./VisioConferenceField";
 
 const StyledGlobalError = styled.p`
   padding: 0 0 1rem;
@@ -163,6 +164,7 @@ const EventForm = () => {
   const dateRef = useRef(null);
   const forUsersRef = useRef(null);
   const subtypeRef = useRef(null);
+  const visioConfRef = useRef(null);
   const locationRef = useRef(null);
   const contactRef = useRef(null);
 
@@ -431,6 +433,17 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
+      <Spacer size="1.5rem" ref={visioConfRef} />
+      <VisioConferenceField
+        label="Visio-conférence"
+        name="visioConf"
+        onChange={updateValue}
+        error={errors && errors.visioConf}
+        value={formData.visioConf}
+        defaultUrl="https://actionpopulaire.fr"
+        placeholder="URL de la visio-conférence (facultatif)"
+      />
+
       <Spacer size="1.5rem" ref={locationRef} />
       <fieldset>
         <legend>

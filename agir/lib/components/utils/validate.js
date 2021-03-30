@@ -47,4 +47,16 @@ validate.validators.phone = (value, { message }) => {
   }
 };
 
+validate.validators.optionalUrl = function (
+  value,
+  options,
+  attribute,
+  attributes
+) {
+  if (validate.isEmpty(value)) {
+    return;
+  }
+  return validate.validators.url(value, options, attribute, attributes);
+};
+
 export default validate;
