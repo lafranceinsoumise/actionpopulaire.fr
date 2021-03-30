@@ -46,6 +46,7 @@ class CreateEventAPITestCase(APITestCase):
             "subtype": self.subtype.id,
             "organizerGroup": self.managed_group.id,
             "legal": "{}",
+            "visioConfUrl": "https://visio.lafranceinsoumise.fr/abcdef",
         }
 
     def test_anonymous_person_cannot_post(self):
@@ -279,6 +280,15 @@ class CreateEventAPITestCase(APITestCase):
         )
         self.assertEqual(res.status_code, 422)
         self.assertIn("organizerGroup", res.data)
+
+    def test_event_is_not_created_with_invalid_visioConfUrl(self):
+        self.client.force_login(self.person.role)
+        res = self.client.post(
+            "/api/evenements/creer/",
+            data={**self.valid_data, "visioConfUrl": "not an URL!"},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("visioConfUrl", res.data)
 
 
 from agir.events.models import Event, RSVP

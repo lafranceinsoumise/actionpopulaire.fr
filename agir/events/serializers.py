@@ -345,6 +345,10 @@ class CreateEventSerializer(serializers.Serializer):
         default=CurrentPersonDefault(), write_only=True,
     )
 
+    visioConfUrl = serializers.URLField(
+        source="visio_conf_url", required=False, allow_blank=True
+    )
+
     class Meta:
         model = Event
 
