@@ -18,6 +18,8 @@ const Mark = styled.span`
 `;
 
 const Block = styled.div`
+  position: fixed;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -35,8 +37,8 @@ const Block = styled.div`
 
 const WhiteTriangle = styled.div`
   width: 100%;
-  height: 190px;
-  height: calc(100vh - 345px);
+  min-height: 190px;
+  height: calc(100vh - 358px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -75,7 +77,7 @@ const FixedBlock = styled.div`
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 340px;
+  height: 358px;
   z-index: 10;
   display: flex;
   flex-wrap: wrap;
