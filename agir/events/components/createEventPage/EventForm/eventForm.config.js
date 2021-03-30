@@ -66,7 +66,7 @@ export const DEFAULT_FORM_DATA = {
   endTime: new Date().toUTCString(),
   subtype: null,
   forUsers: "",
-  visioConf: "",
+  visioConfUrl: "",
   location: {
     name: "",
     address1: "",
@@ -136,7 +136,7 @@ export const FORM_FIELD_CONSTRAINTS = {
       message: "Choisissez un type parmi les options proposées",
     },
   },
-  visioConf: {
+  visioConfUrl: {
     presence: {
       allowEmpty: true,
     },

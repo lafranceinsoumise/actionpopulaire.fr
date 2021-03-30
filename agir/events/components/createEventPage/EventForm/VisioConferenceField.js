@@ -4,7 +4,7 @@ import TextField from "@agir/front/formComponents/TextField";
 import styled from "styled-components";
 
 const StyledField = styled.div`
-  span:first-child {
+  > span:first-child {
     font-size: 0.813rem;
     font-weight: 600;
     line-height: 1;
