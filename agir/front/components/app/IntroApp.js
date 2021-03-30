@@ -196,7 +196,12 @@ const IntroApp = () => {
 
         {showConnexion && (
           <>
-            <StyledButton color="primary" as="Link" route="signup">
+            <StyledButton
+              color="primary"
+              as="Link"
+              route="signup"
+              style={{ marginTop: "0" }}
+            >
               Je crée mon compte
             </StyledButton>
             <StyledButton
