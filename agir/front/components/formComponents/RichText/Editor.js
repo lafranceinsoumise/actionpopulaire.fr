@@ -27,10 +27,6 @@ const StyledEditor = styled(ReactQuill)`
     return style.black100;
   }};
 
-  @media (max-width: ${style.collapse}px) {
-    font-size: 0.875rem;
-  }
-
   && > .ql-container {
     border: none;
     padding: 1rem;
@@ -45,7 +41,7 @@ const StyledEditor = styled(ReactQuill)`
     .ql-editor {
       padding: 0;
       font-family: ${style.fontFamilyBase};
-      font-size: 0.875rem;
+      font-size: 1rem;
       line-height: ${style.lineHeightBase};
       color: ${style.textColor};
       h1,

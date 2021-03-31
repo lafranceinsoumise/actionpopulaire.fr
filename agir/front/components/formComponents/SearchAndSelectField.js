@@ -23,7 +23,7 @@ const StyledOption = styled(components.Option)`
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
-    font-size: 0.813rem;
+    font-size: 1rem;
     padding: 0.5rem 1rem;
     color: ${({ isSelected }) =>
       isSelected ? style.primary500 : style.black1000};
@@ -64,7 +64,7 @@ const StyledOption = styled(components.Option)`
       }
 
       span {
-        font-size: 0.875rem;
+        font-size: 1rem;
         font-weight: 400;
         color: ${({ isSelected }) =>
           isSelected ? style.primary500 : style.black700};
@@ -74,7 +74,7 @@ const StyledOption = styled(components.Option)`
     ${Button} {
       display: ${({ isSelected }) => (isSelected ? "none" : "inline")};
       margin-left: auto;
-      font-size: 0.813rem;
+      font-size: 1rem;
       font-weight: 700;
       height: 2rem;
     }
@@ -85,15 +85,12 @@ const StyledField = styled.label`
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto auto auto;
-  grid-gap: 0 0.75rem;
+  grid-gap: 4px 0.75rem;
+  margin-bottom: 0;
   align-items: stretch;
-  font-size: 0.813rem;
+  font-size: 1rem;
   font-weight: 400;
   line-height: 1;
-
-  & > * {
-    margin: 4px 0;
-  }
 
   ${StyledLabel} {
     grid-row: 1;
@@ -139,10 +136,6 @@ const StyledField = styled.label`
     &.select__control--is-focused {
       border-color: ${({ $invalid }) =>
         $invalid ? style.redNSP : style.black1000};
-    }
-
-    @media (max-width: ${style.collapse}px) {
-      font-size: 0.875rem;
     }
 
     ${RawFeatherIcon} {

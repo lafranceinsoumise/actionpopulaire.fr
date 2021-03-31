@@ -24,7 +24,7 @@ const StyledDefaultField = styled.div`
     box-shadow: none;
     padding: 0;
     background-color: transparent;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     color: ${style.primary500};
@@ -42,7 +42,7 @@ const StyledField = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: repeat(4, auto);
-  grid-gap: 0.5rem 0;
+  grid-gap: 1rem 0;
 `;
 
 const ContactField = (props) => {

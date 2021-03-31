@@ -59,7 +59,7 @@ const StyledInfoBlock = styled.div`
   & > * {
     margin: 0;
     padding: 0;
-    font-size: 0.875rem;
+    font-size: 1rem;
     line-height: 1.5;
     font-weight: 400;
   }
@@ -91,7 +91,7 @@ const StyledContainer = styled(Container)`
   }
 
   & > div {
-    padding: 0 2rem;
+    padding: 0 1.5rem;
   }
 
   & > div + div {
