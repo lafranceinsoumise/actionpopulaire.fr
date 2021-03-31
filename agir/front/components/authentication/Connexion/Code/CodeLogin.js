@@ -168,6 +168,7 @@ const CodeConnexion = () => {
           onChange={handleCode}
           value={code}
           disabled={submitted}
+          autoFocus
         />
         <div>
           <Button color="primary" disabled={submitted}>
