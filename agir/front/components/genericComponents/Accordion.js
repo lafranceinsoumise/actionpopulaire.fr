@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { useSpring, a, animated } from "react-spring";
 import styled from "styled-components";
 
@@ -33,6 +33,10 @@ const Frame = styled.div`
       $open ? `1px solid ${style.black100}` : "none"};
     text-align: left;
     cursor: pointer;
+
+    &:focus {
+      background-color: ${style.black50};
+    }
 
     & > strong {
       font-weight: 500;
@@ -74,6 +78,16 @@ const Accordion = memo((props) => {
     },
   });
 
+  const contentRef = useRef();
+  useEffect(() => {
+    const controls = contentRef.current.querySelectorAll(
+      "a, input, select, textarea, button"
+    );
+    controls.forEach((control) => {
+      control.tabIndex = isOpen ? "0" : "-1";
+    });
+  }, [isOpen]);
+
   return (
     <Frame $open={isOpen}>
       <Title onClick={() => setOpen((state) => !state)}>
@@ -91,6 +105,9 @@ const Accordion = memo((props) => {
         style={{
           height: isOpen && previous === isOpen ? "auto" : height,
         }}
+        aria-hidden={isOpen ? "false" : "true"}
+        tabIndex={isOpen ? "1" : "-1"}
+        ref={contentRef}
       >
         <a.div style={{ opacity }} {...bind}>
           {children}

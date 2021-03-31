@@ -25,10 +25,16 @@ const StyledButton = styled.button`
 
   &:focus {
     outline: none;
+    box-shadow: ${({ $disabled }) =>
+      !$disabled ? `0 0 0 4px ${style.black100}` : "none"};
   }
 
   &[disabled] {
     opacity: 0.5;
+
+    &:focus {
+      box-shadow: none;
+    }
   }
 `;
 const StyledItem = styled.div`

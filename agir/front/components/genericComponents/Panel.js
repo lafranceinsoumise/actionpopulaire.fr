@@ -56,7 +56,7 @@ AnimatedOverlay.propTypes = {
   className: PropTypes.string,
 };
 
-const StyledBackButton = styled.button`
+export const StyledBackButton = styled.button`
   &,
   &:hover,
   &:focus {
@@ -176,6 +176,7 @@ const Panel = (props) => {
     onClose,
     onBack,
     noScroll,
+    className,
   } = props;
 
   const panelRef = useDisableBodyScroll(noScroll, shouldShow);
@@ -207,6 +208,7 @@ const Panel = (props) => {
           <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
           <PanelContent
             ref={panelContentRef}
+            className={className}
             style={props}
             role="dialog"
             $position={position}
@@ -234,7 +236,11 @@ Panel.propTypes = {
   shouldShow: PropTypes.bool,
   children: PropTypes.node,
   onClose: PropTypes.func,
+  onBack: PropTypes.func,
   noScroll: PropTypes.bool,
+  position: PropTypes.oneOf(["right", "left"]),
+  title: PropTypes.string,
+  className: PropTypes.string,
 };
 
 export default Panel;
