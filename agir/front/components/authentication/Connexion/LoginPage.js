@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import { Hide } from "@agir/front/genericComponents/grid";
 import Login from "./Login";
+import AutoLogin from "./AutoLogin";
 import LeftBlockDesktop from "./LeftBlockDesktop";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
@@ -10,20 +11,31 @@ import AuthenticatedLogin from "./AuthenticatedLogin";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
+  getAuthentication,
   getUser,
   getIsSessionLoaded,
 } from "@agir/front/globalContext/reducers";
+import { AUTHENTICATION } from "@agir/front/authentication/common";
 
 import logoMobile from "@agir/front/genericComponents/logos/action-populaire_mini.svg";
 
 const LoginPage = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const user = useSelector(getUser);
+  const authentication = useSelector(getAuthentication);
+
+  const autoLogin = useMemo(
+    () =>
+      (authentication === AUTHENTICATION.SOFT && user && user.email) || false,
+    [authentication, user]
+  );
 
   return (
     <PageFadeIn ready={isSessionLoaded}>
-      {user ? (
+      {user && authentication === AUTHENTICATION.HARD ? (
         <AuthenticatedLogin user={user} />
+      ) : autoLogin ? (
+        <AutoLogin email={autoLogin} />
       ) : (
         <div style={{ display: "flex", minHeight: "100vh" }}>
           <LeftBlockDesktop />

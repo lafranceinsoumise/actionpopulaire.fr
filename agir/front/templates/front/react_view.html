@@ -11,11 +11,6 @@
 
 {% block whole_page %}
   <div id="{{ app_mount_id }}"></div>
-  {% if messages %}
-    {% for message in messages %}
-      <!-- {{ message.message }} -->
-    {% endfor %}
-  {% endif %}
   {{ export_data|json_script:data_script_id }}
 {% endblock %}
 

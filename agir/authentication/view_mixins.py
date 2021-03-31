@@ -26,15 +26,6 @@ class PermissionErrorTo404Mixin:
 class HardLoginRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if not is_hard_logged(request):
-            if request.user.is_authenticated:
-                messages.add_message(
-                    request,
-                    messages.WARNING,
-                    _(
-                        "Pour accéder à cette partie du site, nous devons vous demander de vous reconnecter.",
-                    ),
-                )
-
             # TOUJOURS rediriger vers le login pour du hardlogin
             # N.B. on ne peut pas redéfinir handle_no_permission, sinon on rend impossible l'utilisation
             # de ce mixin en même temps qu'un des mixins de permissions.
