@@ -35,7 +35,7 @@ const StyledItem = styled.div`
   display: grid;
   grid-template-columns: 1fr auto auto;
   grid-gap: 0 0.5rem;
-  align-items: center;
+  align-items: start;
   font-size: 0.875rem;
   line-height: 1.5;
 `;
@@ -86,7 +86,7 @@ NotificationSettingItem.propTypes = {
     label: PropTypes.string.isRequired,
     pushNotification: PropTypes.bool,
     email: PropTypes.bool,
-  }),
+  }).isRequired,
   onChange: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };
