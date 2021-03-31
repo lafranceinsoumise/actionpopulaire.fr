@@ -1,7 +1,11 @@
 import React, { useCallback, useState } from "react";
-import Button from "@agir/front/genericComponents/Button";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
+
+import Button from "@agir/front/genericComponents/Button";
+import Link from "@agir/front/app/Link";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+
 import img1 from "@agir/front/genericComponents/images/introApp1.jpg";
 import img2 from "@agir/front/genericComponents/images/introApp2.jpg";
 import img3 from "@agir/front/genericComponents/images/introApp3.jpg";
@@ -104,6 +108,28 @@ const StyledButton = styled(Button)`
   font-size: 20px;
   justify-content: center;
   margin-top: 2rem;
+`;
+
+const StyledSearchLink = styled(Link)`
+  max-width: 100%;
+  width: 330px;
+  height: 70px;
+  font-size: 20px;
+  justify-content: center;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+
+  &,
+  &:hover,
+  &:focus {
+    color: ${style.black1000};
+  }
+
+  ${RawFeatherIcon} {
+    margin-right: 0.5rem;
+  }
 `;
 
 const items = [
@@ -212,6 +238,15 @@ const IntroApp = () => {
             >
               Je me connecte
             </StyledButton>
+            <StyledSearchLink route="search">
+              <RawFeatherIcon
+                name="search"
+                width="1rem"
+                height="1rem"
+                strokeWidth={2}
+              />
+              <span>Rechercher une action</span>
+            </StyledSearchLink>
           </>
         )}
       </FixedBlock>
