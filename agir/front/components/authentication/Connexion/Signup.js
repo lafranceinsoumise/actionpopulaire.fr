@@ -165,7 +165,7 @@ const SignUp = () => {
           <TextField
             label="Code postal"
             name="postalCode"
-            error={error && error.zip}
+            error={error && error.postalCode}
             onChange={handleChange}
             value={formData.postalCode}
           />
