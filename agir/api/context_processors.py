@@ -45,19 +45,10 @@ def basic_information(request):
         "facebookLogin": reverse("social:begin", args=["facebook"]),
     }
 
-    toasts = [
-        {"message": m.message, "html": True, "type": m.level_tag.upper()}
-        for m in messages.get_messages(request)
-    ]
-
     return {
         "MAIN_DOMAIN": settings.MAIN_DOMAIN,
         "API_DOMAIN": settings.API_DOMAIN,
         "FRONT_DOMAIN": settings.FRONT_DOMAIN,
         "MAP_DOMAIN": settings.MAP_DOMAIN,
-        "global_context": {
-            "routes": routes,
-            "domain": settings.MAIN_DOMAIN,
-            "toasts": toasts,
-        },
+        "global_context": {"routes": routes, "domain": settings.MAIN_DOMAIN,},
     }
