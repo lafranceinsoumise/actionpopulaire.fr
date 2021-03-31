@@ -1,7 +1,9 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
+
 import style from "@agir/front/genericComponents/_variables.scss";
+
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
@@ -10,7 +12,10 @@ import PhoneField from "@agir/front/formComponents/PhoneField";
 import SelectField from "@agir/front/formComponents/SelectField";
 import TextField from "@agir/front/formComponents/TextField";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
+import Spacer from "@agir/front/genericComponents/Spacer";
+
 import { updateProfile, getProfile } from "@agir/front/authentication/api";
+
 import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
 
 const LeftBlock = styled.div`
@@ -34,33 +39,28 @@ const MainBlock = styled.div`
   align-items: flex-start;
   justify-content: center;
   font-size: 13px;
-  padding: 32px;
+  padding: 2rem;
 
   @media (max-width: ${style.collapse}px) {
     width: 100%;
     align-items: center;
   }
 
-  input {
-    border-color: #c4c4c4;
-  }
-
-  label {
-    font-weight: 600;
-  }
-
   h1 {
-    margin: 0px;
+    margin: 0;
+    padding: 0;
     font-weight: 700;
     font-size: 2rem;
+    padding-bottom: 0.25rem;
   }
 
   h2 {
+    margin: 0;
+    padding: 0;
     font-size: 1rem;
-    line-height: 24px;
+    line-height: 1.5;
     font-weight: 400;
-    margin-bottom: 40px;
-    margin-top: 0;
+    padding-bottom: 2rem;
   }
 `;
 
@@ -199,14 +199,10 @@ const TellMore = ({ dismiss }) => {
           <div style={{ width: "100%", maxWidth: "517px" }}>
             <h1>Je complète mon profil</h1>
             <h2>Complétez les informations vous concernant</h2>
-            <label style={{ marginBottom: "0" }}>Nom public</label>{" "}
-            (obligatoire)
-            <br />
-            <span>
-              Le nom que pourrons voir les membres avec qui vous interagissez.
-              Indiquez par exemple votre prénom ou un pseudonyme.
-            </span>
             <TextField
+              label="Nom public"
+              helpText="Le nom que pourrons voir les membres avec qui vous interagissez.
+              Indiquez par exemple votre prénom ou un pseudonyme."
               error={error && error.displayName}
               name="displayName"
               placeholder="Mathilde P."
@@ -214,34 +210,42 @@ const TellMore = ({ dismiss }) => {
               value={formData.displayName}
               disabled={isLoading}
             />
+            <Spacer size="1rem" />
             {!existingData.firstName && (
-              <TextField
-                label={
-                  <>
-                    Prénom <span style={{ fontWeight: 400 }}>(facultatif)</span>
-                  </>
-                }
-                name="firstName"
-                placeholder=""
-                onChange={handleInputChange}
-                value={formData.firstName}
-                disabled={isLoading}
-              />
+              <>
+                <TextField
+                  label={
+                    <>
+                      Prénom{" "}
+                      <span style={{ fontWeight: 400 }}>(facultatif)</span>
+                    </>
+                  }
+                  name="firstName"
+                  placeholder=""
+                  onChange={handleInputChange}
+                  value={formData.firstName}
+                  disabled={isLoading}
+                />
+                <Spacer size="1rem" />
+              </>
             )}
             {!existingData.lastName && (
-              <TextField
-                label={
-                  <>
-                    Nom <span style={{ fontWeight: 400 }}>(facultatif)</span>
-                  </>
-                }
-                id="lastName"
-                name="lastName"
-                placeholder=""
-                onChange={handleInputChange}
-                value={formData.lastName}
-                disabled={isLoading}
-              />
+              <>
+                <TextField
+                  label={
+                    <>
+                      Nom <span style={{ fontWeight: 400 }}>(facultatif)</span>
+                    </>
+                  }
+                  id="lastName"
+                  name="lastName"
+                  placeholder=""
+                  onChange={handleInputChange}
+                  value={formData.lastName}
+                  disabled={isLoading}
+                />
+                <Spacer size="1rem" />
+              </>
             )}
             <InputGroup>
               <div>
@@ -255,6 +259,7 @@ const TellMore = ({ dismiss }) => {
                   value={formData.zip}
                   disabled={isLoading}
                 />
+                <Spacer size="1rem" />
               </div>
               <div>
                 <PhoneField
@@ -271,9 +276,10 @@ const TellMore = ({ dismiss }) => {
                   value={formData.contactPhone}
                   disabled={isLoading}
                 />
+                <Spacer size="1rem" />
               </div>
             </InputGroup>
-            <div style={{ marginTop: "0.625rem" }}>
+            <div>
               <CheckboxField
                 name="mandat"
                 label="Je suis élu·e"
@@ -281,20 +287,24 @@ const TellMore = ({ dismiss }) => {
                 onChange={toggleShowMandat}
                 disabled={isLoading}
               />
+              <Spacer size="1rem" />
             </div>
             {formData.mandat !== null && (
-              <div style={{ marginTop: "10px" }}>
-                <SelectField
-                  label="Mandat"
-                  name="mandat"
-                  value={MANDAT_OPTIONS.find(
-                    (option) => option.value === formData.mandat
-                  )}
-                  options={MANDAT_OPTIONS}
-                  onChange={handleChangeMandat}
-                  disabled={isLoading}
-                />
-              </div>
+              <>
+                <div>
+                  <SelectField
+                    label="Mandat"
+                    name="mandat"
+                    value={MANDAT_OPTIONS.find(
+                      (option) => option.value === formData.mandat
+                    )}
+                    options={MANDAT_OPTIONS}
+                    onChange={handleChangeMandat}
+                    disabled={isLoading}
+                  />
+                </div>
+                <Spacer size="1rem" />
+              </>
             )}
             <Button
               color="primary"

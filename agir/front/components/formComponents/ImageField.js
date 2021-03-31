@@ -20,7 +20,7 @@ const StyledField = styled.div`
     display: flex;
     flex-flow: column nowrap;
     align-items: flex-start;
-    font-size: 0.813rem;
+    font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
 
