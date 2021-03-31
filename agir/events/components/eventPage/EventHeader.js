@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { mutate } from "swr";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
@@ -87,6 +88,14 @@ const StyledActionButtons = styled.div`
 
   ${Button} + ${Button} {
     margin-left: 0;
+  }
+
+  > div {
+    margin-top: 24px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
   }
 `;
 
@@ -182,7 +191,16 @@ const RSVPButton = (props) => {
 };
 
 const ActionButtons = (props) => {
-  const { past, rsvped, logged, isOrganizer, routes } = props;
+  const {
+    id,
+    name,
+    past,
+    rsvped,
+    logged,
+    isOrganizer,
+    routes,
+    visioConfUrl,
+  } = props;
 
   if (past) {
     return (
@@ -212,14 +230,31 @@ const ActionButtons = (props) => {
   if (rsvped) {
     return (
       <StyledActionButtons>
-        <ActionButton icon="check" color="confirmed">
-          Je participe
-        </ActionButton>
+        {!!visioConfUrl && (
+          <ActionButton
+            icon="video"
+            as="a"
+            href={visioConfUrl}
+            target="_blank"
+            color="primary"
+          >
+            Rejoindre en ligne
+          </ActionButton>
+        )}
+        <ActionButton icon="share-2">Partager</ActionButton>
         {isOrganizer && (
           <ActionButton icon="settings" as="a" href={routes.manage}>
             Gérer l'événement
           </ActionButton>
         )}
+        <div>
+          <div style={{ display: "inline-flex" }}>
+            <RawFeatherIcon name="check" color="green" /> &nbsp;Vous participez
+            à l'évènement
+          </div>
+          &nbsp;&nbsp;
+          <QuitEventButton id={id} name={name} />
+        </div>
       </StyledActionButtons>
     );
   }
@@ -263,10 +298,6 @@ const AdditionalMessage = ({ id, name, logged, rsvped, price, forUsers }) => {
     );
   }
 
-  if (rsvped) {
-    return <QuitEventButton id={id} name={name} />;
-  }
-
   if (price) {
     return (
       <SmallText>
@@ -303,6 +334,7 @@ const EventHeader = ({
   isOrganizer,
   forUsers,
   hasRightSubscription,
+  visioConfUrl,
 }) => {
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
@@ -329,6 +361,7 @@ const EventHeader = ({
         forUsers={forUsers}
         hasRightSubscription={hasRightSubscription}
         hasPrice={!!options && !!options.price}
+        visioConfUrl={visioConfUrl}
       />
       {!past && (
         <AdditionalMessage
@@ -349,6 +382,8 @@ const EventHeader = ({
 EventHeader.propTypes = {
   id: PropTypes.string,
   name: PropTypes.string,
+  startTime: PropTypes.instanceOf(DateTime),
+  endTime: PropTypes.instanceOf(DateTime),
   schedule: PropTypes.instanceOf(Interval),
   hasSubscriptionForm: PropTypes.bool,
   isOrganizer: PropTypes.bool,

@@ -74,3 +74,49 @@ Default.args = {
   },
   rsvped: true,
 };
+
+export const NotLogged = Template.bind({});
+Default.args = {
+  name: "Mon événement",
+  startTime: defaultStartTime.toMillis(),
+  duration: 2,
+  logged: false,
+  price: "",
+  routes: {
+    page: "#page",
+    join: "#join",
+    cancel: "#cancel",
+  },
+  rsvped: true,
+};
+
+export const NoRSVP = Template.bind({});
+Default.args = {
+  name: "Mon événement",
+  startTime: defaultStartTime.toMillis(),
+  duration: 2,
+  logged: true,
+  price: "",
+  routes: {
+    page: "#page",
+    join: "#join",
+    cancel: "#cancel",
+  },
+  rsvped: false,
+};
+
+export const isOnline = Template.bind({});
+Default.args = {
+  name: "Mon événement en ligne",
+  startTime: defaultStartTime.toMillis(),
+  duration: 2,
+  logged: true,
+  price: "",
+  routes: {
+    page: "#page",
+    join: "#join",
+    cancel: "#cancel",
+  },
+  rsvped: true,
+  visioConf: "https://actionpopulaire.fr",
+};

@@ -266,6 +266,7 @@ EventPage.propTypes = {
   }),
   appRoutes: PropTypes.object,
   logged: PropTypes.bool,
+  visioConfUrl: PropTypes.string,
 };
 
 MobileLayout.propTypes = DesktopLayout.propTypes = {
