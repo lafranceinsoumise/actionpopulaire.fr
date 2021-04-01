@@ -25,7 +25,6 @@ const Label = styled.span`
   margin-right: 8px;
   margin-bottom: 4px;
   line-height: 16px;
-  height: 28px;
   border-radius: 20px;
   ${({ main }) =>
     main

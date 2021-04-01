@@ -64,6 +64,18 @@ const ActionLink = styled(Link)`
   font-weight: 700;
   text-decoration: underline;
 `;
+const ActionDetails = styled.div`
+  margin-top: 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  div {
+    display: inline-flex;
+    align-items: center;
+  }
+`;
 
 const StyledActionButtons = styled.div`
   display: inline-grid;
@@ -88,14 +100,6 @@ const StyledActionButtons = styled.div`
 
   ${Button} + ${Button} {
     margin-left: 0;
-  }
-
-  > div {
-    margin-top: 24px;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
   }
 `;
 
@@ -229,33 +233,35 @@ const ActionButtons = (props) => {
 
   if (rsvped) {
     return (
-      <StyledActionButtons>
-        {!!visioConfUrl && (
-          <ActionButton
-            icon="video"
-            as="a"
-            href={visioConfUrl}
-            target="_blank"
-            color="primary"
-          >
-            Rejoindre en ligne
-          </ActionButton>
-        )}
-        <ActionButton icon="share-2">Partager</ActionButton>
-        {isOrganizer && (
-          <ActionButton icon="settings" as="a" href={routes.manage}>
-            Gérer l'événement
-          </ActionButton>
-        )}
-        <div>
-          <div style={{ display: "inline-flex" }}>
+      <>
+        <StyledActionButtons>
+          {!!visioConfUrl && (
+            <ActionButton
+              icon="video"
+              as="a"
+              href={visioConfUrl}
+              target="_blank"
+              color="primary"
+            >
+              Rejoindre en ligne
+            </ActionButton>
+          )}
+          {/* <ActionButton icon="share-2">Partager</ActionButton> */}
+          {isOrganizer && (
+            <ActionButton icon="settings" as="a" href={routes.manage}>
+              Gérer l'événement
+            </ActionButton>
+          )}
+        </StyledActionButtons>
+        <ActionDetails>
+          <div>
             <RawFeatherIcon name="check" color="green" /> &nbsp;Vous participez
             à l'évènement
           </div>
           &nbsp;&nbsp;
           <QuitEventButton id={id} name={name} />
-        </div>
-      </StyledActionButtons>
+        </ActionDetails>
+      </>
     );
   }
 
