@@ -12,13 +12,17 @@ class PushSubscription(UUIDIdentified, TimeStampedModel):
 
     # type of the object reference in this field
     # is implicit by the type of the subscription
-    related_object_id = models.UUIDField()
+    related_object_id = models.UUIDField(blank=True)
 
     content_type = models.ForeignKey(
         ContentType, on_delete=models.CASCADE, verbose_name="Type de périphérique"
     )
     object_id = models.IntegerField()
     device = GenericForeignKey()
+
+    class Meta:
+        # only one subscription by device and by type and by object
+        unique_together = [["content_type", "object_id", "type", "related_object_id"]]
 
 
 class WebPushDevice(push_models.WebPushDevice):
