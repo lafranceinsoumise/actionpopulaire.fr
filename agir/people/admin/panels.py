@@ -122,6 +122,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 "fields": (
                     "first_name",
                     "last_name",
+                    "display_name",
                     "primary_email",
                     "connection_params",
                     "disabled_account",
