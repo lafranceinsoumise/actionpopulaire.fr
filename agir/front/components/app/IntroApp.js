@@ -9,7 +9,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import img1 from "@agir/front/genericComponents/images/introApp1.jpg";
 import img2 from "@agir/front/genericComponents/images/introApp2.jpg";
 import img3 from "@agir/front/genericComponents/images/introApp3.jpg";
-import logo from "@agir/front/genericComponents/images/logoActionPopulaire.png";
+import logo from "@agir/front/genericComponents/logos/action-populaire-logo.svg";
 
 const Mark = styled.span`
   width: 1.5rem;
@@ -192,7 +192,7 @@ const IntroApp = () => {
             <img
               src={logo}
               alt="Action Populaire"
-              style={{ maxWidth: "330px", position: "relative" }}
+              style={{ maxWidth: "210px", position: "relative" }}
             />
           )}
         </WhiteTriangle>
