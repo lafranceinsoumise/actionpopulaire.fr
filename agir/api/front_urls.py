@@ -14,6 +14,7 @@ urlpatterns = [
     path("", include("agir.municipales.urls")),
     path("", include("agir.activity.urls")),
     path("", include("agir.msgs.urls")),
+    path("", include("agir.notifications.urls")),
     path("carte/", include("agir.carte.urls")),
     path("data-france/", include("data_france.urls")),
 ]

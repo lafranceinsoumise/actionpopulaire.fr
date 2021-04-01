@@ -27,6 +27,8 @@ import {
   dismissRequiredActionActivity,
   undoRequiredActionActivityDismissal,
 } from "@agir/activity/common/actions";
+import Button from "@agir/front/genericComponents/Button";
+import { useWebpush } from "../../../notifications/components/webpush/subscriptions";
 
 const Page = styled.article`
   margin: 0;
@@ -76,6 +78,8 @@ const RequiredActivityList = () => {
 
   const tabs = useMemo(() => ["non traité", "voir tout"], []);
 
+  const { webpushAvailable, isSubscribed, subscribe } = useWebpush();
+
   return (
     <>
       <Helmet>
@@ -85,6 +89,16 @@ const RequiredActivityList = () => {
         <LayoutTitle>
           {uninteractedCount ? <Counter>{uninteractedCount}</Counter> : null}À
           faire
+          {webpushAvailable && (
+            <Button
+              style={{ marginLeft: "20px" }}
+              small
+              disabled={isSubscribed}
+              onClick={isSubscribed ? null : subscribe}
+            >
+              Notifications{isSubscribed && " activées"}
+            </Button>
+          )}
         </LayoutTitle>
         <LayoutSubtitle>
           Vos actions à traiter en priorité, pour ne rien oublier !

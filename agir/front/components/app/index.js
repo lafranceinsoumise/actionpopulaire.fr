@@ -28,9 +28,9 @@ const log = logger(__filename);
 })();
 
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
+  window.addEventListener("load", async () => {
     try {
-      navigator.serviceWorker.register("/sw.js");
+      window.AgirSW = await navigator.serviceWorker.register("/sw.js");
       log.debug("Registered service worker");
     } catch (e) {
       log.error("Failed to register service worker");

@@ -80,6 +80,9 @@ django-admin-rangefilter = "*"
 faker = "*"
 django-silk = "*"
 sentry-sdk = "*"
+django-push-notifications = "*"
+pywebpush = "*"
+social-auth-core = "==4.0.2"
 
 [dev-packages]
 ipython = "*"
