@@ -246,7 +246,6 @@ const ActionButtons = (props) => {
               Rejoindre en ligne
             </ActionButton>
           )}
-          {/* <ActionButton icon="share-2">Partager</ActionButton> */}
           {isOrganizer && (
             <ActionButton icon="settings" as="a" href={routes.manage}>
               Gérer l'événement
