@@ -146,7 +146,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     subtype = EventSubtypeSerializer()
 
-    visioConfUrl = serializers.URLField(source="visio_conf_url")
+    visioConfUrl = serializers.URLField(source="online_url")
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -348,7 +348,7 @@ class CreateEventSerializer(serializers.Serializer):
     )
 
     visioConfUrl = serializers.URLField(
-        source="visio_conf_url", required=False, allow_blank=True
+        source="online_url", required=False, allow_blank=True
     )
 
     class Meta:

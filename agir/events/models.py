@@ -377,7 +377,7 @@ class Event(
         choices=FOR_USERS_CHOICES,
     )
 
-    visio_conf_url = models.URLField("Url de visio-conférence", default="", blank=True,)
+    online_url = models.URLField("Url de visio-conférence", default="", blank=True,)
 
     class Meta:
         verbose_name = _("événement")
