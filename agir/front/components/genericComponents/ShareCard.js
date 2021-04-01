@@ -38,18 +38,25 @@ const ShareCard = (props) => {
           <b>{title || "Partager"}</b>
         </Column>
         <Column collapse={false}>
-          <a href={`https://wa.me/?text=${encodedLocation}`}>
+          <a href={`https://wa.me/?text=${encodedLocation}`} target="_blank">
             <img src={whatsappLogo} style={logoSpacing} alt="Whatsapp" />
           </a>
-          <a href={`https://t.me/share/url?url=${encodedLocation}`}>
+          <a
+            href={`https://t.me/share/url?url=${encodedLocation}`}
+            target="_blank"
+          >
             <img src={telegramLogo} style={logoSpacing} alt="Telegram" />
           </a>
           <a
             href={`https://www.facebook.com/sharer/sharer.php?u=${encodedLocation}`}
+            target="_blank"
           >
             <img src={facebookLogo} style={logoSpacing} alt="Facebook" />
           </a>
-          <a href={`https://twitter.com/intent/tweet?text=${encodedLocation}`}>
+          <a
+            href={`https://twitter.com/intent/tweet?text=${encodedLocation}`}
+            target="_blank"
+          >
             <img
               src={twitterLogo}
               style={{ ...logoSpacing, marginRight: 0 }}
