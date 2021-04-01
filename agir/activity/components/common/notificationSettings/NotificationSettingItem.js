@@ -69,7 +69,9 @@ const NotificationSettingItem = (props) => {
       <StyledButton
         $active={notification.pushNotification}
         $hidden={typeof notification.pushNotification === "undefined"}
-        aria-label={`Notifications:${notification.pushNotification} ? "active" : "inactive"}`}
+        aria-label={`Notifications:${
+          notification.pushNotification ? "active" : "inactive"
+        }`}
         onClick={togglePush}
         disabled={disabled}
       >
@@ -78,7 +80,9 @@ const NotificationSettingItem = (props) => {
       <StyledButton
         $active={notification.email}
         $hidden={typeof notification.email === "undefined"}
-        aria-label={`Notifications:${notification.email} ? "active" : "inactive"}`}
+        aria-label={`Notifications:${
+          notification.email ? "active" : "inactive"
+        }`}
         onClick={toggleEmail}
         disabled={disabled}
       >

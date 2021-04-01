@@ -127,6 +127,7 @@ INSTALLED_APPS = [
     "agir.loans",
     "agir.mailing",
     "agir.activity.apps.ActivityConfig",
+    "agir.notifications",
     "agir.municipales.apps.MunicipalesConfig",
     "agir.legacy",
     "agir.telegram",
@@ -171,6 +172,8 @@ INSTALLED_APPS = [
     "webpack_loader",
     # fi apps
     "nuntius",
+    # push,
+    "push_notifications",
     # security
     "corsheaders",
     "reversion",
@@ -817,3 +820,11 @@ if municipales_campagnes_filename:
         MUNICIPALES_CAMPAGNES = json.load(f)
 else:
     MUNICIPALES_CAMPAGNES = []
+
+# Push notifications
+PUSH_NOTIFICATIONS_SETTINGS = {
+    "UPDATE_ON_DUPLICATE_REG_ID": True,
+    "UNIQUE_REG_ID": True,
+    "WP_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY"),
+    "WP_CLAIMS": {"sub": "mailto: site@lafranceinsoumise.fr"},
+}

@@ -94,6 +94,7 @@ module.exports = {
         /\.LICENSE\.txt$/,
       ],
     }),
+    new webpack.EnvironmentPlugin(["WEBPUSH_PUBLIC_KEY"]),
   ],
   output: {
     libraryTarget: "window",
