@@ -38,7 +38,6 @@ const Block = styled.div`
 const WhiteTriangle = styled.div`
   position: relative;
   width: 100%;
-  // height: 80px;
   min-height: 290px;
   height: calc(100vh - 358px);
   display: flex;
