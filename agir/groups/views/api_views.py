@@ -37,6 +37,7 @@ from agir.lib.pagination import APIPaginator
 from agir.groups.tasks import send_message_notification_email
 
 __all__ = [
+    "LegacyGroupSearchAPIView",
     "GroupSearchAPIView",
     "GroupSubtypesView",
     "UserGroupsView",
@@ -62,7 +63,7 @@ from agir.msgs.serializers import (
 )
 
 
-class GroupSearchAPIView(ListAPIView):
+class LegacyGroupSearchAPIView(ListAPIView):
     "Vieille API encore utilisée par le composant js groupSelector du formulaire de dons"
 
     queryset = SupportGroup.objects.active()
@@ -71,6 +72,20 @@ class GroupSearchAPIView(ListAPIView):
     serializer_class = SupportGroupLegacySerializer
     pagination_class = APIPaginator
     permission_classes = (IsAuthenticated,)
+
+
+class GroupSearchAPIView(ListAPIView):
+    queryset = SupportGroup.objects.active()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = GroupAPIFilterSet
+    serializer_class = SupportGroupDetailSerializer
+    pagination_class = APIPaginator
+    permission_classes = (IsAuthenticated,)
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=["id", "name", "type", "location", "commune",], **kwargs
+        )
 
 
 class GroupSubtypesView(ListAPIView):

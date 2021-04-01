@@ -29,7 +29,7 @@ import ContactField from "./ContactField";
 const StyledGlobalError = styled.p`
   padding: 0 0 1rem;
   margin: 0;
-  font-size: 0.813rem;
+  font-size: 1rem;
   text-align: center;
   color: ${style.redNSP};
 `;
@@ -41,21 +41,22 @@ const StyledForm = styled.form`
     padding: 0;
 
     legend {
-      font-size: 0.813rem;
+      font-size: 1rem;
       line-height: 1.5;
       font-weight: 400;
       margin: 0;
-      padding-bottom: 0.75rem;
+      padding-bottom: 1.5rem;
 
       strong {
         display: block;
-        font-size: 1.125rem;
+        font-size: 1.5rem;
         line-height: 1.6;
         font-weight: 500;
+        padding-bottom: 0.5rem;
       }
 
       em {
-        font-weight: 700;
+        text-decoration: underline;
         font-style: normal;
       }
     }
@@ -431,15 +432,14 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
-      <Spacer size="1.5rem" ref={locationRef} />
+      <Spacer size="2rem" ref={locationRef} />
       <fieldset>
         <legend>
           <strong>Lieu de l'événement</strong>
-          <em>Même si il se déroule en ligne</em>, indiquez un lieu pour
-          suggérer l’événement aux personnes à proximité.
-          <br />
-          Indiquez votre mairie ou un café proche de chez vous pour ne pas
-          rendre publique votre adresse personnelle.
+          <em>Même s'il se déroule en ligne</em>, indiquez un lieu pour suggérer
+          l’événement aux personnes à proximité. Indiquez votre mairie ou un
+          café proche de chez vous pour ne pas rendre publique votre adresse
+          personnelle.
         </legend>
         <LocationField
           name="location"

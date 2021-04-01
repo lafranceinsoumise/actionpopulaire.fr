@@ -447,7 +447,7 @@ class TransferGroupMembersForm(forms.Form):
             base_query["is_insoumise"] = 1
 
         self.fields["target_group"].widget = RemoteSelectizeWidget(
-            api_url=reverse_lazy("api_search_group"),
+            api_url=reverse_lazy("legacy_api_search_group"),
             label_field="name",
             value_field="id",
             base_query=base_query,

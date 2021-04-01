@@ -21,7 +21,11 @@ const Mark = styled.span`
     props.$active ? style.primary500 : style.black200};
 `;
 
+const ActionBlock = styled.div``;
+
 const Block = styled.div`
+  position: fixed;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -29,18 +33,13 @@ const Block = styled.div`
   text-align: center;
   height: 100vh;
   justify-content: space-between;
-
-  & > div:nth-child(2) {
-    max-width: 100%;
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
 `;
 
 const WhiteTriangle = styled.div`
+  position: relative;
   width: 100%;
-  height: 190px;
-  height: calc(100vh - 345px);
+  min-height: 290px;
+  height: calc(100vh - 358px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -49,7 +48,7 @@ const WhiteTriangle = styled.div`
     bottom: -1px;
     left: 0;
     width: 100%;
-    background-color: white;
+    background-color: #fff;
     height: 80px;
     clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
   }
@@ -73,19 +72,29 @@ const HeaderImage = styled.div`
 `;
 
 const FixedBlock = styled.div`
-  padding-top: 0.5rem;
-  background-color: #fff;
+  padding-bottom: 1rem;
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 340px;
+  min-height: 358px;
   z-index: 10;
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
+
+  ${ActionBlock} {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    background-color: #fff;
+    width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 
   p {
     max-width: 430px;
@@ -190,58 +199,69 @@ const IntroApp = () => {
       </HeaderImage>
 
       <FixedBlock>
-        {!showConnexion && (
-          <>
-            <p
-              style={{
-                color: style.primary500,
-                fontWeight: 700,
-                fontSize: "1.75rem",
-              }}
-            >
-              {items[index].name}
-            </p>
+        <WhiteTriangle>
+          <div />
+        </WhiteTriangle>
 
-            <p style={{ fontSize: "1.2rem", marginTop: "0.375rem" }}>
-              {items[index].description}
-            </p>
+        <ActionBlock>
+          {!showConnexion && (
+            <>
+              <p
+                style={{
+                  color: style.primary500,
+                  fontWeight: 700,
+                  fontSize: "1.75rem",
+                }}
+              >
+                {items[index].name}
+              </p>
 
-            <StyledButton color="secondary" onClick={handleClick}>
-              Continuer
-            </StyledButton>
+              <p style={{ fontSize: "1.2rem", marginTop: "0.375rem" }}>
+                {items[index].description}
+              </p>
 
-            <div style={{ marginTop: "2rem" }}>
-              <Mark $active={0 === index} />
-              <Mark $active={1 === index} />
-              <Mark $active={2 === index} />
-            </div>
-          </>
-        )}
+              <StyledButton color="secondary" onClick={handleClick}>
+                Continuer
+              </StyledButton>
 
-        {showConnexion && (
-          <>
-            <StyledButton color="primary" as="Link" route="signup">
-              Je crée mon compte
-            </StyledButton>
-            <StyledButton
-              color="secondary"
-              style={{ marginTop: "0.5rem", marginLeft: "0px" }}
-              as="Link"
-              route="login"
-            >
-              Je me connecte
-            </StyledButton>
-            <StyledSearchLink route="search">
-              <RawFeatherIcon
-                name="search"
-                width="1rem"
-                height="1rem"
-                strokeWidth={2}
-              />
-              <span>Rechercher une action</span>
-            </StyledSearchLink>
-          </>
-        )}
+              <div style={{ marginTop: "2rem" }}>
+                <Mark $active={0 === index} />
+                <Mark $active={1 === index} />
+                <Mark $active={2 === index} />
+              </div>
+            </>
+          )}
+
+          {showConnexion && (
+            <>
+              <StyledButton
+                color="primary"
+                as="Link"
+                route="signup"
+                style={{ marginTop: "0" }}
+              >
+                Je crée mon compte
+              </StyledButton>
+              <StyledButton
+                color="secondary"
+                style={{ marginTop: "0.5rem", marginLeft: "0px" }}
+                as="Link"
+                route="login"
+              >
+                Je me connecte
+              </StyledButton>
+              <StyledSearchLink route="search">
+                <RawFeatherIcon
+                  name="search"
+                  width="1rem"
+                  height="1rem"
+                  strokeWidth={2}
+                />
+                <span>Rechercher une action</span>
+              </StyledSearchLink>
+            </>
+          )}
+        </ActionBlock>
       </FixedBlock>
     </Block>
   );

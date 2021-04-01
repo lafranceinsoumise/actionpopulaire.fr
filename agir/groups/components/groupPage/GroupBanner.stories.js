@@ -1,6 +1,6 @@
 import React from "react";
 
-import group from "./group.json";
+import group from "@agir/front/mockData/group.json";
 
 import GroupBanner from "./GroupBanner";
 

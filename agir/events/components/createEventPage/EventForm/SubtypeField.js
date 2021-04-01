@@ -19,9 +19,9 @@ const StyledOption = styled.li`
   display: flex;
   flex-flow: row nowrap;
   height: 2.75rem;
-  align-items: center;
-  font-size: 0.813rem;
-  line-height: 1.3;
+  align-items: flex-start;
+  font-size: 1rem;
+  line-height: 1.5;
   color: ${({ $selected }) => ($selected ? style.primary500 : style.black1000)};
   font-weight: ${({ $selected }) => ($selected ? 600 : 400)};
   cursor: ${({ $selected }) => ($selected ? "default" : "pointer")};
@@ -72,8 +72,8 @@ const StyledDefaultOptions = styled.div`
     box-shadow: none;
     padding: 0;
     background-color: transparent;
-    font-size: 0.813rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 400;
     cursor: pointer;
     color: ${style.primary500};
 
@@ -108,7 +108,7 @@ const StyledDefaultOptions = styled.div`
 
 const StyledField = styled.div`
   label {
-    font-size: 0.813rem;
+    font-size: 1rem;
     font-weight: 600;
     line-height: 1;
     padding: 4px 0;
