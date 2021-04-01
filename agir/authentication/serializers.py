@@ -77,7 +77,13 @@ class SessionSerializer(serializers.Serializer):
 
         if request.user.is_authenticated:
             person = request.user.person
-
+            routes.update(
+                {
+                    "notificationSettings": reverse(
+                        "list_activities.notification_settings"
+                    )
+                }
+            )
             if person.is_insoumise:
                 routes.update(
                     {

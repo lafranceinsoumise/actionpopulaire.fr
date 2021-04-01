@@ -27,8 +27,9 @@ const ActivityPage = lazy(() =>
   import("@agir/activity/page__activities/ActivityPage")
 );
 const RequiredActivityPage = lazy(() =>
-  import("@agir/activity/page__requiredActivities/RequiredActivityList")
+  import("@agir/activity/page__requiredActivities/RequiredActivityPage")
 );
+
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
 );
@@ -98,6 +99,19 @@ export class RouteConfig {
     }
   }
 }
+
+const notificationSettingRoute = new RouteConfig({
+  id: "notificationSettings",
+  pathname: "/:root/parametres/",
+  exact: true,
+  neededAuthentication: AUTHENTICATION.HARD,
+  label: "Paramètres de notification",
+  params: { root: "activite" },
+  hideTopBar: true,
+  hideFeedbackButton: true,
+  hasLayout: false,
+  isPartial: true,
+});
 
 export const routeConfig = {
   events: new RouteConfig({
@@ -199,7 +213,7 @@ export const routeConfig = {
   }),
   activities: new RouteConfig({
     id: "activities",
-    pathname: "/activite/",
+    pathname: ["/activite/", "/activite/parametres/"],
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Actualités",
@@ -207,19 +221,28 @@ export const routeConfig = {
     hasLayout: true,
     layoutProps: {
       smallBackgroundColor: style.black25,
-      title: "Actualités",
-      subtitle: "L'actualité de vos groupes et de votre engagement",
+    },
+    topBarRightLink: {
+      label: notificationSettingRoute.label,
+      to: notificationSettingRoute.getLink({ root: "activite" }),
+      protected: true,
     },
   }),
   requiredActivities: new RouteConfig({
     id: "requiredActivities",
-    pathname: "/a-traiter/",
+    pathname: ["/a-traiter/", "/a-traiter/parametres/"],
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "À traiter",
     Component: RequiredActivityPage,
     hasLayout: true,
+    topBarRightLink: {
+      label: notificationSettingRoute.label,
+      to: notificationSettingRoute.getLink({ root: "a-traiter" }),
+      protected: true,
+    },
   }),
+  notificationSettings: notificationSettingRoute,
   menu: new RouteConfig({
     id: "menu",
     pathname: "/navigation/",
@@ -292,12 +315,12 @@ export const routeConfig = {
   }),
 };
 
-const routes = Object.values(routeConfig).filter(Boolean);
-
 export const getRouteByPathname = (pathname) => {
-  return routes.find(
+  return Object.values(routeConfig).find(
     (route) => route.pathname === pathname || route.match(pathname)
   );
 };
+
+const routes = Object.values(routeConfig).filter((route) => !route.isPartial);
 
 export default routes;

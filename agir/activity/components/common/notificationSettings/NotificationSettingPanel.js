@@ -20,7 +20,7 @@ const StyledPanel = styled(Panel)`
   }
 `;
 
-const NotificationSettings = (props) => {
+const NotificationSettingPanel = (props) => {
   const { isOpen, close, notifications, onChange, disabled } = props;
 
   const byType = useMemo(() => {
@@ -41,13 +41,7 @@ const NotificationSettings = (props) => {
   }, [notifications]);
 
   return (
-    <StyledPanel
-      position="left"
-      shouldShow={isOpen}
-      onClose={close}
-      onBack={close}
-      noScroll
-    >
+    <StyledPanel shouldShow={isOpen} onClose={close} onBack={close} noScroll>
       <h3
         style={{
           fontSize: "1.25rem",
@@ -75,7 +69,7 @@ const NotificationSettings = (props) => {
     </StyledPanel>
   );
 };
-NotificationSettings.propTypes = {
+NotificationSettingPanel.propTypes = {
   isOpen: PropTypes.bool,
   close: PropTypes.func,
   notifications: PropTypes.arrayOf(
@@ -91,4 +85,4 @@ NotificationSettings.propTypes = {
   onChange: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };
-export default NotificationSettings;
+export default NotificationSettingPanel;

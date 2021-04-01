@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Helmet } from "react-helmet";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -14,6 +13,7 @@ import {
 
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import Activities from "@agir/activity/common/Activities";
+import NotificationSettingLink from "@agir/activity/common/notificationSettings/NotificationSettingLink";
 
 import {
   LayoutSubtitle,
@@ -45,9 +45,6 @@ const Counter = styled.span`
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   margin-right: 12px;
-
-  @media (max-width: ${style.collapse}px) {
-  }
 `;
 
 const RequiredActivityList = () => {
@@ -77,40 +74,36 @@ const RequiredActivityList = () => {
   const tabs = useMemo(() => ["non traité", "voir tout"], []);
 
   return (
-    <>
-      <Helmet>
-        <title>À faire - Action populaire</title>
-      </Helmet>
-      <Page>
-        <LayoutTitle>
-          {uninteractedCount ? <Counter>{uninteractedCount}</Counter> : null}À
-          faire
-        </LayoutTitle>
-        <LayoutSubtitle>
-          Vos actions à traiter en priorité, pour ne rien oublier !
-        </LayoutSubtitle>
-        <PageFadeIn
-          ready={session && activities}
-          wait={
-            <div style={{ marginTop: "32px" }}>
-              <Skeleton />
-            </div>
-          }
-        >
-          <FilterTabs
-            style={{ marginTop: "2rem", marginBottom: "1rem" }}
-            tabs={tabs}
-            onTabChange={toggleDisplayAll}
-          />
-          <Activities
-            CardComponent={RequiredActionCard}
-            activities={visibleActivities}
-            onDismiss={handleDismiss}
-            routes={routes}
-          />
-        </PageFadeIn>
-      </Page>
-    </>
+    <Page>
+      <LayoutTitle>
+        {uninteractedCount ? <Counter>{uninteractedCount}</Counter> : null}À
+        faire
+        <NotificationSettingLink root="a-traiter" />
+      </LayoutTitle>
+      <LayoutSubtitle>
+        Vos actions à traiter en priorité, pour ne rien oublier !
+      </LayoutSubtitle>
+      <PageFadeIn
+        ready={session && activities}
+        wait={
+          <div style={{ marginTop: "32px" }}>
+            <Skeleton />
+          </div>
+        }
+      >
+        <FilterTabs
+          style={{ marginTop: "2rem", marginBottom: "1rem" }}
+          tabs={tabs}
+          onTabChange={toggleDisplayAll}
+        />
+        <Activities
+          CardComponent={RequiredActionCard}
+          activities={visibleActivities}
+          onDismiss={handleDismiss}
+          routes={routes}
+        />
+      </PageFadeIn>
+    </Page>
   );
 };
 export default RequiredActivityList;

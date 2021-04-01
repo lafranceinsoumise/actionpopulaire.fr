@@ -314,7 +314,7 @@ const MenuLink = (props) => {
                 href={link.href}
                 to={
                   link.to && routeConfig[link.to]
-                    ? routeConfig[link.to].pathname
+                    ? routeConfig[link.to].getLink()
                     : link.to || undefined
                 }
               >
@@ -364,7 +364,7 @@ const Navigation = ({ active }) => {
               href={link.href || routes[link.route]}
               to={
                 link.to && routeConfig[link.to]
-                  ? routeConfig[link.to].pathname
+                  ? routeConfig[link.to].getLink()
                   : undefined
               }
               counter={
@@ -394,7 +394,7 @@ export const SecondaryNavigation = () => {
               href={link.href || routes[link.route]}
               to={
                 link.to && routeConfig[link.to]
-                  ? routeConfig[link.to].pathname
+                  ? routeConfig[link.to].getLink()
                   : undefined
               }
             >

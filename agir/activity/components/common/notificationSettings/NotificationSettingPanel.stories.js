@@ -1,17 +1,17 @@
 import React from "react";
 
-import NotificationSettings from "./NotificationSettings";
+import NotificationSettingPanel from "./NotificationSettingPanel";
 import notifications from "@agir/front/mockData/notificationSettings";
 
 export default {
-  component: NotificationSettings,
-  title: "NotificationSettings/NotificationSettings",
+  component: NotificationSettingPanel,
+  title: "NotificationSettings/NotificationSettingPanel",
 };
 
 const Template = (args) => {
   const [isOpen, setIsOpen] = React.useState(true);
   const close = React.useCallback(() => setIsOpen(false), []);
-  return <NotificationSettings {...args} isOpen={isOpen} close={close} />;
+  return <NotificationSettingPanel {...args} isOpen={isOpen} close={close} />;
 };
 
 export const Default = Template.bind({});
