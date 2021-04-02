@@ -7,9 +7,11 @@ from django.http import HttpResponsePermanentRedirect, Http404, FileResponse
 from django.urls import reverse_lazy
 from django.views.generic import View, RedirectView, TemplateView
 from django.views.generic.detail import BaseDetailView
-from webpack_loader import utils as webpack_loader_utils
 
-from agir.authentication.view_mixins import SoftLoginRequiredMixin
+from agir.authentication.view_mixins import (
+    HardLoginRequiredMixin,
+    SoftLoginRequiredMixin,
+)
 from agir.groups.models import SupportGroup
 from agir.lib.http import add_query_params_to_url
 from .view_mixins import ObjectOpengraphMixin
@@ -123,6 +125,10 @@ class ActivityView(SoftLoginRequiredMixin, ReactBaseView):
 
 
 class RequiredActivityView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/app"
+
+
+class NotificationSettingsView(HardLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
 
 

@@ -14,7 +14,7 @@ import NotFoundPage from "@agir/front/offline/NotFoundPage";
 
 import { useAuthentication } from "@agir/front/authentication/hooks";
 
-const ProtectedPage = (props) => {
+export const ProtectedComponent = (props) => {
   const location = useLocation();
   const isAuthorized = useAuthentication(props.routeConfig);
   if (isAuthorized === null) {
@@ -29,7 +29,7 @@ const ProtectedPage = (props) => {
     />
   );
 };
-ProtectedPage.propTypes = {
+ProtectedComponent.propTypes = {
   routeConfig: PropTypes.object,
 };
 
@@ -38,7 +38,7 @@ const Router = ({ children }) => (
     <Switch>
       {routes.map((route) => (
         <Route key={route.id} path={route.pathname} exact={!!route.exact}>
-          <ProtectedPage Component={route.Component} routeConfig={route} />
+          <ProtectedComponent Component={route.Component} routeConfig={route} />
         </Route>
       ))}
       <Route key="not-found">
