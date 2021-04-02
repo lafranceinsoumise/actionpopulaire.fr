@@ -1,7 +1,6 @@
 import axios from "@agir/lib/utils/axios";
 import logger from "@agir/lib/utils/logger";
 import { useCallback, useEffect, useState } from "react";
-import useSWR from "swr";
 
 const log = logger(__filename);
 
@@ -144,11 +143,11 @@ export const useWebpush = () => {
     })();
   });
 
-  if (!window.Agir || !window.AgirSW.pushManager) {
+  if (!window.Agir || !window.AgirSW?.pushManager) {
     log.debug("Push manager not available.");
   }
 
-  if (!window.Agir || !window.AgirSW.pushManager || !ready) {
+  if (!window.Agir || !window.AgirSW?.pushManager || !ready) {
     return {
       webpushAvailable: false,
     };
