@@ -41,6 +41,7 @@ __all__ = [
     "GroupSearchAPIView",
     "GroupSubtypesView",
     "UserGroupsView",
+    "UserOwnGroupsAPIView",
     "GroupDetailAPIView",
     "NearGroupsAPIView",
     "GroupEventsAPIView",
@@ -116,6 +117,22 @@ class UserGroupsView(ListAPIView):
             ).order_by("distance")[:3]
             for group in person_groups:
                 group.membership = None
+
+        return person_groups
+
+
+class UserOwnGroupsAPIView(ListAPIView):
+    serializer_class = SupportGroupSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        person = self.request.user.person
+        person_groups = (
+            SupportGroup.objects.filter(memberships__person=self.request.user.person)
+            .active()
+            .annotate(membership_type=F("memberships__membership_type"))
+            .order_by("-membership_type", "name")
+        )
 
         return person_groups
 

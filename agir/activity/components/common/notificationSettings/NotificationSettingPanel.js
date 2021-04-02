@@ -3,8 +3,42 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import Accordion from "@agir/front/genericComponents/Accordion";
-import NotificationSettingGroup from "./NotificationSettingGroup";
+import NotificationSettingItem from "./NotificationSettingItem";
 import Panel, { StyledBackButton } from "@agir/front/genericComponents/Panel";
+
+const StyledGroupName = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 70px auto;
+  grid-gap: 0 0.5rem;
+  align-items: center;
+
+  span {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+  }
+
+  small {
+    font-size: 0.688rem;
+    line-height: 1;
+  }
+`;
+
+const StyledGroup = styled.div`
+  display: grid;
+  grid-template-columns: 100%;
+  grid-gap: 1rem 0;
+
+  & + & {
+    padding-top: 1.5rem;
+
+    ${StyledGroupName} {
+      small {
+        display: none;
+      }
+    }
+  }
+`;
 
 const AccordionContent = styled.div`
   padding: 1.5rem;
@@ -21,12 +55,20 @@ const StyledPanel = styled(Panel)`
 `;
 
 const NotificationSettingPanel = (props) => {
-  const { isOpen, close, notifications, onChange, disabled } = props;
+  const {
+    isOpen,
+    close,
+    notifications,
+    activeNotifications,
+    onChange,
+    disabled,
+  } = props;
 
-  const byType = useMemo(() => {
+  const [byType, icons] = useMemo(() => {
     const result = {};
-
+    const icons = {};
     notifications.forEach((notification) => {
+      icons[notification.type] = notification.icon;
       if (!result[notification.type]) {
         result[notification.type] = {};
       }
@@ -34,11 +76,20 @@ const NotificationSettingPanel = (props) => {
         result[notification.type][notification.subtype] = [];
       }
 
-      result[notification.type][notification.subtype].push(notification);
+      result[notification.type][notification.subtype].push(notification.id);
     });
 
-    return result;
+    return [result, icons];
   }, [notifications]);
+
+  const byId = useMemo(
+    () =>
+      notifications.reduce(
+        (byId, notification) => ({ ...byId, [notification.id]: notification }),
+        {}
+      ),
+    [notifications]
+  );
 
   return (
     <StyledPanel shouldShow={isOpen} onClose={close} onBack={close} noScroll>
@@ -52,16 +103,26 @@ const NotificationSettingPanel = (props) => {
         Notifications
       </h3>
       {Object.keys(byType).map((type) => (
-        <Accordion key={type} name={type} icon="users">
+        <Accordion key={type} name={type} icon={icons[type] || "settings"}>
           <AccordionContent>
             {Object.keys(byType[type]).map((subtype) => (
-              <NotificationSettingGroup
-                key={subtype}
-                name={subtype}
-                notifications={byType[type][subtype]}
-                disabled={disabled}
-                onChange={onChange}
-              />
+              <StyledGroup key={subtype}>
+                <StyledGroupName>
+                  <span>{subtype}</span>
+                  <small>Notifications</small>
+                  <small>E-mail</small>
+                </StyledGroupName>
+                {byType[type][subtype].map((notificationId) => (
+                  <NotificationSettingItem
+                    key={notificationId}
+                    notification={byId[notificationId]}
+                    onChange={onChange}
+                    disabled={disabled}
+                    email={activeNotifications[notificationId]?.email}
+                    push={activeNotifications[notificationId]?.push}
+                  />
+                ))}
+              </StyledGroup>
             ))}
           </AccordionContent>
         </Accordion>
@@ -76,12 +137,14 @@ NotificationSettingPanel.propTypes = {
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
       label: PropTypes.string.isRequired,
-      pushNotification: PropTypes.bool,
+      push: PropTypes.bool,
       email: PropTypes.bool,
       type: PropTypes.string,
       subtype: PropTypes.string,
+      icon: PropTypes.string,
     }).isRequired
   ),
+  activeNotifications: PropTypes.object,
   onChange: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };

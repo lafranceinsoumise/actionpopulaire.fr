@@ -100,6 +100,11 @@ urlpatterns = [
         views.InvitationAbuseReportingView.as_view(),
         name="report_invitation_abuse",
     ),
+    path(
+        "api/mes-groupes/",
+        views.UserOwnGroupsAPIView.as_view(),
+        name="api_user_own_groups",
+    ),
     path("api/groupes/", views.UserGroupsView.as_view(), name="api_user_groups"),
     path(
         "api/groupes/recherche/",

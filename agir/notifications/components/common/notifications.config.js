@@ -1,0 +1,254 @@
+const PERSON_NOTIFICATIONS = [
+  {
+    id: "campaign_news",
+    type: "Nouveautés",
+    icon: "rss",
+    subtype: "Nouveautés",
+    label: "Informations importantes de la campagne",
+    hasEmail: true,
+    hasPush: true,
+    activityTypes: [
+      "2022-sponsorship-accepted",
+      "transferred-group-member",
+      "group-invitation",
+    ],
+  },
+  {
+    id: "person_related_news",
+    type: "Nouveautés",
+    icon: "rss",
+    subtype: "Nouveautés",
+    label: "Nouveautés qui me concernent",
+    activityTypes: [],
+  },
+
+  {
+    id: "security_and_payment_alerts",
+    type: "Compte et sécurité",
+    icon: "lock",
+    subtype: "Compte et sécurité",
+    label: "Alertes de sécurité et de paiement",
+    activityTypes: ["waiting-payment"],
+  },
+  {
+    id: "donation_reminders",
+    type: "Compte et sécurité",
+    icon: "lock",
+    subtype: "Compte et sécurité",
+    label: "Rappels de don",
+    activityTypes: [],
+  },
+  {
+    id: "person_task_reminders",
+    type: "Compte et sécurité",
+    icon: "lock",
+    subtype: "Mes tâches à faire",
+    label: "Me rappeler mes tâches à faire régulièrement",
+    activityTypes: [],
+  },
+
+  {
+    id: "event_suggestions",
+    type: "Événements",
+    icon: "calendar",
+    subtype: "Suggestions",
+    label: "Suggestion d'événement",
+    activityTypes: ["new-event-aroundme"],
+  },
+  {
+    id: "event_updates",
+    type: "Événements",
+    icon: "calendar",
+    subtype: "Événements auxquels je participe",
+    label: "Mise à jour d'événement",
+    activityTypes: ["event-update", "cancelled-event"],
+  },
+  {
+    id: "event_reminders",
+    type: "Événements",
+    icon: "calendar",
+    subtype: "Événements auxquels je participe",
+    label: "Rappel d'événement la veille",
+    activityTypes: [],
+  },
+  {
+    id: "online_event_reminders",
+    type: "Événements",
+    icon: "calendar",
+    subtype: "Événements auxquels je participe",
+    label: "Lien de connexion à la visio-conférence 5mn avant",
+    activityTypes: [],
+  },
+  {
+    id: "event_rsvp_notifications",
+    type: "Événements",
+    icon: "calendar",
+    subtype: "Événements que j'organise",
+    label: "Nouveaux participant·es",
+    activityTypes: ["new-attendee"],
+  },
+  {
+    id: "event_task_reminders",
+    type: "Événements",
+    icon: "calendar",
+    subtype: "Événements que j'organise",
+    label: "Tâches à effectuer ",
+    activityTypes: ["waiting-location-event"],
+  },
+  {
+    id: "event_organizer_updates",
+    type: "Événements",
+    icon: "calendar",
+    subtype: "Événements que j'organise",
+    label: "Mises à jour pour les organisateur·ices",
+    activityTypes: [],
+  },
+].filter((notification) => notification.activityTypes.length > 0);
+
+const GROUP_NOTIFICATIONS = [
+  {
+    id: "group_event_notifications",
+    type: "Groupes",
+    icon: "users",
+    subtype: "Mises à jour du groupe",
+    label: "Nouvel événement du groupe",
+    isActive: true,
+    activityTypes: ["new-event-mygroups", "group-coorganization-info"],
+  },
+  {
+    id: "group_event_report_notifications",
+    type: "Groupes",
+    icon: "users",
+    subtype: "Mises à jour du groupe",
+    label: "Compte-rendu d'un événement du groupe",
+    isActive: true,
+    activityTypes: ["new-report"],
+  },
+  {
+    id: "group_updates",
+    type: "Groupes",
+    icon: "users",
+    subtype: "Mises à jour du groupe",
+    label: "Mise à jour du groupe",
+    isActive: true,
+    activityTypes: ["group-info-update"],
+  },
+  {
+    id: "group_message_notifications",
+    type: "Groupes",
+    icon: "users",
+    subtype: "Discussions",
+    label: "Nouvelle discussion",
+    isActive: true,
+    activityTypes: ["new-message"],
+  },
+  {
+    id: "group_comment_notifications",
+    type: "Groupes",
+    icon: "users",
+    subtype: "Discussions",
+    label: "Message d'une discussion à laquelle je participe",
+    isActive: true,
+    activityTypes: ["new-comment"],
+  },
+  {
+    id: "group_member_notifications",
+    type: "Groupes",
+    icon: "users",
+    subtype: "Gestion de mon groupe",
+    label: "Nouveaux membres",
+    isActive: (group) => group.isManager,
+    activityTypes: [
+      "new-member",
+      "accepted-invitation-member",
+      "group-membership-reminder",
+      "new-members-through-transfer",
+    ],
+  },
+  {
+    id: "group_task_reminders",
+    type: "Groupes",
+    icon: "users",
+    subtype: "Gestion de mon groupe",
+    label: "Actions à faire",
+    isActive: (group) => group.isManager,
+    activityTypes: ["waiting-location-group", "group-coorganization-invite"],
+  },
+  {
+    id: "group_manager_updates",
+    type: "Groupes",
+    icon: "users",
+    subtype: "Gestion de mon groupe",
+    label: "Mises à jour pour les gestionnaires",
+    isActive: (group) => group.isManager,
+    activityTypes: [
+      "group-creation-confirmation",
+      "group-coorganization-accepted",
+    ],
+  },
+].filter((notification) => notification.activityTypes.length > 0);
+
+const getNotificationId = (notificationId, groupId) => {
+  if (groupId) {
+    return `${notificationId}__${groupId}`;
+  }
+  return notificationId;
+};
+
+const getSingleGroupNotifications = (group) =>
+  GROUP_NOTIFICATIONS.filter((notification) => {
+    if (typeof notification.isActive === "function") {
+      return notification.isActive(group);
+    }
+    return notification.isActive;
+  }).map((notification) => ({
+    ...notification,
+    id: getNotificationId(notification.id, group.id),
+    type: group.name,
+    group: group.id,
+  }));
+
+const getGroupNotifications = (groups = []) =>
+  groups.reduce(
+    (arr, group) => [...arr, ...getSingleGroupNotifications(group)],
+    []
+  );
+
+export const getAllNotifications = (groups = []) => [
+  ...PERSON_NOTIFICATIONS,
+  ...getGroupNotifications(groups),
+];
+
+export const getNotificationStatus = (activeNotifications) => {
+  const active = {};
+
+  if (!Array.isArray(activeNotifications) || activeNotifications.length === 0) {
+    return active;
+  }
+
+  activeNotifications.forEach((activeNotification) => {
+    let notificationId = null;
+    const notification = activeNotification.group
+      ? GROUP_NOTIFICATIONS.find((groupNotification) =>
+          groupNotification.activityTypes.includes(
+            activeNotification.activityType
+          )
+        )
+      : PERSON_NOTIFICATIONS.find((notification) =>
+          notification.activityTypes.includes(activeNotification.activityType)
+        );
+    if (!notification) {
+      return;
+    }
+    notificationId = getNotificationId(
+      notification.id,
+      activeNotification.group
+    );
+    active[notificationId] = active[notificationId] || {
+      email: false,
+      push: false,
+    };
+    active[notificationId][activeNotification.type] = true;
+  });
+  return active;
+};
