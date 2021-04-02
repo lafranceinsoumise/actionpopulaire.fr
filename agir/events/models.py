@@ -377,6 +377,8 @@ class Event(
         choices=FOR_USERS_CHOICES,
     )
 
+    online_url = models.URLField("Url de visio-conférence", default="", blank=True,)
+
     class Meta:
         verbose_name = _("événement")
         verbose_name_plural = _("événements")

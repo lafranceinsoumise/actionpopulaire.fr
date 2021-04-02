@@ -140,6 +140,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                 ),
                 HalfCol(Row(FullCol("image"), FullCol("image_accept_license"))),
             ),
+            Row(FullCol("online_url")),
             Row(FullCol("description")),
             Row(
                 HalfCol(
@@ -289,6 +290,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
             "subtype",
             "for_users",
             "legal",
+            "online_url",
         )
 
 

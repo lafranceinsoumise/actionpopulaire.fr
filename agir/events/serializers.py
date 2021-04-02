@@ -12,8 +12,14 @@ from agir.lib.serializers import (
     CurrentPersonDefault,
 )
 from . import models
-from .models import Event, EventSubtype
-from .models import OrganizerConfig, RSVP
+from .models import (
+    Event,
+    EventSubtype,
+    OrganizerConfig,
+    RSVP,
+    jitsi_default_domain,
+    jitsi_default_room_name,
+)
 from .tasks import (
     send_event_creation_notification,
     send_secretariat_notification,
@@ -140,6 +146,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     subtype = EventSubtypeSerializer()
 
+    onlineUrl = serializers.URLField(source="online_url")
+
     def to_representation(self, instance):
         user = self.context["request"].user
 
@@ -245,6 +253,7 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
     forUsers = serializers.SerializerMethodField()
     subtype = serializers.SerializerMethodField()
     defaultContact = serializers.SerializerMethodField()
+    onlineUrl = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -294,6 +303,9 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
             contact["email"] = self.person.email
         return contact
 
+    def get_onlineUrl(self, request):
+        return "https://" + jitsi_default_domain() + "/" + jitsi_default_room_name()
+
 
 class EventOrganizerGroupField(serializers.RelatedField):
     queryset = SupportGroup.objects.all()
@@ -333,6 +345,10 @@ class CreateEventSerializer(serializers.Serializer):
     )
     organizerPerson = serializers.HiddenField(
         default=CurrentPersonDefault(), write_only=True,
+    )
+
+    onlineUrl = serializers.URLField(
+        source="online_url", required=False, allow_blank=True
     )
 
     class Meta:

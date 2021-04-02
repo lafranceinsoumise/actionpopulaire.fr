@@ -25,6 +25,7 @@ import ForUsersField from "./ForUsersField";
 import SubtypeField from "./SubtypeField";
 import LocationField from "./LocationField";
 import ContactField from "./ContactField";
+import VisioConferenceField from "./VisioConferenceField";
 
 const StyledGlobalError = styled.p`
   padding: 0 0 1rem;
@@ -164,6 +165,7 @@ const EventForm = () => {
   const dateRef = useRef(null);
   const forUsersRef = useRef(null);
   const subtypeRef = useRef(null);
+  const onlineUrlRef = useRef(null);
   const locationRef = useRef(null);
   const contactRef = useRef(null);
 
@@ -288,6 +290,9 @@ const EventForm = () => {
         break;
       case !!(errors["subtype"] && subtypeRef.current):
         scrollTarget = subtypeRef.current;
+        break;
+      case !!(errors["onlineUrl"] && onlineUrlRef.current):
+        scrollTarget = onlineUrlRef.current;
         break;
       case !!(errors["location"] && locationRef.current):
         scrollTarget = locationRef.current;
@@ -432,6 +437,18 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
+
+      <Spacer size="1.5rem" ref={onlineUrlRef} />
+      <VisioConferenceField
+        label="Visio-conférence"
+        name="onlineUrl"
+        onChange={updateValue}
+        error={errors && errors.onlineUrl}
+        value={formData.onlineUrl}
+        defaultUrl={options.onlineUrl}
+        placeholder="URL de la visio-conférence (facultatif)"
+      />
+
       <Spacer size="2rem" ref={locationRef} />
       <fieldset>
         <legend>
