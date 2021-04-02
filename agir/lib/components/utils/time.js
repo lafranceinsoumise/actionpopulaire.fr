@@ -152,7 +152,6 @@ export function displayIntervalStart(interval, relativeTo) {
   }
   const startDate = interval.start.setLocale("fr-FR");
   const endDate = interval.end.setLocale("fr-FR");
-
   const scheduleCalendarDays = interval.count("days");
 
   const dayPartFormat = {
@@ -174,6 +173,45 @@ export function displayIntervalStart(interval, relativeTo) {
   });
 
   return `${start}`;
+}
+
+export function displayIntervalEnd(interval, relativeTo) {
+  if (relativeTo === undefined) {
+    relativeTo = DateTime.local().setLocale("fr");
+  }
+
+  const startDate = DateTime.now();
+  const endDate = interval.end.setLocale("fr-FR");
+  const beforeEnd = Interval.fromISO(`${startDate}/${endDate}`)
+  const diffBetween = beforeEnd.count("days");
+
+  let title = "En cours, ";
+
+  const dayPartFormat = {
+    year: endDate < relativeTo ? "numeric" : undefined,
+    month: "long",
+    day: "numeric",
+  };
+
+  if (diffBetween === 1) {
+    title += "jusqu'à ";
+    const hourPart = `${endDate.toLocaleString(HOUR_ONLY_FORMAT)}`;
+    return `${title} ${hourPart}`;
+  }
+
+  if (diffBetween < 7) {
+    title += "jusqu'à ";
+    return `${title}` + displayHumanDate(endDate);
+  }
+
+  title += "jusqu'au ";
+
+  const end = endDate.toLocaleString({
+    ...dayPartFormat,
+    ...HOUR_ONLY_FORMAT,
+  });
+
+  return `${title} ${end}`;
 }
 
 const units = ["year", "month", "week", "day", "hour", "minute", "second"];
