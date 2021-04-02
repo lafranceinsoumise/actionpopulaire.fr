@@ -30,7 +30,7 @@ const log = logger(__filename);
 
 const EventHeaderContainer = styled.div`
   @media (min-width: ${style.collapse}px) {
-    margin-bottom: 4rem;
+    margin-bottom: 2rem;
   }
   > * {
     margin: 0.5rem 0;
