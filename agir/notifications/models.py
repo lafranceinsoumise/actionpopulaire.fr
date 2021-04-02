@@ -14,15 +14,14 @@ class Subscription(UUIDIdentified, TimeStampedModel):
     )
 
     person = models.ForeignKey("people.Person", on_delete=models.CASCADE)
+    supportgroup = models.ForeignKey(
+        "groups.SupportGroup", on_delete=models.CASCADE, null=True
+    )
     type = models.CharField("Type", max_length=5, choices=SUBSCRIPTION_CHOICES)
     activity_type = models.CharField(
         "Type", max_length=50, choices=Activity.TYPE_CHOICES
     )
-    # type of the object reference in this field
-    # is implicit by the type of the subscription
-    # can be event, group, whatever...
-    related_object_id = models.UUIDField(blank=True)
 
     class Meta:
         # only one subscription by device and by type and by object
-        unique_together = [["person", "type", "activity_type", "related_object_id"]]
+        unique_together = [["person", "type", "activity_type", "supportgroup"]]
