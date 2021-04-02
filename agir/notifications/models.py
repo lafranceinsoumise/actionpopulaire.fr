@@ -13,7 +13,11 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         (SUBSCRIPTION_PUSH, "Push"),
     )
 
-    person = models.ForeignKey("people.Person", on_delete=models.CASCADE)
+    person = models.ForeignKey(
+        "people.Person",
+        on_delete=models.CASCADE,
+        related_name="notification_subscriptions",
+    )
     supportgroup = models.ForeignKey(
         "groups.SupportGroup", on_delete=models.CASCADE, null=True
     )
