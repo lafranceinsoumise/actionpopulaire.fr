@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.db import transaction
 from django.http import Http404
 from django_countries.serializer_fields import CountryField
 from phonenumber_field.serializerfields import PhoneNumberField
@@ -10,12 +8,7 @@ from rest_framework.validators import UniqueValidator
 from agir.elus.models import MandatMunicipal, StatutMandat, types_elus
 from agir.front.serializer_utils import MediaURLField
 from agir.lib.data import french_zipcode_to_country_code, FRANCE_COUNTRY_CODES
-from agir.lib.serializers import (
-    LegacyBaseAPISerializer,
-    LegacyLocationMixin,
-    RelatedLabelField,
-    FlexibleFieldsMixin,
-)
+from agir.lib.serializers import FlexibleFieldsMixin
 from . import models
 from .actions.subscription import (
     SUBSCRIPTION_TYPE_LFI,
@@ -57,94 +50,6 @@ class PersonEmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.PersonEmail
         fields = ("address", "bounced", "bounced_date")
-
-
-class LegacyPersonSerializer(LegacyLocationMixin, LegacyBaseAPISerializer):
-    tags = RelatedLabelField(
-        many=True, required=False, queryset=models.PersonTag.objects.all()
-    )
-
-    email_opt_in = serializers.BooleanField(source="subscribed", required=False)
-
-    email = serializers.EmailField(required=True)
-
-    bounced = serializers.BooleanField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not isinstance(self, LegacyUnprivilegedPersonSerializer):
-            self.fields["emails"] = PersonEmailSerializer(
-                required=False, many=True, context=self.context
-            )
-
-    def validate_email(self, value):
-
-        try:
-            pe = models.PersonEmail.objects.get_by_natural_key(value)
-        except models.PersonEmail.DoesNotExist:
-            return value
-
-        if pe.person == self.instance:
-            return pe.address
-
-        raise serializers.ValidationError("Email already exists", code="unique")
-
-    def update(self, instance, validated_data):
-        emails = validated_data.pop("emails", None)
-        email = validated_data.pop("email", None)
-        with transaction.atomic():
-            super().update(instance, validated_data)
-            if emails is not None:
-                for item in emails:
-                    instance.add_email(
-                        item["address"],
-                        bounced=item.get("bounced", None),
-                        bounced_date=item.get("bounced_date", None),
-                    )
-
-            if email is not None:
-                if emails is None or email not in [item["address"] for item in emails]:
-                    instance.add_email(email)
-                instance.set_primary_email(email)
-
-        return instance
-
-    class Meta:
-        model = models.Person
-        fields = (
-            "url",
-            "_id",
-            "id",
-            "email",
-            "emails",
-            "first_name",
-            "last_name",
-            "bounced",
-            "bounced_date",
-            "_created",
-            "_updated",
-            "email_opt_in",
-            "tags",
-            "location",
-        )
-        read_only_fields = ("url", "_id", "_created", "_updated")
-        extra_kwargs = {"url": {"view_name": "legacy:person-detail"}}
-
-
-class LegacyUnprivilegedPersonSerializer(LegacyPersonSerializer):
-    class Meta:
-        model = models.Person
-        fields = (
-            "url",
-            "_id",
-            "email",
-            "first_name",
-            "last_name",
-            "email_opt_in",
-            "location",
-        )
-        read_only_fields = ("url", "_id")
-        extra_kwargs = {"url": {"view_name": "legacy:person-detail"}}
 
 
 class PersonTagSerializer(serializers.ModelSerializer):

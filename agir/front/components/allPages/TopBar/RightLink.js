@@ -80,11 +80,14 @@ const RightLink = (props) => {
 };
 
 RightLink.propTypes = AnonymousLink.propTypes = SettingsLink.propTypes = UserLink.propTypes = {
-  user: PropTypes.shape({
-    image: PropTypes.string,
-    displayName: PropTypes.string,
-    isInsoumise: PropTypes.bool,
-  }),
+  user: PropTypes.oneOfType([
+    PropTypes.shape({
+      image: PropTypes.string,
+      displayName: PropTypes.string,
+      isInsoumise: PropTypes.bool,
+    }),
+    PropTypes.bool,
+  ]),
   routes: PropTypes.objectOf(
     PropTypes.oneOfType([
       PropTypes.string,

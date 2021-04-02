@@ -84,7 +84,9 @@ const Page = (props) => {
       <ErrorBoundary>
         <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
           {routeConfig.hideTopBar ? null : <TopBar />}
-          <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
+          {routeConfig.hideConnectivityWarning ? null : (
+            <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
+          )}
           <Suspense fallback={<div />}>
             <Component
               {...(routeConfig.routeProps || {})}
@@ -104,7 +106,9 @@ const Page = (props) => {
   return (
     <ErrorBoundary>
       {routeConfig.hideTopBar ? null : <TopBar />}
-      <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
+      {routeConfig.hideConnectivityWarning ? null : (
+        <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
+      )}
       <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
         <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
           <Suspense fallback={<div />}>

@@ -2,12 +2,7 @@
 {% load render_bundle from webpack_loader %}
 
 {% block css %}
-  {% render_bundle 'theme' 'css' attrs='data-turbolinks-track="reload"' %}
-  <style>
-  .help-dialog {
-    display: none;
-  }
-  </style>
+  {% render_bundle 'theme' 'css' %}
 {% endblock %}
 
 {% block cdn_assets %}

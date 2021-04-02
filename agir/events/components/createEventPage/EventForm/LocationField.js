@@ -10,8 +10,13 @@ import TextField from "@agir/front/formComponents/TextField";
 const StyledField = styled.div`
   display: grid;
   grid-template-columns: 160px 1fr 160px;
-  grid-template-rows: repeat(6, auto);
-  grid-gap: 0 0.5rem;
+  grid-template-rows: repeat(4, auto);
+  grid-auto-rows: auto;
+  grid-gap: 1rem 0.5rem;
+
+  @media (max-width: ${style.collapse}px) {
+    grid-template-columns: 1fr;
+  }
 
   & > * {
     grid-column: span 3;
@@ -20,10 +25,10 @@ const StyledField = styled.div`
     &:nth-child(5),
     &:nth-child(6) {
       grid-column: span 1;
+    }
 
-      @media (max-width: ${style.collapse}px) {
-        grid-column: span 3;
-      }
+    @media (max-width: ${style.collapse}px) {
+      grid-column: span 1;
     }
   }
 
@@ -35,7 +40,7 @@ const StyledField = styled.div`
     cursor: pointer;
     padding: 0;
     margin: 0;
-    font-size: 0.813rem;
+    font-size: 1rem;
     line-height: 1;
     font-weight: 400;
     width: auto;
@@ -43,6 +48,11 @@ const StyledField = styled.div`
     &[disabled],
     &[disabled]:hover {
       cursor: default;
+    }
+
+    @media (max-width: ${style.collapse}px) {
+      text-align: left;
+      line-height: 1.5;
     }
   }
 `;

@@ -1,11 +1,15 @@
 import React, { useCallback, useState } from "react";
-import Button from "@agir/front/genericComponents/Button";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
+
+import Button from "@agir/front/genericComponents/Button";
+import Link from "@agir/front/app/Link";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+
 import img1 from "@agir/front/genericComponents/images/introApp1.jpg";
 import img2 from "@agir/front/genericComponents/images/introApp2.jpg";
 import img3 from "@agir/front/genericComponents/images/introApp3.jpg";
-import logo from "@agir/front/genericComponents/images/logoActionPopulaire.png";
+import logo from "@agir/front/genericComponents/logos/action-populaire-logo.svg";
 
 const Mark = styled.span`
   width: 1.5rem;
@@ -17,7 +21,11 @@ const Mark = styled.span`
     props.$active ? style.primary500 : style.black200};
 `;
 
+const ActionBlock = styled.div``;
+
 const Block = styled.div`
+  position: fixed;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -25,18 +33,13 @@ const Block = styled.div`
   text-align: center;
   height: 100vh;
   justify-content: space-between;
-
-  & > div:nth-child(2) {
-    max-width: 100%;
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
 `;
 
 const WhiteTriangle = styled.div`
+  position: relative;
   width: 100%;
-  height: 190px;
-  height: calc(100vh - 345px);
+  min-height: 290px;
+  height: calc(100vh - 358px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -45,7 +48,7 @@ const WhiteTriangle = styled.div`
     bottom: -1px;
     left: 0;
     width: 100%;
-    background-color: white;
+    background-color: #fff;
     height: 80px;
     clip-path: polygon(0px 100%, 100% 0px, 100% 100%, 0px 100%);
   }
@@ -69,19 +72,29 @@ const HeaderImage = styled.div`
 `;
 
 const FixedBlock = styled.div`
-  padding-top: 0.5rem;
-  background-color: #fff;
+  padding-bottom: 1rem;
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 340px;
+  min-height: 358px;
   z-index: 10;
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
+
+  ${ActionBlock} {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    background-color: #fff;
+    width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 
   p {
     max-width: 430px;
@@ -102,6 +115,28 @@ const StyledButton = styled(Button)`
   font-size: 20px;
   justify-content: center;
   margin-top: 2rem;
+`;
+
+const StyledSearchLink = styled(Link)`
+  max-width: 100%;
+  width: 330px;
+  height: 70px;
+  font-size: 20px;
+  justify-content: center;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+
+  &,
+  &:hover,
+  &:focus {
+    color: ${style.black1000};
+  }
+
+  ${RawFeatherIcon} {
+    margin-right: 0.5rem;
+  }
 `;
 
 const items = [
@@ -137,7 +172,6 @@ const items = [
 
 const IntroApp = () => {
   const [index, setIndex] = useState(0);
-
   const showConnexion = index >= items.length;
 
   const handleClick = useCallback(() => {
@@ -145,73 +179,91 @@ const IntroApp = () => {
   }, []);
 
   return (
-    <>
-      {!showConnexion && (
-        <Block>
-          <HeaderImage
-            style={{ backgroundImage: `url(${items[index].image})` }}
-          >
-            <WhiteTriangle>
-              <div />
-            </WhiteTriangle>
-          </HeaderImage>
+    <Block>
+      <HeaderImage
+        style={{
+          backgroundImage: !showConnexion ? `url(${items[index].image})` : "",
+          backgroundColor: style.secondary500,
+        }}
+      >
+        <WhiteTriangle>
+          <div />
+          {showConnexion && (
+            <img
+              src={logo}
+              alt="Action Populaire"
+              style={{ maxWidth: "210px", position: "relative" }}
+            />
+          )}
+        </WhiteTriangle>
+      </HeaderImage>
 
-          <FixedBlock>
-            <p
-              style={{
-                color: style.primary500,
-                fontWeight: 700,
-                fontSize: "1.75rem",
-              }}
-            >
-              {items[index].name}
-            </p>
+      <FixedBlock>
+        <WhiteTriangle>
+          <div />
+        </WhiteTriangle>
 
-            <p style={{ fontSize: "1.2rem", marginTop: "0.375rem" }}>
-              {items[index].description}
-            </p>
+        <ActionBlock>
+          {!showConnexion && (
+            <>
+              <p
+                style={{
+                  color: style.primary500,
+                  fontWeight: 700,
+                  fontSize: "1.75rem",
+                }}
+              >
+                {items[index].name}
+              </p>
 
-            <StyledButton color="secondary" onClick={handleClick}>
-              Continuer
-            </StyledButton>
+              <p style={{ fontSize: "1.2rem", marginTop: "0.375rem" }}>
+                {items[index].description}
+              </p>
 
-            <div style={{ marginTop: "2rem" }}>
-              <Mark $active={0 === index} />
-              <Mark $active={1 === index} />
-              <Mark $active={2 === index} />
-            </div>
-          </FixedBlock>
-        </Block>
-      )}
-      {showConnexion && (
-        <Block>
-          <HeaderImage style={{ backgroundColor: style.secondary500 }}>
-            <WhiteTriangle>
-              <div />
-              <img
-                src={logo}
-                alt="Action Populaire"
-                style={{ maxWidth: "330px", position: "relative" }}
-              />
-            </WhiteTriangle>
-          </HeaderImage>
+              <StyledButton color="secondary" onClick={handleClick}>
+                Continuer
+              </StyledButton>
 
-          <FixedBlock>
-            <StyledButton color="primary" as="Link" route="signup">
-              Je crée mon compte
-            </StyledButton>
-            <StyledButton
-              color="secondary"
-              style={{ marginTop: "0.5rem", marginLeft: "0px" }}
-              as="Link"
-              route="login"
-            >
-              Je me connecte
-            </StyledButton>
-          </FixedBlock>
-        </Block>
-      )}
-    </>
+              <div style={{ marginTop: "2rem" }}>
+                <Mark $active={0 === index} />
+                <Mark $active={1 === index} />
+                <Mark $active={2 === index} />
+              </div>
+            </>
+          )}
+
+          {showConnexion && (
+            <>
+              <StyledButton
+                color="primary"
+                as="Link"
+                route="signup"
+                style={{ marginTop: "0" }}
+              >
+                Je crée mon compte
+              </StyledButton>
+              <StyledButton
+                color="secondary"
+                style={{ marginTop: "0.5rem", marginLeft: "0px" }}
+                as="Link"
+                route="login"
+              >
+                Je me connecte
+              </StyledButton>
+              <StyledSearchLink route="search">
+                <RawFeatherIcon
+                  name="search"
+                  width="1rem"
+                  height="1rem"
+                  strokeWidth={2}
+                />
+                <span>Rechercher une action</span>
+              </StyledSearchLink>
+            </>
+          )}
+        </ActionBlock>
+      </FixedBlock>
+    </Block>
   );
 };
 

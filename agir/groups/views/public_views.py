@@ -1,11 +1,9 @@
 import ics
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
 from django.http import (
     HttpResponseGone,
-    HttpResponseForbidden,
     HttpResponseRedirect,
     HttpResponseBadRequest,
     HttpResponse,
@@ -15,27 +13,22 @@ from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.translation import ugettext as _
-from django.views.generic import DetailView, DeleteView, FormView, ListView
+from django.views.generic import DetailView, DeleteView, ListView
 
 from agir.authentication.view_mixins import (
     GlobalOrObjectPermissionRequiredMixin,
     HardLoginRequiredMixin,
 )
-from agir.front.view_mixins import ObjectOpengraphMixin, FilterView
-from agir.groups.filters import GroupFilterSet
-from agir.groups.forms import ExternalJoinForm
-from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
+from agir.front.view_mixins import FilterView
 from agir.groups.actions.notifications import someone_joined_notification
+from agir.groups.filters import GroupFilterSet
+from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.lib.utils import front_url
-from agir.people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
-from agir.people.views import ConfirmSubscriptionView
 
 __all__ = [
     "SupportGroupListView",
-    "SupportGroupDetailView",
     "SupportGroupIcsView",
     "QuitSupportGroupView",
-    "ExternalJoinSupportGroupView",
     "ThematicTeamsViews",
     "SupportGroupDetailMixin",
 ]
@@ -51,77 +44,6 @@ class SupportGroupListView(FilterView):
     paginate_by = 20
     queryset = SupportGroup.objects.filter(published=True)
     filter_class = GroupFilterSet
-
-
-# Legacy View
-class SupportGroupDetailView(
-    ObjectOpengraphMixin, GlobalOrObjectPermissionRequiredMixin, DetailView
-):
-    permission_required = ("groups.view_supportgroup",)
-    template_name = "groups/detail.html"
-    model = SupportGroup
-
-    meta_description = "Rejoignez les groupes d'action de la France insoumise."
-    meta_description_2022 = "Rejoignez les équipes de soutien de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
-
-    def can_join(self):
-        return self.request.user.is_authenticated and (
-            (self.request.user.person.is_insoumise and not self.object.is_2022)
-            or (self.request.user.person.is_2022 and self.object.is_2022)
-        )
-
-    def handle_no_permission(self):
-        return HttpResponseGone()
-
-    def get_template_names(self):
-        return ["groups/detail.html"]
-
-    def get_context_data(self, **kwargs):
-        events_future = Paginator(
-            self.object.organized_events.upcoming().distinct().order_by("start_time"), 5
-        ).get_page(self.request.GET.get("events_future_page"))
-        events_past = Paginator(
-            self.object.organized_events.past().distinct().order_by("-start_time"), 5
-        ).get_page(self.request.GET.get("events_past_page"))
-
-        return super().get_context_data(
-            events_future=events_future,
-            events_past=events_past,
-            is_member=self.request.user.is_authenticated
-            and self.object.memberships.filter(
-                person=self.request.user.person
-            ).exists(),
-            can_join=self.can_join(),
-            **kwargs,
-        )
-
-    @method_decorator(login_required(login_url=reverse_lazy("short_code_login")))
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if not self.can_join():
-            return HttpResponseForbidden()
-
-        if request.POST["action"] == "join":
-            if self.object.is_full:
-                return HttpResponseRedirect(
-                    reverse("full_group", kwargs={"pk": self.object.pk})
-                )
-            try:
-                with transaction.atomic():
-                    membership = Membership.objects.create(
-                        supportgroup=self.object, person=request.user.person
-                    )
-                    someone_joined_notification(
-                        membership, membership_count=self.object.members_count
-                    )
-            except IntegrityError:
-                pass  # the person is already a member of the group
-            return HttpResponseRedirect(
-                reverse("view_group", kwargs={"pk": self.object.pk})
-            )
-
-        return HttpResponseBadRequest()
 
 
 class SupportGroupIcsView(DetailView):
@@ -189,52 +111,6 @@ class QuitSupportGroupView(
         )
 
         return HttpResponseRedirect(success_url)
-
-
-class ExternalJoinSupportGroupView(ConfirmSubscriptionView, FormView, DetailView):
-    queryset = SupportGroup.objects.filter(subtypes__allow_external=True)
-    form_class = ExternalJoinForm
-    show_already_created_message = False
-    default_type = SUBSCRIPTION_TYPE_EXTERNAL
-
-    def dispatch(self, request, *args, **kwargs):
-        self.group = self.object = self.get_object()
-        return super().dispatch(request, *args, **kwargs)
-
-    def success_page(self, params):
-        if Membership.objects.filter(
-            person=self.person, supportgroup=self.group
-        ).exists():
-            messages.add_message(
-                request=self.request,
-                level=messages.INFO,
-                message=_("Vous êtes déjà membre."),
-            )
-            return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
-
-        Membership.objects.get_or_create(person=self.person, supportgroup=self.group)
-        messages.add_message(
-            request=self.request,
-            level=messages.INFO,
-            message=_("Vous avez bien rejoint le groupe."),
-        )
-
-        return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
-
-    def form_valid(self, form):
-        form.send_confirmation_email(self.group)
-        messages.add_message(
-            request=self.request,
-            level=messages.INFO,
-            message=_(
-                "Un email vous a été envoyé. Merci de cliquer sur le "
-                "lien qu'il contient pour confirmer."
-            ),
-        )
-        return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
-
-    def form_invalid(self, form):
-        return HttpResponseRedirect(reverse("view_group", args=[self.group.pk]))
 
 
 class ThematicTeamsViews(ListView):

@@ -16,7 +16,9 @@ urlpatterns = [
     ),
     path("groupes/liste/", views.SupportGroupListView.as_view(), name="search_group"),
     path(
-        "groupes/chercher/", views.GroupSearchAPIView.as_view(), name="api_search_group"
+        "groupes/chercher/",
+        views.LegacyGroupSearchAPIView.as_view(),
+        name="legacy_api_search_group",
     ),
     path(
         "api/groupes/sous-types/",
@@ -64,11 +66,6 @@ urlpatterns = [
         name="change_group_location",
     ),
     path(
-        "groupes/<uuid:pk>/rejoindre/",
-        views.ExternalJoinSupportGroupView.as_view(),
-        name="external_join_group",
-    ),
-    path(
         "groupes/<uuid:pk>/impression/",
         views.RedirectToPresseroView.as_view(),
         name="redirect_to_pressero",
@@ -104,6 +101,11 @@ urlpatterns = [
         name="report_invitation_abuse",
     ),
     path("api/groupes/", views.UserGroupsView.as_view(), name="api_user_groups"),
+    path(
+        "api/groupes/recherche/",
+        views.GroupSearchAPIView.as_view(),
+        name="api_group_search",
+    ),
     path(
         "api/groupes/<uuid:pk>/",
         views.GroupDetailAPIView.as_view(),

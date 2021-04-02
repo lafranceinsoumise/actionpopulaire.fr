@@ -16,7 +16,7 @@ export const login = async (email) => {
     error: null,
   };
   const url = ENDPOINT.login;
-  const body = { email };
+  const body = { email: email.trim() };
   try {
     const response = await axios.post(url, body);
     result.success = response.status === 200;
@@ -67,7 +67,7 @@ export const signUp = async (data) => {
     error: null,
   };
   const formData = {
-    email: data.email,
+    email: data.email.trim(),
     location_zip: data.postalCode,
     location_country: data.country,
   };

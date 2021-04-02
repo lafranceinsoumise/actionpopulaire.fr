@@ -55,8 +55,11 @@ const AuthenticatedLogin = ({ user }) => {
   );
 };
 AuthenticatedLogin.propTypes = {
-  user: PropTypes.shape({
-    email: PropTypes.string.isRequired,
-  }),
+  user: PropTypes.oneOfType([
+    PropTypes.shape({
+      email: PropTypes.string.isRequired,
+    }),
+    PropTypes.bool,
+  ]),
 };
 export default AuthenticatedLogin;

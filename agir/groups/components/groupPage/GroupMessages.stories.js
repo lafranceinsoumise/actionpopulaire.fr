@@ -2,8 +2,8 @@ import React from "react";
 
 import { GroupMessages } from "./GroupMessages";
 
-import events from "@agir/groups/groupPage/events.json";
-import messages from "@agir/groups/groupPage/messages.json";
+import events from "@agir/front/mockData/events.json";
+import messages from "@agir/front/mockData/messages.json";
 
 export default {
   component: GroupMessages,

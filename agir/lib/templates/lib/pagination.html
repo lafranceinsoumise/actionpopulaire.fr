@@ -23,7 +23,7 @@
             <li class="active"><span><span class="sr-only">Page numéro </span>{{ page_number }}</span></li>
           {% else %}
             <li class="{% if page_obj.number == page_number %}active{% endif %}"><a
-              href="{{ base_url }}page={{ page_number }}" data-turbolinks="false"><span
+              href="{{ base_url }}page={{ page_number }}"><span
               class="sr-only">Page numéro </span>{{ page_number }}</a></li>
           {% endif %}
         {% endfor %}

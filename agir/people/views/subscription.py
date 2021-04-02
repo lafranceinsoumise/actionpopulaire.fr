@@ -1,37 +1,24 @@
-import urllib.parse
-
-from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.views import View
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.authentication.utils import hard_login
 from agir.front.view_mixins import SimpleOpengraphMixin
-from agir.lib.http import add_query_params_to_url
-from agir.lib.utils import get_client_ip
+from agir.lib.tasks import geocode_person
 from agir.people.actions.subscription import (
     SUBSCRIPTION_TYPE_LFI,
-    SUBSCRIPTION_TYPE_NSP,
-    SUBSCRIPTION_FIELD,
     SUBSCRIPTIONS_EMAILS,
     subscription_success_redirect_url,
     save_subscription_information,
 )
-from agir.people.forms import (
-    AnonymousUnsubscribeForm,
-    SimpleSubscriptionForm,
-    OverseasSubscriptionForm,
-)
+from agir.people.forms import AnonymousUnsubscribeForm
 from agir.people.models import Person
-from agir.people.token_buckets import is_rate_limited_for_subscription
-from agir.lib.tasks import geocode_person
 
 
 class UnsubscribeView(SimpleOpengraphMixin, FormView):
@@ -53,47 +40,6 @@ class UnsubscribeView(SimpleOpengraphMixin, FormView):
             else None,
             **kwargs,
         )
-
-
-class ConfirmationMailSentView(TemplateView):
-    template_name = "people/confirmation_mail_sent.html"
-
-
-class BaseSubscriptionView(SimpleOpengraphMixin, FormView):
-    success_url = reverse_lazy("subscription_mail_sent")
-    meta_title = "Rejoignez Action Populaire"
-    meta_description = "Rejoignez Action Populaire"
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return HttpResponseRedirect(reverse("dashboard"))
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        if is_rate_limited_for_subscription(
-            ip=get_client_ip(self.request), email=form.cleaned_data["email"]
-        ):
-            form.add_error(
-                field=None,
-                error=ValidationError(
-                    "Vous avez fait trop de tentatives en peu de temps. Merci de patienter un peu."
-                ),
-            )
-            return self.form_invalid(form)
-
-        form.send_confirmation_email()
-        return super().form_valid(form)
-
-
-class SimpleSubscriptionView(BaseSubscriptionView):
-    template_name = "people/simple_subscription.html"
-    form_class = SimpleSubscriptionForm
-
-
-class OverseasSubscriptionView(BaseSubscriptionView):
-    template_name = "people/overseas_subscription.html"
-    form_class = OverseasSubscriptionForm
 
 
 class ConfirmSubscriptionView(View):
