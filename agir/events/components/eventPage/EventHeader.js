@@ -203,7 +203,7 @@ const ActionButtons = (props) => {
     logged,
     isOrganizer,
     routes,
-    visioConfUrl,
+    onlineUrl,
   } = props;
 
   if (past) {
@@ -235,11 +235,11 @@ const ActionButtons = (props) => {
     return (
       <>
         <StyledActionButtons>
-          {!!visioConfUrl && (
+          {!!onlineUrl && (
             <ActionButton
               icon="video"
               as="a"
-              href={visioConfUrl}
+              href={onlineUrl}
               target="_blank"
               color="primary"
             >
@@ -339,7 +339,7 @@ const EventHeader = ({
   isOrganizer,
   forUsers,
   hasRightSubscription,
-  visioConfUrl,
+  onlineUrl,
 }) => {
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
@@ -366,7 +366,7 @@ const EventHeader = ({
         forUsers={forUsers}
         hasRightSubscription={hasRightSubscription}
         hasPrice={!!options && !!options.price}
-        visioConfUrl={visioConfUrl}
+        onlineUrl={onlineUrl}
       />
       {!past && (
         <AdditionalMessage

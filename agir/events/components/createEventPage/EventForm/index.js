@@ -164,7 +164,7 @@ const EventForm = () => {
   const dateRef = useRef(null);
   const forUsersRef = useRef(null);
   const subtypeRef = useRef(null);
-  const visioConfUrlRef = useRef(null);
+  const onlineUrlRef = useRef(null);
   const locationRef = useRef(null);
   const contactRef = useRef(null);
 
@@ -289,6 +289,9 @@ const EventForm = () => {
         break;
       case !!(errors["subtype"] && subtypeRef.current):
         scrollTarget = subtypeRef.current;
+        break;
+      case !!(errors["onlineUrl"] && onlineUrlRef.current):
+        scrollTarget = onlineUrlRef.current;
         break;
       case !!(errors["location"] && locationRef.current):
         scrollTarget = locationRef.current;
@@ -433,18 +436,18 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
-      <Spacer size="1.5rem" ref={visioConfUrlRef} />
+      <Spacer size="1.5rem" ref={onlineUrlRef} />
       <VisioConferenceField
         label="Visio-conférence"
-        name="visioConfUrl"
+        name="onlineUrl"
         onChange={updateValue}
-        error={errors && errors.visioConfUrl}
-        value={formData.visioConfUrl}
-        defaultUrl={options.visioConfUrl}
+        error={errors && errors.onlineUrl}
+        value={formData.onlineUrl}
+        defaultUrl={options.onlineUrl}
         placeholder="URL de la visio-conférence (facultatif)"
       />
 
-      <Spacer size="1.5rem" ref={locationRef} />
+      <Spacer size="2rem" ref={locationRef} />
       <fieldset>
         <legend>
           <strong>Lieu de l'événement</strong>

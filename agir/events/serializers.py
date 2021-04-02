@@ -146,7 +146,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     subtype = EventSubtypeSerializer()
 
-    visioConfUrl = serializers.URLField(source="online_url")
+    onlineUrl = serializers.URLField(source="online_url")
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -253,7 +253,7 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
     forUsers = serializers.SerializerMethodField()
     subtype = serializers.SerializerMethodField()
     defaultContact = serializers.SerializerMethodField()
-    visioConfUrl = serializers.SerializerMethodField()
+    onlineUrl = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -303,7 +303,7 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
             contact["email"] = self.person.email
         return contact
 
-    def get_visioConfUrl(self, request):
+    def get_onlineUrl(self, request):
         return "https://" + jitsi_default_domain() + "/" + jitsi_default_room_name()
 
 
@@ -347,7 +347,7 @@ class CreateEventSerializer(serializers.Serializer):
         default=CurrentPersonDefault(), write_only=True,
     )
 
-    visioConfUrl = serializers.URLField(
+    onlineUrl = serializers.URLField(
         source="online_url", required=False, allow_blank=True
     )
 
