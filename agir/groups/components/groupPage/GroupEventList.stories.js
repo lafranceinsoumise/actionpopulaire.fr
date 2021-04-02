@@ -2,7 +2,7 @@ import React from "react";
 
 import GroupEventList from "./GroupEventList";
 
-import events from "@agir/groups/groupPage/events.json";
+import events from "@agir/front/mockData/events.json";
 
 export default {
   component: GroupEventList,

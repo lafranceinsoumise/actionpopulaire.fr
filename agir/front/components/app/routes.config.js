@@ -110,6 +110,7 @@ export const routeConfig = {
     hasLayout: false,
     hideFeedbackButton: true,
     hideTopBar: true,
+    hideConnectivityWarning: true,
   }),
   eventMap: new RouteConfig({
     id: "eventMap",

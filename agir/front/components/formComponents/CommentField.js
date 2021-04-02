@@ -21,7 +21,7 @@ const StyledCommentButton = styled.button`
     text-decoration: none;
     background-color: ${({ $disabled }) =>
       $disabled ? style.black100 : style.black50};
-    font-size: 0.875rem;
+    font-size: 1rem;
     line-height: 1.65;
     color: ${style.black500};
     white-space: nowrap;
@@ -120,7 +120,7 @@ const StyledWrapper = styled.form`
       nowrap;
     cursor: ${({ $isExpanded, $disabled }) =>
       $disabled || $isExpanded ? "default" : "pointer"};
-    font-size: 0.875rem;
+    font-size: 1rem;
 
     ${StyledCommentButton} {
       flex: 1 1 auto;

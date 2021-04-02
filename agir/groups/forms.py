@@ -5,7 +5,6 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Exists, OuterRef
-from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from functools import reduce
 from operator import or_
@@ -19,7 +18,6 @@ from agir.groups.models import (
 from agir.groups.tasks import (
     send_support_group_changed_notification,
     send_support_group_creation_notification,
-    send_external_join_confirmation,
     invite_to_group,
     create_group_creation_confirmation_activity,
     create_accepted_invitation_member_activity,
@@ -351,13 +349,6 @@ class SearchGroupForm(SearchByZipCodeFormBase):
     pass
 
 
-class ExternalJoinForm(forms.Form):
-    email = forms.EmailField()
-
-    def send_confirmation_email(self, event):
-        send_external_join_confirmation.delay(event.pk, **self.cleaned_data)
-
-
 class InvitationWithSubscriptionConfirmationForm(forms.Form):
     location_zip = forms.CharField(
         label="Mon code postal",
@@ -456,7 +447,7 @@ class TransferGroupMembersForm(forms.Form):
             base_query["is_insoumise"] = 1
 
         self.fields["target_group"].widget = RemoteSelectizeWidget(
-            api_url=reverse_lazy("api_search_group"),
+            api_url=reverse_lazy("legacy_api_search_group"),
             label_field="name",
             value_field="id",
             base_query=base_query,

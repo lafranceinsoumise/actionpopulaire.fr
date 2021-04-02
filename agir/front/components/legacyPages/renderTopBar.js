@@ -4,21 +4,21 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
   const [
     { default: React },
     { renderReactComponent },
-    { default: FeedbackButton },
+    { default: TopBar },
     { GlobalContextProvider },
   ] = await Promise.all([
     import("react"),
     import("@agir/lib/utils/react"),
-    import("./FeedbackButton"),
+    import("../allPages/TopBar"),
     import("../globalContext/GlobalContext"),
   ]);
 
   const showHeader = () => {
     renderReactComponent(
       <GlobalContextProvider>
-        <FeedbackButton />
+        <TopBar />
       </GlobalContextProvider>,
-      document.getElementById("feedback-button")
+      document.getElementById("top-bar")
     );
   };
   onDOMReady(showHeader);

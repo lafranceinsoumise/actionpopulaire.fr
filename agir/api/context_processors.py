@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib import messages
 from django.urls import reverse
 
 
@@ -8,7 +9,6 @@ def basic_information(request):
         "search": reverse("dashboard_search"),
         "personalInformation": reverse("personal_information"),
         "contactConfiguration": reverse("contact"),
-        "join": reverse("join"),
         "signup": reverse("signup"),
         "login": reverse("short_code_login"),
         "logout": reverse("disconnect"),

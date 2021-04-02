@@ -14,7 +14,7 @@ const StyledField = styled.label`
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
-  font-size: 0.875rem;
+  font-size: 1rem;
   line-height: 1.5;
   cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
 
@@ -29,7 +29,7 @@ const StyledField = styled.label`
     justify-content: center;
     align-items: center;
     flex: 0 0 auto;
-    margin-top: 0.15rem;
+    margin-top: 0.25rem;
     margin-right: 0.5rem;
     width: 1rem;
     height: 1rem;

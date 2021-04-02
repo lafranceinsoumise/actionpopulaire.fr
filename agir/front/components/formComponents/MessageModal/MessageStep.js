@@ -12,7 +12,7 @@ import EmojiPicker from "@agir/front/formComponents/EmojiPicker";
 const StyledLabel = styled.div``;
 const StyledMessage = styled.div``;
 const StyledCounter = styled.span`
-  font-size: 0.813rem;
+  font-size: 1rem;
   font-weight: 400;
   line-height: 1;
   color: ${({ $invalid }) => ($invalid ? style.redNSP : "inherit")};
@@ -28,7 +28,7 @@ const StyledWrapper = styled.div`
   ${StyledLabel} {
     display: flex;
     align-items: stretch;
-    font-size: 0.875rem;
+    font-size: 1rem;
     margin-bottom: 1rem;
 
     ${Avatar} {

@@ -310,8 +310,8 @@ const ChooseCampaign = ({ dismiss }) => {
         isInsoumise: campaign === "isInsoumise",
         newsletters,
       });
+      await dismiss();
       setSubmitted(false);
-      dismiss();
     },
     [campaign, dismiss, newsletters]
   );

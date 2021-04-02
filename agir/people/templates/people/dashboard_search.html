@@ -65,8 +65,6 @@
                 {% for event in upcoming_events %}
                   <a
                     href="{% url "view_event" event.pk %}"
-                    target="_blank"
-                    rel="noopener noreferrer"
                     class="list-group-item">
                     <div class="media">
                       {% if event.image %}
@@ -105,8 +103,6 @@
                 {% for event in past_events %}
                   <a
                     href="{% url "view_event" event.pk %}"
-                    target="_blank"
-                    rel="noopener noreferrer"
                     class="list-group-item">
                     <div class="media">
                       {% if event.image %}
@@ -154,8 +150,6 @@
               {% for support_group in support_groups %}
                 <a
                   href="{% url "view_group" support_group.pk %}"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   class="list-group-item ">
 
                   <div class="media">

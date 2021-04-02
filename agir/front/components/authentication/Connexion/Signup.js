@@ -92,12 +92,8 @@ const SignUp = () => {
   }, [error, rgpdChecked]);
 
   const handleChange = useCallback((e) => {
-    let { name, value } = e.target;
+    const { name, value } = e.target;
     setError((state) => state && { ...state, [name]: null });
-    if ("email" === name) {
-      const i = value.indexOf(" ");
-      if (-1 !== i) value = value.substr(0, value.indexOf(" "));
-    }
     setFormData((state) => ({ ...state, [name]: value }));
   }, []);
 
@@ -169,7 +165,7 @@ const SignUp = () => {
           <TextField
             label="Code postal"
             name="postalCode"
-            error={error && error.zip}
+            error={error && error.postalCode}
             onChange={handleChange}
             value={formData.postalCode}
           />

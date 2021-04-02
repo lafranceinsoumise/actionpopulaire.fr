@@ -12,9 +12,10 @@ const StyledOption = styled.label`
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
-  font-size: 0.875rem;
+  font-size: 1rem;
   line-height: 1.5;
   cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
+  margin-bottom: 0;
 
   input {
     position: absolute;
@@ -27,7 +28,7 @@ const StyledOption = styled.label`
     justify-content: center;
     align-items: center;
     flex: 0 0 auto;
-    margin-top: 0.15rem;
+    margin-top: 0.25rem;
     margin-right: 0.5rem;
     width: 1rem;
     height: 1rem;
@@ -86,13 +87,11 @@ const StyledError = styled.div``;
 const StyledField = styled.div`
   display: grid;
   align-items: stretch;
-  font-size: 0.813rem;
+  font-size: 1rem;
   font-weight: 400;
   line-height: 1;
-
-  & > * {
-    margin: 4px 0;
-  }
+  grid-gap: 4px 0;
+  margin-bottom: 0;
 
   ${StyledLabel} {
     font-weight: 600;
@@ -103,6 +102,7 @@ const StyledField = styled.div`
   }
 
   ${StyledOptions} {
+    margin-top: 0.5rem;
     display: grid;
     grid-gap: 0.25rem;
   }
