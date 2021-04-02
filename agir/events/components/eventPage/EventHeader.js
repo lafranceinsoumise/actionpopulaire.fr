@@ -279,7 +279,15 @@ RSVPButton.propTypes = ActionButtons.propTypes = {
   }),
 };
 
-const AdditionalMessage = ({ id, name, logged, rsvped, price, forUsers }) => {
+const AdditionalMessage = ({
+  id,
+  name,
+  isOrganizer,
+  logged,
+  rsvped,
+  price,
+  forUsers,
+}) => {
   const location = useLocation();
 
   if (!logged) {
@@ -312,9 +320,13 @@ const AdditionalMessage = ({ id, name, logged, rsvped, price, forUsers }) => {
     );
   }
 
-  return (
-    <SmallText>Votre email sera communiqué à l'organisateur·ice</SmallText>
-  );
+  if (!isOrganizer) {
+    return (
+      <SmallText>Votre email sera communiqué à l'organisateur·ice</SmallText>
+    );
+  }
+
+  return <></>;
 };
 AdditionalMessage.propTypes = {
   id: PropTypes.string,
@@ -372,6 +384,7 @@ const EventHeader = ({
         <AdditionalMessage
           id={id}
           name={name}
+          isOrganizer={isOrganizer}
           past={past}
           logged={logged}
           rsvped={rsvped}
