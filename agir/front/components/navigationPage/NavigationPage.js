@@ -127,7 +127,7 @@ const NavigationPage = ({ active }) => {
               href={link.href || routes[link.route]}
               to={
                 link.to && routeConfig[link.to]
-                  ? routeConfig[link.to].pathname
+                  ? routeConfig[link.to].path
                   : undefined
               }
               counter={link.counter && requiredActionActivityCount}

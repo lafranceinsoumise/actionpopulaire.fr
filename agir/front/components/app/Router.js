@@ -25,7 +25,7 @@ const ProtectedPage = (props) => {
   }
   return (
     <Redirect
-      to={{ pathname: routeConfig.login.pathname, state: { from: location } }}
+      to={{ pathname: routeConfig.login.path, state: { from: location } }}
     />
   );
 };
@@ -37,7 +37,7 @@ const Router = ({ children }) => (
   <BrowserRouter basename={BASE_PATH}>
     <Switch>
       {routes.map((route) => (
-        <Route key={route.id} path={route.pathname} exact={!!route.exact}>
+        <Route key={route.id} path={route.path} exact={!!route.exact}>
           <ProtectedPage Component={route.Component} routeConfig={route} />
         </Route>
       ))}
