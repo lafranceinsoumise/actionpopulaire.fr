@@ -1,13 +1,13 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import useSWR from "swr";
-import shortUUID from "short-uuid";
 
 import {
   getAllNotifications,
   getNotificationStatus,
 } from "@agir/notifications/common/notifications.config";
 import * as api from "@agir/notifications/common/api";
+import { useWebpush } from "@agir/notifications/webpush/subscriptions";
 
 import { ProtectedComponent } from "@agir/front/app/Router";
 import NotificationSettingPanel from "./NotificationSettingPanel";
@@ -15,6 +15,8 @@ import NotificationSettingPanel from "./NotificationSettingPanel";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const NotificationSettings = (props) => {
+  const { webpushAvailable, isSubscribed, subscribe } = useWebpush();
+
   const { data: groups } = useSWR("/api/mes-groupes/");
   const { data: userNotifications, mutate } = useSWR(
     api.ENDPOINT.getSubscriptions
@@ -69,6 +71,9 @@ const NotificationSettings = (props) => {
       activeNotifications={activeNotifications}
       onChange={handleChange}
       disabled={isLoading}
+      subscribeDevice={
+        webpushAvailable && !isSubscribed ? subscribe : undefined
+      }
     />
   );
 };

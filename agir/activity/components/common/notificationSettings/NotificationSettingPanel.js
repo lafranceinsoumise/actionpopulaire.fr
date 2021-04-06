@@ -2,7 +2,10 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import Accordion from "@agir/front/genericComponents/Accordion";
+import Button from "@agir/front/genericComponents/Button";
 import NotificationSettingItem from "./NotificationSettingItem";
 import Panel, { StyledBackButton } from "@agir/front/genericComponents/Panel";
 
@@ -44,6 +47,39 @@ const AccordionContent = styled.div`
   padding: 1.5rem;
 `;
 
+const StyledDeviceSubscription = styled.div`
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  background: ${style.primary100};
+  grid-gap: 0 1rem;
+  width: calc(100% - 3rem);
+  margin: 0 auto 1.5rem;
+
+  h5,
+  p {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+  }
+
+  h5 {
+    font-weight: 700;
+  }
+
+  p {
+    font-weight: 400;
+  }
+
+  ${Button} {
+    grid-column: 2/3;
+    grid-row: 1/3;
+  }
+`;
+
 const StyledPanel = styled(Panel)`
   padding-left: 0;
   padding-right: 0;
@@ -62,6 +98,7 @@ const NotificationSettingPanel = (props) => {
     activeNotifications,
     onChange,
     disabled,
+    subscribeDevice,
   } = props;
 
   const [byType, icons] = useMemo(() => {
@@ -102,6 +139,15 @@ const NotificationSettingPanel = (props) => {
       >
         Notifications
       </h3>
+      {typeof subscribeDevice === "function" && (
+        <StyledDeviceSubscription>
+          <h5>Notifications désactivées</h5>
+          <p>Vous devez activer les notifications sur cet appareil</p>
+          <Button color="primary" onClick={subscribeDevice}>
+            Activer
+          </Button>
+        </StyledDeviceSubscription>
+      )}
       {Object.keys(byType).map((type) => (
         <Accordion key={type} name={type} icon={icons[type] || "settings"}>
           <AccordionContent>
@@ -146,6 +192,7 @@ NotificationSettingPanel.propTypes = {
   ),
   activeNotifications: PropTypes.object,
   onChange: PropTypes.func.isRequired,
+  subscribeDevice: PropTypes.func,
   disabled: PropTypes.bool,
 };
 export default NotificationSettingPanel;
