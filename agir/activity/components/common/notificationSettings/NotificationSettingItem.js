@@ -59,6 +59,7 @@ const NotificationSettingItem = (props) => {
       ...notification,
       type: "push",
       action: push ? "remove" : "add",
+      subscriptionIds: push,
     });
   }, [push, notification, onChange]);
 
@@ -67,6 +68,7 @@ const NotificationSettingItem = (props) => {
       ...notification,
       type: "email",
       action: email ? "remove" : "add",
+      subscriptionIds: email,
     });
   }, [email, notification, onChange]);
 
@@ -102,8 +104,14 @@ NotificationSettingItem.propTypes = {
     hasEmail: PropTypes.bool,
     hasPush: PropTypes.bool,
   }).isRequired,
-  push: PropTypes.bool,
-  email: PropTypes.bool,
+  push: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.bool,
+  ]),
+  email: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.bool,
+  ]),
   onChange: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };

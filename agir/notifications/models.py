@@ -18,8 +18,8 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="notification_subscriptions",
     )
-    supportgroup = models.ForeignKey(
-        "groups.SupportGroup", on_delete=models.CASCADE, null=True
+    membership = models.ForeignKey(
+        "groups.Membership", on_delete=models.CASCADE, null=True
     )
     type = models.CharField("Type", max_length=5, choices=SUBSCRIPTION_CHOICES)
     activity_type = models.CharField(
@@ -27,5 +27,14 @@ class Subscription(UUIDIdentified, TimeStampedModel):
     )
 
     class Meta:
-        # only one subscription by device and by type and by object
-        unique_together = [["person", "type", "activity_type", "supportgroup"]]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["person", "type", "activity_type", "membership"],
+                name="unique_with_membership",
+            ),
+            models.UniqueConstraint(
+                fields=["person", "type", "activity_type"],
+                condition=models.Q(membership=None),
+                name="unique_without_membership",
+            ),
+        ]

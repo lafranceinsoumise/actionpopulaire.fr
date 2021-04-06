@@ -118,8 +118,8 @@ const NotificationSettingPanel = (props) => {
                     notification={byId[notificationId]}
                     onChange={onChange}
                     disabled={disabled}
-                    email={activeNotifications[notificationId]?.email}
-                    push={activeNotifications[notificationId]?.push}
+                    email={activeNotifications[notificationId]?.email || false}
+                    push={activeNotifications[notificationId]?.push || false}
                   />
                 ))}
               </StyledGroup>

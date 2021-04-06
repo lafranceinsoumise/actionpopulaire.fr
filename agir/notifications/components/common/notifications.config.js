@@ -8,7 +8,7 @@ const PERSON_NOTIFICATIONS = [
     hasEmail: true,
     hasPush: true,
     activityTypes: [
-      "2022-sponsorship-accepted",
+      "referral-accepted",
       "transferred-group-member",
       "group-invitation",
     ],
@@ -113,7 +113,7 @@ const GROUP_NOTIFICATIONS = [
     subtype: "Mises à jour du groupe",
     label: "Nouvel événement du groupe",
     isActive: true,
-    activityTypes: ["new-event-mygroups", "group-coorganization-info"],
+    activityTypes: ["new-event-mygroups" /*"group-coorganization-info"*/],
   },
   {
     id: "group_event_report_notifications",
@@ -161,7 +161,7 @@ const GROUP_NOTIFICATIONS = [
     activityTypes: [
       "new-member",
       "accepted-invitation-member",
-      "group-membership-reminder",
+      "group-membership-limit-reminder",
       "new-members-through-transfer",
     ],
   },
@@ -242,13 +242,15 @@ export const getNotificationStatus = (activeNotifications) => {
     }
     notificationId = getNotificationId(
       notification.id,
-      activeNotification.group
+      activeNotification.group?.id
     );
     active[notificationId] = active[notificationId] || {
       email: false,
       push: false,
     };
-    active[notificationId][activeNotification.type] = true;
+    active[notificationId][activeNotification.type] =
+      active[notificationId][activeNotification.type] || [];
+    active[notificationId][activeNotification.type].push(activeNotification.id);
   });
   return active;
 };
