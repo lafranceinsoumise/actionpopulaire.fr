@@ -43,7 +43,7 @@ class TypeDepense(TextChoices):
 
     PUBLICATION_IMPRESSION = "PIM", "Publication et impression (hors R39)"
 
-    REUNIONS_PUBLIQUES = "Frais divers liées aux réunions publiques"
+    REUNIONS_PUBLIQUES = "REU", "Frais divers liées aux réunions publiques"
 
     TRANSPORTS = "TRA", "Transports et déplacement"
     TRAIN = (
@@ -53,6 +53,13 @@ class TypeDepense(TextChoices):
     AVION = "TRA-A", "Billets d'avion"
     LOCATION_VEHICULE = "TRA-L", "Location d'un véhicule"
     FRAIS_KILOMETRIQUES = "TRA-K", "Frais kilométriques"
+
+    @classmethod
+    def hierarchical_choices(cls):
+        return [
+            (value, f"- {label}" if len(value) > 3 else label)
+            for value, label in cls.choices
+        ]
 
 
 class TypeProjet(TextChoices):

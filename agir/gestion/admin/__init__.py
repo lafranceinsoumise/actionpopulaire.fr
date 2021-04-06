@@ -5,10 +5,11 @@ from django import forms
 from django.contrib import admin
 from django.contrib.admin.options import BaseModelAdmin
 from django.utils import timezone
-from django.utils.html import format_html_join
+from django.utils.html import format_html_join, format_html
 from reversion.admin import VersionAdmin
 
 from agir.gestion.models import Depense, Projet, Compte, Document, Fournisseur
+from agir.lib.admin import get_admin_link
 from agir.people.models import Person
 
 
@@ -55,7 +56,7 @@ class BaseMixin(BaseModelAdmin):
 
     def numero_(self, obj):
         if obj.id:
-            return obj.numero
+            return format_html('<a href="{}">{}</a>', get_admin_link(obj), obj.numero)
         else:
             return "-"
 
@@ -186,18 +187,38 @@ class DepenseDocumentInline(BaseDocumentInline):
 
 @admin.register(Depense)
 class DepenseAdmin(BaseMixin, VersionAdmin):
+    list_filter = (
+        "type",
+        "compte",
+    )
+
     list_display = (
         "numero_",
         "titre",
+        "type",
         "montant",
-        "paiement",
+        "date_depense",
+        "date_paiement",
         "compte",
         "projet",
     )
 
     fieldsets = (
-        (None, {"fields": ("numero_", "titre", "compte", "montant", "description",)},),
-        ("Informations de paiement", {"fields": ("fournisseur", "paiement")}),
+        (
+            None,
+            {
+                "fields": (
+                    "numero_",
+                    "titre",
+                    "compte",
+                    "type",
+                    "montant",
+                    "description",
+                    "date_depense",
+                )
+            },
+        ),
+        ("Informations de paiement", {"fields": ("fournisseur", "date_paiement")}),
         ("Commentaires", {"fields": ("bloc_commentaires", "nouveau_commentaire")}),
     )
 
@@ -209,7 +230,7 @@ class DepenseInline(BaseMixin, admin.TabularInline):
     extra = 0
     show_change_link = True
 
-    fields = ("numero_", "titre", "montant", "paiement", "compte")
+    fields = ("numero_", "titre", "type", "montant", "date_depense", "compte")
 
 
 class ProjetDocumentInline(BaseDocumentInline):
@@ -229,5 +250,6 @@ class ProjetAdmin(BaseMixin, VersionAdmin):
     )
 
     readonly_fields = ("numero",)
+    autocomplete_fields = ("event",)
 
     inlines = [DepenseInline, ProjetDocumentInline]

@@ -11,9 +11,9 @@ from django.db import models
 import reversion
 from phonenumber_field.modelfields import PhoneNumberField
 
-from agir.gestion.typologies import TypeProjet, TypeDocument, Etat
+from agir.gestion.typologies import TypeProjet, TypeDocument, Etat, TypeDepense
 from agir.lib.model_fields import IBANField
-from agir.lib.models import LocationMixin
+from agir.lib.models import LocationMixin, TimeStampedModel
 from agir.lib.search import PrefixSearchQuery
 
 ALPHABET = ascii_uppercase + digits
@@ -89,7 +89,7 @@ class NumeroUniqueMixin(models.Model):
 
 
 @reversion.register()
-class Document(NumeroUniqueMixin, models.Model):
+class Document(NumeroUniqueMixin, TimeStampedModel):
     class Besoin(models.TextChoices):
         NECESSAIRE = "NEC", "Strictement nécessaire"
         PREFERABLE = "PRE", "Préférable"
@@ -152,7 +152,7 @@ class Document(NumeroUniqueMixin, models.Model):
 
 
 @reversion.register()
-class Compte(models.Model):
+class Compte(TimeStampedModel):
     """Le compte regroupe un ensemble de dépenses
 
     Il est identifié par son nom et par une désignation courte (max 5 caractères)
@@ -176,7 +176,7 @@ class Compte(models.Model):
 
 
 @reversion.register(follow=["documents", "depenses"])
-class Projet(NumeroUniqueMixin, models.Model):
+class Projet(NumeroUniqueMixin, TimeStampedModel):
     """Le projet regroupe ensemble des dépenses liées entre elles
 
     Un projet peut correspondre à un événement, ou à un type de de dépense précis.
@@ -217,7 +217,7 @@ class Projet(NumeroUniqueMixin, models.Model):
 
 
 @reversion.register(follow=["documents"])
-class Depense(NumeroUniqueMixin, models.Model):
+class Depense(NumeroUniqueMixin, TimeStampedModel):
     """Une dépense correspond à un paiement réalisé en lien avec une facture
     """
 
@@ -252,6 +252,10 @@ class Depense(NumeroUniqueMixin, models.Model):
         on_delete=models.SET_NULL,
     )
 
+    type = models.CharField(
+        "Type de dépense", max_length=5, choices=TypeDepense.hierarchical_choices()
+    )
+
     montant = models.DecimalField(
         verbose_name="Montant de la dépense",
         decimal_places=2,
@@ -259,15 +263,27 @@ class Depense(NumeroUniqueMixin, models.Model):
         max_digits=10,
     )
 
-    paiement = models.BooleanField(
-        verbose_name="Dépense payée", null=False, default=False
+    date_depense = models.DateField(
+        "Date d'engagement de la dépense",
+        blank=True,
+        null=True,
+        help_text="Date à laquelle la dépense a été engagée (généralement l'acceptation du contrat)",
+    )
+
+    date_paiement = models.DateField(
+        "Date du paiement",
+        blank=True,
+        null=True,
+        help_text="Date à laquelle le paiement a été effecté.",
     )
 
     documents = models.ManyToManyField(
         to="Document", related_name="depenses", related_query_name="depense",
     )
 
-    fournisseur = models.ForeignKey("Fournisseur", null=True, on_delete=models.SET_NULL)
+    fournisseur = models.ForeignKey(
+        "Fournisseur", null=True, blank=True, on_delete=models.SET_NULL
+    )
 
     # informations fournisseurs
     nom_fournisseur = models.CharField(
@@ -319,7 +335,7 @@ class Depense(NumeroUniqueMixin, models.Model):
 
 
 @reversion.register()
-class Fournisseur(LocationMixin, models.Model):
+class Fournisseur(LocationMixin, TimeStampedModel):
     """Ce modèle permet d'enregistrer des fournisseurs récurrents.
 
     Un fournisseur peut posséder une adresse, un IBAN pour réaliser des virements,
