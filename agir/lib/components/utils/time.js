@@ -182,7 +182,7 @@ export function displayIntervalEnd(interval, relativeTo) {
 
   const startDate = DateTime.now();
   const endDate = interval.end.setLocale("fr-FR");
-  const beforeEnd = Interval.fromISO(`${startDate}/${endDate}`)
+  const beforeEnd = Interval.fromISO(`${startDate}/${endDate}`);
   const diffBetween = beforeEnd.count("days");
 
   let title = "En cours, ";

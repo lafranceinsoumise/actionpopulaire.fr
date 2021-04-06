@@ -147,7 +147,11 @@ const otherEventConfig = {
     allowEmpty: false,
     filter: (events) =>
       events
-        .filter((event) => dateFromISOString(event.startTime) <= DateTime.local() && dateFromISOString(event.endTime) >= DateTime.local())
+        .filter(
+          (event) =>
+            dateFromISOString(event.startTime) <= DateTime.local() &&
+            dateFromISOString(event.endTime) >= DateTime.local()
+        )
         .reverse(),
   },
   PAST_TYPE: {

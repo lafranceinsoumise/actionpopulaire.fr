@@ -254,7 +254,9 @@ const EventCard = (props) => {
   const now = DateTime.local();
   const pending = now >= schedule.start && now <= schedule.end;
 
-  const eventDate = pending ? displayIntervalEnd(schedule) : displayIntervalStart(schedule);
+  const eventDate = pending
+    ? displayIntervalEnd(schedule)
+    : displayIntervalStart(schedule);
 
   const handleClick = React.useCallback(
     (e) => {
@@ -287,7 +289,7 @@ const EventCard = (props) => {
             fontWeight: 500,
           }}
         >
-          { eventDate }
+          {eventDate}
           {location && location.shortLocation && (
             <> • {location.shortLocation}</>
           )}
