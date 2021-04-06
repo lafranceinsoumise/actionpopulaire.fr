@@ -3,6 +3,7 @@ from uuid import UUID
 
 from django.contrib import messages
 from django.db import IntegrityError
+from django.db.models import Case, When, Q, F, Value, CharField
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy, reverse
@@ -224,9 +225,22 @@ class MandatsView(SoftLoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         person = self.request.user.person
-        mandats_municipaux = MandatMunicipal.objects.filter(person=person)
-        mandats_departementaux = MandatDepartemental.objects.filter(person=person)
-        mandats_regionaux = MandatRegional.objects.filter(person=person)
+        mandats_municipaux = MandatMunicipal.objects.filter(person=person).annotate(
+            epci=Case(
+                When(
+                    ~Q(communautaire=MandatMunicipal.MANDAT_EPCI_PAS_DE_MANDAT),
+                    then=F("conseil__epci__nom"),
+                ),
+                default=None,
+                output_field=CharField(),
+            )
+        )
+        mandats_departementaux = MandatDepartemental.objects.filter(
+            person=person
+        ).annotate(epci=Value(None, output_field=CharField()))
+        mandats_regionaux = MandatRegional.objects.filter(person=person).annotate(
+            epci=Value(None, output_field=CharField())
+        )
 
         mandats = list(
             chain(mandats_municipaux, mandats_departementaux, mandats_regionaux)
