@@ -11,14 +11,14 @@ import {
 const routeConfig = {
   info: {
     id: "info",
-    pathname: "/groupes/:groupPk/accueil/",
+    path: "/groupes/:groupPk/accueil/",
     label: "Accueil",
     hasTab: true,
     hasRoute: true,
   },
   messages: {
     id: "messages",
-    pathname: "/groupes/:groupPk/messages/",
+    path: "/groupes/:groupPk/messages/",
     label: "Messages",
     hasTab: true,
     hasRoute: (group) =>
@@ -26,7 +26,7 @@ const routeConfig = {
   },
   agenda: {
     id: "agenda",
-    pathname: "/groupes/:groupPk/agenda/",
+    path: "/groupes/:groupPk/agenda/",
     label: "Agenda",
     hasTab: true,
     hasRoute: (group) =>
@@ -34,7 +34,7 @@ const routeConfig = {
   },
   reports: {
     id: "reports",
-    pathname: "/groupes/:groupPk/comptes-rendus/",
+    path: "/groupes/:groupPk/comptes-rendus/",
     label: "Comptes-rendus",
     hasTab: true,
     hasRoute: (group) => group.isManager || group.hasPastEventReports,
@@ -72,7 +72,7 @@ export const useTabs = (props, isMobile = true) => {
   const shouldReplaceURL = useMemo(() => {
     return new RouteConfig({
       id: "base",
-      pathname: "/groupes/:groupPk/",
+      path: "/groupes/:groupPk/",
       label: "Groupe",
     }).match(location.pathname);
   }, [location.pathname]);
