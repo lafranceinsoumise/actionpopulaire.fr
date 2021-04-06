@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import VisioConferenceField from "./VisioConferenceField";
+import OnlineUrlField from "./OnlineUrlField";
 
 export default {
-  component: VisioConferenceField,
+  component: OnlineUrlField,
   title: "EventForm/VisioConference",
 };
 
@@ -13,9 +13,7 @@ const Template = (args) => {
     setValue(value);
   };
 
-  return (
-    <VisioConferenceField {...args} onChange={handleChange} value={value} />
-  );
+  return <OnlineUrlField {...args} onChange={handleChange} value={value} />;
 };
 
 export const Default = Template.bind({});

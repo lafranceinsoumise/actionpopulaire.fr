@@ -5,14 +5,14 @@ import styled from "styled-components";
 
 const StyledField = styled.div`
   > span:first-child {
-    font-size: 0.813rem;
+    font-size: 1rem;
     font-weight: 600;
     line-height: 1;
     padding: 4px 0;
   }
 `;
 
-const VisioConferenceField = (props) => {
+const OnlineUrlField = (props) => {
   const {
     id,
     name,
@@ -26,7 +26,7 @@ const VisioConferenceField = (props) => {
     ...rest
   } = props;
 
-  const [isVisio, setIsVisio] = useState(!!value);
+  const [isOnline, setIsOnline] = useState(!!value);
 
   const handleChange = (e) => {
     onChange(name, e.target.value);
@@ -40,8 +40,8 @@ const VisioConferenceField = (props) => {
     onChange(name, defaultUrl);
   };
 
-  const handleChangeVisio = (event) => {
-    setIsVisio(event.target.checked);
+  const handleChangeOnline = (event) => {
+    setIsOnline(event.target.checked);
     if (!event.target.checked) {
       onChange(name, "");
       return;
@@ -54,10 +54,10 @@ const VisioConferenceField = (props) => {
       <CheckboxField
         disabled={disabled}
         label="Se déroule en ligne"
-        value={isVisio}
-        onChange={handleChangeVisio}
+        value={isOnline}
+        onChange={handleChangeOnline}
       />
-      {isVisio && (
+      {isOnline && (
         <>
           {!!defaultUrl && (
             <CheckboxField
@@ -83,4 +83,4 @@ const VisioConferenceField = (props) => {
   );
 };
 
-export default VisioConferenceField;
+export default OnlineUrlField;
