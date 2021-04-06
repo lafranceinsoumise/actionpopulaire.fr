@@ -16,12 +16,10 @@ module.exports = merge.merge(common, {
   mode: "production",
   plugins: [
     new webpack.EnvironmentPlugin({
-      SENTRY_RELEASE: JSON.stringify(
-        require("child_process")
-          .execSync("git rev-parse HEAD")
-          .toString()
-          .replace("\n", "")
-      ),
+      SENTRY_RELEASE: require("child_process")
+        .execSync("git rev-parse HEAD")
+        .toString()
+        .replace("\n", ""),
     }),
   ],
 });
