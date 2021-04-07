@@ -74,29 +74,29 @@ const GroupsPage = () => {
   const routes = useSelector(getRoutes);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
-  const { data: groupList } = useSWR("/api/groupes/");
+  const { data } = useSWR("/api/groupes/");
 
-  const groups = React.useMemo(
-    () =>
-      groupList
-        ? groupList.map(({ discountCodes, ...group }) => ({
-            ...group,
-            discountCodes: discountCodes.map(({ code, expirationDate }) => ({
-              code,
-              expirationDate: DateTime.fromISO(expirationDate, {
-                zone: "Europe/Paris",
-                locale: "fr",
-              }),
-            })),
-          }))
-        : [],
-    [groupList]
-  );
-
-  const hasOwnGroups = React.useMemo(
-    () => groups && groups.some((group) => group.isMember),
-    [groups]
-  );
+  const { groups, hasOwnGroups } = React.useMemo(() => {
+    if (!Array.isArray(data?.groups) || data.groups.length === 0) {
+      return {
+        groups: Array.isArray(data?.suggestions) ? data.suggestions : [],
+        hasOwnGroups: false,
+      };
+    }
+    return {
+      groups: data.groups.map(({ discountCodes, ...group }) => ({
+        ...group,
+        discountCodes: discountCodes.map(({ code, expirationDate }) => ({
+          code,
+          expirationDate: DateTime.fromISO(expirationDate, {
+            zone: "Europe/Paris",
+            locale: "fr",
+          }),
+        })),
+      })),
+      hasOwnGroups: true,
+    };
+  }, [data]);
 
   return (
     <>
@@ -125,7 +125,7 @@ const GroupsPage = () => {
         </div>
       </TopBar>
       <PageFadeIn
-        ready={isSessionLoaded && groupList}
+        ready={isSessionLoaded && !!data}
         wait={<Skeleton boxes={2} />}
       >
         {/* Si l'utilisateurice n'a pas de groupes,

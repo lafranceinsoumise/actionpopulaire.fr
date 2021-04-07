@@ -18,6 +18,7 @@ export const Default = Template.bind({});
 Default.args = {
   notifications,
   disabled: false,
+  ready: true,
   activeNotifications: [],
 };
 

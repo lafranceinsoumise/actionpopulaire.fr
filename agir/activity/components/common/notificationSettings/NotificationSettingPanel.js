@@ -6,8 +6,10 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import Accordion from "@agir/front/genericComponents/Accordion";
 import Button from "@agir/front/genericComponents/Button";
-import NotificationSettingItem from "./NotificationSettingItem";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Panel, { StyledBackButton } from "@agir/front/genericComponents/Panel";
+
+import NotificationSettingItem from "./NotificationSettingItem";
 
 const StyledGroupName = styled.div`
   display: grid;
@@ -98,6 +100,7 @@ const NotificationSettingPanel = (props) => {
     activeNotifications,
     onChange,
     disabled,
+    ready,
     subscribeDevice,
   } = props;
 
@@ -148,31 +151,35 @@ const NotificationSettingPanel = (props) => {
           </Button>
         </StyledDeviceSubscription>
       )}
-      {Object.keys(byType).map((type) => (
-        <Accordion key={type} name={type} icon={icons[type] || "settings"}>
-          <AccordionContent>
-            {Object.keys(byType[type]).map((subtype) => (
-              <StyledGroup key={subtype}>
-                <StyledGroupName>
-                  <span>{subtype}</span>
-                  <small>Notifications</small>
-                  <small>E-mail</small>
-                </StyledGroupName>
-                {byType[type][subtype].map((notificationId) => (
-                  <NotificationSettingItem
-                    key={notificationId}
-                    notification={byId[notificationId]}
-                    onChange={onChange}
-                    disabled={disabled}
-                    email={activeNotifications[notificationId]?.email || false}
-                    push={activeNotifications[notificationId]?.push || false}
-                  />
-                ))}
-              </StyledGroup>
-            ))}
-          </AccordionContent>
-        </Accordion>
-      ))}
+      <PageFadeIn ready={ready}>
+        {Object.keys(byType).map((type) => (
+          <Accordion key={type} name={type} icon={icons[type] || "settings"}>
+            <AccordionContent>
+              {Object.keys(byType[type]).map((subtype) => (
+                <StyledGroup key={subtype}>
+                  <StyledGroupName>
+                    <span>{subtype}</span>
+                    <small>Notifications</small>
+                    <small>E-mail</small>
+                  </StyledGroupName>
+                  {byType[type][subtype].map((notificationId) => (
+                    <NotificationSettingItem
+                      key={notificationId}
+                      notification={byId[notificationId]}
+                      onChange={onChange}
+                      disabled={disabled}
+                      email={
+                        activeNotifications[notificationId]?.email || false
+                      }
+                      push={activeNotifications[notificationId]?.push || false}
+                    />
+                  ))}
+                </StyledGroup>
+              ))}
+            </AccordionContent>
+          </Accordion>
+        ))}
+      </PageFadeIn>
     </StyledPanel>
   );
 };
@@ -194,5 +201,6 @@ NotificationSettingPanel.propTypes = {
   onChange: PropTypes.func.isRequired,
   subscribeDevice: PropTypes.func,
   disabled: PropTypes.bool,
+  ready: PropTypes.bool,
 };
 export default NotificationSettingPanel;

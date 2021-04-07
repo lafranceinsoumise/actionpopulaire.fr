@@ -10,6 +10,7 @@ import * as api from "@agir/notifications/common/api";
 import { useWebpush } from "@agir/notifications/webpush/subscriptions";
 
 import { ProtectedComponent } from "@agir/front/app/Router";
+
 import NotificationSettingPanel from "./NotificationSettingPanel";
 
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -17,14 +18,16 @@ import { routeConfig } from "@agir/front/app/routes.config";
 const NotificationSettings = (props) => {
   const { webpushAvailable, isSubscribed, subscribe } = useWebpush();
 
-  const { data: groups } = useSWR("/api/mes-groupes/");
+  const { data: groupData } = useSWR("/api/groupes/");
   const { data: userNotifications, mutate } = useSWR(
     api.ENDPOINT.getSubscriptions
   );
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const notifications = useMemo(() => getAllNotifications(groups), [groups]);
+  const notifications = useMemo(() => getAllNotifications(groupData?.groups), [
+    groupData,
+  ]);
 
   const activeNotifications = useMemo(
     () => getNotificationStatus(userNotifications),
@@ -71,6 +74,7 @@ const NotificationSettings = (props) => {
       activeNotifications={activeNotifications}
       onChange={handleChange}
       disabled={isLoading}
+      ready={!!userNotifications && !!groupData}
       subscribeDevice={
         webpushAvailable && !isSubscribed ? subscribe : undefined
       }
