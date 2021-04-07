@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Redirect, useRouteMatch } from "react-router-dom";
 
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
-import { usePush } from "@agir/notifications/webpush/subscriptions";
+import { usePush } from "@agir/notifications/push/subscriptions";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 import TellMore from "./TellMore";

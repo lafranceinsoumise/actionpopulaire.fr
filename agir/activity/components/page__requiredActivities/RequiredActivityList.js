@@ -28,7 +28,7 @@ import {
   undoRequiredActionActivityDismissal,
 } from "@agir/activity/common/actions";
 import Button from "@agir/front/genericComponents/Button";
-import { usePush } from "../../../notifications/components/webpush/subscriptions";
+import { usePush } from "../../../notifications/components/push/subscriptions";
 
 const Page = styled.article`
   margin: 0;

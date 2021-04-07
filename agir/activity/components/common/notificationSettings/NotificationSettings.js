@@ -7,7 +7,7 @@ import {
   getNotificationStatus,
 } from "@agir/notifications/common/notifications.config";
 import * as api from "@agir/notifications/common/api";
-import { usePush } from "@agir/notifications/webpush/subscriptions";
+import { usePush } from "@agir/notifications/push/subscriptions";
 
 import { ProtectedComponent } from "@agir/front/app/Router";
 
