@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { mutate } from "swr";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
@@ -19,7 +20,7 @@ import { Hide } from "@agir/front/genericComponents/grid";
 import SubscriptionTypeModal from "@agir/front/authentication/SubscriptionTypeModal";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { displayHumanDate } from "@agir/lib/utils/time";
+import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
 
 import QuitEventButton from "./QuitEventButton";
 
@@ -29,7 +30,7 @@ const log = logger(__filename);
 
 const EventHeaderContainer = styled.div`
   @media (min-width: ${style.collapse}px) {
-    margin-bottom: 4rem;
+    margin-bottom: 2rem;
   }
   > * {
     margin: 0.5rem 0;
@@ -62,6 +63,18 @@ const ActionButton = styled(Button)``;
 const ActionLink = styled(Link)`
   font-weight: 700;
   text-decoration: underline;
+`;
+const ActionDetails = styled.div`
+  margin-top: 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  div {
+    display: inline-flex;
+    align-items: center;
+  }
 `;
 
 const StyledActionButtons = styled.div`
@@ -182,7 +195,16 @@ const RSVPButton = (props) => {
 };
 
 const ActionButtons = (props) => {
-  const { past, rsvped, logged, isOrganizer, routes } = props;
+  const {
+    id,
+    name,
+    past,
+    rsvped,
+    logged,
+    isOrganizer,
+    routes,
+    onlineUrl,
+  } = props;
 
   if (past) {
     return (
@@ -211,16 +233,34 @@ const ActionButtons = (props) => {
 
   if (rsvped) {
     return (
-      <StyledActionButtons>
-        <ActionButton icon="check" color="confirmed">
-          Je participe
-        </ActionButton>
-        {isOrganizer && (
-          <ActionButton icon="settings" as="a" href={routes.manage}>
-            Gérer l'événement
-          </ActionButton>
-        )}
-      </StyledActionButtons>
+      <>
+        <StyledActionButtons>
+          {!!onlineUrl && (
+            <ActionButton
+              icon="video"
+              as="a"
+              href={onlineUrl}
+              target="_blank"
+              color="primary"
+            >
+              Rejoindre en ligne
+            </ActionButton>
+          )}
+          {isOrganizer && (
+            <ActionButton icon="settings" as="a" href={routes.manage}>
+              Gérer l'événement
+            </ActionButton>
+          )}
+        </StyledActionButtons>
+        <ActionDetails>
+          <div>
+            <RawFeatherIcon name="check" color="green" /> &nbsp;Vous participez
+            à l'évènement
+          </div>
+          &nbsp;&nbsp;
+          <QuitEventButton id={id} name={name} />
+        </ActionDetails>
+      </>
     );
   }
 
@@ -239,7 +279,15 @@ RSVPButton.propTypes = ActionButtons.propTypes = {
   }),
 };
 
-const AdditionalMessage = ({ id, name, logged, rsvped, price, forUsers }) => {
+const AdditionalMessage = ({
+  id,
+  name,
+  isOrganizer,
+  logged,
+  rsvped,
+  price,
+  forUsers,
+}) => {
   const location = useLocation();
 
   if (!logged) {
@@ -263,10 +311,6 @@ const AdditionalMessage = ({ id, name, logged, rsvped, price, forUsers }) => {
     );
   }
 
-  if (rsvped) {
-    return <QuitEventButton id={id} name={name} />;
-  }
-
   if (price) {
     return (
       <SmallText>
@@ -276,9 +320,13 @@ const AdditionalMessage = ({ id, name, logged, rsvped, price, forUsers }) => {
     );
   }
 
-  return (
-    <SmallText>Votre email sera communiqué à l'organisateur·ice</SmallText>
-  );
+  if (!isOrganizer) {
+    return (
+      <SmallText>Votre email sera communiqué à l'organisateur·ice</SmallText>
+    );
+  }
+
+  return <></>;
 };
 AdditionalMessage.propTypes = {
   id: PropTypes.string,
@@ -303,6 +351,7 @@ const EventHeader = ({
   isOrganizer,
   forUsers,
   hasRightSubscription,
+  onlineUrl,
 }) => {
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
@@ -313,11 +362,14 @@ const EventHeader = ({
   let eventString = displayHumanDate(schedule.start);
   eventString = eventString.slice(0, 1).toUpperCase() + eventString.slice(1);
 
+  const pending = now >= schedule.start && now <= schedule.end;
+  const eventDate = pending ? displayIntervalEnd(schedule) : eventString;
+
   return (
     <EventHeaderContainer>
       <EventTitle>{name}</EventTitle>
       <Hide under>
-        <EventDate>{eventString}</EventDate>
+        <EventDate>{eventDate}</EventDate>
       </Hide>
       <ActionButtons
         id={id}
@@ -329,11 +381,13 @@ const EventHeader = ({
         forUsers={forUsers}
         hasRightSubscription={hasRightSubscription}
         hasPrice={!!options && !!options.price}
+        onlineUrl={onlineUrl}
       />
       {!past && (
         <AdditionalMessage
           id={id}
           name={name}
+          isOrganizer={isOrganizer}
           past={past}
           logged={logged}
           rsvped={rsvped}
@@ -349,6 +403,8 @@ const EventHeader = ({
 EventHeader.propTypes = {
   id: PropTypes.string,
   name: PropTypes.string,
+  startTime: PropTypes.instanceOf(DateTime),
+  endTime: PropTypes.instanceOf(DateTime),
   schedule: PropTypes.instanceOf(Interval),
   hasSubscriptionForm: PropTypes.bool,
   isOrganizer: PropTypes.bool,

@@ -66,6 +66,7 @@ export const DEFAULT_FORM_DATA = {
   endTime: new Date().toUTCString(),
   subtype: null,
   forUsers: "",
+  onlineUrl: "",
   location: {
     name: "",
     address1: "",
@@ -133,6 +134,14 @@ export const FORM_FIELD_CONSTRAINTS = {
     presence: {
       allowEmpty: false,
       message: "Choisissez un type parmi les options proposées",
+    },
+  },
+  onlineUrl: {
+    presence: {
+      allowEmpty: true,
+    },
+    optionalUrl: {
+      message: "Indiquez une URL valide",
     },
   },
   "location.name": {

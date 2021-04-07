@@ -62,23 +62,21 @@ export class RouteConfig {
     Object.keys(props).forEach((key) => (this[key] = props[key]));
 
     this.__keys__ = [];
-    const pathname = Array.isArray(this.pathname)
-      ? this.pathname[0]
-      : this.pathname;
-    this.__re__ = pathToRegexp(this.pathname, this.__keys__);
-    this.__toPath__ = pathToRegexp.compile(pathname);
+    const path = Array.isArray(this.path) ? this.path[0] : this.path;
+    this.__re__ = pathToRegexp(this.path, this.__keys__);
+    this.__toPath__ = pathToRegexp.compile(path);
 
     this.match = this.match.bind(this);
     this.getLink = this.getLink.bind(this);
   }
 
   /**
-   * Method to match a path string against the RouteConfig pathname
-   * @param  {string} path The path to match against the RouteConfig pathname
+   * Method to match a pathname string against the RouteConfig path
+   * @param  {string} pathname The pathname to match against the RouteConfig path
    * @return {boolean} True if the argument path matches, false otherwise
    */
-  match(path) {
-    return !!path && !!this.__re__.exec(path);
+  match(pathname) {
+    return !!pathname && !!this.__re__.exec(pathname);
   }
 
   /**
@@ -95,14 +93,14 @@ export class RouteConfig {
       return this.__toPath__(params);
     } catch (e) {
       log.error("Failed to generate path", e);
-      return Array.isArray(this.pathname) ? this.pathname[0] : this.pathname;
+      return Array.isArray(this.path) ? this.path[0] : this.path;
     }
   }
 }
 
 const notificationSettingRoute = new RouteConfig({
   id: "notificationSettings",
-  pathname: "/:root/parametres/",
+  path: "/:root/parametres/",
   exact: true,
   neededAuthentication: AUTHENTICATION.HARD,
   label: "Paramètres de notification",
@@ -116,7 +114,7 @@ const notificationSettingRoute = new RouteConfig({
 export const routeConfig = {
   events: new RouteConfig({
     id: "events",
-    pathname: "/",
+    path: "/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Événements",
@@ -128,7 +126,7 @@ export const routeConfig = {
   }),
   eventMap: new RouteConfig({
     id: "eventMap",
-    pathname: "/evenements/carte/",
+    path: "/evenements/carte/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Carte des événements",
@@ -136,7 +134,7 @@ export const routeConfig = {
   }),
   createEvent: new RouteConfig({
     id: "createEvent",
-    pathname: "/evenements/creer/",
+    path: "/evenements/creer/",
     exact: false,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Nouvel événement",
@@ -149,7 +147,7 @@ export const routeConfig = {
   }),
   eventDetails: new RouteConfig({
     id: "eventDetails",
-    pathname: "/evenements/:eventPk/",
+    path: "/evenements/:eventPk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Details de l'événement",
@@ -162,7 +160,7 @@ export const routeConfig = {
   }),
   groups: new RouteConfig({
     id: "groups",
-    pathname: "/mes-groupes/",
+    path: "/mes-groupes/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Groupes",
@@ -174,7 +172,7 @@ export const routeConfig = {
   }),
   groupMap: new RouteConfig({
     id: "groupMap",
-    pathname: "/groupes/carte/",
+    path: "/groupes/carte/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Carte des groupes",
@@ -182,7 +180,7 @@ export const routeConfig = {
   }),
   fullGroup: new RouteConfig({
     id: "fullGroup",
-    pathname: "/groupes/:groupPk/complet/",
+    path: "/groupes/:groupPk/complet/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Groupe complet",
@@ -191,7 +189,7 @@ export const routeConfig = {
   }),
   groupMessage: new RouteConfig({
     id: "groupMessage",
-    pathname: "/groupes/:groupPk/messages/:messagePk/",
+    path: "/groupes/:groupPk/messages/:messagePk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Message du groupe",
@@ -200,7 +198,7 @@ export const routeConfig = {
   }),
   groupDetails: new RouteConfig({
     id: "groupDetails",
-    pathname: "/groupes/:groupPk/:activeTab?/",
+    path: "/groupes/:groupPk/:activeTab?/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Details du groupe",
@@ -213,7 +211,7 @@ export const routeConfig = {
   }),
   activities: new RouteConfig({
     id: "activities",
-    pathname: ["/activite/", "/activite/parametres/"],
+    path: ["/activite/", "/activite/parametres/"],
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Actualités",
@@ -230,7 +228,7 @@ export const routeConfig = {
   }),
   requiredActivities: new RouteConfig({
     id: "requiredActivities",
-    pathname: ["/a-traiter/", "/a-traiter/parametres/"],
+    path: ["/a-traiter/", "/a-traiter/parametres/"],
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "À traiter",
@@ -245,7 +243,7 @@ export const routeConfig = {
   notificationSettings: notificationSettingRoute,
   menu: new RouteConfig({
     id: "menu",
-    pathname: "/navigation/",
+    path: "/navigation/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Menu",
@@ -257,7 +255,7 @@ export const routeConfig = {
   }),
   login: new RouteConfig({
     id: "login",
-    pathname: "/connexion/",
+    path: "/connexion/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Connexion",
@@ -267,7 +265,7 @@ export const routeConfig = {
   }),
   signup: new RouteConfig({
     id: "signup",
-    pathname: "/inscription/",
+    path: "/inscription/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Inscription",
@@ -277,7 +275,7 @@ export const routeConfig = {
   }),
   codeLogin: new RouteConfig({
     id: "codeLogin",
-    pathname: "/connexion/code/",
+    path: "/connexion/code/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Code de connexion",
@@ -287,7 +285,7 @@ export const routeConfig = {
   }),
   codeSignup: new RouteConfig({
     id: "codeSignup",
-    pathname: "/inscription/code/",
+    path: "/inscription/code/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Code d'inscription'",
@@ -297,7 +295,7 @@ export const routeConfig = {
   }),
   tellMore: new RouteConfig({
     id: "tellMore",
-    pathname: "/bienvenue/",
+    path: "/bienvenue/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "J'en dis plus",
@@ -307,7 +305,7 @@ export const routeConfig = {
   }),
   logout: new RouteConfig({
     id: "logout",
-    pathname: "/deconnexion/",
+    path: "/deconnexion/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Déconnexion",
@@ -317,7 +315,7 @@ export const routeConfig = {
 
 export const getRouteByPathname = (pathname) => {
   return Object.values(routeConfig).find(
-    (route) => route.pathname === pathname || route.match(pathname)
+    (route) => route.path === pathname || route.match(pathname)
   );
 };
 

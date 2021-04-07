@@ -8,7 +8,7 @@ from django.utils.html import format_html
 
 from agir.lib.form_fields import AdminRichEditorWidget, AdminJsonWidget
 from agir.lib.forms import CoordinatesFormMixin
-from agir.people.models import Person
+from agir.people.models import Person, PersonEmail
 from agir.people.person_forms.actions import (
     validate_custom_fields,
     get_people_form_class,
@@ -44,9 +44,28 @@ class PersonAdminForm(CoordinatesFormMixin, forms.ModelForm):
         self.fields["primary_email"] = forms.ModelChoiceField(
             self.instance.emails.all(),
             initial=self.instance.primary_email,
-            required=True,
+            required=False,
             label="Email principal",
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not "primary_email" in cleaned_data or "primary_email" in self.errors:
+            raise ValidationError(
+                "Adresse principale : veuillez indiquer une adresse e-mail valide"
+            )
+        if len(self.instance.emails.all()) == 0:
+            try:
+                PersonEmail.objects.get_by_natural_key(
+                    address=self.cleaned_data["primary_email"]
+                )
+                raise ValidationError(
+                    "Adresse principale : l'adresse e-mail est déjà associée à une autre personne"
+                )
+            except PersonEmail.DoesNotExist:
+                pass
+
+        return cleaned_data
 
     def _save_m2m(self):
         super()._save_m2m()

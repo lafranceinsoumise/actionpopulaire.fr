@@ -25,6 +25,7 @@ import ForUsersField from "./ForUsersField";
 import SubtypeField from "./SubtypeField";
 import LocationField from "./LocationField";
 import ContactField from "./ContactField";
+import OnlineUrlField from "./OnlineUrlField";
 
 const StyledGlobalError = styled.p`
   padding: 0 0 1rem;
@@ -52,7 +53,6 @@ const StyledForm = styled.form`
         font-size: 1.5rem;
         line-height: 1.6;
         font-weight: 500;
-        padding-bottom: 0.5rem;
       }
 
       em {
@@ -164,6 +164,7 @@ const EventForm = () => {
   const dateRef = useRef(null);
   const forUsersRef = useRef(null);
   const subtypeRef = useRef(null);
+  const onlineUrlRef = useRef(null);
   const locationRef = useRef(null);
   const contactRef = useRef(null);
 
@@ -288,6 +289,9 @@ const EventForm = () => {
         break;
       case !!(errors["subtype"] && subtypeRef.current):
         scrollTarget = subtypeRef.current;
+        break;
+      case !!(errors["onlineUrl"] && onlineUrlRef.current):
+        scrollTarget = onlineUrlRef.current;
         break;
       case !!(errors["location"] && locationRef.current):
         scrollTarget = locationRef.current;
@@ -432,15 +436,25 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
-      <Spacer size="2rem" ref={locationRef} />
+      <Spacer size="2rem" />
       <fieldset>
-        <legend>
+        <legend style={{ paddingBottom: "0" }}>
           <strong>Lieu de l'événement</strong>
           <em>Même s'il se déroule en ligne</em>, indiquez un lieu pour suggérer
-          l’événement aux personnes à proximité. Indiquez votre mairie ou un
-          café proche de chez vous pour ne pas rendre publique votre adresse
-          personnelle.
+          l’événement aux personnes à proximité, une mairie ou un café pour ne
+          pas rendre votre adresse publique.
         </legend>
+        <Spacer size="1.5rem" ref={onlineUrlRef} />
+        <OnlineUrlField
+          label="Visio-conférence"
+          name="onlineUrl"
+          onChange={updateValue}
+          error={errors && errors.onlineUrl}
+          value={formData.onlineUrl}
+          defaultUrl={options.onlineUrl}
+          placeholder="URL de la visio-conférence (facultatif)"
+        />
+        <Spacer size="1.5rem" ref={locationRef} />
         <LocationField
           name="location"
           location={formData.location}

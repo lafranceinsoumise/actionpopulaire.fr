@@ -49,6 +49,12 @@
             <div class="col-sm-6 marginbottommore">
               <h5 class="subhead">Où</h5>
               <p>{{ event.html_full_address }}</p>
+              {% if event.online_url %}
+                <h5 class="subhead">Visio-conférence</h5>
+                <p>
+                  <a href="{{ event.online_url }}" target="_blank" rel="noopener noreferrer">{{ event.online_url }}</a>
+                </p>
+              {% endif %}
               <h5 class="subhead">Quand</h5>
               <p>{{ event.get_display_date }}</p>
               <h5 class="subhead">Contact</h5>

@@ -61,7 +61,8 @@ const StyledDialog = styled.div`
   }
 `;
 const StyledWrapper = styled.div`
-  font-size: 0.81rem;
+  font-size: 1rem;
+  font-weight: 600;
   font-color: ${style.black500};
 `;
 
@@ -110,7 +111,7 @@ const QuitEventButton = ({ id }) => {
   return (
     <StyledWrapper>
       <a href="" onClick={openDialog}>
-        Annuler ma participation
+        Annuler
       </a>
       <ResponsiveLayout
         DesktopLayout={Modal}
