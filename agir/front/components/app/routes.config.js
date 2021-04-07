@@ -18,6 +18,7 @@ const FullGroupPage = lazy(() =>
   import("@agir/groups/fullGroupPage/FullGroupPage")
 );
 const GroupPage = lazy(() => import("@agir/groups/groupPage/GroupPage"));
+const GroupSettings = lazy(() => import("@agir/groups/groupPage/GroupSettings/GroupMember"));
 const GroupMessagePage = lazy(() =>
   import("@agir/groups/groupPage/GroupMessagePage")
 );
@@ -172,6 +173,16 @@ export const routeConfig = {
     label: "Groupe complet",
     Component: FullGroupPage,
     hasLayout: false,
+  }),
+  groupSettings: new RouteConfig({
+    id: "groupSettings",
+    path: "/groupes/:groupPk/parametres/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Paramètres du groupe",
+    Component: GroupSettings,
+    hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   groupMessage: new RouteConfig({
     id: "groupMessage",

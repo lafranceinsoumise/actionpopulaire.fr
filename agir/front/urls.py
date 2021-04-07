@@ -65,6 +65,11 @@ urlpatterns = [
         name="view_group_messages",
     ),
     path(
+        "groupes/<uuid:pk>/parametres/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings",
+    ),
+    path(
         "groupes/<uuid:pk>/messages/<uuid:message_pk>/",
         views.SupportGroupMessageDetailView.as_view(),
         name="view_group_message",
