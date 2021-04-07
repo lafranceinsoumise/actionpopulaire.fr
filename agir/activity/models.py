@@ -123,6 +123,7 @@ class Activity(TimeStampedModel):
             TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
             "De nouveaux membres ont été transferés vers le groupe",
         ),
+        (TYPE_GROUP_CREATION_CONFIRMATION, "Groupe créé"),
     )
 
     STATUS_UNDISPLAYED = "U"

@@ -1,7 +1,6 @@
 import axios from "@agir/lib/utils/axios";
 import logger from "@agir/lib/utils/logger";
 import { useCallback, useEffect, useState } from "react";
-import useSWR from "swr";
 
 const log = logger(__filename);
 
@@ -132,11 +131,11 @@ export const useWebpush = () => {
         setIsSubscribed(true);
         setReady(true);
       } catch (e) {
+        setReady(true);
         if (e.response?.status === 404) {
           log.debug("Registration did not exist on server, unsubscribe.");
           await pushSubscription.unsubscribe();
           setIsSubscribed(false);
-          setReady(true);
         } else {
           log.error(e);
         }
@@ -144,13 +143,14 @@ export const useWebpush = () => {
     })();
   });
 
-  if (!window.Agir || !window.AgirSW.pushManager) {
+  if (!window.AgirSW || !window.AgirSW.pushManager) {
     log.debug("Push manager not available.");
   }
 
-  if (!window.Agir || !window.AgirSW.pushManager || !ready) {
+  if (!window.AgirSW || !window.AgirSW.pushManager || !ready) {
     return {
       webpushAvailable: false,
+      ready,
     };
   }
 
@@ -158,5 +158,6 @@ export const useWebpush = () => {
     webpushAvailable: true,
     isSubscribed: isSubscribed,
     subscribe,
+    ready,
   };
 };

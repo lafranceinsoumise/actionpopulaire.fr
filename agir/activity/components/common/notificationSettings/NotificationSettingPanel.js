@@ -2,12 +2,84 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import Accordion from "@agir/front/genericComponents/Accordion";
-import NotificationSettingGroup from "./NotificationSettingGroup";
+import Button from "@agir/front/genericComponents/Button";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Panel, { StyledBackButton } from "@agir/front/genericComponents/Panel";
+
+import NotificationSettingItem from "./NotificationSettingItem";
+
+const StyledGroupName = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 70px auto;
+  grid-gap: 0 0.5rem;
+  align-items: center;
+
+  span {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+  }
+
+  small {
+    font-size: 0.688rem;
+    line-height: 1;
+  }
+`;
+
+const StyledGroup = styled.div`
+  display: grid;
+  grid-template-columns: 100%;
+  grid-gap: 1rem 0;
+
+  & + & {
+    padding-top: 1.5rem;
+
+    ${StyledGroupName} {
+      small {
+        display: none;
+      }
+    }
+  }
+`;
 
 const AccordionContent = styled.div`
   padding: 1.5rem;
+`;
+
+const StyledDeviceSubscription = styled.div`
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  background: ${style.primary100};
+  grid-gap: 0 1rem;
+  width: calc(100% - 3rem);
+  margin: 0 auto 1.5rem;
+
+  h5,
+  p {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+  }
+
+  h5 {
+    font-weight: 700;
+  }
+
+  p {
+    font-weight: 400;
+  }
+
+  ${Button} {
+    grid-column: 2/3;
+    grid-row: 1/3;
+  }
 `;
 
 const StyledPanel = styled(Panel)`
@@ -21,12 +93,22 @@ const StyledPanel = styled(Panel)`
 `;
 
 const NotificationSettingPanel = (props) => {
-  const { isOpen, close, notifications, onChange, disabled } = props;
+  const {
+    isOpen,
+    close,
+    notifications,
+    activeNotifications,
+    onChange,
+    disabled,
+    ready,
+    subscribeDevice,
+  } = props;
 
-  const byType = useMemo(() => {
+  const [byType, icons] = useMemo(() => {
     const result = {};
-
+    const icons = {};
     notifications.forEach((notification) => {
+      icons[notification.type] = notification.icon;
       if (!result[notification.type]) {
         result[notification.type] = {};
       }
@@ -34,11 +116,20 @@ const NotificationSettingPanel = (props) => {
         result[notification.type][notification.subtype] = [];
       }
 
-      result[notification.type][notification.subtype].push(notification);
+      result[notification.type][notification.subtype].push(notification.id);
     });
 
-    return result;
+    return [result, icons];
   }, [notifications]);
+
+  const byId = useMemo(
+    () =>
+      notifications.reduce(
+        (byId, notification) => ({ ...byId, [notification.id]: notification }),
+        {}
+      ),
+    [notifications]
+  );
 
   return (
     <StyledPanel shouldShow={isOpen} onClose={close} onBack={close} noScroll>
@@ -51,21 +142,44 @@ const NotificationSettingPanel = (props) => {
       >
         Notifications
       </h3>
-      {Object.keys(byType).map((type) => (
-        <Accordion key={type} name={type} icon="users">
-          <AccordionContent>
-            {Object.keys(byType[type]).map((subtype) => (
-              <NotificationSettingGroup
-                key={subtype}
-                name={subtype}
-                notifications={byType[type][subtype]}
-                disabled={disabled}
-                onChange={onChange}
-              />
-            ))}
-          </AccordionContent>
-        </Accordion>
-      ))}
+      {typeof subscribeDevice === "function" && (
+        <StyledDeviceSubscription>
+          <h5>Notifications désactivées</h5>
+          <p>Vous devez activer les notifications sur cet appareil</p>
+          <Button color="primary" onClick={subscribeDevice}>
+            Activer
+          </Button>
+        </StyledDeviceSubscription>
+      )}
+      <PageFadeIn ready={ready}>
+        {Object.keys(byType).map((type) => (
+          <Accordion key={type} name={type} icon={icons[type] || "settings"}>
+            <AccordionContent>
+              {Object.keys(byType[type]).map((subtype) => (
+                <StyledGroup key={subtype}>
+                  <StyledGroupName>
+                    <span>{subtype}</span>
+                    <small>Notifications</small>
+                    <small>E-mail</small>
+                  </StyledGroupName>
+                  {byType[type][subtype].map((notificationId) => (
+                    <NotificationSettingItem
+                      key={notificationId}
+                      notification={byId[notificationId]}
+                      onChange={onChange}
+                      disabled={disabled}
+                      email={
+                        activeNotifications[notificationId]?.email || false
+                      }
+                      push={activeNotifications[notificationId]?.push || false}
+                    />
+                  ))}
+                </StyledGroup>
+              ))}
+            </AccordionContent>
+          </Accordion>
+        ))}
+      </PageFadeIn>
     </StyledPanel>
   );
 };
@@ -76,13 +190,17 @@ NotificationSettingPanel.propTypes = {
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
       label: PropTypes.string.isRequired,
-      pushNotification: PropTypes.bool,
+      push: PropTypes.bool,
       email: PropTypes.bool,
       type: PropTypes.string,
       subtype: PropTypes.string,
+      icon: PropTypes.string,
     }).isRequired
   ),
+  activeNotifications: PropTypes.object,
   onChange: PropTypes.func.isRequired,
+  subscribeDevice: PropTypes.func,
   disabled: PropTypes.bool,
+  ready: PropTypes.bool,
 };
 export default NotificationSettingPanel;

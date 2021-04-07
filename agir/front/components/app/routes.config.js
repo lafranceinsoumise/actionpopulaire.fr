@@ -107,6 +107,7 @@ const notificationSettingRoute = new RouteConfig({
   params: { root: "activite" },
   hideTopBar: true,
   hideFeedbackButton: true,
+  hideConnectivityWarning: true,
   hasLayout: false,
   isPartial: true,
 });

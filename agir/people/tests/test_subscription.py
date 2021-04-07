@@ -164,7 +164,7 @@ class SubscriptionConfirmationTestCase(TestCase):
         self.assertAlmostEqual(
             datetime.fromisoformat(p.meta["subscriptions"]["NSP"]["date"]),
             timezone.now(),
-            delta=timedelta(seconds=1),
+            delta=timedelta(seconds=3),
         )
 
 

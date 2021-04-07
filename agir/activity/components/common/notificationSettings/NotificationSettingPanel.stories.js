@@ -18,4 +18,12 @@ export const Default = Template.bind({});
 Default.args = {
   notifications,
   disabled: false,
+  ready: true,
+  activeNotifications: [],
+};
+
+export const withDeviceSubscription = Template.bind({});
+withDeviceSubscription.args = {
+  ...Default.args,
+  subscribeDevice: console.log,
 };

@@ -144,7 +144,7 @@ const CodeConnexion = () => {
       }
     }
 
-    const route = routeConfig.events.getLink();
+    const route = routeConfig.tellMore.getLink();
     history.push(route);
   }, [authentication, user, bookmarkEmail, location, history]);
 
