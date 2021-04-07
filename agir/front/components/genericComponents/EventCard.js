@@ -8,7 +8,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 
-import { displayIntervalStart } from "@agir/lib/utils/time";
+import { displayIntervalStart, displayIntervalEnd } from "@agir/lib/utils/time";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
@@ -250,6 +250,14 @@ const EventCard = (props) => {
     compteRendu,
   } = props;
   const history = useHistory();
+
+  const now = DateTime.local();
+  const pending = now >= schedule.start && now <= schedule.end;
+
+  const eventDate = pending
+    ? displayIntervalEnd(schedule)
+    : displayIntervalStart(schedule);
+
   const handleClick = React.useCallback(
     (e) => {
       if (["A", "BUTTON"].includes(e.target.tagName.toUpperCase())) {
@@ -281,7 +289,7 @@ const EventCard = (props) => {
             fontWeight: 500,
           }}
         >
-          {displayIntervalStart(schedule)}
+          {eventDate}
           {location && location.shortLocation && (
             <> • {location.shortLocation}</>
           )}

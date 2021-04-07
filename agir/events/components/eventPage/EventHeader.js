@@ -20,7 +20,7 @@ import { Hide } from "@agir/front/genericComponents/grid";
 import SubscriptionTypeModal from "@agir/front/authentication/SubscriptionTypeModal";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { displayHumanDate } from "@agir/lib/utils/time";
+import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
 
 import QuitEventButton from "./QuitEventButton";
 
@@ -362,11 +362,14 @@ const EventHeader = ({
   let eventString = displayHumanDate(schedule.start);
   eventString = eventString.slice(0, 1).toUpperCase() + eventString.slice(1);
 
+  const pending = now >= schedule.start && now <= schedule.end;
+  const eventDate = pending ? displayIntervalEnd(schedule) : eventString;
+
   return (
     <EventHeaderContainer>
       <EventTitle>{name}</EventTitle>
       <Hide under>
-        <EventDate>{eventString}</EventDate>
+        <EventDate>{eventDate}</EventDate>
       </Hide>
       <ActionButtons
         id={id}

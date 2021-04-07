@@ -142,6 +142,18 @@ const otherEventConfig = {
           event.groups.some((group) => !!group.isMember)
       ),
   },
+  PENDING_TYPE: {
+    label: "En cours",
+    allowEmpty: false,
+    filter: (events) =>
+      events
+        .filter(
+          (event) =>
+            dateFromISOString(event.startTime) <= DateTime.local() &&
+            dateFromISOString(event.endTime) >= DateTime.local()
+        )
+        .reverse(),
+  },
   PAST_TYPE: {
     label: "Passés",
     allowEmpty: false,
