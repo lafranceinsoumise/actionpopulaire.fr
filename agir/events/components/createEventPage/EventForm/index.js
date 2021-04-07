@@ -436,14 +436,25 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
-      <Spacer size="2rem" ref={locationRef} />
+      <Spacer size="2rem" />
       <fieldset>
-        <legend>
+        <legend style={{ paddingBottom: "0" }}>
           <strong>Lieu de l'événement</strong>
           <em>Même s'il se déroule en ligne</em>, indiquez un lieu pour suggérer
           l’événement aux personnes à proximité, une mairie ou un café pour ne
           pas rendre votre adresse publique.
         </legend>
+        <Spacer size="1.5rem" ref={onlineUrlRef} />
+        <OnlineUrlField
+          label="Visio-conférence"
+          name="onlineUrl"
+          onChange={updateValue}
+          error={errors && errors.onlineUrl}
+          value={formData.onlineUrl}
+          defaultUrl={options.onlineUrl}
+          placeholder="URL de la visio-conférence (facultatif)"
+        />
+        <Spacer size="1.5rem" ref={locationRef} />
         <LocationField
           name="location"
           location={formData.location}
@@ -453,16 +464,6 @@ const EventForm = () => {
           required
         />
       </fieldset>
-      <Spacer size="1.5rem" ref={onlineUrlRef} />
-      <OnlineUrlField
-        label="Visio-conférence"
-        name="onlineUrl"
-        onChange={updateValue}
-        error={errors && errors.onlineUrl}
-        value={formData.onlineUrl}
-        defaultUrl={options.onlineUrl}
-        placeholder="URL de la visio-conférence (facultatif)"
-      />
       <Spacer size="1.5rem" ref={contactRef} />
       <fieldset>
         <legend>
