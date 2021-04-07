@@ -102,7 +102,7 @@ async function askPermission() {
   }
 }
 
-export const useWebpush = () => {
+const useWebPush = () => {
   const [ready, setReady] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
@@ -131,7 +131,6 @@ export const useWebpush = () => {
         setIsSubscribed(true);
         setReady(true);
       } catch (e) {
-        setReady(true);
         if (e.response?.status === 404) {
           log.debug("Registration did not exist on server, unsubscribe.");
           await pushSubscription.unsubscribe();
@@ -139,25 +138,57 @@ export const useWebpush = () => {
         } else {
           log.error(e);
         }
+
+        setReady(true);
       }
     })();
   });
 
   if (!window.AgirSW || !window.AgirSW.pushManager) {
     log.debug("Push manager not available.");
+
+    return {
+      ready: true,
+      available: false,
+    };
   }
 
-  if (!window.AgirSW || !window.AgirSW.pushManager || !ready) {
+  if (!ready) {
     return {
-      webpushAvailable: false,
-      ready,
+      ready: false,
     };
   }
 
   return {
-    webpushAvailable: true,
+    ready: true,
+    available: true,
     isSubscribed: isSubscribed,
     subscribe,
-    ready,
+  };
+};
+
+const useiOSPush = () => {
+  if (!window.webkit?.messageHandlers?.main) {
+    return { ready: true, available: false };
+  }
+
+  return { ready: false, available: false };
+};
+
+export const usePush = () => {
+  const iosPush = useiOSPush();
+  const webPush = usePush();
+
+  if (iosPush.ready && iosPush.available) {
+    return iosPush;
+  }
+
+  if (webPush.ready && webPush.available) {
+    return webPush;
+  }
+
+  return {
+    ready: iosPush.ready && webPush.ready,
+    available: false,
   };
 };
