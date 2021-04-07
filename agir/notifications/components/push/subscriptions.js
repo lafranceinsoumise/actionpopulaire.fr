@@ -1,6 +1,7 @@
 import axios from "@agir/lib/utils/axios";
 import logger from "@agir/lib/utils/logger";
 import { useCallback, useEffect, useState } from "react";
+import { useIOSMessages } from "@agir/front/allPages/ios";
 
 const log = logger(__filename);
 
@@ -114,7 +115,7 @@ const useWebPush = () => {
 
   useEffect(() => {
     (async () => {
-      if (!window.Agir || !window.AgirSW?.pushManager || ready) return;
+      if (!window.AgirSW?.pushManager || ready) return;
 
       const pushSubscription = await window.AgirSW?.pushManager?.getSubscription();
 
@@ -142,7 +143,7 @@ const useWebPush = () => {
         setReady(true);
       }
     })();
-  });
+  }, [ready]);
 
   if (!window.AgirSW || !window.AgirSW.pushManager) {
     log.debug("Push manager not available.");
@@ -167,17 +168,68 @@ const useWebPush = () => {
   };
 };
 
-const useiOSPush = () => {
-  if (!window.webkit?.messageHandlers?.main) {
-    return { ready: true, available: false };
+const useIOSPush = () => {
+  const [ready, setReady] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  // We change state when iOS app send information
+  const messageHandler = useCallback(async (data) => {
+    if (data.action !== "setNotificationState") {
+      return;
+    }
+
+    if (data.noPermission) {
+      setReady(true);
+      return;
+    }
+
+    try {
+      await axios.post("/api/device/apple/", {
+        name: "Action populaire",
+        registration_id: data.token,
+      });
+      setReady(true);
+      setIsSubscribed(true);
+    } catch (e) {
+      log.error("Error saving Apple push subscription : ", e);
+    }
+  }, []);
+  const postMessage = useIOSMessages(messageHandler);
+
+  useEffect(() => {
+    postMessage && postMessage({ action: "getNotificationState" });
+  }, [postMessage]);
+
+  const subscribe = useCallback(() => {
+    postMessage && postMessage({ action: "enableNotifications" });
+  }, [postMessage]);
+
+  // Not on iOSDevice
+  if (!postMessage) {
+    return {
+      ready: true,
+      available: false,
+    };
   }
 
-  return { ready: false, available: false };
+  // iOS device but no info yet about subscription
+  if (!ready) {
+    return {
+      ready: false,
+    };
+  }
+
+  return {
+    ready: true,
+    available: true,
+    isSubscribed: isSubscribed,
+    subscribe,
+  };
 };
 
 export const usePush = () => {
-  const iosPush = useiOSPush();
-  const webPush = usePush();
+  const iosPush = useIOSPush();
+  const webPush = useWebPush();
 
   if (iosPush.ready && iosPush.available) {
     return iosPush;

@@ -2,6 +2,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
 import logger from "@agir/lib/utils/logger";
 
 import "@agir/front/allPages/sentry";
+import "@agir/front/allPages/ios.js";
 import "@agir/front/genericComponents/style.scss";
 
 const log = logger(__filename);
