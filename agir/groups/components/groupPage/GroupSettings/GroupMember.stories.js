@@ -6,10 +6,13 @@ export default {
   title: "GroupSettings/Member",
 };
 
-
 const Template = (args) => <GroupMember {...args} />;
 
 export const Default = Template.bind({});
-Default.args = {};
 
-
+Default.args = {
+  name: "Member",
+  role: "Administratrice",
+  email: "admin@example.fr",
+  assets: ["Blogueur", "Blogueur", "Blogueur", "Blogueur"],
+};

@@ -18,7 +18,9 @@ const FullGroupPage = lazy(() =>
   import("@agir/groups/fullGroupPage/FullGroupPage")
 );
 const GroupPage = lazy(() => import("@agir/groups/groupPage/GroupPage"));
-const GroupSettings = lazy(() => import("@agir/groups/groupPage/GroupSettings/GroupMember"));
+const GroupSettings = lazy(() =>
+  import("@agir/groups/groupPage/GroupSettings/GroupSettings")
+);
 const GroupMessagePage = lazy(() =>
   import("@agir/groups/groupPage/GroupMessagePage")
 );
