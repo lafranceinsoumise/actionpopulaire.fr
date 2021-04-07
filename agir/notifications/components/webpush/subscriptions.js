@@ -131,11 +131,11 @@ export const useWebpush = () => {
         setIsSubscribed(true);
         setReady(true);
       } catch (e) {
+        setReady(true);
         if (e.response?.status === 404) {
           log.debug("Registration did not exist on server, unsubscribe.");
           await pushSubscription.unsubscribe();
           setIsSubscribed(false);
-          setReady(true);
         } else {
           log.error(e);
         }
@@ -150,6 +150,7 @@ export const useWebpush = () => {
   if (!window.AgirSW || !window.AgirSW.pushManager || !ready) {
     return {
       webpushAvailable: false,
+      ready,
     };
   }
 
@@ -157,5 +158,6 @@ export const useWebpush = () => {
     webpushAvailable: true,
     isSubscribed: isSubscribed,
     subscribe,
+    ready,
   };
 };
