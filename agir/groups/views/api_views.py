@@ -41,7 +41,6 @@ __all__ = [
     "GroupSearchAPIView",
     "GroupSubtypesView",
     "UserGroupsView",
-    "UserOwnGroupsAPIView",
     "GroupDetailAPIView",
     "NearGroupsAPIView",
     "GroupEventsAPIView",
@@ -108,6 +107,10 @@ class UserGroupsView(ListAPIView):
             .annotate(membership_type=F("memberships__membership_type"))
             .order_by("-membership_type", "name")
         )
+
+        if self.kwargs.get("own_groups_only", False):
+            return person_groups
+
         if person_groups.count() == 0 and person.coordinates is not None:
             person_groups = SupportGroup.objects.active()
             if person.is_2022_only:
@@ -117,22 +120,6 @@ class UserGroupsView(ListAPIView):
             ).order_by("distance")[:3]
             for group in person_groups:
                 group.membership = None
-
-        return person_groups
-
-
-class UserOwnGroupsAPIView(ListAPIView):
-    serializer_class = SupportGroupSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        person = self.request.user.person
-        person_groups = (
-            SupportGroup.objects.filter(memberships__person=self.request.user.person)
-            .active()
-            .annotate(membership_type=F("memberships__membership_type"))
-            .order_by("-membership_type", "name")
-        )
 
         return person_groups
 

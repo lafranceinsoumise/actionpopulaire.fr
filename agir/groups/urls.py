@@ -102,7 +102,8 @@ urlpatterns = [
     ),
     path(
         "api/mes-groupes/",
-        views.UserOwnGroupsAPIView.as_view(),
+        views.UserGroupsView.as_view(),
+        {"own_groups_only": True},
         name="api_user_own_groups",
     ),
     path("api/groupes/", views.UserGroupsView.as_view(), name="api_user_groups"),
