@@ -80,7 +80,7 @@ const NotificationSettings = (props) => {
 
 const NotificationSettingRoute = () => {
   const history = useHistory();
-  const routeMatch = useRouteMatch(routeConfig.notificationSettings.pathname);
+  const routeMatch = useRouteMatch(routeConfig.notificationSettings.path);
 
   const close = useCallback(() => {
     if (routeMatch && routeMatch.params && routeMatch.params.root) {
