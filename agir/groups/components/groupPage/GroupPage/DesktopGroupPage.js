@@ -167,7 +167,7 @@ const DesktopGroupPage = (props) => {
           {tabs.map((tab) => {
             const R = Routes[tab.id];
             return (
-              <Route key={tab.id} path={tab.pathname} exact>
+              <Route key={tab.id} path={tab.path} exact>
                 <Column grow>
                   <R
                     {...props}
