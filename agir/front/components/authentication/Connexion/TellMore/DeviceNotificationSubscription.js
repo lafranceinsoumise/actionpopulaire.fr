@@ -59,8 +59,8 @@ const DeviceNotificationSubscription = (props) => {
       <StyledWrapper>
         <h2>Activer les notifications</h2>
         <p>
-          Ne ratez pas les actions près de chez vous, recevez les nouveautés. 2
-          à 3 par semaine.
+          Ne ratez pas les actions près de chez vous et recevez les annonces de
+          la campagne.
         </p>
         <img src={notificationIllustration} aria-hidden="true" />
         <Button color="primary" onClick={onSubscribe}>
