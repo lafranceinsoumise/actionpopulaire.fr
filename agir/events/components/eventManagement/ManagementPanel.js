@@ -33,6 +33,12 @@ const StyledPanel = styled.div`
   overflow: auto;
   background-color: ${style.white};
 
+  @media (min-width: ${style.collapse}px) {
+    width: 600px;
+    max-width: 70%;
+    margin-left: 360px;
+  }
+
   header,
   main,
   ${StyledIllustration}, ${StyledTitle}, ${StyledSubtitle} {

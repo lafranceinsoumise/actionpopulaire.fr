@@ -54,7 +54,7 @@ const GroupInvitation = (props) => {
           />
         </Column>
         <Column collapse={false}>
-          <Button small onClick={handleInvitation}>
+          <Button color="primary" small onClick={handleInvitation}>
             Envoyer une invitation
           </Button>
         </Column>

@@ -65,7 +65,18 @@ const StyledMenuItem = styled.button`
 `;
 
 const StyledMenu = styled.div`
+  width: 100%;
+  height: 100vh;
+  overflow: auto;
   padding: 1.5rem;
+  background-color: #fafafa;
+  box-shadow: inset -1px 0px 0px #dfdfdf;
+  position: fixed;
+
+  @media (min-width: ${style.collapse}px) {
+    width: 360px;
+    max-width: 30%;
+  }
 
   h4 {
     font-weight: 700;
@@ -89,7 +100,7 @@ const StyledMenu = styled.div`
   }
 `;
 
-const MENU_ITEMS = {
+const MENU_ITEMS_EVENTS = {
   information: {
     id: "information",
     label: "Général",
@@ -97,8 +108,9 @@ const MENU_ITEMS = {
   },
   participants: {
     id: "participants",
-    label: (event) =>
-      `${(event && event.participantCount) || ""} Participant·es`.trim(),
+    label: "Participant·es",
+    labelFunction: (object) =>
+      `${(object && object.participantCount) || ""} Participant·es`.trim(),
     icon: "users",
   },
   organizerGroups: {
@@ -136,7 +148,7 @@ const MENU_ITEMS = {
 };
 
 const ManagementMenuItem = (props) => {
-  const { event, item, onClick, active } = props;
+  const { object, item, onClick, active } = props;
 
   const handleClick = useCallback(() => {
     onClick && onClick(item);
@@ -145,14 +157,14 @@ const ManagementMenuItem = (props) => {
   const disabled = useMemo(
     () =>
       typeof item.disabled === "function"
-        ? item.disabled(event)
+        ? item.disabled(object)
         : !!item.disabled,
-    [event, item]
+    [object, item]
   );
 
   const label = useMemo(
-    () => (typeof item.label === "function" ? item.label(event) : item.label),
-    [event, item]
+    () => (item.labelFunction ? item.labelFunction(object) : item.label),
+    [object, item]
   );
 
   return (
@@ -167,7 +179,7 @@ const ManagementMenuItem = (props) => {
   );
 };
 ManagementMenuItem.propTypes = {
-  event: PropTypes.object,
+  object: PropTypes.object,
   item: PropTypes.shape({
     id: PropTypes.string,
     label: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
@@ -177,57 +189,45 @@ ManagementMenuItem.propTypes = {
   }),
   onClick: PropTypes.func.isRequired,
   active: PropTypes.bool,
+  component: PropTypes.elementType,
 };
 
 const ManagementMenu = (props) => {
-  const { event = events[0], items = MENU_ITEMS, title, defaultItem } = props;
+  const {
+    object = events[0],
+    items = MENU_ITEMS_EVENTS,
+    title,
+    selectedItem,
+    onSelect,
+  } = props;
 
-  const [selectedItem, setSelectedItem] = useState(
-    defaultItem || MENU_ITEMS.information.id
-  );
-
-  const handleSelectMenuItem = (id) => {
-    setSelectedItem(id);
-  };
+  const separator = 3;
 
   return (
     <StyledMenu>
       <h4>{title}</h4>
       <ul>
-        {Object.values(items)
-          .slice(0, 4)
-          .map((item) => (
+        {Object.values(items).map((item, index) => (
+          <>
+            {index === separator && <hr />}
             <li key={item.id}>
               <ManagementMenuItem
-                event={event}
+                object={object}
                 item={item}
-                onClick={() => handleSelectMenuItem(item.id)}
+                onClick={() => onSelect(item.id)}
                 active={selectedItem === item.id}
               />
             </li>
-          ))}
-        <hr />
-        {Object.values(MENU_ITEMS)
-          .slice(4)
-          .map((item) => (
-            <li key={item.id}>
-              <ManagementMenuItem
-                event={event}
-                item={item}
-                onClick={() => handleSelectMenuItem(item.id)}
-                active={selectedItem === item.id}
-              />
-            </li>
-          ))}
+          </>
+        ))}
       </ul>
     </StyledMenu>
   );
 };
 ManagementMenu.propTypes = {
   title: PropTypes.string,
-  event: PropTypes.object,
-  items: PropTypes.arrayOf(ManagementMenuItem.item),
-  defaultItem: PropTypes.string,
+  object: PropTypes.object,
+  items: PropTypes.arrayOf(typeof ManagementMenuItem.item),
 };
 
 export default ManagementMenu;
