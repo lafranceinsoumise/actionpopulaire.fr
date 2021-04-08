@@ -279,6 +279,7 @@ export const routeConfig = {
     Component: TellMorePage,
     hideTopBar: true,
     hideFeedbackButton: true,
+    hidePushModal: true,
   }),
   logout: new RouteConfig({
     id: "logout",
