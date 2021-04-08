@@ -7,12 +7,15 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 const Assets = styled.div`
   margin-left: 3rem;
   display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
 `;
 
 const Asset = styled.div`
   border: 1px solid #ddd;
   padding: 4px 10px;
   margin-right: 4px;
+  margin-bottom: 4px;
   display: inline-block;
   font-size: 12px;
 `;
@@ -25,6 +28,11 @@ const Member = styled.div`
     flex-direction: row;
     align-items: center;
   }
+`;
+
+const MemberInfos = styled.div`
+  display: inline-flex;
+  flex-wrap: wrap;
 `;
 
 const Role = styled.span`
@@ -40,6 +48,8 @@ const Email = styled.span`
 const ShowMore = styled.span`
   color: ${style.primary500};
   cursor: pointer;
+  margin-bottom: 4px;
+  margin-left: 4px;
 
   :hover {
     text-decoration: underline;
@@ -75,16 +85,18 @@ const GroupMember = (props) => {
               marginRight: "1rem",
             }}
           />
-          <span>{name}</span>
-          <Role>({role})</Role>
-          <Email>{email}</Email>
+          <MemberInfos>
+            <span>{name}</span>
+            <Role>({role})</Role>
+            <Email>{email}</Email>
+          </MemberInfos>
         </div>
         <Assets>
           {customAssets.map((e, id) => (
             <Asset key={id}>{e}</Asset>
           ))}
+          {showMore && <ShowMore onClick={handleShowMore}>Voir +</ShowMore>}
         </Assets>
-        {showMore && <ShowMore onClick={handleShowMore}>Voir +</ShowMore>}
       </Member>
     </>
   );

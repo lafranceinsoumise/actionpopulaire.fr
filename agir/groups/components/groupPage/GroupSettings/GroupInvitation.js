@@ -2,10 +2,20 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
 import { Column, Row } from "@agir/front/genericComponents/grid";
+
+const StyledInput = styled.input`
+  min-width: 240px;
+  width: 100%;
+  height: 32px;
+  border: 1px solid ${style.black100};
+  border-radius: 8px;
+  padding: 8px;
+`;
 
 const GroupInvitation = (props) => {
   const { title } = props;
@@ -32,16 +42,9 @@ const GroupInvitation = (props) => {
       <Row gutter={4}>
         <Column grow collapse={false}>
           {" "}
-          <input
+          <StyledInput
             type="text"
             value={email}
-            style={{
-              width: "100%",
-              height: "32px",
-              border: `1px solid ${style.black100}`,
-              borderRadius: "8px",
-              padding: "8px",
-            }}
             placeholder="Adresse e-mail de l’invité·e"
             onChange={handleChange}
           />
