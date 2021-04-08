@@ -20,6 +20,25 @@ const Asset = styled.div`
   font-size: 12px;
 `;
 
+const Name = styled.span``;
+
+const Role = styled.span`
+  color: ${style.primary500};
+`;
+
+const Email = styled.span`
+  color: ${style.black500};
+`;
+
+const MemberInfos = styled.div`
+  display: inline-flex;
+  flex-wrap: wrap;
+
+  ${Name}, ${Role} {
+    margin-right: 0.5rem;
+  }
+`;
+
 const Member = styled.div`
   font-size: 1rem;
 
@@ -28,21 +47,6 @@ const Member = styled.div`
     flex-direction: row;
     align-items: center;
   }
-`;
-
-const MemberInfos = styled.div`
-  display: inline-flex;
-  flex-wrap: wrap;
-`;
-
-const Role = styled.span`
-  color: ${style.primary500};
-  margin-left: 0.5rem;
-`;
-
-const Email = styled.span`
-  color: ${style.black500};
-  margin-left: 0.5rem;
 `;
 
 const ShowMore = styled.span`
@@ -86,7 +90,7 @@ const GroupMember = (props) => {
             }}
           />
           <MemberInfos>
-            <span>{name}</span>
+            <Name>{name}</Name>
             <Role>({role})</Role>
             <Email>{email}</Email>
           </MemberInfos>

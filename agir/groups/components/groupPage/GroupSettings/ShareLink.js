@@ -11,10 +11,15 @@ import { Column, Row } from "@agir/front/genericComponents/grid";
 const StyledInput = styled.input`
   min-width: 240px;
   width: 100%;
-  height: 32px;
+  height: 2rem;
   border: 1px solid ${style.black100};
-  border-radius: 8px;
-  padding: 8px;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+`;
+
+const StyledDiv = styled.div`
+  font-weight: 500;
 `;
 
 const ShareLink = (props) => {
@@ -29,7 +34,7 @@ const ShareLink = (props) => {
 
   const inputEl = useRef(null);
   return (
-    <Card style={{ padding: "1.5rem" }}>
+    <StyledDiv>
       <Row gutter={2} style={{ marginBottom: "1rem" }}>
         <Column grow collapse={false}>
           {title}
@@ -58,7 +63,7 @@ const ShareLink = (props) => {
           </Button>
         </Column>
       </Row>
-    </Card>
+    </StyledDiv>
   );
 };
 ShareLink.propTypes = {

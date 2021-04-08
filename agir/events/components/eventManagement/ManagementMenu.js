@@ -168,11 +168,11 @@ ManagementMenuItem.propTypes = {
 };
 
 const ManagementMenu = (props) => {
-  const { event = events[0], items = MENU_ITEMS, onClick } = props;
+  const { event = events[0], items = MENU_ITEMS, onClick, title } = props;
 
   return (
     <StyledMenu>
-      <h4>Cortège France insoumise à la marche contre la fourrure 2020</h4>
+      <h4>{title}</h4>
       <ul>
         {Object.values(items)
           .slice(0, 4)
@@ -194,6 +194,7 @@ const ManagementMenu = (props) => {
   );
 };
 ManagementMenu.propTypes = {
+  title: PropTypes.string,
   event: PropTypes.object,
   items: PropTypes.arrayOf(ManagementMenuItem.item),
   onClick: PropTypes.func.isRequired,

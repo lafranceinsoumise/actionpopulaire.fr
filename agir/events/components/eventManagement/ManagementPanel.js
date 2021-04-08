@@ -108,7 +108,7 @@ const ManagementPanel = (props) => {
 
   return (
     <StyledPanel>
-      {typeof onBack === "function" ? (
+      {typeof onBack === "function" && (
         <StyledBackButton type="button" onClick={onBack}>
           <RawFeatherIcon
             name="arrow-left"
@@ -117,7 +117,7 @@ const ManagementPanel = (props) => {
             height="1.5rem"
           />
         </StyledBackButton>
-      ) : null}
+      )}
       {illustration && (
         <StyledIllustration
           aria-hidden="true"
@@ -126,7 +126,7 @@ const ManagementPanel = (props) => {
       )}
       <header>
         {title && <StyledTitle>{title}</StyledTitle>}
-        {Array.isArray(actions) && actions.length > 0 ? (
+        {Array.isArray(actions) && actions.length > 0 && (
           <StyledActions>
             {actions.slice(0, 2).map((action) => (
               <button key={action.label} onClick={action.onClick}>
@@ -141,7 +141,7 @@ const ManagementPanel = (props) => {
               </button>
             ))}
           </StyledActions>
-        ) : null}
+        )}
         {subtitle && <StyledSubtitle>{subtitle}</StyledSubtitle>}
       </header>
       <main>{children}</main>
