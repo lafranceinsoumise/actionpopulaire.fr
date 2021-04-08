@@ -103,7 +103,7 @@ def new_comment_notifications(comment):
                 type=Activity.TYPE_NEW_COMMENT,
                 recipient=r,
                 status=Activity.STATUS_UNDISPLAYED,
-                meta={"message": str(comment.message.pk),},
+                meta={"message": str(comment.message.pk), "comment": str(comment.pk),},
             )
             for r in recipients
             if r.pk != comment.author.pk

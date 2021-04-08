@@ -22,6 +22,16 @@ class ActivityQuerySet(models.QuerySet):
         )
 
 
+class ActivityManager(models.Manager.from_queryset(ActivityQuerySet)):
+    def bulk_create(self, instances, **kwargs):
+        activities = super().bulk_create(instances, **kwargs)
+        for instance in instances:
+            models.signals.post_save.send(
+                instance.__class__, instance=instance, created=True
+            )
+        return activities
+
+
 class Activity(TimeStampedModel):
     # Avec affichage d'une notification
     TYPE_GROUP_INVITATION = "group-invitation"
@@ -135,7 +145,7 @@ class Activity(TimeStampedModel):
         (STATUS_INTERACTED, "Le destinataire a interagi avec"),
     )  # attention : l'ordre croissant par niveau d'interaction est important
 
-    objects = ActivityQuerySet.as_manager()
+    objects = ActivityManager()
 
     timestamp = models.DateTimeField(
         verbose_name="Date de la notification", null=False, default=timezone.now

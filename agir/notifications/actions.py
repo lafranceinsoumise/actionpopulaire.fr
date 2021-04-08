@@ -1,15 +1,24 @@
-from pywebpush import WebPushException
+from rest_framework.renderers import JSONRenderer
 
-from agir.notifications.models import WebPushDevice
+from push_notifications.models import WebPushDevice
+from push_notifications.webpush import WebPushError
+
+from agir.notifications.serializers import ACTIVITY_NOTIFICATION_SERIALIZERS
 
 
 def send_activity_notifications(activity):
+    serializer = ACTIVITY_NOTIFICATION_SERIALIZERS.get(activity.type, None)
+    if serializer is None:
+        return
+    message = serializer(instance=activity)
+    message = JSONRenderer().render(message.data)
+
     for web_push_device in WebPushDevice.objects.filter(
-        user=activity.recipient.role, subscriptions__type=activity.type
+        user=activity.recipient.role, active=True
     ):
         try:
-            return web_push_device.send_message(f"activity:{activity.pk}")
-        except WebPushException as e:
-            if e.response.status_code == 410:
-                web_push_device.subscriptions.all().delete()
-                web_push_device.delete()
+            return web_push_device.send_message(message)
+        except WebPushError as e:
+            if "Push failed: 410 Gone" in str(e):
+                web_push_device.active = False
+                web_push_device.save()

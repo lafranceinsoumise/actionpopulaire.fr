@@ -1,11 +1,18 @@
 from django.db import IntegrityError
+
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+
 from agir.activity.models import Activity
 from agir.groups.models import Membership, SupportGroup
 from agir.groups.serializers import SupportGroupSerializer
 
-from .models import Subscription
+from agir.notifications.models import Subscription
+
+__all__ = [
+    "CurrentPersonDefault",
+    "SubscriptionSupportGroupSerializer",
+    "SubscriptionSerializer",
+]
 
 
 class CurrentPersonDefault:
