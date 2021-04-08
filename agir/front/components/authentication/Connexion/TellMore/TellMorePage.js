@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Redirect, useRouteMatch } from "react-router-dom";
 
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
-import { useWebpush } from "@agir/notifications/webpush/subscriptions";
+import { usePush } from "@agir/notifications/push/subscriptions";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 import TellMore from "./TellMore";
@@ -12,7 +12,7 @@ import DeviceNotificationSubscription from "./DeviceNotificationSubscription";
 const TellMorePage = () => {
   const isTellMorePage = useRouteMatch(routeConfig.tellMore.getLink());
 
-  const { webpushAvailable, isSubscribed, subscribe, ready } = useWebpush();
+  const { available, isSubscribed, subscribe, ready } = usePush();
   const [hasCampaign, dismissCampaign] = useCustomAnnouncement(
     "chooseCampaign"
   );
@@ -39,7 +39,7 @@ const TellMorePage = () => {
   if (hasDeviceNotificationSubscription && !ready) {
     return null;
   }
-  if (hasDeviceNotificationSubscription && webpushAvailable && !isSubscribed) {
+  if (hasDeviceNotificationSubscription && available && !isSubscribed) {
     return (
       <DeviceNotificationSubscription
         onSubscribe={subscribe}

@@ -7,7 +7,7 @@ import {
   getNotificationStatus,
 } from "@agir/notifications/common/notifications.config";
 import * as api from "@agir/notifications/common/api";
-import { useWebpush } from "@agir/notifications/webpush/subscriptions";
+import { usePush } from "@agir/notifications/push/subscriptions";
 
 import { ProtectedComponent } from "@agir/front/app/Router";
 
@@ -16,7 +16,7 @@ import NotificationSettingPanel from "./NotificationSettingPanel";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const NotificationSettings = (props) => {
-  const { webpushAvailable, isSubscribed, subscribe } = useWebpush();
+  const { available, isSubscribed, subscribe } = usePush();
 
   const { data: groupData } = useSWR("/api/groupes/");
   const { data: userNotifications, mutate } = useSWR(
@@ -75,9 +75,7 @@ const NotificationSettings = (props) => {
       onChange={handleChange}
       disabled={isLoading}
       ready={!!userNotifications && !!groupData}
-      subscribeDevice={
-        webpushAvailable && !isSubscribed ? subscribe : undefined
-      }
+      subscribeDevice={available && !isSubscribed ? subscribe : undefined}
     />
   );
 };

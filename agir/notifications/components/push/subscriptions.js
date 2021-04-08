@@ -1,6 +1,7 @@
 import axios from "@agir/lib/utils/axios";
 import logger from "@agir/lib/utils/logger";
 import { useCallback, useEffect, useState } from "react";
+import { useIOSMessages } from "@agir/front/allPages/ios";
 
 const log = logger(__filename);
 
@@ -102,7 +103,7 @@ async function askPermission() {
   }
 }
 
-export const useWebpush = () => {
+const useWebPush = () => {
   const [ready, setReady] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
@@ -114,7 +115,7 @@ export const useWebpush = () => {
 
   useEffect(() => {
     (async () => {
-      if (!window.Agir || !window.AgirSW?.pushManager || ready) return;
+      if (!window.AgirSW?.pushManager || ready) return;
 
       const pushSubscription = await window.AgirSW?.pushManager?.getSubscription();
 
@@ -131,7 +132,6 @@ export const useWebpush = () => {
         setIsSubscribed(true);
         setReady(true);
       } catch (e) {
-        setReady(true);
         if (e.response?.status === 404) {
           log.debug("Registration did not exist on server, unsubscribe.");
           await pushSubscription.unsubscribe();
@@ -139,25 +139,108 @@ export const useWebpush = () => {
         } else {
           log.error(e);
         }
+
+        setReady(true);
       }
     })();
-  });
+  }, [ready]);
 
   if (!window.AgirSW || !window.AgirSW.pushManager) {
     log.debug("Push manager not available.");
+
+    return {
+      ready: true,
+      available: false,
+    };
   }
 
-  if (!window.AgirSW || !window.AgirSW.pushManager || !ready) {
+  if (!ready) {
     return {
-      webpushAvailable: false,
-      ready,
+      ready: false,
     };
   }
 
   return {
-    webpushAvailable: true,
+    ready: true,
+    available: true,
     isSubscribed: isSubscribed,
     subscribe,
-    ready,
+  };
+};
+
+const useIOSPush = () => {
+  const [ready, setReady] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  // We change state when iOS app send information
+  const messageHandler = useCallback(async (data) => {
+    if (data.action !== "setNotificationState") {
+      return;
+    }
+
+    if (data.noPermission) {
+      setReady(true);
+      return;
+    }
+
+    try {
+      await axios.post("/api/device/apple/", {
+        name: "Action populaire",
+        registration_id: data.token,
+      });
+      setReady(true);
+      setIsSubscribed(true);
+    } catch (e) {
+      log.error("Error saving Apple push subscription : ", e);
+    }
+  }, []);
+  const postMessage = useIOSMessages(messageHandler);
+
+  useEffect(() => {
+    postMessage && postMessage({ action: "getNotificationState" });
+  }, [postMessage]);
+
+  const subscribe = useCallback(() => {
+    postMessage && postMessage({ action: "enableNotifications" });
+  }, [postMessage]);
+
+  // Not on iOSDevice
+  if (!postMessage) {
+    return {
+      ready: true,
+      available: false,
+    };
+  }
+
+  // iOS device but no info yet about subscription
+  if (!ready) {
+    return {
+      ready: false,
+    };
+  }
+
+  return {
+    ready: true,
+    available: true,
+    isSubscribed: isSubscribed,
+    subscribe,
+  };
+};
+
+export const usePush = () => {
+  const iosPush = useIOSPush();
+  const webPush = useWebPush();
+
+  if (iosPush.ready && iosPush.available) {
+    return iosPush;
+  }
+
+  if (webPush.ready && webPush.available) {
+    return webPush;
+  }
+
+  return {
+    ready: iosPush.ready && webPush.ready,
+    available: false,
   };
 };
