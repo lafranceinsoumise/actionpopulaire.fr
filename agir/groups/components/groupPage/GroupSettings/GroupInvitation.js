@@ -5,7 +5,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
-import Card from "@agir/front/genericComponents/Card";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 
 const StyledInput = styled.input`
@@ -56,7 +55,7 @@ const GroupInvitation = (props) => {
         </Column>
         <Column collapse={false}>
           <Button small onClick={handleInvitation}>
-            Envoyer une invitaion
+            Envoyer une invitation
           </Button>
         </Column>
       </Row>

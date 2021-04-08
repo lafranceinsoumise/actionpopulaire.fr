@@ -1,5 +1,4 @@
-import PropTypes from "prop-types";
-import React from "react";
+import React, { useState } from "react";
 
 import styled from "styled-components";
 
@@ -22,6 +21,52 @@ import ManagementPanel from "@agir/events/eventManagement/ManagementPanel.js";
 const InlineBlock = styled.div`
   display: inline-block;
 `;
+
+const MENU_ITEMS = {
+  information: {
+    id: "information",
+    label: "Général",
+    icon: "file-text",
+  },
+  participants: {
+    id: "participants",
+    label: (event) =>
+      `${(event && event.participantCount) || ""} Participant·es`.trim(),
+    icon: "users",
+  },
+  organizerGroups: {
+    id: "organizerGroups",
+    label: "Co-organisation",
+    icon: "settings",
+  },
+  rights: {
+    id: "rights",
+    label: "Droits",
+    icon: "lock",
+  },
+  onlineMeeting: {
+    id: "onlineMeeting",
+    label: "Vidéoconférence",
+    icon: "video",
+  },
+  contact: {
+    id: "contact",
+    label: "Contact",
+    icon: "mail",
+  },
+  location: {
+    id: "location",
+    label: "Localisation",
+    icon: "map-pin",
+  },
+  report: {
+    id: "report",
+    label: "Compte-rendu",
+    disabledLabel: "À remplir à la fin de l’événement",
+    disabled: true,
+    icon: "image",
+  },
+};
 
 const DEFAULT_EMAILS = [
   "test@example.fr",
@@ -50,7 +95,7 @@ const DEFAULT_MEMBERS = [
   },
 ];
 
-export const GroupSettings = (props) => {
+export const GroupSettings = () => {
   return (
     //   <ResponsiveLayout
     //     {...props}
@@ -58,14 +103,18 @@ export const GroupSettings = (props) => {
     //     DesktopLayout={DesktopGroupSettings}
     //   />
     <>
-      <ManagementMenu title="Cortège France insoumise à la marche contre la fourrure 2020" />
+      <ManagementMenu
+        title="Cortège France insoumise à la marche contre la fourrure 2020"
+        items={MENU_ITEMS}
+        defaultItem={MENU_ITEMS.information.id}
+      />
+
       <ManagementPanel
         title={DEFAULT_MEMBERS.length + " Membres"}
         subtitle="Animateurs et animatrices"
         onBack={() => console.log("ON BACK MENU")}
         illustration={group_illustration}
       >
-
         <ShareLink
           label="Copier les mails des membres"
           color="secondary"
@@ -73,22 +122,22 @@ export const GroupSettings = (props) => {
         />
 
         <Spacer size="1rem" />
-        
+
         {DEFAULT_MEMBERS.map((e, id) => (
           <>
-          <GroupMember
-            key={id}
-            name={e.name}
-            role={e.role}
-            email={e.email}
-            assets={e.assets}
-          />
-          <Spacer size="0.5rem" />
+            <GroupMember
+              key={id}
+              name={e.name}
+              role={e.role}
+              email={e.email}
+              assets={e.assets}
+            />
+            <Spacer size="0.5rem" />
           </>
         ))}
 
         <Spacer size="1rem" />
-        
+
         <ShareLink
           label="Copier"
           url="actionpopulaire.fr/groupe/id"
@@ -111,8 +160,6 @@ export const GroupSettings = (props) => {
     </>
   );
 };
-GroupSettings.propTypes = {
-  isLoading: PropTypes.bool,
-  activeTab: PropTypes.string,
-};
+GroupSettings.propTypes = {};
+
 export default GroupSettings;
