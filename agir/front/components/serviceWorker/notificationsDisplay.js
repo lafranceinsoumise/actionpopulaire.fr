@@ -68,7 +68,6 @@ self.addEventListener(
 self.addEventListener(
   "pushsubscriptionchange",
   function (event) {
-    console.log("Push subscription changed!", event.newSubscription);
     event.waitUntil(doSubscribe(self.registration, event.newSubscription));
   },
   false

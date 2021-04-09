@@ -28,8 +28,5 @@ def push_new_activity(sender, instance, created=False, **kwargs):
         )
     ]
 
-    if len(webpush_device_pks) == 0:
-        return
-
     for webpush_device_pk in webpush_device_pks:
         send_webpush_activity.delay(instance.pk, webpush_device_pk)
