@@ -7,7 +7,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledIllustration = styled.div``;
-const StyledActions = styled.div``;
 const StyledTitle = styled.h3``;
 const StyledSubtitle = styled.p``;
 const StyledBackButton = styled.button`
@@ -80,44 +79,10 @@ const StyledPanel = styled.div`
     background-position: top center;
   }
 
-  ${StyledIllustration} + header {
-    padding-top: 2.5rem;
-  }
-
-  header {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto;
-  }
-
   ${StyledTitle} {
     font-size: 1.25rem;
     line-height: 1.5;
     font-weight: 700;
-  }
-
-  ${StyledActions} {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: flex-start;
-    justify-content: flex-end;
-
-    button {
-      display: flex;
-      align-items: center;
-      min-height: 1.5rem;
-      background-color: transparent;
-      border: none;
-      color: ${style.primary500};
-      font-size: 0.813rem;
-      line-height: 1.5;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-
-      ${RawFeatherIcon} {
-        margin-right: 0.5rem;
-      }
-    }
   }
 
   ${StyledSubtitle} {
@@ -129,57 +94,27 @@ const StyledPanel = styled.div`
 `;
 
 const ManagementPanel = (props) => {
-  const {
-    onBack,
-    illustration,
-    title,
-    subtitle,
-    actions,
-    showPanel,
-    children,
-  } = props;
+  const { onBack, illustration, showPanel, children } = props;
 
   if (!showPanel) return <></>;
 
   return (
     <StyledContainer>
       <StyledPanel>
-        {typeof onBack === "function" && (
-          <StyledBackButton type="button" onClick={onBack}>
-            <RawFeatherIcon
-              name="arrow-left"
-              aria-label="Retour"
-              width="1.5rem"
-              height="1.5rem"
-            />
-          </StyledBackButton>
-        )}
+        <StyledBackButton type="button" onClick={onBack}>
+          <RawFeatherIcon
+            name="arrow-left"
+            aria-label="Retour"
+            width="1.5rem"
+            height="1.5rem"
+          />
+        </StyledBackButton>
         {illustration && (
           <StyledIllustration
             aria-hidden="true"
             style={{ backgroundImage: `url(${illustration})` }}
           />
         )}
-        <header>
-          {title && <StyledTitle>{title}</StyledTitle>}
-          {Array.isArray(actions) && actions.length > 0 && (
-            <StyledActions>
-              {actions.slice(0, 2).map((action) => (
-                <button key={action.label} onClick={action.onClick}>
-                  {action.icon && (
-                    <RawFeatherIcon
-                      name={action.icon}
-                      width="1rem"
-                      height="1rem"
-                    />
-                  )}
-                  {action.label}
-                </button>
-              ))}
-            </StyledActions>
-          )}
-          {subtitle && <StyledSubtitle>{subtitle}</StyledSubtitle>}
-        </header>
         <main>{children}</main>
       </StyledPanel>
     </StyledContainer>
@@ -189,15 +124,6 @@ const ManagementPanel = (props) => {
 ManagementPanel.propTypes = {
   onBack: PropTypes.func,
   illustration: PropTypes.string,
-  title: PropTypes.node,
-  subtitle: PropTypes.node,
-  actions: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string.isRequired,
-      onClick: PropTypes.string.isRequired,
-      icon: PropTypes.string,
-    })
-  ),
   children: PropTypes.node,
 };
 

@@ -8,40 +8,18 @@ import GroupInvitation from "./GroupInvitation";
 import AddPair from "./AddPair";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 
+import { DEFAULT_EMAILS, DEFAULT_MEMBERS } from "./mock-group.js";
+import { StyledTitle } from "./styledComponents.js";
+
 const InlineBlock = styled.div`
   display: inline-block;
 `;
 
-const DEFAULT_EMAILS = [
-  "test@example.fr",
-  "test@example.fr",
-  "test@example.fr",
-];
-
-const DEFAULT_MEMBERS = [
-  {
-    name: "Jean-Luc Mélenchon",
-    role: "Administrateur",
-    email: "jlm@email.fr",
-    assets: ["Député", "Journaliste", "Blogueur", "Artiste", "Informaticien"],
-  },
-  {
-    name: "Membre",
-    role: "Animatrice",
-    email: "example@email.fr",
-    assets: ["Journaliste", "Blogueur", "Artiste"],
-  },
-  {
-    name: "Membre",
-    role: "Animatrice",
-    email: "example@email.fr",
-    assets: ["Journaliste", "Blogueur", "Artiste"],
-  },
-];
-
 const GroupMemberPage = () => {
   return (
     <>
+      <StyledTitle>{DEFAULT_MEMBERS.length} Membres</StyledTitle>
+
       <ShareLink
         label="Copier les mails des membres"
         color="secondary"

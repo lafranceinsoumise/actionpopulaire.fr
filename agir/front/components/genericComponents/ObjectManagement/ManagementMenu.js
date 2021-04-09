@@ -1,12 +1,9 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-
-import events from "@agir/front/mockData/events.json";
 
 const StyledMenuItem = styled.button`
   display: flex;
@@ -100,53 +97,6 @@ const StyledMenu = styled.div`
   }
 `;
 
-const MENU_ITEMS_EVENTS = {
-  information: {
-    id: "information",
-    label: "Général",
-    icon: "file-text",
-  },
-  participants: {
-    id: "participants",
-    label: "Participant·es",
-    labelFunction: (object) =>
-      `${(object && object.participantCount) || ""} Participant·es`.trim(),
-    icon: "users",
-  },
-  organizerGroups: {
-    id: "organizerGroups",
-    label: "Co-organisation",
-    icon: "settings",
-  },
-  rights: {
-    id: "rights",
-    label: "Droits",
-    icon: "lock",
-  },
-  onlineMeeting: {
-    id: "onlineMeeting",
-    label: "Vidéoconférence",
-    icon: "video",
-  },
-  contact: {
-    id: "contact",
-    label: "Contact",
-    icon: "mail",
-  },
-  location: {
-    id: "location",
-    label: "Localisation",
-    icon: "map-pin",
-  },
-  report: {
-    id: "report",
-    label: "Compte-rendu",
-    disabledLabel: "À remplir à la fin de l’événement",
-    disabled: true,
-    icon: "image",
-  },
-};
-
 const ManagementMenuItem = (props) => {
   const { object, item, onClick, active } = props;
 
@@ -193,15 +143,9 @@ ManagementMenuItem.propTypes = {
 };
 
 const ManagementMenu = (props) => {
-  const {
-    object = events[0],
-    items = MENU_ITEMS_EVENTS,
-    title,
-    selectedItem,
-    onSelect,
-  } = props;
+  const { object, items, title, selectedItem, onSelect } = props;
 
-  const separator = 3;
+  const SEPARATOR = 3;
 
   return (
     <StyledMenu>
@@ -209,7 +153,7 @@ const ManagementMenu = (props) => {
       <ul>
         {Object.values(items).map((item, index) => (
           <>
-            {index === separator && <hr />}
+            {SEPARATOR === index && <hr />}
             <li key={item.id}>
               <ManagementMenuItem
                 object={object}

@@ -12,6 +12,7 @@ const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
 const CreateEvent = lazy(() =>
   import("@agir/events/createEventPage/CreateEvent")
 );
+const EventSettings = lazy(() => import("@agir/events/EventSettings"));
 
 const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
 const FullGroupPage = lazy(() =>
@@ -19,7 +20,7 @@ const FullGroupPage = lazy(() =>
 );
 const GroupPage = lazy(() => import("@agir/groups/groupPage/GroupPage"));
 const GroupSettings = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/GroupSettings")
+  import("@agir/groups/groupPage/GroupSettings")
 );
 const GroupMessagePage = lazy(() =>
   import("@agir/groups/groupPage/GroupMessagePage")
@@ -146,6 +147,16 @@ export const routeConfig = {
       label: "Liste des événements",
       isProtected: true,
     },
+  }),
+  eventSettings: new RouteConfig({
+    id: "eventSettings",
+    path: "/evenements/:eventPk/parametres/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Paramètres de l'événement",
+    Component: EventSettings,
+    hideTopBar: true,
+    hideFeedbackButton: true,
   }),
   groups: new RouteConfig({
     id: "groups",

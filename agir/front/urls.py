@@ -89,6 +89,11 @@ urlpatterns = [
     path("evenements/carte/", views.EventMapView.as_view(), name="event_map_page"),
     path("evenements/creer/", views.CreateEventView.as_view(), name="create_event"),
     path(
+        "evenements/<uuid:pk>/parametres/",
+        views.EventSettingsView.as_view(),
+        name="view_event_settings",
+    ),
+    path(
         "evenements/creer/<path>/",
         views.CreateEventView.as_view(),
         name="create_event_sub",
