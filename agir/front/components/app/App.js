@@ -3,7 +3,6 @@ import React from "react";
 
 import { GlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import Router from "./Router";
-import PushModal from "@agir/front/allPages/PushModal";
 
 export default function App() {
   return (
@@ -12,7 +11,6 @@ export default function App() {
         <Helmet>
           <title>Plateforme d'action - Action populaire</title>
         </Helmet>
-        <PushModal isActive />
       </Router>
     </GlobalContextProvider>
   );

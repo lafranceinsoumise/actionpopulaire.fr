@@ -19,6 +19,7 @@ import {
 import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
+import PushModal from "@agir/front/allPages/PushModal";
 import TopBar from "@agir/front/allPages/TopBar";
 
 import ErrorBoundary from "./ErrorBoundary";
@@ -97,6 +98,7 @@ const Page = (props) => {
             {routeConfig.hideFeedbackButton ? null : (
               <FeedbackButton style={{ bottom: "1rem" }} />
             )}
+            {routeConfig.hidePushModal ? null : <PushModal isActive />}
           </Suspense>
         </StyledPage>
       </ErrorBoundary>
@@ -119,6 +121,7 @@ const Page = (props) => {
               data={[]}
             />
             {routeConfig.hideFeedbackButton ? null : <FeedbackButton />}
+            {routeConfig.hidePushModal ? null : <PushModal isActive />}
           </Suspense>
         </Layout>
       </StyledPage>
