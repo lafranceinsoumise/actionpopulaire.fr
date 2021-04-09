@@ -1,5 +1,7 @@
 /* eslint-env serviceworker */
 
+import { doSubscribe } from "@agir/notifications/push/utils";
+
 import DEFAULT_ICON from "@agir/front/genericComponents/logos/action-populaire_mini.svg";
 import NOTIFICATION_BADGE from "@agir/front/genericComponents/logos/notification-badge.png";
 
@@ -59,6 +61,15 @@ self.addEventListener(
           }
         })
     );
+  },
+  false
+);
+
+self.addEventListener(
+  "pushsubscriptionchange",
+  function (event) {
+    console.log("Push subscription changed!", event.newSubscription);
+    event.waitUntil(doSubscribe(self.registration, event.newSubscription));
   },
   false
 );
