@@ -9,7 +9,7 @@ from agir.lib.serializers import (
     NestedLocationSerializer,
     NestedContactSerializer,
     FlexibleFieldsMixin,
-    CurrentPersonDefault,
+    CurrentPersonField,
 )
 from . import models
 from .models import (
@@ -343,10 +343,7 @@ class CreateEventSerializer(serializers.Serializer):
     organizerGroup = EventOrganizerGroupField(
         write_only=True, required=False, allow_null=True
     )
-    organizerPerson = serializers.HiddenField(
-        default=CurrentPersonDefault(), write_only=True,
-    )
-
+    organizerPerson = CurrentPersonField()
     onlineUrl = serializers.URLField(
         source="online_url", required=False, allow_blank=True
     )
