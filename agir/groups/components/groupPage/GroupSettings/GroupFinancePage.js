@@ -1,7 +1,7 @@
 import React from "react";
 
 import Button from "@agir/front/genericComponents/Button";
-import ShareLink from "./ShareLink";
+import ShareLink from "@agir/front/genericComponents/ShareLink.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 
 import { StyledTitle } from "./styledComponents.js";
@@ -21,7 +21,7 @@ const GroupFinancePage = () => {
         url="https://actionpopulaire.fr/dons/?group=627ff9f0-e53d-478d-91fb-1a22c76a34d0"
       />
 
-      <Spacer size="2rem" />
+      <Spacer size="1rem" />
 
       <StyledTitle>Dons alloués aux personnes de mon groupe</StyledTitle>
 

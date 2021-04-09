@@ -2,6 +2,10 @@ import React from "react";
 import GroupMemberPage from "./GroupMemberPage.js";
 import GroupManagementPage from "./GroupManagementPage.js";
 import GroupFinancePage from "./GroupFinancePage.js";
+import GroupGeneralPage from "./GroupGeneralPage.js";
+import GroupLocalizationPage from "./GroupLocalizationPage.js";
+import GroupContactPage from "./GroupContactPage.js";
+import GroupLinksPage from "./GroupLinksPage.js";
 
 import group_members from "@agir/front/genericComponents/images/group_members.svg";
 import group_financement from "@agir/front/genericComponents/images/group_financement.svg";
@@ -60,21 +64,25 @@ export const MENU_ITEMS_GROUP = {
     label: "Général",
     icon: "file-text",
     illustration: group_general,
+    component: <GroupGeneralPage />,
   },
   location: {
     id: "location",
     label: "Localisation",
     icon: "map-pin",
+    component: <GroupLocalizationPage />,
   },
   contact: {
     id: "contact",
     label: "Contact",
     icon: "mail",
+    component: <GroupContactPage />,
   },
   links: {
     id: "links",
     label: "Liens et réseaux sociaux",
     icon: "at-sign",
+    component: <GroupLinksPage />,
   },
 };
 

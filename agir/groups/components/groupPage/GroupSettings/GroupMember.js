@@ -64,7 +64,7 @@ const GroupMember = (props) => {
   const { name, role, email, assets } = props;
 
   const [customAssets, setCustomAssets] = useState(
-    assets.length ? assets.slice(0, 3) : []
+    assets?.length ? assets.slice(0, 3) : []
   );
   const [showMore, setShowMore] = useState(assets?.length > 3);
 

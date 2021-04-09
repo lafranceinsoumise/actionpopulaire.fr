@@ -58,7 +58,7 @@ const ShareLink = (props) => {
             icon={copied ? "check" : "copy"}
             onClick={copyUrl}
           >
-            {label}
+            {label || "Copier"}
           </Button>
         </Column>
       </Row>

@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import GroupMember from "./GroupMember";
-import ShareLink from "./ShareLink";
+import ShareLink from "@agir/front/genericComponents/ShareLink.js";
 import GroupInvitation from "./GroupInvitation";
 import AddPair from "./AddPair";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
