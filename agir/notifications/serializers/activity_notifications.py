@@ -12,6 +12,7 @@ __all__ = ["ACTIVITY_NOTIFICATION_SERIALIZERS"]
 
 CHANGED_DATA_LABEL = {
     "name": "le nom",
+    "description": "le détail",
     "start_time": "l'horaire",
     "end_time": "l'horaire",
     "contact_name": "le contact",
@@ -159,7 +160,7 @@ class GroupInfoUpdateActivityNotificationSerializer(ActivityNotificationSerializ
                 ]
             )
             if len(changed_data) == 1:
-                return f"{changed_data.pop().capitalize()} de {activity.supportgroup.name} a  été mis à jour"
+                return f"{changed_data.pop().capitalize()} de {activity.supportgroup.name} a été mis à jour"
             return f"{', '.join(changed_data).capitalize()} de {activity.supportgroup.name} ont été mis à jour"
         return f"{activity.supportgroup.name} a été mis à jour"
 
@@ -192,7 +193,7 @@ class NewAttendeeActivityNotificationSerializer(ActivityNotificationSerializer):
         )
 
     def get_url(self, activity):
-        return front_url("manage_group", kwargs={"pk": activity.event_id},)
+        return front_url("manage_event", kwargs={"pk": activity.event_id},)
 
 
 class EventUpdateActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -212,7 +213,7 @@ class EventUpdateActivityNotificationSerializer(ActivityNotificationSerializer):
                 ]
             )
             if len(changed_data) == 1:
-                return f"{changed_data.pop().capitalize()} de {activity.event.name} a  été mis à jour"
+                return f"{changed_data.pop().capitalize()} de {activity.event.name} a été mis à jour"
             return f"{', '.join(changed_data).capitalize()} de {activity.event.name} ont été mis à jour"
         return f"{activity.event.name} a été mis à jour"
 
