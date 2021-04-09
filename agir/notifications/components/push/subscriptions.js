@@ -146,7 +146,7 @@ const useWebPush = () => {
   }, [ready]);
 
   if (!window.AgirSW || !window.AgirSW.pushManager) {
-    log.debug("Push manager not available.");
+    log.debug("Web PushManager not available.");
 
     return {
       ready: true,
@@ -174,11 +174,13 @@ const useIOSPush = () => {
 
   // We change state when iOS app send information
   const messageHandler = useCallback(async (data) => {
+    log.debug("iOS : got message", data);
     if (data.action !== "setNotificationState") {
       return;
     }
 
     if (data.noPermission) {
+      log.debug("iOS : no notification permission");
       setReady(true);
       return;
     }
@@ -191,7 +193,7 @@ const useIOSPush = () => {
       setReady(true);
       setIsSubscribed(true);
     } catch (e) {
-      log.error("Error saving Apple push subscription : ", e);
+      log.error("iOS : error saving Apple push subscription : ", e);
     }
   }, []);
   const postMessage = useIOSMessages(messageHandler);
@@ -206,6 +208,7 @@ const useIOSPush = () => {
 
   // Not on iOSDevice
   if (!postMessage) {
+    log.debug("iOS : not on iOS device.");
     return {
       ready: true,
       available: false,
@@ -214,11 +217,13 @@ const useIOSPush = () => {
 
   // iOS device but no info yet about subscription
   if (!ready) {
+    log.debug("iOS : waiting for iOS informations");
     return {
       ready: false,
     };
   }
 
+  log.debug("iOS : isSubscribed ", isSubscribed);
   return {
     ready: true,
     available: true,

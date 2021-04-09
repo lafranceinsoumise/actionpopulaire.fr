@@ -1,11 +1,17 @@
 import { useCallback, useEffect, useRef } from "react";
 
+import logger from "@agir/lib/utils/logger";
+
+const log = logger(__filename);
+
 window.iOSNativeMessage = (data) => {
   let event = new CustomEvent("iOSMessage", {
     detail: {
-      data,
+      data: JSON.parse(data),
     },
   });
+
+  log.debug("got message", data);
 
   window.dispatchEvent(event);
 };
