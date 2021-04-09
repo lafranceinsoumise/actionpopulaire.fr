@@ -826,9 +826,10 @@ PUSH_NOTIFICATIONS_SETTINGS = {
     "WP_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY"),
     "WP_CLAIMS": {"sub": "mailto: site@lafranceinsoumise.fr"},
     "APNS_AUTH_KEY_PATH": os.environ.get(
-        "APNS_AUTH_KEY_PATH", Path(BASE_DIR).parent / "apns.p8"
+        "APNS_AUTH_KEY_PATH", os.path.join(os.path.dirname(BASE_DIR), "..", "apns.p8")
     ),
     "APNS_AUTH_KEY_ID": os.environ.get("APNS_AUTH_KEY_ID"),
     "APNS_TEAM_ID": os.environ.get("APNS_TEAM_ID"),
     "APNS_TOPIC": os.environ.get("APNS_TOPIC", "fr.actionpopulaire.ios"),
+    "APNS_USE_SANDBOX": os.environ.get("APNS_USE_SANDBOX", "true").lower() == "true",
 }
