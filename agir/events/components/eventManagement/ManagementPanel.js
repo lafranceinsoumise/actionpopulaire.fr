@@ -11,6 +11,10 @@ const StyledActions = styled.div``;
 const StyledTitle = styled.h3``;
 const StyledSubtitle = styled.p``;
 const StyledBackButton = styled.button`
+  @media (min-width: ${style.collapse}px) {
+    display: none;
+  }
+
   &,
   &:hover,
   &:focus {
@@ -27,16 +31,31 @@ const StyledBackButton = styled.button`
     opacity: 0.75;
   }
 `;
+const StyledContainer = styled.div`
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: auto;
+
+  @media (min-width: ${style.collapse}px) {
+    width: calc(100vw - 360px);
+    min-width: 70%;
+    left: 360px;
+  }
+`;
+
 const StyledPanel = styled.div`
   padding: 2rem;
   height: 100%;
   overflow: auto;
   background-color: ${style.white};
 
+  width: 100%;
   @media (min-width: ${style.collapse}px) {
     width: 600px;
-    max-width: 70%;
-    margin-left: 360px;
   }
 
   header,
@@ -110,48 +129,60 @@ const StyledPanel = styled.div`
 `;
 
 const ManagementPanel = (props) => {
-  const { onBack, illustration, title, subtitle, actions, children } = props;
+  const {
+    onBack,
+    illustration,
+    title,
+    subtitle,
+    actions,
+    showPanel,
+    children,
+  } = props;
+
+  if (!showPanel) return <></>;
 
   return (
-    <StyledPanel>
-      {typeof onBack === "function" && (
-        <StyledBackButton type="button" onClick={onBack}>
-          <RawFeatherIcon
-            name="arrow-left"
-            aria-label="Retour"
-            width="1.5rem"
-            height="1.5rem"
-          />
-        </StyledBackButton>
-      )}
-      {illustration && (
-        <StyledIllustration
-          aria-hidden="true"
-          style={{ backgroundImage: `url(${illustration})` }}
-        />
-      )}
-      <header>
-        {title && <StyledTitle>{title}</StyledTitle>}
-        {Array.isArray(actions) && actions.length > 0 && (
-          <StyledActions>
-            {actions.slice(0, 2).map((action) => (
-              <button key={action.label} onClick={action.onClick}>
-                {action.icon && (
-                  <RawFeatherIcon
-                    name={action.icon}
-                    width="1rem"
-                    height="1rem"
-                  />
-                )}
-                {action.label}
-              </button>
-            ))}
-          </StyledActions>
+    <StyledContainer>
+      <StyledPanel>
+        {typeof onBack === "function" && (
+          <StyledBackButton type="button" onClick={onBack}>
+            <RawFeatherIcon
+              name="arrow-left"
+              aria-label="Retour"
+              width="1.5rem"
+              height="1.5rem"
+            />
+          </StyledBackButton>
         )}
-        {subtitle && <StyledSubtitle>{subtitle}</StyledSubtitle>}
-      </header>
-      <main>{children}</main>
-    </StyledPanel>
+        {illustration && (
+          <StyledIllustration
+            aria-hidden="true"
+            style={{ backgroundImage: `url(${illustration})` }}
+          />
+        )}
+        <header>
+          {title && <StyledTitle>{title}</StyledTitle>}
+          {Array.isArray(actions) && actions.length > 0 && (
+            <StyledActions>
+              {actions.slice(0, 2).map((action) => (
+                <button key={action.label} onClick={action.onClick}>
+                  {action.icon && (
+                    <RawFeatherIcon
+                      name={action.icon}
+                      width="1rem"
+                      height="1rem"
+                    />
+                  )}
+                  {action.label}
+                </button>
+              ))}
+            </StyledActions>
+          )}
+          {subtitle && <StyledSubtitle>{subtitle}</StyledSubtitle>}
+        </header>
+        <main>{children}</main>
+      </StyledPanel>
+    </StyledContainer>
   );
 };
 

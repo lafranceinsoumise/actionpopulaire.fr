@@ -9,11 +9,6 @@ import ManagementMenu from "@agir/events/eventManagement/ManagementMenu.js";
 import ManagementPanel from "@agir/events/eventManagement/ManagementPanel.js";
 import GroupMemberPage from "./GroupMemberPage.js";
 
-// import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
-// import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
-// import DesktopGroupPage, { DesktopGroupPageSkeleton } from "./DesktopGroupPage";
-// import MobileGroupPage, { MobileGroupPageSkeleton } from "./MobileGroupPage";
-
 const MENU_ITEMS_GROUP = {
   members: {
     id: "members",
@@ -58,10 +53,16 @@ const MENU_ITEMS_GROUP = {
 };
 
 export const GroupSettings = (props) => {
-  const { group = { membersCount: 3 } } = props;
+  const {
+    group = {
+      title: "Cortège France insoumise à la marche contre la fourrure 2020",
+      membersCount: 3,
+    },
+  } = props;
 
   const firstItem = Object.keys(MENU_ITEMS_GROUP)[0];
   const [selectedItem, setSelectedItem] = useState(firstItem);
+  const [showPanel, setShowPanel] = useState(true);
 
   const label = useMemo(
     () =>
@@ -71,26 +72,26 @@ export const GroupSettings = (props) => {
     [group, selectedItem]
   );
 
-  return (
-    //   <ResponsiveLayout
-    //     {...props}
-    //     MobileLayout={MobileGroupSettings}
-    //     DesktopLayout={DesktopGroupSettings}
-    //   />
+  const handleSelectMenuItem = (id) => {
+    setShowPanel(true);
+    setSelectedItem(id);
+  };
 
+  return (
     <PageFadeIn ready={true}>
       <ManagementMenu
-        title="Cortège France insoumise à la marche contre la fourrure 2020"
+        title={group.title}
         items={MENU_ITEMS_GROUP}
         selectedItem={selectedItem}
-        onSelect={setSelectedItem}
+        onSelect={handleSelectMenuItem}
       />
 
       <ManagementPanel
         title={label}
         subtitle={MENU_ITEMS_GROUP[selectedItem].subtitle}
-        onBack={() => console.log("ON BACK MENU")}
+        onBack={() => setShowPanel(false)}
         illustration={MENU_ITEMS_GROUP[selectedItem].illustration}
+        showPanel={showPanel}
       >
         {MENU_ITEMS_GROUP[selectedItem].component}
       </ManagementPanel>
