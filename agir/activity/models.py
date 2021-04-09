@@ -23,12 +23,13 @@ class ActivityQuerySet(models.QuerySet):
 
 
 class ActivityManager(models.Manager.from_queryset(ActivityQuerySet)):
-    def bulk_create(self, instances, **kwargs):
+    def bulk_create(self, instances, send_post_save_signal=False, **kwargs):
         activities = super().bulk_create(instances, **kwargs)
-        for instance in instances:
-            models.signals.post_save.send(
-                instance.__class__, instance=instance, created=True
-            )
+        if send_post_save_signal:
+            for instance in instances:
+                models.signals.post_save.send(
+                    instance.__class__, instance=instance, created=True
+                )
         return activities
 
 
