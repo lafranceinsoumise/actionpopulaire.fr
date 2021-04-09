@@ -9,7 +9,7 @@ from agir.notifications.tasks import send_webpush_activity
 
 
 @receiver(post_save, sender=Activity, dispatch_uid="push_new_activity")
-def push_new_activity(sender, instance, created, **kwargs):
+def push_new_activity(sender, instance, created=False, **kwargs):
     if (
         instance is None
         or not created
@@ -21,14 +21,15 @@ def push_new_activity(sender, instance, created, **kwargs):
     ):
         return
 
-    webpush_devices = [
+    webpush_device_pks = [
         webpush_device.pk
         for webpush_device in WebPushDevice.objects.filter(
             user=instance.recipient.role, active=True
         )
     ]
 
-    if len(webpush_devices) == 0:
+    if len(webpush_device_pks) == 0:
         return
 
-    send_webpush_activity.delay(instance.pk, webpush_devices)
+    for webpush_device_pk in webpush_device_pks:
+        send_webpush_activity.delay(instance.pk, webpush_device_pk)
