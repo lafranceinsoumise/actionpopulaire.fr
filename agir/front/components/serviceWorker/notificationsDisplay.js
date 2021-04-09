@@ -1,6 +1,9 @@
 /* eslint-env serviceworker */
 
+import { doSubscribe } from "@agir/notifications/push/utils";
+
 import DEFAULT_ICON from "@agir/front/genericComponents/logos/action-populaire_mini.svg";
+import NOTIFICATION_BADGE from "@agir/front/genericComponents/logos/notification-badge.png";
 
 const DEFAULT_URL = "/activite/";
 const DEFAULT_TITLE = "Plateforme d'action - Action Populaire";
@@ -11,6 +14,7 @@ const doDisplayNotification = async function (message) {
   }
   return self.registration.showNotification(message.title || DEFAULT_TITLE, {
     body: message.body,
+    badge: NOTIFICATION_BADGE,
     icon: message.icon || DEFAULT_ICON,
     tag: message.tag,
     data: { url: message.url || DEFAULT_URL },
@@ -24,7 +28,6 @@ self.addEventListener("push", function (event) {
   } catch (e) {
     message = {
       body: event.data.text(),
-      url: "/evenements/",
     };
   }
   /* callback for push event must be synced, and event must be attached
@@ -58,6 +61,14 @@ self.addEventListener(
           }
         })
     );
+  },
+  false
+);
+
+self.addEventListener(
+  "pushsubscriptionchange",
+  function (event) {
+    event.waitUntil(doSubscribe(self.registration, event.newSubscription));
   },
   false
 );

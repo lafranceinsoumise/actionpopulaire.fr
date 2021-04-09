@@ -21,7 +21,6 @@ const StyledButton = styled.button`
   color: ${({ $active }) => ($active ? style.black1000 : style.black500)};
   border-color: ${({ $active }) => ($active ? style.green200 : style.black100)};
   visibility: ${({ $hidden }) => ($hidden ? "hidden" : "visible")};
-  transition: all 200ms ease-in-out;
 
   &:focus {
     outline: none;

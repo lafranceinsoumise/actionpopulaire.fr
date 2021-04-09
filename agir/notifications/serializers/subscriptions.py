@@ -1,20 +1,17 @@
 from django.db import IntegrityError
+
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+
 from agir.activity.models import Activity
 from agir.groups.models import Membership, SupportGroup
 from agir.groups.serializers import SupportGroupSerializer
+from agir.lib.serializers import CurrentPersonField
+from agir.notifications.models import Subscription
 
-from .models import Subscription
-
-
-class CurrentPersonDefault:
-    requires_context = True
-
-    def __call__(self, serializer_field):
-        user = serializer_field.context["request"].user
-        if user.is_authenticated and user.person is not None:
-            return user.person
+__all__ = [
+    "SubscriptionSupportGroupSerializer",
+    "SubscriptionSerializer",
+]
 
 
 class SubscriptionSupportGroupSerializer(SupportGroupSerializer):
@@ -35,7 +32,7 @@ class SubscriptionSupportGroupSerializer(SupportGroupSerializer):
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
-    person = serializers.UUIDField(default=CurrentPersonDefault(), write_only=True)
+    person = CurrentPersonField()
     type = serializers.ChoiceField(
         choices=Subscription.SUBSCRIPTION_CHOICES,
         required=True,

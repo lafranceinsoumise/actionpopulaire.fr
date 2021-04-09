@@ -314,7 +314,8 @@ def notify_new_group_event(group_pk, event_pk):
                 event=event,
             )
             for r in recipients
-        ]
+        ],
+        send_post_save_signal=True,
     )
 
 
@@ -417,7 +418,8 @@ def create_accepted_invitation_member_activity(new_membership_pk):
                 individual=new_membership.person,
             )
             for r in recipients
-        ]
+        ],
+        send_post_save_signal=True,
     )
 
 

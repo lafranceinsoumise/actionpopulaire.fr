@@ -88,5 +88,6 @@ def create_transfer_membership_activities(
                 },
             )
             for r in managing_membership_recipients
-        ]
+        ],
+        send_post_save_signal=True,
     )
