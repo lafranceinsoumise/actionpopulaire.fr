@@ -145,7 +145,7 @@ const NotificationSettingPanel = (props) => {
       {typeof subscribeDevice === "function" && (
         <StyledDeviceSubscription>
           <h5>Notifications désactivées</h5>
-          <p>Vous devez activer les notifications sur cet appareil</p>
+          <p>Autorisez les notifications sur cet appareil</p>
           <Button color="primary" onClick={subscribeDevice}>
             Activer
           </Button>

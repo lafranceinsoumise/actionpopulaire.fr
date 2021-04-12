@@ -17,13 +17,13 @@ const springConfig = {
 const slideInTransitions = {
   right: {
     config: springConfig,
-    from: { transform: "translateX(100%)" },
+    from: { right: 0, transform: "translateX(100%)" },
     enter: { transform: "translateX(0)" },
     leave: { transform: "translateX(100%)" },
   },
   left: {
     config: springConfig,
-    from: { transform: "translateX(-100%)" },
+    from: { left: 0, transform: "translateX(-100%)" },
     enter: { transform: "translateX(0)" },
     leave: { transform: "translateX(-100%)" },
   },
