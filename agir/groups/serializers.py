@@ -218,7 +218,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             }
 
     def get_routes(self, obj):
-        routes = {}
+        routes = {
+            "details": front_url("view_group", kwargs={"pk": obj.pk}),
+        }
         if obj.is_certified:
             routes["donations"] = front_url("donation_amount", query={"group": obj.pk})
         if self.membership is not None:
