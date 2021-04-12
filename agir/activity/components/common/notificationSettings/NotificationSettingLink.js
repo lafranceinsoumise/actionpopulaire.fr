@@ -7,6 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 
 import { routeConfig } from "@agir/front/app/routes.config";
+import { useMobileApp } from "@agir/front/app/hooks";
 
 const StyledLink = styled(Button)`
   margin-left: auto;
@@ -30,6 +31,12 @@ export const useNotificationSettingLink = (root) => {
 const NotificationSettingLink = (props) => {
   const { root } = props;
   const route = useNotificationSettingLink(root);
+  const { isMobileApp } = useMobileApp();
+
+  if (!isMobileApp) {
+    return null;
+  }
+
   return (
     <StyledLink as="Link" to={route} icon="settings" small>
       Paramètres de notifications
