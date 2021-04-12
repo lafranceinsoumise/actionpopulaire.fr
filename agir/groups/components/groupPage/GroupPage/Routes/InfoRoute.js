@@ -58,7 +58,10 @@ const MobileInfoRoute = (props) => {
         <GroupDonation url={group.routes.donations} />
       )}
       <StyledShareCard>
-        <ShareCard title="Partager le lien du groupe" />
+        <ShareCard
+          url={group.routes?.details}
+          title="Partager le lien du groupe"
+        />
       </StyledShareCard>
 
       {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
@@ -91,12 +94,18 @@ const DesktopInfoRoute = (props) => {
       (group.hasUpcomingEvents || group.hasPastEvents || group.hasMessages) ? (
         <>
           <GroupLocation {...group} />
-          <ShareCard title="Partager le lien du groupe" />
+          <ShareCard
+            url={group.routes?.details}
+            title="Partager le lien du groupe"
+          />
         </>
       ) : (
         <>
           <GroupDescription {...group} maxHeight="auto" outlined />
-          <ShareCard title="Inviter vos ami·es à rejoindre le groupe" />
+          <ShareCard
+            url={group.routes?.details}
+            title="Inviter vos ami·es à rejoindre le groupe"
+          />
           <GroupLocation {...group} />
         </>
       )}
@@ -113,6 +122,7 @@ MobileInfoRoute.propTypes = DesktopInfoRoute.propTypes = {
     hasUpcomingEvents: PropTypes.bool,
     hasMessages: PropTypes.bool,
     routes: PropTypes.shape({
+      details: PropTypes.string,
       donations: PropTypes.string,
     }),
   }),

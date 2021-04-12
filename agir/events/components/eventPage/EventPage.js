@@ -140,7 +140,7 @@ const MobileLayout = (props) => {
           </Card>
           {props.contact && <ContactCard {...props.contact} />}
           {props.routes.facebook && <EventFacebookLinkCard {...props} />}
-          <ShareCard />
+          <ShareCard url={props.routes.details} />
           {props.groups.length > 0 && (
             <CardLikeSection>
               <h3>Organisé par</h3>
@@ -197,7 +197,7 @@ const DesktopLayout = (props) => {
             <EventInfoCard {...props} />
           )}
           {props.routes.facebook && <EventFacebookLinkCard {...props} />}
-          <ShareCard />
+          <ShareCard url={props.routes.details} />
         </StyledColumn>
       </Row>
     </Container>

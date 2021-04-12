@@ -13,7 +13,8 @@ import NotificationSettingItem from "./NotificationSettingItem";
 
 const StyledGroupName = styled.div`
   display: grid;
-  grid-template-columns: 1fr 70px auto;
+  grid-template-columns: 1fr 70px;
+  grid-auto-flow: column;
   grid-gap: 0 0.5rem;
   align-items: center;
 
@@ -26,6 +27,7 @@ const StyledGroupName = styled.div`
   small {
     font-size: 0.688rem;
     line-height: 1;
+    text-align: right;
   }
 `;
 
@@ -159,8 +161,13 @@ const NotificationSettingPanel = (props) => {
                 <StyledGroup key={subtype}>
                   <StyledGroupName>
                     <span>{subtype}</span>
-                    <small>Notifications</small>
-                    <small>E-mail</small>
+                    {byType[type][subtype].some(
+                      (notificationId) => byId[notificationId].hasPush !== false
+                    ) && <small>Notifications</small>}
+                    {byType[type][subtype].some(
+                      (notificationId) =>
+                        byId[notificationId].hasEmail !== false
+                    ) && <small>E-mail</small>}
                   </StyledGroupName>
                   {byType[type][subtype].map((notificationId) => (
                     <NotificationSettingItem
