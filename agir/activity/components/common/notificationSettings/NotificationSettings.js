@@ -17,7 +17,7 @@ import NotificationSettingPanel from "./NotificationSettingPanel";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const NotificationSettings = (props) => {
-  const { available, isSubscribed, subscribe } = usePush();
+  const { available, isSubscribed, subscribe, unsubscribe } = usePush();
 
   const { data: groupData } = useSWR("/api/groupes/");
   const { data: userNotifications, mutate } = useSWR(
@@ -77,6 +77,7 @@ const NotificationSettings = (props) => {
       disabled={isLoading}
       ready={!!userNotifications && !!groupData}
       subscribeDevice={available && !isSubscribed ? subscribe : undefined}
+      unsubscribeDevice={available && isSubscribed ? unsubscribe : undefined}
     />
   );
 };

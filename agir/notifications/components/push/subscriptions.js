@@ -2,7 +2,7 @@ import axios from "@agir/lib/utils/axios";
 import logger from "@agir/lib/utils/logger";
 import { useCallback, useEffect, useState } from "react";
 import { useIOSMessages } from "@agir/front/allPages/ios";
-import { doSubscribe } from "@agir/notifications/push/utils";
+import { doSubscribe, doUnsubscribe } from "@agir/notifications/push/utils";
 
 const log = logger(__filename);
 
@@ -30,6 +30,13 @@ const useWebPush = () => {
     await askPermission();
     await doSubscribe(window.AgirSW);
     setIsSubscribed(true);
+  }, []);
+
+  const unsubscribe = useCallback(async () => {
+    const success = await doUnsubscribe();
+    if (success) {
+      setIsSubscribed(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -84,6 +91,7 @@ const useWebPush = () => {
     available: true,
     isSubscribed: isSubscribed,
     subscribe,
+    unsubscribe: isSubscribed ? unsubscribe : undefined,
   };
 };
 

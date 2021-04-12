@@ -84,3 +84,27 @@ export async function doSubscribe(serviceWorkerRegistration, pushSubscription) {
 
   return pushSubscription;
 }
+
+export async function doUnsubscribe() {
+  if (!window.AgirSW?.pushManager) return;
+
+  const pushSubscription = await window.AgirSW?.pushManager?.getSubscription();
+
+  if (!pushSubscription) {
+    return true;
+  }
+
+  await pushSubscription.unsubscribe();
+
+  const endpointParts = pushSubscription.endpoint.split("/");
+  const registrationId = endpointParts[endpointParts.length - 1];
+
+  try {
+    await axios.delete(`/api/device/webpush/${registrationId}/`);
+  } catch (e) {
+    log.error("Error deleting PushSubscription : ", e);
+    return e.response?.status === 404;
+  }
+
+  return true;
+}

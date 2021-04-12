@@ -104,6 +104,7 @@ const NotificationSettingPanel = (props) => {
     disabled,
     ready,
     subscribeDevice,
+    unsubscribeDevice,
   } = props;
 
   const [byType, icons] = useMemo(() => {
@@ -152,6 +153,13 @@ const NotificationSettingPanel = (props) => {
             Activer
           </Button>
         </StyledDeviceSubscription>
+      )}
+      {typeof unsubscribeDevice === "function" && (
+        <div style={{ padding: "0 1.5rem 1.5rem" }}>
+          <Button color="choose" small onClick={unsubscribeDevice}>
+            Désactiver les notifications
+          </Button>
+        </div>
       )}
       <PageFadeIn ready={ready}>
         {Object.keys(byType).map((type) => (
@@ -207,6 +215,7 @@ NotificationSettingPanel.propTypes = {
   activeNotifications: PropTypes.object,
   onChange: PropTypes.func.isRequired,
   subscribeDevice: PropTypes.func,
+  unsubscribeDevice: PropTypes.func,
   disabled: PropTypes.bool,
   ready: PropTypes.bool,
 };
