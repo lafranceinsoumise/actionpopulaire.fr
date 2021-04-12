@@ -4,7 +4,7 @@ from rest_framework import serializers
 from agir.events.models import Event
 from agir.events.serializers import EventSerializer
 from agir.groups.serializers import SupportGroupSerializer
-from agir.lib.serializers import FlexibleFieldsMixin
+from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment, UserReport
 from agir.people.serializers import PersonSerializer
 
@@ -125,6 +125,7 @@ class ContentTypeChoiceField(serializers.ChoiceField):
 
 
 class UserReportSerializer(serializers.ModelSerializer):
+    reporter = CurrentPersonField()
     content_type = ContentTypeChoiceField(
         choices=("msgs.supportgroupmessage", "msgs.supportgroupmessagecomment",)
     )
@@ -139,4 +140,4 @@ class UserReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserReport
-        fields = ("content_type", "object_id")
+        fields = ("reporter", "content_type", "object_id")

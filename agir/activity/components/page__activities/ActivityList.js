@@ -1,16 +1,23 @@
 import React, { useEffect, useMemo } from "react";
+import useSWR from "swr";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 
 import { getUnread } from "@agir/activity/common/helpers";
+import { setAllActivitiesAsRead } from "../common/actions";
 
 import Activities from "@agir/activity/common/Activities";
 import ActivityCard from "./ActivityCard";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
-import useSWR from "swr";
-import { setAllActivitiesAsRead } from "../common/actions";
+
+import NotificationSettingLink from "@agir/activity/common/notificationSettings/NotificationSettingLink";
+
+import {
+  LayoutSubtitle,
+  LayoutTitle,
+} from "@agir/front/dashboardComponents/Layout";
 
 const ActivityList = () => {
   const routes = useSelector(getRoutes);
@@ -34,6 +41,13 @@ const ActivityList = () => {
         </div>
       }
     >
+      <LayoutTitle>
+        Actualités
+        <NotificationSettingLink root="activite" />
+      </LayoutTitle>
+      <LayoutSubtitle>
+        L'actualité de vos groupes et de votre engagement
+      </LayoutSubtitle>
       <Activities
         CardComponent={ActivityCard}
         activities={activities}

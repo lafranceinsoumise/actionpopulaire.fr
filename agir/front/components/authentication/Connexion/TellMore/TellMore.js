@@ -174,7 +174,8 @@ const TellMore = ({ dismiss }) => {
 
   useEffect(() => {
     getProfileInfos();
-  }, [getProfileInfos]);
+    //eslint-disable-next-line
+  }, []);
 
   return (
     <div>

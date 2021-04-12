@@ -2,6 +2,7 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
 import logger from "@agir/lib/utils/logger";
 
 import "@agir/front/allPages/sentry";
+import "@agir/front/allPages/ios.js";
 import "@agir/front/genericComponents/style.scss";
 
 const log = logger(__filename);
@@ -28,9 +29,9 @@ const log = logger(__filename);
 })();
 
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
+  window.addEventListener("load", async () => {
     try {
-      navigator.serviceWorker.register("/sw.js");
+      window.AgirSW = await navigator.serviceWorker.register("/sw.js");
       log.debug("Registered service worker");
     } catch (e) {
       log.error("Failed to register service worker");

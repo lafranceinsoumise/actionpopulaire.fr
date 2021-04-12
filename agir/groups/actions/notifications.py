@@ -25,7 +25,8 @@ def someone_joined_notification(membership, membership_count=1):
                 meta={"email": membership.person.email},
             )
             for r in recipients
-        ]
+        ],
+        send_post_save_signal=True,
     )
 
     membership_limit_notication_steps = [
@@ -55,7 +56,8 @@ def someone_joined_notification(membership, membership_count=1):
                     },
                 )
                 for r in recipients
-            ]
+            ],
+            send_post_save_signal=True,
         )
     if membership.supportgroup.is_2022 and membership_count in [21, 30]:
         transaction.on_commit(
@@ -84,7 +86,8 @@ def new_message_notifications(message):
             )
             for r in recipients
             if r.pk != message.author.pk
-        ]
+        ],
+        send_post_save_signal=True,
     )
 
     send_message_notification_email.delay(message.pk)
@@ -103,9 +106,10 @@ def new_comment_notifications(comment):
                 type=Activity.TYPE_NEW_COMMENT,
                 recipient=r,
                 status=Activity.STATUS_UNDISPLAYED,
-                meta={"message": str(comment.message.pk),},
+                meta={"message": str(comment.message.pk), "comment": str(comment.pk),},
             )
             for r in recipients
             if r.pk != comment.author.pk
-        ]
+        ],
+        send_post_save_signal=True,
     )

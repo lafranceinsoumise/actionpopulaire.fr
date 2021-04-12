@@ -1,0 +1,242 @@
+[
+  {
+    "id": 1,
+    "label": "Realigned stable forecast",
+    "email": false,
+    "pushNotification": true,
+    "type": "Indonesia",
+    "subtype": "Cigintung"
+  },
+  {
+    "id": 2,
+    "label": "Enterprise-wide hybrid ability",
+    "email": false,
+    "pushNotification": true,
+    "type": "Indonesia",
+    "subtype": "Kampungbaru"
+  },
+  {
+    "id": 3,
+    "label": "Sharable scalable help-desk",
+    "email": true,
+    "pushNotification": true,
+    "type": "Russia",
+    "subtype": "Tolstoy-Yurt"
+  },
+  {
+    "id": 4,
+    "label": "Pre-emptive stable paradigm",
+    "email": false,
+    "pushNotification": false,
+    "type": "Ireland",
+    "subtype": "Ballyboden"
+  },
+  {
+    "id": 5,
+    "label": "Ameliorated client-server open system",
+    "email": false,
+    "pushNotification": false,
+    "type": "China",
+    "subtype": "Mingyuedian"
+  },
+  {
+    "id": 6,
+    "label": "Expanded multi-state definition",
+    "email": false,
+    "pushNotification": true,
+    "type": "Russia",
+    "subtype": "Khosta"
+  },
+  {
+    "id": 7,
+    "label": "Innovative 24/7 instruction set",
+    "email": true,
+    "pushNotification": false,
+    "type": "Poland",
+    "subtype": "Olszówka"
+  },
+  {
+    "id": 8,
+    "label": "Exclusive full-range knowledge base",
+    "email": false,
+    "pushNotification": false,
+    "type": "Honduras",
+    "subtype": "Santa Lucía"
+  },
+  {
+    "id": 9,
+    "label": "Total fault-tolerant process improvement",
+    "email": false,
+    "pushNotification": true,
+    "type": "China",
+    "subtype": "Yinjiaxi"
+  },
+  {
+    "id": 10,
+    "label": "Robust fresh-thinking neural-net",
+    "email": true,
+    "pushNotification": true,
+    "type": "Mexico",
+    "subtype": "Benito Juarez"
+  },
+  {
+    "id": 11,
+    "label": "Switchable needs-based extranet",
+    "email": false,
+    "pushNotification": true,
+    "type": "Russia",
+    "subtype": "Zaraysk"
+  },
+  {
+    "id": 12,
+    "label": "Ameliorated leading edge artificial intelligence",
+    "email": false,
+    "pushNotification": false,
+    "type": "Greece",
+    "subtype": "Lýkeio"
+  },
+  {
+    "id": 13,
+    "label": "De-engineered 4th generation access",
+    "email": true,
+    "pushNotification": true,
+    "type": "South Africa",
+    "subtype": "Cala"
+  },
+  {
+    "id": 14,
+    "label": "Team-oriented zero administration moratorium",
+    "email": false,
+    "pushNotification": true,
+    "type": "China",
+    "subtype": "Taoyuan"
+  },
+  {
+    "id": 15,
+    "label": "Optimized disintermediate array",
+    "email": true,
+    "pushNotification": true,
+    "type": "Albania",
+    "subtype": "Lekaj"
+  },
+  {
+    "id": 16,
+    "label": "Customer-focused empowering support",
+    "email": true,
+    "pushNotification": false,
+    "type": "Brazil",
+    "subtype": "Jardinópolis"
+  },
+  {
+    "id": 17,
+    "label": "Automated holistic approach",
+    "email": true,
+    "pushNotification": true,
+    "type": "Ukraine",
+    "subtype": "Slobidka"
+  },
+  {
+    "id": 18,
+    "label": "Enhanced fresh-thinking moratorium",
+    "email": true,
+    "pushNotification": true,
+    "type": "China",
+    "subtype": "Jinshanpu"
+  },
+  {
+    "id": 19,
+    "label": "Exclusive global standardization",
+    "email": true,
+    "pushNotification": false,
+    "type": "Czech Republic",
+    "subtype": "Psáry"
+  },
+  {
+    "id": 20,
+    "label": "Proactive zero administration standardization",
+    "email": true,
+    "pushNotification": true,
+    "type": "Nigeria",
+    "subtype": "Abonnema"
+  },
+  {
+    "id": 21,
+    "label": "Balanced cohesive initiative",
+    "email": true,
+    "pushNotification": true,
+    "type": "China",
+    "subtype": "Runan"
+  },
+  {
+    "id": 22,
+    "label": "Intuitive mission-critical attitude",
+    "email": true,
+    "pushNotification": false,
+    "type": "China",
+    "subtype": "Heilangkou"
+  },
+  {
+    "id": 23,
+    "label": "Pre-emptive zero tolerance framework",
+    "email": true,
+    "pushNotification": true,
+    "type": "Poland",
+    "subtype": "Wąsosz"
+  },
+  {
+    "id": 24,
+    "label": "Enhanced interactive model",
+    "email": false,
+    "pushNotification": false,
+    "type": "Canada",
+    "subtype": "Côte-Saint-Luc"
+  },
+  {
+    "id": 25,
+    "label": "Fully-configurable content-based hierarchy",
+    "email": true,
+    "pushNotification": true,
+    "type": "Bangladesh",
+    "subtype": "Farīdpur"
+  },
+  {
+    "id": 26,
+    "label": "Organized value-added hardware",
+    "email": false,
+    "pushNotification": true,
+    "type": "Nigeria",
+    "subtype": "Ilesa"
+  },
+  {
+    "id": 27,
+    "label": "Focused multi-state website",
+    "email": true,
+    "pushNotification": false,
+    "type": "Philippines",
+    "subtype": "Maduao"
+  },
+  {
+    "id": 28,
+    "label": "Digitized coherent application",
+    "email": false,
+    "pushNotification": true,
+    "type": "China",
+    "subtype": "Nansha"
+  },
+  {
+    "id": 29,
+    "label": "Customer-focused homogeneous adapter",
+    "email": false,
+    "pushNotification": false,
+    "type": "France",
+    "subtype": "Toulouse"
+  },
+  {
+    "id": 30,
+    "label": "Mandatory hybrid capability",
+    "email": true,
+    "pushNotification": true,
+    "type": "Indonesia",
+    "subtype": "Semarang"
+  }
+]

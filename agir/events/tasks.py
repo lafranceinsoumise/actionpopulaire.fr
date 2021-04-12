@@ -305,8 +305,11 @@ def send_cancellation_notification(event_pk):
     )
 
     Activity.objects.bulk_create(
-        Activity(type=Activity.TYPE_CANCELLED_EVENT, recipient=r, event=event,)
-        for r in recipients
+        [
+            Activity(type=Activity.TYPE_CANCELLED_EVENT, recipient=r, event=event,)
+            for r in recipients
+        ],
+        send_post_save_signal=True,
     )
 
 
@@ -484,8 +487,11 @@ def notify_on_event_report(event_pk):
         return
 
     Activity.objects.bulk_create(
-        Activity(type=Activity.TYPE_NEW_REPORT, recipient=r, event=event)
-        for r in event.attendees.all()
+        [
+            Activity(type=Activity.TYPE_NEW_REPORT, recipient=r, event=event)
+            for r in event.attendees.all()
+        ],
+        send_post_save_signal=True,
     )
 
 
@@ -504,8 +510,11 @@ def geocode_event(event_pk):
         and event.coordinates_type >= Event.COORDINATES_NO_POSITION
     ):
         Activity.objects.bulk_create(
-            Activity(
-                type=Activity.TYPE_WAITING_LOCATION_EVENT, recipient=r, event=event
-            )
-            for r in event.organizers.all()
+            (
+                Activity(
+                    type=Activity.TYPE_WAITING_LOCATION_EVENT, recipient=r, event=event
+                )
+                for r in event.organizers.all()
+            ),
+            send_post_save_signal=True,
         )

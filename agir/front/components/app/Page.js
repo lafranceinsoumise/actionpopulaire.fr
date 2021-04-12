@@ -52,11 +52,24 @@ const Page = (props) => {
 
   useTracking();
 
-  useEffect(() => {
+  useMemo(() => {
+    if (!routeConfig.isPartial) {
+      dispatch(setBackLink(null));
+      dispatch(setTopBarRightLink(null));
+      dispatch(setAdminLink(null));
+    }
+    //eslint-disable-next-line
+  }, [pathname, routeConfig]);
+
+  useMemo(() => {
     isSessionLoaded &&
       routeConfig.backLink &&
       dispatch(setBackLink(routeConfig.backLink));
-  }, [pathname, isSessionLoaded, dispatch, routeConfig.backLink]);
+    isSessionLoaded &&
+      routeConfig.topBarRightLink &&
+      dispatch(setTopBarRightLink(routeConfig.topBarRightLink));
+    //eslint-disable-next-line
+  }, [pathname, isSessionLoaded, dispatch, routeConfig]);
 
   useEffect(() => {
     let unlisten = history.listen((location, action) => {
@@ -72,13 +85,6 @@ const Page = (props) => {
   useMemo(() => {
     typeof window !== "undefined" && window.scrollTo && window.scrollTo(0, 0);
   }, []);
-
-  useMemo(() => {
-    dispatch(setBackLink(null));
-    dispatch(setTopBarRightLink(null));
-    dispatch(setAdminLink(null));
-    //eslint-disable-next-line
-  }, [pathname]);
 
   if (!routeConfig.hasLayout) {
     return (

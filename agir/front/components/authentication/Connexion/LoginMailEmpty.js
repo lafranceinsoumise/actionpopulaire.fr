@@ -74,7 +74,7 @@ const LoginMailEmpty = () => {
         next: next,
       });
     },
-    [history, email]
+    [history, email, next]
   );
 
   return (
@@ -89,6 +89,7 @@ const LoginMailEmpty = () => {
           value={email}
           name="email"
           autoComplete="email"
+          type="email"
         />
         {!!error.detail && (
           <Link route="codeLogin">
