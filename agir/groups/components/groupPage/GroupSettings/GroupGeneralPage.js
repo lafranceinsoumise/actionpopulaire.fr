@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
-import Spacer from "@agir/front/genericComponents/Spacer.js";
 import TextField from "@agir/front/formComponents/TextField";
+import Spacer from "@agir/front/genericComponents/Spacer.js";
 
 import { StyledTitle } from "./styledComponents.js";
 

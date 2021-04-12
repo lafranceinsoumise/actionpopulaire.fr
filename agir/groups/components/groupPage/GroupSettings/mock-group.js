@@ -10,6 +10,13 @@ import GroupLinksPage from "./GroupLinksPage.js";
 import group_members from "@agir/front/genericComponents/images/group_members.svg";
 import group_financement from "@agir/front/genericComponents/images/group_financement.svg";
 import group_general from "@agir/front/genericComponents/images/group_general.svg";
+import group_contact from "@agir/front/genericComponents/images/group_contact.svg";
+import group_links from "@agir/front/genericComponents/images/group_links.svg";
+
+export const DEFAULT_GROUP = {
+  title: "Cortège France insoumise à la marche contre la fourrure 2020",
+  // membersCount: 3,
+};
 
 export const DEFAULT_EMAILS = [
   "test@example.fr",
@@ -76,17 +83,14 @@ export const MENU_ITEMS_GROUP = {
     id: "contact",
     label: "Contact",
     icon: "mail",
+    illustration: group_contact,
     component: <GroupContactPage />,
   },
   links: {
     id: "links",
     label: "Liens et réseaux sociaux",
     icon: "at-sign",
+    illustration: group_links,
     component: <GroupLinksPage />,
   },
-};
-
-export const DEFAULT_GROUP = {
-  title: "Cortège France insoumise à la marche contre la fourrure 2020",
-  // membersCount: 3,
 };
