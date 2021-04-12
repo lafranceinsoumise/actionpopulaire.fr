@@ -12,8 +12,10 @@ const Member = styled.div`
   cursor: pointer;
 `;
 
-const AddPair = () => {
+const AddPair = ({ onClick }) => {
+
   const handleClick = () => {
+    onClick();
     console.log("add pair organizer");
   };
   return (

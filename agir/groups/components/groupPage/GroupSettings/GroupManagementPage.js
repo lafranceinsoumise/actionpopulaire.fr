@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import GroupMember from "./GroupMember";
 import AddPair from "./AddPair";
@@ -8,6 +8,12 @@ import { DEFAULT_MEMBERS } from "./mock-group.js";
 import { StyledTitle } from "./styledComponents.js";
 
 const GroupManagementPage = () => {
+
+  const [showConfig, setShowConfig] = useState(false);
+
+  if (showConfig)
+    return <></>;
+
   return (
     <>
       <StyledTitle>Animateurs et animatrices</StyledTitle>
@@ -19,7 +25,7 @@ const GroupManagementPage = () => {
         assets={DEFAULT_MEMBERS[0].assets}
       />
       <Spacer size="1rem" />
-      <AddPair />
+      <AddPair onClick={() => { setShowConfig(true) }} />
       <Spacer size="2rem" />
 
       <span>
