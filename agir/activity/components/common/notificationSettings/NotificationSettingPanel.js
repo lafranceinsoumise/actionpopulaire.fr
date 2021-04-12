@@ -5,6 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Accordion from "@agir/front/genericComponents/Accordion";
+import AppStore from "@agir/front/genericComponents/AppStore";
 import Button from "@agir/front/genericComponents/Button";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Panel, { StyledBackButton } from "@agir/front/genericComponents/Panel";
@@ -84,6 +85,25 @@ const StyledDeviceSubscription = styled.div`
   }
 `;
 
+const StyledAppStoreLink = styled.div`
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  background: ${style.black50};
+  grid-gap: 1rem;
+  width: calc(100% - 3rem);
+  margin: 0 auto 1.5rem;
+
+  p {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    font-weight: 400;
+  }
+`;
+
 const StyledPanel = styled(Panel)`
   padding-left: 0;
   padding-right: 0;
@@ -104,6 +124,8 @@ const NotificationSettingPanel = (props) => {
     disabled,
     ready,
     subscribeDevice,
+    unsubscribeDevice,
+    isPushAvailable,
   } = props;
 
   const [byType, icons] = useMemo(() => {
@@ -144,7 +166,7 @@ const NotificationSettingPanel = (props) => {
       >
         Notifications
       </h3>
-      {typeof subscribeDevice === "function" && (
+      {typeof subscribeDevice === "function" ? (
         <StyledDeviceSubscription>
           <h5>Notifications désactivées</h5>
           <p>Autorisez les notifications sur cet appareil</p>
@@ -152,7 +174,21 @@ const NotificationSettingPanel = (props) => {
             Activer
           </Button>
         </StyledDeviceSubscription>
-      )}
+      ) : typeof unsubscribeDevice === "function" ? (
+        <div style={{ padding: "0 1.5rem 1.5rem" }}>
+          <Button color="choose" small onClick={unsubscribeDevice}>
+            Désactiver les notifications
+          </Button>
+        </div>
+      ) : !isPushAvailable ? (
+        <StyledAppStoreLink>
+          <p>
+            Les notifications ne sont pas supportés sur le site web.{" "}
+            <strong>Téléchargez l’application&nbsp;:</strong>
+          </p>
+          <AppStore type="apple" />
+        </StyledAppStoreLink>
+      ) : null}
       <PageFadeIn ready={ready}>
         {Object.keys(byType).map((type) => (
           <Accordion key={type} name={type} icon={icons[type] || "settings"}>
@@ -207,7 +243,9 @@ NotificationSettingPanel.propTypes = {
   activeNotifications: PropTypes.object,
   onChange: PropTypes.func.isRequired,
   subscribeDevice: PropTypes.func,
+  unsubscribeDevice: PropTypes.func,
   disabled: PropTypes.bool,
   ready: PropTypes.bool,
+  isPushAvailable: PropTypes.bool,
 };
 export default NotificationSettingPanel;
