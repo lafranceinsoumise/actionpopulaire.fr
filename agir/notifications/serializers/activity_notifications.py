@@ -73,7 +73,7 @@ class GroupInvitationActivityNotificationSerializer(ActivityNotificationSerializ
 
 
 class NewMemberActivityNotificationSerializer(ActivityNotificationSerializer):
-    title = serializers.ReadOnlyField(default="Nouveau membre dans votre équipe ! 😀")
+    title = serializers.ReadOnlyField(default="Nouveau membre dans votre groupe ! 😀")
 
     def get_body(self, activity):
         return (
@@ -202,7 +202,7 @@ class EventUpdateActivityNotificationSerializer(ActivityNotificationSerializer):
     title = serializers.SerializerMethodField()
 
     def get_title(self, activity):
-        return f"{activity.event.name}: mise à jour"
+        return f"{activity.event.name} : mise à jour"
 
     def get_body(self, activity):
         changed_data = activity.meta["changed_data"]
@@ -238,7 +238,7 @@ class NewEventMyGroupsActivityNotificationSerializer(ActivityNotificationSeriali
 
 class NewReportActivityNotificationSerializer(ActivityNotificationSerializer):
     def get_body(self, activity):
-        return f"Le compte-rendu de {activity.event.name} du {activity.event.start_time.strftime('%d/%m/%Y')} a été ajouté"
+        return f"Le compte-rendu de {activity.event.name} du {activity.event.start_time.strftime('%d/%m')} a été ajouté"
 
     def get_url(self, activity):
         return front_url("view_event", kwargs={"pk": activity.event_id},)
