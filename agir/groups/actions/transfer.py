@@ -65,7 +65,8 @@ def create_transfer_membership_activities(
                 meta={"oldGroup": original_group.name},
             )
             for r in transferred_people
-        ]
+        ],
+        send_post_save_signal=True,
     )
 
     # Create activities for target group managers
