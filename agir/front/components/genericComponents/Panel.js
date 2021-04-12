@@ -84,7 +84,7 @@ export const StyledBackButton = styled.button`
 `;
 
 const PanelContent = styled(animated.aside)`
-  position: absolute;
+  position: fixed;
   top: 0;
   ${({ $position }) => `${$position}: 0;`}
   z-index: 2;
