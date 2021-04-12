@@ -85,7 +85,7 @@ export const StyledBackButton = styled.button`
 
 const PanelContent = styled(animated.aside)`
   position: fixed;
-  height: 100vh;
+  height: 100%;
   overflow: auto;
   top: 0;
   ${({ $position }) => `${$position}: 0;`}
