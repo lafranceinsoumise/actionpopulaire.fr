@@ -78,6 +78,7 @@ const NotificationSettings = (props) => {
       ready={!!userNotifications && !!groupData}
       subscribeDevice={available && !isSubscribed ? subscribe : undefined}
       unsubscribeDevice={available && isSubscribed ? unsubscribe : undefined}
+      isPushAvailable={available}
     />
   );
 };
