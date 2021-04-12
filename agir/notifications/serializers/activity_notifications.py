@@ -73,6 +73,8 @@ class GroupInvitationActivityNotificationSerializer(ActivityNotificationSerializ
 
 
 class NewMemberActivityNotificationSerializer(ActivityNotificationSerializer):
+    title = serializers.ReadOnlyField(default="Nouveau membre dans votre équipe ! 😀")
+
     def get_body(self, activity):
         return (
             f"{activity.individual.display_name} a rejoint {activity.supportgroup.name}"
@@ -200,7 +202,7 @@ class EventUpdateActivityNotificationSerializer(ActivityNotificationSerializer):
     title = serializers.SerializerMethodField()
 
     def get_title(self, activity):
-        return activity.event.name
+        return f"{activity.event.name}: mise à jour"
 
     def get_body(self, activity):
         changed_data = activity.meta["changed_data"]
@@ -225,10 +227,10 @@ class NewEventMyGroupsActivityNotificationSerializer(ActivityNotificationSeriali
     title = serializers.SerializerMethodField()
 
     def get_title(self, activity):
-        return f"📆 Nouvel événement de {activity.supportgroup.name}"
+        return f"📆 {activity.event.name}, {activity.event.start_time.strftime('%d/%m')} à {activity.event.start_time.strftime('%H:%M')}"
 
     def get_body(self, activity):
-        return "Rejoignez cet événement pour recevoir les mises à jour"
+        return f"Nouvel événement de {activity.supportgroup.name} — Confirmez votre participation pour recevoir les mises à jour"
 
     def get_url(self, activity):
         return front_url("view_event", kwargs={"pk": activity.event_id},)
@@ -269,7 +271,7 @@ class GroupCoorganizationAcceptedActivityNotificationSerializer(
 class NewMembersThroughTransferActivityNotificationSerializer(
     ActivityNotificationSerializer
 ):
-    title = serializers.ReadOnlyField(default="Transfert réussi")
+    title = serializers.ReadOnlyField(default="Transfert de membres")
 
     def get_body(self, activity):
         if activity.meta["transferredMemberships"] > 1:
