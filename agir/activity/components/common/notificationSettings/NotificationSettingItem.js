@@ -38,7 +38,8 @@ const StyledButton = styled.button`
 `;
 const StyledItem = styled.div`
   display: grid;
-  grid-template-columns: 1fr 70px auto;
+  grid-template-columns: 1fr 70px;
+  grid-auto-flow: column;
   grid-gap: 0 0.5rem;
   justify-items: flex-end;
   align-items: start;
@@ -74,26 +75,28 @@ const NotificationSettingItem = (props) => {
   return (
     <StyledItem>
       <span>{notification.label}</span>
-      <StyledButton
-        $active={push}
-        $hidden={notification.hasPush === false}
-        aria-label={
-          push ? "Désactiver la notification" : "Activer la notification"
-        }
-        onClick={togglePush}
-        disabled={notification.hasPush === false || disabled}
-      >
-        <RawFeatherIcon width="1.25rem" height="1.25rem" name="bell" />
-      </StyledButton>
-      <StyledButton
-        $active={email}
-        $hidden={notification.hasEmail === false}
-        aria-label={push ? "Désactiver l'e-mail" : "Activer l'e-mail"}
-        onClick={toggleEmail}
-        disabled={notification.hasEmail === false || disabled}
-      >
-        <RawFeatherIcon width="1.25rem" height="1.25rem" name="mail" />
-      </StyledButton>
+      {notification.hasPush !== false && (
+        <StyledButton
+          $active={push}
+          aria-label={
+            push ? "Désactiver la notification" : "Activer la notification"
+          }
+          onClick={togglePush}
+          disabled={disabled}
+        >
+          <RawFeatherIcon width="1.25rem" height="1.25rem" name="bell" />
+        </StyledButton>
+      )}
+      {notification.hasEmail !== false && (
+        <StyledButton
+          $active={email}
+          aria-label={push ? "Désactiver l'e-mail" : "Activer l'e-mail"}
+          onClick={toggleEmail}
+          disabled={disabled}
+        >
+          <RawFeatherIcon width="1.25rem" height="1.25rem" name="mail" />
+        </StyledButton>
+      )}
     </StyledItem>
   );
 };
