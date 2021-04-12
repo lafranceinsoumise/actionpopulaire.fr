@@ -9,6 +9,7 @@ const StyledLink = styled.a`
   align-items: center;
   flex-direction: row;
   font-weight: 2rem;
+  font-size: 1rem;
   color: ${style.black1000};
 `;
 
@@ -31,7 +32,7 @@ const GroupLink = (props) => {
           height="1.5rem"
           style={{ color: style.primary500, marginRight: "1rem" }}
         />
-        {label}
+        {label} <RawFeatherIcon name="external-link" width="1rem" height="1rem" style={{marginLeft: "0.5rem"}} />
       </StyledLink>
 
       <RawFeatherIcon name="edit-2" width="1rem" height="1rem" />
