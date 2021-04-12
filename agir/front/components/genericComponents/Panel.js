@@ -39,6 +39,7 @@ const fadeInTransition = {
 const Overlay = styled(animated.div)`
   width: 100%;
   height: 100%;
+  max-height: 100%;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -86,6 +87,8 @@ export const StyledBackButton = styled.button`
 const PanelContent = styled(animated.aside)`
   position: fixed;
   height: 100%;
+  max-height: 100%;
+  height: -webkit-fill-available;
   overflow: auto;
   top: 0;
   ${({ $position }) => `${$position}: 0;`}
@@ -117,7 +120,10 @@ const PanelFrame = styled.div`
   padding: 0;
   margin: 0;
   width: 100vw;
-  min-height: 100vh;
+  min-height: 100%;
+  height: 100%;
+  max-height: 100%;
+  height: -webkit-fill-available;
   overflow-x: hidden;
   overflow-y: auto;
   z-index: ${style.zindexPanel};
