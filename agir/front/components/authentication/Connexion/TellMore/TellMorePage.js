@@ -4,6 +4,7 @@ import { Redirect, useRouteMatch } from "react-router-dom";
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 import { usePush } from "@agir/notifications/push/subscriptions";
 import { routeConfig } from "@agir/front/app/routes.config";
+import { useMobileApp } from "@agir/front/app/hooks";
 
 import TellMore from "./TellMore";
 import ChooseCampaign from "./ChooseCampaign";
@@ -26,6 +27,8 @@ const TellMorePage = () => {
     setHasDeviceNotificationSubscription(false);
   }, []);
 
+  const { isMobileApp } = useMobileApp();
+
   if (!isTellMorePage && (hasCampaign || hasTellMore)) {
     return <Redirect to={routeConfig.tellMore.getLink()} />;
   }
@@ -36,10 +39,15 @@ const TellMorePage = () => {
   if (hasTellMore) {
     return <TellMore dismiss={dismissTellMore} />;
   }
-  if (hasDeviceNotificationSubscription && !ready) {
+  if (isMobileApp && hasDeviceNotificationSubscription && !ready) {
     return null;
   }
-  if (hasDeviceNotificationSubscription && available && !isSubscribed) {
+  if (
+    isMobileApp &&
+    hasDeviceNotificationSubscription &&
+    available &&
+    !isSubscribed
+  ) {
     return (
       <DeviceNotificationSubscription
         onSubscribe={subscribe}
