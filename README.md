@@ -60,7 +60,7 @@ be ran from inside the `/vagrant` folder in the vagrant box).
 
 ```bash
 $ black agir/
-$ node_modules/.bin/esling --fix agir/
+$ node_modules/.bin/eslint --fix agir/
 $ pipenv run ./manage.py test
 ``` 
 
