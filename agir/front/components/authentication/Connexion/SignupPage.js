@@ -1,3 +1,4 @@
+import Helmet from "react-helmet";
 import React from "react";
 import logoMobile from "@agir/front/genericComponents/logos/action-populaire_mini.svg";
 import { Hide } from "@agir/front/genericComponents/grid";
@@ -8,6 +9,10 @@ import { MainBlock, Container, BackgroundMobile } from "./styledComponents";
 const SignupPage = () => {
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
+      <Helmet>
+        <meta name="title" content="Rejoignez Action Populaire" />
+        <meta name="description" content="Rejoignez Action Populaire" />
+      </Helmet>
       <LeftBlockDesktop />
       <MainBlock>
         <Container>
