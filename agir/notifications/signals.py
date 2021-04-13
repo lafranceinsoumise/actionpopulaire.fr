@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from push_notifications.models import WebPushDevice
+from push_notifications.models import APNSDevice, WebPushDevice
 
 from agir.activity.models import Activity
 from agir.groups.models import Membership
@@ -38,17 +38,26 @@ def push_new_activity(sender, instance, created=False, **kwargs):
 
 
 @receiver(
-    post_save, sender=WebPushDevice, dispatch_uid="create_default_person_subscriptions"
+    post_save,
+    sender=WebPushDevice,
+    dispatch_uid="create_default_person_subscriptions__wp",
 )
-def webpush_device_post_save_handler(sender, instance, created=False, **kwargs):
-    if (
-        instance is None
-        or not created
-        or Subscription.objects.filter(person=instance.user.person,).exists()
-    ):
-        return
+@receiver(
+    post_save,
+    sender=APNSDevice,
+    dispatch_uid="create_default_person_subscriptions__apns",
+)
+def push_device_post_save_handler(sender, instance, created=False, **kwargs):
+    is_first_device = (
+        instance is not None
+        and created is True
+        and APNSDevice.objects.filter(user=instance.user).count()
+        + WebPushDevice.objects.filter(user=instance.user).count()
+        == 1
+    )
 
-    create_default_person_subscriptions(instance.user.person)
+    if is_first_device:
+        create_default_person_subscriptions(instance.user.person)
 
 
 @receiver(
