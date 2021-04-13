@@ -10,7 +10,7 @@ from agir.notifications.actions import (
     create_default_group_membership_subscriptions,
 )
 from agir.notifications.models import Subscription
-from agir.notifications.tasks import send_webpush_activity
+from agir.notifications.tasks import send_webpush_activity, send_apns_activity
 
 
 @receiver(post_save, sender=Activity, dispatch_uid="push_new_activity")
@@ -26,6 +26,7 @@ def push_new_activity(sender, instance, created=False, **kwargs):
     ):
         return
 
+    # SEND WEBPUSH NOTIFICATIONS
     webpush_device_pks = [
         webpush_device.pk
         for webpush_device in WebPushDevice.objects.filter(
@@ -35,6 +36,17 @@ def push_new_activity(sender, instance, created=False, **kwargs):
 
     for webpush_device_pk in webpush_device_pks:
         send_webpush_activity.delay(instance.pk, webpush_device_pk)
+
+    # SEND APPLE PUSH NOTIFICATION SERVICE NOTIFICATIONS
+    apns_device_pks = [
+        apns_device.pk
+        for apns_device in APNSDevice.objects.filter(
+            user=instance.recipient.role, active=True
+        )
+    ]
+
+    for apns_device_pk in apns_device_pks:
+        send_apns_activity.delay(instance.pk, apns_device_pk)
 
 
 @receiver(
