@@ -11,8 +11,9 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-import { DEFAULT_MEMBERS } from "./mock-group.js";
+import { DEFAULT_MEMBERS } from "./group_items.js";
 import { StyledTitle } from "./styledComponents.js";
+
 
 const StyledList = styled.div`
   display: flex;

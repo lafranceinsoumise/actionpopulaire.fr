@@ -8,7 +8,7 @@ import GroupInvitation from "./GroupInvitation";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "./HeaderPanel";
 
-import { DEFAULT_EMAILS, DEFAULT_MEMBERS } from "./mock-group.js";
+import { DEFAULT_EMAILS, DEFAULT_MEMBERS } from "./group_items.js";
 import { StyledTitle } from "./styledComponents.js";
 
 const InlineBlock = styled.div`

@@ -1,7 +1,7 @@
 import React from "react";
 
 import ObjectManagement from "@agir/front/genericComponents/ObjectManagement";
-import { MENU_ITEMS_GROUP, DEFAULT_GROUP } from "./mock-group.js";
+import { MENU_ITEMS_GROUP, DEFAULT_GROUP } from "./group_items.js";
 
 export const GroupSettings = () => {
   return (

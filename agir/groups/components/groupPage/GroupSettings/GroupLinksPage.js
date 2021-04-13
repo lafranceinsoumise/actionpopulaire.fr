@@ -88,7 +88,7 @@ const GroupLinksPage = (props) => {
       </Button>
       {/* </>} */}
 
-      <Spacer size="1rem" />
+      <Spacer size="2rem" />
 
       {/* {LINKS?.length && <> */}
       <GroupLink
