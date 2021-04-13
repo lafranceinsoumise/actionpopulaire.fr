@@ -280,7 +280,7 @@ export const getNotificationStatus = (activeNotifications) => {
     }
     notificationId = getNotificationId(
       notification.id,
-      activeNotification.group?.id
+      activeNotification.group
     );
     active[notificationId] = active[notificationId] || {
       email: false,

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import useSWR from "swr";
 
@@ -20,7 +20,7 @@ const NotificationSettings = (props) => {
   const { available, isSubscribed, subscribe, unsubscribe } = usePush();
 
   const { data: groupData } = useSWR("/api/groupes/");
-  const { data: userNotifications, mutate } = useSWR(
+  const { data: userNotifications, mutate, isValidating } = useSWR(
     api.ENDPOINT.getSubscriptions
   );
 
@@ -68,13 +68,17 @@ const NotificationSettings = (props) => {
     [mutate]
   );
 
+  useEffect(() => {
+    mutate();
+  }, [mutate, isSubscribed]);
+
   return (
     <NotificationSettingPanel
       {...props}
       notifications={notifications}
       activeNotifications={activeNotifications}
       onChange={handleChange}
-      disabled={isLoading}
+      disabled={isLoading || isValidating}
       ready={!!userNotifications && !!groupData}
       subscribeDevice={available && !isSubscribed ? subscribe : undefined}
       unsubscribeDevice={available && isSubscribed ? unsubscribe : undefined}

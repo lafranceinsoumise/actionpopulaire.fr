@@ -13,7 +13,9 @@ class ListCreateDestroySubscriptionAPIView(ListCreateAPIView, DestroyAPIView):
     queryset = Subscription.objects.all()
 
     def get_queryset(self):
-        return self.queryset.filter(person=self.request.user.person)
+        return self.queryset.filter(person=self.request.user.person).prefetch_related(
+            "membership"
+        )
 
     def get_object(self):
         if self.request.method == "DELETE":
