@@ -11,7 +11,10 @@
 
 {% block whole_page %}
   <div id="{{ app_mount_id }}"></div>
-  {{ export_data|json_script:data_script_id }}
+  {% if export_data %}
+    {{ export_data|json_script:data_script_id }}
+  {% endif %}
+
 {% endblock %}
 
 

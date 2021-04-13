@@ -183,19 +183,18 @@ class FilterView(FormMixin, ListView):
 
 class ReactBaseView(TemplateView):
     bundle_name = None
-    data_script_id = "exportedContent"
     app_mount_id = "mainApp"
     template_name = "front/react_view.html"
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("bundle_name", self.bundle_name)
         kwargs.setdefault("app_mount_id", self.app_mount_id)
-        kwargs.setdefault("data_script_id", self.data_script_id)
         return super().get_context_data(**kwargs)
 
 
 class ReactSerializerBaseView(ReactBaseView):
     serializer_class = None
+    data_script_id = "exportedContent"
 
     def get_serializer(self):
         raise NotImplementedError("Should be implemented in concrete classes")
@@ -205,11 +204,11 @@ class ReactSerializerBaseView(ReactBaseView):
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("export_data", self.get_export_data())
+        kwargs.setdefault("data_script_id", self.data_script_id)
         return super().get_context_data(**kwargs)
 
 
 class ReactSingleObjectView(SingleObjectMixin, ReactSerializerBaseView):
-
     template_name = "front/react_view.html"
 
     def get(self, request, *args, **kwargs):
