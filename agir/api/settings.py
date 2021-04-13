@@ -544,7 +544,7 @@ if not DEBUG:
         "handlers": {
             "journald": {
                 "level": "DEBUG",
-                "class": "systemd.journal.JournaldLogHandler"
+                "class": "cysystemd.journal.JournaldLogHandler"
                 if not LOG_DISABLE_JOURNALD
                 else "logging.StreamHandler",
             },

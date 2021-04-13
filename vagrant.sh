@@ -17,8 +17,8 @@ echo "## update packages"
 sudo apt-get update -qq > /dev/null
 
 echo "## Install Python..."
-if ! (dpkg -s python3.8 && dpkg -s python3.8-dev) &> /dev/null; then
-    sudo apt-get -yqq install python3.8 python3.8-dev python3.8-venv python3-pip libsystemd-dev > /dev/null
+if ! (dpkg -s python3.9 && dpkg -s python3.9-dev) &> /dev/null; then
+    sudo apt-get -yqq install python3.9 python3.9-dev python3.9-venv python3-pip libsystemd-dev > /dev/null
     sudo -H pip3 install pipenv
 fi
 
