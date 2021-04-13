@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, cloneElement } from "react";
 
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import ManagementMenu from "@agir/front/genericComponents/ObjectManagement/ManagementMenu.js";
@@ -24,12 +24,13 @@ export const ObjectManagement = (props) => {
         selectedItem={selectedItem}
         onSelect={handleSelectMenuItem}
       />
-      <ManagementPanel
-        onBack={() => setShowPanel(false)}
-        illustration={menu_items[selectedItem].illustration}
-        showPanel={showPanel}
-      >
-        {menu_items[selectedItem].component}
+      <ManagementPanel showPanel={showPanel}>
+        {cloneElement(menu_items[selectedItem].component, {
+          onBack: () => {
+            setShowPanel(false);
+          },
+          illustration: menu_items[selectedItem].illustration,
+        })}
       </ManagementPanel>
     </PageFadeIn>
   );

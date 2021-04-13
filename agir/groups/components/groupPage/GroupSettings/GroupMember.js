@@ -61,7 +61,7 @@ const ShowMore = styled.span`
 `;
 
 const GroupMember = (props) => {
-  const { name, role, email, assets } = props;
+  const { name, role = "", email, assets = [] } = props;
 
   const [customAssets, setCustomAssets] = useState(
     assets?.length ? assets.slice(0, 3) : []
@@ -91,16 +91,18 @@ const GroupMember = (props) => {
           />
           <MemberInfos>
             <Name>{name}</Name>
-            <Role>({role})</Role>
+            {role && <Role>({role})</Role>}
             <Email>{email}</Email>
           </MemberInfos>
         </div>
-        <Assets>
-          {customAssets.map((e, id) => (
-            <Asset key={id}>{e}</Asset>
-          ))}
-          {showMore && <ShowMore onClick={handleShowMore}>Voir +</ShowMore>}
-        </Assets>
+        {assets?.length > 0 && (
+          <Assets>
+            {customAssets.map((e, id) => (
+              <Asset key={id}>{e}</Asset>
+            ))}
+            {showMore && <ShowMore onClick={handleShowMore}>Voir +</ShowMore>}
+          </Assets>
+        )}
       </Member>
     </>
   );

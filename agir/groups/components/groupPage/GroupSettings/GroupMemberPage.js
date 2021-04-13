@@ -5,8 +5,8 @@ import styled from "styled-components";
 import GroupMember from "./GroupMember";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
 import GroupInvitation from "./GroupInvitation";
-import AddPair from "./AddPair";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
+import HeaderPanel from "./HeaderPanel";
 
 import { DEFAULT_EMAILS, DEFAULT_MEMBERS } from "./mock-group.js";
 import { StyledTitle } from "./styledComponents.js";
@@ -15,9 +15,11 @@ const InlineBlock = styled.div`
   display: inline-block;
 `;
 
-const GroupMemberPage = () => {
+const GroupMemberPage = (props) => {
+  const { onBack, illustration } = props;
   return (
     <>
+      <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>{DEFAULT_MEMBERS.length} Membres</StyledTitle>
 
       <ShareLink
@@ -58,9 +60,6 @@ const GroupMemberPage = () => {
           </>
         }
       />
-
-      <Spacer size="2rem" />
-      <AddPair />
     </>
   );
 };

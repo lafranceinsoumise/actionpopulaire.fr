@@ -3,12 +3,16 @@ import React from "react";
 import Button from "@agir/front/genericComponents/Button";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
+import HeaderPanel from "./HeaderPanel";
 
 import { StyledTitle } from "./styledComponents.js";
 
-const GroupFinancePage = () => {
+const GroupFinancePage = (props) => {
+  const { onBack, illustration } = props;
+
   return (
     <>
+      <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Solliciter des dons pour mon groupe</StyledTitle>
 
       <span>

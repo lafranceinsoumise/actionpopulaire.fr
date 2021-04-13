@@ -4,32 +4,6 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-
-const StyledIllustration = styled.div``;
-const StyledTitle = styled.h3``;
-const StyledSubtitle = styled.p``;
-const StyledBackButton = styled.button`
-  @media (min-width: ${style.collapse}px) {
-    display: none;
-  }
-
-  &,
-  &:hover,
-  &:focus {
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0 0 0.5rem;
-    margin: 0;
-    text-align: left;
-    cursor: pointer;
-  }
-  &:hover,
-  &:focus {
-    opacity: 0.75;
-  }
-`;
 const StyledContainer = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
   position: fixed;
@@ -58,8 +32,7 @@ const StyledPanel = styled.div`
   }
 
   header,
-  main,
-  ${StyledIllustration}, ${StyledTitle}, ${StyledSubtitle} {
+  main {
     width: 100%;
     margin: 0;
   }
@@ -71,50 +44,16 @@ const StyledPanel = styled.div`
       display: none;
     }
   }
-
-  ${StyledIllustration} {
-    height: 10rem;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: top center;
-  }
-
-  ${StyledTitle} {
-    font-size: 1.25rem;
-    line-height: 1.5;
-    font-weight: 700;
-  }
-
-  ${StyledSubtitle} {
-    grid-column: span 2;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    font-weight: normal;
-  }
 `;
 
 const ManagementPanel = (props) => {
-  const { onBack, illustration, showPanel, children } = props;
+  const { showPanel, children } = props;
 
   if (!showPanel) return <></>;
 
   return (
     <StyledContainer>
       <StyledPanel>
-        <StyledBackButton type="button" onClick={onBack}>
-          <RawFeatherIcon
-            name="arrow-left"
-            aria-label="Retour"
-            width="1.5rem"
-            height="1.5rem"
-          />
-        </StyledBackButton>
-        {illustration && (
-          <StyledIllustration
-            aria-hidden="true"
-            style={{ backgroundImage: `url(${illustration})` }}
-          />
-        )}
         <main>{children}</main>
       </StyledPanel>
     </StyledContainer>

@@ -4,10 +4,12 @@ import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import TextField from "@agir/front/formComponents/TextField";
 import Map from "@agir/carte/common/Map";
+import HeaderPanel from "./HeaderPanel";
 
 import { StyledTitle } from "./styledComponents.js";
 
-const GroupLocalizationPage = () => {
+const GroupLocalizationPage = (props) => {
+  const { onBack, illustration } = props;
   const [formLocation, setFormLocation] = useState({});
 
   const handleInputChange = (e) => {
@@ -19,6 +21,7 @@ const GroupLocalizationPage = () => {
 
   return (
     <>
+      <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Localisation</StyledTitle>
 
       <Spacer size="1rem" />

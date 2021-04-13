@@ -3,10 +3,12 @@ import React, { useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
+import HeaderPanel from "./HeaderPanel";
 
 import { StyledTitle } from "./styledComponents.js";
 
-const GroupGeneralPage = () => {
+const GroupGeneralPage = (props) => {
+  const { onBack, illustration } = props;
   const [name, setName] = useState("Nom du groupe");
   const [description, setDescription] = useState("Description");
 
@@ -20,6 +22,7 @@ const GroupGeneralPage = () => {
 
   return (
     <>
+      <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Général</StyledTitle>
 
       <Spacer size="1rem" />

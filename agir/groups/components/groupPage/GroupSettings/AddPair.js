@@ -12,8 +12,7 @@ const Member = styled.div`
   cursor: pointer;
 `;
 
-const AddPair = ({ onClick }) => {
-
+const AddPair = ({ label, onClick }) => {
   const handleClick = () => {
     onClick();
     console.log("add pair organizer");
@@ -32,7 +31,7 @@ const AddPair = ({ onClick }) => {
           marginRight: "1rem",
         }}
       />
-      <span>Ajouter votre binôme</span>
+      <span>{label}</span>
     </Member>
   );
 };

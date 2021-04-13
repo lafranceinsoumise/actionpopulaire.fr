@@ -4,10 +4,12 @@ import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
+import HeaderPanel from "./HeaderPanel";
 
 import { StyledTitle } from "./styledComponents.js";
 
-const GroupContactPage = () => {
+const GroupContactPage = (props) => {
+  const { onBack, illustration } = props;
   const [formData, setFormData] = useState({});
 
   const handleCheckboxChange = (e) => {
@@ -24,6 +26,7 @@ const GroupContactPage = () => {
 
   return (
     <>
+      <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Moyens de contact</StyledTitle>
 
       <Spacer size="1rem" />
