@@ -50,7 +50,8 @@ const GroupFinancePage = (props) => {
       <span>Partagez ce lien pour solliciter des dons pour votre groupe :</span>
 
       <ShareLink
-        label="Copier"
+        color="primary"
+        label="Copier le lien"
         url="https://actionpopulaire.fr/dons/?group=627ff9f0-e53d-478d-91fb-1a22c76a34d0"
       />
     </>

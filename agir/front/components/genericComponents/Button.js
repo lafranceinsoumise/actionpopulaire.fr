@@ -89,7 +89,6 @@ export const Button = styled.button.attrs(
 )`
   display: ${({ $block }) => ($block ? "flex" : "inline-flex")};;
   align-items: center;
-  white-space: nowrap;
   padding: ${({ $small }) => ($small ? "0.5rem 0.75rem" : "0.75rem 1.5rem")};
   line-height: ${({ $small }) =>
     $small

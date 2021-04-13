@@ -32,13 +32,15 @@ const GroupLink = (props) => {
           height="1.5rem"
           style={{ color: style.primary500, marginRight: "1rem" }}
         />
-        {label}{" "}
-        <RawFeatherIcon
-          name="external-link"
-          width="1rem"
-          height="1rem"
-          style={{ marginLeft: "0.5rem" }}
-        />
+        <span style={{ display: "inline-block", alignItems: "center" }}>
+          {label}
+          <RawFeatherIcon
+            name="external-link"
+            width="1rem"
+            height="1rem"
+            style={{ marginLeft: "0.5rem" }}
+          />
+        </span>
       </StyledLink>
 
       <RawFeatherIcon
