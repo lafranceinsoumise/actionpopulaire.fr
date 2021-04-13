@@ -147,7 +147,7 @@ const StyledCard = styled(Card)`
 
   ${Row} {
     font-size: 0.875rem;
-    max-width: calc(100% - 2rem);
+    max-width: calc(100% + 1.4rem);
   }
 
   ${Column} {
