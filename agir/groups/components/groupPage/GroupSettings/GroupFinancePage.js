@@ -10,35 +10,49 @@ import { StyledTitle } from "./styledComponents.js";
 const GroupFinancePage = (props) => {
   const { onBack, illustration } = props;
 
+  const PRICE = 30;
+
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
+
+      <StyledTitle>Dons alloués aux personnes de mon groupe</StyledTitle>
+
+      <Spacer size="1rem" />
+
+      <span style={{ fontSize: "2rem" }}>{PRICE} €</span>
+
+      <Spacer size="1rem" />
+
+      <div>
+        {!PRICE && (
+          <>
+            Personne n'a encore alloué de dons à vos actions.
+            <br />
+          </>
+        )}
+        Vous pouvez allouer des dons à vos actions sur la{" "}
+        <a href="">page de dons</a>.
+        <Spacer size="0.5rem" />
+        Vous pouvez déjà créer une demande, mais vous ne pourrez la faire
+        valider que lorsque votre allocation sera suffisante.
+      </div>
+
+      <Spacer size="1rem" />
+
+      <Button>Allouer un don</Button>
+      <Button>Je crée une demande de dépense</Button>
+
+      <Spacer size="1rem" />
+
       <StyledTitle>Solliciter des dons pour mon groupe</StyledTitle>
 
-      <span>
-        Pour solliciter des dons pour votre groupe, vous pouvez utiliser le lien
-        ci-dessous.
-      </span>
+      <span>Partagez ce lien pour solliciter des dons pour votre groupe :</span>
 
       <ShareLink
         label="Copier"
         url="https://actionpopulaire.fr/dons/?group=627ff9f0-e53d-478d-91fb-1a22c76a34d0"
       />
-
-      <Spacer size="1rem" />
-
-      <StyledTitle>Dons alloués aux personnes de mon groupe</StyledTitle>
-
-      <span>
-        Personne n'a encore alloué de dons à vos actions. Vous pouvez le faire
-        sur la page de dons.
-        <br />
-        Vous pouvez déjà créer une demande, mais vous ne pourrez la faire
-        valider que lorsque votre allocation sera suffisante.
-      </span>
-
-      <Spacer size="2rem" />
-      <Button color="secondary">Je crée une demande de dépense</Button>
     </>
   );
 };

@@ -21,7 +21,7 @@ const StyledRow = styled.div`
 `;
 
 const GroupLink = (props) => {
-  const { label, url } = props;
+  const { label, url, onChange } = props;
 
   return (
     <StyledRow>
@@ -41,7 +41,13 @@ const GroupLink = (props) => {
         />
       </StyledLink>
 
-      <RawFeatherIcon name="edit-2" width="1rem" height="1rem" />
+      <RawFeatherIcon
+        name="edit-2"
+        width="1rem"
+        height="1rem"
+        style={{ cursor: "pointer" }}
+        onClick={onChange}
+      />
     </StyledRow>
   );
 };

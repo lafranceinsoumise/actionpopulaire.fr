@@ -12,6 +12,7 @@ const StyledIllustration = styled.div`
   background-repeat: no-repeat;
   background-size: contain;
   background-position: top center;
+  margin-bottom: 2rem;
 }
 `;
 

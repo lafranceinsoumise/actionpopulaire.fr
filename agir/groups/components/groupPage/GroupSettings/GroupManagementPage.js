@@ -179,6 +179,16 @@ const GroupManagementPage = (props) => {
           setConfig(CONFIG_MANAGER);
         }}
       />
+
+      <hr />
+
+      <a href="#">Changer l’animation du groupe</a>
+      <Spacer size="0.5rem" />
+      <a href="#">Je ne souhaite plus être animateur ou animatrice</a>
+      <Spacer size="0.5rem" />
+      <a href="#" style={{ color: style.redNSP }}>
+        Supprimer le groupe
+      </a>
     </>
   );
 };

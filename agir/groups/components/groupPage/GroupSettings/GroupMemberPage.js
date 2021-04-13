@@ -60,6 +60,11 @@ const GroupMemberPage = (props) => {
           </>
         }
       />
+
+      <hr />
+      <a href="#">
+        Transférer des membres de votre équipe vers une autre équipe
+      </a>
     </>
   );
 };
