@@ -4,6 +4,11 @@ from django.dispatch import receiver
 from push_notifications.models import WebPushDevice
 
 from agir.activity.models import Activity
+from agir.groups.models import Membership
+from agir.notifications.actions import (
+    create_default_person_subscriptions,
+    create_default_group_membership_subscriptions,
+)
 from agir.notifications.models import Subscription
 from agir.notifications.tasks import send_webpush_activity
 
@@ -30,3 +35,33 @@ def push_new_activity(sender, instance, created=False, **kwargs):
 
     for webpush_device_pk in webpush_device_pks:
         send_webpush_activity.delay(instance.pk, webpush_device_pk)
+
+
+@receiver(
+    post_save, sender=WebPushDevice, dispatch_uid="create_default_person_subscriptions"
+)
+def webpush_device_post_save_handler(sender, instance, created=False, **kwargs):
+    if (
+        instance is None
+        or not created
+        or Subscription.objects.filter(person=instance.user.person,).exists()
+    ):
+        return
+
+    create_default_person_subscriptions(instance.user.person)
+
+
+@receiver(
+    post_save, sender=Membership, dispatch_uid="create_default_membership_subscriptions"
+)
+def membership_post_save_handler(sender, instance, created=False, **kwargs):
+    if (
+        instance is None
+        or not created
+        or Subscription.objects.filter(
+            person=instance.person, membership=instance
+        ).exists()
+    ):
+        return
+
+    create_default_group_membership_subscriptions(instance.person, instance)

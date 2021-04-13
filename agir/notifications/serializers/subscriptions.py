@@ -14,7 +14,7 @@ __all__ = [
 ]
 
 
-class SubscriptionSupportGroupSerializer(SupportGroupSerializer):
+class SubscriptionSupportGroupSerializer(serializers.UUIDField):
     def to_internal_value(self, data):
         if data is None:
             return data
@@ -47,16 +47,20 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         source="activity_type",
     )
     group = SubscriptionSupportGroupSerializer(
-        source="membership.supportgroup", default=None, allow_null=True, required=False
+        source="membership.supportgroup_id",
+        default=None,
+        allow_null=True,
+        required=False,
     )
 
     def validate(self, data):
         membership = data.pop("membership", None)
         data["membership"] = None
-        if membership is not None and membership["supportgroup"] is not None:
+
+        if membership is not None and membership["supportgroup_id"] is not None:
             try:
                 data["membership"] = Membership.objects.get(
-                    supportgroup=membership["supportgroup"], person=data["person"],
+                    supportgroup=membership["supportgroup_id"], person=data["person"],
                 )
             except Membership.DoesNotExist:
                 raise serializers.ValidationError({"group": "Invalid group"})
