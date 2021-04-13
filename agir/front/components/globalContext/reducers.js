@@ -25,13 +25,6 @@ export const isSessionLoaded = (state = false, action) => {
   return state;
 };
 
-export const hasFeedbackButton = (state = false, action) => {
-  if (action.type === ACTION_TYPE.INIT_ACTION) {
-    return !!action.hasFeedbackButton;
-  }
-  return state;
-};
-
 export const is2022 = (state = false, action) => {
   if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
     return !!action.user && action.user.is2022;
@@ -278,8 +271,6 @@ export const getDomain = (state) => state.domain;
 
 export const getHasRouter = (state) => state.hasRouter;
 
-export const getHasFeedbackButton = (state) => state.hasFeedbackButton;
-
 export const getIsSessionLoaded = (state) => state.isSessionLoaded;
 
 export const getIs2022 = (state) => state.is2022;
@@ -325,7 +316,6 @@ export const getIsUpdatingMessages = (state) => state.isUpdatingMessages;
 // Root reducer
 const reducers = {
   hasRouter,
-  hasFeedbackButton,
   isSessionLoaded,
   is2022,
   user,

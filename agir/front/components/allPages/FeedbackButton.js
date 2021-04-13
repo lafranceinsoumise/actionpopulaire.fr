@@ -7,7 +7,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
-  getHasFeedbackButton,
   getUser,
   getRoutes,
 } from "@agir/front/globalContext/reducers";

@@ -191,8 +191,6 @@ class ReactBaseView(TemplateView):
         kwargs.setdefault("bundle_name", self.bundle_name)
         kwargs.setdefault("app_mount_id", self.app_mount_id)
         kwargs.setdefault("data_script_id", self.data_script_id)
-        extra_context = {"hasFeedbackButton": True}
-        kwargs.setdefault("extra_context", extra_context)
         return super().get_context_data(**kwargs)
 
 

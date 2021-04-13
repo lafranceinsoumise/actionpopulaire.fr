@@ -38,50 +38,6 @@ describe("GlobalContext/actions", function () {
       );
       expect(mockDispatch.mock.calls[0][0]).toHaveProperty("some", "prop");
     });
-    it(`should add the backend generated extraContext object properties to dispatched action payload`, function () {
-      expect(mockDispatch.mock.calls).toHaveLength(0);
-      const extraContext = {
-        extra: "prop",
-      };
-      const extraContextScript = document.createElement("div");
-      extraContextScript.id = "extraContext";
-      extraContextScript.textContent = JSON.stringify(extraContext);
-      document.body.appendChild(extraContextScript);
-
-      dispatch(actions.initFromScriptTag());
-      expect(mockDispatch.mock.calls).toHaveLength(1);
-      expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
-        "type",
-        ACTION_TYPE.INIT_ACTION
-      );
-      expect(mockDispatch.mock.calls[0][0]).toHaveProperty("extra", "prop");
-    });
-    it(`should let extraContext data override globalContext data`, function () {
-      expect(mockDispatch.mock.calls).toHaveLength(0);
-      const globalContext = {
-        some: "prop",
-      };
-      const globalContextScript = document.createElement("div");
-      globalContextScript.id = "globalContext";
-      globalContextScript.textContent = JSON.stringify(globalContext);
-      document.body.appendChild(globalContextScript);
-
-      const extraContext = {
-        extra: "prop",
-      };
-      const extraContextScript = document.createElement("div");
-      extraContextScript.id = "extraContext";
-      extraContextScript.textContent = JSON.stringify(extraContext);
-      document.body.appendChild(extraContextScript);
-
-      dispatch(actions.initFromScriptTag());
-      expect(mockDispatch.mock.calls).toHaveLength(1);
-      expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
-        "type",
-        ACTION_TYPE.INIT_ACTION
-      );
-      expect(mockDispatch.mock.calls[0][0]).toHaveProperty("extra", "prop");
-    });
   });
   describe("setIs2022 action creator", function () {
     it(`should dispatch an action of type ${ACTION_TYPE.SET_IS_2022_ACTION}`, function () {
