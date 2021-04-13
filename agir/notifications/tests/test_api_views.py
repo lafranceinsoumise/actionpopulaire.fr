@@ -1,4 +1,5 @@
 import uuid
+from django.db.models import signals
 from rest_framework.test import APITestCase
 
 from agir.activity.models import Activity
@@ -9,6 +10,9 @@ from agir.people.models import Person
 
 class ListSubscriptionsAPITestCase(APITestCase):
     def setUp(self):
+        signals.post_save.disconnect(
+            sender=Membership, dispatch_uid="create_default_membership_subscriptions"
+        )
         self.person = Person.objects.create(
             email="person@example.com", create_role=True
         )
@@ -48,6 +52,9 @@ class ListSubscriptionsAPITestCase(APITestCase):
 
 class CreateSubscriptionsAPITestCase(APITestCase):
     def setUp(self):
+        signals.post_save.disconnect(
+            sender=Membership, dispatch_uid="create_default_membership_subscriptions"
+        )
         self.person = Person.objects.create(
             email="person@example.com", create_role=True
         )
@@ -186,6 +193,9 @@ class CreateSubscriptionsAPITestCase(APITestCase):
 
 class DeleteSubscriptionsAPITestCase(APITestCase):
     def setUp(self):
+        signals.post_save.disconnect(
+            sender=Membership, dispatch_uid="create_default_membership_subscriptions"
+        )
         self.person = Person.objects.create(
             email="person@example.com", create_role=True
         )
