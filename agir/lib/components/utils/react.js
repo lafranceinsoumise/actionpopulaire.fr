@@ -2,8 +2,6 @@ import ReactDOM from "react-dom";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 
-import onDOMReady from "@agir/lib/utils/onDOMReady";
-
 const defaultGetInitial = (field) => field.value || null;
 const defaultGetProps = () => ({});
 const defaultGetValue = (value) =>
@@ -76,43 +74,6 @@ RootComponent.propTypes = {
 
 export const renderReactComponent = (component, node) => {
   node && ReactDOM.render(component, node);
-};
-
-export const renderWithContext = async (
-  ComponentOrPromise,
-  dataId = "exportedContent",
-  renderId = "mainApp"
-) => {
-  const [
-    { default: React },
-    { renderReactComponent },
-    { GlobalContextProvider },
-    Component,
-  ] = await Promise.all([
-    import("react"),
-    import("@agir/lib/utils/react"),
-    import("@agir/front/globalContext/GlobalContext"),
-    ComponentOrPromise,
-  ]);
-
-  const render = () => {
-    const dataElement = document.getElementById(dataId);
-    const renderElement = document.getElementById(renderId);
-
-    if (!dataElement || !renderElement) {
-      return;
-    }
-
-    const data = JSON.parse(dataElement.textContent);
-    renderReactComponent(
-      <GlobalContextProvider>
-        <Component {...data} />
-      </GlobalContextProvider>,
-      renderElement
-    );
-  };
-
-  onDOMReady(render);
 };
 
 export const mergeRefs = (...refs) => {

@@ -42,35 +42,6 @@ describe("GlobalContext/reducers", function () {
       expect(result).toEqual(action.domain);
     });
   });
-  describe("hasFeedbackButton reducer", function () {
-    it(`should return false by default if current state is undefined`, function () {
-      const state = undefined;
-      const action = {
-        type: "unknown-action",
-        hasFeedbackButton: true,
-      };
-      const result = reducers.hasFeedbackButton(state, action);
-      expect(result).toEqual(false);
-    });
-    it(`should return current state by default if defined`, function () {
-      const state = true;
-      const action = {
-        type: "unknown-action",
-        hasFeedbackButton: false,
-      };
-      const result = reducers.hasFeedbackButton(state, action);
-      expect(result).toEqual(state);
-    });
-    it(`should return action.hasFeedbackButton if defined and action.type equals ${ACTION_TYPE.INIT_ACTION}`, function () {
-      const state = false;
-      const action = {
-        type: ACTION_TYPE.INIT_ACTION,
-        hasFeedbackButton: true,
-      };
-      const result = reducers.hasFeedbackButton(state, action);
-      expect(result).toEqual(action.hasFeedbackButton);
-    });
-  });
   describe("is2022 reducer", function () {
     it(`should return false by default if current state is undefined`, function () {
       const state = undefined;

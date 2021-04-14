@@ -233,11 +233,6 @@ class EventDetailView(
     meta_description_2022 = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
     bundle_name = "front/app"
 
-    def get_context_data(self, **kwargs):
-        kwargs["export_data"] = {"pk": self.object.pk}
-
-        return super().get_context_data(**kwargs)
-
 
 class SupportGroupDetailView(
     ObjectOpengraphMixin, SupportGroupDetailMixin, BaseDetailView, ReactBaseView
@@ -245,11 +240,6 @@ class SupportGroupDetailView(
     meta_description = "Rejoignez les groupes d'action de la France insoumise."
     meta_description_2022 = "Rejoignez les équipes de soutien de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
     bundle_name = "front/app"
-
-    def get_context_data(self, **kwargs):
-        kwargs["export_data"] = {"pk": self.object.pk}
-
-        return super().get_context_data(**kwargs)
 
 
 class SupportGroupMessageDetailView(SoftLoginRequiredMixin, ReactBaseView):
