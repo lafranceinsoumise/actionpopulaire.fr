@@ -191,7 +191,7 @@ const Layout = (props) => (
     </MainContainer>
     <Footer
       desktopOnly={props.desktopOnlyFooter}
-      displayOnMobileApp={props.displayOnMobileApp}
+      displayOnMobileApp={props.displayFooterOnMobileApp}
     />
   </>
 );
