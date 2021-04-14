@@ -34,7 +34,7 @@ const LoginPage = () => {
   return (
     <>
       <Helmet>
-        <meta name="title" content="Connectez-vous à Action Populaire" />
+        <meta name="title" content="Connexion" />
         <meta name="description" content="Connectez-vous à Action Populaire" />
       </Helmet>
       <PageFadeIn ready={isSessionLoaded}>

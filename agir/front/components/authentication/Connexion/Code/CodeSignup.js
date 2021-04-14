@@ -38,7 +38,7 @@ const CodeSignup = () => {
   return (
     <Container>
       <Helmet>
-        <meta name="title" content="Rejoignez Action Populaire" />
+        <meta name="title" content="Inscription" />
         <meta name="description" content="Rejoignez Action Populaire" />
       </Helmet>
       <RawFeatherIcon name="mail" width="41px" height="41px" />

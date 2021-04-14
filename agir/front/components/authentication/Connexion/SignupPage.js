@@ -10,7 +10,7 @@ const SignupPage = () => {
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       <Helmet>
-        <meta name="title" content="Rejoignez Action Populaire" />
+        <meta name="title" content="Inscription" />
         <meta name="description" content="Rejoignez Action Populaire" />
       </Helmet>
       <LeftBlockDesktop />

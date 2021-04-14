@@ -152,7 +152,7 @@ const CodeConnexion = () => {
   return (
     <Container onSubmit={handleSubmit}>
       <Helmet>
-        <meta name="title" content="Connectez-vous à Action Populaire" />
+        <meta name="title" content="Connexion" />
         <meta name="description" content="Connectez-vous à Action Populaire" />
       </Helmet>
       <RawFeatherIcon name="mail" width="41px" height="41px" />

@@ -83,25 +83,25 @@ class NBUrlsView(View):
 
 class SignupView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
-    meta_title = "Rejoignez Action Populaire"
+    meta_title = "Inscription"
     meta_description = "Rejoignez Action Populaire"
 
 
 class CodeSignupView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
-    meta_title = "Rejoignez Action Populaire"
+    meta_title = "Inscription"
     meta_description = "Rejoignez Action Populaire"
 
 
 class LoginView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
-    meta_title = "Connectez-vous à Action Populaire"
+    meta_title = "Connexion"
     meta_description = "Connectez-vous à Action Populaire"
 
 
 class CodeLoginView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
-    meta_title = "Connectez-vous à Action Populaire"
+    meta_title = "Connexion"
     meta_description = "Connectez-vous à Action Populaire"
 
 
