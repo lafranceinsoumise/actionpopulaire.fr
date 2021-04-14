@@ -224,6 +224,7 @@ const StyledFooter = styled.div`
 const FooterWrapper = styled.footer`
   @media (max-width: ${style.collapse}px) {
     display: ${({ desktopOnly }) => (desktopOnly ? "none" : "block")};
+    padding-bottom: 72px;
   }
 `;
 
@@ -243,9 +244,7 @@ export const Footer = (props) => {
   if (isMobileApp && !displayOnMobileApp) return null;
 
   return (
-    <FooterWrapper
-      desktopOnly={desktopOnly}
-    >
+    <FooterWrapper desktopOnly={desktopOnly}>
       {hasBanner ? (
         <FooterBanner>
           <FooterForm>
@@ -389,11 +388,13 @@ export const Footer = (props) => {
               )}
             </p>
           </div>
-          <div>
-            <AppStore type="apple" />
-            <Spacer size="10px" />
-            <AppStore type="google" />
-          </div>
+          {!isMobileApp && (
+            <div>
+              <AppStore type="apple" />
+              <Spacer size="10px" />
+              <AppStore type="google" />
+            </div>
+          )}
         </article>
       </StyledFooter>
     </FooterWrapper>

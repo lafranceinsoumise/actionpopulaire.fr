@@ -87,13 +87,16 @@ const MainColumn = styled(Column)`
 
 const MainContainer = styled(Container)`
   padding-bottom: 72px;
+
   @media (min-width: ${style.collapse}px) {
     & > ${Row} {
       flex-wrap: nowrap;
     }
   }
+
   @media (max-width: ${style.collapse}px) {
     padding-top: 24px;
+    padding-bottom: 24px;
     background-color: ${({ smallBackgroundColor }) =>
       smallBackgroundColor || "transparent"};
   }

@@ -20,8 +20,6 @@ import { useRequiredActivityCount } from "@agir/activity/common/hooks";
 const MAIN_LINKS = CONFIG.menuLinks.filter(({ mobile }) => mobile === false);
 
 const Navigation = styled.nav`
-  margin-top: 20px;
-
   @media only screen and (min-width: ${style.collapse}px) {
     display: none;
   }
