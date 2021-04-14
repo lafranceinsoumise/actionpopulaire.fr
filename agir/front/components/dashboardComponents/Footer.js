@@ -18,7 +18,7 @@ import LogoAP from "@agir/front/genericComponents/LogoAP";
 
 import footerBanner from "./images/footer-banner.jpg";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
-import { useMobileApp } from "../app/hooks";
+import { useMobileApp } from "@agir/front/app/hooks";
 
 const FooterForm = styled.div`
   display: flex;
