@@ -217,7 +217,7 @@ Layout.propTypes = {
   children: PropTypes.node,
   desktopOnlyFooter: PropTypes.bool,
   hasBanner: PropTypes.bool,
-  displayOnMobileApp: PropTypes.bool,
+  displayFooterOnMobileApp: PropTypes.bool,
 };
 Layout.defaultProps = {
   routes: {
