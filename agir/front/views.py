@@ -14,10 +14,11 @@ from agir.authentication.view_mixins import (
 )
 from agir.groups.models import SupportGroup
 from agir.lib.http import add_query_params_to_url
-from .view_mixins import ObjectOpengraphMixin
 from .view_mixins import (
+    ObjectOpengraphMixin,
     ReactBaseView,
     ReactSingleObjectView,
+    SimpleOpengraphMixin,
 )
 from ..events.views.event_views import EventDetailMixin
 from ..groups.serializers import SupportGroupSerializer
@@ -80,16 +81,28 @@ class NBUrlsView(View):
         raise Http404()
 
 
-class SignupView(ReactBaseView):
+class SignupView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
+    meta_title = "Inscription"
+    meta_description = "Rejoignez Action Populaire"
 
 
-class LoginView(ReactBaseView):
+class CodeSignupView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
+    meta_title = "Inscription"
+    meta_description = "Rejoignez Action Populaire"
 
 
-class CodeLoginView(ReactBaseView):
+class LoginView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
+    meta_title = "Connexion"
+    meta_description = "Connectez-vous à Action Populaire"
+
+
+class CodeLoginView(SimpleOpengraphMixin, ReactBaseView):
+    bundle_name = "front/app"
+    meta_title = "Connexion"
+    meta_description = "Connectez-vous à Action Populaire"
 
 
 class LogoutView(ReactBaseView):
@@ -98,10 +111,6 @@ class LogoutView(ReactBaseView):
     def get(self, request, *args, **kwargs):
         logout(request)
         return super().get(request, *args, **kwargs)
-
-
-class CodeSignupView(ReactBaseView):
-    bundle_name = "front/app"
 
 
 class TellMoreView(ReactBaseView):
