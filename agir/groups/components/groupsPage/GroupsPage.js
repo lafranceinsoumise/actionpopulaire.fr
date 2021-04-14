@@ -62,7 +62,7 @@ const GroupList = styled.article`
   margin-bottom: 2rem;
 
   @media (max-width: ${style.collapse}px) {
-    padding: 0 16px;
+    padding: 0 16px 48px;
   }
 
   & > ${Card} {

@@ -30,6 +30,10 @@ import {
 
 const Page = styled.article`
   margin: 0;
+
+  @media (max-width: ${style.collapse}px) {
+    padding-bottom: 48px;
+  }
 `;
 
 const Counter = styled.span`

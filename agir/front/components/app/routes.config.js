@@ -253,6 +253,7 @@ export const routeConfig = {
     layoutProps: {
       desktopOnlyFooter: false,
       displayFooterOnMobileApp: true,
+      style: { paddingBottom: 0 },
     },
   }),
   login: new RouteConfig({
