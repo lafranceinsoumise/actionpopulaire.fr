@@ -12,9 +12,11 @@ import {
   getUser,
 } from "@agir/front/globalContext/reducers";
 
+import AppStore from "@agir/front/genericComponents/AppStore";
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import footerBanner from "./images/footer-banner.jpg";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
@@ -372,6 +374,11 @@ export const Footer = (props) => {
                 <Link href={routes.linsoumission}>L'insoumission</Link>
               )}
             </p>
+          </div>
+          <div>
+            <AppStore type="apple" />
+            <Spacer size="10px" />
+            <AppStore type="google" />
           </div>
         </article>
       </StyledFooter>

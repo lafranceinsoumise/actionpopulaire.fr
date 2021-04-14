@@ -1,7 +1,7 @@
 import React from "react";
 
 import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
-import Footer from "./Footer";
+import { Footer } from "./Footer";
 
 export default {
   component: Footer,
@@ -16,7 +16,7 @@ const Template = (args) => (
       routes: args.routes,
     }}
   >
-    <Footer />
+    <Footer {...args} />
   </TestGlobalContextProvider>
 );
 
@@ -54,12 +54,14 @@ const routes = {
 };
 export const Anonymous = Template.bind({});
 Anonymous.args = {
-  isSignedIn: false,
+  hasBanner: true,
   routes,
+  isSignedIn: false,
 };
 
 export const SignedIn = Template.bind({});
 SignedIn.args = {
+  hasBanner: false,
   routes,
   isSignedIn: true,
 };
