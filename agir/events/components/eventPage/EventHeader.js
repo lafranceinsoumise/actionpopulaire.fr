@@ -320,7 +320,7 @@ const AdditionalMessage = ({
     );
   }
 
-  if (!isOrganizer) {
+  if (!isOrganizer && !rsvped) {
     return (
       <SmallText>Votre email sera communiqué à l'organisateur·ice</SmallText>
     );
