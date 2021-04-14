@@ -1,3 +1,9 @@
+<p align="center">
+  <img height="150" src="https://github.com/lafranceinsoumise/actionpopulaire.fr/blob/staging/agir/front/components/genericComponents/logos/action-populaire.svg">
+</p>
+
+![Tests status](https://github.com/lafranceinsoumise/actionpopulaire.fr/actions/workflows/run-tests.yml/badge.svg)
+
 # actionpopulaire.fr
 
 1. [Vagrant installation](#vagrant)
