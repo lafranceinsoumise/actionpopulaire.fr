@@ -157,7 +157,7 @@ CenteredLayout.propTypes = {
     route: PropTypes.string,
     label: PropTypes.string,
   }),
-  displayOnMobileApp: PropTypes.bool,
+  displayFooterOnMobileApp: PropTypes.bool,
 };
 CenteredLayout.defaultProps = {
   routes: {
