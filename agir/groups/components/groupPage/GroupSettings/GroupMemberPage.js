@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import styled from "styled-components";
 
@@ -11,12 +11,25 @@ import HeaderPanel from "./HeaderPanel";
 import { DEFAULT_EMAILS, DEFAULT_MEMBERS } from "./group_items.js";
 import { StyledTitle } from "./styledComponents.js";
 
+import * as api from "@agir/groups/groupPage/api";
+import useSWR from "swr";
+import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
+
 const InlineBlock = styled.div`
   display: inline-block;
 `;
 
 const GroupMemberPage = (props) => {
-  const { onBack, illustration } = props;
+  const { onBack, illustration, groupPk } = props;
+
+  const group = useGroup(groupPk);
+  console.log("usegroup : ", group);
+
+  // const { data } = useSWR(api.getGroupPageEndpoint("getGroup", { groupPk }));
+  // console.log("data :", data);
+
+  useEffect(() => {}, []);
+
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />

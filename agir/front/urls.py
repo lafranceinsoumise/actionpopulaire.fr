@@ -70,6 +70,41 @@ urlpatterns = [
         name="view_group_settings",
     ),
     path(
+        "groupes/<uuid:pk>/parametres/membres/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings",
+    ),
+    path(
+        "groupes/<uuid:pk>/parametres/gestion/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings",
+    ),
+    path(
+        "groupes/<uuid:pk>/parametres/finance/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings",
+    ),
+    path(
+        "groupes/<uuid:pk>/parametres/general/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings",
+    ),
+    path(
+        "groupes/<uuid:pk>/parametres/localisation/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings",
+    ),
+    path(
+        "groupes/<uuid:pk>/parametres/contact/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings",
+    ),
+    path(
+        "groupes/<uuid:pk>/parametres/liens/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings",
+    ),
+    path(
         "groupes/<uuid:pk>/messages/<uuid:message_pk>/",
         views.SupportGroupMessageDetailView.as_view(),
         name="view_group_message",

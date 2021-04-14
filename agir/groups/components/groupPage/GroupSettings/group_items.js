@@ -13,6 +13,8 @@ import group_general from "@agir/front/genericComponents/images/group_general.sv
 import group_contact from "@agir/front/genericComponents/images/group_contact.svg";
 import group_links from "@agir/front/genericComponents/images/group_links.svg";
 
+import { routeConfig } from "@agir/front/app/routes.config";
+
 export const DEFAULT_GROUP = {
   title: "Cortège France insoumise à la marche contre la fourrure 2020",
   // membersCount: 3,
@@ -51,6 +53,8 @@ export const MENU_ITEMS_GROUP = {
     label: "Membres",
     icon: "users",
     component: <GroupMemberPage />,
+    route: "groupSettingsMembers",
+    // route: routeConfig.groupSettingsMembers.getLink(),
   },
   management: {
     id: "management",
@@ -58,6 +62,8 @@ export const MENU_ITEMS_GROUP = {
     icon: "lock",
     illustration: group_members,
     component: <GroupManagementPage />,
+    route: "groupSettingsManage",
+    // route: routeConfig.groupSettingsManage.getLink(),
   },
   finance: {
     id: "finance",
@@ -65,6 +71,8 @@ export const MENU_ITEMS_GROUP = {
     icon: "sun",
     illustration: group_financement,
     component: <GroupFinancePage />,
+    route: "groupSettingsFinance",
+    // route: routeConfig.groupSettingsFinance.getLink(),
   },
   general: {
     id: "general",
@@ -72,12 +80,16 @@ export const MENU_ITEMS_GROUP = {
     icon: "file-text",
     illustration: group_general,
     component: <GroupGeneralPage />,
+    route: "groupSettingsGeneral",
+    // route: routeConfig.groupSettingsGeneral.getLink(),
   },
   location: {
     id: "location",
     label: "Localisation",
     icon: "map-pin",
     component: <GroupLocalizationPage />,
+    route: "groupSettingsLocation",
+    // route: routeConfig.groupSettingsLocation.getLink(),
   },
   contact: {
     id: "contact",
@@ -85,6 +97,8 @@ export const MENU_ITEMS_GROUP = {
     icon: "mail",
     illustration: group_contact,
     component: <GroupContactPage />,
+    route: "groupSettingsContact",
+    // route: routeConfig.groupSettingsContact.getLink(),
   },
   links: {
     id: "links",
@@ -92,5 +106,7 @@ export const MENU_ITEMS_GROUP = {
     icon: "at-sign",
     illustration: group_links,
     component: <GroupLinksPage />,
+    route: "groupSettingsLinks",
+    // route: routeConfig.groupSettingsLinks.getLink(),
   },
 };

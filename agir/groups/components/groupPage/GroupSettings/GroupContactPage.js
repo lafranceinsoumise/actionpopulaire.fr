@@ -13,9 +13,7 @@ const GroupContactPage = (props) => {
   const [formData, setFormData] = useState({});
 
   const handleCheckboxChange = (e) => {
-    const newFormData = { ...formData };
-    newFormData[e.target.name] = !formData[e.target.name];
-    setFormData(newFormData);
+    setFormData({ ...formData, [e.target.name]: !formData[e.target.name] });
   };
 
   const handleChange = useCallback((e) => {
