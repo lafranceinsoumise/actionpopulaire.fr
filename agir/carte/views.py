@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import django_filters
 from django.contrib.gis.geos import Polygon
-from django.db.models import Q, Count, Case, BooleanField, When, Value
+from django.db.models import Q, Count
 from django.http import QueryDict, Http404
 from django.utils.decorators import method_decorator
 from django.utils.html import mark_safe
@@ -13,7 +13,6 @@ from django.views.decorators import cache
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import TemplateView, DetailView
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 
@@ -23,8 +22,8 @@ from . import serializers
 from ..events.filters import EventFilter
 from ..events.models import Event, EventSubtype
 from ..groups.models import SupportGroup, SupportGroupSubtype
-from ..lib.decorators import dont_vary_on_cookie
 from ..lib.filters import FixedModelMultipleChoiceFilter
+from ..lib.views import AnonymousAPIView
 
 
 def is_active_group():
@@ -86,7 +85,7 @@ class BBoxFilterBackend(object):
         return queryset.filter(coordinates__intersects=bbox)
 
 
-class EventsView(ListAPIView):
+class EventsView(AnonymousAPIView, ListAPIView):
     permission_classes = ()
     serializer_class = serializers.MapEventSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
@@ -101,7 +100,6 @@ class EventsView(ListAPIView):
         return qs.filter(coordinates__isnull=False).select_related("subtype")
 
     @method_decorator(cache.cache_page(300))
-    @method_decorator(dont_vary_on_cookie)
     @cache.cache_control(public=True)
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -119,14 +117,13 @@ class GroupFilterSet(django_filters.rest_framework.FilterSet):
         fields = ("subtype",)
 
 
-class GroupsView(ListAPIView):
+class GroupsView(AnonymousAPIView, ListAPIView):
     permission_classes = ()
     serializer_class = serializers.MapGroupSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
     filterset_class = GroupFilterSet
 
     @method_decorator(cache.cache_page(300))
-    @method_decorator(dont_vary_on_cookie)
     @cache.cache_control(public=True)
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)

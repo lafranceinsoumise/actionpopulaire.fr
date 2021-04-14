@@ -186,8 +186,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "agir.lib.middleware.NoVaryCookieMiddleWare",
-    "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -207,8 +205,11 @@ if ENABLE_DEBUG_TOOLBAR:
     MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
     INTERNAL_IPS = ["127.0.0.1", "192.168.33.1"]
 
-SILKY_INTERCEPT_FUNC = lambda request: request.user.is_superuser and (
-    request.GET.get("silk", False) or request.COOKIES.get("silk", False)
+SILKY_INTERCEPT_FUNC = (
+    lambda request: (
+        request.GET.get("silk", False) or request.COOKIES.get("silk", False)
+    )
+    and request.user.is_superuser
 )
 SILKY_AUTHENTICATION = True
 SILKY_AUTHORISATION = True
