@@ -167,5 +167,5 @@ CenteredLayout.defaultProps = {
   },
   desktopOnlyFooter: true,
   hasBanner: false,
-  displayOnMobileApp: false,
+  displayFooterOnMobileApp: false,
 };
