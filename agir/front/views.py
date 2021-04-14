@@ -157,11 +157,14 @@ class FullSupportGroupView(SoftLoginRequiredMixin, ReactSingleObjectView):
             "groupSuggestions": person_groups,
         }
 
+
 class GroupSettingsView(ReactBaseView):
     bundle_name = "front/app"
 
+
 class EventSettingsView(ReactBaseView):
     bundle_name = "front/app"
+
 
 class AgendaView(ReactBaseView):
     bundle_name = "front/app"
