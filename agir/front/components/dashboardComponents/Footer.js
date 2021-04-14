@@ -238,7 +238,7 @@ export const Footer = (props) => {
   const { isMobileApp } = useMobileApp();
   const hasBanner = !hideBanner && isSignedIn === false;
 
-  if (useMobileApp().isMobileApp && !displayOnMobileApp) return null;
+  if (isMobileApp && !displayOnMobileApp) return null;
 
   return (
     <FooterWrapper
