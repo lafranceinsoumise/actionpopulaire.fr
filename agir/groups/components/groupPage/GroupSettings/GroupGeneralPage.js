@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
@@ -12,13 +12,13 @@ const GroupGeneralPage = (props) => {
   const [name, setName] = useState("Nom du groupe");
   const [description, setDescription] = useState("Description");
 
-  const handleNameChange = (e) => {
+  const handleNameChange = useCallback((e) => {
     setName(e.target.value);
-  };
+  }, []);
 
-  const handleDescriptionChange = (e) => {
+  const handleDescriptionChange = useCallback((e) => {
     setDescription(e.target.value);
-  };
+  }, []);
 
   return (
     <>

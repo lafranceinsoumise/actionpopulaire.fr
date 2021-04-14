@@ -14,7 +14,6 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { DEFAULT_MEMBERS } from "./group_items.js";
 import { StyledTitle } from "./styledComponents.js";
 
-
 const StyledList = styled.div`
   display: flex;
   align-items: center;

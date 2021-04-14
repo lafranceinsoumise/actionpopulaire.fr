@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
@@ -16,9 +16,9 @@ const GroupLinksPage = (props) => {
   const [config, setConfig] = useState(null);
   const [formData, setFormData] = useState({});
 
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  }, []);
 
   if ([NEW_LINK, EDIT_LINK].includes(config)) {
     return (

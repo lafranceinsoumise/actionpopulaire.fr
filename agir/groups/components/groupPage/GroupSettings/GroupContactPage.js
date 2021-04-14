@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Button from "@agir/front/genericComponents/Button";
@@ -18,11 +18,9 @@ const GroupContactPage = (props) => {
     setFormData(newFormData);
   };
 
-  const handleChange = (e) => {
-    const newFormData = { ...formData };
-    newFormData[e.target.name] = e.target.value;
-    setFormData(newFormData);
-  };
+  const handleChange = useCallback((e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  }, []);
 
   return (
     <>

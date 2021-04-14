@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
@@ -26,14 +26,14 @@ const GroupInvitation = (props) => {
 
   const [email, setEmail] = useState("");
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     setEmail(e.target.value);
-  };
+  }, []);
 
-  const handleInvitation = (e) => {
+  const handleInvitation = useCallback((e) => {
     console.log("invite : ", email);
     setEmail("");
-  };
+  }, []);
 
   return (
     <StyledDiv>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
@@ -28,9 +28,9 @@ const GroupLocalizationPage = (props) => {
   const [formLocation, setFormLocation] = useState({});
   const [config, setConfig] = useState(null);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     setFormLocation({ ...formLocation, [e.target.name]: e.target.value });
-  };
+  }, []);
 
   if (config) {
     return (

@@ -13,14 +13,12 @@ export const Default = Template.bind({});
 
 Default.args = {
   label: "Ajouter votre binôme",
-  onClick: () =>{}
+  onClick: () => {},
 };
 
 export const AddOrganizer = Template.bind({});
 
 AddOrganizer.args = {
   label: "Ajouter un·e gestionnaire",
-  onClick: () =>{},
-  test: "lol"
+  onClick: () => {},
 };
-

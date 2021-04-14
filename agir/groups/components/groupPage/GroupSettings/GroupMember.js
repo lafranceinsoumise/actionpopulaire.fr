@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -68,10 +68,10 @@ const GroupMember = (props) => {
   );
   const [showMore, setShowMore] = useState(assets?.length > 3);
 
-  const handleShowMore = () => {
+  const handleShowMore = useCallback(() => {
     setCustomAssets(assets);
     setShowMore(false);
-  };
+  }, []);
 
   return (
     <>
