@@ -86,15 +86,13 @@ export const StyledBackButton = styled.button`
 
 const PanelContent = styled(animated.aside)`
   position: fixed;
-  height: 100%;
-  max-height: 100%;
+  z-index: 10;
   height: -webkit-fill-available;
+  height: 100vh;
   overflow: auto;
   top: 0;
   ${({ $position }) => `${$position}: 0;`}
-  z-index: 2;
   width: 400px;
-  min-height: 100%;
   background-color: white;
   margin: 0;
   padding: 2rem 1.5rem;
@@ -120,12 +118,9 @@ const PanelFrame = styled.div`
   padding: 0;
   margin: 0;
   width: 100vw;
-  min-height: 100%;
-  height: 100%;
-  max-height: 100%;
-  height: -webkit-fill-available;
-  overflow-x: hidden;
-  overflow-y: auto;
+  height: 100vh;
+  max-height: -webkit-fill-available;
+  overflow: hidden;
   z-index: ${style.zindexPanel};
   pointer-events: ${({ $open }) => ($open ? "auto" : "none")};
 `;
