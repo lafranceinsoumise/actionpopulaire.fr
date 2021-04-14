@@ -119,7 +119,7 @@ const CenteredLayout = (props) => (
         </MainColumn>
       </Row>
     </MainContainer>
-    <Footer desktopOnly={props.desktopOnlyFooter} />
+    <Footer desktopOnly={props.desktopOnlyFooter} displayOnMobileApp={props.displayFooterOnMobileApp}/>
   </>
 );
 
@@ -157,6 +157,7 @@ CenteredLayout.propTypes = {
     route: PropTypes.string,
     label: PropTypes.string,
   }),
+  displayFooterOnMobileApp: PropTypes.bool,
 };
 CenteredLayout.defaultProps = {
   routes: {
@@ -166,4 +167,5 @@ CenteredLayout.defaultProps = {
   },
   desktopOnlyFooter: true,
   hasBanner: false,
+  displayFooterOnMobileApp: false,
 };

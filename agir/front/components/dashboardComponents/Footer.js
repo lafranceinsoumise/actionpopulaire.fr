@@ -20,6 +20,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import footerBanner from "./images/footer-banner.jpg";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
+import { useMobileApp } from "@agir/front/app/hooks";
 
 const FooterForm = styled.div`
   display: flex;
@@ -227,11 +228,24 @@ const FooterWrapper = styled.footer`
 `;
 
 export const Footer = (props) => {
-  const { hideBanner, isSignedIn, is2022, routes, desktopOnly } = props;
+  const {
+    hideBanner,
+    isSignedIn,
+    is2022,
+    routes,
+    desktopOnly,
+    displayOnMobileApp,
+  } = props;
+
+  const { isMobileApp } = useMobileApp();
   const hasBanner = !hideBanner && isSignedIn === false;
 
+  if (isMobileApp && !displayOnMobileApp) return null;
+
   return (
-    <FooterWrapper desktopOnly={desktopOnly}>
+    <FooterWrapper
+      desktopOnly={desktopOnly}
+    >
       {hasBanner ? (
         <FooterBanner>
           <FooterForm>
@@ -391,12 +405,14 @@ Footer.propTypes = {
   routes: PropTypes.object,
   desktopOnly: PropTypes.bool,
   hideBanner: PropTypes.bool,
+  displayOnMobileApp: PropTypes.bool,
 };
 Footer.defaultProps = {
   isSignedIn: false,
   is2022: false,
   desktopOnly: false,
   hideBanner: false,
+  displayOnMobileApp: false,
 };
 const ConnectedFooter = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
