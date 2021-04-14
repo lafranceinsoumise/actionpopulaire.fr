@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 import APP_STORE_APPLE from "@agir/front/genericComponents/logos/appstore_apple.svg";
+import APP_STORE_GOOGLE from "@agir/front/genericComponents/logos/appstore_google.svg";
 
 const CONFIG = {
   apple: {
@@ -10,6 +11,12 @@ const CONFIG = {
       "https://apps.apple.com/us/app/action-populaire/id1559737444#?platform=iphone",
     title: "Télécharger dans l'App Store",
     $image: APP_STORE_APPLE,
+  },
+  google: {
+    href:
+      "https://play.google.com/store/apps/details?id=fr.actionpopulaire.twa",
+    title: "Disponible sur Google Play",
+    $image: APP_STORE_GOOGLE,
   },
 };
 
