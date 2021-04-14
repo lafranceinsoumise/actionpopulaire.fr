@@ -234,9 +234,11 @@ export const Footer = (props) => {
     desktopOnly,
     displayOnMobileApp,
   } = props;
+
+  const { isMobileApp } = useMobileApp();
   const hasBanner = !hideBanner && isSignedIn === false;
 
-  if (props.displayOnMobileApp) return null;
+  if (useMobileApp().isMobileApp && !displayOnMobileApp) return null;
 
   return (
     <FooterWrapper
