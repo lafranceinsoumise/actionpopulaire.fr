@@ -252,6 +252,7 @@ export const routeConfig = {
     hasLayout: true,
     layoutProps: {
       desktopOnlyFooter: false,
+      displayOnMobileApp: false,
     },
   }),
   login: new RouteConfig({

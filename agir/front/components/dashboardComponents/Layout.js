@@ -189,7 +189,10 @@ const Layout = (props) => (
         </SidebarColumn>
       </Row>
     </MainContainer>
-    <Footer desktopOnly={props.desktopOnlyFooter} />
+    <Footer
+      desktopOnly={props.desktopOnlyFooter}
+      displayOnMobileApp={props.displayOnMobileApp}
+    />
   </>
 );
 
@@ -214,6 +217,7 @@ Layout.propTypes = {
   children: PropTypes.node,
   desktopOnlyFooter: PropTypes.bool,
   hasBanner: PropTypes.bool,
+  displayOnMobileApp: PropTypes.bool,
 };
 Layout.defaultProps = {
   routes: {
@@ -223,4 +227,5 @@ Layout.defaultProps = {
   },
   desktopOnlyFooter: true,
   hasBanner: false,
+  displayOnMobileApp: true,
 };
