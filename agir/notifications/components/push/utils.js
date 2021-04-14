@@ -48,6 +48,7 @@ export async function doSubscribe(serviceWorkerRegistration, pushSubscription) {
       "WEBPUSH_PUBLIC_KEY must be define. You can generate keys at https://web-push-codelab.glitch.me/."
     );
   }
+
   pushSubscription =
     pushSubscription ||
     (await serviceWorkerRegistration.pushManager.subscribe({
@@ -55,7 +56,8 @@ export async function doSubscribe(serviceWorkerRegistration, pushSubscription) {
       applicationServerKey: urlBase64ToUint8Array(
         process.env.WEBPUSH_PUBLIC_KEY
       ),
-    }));
+    })) ||
+    (await serviceWorkerRegistration.pushManager.getSubscription());
 
   log.debug("Received PushSubscription: ", pushSubscription);
 
