@@ -243,7 +243,6 @@ export const Footer = (props) => {
   return (
     <FooterWrapper
       desktopOnly={desktopOnly}
-      displayOnMobileApp={displayOnMobileApp}
     >
       {hasBanner ? (
         <FooterBanner>
