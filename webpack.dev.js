@@ -39,6 +39,8 @@ module.exports = merge.merge(common, {
     },
     writeToDisk: true,
     allowedHosts: ["agir.local"], // l'appli Django est toujours sur agir.local
+    injectClient: ({ name }) => name !== "chill",
+    injectHot: ({ name }) => name !== "chill",
   },
   optimization: {
     moduleIds: "named",

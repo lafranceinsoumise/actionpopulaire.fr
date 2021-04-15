@@ -9,6 +9,7 @@
     "test:ci": "cross-env CI=true jest --coverage --ci --maxWorkers=2 --reporters=default",
     "build": "webpack --config webpack.production.js",
     "watch": "webpack serve --config webpack.dev.js",
+    "watch:chill": "webpack serve --config webpack.dev.js --name chill",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
