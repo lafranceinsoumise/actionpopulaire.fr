@@ -13,7 +13,7 @@ class MapEventSerializer(serializers.ModelSerializer):
 
 class MapGroupSerializer(CountryFieldMixin, serializers.ModelSerializer):
     subtype = serializers.SerializerMethodField("get_first_subtype")
-    is_active = serializers.BooleanField(read_only=True)
+    is_active = serializers.BooleanField()
 
     class Meta:
         model = SupportGroup
@@ -27,6 +27,7 @@ class MapGroupSerializer(CountryFieldMixin, serializers.ModelSerializer):
             "is_active",
             "location_country",
         )
+        read_only_fields = fields
 
     def get_first_subtype(self, obj):
         return obj.subtypes.all()[0].id if obj.subtypes.all() else None

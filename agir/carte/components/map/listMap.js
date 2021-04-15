@@ -110,15 +110,23 @@ class Display {
   updateFeatures(data, hideInactive) {
     for (let item of data) {
       const feature = this.getFeatureFor(item);
-
-      if (hideInactive && item.location_country === "FR" && !item.is_active) {
-        if (this.sourceForSubtype[item.subtype].hasFeature(feature)) {
-          this.sourceForSubtype[item.subtype].removeFeature(
-            this.sourceForSubtype[item.subtype].getFeatureById(item.id)
-          );
-        }
-      } else if (!this.sourceForSubtype[item.subtype].hasFeature(feature)) {
-        this.sourceForSubtype[item.subtype].addFeature(feature);
+      const source = item.subtype
+        ? this.sourceForSubtype[item.subtype]
+        : this.sources[item.type];
+      if (!source) {
+        return;
+      }
+      if (
+        hideInactive &&
+        !item.is_active &&
+        item.location_country === "FR" &&
+        source.hasFeature(feature)
+      ) {
+        source.removeFeature(source.getFeatureById(item.id));
+        return;
+      }
+      if (!source.hasFeature(feature)) {
+        source.addFeature(feature);
       }
     }
   }
