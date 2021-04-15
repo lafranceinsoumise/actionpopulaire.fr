@@ -152,6 +152,9 @@ def send_mosaico_email(
         for recipient in recipients:
             # recipient can be either a Person or an email address
             if isinstance(recipient, Person):
+                recipient.ensure_role_exists()
+                if not recipient.role.is_active:
+                    break
                 connection_params = generate_token_params(recipient)
                 for key, value in link_bindings.items():
                     if isinstance(value, AutoLoginUrl):
