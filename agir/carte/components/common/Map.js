@@ -10,6 +10,8 @@ import logger from "@agir/lib/utils/logger";
 import { fontIsLoaded } from "../map/utils";
 import { createMap } from "../map/common";
 
+import INFO_ICON from "./images/info-copyright-icon.svg";
+
 const log = logger(__filename);
 
 const skeleton = keyframes`
@@ -39,6 +41,8 @@ const StyledMapWrapper = styled.div`
   & > * {
     opacity: ${({ $isLoaded }) => ($isLoaded ? "1" : 0)};
     transition: opacity 500ms ease-in-out;
+    min-width: inherit;
+    min-height: inherit;
   }
 
   .ol-zoom {
@@ -75,6 +79,50 @@ const StyledMapWrapper = styled.div`
 
     button + button {
       margin-top: 1px;
+    }
+  }
+
+  .ol-attribution {
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    font-family: Arial, sans-serif;
+
+    ul {
+      list-style: none;
+      background-color: white;
+      padding: 0 5px;
+      margin: 0 3px 0 0;
+      font-size: 11px;
+      line-height: 1.5;
+      cursor: default;
+    }
+
+    &.ol-collapsed ul {
+      display: none;
+    }
+
+    button {
+      display: block;
+      width: 1rem;
+      height: 1rem;
+      font-size: 0;
+      border: none;
+      background-color: none;
+      background: url(${INFO_ICON});
+      background-repeat: no-repeat;
+      background-size: cover;
+      opacity: 0.4;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 `;

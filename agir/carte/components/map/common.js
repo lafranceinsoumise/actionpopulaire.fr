@@ -12,6 +12,7 @@ import Feature from "ol/Feature";
 import VectorSource from "ol/source/Vector";
 import Point from "ol/geom/Point";
 import VectorLayer from "ol/layer/Vector";
+import Attribution from "ol/control/Attribution";
 import Zoom from "ol/control/Zoom";
 import fontawesome from "fontawesome";
 
@@ -172,16 +173,15 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
   feature.setStyle(styles);
   const map = new Map({
     target,
-    controls: isStatic ? [] : [new Zoom()],
+    controls: isStatic ? [new Attribution()] : [new Attribution(), new Zoom()],
     interactions: isStatic ? [] : undefined,
     layers: [
       new TileLayer({
         source: new XYZ({
           url:
             "https://tile.jawg.io/jawg-streets/{z}/{x}/{y}.png?access-token=mGYrqYC5XjG6lXEoz0e5ejl1wSS0GovRMqBw8LEuhFfz2PYILpp8YFzx6TnKxAHe",
-          attributions: [
-            '&#169; les contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
-          ],
+          attributions:
+            '&copy; Contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>',
         }),
       }),
       new VectorLayer({

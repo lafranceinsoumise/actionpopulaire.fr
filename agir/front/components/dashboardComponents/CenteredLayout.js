@@ -119,7 +119,10 @@ const CenteredLayout = (props) => (
         </MainColumn>
       </Row>
     </MainContainer>
-    <Footer desktopOnly={props.desktopOnlyFooter} displayOnMobileApp={props.displayFooterOnMobileApp}/>
+    <Footer
+      desktopOnly={props.desktopOnlyFooter}
+      displayOnMobileApp={props.displayFooterOnMobileApp}
+    />
   </>
 );
 
