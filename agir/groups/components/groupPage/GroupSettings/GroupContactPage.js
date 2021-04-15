@@ -12,16 +12,30 @@ const GroupContactPage = (props) => {
   const { onBack, illustration } = props;
   const [formData, setFormData] = useState({});
 
-  const handleCheckboxChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: !formData[e.target.name] });
-  };
+  const handleCheckboxChange = useCallback(
+    (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.checked });
+    },
+    [formData]
+  );
 
-  const handleChange = useCallback((e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  }, []);
+  const handleChange = useCallback(
+    (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    },
+    [formData]
+  );
+
+  const handleSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      console.log("SUBMIT", formData);
+    },
+    [formData]
+  );
 
   return (
-    <>
+    <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Moyens de contact</StyledTitle>
 
@@ -39,7 +53,7 @@ const GroupContactPage = (props) => {
       <TextField
         id="name"
         name="name"
-        label="Nom de la / les personnes à contacter*"
+        label="Nom de la / des personnes à contacter*"
         onChange={handleChange}
         value={formData.name}
       />
@@ -74,8 +88,10 @@ const GroupContactPage = (props) => {
       />
 
       <Spacer size="2rem" />
-      <Button color="secondary">Enregistrer</Button>
-    </>
+      <Button color="secondary" type="submit">
+        Enregistrer
+      </Button>
+    </form>
   );
 };
 

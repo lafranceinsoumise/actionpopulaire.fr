@@ -43,7 +43,7 @@ const GroupManagementPage = (props) => {
     return (
       <>
         <BackButton
-          onBack={() => {
+          onClick={() => {
             setConfig(null);
           }}
         />
@@ -101,7 +101,7 @@ const GroupManagementPage = (props) => {
     return (
       <>
         <BackButton
-          onBack={() => {
+          onClick={() => {
             setConfig(null);
           }}
         />

@@ -36,7 +36,7 @@ const GroupLocalizationPage = (props) => {
     return (
       <>
         <BackButton
-          onBack={() => {
+          onClick={() => {
             setConfig(false);
           }}
         />
@@ -47,7 +47,9 @@ const GroupLocalizationPage = (props) => {
 
         <Spacer size="2rem" />
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button color="secondary">Enregistrer les informations</Button>
+          <Button color="secondary" wrap>
+            Enregistrer les informations
+          </Button>
         </div>
       </>
     );
@@ -60,7 +62,7 @@ const GroupLocalizationPage = (props) => {
       <Spacer size="1rem" />
       <StyledMap center={[-97.14704, 49.8844]} />
       <Spacer size="0.5rem" />
-      <Button small onClick={() => setConfig(true)}>
+      <Button small wrap onClick={() => setConfig(true)}>
         Personnaliser la localisation sur la carte
       </Button>
       <Spacer size="1rem" />
@@ -110,7 +112,9 @@ const GroupLocalizationPage = (props) => {
       />
 
       <Spacer size="2rem" />
-      <Button color="secondary">Enregistrer les informations</Button>
+      <Button color="secondary" wrap>
+        Enregistrer les informations
+      </Button>
 
       <hr />
       <Spacer size="1rem" />

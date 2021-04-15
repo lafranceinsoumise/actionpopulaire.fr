@@ -66,7 +66,7 @@ const StyledMenu = styled.div`
   height: 100vh;
   overflow: auto;
   padding: 1.5rem;
-  background-color: #fafafa;
+  background-color: ${style.black25};
   box-shadow: inset -1px 0px 0px #dfdfdf;
   position: fixed;
 

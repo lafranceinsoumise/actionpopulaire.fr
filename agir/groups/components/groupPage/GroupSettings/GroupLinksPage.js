@@ -24,7 +24,7 @@ const GroupLinksPage = (props) => {
     return (
       <>
         <BackButton
-          onBack={() => {
+          onClick={() => {
             setConfig(null);
           }}
         />

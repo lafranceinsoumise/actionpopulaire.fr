@@ -16,7 +16,7 @@ import group_links from "@agir/front/genericComponents/images/group_links.svg";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 export const DEFAULT_GROUP = {
-  title: "Cortège France insoumise à la marche contre la fourrure 2020",
+  name: "Cortège France insoumise à la marche contre la fourrure 2020",
   // membersCount: 3,
 };
 

@@ -26,7 +26,7 @@ export const ObjectManagement = (props) => {
   return (
     <PageFadeIn ready={true}>
       <ManagementMenu
-        title={object.title}
+        title={object?.name}
         items={menu_items}
         selectedItem={selectedItem}
         onSelect={handleSelectMenuItem}

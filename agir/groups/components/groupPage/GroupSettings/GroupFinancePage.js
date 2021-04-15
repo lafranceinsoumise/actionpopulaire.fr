@@ -41,7 +41,7 @@ const GroupFinancePage = (props) => {
       <Spacer size="1rem" />
 
       <Button>Allouer un don</Button>
-      <Button>Je crée une demande de dépense</Button>
+      <Button wrap>Je crée une demande de dépense</Button>
 
       <Spacer size="1rem" />
 

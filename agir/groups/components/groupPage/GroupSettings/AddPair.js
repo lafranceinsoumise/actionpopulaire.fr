@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -13,12 +13,8 @@ const Member = styled.div`
 `;
 
 const AddPair = ({ label, onClick }) => {
-  const handleClick = useCallback(() => {
-    onClick();
-  }, []);
-
   return (
-    <Member onClick={handleClick}>
+    <Member onClick={onClick}>
       <RawFeatherIcon
         name="plus"
         width="1.5rem"

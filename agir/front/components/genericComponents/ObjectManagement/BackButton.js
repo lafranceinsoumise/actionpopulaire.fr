@@ -21,9 +21,9 @@ const StyledBackButton = styled.button`
   }
 `;
 
-const BackButton = ({ onBack }) => {
+const BackButton = ({ onClick }) => {
   return (
-    <StyledBackButton type="button" onClick={onBack}>
+    <StyledBackButton type="button" onClick={onClick}>
       <RawFeatherIcon
         name="arrow-left"
         aria-label="Retour"

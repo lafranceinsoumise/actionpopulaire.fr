@@ -1,27 +1,42 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
+import ImageField from "@agir/front/formComponents/ImageField";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "./HeaderPanel";
+import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 
 import { StyledTitle } from "./styledComponents.js";
 
 const GroupGeneralPage = (props) => {
-  const { onBack, illustration } = props;
-  const [name, setName] = useState("Nom du groupe");
-  const [description, setDescription] = useState("Description");
+  const { onBack, illustration, groupPk } = props;
 
-  const handleNameChange = useCallback((e) => {
-    setName(e.target.value);
-  }, []);
+  const group = useGroup(groupPk);
+  console.log("usegroup : ", group);
+  const [formData, setFormData] = useState({});
 
-  const handleDescriptionChange = useCallback((e) => {
-    setDescription(e.target.value);
-  }, []);
+  const handleChange = useCallback(
+    (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    },
+    [formData]
+  );
+
+  const handleSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      console.log("SUBMIT", formData);
+    },
+    [formData]
+  );
+
+  useEffect(() => {
+    setFormData({ name: group.name, description: group.description });
+  }, [group]);
 
   return (
-    <>
+    <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Général</StyledTitle>
 
@@ -31,8 +46,8 @@ const GroupGeneralPage = (props) => {
         id="name"
         name="name"
         label="Nom du groupe*"
-        onChange={handleNameChange}
-        value={name}
+        onChange={handleChange}
+        value={formData.name}
       />
 
       <Spacer size="1rem" />
@@ -43,8 +58,8 @@ const GroupGeneralPage = (props) => {
         name="description"
         label="Description du groupe*"
         placeholder=""
-        onChange={handleDescriptionChange}
-        value={description}
+        onChange={handleChange}
+        value={formData.description}
       />
 
       <h4>Image de la bannière</h4>
@@ -57,11 +72,13 @@ const GroupGeneralPage = (props) => {
       </span>
 
       <Spacer size="1rem" />
-      <Button small>Ajouter une image</Button>
+      <ImageField value={""} onChange={() => {}} />
 
       <Spacer size="2rem" />
-      <Button color="secondary">Enregistrer les informations</Button>
-    </>
+      <Button color="secondary" wrap>
+        Enregistrer les informations
+      </Button>
+    </form>
   );
 };
 
