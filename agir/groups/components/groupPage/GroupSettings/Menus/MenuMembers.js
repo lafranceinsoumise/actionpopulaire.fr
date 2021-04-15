@@ -13,7 +13,7 @@ export const GroupSettingsMembers = (props) => {
     <ObjectManagement
       object={group}
       menu_items={MENU_ITEMS_GROUP}
-      selected_item={MENU_ITEMS_GROUP.contact.id}
+      selected_item={MENU_ITEMS_GROUP.members.id}
       {...props}
     />
   );
