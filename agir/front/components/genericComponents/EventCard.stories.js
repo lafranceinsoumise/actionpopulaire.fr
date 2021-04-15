@@ -21,7 +21,7 @@ export default {
   },
   decorators: [
     (story) => (
-      <div style={{ padding: "40px" }}>
+      <div style={{ maxWidth: 800, margin: "40px auto" }}>
         <Container>{story()}</Container>
       </div>
     ),

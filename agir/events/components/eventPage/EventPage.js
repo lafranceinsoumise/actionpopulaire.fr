@@ -15,7 +15,6 @@ import {
 import {
   getIsConnected,
   getIsSessionLoaded,
-  getUser,
 } from "@agir/front/globalContext/reducers";
 
 import Link from "@agir/front/app/Link";

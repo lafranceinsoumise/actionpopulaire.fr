@@ -1,18 +1,22 @@
+import { Interval } from "luxon";
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
+
+import style from "@agir/front/genericComponents/_variables.scss";
+
+import Card from "@agir/front/genericComponents/Card";
+import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import {
   IconList,
   IconListItem,
 } from "@agir/front/genericComponents/FeatherIcon";
-import Card from "@agir/front/genericComponents/Card";
-import { Interval } from "luxon";
+import Map from "@agir/carte/common/Map";
 
-import style from "@agir/front/genericComponents/_variables.scss";
+import { displayInterval } from "@agir/lib/utils/time";
+
 import googleLogo from "./assets/Google.svg";
 import outlookLogo from "./assets/Outlook.svg";
-import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
-import { displayInterval } from "@agir/lib/utils/time";
 
 const LocationName = styled.span`
   color: ${style.black1000};
@@ -25,17 +29,13 @@ const WithLinebreak = styled.span`
 
 const MapContainer = styled.div`
   margin: -1.5rem -1.5rem 1.5rem;
-`;
 
-const MapIframe = styled.iframe.attrs((props) => ({
-  src: props.src,
-  ...props,
-}))`
-  display: block;
-  border: 0;
-
-  width: 100%;
-  min-height: 216px;
+  & > * {
+    display: block;
+    border: 0;
+    width: 100%;
+    min-height: 216px;
+  }
 `;
 
 const CalendarButtonHolder = styled.ul`
@@ -54,7 +54,7 @@ const CalendarButtonHolder = styled.ul`
   }
 `;
 
-const EventLocationCard = ({ schedule, location, routes }) => {
+const EventLocationCard = ({ schedule, location, routes, subtype }) => {
   let interval = displayInterval(schedule);
   interval = interval.charAt(0).toUpperCase() + interval.slice(1);
   return (
@@ -62,7 +62,16 @@ const EventLocationCard = ({ schedule, location, routes }) => {
       {location && location.coordinates && (
         <Hide under>
           <MapContainer>
-            <MapIframe src={routes.map} />
+            {location?.coordinates?.coordinates ? (
+              <Map
+                zoom={14}
+                center={location.coordinates.coordinates}
+                iconConfiguration={subtype}
+                isStatic={false}
+              />
+            ) : (
+              <iframe src={routes.map} />
+            )}
           </MapContainer>
         </Hide>
       )}
@@ -116,6 +125,7 @@ EventLocationCard.propTypes = {
     calendarExport: PropTypes.string,
     googleExport: PropTypes.string,
   }),
+  subtype: PropTypes.object,
 };
 
 export default EventLocationCard;
