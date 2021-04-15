@@ -22,6 +22,28 @@ const GroupPage = lazy(() => import("@agir/groups/groupPage/GroupPage"));
 const GroupSettings = lazy(() =>
   import("@agir/groups/groupPage/GroupSettings")
 );
+const GroupSettingsMembers = lazy(() =>
+  import("@agir/groups/groupPage/GroupSettings/Menus/MenuMembers")
+);
+const GroupSettingsManage = lazy(() =>
+  import("@agir/groups/groupPage/GroupSettings/Menus/MenuManagement")
+);
+const GroupSettingsFinance = lazy(() =>
+  import("@agir/groups/groupPage/GroupSettings/Menus/MenuFinance")
+);
+const GroupSettingsGeneral = lazy(() =>
+  import("@agir/groups/groupPage/GroupSettings/Menus/MenuGeneral")
+);
+const GroupSettingsLocation = lazy(() =>
+  import("@agir/groups/groupPage/GroupSettings/Menus/MenuLocation")
+);
+const GroupSettingsContact = lazy(() =>
+  import("@agir/groups/groupPage/GroupSettings/Menus/MenuContact")
+);
+const GroupSettingsLinks = lazy(() =>
+  import("@agir/groups/groupPage/GroupSettings/Menus/MenuLinks")
+);
+
 const GroupMessagePage = lazy(() =>
   import("@agir/groups/groupPage/GroupMessagePage")
 );
@@ -203,7 +225,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Membres",
-    Component: GroupSettings,
+    Component: GroupSettingsMembers,
     hideTopBar: true,
     hideFeedbackButton: true,
   }),
@@ -213,7 +235,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Gestion",
-    Component: GroupSettings,
+    Component: GroupSettingsManage,
     hideTopBar: true,
     hideFeedbackButton: true,
   }),
@@ -223,7 +245,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Financement",
-    Component: GroupSettings,
+    Component: GroupSettingsFinance,
     hideTopBar: true,
     hideFeedbackButton: true,
   }),
@@ -233,7 +255,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Général",
-    Component: GroupSettings,
+    Component: GroupSettingsGeneral,
     hideTopBar: true,
     hideFeedbackButton: true,
   }),
@@ -243,7 +265,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Localisation",
-    Component: GroupSettings,
+    Component: GroupSettingsLocation,
     hideTopBar: true,
     hideFeedbackButton: true,
   }),
@@ -253,7 +275,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Contact",
-    Component: GroupSettings,
+    Component: GroupSettingsContact,
     hideTopBar: true,
     hideFeedbackButton: true,
   }),
@@ -263,7 +285,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Liens",
-    Component: GroupSettings,
+    Component: GroupSettingsLinks,
     hideTopBar: true,
     hideFeedbackButton: true,
   }),

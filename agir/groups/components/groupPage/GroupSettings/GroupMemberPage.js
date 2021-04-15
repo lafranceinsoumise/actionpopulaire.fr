@@ -1,7 +1,5 @@
-import React, { useEffect } from "react";
-
-import styled from "styled-components";
-
+import React from "react";
+import Link from "@agir/front/app/Link";
 import GroupMember from "./GroupMember";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
 import GroupInvitation from "./GroupInvitation";
@@ -10,9 +8,8 @@ import HeaderPanel from "./HeaderPanel";
 
 import { DEFAULT_EMAILS, DEFAULT_MEMBERS } from "./group_items.js";
 import { StyledTitle } from "./styledComponents.js";
+import styled from "styled-components";
 
-import * as api from "@agir/groups/groupPage/api";
-import useSWR from "swr";
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 
 const InlineBlock = styled.div`
@@ -23,17 +20,11 @@ const GroupMemberPage = (props) => {
   const { onBack, illustration, groupPk } = props;
 
   const group = useGroup(groupPk);
-  console.log("usegroup : ", group);
-
-  // const { data } = useSWR(api.getGroupPageEndpoint("getGroup", { groupPk }));
-  // console.log("data :", data);
-
-  useEffect(() => {}, []);
 
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle>{DEFAULT_MEMBERS.length} Membres</StyledTitle>
+      <StyledTitle>{group?.facts?.memberCount} Membres</StyledTitle>
 
       <ShareLink
         label="Copier les mails des membres"
@@ -60,7 +51,7 @@ const GroupMemberPage = (props) => {
 
       <ShareLink
         label="Copier"
-        url="actionpopulaire.fr/groupe/id"
+        url={`https://actionpopulaire.fr/groupe/${group?.id}`}
         title="Partagez le lien public de l'équipe"
       />
 
@@ -75,9 +66,10 @@ const GroupMemberPage = (props) => {
       />
 
       <hr />
-      <a href="#">
+
+      <Link href={group?.routes?.membershipTransfer}>
         Transférer des membres de votre équipe vers une autre équipe
-      </a>
+      </Link>
     </>
   );
 };

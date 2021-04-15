@@ -1,30 +1,35 @@
 import React, { useState, useCallback, cloneElement } from "react";
 
 import { useHistory } from "react-router-dom";
-import { routeConfig } from "@agir/front/app/routes.config";
 
-import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import ManagementMenu from "@agir/front/genericComponents/ObjectManagement/ManagementMenu.js";
 import ManagementPanel from "@agir/front/genericComponents/ObjectManagement/ManagementPanel.js";
 
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
+
 export const ObjectManagement = (props) => {
-  const { object, menu_items } = props;
+  const { object, menu_items, selected_item = null } = props;
 
   const history = useHistory();
-  const firstItem = Object.keys(menu_items)[0];
-  const [selectedItem, setSelectedItem] = useState(firstItem);
-  const [showPanel, setShowPanel] = useState(true);
 
-  const handleSelectMenuItem = useCallback((id) => {
-    setShowPanel(true);
-    setSelectedItem(id);
-    // history.replace(routeConfig[menu_items[id].route].getLink());
-    // history.replace(menu_items[id].route);
-    // window.history.replaceState(null, id, menu_items[id].route);
-  }, []);
+  const isDesktop = useIsDesktop();
+  const firstItem = Object.keys(menu_items)[0];
+  const [selectedItem, setSelectedItem] = useState(selected_item || firstItem);
+  const [showPanel, setShowPanel] = useState(!!selected_item || isDesktop);
+
+  const handleSelectMenuItem = useCallback(
+    (id) => {
+      setShowPanel(true);
+      setSelectedItem(id);
+
+      const selected_route = menu_items[id].route;
+      history.push(selected_route.replace(/:groupPk/, object.id));
+    },
+    [object]
+  );
 
   return (
-    <PageFadeIn ready={true}>
+    <>
       <ManagementMenu
         title={object?.name}
         items={menu_items}
@@ -40,7 +45,7 @@ export const ObjectManagement = (props) => {
           ...props,
         })}
       </ManagementPanel>
-    </PageFadeIn>
+    </>
   );
 };
 ObjectManagement.propTypes = {};
