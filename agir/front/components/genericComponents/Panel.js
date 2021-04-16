@@ -92,7 +92,7 @@ const PanelContent = styled(animated.aside)`
   overflow: auto;
   top: 0;
   ${({ $position }) => `${$position}: 0;`}
-  width: 400px;
+  width: 600px;
   background-color: white;
   margin: 0;
   padding: 2rem 1.5rem;
