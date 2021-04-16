@@ -13,7 +13,7 @@ import DeviceNotificationSubscription from "./DeviceNotificationSubscription";
 const TellMorePage = () => {
   const isTellMorePage = useRouteMatch(routeConfig.tellMore.getLink());
 
-  const { available, isSubscribed, subscribe, ready } = usePush();
+  const { available, isSubscribed, subscribe, ready, errorMessage } = usePush();
   const [hasCampaign, dismissCampaign] = useCustomAnnouncement(
     "chooseCampaign"
   );
@@ -52,6 +52,7 @@ const TellMorePage = () => {
       <DeviceNotificationSubscription
         onSubscribe={subscribe}
         onDismiss={dismissDeviceNotificationSubscription}
+        subscriptionError={errorMessage}
       />
     );
   }

@@ -126,6 +126,7 @@ const NotificationSettingPanel = (props) => {
     subscribeDevice,
     unsubscribeDevice,
     isPushAvailable,
+    subscriptionError,
   } = props;
 
   const [byType, icons] = useMemo(() => {
@@ -170,6 +171,9 @@ const NotificationSettingPanel = (props) => {
         <StyledDeviceSubscription>
           <h5>Notifications désactivées</h5>
           <p>Autorisez les notifications sur cet appareil</p>
+          {subscriptionError && (
+            <p style={{ color: style.redNSP }}>{subscriptionError}</p>
+          )}
           <Button color="primary" onClick={subscribeDevice}>
             Activer
           </Button>
@@ -247,5 +251,6 @@ NotificationSettingPanel.propTypes = {
   disabled: PropTypes.bool,
   ready: PropTypes.bool,
   isPushAvailable: PropTypes.bool,
+  subscriptionError: PropTypes.string,
 };
 export default NotificationSettingPanel;

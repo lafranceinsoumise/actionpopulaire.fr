@@ -25,11 +25,18 @@ async function askPermission() {
 const useWebPush = () => {
   const [ready, setReady] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const subscribe = useCallback(async () => {
+    setErrorMessage("");
     await askPermission();
-    await doSubscribe(window.AgirSW);
-    setIsSubscribed(true);
+    const subscription = await doSubscribe(window.AgirSW);
+    if (!subscription) {
+      setIsSubscribed(false);
+      setErrorMessage("Une erreur est survenue.");
+    } else {
+      setIsSubscribed(true);
+    }
   }, []);
 
   const unsubscribe = useCallback(async () => {
@@ -92,6 +99,7 @@ const useWebPush = () => {
     isSubscribed: isSubscribed,
     subscribe,
     unsubscribe: isSubscribed ? unsubscribe : undefined,
+    errorMessage,
   };
 };
 

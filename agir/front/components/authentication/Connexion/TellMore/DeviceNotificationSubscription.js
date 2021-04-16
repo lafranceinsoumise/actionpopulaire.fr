@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import Button from "@agir/front/genericComponents/Button";
 import { Hide } from "@agir/front/genericComponents/grid";
 import Link from "@agir/front/app/Link";
@@ -45,7 +47,7 @@ const StyledWrapper = styled.div`
 `;
 
 const DeviceNotificationSubscription = (props) => {
-  const { onSubscribe, onDismiss } = props;
+  const { onSubscribe, onDismiss, subscriptionError } = props;
   return (
     <>
       <Hide style={{ position: "fixed" }} under>
@@ -68,6 +70,9 @@ const DeviceNotificationSubscription = (props) => {
         </Button>
         <Button onClick={onDismiss}>Pas maintenant</Button>
         <footer>Vous pourrez changer à tout moment</footer>
+        {subscriptionError && (
+          <footer style={{ color: style.redNSP }}>{subscriptionError}</footer>
+        )}
       </StyledWrapper>
     </>
   );
@@ -75,5 +80,6 @@ const DeviceNotificationSubscription = (props) => {
 DeviceNotificationSubscription.propTypes = {
   onSubscribe: PropTypes.func.isRequired,
   onDismiss: PropTypes.func.isRequired,
+  subscriptionError: PropTypes.string,
 };
 export default DeviceNotificationSubscription;

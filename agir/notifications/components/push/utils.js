@@ -59,6 +59,9 @@ export async function doSubscribe(serviceWorkerRegistration, pushSubscription) {
     })) ||
     (await serviceWorkerRegistration.pushManager.getSubscription());
 
+  if (!pushSubscription) {
+    return;
+  }
   log.debug("Received PushSubscription: ", pushSubscription);
 
   const browser = loadVersionBrowser();
