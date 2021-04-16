@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import throttle from "lodash/throttle";
 import debounce from "lodash/debounce";
 import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
+import ResizeObserver from "resize-observer-polyfill";
 
 export const usePrevious = (value) => {
   const ref = useRef(null);
