@@ -250,7 +250,6 @@ const IntroApp2 = () => {
   const [transitions, set] = useSprings(items.length, (i) => ({
     x: i * window.innerWidth,
     visibility: "visible",
-    config: { mass: 1.5, tension: 280, friction: 15, clamp: true },
   }));
 
   const handleNext = useCallback(() => {
@@ -276,7 +275,7 @@ const IntroApp2 = () => {
 
   const bind = useDrag(
     ({ active, movement: [mx], direction: [xDir], distance, cancel }) => {
-      if (active && distance > window.innerWidth / 2) {
+      if (active && distance > window.innerWidth / 5) {
         const newIndex = clamp(
           index.current + (xDir > 0 ? -1 : 1),
           0,
