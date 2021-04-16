@@ -5,6 +5,14 @@
   {% render_bundle 'theme' 'css' %}
 {% endblock %}
 
+{% block matomo_extra_tracking %}
+{% if user.is_authenticated %}
+  _paq.push(['setUserId', '{{ user.person.id }}']);
+{% else %}
+  _paq.push(['resetUserId']);
+{% endif %}
+{% endblock %}
+
 {% block cdn_assets %}
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"

@@ -1,10 +1,23 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
 
 const useTracking = () => {
   const location = useLocation();
   const { pathname } = location;
   const previous = useRef(null);
+  const user = useSelector(getUser);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window._paq) {
+      if (user && user.id) {
+        window._paq.push(["setUserId", user.id]);
+      } else {
+        window._paq.push(["resetUserId"]);
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window._paq) {

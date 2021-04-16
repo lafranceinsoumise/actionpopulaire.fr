@@ -95,11 +95,6 @@
 <!-- Matomo -->
 <script type="text/javascript">
   var _paq = window._paq = window._paq || [];
-  {% if user.is_authenticated %}
-  _paq.push(['setUserId', '{{ user.person.id }}']);
-  {% else %}
-  _paq.push(['resetUserId']);
-  {% endif %}
   _paq.push(['trackPageView']);
   _paq.push(['enableLinkTracking']);
   {% block matomo_extra_tracking %}{% endblock %}
