@@ -55,4 +55,8 @@ def send_apns_activity(activity_pk, apns_device_pk):
 
     message = serializer(instance=activity)
 
-    return apns_device.send_message(message=message.data, thread_id=activity.type)
+    return apns_device.send_message(
+        message=message.data,
+        thread_id=activity.type,
+        extra={"url": message.data["url"]},
+    )
