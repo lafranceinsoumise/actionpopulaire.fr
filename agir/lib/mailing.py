@@ -14,11 +14,7 @@ from django.utils.safestring import mark_safe
 from agir.lib.utils import generate_token_params, front_url, is_front_url, AutoLoginUrl
 from agir.people.models import Person
 
-__all__ = [
-    "send_mosaico_email",
-    "generate_plain_text",
-    "fetch_mosaico_template",
-]
+__all__ = ["send_mosaico_email", "generate_plain_text", "fetch_mosaico_template"]
 
 MOSAICO_VAR_REGEX = re.compile(r"\[([-A-Z_]+)\]")
 
@@ -35,8 +31,8 @@ def conditional_html_to_text(text):
 
 def generate_plain_text(html_message):
     return (
-            re.sub("Cet email a été envoyé à .*$", "", _h.handle(html_message))
-            + """
+        re.sub("Cet email a été envoyé à .*$", "", _h.handle(html_message))
+        + """
 ------------------------------------------------------------------
 Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
 
@@ -91,18 +87,18 @@ def get_context_from_bindings(code, recipient, bindings):
 
 
 def send_mosaico_email(
-        code,
-        subject,
-        from_email,
-        recipients,
-        recipient_type="to",
-        bindings=None,
-        connection=None,
-        backend=None,
-        fail_silently=False,
-        preferences_link=True,
-        reply_to=None,
-        attachments=None,
+    code,
+    subject,
+    from_email,
+    recipients,
+    recipient_type="to",
+    bindings=None,
+    connection=None,
+    backend=None,
+    fail_silently=False,
+    preferences_link=True,
+    reply_to=None,
+    attachments=None,
 ):
     """Send an email from a Mosaico template
 
