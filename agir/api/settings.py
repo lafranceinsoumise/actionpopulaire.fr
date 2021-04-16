@@ -613,6 +613,7 @@ if not DEBUG:
     # removed because it created problems with direct HTTP connections on localhost
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 6  # 3 mois
 
 CRISPY_TEMPLATE_PACK = "bootstrap3"
 
