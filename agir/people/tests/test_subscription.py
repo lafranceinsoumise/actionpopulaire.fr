@@ -129,6 +129,7 @@ class SubscriptionConfirmationTestCase(TestCase):
 
     def test_can_receive_specific_email_if_already_subscribed(self):
         p = Person.objects.create_insoumise("person@server.fr")
+        p.ensure_role_exists()
 
         data = {"email": "person@server.fr", "location_zip": "75001"}
 
@@ -159,6 +160,8 @@ class SubscriptionConfirmationTestCase(TestCase):
 
         # check that the person has been created
         p = Person.objects.get_by_natural_key("personne@organisation.pays")
+        p.ensure_role_exists()
+
         self.assertTrue(p.is_2022)
         self.assertEqual(p.location_country, "VE")
         self.assertAlmostEqual(

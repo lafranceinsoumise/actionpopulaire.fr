@@ -73,6 +73,10 @@ class NotificationTasksTestCase(TestCase):
             notifications_enabled=False,
         )
 
+        self.creator.ensure_role_exists()
+        self.member1.ensure_role_exists()
+        self.member2.ensure_role_exists()
+
     def test_group_creation_mail(self):
         tasks.send_support_group_creation_notification(self.creator_membership.pk)
 
