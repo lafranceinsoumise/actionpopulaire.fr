@@ -1,27 +1,23 @@
-import React, { useMemo } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-
-import { addQueryStringParams } from "@agir/lib/utils/url";
 
 import APP_STORE_APPLE from "@agir/front/genericComponents/logos/appstore_apple.svg";
 import APP_STORE_GOOGLE from "@agir/front/genericComponents/logos/appstore_google.svg";
 
 const CONFIG = {
   apple: {
-    href: "https://infos.actionpopulaire.fr/application-ios",
+    href:
+      "https://apps.apple.com/us/app/action-populaire/id1559737444#?platform=iphone",
     title: "Télécharger dans l'App Store",
     $image: APP_STORE_APPLE,
   },
   google: {
-    href: "https://infos.actionpopulaire.fr/application-android",
+    href:
+      "https://play.google.com/store/apps/details?id=fr.actionpopulaire.twa",
     title: "Disponible sur Google Play",
     $image: APP_STORE_GOOGLE,
   },
-};
-
-const DEFAULT_UTM_PARAMS = {
-  utm_source: "ap",
 };
 
 const AppStoreLink = styled.a`
@@ -36,20 +32,14 @@ const AppStoreLink = styled.a`
 `;
 
 const AppStore = (props) => {
-  const { type, params, ...rest } = props;
+  const { type, ...rest } = props;
   const config = CONFIG[type];
-
-  const href = useMemo(() => {
-    if (config && config.href) {
-      return addQueryStringParams(config.href, params || DEFAULT_UTM_PARAMS);
-    }
-  }, [config, params]);
 
   if (!config) {
     return null;
   }
 
-  return <AppStoreLink {...config} {...rest} href={href} />;
+  return <AppStoreLink {...config} {...rest} />;
 };
 
 AppStore.propTypes = {

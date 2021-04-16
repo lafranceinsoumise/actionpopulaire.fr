@@ -1,3 +1,4 @@
+import React from "react";
 import { MobileAppModal } from "./MobileAppModal";
 
 export default {
@@ -5,11 +6,10 @@ export default {
   title: "Layout/PushModal/MobileAppModal",
 };
 
-const Template = MobileAppModal;
+const Template = (args) => <MobileAppModal {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
   referralURL: "https://referral.url",
   shouldShow: true,
-  onClose: () => {},
 };
