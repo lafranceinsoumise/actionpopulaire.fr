@@ -2,9 +2,9 @@ import PropTypes from "prop-types";
 import React from "react";
 import * as Sentry from "@sentry/react";
 
-import generateLogger from "@agir/lib/utils/logger";
+import logger from "@agir/lib/utils/logger";
 
-const logger = generateLogger(__filename);
+const log = logger(__filename);
 
 class DevErrorBoundary extends React.Component {
   constructor(props) {
@@ -21,7 +21,7 @@ class DevErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    logger.debug(error, info);
+    log.debug(error, info);
   }
 
   render() {
@@ -47,7 +47,6 @@ class DevErrorBoundary extends React.Component {
 
 const ProdErrorBoundary = (props) => {
   const { children, Fallback: CustomFallback } = props;
-
   const fallback = ({ error }) => {
     const errorMessage = error.toString();
 
@@ -66,7 +65,12 @@ const ProdErrorBoundary = (props) => {
   };
 
   return (
-    <Sentry.ErrorBoundary fallback={fallback}>{children}</Sentry.ErrorBoundary>
+    <Sentry.ErrorBoundary
+      fallback={fallback}
+      onError={(error) => log.debug(error)}
+    >
+      {children}
+    </Sentry.ErrorBoundary>
   );
 };
 
