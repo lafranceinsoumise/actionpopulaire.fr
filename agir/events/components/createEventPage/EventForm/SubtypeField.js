@@ -222,10 +222,13 @@ const SubtypeField = (props) => {
   );
 
   const options = useMemo(() => {
-    const categories = { ...EVENT_TYPES };
+    const categories = {};
     subtypes.forEach((subtype) => {
       const category =
-        subtype.type && categories[subtype.type] ? subtype.type : "O";
+        subtype.type && EVENT_TYPES[subtype.type] ? subtype.type : "O";
+      categories[category] = categories[category] || {
+        ...EVENT_TYPES[category],
+      };
       categories[category].subtypes = categories[category].subtypes || [];
       categories[category].subtypes.push(subtype);
     });
