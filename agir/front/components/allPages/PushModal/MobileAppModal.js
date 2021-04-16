@@ -35,7 +35,7 @@ const StyledModalContent = styled.div`
   @media (max-width: ${style.collapse}px) {
     margin-top: 20px;
     max-width: calc(100% - 40px);
-    padding: 3rem 0;
+    padding: 0 0 1.5rem;
   }
 
   & > * {
@@ -72,6 +72,11 @@ const StyledModalContent = styled.div`
     background-repeat: no-repeat;
     margin-bottom: 56px;
 
+    @media (max-width: ${style.collapse}px) {
+      height: 100px;
+      background-size: 160px auto;
+    }
+
     &::after {
       content: "";
       display: block;
@@ -85,10 +90,6 @@ const StyledModalContent = styled.div`
       bottom: 0;
       left: 50%;
       transform: translate3d(-50%, 50%, 0);
-    }
-
-    @media (max-width: ${style.collapse}px) {
-      display: none;
     }
   }
 
@@ -110,6 +111,10 @@ const StyledModalContent = styled.div`
     font-size: 1rem;
     line-height: 1.6;
     padding-bottom: 2.5rem;
+
+    @media (max-width: ${style.collapse}px) {
+      font-size: 0.875rem;
+    }
   }
 
   ${Buttons} {
@@ -123,14 +128,9 @@ const StyledModalContent = styled.div`
   }
 `;
 
-const UTM_PARAMS = {
-  utm_source: "ap",
-  utm_campaign: "mobile-app-modal",
-};
-
 export const MobileAppModal = ({ shouldShow = false, onClose }) => {
   return (
-    <Modal shouldShow={shouldShow}>
+    <Modal shouldShow={shouldShow} onClose={onClose}>
       <StyledModalContent>
         <CloseButton onClick={onClose} aria-label="Fermer la modale">
           <RawFeatherIcon name="x" width="2rem" height="2rem" />
@@ -143,9 +143,9 @@ export const MobileAppModal = ({ shouldShow = false, onClose }) => {
           aucune information près de chez vous !
         </p>
         <Buttons>
-          <AppStore type="google" params={UTM_PARAMS} />
+          <AppStore type="google" />
           <Spacer size="1rem" />
-          <AppStore type="apple" params={UTM_PARAMS} />
+          <AppStore type="apple" />
         </Buttons>
       </StyledModalContent>
     </Modal>
