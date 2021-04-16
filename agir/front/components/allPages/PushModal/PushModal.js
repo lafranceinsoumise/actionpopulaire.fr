@@ -1,7 +1,10 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
-import ReferralModal from "./ReferralModal";
 
+import ReferralModal from "./ReferralModal";
+import MobileAppModal from "./MobileAppModal";
+
+import { useMobileApp } from "@agir/front/app/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIsSessionLoaded,
@@ -9,29 +12,63 @@ import {
 } from "@agir/front/globalContext/reducers";
 
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 export const PushModal = ({ isActive = true }) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const routes = useSelector(getRoutes);
-  const [shouldShow, setShouldShow] = useState(false);
-  const [ReferralModalAnnouncement, onClose] = useCustomAnnouncement(
-    "ReferralModalAnnouncement"
-  );
-  const handleClose = useCallback(() => {
+
+  const [shouldShow, setShouldShow] = useState(null);
+
+  const { isMobileApp } = useMobileApp();
+
+  const [
+    ReferralModalAnnouncement,
+    dismissReferralAnnouncement,
+  ] = useCustomAnnouncement("ReferralModalAnnouncement");
+
+  const [
+    MobileAppAnnouncement,
+    dismissMobileAppAnnouncement,
+  ] = useCustomAnnouncement("MobileAppAnnouncement");
+
+  const handleCloseReferral = useCallback(() => {
     setShouldShow(false);
-    onClose && onClose();
-  }, [onClose]);
+    dismissReferralAnnouncement && dismissReferralAnnouncement();
+  }, [dismissReferralAnnouncement]);
+
+  const handleCloseMobileApp = useCallback(() => {
+    setShouldShow(false);
+    dismissMobileAppAnnouncement && dismissMobileAppAnnouncement();
+  }, [dismissMobileAppAnnouncement]);
 
   useEffect(() => {
-    isActive &&
+    if (
+      !window.location.href.endsWith(routeConfig.tellMore.getLink()) &&
+      isActive &&
       isSessionLoaded &&
-      !!ReferralModalAnnouncement &&
+      typeof shouldShow !== "boolean" &&
+      (!!ReferralModalAnnouncement || !!MobileAppAnnouncement)
+    ) {
       setShouldShow(true);
-  }, [isActive, isSessionLoaded, ReferralModalAnnouncement]);
+    }
+  }, [
+    shouldShow,
+    isActive,
+    isSessionLoaded,
+    ReferralModalAnnouncement,
+    MobileAppAnnouncement,
+  ]);
+
+  if (MobileAppAnnouncement && !isMobileApp) {
+    return (
+      <MobileAppModal onClose={handleCloseMobileApp} shouldShow={shouldShow} />
+    );
+  }
 
   return (
     <ReferralModal
-      onClose={handleClose}
+      onClose={handleCloseReferral}
       shouldShow={shouldShow}
       referralURL={
         isSessionLoaded && routes.nspReferral ? routes.nspReferral : ""
