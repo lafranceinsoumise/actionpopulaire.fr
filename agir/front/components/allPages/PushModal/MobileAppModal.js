@@ -9,7 +9,7 @@ import Modal from "@agir/front/genericComponents/Modal";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-import modalImage from "./images/mobile-app-modal-bg.svg";
+import modalImage from "./images/mobile-app-modal-bg.png";
 import modalLogo from "./images/modal-app-modal-logo.svg";
 
 const CloseButton = styled.button``;
