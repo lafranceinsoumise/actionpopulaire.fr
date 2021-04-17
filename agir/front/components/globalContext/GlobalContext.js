@@ -110,3 +110,5 @@ export const useDispatch = () => {
   const { dispatch } = useContext(GlobalContext);
   return dispatch;
 };
+
+export default GlobalContextProvider;
