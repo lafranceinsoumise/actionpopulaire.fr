@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, Suspense } from "react";
 import { StateInspector, useReducer } from "reinspect";
 import { ThemeProvider } from "styled-components";
 
@@ -10,11 +10,13 @@ import createDispatch, {
   initFromScriptTag,
   setSessionContext,
 } from "@agir/front/globalContext/actions";
-import Toasts from "@agir/front/globalContext/Toast";
 import useSWR from "swr";
 
 import logger from "@agir/lib/utils/logger";
+import { lazy } from "@agir/front/app/utils";
 const log = logger(__filename);
+
+const Toasts = lazy(() => import("@agir/front/globalContext/Toast"), null);
 
 const GlobalContext = React.createContext({});
 
@@ -49,7 +51,11 @@ const ProdProvider = ({ hasRouter = false, hasToasts = false, children }) => {
     <GlobalContext.Provider value={{ state, dispatch: doDispatch }}>
       <ThemeProvider theme={style}>
         {children}
-        {hasToasts ? <Toasts /> : null}
+        {hasToasts && state.toasts?.length > 0 ? (
+          <Suspense fallback={null}>
+            <Toasts />
+          </Suspense>
+        ) : null}
       </ThemeProvider>
     </GlobalContext.Provider>
   );

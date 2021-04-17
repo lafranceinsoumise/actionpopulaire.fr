@@ -17,7 +17,9 @@ export const lazy = (lazyImport, fallback) => {
             }
             setError(err.toString());
             const Fallback = () =>
-              fallback || (
+              typeof fallback !== "undefined" ? (
+                fallback
+              ) : (
                 <div>
                   <h2>Erreur</h2>
                   <p>
