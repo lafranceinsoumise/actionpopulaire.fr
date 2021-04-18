@@ -139,6 +139,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # see https://docs.djangoproject.com/en/3.1/ref/forms/renderers/#templatessetting
+    "django.forms",
     # sitemaps
     "django.contrib.sitemaps",
     # redirect
@@ -168,8 +170,6 @@ INSTALLED_APPS = [
     "phonenumber_field",
     # stdimage
     "stdimage",
-    # webpack
-    "webpack_loader",
     # fi apps
     "nuntius",
     # push,
@@ -220,7 +220,7 @@ ROOT_URLCONF = "agir.api.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ["assets/components/includes"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -232,6 +232,8 @@ TEMPLATES = [
         },
     }
 ]
+# see https://docs.djangoproject.com/en/3.1/ref/forms/renderers/#templatessetting
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 if ENABLE_FRONT:
     TEMPLATES[0]["OPTIONS"]["context_processors"].extend(
@@ -407,18 +409,6 @@ if not DEBUG:
     STATICFILES_STORAGE = (
         "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
     )
-
-WEBPACK_LOADER = {
-    "DEFAULT": {
-        "BUNDLE_DIR_NAME": "components/",
-        "STATS_FILE": os.path.join(
-            STATICFILES_DIRS[0], "components", "webpack-stats.json"
-        ),
-    }
-}
-WEBPACK_LOADER_SKIP = os.environ.get("WEBPACK_LOADER_SKIP", "false").lower() == "true"
-if WEBPACK_LOADER_SKIP:
-    WEBPACK_LOADER["DEFAULT"]["LOADER_CLASS"] = "agir.front.build.DummyWebpackLoader"
 
 MEDIA_URL = "/media/"
 

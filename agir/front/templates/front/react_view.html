@@ -1,8 +1,7 @@
 {% extends "front/base_layout.html" %}
-{% load webpack_loader %}
 
 {% block extra_scripts %}
-  {% render_bundle bundle_name %}
+  {% include bundle_name|add:".bundle.html" %}
 {% endblock %}
 
 {% block additional_headers %}

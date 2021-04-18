@@ -1,5 +1,4 @@
 {% extends "front/layout.html" %}
-{% load webpack_loader %}
 
 {% block title %}
   Collecte des parrainages
@@ -11,5 +10,5 @@
 
 {% block whole_page %}
   <div id="app"></div>
-  {% render_bundle "elus/parrainages" %}
+  {% include "elus/parrainages.bundle.html" %}
 {% endblock %}

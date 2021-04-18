@@ -1,3 +1,4 @@
 <div{% if widget.admin %} style="margin-left: 170px;"{% endif %}><textarea
   name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>{% if widget.value %}
   {{ widget.value }}{% endif %}</textarea></div>
+{% include "front/richEditor.bundle.html" %}

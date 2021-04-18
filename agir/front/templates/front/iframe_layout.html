@@ -1,6 +1,5 @@
 {% load static %}
 
-{% load render_bundle from webpack_loader %}
 <!doctype html>
 <html lang="fr-FR" prefix="og: http://ogp.me/ns#">
 <head>
@@ -9,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ calendar.name }}</title>
 
-  {% render_bundle 'theme' 'css' %}
+  {% include 'theme.bundle.html' %}
 
   {% include "front/includes/favicon.html" %}
 

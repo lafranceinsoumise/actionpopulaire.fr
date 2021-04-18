@@ -46,7 +46,6 @@ jobs:
         env:
           DATABASE_URL: "postgis://postgres:postgres@localhost:5432/postgres"
           LOG_DISABLE_JOURNALD: true
-          WEBPACK_LOADER_SKIP: true
 
   js-tests:
     name: Frontend
