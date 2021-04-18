@@ -136,7 +136,7 @@
     "webpack-dev-server": "^3.11.1",
     "webpack-merge": "^5.7.3",
     "webpack-stats-plugin": "^1.0.3",
-    "webpackbar": "*",
+    "webpackbar": "5.0.0-3",
     "workbox-webpack-plugin": "^6.1.0"
   },
   "browserslist": "> 0.5% in FR, last 2 versions, Firefox ESR, not dead, not IE 11"
