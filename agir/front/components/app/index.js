@@ -1,32 +1,30 @@
+import React, { Suspense } from "react";
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 import logger from "@agir/lib/utils/logger";
 
 import "@agir/front/allPages/sentry";
 import "@agir/front/allPages/ios.js";
 import "@agir/front/genericComponents/style.scss";
+import { renderReactComponent } from "@agir/lib/utils/react";
+import { lazy } from "@agir/front/app/utils";
 
 const log = logger(__filename);
 
-(async function () {
-  const [
-    { default: React },
-    { renderReactComponent },
-    { default: App },
-  ] = await Promise.all([
-    import("react"),
-    import("@agir/lib/utils/react"),
-    import("./App"),
-  ]);
+const App = lazy(() => import("@agir/front/app/App"), null);
 
-  const init = () => {
-    const renderElement = document.getElementById("mainApp");
-    if (!renderElement) {
-      return;
-    }
-    renderReactComponent(<App />, renderElement);
-  };
-  onDOMReady(init);
-})();
+const init = () => {
+  const renderElement = document.getElementById("mainApp");
+  if (!renderElement) {
+    return;
+  }
+  renderReactComponent(
+    <Suspense fallback={null}>
+      <App />
+    </Suspense>,
+    renderElement
+  );
+};
+onDOMReady(init);
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {

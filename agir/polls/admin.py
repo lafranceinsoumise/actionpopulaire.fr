@@ -7,9 +7,6 @@ from agir.lib.form_fields import AdminJsonWidget
 from agir.lib.utils import front_url
 from .models import Poll, PollOption
 
-from webpack_loader import utils as webpack_loader_utils
-from webpack_loader.utils import get_files
-
 
 class PollOptionInline(admin.TabularInline):
     model = PollOption
@@ -41,9 +38,6 @@ class PollAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ["link"]
     autocomplete_fields = ("authorized_segment",)
-
-    class Media:
-        js = (webpack_loader_utils.get_files("runtime")[0]["url"],)
 
     def link(self, object):
         if object.pk:

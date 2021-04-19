@@ -1,5 +1,4 @@
 {% extends "admin/base_site.html" %}
-{% load webpack_loader %}
 
 {% load static %}
 
@@ -19,6 +18,5 @@
   </style>
 {% endblock %}
 {% block extrahead %}
-  {% render_bundle "runtime" %}
   {{ block.super }}
 {% endblock %}

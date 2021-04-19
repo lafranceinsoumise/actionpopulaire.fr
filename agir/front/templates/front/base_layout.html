@@ -1,5 +1,4 @@
 {% load static %}
-{% load render_bundle from webpack_loader %}
 <!doctype html>
 <html lang="fr-FR" prefix="og: http://ogp.me/ns#">
 <head>
@@ -52,8 +51,6 @@
   {% block css %}{% endblock %}
   {% block cdn_assets %}{% endblock %}
 
-  {% render_bundle 'runtime' %}
-
   {% block extra_scripts %}{% endblock %}
   {% block additional_headers %}{% endblock %}
 
@@ -67,7 +64,7 @@
   <div id="top-bar"></div>
   <div id="release-modal"></div>
   <div id="feedback-button"></div>
-  {% render_bundle 'front/legacyPages' %}
+  {% include "front/legacyPages.bundle.html"%}
   {% block full_width %}
     <div class="wrap container" role="document">
       <main class="main marginbottommore">

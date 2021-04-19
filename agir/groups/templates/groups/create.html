@@ -1,11 +1,10 @@
 {% extends "front/layout.html" %}
 {% load crispy_forms_tags %}
-{% load render_bundle from webpack_loader %}
 
 {% block title %}Créer un groupe{% endblock %}
 
 {% block extra_scripts %}
-  {% render_bundle 'lib/creationForms' attrs='defer' %}
+  {% include "lib/creationForms.bundle.html" %}
 {% endblock %}
 
 {% block main %}

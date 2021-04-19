@@ -1,24 +1,15 @@
+import React from "react";
 import onDOMReady from "@agir/lib/utils/onDOMReady";
+import DeleteDocumentButton from "@agir/donations/spendingRequestLib/DeleteDocumentButton";
+import { renderReactComponent } from "@agir/lib/utils/react";
 
-(async function () {
-  const [
-    { default: React },
-    { renderReactComponent },
-    { default: DeleteDocumentButton },
-  ] = await Promise.all([
-    import("react"),
-    import("@agir/lib/utils/react"),
-    import("./DeleteDocumentButton"),
-  ]);
-
-  function render() {
-    for (let documentDelete of document.querySelectorAll(".delete-document")) {
-      renderReactComponent(
-        <DeleteDocumentButton {...documentDelete.dataset} />,
-        documentDelete
-      );
-    }
+function render() {
+  for (let documentDelete of document.querySelectorAll(".delete-document")) {
+    renderReactComponent(
+      <DeleteDocumentButton {...documentDelete.dataset} />,
+      documentDelete
+    );
   }
+}
 
-  onDOMReady(render);
-})();
+onDOMReady(render);
