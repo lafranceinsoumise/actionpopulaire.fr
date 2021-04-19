@@ -5,7 +5,6 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Accordion from "@agir/front/genericComponents/Accordion";
-import AppStore from "@agir/front/genericComponents/AppStore";
 import Button from "@agir/front/genericComponents/Button";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Panel, { StyledBackButton } from "@agir/front/genericComponents/Panel";
@@ -85,7 +84,7 @@ const StyledDeviceSubscription = styled.div`
   }
 `;
 
-const StyledAppStoreLink = styled.div`
+const StyledUnsupportedSubscription = styled.div`
   padding: 1rem;
   display: grid;
   grid-template-columns: 1fr;
@@ -127,6 +126,7 @@ const NotificationSettingPanel = (props) => {
     unsubscribeDevice,
     isPushAvailable,
     subscriptionError,
+    pushIsReady,
   } = props;
 
   const [byType, icons] = useMemo(() => {
@@ -184,14 +184,10 @@ const NotificationSettingPanel = (props) => {
             Désactiver les notifications
           </Button>
         </div>
-      ) : !isPushAvailable ? (
-        <StyledAppStoreLink>
-          <p>
-            Les notifications ne sont pas supportés sur le site web.{" "}
-            <strong>Téléchargez l’application&nbsp;:</strong>
-          </p>
-          <AppStore type="apple" />
-        </StyledAppStoreLink>
+      ) : pushIsReady && !isPushAvailable ? (
+        <StyledUnsupportedSubscription>
+          <p>Les notifications ne sont actuellement pas supportées.</p>
+        </StyledUnsupportedSubscription>
       ) : null}
       <PageFadeIn ready={ready}>
         {Object.keys(byType).map((type) => (
@@ -251,6 +247,7 @@ NotificationSettingPanel.propTypes = {
   disabled: PropTypes.bool,
   ready: PropTypes.bool,
   isPushAvailable: PropTypes.bool,
+  pushIsReady: PropTypes.bool,
   subscriptionError: PropTypes.string,
 };
 export default NotificationSettingPanel;
