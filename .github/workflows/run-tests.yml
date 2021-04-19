@@ -48,7 +48,7 @@ jobs:
       - name: Install node dependencies
         run: npm ci
       - name: Build bundles
-        run: npm run build
+        run: npm run build:dev
         env:
           BABEL_CACHE_DIRECTORY: ~/.babel-cache
           WEBPUSH_PUBLIC_KEY: "dummy"
