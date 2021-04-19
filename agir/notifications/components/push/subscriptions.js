@@ -144,7 +144,12 @@ const useIOSPush = () => {
       try {
         deviceSubscription = await axios(`/api/device/webpush/${data.token}/`);
       } catch (e) {
-        log.debug("iOS: error retrieving subscription", data.token, e);
+        if (e.response?.status !== 404) {
+          setReady(true);
+          log.error("iOS: error retrieving subscription", data.token, e);
+          return;
+        }
+        deviceSubscription = null;
       }
 
       if (deviceSubscription) {
