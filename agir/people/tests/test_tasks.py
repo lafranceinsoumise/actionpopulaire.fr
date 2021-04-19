@@ -30,3 +30,12 @@ class PeopleTasksTestCase(TestCase):
         tasks.send_welcome_mail(person.pk, type="LFI")
 
         self.assertEqual(len(mail.outbox), 0)
+
+    def test_no_role_user_receive_mail(self):
+        person = Person.objects.create_insoumise(
+            "inactiverole@me.org", create_role=False
+        )
+        person.save()
+        tasks.send_welcome_mail(person.pk, type="LFI")
+
+        self.assertEqual(len(mail.outbox), 1)
