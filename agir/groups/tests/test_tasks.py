@@ -55,11 +55,14 @@ class NotificationTasksTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
-        self.member1 = Person.objects.create_insoumise("person1@participants.fr", create_role=True)
-        self.member2 = Person.objects.create_insoumise("person2@participants.fr", create_role=True)
+        self.member1 = Person.objects.create_insoumise(
+            "person1@participants.fr", create_role=True
+        )
+        self.member2 = Person.objects.create_insoumise(
+            "person2@participants.fr", create_role=True
+        )
         self.member_no_notification = Person.objects.create_insoumise(
-            "person3@participants.fr",
-            create_role = True
+            "person3@participants.fr", create_role=True
         )
 
         self.membership1 = Membership.objects.create(
