@@ -72,7 +72,7 @@ class PersonProfileAPIView(RetrieveUpdateAPIView):
     permission_classes = (PersonProfilePermissions,)
 
     def get_object(self):
-        person = None
+        person = {}
         if hasattr(self.request.user, "person"):
             person = self.request.user.person
         self.check_object_permissions(self.request, person)

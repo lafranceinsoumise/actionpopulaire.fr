@@ -121,8 +121,12 @@ const TellMore = ({ dismiss }) => {
 
   const getProfileInfos = useCallback(async () => {
     setIsLoading(true);
-    const { data } = await getProfile();
+    const { data, error } = await getProfile();
     setIsLoading(false);
+    if (!data) {
+      console.log(error);
+      return;
+    }
     setFormData({
       displayName:
         data.displayName?.length > 2
