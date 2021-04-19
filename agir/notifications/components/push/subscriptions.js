@@ -106,31 +106,60 @@ const useWebPush = () => {
 const useIOSPush = () => {
   const [ready, setReady] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriptionToken, setSubscriptionToken] = useState(null);
 
-  // We change state when iOS app send information
-  const messageHandler = useCallback(async (data) => {
-    log.debug("iOS : got message", data);
-    if (data.action !== "setNotificationState") {
-      return;
-    }
-
-    if (data.noPermission) {
-      log.debug("iOS : no notification permission");
-      setReady(true);
-      return;
-    }
-
+  const registerDevice = useCallback(async (token) => {
     try {
       await axios.post("/api/device/apple/", {
         name: "Action populaire",
-        registration_id: data.token,
+        registration_id: token,
+        active: true,
       });
       setReady(true);
       setIsSubscribed(true);
+      setSubscriptionToken(token);
     } catch (e) {
       log.error("iOS : error saving Apple push subscription : ", e);
+      setReady(true);
+      setIsSubscribed(false);
     }
   }, []);
+
+  // We change state when iOS app send information
+  const messageHandler = useCallback(
+    async (data) => {
+      log.debug("iOS : got message", data);
+
+      if (data.action !== "setNotificationState") {
+        return;
+      }
+
+      if (data.noPermission) {
+        log.debug("iOS : no notification permission");
+        setReady(true);
+        return;
+      }
+
+      let deviceSubscription = null;
+      try {
+        deviceSubscription = await axios(`/api/device/webpush/${data.token}/`);
+      } catch (e) {
+        log.debug("iOS: error retrieving subscription", data.token, e);
+      }
+
+      if (deviceSubscription) {
+        // Check if subscription for the current token exists and is active
+        setReady(true);
+        setIsSubscribed(deviceSubscription.active);
+        setSubscriptionToken(data.token);
+        return;
+      }
+
+      registerDevice(data.token);
+    },
+    [registerDevice]
+  );
+
   const postMessage = useIOSMessages(messageHandler);
 
   useEffect(() => {
@@ -138,8 +167,34 @@ const useIOSPush = () => {
   }, [postMessage]);
 
   const subscribe = useCallback(() => {
-    postMessage && postMessage({ action: "enableNotifications" });
-  }, [postMessage]);
+    if (subscriptionToken) {
+      registerDevice(subscriptionToken);
+    } else {
+      postMessage && postMessage({ action: "enableNotifications" });
+    }
+  }, [postMessage, registerDevice, subscriptionToken]);
+
+  const unsubscribe = useCallback(async () => {
+    if (!subscriptionToken) {
+      return;
+    }
+    let isUnsubscribed = false;
+    try {
+      log.debug("iOS : disabling device", subscriptionToken);
+      await axios.put(`/api/device/webpush/${subscriptionToken}/`, {
+        registration_id: subscriptionToken,
+        active: false,
+      });
+      isUnsubscribed = true;
+    } catch (e) {
+      log.error("iOS: Error disabling push subscription : ", e);
+      isUnsubscribed = e.response?.status === 404;
+    }
+    if (isUnsubscribed) {
+      log.debug("iOS : device unsubscribed", subscriptionToken);
+      setIsSubscribed(false);
+    }
+  }, [subscriptionToken]);
 
   // Not on iOSDevice
   if (!postMessage) {
@@ -162,8 +217,9 @@ const useIOSPush = () => {
   return {
     ready: true,
     available: true,
-    isSubscribed: isSubscribed,
+    isSubscribed,
     subscribe,
+    unsubscribe: isSubscribed ? unsubscribe : undefined,
   };
 };
 
