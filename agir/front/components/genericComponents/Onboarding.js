@@ -3,6 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
+import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -95,6 +96,10 @@ const Map = styled.iframe`
   height: 338px;
   border: none;
   overflow: hidden;
+
+  @media (max-width: ${style.collapse}px) {
+    display: none;
+  }
 `;
 
 const StyledBlock = styled.section`
@@ -106,10 +111,6 @@ const StyledBlock = styled.section`
 
   @media (max-width: ${style.collapse}px) {
     padding: 0 25px;
-  }
-
-  & + & {
-    margin-top: 60px;
   }
 
   header {
@@ -161,20 +162,27 @@ const StyledBlock = styled.section`
 
 const Onboarding = (props) => {
   const { type, routes } = props;
+
+  const mapIframe = useResponsiveMemo(
+    null,
+    type && ONBOARDING_TYPE[type]?.mapIframe
+  );
+
   if (!type || !ONBOARDING_TYPE[type]) {
     return null;
   }
+
   const {
     img,
     title,
     body,
     mapLabel,
     mapRoute,
-    mapIframe,
     createLabel,
     createRoute,
     createRouteId,
   } = ONBOARDING_TYPE[type];
+
   return (
     <StyledBlock>
       <header>
