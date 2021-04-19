@@ -21,9 +21,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
 
     steps:
       - uses: actions/checkout@v2
@@ -79,7 +76,7 @@ jobs:
       - name: Run tests
         run: python -m pipenv run ./manage.py test -v 2
         env:
-          DATABASE_URL: "postgis://postgres:postgres@localhost:5432/postgres"
+          DATABASE_URL: "postgis://postgres:postgres@postgres:5432/postgres"
           LOG_DISABLE_JOURNALD: true
 
   python-linting:
