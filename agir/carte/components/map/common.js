@@ -29,6 +29,7 @@ export function setUpMap(elementId, layers) {
   const view = new View({
     center: proj.fromLonLat([2, 47]),
     zoom: 6,
+    enableRotation: false,
   });
   return new Map({
     target: elementId,
@@ -191,6 +192,7 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
     view: new View({
       center: proj.fromLonLat(center),
       zoom,
+      enableRotation: false,
     }),
   });
 
