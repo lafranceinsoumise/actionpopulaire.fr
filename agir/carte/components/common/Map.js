@@ -153,7 +153,7 @@ const Map = (props) => {
             setIsLoaded(true);
           });
         } catch (e) {
-          log.error(e.message);
+          log.error(e);
         }
       }
     },
