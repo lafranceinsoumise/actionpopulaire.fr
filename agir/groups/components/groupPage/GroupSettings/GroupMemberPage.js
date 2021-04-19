@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "@agir/front/app/Link";
 import GroupMember from "./GroupMember";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
@@ -11,6 +11,7 @@ import { StyledTitle } from "./styledComponents.js";
 import styled from "styled-components";
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
+import { getMembers } from "@agir/groups/groupPage/api.js";
 
 const InlineBlock = styled.div`
   display: inline-block;
@@ -20,6 +21,16 @@ const GroupMemberPage = (props) => {
   const { onBack, illustration, groupPk } = props;
 
   const group = useGroup(groupPk);
+
+  const getmembersAPI = async (groupPk) => {
+    const res = await getMembers(groupPk);
+    console.log("get members from group : ", res);
+  };
+
+
+  useEffect(() => {
+    getmembersAPI(groupPk);
+  }, [groupPk]);
 
   return (
     <>

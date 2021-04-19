@@ -314,3 +314,17 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return (
             self.membership is not None and obj.messages.filter(deleted=False).exists()
         )
+
+class SupportGroupMembersSerializer(FlexibleFieldsMixin, serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    # members = serializers.SerializerMethodField()
+
+    def get_members(self, obj):
+        return PersonSerializer(
+            obj.members,
+            context=self.context,
+            many=True,
+            fields=["id", "displayName", "image", "gender", "role", "tags"],
+        ).data
+

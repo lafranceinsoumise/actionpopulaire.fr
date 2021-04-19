@@ -23,7 +23,8 @@ export const ObjectManagement = (props) => {
       setSelectedItem(id);
 
       const selected_route = menu_items[id].route;
-      history.push(selected_route.replace(/:groupPk/, object.id));
+      //history.push(selected_route.replace(/:groupPk/, object.id));
+      history.replace(selected_route.replace(/:groupPk/, object.id));
     },
     [object]
   );

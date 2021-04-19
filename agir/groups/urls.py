@@ -161,4 +161,9 @@ urlpatterns = [
         views.GroupSingleCommentAPIView.as_view(),
         name="api_group_message_comment_detail",
     ),
+    path(
+        "api/groupes/<uuid:pk>/members/",
+        views.GroupMembersAPIView.as_view(),
+        name="api_group_members",
+    ),
 ]

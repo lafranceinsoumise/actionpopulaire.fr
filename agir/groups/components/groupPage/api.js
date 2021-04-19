@@ -21,6 +21,8 @@ export const ENDPOINT = {
   createComment: "/api/groupes/messages/:messagePk/comments/",
   deleteComment: "/api/groupes/messages/comments/:commentPk/",
 
+  getMembers: "/api/groupes/:groupPk/members/",
+
   report: "/api/report/",
 };
 
@@ -172,6 +174,22 @@ export const joinGroup = async (groupPk) => {
   const url = getGroupPageEndpoint("joinGroup", { groupPk });
   try {
     const response = await axios.post(url, {});
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const getMembers = async (groupPk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("getMembers", { groupPk });
+  try {
+    const response = await axios.get(url);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

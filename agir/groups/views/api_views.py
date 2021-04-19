@@ -32,6 +32,7 @@ from agir.groups.serializers import (
     SupportGroupSubtypeSerializer,
     SupportGroupSerializer,
     SupportGroupDetailSerializer,
+    SupportGroupMembersSerializer
 )
 from agir.lib.pagination import APIPaginator
 from agir.groups.tasks import send_message_notification_email
@@ -52,6 +53,7 @@ __all__ = [
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
     "GroupJoinAPIView",
+    "GroupMembersAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -61,6 +63,7 @@ from agir.msgs.serializers import (
     SupportGroupMessageSerializer,
     MessageCommentSerializer,
 )
+
 
 
 class LegacyGroupSearchAPIView(ListAPIView):
@@ -406,3 +409,29 @@ class GroupJoinAPIView(CreateAPIView):
                 membership, membership_count=self.object.members_count
             )
             return Response(status=status.HTTP_201_CREATED)
+
+
+class GroupMembersAPIView(SupportGroup, ListAPIView):
+    # serializer_class = SupportGroupSerializer
+    serializer_class = SupportGroupMembersSerializer
+    # permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        person = self.request.user.person
+        person_groups = (
+            SupportGroup.objects.filter(memberships__person=self.request.user.person)
+            .active()
+            .annotate(membership_type=F("memberships__membership_type"))
+            .order_by("-membership_type", "name")
+        )
+        if person_groups.count() == 0 and person.coordinates is not None:
+            person_groups = SupportGroup.objects.active()
+            if person.is_2022_only:
+                person_groups = person_groups.is_2022()
+            person_groups = person_groups.annotate(
+                distance=Distance("coordinates", person.coordinates)
+            ).order_by("distance")[:3]
+            for group in person_groups:
+                group.membership = None
+
+        return person_groups
