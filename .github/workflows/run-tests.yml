@@ -72,14 +72,14 @@ jobs:
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -U pipenv
+          python -m pip install -U pipenv
       - name: Install Pipenv dependencies
-        run: pipenv install --dev --deploy
+        run: python -m pipenv install --dev --deploy
 
       - name: Run black
-        run: pipenv run black --check .
+        run: python -m pipenv run black --check .
       - name: Run tests
-        run: pipenv run ./manage.py test -v 2
+        run: python -m pipenv run ./manage.py test -v 2
         env:
           DATABASE_URL: "postgis://postgres:postgres@localhost:5432/postgres"
           LOG_DISABLE_JOURNALD: true

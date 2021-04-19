@@ -1,5 +1,9 @@
 name: Build testing image
-on: [push]
+on:
+  push:
+    paths:
+      - '.github/Dockerfile'
+      - '.github/workflows/docker-build.yml'
 
 jobs:
   docker:
