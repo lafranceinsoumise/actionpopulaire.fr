@@ -18,6 +18,7 @@ import { routeConfig } from "@agir/front/app/routes.config";
 
 const NotificationSettings = (props) => {
   const {
+    ready: pushIsReady,
     available,
     isSubscribed,
     subscribe,
@@ -90,6 +91,7 @@ const NotificationSettings = (props) => {
       unsubscribeDevice={available && isSubscribed ? unsubscribe : undefined}
       isPushAvailable={available}
       subscriptionError={errorMessage}
+      pushIsReady={pushIsReady}
     />
   );
 };
