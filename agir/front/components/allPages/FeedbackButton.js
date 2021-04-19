@@ -7,6 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser, getRoutes } from "@agir/front/globalContext/reducers";
+import { useMobileApp } from "@agir/front/app/hooks";
 
 import Tooltip from "@agir/front/genericComponents/Tooltip";
 
@@ -45,6 +46,8 @@ const Wrapper = styled(animated.div)`
 
 export const FeedbackButton = (props) => {
   const { isActive, shouldPushTooltip, href } = props;
+  const { isMobileApp } = useMobileApp();
+
   const style = props.style || {};
 
   const [hasTooltip, setHasTooltip] = useState(false);
@@ -75,7 +78,13 @@ export const FeedbackButton = (props) => {
           onClose={shouldPushTooltip ? hideTooltip : undefined}
         >
           <strong>Aidez-nous !</strong>
-          <span>Donnez votre avis sur le nouveau site →</span>
+          {isMobileApp ? (
+            <span>
+              Donnez votre avis sur l'application Action Populaire&nbsp;→
+            </span>
+          ) : (
+            <span>Donnez votre avis sur le site Action Populaire&nbsp;→</span>
+          )}
         </Tooltip>
         <Button
           href={href}
