@@ -182,7 +182,7 @@ module.exports = {
         use: {
           loader: "babel-loader",
           options: {
-            cacheDirectory: true,
+            cacheDirectory: process.env.BABEL_CACHE_DIRECTORY || true,
           },
         },
       },
