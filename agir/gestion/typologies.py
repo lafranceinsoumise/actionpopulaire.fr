@@ -7,10 +7,16 @@ class Etat(TextChoices):
     UNFINISHED = "ERR", "Éléments manquants"
 
 
+class NiveauAcces(TextChoices):
+    NON_RESTREINT = "N"
+    RESTREINT = "R"
+    FINANCES_SEULEMENT = "F"
+
+
 class TypeDocument(TextChoices):
+    DEVIS = "DEV", "Devis"
     FACTURE = "FAC", "Facture"
     JUSTIFICATIF = "JUS", "Justificatif de dépense"
-    DEVIS = "DEV", "Devis"
     PAIEMENT = "PAY", "Preuve de paiement"
     ATTESTATION_GRATUITE = "GRA", "Attestation de gratuité"
     AUTRE = "AUT", "Autre (à détailler dans les commentaires)"
@@ -63,8 +69,21 @@ class TypeDepense(TextChoices):
 
 
 class TypeProjet(TextChoices):
+    CONFERENCE_PRESSE = "CON", "Conférence de presse"
     REUNION_PUBLIQUE = "REU", "Réunion publique"
+    REUNION_PUBLIQUE_LOCALE = "REU-loc", "Réunion publique organisée localement"
+    REUNION_PUBLIQUE_ORATEUR = "REU-ora", "Réunion publique avec un orateur national"
+    REUNION_PUBLIQUE_CANDIDAT = "REU-can", "Réunion publique avec un candidat"
+
+    DEBATS = "DEB", "Débats et conférences"
+    DEBATS_ASSO = "DEB-aso", "Débat organisé par une association"
+    DEBATS_CONF = "DEB-con", "Conférence"
+    DEBATS_CAFE = "DEB-caf", "Café-débat"
 
     MANIFESTATION = "MAN", "Manifestation publique"
+    MANIFESTATION_LOCALE = "MAN-loc", "Manifestation ou marche organisée localement"
+    MANIFESTATION_NATIONALE = "MAN-nat", "Manifestation ou marche nationale"
+
+    ACTIONS = "ACT", "Actions"
 
     DEPENSES_RH = "RH", "Dépenses RH mensuelles"
