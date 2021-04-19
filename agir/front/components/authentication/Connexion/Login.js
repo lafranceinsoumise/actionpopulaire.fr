@@ -60,7 +60,7 @@ const Login = () => {
   const [bookmarkedEmails] = useBookmarkedEmails();
   const [showMore, setShowMore] = useState(false);
   const [error, setError] = useState(null);
-  const { isIOS } = useMobileApp();
+  const { isMobileApp } = useMobileApp();
 
   const next = useMemo(() => {
     if (location.state?.next) {
@@ -144,7 +144,7 @@ const Login = () => {
               </Link>
             </Toast>
           )}
-          {!isIOS && (
+          {!isMobileApp && (
             <>
               <LoginFacebook />
               <div
@@ -175,7 +175,7 @@ const Login = () => {
       {bookmarkedEmails.length === 0 && (
         <>
           <LoginMailEmpty />
-          {!isIOS && (
+          {!isMobileApp && (
             <>
               <div
                 style={{
