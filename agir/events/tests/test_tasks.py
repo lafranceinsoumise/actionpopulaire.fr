@@ -53,16 +53,12 @@ class EventTasksTestCase(TestCase):
             person=self.creator, event=self.event
         )
 
-        self.attendee1 = Person.objects.create_insoumise("person1@participants.fr")
-        self.attendee2 = Person.objects.create_insoumise("person2@participants.fr")
+        self.attendee1 = Person.objects.create_insoumise("person1@participants.fr", create_role=True)
+        self.attendee2 = Person.objects.create_insoumise("person2@participants.fr", create_role=True)
         self.attendee_no_notification = Person.objects.create_insoumise(
-            "person3@participants.fr"
+            "person3@participants.fr",
+            create_role=True
         )
-
-        self.creator.ensure_role_exists()
-        self.attendee1.ensure_role_exists()
-        self.attendee2.ensure_role_exists()
-        self.attendee_no_notification.ensure_role_exists()
 
         self.rsvp1 = RSVP.objects.create(event=self.event, person=self.attendee1)
         self.rsvp2 = RSVP.objects.create(event=self.event, person=self.attendee2)

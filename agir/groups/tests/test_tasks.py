@@ -55,10 +55,11 @@ class NotificationTasksTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
-        self.member1 = Person.objects.create_insoumise("person1@participants.fr")
-        self.member2 = Person.objects.create_insoumise("person2@participants.fr")
+        self.member1 = Person.objects.create_insoumise("person1@participants.fr", create_role=True)
+        self.member2 = Person.objects.create_insoumise("person2@participants.fr", create_role=True)
         self.member_no_notification = Person.objects.create_insoumise(
-            "person3@participants.fr"
+            "person3@participants.fr",
+            create_role = True
         )
 
         self.membership1 = Membership.objects.create(
@@ -72,10 +73,6 @@ class NotificationTasksTestCase(TestCase):
             person=self.member_no_notification,
             notifications_enabled=False,
         )
-
-        self.creator.ensure_role_exists()
-        self.member1.ensure_role_exists()
-        self.member2.ensure_role_exists()
 
     def test_group_creation_mail(self):
         tasks.send_support_group_creation_notification(self.creator_membership.pk)
