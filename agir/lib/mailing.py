@@ -148,8 +148,7 @@ def send_mosaico_email(
         for recipient in recipients:
             # recipient can be either a Person or an email address
             if isinstance(recipient, Person):
-                # if recipient has no role or if he is inactive we break the loop
-                if not recipient.role.is_active:
+                if recipient.role is not None and not recipient.role.is_active:
                     continue
                 connection_params = generate_token_params(recipient)
                 for key, value in link_bindings.items():
