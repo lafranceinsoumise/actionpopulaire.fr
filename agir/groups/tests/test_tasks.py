@@ -35,7 +35,7 @@ class NotificationTasksTestCase(TestCase):
     def setUp(self):
         now = timezone.now()
 
-        self.creator = Person.objects.create_insoumise("moi@moi.fr")
+        self.creator = Person.objects.create_insoumise("moi@moi.fr", create_role=True)
         self.group = SupportGroup.objects.create(
             name="Mon événement",
             contact_name="Moi",

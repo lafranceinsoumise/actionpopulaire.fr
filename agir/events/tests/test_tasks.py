@@ -33,7 +33,7 @@ class EventTasksTestCase(TestCase):
 
         self.calendar = Calendar.objects.create_calendar("default")
 
-        self.creator = Person.objects.create_insoumise("moi@moi.fr")
+        self.creator = Person.objects.create_insoumise("moi@moi.fr", create_role=True)
         self.event = Event.objects.create(
             name="Mon événement",
             start_time=now + timezone.timedelta(hours=2),
