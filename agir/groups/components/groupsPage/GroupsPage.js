@@ -128,29 +128,31 @@ const GroupsPage = () => {
         ready={isSessionLoaded && !!data}
         wait={<Skeleton boxes={2} />}
       >
-        {/* Si l'utilisateurice n'a pas de groupes,
+        <div style={{ paddingBottom: 64 }}>
+          {/* Si l'utilisateurice n'a pas de groupes,
         groups contient la liste des groupes suggérés,
          on place donc avant le texte introductif */}
-        {!hasOwnGroups ? (
-          <Onboarding type="group__suggestions" routes={routes} />
-        ) : null}
-        {groups.length > 0 && (
-          <GroupList>
-            {groups.map((group) => (
-              <GroupCard
-                key={group.id}
-                {...group}
-                displayDescription={false}
-                displayType={false}
-                displayGroupLogo={false}
-                displayMembership={false}
-              />
-            ))}
-          </GroupList>
-        )}
-        {!hasOwnGroups ? (
-          <Onboarding type="group__creation" routes={routes} />
-        ) : null}
+          {!hasOwnGroups ? (
+            <Onboarding type="group__suggestions" routes={routes} />
+          ) : null}
+          {groups.length > 0 && (
+            <GroupList>
+              {groups.map((group) => (
+                <GroupCard
+                  key={group.id}
+                  {...group}
+                  displayDescription={false}
+                  displayType={false}
+                  displayGroupLogo={false}
+                  displayMembership={false}
+                />
+              ))}
+            </GroupList>
+          )}
+          {!hasOwnGroups ? (
+            <Onboarding type="group__creation" routes={routes} />
+          ) : null}
+        </div>
       </PageFadeIn>
     </>
   );
