@@ -10,14 +10,25 @@
     stroke-dashoffset: 200;
     stroke-linecap: round;
     animation: dash 2s linear forwards infinite;
+    will-change: stroke-dashoffset;
   }
 
   #app_loader {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
     width: 100vw;
     height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 1;
+    overflow: hidden;
+    transition: opacity 200ms ease-in-out;
+    z-index: 9999;
+    will-change: opacity;
   }
 </style>
 <div id="app_loader">

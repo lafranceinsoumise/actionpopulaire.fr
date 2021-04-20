@@ -5,9 +5,8 @@
 {% endblock %}
 
 {% block whole_page %}
-  <div id="{{ app_mount_id }}">
-    {% include "front/includes/loader.html" %}
-  </div>
+  {% include "front/includes/loader.html" %}
+  <div id="{{ app_mount_id }}"></div>
   {% if export_data %}
     {{ export_data|json_script:data_script_id }}
   {% endif %}
