@@ -1,9 +1,5 @@
 {% extends "front/base_layout.html" %}
 
-{% block extra_scripts %}
-  {% include bundle_name|add:".bundle.html" %}
-{% endblock %}
-
 {% block additional_headers %}
 <link rel="preload" href="{% url "api_session" %}" as="fetch" crossorigin="anonymous">
 {% endblock %}
@@ -15,6 +11,7 @@
   {% if export_data %}
     {{ export_data|json_script:data_script_id }}
   {% endif %}
+  {% include bundle_name|add:".bundle.html" %}
 {% endblock %}
 
 
