@@ -155,7 +155,9 @@ class SubscriptionConfirmationTestCase(TestCase):
         self.assertIsNotNone(match)
         url_with_params = match.group(0)
 
-        response = self.client.get(url_with_params)
+        response = self.client.get(
+            url_with_params + "&android=1"
+        )  # we add &android=1 cause it should work also in app
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
         # check that the person has been created
