@@ -33,7 +33,7 @@ class EventTasksTestCase(TestCase):
 
         self.calendar = Calendar.objects.create_calendar("default")
 
-        self.creator = Person.objects.create_insoumise("moi@moi.fr")
+        self.creator = Person.objects.create_insoumise("moi@moi.fr", create_role=True)
         self.event = Event.objects.create(
             name="Mon événement",
             start_time=now + timezone.timedelta(hours=2),
@@ -53,10 +53,14 @@ class EventTasksTestCase(TestCase):
             person=self.creator, event=self.event
         )
 
-        self.attendee1 = Person.objects.create_insoumise("person1@participants.fr")
-        self.attendee2 = Person.objects.create_insoumise("person2@participants.fr")
+        self.attendee1 = Person.objects.create_insoumise(
+            "person1@participants.fr", create_role=True
+        )
+        self.attendee2 = Person.objects.create_insoumise(
+            "person2@participants.fr", create_role=True
+        )
         self.attendee_no_notification = Person.objects.create_insoumise(
-            "person3@participants.fr"
+            "person3@participants.fr", create_role=True
         )
 
         self.rsvp1 = RSVP.objects.create(event=self.event, person=self.attendee1)

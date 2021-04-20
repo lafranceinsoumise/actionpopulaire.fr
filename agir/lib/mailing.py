@@ -14,11 +14,7 @@ from django.utils.safestring import mark_safe
 from agir.lib.utils import generate_token_params, front_url, is_front_url, AutoLoginUrl
 from agir.people.models import Person
 
-__all__ = [
-    "send_mosaico_email",
-    "generate_plain_text",
-    "fetch_mosaico_template",
-]
+__all__ = ["send_mosaico_email", "generate_plain_text", "fetch_mosaico_template"]
 
 MOSAICO_VAR_REGEX = re.compile(r"\[([-A-Z_]+)\]")
 
@@ -152,6 +148,8 @@ def send_mosaico_email(
         for recipient in recipients:
             # recipient can be either a Person or an email address
             if isinstance(recipient, Person):
+                if recipient.role is not None and not recipient.role.is_active:
+                    continue
                 connection_params = generate_token_params(recipient)
                 for key, value in link_bindings.items():
                     if isinstance(value, AutoLoginUrl):
