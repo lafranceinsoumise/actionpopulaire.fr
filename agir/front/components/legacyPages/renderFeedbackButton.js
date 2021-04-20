@@ -1,28 +1,17 @@
-import React, { Suspense } from "react";
+import React from "react";
 
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 import { renderReactComponent } from "@agir/lib/utils/react";
-import { lazy } from "@agir/front/app/utils";
 
-(async function () {
-  const FeedbackButton = lazy(
-    () => import("../allPages/FeedbackButton"),
-    <div />
-  );
-  const GlobalContextProvider = lazy(
-    () => import("../globalContext/GlobalContext"),
-    <div />
-  );
+import GlobalContextProvider from "@agir/front/globalContext/GlobalContext";
+import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 
-  const showHeader = () => {
-    renderReactComponent(
-      <Suspense fallback={<div />}>
-        <GlobalContextProvider>
-          <FeedbackButton />
-        </GlobalContextProvider>
-      </Suspense>,
-      document.getElementById("feedback-button")
-    );
-  };
-  onDOMReady(showHeader);
-})();
+const showHeader = () => {
+  renderReactComponent(
+    <GlobalContextProvider>
+      <FeedbackButton />
+    </GlobalContextProvider>,
+    document.getElementById("feedback-button")
+  );
+};
+onDOMReady(showHeader);
