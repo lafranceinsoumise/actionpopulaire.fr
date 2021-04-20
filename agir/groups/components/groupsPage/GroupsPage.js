@@ -106,7 +106,7 @@ const GroupsPage = () => {
       <TopBar>
         <LayoutTitle>Mes groupes</LayoutTitle>
         <div>
-          {routes.createGroup ? (
+          {routes.createGroup && (
             <Button
               as="a"
               href={routes.createGroup}
@@ -116,12 +116,12 @@ const GroupsPage = () => {
             >
               Créer un groupe
             </Button>
-          ) : null}
-          {routes.groupMapPage ? (
+          )}
+          {routes.groupMapPage && (
             <Button as="Link" icon="map" route="groupMapPage" small>
               Carte
             </Button>
-          ) : null}
+          )}
         </div>
       </TopBar>
       <PageFadeIn
@@ -132,9 +132,9 @@ const GroupsPage = () => {
           {/* Si l'utilisateurice n'a pas de groupes,
         groups contient la liste des groupes suggérés,
          on place donc avant le texte introductif */}
-          {!hasOwnGroups ? (
+          {!hasOwnGroups && (
             <Onboarding type="group__suggestions" routes={routes} />
-          ) : null}
+          )}
           {groups.length > 0 && (
             <GroupList>
               {groups.map((group) => (
@@ -149,9 +149,9 @@ const GroupsPage = () => {
               ))}
             </GroupList>
           )}
-          {!hasOwnGroups ? (
+          {!hasOwnGroups && (
             <Onboarding type="group__creation" routes={routes} />
-          ) : null}
+          )}
         </div>
       </PageFadeIn>
     </>
