@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   BrowserRouter,
   Redirect,
@@ -17,12 +17,30 @@ import { useAuthentication } from "@agir/front/authentication/hooks";
 export const ProtectedComponent = (props) => {
   const location = useLocation();
   const isAuthorized = useAuthentication(props.routeConfig);
+
+  useEffect(() => {
+    if (isAuthorized === null) {
+      return;
+    }
+    const loader = document.getElementById("app_loader");
+    if (!loader) {
+      return;
+    }
+    loader.style.opacity = "0";
+    loader.addEventListener("transitionend", () => {
+      const loader = document.getElementById("app_loader");
+      loader && loader.remove();
+    });
+  }, [isAuthorized]);
+
   if (isAuthorized === null) {
     return null;
   }
+
   if (isAuthorized === true) {
     return <Page {...props} />;
   }
+
   return (
     <Redirect
       to={{ pathname: routeConfig.login.path, state: { from: location } }}
