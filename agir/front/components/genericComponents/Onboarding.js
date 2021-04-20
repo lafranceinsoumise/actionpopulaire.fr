@@ -22,15 +22,41 @@ const ONBOARDING_TYPE = {
   },
   group__suggestions: {
     title: "Rejoignez une équipe proche de chez vous",
-    body:
-      "Les groupes de soutien permettent aux militants de s’organiser dans leur quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain et organisez des moments de réflexions politiques !",
+    body: (
+      <>
+        <p>
+          Les groupes d'action permettent aux militants de s’organiser dans leur
+          quartier ou dans leur ville.
+        </p>
+        <p>
+          Rejoignez un groupe, agissez sur le terrain et organisez des moments
+          de réflexions politiques !
+        </p>
+      </>
+    ),
     mapIframe: "groupsMap",
+    mapLabel: "Voir les groupes dans ma ville",
+    mapRoute: "groupMapPage",
+    color: "secondary",
   },
   group__creation: {
     title: "Ou bien créez votre équipe !",
-    body:
-      "Créez votre équipe en quelques clics, et commencez dès aujourd’hui à organiser des actions pour soutenir la candidature de Jean-Luc Mélenchon. Besoin d’inspiration pour animer votre équipe ? Voici quelques pistes.",
-    createLabel: "Créer une équipe de soutien",
+    body: (
+      <>
+        <p>
+          Commencez dès aujourd’hui à organiser des actions pour soutenir la
+          candidature de Jean-Luc Mélenchon.{" "}
+        </p>
+        <p>
+          Besoin d’inspiration pour animer votre équipe ? &nbsp;
+          <a href="https://infos.actionpopulaire.fr/" target="_blank">
+            Voici quelques pistes
+          </a>
+          .
+        </p>
+      </>
+    ),
+    createLabel: "Créer une équipe",
     createRouteId: "createGroup",
   },
   fullGroup__creation: {
@@ -41,11 +67,11 @@ const ONBOARDING_TYPE = {
         organiser des actions pour soutenir la candidature de Jean-Luc
         Mélenchon. Besoin d’inspiration pour animer votre équipe ?{" "}
       </span>,
-      routes.newGroupHelp ? (
+      routes.newGroupHelp && (
         <a key="link" href={routes.newGroupHelp}>
           Voici quelques pistes.
         </a>
-      ) : null,
+      ),
     ],
     createLabel: "Créer une équipe de soutien",
     createRouteId: "createGroup",
@@ -132,7 +158,7 @@ const StyledBlock = styled.section`
   }
 
   article {
-    margin: 0 0 24px;
+    margin: 0 0 0.5rem;
 
     a {
       font-weight: 700;
@@ -143,6 +169,7 @@ const StyledBlock = styled.section`
   footer {
     display: flex;
     flex-direction: row;
+    margin-bottom: 1rem;
 
     @media (max-width: ${style.collapse}px) {
       flex-direction: column;
@@ -181,36 +208,35 @@ const Onboarding = (props) => {
     createLabel,
     createRoute,
     createRouteId,
+    color,
   } = ONBOARDING_TYPE[type];
 
   return (
     <StyledBlock>
       <header>
-        {img ? <div style={{ backgroundImage: `url(${img})` }} /> : null}
-        {mapIframe && routes[mapIframe] ? (
-          <Map src={routes[mapIframe]} />
-        ) : null}
+        {img && <div style={{ backgroundImage: `url(${img})` }} />}
+        {mapIframe && routes[mapIframe] && <Map src={routes[mapIframe]} />}
         <h3>{title}</h3>
       </header>
       <article>
         <p>{typeof body === "function" ? body(props) : body}</p>
       </article>
       <footer>
-        {createRoute ? (
+        {createRoute && (
           <Button as="Link" color="secondary" route={createRoute}>
             {createLabel || "Créer"}
           </Button>
-        ) : null}
-        {createRouteId && routes[createRouteId] ? (
+        )}
+        {createRouteId && routes[createRouteId] && (
           <Button as="a" color="secondary" href={routes[createRouteId]}>
             {createLabel || "Créer"}
           </Button>
-        ) : null}
-        {routes[mapRoute] ? (
-          <Button as="Link" route={mapRoute}>
+        )}
+        {routes[mapRoute] && (
+          <Button as="Link" route={mapRoute} color={color}>
             {mapLabel || "Voir la carte"}
           </Button>
-        ) : null}
+        )}
       </footer>
     </StyledBlock>
   );
