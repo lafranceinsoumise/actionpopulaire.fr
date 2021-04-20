@@ -1,25 +1,17 @@
-import React, { Suspense } from "react";
+import React from "react";
 
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 import { renderReactComponent } from "@agir/lib/utils/react";
-import { lazy } from "@agir/front/app/utils";
 
-(async function () {
-  const PushModal = lazy(() => import("../allPages/PushModal"), <div />);
-  const GlobalContextProvider = lazy(
-    () => import("../globalContext/GlobalContext"),
-    <div />
+import GlobalContextProvider from "@agir/front/globalContext/GlobalContext";
+import PushModal from "@agir/front/allPages/PushModal";
+
+const showHeader = () => {
+  renderReactComponent(
+    <GlobalContextProvider>
+      <PushModal isActive />
+    </GlobalContextProvider>,
+    document.getElementById("release-modal")
   );
-
-  const showHeader = () => {
-    renderReactComponent(
-      <Suspense fallback={<div />}>
-        <GlobalContextProvider>
-          <PushModal isActive />
-        </GlobalContextProvider>
-      </Suspense>,
-      document.getElementById("release-modal")
-    );
-  };
-  onDOMReady(showHeader);
-})();
+};
+onDOMReady(showHeader);
