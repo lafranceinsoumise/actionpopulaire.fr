@@ -24,6 +24,7 @@ const Frame = styled.div`
     & > :nth-child(2) {
       flex-grow: 1;
       padding-left: 1.5rem;
+      padding-right: 1.5rem;
     }
     width: 100%;
     display: flex;
