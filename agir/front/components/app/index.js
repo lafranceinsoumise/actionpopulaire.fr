@@ -1,28 +1,23 @@
-import React, { Suspense } from "react";
+import React from "react";
 import onDOMReady from "@agir/lib/utils/onDOMReady";
 import logger from "@agir/lib/utils/logger";
 
 import "@agir/front/allPages/sentry";
 import "@agir/front/allPages/ios.js";
 import "@agir/front/genericComponents/style.scss";
+
 import { renderReactComponent } from "@agir/lib/utils/react";
-import { lazy } from "@agir/front/app/utils";
+
+import App from "@agir/front/app/App";
 
 const log = logger(__filename);
-
-const App = lazy(() => import("@agir/front/app/App"), null);
 
 const init = () => {
   const renderElement = document.getElementById("mainApp");
   if (!renderElement) {
     return;
   }
-  renderReactComponent(
-    <Suspense fallback={null}>
-      <App />
-    </Suspense>,
-    renderElement
-  );
+  renderReactComponent(<App />, renderElement);
 };
 onDOMReady(init);
 
