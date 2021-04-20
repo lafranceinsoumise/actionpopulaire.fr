@@ -89,6 +89,10 @@ const Buttons = styled.div`
   line-height: 3.125rem;
   margin-top: -0.5rem;
 
+  @media (max-width: ${style.collapse}px) {
+    margin-top: 0rem;
+  }
+
   ${Button} {
     margin-top: 0.5rem;
   }
@@ -140,6 +144,14 @@ const Illustration = styled.div`
       height: 150px;
     }
   }
+`;
+
+const EventName = styled.h3`
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 0.4rem;
+  line-height: 1.5rem;
 `;
 
 const StyledCard = styled(Card)`
@@ -294,31 +306,22 @@ const EventCard = (props) => {
             <> • {location.shortLocation}</>
           )}
         </p>
-        <h3
-          style={{
-            fontWeight: 700,
-            fontSize: "1rem",
-            marginTop: 0,
-            marginBottom: "0.4rem",
-          }}
-        >
-          {name}
-        </h3>
-        {Array.isArray(groups) && groups.length > 0
-          ? groups.map((group) => (
-              <p
-                key={group.name}
-                style={{
-                  fontWeight: "400",
-                  fontSize: "14px",
-                  lineHeight: "1",
-                  color: style.black1000,
-                }}
-              >
-                &mdash;&nbsp;{group.name}
-              </p>
-            ))
-          : null}
+        <EventName>{name}</EventName>
+        {Array.isArray(groups) &&
+          groups.length > 0 &&
+          groups.map((group) => (
+            <p
+              key={group.name}
+              style={{
+                fontWeight: "400",
+                fontSize: "14px",
+                lineHeight: "1",
+                color: style.black1000,
+              }}
+            >
+              &mdash;&nbsp;{group.name}
+            </p>
+          ))}
       </header>
       <Row>
         <Column grow collapse={0}>
@@ -349,7 +352,7 @@ const EventCard = (props) => {
               routes={routes}
               schedule={schedule}
             />
-            {compteRendu ? (
+            {compteRendu && (
               <>
                 <Spacer size=".5rem" />
                 <Button
@@ -366,7 +369,7 @@ const EventCard = (props) => {
                   Voir le compte-rendu
                 </Button>
               </>
-            ) : null}
+            )}
           </Buttons>
         </Column>
         {participantCount > 1 && (
