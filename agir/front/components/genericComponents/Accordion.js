@@ -21,10 +21,12 @@ const Frame = styled.div`
   overflow-x: hidden;
 
   ${Title} {
+    & > :nth-child(2) {
+      flex-grow: 1;
+      padding-left: 1.5rem;
+    }
     width: 100%;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    grid-gap: 1rem;
+    display: flex;
     padding: 1rem 1.5rem;
     background-color: ${style.white};
     border: none;
