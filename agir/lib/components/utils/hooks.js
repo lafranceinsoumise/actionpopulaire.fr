@@ -111,7 +111,9 @@ export const useDisableBodyScroll = (isActive, shouldDisable) => {
   useEffect(() => {
     if (isActive && targetRef.current) {
       shouldDisable
-        ? disableBodyScroll(targetRef.current)
+        ? disableBodyScroll(targetRef.current, {
+            allowTouchMove: (el) => true,
+          })
         : clearAllBodyScrollLocks();
     }
     return () => {
