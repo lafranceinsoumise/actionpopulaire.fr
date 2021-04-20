@@ -1,17 +1,18 @@
 <style>
   @keyframes dash {
     from {
-      stroke-dashoffset: 316.573;
+      stroke-dashoffset: 328.573;
+      stroke-dasharray: 177.573;
     }
     to {
-      stroke-dashoffset: 138.573;
+      stroke-dashoffset: 150.573;
+      stroke-dasharray: 343.146;
     }
   }
 
   .path {
-    stroke-dasharray: 165.573 12;
     stroke-linecap: round;
-    animation: dash 2s cubic-bezier(0.1,.3,0.9,.7) forwards infinite;
+    animation: dash 3s cubic-bezier(0.1,.3,0.9,.7) forwards infinite;
     will-change: stroke-dashoffset;
   }
 
