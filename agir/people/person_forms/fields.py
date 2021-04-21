@@ -11,7 +11,6 @@ from django.utils.deconstruct import deconstructible
 from django.utils.formats import localize_input
 from django.utils.translation import ugettext as _
 from phonenumber_field.formfields import PhoneNumberField
-from webpack_loader import utils as webpack_loader_utils
 
 from agir.events.models import Event
 from agir.lib.data import departements_choices, regions_choices
@@ -200,13 +199,7 @@ class CommuneField(GenericCommuneField):
 
 
 class GroupWidget(forms.Select):
-    @property
-    def media(self):
-        if self.attrs.get("data-group-selector") == "Y":
-            return forms.Media(
-                js=(webpack_loader_utils.get_files("groups/groupSelector")[0]["url"],)
-            )
-        return forms.Media()
+    template_name = "people/widgets/group.html"
 
 
 class ModelDefaultChoiceIterator(ModelChoiceIterator):

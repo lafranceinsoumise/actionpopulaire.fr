@@ -1,8 +1,15 @@
 {% extends "front/base_layout.html" %}
-{% load render_bundle from webpack_loader %}
 
 {% block css %}
-  {% render_bundle 'theme' 'css' %}
+  {% include 'theme.bundle.html' %}
+{% endblock %}
+
+{% block matomo_extra_tracking %}
+{% if user.is_authenticated %}
+  _paq.push(['setUserId', '{{ user.person.id }}']);
+{% else %}
+  _paq.push(['resetUserId']);
+{% endif %}
 {% endblock %}
 
 {% block cdn_assets %}

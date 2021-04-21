@@ -87,13 +87,16 @@ const MainColumn = styled(Column)`
 
 const MainContainer = styled(Container)`
   padding-bottom: 72px;
+
   @media (min-width: ${style.collapse}px) {
     & > ${Row} {
       flex-wrap: nowrap;
     }
   }
+
   @media (max-width: ${style.collapse}px) {
     padding-top: 24px;
+    padding-bottom: 24px;
     background-color: ${({ smallBackgroundColor }) =>
       smallBackgroundColor || "transparent"};
   }
@@ -189,7 +192,10 @@ const Layout = (props) => (
         </SidebarColumn>
       </Row>
     </MainContainer>
-    <Footer desktopOnly={props.desktopOnlyFooter} />
+    <Footer
+      desktopOnly={props.desktopOnlyFooter}
+      displayOnMobileApp={props.displayFooterOnMobileApp}
+    />
   </>
 );
 
@@ -214,6 +220,7 @@ Layout.propTypes = {
   children: PropTypes.node,
   desktopOnlyFooter: PropTypes.bool,
   hasBanner: PropTypes.bool,
+  displayFooterOnMobileApp: PropTypes.bool,
 };
 Layout.defaultProps = {
   routes: {
@@ -223,4 +230,5 @@ Layout.defaultProps = {
   },
   desktopOnlyFooter: true,
   hasBanner: false,
+  displayFooterOnMobileApp: false,
 };

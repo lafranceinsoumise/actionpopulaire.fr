@@ -1,17 +1,16 @@
 {% extends "front/base_layout.html" %}
-{% load webpack_loader %}
-
-{% block extra_scripts %}
-  {% render_bundle bundle_name %}
-{% endblock %}
 
 {% block additional_headers %}
 <link rel="preload" href="{% url "api_session" %}" as="fetch" crossorigin="anonymous">
 {% endblock %}
 
 {% block whole_page %}
+  {% include "front/includes/loader.html" %}
   <div id="{{ app_mount_id }}"></div>
-  {{ export_data|json_script:data_script_id }}
+  {% if export_data %}
+    {{ export_data|json_script:data_script_id }}
+  {% endif %}
+  {% include bundle_name|add:".bundle.html" %}
 {% endblock %}
 
 

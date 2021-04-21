@@ -8,7 +8,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 
-import { displayIntervalStart } from "@agir/lib/utils/time";
+import { displayIntervalStart, displayIntervalEnd } from "@agir/lib/utils/time";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
@@ -89,6 +89,10 @@ const Buttons = styled.div`
   line-height: 3.125rem;
   margin-top: -0.5rem;
 
+  @media (max-width: ${style.collapse}px) {
+    margin-top: 0rem;
+  }
+
   ${Button} {
     margin-top: 0.5rem;
   }
@@ -142,12 +146,20 @@ const Illustration = styled.div`
   }
 `;
 
+const EventName = styled.h3`
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 0.4rem;
+  line-height: 1.5rem;
+`;
+
 const StyledCard = styled(Card)`
   width: 100%;
 
   ${Row} {
     font-size: 0.875rem;
-    max-width: calc(100% - 2rem);
+    max-width: calc(100% + 1.4rem);
   }
 
   ${Column} {
@@ -250,6 +262,14 @@ const EventCard = (props) => {
     compteRendu,
   } = props;
   const history = useHistory();
+
+  const now = DateTime.local();
+  const pending = now >= schedule.start && now <= schedule.end;
+
+  const eventDate = pending
+    ? displayIntervalEnd(schedule)
+    : displayIntervalStart(schedule);
+
   const handleClick = React.useCallback(
     (e) => {
       if (["A", "BUTTON"].includes(e.target.tagName.toUpperCase())) {
@@ -281,36 +301,27 @@ const EventCard = (props) => {
             fontWeight: 500,
           }}
         >
-          {displayIntervalStart(schedule)}
+          {eventDate}
           {location && location.shortLocation && (
             <> • {location.shortLocation}</>
           )}
         </p>
-        <h3
-          style={{
-            fontWeight: 700,
-            fontSize: "1rem",
-            marginTop: 0,
-            marginBottom: "0.4rem",
-          }}
-        >
-          {name}
-        </h3>
-        {Array.isArray(groups) && groups.length > 0
-          ? groups.map((group) => (
-              <p
-                key={group.name}
-                style={{
-                  fontWeight: "400",
-                  fontSize: "14px",
-                  lineHeight: "1",
-                  color: style.black1000,
-                }}
-              >
-                &mdash;&nbsp;{group.name}
-              </p>
-            ))
-          : null}
+        <EventName>{name}</EventName>
+        {Array.isArray(groups) &&
+          groups.length > 0 &&
+          groups.map((group) => (
+            <p
+              key={group.name}
+              style={{
+                fontWeight: "400",
+                fontSize: "14px",
+                lineHeight: "1",
+                color: style.black1000,
+              }}
+            >
+              &mdash;&nbsp;{group.name}
+            </p>
+          ))}
       </header>
       <Row>
         <Column grow collapse={0}>
@@ -341,7 +352,7 @@ const EventCard = (props) => {
               routes={routes}
               schedule={schedule}
             />
-            {compteRendu ? (
+            {compteRendu && (
               <>
                 <Spacer size=".5rem" />
                 <Button
@@ -358,7 +369,7 @@ const EventCard = (props) => {
                   Voir le compte-rendu
                 </Button>
               </>
-            ) : null}
+            )}
           </Buttons>
         </Column>
         {participantCount > 1 && (

@@ -31,6 +31,9 @@ const StyledBottomSheetFooter = styled.footer`
   }
 `;
 const StyledBottomSheet = styled(RSBS)`
+  [data-rsbs-overlay] {
+    z-index: ${style.zindexPanel};
+  }
   [data-rsbs-backdrop] {
     background-color: ${transparentize(0.4, style.black1000)};
   }

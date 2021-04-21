@@ -1,3 +1,5 @@
+from django.utils.functional import SimpleLazyObject
+from django.contrib.auth.middleware import get_user
 from django.contrib.auth.context_processors import (
     PermWrapper as OriginalPermWrapper,
     PermLookupDict as OriginalPermLookupDict,
@@ -29,6 +31,26 @@ class PermWrapper(OriginalPermWrapper):
         return PermLookupDict(self.user, app_label)
 
 
+def get_person(request):
+    user = get_user(request)
+    if user.is_anonymous:
+        return None
+
+    try:
+        return user.person
+    except (AttributeError, Person.DoesNotExist):
+        return None
+
+
+def get_gender(request):
+    person = get_person(request)
+
+    if person is None:
+        return ""
+
+    return person.gender
+
+
 def auth(request):
     """
     Renvoie des variables de contexte similaire à celles renvoyées par
@@ -41,24 +63,9 @@ def auth(request):
         {% if obj in perms.app.view_model %}
     """
 
-    if hasattr(request, "user"):
-        user = request.user
-        try:
-            person = user.person
-        except (AttributeError, Person.DoesNotExist):
-            person = None
-
-        gender = person.gender if person else "O"
-    else:
-        from django.contrib.auth.models import AnonymousUser
-
-        user = AnonymousUser()
-        person = None
-        gender = "O"
-
     return {
-        "user": user,
-        "perms": PermWrapper(user),
-        "person": person,
-        "gender": gender,
+        "user": SimpleLazyObject(lambda: get_user(request)),
+        "perms": SimpleLazyObject(lambda: PermWrapper(get_user(request))),
+        "person": SimpleLazyObject(lambda: get_person(request)),
+        "gender": SimpleLazyObject(lambda: get_person(request).gender),
     }

@@ -12,12 +12,15 @@ import {
   getUser,
 } from "@agir/front/globalContext/reducers";
 
+import AppStore from "@agir/front/genericComponents/AppStore";
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import footerBanner from "./images/footer-banner.jpg";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
+import { useMobileApp } from "@agir/front/app/hooks";
 
 const FooterForm = styled.div`
   display: flex;
@@ -221,12 +224,24 @@ const StyledFooter = styled.div`
 const FooterWrapper = styled.footer`
   @media (max-width: ${style.collapse}px) {
     display: ${({ desktopOnly }) => (desktopOnly ? "none" : "block")};
+    padding-bottom: 72px;
   }
 `;
 
 export const Footer = (props) => {
-  const { hideBanner, isSignedIn, is2022, routes, desktopOnly } = props;
+  const {
+    hideBanner,
+    isSignedIn,
+    is2022,
+    routes,
+    desktopOnly,
+    displayOnMobileApp,
+  } = props;
+
+  const { isMobileApp } = useMobileApp();
   const hasBanner = !hideBanner && isSignedIn === false;
+
+  if (isMobileApp && !displayOnMobileApp) return null;
 
   return (
     <FooterWrapper desktopOnly={desktopOnly}>
@@ -373,6 +388,13 @@ export const Footer = (props) => {
               )}
             </p>
           </div>
+          {!isMobileApp && (
+            <div>
+              <AppStore type="apple" />
+              <Spacer size="10px" />
+              <AppStore type="google" />
+            </div>
+          )}
         </article>
       </StyledFooter>
     </FooterWrapper>
@@ -384,12 +406,14 @@ Footer.propTypes = {
   routes: PropTypes.object,
   desktopOnly: PropTypes.bool,
   hideBanner: PropTypes.bool,
+  displayOnMobileApp: PropTypes.bool,
 };
 Footer.defaultProps = {
   isSignedIn: false,
   is2022: false,
   desktopOnly: false,
   hideBanner: false,
+  displayOnMobileApp: false,
 };
 const ConnectedFooter = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);

@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.sitemaps.views import sitemap, index as sitemap_index
-from django.urls import reverse_lazy, path, re_path
+from django.urls import reverse_lazy, path, re_path, include
 from django.views.generic import RedirectView
 
 from . import views
@@ -111,9 +111,19 @@ urlpatterns = [
     ),
     path("activite/", views.ActivityView.as_view(), name="list_activities",),
     path(
+        "activite/parametres/",
+        views.NotificationSettingsView.as_view(),
+        name="list_activities.notification_settings",
+    ),
+    path(
         "a-traiter/",
         views.RequiredActivityView.as_view(),
         name="list_required_activities",
+    ),
+    path(
+        "a-traiter/parametres/",
+        views.NotificationSettingsView.as_view(),
+        name="list_required_activities.notification_settings",
     ),
     path("", views.AgendaView.as_view(), name="dashboard",),
     path(

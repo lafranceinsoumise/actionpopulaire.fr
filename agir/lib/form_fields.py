@@ -15,8 +15,6 @@ from django.utils import formats
 from django.utils.translation import ugettext_lazy as _
 from django_countries import countries
 from phonenumber_field.phonenumber import PhoneNumber
-from webpack_loader import utils as webpack_loader_utils
-from webpack_loader.utils import get_files
 
 from agir.donations.validators import validate_iban
 from agir.lib.iban import IBAN, to_iban
@@ -56,12 +54,6 @@ class RichEditorWidget(Textarea):
         context["widget"]["admin"] = self.admin
         return context
 
-    @property
-    def media(self):
-        return forms.Media(
-            js=(webpack_loader_utils.get_files("front/richEditor")[0]["url"],)
-        )
-
 
 class AdminRichEditorWidget(RichEditorWidget):
     admin = True
@@ -83,12 +75,6 @@ class AdminJsonWidget(Textarea):
         context = super().get_context(*args, **kwargs)
         context["widget"]["schema"] = self.schema
         return context
-
-    @property
-    def media(self):
-        return forms.Media(
-            js=(webpack_loader_utils.get_files("lib/adminJsonWidget")[0]["url"],)
-        )
 
 
 class SelectizeMixin:
@@ -200,18 +186,13 @@ class CustomJSONEncoder(DjangoJSONEncoder):
 
 class IBANWidget(Input):
     input_type = "text"
+    template_name = "custom_fields/iban_widget.html"
 
     def __init__(self, attrs=None):
         if attrs is None:
             attrs = {}
         attrs["data-component"] = "IBANField"
         super().__init__(attrs=attrs)
-
-    @property
-    def media(self):
-        return forms.Media(
-            js=[script["url"] for script in get_files("lib/IBANField", "js")]
-        )
 
 
 class IBANField(forms.Field):
@@ -290,12 +271,6 @@ class CommuneWidget(forms.Widget):
             context["widget"]["label"] = f"{value.nom} ({value.code_departement})"
 
         return context
-
-    @property
-    def media(self):
-        return forms.Media(
-            js=(webpack_loader_utils.get_files("lib/communeField")[0]["url"],)
-        )
 
 
 class CommuneField(forms.CharField):

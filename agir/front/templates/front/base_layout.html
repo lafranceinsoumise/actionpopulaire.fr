@@ -1,11 +1,12 @@
 {% load static %}
-{% load render_bundle from webpack_loader %}
 <!doctype html>
 <html lang="fr-FR" prefix="og: http://ogp.me/ns#">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% include "front/includes/gfonts.html" %}
+
   <title>{% block title %}Plateforme d'action{% endblock %} - Action populaire</title>
   <link rel="manifest" href="{% static "front/manifest.json" %}" />
 
@@ -52,8 +53,6 @@
   {% block css %}{% endblock %}
   {% block cdn_assets %}{% endblock %}
 
-  {% render_bundle 'runtime' %}
-
   {% block extra_scripts %}{% endblock %}
   {% block additional_headers %}{% endblock %}
 
@@ -67,7 +66,7 @@
   <div id="top-bar"></div>
   <div id="release-modal"></div>
   <div id="feedback-button"></div>
-  {% render_bundle 'front/legacyPages' %}
+  {% include "front/legacyPages.bundle.html"%}
   {% block full_width %}
     <div class="wrap container" role="document">
       <main class="main marginbottommore">
@@ -95,11 +94,6 @@
 <!-- Matomo -->
 <script type="text/javascript">
   var _paq = window._paq = window._paq || [];
-  {% if user.is_authenticated %}
-  _paq.push(['setUserId', '{{ user.person.id }}']);
-  {% else %}
-  _paq.push(['resetUserId']);
-  {% endif %}
   _paq.push(['trackPageView']);
   _paq.push(['enableLinkTracking']);
   {% block matomo_extra_tracking %}{% endblock %}
@@ -114,8 +108,5 @@
 <noscript><p><img src="https://matomo.lafranceinsoumise.fr/matomo.php?idsite=10&amp;rec=1" style="border:0;" alt="" /></p></noscript>
 <!-- End Matomo Code -->
 {{ global_context|json_script:"globalContext" }}
-{% if extra_context %}
-  {{ extra_context|json_script:"extraContext" }}
-{% endif %}
 </body>
 </html>

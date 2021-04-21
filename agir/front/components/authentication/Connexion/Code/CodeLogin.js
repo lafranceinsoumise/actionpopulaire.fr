@@ -1,3 +1,4 @@
+import Helmet from "react-helmet";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
@@ -144,12 +145,16 @@ const CodeConnexion = () => {
       }
     }
 
-    const route = routeConfig.events.getLink();
+    const route = routeConfig.tellMore.getLink();
     history.push(route);
   }, [authentication, user, bookmarkEmail, location, history]);
 
   return (
     <Container onSubmit={handleSubmit}>
+      <Helmet>
+        <meta name="title" content="Connexion" />
+        <meta name="description" content="Connectez-vous à Action Populaire" />
+      </Helmet>
       <RawFeatherIcon name="mail" width="41px" height="41px" />
 
       <h1>Un code de connexion vous a été envoyé par e-mail</h1>

@@ -35,7 +35,7 @@ class NotificationTasksTestCase(TestCase):
     def setUp(self):
         now = timezone.now()
 
-        self.creator = Person.objects.create_insoumise("moi@moi.fr")
+        self.creator = Person.objects.create_insoumise("moi@moi.fr", create_role=True)
         self.group = SupportGroup.objects.create(
             name="Mon événement",
             contact_name="Moi",
@@ -55,10 +55,14 @@ class NotificationTasksTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
-        self.member1 = Person.objects.create_insoumise("person1@participants.fr")
-        self.member2 = Person.objects.create_insoumise("person2@participants.fr")
+        self.member1 = Person.objects.create_insoumise(
+            "person1@participants.fr", create_role=True
+        )
+        self.member2 = Person.objects.create_insoumise(
+            "person2@participants.fr", create_role=True
+        )
         self.member_no_notification = Person.objects.create_insoumise(
-            "person3@participants.fr"
+            "person3@participants.fr", create_role=True
         )
 
         self.membership1 = Membership.objects.create(

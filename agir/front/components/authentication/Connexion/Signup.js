@@ -159,6 +159,7 @@ const SignUp = () => {
             error={error && error.email}
             onChange={handleChange}
             value={formData.email}
+            type="email"
           />
         </div>
         <div>

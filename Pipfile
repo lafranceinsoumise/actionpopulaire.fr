@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [requires]
-python_version = '3.8'
+python_version = '3.9'
 
 [packages]
 # Django et extensions
@@ -34,7 +34,6 @@ djangorestframework-gis = "==0.16.*"
 django-redis = "==4.*"
 psycopg2 = "*"
 django-prometheus = "==1.*"
-django-webpack-loader = "==0.7.*"
 # celery
 celery = "==4.*"
 celery-prometheus-exporter = "==1.*"
@@ -45,7 +44,7 @@ hiredis = "==1.*"
 requests = ">=2.20.0, ==2.*"
 # HTML
 bleach = "==3.*"  # sanitize HTML
-"html2text" = "==2019.*"  # transforms HTML to text (used for plain text versions of HTML emails)
+"html2text" = "==2020.*"  # transforms HTML to text (used for plain text versions of HTML emails)
 markdown = "==3.*"  # convert markdown text to HTML (should be deprecated)
 # image handling
 Pillow = ">=7.1.0"
@@ -53,13 +52,13 @@ Pillow = ">=7.1.0"
 tqdm = "*"
 # third party techs
 prometheus-client = "==0.7.*"
-systemd = "==0.*"
+cysystemd = "==1.*"
 ovh = "*"
 nuntius = ">=2.1.2"
 # parsing and formats
 ics = "*"  # calendar format
 iso8601 = "*"  # parse ISO8601 dates
-django-anymail =  "==6.*"
+django-anymail =  "==8.*"
 boto3 = "*"
 num2words = "*"
 sepaxml = "==2.*"
@@ -73,13 +72,16 @@ tenacity = "*"
 pandas = "==1.*"
 data-france = "==0.11.2"
 beautifultable = "==0.8.*"
-scipy = "==1.4.*"
+scipy = "==1.*"
 PyYAML = "==5.*"
 xlwt = "==1.*"
 django-admin-rangefilter = "*"
 faker = "*"
 django-silk = "*"
 sentry-sdk = "*"
+django-push-notifications = "*"
+pywebpush = "*"
+social-auth-core = "==4.0.2"
 
 [dev-packages]
 ipython = "*"

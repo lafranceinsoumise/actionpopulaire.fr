@@ -1,7 +1,7 @@
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
-import OSM from "ol/source/OSM";
+import XYZ from "ol/source/XYZ";
 import Style from "ol/style/Style";
 import Text from "ol/style/Text";
 import Fill from "ol/style/Fill";
@@ -12,6 +12,7 @@ import Feature from "ol/Feature";
 import VectorSource from "ol/source/Vector";
 import Point from "ol/geom/Point";
 import VectorLayer from "ol/layer/Vector";
+import Attribution from "ol/control/Attribution";
 import Zoom from "ol/control/Zoom";
 import fontawesome from "fontawesome";
 
@@ -28,12 +29,15 @@ export function setUpMap(elementId, layers) {
   const view = new View({
     center: proj.fromLonLat([2, 47]),
     zoom: 6,
+    enableRotation: false,
   });
   return new Map({
     target: elementId,
     layers: [
       new TileLayer({
-        source: new OSM({
+        source: new XYZ({
+          url:
+            "https://tile.jawg.io/jawg-streets/{z}/{x}/{y}.png?access-token=mGYrqYC5XjG6lXEoz0e5ejl1wSS0GovRMqBw8LEuhFfz2PYILpp8YFzx6TnKxAHe",
           attributions: [
             '&#169; les contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
           ],
@@ -170,14 +174,15 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
   feature.setStyle(styles);
   const map = new Map({
     target,
-    controls: isStatic ? [] : [new Zoom()],
+    controls: isStatic ? [new Attribution()] : [new Attribution(), new Zoom()],
     interactions: isStatic ? [] : undefined,
     layers: [
       new TileLayer({
-        source: new OSM({
-          attributions: [
-            '&#169; les contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
-          ],
+        source: new XYZ({
+          url:
+            "https://tile.jawg.io/jawg-streets/{z}/{x}/{y}.png?access-token=mGYrqYC5XjG6lXEoz0e5ejl1wSS0GovRMqBw8LEuhFfz2PYILpp8YFzx6TnKxAHe",
+          attributions:
+            '&copy; Contributeurs <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>',
         }),
       }),
       new VectorLayer({
@@ -187,6 +192,7 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
     view: new View({
       center: proj.fromLonLat(center),
       zoom,
+      enableRotation: false,
     }),
   });
 

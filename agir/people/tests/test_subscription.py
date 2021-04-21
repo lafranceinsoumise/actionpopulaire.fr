@@ -129,6 +129,7 @@ class SubscriptionConfirmationTestCase(TestCase):
 
     def test_can_receive_specific_email_if_already_subscribed(self):
         p = Person.objects.create_insoumise("person@server.fr")
+        p.ensure_role_exists()
 
         data = {"email": "person@server.fr", "location_zip": "75001"}
 
@@ -154,17 +155,21 @@ class SubscriptionConfirmationTestCase(TestCase):
         self.assertIsNotNone(match)
         url_with_params = match.group(0)
 
-        response = self.client.get(url_with_params)
+        response = self.client.get(
+            url_with_params + "&android=1"
+        )  # we add &android=1 cause it should work also in app
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
         # check that the person has been created
         p = Person.objects.get_by_natural_key("personne@organisation.pays")
+        p.ensure_role_exists()
+
         self.assertTrue(p.is_2022)
         self.assertEqual(p.location_country, "VE")
         self.assertAlmostEqual(
             datetime.fromisoformat(p.meta["subscriptions"]["NSP"]["date"]),
             timezone.now(),
-            delta=timedelta(seconds=1),
+            delta=timedelta(seconds=3),
         )
 
 

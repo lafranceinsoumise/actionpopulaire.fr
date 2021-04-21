@@ -1,12 +1,11 @@
 {% extends "front/layout.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
-{% load render_bundle from webpack_loader %}
 
 {% block title %}Dons et paiements{% endblock %}
 
 {% block extra_scripts %}
-    {% render_bundle 'donations/donationForm' attrs='defer' %}
+    {% include "donations/donationForm.bundle.html" %}
 {% endblock %}
 
 

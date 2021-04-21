@@ -7,15 +7,18 @@ from django.http import HttpResponsePermanentRedirect, Http404, FileResponse
 from django.urls import reverse_lazy
 from django.views.generic import View, RedirectView, TemplateView
 from django.views.generic.detail import BaseDetailView
-from webpack_loader import utils as webpack_loader_utils
 
-from agir.authentication.view_mixins import SoftLoginRequiredMixin
+from agir.authentication.view_mixins import (
+    HardLoginRequiredMixin,
+    SoftLoginRequiredMixin,
+)
 from agir.groups.models import SupportGroup
 from agir.lib.http import add_query_params_to_url
-from .view_mixins import ObjectOpengraphMixin
 from .view_mixins import (
+    ObjectOpengraphMixin,
     ReactBaseView,
     ReactSingleObjectView,
+    SimpleOpengraphMixin,
 )
 from ..events.views.event_views import EventDetailMixin
 from ..groups.serializers import SupportGroupSerializer
@@ -78,16 +81,28 @@ class NBUrlsView(View):
         raise Http404()
 
 
-class SignupView(ReactBaseView):
+class SignupView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
+    meta_title = "Inscription"
+    meta_description = "Rejoignez Action Populaire"
 
 
-class LoginView(ReactBaseView):
+class CodeSignupView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
+    meta_title = "Inscription"
+    meta_description = "Rejoignez Action Populaire"
 
 
-class CodeLoginView(ReactBaseView):
+class LoginView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
+    meta_title = "Connexion"
+    meta_description = "Connectez-vous à Action Populaire"
+
+
+class CodeLoginView(SimpleOpengraphMixin, ReactBaseView):
+    bundle_name = "front/app"
+    meta_title = "Connexion"
+    meta_description = "Connectez-vous à Action Populaire"
 
 
 class LogoutView(ReactBaseView):
@@ -96,10 +111,6 @@ class LogoutView(ReactBaseView):
     def get(self, request, *args, **kwargs):
         logout(request)
         return super().get(request, *args, **kwargs)
-
-
-class CodeSignupView(ReactBaseView):
-    bundle_name = "front/app"
 
 
 class TellMoreView(ReactBaseView):
@@ -123,6 +134,10 @@ class ActivityView(SoftLoginRequiredMixin, ReactBaseView):
 
 
 class RequiredActivityView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/app"
+
+
+class NotificationSettingsView(HardLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
 
 
@@ -235,11 +250,6 @@ class EventDetailView(
     meta_description_2022 = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
     bundle_name = "front/app"
 
-    def get_context_data(self, **kwargs):
-        kwargs["export_data"] = {"pk": self.object.pk}
-
-        return super().get_context_data(**kwargs)
-
 
 class SupportGroupDetailView(
     ObjectOpengraphMixin, SupportGroupDetailMixin, BaseDetailView, ReactBaseView
@@ -247,11 +257,6 @@ class SupportGroupDetailView(
     meta_description = "Rejoignez les groupes d'action de la France insoumise."
     meta_description_2022 = "Rejoignez les équipes de soutien de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
     bundle_name = "front/app"
-
-    def get_context_data(self, **kwargs):
-        kwargs["export_data"] = {"pk": self.object.pk}
-
-        return super().get_context_data(**kwargs)
 
 
 class SupportGroupMessageDetailView(SoftLoginRequiredMixin, ReactBaseView):

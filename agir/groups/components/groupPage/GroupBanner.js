@@ -180,7 +180,7 @@ const GroupBanner = (props) => {
 
   const hasLocation = !!location;
   const hasMap =
-    location.coordinates && Array.isArray(location.coordinates.coordinates);
+    location?.coordinates && Array.isArray(location?.coordinates?.coordinates);
 
   return (
     <StyledBanner>

@@ -1,9 +1,20 @@
-import React, { useCallback, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import clamp from "lodash/clamp";
+import { useSprings, animated } from "react-spring";
+import { useDrag } from "react-use-gesture";
 import styled from "styled-components";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import img1 from "@agir/front/genericComponents/images/introApp1.jpg";
@@ -21,29 +32,20 @@ const Mark = styled.span`
     props.$active ? style.primary500 : style.black200};
 `;
 
-const ActionBlock = styled.div``;
-
-const Block = styled.div`
-  position: fixed;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  text-align: center;
-  height: 100vh;
-  justify-content: space-between;
-`;
-
 const WhiteTriangle = styled.div`
-  position: relative;
+  position: absolute;
+  bottom: 0;
+  left: 0;
   width: 100%;
-  min-height: 290px;
-  height: calc(100vh - 358px);
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  div:first-child {
+  pointer-events: none;
+
+  &:before {
+    content: "";
+    display: block;
     position: absolute;
     bottom: -1px;
     left: 0;
@@ -54,59 +56,63 @@ const WhiteTriangle = styled.div`
   }
 `;
 
-const HeaderImage = styled.div`
-  background-size: cover;
-  background-position: center;
+const StyledHeader = styled.header`
   position: relative;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+`;
 
-  img {
-    width: 90%;
-    max-width: 330px;
-    position: absolute;
-    bottom: 0;
+const StyledHeaderImage = styled(animated.div)`
+  position: absolute;
+  background-image: url(${({ $image }) => $image || logo});
+  background-color: ${style.secondary500};
+  background-size: ${({ $image }) => ($image ? "cover" : "210px auto")};
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+
+  @media (max-height: 600px) {
+    background-size: ${({ $image }) => ($image ? "cover" : "150px auto")};
   }
 `;
 
-const FixedBlock = styled.div`
-  padding-bottom: 1rem;
-  position: fixed;
-  bottom: 0;
+const StyledMain = styled.main``;
+const StyledMainContent = styled(animated.p)`
+  position: absolute;
   left: 0;
+  bottom: 0;
   width: 100%;
-  min-height: 358px;
-  z-index: 10;
+  height: 100%;
+  will-change: transform;
+  padding: 1rem 2rem;
+  font-size: 1rem;
   display: flex;
-  flex-wrap: wrap;
-  flex-direction: column;
+  flex-flow: column nowrap;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
 
-  ${ActionBlock} {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    align-items: center;
-    background-color: #fff;
-    width: 100%;
-    padding-left: 2rem;
-    padding-right: 2rem;
+  span,
+  strong {
+    display: block;
   }
 
-  p {
-    max-width: 430px;
-    display: inline-block;
-    margin-bottom: 0;
-    margin-top: 0;
+  strong {
+    color: ${style.primary500};
+    font-weight: 700;
+    font-size: 1.75em;
+  }
+
+  span {
+    font-size: 1.2em;
+    margin-top: 0.375rem;
+  }
+
+  @media (max-height: 600px) {
+    font-size: 0.813rem;
   }
 `;
-
-const InlineBlock = styled.span`
-  display: inline-block;
-`;
+const StyledActions = styled.div``;
+const StyledFooter = styled.footer``;
 
 const StyledButton = styled(Button)`
   max-width: 100%;
@@ -139,132 +145,252 @@ const StyledSearchLink = styled(Link)`
   }
 `;
 
+const StyledWrapper = styled.div`
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  flex-flow: column nowrap;
+  text-align: center;
+  justify-content: space-between;
+
+  & > * {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  ${StyledHeader} {
+    flex: 0 1 calc(100vh - 358px);
+    min-height: 290px;
+  }
+
+  ${StyledMain} {
+    position: relative;
+    width: 100%;
+    flex: 1 1 200px;
+  }
+
+  ${StyledActions} {
+    padding: 0 2rem;
+    margin-top: auto;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+  }
+
+  ${StyledFooter} {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+  }
+`;
+
 const items = [
   {
-    name: "Rencontrez",
-    description: (
-      <>
-        d'autres membres et&nbsp;<InlineBlock>agissez ensemble !</InlineBlock>
-      </>
-    ),
-    image: img1,
+    header: img1,
+    title: "Rencontrez",
+    body: <>d'autres membres et agissez ensemble&nbsp;!</>,
   },
   {
-    name: "Agissez concrètement",
-    description: (
+    header: img2,
+    title: "Agissez concrètement",
+    body: (
       <>
-        participez aux actions, diffusez notre programme et commandez&nbsp;
-        <InlineBlock>du matériel</InlineBlock>
+        participez aux actions, diffusez notre programme et commandez du
+        matériel
       </>
     ),
-    image: img2,
   },
   {
-    name: "Rejoignez ou créer",
-    description: (
-      <>
-        une équipe de soutien&nbsp;<InlineBlock>autour de vous !</InlineBlock>
-      </>
-    ),
-    image: img3,
+    header: img3,
+    title: "Rejoignez ou créer",
+    body: "une équipe de soutien autour de vous !",
   },
+  {},
 ];
 
-const IntroApp = () => {
-  const [index, setIndex] = useState(0);
-  const showConnexion = index >= items.length;
+const useImageLoad = () => {
+  const loadedCount = useRef(0);
+  const [isReady, setIsReady] = useState(false);
+  const images = useMemo(
+    () => items.map((item) => item.header).filter(Boolean),
+    []
+  );
+  useEffect(() => {
+    const onReady = () => {
+      loadedCount.current += 1;
+      if (loadedCount.current === images.length) {
+        setIsReady(true);
+      }
+    };
+    const placeholders = images.map((picture) => {
+      const img = new Image();
+      img.addEventListener("load", onReady);
+      img.src = picture;
+    });
 
-  const handleClick = useCallback(() => {
-    setIndex((index) => index + 1);
+    return () => {
+      placeholders.forEach((picture) => {
+        picture.removeEventListener("load", onReady);
+      });
+    };
+  }, [images]);
+
+  return isReady;
+};
+
+const IntroApp2 = () => {
+  const isReady = useImageLoad();
+  const [itemIndex, setItemIndex] = useState(0);
+  const index = useRef(0);
+
+  const [transitions, set] = useSprings(items.length, (i) => ({
+    x: i * window.innerWidth,
+    visibility: "visible",
+  }));
+
+  const handleNext = useCallback(() => {
+    setItemIndex((state) => state + 1);
   }, []);
 
+  const handleChange = useCallback((index) => {
+    setItemIndex(index);
+  }, []);
+
+  const handleSet = useCallback(
+    (active = false, mx = 0) => {
+      set((i) => {
+        if (i < index.current - 1 || i > index.current + 1) {
+          return { visibility: "hidden" };
+        }
+        const x = (i - index.current) * window.innerWidth + (active ? mx : 0);
+        return { x, visibility: "visible" };
+      });
+    },
+    [set]
+  );
+
+  const bind = useDrag(
+    ({ active, movement: [mx], direction: [xDir], distance, cancel }) => {
+      if (active && distance > window.innerWidth / 5) {
+        const newIndex = clamp(
+          index.current + (xDir > 0 ? -1 : 1),
+          0,
+          items.length - 1
+        );
+        index.current = newIndex;
+        setItemIndex(newIndex);
+        cancel(newIndex);
+      }
+      handleSet(active, mx);
+    }
+  );
+
+  useEffect(() => {
+    index.current = itemIndex;
+    handleSet();
+  }, [itemIndex, handleSet]);
+
+  const isLast = !items[itemIndex + 1];
+
   return (
-    <Block>
-      <HeaderImage
-        style={{
-          backgroundImage: !showConnexion ? `url(${items[index].image})` : "",
-          backgroundColor: style.secondary500,
-        }}
-      >
-        <WhiteTriangle>
-          <div />
-          {showConnexion && (
-            <img
-              src={logo}
-              alt="Action Populaire"
-              style={{ maxWidth: "210px", position: "relative" }}
-            />
-          )}
-        </WhiteTriangle>
-      </HeaderImage>
-
-      <FixedBlock>
-        <WhiteTriangle>
-          <div />
-        </WhiteTriangle>
-
-        <ActionBlock>
-          {!showConnexion && (
-            <>
-              <p
+    <PageFadeIn ready={isReady}>
+      <StyledWrapper {...bind()}>
+        <StyledHeader>
+          {transitions.map(({ x, display }, i) => {
+            const { header } = items[i] || {};
+            return (
+              <StyledHeaderImage
+                key={i}
+                $image={header}
                 style={{
-                  color: style.primary500,
-                  fontWeight: 700,
-                  fontSize: "1.75rem",
+                  display,
+                  transform: x.interpolate((x) => `translate3d(${x}px,0,0)`),
+                }}
+              />
+            );
+          })}
+          <WhiteTriangle />
+        </StyledHeader>
+
+        <StyledMain>
+          {transitions.map(({ x, display }, i) => {
+            const { title = null, body = null } = items[i] || {};
+            return (
+              <StyledMainContent
+                key={i + "main"}
+                style={{
+                  display,
+                  transform: x.interpolate((x) => `translate3d(${x}px,0,0)`),
                 }}
               >
-                {items[index].name}
-              </p>
+                {title && body ? (
+                  <>
+                    <strong>{title}</strong>
+                    <span>{body}</span>
+                  </>
+                ) : (
+                  <>
+                    <StyledButton
+                      color="primary"
+                      as="Link"
+                      route="signup"
+                      style={{ marginTop: "0" }}
+                    >
+                      Je crée mon compte
+                    </StyledButton>
+                    <StyledButton
+                      color="secondary"
+                      style={{ marginTop: "0.5rem", marginLeft: "0px" }}
+                      as="Link"
+                      route="login"
+                    >
+                      Je me connecte
+                    </StyledButton>
+                  </>
+                )}
+              </StyledMainContent>
+            );
+          })}
+        </StyledMain>
 
-              <p style={{ fontSize: "1.2rem", marginTop: "0.375rem" }}>
-                {items[index].description}
-              </p>
-
-              <StyledButton color="secondary" onClick={handleClick}>
-                Continuer
-              </StyledButton>
-
-              <div style={{ marginTop: "2rem" }}>
-                <Mark $active={0 === index} />
-                <Mark $active={1 === index} />
-                <Mark $active={2 === index} />
-              </div>
-            </>
+        <StyledActions>
+          {isLast ? (
+            <StyledSearchLink route="search">
+              <RawFeatherIcon
+                name="search"
+                width="1rem"
+                height="1rem"
+                strokeWidth={2}
+              />
+              <span>Rechercher une action</span>
+            </StyledSearchLink>
+          ) : (
+            <StyledButton color="secondary" onClick={handleNext}>
+              Continuer
+            </StyledButton>
           )}
+        </StyledActions>
 
-          {showConnexion && (
-            <>
-              <StyledButton
-                color="primary"
-                as="Link"
-                route="signup"
-                style={{ marginTop: "0" }}
-              >
-                Je crée mon compte
-              </StyledButton>
-              <StyledButton
-                color="secondary"
-                style={{ marginTop: "0.5rem", marginLeft: "0px" }}
-                as="Link"
-                route="login"
-              >
-                Je me connecte
-              </StyledButton>
-              <StyledSearchLink route="search">
-                <RawFeatherIcon
-                  name="search"
-                  width="1rem"
-                  height="1rem"
-                  strokeWidth={2}
+        <StyledFooter>
+          {!isLast && (
+            <div style={{ marginTop: "2rem" }}>
+              {[0, 1, 2].map((i) => (
+                <Mark
+                  key={i}
+                  $active={i === itemIndex}
+                  onClick={() => handleChange(i)}
                 />
-                <span>Rechercher une action</span>
-              </StyledSearchLink>
-            </>
+              ))}
+            </div>
           )}
-        </ActionBlock>
-      </FixedBlock>
-    </Block>
+        </StyledFooter>
+      </StyledWrapper>
+    </PageFadeIn>
   );
 };
 
-export default IntroApp;
+export default IntroApp2;

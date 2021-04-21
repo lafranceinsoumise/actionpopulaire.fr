@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
 
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
@@ -15,8 +16,9 @@ import LogoAP from "@agir/front/genericComponents/LogoAP";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { updateProfile, getProfile } from "@agir/front/authentication/api";
+import generateLogger from "@agir/lib/utils/logger";
 
-import helloDesktop from "@agir/front/genericComponents/images/hello-desktop.svg";
+const logger = generateLogger(__filename);
 
 const LeftBlock = styled.div`
   width: 40%;
@@ -121,8 +123,12 @@ const TellMore = ({ dismiss }) => {
 
   const getProfileInfos = useCallback(async () => {
     setIsLoading(true);
-    const { data } = await getProfile();
+    const { data, error } = await getProfile();
     setIsLoading(false);
+    if (!data) {
+      logger.error(error);
+      return;
+    }
     setFormData({
       displayName:
         data.displayName?.length > 2
@@ -174,7 +180,8 @@ const TellMore = ({ dismiss }) => {
 
   useEffect(() => {
     getProfileInfos();
-  }, [getProfileInfos]);
+    //eslint-disable-next-line
+  }, []);
 
   return (
     <div>

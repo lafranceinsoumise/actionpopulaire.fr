@@ -1,4 +1,6 @@
 import onDOMReady from "@agir/lib/utils/onDOMReady";
+import { getStatefulRenderer } from "@agir/lib/utils/react";
+import GroupSelector from "@agir/groups/groupSelector/GroupSelector";
 
 const getInitial = (field) =>
   field.selectedIndex !== -1 && field.value
@@ -22,19 +24,10 @@ const valueToString = (value) => (value ? value.id : "");
 
 const selector = 'select[data-group-selector="Y"]';
 
-(async function () {
-  const [
-    { default: GroupSelector },
-    { getStatefulRenderer },
-  ] = await Promise.all([
-    import("./GroupSelector"),
-    import("@agir/lib/utils/react"),
-  ]);
-  const renderer = getStatefulRenderer(GroupSelector, selector, {
-    getInitial,
-    getProps,
-    valueToString,
-  });
+const renderer = getStatefulRenderer(GroupSelector, selector, {
+  getInitial,
+  getProps,
+  valueToString,
+});
 
-  onDOMReady(renderer);
-})();
+onDOMReady(renderer);

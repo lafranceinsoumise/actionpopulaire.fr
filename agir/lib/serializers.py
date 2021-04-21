@@ -274,3 +274,18 @@ class CurrentPersonDefault:
             return None
 
         return user.person
+
+
+class CurrentPersonField(serializers.HiddenField):
+    """
+    A hidden field that does not take input from the user,
+    and does not present any output,
+    but it does populate a field in `validated_data`,
+    based on the current authenticated user person instance.
+    """
+
+    default = CurrentPersonDefault()
+
+    def __init__(self, **kwargs):
+        kwargs["default"] = self.default
+        super().__init__(**kwargs)

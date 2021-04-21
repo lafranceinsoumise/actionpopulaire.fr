@@ -15,6 +15,7 @@ class SignatureGenerator(PasswordResetTokenGenerator):
     salt = None
     token_params = []
     params_separator = "|"
+    ignored_params = ["android", "ios"]
 
     def __init__(self, days_validity, **kwargs):
         self.validity = days_validity * 24 * 60 * 60
@@ -43,7 +44,9 @@ class SignatureGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, params: Mapping[str, Any], timestamp):
         # order the params by lexicographical order, so that there is some determinism
         sorted_keys = sorted(params)
-        ordered_params = [params[k] for k in sorted_keys]
+        ordered_params = [
+            params[k] for k in sorted_keys if k not in self.ignored_params
+        ]
 
         return self.params_separator.join(
             escape_character(str(param), self.params_separator)

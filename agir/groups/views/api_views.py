@@ -35,7 +35,6 @@ from agir.groups.serializers import (
     SupportGroupMembersSerializer
 )
 from agir.lib.pagination import APIPaginator
-from agir.groups.tasks import send_message_notification_email
 
 __all__ = [
     "LegacyGroupSearchAPIView",
@@ -101,26 +100,37 @@ class GroupSubtypesView(ListAPIView):
 class UserGroupsView(ListAPIView):
     serializer_class = SupportGroupSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = SupportGroup.objects.active()
 
-    def get_queryset(self):
-        person = self.request.user.person
+    def get(self, request, *args, **kwargs):
+        person = request.user.person
         person_groups = (
-            SupportGroup.objects.filter(memberships__person=self.request.user.person)
+            self.get_queryset()
+            .filter(memberships__person=self.request.user.person)
             .active()
             .annotate(membership_type=F("memberships__membership_type"))
             .order_by("-membership_type", "name")
         )
-        if person_groups.count() == 0 and person.coordinates is not None:
-            person_groups = SupportGroup.objects.active()
+        person_groups = self.get_serializer(person_groups, many=True)
+        group_suggestions = []
+
+        if person.coordinates is not None:
+            group_suggestions = self.get_queryset().exclude(
+                memberships__person=self.request.user.person
+            )
             if person.is_2022_only:
-                person_groups = person_groups.is_2022()
-            person_groups = person_groups.annotate(
+                group_suggestions = group_suggestions.is_2022()
+            group_suggestions = group_suggestions.annotate(
                 distance=Distance("coordinates", person.coordinates)
             ).order_by("distance")[:3]
-            for group in person_groups:
+            for group in group_suggestions:
                 group.membership = None
 
-        return person_groups
+        group_suggestions = self.get_serializer(group_suggestions, many=True)
+
+        return Response(
+            {"groups": person_groups.data, "suggestions": group_suggestions.data}
+        )
 
 
 class GroupDetailAPIView(RetrieveAPIView):

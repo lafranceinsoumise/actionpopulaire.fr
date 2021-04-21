@@ -16,5 +16,6 @@ def new_event_around_people_notification(event, recipients):
         activity_config["individual"] = event.organizers.first()
 
     Activity.objects.bulk_create(
-        [Activity(**activity_config, recipient=recipient,) for recipient in recipients]
+        [Activity(**activity_config, recipient=recipient,) for recipient in recipients],
+        send_post_save_signal=True,
     )

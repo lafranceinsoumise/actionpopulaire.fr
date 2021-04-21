@@ -67,6 +67,8 @@ class ConfirmSubscriptionView(View):
         "referer",
         "referrer",
         "mandat",
+        "android",
+        "ios",
     ]
     show_already_created_message = True
     default_type = SUBSCRIPTION_TYPE_LFI

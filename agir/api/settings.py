@@ -127,6 +127,7 @@ INSTALLED_APPS = [
     "agir.loans",
     "agir.mailing",
     "agir.activity.apps.ActivityConfig",
+    "agir.notifications",
     "agir.municipales.apps.MunicipalesConfig",
     "agir.legacy",
     "agir.telegram",
@@ -138,6 +139,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # see https://docs.djangoproject.com/en/3.1/ref/forms/renderers/#templatessetting
+    "django.forms",
     # sitemaps
     "django.contrib.sitemaps",
     # redirect
@@ -167,10 +170,10 @@ INSTALLED_APPS = [
     "phonenumber_field",
     # stdimage
     "stdimage",
-    # webpack
-    "webpack_loader",
     # fi apps
     "nuntius",
+    # push,
+    "push_notifications",
     # security
     "corsheaders",
     "reversion",
@@ -183,8 +186,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "agir.lib.middleware.NoVaryCookieMiddleWare",
-    "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -204,8 +205,11 @@ if ENABLE_DEBUG_TOOLBAR:
     MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
     INTERNAL_IPS = ["127.0.0.1", "192.168.33.1"]
 
-SILKY_INTERCEPT_FUNC = lambda request: request.user.is_superuser and (
-    request.GET.get("silk", False) or request.COOKIES.get("silk", False)
+SILKY_INTERCEPT_FUNC = (
+    lambda request: (
+        request.GET.get("silk", False) or request.COOKIES.get("silk", False)
+    )
+    and request.user.is_superuser
 )
 SILKY_AUTHENTICATION = True
 SILKY_AUTHORISATION = True
@@ -216,7 +220,7 @@ ROOT_URLCONF = "agir.api.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ["assets/components/includes"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -228,6 +232,8 @@ TEMPLATES = [
         },
     }
 ]
+# see https://docs.djangoproject.com/en/3.1/ref/forms/renderers/#templatessetting
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 if ENABLE_FRONT:
     TEMPLATES[0]["OPTIONS"]["context_processors"].extend(
@@ -404,18 +410,6 @@ if not DEBUG:
         "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
     )
 
-WEBPACK_LOADER = {
-    "DEFAULT": {
-        "BUNDLE_DIR_NAME": "components/",
-        "STATS_FILE": os.path.join(
-            STATICFILES_DIRS[0], "components", "webpack-stats.json"
-        ),
-    }
-}
-WEBPACK_LOADER_SKIP = os.environ.get("WEBPACK_LOADER_SKIP", "false").lower() == "true"
-if WEBPACK_LOADER_SKIP:
-    WEBPACK_LOADER["DEFAULT"]["LOADER_CLASS"] = "agir.front.build.DummyWebpackLoader"
-
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT", "media")
@@ -541,7 +535,7 @@ if not DEBUG:
         "handlers": {
             "journald": {
                 "level": "DEBUG",
-                "class": "systemd.journal.JournaldLogHandler"
+                "class": "cysystemd.journal.JournaldLogHandler"
                 if not LOG_DISABLE_JOURNALD
                 else "logging.StreamHandler",
             },
@@ -609,6 +603,7 @@ if not DEBUG:
     # removed because it created problems with direct HTTP connections on localhost
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 6  # 3 mois
 
 CRISPY_TEMPLATE_PACK = "bootstrap3"
 
@@ -757,7 +752,9 @@ DJAN_API_KEY = os.environ.get("DJAN_API_KEY")
 
 # nuntius
 NUNTIUS_REDIS_CONNECTION_GETTER = "agir.api.redis.get_auth_redis_client"
-NUNTIUS_PUBLIC_URL = FRONT_DOMAIN
+NUNTIUS_PUBLIC_URL = os.environ.get(
+    "NUNTIUS_PUBLIC_URL", "https://www.actionpopulaire.fr"
+)
 NUNTIUS_SUBSCRIBER_MODEL = "people.Person"
 NUNTIUS_SEGMENT_MODEL = "mailing.segment"
 if not DEBUG:
@@ -815,3 +812,18 @@ if municipales_campagnes_filename:
         MUNICIPALES_CAMPAGNES = json.load(f)
 else:
     MUNICIPALES_CAMPAGNES = []
+
+# Push notifications
+PUSH_NOTIFICATIONS_SETTINGS = {
+    "UPDATE_ON_DUPLICATE_REG_ID": True,
+    "UNIQUE_REG_ID": True,
+    "WP_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY"),
+    "WP_CLAIMS": {"sub": "mailto: site@lafranceinsoumise.fr"},
+    "APNS_AUTH_KEY_PATH": os.environ.get(
+        "APNS_AUTH_KEY_PATH", os.path.join(os.path.dirname(BASE_DIR), "..", "apns.p8")
+    ),
+    "APNS_AUTH_KEY_ID": os.environ.get("APNS_AUTH_KEY_ID"),
+    "APNS_TEAM_ID": os.environ.get("APNS_TEAM_ID"),
+    "APNS_TOPIC": os.environ.get("APNS_TOPIC", "fr.actionpopulaire.ios"),
+    "APNS_USE_SANDBOX": os.environ.get("APNS_USE_SANDBOX", "true").lower() == "true",
+}

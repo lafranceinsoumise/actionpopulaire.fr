@@ -9,20 +9,28 @@ import { useDisableBodyScroll } from "@agir/lib/utils/hooks";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
+const springConfig = {
+  tension: 160,
+  friction: 30,
+};
+
 const slideInTransitions = {
   right: {
-    from: { right: "-100%" },
-    enter: { right: "0" },
-    leave: { right: "-100%" },
+    config: springConfig,
+    from: { right: 0, transform: "translateX(100%)" },
+    enter: { transform: "translateX(0)" },
+    leave: { transform: "translateX(100%)" },
   },
   left: {
-    from: { left: "-100%" },
-    enter: { left: "0" },
-    leave: { left: "-100%" },
+    config: springConfig,
+    from: { left: 0, transform: "translateX(-100%)" },
+    enter: { transform: "translateX(0)" },
+    leave: { transform: "translateX(-100%)" },
   },
 };
 
 const fadeInTransition = {
+  config: springConfig,
   from: { opacity: 0 },
   enter: { opacity: 1 },
   leave: { opacity: 0 },
@@ -31,6 +39,7 @@ const fadeInTransition = {
 const Overlay = styled(animated.div)`
   width: 100%;
   height: 100%;
+  max-height: 100%;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -39,6 +48,7 @@ const Overlay = styled(animated.div)`
   background-color: rgba(164, 159, 173, 0.6);
   cursor: ${({ onClick }) => (onClick ? "pointer" : "default")};
   z-index: 1;
+  will-change: opacity;
 `;
 
 const AnimatedOverlay = (props) => {
@@ -56,7 +66,7 @@ AnimatedOverlay.propTypes = {
   className: PropTypes.string,
 };
 
-const StyledBackButton = styled.button`
+export const StyledBackButton = styled.button`
   &,
   &:hover,
   &:focus {
@@ -75,15 +85,18 @@ const StyledBackButton = styled.button`
 `;
 
 const PanelContent = styled(animated.aside)`
-  position: absolute;
+  position: fixed;
+  z-index: ${style.zindexPanel};
+  height: 100vh;
+  max-height: -webkit-fill-available;
+  overflow: auto;
   top: 0;
   ${({ $position }) => `${$position}: 0;`}
-  z-index: 2;
-  width: 400px;
-  min-height: 100%;
+  width: 600px;
   background-color: white;
   margin: 0;
   padding: 2rem 1.5rem;
+  will-change: transform;
 
   @media (max-width: ${style.collapse}px) {
     width: 100%;
@@ -105,10 +118,11 @@ const PanelFrame = styled.div`
   padding: 0;
   margin: 0;
   width: 100vw;
-  min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto;
+  height: 100vh;
+  max-height: -webkit-fill-available;
+  overflow: hidden;
   z-index: ${style.zindexPanel};
+  pointer-events: ${({ $open }) => ($open ? "auto" : "none")};
 `;
 
 const getFocusableElements = (parent) => {
@@ -176,6 +190,7 @@ const Panel = (props) => {
     onClose,
     onBack,
     noScroll,
+    className,
   } = props;
 
   const panelRef = useDisableBodyScroll(noScroll, shouldShow);
@@ -201,12 +216,14 @@ const Panel = (props) => {
   );
 
   return createPortal(
-    transitions.map(({ item, key, props }) =>
-      item ? (
-        <PanelFrame key={key} ref={panelRef}>
-          <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
+    <PanelFrame ref={panelRef} $open={shouldShow}>
+      <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
+      {transitions.map(({ item, key, props }) =>
+        item ? (
           <PanelContent
             ref={panelContentRef}
+            key={key}
+            className={className}
             style={props}
             role="dialog"
             $position={position}
@@ -224,9 +241,9 @@ const Panel = (props) => {
             {title && <h4>{title}</h4>}
             {children}
           </PanelContent>
-        </PanelFrame>
-      ) : null
-    ),
+        ) : null
+      )}
+    </PanelFrame>,
     panelParent
   );
 };
@@ -234,7 +251,11 @@ Panel.propTypes = {
   shouldShow: PropTypes.bool,
   children: PropTypes.node,
   onClose: PropTypes.func,
+  onBack: PropTypes.func,
   noScroll: PropTypes.bool,
+  position: PropTypes.oneOf(["right", "left"]),
+  title: PropTypes.string,
+  className: PropTypes.string,
 };
 
 export default Panel;

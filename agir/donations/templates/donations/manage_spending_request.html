@@ -1,7 +1,7 @@
-{% extends 'front/layout.html' %}{% load static %}{% load render_bundle from webpack_loader %}
+{% extends 'front/layout.html' %}{% load static %}
 
 {% block extra_scripts %}
-  {% render_bundle "donations/spendingRequestLib" %}
+  {% include "donations/spendingRequestLib.bundle.html" %}
 {% endblock %}
 
 {% block title %}

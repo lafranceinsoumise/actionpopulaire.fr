@@ -6,12 +6,13 @@ require("dotenv").config({
 });
 
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const BundleTracker = require("webpack-bundle-tracker");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { InjectManifest } = require("workbox-webpack-plugin");
 const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const WebpackBar = require("webpackbar");
 
 const DISTPATH = path.resolve(__dirname, "assets/components");
 
@@ -52,6 +53,66 @@ const aliases = applications.reduce((obj, app) => {
   return obj;
 }, {});
 
+// Generate an HTML fragment with all chunks tag for each entry
+const htmlPlugins = Object.keys(components).map(
+  (entry) =>
+    new HtmlWebpackPlugin({
+      filename: `includes/${entry}.bundle.html`,
+      scriptLoading: "blocking",
+      inject: false,
+      chunks: [entry],
+      templateContent: ({ htmlWebpackPlugin }) =>
+        htmlWebpackPlugin.tags.headTags + htmlWebpackPlugin.tags.bodyTags,
+    })
+);
+
+// List all chunks on which main app depends for preloading by service worker
+let _cachedAppEntryFiles;
+const getAppEntryFiles = (compilation) => {
+  if (_cachedAppEntryFiles) {
+    return _cachedAppEntryFiles;
+  }
+
+  _cachedAppEntryFiles = compilation.namedChunkGroups
+    .get("front/app")
+    .chunks.map((c) => Array.from(c.files))
+    .flat();
+
+  return _cachedAppEntryFiles;
+};
+
+// List all chunks on which other apps depends for preload exclusion if not in main app
+let _cachedOtherEntryFiles;
+const getOtherEntryFiles = (compilation) => {
+  if (_cachedOtherEntryFiles) {
+    return _cachedOtherEntryFiles;
+  }
+
+  _cachedOtherEntryFiles = [
+    "donations/donationForm",
+    "donations/spendingRequestLib",
+    "elus/parrainages",
+    "front/legacyPages",
+    "front/richEditor",
+    "groups/groupSelector",
+    "lib/adminJsonWidget",
+    "lib/communeField",
+    "lib/creationForms",
+    "lib/IBANField",
+    "lib/locationSearchField",
+    "theme",
+  ]
+    .map((name) =>
+      compilation.namedChunkGroups
+        .get(name)
+        .chunks.map((c) => Array.from(c.files))
+        .flat()
+    )
+    .flat();
+
+  return _cachedOtherEntryFiles;
+};
+
 module.exports = {
   context: path.resolve(__dirname, "agir/"),
   entry: Object.assign(
@@ -61,8 +122,16 @@ module.exports = {
     components
   ),
   plugins: [
+    new WebpackBar(),
+    ...htmlPlugins,
+    new HtmlWebpackPlugin({
+      filename: `includes/theme.bundle.html`,
+      inject: false,
+      chunks: ["theme"],
+      templateContent: ({ htmlWebpackPlugin }) =>
+        `<link href="${htmlWebpackPlugin.files.css[0]}" rel="stylesheet">`,
+    }),
     new CleanWebpackPlugin(),
-    new BundleTracker({ path: DISTPATH }),
     new MiniCssExtractPlugin({ filename: "[name]-[chunkhash].css" }),
     new webpack.IgnorePlugin(
       new RegExp("^.\\" + path.sep + "locale$"),
@@ -76,24 +145,24 @@ module.exports = {
       ),
       swDest: "service-worker.js",
       maximumFileSizeToCacheInBytes: 7000000,
-      exclude: [
-        /donations/,
-        /elus/,
-        new RegExp("front\\" + path.sep + "skins"),
-        /legacyPages/,
-        /richEditor/,
-        /groups/,
-        /adminJsonWidget/,
-        /communeField/,
-        /creationForms/,
-        /IBANField/,
-        /locationSearchField/,
-        /serviceWorker/,
-        /theme/,
-        /\.map$/,
-        /\.LICENSE\.txt$/,
+      include: [
+        ({ asset, compilation }) => {
+          const mainAppEntryFiles = getAppEntryFiles(compilation);
+          const otherEntryFiles = getOtherEntryFiles(compilation);
+
+          return (
+            mainAppEntryFiles.includes(asset.name) ||
+            !(
+              otherEntryFiles.includes(asset.name) ||
+              [/front\/skins/, /\.html$/, /\.LICENSE.txt/].some((excluded) =>
+                excluded.test(asset.name)
+              )
+            )
+          );
+        },
       ],
     }),
+    new webpack.EnvironmentPlugin(["WEBPUSH_PUBLIC_KEY"]),
   ],
   output: {
     libraryTarget: "window",
@@ -113,7 +182,7 @@ module.exports = {
         use: {
           loader: "babel-loader",
           options: {
-            cacheDirectory: true,
+            cacheDirectory: process.env.BABEL_CACHE_DIRECTORY || true,
           },
         },
       },
@@ -152,7 +221,9 @@ module.exports = {
     ],
   },
   optimization: {
-    runtimeChunk: "single",
+    splitChunks: {
+      chunks: "all",
+    },
   },
   target: "web",
   resolve: {

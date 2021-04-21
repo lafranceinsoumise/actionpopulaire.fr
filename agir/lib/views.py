@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.views import View
 from django.views.generic.edit import FormMixin
 from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.views import APIView
 
 PICT_RATIO_MIN = 1.8
 PICT_RATIO_MAX = 2.1
@@ -74,3 +75,10 @@ class IframableMixin(View):
         if request.GET.get("iframe"):
             res.xframe_options_exempt = True
         return res
+
+
+class AnonymousAPIView(APIView):
+    def perform_authentication(self, request):
+        # original implementation only access request.user to force authentication
+        # we pass so it is done lazyly instead
+        pass

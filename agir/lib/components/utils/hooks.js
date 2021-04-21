@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import throttle from "lodash/throttle";
 import debounce from "lodash/debounce";
 import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
+import ResizeObserver from "resize-observer-polyfill";
 
 export const usePrevious = (value) => {
   const ref = useRef(null);
@@ -110,7 +111,9 @@ export const useDisableBodyScroll = (isActive, shouldDisable) => {
   useEffect(() => {
     if (isActive && targetRef.current) {
       shouldDisable
-        ? disableBodyScroll(targetRef.current)
+        ? disableBodyScroll(targetRef.current, {
+            allowTouchMove: (el) => true,
+          })
         : clearAllBodyScrollLocks();
     }
     return () => {
@@ -120,3 +123,16 @@ export const useDisableBodyScroll = (isActive, shouldDisable) => {
 
   return targetRef;
 };
+
+export function useMeasure() {
+  const ref = useRef();
+  const [bounds, set] = useState({ left: 0, top: 0, width: 0, height: 0 });
+  const [resizeObserver] = useState(
+    () => new ResizeObserver(([entry]) => set(entry.contentRect))
+  );
+  useEffect(() => {
+    if (ref.current) resizeObserver.observe(ref.current);
+    return () => resizeObserver.disconnect();
+  }, [resizeObserver]);
+  return [{ ref }, bounds];
+}

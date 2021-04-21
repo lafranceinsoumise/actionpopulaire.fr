@@ -48,3 +48,5 @@ setCatchHandler(async ({ event }) => {
 
   return Response.error();
 });
+
+import "./notificationsDisplay";

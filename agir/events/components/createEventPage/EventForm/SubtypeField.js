@@ -18,7 +18,7 @@ import { routeConfig } from "@agir/front/app/routes.config";
 const StyledOption = styled.li`
   display: flex;
   flex-flow: row nowrap;
-  height: 2.75rem;
+  min-height: 2.75rem;
   align-items: flex-start;
   font-size: 1rem;
   line-height: 1.5;
@@ -26,16 +26,28 @@ const StyledOption = styled.li`
   font-weight: ${({ $selected }) => ($selected ? 600 : 400)};
   cursor: ${({ $selected }) => ($selected ? "default" : "pointer")};
 
-  button {
+  & + & {
+    padding-top: 0.5rem;
+  }
+
+  & > button {
     display: ${({ $selected }) => ($selected ? "none" : "inline")};
     margin-left: auto;
   }
 
-  span {
+  & > span {
     color: ${style.primary500};
     display: inline-block;
-    font-size: 1.5rem;
-    padding-right: 0.5rem;
+    font-size: 1rem;
+    line-height: 1;
+    height: 1rem;
+    width: 1rem;
+    padding-top: 0.25rem;
+  }
+
+  & > strong {
+    font-weight: 400;
+    padding: 0 0.5rem;
   }
 `;
 
@@ -48,7 +60,7 @@ const StyledOptions = styled.div`
     padding: 0;
     list-style: none;
 
-    strong {
+    & > strong {
       display: block;
       height: 2.75rem;
       font-weight: 600;
@@ -129,12 +141,14 @@ const SubtypeOption = (props) => {
       onClick={handleClick}
     >
       <span className={`fa fa-${option.iconName || "calendar"}`} />
-      {option.description && (
-        <>
-          {option.description[0].toUpperCase()}
-          {option.description.slice(1)}
-        </>
-      )}
+      <strong>
+        {option.description && (
+          <>
+            {option.description[0].toUpperCase()}
+            {option.description.slice(1)}
+          </>
+        )}
+      </strong>
       <Button type="button" color="choose" onClick={handleClick} small>
         Choisir
       </Button>
@@ -222,10 +236,13 @@ const SubtypeField = (props) => {
   );
 
   const options = useMemo(() => {
-    const categories = { ...EVENT_TYPES };
+    const categories = {};
     subtypes.forEach((subtype) => {
       const category =
-        subtype.type && categories[subtype.type] ? subtype.type : "O";
+        subtype.type && EVENT_TYPES[subtype.type] ? subtype.type : "O";
+      categories[category] = categories[category] || {
+        ...EVENT_TYPES[category],
+      };
       categories[category].subtypes = categories[category].subtypes || [];
       categories[category].subtypes.push(subtype);
     });

@@ -52,15 +52,6 @@ const StyledField = styled.label`
     transition: all 200ms ease-in;
   }
 
-  &:hover ${StyledBox} {
-    ${({ $checked, $disabled }) =>
-      !$disabled
-        ? $checked
-          ? "opacity: .5;"
-          : `background: ${style.black50};`
-        : ""};
-  }
-
   input:focus + ${StyledBox} {
     box-shadow: ${({ $disabled }) =>
       !$disabled ? `0 0 0 4px ${style.primary100}` : "none"};

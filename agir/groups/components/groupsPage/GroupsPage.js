@@ -62,7 +62,7 @@ const GroupList = styled.article`
   margin-bottom: 2rem;
 
   @media (max-width: ${style.collapse}px) {
-    padding: 0 16px;
+    padding: 0 16px 48px;
   }
 
   & > ${Card} {
@@ -74,29 +74,29 @@ const GroupsPage = () => {
   const routes = useSelector(getRoutes);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
-  const { data: groupList } = useSWR("/api/groupes/");
+  const { data } = useSWR("/api/groupes/");
 
-  const groups = React.useMemo(
-    () =>
-      groupList
-        ? groupList.map(({ discountCodes, ...group }) => ({
-            ...group,
-            discountCodes: discountCodes.map(({ code, expirationDate }) => ({
-              code,
-              expirationDate: DateTime.fromISO(expirationDate, {
-                zone: "Europe/Paris",
-                locale: "fr",
-              }),
-            })),
-          }))
-        : [],
-    [groupList]
-  );
-
-  const hasOwnGroups = React.useMemo(
-    () => groups && groups.some((group) => group.isMember),
-    [groups]
-  );
+  const { groups, hasOwnGroups } = React.useMemo(() => {
+    if (!Array.isArray(data?.groups) || data.groups.length === 0) {
+      return {
+        groups: Array.isArray(data?.suggestions) ? data.suggestions : [],
+        hasOwnGroups: false,
+      };
+    }
+    return {
+      groups: data.groups.map(({ discountCodes, ...group }) => ({
+        ...group,
+        discountCodes: discountCodes.map(({ code, expirationDate }) => ({
+          code,
+          expirationDate: DateTime.fromISO(expirationDate, {
+            zone: "Europe/Paris",
+            locale: "fr",
+          }),
+        })),
+      })),
+      hasOwnGroups: true,
+    };
+  }, [data]);
 
   return (
     <>
@@ -106,7 +106,7 @@ const GroupsPage = () => {
       <TopBar>
         <LayoutTitle>Mes groupes</LayoutTitle>
         <div>
-          {routes.createGroup ? (
+          {routes.createGroup && (
             <Button
               as="a"
               href={routes.createGroup}
@@ -116,41 +116,43 @@ const GroupsPage = () => {
             >
               Créer un groupe
             </Button>
-          ) : null}
-          {routes.groupMapPage ? (
+          )}
+          {routes.groupMapPage && (
             <Button as="Link" icon="map" route="groupMapPage" small>
               Carte
             </Button>
-          ) : null}
+          )}
         </div>
       </TopBar>
       <PageFadeIn
-        ready={isSessionLoaded && groupList}
+        ready={isSessionLoaded && !!data}
         wait={<Skeleton boxes={2} />}
       >
-        {/* Si l'utilisateurice n'a pas de groupes,
+        <div style={{ paddingBottom: 64 }}>
+          {/* Si l'utilisateurice n'a pas de groupes,
         groups contient la liste des groupes suggérés,
          on place donc avant le texte introductif */}
-        {!hasOwnGroups ? (
-          <Onboarding type="group__suggestions" routes={routes} />
-        ) : null}
-        {groups.length > 0 && (
-          <GroupList>
-            {groups.map((group) => (
-              <GroupCard
-                key={group.id}
-                {...group}
-                displayDescription={false}
-                displayType={false}
-                displayGroupLogo={false}
-                displayMembership={false}
-              />
-            ))}
-          </GroupList>
-        )}
-        {!hasOwnGroups ? (
-          <Onboarding type="group__creation" routes={routes} />
-        ) : null}
+          {!hasOwnGroups && (
+            <Onboarding type="group__suggestions" routes={routes} />
+          )}
+          {groups.length > 0 && (
+            <GroupList>
+              {groups.map((group) => (
+                <GroupCard
+                  key={group.id}
+                  {...group}
+                  displayDescription={false}
+                  displayType={false}
+                  displayGroupLogo={false}
+                  displayMembership={false}
+                />
+              ))}
+            </GroupList>
+          )}
+          {!hasOwnGroups && (
+            <Onboarding type="group__creation" routes={routes} />
+          )}
+        </div>
       </PageFadeIn>
     </>
   );
