@@ -22,19 +22,11 @@ if (process.env.NODE_ENV === "production") {
     integrations: [
       new Integrations.BrowserTracing({
         shouldCreateSpanForRequest: (url) => {
-          if (isFirstCallToSession && isMatchingPattern(url, "/api/session/")) {
-            isFirstCallToSession = false;
+          if (isMatchingPattern(url, "/api/session/")) {
             return false;
           }
 
-          if (typeof urlMap[url] !== "undefined") {
-            return urlMap[url];
-          }
-
-          urlMap[url] =
-            origins.some((origin) => isMatchingPattern(url, origin)) &&
-            !isMatchingPattern(url, "sentry_key");
-          return urlMap[url];
+          return true;
         },
         routingInstrumentation: Sentry.reactRouterV5Instrumentation(
           history,
