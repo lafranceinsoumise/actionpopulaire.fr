@@ -20,11 +20,16 @@ class DepenseDocumentInline(BaseDocumentInline):
 
 
 class DepenseInline(BaseMixin, admin.TabularInline):
+    verbose_name = "Dépense"
+    verbose_name_plural = "Dépenses du projet"
+
     model = Depense
     extra = 0
     show_change_link = True
+    can_delete = False
 
     fields = ("numero_", "titre", "type", "montant", "date_depense", "compte")
+    readonly_fields = ("montant", "type", "date_depense", "compte")
 
 
 class ProjetDocumentInline(BaseDocumentInline):
@@ -32,7 +37,9 @@ class ProjetDocumentInline(BaseDocumentInline):
 
 
 class ProjetParticipationInline(admin.TabularInline):
+    verbose_name_plural = "Personnes impliquées dans ce projet"
     model = Participation
     extra = 1
 
     fields = ("person", "role")
+    autocomplete_fields = ("person",)

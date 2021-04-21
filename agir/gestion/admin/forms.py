@@ -10,7 +10,9 @@ class CommentairesForm(forms.ModelForm):
         label="Ajouter un commentaire", required=False, widget=forms.Textarea()
     )
     type_commentaire = forms.ChoiceField(
-        label="Type de commentaire", initial=TypeCommentaire.REM
+        label="Type de commentaire",
+        initial=TypeCommentaire.REM,
+        choices=TypeCommentaire.choices,
     )
 
     def __init__(self, *args, user=None, **kwargs):
@@ -29,7 +31,7 @@ class CommentairesForm(forms.ModelForm):
 
 
 class DocumentInlineForm(forms.ModelForm):
-    DOCUMENTS_FIELDS = ("titre", "type", "statut", "fichier")
+    DOCUMENTS_FIELDS = ("titre", "type", "fichier")
 
     def __init__(self, *args, initial=None, instance=None, **kwargs):
         if initial is None:
