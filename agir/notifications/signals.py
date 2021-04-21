@@ -63,6 +63,7 @@ def push_device_post_save_handler(sender, instance, created=False, **kwargs):
     is_first_device = (
         instance is not None
         and created is True
+        and not Subscription.objects.filter(person=instance.user.person).exists()
         and APNSDevice.objects.filter(user=instance.user).count()
         + WebPushDevice.objects.filter(user=instance.user).count()
         == 1
