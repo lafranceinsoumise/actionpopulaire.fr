@@ -34,6 +34,8 @@ def send_webpush_activity(activity_pk, webpush_device_pk):
         if "Push failed: 410 Gone" in str(e):
             webpush_device.active = False
             webpush_device.save()
+        else:
+            raise e
 
 
 @http_task
