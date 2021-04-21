@@ -5,7 +5,7 @@ import {
   setActivityAsDisplayed,
   setActivityAsInteracted,
 } from "@agir/activity/common/helpers";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 export const useHasUnreadActivity = () => {
   const { data: activities } = useSWR("/api/user/activities/", {
@@ -37,20 +37,28 @@ export const useRequiredActivityCount = () => {
 
 export const useCustomAnnouncement = (slug) => {
   const { data } = useSWR("/api/session/");
-  const announcement =
-    data &&
-    Array.isArray(data.announcements) &&
-    data.announcements.find((a) => a.customDisplay === slug);
+
+  const announcementStatus = useRef(0);
+  const announcement = useMemo(
+    () =>
+      data && Array.isArray(data.announcements)
+        ? data.announcements.find((a) => a.customDisplay === slug)
+        : null,
+    [slug, data]
+  );
 
   useEffect(() => {
-    if (!announcement) return;
-    setActivityAsDisplayed(announcement.activityId);
+    if (announcement && announcementStatus.current === 0) {
+      announcementStatus.current = 1;
+      setActivityAsDisplayed(announcement.activityId);
+    }
   }, [announcement]);
 
   let dismissCallback = useCallback(async () => {
     if (!announcement) {
       return;
     }
+    announcementStatus.current = 2;
     await setActivityAsInteracted(announcement.activityId);
 
     await mutate("/api/session/", async (session) => ({
