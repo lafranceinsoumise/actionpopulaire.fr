@@ -1,17 +1,24 @@
 import re
 import secrets
 from functools import reduce
-from string import ascii_uppercase, digits
 from operator import add
+from string import ascii_uppercase, digits
 
 import dynamic_filenames
+import reversion
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
-
-import reversion
+from django.utils import timezone
+from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 
-from agir.gestion.typologies import TypeProjet, TypeDocument, Etat, TypeDepense
+from agir.gestion.typologies import (
+    TypeProjet,
+    TypeDocument,
+    Etat,
+    TypeDepense,
+    RoleParticipation,
+)
 from agir.lib.model_fields import IBANField
 from agir.lib.models import LocationMixin, TimeStampedModel
 from agir.lib.search import PrefixSearchQuery
@@ -95,11 +102,6 @@ class Document(NumeroUniqueMixin, TimeStampedModel):
         PREFERABLE = "PRE", "Préférable"
         IGNORER = "IGN", "Peut être ignoré"
 
-    class Statut(models.TextChoices):
-        CORRIGER = "COR", "Document à corriger"
-        VERIFIER = "INA", "Document à vérifier"
-        CONFIRME = "CON", "Document confirmé"
-
     titre = models.CharField(
         verbose_name="Titre du document",
         help_text="Titre permettant d'identifier le document",
@@ -115,9 +117,6 @@ class Document(NumeroUniqueMixin, TimeStampedModel):
 
     type = models.CharField(
         verbose_name="Type de document", max_length=10, choices=TypeDocument.choices
-    )
-    statut = models.CharField(
-        verbose_name="Statut du document", max_length=3, choices=Statut.choices
     )
 
     requis = models.CharField(
@@ -270,13 +269,6 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         help_text="Date à laquelle la dépense a été engagée (généralement l'acceptation du contrat)",
     )
 
-    date_paiement = models.DateField(
-        "Date du paiement",
-        blank=True,
-        null=True,
-        help_text="Date à laquelle le paiement a été effecté.",
-    )
-
     documents = models.ManyToManyField(
         to="Document", related_name="depenses", related_query_name="depense",
     )
@@ -285,18 +277,12 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         "Fournisseur", null=True, blank=True, on_delete=models.SET_NULL
     )
 
-    # informations fournisseurs
-    nom_fournisseur = models.CharField(
-        verbose_name="Nom du fournisseur", blank=False, max_length=100
-    )
-
-    iban_fournisseur = IBANField(verbose_name="IBAN du fournisseur", blank=True)
-
-    contact_phone_fournisseur = PhoneNumberField(
-        verbose_name="Numéro de téléphone", blank=True
-    )
-    contact_email_fournisseur = models.EmailField(
-        verbose_name="Adresse email", blank=True
+    personnes = models.ManyToManyField(
+        to="people.Person",
+        verbose_name="Personnes concernées",
+        related_name="depenses",
+        related_query_name="depense",
+        blank=True,
     )
 
     @property
@@ -307,9 +293,10 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
 
     @property
     def paiement_effectue(self):
-        return self.documents.filter(
-            type=TypeDocument.PAIEMENT, statut=Document.Statut.CONFIRME
-        ).exists()
+        return (
+            self.versements.aggregate(paye=models.Sum("montant"))["paye"]
+            == self.montant
+        )
 
     @property
     def etat(self):
@@ -334,6 +321,86 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         verbose_name_plural = "Dépenses"
 
 
+class Versement(models.Model):
+    class Statut(models.TextChoices):
+        ATTENTE = "C", "En cours"
+        REGLE = "R", "Réglé"
+        RAPPROCHE = "P", "Rapproché"
+
+    class Mode(models.TextChoices):
+        VIREMENT = "V", "Par virement"
+        PRELEV = "P", "Par prélèvement"
+        CHEQUE = "C", "Par chèque"
+        CARTE = "A", "Par carte bancaire"
+        CASH = "S", "En espèces"
+
+    depense = models.ForeignKey(
+        to=Depense,
+        verbose_name="Dépense concernée",
+        related_name="versements",
+        related_query_name="versement",
+        on_delete=models.PROTECT,
+    )
+    montant = models.DecimalField(
+        verbose_name="Montant du versement",
+        decimal_places=2,
+        null=False,
+        max_digits=10,
+    )
+    date = models.DateField(
+        verbose_name="Date du versement", blank=False, null=False, default=timezone.now,
+    )
+
+    preuve = models.ForeignKey(
+        to="Document",
+        verbose_name="Preuve de paiement",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+    )
+
+    statut = models.CharField(
+        max_length=1, blank=False, choices=Statut.choices, default=Statut.ATTENTE
+    )
+
+    # lien vers le fournisseur
+    fournisseur = models.ForeignKey(
+        to="Fournisseur", null=True, blank=True, on_delete=models.SET_NULL,
+    )
+
+    # informations fournisseurs
+    nom_fournisseur = models.CharField(
+        verbose_name="Nom du fournisseur", blank=False, max_length=100
+    )
+
+    iban_fournisseur = IBANField(verbose_name="IBAN du fournisseur", blank=True)
+
+    contact_phone_fournisseur = PhoneNumberField(
+        verbose_name="Numéro de téléphone", blank=True
+    )
+    contact_email_fournisseur = models.EmailField(
+        verbose_name="Adresse email", blank=True
+    )
+
+    location_address1_fournisseur = models.CharField(
+        "adresse (1ère ligne)", max_length=100, blank=True
+    )
+    location_address2_fournisseur = models.CharField(
+        "adresse (1ère ligne)", max_length=100, blank=True
+    )
+    location_city_fournisseur = models.CharField("ville", max_length=100, blank=False)
+    location_zip_fournisseur = models.CharField(
+        "code postal", max_length=20, blank=False
+    )
+    location_country_fournisseur = CountryField(
+        "pays", blank_label="(sélectionner un pays)", default="FR", blank=False
+    )
+
+    class Meta:
+        verbose_name = "versement"
+        ordering = ("date",)
+
+
 @reversion.register()
 class Fournisseur(LocationMixin, TimeStampedModel):
     """Ce modèle permet d'enregistrer des fournisseurs récurrents.
@@ -345,7 +412,7 @@ class Fournisseur(LocationMixin, TimeStampedModel):
     nom = models.CharField(
         verbose_name="Nom du fournisseur", blank=False, max_length=100
     )
-    commentaires = models.TextField(verbose_name="Commentaires")
+    description = models.TextField(verbose_name="Description", blank=True)
 
     iban = IBANField(verbose_name="IBAN du fournisseur", blank=True)
 
@@ -354,3 +421,33 @@ class Fournisseur(LocationMixin, TimeStampedModel):
 
     def __str__(self):
         return self.nom
+
+
+class Participation(TimeStampedModel):
+    """Ce modèle associe des personnes à des projets, et indique leur rôle sur le projet
+    """
+
+    projet = models.ForeignKey(
+        to=Projet,
+        verbose_name="Projet",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
+    )
+    person = models.ForeignKey(
+        to="people.Person",
+        verbose_name="Personne",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
+    )
+    role = models.CharField(
+        verbose_name="Rôle sur ce projet",
+        max_length=3,
+        choices=RoleParticipation.choices,
+    )
+
+    class Meta:
+        verbose_name = "participation à un projet"
+        verbose_name_plural = "participations à des projets"
+        unique_together = ("projet", "person", "role")

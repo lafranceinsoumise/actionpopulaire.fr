@@ -1,6 +1,12 @@
 from django.db.models import TextChoices
 
 
+class TypeCommentaire(TextChoices):
+    REM = "REM", "Remarque"
+    WARN = "WARN", "Point de vigilance"
+    TODO = "TODO", "À faire"
+
+
 class Etat(TextChoices):
     OK = "OK", "Dossier complet"
     WARNING = "WARN", "Problèmes potentiels"
@@ -87,3 +93,13 @@ class TypeProjet(TextChoices):
     ACTIONS = "ACT", "Actions"
 
     DEPENSES_RH = "RH", "Dépenses RH mensuelles"
+
+
+class RoleParticipation(TextChoices):
+    CANDIDAT = "CAN", "Candidat"
+    ORATEUR = "ORA", "Orateur"
+    ORGANISATION = (
+        "ORG",
+        "Organisation",
+    )
+    GESTION = "GES", "Gestion de projet"
