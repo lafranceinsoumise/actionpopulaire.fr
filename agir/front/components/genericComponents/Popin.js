@@ -41,7 +41,7 @@ export const PopinContainer = (props) => {
   const { isOpen, onDismiss, position = "bottom-right", children } = props;
 
   const popinRef = useRef();
-  const popinTransition = useTransition(isOpen, null, fadeInTransition);
+  const popinTransition = useTransition(isOpen, fadeInTransition);
   const Popin = useMemo(() => Popins[position], [position]);
 
   const closeOnClickOutside = useCallback(
@@ -62,9 +62,9 @@ export const PopinContainer = (props) => {
     }
   }, [isOpen, closeOnClickOutside]);
 
-  return popinTransition.map(({ item, key, props }) =>
+  return popinTransition((style, item) =>
     item ? (
-      <Popin ref={popinRef} key={key} style={props}>
+      <Popin ref={popinRef} style={style}>
         {children}
       </Popin>
     ) : null

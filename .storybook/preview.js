@@ -10,9 +10,5 @@ export const parameters = {
 };
 
 export const decorators = [
-  (Story) => (
-    <MemoryRouter initialEntries={["/"]}>
-      <Story />
-    </MemoryRouter>
-  ),
+  (Story) => <MemoryRouter initialEntries={["/"]}>{Story()}</MemoryRouter>,
 ];

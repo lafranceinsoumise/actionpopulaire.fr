@@ -1,20 +1,23 @@
 import React from "react";
 
 import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
-import Announcements from "./Announcements";
+import Announcements, {
+  BannerAnnouncements,
+  SidebarAnnouncements,
+} from "./Announcements";
 
 export default {
   component: Announcements,
   title: "Dashboard/Announcements",
 };
 
-const Template = ({ announcements, ...args }) => (
-  <TestGlobalContextProvider
-    value={{
-      announcements: announcements,
-    }}
-  >
-    <Announcements {...args} />
+const Template = (args) => (
+  <TestGlobalContextProvider>
+    {args.displayType === "sidebar" ? (
+      <SidebarAnnouncements {...args} />
+    ) : (
+      <BannerAnnouncements {...args} />
+    )}
   </TestGlobalContextProvider>
 );
 
