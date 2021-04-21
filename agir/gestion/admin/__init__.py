@@ -1,87 +1,23 @@
-from functools import partial
-
-import dateutil
-from django import forms
 from django.contrib import admin
-from django.contrib.admin.options import BaseModelAdmin
-from django.utils import timezone
-from django.utils.html import format_html_join, format_html
+from django.utils.html import format_html, format_html_join
 from reversion.admin import VersionAdmin
 
-from agir.gestion.models import Depense, Projet, Compte, Document, Fournisseur
-from agir.lib.admin import get_admin_link
-from agir.people.models import Person
-
-
-class CommentairesForm(forms.ModelForm):
-    nouveau_commentaire = forms.CharField(
-        label="Ajouter un commentaire", required=False, widget=forms.Textarea()
-    )
-
-    def __init__(self, *args, user=None, **kwargs):
-        self.user = user
-        super().__init__(*args, **kwargs)
-
-    def save(self, commit=True):
-        if self.cleaned_data.get("nouveau_commentaire"):
-            self.instance.commentaires.append(
-                {
-                    "auteur": str(self.user.person.id),
-                    "date": timezone.now().isoformat(),
-                    "message": self.cleaned_data["nouveau_commentaire"],
-                }
-            )
-        return super().save(commit=commit)
-
-
-class BaseMixin(BaseModelAdmin):
-    form = CommentairesForm
-
-    search_fields = ("numero",)
-
-    def get_search_results(self, request, queryset, search_term):
-        if search_term:
-            return queryset.search(search_term)
-        return queryset, False
-
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        form = super().get_form(request, obj=obj, change=change, **kwargs)
-        return partial(form, user=request.user)
-
-    def get_readonly_fields(self, request, obj=None):
-        return super().get_readonly_fields(request, obj=obj) + (
-            "bloc_commentaires",
-            "numero_",
-        )
-
-    def numero_(self, obj):
-        if obj.id:
-            return format_html('<a href="{}">{}</a>', get_admin_link(obj), obj.numero)
-        else:
-            return "-"
-
-    numero_.short_description = "Numéro automatique"
-
-    def bloc_commentaires(self, obj):
-        if obj and obj.commentaires:
-            return format_html_join(
-                "",
-                "<div><strong>{} — {}</strong><p>{}</p></div>",
-                (
-                    (
-                        Person.objects.filter(id=com["auteur"]).first(),
-                        dateutil.parser.parse(com["date"]).strftime(
-                            "%H:%M le %d/%m/%Y"
-                        ),
-                        com["message"],
-                    )
-                    for com in obj.commentaires
-                ),
-            )
-
-        return "Aucun commentaire."
-
-    bloc_commentaires.short_description = "Commentaires"
+from agir.gestion.admin.base import BaseMixin
+from agir.gestion.admin.forms import CommentairesForm, DocumentInlineForm
+from agir.gestion.admin.inlines import (
+    DepenseDocumentInline,
+    DepenseInline,
+    ProjetDocumentInline,
+    ProjetParticipationInline,
+)
+from agir.gestion.models import (
+    Depense,
+    Projet,
+    Compte,
+    Document,
+    Fournisseur,
+)
+from agir.lib.display import display_price
 
 
 @admin.register(Compte)
@@ -111,6 +47,8 @@ class FournisseurAdmin(VersionAdmin):
         ),
     )
 
+    search_fields = ("nom", "description")
+
 
 @admin.register(Document)
 class DocumentAdmin(BaseMixin, VersionAdmin):
@@ -119,7 +57,6 @@ class DocumentAdmin(BaseMixin, VersionAdmin):
         "titre",
         "identifiant",
         "type",
-        "statut",
         "requis",
     )
 
@@ -132,57 +69,22 @@ class DocumentAdmin(BaseMixin, VersionAdmin):
                     "titre",
                     "identifiant",
                     "type",
-                    "statut",
                     "requis",
                     "fichier",
                 )
             },
         ),
-        ("Commentaires", {"fields": ("bloc_commentaires", "nouveau_commentaire")}),
+        (
+            "Commentaires",
+            {
+                "fields": (
+                    "bloc_commentaires",
+                    "nouveau_commentaire",
+                    "type_commentaire",
+                )
+            },
+        ),
     )
-
-
-class DocumentInlineForm(forms.ModelForm):
-    DOCUMENTS_FIELDS = ("titre", "type", "statut", "fichier")
-
-    def __init__(self, *args, initial=None, instance=None, **kwargs):
-        if initial is None:
-            initial = {}
-
-        if instance and instance.document:
-            for f in self.DOCUMENTS_FIELDS:
-                initial.setdefault(f, getattr(instance.document, f))
-
-        super().__init__(*args, instance=instance, initial=initial, **kwargs)
-
-        if instance and instance.document:
-            self.fields["document"].disabled = True
-        else:
-            for f in self.DOCUMENTS_FIELDS:
-                self.fields[f].disabled = True
-
-
-_document_fields = {
-    f.name: f.formfield()
-    for f in Document._meta.get_fields()
-    if f.name in DocumentInlineForm.DOCUMENTS_FIELDS
-}
-_document_fields.update(DocumentInlineForm.declared_fields)
-DocumentInlineForm.base_fields = DocumentInlineForm.declared_fields = _document_fields
-
-
-class BaseDocumentInline(admin.TabularInline):
-    extra = 0
-    show_change_link = True
-    form = DocumentInlineForm
-
-    autocomplete_fields = ("document",)
-
-    fields = ("document", *DocumentInlineForm.DOCUMENTS_FIELDS)
-
-
-class DepenseDocumentInline(BaseDocumentInline):
-    model = Depense.documents.through
 
 
 @admin.register(Depense)
@@ -198,7 +100,6 @@ class DepenseAdmin(BaseMixin, VersionAdmin):
         "type",
         "montant",
         "date_depense",
-        "date_paiement",
         "compte",
         "projet",
     )
@@ -215,26 +116,49 @@ class DepenseAdmin(BaseMixin, VersionAdmin):
                     "montant",
                     "description",
                     "date_depense",
+                    "personnes",
                 )
             },
         ),
-        ("Informations de paiement", {"fields": ("fournisseur", "date_paiement")}),
-        ("Commentaires", {"fields": ("bloc_commentaires", "nouveau_commentaire")}),
+        ("Informations de paiement", {"fields": ("fournisseur", "versements")}),
+        (
+            "Commentaires",
+            {
+                "fields": (
+                    "bloc_commentaires",
+                    "nouveau_commentaire",
+                    "type_commentaire",
+                )
+            },
+        ),
     )
 
+    readonly_fields = ("versements",)
+
+    def versements(self, obj):
+        format_html(
+            "<table><thead><tr><th>Date</th><th>Montant</th><th>Statut</th></thead></tr><tbody>{}</tbody>",
+            format_html_join(
+                "",
+                "<tr><td>{date}</td><td>{montant}</td><td>{statut}</td>",
+                (
+                    {
+                        "date": v.date.strftime("%d/%m/%Y"),
+                        "montant": display_price(v.montant),
+                        "statut": v.get_display_statut(),
+                    }
+                    for v in obj.versements.all()
+                ),
+            ),
+        )
+
+    versements.short_description = "Versements effectués"
+
+    autocomplete_fields = (
+        "personnes",
+        "fournisseur",
+    )
     inlines = [DepenseDocumentInline]
-
-
-class DepenseInline(BaseMixin, admin.TabularInline):
-    model = Depense
-    extra = 0
-    show_change_link = True
-
-    fields = ("numero_", "titre", "type", "montant", "date_depense", "compte")
-
-
-class ProjetDocumentInline(BaseDocumentInline):
-    model = Projet.documents.through
 
 
 @admin.register(Projet)
@@ -244,12 +168,21 @@ class ProjetAdmin(BaseMixin, VersionAdmin):
     fieldsets = (
         (
             None,
-            {"fields": ("numero", "titre", "type", "statut", "event", "description")},
+            {"fields": ("numero_", "titre", "type", "statut", "event", "description")},
         ),
-        ("Commentaires", {"fields": ("bloc_commentaires", "nouveau_commentaire")}),
+        (
+            "Commentaires",
+            {
+                "fields": (
+                    "bloc_commentaires",
+                    "nouveau_commentaire",
+                    "type_commentaire",
+                )
+            },
+        ),
     )
 
     readonly_fields = ("numero",)
     autocomplete_fields = ("event",)
 
-    inlines = [DepenseInline, ProjetDocumentInline]
+    inlines = [ProjetParticipationInline, DepenseInline, ProjetDocumentInline]
