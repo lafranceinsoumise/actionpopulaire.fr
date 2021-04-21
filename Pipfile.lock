@@ -110,19 +110,19 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:1d26f6e7ae3c940cb07119077ac42485dcf99164350da0ab50d0f5ad345800cd",
-                "sha256:3bf3305571f3c8b738a53e9e7dcff59137dffe94670046c084a17f9fa4599ff3"
+                "sha256:5910c868c2cf0d30b6c9caed1d38a2b2c2c83e9713eadae0f43de4f42bfe863f",
+                "sha256:d0d1e8ca76a8e1b74f87a8324f97001d60bd8bbe6cca35a8e9e7b9abe5aa9ddb"
             ],
             "index": "pypi",
-            "version": "==1.17.53"
+            "version": "==1.17.55"
         },
         "botocore": {
             "hashes": [
-                "sha256:d5e70d17b91c9b5867be7d6de0caa7dde9ed789bed62f03ea9b60718dc9350bf",
-                "sha256:e303500c4e80f6a706602da53daa6f751cfa8f491665c99a24ee732ab6321573"
+                "sha256:5632c129e6c1c1a15e273fd3ec6f4431490e99ec61b6cff833538f456202e833",
+                "sha256:94a62f7f848b37757c3419193727e183bccdf5cb74167df30bafee5d8d649b7a"
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
-            "version": "==1.20.53"
+            "version": "==1.20.55"
         },
         "cached-property": {
             "hashes": [
@@ -762,11 +762,11 @@
         },
         "nuntius": {
             "hashes": [
-                "sha256:2466f752128adf61cba17ac9ff0e703408be78375ec368aaa0b41e66146578c5",
-                "sha256:c40ed96be0cb346f93d0da2ed51606068d00ff5ee100265a1bb7d6f56468b1c7"
+                "sha256:c65fb5f5eecf9ba2eb6268912df0ca6506a59084bc331a080b84ca3f6988b215",
+                "sha256:c934bd4ff1b5287e13a36ddb64fac4a9cf501f0703e55ed8da6e0a69677a62f5"
             ],
             "index": "pypi",
-            "version": "==2.1.12"
+            "version": "==2.2.0"
         },
         "oauthlib": {
             "hashes": [
@@ -891,9 +891,9 @@
         },
         "py-vapid": {
             "hashes": [
-                "sha256:590961dc48428448932ca8f3553c3899be11137e61198313feb0e1ab923b83dd"
+                "sha256:874f21910f2103c56228cded941d6e733dd8f1eb12876137919533bfacb65a48"
             ],
-            "version": "==1.8.1"
+            "version": "==1.8.2"
         },
         "pyaes": {
             "hashes": [
@@ -1070,10 +1070,10 @@
         },
         "s3transfer": {
             "hashes": [
-                "sha256:35627b86af8ff97e7ac27975fe0a98a312814b46c6333d8a6b889627bcd80994",
-                "sha256:efa5bd92a897b6a8d5c1383828dca3d52d0790e0756d49740563a3fb6ed03246"
+                "sha256:81b7b3516739b0cfbecaa9077a1baf783e7a790c0e49261fcc6ceda468765efa",
+                "sha256:b5130849df909773254099d085790456665f8d7e0032bbef6e3407f28adb1ad9"
             ],
-            "version": "==0.3.7"
+            "version": "==0.4.1"
         },
         "scipy": {
             "hashes": [
@@ -1930,7 +1930,7 @@
                 "sha256:f7f63ce127980d40f3e6a5fdb87abf17ce1a7c2bd8bf2c7560e1bbce8ab1f92d",
                 "sha256:ff1ea14075bbddd6f29bf6beb8a46d0db779bcec6b9820909584081ec119f8fd"
             ],
-            "markers": "python_version >= '3.6'",
+            "markers": "python_full_version >= '3.6.0'",
             "version": "==22.0.3"
         },
         "redis": {
