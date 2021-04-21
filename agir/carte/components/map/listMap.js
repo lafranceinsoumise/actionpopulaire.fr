@@ -114,16 +114,12 @@ class Display {
         ? this.sourceForSubtype[item.subtype]
         : this.sources[item.type];
       if (!source) {
-        return;
+        continue;
       }
-      if (
-        hideInactive &&
-        !item.is_active &&
-        item.location_country === "FR" &&
-        source.hasFeature(feature)
-      ) {
-        source.removeFeature(source.getFeatureById(item.id));
-        return;
+      if (hideInactive && !item.is_active && item.location_country === "FR") {
+        source.hasFeature(feature) &&
+          source.removeFeature(source.getFeatureById(item.id));
+        continue;
       }
       if (!source.hasFeature(feature)) {
         source.addFeature(feature);
