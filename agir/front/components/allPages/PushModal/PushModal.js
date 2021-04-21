@@ -43,15 +43,21 @@ export const PushModal = ({ isActive = true }) => {
   }, [dismissMobileAppAnnouncement]);
 
   useEffect(() => {
+    let displayTimeout;
     if (
-      !window.location.href.endsWith(routeConfig.tellMore.getLink()) &&
       isActive &&
       isSessionLoaded &&
       typeof shouldShow !== "boolean" &&
       (!!ReferralModalAnnouncement || !!MobileAppAnnouncement)
     ) {
-      setShouldShow(true);
+      displayTimeout = setTimeout(() => {
+        !window.location.href.endsWith(routeConfig.tellMore.getLink()) &&
+          setShouldShow(true);
+      }, 1000);
     }
+    return () => {
+      clearTimeout(displayTimeout);
+    };
   }, [
     shouldShow,
     isActive,
