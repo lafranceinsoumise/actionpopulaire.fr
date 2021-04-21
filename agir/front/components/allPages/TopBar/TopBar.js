@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { useLocation } from "react-router-dom";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
@@ -21,6 +22,8 @@ import Logo from "./Logo";
 import RightLink from "./RightLink";
 import SearchBar from "./SearchBar";
 import AdminLink from "./AdminLink";
+import { useMobileApp } from "@agir/front/app/hooks";
+import routes, { routeConfig, BASE_PATH } from "@agir/front/app/routes.config";
 
 const TopBarBar = styled.div`
   position: fixed;
@@ -43,6 +46,7 @@ const TopBarBar = styled.div`
 
 const TopBarContainer = styled.div`
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
 
   max-width: 1320px;
@@ -85,6 +89,8 @@ export const TopBar = () => {
   const backLink = useSelector(getBackLink);
   const topBarRightLink = useSelector(getTopBarRightLink);
   const adminLink = useSelector(getAdminLink);
+  const { pathname } = useLocation();
+  const { isMobileApp } = useMobileApp();
 
   return (
     <TopBarBar>
@@ -109,7 +115,26 @@ export const TopBar = () => {
           )
         ) : null}
         <HorizontalFlex className="grow justify">
-          <MenuLink href={routes.dashboard}>
+          <MenuLink href={routes.dashboard} className="small-only">
+            {(() => {
+              if (isMobileApp) {
+                for (const route of Object.entries(routeConfig)) {
+                  // we want the logo only on the main page
+                  if (pathname === "/") return <Logo />;
+                  if (route[1].path === pathname) {
+                    return <h1>{route[1].label}</h1>;
+                  } else if (Array.isArray(route[1].path)) {
+                    // if route have multiple paths in an array
+                    for (const element of route[1].path) {
+                      if (element === pathname)
+                        return <h1>{route[1].label}</h1>;
+                    }
+                  }
+                }
+              }
+            })()}
+          </MenuLink>
+          <MenuLink href={routes.dashboard} className="large-only">
             <Logo />
           </MenuLink>
           <form className="large-only grow" method="get" action={routes.search}>
