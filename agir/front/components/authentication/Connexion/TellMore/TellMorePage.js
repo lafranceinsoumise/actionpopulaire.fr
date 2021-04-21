@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Redirect, useRouteMatch } from "react-router-dom";
 
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
@@ -14,6 +14,7 @@ const TellMorePage = () => {
   const isTellMorePage = useRouteMatch(routeConfig.tellMore.getLink());
 
   const { available, isSubscribed, subscribe, ready, errorMessage } = usePush();
+
   const [hasCampaign, dismissCampaign] = useCustomAnnouncement(
     "chooseCampaign"
   );
@@ -29,6 +30,19 @@ const TellMorePage = () => {
 
   const { isMobileApp } = useMobileApp();
 
+  useEffect(() => {
+    let timeout = null;
+    // Avoid blocking the user on a blank page if push never becomes ready
+    if (isMobileApp && hasDeviceNotificationSubscription && !ready) {
+      timeout = setTimeout(() => {
+        setHasDeviceNotificationSubscription(false);
+      }, 1000);
+    }
+    return () => {
+      timeout && clearTimeout(timeout);
+    };
+  }, [hasDeviceNotificationSubscription, isMobileApp, ready]);
+
   if (!isTellMorePage && (hasCampaign || hasTellMore)) {
     return <Redirect to={routeConfig.tellMore.getLink()} />;
   }
@@ -36,12 +50,15 @@ const TellMorePage = () => {
   if (hasCampaign) {
     return <ChooseCampaign dismiss={dismissCampaign} />;
   }
+
   if (hasTellMore) {
     return <TellMore dismiss={dismissTellMore} />;
   }
+
   if (isMobileApp && hasDeviceNotificationSubscription && !ready) {
     return null;
   }
+
   if (
     isMobileApp &&
     hasDeviceNotificationSubscription &&
