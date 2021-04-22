@@ -71,6 +71,18 @@ const TopBarContainer = styled.div`
   .justify {
     justify-content: center;
   }
+
+  h1 {
+    font-family: ${style.fontFamilyBase};
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  h1:hover {
+    text-decoration: none;
+  }
 `;
 
 const HorizontalFlex = styled.div`
@@ -79,6 +91,7 @@ const HorizontalFlex = styled.div`
 
   & > * {
     margin-left: 1.25em;
+    text-align: left;
   }
 `;
 
@@ -115,25 +128,36 @@ export const TopBar = () => {
           )
         ) : null}
         <HorizontalFlex className="grow justify">
-          <MenuLink href={routes.dashboard} className="small-only">
-            {(() => {
-              if (isMobileApp) {
-                for (const route of Object.entries(routeConfig)) {
-                  // we want the logo only on the main page
-                  if (pathname === "/") return <Logo />;
-                  if (route[1].path === pathname) {
-                    return <h1>{route[1].label}</h1>;
-                  } else if (Array.isArray(route[1].path)) {
-                    // if route have multiple paths in an array
-                    for (const element of route[1].path) {
-                      if (element === pathname)
-                        return <h1>{route[1].label}</h1>;
-                    }
+          {(() => {
+            if (isMobileApp) {
+              for (const route of Object.entries(routeConfig)) {
+                // we want the logo only on the main page
+                if (pathname === "/")
+                  return (
+                    <MenuLink href={routes.dashboard} className="small-only">
+                      <Logo />
+                    </MenuLink>
+                  );
+                if (route[1].path === pathname) {
+                  return (
+                    <MenuLink href={route[1].path} className="small-only">
+                      <h1>{route[1].label}</h1>
+                    </MenuLink>
+                  );
+                } else if (Array.isArray(route[1].path)) {
+                  // if route have multiple paths in an array
+                  for (const element of route[1].path) {
+                    if (element === pathname)
+                      return (
+                        <MenuLink href={element} className="small-only">
+                          <h1>{route[1].label}</h1>
+                        </MenuLink>
+                      );
                   }
                 }
               }
-            })()}
-          </MenuLink>
+            }
+          })()}
           <MenuLink href={routes.dashboard} className="large-only">
             <Logo />
           </MenuLink>
