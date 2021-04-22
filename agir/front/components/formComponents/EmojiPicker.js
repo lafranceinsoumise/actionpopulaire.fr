@@ -142,7 +142,7 @@ const StyledWrapper = styled.div`
 
 const slideInTransition = {
   from: { opacity: 0, transform: "translateY(1rem)" },
-  enter: { opacity: 1, transform: "translateY(0)" },
+  enter: { opacity: 1, transform: "translateY(0rem)" },
   leave: { opacity: 0, transform: "translateY(1rem)" },
 };
 
@@ -178,7 +178,7 @@ const EmojiPicker = (props) => {
     [onSelect, format]
   );
 
-  const transition = useTransition(isOpen, null, slideInTransition);
+  const transition = useTransition(isOpen, slideInTransition);
 
   useEffect(() => {
     isOpen && document.addEventListener("keydown", handleKeyClose);
@@ -213,10 +213,10 @@ const EmojiPicker = (props) => {
             <Emoji emoji="smile" size={small ? 16 : 24} set="twitter" />
           </StyledTriggerIcon>
         </StyledTrigger>
-        {transition.map(
-          ({ item, key, props }) =>
+        {transition(
+          (style, item) =>
             item && (
-              <StyledPickerWrapper key={key} style={props} $position={position}>
+              <StyledPickerWrapper style={style} $position={position}>
                 <Picker
                   autoFocus
                   showPreview={false}

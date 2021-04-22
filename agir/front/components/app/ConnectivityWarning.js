@@ -53,19 +53,18 @@ const ConnectivityWarning = ({ hasTopBar }) => {
     return () => clearTimeout(timeout);
   }, [offline]);
 
-  const transitions = useTransition(display, null, {
+  const transitions = useTransition(display, {
     initial: null,
     enter: { height: 30 },
     leave: { height: 0 },
   });
 
-  return transitions.map(
-    ({ item, key, props }) =>
+  return transitions(
+    (style, item) =>
       item && (
         <StyledWarning
-          key={key}
           style={{
-            ...props,
+            ...style,
             backgroundColor,
             color,
           }}

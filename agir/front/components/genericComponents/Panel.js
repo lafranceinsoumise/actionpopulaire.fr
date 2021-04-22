@@ -18,13 +18,13 @@ const slideInTransitions = {
   right: {
     config: springConfig,
     from: { right: 0, transform: "translateX(100%)" },
-    enter: { transform: "translateX(0)" },
+    enter: { transform: "translateX(0%)" },
     leave: { transform: "translateX(100%)" },
   },
   left: {
     config: springConfig,
     from: { left: 0, transform: "translateX(-100%)" },
-    enter: { transform: "translateX(0)" },
+    enter: { transform: "translateX(0%)" },
     leave: { transform: "translateX(-100%)" },
   },
 };
@@ -53,10 +53,10 @@ const Overlay = styled(animated.div)`
 
 const AnimatedOverlay = (props) => {
   const { shouldShow = false, onClick } = props;
-  const transitions = useTransition(shouldShow, null, fadeInTransition);
+  const transitions = useTransition(!!shouldShow, fadeInTransition);
 
-  return transitions.map(({ item, key, props }) =>
-    item ? <Overlay key={key} style={props} onClick={onClick} /> : null
+  return transitions((style, item) =>
+    item ? <Overlay style={style} onClick={onClick} /> : null
   );
 };
 
@@ -198,7 +198,7 @@ const Panel = (props) => {
 
   const slideInTransition =
     slideInTransitions[position] || slideInTransitions.right;
-  const transitions = useTransition(shouldShow, null, slideInTransition);
+  const transitions = useTransition(!!shouldShow, slideInTransition);
 
   const panelParent = useMemo(() => {
     const panelParent = document.createElement("div");
@@ -218,13 +218,12 @@ const Panel = (props) => {
   return createPortal(
     <PanelFrame ref={panelRef} $open={shouldShow}>
       <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
-      {transitions.map(({ item, key, props }) =>
+      {transitions((style, item) =>
         item ? (
           <PanelContent
             ref={panelContentRef}
-            key={key}
             className={className}
-            style={props}
+            style={style}
             role="dialog"
             $position={position}
           >
