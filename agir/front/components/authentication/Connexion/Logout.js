@@ -1,45 +1,34 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Redirect, useLocation } from "react-router-dom";
 import useSWR from "swr";
 
 import { logout } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 
-import {
-  useSelector,
-  useDispatch,
-} from "@agir/front/globalContext/GlobalContext";
-import {
-  getUser,
-  getIsSessionLoaded,
-} from "@agir/front/globalContext/reducers";
-import { setSessionContext } from "@agir/front/globalContext/actions";
-
 const Logout = () => {
-  const dispatch = useDispatch();
   const location = useLocation();
-  const user = useSelector(getUser);
-  const isSessionLoaded = useSelector(getIsSessionLoaded);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const { data: session, mutate: mutate } = useSWR("/api/session/");
+  const { data: session, mutate: mutate, isValidating } = useSWR(
+    "/api/session/"
+  );
 
   const doLogout = useCallback(async () => {
-    setIsLoading(true);
     await logout();
-    setIsLoading(false);
-    mutate();
+    mutate(
+      (session) => ({
+        ...session,
+        user: false,
+        authentication: 0,
+      }),
+      false
+    );
   }, [mutate]);
 
-  useEffect(() => {
-    doLogout();
-  }, [doLogout]);
+  useMemo(() => {
+    !isValidating && doLogout();
+  }, [isValidating, doLogout]);
 
-  useEffect(() => {
-    dispatch(setSessionContext(session));
-  }, [dispatch, session]);
-
-  if (!isLoading && isSessionLoaded && !user) {
+  if (session && !session.user) {
     return (
       <Redirect
         to={{
