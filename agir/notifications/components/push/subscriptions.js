@@ -24,12 +24,19 @@ async function askPermission() {
 
 const useWebPush = () => {
   const [ready, setReady] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [available, setAvailable] = useState();
+  const [isSubscribed, setIsSubscribed] = useState();
   const [errorMessage, setErrorMessage] = useState("");
 
   const subscribe = useCallback(async () => {
     setErrorMessage("");
-    await askPermission();
+    try {
+      await askPermission();
+    } catch (e) {
+      logger.debug(e);
+      setIsSubscribed(false);
+      return;
+    }
     const subscription = await doSubscribe(window.AgirSW);
     if (!subscription) {
       setIsSubscribed(false);
@@ -46,20 +53,19 @@ const useWebPush = () => {
     }
   }, []);
 
-  const init = useCallback(async (serviceWorker) => {
-    if (!serviceWorker?.pushManager) {
+  const init = useCallback(async () => {
+    if (!window.AgirSW?.pushManager) {
       setReady(true);
+      setAvailable(false);
       setIsSubscribed(false);
       return;
     }
-
-    const pushSubscription = await serviceWorker.pushManager.getSubscription();
-
+    setAvailable(true);
+    const pushSubscription = await window.AgirSW.pushManager.getSubscription();
     if (!pushSubscription) {
       setReady(true);
       return;
     }
-
     const endpointParts = pushSubscription.endpoint.split("/");
     const registrationId = endpointParts[endpointParts.length - 1];
 
@@ -69,18 +75,21 @@ const useWebPush = () => {
       setReady(true);
     } catch (e) {
       if (e.response?.status === 404) {
-        log.debug("Registration did not exist on server, unsubscribe.");
         await pushSubscription.unsubscribe();
-        setIsSubscribed(false);
       } else {
         log.error(e);
+        setErrorMessage("Une erreur est survenue");
       }
-
+      setIsSubscribed(false);
       setReady(true);
     }
   }, []);
 
   useEffect(() => {
+    if (ready) {
+      return;
+    }
+
     let serviceWorker;
     let handleStateChange;
 
@@ -92,15 +101,24 @@ const useWebPush = () => {
       serviceWorker = window.AgirSW.active;
     }
 
-    if (serviceWorker && window.AgirSW.pushManager && !ready) {
-      if (serviceWorker.state === "activated") {
-        init(window.AgirSW);
-      } else {
-        handleStateChange = (e) => {
-          e.target.state === "activated" && init(window.AgirSW);
-        };
-        serviceWorker.addEventListener("statechange", handleStateChange);
-      }
+    if (!serviceWorker || !window.AgirSW?.pushManager) {
+      log.error(
+        "Service worker unavailable",
+        serviceWorker,
+        window.AgirSW?.pushManager
+      );
+      setAvailable(false);
+      setReady(true);
+      return;
+    }
+
+    if (serviceWorker.state === "activated") {
+      init();
+    } else {
+      handleStateChange = (e) => {
+        e.target.state === "activated" && init();
+      };
+      serviceWorker.addEventListener("statechange", handleStateChange);
     }
 
     return () => {
@@ -110,28 +128,13 @@ const useWebPush = () => {
     };
   }, [init, ready]);
 
-  if (!window.AgirSW || !window.AgirSW.pushManager) {
-    log.debug("Web PushManager not available.");
-
-    return {
-      ready: true,
-      available: false,
-    };
-  }
-
-  if (!ready) {
-    return {
-      ready: false,
-    };
-  }
-
   return {
-    ready: true,
-    available: true,
-    isSubscribed: isSubscribed,
+    ready,
+    available,
+    isSubscribed,
+    errorMessage,
     subscribe,
     unsubscribe: isSubscribed ? unsubscribe : undefined,
-    errorMessage,
   };
 };
 
