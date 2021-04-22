@@ -84,7 +84,7 @@ const HomeActions = () => {
           as="a"
           href="https://infos.actionpopulaire.fr/"
         >
-          Lisez les fiches pratiques
+          Lire les fiches pratiques
         </Button>
       </StyledArticle>
       <StyledArticle route="login">
@@ -98,7 +98,7 @@ const HomeActions = () => {
           affiches&nbsp;!
         </p>
         <Button color="secondary" as="Link" route="login">
-          Passez à l'action
+          Passer à l'action
         </Button>
       </StyledArticle>
     </StyledActions>
