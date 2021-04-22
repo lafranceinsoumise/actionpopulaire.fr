@@ -22,14 +22,13 @@ const GroupMemberPage = (props) => {
 
   const group = useGroup(groupPk);
 
-  const getmembersAPI = async (groupPk) => {
+  const getMembersAPI = async (groupPk) => {
     const res = await getMembers(groupPk);
     console.log("get members from group : ", res);
   };
 
-
   useEffect(() => {
-    getmembersAPI(groupPk);
+    getMembersAPI(groupPk);
   }, [groupPk]);
 
   return (

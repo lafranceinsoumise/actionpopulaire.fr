@@ -10,7 +10,12 @@ export const GroupSettings = (props) => {
   const group = useGroup(groupPk);
 
   return (
-    <ObjectManagement object={group} menu_items={MENU_ITEMS_GROUP} {...props} />
+    <ObjectManagement
+      object={group}
+      route="/groupes/:groupPk/parametres/"
+      menu_items={MENU_ITEMS_GROUP}
+      {...props}
+    />
   );
 };
 GroupSettings.propTypes = {};

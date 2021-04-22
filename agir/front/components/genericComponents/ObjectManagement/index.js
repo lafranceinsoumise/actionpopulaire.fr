@@ -8,7 +8,7 @@ import ManagementPanel from "@agir/front/genericComponents/ObjectManagement/Mana
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 export const ObjectManagement = (props) => {
-  const { object, menu_items, selected_item = null } = props;
+  const { object, menu_items, route, selected_item = null } = props;
 
   const history = useHistory();
 
@@ -23,8 +23,7 @@ export const ObjectManagement = (props) => {
       setSelectedItem(id);
 
       const selected_route = menu_items[id].route;
-      //history.push(selected_route.replace(/:groupPk/, object.id));
-      history.replace(selected_route.replace(/:groupPk/, object.id));
+      history.push(selected_route.replace(/:groupPk/, object.id));
     },
     [object]
   );
@@ -41,6 +40,7 @@ export const ObjectManagement = (props) => {
         {cloneElement(menu_items[selectedItem].component, {
           onBack: () => {
             setShowPanel(false);
+            history.push(route.replace(/:groupPk/, object.id));
           },
           illustration: menu_items[selectedItem].illustration,
           ...props,

@@ -12,6 +12,7 @@ export const GroupSettingsLocation = (props) => {
   return (
     <ObjectManagement
       object={group}
+      route="/groupes/:groupPk/parametres/"
       menu_items={MENU_ITEMS_GROUP}
       selected_item={MENU_ITEMS_GROUP.location.id}
       {...props}

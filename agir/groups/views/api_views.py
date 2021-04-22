@@ -15,6 +15,7 @@ from rest_framework.generics import (
     DestroyAPIView,
     CreateAPIView,
 )
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -53,6 +54,7 @@ __all__ = [
     "GroupSingleCommentAPIView",
     "GroupJoinAPIView",
     "GroupMembersAPIView",
+    "GroupGeneralAPIView"
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -422,26 +424,19 @@ class GroupJoinAPIView(CreateAPIView):
 
 
 class GroupMembersAPIView(SupportGroup, ListAPIView):
-    # serializer_class = SupportGroupSerializer
+    permission_classes = (IsAuthenticated,)
     serializer_class = SupportGroupMembersSerializer
-    # permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self):
-        person = self.request.user.person
-        person_groups = (
-            SupportGroup.objects.filter(memberships__person=self.request.user.person)
-            .active()
-            .annotate(membership_type=F("memberships__membership_type"))
-            .order_by("-membership_type", "name")
-        )
-        if person_groups.count() == 0 and person.coordinates is not None:
-            person_groups = SupportGroup.objects.active()
-            if person.is_2022_only:
-                person_groups = person_groups.is_2022()
-            person_groups = person_groups.annotate(
-                distance=Distance("coordinates", person.coordinates)
-            ).order_by("distance")[:3]
-            for group in person_groups:
-                group.membership = None
+    def get_queryset(self, **kwargs):
+        group = SupportGroup.objects.get(pk=self.kwargs["pk"])
+        members = group.members
+        return members
 
-        return person_groups
+class GroupGeneralAPIView(SupportGroup, APIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = SupportGroup.objects.all()
+    serializer_class = SupportGroupSerializer
+
+    def post(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_200_OK, data={"TEST": 42,})
+

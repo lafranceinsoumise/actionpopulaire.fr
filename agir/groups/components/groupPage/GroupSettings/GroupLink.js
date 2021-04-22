@@ -20,6 +20,12 @@ const StyledRow = styled.div`
   justify-content: space-between;
 `;
 
+const StyledTextLink = styled.span`
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
 const GroupLink = (props) => {
   const { label, url, onChange } = props;
 
@@ -32,15 +38,15 @@ const GroupLink = (props) => {
           height="1.5rem"
           style={{ color: style.primary500, marginRight: "1rem" }}
         />
-        <span style={{ display: "inline-block", alignItems: "center" }}>
+        <StyledTextLink>
           {label}
           <RawFeatherIcon
             name="external-link"
             width="1rem"
             height="1rem"
-            style={{ marginLeft: "0.5rem" }}
+            style={{ marginLeft: "0.5rem", marginRight: "0.5rem" }}
           />
-        </span>
+        </StyledTextLink>
       </StyledLink>
 
       <RawFeatherIcon

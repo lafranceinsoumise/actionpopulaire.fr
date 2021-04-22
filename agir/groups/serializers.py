@@ -318,9 +318,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         )
 
 class SupportGroupMembersSerializer(FlexibleFieldsMixin, serializers.Serializer):
-    id = serializers.UUIDField()
-    name = serializers.CharField()
-    # members = serializers.SerializerMethodField()
+    # id = serializers.UUIDField()
+    # name = serializers.CharField()
+    # members = serializers.PersonSerializer()
 
     def get_members(self, obj):
         return PersonSerializer(
