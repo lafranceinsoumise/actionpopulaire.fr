@@ -5,6 +5,8 @@ import requests
 from celery import shared_task
 from functools import wraps
 
+from django.core.exceptions import ObjectDoesNotExist
+
 
 def retry_strategy(
     start=None,
@@ -77,7 +79,10 @@ retry_on_http_strategy = retry_strategy(start=10, retry_on=(requests.RequestExce
 retry_on_smtp_strategy = retry_strategy(
     start=10, retry_on=(smtplib.SMTPException, socket.error)
 )
-
+retry_on_object_does_not_exist_strategy = retry_strategy(
+    start=10, retry_on=(ObjectDoesNotExist,)
+)
 
 http_task = retriable_task(strategy=retry_on_http_strategy)
 emailing_task = retriable_task(strategy=retry_on_smtp_strategy)
+post_save_task = retriable_task(strategy=retry_on_object_does_not_exist_strategy)

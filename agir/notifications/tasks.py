@@ -4,22 +4,15 @@ from push_notifications.webpush import WebPushError
 from rest_framework.renderers import JSONRenderer
 
 from agir.activity.models import Activity
-from agir.lib.celery import http_task
+from agir.lib.celery import http_task, post_save_task
 from agir.notifications.serializers import ACTIVITY_NOTIFICATION_SERIALIZERS
 
 
 @http_task
+@post_save_task
 def send_webpush_activity(activity_pk, webpush_device_pk):
-    try:
-        activity = Activity.objects.get(pk=activity_pk)
-    except ObjectDoesNotExist:
-        return
-
-    try:
-        webpush_device = WebPushDevice.objects.get(pk=webpush_device_pk)
-    except ObjectDoesNotExist:
-        return
-
+    activity = Activity.objects.get(pk=activity_pk)
+    webpush_device = WebPushDevice.objects.get(pk=webpush_device_pk)
     serializer = ACTIVITY_NOTIFICATION_SERIALIZERS.get(activity.type, None)
 
     if serializer is None:
@@ -39,17 +32,10 @@ def send_webpush_activity(activity_pk, webpush_device_pk):
 
 
 @http_task
+@post_save_task
 def send_apns_activity(activity_pk, apns_device_pk):
-    try:
-        activity = Activity.objects.get(pk=activity_pk)
-    except ObjectDoesNotExist:
-        return
-
-    try:
-        apns_device = APNSDevice.objects.get(pk=apns_device_pk)
-    except ObjectDoesNotExist:
-        return
-
+    activity = Activity.objects.get(pk=activity_pk)
+    apns_device = APNSDevice.objects.get(pk=apns_device_pk)
     serializer = ACTIVITY_NOTIFICATION_SERIALIZERS.get(activity.type, None)
 
     if serializer is None:
