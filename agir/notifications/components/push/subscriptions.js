@@ -46,69 +46,37 @@ const useWebPush = () => {
     }
   }, []);
 
-  const init = useCallback(async (serviceWorker) => {
-    if (!serviceWorker?.pushManager) {
-      setReady(true);
-      setIsSubscribed(false);
-      return;
-    }
-
-    const pushSubscription = await serviceWorker.pushManager.getSubscription();
-
-    if (!pushSubscription) {
-      setReady(true);
-      return;
-    }
-
-    const endpointParts = pushSubscription.endpoint.split("/");
-    const registrationId = endpointParts[endpointParts.length - 1];
-
-    try {
-      await axios(`/api/device/webpush/${registrationId}/`);
-      setIsSubscribed(true);
-      setReady(true);
-    } catch (e) {
-      if (e.response?.status === 404) {
-        log.debug("Registration did not exist on server, unsubscribe.");
-        await pushSubscription.unsubscribe();
-        setIsSubscribed(false);
-      } else {
-        log.error(e);
-      }
-
-      setReady(true);
-    }
-  }, []);
-
   useEffect(() => {
-    let serviceWorker;
-    let handleStateChange;
+    (async () => {
+      if (!window.AgirSW?.pushManager || ready) return;
 
-    if (window.AgirSW?.installing) {
-      serviceWorker = window.AgirSW.installing;
-    } else if (window.AgirSW?.waiting) {
-      serviceWorker = window.AgirSW.waiting;
-    } else if (window.AgirSW?.active) {
-      serviceWorker = window.AgirSW.active;
-    }
+      const pushSubscription = await window.AgirSW?.pushManager?.getSubscription();
 
-    if (serviceWorker && window.AgirSW.pushManager && !ready) {
-      if (serviceWorker.state === "activated") {
-        init(window.AgirSW);
-      } else {
-        handleStateChange = (e) => {
-          e.target.state === "activated" && init(window.AgirSW);
-        };
-        serviceWorker.addEventListener("statechange", handleStateChange);
+      if (!pushSubscription) {
+        setReady(true);
+        return;
       }
-    }
 
-    return () => {
-      serviceWorker &&
-        handleStateChange &&
-        serviceWorker.removeEventListener("statechange", handleStateChange);
-    };
-  }, [init, ready]);
+      const endpointParts = pushSubscription.endpoint.split("/");
+      const registrationId = endpointParts[endpointParts.length - 1];
+
+      try {
+        await axios(`/api/device/webpush/${registrationId}/`);
+        setIsSubscribed(true);
+        setReady(true);
+      } catch (e) {
+        if (e.response?.status === 404) {
+          log.debug("Registration did not exist on server, unsubscribe.");
+          await pushSubscription.unsubscribe();
+          setIsSubscribed(false);
+        } else {
+          log.error(e);
+        }
+
+        setReady(true);
+      }
+    })();
+  }, [ready]);
 
   if (!window.AgirSW || !window.AgirSW.pushManager) {
     log.debug("Web PushManager not available.");
