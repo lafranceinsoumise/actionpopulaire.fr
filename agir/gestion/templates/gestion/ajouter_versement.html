@@ -1,0 +1,44 @@
+{% extends "admin/change_form.html" %}
+{% load i18n crispy_forms_tags %}
+
+{% if not is_popup %}
+  {% block breadcrumbs %}
+    <div class="breadcrumbs">
+      <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+      &rsaquo; <a
+        href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+      &rsaquo; <a
+        href="{% url 'admin:gestion_depense_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+      &rsaquo; <a
+        href="{% url 'admin:gestion_depense_change' depense.pk %}">{{ depense }}</a>
+      &rsaquo; Ajouter un versement
+    </div>
+  {% endblock %}
+{% endif %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    <h2>Ajouter un versement</h2>
+
+    <form method="post" id="ajouter_reglement" novalidate>
+      {% csrf_token %}
+
+      {% if errors %}
+        <p class="errornote">
+          {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}
+            {% trans "Please correct the errors below." %}{% endif %}
+        </p>
+        {{ adminform.form.non_field_errors }}
+      {% endif %}
+
+      {% for fieldset in adminform %}
+        {% include "admin/includes/fieldset.html" %}
+      {% endfor %}
+
+      <input type="submit" value="Valider">
+
+    </form>
+  </div>
+{% endblock %}

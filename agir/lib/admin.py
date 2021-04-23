@@ -85,9 +85,13 @@ class RegionListFilter(admin.SimpleListFilter):
 class AdminViewMixin(ContextMixin, View):
     model_admin = None
 
-    def get_admin_helpers(self, form, fields: Iterable[str] = None, fieldsets=None):
+    def get_admin_helpers(
+        self, form, fields: Iterable[str] = None, fieldsets=None, readonly_fields=None
+    ):
         if fieldsets is None:
             fieldsets = [(None, {"fields": list(fields)})]
+        if readonly_fields is None:
+            readonly_fields = []
 
         model_admin = self.kwargs.get("model_admin") or self.model_admin
 
@@ -96,6 +100,7 @@ class AdminViewMixin(ContextMixin, View):
             fieldsets=fieldsets,
             model_admin=model_admin,
             prepopulated_fields={},
+            readonly_fields=readonly_fields,
         )
 
         return {

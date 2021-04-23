@@ -28,8 +28,25 @@ class DepenseInline(BaseMixin, admin.TabularInline):
     show_change_link = True
     can_delete = False
 
+    def has_add_permission(self, request, obj):
+        return False
+
     fields = ("numero_", "titre", "type", "montant", "date_depense", "compte")
     readonly_fields = ("montant", "type", "date_depense", "compte")
+
+
+class AjouterDepenseInline(admin.TabularInline):
+    verbose_name_plural = "Ajout rapide de dépenses"
+    model = Depense
+    extra = 1
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        return False
+
+    fields = ("titre", "type", "montant", "compte")
 
 
 class ProjetDocumentInline(BaseDocumentInline):
