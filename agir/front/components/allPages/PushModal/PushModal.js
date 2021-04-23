@@ -17,8 +17,8 @@ import { routeConfig } from "@agir/front/app/routes.config";
 export const PushModal = ({ isActive = true }) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const routes = useSelector(getRoutes);
-
   const [shouldShow, setShouldShow] = useState(null);
+  const [active, setActive] = useState(null);
 
   const { isMobileApp } = useMobileApp();
 
@@ -43,13 +43,46 @@ export const PushModal = ({ isActive = true }) => {
   }, [dismissMobileAppAnnouncement]);
 
   useEffect(() => {
-    let displayTimeout;
     if (
-      isActive &&
       isSessionLoaded &&
+      isActive &&
       typeof shouldShow !== "boolean" &&
-      (!!ReferralModalAnnouncement || !!MobileAppAnnouncement)
+      !active &&
+      !!ReferralModalAnnouncement
     ) {
+      setActive("ReferralModalAnnouncement");
+    }
+  }, [
+    shouldShow,
+    isActive,
+    isSessionLoaded,
+    active,
+    ReferralModalAnnouncement,
+  ]);
+
+  useEffect(() => {
+    if (
+      isSessionLoaded &&
+      isActive &&
+      typeof shouldShow !== "boolean" &&
+      active !== "MobileAppAnnouncement" &&
+      !!MobileAppAnnouncement &&
+      !isMobileApp
+    ) {
+      setActive("MobileAppAnnouncement");
+    }
+  }, [
+    shouldShow,
+    isActive,
+    isSessionLoaded,
+    active,
+    MobileAppAnnouncement,
+    isMobileApp,
+  ]);
+
+  useEffect(() => {
+    let displayTimeout;
+    if (active) {
       displayTimeout = setTimeout(() => {
         window.location?.pathname &&
           !routeConfig.tellMore.match(window.location.pathname) &&
@@ -59,29 +92,25 @@ export const PushModal = ({ isActive = true }) => {
     return () => {
       clearTimeout(displayTimeout);
     };
-  }, [
-    shouldShow,
-    isActive,
-    isSessionLoaded,
-    ReferralModalAnnouncement,
-    MobileAppAnnouncement,
-  ]);
+  }, [active]);
 
-  if (MobileAppAnnouncement && !isMobileApp) {
+  if (active === "MobileAppAnnouncement") {
     return (
       <MobileAppModal onClose={handleCloseMobileApp} shouldShow={shouldShow} />
     );
   }
 
-  return (
-    <ReferralModal
-      onClose={handleCloseReferral}
-      shouldShow={!!ReferralModalAnnouncement && shouldShow}
-      referralURL={
-        isSessionLoaded && routes.nspReferral ? routes.nspReferral : ""
-      }
-    />
-  );
+  if (active === "ReferralModalAnnouncement") {
+    return (
+      <ReferralModal
+        onClose={handleCloseReferral}
+        shouldShow={shouldShow}
+        referralURL={routes?.nspReferral}
+      />
+    );
+  }
+
+  return null;
 };
 PushModal.propTypes = {
   isActive: PropTypes.bool,
