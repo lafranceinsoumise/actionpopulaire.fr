@@ -76,7 +76,7 @@ export const PushModal = ({ isActive = true }) => {
   return (
     <ReferralModal
       onClose={handleCloseReferral}
-      shouldShow={shouldShow}
+      shouldShow={!!ReferralModalAnnouncement && shouldShow}
       referralURL={
         isSessionLoaded && routes.nspReferral ? routes.nspReferral : ""
       }
