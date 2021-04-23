@@ -2,18 +2,16 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import get_template
 
-from agir.lib.celery import emailing_task
+from agir.lib.celery import emailing_task, post_save_task
 from agir.municipales.models import CommunePage
 from agir.people.models import Person
 
 
 @emailing_task
+@post_save_task
 def notify_commune_changed(commune_id, person_id, changed_data):
-    try:
-        commune = CommunePage.objects.get(id=commune_id)
-        nom_commune = f"{commune.name} ({commune.code_departement})"
-    except CommunePage.DoesNotExist:
-        return
+    commune = CommunePage.objects.get(id=commune_id)
+    nom_commune = f"{commune.name} ({commune.code_departement})"
 
     try:
         person = Person.objects.get(id=person_id)
@@ -35,12 +33,9 @@ def notify_commune_changed(commune_id, person_id, changed_data):
 
 
 @emailing_task
+@post_save_task
 def send_procuration_email(commune_id, nom_complet, email, phone, bureau, autres):
-    try:
-        commune = CommunePage.objects.get(id=commune_id)
-    except CommunePage.DoesNotExist:
-        return
-
+    commune = CommunePage.objects.get(id=commune_id)
     if commune.contact_email:
         personnel = False
         recipients = [commune.contact_email]

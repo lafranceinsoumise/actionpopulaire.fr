@@ -4,7 +4,7 @@ import ics
 import requests
 from celery import shared_task
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
+
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -12,7 +12,7 @@ from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
-from agir.lib.celery import emailing_task, http_task
+from agir.lib.celery import emailing_task, http_task, post_save_task
 from agir.lib.display import str_summary
 from agir.lib.html import sanitize_html
 from agir.lib.geo import geocode_element
@@ -52,13 +52,11 @@ CHANGE_DESCRIPTION = OrderedDict(
 
 
 @emailing_task
+@post_save_task
 def send_event_creation_notification(organizer_config_pk):
-    try:
-        organizer_config = OrganizerConfig.objects.select_related(
-            "event", "person"
-        ).get(pk=organizer_config_pk)
-    except OrganizerConfig.DoesNotExist:
-        return
+    organizer_config = OrganizerConfig.objects.select_related("event", "person").get(
+        pk=organizer_config_pk
+    )
 
     event = organizer_config.event
     organizer = organizer_config.person
@@ -97,12 +95,9 @@ def send_event_creation_notification(organizer_config_pk):
 
 
 @emailing_task
+@post_save_task
 def send_event_changed_notification(event_pk, changed_data):
-    try:
-        event = Event.objects.get(pk=event_pk)
-    except Event.DoesNotExist:
-        # event does not exist anymore ?! nothing to do
-        return
+    event = Event.objects.get(pk=event_pk)
 
     changed_data = [f for f in changed_data if f in NOTIFIED_CHANGES]
 
@@ -174,13 +169,9 @@ def send_event_changed_notification(event_pk, changed_data):
 
 
 @emailing_task
+@post_save_task
 def send_rsvp_notification(rsvp_pk):
-    try:
-        rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
-    except RSVP.DoesNotExist:
-        # RSVP does not exist any more?!
-        return
-
+    rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
     person_information = str(rsvp.person)
 
     recipients = [
@@ -244,12 +235,9 @@ def send_rsvp_notification(rsvp_pk):
 
 
 @emailing_task
+@post_save_task
 def send_guest_confirmation(rsvp_pk):
-    try:
-        rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
-    except RSVP.DoesNotExist:
-        # RSVP does not exist any more?!
-        return
+    rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
 
     attendee_bindings = {
         "EVENT_NAME": rsvp.event.name,
@@ -271,11 +259,9 @@ def send_guest_confirmation(rsvp_pk):
 
 
 @emailing_task
+@post_save_task
 def send_cancellation_notification(event_pk):
-    try:
-        event = Event.objects.get(pk=event_pk)
-    except Event.DoesNotExist:
-        return
+    event = Event.objects.get(pk=event_pk)
 
     # check it is indeed cancelled
     if event.visibility != Event.VISIBILITY_ADMIN:
@@ -314,12 +300,9 @@ def send_cancellation_notification(event_pk):
 
 
 @emailing_task
+@post_save_task
 def send_external_rsvp_confirmation(event_pk, email, **kwargs):
-    try:
-        event = Event.objects.get(pk=event_pk)
-    except ObjectDoesNotExist:
-        return
-
+    event = Event.objects.get(pk=event_pk)
     subscription_token = subscription_confirmation_token_generator.make_token(
         email=email, **kwargs
     )
@@ -341,12 +324,9 @@ def send_external_rsvp_confirmation(event_pk, email, **kwargs):
 
 
 @emailing_task
+@post_save_task
 def send_event_report(event_pk):
-    try:
-        event = Event.objects.get(pk=event_pk)
-    except Event.DoesNotExist:
-        # event does not exist anymore ?! nothing to do
-        return
+    event = Event.objects.get(pk=event_pk)
     if event.report_summary_sent:
         return
 
@@ -381,12 +361,9 @@ def send_event_report(event_pk):
 
 
 @http_task
+@post_save_task
 def update_ticket(rsvp_pk, metas=None):
-    try:
-        rsvp = RSVP.objects.get(pk=rsvp_pk)
-    except RSVP.DoesNotExist:
-        return
-
+    rsvp = RSVP.objects.get(pk=rsvp_pk)
     data = {
         "event": rsvp.event.scanner_event,
         "category": rsvp.event.scanner_category,
@@ -419,12 +396,10 @@ def update_ticket(rsvp_pk, metas=None):
 
 
 @emailing_task
+@post_save_task
 def send_secretariat_notification(event_pk, person_pk, complete=True):
-    try:
-        event = Event.objects.get(pk=event_pk)
-        person = Person.objects.get(pk=person_pk)
-    except (Event.DoesNotExist, Person.DoesNotExist):
-        return
+    event = Event.objects.get(pk=event_pk)
+    person = Person.objects.get(pk=person_pk)
 
     from agir.events.admin import EventAdmin
 
@@ -453,12 +428,9 @@ def send_secretariat_notification(event_pk, person_pk, complete=True):
 
 
 @emailing_task
+@post_save_task
 def send_organizer_validation_notification(event_pk):
-    try:
-        event = Event.objects.get(pk=event_pk)
-    except (Event.DoesNotExist):
-        return
-
+    event = Event.objects.get(pk=event_pk)
     bindings = {
         "EVENT_NAME": event.name,
         "EVENT_SCHEDULE": event.get_display_date(),
@@ -480,12 +452,9 @@ def send_organizer_validation_notification(event_pk):
 
 
 @shared_task
+@post_save_task
 def notify_on_event_report(event_pk):
-    try:
-        event = Event.objects.get(pk=event_pk)
-    except (Event.DoesNotExist):
-        return
-
+    event = Event.objects.get(pk=event_pk)
     Activity.objects.bulk_create(
         [
             Activity(type=Activity.TYPE_NEW_REPORT, recipient=r, event=event)
@@ -496,12 +465,9 @@ def notify_on_event_report(event_pk):
 
 
 @http_task
+@post_save_task
 def geocode_event(event_pk):
-    try:
-        event = Event.objects.get(pk=event_pk)
-    except Event.DoesNotExist:
-        return
-
+    event = Event.objects.get(pk=event_pk)
     geocode_element(event)
     event.save()
 

@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils import timezone
 from slugify import slugify
 
-from agir.lib.celery import emailing_task, retriable_task
+from agir.lib.celery import emailing_task, retriable_task, post_save_task
 from agir.lib.mailing import send_mosaico_email
 from agir.loans.actions import save_pdf_contract
 from agir.loans.display import SUBSTITUTIONS
@@ -13,13 +13,9 @@ from agir.payments.models import Payment
 from agir.payments.types import PAYMENT_TYPES
 
 
-@retriable_task(start=1, retry_on=(subprocess.TimeoutExpired,))
+@retriable_task(start=1, retry_on=(subprocess.TimeoutExpired, Payment.DoesNotExist))
 def generate_contract(payment_id, force=False):
-    try:
-        payment = Payment.objects.get(id=payment_id)
-    except Payment.DoesNotExist:
-        return None
-
+    payment = Payment.objects.get(id=payment_id)
     payment_type = PAYMENT_TYPES.get(payment.type)
     if payment_type is None:
         return None
@@ -54,12 +50,9 @@ def generate_contract(payment_id, force=False):
 
 
 @emailing_task
+@post_save_task
 def send_contract_confirmation_email(payment_id):
-    try:
-        payment = Payment.objects.get(id=payment_id)
-    except Payment.DoesNotExist:
-        return None
-
+    payment = Payment.objects.get(id=payment_id)
     person = payment.person
 
     if "contract_path" not in payment.meta:
