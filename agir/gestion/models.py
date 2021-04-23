@@ -294,13 +294,13 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
     @property
     def montant_restant(self):
         return self.montant - (
-            self.versements.aggregate(paye=models.Sum("montant"))["paye"] or 0
+            self.reglements.aggregate(paye=models.Sum("montant"))["paye"] or 0
         )
 
     @property
     def paiement_effectue(self):
         return (
-            self.versements.filter().aggregate(paye=models.Sum("montant"))["paye"]
+            self.reglements.filter().aggregate(paye=models.Sum("montant"))["paye"]
             == self.montant
         )
 
@@ -327,7 +327,7 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         verbose_name_plural = "Dépenses"
 
 
-class Versement(TimeStampedModel):
+class Reglement(TimeStampedModel):
     class Statut(models.TextChoices):
         ATTENTE = "C", "En cours"
         REGLE = "R", "Réglé"
@@ -343,8 +343,8 @@ class Versement(TimeStampedModel):
     depense = models.ForeignKey(
         to=Depense,
         verbose_name="Dépense concernée",
-        related_name="versements",
-        related_query_name="versement",
+        related_name="reglements",
+        related_query_name="reglement",
         on_delete=models.PROTECT,
     )
 
@@ -360,13 +360,13 @@ class Versement(TimeStampedModel):
     )
 
     montant = models.DecimalField(
-        verbose_name="Montant du versement",
+        verbose_name="Montant du règlement",
         decimal_places=2,
         null=False,
         max_digits=10,
     )
     date = models.DateField(
-        verbose_name="Date du versement", blank=False, null=False, default=timezone.now,
+        verbose_name="Date du règlement", blank=False, null=False, default=timezone.now,
     )
 
     preuve = models.ForeignKey(
@@ -415,7 +415,7 @@ class Versement(TimeStampedModel):
     )
 
     class Meta:
-        verbose_name = "versement"
+        verbose_name = "règlement"
         ordering = ("date",)
 
 

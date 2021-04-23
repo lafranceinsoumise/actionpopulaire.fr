@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 
 from agir.gestion.actions import ajouter_commentaire
-from agir.gestion.models import Document, Versement, Fournisseur
+from agir.gestion.models import Document, Reglement, Fournisseur
 from agir.gestion.typologies import TypeCommentaire, TypeDocument
 
 
@@ -61,7 +61,7 @@ _document_fields.update(DocumentInlineForm.declared_fields)
 DocumentInlineForm.base_fields = DocumentInlineForm.declared_fields = _document_fields
 
 
-class VersementForm(forms.ModelForm):
+class ReglementForm(forms.ModelForm):
     CHAMPS_FOURNISSEURS = [
         "nom",
         "iban",
@@ -148,7 +148,7 @@ class VersementForm(forms.ModelForm):
                 ),
             )
 
-        if self.cleaned_data.get("mode") == Versement.Mode.VIREMENT:
+        if self.cleaned_data.get("mode") == Reglement.Mode.VIREMENT:
             if not self.fournisseur.iban and "iban_fournisseur" not in self.errors:
                 self.add_error(
                     "iban_fournisseur"
@@ -162,9 +162,9 @@ class VersementForm(forms.ModelForm):
 
         # Pour les autres modes, il faut fournir la preuve que le paiement a été effectué
         elif self.cleaned_data.get("mode") in [
-            Versement.Mode.CASH,
-            Versement.Mode.CARTE,
-            Versement.Mode.CHEQUE,
+            Reglement.Mode.CASH,
+            Reglement.Mode.CARTE,
+            Reglement.Mode.CHEQUE,
         ]:
             if not self.cleaned_data.get("preuve") and "preuve" not in self.errors:
                 self.add_error(
@@ -182,7 +182,7 @@ class VersementForm(forms.ModelForm):
                 titre=f"Preuve de paiement dépense {self.instance.depense.numero} — {self.instance.created.strftime('%d/%m/%Y')}",
                 type=TypeDocument.PAIEMENT,
                 requis=Document.Besoin.NECESSAIRE,
-                description=f"Document créé automatiquement lors de l'ajout d'un versement à la dépense "
+                description=f"Document créé automatiquement lors de l'ajout d'un règlement à la dépense "
                 f"{self.depense.numero}.",
             )
             self.instance.preuve = self.preuve
@@ -193,14 +193,14 @@ class VersementForm(forms.ModelForm):
 
     def save(self, commit=True):
         if not self.cleaned_data.get("preuve"):
-            self.instance.statut = Versement.Statut.ATTENTE
+            self.instance.statut = Reglement.Statut.ATTENTE
         else:
-            self.instance.statut = Versement.Statut.REGLE
+            self.instance.statut = Reglement.Statut.REGLE
 
         return super().save(commit=commit)
 
     class Meta:
-        model = Versement
+        model = Reglement
         fields = (
             "intitule",
             "mode",

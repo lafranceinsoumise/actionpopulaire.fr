@@ -121,6 +121,7 @@ class Migration(migrations.Migration):
                         ],
                         max_length=3,
                         verbose_name="Statut du document",
+                        default="INA",
                     ),
                 ),
                 (
@@ -254,7 +255,10 @@ class Migration(migrations.Migration):
                     "nom",
                     models.CharField(max_length=100, verbose_name="Nom du fournisseur"),
                 ),
-                ("commentaires", models.TextField(verbose_name="Commentaires")),
+                (
+                    "commentaires",
+                    models.TextField(verbose_name="Commentaires", default=list),
+                ),
                 (
                     "iban",
                     agir.lib.model_fields.IBANField(
@@ -420,7 +424,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "nom_fournisseur",
-                    models.CharField(max_length=100, verbose_name="Nom du fournisseur"),
+                    models.CharField(
+                        max_length=100, verbose_name="Nom du fournisseur", default=""
+                    ),
                 ),
                 (
                     "iban_fournisseur",

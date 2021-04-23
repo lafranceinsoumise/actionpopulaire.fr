@@ -3,15 +3,15 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView
 
-from agir.gestion.admin.forms import VersementForm
-from agir.gestion.models import Versement, Depense
+from agir.gestion.admin.forms import ReglementForm
+from agir.gestion.models import Reglement, Depense
 from agir.lib.admin import AdminViewMixin
 
 
-class AjouterVersementView(AdminViewMixin, CreateView):
-    model = Versement
-    form_class = VersementForm
-    template_name = "gestion/ajouter_versement.html"
+class AjouterReglementView(AdminViewMixin, CreateView):
+    model = Reglement
+    form_class = ReglementForm
+    template_name = "gestion/ajouter_reglement.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.depense = get_object_or_404(Depense, pk=kwargs.get("pk"))

@@ -11,7 +11,7 @@
         href="{% url 'admin:gestion_depense_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
       &rsaquo; <a
         href="{% url 'admin:gestion_depense_change' depense.pk %}">{{ depense }}</a>
-      &rsaquo; Ajouter un versement
+      &rsaquo; Ajouter un règlement
     </div>
   {% endblock %}
 {% endif %}
@@ -20,7 +20,7 @@
 
 {% block content %}
   <div id="content-main">
-    <h2>Ajouter un versement</h2>
+    <h2>Ajouter un règlement</h2>
 
     <form method="post" id="ajouter_reglement" novalidate>
       {% csrf_token %}
