@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "@agir/front/app/Link";
 import GroupMember from "./GroupMember";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
@@ -6,7 +6,6 @@ import GroupInvitation from "./GroupInvitation";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "./HeaderPanel";
 
-import { DEFAULT_EMAILS, DEFAULT_MEMBERS } from "./group_items.js";
 import { StyledTitle } from "./styledComponents.js";
 import styled from "styled-components";
 
@@ -22,9 +21,12 @@ const GroupMemberPage = (props) => {
 
   const group = useGroup(groupPk);
 
+  const [members, setMembers] = useState([]);
+
   const getMembersAPI = async (groupPk) => {
-    const res = await getMembers(groupPk);
-    console.log("get members from group : ", res);
+    const { data } = await getMembers(groupPk);
+    console.log("get members from group : ", data);
+    setMembers(data);
   };
 
   useEffect(() => {
@@ -39,18 +41,19 @@ const GroupMemberPage = (props) => {
       <ShareLink
         label="Copier les mails des membres"
         color="secondary"
-        url={DEFAULT_EMAILS.join(", ")}
+        url={members.map(({ email }) => email).join(", ")}
       />
 
       <Spacer size="2rem" />
 
-      {DEFAULT_MEMBERS.map((e, id) => (
+      {members.map((e, id) => (
         <>
           <GroupMember
             key={id}
-            name={e.name}
-            role={e.role}
+            name={e.displayName}
             email={e.email}
+            image={e.image}
+            role={e.role}
             assets={e.assets}
           />
           <Spacer size="1rem" />

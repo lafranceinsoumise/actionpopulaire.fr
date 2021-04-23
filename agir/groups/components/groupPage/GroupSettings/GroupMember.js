@@ -61,7 +61,7 @@ const ShowMore = styled.span`
 `;
 
 const GroupMember = (props) => {
-  const { name, role = "", email, assets = [] } = props;
+  const { name, image = "", role = "", email, assets = [] } = props;
 
   const [customAssets, setCustomAssets] = useState(
     assets?.length ? assets.slice(0, 3) : []
@@ -77,18 +77,32 @@ const GroupMember = (props) => {
     <>
       <Member>
         <div>
-          <RawFeatherIcon
-            name="user"
-            width="1.5rem"
-            height="1.5rem"
-            style={{
-              padding: "0.25rem",
-              backgroundColor: style.primary500,
-              color: "#fff",
-              borderRadius: "40px",
-              marginRight: "1rem",
-            }}
-          />
+          {!!image && (
+            <img
+              href={image}
+              style={{
+                width: "1.5rem",
+                height: "1.5rem",
+                padding: "0.25rem",
+                borderRadius: "40px",
+                marginRight: "1rem",
+              }}
+            />
+          )}
+          {!image && (
+            <RawFeatherIcon
+              name="user"
+              width="1.5rem"
+              height="1.5rem"
+              style={{
+                padding: "0.25rem",
+                backgroundColor: style.primary500,
+                color: "#fff",
+                borderRadius: "40px",
+                marginRight: "1rem",
+              }}
+            />
+          )}
           <MemberInfos>
             <Name>{name}</Name>
             {role && <Role>({role})</Role>}
