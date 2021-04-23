@@ -292,9 +292,15 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         ).exists
 
     @property
+    def montant_restant(self):
+        return self.montant - (
+            self.versements.aggregate(paye=models.Sum("montant"))["paye"] or 0
+        )
+
+    @property
     def paiement_effectue(self):
         return (
-            self.versements.aggregate(paye=models.Sum("montant"))["paye"]
+            self.versements.filter().aggregate(paye=models.Sum("montant"))["paye"]
             == self.montant
         )
 
@@ -321,7 +327,7 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         verbose_name_plural = "Dépenses"
 
 
-class Versement(models.Model):
+class Versement(TimeStampedModel):
     class Statut(models.TextChoices):
         ATTENTE = "C", "En cours"
         REGLE = "R", "Réglé"
@@ -341,6 +347,18 @@ class Versement(models.Model):
         related_query_name="versement",
         on_delete=models.PROTECT,
     )
+
+    intitule = models.CharField(
+        verbose_name="Intitulé du réglement", max_length=200, blank=False
+    )
+
+    mode = models.CharField(
+        verbose_name="Mode de réglement",
+        max_length=1,
+        choices=Mode.choices,
+        blank=False,
+    )
+
     montant = models.DecimalField(
         verbose_name="Montant du versement",
         decimal_places=2,

@@ -1,5 +1,9 @@
+from functools import partial
+
 from django.contrib import admin
+from django.urls import path, reverse
 from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
 from agir.gestion.admin.base import BaseMixin
@@ -9,7 +13,9 @@ from agir.gestion.admin.inlines import (
     DepenseInline,
     ProjetDocumentInline,
     ProjetParticipationInline,
+    AjouterDepenseInline,
 )
+from agir.gestion.admin.views import AjouterVersementView
 from agir.gestion.models import (
     Depense,
     Projet,
@@ -17,7 +23,6 @@ from agir.gestion.models import (
     Document,
     Fournisseur,
 )
-from agir.lib.display import display_price
 
 
 @admin.register(Compte)
@@ -111,9 +116,9 @@ class DepenseAdmin(BaseMixin, VersionAdmin):
                 "fields": (
                     "numero_",
                     "titre",
-                    "compte",
-                    "type",
                     "montant",
+                    "type",
+                    "compte",
                     "description",
                     "date_depense",
                     "personnes",
@@ -135,30 +140,53 @@ class DepenseAdmin(BaseMixin, VersionAdmin):
 
     readonly_fields = ("versements",)
 
-    def versements(self, obj):
-        format_html(
-            "<table><thead><tr><th>Date</th><th>Montant</th><th>Statut</th></thead></tr><tbody>{}</tbody>",
-            format_html_join(
-                "",
-                "<tr><td>{date}</td><td>{montant}</td><td>{statut}</td>",
-                (
-                    {
-                        "date": v.date.strftime("%d/%m/%Y"),
-                        "montant": display_price(v.montant),
-                        "statut": v.get_display_statut(),
-                    }
-                    for v in obj.versements.all()
-                ),
-            ),
-        )
-
-    versements.short_description = "Versements effectués"
-
     autocomplete_fields = (
         "personnes",
         "fournisseur",
     )
     inlines = [DepenseDocumentInline]
+
+    def versements(self, obj):
+        if obj.versements.exists():
+            table = format_html(
+                "<table><thead><tr><th>Date</th><th>Montant</th><th>Statut</th></thead></tr><tbody>{}</tbody>",
+                format_html_join(
+                    "",
+                    "<tr><td>{date}</td><td>{montant}</td><td>{statut}</td>",
+                    (
+                        {
+                            "date": v.date.strftime("%d/%m/%Y"),
+                            "montant": "{}\u00A0€".format(v.montant),
+                            "statut": v.get_display_statut(),
+                        }
+                        for v in obj.versements.all()
+                    ),
+                ),
+            )
+        else:
+            table = mark_safe("<div>Aucun réglement effectué pour le moment.</div>")
+
+        return format_html(
+            '{table}<div><a href="{link}">Ajouter un réglement</a>',
+            table=table,
+            link=reverse("admin:gestion_depense_reglement", args=(obj.id,)),
+        )
+
+    versements.short_description = "Versements effectués"
+
+    def get_urls(self):
+        urls = super(DepenseAdmin, self).get_urls()
+        additional_urls = [
+            path(
+                "<int:pk>/reglement/",
+                self.admin_site.admin_view(
+                    AjouterVersementView.as_view(model_admin=self)
+                ),
+                name="gestion_depense_reglement",
+            )
+        ]
+
+        return additional_urls + urls
 
 
 @admin.register(Projet)
@@ -185,4 +213,9 @@ class ProjetAdmin(BaseMixin, VersionAdmin):
     readonly_fields = ("numero",)
     autocomplete_fields = ("event",)
 
-    inlines = [ProjetParticipationInline, DepenseInline, ProjetDocumentInline]
+    inlines = [
+        ProjetParticipationInline,
+        DepenseInline,
+        AjouterDepenseInline,
+        ProjetDocumentInline,
+    ]

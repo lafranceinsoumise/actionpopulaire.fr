@@ -1,8 +1,10 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator
 
 from agir.gestion.actions import ajouter_commentaire
-from agir.gestion.models import Document
-from agir.gestion.typologies import TypeCommentaire
+from agir.gestion.models import Document, Versement, Fournisseur
+from agir.gestion.typologies import TypeCommentaire, TypeDocument
 
 
 class CommentairesForm(forms.ModelForm):
@@ -71,6 +73,7 @@ class VersementForm(forms.ModelForm):
         "location_zip",
         "location_country",
     ]
+    CHAMPS_FOURNISSEURS_REQUIS = ["nom", "location_city"]
 
     preuve = forms.FileField(
         label="Preuve de paiement", help_text="Obligatoire, sauf pour les virements"
@@ -80,31 +83,130 @@ class VersementForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.instance.depense = depense
 
+        self.initial["intitule"] = depense.titre
+        self.initial["montant"] = depense.montant
+
         # on pré-remplit les informations de Fournisseur s'il y en avait un de sélectionné.
         if depense.fournisseur:
             self.initial["fournisseur"] = depense.fournisseur
-            for f in self.CHAMPS_FOURNISSEURS:
-                if getattr(depense.fournisseur, f):
-                    self.initial[f] = getattr(depense.fournisseur, f)
+
+        self.fields["nom_fournisseur"].required = False
+        self.fields["location_city_fournisseur"].required = False
+        self.fields["location_zip_fournisseur"].required = False
+
+        montant_max = depense.montant_restant
+        self.fields["montant"].max_value = montant_max
+        self.fields["montant"].validators.append(MaxValueValidator(montant_max))
 
     def clean(self):
-        # Vérifier qu'on a les informations fournisseur dont on a besoin
-        # Vérifier qu'on a les informations de preuve de paiement nécessaire en fonction du mode de paiement
-        pass
+        # Pour les virements, il faut nécessairement l'IBAN pour pouvoir effectuer le virement.
+
+        if any(
+            f"{field}_fournisseur" in self.changed_data
+            for field in self.CHAMPS_FOURNISSEURS
+        ):
+            for f in self.CHAMPS_FOURNISSEURS_REQUIS:
+                if not self.cleaned_data.get(f"{f}_fournisseur"):
+                    print("prout")
+                    self.add_error(
+                        f"{f}_fournisseur",
+                        ValidationError(
+                            "Cette information est requise.", code=f"{f}_requis"
+                        ),
+                    )
+
+            self.fournisseur = Fournisseur(
+                **{
+                    f: self.cleaned_data.get(f"{f}_fournisseur")
+                    for f in self.CHAMPS_FOURNISSEURS
+                }
+            )
+
+        else:
+            self.fournisseur = self.cleaned_data.get("fournisseur")
+            champs_fournisseurs_manquants = [
+                f
+                for f in self.CHAMPS_FOURNISSEURS_REQUIS
+                if not getattr(self.fournisseur, f)
+            ]
+            if champs_fournisseurs_manquants:
+                self.add_error(
+                    "fournisseur",
+                    "Les informations {} doivent être avoir été renseignées.".format(
+                        " ,".join(
+                            str(Fournisseur._meta.get_field(f).verbose_name)
+                            for f in champs_fournisseurs_manquants
+                        )
+                    ),
+                )
+
+        if not self.fournisseur:
+            self.add_error(
+                "fournisseur",
+                ValidationError(
+                    "Sélectionner un fournisseur, ou créez-en un nouveau grâce aux champs ci-dessous."
+                ),
+            )
+
+        if self.cleaned_data.get("mode") == Versement.Mode.VIREMENT:
+            if not self.fournisseur.iban and "iban_fournisseur" not in self.errors:
+                self.add_error(
+                    "iban_fournisseur"
+                    if self.fournisseur._state.adding
+                    else "fournisseur",
+                    ValidationError(
+                        "Un IBAN doit être indiqué pour le fournisseur pour réaliser un virement.",
+                        code="iban_requis",
+                    ),
+                )
+
+        # Pour les autres modes, il faut fournir la preuve que le paiement a été effectué
+        elif self.cleaned_data.get("mode") in [
+            Versement.Mode.CASH,
+            Versement.Mode.CARTE,
+            Versement.Mode.CHEQUE,
+        ]:
+            if not self.cleaned_data.get("preuve") and "preuve" not in self.errors:
+                self.add_error(
+                    "preuve",
+                    ValidationError(
+                        "Vous devez fournir une preuve de paiement pour ce mode de réglement (le scan du chèque, le ticket de caisse, etc.)",
+                        code="preuve_requise",
+                    ),
+                )
 
     def _save_m2m(self):
         """Gérer correctement la création de la preuve de paiement."""
-        pass
+        if self.cleaned_data.get("preuve"):
+            self.preuve = Document.objects.create(
+                titre=f"Preuve de paiement dépense {self.instance.depense.numero} — {self.instance.created.strftime('%d/%m/%Y')}",
+                type=TypeDocument.PAIEMENT,
+                requis=Document.Besoin.NECESSAIRE,
+                description=f"Document créé automatiquement lors de l'ajout d'un versement à la dépense "
+                f"{self.depense.numero}.",
+            )
+            self.instance.preuve = self.preuve
+            self.instance.save()
+
+        if self.fournisseur._state.adding:
+            self.fournisseur.save()
 
     def save(self, commit=True):
-        # Quelle vérification ??
+        if not self.cleaned_data.get("preuve"):
+            self.instance.statut = Versement.Statut.ATTENTE
+        else:
+            self.instance.statut = Versement.Statut.REGLE
+
         return super().save(commit=commit)
 
     class Meta:
+        model = Versement
         fields = (
-            "type",
+            "intitule",
+            "mode",
             "montant",
             "date",
+            "fournisseur",
             "nom_fournisseur",
             "iban_fournisseur",
             "contact_phone_fournisseur",
