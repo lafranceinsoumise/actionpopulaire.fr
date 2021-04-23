@@ -51,7 +51,7 @@ def push_new_activity(sender, instance, created=False, **kwargs):
 
     for apns_device_pk in apns_device_pks:
         transaction.on_commit(
-            send_apns_activity.delay, instance.pk, apns_device_pk,
+            partial(send_apns_activity.delay, instance.pk, apns_device_pk,)
         )
 
 
