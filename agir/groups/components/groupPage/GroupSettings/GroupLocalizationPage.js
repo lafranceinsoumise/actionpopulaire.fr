@@ -47,7 +47,7 @@ const GroupLocalizationPage = (props) => {
 
         <Spacer size="2rem" />
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button color="secondary" wrap>
+          <Button color="secondary" $wrap>
             Enregistrer les informations
           </Button>
         </div>
@@ -62,7 +62,7 @@ const GroupLocalizationPage = (props) => {
       <Spacer size="1rem" />
       <StyledMap center={[-97.14704, 49.8844]} />
       <Spacer size="0.5rem" />
-      <Button small wrap onClick={() => setConfig(true)}>
+      <Button small $wrap onClick={() => setConfig(true)}>
         Personnaliser la localisation sur la carte
       </Button>
       <Spacer size="1rem" />

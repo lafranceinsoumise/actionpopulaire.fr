@@ -173,6 +173,7 @@ class FullSupportGroupView(SoftLoginRequiredMixin, ReactSingleObjectView):
         }
 
 
+# @method_decorator(cache_decorators, name="get")
 class GroupSettingsView(ReactBaseView):
     bundle_name = "front/app"
 

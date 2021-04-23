@@ -38,7 +38,7 @@ const GroupGeneralPage = (props) => {
   );
 
   useEffect(() => {
-    setFormData({ name: group.name, description: group.description });
+    setFormData({ name: group?.name, description: group?.description });
   }, [group]);
 
   return (
@@ -81,7 +81,7 @@ const GroupGeneralPage = (props) => {
       <ImageField name="image" value={formData.image} onChange={handleChange} />
 
       <Spacer size="2rem" />
-      <Button color="secondary" wrap>
+      <Button color="secondary" $wrap>
         Enregistrer les informations
       </Button>
     </form>

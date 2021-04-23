@@ -53,7 +53,7 @@ const GroupContactPage = (props) => {
       <TextField
         id="name"
         name="name"
-        label="Nom de la / des personnes à contacter*"
+        label="Personnes à contacter*"
         onChange={handleChange}
         value={formData.name}
       />

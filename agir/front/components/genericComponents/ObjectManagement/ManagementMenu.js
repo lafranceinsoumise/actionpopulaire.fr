@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
@@ -18,10 +19,7 @@ const StyledMenuItem = styled.button`
   font-size: 1rem;
   line-height: 1.1;
   font-weight: 500;
-  color: ${({ disabled }) => {
-    if (disabled) return style.black500;
-    return style.black1000;
-  }};
+  color: ${({ disabled }) => (disabled ? style.black500 : style.black1000)};
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 
   & > * {
@@ -145,6 +143,7 @@ ManagementMenuItem.propTypes = {
 const ManagementMenu = (props) => {
   const { object, items, title, selectedItem, onSelect } = props;
 
+  const isDesktop = useIsDesktop();
   const SEPARATOR = 3;
 
   return (
@@ -159,7 +158,7 @@ const ManagementMenu = (props) => {
                 object={object}
                 item={item}
                 onClick={() => onSelect(item.id)}
-                active={selectedItem === item.id}
+                active={selectedItem === item.id && isDesktop}
               />
             </li>
           </>

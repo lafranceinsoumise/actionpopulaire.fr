@@ -205,9 +205,9 @@ export const updateGroup = async (groupPk, data) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("updateGroup", { groupPk, data });
+  const url = getGroupPageEndpoint("updateGroup", { groupPk });
   try {
-    const response = await axios.post(url, {});
+    const response = await axios.post(url, data);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

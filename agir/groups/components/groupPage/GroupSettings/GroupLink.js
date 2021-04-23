@@ -34,8 +34,8 @@ const GroupLink = (props) => {
       <StyledLink href={url} target="_blank" rel="noopener noreferrer">
         <RawFeatherIcon
           name="globe"
-          width="1.5rem"
-          height="1.5rem"
+          width="1rem"
+          height="1rem"
           style={{ color: style.primary500, marginRight: "1rem" }}
         />
         <StyledTextLink>

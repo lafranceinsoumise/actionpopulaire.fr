@@ -15,9 +15,9 @@ from rest_framework.generics import (
     DestroyAPIView,
     CreateAPIView,
 )
+from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 from agir.events.models import Event
 from agir.events.serializers import EventSerializer
@@ -33,8 +33,8 @@ from agir.groups.serializers import (
     SupportGroupSubtypeSerializer,
     SupportGroupSerializer,
     SupportGroupDetailSerializer,
-    SupportGroupMembersSerializer
 )
+from agir.people.serializers import PersonSerializer
 from agir.lib.pagination import APIPaginator
 
 __all__ = [
@@ -54,7 +54,7 @@ __all__ = [
     "GroupSingleCommentAPIView",
     "GroupJoinAPIView",
     "GroupMembersAPIView",
-    "GroupGeneralAPIView"
+    "GroupGeneralAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -64,7 +64,6 @@ from agir.msgs.serializers import (
     SupportGroupMessageSerializer,
     MessageCommentSerializer,
 )
-
 
 
 class LegacyGroupSearchAPIView(ListAPIView):
@@ -423,20 +422,34 @@ class GroupJoinAPIView(CreateAPIView):
             return Response(status=status.HTTP_201_CREATED)
 
 
-class GroupMembersAPIView(SupportGroup, ListAPIView):
+class GroupMembersAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = SupportGroupMembersSerializer
+    queryset = Membership.objects.all()
+    serializer_class = PersonSerializer
 
-    def get_queryset(self, **kwargs):
-        group = SupportGroup.objects.get(pk=self.kwargs["pk"])
-        members = group.members
-        return members
+    def initial(self, request, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=kwargs["pk"])
+        except SupportGroup.DoesNotExist:
+            raise NotFound()
 
-class GroupGeneralAPIView(SupportGroup, APIView):
+        self.check_object_permissions(request, self.supportgroup)
+        super().initial(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.supportgroup.members
+
+
+class GroupGeneralAPIView(UpdateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = SupportGroup.objects.all()
     serializer_class = SupportGroupSerializer
 
-    def post(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_200_OK, data={"TEST": 42,})
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(*args, fields=["name", "description"], **kwargs,)
 
+    def post(self, request, *args, **kwargs):
+        # print(request.data, flush=True)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(status=status.HTTP_200_OK, data={"TEST": 42,})

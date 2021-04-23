@@ -110,7 +110,17 @@ const GroupLinksPage = (props) => {
       />
       <hr />
       <a href="#" onClick={() => setConfig(NEW_LINK)}>
-        + Ajouter un lien
+        <span
+          style={{
+            marginRight: "1rem",
+            width: "1rem",
+            display: "inline-block",
+            textAlign: "center",
+          }}
+        >
+          +
+        </span>
+        Ajouter un lien
       </a>
       {/* </>} */}
     </>

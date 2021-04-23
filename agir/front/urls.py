@@ -72,37 +72,37 @@ urlpatterns = [
     path(
         "groupes/<uuid:pk>/parametres/membres/",
         views.GroupSettingsView.as_view(),
-        name="view_group_settings",
+        name="view_group_settings_members",
     ),
     path(
         "groupes/<uuid:pk>/parametres/gestion/",
         views.GroupSettingsView.as_view(),
-        name="view_group_settings",
+        name="view_group_settings_management",
     ),
     path(
         "groupes/<uuid:pk>/parametres/finance/",
         views.GroupSettingsView.as_view(),
-        name="view_group_settings",
+        name="view_group_settings_finance",
     ),
     path(
         "groupes/<uuid:pk>/parametres/general/",
         views.GroupSettingsView.as_view(),
-        name="view_group_settings",
+        name="view_group_settings_general",
     ),
     path(
         "groupes/<uuid:pk>/parametres/localisation/",
         views.GroupSettingsView.as_view(),
-        name="view_group_settings",
+        name="view_group_settings_location",
     ),
     path(
         "groupes/<uuid:pk>/parametres/contact/",
         views.GroupSettingsView.as_view(),
-        name="view_group_settings",
+        name="view_group_settings_contact",
     ),
     path(
         "groupes/<uuid:pk>/parametres/liens/",
         views.GroupSettingsView.as_view(),
-        name="view_group_settings",
+        name="view_group_settings_links",
     ),
     path(
         "groupes/<uuid:pk>/messages/<uuid:message_pk>/",
