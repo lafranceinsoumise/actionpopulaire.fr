@@ -69,7 +69,7 @@ const TopBarContainer = styled.div`
   }
 
   .justify {
-    justify-content: center;
+    justify-content: left;
   }
 
   h1 {
