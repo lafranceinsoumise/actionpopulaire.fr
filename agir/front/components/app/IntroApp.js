@@ -27,7 +27,7 @@ const Mark = styled.span`
   height: 0.25rem;
   margin: 0.188rem;
   display: inline-block;
-  transition: ease 0.2s;
+  transition: background-color 0.5s ease-in-out;
   background-color: ${(props) =>
     props.$active ? style.primary500 : style.black200};
 `;
@@ -206,7 +206,7 @@ const items = [
   },
   {
     header: img3,
-    title: "Rejoignez ou créer",
+    title: "Rejoignez ou créez",
     body: "une équipe de soutien autour de vous !",
   },
   {},

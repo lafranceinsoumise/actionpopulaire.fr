@@ -96,11 +96,11 @@ const Tooltips = {
 
 export const TooltipContainer = (props) => {
   const { shouldShow, onClose, position = "top-center", children } = props;
-  const tooltipTransition = useTransition(shouldShow, null, fadeInTransition);
+  const tooltipTransition = useTransition(shouldShow, fadeInTransition);
   const Tooltip = React.useMemo(() => Tooltips[position], [position]);
-  return tooltipTransition.map(({ item, key, props }) =>
+  return tooltipTransition((style, item) =>
     item ? (
-      <Tooltip key={key} style={props} position={position}>
+      <Tooltip style={style} position={position}>
         {children}
         {onClose ? <CloseButton aria-label="Cacher" onClick={onClose} /> : null}
       </Tooltip>

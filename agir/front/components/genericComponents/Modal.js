@@ -9,7 +9,7 @@ import { useDisableBodyScroll } from "@agir/lib/utils/hooks";
 
 const slideInTransition = {
   from: { opacity: 0, paddingTop: "2%" },
-  enter: { opacity: 1, paddingTop: "0" },
+  enter: { opacity: 1, paddingTop: "0%" },
   leave: { opacity: 0, paddingTop: "2%" },
 };
 
@@ -34,10 +34,10 @@ const Overlay = styled(animated.div)`
 
 const AnimatedOverlay = (props) => {
   const { shouldShow = false, onClick } = props;
-  const transitions = useTransition(shouldShow, null, fadeInTransition);
+  const transitions = useTransition(shouldShow, fadeInTransition);
 
-  return transitions.map(({ item, key, props }) =>
-    item ? <Overlay key={key} style={props} onClick={onClick} /> : null
+  return transitions((style, item) =>
+    item ? <Overlay style={style} onClick={onClick} /> : null
   );
 };
 
@@ -140,7 +140,7 @@ const Modal = (props) => {
   const modalRef = useDisableBodyScroll(noScroll, shouldShow);
   const modalContentRef = useFocusTrap(shouldShow);
 
-  const transitions = useTransition(shouldShow, null, slideInTransition);
+  const transitions = useTransition(shouldShow, slideInTransition);
 
   const modalParent = useMemo(() => {
     const modalParent = document.createElement("div");
@@ -158,13 +158,13 @@ const Modal = (props) => {
   );
 
   return createPortal(
-    transitions.map(({ item, key, props }) =>
+    transitions((style, item) =>
       item ? (
-        <ModalFrame key={key} ref={modalRef}>
+        <ModalFrame ref={modalRef}>
           <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
           <ModalContent
             ref={modalContentRef}
-            style={props}
+            style={style}
             aria-modal="true"
             role="dialog"
           >

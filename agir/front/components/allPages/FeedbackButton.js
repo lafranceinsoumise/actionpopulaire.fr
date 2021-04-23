@@ -15,7 +15,7 @@ import background from "./feedback-form-button.svg";
 
 const slideInTransition = {
   from: { opacity: 0, marginBottom: "-3rem" },
-  enter: { opacity: 1, marginBottom: "0" },
+  enter: { opacity: 1, marginBottom: "0rem" },
   leave: { opacity: 0, marginBottom: "-3rem" },
 };
 
@@ -48,8 +48,6 @@ export const FeedbackButton = (props) => {
   const { isActive, shouldPushTooltip, href } = props;
   const { isMobileApp } = useMobileApp();
 
-  const style = props.style || {};
-
   const [hasTooltip, setHasTooltip] = useState(false);
 
   const hideTooltip = useCallback(() => {
@@ -64,14 +62,14 @@ export const FeedbackButton = (props) => {
     shouldPushTooltip && showTooltip();
   }, [shouldPushTooltip, showTooltip]);
 
-  const wrapperTransition = useTransition(isActive, null, {
+  const wrapperTransition = useTransition(isActive, {
     ...slideInTransition,
     onRest: pushTooltip,
   });
 
-  return wrapperTransition.map(({ item, key, props }) =>
+  return wrapperTransition((style, item) =>
     item ? (
-      <Wrapper key={key} style={{ ...style, ...props }}>
+      <Wrapper style={{ ...(props.style || {}), ...style }}>
         <Tooltip
           position="top-left"
           shouldShow={hasTooltip}

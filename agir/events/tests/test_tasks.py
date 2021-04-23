@@ -188,14 +188,6 @@ class EventTasksTestCase(TestCase):
         tasks.geocode_event(self.event.pk)
         geocode_element.assert_called_once_with(self.event)
 
-    @patch("agir.events.tasks.geocode_element")
-    def test_geocode_event_does_not_call_geocode_element_if_event_does_not_exist(
-        self, geocode_element
-    ):
-        geocode_element.assert_not_called()
-        tasks.geocode_event(fake.uuid4())
-        geocode_element.assert_not_called()
-
     @patch(
         "agir.events.tasks.geocode_element",
         side_effect=mock_geocode_element_no_position,

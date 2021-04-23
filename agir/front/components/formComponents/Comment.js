@@ -183,7 +183,7 @@ const Comment = (props) => {
   const canReport = typeof onReport === "function" && !isAuthor;
   const hasActions = canDelete || canReport;
 
-  const transitions = useTransition(true, null, {
+  const transitions = useTransition(true, {
     from: { opacity: 0 },
     enter: { opacity: 1 },
     leave: { opacity: 0 },
@@ -198,8 +198,8 @@ const Comment = (props) => {
     onReport && onReport(comment);
   }, [comment, onReport]);
 
-  return transitions.map(({ key, props }) => (
-    <StyledWrapper key={key} style={props}>
+  return transitions((style) => (
+    <StyledWrapper style={style}>
       <Avatar {...author} />
       <StyledMessage>
         <StyledMessageContent>

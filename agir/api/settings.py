@@ -572,7 +572,9 @@ if not DEBUG:
     }
 
     sentry_sdk.init(
-        integrations=[DjangoIntegration(), RedisIntegration()], traces_sample_rate=0.1,
+        integrations=[DjangoIntegration(), RedisIntegration()],
+        traces_sample_rate=0.1,
+        environment=os.environ.get("SENTRY_ENV", "production"),
     )
 
 # CACHING
@@ -752,8 +754,9 @@ DJAN_API_KEY = os.environ.get("DJAN_API_KEY")
 
 # nuntius
 NUNTIUS_REDIS_CONNECTION_GETTER = "agir.api.redis.get_auth_redis_client"
-NUNTIUS_PUBLIC_URL = os.environ.get(
-    "NUNTIUS_PUBLIC_URL", "https://www.actionpopulaire.fr"
+NUNTIUS_IMAGES_URL = FRONT_DOMAIN
+NUNTIUS_LINKS_URL = os.environ.get(
+    "NUNTIUS_LINKS_URL", "https://www.actionpopulaire.fr"
 )
 NUNTIUS_SUBSCRIBER_MODEL = "people.Person"
 NUNTIUS_SEGMENT_MODEL = "mailing.segment"

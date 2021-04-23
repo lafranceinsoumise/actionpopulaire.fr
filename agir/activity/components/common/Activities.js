@@ -60,7 +60,8 @@ export const StyledList = styled.ul`
 export const Activities = (props) => {
   const { activities, routes, onDismiss, CardComponent } = props;
 
-  const transitions = useTransition(activities, ({ id }) => id, {
+  const transitions = useTransition(activities, {
+    keys: ({ id }) => id,
     initial: { transform: "translate3d(0,0,0)" },
     enter: { opacity: 1, marginBottom: 16, maxHeight: "500px" },
     leave: { opacity: 0, marginBottom: 0, maxHeight: "0px" },
@@ -70,8 +71,8 @@ export const Activities = (props) => {
     <article>
       {activities.length > 0 ? (
         <StyledList type="activities">
-          {transitions.map(({ item, key, props }) => (
-            <animated.li key={key} style={props}>
+          {transitions((style, item) => (
+            <animated.li style={style}>
               <CardComponent onDismiss={onDismiss} routes={routes} {...item} />
             </animated.li>
           ))}

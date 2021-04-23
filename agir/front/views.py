@@ -5,6 +5,8 @@ from django.contrib.auth import logout
 from django.contrib.gis.db.models.functions import Distance
 from django.http import HttpResponsePermanentRedirect, Http404, FileResponse
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators import cache
 from django.views.generic import View, RedirectView, TemplateView
 from django.views.generic.detail import BaseDetailView
 
@@ -81,24 +83,31 @@ class NBUrlsView(View):
         raise Http404()
 
 
+cache_decorators = [cache.cache_page(30), cache.cache_control(public=True)]
+
+
+@method_decorator(cache_decorators, name="get")
 class SignupView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
     meta_title = "Inscription"
     meta_description = "Rejoignez Action Populaire"
 
 
+@method_decorator(cache_decorators, name="get")
 class CodeSignupView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
     meta_title = "Inscription"
     meta_description = "Rejoignez Action Populaire"
 
 
+@method_decorator(cache_decorators, name="get")
 class LoginView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
     meta_title = "Connexion"
     meta_description = "Connectez-vous à Action Populaire"
 
 
+@method_decorator(cache_decorators, name="get")
 class CodeLoginView(SimpleOpengraphMixin, ReactBaseView):
     bundle_name = "front/app"
     meta_title = "Connexion"
@@ -113,15 +122,8 @@ class LogoutView(ReactBaseView):
         return super().get(request, *args, **kwargs)
 
 
+@method_decorator(cache_decorators, name="get")
 class TellMoreView(ReactBaseView):
-    bundle_name = "front/app"
-
-
-class WelcomeView(SoftLoginRequiredMixin, ReactBaseView):
-    bundle_name = "front/app"
-
-
-class ReactAppView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
 
 
@@ -173,7 +175,7 @@ class FullSupportGroupView(SoftLoginRequiredMixin, ReactSingleObjectView):
         }
 
 
-# @method_decorator(cache_decorators, name="get")
+@method_decorator(cache_decorators, name="get")
 class GroupSettingsView(ReactBaseView):
     bundle_name = "front/app"
 
@@ -182,6 +184,7 @@ class EventSettingsView(ReactBaseView):
     bundle_name = "front/app"
 
 
+@method_decorator(cache_decorators, name="get")
 class AgendaView(ReactBaseView):
     bundle_name = "front/app"
 
@@ -190,10 +193,12 @@ class MyGroupsView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
 
 
+@method_decorator(cache_decorators, name="get")
 class EventMapView(ReactBaseView):
     bundle_name = "front/app"
 
 
+@method_decorator(cache_decorators, name="get")
 class GroupMapView(ReactBaseView):
     bundle_name = "front/app"
 
@@ -235,13 +240,6 @@ class NSPReferralView(SoftLoginRequiredMixin, RedirectView):
         return url
 
 
-class JoinView(TemplateView):
-    template_name = "front/join.html"
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs, type=self.request.GET.get("type"))
-
-
 class EventDetailView(
     ObjectOpengraphMixin, EventDetailMixin, BaseDetailView, ReactBaseView
 ):
@@ -279,6 +277,7 @@ class ServiceWorker(View):
         )
 
 
+@method_decorator(cache_decorators, name="get")
 class OfflineApp(ReactBaseView):
     bundle_name = "front/app"
 

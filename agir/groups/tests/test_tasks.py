@@ -337,14 +337,6 @@ class NotificationTasksTestCase(TestCase):
         tasks.geocode_support_group(self.group.pk)
         geocode_element.assert_called_once_with(self.group)
 
-    @patch("agir.groups.tasks.geocode_element")
-    def test_geocode_support_group_does_not_call_geocode_element_if_group_does_not_exist(
-        self, geocode_element
-    ):
-        geocode_element.assert_not_called()
-        tasks.geocode_support_group(fake.uuid4())
-        geocode_element.assert_not_called()
-
     @patch(
         "agir.groups.tasks.geocode_element",
         side_effect=mock_geocode_element_no_position,
