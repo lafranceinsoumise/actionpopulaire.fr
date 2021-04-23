@@ -5,12 +5,10 @@ from django.conf import settings
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils.html import format_html_join, format_html
-from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
-from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.events.models import Event, OrganizerConfig
-from agir.lib.celery import emailing_task, http_task
+from agir.lib.celery import emailing_task, http_task, post_save_task
 from agir.lib.geo import geocode_element
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
@@ -55,14 +53,11 @@ GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS = [
 
 
 @emailing_task
+@post_save_task
 def send_support_group_creation_notification(membership_pk):
-    try:
-        membership = Membership.objects.select_related("supportgroup", "person").get(
-            pk=membership_pk
-        )
-    except Membership.DoesNotExist:
-        return
-
+    membership = Membership.objects.select_related("supportgroup", "person").get(
+        pk=membership_pk
+    )
     group = membership.supportgroup
     referent = membership.person
 
@@ -85,14 +80,11 @@ def send_support_group_creation_notification(membership_pk):
 
 
 @shared_task
+@post_save_task
 def create_group_creation_confirmation_activity(membership_pk):
-    try:
-        membership = Membership.objects.select_related("supportgroup", "person").get(
-            pk=membership_pk
-        )
-    except Membership.DoesNotExist:
-        return
-
+    membership = Membership.objects.select_related("supportgroup", "person").get(
+        pk=membership_pk
+    )
     referent = membership.person
     group = membership.supportgroup
 
@@ -105,12 +97,9 @@ def create_group_creation_confirmation_activity(membership_pk):
 
 
 @emailing_task
+@post_save_task
 def send_support_group_changed_notification(support_group_pk, changed_data):
-    try:
-        group = SupportGroup.objects.get(pk=support_group_pk, published=True)
-    except SupportGroup.DoesNotExist:
-        return
-
+    group = SupportGroup.objects.get(pk=support_group_pk, published=True)
     changed_categories = {
         NOTIFIED_CHANGES[f] for f in changed_data if f in NOTIFIED_CHANGES
     }
@@ -160,14 +149,11 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
 
 
 @emailing_task
+@post_save_task
 def send_joined_notification_email(membership_pk):
-    try:
-        membership = Membership.objects.select_related("person", "supportgroup").get(
-            pk=membership_pk
-        )
-    except Membership.DoesNotExist:
-        return
-
+    membership = Membership.objects.select_related("person", "supportgroup").get(
+        pk=membership_pk
+    )
     person_information = str(membership.person)
 
     bindings = {
@@ -194,14 +180,10 @@ ALERT_CAPACITY_SUBJECTS = {
 
 
 @emailing_task
+@post_save_task
 def send_alert_capacity_email(supportgroup_pk, count):
     assert count in [21, 30]
-
-    try:
-        supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
-    except Membership.DoesNotExist:
-        return
-
+    supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
     bindings = {
         "GROUP_NAME": supportgroup.name,
         "GROUP_NAME_URL": front_url("view_group", kwargs={"pk": supportgroup.pk}),
@@ -217,11 +199,9 @@ def send_alert_capacity_email(supportgroup_pk, count):
 
 
 @emailing_task
+@post_save_task
 def invite_to_group(group_id, invited_email, inviter_id):
-    try:
-        group = SupportGroup.objects.get(pk=group_id)
-    except SupportGroup.DoesNotExist:
-        return
+    group = SupportGroup.objects.get(pk=group_id)
 
     try:
         person = Person.objects.get_by_natural_key(invited_email)
@@ -293,12 +273,10 @@ def send_abuse_report_message(inviter_id):
 
 
 @shared_task
+@post_save_task
 def notify_new_group_event(group_pk, event_pk):
-    try:
-        group = SupportGroup.objects.get(pk=group_pk)
-        event = Event.objects.get(pk=event_pk)
-    except (SupportGroup.DoesNotExist, Event.DoesNotExist):
-        return
+    group = SupportGroup.objects.get(pk=group_pk)
+    event = Event.objects.get(pk=event_pk)
 
     if not OrganizerConfig.objects.filter(event=event, as_group=group):
         return
@@ -346,11 +324,9 @@ def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
 
 
 @emailing_task
+@post_save_task
 def send_membership_transfer_alert(bindings, recipient_pk):
-    try:
-        recipient = Person.objects.get(pk=recipient_pk)
-    except Person.DoesNotExist:
-        return
+    recipient = Person.objects.get(pk=recipient_pk)
 
     send_mosaico_email(
         code="TRANSFER_ALERT",
@@ -362,11 +338,9 @@ def send_membership_transfer_alert(bindings, recipient_pk):
 
 
 @http_task
+@post_save_task
 def geocode_support_group(supportgroup_pk):
-    try:
-        supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
-    except SupportGroup.DoesNotExist:
-        return
+    supportgroup = SupportGroup.objects.get(pk=supportgroup_pk)
 
     geocode_element(supportgroup)
     supportgroup.save()
@@ -395,11 +369,9 @@ def geocode_support_group(supportgroup_pk):
 
 
 @shared_task
+@post_save_task
 def create_accepted_invitation_member_activity(new_membership_pk):
-    try:
-        new_membership = Membership.objects.get(pk=new_membership_pk)
-    except Membership.DoesNotExist:
-        return
+    new_membership = Membership.objects.get(pk=new_membership_pk)
 
     managers_filter = (Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)) & Q(
         notifications_enabled=True
@@ -424,12 +396,9 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 
 
 @emailing_task
+@post_save_task
 def send_message_notification_email(message_pk):
-    try:
-        message = SupportGroupMessage.objects.get(pk=message_pk)
-    except (SupportGroupMessage.DoesNotExist):
-        return
-
+    message = SupportGroupMessage.objects.get(pk=message_pk)
     bindings = {
         "MESSAGE_HTML": format_html_join(
             "", "<p>{}</p>", ((p,) for p in message.text.split("\n"))

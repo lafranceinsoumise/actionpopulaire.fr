@@ -11,7 +11,7 @@ from agir.authentication.tokens import (
     add_email_confirmation_token_generator,
     merge_account_token_generator,
 )
-from agir.lib.celery import emailing_task
+from agir.lib.celery import emailing_task, post_save_task
 from agir.lib.display import pretty_time_since
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.sms import send_sms
@@ -125,11 +125,9 @@ def send_confirmation_merge_account(user_pk_requester, user_pk_merge, **kwargs):
 
 
 @emailing_task
+@post_save_task
 def send_confirmation_change_email(new_email, user_pk, **kwargs):
-    try:
-        Person.objects.get(pk=user_pk)
-    except Person.DoesNotExist:
-        return
+    Person.objects.get(pk=user_pk)
 
     subscription_token = add_email_confirmation_token_generator.make_token(
         new_email=new_email, user=user_pk
@@ -169,12 +167,9 @@ def send_unsubscribe_email(person_pk):
 
 
 @emailing_task
+@post_save_task
 def send_person_form_confirmation(submission_pk):
-    try:
-        submission = PersonFormSubmission.objects.get(pk=submission_pk)
-    except:
-        return
-
+    submission = PersonFormSubmission.objects.get(pk=submission_pk)
     person = submission.person
     form = submission.form
 
@@ -190,12 +185,9 @@ def send_person_form_confirmation(submission_pk):
 
 
 @emailing_task
+@post_save_task
 def send_person_form_notification(submission_pk):
-    try:
-        submission = PersonFormSubmission.objects.get(pk=submission_pk)
-    except:
-        return
-
+    submission = PersonFormSubmission.objects.get(pk=submission_pk)
     form = submission.form
 
     if form.send_answers_to is None:
@@ -231,12 +223,9 @@ def send_person_form_notification(submission_pk):
 
 
 @shared_task
+@post_save_task
 def send_validation_sms(sms_id):
-    try:
-        sms = PersonValidationSMS.objects.get(id=sms_id)
-    except PersonValidationSMS.DoesNotExist:
-        return
-
+    sms = PersonValidationSMS.objects.get(id=sms_id)
     formatted_code = sms.code[:3] + " " + sms.code[3:]
     message = f"Votre code de validation pour votre compte France insoumise est {formatted_code}"
 
