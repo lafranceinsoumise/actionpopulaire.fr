@@ -51,7 +51,8 @@ export const PushModal = ({ isActive = true }) => {
       (!!ReferralModalAnnouncement || !!MobileAppAnnouncement)
     ) {
       displayTimeout = setTimeout(() => {
-        !window.location.href.endsWith(routeConfig.tellMore.getLink()) &&
+        window.location?.pathname &&
+          !routeConfig.tellMore.match(window.location.pathname) &&
           setShouldShow(true);
       }, 1000);
     }
@@ -75,7 +76,7 @@ export const PushModal = ({ isActive = true }) => {
   return (
     <ReferralModal
       onClose={handleCloseReferral}
-      shouldShow={shouldShow}
+      shouldShow={!!ReferralModalAnnouncement && shouldShow}
       referralURL={
         isSessionLoaded && routes.nspReferral ? routes.nspReferral : ""
       }
