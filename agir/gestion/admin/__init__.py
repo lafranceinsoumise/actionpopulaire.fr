@@ -15,7 +15,7 @@ from agir.gestion.admin.inlines import (
     ProjetParticipationInline,
     AjouterDepenseInline,
 )
-from agir.gestion.admin.views import AjouterVersementView
+from agir.gestion.admin.views import AjouterReglementView
 from agir.gestion.models import (
     Depense,
     Projet,
@@ -125,7 +125,7 @@ class DepenseAdmin(BaseMixin, VersionAdmin):
                 )
             },
         ),
-        ("Informations de paiement", {"fields": ("fournisseur", "versements")}),
+        ("Informations de paiement", {"fields": ("fournisseur", "reglements")}),
         (
             "Commentaires",
             {
@@ -138,7 +138,7 @@ class DepenseAdmin(BaseMixin, VersionAdmin):
         ),
     )
 
-    readonly_fields = ("versements",)
+    readonly_fields = ("reglements",)
 
     autocomplete_fields = (
         "personnes",
@@ -146,8 +146,8 @@ class DepenseAdmin(BaseMixin, VersionAdmin):
     )
     inlines = [DepenseDocumentInline]
 
-    def versements(self, obj):
-        if obj.versements.exists():
+    def reglements(self, obj):
+        if obj.reglements.exists():
             table = format_html(
                 "<table><thead><tr><th>Date</th><th>Montant</th><th>Statut</th></thead></tr><tbody>{}</tbody>",
                 format_html_join(
@@ -159,7 +159,7 @@ class DepenseAdmin(BaseMixin, VersionAdmin):
                             "montant": "{}\u00A0€".format(v.montant),
                             "statut": v.get_display_statut(),
                         }
-                        for v in obj.versements.all()
+                        for v in obj.reglements.all()
                     ),
                 ),
             )
@@ -172,7 +172,7 @@ class DepenseAdmin(BaseMixin, VersionAdmin):
             link=reverse("admin:gestion_depense_reglement", args=(obj.id,)),
         )
 
-    versements.short_description = "Versements effectués"
+    reglements.short_description = "règlements effectués"
 
     def get_urls(self):
         urls = super(DepenseAdmin, self).get_urls()
@@ -180,7 +180,7 @@ class DepenseAdmin(BaseMixin, VersionAdmin):
             path(
                 "<int:pk>/reglement/",
                 self.admin_site.admin_view(
-                    AjouterVersementView.as_view(model_admin=self)
+                    AjouterReglementView.as_view(model_admin=self)
                 ),
                 name="gestion_depense_reglement",
             )
