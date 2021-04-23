@@ -20,6 +20,7 @@ module.exports = merge.merge(common, {
         .execSync("git rev-parse HEAD")
         .toString()
         .replace("\n", ""),
+      SENTRY_ENV: "production",
     }),
   ],
 });

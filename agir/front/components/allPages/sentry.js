@@ -9,14 +9,11 @@ import groupPageRoutes from "@agir/groups/groupPage/GroupPage/routes.config";
 
 const history = createBrowserHistory();
 
-let urlMap = {};
-let isFirstCallToSession = true;
-const origins = ["localhost", /^\//];
-
 if (process.env.NODE_ENV === "production") {
   Sentry.init({
     dsn:
       "https://208ef75bce0a46f6b20b69c2952957d7@erreurs.lafranceinsoumise.fr/4",
+    environment: process.env.SENTRY_ENV,
     autoSessionTracking: true,
     release: process.env.SENTRY_RELEASE,
     integrations: [

@@ -572,7 +572,9 @@ if not DEBUG:
     }
 
     sentry_sdk.init(
-        integrations=[DjangoIntegration(), RedisIntegration()], traces_sample_rate=0.1,
+        integrations=[DjangoIntegration(), RedisIntegration()],
+        traces_sample_rate=0.1,
+        environment=os.environ.get("SENTRY_ENV", "production"),
     )
 
 # CACHING
