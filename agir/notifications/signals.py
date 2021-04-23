@@ -1,5 +1,7 @@
+from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from functools import partial
 
 from push_notifications.models import APNSDevice, WebPushDevice
 
@@ -35,7 +37,9 @@ def push_new_activity(sender, instance, created=False, **kwargs):
     ]
 
     for webpush_device_pk in webpush_device_pks:
-        send_webpush_activity.delay(instance.pk, webpush_device_pk)
+        transaction.on_commit(
+            partial(send_webpush_activity.delay, instance.pk, webpush_device_pk,)
+        )
 
     # SEND APPLE PUSH NOTIFICATION SERVICE NOTIFICATIONS
     apns_device_pks = [
@@ -46,7 +50,9 @@ def push_new_activity(sender, instance, created=False, **kwargs):
     ]
 
     for apns_device_pk in apns_device_pks:
-        send_apns_activity.delay(instance.pk, apns_device_pk)
+        transaction.on_commit(
+            send_apns_activity.delay, instance.pk, apns_device_pk,
+        )
 
 
 @receiver(
