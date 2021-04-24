@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.gis.db.models.functions import Distance
 from django.http import HttpResponsePermanentRedirect, Http404, FileResponse
+from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators import cache
@@ -86,35 +87,42 @@ class NBUrlsView(View):
 cache_decorators = [cache.cache_page(30), cache.cache_control(public=True)]
 
 
+class BasicOpenGraphMixin(SimpleOpengraphMixin):
+    meta_title = "Action Populaire"
+    meta_description = "Action Populaire est le réseau social d'action de la campagne de Jean-Luc Mélenchon pour l'élection présidentielle de 2022."
+    meta_type = "website"
+    meta_image = static("front/assets/og_image_NSP.jpg")
+
+
 @method_decorator(cache_decorators, name="get")
-class SignupView(SimpleOpengraphMixin, ReactBaseView):
+class SignupView(BasicOpenGraphMixin, ReactBaseView):
     bundle_name = "front/app"
     meta_title = "Inscription"
     meta_description = "Rejoignez Action Populaire"
 
 
 @method_decorator(cache_decorators, name="get")
-class CodeSignupView(SimpleOpengraphMixin, ReactBaseView):
+class CodeSignupView(BasicOpenGraphMixin, ReactBaseView):
     bundle_name = "front/app"
     meta_title = "Inscription"
     meta_description = "Rejoignez Action Populaire"
 
 
 @method_decorator(cache_decorators, name="get")
-class LoginView(SimpleOpengraphMixin, ReactBaseView):
+class LoginView(BasicOpenGraphMixin, ReactBaseView):
     bundle_name = "front/app"
     meta_title = "Connexion"
     meta_description = "Connectez-vous à Action Populaire"
 
 
 @method_decorator(cache_decorators, name="get")
-class CodeLoginView(SimpleOpengraphMixin, ReactBaseView):
+class CodeLoginView(BasicOpenGraphMixin, ReactBaseView):
     bundle_name = "front/app"
     meta_title = "Connexion"
     meta_description = "Connectez-vous à Action Populaire"
 
 
-class LogoutView(ReactBaseView):
+class LogoutView(BasicOpenGraphMixin, ReactBaseView):
     bundle_name = "front/app"
 
     def get(self, request, *args, **kwargs):
@@ -123,7 +131,7 @@ class LogoutView(ReactBaseView):
 
 
 @method_decorator(cache_decorators, name="get")
-class TellMoreView(ReactBaseView):
+class TellMoreView(BasicOpenGraphMixin, ReactBaseView):
     bundle_name = "front/app"
 
 
@@ -176,7 +184,7 @@ class FullSupportGroupView(SoftLoginRequiredMixin, ReactSingleObjectView):
 
 
 @method_decorator(cache_decorators, name="get")
-class AgendaView(ReactBaseView):
+class AgendaView(BasicOpenGraphMixin, ReactBaseView):
     bundle_name = "front/app"
 
 
@@ -185,12 +193,12 @@ class MyGroupsView(SoftLoginRequiredMixin, ReactBaseView):
 
 
 @method_decorator(cache_decorators, name="get")
-class EventMapView(ReactBaseView):
+class EventMapView(BasicOpenGraphMixin, ReactBaseView):
     bundle_name = "front/app"
 
 
 @method_decorator(cache_decorators, name="get")
-class GroupMapView(ReactBaseView):
+class GroupMapView(BasicOpenGraphMixin, ReactBaseView):
     bundle_name = "front/app"
 
 
