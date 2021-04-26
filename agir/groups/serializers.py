@@ -6,6 +6,7 @@ from . import models
 from .actions import get_promo_codes
 from .models import Membership, SupportGroup
 from ..front.serializer_utils import MediaURLField, RoutesField
+from agir.groups.tasks import send_support_group_changed_notification
 from agir.lib.geo import get_commune
 from agir.lib.serializers import (
     FlexibleFieldsMixin,
@@ -322,3 +323,21 @@ class SupportGroupUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportGroup
         fields = ["name", "description", "image"]
+
+    def update(self, instance, validated_data):
+        changed_data = {}
+        for field, value in validated_data.items():
+            new_value = value
+            old_value = getattr(instance, field)
+            if new_value != old_value:
+                changed_data[field] = new_value
+
+        if not changed_data:
+            return instance
+
+        instance = super().update(instance, validated_data)
+        send_support_group_changed_notification.delay(
+            instance.pk, changed_data
+        )
+
+        return instance

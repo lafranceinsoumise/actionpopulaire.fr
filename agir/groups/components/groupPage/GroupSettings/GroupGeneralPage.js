@@ -16,13 +16,13 @@ import { StyledTitle } from "./styledComponents.js";
 
 const GroupGeneralPage = (props) => {
   const { onBack, illustration, groupPk } = props;
-  const [isNewImage, setIsNewImage] = useState(false);
-  const [isCertified, setIsCertified] = useState(false);
 
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
   );
 
+  const [isNewImage, setIsNewImage] = useState(false);
+  const [isCertified, setIsCertified] = useState(false);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
 

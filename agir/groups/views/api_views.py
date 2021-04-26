@@ -18,6 +18,7 @@ from rest_framework.generics import (
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from agir.events.models import Event
 from agir.events.serializers import EventSerializer
