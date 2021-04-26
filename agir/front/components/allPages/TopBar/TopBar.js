@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { useLocation } from "react-router-dom";
+import PropTypes from "prop-types";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
@@ -23,7 +23,7 @@ import RightLink from "./RightLink";
 import SearchBar from "./SearchBar";
 import AdminLink from "./AdminLink";
 import { useMobileApp } from "@agir/front/app/hooks";
-import routes, { routeConfig, BASE_PATH } from "@agir/front/app/routes.config";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const TopBarBar = styled.div`
   position: fixed;
@@ -95,14 +95,13 @@ const HorizontalFlex = styled.div`
   }
 `;
 
-export const TopBar = () => {
+export const TopBar = ({ path }) => {
   const routes = useSelector(getRoutes);
   const user = useSelector(getUser);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const backLink = useSelector(getBackLink);
   const topBarRightLink = useSelector(getTopBarRightLink);
   const adminLink = useSelector(getAdminLink);
-  const { pathname } = useLocation();
   const { isMobileApp } = useMobileApp();
 
   return (
@@ -132,13 +131,13 @@ export const TopBar = () => {
             if (isMobileApp) {
               for (const route of Object.entries(routeConfig)) {
                 // we want the logo only on the main page
-                if (pathname === "/")
+                if (path === "/")
                   return (
                     <MenuLink href={routes.dashboard} className="small-only">
                       <Logo />
                     </MenuLink>
                   );
-                if (route[1].path === pathname) {
+                if (route[1].path === path) {
                   return (
                     <MenuLink href={route[1].path} className="small-only">
                       <h1>{route[1].label}</h1>
@@ -147,7 +146,7 @@ export const TopBar = () => {
                 } else if (Array.isArray(route[1].path)) {
                   // if route have multiple paths in an array
                   for (const element of route[1].path) {
-                    if (element === pathname)
+                    if (element === path)
                       return (
                         <MenuLink href={element} className="small-only">
                           <h1>{route[1].label}</h1>
@@ -184,3 +183,7 @@ export const TopBar = () => {
 };
 
 export default TopBar;
+
+TopBar.PropTypes = {
+  path: PropTypes.string,
+};

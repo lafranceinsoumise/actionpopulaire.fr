@@ -4,6 +4,7 @@ import React from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import useSWR from "swr";
+import { useLocation } from "react-router-dom";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -103,7 +104,7 @@ const GroupsPage = () => {
       <Helmet>
         <title>Mes groupes - Action populaire</title>
       </Helmet>
-      <TopBar>
+      <TopBar path={useLocation().pathname}>
         <LayoutTitle>Mes groupes</LayoutTitle>
         <div>
           {routes.createGroup && (
