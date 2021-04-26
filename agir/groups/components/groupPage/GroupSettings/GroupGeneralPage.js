@@ -1,44 +1,86 @@
 import React, { useState, useEffect, useCallback } from "react";
+import useSWR from "swr";
 
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import ImageField from "@agir/front/formComponents/ImageField";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "./HeaderPanel";
-import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
-import { updateGroup } from "@agir/groups/groupPage/api.js";
+import {
+  updateGroup,
+  getGroupPageEndpoint,
+} from "@agir/groups/groupPage/api.js";
 
 import { StyledTitle } from "./styledComponents.js";
 
 const GroupGeneralPage = (props) => {
   const { onBack, illustration, groupPk } = props;
+  const [isNewImage, setIsNewImage] = useState(false);
+  const [isCertified, setIsCertified] = useState(false);
 
-  const group = useGroup(groupPk);
-  console.log("usegroup : ", group);
-  const [formData, setFormData] = useState({});
-
-  const updateGroupAPI = async (groupPk, data) => {
-    const res = await updateGroup(groupPk, data);
-    console.log("Update group : ", res);
-  };
-
-  const handleChange = useCallback(
-    (e) => {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
-    },
-    [formData]
+  const { data: group, mutate } = useSWR(
+    getGroupPageEndpoint("getGroup", { groupPk })
   );
 
+  const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
+
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setErrors((errors) => ({ ...errors, [name]: null }));
+    setFormData((formData) => ({ ...formData, [name]: value }));
+  }, []);
+
+  const handleChangeImage = useCallback((value) => {
+    setErrors((errors) => ({ ...errors, image: null }));
+    setIsNewImage(true);
+    setFormData((formData) => ({ ...formData, image: value }));
+  }, []);
+
+  const handleChangeCertified = useCallback((event) => {
+    setIsCertified(event.target.checked);
+  }, []);
+
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
-      updateGroupAPI(groupPk, formData);
+
+      setErrors({});
+      const form = new FormData();
+      Object.keys(formData).forEach((e) => {
+        if (e === "image" && !isNewImage) return;
+        form.append(e, formData[e]);
+      });
+
+      if (isNewImage && !isCertified) {
+        setErrors((errors) => ({
+          ...errors,
+          image:
+            "Vous devez acceptez les licences pour envoyer votre image en conformité.",
+        }));
+        return;
+      }
+
+      const res = await updateGroup(groupPk, form);
+      if (!!res.error) {
+        setErrors(res.error);
+        return;
+      }
+      mutate((group) => {
+        return { ...group, ...res.data };
+      });
     },
-    [formData]
+    [formData, groupPk, isCertified, isNewImage]
   );
 
   useEffect(() => {
-    setFormData({ name: group?.name, description: group?.description });
+    setFormData({
+      name: group?.name,
+      description: group?.description,
+      image: group?.image,
+    });
+    setIsNewImage(false);
   }, [group]);
 
   return (
@@ -54,6 +96,7 @@ const GroupGeneralPage = (props) => {
         label="Nom du groupe*"
         onChange={handleChange}
         value={formData.name}
+        error={errors?.name}
       />
 
       <Spacer size="1rem" />
@@ -66,6 +109,7 @@ const GroupGeneralPage = (props) => {
         placeholder=""
         onChange={handleChange}
         value={formData.description}
+        error={errors?.description}
       />
 
       <h4>Image de la bannière</h4>
@@ -78,7 +122,29 @@ const GroupGeneralPage = (props) => {
       </span>
 
       <Spacer size="1rem" />
-      <ImageField name="image" value={formData.image} onChange={handleChange} />
+      <ImageField
+        name="image"
+        value={formData.image}
+        onChange={handleChangeImage}
+        error={errors?.image}
+      />
+
+      {isNewImage && (
+        <CheckboxField
+          value={isCertified}
+          label={
+            <>
+              En important une image, je certifie être le propriétaire des
+              droits et accepte de la partager sous licence libre{" "}
+              <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/">
+                Creative Commons CC-BY-NC 3.0
+              </a>
+              .
+            </>
+          }
+          onChange={handleChangeCertified}
+        />
+      )}
 
       <Spacer size="2rem" />
       <Button color="secondary" $wrap>

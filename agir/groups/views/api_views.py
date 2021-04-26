@@ -33,6 +33,7 @@ from agir.groups.serializers import (
     SupportGroupSubtypeSerializer,
     SupportGroupSerializer,
     SupportGroupDetailSerializer,
+    SupportGroupUpdateSerializer,
 )
 from agir.people.serializers import PersonSerializer
 from agir.lib.pagination import APIPaginator
@@ -440,16 +441,15 @@ class GroupMembersAPIView(ListAPIView):
         return self.supportgroup.members
 
 
+class GroupGeneralChangePermission(GlobalOrObjectPermissions):
+    perms_map = {"PUT": [], "PATCH": []}
+    object_perms_map = {
+        "PUT": ["groups.change_group_name"],
+        "PATCH": ["groups.change_group_name"],
+    }
+
+
 class GroupGeneralAPIView(UpdateAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (GroupGeneralChangePermission,)
     queryset = SupportGroup.objects.all()
-    serializer_class = SupportGroupSerializer
-
-    def get_serializer(self, *args, **kwargs):
-        return super().get_serializer(*args, fields=["name", "description"], **kwargs,)
-
-    def post(self, request, *args, **kwargs):
-        # print(request.data, flush=True)
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return Response(status=status.HTTP_200_OK, data={"TEST": 42,})
+    serializer_class = SupportGroupUpdateSerializer

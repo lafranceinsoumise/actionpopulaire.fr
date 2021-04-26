@@ -200,14 +200,16 @@ export const getMembers = async (groupPk) => {
 };
 
 export const updateGroup = async (groupPk, data) => {
-  console.log("Update group : ", groupPk, data);
   const result = {
     data: null,
     error: null,
   };
   const url = getGroupPageEndpoint("updateGroup", { groupPk });
+  const headers = {
+    "content-type": "multipart/form-data",
+  };
   try {
-    const response = await axios.post(url, data);
+    const response = await axios.patch(url, data, { headers });
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

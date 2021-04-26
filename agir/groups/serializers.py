@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from . import models
 from .actions import get_promo_codes
-from .models import Membership
+from .models import Membership, SupportGroup
 from ..front.serializer_utils import MediaURLField, RoutesField
 from agir.lib.geo import get_commune
 from agir.lib.serializers import (
@@ -316,3 +316,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return (
             self.membership is not None and obj.messages.filter(deleted=False).exists()
         )
+
+
+class SupportGroupUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportGroup
+        fields = ["name", "description", "image"]

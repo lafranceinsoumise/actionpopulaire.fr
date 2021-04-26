@@ -49,7 +49,7 @@ const StyledField = styled.div`
 `;
 
 const ImageField = forwardRef((props, ref) => {
-  const { id, onChange, value, error, label, helpText, ...rest } = props;
+  const { id, name, onChange, value, error, label, helpText, ...rest } = props;
 
   const labelRef = React.useRef(null);
   const handleChange = React.useCallback(
@@ -100,6 +100,7 @@ const ImageField = forwardRef((props, ref) => {
           {...rest}
           ref={ref}
           id={id}
+          name={name}
           type="file"
           onChange={handleChange}
         />
