@@ -4,9 +4,11 @@ from django.db import transaction
 from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse_lazy, reverse
+from django.core.validators import validate_email
 from rest_framework import status
-from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.generics import (
+    GenericAPIView,
     ListAPIView,
     RetrieveAPIView,
     ListCreateAPIView,
@@ -29,6 +31,7 @@ from agir.groups.actions.notifications import (
 )
 from agir.groups.filters import GroupAPIFilterSet
 from agir.groups.models import SupportGroup, SupportGroupSubtype, Membership
+from agir.people.models import Person
 from agir.groups.serializers import (
     SupportGroupLegacySerializer,
     SupportGroupSubtypeSerializer,
@@ -58,6 +61,7 @@ __all__ = [
     "GroupJoinAPIView",
     "GroupMembersAPIView",
     "GroupUpdateAPIView",
+    "GroupInvitationAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -67,6 +71,8 @@ from agir.msgs.serializers import (
     SupportGroupMessageSerializer,
     MessageCommentSerializer,
 )
+
+from agir.groups.tasks import invite_to_group
 
 
 class LegacyGroupSearchAPIView(ListAPIView):
@@ -451,8 +457,60 @@ class GroupUpdatePermission(GlobalOrObjectPermissions):
         "PATCH": ["groups.change_group_name"],
     }
 
+class GroupInvitationPermission(GlobalOrObjectPermissions):
+    perms_map = {"POST": [],}
+    object_perms_map = {
+        "POST": ["groups.change_supportgroup"],
+    }
+
 
 class GroupUpdateAPIView(UpdateAPIView):
     permission_classes = (GroupUpdatePermission,)
     queryset = SupportGroup.objects.all()
     serializer_class = SupportGroupUpdateSerializer
+
+
+class GroupInvitationAPIView(GenericAPIView):
+    queryset = SupportGroup.objects.all()
+    # permission_classes = (GroupInvitationPermission,)
+
+    def post(self, request, *args, **kwargs):
+        # try:
+        #     group = SupportGroup.objects.get(pk=kwargs["pk"])
+        # except SupportGroup.DoesNotExist:
+        #     raise NotFound()
+
+        print("TEST 1", flush=True)
+        print(kwargs, flush=True)
+
+        group = self.get_object()
+        print("GROUP", flush=True)
+        print(group, flush=True)
+        user_id = self.request.user.person.id
+
+        print("TEST 2", flush=True)
+
+        email = request.data.get("email", "")
+        if not email:
+            raise ValidationError(detail={"email": "L'adresse email ne peut être vide"})
+
+        print("TEST 3", flush=True)
+
+        try:
+            validate_email(email)
+        except:
+            raise ValidationError(detail={"email": "L'adresse email n'est pas valide"})
+
+        print("TEST 4", flush=True)
+
+        try:
+            p = Person.objects.get_by_natural_key(email)
+            Membership.objects.get(supportgroup=group, person=p)
+        except (Person.DoesNotExist, Membership.DoesNotExist):
+            pass
+        else:
+            raise ValidationError(detail={"email": "Cette personne fait déjà partie de votre groupe !"})
+
+        invite_to_group.delay(group.pk, email, user_id)
+        return Response(status=status.HTTP_201_CREATED)
+

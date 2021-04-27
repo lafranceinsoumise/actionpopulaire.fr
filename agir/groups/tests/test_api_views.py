@@ -222,3 +222,79 @@ class GroupUpdateAPIViewTestCase(APITestCase):
         )
         self.assertEqual(res.status_code, 200)
         geocode_support_group.assert_not_called()
+
+class GroupInvitationAPIViewTestCase(APITestCase):
+    def setUp(self):
+        self.valid_email = "moi@france.fr"
+        self.wrong_email = "faux@france"
+        self.group = SupportGroup.objects.create(name="group Test")
+        self.simple_member = Person.objects.create(
+            email="simple_member@agir.local", create_role=True
+        )
+        self.referent_member = Person.objects.create(
+            email="referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.simple_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.referent_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+
+    def test_anonymous_person_cannot_invite(self):
+        self.client.logout()
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/invitation/", data={"email": self.valid_email}
+        )
+        self.assertEqual(res.status_code, 401)
+
+    def test_simple_members_cannot_invite(self):
+        self.client.force_login(self.simple_member.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/invitation/", data={"email": self.valid_email}
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_invitation_group_inexistant(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.post(
+            f"/api/groupes/{uuid.uuid4()}/invitation/", data={"email": self.valid_email}
+        )
+        self.assertEqual(res.status_code, 404)
+
+    def test_invitation_wrong_email(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.post(
+            f"api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.wrong_email},
+        )
+        self.assertEqual(res.status_code, 422)
+
+    def test_invitation_empty_email(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.post(
+            f"api/groupes/{self.group.pk}/invitation/",
+            data={"email": ""},
+        )
+        self.assertEqual(res.status_code, 422)
+
+    def test_invitation_mail_already_exist(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.post(
+            f"api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.simple_member.email},
+        )
+        self.assertEqual(res.status_code, 422)
+
+    def test_invitation_valid_email(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.post(
+            f"api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.valid_email},
+        )
+        self.assertEqual(res.status_code, 201)
+
