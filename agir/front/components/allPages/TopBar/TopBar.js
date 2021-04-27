@@ -130,7 +130,9 @@ export const TopBar = ({ path }) => {
             </MenuLink>
           )
         ) : null}
-        <HorizontalFlex className={path === "/" ? "center grow" : "justify grow"}>
+        <HorizontalFlex
+          className={path === "/" ? "center grow" : "justify grow"}
+        >
           {(() => {
             if (isMobileApp) {
               for (const route of Object.entries(routeConfig)) {
