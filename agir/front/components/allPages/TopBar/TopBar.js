@@ -104,7 +104,6 @@ export const TopBar = ({ path }) => {
   const adminLink = useSelector(getAdminLink);
   const { isMobileApp } = useMobileApp();
 
-  console.log(path);
   return (
     <TopBarBar>
       <AdminLink link={adminLink} />
@@ -131,14 +130,13 @@ export const TopBar = ({ path }) => {
           {(() => {
             if (isMobileApp) {
               for (const route of Object.entries(routeConfig)) {
-                // we want the logo only on the main page
-                if (path === "/")
+                if (path === "/") {
                   return (
                     <MenuLink href={routes.dashboard} className="small-only">
                       <Logo />
                     </MenuLink>
                   );
-                if (route[1].path === path) {
+                } else if (route[1].path === path) {
                   return (
                     <MenuLink href={route[1].path} className="small-only">
                       <h1>{route[1].label}</h1>

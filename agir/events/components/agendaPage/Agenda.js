@@ -312,7 +312,7 @@ const Agenda = () => {
   return (
     <StyledAgenda>
       <header>
-        <TopBar path={path}>
+        <TopBar>
           <LayoutTitle>Événements</LayoutTitle>
           <div>
             {routes.createEvent ? (

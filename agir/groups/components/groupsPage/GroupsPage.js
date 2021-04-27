@@ -4,7 +4,6 @@ import React from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import useSWR from "swr";
-import { useLocation } from "react-router-dom";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -76,7 +75,6 @@ const GroupsPage = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
   const { data } = useSWR("/api/groupes/");
-  const path = useLocation().pathname;
 
   const { groups, hasOwnGroups } = React.useMemo(() => {
     if (!Array.isArray(data?.groups) || data.groups.length === 0) {
@@ -105,7 +103,7 @@ const GroupsPage = () => {
       <Helmet>
         <title>Mes groupes - Action populaire</title>
       </Helmet>
-      <TopBar path={path}>
+      <TopBar>
         <LayoutTitle>Mes groupes</LayoutTitle>
         <div>
           {routes.createGroup && (
