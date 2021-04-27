@@ -12,6 +12,7 @@ from agir.lib.serializers import (
     FlexibleFieldsMixin,
     LocationSerializer,
     ContactMixinSerializer,
+    NestedContactSerializer,
 )
 from agir.people.serializers import PersonSerializer
 from ..lib.utils import front_url, admin_url
@@ -144,7 +145,8 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     is2022 = serializers.SerializerMethodField()
     isFull = serializers.SerializerMethodField()
     location = LocationSerializer(source="*")
-    contact = ContactMixinSerializer(source="*")
+    # contact = ContactMixinSerializer(source="*")
+    contact = serializers.SerializerMethodField()
     image = MediaURLField()
 
     referents = serializers.SerializerMethodField()
@@ -181,6 +183,15 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             self.membership is not None
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
         )
+
+    def get_contact(self, instance):
+        if self.get_isManager(instance):
+            return NestedContactSerializer(
+                source="*", context=self.context
+            ).to_representation(instance)
+        return ContactMixinSerializer(
+            source="*", context=self.context
+        ).to_representation(instance)
 
     def get_type(self, obj):
         return obj.get_type_display()
@@ -320,9 +331,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 
 class SupportGroupUpdateSerializer(serializers.ModelSerializer):
+    contact = NestedContactSerializer(source="*")
+
     class Meta:
         model = SupportGroup
-        fields = ["name", "description", "image"]
+        fields = ["name", "description", "image", "contact"]
 
     def update(self, instance, validated_data):
         changed_data = {}
@@ -336,8 +349,8 @@ class SupportGroupUpdateSerializer(serializers.ModelSerializer):
             return instance
 
         instance = super().update(instance, validated_data)
-        send_support_group_changed_notification.delay(
-            instance.pk, changed_data
-        )
+        if "image" in changed_data:
+            changed_data["image"] = instance.image.url
+        send_support_group_changed_notification.delay(instance.pk, changed_data)
 
         return instance

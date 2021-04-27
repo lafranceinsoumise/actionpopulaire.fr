@@ -5,6 +5,8 @@ from unittest.mock import patch
 from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person
 
+import uuid
+
 
 class GroupJoinAPITestCase(APITestCase):
     def setUp(self):
@@ -104,3 +106,96 @@ class GroupJoinAPITestCase(APITestCase):
         res = self.client.post(f"/api/groupes/{group.pk}/rejoindre/")
         self.assertEqual(res.status_code, 201)
         someone_joined_notification.assert_called()
+
+
+class GroupUpdateAPIViewTestCase(APITestCase):
+    def setUp(self):
+        self.group = SupportGroup.objects.create(name="group Test")
+        self.simple_member = Person.objects.create(
+            email="simple_member@agir.local", create_role=True
+        )
+        self.referent_member = Person.objects.create(
+            email="referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.simple_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.referent_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        self.valid_data = {"name": "Groupe de Test", "description": "New Desc"}
+
+    def test_anonymous_person_cannot_update(self):
+        self.client.logout()
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/", data=self.valid_data
+        )
+        self.assertEqual(res.status_code, 401)
+
+    def test_simple_members_cannot_update(self):
+        self.client.force_login(self.simple_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/", data=self.valid_data
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_group_does_not_exist(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{uuid.uuid4()}/update/", data=self.valid_data
+        )
+        self.assertEqual(res.status_code, 404)
+
+    def test_manager_can_update(self):
+        self.assertNotEqual(self.group.name, self.valid_data["name"])
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/", data=self.valid_data
+        )
+        self.assertEqual(res.status_code, 200)
+        self.group.refresh_from_db()
+        self.assertEqual(self.group.name, self.valid_data["name"])
+
+    def test_invalid_name(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/",
+            data={**self.valid_data, "name": ""},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("name", res.data)
+
+    def test_invalid_description(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/",
+            data={**self.valid_data, "description": None},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("description", res.data)
+
+    def test_invalid_image(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/",
+            data={**self.valid_data, "image": "TEXTE"},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("image", res.data)
+
+    @patch("agir.groups.serializers.send_support_group_changed_notification.delay")
+    def notification_was_sent(self, send_support_group_changed):
+        send_support_group_changed.assert_not_called()
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/", data=self.valid_data
+        )
+        self.assertEqual(res.status_code, 200)
+        send_support_group_changed.assert_called()
+        args = send_support_group_changed.call_args
+        self.assertEqual(args[0][0], self.group.pk)
+        self.assertEqual(args[0][1], self.valid_data)

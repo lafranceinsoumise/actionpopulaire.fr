@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import useSWR from "swr";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Button from "@agir/front/genericComponents/Button";
@@ -8,31 +9,54 @@ import HeaderPanel from "./HeaderPanel";
 
 import { StyledTitle } from "./styledComponents.js";
 
+import {
+  updateGroup,
+  getGroupPageEndpoint,
+} from "@agir/groups/groupPage/api.js";
+
 const GroupContactPage = (props) => {
-  const { onBack, illustration } = props;
-  const [formData, setFormData] = useState({});
+  const { onBack, illustration, groupPk } = props;
+  const [contact, setContact] = useState({});
+  const [errors, setErrors] = useState({});
+
+  const { data: group, mutate } = useSWR(
+    getGroupPageEndpoint("getGroup", { groupPk })
+  );
 
   const handleCheckboxChange = useCallback(
     (e) => {
-      setFormData({ ...formData, [e.target.name]: e.target.checked });
+      setContact({ ...contact, [e.target.name]: e.target.checked });
     },
-    [formData]
+    [contact]
   );
 
   const handleChange = useCallback(
     (e) => {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
+      setContact({ ...contact, [e.target.name]: e.target.value });
     },
-    [formData]
+    [contact]
   );
 
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
-      console.log("SUBMIT", formData);
+
+      setErrors({});
+      const res = await updateGroup(groupPk, { contact });
+      if (!!res.error) {
+        setErrors(res.error?.contact);
+        return;
+      }
+      mutate((group) => {
+        return { ...group, ...res.data };
+      });
     },
-    [formData]
+    [contact]
   );
+
+  useEffect(() => {
+    setContact(group?.contact);
+  }, [group]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -55,7 +79,8 @@ const GroupContactPage = (props) => {
         name="name"
         label="Personnes à contacter*"
         onChange={handleChange}
-        value={formData.name}
+        value={contact?.name}
+        error={errors?.name}
       />
 
       <Spacer size="1rem" />
@@ -65,7 +90,8 @@ const GroupContactPage = (props) => {
         name="email"
         label="Adresse e-mail du groupe*"
         onChange={handleChange}
-        value={formData.email}
+        value={contact?.email}
+        error={errors?.email}
       />
 
       <Spacer size="1rem" />
@@ -75,7 +101,8 @@ const GroupContactPage = (props) => {
         name="phone"
         label="Numéro de téléphone à contacter*"
         onChange={handleChange}
-        value={formData.phone}
+        value={contact?.phone}
+        error={errors?.phone}
       />
 
       <Spacer size="0.5rem" />
@@ -83,7 +110,8 @@ const GroupContactPage = (props) => {
       <CheckboxField
         name="hidePhone"
         label="Cacher le numéro de téléphone"
-        value={formData.hidePhone}
+        value={contact?.hidePhone}
+        error={errors?.hidePhone}
         onChange={handleCheckboxChange}
       />
 

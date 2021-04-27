@@ -22,7 +22,7 @@ export const ENDPOINT = {
   deleteComment: "/api/groupes/messages/comments/:commentPk/",
 
   getMembers: "/api/groupes/:groupPk/members/",
-  updateGroup: "/api/groupes/:groupPk/general/",
+  updateGroup: "/api/groupes/:groupPk/update/",
 
   report: "/api/report/",
 };
@@ -205,9 +205,12 @@ export const updateGroup = async (groupPk, data) => {
     error: null,
   };
   const url = getGroupPageEndpoint("updateGroup", { groupPk });
-  const headers = {
-    "content-type": "multipart/form-data",
-  };
+  let headers = undefined;
+  if (!!data.image) {
+    headers = {
+      "content-type": "multipart/form-data",
+    };
+  }
   try {
     const response = await axios.patch(url, data, { headers });
     result.data = response.data;

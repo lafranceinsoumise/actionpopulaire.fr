@@ -56,7 +56,7 @@ __all__ = [
     "GroupSingleCommentAPIView",
     "GroupJoinAPIView",
     "GroupMembersAPIView",
-    "GroupGeneralAPIView",
+    "GroupUpdateAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -442,7 +442,7 @@ class GroupMembersAPIView(ListAPIView):
         return self.supportgroup.members
 
 
-class GroupGeneralChangePermission(GlobalOrObjectPermissions):
+class GroupUpdatePermission(GlobalOrObjectPermissions):
     perms_map = {"PUT": [], "PATCH": []}
     object_perms_map = {
         "PUT": ["groups.change_group_name"],
@@ -450,7 +450,7 @@ class GroupGeneralChangePermission(GlobalOrObjectPermissions):
     }
 
 
-class GroupGeneralAPIView(UpdateAPIView):
-    permission_classes = (GroupGeneralChangePermission,)
+class GroupUpdateAPIView(UpdateAPIView):
+    permission_classes = (GroupUpdatePermission,)
     queryset = SupportGroup.objects.all()
     serializer_class = SupportGroupUpdateSerializer
