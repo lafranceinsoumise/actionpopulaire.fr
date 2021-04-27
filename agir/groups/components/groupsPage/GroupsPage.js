@@ -76,6 +76,7 @@ const GroupsPage = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
   const { data } = useSWR("/api/groupes/");
+  const path = useLocation().pathname;
 
   const { groups, hasOwnGroups } = React.useMemo(() => {
     if (!Array.isArray(data?.groups) || data.groups.length === 0) {
@@ -104,7 +105,7 @@ const GroupsPage = () => {
       <Helmet>
         <title>Mes groupes - Action populaire</title>
       </Helmet>
-      <TopBar path={useLocation().pathname}>
+      <TopBar path={path}>
         <LayoutTitle>Mes groupes</LayoutTitle>
         <div>
           {routes.createGroup && (

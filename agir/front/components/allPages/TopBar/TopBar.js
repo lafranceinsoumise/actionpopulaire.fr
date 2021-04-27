@@ -104,6 +104,7 @@ export const TopBar = ({ path }) => {
   const adminLink = useSelector(getAdminLink);
   const { isMobileApp } = useMobileApp();
 
+  console.log(path);
   return (
     <TopBarBar>
       <AdminLink link={adminLink} />
