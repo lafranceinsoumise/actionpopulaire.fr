@@ -86,7 +86,7 @@ class MandatQueryset(models.QuerySet):
         return self.exclude(statut=StatutMandat.FAUX)
 
     def actifs(self):
-        return self.filter(dates__contains=timezone.now)
+        return self.filter(dates__contains=timezone.now())
 
 
 class MandatHistoryMixin(HistoryMixin):
