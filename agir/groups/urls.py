@@ -174,6 +174,6 @@ urlpatterns = [
     path(
         "api/groupes/<uuid:pk>/invitation/",
         views.GroupInvitationAPIView.as_view(),
-        name="api_group_invitation"
-    )
+        name="api_group_invitation",
+    ),
 ]

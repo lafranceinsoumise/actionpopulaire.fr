@@ -457,8 +457,11 @@ class GroupUpdatePermission(GlobalOrObjectPermissions):
         "PATCH": ["groups.change_group_name"],
     }
 
+
 class GroupInvitationPermission(GlobalOrObjectPermissions):
-    perms_map = {"POST": [],}
+    perms_map = {
+        "POST": [],
+    }
     object_perms_map = {
         "POST": ["groups.change_supportgroup"],
     }
@@ -472,7 +475,7 @@ class GroupUpdateAPIView(UpdateAPIView):
 
 class GroupInvitationAPIView(GenericAPIView):
     queryset = SupportGroup.objects.all()
-    # permission_classes = (GroupInvitationPermission,)
+    permission_classes = (GroupInvitationPermission,)
 
     def post(self, request, *args, **kwargs):
         # try:
@@ -480,28 +483,16 @@ class GroupInvitationAPIView(GenericAPIView):
         # except SupportGroup.DoesNotExist:
         #     raise NotFound()
 
-        print("TEST 1", flush=True)
-        print(kwargs, flush=True)
-
         group = self.get_object()
-        print("GROUP", flush=True)
-        print(group, flush=True)
         user_id = self.request.user.person.id
-
-        print("TEST 2", flush=True)
-
         email = request.data.get("email", "")
         if not email:
             raise ValidationError(detail={"email": "L'adresse email ne peut être vide"})
-
-        print("TEST 3", flush=True)
 
         try:
             validate_email(email)
         except:
             raise ValidationError(detail={"email": "L'adresse email n'est pas valide"})
-
-        print("TEST 4", flush=True)
 
         try:
             p = Person.objects.get_by_natural_key(email)
@@ -509,8 +500,9 @@ class GroupInvitationAPIView(GenericAPIView):
         except (Person.DoesNotExist, Membership.DoesNotExist):
             pass
         else:
-            raise ValidationError(detail={"email": "Cette personne fait déjà partie de votre groupe !"})
+            raise ValidationError(
+                detail={"email": "Cette personne fait déjà partie de votre groupe !"}
+            )
 
         invite_to_group.delay(group.pk, email, user_id)
         return Response(status=status.HTTP_201_CREATED)
-

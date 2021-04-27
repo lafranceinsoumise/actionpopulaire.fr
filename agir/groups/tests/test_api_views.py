@@ -223,6 +223,7 @@ class GroupUpdateAPIViewTestCase(APITestCase):
         self.assertEqual(res.status_code, 200)
         geocode_support_group.assert_not_called()
 
+
 class GroupInvitationAPIViewTestCase(APITestCase):
     def setUp(self):
         self.valid_email = "moi@france.fr"
@@ -248,14 +249,16 @@ class GroupInvitationAPIViewTestCase(APITestCase):
     def test_anonymous_person_cannot_invite(self):
         self.client.logout()
         res = self.client.post(
-            f"/api/groupes/{self.group.pk}/invitation/", data={"email": self.valid_email}
+            f"/api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.valid_email},
         )
         self.assertEqual(res.status_code, 401)
 
     def test_simple_members_cannot_invite(self):
         self.client.force_login(self.simple_member.role)
         res = self.client.post(
-            f"/api/groupes/{self.group.pk}/invitation/", data={"email": self.valid_email}
+            f"/api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.valid_email},
         )
         self.assertEqual(res.status_code, 403)
 
@@ -269,7 +272,7 @@ class GroupInvitationAPIViewTestCase(APITestCase):
     def test_invitation_wrong_email(self):
         self.client.force_login(self.referent_member.role)
         res = self.client.post(
-            f"api/groupes/{self.group.pk}/invitation/",
+            f"/api/groupes/{self.group.pk}/invitation/",
             data={"email": self.wrong_email},
         )
         self.assertEqual(res.status_code, 422)
@@ -277,15 +280,14 @@ class GroupInvitationAPIViewTestCase(APITestCase):
     def test_invitation_empty_email(self):
         self.client.force_login(self.referent_member.role)
         res = self.client.post(
-            f"api/groupes/{self.group.pk}/invitation/",
-            data={"email": ""},
+            f"/api/groupes/{self.group.pk}/invitation/", data={"email": ""},
         )
         self.assertEqual(res.status_code, 422)
 
     def test_invitation_mail_already_exist(self):
         self.client.force_login(self.referent_member.role)
         res = self.client.post(
-            f"api/groupes/{self.group.pk}/invitation/",
+            f"/api/groupes/{self.group.pk}/invitation/",
             data={"email": self.simple_member.email},
         )
         self.assertEqual(res.status_code, 422)
@@ -293,8 +295,18 @@ class GroupInvitationAPIViewTestCase(APITestCase):
     def test_invitation_valid_email(self):
         self.client.force_login(self.referent_member.role)
         res = self.client.post(
-            f"api/groupes/{self.group.pk}/invitation/",
+            f"/api/groupes/{self.group.pk}/invitation/",
             data={"email": self.valid_email},
         )
         self.assertEqual(res.status_code, 201)
 
+    @patch("agir.groups.views.api_views.invite_to_group.delay")
+    def test_invitation_was_sent(self, invite_to_group):
+        self.client.force_login(self.referent_member.role)
+        invite_to_group.assert_not_called()
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.valid_email},
+        )
+        invite_to_group.assert_called()
+        self.assertEqual(res.status_code, 201)
