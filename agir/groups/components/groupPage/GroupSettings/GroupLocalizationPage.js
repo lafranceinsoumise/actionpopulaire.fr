@@ -1,15 +1,21 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import useSWR from "swr";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
-import TextField from "@agir/front/formComponents/TextField";
 import Map from "@agir/carte/common/Map";
 import HeaderPanel from "./HeaderPanel";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
+import LocationField from "@agir/front/formComponents/LocationField.js";
 
 import { StyledTitle } from "./styledComponents.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
+
+import {
+  updateGroup,
+  getGroupPageEndpoint,
+} from "@agir/groups/groupPage/api.js";
 
 const StyledMap = styled(Map)`
   height: 208px;
@@ -24,13 +30,46 @@ const StyledMapConfig = styled(Map)`
 `;
 
 const GroupLocalizationPage = (props) => {
-  const { onBack, illustration } = props;
+  const { onBack, illustration, groupPk } = props;
   const [formLocation, setFormLocation] = useState({});
   const [config, setConfig] = useState(null);
+  const [errors, setErrors] = useState({});
 
-  const handleInputChange = useCallback((e) => {
-    setFormLocation({ ...formLocation, [e.target.name]: e.target.value });
+  const { data: group, mutate } = useSWR(
+    getGroupPageEndpoint("getGroup", { groupPk })
+  );
+
+  const handleInputChange = useCallback((_, name, value) => {
+    setFormLocation((formLocation) => ({ ...formLocation, [name]: value }));
   }, []);
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+
+      setErrors({});
+      const res = await updateGroup(groupPk, { location: formLocation });
+      if (!!res.error) {
+        setErrors(res.error?.location);
+        return;
+      }
+      mutate((group) => {
+        return { ...group, ...res.data };
+      });
+    },
+    [formLocation]
+  );
+
+  useEffect(() => {
+    setFormLocation({
+      name: group?.location.name,
+      address1: group?.location.address1,
+      address2: group?.location.address2,
+      zip: group?.location.zip,
+      city: group?.location.city,
+      country: group?.location.country,
+    });
+  }, [group]);
 
   if (config) {
     return (
@@ -56,13 +95,16 @@ const GroupLocalizationPage = (props) => {
   }
 
   return (
-    <>
+    <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Localisation</StyledTitle>
       <Spacer size="1rem" />
       <StyledMap center={[-97.14704, 49.8844]} />
       <Spacer size="0.5rem" />
-      <Button small $wrap onClick={() => setConfig(true)}>
+      {/* <Button small $wrap onClick={() => setConfig(true)}>
+        Personnaliser la localisation sur la carte
+      </Button> */}
+      <Button as="a" small $wrap href={group?.routes?.geolocate}>
         Personnaliser la localisation sur la carte
       </Button>
       <Spacer size="1rem" />
@@ -79,36 +121,12 @@ const GroupLocalizationPage = (props) => {
 
       <Spacer size="1rem" />
 
-      <TextField
-        id="nameLocation"
-        name="nameLocation"
-        label="Nom du groupe*"
+      <LocationField
+        name="location"
+        location={formLocation}
         onChange={handleInputChange}
-        value={formLocation.nameLocation}
-      />
-      <Spacer size="0.5rem" />
-      <TextField
-        id="address"
-        name="address"
-        label="Adresse*"
-        onChange={handleInputChange}
-        value={formLocation.address}
-      />
-      <Spacer size="0.5rem" />
-      <TextField
-        id="postalCode"
-        name="postalCode"
-        label="Code postal*"
-        onChange={handleInputChange}
-        value={formLocation.postalCode}
-      />
-      <Spacer size="0.5rem" />
-      <TextField
-        id="country"
-        name="country"
-        label="Pays*"
-        onChange={handleInputChange}
-        value={formLocation.country}
+        error={errors && errors.location}
+        required
       />
 
       <Spacer size="2rem" />
@@ -116,12 +134,12 @@ const GroupLocalizationPage = (props) => {
         Enregistrer les informations
       </Button>
 
-      <hr />
+      {/* <hr />
       <Spacer size="1rem" />
       <a href="#" style={{ color: style.redNSP }}>
         Supprimer la localisation (déconseillé)
-      </a>
-    </>
+      </a> */}
+    </form>
   );
 };
 

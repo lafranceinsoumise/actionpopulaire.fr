@@ -199,3 +199,26 @@ class GroupUpdateAPIViewTestCase(APITestCase):
         args = send_support_group_changed.call_args
         self.assertEqual(args[0][0], self.group.pk)
         self.assertEqual(args[0][1], self.valid_data)
+
+    @patch("agir.groups.serializers.geocode_support_group.delay")
+    def geolocation_was_updated(self, geocode_support_group):
+        geocode_support_group.assert_not_called()
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/", data={"location": {"zip": "75001"}}
+        )
+        self.assertEqual(res.status_code, 200)
+        geocode_support_group.assert_called()
+        args = send_support_group_changed.call_args
+        self.assertEqual(args[0][0], self.group.pk)
+
+    @patch("agir.groups.serializers.geocode_support_group.delay")
+    def group_was_updated_without_location(self, geocode_support_group):
+        geocode_support_group.assert_not_called()
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/",
+            data={"name": "Nom de groupe different"},
+        )
+        self.assertEqual(res.status_code, 200)
+        geocode_support_group.assert_not_called()

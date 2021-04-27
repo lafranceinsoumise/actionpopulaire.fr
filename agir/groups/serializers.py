@@ -6,13 +6,17 @@ from . import models
 from .actions import get_promo_codes
 from .models import Membership, SupportGroup
 from ..front.serializer_utils import MediaURLField, RoutesField
-from agir.groups.tasks import send_support_group_changed_notification
+from agir.groups.tasks import (
+    send_support_group_changed_notification,
+    geocode_support_group,
+)
 from agir.lib.geo import get_commune
 from agir.lib.serializers import (
     FlexibleFieldsMixin,
     LocationSerializer,
     ContactMixinSerializer,
     NestedContactSerializer,
+    NestedLocationSerializer,
 )
 from agir.people.serializers import PersonSerializer
 from ..lib.utils import front_url, admin_url
@@ -145,7 +149,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     is2022 = serializers.SerializerMethodField()
     isFull = serializers.SerializerMethodField()
     location = LocationSerializer(source="*")
-    # contact = ContactMixinSerializer(source="*")
     contact = serializers.SerializerMethodField()
     image = MediaURLField()
 
@@ -253,6 +256,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             routes["membershipTransfer"] = front_url(
                 "transfer_group_members", kwargs={"pk": obj.pk}
             )
+            routes["geolocate"] = front_url(
+                "change_group_location", kwargs={"pk": obj.pk}
+            )
             if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
                 routes["materiel"] = front_url(
                     "manage_group", query={"active": "materiel"}, kwargs={"pk": obj.pk}
@@ -332,10 +338,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 class SupportGroupUpdateSerializer(serializers.ModelSerializer):
     contact = NestedContactSerializer(source="*")
+    location = NestedLocationSerializer(source="*")
 
     class Meta:
         model = SupportGroup
-        fields = ["name", "description", "image", "contact"]
+        fields = ["name", "description", "image", "contact", "location"]
 
     def update(self, instance, validated_data):
         changed_data = {}
@@ -351,6 +358,10 @@ class SupportGroupUpdateSerializer(serializers.ModelSerializer):
         instance = super().update(instance, validated_data)
         if "image" in changed_data:
             changed_data["image"] = instance.image.url
+
+        if "location" in changed_data:
+            geocode_support_group.delay(instance.pk)
+
         send_support_group_changed_notification.delay(instance.pk, changed_data)
 
         return instance
