@@ -72,6 +72,10 @@ const TopBarContainer = styled.div`
     justify-content: left;
   }
 
+  .center {
+    justify-content: center;
+  }
+
   h1 {
     font-family: ${style.fontFamilyBase};
     font-style: normal;
@@ -126,7 +130,7 @@ export const TopBar = ({ path }) => {
             </MenuLink>
           )
         ) : null}
-        <HorizontalFlex className="grow justify">
+        <HorizontalFlex className={path === "/" ? "center grow" : "justify grow"}>
           {(() => {
             if (isMobileApp) {
               for (const route of Object.entries(routeConfig)) {
