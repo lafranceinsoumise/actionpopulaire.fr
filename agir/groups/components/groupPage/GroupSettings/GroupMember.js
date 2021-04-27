@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Avatar from "@agir/front/genericComponents/Avatar";
 
 const Assets = styled.div`
   margin-left: 3rem;
@@ -60,8 +61,16 @@ const ShowMore = styled.span`
   }
 `;
 
+const MEMBERSHIP_TYPE_LABEL = {
+  10: "Membre",
+  50: "Gestionnaire",
+  100: "Animateur·ice",
+};
+
 const GroupMember = (props) => {
-  const { name, image = "", role = "", email, assets = [] } = props;
+  const { name, image = "", membershipType = 10, email, assets = [] } = props;
+
+  const role = MEMBERSHIP_TYPE_LABEL[String(membershipType)];
 
   const [customAssets, setCustomAssets] = useState(
     assets?.length ? assets.slice(0, 3) : []
@@ -78,11 +87,12 @@ const GroupMember = (props) => {
       <Member>
         <div>
           {!!image && (
-            <img
-              href={image}
+            <Avatar
+              image={image}
+              name={name}
               style={{
-                width: "1.5rem",
-                height: "1.5rem",
+                width: "2rem",
+                height: "2rem",
                 padding: "0.25rem",
                 borderRadius: "40px",
                 marginRight: "1rem",
@@ -92,8 +102,6 @@ const GroupMember = (props) => {
           {!image && (
             <RawFeatherIcon
               name="user"
-              width="1.5rem"
-              height="1.5rem"
               style={{
                 padding: "0.25rem",
                 backgroundColor: style.primary500,

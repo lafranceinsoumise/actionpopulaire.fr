@@ -35,6 +35,7 @@ from agir.groups.serializers import (
     SupportGroupSerializer,
     SupportGroupDetailSerializer,
     SupportGroupUpdateSerializer,
+    MembershipSerializer,
 )
 from agir.people.serializers import PersonSerializer
 from agir.lib.pagination import APIPaginator
@@ -427,7 +428,8 @@ class GroupJoinAPIView(CreateAPIView):
 class GroupMembersAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = Membership.objects.all()
-    serializer_class = PersonSerializer
+    # serializer_class = PersonSerializer
+    serializer_class = MembershipSerializer
 
     def initial(self, request, *args, **kwargs):
         try:
@@ -439,7 +441,7 @@ class GroupMembersAPIView(ListAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.supportgroup.members
+        return Membership.objects.filter(supportgroup=self.supportgroup)
 
 
 class GroupUpdatePermission(GlobalOrObjectPermissions):

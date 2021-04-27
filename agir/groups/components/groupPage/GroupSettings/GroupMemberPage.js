@@ -50,11 +50,11 @@ const GroupMemberPage = (props) => {
         <>
           <GroupMember
             key={id}
-            name={e.displayName}
-            email={e.email}
-            image={e.image}
-            role={e.role}
-            assets={e.assets}
+            name={e?.displayName}
+            email={e?.email}
+            image={e?.image}
+            membershipType={e?.membershipType}
+            assets={e?.assets}
           />
           <Spacer size="1rem" />
         </>
