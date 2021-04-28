@@ -172,7 +172,7 @@ const GroupManagementPage = (props) => {
           label="Choisir un membre"
           placeholder="Sélection"
           options={members.map((m) => {
-            // if (MANAGER === m.membershipType) return;
+            if (MANAGER === m.membershipType) return;
             return { label: m.email, value: m.email };
           })}
           onChange={handleNewManagerChange}
