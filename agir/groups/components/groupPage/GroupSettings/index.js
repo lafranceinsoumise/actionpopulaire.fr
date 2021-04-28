@@ -1,23 +1,39 @@
-import React from "react";
+import PropTypes from "prop-types";
+import React, { useMemo } from "react";
+
+import { getMenuRoute, getRoutes } from "./routes.config";
 
 import ObjectManagement from "@agir/front/genericComponents/ObjectManagement";
-import { MENU_ITEMS_GROUP } from "./group_items.js";
-
-import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 
 export const GroupSettings = (props) => {
-  const { groupPk } = props;
-  const group = useGroup(groupPk);
+  const { group, basePath } = props;
+
+  const routes = useMemo(() => getRoutes(basePath), [basePath]);
+  const menuRoute = useMemo(() => getMenuRoute(basePath), [basePath]);
+
+  if (!group || !group.isManager) {
+    return null;
+  }
 
   return (
     <ObjectManagement
+      title={group?.name}
       object={group}
-      route="/groupes/:groupPk/parametres/"
-      menu_items={MENU_ITEMS_GROUP}
-      {...props}
+      group={group}
+      groupPk={group?.id}
+      basePath={basePath}
+      routes={routes}
+      menuRoute={menuRoute}
     />
   );
 };
-GroupSettings.propTypes = {};
+GroupSettings.propTypes = {
+  group: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    isManager: PropTypes.bool,
+  }).isRequired,
+  basePath: PropTypes.string.isRequired,
+};
 
 export default GroupSettings;

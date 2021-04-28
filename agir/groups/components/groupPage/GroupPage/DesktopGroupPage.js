@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
-import { Switch, Route, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -21,6 +21,8 @@ import GroupDonation from "@agir/groups/groupPage/GroupDonation";
 import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
 import GroupPageMenu from "@agir/groups/groupPage/GroupPageMenu";
 import GroupOrders from "@agir/groups/groupPage/GroupOrders";
+
+import GroupSettings from "@agir/groups/groupPage/GroupSettings";
 
 import Routes from "./Routes";
 
@@ -82,10 +84,14 @@ const IndexLinkAnchor = styled(Link)`
 
 const DesktopGroupPage = (props) => {
   const { backLink, group, groupSuggestions, allEvents } = props;
-  const { hasTabs, tabs, activeTabIndex, activeTabId, onTabChange } = useTabs(
-    props,
-    false
-  );
+  const {
+    hasTabs,
+    tabs,
+    activeTabIndex,
+    activeTabId,
+    activePathname,
+    onTabChange,
+  } = useTabs(props, false);
 
   const goToAgendaTab = useMemo(() => {
     const agendaTab = tabs.find((tab) => tab.id === "agenda");
@@ -124,6 +130,8 @@ const DesktopGroupPage = (props) => {
     return null;
   }
 
+  const R = Routes[activeTabId];
+
   return (
     <Container
       style={{
@@ -134,6 +142,8 @@ const DesktopGroupPage = (props) => {
         width: "100%",
       }}
     >
+      <GroupSettings group={group} basePath={activePathname} />
+
       <Row style={{ minHeight: 56 }}>
         <Column grow>
           {!!backLink && (
@@ -154,7 +164,12 @@ const DesktopGroupPage = (props) => {
         </Column>
       </Row>
 
-      <GroupPageMenu tabs={tabs} hasTabs={hasTabs} stickyOffset={72} />
+      <GroupPageMenu
+        tabs={tabs}
+        hasTabs={hasTabs}
+        stickyOffset={72}
+        activeTabId={activeTabId}
+      />
 
       <Row
         gutter={32}
@@ -163,28 +178,17 @@ const DesktopGroupPage = (props) => {
           flexDirection: activeTabIndex === 0 ? "row" : "row-reverse",
         }}
       >
-        <Switch>
-          {tabs.map((tab) => {
-            const R = Routes[tab.id];
-            return (
-              <Route key={tab.id} path={tab.path} exact>
-                <Column grow>
-                  <R
-                    {...props}
-                    allEvents={allEvents}
-                    hasTabs={hasTabs}
-                    onClickMessage={handleClickMessage}
-                    getMessageURL={getMessageURL}
-                    basePath={tab.getLink()}
-                    goToAgendaTab={goToAgendaTab}
-                    goToMessagesTab={goToMessagesTab}
-                  />
-                </Column>
-              </Route>
-            );
-          })}
-        </Switch>
-
+        <Column grow>
+          <R
+            {...props}
+            allEvents={allEvents}
+            hasTabs={hasTabs}
+            onClickMessage={handleClickMessage}
+            getMessageURL={getMessageURL}
+            goToAgendaTab={goToAgendaTab}
+            goToMessagesTab={goToMessagesTab}
+          />
+        </Column>
         <Column width="320px">
           <GroupUserActions {...group} />
           <GroupOrders {...group} />

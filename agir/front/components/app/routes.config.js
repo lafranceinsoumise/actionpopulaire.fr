@@ -19,30 +19,6 @@ const FullGroupPage = lazy(() =>
   import("@agir/groups/fullGroupPage/FullGroupPage")
 );
 const GroupPage = lazy(() => import("@agir/groups/groupPage/GroupPage"));
-const GroupSettings = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings")
-);
-const GroupSettingsMembers = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/Menus/MenuMembers")
-);
-const GroupSettingsManage = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/Menus/MenuManagement")
-);
-const GroupSettingsFinance = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/Menus/MenuFinance")
-);
-const GroupSettingsGeneral = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/Menus/MenuGeneral")
-);
-const GroupSettingsLocation = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/Menus/MenuLocation")
-);
-const GroupSettingsContact = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/Menus/MenuContact")
-);
-const GroupSettingsLinks = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/Menus/MenuLinks")
-);
 
 const GroupMessagePage = lazy(() =>
   import("@agir/groups/groupPage/GroupMessagePage")
@@ -89,7 +65,9 @@ export class RouteConfig {
 
     this.__keys__ = [];
     const path = Array.isArray(this.path) ? this.path[0] : this.path;
-    this.__re__ = pathToRegexp(this.path, this.__keys__);
+    this.__re__ = pathToRegexp(this.path, this.__keys__, {
+      end: this.exact === false ? false : true,
+    });
     this.__toPath__ = pathToRegexp.compile(path);
 
     this.match = this.match.bind(this);
@@ -226,83 +204,12 @@ export const routeConfig = {
   }),
   groupSettings: new RouteConfig({
     id: "groupSettings",
-    path: "/groupes/:groupPk/parametres/",
+    path: "/groupes/:groupPk/:activeTab?/gestion/:activePanel?/",
+    params: { activeTab: null, activePanel: null },
     exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Paramètres du groupe",
-    Component: GroupSettings,
-    hideTopBar: true,
-    hideFeedbackButton: true,
-  }),
-  groupSettingsMembers: new RouteConfig({
-    id: "groupSettingsMembers",
-    path: "/groupes/:groupPk/parametres/membres/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Membres",
-    Component: GroupSettingsMembers,
-    hideTopBar: true,
-    hideFeedbackButton: true,
-  }),
-  groupSettingsManage: new RouteConfig({
-    id: "groupSettingsManage",
-    path: "/groupes/:groupPk/parametres/gestion/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Gestion",
-    Component: GroupSettingsManage,
-    hideTopBar: true,
-    hideFeedbackButton: true,
-  }),
-  groupSettingsFinance: new RouteConfig({
-    id: "groupSettingsFinance",
-    path: "/groupes/:groupPk/parametres/finance/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Financement",
-    Component: GroupSettingsFinance,
-    hideTopBar: true,
-    hideFeedbackButton: true,
-  }),
-  groupSettingsGeneral: new RouteConfig({
-    id: "groupSettingsGeneral",
-    path: "/groupes/:groupPk/parametres/general/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Général",
-    Component: GroupSettingsGeneral,
-    hideTopBar: true,
-    hideFeedbackButton: true,
-  }),
-  groupSettingsLocation: new RouteConfig({
-    id: "groupSettingsLocation",
-    path: "/groupes/:groupPk/parametres/localisation/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Localisation",
-    Component: GroupSettingsLocation,
-    hideTopBar: true,
-    hideFeedbackButton: true,
-  }),
-  groupSettingsContact: new RouteConfig({
-    id: "groupSettingsContact",
-    path: "/groupes/:groupPk/parametres/contact/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Contact",
-    Component: GroupSettingsContact,
-    hideTopBar: true,
-    hideFeedbackButton: true,
-  }),
-  groupSettingsLinks: new RouteConfig({
-    id: "groupSettingsLinks",
-    path: "/groupes/:groupPk/parametres/liens/",
-    exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Liens",
-    Component: GroupSettingsLinks,
-    hideTopBar: true,
-    hideFeedbackButton: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Gestion du groupe",
+    Component: GroupPage,
   }),
   groupMessage: new RouteConfig({
     id: "groupMessage",
@@ -316,7 +223,7 @@ export const routeConfig = {
   groupDetails: new RouteConfig({
     id: "groupDetails",
     path: "/groupes/:groupPk/:activeTab?/",
-    exact: true,
+    exact: false,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Details du groupe",
     Component: GroupPage,

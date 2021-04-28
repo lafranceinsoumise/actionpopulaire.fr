@@ -245,13 +245,16 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
         ):
             routes["createEvent"] = f'{front_url("create_event")}?group={str(obj.pk)}'
-            routes["settings"] = front_url("manage_group", kwargs={"pk": obj.pk})
-            routes["edit"] = front_url("edit_group", kwargs={"pk": obj.pk})
+
+            routes["settings"] = front_url("view_group_settings", kwargs={"pk": obj.pk})
+            routes["edit"] = front_url(
+                "view_group_settings_general", kwargs={"pk": obj.pk}
+            )
             routes["members"] = front_url(
-                "manage_group", query={"active": "membership"}, kwargs={"pk": obj.pk}
+                "view_group_settings_members", kwargs={"pk": obj.pk}
             )
             routes["animation"] = front_url(
-                "manage_group", query={"active": "animation"}, kwargs={"pk": obj.pk}
+                "view_group_settings_management", kwargs={"pk": obj.pk}
             )
             routes["membershipTransfer"] = front_url(
                 "transfer_group_members", kwargs={"pk": obj.pk}
@@ -265,9 +268,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 )
             if not obj.is_2022:
                 routes["invitation"] = front_url(
-                    "manage_group",
-                    query={"active": "invitation"},
-                    kwargs={"pk": obj.pk},
+                    "view_group_settings_contact", kwargs={"pk": obj.pk},
                 )
                 routes["orders"] = "https://materiel.lafranceinsoumise.fr/"
             else:
@@ -275,9 +276,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
             if obj.is_certified:
                 routes["financement"] = front_url(
-                    "manage_group",
-                    query={"active": "financement"},
-                    kwargs={"pk": obj.pk},
+                    "view_group_settings_finance", kwargs={"pk": obj.pk},
                 )
             elif (
                 obj.type in settings.CERTIFIABLE_GROUP_TYPES
