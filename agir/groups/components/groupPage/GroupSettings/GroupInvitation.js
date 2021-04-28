@@ -5,16 +5,26 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
+import TextField from "@agir/front/formComponents/TextField";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 
-const StyledInput = styled.input`
-  min-width: 240px;
-  width: 100%;
-  height: 2rem;
-  border: 1px solid ${style.black100};
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
+import { inviteToGroup } from "@agir/groups/groupPage/api.js";
+
+const StyledContainer = styled.div`
+  display: flex;
+  align-items: center;
+
+  & > :first-child {
+    max-width: 300px;
+    width: 100%;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    flex-wrap: wrap;
+    & > :first-child {
+      width: 100%;
+    }
+  }
 `;
 
 const StyledDiv = styled.div`
@@ -22,18 +32,28 @@ const StyledDiv = styled.div`
 `;
 
 const GroupInvitation = (props) => {
-  const { title } = props;
+  const { title, groupPk } = props;
 
   const [email, setEmail] = useState("");
+  const [errors, setErrors] = useState({});
 
   const handleChange = useCallback((e) => {
     setEmail(e.target.value);
   }, []);
 
-  const handleInvitation = useCallback((e) => {
-    console.log("invite : ", email);
-    setEmail("");
-  }, []);
+  const handleInvitation = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setErrors({});
+      const res = await inviteToGroup(groupPk, { email });
+      if (!!res.error) {
+        setErrors(res.error);
+        return;
+      }
+      setEmail("");
+    },
+    [email]
+  );
 
   return (
     <StyledDiv>
@@ -43,22 +63,22 @@ const GroupInvitation = (props) => {
         </Column>
       </Row>
 
-      <Row gutter={4}>
-        <Column grow collapse={false}>
-          {" "}
-          <StyledInput
+      <StyledContainer>
+        <div style={{ marginRight: "0.5rem" }}>
+          <TextField
             type="text"
             value={email}
             placeholder="Adresse e-mail de l’invité·e"
             onChange={handleChange}
+            error={errors?.email}
           />
-        </Column>
-        <Column collapse={false}>
+        </div>
+        <div>
           <Button color="primary" small onClick={handleInvitation}>
             Envoyer une invitation
           </Button>
-        </Column>
-      </Row>
+        </div>
+      </StyledContainer>
     </StyledDiv>
   );
 };

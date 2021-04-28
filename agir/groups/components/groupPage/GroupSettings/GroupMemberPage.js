@@ -70,6 +70,7 @@ const GroupMemberPage = (props) => {
 
       <Spacer size="2rem" />
       <GroupInvitation
+        groupPk={groupPk}
         title={
           <>
             Invitez de nouveaux membres{" "}

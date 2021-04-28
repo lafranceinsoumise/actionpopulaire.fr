@@ -23,6 +23,7 @@ export const ENDPOINT = {
 
   getMembers: "/api/groupes/:groupPk/members/",
   updateGroup: "/api/groupes/:groupPk/update/",
+  inviteToGroup: "/api/groupes/:groupPk/invitation/",
 
   report: "/api/report/",
 };
@@ -213,6 +214,23 @@ export const updateGroup = async (groupPk, data) => {
   }
   try {
     const response = await axios.patch(url, data, { headers });
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const inviteToGroup = async (groupPk, data) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("inviteToGroup", { groupPk });
+
+  try {
+    const response = await axios.post(url, data);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

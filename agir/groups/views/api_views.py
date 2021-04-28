@@ -6,7 +6,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse_lazy, reverse
 from django.core.validators import validate_email
 from rest_framework import status
-from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
+from rest_framework.exceptions import NotFound, PermissionDenied
+
+# , ValidationError
+from django.core.exceptions import ValidationError
 from rest_framework.generics import (
     GenericAPIView,
     ListAPIView,
@@ -21,6 +24,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import exceptions
 
 from agir.events.models import Event
 from agir.events.serializers import EventSerializer
@@ -478,21 +482,22 @@ class GroupInvitationAPIView(GenericAPIView):
     permission_classes = (GroupInvitationPermission,)
 
     def post(self, request, *args, **kwargs):
-        # try:
-        #     group = SupportGroup.objects.get(pk=kwargs["pk"])
-        # except SupportGroup.DoesNotExist:
-        #     raise NotFound()
-
         group = self.get_object()
         user_id = self.request.user.person.id
         email = request.data.get("email", "")
         if not email:
-            raise ValidationError(detail={"email": "L'adresse email ne peut être vide"})
+            raise exceptions.ValidationError(
+                detail={"email": "L'adresse email ne peut être vide"},
+                code="invalid_format",
+            )
 
         try:
             validate_email(email)
         except:
-            raise ValidationError(detail={"email": "L'adresse email n'est pas valide"})
+            raise exceptions.ValidationError(
+                detail={"email": "L'adresse email n'est pas valide"},
+                code="invalid_format",
+            )
 
         try:
             p = Person.objects.get_by_natural_key(email)
@@ -500,8 +505,9 @@ class GroupInvitationAPIView(GenericAPIView):
         except (Person.DoesNotExist, Membership.DoesNotExist):
             pass
         else:
-            raise ValidationError(
-                detail={"email": "Cette personne fait déjà partie de votre groupe !"}
+            raise exceptions.ValidationError(
+                detail={"email": "Cette personne fait déjà partie de votre groupe !"},
+                code="invalid_format",
             )
 
         invite_to_group.delay(group.pk, email, user_id)
