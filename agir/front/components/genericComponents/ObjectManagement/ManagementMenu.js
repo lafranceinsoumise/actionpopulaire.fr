@@ -1,12 +1,15 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
+import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import { Hide } from "@agir/front/genericComponents/grid";
 
-const StyledMenuItem = styled.button`
+import BackButton from "./BackButton";
+
+const StyledMenuItem = styled(NavLink)`
   display: flex;
   width: 100%;
   flex-flow: row nowrap;
@@ -22,6 +25,11 @@ const StyledMenuItem = styled.button`
   color: ${({ disabled }) => (disabled ? style.black500 : style.black1000)};
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 
+  &:hover {
+    text-decoration: none;
+    cursor: pointer;
+  }
+
   & > * {
     margin: 0;
     padding: 0;
@@ -29,7 +37,6 @@ const StyledMenuItem = styled.button`
 
   span {
     flex: 1 1 auto;
-    color: ${({ active }) => (active ? style.primary500 : "")};
   }
 
   small {
@@ -57,20 +64,34 @@ const StyledMenuItem = styled.button`
     clip-path: circle(1rem);
     text-align: center;
   }
+
+  &.active {
+    span {
+      color: ${style.primary500};
+    }
+
+    ${RawFeatherIcon} {
+      background-color: ${({ disabled }) => {
+        if (disabled) return style.black100;
+        return style.primary500;
+      }};
+      color: ${({ disabled }) => {
+        if (disabled) return style.black500;
+        return style.white;
+      }};
+    }
+  }
 `;
 
 const StyledMenu = styled.div`
   width: 100%;
-  height: 100vh;
-  overflow: auto;
+  height: 100%;
   padding: 1.5rem;
   background-color: ${style.black25};
   box-shadow: inset -1px 0px 0px #dfdfdf;
-  position: fixed;
 
   @media (min-width: ${style.collapse}px) {
     width: 360px;
-    max-width: 30%;
   }
 
   h4 {
@@ -96,11 +117,7 @@ const StyledMenu = styled.div`
 `;
 
 const ManagementMenuItem = (props) => {
-  const { object, item, onClick, active } = props;
-
-  const handleClick = useCallback(() => {
-    onClick && onClick(item);
-  }, [item, onClick]);
+  const { object, item } = props;
 
   const disabled = useMemo(
     () =>
@@ -110,67 +127,60 @@ const ManagementMenuItem = (props) => {
     [object, item]
   );
 
-  const label = useMemo(
-    () => (item.labelFunction ? item.labelFunction(object) : item.label),
-    [object, item]
-  );
-
   return (
-    <StyledMenuItem onClick={handleClick} disabled={disabled} active={!!active}>
+    <StyledMenuItem disabled={disabled} to={item.getLink()}>
       <RawFeatherIcon width="1rem" height="1rem" name={item.icon} />
       <span>
-        {label}
+        {item.label}
         <br />
         {disabled && item.disabledLabel && <small>{item.disabledLabel}</small>}
       </span>
     </StyledMenuItem>
   );
 };
+
 ManagementMenuItem.propTypes = {
   object: PropTypes.object,
   item: PropTypes.shape({
     id: PropTypes.string,
-    label: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+    label: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
     disabledLabel: PropTypes.string,
     icon: PropTypes.string,
     disabled: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+    getLink: PropTypes.func.isRequired,
   }),
-  onClick: PropTypes.func.isRequired,
-  active: PropTypes.bool,
-  component: PropTypes.elementType,
 };
 
 const ManagementMenu = (props) => {
-  const { object, items, title, selectedItem, onSelect } = props;
-
-  const isDesktop = useIsDesktop();
-  const SEPARATOR = 3;
+  const { object, items, title, onBack } = props;
 
   return (
     <StyledMenu>
+      <Hide over>
+        <BackButton onClick={onBack} />
+      </Hide>
       <h4>{title}</h4>
       <ul>
-        {Object.values(items).map((item, index) => (
-          <>
-            {SEPARATOR === index && <hr />}
-            <li key={item.id}>
-              <ManagementMenuItem
-                object={object}
-                item={item}
-                onClick={() => onSelect(item.id)}
-                active={selectedItem === item.id && isDesktop}
-              />
-            </li>
-          </>
+        {items.slice(0, 3).map((item) => (
+          <li key={item.id}>
+            <ManagementMenuItem object={object} item={item} />
+          </li>
+        ))}
+        <hr />
+        {items.slice(3).map((item) => (
+          <li key={item.id}>
+            <ManagementMenuItem object={object} item={item} />
+          </li>
         ))}
       </ul>
     </StyledMenu>
   );
 };
 ManagementMenu.propTypes = {
-  title: PropTypes.string,
-  object: PropTypes.object,
-  items: PropTypes.arrayOf(typeof ManagementMenuItem.item),
+  title: PropTypes.string.isRequired,
+  object: PropTypes.object.isRequired,
+  items: PropTypes.arrayOf(ManagementMenuItem.propTypes.item).isRequired,
+  onBack: PropTypes.func.isRequired,
 };
 
 export default ManagementMenu;

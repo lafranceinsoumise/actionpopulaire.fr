@@ -41,7 +41,7 @@ urlpatterns = [
         name="edit_group_legacy",
     ),
     path(
-        "groupes/<uuid:pk>/gestion/",
+        "groupes/<uuid:pk>/gestion/informations/",
         views.SupportGroupManagementView.as_view(),
         name="manage_group",
     ),

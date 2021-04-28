@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Switch, Route, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -17,8 +17,8 @@ import { useTabs } from "./routes.config";
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
+import GroupSettings from "@agir/groups/groupPage/GroupSettings";
 import GroupBanner from "../GroupBanner";
-
 import GroupUserActions from "../GroupUserActions";
 import GroupPageMenu from "../GroupPageMenu";
 
@@ -60,7 +60,14 @@ Tab.propTypes = {
 
 const MobileGroupPage = (props) => {
   const { group, allEvents } = props;
-  const { hasTabs, tabs, activeTabIndex, onTabChange } = useTabs(props, true);
+  const {
+    hasTabs,
+    tabs,
+    activeTabIndex,
+    activeTabId,
+    activePathname,
+    onTabChange,
+  } = useTabs(props, true);
 
   const goToAgendaTab = useMemo(() => {
     const agendaTab = tabs.find((tab) => tab.id === "agenda");
@@ -109,6 +116,8 @@ const MobileGroupPage = (props) => {
     return null;
   }
 
+  const R = Routes[activeTabId];
+
   return (
     <Container
       style={{
@@ -117,29 +126,26 @@ const MobileGroupPage = (props) => {
         backgroundColor: style.black25,
       }}
     >
+      <GroupSettings group={group} basePath={activePathname} />
       <GroupBanner {...group} />
       <GroupUserActions {...group} />
-      <GroupPageMenu tabs={tabs} hasTabs={hasTabs} stickyOffset={56} />
-      <Switch>
-        {tabs.map((tab) => {
-          const R = Routes[tab.id];
-          return (
-            <Route key={tab.id} path={tab.path} exact>
-              <Tab scrollIntoView={hasTabs && autoScroll}>
-                <R
-                  {...props}
-                  allEvents={allEvents}
-                  hasTabs={hasTabs}
-                  goToAgendaTab={goToAgendaTab}
-                  goToMessagesTab={goToMessagesTab}
-                  getMessageURL={getMessageURL}
-                  onClickMessage={handleClickMessage}
-                />
-              </Tab>
-            </Route>
-          );
-        })}
-      </Switch>
+      <GroupPageMenu
+        tabs={tabs}
+        hasTabs={hasTabs}
+        stickyOffset={56}
+        activeTabId={activeTabId}
+      />
+      <Tab scrollIntoView={hasTabs && autoScroll}>
+        <R
+          {...props}
+          allEvents={allEvents}
+          hasTabs={hasTabs}
+          goToAgendaTab={goToAgendaTab}
+          goToMessagesTab={goToMessagesTab}
+          getMessageURL={getMessageURL}
+          onClickMessage={handleClickMessage}
+        />
+      </Tab>
     </Container>
   );
 };

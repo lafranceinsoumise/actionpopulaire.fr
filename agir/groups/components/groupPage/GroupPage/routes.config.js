@@ -11,7 +11,8 @@ import {
 const routeConfig = {
   info: {
     id: "info",
-    path: "/groupes/:groupPk/accueil/",
+    path: "/groupes/:groupPk/",
+    exact: false,
     label: "Accueil",
     hasTab: true,
     hasRoute: true,
@@ -19,6 +20,7 @@ const routeConfig = {
   messages: {
     id: "messages",
     path: "/groupes/:groupPk/messages/",
+    exact: false,
     label: "Messages",
     hasTab: true,
     hasRoute: (group) =>
@@ -27,6 +29,7 @@ const routeConfig = {
   agenda: {
     id: "agenda",
     path: "/groupes/:groupPk/agenda/",
+    exact: false,
     label: "Agenda",
     hasTab: true,
     hasRoute: (group) =>
@@ -35,6 +38,7 @@ const routeConfig = {
   reports: {
     id: "reports",
     path: "/groupes/:groupPk/comptes-rendus/",
+    exact: false,
     label: "Comptes-rendus",
     hasTab: true,
     hasRoute: (group) => group.isManager || group.hasPastEventReports,
@@ -69,14 +73,6 @@ export const useTabs = (props, isMobile = true) => {
 
   const tabs = useMemo(() => routes.filter((route) => route.hasTab), [routes]);
 
-  const shouldReplaceURL = useMemo(() => {
-    return new RouteConfig({
-      id: "base",
-      path: "/groupes/:groupPk/",
-      label: "Groupe",
-    }).match(location.pathname);
-  }, [location.pathname]);
-
   const activeRoute = useMemo(() => {
     let result = tabs[0];
     routes.forEach((route) => {
@@ -87,9 +83,7 @@ export const useTabs = (props, isMobile = true) => {
     return result;
   }, [tabs, routes, location.pathname]);
 
-  useEffect(() => {
-    shouldReplaceURL && handleTabChange(activeRoute, null, true);
-  }, [shouldReplaceURL, handleTabChange, activeRoute]);
+  const activePathname = activeRoute.getLink();
 
   const activeTabIndex = useMemo(() => {
     for (let i = 0; tabs[i]; i++) {
@@ -138,15 +132,16 @@ export const useTabs = (props, isMobile = true) => {
         })
       );
     }
-  }, [dispatch, group, location.pathname]);
+  }, [dispatch, group, activePathname]);
 
   useMemo(() => {
     window.scrollTo(0, 0);
     // eslint-disable-next-line
-  }, [location.pathname]);
+  }, [activePathname]);
 
   return {
     tabs: routes,
+    activePathname,
     activeTabId: activeRoute.id,
     activeTabIndex,
     hasTabs: tabs.length > 1,

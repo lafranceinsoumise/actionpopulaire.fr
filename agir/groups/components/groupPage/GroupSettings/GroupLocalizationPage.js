@@ -130,7 +130,7 @@ const GroupLocalizationPage = (props) => {
       />
 
       <Spacer size="2rem" />
-      <Button color="secondary" wrap>
+      <Button color="secondary" $wrap>
         Enregistrer les informations
       </Button>
 

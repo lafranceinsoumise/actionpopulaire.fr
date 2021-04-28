@@ -92,14 +92,18 @@ const PanelContent = styled(animated.aside)`
   overflow: auto;
   top: 0;
   ${({ $position }) => `${$position}: 0;`}
-  width: 600px;
+  display: inline-block;
+  width: auto;
+  min-width: 600px;
   background-color: white;
   margin: 0;
   padding: 2rem 1.5rem;
   will-change: transform;
 
   @media (max-width: ${style.collapse}px) {
+    display: block;
     width: 100%;
+    min-width: 100%;
     padding: 1.5rem;
   }
 
@@ -191,6 +195,7 @@ const Panel = (props) => {
     onBack,
     noScroll,
     className,
+    style,
   } = props;
 
   const panelRef = useDisableBodyScroll(noScroll, shouldShow);
@@ -218,12 +223,12 @@ const Panel = (props) => {
   return createPortal(
     <PanelFrame ref={panelRef} $open={shouldShow}>
       <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
-      {transitions((style, item) =>
+      {transitions((tStyle, item) =>
         item ? (
           <PanelContent
             ref={panelContentRef}
             className={className}
-            style={style}
+            style={{ ...style, ...tStyle }}
             role="dialog"
             $position={position}
           >
