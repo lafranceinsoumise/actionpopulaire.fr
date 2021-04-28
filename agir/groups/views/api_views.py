@@ -66,6 +66,7 @@ __all__ = [
     "GroupMembersAPIView",
     "GroupUpdateAPIView",
     "GroupInvitationAPIView",
+    "GroupManagementAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -438,7 +439,6 @@ class GroupJoinAPIView(CreateAPIView):
 class GroupMembersAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = Membership.objects.all()
-    # serializer_class = PersonSerializer
     serializer_class = MembershipSerializer
 
     def initial(self, request, *args, **kwargs):
@@ -511,4 +511,50 @@ class GroupInvitationAPIView(GenericAPIView):
             )
 
         invite_to_group.delay(group.pk, email, user_id)
+        return Response(status=status.HTTP_201_CREATED)
+
+
+class GroupManagementPermission(GlobalOrObjectPermissions):
+    perms_map = {
+        "PATCH": [],
+    }
+    object_perms_map = {
+        "PATCH": [
+            "groups.add_referent_to_supportgroup",
+            "groups.add_manager_to_supportgroup",
+        ],
+    }
+
+
+class GroupManagementAPIView(GenericAPIView):
+    queryset = SupportGroup.objects.all()
+    permission_classes = (GroupManagementPermission,)
+    serializer_class = MembershipSerializer
+
+    def patch(self, request, *args, **kwargs):
+        group = self.get_object()
+        user_id = self.request.user.person.id
+        email = request.data.get("email", "")
+        role = request.data.get("role", "")
+
+        if role == "manager":
+            role = Membership.MEMBERSHIP_TYPE_MANAGER
+        elif role == "referent":
+            role = Membership.MEMBERSHIP_TYPE_REFERENT
+        else:
+            raise exceptions.ValidationError(
+                detail={"role": "Ce role n'existe pas."}, code="invalid_format",
+            )
+
+        try:
+            p = Person.objects.get_by_natural_key(email)
+            member = Membership.objects.get(supportgroup=group, person=p)
+        except (Person.DoesNotExist, Membership.DoesNotExist):
+            raise exceptions.ValidationError(
+                detail={"email": "Cette personne n'est pas membre de votre groupe !"},
+                code="invalid_format",
+            )
+
+        serializer = MembershipSerializer(member)
+        serializer.update(instance=member, validated_data={"membershipType": role})
         return Response(status=status.HTTP_201_CREATED)

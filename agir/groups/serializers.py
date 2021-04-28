@@ -379,3 +379,10 @@ class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
         fields = ["id", "displayName", "image", "email", "membershipType"]
+
+    def update(self, instance, validated_data):
+        instance.membership_type = validated_data.get(
+            "membershipType", instance.membership_type
+        )
+        instance.save()
+        return instance

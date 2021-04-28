@@ -11,10 +11,9 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-import { DEFAULT_MEMBERS } from "./group_items.js";
 import { StyledTitle } from "./styledComponents.js";
 
-import { getMembers } from "@agir/groups/groupPage/api.js";
+import { getMembers, addRoleToMember } from "@agir/groups/groupPage/api.js";
 
 const StyledList = styled.div`
   display: flex;
@@ -43,11 +42,35 @@ const GroupManagementPage = (props) => {
   const [config, setConfig] = useState(null);
 
   const [members, setMembers] = useState([]);
+  const [newMemberManager, setNewMemberManager] = useState(null);
+  const [newMemberReferent, setNewMemberReferent] = useState(null);
 
   const getMembersAPI = async (groupPk) => {
     const { data } = await getMembers(groupPk);
     console.log("get members from group : ", data);
     setMembers(data);
+  };
+
+  const handleNewManagerChange = (e) => {
+    setNewMemberManager(e.value);
+  };
+
+  const handleNewReferentChange = (e) => {
+    setNewMemberReferent(e.value);
+  };
+
+  const submitNewManager = async () => {
+    const res = await addRoleToMember(groupPk, {
+      email: newMemberManager,
+      role: "manager",
+    });
+  };
+
+  const submitNewReferent = async () => {
+    const res = await addRoleToMember(groupPk, {
+      email: newMemberReferent,
+      role: "referent",
+    });
   };
 
   useEffect(() => {
@@ -72,6 +95,7 @@ const GroupManagementPage = (props) => {
             if (REFERENT === m.membershipType) return;
             return { label: m.email, value: m.email };
           })}
+          onChange={handleNewReferentChange}
         />
 
         <Spacer size="1rem" />
@@ -92,18 +116,20 @@ const GroupManagementPage = (props) => {
         {members.map(
           (member, id) =>
             REFERENT === member.membershipType && (
-              <GroupMember
-                key={id}
-                name={member?.displayName}
-                image={member?.image}
-                membershipType={member?.membershipType}
-                email={member?.email}
-                assets={member?.assets}
-              />
+              <>
+                <GroupMember
+                  key={id}
+                  name={member?.displayName}
+                  image={member?.image}
+                  membershipType={member?.membershipType}
+                  email={member?.email}
+                  assets={member?.assets}
+                />
+                <Spacer size="1rem" />
+              </>
             )
         )}
 
-        <Spacer size="1rem" />
         <div>
           Ce membre pourra :
           <Spacer size="0.5rem" />
@@ -125,7 +151,9 @@ const GroupManagementPage = (props) => {
           </StyledList>
         </div>
         <Spacer size="1rem" />
-        <Button color="secondary">Confirmer</Button>
+        <Button color="secondary" onClick={submitNewReferent}>
+          Confirmer
+        </Button>
       </>
     );
 
@@ -144,9 +172,10 @@ const GroupManagementPage = (props) => {
           label="Choisir un membre"
           placeholder="Sélection"
           options={members.map((m) => {
-            if (MANAGER === m.membershipType) return;
+            // if (MANAGER === m.membershipType) return;
             return { label: m.email, value: m.email };
           })}
+          onChange={handleNewManagerChange}
         />
 
         <Spacer size="1rem" />
@@ -154,14 +183,17 @@ const GroupManagementPage = (props) => {
         {members.map(
           (member, id) =>
             MANAGER === member.membershipType && (
-              <GroupMember
-                key={id}
-                name={member?.displayName}
-                image={member?.image}
-                membershipType={member?.membershipType}
-                email={member?.email}
-                assets={member?.assets}
-              />
+              <>
+                <GroupMember
+                  key={id}
+                  name={member?.displayName}
+                  image={member?.image}
+                  membershipType={member?.membershipType}
+                  email={member?.email}
+                  assets={member?.assets}
+                />
+                <Spacer size="1rem" />
+              </>
             )
         )}
 
@@ -184,7 +216,9 @@ const GroupManagementPage = (props) => {
         </div>
 
         <Spacer size="1rem" />
-        <Button color="secondary">Confirmer</Button>
+        <Button color="secondary" onClick={submitNewManager}>
+          Confirmer
+        </Button>
       </>
     );
 
@@ -193,21 +227,25 @@ const GroupManagementPage = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Animateurs et animatrices</StyledTitle>
 
+      <Spacer size="0.5rem" />
+
       {members.map(
         (member, id) =>
           REFERENT === member.membershipType && (
-            <GroupMember
-              key={id}
-              name={member?.displayName}
-              image={member?.image}
-              membershipType={member?.membershipType}
-              email={member?.email}
-              assets={member?.assets}
-            />
+            <>
+              <GroupMember
+                key={id}
+                name={member?.displayName}
+                image={member?.image}
+                membershipType={member?.membershipType}
+                email={member?.email}
+                assets={member?.assets}
+              />
+              <Spacer size="1rem" />
+            </>
           )
       )}
 
-      <Spacer size="1rem" />
       <AddPair
         label="Ajouter votre binôme"
         onClick={() => {
@@ -232,21 +270,25 @@ const GroupManagementPage = (props) => {
         événements au nom du groupe.
       </span>
 
+      <Spacer size="1rem" />
+
       {members.map(
         (member, id) =>
           MANAGER === member.membershipType && (
-            <GroupMember
-              key={id}
-              name={member?.displayName}
-              image={member?.image}
-              membershipType={member?.membershipType}
-              email={member?.email}
-              assets={member?.assets}
-            />
+            <>
+              <GroupMember
+                key={id}
+                name={member?.displayName}
+                image={member?.image}
+                membershipType={member?.membershipType}
+                email={member?.email}
+                assets={member?.assets}
+              />
+              <Spacer size="1rem" />
+            </>
           )
       )}
 
-      <Spacer size="1rem" />
       <AddPair
         label="Ajouter un·e gestionnaire"
         onClick={() => {

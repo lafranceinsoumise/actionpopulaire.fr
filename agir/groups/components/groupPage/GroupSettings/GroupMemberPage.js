@@ -25,7 +25,6 @@ const GroupMemberPage = (props) => {
 
   const getMembersAPI = async (groupPk) => {
     const { data } = await getMembers(groupPk);
-    console.log("get members from group : ", data);
     setMembers(data);
   };
 

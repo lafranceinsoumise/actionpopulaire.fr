@@ -176,4 +176,9 @@ urlpatterns = [
         views.GroupInvitationAPIView.as_view(),
         name="api_group_invitation",
     ),
+    path(
+        "api/groupes/<uuid:pk>/gestion/",
+        views.GroupManagementAPIView.as_view(),
+        name="api_group_management",
+    ),
 ]
