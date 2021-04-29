@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {% include "front/includes/gfonts.html" %}
 
-  <title>{% block title %}Plateforme d'action{% endblock %} - Action populaire</title>
+  <title>{% block title %}Action Populaire{% endblock %}</title>
   <link rel="manifest" href="{% static "front/manifest.json" %}" />
 
   {% include "front/includes/favicon.html" %}
@@ -23,7 +23,7 @@
       <meta property="og:description"
             content="{{ meta_description }}"/>
       <meta property="og:url" content="https://actionpopulaire.fr{{ request.path }}"/>
-      <meta property="og:site_name" content="Action populaire - La plateforme"/>
+      <meta property="og:site_name" content="Action Populaire"/>
       <meta property="fb:app" content="399717914004198"/>
       {% if meta_image %}
         <meta property="og:image" content="{{ meta_image }}">

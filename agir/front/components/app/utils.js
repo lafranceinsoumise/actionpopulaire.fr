@@ -46,6 +46,7 @@ export const lazy = (lazyImport, fallback) => {
   };
 
   LazyComponent.displayName = `LazyComponent`;
+  LazyComponent.preload = lazyImport;
 
   return LazyComponent;
 };

@@ -29,7 +29,7 @@ const StyledCard = styled(Card)`
 `;
 
 const GroupDescription = (props) => {
-  const { description, maxHeight = 92, routes, outlined } = props;
+  const { description, maxHeight = 92, editLinkTo, outlined } = props;
 
   if (!description || !String(description).trim()) {
     return null;
@@ -38,7 +38,7 @@ const GroupDescription = (props) => {
   return (
     <StyledCard
       title="Présentation"
-      editUrl={routes && routes.edit}
+      editLinkTo={editLinkTo}
       outlined={outlined}
     >
       <Collapsible
@@ -54,7 +54,7 @@ const GroupDescription = (props) => {
 GroupDescription.propTypes = {
   description: PropTypes.string,
   maxHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  routes: PropTypes.object,
+  editLinkTo: PropTypes.string,
   outlined: PropTypes.bool,
 };
 export default GroupDescription;

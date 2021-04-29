@@ -3,11 +3,20 @@ import { useEffect, useCallback, useState } from "react";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import * as selector from "@agir/front/globalContext/reducers";
 
-import { getBookmarkedEmails, bookmarkEmails, bookmarkEmail } from "./common";
+import {
+  getBookmarkedEmails,
+  bookmarkEmails,
+  bookmarkEmail,
+  AUTHENTICATION,
+} from "./common";
 
 export const useAuthentication = (route) => {
   const isSessionLoaded = useSelector(selector.getIsSessionLoaded);
   const authentication = useSelector(selector.getAuthentication);
+
+  if (route.neededAuthentication === AUTHENTICATION.NONE) {
+    return true;
+  }
 
   if (!isSessionLoaded) {
     return null;

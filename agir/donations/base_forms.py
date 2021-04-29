@@ -60,7 +60,7 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
         label=_("Votre adresse email"),
         required=True,
         help_text=_(
-            "Si vous êtes déjà inscrit⋅e sur la plateforme, utilisez l'adresse avec laquelle vous êtes inscrit⋅e"
+            "Si vous êtes déjà inscrit⋅e sur lafranceinsoumise.fr ou noussommespour.fr, utilisez l'adresse avec laquelle vous êtes inscrit⋅e"
         ),
     )
 

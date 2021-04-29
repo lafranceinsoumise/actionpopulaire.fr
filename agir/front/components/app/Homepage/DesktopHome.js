@@ -85,8 +85,8 @@ const Home = () => {
       <header>
         <h2>Passez à l'action&nbsp;!</h2>
         <h5>
-          Agissez concrètement dans votre quartier et faites gagner Jean-Luc
-          Mélenchon en 2022 !
+          Action Populaire est le réseau social d'action de Jean-Luc Mélenchon
+          pour l'élection présidentielle de 2022.
         </h5>
         <div>
           <Button color="primary" as="Link" route="signup">

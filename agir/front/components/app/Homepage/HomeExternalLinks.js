@@ -86,8 +86,8 @@ const HomeExternalLinks = () => {
       </h4>
       <p>
         Action Populaire est le réseau social d’action de la France Insoumise et
-        de Jean-Luc Mélenchon pour les présidentielles de 2022. Pour retrouver
-        l’actualité, rendez-vous sur nos sites&nbsp;:
+        de Jean-Luc Mélenchon pour l'élection présidentielle de 2022. Pour
+        retrouver l’actualité, rendez-vous sur nos sites&nbsp;:
       </p>
       <nav>
         <a href="https://lafranceinsoumise.fr/">

@@ -8,6 +8,8 @@ import {
   setAdminLink,
 } from "@agir/front/globalContext/actions";
 
+import { getMenuRoute as getSettingsRoute } from "@agir/groups/groupPage/GroupSettings/routes.config";
+
 const routeConfig = {
   info: {
     id: "info",
@@ -46,7 +48,6 @@ const routeConfig = {
 };
 
 export const useTabs = (props, isMobile = true) => {
-  7;
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
@@ -84,6 +85,13 @@ export const useTabs = (props, isMobile = true) => {
   }, [tabs, routes, location.pathname]);
 
   const activePathname = activeRoute.getLink();
+  const settingsLink = useMemo(
+    () =>
+      group?.id && group.isManager
+        ? getSettingsRoute(activePathname).getLink()
+        : null,
+    [group, activePathname]
+  );
 
   const activeTabIndex = useMemo(() => {
     for (let i = 0; tabs[i]; i++) {
@@ -115,24 +123,26 @@ export const useTabs = (props, isMobile = true) => {
   }, [handleTabChange, activeTabIndex, tabs]);
 
   useEffect(() => {
-    const { isManager, routes } = group || {};
-    if (isManager && routes.settings) {
-      dispatch(
-        setTopBarRightLink({
-          href: routes.settings,
-          label: "Gestion du groupe",
-        })
-      );
-    }
-    if (routes && routes.admin) {
+    const { routes } = group || {};
+    routes &&
+      routes.admin &&
       dispatch(
         setAdminLink({
           href: routes.admin,
           label: "Administration",
         })
       );
-    }
   }, [dispatch, group, activePathname]);
+
+  useEffect(() => {
+    settingsLink &&
+      dispatch(
+        setTopBarRightLink({
+          to: settingsLink,
+          label: "Gestion du groupe",
+        })
+      );
+  }, [dispatch, settingsLink]);
 
   useMemo(() => {
     window.scrollTo(0, 0);
