@@ -142,19 +142,31 @@ export const getRoutes = (basePath, group) =>
       })
   );
 
-export const getGroupSettingLinks = (group) => {
+export const getGroupSettingLinks = (group, basePath) => {
   const links = {};
 
-  if (!group?.id) {
+  if (!group?.id || !group.isManager) {
     return links;
   }
-  const activeRoutes = getActiveRoutes(group);
 
-  activeRoutes.forEach((route) => {
-    links[route.id] = globalRouteConfig.groupSettings.getLink({
-      activePanel: route.path.replace("/", "") || null,
+  if (!basePath) {
+    const activeRoutes = getActiveRoutes(group);
+    links.menu = globalRouteConfig.groupSettings.getLink({
       groupPk: group.id,
     });
+    activeRoutes.forEach((route) => {
+      links[route.id] = globalRouteConfig.groupSettings.getLink({
+        activePanel: route.path.replace("/", "") || null,
+        groupPk: group.id,
+      });
+    });
+    return links;
+  }
+
+  const activeRoutes = getRoutes(basePath, group);
+  links.menu = getMenuRoute(basePath).getLink();
+  activeRoutes.forEach((route) => {
+    links[route.id] = route.getLink();
   });
 
   return links;

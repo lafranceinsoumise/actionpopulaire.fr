@@ -56,7 +56,7 @@ const StyledAddress = styled.div`
 `;
 
 const GroupLocation = (props) => {
-  const { location, iconConfiguration, routes } = props;
+  const { location, iconConfiguration, groupSettingsLinks } = props;
 
   if (!location || Object.values(location).filter(Boolean).length === 0) {
     return null;
@@ -87,7 +87,7 @@ const GroupLocation = (props) => {
   }
 
   return (
-    <Card title="Accès" editUrl={routes && routes.edit} outlined>
+    <Card title="Accès" editLinkTo={groupSettingsLinks?.location} outlined>
       {coordinates && Array.isArray(coordinates.coordinates) ? (
         <StyledMap>
           <Map
@@ -141,6 +141,8 @@ GroupLocation.propTypes = {
       coordinates: PropTypes.arrayOf(PropTypes.number),
     }),
   }).isRequired,
-  routes: PropTypes.object,
+  groupSettingsLinks: PropTypes.shape({
+    location: PropTypes.string,
+  }),
 };
 export default GroupLocation;

@@ -23,6 +23,7 @@ import GroupPageMenu from "@agir/groups/groupPage/GroupPageMenu";
 import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
 import GroupSettings from "@agir/groups/groupPage/GroupSettings";
+import { getGroupSettingLinks } from "@agir/groups/groupPage/GroupSettings/routes.config";
 
 import Routes from "./Routes";
 
@@ -106,6 +107,7 @@ const DesktopGroupPage = (props) => {
       return () => onTabChange(messagesTab);
     }
   }, [tabs, onTabChange]);
+
   const history = useHistory();
 
   const getMessageURL = useCallback(
@@ -124,6 +126,11 @@ const DesktopGroupPage = (props) => {
       history && history.push(link);
     },
     [history, getMessageURL]
+  );
+
+  const groupSettingsLinks = useMemo(
+    () => (group?.id ? getGroupSettingLinks(group, activePathname) : null),
+    [group, activePathname]
   );
 
   if (!group) {
@@ -160,7 +167,7 @@ const DesktopGroupPage = (props) => {
       </Row>
       <Row gutter={32}>
         <Column grow>
-          <GroupBanner {...group} />
+          <GroupBanner {...group} groupSettingsLinks={groupSettingsLinks} />
         </Column>
       </Row>
 
@@ -181,6 +188,7 @@ const DesktopGroupPage = (props) => {
         <Column grow>
           <R
             {...props}
+            groupSettingsLinks={groupSettingsLinks}
             allEvents={allEvents}
             hasTabs={hasTabs}
             onClickMessage={handleClickMessage}
@@ -190,14 +198,23 @@ const DesktopGroupPage = (props) => {
           />
         </Column>
         <Column width="320px">
-          <GroupUserActions {...group} />
+          <GroupUserActions
+            {...group}
+            groupSettingsLinks={groupSettingsLinks}
+          />
           <GroupOrders {...group} />
           <div style={{ backgroundColor: style.black25, padding: "1.5rem" }}>
-            <GroupContactCard {...group} />
+            <GroupContactCard
+              {...group}
+              editLinkTo={groupSettingsLinks?.contact}
+            />
             {allEvents && allEvents.length > 0 ? (
-              <GroupDescription {...group} />
+              <GroupDescription
+                {...group}
+                editLinkTo={groupSettingsLinks?.general}
+              />
             ) : null}
-            <GroupLinks {...group} />
+            <GroupLinks {...group} editLinkTo={groupSettingsLinks?.links} />
             <GroupFacts {...group} />
             {group.routes && group.routes.donations && (
               <GroupDonation url={group.routes.donations} />

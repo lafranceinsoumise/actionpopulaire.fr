@@ -7,6 +7,7 @@ import { getGenderedWord } from "@agir/lib/utils/display";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Link from "@agir/front/app/Link";
 
 import Card from "./GroupPageCard";
 
@@ -67,7 +68,7 @@ const StyledContactSection = styled.p`
 `;
 
 const GroupContactCard = (props) => {
-  const { referents, contact, routes } = props;
+  const { referents, contact, editLinkTo } = props;
 
   const referentTitle = useMemo(() => {
     if (!Array.isArray(referents) || referents.length === 0) {
@@ -101,15 +102,15 @@ const GroupContactCard = (props) => {
           {contact.name && (
             <strong>
               Contact&ensp;
-              {routes && routes.edit && (
-                <a href={routes.edit}>
+              {editLinkTo && (
+                <Link to={editLinkTo}>
                   <RawFeatherIcon
                     name="edit-2"
                     color={style.black1000}
                     width="1rem"
                     height="1rem"
                   />
-                </a>
+                </Link>
               )}
             </strong>
           )}
@@ -136,6 +137,6 @@ GroupContactCard.propTypes = {
     email: PropTypes.string,
     phone: PropTypes.string,
   }),
-  routes: PropTypes.object,
+  editLinkTo: PropTypes.string,
 };
 export default GroupContactCard;

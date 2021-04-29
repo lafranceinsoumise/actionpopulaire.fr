@@ -13,6 +13,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useTabs } from "./routes.config";
+import { getGroupSettingLinks } from "@agir/groups/groupPage/GroupSettings/routes.config";
 
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
@@ -112,6 +113,11 @@ const MobileGroupPage = (props) => {
     }
   }, [activeTabIndex]);
 
+  const groupSettingsLinks = useMemo(
+    () => (group?.id ? getGroupSettingLinks(group, activePathname) : null),
+    [group, activePathname]
+  );
+
   if (!group) {
     return null;
   }
@@ -127,8 +133,8 @@ const MobileGroupPage = (props) => {
       }}
     >
       <GroupSettings group={group} basePath={activePathname} />
-      <GroupBanner {...group} />
-      <GroupUserActions {...group} />
+      <GroupBanner {...group} groupSettingsLinks={groupSettingsLinks} />
+      <GroupUserActions {...group} groupSettingsLinks={groupSettingsLinks} />
       <GroupPageMenu
         tabs={tabs}
         hasTabs={hasTabs}
@@ -138,6 +144,7 @@ const MobileGroupPage = (props) => {
       <Tab scrollIntoView={hasTabs && autoScroll}>
         <R
           {...props}
+          groupSettingsLinks={groupSettingsLinks}
           allEvents={allEvents}
           hasTabs={hasTabs}
           goToAgendaTab={goToAgendaTab}

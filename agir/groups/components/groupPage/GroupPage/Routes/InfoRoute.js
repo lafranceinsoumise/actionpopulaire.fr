@@ -33,7 +33,13 @@ const StyledShareCard = styled.div`
 `;
 
 const MobileInfoRoute = (props) => {
-  const { group, groupSuggestions, goToMessagesTab } = props;
+  const {
+    group,
+    groupSuggestions,
+    goToMessagesTab,
+    groupSettingsLinks,
+  } = props;
+
   return (
     <>
       {group && (group.hasUpcomingEvents || group.hasPastEvents) ? (
@@ -48,12 +54,12 @@ const MobileInfoRoute = (props) => {
       ) : group.isManager ? (
         <EmptyMessages goToMessages={goToMessagesTab} />
       ) : null}
-      <GroupContactCard {...group} />
+      <GroupContactCard {...group} editLinkTo={groupSettingsLinks?.contact} />
       <GroupOrders {...group} />
-      <GroupDescription {...group} />
-      <GroupLinks {...group} />
+      <GroupDescription {...group} editLinkTo={groupSettingsLinks?.general} />
+      <GroupLinks {...group} editLinkTo={groupSettingsLinks?.links} />
       <GroupFacts {...group} />
-      <GroupLocation {...group} />
+      <GroupLocation {...group} groupSettingsLinks={groupSettingsLinks} />
       {group.routes && group.routes.donations && (
         <GroupDonation url={group.routes.donations} />
       )}
@@ -74,7 +80,7 @@ const MobileInfoRoute = (props) => {
 };
 
 const DesktopInfoRoute = (props) => {
-  const { group, goToMessagesTab } = props;
+  const { group, goToMessagesTab, groupSettingsLinks } = props;
 
   return (
     <>
@@ -93,7 +99,7 @@ const DesktopInfoRoute = (props) => {
       {group &&
       (group.hasUpcomingEvents || group.hasPastEvents || group.hasMessages) ? (
         <>
-          <GroupLocation {...group} />
+          <GroupLocation {...group} groupSettingsLinks={groupSettingsLinks} />
           <ShareCard
             url={group.routes?.details}
             title="Partager le lien du groupe"
@@ -101,12 +107,17 @@ const DesktopInfoRoute = (props) => {
         </>
       ) : (
         <>
-          <GroupDescription {...group} maxHeight="auto" outlined />
+          <GroupDescription
+            {...group}
+            maxHeight="auto"
+            outlined
+            editLinkTo={groupSettingsLinks?.general}
+          />
           <ShareCard
             url={group.routes?.details}
             title="Inviter vos ami·es à rejoindre le groupe"
           />
-          <GroupLocation {...group} />
+          <GroupLocation {...group} groupSettingsLinks={groupSettingsLinks} />
         </>
       )}
     </>
@@ -133,6 +144,7 @@ MobileInfoRoute.propTypes = DesktopInfoRoute.propTypes = {
   goToMessagesTab: PropTypes.func,
   onClickMessage: PropTypes.func,
   isLoadingMessages: PropTypes.bool,
+  groupSettingsLinks: PropTypes.object,
 };
 
 const InfoRoute = (props) => (
