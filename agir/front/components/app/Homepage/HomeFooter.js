@@ -53,7 +53,7 @@ const HomeFooter = () => {
       <h2>Passez&nbsp;à l'action&nbsp;!</h2>
       <Spacer size="2rem" />
       <Button as="Link" to="/inscription/" color="tertiary">
-        Je rejoins
+        S'inscrire
       </Button>
       <Spacer size="1rem" />
       <Button as="Link" to="/connexion/" color="primary">

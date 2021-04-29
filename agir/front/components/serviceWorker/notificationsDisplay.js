@@ -6,7 +6,7 @@ import DEFAULT_ICON from "@agir/front/genericComponents/logos/action-populaire_m
 import NOTIFICATION_BADGE from "@agir/front/genericComponents/logos/notification-badge.png";
 
 const DEFAULT_URL = "/activite/";
-const DEFAULT_TITLE = "Plateforme d'action - Action Populaire";
+const DEFAULT_TITLE = "Action Populaire";
 
 const doDisplayNotification = async function (message) {
   if (!message || !message.body) {

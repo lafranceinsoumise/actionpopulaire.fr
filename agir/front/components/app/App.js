@@ -12,7 +12,7 @@ export default function App() {
     <GlobalContextProvider hasRouter hasToasts>
       <Router>
         <Helmet>
-          <title>Plateforme d'action - Action populaire</title>
+          <title>Action Populaire</title>
         </Helmet>
         <PushModal isActive />
       </Router>

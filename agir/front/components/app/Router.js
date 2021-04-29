@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter,
   Redirect,
@@ -8,15 +8,19 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import routes, { routeConfig, BASE_PATH } from "./routes.config";
+import routes, { BASE_PATH } from "./routes.config";
 import Page from "./Page";
 import NotFoundPage from "@agir/front/offline/NotFoundPage";
 
 import { useAuthentication } from "@agir/front/authentication/hooks";
 
-export const ProtectedComponent = (props) => {
+import logger from "@agir/lib/utils/logger";
+
+const log = logger(__filename);
+
+export const ProtectedComponent = ({ Component, routeConfig, ...rest }) => {
   const location = useLocation();
-  const isAuthorized = useAuthentication(props.routeConfig);
+  const isAuthorized = useAuthentication(routeConfig);
 
   useEffect(() => {
     if (isAuthorized === null) {
@@ -33,12 +37,19 @@ export const ProtectedComponent = (props) => {
     });
   }, [isAuthorized]);
 
+  useEffect(() => {
+    if (typeof Component.preload === "function") {
+      log.debug("Preloading", Component);
+      Component.preload();
+    }
+  }, [Component]);
+
   if (isAuthorized === null) {
     return null;
   }
 
   if (isAuthorized === true) {
-    return <Page {...props} />;
+    return <Page Component={Component} routeConfig={routeConfig} {...rest} />;
   }
 
   return (
@@ -48,7 +59,8 @@ export const ProtectedComponent = (props) => {
   );
 };
 ProtectedComponent.propTypes = {
-  routeConfig: PropTypes.object,
+  Component: PropTypes.elementType.isRequired,
+  routeConfig: PropTypes.object.isRequired,
 };
 
 const Router = ({ children }) => (
