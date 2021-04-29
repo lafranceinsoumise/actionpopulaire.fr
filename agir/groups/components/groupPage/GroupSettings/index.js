@@ -23,12 +23,10 @@ export const GroupSettings = (props) => {
   return (
     <ObjectManagement
       title={group?.name}
-      object={group}
-      group={group}
       groupPk={group?.id}
       basePath={basePath}
       routes={routes}
-      menuRoute={menuRoute}
+      menuLink={menuRoute.getLink()}
     />
   );
 };

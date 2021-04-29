@@ -117,30 +117,17 @@ const StyledMenu = styled.div`
 `;
 
 const ManagementMenuItem = (props) => {
-  const { object, item } = props;
-
-  const disabled = useMemo(
-    () =>
-      typeof item.disabled === "function"
-        ? item.disabled(object)
-        : !!item.disabled,
-    [object, item]
-  );
+  const { item } = props;
 
   return (
-    <StyledMenuItem disabled={disabled} to={item.getLink()}>
+    <StyledMenuItem to={item.getLink()}>
       <RawFeatherIcon width="1rem" height="1rem" name={item.icon} />
-      <span>
-        {item.label}
-        <br />
-        {disabled && item.disabledLabel && <small>{item.disabledLabel}</small>}
-      </span>
+      <span>{item.label}</span>
     </StyledMenuItem>
   );
 };
 
 ManagementMenuItem.propTypes = {
-  object: PropTypes.object,
   item: PropTypes.shape({
     id: PropTypes.string,
     label: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
@@ -153,7 +140,7 @@ ManagementMenuItem.propTypes = {
 };
 
 const ManagementMenu = (props) => {
-  const { object, items, title, onBack } = props;
+  const { items, title, onBack } = props;
 
   return (
     <StyledMenu>
@@ -166,7 +153,7 @@ const ManagementMenu = (props) => {
           .filter((item) => item.menuGroup === 1)
           .map((item) => (
             <li key={item.id}>
-              <ManagementMenuItem object={object} item={item} />
+              <ManagementMenuItem item={item} />
             </li>
           ))}
         <hr />
@@ -174,7 +161,7 @@ const ManagementMenu = (props) => {
           .filter((item) => item.menuGroup === 2)
           .map((item) => (
             <li key={item.id}>
-              <ManagementMenuItem object={object} item={item} />
+              <ManagementMenuItem item={item} />
             </li>
           ))}
       </ul>
@@ -183,7 +170,6 @@ const ManagementMenu = (props) => {
 };
 ManagementMenu.propTypes = {
   title: PropTypes.string.isRequired,
-  object: PropTypes.object.isRequired,
   items: PropTypes.arrayOf(ManagementMenuItem.propTypes.item).isRequired,
   onBack: PropTypes.func.isRequired,
 };
