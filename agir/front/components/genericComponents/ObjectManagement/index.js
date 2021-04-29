@@ -26,11 +26,14 @@ const StyledSubPanel = styled(animated.div)`
     height: 100%;
     position: absolute;
     box-shadow: ${style.elaborateShadow};
+    will-change: transform;
   }
 `;
 
 const StyledPanel = styled(Panel)`
   padding: 0;
+  overflow-x: hidden;
+  background-color: transparent;
 
   @media (min-width: ${style.collapse}px) {
     display: flex;
@@ -47,15 +50,14 @@ const springConfig = {
 const slideInTransition = {
   mobile: {
     config: springConfig,
-    keys: (pathname) => pathname,
-    immediate: true,
+    keys: ({ pathname }) => pathname,
     from: { transform: "translateX(100%)" },
     enter: { transform: "translateX(0%)" },
     leave: { zIndex: -1 },
   },
   desktop: {
     config: springConfig,
-    keys: (pathname) => pathname,
+    keys: ({ pathname }) => pathname,
     trail: 100,
     order: ["leave", "enter", "update"],
     from: { zIndex: -1, transform: "translateX(-100%)" },
@@ -75,34 +77,41 @@ const MobilePanel = (props) => {
     ...rest
   } = props;
 
-  const { pathname } = useLocation();
-  const transition = useTransition(pathname, slideInTransition.mobile);
+  const location = useLocation();
+  const transition = useTransition(location, slideInTransition.mobile);
 
   return (
     <StyledPanel shouldShow={shouldShow} onClose={onClose} noScroll>
-      {transition((style, item) => (
-        <StyledSubPanel style={style}>
-          <Switch location={{ pathname: item }}>
-            {routes.map((route) => (
-              <Route key={route.id} path={route.getLink()} exact>
-                <ManagementPanel>
-                  <route.Component
-                    {...rest}
-                    illustration={route.illustration}
-                    onBack={goToMenu}
+      {transition(
+        (style, item) =>
+          item && (
+            <StyledSubPanel style={style}>
+              <Switch location={item}>
+                {routes.map((route) => (
+                  <Route key={route.id} path={route.getLink()} exact>
+                    <ManagementPanel>
+                      <route.Component
+                        {...rest}
+                        illustration={route.illustration}
+                        onBack={goToMenu}
+                      />
+                    </ManagementPanel>
+                  </Route>
+                ))}
+                <Route key="menu" path={menuLink} exact>
+                  <ManagementMenu
+                    title={title}
+                    items={routes}
+                    onBack={onClose}
                   />
-                </ManagementPanel>
-              </Route>
-            ))}
-            <Route key="unhandled-route" path={menuLink + "*"} exact>
-              <Redirect to={menuLink} />
-            </Route>
-            <Route key="menu" path={menuLink} exact>
-              <ManagementMenu title={title} items={routes} onBack={onClose} />
-            </Route>
-          </Switch>
-        </StyledSubPanel>
-      ))}
+                </Route>
+                <Route key="unhandled-route" path={menuLink + "*"} exact>
+                  <Redirect to={menuLink} />
+                </Route>
+              </Switch>
+            </StyledSubPanel>
+          )
+      )}
     </StyledPanel>
   );
 };
@@ -162,19 +171,20 @@ export const ObjectManagement = (props) => {
   const { basePath, menuLink, ...rest } = props;
 
   const hasRoute = useRouteMatch(menuLink);
-  const { push, replace } = useHistory();
+  const { push } = useHistory();
 
   const goToMenu = useCallback(() => {
     menuLink && push(menuLink);
   }, [menuLink, push]);
 
   const closePanel = useCallback(() => {
-    basePath && replace(basePath);
-  }, [basePath, replace]);
+    basePath && push(basePath);
+  }, [basePath, push]);
 
   return (
     <ResponsiveLayout
       {...rest}
+      menuLink={menuLink}
       MobileLayout={MobilePanel}
       DesktopLayout={DesktopPanel}
       shouldShow={!!hasRoute}

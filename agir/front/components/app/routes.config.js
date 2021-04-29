@@ -210,6 +210,7 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.HARD,
     label: "Gestion du groupe",
     Component: GroupPage,
+    isPartial: true,
   }),
   groupMessage: new RouteConfig({
     id: "groupMessage",

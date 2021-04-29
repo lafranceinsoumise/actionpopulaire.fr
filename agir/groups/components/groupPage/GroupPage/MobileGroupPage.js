@@ -105,10 +105,10 @@ const MobileGroupPage = (props) => {
   );
 
   const [autoScroll, setAutoScroll] = useState(false);
-  const navigationCount = useRef(0);
+  const shouldAutoScroll = useRef(false);
   useEffect(() => {
-    navigationCount.current += 1;
-    if (navigationCount.current > 1) {
+    if (!shouldAutoScroll.current) {
+      shouldAutoScroll.current = true;
       setAutoScroll(true);
     }
   }, [activeTabIndex]);
