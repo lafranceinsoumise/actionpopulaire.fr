@@ -125,35 +125,37 @@ const MobileGroupPage = (props) => {
   const R = Routes[activeTabId];
 
   return (
-    <Container
-      style={{
-        margin: 0,
-        padding: "0 0 3.5rem",
-        backgroundColor: style.black25,
-      }}
-    >
-      <GroupSettings group={group} basePath={activePathname} />
-      <GroupBanner {...group} groupSettingsLinks={groupSettingsLinks} />
-      <GroupUserActions {...group} groupSettingsLinks={groupSettingsLinks} />
-      <GroupPageMenu
-        tabs={tabs}
-        hasTabs={hasTabs}
-        stickyOffset={56}
-        activeTabId={activeTabId}
-      />
-      <Tab scrollIntoView={hasTabs && autoScroll}>
-        <R
-          {...props}
-          groupSettingsLinks={groupSettingsLinks}
-          allEvents={allEvents}
+    <>
+      <Container
+        style={{
+          margin: 0,
+          padding: "0 0 3.5rem",
+          backgroundColor: style.black25,
+        }}
+      >
+        <GroupBanner {...group} groupSettingsLinks={groupSettingsLinks} />
+        <GroupUserActions {...group} groupSettingsLinks={groupSettingsLinks} />
+        <GroupPageMenu
+          tabs={tabs}
           hasTabs={hasTabs}
-          goToAgendaTab={goToAgendaTab}
-          goToMessagesTab={goToMessagesTab}
-          getMessageURL={getMessageURL}
-          onClickMessage={handleClickMessage}
+          stickyOffset={56}
+          activeTabId={activeTabId}
         />
-      </Tab>
-    </Container>
+        <Tab scrollIntoView={hasTabs && autoScroll}>
+          <R
+            {...props}
+            groupSettingsLinks={groupSettingsLinks}
+            allEvents={allEvents}
+            hasTabs={hasTabs}
+            goToAgendaTab={goToAgendaTab}
+            goToMessagesTab={goToMessagesTab}
+            getMessageURL={getMessageURL}
+            onClickMessage={handleClickMessage}
+          />
+        </Tab>
+      </Container>
+      <GroupSettings group={group} basePath={activePathname} />
+    </>
   );
 };
 MobileGroupPage.propTypes = {
