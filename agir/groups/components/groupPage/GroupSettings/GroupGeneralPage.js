@@ -25,6 +25,7 @@ const GroupGeneralPage = (props) => {
   const [isCertified, setIsCertified] = useState(false);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -47,6 +48,7 @@ const GroupGeneralPage = (props) => {
       e.preventDefault();
 
       setErrors({});
+      setIsLoading(true);
       const form = new FormData();
       Object.keys(formData).forEach((e) => {
         if (e === "image" && !isNewImage) return;
@@ -59,10 +61,12 @@ const GroupGeneralPage = (props) => {
           image:
             "Vous devez acceptez les licences pour envoyer votre image en conformité.",
         }));
+        setIsLoading(false);
         return;
       }
 
       const res = await updateGroup(groupPk, form);
+      setIsLoading(false);
       if (!!res.error) {
         setErrors(res.error);
         return;
@@ -147,7 +151,7 @@ const GroupGeneralPage = (props) => {
       )}
 
       <Spacer size="2rem" />
-      <Button color="secondary" $wrap>
+      <Button color="secondary" $wrap disabled={isLoading}>
         Enregistrer les informations
       </Button>
     </form>

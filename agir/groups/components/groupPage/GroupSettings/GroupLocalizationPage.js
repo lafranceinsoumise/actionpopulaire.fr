@@ -34,6 +34,7 @@ const GroupLocalizationPage = (props) => {
   const [formLocation, setFormLocation] = useState({});
   const [config, setConfig] = useState(null);
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
@@ -48,7 +49,9 @@ const GroupLocalizationPage = (props) => {
       e.preventDefault();
 
       setErrors({});
+      setIsLoading(true);
       const res = await updateGroup(groupPk, { location: formLocation });
+      setIsLoading(false);
       if (!!res.error) {
         setErrors(res.error?.location);
         return;
@@ -61,6 +64,7 @@ const GroupLocalizationPage = (props) => {
   );
 
   useEffect(() => {
+    setIsLoading(false);
     setFormLocation({
       name: group?.location.name,
       address1: group?.location.address1,
@@ -86,7 +90,7 @@ const GroupLocalizationPage = (props) => {
 
         <Spacer size="2rem" />
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button color="secondary" $wrap>
+          <Button color="secondary" $wrap disabled={isLoading}>
             Enregistrer les informations
           </Button>
         </div>

@@ -18,6 +18,7 @@ const GroupContactPage = (props) => {
   const { onBack, illustration, groupPk } = props;
   const [contact, setContact] = useState({});
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsloading] = useState(true);
 
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
@@ -42,7 +43,9 @@ const GroupContactPage = (props) => {
       e.preventDefault();
 
       setErrors({});
+      setIsloading(true);
       const res = await updateGroup(groupPk, { contact });
+      setIsloading(false);
       if (!!res.error) {
         setErrors(res.error?.contact);
         return;
@@ -55,6 +58,7 @@ const GroupContactPage = (props) => {
   );
 
   useEffect(() => {
+    setIsloading(false);
     setContact(group?.contact);
   }, [group]);
 
@@ -116,7 +120,7 @@ const GroupContactPage = (props) => {
       />
 
       <Spacer size="2rem" />
-      <Button color="secondary" type="submit">
+      <Button color="secondary" type="submit" disabled={isLoading}>
         Enregistrer
       </Button>
     </form>
