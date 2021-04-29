@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 import GroupMember from "./GroupMember";
 import AddPair from "./AddPair";
@@ -10,6 +10,7 @@ import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButto
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Toast from "@agir/front/genericComponents/Toast";
 
 import { StyledTitle } from "./styledComponents.js";
 
@@ -40,6 +41,7 @@ const [MEMBER, MANAGER, REFERENT] = [10, 50, 100];
 const GroupManagementPage = (props) => {
   const { onBack, illustration, groupPk } = props;
   const [config, setConfig] = useState(null);
+  const [errors, setErrors] = useState({});
 
   const [members, setMembers] = useState([]);
   const [newMemberManager, setNewMemberManager] = useState(null);
@@ -47,31 +49,38 @@ const GroupManagementPage = (props) => {
 
   const getMembersAPI = async (groupPk) => {
     const { data } = await getMembers(groupPk);
-    console.log("get members from group : ", data);
     setMembers(data);
   };
 
-  const handleNewManagerChange = (e) => {
+  const handleNewManagerChange = useCallback((e) => {
     setNewMemberManager(e.value);
-  };
+  }, []);
 
-  const handleNewReferentChange = (e) => {
+  const handleNewReferentChange = useCallback((e) => {
     setNewMemberReferent(e.value);
-  };
+  }, []);
 
-  const submitNewManager = async () => {
+  const submitNewManager = useCallback(async () => {
+    setErrors({});
     const res = await addRoleToMember(groupPk, {
       email: newMemberManager,
       role: "manager",
     });
-  };
+    if (!!res.error) {
+      setErrors(res.error);
+    }
+  }, [groupPk, newMemberManager]);
 
-  const submitNewReferent = async () => {
+  const submitNewReferent = useCallback(async () => {
+    setErrors({});
     const res = await addRoleToMember(groupPk, {
       email: newMemberReferent,
       role: "referent",
     });
-  };
+    if (!!res.error) {
+      setErrors(res.error);
+    }
+  }, [groupPk, newMemberReferent]);
 
   useEffect(() => {
     getMembersAPI(groupPk);
@@ -82,78 +91,100 @@ const GroupManagementPage = (props) => {
       <>
         <BackButton
           onClick={() => {
+            setNewMemberReferent(null);
+            setErrors({});
             setConfig(null);
           }}
         />
 
         <StyledTitle>Ajouter un binôme animateur</StyledTitle>
         <Spacer size="1rem" />
-        <SelectField
-          label="Choisir un membre"
-          placeholder="Sélection"
-          options={members.map((m) => {
-            if (REFERENT === m.membershipType) return;
-            return { label: m.email, value: m.email };
-          })}
-          onChange={handleNewReferentChange}
-        />
 
-        <Spacer size="1rem" />
-
-        <StyledHelper>
-          <RawFeatherIcon
-            width="1rem"
-            height="1rem"
-            name="alert-circle"
-            style={{ marginRight: "0.5rem", display: "inline" }}
-          />
-          Pour respecter la charte des équipes de soutien, votre équipe devrait
-          être animée à parité de genre.
-        </StyledHelper>
-
-        <Spacer size="1rem" />
-
-        {members.map(
-          (member, id) =>
-            REFERENT === member.membershipType && (
-              <>
-                <GroupMember
-                  key={id}
-                  name={member?.displayName}
-                  image={member?.image}
-                  membershipType={member?.membershipType}
-                  email={member?.email}
-                  assets={member?.assets}
-                />
-                <Spacer size="1rem" />
-              </>
-            )
+        {members.filter((m) => REFERENT !== m.membershipType).length === 0 ? (
+          <StyledHelper>
+            <RawFeatherIcon
+              width="1rem"
+              height="1rem"
+              name="alert-circle"
+              style={{ marginRight: "0.5rem", display: "inline" }}
+            />
+            Il manque des membres à votre groupe pour leur ajouter ce rôle
+          </StyledHelper>
+        ) : (
+          <>
+            <Spacer size="1rem" />
+            <SelectField
+              label="Choisir un membre"
+              placeholder="Sélection"
+              options={members
+                .filter((m) => REFERENT !== m.membershipType)
+                .map((m) => {
+                  return { label: m.email, value: m };
+                })}
+              onChange={handleNewReferentChange}
+            />
+          </>
         )}
 
-        <div>
-          Ce membre pourra :
-          <Spacer size="0.5rem" />
-          <StyledList>
-            <div />
-            Modifier les permissions des gestionnaires
-          </StyledList>
-          <StyledList>
-            <div />
-            Voir la liste des membres
-          </StyledList>
-          <StyledList>
-            <div />
-            Modifier les informations du groupe
-          </StyledList>
-          <StyledList>
-            <div />
-            Créer des événements au nom du groupe
-          </StyledList>
-        </div>
-        <Spacer size="1rem" />
-        <Button color="secondary" onClick={submitNewReferent}>
-          Confirmer
-        </Button>
+        {newMemberReferent && (
+          <>
+            <Spacer size="1rem" />
+
+            <StyledHelper>
+              <RawFeatherIcon
+                width="1rem"
+                height="1rem"
+                name="alert-circle"
+                style={{ marginRight: "0.5rem", display: "inline" }}
+              />
+              Pour respecter la charte des équipes de soutien, votre équipe
+              devrait être animée à parité de genre.
+            </StyledHelper>
+
+            <Spacer size="1rem" />
+
+            <GroupMember
+              name={newMemberReferent?.displayName}
+              image={newMemberReferent?.image}
+              membershipType={newMemberReferent?.membershipType}
+              email={newMemberReferent?.email}
+              assets={newMemberReferent?.assets}
+            />
+            <Spacer size="1rem" />
+
+            <div>
+              Ce membre pourra :
+              <Spacer size="0.5rem" />
+              <StyledList>
+                <div />
+                Modifier les permissions des gestionnaires
+              </StyledList>
+              <StyledList>
+                <div />
+                Voir la liste des membres
+              </StyledList>
+              <StyledList>
+                <div />
+                Modifier les informations du groupe
+              </StyledList>
+              <StyledList>
+                <div />
+                Créer des événements au nom du groupe
+              </StyledList>
+            </div>
+
+            {errors?.email || errors?.role && (
+              <>
+                <Toast>Erreur : {errors?.email || errors?.role}</Toast>
+              </>
+            )}
+
+            <Spacer size="1rem" />
+            <Button color="secondary" onClick={submitNewReferent}>
+              Confirmer
+            </Button>
+          </>
+        )}
       </>
     );
 
@@ -162,63 +193,80 @@ const GroupManagementPage = (props) => {
       <>
         <BackButton
           onClick={() => {
+            setNewMemberManager(null);
+            setErrors({});
             setConfig(null);
           }}
         />
 
-        <StyledTitle>Ajouter un gestionnaire</StyledTitle>
-        <Spacer size="1rem" />
-        <SelectField
-          label="Choisir un membre"
-          placeholder="Sélection"
-          options={members.map((m) => {
-            if (MANAGER === m.membershipType) return;
-            return { label: m.email, value: m.email };
-          })}
-          onChange={handleNewManagerChange}
-        />
-
+        <StyledTitle>Ajouter un·e gestionnaire</StyledTitle>
         <Spacer size="1rem" />
 
-        {members.map(
-          (member, id) =>
-            MANAGER === member.membershipType && (
-              <>
-                <GroupMember
-                  key={id}
-                  name={member?.displayName}
-                  image={member?.image}
-                  membershipType={member?.membershipType}
-                  email={member?.email}
-                  assets={member?.assets}
-                />
-                <Spacer size="1rem" />
-              </>
-            )
+        {members.filter((m) => MANAGER !== m.membershipType).length === 0 ? (
+          <StyledHelper>
+            <RawFeatherIcon
+              width="1rem"
+              height="1rem"
+              name="alert-circle"
+              style={{ marginRight: "0.5rem", display: "inline" }}
+            />
+            Il manque des membres à votre groupe pour leur ajouter ce rôle
+          </StyledHelper>
+        ) : (
+          <SelectField
+            label="Choisir un membre"
+            placeholder="Sélection"
+            options={members
+              .filter((m) => MANAGER !== m.membershipType)
+              .map((m) => {
+                return { label: m.email, value: m };
+              })}
+            onChange={handleNewManagerChange}
+          />
         )}
 
-        <Spacer size="1rem" />
-        <div>
-          Ce membre pourra :
-          <Spacer size="0.5rem" />
-          <StyledList>
-            <div />
-            Voir la liste des membres
-          </StyledList>
-          <StyledList>
-            <div />
-            Modifier les informations du groupe
-          </StyledList>
-          <StyledList>
-            <div />
-            Créer des événements au nom du groupe
-          </StyledList>
-        </div>
+        {newMemberManager && (
+          <>
+            <Spacer size="1rem" />
 
-        <Spacer size="1rem" />
-        <Button color="secondary" onClick={submitNewManager}>
-          Confirmer
-        </Button>
+            <GroupMember
+              name={newMemberManager?.displayName}
+              image={newMemberManager?.image}
+              membershipType={newMemberManager?.membershipType}
+              email={newMemberManager?.email}
+              assets={newMemberManager?.assets}
+            />
+
+            <Spacer size="1rem" />
+            <div>
+              Ce membre pourra :
+              <Spacer size="0.5rem" />
+              <StyledList>
+                <div />
+                Voir la liste des membres
+              </StyledList>
+              <StyledList>
+                <div />
+                Modifier les informations du groupe
+              </StyledList>
+              <StyledList>
+                <div />
+                Créer des événements au nom du groupe
+              </StyledList>
+            </div>
+
+            {errors?.email || errors?.role && (
+              <>
+                <Toast>Erreur : {errors?.email || errors?.role}</Toast>
+              </>
+            )}
+
+            <Spacer size="1rem" />
+            <Button color="secondary" onClick={submitNewManager}>
+              Confirmer
+            </Button>
+          </>
+        )}
       </>
     );
 
@@ -246,13 +294,18 @@ const GroupManagementPage = (props) => {
           )
       )}
 
-      <AddPair
-        label="Ajouter votre binôme"
-        onClick={() => {
-          setConfig(CONFIG_REFERENT);
-        }}
-      />
-      <Spacer size="2rem" />
+      {members.filter((member) => REFERENT === member.membershipType).length <
+        2 && (
+        <>
+          <AddPair
+            label="Ajouter votre binôme"
+            onClick={() => {
+              setConfig(CONFIG_REFERENT);
+            }}
+          />
+          <Spacer size="2rem" />
+        </>
+      )}
 
       <span>
         Les animateur·ices organisent la vie du groupe. Pour respecter la charte

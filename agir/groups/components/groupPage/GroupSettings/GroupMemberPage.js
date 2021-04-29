@@ -67,16 +67,20 @@ const GroupMemberPage = (props) => {
         title="Partagez le lien public de l'équipe"
       />
 
-      <Spacer size="2rem" />
-      <GroupInvitation
-        groupPk={groupPk}
-        title={
-          <>
-            Invitez de nouveaux membres{" "}
-            <InlineBlock>dans votre équipe !</InlineBlock>
-          </>
-        }
-      />
+      {group.is2022 === false && (
+        <>
+          <Spacer size="2rem" />
+          <GroupInvitation
+            groupPk={groupPk}
+            title={
+              <>
+                Invitez de nouveaux membres{" "}
+                <InlineBlock>dans votre équipe !</InlineBlock>
+              </>
+            }
+          />
+        </>
+      )}
 
       <hr />
 

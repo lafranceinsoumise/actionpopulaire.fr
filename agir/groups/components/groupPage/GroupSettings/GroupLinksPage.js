@@ -3,10 +3,13 @@ import React, { useState, useCallback } from "react";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
 import GroupLink from "./GroupLink.js";
-import { StyledTitle } from "./styledComponents.js";
 import HeaderPanel from "./HeaderPanel";
 import TextField from "@agir/front/formComponents/TextField";
 import Button from "@agir/front/genericComponents/Button";
+
+import { StyledTitle } from "./styledComponents.js";
+import style from "@agir/front/genericComponents/_variables.scss";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const LINKS = [true];
 const [NEW_LINK, EDIT_LINK] = [1, 2];
@@ -109,17 +112,22 @@ const GroupLinksPage = (props) => {
         onChange={() => setConfig(EDIT_LINK)}
       />
       <hr />
-      <a href="#" onClick={() => setConfig(NEW_LINK)}>
-        <span
+      <a
+        href="#"
+        onClick={() => setConfig(NEW_LINK)}
+        style={{ display: "inline-flex", alignItems: "center" }}
+      >
+        <RawFeatherIcon
+          name="plus"
+          width="1rem"
+          height="1rem"
           style={{
+            height: "1rem",
             marginRight: "1rem",
-            width: "1rem",
             display: "inline-block",
             textAlign: "center",
           }}
-        >
-          +
-        </span>
+        />
         Ajouter un lien
       </a>
       {/* </>} */}

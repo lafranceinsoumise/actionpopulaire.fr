@@ -519,10 +519,7 @@ class GroupManagementPermission(GlobalOrObjectPermissions):
         "PATCH": [],
     }
     object_perms_map = {
-        "PATCH": [
-            "groups.add_referent_to_supportgroup",
-            "groups.add_manager_to_supportgroup",
-        ],
+        "PATCH": ["groups.add_referent_to_supportgroup"],
     }
 
 
