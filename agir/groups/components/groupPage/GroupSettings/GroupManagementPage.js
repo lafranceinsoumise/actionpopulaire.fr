@@ -101,7 +101,7 @@ const GroupManagementPage = (props) => {
         <Spacer size="1rem" />
 
         {members.filter((m) => REFERENT !== m.membershipType).length === 0 ? (
-          <StyledHelper>
+          <StyledHelper style={{ backgroundColor: style.secondary500 }}>
             <RawFeatherIcon
               width="1rem"
               height="1rem"
@@ -205,7 +205,7 @@ const GroupManagementPage = (props) => {
 
         {members.filter((m) => ![MANAGER, REFERENT].includes(m.membershipType))
           .length === 0 ? (
-          <StyledHelper>
+          <StyledHelper style={{ backgroundColor: style.secondary500 }}>
             <RawFeatherIcon
               width="1rem"
               height="1rem"
@@ -354,11 +354,18 @@ const GroupManagementPage = (props) => {
 
       <hr />
 
-      <a href="#">Changer l’animation du groupe</a>
+      <a href="https://actionpopulaire.fr/formulaires/demande-changement-animation-ga/">
+        Changer l’animation du groupe
+      </a>
       <Spacer size="0.5rem" />
-      <a href="#">Je ne souhaite plus être animateur ou animatrice</a>
+      <a href="https://infos.actionpopulaire.fr/contact/">
+        Je ne souhaite plus être animateur ou animatrice
+      </a>
       <Spacer size="0.5rem" />
-      <a href="#" style={{ color: style.redNSP }}>
+      <a
+        href="https://agir.lafranceinsoumise.fr/formulaires/demande-suppression-ga/"
+        style={{ color: style.redNSP }}
+      >
         Supprimer le groupe
       </a>
     </>

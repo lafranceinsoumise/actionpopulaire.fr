@@ -576,5 +576,4 @@ class GroupDonationAPIView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         group = self.get_object()
         total_donation = get_balance(group)
-
         return Response(status=status.HTTP_200_OK, data={"donation": total_donation})

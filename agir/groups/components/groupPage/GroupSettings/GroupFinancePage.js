@@ -43,7 +43,7 @@ const GroupFinancePage = (props) => {
           </>
         )}
         Vous pouvez allouer des dons à vos actions sur la{" "}
-        <a href="">page de dons</a>.
+        <a href="/dons/">page de dons</a>.
         <Spacer size="0.5rem" />
         Vous pouvez déjà créer une demande, mais vous ne pourrez la faire
         valider que lorsque votre allocation sera suffisante.
@@ -51,8 +51,12 @@ const GroupFinancePage = (props) => {
 
       <Spacer size="1rem" />
 
-      <Button>Allouer un don</Button>
-      <Button $wrap>Je crée une demande de dépense</Button>
+      <Button as="a" href="/dons/">
+        Allouer un don
+      </Button>
+      <Button as="a" href={`/groupes/${groupPk}/depenses/`} $wrap>
+        Je crée une demande de dépense
+      </Button>
 
       <Spacer size="1rem" />
 
