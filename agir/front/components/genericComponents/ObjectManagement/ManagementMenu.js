@@ -148,6 +148,7 @@ ManagementMenuItem.propTypes = {
     icon: PropTypes.string,
     disabled: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
     getLink: PropTypes.func.isRequired,
+    menuGroup: PropTypes.oneOf([1, 2]),
   }),
 };
 
@@ -161,17 +162,21 @@ const ManagementMenu = (props) => {
       </Hide>
       <h4>{title}</h4>
       <ul>
-        {items.slice(0, 3).map((item) => (
-          <li key={item.id}>
-            <ManagementMenuItem object={object} item={item} />
-          </li>
-        ))}
+        {items
+          .filter((item) => item.menuGroup === 1)
+          .map((item) => (
+            <li key={item.id}>
+              <ManagementMenuItem object={object} item={item} />
+            </li>
+          ))}
         <hr />
-        {items.slice(3).map((item) => (
-          <li key={item.id}>
-            <ManagementMenuItem object={object} item={item} />
-          </li>
-        ))}
+        {items
+          .filter((item) => item.menuGroup === 2)
+          .map((item) => (
+            <li key={item.id}>
+              <ManagementMenuItem object={object} item={item} />
+            </li>
+          ))}
       </ul>
     </StyledMenu>
   );

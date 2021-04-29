@@ -39,6 +39,8 @@ export const menuRoute = {
   label: "Paramètres du groupe",
 };
 
+// TODO: Matériel, Certification
+
 export const routeConfig = {
   members: {
     id: "members",
@@ -47,6 +49,8 @@ export const routeConfig = {
     label: "Membres",
     icon: "users",
     Component: GroupSettingsMembers,
+    isActive: true,
+    menuGroup: 1,
   },
   manage: {
     id: "manage",
@@ -56,6 +60,8 @@ export const routeConfig = {
     icon: "lock",
     Component: GroupSettingsManage,
     illustration: illustrationManage,
+    isActive: true,
+    menuGroup: 1,
   },
   finance: {
     id: "finance",
@@ -65,6 +71,8 @@ export const routeConfig = {
     icon: "sun",
     Component: GroupSettingsFinance,
     illustration: illustrationFinance,
+    isActive: (group) => group?.isCertified,
+    menuGroup: 1,
   },
   general: {
     id: "general",
@@ -74,6 +82,8 @@ export const routeConfig = {
     icon: "file-text",
     Component: GroupSettingsGeneral,
     illustration: illustrationGeneral,
+    isActive: true,
+    menuGroup: 2,
   },
   location: {
     id: "location",
@@ -82,6 +92,8 @@ export const routeConfig = {
     label: "Localisation",
     icon: "map-pin",
     Component: GroupSettingsLocation,
+    isActive: true,
+    menuGroup: 2,
   },
   contact: {
     id: "contact",
@@ -91,6 +103,8 @@ export const routeConfig = {
     icon: "mail",
     Component: GroupSettingsContact,
     illustration: illustrationContact,
+    isActive: true,
+    menuGroup: 2,
   },
   links: {
     id: "links",
@@ -100,6 +114,8 @@ export const routeConfig = {
     icon: "at-sign",
     Component: GroupSettingsLinks,
     illustration: illustrationLinks,
+    isActive: false,
+    menuGroup: 2,
   },
 };
 
@@ -109,29 +125,38 @@ export const getMenuRoute = (basePath) =>
     path: basePath + menuRoute.path,
   });
 
-export const getRoutes = (basePath) =>
-  Object.values(routeConfig).reduce(
-    (result, route) => [
-      ...result,
+const getActiveRoutes = (group) =>
+  Object.values(routeConfig).filter((route) => {
+    if (typeof route.isActive === "function") {
+      return !!route.isActive(group);
+    }
+    return !!route.isActive;
+  });
+
+export const getRoutes = (basePath, group) =>
+  getActiveRoutes(group).map(
+    (route) =>
       new RouteConfig({
         ...route,
         path: basePath + menuRoute.path + route.path,
-      }),
-    ],
-    []
+      })
   );
 
-export const getGroupSettingLinks = (groupPk) => {
+export const getGroupSettingLinks = (group) => {
   const links = {};
-  if (!groupPk) {
+
+  if (!group?.id) {
     return links;
   }
-  Object.values(routeConfig).forEach((route) => {
+  const activeRoutes = getActiveRoutes(group);
+
+  activeRoutes.forEach((route) => {
     links[route.id] = globalRouteConfig.groupSettings.getLink({
       activePanel: route.path.replace("/", "") || null,
-      groupPk,
+      groupPk: group.id,
     });
   });
+
   return links;
 };
 

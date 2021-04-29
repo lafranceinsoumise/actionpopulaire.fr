@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
+import { Redirect } from "react-router-dom";
 
 import { getMenuRoute, getRoutes } from "./routes.config";
 
@@ -8,11 +9,15 @@ import ObjectManagement from "@agir/front/genericComponents/ObjectManagement";
 export const GroupSettings = (props) => {
   const { group, basePath } = props;
 
-  const routes = useMemo(() => getRoutes(basePath), [basePath]);
+  const routes = useMemo(() => getRoutes(basePath, group), [basePath, group]);
   const menuRoute = useMemo(() => getMenuRoute(basePath), [basePath]);
 
-  if (!group || !group.isManager) {
+  if (!group) {
     return null;
+  }
+
+  if (!group.isManager) {
+    return <Redirect to={basePath} />;
   }
 
   return (

@@ -1,6 +1,12 @@
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
-import { Route, useHistory, useRouteMatch } from "react-router-dom";
+import {
+  Switch,
+  Redirect,
+  Route,
+  useHistory,
+  useRouteMatch,
+} from "react-router-dom";
 
 import styled from "styled-components";
 
@@ -54,17 +60,22 @@ export const ObjectManagement = (props) => {
           onBack={closePanel}
         />
       </Route>
-      {routes.map((route) => (
-        <Route key={route.id} path={route.getLink()} exact={route.exact}>
-          <ManagementPanel showPanel>
-            <route.Component
-              {...rest}
-              illustration={route.illustration}
-              onBack={goToMenu}
-            />
-          </ManagementPanel>
+      <Switch>
+        {routes.map((route) => (
+          <Route key={route.id} path={route.getLink()} exact={route.exact}>
+            <ManagementPanel showPanel>
+              <route.Component
+                {...rest}
+                illustration={route.illustration}
+                onBack={goToMenu}
+              />
+            </ManagementPanel>
+          </Route>
+        ))}
+        <Route key="unhandled-route" path={menuRoute.getLink() + "*"} exact>
+          <Redirect to={menuRoute.getLink()} />
         </Route>
-      ))}
+      </Switch>
     </StyledPanel>
   );
 };
