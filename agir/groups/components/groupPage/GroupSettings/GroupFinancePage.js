@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
@@ -7,10 +7,21 @@ import HeaderPanel from "./HeaderPanel";
 
 import { StyledTitle } from "./styledComponents.js";
 
-const GroupFinancePage = (props) => {
-  const { onBack, illustration } = props;
+import { getFinance } from "@agir/groups/groupPage/api.js";
 
-  const PRICE = 30;
+const GroupFinancePage = (props) => {
+  const { onBack, illustration, groupPk } = props;
+
+  const [donation, setDonation] = useState(0);
+
+  const getFinanceAPI = async () => {
+    const res = await getFinance(groupPk);
+    setDonation(res.data.donation);
+  };
+
+  useEffect(() => {
+    getFinanceAPI(groupPk);
+  }, [groupPk]);
 
   return (
     <>
@@ -20,12 +31,12 @@ const GroupFinancePage = (props) => {
 
       <Spacer size="1rem" />
 
-      <span style={{ fontSize: "2rem" }}>{PRICE} €</span>
+      <span style={{ fontSize: "2rem" }}>{donation} €</span>
 
       <Spacer size="1rem" />
 
       <div>
-        {!PRICE && (
+        {!donation && (
           <>
             Personne n'a encore alloué de dons à vos actions.
             <br />

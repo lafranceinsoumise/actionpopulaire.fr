@@ -119,7 +119,7 @@ const GroupManagementPage = (props) => {
               options={members
                 .filter((m) => REFERENT !== m.membershipType)
                 .map((m) => {
-                  return { label: m.email, value: m };
+                  return { label: `${m.displayName} (${m.email})`, value: m };
                 })}
               onChange={handleNewReferentChange}
             />
@@ -173,11 +173,12 @@ const GroupManagementPage = (props) => {
               </StyledList>
             </div>
 
-            {errors?.email || errors?.role && (
-              <>
-                <Toast>Erreur : {errors?.email || errors?.role}</Toast>
-              </>
-            )}
+            {errors?.email ||
+              (errors?.role && (
+                <>
+                  <Toast>Erreur : {errors?.email || errors?.role}</Toast>
+                </>
+              ))}
 
             <Spacer size="1rem" />
             <Button color="secondary" onClick={submitNewReferent}>
@@ -202,7 +203,8 @@ const GroupManagementPage = (props) => {
         <StyledTitle>Ajouter un·e gestionnaire</StyledTitle>
         <Spacer size="1rem" />
 
-        {members.filter((m) => MANAGER !== m.membershipType).length === 0 ? (
+        {members.filter((m) => ![MANAGER, REFERENT].includes(m.membershipType))
+          .length === 0 ? (
           <StyledHelper>
             <RawFeatherIcon
               width="1rem"
@@ -217,9 +219,9 @@ const GroupManagementPage = (props) => {
             label="Choisir un membre"
             placeholder="Sélection"
             options={members
-              .filter((m) => MANAGER !== m.membershipType)
+              .filter((m) => ![MANAGER, REFERENT].includes(m.membershipType))
               .map((m) => {
-                return { label: m.email, value: m };
+                return { label: `${m.displayName} (${m.email})`, value: m };
               })}
             onChange={handleNewManagerChange}
           />
@@ -255,11 +257,12 @@ const GroupManagementPage = (props) => {
               </StyledList>
             </div>
 
-            {errors?.email || errors?.role && (
-              <>
-                <Toast>Erreur : {errors?.email || errors?.role}</Toast>
-              </>
-            )}
+            {errors?.email ||
+              (errors?.role && (
+                <>
+                  <Toast>Erreur : {errors?.email || errors?.role}</Toast>
+                </>
+              ))}
 
             <Spacer size="1rem" />
             <Button color="secondary" onClick={submitNewManager}>

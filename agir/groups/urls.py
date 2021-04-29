@@ -181,4 +181,9 @@ urlpatterns = [
         views.GroupManagementAPIView.as_view(),
         name="api_group_management",
     ),
+    path(
+        "api/groupes/<uuid:pk>/finance/",
+        views.GroupDonationAPIView.as_view(),
+        name="api_group_finance",
+    ),
 ]

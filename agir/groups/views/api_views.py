@@ -46,6 +46,7 @@ from agir.groups.serializers import (
 )
 from agir.people.serializers import PersonSerializer
 from agir.lib.pagination import APIPaginator
+from agir.donations.allocations import get_balance
 
 __all__ = [
     "LegacyGroupSearchAPIView",
@@ -67,6 +68,7 @@ __all__ = [
     "GroupUpdateAPIView",
     "GroupInvitationAPIView",
     "GroupManagementAPIView",
+    "GroupDonationAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -555,3 +557,24 @@ class GroupManagementAPIView(GenericAPIView):
         serializer = MembershipSerializer(member)
         serializer.update(instance=member, validated_data={"membershipType": role})
         return Response(status=status.HTTP_201_CREATED)
+
+
+class GroupFinancePermission(GlobalOrObjectPermissions):
+    perms_map = {
+        "GET": [],
+    }
+    object_perms_map = {
+        "GET": ["groups.manage_group_allocation"],
+    }
+
+
+class GroupDonationAPIView(GenericAPIView):
+    queryset = SupportGroup.objects.all()
+    permission_classes = (GroupFinancePermission,)
+    serializer_class = SupportGroupSerializer
+
+    def get(self, request, *args, **kwargs):
+        group = self.get_object()
+        total_donation = get_balance(group)
+
+        return Response(status=status.HTTP_200_OK, data={"donation": total_donation})
