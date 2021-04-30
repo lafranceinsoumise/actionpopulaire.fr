@@ -21,6 +21,8 @@ class LegacySubscribedMixin(ModelForm):
         )
 
     def save(self, commit=True):
+        if "subscribed_lfi" not in self.fields:
+            return super().save(commit)
         subscribed_lfi = self.cleaned_data.get("subscribed_lfi", False)
         if subscribed_lfi and Person.NEWSLETTER_LFI not in self.instance.newsletters:
             self.instance.newsletters.append(Person.NEWSLETTER_LFI)
