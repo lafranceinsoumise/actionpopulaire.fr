@@ -46,6 +46,7 @@ const GroupManagementPage = (props) => {
   const [members, setMembers] = useState([]);
   const [newMemberManager, setNewMemberManager] = useState(null);
   const [newMemberReferent, setNewMemberReferent] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getMembersAPI = async (groupPk) => {
     const { data } = await getMembers(groupPk);
@@ -62,24 +63,32 @@ const GroupManagementPage = (props) => {
 
   const submitNewManager = useCallback(async () => {
     setErrors({});
+    setIsLoading(true);
     const res = await addRoleToMember(groupPk, {
       email: newMemberManager,
       role: "manager",
     });
+    setIsLoading(false);
     if (!!res.error) {
       setErrors(res.error);
+      return;
     }
+    setConfig(null);
   }, [groupPk, newMemberManager]);
 
   const submitNewReferent = useCallback(async () => {
     setErrors({});
+    setIsLoading(true);
     const res = await addRoleToMember(groupPk, {
       email: newMemberReferent,
       role: "referent",
     });
+    setIsLoading(false);
     if (!!res.error) {
       setErrors(res.error);
+      return;
     }
+    setConfig(null);
   }, [groupPk, newMemberReferent]);
 
   useEffect(() => {
@@ -181,7 +190,11 @@ const GroupManagementPage = (props) => {
               ))}
 
             <Spacer size="1rem" />
-            <Button color="secondary" onClick={submitNewReferent}>
+            <Button
+              color="secondary"
+              onClick={submitNewReferent}
+              disabled={isLoading}
+            >
               Confirmer
             </Button>
           </>
@@ -265,7 +278,11 @@ const GroupManagementPage = (props) => {
               ))}
 
             <Spacer size="1rem" />
-            <Button color="secondary" onClick={submitNewManager}>
+            <Button
+              color="secondary"
+              onClick={submitNewManager}
+              disabled={isLoading}
+            >
               Confirmer
             </Button>
           </>
