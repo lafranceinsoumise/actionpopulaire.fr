@@ -6,7 +6,7 @@ from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
-from agir.gestion.admin.base import BaseMixin
+from agir.gestion.admin.base import BaseAdminMixin
 from agir.gestion.admin.forms import CommentairesForm, DocumentInlineForm
 from agir.gestion.admin.inlines import (
     DepenseDocumentInline,
@@ -56,7 +56,7 @@ class FournisseurAdmin(VersionAdmin):
 
 
 @admin.register(Document)
-class DocumentAdmin(BaseMixin, VersionAdmin):
+class DocumentAdmin(BaseAdminMixin, VersionAdmin):
     list_display = (
         "numero",
         "titre",
@@ -93,7 +93,7 @@ class DocumentAdmin(BaseMixin, VersionAdmin):
 
 
 @admin.register(Depense)
-class DepenseAdmin(BaseMixin, VersionAdmin):
+class DepenseAdmin(BaseAdminMixin, VersionAdmin):
     list_filter = (
         "type",
         "compte",
@@ -190,7 +190,7 @@ class DepenseAdmin(BaseMixin, VersionAdmin):
 
 
 @admin.register(Projet)
-class ProjetAdmin(BaseMixin, VersionAdmin):
+class ProjetAdmin(BaseAdminMixin, VersionAdmin):
     list_display = ("numero", "titre", "type", "statut")
 
     fieldsets = (
@@ -219,3 +219,12 @@ class ProjetAdmin(BaseMixin, VersionAdmin):
         AjouterDepenseInline,
         ProjetDocumentInline,
     ]
+
+    def render_change_form(
+        self, request, context, add=False, change=False, form_url="", obj=None
+    ):
+        for inline in context["inline_admin_formsets"]:
+            print(inline.opts, inline.formset.errors)
+        return super().render_change_form(
+            request, context, add=add, change=change, form_url=form_url, obj=obj
+        )

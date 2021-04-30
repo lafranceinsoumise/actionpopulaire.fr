@@ -9,8 +9,6 @@ from agir.lib.admin import get_admin_link
 
 
 class BaseMixin(BaseModelAdmin):
-    form = CommentairesForm
-
     search_fields = ("numero",)
 
     def get_search_results(self, request, queryset, search_term):
@@ -42,3 +40,7 @@ class BaseMixin(BaseModelAdmin):
         return "Aucun commentaire."
 
     bloc_commentaires.short_description = "Commentaires"
+
+
+class BaseAdminMixin(BaseMixin):
+    form = CommentairesForm

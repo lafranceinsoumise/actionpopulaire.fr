@@ -13,18 +13,14 @@ class Etat(TextChoices):
     UNFINISHED = "ERR", "Éléments manquants"
 
 
-class NiveauAcces(TextChoices):
-    NON_RESTREINT = "N"
-    RESTREINT = "R"
-    FINANCES_SEULEMENT = "F"
-
-
 class TypeDocument(TextChoices):
     DEVIS = "DEV", "Devis"
     FACTURE = "FAC", "Facture"
     JUSTIFICATIF = "JUS", "Justificatif de dépense"
     PAIEMENT = "PAY", "Preuve de paiement"
     ATTESTATION_GRATUITE = "GRA", "Attestation de gratuité"
+    EXEMPLAIRE = "EXA", "Exemplaire fourni"
+    PHOTOGRAPHIE = "PHO", "Photographie de l'objet ou de l'événement"
     AUTRE = "AUT", "Autre (à détailler dans les commentaires)"
 
 
@@ -103,3 +99,9 @@ class RoleParticipation(TextChoices):
         "Organisation",
     )
     GESTION = "GES", "Gestion de projet"
+
+
+class NiveauAcces(TextChoices):
+    SANS_RESTRICTION = "S", "Sans restriction"
+    RESTREINT = "R", "Restreint"
+    SECRET = "S", "Secret"
