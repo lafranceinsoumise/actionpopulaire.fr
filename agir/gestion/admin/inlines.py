@@ -58,5 +58,5 @@ class ProjetParticipationInline(admin.TabularInline):
     model = Participation
     extra = 1
 
-    fields = ("person", "role")
+    fields = ("person", "role", "precisions")
     autocomplete_fields = ("person",)

@@ -15,9 +15,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 from agir.gestion.typologies import (
     TypeProjet,
     TypeDocument,
-    Etat,
     TypeDepense,
     RoleParticipation,
+    NiveauAcces,
 )
 from agir.lib.model_fields import IBANField
 from agir.lib.models import LocationMixin, TimeStampedModel
@@ -172,6 +172,16 @@ class Compte(TimeStampedModel):
     class Meta:
         verbose_name = "Compte"
         verbose_name_plural = "Comptes"
+        permissions = [
+            (
+                "acces_contenu_restreint",
+                "Voir les projets, dépenses et documents dont l'accès est indiqué comme restreint.",
+            ),
+            (
+                "acces_contenu_secret",
+                "Voir les projets, dépenses et documents dont l'accès est indiqué commme secret.",
+            ),
+        ]
 
 
 @reversion.register(follow=["documents", "depenses"])
@@ -204,6 +214,13 @@ class Projet(NumeroUniqueMixin, TimeStampedModel):
         on_delete=models.SET_NULL,
     )
 
+    niveau_acces = models.CharField(
+        verbose_name="Niveau d'accès",
+        choices=NiveauAcces.choices,
+        blank=False,
+        default=NiveauAcces.SANS_RESTRICTION,
+    )
+
     details = models.JSONField("Détails", default=dict)
 
     documents = models.ManyToManyField(
@@ -219,6 +236,23 @@ class Projet(NumeroUniqueMixin, TimeStampedModel):
 class Depense(NumeroUniqueMixin, TimeStampedModel):
     """Une dépense correspond à un paiement réalisé en lien avec une facture
     """
+
+    class Etat(models.TextChoices):
+        ATTENTE_ENGAGEMENT = "A", "En attente de l'engagement de la dépense"
+        CONSTITUTION = "C", "Constitution du dossier"
+        COMPLET = "O", "Dossier complété"
+        CLOTURE = "L", "Dossier clôturé"
+
+    class Validation(models.IntegerChoices):
+        NON_VALIDE = 0, "Pas encore de validation"
+        ORGANISATEUR = 1, "Validation organisateur"
+        FINANCIERE = 2, "Validation financière"
+
+    validation_etat = {
+        Validation.NON_VALIDE: Etat.CONSTITUTION,
+        Validation.ORGANISATEUR: Etat.COMPLET,
+        Validation.FINANCIERE: Etat.CLOTURE,
+    }
 
     titre = models.CharField(
         verbose_name="Titre de la dépense",
@@ -262,6 +296,13 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         max_digits=10,
     )
 
+    validation = models.IntegerField(
+        verbose_name="Validation du dossier de la dépense",
+        choices=Validation.choices,
+        default=Validation.NON_VALIDE,
+        null=False,
+    )
+
     date_depense = models.DateField(
         "Date d'engagement de la dépense",
         blank=True,
@@ -285,11 +326,20 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         blank=True,
     )
 
+    niveau_acces = models.CharField(
+        verbose_name="Niveau d'accès",
+        choices=NiveauAcces.choices,
+        blank=False,
+        default=NiveauAcces.SANS_RESTRICTION,
+    )
+
+    @property
+    def devis_present(self):
+        return self.documents.filter(type=TypeDocument.DEVIS).exists()
+
     @property
     def facture_presente(self):
-        return self.documents.filter(
-            type=TypeDocument.FACTURE, statut=Document.Statut.CONFIRME
-        ).exists
+        return self.documents.filter(type=TypeDocument.FACTURE).exists()
 
     @property
     def montant_restant(self):
@@ -298,29 +348,21 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         )
 
     @property
-    def paiement_effectue(self):
+    def depense_reglee(self):
         return (
-            self.reglements.filter().aggregate(paye=models.Sum("montant"))["paye"]
+            self.reglements.filter(statut=Reglement.Statut.REGLE).aggregate(
+                paye=models.Sum("montant")
+            )["paye"]
             == self.montant
         )
 
     @property
     def etat(self):
-        if not self.facture_presente or not self.paiement_effectue:
-            return Etat.UNFINISHED
-        if (
-            self.documents.filter(requis=Document.Besoin.NECESSAIRE)
-            .exclude(statut=Document.Statut.CONFIRME)
-            .exists()
-        ):
-            return Etat.UNFINISHED
-        if (
-            self.documents.filter(requis=Document.Besoin.PREFERABLE)
-            .exclude(statut=Document.Statut.CONFIRME)
-            .exists()
-        ):
-            return Etat.WARNING
-        return Etat.OK
+        if not self.date_depense:
+            return self.Etat.ATTENTE_ENGAGEMENT
+
+        # noinspection PyTypeChecker
+        return self.validation_etat[self.validation]
 
     class Meta:
         verbose_name = "Dépense"
@@ -464,6 +506,8 @@ class Participation(TimeStampedModel):
         max_length=3,
         choices=RoleParticipation.choices,
     )
+
+    precisions = models.TextField(verbose_name="Précisions", blank=True)
 
     class Meta:
         verbose_name = "participation à un projet"
