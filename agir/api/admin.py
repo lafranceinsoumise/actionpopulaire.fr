@@ -22,7 +22,7 @@ class TOTPDeviceAdmin(BaseTOTPDeviceAdmin):
 
 class PushDeviceAdmin(DeviceAdmin):
     list_display = ("__str__", "device_id", "get_person", "active", "date_created")
-    search_fields = ("device_id", "user__person__search")
+    search_fields = ("user__person__search",)
 
     def get_person(self, device):
         return device.user.person
