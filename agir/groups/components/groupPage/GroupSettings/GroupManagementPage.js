@@ -15,6 +15,7 @@ import Toast from "@agir/front/genericComponents/Toast";
 import { StyledTitle } from "./styledComponents.js";
 
 import { getMembers, addRoleToMember } from "@agir/groups/groupPage/api.js";
+import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 
 const StyledList = styled.div`
   display: flex;
@@ -35,6 +36,8 @@ const StyledHelper = styled.div`
   background-color: ${style.black100};
 `;
 
+const [GROUP_IS_2022, GROUP_LFI] = ["de l'équipe", "du groupe"];
+
 const [CONFIG_REFERENT, CONFIG_MANAGER] = [1, 2];
 const [MEMBER, MANAGER, REFERENT] = [10, 50, 100];
 
@@ -46,6 +49,8 @@ const GroupManagementPage = (props) => {
   const [members, setMembers] = useState([]);
   const [newMemberManager, setNewMemberManager] = useState(null);
   const [newMemberReferent, setNewMemberReferent] = useState(null);
+
+  const group = useGroup(groupPk);
 
   const getMembersAPI = async (groupPk) => {
     const { data } = await getMembers(groupPk);
@@ -108,7 +113,9 @@ const GroupManagementPage = (props) => {
               name="alert-circle"
               style={{ marginRight: "0.5rem", display: "inline" }}
             />
-            Il manque des membres à votre groupe pour leur ajouter ce rôle
+            Il manque des membres à votre
+            {" " + (group.is2022 ? "équipe" : "groupe") + " "} pour leur ajouter
+            ce rôle
           </StyledHelper>
         ) : (
           <>
@@ -137,7 +144,8 @@ const GroupManagementPage = (props) => {
                 name="alert-circle"
                 style={{ marginRight: "0.5rem", display: "inline" }}
               />
-              Pour respecter la charte des équipes de soutien, votre équipe
+              Pour respecter la charte des équipes de soutien, votre{" "}
+              {" " + (group.is2022 ? "équipe" : "groupe") + " "}
               devrait être animée à parité de genre.
             </StyledHelper>
 
@@ -165,11 +173,13 @@ const GroupManagementPage = (props) => {
               </StyledList>
               <StyledList>
                 <div />
-                Modifier les informations du groupe
+                Modifier les informations
+                {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
               </StyledList>
               <StyledList>
                 <div />
-                Créer des événements au nom du groupe
+                Créer des événements au nom
+                {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
               </StyledList>
             </div>
 
@@ -212,7 +222,9 @@ const GroupManagementPage = (props) => {
               name="alert-circle"
               style={{ marginRight: "0.5rem", display: "inline" }}
             />
-            Il manque des membres à votre groupe pour leur ajouter ce rôle
+            Il manque des membres à votre
+            {" " + (group.is2022 ? "équipe" : "groupe") + " "}pour leur ajouter
+            ce rôle
           </StyledHelper>
         ) : (
           <SelectField
@@ -249,11 +261,13 @@ const GroupManagementPage = (props) => {
               </StyledList>
               <StyledList>
                 <div />
-                Modifier les informations du groupe
+                Modifier les informations
+                {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
               </StyledList>
               <StyledList>
                 <div />
-                Créer des événements au nom du groupe
+                Créer des événements au nom
+                {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
               </StyledList>
             </div>
 
@@ -311,8 +325,11 @@ const GroupManagementPage = (props) => {
       )}
 
       <span>
-        Les animateur·ices organisent la vie du groupe. Pour respecter la charte
-        des équipes de soutien, votre équipe doit être animée à parité de genre.
+        Les animateur·ices organisent la vie
+        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}. Pour respecter la
+        charte des équipes de soutien, votre{" "}
+        {" " + (group.is2022 ? "équipe" : "groupe") + " "} doit être animée à
+        parité de genre.
       </span>
 
       <Spacer size="1rem" />
@@ -320,10 +337,12 @@ const GroupManagementPage = (props) => {
       <StyledTitle>Gestionnaires</StyledTitle>
 
       <span>
-        Ajoutez des gestionnaires pour vous assiter sur la gestion du groupe au
-        quotidien sur la plate-forme. Ces derniers ont accès à la liste des
-        membres, peuvent modifier les informations du groupe, et créer des
-        événements au nom du groupe.
+        Ajoutez des gestionnaires pour vous assiter sur la gestion
+        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)} au quotidien sur la
+        plate-forme. Ces derniers ont accès à la liste des membres, peuvent
+        modifier les informations
+        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}, et créer des
+        événements au nom{" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}.
       </span>
 
       <Spacer size="1rem" />
@@ -355,7 +374,7 @@ const GroupManagementPage = (props) => {
       <hr />
 
       <a href="https://actionpopulaire.fr/formulaires/demande-changement-animation-ga/">
-        Changer l’animation du groupe
+        Changer l’animation{" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
       </a>
       <Spacer size="0.5rem" />
       <a href="https://infos.actionpopulaire.fr/contact/">
@@ -366,7 +385,7 @@ const GroupManagementPage = (props) => {
         href="https://agir.lafranceinsoumise.fr/formulaires/demande-suppression-ga/"
         style={{ color: style.redNSP }}
       >
-        Supprimer le groupe
+        Supprimer {" " + group.is2022 ? "l'équipe" : "le groupe"}
       </a>
     </>
   );

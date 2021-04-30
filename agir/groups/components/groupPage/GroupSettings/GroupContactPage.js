@@ -72,8 +72,9 @@ const GroupContactPage = (props) => {
       <span>Ces informations seront affichées en public.</span>
       <Spacer size="0.5rem" />
       <span>
-        Conseillé : créez une adresse e-mail pour votre groupe et n’utilisez pas
-        une adresse personnelle.
+        Conseillé : créez une adresse e-mail pour votre
+        {" " + (group.is2022 ? "équipe" : "groupe") + " "}et n’utilisez pas une
+        adresse personnelle.
       </span>
 
       <Spacer size="2rem" />
@@ -92,7 +93,9 @@ const GroupContactPage = (props) => {
       <TextField
         id="email"
         name="email"
-        label="Adresse e-mail du groupe*"
+        label={`Adresse e-mail ${
+          " " + (group.is2022 ? "de l'équipe" : "du groupe")
+        }*`}
         onChange={handleChange}
         value={contact?.email}
         error={errors?.email}

@@ -14,6 +14,8 @@ import {
 
 import { StyledTitle } from "./styledComponents.js";
 
+const [GROUP_IS_2022, GROUP_LFI] = ["de l'équipe", "du groupe"];
+
 const GroupGeneralPage = (props) => {
   const { onBack, illustration, groupPk } = props;
 
@@ -97,7 +99,7 @@ const GroupGeneralPage = (props) => {
       <TextField
         id="name"
         name="name"
-        label="Nom du groupe*"
+        label={`Nom ${" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}*`}
         onChange={handleChange}
         value={formData.name}
         error={errors?.name}
@@ -109,7 +111,9 @@ const GroupGeneralPage = (props) => {
         textArea={true}
         id="description"
         name="description"
-        label="Description du groupe*"
+        label={`Description ${
+          " " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)
+        }*`}
         placeholder=""
         onChange={handleChange}
         value={formData.description}
