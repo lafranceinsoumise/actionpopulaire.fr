@@ -14,7 +14,7 @@ const StyledError = styled.span`
 
 const StyledField = styled.div`
   display: flex;
-  flex-flow: row nowrap;
+  flex-wrap: wrap;
   align-items: center;
 
   label {
@@ -102,7 +102,7 @@ const ImageField = forwardRef((props, ref) => {
             <img
               src={thumbnail}
               alt=""
-              style={{ width: "178px", height: "100px", marginRight: "1.5rem" }}
+              style={{ maxWidth: "178px", maxHeight: "100px", marginRight: "1.5rem" }}
             />
           </>
         )}
