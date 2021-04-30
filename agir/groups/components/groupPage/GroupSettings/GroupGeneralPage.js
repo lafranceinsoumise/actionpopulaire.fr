@@ -34,7 +34,6 @@ const GroupGeneralPage = (props) => {
   }, []);
 
   const handleChangeImage = useCallback((value) => {
-    console.log("handle change image : ", value);
     setErrors((errors) => ({ ...errors, image: null }));
     setIsNewImage(true);
     setFormData((formData) => ({ ...formData, image: value }));
