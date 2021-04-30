@@ -109,10 +109,6 @@ const notificationSettingRoute = new RouteConfig({
   neededAuthentication: AUTHENTICATION.HARD,
   label: "Paramètres de notification",
   params: { root: "activite" },
-  hideTopBar: true,
-  hideFeedbackButton: true,
-  hideConnectivityWarning: true,
-  hasLayout: false,
   isPartial: true,
 });
 

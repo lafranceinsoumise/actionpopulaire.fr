@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
-import { Redirect } from "react-router-dom";
 
+import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
 import { getMenuRoute, getRoutes } from "./routes.config";
+import { useAuthentication } from "@agir/front/authentication/hooks";
 
 import ObjectManagement from "@agir/front/genericComponents/ObjectManagement";
 
@@ -11,13 +12,22 @@ export const GroupSettings = (props) => {
 
   const routes = useMemo(() => getRoutes(basePath, group), [basePath, group]);
   const menuRoute = useMemo(() => getMenuRoute(basePath), [basePath]);
+  const isAuthorized = useAuthentication(globalRouteConfig.groupSettings);
+  const redirectTo = useMemo(() => {
+    if (!group?.isManager) {
+      return basePath;
+    }
+    if (isAuthorized === false) {
+      return {
+        pathname: globalRouteConfig.login.getLink(),
+        state: { from: { pathname: menuRoute.getLink() } },
+      };
+    }
+    return null;
+  }, [group, isAuthorized, basePath, menuRoute]);
 
   if (!group) {
     return null;
-  }
-
-  if (!group.isManager) {
-    return <Redirect to={basePath} />;
   }
 
   return (
@@ -27,6 +37,7 @@ export const GroupSettings = (props) => {
       basePath={basePath}
       routes={routes}
       menuLink={menuRoute.getLink()}
+      redirectTo={redirectTo}
     />
   );
 };

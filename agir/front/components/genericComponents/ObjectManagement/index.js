@@ -8,9 +8,7 @@ import {
   useLocation,
   useRouteMatch,
 } from "react-router-dom";
-
 import { animated, useTransition } from "react-spring";
-
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -168,7 +166,7 @@ MobilePanel.propTypes = DesktopPanel.propTypes = {
 };
 
 export const ObjectManagement = (props) => {
-  const { basePath, menuLink, ...rest } = props;
+  const { basePath, menuLink, redirectTo, ...rest } = props;
 
   const hasRoute = useRouteMatch(menuLink);
   const { push } = useHistory();
@@ -180,6 +178,10 @@ export const ObjectManagement = (props) => {
   const closePanel = useCallback(() => {
     basePath && push(basePath);
   }, [basePath, push]);
+
+  if (!!hasRoute && redirectTo) {
+    return <Redirect to={redirectTo} />;
+  }
 
   return (
     <ResponsiveLayout
@@ -198,6 +200,7 @@ ObjectManagement.propTypes = {
   basePath: PropTypes.string.isRequired,
   routes: PropTypes.arrayOf(PropTypes.object).isRequired,
   menuLink: PropTypes.string.isRequired,
+  redirectTo: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export default React.memo(ObjectManagement);
