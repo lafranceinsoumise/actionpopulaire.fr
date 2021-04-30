@@ -4,7 +4,7 @@ import ShareCard from "./ShareCard";
 
 export default {
   component: ShareCard,
-  title: "Generic/Share",
+  title: "Generic/ShareCard",
 };
 
 const Template = (args) => <ShareCard {...args} />;

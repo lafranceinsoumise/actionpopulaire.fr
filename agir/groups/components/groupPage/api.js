@@ -21,6 +21,12 @@ export const ENDPOINT = {
   createComment: "/api/groupes/messages/:messagePk/comments/",
   deleteComment: "/api/groupes/messages/comments/:commentPk/",
 
+  getMembers: "/api/groupes/:groupPk/members/",
+  updateGroup: "/api/groupes/:groupPk/update/",
+  inviteToGroup: "/api/groupes/:groupPk/invitation/",
+  addRoleToMember: "/api/groupes/:groupPk/gestion/",
+  getFinance: "/api/groupes/:groupPk/finance/",
+
   report: "/api/report/",
 };
 
@@ -172,6 +178,95 @@ export const joinGroup = async (groupPk) => {
   const url = getGroupPageEndpoint("joinGroup", { groupPk });
   try {
     const response = await axios.post(url, {});
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const getMembers = async (groupPk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("getMembers", { groupPk });
+  try {
+    const response = await axios.get(url);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const updateGroup = async (groupPk, data) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("updateGroup", { groupPk });
+  let headers = undefined;
+  if (!!data.image) {
+    headers = {
+      "content-type": "multipart/form-data",
+    };
+  }
+  try {
+    const response = await axios.patch(url, data, { headers });
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const inviteToGroup = async (groupPk, data) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("inviteToGroup", { groupPk });
+
+  try {
+    const response = await axios.post(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const addRoleToMember = async (groupPk, data) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("addRoleToMember", { groupPk });
+
+  try {
+    const response = await axios.patch(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const getFinance = async (groupPk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("getFinance", { groupPk });
+
+  try {
+    const response = await axios.get(url);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

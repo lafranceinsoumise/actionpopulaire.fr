@@ -72,14 +72,18 @@ const StyledMenu = styled.nav`
 `;
 
 const GroupPageMenu = (props) => {
-  const { hasTabs, tabs, stickyOffset } = props;
+  const { hasTabs, tabs, stickyOffset, activeTabId } = props;
 
   return hasTabs ? (
     <StyledMenu $stickyOffset={stickyOffset}>
       {tabs.map(
         (tab) =>
           tab.hasTab && (
-            <NavLink key={tab.id} to={tab.getLink()}>
+            <NavLink
+              key={tab.id}
+              to={tab.getLink()}
+              isActive={() => tab.id === activeTabId}
+            >
               {tab.label}
             </NavLink>
           )
@@ -91,5 +95,6 @@ GroupPageMenu.propTypes = {
   hasTabs: PropTypes.bool,
   tabs: PropTypes.arrayOf(PropTypes.object),
   stickyOffset: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  activeTabId: PropTypes.string,
 };
 export default GroupPageMenu;

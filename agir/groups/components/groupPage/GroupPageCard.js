@@ -5,6 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Card from "@agir/front/genericComponents/Card";
+import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledHead = styled.header``;
@@ -112,16 +113,21 @@ const StyledCard = styled(Card)`
 `;
 
 const GroupPageCard = (props) => {
-  const { title, editUrl, children, ...rest } = props;
+  const { title, editHref, editLinkTo, children, ...rest } = props;
 
   return (
     <StyledCard {...rest}>
       <StyledHead>
         {title && <h4>{title}</h4>}
-        {editUrl && (
-          <a href={editUrl}>
+        {editHref && (
+          <a href={editHref}>
             <RawFeatherIcon name="edit-2" />
           </a>
+        )}
+        {editLinkTo && (
+          <Link to={editLinkTo}>
+            <RawFeatherIcon name="edit-2" />
+          </Link>
         )}
       </StyledHead>
       <StyledBody>{children}</StyledBody>
@@ -132,7 +138,8 @@ const GroupPageCard = (props) => {
 GroupPageCard.propTypes = {
   children: PropTypes.node,
   title: PropTypes.string,
-  editUrl: PropTypes.string,
+  editHref: PropTypes.string,
+  editLinkTo: PropTypes.string,
   highlight: PropTypes.string,
   outlined: PropTypes.bool,
 };

@@ -41,7 +41,7 @@ urlpatterns = [
         name="edit_group_legacy",
     ),
     path(
-        "groupes/<uuid:pk>/gestion/",
+        "groupes/<uuid:pk>/gestion/informations/",
         views.SupportGroupManagementView.as_view(),
         name="manage_group",
     ),
@@ -160,5 +160,30 @@ urlpatterns = [
         "api/groupes/messages/comments/<uuid:pk>/",
         views.GroupSingleCommentAPIView.as_view(),
         name="api_group_message_comment_detail",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/members/",
+        views.GroupMembersAPIView.as_view(),
+        name="api_group_members",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/update/",
+        views.GroupUpdateAPIView.as_view(),
+        name="api_group_general",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/invitation/",
+        views.GroupInvitationAPIView.as_view(),
+        name="api_group_invitation",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/gestion/",
+        views.GroupManagementAPIView.as_view(),
+        name="api_group_management",
+    ),
+    path(
+        "api/groupes/<uuid:pk>/finance/",
+        views.GroupDonationAPIView.as_view(),
+        name="api_group_finance",
     ),
 ]

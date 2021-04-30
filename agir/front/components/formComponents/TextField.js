@@ -96,6 +96,7 @@ const TextField = forwardRef((props, ref) => {
     helpText,
     maxLength,
     textArea,
+    rows,
     hasCounter,
     ...rest
   } = props;
@@ -131,7 +132,7 @@ const TextField = forwardRef((props, ref) => {
           type={type}
           onChange={onChange}
           value={value}
-          rows={1}
+          rows={rows || 1}
         />
       ) : (
         <StyledInput
@@ -166,6 +167,7 @@ TextField.propTypes = {
   error: PropTypes.string,
   maxLength: PropTypes.number,
   textArea: PropTypes.bool,
+  rows: PropTypes.number,
   hasCounter: PropTypes.bool,
 };
 

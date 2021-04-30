@@ -17,13 +17,13 @@ import { routeConfig } from "@agir/front/app/routes.config";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import LocationField from "@agir/front/formComponents/LocationField.js";
 
 import NameField from "./NameField";
 import OrganizerGroupField from "./OrganizerGroupField";
 import DateField from "./DateField";
 import ForUsersField from "./ForUsersField";
 import SubtypeField from "./SubtypeField";
-import LocationField from "./LocationField";
 import ContactField from "./ContactField";
 import OnlineUrlField from "./OnlineUrlField";
 
