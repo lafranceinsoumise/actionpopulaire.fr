@@ -34,13 +34,24 @@ const GroupGeneralPage = (props) => {
   }, []);
 
   const handleChangeImage = useCallback((value) => {
+    console.log("handle change image : ", value);
     setErrors((errors) => ({ ...errors, image: null }));
     setIsNewImage(true);
     setFormData((formData) => ({ ...formData, image: value }));
   }, []);
 
+  const handleDeleteImage = async () => {
+    if (isNewImage) {
+      setIsNewImage(false);
+      setFormData((formData) => ({ ...formData, image: null }));
+      return;
+    }
+    // TODO : remove image of group from api
+  };
+
   const handleChangeCertified = useCallback((event) => {
     setIsCertified(event.target.checked);
+    setErrors((errors) => ({ ...errors, image: null }));
   }, []);
 
   const handleSubmit = useCallback(
@@ -130,24 +141,28 @@ const GroupGeneralPage = (props) => {
         name="image"
         value={formData.image}
         onChange={handleChangeImage}
+        onDelete={isNewImage ? handleDeleteImage : null}
         error={errors?.image}
       />
 
       {isNewImage && (
-        <CheckboxField
-          value={isCertified}
-          label={
-            <>
-              En important une image, je certifie être le propriétaire des
-              droits et accepte de la partager sous licence libre{" "}
-              <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/">
-                Creative Commons CC-BY-NC 3.0
-              </a>
-              .
-            </>
-          }
-          onChange={handleChangeCertified}
-        />
+        <>
+          <Spacer size="0.5rem" />
+          <CheckboxField
+            value={isCertified}
+            label={
+              <>
+                En important une image, je certifie être le propriétaire des
+                droits et accepte de la partager sous licence libre{" "}
+                <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/">
+                  Creative Commons CC-BY-NC 3.0
+                </a>
+                .
+              </>
+            }
+            onChange={handleChangeCertified}
+          />
+        </>
       )}
 
       <Spacer size="2rem" />
