@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import {
   Switch,
   Redirect,
@@ -19,12 +19,23 @@ import ManagementMenu from "@agir/front/genericComponents/ObjectManagement/Manag
 import ManagementPanel from "@agir/front/genericComponents/ObjectManagement/ManagementPanel";
 
 const StyledSubPanel = styled(animated.div)`
-  @media (max-width: ${style.collapse}px) {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    box-shadow: ${style.elaborateShadow};
-    will-change: transform;
+  box-shadow: ${style.elaborateShadow};
+  width: 100%;
+  height: 100%;
+  will-change: transform, opacity;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  &:empty {
+    display: none;
+  }
+
+  @media (min-width: ${style.collapse}px) {
+    display: flex;
+    & > * {
+      flex: 0 0 auto;
+    }
   }
 `;
 
@@ -34,33 +45,32 @@ const StyledPanel = styled(Panel)`
   background-color: transparent;
 
   @media (min-width: ${style.collapse}px) {
+    min-width: 0;
     display: flex;
     flex-flow: row nowrap;
-    min-width: 0;
+
+    & > * {
+      flex: 1 1 auto;
+
+      &:first-child {
+        z-index: 2;
+      }
+    }
   }
 `;
 
-const springConfig = {
-  tension: 160,
-  friction: 30,
-};
-
 const slideInTransition = {
   mobile: {
-    config: springConfig,
     keys: ({ pathname }) => pathname,
-    from: { transform: "translateX(100%)" },
+    from: { transform: "translateX(66%)" },
     enter: { transform: "translateX(0%)" },
-    leave: { zIndex: -1 },
+    leave: { transform: "translateX(100%)" },
   },
   desktop: {
-    config: springConfig,
     keys: ({ pathname }) => pathname,
-    trail: 100,
-    order: ["leave", "enter", "update"],
-    from: { zIndex: -1, transform: "translateX(-100%)" },
-    enter: { zIndex: -1, transform: "translateX(0%)" },
-    leave: { zIndex: -1, transform: "translateX(-100%)" },
+    from: { transform: "translateX(-66%)", opacity: 1 },
+    enter: { transform: "translateX(0%)", opacity: 1 },
+    leave: { transform: "translateX(0%)", opacity: 0.8 },
   },
 };
 
@@ -76,40 +86,38 @@ const MobilePanel = (props) => {
   } = props;
 
   const location = useLocation();
+  const shouldAnimate = useRef(shouldShow ? 1 : 0);
+
+  useEffect(() => {
+    shouldAnimate.current = shouldShow ? shouldAnimate.current + 1 : 0;
+    // eslint-disable-next-line
+  }, [location.pathname, shouldShow]);
+
   const transition = useTransition(location, slideInTransition.mobile);
 
   return (
     <StyledPanel shouldShow={shouldShow} onClose={onClose} noScroll>
-      {transition(
-        (style, item) =>
-          item && (
-            <StyledSubPanel style={style}>
-              <Switch location={item}>
-                {routes.map((route) => (
-                  <Route key={route.id} path={route.getLink()} exact>
-                    <ManagementPanel>
-                      <route.Component
-                        {...rest}
-                        illustration={route.illustration}
-                        onBack={goToMenu}
-                      />
-                    </ManagementPanel>
-                  </Route>
-                ))}
-                <Route key="menu" path={menuLink} exact>
-                  <ManagementMenu
-                    title={title}
-                    items={routes}
-                    onBack={onClose}
+      <ManagementMenu title={title} items={routes} onBack={onClose} />
+      {transition((style, item) => (
+        <StyledSubPanel style={shouldAnimate.current > 1 ? style : undefined}>
+          <Switch location={item}>
+            {routes.map((route) => (
+              <Route key={route.id} path={route.getLink()} exact>
+                <ManagementPanel>
+                  <route.Component
+                    {...rest}
+                    illustration={route.illustration}
+                    onBack={goToMenu}
                   />
-                </Route>
-                <Route key="unhandled-route" path={menuLink + "*"} exact>
-                  <Redirect to={menuLink} />
-                </Route>
-              </Switch>
-            </StyledSubPanel>
-          )
-      )}
+                </ManagementPanel>
+              </Route>
+            ))}
+            <Route key="unhandled-route" path={menuLink + "*"} exact>
+              <Redirect to={menuLink} />
+            </Route>
+          </Switch>
+        </StyledSubPanel>
+      ))}
     </StyledPanel>
   );
 };
@@ -125,6 +133,9 @@ const DesktopPanel = (props) => {
     ...rest
   } = props;
 
+  const location = useLocation();
+  const transition = useTransition(location, slideInTransition.desktop);
+
   return (
     <StyledPanel
       shouldShow={shouldShow}
@@ -133,24 +144,34 @@ const DesktopPanel = (props) => {
       onClose={onClose}
     >
       <ManagementMenu title={title} items={routes} onBack={onClose} />
-      <StyledSubPanel style={style}>
-        <Switch>
-          {routes.map((route) => (
-            <Route key={route.id} path={route.path} exact={route.exact}>
-              <ManagementPanel>
-                <route.Component
-                  {...rest}
-                  illustration={route.illustration}
-                  onBack={goToMenu}
-                />
-              </ManagementPanel>
-            </Route>
-          ))}
-          <Route key="unhandled-route" path={menuLink + "*"} exact>
-            <Redirect to={menuLink} />
-          </Route>
-        </Switch>
-      </StyledSubPanel>
+      <div
+        style={{
+          minWidth: "600px",
+          height: "100%",
+          position: "relative",
+        }}
+      >
+        {transition((style, item) => (
+          <StyledSubPanel style={style}>
+            <Switch location={item}>
+              {routes.map((route) => (
+                <Route key={route.id} path={route.path} exact={route.exact}>
+                  <ManagementPanel>
+                    <route.Component
+                      {...rest}
+                      illustration={route.illustration}
+                      onBack={goToMenu}
+                    />
+                  </ManagementPanel>
+                </Route>
+              ))}
+              <Route key="unhandled-route" path={menuLink + "*"} exact>
+                <Redirect to={menuLink} />
+              </Route>
+            </Switch>
+          </StyledSubPanel>
+        ))}
+      </div>
     </StyledPanel>
   );
 };
@@ -186,9 +207,9 @@ export const ObjectManagement = (props) => {
   return (
     <ResponsiveLayout
       {...rest}
-      menuLink={menuLink}
       MobileLayout={MobilePanel}
       DesktopLayout={DesktopPanel}
+      menuLink={menuLink}
       shouldShow={!!hasRoute}
       goToMenu={goToMenu}
       onClose={closePanel}
