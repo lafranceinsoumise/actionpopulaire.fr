@@ -3,6 +3,7 @@ import useSWR from "swr";
 
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
+import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
 import ImageField from "@agir/front/formComponents/ImageField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
@@ -39,6 +40,12 @@ const GroupGeneralPage = (props) => {
     setErrors((errors) => ({ ...errors, image: null }));
     setIsNewImage(true);
     setFormData((formData) => ({ ...formData, image: value }));
+  }, []);
+
+  const handleDescriptionChange = useCallback((value) => {
+    // lose focus if uncomment :
+    // setErrors((errors) => ({ ...errors, ["description"]: null }));
+    setFormData((formData) => ({ ...formData, ["description"]: value }));
   }, []);
 
   const handleChangeCertified = useCallback((event) => {
@@ -107,15 +114,14 @@ const GroupGeneralPage = (props) => {
 
       <Spacer size="1rem" />
 
-      <TextField
-        textArea={true}
+      <RichTextField
         id="description"
         name="description"
         label={`Description ${
           " " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)
         }*`}
         placeholder=""
-        onChange={handleChange}
+        onChange={handleDescriptionChange}
         value={formData.description}
         error={errors?.description}
       />
