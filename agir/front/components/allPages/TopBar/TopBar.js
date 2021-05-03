@@ -17,7 +17,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
-import MenuLink from "./MenuLink";
 import Logo from "./Logo";
 import RightLink from "./RightLink";
 import SearchBar from "./SearchBar";
@@ -52,30 +51,6 @@ const TopBarContainer = styled.div`
   max-width: 1320px;
   margin: 0 auto;
 
-  & .large-only {
-    @media only screen and (max-width: ${+style.collapse - 1}px) {
-      display: none;
-    }
-  }
-
-  & .small-only {
-    @media only screen and (min-width: ${style.collapse}px) {
-      display: none;
-    }
-  }
-
-  .grow {
-    flex-grow: 1;
-  }
-
-  .justify {
-    justify-content: left;
-  }
-
-  .center {
-    justify-content: center;
-  }
-
   h1 {
     font-family: ${style.fontFamilyBase};
     font-style: normal;
@@ -92,11 +67,25 @@ const TopBarContainer = styled.div`
 const HorizontalFlex = styled.div`
   display: flex;
   align-items: center;
+  flex-grow: 1;
+
+  ${({ path }) =>
+    path === "/" &&
+    `
+    justify-content: center;
+  `}
 
   & > * {
     margin-left: 1.25em;
     text-align: left;
   }
+`;
+
+const MenuLink = styled.a`
+  ${(small) =>
+    small
+      ? "@media only screen and (min-width: ${style.collapse}px) {display: none;}"
+      : "@media only screen and (max-width: ${+style.collapse - 1}px) {display: none;}"};
 `;
 
 export const TopBar = ({ path }) => {
@@ -118,33 +107,31 @@ export const TopBar = ({ path }) => {
               to={backLink.to}
               href={backLink.href}
               route={backLink.route}
-              className="small-only"
               title={backLink.label}
               aria-label={backLink.label}
+              small
             >
               <FeatherIcon name="arrow-left" />
             </MenuLink>
           ) : (
-            <MenuLink href={routes.search} className="small-only">
+            <MenuLink href={routes.search} small>
               <FeatherIcon name="search" />
             </MenuLink>
           )
         ) : null}
-        <HorizontalFlex
-          className={path === "/" ? "center grow" : "justify grow"}
-        >
+        <HorizontalFlex path={path}>
           {(() => {
             if (isMobileApp) {
               for (const route of Object.entries(routeConfig)) {
                 if (path === "/") {
                   return (
-                    <MenuLink href={routes.dashboard} className="small-only">
+                    <MenuLink href={routes.dashboard} small>
                       <Logo />
                     </MenuLink>
                   );
                 } else if (route[1].path === path) {
                   return (
-                    <MenuLink href={route[1].path} className="small-only">
+                    <MenuLink href={route[1].path} small>
                       <h1>{route[1].label}</h1>
                     </MenuLink>
                   );
@@ -153,7 +140,7 @@ export const TopBar = ({ path }) => {
                   for (const element of route[1].path) {
                     if (element === path)
                       return (
-                        <MenuLink href={element} className="small-only">
+                        <MenuLink href={element} small>
                           <h1>{route[1].label}</h1>
                         </MenuLink>
                       );
@@ -162,16 +149,16 @@ export const TopBar = ({ path }) => {
               }
             }
           })()}
-          <MenuLink href={routes.dashboard} className="large-only">
+          <MenuLink href={routes.dashboard}>
             <Logo />
           </MenuLink>
-          <form className="large-only grow" method="get" action={routes.search}>
+          <form method="get" action={routes.search}>
             <SearchBar routes={routes} />
           </form>
         </HorizontalFlex>
         <PageFadeIn ready={isSessionLoaded}>
           <HorizontalFlex>
-            <MenuLink href={routes.help} className="large-only">
+            <MenuLink href={routes.help}>
               <FeatherIcon name="help-circle" />
               <span>Aide</span>
             </MenuLink>
@@ -189,6 +176,6 @@ export const TopBar = ({ path }) => {
 
 export default TopBar;
 
-TopBar.PropTypes = {
+TopBar.propTypes = {
   path: PropTypes.string,
 };
