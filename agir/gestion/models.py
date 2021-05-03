@@ -60,6 +60,39 @@ class NumeroQueryset(models.QuerySet):
         )
 
 
+class Commentaire(TimeStampedModel):
+    class Type(models.TextChoices):
+        REM = "R", "Remarque"
+        WARN = "W", "Point de vigilance"
+        TODO = "T", "À faire"
+
+    auteur = models.ForeignKey(
+        to="people.Person",
+        verbose_name="Auteur⋅ice",
+        on_delete=models.SET_NULL,
+        related_name="+",
+        null=True,
+    )
+
+    auteur_nom = models.CharField(
+        verbose_name="Nom de l'auteur",
+        blank=False,
+        max_length=200,
+        help_text="Pour pouvoir afficher un nom si la personne a été supprimée.",
+    )
+
+    type = models.CharField(
+        verbose_name="Type de commentaire", max_length=1, choices=Type.choices
+    )
+
+    texte = models.TextField(verbose_name="Texte du commentaire", blank=False)
+
+    cache = models.BooleanField(verbose_name="Commentaire caché", default=False)
+
+    class Meta:
+        ordering = ("created",)
+
+
 class NumeroManager(models.Manager):
     def get_queryset(self):
         return NumeroQueryset(self.model, using=self._db)
@@ -81,9 +114,9 @@ class NumeroUniqueMixin(models.Model):
         help_text="Numéro unique pour identifier chaque objet sur la plateforme.",
     )
 
-    commentaires = models.JSONField(
+    commentaires = models.ManyToManyField(
+        to="Commentaire",
         verbose_name="Commentaires",
-        default=list,
         help_text="Ces commentaires permettent d'ajouter de garder la trace des opérations de traitement des différentes pièces.",
     )
 
@@ -216,6 +249,7 @@ class Projet(NumeroUniqueMixin, TimeStampedModel):
 
     niveau_acces = models.CharField(
         verbose_name="Niveau d'accès",
+        max_length=1,
         choices=NiveauAcces.choices,
         blank=False,
         default=NiveauAcces.SANS_RESTRICTION,
@@ -328,6 +362,7 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
 
     niveau_acces = models.CharField(
         verbose_name="Niveau d'accès",
+        max_length=1,
         choices=NiveauAcces.choices,
         blank=False,
         default=NiveauAcces.SANS_RESTRICTION,

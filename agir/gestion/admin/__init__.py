@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
 from agir.gestion.admin.base import BaseAdminMixin
-from agir.gestion.admin.forms import CommentairesForm, DocumentInlineForm
+from agir.gestion.admin.forms import DocumentInlineForm
 from agir.gestion.admin.inlines import (
     DepenseDocumentInline,
     DepenseInline,
@@ -79,16 +79,6 @@ class DocumentAdmin(BaseAdminMixin, VersionAdmin):
                 )
             },
         ),
-        (
-            "Commentaires",
-            {
-                "fields": (
-                    "bloc_commentaires",
-                    "nouveau_commentaire",
-                    "type_commentaire",
-                )
-            },
-        ),
     )
 
 
@@ -126,16 +116,6 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
             },
         ),
         ("Informations de paiement", {"fields": ("fournisseur", "reglements")}),
-        (
-            "Commentaires",
-            {
-                "fields": (
-                    "bloc_commentaires",
-                    "nouveau_commentaire",
-                    "type_commentaire",
-                )
-            },
-        ),
     )
 
     readonly_fields = ("reglements",)
@@ -197,16 +177,6 @@ class ProjetAdmin(BaseAdminMixin, VersionAdmin):
         (
             None,
             {"fields": ("numero_", "titre", "type", "statut", "event", "description")},
-        ),
-        (
-            "Commentaires",
-            {
-                "fields": (
-                    "bloc_commentaires",
-                    "nouveau_commentaire",
-                    "type_commentaire",
-                )
-            },
         ),
     )
 

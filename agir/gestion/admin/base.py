@@ -1,9 +1,8 @@
 from functools import partial
 
-from django.contrib.admin.options import BaseModelAdmin
+from django.contrib.admin.options import BaseModelAdmin, ModelAdmin
 from django.utils.html import format_html
 
-from agir.gestion.actions import afficher_commentaires
 from agir.gestion.admin.forms import CommentairesForm
 from agir.lib.admin import get_admin_link
 
@@ -16,15 +15,8 @@ class BaseMixin(BaseModelAdmin):
             return queryset.search(search_term)
         return queryset, False
 
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        form = super().get_form(request, obj=obj, change=change, **kwargs)
-        return partial(form, user=request.user)
-
     def get_readonly_fields(self, request, obj=None):
-        return super().get_readonly_fields(request, obj=obj) + (
-            "bloc_commentaires",
-            "numero_",
-        )
+        return super().get_readonly_fields(request, obj=obj) + ("numero_",)
 
     def numero_(self, obj):
         if obj.id:
@@ -34,13 +26,20 @@ class BaseMixin(BaseModelAdmin):
 
     numero_.short_description = "Numéro automatique"
 
-    def bloc_commentaires(self, obj):
-        if obj and obj.commentaires:
-            return afficher_commentaires(obj)
-        return "Aucun commentaire."
 
-    bloc_commentaires.short_description = "Commentaires"
-
-
-class BaseAdminMixin(BaseMixin):
+class BaseAdminMixin(BaseMixin, ModelAdmin):
     form = CommentairesForm
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form = super().get_form(request, obj=obj, change=change, **kwargs)
+        return partial(form, user=request.user)
+
+    def render_change_form(
+        self, request, context, add=False, change=False, form_url="", obj=None
+    ):
+        if obj and hasattr(obj, "commentaires"):
+            context.setdefault("montrer_commentaires", True)
+            context.setdefault("commentaires", obj.commentaires.filter(cache=False))
+        return super().render_change_form(
+            request, context, add=add, change=change, form_url=form_url, obj=obj
+        )

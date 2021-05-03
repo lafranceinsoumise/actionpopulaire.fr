@@ -1,8 +1,8 @@
 from django.contrib import admin
 
 from agir.gestion.admin.base import BaseMixin
-from agir.gestion.admin.forms import DocumentInlineForm
-from agir.gestion.models import Depense, Projet, Participation
+from agir.gestion.admin.forms import DocumentInlineForm, CommentaireFormset
+from agir.gestion.models import Depense, Projet, Participation, Commentaire
 
 
 class BaseDocumentInline(admin.TabularInline):

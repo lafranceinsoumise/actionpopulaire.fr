@@ -81,9 +81,9 @@ BEGIN
 
     FOR email in SELECT address FROM people_personemail WHERE person_id = _id LOOP
       search := search || email_to_tsvector(email.address);
-END LOOP;
+    END LOOP;
 
-RETURN search;
+    RETURN search;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -94,9 +94,8 @@ DECLARE
     temp_search tsvector;
 BEGIN
     --
-    -- Trigger function to update search field on person when she is updated
-    -- No need to do it in creation: initialization of the search field
-    -- will be done when first email will be created.
+    -- Trigger function to update search field on person instance when it is created or modified
+    -- 
     --
     IF (NEW.first_name <> OLD.first_name) THEN do_update = TRUE;
     ELSIF (NEW.last_name <> OLD.last_name) THEN do_update = TRUE;

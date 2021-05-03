@@ -1,12 +1,6 @@
 from django.db.models import TextChoices
 
 
-class TypeCommentaire(TextChoices):
-    REM = "REM", "Remarque"
-    WARN = "WARN", "Point de vigilance"
-    TODO = "TODO", "À faire"
-
-
 class Etat(TextChoices):
     OK = "OK", "Dossier complet"
     WARNING = "WARN", "Problèmes potentiels"
@@ -102,6 +96,6 @@ class RoleParticipation(TextChoices):
 
 
 class NiveauAcces(TextChoices):
-    SANS_RESTRICTION = "S", "Sans restriction"
+    SANS_RESTRICTION = "N", "Sans restriction"
     RESTREINT = "R", "Restreint"
     SECRET = "S", "Secret"
