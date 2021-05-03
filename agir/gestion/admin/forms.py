@@ -2,9 +2,9 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 
-from agir.gestion.actions import ajouter_commentaire
-from agir.gestion.models import Document, Reglement, Fournisseur
-from agir.gestion.typologies import TypeCommentaire, TypeDocument
+from agir.gestion.actions.commentaires import ajouter_commentaire
+from agir.gestion.models import Document, Reglement, Fournisseur, Commentaire
+from agir.gestion.typologies import TypeDocument
 
 
 class CommentairesForm(forms.ModelForm):
@@ -13,8 +13,8 @@ class CommentairesForm(forms.ModelForm):
     )
     type_commentaire = forms.ChoiceField(
         label="Type de commentaire",
-        initial=TypeCommentaire.REM,
-        choices=TypeCommentaire.choices,
+        initial=Commentaire.Type.REM,
+        choices=Commentaire.Type.choices,
     )
 
     def __init__(self, *args, user=None, **kwargs):
@@ -217,3 +217,35 @@ class ReglementForm(forms.ModelForm):
             "location_zip_fournisseur",
             "location_country_fournisseur",
         )
+
+
+class BaseCommentaireFormset(forms.BaseModelFormSet):
+    def __init__(
+        self,
+        data=None,
+        files=None,
+        instance=None,
+        save_as_new=False,
+        prefix=None,
+        queryset=None,
+        **kwargs,
+    ):
+        self.instance = instance
+
+        if save_as_new:
+            raise ValueError("Impossible d'utiliser save_as_new")
+
+        if queryset is None:
+            queryset = Commentaire.objects.all()
+
+        qs = queryset.intersection(self.instance.commentaires.all())
+
+        super().__init__(data, files, prefix=prefix, queryset=qs, **kwargs)
+
+
+CommentaireFormset = forms.modelformset_factory(
+    Commentaire, formset=BaseCommentaireFormset, fields=("cache",),
+)
+NouveauCommentaireFormset = forms.modelformset_factory(
+    Commentaire, formset=BaseCommentaireFormset, fields=("type", "texte")
+)
