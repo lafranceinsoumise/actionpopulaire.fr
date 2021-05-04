@@ -58,6 +58,10 @@ const ImageField = forwardRef((props, ref) => {
     [onChange]
   );
 
+  const deleteImage = useCallback(() => {
+    onChange(null);
+  }, [onChange]);
+
   const handleClick = useCallback(() => {
     labelRef.current && labelRef.current.click();
   }, []);
@@ -74,13 +78,12 @@ const ImageField = forwardRef((props, ref) => {
   }, [value]);
 
   const imageName = useMemo(() => {
-    if (typeof value === "string") {
+    if (value && typeof value === "string") {
       return value;
     }
     if (value && value.name) {
       return value.name;
     }
-
     return "";
   }, [value]);
 
@@ -88,17 +91,15 @@ const ImageField = forwardRef((props, ref) => {
     <>
       <StyledField $valid={!error} $invalid={!!error} $empty={!!value}>
         {imageName && (
-          <>
-            <img
-              src={thumbnail}
-              alt=""
-              style={{
-                maxWidth: "178px",
-                maxHeight: "100px",
-                marginRight: "1.5rem",
-              }}
-            />
-          </>
+          <img
+            src={thumbnail}
+            alt=""
+            style={{
+              maxWidth: "178px",
+              maxHeight: "100px",
+              marginRight: "1.5rem",
+            }}
+          />
         )}
         <label htmlFor={id} ref={labelRef}>
           {label && <StyledLabel>{label}</StyledLabel>}
@@ -116,11 +117,7 @@ const ImageField = forwardRef((props, ref) => {
             {imageName ? "Remplacer l'image" : "Ajouter une image"}
           </Button>
           {imageName && (
-            <a
-              href="#"
-              onClick={() => onChange(null)}
-              style={{ marginTop: "0.5rem" }}
-            >
+            <a href="#" onClick={deleteImage} style={{ marginTop: "0.5rem" }}>
               Supprimer l'image
             </a>
           )}
@@ -133,6 +130,7 @@ const ImageField = forwardRef((props, ref) => {
 
 ImageField.propTypes = {
   value: PropTypes.any,
+  name: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   onDelete: PropTypes.func,
   id: PropTypes.string,
