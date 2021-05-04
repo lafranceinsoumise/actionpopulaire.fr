@@ -433,22 +433,24 @@ class GroupJoinAPIView(CreateAPIView):
             return Response(status=status.HTTP_201_CREATED)
 
 
+class GroupMembersViewPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": []}
+    object_perms_map = {
+        "GET": ["groups.change_supportgroup"],
+    }
+
+
 class GroupMembersAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
-    queryset = Membership.objects.all()
+    permission_classes = (GroupMembersViewPermissions,)
+    queryset = SupportGroup.objects.all()
     serializer_class = MembershipSerializer
 
-    def initial(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs["pk"])
-        except SupportGroup.DoesNotExist:
-            raise NotFound()
-
-        self.check_object_permissions(request, self.supportgroup)
-        super().initial(request, *args, **kwargs)
-
     def get_queryset(self):
-        return Membership.objects.filter(supportgroup=self.supportgroup)
+        return (
+            Membership.objects.filter(supportgroup_id=self.kwargs.get("pk"))
+            .prefetch_related("person")
+            .prefetch_related("person__emails")
+        )
 
 
 class GroupUpdatePermission(GlobalOrObjectPermissions):
