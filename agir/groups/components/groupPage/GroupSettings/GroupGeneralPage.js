@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -24,11 +25,13 @@ const GroupGeneralPage = (props) => {
     getGroupPageEndpoint("getGroup", { groupPk })
   );
 
-  const [isNewImage, setIsNewImage] = useState(false);
-  const [isCertified, setIsCertified] = useState(false);
+  const [imageHasChanged, setImageHasChanged] = useState(false);
+  const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const originalImage = useMemo(() => group?.image, [group]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -37,24 +40,13 @@ const GroupGeneralPage = (props) => {
   }, []);
 
   const handleChangeImage = useCallback(
-    async (value) => {
+    (value) => {
       setErrors((errors) => ({ ...errors, image: null }));
-
-      if (!!value) {
-        setIsNewImage(true);
-        setFormData((formData) => ({ ...formData, image: value }));
-        return;
-      }
-
-      if (isNewImage) {
-        setIsNewImage(false);
-        setFormData((formData) => ({ ...formData, image: null }));
-        return;
-      }
-
-      // TODO : remove image of group from api
+      setImageHasChanged(value !== originalImage);
+      value && value !== originalImage && setHasCheckedImageLicence(false);
+      setFormData((formData) => ({ ...formData, image: value }));
     },
-    [isNewImage]
+    [originalImage]
   );
 
   const handleDescriptionChange = useCallback((value) => {
@@ -63,24 +55,18 @@ const GroupGeneralPage = (props) => {
     setFormData((formData) => ({ ...formData, ["description"]: value }));
   }, []);
 
-  const handleChangeCertified = useCallback((event) => {
-    setIsCertified(event.target.checked);
+  const handleCheckImageLicence = useCallback((event) => {
+    setHasCheckedImageLicence(event.target.checked);
     setErrors((errors) => ({ ...errors, image: null }));
   }, []);
 
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-
       setErrors({});
       setIsLoading(true);
-      const form = new FormData();
-      Object.keys(formData).forEach((e) => {
-        if (e === "image" && !isNewImage) return;
-        form.append(e, formData[e]);
-      });
 
-      if (isNewImage && !isCertified) {
+      if (formData.image && imageHasChanged && !hasCheckedImageLicence) {
         setErrors((errors) => ({
           ...errors,
           image:
@@ -90,9 +76,14 @@ const GroupGeneralPage = (props) => {
         return;
       }
 
-      const res = await updateGroup(groupPk, form);
+      const res = await updateGroup(groupPk, {
+        ...formData,
+        image: imageHasChanged ? formData.image : undefined,
+      });
+
       setIsLoading(false);
-      if (!!res.error) {
+
+      if (res.error) {
         setErrors(res.error);
         return;
       }
@@ -100,7 +91,7 @@ const GroupGeneralPage = (props) => {
         return { ...group, ...res.data };
       });
     },
-    [formData, groupPk, isCertified, isNewImage]
+    [mutate, formData, groupPk, hasCheckedImageLicence, imageHasChanged]
   );
 
   useEffect(() => {
@@ -109,7 +100,8 @@ const GroupGeneralPage = (props) => {
       description: group?.description,
       image: group?.image,
     });
-    setIsNewImage(false);
+    setImageHasChanged(false);
+    setHasCheckedImageLicence(false);
   }, [group]);
 
   return (
@@ -157,13 +149,14 @@ const GroupGeneralPage = (props) => {
         value={formData.image}
         onChange={handleChangeImage}
         error={errors?.image}
+        accept=".jpg,.jpeg,.gif,.png"
       />
 
-      {isNewImage && (
+      {formData.image && imageHasChanged && (
         <>
           <Spacer size="0.5rem" />
           <CheckboxField
-            value={isCertified}
+            value={hasCheckedImageLicence}
             label={
               <>
                 En important une image, je certifie être le propriétaire des
@@ -174,7 +167,7 @@ const GroupGeneralPage = (props) => {
                 .
               </>
             }
-            onChange={handleChangeCertified}
+            onChange={handleCheckImageLicence}
           />
         </>
       )}
@@ -186,5 +179,9 @@ const GroupGeneralPage = (props) => {
     </form>
   );
 };
-
+GroupGeneralPage.propTypes = {
+  onBack: PropTypes.func,
+  illustration: PropTypes.string,
+  groupPk: PropTypes.string,
+};
 export default GroupGeneralPage;
