@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
-import { TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
-import { useDispatch } from "@agir/front/globalContext/GlobalContext";
-import { addToasts } from "@agir/front/globalContext/actions";
+import { useToast } from "@agir/front/globalContext/hooks.js";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Button from "@agir/front/genericComponents/Button";
@@ -20,7 +18,7 @@ import {
 
 const GroupContactPage = (props) => {
   const { onBack, illustration, groupPk } = props;
-  const dispatch = useDispatch();
+  const sendToast = useToast();
   const [contact, setContact] = useState({});
   const [errors, setErrors] = useState({});
   const [isLoading, setIsloading] = useState(true);
@@ -55,15 +53,7 @@ const GroupContactPage = (props) => {
         setErrors(res.error?.contact);
         return;
       }
-      dispatch(
-        addToasts([
-          {
-            message: "Informations mises à jour",
-            type: TOAST_TYPES.SUCCESS,
-            autoClose: true,
-          },
-        ])
-      );
+      sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
       mutate((group) => {
         return { ...group, ...res.data };
       });

@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
-import { TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
-import { useDispatch } from "@agir/front/globalContext/GlobalContext";
-import { addToasts } from "@agir/front/globalContext/actions";
+import { useToast } from "@agir/front/globalContext/hooks.js";
 
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
@@ -23,7 +21,7 @@ const [GROUP_IS_2022, GROUP_LFI] = ["de l'équipe", "du groupe"];
 
 const GroupGeneralPage = (props) => {
   const { onBack, illustration, groupPk } = props;
-  const dispatch = useDispatch();
+  const sendToast = useToast();
 
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
@@ -85,15 +83,7 @@ const GroupGeneralPage = (props) => {
         setErrors(res.error);
         return;
       }
-      dispatch(
-        addToasts([
-          {
-            message: "Informations mises à jour",
-            type: TOAST_TYPES.SUCCESS,
-            autoClose: true,
-          },
-        ])
-      );
+      sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
       mutate((group) => {
         return { ...group, ...res.data };
       });

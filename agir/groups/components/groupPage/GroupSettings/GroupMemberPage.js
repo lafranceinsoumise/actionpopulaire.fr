@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import Link from "@agir/front/app/Link";
 import GroupMember from "./GroupMember";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
@@ -46,9 +46,8 @@ const GroupMemberPage = (props) => {
       <Spacer size="2rem" />
 
       {members.map((e, id) => (
-        <>
+        <Fragment key={id}>
           <GroupMember
-            key={id}
             name={e?.displayName}
             email={e?.email}
             image={e?.image}
@@ -56,9 +55,8 @@ const GroupMemberPage = (props) => {
             assets={e?.assets}
           />
           <Spacer size="1rem" />
-        </>
+        </Fragment>
       ))}
-
       <Spacer size="2rem" />
 
       <ShareLink
@@ -70,18 +68,18 @@ const GroupMemberPage = (props) => {
       />
 
       {group.is2022 === false && (
-      <>
-        <Spacer size="2rem" />
-        <GroupInvitation
-          groupPk={groupPk}
-          title={
-            <>
-              Invitez de nouveaux membres{" "}
-              <InlineBlock>dans votre groupe !</InlineBlock>
-            </>
-          }
-        />
-      </>
+        <>
+          <Spacer size="2rem" />
+          <GroupInvitation
+            groupPk={groupPk}
+            title={
+              <>
+                Invitez de nouveaux membres{" "}
+                <InlineBlock>dans votre groupe !</InlineBlock>
+              </>
+            }
+          />
+        </>
       )}
 
       <hr />

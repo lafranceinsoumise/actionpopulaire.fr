@@ -8,9 +8,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import MainPanel from "./MainPanel";
 import EditionPanel from "./EditionPanel";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
-import { TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
-import { useDispatch } from "@agir/front/globalContext/GlobalContext";
-import { addToasts } from "@agir/front/globalContext/actions";
+import { useToast } from "@agir/front/globalContext/hooks.js";
 
 import {
   getGroupPageEndpoint,
@@ -41,7 +39,7 @@ const EditionPanelWrapper = styled(animated.div)`
 
 const GroupManagementPage = (props) => {
   const { onBack, illustration, groupPk } = props;
-  const dispatch = useDispatch();
+  const sendToast = useToast();
 
   const group = useGroup(groupPk);
   const { data: members, mutate } = useSWR(
@@ -77,15 +75,7 @@ const GroupManagementPage = (props) => {
       setErrors(res.error);
       return;
     }
-    dispatch(
-      addToasts([
-        {
-          message: "Informations mises à jour",
-          type: TOAST_TYPES.SUCCESS,
-          autoClose: true,
-        },
-      ])
-    );
+    sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
     setSelectedMembershipType(null);
     setSelectedMember(null);
     mutate((members) =>
