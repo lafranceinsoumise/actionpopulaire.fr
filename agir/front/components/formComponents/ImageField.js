@@ -51,9 +51,9 @@ const ImageField = forwardRef((props, ref) => {
   const labelRef = useRef(null);
   const handleChange = useCallback(
     (e) => {
-      e?.target?.files &&
-        onChange &&
-        onChange(e.target.files[e.target.files.length - 1]);
+      const file =
+        e?.target?.files && e.target.files[e.target.files.length - 1];
+      file && onChange && onChange(file);
     },
     [onChange]
   );
