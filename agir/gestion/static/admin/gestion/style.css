@@ -1,0 +1,47 @@
+
+.todos {
+    float: right;
+    width: 300px;
+    background: #f8f8f8;
+
+    margin: 0 0 0 20px;
+}
+
+.todos h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 5px 15px;
+    margin-bottom: 12px;
+    border-bottom: none
+}
+
+.todos li.imperatif {
+    font-weight: bold;
+    color: #c26262;
+}
+
+.todos li.avertissement {
+    font-weight: bold;
+    color: #bda845;
+}
+
+
+.cacher-commentaire input {
+    background: #a41515;
+    border-radius: 4px;
+    padding: 10px 15px;
+    color: #fff;
+}
+
+.cacher-commentaire .cancel-link {
+    background: #ccc;
+    display: inline-block;
+    vertical-align: middle;
+    height: 15px;
+    line-height: 15px;
+    border-radius: 4px;
+    padding: 10px 15px;
+    color: #333;
+    margin: 0 0 0 10px;
+}
