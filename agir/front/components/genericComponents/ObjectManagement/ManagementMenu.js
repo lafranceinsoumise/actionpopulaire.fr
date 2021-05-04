@@ -25,6 +25,10 @@ const StyledMenuItem = styled(NavLink)`
   color: ${({ disabled }) => (disabled ? style.black500 : style.black1000)};
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 
+  && {
+    text-decoration: none;
+  }
+
   &:hover {
     text-decoration: none;
     cursor: pointer;
@@ -92,6 +96,9 @@ const StyledMenu = styled.div`
 
   @media (min-width: ${style.collapse}px) {
     width: 360px;
+  }
+  @media (max-width: ${style.collapse}px) {
+    background-color: ${style.white};
   }
 
   h4 {

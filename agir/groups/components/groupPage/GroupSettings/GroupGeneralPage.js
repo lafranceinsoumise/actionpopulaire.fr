@@ -181,7 +181,7 @@ const GroupGeneralPage = (props) => {
 
       <Spacer size="2rem" />
       <Button color="secondary" $wrap disabled={isLoading}>
-        Enregistrer les informations
+        Enregistrer
       </Button>
     </form>
   );
