@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
@@ -18,6 +18,7 @@ const GroupFinancePage = (props) => {
   const [donation, setDonation] = useState(0);
 
   const group = useGroup(groupPk);
+  const is2022 = useMemo(() => group?.is2022, [group]);
 
   const getFinanceAPI = async () => {
     const res = await getFinance(groupPk);
@@ -34,7 +35,7 @@ const GroupFinancePage = (props) => {
 
       <StyledTitle>
         Dons alloués aux personnes de mon
-        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
+        {" " + (is2022 ? GROUP_IS_2022 : GROUP_LFI)}
       </StyledTitle>
 
       <Spacer size="1rem" />
@@ -70,12 +71,12 @@ const GroupFinancePage = (props) => {
 
       <StyledTitle>
         Solliciter des dons pour mon
-        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
+        {" " + (is2022 ? GROUP_IS_2022 : GROUP_LFI)}
       </StyledTitle>
 
       <span>
         Partagez ce lien pour solliciter des dons pour votre
-        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI) + " "} :
+        {" " + (is2022 ? GROUP_IS_2022 : GROUP_LFI) + " "} :
       </span>
 
       <ShareLink

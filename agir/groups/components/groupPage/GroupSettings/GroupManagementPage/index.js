@@ -5,10 +5,10 @@ import styled from "styled-components";
 import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-
 import MainPanel from "./MainPanel";
 import EditionPanel from "./EditionPanel";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import { Toast, TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
 
 import {
   getGroupPageEndpoint,
@@ -50,6 +50,7 @@ const GroupManagementPage = (props) => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const is2022 = useMemo(() => group?.is2022, [group]);
+  const [toasts, setToasts] = useState([]);
 
   const editManager = useCallback(() => {
     setSelectedMembershipType(MANAGER);
@@ -63,6 +64,10 @@ const GroupManagementPage = (props) => {
     setSelectedMember(e.value);
   }, []);
 
+  const clearToasts = useCallback(() => {
+    setToasts([]);
+  }, []);
+
   const handleSubmit = useCallback(async () => {
     setErrors({});
     setIsLoading(true);
@@ -74,6 +79,12 @@ const GroupManagementPage = (props) => {
       setErrors(res.error);
       return;
     }
+    setToasts([
+      {
+        message: "Informations mises à jour",
+        type: TOAST_TYPES.SUCCESS,
+      },
+    ]);
     setSelectedMembershipType(null);
     setSelectedMember(null);
     mutate((members) =>
@@ -117,6 +128,7 @@ const GroupManagementPage = (props) => {
             </EditionPanelWrapper>
           )
       )}
+      <Toast autoClose onClear={clearToasts} toasts={toasts} />
     </PageFadeIn>
   );
 };

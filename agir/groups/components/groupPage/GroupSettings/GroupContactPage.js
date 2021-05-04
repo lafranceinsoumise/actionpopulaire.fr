@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
+import { Toast, TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
@@ -19,6 +20,7 @@ const GroupContactPage = (props) => {
   const [contact, setContact] = useState({});
   const [errors, setErrors] = useState({});
   const [isLoading, setIsloading] = useState(true);
+  const [toasts, setToasts] = useState([]);
 
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
@@ -38,6 +40,10 @@ const GroupContactPage = (props) => {
     [contact]
   );
 
+  const clearToasts = useCallback(() => {
+    setToasts([]);
+  }, []);
+
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -50,6 +56,12 @@ const GroupContactPage = (props) => {
         setErrors(res.error?.contact);
         return;
       }
+      setToasts([
+        {
+          message: "Informations mises à jour",
+          type: TOAST_TYPES.SUCCESS,
+        },
+      ]);
       mutate((group) => {
         return { ...group, ...res.data };
       });
@@ -126,6 +138,8 @@ const GroupContactPage = (props) => {
       <Button color="secondary" type="submit" disabled={isLoading}>
         Enregistrer
       </Button>
+
+      <Toast autoClose onClear={clearToasts} toasts={toasts} />
     </form>
   );
 };

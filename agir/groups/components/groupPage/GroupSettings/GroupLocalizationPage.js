@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
+import { Toast, TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Map from "@agir/carte/common/Map";
@@ -35,10 +36,15 @@ const GroupLocalizationPage = (props) => {
   const [config, setConfig] = useState(null);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [toasts, setToasts] = useState([]);
 
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
   );
+
+  const clearToasts = useCallback(() => {
+    setToasts([]);
+  }, []);
 
   const handleInputChange = useCallback((_, name, value) => {
     setFormLocation((formLocation) => ({ ...formLocation, [name]: value }));
@@ -56,6 +62,12 @@ const GroupLocalizationPage = (props) => {
         setErrors(res.error?.location);
         return;
       }
+      setToasts([
+        {
+          message: "Informations mises à jour",
+          type: TOAST_TYPES.SUCCESS,
+        },
+      ]);
       mutate((group) => {
         return { ...group, ...res.data };
       });
@@ -135,7 +147,7 @@ const GroupLocalizationPage = (props) => {
       />
 
       <Spacer size="2rem" />
-      <Button color="secondary" $wrap>
+      <Button color="secondary" $wrap disabled={isLoading}>
         Enregistrer les informations
       </Button>
 
@@ -144,6 +156,8 @@ const GroupLocalizationPage = (props) => {
       <a href="#" style={{ color: style.redNSP }}>
         Supprimer la localisation (déconseillé)
       </a> */}
+
+      <Toast autoClose onClear={clearToasts} toasts={toasts} />
     </form>
   );
 };

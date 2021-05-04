@@ -70,18 +70,18 @@ const GroupMemberPage = (props) => {
       />
 
       {group.is2022 === false && (
-        <>
-          <Spacer size="2rem" />
-          <GroupInvitation
-            groupPk={groupPk}
-            title={
-              <>
-                Invitez de nouveaux membres{" "}
-                <InlineBlock>dans votre groupe !</InlineBlock>
-              </>
-            }
-          />
-        </>
+      <>
+        <Spacer size="2rem" />
+        <GroupInvitation
+          groupPk={groupPk}
+          title={
+            <>
+              Invitez de nouveaux membres{" "}
+              <InlineBlock>dans votre groupe !</InlineBlock>
+            </>
+          }
+        />
+      </>
       )}
 
       <hr />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
+import { Toast, TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
@@ -29,6 +30,7 @@ const GroupGeneralPage = (props) => {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [toasts, setToasts] = useState([]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -50,6 +52,10 @@ const GroupGeneralPage = (props) => {
 
   const handleChangeCertified = useCallback((event) => {
     setIsCertified(event.target.checked);
+  }, []);
+
+  const clearToasts = useCallback(() => {
+    setToasts([]);
   }, []);
 
   const handleSubmit = useCallback(
@@ -80,6 +86,12 @@ const GroupGeneralPage = (props) => {
         setErrors(res.error);
         return;
       }
+      setToasts([
+        {
+          message: "Informations mises à jour",
+          type: TOAST_TYPES.SUCCESS,
+        },
+      ]);
       mutate((group) => {
         return { ...group, ...res.data };
       });
@@ -164,6 +176,8 @@ const GroupGeneralPage = (props) => {
       <Button color="secondary" $wrap disabled={isLoading}>
         Enregistrer les informations
       </Button>
+
+      <Toast autoClose onClear={clearToasts} toasts={toasts} />
     </form>
   );
 };

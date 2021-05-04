@@ -7,6 +7,7 @@ import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import { Column, Row } from "@agir/front/genericComponents/grid";
+import { Toast, TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
 
 import { inviteToGroup } from "@agir/groups/groupPage/api.js";
 
@@ -36,9 +37,14 @@ const GroupInvitation = (props) => {
 
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState({});
+  const [toasts, setToasts] = useState([]);
 
   const handleChange = useCallback((e) => {
     setEmail(e.target.value);
+  }, []);
+
+  const clearToasts = useCallback(() => {
+    setToasts([]);
   }, []);
 
   const handleInvitation = useCallback(
@@ -50,6 +56,12 @@ const GroupInvitation = (props) => {
         setErrors(res.error);
         return;
       }
+      setToasts([
+        {
+          message: "Invitation envoyée",
+          type: TOAST_TYPES.SUCCESS,
+        },
+      ]);
       setEmail("");
     },
     [email]
@@ -79,6 +91,7 @@ const GroupInvitation = (props) => {
           </Button>
         </div>
       </StyledContainer>
+      <Toast autoClose onClear={clearToasts} toasts={toasts} />
     </StyledDiv>
   );
 };
