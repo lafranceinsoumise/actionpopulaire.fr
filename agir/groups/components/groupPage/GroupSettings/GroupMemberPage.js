@@ -1,36 +1,25 @@
-import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import React from "react";
+import useSWR from "swr";
+
 import Link from "@agir/front/app/Link";
 import GroupMember from "./GroupMember";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
-import GroupInvitation from "./GroupInvitation";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "./HeaderPanel";
 
 import { StyledTitle } from "./styledComponents.js";
-import styled from "styled-components";
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
-import { getMembers } from "@agir/groups/groupPage/api.js";
-
-const InlineBlock = styled.div`
-  display: inline-block;
-`;
+import { getGroupPageEndpoint } from "@agir/groups/groupPage/api.js";
 
 const GroupMemberPage = (props) => {
   const { onBack, illustration, groupPk } = props;
-
   const group = useGroup(groupPk);
-
-  const [members, setMembers] = useState([]);
-
-  const getMembersAPI = async (groupPk) => {
-    const { data } = await getMembers(groupPk);
-    setMembers(data);
-  };
-
-  useEffect(() => {
-    getMembersAPI(groupPk);
-  }, [groupPk]);
+  const { data: members } = useSWR(
+    getGroupPageEndpoint("getMembers", { groupPk }),
+    { initialData: [] }
+  );
 
   return (
     <>
@@ -96,5 +85,9 @@ const GroupMemberPage = (props) => {
     </>
   );
 };
-
+GroupMemberPage.propTypes = {
+  onBack: PropTypes.func,
+  illustration: PropTypes.string,
+  groupPk: PropTypes.string,
+};
 export default GroupMemberPage;
