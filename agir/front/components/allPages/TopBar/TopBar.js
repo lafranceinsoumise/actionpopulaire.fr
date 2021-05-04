@@ -69,8 +69,8 @@ const HorizontalFlex = styled.div`
   align-items: center;
   flex-grow: 1;
 
-  ${({ path }) =>
-    path === "/" &&
+  ${({ center }) =>
+    center &&
     `
     justify-content: center;
   `}
@@ -83,10 +83,9 @@ const HorizontalFlex = styled.div`
 
 const MenuLink = styled.a`
   "@media only screen and 
-  ${(small) =>
-    small
-      ? "(min-width: ${style.collapse}px) {display: none;}"
-      : "(max-width: ${+style.collapse - 1}px) {display: none;}"};
+  (${(small) => small ? "min-width: ${style.collapse}" : "max-width: ${style.collapse - 1}"}px) {
+      display-none;
+   }
 `;
 
 export const TopBar = ({ path }) => {
@@ -120,7 +119,7 @@ export const TopBar = ({ path }) => {
             </MenuLink>
           )
         ) : null}
-        <HorizontalFlex path={path}>
+        <HorizontalFlex center={path === "/"}>
           {(() => {
             if (isMobileApp) {
               for (const route of Object.entries(routeConfig)) {
