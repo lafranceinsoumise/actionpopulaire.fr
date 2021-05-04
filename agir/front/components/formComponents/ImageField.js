@@ -134,6 +134,7 @@ const ImageField = forwardRef((props, ref) => {
 ImageField.propTypes = {
   value: PropTypes.any,
   onChange: PropTypes.func.isRequired,
+  onDelete: PropTypes.func,
   id: PropTypes.string,
   label: PropTypes.string,
   helpText: PropTypes.string,

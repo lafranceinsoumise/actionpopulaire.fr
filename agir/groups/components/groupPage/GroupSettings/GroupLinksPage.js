@@ -8,16 +8,18 @@ import TextField from "@agir/front/formComponents/TextField";
 import Button from "@agir/front/genericComponents/Button";
 
 import { StyledTitle } from "./styledComponents.js";
-import style from "@agir/front/genericComponents/_variables.scss";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 
 const LINKS = [true];
 const [NEW_LINK, EDIT_LINK] = [1, 2];
 
 const GroupLinksPage = (props) => {
-  const { onBack, illustration } = props;
+  const { onBack, illustration, groupPk } = props;
   const [config, setConfig] = useState(null);
   const [formData, setFormData] = useState({});
+
+  const group = useGroup(groupPk);
 
   const handleInputChange = useCallback((e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -74,7 +76,10 @@ const GroupLinksPage = (props) => {
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle>Liens et réseaux sociaux de l’équipe</StyledTitle>
+      <StyledTitle>
+        Liens et réseaux sociaux
+        {" " + (group.is2022 ? "de l'équipe" : "du groupe")}
+      </StyledTitle>
 
       <Spacer size="1rem" />
 

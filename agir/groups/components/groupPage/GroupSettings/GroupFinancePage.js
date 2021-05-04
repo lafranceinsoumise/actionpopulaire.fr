@@ -8,11 +8,16 @@ import HeaderPanel from "./HeaderPanel";
 import { StyledTitle } from "./styledComponents.js";
 
 import { getFinance } from "@agir/groups/groupPage/api.js";
+import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
+
+const [GROUP_IS_2022, GROUP_LFI] = ["équipe", "groupe"];
 
 const GroupFinancePage = (props) => {
   const { onBack, illustration, groupPk } = props;
 
   const [donation, setDonation] = useState(0);
+
+  const group = useGroup(groupPk);
 
   const getFinanceAPI = async () => {
     const res = await getFinance(groupPk);
@@ -27,7 +32,10 @@ const GroupFinancePage = (props) => {
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
 
-      <StyledTitle>Dons alloués aux personnes de mon groupe</StyledTitle>
+      <StyledTitle>
+        Dons alloués aux personnes de mon
+        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
+      </StyledTitle>
 
       <Spacer size="1rem" />
 
@@ -60,9 +68,15 @@ const GroupFinancePage = (props) => {
 
       <Spacer size="1rem" />
 
-      <StyledTitle>Solliciter des dons pour mon groupe</StyledTitle>
+      <StyledTitle>
+        Solliciter des dons pour mon
+        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
+      </StyledTitle>
 
-      <span>Partagez ce lien pour solliciter des dons pour votre groupe :</span>
+      <span>
+        Partagez ce lien pour solliciter des dons pour votre
+        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI) + " "} :
+      </span>
 
       <ShareLink
         color="primary"

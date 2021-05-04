@@ -3,6 +3,7 @@ import useSWR from "swr";
 
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
+import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
 import ImageField from "@agir/front/formComponents/ImageField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
@@ -13,6 +14,8 @@ import {
 } from "@agir/groups/groupPage/api.js";
 
 import { StyledTitle } from "./styledComponents.js";
+
+const [GROUP_IS_2022, GROUP_LFI] = ["de l'équipe", "du groupe"];
 
 const GroupGeneralPage = (props) => {
   const { onBack, illustration, groupPk } = props;
@@ -53,6 +56,12 @@ const GroupGeneralPage = (props) => {
     },
     [isNewImage]
   );
+
+  const handleDescriptionChange = useCallback((value) => {
+    // lose focus if uncomment :
+    // setErrors((errors) => ({ ...errors, ["description"]: null }));
+    setFormData((formData) => ({ ...formData, ["description"]: value }));
+  }, []);
 
   const handleChangeCertified = useCallback((event) => {
     setIsCertified(event.target.checked);
@@ -113,7 +122,7 @@ const GroupGeneralPage = (props) => {
       <TextField
         id="name"
         name="name"
-        label="Nom du groupe*"
+        label={`Nom ${" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}*`}
         onChange={handleChange}
         value={formData.name}
         error={errors?.name}
@@ -121,13 +130,14 @@ const GroupGeneralPage = (props) => {
 
       <Spacer size="1rem" />
 
-      <TextField
-        textArea={true}
+      <RichTextField
         id="description"
         name="description"
-        label="Description du groupe*"
+        label={`Description ${
+          " " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)
+        }*`}
         placeholder=""
-        onChange={handleChange}
+        onChange={handleDescriptionChange}
         value={formData.description}
         error={errors?.description}
       />

@@ -118,8 +118,9 @@ const GroupLocalizationPage = (props) => {
         indiquez un endroit à proximité (café, mairie...)
         <Spacer size="0.5rem" />
         <strong>
-          Merci d'indiquer une adresse précise avec numéro de rue, sans quoi le
-          groupe n'apparaîtra pas sur la carte.
+          Merci d'indiquer une adresse précise avec numéro de rue, sans quoi
+          {" " + (group.is2022 ? "l'équipe" : "le groupe") + " "} n'apparaîtra
+          pas sur la carte.
         </strong>
       </span>
 

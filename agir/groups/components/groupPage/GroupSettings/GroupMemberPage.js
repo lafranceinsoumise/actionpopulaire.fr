@@ -64,7 +64,9 @@ const GroupMemberPage = (props) => {
       <ShareLink
         label="Copier"
         url={`https://actionpopulaire.fr/groupe/${group?.id}`}
-        title="Partagez le lien public de l'équipe"
+        title={`Partagez le lien public ${
+          group.is2022 ? "de l'équipe" : "du groupe"
+        }`}
       />
 
       {group.is2022 === false && (
@@ -75,7 +77,7 @@ const GroupMemberPage = (props) => {
             title={
               <>
                 Invitez de nouveaux membres{" "}
-                <InlineBlock>dans votre équipe !</InlineBlock>
+                <InlineBlock>dans votre groupe !</InlineBlock>
               </>
             }
           />
@@ -85,7 +87,11 @@ const GroupMemberPage = (props) => {
       <hr />
 
       <Link href={group?.routes?.membershipTransfer}>
-        Transférer des membres de votre équipe vers une autre équipe
+        {`Transférer des membres de votre ${
+          group.is2022 === false ? "groupe" : "équipe"
+        } vers ${
+          group.is2022 === false ? "un autre groupe" : "une autre équipe"
+        }`}
       </Link>
     </>
   );
