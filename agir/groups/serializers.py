@@ -263,6 +263,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             routes["geolocate"] = front_url(
                 "change_group_location", kwargs={"pk": obj.pk}
             )
+            routes["createSpendingRequest"] = front_url(
+                "create_spending_request", kwargs={"group_id": obj.pk}
+            )
             if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
                 routes["materiel"] = front_url(
                     "manage_group", query={"active": "materiel"}, kwargs={"pk": obj.pk}
