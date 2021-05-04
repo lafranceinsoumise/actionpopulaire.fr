@@ -111,6 +111,7 @@ const ImageField = forwardRef((props, ref) => {
             name={name}
             type="file"
             onChange={handleChange}
+            value=""
           />
           <Button type="button" inline $wrap onClick={handleClick}>
             <RawFeatherIcon name="camera" style={{ marginRight: "0.5rem" }} />
