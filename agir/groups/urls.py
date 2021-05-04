@@ -88,6 +88,11 @@ api_urlpatterns = [
         name="api_group_members",
     ),
     path(
+        "members/<int:pk>/",
+        views.GroupMemberUpdateAPIView.as_view(),
+        name="api_group_member_update",
+    ),
+    path(
         "<uuid:pk>/update/",
         views.GroupUpdateAPIView.as_view(),
         name="api_group_general",
@@ -96,11 +101,6 @@ api_urlpatterns = [
         "<uuid:pk>/invitation/",
         views.GroupInvitationAPIView.as_view(),
         name="api_group_invitation",
-    ),
-    path(
-        "<uuid:pk>/gestion/",
-        views.GroupManagementAPIView.as_view(),
-        name="api_group_management",
     ),
     path(
         "<uuid:pk>/finance/",

@@ -67,7 +67,7 @@ __all__ = [
     "GroupMembersAPIView",
     "GroupUpdateAPIView",
     "GroupInvitationAPIView",
-    "GroupManagementAPIView",
+    "GroupMemberUpdateAPIView",
     "GroupDonationAPIView",
 ]
 
@@ -525,38 +525,15 @@ class GroupManagementPermission(GlobalOrObjectPermissions):
     }
 
 
-class GroupManagementAPIView(GenericAPIView):
-    queryset = SupportGroup.objects.all()
+class GroupMemberUpdateAPIView(UpdateAPIView):
+    queryset = Membership.objects.all()
     permission_classes = (GroupManagementPermission,)
     serializer_class = MembershipSerializer
 
-    def patch(self, request, *args, **kwargs):
-        group = self.get_object()
-        user_id = self.request.user.person.id
-        email = request.data.get("email", "")
-        role = request.data.get("role", "")
-
-        if role == "manager":
-            role = Membership.MEMBERSHIP_TYPE_MANAGER
-        elif role == "referent":
-            role = Membership.MEMBERSHIP_TYPE_REFERENT
-        else:
-            raise exceptions.ValidationError(
-                detail={"role": "Ce role n'existe pas."}, code="invalid_format",
-            )
-
-        try:
-            p = Person.objects.get_by_natural_key(email)
-            member = Membership.objects.get(supportgroup=group, person=p)
-        except (Person.DoesNotExist, Membership.DoesNotExist):
-            raise exceptions.ValidationError(
-                detail={"email": "Cette personne n'est pas membre de votre groupe !"},
-                code="invalid_format",
-            )
-
-        serializer = MembershipSerializer(member)
-        serializer.update(instance=member, validated_data={"membershipType": role})
-        return Response(status=status.HTTP_201_CREATED)
+    def get_object(self):
+        membership = super(GroupMemberUpdateAPIView, self).get_object()
+        self.check_object_permissions(self.request, membership.supportgroup)
+        return membership
 
 
 class GroupFinancePermission(GlobalOrObjectPermissions):
