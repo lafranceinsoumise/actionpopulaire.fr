@@ -82,10 +82,11 @@ const HorizontalFlex = styled.div`
 `;
 
 const MenuLink = styled.a`
+  "@media only screen and 
   ${(small) =>
     small
-      ? "@media only screen and (min-width: ${style.collapse}px) {display: none;}"
-      : "@media only screen and (max-width: ${+style.collapse - 1}px) {display: none;}"};
+      ? "(min-width: ${style.collapse}px) {display: none;}"
+      : "(max-width: ${+style.collapse - 1}px) {display: none;}"};
 `;
 
 export const TopBar = ({ path }) => {
