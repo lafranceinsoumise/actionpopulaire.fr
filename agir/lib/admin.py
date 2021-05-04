@@ -3,6 +3,7 @@ from typing import Iterable
 import django_countries
 from django.contrib import admin
 from django.contrib.admin import helpers
+from django.contrib.admin.options import IS_POPUP_VAR
 from django.db.models import Model
 from django.urls import reverse
 from django.utils.html import escape, format_html_join
@@ -116,7 +117,10 @@ class AdminViewMixin(ContextMixin, View):
         kwargs.setdefault("opts", model_admin.model._meta)
         kwargs.setdefault("add", False)
         kwargs.setdefault("change", False)
-        kwargs.setdefault("is_popup", False)
+        kwargs.setdefault(
+            "is_popup",
+            IS_POPUP_VAR in self.request.POST or IS_POPUP_VAR in self.request.GET,
+        )
         kwargs.setdefault("save_as", False)
         kwargs.setdefault(
             "has_add_permission", model_admin.has_add_permission(self.request)

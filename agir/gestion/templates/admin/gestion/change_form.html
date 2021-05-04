@@ -1,4 +1,27 @@
 {% extends "admin/change_form.html" %}
+{% load static admin_urls %}
+
+{% block extrahead %}{{ block.super }}
+  <link rel="stylesheet" href="{% static "admin/gestion/style.css" %}">
+{% endblock %}
+
+{% block field_sets %}
+  {% if todos %}
+    <div class="todos module">
+      <h2>À faire sur cette page</h2>
+
+      {% for category, ts in todos %}
+        <h3>{{ category }}</h3>
+        <ul>
+          {% for message, niveau in ts %}
+            <li class="{{ niveau }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
 
 {% block after_field_sets %}
   {% if montrer_commentaires %}
@@ -8,16 +31,17 @@
         <div class="form-row">
           <div>
             <label><strong>
-              {% if commentaire.auteur %}
-                {{ commentaire.auteur.get_full_name }}
-              {% else %}
-                {{ commentaire.auteur_nom }}
-              {% endif %}</strong>
+              {{ commentaire.get_auteur_display }}
+            </strong>
               <br>
               {{ commentaire.created|date:"SHORT_DATETIME_FORMAT" }}
             </label>
             <div>
-              <h3>{{ commentaire.get_type_display }}</h3>
+              <h3>{{ commentaire.get_type_display }} —
+                <small><a href="{% url opts|admin_urlname:"cacher_commentaire" commentaire.id|admin_urlquote %}">
+                  Cacher ce commentaire
+                </a></small>
+              </h3>
               <div>{{ commentaire.texte }}</div>
             </div>
           </div>

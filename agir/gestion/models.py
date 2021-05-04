@@ -89,6 +89,16 @@ class Commentaire(TimeStampedModel):
 
     cache = models.BooleanField(verbose_name="Commentaire caché", default=False)
 
+    def get_auteur_display(self):
+        if self.auteur:
+            disp = str(self.auteur)
+            if self.auteur_nom != disp:
+                self.auteur_nom = disp
+                self.save(update_fields=["auteur_nom"])
+            return str(disp)
+        else:
+            return self.auteur_nom
+
     class Meta:
         ordering = ("created",)
 
@@ -398,6 +408,11 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
 
         # noinspection PyTypeChecker
         return self.validation_etat[self.validation]
+
+    def todos(self):
+        from .actions.depenses import todo
+
+        return todo(self)
 
     class Meta:
         verbose_name = "Dépense"
