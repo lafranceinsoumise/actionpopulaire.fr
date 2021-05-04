@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useCallback, useMemo, useRef } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -46,20 +46,10 @@ const StyledField = styled.div`
 `;
 
 const ImageField = forwardRef((props, ref) => {
-  const {
-    id,
-    name,
-    value,
-    onChange,
-    onDelete,
-    error,
-    label,
-    helpText,
-    ...rest
-  } = props;
+  const { id, name, value, onChange, error, label, helpText, ...rest } = props;
 
-  const labelRef = React.useRef(null);
-  const handleChange = React.useCallback(
+  const labelRef = useRef(null);
+  const handleChange = useCallback(
     (e) => {
       e?.target?.files &&
         onChange &&
@@ -68,11 +58,11 @@ const ImageField = forwardRef((props, ref) => {
     [onChange]
   );
 
-  const handleClick = React.useCallback(() => {
+  const handleClick = useCallback(() => {
     labelRef.current && labelRef.current.click();
   }, []);
 
-  const thumbnail = React.useMemo(() => {
+  const thumbnail = useMemo(() => {
     if (typeof value === "string") {
       return value;
     }
@@ -83,7 +73,7 @@ const ImageField = forwardRef((props, ref) => {
     return null;
   }, [value]);
 
-  const imageName = React.useMemo(() => {
+  const imageName = useMemo(() => {
     if (typeof value === "string") {
       return value;
     }
@@ -102,7 +92,11 @@ const ImageField = forwardRef((props, ref) => {
             <img
               src={thumbnail}
               alt=""
-              style={{ maxWidth: "178px", maxHeight: "100px", marginRight: "1.5rem" }}
+              style={{
+                maxWidth: "178px",
+                maxHeight: "100px",
+                marginRight: "1.5rem",
+              }}
             />
           </>
         )}
@@ -121,8 +115,12 @@ const ImageField = forwardRef((props, ref) => {
             <RawFeatherIcon name="camera" style={{ marginRight: "0.5rem" }} />
             {imageName ? "Remplacer l'image" : "Ajouter une image"}
           </Button>
-          {imageName && onDelete && (
-            <a href="#" onClick={onDelete} style={{ marginTop: "0.5rem" }}>
+          {imageName && (
+            <a
+              href="#"
+              onClick={() => onChange(null)}
+              style={{ marginTop: "0.5rem" }}
+            >
               Supprimer l'image
             </a>
           )}
@@ -136,7 +134,6 @@ const ImageField = forwardRef((props, ref) => {
 ImageField.propTypes = {
   value: PropTypes.any,
   onChange: PropTypes.func.isRequired,
-  onDelete: PropTypes.func,
   id: PropTypes.string,
   label: PropTypes.string,
   helpText: PropTypes.string,

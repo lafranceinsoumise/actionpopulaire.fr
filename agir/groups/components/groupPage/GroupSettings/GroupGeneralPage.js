@@ -33,20 +33,26 @@ const GroupGeneralPage = (props) => {
     setFormData((formData) => ({ ...formData, [name]: value }));
   }, []);
 
-  const handleChangeImage = useCallback((value) => {
-    setErrors((errors) => ({ ...errors, image: null }));
-    setIsNewImage(true);
-    setFormData((formData) => ({ ...formData, image: value }));
-  }, []);
+  const handleChangeImage = useCallback(
+    async (value) => {
+      setErrors((errors) => ({ ...errors, image: null }));
 
-  const handleDeleteImage = async () => {
-    if (isNewImage) {
-      setIsNewImage(false);
-      setFormData((formData) => ({ ...formData, image: null }));
-      return;
-    }
-    // TODO : remove image of group from api
-  };
+      if (!!value) {
+        setIsNewImage(true);
+        setFormData((formData) => ({ ...formData, image: value }));
+        return;
+      }
+
+      if (isNewImage) {
+        setIsNewImage(false);
+        setFormData((formData) => ({ ...formData, image: null }));
+        return;
+      }
+
+      // TODO : remove image of group from api
+    },
+    [isNewImage]
+  );
 
   const handleChangeCertified = useCallback((event) => {
     setIsCertified(event.target.checked);
@@ -140,7 +146,6 @@ const GroupGeneralPage = (props) => {
         name="image"
         value={formData.image}
         onChange={handleChangeImage}
-        onDelete={isNewImage ? handleDeleteImage : null}
         error={errors?.image}
       />
 
