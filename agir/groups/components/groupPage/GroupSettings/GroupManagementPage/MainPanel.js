@@ -1,31 +1,29 @@
 import PropTypes from "prop-types";
 import React, { Fragment } from "react";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import GroupMember from "@agir/groups/groupPage/GroupSettings/GroupMember";
 import AddPair from "@agir/groups/groupPage/GroupSettings/AddPair";
-import HeaderPanel from "@agir/groups/groupPage/GroupSettings/HeaderPanel";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
-import style from "@agir/front/genericComponents/_variables.scss";
 
 import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
 
 const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 
 const MainPanel = (props) => {
-  const {
-    onBack,
-    editManager,
-    editReferent,
-    illustration,
-    members,
-    is2022,
-  } = props;
+  const { editManager, editReferent, members, is2022 } = props;
 
   return (
     <>
-      <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Animateurs et animatrices</StyledTitle>
-      <Spacer size="0.5rem" />
+      <span>
+        Les animateur·ices organisent la vie{" "}
+        {is2022 ? "de l'équipe" : "du groupe"}. Pour respecter la charte des{" "}
+        {is2022 ? "équipes de soutien" : "groupes d'action"}, votre{" "}
+        {is2022 ? "équipe" : "groupe"} doit être animée à parité de genre.
+      </span>
+      <Spacer size="1rem" />
       {members.map(
         (member) =>
           REFERENT === member.membershipType && (
@@ -48,20 +46,16 @@ const MainPanel = (props) => {
           <Spacer size="2rem" />
         </>
       )}
-      <span>
-        Les animateur·ices organisent la vie{" "}
-        {is2022 ? "de l'équipe" : "du groupe"}. Pour respecter la charte des{" "}
-        {is2022 ? "équipes de soutien" : "groupes d'action"}, votre{" "}
-        {is2022 ? "équipe" : "groupe"} doit être animée à parité de genre.
-      </span>
       <Spacer size="1rem" />
       <StyledTitle>Gestionnaires</StyledTitle>
       <span>
-        Ajoutez des gestionnaires pour vous assiter sur la gestion{" "}
-        {is2022 ? "de l'équipe" : "du groupe"} au quotidien sur la plate-forme.
+        Ajoutez des gestionnaires pour vous assister sur Action Populaire.
+      </span>
+      <Spacer size="0.5rem" />
+      <span>
         Ces derniers ont accès à la liste des membres, peuvent modifier les
-        informations {is2022 ? "de l'équipe" : "du groupe"}, et créer des
-        événements au nom {is2022 ? "de l'équipe" : "du groupe"}.
+        informations et créer des événements au nom{" "}
+        {is2022 ? "de l'équipe" : "du groupe"}.
       </span>
       <Spacer size="1rem" />
       {members.map(
@@ -100,8 +94,6 @@ const MainPanel = (props) => {
 };
 
 MainPanel.propTypes = {
-  onBack: PropTypes.func,
-  illustration: PropTypes.string,
   members: PropTypes.arrayOf(PropTypes.object),
   editManager: PropTypes.func,
   editReferent: PropTypes.func,
