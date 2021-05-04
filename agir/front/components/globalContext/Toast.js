@@ -142,6 +142,7 @@ Toast.propTypes = {
       message: PropTypes.string.isRequired,
       html: PropTypes.bool,
       type: PropTypes.oneOf(Object.keys(TOAST_TYPES)),
+      autoClose: PropTypes.bool,
     })
   ),
   onClear: PropTypes.func,

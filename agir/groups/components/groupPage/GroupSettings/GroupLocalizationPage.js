@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
-import { Toast, TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
+import { TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
+import { useDispatch } from "@agir/front/globalContext/GlobalContext";
+import { addToasts } from "@agir/front/globalContext/actions";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Map from "@agir/carte/common/Map";
@@ -32,6 +34,7 @@ const StyledMapConfig = styled(Map)`
 
 const GroupLocalizationPage = (props) => {
   const { onBack, illustration, groupPk } = props;
+  const dispatch = useDispatch();
   const [formLocation, setFormLocation] = useState({});
   const [config, setConfig] = useState(null);
   const [errors, setErrors] = useState({});
@@ -41,10 +44,6 @@ const GroupLocalizationPage = (props) => {
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
   );
-
-  const clearToasts = useCallback(() => {
-    setToasts([]);
-  }, []);
 
   const handleInputChange = useCallback((_, name, value) => {
     setFormLocation((formLocation) => ({ ...formLocation, [name]: value }));
@@ -62,12 +61,15 @@ const GroupLocalizationPage = (props) => {
         setErrors(res.error?.location);
         return;
       }
-      setToasts([
-        {
-          message: "Informations mises à jour",
-          type: TOAST_TYPES.SUCCESS,
-        },
-      ]);
+      dispatch(
+        addToasts([
+          {
+            message: "Informations mises à jour",
+            type: TOAST_TYPES.SUCCESS,
+            autoClose: true,
+          },
+        ])
+      );
       mutate((group) => {
         return { ...group, ...res.data };
       });
@@ -156,8 +158,6 @@ const GroupLocalizationPage = (props) => {
       <a href="#" style={{ color: style.redNSP }}>
         Supprimer la localisation (déconseillé)
       </a> */}
-
-      <Toast autoClose onClear={clearToasts} toasts={toasts} />
     </form>
   );
 };

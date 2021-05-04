@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
-import { Toast, TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
+import { TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
+import { useDispatch } from "@agir/front/globalContext/GlobalContext";
+import { addToasts } from "@agir/front/globalContext/actions";
+
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
@@ -20,6 +23,7 @@ const [GROUP_IS_2022, GROUP_LFI] = ["de l'équipe", "du groupe"];
 
 const GroupGeneralPage = (props) => {
   const { onBack, illustration, groupPk } = props;
+  const dispatch = useDispatch();
 
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
@@ -30,7 +34,6 @@ const GroupGeneralPage = (props) => {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [toasts, setToasts] = useState([]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -52,10 +55,6 @@ const GroupGeneralPage = (props) => {
 
   const handleChangeCertified = useCallback((event) => {
     setIsCertified(event.target.checked);
-  }, []);
-
-  const clearToasts = useCallback(() => {
-    setToasts([]);
   }, []);
 
   const handleSubmit = useCallback(
@@ -86,12 +85,15 @@ const GroupGeneralPage = (props) => {
         setErrors(res.error);
         return;
       }
-      setToasts([
-        {
-          message: "Informations mises à jour",
-          type: TOAST_TYPES.SUCCESS,
-        },
-      ]);
+      dispatch(
+        addToasts([
+          {
+            message: "Informations mises à jour",
+            type: TOAST_TYPES.SUCCESS,
+            autoClose: true,
+          },
+        ])
+      );
       mutate((group) => {
         return { ...group, ...res.data };
       });
@@ -176,8 +178,6 @@ const GroupGeneralPage = (props) => {
       <Button color="secondary" $wrap disabled={isLoading}>
         Enregistrer les informations
       </Button>
-
-      <Toast autoClose onClear={clearToasts} toasts={toasts} />
     </form>
   );
 };

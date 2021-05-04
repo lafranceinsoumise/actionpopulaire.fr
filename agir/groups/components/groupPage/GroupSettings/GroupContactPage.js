@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
-import { Toast, TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
+import { TOAST_TYPES } from "@agir/front/globalContext/Toast.js";
+import { useDispatch } from "@agir/front/globalContext/GlobalContext";
+import { addToasts } from "@agir/front/globalContext/actions";
+
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
@@ -17,10 +20,10 @@ import {
 
 const GroupContactPage = (props) => {
   const { onBack, illustration, groupPk } = props;
+  const dispatch = useDispatch();
   const [contact, setContact] = useState({});
   const [errors, setErrors] = useState({});
   const [isLoading, setIsloading] = useState(true);
-  const [toasts, setToasts] = useState([]);
 
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
@@ -40,10 +43,6 @@ const GroupContactPage = (props) => {
     [contact]
   );
 
-  const clearToasts = useCallback(() => {
-    setToasts([]);
-  }, []);
-
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -56,12 +55,15 @@ const GroupContactPage = (props) => {
         setErrors(res.error?.contact);
         return;
       }
-      setToasts([
-        {
-          message: "Informations mises à jour",
-          type: TOAST_TYPES.SUCCESS,
-        },
-      ]);
+      dispatch(
+        addToasts([
+          {
+            message: "Informations mises à jour",
+            type: TOAST_TYPES.SUCCESS,
+            autoClose: true,
+          },
+        ])
+      );
       mutate((group) => {
         return { ...group, ...res.data };
       });
@@ -138,8 +140,6 @@ const GroupContactPage = (props) => {
       <Button color="secondary" type="submit" disabled={isLoading}>
         Enregistrer
       </Button>
-
-      <Toast autoClose onClear={clearToasts} toasts={toasts} />
     </form>
   );
 };
