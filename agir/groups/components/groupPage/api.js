@@ -24,7 +24,7 @@ export const ENDPOINT = {
   getMembers: "/api/groupes/:groupPk/members/",
   updateGroup: "/api/groupes/:groupPk/update/",
   inviteToGroup: "/api/groupes/:groupPk/invitation/",
-  addRoleToMember: "/api/groupes/:groupPk/gestion/",
+  updateMember: "/api/groupes/members/:memberPk/",
   getFinance: "/api/groupes/:groupPk/finance/",
 
   report: "/api/report/",
@@ -209,7 +209,7 @@ export const updateGroup = async (groupPk, data) => {
   };
   const url = getGroupPageEndpoint("updateGroup", { groupPk });
   let headers = undefined;
-  if (!!data.image) {
+  if (typeof data.image !== "undefined") {
     headers = {
       "content-type": "multipart/form-data",
     };
@@ -241,12 +241,12 @@ export const inviteToGroup = async (groupPk, data) => {
   return result;
 };
 
-export const addRoleToMember = async (groupPk, data) => {
+export const updateMember = async (memberPk, data) => {
   const result = {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("addRoleToMember", { groupPk });
+  const url = getGroupPageEndpoint("updateMember", { memberPk });
 
   try {
     const response = await axios.patch(url, data);
