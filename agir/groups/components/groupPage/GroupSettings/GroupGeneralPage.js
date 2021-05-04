@@ -36,11 +36,26 @@ const GroupGeneralPage = (props) => {
     setFormData((formData) => ({ ...formData, [name]: value }));
   }, []);
 
-  const handleChangeImage = useCallback((value) => {
-    setErrors((errors) => ({ ...errors, image: null }));
-    setIsNewImage(true);
-    setFormData((formData) => ({ ...formData, image: value }));
-  }, []);
+  const handleChangeImage = useCallback(
+    async (value) => {
+      setErrors((errors) => ({ ...errors, image: null }));
+
+      if (!!value) {
+        setIsNewImage(true);
+        setFormData((formData) => ({ ...formData, image: value }));
+        return;
+      }
+
+      if (isNewImage) {
+        setIsNewImage(false);
+        setFormData((formData) => ({ ...formData, image: null }));
+        return;
+      }
+
+      // TODO : remove image of group from api
+    },
+    [isNewImage]
+  );
 
   const handleDescriptionChange = useCallback((value) => {
     // lose focus if uncomment :
@@ -50,6 +65,7 @@ const GroupGeneralPage = (props) => {
 
   const handleChangeCertified = useCallback((event) => {
     setIsCertified(event.target.checked);
+    setErrors((errors) => ({ ...errors, image: null }));
   }, []);
 
   const handleSubmit = useCallback(
@@ -144,20 +160,23 @@ const GroupGeneralPage = (props) => {
       />
 
       {isNewImage && (
-        <CheckboxField
-          value={isCertified}
-          label={
-            <>
-              En important une image, je certifie être le propriétaire des
-              droits et accepte de la partager sous licence libre{" "}
-              <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/">
-                Creative Commons CC-BY-NC 3.0
-              </a>
-              .
-            </>
-          }
-          onChange={handleChangeCertified}
-        />
+        <>
+          <Spacer size="0.5rem" />
+          <CheckboxField
+            value={isCertified}
+            label={
+              <>
+                En important une image, je certifie être le propriétaire des
+                droits et accepte de la partager sous licence libre{" "}
+                <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/">
+                  Creative Commons CC-BY-NC 3.0
+                </a>
+                .
+              </>
+            }
+            onChange={handleChangeCertified}
+          />
+        </>
       )}
 
       <Spacer size="2rem" />
