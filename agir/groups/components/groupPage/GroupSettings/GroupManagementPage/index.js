@@ -7,15 +7,11 @@ import useSWR from "swr";
 import style from "@agir/front/genericComponents/_variables.scss";
 import MainPanel from "./MainPanel";
 import EditionPanel from "./EditionPanel";
-import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
 import HeaderPanel from "@agir/groups/groupPage/GroupSettings/HeaderPanel";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
-
-import MainPanel from "./MainPanel";
-import EditionPanel from "./EditionPanel";
 
 import {
   getGroupPageEndpoint,
