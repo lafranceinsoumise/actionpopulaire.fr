@@ -84,7 +84,7 @@ const GroupManagementPage = (props) => {
     mutate((members) =>
       members.map((member) => (member.id === res.data.id ? res.data : member))
     );
-  }, [mutate, selectedMember, selectedMembershipType]);
+  }, [mutate, selectedMember, selectedMembershipType, sendToast]);
 
   const handleBack = useCallback(() => {
     setSelectedMember(null);

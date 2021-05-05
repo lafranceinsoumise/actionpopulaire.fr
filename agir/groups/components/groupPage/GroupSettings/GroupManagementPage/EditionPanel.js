@@ -51,7 +51,11 @@ const EditionPanel = (props) => {
   const candidates = useMemo(
     () =>
       members && selectedMembershipType
-        ? members.filter((m) => selectedMembershipType !== m.membershipType)
+        ? members.filter((m) =>
+            selectedMembershipType === REFERENT
+              ? m.membershipType !== REFERENT
+              : m.membershipType === MEMBER
+          )
         : [],
     [members, selectedMembershipType]
   );
