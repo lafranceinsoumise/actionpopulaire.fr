@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import logo from "@agir/front/genericComponents/logos/action-populaire_primary_mini.svg";
+
+import { useMobileApp } from "@agir/front/app/hooks.js";
+import { useCustomAnnouncement } from "@agir/activity/common/hooks";
+import { CONFIG } from "@agir/front/genericComponents/AppStore.js";
 
 const StyledContainer = styled.div`
   display: flex;
@@ -66,19 +70,41 @@ const InlineBlock = styled.span`
   display: inline-block;
 `;
 
+const StyledFeatherIcon = styled(FeatherIcon)`
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 export const DownloadApp = () => {
+  const { isMobileApp, isIOS } = useMobileApp();
+  const [hasBannerDownload, dismissBannerDownload] = useCustomAnnouncement(
+    "bannerDownload"
+  );
+
+  const dismissDownload = useCallback(async () => {
+    await dismissBannerDownload();
+  }, [dismissBannerDownload]);
+
+  if (isMobileApp) return null;
+
+  if (!hasBannerDownload) return null;
+
   return (
     <StyledContainer>
-      <div style={{ padding: "0.5rem" }}>
-        <FeatherIcon
+      <div
+        style={{ padding: "0.5rem", cursor: "pointer" }}
+        onClick={dismissDownload}
+      >
+        <StyledFeatherIcon
           name="x"
           color="#fff"
-          width="7px"
-          height="7px"
-          style={{ width: "7px", height: "7px" }}
+          width="0.5rem"
+          height="0.5rem"
+          small
         />
       </div>
-      <img src={logo} alt="" style={{ width: "52px", height: "52px" }} />
+      <img src={logo} alt="Logo" style={{ width: "52px", height: "52px" }} />
       <Content>
         <Title>ACTION POPULAIRE</Title>
         <Description>
@@ -87,10 +113,13 @@ export const DownloadApp = () => {
         </Description>
       </Content>
       <div style={{ paddingRight: "18px" }}>
-        <DownloadMinus as="a" href="#">
+        <DownloadMinus
+          as="a"
+          href={isIOS ? CONFIG.apple.href : CONFIG.google.href}
+        >
           <FeatherIcon name="download" color={style.primary500} />
         </DownloadMinus>
-        <Download as="a" href="#">
+        <Download as="a" href={isIOS ? CONFIG.apple.href : CONFIG.google.href}>
           Télécharger
         </Download>
       </div>
