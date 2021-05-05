@@ -7,6 +7,7 @@ import styled from "styled-components";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import { Column, Row } from "@agir/front/genericComponents/grid";
+import { useToast } from "@agir/front/globalContext/hooks.js";
 
 import { inviteToGroup } from "@agir/groups/groupPage/api.js";
 
@@ -33,6 +34,7 @@ const StyledDiv = styled.div`
 
 const GroupInvitation = (props) => {
   const { title, groupPk } = props;
+  const sendToast = useToast();
 
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState({});
@@ -50,6 +52,7 @@ const GroupInvitation = (props) => {
         setErrors(res.error);
         return;
       }
+      sendToast("Invitation envoyée", "SUCCESS", { autoClose: true });
       setEmail("");
     },
     [email]

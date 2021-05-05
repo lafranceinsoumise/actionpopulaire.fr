@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
+import { useToast } from "@agir/front/globalContext/hooks.js";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
@@ -19,6 +21,7 @@ import {
 
 const GroupContactPage = (props) => {
   const { onBack, illustration, groupPk } = props;
+  const sendToast = useToast();
   const [contact, setContact] = useState({});
   const [errors, setErrors] = useState({});
   const [isLoading, setIsloading] = useState(true);
@@ -53,11 +56,12 @@ const GroupContactPage = (props) => {
         setErrors(res.error?.contact);
         return;
       }
+      sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
       mutate((group) => {
         return { ...group, ...res.data };
       });
     },
-    [contact, groupPk, mutate]
+    [contact, groupPk, mutate, sendToast]
   );
 
   useEffect(() => {

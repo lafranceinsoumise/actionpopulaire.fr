@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
+import { useToast } from "@agir/front/globalContext/hooks.js";
+
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Map from "@agir/carte/common/Map";
@@ -32,6 +34,7 @@ const StyledMapConfig = styled(Map)`
 
 const GroupLocalizationPage = (props) => {
   const { onBack, illustration, groupPk } = props;
+  const sendToast = useToast();
   const [formLocation, setFormLocation] = useState({});
   const [config, setConfig] = useState(null);
   const [errors, setErrors] = useState({});
@@ -57,6 +60,7 @@ const GroupLocalizationPage = (props) => {
         setErrors(res.error?.location);
         return;
       }
+      sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
       mutate((group) => {
         return { ...group, ...res.data };
       });
@@ -136,7 +140,7 @@ const GroupLocalizationPage = (props) => {
       />
 
       <Spacer size="2rem" />
-      <Button color="secondary" $wrap>
+      <Button color="secondary" $wrap disabled={isLoading}>
         Enregistrer
       </Button>
 

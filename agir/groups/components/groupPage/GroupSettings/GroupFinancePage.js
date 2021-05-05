@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -37,6 +37,7 @@ const GroupFinancePage = (props) => {
   const [donation, setDonation] = useState(0);
 
   const group = useGroup(groupPk);
+  const is2022 = useMemo(() => group?.is2022, [group]);
 
   const getFinanceAPI = useCallback(async (groupPk) => {
     const res = await getFinance(groupPk);
@@ -53,7 +54,7 @@ const GroupFinancePage = (props) => {
 
       <StyledTitle>
         Dons alloués aux personnes de mon
-        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
+        {" " + (is2022 ? GROUP_IS_2022 : GROUP_LFI)}
       </StyledTitle>
 
       <Spacer size="1rem" />
@@ -92,12 +93,12 @@ const GroupFinancePage = (props) => {
 
       <StyledTitle>
         Solliciter des dons pour mon
-        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
+        {" " + (is2022 ? GROUP_IS_2022 : GROUP_LFI)}
       </StyledTitle>
 
       <span style={{ color: style.black700 }}>
         Partagez ce lien pour solliciter des dons pour votre
-        {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI) + " "} :
+        {" " + (is2022 ? GROUP_IS_2022 : GROUP_LFI) + " "} :
       </span>
 
       <ShareLink

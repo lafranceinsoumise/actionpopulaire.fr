@@ -63,6 +63,7 @@ const StyledContainer = styled(ToastContainer)`
 
 const CloseButton = ({ closeToast }) => (
   <button
+    type="button"
     style={{
       width: "24px",
       height: "24px",
@@ -97,7 +98,7 @@ const CloseButton = ({ closeToast }) => (
 );
 
 export const Toast = (props) => {
-  const { toasts = [], onClear } = props;
+  const { toasts = [], onClear, autoClose = false } = props;
 
   useEffect(() => {
     toasts.forEach((t) => {
@@ -112,7 +113,7 @@ export const Toast = (props) => {
           position: toast.POSITION.BOTTOM_LEFT,
           type: TOAST_TYPES[t.type.toUpperCase()],
           onClose: () => onClear(t),
-          autoClose: false,
+          autoClose: autoClose,
           closeOnClick: false,
         }
       );
@@ -141,6 +142,7 @@ Toast.propTypes = {
       message: PropTypes.string.isRequired,
       html: PropTypes.bool,
       type: PropTypes.oneOf(Object.keys(TOAST_TYPES)),
+      autoClose: PropTypes.bool,
     })
   ),
   onClear: PropTypes.func,

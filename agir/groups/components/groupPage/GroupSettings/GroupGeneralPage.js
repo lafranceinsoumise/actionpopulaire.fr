@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
+import { useToast } from "@agir/front/globalContext/hooks.js";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -22,6 +24,7 @@ const [GROUP_IS_2022, GROUP_LFI] = ["de l'équipe", "du groupe"];
 
 const GroupGeneralPage = (props) => {
   const { onBack, illustration, groupPk } = props;
+  const sendToast = useToast();
 
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
@@ -89,11 +92,19 @@ const GroupGeneralPage = (props) => {
         setErrors(res.error);
         return;
       }
+      sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
       mutate((group) => {
         return { ...group, ...res.data };
       });
     },
-    [mutate, formData, groupPk, hasCheckedImageLicence, imageHasChanged]
+    [
+      mutate,
+      formData,
+      groupPk,
+      hasCheckedImageLicence,
+      imageHasChanged,
+      sendToast,
+    ]
   );
 
   useEffect(() => {

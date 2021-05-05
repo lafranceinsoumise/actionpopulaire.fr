@@ -5,13 +5,13 @@ import styled from "styled-components";
 import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import MainPanel from "./MainPanel";
+import EditionPanel from "./EditionPanel";
+import { useToast } from "@agir/front/globalContext/hooks.js";
 
 import HeaderPanel from "@agir/groups/groupPage/GroupSettings/HeaderPanel";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
-
-import MainPanel from "./MainPanel";
-import EditionPanel from "./EditionPanel";
 
 import {
   getGroupPageEndpoint,
@@ -42,6 +42,7 @@ const EditionPanelWrapper = styled(animated.div)`
 
 const GroupManagementPage = (props) => {
   const { onBack, illustration, groupPk } = props;
+  const sendToast = useToast();
 
   const group = useGroup(groupPk);
   const { data: members, mutate } = useSWR(
@@ -77,6 +78,7 @@ const GroupManagementPage = (props) => {
       setErrors(res.error);
       return;
     }
+    sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
     setSelectedMembershipType(null);
     setSelectedMember(null);
     mutate((members) =>

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { Fragment } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
@@ -68,20 +68,18 @@ const GroupMemberPage = (props) => {
           }
         />
         <Spacer size="2rem" />
-        {Array.isArray(members) &&
-          members.map((e, id) => (
-            <>
-              <GroupMember
-                key={id}
-                name={e?.displayName}
-                email={e?.email}
-                image={e?.image}
-                membershipType={e?.membershipType}
-                assets={e?.assets}
-              />
-              <Spacer size="1rem" />
-            </>
-          ))}
+        {members.map((member) => (
+          <Fragment key={member?.id}>
+            <GroupMember
+              name={member?.displayName}
+              email={member?.email}
+              image={member?.image}
+              membershipType={member?.membershipType}
+              assets={member?.assets}
+            />
+            <Spacer size="1rem" />
+          </Fragment>
+        ))}
       </PageFadeIn>
       <Spacer size="2rem" />
 
