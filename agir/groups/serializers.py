@@ -392,10 +392,11 @@ class MembershipSerializer(serializers.ModelSerializer):
     displayName = serializers.CharField(source="person.display_name", read_only=True)
     email = serializers.EmailField(source="person.email", read_only=True)
     image = MediaURLField(source="person.image", read_only=True)
+    gender = serializers.CharField(source="person.gender", read_only=True)
     membershipType = serializers.ChoiceField(
         source="membership_type", choices=Membership.MEMBERSHIP_TYPE_CHOICES
     )
 
     class Meta:
         model = Membership
-        fields = ["id", "displayName", "image", "email", "membershipType"]
+        fields = ["id", "displayName", "image", "email", "gender", "membershipType"]

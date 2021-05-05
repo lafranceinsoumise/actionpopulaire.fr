@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import GroupMember from "@agir/groups/groupPage/GroupSettings/GroupMember";
+import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import SelectField from "@agir/front/formComponents/SelectField";
 import Button from "@agir/front/genericComponents/Button";
@@ -89,13 +89,7 @@ const EditionPanel = (props) => {
       {selectedMember && (
         <>
           <Spacer size="1rem" />
-          <GroupMember
-            name={selectedMember?.displayName}
-            image={selectedMember?.image}
-            membershipType={selectedMember?.membershipType}
-            email={selectedMember?.email}
-            assets={selectedMember?.assets}
-          />
+          <GroupMemberList members={[selectedMember]} />
           <Spacer size="1rem" />
           <div>
             Ce membre pourra :

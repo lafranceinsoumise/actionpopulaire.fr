@@ -1,35 +1,54 @@
+import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
+
 import style from "@agir/front/genericComponents/_variables.scss";
+
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-const Member = styled.div`
+const Button = styled.button`
+  display: block;
+  border: none;
+  background-color: ${style.white};
+  padding: 0.75rem 1rem;
   font-size: 1rem;
+  font-weight: 500;
   display: flex;
   flex-direction: row;
   align-items: center;
   color: ${style.primary500};
   cursor: pointer;
+
+  ${RawFeatherIcon} {
+    padding: 0.25rem;
+    background-color: ${style.primary100};
+    color: ${style.primary500};
+    border-radius: 40px;
+    margin-right: 1rem;
+
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+
+      @media (max-width: ${style.collapse}px) {
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+  }
 `;
 
 const AddPair = ({ label, onClick }) => {
   return (
-    <Member onClick={onClick}>
-      <RawFeatherIcon
-        name="plus"
-        width="1.5rem"
-        height="1.5rem"
-        style={{
-          padding: "0.25rem",
-          backgroundColor: style.primary100,
-          color: style.primary500,
-          borderRadius: "40px",
-          marginRight: "1rem",
-        }}
-      />
+    <Button onClick={onClick}>
+      <RawFeatherIcon name="plus" />
       <span>{label}</span>
-    </Member>
+    </Button>
   );
 };
 
+AddPair.propTypes = {
+  label: PropTypes.string.isRequired,
+  onClick: PropTypes.string.isRequired,
+};
 export default AddPair;

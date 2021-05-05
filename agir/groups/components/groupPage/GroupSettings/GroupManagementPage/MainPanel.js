@@ -3,8 +3,7 @@ import React, { Fragment, useMemo } from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import GroupMember from "@agir/groups/groupPage/GroupSettings/GroupMember";
-import AddPair from "@agir/groups/groupPage/GroupSettings/AddPair";
+import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 import Button from "@agir/front/genericComponents/Button.js";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
@@ -28,25 +27,32 @@ const MainPanel = (props) => {
       <StyledTitle>Animateurs et animatrices</StyledTitle>
       <span style={{ color: style.black700 }}>
         Les animateur·ices organisent la vie{" "}
-        {is2022 ? "de l'équipe" : "du groupe"}. Pour respecter la charte des{" "}
-        {is2022 ? "équipes de soutien" : "groupes d'action"}, votre{" "}
-        {is2022 ? "équipe" : "groupe"} doit être animée à parité de genre.
+        {is2022 ? "de l'équipe" : "du groupe"}.
       </span>
-      <Spacer size="1rem" />
-      {referents.map((referent) => (
-        <Fragment key={referent.id}>
-          <GroupMember {...referent} name={referent.displayName} />
-          <Spacer size="1rem" />
-        </Fragment>
-      ))}
-      {referents.length < 2 && members.length > 1 && (
-        <>
-          <AddPair label="Ajouter votre binôme" onClick={editReferent} />
-          <Spacer size="2rem" />
-        </>
-      )}
-      {(routes?.animationChangeRequest ||
-        routes?.referentResignmentRequest) && <Spacer size="1rem" />}
+      <Spacer size=".5rem" />
+      <span style={{ color: style.black700 }}>
+        Pour respecter la{" "}
+        <a
+          href={
+            is2022
+              ? "https://infos.actionpopulaire.fr/charte-des-equipes-de-soutien-nous-sommes-pour/"
+              : "https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/"
+          }
+        >
+          charte des {is2022 ? "équipes de soutien" : "groupes d'action"}
+        </a>
+        , votre {is2022 ? "équipe" : "groupe"} doit être animée à parité de
+        genre.
+      </span>
+      <Spacer size="1.5rem" />
+      <GroupMemberList
+        members={referents}
+        addButtonLabel="Ajouter votre binôme"
+        onAdd={
+          referents.length < 2 && members.length > 1 ? editReferent : undefined
+        }
+      />
+      <Spacer size="1.5rem" />
       {routes?.animationChangeRequest && (
         <a
           href={routes.animationChangeRequest}
@@ -68,7 +74,8 @@ const MainPanel = (props) => {
           &ensp;Je ne souhaite plus être animateur ou animatrice
         </a>
       )}
-      <Spacer size="1rem" />
+      {(routes?.animationChangeRequest ||
+        routes?.referentResignmentRequest) && <Spacer size="1.5rem" />}
       <StyledTitle>Gestionnaires</StyledTitle>
       <span style={{ color: style.black700 }}>
         Ajoutez des gestionnaires pour vous assister sur Action Populaire.
@@ -79,14 +86,12 @@ const MainPanel = (props) => {
         informations et créer des événements au nom{" "}
         {is2022 ? "de l'équipe" : "du groupe"}.
       </span>
-      <Spacer size="1rem" />
-      {managers.map((manager) => (
-        <Fragment key={manager.id}>
-          <GroupMember {...manager} name={manager.displayName} />
-          <Spacer size="1rem" />
-        </Fragment>
-      ))}
-      <AddPair label="Ajouter un·e gestionnaire" onClick={editManager} />
+      <Spacer size="1.5rem" />
+      <GroupMemberList
+        members={managers}
+        addButtonLabel="Ajouter un·e gestionnaire"
+        onAdd={editManager}
+      />
       {routes?.certificationRequest && (
         <>
           <Spacer size="1.5rem" />
