@@ -33,14 +33,15 @@ validation_conditions = {
 def todo(depense: Depense):
     todos = []
 
-    if depense.date_depense is None:
+    if depense.etat == depense.Etat.ATTENTE_ENGAGEMENT:
         if not depense.documents.filter(Q(type=TypeDocument.DEVIS)).exists():
             todos.append(
                 (
                     "Engagement de la dépense",
                     [
                         (
-                            "Vous devez joindre le devis pour permettre l'engagement de la dépense.",
+                            "Vous devez joindre le devis pour permettre l'engagement de la dépense par le responsable"
+                            " du compte.",
                             NiveauTodo.IMPERATIF,
                         )
                     ],
@@ -52,7 +53,8 @@ def todo(depense: Depense):
                     "Engagement de la dépense",
                     [
                         (
-                            "La dépense doit avoir été engagé par le responsable du compte.",
+                            "La dépense doit impérativement être engagée par le responsable du compte avant de la"
+                            " valider auprès du fournisseur.",
                             NiveauTodo.IMPERATIF,
                         )
                     ],
