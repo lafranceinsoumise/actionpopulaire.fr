@@ -21,8 +21,8 @@ import Logo from "./Logo";
 import RightLink from "./RightLink";
 import SearchBar from "./SearchBar";
 import AdminLink from "./AdminLink";
+import { TopBarMainLink } from "./TopBarMainLink";
 import { useMobileApp } from "@agir/front/app/hooks";
-import { routeConfig } from "@agir/front/app/routes.config";
 
 const TopBarBar = styled.div`
   position: fixed;
@@ -72,20 +72,28 @@ const HorizontalFlex = styled.div`
   ${({ center }) =>
     center &&
     `
-    justify-content: center;
+    @media only screen and (max-width: ${style.collapse - 1}px) {
+      justify-content: center;
+    }
   `}
 
   & > * {
     margin-left: 1.25em;
     text-align: left;
-  }
 `;
 
-const MenuLink = styled.a`
-  "@media only screen and 
-  (${(small) => small ? "min-width: ${style.collapse}" : "max-width: ${style.collapse - 1}"}px) {
-      display-none;
-   }
+const MenuLink = styled.div`
+  ${({ small }) =>
+    small &&
+    `@media only screen and (max-width: ${style.collapse - 1}px) {
+          display: none;
+      }`}
+
+  ${({ large }) =>
+    large &&
+    `@media only screen and (min-width: ${style.collapse}px) {
+          display: none;
+      }`}
 `;
 
 export const TopBar = ({ path }) => {
@@ -120,36 +128,8 @@ export const TopBar = ({ path }) => {
           )
         ) : null}
         <HorizontalFlex center={path === "/"}>
-          {(() => {
-            if (isMobileApp) {
-              for (const route of Object.entries(routeConfig)) {
-                if (path === "/") {
-                  return (
-                    <MenuLink href={routes.dashboard} small>
-                      <Logo />
-                    </MenuLink>
-                  );
-                } else if (route[1].path === path) {
-                  return (
-                    <MenuLink href={route[1].path} small>
-                      <h1>{route[1].label}</h1>
-                    </MenuLink>
-                  );
-                } else if (Array.isArray(route[1].path)) {
-                  // if route have multiple paths in an array
-                  for (const element of route[1].path) {
-                    if (element === path)
-                      return (
-                        <MenuLink href={element} small>
-                          <h1>{route[1].label}</h1>
-                        </MenuLink>
-                      );
-                  }
-                }
-              }
-            }
-          })()}
-          <MenuLink href={routes.dashboard}>
+          <TopBarMainLink isMobileApp={isMobileApp} path={path} small={true} />
+          <MenuLink href={routes.dashboard} large={true}>
             <Logo />
           </MenuLink>
           <form method="get" action={routes.search}>
@@ -158,7 +138,7 @@ export const TopBar = ({ path }) => {
         </HorizontalFlex>
         <PageFadeIn ready={isSessionLoaded}>
           <HorizontalFlex>
-            <MenuLink href={routes.help}>
+            <MenuLink href={routes.help} small={true}>
               <FeatherIcon name="help-circle" />
               <span>Aide</span>
             </MenuLink>
