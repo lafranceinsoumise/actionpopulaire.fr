@@ -1,29 +1,30 @@
 from django.db.models import Q
 
+from . import Condition, NiveauTodo
 from .commentaires import nombre_commentaires_a_faire
 from ..models import Depense
 from ..typologies import TypeDepense, TypeDocument
 
 validation_conditions = {
     TypeDepense.FOURNITURE_MARCHANDISES: (
-        (
+        Condition(
             Q(documents__type=TypeDocument.PHOTOGRAPHIE),
             "Vous devez joindre une photographie de la marchandise pour justifier cette dépense.",
-            "imperatif",
+            NiveauTodo.IMPERATIF,
         ),
     ),
     TypeDepense.FRAIS_RECEPTION_HEBERGEMENT: (
-        (
+        Condition(
             Q(personnes__isnull=False),
             "Les dépenses de réception ou d'hébergement doivent identifier les personnes bénéficiaires de la dépense.",
-            "imperatif",
+            NiveauTodo.IMPERATIF,
         ),
     ),
     TypeDepense.GRAPHISME_MAQUETTAGE: (
-        (
+        Condition(
             Q(documents__type=TypeDocument.EXEMPLAIRE),
             "Vous devez joindre un exemplaire numérique du graphisme ou du maquettage realisé.",
-            "imperatif",
+            NiveauTodo.IMPERATIF,
         )
     ),
 }
@@ -40,7 +41,7 @@ def todo(depense: Depense):
                     [
                         (
                             "Vous devez joindre le devis pour permettre l'engagement de la dépense.",
-                            "imperatif",
+                            NiveauTodo.IMPERATIF,
                         )
                     ],
                 )
@@ -52,7 +53,7 @@ def todo(depense: Depense):
                     [
                         (
                             "La dépense doit avoir été engagé par le responsable du compte.",
-                            "imperatif",
+                            NiveauTodo.IMPERATIF,
                         )
                     ],
                 )
@@ -61,9 +62,9 @@ def todo(depense: Depense):
         type_todos = []
         for type in validation_conditions:
             if depense.type.startswith(type):
-                for cond, message, niveau in validation_conditions[type]:
-                    if not Depense.objects.filter(cond, id=depense.id).exists():
-                        type_todos.append((message, niveau))
+                for cond in validation_conditions[type]:
+                    if not cond.check(depense):
+                        type_todos.append((cond.message_erreur, cond.niveau_erreur))
 
         if type_todos:
             todos.append(("Lié à ce type de dépense", type_todos))
@@ -76,7 +77,7 @@ def todo(depense: Depense):
                 [
                     (
                         f"Il y a {coms} commentaire{'s' if coms > 1 else ''} à traiter",
-                        "imperatif",
+                        NiveauTodo.IMPERATIF,
                     ),
                 ],
             )

@@ -10,8 +10,16 @@ class Etat(TextChoices):
 class TypeDocument(TextChoices):
     DEVIS = "DEV", "Devis"
     FACTURE = "FAC", "Facture"
+
     JUSTIFICATIF = "JUS", "Justificatif de dépense"
+    JUSTIFICATIF_BILLET = "JUS-BIL", "Billet de train"
+    JUSTIFICATIF_TRAIN = "JUS-TRAIN", "Justificatif de train"
+    JUSTIFICATIF_CARTE_EMBARQUEMENT = "JUS-CEM", "Carte d'embarquement"
+
     PAIEMENT = "PAY", "Preuve de paiement"
+    PAIEMENT_CHEQUE = "PAY-CHK", "Scan du chèque"
+    PAIEMENT_TICKET = "PAY-TKT", "Ticket de caisse"
+
     ATTESTATION_GRATUITE = "GRA", "Attestation de gratuité"
     EXEMPLAIRE = "EXA", "Exemplaire fourni"
     PHOTOGRAPHIE = "PHO", "Photographie de l'objet ou de l'événement"
@@ -83,16 +91,6 @@ class TypeProjet(TextChoices):
     ACTIONS = "ACT", "Actions"
 
     DEPENSES_RH = "RH", "Dépenses RH mensuelles"
-
-
-class RoleParticipation(TextChoices):
-    CANDIDAT = "CAN", "Candidat"
-    ORATEUR = "ORA", "Orateur"
-    ORGANISATION = (
-        "ORG",
-        "Organisation",
-    )
-    GESTION = "GES", "Gestion de projet"
 
 
 class NiveauAcces(TextChoices):
