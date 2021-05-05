@@ -7,7 +7,12 @@ from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
 from agir.gestion.admin.base import BaseAdminMixin
-from agir.gestion.admin.forms import DocumentInlineForm
+from agir.gestion.admin.forms import (
+    DocumentInlineForm,
+    DepenseForm,
+    ProjetForm,
+    DocumentForm,
+)
 from agir.gestion.admin.inlines import (
     DepenseDocumentInline,
     DepenseInline,
@@ -57,6 +62,7 @@ class FournisseurAdmin(VersionAdmin):
 
 @admin.register(Document)
 class DocumentAdmin(BaseAdminMixin, VersionAdmin):
+    form = DocumentForm
     list_display = (
         "numero",
         "titre",
@@ -84,6 +90,8 @@ class DocumentAdmin(BaseAdminMixin, VersionAdmin):
 
 @admin.register(Depense)
 class DepenseAdmin(BaseAdminMixin, VersionAdmin):
+    form = DepenseForm
+
     list_filter = (
         "type",
         "compte",
@@ -171,6 +179,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
 
 @admin.register(Projet)
 class ProjetAdmin(BaseAdminMixin, VersionAdmin):
+    form = ProjetForm
     list_display = ("numero", "titre", "type", "statut")
 
     fieldsets = (

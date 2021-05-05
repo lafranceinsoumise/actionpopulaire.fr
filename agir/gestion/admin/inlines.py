@@ -1,7 +1,10 @@
 from django.contrib import admin
 
 from agir.gestion.admin.base import BaseMixin
-from agir.gestion.admin.forms import DocumentInlineForm, CommentaireFormset, DevisForm
+from agir.gestion.admin.forms import (
+    DocumentInlineForm,
+    DepenseDevisForm,
+)
 from agir.gestion.models import Depense, Projet, Participation, Commentaire
 
 
@@ -38,7 +41,7 @@ class DepenseInline(BaseMixin, admin.TabularInline):
 class AjouterDepenseInline(admin.TabularInline):
     verbose_name_plural = "Ajout rapide de dépenses"
     model = Depense
-    form = DevisForm
+    form = DepenseDevisForm
     extra = 1
     can_delete = False
 

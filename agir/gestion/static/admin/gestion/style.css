@@ -45,3 +45,11 @@
     color: #333;
     margin: 0 0 0 10px;
 }
+
+li.l1 {
+    font-weight: bold;
+}
+
+li.l2 {
+    padding-left: 1em;
+}
