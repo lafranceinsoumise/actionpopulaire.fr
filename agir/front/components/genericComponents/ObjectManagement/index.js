@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { Suspense, useCallback, useEffect, useRef } from "react";
 import {
   Switch,
   Redirect,
@@ -104,11 +104,13 @@ const MobilePanel = (props) => {
             {routes.map((route) => (
               <Route key={route.id} path={route.getLink()} exact>
                 <ManagementPanel>
-                  <route.Component
-                    {...rest}
-                    illustration={route.illustration}
-                    onBack={goToMenu}
-                  />
+                  <Suspense fallback={null}>
+                    <route.Component
+                      {...rest}
+                      illustration={route.illustration}
+                      onBack={goToMenu}
+                    />
+                  </Suspense>
                 </ManagementPanel>
               </Route>
             ))}
@@ -157,11 +159,13 @@ const DesktopPanel = (props) => {
               {routes.map((route) => (
                 <Route key={route.id} path={route.path} exact={route.exact}>
                   <ManagementPanel>
-                    <route.Component
-                      {...rest}
-                      illustration={route.illustration}
-                      onBack={goToMenu}
-                    />
+                    <Suspense fallback={null}>
+                      <route.Component
+                        {...rest}
+                        illustration={route.illustration}
+                        onBack={goToMenu}
+                      />
+                    </Suspense>
                   </ManagementPanel>
                 </Route>
               ))}
