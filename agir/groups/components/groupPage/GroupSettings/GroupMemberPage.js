@@ -45,14 +45,14 @@ const GroupMemberPage = (props) => {
 
       <Spacer size="2rem" />
 
-      {members.map((e, id) => (
-        <Fragment key={id}>
+      {members.map((member) => (
+        <Fragment key={member?.id}>
           <GroupMember
-            name={e?.displayName}
-            email={e?.email}
-            image={e?.image}
-            membershipType={e?.membershipType}
-            assets={e?.assets}
+            name={member?.displayName}
+            email={member?.email}
+            image={member?.image}
+            membershipType={member?.membershipType}
+            assets={member?.assets}
           />
           <Spacer size="1rem" />
         </Fragment>
