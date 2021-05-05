@@ -74,21 +74,25 @@ const MainPanel = (props) => {
           )
       )}
       <AddPair label="Ajouter un·e gestionnaire" onClick={editManager} />
-      <hr />
-      <a href="https://actionpopulaire.fr/formulaires/demande-changement-animation-ga/">
-        Changer l’animation {is2022 ? "de l'équipe" : "du groupe"}
-      </a>
-      <Spacer size="0.5rem" />
-      <a href="https://infos.actionpopulaire.fr/contact/">
-        Je ne souhaite plus être animateur ou animatrice
-      </a>
-      <Spacer size="0.5rem" />
-      <a
-        href="https://agir.lafranceinsoumise.fr/formulaires/demande-suppression-ga/"
-        style={{ color: style.redNSP }}
-      >
-        Supprimer {is2022 ? "l'équipe" : "le groupe"}
-      </a>
+      {!is2022 && (
+        <>
+          <hr />
+          <a href="https://actionpopulaire.fr/formulaires/demande-changement-animation-ga/">
+            Changer l’animation {is2022 ? "de l'équipe" : "du groupe"}
+          </a>
+          <Spacer size="0.5rem" />
+          <a href="https://infos.actionpopulaire.fr/contact/">
+            Je ne souhaite plus être animateur ou animatrice
+          </a>
+          <Spacer size="0.5rem" />
+          <a
+            href="https://actionpopulaire.fr/formulaires/demande-suppression-ga/"
+            style={{ color: style.redNSP }}
+          >
+            Supprimer {is2022 ? "l'équipe" : "le groupe"}
+          </a>
+        </>
+      )}
     </>
   );
 };
