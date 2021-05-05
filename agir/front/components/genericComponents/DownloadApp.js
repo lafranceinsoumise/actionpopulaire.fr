@@ -9,6 +9,7 @@ import logo from "@agir/front/genericComponents/logos/action-populaire_primary_m
 import { useMobileApp } from "@agir/front/app/hooks.js";
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 import { CONFIG } from "@agir/front/genericComponents/AppStore.js";
+import { getMobileOS } from "@agir/front/authentication/common.js";
 
 const StyledContainer = styled.div`
   display: flex;
@@ -76,8 +77,10 @@ const StyledFeatherIcon = styled(FeatherIcon)`
   }
 `;
 
+const OS = getMobileOS();
+
 export const DownloadApp = () => {
-  const { isMobileApp, isIOS } = useMobileApp();
+  const { isMobileApp } = useMobileApp();
   const [hasBannerDownload, dismissBannerDownload] = useCustomAnnouncement(
     "bannerDownload"
   );
@@ -115,11 +118,14 @@ export const DownloadApp = () => {
       <div style={{ paddingRight: "18px" }}>
         <DownloadMinus
           as="a"
-          href={isIOS ? CONFIG.apple.href : CONFIG.google.href}
+          href={OS === "iOS" ? CONFIG.apple.href : CONFIG.google.href}
         >
           <FeatherIcon name="download" color={style.primary500} />
         </DownloadMinus>
-        <Download as="a" href={isIOS ? CONFIG.apple.href : CONFIG.google.href}>
+        <Download
+          as="a"
+          href={OS === "iOS" ? CONFIG.apple.href : CONFIG.google.href}
+        >
           Télécharger
         </Download>
       </div>
