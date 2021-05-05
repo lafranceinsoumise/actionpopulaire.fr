@@ -111,7 +111,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
                     "compte",
                     "description",
                     "date_depense",
-                    "personnes",
+                    "beneficiaires",
                 )
             },
         ),
@@ -121,7 +121,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
     readonly_fields = ("reglements",)
 
     autocomplete_fields = (
-        "personnes",
+        "beneficiaires",
         "fournisseur",
     )
     inlines = [DepenseDocumentInline]

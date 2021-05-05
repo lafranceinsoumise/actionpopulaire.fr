@@ -16,7 +16,6 @@ from agir.gestion.typologies import (
     TypeProjet,
     TypeDocument,
     TypeDepense,
-    RoleParticipation,
     NiveauAcces,
 )
 from agir.lib.model_fields import IBANField
@@ -271,6 +270,11 @@ class Projet(NumeroUniqueMixin, TimeStampedModel):
         to="Document", related_name="projets", related_query_name="projet"
     )
 
+    def todos(self):
+        from .actions.projets import todos
+
+        return todos(self)
+
     class Meta:
         verbose_name = "Projet"
         verbose_name_plural = "Projets"
@@ -362,9 +366,9 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         "Fournisseur", null=True, blank=True, on_delete=models.SET_NULL
     )
 
-    personnes = models.ManyToManyField(
+    beneficiaires = models.ManyToManyField(
         to="people.Person",
-        verbose_name="Personnes concernées",
+        verbose_name="Bénéficiaires de la dépense",
         related_name="depenses",
         related_query_name="depense",
         blank=True,
@@ -537,12 +541,23 @@ class Participation(TimeStampedModel):
     """Ce modèle associe des personnes à des projets, et indique leur rôle sur le projet
     """
 
+    class Role(models.TextChoices):
+        CANDIDAT = "CAN", "Candidat"
+        ORATEUR = "ORA", "Orateur"
+        ORGANISATION = (
+            "ORG",
+            "Organisation",
+        )
+        GESTION = "GES", "Gestion de projet"
+
     projet = models.ForeignKey(
         to=Projet,
         verbose_name="Projet",
         blank=False,
         null=False,
         on_delete=models.CASCADE,
+        related_name="participations",
+        related_query_name="participation",
     )
     person = models.ForeignKey(
         to="people.Person",
@@ -550,11 +565,11 @@ class Participation(TimeStampedModel):
         blank=False,
         null=False,
         on_delete=models.CASCADE,
+        related_name="+",
+        related_query_name="participation",
     )
     role = models.CharField(
-        verbose_name="Rôle sur ce projet",
-        max_length=3,
-        choices=RoleParticipation.choices,
+        verbose_name="Rôle sur ce projet", max_length=3, choices=Role.choices,
     )
 
     precisions = models.TextField(verbose_name="Précisions", blank=True)
