@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
@@ -93,10 +93,12 @@ const StyledMenu = styled.div`
   padding: 1.5rem;
   background-color: ${style.black25};
   box-shadow: inset -1px 0px 0px #dfdfdf;
+  overflow: auto;
 
   @media (min-width: ${style.collapse}px) {
     width: 360px;
   }
+
   @media (max-width: ${style.collapse}px) {
     background-color: ${style.white};
   }
@@ -109,7 +111,7 @@ const StyledMenu = styled.div`
 
   ul {
     list-style: none;
-    padding: 0;
+    padding: 0 0 2rem;
     margin: 0;
 
     li {
