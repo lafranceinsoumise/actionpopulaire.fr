@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
@@ -27,11 +28,13 @@ const GroupGeneralPage = (props) => {
     getGroupPageEndpoint("getGroup", { groupPk })
   );
 
-  const [isNewImage, setIsNewImage] = useState(false);
-  const [isCertified, setIsCertified] = useState(false);
+  const [imageHasChanged, setImageHasChanged] = useState(false);
+  const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const originalImage = useMemo(() => group?.image, [group]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -39,11 +42,15 @@ const GroupGeneralPage = (props) => {
     setFormData((formData) => ({ ...formData, [name]: value }));
   }, []);
 
-  const handleChangeImage = useCallback((value) => {
-    setErrors((errors) => ({ ...errors, image: null }));
-    setIsNewImage(true);
-    setFormData((formData) => ({ ...formData, image: value }));
-  }, []);
+  const handleChangeImage = useCallback(
+    (value) => {
+      setErrors((errors) => ({ ...errors, image: null }));
+      setImageHasChanged(value !== originalImage);
+      value && value !== originalImage && setHasCheckedImageLicence(false);
+      setFormData((formData) => ({ ...formData, image: value }));
+    },
+    [originalImage]
+  );
 
   const handleDescriptionChange = useCallback((value) => {
     // lose focus if uncomment :
@@ -51,23 +58,18 @@ const GroupGeneralPage = (props) => {
     setFormData((formData) => ({ ...formData, ["description"]: value }));
   }, []);
 
-  const handleChangeCertified = useCallback((event) => {
-    setIsCertified(event.target.checked);
+  const handleCheckImageLicence = useCallback((event) => {
+    setHasCheckedImageLicence(event.target.checked);
+    setErrors((errors) => ({ ...errors, image: null }));
   }, []);
 
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-
       setErrors({});
       setIsLoading(true);
-      const form = new FormData();
-      Object.keys(formData).forEach((e) => {
-        if (e === "image" && !isNewImage) return;
-        form.append(e, formData[e]);
-      });
 
-      if (isNewImage && !isCertified) {
+      if (formData.image && imageHasChanged && !hasCheckedImageLicence) {
         setErrors((errors) => ({
           ...errors,
           image:
@@ -77,9 +79,14 @@ const GroupGeneralPage = (props) => {
         return;
       }
 
-      const res = await updateGroup(groupPk, form);
+      const res = await updateGroup(groupPk, {
+        ...formData,
+        image: imageHasChanged ? formData.image : undefined,
+      });
+
       setIsLoading(false);
-      if (!!res.error) {
+
+      if (res.error) {
         setErrors(res.error);
         return;
       }
@@ -88,7 +95,7 @@ const GroupGeneralPage = (props) => {
         return { ...group, ...res.data };
       });
     },
-    [formData, groupPk, isCertified, isNewImage]
+    [mutate, formData, groupPk, hasCheckedImageLicence, imageHasChanged]
   );
 
   useEffect(() => {
@@ -97,7 +104,8 @@ const GroupGeneralPage = (props) => {
       description: group?.description,
       image: group?.image,
     });
-    setIsNewImage(false);
+    setImageHasChanged(false);
+    setHasCheckedImageLicence(false);
   }, [group]);
 
   return (
@@ -145,31 +153,39 @@ const GroupGeneralPage = (props) => {
         value={formData.image}
         onChange={handleChangeImage}
         error={errors?.image}
+        accept=".jpg,.jpeg,.gif,.png"
       />
 
-      {isNewImage && (
-        <CheckboxField
-          value={isCertified}
-          label={
-            <>
-              En important une image, je certifie être le propriétaire des
-              droits et accepte de la partager sous licence libre{" "}
-              <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/">
-                Creative Commons CC-BY-NC 3.0
-              </a>
-              .
-            </>
-          }
-          onChange={handleChangeCertified}
-        />
+      {formData.image && imageHasChanged && (
+        <>
+          <Spacer size="0.5rem" />
+          <CheckboxField
+            value={hasCheckedImageLicence}
+            label={
+              <>
+                En important une image, je certifie être le propriétaire des
+                droits et accepte de la partager sous licence libre{" "}
+                <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/">
+                  Creative Commons CC-BY-NC 3.0
+                </a>
+                .
+              </>
+            }
+            onChange={handleCheckImageLicence}
+          />
+        </>
       )}
 
       <Spacer size="2rem" />
       <Button color="secondary" $wrap disabled={isLoading}>
-        Enregistrer les informations
+        Enregistrer
       </Button>
     </form>
   );
 };
-
+GroupGeneralPage.propTypes = {
+  onBack: PropTypes.func,
+  illustration: PropTypes.string,
+  groupPk: PropTypes.string,
+};
 export default GroupGeneralPage;

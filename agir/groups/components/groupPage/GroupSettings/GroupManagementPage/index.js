@@ -10,6 +10,13 @@ import EditionPanel from "./EditionPanel";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
+import HeaderPanel from "@agir/groups/groupPage/GroupSettings/HeaderPanel";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
+
+import MainPanel from "./MainPanel";
+import EditionPanel from "./EditionPanel";
+
 import {
   getGroupPageEndpoint,
   updateMember,
@@ -92,15 +99,18 @@ const GroupManagementPage = (props) => {
   const transition = useTransition(selectedMembershipType, slideInTransition);
 
   return (
-    <PageFadeIn ready={Array.isArray(members)}>
-      <MainPanel
-        onBack={onBack}
-        editManager={editManager}
-        editReferent={editReferent}
-        illustration={illustration}
-        members={members}
-        is2022={is2022}
-      />
+    <>
+      <HeaderPanel onBack={onBack} illustration={illustration} />
+      <PageFadeIn ready={Array.isArray(members)} wait={<Skeleton />}>
+        <MainPanel
+          onBack={onBack}
+          editManager={editManager}
+          editReferent={editReferent}
+          illustration={illustration}
+          members={members || []}
+          is2022={is2022}
+        />
+      </PageFadeIn>
       {transition(
         (style, item) =>
           item && (
@@ -119,7 +129,7 @@ const GroupManagementPage = (props) => {
             </EditionPanelWrapper>
           )
       )}
-    </PageFadeIn>
+    </>
   );
 };
 

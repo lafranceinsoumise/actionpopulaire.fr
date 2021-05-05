@@ -142,7 +142,7 @@ export const useTabs = (props, isMobile = true) => {
           label: "Gestion du groupe",
         })
       );
-  }, [dispatch, settingsLink]);
+  }, [dispatch, settingsLink, location.pathname]);
 
   useMemo(() => {
     window.scrollTo(0, 0);

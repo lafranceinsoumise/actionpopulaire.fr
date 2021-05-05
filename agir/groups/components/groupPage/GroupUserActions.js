@@ -283,17 +283,6 @@ const ManagerActions = (props) => {
               <Link to={groupSettingsLinks.finance}>Financement</Link>
             </li>
           )}
-          {groupSettingsLinks?.members && (
-            <li>
-              <RawFeatherIcon
-                small
-                inline
-                color={style.primary500}
-                name="users"
-              />
-              <Link to={groupSettingsLinks.members}>Inviter</Link>
-            </li>
-          )}
         </ul>
       </StyledPanel>
       <Button as="Link" route="createEvent" color="primary" icon="plus" small>

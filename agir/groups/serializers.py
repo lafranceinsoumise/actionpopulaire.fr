@@ -1,6 +1,7 @@
 from django.conf import settings
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from . import models
 from .actions import get_promo_codes
@@ -263,6 +264,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             routes["geolocate"] = front_url(
                 "change_group_location", kwargs={"pk": obj.pk}
             )
+            routes["createSpendingRequest"] = front_url(
+                "create_spending_request", kwargs={"group_id": obj.pk}
+            )
             if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
                 routes["materiel"] = front_url(
                     "manage_group", query={"active": "materiel"}, kwargs={"pk": obj.pk}
@@ -339,6 +343,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 class SupportGroupUpdateSerializer(serializers.ModelSerializer):
     contact = NestedContactSerializer(source="*")
     location = NestedLocationSerializer(source="*")
+    image = serializers.ImageField(allow_empty_file=True, allow_null=True)
 
     class Meta:
         model = SupportGroup
@@ -356,7 +361,7 @@ class SupportGroupUpdateSerializer(serializers.ModelSerializer):
             return instance
 
         instance = super().update(instance, validated_data)
-        if "image" in changed_data:
+        if "image" in changed_data and changed_data.get("image", None):
             changed_data["image"] = instance.image.url
 
         if "location" in changed_data:

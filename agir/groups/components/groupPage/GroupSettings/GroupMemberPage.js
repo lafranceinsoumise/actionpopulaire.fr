@@ -67,7 +67,7 @@ const GroupMemberPage = (props) => {
         }`}
       />
 
-      {group.is2022 === false && (
+      {/* {group.is2022 === false && (
         <>
           <Spacer size="2rem" />
           <GroupInvitation
@@ -80,7 +80,7 @@ const GroupMemberPage = (props) => {
             }
           />
         </>
-      )}
+      )} */}
 
       <hr />
 

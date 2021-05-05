@@ -25,6 +25,10 @@ const StyledPanel = styled.div`
   @media (min-width: ${style.collapse}px) {
     width: 600px;
   }
+  @media (max-width: ${style.collapse}px) {
+    padding: 1.5rem;
+  }
+
   header,
   main {
     width: 100%;

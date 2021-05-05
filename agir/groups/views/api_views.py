@@ -5,11 +5,9 @@ from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse_lazy, reverse
 from django.core.validators import validate_email
+
 from rest_framework import status
 from rest_framework.exceptions import NotFound, PermissionDenied
-
-# , ValidationError
-from django.core.exceptions import ValidationError
 from rest_framework.generics import (
     GenericAPIView,
     ListAPIView,
@@ -20,8 +18,6 @@ from rest_framework.generics import (
     DestroyAPIView,
     CreateAPIView,
 )
-from rest_framework.renderers import JSONRenderer
-from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import exceptions
@@ -44,7 +40,6 @@ from agir.groups.serializers import (
     SupportGroupUpdateSerializer,
     MembershipSerializer,
 )
-from agir.people.serializers import PersonSerializer
 from agir.lib.pagination import APIPaginator
 from agir.donations.allocations import get_balance
 

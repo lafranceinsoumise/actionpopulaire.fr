@@ -209,16 +209,30 @@ export const updateGroup = async (groupPk, data) => {
   };
   const url = getGroupPageEndpoint("updateGroup", { groupPk });
   let headers = undefined;
-  if (typeof data.image !== "undefined") {
+  let body = data;
+
+  if (body.image) {
+    body = new FormData();
+    Object.keys(data).forEach((e) => {
+      body.append(e, data[e]);
+    });
     headers = {
       "content-type": "multipart/form-data",
     };
   }
+
   try {
-    const response = await axios.patch(url, data, { headers });
+    const response = await axios.patch(url, body, { headers });
     result.data = response.data;
   } catch (e) {
-    result.error = (e.response && e.response.data) || e.message;
+    if (e.response && e.response.data) {
+      result.error =
+        e.response.status === 400 && data.image
+          ? { image: "La taille du fichier ne doit pas dépasser le 2.5 Mo" }
+          : e.response.data;
+    } else {
+      result.error = e.message;
+    }
   }
 
   return result;

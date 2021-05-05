@@ -1,4 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
+import PropTypes from "prop-types";
+import React, { useState, useEffect, useCallback } from "react";
+import styled from "styled-components";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
@@ -12,6 +17,21 @@ import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 
 const [GROUP_IS_2022, GROUP_LFI] = ["équipe", "groupe"];
 
+const Buttons = styled.div`
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-gap: 0.5rem;
+
+  @media (max-width: ${style.collapse}px) {
+    grid-template-columns: 1fr;
+  }
+
+  ${Button} {
+    margin: 0;
+    justify-content: center;
+  }
+`;
+
 const GroupFinancePage = (props) => {
   const { onBack, illustration, groupPk } = props;
 
@@ -20,14 +40,14 @@ const GroupFinancePage = (props) => {
   const group = useGroup(groupPk);
   const is2022 = useMemo(() => group?.is2022, [group]);
 
-  const getFinanceAPI = async () => {
+  const getFinanceAPI = useCallback(async (groupPk) => {
     const res = await getFinance(groupPk);
     setDonation(res.data.donation);
-  };
+  }, []);
 
   useEffect(() => {
-    getFinanceAPI(groupPk);
-  }, [groupPk]);
+    groupPk && getFinanceAPI(groupPk);
+  }, [groupPk, getFinanceAPI]);
 
   return (
     <>
@@ -59,13 +79,16 @@ const GroupFinancePage = (props) => {
       </div>
 
       <Spacer size="1rem" />
-
-      <Button as="a" href="/dons/">
-        Allouer un don
-      </Button>
-      <Button as="a" href={`/groupes/${groupPk}/depenses/`} $wrap>
-        Je crée une demande de dépense
-      </Button>
+      <Buttons>
+        <Button as="a" href={group?.routes?.donations}>
+          Allouer un don
+        </Button>
+        {group?.routes?.createSpendingRequest && (
+          <Button as="a" href={group.routes.createSpendingRequest} $wrap>
+            Je crée une demande de dépense
+          </Button>
+        )}
+      </Buttons>
 
       <Spacer size="1rem" />
 
@@ -82,10 +105,14 @@ const GroupFinancePage = (props) => {
       <ShareLink
         color="primary"
         label="Copier le lien"
-        url="https://actionpopulaire.fr/dons/?group=627ff9f0-e53d-478d-91fb-1a22c76a34d0"
+        url={group?.routes?.donations}
       />
     </>
   );
 };
-
+GroupFinancePage.propTypes = {
+  onBack: PropTypes.func,
+  illustration: PropTypes.string,
+  groupPk: PropTypes.string,
+};
 export default GroupFinancePage;
