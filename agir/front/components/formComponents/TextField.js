@@ -90,7 +90,7 @@ const TextField = forwardRef((props, ref) => {
     id,
     type,
     onChange,
-    value,
+    value = "",
     error,
     label,
     helpText,

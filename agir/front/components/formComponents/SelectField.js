@@ -208,7 +208,7 @@ const SelectField = (props) => {
   const {
     id,
     onChange,
-    value,
+    value = "",
     error,
     label,
     helpText,

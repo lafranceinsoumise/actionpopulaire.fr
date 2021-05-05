@@ -77,7 +77,7 @@ const StyledField = styled.label`
 `;
 
 const PhoneField = forwardRef((props, ref) => {
-  const { id, onChange, value, error, label, helpText, ...rest } = props;
+  const { id, onChange, value = "", error, label, helpText, ...rest } = props;
 
   return (
     <StyledField
