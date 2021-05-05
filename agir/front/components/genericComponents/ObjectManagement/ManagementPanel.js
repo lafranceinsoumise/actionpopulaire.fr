@@ -16,11 +16,11 @@ const StyledContainer = styled.div`
 `;
 
 const StyledPanel = styled.div`
-  padding: 2rem;
   height: 100%;
   overflow: auto;
   background-color: ${style.white};
   width: 100%;
+  padding: 2rem;
 
   @media (min-width: ${style.collapse}px) {
     width: 600px;
@@ -36,9 +36,13 @@ const StyledPanel = styled.div`
   }
   header {
     margin-bottom: 0.5rem;
+
     &:empty {
       display: none;
     }
+  }
+  main {
+    padding-bottom: 2rem;
   }
 `;
 

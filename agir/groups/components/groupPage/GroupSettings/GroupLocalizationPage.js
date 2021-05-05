@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
@@ -55,7 +56,7 @@ const GroupLocalizationPage = (props) => {
       setIsLoading(true);
       const res = await updateGroup(groupPk, { location: formLocation });
       setIsLoading(false);
-      if (!!res.error) {
+      if (res.error) {
         setErrors(res.error?.location);
         return;
       }
@@ -64,7 +65,7 @@ const GroupLocalizationPage = (props) => {
         return { ...group, ...res.data };
       });
     },
-    [formLocation]
+    [formLocation, groupPk, mutate]
   );
 
   useEffect(() => {
@@ -117,7 +118,7 @@ const GroupLocalizationPage = (props) => {
       </Button>
       <Spacer size="1rem" />
 
-      <span>
+      <span style={{ color: style.black700 }}>
         Si vous ne souhaitez pas rendre votre adresse personnelle publique,
         indiquez un endroit à proximité (café, mairie...)
         <Spacer size="0.5rem" />
@@ -128,7 +129,7 @@ const GroupLocalizationPage = (props) => {
         </strong>
       </span>
 
-      <Spacer size="1rem" />
+      <Spacer size="1.5rem" />
 
       <LocationField
         name="location"
@@ -151,5 +152,9 @@ const GroupLocalizationPage = (props) => {
     </form>
   );
 };
-
+GroupLocalizationPage.propTypes = {
+  onBack: PropTypes.func,
+  illustration: PropTypes.string,
+  groupPk: PropTypes.string,
+};
 export default GroupLocalizationPage;

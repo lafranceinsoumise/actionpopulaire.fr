@@ -1,7 +1,10 @@
+import PropTypes from "prop-types";
 import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Button from "@agir/front/genericComponents/Button";
@@ -49,7 +52,7 @@ const GroupContactPage = (props) => {
       setIsloading(true);
       const res = await updateGroup(groupPk, { contact });
       setIsloading(false);
-      if (!!res.error) {
+      if (res.error) {
         setErrors(res.error?.contact);
         return;
       }
@@ -58,7 +61,7 @@ const GroupContactPage = (props) => {
         return { ...group, ...res.data };
       });
     },
-    [contact]
+    [contact, groupPk, mutate, sendToast]
   );
 
   useEffect(() => {
@@ -73,9 +76,11 @@ const GroupContactPage = (props) => {
 
       <Spacer size="1rem" />
 
-      <span>Ces informations seront affichées en public.</span>
+      <span style={{ color: style.black700 }}>
+        Ces informations seront affichées en public.
+      </span>
       <Spacer size="0.5rem" />
-      <span>
+      <span style={{ color: style.black700 }}>
         Conseillé : créez une adresse e-mail pour votre
         {" " + (group.is2022 ? "équipe" : "groupe") + " "}et n’utilisez pas une
         adresse personnelle.
@@ -133,5 +138,9 @@ const GroupContactPage = (props) => {
     </form>
   );
 };
-
+GroupContactPage.propTypes = {
+  onBack: PropTypes.func,
+  illustration: PropTypes.string,
+  groupPk: PropTypes.string,
+};
 export default GroupContactPage;
