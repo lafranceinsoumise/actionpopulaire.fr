@@ -1,10 +1,15 @@
 import JsonEditor from "jsoneditor";
 
 import "jsoneditor/dist/jsoneditor.css";
+import onDOMReady from "@agir/lib/utils/onDOMReady";
 
 const loaded = [];
 
-document.addEventListener("DOMContentLoaded", function () {
+const initAdminJsonWidget = () => {
+  if (window.AgirAdminJsonWidget) {
+    return;
+  }
+
   document.querySelectorAll(".jsoneditordiv").forEach((e) => {
     if (loaded.includes(e.dataset.fieldname)) return;
 
@@ -46,4 +51,8 @@ document.addEventListener("DOMContentLoaded", function () {
     editor.expandAll();
     loaded.push(e.dataset.fieldname);
   });
-});
+
+  window.AgirAdminJsonWidget = 1;
+};
+
+onDOMReady(initAdminJsonWidget);
