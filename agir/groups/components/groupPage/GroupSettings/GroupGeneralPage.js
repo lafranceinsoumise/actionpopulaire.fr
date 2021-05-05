@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
@@ -135,7 +137,7 @@ const GroupGeneralPage = (props) => {
       />
 
       <h4>Image de la bannière</h4>
-      <span>
+      <span style={{ color: style.black700 }}>
         Elle apparaîtra sur la page sur les réseaux sociaux.
         <br />
         Utilisez une image à peu près deux fois plus large que haute. Elle doit
@@ -143,7 +145,7 @@ const GroupGeneralPage = (props) => {
         optimale.
       </span>
 
-      <Spacer size="1rem" />
+      <Spacer size="1.5rem" />
       <ImageField
         name="image"
         value={formData.image}
@@ -158,14 +160,14 @@ const GroupGeneralPage = (props) => {
           <CheckboxField
             value={hasCheckedImageLicence}
             label={
-              <>
+              <span style={{ color: style.black700 }}>
                 En important une image, je certifie être le propriétaire des
                 droits et accepte de la partager sous licence libre{" "}
                 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/">
                   Creative Commons CC-BY-NC 3.0
                 </a>
                 .
-              </>
+              </span>
             }
             onChange={handleCheckImageLicence}
           />

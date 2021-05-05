@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
+import React, { useState, useCallback } from "react";
 import styled from "styled-components";
+
 import style from "@agir/front/genericComponents/_variables.scss";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+
 import Avatar from "@agir/front/genericComponents/Avatar";
 
 const Assets = styled.div`
@@ -69,71 +70,54 @@ const MEMBERSHIP_TYPE_LABEL = {
 
 const GroupMember = (props) => {
   const { name, image = "", membershipType = 10, email, assets = [] } = props;
-
   const role = MEMBERSHIP_TYPE_LABEL[String(membershipType)];
-
   const [customAssets, setCustomAssets] = useState(
     assets?.length ? assets.slice(0, 3) : []
   );
   const [showMore, setShowMore] = useState(assets?.length > 3);
-
   const handleShowMore = useCallback(() => {
     setCustomAssets(assets);
     setShowMore(false);
-  }, []);
+  }, [assets]);
 
   return (
-    <>
-      <Member>
-        <div>
-          {!!image && (
-            <Avatar
-              image={image}
-              name={name}
-              style={{
-                width: "2rem",
-                height: "2rem",
-                padding: "0.25rem",
-                borderRadius: "40px",
-                marginRight: "1rem",
-              }}
-            />
-          )}
-          {!image && (
-            <RawFeatherIcon
-              name="user"
-              style={{
-                padding: "0.25rem",
-                backgroundColor: style.primary500,
-                color: "#fff",
-                borderRadius: "40px",
-                marginRight: "1rem",
-              }}
-            />
-          )}
-          <MemberInfos>
-            <Name>{name}</Name>
-            {role && <Role>({role})</Role>}
-            <Email>{email}</Email>
-          </MemberInfos>
-        </div>
-        {assets?.length > 0 && (
-          <Assets>
-            {customAssets.map((e, id) => (
-              <Asset key={id}>{e}</Asset>
-            ))}
-            {showMore && <ShowMore onClick={handleShowMore}>Voir +</ShowMore>}
-          </Assets>
-        )}
-      </Member>
-    </>
+    <Member>
+      <div>
+        <Avatar
+          image={image}
+          name={name}
+          style={{
+            width: "2rem",
+            height: "2rem",
+            padding: "0.25rem",
+            borderRadius: "40px",
+            marginRight: "1rem",
+          }}
+        />
+        <MemberInfos>
+          <Name>{name}</Name>
+          {role && <Role>({role})</Role>}
+          <Email>{email}</Email>
+        </MemberInfos>
+      </div>
+      {assets?.length > 0 && (
+        <Assets>
+          {customAssets.map((e, id) => (
+            <Asset key={id}>{e}</Asset>
+          ))}
+          {showMore && <ShowMore onClick={handleShowMore}>Voir +</ShowMore>}
+        </Assets>
+      )}
+    </Member>
   );
 };
 GroupMember.propTypes = {
   name: PropTypes.string,
+  image: PropTypes.String,
   role: PropTypes.string,
   email: PropTypes.string,
   assets: PropTypes.arrayOf(PropTypes.string),
+  membershipType: PropTypes.number,
 };
 
 export default GroupMember;
