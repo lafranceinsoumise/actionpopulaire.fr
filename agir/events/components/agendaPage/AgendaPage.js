@@ -3,7 +3,10 @@ import React from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
+import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
+import { useMobileApp } from "@agir/front/app/hooks.js";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIsConnected,
@@ -16,6 +19,7 @@ import Homepage from "@agir/front/app/Homepage/Home";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
 import TopBar from "@agir/front/allPages/TopBar";
+import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 
 const StyledWrapper = styled.div`
   padding-top: 72px;
@@ -28,6 +32,10 @@ const StyledWrapper = styled.div`
 const AgendaPage = (props) => {
   const isConnected = useSelector(getIsConnected);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
+
+  const [hasBannerDownload, _] = useCustomAnnouncement("bannerDownload");
+  const isDesktop = useIsDesktop();
+  const { isMobileApp } = useMobileApp();
 
   if (!isSessionLoaded) {
     return null;
@@ -47,6 +55,11 @@ const AgendaPage = (props) => {
       <TopBar />
       <ConnectivityWarning hasTopBar />
       <TellMorePage />
+
+      {!isMobileApp && !isDesktop && hasBannerDownload && (
+        <Spacer size="100px" />
+      )}
+
       <StyledWrapper>
         <Layout active="events" smallBackgroundColor={style.black25} hasBanner>
           <Helmet>
