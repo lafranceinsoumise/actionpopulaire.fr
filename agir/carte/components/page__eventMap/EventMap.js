@@ -15,8 +15,11 @@ const EventMap = () => {
   return (
     <MapPage
       type="events"
-      backRoute="events"
-      createRoute="createEvent"
+      createLinkProps={{
+        as: "Link",
+        route: "createEvent",
+        children: "Créer un événement dans mon quartier",
+      }}
       mapURL={routes.eventsMap}
       user={user}
     />
