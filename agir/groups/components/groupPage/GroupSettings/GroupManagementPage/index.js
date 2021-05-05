@@ -105,6 +105,7 @@ const GroupManagementPage = (props) => {
           illustration={illustration}
           members={members || []}
           is2022={is2022}
+          routes={group?.routes}
         />
       </PageFadeIn>
       {transition(

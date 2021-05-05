@@ -113,7 +113,7 @@ const GroupMember = (props) => {
 };
 GroupMember.propTypes = {
   name: PropTypes.string,
-  image: PropTypes.String,
+  image: PropTypes.string,
   role: PropTypes.string,
   email: PropTypes.string,
   assets: PropTypes.arrayOf(PropTypes.string),

@@ -9,7 +9,6 @@ import Spacer from "@agir/front/genericComponents/Spacer.js";
 import SelectField from "@agir/front/formComponents/SelectField";
 import Button from "@agir/front/genericComponents/Button";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Toast from "@agir/front/genericComponents/Toast";
 
 import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
@@ -27,12 +26,6 @@ const StyledList = styled.div`
     border-radius: 2rem;
     margin-right: 0.5rem;
   }
-`;
-
-const StyledHelper = styled.div`
-  display: flex;
-  padding: 1rem;
-  background-color: ${style.black100};
 `;
 
 const EditionPanel = (props) => {
@@ -69,17 +62,16 @@ const EditionPanel = (props) => {
           : "Ajouter un·e gestionnaire"}
       </StyledTitle>
       <Spacer size="1rem" />
-      {candidates.length === 0 ? (
-        <StyledHelper style={{ backgroundColor: style.secondary500 }}>
-          <RawFeatherIcon
-            width="1rem"
-            height="1rem"
-            name="alert-circle"
-            style={{ marginRight: "0.5rem", display: "inline" }}
-          />
-          Il manque des membres à votre {is2022 ? "équipe" : "groupe"} pour leur
-          ajouter ce rôle
-        </StyledHelper>
+      {members.length === 1 ? (
+        <span style={{ color: style.black700 }}>
+          Accueillez d’abord un·e membre dans votre{" "}
+          {is2022 ? "équipe" : "groupe"} pour pouvoir lui donner un rôle de
+          gestionnaire.
+        </span>
+      ) : candidates.length === 0 ? (
+        <span style={{ color: style.black700 }}>
+          Tous vos membres sont déjà tous gestionnaires ou animateur·ices.
+        </span>
       ) : (
         <>
           <Spacer size="1rem" />
