@@ -128,7 +128,7 @@ export const TopBar = ({ path }) => {
           )
         ) : null}
         <HorizontalFlex center={path === "/"}>
-          <TopBarMainLink isMobileApp={isMobileApp} path={path} small={true} />
+          <TopBarMainLink isMobileApp={isMobileApp} path={path} />
           <MenuLink href={routes.dashboard} large={true}>
             <Logo />
           </MenuLink>
