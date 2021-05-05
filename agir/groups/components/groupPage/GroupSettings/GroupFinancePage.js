@@ -62,7 +62,7 @@ const GroupFinancePage = (props) => {
 
       <Spacer size="1rem" />
 
-      <div>
+      <div style={{ color: style.black700 }}>
         {!donation && (
           <>
             Personne n'a encore alloué de dons à vos actions.
@@ -95,7 +95,7 @@ const GroupFinancePage = (props) => {
         {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI)}
       </StyledTitle>
 
-      <span>
+      <span style={{ color: style.black700 }}>
         Partagez ce lien pour solliciter des dons pour votre
         {" " + (group.is2022 ? GROUP_IS_2022 : GROUP_LFI) + " "} :
       </span>

@@ -17,7 +17,7 @@ const MainPanel = (props) => {
   return (
     <>
       <StyledTitle>Animateurs et animatrices</StyledTitle>
-      <span>
+      <span style={{ color: style.black700 }}>
         Les animateur·ices organisent la vie{" "}
         {is2022 ? "de l'équipe" : "du groupe"}. Pour respecter la charte des{" "}
         {is2022 ? "équipes de soutien" : "groupes d'action"}, votre{" "}
@@ -48,11 +48,11 @@ const MainPanel = (props) => {
       )}
       <Spacer size="1rem" />
       <StyledTitle>Gestionnaires</StyledTitle>
-      <span>
+      <span style={{ color: style.black700 }}>
         Ajoutez des gestionnaires pour vous assister sur Action Populaire.
       </span>
       <Spacer size="0.5rem" />
-      <span>
+      <span style={{ color: style.black700 }}>
         Ces derniers ont accès à la liste des membres, peuvent modifier les
         informations et créer des événements au nom{" "}
         {is2022 ? "de l'équipe" : "du groupe"}.

@@ -2,12 +2,13 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import GroupMember from "@agir/groups/groupPage/GroupSettings/GroupMember";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import SelectField from "@agir/front/formComponents/SelectField";
 import Button from "@agir/front/genericComponents/Button";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
-import style from "@agir/front/genericComponents/_variables.scss";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Toast from "@agir/front/genericComponents/Toast";
 
