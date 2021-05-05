@@ -15,8 +15,11 @@ const GroupMap = () => {
   return (
     <MapPage
       type="groups"
-      backRoute="groups"
-      createRoute="createGroup"
+      createLinkProps={{
+        as: "a",
+        href: routes.createGroup,
+        children: "Créer un groupe dans mon quartier",
+      }}
       mapURL={routes.groupsMap}
       user={user}
     />

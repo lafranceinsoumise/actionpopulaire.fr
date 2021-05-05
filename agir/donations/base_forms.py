@@ -109,7 +109,7 @@ class BaseDonorForm(MetaFieldsMixin, LegacySubscribedMixin, forms.ModelForm):
             del self.fields["email"]
 
         # we remove the subscribed field for people who are already subscribed
-        if not self.show_subscribed or (self.connected and self.instance.subscribed):
+        if not self.show_subscribed or self.connected:
             del self.fields["subscribed_lfi"]
 
         for f in [

@@ -11,12 +11,12 @@ const CONFIG = {
   events: {
     title: "Carte des événements",
     backLabel: "Liste des événements",
-    createLabel: "Créer un événement dans mon quartier",
+    backRoute: "events",
   },
   groups: {
     title: "Carte des groupes",
     backLabel: "Liste des groupes",
-    createLabel: "Créer un groupe dans mon quartier",
+    backRoute: "groups",
   },
 };
 const Header = styled.header`
@@ -66,8 +66,8 @@ const Map = styled.iframe`
 `;
 
 const MapPage = (props) => {
-  const { user, type, backRoute, createRoute, mapURL } = props;
-  const { title, backLabel, createLabel } = CONFIG[type];
+  const { user, type, mapURL, createLinkProps } = props;
+  const { title, backRoute, backLabel } = CONFIG[type];
 
   return (
     <main>
@@ -81,7 +81,7 @@ const MapPage = (props) => {
           </Button>
         )}
         <h1>{title}</h1>
-        {user && <Link route={createRoute}>{createLabel}</Link>}
+        {user && <Link {...createLinkProps} />}
       </Header>
       <Map src={mapURL}></Map>
     </main>
@@ -92,7 +92,13 @@ MapPage.propTypes = {
   user: PropTypes.object,
   type: PropTypes.oneOf(["events", "groups"]),
   backRoute: PropTypes.string,
-  createRoute: PropTypes.string,
   mapURL: PropTypes.string,
+  createLinkProps: PropTypes.shape({
+    as: PropTypes.oneOf(["Link", "a"]),
+    href: PropTypes.string,
+    to: PropTypes.string,
+    route: PropTypes.string,
+    children: PropTypes.string,
+  }),
 };
 export default MapPage;

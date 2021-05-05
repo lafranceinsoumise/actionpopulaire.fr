@@ -116,6 +116,9 @@ class DonationTestCase(DonationTestMixin, TestCase):
         ]:
             self.assertEqual(getattr(self.p1, f), self.donation_information_payload[f])
 
+        # check person is not unsubscribed
+        self.assertIn(Person.NEWSLETTER_LFI, self.p1.newsletters)
+
         # fake systempay webhook
         complete_payment(payment)
         donation_notification_listener(payment)
