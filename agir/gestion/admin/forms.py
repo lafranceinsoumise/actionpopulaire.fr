@@ -3,7 +3,15 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 
 from agir.gestion.actions.commentaires import ajouter_commentaire
-from agir.gestion.models import Document, Reglement, Fournisseur, Commentaire, Depense
+from agir.gestion.admin.widgets import HierarchicalSelect
+from agir.gestion.models import (
+    Document,
+    Reglement,
+    Fournisseur,
+    Commentaire,
+    Depense,
+    Projet,
+)
 from agir.gestion.typologies import TypeDocument
 
 
@@ -243,15 +251,21 @@ class BaseCommentaireFormset(forms.BaseModelFormSet):
         super().__init__(data, files, prefix=prefix, queryset=qs, **kwargs)
 
 
-CommentaireFormset = forms.modelformset_factory(
-    Commentaire, formset=BaseCommentaireFormset, fields=("cache",),
-)
-NouveauCommentaireFormset = forms.modelformset_factory(
-    Commentaire, formset=BaseCommentaireFormset, fields=("type", "texte")
-)
+class DocumentForm(CommentairesForm, forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ()
+        widgets = {"type": HierarchicalSelect}
 
 
-class DevisForm(forms.ModelForm):
+class DepenseForm(CommentairesForm, forms.ModelForm):
+    class Meta:
+        model = Depense
+        fields = ()
+        widgets = {"type": HierarchicalSelect}
+
+
+class DepenseDevisForm(forms.ModelForm):
     devis = forms.FileField(label="Devis", max_length=30e6, required=False)  # 30 Mo
 
     def _save_m2m(self):
@@ -266,3 +280,11 @@ class DevisForm(forms.ModelForm):
     class Meta:
         model = Depense
         fields = ()
+        widgets = {"type": HierarchicalSelect}
+
+
+class ProjetForm(CommentairesForm, forms.ModelForm):
+    class Meta:
+        model = Projet
+        fields = ()
+        widgets = {"type": HierarchicalSelect}

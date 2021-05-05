@@ -64,13 +64,6 @@ class TypeDepense(TextChoices):
     LOCATION_VEHICULE = "TRA-L", "Location d'un véhicule"
     FRAIS_KILOMETRIQUES = "TRA-K", "Frais kilométriques"
 
-    @classmethod
-    def hierarchical_choices(cls):
-        return [
-            (value, f"- {label}" if len(value) > 3 else label)
-            for value, label in cls.choices
-        ]
-
 
 class TypeProjet(TextChoices):
     CONFERENCE_PRESSE = "CON", "Conférence de presse"
