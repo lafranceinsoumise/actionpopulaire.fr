@@ -162,7 +162,10 @@ class Document(NumeroUniqueMixin, TimeStampedModel):
     )
 
     requis = models.CharField(
-        verbose_name="Obligatoire ?", max_length=3, choices=Besoin.choices
+        verbose_name="Obligatoire ?",
+        max_length=3,
+        choices=Besoin.choices,
+        default=Besoin.NECESSAIRE,
     )
 
     description = models.TextField(

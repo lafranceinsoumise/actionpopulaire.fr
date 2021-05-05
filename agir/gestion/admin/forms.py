@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 
 from agir.gestion.actions.commentaires import ajouter_commentaire
-from agir.gestion.models import Document, Reglement, Fournisseur, Commentaire
+from agir.gestion.models import Document, Reglement, Fournisseur, Commentaire, Depense
 from agir.gestion.typologies import TypeDocument
 
 
@@ -249,3 +249,20 @@ CommentaireFormset = forms.modelformset_factory(
 NouveauCommentaireFormset = forms.modelformset_factory(
     Commentaire, formset=BaseCommentaireFormset, fields=("type", "texte")
 )
+
+
+class DevisForm(forms.ModelForm):
+    devis = forms.FileField(label="Devis", max_length=30e6, required=False)  # 30 Mo
+
+    def _save_m2m(self):
+        if "devis" in self.cleaned_data:
+            document = Document.objects.create(
+                titre=f"Devis pour {self.instance.titre}",
+                fichier=self.cleaned_data["devis"],
+                type=TypeDocument.DEVIS,
+            )
+            self.instance.documents.add(document)
+
+    class Meta:
+        model = Depense
+        fields = ()
