@@ -115,8 +115,8 @@ const EditionPanel = (props) => {
               {withGroupWord`Créer des événements au nom du groupe`}
             </StyledList>
           </div>
-          {(errors?.email || errors?.role) && (
-            <Toast>Erreur : {errors.email || errors.role}</Toast>
+          {errors?.membershipType && (
+            <Toast>Erreur : {errors.membershipType}</Toast>
           )}
           <Spacer size="1rem" />
           <Button color="secondary" onClick={onSubmit} disabled={isLoading}>

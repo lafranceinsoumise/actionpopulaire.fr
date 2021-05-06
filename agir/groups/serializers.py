@@ -145,6 +145,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     isMember = serializers.SerializerMethodField(read_only=True,)
     isManager = serializers.SerializerMethodField(read_only=True,)
+    isReferent = serializers.SerializerMethodField(read_only=True,)
 
     name = serializers.CharField(read_only=True,)
     type = serializers.SerializerMethodField(read_only=True,)
@@ -189,6 +190,12 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return (
             self.membership is not None
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+        )
+
+    def get_isReferent(self, obj):
+        return (
+            self.membership is not None
+            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
         )
 
     def get_contact(self, instance):
@@ -249,7 +256,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
         ):
             routes["createEvent"] = f'{front_url("create_event")}?group={str(obj.pk)}'
-
             routes["settings"] = front_url("view_group_settings", kwargs={"pk": obj.pk})
             routes["edit"] = front_url(
                 "view_group_settings_general", kwargs={"pk": obj.pk}
@@ -257,17 +263,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             routes["members"] = front_url(
                 "view_group_settings_members", kwargs={"pk": obj.pk}
             )
-            routes["animation"] = front_url(
-                "view_group_settings_management", kwargs={"pk": obj.pk}
-            )
             routes["membershipTransfer"] = front_url(
                 "transfer_group_members", kwargs={"pk": obj.pk}
             )
             routes["geolocate"] = front_url(
                 "change_group_location", kwargs={"pk": obj.pk}
-            )
-            routes["createSpendingRequest"] = front_url(
-                "create_spending_request", kwargs={"group_id": obj.pk}
             )
             if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
                 routes["materiel"] = front_url(
@@ -289,6 +289,12 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             self.membership is not None
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
         ):
+            routes["animation"] = front_url(
+                "view_group_settings_management", kwargs={"pk": obj.pk}
+            )
+            routes["createSpendingRequest"] = front_url(
+                "create_spending_request", kwargs={"group_id": obj.pk}
+            )
             routes[
                 "animationChangeRequest"
             ] = "https://actionpopulaire.fr/formulaires/demande-changement-animation-ga/"
@@ -404,6 +410,29 @@ class MembershipSerializer(serializers.ModelSerializer):
     membershipType = serializers.ChoiceField(
         source="membership_type", choices=Membership.MEMBERSHIP_TYPE_CHOICES
     )
+
+    def validate(self, data):
+        membership_type = data.get("membership_type", None)
+
+        # Validate maximum number of referents per group
+        if (
+            membership_type is not None
+            and self.instance is not None
+            and not self.instance.membership_type == Membership.MEMBERSHIP_TYPE_REFERENT
+            and membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+            and Membership.objects.filter(
+                supportgroup=self.instance.supportgroup,
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+            ).count()
+            >= 2
+        ):
+            raise ValidationError(
+                detail={
+                    "membershipType": "Vous ne pouvez pas ajouter plus de deux animateur·ices"
+                }
+            )
+
+        return data
 
     class Meta:
         model = Membership
