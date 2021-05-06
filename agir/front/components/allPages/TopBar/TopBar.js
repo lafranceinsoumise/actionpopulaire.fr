@@ -46,6 +46,7 @@ const TopBarContainer = styled.div`
   justify-content: space-between;
   max-width: 1320px;
   margin: 0 auto;
+  flex-grow: 1;
 
   h1 {
     font-family: ${style.fontFamilyBase};
@@ -63,9 +64,23 @@ const TopBarContainer = styled.div`
 const HorizontalFlex = styled.div`
   display: flex;
   align-items: center;
+  flex-grow: 1;
+
   & > * {
     margin-left: 1.25em;
   }
+
+  form {
+    flex-grow: inherit;
+  }
+
+  ${({ center }) =>
+    center &&
+    `
+    @media only screen and (max-width: ${style.collapse - 1}px) {
+      justify-content: center;
+    }
+  `}
 `;
 
 export const TopBar = ({ path }) => {
@@ -106,9 +121,9 @@ export const TopBar = ({ path }) => {
             <MenuLink href={routes.dashboard}>
               <Logo />
             </MenuLink>
-            <form method="get" action={routes.search}>
-              <SearchBar routes={routes} />
-            </form>
+          </Hide>
+          <Hide under as="form" method="get" action={routes.search}>
+            <SearchBar routes={routes} />
           </Hide>
         </HorizontalFlex>
         <PageFadeIn ready={isSessionLoaded}>
