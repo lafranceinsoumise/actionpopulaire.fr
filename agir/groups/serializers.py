@@ -283,17 +283,32 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 routes["financement"] = front_url(
                     "view_group_settings_finance", kwargs={"pk": obj.pk},
                 )
-            elif (
-                obj.type in settings.CERTIFIABLE_GROUP_TYPES
+        if (
+            self.membership is not None
+            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+        ):
+            routes[
+                "animationChangeRequest"
+            ] = "https://actionpopulaire.fr/formulaires/demande-changement-animation-ga/"
+            routes[
+                "referentResignmentRequest"
+            ] = "https://infos.actionpopulaire.fr/contact/"
+            routes[
+                "deleteGroup"
+            ] = "https://actionpopulaire.fr/formulaires/demande-suppression-ga/"
+            if (
+                not obj.is_certified
+                and len(obj.referents) >= 2
+                and obj.type in settings.CERTIFIABLE_GROUP_TYPES
                 or obj.subtypes.filter(
                     label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
                 ).exists()
             ):
-                routes["certification"] = front_url(
-                    "manage_group",
-                    query={"active": "certification"},
-                    kwargs={"pk": obj.pk},
-                )
+                certification_request_url = "https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/"
+                certification_request_params = f"group-id={ obj.pk }&email={ self.membership.person.email }&animateur={ self.membership.person.get_full_name() }"
+                routes[
+                    "certificationRequest"
+                ] = f"{certification_request_url}?{certification_request_params}"
         if (
             not self.user.is_anonymous
             and self.user.person
@@ -377,10 +392,11 @@ class MembershipSerializer(serializers.ModelSerializer):
     displayName = serializers.CharField(source="person.display_name", read_only=True)
     email = serializers.EmailField(source="person.email", read_only=True)
     image = MediaURLField(source="person.image", read_only=True)
+    gender = serializers.CharField(source="person.gender", read_only=True)
     membershipType = serializers.ChoiceField(
         source="membership_type", choices=Membership.MEMBERSHIP_TYPE_CHOICES
     )
 
     class Meta:
         model = Membership
-        fields = ["id", "displayName", "image", "email", "membershipType"]
+        fields = ["id", "displayName", "image", "email", "gender", "membershipType"]

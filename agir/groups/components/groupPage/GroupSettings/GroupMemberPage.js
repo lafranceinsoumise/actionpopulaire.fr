@@ -5,8 +5,9 @@ import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import Link from "@agir/front/app/Link";
-import GroupMember from "./GroupMember";
+import GroupMemberList from "./GroupMemberList";
+import { Hide } from "@agir/front/genericComponents/grid.js";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon.js";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn.js";
@@ -61,60 +62,34 @@ const GroupMemberPage = (props) => {
         <StyledTitle>{group?.facts?.memberCount} Membres</StyledTitle>
         <ShareLink
           label="Copier les mails des membres"
-          color="secondary"
+          color="primary"
           url={
             Array.isArray(members) &&
             members.map(({ email }) => email).join(", ")
           }
         />
-        <Spacer size="2rem" />
-        {members.map((member) => (
-          <Fragment key={member?.id}>
-            <GroupMember
-              name={member?.displayName}
-              email={member?.email}
-              image={member?.image}
-              membershipType={member?.membershipType}
-              assets={member?.assets}
-            />
-            <Spacer size="1rem" />
-          </Fragment>
-        ))}
+        <Spacer size="1.5rem" />
+        <GroupMemberList members={members} />
       </PageFadeIn>
-      <Spacer size="2rem" />
-
-      <ShareLink
-        label="Copier"
-        url={`https://actionpopulaire.fr/groupe/${group?.id}`}
-        title={`Partagez le lien public ${
-          group.is2022 ? "de l'équipe" : "du groupe"
-        }`}
-      />
-
-      {/* {group.is2022 === false && (
-        <>
-          <Spacer size="2rem" />
-          <GroupInvitation
-            groupPk={groupPk}
-            title={
-              <>
-                Invitez de nouveaux membres{" "}
-                <InlineBlock>dans votre groupe !</InlineBlock>
-              </>
-            }
-          />
-        </>
-      )} */}
-
-      <hr />
-
-      <Link href={group?.routes?.membershipTransfer}>
-        {`Transférer des membres de votre ${
-          group.is2022 === false ? "groupe" : "équipe"
-        } vers ${
-          group.is2022 === false ? "un autre groupe" : "une autre équipe"
-        }`}
-      </Link>
+      <Spacer size="2.5rem" />
+      {group.routes.membershipTransfer && (
+        <a
+          href={group?.routes?.membershipTransfer}
+          style={{ display: "flex", alignItems: "center" }}
+        >
+          <RawFeatherIcon name="arrow-right" width="1rem" height="1rem" />
+          &ensp;
+          <Hide under>
+            Transférer des membres de votre{" "}
+            {group.is2022 === false ? "groupe" : "équipe"} vers{" "}
+            {group.is2022 === false ? "un autre groupe" : "une autre équipe"}
+          </Hide>
+          <Hide over>
+            Transférer des membres vers{" "}
+            {group.is2022 === false ? "un autre groupe" : "une autre équipe"}
+          </Hide>
+        </a>
+      )}
     </>
   );
 };

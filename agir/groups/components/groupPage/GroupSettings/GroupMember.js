@@ -1,123 +1,127 @@
 import PropTypes from "prop-types";
-import React, { useState, useCallback } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
+
+import { FaUserCheck, FaLock } from "react-icons/fa";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { GENDER, getGenderedWord } from "@agir/lib/utils/display";
 import Avatar from "@agir/front/genericComponents/Avatar";
 
-const Assets = styled.div`
-  margin-left: 3rem;
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-`;
-
-const Asset = styled.div`
-  border: 1px solid #ddd;
-  padding: 4px 10px;
-  margin-right: 4px;
-  margin-bottom: 4px;
-  display: inline-block;
-  font-size: 12px;
-`;
-
 const Name = styled.span``;
-
-const Role = styled.span`
-  color: ${style.primary500};
-`;
-
-const Email = styled.span`
-  color: ${style.black500};
-`;
-
-const MemberInfos = styled.div`
-  display: inline-flex;
-  flex-wrap: wrap;
-
-  ${Name}, ${Role} {
-    margin-right: 0.5rem;
-  }
-`;
-
+const Role = styled.span``;
+const Email = styled.span``;
 const Member = styled.div`
-  font-size: 1rem;
+  background-color: ${style.white};
+  padding: 0.75rem 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  grid-gap: 0 1rem;
 
-  > div:first-child {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  @media (max-width: ${style.collapse}px) {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto auto;
   }
-`;
 
-const ShowMore = styled.span`
-  color: ${style.primary500};
-  cursor: pointer;
-  margin-bottom: 4px;
-  margin-left: 4px;
+  & > * {
+    margin: 0;
+  }
 
-  :hover {
-    text-decoration: underline;
+  ${Avatar} {
+    grid-row: span 2;
+    width: 2rem;
+    height: 2rem;
+
+    @media (max-width: ${style.collapse}px) {
+      grid-row: span 3;
+      width: 1.5rem;
+      height: 1.5rem;
+      align-self: start;
+    }
+  }
+
+  ${Role} {
+    color: ${style.green500};
+    font-size: 0.813rem;
+    text-align: right;
+    display: flex;
+    align-items: center;
+
+    @media (min-width: ${style.collapse}px) {
+      grid-column: 3/4;
+      grid-row: span 2;
+      justify-content: flex-end;
+    }
+  }
+  ${Name} {
+    font-weight: 500;
+
+    @media (min-width: ${style.collapse}px) {
+      grid-column: 2/3;
+      grid-row: 1/2;
+    }
+  }
+  ${Email} {
+    color: ${style.black500};
+    font-weight: 400;
+    font-size: 0.875rem;
+
+    @media (min-width: ${style.collapse}px) {
+      grid-column: 2/3;
+      grid-row: 2/3;
+    }
   }
 `;
 
 const MEMBERSHIP_TYPE_LABEL = {
-  10: "Membre",
+  10: "",
   50: "Gestionnaire",
-  100: "Animateur·ice",
+  100: ["Animateur·ice", "Animatrice", "Animateur"],
+};
+
+const MEMBERSHIP_TYPE_ICON = {
+  // 10: "Membre",
+  50: <FaUserCheck />,
+  100: <FaLock />,
 };
 
 const GroupMember = (props) => {
-  const { name, image = "", membershipType = 10, email, assets = [] } = props;
-  const role = MEMBERSHIP_TYPE_LABEL[String(membershipType)];
-  const [customAssets, setCustomAssets] = useState(
-    assets?.length ? assets.slice(0, 3) : []
-  );
-  const [showMore, setShowMore] = useState(assets?.length > 3);
-  const handleShowMore = useCallback(() => {
-    setCustomAssets(assets);
-    setShowMore(false);
-  }, [assets]);
+  const { displayName, image = "", membershipType, email, gender } = props;
+
+  const role = useMemo(() => {
+    const label = MEMBERSHIP_TYPE_LABEL[String(membershipType)];
+    if (!label) {
+      return "";
+    }
+    if (Array.isArray(label)) {
+      return getGenderedWord(gender, ...label);
+    }
+    return label;
+  }, [membershipType, gender]);
 
   return (
     <Member>
-      <div>
-        <Avatar
-          image={image}
-          name={name}
-          style={{
-            width: "2rem",
-            height: "2rem",
-            padding: "0.25rem",
-            borderRadius: "40px",
-            marginRight: "1rem",
-          }}
-        />
-        <MemberInfos>
-          <Name>{name}</Name>
-          {role && <Role>({role})</Role>}
-          <Email>{email}</Email>
-        </MemberInfos>
-      </div>
-      {assets?.length > 0 && (
-        <Assets>
-          {customAssets.map((e, id) => (
-            <Asset key={id}>{e}</Asset>
-          ))}
-          {showMore && <ShowMore onClick={handleShowMore}>Voir +</ShowMore>}
-        </Assets>
+      <Avatar image={image} name={displayName} />
+      {role && (
+        <Role>
+          {MEMBERSHIP_TYPE_ICON[membershipType]}&ensp;{role}
+        </Role>
       )}
+      <Name>{displayName}</Name>
+      <Email>{email}</Email>
     </Member>
   );
 };
 GroupMember.propTypes = {
-  name: PropTypes.string,
-  image: PropTypes.String,
-  role: PropTypes.string,
+  id: PropTypes.number,
+  displayName: PropTypes.string,
+  image: PropTypes.string,
   email: PropTypes.string,
-  assets: PropTypes.arrayOf(PropTypes.string),
-  membershipType: PropTypes.number,
+  membershipType: PropTypes.oneOf(Object.keys(MEMBERSHIP_TYPE_LABEL)),
+  gender: PropTypes.oneOf(Object.values(GENDER)),
 };
 
 export default GroupMember;
