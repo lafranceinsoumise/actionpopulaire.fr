@@ -203,7 +203,7 @@ const StyledContent = styled.div`
 `;
 
 const ManagerActions = (props) => {
-  const { is2022 = false, routes, groupSettingsLinks } = props;
+  const { is2022 = false, groupSettingsLinks } = props;
 
   return (
     <StyledContent>
@@ -259,17 +259,6 @@ const ManagerActions = (props) => {
               <Link to={groupSettingsLinks.finance}>
                 Remboursement et dépense
               </Link>
-            </li>
-          )}
-          {routes.certification && (
-            <li>
-              <RawFeatherIcon
-                small
-                inline
-                color={style.primary500}
-                name="check-circle"
-              />
-              <a href={routes.certification}>Certification</a>
             </li>
           )}
           {groupSettingsLinks?.finance && (

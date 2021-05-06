@@ -49,6 +49,6 @@ const AddPair = ({ label, onClick }) => {
 
 AddPair.propTypes = {
   label: PropTypes.string.isRequired,
-  onClick: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 export default AddPair;

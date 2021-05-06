@@ -1,11 +1,12 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useRef } from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
-import { Column, Row } from "@agir/front/genericComponents/grid";
+
+import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
 const StyledInput = styled.input``;
 
@@ -21,6 +22,10 @@ const StyledDiv = styled.div`
     overflow: hidden;
   }
 
+  h4:empty {
+    display: none;
+  }
+
   ${StyledInput} {
     flex: 1 1 240px;
     width: 100%;
@@ -28,6 +33,12 @@ const StyledDiv = styled.div`
     border-radius: 0;
     padding: 0.5rem;
     margin-right: 0.5rem;
+
+    &:hover,
+    &:focus {
+      outline: none;
+      border-color: ${style.black700};
+    }
   }
 
   ${Button} {
@@ -42,14 +53,8 @@ const StyledDiv = styled.div`
 const ShareLink = (props) => {
   const { url, title, label, color } = props;
 
-  let [copied, setCopied] = useState(false);
-  let copyUrl = useCallback(() => {
-    inputEl.current.select();
-    document.execCommand("copy");
-    setCopied(true);
-  }, []);
+  const [isCopied, handleCopy] = useCopyToClipboard(url);
 
-  const inputEl = useRef(null);
   return (
     <StyledDiv>
       <h4>{title}</h4>
@@ -58,14 +63,14 @@ const ShareLink = (props) => {
           type="text"
           value={url}
           readOnly
-          ref={inputEl}
-          onClick={copyUrl}
+          onClick={handleCopy}
+          onFocus={handleCopy}
         />
         <Button
           small
           color={color}
-          icon={copied ? "check" : "copy"}
-          onClick={copyUrl}
+          icon={isCopied ? "check" : "copy"}
+          onClick={handleCopy}
         >
           {label || "Copier"}
         </Button>

@@ -269,7 +269,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             )
             if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
                 routes["materiel"] = front_url(
-                    "manage_group", query={"active": "materiel"}, kwargs={"pk": obj.pk}
+                    "view_group_settings_materiel", kwargs={"pk": obj.pk}
                 )
             if not obj.is_2022:
                 routes["invitation"] = front_url(

@@ -16,6 +16,9 @@ const GroupSettingsMembers = lazy(() =>
 const GroupSettingsManage = lazy(() =>
   import("@agir/groups/groupPage/GroupSettings/GroupManagementPage")
 );
+const GroupSettingsMateriel = lazy(() =>
+  import("@agir/groups/groupPage/GroupSettings/GroupMaterielPage")
+);
 const GroupSettingsFinance = lazy(() =>
   import("@agir/groups/groupPage/GroupSettings/GroupFinancePage")
 );
@@ -39,8 +42,6 @@ export const menuRoute = {
   label: "Paramètres du groupe",
 };
 
-// TODO: Matériel, Certification
-
 export const routeConfig = {
   members: {
     id: "members",
@@ -61,6 +62,17 @@ export const routeConfig = {
     Component: GroupSettingsManage,
     illustration: illustrationManage,
     isActive: true,
+    menuGroup: 1,
+  },
+  materiel: {
+    id: "materiel",
+    path: "materiel/",
+    exact: true,
+    label: "Matériel",
+    icon: "shopping-bag",
+    Component: GroupSettingsMateriel,
+    isActive: (group) =>
+      Array.isArray(group.discountCodes) && group.discountCodes.length > 0,
     menuGroup: 1,
   },
   finance: {

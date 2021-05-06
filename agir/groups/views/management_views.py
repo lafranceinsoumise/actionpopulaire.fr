@@ -95,15 +95,17 @@ class SupportGroupManagementView(RedirectView):
                 "view_group_settings_management", kwargs={"pk": supportgroup.pk}
             )
         if active == "materiel":
-            # TODO: replace once the materiel panel route has been defined
-            return reverse("view_group_settings", kwargs={"pk": supportgroup.pk})
+            return reverse(
+                "view_group_settings_materiel", kwargs={"pk": supportgroup.pk}
+            )
         if active == "financement":
             return reverse(
                 "view_group_settings_finance", kwargs={"pk": supportgroup.pk}
             )
         if active == "certification":
-            # TODO: replace once the certification panel route has been defined
-            return reverse("view_group_settings", kwargs={"pk": supportgroup.pk})
+            return reverse(
+                "view_group_settings_finance", kwargs={"pk": supportgroup.pk}
+            )
         if active == "invitation":
             return reverse(
                 "view_group_settings_members", kwargs={"pk": supportgroup.pk}

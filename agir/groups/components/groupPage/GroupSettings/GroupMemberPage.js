@@ -64,8 +64,9 @@ const GroupMemberPage = (props) => {
           label="Copier les mails des membres"
           color="primary"
           url={
-            Array.isArray(members) &&
-            members.map(({ email }) => email).join(", ")
+            Array.isArray(members)
+              ? members.map(({ email }) => email).join(", ")
+              : ""
           }
         />
         <Spacer size="1.5rem" />

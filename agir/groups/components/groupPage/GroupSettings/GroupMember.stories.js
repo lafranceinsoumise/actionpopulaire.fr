@@ -6,7 +6,7 @@ import GroupMember from "./GroupMember.js";
 
 export default {
   component: GroupMember,
-  title: "Group/GroupMember",
+  title: "GroupSettings/GroupMember",
   parameters: {
     layout: "centered",
   },

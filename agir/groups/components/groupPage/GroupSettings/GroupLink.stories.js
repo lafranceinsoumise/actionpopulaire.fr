@@ -4,7 +4,7 @@ import GroupLink from "./GroupLink.js";
 
 export default {
   component: GroupLink,
-  title: "Group/GroupLink",
+  title: "GroupSettings/GroupLink",
 };
 
 const Template = (args) => <GroupLink {...args} />;

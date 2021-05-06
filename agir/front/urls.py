@@ -43,6 +43,11 @@ supportgroup_settings_patterns = [
         views.GroupSettingsView.as_view(),
         name="view_group_settings_links",
     ),
+    path(
+        "gestion/materiel/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings_materiel",
+    ),
 ]
 
 supportgroup_patterns = [
