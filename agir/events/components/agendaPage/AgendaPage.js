@@ -11,6 +11,7 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIsConnected,
   getIsSessionLoaded,
+  getIsBannerDownload,
 } from "@agir/front/globalContext/reducers";
 
 import Agenda from "@agir/events/agendaPage/Agenda";
@@ -19,8 +20,6 @@ import Homepage from "@agir/front/app/Homepage/Home";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
 import TopBar from "@agir/front/allPages/TopBar";
-
-import { useHasBannerDownload } from "@agir/activity/common/hooks.js";
 
 const StyledWrapper = styled.div`
   padding-top: 72px;
@@ -36,7 +35,7 @@ const AgendaPage = (props) => {
 
   const isDesktop = useIsDesktop();
   const { isMobileApp } = useMobileApp();
-  const [hasBannerDownload, _] = useHasBannerDownload();
+  const isBannerDownload = useSelector(getIsBannerDownload);
 
   if (!isSessionLoaded) {
     return null;
@@ -57,7 +56,7 @@ const AgendaPage = (props) => {
       <ConnectivityWarning hasTopBar />
       <TellMorePage />
 
-      {!isMobileApp && !isDesktop && hasBannerDownload && (
+      {!isMobileApp && !isDesktop && isBannerDownload && (
         <Spacer size="100px" />
       )}
 

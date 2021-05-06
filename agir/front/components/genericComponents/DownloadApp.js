@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
@@ -10,7 +10,15 @@ import { useMobileApp } from "@agir/front/app/hooks.js";
 import { CONFIG } from "@agir/front/genericComponents/AppStore.js";
 import { getMobileOS } from "@agir/front/authentication/common.js";
 
-import { useHasBannerDownload } from "@agir/activity/common/hooks.js";
+import {
+  useDispatch,
+  useSelector,
+} from "@agir/front/globalContext/GlobalContext";
+import {
+  setBannerDownload,
+  clearBannerDownload,
+} from "@agir/front/globalContext/actions";
+import { getIsBannerDownload } from "@agir/front/globalContext/reducers";
 
 const StyledContainer = styled.div`
   display: flex;
@@ -83,16 +91,34 @@ const BANNER_ID = "BANNER_download_closed";
 
 export const DownloadApp = () => {
   const { isMobileApp } = useMobileApp();
-  const [hasBannerDownload, setHasBannerDownload] = useHasBannerDownload();
 
-  const closeDownload = useCallback(async () => {
-    setHasBannerDownload(false);
+  const dispatch = useDispatch();
+  const isBannerDownload = useSelector(getIsBannerDownload);
+
+  const closeDownload = useCallback(() => {
+    dispatch(clearBannerDownload());
     window.localStorage.setItem(BANNER_ID, 1);
+  }, [dispatch]);
+
+  useEffect(() => {
+    let bannerClosed = window.localStorage.getItem(BANNER_ID);
+    bannerClosed = !isNaN(parseInt(bannerClosed)) ? parseInt(bannerClosed) : 0;
+    let visitCount = window.localStorage.getItem("AP_vcount");
+    visitCount = !isNaN(parseInt(visitCount)) ? parseInt(visitCount) : 0;
+
+    if (visitCount % 2 === 0) {
+      window.localStorage.setItem(BANNER_ID, 0);
+      dispatch(setBannerDownload());
+    } else {
+      if (!bannerClosed) {
+        dispatch(setBannerDownload());
+      }
+    }
   }, []);
 
   if (isMobileApp) return null;
 
-  if (!hasBannerDownload) return null;
+  if (!isBannerDownload) return null;
 
   return (
     <StyledContainer>
@@ -119,13 +145,13 @@ export const DownloadApp = () => {
       <div style={{ paddingRight: "18px" }}>
         <DownloadMinus
           as="a"
-          href={OS === "iOS" ? CONFIG.apple.href : CONFIG.google.href}
+          href={"iOS" === OS ? CONFIG.apple.href : CONFIG.google.href}
         >
           <FeatherIcon name="download" color={style.primary500} />
         </DownloadMinus>
         <Download
           as="a"
-          href={OS === "iOS" ? CONFIG.apple.href : CONFIG.google.href}
+          href={"iOS" === OS ? CONFIG.apple.href : CONFIG.google.href}
         >
           Télécharger
         </Download>

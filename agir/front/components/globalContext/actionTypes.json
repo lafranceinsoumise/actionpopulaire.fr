@@ -8,6 +8,9 @@
   "CLEAR_TOAST": "clearToast",
   "CLEAR_ALL_TOASTS": "clearAllToasts",
 
+  "ADD_BANNER_DOWNLOAD": "setBannerDownload",
+  "CLEAR_BANNER_DOWNLOAD": "clearBannerDownload",
+
   "SET_BACK_LINK_ACTION": "setBackLink",
   "SET_TOP_BAR_RIGHT_LINK_ACTION": "setTopBarRightLink",
   "SET_ADMIN_LINK_ACTION": "setAdminLink",

@@ -71,30 +71,3 @@ export const useCustomAnnouncement = (slug) => {
 
   return [announcement, dismissCallback];
 };
-
-export const useHasBannerDownload = () => {
-  const BANNER_ID = "BANNER_download_closed";
-  const [hasBanner, setHasBanner] = useState(false);
-
-  if (!window.localStorage) {
-    return false;
-  }
-
-  useEffect(() => {
-    let bannerClosed = window.localStorage.getItem(BANNER_ID);
-    bannerClosed = !isNaN(parseInt(bannerClosed)) ? parseInt(bannerClosed) : 0;
-    let visitCount = window.localStorage.getItem("AP_vcount");
-    visitCount = !isNaN(parseInt(visitCount)) ? parseInt(visitCount) : 0;
-
-    if (visitCount % 2 === 0) {
-      window.localStorage.setItem(BANNER_ID, 0);
-      setHasBanner(true);
-    } else {
-      if (!bannerClosed) {
-        setHasBanner(true);
-      }
-    }
-  }, [window.localStorage]);
-
-  return [hasBanner, setHasBanner];
-};
