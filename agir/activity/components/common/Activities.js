@@ -46,7 +46,7 @@ export const StyledList = styled.ul`
   padding: 1.5rem 0;
 
   @media (max-width: ${style.collapse}px) {
-    padding: 1.5rem 0 0.5rem;
+    padding: 0 0 0.5rem;
     margin: 0 auto;
     max-width: 100%;
   }

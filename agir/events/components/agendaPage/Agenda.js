@@ -2,6 +2,7 @@ import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import styled from "styled-components";
+import { useLocation } from "react-router-dom";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -281,6 +282,7 @@ const Agenda = () => {
   const is2022 = useSelector(getIs2022);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const user = useSelector(getUser);
+  const path = useLocation().pathname;
 
   const isPaused = useCallback(() => {
     return !user;

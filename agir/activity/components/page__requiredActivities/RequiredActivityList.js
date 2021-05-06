@@ -96,7 +96,7 @@ const RequiredActivityList = () => {
         }
       >
         <FilterTabs
-          style={{ marginTop: "2rem", marginBottom: "1rem" }}
+          style={{ marginBottom: "1rem" }}
           tabs={tabs}
           onTabChange={toggleDisplayAll}
         />
