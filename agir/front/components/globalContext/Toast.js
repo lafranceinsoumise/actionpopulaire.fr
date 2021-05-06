@@ -101,7 +101,7 @@ CloseButton.propTypes = {
   closeToast: PropTypes.func.isRequired,
 };
 export const Toast = (props) => {
-  const { toasts = [], onClear, autoClose = false } = props;
+  const { toasts = [], onClear } = props;
 
   useEffect(() => {
     toasts.forEach((t) => {
@@ -112,16 +112,17 @@ export const Toast = (props) => {
           t.message
         ),
         {
-          toastId: t.toastId,
-          position: toast.POSITION.BOTTOM_LEFT,
-          type: TOAST_TYPES[t.type.toUpperCase()],
-          onClose: () => onClear(t),
-          autoClose: autoClose,
           closeOnClick: false,
+          position: toast.POSITION.BOTTOM_LEFT,
+          ...t,
+          type: TOAST_TYPES[t.type.toUpperCase()],
+          onClose: () => {
+            onClear(t.toastId);
+          },
         }
       );
     });
-  }, [toasts, onClear, autoClose]);
+  }, [toasts, onClear]);
 
   return <StyledContainer closeButton={CloseButton} />;
 };
@@ -130,7 +131,7 @@ const ConnectedToast = (props) => {
   const toasts = useSelector(getToasts);
   const dispatch = useDispatch();
   const handleClear = useCallback(
-    ({ toastId }) => {
+    (toastId) => {
       dispatch(clearToast(toastId));
     },
     [dispatch]
@@ -145,7 +146,8 @@ Toast.propTypes = {
       message: PropTypes.string.isRequired,
       html: PropTypes.bool,
       type: PropTypes.oneOf(Object.keys(TOAST_TYPES)),
-      autoClose: PropTypes.bool,
+      autoClose: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
+      closeOnClick: PropTypes.bool,
     })
   ),
   onClear: PropTypes.func,
