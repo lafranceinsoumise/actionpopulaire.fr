@@ -61,7 +61,7 @@ export const routeConfig = {
     icon: "lock",
     Component: GroupSettingsManage,
     illustration: illustrationManage,
-    isActive: true,
+    isActive: (group) => group?.isReferent,
     menuGroup: 1,
   },
   materiel: {

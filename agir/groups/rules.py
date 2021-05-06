@@ -143,6 +143,10 @@ rules.add_perm(
     is_authenticated_person & own_membership_has_higher_rights,
 )
 rules.add_perm(
+    "groups.change_membership_type",
+    is_authenticated_person & is_at_least_referent_for_group,
+)
+rules.add_perm(
     "groups.delete_membership",
     is_authenticated_person & is_own_membership & (~is_group_only_referent),
 )
