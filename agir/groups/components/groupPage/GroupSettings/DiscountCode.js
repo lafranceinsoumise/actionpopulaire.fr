@@ -1,4 +1,4 @@
-import { DateTime, Interval } from "luxon";
+import { DateTime } from "luxon";
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";

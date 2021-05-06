@@ -10,10 +10,13 @@ import Spacer from "@agir/front/genericComponents/Spacer.js";
 
 import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
 
+import { useGroupWord } from "@agir/groups/utils/group";
+
 const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 
 const MainPanel = (props) => {
   const { editManager, editReferent, members, is2022, routes } = props;
+  const withGroupWord = useGroupWord({ is2022 });
   const referents = useMemo(
     () => members.filter((member) => member.membershipType === REFERENT),
     [members]
@@ -26,8 +29,7 @@ const MainPanel = (props) => {
     <>
       <StyledTitle>Animateurs et animatrices</StyledTitle>
       <span style={{ color: style.black700 }}>
-        Les animateur·ices organisent la vie{" "}
-        {is2022 ? "de l'équipe" : "du groupe"}.
+        {withGroupWord`Les animateur·ices organisent la vie du groupe.`}
       </span>
       <Spacer size=".5rem" />
       <span style={{ color: style.black700 }}>
@@ -39,10 +41,9 @@ const MainPanel = (props) => {
               : "https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/"
           }
         >
-          charte des {is2022 ? "équipes de soutien" : "groupes d'action"}
+          {withGroupWord`charte des groupes d'actions`}
         </a>
-        , votre {is2022 ? "équipe" : "groupe"} doit être animée à parité de
-        genre.
+        , {withGroupWord`votre groupe doit être animé à parité de genre.`}
       </span>
       <Spacer size="1.5rem" />
       <GroupMemberList
@@ -59,7 +60,7 @@ const MainPanel = (props) => {
           style={{ display: "flex", alignItems: "center" }}
         >
           <FeatherIcon name="arrow-right" width="1rem" height="1rem" />
-          &ensp;Changer l’animation {is2022 ? "de l'équipe" : "du groupe"}
+          &ensp;{withGroupWord`Changer l'animation du groupe`}
         </a>
       )}
       {routes?.animationChangeRequest && routes?.referentResignmentRequest && (
@@ -82,9 +83,8 @@ const MainPanel = (props) => {
       </span>
       <Spacer size="0.5rem" />
       <span style={{ color: style.black700 }}>
-        Ces derniers ont accès à la liste des membres, peuvent modifier les
-        informations et créer des événements au nom{" "}
-        {is2022 ? "de l'équipe" : "du groupe"}.
+        {withGroupWord`Ces derniers ont accès à la liste des membres, peuvent modifier les
+        informations et créer des événements au nom du groupe.`}
       </span>
       <Spacer size="1.5rem" />
       <GroupMemberList
@@ -95,10 +95,9 @@ const MainPanel = (props) => {
       {routes?.certificationRequest && (
         <>
           <Spacer size="1.5rem" />
-          <StyledTitle>Certifier le groupe</StyledTitle>
+          <StyledTitle>{withGroupWord`Certifier le groupe`}</StyledTitle>
           <span style={{ color: style.black700 }}>
-            Votre groupe n'est pas encore certifié. Vous pouvez en demander la
-            certification en cliquant sur le bouton
+            {withGroupWord`Votre groupe n'a pas encore de certification. Vous pouvez la demander en cliquant sur le bouton`}
           </span>
           <Spacer size="1.5rem" />
           <Button as="a" href={routes.certificationRequest} color="primary">
@@ -110,7 +109,7 @@ const MainPanel = (props) => {
         <>
           <hr />
           <a href={routes.deleteGroup} style={{ color: style.redNSP }}>
-            Supprimer {is2022 ? "l'équipe" : "le groupe"}
+            {withGroupWord`Supprimer le groupe`}
           </a>
         </>
       )}

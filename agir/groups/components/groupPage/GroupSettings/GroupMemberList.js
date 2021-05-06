@@ -39,7 +39,7 @@ const GroupMemberList = ({ members, onAdd, addButtonLabel }) => {
   );
 };
 GroupMemberList.propTypes = {
-  members: PropTypes.arrayOf(GroupMember.propTypes),
+  members: PropTypes.arrayOf(PropTypes.shape(GroupMember.propTypes)),
   onAdd: PropTypes.func,
   addButtonLabel: PropTypes.node,
 };

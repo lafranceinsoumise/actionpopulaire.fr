@@ -13,6 +13,7 @@ import DiscountCode from "./DiscountCode";
 import { StyledTitle } from "./styledComponents.js";
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
+import { useGroupWord } from "@agir/groups/utils/group";
 
 const StyledDiscountCodeList = styled.div`
   display: grid;
@@ -23,6 +24,7 @@ const StyledDiscountCodeList = styled.div`
 const GroupMaterielPage = (props) => {
   const { onBack, illustration, groupPk } = props;
   const group = useGroup(groupPk);
+  const withGroupWord = useGroupWord(group);
 
   const ordersURL = useMemo(() => group?.routes?.orders || "", [group]);
   const discountCodes = useMemo(
@@ -38,8 +40,8 @@ const GroupMaterielPage = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Matériel</StyledTitle>
       <span style={{ color: style.black700 }}>
-        Accédez à du matériel (affiche, tracts, autocollants...) gratuit en
-        utilisant les codes promos mis à disposition de votre groupe.
+        {withGroupWord`Accédez à du matériel (affiche, tracts, autocollants...) gratuit en
+          utilisant les codes promos mis à disposition de votre groupe.`}
       </span>
       {ordersURL && (
         <>

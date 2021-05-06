@@ -12,6 +12,7 @@ import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButto
 import Toast from "@agir/front/genericComponents/Toast";
 
 import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
+import { useGroupWord } from "@agir/groups/utils/group";
 
 const [REFERENT, MANAGER, MEMBER] = [100, 50, 10];
 
@@ -41,6 +42,8 @@ const EditionPanel = (props) => {
     is2022,
   } = props;
 
+  const withGroupWord = useGroupWord({ is2022 });
+
   const candidates = useMemo(
     () =>
       members && selectedMembershipType
@@ -64,9 +67,8 @@ const EditionPanel = (props) => {
       <Spacer size="1rem" />
       {members.length === 1 ? (
         <span style={{ color: style.black700 }}>
-          Accueillez d’abord un·e membre dans votre{" "}
-          {is2022 ? "équipe" : "groupe"} pour pouvoir lui donner un rôle de
-          gestionnaire.
+          {withGroupWord`Accueillez d’abord un·e membre dans votre groupe pour pouvoir lui donner un rôle de
+            gestionnaire.`}
         </span>
       ) : candidates.length === 0 ? (
         <span style={{ color: style.black700 }}>
@@ -106,11 +108,11 @@ const EditionPanel = (props) => {
             </StyledList>
             <StyledList>
               <div />
-              Modifier les informations {is2022 ? "de l'équipe" : "du groupe"}
+              {withGroupWord`Modifier les informations du groupe`}
             </StyledList>
             <StyledList>
               <div />
-              Créer des événements au nom {is2022 ? "de l'équipe" : "du groupe"}
+              {withGroupWord`Créer des événements au nom du groupe`}
             </StyledList>
           </div>
           {(errors?.email || errors?.role) && (

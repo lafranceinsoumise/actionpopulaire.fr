@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 import styled from "styled-components";
@@ -59,5 +60,9 @@ const GroupLink = (props) => {
     </StyledRow>
   );
 };
-
+GroupLink.propTypes = {
+  label: PropTypes.string,
+  url: PropTypes.string,
+  onChange: PropTypes.func,
+};
 export default GroupLink;

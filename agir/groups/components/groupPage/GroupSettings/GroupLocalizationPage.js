@@ -1,8 +1,11 @@
 import PropTypes from "prop-types";
 import React, { useState, useEffect, useCallback } from "react";
+import styled from "styled-components";
 import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
@@ -12,8 +15,7 @@ import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButto
 import LocationField from "@agir/front/formComponents/LocationField.js";
 
 import { StyledTitle } from "./styledComponents.js";
-import style from "@agir/front/genericComponents/_variables.scss";
-import styled from "styled-components";
+import { useGroupWord } from "@agir/groups/utils/group";
 
 import {
   updateGroup,
@@ -43,6 +45,7 @@ const GroupLocalizationPage = (props) => {
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
   );
+  const withGroupWord = useGroupWord(group);
 
   const handleInputChange = useCallback((_, name, value) => {
     setFormLocation((formLocation) => ({ ...formLocation, [name]: value }));
@@ -65,7 +68,7 @@ const GroupLocalizationPage = (props) => {
         return { ...group, ...res.data };
       });
     },
-    [formLocation, groupPk, mutate]
+    [formLocation, groupPk, mutate, sendToast]
   );
 
   useEffect(() => {
@@ -123,9 +126,7 @@ const GroupLocalizationPage = (props) => {
         indiquez un endroit à proximité (café, mairie...)
         <Spacer size="0.5rem" />
         <strong>
-          Merci d'indiquer une adresse précise avec numéro de rue, sans quoi
-          {" " + (group.is2022 ? "l'équipe" : "le groupe") + " "} n'apparaîtra
-          pas sur la carte.
+          {withGroupWord`Merci d'indiquer une adresse précise avec numéro de rue, sans quoi le groupe n'apparaîtra pas sur la carte.`}
         </strong>
       </span>
 
