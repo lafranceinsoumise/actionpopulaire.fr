@@ -41,6 +41,17 @@ const StyledSkeleton = styled.div`
   }
 `;
 
+const StyledShareLink = styled(ShareLink)`
+  & > div {
+    @media (max-width: ${style.collapse}px) {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-gap: 0.5rem;
+      height: auto;
+    }
+  }
+`;
+
 const MembersSkeleton = (
   <StyledSkeleton>
     <div />
@@ -62,7 +73,7 @@ const GroupMemberPage = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <PageFadeIn ready={Array.isArray(members)} wait={MembersSkeleton}>
         <StyledTitle>{group?.facts?.memberCount} Membres</StyledTitle>
-        <ShareLink
+        <StyledShareLink
           label="Copier les mails des membres"
           color="primary"
           url={
