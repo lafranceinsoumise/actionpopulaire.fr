@@ -16,22 +16,23 @@ export const Default = Template.bind({});
 Default.args = {
   members: [
     {
-      id: "1",
-      name: "Clément Verde",
+      id: 1,
+      displayName: "Clément Verde",
       email: "admin@example.fr",
       membershipType: 10,
       image: "https://www.fillmurray.com/200/200",
     },
     {
-      id: "2",
-      name: "Clément Verde",
+      id: 2,
+      displayName: "Clément Verde",
       email: "admin@example.fr",
       membershipType: 50,
       image: "https://www.fillmurray.com/200/200",
+      onResetMembershipType: console.log,
     },
     {
-      id: "3",
-      name: "Clément Verde",
+      id: 3,
+      displayName: "Clément Verde",
       email: "admin@example.fr",
       membershipType: 100,
       image: "https://www.fillmurray.com/200/200",
