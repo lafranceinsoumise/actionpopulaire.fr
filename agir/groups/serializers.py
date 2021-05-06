@@ -409,6 +409,29 @@ class MembershipSerializer(serializers.ModelSerializer):
         source="membership_type", choices=Membership.MEMBERSHIP_TYPE_CHOICES
     )
 
+    def validate(self, data):
+        membership_type = data.get("membership_type", None)
+
+        # Validate maximum number of referents per group
+        if (
+            membership_type is not None
+            and self.instance is not None
+            and not self.instance.membership_type == Membership.MEMBERSHIP_TYPE_REFERENT
+            and membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+            and Membership.objects.filter(
+                supportgroup=self.instance.supportgroup,
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+            ).count()
+            >= 2
+        ):
+            raise ValidationError(
+                detail={
+                    "membershipType": "Vous ne pouvez pas ajouter plus de deux animateur·ices"
+                }
+            )
+
+        return data
+
     class Meta:
         model = Membership
         fields = ["id", "displayName", "image", "email", "gender", "membershipType"]
