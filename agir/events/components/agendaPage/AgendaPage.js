@@ -19,7 +19,8 @@ import Homepage from "@agir/front/app/Homepage/Home";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
 import TopBar from "@agir/front/allPages/TopBar";
-import { useCustomAnnouncement } from "@agir/activity/common/hooks";
+
+import { useHasBannerDownload } from "@agir/activity/common/hooks.js";
 
 const StyledWrapper = styled.div`
   padding-top: 72px;
@@ -33,9 +34,9 @@ const AgendaPage = (props) => {
   const isConnected = useSelector(getIsConnected);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
-  const [hasBannerDownload, _] = useCustomAnnouncement("bannerDownload");
   const isDesktop = useIsDesktop();
   const { isMobileApp } = useMobileApp();
+  const [hasBannerDownload, _] = useHasBannerDownload();
 
   if (!isSessionLoaded) {
     return null;

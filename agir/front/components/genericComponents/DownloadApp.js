@@ -7,9 +7,10 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import logo from "@agir/front/genericComponents/logos/action-populaire_primary_mini.svg";
 
 import { useMobileApp } from "@agir/front/app/hooks.js";
-import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 import { CONFIG } from "@agir/front/genericComponents/AppStore.js";
 import { getMobileOS } from "@agir/front/authentication/common.js";
+
+import { useHasBannerDownload } from "@agir/activity/common/hooks.js";
 
 const StyledContainer = styled.div`
   display: flex;
@@ -78,16 +79,16 @@ const StyledFeatherIcon = styled(FeatherIcon)`
 `;
 
 const OS = getMobileOS();
+const BANNER_ID = "BANNER_download_closed";
 
 export const DownloadApp = () => {
   const { isMobileApp } = useMobileApp();
-  const [hasBannerDownload, dismissBannerDownload] = useCustomAnnouncement(
-    "bannerDownload"
-  );
+  const [hasBannerDownload, setHasBannerDownload] = useHasBannerDownload();
 
-  const dismissDownload = useCallback(async () => {
-    await dismissBannerDownload();
-  }, [dismissBannerDownload]);
+  const closeDownload = useCallback(async () => {
+    setHasBannerDownload(false);
+    window.localStorage.setItem(BANNER_ID, 1);
+  }, []);
 
   if (isMobileApp) return null;
 
@@ -97,7 +98,7 @@ export const DownloadApp = () => {
     <StyledContainer>
       <div
         style={{ padding: "0.5rem", cursor: "pointer" }}
-        onClick={dismissDownload}
+        onClick={closeDownload}
       >
         <StyledFeatherIcon
           name="x"
