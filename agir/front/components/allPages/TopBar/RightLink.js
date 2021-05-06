@@ -3,6 +3,7 @@ import React, { useCallback, useState } from "react";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import { Hide } from "@agir/front/genericComponents/grid";
 
 import MenuLink from "./MenuLink";
 import UserMenu from "./UserMenu";
@@ -10,15 +11,19 @@ import UserMenu from "./UserMenu";
 const AnonymousLink = () => {
   return (
     <>
-      <MenuLink route="login" className="small-only">
-        <FeatherIcon name="user" />
-      </MenuLink>
-      <MenuLink route="login" className="large-only">
-        <span>Connexion</span>
-      </MenuLink>
-      <MenuLink route="signup" className="large-only">
-        <span>Inscription</span>
-      </MenuLink>
+      <Hide under>
+        <MenuLink route="login">
+          <FeatherIcon name="user" />
+        </MenuLink>
+      </Hide>
+      <Hide over>
+        <MenuLink route="login">
+          <span>Connexion</span>
+        </MenuLink>
+        <MenuLink route="signup">
+          <span>Inscription</span>
+        </MenuLink>
+      </Hide>
     </>
   );
 };
@@ -37,7 +42,9 @@ const UserLink = ({ user, routes, ...rest }) => {
     <div style={{ position: "relative", padding: 0 }}>
       <MenuLink {...rest} style={{ padding: 0 }} as="button" onClick={openMenu}>
         <Avatar displayName={user.displayName} image={user.image} />
-        <span className="large-only">{user.displayName}</span>
+        <Hide under>
+          <span>{user.displayName}</span>
+        </Hide>
       </MenuLink>
       <UserMenu
         isOpen={isMenuOpen}
@@ -53,17 +60,21 @@ const SettingsLink = (props) => {
   const { settingsLink } = props;
   return (
     <>
-      <UserLink {...props} className="large-only" />
-      <MenuLink
-        to={settingsLink.to}
-        href={settingsLink.href}
-        route={settingsLink.route}
-        title={settingsLink.label}
-        aria-label={settingsLink.label}
-        className="small-only"
-      >
-        <FeatherIcon name="settings" />
-      </MenuLink>
+      <Hide under>
+        <UserLink {...props} />
+      </Hide>
+
+      <Hide over>
+        <MenuLink
+          to={settingsLink.to}
+          href={settingsLink.href}
+          route={settingsLink.route}
+          title={settingsLink.label}
+          aria-label={settingsLink.label}
+        >
+          <FeatherIcon name="settings" />
+        </MenuLink>
+      </Hide>
     </>
   );
 };
