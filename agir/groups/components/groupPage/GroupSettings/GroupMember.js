@@ -120,8 +120,10 @@ GroupMember.propTypes = {
   displayName: PropTypes.string,
   image: PropTypes.string,
   email: PropTypes.string,
-  membershipType: PropTypes.oneOf(Object.keys(MEMBERSHIP_TYPE_LABEL)),
-  gender: PropTypes.oneOf(Object.values(GENDER)),
+  membershipType: PropTypes.oneOf(
+    Object.keys(MEMBERSHIP_TYPE_LABEL).map(Number)
+  ),
+  gender: PropTypes.oneOf(["", ...Object.values(GENDER)]),
 };
 
 export default GroupMember;

@@ -58,7 +58,14 @@ const StyledField = styled.div`
 `;
 
 const LocationField = (props) => {
-  const { onChange, location = {}, error = {}, disabled, required } = props;
+  const {
+    onChange,
+    location = {},
+    error = {},
+    help,
+    disabled,
+    required,
+  } = props;
   const { name, address1, address2, city, zip, country } = location;
 
   const [hasAddress2, setHasAddress2] = useState(!!address2);
@@ -91,7 +98,7 @@ const LocationField = (props) => {
         required={required}
         disabled={disabled}
         error={error && error.name}
-        helpText="Si l'événement se déroule en ligne, vous pouvez le préciser ici"
+        helpText={help && help.name}
       />
       <TextField
         label="Adresse du lieu"
@@ -102,6 +109,7 @@ const LocationField = (props) => {
         required={required}
         disabled={disabled}
         error={error && error.address1}
+        helpText={help && help.address1}
       />
       {hasAddress2 || address2 || error.address2 ? (
         <TextField
@@ -112,6 +120,7 @@ const LocationField = (props) => {
           onChange={handleChange}
           disabled={disabled}
           error={error && error.address2}
+          helpText={help && help.address2}
         />
       ) : (
         <div style={{ paddingBottom: ".5rem" }}>
@@ -129,6 +138,7 @@ const LocationField = (props) => {
         required={required}
         disabled={disabled}
         error={error && error.zip}
+        helpText={help && help.zip}
       />
       <TextField
         label="Ville"
@@ -139,6 +149,7 @@ const LocationField = (props) => {
         required={required}
         disabled={disabled}
         error={error && error.city}
+        helpText={help && help.city}
       />
       <CountryField
         label="Pays"
@@ -150,6 +161,7 @@ const LocationField = (props) => {
         required={required}
         disabled={disabled}
         error={error && error.country}
+        helpText={help && help.country}
       />
     </StyledField>
   );
@@ -167,6 +179,14 @@ LocationField.propTypes = {
     country: PropTypes.string,
   }).isRequired,
   error: PropTypes.shape({
+    name: PropTypes.string,
+    address1: PropTypes.string,
+    address2: PropTypes.string,
+    city: PropTypes.string,
+    zip: PropTypes.string,
+    country: PropTypes.string,
+  }),
+  help: PropTypes.shape({
     name: PropTypes.string,
     address1: PropTypes.string,
     address2: PropTypes.string,

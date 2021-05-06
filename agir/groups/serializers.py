@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from django.conf import settings
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
@@ -269,7 +271,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             )
             if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
                 routes["materiel"] = front_url(
-                    "manage_group", query={"active": "materiel"}, kwargs={"pk": obj.pk}
+                    "view_group_settings_materiel", kwargs={"pk": obj.pk}
                 )
             if not obj.is_2022:
                 routes["invitation"] = front_url(
@@ -305,10 +307,14 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 ).exists()
             ):
                 certification_request_url = "https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/"
-                certification_request_params = f"group-id={ obj.pk }&email={ self.membership.person.email }&animateur={ self.membership.person.get_full_name() }"
+                certification_request_params = {
+                    "group-id": obj.pk,
+                    "email": self.membership.person.email,
+                    "animateur": self.membership.person.get_full_name(),
+                }
                 routes[
                     "certificationRequest"
-                ] = f"{certification_request_url}?{certification_request_params}"
+                ] = f"{certification_request_url}?{urlencode(certification_request_params)}"
         if (
             not self.user.is_anonymous
             and self.user.person

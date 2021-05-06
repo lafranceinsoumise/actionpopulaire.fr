@@ -18,6 +18,7 @@ import {
   updateGroup,
   getGroupPageEndpoint,
 } from "@agir/groups/groupPage/api.js";
+import { useGroupWord } from "@agir/groups/utils/group";
 
 const GroupContactPage = (props) => {
   const { onBack, illustration, groupPk } = props;
@@ -29,6 +30,7 @@ const GroupContactPage = (props) => {
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
   );
+  const withGroupWord = useGroupWord(group);
 
   const handleCheckboxChange = useCallback(
     (e) => {
@@ -81,9 +83,7 @@ const GroupContactPage = (props) => {
       </span>
       <Spacer size="0.5rem" />
       <span style={{ color: style.black700 }}>
-        Conseillé : créez une adresse e-mail pour votre
-        {" " + (group.is2022 ? "équipe" : "groupe") + " "}et n’utilisez pas une
-        adresse personnelle.
+        {withGroupWord`Conseillé : créez une adresse e-mail pour votre groupe et n’utilisez pas une adresse personnelle.`}
       </span>
 
       <Spacer size="2rem" />
@@ -102,9 +102,7 @@ const GroupContactPage = (props) => {
       <TextField
         id="email"
         name="email"
-        label={`Adresse e-mail ${
-          " " + (group.is2022 ? "de l'équipe" : "du groupe")
-        }*`}
+        label={withGroupWord`Adresse e-mail du groupe`}
         onChange={handleChange}
         value={contact?.email}
         error={errors?.email}

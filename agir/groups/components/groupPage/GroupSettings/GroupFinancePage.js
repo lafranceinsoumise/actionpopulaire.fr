@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -13,8 +13,7 @@ import { StyledTitle } from "./styledComponents.js";
 
 import { getFinance } from "@agir/groups/groupPage/api.js";
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
-
-const [GROUP_IS_2022, GROUP_LFI] = ["équipe", "groupe"];
+import { useGroupWord } from "@agir/groups/utils/group";
 
 const Buttons = styled.div`
   display: grid;
@@ -37,7 +36,7 @@ const GroupFinancePage = (props) => {
   const [donation, setDonation] = useState(0);
 
   const group = useGroup(groupPk);
-  const is2022 = useMemo(() => group?.is2022, [group]);
+  const withGroupWord = useGroupWord(group);
 
   const getFinanceAPI = useCallback(async (groupPk) => {
     const res = await getFinance(groupPk);
@@ -53,8 +52,7 @@ const GroupFinancePage = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
 
       <StyledTitle>
-        Dons alloués aux personnes de mon
-        {" " + (is2022 ? GROUP_IS_2022 : GROUP_LFI)}
+        {withGroupWord`Dons alloués aux personnes de mon groupe`}
       </StyledTitle>
 
       <Spacer size="1rem" />
@@ -92,13 +90,11 @@ const GroupFinancePage = (props) => {
       <Spacer size="1rem" />
 
       <StyledTitle>
-        Solliciter des dons pour mon
-        {" " + (is2022 ? GROUP_IS_2022 : GROUP_LFI)}
+        {withGroupWord`Solliciter des dons pour mon groupe`}
       </StyledTitle>
 
       <span style={{ color: style.black700 }}>
-        Partagez ce lien pour solliciter des dons pour votre
-        {" " + (is2022 ? GROUP_IS_2022 : GROUP_LFI) + " "} :
+        {withGroupWord`Partagez ce lien pour solliciter des dons pour votre groupe :`}
       </span>
 
       <ShareLink

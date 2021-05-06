@@ -4,7 +4,7 @@ import GroupMemberList from "./GroupMemberList.js";
 
 export default {
   component: GroupMemberList,
-  title: "Group/GroupMemberList",
+  title: "GroupSettings/GroupMemberList",
   parameters: {
     layout: "centered",
   },

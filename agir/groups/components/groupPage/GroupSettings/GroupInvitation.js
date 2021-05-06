@@ -48,14 +48,14 @@ const GroupInvitation = (props) => {
       e.preventDefault();
       setErrors({});
       const res = await inviteToGroup(groupPk, { email });
-      if (!!res.error) {
+      if (res.error) {
         setErrors(res.error);
         return;
       }
       sendToast("Invitation envoyée", "SUCCESS", { autoClose: true });
       setEmail("");
     },
-    [email]
+    [email, groupPk, sendToast]
   );
 
   return (
@@ -87,5 +87,6 @@ const GroupInvitation = (props) => {
 };
 GroupInvitation.propTypes = {
   title: PropTypes.string,
+  groupPk: PropTypes.string,
 };
 export default GroupInvitation;

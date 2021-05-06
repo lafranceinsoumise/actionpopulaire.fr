@@ -17,6 +17,7 @@ import { StyledTitle } from "./styledComponents.js";
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 import { getGroupPageEndpoint } from "@agir/groups/groupPage/api.js";
+import { useGroupWord } from "@agir/groups/utils/group";
 
 const StyledSkeleton = styled.div`
   & > * {
@@ -51,6 +52,7 @@ const MembersSkeleton = (
 const GroupMemberPage = (props) => {
   const { onBack, illustration, groupPk } = props;
   const group = useGroup(groupPk);
+  const withGroupWord = useGroupWord(group);
   const { data: members } = useSWR(
     getGroupPageEndpoint("getMembers", { groupPk })
   );
@@ -64,32 +66,30 @@ const GroupMemberPage = (props) => {
           label="Copier les mails des membres"
           color="primary"
           url={
-            Array.isArray(members) &&
-            members.map(({ email }) => email).join(", ")
+            Array.isArray(members)
+              ? members.map(({ email }) => email).join(", ")
+              : ""
           }
         />
         <Spacer size="1.5rem" />
         <GroupMemberList members={members} />
+        <Spacer size="2.5rem" />
+        {group.routes.membershipTransfer && (
+          <a
+            href={group?.routes?.membershipTransfer}
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            <RawFeatherIcon name="arrow-right" width="1rem" height="1rem" />
+            &ensp;
+            <Hide under>
+              {withGroupWord`Transférer des membres de votre groupe vers un autre groupe`}
+            </Hide>
+            <Hide over>
+              {withGroupWord`Transférer des membres vers un autre groupe`}
+            </Hide>
+          </a>
+        )}
       </PageFadeIn>
-      <Spacer size="2.5rem" />
-      {group.routes.membershipTransfer && (
-        <a
-          href={group?.routes?.membershipTransfer}
-          style={{ display: "flex", alignItems: "center" }}
-        >
-          <RawFeatherIcon name="arrow-right" width="1rem" height="1rem" />
-          &ensp;
-          <Hide under>
-            Transférer des membres de votre{" "}
-            {group.is2022 === false ? "groupe" : "équipe"} vers{" "}
-            {group.is2022 === false ? "un autre groupe" : "une autre équipe"}
-          </Hide>
-          <Hide over>
-            Transférer des membres vers{" "}
-            {group.is2022 === false ? "un autre groupe" : "une autre équipe"}
-          </Hide>
-        </a>
-      )}
     </>
   );
 };

@@ -4,7 +4,7 @@ import AddPair from "./AddPair.js";
 
 export default {
   component: AddPair,
-  title: "Group/AddPair",
+  title: "GroupSettings/AddPair",
 };
 
 const Template = (args) => <AddPair {...args} />;

@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 import { Hide } from "@agir/front/genericComponents/grid";
@@ -33,5 +34,8 @@ const HeaderPanel = (props) => {
     </>
   );
 };
-
+HeaderPanel.propTypes = {
+  onBack: PropTypes.func,
+  illustration: PropTypes.string,
+};
 export default HeaderPanel;
