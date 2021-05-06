@@ -94,7 +94,7 @@ const GroupLocalizationPage = (props) => {
         <StyledTitle>Personnaliser la localisation</StyledTitle>
 
         <Spacer size="1rem" />
-        <StyledMapConfig center={[-97.14704, 49.8844]} />
+        <StyledMapConfig center={group?.location?.coordinates?.coordinates} />
 
         <Spacer size="2rem" />
         <div style={{ display: "flex", justifyContent: "center" }}>
@@ -111,7 +111,10 @@ const GroupLocalizationPage = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Localisation</StyledTitle>
       <Spacer size="1rem" />
-      <StyledMap center={[-97.14704, 49.8844]} />
+      <StyledMap
+        center={group?.location?.coordinates?.coordinates}
+        iconConfiguration={group?.iconConfiguration}
+      />
       <Spacer size="0.5rem" />
       {/* <Button small $wrap onClick={() => setConfig(true)}>
         Personnaliser la localisation sur la carte
