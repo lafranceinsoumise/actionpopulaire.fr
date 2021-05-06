@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import PropTypes from "prop-types";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
@@ -10,32 +11,31 @@ import {
   getTopBarRightLink,
   getAdminLink,
 } from "@agir/front/globalContext/reducers";
+import { Hide } from "@agir/front/genericComponents/grid";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
-import MenuLink from "./MenuLink";
 import Logo from "./Logo";
 import RightLink from "./RightLink";
 import SearchBar from "./SearchBar";
 import AdminLink from "./AdminLink";
+import MenuLink from "./MenuLink";
+import { TopBarMainLink } from "./TopBarMainLink";
+import { useMobileApp } from "@agir/front/app/hooks";
 
 const TopBarBar = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-
   z-index: ${style.zindexTopBar};
-
   width: 100%;
   padding: 0.75rem 2rem;
-
   background-color: #fff;
   box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
     0px 3px 2px rgba(0, 35, 44, 0.05);
-
   @media (max-width: ${+style.collapse - 1}px) {
     padding: 1rem 1.5rem;
   }
@@ -44,47 +44,38 @@ const TopBarBar = styled.div`
 const TopBarContainer = styled.div`
   display: flex;
   justify-content: space-between;
-
   max-width: 1320px;
   margin: 0 auto;
 
-  & .large-only {
-    @media only screen and (max-width: ${+style.collapse - 1}px) {
-      display: none;
-    }
+  h1 {
+    font-family: ${style.fontFamilyBase};
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
   }
 
-  & .small-only {
-    @media only screen and (min-width: ${style.collapse}px) {
-      display: none;
-    }
-  }
-
-  .grow {
-    flex-grow: 1;
-  }
-
-  .justify {
-    justify-content: center;
+  h1:hover {
+    text-decoration: none;
   }
 `;
 
 const HorizontalFlex = styled.div`
   display: flex;
   align-items: center;
-
   & > * {
     margin-left: 1.25em;
   }
 `;
 
-export const TopBar = () => {
+export const TopBar = ({ path }) => {
   const routes = useSelector(getRoutes);
   const user = useSelector(getUser);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const backLink = useSelector(getBackLink);
   const topBarRightLink = useSelector(getTopBarRightLink);
   const adminLink = useSelector(getAdminLink);
+  const { isMobileApp } = useMobileApp();
 
   return (
     <TopBarBar>
@@ -96,32 +87,38 @@ export const TopBar = () => {
               to={backLink.to}
               href={backLink.href}
               route={backLink.route}
-              className="small-only"
               title={backLink.label}
               aria-label={backLink.label}
             >
               <FeatherIcon name="arrow-left" />
             </MenuLink>
           ) : (
-            <MenuLink href={routes.search} className="small-only">
+            <MenuLink href={routes.search}>
               <FeatherIcon name="search" />
             </MenuLink>
           )
         ) : null}
-        <HorizontalFlex className="grow justify">
-          <MenuLink href={routes.dashboard}>
-            <Logo />
-          </MenuLink>
-          <form className="large-only grow" method="get" action={routes.search}>
-            <SearchBar routes={routes} />
-          </form>
+        <HorizontalFlex center={path === "/"}>
+          <Hide over>
+            <TopBarMainLink isMobileApp={isMobileApp} path={path} />
+          </Hide>
+          <Hide under>
+            <MenuLink href={routes.dashboard}>
+              <Logo />
+            </MenuLink>
+            <form method="get" action={routes.search}>
+              <SearchBar routes={routes} />
+            </form>
+          </Hide>
         </HorizontalFlex>
         <PageFadeIn ready={isSessionLoaded}>
           <HorizontalFlex>
-            <MenuLink href={routes.help} className="large-only">
-              <FeatherIcon name="help-circle" />
-              <span>Aide</span>
-            </MenuLink>
+            <Hide under>
+              <MenuLink href={routes.help}>
+                <FeatherIcon name="help-circle" />
+                <span>Aide</span>
+              </MenuLink>
+            </Hide>
             <RightLink
               settingsLink={(isSessionLoaded && topBarRightLink) || undefined}
               routes={routes}
@@ -135,3 +132,7 @@ export const TopBar = () => {
 };
 
 export default TopBar;
+
+TopBar.propTypes = {
+  path: PropTypes.string,
+};
