@@ -115,14 +115,6 @@ rules.add_perm(
     is_authenticated_person & is_at_least_manager_for_group,
 )
 rules.add_perm(
-    "groups.manage_group_allocation",
-    is_authenticated_person & is_at_least_referent_for_group,
-)
-rules.add_perm(
-    "groups.spend_group_allocation",
-    is_authenticated_person & is_at_least_manager_for_group,
-)
-rules.add_perm(
     "groups.change_group_name", is_authenticated_person & is_at_least_referent_for_group
 )
 rules.add_perm(
@@ -141,10 +133,6 @@ rules.add_perm(
 rules.add_perm(
     "groups.change_membership",
     is_authenticated_person & own_membership_has_higher_rights,
-)
-rules.add_perm(
-    "groups.change_membership_type",
-    is_authenticated_person & is_at_least_referent_for_group,
 )
 rules.add_perm(
     "groups.delete_membership",
@@ -175,4 +163,12 @@ rules.add_perm(
 rules.add_perm(
     "msgs.delete_supportgroupmessagecomment",
     is_authenticated_person & (is_msg_author | is_at_least_manager_for_group),
+)
+rules.add_perm(
+    "groups.change_membership_type",
+    is_authenticated_person & is_at_least_referent_for_group,
+)
+rules.add_perm(
+    "groups.view_group_finance",
+    is_authenticated_person & is_at_least_manager_for_group,
 )

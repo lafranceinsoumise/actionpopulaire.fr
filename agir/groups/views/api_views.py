@@ -536,7 +536,7 @@ class GroupFinancePermission(GlobalOrObjectPermissions):
         "GET": [],
     }
     object_perms_map = {
-        "GET": ["groups.spend_group_allocation"],
+        "GET": ["groups.view_group_finance"],
     }
 
 
