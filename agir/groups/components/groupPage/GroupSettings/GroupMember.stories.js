@@ -24,7 +24,8 @@ const Template = (args) => <GroupMember {...args} />;
 
 export const Member = Template.bind({});
 Member.args = {
-  name: "Clément Verde",
+  id: 1,
+  displayName: "Clément Verde",
   email: "admin@example.fr",
   membershipType: 10,
   image: "https://www.fillmurray.com/200/200",

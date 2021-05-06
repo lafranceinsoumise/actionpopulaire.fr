@@ -20,7 +20,7 @@ import {
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 
-const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
+const [REFERENT, MANAGER, MEMBER] = [100, 50, 10];
 
 const slideInTransition = {
   from: { transform: "translateX(66%)" },
@@ -48,7 +48,6 @@ const GroupManagementPage = (props) => {
   const { data: members, mutate } = useSWR(
     getGroupPageEndpoint("getMembers", { groupPk })
   );
-
   const [selectedMembershipType, setSelectedMembershipType] = useState(null);
   const [errors, setErrors] = useState({});
   const [selectedMember, setSelectedMember] = useState(null);
@@ -67,24 +66,38 @@ const GroupManagementPage = (props) => {
     setSelectedMember(e.value);
   }, []);
 
-  const handleSubmit = useCallback(async () => {
-    setErrors({});
-    setIsLoading(true);
-    const res = await updateMember(selectedMember.id, {
-      membershipType: selectedMembershipType,
-    });
-    setIsLoading(false);
-    if (res.error) {
-      setErrors(res.error);
-      return;
-    }
-    sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-    setSelectedMembershipType(null);
-    setSelectedMember(null);
-    mutate((members) =>
-      members.map((member) => (member.id === res.data.id ? res.data : member))
-    );
-  }, [mutate, selectedMember, selectedMembershipType, sendToast]);
+  const updateMembershipType = useCallback(
+    async (memberId, membershipType) => {
+      setErrors({});
+      setIsLoading(true);
+      const res = await updateMember(memberId, {
+        membershipType: membershipType,
+      });
+      setIsLoading(false);
+      if (res.error) {
+        setErrors(res.error);
+        return;
+      }
+      sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
+      setSelectedMembershipType(null);
+      setSelectedMember(null);
+      mutate((members) =>
+        members.map((member) => (member.id === res.data.id ? res.data : member))
+      );
+    },
+    [mutate, sendToast]
+  );
+
+  const handleSubmit = useCallback(() => {
+    updateMembershipType(selectedMember.id, selectedMembershipType);
+  }, [selectedMember, selectedMembershipType, updateMembershipType]);
+
+  const resetMembershipType = useCallback(
+    (memberId) => {
+      updateMembershipType(memberId, MEMBER);
+    },
+    [updateMembershipType]
+  );
 
   const handleBack = useCallback(() => {
     setSelectedMember(null);
@@ -106,6 +119,7 @@ const GroupManagementPage = (props) => {
           members={members || []}
           is2022={is2022}
           routes={group?.routes}
+          onResetMembershipType={resetMembershipType}
         />
       </PageFadeIn>
       {transition(

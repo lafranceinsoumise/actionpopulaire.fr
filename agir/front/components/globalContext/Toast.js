@@ -65,6 +65,7 @@ const CloseButton = ({ closeToast }) => (
   <button
     type="button"
     style={{
+      backgroundColor: "transparent",
       width: "24px",
       height: "24px",
       border: 0,
@@ -96,7 +97,9 @@ const CloseButton = ({ closeToast }) => (
     </svg>
   </button>
 );
-
+CloseButton.propTypes = {
+  closeToast: PropTypes.func.isRequired,
+};
 export const Toast = (props) => {
   const { toasts = [], onClear, autoClose = false } = props;
 
@@ -118,7 +121,7 @@ export const Toast = (props) => {
         }
       );
     });
-  }, [toasts, onClear]);
+  }, [toasts, onClear, autoClose]);
 
   return <StyledContainer closeButton={CloseButton} />;
 };
@@ -146,5 +149,6 @@ Toast.propTypes = {
     })
   ),
   onClear: PropTypes.func,
+  autoClose: PropTypes.bool,
 };
 export default ConnectedToast;

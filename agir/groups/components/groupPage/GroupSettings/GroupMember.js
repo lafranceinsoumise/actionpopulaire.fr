@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import { FaUserCheck, FaLock } from "react-icons/fa";
@@ -11,6 +11,7 @@ import Avatar from "@agir/front/genericComponents/Avatar";
 
 const Name = styled.span``;
 const Role = styled.span``;
+const ResetMembershipType = styled.button``;
 const Email = styled.span``;
 const Member = styled.div`
   background-color: ${style.white};
@@ -48,14 +49,42 @@ const Member = styled.div`
     font-size: 0.813rem;
     text-align: right;
     display: flex;
+    flex-flow: row wrap;
     align-items: center;
 
     @media (min-width: ${style.collapse}px) {
       grid-column: 3/4;
       grid-row: span 2;
-      justify-content: flex-end;
+      flex-flow: column nowrap;
+    }
+
+    &:empty {
+      display: none;
+    }
+
+    span {
+      display: flex;
+      align-items: center;
+      padding-right: 1rem;
+      margin-right: auto;
+
+      @media (min-width: ${style.collapse}px) {
+        justify-content: flex-end;
+      }
+    }
+
+    ${ResetMembershipType} {
+      padding: 0;
+      border: none;
+      outline: none;
+      background-color: transparent;
+      text-decoration: underline;
+      font-size: inherit;
+      color: ${style.black500};
+      cursor: pointer;
     }
   }
+
   ${Name} {
     font-weight: 500;
 
@@ -83,13 +112,25 @@ const MEMBERSHIP_TYPE_LABEL = {
 };
 
 const MEMBERSHIP_TYPE_ICON = {
-  // 10: "Membre",
+  // 10: null,
   50: <FaUserCheck />,
   100: <FaLock />,
 };
 
 const GroupMember = (props) => {
-  const { displayName, image = "", membershipType, email, gender } = props;
+  const {
+    id,
+    displayName,
+    image = "",
+    membershipType,
+    email,
+    gender,
+    onResetMembershipType,
+  } = props;
+
+  const handleResetMembershipType = useCallback(() => {
+    onResetMembershipType && onResetMembershipType(id);
+  }, [onResetMembershipType, id]);
 
   const role = useMemo(() => {
     const label = MEMBERSHIP_TYPE_LABEL[String(membershipType)];
@@ -105,11 +146,18 @@ const GroupMember = (props) => {
   return (
     <Member>
       <Avatar image={image} name={displayName} />
-      {role && (
-        <Role>
-          {MEMBERSHIP_TYPE_ICON[membershipType]}&ensp;{role}
-        </Role>
-      )}
+      <Role>
+        {role && (
+          <span>
+            {MEMBERSHIP_TYPE_ICON[membershipType]}&ensp;{role}
+          </span>
+        )}
+        {typeof onResetMembershipType === "function" && (
+          <ResetMembershipType onClick={handleResetMembershipType}>
+            Retirer le droit
+          </ResetMembershipType>
+        )}
+      </Role>
       <Name>{displayName}</Name>
       <Email>{email}</Email>
     </Member>
@@ -124,6 +172,7 @@ GroupMember.propTypes = {
     Object.keys(MEMBERSHIP_TYPE_LABEL).map(Number)
   ),
   gender: PropTypes.oneOf(["", ...Object.values(GENDER)]),
+  onResetMembershipType: PropTypes.func,
 };
 
 export default GroupMember;

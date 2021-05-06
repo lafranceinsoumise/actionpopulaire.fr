@@ -15,15 +15,29 @@ import { useGroupWord } from "@agir/groups/utils/group";
 const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 
 const MainPanel = (props) => {
-  const { editManager, editReferent, members, is2022, routes } = props;
+  const {
+    editManager,
+    editReferent,
+    onResetMembershipType,
+    members,
+    is2022,
+    routes,
+  } = props;
+
   const withGroupWord = useGroupWord({ is2022 });
   const referents = useMemo(
     () => members.filter((member) => member.membershipType === REFERENT),
     [members]
   );
   const managers = useMemo(
-    () => members.filter((member) => member.membershipType === MANAGER),
-    [members]
+    () =>
+      members
+        .filter((member) => member.membershipType === MANAGER)
+        .map((member) => ({
+          ...member,
+          onResetMembershipType,
+        })),
+    [members, onResetMembershipType]
   );
   return (
     <>
@@ -121,6 +135,7 @@ MainPanel.propTypes = {
   members: PropTypes.arrayOf(PropTypes.object),
   editManager: PropTypes.func,
   editReferent: PropTypes.func,
+  onResetMembershipType: PropTypes.func,
   is2022: PropTypes.bool,
   routes: PropTypes.shape({
     certificationRequest: PropTypes.string,
