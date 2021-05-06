@@ -16,7 +16,7 @@ import Homepage from "@agir/front/app/Homepage/Home";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
 import TopBar from "@agir/front/allPages/TopBar";
-import {useLocation} from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const StyledWrapper = styled.div`
   padding-top: 72px;

@@ -12,7 +12,7 @@ export const useToast = () => {
         type: type || "DEFAULT",
         ...config,
       };
-      dispatch(addToasts([toast]));
+      dispatch(addToasts(toast));
     },
     [dispatch]
   );

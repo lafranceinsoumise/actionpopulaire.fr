@@ -83,12 +83,20 @@ export const toasts = (state = [], action) => {
     action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION ||
     action.type === ACTION_TYPE.ADD_TOASTS
   ) {
-    return Array.isArray(action.toasts)
-      ? action.toasts.map((toast) => ({
-          toastId: shortUUID.generate(),
-          ...toast,
-        }))
-      : state;
+    if (!Array.isArray(action.toasts)) {
+      return state;
+    }
+    const newState = [...state];
+    action.toasts.forEach((toast) => {
+      if (toast.toastId && newState.some((t) => t.toastId === toast.toastId)) {
+        return;
+      }
+      newState.push({
+        toastId: toast.toastId || shortUUID.generate(),
+        ...toast,
+      });
+    });
+    return newState;
   }
   if (action.type === ACTION_TYPE.CLEAR_TOAST) {
     return state.filter(({ toastId }) => toastId !== action.toastId);

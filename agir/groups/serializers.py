@@ -301,10 +301,12 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             if (
                 not obj.is_certified
                 and len(obj.referents) >= 2
-                and obj.type in settings.CERTIFIABLE_GROUP_TYPES
-                or obj.subtypes.filter(
-                    label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
-                ).exists()
+                and (
+                    obj.type in settings.CERTIFIABLE_GROUP_TYPES
+                    or obj.subtypes.filter(
+                        label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
+                    ).exists()
+                )
             ):
                 certification_request_url = "https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/"
                 certification_request_params = {
