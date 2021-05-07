@@ -77,6 +77,7 @@ const slideInTransition = {
 const MobilePanel = (props) => {
   const {
     title,
+    subtitle,
     routes,
     menuLink,
     shouldShow,
@@ -97,7 +98,12 @@ const MobilePanel = (props) => {
 
   return (
     <StyledPanel shouldShow={shouldShow} onClose={onClose} noScroll>
-      <ManagementMenu title={title} items={routes} onBack={onClose} />
+      <ManagementMenu
+        title={title}
+        subtitle={subtitle}
+        items={routes}
+        onBack={onClose}
+      />
       {transition((style, item) => (
         <StyledSubPanel style={shouldAnimate.current > 1 ? style : undefined}>
           <Switch location={item}>
@@ -127,6 +133,7 @@ const MobilePanel = (props) => {
 const DesktopPanel = (props) => {
   const {
     title,
+    subtitle,
     routes,
     menuLink,
     shouldShow,
@@ -145,7 +152,12 @@ const DesktopPanel = (props) => {
       noScroll
       onClose={onClose}
     >
-      <ManagementMenu title={title} items={routes} onBack={onClose} />
+      <ManagementMenu
+        title={title}
+        subtitle={subtitle}
+        items={routes}
+        onBack={onClose}
+      />
       <div
         style={{
           minWidth: "600px",
@@ -182,6 +194,7 @@ const DesktopPanel = (props) => {
 
 MobilePanel.propTypes = DesktopPanel.propTypes = {
   title: PropTypes.string,
+  subtitle: PropTypes.string,
   object: PropTypes.object,
   routes: PropTypes.arrayOf(PropTypes.object).isRequired,
   menuLink: PropTypes.string,
@@ -222,6 +235,7 @@ export const ObjectManagement = (props) => {
 };
 ObjectManagement.propTypes = {
   title: PropTypes.string,
+  subtitle: PropTypes.string,
   basePath: PropTypes.string.isRequired,
   routes: PropTypes.arrayOf(PropTypes.object).isRequired,
   menuLink: PropTypes.string.isRequired,

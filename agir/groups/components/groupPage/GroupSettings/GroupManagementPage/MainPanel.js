@@ -100,7 +100,7 @@ const MainPanel = (props) => {
             style={{ paddingTop: "3px" }}
           />
           <Spacer size="0.5rem" />
-          Je ne souhaite plus être animateur ou animatrice
+          Je ne souhaite plus animer mon groupe
         </a>
       )}
       {(routes?.animationChangeRequest ||

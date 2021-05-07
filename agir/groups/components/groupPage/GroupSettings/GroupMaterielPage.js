@@ -40,7 +40,7 @@ const GroupMaterielPage = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Matériel</StyledTitle>
       <span style={{ color: style.black700 }}>
-        {withGroupWord`Accédez à du matériel (affiche, tracts, autocollants...) gratuit en
+        {withGroupWord`Accédez à du matériel (affiches, tracts, autocollants...) gratuit en
           utilisant les codes promos mis à disposition de votre groupe.`}
       </span>
       {ordersURL && (

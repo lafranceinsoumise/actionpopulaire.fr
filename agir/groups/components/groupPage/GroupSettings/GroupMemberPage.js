@@ -63,7 +63,7 @@ const GroupMemberPage = (props) => {
       <PageFadeIn ready={Array.isArray(members)} wait={MembersSkeleton}>
         <StyledTitle>{group?.facts?.memberCount} Membres</StyledTitle>
         <ShareLink
-          label="Copier les mails des membres"
+          label="Copier les e-mails des membres"
           color="primary"
           url={
             Array.isArray(members)

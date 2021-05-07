@@ -48,9 +48,7 @@ const GroupFinancePage = (props) => {
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle>
-        {withGroupWord`Dons alloués aux personnes de mon groupe`}
-      </StyledTitle>
+      <StyledTitle>{withGroupWord`Dons alloués à mon groupe`}</StyledTitle>
       <PageFadeIn ready={!!data} wait={<DonationSkeleton />}>
         <p style={{ fontSize: "2rem", margin: 0 }}>{data?.donation} €</p>
         <Spacer size=".5rem" />

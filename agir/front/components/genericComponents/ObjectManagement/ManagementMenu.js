@@ -4,8 +4,10 @@ import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+
 import { Hide } from "@agir/front/genericComponents/grid";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import BackButton from "./BackButton";
 
@@ -103,10 +105,23 @@ const StyledMenu = styled.div`
     background-color: ${style.white};
   }
 
+  h6 {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: ${style.black700};
+    margin: 0;
+    padding-bottom: 0.25rem;
+
+    &:empty {
+      display: none;
+    }
+  }
+
   h4 {
     font-weight: 700;
     font-size: 1.25rem;
-    line-height: 1.51;
+    line-height: 1.5;
+    margin: 0;
   }
 
   ul {
@@ -149,14 +164,17 @@ ManagementMenuItem.propTypes = {
 };
 
 const ManagementMenu = (props) => {
-  const { items, title, onBack } = props;
+  const { items, title, subtitle, onBack } = props;
 
   return (
     <StyledMenu>
       <Hide over>
         <BackButton onClick={onBack} />
+        <Spacer size="1rem" />
       </Hide>
+      <h6>{subtitle}</h6>
       <h4>{title}</h4>
+      <Spacer size="1rem" />
       <ul>
         {items
           .filter((item) => item.menuGroup === 1)
@@ -179,6 +197,7 @@ const ManagementMenu = (props) => {
 };
 ManagementMenu.propTypes = {
   title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string,
   items: PropTypes.arrayOf(ManagementMenuItem.propTypes.item).isRequired,
   onBack: PropTypes.func.isRequired,
 };
