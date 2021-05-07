@@ -59,7 +59,7 @@ const TopBar = styled.div`
 `;
 
 const GroupList = styled.article`
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
 
   @media (max-width: ${style.collapse}px) {
     padding: 0 16px 48px;
@@ -137,6 +137,7 @@ const GroupsPage = () => {
           )}
           {groups.length > 0 && (
             <GroupList>
+              <p>Suggestions de groupes près de chez vous :</p>
               {groups.map((group) => (
                 <GroupCard
                   key={group.id}
