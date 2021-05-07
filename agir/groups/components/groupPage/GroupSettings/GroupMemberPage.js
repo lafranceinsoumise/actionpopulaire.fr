@@ -53,7 +53,7 @@ const StyledShareLink = styled(ShareLink)`
 `;
 
 const MembersSkeleton = (
-  <StyledSkeleton>
+  <StyledSkeleton aria-hidden="true">
     <div />
     <div />
     <div />
