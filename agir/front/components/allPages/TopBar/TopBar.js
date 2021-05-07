@@ -108,9 +108,11 @@ export const TopBar = ({ path }) => {
               <FeatherIcon name="arrow-left" />
             </MenuLink>
           ) : (
-            <MenuLink href={routes.search}>
-              <FeatherIcon name="search" />
-            </MenuLink>
+            <Hide over>
+              <MenuLink href={routes.search}>
+                <FeatherIcon name="search" />
+              </MenuLink>
+            </Hide>
           )
         ) : null}
         <HorizontalFlex center={path === "/"}>
