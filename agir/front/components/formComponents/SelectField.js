@@ -184,7 +184,9 @@ const SelectMenuList = (props) => {
     <StyledMenuList>
       <components.MenuList {...props} />
       <footer>
-        <button onClick={handleClick}>Fermer</button>
+        <button type="button" onClick={handleClick}>
+          Fermer
+        </button>
       </footer>
     </StyledMenuList>
   );

@@ -62,8 +62,8 @@ const GroupManagementPage = (props) => {
     setSelectedMembershipType(REFERENT);
   }, []);
 
-  const selectMember = useCallback((e) => {
-    setSelectedMember(e.value);
+  const selectMember = useCallback((option) => {
+    option && setSelectedMember(option.value);
   }, []);
 
   const updateMembershipType = useCallback(
