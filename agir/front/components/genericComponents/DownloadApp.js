@@ -106,7 +106,7 @@ export const DownloadApp = () => {
     let visitCount = window.localStorage.getItem("AP_vcount");
     visitCount = !isNaN(parseInt(visitCount)) ? parseInt(visitCount) : 0;
 
-    if (visitCount % 2 === 0) {
+    if (visitCount % 25 === 0) {
       window.localStorage.setItem(BANNER_ID, 0);
       dispatch(setBannerDownload());
     } else {
