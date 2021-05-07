@@ -20,6 +20,20 @@ const StyledDiv = styled.div`
     align-items: stretch;
     max-width: 100%;
     overflow: hidden;
+
+    ${({ $wrap }) =>
+      $wrap
+        ? `
+      @media (max-width: ${
+        typeof $wrap === "number" ? $wrap : style.collapse
+      }px) {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-gap: 0.5rem;
+        height: auto;
+      }
+      `
+        : ""}
   }
 
   h4:empty {
