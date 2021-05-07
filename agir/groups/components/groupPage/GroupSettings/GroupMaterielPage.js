@@ -30,7 +30,7 @@ const GroupMaterielPage = (props) => {
   const discountCodes = useMemo(
     () =>
       Array.isArray(group?.discountCodes)
-        ? _sortBy(group.discountCodes, "expirationDate").reverse()
+        ? _sortBy(group.discountCodes, "expirationDate")
         : [],
     [group]
   );
