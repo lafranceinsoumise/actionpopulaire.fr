@@ -22,6 +22,7 @@ const MainPanel = (props) => {
     members,
     is2022,
     routes,
+    isLoading,
   } = props;
 
   const withGroupWord = useGroupWord({ is2022 });
@@ -66,15 +67,22 @@ const MainPanel = (props) => {
         onAdd={
           referents.length < 2 && members.length > 1 ? editReferent : undefined
         }
+        isLoading={isLoading}
       />
       <Spacer size="1.5rem" />
       {routes?.animationChangeRequest && (
         <a
           href={routes.animationChangeRequest}
-          style={{ display: "flex", alignItems: "center" }}
+          style={{ display: "flex", alignItems: "flex-start" }}
         >
-          <FeatherIcon name="arrow-right" width="1rem" height="1rem" />
-          &ensp;{withGroupWord`Changer l'animation du groupe`}
+          <FeatherIcon
+            name="arrow-right"
+            width="1rem"
+            height="1rem"
+            style={{ paddingTop: "3px" }}
+          />
+          <Spacer size="0.5rem" />
+          {withGroupWord`Changer l'animation du groupe`}
         </a>
       )}
       {routes?.animationChangeRequest && routes?.referentResignmentRequest && (
@@ -83,10 +91,16 @@ const MainPanel = (props) => {
       {routes?.referentResignmentRequest && (
         <a
           href={routes.referentResignmentRequest}
-          style={{ display: "flex", alignItems: "center" }}
+          style={{ display: "flex", alignItems: "flex-start" }}
         >
-          <FeatherIcon name="arrow-right" width="1rem" height="1rem" />
-          &ensp;Je ne souhaite plus être animateur ou animatrice
+          <FeatherIcon
+            name="arrow-right"
+            width="1rem"
+            height="1rem"
+            style={{ paddingTop: "3px" }}
+          />
+          <Spacer size="0.5rem" />
+          Je ne souhaite plus être animateur ou animatrice
         </a>
       )}
       {(routes?.animationChangeRequest ||
@@ -105,6 +119,7 @@ const MainPanel = (props) => {
         members={managers}
         addButtonLabel="Ajouter un·e gestionnaire"
         onAdd={editManager}
+        isLoading={isLoading}
       />
       {routes?.certificationRequest && (
         <>
@@ -143,6 +158,7 @@ MainPanel.propTypes = {
     referentResignmentRequest: PropTypes.string,
     deleteGroup: PropTypes.string,
   }),
+  isLoading: PropTypes.bool,
 };
 
 export default MainPanel;

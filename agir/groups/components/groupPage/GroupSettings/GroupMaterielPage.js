@@ -30,7 +30,7 @@ const GroupMaterielPage = (props) => {
   const discountCodes = useMemo(
     () =>
       Array.isArray(group?.discountCodes)
-        ? _sortBy(group.discountCodes, "expirationDate").reverse()
+        ? _sortBy(group.discountCodes, "expirationDate")
         : [],
     [group]
   );
@@ -56,6 +56,9 @@ const GroupMaterielPage = (props) => {
               color="primary"
               as="a"
               href={ordersURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              $wrap
             >
               Site d’achat de matériel
             </Button>

@@ -46,8 +46,9 @@ const DiscountCode = ({ code, expirationDate }) => {
       let date = new Date(expirationDate);
       date = DateTime.fromJSDate(date).setLocale("fr");
       if (date.isValid) {
+        const month = date.minus({ months: 1 }).toFormat("LLLL");
         date = date.toFormat("dd LLLL yyyy");
-        return [date, date.split(" ")[1]];
+        return [date, month];
       }
       return [expirationDate];
     } catch (e) {
@@ -65,7 +66,7 @@ const DiscountCode = ({ code, expirationDate }) => {
           </>
         )}
       </h5>
-      <ShareLink color="secondary" url={code} label="Copier" />
+      <ShareLink color="secondary" url={code} label="Copier" $wrap={400} />
       <p>Expiration&nbsp;: {date}</p>
     </StyledDiscountCode>
   );

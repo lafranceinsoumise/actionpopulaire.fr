@@ -42,7 +42,7 @@ const StyledSkeleton = styled.div`
 `;
 
 const MembersSkeleton = (
-  <StyledSkeleton>
+  <StyledSkeleton aria-hidden="true">
     <div />
     <div />
     <div />
@@ -70,6 +70,7 @@ const GroupMemberPage = (props) => {
               ? members.map(({ email }) => email).join(", ")
               : ""
           }
+          $wrap
         />
         <Spacer size="1.5rem" />
         <GroupMemberList members={members} />
@@ -77,10 +78,15 @@ const GroupMemberPage = (props) => {
         {group.routes.membershipTransfer && (
           <a
             href={group?.routes?.membershipTransfer}
-            style={{ display: "flex", alignItems: "center" }}
+            style={{ display: "flex", alignItems: "flex-start" }}
           >
-            <RawFeatherIcon name="arrow-right" width="1rem" height="1rem" />
-            &ensp;
+            <RawFeatherIcon
+              name="arrow-right"
+              width="1rem"
+              height="1rem"
+              style={{ paddingTop: "3px" }}
+            />
+            <Spacer size="0.5rem" />
             <Hide under>
               {withGroupWord`Transférer des membres de votre groupe vers un autre groupe`}
             </Hide>

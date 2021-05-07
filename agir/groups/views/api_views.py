@@ -456,15 +456,13 @@ class GroupMembersAPIView(ListAPIView):
 class GroupUpdatePermission(GlobalOrObjectPermissions):
     perms_map = {"PUT": [], "PATCH": []}
     object_perms_map = {
-        "PUT": ["groups.change_group_name"],
-        "PATCH": ["groups.change_group_name"],
+        "PUT": ["groups.change_supportgroup"],
+        "PATCH": ["groups.change_supportgroup"],
     }
 
 
 class GroupInvitationPermission(GlobalOrObjectPermissions):
-    perms_map = {
-        "POST": [],
-    }
+    perms_map = {"POST": []}
     object_perms_map = {
         "POST": ["groups.change_supportgroup"],
     }
@@ -518,7 +516,7 @@ class GroupManagementPermission(GlobalOrObjectPermissions):
         "PATCH": [],
     }
     object_perms_map = {
-        "PATCH": ["groups.add_referent_to_supportgroup"],
+        "PATCH": ["groups.change_membership_type"],
     }
 
 
@@ -538,7 +536,7 @@ class GroupFinancePermission(GlobalOrObjectPermissions):
         "GET": [],
     }
     object_perms_map = {
-        "GET": ["groups.manage_group_allocation"],
+        "GET": ["groups.view_group_finance"],
     }
 
 

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useRef } from "react";
+import React from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
@@ -20,6 +20,20 @@ const StyledDiv = styled.div`
     align-items: stretch;
     max-width: 100%;
     overflow: hidden;
+
+    ${({ $wrap }) =>
+      $wrap
+        ? `
+      @media (max-width: ${
+        typeof $wrap === "number" ? $wrap : style.collapse
+      }px) {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-gap: 0.5rem;
+        height: auto;
+      }
+      `
+        : ""}
   }
 
   h4:empty {
@@ -47,16 +61,17 @@ const StyledDiv = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    justify-content: center;
   }
 `;
 
 const ShareLink = (props) => {
-  const { url, title, label, color } = props;
+  const { url, title, label, color, ...rest } = props;
 
   const [isCopied, handleCopy] = useCopyToClipboard(url);
 
   return (
-    <StyledDiv>
+    <StyledDiv {...rest}>
       <h4>{title}</h4>
       <div>
         <StyledInput
