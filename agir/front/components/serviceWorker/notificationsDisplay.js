@@ -1,6 +1,6 @@
 /* eslint-env serviceworker */
 
-import { doSubscribe } from "@agir/notifications/push/utils";
+import { webpushSubscribe } from "@agir/notifications/push/webpushUtils";
 
 import DEFAULT_ICON from "@agir/front/genericComponents/logos/action-populaire_mini.svg";
 import NOTIFICATION_BADGE from "@agir/front/genericComponents/logos/notification-badge.png";
@@ -68,7 +68,7 @@ self.addEventListener(
 self.addEventListener(
   "pushsubscriptionchange",
   function (event) {
-    event.waitUntil(doSubscribe(self.registration, event.newSubscription));
+    event.waitUntil(webpushSubscribe(self.registration, event.newSubscription));
   },
   false
 );

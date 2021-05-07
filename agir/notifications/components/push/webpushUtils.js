@@ -42,7 +42,28 @@ function urlBase64ToUint8Array(base64String) {
   return outputArray;
 }
 
-export async function doSubscribe(serviceWorkerRegistration, pushSubscription) {
+export function getSubscriptionData(pushSubscription) {
+  const browser = loadVersionBrowser();
+  const endpointParts = pushSubscription.endpoint.split("/");
+  const registration_id = endpointParts[endpointParts.length - 1];
+
+  return {
+    browser: browser.name.toUpperCase(),
+    p256dh: btoa(
+      String.fromCharCode(...new Uint8Array(pushSubscription.getKey("p256dh")))
+    ),
+    auth: btoa(
+      String.fromCharCode(...new Uint8Array(pushSubscription.getKey("auth")))
+    ),
+    name: "Action populaire",
+    registration_id: registration_id,
+  };
+}
+
+export async function webpushSubscribe(
+  serviceWorkerRegistration,
+  pushSubscription
+) {
   if (!process.env.WEBPUSH_PUBLIC_KEY) {
     log.error(
       "WEBPUSH_PUBLIC_KEY must be define. You can generate keys at https://web-push-codelab.glitch.me/."
@@ -62,54 +83,7 @@ export async function doSubscribe(serviceWorkerRegistration, pushSubscription) {
   if (!pushSubscription) {
     return;
   }
+
   log.debug("Received PushSubscription: ", pushSubscription);
-
-  const browser = loadVersionBrowser();
-
-  const endpointParts = pushSubscription.endpoint.split("/");
-  const registration_id = endpointParts[endpointParts.length - 1];
-  const data = {
-    browser: browser.name.toUpperCase(),
-    p256dh: btoa(
-      String.fromCharCode(...new Uint8Array(pushSubscription.getKey("p256dh")))
-    ),
-    auth: btoa(
-      String.fromCharCode(...new Uint8Array(pushSubscription.getKey("auth")))
-    ),
-    name: "Action populaire",
-    registration_id: registration_id,
-  };
-
-  try {
-    await axios.post("/api/device/webpush/", data);
-  } catch (e) {
-    log.error("Error saving PushSubscription : ", e);
-  }
-  log.debug("Save PushSubscription");
-
   return pushSubscription;
-}
-
-export async function doUnsubscribe() {
-  if (!window.AgirSW?.pushManager) return;
-
-  const pushSubscription = await window.AgirSW?.pushManager?.getSubscription();
-
-  if (!pushSubscription) {
-    return true;
-  }
-
-  await pushSubscription.unsubscribe();
-
-  const endpointParts = pushSubscription.endpoint.split("/");
-  const registrationId = endpointParts[endpointParts.length - 1];
-
-  try {
-    await axios.delete(`/api/device/webpush/${registrationId}/`);
-  } catch (e) {
-    log.error("Error deleting PushSubscription : ", e);
-    return e.response?.status === 404;
-  }
-
-  return true;
 }

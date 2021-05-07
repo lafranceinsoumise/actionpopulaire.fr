@@ -39,7 +39,7 @@ export const useMobileApp = () => {
         window.localStorage.setItem("AP_isAndroid", params.android);
     }
     const isIOS = window.localStorage.getItem("AP_isIOS") === "1";
-    const isAndroid = window.localStorage.getItem("AP_isAndroid") === "1";
+    const isAndroid = window.localStorage.getItem("AP_isAndroid") === "2";
 
     return {
       isIOS,
