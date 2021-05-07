@@ -33,15 +33,18 @@ async function askPermission() {
   }
 }
 
-const useServerSubscription = (endpoint, token, extraData = {}) => {
+const useServerSubscription = (endpoint, token) => {
   const [ready, setReady] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   const subscribe = useCallback(async () => {
+    const [registration_id, extraData] =
+      typeof token === "string" ? [token, {}] : [token.registration_id, token];
+
     try {
       await axios.post(`/api/device/${endpoint}/`, {
         name: "Action populaire",
-        registration_id: token,
+        registration_id: registration_id,
         active: true,
         ...extraData,
       });
@@ -52,7 +55,7 @@ const useServerSubscription = (endpoint, token, extraData = {}) => {
       setReady(true);
       setIsSubscribed(false);
     }
-  }, [endpoint, extraData, token]);
+  }, [endpoint, token]);
 
   const unsubscribe = useCallback(async () => {
     if (!token) {
@@ -77,28 +80,30 @@ const useServerSubscription = (endpoint, token, extraData = {}) => {
   }, [endpoint, token]);
 
   // When receive a new token, if it does not exist, we subscribe by default
-  useEffect(async () => {
-    if (!token) {
-      return;
-    }
-
-    let deviceSubscription = null;
-    try {
-      deviceSubscription = await axios(`/api/device/${endpoint}/${token}/`);
-    } catch (e) {
-      if (e.response?.status === 404) {
-        await subscribe();
+  useEffect(() => {
+    (async () => {
+      if (!token) {
+        return;
       }
 
-      log.error("iOS: error retrieving subscription", token, e);
+      let deviceSubscription = null;
+      try {
+        deviceSubscription = await axios(`/api/device/${endpoint}/${token}/`);
+      } catch (e) {
+        if (e.response?.status === 404) {
+          await subscribe();
+        }
 
+        log.error("iOS: error retrieving subscription", token, e);
+
+        setReady(true);
+        return;
+      }
+
+      // Check if subscription for the current token exists and is active
       setReady(true);
-      return;
-    }
-
-    // Check if subscription for the current token exists and is active
-    setReady(true);
-    setIsSubscribed(deviceSubscription.active);
+      setIsSubscribed(deviceSubscription.active);
+    })();
   }, [endpoint, subscribe, token]);
 
   return {
@@ -119,11 +124,7 @@ const useWebPush = () => {
     isSubscribed,
     subscribe: serverSubscribe,
     unsubscribe,
-  } = useServerSubscription(
-    SUBSCRIPTION_TYPES.WEBPUSH,
-    browserSubscription?.registration_id,
-    ...(browserSubscription || {})
-  );
+  } = useServerSubscription(SUBSCRIPTION_TYPES.WEBPUSH, browserSubscription);
 
   const subscribe = useCallback(async () => {
     if (subscription) {
@@ -197,14 +198,15 @@ const useAndroidPush = () => {
   const [token] = useLocalStorage("AP_FCMToken");
 
   const { ready, isSubscribed, subscribe, unsubscribe } = useServerSubscription(
-    "android",
-    token,
-    {
+    SUBSCRIPTION_TYPES.ANDROID,
+    token && {
+      registration_id: token,
       cloud_message_type: "FCM",
     }
   );
 
   if (!isAndroid) {
+    log.debug("iOS : not on Android device.");
     return {
       ready: true,
       available: false,
