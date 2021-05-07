@@ -56,6 +56,8 @@ const GroupMaterielPage = (props) => {
               color="primary"
               as="a"
               href={ordersURL}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Site d’achat de matériel
             </Button>
