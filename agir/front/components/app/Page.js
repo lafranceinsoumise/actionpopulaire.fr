@@ -120,7 +120,7 @@ const Page = (props) => {
 
   return (
     <ErrorBoundary>
-      {routeConfig.hideTopBar ? null : <TopBar />}
+      {routeConfig.hideTopBar ? null : <TopBar path={pathname} />}
 
       {!routeConfig.hideTopBar &&
         !isMobileApp &&

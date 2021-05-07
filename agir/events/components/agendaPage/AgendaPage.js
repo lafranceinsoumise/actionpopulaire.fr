@@ -20,6 +20,7 @@ import Homepage from "@agir/front/app/Homepage/Home";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
 import TopBar from "@agir/front/allPages/TopBar";
+import {useLocation} from "react-router-dom";
 
 const StyledWrapper = styled.div`
   padding-top: 72px;
@@ -32,6 +33,7 @@ const StyledWrapper = styled.div`
 const AgendaPage = (props) => {
   const isConnected = useSelector(getIsConnected);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
+  const path = useLocation().pathname;
 
   const isDesktop = useIsDesktop();
   const { isMobileApp } = useMobileApp();
@@ -52,7 +54,7 @@ const AgendaPage = (props) => {
 
   return (
     <>
-      <TopBar />
+      <TopBar path={path} />
       <ConnectivityWarning hasTopBar />
       <TellMorePage />
 

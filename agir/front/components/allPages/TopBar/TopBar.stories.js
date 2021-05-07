@@ -1,5 +1,6 @@
 import React from "react";
 import TopBar from "./TopBar";
+import {useLocation} from "react-router-dom";
 
 export default {
   component: TopBar,
@@ -7,7 +8,10 @@ export default {
 };
 
 const Template = ({ loggedIn, displayName, isInsoumise }) => (
-  <TopBar user={loggedIn ? { displayName, isInsoumise } : null} />
+  <TopBar
+    path={useLocation().pathname}
+    user={loggedIn ? { displayName, isInsoumise } : null}
+  />
 );
 
 export const Default = Template.bind({});

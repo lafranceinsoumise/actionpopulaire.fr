@@ -28,7 +28,7 @@ export const LayoutSubtitle = styled.h2`
   margin: 8px 0;
 
   @media (max-width: ${style.collapse}px) {
-    padding: 0 1.5rem;
+    display: none;
   }
 `;
 
@@ -39,8 +39,7 @@ export const LayoutTitle = styled.h1`
   margin: 0;
 
   @media (max-width: ${style.collapse}px) {
-    font-size: 20px;
-    padding: 0 1.5rem;
+    display: none;
   }
 `;
 
