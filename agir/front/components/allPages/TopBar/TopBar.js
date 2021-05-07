@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 
+import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getRoutes,
@@ -24,14 +25,28 @@ import SearchBar from "./SearchBar";
 import AdminLink from "./AdminLink";
 import MenuLink from "./MenuLink";
 import { TopBarMainLink } from "./TopBarMainLink";
+import DownloadApp from "@agir/front/genericComponents/DownloadApp.js";
 import { useMobileApp } from "@agir/front/app/hooks";
 
-const TopBarBar = styled.div`
+const NavBar = styled.div``;
+
+const NavbarContainer = styled.div`
   position: fixed;
   top: 0;
   left: 0;
   z-index: ${style.zindexTopBar};
   width: 100%;
+  background-color: #fff;
+
+  ${NavBar} {
+    padding: 0.75rem 2rem;
+    box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
+      0px 3px 2px rgba(0, 35, 44, 0.05);
+
+    @media (max-width: ${+style.collapse - 1}px) {
+      padding: 1rem 1.5rem;
+    }
+
   padding: 0.75rem 2rem;
   background-color: #fff;
   box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
@@ -90,10 +105,14 @@ export const TopBar = ({ path }) => {
   const backLink = useSelector(getBackLink);
   const topBarRightLink = useSelector(getTopBarRightLink);
   const adminLink = useSelector(getAdminLink);
-  const { isMobileApp } = useMobileApp();
+  const isDesktop = useIsDesktop();
+  const { isMobileApp } = useMobileApp(); 
 
   return (
-    <TopBarBar>
+    <NavbarContainer>
+      {!isDesktop && <DownloadApp />}
+
+      <NavBar>
       <AdminLink link={adminLink} />
       <TopBarContainer>
         {isSessionLoaded ? (
@@ -141,10 +160,11 @@ export const TopBar = ({ path }) => {
               routes={routes}
               user={user}
             />
-          </HorizontalFlex>
-        </PageFadeIn>
-      </TopBarContainer>
-    </TopBarBar>
+            </HorizontalFlex>
+          </PageFadeIn>
+        </TopBarContainer>
+      </NavBar>
+    </NavbarContainer>
   );
 };
 

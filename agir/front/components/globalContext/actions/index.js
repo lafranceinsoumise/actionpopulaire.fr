@@ -38,6 +38,14 @@ export const clearAllToasts = () => ({
   type: ACTION_TYPE.CLEAR_ALL_TOASTS,
 });
 
+// IS BANNER DOWNLOAD
+export const setBannerDownload = () => ({
+  type: ACTION_TYPE.ADD_BANNER_DOWNLOAD,
+});
+export const clearBannerDownload = () => ({
+  type: ACTION_TYPE.CLEAR_BANNER_DOWNLOAD,
+});
+
 // BACK LINK
 export const setBackLink = (backLink) => ({
   type: ACTION_TYPE.SET_BACK_LINK_ACTION,
