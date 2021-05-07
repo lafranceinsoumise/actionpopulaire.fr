@@ -121,8 +121,8 @@ const useWebPush = () => {
     unsubscribe,
   } = useServerSubscription(
     SUBSCRIPTION_TYPES.WEBPUSH,
-    browserSubscription.registration_id,
-    ...browserSubscription
+    browserSubscription?.registration_id,
+    ...(browserSubscription || {})
   );
 
   const subscribe = useCallback(async () => {
