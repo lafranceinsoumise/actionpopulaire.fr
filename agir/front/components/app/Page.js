@@ -4,12 +4,18 @@ import { useHistory, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
+import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
+import { useMobileApp } from "@agir/front/app/hooks.js";
 import {
   useDispatch,
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
-import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
+import {
+  getIsSessionLoaded,
+  getIsBannerDownload,
+} from "@agir/front/globalContext/reducers";
 import {
   setBackLink,
   setTopBarRightLink,
@@ -45,6 +51,9 @@ const Page = (props) => {
 
   const dispatch = useDispatch();
   const isSessionLoaded = useSelector(getIsSessionLoaded);
+  const isDesktop = useIsDesktop();
+  const { isMobileApp } = useMobileApp();
+  const isBannerDownload = useSelector(getIsBannerDownload);
   const history = useHistory();
   const routeParams = useParams();
   const { pathname } = useLocation();
@@ -112,6 +121,12 @@ const Page = (props) => {
   return (
     <ErrorBoundary>
       {routeConfig.hideTopBar ? null : <TopBar />}
+
+      {!routeConfig.hideTopBar &&
+        !isMobileApp &&
+        !isDesktop &&
+        isBannerDownload && <Spacer size="100px" />}
+
       {routeConfig.hideConnectivityWarning ? null : (
         <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
       )}
