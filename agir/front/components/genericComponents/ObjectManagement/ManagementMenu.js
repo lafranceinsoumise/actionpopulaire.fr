@@ -170,8 +170,8 @@ const ManagementMenu = (props) => {
     <StyledMenu>
       <Hide over>
         <BackButton onClick={onBack} />
-        <Spacer size="1rem" />
       </Hide>
+      <Spacer size="1rem" />
       <h6>{subtitle}</h6>
       <h4>{title}</h4>
       <Spacer size="1rem" />
