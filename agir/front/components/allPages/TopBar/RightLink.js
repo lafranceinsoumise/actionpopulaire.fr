@@ -16,13 +16,11 @@ const AnonymousLink = () => {
           <FeatherIcon name="user" />
         </MenuLink>
       </Hide>
-      <Hide over>
-        <MenuLink route="login">
-          <span>Connexion</span>
-        </MenuLink>
-        <MenuLink route="signup">
-          <span>Inscription</span>
-        </MenuLink>
+      <Hide over as={"MenuLink"} route="login">
+        <span>Connexion</span>
+      </Hide>
+      <Hide over as={"MenuLink"} route="signup">
+        <span>Inscription</span>
       </Hide>
     </>
   );
