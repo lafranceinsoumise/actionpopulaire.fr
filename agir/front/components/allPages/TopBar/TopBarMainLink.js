@@ -19,7 +19,6 @@ export const TopBarMainLink = (props) => {
       );
   }, [path]);
 
-  //console.log(Object.values(routeConfig).find((route) => route.match(path)));
   if (!isMobileApp || !currentRoute) {
     return null;
   }
