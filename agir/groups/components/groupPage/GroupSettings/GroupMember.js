@@ -126,6 +126,7 @@ const GroupMember = (props) => {
     email,
     gender,
     onResetMembershipType,
+    isLoading,
   } = props;
 
   const handleResetMembershipType = useCallback(() => {
@@ -153,7 +154,10 @@ const GroupMember = (props) => {
           </span>
         )}
         {typeof onResetMembershipType === "function" && (
-          <ResetMembershipType onClick={handleResetMembershipType}>
+          <ResetMembershipType
+            onClick={handleResetMembershipType}
+            disabled={isLoading}
+          >
             Retirer le droit
           </ResetMembershipType>
         )}
@@ -173,6 +177,7 @@ GroupMember.propTypes = {
   ),
   gender: PropTypes.oneOf(["", ...Object.values(GENDER)]),
   onResetMembershipType: PropTypes.func,
+  isLoading: PropTypes.bool,
 };
 
 export default GroupMember;

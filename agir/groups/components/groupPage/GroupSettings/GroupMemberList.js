@@ -18,7 +18,7 @@ const MemberList = styled.div`
   }
 `;
 
-const GroupMemberList = ({ members, onAdd, addButtonLabel }) => {
+const GroupMemberList = ({ members, onAdd, addButtonLabel, isLoading }) => {
   const list = useMemo(
     () =>
       Array.isArray(members)
@@ -30,7 +30,7 @@ const GroupMemberList = ({ members, onAdd, addButtonLabel }) => {
   return (
     <MemberList>
       {list.map((member) => (
-        <GroupMember key={member.id} {...member} />
+        <GroupMember key={member.id} isLoading={isLoading} {...member} />
       ))}
       {onAdd && addButtonLabel && (
         <AddPair onClick={onAdd} label={addButtonLabel} />
@@ -42,6 +42,7 @@ GroupMemberList.propTypes = {
   members: PropTypes.arrayOf(PropTypes.shape(GroupMember.propTypes)),
   onAdd: PropTypes.func,
   addButtonLabel: PropTypes.node,
+  isLoading: PropTypes.bool,
 };
 
 export default GroupMemberList;

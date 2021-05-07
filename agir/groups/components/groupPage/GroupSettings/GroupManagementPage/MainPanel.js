@@ -22,6 +22,7 @@ const MainPanel = (props) => {
     members,
     is2022,
     routes,
+    isLoading,
   } = props;
 
   const withGroupWord = useGroupWord({ is2022 });
@@ -66,6 +67,7 @@ const MainPanel = (props) => {
         onAdd={
           referents.length < 2 && members.length > 1 ? editReferent : undefined
         }
+        isLoading={isLoading}
       />
       <Spacer size="1.5rem" />
       {routes?.animationChangeRequest && (
@@ -105,6 +107,7 @@ const MainPanel = (props) => {
         members={managers}
         addButtonLabel="Ajouter un·e gestionnaire"
         onAdd={editManager}
+        isLoading={isLoading}
       />
       {routes?.certificationRequest && (
         <>
@@ -143,6 +146,7 @@ MainPanel.propTypes = {
     referentResignmentRequest: PropTypes.string,
     deleteGroup: PropTypes.string,
   }),
+  isLoading: PropTypes.bool,
 };
 
 export default MainPanel;
