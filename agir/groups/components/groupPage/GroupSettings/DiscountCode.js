@@ -66,7 +66,7 @@ const DiscountCode = ({ code, expirationDate }) => {
           </>
         )}
       </h5>
-      <ShareLink color="secondary" url={code} label="Copier" />
+      <ShareLink color="secondary" url={code} label="Copier" $wrap={400} />
       <p>Expiration&nbsp;: {date}</p>
     </StyledDiscountCode>
   );

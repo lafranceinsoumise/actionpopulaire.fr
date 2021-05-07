@@ -81,7 +81,7 @@ const GroupFinancePage = (props) => {
         )}
       </Buttons>
 
-      <Spacer size="1rem" />
+      <Spacer size="1.5rem" />
 
       <StyledTitle>
         {withGroupWord`Solliciter des dons pour mon groupe`}
@@ -95,6 +95,7 @@ const GroupFinancePage = (props) => {
         color="primary"
         label="Copier le lien"
         url={group?.routes?.donations}
+        $wrap={400}
       />
     </>
   );

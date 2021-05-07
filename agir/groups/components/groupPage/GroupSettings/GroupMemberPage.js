@@ -41,17 +41,6 @@ const StyledSkeleton = styled.div`
   }
 `;
 
-const StyledShareLink = styled(ShareLink)`
-  & > div {
-    @media (max-width: ${style.collapse}px) {
-      display: grid;
-      grid-template-columns: 1fr;
-      grid-gap: 0.5rem;
-      height: auto;
-    }
-  }
-`;
-
 const MembersSkeleton = (
   <StyledSkeleton aria-hidden="true">
     <div />
@@ -73,7 +62,7 @@ const GroupMemberPage = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <PageFadeIn ready={Array.isArray(members)} wait={MembersSkeleton}>
         <StyledTitle>{group?.facts?.memberCount} Membres</StyledTitle>
-        <StyledShareLink
+        <ShareLink
           label="Copier les mails des membres"
           color="primary"
           url={
@@ -81,6 +70,7 @@ const GroupMemberPage = (props) => {
               ? members.map(({ email }) => email).join(", ")
               : ""
           }
+          $wrap
         />
         <Spacer size="1.5rem" />
         <GroupMemberList members={members} />
@@ -88,10 +78,15 @@ const GroupMemberPage = (props) => {
         {group.routes.membershipTransfer && (
           <a
             href={group?.routes?.membershipTransfer}
-            style={{ display: "flex", alignItems: "center" }}
+            style={{ display: "flex", alignItems: "flex-start" }}
           >
-            <RawFeatherIcon name="arrow-right" width="1rem" height="1rem" />
-            &ensp;
+            <RawFeatherIcon
+              name="arrow-right"
+              width="1rem"
+              height="1rem"
+              style={{ paddingTop: "3px" }}
+            />
+            <Spacer size="0.5rem" />
             <Hide under>
               {withGroupWord`Transférer des membres de votre groupe vers un autre groupe`}
             </Hide>

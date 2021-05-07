@@ -58,6 +58,7 @@ const GroupMaterielPage = (props) => {
               href={ordersURL}
               target="_blank"
               rel="noopener noreferrer"
+              $wrap
             >
               Site d’achat de matériel
             </Button>

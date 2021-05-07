@@ -85,14 +85,10 @@ const IndexLinkAnchor = styled(Link)`
 
 const DesktopGroupPage = (props) => {
   const { backLink, group, groupSuggestions, allEvents } = props;
-  const {
-    hasTabs,
-    tabs,
-    activeTabIndex,
-    activeTabId,
-    activePathname,
-    onTabChange,
-  } = useTabs(props, false);
+  const { hasTabs, tabs, activeTabId, activePathname, onTabChange } = useTabs(
+    props,
+    false
+  );
 
   const goToAgendaTab = useMemo(() => {
     const agendaTab = tabs.find((tab) => tab.id === "agenda");
@@ -181,7 +177,7 @@ const DesktopGroupPage = (props) => {
           gutter={32}
           style={{
             marginTop: "3.5rem",
-            flexDirection: activeTabIndex === 0 ? "row" : "row-reverse",
+            flexDirection: activeTabId === "info" ? "row" : "row-reverse",
           }}
         >
           <Column grow>

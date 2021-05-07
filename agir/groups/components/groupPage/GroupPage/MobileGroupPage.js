@@ -1,11 +1,5 @@
 import PropTypes from "prop-types";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
@@ -61,14 +55,10 @@ Tab.propTypes = {
 
 const MobileGroupPage = (props) => {
   const { group, allEvents } = props;
-  const {
-    hasTabs,
-    tabs,
-    activeTabIndex,
-    activeTabId,
-    activePathname,
-    onTabChange,
-  } = useTabs(props, true);
+  const { hasTabs, tabs, activeTabId, activePathname, onTabChange } = useTabs(
+    props,
+    true
+  );
 
   const goToAgendaTab = useMemo(() => {
     const agendaTab = tabs.find((tab) => tab.id === "agenda");
@@ -104,15 +94,6 @@ const MobileGroupPage = (props) => {
     [history, getMessageURL]
   );
 
-  const [autoScroll, setAutoScroll] = useState(false);
-  const shouldAutoScroll = useRef(false);
-  useEffect(() => {
-    if (!shouldAutoScroll.current) {
-      shouldAutoScroll.current = true;
-      setAutoScroll(true);
-    }
-  }, [activeTabIndex]);
-
   const groupSettingsLinks = useMemo(
     () => (group?.id ? getGroupSettingLinks(group, activePathname) : null),
     [group, activePathname]
@@ -141,7 +122,7 @@ const MobileGroupPage = (props) => {
           stickyOffset={56}
           activeTabId={activeTabId}
         />
-        <Tab scrollIntoView={hasTabs && autoScroll}>
+        <Tab>
           <R
             {...props}
             groupSettingsLinks={groupSettingsLinks}

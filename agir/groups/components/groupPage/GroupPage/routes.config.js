@@ -149,16 +149,28 @@ export const useTabs = (props, isMobile = true) => {
     // eslint-disable-next-line
   }, [activePathname]);
 
-  return {
-    tabs: routes,
-    activePathname,
-    activeTabId: activeRoute.id,
-    activeTabIndex,
-    hasTabs: tabs.length > 1,
-    onTabChange: handleTabChange,
-    onNextTab: handleNextTab,
-    onPrevTab: handlePrevTab,
-  };
+  const result = useMemo(
+    () => ({
+      tabs: routes,
+      activePathname,
+      activeTabId: activeRoute.id,
+      hasTabs: tabs.length > 1,
+      onTabChange: handleTabChange,
+      onNextTab: handleNextTab,
+      onPrevTab: handlePrevTab,
+    }),
+    [
+      routes,
+      activePathname,
+      activeRoute.id,
+      tabs.length,
+      handleTabChange,
+      handleNextTab,
+      handlePrevTab,
+    ]
+  );
+
+  return result;
 };
 
 const routes = Object.values(routeConfig);
