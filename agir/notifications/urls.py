@@ -11,7 +11,7 @@ from . import views
 router = DefaultRouter()
 router.register(r"webpush", WebPushDeviceAuthorizedViewSet)
 router.register(r"apple", APNSDeviceAuthorizedViewSet)
-router.register(r"apple", GCMDeviceAuthorizedViewSet)
+router.register(r"android", GCMDeviceAuthorizedViewSet)
 
 urlpatterns = [
     path("api/device/", include(router.urls)),
