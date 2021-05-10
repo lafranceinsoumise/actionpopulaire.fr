@@ -4,7 +4,10 @@ import { useHistory, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
+import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
+import { useMobileApp, useDownloadBanner } from "@agir/front/app/hooks.js";
 import {
   useDispatch,
   useSelector,
@@ -45,6 +48,9 @@ const Page = (props) => {
 
   const dispatch = useDispatch();
   const isSessionLoaded = useSelector(getIsSessionLoaded);
+  const isDesktop = useIsDesktop();
+  const { isMobileApp } = useMobileApp();
+  const [isBannerDownload, _] = useDownloadBanner();
   const history = useHistory();
   const routeParams = useParams();
   const { pathname } = useLocation();
@@ -126,6 +132,12 @@ const Page = (props) => {
   return (
     <ErrorBoundary>
       {routeConfig.hideTopBar ? null : <TopBar path={pathname} />}
+
+      {!routeConfig.hideTopBar &&
+        !isMobileApp &&
+        !isDesktop &&
+        isBannerDownload && <Spacer size="100px" />}
+
       {routeConfig.hideConnectivityWarning ? null : (
         <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
       )}

@@ -1,5 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useHistory } from "react-router-dom";
+
+import { useLocalStorage, createGlobalState } from "react-use";
 
 import { parseQueryStringParams } from "@agir/lib/utils/url";
 
@@ -49,4 +51,22 @@ export const useMobileApp = () => {
   }, []);
 
   return state;
+};
+
+const BANNER_ID = "BANNER_count";
+const useBannerCount = createGlobalState(
+  window.localStorage.getItem(BANNER_ID) || 0
+);
+
+export const useDownloadBanner = () => {
+  const [bannerCounter, setBannerCounter] = useBannerCount();
+  const [visitCounter] = useLocalStorage("AP_vcount");
+  const display = bannerCounter <= visitCounter;
+
+  const hide = () => {
+    setBannerCounter(visitCounter + 25);
+    window.localStorage.setItem(BANNER_ID, visitCounter + 25);
+  };
+
+  return [display, hide];
 };
