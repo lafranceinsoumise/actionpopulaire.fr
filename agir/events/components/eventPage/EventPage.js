@@ -151,7 +151,7 @@ const StyledMap = styled.div`
 `;
 
 const MobileLayout = (props) => {
-  const { illustration, location, subtype } = props;
+  const { contact, routes, groups, illustration, location, subtype } = props;
   const hasMap =
     location?.coordinates && Array.isArray(location?.coordinates?.coordinates);
 
@@ -196,13 +196,13 @@ const MobileLayout = (props) => {
             <Card>
               <EventDescription {...props} illustration={null} />
             </Card>
-            {props.contact && <ContactCard {...props.contact} />}
-            {props.routes.facebook && <EventFacebookLinkCard {...props} />}
-            <ShareCard url={props.routes.details} />
-            {props.groups.length > 0 && (
+            {contact && <ContactCard {...contact} />}
+            {routes?.facebook && <EventFacebookLinkCard {...props} />}
+            <ShareCard url={routes?.details} />
+            {Array.isArray(groups) && groups.length > 0 && (
               <CardLikeSection>
                 <h3>Organisé par</h3>
-                {props.groups.map((group, key) => (
+                {groups.map((group, key) => (
                   <GroupCard key={key} {...group} isEmbedded />
                 ))}
               </CardLikeSection>
@@ -215,6 +215,8 @@ const MobileLayout = (props) => {
 };
 
 const DesktopLayout = (props) => {
+  const { logged, groups, contact, participantCount, routes } = props;
+
   return (
     <Container
       style={{
@@ -226,7 +228,7 @@ const DesktopLayout = (props) => {
     >
       <Row style={{ minHeight: 56 }}>
         <Column grow>
-          {props.logged && (
+          {logged && (
             <IndexLinkAnchor route="events">
               <span>&#10140;</span>
               &ensp; Liste des événements
@@ -239,10 +241,10 @@ const DesktopLayout = (props) => {
           <div>
             <EventHeader {...props} />
             <EventDescription {...props} />
-            {props.groups.length > 0 && (
+            {Array.isArray(groups) && groups.length > 0 && (
               <GroupCards>
                 <h3 style={{ marginTop: "2.5rem" }}>Organisé par</h3>
-                {props.groups.map((group, key) => (
+                {groups.map((group, key) => (
                   <GroupCard key={key} {...group} isEmbedded />
                 ))}
               </GroupCards>
@@ -251,12 +253,12 @@ const DesktopLayout = (props) => {
         </Column>
         <StyledColumn width="380px">
           <EventLocationCard {...props} />
-          {props.contact && <ContactCard {...props.contact} />}
-          {(props.participantCount > 1 || props.groups.length > 0) && (
+          {contact && <ContactCard {...contact} />}
+          {(participantCount > 1 || groups?.length > 0) && (
             <EventInfoCard {...props} />
           )}
-          {props.routes.facebook && <EventFacebookLinkCard {...props} />}
-          <ShareCard url={props.routes.details} />
+          {routes?.facebook && <EventFacebookLinkCard {...props} />}
+          <ShareCard url={routes?.details} />
         </StyledColumn>
       </Row>
     </Container>
