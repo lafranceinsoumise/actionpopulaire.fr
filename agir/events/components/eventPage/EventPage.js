@@ -35,6 +35,7 @@ import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
+import Map from "@agir/carte/common/Map";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import useSWR from "swr";
@@ -43,6 +44,8 @@ import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 import logger from "@agir/lib/utils/logger";
 import * as api from "@agir/events/common/api";
+
+import defaultEventImage from "@agir/front/genericComponents/images/banner-map-background.svg";
 
 const log = logger(__filename);
 
@@ -108,49 +111,106 @@ const IndexLinkAnchor = styled(Link)`
   }
 `;
 
+const StyledGroupImage = styled.div``;
+const StyledMap = styled.div`
+  flex: 0 0 424px;
+  clip-path: polygon(100% 0%, 100% 100%, 0% 100%, 11% 0%);
+  position: relative;
+  background-size: 0 0;
+
+  @media (max-width: ${style.collapse}px) {
+    clip-path: none;
+    width: 100%;
+    height: 155px;
+    flex-basis: 155px;
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+  }
+
+  & > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  ${StyledGroupImage} {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+
+    &:first-child {
+      background-size: cover;
+      opacity: 0.2;
+    }
+  }
+`;
+
 const MobileLayout = (props) => {
+  const { illustration, location, subtype } = props;
+  const hasMap =
+    location?.coordinates && Array.isArray(location?.coordinates?.coordinates);
+
   return (
-    <Container>
-      <Row>
-        <StyledColumn stack>
-          {props.illustration && (
-            <div
-              style={{
-                margin: "0 -16px",
-              }}
-            >
-              <img
-                src={props.illustration}
-                alt="Image d'illustration de l'événement postée par l'utilisateur"
-                style={{
-                  width: "100%",
-                  height: "auto",
-                }}
-              />
-            </div>
-          )}
-          <Card>
-            <EventHeader {...props} />
-          </Card>
-          <EventLocationCard {...props} />
-          <EventInfoCard {...props} />
-          <Card>
-            <EventDescription {...props} illustration={null} />
-          </Card>
-          {props.contact && <ContactCard {...props.contact} />}
-          {props.routes.facebook && <EventFacebookLinkCard {...props} />}
-          <ShareCard url={props.routes.details} />
-          {props.groups.length > 0 && (
-            <CardLikeSection>
-              <h3>Organisé par</h3>
-              {props.groups.map((group, key) => (
-                <GroupCard key={key} {...group} isEmbedded />
-              ))}
-            </CardLikeSection>
-          )}
-        </StyledColumn>
-      </Row>
-    </Container>
+    <>
+      <StyledMap
+        style={{
+          backgroundColor: illustration ? style.white : style.secondary500,
+          backgroundImage: !illustration
+            ? `url(${defaultEventImage})`
+            : undefined,
+        }}
+      >
+        {illustration ? (
+          <>
+            <StyledGroupImage
+              aria-hidden="true"
+              style={{ backgroundImage: `url(${illustration})` }}
+            />
+            <StyledGroupImage
+              aria-hidden="true"
+              style={{ backgroundImage: `url(${illustration})` }}
+            />
+          </>
+        ) : hasMap ? (
+          <Map
+            zoom={11}
+            center={location.coordinates.coordinates}
+            iconConfiguration={subtype}
+            isStatic
+          />
+        ) : null}
+      </StyledMap>
+      <Container>
+        <Row>
+          <StyledColumn stack>
+            <Card>
+              <EventHeader {...props} />
+            </Card>
+            <EventLocationCard {...props} />
+            <EventInfoCard {...props} />
+            <Card>
+              <EventDescription {...props} illustration={null} />
+            </Card>
+            {props.contact && <ContactCard {...props.contact} />}
+            {props.routes.facebook && <EventFacebookLinkCard {...props} />}
+            <ShareCard url={props.routes.details} />
+            {props.groups.length > 0 && (
+              <CardLikeSection>
+                <h3>Organisé par</h3>
+                {props.groups.map((group, key) => (
+                  <GroupCard key={key} {...group} isEmbedded />
+                ))}
+              </CardLikeSection>
+            )}
+          </StyledColumn>
+        </Row>
+      </Container>
+    </>
   );
 };
 
@@ -247,6 +307,9 @@ EventPage.propTypes = {
     name: PropTypes.string,
     address: PropTypes.string,
     shortAddress: PropTypes.string,
+    coordinates: PropTypes.shape({
+      coordinates: PropTypes.arrayOf(PropTypes.number),
+    }),
   }),
   contact: PropTypes.shape(ContactCard.propTypes),
   options: PropTypes.shape({ price: PropTypes.string }),
