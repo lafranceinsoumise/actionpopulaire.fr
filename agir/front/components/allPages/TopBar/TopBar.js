@@ -133,7 +133,7 @@ export const TopBar = ({ path }) => {
               </Hide>
             )
           ) : null}
-          <HorizontalFlex center={path === "/"}>
+          <HorizontalFlex center={path === "/" || typeof path === "undefined"}>
             <Hide over>
               <TopBarMainLink isMobileApp={isMobileApp} path={path} />
             </Hide>
