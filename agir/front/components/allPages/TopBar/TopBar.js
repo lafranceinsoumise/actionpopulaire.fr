@@ -106,58 +106,58 @@ export const TopBar = ({ path }) => {
   const topBarRightLink = useSelector(getTopBarRightLink);
   const adminLink = useSelector(getAdminLink);
   const isDesktop = useIsDesktop();
-  const { isMobileApp } = useMobileApp(); 
+  const { isMobileApp } = useMobileApp();
 
   return (
     <NavbarContainer>
       {!isDesktop && <DownloadApp />}
 
       <NavBar>
-      <AdminLink link={adminLink} />
-      <TopBarContainer>
-        {isSessionLoaded ? (
-          backLink ? (
-            <MenuLink
-              to={backLink.to}
-              href={backLink.href}
-              route={backLink.route}
-              title={backLink.label}
-              aria-label={backLink.label}
-            >
-              <FeatherIcon name="arrow-left" />
-            </MenuLink>
-          ) : (
-            <MenuLink href={routes.search}>
-              <FeatherIcon name="search" />
-            </MenuLink>
-          )
-        ) : null}
-        <HorizontalFlex center={path === "/"}>
-          <Hide over>
-            <TopBarMainLink isMobileApp={isMobileApp} path={path} />
-          </Hide>
-          <Hide under>
-            <MenuLink href={routes.dashboard}>
-              <Logo />
-            </MenuLink>
-          </Hide>
-          <Hide under as="form" method="get" action={routes.search}>
-            <SearchBar routes={routes} />
-          </Hide>
-        </HorizontalFlex>
-        <PageFadeIn ready={isSessionLoaded}>
-          <HorizontalFlex>
+        <AdminLink link={adminLink} />
+        <TopBarContainer>
+          {isSessionLoaded ? (
+            backLink ? (
+              <MenuLink
+                to={backLink.to}
+                href={backLink.href}
+                route={backLink.route}
+                title={backLink.label}
+                aria-label={backLink.label}
+              >
+                <FeatherIcon name="arrow-left" />
+              </MenuLink>
+            ) : (
+              <MenuLink href={routes.search}>
+                <FeatherIcon name="search" />
+              </MenuLink>
+            )
+          ) : null}
+          <HorizontalFlex center={path === "/"}>
+            <Hide over>
+              <TopBarMainLink isMobileApp={isMobileApp} path={path} />
+            </Hide>
             <Hide under>
-              <MenuLink href={routes.help}>
-                <FeatherIcon name="help-circle" />
-                <span>Aide</span>
+              <MenuLink href={routes.dashboard}>
+                <Logo />
               </MenuLink>
             </Hide>
-            <RightLink
-              settingsLink={(isSessionLoaded && topBarRightLink) || undefined}
-              routes={routes}
-              user={user}
-            />
+            <Hide under as="form" method="get" action={routes.search}>
+              <SearchBar routes={routes} />
+            </Hide>
+          </HorizontalFlex>
+          <PageFadeIn ready={isSessionLoaded}>
+            <HorizontalFlex>
+              <Hide under>
+                <MenuLink href={routes.help}>
+                  <FeatherIcon name="help-circle" />
+                  <span>Aide</span>
+                </MenuLink>
+              </Hide>
+              <RightLink
+                settingsLink={(isSessionLoaded && topBarRightLink) || undefined}
+                routes={routes}
+                user={user}
+              />
             </HorizontalFlex>
           </PageFadeIn>
         </TopBarContainer>

@@ -8,9 +8,7 @@ import Footer from "@agir/front/dashboardComponents/Footer";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import TopBar from "@agir/front/allPages/TopBar";
 
-import { useMobileApp } from "@agir/front/app/hooks";
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getIsBannerDownload } from "@agir/front/globalContext/reducers";
+import { useMobileApp, useDownloadBanner } from "@agir/front/app/hooks";
 import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
 
 import MobileHome from "./MobileHome";
@@ -27,7 +25,7 @@ const StyledHome = styled.div`
 const Home = (props) => {
   const isDesktop = useIsDesktop();
   const { isMobileApp } = useMobileApp();
-  const isBannerDownload = useSelector(getIsBannerDownload);
+  const [isBannerDownload, _] = useDownloadBanner();
 
   if (isMobileApp) {
     return <IntroApp />;

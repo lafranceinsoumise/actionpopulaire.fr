@@ -99,16 +99,6 @@ export const toasts = (state = [], action) => {
   return state;
 };
 
-export const isBannerDownload = (state = null, action) => {
-  if (action.type === ACTION_TYPE.ADD_BANNER_DOWNLOAD) {
-    return true;
-  }
-  if (action.type === ACTION_TYPE.CLEAR_BANNER_DOWNLOAD) {
-    return false;
-  }
-  return state;
-};
-
 export const backLink = (state = null, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
     return action.backLink || state;
@@ -297,8 +287,6 @@ export const getRouteById = (state, id) => state.routes[id] || null;
 
 export const getToasts = (state) => state.toasts;
 
-export const getIsBannerDownload = (state) => !!state.isBannerDownload;
-
 export const getBackLink = (state) => {
   if (!state.backLink) return null;
   if (state.backLink.isProtected && state.isSessionLoaded && !state.user)
@@ -337,7 +325,6 @@ const reducers = {
   csrfToken,
   routes,
   toasts,
-  isBannerDownload,
   backLink,
   topBarRightLink,
   adminLink,

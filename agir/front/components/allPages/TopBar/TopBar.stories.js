@@ -1,6 +1,6 @@
 import React from "react";
 import TopBar from "./TopBar";
-import {useLocation} from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default {
   component: TopBar,

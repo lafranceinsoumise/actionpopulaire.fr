@@ -6,19 +6,9 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import logo from "@agir/front/genericComponents/logos/action-populaire_primary_mini.svg";
 
-import { useMobileApp } from "@agir/front/app/hooks.js";
+import { useMobileApp, useDownloadBanner } from "@agir/front/app/hooks.js";
 import { CONFIG } from "@agir/front/genericComponents/AppStore.js";
 import { getMobileOS } from "@agir/front/authentication/common.js";
-
-import {
-  useDispatch,
-  useSelector,
-} from "@agir/front/globalContext/GlobalContext";
-import {
-  setBannerDownload,
-  clearBannerDownload,
-} from "@agir/front/globalContext/actions";
-import { getIsBannerDownload } from "@agir/front/globalContext/reducers";
 
 const StyledContainer = styled.div`
   display: flex;
@@ -87,33 +77,13 @@ const StyledFeatherIcon = styled(FeatherIcon)`
 `;
 
 const OS = getMobileOS();
-const BANNER_ID = "BANNER_download_closed";
 
 export const DownloadApp = () => {
   const { isMobileApp } = useMobileApp();
-
-  const dispatch = useDispatch();
-  const isBannerDownload = useSelector(getIsBannerDownload);
+  const [isBannerDownload, setIsBannerDownload] = useDownloadBanner();
 
   const closeDownload = useCallback(() => {
-    dispatch(clearBannerDownload());
-    window.localStorage.setItem(BANNER_ID, 1);
-  }, [dispatch]);
-
-  useEffect(() => {
-    let bannerClosed = window.localStorage.getItem(BANNER_ID);
-    bannerClosed = !isNaN(parseInt(bannerClosed)) ? parseInt(bannerClosed) : 0;
-    let visitCount = window.localStorage.getItem("AP_vcount");
-    visitCount = !isNaN(parseInt(visitCount)) ? parseInt(visitCount) : 0;
-
-    if (visitCount % 25 === 0) {
-      window.localStorage.setItem(BANNER_ID, 0);
-      dispatch(setBannerDownload());
-    } else {
-      if (!bannerClosed) {
-        dispatch(setBannerDownload());
-      }
-    }
+    setIsBannerDownload();
   }, []);
 
   if (isMobileApp) return null;

@@ -73,6 +73,7 @@
     "react-stepzilla": "^6.0.2",
     "react-toastify": "^6.2.0",
     "react-transition-group": "^4.4.1",
+    "react-use": "^17.2.4",
     "react-use-gesture": "^6.0.14",
     "regenerator-runtime": "^0.13.7",
     "reinspect": "^1.1.0",
