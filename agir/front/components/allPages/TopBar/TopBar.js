@@ -98,7 +98,8 @@ const HorizontalFlex = styled.div`
   `}
 `;
 
-export const TopBar = ({ path }) => {
+export const TopBar = (props) => {
+  const { path, hideBannerDownload } = props;
   const routes = useSelector(getRoutes);
   const user = useSelector(getUser);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
@@ -110,7 +111,7 @@ export const TopBar = ({ path }) => {
 
   return (
     <NavbarContainer>
-      {!isDesktop && <DownloadApp />}
+      {!isDesktop && !hideBannerDownload && <DownloadApp />}
       <NavBar>
         <AdminLink link={adminLink} />
         <TopBarContainer>

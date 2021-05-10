@@ -7,9 +7,10 @@ import GlobalContextProvider from "@agir/front/globalContext/GlobalContext";
 import TopBar from "@agir/front/allPages/TopBar";
 
 const showHeader = () => {
+  console.log("showHeader called");
   renderReactComponent(
     <GlobalContextProvider>
-      <TopBar />
+      <TopBar hideBannerDownload />
     </GlobalContextProvider>,
     document.getElementById("top-bar")
   );
