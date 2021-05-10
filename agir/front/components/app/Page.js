@@ -109,6 +109,12 @@ const Page = (props) => {
     return (
       <ErrorBoundary>
         {routeConfig.hideTopBar ? null : <TopBar path={pathname} />}
+
+        {!routeConfig.hideTopBar &&
+          !isMobileApp &&
+          !isDesktop &&
+          isBannerDownload && <Spacer size="100px" />}
+
         <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
           {routeConfig.hideConnectivityWarning ? null : (
             <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
