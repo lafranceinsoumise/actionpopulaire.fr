@@ -151,7 +151,7 @@ export const routeConfig = {
     path: "/evenements/:eventPk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Details de l'événement",
+    label: "Détails de l'événement",
     Component: EventPage,
     backLink: {
       route: "events",
@@ -202,7 +202,7 @@ export const routeConfig = {
     path: "/groupes/:groupPk/:activeTab?/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Details du groupe",
+    label: "Détails du groupe",
     Component: GroupPage,
     backLink: {
       route: "groups",
