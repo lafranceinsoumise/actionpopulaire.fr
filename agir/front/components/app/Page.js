@@ -88,7 +88,7 @@ const Page = (props) => {
   if (!routeConfig.hasLayout) {
     return (
       <ErrorBoundary>
-        {routeConfig.hideTopBar ? null : <TopBar />}
+        {routeConfig.hideTopBar ? null : <TopBar path={pathname} />}
         <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
           {routeConfig.hideConnectivityWarning ? null : (
             <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
