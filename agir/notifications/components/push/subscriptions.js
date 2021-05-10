@@ -2,9 +2,20 @@ import axios from "@agir/lib/utils/axios";
 import logger from "@agir/lib/utils/logger";
 import { useCallback, useEffect, useState } from "react";
 import { useIOSMessages } from "@agir/front/allPages/ios";
-import { doSubscribe, doUnsubscribe } from "@agir/notifications/push/utils";
+import {
+  getSubscriptionData,
+  webpushSubscribe,
+} from "@agir/notifications/push/webpushUtils";
+import { useMobileApp } from "@agir/front/app/hooks";
+import { useLocalStorage } from "react-use";
 
 const log = logger(__filename);
+
+const SUBSCRIPTION_TYPES = {
+  ANDROID: "android",
+  APPLE: "apple",
+  WEBPUSH: "webpush",
+};
 
 async function askPermission() {
   let permissionResult = await new Promise((resolve, reject) => {
@@ -22,172 +33,39 @@ async function askPermission() {
   }
 }
 
-const useWebPush = () => {
+const useServerSubscription = (endpoint, token) => {
   const [ready, setReady] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const subscribe = useCallback(async () => {
-    setErrorMessage("");
-    await askPermission();
-    const subscription = await doSubscribe(window.AgirSW);
-    if (!subscription) {
-      setIsSubscribed(false);
-      setErrorMessage("Une erreur est survenue.");
-    } else {
-      setIsSubscribed(true);
-    }
-  }, []);
+    const [registration_id, extraData] =
+      typeof token === "string" ? [token, {}] : [token.registration_id, token];
 
-  const unsubscribe = useCallback(async () => {
-    const success = await doUnsubscribe();
-    if (success) {
-      setIsSubscribed(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      if (!window.AgirSW?.pushManager || ready) return;
-
-      const pushSubscription = await window.AgirSW?.pushManager?.getSubscription();
-
-      if (!pushSubscription) {
-        setReady(true);
-        return;
-      }
-
-      const endpointParts = pushSubscription.endpoint.split("/");
-      const registrationId = endpointParts[endpointParts.length - 1];
-
-      try {
-        await axios(`/api/device/webpush/${registrationId}/`);
-        setIsSubscribed(true);
-        setReady(true);
-      } catch (e) {
-        if (e.response?.status === 404) {
-          log.debug("Registration did not exist on server, unsubscribe.");
-          await pushSubscription.unsubscribe();
-          setIsSubscribed(false);
-        } else {
-          log.error(e);
-        }
-
-        setReady(true);
-      }
-    })();
-  }, [ready]);
-
-  if (!window.AgirSW || !window.AgirSW.pushManager) {
-    log.debug("Web PushManager not available.");
-
-    return {
-      ready: true,
-      available: false,
-    };
-  }
-
-  if (!ready) {
-    return {
-      ready: false,
-    };
-  }
-
-  return {
-    ready: true,
-    available: true,
-    isSubscribed: isSubscribed,
-    subscribe,
-    unsubscribe: isSubscribed ? unsubscribe : undefined,
-    errorMessage,
-  };
-};
-
-const useIOSPush = () => {
-  const [ready, setReady] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [subscriptionToken, setSubscriptionToken] = useState(null);
-
-  const registerDevice = useCallback(async (token) => {
     try {
-      await axios.post("/api/device/apple/", {
+      await axios.post(`/api/device/${endpoint}/`, {
         name: "Action populaire",
-        registration_id: token,
+        registration_id: registration_id,
         active: true,
+        ...extraData,
       });
       setReady(true);
       setIsSubscribed(true);
-      setSubscriptionToken(token);
     } catch (e) {
-      log.error("iOS : error saving Apple push subscription : ", e);
+      log.error(`Error saving ${endpoint} push subscription : `, e);
       setReady(true);
       setIsSubscribed(false);
     }
-  }, []);
-
-  // We change state when iOS app send information
-  const messageHandler = useCallback(
-    async (data) => {
-      log.debug("iOS : got message", data);
-
-      if (data.action !== "setNotificationState") {
-        return;
-      }
-
-      if (data.noPermission) {
-        log.debug("iOS : no notification permission");
-        setReady(true);
-        return;
-      }
-
-      let deviceSubscription = null;
-      try {
-        deviceSubscription = await axios(`/api/device/webpush/${data.token}/`);
-      } catch (e) {
-        if (e.response?.status !== 404) {
-          setReady(true);
-          log.error("iOS: error retrieving subscription", data.token, e);
-          return;
-        }
-        deviceSubscription = null;
-      }
-
-      if (deviceSubscription) {
-        // Check if subscription for the current token exists and is active
-        setReady(true);
-        setIsSubscribed(deviceSubscription.active);
-        setSubscriptionToken(data.token);
-        return;
-      }
-
-      registerDevice(data.token);
-    },
-    [registerDevice]
-  );
-
-  const postMessage = useIOSMessages(messageHandler);
-
-  useEffect(() => {
-    postMessage && postMessage({ action: "getNotificationState" });
-  }, [postMessage]);
-
-  const subscribe = useCallback(() => {
-    if (subscriptionToken) {
-      registerDevice(subscriptionToken);
-    } else {
-      postMessage && postMessage({ action: "enableNotifications" });
-    }
-  }, [postMessage, registerDevice, subscriptionToken]);
+  }, [endpoint, token]);
 
   const unsubscribe = useCallback(async () => {
-    if (!subscriptionToken) {
+    if (!token) {
       return;
     }
     let isUnsubscribed = false;
     try {
-      log.debug("iOS : disabling device", subscriptionToken);
-      await axios.put(`/api/device/webpush/${subscriptionToken}/`, {
-        registration_id: subscriptionToken,
+      log.debug(`${endpoint} : error disabling device`, token);
+      await axios.put(`/api/device/${endpoint}/${token}/`, {
+        registration_id: token,
         active: false,
       });
       isUnsubscribed = true;
@@ -196,10 +74,204 @@ const useIOSPush = () => {
       isUnsubscribed = e.response?.status === 404;
     }
     if (isUnsubscribed) {
-      log.debug("iOS : device unsubscribed", subscriptionToken);
+      log.debug("iOS : device unsubscribed", token);
       setIsSubscribed(false);
     }
-  }, [subscriptionToken]);
+  }, [endpoint, token]);
+
+  // When receive a new token, if it does not exist, we subscribe by default
+  useEffect(() => {
+    (async () => {
+      if (!token) {
+        return;
+      }
+
+      let deviceSubscription = null;
+      try {
+        deviceSubscription = await axios(`/api/device/${endpoint}/${token}/`);
+      } catch (e) {
+        if (e.response?.status === 404) {
+          await subscribe();
+        }
+
+        log.error("iOS: error retrieving subscription", token, e);
+
+        setReady(true);
+        return;
+      }
+
+      // Check if subscription for the current token exists and is active
+      setReady(true);
+      setIsSubscribed(deviceSubscription.active);
+    })();
+  }, [endpoint, subscribe, token]);
+
+  return {
+    ready,
+    isSubscribed,
+    subscribe,
+    unsubscribe,
+  };
+};
+
+const useWebPush = () => {
+  const [browserReady, setBrowserReady] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [browserSubscription, setBrowserSubscription] = useState(null);
+
+  const {
+    ready: serverReady,
+    isSubscribed,
+    subscribe: serverSubscribe,
+    unsubscribe,
+  } = useServerSubscription(SUBSCRIPTION_TYPES.WEBPUSH, browserSubscription);
+
+  const subscribe = useCallback(async () => {
+    if (subscription) {
+      return await serverSubscribe();
+    }
+
+    setErrorMessage("");
+    await askPermission();
+    const subscription = await webpushSubscribe(window.AgirSW);
+
+    setBrowserReady(true);
+    if (!subscription) {
+      setErrorMessage("Une erreur est survenue.");
+    } else {
+      setBrowserSubscription(getSubscriptionData(subscription));
+    }
+  }, [serverSubscribe, window.AgirSW]);
+
+  useEffect(() => {
+    (async () => {
+      if (!window.AgirSW?.pushManager) return;
+
+      const pushSubscription = await window.AgirSW?.pushManager?.getSubscription();
+      setBrowserReady(true);
+
+      if (!pushSubscription) {
+        return;
+      }
+
+      setBrowserSubscription(getSubscriptionData(pushSubscription));
+    })();
+  }, [window.AgirSW]);
+
+  if (!window.AgirSW || !window.AgirSW.pushManager) {
+    log.debug("WebPush : PushManager not available.");
+
+    return {
+      ready: true,
+      available: false,
+    };
+  }
+
+  if (!browserReady) {
+    log.debug("WebPush : Waiting for browser subscription");
+
+    return {
+      ready: false,
+    };
+  }
+
+  if (!browserSubscription) {
+    log.debug("WebPush : Faild to get browser subscription");
+    return {
+      ready: true,
+      available: false,
+    };
+  }
+
+  return {
+    ready: serverReady,
+    available: true,
+    isSubscribed: isSubscribed,
+    subscribe,
+    unsubscribe: isSubscribed ? unsubscribe : undefined,
+    errorMessage,
+  };
+};
+
+const useAndroidPush = () => {
+  const { isAndroid } = useMobileApp();
+  const [token] = useLocalStorage("AP_FCMToken");
+
+  const { ready, isSubscribed, subscribe, unsubscribe } = useServerSubscription(
+    SUBSCRIPTION_TYPES.ANDROID,
+    token && {
+      registration_id: token,
+      cloud_message_type: "FCM",
+    }
+  );
+
+  if (!isAndroid) {
+    log.debug("iOS : not on Android device.");
+    return {
+      ready: true,
+      available: false,
+    };
+  }
+
+  if (!token) {
+    return {
+      ready: false,
+    };
+  }
+
+  return {
+    ready,
+    available: true,
+    isSubscribed,
+    subscribe,
+    unsubscribe: isSubscribed ? unsubscribe : undefined,
+  };
+};
+
+const useIOSPush = () => {
+  const [phoneReady, setPhoneReady] = useState(false);
+  const [subscriptionToken, setSubscriptionToken] = useState(null);
+
+  const {
+    ready: serverReady,
+    isSubscribed,
+    subscribe: serverSubscribe,
+    unsubscribe,
+  } = useServerSubscription("apple", subscriptionToken);
+
+  // We change state when iOS app send information
+  const messageHandler = useCallback(async (data) => {
+    log.debug("iOS : got message", data);
+
+    if (data.action !== "setNotificationState") {
+      return;
+    }
+
+    setPhoneReady(true);
+
+    if (data.noPermission) {
+      log.debug("iOS : no notification permission");
+      return;
+    }
+
+    if (data.token) {
+      setSubscriptionToken(data.token);
+    }
+  }, []);
+
+  const postMessage = useIOSMessages(messageHandler);
+
+  useEffect(() => {
+    postMessage && postMessage({ action: "getNotificationState" });
+  }, [postMessage]);
+
+  const subscribe = useCallback(async () => {
+    if (subscriptionToken) {
+      return await serverSubscribe(subscriptionToken);
+    }
+
+    postMessage && postMessage({ action: "enableNotifications" });
+  }, [postMessage, serverSubscribe, subscriptionToken]);
 
   // Not on iOSDevice
   if (!postMessage) {
@@ -211,16 +283,26 @@ const useIOSPush = () => {
   }
 
   // iOS device but no info yet about subscription
-  if (!ready) {
+  if (!phoneReady) {
     log.debug("iOS : waiting for iOS informations");
     return {
       ready: false,
     };
   }
 
+  // iOS device but no permission
+  if (!subscriptionToken) {
+    log.debug("iOS : no permisson");
+    return {
+      ready: true,
+      available: false,
+      errorMessage: "Veuillez activer la permisson pour les notifications.",
+    };
+  }
+
   log.debug("iOS : isSubscribed ", isSubscribed);
   return {
-    ready: true,
+    ready: serverReady,
     available: true,
     isSubscribed,
     subscribe,
@@ -230,10 +312,15 @@ const useIOSPush = () => {
 
 export const usePush = () => {
   const iosPush = useIOSPush();
+  const androidPush = useAndroidPush();
   const webPush = useWebPush();
 
   if (iosPush.ready && iosPush.available) {
     return iosPush;
+  }
+
+  if (androidPush.ready && androidPush.available) {
+    return androidPush;
   }
 
   if (webPush.ready && webPush.available) {
@@ -241,7 +328,7 @@ export const usePush = () => {
   }
 
   return {
-    ready: iosPush.ready && webPush.ready,
+    ready: iosPush.ready && androidPush.ready && webPush.ready,
     available: false,
   };
 };

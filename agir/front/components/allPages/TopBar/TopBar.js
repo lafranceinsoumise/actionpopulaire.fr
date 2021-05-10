@@ -111,7 +111,6 @@ export const TopBar = ({ path }) => {
   return (
     <NavbarContainer>
       {!isDesktop && <DownloadApp />}
-
       <NavBar>
         <AdminLink link={adminLink} />
         <TopBarContainer>
@@ -127,9 +126,11 @@ export const TopBar = ({ path }) => {
                 <FeatherIcon name="arrow-left" />
               </MenuLink>
             ) : (
-              <MenuLink href={routes.search}>
-                <FeatherIcon name="search" />
-              </MenuLink>
+              <Hide over>
+                <MenuLink href={routes.search}>
+                  <FeatherIcon name="search" />
+                </MenuLink>
+              </Hide>
             )
           ) : null}
           <HorizontalFlex center={path === "/"}>

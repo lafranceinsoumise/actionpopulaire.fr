@@ -8,7 +8,7 @@ import APP_STORE_GOOGLE from "@agir/front/genericComponents/logos/appstore_googl
 export const CONFIG = {
   apple: {
     href:
-      "https://apps.apple.com/us/app/action-populaire/id1559737444#?platform=iphone",
+      "https://apps.apple.com/fr/app/action-populaire/id1559737444#?platform=iphone",
     title: "Télécharger dans l'App Store",
     $image: APP_STORE_APPLE,
   },
