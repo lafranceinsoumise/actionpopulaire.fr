@@ -3,27 +3,24 @@ import React, { useMemo } from "react";
 import Logo from "./Logo";
 import MenuLink from "./MenuLink";
 import { routeConfig } from "../../app/routes.config";
-import { useLocation } from "react-router-dom";
 
 export const TopBarMainLink = (props) => {
-  const { isMobileApp, path } = props;
+  const { path } = props;
 
   const currentRoute = useMemo(() => {
-    let route = Object.values(routeConfig).find((route) => route.match(path));
-
-    // for some pages routeConfig doesn't work, we use useLocation hook instead
-    if (typeof route !== "undefined") return route;
-    return Object.values(routeConfig).find((route) => {
-      route.match(useLocation().pathname);
-    });
+    return Object.values(routeConfig).find((route) => route.match(path));
   }, [path]);
 
   if (!currentRoute) {
-    return null;
+    return (
+      <MenuLink route="events">
+        <Logo />
+      </MenuLink>
+    );
   }
 
   return (
-    <MenuLink href={currentRoute.getLink()}>
+    <MenuLink route={currentRoute.id}>
       {currentRoute.id === "events" ? <Logo /> : <h1>{currentRoute.label}</h1>}
     </MenuLink>
   );
