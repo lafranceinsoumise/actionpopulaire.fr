@@ -1,4 +1,5 @@
 import validate from "@agir/lib/utils/validate";
+import { DateTime } from "luxon";
 
 import { COUNTRIES } from "@agir/front/formComponents/CountryField";
 
@@ -59,11 +60,17 @@ export const EVENT_TYPES = {
   },
 };
 
+let startDate = new Date();
+startDate = DateTime.fromJSDate(startDate).plus({ days: 1 });
+let endDate = startDate.plus({ hours: 1 });
+startDate = new Date(startDate.ts);
+endDate = new Date(startDate.ts);
+
 export const DEFAULT_FORM_DATA = {
   name: "",
   organizerGroup: null,
-  startTime: new Date().toUTCString(),
-  endTime: new Date().toUTCString(),
+  startTime: startDate.toUTCString(),
+  endTime: endDate.toUTCString(),
   subtype: null,
   forUsers: "",
   onlineUrl: "",
