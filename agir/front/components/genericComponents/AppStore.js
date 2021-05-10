@@ -5,7 +5,7 @@ import styled from "styled-components";
 import APP_STORE_APPLE from "@agir/front/genericComponents/logos/appstore_apple.svg";
 import APP_STORE_GOOGLE from "@agir/front/genericComponents/logos/appstore_google.svg";
 
-const CONFIG = {
+export const CONFIG = {
   apple: {
     href:
       "https://apps.apple.com/fr/app/action-populaire/id1559737444#?platform=iphone",
