@@ -11,6 +11,7 @@ import {
   getBackLink,
   getTopBarRightLink,
   getAdminLink,
+  getIsConnected,
 } from "@agir/front/globalContext/reducers";
 import { Hide } from "@agir/front/genericComponents/grid";
 
@@ -108,6 +109,7 @@ export const TopBar = (props) => {
   const adminLink = useSelector(getAdminLink);
   const isDesktop = useIsDesktop();
   const { isMobileApp } = useMobileApp();
+  const isConnected = useSelector(getIsConnected);
 
   return (
     <NavbarContainer>
@@ -117,7 +119,9 @@ export const TopBar = (props) => {
         <TopBarContainer>
           {isSessionLoaded ? (
             backLink ? (
-              <MenuLink
+              <Hide
+                over
+                as="MenuLink"
                 to={backLink.to}
                 href={backLink.href}
                 route={backLink.route}
@@ -125,7 +129,7 @@ export const TopBar = (props) => {
                 aria-label={backLink.label}
               >
                 <FeatherIcon name="arrow-left" />
-              </MenuLink>
+              </Hide>
             ) : (
               <Hide over>
                 <MenuLink href={routes.search}>
@@ -134,7 +138,9 @@ export const TopBar = (props) => {
               </Hide>
             )
           ) : null}
-          <HorizontalFlex center={path === "/" || typeof path === "undefined"}>
+          <HorizontalFlex
+            center={!isConnected || path === "/" || typeof path === "undefined"}
+          >
             <Hide over>
               <TopBarMainLink isMobileApp={isMobileApp} path={path} />
             </Hide>
