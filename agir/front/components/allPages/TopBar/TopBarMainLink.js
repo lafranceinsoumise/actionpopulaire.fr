@@ -13,13 +13,12 @@ export const TopBarMainLink = (props) => {
 
     // for some pages routeConfig doesn't work, we use useLocation hook instead
     if (typeof route !== "undefined") return route;
-    else
-      return Object.values(routeConfig).find((route) =>
-        route.match(useLocation().pathname)
-      );
+    return Object.values(routeConfig).find((route) => {
+      route.match(useLocation().pathname);
+    });
   }, [path]);
 
-  if (!isMobileApp || !currentRoute) {
+  if (!currentRoute) {
     return null;
   }
 
