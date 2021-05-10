@@ -36,3 +36,7 @@ if ("serviceWorker" in navigator) {
     e.preventDefault();
   });
 }
+
+screen.orientation.lock("portrait").catch((e) => {
+  log.error(e);
+});
