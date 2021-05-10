@@ -184,7 +184,9 @@ const SelectMenuList = (props) => {
     <StyledMenuList>
       <components.MenuList {...props} />
       <footer>
-        <button onClick={handleClick}>Fermer</button>
+        <button type="button" onClick={handleClick}>
+          Fermer
+        </button>
       </footer>
     </StyledMenuList>
   );
@@ -208,7 +210,7 @@ const SelectField = (props) => {
   const {
     id,
     onChange,
-    value,
+    value = "",
     error,
     label,
     helpText,

@@ -4,9 +4,12 @@ from django.db import transaction
 from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse_lazy, reverse
+from django.core.validators import validate_email
+
 from rest_framework import status
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.generics import (
+    GenericAPIView,
     ListAPIView,
     RetrieveAPIView,
     ListCreateAPIView,
@@ -17,6 +20,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import exceptions
 
 from agir.events.models import Event
 from agir.events.serializers import EventSerializer
@@ -27,13 +31,17 @@ from agir.groups.actions.notifications import (
 )
 from agir.groups.filters import GroupAPIFilterSet
 from agir.groups.models import SupportGroup, SupportGroupSubtype, Membership
+from agir.people.models import Person
 from agir.groups.serializers import (
     SupportGroupLegacySerializer,
     SupportGroupSubtypeSerializer,
     SupportGroupSerializer,
     SupportGroupDetailSerializer,
+    SupportGroupUpdateSerializer,
+    MembershipSerializer,
 )
 from agir.lib.pagination import APIPaginator
+from agir.donations.allocations import get_balance
 
 __all__ = [
     "LegacyGroupSearchAPIView",
@@ -51,6 +59,11 @@ __all__ = [
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
     "GroupJoinAPIView",
+    "GroupMembersAPIView",
+    "GroupUpdateAPIView",
+    "GroupInvitationAPIView",
+    "GroupMemberUpdateAPIView",
+    "GroupDonationAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -60,6 +73,8 @@ from agir.msgs.serializers import (
     SupportGroupMessageSerializer,
     MessageCommentSerializer,
 )
+
+from agir.groups.tasks import invite_to_group
 
 
 class LegacyGroupSearchAPIView(ListAPIView):
@@ -416,3 +431,121 @@ class GroupJoinAPIView(CreateAPIView):
                 membership, membership_count=self.object.members_count
             )
             return Response(status=status.HTTP_201_CREATED)
+
+
+class GroupMembersViewPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": []}
+    object_perms_map = {
+        "GET": ["groups.change_supportgroup"],
+    }
+
+
+class GroupMembersAPIView(ListAPIView):
+    permission_classes = (GroupMembersViewPermissions,)
+    queryset = SupportGroup.objects.all()
+    serializer_class = MembershipSerializer
+
+    def get_queryset(self):
+        return (
+            Membership.objects.filter(supportgroup_id=self.kwargs.get("pk"))
+            .prefetch_related("person")
+            .prefetch_related("person__emails")
+        )
+
+
+class GroupUpdatePermission(GlobalOrObjectPermissions):
+    perms_map = {"PUT": [], "PATCH": []}
+    object_perms_map = {
+        "PUT": ["groups.change_supportgroup"],
+        "PATCH": ["groups.change_supportgroup"],
+    }
+
+
+class GroupInvitationPermission(GlobalOrObjectPermissions):
+    perms_map = {"POST": []}
+    object_perms_map = {
+        "POST": ["groups.change_supportgroup"],
+    }
+
+
+class GroupUpdateAPIView(UpdateAPIView):
+    permission_classes = (GroupUpdatePermission,)
+    queryset = SupportGroup.objects.all()
+    serializer_class = SupportGroupUpdateSerializer
+
+
+class GroupInvitationAPIView(GenericAPIView):
+    queryset = SupportGroup.objects.all()
+    permission_classes = (GroupInvitationPermission,)
+
+    def post(self, request, *args, **kwargs):
+        group = self.get_object()
+        user_id = self.request.user.person.id
+        email = request.data.get("email", "")
+        if not email:
+            raise exceptions.ValidationError(
+                detail={"email": "L'adresse email ne peut être vide"},
+                code="invalid_format",
+            )
+
+        try:
+            validate_email(email)
+        except:
+            raise exceptions.ValidationError(
+                detail={"email": "L'adresse email n'est pas valide"},
+                code="invalid_format",
+            )
+
+        try:
+            p = Person.objects.get_by_natural_key(email)
+            Membership.objects.get(supportgroup=group, person=p)
+        except (Person.DoesNotExist, Membership.DoesNotExist):
+            pass
+        else:
+            raise exceptions.ValidationError(
+                detail={"email": "Cette personne fait déjà partie de votre groupe !"},
+                code="invalid_format",
+            )
+
+        invite_to_group.delay(group.pk, email, user_id)
+        return Response(status=status.HTTP_201_CREATED)
+
+
+class GroupManagementPermission(GlobalOrObjectPermissions):
+    perms_map = {
+        "PATCH": [],
+    }
+    object_perms_map = {
+        "PATCH": ["groups.change_membership_type"],
+    }
+
+
+class GroupMemberUpdateAPIView(UpdateAPIView):
+    queryset = Membership.objects.all()
+    permission_classes = (GroupManagementPermission,)
+    serializer_class = MembershipSerializer
+
+    def get_object(self):
+        membership = super(GroupMemberUpdateAPIView, self).get_object()
+        self.check_object_permissions(self.request, membership.supportgroup)
+        return membership
+
+
+class GroupFinancePermission(GlobalOrObjectPermissions):
+    perms_map = {
+        "GET": [],
+    }
+    object_perms_map = {
+        "GET": ["groups.view_group_finance"],
+    }
+
+
+class GroupDonationAPIView(GenericAPIView):
+    queryset = SupportGroup.objects.all()
+    permission_classes = (GroupFinancePermission,)
+    serializer_class = SupportGroupSerializer
+
+    def get(self, request, *args, **kwargs):
+        group = self.get_object()
+        total_donation = get_balance(group)
+        return Response(status=status.HTTP_200_OK, data={"donation": total_donation})

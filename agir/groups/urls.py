@@ -6,8 +6,113 @@ from . import views
 uuid = r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}"
 simple_id = r"[0-9]+"
 
+legacy_urlpatterns = [
+    path(
+        "groupes/<uuid:pk>/manage/",
+        RedirectView.as_view(pattern_name="manage_group"),
+        name="manage_group_legacy",
+    ),
+    path(
+        "groupes/<uuid:pk>/modifier/",
+        RedirectView.as_view(pattern_name="edit_group"),
+        name="edit_group_legacy",
+    ),
+    path(
+        "groupes/<uuid:pk>/gestion/informations/",
+        views.SupportGroupManagementView.as_view(),
+        name="manage_group",
+    ),
+    path(
+        "groupes/<uuid:pk>/gestion/modifier/",
+        views.SupportGroupManagementView.as_view(),
+        name="edit_group",
+    ),
+]
+
+api_urlpatterns = [
+    path("", views.UserGroupsView.as_view(), name="api_user_groups"),
+    path("recherche/", views.GroupSearchAPIView.as_view(), name="api_group_search",),
+    path("sous-types/", views.GroupSubtypesView.as_view(), name="api_group_subtypes",),
+    path("<uuid:pk>/", views.GroupDetailAPIView.as_view(), name="api_group_view",),
+    path(
+        "<uuid:pk>/rejoindre/", views.GroupJoinAPIView.as_view(), name="api_group_join",
+    ),
+    path(
+        "<uuid:pk>/suggestions/",
+        views.NearGroupsAPIView.as_view(),
+        name="api_near_groups_view",
+    ),
+    path(
+        "<uuid:pk>/evenements/",
+        views.GroupEventsAPIView.as_view(),
+        name="api_group_events_view",
+    ),
+    path(
+        "<uuid:pk>/evenements/passes/",
+        views.GroupPastEventsAPIView.as_view(),
+        name="api_group_past_events_view",
+    ),
+    path(
+        "<uuid:pk>/evenements/a-venir/",
+        views.GroupUpcomingEventsAPIView.as_view(),
+        name="api_group_upcoming_events_view",
+    ),
+    path(
+        "<uuid:pk>/evenements/compte-rendus/",
+        views.GroupPastEventReportsAPIView.as_view(),
+        name="api_group_past_event_reports_view",
+    ),
+    path(
+        "<uuid:pk>/messages/",
+        views.GroupMessagesAPIView.as_view(),
+        name="api_group_message_list",
+    ),
+    path(
+        "messages/<uuid:pk>/",
+        views.GroupSingleMessageAPIView.as_view(),
+        name="api_group_message_detail",
+    ),
+    path(
+        "messages/<uuid:pk>/comments/",
+        views.GroupMessageCommentsAPIView.as_view(),
+        name="api_group_message_comment_list",
+    ),
+    path(
+        "messages/comments/<uuid:pk>/",
+        views.GroupSingleCommentAPIView.as_view(),
+        name="api_group_message_comment_detail",
+    ),
+    path(
+        "<uuid:pk>/members/",
+        views.GroupMembersAPIView.as_view(),
+        name="api_group_members",
+    ),
+    path(
+        "members/<int:pk>/",
+        views.GroupMemberUpdateAPIView.as_view(),
+        name="api_group_member_update",
+    ),
+    path(
+        "<uuid:pk>/update/",
+        views.GroupUpdateAPIView.as_view(),
+        name="api_group_general",
+    ),
+    path(
+        "<uuid:pk>/invitation/",
+        views.GroupInvitationAPIView.as_view(),
+        name="api_group_invitation",
+    ),
+    path(
+        "<uuid:pk>/finance/",
+        views.GroupDonationAPIView.as_view(),
+        name="api_group_finance",
+    ),
+]
+
 urlpatterns = [
+    path("api/groupes/", include(api_urlpatterns)),
     # groups views
+    path("", include(legacy_urlpatterns)),
     path("groupes/creer/", views.CreateSupportGroupView.as_view(), name="create_group"),
     path(
         "groupes/creer/form/",
@@ -21,34 +126,9 @@ urlpatterns = [
         name="legacy_api_search_group",
     ),
     path(
-        "api/groupes/sous-types/",
-        views.GroupSubtypesView.as_view(),
-        name="api_group_subtypes",
-    ),
-    path(
         "groupes/<uuid:pk>/icalendar/",
         views.SupportGroupIcsView.as_view(),
         name="ics_group",
-    ),
-    path(
-        "groupes/<uuid:pk>/manage/",
-        RedirectView.as_view(pattern_name="manage_group"),
-        name="manage_group_legacy",
-    ),
-    path(
-        "groupes/<uuid:pk>/modifier/",
-        RedirectView.as_view(pattern_name="edit_group"),
-        name="edit_group_legacy",
-    ),
-    path(
-        "groupes/<uuid:pk>/gestion/",
-        views.SupportGroupManagementView.as_view(),
-        name="manage_group",
-    ),
-    path(
-        "groupes/<uuid:pk>/gestion/modifier/",
-        views.ModifySupportGroupView.as_view(),
-        name="edit_group",
     ),
     path(
         "groupes/<uuid:pk>/gestion/transfert-de-membres/",
@@ -99,66 +179,5 @@ urlpatterns = [
         "groupes/invitation/abus/",
         views.InvitationAbuseReportingView.as_view(),
         name="report_invitation_abuse",
-    ),
-    path("api/groupes/", views.UserGroupsView.as_view(), name="api_user_groups"),
-    path(
-        "api/groupes/recherche/",
-        views.GroupSearchAPIView.as_view(),
-        name="api_group_search",
-    ),
-    path(
-        "api/groupes/<uuid:pk>/",
-        views.GroupDetailAPIView.as_view(),
-        name="api_group_view",
-    ),
-    path(
-        "api/groupes/<uuid:pk>/rejoindre/",
-        views.GroupJoinAPIView.as_view(),
-        name="api_group_join",
-    ),
-    path(
-        "api/groupes/<uuid:pk>/suggestions/",
-        views.NearGroupsAPIView.as_view(),
-        name="api_near_groups_view",
-    ),
-    path(
-        "api/groupes/<uuid:pk>/evenements/",
-        views.GroupEventsAPIView.as_view(),
-        name="api_group_events_view",
-    ),
-    path(
-        "api/groupes/<uuid:pk>/evenements/passes/",
-        views.GroupPastEventsAPIView.as_view(),
-        name="api_group_past_events_view",
-    ),
-    path(
-        "api/groupes/<uuid:pk>/evenements/a-venir/",
-        views.GroupUpcomingEventsAPIView.as_view(),
-        name="api_group_upcoming_events_view",
-    ),
-    path(
-        "api/groupes/<uuid:pk>/evenements/compte-rendus/",
-        views.GroupPastEventReportsAPIView.as_view(),
-        name="api_group_past_event_reports_view",
-    ),
-    path(
-        "api/groupes/<uuid:pk>/messages/",
-        views.GroupMessagesAPIView.as_view(),
-        name="api_group_message_list",
-    ),
-    path(
-        "api/groupes/messages/<uuid:pk>/",
-        views.GroupSingleMessageAPIView.as_view(),
-        name="api_group_message_detail",
-    ),
-    path(
-        "api/groupes/messages/<uuid:pk>/comments/",
-        views.GroupMessageCommentsAPIView.as_view(),
-        name="api_group_message_comment_list",
-    ),
-    path(
-        "api/groupes/messages/comments/<uuid:pk>/",
-        views.GroupSingleCommentAPIView.as_view(),
-        name="api_group_message_comment_detail",
     ),
 ]

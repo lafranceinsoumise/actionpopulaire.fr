@@ -73,8 +73,9 @@ export const buttonColors = {
  * Pour une raison obscure, lorsque la taille dédiée au contenu (telle que déterminée par min-height)
  */
 export const Button = styled.button.attrs(
-  ({ color, small, block, icon, as, $hasTransition }) => ({
+  ({ color, small, block, $wrap, icon, as, $hasTransition }) => ({
     $hasTransition,
+    $wrap,
     $color: color,
     $small: small,
     $block: block,
@@ -89,7 +90,7 @@ export const Button = styled.button.attrs(
 )`
   display: ${({ $block }) => ($block ? "flex" : "inline-flex")};;
   align-items: center;
-  white-space: nowrap;
+  white-space: ${({ $wrap }) => ($wrap ? "normal" : "nowrap")};
   padding: ${({ $small }) => ($small ? "0.5rem 0.75rem" : "0.75rem 1.5rem")};
   line-height: ${({ $small }) =>
     $small
@@ -190,6 +191,7 @@ Button.propTypes = {
   color: PropTypes.oneOf(Button.colors),
   small: PropTypes.bool,
   block: PropTypes.bool,
+  $wrap: PropTypes.bool,
   icon: PropTypes.string,
   $hasTransition: PropTypes.bool,
 };

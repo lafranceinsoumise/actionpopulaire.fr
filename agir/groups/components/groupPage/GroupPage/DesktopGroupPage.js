@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
-import { Switch, Route, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -21,6 +21,9 @@ import GroupDonation from "@agir/groups/groupPage/GroupDonation";
 import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
 import GroupPageMenu from "@agir/groups/groupPage/GroupPageMenu";
 import GroupOrders from "@agir/groups/groupPage/GroupOrders";
+
+import GroupSettings from "@agir/groups/groupPage/GroupSettings";
+import { getGroupSettingLinks } from "@agir/groups/groupPage/GroupSettings/routes.config";
 
 import Routes from "./Routes";
 
@@ -82,7 +85,7 @@ const IndexLinkAnchor = styled(Link)`
 
 const DesktopGroupPage = (props) => {
   const { backLink, group, groupSuggestions, allEvents } = props;
-  const { hasTabs, tabs, activeTabIndex, activeTabId, onTabChange } = useTabs(
+  const { hasTabs, tabs, activeTabId, activePathname, onTabChange } = useTabs(
     props,
     false
   );
@@ -100,6 +103,7 @@ const DesktopGroupPage = (props) => {
       return () => onTabChange(messagesTab);
     }
   }, [tabs, onTabChange]);
+
   const history = useHistory();
 
   const getMessageURL = useCallback(
@@ -120,98 +124,113 @@ const DesktopGroupPage = (props) => {
     [history, getMessageURL]
   );
 
+  const groupSettingsLinks = useMemo(
+    () => (group?.id ? getGroupSettingLinks(group, activePathname) : null),
+    [group, activePathname]
+  );
+
   if (!group) {
     return null;
   }
 
+  const R = Routes[activeTabId];
+
   return (
-    <Container
-      style={{
-        margin: "0 auto 4rem",
-        padding: "0 4rem",
-        background: "white",
-        maxWidth: "1336px",
-        width: "100%",
-      }}
-    >
-      <Row style={{ minHeight: 56 }}>
-        <Column grow>
-          {!!backLink && (
-            <IndexLinkAnchor
-              to={backLink.to}
-              href={backLink.href}
-              route={backLink.route}
-            >
-              <span>&#10140;</span>
-              &ensp; {backLink.label || "Retour à l'accueil"}
-            </IndexLinkAnchor>
-          )}
-        </Column>
-      </Row>
-      <Row gutter={32}>
-        <Column grow>
-          <GroupBanner {...group} />
-        </Column>
-      </Row>
-
-      <GroupPageMenu tabs={tabs} hasTabs={hasTabs} stickyOffset={72} />
-
-      <Row
-        gutter={32}
+    <>
+      <Container
         style={{
-          marginTop: "3.5rem",
-          flexDirection: activeTabIndex === 0 ? "row" : "row-reverse",
+          margin: "0 auto 4rem",
+          padding: "0 4rem",
+          background: "white",
+          maxWidth: "1336px",
+          width: "100%",
         }}
       >
-        <Switch>
-          {tabs.map((tab) => {
-            const R = Routes[tab.id];
-            return (
-              <Route key={tab.id} path={tab.path} exact>
-                <Column grow>
-                  <R
-                    {...props}
-                    allEvents={allEvents}
-                    hasTabs={hasTabs}
-                    onClickMessage={handleClickMessage}
-                    getMessageURL={getMessageURL}
-                    basePath={tab.getLink()}
-                    goToAgendaTab={goToAgendaTab}
-                    goToMessagesTab={goToMessagesTab}
-                  />
-                </Column>
-              </Route>
-            );
-          })}
-        </Switch>
-
-        <Column width="320px">
-          <GroupUserActions {...group} />
-          <GroupOrders {...group} />
-          <div style={{ backgroundColor: style.black25, padding: "1.5rem" }}>
-            <GroupContactCard {...group} />
-            {allEvents && allEvents.length > 0 ? (
-              <GroupDescription {...group} />
-            ) : null}
-            <GroupLinks {...group} />
-            <GroupFacts {...group} />
-            {group.routes && group.routes.donations && (
-              <GroupDonation url={group.routes.donations} />
-            )}
-          </div>
-        </Column>
-      </Row>
-
-      {activeTabId !== "messages" ? (
-        <Row gutter={32}>
+        <Row style={{ minHeight: 56 }}>
           <Column grow>
-            {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 ? (
-              <GroupSuggestions groups={groupSuggestions} />
-            ) : null}
+            {!!backLink && (
+              <IndexLinkAnchor
+                to={backLink.to}
+                href={backLink.href}
+                route={backLink.route}
+              >
+                <span>&#10140;</span>
+                &ensp; {backLink.label || "Retour à l'accueil"}
+              </IndexLinkAnchor>
+            )}
           </Column>
         </Row>
-      ) : null}
-    </Container>
+        <Row gutter={32}>
+          <Column grow>
+            <GroupBanner {...group} groupSettingsLinks={groupSettingsLinks} />
+          </Column>
+        </Row>
+
+        <GroupPageMenu
+          tabs={tabs}
+          hasTabs={hasTabs}
+          stickyOffset={72}
+          activeTabId={activeTabId}
+        />
+
+        <Row
+          gutter={32}
+          style={{
+            marginTop: "3.5rem",
+            flexDirection: activeTabId === "info" ? "row" : "row-reverse",
+          }}
+        >
+          <Column grow>
+            <R
+              {...props}
+              groupSettingsLinks={groupSettingsLinks}
+              allEvents={allEvents}
+              hasTabs={hasTabs}
+              onClickMessage={handleClickMessage}
+              getMessageURL={getMessageURL}
+              goToAgendaTab={goToAgendaTab}
+              goToMessagesTab={goToMessagesTab}
+            />
+          </Column>
+          <Column width="320px">
+            <GroupUserActions
+              {...group}
+              groupSettingsLinks={groupSettingsLinks}
+            />
+            <GroupOrders {...group} />
+            <div style={{ backgroundColor: style.black25, padding: "1.5rem" }}>
+              <GroupContactCard
+                {...group}
+                editLinkTo={groupSettingsLinks?.contact}
+              />
+              {allEvents && allEvents.length > 0 ? (
+                <GroupDescription
+                  {...group}
+                  editLinkTo={groupSettingsLinks?.general}
+                />
+              ) : null}
+              <GroupLinks {...group} editLinkTo={groupSettingsLinks?.links} />
+              <GroupFacts {...group} />
+              {group.routes && group.routes.donations && (
+                <GroupDonation url={group.routes.donations} />
+              )}
+            </div>
+          </Column>
+        </Row>
+
+        {activeTabId !== "messages" ? (
+          <Row gutter={32}>
+            <Column grow>
+              {Array.isArray(groupSuggestions) &&
+              groupSuggestions.length > 0 ? (
+                <GroupSuggestions groups={groupSuggestions} />
+              ) : null}
+            </Column>
+          </Row>
+        ) : null}
+      </Container>
+      <GroupSettings group={group} basePath={activePathname} />
+    </>
   );
 };
 DesktopGroupPage.propTypes = {

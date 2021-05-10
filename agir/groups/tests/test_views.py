@@ -109,87 +109,6 @@ class SupportGroupPageTestCase(SupportGroupMixin, TestCase):
 
 class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
     @mock.patch.object(SupportGroupForm, "geocoding_task")
-    @mock.patch("agir.groups.forms.send_support_group_changed_notification")
-    def test_can_modify_managed_group(self, patched_send_notification, patched_geocode):
-        response = self.client.get(
-            reverse("edit_group", kwargs={"pk": self.manager_group.pk})
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        response = self.client.post(
-            reverse("edit_group", kwargs={"pk": self.manager_group.pk}),
-            data={
-                "name": "Manager",
-                "type": "L",
-                "subtypes": ["groupe local"],
-                "contact_name": "Arthur",
-                "contact_email": "a@fhezfe.fr",
-                "contact_phone": "06 06 06 06 06",
-                "location_name": "location",
-                "location_address1": "somewhere",
-                "location_city": "Outside",
-                "location_country": "DE",
-                "notify": "on",
-            },
-        )
-
-        self.assertRedirects(
-            response, reverse("manage_group", kwargs={"pk": self.manager_group.pk})
-        )
-
-        # accessing the messages: see https://stackoverflow.com/a/14909727/1122474
-        messages = list(response.wsgi_request._messages)
-
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(messages[0].level_tag, "success")
-
-        # send_support_group_changed_notification.delay should have been called once, with the pk of the group as
-        # first argument, and the changes as the second
-        patched_send_notification.delay.assert_called_once()
-        args = patched_send_notification.delay.call_args[0]
-
-        self.assertEqual(args[0], self.manager_group.pk)
-        self.assertCountEqual(
-            args[1], ["contact_name", "contact_email", "contact_phone", "location_city"]
-        )
-
-        patched_geocode.delay.assert_called_once()
-        args = patched_geocode.delay.call_args[0]
-
-        self.assertEqual(args[0], self.manager_group.pk)
-
-    @mock.patch("agir.groups.forms.geocode_support_group")
-    def test_do_not_geocode_if_address_did_not_change(self, patched_geocode):
-        response = self.client.post(
-            reverse("edit_group", kwargs={"pk": self.manager_group.pk}),
-            data={
-                "name": "Manager",
-                "type": "L",
-                "subtypes": ["groupe local"],
-                "location_name": "location",
-                "location_address1": "somewhere",
-                "location_city": "Over",
-                "location_country": "DE",
-                "contact_name": "Arthur",
-                "contact_email": "a@fhezfe.fr",
-                "contact_phone": "06 06 06 06 06",
-            },
-        )
-
-        self.assertRedirects(
-            response, reverse("manage_group", kwargs={"pk": self.manager_group.pk})
-        )
-        patched_geocode.delay.assert_not_called()
-
-    def test_cannot_modify_group_as_basic_member(self):
-        response = self.client.get(
-            reverse("edit_group", kwargs={"pk": self.member_group.pk})
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    @mock.patch.object(SupportGroupForm, "geocoding_task")
     @mock.patch("agir.groups.forms.send_support_group_creation_notification")
     def test_can_create_group(
         self,
@@ -259,8 +178,6 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
         self.assertEqual(res.status_code, status.HTTP_410_GONE)
 
         group_pages = [
-            "manage_group",
-            "edit_group",
             "change_group_location",
             "quit_group",
         ]
@@ -304,48 +221,6 @@ class InvitationTestCase(TestCase):
         )
 
         self.invitee = Person.objects.create_insoumise("user2@example.com")
-
-    @patch("agir.groups.forms.invite_to_group")
-    def test_can_invite_already_subscribed_person(self, invite_to_group):
-        self.client.force_login(self.referent.role)
-        res = self.client.get(reverse("manage_group", args=(self.group.pk,)))
-
-        self.assertEqual(res.status_code, 200)
-        self.assertContains(res, "invitation_form")
-
-        res = self.client.post(
-            reverse("manage_group", args=(self.group.pk,)),
-            data={"form": "invitation_form", "email": "user2@example.com"},
-        )
-
-        self.assertRedirects(res, reverse("manage_group", args=(self.group.pk,)))
-
-        invite_to_group.delay.assert_called_once()
-        self.assertEqual(
-            invite_to_group.delay.call_args[0],
-            (str(self.group.pk), "user2@example.com", str(self.referent.pk)),
-        )
-
-    @patch("agir.groups.forms.invite_to_group")
-    def test_can_invite_unsubscribed(self, invite_to_group):
-        self.client.force_login(self.referent.role)
-        res = self.client.get(reverse("manage_group", args=(self.group.pk,)))
-
-        self.assertEqual(res.status_code, 200)
-        self.assertContains(res, "invitation_form")
-
-        res = self.client.post(
-            reverse("manage_group", args=(self.group.pk,)),
-            data={"form": "invitation_form", "email": "userunknown@example.com"},
-        )
-
-        self.assertRedirects(res, reverse("manage_group", args=(self.group.pk,)))
-
-        invite_to_group.delay.assert_called_once()
-        self.assertEqual(
-            invite_to_group.delay.call_args[0],
-            (str(self.group.pk), "userunknown@example.com", str(self.referent.pk)),
-        )
 
     def test_activity_is_created_for_existing_user(self):
         invite_to_group(self.group.pk, "user2@example.com", self.referent.pk)
@@ -415,7 +290,7 @@ class InvitationTestCase(TestCase):
         )
 
     @patch("agir.groups.views.management_views.send_abuse_report_message")
-    def test_can_report_abuse_when_not_subscrived(self, send_abuse_report_message):
+    def test_can_report_abuse_when_not_subscribed(self, send_abuse_report_message):
         email_address = "userunknown@example.com"
         invite_to_group(self.group.pk, email_address, self.referent.pk)
         email = mail.outbox[-1]

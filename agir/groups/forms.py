@@ -40,12 +40,10 @@ from agir.people.models import Person
 
 __all__ = [
     "SupportGroupForm",
-    "AddReferentForm",
-    "AddManagerForm",
-    "InvitationForm",
     "GroupGeocodingForm",
     "SearchGroupForm",
     "TransferGroupMembersForm",
+    "InvitationWithSubscriptionConfirmationForm",
 ]
 
 
@@ -196,11 +194,6 @@ class SupportGroupForm(
         )
 
 
-class MembershipChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return str(obj.person)
-
-
 class MembershipMultipleChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
         return str(obj.person)
@@ -209,122 +202,6 @@ class MembershipMultipleChoiceField(forms.ModelMultipleChoiceField):
 class SupportGroupChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return str(obj)
-
-
-class AddReferentForm(forms.Form):
-    form = forms.CharField(initial="add_referent_form", widget=forms.HiddenInput())
-    referent = MembershipChoiceField(
-        queryset=Membership.objects.filter(
-            membership_type__lt=Membership.MEMBERSHIP_TYPE_REFERENT
-        ),
-        label=_("Second animateur"),
-    )
-
-    def __init__(self, support_group, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        referent_candidates = self.fields["referent"].queryset.filter(
-            supportgroup=support_group
-        )
-
-        if support_group.is_2022:
-            # Filter out group members that are already referent or manager of another nsp group
-            referent_candidates = referent_candidates.annotate(
-                already_referent=Exists(
-                    SupportGroup.objects.active().filter(
-                        type__in=[id for id, _ in SupportGroup.TYPE_NSP_CHOICES],
-                        memberships__person_id=OuterRef("person_id"),
-                        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-                    )
-                )
-            ).filter(already_referent=False)
-
-        self.fields["referent"].queryset = referent_candidates
-
-        self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", _("Signaler comme second animateur")))
-
-    def perform(self):
-        membership = self.cleaned_data["referent"]
-
-        membership.membership_type = Membership.MEMBERSHIP_TYPE_REFERENT
-        membership.save()
-
-        return {"email": membership.person.email}
-
-
-class AddManagerForm(forms.Form):
-    form = forms.CharField(initial="add_manager_form", widget=forms.HiddenInput())
-    manager = MembershipChoiceField(
-        queryset=Membership.objects.filter(
-            membership_type__lt=Membership.MEMBERSHIP_TYPE_MANAGER
-        ),
-        label=False,
-    )
-
-    def __init__(self, support_group, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.support_group = support_group
-
-        manager_candidates = self.fields["manager"].queryset.filter(
-            supportgroup=support_group
-        )
-
-        if support_group.is_2022:
-            # Filter out group members that are already referent or manager of another nsp group
-            manager_candidates = manager_candidates.annotate(
-                already_manager=Exists(
-                    SupportGroup.objects.active().filter(
-                        type__in=[id for id, _ in SupportGroup.TYPE_NSP_CHOICES],
-                        memberships__person_id=OuterRef("person_id"),
-                        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-                    )
-                )
-            ).filter(already_manager=False)
-
-        self.fields["manager"].queryset = manager_candidates
-        self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", _("Ajouter comme membre gestionnaire")))
-
-    def perform(self):
-        membership = self.cleaned_data["manager"]
-
-        membership.membership_type = max(
-            membership.membership_type, Membership.MEMBERSHIP_TYPE_MANAGER
-        )
-        membership.save()
-
-        return {"email": membership.person.email}
-
-
-class InvitationForm(forms.Form):
-    form = forms.CharField(initial="invitation_form", widget=forms.HiddenInput())
-    email = forms.EmailField(label="L'adresse email de la personne à inviter")
-
-    def __init__(self, *args, group, inviter, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.group = group
-        self.inviter = inviter
-
-        self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", _("Inviter")))
-
-    def clean_email(self):
-        try:
-            p = Person.objects.get_by_natural_key(self.cleaned_data["email"])
-            Membership.objects.get(supportgroup=self.group, person=p)
-        except (Person.DoesNotExist, Membership.DoesNotExist):
-            pass
-        else:
-            raise ValidationError("Cette personne fait déjà partie de votre groupe !")
-
-        return self.cleaned_data["email"]
-
-    def perform(self):
-        invite_to_group.delay(
-            str(self.group.id), self.cleaned_data["email"], str(self.inviter.id)
-        )
-        return {"email": self.cleaned_data["email"]}
 
 
 class GroupGeocodingForm(GeocodingBaseForm):

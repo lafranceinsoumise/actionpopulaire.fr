@@ -1,18 +1,20 @@
 import PropTypes from "prop-types";
-import React, { forwardRef } from "react";
-import styled from "styled-components";
-
-import style from "@agir/front/genericComponents/_variables.scss";
+import React, { forwardRef, useCallback, useMemo, useRef } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
+import style from "@agir/front/genericComponents/_variables.scss";
+import styled from "styled-components";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledLabel = styled.span``;
 const StyledHelpText = styled.span``;
-const StyledError = styled.span``;
+const StyledError = styled.span`
+  color: ${style.redNSP};
+`;
 
 const StyledField = styled.div`
   display: flex;
-  flex-flow: row nowrap;
+  flex-wrap: wrap;
   align-items: center;
 
   label {
@@ -40,35 +42,31 @@ const StyledField = styled.div`
       width: auto;
       margin-top: 0.5rem;
     }
-
-    ${StyledError} {
-      display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
-      color: ${style.redNSP};
-    }
   }
 `;
 
 const ImageField = forwardRef((props, ref) => {
-  const { id, onChange, value, error, label, helpText, ...rest } = props;
+  const { id, name, value, onChange, error, label, helpText, ...rest } = props;
 
-  const labelRef = React.useRef(null);
-  const handleChange = React.useCallback(
+  const labelRef = useRef(null);
+  const handleChange = useCallback(
     (e) => {
-      e &&
-        e.target &&
-        e.target.files &&
-        onChange &&
-        onChange(e.target.files[e.target.files.length - 1]);
+      const file =
+        e?.target?.files && e.target.files[e.target.files.length - 1];
+      file && onChange && onChange(file);
     },
     [onChange]
   );
 
-  const handleClick = React.useCallback(() => {
+  const deleteImage = useCallback(() => {
+    onChange(null);
+  }, [onChange]);
+
+  const handleClick = useCallback(() => {
     labelRef.current && labelRef.current.click();
   }, []);
 
-  /*
-  const thumbnail = React.useMemo(() => {
+  const thumbnail = useMemo(() => {
     if (typeof value === "string") {
       return value;
     }
@@ -78,49 +76,64 @@ const ImageField = forwardRef((props, ref) => {
 
     return null;
   }, [value]);
-  */
 
-  const imageName = React.useMemo(() => {
-    if (typeof value === "string") {
+  const imageName = useMemo(() => {
+    if (value && typeof value === "string") {
       return value;
     }
     if (value && value.name) {
       return value.name;
     }
-
     return "";
   }, [value]);
 
   return (
-    <StyledField $valid={!error} $invalid={!!error} $empty={!!value}>
-      <label htmlFor={id} ref={labelRef}>
-        {label && <StyledLabel>{label}</StyledLabel>}
-        {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
-        <input
-          {...rest}
-          ref={ref}
-          id={id}
-          type="file"
-          onChange={handleChange}
-        />
-        <Button
-          color={imageName ? "primary" : "default"}
-          type="button"
-          small
-          inline
-          onClick={handleClick}
-        >
-          {imageName || "Ajouter une image"}
-        </Button>
-        <StyledError>{error}</StyledError>
-      </label>
-    </StyledField>
+    <>
+      <StyledField $valid={!error} $invalid={!!error} $empty={!!value}>
+        {imageName && (
+          <img
+            src={thumbnail}
+            alt=""
+            style={{
+              maxWidth: "178px",
+              maxHeight: "100px",
+              marginRight: "1.5rem",
+            }}
+          />
+        )}
+        <label htmlFor={id} ref={labelRef}>
+          {label && <StyledLabel>{label}</StyledLabel>}
+          {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
+          <input
+            {...rest}
+            ref={ref}
+            id={id}
+            name={name}
+            type="file"
+            onChange={handleChange}
+            value=""
+          />
+          <Button type="button" inline $wrap onClick={handleClick}>
+            <RawFeatherIcon name="camera" style={{ marginRight: "0.5rem" }} />
+            {imageName ? "Remplacer l'image" : "Ajouter une image"}
+          </Button>
+          {imageName && (
+            <a href="#" onClick={deleteImage} style={{ marginTop: "0.5rem" }}>
+              Supprimer l'image
+            </a>
+          )}
+        </label>
+      </StyledField>
+      {!!error && <StyledError>{error}</StyledError>}
+    </>
   );
 });
 
 ImageField.propTypes = {
   value: PropTypes.any,
+  name: PropTypes.string,
   onChange: PropTypes.func.isRequired,
+  onDelete: PropTypes.func,
   id: PropTypes.string,
   label: PropTypes.string,
   helpText: PropTypes.string,

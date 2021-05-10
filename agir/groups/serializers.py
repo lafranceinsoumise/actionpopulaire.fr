@@ -1,16 +1,25 @@
+from urllib.parse import urlencode
+
 from django.conf import settings
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from . import models
 from .actions import get_promo_codes
-from .models import Membership
+from .models import Membership, SupportGroup
 from ..front.serializer_utils import MediaURLField, RoutesField
+from agir.groups.tasks import (
+    send_support_group_changed_notification,
+    geocode_support_group,
+)
 from agir.lib.geo import get_commune
 from agir.lib.serializers import (
     FlexibleFieldsMixin,
     LocationSerializer,
     ContactMixinSerializer,
+    NestedContactSerializer,
+    NestedLocationSerializer,
 )
 from agir.people.serializers import PersonSerializer
 from ..lib.utils import front_url, admin_url
@@ -132,35 +141,37 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 
 class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
-    id = serializers.UUIDField()
+    id = serializers.UUIDField(read_only=True,)
 
-    isMember = serializers.SerializerMethodField()
-    isManager = serializers.SerializerMethodField()
+    isMember = serializers.SerializerMethodField(read_only=True,)
+    isManager = serializers.SerializerMethodField(read_only=True,)
+    isReferent = serializers.SerializerMethodField(read_only=True,)
 
-    name = serializers.CharField()
-    type = serializers.SerializerMethodField()
-    description = serializers.CharField(source="html_description")
-    is2022 = serializers.SerializerMethodField()
-    isFull = serializers.SerializerMethodField()
-    location = LocationSerializer(source="*")
-    contact = ContactMixinSerializer(source="*")
-    image = MediaURLField()
+    name = serializers.CharField(read_only=True,)
+    type = serializers.SerializerMethodField(read_only=True,)
+    description = serializers.CharField(read_only=True, source="html_description")
+    is2022 = serializers.SerializerMethodField(read_only=True,)
+    isFull = serializers.SerializerMethodField(read_only=True,)
+    isCertified = serializers.BooleanField(read_only=True, source="is_certified")
+    location = LocationSerializer(read_only=True, source="*")
+    contact = serializers.SerializerMethodField(read_only=True,)
+    image = MediaURLField(read_only=True,)
 
-    referents = serializers.SerializerMethodField()
+    referents = serializers.SerializerMethodField(read_only=True,)
     # TODO: add links to SupporGroup model
     links = []
 
-    facts = serializers.SerializerMethodField()
-    iconConfiguration = serializers.SerializerMethodField()
+    facts = serializers.SerializerMethodField(read_only=True,)
+    iconConfiguration = serializers.SerializerMethodField(read_only=True,)
 
-    routes = serializers.SerializerMethodField()
-    discountCodes = serializers.SerializerMethodField()
-    commune = serializers.SerializerMethodField()
+    routes = serializers.SerializerMethodField(read_only=True,)
+    discountCodes = serializers.SerializerMethodField(read_only=True,)
+    commune = serializers.SerializerMethodField(read_only=True,)
 
-    hasUpcomingEvents = serializers.SerializerMethodField()
-    hasPastEvents = serializers.SerializerMethodField()
-    hasPastEventReports = serializers.SerializerMethodField()
-    hasMessages = serializers.SerializerMethodField()
+    hasUpcomingEvents = serializers.SerializerMethodField(read_only=True,)
+    hasPastEvents = serializers.SerializerMethodField(read_only=True,)
+    hasPastEventReports = serializers.SerializerMethodField(read_only=True,)
+    hasMessages = serializers.SerializerMethodField(read_only=True,)
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -180,6 +191,21 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             self.membership is not None
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
         )
+
+    def get_isReferent(self, obj):
+        return (
+            self.membership is not None
+            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+        )
+
+    def get_contact(self, instance):
+        if self.get_isManager(instance):
+            return NestedContactSerializer(
+                source="*", context=self.context
+            ).to_representation(instance)
+        return ContactMixinSerializer(
+            source="*", context=self.context
+        ).to_representation(instance)
 
     def get_type(self, obj):
         return obj.get_type_display()
@@ -230,26 +256,26 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
         ):
             routes["createEvent"] = f'{front_url("create_event")}?group={str(obj.pk)}'
-            routes["settings"] = front_url("manage_group", kwargs={"pk": obj.pk})
-            routes["edit"] = front_url("edit_group", kwargs={"pk": obj.pk})
-            routes["members"] = front_url(
-                "manage_group", query={"active": "membership"}, kwargs={"pk": obj.pk}
+            routes["settings"] = front_url("view_group_settings", kwargs={"pk": obj.pk})
+            routes["edit"] = front_url(
+                "view_group_settings_general", kwargs={"pk": obj.pk}
             )
-            routes["animation"] = front_url(
-                "manage_group", query={"active": "animation"}, kwargs={"pk": obj.pk}
+            routes["members"] = front_url(
+                "view_group_settings_members", kwargs={"pk": obj.pk}
             )
             routes["membershipTransfer"] = front_url(
                 "transfer_group_members", kwargs={"pk": obj.pk}
             )
+            routes["geolocate"] = front_url(
+                "change_group_location", kwargs={"pk": obj.pk}
+            )
             if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
                 routes["materiel"] = front_url(
-                    "manage_group", query={"active": "materiel"}, kwargs={"pk": obj.pk}
+                    "view_group_settings_materiel", kwargs={"pk": obj.pk}
                 )
             if not obj.is_2022:
                 routes["invitation"] = front_url(
-                    "manage_group",
-                    query={"active": "invitation"},
-                    kwargs={"pk": obj.pk},
+                    "view_group_settings_contact", kwargs={"pk": obj.pk},
                 )
                 routes["orders"] = "https://materiel.lafranceinsoumise.fr/"
             else:
@@ -257,21 +283,46 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
             if obj.is_certified:
                 routes["financement"] = front_url(
-                    "manage_group",
-                    query={"active": "financement"},
-                    kwargs={"pk": obj.pk},
+                    "view_group_settings_finance", kwargs={"pk": obj.pk},
                 )
-            elif (
-                obj.type in settings.CERTIFIABLE_GROUP_TYPES
-                or obj.subtypes.filter(
-                    label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
-                ).exists()
+        if (
+            self.membership is not None
+            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+        ):
+            routes["animation"] = front_url(
+                "view_group_settings_management", kwargs={"pk": obj.pk}
+            )
+            routes["createSpendingRequest"] = front_url(
+                "create_spending_request", kwargs={"group_id": obj.pk}
+            )
+            routes[
+                "animationChangeRequest"
+            ] = "https://actionpopulaire.fr/formulaires/demande-changement-animation-ga/"
+            routes[
+                "referentResignmentRequest"
+            ] = "https://infos.actionpopulaire.fr/contact/"
+            routes[
+                "deleteGroup"
+            ] = "https://actionpopulaire.fr/formulaires/demande-suppression-ga/"
+            if (
+                not obj.is_certified
+                and len(obj.referents) >= 2
+                and (
+                    obj.type in settings.CERTIFIABLE_GROUP_TYPES
+                    or obj.subtypes.filter(
+                        label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
+                    ).exists()
+                )
             ):
-                routes["certification"] = front_url(
-                    "manage_group",
-                    query={"active": "certification"},
-                    kwargs={"pk": obj.pk},
-                )
+                certification_request_url = "https://lafranceinsoumise.fr/groupes-appui/demande-de-certification/"
+                certification_request_params = {
+                    "group-id": obj.pk,
+                    "email": self.membership.person.email,
+                    "animateur": self.membership.person.get_full_name(),
+                }
+                routes[
+                    "certificationRequest"
+                ] = f"{certification_request_url}?{urlencode(certification_request_params)}"
         if (
             not self.user.is_anonymous
             and self.user.person
@@ -316,3 +367,73 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return (
             self.membership is not None and obj.messages.filter(deleted=False).exists()
         )
+
+
+class SupportGroupUpdateSerializer(serializers.ModelSerializer):
+    contact = NestedContactSerializer(source="*")
+    location = NestedLocationSerializer(source="*")
+    image = serializers.ImageField(allow_empty_file=True, allow_null=True)
+
+    class Meta:
+        model = SupportGroup
+        fields = ["name", "description", "image", "contact", "location"]
+
+    def update(self, instance, validated_data):
+        changed_data = {}
+        for field, value in validated_data.items():
+            new_value = value
+            old_value = getattr(instance, field)
+            if new_value != old_value:
+                changed_data[field] = new_value
+
+        if not changed_data:
+            return instance
+
+        instance = super().update(instance, validated_data)
+        if "image" in changed_data and changed_data.get("image", None):
+            changed_data["image"] = instance.image.url
+
+        if "location" in changed_data:
+            geocode_support_group.delay(instance.pk)
+
+        send_support_group_changed_notification.delay(instance.pk, changed_data)
+
+        return instance
+
+
+class MembershipSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    displayName = serializers.CharField(source="person.display_name", read_only=True)
+    email = serializers.EmailField(source="person.email", read_only=True)
+    image = MediaURLField(source="person.image", read_only=True)
+    gender = serializers.CharField(source="person.gender", read_only=True)
+    membershipType = serializers.ChoiceField(
+        source="membership_type", choices=Membership.MEMBERSHIP_TYPE_CHOICES
+    )
+
+    def validate(self, data):
+        membership_type = data.get("membership_type", None)
+
+        # Validate maximum number of referents per group
+        if (
+            membership_type is not None
+            and self.instance is not None
+            and not self.instance.membership_type == Membership.MEMBERSHIP_TYPE_REFERENT
+            and membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+            and Membership.objects.filter(
+                supportgroup=self.instance.supportgroup,
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+            ).count()
+            >= 2
+        ):
+            raise ValidationError(
+                detail={
+                    "membershipType": "Vous ne pouvez pas ajouter plus de deux animateur·ices"
+                }
+            )
+
+        return data
+
+    class Meta:
+        model = Membership
+        fields = ["id", "displayName", "image", "email", "gender", "membershipType"]

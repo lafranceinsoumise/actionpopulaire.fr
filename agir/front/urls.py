@@ -6,6 +6,73 @@ from django.views.generic import RedirectView
 from . import views
 from ..front.sitemaps import sitemaps
 
+supportgroup_settings_patterns = [
+    path("gestion/", views.GroupSettingsView.as_view(), name="view_group_settings",),
+    path(
+        "gestion/membres/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings_members",
+    ),
+    path(
+        "gestion/animation/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings_management",
+    ),
+    path(
+        "gestion/finance/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings_finance",
+    ),
+    path(
+        "gestion/general/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings_general",
+    ),
+    path(
+        "gestion/localisation/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings_location",
+    ),
+    path(
+        "gestion/contact/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings_contact",
+    ),
+    path(
+        "gestion/liens/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings_links",
+    ),
+    path(
+        "gestion/materiel/",
+        views.GroupSettingsView.as_view(),
+        name="view_group_settings_materiel",
+    ),
+]
+
+supportgroup_patterns = [
+    path("", views.SupportGroupDetailView.as_view(), name="view_group"),
+    path("complet/", views.FullSupportGroupView.as_view(), name="full_group",),
+    path("agenda/", views.SupportGroupDetailView.as_view(), name="view_group_events",),
+    path(
+        "comptes-rendus/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_reports",
+    ),
+    path(
+        "messages/", views.SupportGroupDetailView.as_view(), name="view_group_messages",
+    ),
+    path(
+        "messages/<uuid:message_pk>/",
+        views.SupportGroupMessageDetailView.as_view(),
+        name="view_group_message",
+    ),
+    path("agenda/", include(supportgroup_settings_patterns)),
+    path("comptes-rendus/", include(supportgroup_settings_patterns)),
+    path("messages/", include(supportgroup_settings_patterns)),
+    path("", include(supportgroup_settings_patterns)),
+]
+
 urlpatterns = [
     path("connexion/", views.LoginView.as_view(), name="short_code_login"),
     path("inscription/", views.SignupView.as_view(), name="signup"),
@@ -35,39 +102,7 @@ urlpatterns = [
         name="list_groups",
     ),
     path("groupes/carte/", views.GroupMapView.as_view(), name="group_map_page"),
-    path(
-        "groupes/<uuid:pk>/", views.SupportGroupDetailView.as_view(), name="view_group"
-    ),
-    path(
-        "groupes/<uuid:pk>/complet/",
-        views.FullSupportGroupView.as_view(),
-        name="full_group",
-    ),
-    path(
-        "groupes/<uuid:pk>/agenda/",
-        views.SupportGroupDetailView.as_view(),
-        name="view_group_events",
-    ),
-    path(
-        "groupes/<uuid:pk>/comptes-rendus/",
-        views.SupportGroupDetailView.as_view(),
-        name="view_group_reports",
-    ),
-    path(
-        "groupes/<uuid:pk>/accueil/",
-        views.SupportGroupDetailView.as_view(),
-        name="view_group_info",
-    ),
-    path(
-        "groupes/<uuid:pk>/messages/",
-        views.SupportGroupDetailView.as_view(),
-        name="view_group_messages",
-    ),
-    path(
-        "groupes/<uuid:pk>/messages/<uuid:message_pk>/",
-        views.SupportGroupMessageDetailView.as_view(),
-        name="view_group_message",
-    ),
+    path("groupes/<uuid:pk>/", include(supportgroup_patterns)),
     path("activite/", views.ActivityView.as_view(), name="list_activities",),
     path(
         "activite/parametres/",
@@ -92,6 +127,11 @@ urlpatterns = [
     ),
     path("evenements/carte/", views.EventMapView.as_view(), name="event_map_page"),
     path("evenements/creer/", views.CreateEventView.as_view(), name="create_event"),
+    path(
+        "evenements/<uuid:pk>/parametres/",
+        views.EventSettingsView.as_view(),
+        name="view_event_settings",
+    ),
     path(
         "evenements/creer/<path>/",
         views.CreateEventView.as_view(),

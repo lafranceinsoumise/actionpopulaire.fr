@@ -91,6 +91,20 @@ const Page = (props) => {
     typeof window !== "undefined" && window.scrollTo && window.scrollTo(0, 0);
   }, []);
 
+  if (routeConfig.isPartial) {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<div />}>
+          <Component
+            {...(routeConfig.routeProps || {})}
+            {...routeParams}
+            {...rest}
+          />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
   if (!routeConfig.hasLayout) {
     return (
       <ErrorBoundary>

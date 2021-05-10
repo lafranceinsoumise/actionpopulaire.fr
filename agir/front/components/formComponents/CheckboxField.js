@@ -65,7 +65,7 @@ const StyledField = styled.label`
 `;
 
 const CheckboxField = (props) => {
-  const { id, onChange, value, label, ...rest } = props;
+  const { id, onChange, value = false, label, ...rest } = props;
 
   return (
     <StyledField htmlFor={id} $checked={!!value} $disabled={rest.disabled}>

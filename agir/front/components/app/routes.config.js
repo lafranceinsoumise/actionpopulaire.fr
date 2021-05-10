@@ -12,12 +12,14 @@ const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
 const CreateEvent = lazy(() =>
   import("@agir/events/createEventPage/CreateEvent")
 );
+const EventSettings = lazy(() => import("@agir/events/EventSettings"));
 
 const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
 const FullGroupPage = lazy(() =>
   import("@agir/groups/fullGroupPage/FullGroupPage")
 );
 const GroupPage = lazy(() => import("@agir/groups/groupPage/GroupPage"));
+
 const GroupMessagePage = lazy(() =>
   import("@agir/groups/groupPage/GroupMessagePage")
 );
@@ -63,7 +65,9 @@ export class RouteConfig {
 
     this.__keys__ = [];
     const path = Array.isArray(this.path) ? this.path[0] : this.path;
-    this.__re__ = pathToRegexp(this.path, this.__keys__);
+    this.__re__ = pathToRegexp(this.path, this.__keys__, {
+      end: this.exact === false ? false : true,
+    });
     this.__toPath__ = pathToRegexp.compile(path);
 
     this.match = this.match.bind(this);
@@ -105,10 +109,6 @@ const notificationSettingRoute = new RouteConfig({
   neededAuthentication: AUTHENTICATION.HARD,
   label: "Paramètres de notification",
   params: { root: "activite" },
-  hideTopBar: true,
-  hideFeedbackButton: true,
-  hideConnectivityWarning: true,
-  hasLayout: false,
   isPartial: true,
 });
 
@@ -159,6 +159,16 @@ export const routeConfig = {
       isProtected: true,
     },
   }),
+  eventSettings: new RouteConfig({
+    id: "eventSettings",
+    path: "/evenements/:eventPk/parametres/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Paramètres de l'événement",
+    Component: EventSettings,
+    hideTopBar: true,
+    hideFeedbackButton: true,
+  }),
   groups: new RouteConfig({
     id: "groups",
     path: "/mes-groupes/",
@@ -188,6 +198,16 @@ export const routeConfig = {
     Component: FullGroupPage,
     hasLayout: false,
   }),
+  groupSettings: new RouteConfig({
+    id: "groupSettings",
+    path: "/groupes/:groupPk/:activeTab?/gestion/:activePanel?/",
+    params: { activeTab: null, activePanel: null },
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Gestion du groupe",
+    Component: GroupPage,
+    isPartial: true,
+  }),
   groupMessage: new RouteConfig({
     id: "groupMessage",
     path: "/groupes/:groupPk/messages/:messagePk/",
@@ -200,7 +220,7 @@ export const routeConfig = {
   groupDetails: new RouteConfig({
     id: "groupDetails",
     path: "/groupes/:groupPk/:activeTab?/",
-    exact: true,
+    exact: false,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Détails du groupe",
     Component: GroupPage,

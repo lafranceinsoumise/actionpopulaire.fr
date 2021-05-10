@@ -179,7 +179,7 @@ const Editor = (props) => {
       $focused={isFocused}
       value={value}
       onChange={onChange}
-      readOnly={!disabled}
+      readOnly={disabled}
       theme="snow"
       modules={MODULES}
       onFocus={handleFocus}

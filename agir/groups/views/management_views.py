@@ -1,17 +1,22 @@
 from uuid import UUID
 
 import logging
-from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import HttpResponseRedirect, JsonResponse, Http404
+from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy, ugettext as _
+from django.utils.translation import ugettext as _
 from django.views import View
-from django.views.generic import DetailView, TemplateView, UpdateView, FormView
+from django.views.generic import (
+    DetailView,
+    TemplateView,
+    FormView,
+    RedirectView,
+)
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin, ProcessFormView
 
@@ -26,16 +31,9 @@ from agir.authentication.view_mixins import (
     GlobalOrObjectPermissionRequiredMixin,
     VerifyLinkSignatureMixin,
 )
-from agir.donations.allocations import get_balance
-from agir.donations.models import SpendingRequest
 from agir.front.view_mixins import ChangeLocationBaseView
-from agir.groups.actions import get_promo_codes
 from agir.groups.actions.pressero import is_pressero_enabled, redirect_to_pressero
-from agir.groups.actions.promo_codes import is_promo_code_delayed, next_promo_code_date
 from agir.groups.forms import (
-    AddReferentForm,
-    AddManagerForm,
-    InvitationForm,
     SupportGroupForm,
     GroupGeocodingForm,
     InvitationWithSubscriptionConfirmationForm,
@@ -55,7 +53,6 @@ __all__ = [
     "SupportGroupManagementView",
     "CreateSupportGroupView",
     "PerformCreateSupportGroupView",
-    "ModifySupportGroupView",
     "RemoveManagerView",
     "ChangeGroupLocationView",
     "RedirectToPresseroView",
@@ -76,113 +73,45 @@ class BaseSupportGroupAdminView(
     permission_required = ("groups.change_supportgroup",)
 
 
-class SupportGroupManagementView(BaseSupportGroupAdminView, DetailView):
-    template_name = "groups/manage.html"
-    queryset = SupportGroup.objects.active().all().prefetch_related("memberships")
-    messages = {
-        "add_referent_form": ugettext_lazy(
-            "{email} est maintenant correctement signalé comme second·e animateur·rice."
-        ),
-        "add_manager_form": ugettext_lazy(
-            "{email} a bien été ajouté·e comme gestionnaire pour ce groupe."
-        ),
-        "invitation_form": ugettext_lazy(
-            "{email} a bien été invité à rejoindre votre groupe."
-        ),
-    }
-    active_panel = {
-        "add_referent_form": "animation",
-        "add_manager_form": "animation",
-        "invitation_form": "invitation",
-    }
+class SupportGroupManagementView(RedirectView):
+    permanent = True
 
-    def get_forms(self):
-        kwargs = {}
+    def get_redirect_url(self, *args, **kwargs):
+        supportgroup = get_object_or_404(SupportGroup, pk=kwargs["pk"])
+        active = self.request.GET.get("active", None)
 
-        if self.request.method in ("POST", "PUT"):
-            kwargs.update({"data": self.request.POST})
-
-        forms = {
-            "add_referent_form": AddReferentForm(self.object, **kwargs),
-            "add_manager_form": AddManagerForm(self.object, **kwargs),
-        }
-
-        if not self.object.is_2022:
-            forms["invitation_form"] = InvitationForm(
-                group=self.object, inviter=self.request.user.person, **kwargs
+        if active is None:
+            return reverse("view_group_settings", kwargs={"pk": supportgroup.pk})
+        if active == "informations":
+            return reverse(
+                "view_group_settings_general", kwargs={"pk": supportgroup.pk}
+            )
+        if active == "membership":
+            return reverse(
+                "view_group_settings_members", kwargs={"pk": supportgroup.pk}
+            )
+        if active == "animation":
+            return reverse(
+                "view_group_settings_management", kwargs={"pk": supportgroup.pk}
+            )
+        if active == "materiel":
+            return reverse(
+                "view_group_settings_materiel", kwargs={"pk": supportgroup.pk}
+            )
+        if active == "financement":
+            return reverse(
+                "view_group_settings_finance", kwargs={"pk": supportgroup.pk}
+            )
+        if active == "certification":
+            return reverse(
+                "view_group_settings_finance", kwargs={"pk": supportgroup.pk}
+            )
+        if active == "invitation":
+            return reverse(
+                "view_group_settings_members", kwargs={"pk": supportgroup.pk}
             )
 
-        return forms
-
-    def get_context_data(self, **kwargs):
-        kwargs["referents"] = self.object.memberships.filter(
-            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT
-        ).order_by("created")
-        kwargs["managers"] = self.object.memberships.filter(
-            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER
-        ).order_by("created")
-        kwargs["members"] = self.object.memberships.all().order_by("created")
-        kwargs["has_promo_code"] = self.object.tags.filter(
-            label=settings.PROMO_CODE_TAG
-        ).exists()
-        if kwargs["has_promo_code"]:
-            kwargs["group_promo_codes"] = get_promo_codes(self.object)
-
-        if is_promo_code_delayed():
-            kwargs["promo_code_delay"] = next_promo_code_date()
-
-        kwargs["certifiable"] = (
-            self.object.type in settings.CERTIFIABLE_GROUP_TYPES
-            or self.object.subtypes.filter(
-                label__in=settings.CERTIFIABLE_GROUP_SUBTYPES
-            ).exists()
-        )
-        kwargs["satisfy_requirements"] = len(kwargs["referents"]) > 1
-        kwargs["allocation_balance"] = get_balance(self.object)
-        kwargs["spending_requests"] = SpendingRequest.objects.filter(
-            group=self.object
-        ).exclude(status=SpendingRequest.STATUS_PAID)
-        kwargs["is_pressero_enabled"] = is_pressero_enabled()
-
-        if self.active_panel.get(self.request.POST.get("form")):
-            kwargs["active"] = self.active_panel.get(self.request.POST.get("form"))
-        else:
-            kwargs["active"] = self.request.GET.get("active")
-
-        forms = self.get_forms()
-        for form_name, form in forms.items():
-            kwargs.setdefault(form_name, form)
-
-        return super().get_context_data(**kwargs,)
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        context = self.get_context_data(object=self.object)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        form_name = request.POST.get("form")
-
-        forms = self.get_forms()
-        if form_name in forms:
-            form = forms[form_name]
-            if form.is_valid():
-                params = form.perform()
-
-                messages.add_message(
-                    request, messages.SUCCESS, self.messages[form_name].format(**params)
-                )
-            else:
-                return self.render_to_response(
-                    self.get_context_data(**{form_name: form})
-                )
-
-        return HttpResponseRedirect(
-            reverse("manage_group", kwargs={"pk": self.object.pk})
-        )
+        return reverse("view_group_settings", kwargs={"pk": supportgroup.pk})
 
 
 class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
@@ -289,33 +218,6 @@ class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFo
         )
 
 
-class ModifySupportGroupView(BaseSupportGroupAdminView, UpdateView):
-    template_name = "groups/modify.html"
-    form_class = SupportGroupForm
-
-    def get_form_kwargs(self):
-        """Add user person profile to the form kwargs"""
-        return {**super().get_form_kwargs(), "person": self.request.user.person}
-
-    def get_success_url(self):
-        return reverse("manage_group", kwargs={"pk": self.object.pk})
-
-    def form_valid(self, form):
-        # first get response to make sure there's no error when saving the model before adding message
-        res = super().form_valid(form)
-
-        messages.add_message(
-            request=self.request,
-            level=messages.SUCCESS,
-            message=format_html(
-                _("Les modifications du groupe <em>{}</em> ont été enregistrées."),
-                self.object.name,
-            ),
-        )
-
-        return res
-
-
 class TransferSupportGroupMembersView(
     BaseSupportGroupAdminView, SingleObjectMixin, FormView
 ):
@@ -409,7 +311,7 @@ class RemoveManagerView(BaseSupportGroupAdminView, DetailView):
 class ChangeGroupLocationView(BaseSupportGroupAdminView, ChangeLocationBaseView):
     template_name = "groups/change_location.html"
     form_class = GroupGeocodingForm
-    success_view_name = "manage_group"
+    success_view_name = "view_group_settings_location"
 
 
 class RedirectToPresseroView(BaseSupportGroupAdminView, DetailView):

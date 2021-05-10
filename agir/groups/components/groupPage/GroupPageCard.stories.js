@@ -15,6 +15,6 @@ export const Default = Template.bind({});
 Default.args = {
   children: "This is a group page card!",
   title: "Card title",
-  editUrl: "#edit",
+  editHref: "#edit",
   highlight: "crimson",
 };

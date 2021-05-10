@@ -5,6 +5,8 @@ from unittest.mock import patch
 from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person
 
+import uuid
+
 
 class GroupJoinAPITestCase(APITestCase):
     def setUp(self):
@@ -104,3 +106,207 @@ class GroupJoinAPITestCase(APITestCase):
         res = self.client.post(f"/api/groupes/{group.pk}/rejoindre/")
         self.assertEqual(res.status_code, 201)
         someone_joined_notification.assert_called()
+
+
+class GroupUpdateAPIViewTestCase(APITestCase):
+    def setUp(self):
+        self.group = SupportGroup.objects.create(name="group Test")
+        self.simple_member = Person.objects.create(
+            email="simple_member@agir.local", create_role=True
+        )
+        self.referent_member = Person.objects.create(
+            email="referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.simple_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.referent_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        self.valid_data = {"name": "Groupe de Test", "description": "New Desc"}
+
+    def test_anonymous_person_cannot_update(self):
+        self.client.logout()
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/", data=self.valid_data
+        )
+        self.assertEqual(res.status_code, 401)
+
+    def test_simple_members_cannot_update(self):
+        self.client.force_login(self.simple_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/", data=self.valid_data
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_group_does_not_exist(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{uuid.uuid4()}/update/", data=self.valid_data
+        )
+        self.assertEqual(res.status_code, 404)
+
+    def test_manager_can_update(self):
+        self.assertNotEqual(self.group.name, self.valid_data["name"])
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/", data=self.valid_data
+        )
+        self.assertEqual(res.status_code, 200)
+        self.group.refresh_from_db()
+        self.assertEqual(self.group.name, self.valid_data["name"])
+
+    def test_invalid_name(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/",
+            data={**self.valid_data, "name": ""},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("name", res.data)
+
+    def test_invalid_description(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/",
+            data={**self.valid_data, "description": None},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("description", res.data)
+
+    def test_invalid_image(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/",
+            data={**self.valid_data, "image": "TEXTE"},
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("image", res.data)
+
+    @patch("agir.groups.serializers.send_support_group_changed_notification.delay")
+    def notification_was_sent(self, send_support_group_changed):
+        send_support_group_changed.assert_not_called()
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/", data=self.valid_data
+        )
+        self.assertEqual(res.status_code, 200)
+        send_support_group_changed.assert_called()
+        args = send_support_group_changed.call_args
+        self.assertEqual(args[0][0], self.group.pk)
+        self.assertEqual(args[0][1], self.valid_data)
+
+    @patch("agir.groups.serializers.geocode_support_group.delay")
+    def geolocation_was_updated(self, geocode_support_group):
+        geocode_support_group.assert_not_called()
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/", data={"location": {"zip": "75001"}}
+        )
+        self.assertEqual(res.status_code, 200)
+        geocode_support_group.assert_called()
+        args = send_support_group_changed.call_args
+        self.assertEqual(args[0][0], self.group.pk)
+
+    @patch("agir.groups.serializers.geocode_support_group.delay")
+    def group_was_updated_without_location(self, geocode_support_group):
+        geocode_support_group.assert_not_called()
+        self.client.force_login(self.referent_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/update/",
+            data={"name": "Nom de groupe different"},
+        )
+        self.assertEqual(res.status_code, 200)
+        geocode_support_group.assert_not_called()
+
+
+class GroupInvitationAPIViewTestCase(APITestCase):
+    def setUp(self):
+        self.valid_email = "moi@france.fr"
+        self.wrong_email = "faux@france"
+        self.group = SupportGroup.objects.create(name="group Test")
+        self.simple_member = Person.objects.create(
+            email="simple_member@agir.local", create_role=True
+        )
+        self.referent_member = Person.objects.create(
+            email="referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.simple_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.referent_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+
+    def test_anonymous_person_cannot_invite(self):
+        self.client.logout()
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.valid_email},
+        )
+        self.assertEqual(res.status_code, 401)
+
+    def test_simple_members_cannot_invite(self):
+        self.client.force_login(self.simple_member.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.valid_email},
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_invitation_group_inexistant(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.post(
+            f"/api/groupes/{uuid.uuid4()}/invitation/", data={"email": self.valid_email}
+        )
+        self.assertEqual(res.status_code, 404)
+
+    def test_invitation_wrong_email(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.wrong_email},
+        )
+        self.assertEqual(res.status_code, 422)
+
+    def test_invitation_empty_email(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/invitation/", data={"email": ""},
+        )
+        self.assertEqual(res.status_code, 422)
+
+    def test_invitation_mail_already_exist(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.simple_member.email},
+        )
+        self.assertEqual(res.status_code, 422)
+
+    def test_invitation_valid_email(self):
+        self.client.force_login(self.referent_member.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.valid_email},
+        )
+        self.assertEqual(res.status_code, 201)
+
+    @patch("agir.groups.views.api_views.invite_to_group.delay")
+    def test_invitation_was_sent(self, invite_to_group):
+        self.client.force_login(self.referent_member.role)
+        invite_to_group.assert_not_called()
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/invitation/",
+            data={"email": self.valid_email},
+        )
+        invite_to_group.assert_called()
+        self.assertEqual(res.status_code, 201)

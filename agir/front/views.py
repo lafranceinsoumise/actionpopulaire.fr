@@ -183,6 +183,14 @@ class FullSupportGroupView(SoftLoginRequiredMixin, ReactSingleObjectView):
         }
 
 
+class GroupSettingsView(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class EventSettingsView(ReactBaseView):
+    bundle_name = "front/app"
+
+
 @method_decorator(cache_decorators, name="get")
 class AgendaView(BasicOpenGraphMixin, ReactBaseView):
     bundle_name = "front/app"

@@ -22,10 +22,8 @@
       <div class="clearfix"></div>
       <hr />
     </div>
-    <div class="col-xs-12 col-md-3 margintopmore">
-      {% include "groups/includes/manage_nav.html" with has_static_menu=True %}
-    </div>
-    <div class="col-xs-12 col-md-9 tab-content">
+    <div class="col-xs-12 col-md-2 margintopmore"></div>
+    <div class="col-xs-12 col-md-8 tab-content">
       <h2 class="headline">
         {{ supportgroup.name }}
       </h2>
@@ -56,7 +54,7 @@
           {% crispy document_formset document_helper %}
         </fieldset>
         <div class="row padtopmore">
-          <div class="col-xs-12 col-sm-6 col-md-4">
+          <div class="col-xs-12 col-sm-6 col-md-6">
             <input
               type="submit"
               name="submit"

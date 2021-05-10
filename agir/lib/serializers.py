@@ -129,7 +129,7 @@ class NestedContactSerializer(serializers.Serializer):
         source="contact_email",
     )
 
-    phone = PhoneField(
+    phone = serializers.CharField(
         label="Numéro de téléphone du contact",
         required=True,
         allow_blank=True,
@@ -142,7 +142,6 @@ class NestedContactSerializer(serializers.Serializer):
         required=False,
         default=False,
         source="contact_hide_phone",
-        write_only=True,
     )
 
     def __init__(self, instance=None, data=empty, **kwargs):

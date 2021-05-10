@@ -10,11 +10,7 @@ import {
   useDispatch,
   useSelector,
 } from "@agir/front/globalContext/GlobalContext";
-import {
-  setBackLink,
-  setTopBarRightLink,
-  setAdminLink,
-} from "@agir/front/globalContext/actions";
+import { setBackLink, setAdminLink } from "@agir/front/globalContext/actions";
 import {
   getIsSessionLoaded,
   getUser,
@@ -79,14 +75,6 @@ const Page = ({ groupPk, messagePk }) => {
   }, [backLink, group, groupURL, dispatch]);
 
   useEffect(() => {
-    if (group && group.isManager && group.routes && group.routes.settings) {
-      dispatch(
-        setTopBarRightLink({
-          href: group.routes.settings,
-          label: "Gestion du groupe",
-        })
-      );
-    }
     if (group && group.routes && group.routes.admin) {
       dispatch(
         setAdminLink({

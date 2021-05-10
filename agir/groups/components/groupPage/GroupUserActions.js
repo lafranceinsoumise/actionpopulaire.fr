@@ -8,6 +8,7 @@ import Button from "@agir/front/genericComponents/Button";
 import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
+import Link from "@agir/front/app/Link";
 import Popin from "@agir/front/genericComponents/Popin";
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
@@ -202,24 +203,17 @@ const StyledContent = styled.div`
 `;
 
 const ManagerActions = (props) => {
-  const { is2022 = false, routes } = props;
+  const { is2022 = false, groupSettingsLinks, routes } = props;
 
   return (
     <StyledContent>
       <StyledPanel>
         <h6>Gestion du groupe</h6>
-        <Button
-          as="Link"
-          route="createEvent"
-          color="primary"
-          icon="plus"
-          small
-          inline
-        >
+        <Button as="Link" route="createEvent" color="primary" icon="plus" small>
           Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
         </Button>
         <ul>
-          {routes.members && (
+          {groupSettingsLinks?.members && (
             <li>
               <RawFeatherIcon
                 small
@@ -227,10 +221,10 @@ const ManagerActions = (props) => {
                 color={style.primary500}
                 name="users"
               />
-              <a href={routes.members}>Membres</a>
+              <Link to={groupSettingsLinks.members}>Membres</Link>
             </li>
           )}
-          {routes.settings && (
+          {groupSettingsLinks?.general && (
             <li>
               <RawFeatherIcon
                 inline
@@ -238,10 +232,10 @@ const ManagerActions = (props) => {
                 name="file-text"
                 color={style.primary500}
               />
-              <a href={routes.settings}>Informations</a>
+              <Link to={groupSettingsLinks.general}>Informations</Link>
             </li>
           )}
-          {routes.animation && (
+          {groupSettingsLinks?.manage && (
             <li>
               <RawFeatherIcon
                 small
@@ -249,10 +243,12 @@ const ManagerActions = (props) => {
                 color={style.primary500}
                 name="lock"
               />
-              <a href={routes.animation}>Animateur·ices et gestionnaires</a>
+              <Link to={groupSettingsLinks.manage}>
+                Animateur·ices et gestionnaires
+              </Link>
             </li>
           )}
-          {routes.financement && (
+          {routes?.createSpendingRequest && (
             <li>
               <RawFeatherIcon
                 small
@@ -260,21 +256,12 @@ const ManagerActions = (props) => {
                 color={style.primary500}
                 name="folder"
               />
-              <a href={routes.financement}>Remboursement et dépense</a>
+              <Link href={routes.createSpendingRequest}>
+                Remboursement et dépense
+              </Link>
             </li>
           )}
-          {routes.certification && (
-            <li>
-              <RawFeatherIcon
-                small
-                inline
-                color={style.primary500}
-                name="check-circle"
-              />
-              <a href={routes.certification}>Certification</a>
-            </li>
-          )}
-          {routes.financement && (
+          {groupSettingsLinks?.finance && (
             <li>
               <RawFeatherIcon
                 small
@@ -282,32 +269,15 @@ const ManagerActions = (props) => {
                 color={style.primary500}
                 name="loader"
               />
-              <a href={routes.financement}>Financement</a>
-            </li>
-          )}
-          {routes.invitation && (
-            <li>
-              <RawFeatherIcon
-                small
-                inline
-                color={style.primary500}
-                name="users"
-              />
-              <a href={routes.invitation}>Inviter</a>
+              <Link to={groupSettingsLinks.finance}>Financement</Link>
             </li>
           )}
         </ul>
       </StyledPanel>
-      <Button
-        as="a"
-        href={routes.createEvent}
-        color="primary"
-        icon="plus"
-        small
-      >
+      <Button as="Link" route="createEvent" color="primary" icon="plus" small>
         Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
       </Button>
-      <Button as="a" href={routes.settings} icon="settings" small>
+      <Button as="Link" to={groupSettingsLinks?.menu} icon="settings" small>
         Gestion {is2022 ? "de l'équipe" : "du groupe"}
       </Button>
     </StyledContent>
@@ -419,5 +389,6 @@ ManagerActions.propTypes = MemberActions.propTypes = NonMemberActions.propTypes 
   isManager: PropTypes.bool,
   is2022: PropTypes.bool,
   routes: PropTypes.object,
+  groupSettingsLinks: PropTypes.object,
 };
 export default GroupUserActions;

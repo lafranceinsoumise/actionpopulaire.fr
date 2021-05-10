@@ -8,10 +8,13 @@ import {
   setAdminLink,
 } from "@agir/front/globalContext/actions";
 
+import { getMenuRoute as getSettingsRoute } from "@agir/groups/groupPage/GroupSettings/routes.config";
+
 const routeConfig = {
   info: {
     id: "info",
-    path: "/groupes/:groupPk/accueil/",
+    path: "/groupes/:groupPk/",
+    exact: false,
     label: "Accueil",
     hasTab: true,
     hasRoute: true,
@@ -19,6 +22,7 @@ const routeConfig = {
   messages: {
     id: "messages",
     path: "/groupes/:groupPk/messages/",
+    exact: false,
     label: "Messages",
     hasTab: true,
     hasRoute: (group) =>
@@ -27,6 +31,7 @@ const routeConfig = {
   agenda: {
     id: "agenda",
     path: "/groupes/:groupPk/agenda/",
+    exact: false,
     label: "Agenda",
     hasTab: true,
     hasRoute: (group) =>
@@ -35,6 +40,7 @@ const routeConfig = {
   reports: {
     id: "reports",
     path: "/groupes/:groupPk/comptes-rendus/",
+    exact: false,
     label: "Comptes-rendus",
     hasTab: true,
     hasRoute: (group) => group.isManager || group.hasPastEventReports,
@@ -42,7 +48,6 @@ const routeConfig = {
 };
 
 export const useTabs = (props, isMobile = true) => {
-  7;
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
@@ -69,14 +74,6 @@ export const useTabs = (props, isMobile = true) => {
 
   const tabs = useMemo(() => routes.filter((route) => route.hasTab), [routes]);
 
-  const shouldReplaceURL = useMemo(() => {
-    return new RouteConfig({
-      id: "base",
-      path: "/groupes/:groupPk/",
-      label: "Groupe",
-    }).match(location.pathname);
-  }, [location.pathname]);
-
   const activeRoute = useMemo(() => {
     let result = tabs[0];
     routes.forEach((route) => {
@@ -87,9 +84,14 @@ export const useTabs = (props, isMobile = true) => {
     return result;
   }, [tabs, routes, location.pathname]);
 
-  useEffect(() => {
-    shouldReplaceURL && handleTabChange(activeRoute, null, true);
-  }, [shouldReplaceURL, handleTabChange, activeRoute]);
+  const activePathname = activeRoute.getLink();
+  const settingsLink = useMemo(
+    () =>
+      group?.id && group.isManager
+        ? getSettingsRoute(activePathname).getLink()
+        : null,
+    [group, activePathname]
+  );
 
   const activeTabIndex = useMemo(() => {
     for (let i = 0; tabs[i]; i++) {
@@ -121,39 +123,54 @@ export const useTabs = (props, isMobile = true) => {
   }, [handleTabChange, activeTabIndex, tabs]);
 
   useEffect(() => {
-    const { isManager, routes } = group || {};
-    if (isManager && routes.settings) {
-      dispatch(
-        setTopBarRightLink({
-          href: routes.settings,
-          label: "Gestion du groupe",
-        })
-      );
-    }
-    if (routes && routes.admin) {
+    const { routes } = group || {};
+    routes &&
+      routes.admin &&
       dispatch(
         setAdminLink({
           href: routes.admin,
           label: "Administration",
         })
       );
-    }
-  }, [dispatch, group, location.pathname]);
+  }, [dispatch, group, activePathname]);
+
+  useEffect(() => {
+    settingsLink &&
+      dispatch(
+        setTopBarRightLink({
+          to: settingsLink,
+          label: "Gestion du groupe",
+        })
+      );
+  }, [dispatch, settingsLink, location.pathname]);
 
   useMemo(() => {
     window.scrollTo(0, 0);
     // eslint-disable-next-line
-  }, [location.pathname]);
+  }, [activePathname]);
 
-  return {
-    tabs: routes,
-    activeTabId: activeRoute.id,
-    activeTabIndex,
-    hasTabs: tabs.length > 1,
-    onTabChange: handleTabChange,
-    onNextTab: handleNextTab,
-    onPrevTab: handlePrevTab,
-  };
+  const result = useMemo(
+    () => ({
+      tabs: routes,
+      activePathname,
+      activeTabId: activeRoute.id,
+      hasTabs: tabs.length > 1,
+      onTabChange: handleTabChange,
+      onNextTab: handleNextTab,
+      onPrevTab: handlePrevTab,
+    }),
+    [
+      routes,
+      activePathname,
+      activeRoute.id,
+      tabs.length,
+      handleTabChange,
+      handleNextTab,
+      handlePrevTab,
+    ]
+  );
+
+  return result;
 };
 
 const routes = Object.values(routeConfig);

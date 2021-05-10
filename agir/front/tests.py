@@ -77,10 +77,6 @@ class PagesLoadingTestCase(TestCase):
         response = self.client.get("/evenements/%s/modifier/" % self.event.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_see_update_group(self):
-        response = self.client.get(reverse("edit_group", args=[self.group.pk]))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
 
 class NBUrlsTestCase(TestCase):
     def test_create_group_redirect(self):

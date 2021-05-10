@@ -200,8 +200,12 @@ const GroupCard = ({
             Financer
           </GroupButton>
         )}
-        {isManager && routes.manage && (
-          <GroupButton href={routes.manage} icon="settings">
+        {isManager && (
+          <GroupButton
+            as="Link"
+            to={routeConfig.groupSettings.getLink({ groupPk: id })}
+            icon="settings"
+          >
             Gestion
           </GroupButton>
         )}

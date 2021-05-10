@@ -48,7 +48,7 @@ const StyledField = styled.label`
 const RichTextField = (props) => {
   const {
     id,
-    value,
+    value = "",
     onChange,
     error,
     label,

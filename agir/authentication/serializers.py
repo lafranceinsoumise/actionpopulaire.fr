@@ -1,3 +1,4 @@
+import uuid
 from django.contrib import messages
 from django.db.models import F
 from django.middleware.csrf import get_token
@@ -126,7 +127,12 @@ class SessionSerializer(serializers.Serializer):
 
     def get_toasts(self, request):
         return [
-            {"message": m.message, "html": True, "type": m.level_tag.upper()}
+            {
+                "toastId": uuid.uuid4(),
+                "message": m.message,
+                "html": True,
+                "type": m.level_tag.upper(),
+            }
             for m in messages.get_messages(request)
         ]
 
