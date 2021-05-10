@@ -6,6 +6,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
+import {Hide} from "../../../front/components/genericComponents/grid";
 
 const CONFIG = {
   events: {
@@ -80,7 +81,9 @@ const MapPage = (props) => {
             <span>{backLabel}</span>
           </Button>
         )}
-        <h1>{title}</h1>
+        <Hide under as="h1">
+          {title}
+        </Hide>
         {user && <Link {...createLinkProps} />}
       </Header>
       <Map src={mapURL}></Map>
