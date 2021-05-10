@@ -6,7 +6,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
-import {Hide} from "../../../front/components/genericComponents/grid";
+import { Hide } from "../../../front/components/genericComponents/grid";
 
 const CONFIG = {
   events: {
