@@ -11,7 +11,7 @@ import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import "moment/locale/fr";
 import "react-datetime/css/react-datetime.css";
 
-const StyledLabel = styled.label``;
+const StyledLabel = styled.span``;
 const StyledHelpText = styled.span``;
 const StyledInputs = styled.span``;
 const StyledInput = styled(Datetime)`
