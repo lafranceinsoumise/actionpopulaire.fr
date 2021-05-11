@@ -165,6 +165,10 @@ class Activity(TimeStampedModel):
         "Statut", max_length=1, choices=STATUS_CHOICES, default=STATUS_UNDISPLAYED
     )
 
+    is_pushed = models.BooleanField(
+        "Notification push envoyée", default=False, null=False,
+    )
+
     event = models.ForeignKey(
         "events.Event",
         on_delete=models.CASCADE,
