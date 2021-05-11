@@ -35,9 +35,7 @@ const Home = (props) => {
     <>
       <TopBar />
 
-      {!isMobileApp && !isDesktop && isBannerDownload && (
-        <Spacer size="100px" />
-      )}
+      {!isMobileApp && !isDesktop && isBannerDownload && <Spacer size="80px" />}
 
       <StyledHome>
         <ResponsiveLayout

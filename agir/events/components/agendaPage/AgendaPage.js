@@ -58,9 +58,7 @@ const AgendaPage = (props) => {
       <ConnectivityWarning hasTopBar />
       <TellMorePage />
 
-      {!isMobileApp && !isDesktop && isBannerDownload && (
-        <Spacer size="100px" />
-      )}
+      {!isMobileApp && !isDesktop && isBannerDownload && <Spacer size="80px" />}
 
       <StyledWrapper>
         <Layout active="events" smallBackgroundColor={style.black25} hasBanner>
