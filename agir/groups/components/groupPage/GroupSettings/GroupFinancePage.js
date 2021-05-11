@@ -54,7 +54,7 @@ const GroupFinancePage = (props) => {
           {new Intl.NumberFormat("fr-FR", {
             style: "currency",
             currency: "EUR",
-          }).format(data?.donation)}
+          }).format(data?.donation / 100)}
         </p>
         <Spacer size=".5rem" />
         {data?.donation === 0 && (
