@@ -11,15 +11,15 @@ import UserMenu from "./UserMenu";
 const AnonymousLink = () => {
   return (
     <>
-      <Hide under>
+      <Hide over>
         <MenuLink route="login">
           <FeatherIcon name="user" />
         </MenuLink>
       </Hide>
-      <Hide over as={"MenuLink"} route="login">
+      <Hide under as={"MenuLink"} route="login">
         <span>Connexion</span>
       </Hide>
-      <Hide over as={"MenuLink"} route="signup">
+      <Hide under as={"MenuLink"} route="signup">
         <span>Inscription</span>
       </Hide>
     </>
