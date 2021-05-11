@@ -54,16 +54,13 @@ def send_apns_activity(activity_pk, apns_device_pk):
 @post_save_task
 def send_fcm_activity(activity_pk, fcm_device_pk):
     activity = Activity.objects.get(pk=activity_pk)
-    apns_device = GCMDevice.objects.get(pk=fcm_device_pk)
+    fcm_device = GCMDevice.objects.get(pk=fcm_device_pk)
     serializer = ACTIVITY_NOTIFICATION_SERIALIZERS.get(activity.type, None)
 
     if serializer is None:
         return
 
-    message = serializer(instance=activity)
+    data = serializer(instance=activity).data
+    data["image"] = data.pop("icon")
 
-    return apns_device.send_message(
-        message=message.data,
-        thread_id=activity.type,
-        extra={"url": message.data["url"]},
-    )
+    return fcm_device.send_message(message=None, thread_id=activity.type, extra=data)
