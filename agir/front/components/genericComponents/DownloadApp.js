@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
@@ -6,7 +6,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import logo from "@agir/front/genericComponents/logos/action-populaire_primary_mini.svg";
 
-import { useMobileApp, useDownloadBanner } from "@agir/front/app/hooks.js";
+import { useDownloadBanner, useMobileApp } from "@agir/front/app/hooks.js";
 import { CONFIG } from "@agir/front/genericComponents/AppStore.js";
 import { getMobileOS } from "@agir/front/authentication/common.js";
 
@@ -16,6 +16,7 @@ const StyledContainer = styled.div`
   background-color: ${style.primary500};
   color: #fff;
   justify-content: space-evenly;
+  height: 80px;
 `;
 
 const Title = styled.div``;
@@ -49,7 +50,7 @@ const DownloadMinus = styled(Button)`
   font-weight: 700;
   justify-content: center;
 
-  @media (min-width: 380px) {
+  @media (min-width: 422px) {
     display: none;
   }
 `;
@@ -61,7 +62,7 @@ const Download = styled(Button)`
   font-weight: 700;
   justify-content: center;
 
-  @media (max-width: 380px) {
+  @media (max-width: 421px) {
     display: none;
   }
 `;
@@ -76,15 +77,20 @@ const StyledFeatherIcon = styled(FeatherIcon)`
   }
 `;
 
+const AppLogo = styled.img`
+  width: 52px;
+  height: 52px;
+
+  @media (max-width: 350px) {
+    display: none;
+  }
+`;
+
 const OS = getMobileOS();
 
 export const DownloadApp = () => {
   const { isMobileApp } = useMobileApp();
-  const [isBannerDownload, setIsBannerDownload] = useDownloadBanner();
-
-  const closeDownload = useCallback(() => {
-    setIsBannerDownload();
-  }, []);
+  const [isBannerDownload, closeDownload] = useDownloadBanner();
 
   if (isMobileApp) return null;
 
@@ -104,7 +110,7 @@ export const DownloadApp = () => {
           small
         />
       </div>
-      <img src={logo} alt="Logo" style={{ width: "52px", height: "52px" }} />
+      <AppLogo src={logo} alt="Logo" />
       <Content>
         <Title>ACTION POPULAIRE</Title>
         <Description>

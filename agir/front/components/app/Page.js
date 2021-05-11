@@ -113,7 +113,7 @@ const Page = (props) => {
         {!routeConfig.hideTopBar &&
           !isMobileApp &&
           !isDesktop &&
-          isBannerDownload && <Spacer size="100px" />}
+          isBannerDownload && <Spacer size="80px" />}
 
         <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
           {routeConfig.hideConnectivityWarning ? null : (
@@ -142,7 +142,7 @@ const Page = (props) => {
       {!routeConfig.hideTopBar &&
         !isMobileApp &&
         !isDesktop &&
-        isBannerDownload && <Spacer size="100px" />}
+        isBannerDownload && <Spacer size="80px" />}
 
       {routeConfig.hideConnectivityWarning ? null : (
         <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />

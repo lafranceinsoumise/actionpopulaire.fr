@@ -5,13 +5,13 @@ import PropTypes from "prop-types";
 import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
-  getRoutes,
-  getUser,
-  getIsSessionLoaded,
-  getBackLink,
-  getTopBarRightLink,
   getAdminLink,
+  getBackLink,
   getIsConnected,
+  getIsSessionLoaded,
+  getRoutes,
+  getTopBarRightLink,
+  getUser,
 } from "@agir/front/globalContext/reducers";
 import { Hide } from "@agir/front/genericComponents/grid";
 
@@ -27,7 +27,6 @@ import AdminLink from "./AdminLink";
 import MenuLink from "./MenuLink";
 import { TopBarMainLink } from "./TopBarMainLink";
 import DownloadApp from "@agir/front/genericComponents/DownloadApp.js";
-import { useMobileApp } from "@agir/front/app/hooks";
 
 const NavBar = styled.div``;
 
@@ -63,30 +62,6 @@ const TopBarContainer = styled.div`
   max-width: 1320px;
   margin: 0 auto;
   flex-grow: 1;
-
-  h1 {
-    font-family: ${style.fontFamilyBase};
-    font-style: normal;
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 24px;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  h1:hover {
-    text-decoration: none;
-  }
-
-  img {
-    display: flex;
-    width: auto;
-  }
-
-  div {
-    align-items: center;
-    height: 1.5rem;
-  }
 `;
 
 const HorizontalFlex = styled.div`
@@ -120,7 +95,6 @@ export const TopBar = (props) => {
   const topBarRightLink = useSelector(getTopBarRightLink);
   const adminLink = useSelector(getAdminLink);
   const isDesktop = useIsDesktop();
-  const { isMobileApp } = useMobileApp();
   const isConnected = useSelector(getIsConnected);
 
   return (
@@ -153,11 +127,13 @@ export const TopBar = (props) => {
           <HorizontalFlex
             center={!isConnected || path === "/" || typeof path === "undefined"}
           >
-            <Hide over as="h1">
+            <Hide over>
               <TopBarMainLink path={path} />
             </Hide>
             <Hide under>
-              <Logo />
+              <MenuLink as={"a"} href="/">
+                <Logo />
+              </MenuLink>
             </Hide>
             <Hide under as="form" method="get" action={routes.search}>
               <SearchBar routes={routes} />
