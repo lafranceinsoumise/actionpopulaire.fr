@@ -14,17 +14,9 @@ export const TopBarMainLink = (props) => {
     return Object.values(routeConfig).find((route) => route.match(path));
   }, [path]);
 
-  if (!isConnected || !currentRoute) {
-    return (
-      <MenuLink route="events">
-        <Logo />
-      </MenuLink>
-    );
+  if (!isConnected || !currentRoute || currentRoute.id === "events") {
+    return <Logo />;
   }
 
-  return (
-    <MenuLink route={currentRoute.id}>
-      {currentRoute.id === "events" ? <Logo /> : <h1>{currentRoute.label}</h1>}
-    </MenuLink>
-  );
+  return <h1>{currentRoute.label}</h1>;
 };
