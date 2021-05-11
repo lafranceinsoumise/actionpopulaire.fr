@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from functools import partial
 
-from push_notifications.models import APNSDevice, WebPushDevice
+from push_notifications.models import APNSDevice, WebPushDevice, GCMDevice
 
 from agir.activity.models import Activity
 from agir.groups.models import Membership
@@ -12,7 +12,11 @@ from agir.notifications.actions import (
     create_default_group_membership_subscriptions,
 )
 from agir.notifications.models import Subscription
-from agir.notifications.tasks import send_webpush_activity, send_apns_activity
+from agir.notifications.tasks import (
+    send_webpush_activity,
+    send_apns_activity,
+    send_fcm_activity,
+)
 
 
 @receiver(post_save, sender=Activity, dispatch_uid="push_new_activity")
@@ -52,6 +56,19 @@ def push_new_activity(sender, instance, created=False, **kwargs):
     for apns_device_pk in apns_device_pks:
         transaction.on_commit(
             partial(send_apns_activity.delay, instance.pk, apns_device_pk,)
+        )
+
+    # SEND FCM NOTIFICATIONS
+    fcm_device_pks = [
+        fcm_device.pk
+        for fcm_device in GCMDevice.objects.filter(
+            user=instance.recipient.role, active=True
+        )
+    ]
+
+    for fcm_device_pk in fcm_device_pks:
+        transaction.on_commit(
+            partial(send_fcm_activity.delay, instance.pk, fcm_device_pk,)
         )
 
 
