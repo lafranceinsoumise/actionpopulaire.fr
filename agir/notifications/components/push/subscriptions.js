@@ -107,7 +107,7 @@ const useServerSubscription = (endpoint, token) => {
 
       // Check if subscription for the current token exists and is active
       setReady(true);
-      setIsSubscribed(deviceSubscription.active);
+      setIsSubscribed(deviceSubscription.data.active);
     })();
   }, [endpoint, registration_id, subscribe]);
 
