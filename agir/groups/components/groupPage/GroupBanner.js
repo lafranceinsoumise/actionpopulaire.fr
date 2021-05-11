@@ -10,7 +10,7 @@ import Modal from "@agir/front/genericComponents/Modal";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import GroupLocation from "@agir/groups/groupPage/GroupLocation";
 
-import defaultGroupImage from "@agir/groups/groupPage/images/banner-map-background.svg";
+import defaultGroupImage from "@agir/front/genericComponents/images/banner-map-background.svg";
 
 const StyledModalBody = styled.div`
   display: flex;
