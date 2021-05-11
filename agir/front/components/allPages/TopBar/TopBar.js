@@ -70,10 +70,22 @@ const TopBarContainer = styled.div`
     font-weight: 600;
     font-size: 16px;
     line-height: 24px;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   h1:hover {
     text-decoration: none;
+  }
+
+  img {
+    display: flex;
+    width: auto;
+  }
+
+  div {
+    align-items: center;
+    height: 1.5rem;
   }
 `;
 
@@ -119,16 +131,16 @@ export const TopBar = (props) => {
         <TopBarContainer>
           {isSessionLoaded ? (
             backLink ? (
-              <Hide
-                over
-                as="MenuLink"
-                to={backLink.to}
-                href={backLink.href}
-                route={backLink.route}
-                title={backLink.label}
-                aria-label={backLink.label}
-              >
-                <FeatherIcon name="arrow-left" />
+              <Hide over>
+                <MenuLink
+                  to={backLink.to}
+                  href={backLink.href}
+                  route={backLink.route}
+                  title={backLink.label}
+                  aria-label={backLink.label}
+                >
+                  <FeatherIcon name="arrow-left" />
+                </MenuLink>
               </Hide>
             ) : (
               <Hide over>
@@ -141,13 +153,11 @@ export const TopBar = (props) => {
           <HorizontalFlex
             center={!isConnected || path === "/" || typeof path === "undefined"}
           >
-            <Hide over>
-              <TopBarMainLink isMobileApp={isMobileApp} path={path} />
+            <Hide over as="h1">
+              <TopBarMainLink path={path} />
             </Hide>
             <Hide under>
-              <MenuLink href={routes.dashboard}>
-                <Logo />
-              </MenuLink>
+              <Logo />
             </Hide>
             <Hide under as="form" method="get" action={routes.search}>
               <SearchBar routes={routes} />
