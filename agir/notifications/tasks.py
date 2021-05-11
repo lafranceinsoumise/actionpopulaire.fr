@@ -22,7 +22,11 @@ def send_webpush_activity(activity_pk, webpush_device_pk):
     message = JSONRenderer().render(message.data)
 
     try:
-        return webpush_device.send_message(message)
+        result = webpush_device.send_message(message)
+        if activity.is_pushed == False:
+            activity.is_pushed = True
+            activity.save()
+        return result
     except WebPushError as e:
         if "Push failed: 410 Gone" in str(e):
             webpush_device.active = False
@@ -43,8 +47,12 @@ def send_apns_activity(activity_pk, apns_device_pk):
 
     message = serializer(instance=activity)
 
-    return apns_device.send_message(
+    result = apns_device.send_message(
         message=message.data,
         thread_id=activity.type,
         extra={"url": message.data["url"]},
     )
+    if activity.is_pushed == False:
+        activity.is_pushed = True
+        activity.save()
+    return result
