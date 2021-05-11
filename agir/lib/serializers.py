@@ -6,6 +6,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
 
+from agir.carte.models import StaticMapImage
+
 
 class NullAsBlankMixin:
     """Field mixin that makes a null input be interpreted as the empty string instead.
@@ -56,6 +58,7 @@ class LocationSerializer(serializers.Serializer):
     shortLocation = serializers.CharField(source="short_location", required=False)
 
     coordinates = GeometryField(required=False)
+    staticMapUrl = serializers.SerializerMethodField(read_only=True)
 
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)
@@ -74,6 +77,20 @@ class LocationSerializer(serializers.Serializer):
             parts.append(obj.location_country.name)
 
         return "\n".join(p for p in parts if p)
+
+    def get_staticMapUrl(self, obj):
+        if obj.coordinates is None:
+            return ""
+        try:
+            static_map_image = StaticMapImage.objects.get(
+                center__distance_lt=(obj.coordinates, 1),
+            )
+        except StaticMapImage.DoesNotExist:
+            static_map_image = StaticMapImage.objects.create_from_jawg(
+                center=obj.coordinates,
+            )
+
+        return static_map_image.image.url
 
 
 class RelatedLabelField(serializers.SlugRelatedField):
