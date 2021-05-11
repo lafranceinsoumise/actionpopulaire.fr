@@ -36,11 +36,12 @@ async function askPermission() {
 const useServerSubscription = (endpoint, token) => {
   const [ready, setReady] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [registration_id, extraData] =
+    !token || typeof token === "string"
+      ? [token, {}]
+      : [token.registration_id, token];
 
   const subscribe = useCallback(async () => {
-    const [registration_id, extraData] =
-      typeof token === "string" ? [token, {}] : [token.registration_id, token];
-
     try {
       await axios.post(`/api/device/${endpoint}/`, {
         name: "Action populaire",
@@ -55,17 +56,17 @@ const useServerSubscription = (endpoint, token) => {
       setReady(true);
       setIsSubscribed(false);
     }
-  }, [endpoint, token]);
+  }, [endpoint, extraData, registration_id]);
 
   const unsubscribe = useCallback(async () => {
-    if (!token) {
+    if (!registration_id) {
       return;
     }
     let isUnsubscribed = false;
     try {
-      log.debug(`${endpoint} : error disabling device`, token);
-      await axios.put(`/api/device/${endpoint}/${token}/`, {
-        registration_id: token,
+      log.debug(`${endpoint} : error disabling device`, registration_id);
+      await axios.put(`/api/device/${endpoint}/${registration_id}/`, {
+        registration_id: registration_id,
         active: false,
       });
       isUnsubscribed = true;
@@ -74,27 +75,31 @@ const useServerSubscription = (endpoint, token) => {
       isUnsubscribed = e.response?.status === 404;
     }
     if (isUnsubscribed) {
-      log.debug("iOS : device unsubscribed", token);
+      log.debug("iOS : device unsubscribed", registration_id);
       setIsSubscribed(false);
     }
-  }, [endpoint, token]);
+  }, [endpoint, registration_id]);
 
   // When receive a new token, if it does not exist, we subscribe by default
   useEffect(() => {
     (async () => {
-      if (!token) {
+      if (!registration_id) {
         return;
       }
 
+      log.debug("Notifications : got token ", registration_id);
+
       let deviceSubscription = null;
       try {
-        deviceSubscription = await axios(`/api/device/${endpoint}/${token}/`);
+        deviceSubscription = await axios(
+          `/api/device/${endpoint}/${registration_id}/`
+        );
       } catch (e) {
         if (e.response?.status === 404) {
           await subscribe();
         }
 
-        log.error("iOS: error retrieving subscription", token, e);
+        log.error("Error retrieving subscription", registration_id, e);
 
         setReady(true);
         return;
@@ -104,7 +109,7 @@ const useServerSubscription = (endpoint, token) => {
       setReady(true);
       setIsSubscribed(deviceSubscription.active);
     })();
-  }, [endpoint, subscribe, token]);
+  }, [endpoint, registration_id, subscribe]);
 
   return {
     ready,
@@ -195,7 +200,7 @@ const useWebPush = () => {
 
 const useAndroidPush = () => {
   const { isAndroid } = useMobileApp();
-  const [token] = useLocalStorage("AP_FCMToken");
+  const [token] = useLocalStorage("AP_FCMToken", null, { raw: true });
 
   const { ready, isSubscribed, subscribe, unsubscribe } = useServerSubscription(
     SUBSCRIPTION_TYPES.ANDROID,
@@ -206,7 +211,7 @@ const useAndroidPush = () => {
   );
 
   if (!isAndroid) {
-    log.debug("iOS : not on Android device.");
+    log.debug("Android : not on Android device.");
     return {
       ready: true,
       available: false,
@@ -214,6 +219,7 @@ const useAndroidPush = () => {
   }
 
   if (!token) {
+    log.debug("Android : not ready.");
     return {
       ready: false,
     };
