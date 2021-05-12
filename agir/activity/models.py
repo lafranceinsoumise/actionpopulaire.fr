@@ -61,6 +61,7 @@ class Activity(TimeStampedModel):
     TYPE_WAITING_PAYMENT = "waiting-payment"
     # Sans affichage d'une notification
     TYPE_ANNOUNCEMENT = "announcement"
+    TYPE_EVENT_SUGGESTION = "event-suggestion"
 
     DISPLAYED_TYPES = (
         TYPE_GROUP_INVITATION,
@@ -86,6 +87,7 @@ class Activity(TimeStampedModel):
         TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
         TYPE_NEW_MESSAGE,
         TYPE_NEW_COMMENT,
+        TYPE_EVENT_SUGGESTION,
     )
 
     REQUIRED_ACTION_ACTIVITY_TYPES = (
@@ -135,6 +137,7 @@ class Activity(TimeStampedModel):
             "De nouveaux membres ont été transferés vers le groupe",
         ),
         (TYPE_GROUP_CREATION_CONFIRMATION, "Groupe créé"),
+        (TYPE_EVENT_SUGGESTION, "Événement suggéré"),
     )
 
     STATUS_UNDISPLAYED = "U"
