@@ -70,38 +70,38 @@ class EventNotificationsActionsTestCase(TestCase):
             notifications_enabled=False,
         )
 
-    def test_new_event_around_me_with_person_organized_event(self):
+    def test_new_event_suggestion_with_person_organized_event(self):
         recipients = Person.objects.filter(pk=self.attendee1.pk)
 
         original_target_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_NEW_EVENT_AROUNDME,
+            type=Activity.TYPE_EVENT_SUGGESTION,
             recipient=self.attendee1,
             individual=self.event.organizers.first(),
         ).count()
 
-        notifications.new_event_around_people_notification(self.event, recipients)
+        notifications.new_event_suggestion_notification(self.event, recipients)
 
         new_target_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_NEW_EVENT_AROUNDME,
+            type=Activity.TYPE_EVENT_SUGGESTION,
             recipient=self.attendee1,
             individual=self.event.organizers.first(),
         ).count()
 
         self.assertEqual(new_target_activity_count, original_target_activity_count + 1)
 
-    def test_new_event_around_me_with_group_organized_event(self):
+    def test_new_event_suggestion_with_group_organized_event(self):
         recipients = Person.objects.filter(pk=self.attendee1.pk)
 
         original_target_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_NEW_EVENT_AROUNDME,
+            type=Activity.TYPE_EVENT_SUGGESTION,
             recipient=self.attendee1,
             supportgroup=self.group_event.organizers_groups.first(),
         ).count()
 
-        notifications.new_event_around_people_notification(self.group_event, recipients)
+        notifications.new_event_suggestion_notification(self.group_event, recipients)
 
         new_target_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_NEW_EVENT_AROUNDME,
+            type=Activity.TYPE_EVENT_SUGGESTION,
             recipient=self.attendee1,
             supportgroup=self.group_event.organizers_groups.first(),
         ).count()
