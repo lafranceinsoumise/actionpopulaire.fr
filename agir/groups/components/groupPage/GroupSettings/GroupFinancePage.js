@@ -50,7 +50,12 @@ const GroupFinancePage = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>{withGroupWord`Dons alloués à mon groupe`}</StyledTitle>
       <PageFadeIn ready={!!data} wait={<DonationSkeleton />}>
-        <p style={{ fontSize: "2rem", margin: 0 }}>{data?.donation} €</p>
+        <p style={{ fontSize: "2rem", margin: 0 }}>
+          {new Intl.NumberFormat("fr-FR", {
+            style: "currency",
+            currency: "EUR",
+          }).format(data?.donation / 100)}
+        </p>
         <Spacer size=".5rem" />
         {data?.donation === 0 && (
           <p style={{ color: style.black700 }}>
