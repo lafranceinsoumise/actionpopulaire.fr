@@ -85,10 +85,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "Annonce",
-                "ordering": ("start_date", "end_date"),
-            },
+            options={"verbose_name": "Annonce", "ordering": ("start_date", "end_date")},
         ),
         migrations.AddIndex(
             model_name="announcement",

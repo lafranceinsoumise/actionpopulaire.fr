@@ -5,9 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("activity", "0001_initial"),
-    ]
+    dependencies = [("activity", "0001_initial")]
 
     operations = [
         migrations.AlterModelOptions(
@@ -19,7 +17,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.RemoveIndex(
-            model_name="activity", name="notifications_by_recipient",
+            model_name="activity", name="notifications_by_recipient"
         ),
         migrations.AddIndex(
             model_name="activity",

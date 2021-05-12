@@ -8,9 +8,7 @@ import stdimage.validators
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("activity", "0003_announcements"),
-    ]
+    dependencies = [("activity", "0003_announcements")]
 
     operations = [
         migrations.AlterField(
@@ -25,5 +23,5 @@ class Migration(migrations.Migration):
                 validators=[stdimage.validators.MinSizeValidator(255, 160)],
                 verbose_name="Bannière",
             ),
-        ),
+        )
     ]

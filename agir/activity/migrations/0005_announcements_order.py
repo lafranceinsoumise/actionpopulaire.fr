@@ -5,9 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("activity", "0004_auto_20201208_1807"),
-    ]
+    dependencies = [("activity", "0004_auto_20201208_1807")]
 
     operations = [
         migrations.AlterModelOptions(
@@ -18,7 +16,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.RemoveIndex(
-            model_name="announcement", name="announcement_date_index",
+            model_name="announcement", name="announcement_date_index"
         ),
         migrations.AddIndex(
             model_name="announcement",

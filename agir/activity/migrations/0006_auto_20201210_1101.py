@@ -5,9 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("activity", "0005_announcements_order"),
-    ]
+    dependencies = [("activity", "0005_announcements_order")]
 
     operations = [
         migrations.AlterField(
@@ -23,5 +21,5 @@ class Migration(migrations.Migration):
                 max_length=1,
                 verbose_name="Statut",
             ),
-        ),
+        )
     ]

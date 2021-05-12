@@ -6,9 +6,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("activity", "0008_auto_20201210_1524"),
-    ]
+    dependencies = [("activity", "0008_auto_20201210_1524")]
 
     operations = [
         migrations.AddField(
@@ -62,6 +60,6 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="activity", unique_together={("recipient", "announcement")},
+            name="activity", unique_together={("recipient", "announcement")}
         ),
     ]
