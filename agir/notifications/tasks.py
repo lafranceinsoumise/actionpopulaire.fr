@@ -23,8 +23,8 @@ def send_webpush_activity(activity_pk, webpush_device_pk):
 
     try:
         result = webpush_device.send_message(message)
-        if activity.is_pushed == False:
-            activity.is_pushed = True
+        if activity.pushed == False:
+            activity.pushed = True
             activity.save()
         return result
     except WebPushError as e:
@@ -52,7 +52,7 @@ def send_apns_activity(activity_pk, apns_device_pk):
         thread_id=activity.type,
         extra={"url": message.data["url"]},
     )
-    if activity.is_pushed == False:
-        activity.is_pushed = True
+    if activity.pushed == False:
+        activity.pushed = True
         activity.save()
     return result
