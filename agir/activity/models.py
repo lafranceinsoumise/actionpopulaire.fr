@@ -49,7 +49,6 @@ class Activity(TimeStampedModel):
     TYPE_REFERRAL = "referral-accepted"
     TYPE_GROUP_CREATION_CONFIRMATION = "group-creation-confirmation"
     TYPE_ACCEPTED_INVITATION_MEMBER = "accepted-invitation-member"
-    TYPE_NEW_EVENT_AROUNDME = "new-event-aroundme"
     TYPE_TRANSFERRED_GROUP_MEMBER = "transferred-group-member"
     TYPE_NEW_MEMBERS_THROUGH_TRANSFER = "new-members-through-transfer"
     TYPE_WAITING_LOCATION_EVENT = "waiting-location-event"
@@ -75,7 +74,6 @@ class Activity(TimeStampedModel):
         TYPE_CANCELLED_EVENT,
         TYPE_REFERRAL,
         TYPE_GROUP_COORGANIZATION_INFO,
-        TYPE_NEW_EVENT_AROUNDME,
         TYPE_ACCEPTED_INVITATION_MEMBER,
         TYPE_GROUP_COORGANIZATION_ACCEPTED,
         TYPE_WAITING_LOCATION_EVENT,
@@ -124,7 +122,6 @@ class Activity(TimeStampedModel):
         (TYPE_EVENT_UPDATE, "Mise à jour d'un événement"),
         (TYPE_NEW_EVENT_MYGROUPS, "Votre groupe organise un événement"),
         (TYPE_NEW_REPORT, "Nouveau compte-rendu d'événement"),
-        (TYPE_NEW_EVENT_AROUNDME, "Nouvel événement près de chez moi"),
         (TYPE_CANCELLED_EVENT, "Événement annulé"),
         (TYPE_REFERRAL, "Personne parrainée"),
         (TYPE_ANNOUNCEMENT, "Associée à une annonce"),
@@ -291,7 +288,7 @@ class Announcement(BaseAPIResource):
         verbose_name = "Annonce"
         indexes = (
             models.Index(
-                fields=("-start_date", "end_date"), name="announcement_date_index",
+                fields=("-start_date", "end_date"), name="announcement_date_index"
             ),
         )
         ordering = ("-start_date", "end_date")

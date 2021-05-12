@@ -381,7 +381,7 @@ const ActivityCard = (props) => {
           organisateurs
         </ActivityCardContainer>
       );
-    case "new-event-aroundme":
+    case "event-suggestion":
       return (
         <ActivityCardContainer {...props}>
           Un nouvel événement a été publié près de chez vous par{" "}

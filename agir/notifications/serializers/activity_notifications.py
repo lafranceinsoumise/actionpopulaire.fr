@@ -9,7 +9,6 @@ from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 
 __all__ = ["ACTIVITY_NOTIFICATION_SERIALIZERS"]
 
-
 CHANGED_DATA_LABEL = {
     "name": "le nom",
     "description": "le détail",
@@ -96,7 +95,7 @@ class WaitingLocationGroupActivityNotificationSerializer(
 
     def get_url(self, activity):
         return front_url(
-            "change_group_location", kwargs={"pk": activity.supportgroup_id},
+            "change_group_location", kwargs={"pk": activity.supportgroup_id}
         )
 
 
@@ -107,7 +106,7 @@ class WaitingLocationEventActivityNotificationSerializer(
         return f"Précisez la localisation de {activity.event.name}"
 
     def get_url(self, activity):
-        return front_url("change_event_location", kwargs={"pk": activity.event_id},)
+        return front_url("change_event_location", kwargs={"pk": activity.event_id})
 
 
 class GroupMembershipLimitReminderActivityNotificationSerializer(
@@ -195,7 +194,7 @@ class NewAttendeeActivityNotificationSerializer(ActivityNotificationSerializer):
         )
 
     def get_url(self, activity):
-        return front_url("manage_event", kwargs={"pk": activity.event_id},)
+        return front_url("manage_event", kwargs={"pk": activity.event_id})
 
 
 class EventUpdateActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -233,7 +232,7 @@ class NewEventMyGroupsActivityNotificationSerializer(ActivityNotificationSeriali
         return f"Nouvel événement de {activity.supportgroup.name} — Confirmez votre participation pour recevoir les mises à jour"
 
     def get_url(self, activity):
-        return front_url("view_event", kwargs={"pk": activity.event_id},)
+        return front_url("view_event", kwargs={"pk": activity.event_id})
 
 
 class NewReportActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -241,7 +240,7 @@ class NewReportActivityNotificationSerializer(ActivityNotificationSerializer):
         return f"Le compte-rendu de {activity.event.name} du {activity.event.start_time.strftime('%d/%m')} a été ajouté"
 
     def get_url(self, activity):
-        return front_url("view_event", kwargs={"pk": activity.event_id},)
+        return front_url("view_event", kwargs={"pk": activity.event_id})
 
 
 class CancelledEventActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -265,7 +264,7 @@ class GroupCoorganizationAcceptedActivityNotificationSerializer(
         return f"{activity.supportgroup.name} a accepté de co-organiser {activity.event.name}"
 
     def get_url(self, activity):
-        return front_url("manage_event", kwargs={"pk": activity.event_id},)
+        return front_url("manage_event", kwargs={"pk": activity.event_id})
 
 
 class NewMembersThroughTransferActivityNotificationSerializer(
@@ -297,7 +296,7 @@ class TransferredGroupMemberActivityNotificationSerializer(
         return f"Vous avez été transféré·e de {activity.meta['oldGroup']} et avez rejoint {activity.supportgroup.name}. Votre nouvelle équipe vous attend !"
 
     def get_url(self, activity):
-        return front_url("view_group", kwargs={"pk": activity.supportgroup_id},)
+        return front_url("view_group", kwargs={"pk": activity.supportgroup_id})
 
 
 class WaitingPaymentActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -308,7 +307,7 @@ class WaitingPaymentActivityNotificationSerializer(ActivityNotificationSerialize
 
     def get_url(self, activity):
         # TODO: replace with payment url once the activity is actually implemented
-        return front_url("view_event", kwargs={"pk": activity.event_id},)
+        return front_url("view_event", kwargs={"pk": activity.event_id})
 
 
 class GroupCoorganizationInviteActivityNotificationSerializer(
@@ -320,16 +319,6 @@ class GroupCoorganizationInviteActivityNotificationSerializer(
         return f"Votre groupe {activity.supportgroup.name} est invité à co-organiser {activity.event.name}"
 
 
-class NewEventAroundMeActivityNotificationSerializer(ActivityNotificationSerializer):
-    title = serializers.ReadOnlyField(default="📆 Événement près de chez vous")
-
-    def get_body(self, activity):
-        return f"Rejoignez {activity.supportgroup.name} pour {activity.event.name}"
-
-    def get_url(self, activity):
-        return front_url("view_event", kwargs={"pk": activity.event_id},)
-
-
 class GroupCoorganizationInfoActivityNotificationSerializer(
     ActivityNotificationSerializer
 ):
@@ -339,7 +328,7 @@ class GroupCoorganizationInfoActivityNotificationSerializer(
         return f"Votre groupe sera présent à {activity.event.name}"
 
     def get_url(self, activity):
-        return front_url("view_event", kwargs={"pk": activity.event_id},)
+        return front_url("view_event", kwargs={"pk": activity.event_id})
 
 
 class NewMessageActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -392,6 +381,16 @@ class NewCommentActivityNotificationSerializer(ActivityNotificationSerializer):
         )
 
 
+class EventSuggestionNotificationSerializer(ActivityNotificationSerializer):
+    title = serializers.ReadOnlyField(default="📆 Événement près de chez vous")
+
+    def get_body(self, activity):
+        return f"Rejoignez {activity.supportgroup.name} pour {activity.event.name}"
+
+    def get_url(self, activity):
+        return front_url("view_event", kwargs={"pk": activity.event_id})
+
+
 ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_GROUP_INVITATION: GroupInvitationActivityNotificationSerializer,
     Activity.TYPE_NEW_MEMBER: NewMemberActivityNotificationSerializer,
@@ -411,8 +410,8 @@ ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_TRANSFERRED_GROUP_MEMBER: TransferredGroupMemberActivityNotificationSerializer,
     Activity.TYPE_WAITING_PAYMENT: WaitingPaymentActivityNotificationSerializer,
     Activity.TYPE_GROUP_COORGANIZATION_INVITE: GroupCoorganizationInviteActivityNotificationSerializer,
-    Activity.TYPE_NEW_EVENT_AROUNDME: NewEventAroundMeActivityNotificationSerializer,
     Activity.TYPE_GROUP_COORGANIZATION_INFO: GroupCoorganizationInfoActivityNotificationSerializer,
     Activity.TYPE_NEW_MESSAGE: NewMessageActivityNotificationSerializer,
     Activity.TYPE_NEW_COMMENT: NewCommentActivityNotificationSerializer,
+    Activity.TYPE_EVENT_SUGGESTION: EventSuggestionNotificationSerializer,
 }
