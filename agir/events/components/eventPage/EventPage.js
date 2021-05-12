@@ -182,6 +182,8 @@ const MobileLayout = (props) => {
             center={location.coordinates.coordinates}
             iconConfiguration={subtype}
             isStatic
+            staticMapUrl={location?.staticMapUrl}
+            $animated
           />
         ) : null}
       </StyledMap>
@@ -312,6 +314,7 @@ EventPage.propTypes = {
     coordinates: PropTypes.shape({
       coordinates: PropTypes.arrayOf(PropTypes.number),
     }),
+    staticMapUrl: PropTypes.string,
   }),
   contact: PropTypes.shape(ContactCard.propTypes),
   options: PropTypes.shape({ price: PropTypes.string }),

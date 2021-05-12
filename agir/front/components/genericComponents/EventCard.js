@@ -201,7 +201,7 @@ const StyledCard = styled(Card)`
 `;
 
 const EventCardIllustration = (props) => {
-  const { image, coordinates, subtype } = props;
+  const { image, coordinates, subtype, staticMapUrl } = props;
 
   const isVisible = useResponsiveMemo(
     !!image || Array.isArray(coordinates),
@@ -227,6 +227,7 @@ const EventCardIllustration = (props) => {
           center={coordinates}
           iconConfiguration={subtype}
           isStatic
+          staticMapUrl={staticMapUrl}
         />
       </Illustration>
     );
@@ -244,6 +245,7 @@ EventCardIllustration.propTypes = {
   image: PropTypes.string,
   coordinates: PropTypes.array,
   subtype: PropTypes.object,
+  staticMapUrl: PropTypes.string,
 };
 
 const EventCard = (props) => {
@@ -287,9 +289,8 @@ const EventCard = (props) => {
       <EventCardIllustration
         image={illustration}
         subtype={subtype}
-        coordinates={
-          location && location.coordinates && location.coordinates.coordinates
-        }
+        coordinates={location?.coordinates?.coordinates}
+        staticMapUrl={location?.staticMapUrl}
       />
       <header>
         <p
@@ -405,6 +406,7 @@ EventCard.propTypes = {
     coordinates: PropTypes.shape({
       coordinates: PropTypes.arrayOf(PropTypes.number),
     }),
+    staticMapUrl: PropTypes.string,
   }),
   rsvp: PropTypes.string,
   routes: PropTypes.shape({
