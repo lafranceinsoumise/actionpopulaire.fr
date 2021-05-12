@@ -82,6 +82,11 @@ def push_new_activity(sender, instance, created=False, **kwargs):
     sender=APNSDevice,
     dispatch_uid="create_default_person_subscriptions__apns",
 )
+@receiver(
+    post_save,
+    sender=GCMDevice,
+    dispatch_uid="create_default_person_subscriptions__fcm",
+)
 def push_device_post_save_handler(sender, instance, created=False, **kwargs):
     is_first_device = (
         instance is not None
@@ -89,11 +94,22 @@ def push_device_post_save_handler(sender, instance, created=False, **kwargs):
         and not Subscription.objects.filter(person=instance.user.person).exists()
         and APNSDevice.objects.filter(user=instance.user).count()
         + WebPushDevice.objects.filter(user=instance.user).count()
+        + GCMDevice.objects.filter(user=instance.user).count()
         == 1
     )
 
     if is_first_device:
         create_default_person_subscriptions(instance.user.person)
+
+
+@receiver(
+    post_save,
+    sender=GCMDevice,
+    dispatch_uid="create_default_person_subscriptions__fcm",
+)
+def fcm_device_replace_webpush(sender, instance, created=False, **kwargs):
+    if instance is not None and created is True:
+        WebPushDevice.objects.filter(user=instance.user).update(active=False)
 
 
 @receiver(
