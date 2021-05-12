@@ -525,10 +525,11 @@ class GroupMemberUpdateAPIView(UpdateAPIView):
     permission_classes = (GroupManagementPermission,)
     serializer_class = MembershipSerializer
 
-    def get_object(self):
-        membership = super(GroupMemberUpdateAPIView, self).get_object()
-        self.check_object_permissions(self.request, membership.supportgroup)
-        return membership
+    def check_object_permissions(self, request, obj):
+        # Object permission are for the membership's support group, not the object itself
+        return super(GroupMemberUpdateAPIView, self).check_object_permissions(
+            request, obj.supportgroup
+        )
 
 
 class GroupFinancePermission(GlobalOrObjectPermissions):
