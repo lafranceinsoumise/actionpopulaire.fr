@@ -16,10 +16,14 @@ class PollParticipationForm(Form):
         self.poll = poll
         self.helper = FormHelper()
 
+        options = poll.options.all()
+        if self.poll.rules.get("shuffle", True):
+            options = options.order_by("?")
+
         if "options" in self.poll.rules and self.poll.rules["options"] == 1:
             self.fields["choice"] = ModelChoiceField(
                 label="Choix",
-                queryset=poll.options.all().order_by("?"),
+                queryset=options,
                 widget=RadioSelect,
                 required=True,
                 empty_label=None,
@@ -27,9 +31,7 @@ class PollParticipationForm(Form):
             )
         else:
             self.fields["choice"] = ModelMultipleChoiceField(
-                label="Choix",
-                queryset=poll.options.all().order_by("?"),
-                widget=CheckboxSelectMultiple(),
+                label="Choix", queryset=options, widget=CheckboxSelectMultiple(),
             )
 
         self.helper.add_input(Submit("submit", "Confirmer"))

@@ -5,13 +5,13 @@ import PropTypes from "prop-types";
 import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
-  getRoutes,
-  getUser,
-  getIsSessionLoaded,
-  getBackLink,
-  getTopBarRightLink,
   getAdminLink,
+  getBackLink,
   getIsConnected,
+  getIsSessionLoaded,
+  getRoutes,
+  getTopBarRightLink,
+  getUser,
 } from "@agir/front/globalContext/reducers";
 import { Hide } from "@agir/front/genericComponents/grid";
 
@@ -27,7 +27,6 @@ import AdminLink from "./AdminLink";
 import MenuLink from "./MenuLink";
 import { TopBarMainLink } from "./TopBarMainLink";
 import DownloadApp from "@agir/front/genericComponents/DownloadApp.js";
-import { useMobileApp } from "@agir/front/app/hooks";
 
 const NavBar = styled.div``;
 
@@ -63,18 +62,6 @@ const TopBarContainer = styled.div`
   max-width: 1320px;
   margin: 0 auto;
   flex-grow: 1;
-
-  h1 {
-    font-family: ${style.fontFamilyBase};
-    font-style: normal;
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 24px;
-  }
-
-  h1:hover {
-    text-decoration: none;
-  }
 `;
 
 const HorizontalFlex = styled.div`
@@ -108,7 +95,6 @@ export const TopBar = (props) => {
   const topBarRightLink = useSelector(getTopBarRightLink);
   const adminLink = useSelector(getAdminLink);
   const isDesktop = useIsDesktop();
-  const { isMobileApp } = useMobileApp();
   const isConnected = useSelector(getIsConnected);
 
   return (
@@ -119,16 +105,16 @@ export const TopBar = (props) => {
         <TopBarContainer>
           {isSessionLoaded ? (
             backLink ? (
-              <Hide
-                over
-                as="MenuLink"
-                to={backLink.to}
-                href={backLink.href}
-                route={backLink.route}
-                title={backLink.label}
-                aria-label={backLink.label}
-              >
-                <FeatherIcon name="arrow-left" />
+              <Hide over>
+                <MenuLink
+                  to={backLink.to}
+                  href={backLink.href}
+                  route={backLink.route}
+                  title={backLink.label}
+                  aria-label={backLink.label}
+                >
+                  <FeatherIcon name="arrow-left" />
+                </MenuLink>
               </Hide>
             ) : (
               <Hide over>
@@ -142,10 +128,10 @@ export const TopBar = (props) => {
             center={!isConnected || path === "/" || typeof path === "undefined"}
           >
             <Hide over>
-              <TopBarMainLink isMobileApp={isMobileApp} path={path} />
+              <TopBarMainLink path={path} />
             </Hide>
             <Hide under>
-              <MenuLink href={routes.dashboard}>
+              <MenuLink as={"a"} href="/">
                 <Logo />
               </MenuLink>
             </Hide>

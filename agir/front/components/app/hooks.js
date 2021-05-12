@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useHistory } from "react-router-dom";
 
 import { useLocalStorage, createGlobalState } from "react-use";
@@ -63,10 +63,10 @@ export const useDownloadBanner = () => {
   const [visitCounter] = useLocalStorage("AP_vcount");
   const display = bannerCounter <= visitCounter;
 
-  const hide = () => {
+  const hide = useCallback(() => {
     setBannerCounter(visitCounter + 25);
     window.localStorage.setItem(BANNER_ID, visitCounter + 25);
-  };
+  }, [setBannerCounter, visitCounter]);
 
   return [display, hide];
 };

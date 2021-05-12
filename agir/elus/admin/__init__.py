@@ -456,7 +456,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
                     "mandat",
                     "is_insoumise",
                     "is_2022",
-                    "is_2022_appel_elus",
+                    "signataire_appel",
                     "commentaires",
                 )
             },
@@ -525,7 +525,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
                     "mandat",
                     "is_insoumise",
                     "is_2022",
-                    "is_2022_appel_elus",
+                    "signataire_appel",
                     "commentaires",
                 )
             },
