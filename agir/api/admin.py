@@ -32,3 +32,4 @@ class PushDeviceAdmin(DeviceAdmin):
 
 admin.site.register(WebPushDevice, PushDeviceAdmin)
 admin.site.register(APNSDevice, PushDeviceAdmin)
+admin.site.register(GCMDevice, PushDeviceAdmin)

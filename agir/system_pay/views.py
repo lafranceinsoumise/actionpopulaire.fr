@@ -78,6 +78,7 @@ class SystemPaySubscriptionRedirectView(BaseSystemPayRedirectView):
             **kwargs,
         )
 
+    @never_cache
     def get(self, request, *args, **kwargs):
         self.subscription = kwargs["subscription"]
         self.transaction = SystemPayTransaction.objects.create(
