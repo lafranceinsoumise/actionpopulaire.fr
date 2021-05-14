@@ -207,10 +207,13 @@ const FormulaireTerminerParrainage = ({ elu, onStatusChange }) => {
           de parrainage des élu⋅es pour la candidature de Jean-Luc Mélenchon.
         </p>
         <p>
-          <strong>Conseil</strong> : Utilisez la documentation pour vous aider
-          dans votre discours. <strong>Déplacez-vous en mairie</strong> pour
-          obtenir de meilleurs résultats, le téléphone est généralement
-          insuffisant
+          <strong>Conseil</strong> : Utilisez{" "}
+          <a href="https://noussommespour.fr/le-guide-de-la-recherche-des-parrainages/">
+            la documentation
+          </a>{" "}
+          pour vous aider dans votre discours . Prenez rendez-vous par
+          téléphone, et <strong>déplacez-vous en mairie</strong> pour de
+          meilleurs résultats !
         </p>
       </CadreAvertissement>
       <form onSubmit={soumettreFormulaire}>
