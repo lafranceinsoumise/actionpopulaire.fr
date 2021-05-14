@@ -130,7 +130,6 @@ const Layout = styled.div`
 
   margin: 0;
   padding: 0;
-  margin-top: -72px;
   height: 100vh;
   max-height: 100vh;
   overflow: hidden;

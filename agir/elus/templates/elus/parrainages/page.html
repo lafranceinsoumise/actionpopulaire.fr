@@ -6,6 +6,11 @@
 
 {% block additional_headers %}
   {{ elus|json_script:"elusInitiaux" }}
+  <style>
+    body {
+      padding: 0;
+    }
+  </style>
 {% endblock %}
 
 {% block whole_page %}
