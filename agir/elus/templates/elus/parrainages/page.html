@@ -1,19 +1,14 @@
-{% extends "front/layout.html" %}
+{% extends "front/react_view.html" %}
 
 {% block title %}
   Collecte des parrainages
 {% endblock %}
 
 {% block additional_headers %}
-  {{ elus|json_script:"elusInitiaux" }}
+  {{ block.super }}
   <style>
     body {
       padding: 0;
     }
   </style>
-{% endblock %}
-
-{% block whole_page %}
-  <div id="app"></div>
-  {% include "elus/parrainages.bundle.html" %}
 {% endblock %}

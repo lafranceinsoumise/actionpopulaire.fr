@@ -1,14 +1,12 @@
-import React, { useCallback, useReducer } from "react";
-import styled from "styled-components";
+import React, { useReducer } from "react";
+import styled, { ThemeProvider } from "styled-components";
 import FicheElu from "@agir/elus/parrainages/FicheElu";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import Logo from "@agir/front/allPages/TopBar/Logo";
-import style from "@agir/front/genericComponents/_variables.scss";
 import { SelecteurElus } from "./SelecteurElus";
 import { ELU_STATUTS } from "./types";
 import ScrollableBlock from "./ScrollableBlock";
-import PropTypes from "prop-types";
-import { useIsDesktop } from "../../../front/components/genericComponents/grid";
+import Header from "./Header";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 
 const ACTION_TYPES = {
   CHANGER_STATUT: "changer-statut",
@@ -33,7 +31,6 @@ const initialState = () => {
 };
 
 const reducer = (state, action) => {
-  console.log(state, action);
   if (action.type === ACTION_TYPES.CHANGER_STATUT) {
     const { elusAContacter, elusProches, elusRecherche, selection } = state;
     const nouvelElu = action.elu;
@@ -68,59 +65,6 @@ const reducer = (state, action) => {
   return state;
 };
 
-const HeaderLayout = styled.nav`
-  flex-grow: 0;
-  padding: 0.75rem 2rem;
-
-  background-color: #fff;
-
-  display: flex;
-  justify-content: space-between;
-  margin: 0;
-
-  @media (max-width: ${+style.collapse - 1}px) {
-    padding: 1rem 1.5rem;
-  }
-  
-  border-bottom: 2px solid ${style.black100};
-  
-  align:items: center;
-
-  > a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  > *:nth-child(2) {
-    flex-grow: 1;    
-  }
-`;
-const Header = ({ onClose }) => {
-  const isDesktop = useIsDesktop();
-  const backCallback = useCallback(
-    (e) => {
-      if (isDesktop || onClose === null) return;
-
-      e.preventDefault();
-      onClose();
-    },
-    [isDesktop, onClose]
-  );
-
-  return (
-    <HeaderLayout>
-      <a href="/" aria-label="Retour" onClick={backCallback}>
-        <FeatherIcon name="arrow-left" color={style.black1000} />
-      </a>
-      <a href="/" aria-label="Action populaire">
-        <Logo />
-      </a>
-    </HeaderLayout>
-  );
-};
-Header.propTypes = { onClose: PropTypes.func };
-
 const Layout = styled.div`
   display: flex;
   flex-direction: column;
@@ -133,16 +77,14 @@ const Layout = styled.div`
   height: 100vh;
   max-height: 100vh;
   overflow: hidden;
-
-  @media (max-width: ${(props) => props.theme.collapse}px) {
-    margin-top: -56px;
-  }
 `;
 
 const MainLayout = styled.main`
   display: flex;
   align-items: stretch;
   flex-grow: 1;
+
+  position: relative;
 
   > ${SelecteurElus.Layout} {
     width: 470px;
@@ -178,40 +120,41 @@ const MainLayout = styled.main`
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, null, initialState);
-  console.log(state);
 
   return (
-    <Layout>
-      <Header
-        onClose={
-          state.selection &&
-          (() => dispatch({ type: ACTION_TYPES.SELECTION, elu: null }))
-        }
-      />
-      <MainLayout>
-        <SelecteurElus
-          {...state}
-          onSearchResults={(resultats) =>
-            dispatch({
-              type: ACTION_TYPES.RESULTATS_RECHERCHE,
-              resultats,
-            })
+    <ThemeProvider theme={style}>
+      <Layout>
+        <Header
+          onClose={
+            state.selection &&
+            (() => dispatch({ type: ACTION_TYPES.SELECTION, elu: null }))
           }
-          onSelect={(elu) => dispatch({ type: ACTION_TYPES.SELECTION, elu })}
         />
-        <ScrollableBlock className={state.selection ? "selection" : ""}>
-          <FicheElu
-            elu={state.selection}
-            onStatusChange={(elu) => {
+        <MainLayout>
+          <SelecteurElus
+            {...state}
+            onSearchResults={(resultats) =>
               dispatch({
-                type: ACTION_TYPES.CHANGER_STATUT,
-                elu,
-              });
-            }}
+                type: ACTION_TYPES.RESULTATS_RECHERCHE,
+                resultats,
+              })
+            }
+            onSelect={(elu) => dispatch({ type: ACTION_TYPES.SELECTION, elu })}
           />
-        </ScrollableBlock>
-      </MainLayout>
-    </Layout>
+          <ScrollableBlock className={state.selection ? "selection" : ""}>
+            <FicheElu
+              elu={state.selection}
+              onStatusChange={(elu) => {
+                dispatch({
+                  type: ACTION_TYPES.CHANGER_STATUT,
+                  elu,
+                });
+              }}
+            />
+          </ScrollableBlock>
+        </MainLayout>
+      </Layout>
+    </ThemeProvider>
   );
 };
 

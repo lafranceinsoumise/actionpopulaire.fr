@@ -4,6 +4,9 @@ import App from "@agir/elus/parrainages/App";
 import { renderReactComponent } from "@agir/lib/utils/react";
 import { GlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 
+import "@agir/front/genericComponents/style.scss";
+import "./style.css";
+
 const displayInterface = () => {
   const elusProchesScript = document.getElementById("elusProches");
   let elusProchesData = [];
@@ -18,5 +21,10 @@ const displayInterface = () => {
     </GlobalContextProvider>,
     document.getElementById("app")
   );
+
+  const appLoader = document.getElementById("app_loader");
+  if (appLoader) {
+    appLoader.remove();
+  }
 };
 onDOMReady(displayInterface);

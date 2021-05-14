@@ -25,6 +25,7 @@ from agir.elus.serializers import (
     CreerRechercheSerializer,
     CRITERE_INCLUSION_ELUS,
 )
+from agir.front.view_mixins import ReactBaseView
 from agir.lib.rest_framework_permissions import (
     IsPersonPermission,
     HasSpecificPermissions,
@@ -86,9 +87,11 @@ def queryset_elus(person):
 
 
 class RechercheParrainagesView(
-    SoftLoginRequiredMixin, PermissionRequiredMixin, TemplateView
+    SoftLoginRequiredMixin, PermissionRequiredMixin, ReactBaseView
 ):
-    template_name = "elus/parrainages/page.html"
+    bundle_name = "elus/parrainages"
+    app_mount_id = "app"
+
     permission_required = "elus.acces_parrainages"
 
     def get_context_data(self, **kwargs):
@@ -141,7 +144,9 @@ class RechercheParrainagesView(
         elus_proches = EluMunicipalSerializer(elus_proches_qs, many=True).data
 
         return super().get_context_data(
-            **kwargs, elus={"aContacter": elus_a_contacter, "proches": elus_proches},
+            **kwargs,
+            export_data={"aContacter": elus_a_contacter, "proches": elus_proches},
+            data_script_id="elusInitiaux",
         )
 
 

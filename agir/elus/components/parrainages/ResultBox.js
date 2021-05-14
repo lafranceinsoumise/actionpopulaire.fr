@@ -24,22 +24,22 @@ const ResultBoxLayout = styled.ul`
 `;
 
 const Button = styled.button`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0;
-  background-color: ${(props) => props.theme.black25};
+  width: 100%;
 
+  background-color: ${(props) => props.theme.black25};
   border: 0;
   margin: 0;
   padding: 1rem;
-
   border-left: 3px solid
     ${(props) =>
       props.selected ? props.theme.primary500 : props.theme.black25};
+  cursor: pointer;
 
   text-align: left;
-  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const ResultBox = ({ elus, onSelect, selected }) => {
