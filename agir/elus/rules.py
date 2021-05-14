@@ -20,4 +20,12 @@ def est_elu_verifie(role, obj=None):
     )
 
 
-# rules.add_perm("elus.acces_parrainages", is_authenticated_person & est_elu_verifie)
+@rules.predicate
+def est_signataire_appel(role, obj=None):
+    return "mandat" in role.person.meta.get("subscriptions", {}).get("NSP", {})
+
+
+rules.add_perm(
+    "elus.acces_parrainages",
+    is_authenticated_person & est_elu_verifie & est_signataire_appel,
+)
