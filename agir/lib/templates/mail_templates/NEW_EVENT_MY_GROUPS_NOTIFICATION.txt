@@ -1,0 +1,20 @@
+{{ GREETINGS }}
+Participez à l'action de {{ GROUP }} !  
+
+>> {{ EVENT_NAME }}
+>> {{ EVENT_SCHEDULE }}
+>> {{ LOCATION_NAME }} ({{ LOCATION_ZIP }})
+
+>> Je participe !
+>> {{ EVENT_LINK }}
+
+Sauf mention contraire, il n'est pas obligatoire de valider
+votre présence sur le site pour vous rendre à l'événement.
+Cependant, en prévenant à l'avance votre animateur·ice,
+cela lui permet de mieux préparer son organisation.
+
+Amitiés,
+L’équipe d’Action Populaire
+
+------------------------------------------------------------------
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.

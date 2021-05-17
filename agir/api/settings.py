@@ -362,6 +362,8 @@ EMAIL_TEMPLATES = {
     "UNEXISTING_EMAIL_LOGIN": "https://mosaico.lafranceinsoumise.fr/emails/1cc10994-38d6-45ea-8f70-a3102eb955e9.html",
     # SUBSCRIPTION_CONFIRMATION_MESSAGE variables: CONFIRMATION_URL
     "SUBSCRIPTION_CONFIRMATION_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/315b969b-87a7-4b2e-9d61-697af4cbd4a7.html",
+    # NEW_EVENT_MY_GROUPS_NOTIFICATION variables: GROUP, EVENT_NAME, EVENT_SCHEDULE, LOCATION_NAME, LOCATION_ZIP, EVENT_LINK
+    "NEW_EVENT_MY_GROUPS_NOTIFICATION": "https://mosaico.lafranceinsoumise.fr/emails/65c722ed-1958-40e8-95ea-1e644bb3239a.html",
 }
 
 EMAIL_FROM = os.environ.get(

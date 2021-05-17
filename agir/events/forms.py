@@ -15,7 +15,7 @@ from phonenumber_field.formfields import PhoneNumberField
 from agir.events.actions import legal
 from agir.events.actions.legal import needs_approval
 from agir.groups.models import SupportGroup, Membership
-from agir.groups.tasks import notify_new_group_event
+from agir.groups.tasks import notify_new_group_event, send_new_group_event_email
 from agir.lib.form_components import *
 from agir.lib.form_mixins import (
     LocationFormMixin,
@@ -262,6 +262,13 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
             transaction.on_commit(
                 partial(
                     notify_new_group_event.delay,
+                    self.cleaned_data["as_group"].pk,
+                    self.instance.pk,
+                )
+            )
+            transaction.on_commit(
+                partial(
+                    send_new_group_event_email.delay,
                     self.cleaned_data["as_group"].pk,
                     self.instance.pk,
                 )

@@ -3,6 +3,7 @@ from collections import OrderedDict
 from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
+from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
 from django.utils.html import format_html_join, format_html
 from django.utils.translation import ugettext_lazy as _
@@ -282,7 +283,6 @@ def notify_new_group_event(group_pk, event_pk):
         return
 
     recipients = group.members.all()
-
     Activity.objects.bulk_create(
         [
             Activity(
@@ -294,6 +294,34 @@ def notify_new_group_event(group_pk, event_pk):
             for r in recipients
         ],
         send_post_save_signal=True,
+    )
+
+
+@post_save_task
+@emailing_task
+def send_new_group_event_email(group_pk, event_pk):
+    group = SupportGroup.objects.get(pk=group_pk)
+    event = Event.objects.get(pk=event_pk)
+
+    if not OrganizerConfig.objects.filter(event=event, as_group=group):
+        return
+
+    recipients = group.members.all()
+    bindings = {
+        "GROUP": group.name.capitalize(),
+        "EVENT_NAME": event.name.capitalize(),
+        "EVENT_SCHEDULE": event.get_display_date(),
+        "LOCATION_NAME": event.location_name,
+        "LOCATION_ZIP": event.location_zip,
+        "EVENT_LINK": event.get_absolute_url(),
+    }
+    subject = f"{_date(event.start_time, 'l').capitalize()} : {event.name.capitalize()} de {group.name.capitalize()}"
+    send_mosaico_email(
+        code="NEW_EVENT_MY_GROUPS_NOTIFICATION",
+        subject=subject,
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings,
     )
 
 

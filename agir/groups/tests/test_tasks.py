@@ -9,6 +9,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from agir.lib.tests.mixins import create_group, create_location
+from agir.events.models import Event, OrganizerConfig
 from agir.people.models import Person
 from .. import tasks
 from ..actions.notifications import someone_joined_notification
@@ -444,3 +445,60 @@ class NotificationTasksTestCase(TestCase):
         self.assertEqual(
             new_activity_count, old_activity_count + managing_membership.count()
         )
+
+    def test_new_group_event_notifications_are_sent(self):
+        supportgroup = self.group
+        recipients = self.group.members.all()
+        now = timezone.now()
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+        event = Event.objects.create(
+            name="événement test pour groupe",
+            start_time=now + 3 * day,
+            end_time=now + 3 * day + 4 * hour,
+            location_name="Lieu de l'événement",
+            location_address1="Place denfert-rochereau",
+            location_zip="75014",
+            location_city="Paris",
+            location_country="FR",
+        )
+        OrganizerConfig.objects.create(
+            event=event, person=self.creator, as_group=self.group
+        )
+        old_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_NEW_EVENT_MYGROUPS,
+            recipient__in=recipients,
+            supportgroup=supportgroup,
+            event=event,
+        ).count()
+        tasks.notify_new_group_event(supportgroup.pk, event.pk)
+        new_activity_count = Activity.objects.filter(
+            type=Activity.TYPE_NEW_EVENT_MYGROUPS,
+            recipient__in=recipients,
+            supportgroup=supportgroup,
+            event=event,
+        ).count()
+        self.assertEqual(new_activity_count - old_activity_count, recipients.count())
+
+    @patch("agir.groups.tasks.send_mosaico_email")
+    def test_new_group_event_emails_are_sent(self, send_mosaico_email):
+        supportgroup = self.group
+        now = timezone.now()
+        day = timezone.timedelta(days=1)
+        hour = timezone.timedelta(hours=1)
+        event = Event.objects.create(
+            name="événement test pour groupe",
+            start_time=now + 3 * day,
+            end_time=now + 3 * day + 4 * hour,
+            location_name="Lieu de l'événement",
+            location_address1="Place denfert-rochereau",
+            location_zip="75014",
+            location_city="Paris",
+            location_country="FR",
+        )
+        OrganizerConfig.objects.create(
+            event=event, person=self.creator, as_group=self.group
+        )
+        send_mosaico_email.assert_not_called()
+        tasks.send_new_group_event_email(supportgroup.pk, event.pk)
+        send_mosaico_email.assert_called_once()
