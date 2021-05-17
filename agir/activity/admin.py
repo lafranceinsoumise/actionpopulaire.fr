@@ -33,7 +33,11 @@ class ActivityAdmin(admin.ModelAdmin):
 
     def get_search_results(self, request, queryset, search_term):
         if search_term:
-            queryset = queryset.search(search_term)
+            queryset = queryset.filter(
+                recipient__search=PrefixSearchQuery(
+                    search_term, config="simple_unaccented"
+                )
+            )
 
         use_distinct = False
 
