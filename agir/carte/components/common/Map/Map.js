@@ -7,10 +7,10 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import logger from "@agir/lib/utils/logger";
 
-import { fontIsLoaded } from "../map/utils";
-import { createMap } from "../map/common";
+import { fontIsLoaded } from "@agir/carte/map/utils";
+import { createMap } from "@agir/carte/map/common";
 
-import INFO_ICON from "./images/info-copyright-icon.svg";
+import INFO_ICON from "@agir/carte/common/images/info-copyright-icon.svg";
 
 const log = logger(__filename);
 

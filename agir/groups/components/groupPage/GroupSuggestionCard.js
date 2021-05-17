@@ -65,7 +65,7 @@ const GroupSuggestionCard = (props) => {
   const {
     id,
     name,
-    location: { city, zip, coordinates },
+    location: { city, zip, coordinates, staticMapUrl },
     iconConfiguration,
   } = props;
 
@@ -87,6 +87,8 @@ const GroupSuggestionCard = (props) => {
           }
           iconConfiguration={iconConfiguration}
           isStatic
+          staticMapUrl={staticMapUrl}
+          $animated
         />
       </StyledMap>
       <StyledBody>

@@ -833,3 +833,8 @@ PUSH_NOTIFICATIONS_SETTINGS = {
     "APNS_USE_SANDBOX": os.environ.get("APNS_USE_SANDBOX", "true").lower() == "true",
     "FCM_API_KEY": os.environ.get("FCM_API_KEY"),
 }
+
+JAWG_API_ACCES_TOKEN = os.environ.get(
+    "JAWG_API_ACCESS_TOKEN",
+    "mGYrqYC5XjG6lXEoz0e5ejl1wSS0GovRMqBw8LEuhFfz2PYILpp8YFzx6TnKxAHe",
+)

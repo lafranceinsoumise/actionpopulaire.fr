@@ -209,6 +209,8 @@ const GroupBanner = (props) => {
             center={location.coordinates.coordinates}
             iconConfiguration={iconConfiguration}
             isStatic
+            staticMapUrl={location?.staticMapUrl}
+            $animated
           />
         ) : null}
       </StyledMap>
@@ -251,6 +253,7 @@ GroupBanner.propTypes = {
     coordinates: PropTypes.shape({
       coordinates: PropTypes.arrayOf(PropTypes.number),
     }),
+    staticMapUrl: PropTypes.string,
   }).isRequired,
   commune: PropTypes.shape({
     nameOf: PropTypes.string,

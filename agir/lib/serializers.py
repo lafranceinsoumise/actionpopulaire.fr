@@ -1,10 +1,13 @@
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import serializers, exceptions, validators
+from rest_framework import serializers, exceptions
 from rest_framework.fields import empty
 from django_countries.serializer_fields import CountryField
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
+
+from .tasks import create_static_map_image_from_coordinates
+from agir.carte.models import StaticMapImage
 
 
 class NullAsBlankMixin:
@@ -56,6 +59,7 @@ class LocationSerializer(serializers.Serializer):
     shortLocation = serializers.CharField(source="short_location", required=False)
 
     coordinates = GeometryField(required=False)
+    staticMapUrl = serializers.SerializerMethodField(read_only=True)
 
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)
@@ -74,6 +78,21 @@ class LocationSerializer(serializers.Serializer):
             parts.append(obj.location_country.name)
 
         return "\n".join(p for p in parts if p)
+
+    def get_staticMapUrl(self, obj):
+        if obj.coordinates is None:
+            return ""
+        try:
+            static_map_image = StaticMapImage.objects.get(
+                center__distance_lt=(obj.coordinates, 1),
+            )
+        except StaticMapImage.DoesNotExist:
+            create_static_map_image_from_coordinates.delay(
+                [obj.coordinates[0], obj.coordinates[1]]
+            )
+            return ""
+
+        return static_map_image.image.url
 
 
 class RelatedLabelField(serializers.SlugRelatedField):

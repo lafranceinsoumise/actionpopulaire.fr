@@ -59,7 +59,7 @@ export const GroupSettings = (props) => {
 GroupSettings.propTypes = {
   group: PropTypes.shape({
     id: PropTypes.string,
-    is2022: PropTypes.string,
+    is2022: PropTypes.bool,
     name: PropTypes.string,
     type: PropTypes.string,
     isManager: PropTypes.bool,

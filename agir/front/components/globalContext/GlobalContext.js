@@ -102,7 +102,7 @@ export const TestGlobalContextProvider = ({
   );
 };
 TestGlobalContextProvider.propTypes = {
-  hasRouter: ProdProvider.bool,
+  hasRouter: PropTypes.bool,
   children: PropTypes.node,
   value: PropTypes.object,
 };
