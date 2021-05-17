@@ -28,7 +28,7 @@ from .tasks import (
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupDetailSerializer
 from ..groups.serializers import SupportGroupSerializer
-from ..groups.tasks import notify_new_group_event
+from ..groups.tasks import notify_new_group_event, send_new_group_event_email
 from ..lib.utils import admin_url
 
 
@@ -389,6 +389,7 @@ class CreateEventSerializer(serializers.Serializer):
         # Also notify members if it is organized by a group
         if data["organizer_group"]:
             notify_new_group_event.delay(data["organizer_group"].pk, event.pk)
+            send_new_group_event_email.delay(data["organizer_group"].pk, event.pk)
 
     def create(self, validated_data):
         event = Event.objects.create(**validated_data)

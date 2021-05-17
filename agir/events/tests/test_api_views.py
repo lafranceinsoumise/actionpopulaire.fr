@@ -134,6 +134,17 @@ class CreateEventAPITestCase(APITestCase):
         self.assertIn("id", res.data)
         notify_new_group_event.assert_called_once()
 
+    @patch("agir.groups.tasks.send_new_group_event_email.delay")
+    def test_send_new_group_event_email_task_is_created_upon_posting_valid_data_with_organizer_group(
+        self, send_new_group_event_email
+    ):
+        send_new_group_event_email.assert_not_called()
+        self.client.force_login(self.person.role)
+        res = self.client.post("/api/evenements/creer/", data=self.valid_data)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn("id", res.data)
+        send_new_group_event_email.assert_called_once()
+
     @patch("agir.groups.tasks.notify_new_group_event.delay")
     def test_notify_new_group_event_task_is_not_created_upon_posting_valid_data_without_organizer_group(
         self, notify_new_group_event
@@ -146,6 +157,19 @@ class CreateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 201)
         self.assertIn("id", res.data)
         notify_new_group_event.assert_not_called()
+
+    @patch("agir.groups.tasks.send_new_group_event_email.delay")
+    def test_send_new_group_event_email_task_is_not_created_upon_posting_valid_data_without_organizer_group(
+        self, send_new_group_event_email
+    ):
+        send_new_group_event_email.assert_not_called()
+        self.client.force_login(self.person.role)
+        res = self.client.post(
+            "/api/evenements/creer/", data={**self.valid_data, "organizerGroup": None}
+        )
+        self.assertEqual(res.status_code, 201)
+        self.assertIn("id", res.data)
+        send_new_group_event_email.assert_not_called()
 
     def test_event_is_not_created_with_missing_name(self):
         self.client.force_login(self.person.role)
