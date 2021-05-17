@@ -28,6 +28,12 @@ class ActivityAdmin(admin.ModelAdmin):
         "individual",
     )
 
+    search_fields = [
+        "recipient__display_name",
+        "recipient__first_name",
+        "recipient__last_name",
+    ]
+
 
 @admin.register(Announcement)
 class AnnouncementAdmin(admin.ModelAdmin):
