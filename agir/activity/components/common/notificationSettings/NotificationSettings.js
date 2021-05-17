@@ -110,7 +110,7 @@ const NotificationSettingRoute = () => {
   return (
     <ProtectedComponent
       Component={NotificationSettings}
-      routeConfig={routeConfig.notificationSettings}
+      route={routeConfig.notificationSettings}
       close={close}
       isOpen={isMobileApp && !!routeMatch}
     />
