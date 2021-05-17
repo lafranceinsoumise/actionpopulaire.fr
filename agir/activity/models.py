@@ -3,8 +3,6 @@ from django.db import models
 from django.utils import timezone
 from stdimage import StdImageField
 from stdimage.validators import MinSizeValidator
-from django.contrib.postgres.search import SearchVector, SearchRank
-from agir.lib.search import PrefixSearchQuery
 
 from agir.lib.models import TimeStampedModel, DescriptionField, BaseAPIResource
 
