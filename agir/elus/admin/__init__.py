@@ -419,7 +419,12 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
 
     def get_conseil_queryset(self, request):
         return Commune.objects.filter(
-            type__in=[Commune.TYPE_COMMUNE, Commune.TYPE_SECTEUR_PLM]
+            type__in=[
+                Commune.TYPE_COMMUNE,
+                Commune.TYPE_SECTEUR_PLM,
+                Commune.TYPE_COMMUNE_ASSOCIEE,
+                Commune.TYPE_COMMUNE_DELEGUEE,
+            ]
         )
 
     def get_queryset(self, request):

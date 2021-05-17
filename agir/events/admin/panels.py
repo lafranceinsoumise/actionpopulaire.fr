@@ -304,6 +304,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Lieu"),
             {
                 "fields": (
+                    "online_url",
                     "location_name",
                     "location_address1",
                     "location_address2",

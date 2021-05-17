@@ -829,4 +829,5 @@ PUSH_NOTIFICATIONS_SETTINGS = {
     "APNS_TEAM_ID": os.environ.get("APNS_TEAM_ID"),
     "APNS_TOPIC": os.environ.get("APNS_TOPIC", "fr.actionpopulaire.ios"),
     "APNS_USE_SANDBOX": os.environ.get("APNS_USE_SANDBOX", "true").lower() == "true",
+    "FCM_API_KEY": os.environ.get("FCM_API_KEY"),
 }

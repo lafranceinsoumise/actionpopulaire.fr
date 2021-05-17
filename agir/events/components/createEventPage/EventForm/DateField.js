@@ -18,10 +18,6 @@ const Field = styled.div`
   grid-auto-rows: auto auto;
   grid-gap: 0.5rem;
 
-  label > span {
-    margin-bottom: 5px;
-  }
-
   @media (max-width: ${style.collapse}px) {
     display: grid;
     grid-template-columns: 1fr;
