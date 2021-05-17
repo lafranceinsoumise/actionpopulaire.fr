@@ -230,6 +230,7 @@ const useImageLoad = () => {
       const img = new Image();
       img.addEventListener("load", onReady);
       img.src = picture;
+      return img;
     });
 
     return () => {
