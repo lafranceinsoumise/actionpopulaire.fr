@@ -53,6 +53,7 @@ class Activity(TimeStampedModel):
     TYPE_NEW_MEMBERS_THROUGH_TRANSFER = "new-members-through-transfer"
     TYPE_WAITING_LOCATION_EVENT = "waiting-location-event"
     TYPE_WAITING_LOCATION_GROUP = "waiting-location-group"
+    TYPE_EVENT_SUGGESTION = "event-suggestion"
     # TODO
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
     TYPE_GROUP_COORGANIZATION_ACCEPTED = "group-coorganization-accepted"
@@ -60,7 +61,6 @@ class Activity(TimeStampedModel):
     TYPE_WAITING_PAYMENT = "waiting-payment"
     # Sans affichage d'une notification
     TYPE_ANNOUNCEMENT = "announcement"
-    TYPE_EVENT_SUGGESTION = "event-suggestion"
 
     DISPLAYED_TYPES = (
         TYPE_GROUP_INVITATION,

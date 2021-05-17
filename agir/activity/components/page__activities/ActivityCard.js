@@ -16,7 +16,7 @@ import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
 
 import CONFIG from "./activity.config.json";
-import {locale} from "moment/moment";
+import { displayHumanDay } from "../../../lib/components/utils/time";
 
 const CHANGED_DATA_LABEL = {
   name: "nom",
@@ -385,8 +385,8 @@ const ActivityCard = (props) => {
     case "event-suggestion":
       return (
         <ActivityCardContainer {...props}>
-          Ce {Event.startTime.toLocaleDateString(locale, { weekday: "long" })} :
-          {Event.name} de {SupportGroup || Individual}
+          Ce {displayHumanDay(Event.start_time)} : {Event.name} de{" "}
+          {SupportGroup || Individual}
           <EventCard key={Event.id} {...Event} />
         </ActivityCardContainer>
       );
