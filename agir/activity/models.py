@@ -23,31 +23,6 @@ class ActivityQuerySet(models.QuerySet):
             type__in=Activity.REQUIRED_ACTION_ACTIVITY_TYPES
         )
 
-    def search(self, query):
-        vector = (
-            SearchVector(
-                models.F("recipient__display_name"),
-                config="french_unaccented",
-                weight="A",
-            )
-            + SearchVector(
-                models.F("recipient__first_name"),
-                config="french_unaccented",
-                weight="B",
-            )
-            + SearchVector(
-                models.F("recipient__last_name"), config="french_unaccented", weight="B"
-            )
-        )
-        query = PrefixSearchQuery(query, config="french_unaccented")
-
-        return (
-            self.annotate(search=vector)
-            .filter(search=query)
-            .annotate(rank=SearchRank(vector, query))
-            .order_by("-rank")
-        )
-
 
 class ActivityManager(models.Manager.from_queryset(ActivityQuerySet)):
     def bulk_create(self, instances, send_post_save_signal=False, **kwargs):
