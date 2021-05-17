@@ -3,6 +3,8 @@ from django.db import models
 from django.utils import timezone
 from stdimage import StdImageField
 from stdimage.validators import MinSizeValidator
+from django.contrib.postgres.search import SearchVector, SearchRank
+from agir.lib.search import PrefixSearchQuery
 
 from agir.lib.models import TimeStampedModel, DescriptionField, BaseAPIResource
 
@@ -19,6 +21,31 @@ class ActivityQuerySet(models.QuerySet):
     def without_required_action(self):
         return self.displayed().exclude(
             type__in=Activity.REQUIRED_ACTION_ACTIVITY_TYPES
+        )
+
+    def search(self, query):
+        vector = (
+            SearchVector(
+                models.F("recipient__display_name"),
+                config="french_unaccented",
+                weight="A",
+            )
+            + SearchVector(
+                models.F("recipient__first_name"),
+                config="french_unaccented",
+                weight="B",
+            )
+            + SearchVector(
+                models.F("recipient__last_name"), config="french_unaccented", weight="B"
+            )
+        )
+        query = PrefixSearchQuery(query, config="french_unaccented")
+
+        return (
+            self.annotate(search=vector)
+            .filter(search=query)
+            .annotate(rank=SearchRank(vector, query))
+            .order_by("-rank")
         )
 
 
