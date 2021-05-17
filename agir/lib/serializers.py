@@ -1,11 +1,12 @@
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import serializers, exceptions, validators
+from rest_framework import serializers, exceptions
 from rest_framework.fields import empty
 from django_countries.serializer_fields import CountryField
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
 
+from .tasks import create_static_map_image_from_coordinates
 from agir.carte.models import StaticMapImage
 
 
@@ -86,9 +87,10 @@ class LocationSerializer(serializers.Serializer):
                 center__distance_lt=(obj.coordinates, 1),
             )
         except StaticMapImage.DoesNotExist:
-            static_map_image = StaticMapImage.objects.create_from_jawg(
-                center=obj.coordinates,
+            create_static_map_image_from_coordinates.delay(
+                [obj.coordinates[0], obj.coordinates[1]]
             )
+            return ""
 
         return static_map_image.image.url
 
