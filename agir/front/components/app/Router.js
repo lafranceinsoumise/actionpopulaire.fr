@@ -8,7 +8,7 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import routes, { BASE_PATH } from "./routes.config";
+import routes, { BASE_PATH, routeConfig } from "./routes.config";
 import Page from "./Page";
 import NotFoundPage from "@agir/front/offline/NotFoundPage";
 
@@ -18,9 +18,9 @@ import logger from "@agir/lib/utils/logger";
 
 const log = logger(__filename);
 
-export const ProtectedComponent = ({ Component, routeConfig, ...rest }) => {
+export const ProtectedComponent = ({ Component, route, ...rest }) => {
   const location = useLocation();
-  const isAuthorized = useAuthentication(routeConfig);
+  const isAuthorized = useAuthentication(route);
 
   useEffect(() => {
     if (isAuthorized === null) {
@@ -49,18 +49,18 @@ export const ProtectedComponent = ({ Component, routeConfig, ...rest }) => {
   }
 
   if (isAuthorized === true) {
-    return <Page Component={Component} routeConfig={routeConfig} {...rest} />;
+    return <Page Component={Component} routeConfig={route} {...rest} />;
   }
 
   return (
     <Redirect
-      to={{ pathname: routeConfig.login.path, state: { from: location } }}
+      to={{ pathname: routeConfig.login.getLink(), state: { from: location } }}
     />
   );
 };
 ProtectedComponent.propTypes = {
   Component: PropTypes.elementType.isRequired,
-  routeConfig: PropTypes.object.isRequired,
+  route: PropTypes.object.isRequired,
 };
 
 const Router = ({ children }) => (
@@ -68,7 +68,7 @@ const Router = ({ children }) => (
     <Switch>
       {routes.map((route) => (
         <Route key={route.id} path={route.path} exact={!!route.exact}>
-          <ProtectedComponent Component={route.Component} routeConfig={route} />
+          <ProtectedComponent Component={route.Component} route={route} />
         </Route>
       ))}
       <Route key="not-found">
