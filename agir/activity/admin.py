@@ -15,7 +15,7 @@ class ActivityAdmin(admin.ModelAdmin):
         ("Création et modification", {"fields": ("created", "modified")}),
     )
     list_display = ("type", "timestamp", "recipient", "status", "pushed")
-    list_filter = ("type", "status")
+    list_filter = ("type", "status", "pushed")
 
     readonly_fields = ("created", "modified", "pushed")
     autocomplete_fields = (
@@ -24,6 +24,20 @@ class ActivityAdmin(admin.ModelAdmin):
         "supportgroup",
         "individual",
     )
+
+    search_fields = ("recipient_search",)
+
+    def get_search_results(self, request, queryset, search_term):
+        if search_term:
+            queryset = queryset.filter(
+                recipient__search=PrefixSearchQuery(
+                    search_term, config="simple_unaccented"
+                )
+            )
+
+        use_distinct = False
+
+        return queryset, use_distinct
 
 
 @admin.register(Announcement)
