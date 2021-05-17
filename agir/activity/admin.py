@@ -25,11 +25,7 @@ class ActivityAdmin(admin.ModelAdmin):
         "individual",
     )
 
-    search_fields = [
-        "recipient__display_name",
-        "recipient__first_name",
-        "recipient__last_name",
-    ]
+    search_fields = ("recipient_search",)
 
     def get_search_results(self, request, queryset, search_term):
         if search_term:
