@@ -382,10 +382,10 @@ class NewCommentActivityNotificationSerializer(ActivityNotificationSerializer):
 
 
 class EventSuggestionNotificationSerializer(ActivityNotificationSerializer):
-    title = serializers.ReadOnlyField(default="📆 Événement près de chez vous")
+    title = serializers.ReadOnlyField(default="📆 Passez à l'action !")
 
     def get_body(self, activity):
-        return f"Rejoignez {activity.supportgroup.name} pour {activity.event.name}"
+        return f"Ce {activity.event.start_time.strftime('%A')} : {activity.event.name} {activity.supportgroup.name}"
 
     def get_url(self, activity):
         return front_url("view_event", kwargs={"pk": activity.event_id})
