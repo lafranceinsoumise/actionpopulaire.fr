@@ -393,7 +393,13 @@ class SupportGroupUpdateSerializer(serializers.ModelSerializer):
         if "image" in changed_data and changed_data.get("image", None):
             changed_data["image"] = instance.image.url
 
-        if "location" in changed_data:
+        if (
+            "location_address1" in changed_data
+            or "location_address2" in changed_data
+            or "location_zip" in changed_data
+            or "location_city" in changed_data
+            or "location_country" in changed_data
+        ):
             geocode_support_group.delay(instance.pk)
 
         send_support_group_changed_notification.delay(instance.pk, changed_data)
