@@ -16,6 +16,7 @@ import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
 
 import CONFIG from "./activity.config.json";
+import { displayHumanDay } from "../../../lib/components/utils/time";
 
 const CHANGED_DATA_LABEL = {
   name: "nom",
@@ -381,11 +382,12 @@ const ActivityCard = (props) => {
           organisateurs
         </ActivityCardContainer>
       );
-    case "new-event-aroundme":
+    case "event-suggestion":
       return (
         <ActivityCardContainer {...props}>
-          Un nouvel événement a été publié près de chez vous par{" "}
-          {SupportGroup || Individual || "quelqu'un"}
+          Ce {displayHumanDay(Event.start_time)} : {Event.name} de{" "}
+          {SupportGroup || Individual}
+          <EventCard key={Event.id} {...Event} />
         </ActivityCardContainer>
       );
     case "group-coorganization-info":

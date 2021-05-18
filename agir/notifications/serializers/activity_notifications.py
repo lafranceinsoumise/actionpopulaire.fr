@@ -9,7 +9,6 @@ from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 
 __all__ = ["ACTIVITY_NOTIFICATION_SERIALIZERS"]
 
-
 CHANGED_DATA_LABEL = {
     "name": "le nom",
     "description": "le détail",
@@ -320,16 +319,6 @@ class GroupCoorganizationInviteActivityNotificationSerializer(
         return f"Votre groupe {activity.supportgroup.name} est invité à co-organiser {activity.event.name}"
 
 
-class NewEventAroundMeActivityNotificationSerializer(ActivityNotificationSerializer):
-    title = serializers.ReadOnlyField(default="📆 Événement près de chez vous")
-
-    def get_body(self, activity):
-        return f"Rejoignez {activity.supportgroup.name} pour {activity.event.name}"
-
-    def get_url(self, activity):
-        return front_url("view_event", kwargs={"pk": activity.event_id},)
-
-
 class GroupCoorganizationInfoActivityNotificationSerializer(
     ActivityNotificationSerializer
 ):
@@ -392,6 +381,16 @@ class NewCommentActivityNotificationSerializer(ActivityNotificationSerializer):
         )
 
 
+class EventSuggestionNotificationSerializer(ActivityNotificationSerializer):
+    title = serializers.ReadOnlyField(default="📆 Passez à l'action !")
+
+    def get_body(self, activity):
+        return f"Ce {activity.event.start_time.strftime('%A')} : {activity.event.name} {activity.supportgroup.name}"
+
+    def get_url(self, activity):
+        return front_url("view_event", kwargs={"pk": activity.event_id})
+
+
 ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_GROUP_INVITATION: GroupInvitationActivityNotificationSerializer,
     Activity.TYPE_NEW_MEMBER: NewMemberActivityNotificationSerializer,
@@ -411,8 +410,8 @@ ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_TRANSFERRED_GROUP_MEMBER: TransferredGroupMemberActivityNotificationSerializer,
     Activity.TYPE_WAITING_PAYMENT: WaitingPaymentActivityNotificationSerializer,
     Activity.TYPE_GROUP_COORGANIZATION_INVITE: GroupCoorganizationInviteActivityNotificationSerializer,
-    Activity.TYPE_NEW_EVENT_AROUNDME: NewEventAroundMeActivityNotificationSerializer,
     Activity.TYPE_GROUP_COORGANIZATION_INFO: GroupCoorganizationInfoActivityNotificationSerializer,
     Activity.TYPE_NEW_MESSAGE: NewMessageActivityNotificationSerializer,
     Activity.TYPE_NEW_COMMENT: NewCommentActivityNotificationSerializer,
+    Activity.TYPE_EVENT_SUGGESTION: EventSuggestionNotificationSerializer,
 }

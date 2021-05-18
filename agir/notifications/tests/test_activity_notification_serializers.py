@@ -30,7 +30,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
             author=individual,
         )
         supportgroup_message_comment = SupportGroupMessageComment.objects.create(
-            message=supportgroup_message, text="A comment", author=individual,
+            message=supportgroup_message, text="A comment", author=individual
         )
         meta = {
             "message": str(supportgroup_message.pk),
@@ -222,8 +222,8 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("url", result.data)
         self.assertIn("icon", result.data)
 
-    def test_new_event_aroundme_activity_type(self):
-        self.activity.type = Activity.TYPE_NEW_EVENT_AROUNDME
+    def test_new_event_suggestion_activity_type(self):
+        self.activity.type = Activity.TYPE_EVENT_SUGGESTION
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)

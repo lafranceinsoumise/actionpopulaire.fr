@@ -49,11 +49,11 @@ class Activity(TimeStampedModel):
     TYPE_REFERRAL = "referral-accepted"
     TYPE_GROUP_CREATION_CONFIRMATION = "group-creation-confirmation"
     TYPE_ACCEPTED_INVITATION_MEMBER = "accepted-invitation-member"
-    TYPE_NEW_EVENT_AROUNDME = "new-event-aroundme"
     TYPE_TRANSFERRED_GROUP_MEMBER = "transferred-group-member"
     TYPE_NEW_MEMBERS_THROUGH_TRANSFER = "new-members-through-transfer"
     TYPE_WAITING_LOCATION_EVENT = "waiting-location-event"
     TYPE_WAITING_LOCATION_GROUP = "waiting-location-group"
+    TYPE_EVENT_SUGGESTION = "event-suggestion"
     # TODO
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
     TYPE_GROUP_COORGANIZATION_ACCEPTED = "group-coorganization-accepted"
@@ -74,7 +74,6 @@ class Activity(TimeStampedModel):
         TYPE_CANCELLED_EVENT,
         TYPE_REFERRAL,
         TYPE_GROUP_COORGANIZATION_INFO,
-        TYPE_NEW_EVENT_AROUNDME,
         TYPE_ACCEPTED_INVITATION_MEMBER,
         TYPE_GROUP_COORGANIZATION_ACCEPTED,
         TYPE_WAITING_LOCATION_EVENT,
@@ -86,6 +85,7 @@ class Activity(TimeStampedModel):
         TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
         TYPE_NEW_MESSAGE,
         TYPE_NEW_COMMENT,
+        TYPE_EVENT_SUGGESTION,
     )
 
     REQUIRED_ACTION_ACTIVITY_TYPES = (
@@ -122,7 +122,6 @@ class Activity(TimeStampedModel):
         (TYPE_EVENT_UPDATE, "Mise à jour d'un événement"),
         (TYPE_NEW_EVENT_MYGROUPS, "Votre groupe organise un événement"),
         (TYPE_NEW_REPORT, "Nouveau compte-rendu d'événement"),
-        (TYPE_NEW_EVENT_AROUNDME, "Nouvel événement près de chez moi"),
         (TYPE_CANCELLED_EVENT, "Événement annulé"),
         (TYPE_REFERRAL, "Personne parrainée"),
         (TYPE_ANNOUNCEMENT, "Associée à une annonce"),
@@ -135,6 +134,7 @@ class Activity(TimeStampedModel):
             "De nouveaux membres ont été transferés vers le groupe",
         ),
         (TYPE_GROUP_CREATION_CONFIRMATION, "Groupe créé"),
+        (TYPE_EVENT_SUGGESTION, "Événement suggéré"),
     )
 
     STATUS_UNDISPLAYED = "U"
@@ -292,7 +292,7 @@ class Announcement(BaseAPIResource):
         verbose_name = "Annonce"
         indexes = (
             models.Index(
-                fields=("-start_date", "end_date"), name="announcement_date_index",
+                fields=("-start_date", "end_date"), name="announcement_date_index"
             ),
         )
         ordering = ("-start_date", "end_date")
