@@ -112,7 +112,7 @@ const GroupLocalizationPage = (props) => {
       <StyledTitle>Localisation</StyledTitle>
       <Spacer size="1rem" />
       <StyledMap
-        center={group?.location?.coordinates?.coordinates}
+        center={group?.location?.coordinates?.coordinates || []}
         iconConfiguration={group?.iconConfiguration}
       />
       <Spacer size="0.5rem" />
