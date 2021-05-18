@@ -19,7 +19,7 @@ sudo apt-get update -qq > /dev/null
 echo "## Install Python..."
 if ! (dpkg -s python3.9 && dpkg -s python3.9-dev) &> /dev/null; then
     sudo apt-get -yqq install python3.9 python3.9-dev python3.9-venv python3-pip libsystemd-dev > /dev/null
-    sudo -H pip3 install pipenv
+    sudo -H pip3 install poetry
 fi
 
 echo "## Install wkhtmltopdf"
@@ -55,13 +55,13 @@ if [ ! -x MailHog ]; then
 fi
 
 echo "## Install python dependencies..."
-(cd /vagrant && /usr/local/bin/pipenv sync --dev) &> /dev/null
+(cd /vagrant && /usr/local/bin/poetry install) &> /dev/null
 
 echo "## Migrate and populate test database..."
-(cd /vagrant && /usr/local/bin/pipenv run ./manage.py migrate && (/usr/local/bin/pipenv run ./manage.py load_fake_data || true)) &> /dev/null
+(cd /vagrant && /usr/local/bin/poetry run ./manage.py migrate && (/usr/local/bin/poetry run ./manage.py load_fake_data || true)) &> /dev/null
 
 echo "## Create super user (address: admin@agir.local, password: password)"
-(cd /vagrant && (SUPERPERSON_PASSWORD="password" /usr/local/bin/pipenv run ./manage.py createsuperperson --noinput --email admin@agir.local || true)) &> /dev/null
+(cd /vagrant && (SUPERPERSON_PASSWORD="password" /usr/local/bin/poetry run ./manage.py createsuperperson --noinput --email admin@agir.local || true)) &> /dev/null
 
 
 echo "## Create unit files..."
@@ -88,7 +88,7 @@ Description=fi-api celery worker
 
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/usr/local/bin/pipenv run celery worker --app agir.api --concurrency 2 -Q celery
+ExecStart=/usr/local/bin/poetry run celery worker --app agir.api --concurrency 2 -Q celery
 User=vagrant
 Group=vagrant
 Restart=on-failure
@@ -105,7 +105,7 @@ Description=fi-api celery worker
 
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/usr/local/bin/pipenv run celery worker --app nuntius.celery --concurrency 2 -Q nuntius -n nuntius@%%h
+ExecStart=/usr/local/bin/poetry run celery worker --app nuntius.celery --concurrency 2 -Q nuntius -n nuntius@%%h
 User=vagrant
 Group=vagrant
 Restart=on-failure
@@ -125,7 +125,7 @@ After=webpack.service
 User=vagrant
 Type=simple
 WorkingDirectory=/vagrant
-ExecStart=/usr/local/bin/pipenv run ./manage.py runserver 0.0.0.0:8000
+ExecStart=/usr/local/bin/poetry run ./manage.py runserver 0.0.0.0:8000
 StandardOutput=journal
 Restart=on-failure
 
@@ -168,7 +168,7 @@ sudo systemctl start webpack
 
 echo "## Installing manage script"
 sudo bash -c "cat > /usr/local/bin/manage" <<'EOT'
-PYTHON=$(cd /vagrant && pipenv --venv)/bin/python
+PYTHON=$(cd /vagrant && poetry env list --full-path)/bin/python
 
 $PYTHON /vagrant/manage.py "$@"
 EOT

@@ -56,8 +56,8 @@ $ cd /vagrant
 
 Generate, then apply the migrations :
 ```bash
-$ pipenv run ./manage.py makemigrations
-$ pipenv run ./manage.py migrate
+$ poetry run ./manage.py makemigrations
+$ poetry run ./manage.py migrate
 ```
 
 We use Travis to automatically test our code. To make sure you won't have to
@@ -67,7 +67,7 @@ be ran from inside the `/vagrant` folder in the vagrant box).
 ```bash
 $ black agir/
 $ node_modules/.bin/eslint --fix agir/
-$ pipenv run ./manage.py test
+$ poetry run ./manage.py test
 ``` 
 
 # Mise à jour suite au squashing des migrations du 7 janvier 2021
