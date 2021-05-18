@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from agir.activity.models import Activity, Announcement
+from agir.lib.search import PrefixSearchQuery
 
 
 @admin.register(Activity)
