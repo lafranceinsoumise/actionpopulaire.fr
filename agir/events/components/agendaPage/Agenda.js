@@ -282,7 +282,6 @@ const Agenda = () => {
   const is2022 = useSelector(getIs2022);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const user = useSelector(getUser);
-  const path = useLocation().pathname;
 
   const isPaused = useCallback(() => {
     return !user;

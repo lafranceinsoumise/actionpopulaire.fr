@@ -23,7 +23,7 @@ from rest_framework.response import Response
 from rest_framework import exceptions
 
 from agir.events.models import Event
-from agir.events.serializers import EventSerializer
+from agir.events.serializers import EventListSerializer
 from agir.groups.actions.notifications import (
     new_message_notifications,
     new_comment_notifications,
@@ -190,7 +190,7 @@ class NearGroupsAPIView(ListAPIView):
 
 class GroupEventsAPIView(ListAPIView):
     permission_ = ("groups.view_supportgroup",)
-    serializer_class = EventSerializer
+    serializer_class = EventListSerializer
     queryset = Event.objects.listed()
 
     def get_queryset(self):
@@ -198,12 +198,18 @@ class GroupEventsAPIView(ListAPIView):
             self.supportgroup.organized_events.listed()
             .distinct()
             .order_by("-start_time")
+            .select_related("subtype")
         )
         return events
 
-    def dispatch(self, request, pk, *args, **kwargs):
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+        )
+
+    def dispatch(self, request, *args, **kwargs):
         try:
-            self.supportgroup = SupportGroup.objects.get(pk=pk)
+            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
         except SupportGroup.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -212,8 +218,13 @@ class GroupEventsAPIView(ListAPIView):
 
 class GroupUpcomingEventsAPIView(ListAPIView):
     permission_ = ("groups.view_supportgroup",)
-    serializer_class = EventSerializer
+    serializer_class = EventListSerializer
     queryset = Event.objects.listed().upcoming()
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+        )
 
     def get_queryset(self):
         events = (
@@ -221,12 +232,13 @@ class GroupUpcomingEventsAPIView(ListAPIView):
             .upcoming()
             .distinct()
             .order_by("start_time")
+            .select_related("subtype")
         )
         return events
 
-    def dispatch(self, request, pk, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         try:
-            self.supportgroup = SupportGroup.objects.get(pk=pk)
+            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
         except SupportGroup.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -235,9 +247,14 @@ class GroupUpcomingEventsAPIView(ListAPIView):
 
 class GroupPastEventsAPIView(ListAPIView):
     permission_ = ("groups.view_supportgroup",)
-    serializer_class = EventSerializer
+    serializer_class = EventListSerializer
     queryset = Event.objects.listed().past()
     pagination_class = APIPaginator
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+        )
 
     def get_queryset(self):
         events = (
@@ -245,12 +262,13 @@ class GroupPastEventsAPIView(ListAPIView):
             .past()
             .distinct()
             .order_by("-start_time")
+            .select_related("subtype")
         )
         return events
 
-    def dispatch(self, request, pk, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         try:
-            self.supportgroup = SupportGroup.objects.get(pk=pk)
+            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
         except SupportGroup.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -259,8 +277,13 @@ class GroupPastEventsAPIView(ListAPIView):
 
 class GroupPastEventReportsAPIView(ListAPIView):
     permission_ = ("groups.view_supportgroup",)
-    serializer_class = EventSerializer
+    serializer_class = EventListSerializer
     queryset = Event.objects.listed().past()
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+        )
 
     def get_queryset(self):
         events = (
@@ -269,12 +292,13 @@ class GroupPastEventReportsAPIView(ListAPIView):
             .exclude(report_content="")
             .distinct()
             .order_by("-start_time")
+            .select_related("subtype")
         )
         return events
 
-    def dispatch(self, request, pk, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         try:
-            self.supportgroup = SupportGroup.objects.get(pk=pk)
+            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
         except SupportGroup.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 

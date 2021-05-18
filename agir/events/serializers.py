@@ -84,28 +84,23 @@ class EventOptionsSerializer(serializers.Serializer):
         return obj.get_price_display()
 
 
-class EventListSerializer(serializers.ListSerializer):
-    def get_groups(self, obj):
-        return SupportGroupSerializer(
-            obj.organizers_groups.distinct(),
-            context=self.context,
-            many=True,
-            fields=["name", "isMember"],
-        ).data
-
-
 class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     EVENT_CARD_FIELDS = [
         "id",
         "name",
+        "illustration",
+        "hasSubscriptionForm",
         "startTime",
         "endTime",
-        # "participantCount",
-        "illustration",
-        "schedule",
         "location",
+        "isOrganizer",
         "rsvp",
+        "hasRightSubscription",
+        "is2022",
         "routes",
+        "groups",
+        "distance",
+        "compteRendu",
         "subtype",
     ]
 
@@ -244,8 +239,15 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             ],
         ).data
 
-    class Meta:
-        list_serializer_class = EventListSerializer
+
+class EventListSerializer(EventSerializer):
+    def get_groups(self, obj):
+        return SupportGroupSerializer(
+            obj.organizers_groups.distinct(),
+            context=self.context,
+            many=True,
+            fields=["name", "isMember"],
+        ).data
 
 
 class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
