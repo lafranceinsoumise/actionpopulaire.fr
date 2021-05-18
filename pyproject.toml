@@ -1,12 +1,12 @@
-[[source]]
-url = "https://pypi.python.org/simple"
-verify_ssl = true
-name = "pypi"
+[tool.poetry]
+name = "agir"
+version = "0"
+description = ""
+authors = ["La France insoumise <site@lafranceinsoumise.fr>"]
+license = "AGPL-3.0"
 
-[requires]
-python_version = '3.9'
-
-[packages]
+[tool.poetry.dependencies]
+python = "^3.9"
 # Django et extensions
 django = ">=3.0,<4.0"
 ## config helpers
@@ -83,7 +83,7 @@ django-push-notifications = "*"
 pywebpush = "*"
 social-auth-core = "==4.0.2"
 
-[dev-packages]
+[tool.poetry.dev-dependencies]
 ipython = "*"
 black = "==19.10b0"
 coverage = "*"
@@ -94,3 +94,7 @@ pympler = "*"
 locust = "*"
 pyquery = "*"
 jedi = "==0.17.*"  # version 0.18.* fait crasher IPython (08/01/2021)
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
