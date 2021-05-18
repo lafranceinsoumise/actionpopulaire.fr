@@ -5,6 +5,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.html import format_html_join, format_html
 from django.utils.translation import ugettext_lazy as _
 
@@ -307,15 +308,23 @@ def send_new_group_event_email(group_pk, event_pk):
         return
 
     recipients = group.members.all()
+    tz = timezone.get_current_timezone()
+    now = timezone.now()
+    start_time = event.start_time.astimezone(tz)
+    simple_date = _date(start_time, "l j F").capitalize()
     bindings = {
         "GROUP": group.name.capitalize(),
         "EVENT_NAME": event.name.capitalize(),
-        "EVENT_SCHEDULE": event.get_display_date(),
+        "EVENT_SCHEDULE": f"{simple_date} à {_date(start_time, 'G:i')}",
         "LOCATION_NAME": event.location_name,
         "LOCATION_ZIP": event.location_zip,
         "EVENT_LINK": event.get_absolute_url(),
     }
-    subject = f"{_date(event.start_time, 'l').capitalize()} : {event.name.capitalize()} de {group.name.capitalize()}"
+    formatted_start_date = simple_date
+    if start_time - now < timezone.timedelta(days=7):
+        formatted_start_date = f"Ce {_date(start_time, 'l')}"
+
+    subject = f"{formatted_start_date} : {event.name.capitalize()} de {group.name.capitalize()}"
     send_mosaico_email(
         code="NEW_EVENT_MY_GROUPS_NOTIFICATION",
         subject=subject,
