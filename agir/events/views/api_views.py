@@ -137,11 +137,11 @@ class EventSuggestionsAPIView(ListAPIView):
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("start_time")
                 .distinct()
-            )
+            ).select_related("subtype")
         else:
             result = result.order_by("start_time")
 
-        return result.select_related("subtype")
+        return result
 
 
 class EventCreateOptionsAPIView(RetrieveAPIView):
