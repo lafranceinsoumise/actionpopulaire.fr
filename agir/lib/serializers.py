@@ -82,11 +82,15 @@ class LocationSerializer(serializers.Serializer):
     def get_staticMapUrl(self, obj):
         if obj.coordinates is None:
             return ""
-        try:
-            static_map_image = StaticMapImage.objects.get(
-                center__distance_lt=(obj.coordinates, 1),
-            )
-        except StaticMapImage.DoesNotExist:
+
+        static_map_image = StaticMapImage.objects.filter(
+            center__distance_lt=(
+                obj.coordinates,
+                StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
+            ),
+        ).first()
+
+        if static_map_image is None:
             create_static_map_image_from_coordinates.delay(
                 [obj.coordinates[0], obj.coordinates[1]]
             )

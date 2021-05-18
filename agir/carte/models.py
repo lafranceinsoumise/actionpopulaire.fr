@@ -58,18 +58,17 @@ def download_static_map_image_from_jawg(
 class StaticMapImageManager(models.Manager):
     def create_from_jawg(self, *args, **kwargs):
         image = download_static_map_image_from_jawg(**kwargs)
-        static_map_image = super(StaticMapImageManager, self).create(
-            *args, **kwargs, image=image,
-        )
+        static_map_image = super().create(*args, **kwargs, image=image,)
         return static_map_image
 
     def create(self, *args, **kwargs):
         if kwargs.get("image", None) is None:
             return self.create_from_jawg(*args, **kwargs)
-        return super(StaticMapImageManager, self).create(*args, **kwargs)
+        return super().create(*args, **kwargs)
 
 
 class StaticMapImage(models.Model):
+    UNIQUE_CENTER_MAX_DISTANCE = 1
     DEFAULT_WIDTH = DEFAULT_MAP_WIDTH
     DEFAULT_HEIGHT = DEFAULT_MAP_HEIGHT
     DEFAULT_ZOOM = DEFAULT_MAP_ZOOM

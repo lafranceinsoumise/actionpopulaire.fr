@@ -1,5 +1,5 @@
 from django.contrib.gis.geos import Point
-
+from django.db import IntegrityError
 from agir.people.models import Person
 from .celery import http_task
 from .geo import geocode_element
@@ -30,6 +30,16 @@ geocode_person = create_geocoder(Person)
 def create_static_map_image_from_coordinates(coordinates):
     center = Point(*coordinates)
     try:
-        StaticMapImage.objects.get(center__distance_lt=(center, 1))
+        # Do not create image if one exists for a close enough point
+        StaticMapImage.objects.get(
+            center__distance_lt=(center, StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE)
+        )
+        return
     except StaticMapImage.DoesNotExist:
+        pass
+
+    try:
         StaticMapImage.objects.create_from_jawg(center=center)
+    except IntegrityError:
+        # Ignore error if image already exists for the given coordinates
+        pass
