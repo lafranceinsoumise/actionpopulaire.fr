@@ -1,6 +1,6 @@
 import * as proj from "ol/proj";
 import PropTypes from "prop-types";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -159,6 +159,11 @@ const Map = (props) => {
     },
     [center, zoom, iconConfiguration, isStatic]
   );
+
+  useEffect(() => {
+    mapObject.current &&
+      mapObject.current.getView().setCenter(proj.fromLonLat(center));
+  }, [center]);
 
   isLoaded && mapObject.current && mapObject.current.updateSize();
 
