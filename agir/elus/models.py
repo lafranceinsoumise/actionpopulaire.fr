@@ -609,11 +609,21 @@ class RechercheParrainageMaire(TimeStampedModel):
     Statut = StatutRechercheParrainage
     elu = models.ForeignKey(
         to="data_france.EluMunicipal",
-        on_delete=models.CASCADE,
+        verbose_name="Élu⋅e parrain",
+        on_delete=models.SET_NULL,
         related_name="recherches_parrainages",
         related_query_name="rechercher_parrainage",
+        null=True,
+        blank=True,
     )
-    person = models.ForeignKey(to="people.Person", on_delete=models.CASCADE)
+
+    person = models.ForeignKey(
+        to="people.Person",
+        verbose_name="Démarcheur⋅se",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     statut = models.IntegerField(choices=Statut.choices, default=Statut.EN_COURS)
 
@@ -628,6 +638,9 @@ class RechercheParrainageMaire(TimeStampedModel):
         upload_to=formulaire_parrainage_pattern,
         null=True,
     )
+
+    def __str__(self):
+        return f"{self.elu} — {self.get_statut_display().lower()}"
 
     class Meta:
         verbose_name = "Recherche de parrainage de maire"
