@@ -24,6 +24,7 @@ from agir.events.models import Event
 from agir.events.models import RSVP
 from agir.events.serializers import (
     EventSerializer,
+    EventListSerializer,
     EventCreateOptionsSerializer,
     CreateEventSerializer,
 )
@@ -44,31 +45,11 @@ from agir.lib.tasks import geocode_person
 
 class EventRsvpedAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = EventSerializer
+    serializer_class = EventListSerializer
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
-            *args,
-            fields=[
-                "id",
-                "name",
-                # "participantCount",
-                "illustration",
-                "hasSubscriptionForm",
-                "startTime",
-                "endTime",
-                "location",
-                "isOrganizer",
-                "rsvp",
-                "hasRightSubscription",
-                "is2022",
-                "routes",
-                "groups",
-                "distance",
-                "compteRendu",
-                "subtype",
-            ],
-            **kwargs,
+            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
         )
 
     def get(self, request, *args, **kwargs):
@@ -86,10 +67,14 @@ class EventRsvpedAPIView(ListAPIView):
             queryset = queryset.is_2022()
 
         return (
-            queryset.upcoming()
-            .filter(Q(attendees=person) | Q(organizers=person))
-            .order_by("start_time", "end_time")
-        ).distinct()
+            (
+                queryset.upcoming()
+                .filter(Q(attendees=person) | Q(organizers=person))
+                .order_by("start_time", "end_time")
+            )
+            .distinct()
+            .select_related("subtype")
+        )
 
 
 class EventDetailAPIView(RetrieveAPIView):
@@ -100,40 +85,21 @@ class EventDetailAPIView(RetrieveAPIView):
 
 class EventSuggestionsAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = EventSerializer
+    serializer_class = EventListSerializer
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
-            *args,
-            fields=[
-                "id",
-                "name",
-                # "participantCount",
-                "illustration",
-                "hasSubscriptionForm",
-                "startTime",
-                "endTime",
-                "location",
-                "isOrganizer",
-                "rsvp",
-                "hasRightSubscription",
-                "is2022",
-                "routes",
-                "groups",
-                "distance",
-                "compteRendu",
-                "subtype",
-            ],
-            **kwargs,
+            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
         )
 
     def get_queryset(self):
         person = self.request.user.person
+        person_groups = person.supportgroups.all()
         base_queryset = Event.objects.with_serializer_prefetch(person)
 
         groups_events = (
             base_queryset.upcoming()
-            .filter(organizers_groups__in=person.supportgroups.all())
+            .filter(organizers_groups__in=person_groups)
             .distinct()
         )
 
@@ -146,10 +112,7 @@ class EventSuggestionsAPIView(ListAPIView):
 
         past_events = (
             base_queryset.past()
-            .filter(
-                Q(rsvps__person=person)
-                | Q(organizers_groups__in=person.supportgroups.all())
-            )
+            .filter(Q(rsvps__person=person) | Q(organizers_groups__in=person_groups))
             .distinct()
             .order_by("-start_time")[:10]
         )
@@ -178,7 +141,7 @@ class EventSuggestionsAPIView(ListAPIView):
         else:
             result = result.order_by("start_time")
 
-        return result
+        return result.select_related("subtype")
 
 
 class EventCreateOptionsAPIView(RetrieveAPIView):
