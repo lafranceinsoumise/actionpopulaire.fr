@@ -75,7 +75,9 @@ def retriable_task(
     return decorate
 
 
-retry_on_http_strategy = retry_strategy(start=10, retry_on=(requests.RequestException,))
+retry_on_http_strategy = retry_strategy(
+    start=10, retry_on=(requests.RequestException, requests.ReadTimeout)
+)
 retry_on_smtp_strategy = retry_strategy(
     start=10, retry_on=(smtplib.SMTPException, socket.error)
 )
