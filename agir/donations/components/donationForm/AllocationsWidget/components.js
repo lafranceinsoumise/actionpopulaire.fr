@@ -48,6 +48,7 @@ export const GroupAllocation = ({
     <AmountBoxContainer>
       <AmountInput
         value={amount}
+        disabled={disabled}
         onChange={(v) => {
           if (v === null) {
             onChange(0);
