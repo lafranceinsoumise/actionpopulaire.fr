@@ -76,6 +76,7 @@ const AllocationsWidget = ({ groupChoices, value, onChange, maxAmount }) => {
         ))}
         {extra && (
           <GroupAllocation
+            disabled
             onRemove={() => {
               setExtra(false);
             }}
