@@ -27,6 +27,16 @@ CHANGED_DATA_LABEL = {
 }
 
 
+def activity_notification_url(
+    *args, activity=None, **kwargs,
+):
+    if activity is not None:
+        query = kwargs.get("query", {})
+        query["from_activity"] = str(activity.pk)
+        kwargs.update({"query": query})
+    return front_url(*args, **kwargs)
+
+
 class ActivityNotificationSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     type = serializers.CharField(read_only=True)
@@ -42,7 +52,7 @@ class ActivityNotificationSerializer(FlexibleFieldsMixin, serializers.ModelSeria
         return ""
 
     def get_url(self, activity):
-        return front_url("list_activities")
+        return activity_notification_url("list_activities", activity=activity)
 
     class Meta:
         model = Activity
@@ -68,7 +78,9 @@ class GroupInvitationActivityNotificationSerializer(ActivityNotificationSerializ
         )
 
     def get_url(self, activity):
-        return front_url("view_group", args={activity.supportgroup_id})
+        return activity_notification_url(
+            "view_group", activity=activity, kwargs={"pk": activity.supportgroup_id}
+        )
 
 
 class NewMemberActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -80,9 +92,9 @@ class NewMemberActivityNotificationSerializer(ActivityNotificationSerializer):
         )
 
     def get_url(self, activity):
-        return front_url(
-            "manage_group",
-            query={"active": "membership"},
+        return activity_notification_url(
+            "view_group_settings_members",
+            activity=activity,
             kwargs={"pk": activity.supportgroup_id},
         )
 
@@ -94,8 +106,10 @@ class WaitingLocationGroupActivityNotificationSerializer(
         return f"Précisez la localisation de {activity.supportgroup.name}"
 
     def get_url(self, activity):
-        return front_url(
-            "change_group_location", kwargs={"pk": activity.supportgroup_id},
+        return activity_notification_url(
+            "view_group_settings_location",
+            activity=activity,
+            kwargs={"pk": activity.supportgroup_id},
         )
 
 
@@ -106,7 +120,11 @@ class WaitingLocationEventActivityNotificationSerializer(
         return f"Précisez la localisation de {activity.event.name}"
 
     def get_url(self, activity):
-        return front_url("change_event_location", kwargs={"pk": activity.event_id},)
+        return activity_notification_url(
+            "view_group_settings_location",
+            activity=activity,
+            kwargs={"pk": activity.event_id},
+        )
 
 
 class GroupMembershipLimitReminderActivityNotificationSerializer(
@@ -142,9 +160,9 @@ class GroupMembershipLimitReminderActivityNotificationSerializer(
         return "Votre équipe a trop de membres. Divisez-la pour renforcer le réseau d'action"
 
     def get_url(self, activity):
-        return front_url(
-            "manage_group",
-            query={"active": "membership"},
+        return activity_notification_url(
+            "view_group_settings_members",
+            activity=activity,
             kwargs={"pk": activity.supportgroup_id},
         )
 
@@ -166,7 +184,9 @@ class GroupInfoUpdateActivityNotificationSerializer(ActivityNotificationSerializ
         return f"{activity.supportgroup.name} a été mis à jour"
 
     def get_url(self, activity):
-        return front_url("view_group", args={activity.supportgroup_id})
+        return activity_notification_url(
+            "view_group", activity=activity, kwargs={"pk": activity.supportgroup_id}
+        )
 
 
 class AcceptedInvitationMemberActivityNotificationSerializer(
@@ -178,9 +198,9 @@ class AcceptedInvitationMemberActivityNotificationSerializer(
         return f"{activity.individual.display_name} a rejoint {activity.supportgroup.name} en acceptant une invitation"
 
     def get_url(self, activity):
-        return front_url(
-            "manage_group",
-            query={"active": "membership"},
+        return activity_notification_url(
+            "view_group_settings_members",
+            activity=activity,
             kwargs={"pk": activity.supportgroup_id},
         )
 
@@ -194,7 +214,9 @@ class NewAttendeeActivityNotificationSerializer(ActivityNotificationSerializer):
         )
 
     def get_url(self, activity):
-        return front_url("manage_event", kwargs={"pk": activity.event_id},)
+        return activity_notification_url(
+            "manage_event", activity=activity, kwargs={"pk": activity.event_id},
+        )
 
 
 class EventUpdateActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -219,7 +241,9 @@ class EventUpdateActivityNotificationSerializer(ActivityNotificationSerializer):
         return f"{activity.event.name} a été mis à jour"
 
     def get_url(self, activity):
-        return front_url("view_event", kwargs={"pk": activity.event_id})
+        return activity_notification_url(
+            "view_event", activity=activity, kwargs={"pk": activity.event_id}
+        )
 
 
 class NewEventMyGroupsActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -232,7 +256,9 @@ class NewEventMyGroupsActivityNotificationSerializer(ActivityNotificationSeriali
         return f"Nouvel événement de {activity.supportgroup.name} — Confirmez votre participation pour recevoir les mises à jour"
 
     def get_url(self, activity):
-        return front_url("view_event", kwargs={"pk": activity.event_id},)
+        return activity_notification_url(
+            "view_event", activity=activity, kwargs={"pk": activity.event_id},
+        )
 
 
 class NewReportActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -240,7 +266,9 @@ class NewReportActivityNotificationSerializer(ActivityNotificationSerializer):
         return f"Le compte-rendu de {activity.event.name} du {activity.event.start_time.strftime('%d/%m')} a été ajouté"
 
     def get_url(self, activity):
-        return front_url("view_event", kwargs={"pk": activity.event_id},)
+        return activity_notification_url(
+            "view_event", activity=activity, kwargs={"pk": activity.event_id},
+        )
 
 
 class CancelledEventActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -264,7 +292,9 @@ class GroupCoorganizationAcceptedActivityNotificationSerializer(
         return f"{activity.supportgroup.name} a accepté de co-organiser {activity.event.name}"
 
     def get_url(self, activity):
-        return front_url("manage_event", kwargs={"pk": activity.event_id},)
+        return activity_notification_url(
+            "manage_event", activity=activity, kwargs={"pk": activity.event_id},
+        )
 
 
 class NewMembersThroughTransferActivityNotificationSerializer(
@@ -278,9 +308,9 @@ class NewMembersThroughTransferActivityNotificationSerializer(
         return f"Un membre a rejoint {activity.supportgroup.name} suite à un transfert depuis {activity.meta['oldGroup']}"
 
     def get_url(self, activity):
-        return front_url(
-            "manage_group",
-            query={"active": "membership"},
+        return activity_notification_url(
+            "view_group_settings_members",
+            activity=activity,
             kwargs={"pk": activity.supportgroup_id},
         )
 
@@ -296,7 +326,9 @@ class TransferredGroupMemberActivityNotificationSerializer(
         return f"Vous avez été transféré·e de {activity.meta['oldGroup']} et avez rejoint {activity.supportgroup.name}. Votre nouvelle équipe vous attend !"
 
     def get_url(self, activity):
-        return front_url("view_group", kwargs={"pk": activity.supportgroup_id},)
+        return activity_notification_url(
+            "view_group", activity=activity, kwargs={"pk": activity.supportgroup_id},
+        )
 
 
 class WaitingPaymentActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -307,7 +339,9 @@ class WaitingPaymentActivityNotificationSerializer(ActivityNotificationSerialize
 
     def get_url(self, activity):
         # TODO: replace with payment url once the activity is actually implemented
-        return front_url("view_event", kwargs={"pk": activity.event_id},)
+        return activity_notification_url(
+            "view_event", activity=activity, kwargs={"pk": activity.event_id},
+        )
 
 
 class GroupCoorganizationInviteActivityNotificationSerializer(
@@ -317,6 +351,11 @@ class GroupCoorganizationInviteActivityNotificationSerializer(
 
     def get_body(self, activity):
         return f"Votre groupe {activity.supportgroup.name} est invité à co-organiser {activity.event.name}"
+
+    def get_url(self, activity):
+        return activity_notification_url(
+            "view_event", activity=activity, kwargs={"pk": activity.event_id},
+        )
 
 
 class GroupCoorganizationInfoActivityNotificationSerializer(
@@ -328,7 +367,9 @@ class GroupCoorganizationInfoActivityNotificationSerializer(
         return f"Votre groupe sera présent à {activity.event.name}"
 
     def get_url(self, activity):
-        return front_url("view_event", kwargs={"pk": activity.event_id},)
+        return activity_notification_url(
+            "view_event", activity=activity, kwargs={"pk": activity.event_id},
+        )
 
 
 class NewMessageActivityNotificationSerializer(ActivityNotificationSerializer):
@@ -346,8 +387,9 @@ class NewMessageActivityNotificationSerializer(ActivityNotificationSerializer):
             return f"Un nouveau message a été publié dans le groupe {activity.supportgroup.name}"
 
     def get_url(self, activity):
-        return front_url(
+        return activity_notification_url(
             "view_group_message",
+            activity=activity,
             kwargs={
                 "pk": activity.supportgroup_id,
                 "message_pk": activity.meta["message"],
@@ -372,8 +414,9 @@ class NewCommentActivityNotificationSerializer(ActivityNotificationSerializer):
             return f"Un nouveau commentaire a été publié dans le groupe {activity.supportgroup.name}"
 
     def get_url(self, activity):
-        return front_url(
+        return activity_notification_url(
             "view_group_message",
+            activity=activity,
             kwargs={
                 "pk": activity.supportgroup_id,
                 "message_pk": activity.meta["message"],
@@ -388,7 +431,9 @@ class EventSuggestionNotificationSerializer(ActivityNotificationSerializer):
         return f"Ce {activity.event.start_time.strftime('%A')} : {activity.event.name} {activity.supportgroup.name}"
 
     def get_url(self, activity):
-        return front_url("view_event", kwargs={"pk": activity.event_id})
+        return activity_notification_url(
+            "view_event", activity=activity, kwargs={"pk": activity.event_id}
+        )
 
 
 ACTIVITY_NOTIFICATION_SERIALIZERS = {
