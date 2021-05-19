@@ -307,7 +307,7 @@ def send_new_group_event_email(group_pk, event_pk):
     if not OrganizerConfig.objects.filter(event=event, as_group=group):
         return
 
-    recipients = group.members.all()
+    recipients = group.members.filter(group_notifications=True)
     tz = timezone.get_current_timezone()
     now = timezone.now()
     start_time = event.start_time.astimezone(tz)
