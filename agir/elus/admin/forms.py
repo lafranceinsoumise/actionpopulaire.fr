@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
-from agir.elus.models import DELEGATIONS_CHOICES
+from agir.elus.models import DELEGATIONS_CHOICES, RechercheParrainageMaire
 from agir.lib.data import FRANCE_COUNTRY_CODES
 from agir.people.actions.subscription import (
     SUBSCRIPTION_TYPE_NSP,
@@ -260,3 +260,16 @@ class MandatMunicipalForm(MandatForm):
 
         if instance and instance.reference:
             legender_elu_municipal_depuis_fiche_rne(self, instance.reference)
+
+
+class RechercheParrainageForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        new = self.instance._state.adding
+
+        if new:
+            self.instance.statut = RechercheParrainageMaire.Statut.VALIDEE
+
+        if "elu" in self.fields:
+            self.fields["elu"].required = new

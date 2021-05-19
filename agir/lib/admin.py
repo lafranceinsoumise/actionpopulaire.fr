@@ -83,25 +83,29 @@ class RegionListFilter(admin.SimpleListFilter):
 
 
 class AdminViewMixin(ContextMixin, View):
+    model_admin = None
+
     def get_admin_helpers(self, form, fields: Iterable[str] = None, fieldsets=None):
         if fieldsets is None:
             fieldsets = [(None, {"fields": list(fields)})]
 
+        model_admin = self.kwargs.get("model_admin") or self.model_admin
+
         admin_form = helpers.AdminForm(
             form=form,
             fieldsets=fieldsets,
-            model_admin=self.kwargs["model_admin"],
+            model_admin=model_admin,
             prepopulated_fields={},
         )
 
         return {
             "adminform": admin_form,
             "errors": helpers.AdminErrorList(form, []),
-            "media": self.kwargs["model_admin"].media + admin_form.media,
+            "media": model_admin.media + admin_form.media,
         }
 
     def get_context_data(self, **kwargs):
-        model_admin = self.kwargs["model_admin"]
+        model_admin = self.kwargs.get("model_admin") or self.model_admin
 
         # noinspection PyProtectedMember
         kwargs.setdefault("opts", model_admin.model._meta)
