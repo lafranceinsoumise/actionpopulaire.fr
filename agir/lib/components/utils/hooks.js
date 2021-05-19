@@ -1,8 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
 import throttle from "lodash/throttle";
 import debounce from "lodash/debounce";
-import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ResizeObserver from "resize-observer-polyfill";
+
+import logger from "@agir/lib/utils/logger";
+
+const log = logger(__filename);
 
 export const usePrevious = (value) => {
   const ref = useRef(null);
@@ -112,7 +116,7 @@ export const useDisableBodyScroll = (isActive, shouldDisable) => {
     if (isActive && targetRef.current) {
       shouldDisable
         ? disableBodyScroll(targetRef.current, {
-            allowTouchMove: (el) => true,
+            allowTouchMove: () => true,
           })
         : clearAllBodyScrollLocks();
     }
@@ -136,3 +140,35 @@ export function useMeasure() {
   }, [resizeObserver]);
   return [{ ref }, bounds];
 }
+
+export const useLocalStorage = (key, initialValue) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      log.debug(error);
+      return initialValue;
+    }
+  });
+
+  const update = (value) => {
+    try {
+      setStoredValue(value);
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      log.debug(error);
+    }
+  };
+
+  const remove = () => {
+    try {
+      setStoredValue(undefined);
+      window.localStorage.clearItem(key);
+    } catch (error) {
+      log.debug(error);
+    }
+  };
+
+  return [storedValue, update, remove];
+};
