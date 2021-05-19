@@ -60,7 +60,7 @@ class EluMunicipalSerializer(serializers.Serializer):
 class CreerRechercheSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     elu = serializers.PrimaryKeyRelatedField(
-        queryset=EluMunicipal.objects.filter(CRITERE_INCLUSION_ELUS)
+        queryset=EluMunicipal.objects.filter(CRITERE_INCLUSION_ELUS), required=True
     )
 
     def create(self, validated_data):

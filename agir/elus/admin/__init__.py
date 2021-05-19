@@ -11,8 +11,8 @@ from data_france.models import (
 from django.contrib import admin
 from django.contrib.postgres.search import SearchQuery
 from django.core.exceptions import ObjectDoesNotExist
-from django.urls import reverse
-from django.utils.html import format_html
+from django.urls import reverse, path
+from django.utils.html import format_html, format_html_join
 from psycopg2._range import DateRange
 
 from agir.elus.models import (
@@ -40,7 +40,9 @@ from .forms import (
     PERSON_FIELDS,
     MandatForm,
     MandatMunicipalForm,
+    RechercheParrainageForm,
 )
+from .views import ConfirmerParrainageView, AnnulerParrainageView
 from ...lib.admin import display_list_of_links
 
 
@@ -581,13 +583,25 @@ class MandatRegionalAdmin(BaseMandatAdmin):
 
 @admin.register(RechercheParrainageMaire)
 class RechercherParrainageMaireAdmin(admin.ModelAdmin):
+    form = RechercheParrainageForm
+
     autocomplete_fields = ("elu", "person")
     list_display = ("elu", "person", "statut", "formulaire")
+    readonly_fields = (
+        "statut_display",
+        "person",
+    )
 
     list_filter = ("statut",)
-    fields = ("elu", "person", "statut", "commentaires", "formulaire")
+    fields = ("elu", "person", "statut_display", "commentaires", "formulaire")
 
     search_fields = ("elu__search",)
+
+    def get_fields(self, request, obj=None):
+        if obj is None:
+            return ("elu", "commentaires", "formulaire")
+
+        return super().get_fields(request, obj=obj)
 
     def get_search_results(self, request, queryset, search_term):
         use_distinct = False
@@ -599,6 +613,61 @@ class RechercherParrainageMaireAdmin(admin.ModelAdmin):
                 use_distinct,
             )
         return queryset, use_distinct
+
+    def statut_display(self, obj):
+        if obj:
+            statut = obj.get_statut_display()
+
+            links = []
+
+            if obj.statut != RechercheParrainageMaire.Statut.VALIDEE and obj.formulaire:
+                links.append(
+                    (
+                        reverse(
+                            "admin:elus_rechercheparrainagemaire_confirmer",
+                            args=(obj.id,),
+                        ),
+                        "Confirmer ce parrainage",
+                    )
+                )
+            if obj.statut != RechercheParrainageMaire.Statut.ANNULEE:
+                links.append(
+                    (
+                        reverse(
+                            "admin:elus_rechercheparrainagemaire_annuler",
+                            args=(obj.id,),
+                        ),
+                        "Annuler ce parrainage",
+                    )
+                )
+
+            return format_html(
+                "<p>{statut}</p>{liens}",
+                statut=statut,
+                liens=format_html_join("", '<a class="button" href="{}">{}</a>', links),
+            )
+
+        return "-"
+
+    def get_urls(self):
+        urls = super().get_urls()
+
+        return [
+            path(
+                "<path:object_id>/confirmer/",
+                self.admin_site.admin_view(
+                    ConfirmerParrainageView.as_view(model_admin=self),
+                ),
+                name="elus_rechercheparrainagemaire_confirmer",
+            ),
+            path(
+                "<path:object_id>/annuler/",
+                self.admin_site.admin_view(
+                    AnnulerParrainageView.as_view(model_admin=self),
+                ),
+                name="elus_rechercheparrainagemaire_annuler",
+            ),
+        ] + urls
 
 
 admin.site.unregister(EluMunicipal)
