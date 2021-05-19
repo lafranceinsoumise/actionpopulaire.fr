@@ -31,6 +31,8 @@ def send_webpush_activity(activity_pk, webpush_device_pk):
         if "Push failed: 410 Gone" in str(e):
             webpush_device.active = False
             webpush_device.save()
+        elif "Push failed: 404 Not Found" in str(e):
+            webpush_device.delete()
         else:
             raise e
 
@@ -47,11 +49,17 @@ def send_apns_activity(activity_pk, apns_device_pk):
 
     message = serializer(instance=activity)
 
-    result = apns_device.send_message(
-        message=message.data,
-        thread_id=activity.type,
-        extra={"url": message.data["url"]},
-    )
+    try:
+        result = apns_device.send_message(
+            message=message.data,
+            thread_id=activity.type,
+            extra={"url": message.data["url"]},
+        )
+    except:
+        apns_device.active = False
+        apns_device.save()
+        return
+
     if activity.pushed == False:
         activity.pushed = True
         activity.save()
