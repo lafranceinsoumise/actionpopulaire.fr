@@ -1,3 +1,4 @@
+import Helmet from "react-helmet";
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useEffect } from "react";
@@ -409,6 +410,11 @@ export const ConnectedEventPage = (props) => {
 
   return (
     <>
+      {eventData && (
+        <Helmet>
+          <title>{eventData.name} — Action Populaire</title>
+        </Helmet>
+      )}
       <PageFadeIn
         ready={isSessionLoaded && eventData}
         wait={
