@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useCallback } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useHistory } from "react-router-dom";
 
-import { useLocalStorage, createGlobalState } from "react-use";
-
 import { parseQueryStringParams } from "@agir/lib/utils/url";
+import { useLocalStorage } from "@agir/lib/utils/hooks";
 
 export const useCustomBackNavigation = (callback) => {
   const history = useHistory();
@@ -29,44 +28,38 @@ export const useCustomBackNavigation = (callback) => {
  * @property {boolean} isMobileApp - the page is inside an app webview
  */
 export const useMobileApp = () => {
+  const [isAndroid, setIsAndroid] = useLocalStorage("AP_isAndroid", "0");
+  const [isIOS, setIsIOS] = useLocalStorage("AP_isIOS", "0");
+
   const state = useMemo(() => {
     const params = parseQueryStringParams();
-    if (
-      typeof window !== "undefined" &&
-      window.localStorage &&
-      (params.ios || params.android)
-    ) {
-      params.ios && window.localStorage.setItem("AP_isIOS", params.ios);
-      params.android &&
-        window.localStorage.setItem("AP_isAndroid", params.android);
+
+    if (params.ios || params.android) {
+      params.ios && setIsIOS(params.ios);
+      params.android && setIsAndroid(params.android);
     }
-    const isIOS = window.localStorage.getItem("AP_isIOS") === "1";
-    const isAndroid = window.localStorage.getItem("AP_isAndroid") === "1";
+
+    const ios = isIOS === "1" || params.ios === "1";
+    const android = isAndroid === "1" || params.android === "1";
 
     return {
-      isIOS,
-      isAndroid,
-      isMobileApp: isIOS || isAndroid,
+      isIOS: ios,
+      isAndroid: android,
+      isMobileApp: ios || android,
     };
+    // eslint-disable-next-line
   }, []);
 
   return state;
 };
 
-const BANNER_ID = "BANNER_count";
-const useBannerCount = createGlobalState(
-  window.localStorage.getItem(BANNER_ID) || 0
-);
-
 export const useDownloadBanner = () => {
-  const [bannerCounter, setBannerCounter] = useBannerCount();
-  const [visitCounter] = useLocalStorage("AP_vcount");
-  const display = bannerCounter <= visitCounter;
+  const [bannerCount, setBannerCount] = useLocalStorage("BANNER_count", 0);
+  const [visitCount] = useLocalStorage("AP_vcount", 0);
 
   const hide = useCallback(() => {
-    setBannerCounter(visitCounter + 25);
-    window.localStorage.setItem(BANNER_ID, visitCounter + 25);
-  }, [setBannerCounter, visitCounter]);
+    setBannerCount(visitCount + 25);
+  }, [setBannerCount, visitCount]);
 
-  return [display, hide];
+  return [bannerCount <= visitCount, hide];
 };
