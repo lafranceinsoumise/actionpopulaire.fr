@@ -17,6 +17,7 @@ from rest_framework.generics import (
     UpdateAPIView,
     DestroyAPIView,
     CreateAPIView,
+    get_object_or_404,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -161,31 +162,27 @@ class NearGroupsAPIView(ListAPIView):
         )
 
     def get_queryset(self):
-        if self.supportgroup.coordinates is None:
+        supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=self.kwargs.get("pk")
+        )
+
+        if supportgroup.coordinates is None:
             return SupportGroup.objects.none()
 
         groups = (
             SupportGroup.objects.active()
-            .exclude(pk=self.supportgroup.pk)
+            .exclude(pk=supportgroup.pk)
             .exclude(coordinates__isnull=True)
         )
 
-        if self.supportgroup.is_2022:
+        if supportgroup.is_2022:
             groups = groups.is_2022()
 
         groups = groups.annotate(
-            distance=Distance("coordinates", self.supportgroup.coordinates)
+            distance=Distance("coordinates", supportgroup.coordinates)
         ).order_by("distance")
 
         return groups[:3]
-
-    def dispatch(self, request, pk, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.active().get(pk=pk)
-        except SupportGroup.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return super().dispatch(request, *args, **kwargs)
 
 
 class GroupEventsAPIView(ListAPIView):
@@ -194,8 +191,11 @@ class GroupEventsAPIView(ListAPIView):
     queryset = Event.objects.listed()
 
     def get_queryset(self):
+        supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=self.kwargs.get("pk")
+        )
         events = (
-            self.supportgroup.organized_events.listed()
+            supportgroup.organized_events.listed()
             .distinct()
             .order_by("-start_time")
             .select_related("subtype")
@@ -206,14 +206,6 @@ class GroupEventsAPIView(ListAPIView):
         return super().get_serializer(
             *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
         )
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
-        except SupportGroup.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return super().dispatch(request, *args, **kwargs)
 
 
 class GroupUpcomingEventsAPIView(ListAPIView):
@@ -227,22 +219,17 @@ class GroupUpcomingEventsAPIView(ListAPIView):
         )
 
     def get_queryset(self):
+        supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=self.kwargs.get("pk")
+        )
         events = (
-            self.supportgroup.organized_events.listed()
+            supportgroup.organized_events.listed()
             .upcoming()
             .distinct()
             .order_by("start_time")
             .select_related("subtype")
         )
         return events
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
-        except SupportGroup.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return super().dispatch(request, *args, **kwargs)
 
 
 class GroupPastEventsAPIView(ListAPIView):
@@ -257,22 +244,17 @@ class GroupPastEventsAPIView(ListAPIView):
         )
 
     def get_queryset(self):
+        supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=self.kwargs.get("pk")
+        )
         events = (
-            self.supportgroup.organized_events.listed()
+            supportgroup.organized_events.listed()
             .past()
             .distinct()
             .order_by("-start_time")
             .select_related("subtype")
         )
         return events
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
-        except SupportGroup.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return super().dispatch(request, *args, **kwargs)
 
 
 class GroupPastEventReportsAPIView(ListAPIView):
@@ -286,8 +268,11 @@ class GroupPastEventReportsAPIView(ListAPIView):
         )
 
     def get_queryset(self):
+        supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=self.kwargs.get("pk")
+        )
         events = (
-            self.supportgroup.organized_events.listed()
+            supportgroup.organized_events.listed()
             .past()
             .exclude(report_content="")
             .distinct()
@@ -295,14 +280,6 @@ class GroupPastEventReportsAPIView(ListAPIView):
             .select_related("subtype")
         )
         return events
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
-        except SupportGroup.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return super().dispatch(request, *args, **kwargs)
 
 
 class GroupMessagesPermissions(GlobalOrObjectPermissions):
