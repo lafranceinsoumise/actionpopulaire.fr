@@ -86,7 +86,7 @@ class MandatQueryset(models.QuerySet):
         return self.exclude(statut=StatutMandat.FAUX)
 
     def actifs(self):
-        return self.filter(dates__contains=timezone.now)
+        return self.filter(dates__contains=timezone.now())
 
 
 class MandatHistoryMixin(HistoryMixin):
@@ -346,12 +346,14 @@ class MandatMunicipal(MandatAbstrait):
 
     def get_absolute_url(self):
         return reverse(
-            viewname="elus:modifier_mandat_municipal", kwargs={"pk": self.id},
+            viewname="elus:modifier_mandat_municipal",
+            kwargs={"pk": self.id},
         )
 
     def get_delete_url(self):
         return reverse(
-            viewname="elus:supprimer_mandat_municipal", kwargs={"pk": self.id},
+            viewname="elus:supprimer_mandat_municipal",
+            kwargs={"pk": self.id},
         )
 
 
@@ -439,7 +441,8 @@ class MandatDepartemental(MandatAbstrait):
         else:
             adjectif = "" if metropole else " départemental"
             titre = genrer(
-                self.person.gender, f"{self.get_mandat_display()} du conseil{adjectif}",
+                self.person.gender,
+                f"{self.get_mandat_display()} du conseil{adjectif}",
             )
 
         if self.conseil is None:
@@ -451,12 +454,14 @@ class MandatDepartemental(MandatAbstrait):
 
     def get_absolute_url(self):
         return reverse(
-            viewname="elus:modifier_mandat_departemental", kwargs={"pk": self.id},
+            viewname="elus:modifier_mandat_departemental",
+            kwargs={"pk": self.id},
         )
 
     def get_delete_url(self):
         return reverse(
-            viewname="elus:supprimer_mandat_departemental", kwargs={"pk": self.id},
+            viewname="elus:supprimer_mandat_departemental",
+            kwargs={"pk": self.id},
         )
 
 
@@ -548,7 +553,10 @@ class MandatRegional(MandatAbstrait):
                 titre = genrer(self.person.gender, "Conseiller⋅ère régional⋅e")
         else:
             qualif = "" if ctu else " du conseil régional"
-            titre = genrer(self.person.gender, f"{self.get_mandat_display()}{qualif}",)
+            titre = genrer(
+                self.person.gender,
+                f"{self.get_mandat_display()}{qualif}",
+            )
 
         if self.conseil is None:
             return titre
@@ -565,12 +573,14 @@ class MandatRegional(MandatAbstrait):
 
     def get_absolute_url(self):
         return reverse(
-            viewname="elus:modifier_mandat_regional", kwargs={"pk": self.id},
+            viewname="elus:modifier_mandat_regional",
+            kwargs={"pk": self.id},
         )
 
     def get_delete_url(self):
         return reverse(
-            viewname="elus:supprimer_mandat_regional", kwargs={"pk": self.id},
+            viewname="elus:supprimer_mandat_regional",
+            kwargs={"pk": self.id},
         )
 
 
