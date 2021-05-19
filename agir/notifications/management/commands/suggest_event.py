@@ -22,4 +22,5 @@ class Command(BaseCommand):
                     .order_by("?")
                     .first()
                 )
-                new_event_suggestion_notification(near_event, person)
+                if near_event is not None:
+                    new_event_suggestion_notification(near_event, person)
