@@ -5,7 +5,7 @@ import {
   setActivityAsDisplayed,
   setActivityAsInteracted,
 } from "@agir/activity/common/helpers";
-import { useCallback, useState, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 export const useHasUnreadActivity = () => {
   const { data: activities } = useSWR("/api/user/activities/", {
