@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from push_notifications.models import APNSDevice, WebPushDevice, GCMDevice
 from push_notifications.webpush import WebPushError
+from push_notifications.apns import APNSServerError
 from rest_framework.renderers import JSONRenderer
 
 from agir.activity.models import Activity
@@ -55,10 +56,13 @@ def send_apns_activity(activity_pk, apns_device_pk):
             thread_id=activity.type,
             extra={"url": message.data["url"]},
         )
-    except:
-        apns_device.active = False
-        apns_device.save()
-        return
+    except APNSServerError as e:
+        if "Unregistered" in str(e):
+            apns_device.active = False
+            apns_device.save()
+            return
+        else:
+            raise e
 
     if activity.pushed == False:
         activity.pushed = True
