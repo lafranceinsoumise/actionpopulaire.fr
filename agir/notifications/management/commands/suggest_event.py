@@ -12,10 +12,9 @@ class Command(BaseCommand):
     help = "suggest an event to each user"
 
     def handle(self, limit=SUGGEST_LIMIT_METERS, *args, **options):
-        for person in Person.objects.all():
-            base_queryset = Event.objects.with_serializer_prefetch(person)
-
+        for person in Person.objects.filter(notification_subscriptions=True):
             if person.coordinates is not None:
+                base_queryset = Event.objects.with_serializer_prefetch(person)
                 near_event = (
                     base_queryset.upcoming()
                     .annotate(distance=Distance("coordinates", person.coordinates))
