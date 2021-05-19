@@ -13,6 +13,7 @@ from django.db.models import Case, Sum, Count, When, CharField, F, Q
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
+from django.utils.datastructures import MultiValueDict
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
@@ -547,16 +548,27 @@ class Event(
         return front_url("view_event", args=[self.pk])
 
     def get_google_calendar_url(self):
-        df = "%Y%m%dT%H%i00"
+        # https://github.com/InteractionDesignFoundation/add-event-to-calendar-docs/blob/master/services/google.md
+        df = "%Y%m%dT%H%M00"
+        tz = timezone.get_current_timezone()
+        start_time = self.start_time.astimezone(tz).strftime(df)
+        end_time = self.end_time.astimezone(tz).strftime(df)
+
+        details = f"{self.description}<p><a href={self.get_absolute_url()}>Page de l'événement</a></p>"
+        if self.online_url:
+            details += f"<p><a href={self.online_url}>Rejoindre en ligne</a></p>"
 
         query = {
+            "action": "TEMPLATE",
+            "ctz": timezone.get_current_timezone_name(),
             "text": self.name,
-            "dates": f"{self.start_time.strftime(df)}/{self.end_time.strftime(df)}",
+            "dates": f"{start_time}/{end_time}",
             "location": self.short_address,
-            "details": self.description,
+            "details": details,
+            "sprop": f"website:{self.get_absolute_url()}",
         }
 
-        return f"https://calendar.google.com/calendar/r/eventedit?{urlencode(query)}"
+        return f"https://calendar.google.com/calendar/render?{urlencode(query)}&sprop=name:Action%20Populaire"
 
     def can_rsvp(self, person):
         return (self.for_users == Event.FOR_USERS_2022 and person.is_2022) or (
