@@ -329,7 +329,11 @@ class GroupMessagesAPIView(ListCreateAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.supportgroup.messages.filter(deleted=False).order_by("-created")
+        return (
+            self.supportgroup.messages.filter(deleted=False)
+            .select_related("author", "linked_event", "linked_event__subtype")
+            .order_by("-created")
+        )
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
