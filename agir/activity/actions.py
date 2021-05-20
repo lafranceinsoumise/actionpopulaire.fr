@@ -13,7 +13,12 @@ def get_activities(person):
         .filter(recipient=person)
         .select_related("supportgroup", "individual")
         .prefetch_related(
-            Prefetch("event", Event.objects.with_serializer_prefetch(person),)
+            Prefetch(
+                "event",
+                Event.objects.with_serializer_prefetch(person).select_related(
+                    "subtype"
+                ),
+            )
         )[:40]
         if person.role.has_perm("activity.view_activity", activity)
     )
