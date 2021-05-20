@@ -8,7 +8,7 @@ def new_event_suggestion_notification(event, recipient):
     activity_config = {
         "type": Activity.TYPE_EVENT_SUGGESTION,
         "event": event,
-        "status": Activity.DISPLAYED_TYPES,
+        "status": Activity.STATUS_DISPLAYED,
     }
     if event.organizers_groups.count() > 0:
         activity_config["supportgroup"] = event.organizers_groups.first()

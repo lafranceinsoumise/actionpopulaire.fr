@@ -19,8 +19,12 @@ class Command(BaseCommand):
                     base_queryset.upcoming()
                     .annotate(distance=Distance("coordinates", person.coordinates))
                     .filter(distance__lte=limit)
+                    .exclude(organizer_configs__as_group__members=person)
+                    .exclude(attendees=person)
+                    .distinct()
                     .order_by("?")
                     .first()
                 )
+
                 if near_event is not None:
                     new_event_suggestion_notification(near_event, person)
