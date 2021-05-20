@@ -5,7 +5,7 @@ import { displayHumanDate, displayInterval } from "./time";
 const date = (s) =>
   DateTime.fromFormat(s, "d/M H:mm", { zone: "Europe/Paris" })
     .set({ year: 2021 })
-    .setLocale("fr");
+    .setLocale("fr-FR");
 
 test("displayDate des dates relatives pour des dates proches", () => {
   const relativeTo = date("20/3 12:00"); // Samedi 20 mars 2021, 12:00
