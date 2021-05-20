@@ -200,9 +200,9 @@ const EventStep = (props) => {
           </span>
         </StyledWarning>
       )}
-      {events.map((event) => (
+      {events.map((event, i) => (
         <EventStepOption
-          key={event.id}
+          key={event.id || i}
           event={event}
           onSelect={onSelectEvent}
         />
