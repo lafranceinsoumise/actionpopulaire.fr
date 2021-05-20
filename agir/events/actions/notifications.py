@@ -16,6 +16,5 @@ def new_event_suggestion_notification(event, recipient):
         activity_config["individual"] = event.organizers.first()
 
     Activity.objects.create(
-        **activity_config,
-        recipient=recipient,
+        **activity_config, recipient=recipient,
     )
