@@ -146,15 +146,30 @@ class UserGroupsView(ListAPIView):
         )
 
 
+class GroupDetailPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": []}
+    object_perms_map = {
+        "GET": ["groups.view_supportgroup"],
+    }
+
+
 class GroupDetailAPIView(RetrieveAPIView):
-    permission_ = ("groups.view_supportgroup",)
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = SupportGroupDetailSerializer
     queryset = SupportGroup.objects.active()
 
 
 class NearGroupsAPIView(ListAPIView):
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = SupportGroupDetailSerializer
     queryset = SupportGroup.objects.active()
+
+    def initial(self, request, *args, **kwargs):
+        self.supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=kwargs.get("pk")
+        )
+        self.check_object_permissions(request, self.supportgroup)
+        super().initial(request, *args, **kwargs)
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -162,40 +177,40 @@ class NearGroupsAPIView(ListAPIView):
         )
 
     def get_queryset(self):
-        supportgroup = get_object_or_404(
-            SupportGroup.objects.active(), pk=self.kwargs.get("pk")
-        )
-
-        if supportgroup.coordinates is None:
+        if self.supportgroup.coordinates is None:
             return SupportGroup.objects.none()
 
         groups = (
             SupportGroup.objects.active()
-            .exclude(pk=supportgroup.pk)
+            .exclude(pk=self.supportgroup.pk)
             .exclude(coordinates__isnull=True)
         )
 
-        if supportgroup.is_2022:
+        if self.supportgroup.is_2022:
             groups = groups.is_2022()
 
         groups = groups.annotate(
-            distance=Distance("coordinates", supportgroup.coordinates)
+            distance=Distance("coordinates", self.supportgroup.coordinates)
         ).order_by("distance")
 
         return groups[:3]
 
 
 class GroupEventsAPIView(ListAPIView):
-    permission_ = ("groups.view_supportgroup",)
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = EventListSerializer
     queryset = Event.objects.listed()
 
-    def get_queryset(self):
-        supportgroup = get_object_or_404(
-            SupportGroup.objects.active(), pk=self.kwargs.get("pk")
+    def initial(self, request, *args, **kwargs):
+        self.supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=kwargs.get("pk")
         )
+        self.check_object_permissions(request, self.supportgroup)
+        super().initial(request, *args, **kwargs)
+
+    def get_queryset(self):
         events = (
-            supportgroup.organized_events.listed()
+            self.supportgroup.organized_events.listed()
             .distinct()
             .order_by("-start_time")
             .select_related("subtype")
@@ -209,21 +224,20 @@ class GroupEventsAPIView(ListAPIView):
 
 
 class GroupUpcomingEventsAPIView(ListAPIView):
-    permission_ = ("groups.view_supportgroup",)
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = EventListSerializer
     queryset = Event.objects.listed().upcoming()
 
-    def get_serializer(self, *args, **kwargs):
-        return super().get_serializer(
-            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+    def initial(self, request, *args, **kwargs):
+        self.supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=kwargs.get("pk")
         )
+        self.check_object_permissions(request, self.supportgroup)
+        super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        supportgroup = get_object_or_404(
-            SupportGroup.objects.active(), pk=self.kwargs.get("pk")
-        )
         events = (
-            supportgroup.organized_events.listed()
+            self.supportgroup.organized_events.listed()
             .upcoming()
             .distinct()
             .order_by("start_time")
@@ -231,12 +245,26 @@ class GroupUpcomingEventsAPIView(ListAPIView):
         )
         return events
 
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+        )
+
 
 class GroupPastEventsAPIView(ListAPIView):
-    permission_ = ("groups.view_supportgroup",)
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = EventListSerializer
     queryset = Event.objects.listed().past()
     pagination_class = APIPaginator
+
+    def initial(self, request, *args, **kwargs):
+        self.supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=kwargs.get("pk")
+        )
+
+        self.check_object_permissions(request, self.supportgroup)
+
+        super().initial(request, *args, **kwargs)
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -244,11 +272,8 @@ class GroupPastEventsAPIView(ListAPIView):
         )
 
     def get_queryset(self):
-        supportgroup = get_object_or_404(
-            SupportGroup.objects.active(), pk=self.kwargs.get("pk")
-        )
         events = (
-            supportgroup.organized_events.listed()
+            self.supportgroup.organized_events.listed()
             .past()
             .distinct()
             .order_by("-start_time")
@@ -258,21 +283,22 @@ class GroupPastEventsAPIView(ListAPIView):
 
 
 class GroupPastEventReportsAPIView(ListAPIView):
-    permission_ = ("groups.view_supportgroup",)
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = EventListSerializer
     queryset = Event.objects.listed().past()
 
-    def get_serializer(self, *args, **kwargs):
-        return super().get_serializer(
-            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+    def initial(self, request, *args, **kwargs):
+        self.supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=kwargs.get("pk")
         )
 
+        self.check_object_permissions(request, self.supportgroup)
+
+        super().initial(request, *args, **kwargs)
+
     def get_queryset(self):
-        supportgroup = get_object_or_404(
-            SupportGroup.objects.active(), pk=self.kwargs.get("pk")
-        )
         events = (
-            supportgroup.organized_events.listed()
+            self.supportgroup.organized_events.listed()
             .past()
             .exclude(report_content="")
             .distinct()
@@ -280,6 +306,11 @@ class GroupPastEventReportsAPIView(ListAPIView):
             .select_related("subtype")
         )
         return events
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+        )
 
 
 class GroupMessagesPermissions(GlobalOrObjectPermissions):
@@ -393,11 +424,9 @@ class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
 
 class GroupJoinAPIView(CreateAPIView):
     queryset = SupportGroup.objects.active()
-    permission_ = ("groups.view_supportgroup",)
 
     def initial(self, request, *args, **kwargs):
         self.object = self.get_object()
-        self.check_object_permissions(request, self.object)
 
         super().initial(request, *args, **kwargs)
 
