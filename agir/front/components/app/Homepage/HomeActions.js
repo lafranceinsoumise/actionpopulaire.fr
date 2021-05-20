@@ -71,21 +71,13 @@ const HomeActions = () => {
           <br />
           et agissez ensemble&nbsp;!
         </p>
-        <Button color="secondary" as="Link" route="groupMapPage">
-          Voir les groupes
-        </Button>
+        <Button color="secondary">Voir les groupes</Button>
       </StyledArticle>
       <StyledArticle route="help">
         <img src={actImage} alt="distribution de tracts" />
         <h4>Agissez concrètement</h4>
         <p>formez-vous et convainquez des gens près de chez vous&nbsp;!</p>
-        <Button
-          color="secondary"
-          as="a"
-          href="https://infos.actionpopulaire.fr/"
-        >
-          Lire les fiches pratiques
-        </Button>
+        <Button color="secondary">Lire les fiches pratiques</Button>
       </StyledArticle>
       <StyledArticle route="login">
         <img
@@ -97,9 +89,7 @@ const HomeActions = () => {
           Créez une équipe de soutien, commandez du matériel, tracts et
           affiches&nbsp;!
         </p>
-        <Button color="secondary" as="Link" route="login">
-          Passer à l'action
-        </Button>
+        <Button color="secondary">Passer à l'action</Button>
       </StyledArticle>
     </StyledActions>
   );
