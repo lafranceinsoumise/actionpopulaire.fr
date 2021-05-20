@@ -3,14 +3,6 @@ import ACTION_TYPE from "@agir/front/globalContext/actionTypes";
 
 import { AUTHENTICATION } from "@agir/front/authentication/common";
 
-// Reducers
-export const domain = (state = "https://actionpopulaire.fr", action) => {
-  if (action.type === ACTION_TYPE.INIT_ACTION) {
-    return action.domain || state;
-  }
-  return state;
-};
-
 export const hasRouter = (state = false, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
     return !!action.hasRouter;
@@ -274,9 +266,6 @@ export const isUpdatingMessages = (state = false, action) => {
   }
 };
 
-// Selectors
-export const getDomain = (state) => state.domain;
-
 export const getHasRouter = (state) => state.hasRouter;
 
 export const getIsSessionLoaded = (state) => state.isSessionLoaded;
@@ -329,7 +318,6 @@ const reducers = {
   user,
   authentication,
   bookmarkedEmails,
-  domain,
   csrfToken,
   routes,
   toasts,

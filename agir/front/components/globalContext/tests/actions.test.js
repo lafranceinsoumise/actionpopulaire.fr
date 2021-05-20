@@ -10,10 +10,10 @@ describe("GlobalContext/actions", function () {
   beforeEach(function () {
     mockDispatch.mockReset();
   });
-  describe("initFromScriptTag action creator", function () {
+  describe("init action creator", function () {
     it(`should dispatch an action of type ${ACTION_TYPE.INIT_ACTION}`, function () {
       expect(mockDispatch.mock.calls).toHaveLength(0);
-      dispatch(actions.initFromScriptTag());
+      dispatch(actions.init());
       expect(mockDispatch.mock.calls).toHaveLength(1);
       expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
         "type",
@@ -30,7 +30,7 @@ describe("GlobalContext/actions", function () {
       globalContextScript.textContent = JSON.stringify(globalContext);
       document.body.appendChild(globalContextScript);
 
-      dispatch(actions.initFromScriptTag());
+      dispatch(actions.init());
       expect(mockDispatch.mock.calls).toHaveLength(1);
       expect(mockDispatch.mock.calls[0][0]).toHaveProperty(
         "type",

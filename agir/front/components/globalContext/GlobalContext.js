@@ -10,7 +10,7 @@ import QueryStringParamsActions from "./QueryStringParamsActions";
 
 import rootReducer from "@agir/front/globalContext/reducers";
 import createDispatch, {
-  initFromScriptTag,
+  init,
   setSessionContext,
 } from "@agir/front/globalContext/actions";
 
@@ -26,7 +26,7 @@ const GlobalContext = React.createContext({});
 const ProdProvider = ({ hasRouter = false, hasToasts = false, children }) => {
   const [state, dispatch] = useReducer(
     rootReducer,
-    rootReducer({}, initFromScriptTag(hasRouter)),
+    rootReducer({}, init(hasRouter)),
     (state) => state,
     "GC"
   );
@@ -85,7 +85,7 @@ export const TestGlobalContextProvider = ({
   children,
   value,
 }) => {
-  const [state] = useReducer(rootReducer, rootReducer({}, initFromScriptTag()));
+  const [state] = useReducer(rootReducer, rootReducer({}, init()));
   const doDispatch = useMemo(() => () => {}, []);
   const currentState = useMemo(
     () => ({
