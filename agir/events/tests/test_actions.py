@@ -93,7 +93,9 @@ class EventNotificationsActionsTestCase(TestCase):
             recipient=self.attendee1,
             supportgroup=self.group_event.organizers_groups.first(),
         ).count()
-        notifications.new_event_suggestion_notification(self.group_event, self.attendee1)
+        notifications.new_event_suggestion_notification(
+            self.group_event, self.attendee1
+        )
 
         new_target_activity_count = Activity.objects.filter(
             type=Activity.TYPE_EVENT_SUGGESTION,
