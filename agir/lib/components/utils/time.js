@@ -10,16 +10,12 @@ const SAME_YEAR_FORMAT = {
   weekday: "long",
   month: "long",
   day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
 };
 
 const OTHER_YEAR_FORMAT = {
   year: "numeric",
   month: "long",
   day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
 };
 
 export function dateFromISOString(s) {
@@ -81,17 +77,18 @@ export function displayHumanDate(datetime, relativeTo) {
 
   const calendarDays = interval.count("days");
 
+  const time = datetime.toLocaleString(HOUR_ONLY_FORMAT);
+  let date = "";
+
   if (calendarDays <= 8) {
-    return `${displayHumanDay(
-      datetime,
-      relativeTo,
-      interval
-    )} à ${datetime.toLocaleString(HOUR_ONLY_FORMAT)}`;
+    date = displayHumanDay(datetime, relativeTo, interval);
   } else if (interval.count("months") <= 4) {
-    return datetime.toLocaleString(SAME_YEAR_FORMAT);
+    date = datetime.toLocaleString(SAME_YEAR_FORMAT);
   } else {
-    return datetime.toLocaleString(OTHER_YEAR_FORMAT);
+    date = datetime.toLocaleString(OTHER_YEAR_FORMAT);
   }
+
+  return `${date} à ${time}`;
 }
 
 export const displayHumanDateString = (datetime, relativeTo) => {
@@ -134,16 +131,14 @@ export function displayInterval(interval, relativeTo) {
     return `le ${dayPart}, ${hourPart}`;
   }
 
-  const start = interval.start.toLocaleString({
+  const startDate = interval.start.toLocaleString(dayPartFormat);
+  const startTime = interval.start.toLocaleString(HOUR_ONLY_FORMAT);
+  const endDate = interval.end.toLocaleString({
     ...dayPartFormat,
-    ...HOUR_ONLY_FORMAT,
-  });
-  const end = interval.end.toLocaleString({
-    ...dayPartFormat,
-    ...HOUR_ONLY_FORMAT,
     year: undefined,
   });
-  return `du ${start} au ${end}`;
+  const endTime = interval.end.toLocaleString(HOUR_ONLY_FORMAT);
+  return `du ${startDate} à ${startTime} au ${endDate} à ${endTime}`;
 }
 
 export function displayIntervalStart(interval, relativeTo) {

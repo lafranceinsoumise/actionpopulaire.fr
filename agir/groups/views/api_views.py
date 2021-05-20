@@ -17,6 +17,7 @@ from rest_framework.generics import (
     UpdateAPIView,
     DestroyAPIView,
     CreateAPIView,
+    get_object_or_404,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -145,15 +146,30 @@ class UserGroupsView(ListAPIView):
         )
 
 
+class GroupDetailPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": []}
+    object_perms_map = {
+        "GET": ["groups.view_supportgroup"],
+    }
+
+
 class GroupDetailAPIView(RetrieveAPIView):
-    permission_ = ("groups.view_supportgroup",)
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = SupportGroupDetailSerializer
     queryset = SupportGroup.objects.active()
 
 
 class NearGroupsAPIView(ListAPIView):
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = SupportGroupDetailSerializer
     queryset = SupportGroup.objects.active()
+
+    def initial(self, request, *args, **kwargs):
+        self.supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=kwargs.get("pk")
+        )
+        self.check_object_permissions(request, self.supportgroup)
+        super().initial(request, *args, **kwargs)
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -179,19 +195,18 @@ class NearGroupsAPIView(ListAPIView):
 
         return groups[:3]
 
-    def dispatch(self, request, pk, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.active().get(pk=pk)
-        except SupportGroup.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return super().dispatch(request, *args, **kwargs)
-
 
 class GroupEventsAPIView(ListAPIView):
-    permission_ = ("groups.view_supportgroup",)
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = EventListSerializer
     queryset = Event.objects.listed()
+
+    def initial(self, request, *args, **kwargs):
+        self.supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=kwargs.get("pk")
+        )
+        self.check_object_permissions(request, self.supportgroup)
+        super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
         events = (
@@ -207,24 +222,18 @@ class GroupEventsAPIView(ListAPIView):
             *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
         )
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
-        except SupportGroup.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return super().dispatch(request, *args, **kwargs)
-
 
 class GroupUpcomingEventsAPIView(ListAPIView):
-    permission_ = ("groups.view_supportgroup",)
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = EventListSerializer
     queryset = Event.objects.listed().upcoming()
 
-    def get_serializer(self, *args, **kwargs):
-        return super().get_serializer(
-            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+    def initial(self, request, *args, **kwargs):
+        self.supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=kwargs.get("pk")
         )
+        self.check_object_permissions(request, self.supportgroup)
+        super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
         events = (
@@ -236,20 +245,26 @@ class GroupUpcomingEventsAPIView(ListAPIView):
         )
         return events
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
-        except SupportGroup.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return super().dispatch(request, *args, **kwargs)
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+        )
 
 
 class GroupPastEventsAPIView(ListAPIView):
-    permission_ = ("groups.view_supportgroup",)
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = EventListSerializer
     queryset = Event.objects.listed().past()
     pagination_class = APIPaginator
+
+    def initial(self, request, *args, **kwargs):
+        self.supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=kwargs.get("pk")
+        )
+
+        self.check_object_permissions(request, self.supportgroup)
+
+        super().initial(request, *args, **kwargs)
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -266,24 +281,20 @@ class GroupPastEventsAPIView(ListAPIView):
         )
         return events
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
-        except SupportGroup.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return super().dispatch(request, *args, **kwargs)
-
 
 class GroupPastEventReportsAPIView(ListAPIView):
-    permission_ = ("groups.view_supportgroup",)
+    permission_classes = (GroupDetailPermissions,)
     serializer_class = EventListSerializer
     queryset = Event.objects.listed().past()
 
-    def get_serializer(self, *args, **kwargs):
-        return super().get_serializer(
-            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+    def initial(self, request, *args, **kwargs):
+        self.supportgroup = get_object_or_404(
+            SupportGroup.objects.active(), pk=kwargs.get("pk")
         )
+
+        self.check_object_permissions(request, self.supportgroup)
+
+        super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
         events = (
@@ -296,13 +307,10 @@ class GroupPastEventReportsAPIView(ListAPIView):
         )
         return events
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs.get("pk"))
-        except SupportGroup.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return super().dispatch(request, *args, **kwargs)
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+        )
 
 
 class GroupMessagesPermissions(GlobalOrObjectPermissions):
@@ -329,7 +337,11 @@ class GroupMessagesAPIView(ListCreateAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.supportgroup.messages.filter(deleted=False).order_by("-created")
+        return (
+            self.supportgroup.messages.filter(deleted=False)
+            .select_related("author", "linked_event", "linked_event__subtype")
+            .order_by("-created")
+        )
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -412,11 +424,9 @@ class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
 
 class GroupJoinAPIView(CreateAPIView):
     queryset = SupportGroup.objects.active()
-    permission_ = ("groups.view_supportgroup",)
 
     def initial(self, request, *args, **kwargs):
         self.object = self.get_object()
-        self.check_object_permissions(request, self.object)
 
         super().initial(request, *args, **kwargs)
 

@@ -1,10 +1,20 @@
 from rest_framework import serializers
 
 from agir.activity.models import Activity, Announcement
-from agir.events.serializers import EventSerializer
+from agir.events.serializers import EventListSerializer
 from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.serializers import FlexibleFieldsMixin
 from agir.people.serializers import PersonSerializer
+
+
+class ActivitySupportGroupSerializer(SupportGroupSerializer):
+    def to_representation(self, instance):
+        # Override SupportGroupSerializer to_representation method
+        # to avoid retrieving the user membership status not in use here
+        return serializers.Serializer.to_representation(self, instance)
+
+    class Meta:
+        fields = ["id", "name", "url", "routes"]
 
 
 class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
@@ -14,7 +24,7 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
     timestamp = serializers.DateTimeField(read_only=True)
 
-    event = EventSerializer(
+    event = EventListSerializer(
         fields=[
             "id",
             "name",
@@ -29,7 +39,7 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
         ],
         read_only=True,
     )
-    supportGroup = SupportGroupSerializer(
+    supportGroup = ActivitySupportGroupSerializer(
         source="supportgroup", fields=["id", "name", "url", "routes"], read_only=True
     )
     individual = PersonSerializer(fields=["displayName", "gender"], read_only=True)

@@ -21,7 +21,7 @@ const AnonymousLink = () => {
           <span>Connexion</span>
         </MenuLink>
       </Hide>
-      <Hide under as={"MenuLink"}>
+      <Hide under>
         <MenuLink route="signup">
           <span>Inscription</span>
         </MenuLink>
