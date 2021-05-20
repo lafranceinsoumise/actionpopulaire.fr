@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
 from agir.events.models import Event
-from agir.events.serializers import EventSerializer
+from agir.events.serializers import EventSerializer, EventListSerializer
 from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment, UserReport
@@ -36,8 +36,8 @@ class LinkedEventField(serializers.RelatedField):
     def to_representation(self, obj):
         if obj is None:
             return None
-        return EventSerializer(
-            obj, fields=["id", "name", "startTime", "type",], context=self.context
+        return EventListSerializer(
+            obj, fields=EventSerializer.EVENT_CARD_FIELDS, context=self.context,
         ).data
 
     def to_internal_value(self, pk):
