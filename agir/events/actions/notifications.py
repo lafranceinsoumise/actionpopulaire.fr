@@ -15,6 +15,7 @@ def new_event_suggestion_notification(event, recipient):
     else:
         activity_config["individual"] = event.organizers.first()
 
-    Activity.objects.bulk_create(
-        [Activity(**activity_config, recipient=recipient)], send_post_save_signal=True,
+    Activity.objects.create(
+        **activity_config,
+        recipient=recipient,
     )
