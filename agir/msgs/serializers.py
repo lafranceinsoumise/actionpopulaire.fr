@@ -36,7 +36,9 @@ class LinkedEventField(serializers.RelatedField):
     def to_representation(self, obj):
         if obj is None:
             return None
-        return EventSerializer(obj, context=self.context).data
+        return EventSerializer(
+            obj, fields=["id", "name", "startTime", "type",], context=self.context
+        ).data
 
     def to_internal_value(self, pk):
         if pk is None:
@@ -71,7 +73,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         read_only=True, fields=["id", "name"], source="supportgroup"
     )
     linkedEvent = LinkedEventField(
-        source="linked_event", required=False, allow_null=True
+        source="linked_event", required=False, allow_null=True,
     )
     recentComments = serializers.SerializerMethodField(read_only=True)
     commentCount = serializers.SerializerMethodField(read_only=True)
