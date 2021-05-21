@@ -28,6 +28,9 @@ from ..groups.serializers import SupportGroupSerializer
 from ..groups.views.public_views import SupportGroupDetailMixin
 from ..lib.utils import generate_token_params
 
+from django.shortcuts import render
+from django.http import HttpResponse
+
 
 class NBUrlsView(View):
     nb_paths = {
@@ -291,3 +294,12 @@ class OfflineApp(ReactBaseView):
 
 class CreateEventView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
+
+
+class NotFoundView(ReactBaseView):
+    bundle_name = "front/app"
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        response.status_code = 404
+        return response

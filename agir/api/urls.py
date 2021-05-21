@@ -20,6 +20,11 @@ from django_prometheus.exports import ExportToDjangoView as metric_view
 from agir.lib.http import with_http_basic_auth
 from . import settings
 
+from django.conf.urls import handler404
+from agir.front.views import NotFoundView
+
+handler404 = NotFoundView.as_view()
+
 urlpatterns = [
     path("nuntius/", include("nuntius.urls")),
     path("webhooks/", include("agir.webhooks.urls")),
