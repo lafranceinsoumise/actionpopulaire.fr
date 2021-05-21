@@ -13,7 +13,9 @@ class Command(BaseCommand):
     help = "suggest an event to each user"
 
     def handle(self, limit=SUGGEST_LIMIT_METERS, *args, **options):
-        for person in Person.objects.exclude(coordinates=None).filter(role__is_active=True):
+        for person in Person.objects.exclude(coordinates=None).filter(
+            role__is_active=True
+        ):
             base_queryset = (
                 Event.objects.with_serializer_prefetch(person)
                 .listed()
