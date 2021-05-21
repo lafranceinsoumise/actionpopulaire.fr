@@ -63,7 +63,7 @@ const StyledActions = styled.main`
 const HomeActions = () => {
   return (
     <StyledActions>
-      <StyledArticle route="groupMapPage">
+      <StyledArticle route="groupMap">
         <img src={meetImage} alt="manifestation" />
         <h4>Rencontrez</h4>
         <p>

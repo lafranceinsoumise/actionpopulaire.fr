@@ -15,8 +15,7 @@ const ONBOARDING_TYPE = {
   event: {
     img: onboardingEventImage,
     title: "Organisez un événement près de chez vous !",
-    body:
-      "Agissez et organisez un événement de soutien, tel qu’une action de solidarité, une réunion en ligne pour discuter du programme, une écoute collective des futurs meetings... Organisez-vous avec d’autres membres pour soutenir la campagne !",
+    body: "Agissez et organisez un événement de soutien, tel qu’une action de solidarité, une réunion en ligne pour discuter du programme, une écoute collective des futurs meetings... Organisez-vous avec d’autres membres pour soutenir la campagne !",
     createLabel: "Créer un événement",
     createRoute: "createEvent",
   },
@@ -36,7 +35,7 @@ const ONBOARDING_TYPE = {
     ),
     mapIframe: "groupsMap",
     mapLabel: "Voir les groupes dans ma ville",
-    mapRoute: "groupMapPage",
+    mapRoute: "groupMap",
     color: "secondary",
   },
   group__creation: {
@@ -79,22 +78,20 @@ const ONBOARDING_TYPE = {
   group__nsp: {
     img: onboardingActionImage,
     title: "Rejoignez ou organisez une équipe de soutien",
-    body:
-      "Les équipes de soutien permettent aux militants de s’organiser dans leur quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain et organisez des moments de réflexions politiques !",
+    body: "Les équipes de soutien permettent aux militants de s’organiser dans leur quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain et organisez des moments de réflexions politiques !",
     createLabel: "Créer une équipe",
     mapLabel: "Voir les équipes dans ma ville",
-    mapRoute: "groupMapPage",
+    mapRoute: "groupMap",
     createRouteId: "createGroup",
   },
   group__action: {
     img: onboardingActionImage,
     title:
       "Rejoignez un groupe d’action de votre ville pour militer localement",
-    body:
-      "Les groupes d’actions permettent aux militants de s’organiser dans leur quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain et organisez des moments de réflexions politiques !",
+    body: "Les groupes d’actions permettent aux militants de s’organiser dans leur quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain et organisez des moments de réflexions politiques !",
     createLabel: "Créer un groupe",
     mapLabel: "Voir les groupes dans ma ville",
-    mapRoute: "groupMapPage",
+    mapRoute: "groupMap",
     createRouteId: "createGroup",
   },
   group__thematic: {

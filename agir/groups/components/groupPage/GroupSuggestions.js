@@ -143,7 +143,7 @@ export const GroupSuggestions = (props) => {
     <PageFadeIn ready={Array.isArray(groups) && groups.length > 0}>
       <StyledWrapper>
         <h4>Autres groupes qui peuvent vous intéresser</h4>
-        <Button as="Link" route="groupMapPage" icon="map" small>
+        <Button as="Link" route="groupMap" icon="map" small>
           Carte des groupes
         </Button>
         <ResponsiveLayout

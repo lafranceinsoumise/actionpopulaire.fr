@@ -155,7 +155,8 @@ const useWebPush = () => {
     (async () => {
       if (!window.AgirSW?.pushManager) return;
 
-      const pushSubscription = await window.AgirSW?.pushManager?.getSubscription();
+      const pushSubscription =
+        await window.AgirSW?.pushManager?.getSubscription();
       setBrowserReady(true);
 
       if (!pushSubscription) {

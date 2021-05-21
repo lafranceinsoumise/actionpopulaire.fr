@@ -296,15 +296,9 @@ export const Footer = (props) => {
             <div>
               <h3>Explorer</h3>
               <p>
-                {routes.events && (
-                  <Link route="events">Evénements proches de chez moi</Link>
-                )}
-                {routes.eventMapPage && (
-                  <Link route="eventMapPage">Carte des événements</Link>
-                )}
-                {routes.groupMapPage && (
-                  <Link route="groupMapPage">Carte des groupes d’actions</Link>
-                )}
+                <Link route="events">Evénements proches de chez moi</Link>
+                <Link route="eventMap">Carte des événements</Link>
+                <Link route="groupMap">Carte des groupes d’actions</Link>
                 {routes.thematicTeams && (
                   <Link route="thematicTeams">Les livrets thématiques</Link>
                 )}

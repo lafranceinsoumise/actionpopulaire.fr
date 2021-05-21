@@ -117,11 +117,9 @@ const GroupsPage = () => {
               Créer un groupe
             </Button>
           )}
-          {routes.groupMapPage && (
-            <Button as="Link" icon="map" route="groupMapPage" small>
-              Carte
-            </Button>
-          )}
+          <Button as="Link" icon="map" route="groupMap" small>
+            Carte
+          </Button>
         </div>
       </TopBar>
       <PageFadeIn
