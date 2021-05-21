@@ -3,7 +3,7 @@ import os
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.gis.db.models.functions import Distance
-from django.http import HttpResponsePermanentRedirect, Http404, FileResponse
+from django.http import HttpResponsePermanentRedirect, Http404, FileResponse, HttpResponse
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -27,9 +27,6 @@ from ..events.views.event_views import EventDetailMixin
 from ..groups.serializers import SupportGroupSerializer
 from ..groups.views.public_views import SupportGroupDetailMixin
 from ..lib.utils import generate_token_params
-
-from django.shortcuts import render
-from django.http import HttpResponse
 
 
 class NBUrlsView(View):
