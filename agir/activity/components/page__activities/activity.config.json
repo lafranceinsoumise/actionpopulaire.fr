@@ -48,7 +48,7 @@
     "icon": "file-text",
     "hasEvent": true
   },
-  "new-event-aroundme": {
+  "event-suggestion": {
     "icon": "calendar",
     "hasEvent": true
   },
