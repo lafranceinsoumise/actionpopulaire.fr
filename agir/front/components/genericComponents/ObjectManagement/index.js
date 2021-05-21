@@ -8,7 +8,7 @@ import {
   useLocation,
   useRouteMatch,
 } from "react-router-dom";
-import { animated, useTransition } from "react-spring";
+import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";

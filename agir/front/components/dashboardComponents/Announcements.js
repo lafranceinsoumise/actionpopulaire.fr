@@ -1,4 +1,4 @@
-import { animated, useSpring } from "react-spring";
+import { animated, useSpring } from "@react-spring/web";
 import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 import SwiperCore, { A11y, Pagination } from "swiper";

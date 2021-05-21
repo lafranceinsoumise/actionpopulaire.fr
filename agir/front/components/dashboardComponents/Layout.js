@@ -121,9 +121,8 @@ const DismissMessage = styled.a`
 
 const FacebookLoginAd = () => {
   const routes = useSelector(getRoutes);
-  const [announcement, dismissCallback] = useCustomAnnouncement(
-    "facebook-login-ad"
-  );
+  const [announcement, dismissCallback] =
+    useCustomAnnouncement("facebook-login-ad");
   const { data: session } = useSWR("/api/session/");
   const { isIOS } = useMobileApp();
 

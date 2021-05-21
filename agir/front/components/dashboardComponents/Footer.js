@@ -284,9 +284,7 @@ export const Footer = (props) => {
           <div>
             <h3>Action populaire</h3>
             <p>
-              {!isSignedIn && (
-                <Link route="login">Se connecter</Link>
-              )}
+              {!isSignedIn && <Link route="login">Se connecter</Link>}
               {routes.donations && <Link route="donations">Faire un don</Link>}
               {routes.help && <Link route="help">Besoin d'aide ?</Link>}
               {routes.legal && <Link route="legal">Mentions légales</Link>}

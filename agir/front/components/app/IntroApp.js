@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import clamp from "lodash/clamp";
-import { useSprings, animated } from "react-spring";
+import { useSprings, animated } from "@react-spring/web";
 import { useDrag } from "react-use-gesture";
 import styled from "styled-components";
 

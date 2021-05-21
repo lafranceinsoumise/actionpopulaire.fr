@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
-import { animated, useSpring } from "react-spring";
+import { animated, useSpring } from "@react-spring/web";
 import styled from "styled-components";
 import SwiperCore, { A11y } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -156,12 +156,15 @@ export const GroupSuggestions = (props) => {
   );
 };
 
-GroupSuggestionCarousel.propTypes = GroupSuggestionBlock.propTypes = GroupSuggestions.propTypes = {
-  groups: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-    })
-  ),
-};
+GroupSuggestionCarousel.propTypes =
+  GroupSuggestionBlock.propTypes =
+  GroupSuggestions.propTypes =
+    {
+      groups: PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.string.isRequired,
+        })
+      ),
+    };
 
 export default GroupSuggestions;

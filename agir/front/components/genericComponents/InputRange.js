@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import { animated, useSpring } from "react-spring";
+import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "react-use-gesture";
 import { useThrottle } from "@agir/lib/utils/hooks";
 

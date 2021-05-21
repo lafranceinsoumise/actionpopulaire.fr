@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useIsOffline } from "@agir/front/offline/hooks";
 import logger from "@agir/lib/utils/logger";
-import { animated, useTransition } from "react-spring";
+import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
 import styles from "@agir/front/genericComponents/_variables.scss";
 import style from "@agir/front/genericComponents/_variables.scss";

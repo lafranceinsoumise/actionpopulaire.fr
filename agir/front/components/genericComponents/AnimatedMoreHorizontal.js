@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useState } from "react";
-import { useTrail, animated } from "react-spring";
+import { useTrail, animated } from "@react-spring/web";
 
 const MoreHorizontal = (props) => {
   const { color, size, ...otherProps } = props;

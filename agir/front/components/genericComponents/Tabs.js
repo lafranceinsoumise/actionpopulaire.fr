@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo, useState } from "react";
-import { useSpring, animated } from "react-spring";
+import { useSpring, animated } from "@react-spring/web";
 import { useDrag } from "react-use-gesture";
 import styled from "styled-components";
 
@@ -55,14 +55,8 @@ const StyledTabs = styled.div`
 `;
 
 const useTabs = (props) => {
-  const {
-    tabs,
-    activeTab,
-    activeTabIndex,
-    onTabChange,
-    onNextTab,
-    onPrevTab,
-  } = props;
+  const { tabs, activeTab, activeTabIndex, onTabChange, onNextTab, onPrevTab } =
+    props;
 
   const isControlled =
     !!activeTab &&
@@ -98,10 +92,10 @@ const useTabs = (props) => {
     }
   }, [isControlled, onPrevTab]);
 
-  const active = useMemo(() => tabs[activeIndex] || tabs[0], [
-    activeIndex,
-    tabs,
-  ]);
+  const active = useMemo(
+    () => tabs[activeIndex] || tabs[0],
+    [activeIndex, tabs]
+  );
 
   return {
     active: isControlled ? activeTab : active,
@@ -115,9 +109,8 @@ const useTabs = (props) => {
 export const Tabs = (props) => {
   const { children, tabs, stickyOffset } = props;
 
-  const { active, activeIndex, handleClick, handleNext, handlePrev } = useTabs(
-    props
-  );
+  const { active, activeIndex, handleClick, handleNext, handlePrev } =
+    useTabs(props);
 
   const ActiveStep = useMemo(() => {
     return (Array.isArray(children) && children[activeIndex]) || null;

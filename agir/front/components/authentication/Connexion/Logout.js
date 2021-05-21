@@ -8,9 +8,11 @@ import { routeConfig } from "@agir/front/app/routes.config";
 const Logout = () => {
   const location = useLocation();
 
-  const { data: session, mutate: mutate, isValidating } = useSWR(
-    "/api/session/"
-  );
+  const {
+    data: session,
+    mutate: mutate,
+    isValidating,
+  } = useSWR("/api/session/");
 
   const doLogout = useCallback(async () => {
     await logout();
