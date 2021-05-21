@@ -3,7 +3,12 @@ import os
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.gis.db.models.functions import Distance
-from django.http import HttpResponsePermanentRedirect, Http404, FileResponse, HttpResponse
+from django.http import (
+    HttpResponsePermanentRedirect,
+    Http404,
+    FileResponse,
+    HttpResponse,
+)
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
