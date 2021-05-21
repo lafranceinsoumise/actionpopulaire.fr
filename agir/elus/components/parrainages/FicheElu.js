@@ -383,7 +383,7 @@ const FicheElu = ({ elu, onStatusChange }) => {
   }
 
   const mairie = elu.mairie;
-  const distance = elu.distance.toLocaleString("fr-FR", {
+  const distance = elu.distance?.toLocaleString?.("fr-FR", {
     maximumFractionDigits: 1,
   });
 
@@ -393,7 +393,14 @@ const FicheElu = ({ elu, onStatusChange }) => {
         <h2>{elu.nomComplet}</h2>
         <div className="subtitle">
           {elu.titre} — {elu.commune}{" "}
-          {elu.distance > 0.1 && `(à ${distance} km)`}
+          {distance ? (
+            elu.distance > 0.1 && `(à ${distance} km)`
+          ) : (
+            <em>
+              (<a href="/profil/identite/">indiquez où vous êtes</a> pour voir
+              la distance)
+            </em>
+          )}
         </div>
         <Block>
           <StatutPill statut={elu.statut} />
