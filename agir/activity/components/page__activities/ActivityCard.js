@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { activityStatus } from "@agir/activity/common/helpers";
-import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
+import { dateFromISOString, displayHumanDate, displayHumanDay } from "@agir/lib/utils/time";
 import { getGenderedWord } from "@agir/lib/utils/display";
 import { routeConfig } from "@agir/front/app/routes.config";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -16,7 +16,6 @@ import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
 
 import CONFIG from "./activity.config.json";
-import { displayHumanDay } from "../../../lib/components/utils/time";
 
 const CHANGED_DATA_LABEL = {
   name: "nom",
@@ -385,9 +384,12 @@ const ActivityCard = (props) => {
     case "event-suggestion":
       return (
         <ActivityCardContainer {...props}>
-          Ce {displayHumanDay(Event.start_time)} : {Event.name} de{" "}
-          {SupportGroup || Individual}
-          <EventCard key={Event.id} {...Event} />
+          Ce{" "}
+          {dateFromISOString(event.startTime).toLocaleString({
+            weekday: "long",
+          })}
+          {" : "}
+          {event.name} de {SupportGroup || Individual}
         </ActivityCardContainer>
       );
     case "group-coorganization-info":
