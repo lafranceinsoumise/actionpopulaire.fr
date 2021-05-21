@@ -39,9 +39,17 @@ const ProdProvider = ({ hasRouter = false, hasToasts = false, children }) => {
     if (!sessionContext) return;
 
     if (!sessionContext.user) {
-      self.caches?.delete("session").catch((e) => {
-        if (e.name !== "SecurityError") {
-          throw e;
+      self.caches?.delete("session").catch((err) => {
+        if (err.name !== "SecurityError") {
+          if (err instanceof Error) {
+            throw err;
+          }
+          const message = err?.message
+            ? err.message
+            : typeof err === "string"
+            ? err
+            : "Session cache deletion failed.";
+          throw new Error(message);
         }
       });
     }
