@@ -1,6 +1,6 @@
 import { animated, useSpring } from "react-spring";
 import PropTypes from "prop-types";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import SwiperCore, { A11y, Pagination } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 import styled from "styled-components";
@@ -107,22 +107,36 @@ BannerAnnouncements.propTypes = SidebarAnnouncements.propTypes = {
 
 const Announcements = (props) => {
   const { displayType } = props;
-
   const { data } = useSWR("/api/session/");
-  const announcements =
-    data &&
-    data.announcements &&
-    data.announcements.filter((a) => !a.customDisplay);
+  const readAnnouncementIds = useRef([]);
+
+  const announcements = useMemo(
+    () =>
+      Array.isArray(data?.announcements)
+        ? data.announcements.filter((a) => !a.customDisplay)
+        : [],
+    [data]
+  );
+
+  const announcementIds = useMemo(
+    () =>
+      announcements.map((announcement) => announcement.activityId).join(","),
+    [announcements]
+  );
 
   useEffect(() => {
-    if (!Array.isArray(announcements)) {
+    if (!announcementIds) {
       return;
     }
-    const ids = announcements
-      .map((announcement) => announcement.activityId)
-      .filter(Boolean);
-    ids.length > 0 && setAnnouncementsAsRead(ids);
-  }, [announcements]);
+    const ids = announcementIds
+      .split(",")
+      .filter(
+        (announcementId) =>
+          !readAnnouncementIds.current.includes(announcementId)
+      );
+    readAnnouncementIds.current = announcementIds.split(",");
+    setAnnouncementsAsRead(ids);
+  }, [announcementIds]);
 
   if (!announcements) return null;
 

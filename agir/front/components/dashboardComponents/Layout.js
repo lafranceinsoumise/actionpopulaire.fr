@@ -7,7 +7,12 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import Announcements from "@agir/front/dashboardComponents/Announcements";
 import Button from "@agir/front/genericComponents/Button";
-import { Column, Container, Row } from "@agir/front/genericComponents/grid";
+import {
+  Column,
+  Container,
+  Row,
+  useResponsiveMemo,
+} from "@agir/front/genericComponents/grid";
 import Footer from "@agir/front/dashboardComponents/Footer";
 import Navigation, {
   SecondaryNavigation,
@@ -161,42 +166,47 @@ const FacebookLoginAd = () => {
   ) : null;
 };
 
-const Layout = (props) => (
-  <>
-    {props.hasBanner ? (
-      <Banner {...props}>
-        <Announcements displayType="banner" />
-      </Banner>
-    ) : null}
-    <MainContainer {...props}>
-      <Row gutter={50} align="flex-start">
-        <FixedColumn width="320px">
-          <Navigation {...props} />
-        </FixedColumn>
-        <MainColumn grow>
-          <section>
-            {props.title ? (
-              <header>
-                <LayoutTitle>{props.title}</LayoutTitle>
-                <LayoutSubtitle>{props.subtitle}</LayoutSubtitle>
-              </header>
-            ) : null}
-            {props.children}
-          </section>
-        </MainColumn>
-        <SidebarColumn>
-          <FacebookLoginAd />
-          <Announcements displayType="sidebar" />
-          <SecondaryNavigation />
-        </SidebarColumn>
-      </Row>
-    </MainContainer>
-    <Footer
-      desktopOnly={props.desktopOnlyFooter}
-      displayOnMobileApp={props.displayFooterOnMobileApp}
-    />
-  </>
-);
+const Layout = (props) => {
+  const announcementDisplayType = useResponsiveMemo("banner", "sidebar");
+  return (
+    <>
+      {props.hasBanner && announcementDisplayType === "banner" ? (
+        <Banner {...props}>
+          <Announcements displayType="banner" />
+        </Banner>
+      ) : null}
+      <MainContainer {...props}>
+        <Row gutter={50} align="flex-start">
+          <FixedColumn width="320px">
+            <Navigation {...props} />
+          </FixedColumn>
+          <MainColumn grow>
+            <section>
+              {props.title ? (
+                <header>
+                  <LayoutTitle>{props.title}</LayoutTitle>
+                  <LayoutSubtitle>{props.subtitle}</LayoutSubtitle>
+                </header>
+              ) : null}
+              {props.children}
+            </section>
+          </MainColumn>
+          <SidebarColumn>
+            <FacebookLoginAd />
+            {announcementDisplayType === "sidebar" && (
+              <Announcements displayType="sidebar" />
+            )}
+            <SecondaryNavigation />
+          </SidebarColumn>
+        </Row>
+      </MainContainer>
+      <Footer
+        desktopOnly={props.desktopOnlyFooter}
+        displayOnMobileApp={props.displayFooterOnMobileApp}
+      />
+    </>
+  );
+};
 
 export default Layout;
 
