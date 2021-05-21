@@ -13,20 +13,28 @@ class Command(BaseCommand):
     help = "suggest an event to each user"
 
     def handle(self, limit=SUGGEST_LIMIT_METERS, *args, **options):
-        for person in Person.objects.filter(notification_subscriptions=True):
-            if person.coordinates is not None:
-                base_queryset = Event.objects.with_serializer_prefetch(person)
-                near_event = (
-                    base_queryset.upcoming()
-                    .annotate(distance=Distance("coordinates", person.coordinates))
-                    .filter(distance__lte=limit)
-                    .filter(start_time__lt=timezone.now() + timezone.timedelta(days=7))
-                    .exclude(organizer_configs__as_group__members=person)
-                    .exclude(attendees=person)
-                    .distinct()
-                    .order_by("distance")
-                    .first()
-                )
+        for person in Person.objects.exclude(coordinates=None).exclude(role_id=None):
+            base_queryset = (
+                Event.objects.with_serializer_prefetch(person)
+                .listed()
+                .upcoming()
+                .exclude(coordinates=None)
+            )
+            if person.is_2022:
+                base_queryset = base_queryset.is_2022()
 
-                if near_event is not None:
-                    new_event_suggestion_notification(near_event, person)
+            near_event = (
+                base_queryset.annotate(
+                    distance=Distance("coordinates", person.coordinates)
+                )
+                .filter(distance__lte=limit)
+                .filter(start_time__lt=timezone.now() + timezone.timedelta(days=7))
+                .exclude(organizer_configs__as_group__members=person)
+                .exclude(attendees=person)
+                .distinct()
+                .order_by("distance")
+                .first()
+            )
+
+            if near_event is not None:
+                new_event_suggestion_notification(near_event, person)
