@@ -54,7 +54,6 @@ const TellMorePage = lazy(() =>
 const LogoutPage = lazy(() =>
   import("@agir/front/authentication/Connexion/Logout")
 );
-const NotFoundPage = lazy(() => import("@agir/front/allPages/NotFound"));
 
 export const BASE_PATH = "/";
 
@@ -335,13 +334,6 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Déconnexion",
     Component: LogoutPage,
-  }),
-  notFound: new RouteConfig({
-    id: "NotFoundPage",
-    path: "/notFound/",
-    neededAuthentication: AUTHENTICATION.NONE,
-    label: "404 Not Found",
-    Component: NotFoundPage,
   }),
 };
 

@@ -5,12 +5,15 @@ import styled from "styled-components";
 
 import { useIsOffline } from "@agir/front/offline/hooks";
 
+import NotFound from "@agir/front/allPages/NotFound";
+
 const PageStyle = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: calc(80vh);
+`;
 
+const OfflineBlock = styled.div`
   & > * {
     margin: 0 auto;
     padding: 0 16px;
@@ -41,7 +44,7 @@ const NotFoundPage = () => {
   return (
     <PageStyle>
       {isOffline ? (
-        <>
+        <OfflineBlock>
           <img src={illustration} style={{ marginBottom: "32px" }} />
           <h1 style={{ marginBottom: "8px" }}>Pas de connexion</h1>
           <p>
@@ -49,9 +52,9 @@ const NotFoundPage = () => {
             <br />
             réseau Wi-Fi ou mobile
           </p>
-        </>
+        </OfflineBlock>
       ) : (
-        <h1>Page introuvable</h1>
+        <NotFound />
       )}
     </PageStyle>
   );

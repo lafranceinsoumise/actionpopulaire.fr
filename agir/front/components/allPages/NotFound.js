@@ -6,6 +6,8 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { routeConfig } from "@agir/front/app/routes.config";
 
+import TopBar from "@agir/front/allPages/TopBar";
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -13,6 +15,8 @@ const Container = styled.div`
   justify-content: center;
   width: 100%;
   min-height: calc(100vh - 74px);
+  margin-top: 74px;
+  position: relative;
   overflow: auto;
   background-image: url("${background}");
   background-position: center;
@@ -42,20 +46,23 @@ const StyledButton = styled(Button)`
 
 export const NotFoundPage = () => {
   return (
-    <Container>
-      <InterrogationMark>?</InterrogationMark>
-      <h1 style={{ textAlign: "center", fontSize: "26px" }}>
-        Page introuvable
-      </h1>
-      <span>Cette page n’existe pas ou plus</span>
-      <StyledButton color="primary" block as="Link" route="events">
-        Retourner à l'accueil
-      </StyledButton>
-      <span style={{ marginTop: "2rem", backgroundColor: "#fff" }}>
-        ou consulter le{" "}
-        <a href="https://infos.actionpopulaire.fr/">centre d'aide</a>
-      </span>
-    </Container>
+    <>
+      <TopBar />
+      <Container>
+        <InterrogationMark>?</InterrogationMark>
+        <h1 style={{ textAlign: "center", fontSize: "26px" }}>
+          Page introuvable
+        </h1>
+        <span>Cette page n’existe pas ou plus</span>
+        <StyledButton color="primary" block as="Link" route="events">
+          Retourner à l'accueil
+        </StyledButton>
+        <span style={{ marginTop: "2rem", backgroundColor: "#fff" }}>
+          ou consulter le{" "}
+          <a href="https://infos.actionpopulaire.fr/">centre d'aide</a>
+        </span>
+      </Container>
+    </>
   );
 };
 
