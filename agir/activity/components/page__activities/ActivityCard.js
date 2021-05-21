@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { activityStatus } from "@agir/activity/common/helpers";
-import { dateFromISOString, displayHumanDate, displayHumanDay } from "@agir/lib/utils/time";
+import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 import { getGenderedWord } from "@agir/lib/utils/display";
 import { routeConfig } from "@agir/front/app/routes.config";
 import style from "@agir/front/genericComponents/_variables.scss";
