@@ -46,6 +46,10 @@ const SELECTEUR_STATES = {
   ERREUR_REQUETE: "erreur-requete",
 };
 
+const Message = styled.div`
+  margin: 2em 2em;
+`;
+
 const SelecteurElusLayout = styled.section`
   display: flex;
   flex-direction: column;
@@ -62,6 +66,10 @@ const SelecteurElusLayout = styled.section`
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     width: 100%;
+  }
+
+  .loader {
+    margin: 2em auto;
   }
 `;
 export const SelecteurElus = ({
@@ -132,26 +140,38 @@ export const SelecteurElus = ({
     <SelecteurElusLayout>
       <SearchInput onInput={inputCallback} />
       {state === SELECTEUR_STATES.ATTENTE_REQUETE ? (
-        <AnimatedMoreHorizontal />
-      ) : state === SELECTEUR_STATES.ERREUR_REQUETE ? (
-        <div>
-          Une erreur inattendue a été rencontrée. Retentez votre recherche.
+        <div className="loader">
+          <AnimatedMoreHorizontal />
         </div>
+      ) : state === SELECTEUR_STATES.ERREUR_REQUETE ? (
+        <Message>
+          Une erreur inattendue a été rencontrée. Retentez votre recherche.
+        </Message>
       ) : (
         <ScrollableBlock>
           {state === SELECTEUR_STATES.MONTRER_ELUS_PROCHES ? (
-            <>
-              <ResultBox
-                elus={elusAContacter}
-                selected={selection}
-                onSelect={onSelect}
-              />
-              <ResultBox
-                elus={elusProches}
-                selected={selection}
-                onSelect={onSelect}
-              />
-            </>
+            elusAContacter.length === 0 && elusProches.length === 0 ? (
+              <Message>
+                <a href="/profil/identite/">Indiquez où vous êtes</a> pour voir
+                les élus les plus proches de chez vous ou utilisez la recherche
+                ci-dessus.
+              </Message>
+            ) : (
+              <>
+                <ResultBox
+                  elus={elusAContacter}
+                  selected={selection}
+                  onSelect={onSelect}
+                />
+                <ResultBox
+                  elus={elusProches}
+                  selected={selection}
+                  onSelect={onSelect}
+                />
+              </>
+            )
+          ) : elusRecherche.length === 0 ? (
+            <Message>Aucun résultat pour votre recherche.</Message>
           ) : (
             <ResultBox
               elus={elusRecherche}

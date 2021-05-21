@@ -54,7 +54,10 @@ class EluMunicipalSerializer(serializers.Serializer):
         return obj.commune.nom_complet
 
     def get_distance(self, obj):
-        return obj.distance.km
+        # si la personne n'a pas de coordonnées, aucun des élus n'a de distance
+        if getattr(obj, "distance", None) is not None:
+            return obj.distance.km
+        return None
 
 
 class CreerRechercheSerializer(serializers.Serializer):
