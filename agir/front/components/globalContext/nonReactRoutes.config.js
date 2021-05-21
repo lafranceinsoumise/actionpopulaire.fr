@@ -4,9 +4,7 @@ export default {
   contactConfiguration: "/profil/contact/",
   createGroup: "/groupes/creer/",
   groupsMap: "/carte/groupes/",
-  groupMapPage: "/groupes/carte/",
   eventsMap: "/carte/evenements/",
-  eventMapPage: "/evenements/carte/",
   donations: "/dons/",
   lafranceinsoumise: {
     home: "https://lafranceinsoumise.fr",
