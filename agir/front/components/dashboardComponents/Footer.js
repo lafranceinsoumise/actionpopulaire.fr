@@ -285,7 +285,7 @@ export const Footer = (props) => {
             <h3>Action populaire</h3>
             <p>
               {!isSignedIn && (
-                <Link href={routeConfig.login.getLink()}>Se connecter</Link>
+                <Link route="login">Se connecter</Link>
               )}
               {routes.donations && <Link route="donations">Faire un don</Link>}
               {routes.help && <Link route="help">Besoin d'aide ?</Link>}
