@@ -48,13 +48,6 @@ export const bookmarkedEmails = (state = [], action) => {
   return state;
 };
 
-export const csrfToken = (state = null, action) => {
-  if (action.type === ACTION_TYPE.SET_SESSION_CONTEXT_ACTION) {
-    return action.csrfToken || state;
-  }
-  return state;
-};
-
 export const routes = (state = {}, action) => {
   if (
     action.type === ACTION_TYPE.INIT_ACTION ||
@@ -318,7 +311,6 @@ const reducers = {
   user,
   authentication,
   bookmarkedEmails,
-  csrfToken,
   routes,
   toasts,
   backLink,

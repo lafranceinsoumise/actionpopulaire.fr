@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.middleware.csrf import get_token
 
 from rest_framework import exceptions, permissions, status
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
@@ -16,6 +17,7 @@ from agir.lib.utils import get_client_ip
 from agir.people.models import Person, PersonEmail
 
 __all__ = [
+    "CSRFAPIView",
     "SessionContextAPIView",
     "LoginAPIView",
     "CheckCodeAPIView",
@@ -25,6 +27,13 @@ __all__ = [
 send_mail_email_bucket = TokenBucket("SendMail", 5, 600)
 send_mail_ip_bucket = TokenBucket("SendMailIP", 5, 120)
 check_short_code_bucket = TokenBucket("CheckShortCode", 5, 180)
+
+
+class CSRFAPIView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, *args, **kwargs):
+        return Response({"csrfToken": get_token(request)})
 
 
 class SessionContextAPIView(RetrieveAPIView):
