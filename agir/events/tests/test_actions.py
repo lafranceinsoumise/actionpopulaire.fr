@@ -71,15 +71,13 @@ class EventNotificationsActionsTestCase(TestCase):
         )
 
     def test_new_event_suggestion_with_person_organized_event(self):
-        recipients = Person.objects.filter(pk=self.attendee1.pk)
-
         original_target_activity_count = Activity.objects.filter(
             type=Activity.TYPE_EVENT_SUGGESTION,
             recipient=self.attendee1,
             individual=self.event.organizers.first(),
         ).count()
 
-        notifications.new_event_suggestion_notification(self.event, recipients)
+        notifications.new_event_suggestion_notification(self.event, self.attendee1)
 
         new_target_activity_count = Activity.objects.filter(
             type=Activity.TYPE_EVENT_SUGGESTION,
@@ -90,14 +88,14 @@ class EventNotificationsActionsTestCase(TestCase):
         self.assertEqual(new_target_activity_count, original_target_activity_count + 1)
 
     def test_new_event_suggestion_with_group_organized_event(self):
-        recipients = Person.objects.filter(pk=self.attendee1.pk)
-
         original_target_activity_count = Activity.objects.filter(
             type=Activity.TYPE_EVENT_SUGGESTION,
             recipient=self.attendee1,
             supportgroup=self.group_event.organizers_groups.first(),
         ).count()
-        notifications.new_event_suggestion_notification(self.group_event, recipients)
+        notifications.new_event_suggestion_notification(
+            self.group_event, self.attendee1
+        )
 
         new_target_activity_count = Activity.objects.filter(
             type=Activity.TYPE_EVENT_SUGGESTION,
