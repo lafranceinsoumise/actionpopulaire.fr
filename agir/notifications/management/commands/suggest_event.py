@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.gis.db.models.functions import Distance
 from django.core.management.base import BaseCommand
 
@@ -12,6 +14,8 @@ class Command(BaseCommand):
     help = "suggest an event to each user"
 
     def handle(self, limit=SUGGEST_LIMIT_METERS, *args, **options):
+        actual_week = datetime.date.today().isocalendar()[1]
+
         for person in Person.objects.filter(notification_subscriptions=True):
             if person.coordinates is not None:
                 base_queryset = Event.objects.with_serializer_prefetch(person)
@@ -19,10 +23,11 @@ class Command(BaseCommand):
                     base_queryset.upcoming()
                     .annotate(distance=Distance("coordinates", person.coordinates))
                     .filter(distance__lte=limit)
+                    .filter(start_time__week=actual_week)
                     .exclude(organizer_configs__as_group__members=person)
                     .exclude(attendees=person)
                     .distinct()
-                    .order_by("?")
+                    .order_by("distance")
                     .first()
                 )
 
