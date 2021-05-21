@@ -316,7 +316,7 @@ const EventCard = (props) => {
               style={{
                 fontWeight: "400",
                 fontSize: "14px",
-                lineHeight: "1",
+                lineHeight: "1.5",
                 color: style.black1000,
               }}
             >
