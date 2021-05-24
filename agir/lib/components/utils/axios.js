@@ -6,13 +6,24 @@ const client = axios.create({
   xsrfHeaderName: "X-CSRFToken",
 });
 
+let CSRFPromise = null;
+
+function updateCSRF() {
+  if (CSRFPromise) {
+    return CSRFPromise;
+  }
+
+  CSRFPromise = client.get("/api/csrf/");
+  return CSRFPromise;
+}
+
 client.interceptors.request.use(async function (config) {
   if (
+    !Cookies.get("csrftoken") &&
     config.url !== "/api/csrf/" &&
-    config.method !== "get" &&
-    !Cookies.get("csrftoken")
+    config.method !== "get"
   ) {
-    await client.get("/api/csrf/");
+    await updateCSRF();
   }
 
   return config;
