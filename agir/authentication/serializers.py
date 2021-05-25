@@ -41,21 +41,26 @@ class UserContextSerializer(serializers.Serializer):
 
 
 class SessionSerializer(serializers.Serializer):
-    csrfToken = serializers.SerializerMethodField(method_name="get_csrf_token")
-    user = serializers.SerializerMethodField(method_name="get_user")
-    toasts = serializers.SerializerMethodField(method_name="get_toasts")
-    announcements = serializers.SerializerMethodField(method_name="get_announcements")
-    routes = serializers.SerializerMethodField(method_name="get_user_routes")
-    facebookLogin = serializers.SerializerMethodField(method_name="get_facebook_login")
+    csrfToken = serializers.SerializerMethodField(
+        method_name="get_csrf_token", read_only=True
+    )
+    user = serializers.SerializerMethodField(method_name="get_user", read_only=True)
+    toasts = serializers.SerializerMethodField(method_name="get_toasts", read_only=True)
+    routes = serializers.SerializerMethodField(
+        method_name="get_user_routes", read_only=True
+    )
+    facebookLogin = serializers.SerializerMethodField(
+        method_name="get_facebook_login", read_only=True
+    )
     hasUnreadActivities = serializers.SerializerMethodField(
-        method_name="get_has_unread_activities"
+        method_name="get_has_unread_activities", read_only=True
     )
     requiredActionActivitiesCount = serializers.SerializerMethodField(
-        method_name="get_required_action_activities_count"
+        method_name="get_required_action_activities_count", read_only=True
     )
-    authentication = serializers.SerializerMethodField()
+    authentication = serializers.SerializerMethodField(read_only=True)
     bookmarkedEmails = serializers.SerializerMethodField(
-        method_name="get_bookmarked_emails"
+        method_name="get_bookmarked_emails", read_only=True
     )
 
     def get_authentication(self, request):
@@ -76,7 +81,7 @@ class SessionSerializer(serializers.Serializer):
             "nspReferral": front_url("nsp_referral"),
         }
 
-        if request.user.is_authenticated:
+        if request.user.is_authenticated and request.user.person is not None:
             person = request.user.person
             routes.update(
                 {
@@ -140,14 +145,6 @@ class SessionSerializer(serializers.Serializer):
         if request.user.is_authenticated and request.user.person is not None:
             return UserContextSerializer(instance=request.user.person).data
         return False
-
-    def get_announcements(self, request):
-        if request.user.is_authenticated and request.user.person is not None:
-            return AnnouncementSerializer(
-                many=True,
-                instance=get_announcements(request.user.person),
-                context={"request": request},
-            ).data
 
     def get_facebook_login(self, request):
         return (

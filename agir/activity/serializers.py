@@ -62,7 +62,6 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):
-    # activityId = serializers.SerializerMethodField(read_only=True)
     customDisplay = serializers.SlugField(source="custom_display", read_only=True)
     link = serializers.HyperlinkedIdentityField(
         view_name="activity:announcement_link", read_only=True
