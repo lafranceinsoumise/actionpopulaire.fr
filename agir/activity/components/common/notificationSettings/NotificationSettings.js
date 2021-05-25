@@ -27,15 +27,18 @@ const NotificationSettings = (props) => {
   } = usePush();
 
   const { data: groupData } = useSWR("/api/groupes/");
-  const { data: userNotifications, mutate, isValidating } = useSWR(
-    api.ENDPOINT.getSubscriptions
-  );
+  const {
+    data: userNotifications,
+    mutate,
+    isValidating,
+  } = useSWR(api.ENDPOINT.getSubscriptions);
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const notifications = useMemo(() => getAllNotifications(groupData?.groups), [
-    groupData,
-  ]);
+  const notifications = useMemo(
+    () => getAllNotifications(groupData?.groups),
+    [groupData]
+  );
 
   const activeNotifications = useMemo(
     () => getNotificationStatus(userNotifications),

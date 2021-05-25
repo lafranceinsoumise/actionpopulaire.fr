@@ -164,9 +164,10 @@ export const useIsDesktop = (breakpoint) => {
   breakpoint = breakpoint || collapse;
   const [isDesktop, setDesktop] = useState(window.innerWidth > breakpoint);
 
-  let refresh = useCallback(() => setDesktop(window.innerWidth > breakpoint), [
-    breakpoint,
-  ]);
+  let refresh = useCallback(
+    () => setDesktop(window.innerWidth > breakpoint),
+    [breakpoint]
+  );
 
   useEffect(() => {
     window.addEventListener("resize", refresh);
@@ -200,11 +201,10 @@ ResponsiveLayout.propTypes = {
 export const useResponsiveMemo = (mobileValue, desktopValue, breakpoint) => {
   const isDesktop = useIsDesktop(breakpoint);
 
-  const value = useMemo(() => (isDesktop ? desktopValue : mobileValue), [
-    isDesktop,
-    mobileValue,
-    desktopValue,
-  ]);
+  const value = useMemo(
+    () => (isDesktop ? desktopValue : mobileValue),
+    [isDesktop, mobileValue, desktopValue]
+  );
 
   return value;
 };

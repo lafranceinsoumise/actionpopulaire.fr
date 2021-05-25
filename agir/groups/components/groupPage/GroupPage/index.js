@@ -42,10 +42,8 @@ const GroupPage = (props) => {
     isLoadingMessages,
   } = useGroupDetail(groupPk);
 
-  const [
-    hasNewGroupPageModal,
-    onCloseNewGroupPageModal,
-  ] = useCustomAnnouncement("NewGroupPageModal");
+  const [hasNewGroupPageModal, onCloseNewGroupPageModal] =
+    useCustomAnnouncement("NewGroupPageModal");
 
   const { is2022 } = group || {};
 

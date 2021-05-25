@@ -229,18 +229,11 @@ ShortAgendaRoutePreview.propTypes = AgendaRoutePreview.propTypes = {
 };
 
 export const MessagesRoutePreview = (props) => {
-  const {
-    user,
-    messages,
-    goToMessagesTab,
-    onClickMessage,
-    isLoadingMessages,
-  } = props;
+  const { user, messages, goToMessagesTab, onClickMessage, isLoadingMessages } =
+    props;
 
-  const [
-    discussionAnnouncement,
-    onCloseDiscussionAnnouncement,
-  ] = useCustomAnnouncement("DiscussionAnnouncement");
+  const [discussionAnnouncement, onCloseDiscussionAnnouncement] =
+    useCustomAnnouncement("DiscussionAnnouncement");
 
   if (
     (!isLoadingMessages && !Array.isArray(messages)) ||

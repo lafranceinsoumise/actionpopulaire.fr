@@ -33,12 +33,8 @@ const StyledShareCard = styled.div`
 `;
 
 const MobileInfoRoute = (props) => {
-  const {
-    group,
-    groupSuggestions,
-    goToMessagesTab,
-    groupSettingsLinks,
-  } = props;
+  const { group, groupSuggestions, goToMessagesTab, groupSettingsLinks } =
+    props;
 
   return (
     <>

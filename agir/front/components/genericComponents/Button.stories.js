@@ -106,10 +106,10 @@ export const WithTransition = (args) => {
   const updateState = React.useCallback(() => {
     setState((state) => state + 1);
   }, []);
-  const color = React.useMemo(() => colors[state % colors.length], [
-    state,
-    colors,
-  ]);
+  const color = React.useMemo(
+    () => colors[state % colors.length],
+    [state, colors]
+  );
   const small = React.useMemo(
     () => Boolean(Math.floor(state / colors.length) % 2),
     [state, colors]

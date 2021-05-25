@@ -83,8 +83,7 @@ Default.args = {
       displayName: "Bill Murray",
       image: "https://www.fillmurray.com/200/200",
     },
-    text:
-      "Bonjour à tous les nouveaux membres ! Pour que tout le monde puisse vous connaître, je vous propose qu’on se rejoigne ensemble sur Zoom vendredi vers 20h.\n\nEst-ce que l’horaire convient à tout le monde ?",
+    text: "Bonjour à tous les nouveaux membres ! Pour que tout le monde puisse vous connaître, je vous propose qu’on se rejoigne ensemble sur Zoom vendredi vers 20h.\n\nEst-ce que l’horaire convient à tout le monde ?",
     linkedEvent: {
       id: "12343432423",
       name: "Cortège France insoumise à la marche contre la fourrure 2020",
@@ -112,8 +111,7 @@ Default.args = {
         id: "Isabelle",
         displayName: "Isabelle Guérini",
       },
-      text:
-        "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
+      text: "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
       created: "2021-01-09 12:30:00",
     },
     {
@@ -122,8 +120,7 @@ Default.args = {
         id: "Isabelle",
         displayName: "Isabelle Guérini",
       },
-      text:
-        "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
+      text: "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
       created: "2021-01-09 12:30:00",
     },
   ],

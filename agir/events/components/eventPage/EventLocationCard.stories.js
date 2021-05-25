@@ -44,8 +44,7 @@ Default.args = {
   locationName: "Place de la République",
   locationAddress: "Place de la République\n75011 Paris",
   routes: {
-    map:
-      "https://agir.lafranceinsoumise.fr/carte/evenements/00673c7f-1183-4504-85d4-bbf4c190e71f/",
+    map: "https://agir.lafranceinsoumise.fr/carte/evenements/00673c7f-1183-4504-85d4-bbf4c190e71f/",
     googleCalendar: "#google",
     outlookCalendar: "#outlook",
     exportCalendar: "#export",

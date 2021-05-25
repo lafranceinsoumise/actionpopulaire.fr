@@ -114,9 +114,10 @@ export const useMessages = (group) => {
 export const useMessage = (group, messagePk) => {
   const hasMessage = group && group.isMember && messagePk;
   const dispatch = useDispatch();
-  const getMessage = useCallback((state) => getMessageById(state, messagePk), [
-    messagePk,
-  ]);
+  const getMessage = useCallback(
+    (state) => getMessageById(state, messagePk),
+    [messagePk]
+  );
   const message = useSelector(getMessage);
   const isLoading = useSelector(getIsLoadingMessages);
   const isUpdating = useSelector(getIsUpdatingMessages);

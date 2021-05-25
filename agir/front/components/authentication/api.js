@@ -81,12 +81,8 @@ export const signUp = async (data) => {
       result.error = e.message;
       return result;
     }
-    const {
-      email,
-      location_zip,
-      location_country,
-      non_field_errors,
-    } = e.response.data;
+    const { email, location_zip, location_country, non_field_errors } =
+      e.response.data;
     if (email) {
       result.error.email = email;
     }

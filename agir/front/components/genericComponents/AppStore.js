@@ -7,14 +7,12 @@ import APP_STORE_GOOGLE from "@agir/front/genericComponents/logos/appstore_googl
 
 export const CONFIG = {
   apple: {
-    href:
-      "https://apps.apple.com/fr/app/action-populaire/id1559737444#?platform=iphone",
+    href: "https://apps.apple.com/fr/app/action-populaire/id1559737444#?platform=iphone",
     title: "Télécharger dans l'App Store",
     $image: APP_STORE_APPLE,
   },
   google: {
-    href:
-      "https://play.google.com/store/apps/details?id=fr.actionpopulaire.twa",
+    href: "https://play.google.com/store/apps/details?id=fr.actionpopulaire.twa",
     title: "Disponible sur Google Play",
     $image: APP_STORE_GOOGLE,
   },

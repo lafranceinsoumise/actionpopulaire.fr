@@ -200,9 +200,10 @@ const RequiredActionCard = (props) => {
       history.push(routeConfig.eventDetails.getLink({ eventPk: event.id }));
   }, [event, history]);
 
-  const dismissed = useMemo(() => status === activityStatus.STATUS_INTERACTED, [
-    status,
-  ]);
+  const dismissed = useMemo(
+    () => status === activityStatus.STATUS_INTERACTED,
+    [status]
+  );
 
   switch (type) {
     case "waiting-payment": {

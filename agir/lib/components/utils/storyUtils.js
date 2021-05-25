@@ -76,17 +76,19 @@ export const scheduleFromStartTimeAndDuration = (target) => (args) => {
  *   `reorganize({location: {name: "locationName", address: "locationAddress"}})`
  *
  */
-export const reorganize = (combinations, replace = true) => (args) => {
-  for (let attr of Object.keys(combinations)) {
-    const value = getValue(args, combinations[attr]);
-    if (!replace && has(attr, args)) {
-      args = set(attr, { ...get(attr, args), ...value }, args);
-    } else {
-      args = set(attr, value, args);
+export const reorganize =
+  (combinations, replace = true) =>
+  (args) => {
+    for (let attr of Object.keys(combinations)) {
+      const value = getValue(args, combinations[attr]);
+      if (!replace && has(attr, args)) {
+        args = set(attr, { ...get(attr, args), ...value }, args);
+      } else {
+        args = set(attr, value, args);
+      }
     }
-  }
-  return args;
-};
+    return args;
+  };
 
 const getValue = (args, value) => {
   if (typeof value === "string") {

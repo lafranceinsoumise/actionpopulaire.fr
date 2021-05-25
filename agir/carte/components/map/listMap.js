@@ -206,11 +206,8 @@ export default async function listMap(
   display.updateFeatures(res.data, showActiveControl && listType === "groups");
 
   // Controls
-  const [
-    hideInactiveButton,
-    layerControlButton,
-    layerControl,
-  ] = display.getControls(res.data);
+  const [hideInactiveButton, layerControlButton, layerControl] =
+    display.getControls(res.data);
 
   if (showLayerControl && types.length > 1) {
     layerControlButton.setMap(map);

@@ -15,15 +15,19 @@ const LFI_NSP_GROUP_WORD_LABELS = {
   groupe: "équipe",
 };
 
-export const withGroupWord = (is2022) => (strings, ...params) => {
-  let sentence = strings
-    .map((s, i) => (params[i] ? s + params[i] : s))
-    .join("");
-  Object.entries(LFI_NSP_GROUP_WORD_LABELS).forEach(([lfi, nsp]) => {
-    sentence = is2022 ? sentence.replace(lfi, nsp) : sentence.replace(nsp, lfi);
-  });
-  return sentence;
-};
+export const withGroupWord =
+  (is2022) =>
+  (strings, ...params) => {
+    let sentence = strings
+      .map((s, i) => (params[i] ? s + params[i] : s))
+      .join("");
+    Object.entries(LFI_NSP_GROUP_WORD_LABELS).forEach(([lfi, nsp]) => {
+      sentence = is2022
+        ? sentence.replace(lfi, nsp)
+        : sentence.replace(nsp, lfi);
+    });
+    return sentence;
+  };
 
 export const useGroupWord = (group) => {
   const is2022 = useMemo(() => !!group?.is2022, [group]);

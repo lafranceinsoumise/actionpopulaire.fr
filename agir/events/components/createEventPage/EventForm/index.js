@@ -461,8 +461,7 @@ const EventForm = () => {
           onChange={updateNestedValue}
           error={errors && errors.location}
           help={{
-            name:
-              "Si l'événement se déroule en ligne, vous pouvez le préciser ici",
+            name: "Si l'événement se déroule en ligne, vous pouvez le préciser ici",
           }}
           disabled={isLoading}
           required

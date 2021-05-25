@@ -22,15 +22,11 @@ export const PushModal = ({ isActive = true }) => {
 
   const { isMobileApp } = useMobileApp();
 
-  const [
-    ReferralModalAnnouncement,
-    dismissReferralAnnouncement,
-  ] = useCustomAnnouncement("ReferralModalAnnouncement");
+  const [ReferralModalAnnouncement, dismissReferralAnnouncement] =
+    useCustomAnnouncement("ReferralModalAnnouncement");
 
-  const [
-    MobileAppAnnouncement,
-    dismissMobileAppAnnouncement,
-  ] = useCustomAnnouncement("MobileAppAnnouncement");
+  const [MobileAppAnnouncement, dismissMobileAppAnnouncement] =
+    useCustomAnnouncement("MobileAppAnnouncement");
 
   const handleCloseReferral = useCallback(() => {
     setShouldShow(false);
