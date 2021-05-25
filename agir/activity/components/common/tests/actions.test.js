@@ -2,7 +2,6 @@ import * as activityHelpers from "@agir/activity/common/helpers";
 import {
   dismissRequiredActionActivity,
   setAllActivitiesAsRead,
-  setAnnouncementsAsRead,
   undoRequiredActionActivityDismissal,
 } from "@agir/activity/common/actions";
 import { mutate } from "swr";
@@ -179,24 +178,6 @@ describe("activity/actions", function () {
       expect(activityHelpers.setActivityAsDisplayed.mock.calls).toHaveLength(1);
       expect(mutate.mock.calls).toHaveLength(1);
       expect(mutate.mock.calls[0][0]).toEqual("/api/user/required-activities/");
-    });
-  });
-  describe("setAnnouncementsAsRead action", function () {
-    afterEach(() => {
-      activityHelpers.setActivitiesAsDisplayed.mockClear();
-    });
-    it("should call activity helper function 'setActivitiesAsDisplayed'", function () {
-      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
-        0
-      );
-      const ids = [1, 2, 3];
-      setAnnouncementsAsRead(ids);
-      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls).toHaveLength(
-        1
-      );
-      expect(activityHelpers.setActivitiesAsDisplayed.mock.calls[0][0]).toEqual(
-        ids
-      );
     });
   });
 });

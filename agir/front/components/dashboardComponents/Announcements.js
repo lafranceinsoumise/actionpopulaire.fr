@@ -10,7 +10,6 @@ import Announcement from "@agir/front/genericComponents/Announcement";
 import style from "@agir/front/genericComponents/_variables.scss";
 import "./Announcements.scss";
 import useSWR from "swr";
-import { setAnnouncementsAsRead } from "@agir/activity/common/actions";
 
 SwiperCore.use([Pagination, A11y]);
 
@@ -107,36 +106,7 @@ BannerAnnouncements.propTypes = SidebarAnnouncements.propTypes = {
 
 const Announcements = (props) => {
   const { displayType } = props;
-  const { data } = useSWR("/api/session/");
-  const readAnnouncementIds = useRef([]);
-
-  const announcements = useMemo(
-    () =>
-      Array.isArray(data?.announcements)
-        ? data.announcements.filter((a) => !a.customDisplay)
-        : [],
-    [data]
-  );
-
-  const announcementIds = useMemo(
-    () =>
-      announcements.map((announcement) => announcement.activityId).join(","),
-    [announcements]
-  );
-
-  useEffect(() => {
-    if (!announcementIds) {
-      return;
-    }
-    const ids = announcementIds
-      .split(",")
-      .filter(
-        (announcementId) =>
-          !readAnnouncementIds.current.includes(announcementId)
-      );
-    readAnnouncementIds.current = announcementIds.split(",");
-    setAnnouncementsAsRead(ids);
-  }, [announcementIds]);
+  const { data: announcements } = useSWR("/api/announcements/");
 
   if (!announcements) return null;
 

@@ -62,11 +62,3 @@ export const undoRequiredActionActivityDismissal = async (id) => {
     console.log(e);
   }
 };
-
-export const setAnnouncementsAsRead = async (ids = []) => {
-  try {
-    await setActivitiesAsDisplayed(ids);
-  } catch (e) {
-    console.log(e);
-  }
-};
