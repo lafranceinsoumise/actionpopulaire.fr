@@ -1,11 +1,10 @@
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import {
   getUninteracted,
   getUnread,
-  setActivityAsDisplayed,
   setActivityAsInteracted,
 } from "@agir/activity/common/helpers";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 
 export const useHasUnreadActivity = () => {
   const { data: activities } = useSWR("/api/user/activities/", {
@@ -36,38 +35,27 @@ export const useRequiredActivityCount = () => {
 };
 
 export const useCustomAnnouncement = (slug) => {
-  const { data } = useSWR("/api/session/");
-
-  const announcementStatus = useRef(0);
-  const announcement = useMemo(
-    () =>
-      data && Array.isArray(data.announcements)
-        ? data.announcements.find((a) => a.customDisplay === slug)
-        : null,
-    [slug, data]
+  const { data: session } = useSWR("/api/session/");
+  const { data, mutate } = useSWR(
+    session?.user && slug ? `/api/user/announcements/custom/${slug}/` : null
   );
 
-  useEffect(() => {
-    if (announcement && announcementStatus.current === 0) {
-      announcementStatus.current = 1;
-      setActivityAsDisplayed(announcement.activityId);
-    }
-  }, [announcement]);
+  const announcementId = data?.id;
+  const announcement = useMemo(
+    () => (announcementId ? data : null),
+    //eslint-disable-next-line
+    [announcementId]
+  );
 
-  let dismissCallback = useCallback(async () => {
-    if (!announcement) {
+  const activityId = announcement?.activityId;
+  const dismissCallback = useCallback(async () => {
+    if (!activityId) {
       return;
     }
-    announcementStatus.current = 2;
-    await setActivityAsInteracted(announcement.activityId);
+    await setActivityAsInteracted(activityId);
 
-    await mutate("/api/session/", async (session) => ({
-      announcements: session.announcements.filter(
-        (a) => a.customDisplay !== slug
-      ),
-      ...session,
-    }));
-  }, [announcement, slug]);
+    mutate(null, false);
+  }, [activityId, mutate]);
 
-  return [announcement, dismissCallback];
+  return [announcement, dismissCallback, typeof data === "undefined"];
 };

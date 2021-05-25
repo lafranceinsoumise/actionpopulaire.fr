@@ -15,9 +15,11 @@ const TellMorePage = () => {
 
   const { available, isSubscribed, subscribe, ready, errorMessage } = usePush();
 
-  const [hasCampaign, dismissCampaign] =
+  const [hasCampaign, dismissCampaign, campaignIsLoading] =
     useCustomAnnouncement("chooseCampaign");
-  const [hasTellMore, dismissTellMore] = useCustomAnnouncement("tellMore");
+  const [hasTellMore, dismissTellMore, tellMoreIsLoading] =
+    useCustomAnnouncement("tellMore");
+
   const [
     hasDeviceNotificationSubscription,
     setHasDeviceNotificationSubscription,
@@ -44,6 +46,10 @@ const TellMorePage = () => {
 
   if (!isTellMorePage && (hasCampaign || hasTellMore)) {
     return <Redirect to={routeConfig.tellMore.getLink()} />;
+  }
+
+  if (campaignIsLoading || tellMoreIsLoading) {
+    return null;
   }
 
   if (hasCampaign) {
