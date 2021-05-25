@@ -1,13 +1,27 @@
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListAPIView
+from rest_framework.generics import (
+    RetrieveUpdateAPIView,
+    GenericAPIView,
+    ListAPIView,
+    RetrieveAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from agir.activity.actions import get_activities, get_required_action_activities
+from agir.activity.actions import (
+    get_activities,
+    get_required_action_activities,
+    get_non_custom_announcements,
+    get_custom_announcements,
+)
 from agir.activity.models import Activity, Announcement
-from agir.activity.serializers import ActivitySerializer, ActivityStatusUpdateRequest
+from agir.activity.serializers import (
+    ActivitySerializer,
+    ActivityStatusUpdateRequest,
+    AnnouncementSerializer,
+)
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     IsPersonPermission,
@@ -37,6 +51,40 @@ class UserRequiredActivitiesAPIView(ListAPIView):
 
     def get_queryset(self):
         return get_required_action_activities(self.request.user.person)
+
+
+class AnnouncementsAPIView(ListAPIView):
+    permission_classes = ()
+    serializer_class = AnnouncementSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated and self.request.user.person is not None:
+            announcements = get_non_custom_announcements(self.request.user.person)
+            # Automatically mark related activities as read
+            Activity.objects.filter(
+                pk__in=[a.activity_id for a in announcements if a.activity_id],
+                status=Activity.STATUS_UNDISPLAYED,
+            ).update(status=Activity.STATUS_DISPLAYED)
+
+            return announcements
+        return get_non_custom_announcements()
+
+
+class UserCustomAnnouncementAPIView(RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = AnnouncementSerializer
+    lookup_field = "custom_display"
+
+    def get_object(self):
+        announcement = super().get_object()
+        if announcement.activity_id:
+            Activity.objects.filter(
+                pk=announcement.activity_id, status=Activity.STATUS_UNDISPLAYED
+            ).update(status=Activity.STATUS_DISPLAYED)
+        return announcement
+
+    def get_queryset(self):
+        return get_custom_announcements(self.request.user.person)
 
 
 class AnnouncementLinkView(DetailView):

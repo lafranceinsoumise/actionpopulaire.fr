@@ -62,25 +62,17 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):
-    activityId = serializers.SerializerMethodField()
-    customDisplay = serializers.SlugField(source="custom_display")
-
-    link = serializers.HyperlinkedIdentityField(view_name="activity:announcement_link")
-
-    startDate = serializers.DateTimeField(source="start_date")
-    endDate = serializers.DateTimeField(source="end_date")
-
-    image = serializers.SerializerMethodField()
-
-    def get_activityId(self, obj):
-        user = self.context["request"].user
-        if getattr(obj, "activity_id", None):
-            return obj.activity_id
-        if hasattr(user, "person"):
-            activity = Activity.objects.create(
-                type=Activity.TYPE_ANNOUNCEMENT, recipient=user.person, announcement=obj
-            )
-            return activity.id
+    # activityId = serializers.SerializerMethodField(read_only=True)
+    customDisplay = serializers.SlugField(source="custom_display", read_only=True)
+    link = serializers.HyperlinkedIdentityField(
+        view_name="activity:announcement_link", read_only=True
+    )
+    startDate = serializers.DateTimeField(source="start_date", read_only=True)
+    endDate = serializers.DateTimeField(source="end_date", read_only=True)
+    image = serializers.SerializerMethodField(read_only=True)
+    activityId = serializers.IntegerField(
+        source="activity_id", default=None, read_only=True
+    )
 
     def get_image(self, obj):
         if obj.image:

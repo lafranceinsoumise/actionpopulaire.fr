@@ -24,6 +24,16 @@ urlpatterns = [
         name="api_user_activities",
     ),
     path(
+        "api/announcements/",
+        views.AnnouncementsAPIView.as_view(),
+        name="api_user_announcements",
+    ),
+    path(
+        "api/user/announcements/custom/<str:custom_display>/",
+        views.UserCustomAnnouncementAPIView.as_view(),
+        name="api_user_custom_announcement",
+    ),
+    path(
         "activite/<uuid:pk>/lien/",
         views.AnnouncementLinkView.as_view(),
         name="announcement_link",
