@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { memo, useEffect, useRef, useState } from "react";
-import { useSpring, a, animated } from "react-spring";
+import { useSpring, a, animated } from "@react-spring/web";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";

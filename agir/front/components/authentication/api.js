@@ -3,7 +3,7 @@ import axios from "@agir/lib/utils/axios";
 export const ENDPOINT = {
   login: "/api/connexion/",
   checkCode: "/api/connexion/code/",
-  logout: "/api/deconnexion",
+  logout: "/api/deconnexion/",
   signUp: "/api/inscription/",
   getProfile: "/api/user/profile/",
   getProfileOptions: "/api/user/profile/",

@@ -1,14 +1,11 @@
 import ACTION_TYPE from "@agir/front/globalContext/actionTypes";
+import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 
-export const initFromScriptTag = (hasRouter = false) => {
-  const globalContextScript = document.getElementById("globalContext");
-  let globalContextData = { hasRouter };
-  if (globalContextScript) {
-    globalContextData = {
-      ...globalContextData,
-      ...JSON.parse(globalContextScript.textContent),
-    };
-  }
+export const init = (hasRouter = false) => {
+  let globalContextData = {
+    hasRouter,
+    routes: nonReactRoutes,
+  };
 
   return {
     type: ACTION_TYPE.INIT_ACTION,

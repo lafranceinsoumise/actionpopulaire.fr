@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
-import { animated, useTransition } from "react-spring";
+import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";

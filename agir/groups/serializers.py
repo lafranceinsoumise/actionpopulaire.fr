@@ -62,25 +62,27 @@ class SupportGroupSubtypeSerializer(serializers.ModelSerializer):
 
 
 class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
-    id = serializers.UUIDField()
-    name = serializers.CharField()
-    description = serializers.CharField(source="html_description")
-    type = serializers.CharField()
-    typeLabel = serializers.SerializerMethodField()
+    id = serializers.UUIDField(read_only=True)
+    name = serializers.CharField(read_only=True)
+    description = serializers.CharField(source="html_description", read_only=True)
+    type = serializers.CharField(read_only=True)
+    typeLabel = serializers.SerializerMethodField(read_only=True)
 
-    url = serializers.HyperlinkedIdentityField(view_name="view_group")
+    url = serializers.HyperlinkedIdentityField(view_name="view_group", read_only=True)
 
-    eventCount = serializers.ReadOnlyField(source="events_count")
-    membersCount = serializers.SerializerMethodField(source="members_count")
-    isMember = serializers.SerializerMethodField()
-    isManager = serializers.SerializerMethodField()
-    labels = serializers.SerializerMethodField()
+    eventCount = serializers.ReadOnlyField(source="events_count", read_only=True)
+    membersCount = serializers.SerializerMethodField(
+        source="members_count", read_only=True
+    )
+    isMember = serializers.SerializerMethodField(read_only=True)
+    isManager = serializers.SerializerMethodField(read_only=True)
+    labels = serializers.SerializerMethodField(read_only=True)
 
-    discountCodes = serializers.SerializerMethodField()
-    is2022 = serializers.SerializerMethodField()
-    isFull = serializers.SerializerMethodField()
+    discountCodes = serializers.SerializerMethodField(read_only=True)
+    is2022 = serializers.SerializerMethodField(read_only=True)
+    isFull = serializers.SerializerMethodField(read_only=True)
 
-    routes = RoutesField(routes=GROUP_ROUTES)
+    routes = RoutesField(routes=GROUP_ROUTES, read_only=True)
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -112,14 +114,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
             for s in obj.subtypes.all()
             if s.description and not s.hide_text_label
         ]
-
-    def get_routes(self, obj):
-        additional_routes = {}
-        if obj.is_certified:
-            additional_routes["fund"] = front_url(
-                "donation_amount", query={"group": obj.pk}
-            )
-        return {}
 
     def get_discountCodes(self, obj):
         if (

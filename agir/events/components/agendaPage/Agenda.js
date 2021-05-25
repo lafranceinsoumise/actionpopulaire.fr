@@ -314,22 +314,18 @@ const Agenda = () => {
         <TopBar>
           <LayoutTitle>Événements</LayoutTitle>
           <div>
-            {routes.createEvent ? (
-              <Button
-                small
-                as="Link"
-                color="secondary"
-                route="createEvent"
-                icon="plus"
-              >
-                Créer un événement
-              </Button>
-            ) : null}
-            {routes.eventMapPage ? (
-              <Button small as="Link" route="eventMapPage" icon="map">
-                Carte
-              </Button>
-            ) : null}
+            <Button
+              small
+              as="Link"
+              color="secondary"
+              route="createEvent"
+              icon="plus"
+            >
+              Créer un événement
+            </Button>
+            <Button small as="Link" route="eventMap" icon="map">
+              Carte
+            </Button>
           </div>
         </TopBar>
       </header>

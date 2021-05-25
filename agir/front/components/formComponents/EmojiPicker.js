@@ -1,7 +1,7 @@
 import { Emoji, Picker } from "emoji-mart";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { animated, useTransition } from "react-spring";
+import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";

@@ -79,12 +79,12 @@
     {
       "id": "eventMap",
       "title": "Carte des événements",
-      "to": "eventMapPage"
+      "to": "eventMap"
     },
     {
       "id": "groupMap",
       "title": "Carte des groupes",
-      "to": "groupMapPage"
+      "to": "groupMap"
     },
     {
       "id": "donations",

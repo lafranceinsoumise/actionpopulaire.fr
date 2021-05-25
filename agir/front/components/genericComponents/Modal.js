@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useTransition, animated } from "react-spring";
+import { useTransition, animated } from "@react-spring/web";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -113,9 +113,10 @@ const useFocusTrap = (shouldShow) => {
     }
   }, []);
 
-  const keyListenersMap = useMemo(() => new Map([[9, handleTabKey]]), [
-    handleTabKey,
-  ]);
+  const keyListenersMap = useMemo(
+    () => new Map([[9, handleTabKey]]),
+    [handleTabKey]
+  );
 
   useEffect(() => {
     const keyListener = (e) => {

@@ -114,13 +114,8 @@ const SUBSCRIPTION_TYPE = {
 
 export const SubscriptionTypeModal = (props) => {
   const { type, target, onConfirm, onCancel, shouldShow, isLoading } = props;
-  const {
-    image,
-    title,
-    content,
-    confirmLabel,
-    confirmColor,
-  } = SUBSCRIPTION_TYPE[type];
+  const { image, title, content, confirmLabel, confirmColor } =
+    SUBSCRIPTION_TYPE[type];
   const targetLabel = SUBSCRIPTION_TYPE[type].target[target];
 
   return (

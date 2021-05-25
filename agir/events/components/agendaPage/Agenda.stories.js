@@ -38,8 +38,7 @@ Default.args = {
   rsvped: [
     {
       id: "6d7684d9-8abf-45e8-b385-57a77fe63ba0",
-      url:
-        "http://agir.local:8000/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/",
+      url: "http://agir.local:8000/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/",
       name: "Projet dessiner militaire appeler cause promettre peu.",
       hasSubscriptionForm: false,
       description: "",
@@ -72,10 +71,8 @@ Default.args = {
       routes: {
         details:
           "http://agir.local:8000/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/",
-        map:
-          "http://agir.local:8000/carte/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/",
-        join:
-          "http://agir.local:8000/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/inscription/",
+        map: "http://agir.local:8000/carte/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/",
+        join: "http://agir.local:8000/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/inscription/",
         cancel:
           "http://agir.local:8000/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/quitter/",
         manage:
@@ -86,8 +83,7 @@ Default.args = {
           "http://agir.local:8000/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/compte-rendu/",
         addPhoto:
           "http://agir.local:8000/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/importer-image/",
-        edit:
-          "http://agir.local:8000/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/modifier/",
+        edit: "http://agir.local:8000/evenements/6d7684d9-8abf-45e8-b385-57a77fe63ba0/modifier/",
         googleExport:
           "https://calendar.google.com/calendar/r/eventedit?text=Projet…5%2C+avenue+de+Marty%2C+App.+6%2C+71966%2C+Lemaitre&details=",
       },
@@ -98,8 +94,7 @@ Default.args = {
           description: "",
           type: "L",
           typeLabel: "Groupe local",
-          url:
-            "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
+          url: "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
           eventCount: 3,
           membersCount: 2,
           isMember: true,
@@ -107,18 +102,14 @@ Default.args = {
           labels: [],
           discountCodes: [],
           routes: {
-            page:
-              "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
-            map:
-              "http://agir.local:8000/carte/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
+            page: "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
+            map: "http://agir.local:8000/carte/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
             calendar:
               "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/icalendar/",
             manage:
               "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/gestion/",
-            edit:
-              "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/gestion/modifier/",
-            quit:
-              "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/quitter/",
+            edit: "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/gestion/modifier/",
+            quit: "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/quitter/",
           },
         },
       ],
@@ -129,8 +120,7 @@ Default.args = {
     {
       id: "e419f6e8-7431-43c9-ae9a-b82362a6bc81",
       distance: 15,
-      url:
-        "http://agir.local:8000/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/",
+      url: "http://agir.local:8000/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/",
       name: "Consulter moitié inspirer se taire.",
       hasSubscriptionForm: false,
       description: "",
@@ -163,10 +153,8 @@ Default.args = {
       routes: {
         details:
           "http://agir.local:8000/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/",
-        map:
-          "http://agir.local:8000/carte/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/",
-        join:
-          "http://agir.local:8000/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/inscription/",
+        map: "http://agir.local:8000/carte/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/",
+        join: "http://agir.local:8000/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/inscription/",
         cancel:
           "http://agir.local:8000/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/quitter/",
         manage:
@@ -177,8 +165,7 @@ Default.args = {
           "http://agir.local:8000/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/compte-rendu/",
         addPhoto:
           "http://agir.local:8000/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/importer-image/",
-        edit:
-          "http://agir.local:8000/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/modifier/",
+        edit: "http://agir.local:8000/evenements/e419f6e8-7431-43c9-ae9a-b82362a6bc81/modifier/",
         googleExport:
           "https://calendar.google.com/calendar/r/eventedit?text=Consul…hemin+de+Lejeune%2C+App.+36%2C+02376%2C+Saint+Alain&details=",
       },
@@ -189,8 +176,7 @@ Default.args = {
           description: "",
           type: "L",
           typeLabel: "Groupe local",
-          url:
-            "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
+          url: "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
           eventCount: 3,
           membersCount: 2,
           isMember: true,
@@ -198,18 +184,14 @@ Default.args = {
           labels: [],
           discountCodes: [],
           routes: {
-            page:
-              "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
-            map:
-              "http://agir.local:8000/carte/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
+            page: "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
+            map: "http://agir.local:8000/carte/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/",
             calendar:
               "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/icalendar/",
             manage:
               "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/gestion/",
-            edit:
-              "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/gestion/modifier/",
-            quit:
-              "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/quitter/",
+            edit: "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/gestion/modifier/",
+            quit: "http://agir.local:8000/groupes/9389e3d6-34f2-4f3a-9dcb-73d8d262b46f/quitter/",
           },
         },
       ],

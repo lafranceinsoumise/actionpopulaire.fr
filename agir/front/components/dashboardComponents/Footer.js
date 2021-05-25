@@ -21,6 +21,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import footerBanner from "./images/footer-banner.jpg";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import { useMobileApp } from "@agir/front/app/hooks";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const FooterForm = styled.div`
   display: flex;
@@ -283,9 +284,7 @@ export const Footer = (props) => {
           <div>
             <h3>Action populaire</h3>
             <p>
-              {!isSignedIn && routes.login && (
-                <Link href={routes.login}>Se connecter</Link>
-              )}
+              {!isSignedIn && <Link route="login">Se connecter</Link>}
               {routes.donations && <Link route="donations">Faire un don</Link>}
               {routes.help && <Link route="help">Besoin d'aide ?</Link>}
               {routes.legal && <Link route="legal">Mentions légales</Link>}
@@ -297,15 +296,9 @@ export const Footer = (props) => {
             <div>
               <h3>Explorer</h3>
               <p>
-                {routes.events && (
-                  <Link route="events">Evénements proches de chez moi</Link>
-                )}
-                {routes.eventMapPage && (
-                  <Link route="eventMapPage">Carte des événements</Link>
-                )}
-                {routes.groupMapPage && (
-                  <Link route="groupMapPage">Carte des groupes d’actions</Link>
-                )}
+                <Link route="events">Evénements proches de chez moi</Link>
+                <Link route="eventMap">Carte des événements</Link>
+                <Link route="groupMap">Carte des groupes d’actions</Link>
                 {routes.thematicTeams && (
                   <Link route="thematicTeams">Les livrets thématiques</Link>
                 )}

@@ -1,6 +1,6 @@
 import axios from "@agir/lib/utils/axios";
 import logger from "@agir/lib/utils/logger";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useIOSMessages } from "@agir/front/allPages/ios";
 import {
   getSubscriptionData,
@@ -36,10 +36,13 @@ async function askPermission() {
 const useServerSubscription = (endpoint, token) => {
   const [ready, setReady] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [registration_id, extraData] =
-    !token || typeof token === "string"
-      ? [token, {}]
-      : [token.registration_id, token];
+  const [registration_id, extraData] = useMemo(
+    () =>
+      !token || typeof token === "string"
+        ? [token, {}]
+        : [token.registration_id, token],
+    [token]
+  );
 
   const subscribe = useCallback(async () => {
     try {
@@ -152,7 +155,8 @@ const useWebPush = () => {
     (async () => {
       if (!window.AgirSW?.pushManager) return;
 
-      const pushSubscription = await window.AgirSW?.pushManager?.getSubscription();
+      const pushSubscription =
+        await window.AgirSW?.pushManager?.getSubscription();
       setBrowserReady(true);
 
       if (!pushSubscription) {

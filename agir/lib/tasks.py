@@ -35,6 +35,8 @@ def create_static_map_image_from_coordinates(coordinates):
             center__distance_lt=(center, StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE)
         )
         return
+    except StaticMapImage.MultipleObjectsReturned:
+        return
     except StaticMapImage.DoesNotExist:
         pass
 
