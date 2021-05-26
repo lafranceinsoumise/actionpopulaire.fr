@@ -3,7 +3,8 @@ from typing import Dict, List, Tuple
 from django.db.models import Q
 
 from agir.gestion.actions import Condition, NiveauTodo
-from agir.gestion.models import Participation, Projet
+from agir.gestion.models.commentaires import nombre_commentaires_a_faire
+from agir.gestion.models.common import Projet, Participation
 from agir.gestion.typologies import TypeProjet, TypeDocument, TypeDepense
 from agir.people.models import Person
 

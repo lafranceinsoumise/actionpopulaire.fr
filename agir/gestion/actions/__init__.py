@@ -1,6 +1,5 @@
 import dataclasses
 from enum import Enum
-
 from typing import Callable, Union, Any
 
 from django.db import models

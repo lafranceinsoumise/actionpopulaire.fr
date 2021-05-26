@@ -1,10 +1,12 @@
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import CreateView, TemplateView
+from django.views import View
+from django.views.generic import CreateView, TemplateView, FormView
 
-from agir.gestion.admin.forms import ReglementForm
-from agir.gestion.models import Reglement, Depense, Commentaire
+from agir.gestion.admin.forms import ReglementForm, CommentaireForm
+from agir.gestion.models import Depense, Commentaire, Reglement
 from agir.lib.admin import AdminViewMixin
 
 
@@ -14,7 +16,7 @@ class AjouterReglementView(AdminViewMixin, CreateView):
     template_name = "gestion/ajouter_reglement.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.depense = get_object_or_404(Depense, pk=kwargs.get("pk"))
+        self.depense = get_object_or_404(Depense, pk=kwargs.get("object_id"))
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
@@ -89,3 +91,69 @@ class CacherCommentaireView(AdminViewMixin, TemplateView):
         return super().get_context_data(
             commentaire=self.commentaire, object=self.object, **kwargs,
         )
+
+
+class FormHandlerView(View):
+    model = None
+
+    def lien_incorrect(self, message=None):
+        if message is None:
+            message = "Le lien que vous avez suivi était incorrect."
+
+        messages.add_message(
+            request=self.request, level=messages.WARNING, message=message,
+        )
+
+        return self.retour_page_modification()
+
+    def retour_page_modification(self):
+        opts = self.model._meta
+        next_url = reverse(
+            f"admin:{opts.app_label}_{opts.model_name}_change", args=(self.object_id,)
+        )
+        return HttpResponseRedirect(next_url)
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object_id = kwargs["object_id"]
+        self.object = get_object_or_404(self.model, pk=self.object_id)
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AjouterCommentaireView(FormView, FormHandlerView):
+    model = None
+
+    def post(self, request, *args, **kwargs):
+        form = CommentaireForm(data=request.POST, user=request.user)
+
+        if form.is_valid():
+            form.save(self.object)
+            return super().retour_page_modification()
+
+        return self.lien_incorrect()
+
+
+class TransitionView(FormHandlerView):
+    def post(self, request, *args, **kwargs):
+        role = request.user
+
+        etat_suivant = request.POST.get("etat")
+
+        if not etat_suivant:
+            return self.lien_incorrect()
+
+        try:
+            transition = next(
+                t
+                for t in self.model.TRANSITIONS.get(self.object.etat)
+                if t.vers == etat_suivant
+            )
+        except StopIteration:
+            return self.lien_incorrect()
+
+        if refus := transition.refus(self.object, role):
+            return self.lien_incorrect(message=refus)
+
+        self.object.etat = transition.vers
+        self.object.save(update_fields=["etat"])
+        return self.retour_page_modification()

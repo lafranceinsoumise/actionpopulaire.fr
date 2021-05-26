@@ -4,8 +4,9 @@ from django.contrib.admin.options import BaseModelAdmin, ModelAdmin
 from django.urls import path
 from django.utils.html import format_html
 
-from agir.gestion.admin.forms import CommentairesForm
-from agir.gestion.admin.views import CacherCommentaireView
+from agir.gestion.admin.forms import CommentaireForm
+from agir.gestion.admin.views import CacherCommentaireView, AjouterCommentaireView
+from agir.gestion.models import Commentaire
 from agir.lib.admin import get_admin_link
 
 
@@ -30,21 +31,28 @@ class BaseMixin(BaseModelAdmin):
 
 
 class BaseAdminMixin(BaseMixin, ModelAdmin):
-    form = CommentairesForm
-
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        form = super().get_form(request, obj=obj, change=change, **kwargs)
-        return partial(form, user=request.user)
-
     def render_change_form(
         self, request, context, add=False, change=False, form_url="", obj=None
     ):
         if obj and hasattr(obj, "commentaires"):
-            context.setdefault("montrer_commentaires", True)
-            context.setdefault("commentaires", obj.commentaires.filter(cache=False))
+            context.setdefault(
+                "commentaires_todo",
+                obj.commentaires.filter(type=Commentaire.Type.TODO, cache=False),
+            )
+            context.setdefault(
+                "commentaires_rem",
+                obj.commentaires.filter(type=Commentaire.Type.REM, cache=False),
+            )
+            context.setdefault("commentaire_form", CommentaireForm())
 
         if obj and hasattr(obj, "todos"):
             context.setdefault("todos", obj.todos())
+
+        if obj and hasattr(obj, "transitions"):
+            transitions = obj.transitions
+            for t in transitions:
+                t.disabled = t.refus(obj, request.user)
+            context.setdefault("transitions", transitions)
 
         return super().render_change_form(
             request, context, add=add, change=change, form_url=form_url, obj=obj
@@ -56,6 +64,13 @@ class BaseAdminMixin(BaseMixin, ModelAdmin):
         if hasattr(self.model, "commentaires"):
             opts = self.model._meta
             urls = [
+                path(
+                    "commenter/<int:object_id>",
+                    self.admin_site.admin_view(
+                        AjouterCommentaireView.as_view(model=self.model)
+                    ),
+                    name=f"{opts.app_label}_{opts.model_name}_commenter",
+                ),
                 path(
                     "cacher_commentaire/<int:pk>/",
                     self.admin_site.admin_view(

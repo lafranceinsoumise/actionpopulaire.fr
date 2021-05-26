@@ -5,61 +5,85 @@
   <link rel="stylesheet" href="{% static "admin/gestion/style.css" %}">
 {% endblock %}
 
-{% block field_sets %}
-  {% if todos %}
-    <div class="todos module">
-      <h2>À faire sur cette page</h2>
-
-      {% for category, ts in todos %}
-        <h3>{{ category }}</h3>
-        <ul>
-          {% for message, niveau in ts %}
-            <li class="{{ niveau }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endfor %}
-    </div>
+{% block content %}
+  {% if transitions %}
+    <form id="transition-form" method="post" action="{% url opts|admin_urlname:"transition" object_id %}">
+      {% csrf_token %}
+    </form>
+  {% endif %}
+  {% if commentaire_form %}
+    <form id="commentaire-form" method="post" action="{% url opts|admin_urlname:"commenter" object_id %}">
+      {% csrf_token %}
+    </form>
   {% endif %}
   {{ block.super }}
 {% endblock %}
 
-{% block after_field_sets %}
-  {% if montrer_commentaires %}
-    <div class="module aligned">
-      <h2>Commentaires</h2>
-      {% for commentaire in commentaires %}
-        <div class="form-row">
-          <div>
-            <label><strong>
-              {{ commentaire.get_auteur_display }}
-            </strong>
-              <br>
-              {{ commentaire.created|date:"SHORT_DATETIME_FORMAT" }}
-            </label>
-            <div>
-              <h3>{{ commentaire.get_type_display }} —
-                <small><a href="{% url opts|admin_urlname:"cacher_commentaire" commentaire.id|admin_urlquote %}">
-                  Cacher ce commentaire
-                </a></small>
-              </h3>
-              <div>{{ commentaire.texte }}</div>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-      <div class="form-row">
-        <div>
-          <label>Ajouter un commentaire :</label>
-          <div style="overflow: auto;">
-            <div>
-              {{ adminform.form.type_commentaire }}
-            </div>
-            <div>
-              {{ adminform.form.nouveau_commentaire }}
-            </div>
-          </div>
+{% block field_sets %}
+  <div class="side-container module">
+    {% if transitions %}
+      <div class="transitions">
+        <h2>Étapes suivantes</h2>
+        <ul>
+          {% for transition in transitions %}
+            <li>
+              <button
+                  form="transition-form" type="submit" name="etat" value="{{ transition.vers }}"
+                  class="{{ transition.class_name }}"
+                  {% if transition.disabled %}disabled title="{{ transition.disabled }}"{% endif %}
+              >
+                {{ transition.nom }}
+              </button>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    {% if todos or commentaires_todo %}
+      <div class="todos">
+        <h2>À faire</h2>
+
+        {% for category, ts in todos %}
+          <h3>{{ category }}</h3>
+          <ul>
+            {% for message, niveau in ts %}
+              <li class="{{ niveau }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+        {% if commentaires_todo %}
+          <h3>Autres tâches</h3>
+          <ul>
+            {% for commentaire in commentaires_todo %}
+              {% include "admin/gestion/commentaire.html" %}
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% endif %}
+    {% if commentaires_rem %}
+      <div class="remarques">
+        <h2>Remarques</h2>
+        <ul>
+          {% for commentaire in commentaires_rem %}
+            {% include "admin/gestion/commentaire.html" %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    {% if commentaire_form %}
+      <div class="ajouter-commentaire">
+        <h2>Ajouter une information</h2>
+        <div class="content">
+          {{ commentaire_form }}
+          <button form="commentaire-form" class="button" type="submit">Ajouter</button>
         </div>
       </div>
-    </div>
-  {% endif %}
+    {% endif %}
+
+  </div>
+  {{ block.super }}
+{% endblock %}
+
+{% block after_field_sets %}
 {% endblock %}

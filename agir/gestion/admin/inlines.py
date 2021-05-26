@@ -5,7 +5,7 @@ from agir.gestion.admin.forms import (
     DocumentInlineForm,
     DepenseDevisForm,
 )
-from agir.gestion.models import Depense, Projet, Participation, Commentaire
+from agir.gestion.models import Depense, Projet, Participation
 
 
 class BaseDocumentInline(admin.TabularInline):

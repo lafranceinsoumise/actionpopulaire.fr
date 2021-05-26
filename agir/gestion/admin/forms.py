@@ -2,42 +2,65 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 
-from agir.gestion.actions.commentaires import ajouter_commentaire
+from agir.gestion.models.commentaires import ajouter_commentaire
 from agir.gestion.admin.widgets import HierarchicalSelect
+from agir.gestion.models import Depense
 from agir.gestion.models import (
+    Commentaire,
     Document,
+    Projet,
     Reglement,
     Fournisseur,
-    Commentaire,
-    Depense,
-    Projet,
 )
 from agir.gestion.typologies import TypeDocument
 
 
-class CommentairesForm(forms.ModelForm):
-    nouveau_commentaire = forms.CharField(
-        label="Ajouter un commentaire", required=False, widget=forms.Textarea()
-    )
-    type_commentaire = forms.ChoiceField(
-        label="Type de commentaire",
+class DocumentForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ()
+        widgets = {"type": HierarchicalSelect}
+
+
+class DepenseForm(forms.ModelForm):
+    class Meta:
+        model = Depense
+        fields = ()
+        widgets = {"type": HierarchicalSelect}
+
+
+class ProjetForm(forms.ModelForm):
+    class Meta:
+        model = Projet
+        fields = ()
+        widgets = {"type": HierarchicalSelect}
+
+
+class CommentaireForm(forms.Form):
+    type = forms.ChoiceField(
+        label="Type",
         initial=Commentaire.Type.REM,
         choices=Commentaire.Type.choices,
+        widget=forms.Select(attrs={"form": "commentaire-form"}),
+    )
+
+    texte = forms.CharField(
+        label="Texte",
+        required=True,
+        widget=forms.Textarea(attrs={"form": "commentaire-form"}),
     )
 
     def __init__(self, *args, user=None, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
 
-    def save(self, commit=True):
-        if self.cleaned_data.get("nouveau_commentaire"):
-            ajouter_commentaire(
-                self.instance,
-                self.cleaned_data["nouveau_commentaire"],
-                self.cleaned_data["type_commentaire"],
-                self.user.person,
-            )
-        return super().save(commit=commit)
+    def save(self, instance):
+        ajouter_commentaire(
+            instance,
+            self.cleaned_data["texte"],
+            self.cleaned_data["type"],
+            self.user.person,
+        )
 
 
 class DocumentInlineForm(forms.ModelForm):
@@ -58,6 +81,24 @@ class DocumentInlineForm(forms.ModelForm):
         else:
             for f in self.DOCUMENTS_FIELDS:
                 self.fields[f].disabled = True
+
+
+class DepenseDevisForm(forms.ModelForm):
+    devis = forms.FileField(label="Devis", max_length=30e6, required=False)  # 30 Mo
+
+    def _save_m2m(self):
+        if "devis" in self.cleaned_data:
+            document = Document.objects.create(
+                titre=f"Devis pour {self.instance.titre}",
+                fichier=self.cleaned_data["devis"],
+                type=TypeDocument.DEVIS,
+            )
+            self.instance.documents.add(document)
+
+    class Meta:
+        model = Depense
+        fields = ()
+        widgets = {"type": HierarchicalSelect}
 
 
 _document_fields = {
@@ -225,66 +266,3 @@ class ReglementForm(forms.ModelForm):
             "location_zip_fournisseur",
             "location_country_fournisseur",
         )
-
-
-class BaseCommentaireFormset(forms.BaseModelFormSet):
-    def __init__(
-        self,
-        data=None,
-        files=None,
-        instance=None,
-        save_as_new=False,
-        prefix=None,
-        queryset=None,
-        **kwargs,
-    ):
-        self.instance = instance
-
-        if save_as_new:
-            raise ValueError("Impossible d'utiliser save_as_new")
-
-        if queryset is None:
-            queryset = Commentaire.objects.all()
-
-        qs = queryset.intersection(self.instance.commentaires.all())
-
-        super().__init__(data, files, prefix=prefix, queryset=qs, **kwargs)
-
-
-class DocumentForm(CommentairesForm, forms.ModelForm):
-    class Meta:
-        model = Document
-        fields = ()
-        widgets = {"type": HierarchicalSelect}
-
-
-class DepenseForm(CommentairesForm, forms.ModelForm):
-    class Meta:
-        model = Depense
-        fields = ()
-        widgets = {"type": HierarchicalSelect}
-
-
-class DepenseDevisForm(forms.ModelForm):
-    devis = forms.FileField(label="Devis", max_length=30e6, required=False)  # 30 Mo
-
-    def _save_m2m(self):
-        if "devis" in self.cleaned_data:
-            document = Document.objects.create(
-                titre=f"Devis pour {self.instance.titre}",
-                fichier=self.cleaned_data["devis"],
-                type=TypeDocument.DEVIS,
-            )
-            self.instance.documents.add(document)
-
-    class Meta:
-        model = Depense
-        fields = ()
-        widgets = {"type": HierarchicalSelect}
-
-
-class ProjetForm(CommentairesForm, forms.ModelForm):
-    class Meta:
-        model = Projet
-        fields = ()
-        widgets = {"type": HierarchicalSelect}

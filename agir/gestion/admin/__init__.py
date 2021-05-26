@@ -20,14 +20,9 @@ from agir.gestion.admin.inlines import (
     ProjetParticipationInline,
     AjouterDepenseInline,
 )
-from agir.gestion.admin.views import AjouterReglementView
-from agir.gestion.models import (
-    Depense,
-    Projet,
-    Compte,
-    Document,
-    Fournisseur,
-)
+from agir.gestion.admin.views import AjouterReglementView, TransitionView
+from agir.gestion.models import Depense
+from agir.gestion.models.common import Document, Compte, Projet, Fournisseur
 
 
 @admin.register(Compte)
@@ -115,6 +110,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
                     "numero_",
                     "titre",
                     "montant",
+                    "etat",
                     "type",
                     "compte",
                     "description",
@@ -126,7 +122,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
         ("Informations de paiement", {"fields": ("fournisseur", "reglements")}),
     )
 
-    readonly_fields = ("reglements",)
+    readonly_fields = ("reglements", "etat")
 
     autocomplete_fields = (
         "beneficiaires",
@@ -135,6 +131,9 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
     inlines = [DepenseDocumentInline]
 
     def reglements(self, obj):
+        if obj is None or obj.id is None:
+            return "-"
+
         if obj.reglements.exists():
             table = format_html(
                 "<table><thead><tr><th>Date</th><th>Montant</th><th>Statut</th></thead></tr><tbody>{}</tbody>",
@@ -163,15 +162,20 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
     reglements.short_description = "règlements effectués"
 
     def get_urls(self):
-        urls = super(DepenseAdmin, self).get_urls()
+        urls = super().get_urls()
         additional_urls = [
             path(
-                "<int:pk>/reglement/",
+                "<int:object_id>/reglement/",
                 self.admin_site.admin_view(
                     AjouterReglementView.as_view(model_admin=self)
                 ),
                 name="gestion_depense_reglement",
-            )
+            ),
+            path(
+                "<int:object_id>/transition/",
+                self.admin_site.admin_view(TransitionView.as_view(model=Depense)),
+                name="gestion_depense_transition",
+            ),
         ]
 
         return additional_urls + urls

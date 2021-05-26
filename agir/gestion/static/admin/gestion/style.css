@@ -1,5 +1,5 @@
 
-.todos {
+.side-container {
     float: right;
     width: 300px;
     background: #f8f8f8;
@@ -7,13 +7,59 @@
     margin: 0 0 0 20px;
 }
 
-.todos h2 {
+
+.side-container h2 {
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 5px 15px;
     margin-bottom: 12px;
     border-bottom: none
+}
+
+
+
+.transitions ul {
+    margin: 1em;
+    padding: 0;
+}
+
+.transitions li {
+    list-style-type: none;
+    margin-top: 0.5em;
+}
+
+.transitions button {
+    display: block;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.transitions button:disabled {
+    cursor: not-allowed;
+}
+
+.transitions button.success {
+    background-color: #4c9c08;
+}
+.transitions button.success:hover {
+    background-color: #76dc20;
+}
+.transitions button.success:disabled {
+    background-color: #98ad8a;
+}
+
+.transitions button.failure {
+    background-color: #a7301e;
+}
+.transitions button.failure:hover {
+    background-color: #ea5741;
+}
+.transitions button.failure:disabled {
+    background-color: #ac8076;
 }
 
 .todos li.imperatif {
@@ -26,6 +72,40 @@
     color: #bda845;
 }
 
+li.commentaire .texte {
+    font-weight: bold;
+}
+
+li.commentaire a {
+    display: inline-block;
+    color: #fff;
+    margin: 5px 0;
+}
+
+.ajouter-commentaire .content {
+    margin: .5em 15px;
+}
+
+.ajouter-commentaire label {
+    display: block;
+    margin: .5em 0 0;
+}
+
+.ajouter-commentaire select {
+    display: block;
+}
+
+.ajouter-commentaire textarea {
+    display: block;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.ajouter-commentaire button {
+    padding: 10px 15px;
+    margin-top: .5em;
+}
 
 .cacher-commentaire input {
     background: #a41515;

@@ -12,18 +12,12 @@ from django.utils import timezone
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 
-from agir.gestion.typologies import (
-    TypeProjet,
-    TypeDocument,
-    TypeDepense,
-    NiveauAcces,
-)
+from agir.gestion.typologies import TypeDocument, TypeProjet, NiveauAcces
 from agir.lib.model_fields import IBANField
-from agir.lib.models import LocationMixin, TimeStampedModel
+from agir.lib.models import TimeStampedModel, LocationMixin
 from agir.lib.search import PrefixSearchQuery
 
 ALPHABET = ascii_uppercase + digits
-
 NUMERO_RE = re.compile("^[A-Z0-9]{3}-[A-Z0-9]{1,3}$")
 
 
@@ -57,49 +51,6 @@ class NumeroQueryset(models.QuerySet):
             .annotate(rank=SearchRank(vector, query))
             .order_by("-rank")
         )
-
-
-class Commentaire(TimeStampedModel):
-    class Type(models.TextChoices):
-        REM = "R", "Remarque"
-        WARN = "W", "Point de vigilance"
-        TODO = "T", "À faire"
-
-    auteur = models.ForeignKey(
-        to="people.Person",
-        verbose_name="Auteur⋅ice",
-        on_delete=models.SET_NULL,
-        related_name="+",
-        null=True,
-    )
-
-    auteur_nom = models.CharField(
-        verbose_name="Nom de l'auteur",
-        blank=False,
-        max_length=200,
-        help_text="Pour pouvoir afficher un nom si la personne a été supprimée.",
-    )
-
-    type = models.CharField(
-        verbose_name="Type de commentaire", max_length=1, choices=Type.choices
-    )
-
-    texte = models.TextField(verbose_name="Texte du commentaire", blank=False)
-
-    cache = models.BooleanField(verbose_name="Commentaire caché", default=False)
-
-    def get_auteur_display(self):
-        if self.auteur:
-            disp = str(self.auteur)
-            if self.auteur_nom != disp:
-                self.auteur_nom = disp
-                self.save(update_fields=["auteur_nom"])
-            return str(disp)
-        else:
-            return self.auteur_nom
-
-    class Meta:
-        ordering = ("created",)
 
 
 class NumeroManager(models.Manager):
@@ -211,6 +162,10 @@ class Compte(TimeStampedModel):
     )
     description = models.TextField(verbose_name="Description", blank=True)
 
+    configuration = models.JSONField(
+        verbose_name="Configuration", default=dict, null=False, blank=True
+    )
+
     def __str__(self):
         return f"{self.nom} ({self.designation})"
 
@@ -226,6 +181,8 @@ class Compte(TimeStampedModel):
                 "acces_contenu_secret",
                 "Voir les projets, dépenses et documents dont l'accès est indiqué commme secret.",
             ),
+            ("engager_depense", "Engager une dépense pour ce compte"),
+            ("gerer_depense", "Gérer les dépenses"),
         ]
 
 
@@ -274,156 +231,13 @@ class Projet(NumeroUniqueMixin, TimeStampedModel):
     )
 
     def todos(self):
-        from .actions.projets import todos
+        from ..actions.projets import todos
 
         return todos(self)
 
     class Meta:
         verbose_name = "Projet"
         verbose_name_plural = "Projets"
-
-
-@reversion.register(follow=["documents"])
-class Depense(NumeroUniqueMixin, TimeStampedModel):
-    """Une dépense correspond à un paiement réalisé en lien avec une facture
-    """
-
-    class Etat(models.TextChoices):
-        ATTENTE_ENGAGEMENT = "A", "En attente de l'engagement de la dépense"
-        CONSTITUTION = "C", "Constitution du dossier"
-        COMPLET = "O", "Dossier complété"
-        CLOTURE = "L", "Dossier clôturé"
-
-    class Validation(models.IntegerChoices):
-        NON_VALIDE = 0, "Pas encore de validation"
-        ORGANISATEUR = 1, "Validation organisateur"
-        FINANCIERE = 2, "Validation financière"
-
-    validation_etat = {
-        Validation.NON_VALIDE: Etat.CONSTITUTION,
-        Validation.ORGANISATEUR: Etat.COMPLET,
-        Validation.FINANCIERE: Etat.CLOTURE,
-    }
-
-    titre = models.CharField(
-        verbose_name="Titre de la dépense",
-        help_text="Une description sommaire de la nature de la dépense",
-        blank=False,
-        max_length=100,
-    )
-
-    description = models.TextField(
-        verbose_name="Description",
-        help_text="La description doit permettre de pouvoir identifier de façon non ambigue la dépense et sa nature dans le cas où le titre ne suffit pas.",
-        blank=True,
-    )
-
-    compte = models.ForeignKey(
-        to="Compte",
-        null=False,
-        related_name="depenses",
-        related_query_name="depense",
-        help_text="Le compte dont fait partie cette dépense.",
-        on_delete=models.PROTECT,
-    )
-
-    projet = models.ForeignKey(
-        to="Projet",
-        null=True,
-        related_name="depenses",
-        related_query_name="depense",
-        help_text="Le projet éventuel auquel est rattaché cette dépense.",
-        on_delete=models.SET_NULL,
-    )
-
-    type = models.CharField(
-        "Type de dépense", max_length=5, choices=TypeDepense.choices
-    )
-
-    montant = models.DecimalField(
-        verbose_name="Montant de la dépense",
-        decimal_places=2,
-        null=False,
-        max_digits=10,
-    )
-
-    validation = models.IntegerField(
-        verbose_name="Validation du dossier de la dépense",
-        choices=Validation.choices,
-        default=Validation.NON_VALIDE,
-        null=False,
-    )
-
-    date_depense = models.DateField(
-        "Date d'engagement de la dépense",
-        blank=True,
-        null=True,
-        help_text="Date à laquelle la dépense a été engagée (généralement l'acceptation du contrat)",
-    )
-
-    documents = models.ManyToManyField(
-        to="Document", related_name="depenses", related_query_name="depense",
-    )
-
-    fournisseur = models.ForeignKey(
-        "Fournisseur", null=True, blank=True, on_delete=models.SET_NULL
-    )
-
-    beneficiaires = models.ManyToManyField(
-        to="people.Person",
-        verbose_name="Bénéficiaires de la dépense",
-        related_name="depenses",
-        related_query_name="depense",
-        blank=True,
-    )
-
-    niveau_acces = models.CharField(
-        verbose_name="Niveau d'accès",
-        max_length=1,
-        choices=NiveauAcces.choices,
-        blank=False,
-        default=NiveauAcces.SANS_RESTRICTION,
-    )
-
-    @property
-    def devis_present(self):
-        return self.documents.filter(type=TypeDocument.DEVIS).exists()
-
-    @property
-    def facture_presente(self):
-        return self.documents.filter(type=TypeDocument.FACTURE).exists()
-
-    @property
-    def montant_restant(self):
-        return self.montant - (
-            self.reglements.aggregate(paye=models.Sum("montant"))["paye"] or 0
-        )
-
-    @property
-    def depense_reglee(self):
-        return (
-            self.reglements.filter(statut=Reglement.Statut.REGLE).aggregate(
-                paye=models.Sum("montant")
-            )["paye"]
-            == self.montant
-        )
-
-    @property
-    def etat(self):
-        if not self.date_depense:
-            return self.Etat.ATTENTE_ENGAGEMENT
-
-        # noinspection PyTypeChecker
-        return self.validation_etat[self.validation]
-
-    def todos(self):
-        from .actions.depenses import todo
-
-        return todo(self)
-
-    class Meta:
-        verbose_name = "Dépense"
-        verbose_name_plural = "Dépenses"
 
 
 class Reglement(TimeStampedModel):
@@ -440,7 +254,7 @@ class Reglement(TimeStampedModel):
         CASH = "S", "En espèces"
 
     depense = models.ForeignKey(
-        to=Depense,
+        to="Depense",
         verbose_name="Dépense concernée",
         related_name="reglements",
         related_query_name="reglement",
