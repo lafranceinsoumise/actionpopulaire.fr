@@ -4,8 +4,8 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import background from "@agir/front/genericComponents/images/illustration-404.svg";
-import illustration from "@agir/front/allPages/offline/illustration.svg";
-import { useIsOffline } from "@agir/front/allPages/offline/hooks";
+import illustration from "@agir/front/offline/illustration.svg";
+import { useIsOffline } from "@agir/front/offline/hooks";
 
 import TopBar from "@agir/front/allPages/TopBar";
 import Button from "@agir/front/genericComponents/Button";
