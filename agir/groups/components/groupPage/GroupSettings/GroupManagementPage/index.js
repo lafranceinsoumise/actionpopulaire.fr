@@ -121,6 +121,7 @@ const GroupManagementPage = (props) => {
           routes={group?.routes}
           onResetMembershipType={resetMembershipType}
           isLoading={isLoading}
+          group={group}
         />
       </PageFadeIn>
       {transition(
