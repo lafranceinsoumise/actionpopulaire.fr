@@ -3,11 +3,12 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import { activityStatus } from "@agir/activity/common/helpers";
 import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 import { getGenderedWord } from "@agir/lib/utils/display";
 import { routeConfig } from "@agir/front/app/routes.config";
-import style from "@agir/front/genericComponents/_variables.scss";
 
 import Card from "@agir/front/genericComponents/Card";
 import { Column, Row } from "@agir/front/genericComponents/grid";

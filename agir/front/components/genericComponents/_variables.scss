@@ -42,6 +42,7 @@ $elaborate-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
 $card-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5), 0px 3px 3px rgba(0, 35, 44, 0.1);
 
 $default-border-radius: 0;
+$border-radius: 8px;
 
 $zindex__mainContent: 2;
 $zindex__topBar: 10;
@@ -92,6 +93,7 @@ $zindex__panel: 20;
   elaborateShadow: $elaborate-shadow;
   cardShadow: $card-shadow;
   defaultBorderRadius: $default-border-radius;
+  borderRadius: $border-radius;
 
   zindexMainContent: $zindex__mainContent;
   zindexTopBar: $zindex__topBar;
