@@ -233,7 +233,7 @@ class Announcement(BaseAPIResource):
     title = models.CharField(
         verbose_name="Titre de l'annonce",
         max_length=200,
-        help_text="Ce texte sera utilisé comme titre et texte du lien de l'annonce",
+        help_text="Ce texte sera utilisé comme titre de l'annonce",
         blank=False,
     )
 
@@ -245,6 +245,15 @@ class Announcement(BaseAPIResource):
 
     link = models.URLField(verbose_name="Lien", blank=False)
 
+    link_label = models.CharField(
+        verbose_name="Libellé du lien",
+        max_length=200,
+        help_text="Ce texte sera utilisé comme texte du lien de l'annonce",
+        blank=False,
+        null=False,
+        default="En savoir plus",
+    )
+
     content = DescriptionField(verbose_name="Contenu", blank=False)
 
     image = StdImageField(
@@ -253,6 +262,7 @@ class Announcement(BaseAPIResource):
         variations={
             "desktop": {"width": 255, "height": 130, "crop": True},
             "mobile": {"width": 160, "height": 160, "crop": True},
+            "activity": {"width": 548, "height": 241, "crop": True},
         },
         upload_to=dynamic_filenames.FilePattern(
             filename_pattern="activity/announcements/{uuid:.2base32}/{uuid:s}{ext}"

@@ -66,6 +66,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
     link = serializers.HyperlinkedIdentityField(
         view_name="activity:announcement_link", read_only=True
     )
+    linkLabel = serializers.CharField(source="link_label")
     startDate = serializers.DateTimeField(source="start_date", read_only=True)
     endDate = serializers.DateTimeField(source="end_date", read_only=True)
     image = serializers.SerializerMethodField(read_only=True)
@@ -84,6 +85,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "link",
+            "linkLabel",
             "content",
             "image",
             "startDate",
