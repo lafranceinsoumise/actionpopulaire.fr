@@ -13,7 +13,15 @@ export const lazy = (lazyImport, fallback) => {
             return await lazyImport();
           } catch (err) {
             if (err.name !== "ChunkLoadError") {
-              throw err;
+              if (err instanceof Error) {
+                throw err;
+              }
+              const message = err?.message
+                ? err.message
+                : typeof err === "string"
+                ? err
+                : "Lazy loading failed.";
+              throw new Error(message);
             }
             setError(err.toString());
             const Fallback = () =>
