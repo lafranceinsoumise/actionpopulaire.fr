@@ -10,7 +10,7 @@ import {
 
 import routes, { BASE_PATH, routeConfig } from "./routes.config";
 import Page from "./Page";
-import NotFoundPage from "@agir/front/allPages/NotFound/NotFoundPage.js";
+import NotFoundPage from "@agir/front/allPages/NotFoundPage.js";
 
 import { useAuthentication } from "@agir/front/authentication/hooks";
 

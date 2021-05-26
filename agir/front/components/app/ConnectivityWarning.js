@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useIsOffline } from "@agir/front/allPages/NotFound/hooks";
+import { useIsOffline } from "@agir/front/allPages/offline/hooks";
 import logger from "@agir/lib/utils/logger";
 import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";

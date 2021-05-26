@@ -1,5 +1,5 @@
 import React, { lazy as reactLazy, useEffect, useMemo, useState } from "react";
-import { useIsOffline } from "@agir/front/allPages/NotFound/hooks";
+import { useIsOffline } from "@agir/front/allPages/offline/hooks";
 
 export const lazy = (lazyImport, fallback) => {
   const LazyComponent = (props) => {
