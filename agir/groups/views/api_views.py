@@ -340,6 +340,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
         return (
             self.supportgroup.messages.filter(deleted=False)
             .select_related("author", "linked_event", "linked_event__subtype")
+            .prefetch_related("comments")
             .order_by("-created")
         )
 
@@ -357,7 +358,13 @@ class GroupMessagesAPIView(ListCreateAPIView):
 
 
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = SupportGroupMessage.objects.filter(deleted=False)
+    queryset = (
+        SupportGroupMessage.objects.filter(deleted=False)
+        .select_related(
+            "supportgroup", "linked_event", "linked_event__subtype", "author"
+        )
+        .prefetch_related("comments")
+    )
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (GlobalOrObjectPermissions,)
 

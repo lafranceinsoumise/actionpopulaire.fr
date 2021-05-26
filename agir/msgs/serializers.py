@@ -2,8 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
 from agir.events.models import Event
-from agir.events.serializers import EventSerializer, EventListSerializer
-from agir.groups.serializers import SupportGroupSerializer
+from agir.events.serializers import EventListSerializer
 from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment, UserReport
 from agir.people.serializers import PersonSerializer
@@ -37,7 +36,20 @@ class LinkedEventField(serializers.RelatedField):
         if obj is None:
             return None
         return EventListSerializer(
-            obj, fields=EventSerializer.EVENT_CARD_FIELDS, context=self.context,
+            obj,
+            fields=[
+                "id",
+                "name",
+                "illustration",
+                "startTime",
+                "endTime",
+                "location",
+                "rsvp",
+                "routes",
+                "compteRendu",
+                "subtype",
+            ],
+            context=self.context,
         ).data
 
     def to_internal_value(self, pk):
@@ -69,9 +81,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "comments",
     )
 
-    group = SupportGroupSerializer(
-        read_only=True, fields=["id", "name"], source="supportgroup"
-    )
+    group = serializers.SerializerMethodField(read_only=True)
     linkedEvent = LinkedEventField(
         source="linked_event", required=False, allow_null=True,
     )
@@ -79,10 +89,18 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     commentCount = serializers.SerializerMethodField(read_only=True)
     comments = serializers.SerializerMethodField(read_only=True)
 
+    def get_group(self, obj):
+        return {
+            "id": obj.supportgroup.id,
+            "name": obj.supportgroup.name,
+        }
+
     def get_recentComments(self, obj):
-        recent_comments = obj.comments.filter(deleted=False).order_by("-created")[
-            : self.RECENT_COMMENT_LIMIT
-        ]
+        recent_comments = (
+            obj.comments.filter(deleted=False)
+            .select_related("author")
+            .order_by("-created")[: self.RECENT_COMMENT_LIMIT]
+        )
         if recent_comments is not None:
             recent_comments = MessageCommentSerializer(
                 reversed(recent_comments), context=self.context, many=True
@@ -96,7 +114,9 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
 
     def get_comments(self, obj):
         return MessageCommentSerializer(
-            obj.comments.filter(deleted=False).order_by("created"),
+            obj.comments.filter(deleted=False)
+            .select_related("author")
+            .order_by("created"),
             context=self.context,
             many=True,
         ).data
