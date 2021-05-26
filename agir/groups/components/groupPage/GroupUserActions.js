@@ -384,11 +384,15 @@ const GroupUserActions = (props) => {
   return <NonMemberActions {...props} />;
 };
 
-ManagerActions.propTypes = MemberActions.propTypes = NonMemberActions.propTypes = GroupUserActions.propTypes = {
-  isMember: PropTypes.bool,
-  isManager: PropTypes.bool,
-  is2022: PropTypes.bool,
-  routes: PropTypes.object,
-  groupSettingsLinks: PropTypes.object,
-};
+ManagerActions.propTypes =
+  MemberActions.propTypes =
+  NonMemberActions.propTypes =
+  GroupUserActions.propTypes =
+    {
+      isMember: PropTypes.bool,
+      isManager: PropTypes.bool,
+      is2022: PropTypes.bool,
+      routes: PropTypes.object,
+      groupSettingsLinks: PropTypes.object,
+    };
 export default GroupUserActions;

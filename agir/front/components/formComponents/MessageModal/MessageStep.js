@@ -128,15 +128,8 @@ const StyledWrapper = styled.div`
 `;
 
 const MessageStep = (props) => {
-  const {
-    disabled,
-    text,
-    event,
-    user,
-    onChange,
-    onClearEvent,
-    maxLength,
-  } = props;
+  const { disabled, text, event, user, onChange, onClearEvent, maxLength } =
+    props;
 
   const textFieldRef = useRef();
   const textFieldCursorPosition = useRef();

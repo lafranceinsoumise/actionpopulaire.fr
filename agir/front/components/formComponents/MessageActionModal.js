@@ -212,15 +212,8 @@ const Steps = {
 };
 
 const MessageActionModal = (props) => {
-  const {
-    action,
-    shouldShow,
-    onClose,
-    onDelete,
-    onReport,
-    isLoading,
-    error,
-  } = props;
+  const { action, shouldShow, onClose, onDelete, onReport, isLoading, error } =
+    props;
   const [step, setStep] = useState(0);
   const nextStep = useRef(0);
   const lastStep = useRef(null);

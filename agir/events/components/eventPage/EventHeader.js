@@ -108,9 +108,8 @@ const RSVPButton = (props) => {
   const { id, forUsers, hasPrice, routes } = props;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [hasSubscriptionTypeModal, setHasSubscriptionTypeModal] = useState(
-    false
-  );
+  const [hasSubscriptionTypeModal, setHasSubscriptionTypeModal] =
+    useState(false);
 
   const openSubscriptionTypeModal = useCallback(() => {
     setHasSubscriptionTypeModal(true);
@@ -195,16 +194,8 @@ const RSVPButton = (props) => {
 };
 
 const ActionButtons = (props) => {
-  const {
-    id,
-    name,
-    past,
-    rsvped,
-    logged,
-    isOrganizer,
-    routes,
-    onlineUrl,
-  } = props;
+  const { id, name, past, rsvped, logged, isOrganizer, routes, onlineUrl } =
+    props;
 
   if (past) {
     return (

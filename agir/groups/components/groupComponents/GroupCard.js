@@ -111,9 +111,10 @@ const GroupCard = ({
     [history, id]
   );
   const Svg = useMemo(() => (is2022 ? GroupIconNsp : GroupIconLfi), [is2022]);
-  const parsedDiscountCodes = useMemo(() => parseDiscountCodes(discountCodes), [
-    discountCodes,
-  ]);
+  const parsedDiscountCodes = useMemo(
+    () => parseDiscountCodes(discountCodes),
+    [discountCodes]
+  );
 
   return (
     <Card onClick={isEmbedded ? undefined : handleClick}>

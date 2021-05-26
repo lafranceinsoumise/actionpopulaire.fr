@@ -56,12 +56,8 @@ MobileInlineMenu.propTypes = DesktopInlineMenu.propTypes = {
 };
 
 export const InlineMenu = (props) => {
-  const {
-    children,
-    triggerIconName,
-    triggerSize,
-    shouldDismissOnClick,
-  } = props;
+  const { children, triggerIconName, triggerSize, shouldDismissOnClick } =
+    props;
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = React.useCallback(() => setIsOpen(true), []);

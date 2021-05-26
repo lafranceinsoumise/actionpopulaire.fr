@@ -4,9 +4,11 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
 import { renderReactComponent } from "@agir/lib/utils/react";
 import CreateGroupForm from "@agir/lib/creationForms/createGroupForm";
 
-const render = (Component) => (id, props = {}) => {
-  renderReactComponent(<Component {...props} />, document.getElementById(id));
-};
+const render =
+  (Component) =>
+  (id, props = {}) => {
+    renderReactComponent(<Component {...props} />, document.getElementById(id));
+  };
 
 const renderCreateGroupForm = render(CreateGroupForm);
 

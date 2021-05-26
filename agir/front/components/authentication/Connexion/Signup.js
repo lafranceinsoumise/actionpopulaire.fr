@@ -108,8 +108,7 @@ const SignUp = () => {
       setError({});
       if (!rgpdChecked) {
         setError({
-          rgpd:
-            "Vous devez accepter la politique de conservation des données pour continuer",
+          rgpd: "Vous devez accepter la politique de conservation des données pour continuer",
         });
         return;
       }

@@ -1,25 +1,25 @@
 {
-    "name": "Action Populaire, le réseau social d'action",
-    "short_name": "Action Populaire",
-    "start_url": "/?utm_source=web_app_manifest",
-    "display": "standalone",
-    "background_color": "#FFF",
-    "description": "Action Populaire, le réseau social d'action de la campagne de Jean-Luc Mélenchon",
-    "dir": "ltr",
-    "lang": "fr-FR",
-    "orientation": "portrait-primary",
-    "icons": [
-        {
-            "src": "/static/front/assets/android-chrome-192x192.png?v=1",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/static/front/assets/android-chrome-512x512.png?v=1",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any maskable"
-        }
-    ]
+  "name": "Action Populaire, le réseau social d'action",
+  "short_name": "Action Populaire",
+  "start_url": "/?utm_source=web_app_manifest",
+  "display": "standalone",
+  "background_color": "#FFF",
+  "description": "Action Populaire, le réseau social d'action de la campagne de Jean-Luc Mélenchon",
+  "dir": "ltr",
+  "lang": "fr-FR",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/front/assets/android-chrome-192x192.png?v=1",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/front/assets/android-chrome-512x512.png?v=1",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }

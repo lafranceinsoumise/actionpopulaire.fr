@@ -19,9 +19,8 @@ const JoinGroupButton = (props) => {
   const user = useSelector(getUser);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [hasSubscriptionTypeModal, setHasSubscriptionTypeModal] = useState(
-    false
-  );
+  const [hasSubscriptionTypeModal, setHasSubscriptionTypeModal] =
+    useState(false);
 
   const openSubscriptionTypeModal = useCallback((e) => {
     e && e.preventDefault();

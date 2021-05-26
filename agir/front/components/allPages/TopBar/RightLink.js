@@ -92,35 +92,39 @@ const RightLink = (props) => {
   return <AnonymousLink {...props} />;
 };
 
-RightLink.propTypes = AnonymousLink.propTypes = SettingsLink.propTypes = UserLink.propTypes = {
-  user: PropTypes.oneOfType([
-    PropTypes.shape({
-      image: PropTypes.string,
-      displayName: PropTypes.string,
-      isInsoumise: PropTypes.bool,
-    }),
-    PropTypes.bool,
-  ]),
-  routes: PropTypes.objectOf(
-    PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.object,
-      PropTypes.arrayOf(
+RightLink.propTypes =
+  AnonymousLink.propTypes =
+  SettingsLink.propTypes =
+  UserLink.propTypes =
+    {
+      user: PropTypes.oneOfType([
         PropTypes.shape({
-          id: PropTypes.string,
-          label: PropTypes.string,
-          href: PropTypes.string,
-        })
+          image: PropTypes.string,
+          displayName: PropTypes.string,
+          isInsoumise: PropTypes.bool,
+        }),
+        PropTypes.bool,
+      ]),
+      routes: PropTypes.objectOf(
+        PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.object,
+          PropTypes.arrayOf(
+            PropTypes.shape({
+              id: PropTypes.string,
+              label: PropTypes.string,
+              href: PropTypes.string,
+            })
+          ),
+        ])
       ),
-    ])
-  ),
-  settingsLink: PropTypes.shape({
-    to: PropTypes.string,
-    href: PropTypes.string,
-    route: PropTypes.string,
-    label: PropTypes.string,
-  }),
-};
+      settingsLink: PropTypes.shape({
+        to: PropTypes.string,
+        href: PropTypes.string,
+        route: PropTypes.string,
+        label: PropTypes.string,
+      }),
+    };
 
 RightLink.defaultProps = {
   user: null,

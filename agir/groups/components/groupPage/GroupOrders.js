@@ -34,9 +34,10 @@ const StyledCard = styled(Card)`
 const GroupOrders = (props) => {
   const { isManager, discountCodes, routes } = props;
   const orderURL = routes && routes.orders;
-  const codes = useMemo(() => parseDiscountCodes(discountCodes), [
-    discountCodes,
-  ]);
+  const codes = useMemo(
+    () => parseDiscountCodes(discountCodes),
+    [discountCodes]
+  );
 
   return isManager ? (
     <StyledCard title="Commander du matériel" outlined>

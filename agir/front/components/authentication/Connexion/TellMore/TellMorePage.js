@@ -15,9 +15,8 @@ const TellMorePage = () => {
 
   const { available, isSubscribed, subscribe, ready, errorMessage } = usePush();
 
-  const [hasCampaign, dismissCampaign] = useCustomAnnouncement(
-    "chooseCampaign"
-  );
+  const [hasCampaign, dismissCampaign] =
+    useCustomAnnouncement("chooseCampaign");
   const [hasTellMore, dismissTellMore] = useCustomAnnouncement("tellMore");
   const [
     hasDeviceNotificationSubscription,
