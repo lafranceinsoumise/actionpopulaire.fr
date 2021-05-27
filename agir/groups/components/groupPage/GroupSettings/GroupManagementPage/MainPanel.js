@@ -16,6 +16,13 @@ const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 
 const MainPanel = (props) => {
   const {
+    editManager,
+    editReferent,
+    onResetMembershipType,
+    members,
+    is2022,
+    routes,
+    isLoading,
     group,
   } = props;
 

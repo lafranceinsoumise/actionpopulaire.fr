@@ -122,6 +122,7 @@ const GroupManagementPage = (props) => {
           onResetMembershipType={resetMembershipType}
           isLoading={isLoading}
           group={group}
+          isReferent={!!group?.isReferent}
         />
       </PageFadeIn>
       {transition(
