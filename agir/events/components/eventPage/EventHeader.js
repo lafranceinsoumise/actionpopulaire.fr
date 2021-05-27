@@ -194,8 +194,17 @@ const RSVPButton = (props) => {
 };
 
 const ActionButtons = (props) => {
-  const { id, name, past, rsvped, logged, isOrganizer, routes, onlineUrl } =
-    props;
+  const {
+    id,
+    name,
+    past,
+    rsvped,
+    logged,
+    isOrganizer,
+    routes,
+    onlineUrl,
+    hasPrice,
+  } = props;
 
   if (past) {
     return (
@@ -249,7 +258,7 @@ const ActionButtons = (props) => {
             à l'évènement
           </div>
           &nbsp;&nbsp;
-          <QuitEventButton id={id} name={name} />
+          {!hasPrice && <QuitEventButton id={id} name={name} />}
         </ActionDetails>
       </>
     );
@@ -259,7 +268,10 @@ const ActionButtons = (props) => {
 };
 RSVPButton.propTypes = ActionButtons.propTypes = {
   id: PropTypes.string,
+  name: PropTypes.string,
+  onlineUrl: PropTypes.string,
   hasSubscriptionForm: PropTypes.bool,
+  hasPrice: PropTypes.bool,
   past: PropTypes.bool,
   rsvped: PropTypes.bool,
   logged: PropTypes.bool,
@@ -271,8 +283,6 @@ RSVPButton.propTypes = ActionButtons.propTypes = {
 };
 
 const AdditionalMessage = ({
-  id,
-  name,
   isOrganizer,
   logged,
   rsvped,
@@ -394,6 +404,7 @@ const EventHeader = ({
 EventHeader.propTypes = {
   id: PropTypes.string,
   name: PropTypes.string,
+  onlineUrl: PropTypes.string,
   startTime: PropTypes.instanceOf(DateTime),
   endTime: PropTypes.instanceOf(DateTime),
   schedule: PropTypes.instanceOf(Interval),
