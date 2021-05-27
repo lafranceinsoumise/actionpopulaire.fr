@@ -1,7 +1,7 @@
 import Helmet from "react-helmet";
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 import {
@@ -37,6 +37,7 @@ import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import Map from "@agir/carte/common/Map";
+import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage.js";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import useSWR from "swr";
@@ -372,10 +373,29 @@ export const ConnectedEventPage = (props) => {
   const isConnected = useSelector(getIsConnected);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const dispatch = useDispatch();
+  const [isNotFound, setIsNotFound] = useState(false);
 
-  const { data: eventData } = useSWR(
-    api.getEventEndpoint("getEvent", { eventPk })
+  const fetcher = async (url) => {
+    const res = await fetch(url);
+    if (!res.ok) {
+      let error = new Error("An error occurred while fetching the data.");
+      error.status = res.status;
+      setIsNotFound(true);
+      throw error;
+    }
+    return res.json();
+  };
+
+  const { data: eventData, error } = useSWR(
+    api.getEventEndpoint("getEvent", { eventPk }),
+    fetcher,
+    {
+      onErrorRetry: (error) => {
+        if (error.status === 404) return;
+      },
+    }
   );
+
   log.debug("Event data", eventData);
 
   let { is2022 } = eventData || {};
@@ -410,23 +430,29 @@ export const ConnectedEventPage = (props) => {
 
   return (
     <>
-      {eventData && (
-        <Helmet>
-          <title>{eventData.name} — Action Populaire</title>
-        </Helmet>
+      {isNotFound ? (
+        <NotFoundPage isTopBar={false} />
+      ) : (
+        <>
+          {eventData && (
+            <Helmet>
+              <title>{eventData.name} — Action Populaire</title>
+            </Helmet>
+          )}
+          <PageFadeIn
+            ready={isSessionLoaded && eventData}
+            wait={
+              <ResponsiveLayout
+                DesktopLayout={DesktopSkeleton}
+                MobileLayout={MobileSkeleton}
+              />
+            }
+          >
+            {eventData && <EventPage {...eventData} logged={isConnected} />}
+          </PageFadeIn>
+          <Footer />
+        </>
       )}
-      <PageFadeIn
-        ready={isSessionLoaded && eventData}
-        wait={
-          <ResponsiveLayout
-            DesktopLayout={DesktopSkeleton}
-            MobileLayout={MobileSkeleton}
-          />
-        }
-      >
-        {eventData && <EventPage {...eventData} logged={isConnected} />}
-      </PageFadeIn>
-      <Footer />
     </>
   );
 };
