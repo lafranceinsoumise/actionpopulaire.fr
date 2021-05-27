@@ -62,7 +62,6 @@ export const routeConfig = {
     Component: GroupSettingsManage,
     illustration: illustrationManage,
     isActive: (group) => group?.isReferent || group?.isManager,
-    isReferent: (group) => group?.isReferent,
     menuGroup: 1,
   },
   materiel: {
