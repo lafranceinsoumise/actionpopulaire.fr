@@ -18,21 +18,32 @@ const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 
 const MainPanel = (props) => {
   const {
-    editManager,
-    editReferent,
-    onResetMembershipType,
-    members,
+    group,
     is2022,
     routes,
+    editManager,
+    editReferent,
     isLoading,
-    group,
+    onResetMembershipType,
+    members,
   } = props;
 
-  const withGroupWord = useGroupWord({ is2022 });
+  return routeConfig.manage.isReferent(group) ? (
+    <ReferentMainPanel {...props} />
+  ) : (
+    <ManagerMainPanel {...props} />
+  );
+};
+
+const ReferentMainPanel = (props) => {
+  const { is2022, routes, editManager, editReferent, isLoading, onResetMembershipType, members, } = props;
   const referents = useMemo(
     () => members.filter((member) => member.membershipType === REFERENT),
     [members]
   );
+
+  const withGroupWord = useGroupWord({ is2022 });
+
   const managers = useMemo(
     () =>
       members
@@ -44,7 +55,7 @@ const MainPanel = (props) => {
     [members, onResetMembershipType]
   );
 
-  const referentMainPanel = (
+  return (
     <>
       <StyledTitle>Animateurs et animatrices</StyledTitle>
       <span style={{ color: style.black700 }}>
@@ -148,13 +159,16 @@ const MainPanel = (props) => {
       )}
     </>
   );
+};
 
-  const managerMainPanel = (
+const ManagerMainPanel = (props) => {
+  const { group } = props;
+
+  return (
     <>
       <StyledTitle>Gestion et animation</StyledTitle>
       <span>
-        Vous êtes gestionnaires du groupe{" "}
-        <strong>{group.name}</strong>.
+        Vous êtes gestionnaires du groupe <strong>{group.name}</strong>.
       </span>
 
       <>
@@ -185,10 +199,6 @@ const MainPanel = (props) => {
       </>
     </>
   );
-
-  return routeConfig.manage.isReferent(group)
-    ? referentMainPanel
-    : managerMainPanel;
 };
 
 MainPanel.propTypes = {
