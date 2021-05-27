@@ -80,13 +80,13 @@ export const NotFoundPage = ({ isTopBar = true }) => {
 
   if (isOffline === null) return null;
 
-  let [genericLocation, subtitleLocation] = ["Page", "Cette page"];
+  let [titleLocation, subtitleLocation] = ["Page", "Cette page"];
   if (window.location.pathname.includes("groupe")) {
-    genericLocation = "Groupe";
+    titleLocation = "Groupe";
     subtitleLocation = "Ce groupe";
   }
   if (window.location.pathname.includes("evenement")) {
-    genericLocation = "Événement";
+    titleLocation = "Événement";
     subtitleLocation = "Cet événement";
   }
 
@@ -113,7 +113,7 @@ export const NotFoundPage = ({ isTopBar = true }) => {
           <>
             <InterrogationMark>?</InterrogationMark>
             <h1 style={{ textAlign: "center", fontSize: "26px" }}>
-              {genericLocation + " "}introuvable
+              {titleLocation + " "}introuvable
             </h1>
             <span>{subtitleLocation + " "}n’existe pas ou plus</span>
             <StyledButton color="primary" block as="Link" route="events">
