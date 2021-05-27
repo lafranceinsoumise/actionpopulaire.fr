@@ -159,8 +159,8 @@ export const ManagerMainPanel = (props) => {
           Votre rôle et d’aider les animateur·ices à faire vivre votre groupe
           sur Action Populaire.
           <Spacer size="0.5rem" />
-          En tant que gestionnaire, vous avez accès à la liste des membres,
-          pouvez modifier les informations du groupe, et créez des événements du
+          En tant que gestionnaire, vous avez accès à la liste des membres. Vous
+          Vous pouvez modifier les informations du groupe, et créer des événements du
           du groupe.
         </span>
       </>
