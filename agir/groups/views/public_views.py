@@ -13,6 +13,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.translation import ugettext as _
+from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, DeleteView, ListView
 
 from agir.authentication.view_mixins import (
@@ -68,6 +69,7 @@ class SupportGroupIcsView(DetailView):
         return HttpResponse(calendar, content_type="text/calendar")
 
 
+@method_decorator(never_cache, name="get")
 class QuitSupportGroupView(
     HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, DeleteView
 ):

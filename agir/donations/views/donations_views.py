@@ -4,7 +4,9 @@ from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView, FormView
 from functools import partial
 
@@ -133,6 +135,7 @@ class AllocationPersonalInformationMixin:
         return context_data
 
 
+@method_decorator(never_cache, name="get")
 class DonationPersonalInformationView(
     AllocationPersonalInformationMixin, BasePersonalInformationView
 ):
@@ -272,6 +275,7 @@ class MonthlyDonationEmailSentView(TemplateView):
     template_name = "donations/monthly_donation_confirmation_email_sent.html"
 
 
+@method_decorator(never_cache, name="get")
 class AlreadyHasSubscriptionView(FormView):
     template_name = "donations/already_has_subscription.html"
     form_class = AlreadyHasSubscriptionForm
@@ -353,6 +357,7 @@ class AlreadyHasSubscriptionView(FormView):
         return HttpResponseRedirect(reverse("view_payments"))
 
 
+@method_decorator(never_cache, name="get")
 class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
     session_namespace = DONATION_SESSION_NAMESPACE
     payment_mode = payment_modes.DEFAULT_MODE

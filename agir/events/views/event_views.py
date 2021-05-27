@@ -12,9 +12,11 @@ from django.template import loader
 from django.template.backends.django import DjangoTemplates
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.translation import ugettext as _, ngettext
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.generic import (
     CreateView,
     UpdateView,
@@ -173,6 +175,7 @@ class EventParticipationView(
         return context_data
 
 
+@method_decorator(never_cache, name="get")
 class QuitEventView(
     SoftLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, DeleteView
 ):
@@ -220,6 +223,7 @@ class QuitEventView(
         return res
 
 
+@method_decorator(never_cache, name="get")
 class UploadEventImageView(
     SoftLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, CreateView
 ):
@@ -326,6 +330,7 @@ class BaseEventAdminView(
     queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
 
 
+@method_decorator(never_cache, name="get")
 class ManageEventView(BaseEventAdminView, DetailView):
     template_name = "events/manage.html"
 
@@ -384,6 +389,7 @@ class ManageEventView(BaseEventAdminView, DetailView):
         return self.render_to_response(self.get_context_data(add_organizer_form=form))
 
 
+@method_decorator(never_cache, name="get")
 class ModifyEventView(ImageSizeWarningMixin, BaseEventAdminView, UpdateView):
     template_name = "events/modify.html"
     form_class = EventForm
@@ -421,6 +427,7 @@ class ModifyEventView(ImageSizeWarningMixin, BaseEventAdminView, UpdateView):
         return res
 
 
+@method_decorator(never_cache, name="get")
 class CancelEventView(BaseEventAdminView, DetailView):
     template_name = "events/cancel.html"
     success_url = reverse_lazy("list_events")
@@ -445,6 +452,7 @@ class CancelEventView(BaseEventAdminView, DetailView):
         return HttpResponseRedirect(self.success_url)
 
 
+@method_decorator(never_cache, name="get")
 class ChangeEventLocationView(
     BaseEventAdminView, ChangeLocationBaseView,
 ):
@@ -456,6 +464,7 @@ class ChangeEventLocationView(
         return Event.objects.upcoming(as_of=timezone.now(), published_only=False)
 
 
+@method_decorator(never_cache, name="get")
 class EditEventReportView(
     BaseEventAdminView, ImageSizeWarningMixin, UpdateView,
 ):
@@ -493,6 +502,7 @@ class SendEventReportView(
         return HttpResponseRedirect(reverse("manage_event", kwargs={"pk": pk}))
 
 
+@method_decorator(never_cache, name="get")
 class EditEventLegalView(BaseEventAdminView, UpdateView):
     template_name = "events/edit_legal.html"
     form_class = EventLegalForm

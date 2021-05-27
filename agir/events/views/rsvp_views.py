@@ -8,8 +8,10 @@ from django.http import (
     HttpResponseForbidden,
 )
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.cache import never_cache
 from django.views.generic import UpdateView, DetailView, RedirectView, FormView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
@@ -129,6 +131,7 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
 
         return super().get_context_data(**kwargs)
 
+    @never_cache
     def get(self, request, *args, **kwargs):
         self.event = self.object = self.get_object()
         if self.event.subscription_form is None and self.event.is_free:
@@ -277,6 +280,7 @@ class ChangeRSVPPaymentView(SoftLoginRequiredMixin, DetailView):
             )
         )
 
+    @never_cache
     def get(self, *args, **kwargs):
         rsvp = self.get_object()
         if rsvp.form_submission:
@@ -289,6 +293,7 @@ class ChangeRSVPPaymentView(SoftLoginRequiredMixin, DetailView):
         return HttpResponseRedirect(reverse("pay_event"))
 
 
+@method_decorator(never_cache, name="get")
 class PayEventView(SoftLoginRequiredMixin, UpdateView):
     """View for the billing form for paid events
 

@@ -3,8 +3,10 @@ from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView, DetailView, UpdateView, CreateView
 from django.views.generic.detail import SingleObjectMixin
 
@@ -38,6 +40,7 @@ __all__ = (
 )
 
 
+@method_decorator(never_cache, name="get")
 class CreateSpendingRequestView(
     HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, TemplateView
 ):
@@ -115,6 +118,7 @@ class CreateSpendingRequestView(
         return super().get_context_data(**kwargs)
 
 
+@method_decorator(never_cache, name="get")
 class ManageSpendingRequestView(
     HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, DetailView
 ):
@@ -152,6 +156,7 @@ class ManageSpendingRequestView(
         )
 
 
+@method_decorator(never_cache, name="get")
 class EditSpendingRequestView(
     HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, UpdateView
 ):
@@ -192,6 +197,7 @@ class EditSpendingRequestView(
         return super().get_context_data(supportgroup=self.object.group, **kwargs,)
 
 
+@method_decorator(never_cache, name="get")
 class CreateDocumentView(
     HardLoginRequiredMixin, GlobalOrObjectPermissionRequiredMixin, CreateView
 ):
@@ -244,6 +250,7 @@ class AccessDocumentMixin(
         return self.spending_request
 
 
+@method_decorator(never_cache, name="get")
 class EditDocumentView(AccessDocumentMixin, UpdateView):
     model = Document
     queryset = Document.objects.filter(deleted=False)

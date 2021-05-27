@@ -7,9 +7,11 @@ from django.db.models import Case, When, Q, F, Value, CharField
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
 from django.utils.http import urlquote
 from django.utils.translation import ugettext as _
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.generic import UpdateView, DeleteView, FormView, TemplateView
 
 from agir.authentication.tokens import add_email_confirmation_token_generator
@@ -137,6 +139,7 @@ class RedirectAlreadyValidatedPeopleMixin(View):
         return super().dispatch(request, *args, **kwargs)
 
 
+@method_decorator(never_cache, name="get")
 class SendValidationSMSView(
     SoftLoginRequiredMixin,
     RedirectAlreadyValidatedPeopleMixin,
@@ -170,6 +173,7 @@ class SendValidationSMSView(
         return super().form_valid(form)
 
 
+@method_decorator(never_cache, name="get")
 class CodeValidationView(
     SoftLoginRequiredMixin,
     RedirectAlreadyValidatedPeopleMixin,
@@ -215,6 +219,7 @@ class CodeValidationView(
         return super().form_valid(form)
 
 
+@method_decorator(never_cache, name="get")
 class MandatsView(SoftLoginRequiredMixin, UpdateView):
     template_name = "people/profile/mandats.html"
     form_class = MembreReseauElusForm

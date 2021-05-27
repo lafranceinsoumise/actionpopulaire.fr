@@ -1,4 +1,5 @@
 import uuid
+
 from django.contrib import messages
 from django.db.models import F
 from django.middleware.csrf import get_token
@@ -14,7 +15,6 @@ from agir.authentication.utils import (
     get_bookmarked_emails,
 )
 from agir.groups.models import SupportGroup
-from agir.front.serializer_utils import MediaURLField
 from agir.lib.utils import front_url
 
 

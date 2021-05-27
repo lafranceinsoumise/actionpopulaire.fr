@@ -7,7 +7,9 @@ from django.http import Http404
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.html import escape
+from django.views.decorators.cache import never_cache
 from django.views.generic import UpdateView, DetailView
 from django.views.generic.list import ListView
 
@@ -98,6 +100,7 @@ class BasePeopleFormView(UpdateView):
         return r
 
 
+@method_decorator(never_cache, name="get")
 class PeopleFormNewSubmissionView(BasePeopleFormView):
     def dispatch(self, *args, **kwargs):
         event = Event.objects.filter(
@@ -126,6 +129,7 @@ class PeopleFormNewSubmissionView(BasePeopleFormView):
         return super().dispatch(*args, **kwargs)
 
 
+@method_decorator(never_cache, name="get")
 class PeopleFormEditSubmissionView(BasePeopleFormView):
     def get_form_kwargs(self):
         if not self.person_form_instance.editable:
