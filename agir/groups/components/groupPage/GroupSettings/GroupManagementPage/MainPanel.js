@@ -163,12 +163,14 @@ const ReferentMainPanel = (props) => {
 
 const ManagerMainPanel = (props) => {
   const { group } = props;
+  const withGroupWord = useGroupWord(group);
 
   return (
     <>
       <StyledTitle>Gestion et animation</StyledTitle>
       <span>
-        Vous êtes gestionnaires du groupe <strong>{group.name}</strong>.
+        {withGroupWord`Vous êtes gestionnaires du groupe `}
+        <strong>{group.name}</strong>.
       </span>
 
       <>
