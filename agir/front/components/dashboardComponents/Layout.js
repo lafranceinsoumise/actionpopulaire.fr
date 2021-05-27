@@ -7,12 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import Announcements from "@agir/front/dashboardComponents/Announcements";
 import Button from "@agir/front/genericComponents/Button";
-import {
-  Column,
-  Container,
-  Row,
-  useResponsiveMemo,
-} from "@agir/front/genericComponents/grid";
+import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import Footer from "@agir/front/dashboardComponents/Footer";
 import Navigation, {
   SecondaryNavigation,
@@ -56,21 +51,6 @@ const FixedColumn = styled(Column)`
     position: sticky;
     top: 72px;
     padding-top: 72px;
-  }
-`;
-
-const Banner = styled.div`
-  width: 100%;
-  padding: 1rem 0 0;
-  background-color: ${({ smallBackgroundColor }) =>
-    smallBackgroundColor || "transparent"};
-
-  &:empty {
-    display: none;
-  }
-
-  @media (min-width: ${style.collapse}px) {
-    display: none;
   }
 `;
 
@@ -166,14 +146,8 @@ const FacebookLoginAd = () => {
 };
 
 const Layout = (props) => {
-  const announcementDisplayType = useResponsiveMemo("banner", "sidebar");
   return (
     <>
-      {props.hasBanner && announcementDisplayType === "banner" ? (
-        <Banner {...props}>
-          <Announcements displayType="banner" />
-        </Banner>
-      ) : null}
       <MainContainer {...props}>
         <Row gutter={50} align="flex-start">
           <FixedColumn width="320px">
@@ -192,9 +166,7 @@ const Layout = (props) => {
           </MainColumn>
           <SidebarColumn>
             <FacebookLoginAd />
-            {announcementDisplayType === "sidebar" && (
-              <Announcements displayType="sidebar" />
-            )}
+            <Announcements displayType="sidebar" />
             <SecondaryNavigation />
           </SidebarColumn>
         </Row>
