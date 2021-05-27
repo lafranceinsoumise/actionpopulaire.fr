@@ -160,7 +160,7 @@ export const ManagerMainPanel = (props) => {
           sur Action Populaire.
           <Spacer size="0.5rem" />
           En tant que gestionnaire, vous avez accès à la liste des membres. Vous
-          Vous pouvez modifier les informations du groupe, et créer des événements du
+          pouvez modifier les informations du groupe, et créer des événements du
           du groupe.
         </span>
       </>
