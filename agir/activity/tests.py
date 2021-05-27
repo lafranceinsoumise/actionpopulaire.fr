@@ -126,6 +126,45 @@ class AnnouncementTestCase(TestCase):
         announcements = get_announcements(self.nsp)
         self.assertCountEqual(announcements, [])
 
+    def test_activity_is_created_if_none_exists_for_authenticated_person(self):
+        announcement = Announcement.objects.create(
+            title="1ère annonce", link="https://lafranceinsoumise.fr", content="SUPER",
+        )
+        self.assertFalse(
+            Activity.objects.filter(
+                announcement=announcement, recipient=self.insoumise
+            ).exists()
+        )
+        get_announcements(self.insoumise)
+        self.assertTrue(
+            Activity.objects.filter(
+                announcement=announcement, recipient=self.insoumise
+            ).exists()
+        )
+
+    def test_activity_is_not_created_if_one_exists_for_the_authenticated_person(self):
+        announcement = Announcement.objects.create(
+            title="1ère annonce", link="https://lafranceinsoumise.fr", content="SUPER",
+        )
+        Activity.objects.create(
+            announcement=announcement,
+            recipient=self.insoumise,
+            type=Activity.TYPE_ANNOUNCEMENT,
+        )
+        self.assertEqual(
+            Activity.objects.filter(
+                announcement=announcement, recipient=self.insoumise
+            ).count(),
+            1,
+        )
+        get_announcements(self.insoumise)
+        self.assertEqual(
+            Activity.objects.filter(
+                announcement=announcement, recipient=self.insoumise
+            ).count(),
+            1,
+        )
+
 
 class ActivityStatusUpdateViewTestCase(TestCase):
     def setUp(self) -> None:
@@ -209,3 +248,115 @@ class ActivityStatusUpdateViewTestCase(TestCase):
             Activity.STATUS_INTERACTED,
             "le champ `status' n'aurait pas dû changer !",
         )
+
+
+class AnnouncementAPITestCase(TestCase):
+    def setUp(self) -> None:
+        self.person = Person.objects.create_insoumise(email="a@a.a", create_role=True)
+        self.non_custom_announcement = Announcement.objects.create(
+            title="Non Custom Announcement",
+            link="https://lafranceinsoumise.fr",
+            content="SUPER",
+            custom_display="",
+        )
+        self.custom_announcement = Announcement.objects.create(
+            title="Custom Announcement",
+            link="https://lafranceinsoumise.fr",
+            content="SUPER",
+            custom_display="custom",
+        )
+
+    def test_unauthenticated_user_get_only_non_custom_announcements(self):
+        self.client.logout()
+        response = self.client.get("/api/announcements/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], str(self.non_custom_announcement.id))
+        self.assertIsNone(response.data[0]["activityId"])
+
+    def test_authenticated_user_get_only_non_custom_announcements(self):
+        self.client.force_login(self.person.role)
+        response = self.client.get("/api/announcements/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], str(self.non_custom_announcement.id))
+        self.assertIsNotNone(response.data[0]["activityId"])
+
+    def test_announcement_activity_is_automatically_set_as_displayed_for_authenticated_user(
+        self,
+    ):
+        self.client.force_login(self.person.role)
+        activity = Activity.objects.create(
+            recipient=self.person,
+            announcement=self.non_custom_announcement,
+            type=Activity.TYPE_ANNOUNCEMENT,
+            status=Activity.STATUS_UNDISPLAYED,
+        )
+        response = self.client.get("/api/announcements/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], str(self.non_custom_announcement.id))
+        self.assertEqual(activity.pk, response.data[0]["activityId"])
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, Activity.STATUS_DISPLAYED)
+
+
+class UserCustomAnnouncementAPITestCase(TestCase):
+    def setUp(self) -> None:
+        self.person = Person.objects.create_insoumise(email="a@a.a", create_role=True)
+        self.custom_announcement = Announcement.objects.create(
+            title="Custom Announcement",
+            link="https://lafranceinsoumise.fr",
+            content="SUPER",
+            custom_display="custom",
+        )
+
+    def test_unauthenticated_user_cannot_get_custom_announcements(self):
+        self.client.logout()
+        response = self.client.get(
+            f"/api/user/announcements/custom/{self.custom_announcement.custom_display}/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_user_can_get_a_custom_announcement(self):
+        self.client.force_login(self.person.role)
+        response = self.client.get(
+            f"/api/user/announcements/custom/{self.custom_announcement.custom_display}/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], str(self.custom_announcement.id))
+        self.assertIsNotNone(response.data["activityId"])
+
+    def test_announcement_activity_is_automatically_set_as_displayed_for_authenticated_user(
+        self,
+    ):
+        self.client.force_login(self.person.role)
+        activity = Activity.objects.create(
+            recipient=self.person,
+            announcement=self.custom_announcement,
+            type=Activity.TYPE_ANNOUNCEMENT,
+            status=Activity.STATUS_UNDISPLAYED,
+        )
+        response = self.client.get(
+            f"/api/user/announcements/custom/{self.custom_announcement.custom_display}/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], str(self.custom_announcement.id))
+        self.assertEqual(activity.pk, response.data["activityId"])
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, Activity.STATUS_DISPLAYED)
+
+    def test_authenticated_user_can_get_a_custom_announcement_if_activity_status_is_interacted(
+        self,
+    ):
+        self.client.force_login(self.person.role)
+        Activity.objects.create(
+            recipient=self.person,
+            announcement=self.custom_announcement,
+            type=Activity.TYPE_ANNOUNCEMENT,
+            status=Activity.STATUS_INTERACTED,
+        )
+        response = self.client.get(
+            f"/api/user/announcements/custom/{self.custom_announcement.custom_display}/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
