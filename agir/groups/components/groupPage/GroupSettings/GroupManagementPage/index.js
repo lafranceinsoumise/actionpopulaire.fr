@@ -124,7 +124,7 @@ const GroupManagementPage = (props) => {
             isLoading={isLoading}
           />
         ) : (
-          <ManagerMainPanel is2022={is2022} />
+          <ManagerMainPanel is2022={is2022} group={group} />
         )}
       </PageFadeIn>
       {transition(

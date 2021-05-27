@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -14,26 +13,7 @@ import { useGroupWord } from "@agir/groups/utils/group";
 
 const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 
-const MainPanel = (props) => {
-  const {
-    editManager,
-    editReferent,
-    onResetMembershipType,
-    members,
-    is2022,
-    routes,
-    isLoading,
-    group,
-  } = props;
-
-  return group?.isReferent ? (
-    <ReferentMainPanel {...props} />
-  ) : (
-    <ManagerMainPanel {...props} />
-  );
-};
-
-const ReferentMainPanel = (props) => {
+export const ReferentMainPanel = (props) => {
   const { is2022, routes, editManager, editReferent, isLoading, onResetMembershipType, members, } = props;
   const referents = useMemo(
     () => members.filter((member) => member.membershipType === REFERENT),
@@ -159,7 +139,7 @@ const ReferentMainPanel = (props) => {
   );
 };
 
-const ManagerMainPanel = (props) => {
+export const ManagerMainPanel = (props) => {
   const { group } = props;
   const withGroupWord = useGroupWord(group);
 
@@ -200,20 +180,3 @@ const ManagerMainPanel = (props) => {
     </>
   );
 };
-
-MainPanel.propTypes = {
-  members: PropTypes.arrayOf(PropTypes.object),
-  editManager: PropTypes.func,
-  editReferent: PropTypes.func,
-  onResetMembershipType: PropTypes.func,
-  is2022: PropTypes.bool,
-  routes: PropTypes.shape({
-    certificationRequest: PropTypes.string,
-    animationChangeRequest: PropTypes.string,
-    referentResignmentRequest: PropTypes.string,
-    deleteGroup: PropTypes.string,
-  }),
-  isLoading: PropTypes.bool,
-};
-
-export default MainPanel;
