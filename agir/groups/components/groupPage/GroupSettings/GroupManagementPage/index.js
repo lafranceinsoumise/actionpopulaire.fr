@@ -5,7 +5,7 @@ import styled from "styled-components";
 import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import MainPanel from "./MainPanel";
+import { ManagerMainPanel, ReferentMainPanel } from "./MainPanel";
 import EditionPanel from "./EditionPanel";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
@@ -111,19 +111,21 @@ const GroupManagementPage = (props) => {
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <PageFadeIn ready={Array.isArray(members)} wait={<Skeleton />}>
-        <MainPanel
-          onBack={onBack}
-          editManager={editManager}
-          editReferent={editReferent}
-          illustration={illustration}
-          members={members || []}
-          is2022={is2022}
-          routes={group?.routes}
-          onResetMembershipType={resetMembershipType}
-          isLoading={isLoading}
-          group={group}
-          isReferent={!!group?.isReferent}
-        />
+        {group?.isReferent ? (
+          <ReferentMainPanel
+            onBack={onBack}
+            editManager={editManager}
+            editReferent={editReferent}
+            illustration={illustration}
+            members={members || []}
+            is2022={is2022}
+            routes={group?.routes}
+            onResetMembershipType={resetMembershipType}
+            isLoading={isLoading}
+          />
+        ) : (
+          <ManagerMainPanel is2022={is2022} />
+        )}
       </PageFadeIn>
       {transition(
         (style, item) =>
