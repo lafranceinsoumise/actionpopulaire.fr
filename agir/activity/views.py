@@ -84,7 +84,11 @@ class UserCustomAnnouncementAPIView(RetrieveAPIView):
         return announcement
 
     def get_queryset(self):
-        return get_custom_announcements(self.request.user.person)
+        return (
+            get_custom_announcements(self.request.user.person)
+            .order_by("custom_display", "-priority", "-start_date", "end_date")
+            .distinct("custom_display")
+        )
 
 
 class AnnouncementLinkView(DetailView):
