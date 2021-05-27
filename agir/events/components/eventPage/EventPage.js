@@ -391,7 +391,7 @@ export const ConnectedEventPage = (props) => {
     fetcher,
     {
       onErrorRetry: (error) => {
-        if (error.status === 404) return;
+        if ([404, 410, 403].includes(error.status)) return;
       },
     }
   );
@@ -428,8 +428,14 @@ export const ConnectedEventPage = (props) => {
     }
   }, [eventData, dispatch]);
 
-  if (error?.status === 404 || error?.status === 410)
-    return <NotFoundPage isTopBar={false} />;
+  if ([404, 410].includes(error?.status))
+    return (
+      <NotFoundPage
+        isTopBar={false}
+        title="Événement"
+        subtitle="Cet événement"
+      />
+    );
 
   return (
     <>

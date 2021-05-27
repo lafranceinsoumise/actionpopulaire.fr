@@ -23,7 +23,7 @@ export const GroupPage = (props) => {
       }
     >
       {group === false ? (
-        <NotFoundPage isTopBar={false} />
+        <NotFoundPage isTopBar={false} title="Groupe" subtitle="Ce groupe" />
       ) : (
         <ResponsiveLayout
           {...props}

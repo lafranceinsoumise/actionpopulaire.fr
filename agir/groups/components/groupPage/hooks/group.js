@@ -22,13 +22,13 @@ export const useGroup = (groupPk) => {
     fetcher,
     {
       onErrorRetry: (error) => {
-        if (error.status === 404) return;
+        if ([404, 410, 403].includes(error.status)) return;
       },
     }
   );
   log.debug("Group data", data);
 
-  if (error?.status === 404 || error?.status === 410) return false;
+  if ([404, 410].includes(error?.status)) return false;
   return data;
 };
 

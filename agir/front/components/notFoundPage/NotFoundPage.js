@@ -64,7 +64,11 @@ const OfflineBlock = styled.div`
 `;
 
 // Most of the time, if we are in the app on unknow URL, it is because of service worker no network handling
-export const NotFoundPage = ({ isTopBar = true }) => {
+export const NotFoundPage = ({
+  isTopBar = true,
+  title = "Page",
+  subtitle = "Cette page",
+}) => {
   const isOffline = useIsOffline();
 
   // We try to reload every 5 second
@@ -79,17 +83,6 @@ export const NotFoundPage = ({ isTopBar = true }) => {
   }, [isOffline]);
 
   if (isOffline === null) return null;
-
-  let title = "Page",
-    subtitle = "Cette page";
-  if (window.location.pathname.includes("groupe")) {
-    title = "Groupe";
-    subtitle = "Ce groupe";
-  }
-  if (window.location.pathname.includes("evenement")) {
-    title = "Événement";
-    subtitle = "Cet événement";
-  }
 
   return (
     <PageStyle>
