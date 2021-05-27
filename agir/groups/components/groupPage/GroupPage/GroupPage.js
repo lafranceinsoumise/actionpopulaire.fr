@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useEffect } from "react";
+import React from "react";
 
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
