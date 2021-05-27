@@ -3,8 +3,10 @@ from django.db import IntegrityError, transaction
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.generic import FormView
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
@@ -21,6 +23,7 @@ from agir.people.forms import AnonymousUnsubscribeForm
 from agir.people.models import Person
 
 
+@method_decorator(never_cache, name="get")
 class UnsubscribeView(SimpleOpengraphMixin, FormView):
     template_name = "people/unsubscribe.html"
     success_url = reverse_lazy("unsubscribe_success")
@@ -73,6 +76,7 @@ class ConfirmSubscriptionView(View):
     show_already_created_message = True
     default_type = SUBSCRIPTION_TYPE_LFI
 
+    @never_cache
     def get(self, request, *args, **kwargs):
         params = request.GET.dict()
 

@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.http import Http404, HttpResponseServerError
 from django.shortcuts import redirect, get_object_or_404
 from django.template.response import TemplateResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
@@ -17,6 +19,7 @@ def payment_view(request,):
     pass
 
 
+@method_decorator(never_cache, name="get")
 class PaymentView(DetailView):
     queryset = Payment.objects.filter(status=Payment.STATUS_WAITING)
 
@@ -30,6 +33,7 @@ class PaymentView(DetailView):
         return payment_mode.payment_view(request, payment=self.object, *args, **kwargs)
 
 
+@method_decorator(never_cache, name="get")
 class RetryPaymentView(DetailView):
     def get_queryset(self):
         return Payment.objects.filter(
@@ -54,6 +58,7 @@ class RetryPaymentView(DetailView):
         )
 
 
+@method_decorator(never_cache, name="get")
 class SubscriptionView(DetailView):
     queryset = Subscription.objects.filter(
         status__in=(Subscription.STATUS_WAITING, Subscription.STATUS_ACTIVE)
@@ -71,6 +76,7 @@ class SubscriptionView(DetailView):
         )
 
 
+@method_decorator(never_cache, name="get")
 class TerminateSubscriptionView(HardLoginRequiredMixin, DetailView):
     template_name = "payments/subscription_terminate.html"
 
@@ -92,6 +98,7 @@ class TerminateSubscriptionView(HardLoginRequiredMixin, DetailView):
         return redirect("view_payments")
 
 
+@never_cache
 def payment_return_view(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
 
@@ -101,6 +108,7 @@ def payment_return_view(request, pk):
         return TemplateResponse(request, "payments/default_success_page.html")
 
 
+@never_cache
 def subscription_return_view(request, pk):
     subscription = get_object_or_404(Subscription, pk=pk)
 

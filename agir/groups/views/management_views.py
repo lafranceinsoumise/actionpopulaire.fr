@@ -8,9 +8,11 @@ from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.translation import ugettext as _
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.generic import (
     DetailView,
     TemplateView,
@@ -218,6 +220,7 @@ class PerformCreateSupportGroupView(HardLoginRequiredMixin, FormMixin, ProcessFo
         )
 
 
+@method_decorator(never_cache, name="get")
 class TransferSupportGroupMembersView(
     BaseSupportGroupAdminView, SingleObjectMixin, FormView
 ):

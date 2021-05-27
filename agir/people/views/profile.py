@@ -6,7 +6,9 @@ from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.generic import UpdateView, TemplateView, FormView, RedirectView
 from django.views.generic.edit import DeleteView
 
@@ -43,6 +45,7 @@ class ProfileViewMixin(SoftLoginRequiredMixin):
         return super().get_context_data(tab_code=self.tab_code, **kwargs)
 
 
+@method_decorator(never_cache, name="get")
 class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
     template_name = "people/profile/delete_account.html"
 
@@ -65,6 +68,7 @@ class DeleteAccountView(HardLoginRequiredMixin, DeleteView):
         return response
 
 
+@method_decorator(never_cache, name="get")
 class PersonalInformationsView(ProfileViewMixin, UpdateView):
     template_name = "people/profile/profile_default.html"
     form_class = PersonalInformationsForm
@@ -76,6 +80,7 @@ class PersonalInformationsView(ProfileViewMixin, UpdateView):
         return self.request.user.person
 
 
+@method_decorator(never_cache, name="get")
 class ContactView(SoftLoginRequiredMixin, UpdateView):
     template_name = "people/profile/information_contact.html"
     form_class = ContactForm
@@ -108,6 +113,7 @@ class ContactView(SoftLoginRequiredMixin, UpdateView):
         return res
 
 
+@method_decorator(never_cache, name="get")
 class AddEmailMergeAccountView(SoftLoginRequiredMixin, FormView):
     template_name = "people/profile/account_management.html"
     form_class = AddEmailMergeAccountForm
@@ -155,6 +161,7 @@ class ConfirmMergeAccountView(View):
             context={"message": self.error_messages[key_error]},
         )
 
+    @never_cache
     def get(self, request, **kwargs):
         pk_requester = request.GET.get("pk_requester")
         pk_merge = request.GET.get("pk_merge")
@@ -203,6 +210,7 @@ class SendConfirmationMergeAccountView(HardLoginRequiredMixin, TemplateView):
     template_merge = "people/confirmation_change_mail_merge_account_sent.html"
     template_name = "people/profile/confirmation_change_mail_merge_account_sent.html"
 
+    @never_cache
     def get(self, request, *args, **kwargs):
         self.email = request.GET.get("email")
         self.is_merging = True if request.GET.get("is_merging") == "True" else False
@@ -220,6 +228,7 @@ class SendConfirmationMergeAccountView(HardLoginRequiredMixin, TemplateView):
 class ChangePrimaryEmailView(SoftLoginRequiredMixin, RedirectView):
     url = reverse_lazy("contact")
 
+    @never_cache
     def get(self, request, *args, **kwargs):
         self.person = request.user.person
         email = PersonEmail.objects.get(pk=self.kwargs["pk"])
@@ -230,6 +239,7 @@ class ChangePrimaryEmailView(SoftLoginRequiredMixin, RedirectView):
         return super().get(request, *args, **kwargs)
 
 
+@method_decorator(never_cache, name="get")
 class SkillsView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
     template_name = "people/profile/profile_default.html"
     form_class = ActivityAndSkillsForm
@@ -241,6 +251,7 @@ class SkillsView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
         return self.request.user.person
 
 
+@method_decorator(never_cache, name="get")
 class PersonalDataView(ProfileViewMixin, FormView):
     template_name = "people/profile/profile_default.html"
     form_class = InformationConfidentialityForm
@@ -252,6 +263,7 @@ class PersonalDataView(ProfileViewMixin, FormView):
         return self.request.user.person
 
 
+@method_decorator(never_cache, name="get")
 class VolunteerView(ProfileViewMixin, InsoumiseOnlyMixin, UpdateView):
     template_name = "people/profile/volunteer.html"
     form_class = VolunteerForm
@@ -270,6 +282,7 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
     session_namespace = DONATION_SESSION_NAMESPACE
     success_url = reverse_lazy("monthly_donation_information")
 
+    @never_cache
     def get(self, request, *args, **kwargs):
         self.subscriptions = self.get_subscriptions()
         return super().get(request, *args, **kwargs)
