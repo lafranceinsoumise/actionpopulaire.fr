@@ -12,6 +12,8 @@ import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponen
 
 import { useGroupWord } from "@agir/groups/utils/group";
 
+import { routeConfig } from "../routes.config";
+
 const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 
 const MainPanel = (props) => {
@@ -184,7 +186,9 @@ const MainPanel = (props) => {
     </>
   );
 
-  return managerMainPanel;
+  return routeConfig.manage.isReferent(group)
+    ? referentMainPanel
+    : managerMainPanel;
 };
 
 MainPanel.propTypes = {
