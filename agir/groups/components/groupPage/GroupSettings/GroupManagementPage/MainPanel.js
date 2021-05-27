@@ -153,7 +153,7 @@ const MainPanel = (props) => {
     <>
       <StyledTitle>Gestion et animation</StyledTitle>
       <span>
-        Vous avez été désigné comme l’un des gestionnaires du groupe{" "}
+        Vous êtes gestionnaires du groupe{" "}
         <strong>{group.name}</strong>.
       </span>
 
