@@ -2,6 +2,8 @@ import reversion
 from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
 from django.db.models import F
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse_lazy, reverse
 from django.core.validators import validate_email
@@ -357,6 +359,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
             new_message_notifications(message)
 
 
+@method_decorator(never_cache, name="get")
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
     queryset = (
         SupportGroupMessage.objects.filter(deleted=False)
