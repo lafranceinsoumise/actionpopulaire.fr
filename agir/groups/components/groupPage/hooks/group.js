@@ -28,7 +28,7 @@ export const useGroup = (groupPk) => {
   );
   log.debug("Group data", data);
 
-  if (error?.status === 404) return false;
+  if (error?.status === 404 || error?.status === 410) return false;
   return data;
 };
 
