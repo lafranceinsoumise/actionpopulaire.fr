@@ -1,7 +1,7 @@
 import Helmet from "react-helmet";
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import {
@@ -373,21 +373,21 @@ export const ConnectedEventPage = (props) => {
   const isConnected = useSelector(getIsConnected);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const dispatch = useDispatch();
-  const [isNotFound, setIsNotFound] = useState(false);
 
   const fetcher = async (url) => {
     const res = await fetch(url);
     if (!res.ok) {
       let error = new Error("An error occurred while fetching the data.");
       error.status = res.status;
-      setIsNotFound(true);
       throw error;
     }
     return res.json();
   };
 
   const { data: eventData, error } = useSWR(
-    api.getEventEndpoint("getEvent", { eventPk }),
+    api.getEventEndpoint("getEvent", {
+      eventPk,
+    }),
     fetcher,
     {
       onErrorRetry: (error) => {
@@ -428,31 +428,28 @@ export const ConnectedEventPage = (props) => {
     }
   }, [eventData, dispatch]);
 
+  if (error?.status === 404 || error?.status === 410)
+    return <NotFoundPage isTopBar={false} />;
+
   return (
     <>
-      {isNotFound ? (
-        <NotFoundPage isTopBar={false} />
-      ) : (
-        <>
-          {eventData && (
-            <Helmet>
-              <title>{eventData.name} — Action Populaire</title>
-            </Helmet>
-          )}
-          <PageFadeIn
-            ready={isSessionLoaded && eventData}
-            wait={
-              <ResponsiveLayout
-                DesktopLayout={DesktopSkeleton}
-                MobileLayout={MobileSkeleton}
-              />
-            }
-          >
-            {eventData && <EventPage {...eventData} logged={isConnected} />}
-          </PageFadeIn>
-          <Footer />
-        </>
+      {eventData && (
+        <Helmet>
+          <title>{eventData.name} — Action Populaire</title>
+        </Helmet>
       )}
+      <PageFadeIn
+        ready={isSessionLoaded && eventData}
+        wait={
+          <ResponsiveLayout
+            DesktopLayout={DesktopSkeleton}
+            MobileLayout={MobileSkeleton}
+          />
+        }
+      >
+        {eventData && <EventPage {...eventData} logged={isConnected} />}
+      </PageFadeIn>
+      <Footer />
     </>
   );
 };

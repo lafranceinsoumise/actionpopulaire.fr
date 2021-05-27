@@ -6,10 +6,29 @@ import * as api from "@agir/groups/groupPage/api";
 
 const log = logger(__filename);
 
+const fetcher = async (url) => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    let error = new Error("An error occurred while fetching the data.");
+    error.status = res.status;
+    throw error;
+  }
+  return res.json();
+};
+
 export const useGroup = (groupPk) => {
-  const { data } = useSWR(api.getGroupPageEndpoint("getGroup", { groupPk }));
+  const { data, error } = useSWR(
+    api.getGroupPageEndpoint("getGroup", { groupPk }),
+    fetcher,
+    {
+      onErrorRetry: (error) => {
+        if (error.status === 404) return;
+      },
+    }
+  );
   log.debug("Group data", data);
 
+  if (error?.status === 404) return false;
   return data;
 };
 
