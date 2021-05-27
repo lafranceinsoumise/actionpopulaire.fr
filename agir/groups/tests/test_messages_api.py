@@ -155,7 +155,7 @@ class GroupMessagesTestAPICase(APITestCase):
         self.assertEqual(res.data["text"], "Lorem")
         # self.assertEqual(res.data["image"], None)
         self.assertEqual(
-            res.data["group"], {"id": str(self.group.id), "name": self.group.name,}
+            res.data["group"], {"id": self.group.id, "name": self.group.name,}
         )
         self.assertIn("comments", res.data)
         self.assertNotIn("recentComments", res.data)

@@ -128,7 +128,7 @@ export const useMessage = (group, messagePk) => {
     [hasMessage, messagePk]
   );
 
-  const { data } = useSWR(getMessageEndpoint);
+  const { data } = useSWR(getMessageEndpoint, { refreshInterval: 1000 });
 
   useEffect(() => {
     !isLoading &&
