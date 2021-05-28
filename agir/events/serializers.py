@@ -142,6 +142,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     subtype = EventSubtypeSerializer()
 
     allowGuests = serializers.BooleanField(source="allow_guests")
+    guests = serializers.SerializerMethodField()
 
     onlineUrl = serializers.URLField(source="online_url")
 
@@ -240,6 +241,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 "is2022",
             ],
         ).data
+
+    def get_guests(self, obj):
+        return self.rsvp.guests
 
 
 class EventListSerializer(EventSerializer):
