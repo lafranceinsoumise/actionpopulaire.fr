@@ -1159,7 +1159,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "nuntius"
-version = "2.2.2"
+version = "2.2.3"
 description = "A newsletter app to be used with Django or standalone."
 category = "main"
 optional = false
@@ -1963,7 +1963,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "b2758157430e512aa046a7696be5533913db80ad03217c0fe57673e434c132e3"
+content-hash = "8cdd01ed516eb456f4827643a22eefe3a8599843d565581918aad1fc5944fe74"
 
 [metadata.files]
 amqp = [
@@ -2739,8 +2739,8 @@ numpy = [
     {file = "numpy-1.20.3.zip", hash = "sha256:e55185e51b18d788e49fe8305fd73ef4470596b33fc2c1ceb304566b99c71a69"},
 ]
 nuntius = [
-    {file = "nuntius-2.2.2-py3-none-any.whl", hash = "sha256:2425113b35bc1113a636267ad4bb2108bfb87e6a803db9666d4fe6caa6fa1ad4"},
-    {file = "nuntius-2.2.2.tar.gz", hash = "sha256:630e4dc42b7d03f6315e3e7b348b73818bd50f1b36358b56e66e3cd91bc57062"},
+    {file = "nuntius-2.2.3-py3-none-any.whl", hash = "sha256:4c849ef75d451c2945e0d807b25d48e4fd261216f4dd1da7598ba71a3edf6f4c"},
+    {file = "nuntius-2.2.3.tar.gz", hash = "sha256:34ddbd0901f0779ead392796c86007e3048aafda520e3f862a6af24c19151ec3"},
 ]
 oauthlib = [
     {file = "oauthlib-3.1.0-py2.py3-none-any.whl", hash = "sha256:df884cd6cbe20e32633f1db1072e9356f53638e4361bef4e8b03c9127c9328ea"},
