@@ -374,33 +374,15 @@ export const ConnectedEventPage = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const dispatch = useDispatch();
 
-  const fetcher = async (url) => {
-    const res = await fetch(url);
-    if (!res.ok) {
-      let error = new Error("An error occurred while fetching the data.");
-      error.status = res.status;
-      throw error;
-    }
-    return res.json();
-  };
-
   const { data: eventData, error } = useSWR(
-    api.getEventEndpoint("getEvent", {
-      eventPk,
-    }),
-    fetcher,
-    {
-      onErrorRetry: (error) => {
-        if ([404, 410, 403].includes(error.status)) return;
-      },
-    }
+    api.getEventEndpoint("getEvent", { eventPk })
   );
 
   log.debug("Event data", eventData);
 
   let { is2022 } = eventData || {};
 
-  React.useEffect(() => {
+  useEffect(() => {
     is2022 === true && dispatch(setIs2022());
   }, [is2022, dispatch]);
 
@@ -428,7 +410,7 @@ export const ConnectedEventPage = (props) => {
     }
   }, [eventData, dispatch]);
 
-  if ([404, 410].includes(error?.status))
+  if ([404, 410].includes(error?.response?.status))
     return (
       <NotFoundPage
         isTopBar={false}
