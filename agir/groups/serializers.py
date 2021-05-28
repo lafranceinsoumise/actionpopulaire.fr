@@ -5,10 +5,6 @@ from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from . import models
-from .actions import get_promo_codes
-from .models import Membership, SupportGroup
-from ..front.serializer_utils import MediaURLField, RoutesField
 from agir.groups.tasks import (
     send_support_group_changed_notification,
     geocode_support_group,
@@ -22,6 +18,10 @@ from agir.lib.serializers import (
     NestedLocationSerializer,
 )
 from agir.people.serializers import PersonSerializer
+from . import models
+from .actions import get_promo_codes
+from .models import Membership, SupportGroup
+from ..front.serializer_utils import RoutesField
 from ..lib.utils import front_url, admin_url
 
 
@@ -149,7 +149,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isCertified = serializers.BooleanField(read_only=True, source="is_certified")
     location = LocationSerializer(read_only=True, source="*")
     contact = serializers.SerializerMethodField(read_only=True,)
-    image = MediaURLField(read_only=True,)
+    image = serializers.ImageField(read_only=True)
 
     referents = serializers.SerializerMethodField(read_only=True,)
     # TODO: add links to SupporGroup model
@@ -405,7 +405,7 @@ class MembershipSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     displayName = serializers.CharField(source="person.display_name", read_only=True)
     email = serializers.EmailField(source="person.email", read_only=True)
-    image = MediaURLField(source="person.image", read_only=True)
+    image = serializers.ImageField(source="person.image", read_only=True)
     gender = serializers.CharField(source="person.gender", read_only=True)
     membershipType = serializers.ChoiceField(
         source="membership_type", choices=Membership.MEMBERSHIP_TYPE_CHOICES

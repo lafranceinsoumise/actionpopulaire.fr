@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from rest_framework import serializers
 
-from agir.front.serializer_utils import MediaURLField, RoutesField
+from agir.front.serializer_utils import RoutesField
 from agir.lib.serializers import (
     LocationSerializer,
     ContactMixinSerializer,
@@ -112,7 +112,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     description = serializers.CharField(source="html_description")
     compteRendu = serializers.CharField(source="report_content")
     compteRenduPhotos = serializers.SerializerMethodField()
-    illustration = MediaURLField(source="image")
+    illustration = serializers.ImageField(source="image", read_only=True)
 
     startTime = serializers.DateTimeField(source="start_time")
     endTime = serializers.DateTimeField(source="end_time")
