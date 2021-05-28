@@ -1,10 +1,8 @@
-from agir.lib.utils import front_url
-
 from rest_framework import serializers
 
 from agir.activity.models import Activity
-from agir.front.serializer_utils import MediaURLField
 from agir.lib.serializers import FlexibleFieldsMixin
+from agir.lib.utils import front_url
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 
 __all__ = ["ACTIVITY_NOTIFICATION_SERIALIZERS"]
@@ -374,7 +372,7 @@ class GroupCoorganizationInfoActivityNotificationSerializer(
 
 class NewMessageActivityNotificationSerializer(ActivityNotificationSerializer):
     title = serializers.SerializerMethodField()
-    icon = MediaURLField(source="individual.image")
+    icon = serializers.ImageField(source="individual.image")
 
     def get_title(self, activity):
         return activity.individual.display_name
@@ -399,7 +397,7 @@ class NewMessageActivityNotificationSerializer(ActivityNotificationSerializer):
 
 class NewCommentActivityNotificationSerializer(ActivityNotificationSerializer):
     title = serializers.SerializerMethodField()
-    icon = MediaURLField(source="individual.image")
+    icon = serializers.ImageField(source="individual.image")
 
     def get_title(self, activity):
         return f"{activity.individual.display_name} a commenté"

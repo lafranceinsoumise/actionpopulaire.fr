@@ -4,18 +4,6 @@ from rest_framework import serializers
 from agir.lib.utils import front_url
 
 
-class MediaURLField(serializers.URLField):
-    def to_representation(self, value):
-        return f"{settings.MEDIA_URL}{value}" if value else None
-
-    def to_internal_value(self, data):
-        value = super().to_internal_value(data)
-        if value.startswith(settings.MEDIA_URL):
-            value = value[len(settings.MEDIA_URL) :]
-
-        return value
-
-
 class RoutesField(serializers.SerializerMethodField):
     def __init__(self, *, routes=None, **kwargs):
         kwargs.setdefault("source", "*")

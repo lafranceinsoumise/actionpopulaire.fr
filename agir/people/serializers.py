@@ -6,7 +6,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
 from agir.elus.models import MandatMunicipal, StatutMandat, types_elus
-from agir.front.serializer_utils import MediaURLField
 from agir.lib.data import french_zipcode_to_country_code, FRANCE_COUNTRY_CODES
 from agir.lib.serializers import FlexibleFieldsMixin
 from . import models
@@ -265,7 +264,7 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
         required=True,
         source="display_name",
     )
-    image = MediaURLField(required=False, label="Image de profil")
+    image = serializers.ImageField(required=False, label="Image de profil")
     contactPhone = PhoneNumberField(
         source="contact_phone",
         required=False,
