@@ -253,7 +253,7 @@ const ActionButtons = (props) => {
               Gérer l'événement
             </ActionButton>
           )}
-          {allowGuests && hasSubscriptionForm && (
+          {allowGuests && (hasSubscriptionForm || hasPrice) && (
             <ActionButton as="a" href={routes.rsvp} type="submit">
               Ajouter une personne
             </ActionButton>
