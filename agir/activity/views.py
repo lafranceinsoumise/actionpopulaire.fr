@@ -12,7 +12,6 @@ from rest_framework.response import Response
 
 from agir.activity.actions import (
     get_activities,
-    get_required_action_activities,
     get_non_custom_announcements,
     get_custom_announcements,
 )
@@ -46,14 +45,6 @@ class UserActivitiesAPIView(ListAPIView):
         # Force creation of new non_custom announcement activities for the user
         get_non_custom_announcements(self.request.user.person)
         return get_activities(self.request.user.person)
-
-
-class UserRequiredActivitiesAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = ActivitySerializer
-
-    def get_queryset(self):
-        return get_required_action_activities(self.request.user.person)
 
 
 class AnnouncementsAPIView(ListAPIView):

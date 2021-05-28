@@ -44,9 +44,6 @@ const Template = (args) => (
           status: activityStatus.STATUS_UNDISPLAYED,
         })
       ),
-      requiredActionActivities: Object.keys([
-        ...Array(args.requiredActionActivityCount),
-      ]),
     }}
   >
     <Navigation {...args} />
@@ -56,10 +53,8 @@ const Template = (args) => (
 export const Default = Template.bind({});
 Default.args = {
   active: "events",
-  requiredActionActivityCount: 1,
   unreadActivityCount: 10,
 };
 Default.argTypes = {
-  requiredActionActivityCount: { type: "number", min: 0 },
   unreadActivityCount: { type: "number", min: 0 },
 };

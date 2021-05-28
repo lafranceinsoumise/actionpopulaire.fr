@@ -16,7 +16,7 @@ from ..events.models import Event
 
 def get_activities(person):
     activities = (
-        Activity.objects.without_required_action()
+        Activity.objects.displayed()
         .filter(recipient=person)
         .filter(
             ~Q(type=Activity.TYPE_ANNOUNCEMENT)
@@ -50,34 +50,6 @@ def get_activities(person):
     return (
         activity
         for activity in activities[:40]
-        if person.role.has_perm("activity.view_activity", activity)
-    )
-
-
-def get_required_action_activities(person):
-    required_action_activities = (
-        Activity.objects.with_required_action()
-        .filter(recipient=person)
-        .select_related("supportgroup", "individual")
-        .prefetch_related(
-            Prefetch("event", Event.objects.with_serializer_prefetch(person),)
-        )
-    )
-    # On affiche toutes les activités avec action requise non traitées
-    unread_required_action_activities = required_action_activities.exclude(
-        status=Activity.STATUS_INTERACTED
-    )
-    # On affiche les 20 dernières activités avec action requise déjà traitées
-    read_required_action_activities = required_action_activities.filter(
-        status=Activity.STATUS_INTERACTED
-    ).order_by("-created")[:20]
-
-    return (
-        activity
-        for activity in required_action_activities.filter(
-            pk__in=[a.pk for a in unread_required_action_activities]
-            + [a.pk for a in read_required_action_activities]
-        ).order_by("-created")
         if person.role.has_perm("activity.view_activity", activity)
     )
 

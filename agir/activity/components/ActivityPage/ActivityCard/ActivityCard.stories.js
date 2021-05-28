@@ -1,9 +1,16 @@
-import { Default as EventCardStory } from "@agir/front/genericComponents/EventCard.stories";
-
-import ActivityCard from "./ActivityCard";
-import CONFIG from "./activity.config.json";
 import { DateTime } from "luxon";
+import React from "react";
+
+import CONFIG from "@agir/activity/common/activity.config";
+import group from "@agir/front/mockData/group";
+import events from "@agir/front/mockData/events";
+
+import ActivityCard from "./index";
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
+
 import { decorateArgs, reorganize } from "@agir/lib/utils/storyUtils";
+
+const event = events[0];
 
 export default {
   component: ActivityCard,
@@ -25,6 +32,12 @@ export default {
     supportGroup: {
       control: { type: "object" },
     },
+    meta: {
+      control: { type: "object" },
+    },
+    announcement: {
+      control: { type: "object" },
+    },
   },
 };
 
@@ -36,7 +49,8 @@ const convertDatetimes = ({
   event: { startTime, duration, ...event },
   ...args
 }) => {
-  const start = DateTime.fromMillis(startTime);
+  let start = new Date(startTime);
+  start = DateTime.fromJSDate(start);
   return {
     ...args,
     event: {
@@ -46,6 +60,12 @@ const convertDatetimes = ({
     },
   };
 };
+
+const ActivityCardStory = (props) => (
+  <TestGlobalContextProvider value={{ routes: props.routes }}>
+    <ActivityCard {...props} />
+  </TestGlobalContextProvider>
+);
 
 const Template = decorateArgs(
   convertDatetimes,
@@ -59,21 +79,15 @@ const Template = decorateArgs(
     },
     true
   ),
-  ActivityCard
+  ActivityCardStory
 );
 
 export const Default = Template.bind({});
 Default.args = {
   id: 1,
   type: "group-coorganization-accepted",
-  event: EventCardStory.args,
-  supportGroup: {
-    name: "Super groupe génial",
-    url: "#url",
-    routes: {
-      manage: "#group-manage",
-    },
-  },
+  event,
+  supportGroup: group,
   individual: {
     displayName: "Clara",
     email: "clara@example.com",
@@ -83,9 +97,30 @@ Default.args = {
     totalReferrals: 10,
     oldGroup: "An old group",
     transferredMemberships: 1000,
+    membershipLimit: 50,
+    membershipCount: 5,
+    membershipLimitNotificationStep: 1,
   },
   routes: {
     createEvent: "#createEvent",
     createGroup: "#createGroup",
+    newGroupHelp: "#newGroupHelp",
+  },
+  announcement: {
+    id: "4ffb6d51-df76-4621-a933-7679edfced91",
+    title: "16 mai : Meeting de Jean-Luc Mélenchon",
+    link: "http://agir.local:8000/activite/4ffb6d51-df76-4621-a933-7679edfced91/lien/",
+    content:
+      "<p>Réservez votre après-midi pour le premier meeting en plein air à la campagne #MeetingAubin</p>",
+    image: {
+      desktop: "https://www.fillmurray.com/255/130",
+      mobile: "https://www.fillmurray.com/160/160",
+      activity: "https://www.fillmurray.com/548/241",
+    },
+    startDate: "2021-05-17T17:33:46+02:00",
+    endDate: null,
+    priority: 0,
+    activityId: 1341,
+    customDisplay: "",
   },
 };

@@ -14,11 +14,6 @@ urlpatterns = [
         "api/activity/<int:pk>/", views.ActivityAPIView.as_view(), name="api_activity"
     ),
     path(
-        "api/user/required-activities/",
-        views.UserRequiredActivitiesAPIView.as_view(),
-        name="api_user_required_activities",
-    ),
-    path(
         "api/user/activities/",
         views.UserActivitiesAPIView.as_view(),
         name="api_user_activities",

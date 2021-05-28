@@ -72,7 +72,7 @@ class ActivityAPIViewTestCase(TestCase):
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_can_list_own_activities(self):
-        res = self.client.get("/api/user/required-activities/")
+        res = self.client.get("/api/user/activities/")
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
@@ -87,7 +87,7 @@ class ActivityAPIViewTestCase(TestCase):
         self.own_activity.event = event
         self.own_activity.save()
 
-        res = self.client.get("/api/user/required-activities/")
+        res = self.client.get("/api/user/activities/")
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 0)
