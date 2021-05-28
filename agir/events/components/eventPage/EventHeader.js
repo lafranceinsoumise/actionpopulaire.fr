@@ -206,6 +206,7 @@ const ActionButtons = (props) => {
     hasPrice,
     allowGuests,
     guests,
+    hasSubscriptionForm,
   } = props;
 
   if (past) {
@@ -253,9 +254,11 @@ const ActionButtons = (props) => {
               Gérer l'événement
             </ActionButton>
           )}
-          {allowGuests && (
+          {allowGuests && hasSubscriptionForm && (
             <ActionButton as="a" href={routes.rsvp} type="submit">
-              Ajouter un {guests === 0 ? null : " ".concat(guests + 1).concat("ème")} participant
+              Ajouter un{" "}
+              {guests === 0 ? null : " ".concat(guests + 1).concat("ème")}{" "}
+              participant
             </ActionButton>
           )}
         </StyledActionButtons>
@@ -362,6 +365,7 @@ const EventHeader = ({
   onlineUrl,
   allowGuests,
   guests,
+  hasSubscriptionForm,
 }) => {
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
@@ -394,6 +398,7 @@ const EventHeader = ({
         onlineUrl={onlineUrl}
         allowGuests={allowGuests}
         guests={guests}
+        hasSubscriptionForm={hasSubscriptionForm}
       />
       {!past && (
         <AdditionalMessage
