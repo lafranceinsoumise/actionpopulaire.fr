@@ -20,6 +20,7 @@ import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 import DisplayNameAnnouncement from "@agir/groups/groupPage/Announcements/DisplayNameAnnouncement";
 import { EmptyMessages } from "./EmptyContent";
+import { PromoMessageModal } from "@agir/groups/messages/PromoMessageModal";
 
 const StyledButton = styled.div`
   text-align: center;
@@ -173,6 +174,9 @@ export const GroupMessages = (props) => {
           {Array.isArray(messages) && messages.length === 0 ? (
             <EmptyMessages onClickSendMessage={writeNewMessage} />
           ) : null}
+
+          <PromoMessageModal shouldShow={true} />
+
           {typeof loadMoreMessages === "function" ? (
             <StyledButton>
               <Button
