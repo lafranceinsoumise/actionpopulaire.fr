@@ -25,7 +25,6 @@ import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
 import QuitEventButton from "./QuitEventButton";
 
 import logger from "@agir/lib/utils/logger";
-import {rsvpEvent} from "../common/api";
 
 const log = logger(__filename);
 
@@ -206,6 +205,7 @@ const ActionButtons = (props) => {
     onlineUrl,
     hasPrice,
     allowGuests,
+    guests,
   } = props;
 
   if (past) {
@@ -255,7 +255,7 @@ const ActionButtons = (props) => {
           )}
           {allowGuests && (
             <ActionButton as="a" href={routes.rsvp} type="submit">
-              Ajouter un participant
+              Ajouter un {guests === 0 ? null : " ".concat(guests + 1).concat("ème")} participant
             </ActionButton>
           )}
         </StyledActionButtons>
@@ -361,6 +361,7 @@ const EventHeader = ({
   hasRightSubscription,
   onlineUrl,
   allowGuests,
+  guests,
 }) => {
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
@@ -392,6 +393,7 @@ const EventHeader = ({
         hasPrice={!!options && !!options.price}
         onlineUrl={onlineUrl}
         allowGuests={allowGuests}
+        guests={guests}
       />
       {!past && (
         <AdditionalMessage
