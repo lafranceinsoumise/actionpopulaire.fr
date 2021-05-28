@@ -25,6 +25,7 @@ import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
 import QuitEventButton from "./QuitEventButton";
 
 import logger from "@agir/lib/utils/logger";
+import {rsvpEvent} from "../common/api";
 
 const log = logger(__filename);
 
@@ -204,6 +205,7 @@ const ActionButtons = (props) => {
     routes,
     onlineUrl,
     hasPrice,
+    allowGuests,
   } = props;
 
   if (past) {
@@ -249,6 +251,11 @@ const ActionButtons = (props) => {
           {isOrganizer && (
             <ActionButton icon="settings" as="a" href={routes.manage}>
               Gérer l'événement
+            </ActionButton>
+          )}
+          {allowGuests && (
+            <ActionButton as="a" href={routes.rsvp} type="submit">
+              Ajouter un participant
             </ActionButton>
           )}
         </StyledActionButtons>
@@ -353,6 +360,7 @@ const EventHeader = ({
   forUsers,
   hasRightSubscription,
   onlineUrl,
+  allowGuests,
 }) => {
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
@@ -383,6 +391,7 @@ const EventHeader = ({
         hasRightSubscription={hasRightSubscription}
         hasPrice={!!options && !!options.price}
         onlineUrl={onlineUrl}
+        allowGuests={allowGuests}
       />
       {!past && (
         <AdditionalMessage
@@ -417,6 +426,7 @@ EventHeader.propTypes = {
   routes: PropTypes.object,
   forUsers: PropTypes.string,
   hasRightSubscription: PropTypes.bool,
+  allowGuests: PropTypes.bool,
 };
 
 export default EventHeader;
