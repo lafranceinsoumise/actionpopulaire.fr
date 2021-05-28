@@ -241,6 +241,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             ],
         ).data
 
+
 class EventListSerializer(EventSerializer):
     def get_groups(self, obj):
         return SupportGroupSerializer(
