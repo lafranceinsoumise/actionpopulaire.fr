@@ -14,14 +14,18 @@ const fetcher = async (url) => {
   return res.data;
 };
 
+const errorRetry = (error, key, config, revalidate, { retryCount }) => {
+  if ([403, 404].includes(error.status)) return;
+  if (retryCount >= 10) return;
+  setTimeout(() => revalidate({ retryCount }), 5000);
+};
+
 export default function App() {
   return (
     <SWRConfig
       value={{
         fetcher,
-        onErrorRetry: (error) => {
-          if ([403, 404, 410].includes(error.status)) return;
-        },
+        onErrorRetry: errorRetry,
       }}
     >
       <GlobalContextProvider hasRouter hasToasts>

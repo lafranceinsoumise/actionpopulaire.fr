@@ -410,7 +410,7 @@ export const ConnectedEventPage = (props) => {
     }
   }, [eventData, dispatch]);
 
-  if ([404, 410].includes(error?.response?.status))
+  if ([403, 404].includes(error?.response?.status))
     return (
       <NotFoundPage
         isTopBar={false}

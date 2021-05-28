@@ -12,7 +12,7 @@ export const useGroup = (groupPk) => {
   );
   log.debug("Group data", data);
 
-  if ([404, 410].includes(error?.response?.status)) return false;
+  if ([403, 404].includes(error?.response?.status)) return false;
   return data;
 };
 
