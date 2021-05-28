@@ -425,6 +425,7 @@ if not DEBUG:
     AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME")
     AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")
     AWS_QUERYSTRING_AUTH = False
+    AWS_S3_CUSTOM_DOMAIN = os.environ.get("AWS_S3_CUSTOM_DOMAIN")
 
 # Authentication
 
