@@ -82,6 +82,7 @@ sentry-sdk = "*"
 django-push-notifications = "*"
 pywebpush = "*"
 social-auth-core = "==4.0.2"
+django-storages = "^1.11.1"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
