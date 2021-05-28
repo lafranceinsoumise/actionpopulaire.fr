@@ -205,7 +205,6 @@ const ActionButtons = (props) => {
     onlineUrl,
     hasPrice,
     allowGuests,
-    guests,
     hasSubscriptionForm,
   } = props;
 
@@ -256,7 +255,7 @@ const ActionButtons = (props) => {
           )}
           {allowGuests && hasSubscriptionForm && (
             <ActionButton as="a" href={routes.rsvp} type="submit">
-              Ajouter un {!!guests && guests + 1 + "ème"} participant
+              Ajouter une personne
             </ActionButton>
           )}
         </StyledActionButtons>
@@ -362,7 +361,6 @@ const EventHeader = ({
   hasRightSubscription,
   onlineUrl,
   allowGuests,
-  guests,
   hasSubscriptionForm,
 }) => {
   const globalRoutes = useSelector(getRoutes);
@@ -395,7 +393,6 @@ const EventHeader = ({
         hasPrice={!!options && !!options.price}
         onlineUrl={onlineUrl}
         allowGuests={allowGuests}
-        guests={guests}
         hasSubscriptionForm={hasSubscriptionForm}
       />
       {!past && (
