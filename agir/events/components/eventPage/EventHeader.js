@@ -105,7 +105,7 @@ const StyledActionButtons = styled.div`
 
 const RSVPButton = (props) => {
   const user = useSelector(getUser);
-  const { id, forUsers, hasPrice, routes } = props;
+  const { id, forUsers, hasPrice, routes, hasSubscriptionForm } = props;
 
   const [isLoading, setIsLoading] = useState(false);
   const [hasSubscriptionTypeModal, setHasSubscriptionTypeModal] =
@@ -124,8 +124,8 @@ const RSVPButton = (props) => {
       e && e.preventDefault();
       setIsLoading(true);
 
-      if (hasPrice) {
-        log.debug("Has price, redirection.");
+      if (hasPrice || hasSubscriptionForm) {
+        log.debug("Has price or subscription form, redirection.");
         window.location.href = routes.rsvp;
         return;
       }
