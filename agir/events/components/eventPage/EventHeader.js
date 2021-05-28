@@ -256,9 +256,7 @@ const ActionButtons = (props) => {
           )}
           {allowGuests && hasSubscriptionForm && (
             <ActionButton as="a" href={routes.rsvp} type="submit">
-              Ajouter un{" "}
-              {guests === 0 ? null : " ".concat(guests + 1).concat("ème")}{" "}
-              participant
+              Ajouter un {!!guests && guests + 1 + "ème"} participant
             </ActionButton>
           )}
         </StyledActionButtons>
