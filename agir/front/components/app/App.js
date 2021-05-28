@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet";
 import React from "react";
 
 import { GlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
-import { SWRConfig } from "swr";
+import { SWRConfig, defaultConfig } from "swr";
 import axios from "@agir/lib/utils/axios";
 
 import PushModal from "@agir/front/allPages/PushModal/PushModal";
@@ -14,10 +14,9 @@ const fetcher = async (url) => {
   return res.data;
 };
 
-const errorRetry = (error, key, config, revalidate, { retryCount }) => {
+const errorRetry = (error) => {
   if ([403, 404].includes(error.status)) return;
-  if (retryCount >= 10) return;
-  setTimeout(() => revalidate({ retryCount }), 5000);
+  defaultConfig.onErrorRetry();
 };
 
 export default function App() {
