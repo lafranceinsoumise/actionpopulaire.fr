@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useState, useCallback } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -102,6 +102,12 @@ export const GroupMessages = (props) => {
 
   const isManager = group && group.isManager;
 
+  const [showPromoMessage, setShowPromoMessage] = useState(true);
+
+  const handleClosePromoMessageModal = useCallback(() => {
+    setShowPromoMessage(false);
+  }, []);
+
   return (
     <StyledWrapper>
       <h3>
@@ -175,7 +181,10 @@ export const GroupMessages = (props) => {
             <EmptyMessages onClickSendMessage={writeNewMessage} />
           ) : null}
 
-          <PromoMessageModal shouldShow={true} />
+          <PromoMessageModal
+            shouldShow={showPromoMessage}
+            onClose={handleClosePromoMessageModal}
+          />
 
           {typeof loadMoreMessages === "function" ? (
             <StyledButton>

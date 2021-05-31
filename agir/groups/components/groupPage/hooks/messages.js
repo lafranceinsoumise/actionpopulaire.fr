@@ -123,8 +123,7 @@ export const useMessage = (group, messagePk) => {
   const isUpdating = useSelector(getIsUpdatingMessages);
 
   const getMessageEndpoint = useCallback(
-    () =>
-      hasMessage ? api.getGroupPageEndpoint("getMessage", { messagePk }) : null,
+    () => hasMessage && api.getGroupPageEndpoint("getMessage", { messagePk }),
     [hasMessage, messagePk]
   );
 

@@ -8,9 +8,7 @@ export default {
 };
 
 const Template = (args) => {
-  return (
-    <PromoMessageModal {...args} />
-  );
+  return <PromoMessageModal {...args} />;
 };
 
 export const Default = Template.bind({});
