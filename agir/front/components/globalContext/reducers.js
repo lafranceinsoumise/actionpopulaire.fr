@@ -270,8 +270,6 @@ export const getIsConnected = (state) => !!state.user;
 export const getAuthentication = (state) => state.authentication;
 export const getBookmarkedEmails = (state) => state.bookmarkedEmails;
 
-export const getCsrfToken = (state) => state.csrfToken;
-
 export const getRoutes = (state) => state.routes;
 export const getRouteById = (state, id) => state.routes[id] || null;
 

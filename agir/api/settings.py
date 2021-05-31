@@ -416,6 +416,17 @@ MEDIA_URL = "/media/"
 
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT", "media")
 
+if not DEBUG:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    AWS_DEFAULT_ACL = "public-read"
+    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "agir")
+    AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME")
+    AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")
+    AWS_QUERYSTRING_AUTH = False
+    AWS_S3_CUSTOM_DOMAIN = os.environ.get("AWS_S3_CUSTOM_DOMAIN")
+
 # Authentication
 
 AUTH_USER_MODEL = "authentication.Role"
@@ -756,7 +767,7 @@ DJAN_API_KEY = os.environ.get("DJAN_API_KEY")
 
 # nuntius
 NUNTIUS_REDIS_CONNECTION_GETTER = "agir.api.redis.get_auth_redis_client"
-NUNTIUS_IMAGES_URL = FRONT_DOMAIN
+NUNTIUS_IMAGES_URL = os.environ.get("NUNTIUS_IMAGES_URL", None)
 NUNTIUS_LINKS_URL = os.environ.get(
     "NUNTIUS_LINKS_URL", "https://www.actionpopulaire.fr"
 )

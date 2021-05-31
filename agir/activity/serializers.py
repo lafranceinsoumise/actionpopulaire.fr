@@ -94,6 +94,23 @@ class AnnouncementSerializer(serializers.ModelSerializer):
         ]
 
 
+class CustomAnnouncementSerializer(AnnouncementSerializer):
+    status = serializers.SerializerMethodField(read_only=True)
+
+    def get_status(self, obj):
+        if obj.activity_id is None:
+            return None
+        try:
+            activity = Activity.objects.get(pk=obj.activity_id)
+        except Activity.DoesNotExist:
+            return None
+        return activity.status
+
+    class Meta:
+        model = Announcement
+        fields = [*AnnouncementSerializer.Meta.fields, "status"]
+
+
 class ActivityStatusUpdateRequest(serializers.Serializer):
     status = serializers.ChoiceField(
         choices=[Activity.STATUS_DISPLAYED, Activity.STATUS_INTERACTED]

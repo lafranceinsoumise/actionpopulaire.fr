@@ -21,6 +21,7 @@ from agir.activity.serializers import (
     ActivitySerializer,
     ActivityStatusUpdateRequest,
     AnnouncementSerializer,
+    CustomAnnouncementSerializer,
 )
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
@@ -72,7 +73,7 @@ class AnnouncementsAPIView(ListAPIView):
 
 class UserCustomAnnouncementAPIView(RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = AnnouncementSerializer
+    serializer_class = CustomAnnouncementSerializer
     lookup_field = "custom_display"
 
     def get_object(self):

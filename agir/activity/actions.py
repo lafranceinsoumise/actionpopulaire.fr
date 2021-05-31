@@ -66,31 +66,18 @@ def get_announcements(person=None):
     )
 
     if person:
-        announcements = (
-            announcements.filter(
-                pk__in=[
-                    a.pk
-                    for a in announcements
-                    if a.segment is None
-                    or a.segment.get_subscribers_queryset()
-                    .filter(pk=person.id)
-                    .exists()
-                ]
-            )
-            .exclude(
-                Q(
-                    activity__in=Activity.objects.filter(
-                        recipient=person, status=Activity.STATUS_INTERACTED
-                    )
-                ),
-                ~Q(custom_display__exact=""),
-            )
-            .annotate(
-                activity_id=Subquery(
-                    Activity.objects.filter(
-                        recipient=person, announcement_id=OuterRef("id")
-                    ).values("id")[:1]
-                )
+        announcements = announcements.filter(
+            pk__in=[
+                a.pk
+                for a in announcements
+                if a.segment is None
+                or a.segment.get_subscribers_queryset().filter(pk=person.id).exists()
+            ]
+        ).annotate(
+            activity_id=Subquery(
+                Activity.objects.filter(
+                    recipient=person, announcement_id=OuterRef("id")
+                ).values("id")[:1]
             )
         )
         # Automatically create an activity for the person if none exists for the announcement

@@ -7,9 +7,11 @@ import Footer from "@agir/front/dashboardComponents/Footer";
 
 import DesktopGroupPage, { DesktopGroupPageSkeleton } from "./DesktopGroupPage";
 import MobileGroupPage, { MobileGroupPageSkeleton } from "./MobileGroupPage";
+import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage.js";
 
 export const GroupPage = (props) => {
-  const { isLoading } = props;
+  const { isLoading, group } = props;
+
   return (
     <PageFadeIn
       ready={!isLoading}
@@ -20,11 +22,15 @@ export const GroupPage = (props) => {
         />
       }
     >
-      <ResponsiveLayout
-        {...props}
-        MobileLayout={MobileGroupPage}
-        DesktopLayout={DesktopGroupPage}
-      />
+      {group === false ? (
+        <NotFoundPage isTopBar={false} title="Groupe" subtitle="Ce groupe" />
+      ) : (
+        <ResponsiveLayout
+          {...props}
+          MobileLayout={MobileGroupPage}
+          DesktopLayout={DesktopGroupPage}
+        />
+      )}
       <Footer />
     </PageFadeIn>
   );

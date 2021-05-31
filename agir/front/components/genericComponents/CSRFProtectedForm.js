@@ -1,14 +1,17 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getCsrfToken } from "@agir/front/globalContext/reducers";
+import useSWR from "swr";
 
 const CSRFProtectedForm = ({ children, ...props }) => {
-  const csrfToken = useSelector(getCsrfToken);
+  const { data } = useSWR("/api/csrf/");
 
   return (
     <form {...props}>
-      <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken || ""} />
+      <input
+        type="hidden"
+        name="csrfmiddlewaretoken"
+        value={data?.csrfToken || ""}
+      />
       {children}
     </form>
   );
