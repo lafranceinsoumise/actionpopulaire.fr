@@ -1,17 +1,20 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Modal from "@agir/front/genericComponents/Modal";
 import Button from "@agir/front/genericComponents/Button";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import promo1 from "./promo-message1.svg";
 import promo2 from "./promo-message2.svg";
 import promo3 from "./promo-message3.svg";
 import promo4 from "./promo-message4.svg";
+
+import Spacer from "@agir/front/genericComponents/Spacer";
+import { useSprings, animated } from "@react-spring/web";
+
 
 const CloseButton = styled.button``;
 
@@ -122,10 +125,19 @@ const Container = styled.div`
   flex-direction: column;
   padding: 2rem;
   overflow-y: auto;
+  max-width: 600px;
+  width: 100%;
 
   p {
-    margin: 50px 0;
+    margin: 30px 0;
     font-size: 18px;
+    text-align: center;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    img {
+      width: 150px;
+    }
   }
 `;
 
@@ -139,18 +151,111 @@ const Title = styled.div`
   font-weight: 700;
 `;
 
+const Arrow = styled.div`
+  border: 1px solid #DFDFDF;
+  border-radius: 100px;
+  display: inline-flex;
+  padding: 0.5rem;
+  cursor: pointer;
+`;
+
+const Mark = styled.span`
+  width: 0.5rem;
+  height: 0.5rem;
+  margin: 0.188rem;
+  display: inline-block;
+  border-radius: 2rem;
+  transition: background-color 0.5s ease-in-out;
+  background-color: ${(props) =>
+    props.$active ? style.black700 : style.black200};
+`;
+
+
+const items = [
+  {
+    img: promo1,
+    content: <p>
+    <b>Lancez une première conversation dans votre groupe !</b>
+    <br/>
+    Discustez de vos prochaines actions sur Action Populaire
+  </p>
+  },
+  {
+    img: promo2,
+    content: <p>
+    <b>Joignez simplement vos membres : </b>
+    Tous vos membres recevront un e-mail avec le contenu de votre message et pourront y répondre sur le site 
+  </p>
+  },
+  {
+    img: promo3,
+    content: <p>
+    <b>Organisez ensemble vos actions : </b>
+    Les membres du groupes sont les seuls à voir et commenter 
+  </p>
+  },
+  {
+    img: promo4,
+    content: <p>
+    <b>Restez connecté·es ! </b>
+    Recevez les notifications de message en téléchargeant l’application
+  </p>
+  },
+];
+
 export const PromoMessageModal = ({ shouldShow = false, onClose }) => {
+
+  // const [transitions, set] = useSprings(items.length, (i) => ({
+  //   x: i * window.innerWidth,
+  //   visibility: "visible",
+  // }));
+
+  const [itemIndex, setItemIndex] = useState(0);
+
+  const handleNext = useCallback(
+    () => {
+      setItemIndex((state) => (state + 1) % items.length);
+    },
+    [],
+  );
+  const handlePrev = useCallback(
+    () => {
+      setItemIndex((state) => (state + items.length - 1) % items.length);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    // console.log("itemIndex : ", itemIndex);
+  }, [itemIndex]);
+
 
   return (
     <Container>
       <StyledLabel>Nouveau</StyledLabel>
       <Title>La messagerie de votre groupe</Title>
-      <img src={promo1} />
-      <p>
-        <b>Lancez une première conversation dans votre groupe !</b>
-        <br/>
-        Discustez de vos prochaines actions sur Action Populaire
-      </p>
+      <div>
+        <Arrow>
+          <RawFeatherIcon name="chevron-left" width="1.5rem" height="1.5rem" onClick={handlePrev} />
+        </Arrow> 
+        <img src={items[itemIndex].img} />
+        <Arrow>
+          <RawFeatherIcon name="chevron-right" width="1.5rem" height="1.5rem" onClick={handleNext} />
+        </Arrow> 
+      </div>
+
+      <div style={{ marginTop: "1rem" }}>
+        {items.map((_, i) => (
+          <Mark
+            key={i}
+            $active={i === itemIndex}
+            // onClick={() => handleChange(i)}
+          />
+        ))}
+      </div>
+
+      {items[itemIndex].content}
+      
       <Button color="primary">
         <RawFeatherIcon name="edit" width="1.5rem" height="1.5rem" style={{marginRight:"0.5rem"}}/>Nouveau message de groupe
       </Button>
@@ -165,22 +270,6 @@ export const PromoMessageModal = ({ shouldShow = false, onClose }) => {
           <RawFeatherIcon name="x" width="2rem" height="2rem" />
         </CloseButton>
 
-        {/* <header aria-hidden="true" />
-        <h4>Nouveau</h4>
-        <h2>L’application Action Populaire !</h2>
-        <p>
-          Recevez toutes les notifications sur votre téléphone et ne manquez
-          aucune information près de chez vous !
-        </p> */}
-
-        <h1>La messagerie de votre groupe</h1>
-        <img src="" />
-        <h3>
-          <b>Lancez une première conversation dans votre groupe !</b>
-          <br/>
-          Discustez de vos prochaines actions sur Action Populaire
-        </h3>   
-        {/* <Button>Nouveau message de groupe</Button> */}
      
       </StyledModalContent>
       
