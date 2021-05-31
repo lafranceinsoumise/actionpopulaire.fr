@@ -141,6 +141,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     subtype = EventSubtypeSerializer()
 
+    allowGuests = serializers.BooleanField(source="allow_guests")
+
     onlineUrl = serializers.URLField(source="online_url")
 
     def to_representation(self, instance):

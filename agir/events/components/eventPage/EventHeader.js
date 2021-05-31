@@ -105,7 +105,7 @@ const StyledActionButtons = styled.div`
 
 const RSVPButton = (props) => {
   const user = useSelector(getUser);
-  const { id, forUsers, hasPrice, routes } = props;
+  const { id, forUsers, hasPrice, routes, hasSubscriptionForm } = props;
 
   const [isLoading, setIsLoading] = useState(false);
   const [hasSubscriptionTypeModal, setHasSubscriptionTypeModal] =
@@ -124,8 +124,8 @@ const RSVPButton = (props) => {
       e && e.preventDefault();
       setIsLoading(true);
 
-      if (hasPrice) {
-        log.debug("Has price, redirection.");
+      if (hasPrice || hasSubscriptionForm) {
+        log.debug("Has price or subscription form, redirection.");
         window.location.href = routes.rsvp;
         return;
       }
@@ -204,6 +204,8 @@ const ActionButtons = (props) => {
     routes,
     onlineUrl,
     hasPrice,
+    allowGuests,
+    hasSubscriptionForm,
   } = props;
 
   if (past) {
@@ -249,6 +251,11 @@ const ActionButtons = (props) => {
           {isOrganizer && (
             <ActionButton icon="settings" as="a" href={routes.manage}>
               Gérer l'événement
+            </ActionButton>
+          )}
+          {allowGuests && (hasSubscriptionForm || hasPrice) && (
+            <ActionButton as="a" href={routes.rsvp} type="submit">
+              Ajouter une personne
             </ActionButton>
           )}
         </StyledActionButtons>
@@ -353,6 +360,8 @@ const EventHeader = ({
   forUsers,
   hasRightSubscription,
   onlineUrl,
+  allowGuests,
+  hasSubscriptionForm,
 }) => {
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
@@ -383,6 +392,8 @@ const EventHeader = ({
         hasRightSubscription={hasRightSubscription}
         hasPrice={!!options && !!options.price}
         onlineUrl={onlineUrl}
+        allowGuests={allowGuests}
+        hasSubscriptionForm={hasSubscriptionForm}
       />
       {!past && (
         <AdditionalMessage
@@ -417,6 +428,7 @@ EventHeader.propTypes = {
   routes: PropTypes.object,
   forUsers: PropTypes.string,
   hasRightSubscription: PropTypes.bool,
+  allowGuests: PropTypes.bool,
 };
 
 export default EventHeader;
