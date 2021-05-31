@@ -20,7 +20,7 @@ import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 import DisplayNameAnnouncement from "@agir/groups/groupPage/Announcements/DisplayNameAnnouncement";
 import { EmptyMessages } from "./EmptyContent";
-import { PromoMessageModal } from "@agir/groups/messages/PromoMessageModal";
+import PromoMessageModal from "@agir/groups/messages/PromoMessageModal";
 
 const StyledButton = styled.div`
   text-align: center;
@@ -102,7 +102,9 @@ export const GroupMessages = (props) => {
 
   const isManager = group && group.isManager;
 
-  const [showPromoMessage, setShowPromoMessage] = useState(true);
+  const [showPromoMessage, setShowPromoMessage] = useState(
+    isManager && !isLoading && !messages?.length
+  );
 
   const handleClosePromoMessageModal = useCallback(() => {
     setShowPromoMessage(false);
@@ -184,6 +186,7 @@ export const GroupMessages = (props) => {
           <PromoMessageModal
             shouldShow={showPromoMessage}
             onClose={handleClosePromoMessageModal}
+            onClick={writeNewMessage}
           />
 
           {typeof loadMoreMessages === "function" ? (

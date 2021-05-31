@@ -12,8 +12,6 @@ import promo2 from "./promo-message2.svg";
 import promo3 from "./promo-message3.svg";
 import promo4 from "./promo-message4.svg";
 
-import { withMessageActions } from "@agir/groups/groupPage/hooks/messages";
-
 const CloseButton = styled.button``;
 
 const StyledModalContent = styled.div`
@@ -113,6 +111,7 @@ const Container = styled.div`
   }
 
   @media (max-width: ${style.collapse}px) {
+    padding: 1rem;
     img {
       width: 150px;
     }
@@ -192,7 +191,7 @@ const items = [
 ];
 
 export const PromoMessage = (props) => {
-  // const { writeNewMessage } = props;
+  const { onClick, onClose } = props;
 
   const [itemIndex, setItemIndex] = useState(0);
 
@@ -205,6 +204,11 @@ export const PromoMessage = (props) => {
 
   const handleChange = useCallback((index) => {
     setItemIndex(index);
+  }, []);
+
+  const handleClick = useCallback(() => {
+    onClick();
+    onClose();
   }, []);
 
   return (
@@ -243,7 +247,7 @@ export const PromoMessage = (props) => {
 
       {items[itemIndex].content}
 
-      <Button color="confirmed" onClick={writeNewMessage}>
+      <Button color="confirmed" onClick={handleClick} $wrap>
         <RawFeatherIcon
           name="edit"
           width="1.5rem"
@@ -257,15 +261,14 @@ export const PromoMessage = (props) => {
 };
 
 export const PromoMessageModal = (props) => {
-  const { shouldShow = false, onClose, ...rest } = props;
+  const { shouldShow = false, onClose } = props;
   return (
     <Modal shouldShow={shouldShow} onClose={onClose}>
       <StyledModalContent>
         <CloseButton onClick={onClose} aria-label="Fermer la modale">
           <RawFeatherIcon name="x" width="2rem" height="2rem" />
         </CloseButton>
-
-        <PromoMessage {...rest} />
+        <PromoMessage {...props} />
       </StyledModalContent>
     </Modal>
   );
@@ -274,10 +277,7 @@ export const PromoMessageModal = (props) => {
 PromoMessageModal.propTypes = {
   shouldShow: PropTypes.bool,
   onClose: PropTypes.func,
-  writeNewMessage: PropTypes.func,
+  onClick: PropTypes.func,
 };
 
-// export default PromoMessageModal;
-
-const ConnectedPromoMessageModal = withMessageActions(PromoMessageModal);
-export default ConnectedPromoMessageModal;
+export default PromoMessageModal;
