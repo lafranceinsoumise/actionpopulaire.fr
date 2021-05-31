@@ -102,12 +102,12 @@ export const GroupMessages = (props) => {
 
   const isManager = group && group.isManager;
 
-  const [showPromoMessage, setShowPromoMessage] = useState(
+  const [showPromoMessageModal, setShowPromoMessageModal] = useState(
     isManager && !isLoading && !messages?.length
   );
 
   const handleClosePromoMessageModal = useCallback(() => {
-    setShowPromoMessage(false);
+    setShowPromoMessageModal(false);
   }, []);
 
   return (
@@ -184,7 +184,7 @@ export const GroupMessages = (props) => {
           ) : null}
 
           <PromoMessageModal
-            shouldShow={showPromoMessage}
+            shouldShow={showPromoMessageModal}
             onClose={handleClosePromoMessageModal}
             onClick={writeNewMessage}
           />
