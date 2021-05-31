@@ -15,7 +15,7 @@ import GroupDonation from "@agir/groups/groupPage/GroupDonation";
 import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
 import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
-import { EmptyMessages } from "@agir/groups/groupPage/EmptyContent";
+import { PromoMessage } from "@agir/groups/messages/PromoMessageModal";
 
 import {
   ShortAgendaRoutePreview,
@@ -48,8 +48,9 @@ const MobileInfoRoute = (props) => {
       {group && group.hasMessages ? (
         <MessagesRoutePreview {...props} />
       ) : group.isManager ? (
-        <EmptyMessages goToMessages={goToMessagesTab} />
+        <PromoMessage goToMessages={true} onClick={goToMessagesTab} />
       ) : null}
+
       <GroupContactCard {...group} editLinkTo={groupSettingsLinks?.contact} />
       <GroupOrders {...group} />
       <GroupDescription {...group} editLinkTo={groupSettingsLinks?.general} />
@@ -90,8 +91,9 @@ const DesktopInfoRoute = (props) => {
       {group && group.hasMessages ? (
         <MessagesRoutePreview {...props} />
       ) : group.isManager ? (
-        <EmptyMessages goToMessages={goToMessagesTab} />
+        <PromoMessage goToMessages={true} onClick={goToMessagesTab} />
       ) : null}
+
       {group &&
       (group.hasUpcomingEvents || group.hasPastEvents || group.hasMessages) ? (
         <>

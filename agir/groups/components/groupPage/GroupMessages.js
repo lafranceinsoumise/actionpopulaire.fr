@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState, useCallback } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -19,8 +19,7 @@ import MessageModalTrigger, {
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 import DisplayNameAnnouncement from "@agir/groups/groupPage/Announcements/DisplayNameAnnouncement";
-import { EmptyMessages } from "./EmptyContent";
-import PromoMessageModal from "@agir/groups/messages/PromoMessageModal";
+import { PromoMessage } from "@agir/groups/messages/PromoMessageModal";
 
 const StyledButton = styled.div`
   text-align: center;
@@ -51,6 +50,10 @@ const StyledButton = styled.div`
 `;
 const StyledMessages = styled.div`
   margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 
   @media (max-width: ${style.collapse}px) {
     background-color: ${style.black50};
@@ -101,14 +104,6 @@ export const GroupMessages = (props) => {
   } = props;
 
   const isManager = group && group.isManager;
-
-  const [showPromoMessageModal, setShowPromoMessageModal] = useState(
-    isManager && !isLoading && !messages?.length
-  );
-
-  const handleClosePromoMessageModal = useCallback(() => {
-    setShowPromoMessageModal(false);
-  }, []);
 
   return (
     <StyledWrapper>
@@ -179,15 +174,11 @@ export const GroupMessages = (props) => {
                 />
               ))
             : null}
-          {Array.isArray(messages) && messages.length === 0 ? (
-            <EmptyMessages onClickSendMessage={writeNewMessage} />
-          ) : null}
 
-          <PromoMessageModal
-            shouldShow={showPromoMessageModal}
-            onClose={handleClosePromoMessageModal}
-            onClick={writeNewMessage}
-          />
+          {isManager && !isLoading && !messages?.length && (
+            <PromoMessage onClick={writeNewMessage} />
+          )}
+          <PromoMessage onClick={writeNewMessage} />
 
           {typeof loadMoreMessages === "function" ? (
             <StyledButton>

@@ -21,7 +21,7 @@ const StyledModalContent = styled.div`
   flex-flow: column nowrap;
   align-items: center;
   justify-content: flex-start;
-  max-width: 600px;
+  width: 100%;
   padding: 0 0 36px;
   margin: 60px auto 0;
   box-shadow: ${style.elaborateShadow};
@@ -91,19 +91,21 @@ const StyledModalContent = styled.div`
 `;
 
 const Container = styled.div`
-  display: flex;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   padding: 2rem;
   overflow-y: auto;
-  max-width: 600px;
   width: 100%;
+  border: 1px solid #dfdfdf;
+  background-color: #fff;
 
   p {
     margin: 30px 0;
     font-size: 18px;
     text-align: center;
+    max-width: 600px;
   }
 
   img {
@@ -191,7 +193,7 @@ const items = [
 ];
 
 export const PromoMessage = (props) => {
-  const { onClick, onClose } = props;
+  const { onClick, onClose, goToMessages } = props;
 
   const [itemIndex, setItemIndex] = useState(0);
 
@@ -208,7 +210,7 @@ export const PromoMessage = (props) => {
 
   const handleClick = useCallback(() => {
     onClick();
-    onClose();
+    !!onClose && onClose();
   }, []);
 
   return (
@@ -254,7 +256,7 @@ export const PromoMessage = (props) => {
           height="1.5rem"
           style={{ marginRight: "0.5rem" }}
         />
-        Nouveau message de groupe
+        {goToMessages ? "Voir l'onglet messages" : "Nouveau message de groupe"}
       </Button>
     </Container>
   );

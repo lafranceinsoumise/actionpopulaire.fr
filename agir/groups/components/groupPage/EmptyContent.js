@@ -5,19 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import MessageModalTrigger from "@agir/front/formComponents/MessageModal/Trigger";
 
-import emptyMessagesBackground from "./images/empty-messages-bg.svg";
-
-const EmptyContentIllustration = styled.div`
-  margin: 0 auto 22px;
-  width: 168px;
-  height: 161px;
-  background-image: url(${emptyMessagesBackground});
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
-`;
 const StyledIcon = styled.div`
   position: relative;
   height: 40px;
@@ -189,65 +177,4 @@ export const EmptyReports = () => (
   </EmptyContent>
 );
 
-export const EmptyMessages = ({ onClickSendMessage, goToMessages }) => (
-  <EmptyContent
-    style={{
-      marginTop: "1.5rem",
-      flexDirection: "column",
-      textAlign: "center",
-      padding: "40px",
-    }}
-  >
-    <EmptyContentIllustration aria-hidden="true" />
-    <h6>Nouveau</h6>
-    <h3>Envoyez un premier message aux membres de votre groupe&nbsp;!</h3>
-    <ul>
-      <li>
-        <RawFeatherIcon name="heart" />
-        <span>
-          Fini les boucles d’e-mails&nbsp;! Discutez de vos prochaines actions
-          sur Action Populaire.
-        </span>
-      </li>
-      <li>
-        <RawFeatherIcon name="edit-3" />
-        <span>
-          Les animateurs·rices et gestionnaires sont{" "}
-          <strong>à l'initiative de la discussion</strong>
-        </span>
-      </li>
-      <li>
-        <RawFeatherIcon name="lock" />
-        <span>
-          Les messages ne sont <strong>visibles</strong> que par les membres du
-          groupe.
-        </span>
-      </li>
-      <li>
-        <RawFeatherIcon name="mail" />
-        <span>
-          Tous vos membres <strong>recevront un e-mail</strong> avec le contenu
-          de votre message et pourront y <strong>répondre sur le site</strong>.
-        </span>
-      </li>
-    </ul>
-    {onClickSendMessage ? (
-      <div style={{ marginTop: "1.5rem" }}>
-        <MessageModalTrigger onClick={onClickSendMessage} />
-      </div>
-    ) : null}
-    {goToMessages ? (
-      <div style={{ marginTop: "1.5rem" }}>
-        <MessageModalTrigger
-          onClick={goToMessages}
-          label="Voir l'onglet messages"
-        />
-      </div>
-    ) : null}
-  </EmptyContent>
-);
-EmptyMessages.propTypes = {
-  onClickSendMessage: PropTypes.func,
-  goToMessages: PropTypes.func,
-};
 export default EmptyContent;
