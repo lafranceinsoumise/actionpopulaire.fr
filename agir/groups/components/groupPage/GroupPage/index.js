@@ -60,7 +60,7 @@ const GroupPage = (props) => {
       <GroupPageComponent
         backLink={backLink}
         isConnected={isSessionLoaded && isConnected}
-        isLoading={!isSessionLoaded || !group}
+        isLoading={!isSessionLoaded || group === undefined}
         group={group}
         allEvents={allEvents}
         upcomingEvents={upcomingEvents}

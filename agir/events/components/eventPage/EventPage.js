@@ -37,6 +37,7 @@ import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import Map from "@agir/carte/common/Map";
+import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage.js";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import useSWR from "swr";
@@ -373,14 +374,15 @@ export const ConnectedEventPage = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const dispatch = useDispatch();
 
-  const { data: eventData } = useSWR(
+  const { data: eventData, error } = useSWR(
     api.getEventEndpoint("getEvent", { eventPk })
   );
+
   log.debug("Event data", eventData);
 
   let { is2022 } = eventData || {};
 
-  React.useEffect(() => {
+  useEffect(() => {
     is2022 === true && dispatch(setIs2022());
   }, [is2022, dispatch]);
 
@@ -407,6 +409,15 @@ export const ConnectedEventPage = (props) => {
       );
     }
   }, [eventData, dispatch]);
+
+  if ([403, 404].includes(error?.response?.status))
+    return (
+      <NotFoundPage
+        isTopBar={false}
+        title="Événement"
+        subtitle="Cet événement"
+      />
+    );
 
   return (
     <>

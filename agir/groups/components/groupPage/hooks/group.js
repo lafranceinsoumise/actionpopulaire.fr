@@ -7,9 +7,12 @@ import * as api from "@agir/groups/groupPage/api";
 const log = logger(__filename);
 
 export const useGroup = (groupPk) => {
-  const { data } = useSWR(api.getGroupPageEndpoint("getGroup", { groupPk }));
+  const { data, error } = useSWR(
+    api.getGroupPageEndpoint("getGroup", { groupPk })
+  );
   log.debug("Group data", data);
 
+  if ([403, 404].includes(error?.response?.status)) return false;
   return data;
 };
 

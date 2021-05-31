@@ -3,7 +3,12 @@ import os
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.gis.db.models.functions import Distance
-from django.http import HttpResponsePermanentRedirect, Http404, FileResponse
+from django.http import (
+    HttpResponsePermanentRedirect,
+    Http404,
+    FileResponse,
+    HttpResponse,
+)
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -291,3 +296,12 @@ class OfflineApp(ReactBaseView):
 
 class CreateEventView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
+
+
+class NotFoundView(ReactBaseView):
+    bundle_name = "front/app"
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        response.status_code = 404
+        return response
