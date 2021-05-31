@@ -24,7 +24,6 @@ export const Default = Template.bind({});
 Default.args = {
   message: messages[0],
   isSelected: false,
-  unreadCommentCount: 0,
 };
 
 export const Selected = Template.bind({});
@@ -36,5 +35,8 @@ Selected.args = {
 export const WithUnreadComments = Template.bind({});
 WithUnreadComments.args = {
   ...Default.args,
-  unreadCommentCount: 10,
+  message: {
+    ...Default.args.message,
+    unreadCommentCount: 10,
+  },
 };

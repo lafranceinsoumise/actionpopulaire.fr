@@ -4,7 +4,8 @@
     "created": "2021-01-01 12:00:00",
     "author": {
       "id": "Bill",
-      "displayName": "Bill Murray"
+      "displayName": "Bill Murray",
+      "image": "https://www.fillmurray.com/200/200"
     },
     "group": {
       "name": "Comités d'appui et de travail pour une Vienne Insoumise"
@@ -38,7 +39,8 @@
         "id": "comment-1",
         "author": {
           "id": "Bill",
-          "displayName": "Bill Murray"
+          "displayName": "Bill Murray",
+          "image": "https://www.fillmurray.com/200/200"
         },
         "text": "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
         "created": "2021-01-09 12:30:00"
@@ -49,7 +51,8 @@
         "id": "comment-1",
         "author": {
           "id": "Bill",
-          "displayName": "Bill Murray"
+          "displayName": "Bill Murray",
+          "image": "https://www.fillmurray.com/200/200"
         },
         "text": "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
         "created": "2021-01-09 12:30:00"
@@ -96,7 +99,8 @@
     "created": "2021-01-09 12:00:00",
     "author": {
       "id": "Bill",
-      "displayName": "Bill Murray"
+      "displayName": "Bill Murray",
+      "image": "https://www.fillmurray.com/200/200"
     },
     "group": {
       "name": "Comités d'appui et de travail pour une Vienne Insoumise"
@@ -125,7 +129,8 @@
         "id": "comment-1",
         "author": {
           "id": "Bill",
-          "displayName": "Bill Murray"
+          "displayName": "Bill Murray",
+          "image": "https://www.fillmurray.com/200/200"
         },
         "text": "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
         "created": "2021-01-09 12:30:00"
@@ -136,7 +141,8 @@
         "id": "comment-1",
         "author": {
           "id": "Bill",
-          "displayName": "Bill Murray"
+          "displayName": "Bill Murray",
+          "image": "https://www.fillmurray.com/200/200"
         },
         "text": "Est-ce que c’est possible de commencer un peu plus tard ? Ma fille termine le karaté et j’arriverai à la maison tout juste...",
         "created": "2021-01-09 12:30:00"

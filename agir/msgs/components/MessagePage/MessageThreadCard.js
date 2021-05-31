@@ -29,6 +29,7 @@ const StyledCard = styled.button`
   width: 100%;
   padding: 1rem;
   display: flex;
+  text-align: left;
   justify-content: space-between;
   align-items: center;
   border: none;
@@ -74,8 +75,7 @@ const StyledCard = styled.button`
 
 const MessageThreadCard = (props) => {
   const {
-    message: { id, author, group, text },
-    unreadCommentCount,
+    message: { id, author, group, text, unreadCommentCount = 0 },
     isSelected,
     onClick,
   } = props;
@@ -114,9 +114,9 @@ MessageThreadCard.propTypes = {
       name: PropTypes.string.isRequired,
     }).isRequired,
     text: PropTypes.string.isRequired,
+    unreadCommentCount: PropTypes.number,
   }).isRequired,
   isSelected: PropTypes.bool,
-  unreadCommentCount: PropTypes.number,
   onClick: PropTypes.func,
 };
 

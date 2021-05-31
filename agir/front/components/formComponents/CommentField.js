@@ -44,6 +44,7 @@ const StyledAction = styled.div``;
 const StyledMessage = styled.div``;
 const StyledWrapper = styled.form`
   display: flex;
+  margin-top: auto;
   max-width: 100%;
 
   & > ${Avatar} {
@@ -214,7 +215,7 @@ export const CommentButton = (props) => {
   const { onClick } = props;
   return onClick ? (
     <StyledCommentButton onClick={onClick}>
-      Écrire un commentaire
+      Écrire un réponse
     </StyledCommentButton>
   ) : null;
 };
@@ -359,7 +360,7 @@ const CommentField = (props) => {
                 autoFocus={isFocused}
                 label={user.displayName}
                 disabled={disabled || isLoading}
-                placeholder="Écrire un commentaire"
+                placeholder="Écrire un réponse"
                 maxLength={1000}
                 hasCounter={false}
               />
@@ -372,7 +373,7 @@ const CommentField = (props) => {
           ) : (
             <>
               <StyledCommentButton onFocus={handleFocus}>
-                Écrire un commentaire
+                Écrire un réponse
               </StyledCommentButton>
               <RawFeatherIcon name="send" color={style.primary500} small />
             </>
