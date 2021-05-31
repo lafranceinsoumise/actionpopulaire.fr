@@ -23,6 +23,7 @@ from agir.lib.models import TimeStampedModel
 MUNICIPAL_DEFAULT_DATE_RANGE = DateRange(date(2020, 6, 28), date(2026, 3, 31))
 DEPARTEMENTAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 3, 29), date(2021, 3, 31))
 REGIONAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 12, 13), date(2021, 3, 31))
+CONSULAIRE_DEFAULT_DATE_RANGE = DateRange(date(2021, 6, 1), date(2027, 5, 31))
 
 DELEGATIONS_CHOICES = (
     ("social", "Action sociale"),
@@ -207,6 +208,9 @@ class MandatAbstrait(UniqueWithinDates, MandatHistoryMixin, models.Model):
 
     def actif(self):
         return timezone.now().date() in self.dates
+
+    def passe(self):
+        return timezone.now().date() >= self.dates.upper
 
     @cached_property
     def distance(self):
@@ -574,10 +578,71 @@ class MandatRegional(MandatAbstrait):
         )
 
 
+@reversion.register()
+class MandatConsulaire(MandatAbstrait):
+    class Mandat(models.TextChoices):
+        CONSEILLER = "C", "Conseiller⋅ère consulaire"
+        MEMBRE_AFE = "M", "Conseiller⋅ère consulaire et membre de l'AFE"
+        DELEGUE = "D", "Délégué⋅e consulaire"
+
+    person = models.ForeignKey(
+        "people.Person",
+        verbose_name="Élu",
+        on_delete=models.CASCADE,
+        related_name="mandats_consulaires",
+        related_query_name="mandat_consulaire",
+    )
+
+    conseil = models.ForeignKey(
+        "data_france.CirconscriptionConsulaire",
+        verbose_name="Circonscription consulaire",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+
+    mandat = models.CharField(
+        verbose_name="Mandat",
+        max_length=1,
+        blank=False,
+        choices=Mandat.choices,
+        default=Mandat.CONSEILLER,
+    )
+
+    def __str__(self):
+        if hasattr(self, "person") and hasattr(self, "conseil"):
+            if self.conseil is None:
+                return f"{self.person}, {genrer(self.person.gender, self.get_mandat_display())} (circonscription inconnue)"
+            return f"{self.person}, {genrer(self.person.gender, self.get_mandat_display())} ({self.conseil.nom})"
+
+        return "Nouveau mandat consulaire"
+
+    def titre_complet(self, conseil_avant=False):
+        titre = genrer(self.person.gender, self.get_mandat_display())
+
+        if conseil_avant:
+            return f"{self.conseil.nom}, {titre}"
+        return f"{titre} ({self.conseil.nom})"
+
+    def get_absolute_url(self):
+        return reverse(
+            viewname="elus:modifier_mandat_consulaire", kwargs={"pk": self.id},
+        )
+
+    def get_delete_url(self):
+        return reverse(
+            viewname="elus:supprimer_mandat_consulaire", kwargs={"pk": self.id},
+        )
+
+    class Meta:
+        verbose_name_plural = "mandats consulaires"
+
+
 types_elus = {
     "municipal": MandatMunicipal,
     "departemental": MandatDepartemental,
     "regional": MandatRegional,
+    "consulaire": MandatConsulaire,
 }
 
 

@@ -120,3 +120,27 @@ class ModifierMandatRegionalView(BaseMandatRegional, UpdateView):
 
 class SupprimerMandatRegionalView(BaseMandatRegional, DeleteView):
     template_name = "elus/supprimer_mandat_conseil.html"
+
+
+class BaseMandatConsulaire(BaseMandatView):
+    model = models.MandatConsulaire
+
+    def get_mandat_adjectif(self):
+        return "consulaire"
+
+    def get_conseil_avec_charniere(self):
+        return f"({self.object.conseil.nom})"
+
+
+class CreerMandatConsulaireView(BaseMandatConsulaire, CreateView):
+    form_class = forms.MandatConsulaireForm
+    template_name = "elus/creer_mandat_conseil.html"
+
+
+class ModifierMandatConsulaireView(BaseMandatConsulaire, UpdateView):
+    form_class = forms.MandatConsulaireForm
+    template_name = "elus/modifier_mandat_conseil.html"
+
+
+class SupprimerMandatConsulaireView(BaseMandatConsulaire, DeleteView):
+    template_name = "elus/supprimer_mandat_conseil.html"

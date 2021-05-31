@@ -1,6 +1,10 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
-from data_france.models import CollectiviteDepartementale, CollectiviteRegionale
+from data_france.models import (
+    CollectiviteDepartementale,
+    CollectiviteRegionale,
+    CirconscriptionConsulaire,
+)
 from django import forms
 from django.contrib.postgres.forms import DateRangeField
 from django.core.exceptions import NON_FIELD_ERRORS
@@ -13,7 +17,9 @@ from agir.elus.models import (
     DELEGATIONS_CHOICES,
     MandatDepartemental,
     MandatRegional,
+    MandatConsulaire,
     StatutMandat,
+    CONSULAIRE_DEFAULT_DATE_RANGE,
 )
 from agir.lib.form_fields import CommuneField
 from agir.people.models import Person
@@ -38,22 +44,10 @@ class BaseMandatForm(forms.ModelForm):
         " mandat devrait se finir (à moins que vous n'ayiez déjà démissionné).",
     )
 
-    delegations = forms.MultipleChoiceField(
-        label="Si vous êtes vice-président⋅e, indiquez dans quels domains rentrent vos"
-        " délégations.",
-        choices=DELEGATIONS_CHOICES,
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-    )
-
     def __init__(self, *args, person, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.instance.person = person
-
-        self.fields["mandat"].choices = [
-            (None, "Indiquez votre situation au conseil")
-        ] + self.fields["mandat"].choices[1:]
 
         if person.membre_reseau_elus == Person.MEMBRE_RESEAU_NON:
             self.fields["membre_reseau_elus"].initial = Person.MEMBRE_RESEAU_NON
@@ -64,7 +58,7 @@ class BaseMandatForm(forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.add_input(Submit("valider", "Valider"))
-        self.helper.layout = Layout("conseil", "mandat", "dates", "delegations")
+        self.helper.layout = Layout("conseil", "mandat", "dates")
         if "membre_reseau_elus" in self.fields:
             self.helper.layout.fields.insert(0, "membre_reseau_elus")
 
@@ -93,7 +87,22 @@ class BaseMandatForm(forms.ModelForm):
         }
 
 
-class MandatMunicipalForm(BaseMandatForm):
+class AvecDelegationMixin(forms.Form):
+    delegations = forms.MultipleChoiceField(
+        label="Si vous êtes vice-président⋅e, indiquez dans quels domains rentrent vos"
+        " délégations.",
+        choices=DELEGATIONS_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper.layout.fields.append("delegations")
+
+
+class MandatMunicipalForm(AvecDelegationMixin, BaseMandatForm):
     default_date_range = MUNICIPAL_DEFAULT_DATE_RANGE
     conseil = CommuneField(types=["COM", "SRM"], label="Commune")
 
@@ -132,7 +141,7 @@ class MandatMunicipalForm(BaseMandatForm):
         fields = BaseMandatForm.Meta.fields + ("communautaire", "delegations",)
 
 
-class MandatDepartementalForm(BaseMandatForm):
+class MandatDepartementalForm(AvecDelegationMixin, BaseMandatForm):
     conseil = forms.ModelChoiceField(
         CollectiviteDepartementale.objects.all(),
         label="Département ou métropole",
@@ -147,7 +156,7 @@ class MandatDepartementalForm(BaseMandatForm):
         fields = BaseMandatForm.Meta.fields + ("delegations",)
 
 
-class MandatRegionalForm(BaseMandatForm):
+class MandatRegionalForm(AvecDelegationMixin, BaseMandatForm):
     default_date_range = REGIONAL_DEFAULT_DATE_RANGE
     conseil = forms.ModelChoiceField(
         CollectiviteRegionale.objects.all(),
@@ -158,4 +167,17 @@ class MandatRegionalForm(BaseMandatForm):
 
     class Meta(BaseMandatForm.Meta):
         model = MandatRegional
-        fields = BaseMandatForm.Meta.fields + ("conseil", "delegations",)
+        fields = BaseMandatForm.Meta.fields + ("delegations",)
+
+
+class MandatConsulaireForm(BaseMandatForm):
+    default_date_range = CONSULAIRE_DEFAULT_DATE_RANGE
+    conseil = forms.ModelChoiceField(
+        CirconscriptionConsulaire.objects.all(),
+        label="Circonscription consulaire",
+        empty_label="Indiquez la circonscription consulaire",
+        required=True,
+    )
+
+    class Meta(BaseMandatForm.Meta):
+        model = MandatConsulaire

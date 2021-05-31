@@ -3,6 +3,7 @@ from datetime import datetime
 import reversion
 from data_france.admin import EluMunicipalAdmin as OriginalEluMunicipalAdmin
 from data_france.models import (
+    CirconscriptionConsulaire,
     Commune,
     CollectiviteDepartementale,
     CollectiviteRegionale,
@@ -23,6 +24,8 @@ from agir.elus.models import (
     DEPARTEMENTAL_DEFAULT_DATE_RANGE,
     REGIONAL_DEFAULT_DATE_RANGE,
     RechercheParrainageMaire,
+    MandatConsulaire,
+    CONSULAIRE_DEFAULT_DATE_RANGE,
 )
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
@@ -576,6 +579,79 @@ class MandatRegionalAdmin(BaseMandatAdmin):
 
     def get_conseil_queryset(self, request):
         return CollectiviteRegionale.objects.all()
+
+    class Media:
+        pass
+
+
+@admin.register(MandatConsulaire)
+class MandatConsulaireAdmin(BaseMandatAdmin):
+    list_filter = (
+        "statut",
+        "mandat",
+        DatesFilter,
+        "person__is_insoumise",
+        "person__is_2022",
+        AppelEluFilter,
+    )
+    default_date_range = CONSULAIRE_DEFAULT_DATE_RANGE
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "person",
+                    "conseil",
+                    "statut",
+                    "mandat",
+                    "membre_reseau_elus",
+                    "is_insoumise",
+                    "is_2022",
+                    "signataire_appel",
+                    "commentaires",
+                )
+            },
+        ),
+        (
+            "Informations sur l'élu⋅e",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "gender",
+                    "email_officiel",
+                    "contact_phone",
+                    "location_address1",
+                    "location_address2",
+                    "location_zip",
+                    "location_city",
+                    "new_email",
+                )
+            },
+        ),
+        ("Précisions sur le mandat", {"fields": ("dates",)},),
+    )
+
+    list_display = (
+        "person",
+        "conseil",
+        "mandat",
+        "membre_reseau_elus",
+        "statut",
+        "actif",
+        "is_insoumise_display",
+        "is_2022_display",
+        "is_2022_appel_elus",
+    )
+
+    readonly_fields = (
+        "actif",
+        "person_link",
+    )
+
+    def get_conseil_queryset(self, request):
+        return CirconscriptionConsulaire.objects.all()
 
     class Media:
         pass
