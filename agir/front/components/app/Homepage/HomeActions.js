@@ -64,7 +64,7 @@ const HomeActions = () => {
   return (
     <StyledActions>
       <StyledArticle route="groupMap">
-        <img src={meetImage} alt="manifestation" />
+        <img src={meetImage} height="716" width="424" alt="manifestation" />
         <h4>Rencontrez</h4>
         <p>
           d'autres membres
@@ -74,7 +74,12 @@ const HomeActions = () => {
         <Button color="secondary">Voir les groupes</Button>
       </StyledArticle>
       <StyledArticle route="help">
-        <img src={actImage} alt="distribution de tracts" />
+        <img
+          src={actImage}
+          height="716"
+          width="424"
+          alt="distribution de tracts"
+        />
         <h4>Agissez concrètement</h4>
         <p>formez-vous et convainquez des gens près de chez vous&nbsp;!</p>
         <Button color="secondary">Lire les fiches pratiques</Button>
@@ -82,6 +87,8 @@ const HomeActions = () => {
       <StyledArticle route="login">
         <img
           src={organizeImage}
+          height="716"
+          width="424"
           alt="le premier cahier du programme l'Avenir en Commun"
         />
         <h4>Organisez</h4>
