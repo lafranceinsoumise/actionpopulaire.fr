@@ -178,7 +178,6 @@ export const GroupMessages = (props) => {
           {isManager && !isLoading && !messages?.length && (
             <PromoMessage onClick={writeNewMessage} />
           )}
-          <PromoMessage onClick={writeNewMessage} />
 
           {typeof loadMoreMessages === "function" ? (
             <StyledButton>
