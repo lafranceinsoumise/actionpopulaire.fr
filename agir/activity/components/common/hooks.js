@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import {
+  activityStatus,
   getUninteracted,
   getUnread,
   setActivityAsInteracted,
@@ -42,7 +43,15 @@ export const useCustomAnnouncement = (slug) => {
 
   const announcementId = data?.id;
   const announcement = useMemo(
-    () => (announcementId ? data : null),
+    () => {
+      if (
+        !announcementId ||
+        data?.status === activityStatus.STATUS_INTERACTED
+      ) {
+        return null;
+      }
+      return data;
+    },
     //eslint-disable-next-line
     [announcementId]
   );
@@ -54,7 +63,13 @@ export const useCustomAnnouncement = (slug) => {
     }
     await setActivityAsInteracted(activityId);
 
-    mutate(null, false);
+    mutate(
+      (announcement) => ({
+        ...announcement,
+        status: activityStatus.STATUS_INTERACTED,
+      }),
+      false
+    );
   }, [activityId, mutate]);
 
   return [announcement, dismissCallback, typeof data === "undefined"];

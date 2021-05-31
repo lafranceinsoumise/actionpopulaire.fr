@@ -359,4 +359,5 @@ class UserCustomAnnouncementAPITestCase(TestCase):
         response = self.client.get(
             f"/api/user/announcements/custom/{self.custom_announcement.custom_display}/"
         )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], str(self.custom_announcement.id))
