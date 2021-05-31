@@ -41,9 +41,6 @@ class UserContextSerializer(serializers.Serializer):
 
 
 class SessionSerializer(serializers.Serializer):
-    csrfToken = serializers.SerializerMethodField(
-        method_name="get_csrf_token", read_only=True
-    )
     user = serializers.SerializerMethodField(method_name="get_user", read_only=True)
     toasts = serializers.SerializerMethodField(method_name="get_toasts", read_only=True)
     routes = serializers.SerializerMethodField(
@@ -126,9 +123,6 @@ class SessionSerializer(serializers.Serializer):
                     routes["groups__personGroups"].append(link)
 
             return routes
-
-    def get_csrf_token(self, request):
-        return get_token(request)
 
     def get_toasts(self, request):
         return [
