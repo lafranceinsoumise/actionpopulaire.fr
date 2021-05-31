@@ -8,6 +8,7 @@ import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import ModalWrapper from "@agir/front/genericComponents/Modal";
 
+import GroupStep from "./GroupStep";
 import EventStep from "./EventStep";
 import MessageStep from "./MessageStep";
 
@@ -133,12 +134,14 @@ const Modal = (props) => {
   const {
     shouldShow,
     onClose,
+    groups,
     events,
     onSend,
     user,
     isLoading,
     loadMoreEvents,
     message,
+    onSelectGroup,
   } = props;
 
   const initialMessage = useMemo(() => {
@@ -156,9 +159,16 @@ const Modal = (props) => {
   const [selectedEvent, setSelectedEvent] = useState(
     (message && message.linkedEvent) || null
   );
+  const [selectedGroup, setSelectedGroup] = useState(message?.group || null);
 
-  const maySend =
-    !isLoading && selectedEvent && text && text.trim().length <= 2000;
+  const maySend = useMemo(() => {
+    let maySend =
+      !isLoading && selectedEvent && text && text.trim().length <= 2000;
+    if (Array.isArray(groups)) {
+      return maySend && selectedGroup;
+    }
+    return maySend;
+  }, [groups, isLoading, selectedEvent, text, selectedGroup]);
 
   const handleChangeText = useCallback((text) => {
     setText(text);
@@ -168,6 +178,14 @@ const Modal = (props) => {
     setSelectedEvent(event);
     setHasBackButton(true);
   }, []);
+
+  const handleSelectGroup = useCallback(
+    (group) => {
+      setSelectedGroup(group);
+      onSelectGroup && onSelectGroup(group);
+    },
+    [onSelectGroup]
+  );
 
   const handleClearEvent = useCallback(() => {
     setSelectedEvent(null);
@@ -180,13 +198,15 @@ const Modal = (props) => {
         ...(initialMessage || {}),
         text: text.trim(),
         linkedEvent: selectedEvent,
+        group: selectedGroup,
       });
-  }, [maySend, onSend, initialMessage, text, selectedEvent]);
+  }, [maySend, onSend, initialMessage, text, selectedEvent, selectedGroup]);
 
   useEffect(() => {
     if (shouldShow) {
-      setText((initialMessage && initialMessage.text) || "");
-      setSelectedEvent((initialMessage && initialMessage.linkedEvent) || null);
+      setText(initialMessage?.text || "");
+      setSelectedEvent(initialMessage?.linkedEvent || null);
+      setSelectedGroup(initialMessage?.group || null);
       setHasBackButton(false);
     }
   }, [shouldShow, initialMessage]);
@@ -200,13 +220,12 @@ const Modal = (props) => {
     [maySend, handleSend]
   );
 
-  const eventOptions = useMemo(
-    () =>
-      Array.isArray(events) && events.length > 0
-        ? [...EMPTY_EVENTS, ...events]
-        : [...EMPTY_EVENTS],
-    [events]
-  );
+  const eventOptions = useMemo(() => {
+    if (!Array.isArray(events) || events.length === 0) {
+      return [...EMPTY_EVENTS];
+    }
+    return [...EMPTY_EVENTS, ...events];
+  }, [events]);
 
   return (
     <ModalWrapper
@@ -240,7 +259,16 @@ const Modal = (props) => {
           ) : null}
         </StyledModalHeader>
         <StyledModalBody onKeyDown={handleSendOnCtrlEnter}>
-          {selectedEvent ? (
+          {Array.isArray(groups) && !selectedGroup ? (
+            <GroupStep groups={groups} onSelectGroup={handleSelectGroup} />
+          ) : !selectedEvent ? (
+            <EventStep
+              events={eventOptions}
+              onSelectEvent={handleSelectEvent}
+              loadMoreEvents={loadMoreEvents}
+              hasEmailWarning={!message || !message.id}
+            />
+          ) : (
             <MessageStep
               text={text}
               event={selectedEvent}
@@ -249,13 +277,6 @@ const Modal = (props) => {
               onClearEvent={handleClearEvent}
               disabled={isLoading}
               maxLength={2000}
-            />
-          ) : (
-            <EventStep
-              events={eventOptions}
-              onSelectEvent={handleSelectEvent}
-              loadMoreEvents={loadMoreEvents}
-              hasEmailWarning={!message || !message.id}
             />
           )}
         </StyledModalBody>
@@ -273,13 +294,16 @@ const Modal = (props) => {
 Modal.propTypes = {
   shouldShow: PropTypes.bool,
   onClose: PropTypes.func,
+  groups: PropTypes.arrayOf(PropTypes.object),
   events: PropTypes.arrayOf(PropTypes.object),
   selectedEvent: PropTypes.object,
   loadMoreEvents: PropTypes.func,
+  onSelectGroup: PropTypes.func,
   message: PropTypes.shape({
     id: PropTypes.string,
     text: PropTypes.string,
     linkedEvent: PropTypes.object,
+    group: PropTypes.object,
   }),
   onSend: PropTypes.func.isRequired,
   user: PropTypes.object,
