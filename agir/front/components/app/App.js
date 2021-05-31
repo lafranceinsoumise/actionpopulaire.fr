@@ -14,9 +14,9 @@ const fetcher = async (url) => {
   return res.data;
 };
 
-const errorRetry = (error) => {
+const errorRetry = (error, ...rest) => {
   if ([403, 404].includes(error.status)) return;
-  SWRConfig.default.onErrorRetry();
+  SWRConfig.default.onErrorRetry(error, ...rest);
 };
 
 export default function App() {
