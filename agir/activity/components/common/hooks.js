@@ -37,7 +37,7 @@ export const useRequiredActivityCount = () => {
 
 export const useCustomAnnouncement = (slug) => {
   const { data: session } = useSWR("/api/session/");
-  const { data, mutate } = useSWR(
+  const { data, error, mutate } = useSWR(
     session?.user && slug ? `/api/user/announcements/custom/${slug}/` : null
   );
 
@@ -72,5 +72,9 @@ export const useCustomAnnouncement = (slug) => {
     );
   }, [activityId, mutate]);
 
-  return [announcement, dismissCallback, typeof data === "undefined"];
+  return [
+    announcement,
+    dismissCallback,
+    error?.response?.status !== 404 && typeof data === "undefined",
+  ];
 };
