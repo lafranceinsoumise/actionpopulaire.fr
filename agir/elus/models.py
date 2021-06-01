@@ -611,10 +611,15 @@ class MandatConsulaire(MandatAbstrait):
 
     def titre_complet(self, conseil_avant=False):
         titre = genrer(self.person.gender, self.get_mandat_display())
+        conseil = (
+            self.conseil.nom
+            if self.conseil
+            else "Circonscription consulaire non renseignée"
+        )
 
         if conseil_avant:
-            return f"{self.conseil.nom}, {titre}"
-        return f"{titre} ({self.conseil.nom})"
+            return f"{conseil}, {titre}"
+        return f"{titre} ({conseil})"
 
     def get_absolute_url(self):
         return reverse(
