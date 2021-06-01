@@ -185,7 +185,7 @@ $grid-float-breakpoint: $screen-md-min !default;
 $grid-float-breakpoint-max: ($grid-float-breakpoint - 1) !default;
 
 // Basics of navbar
-$navbar-height: 80px;
+$navbar-height: 72px;
 $navbar-margin-bottom: $line-height-computed !default;
 $navbar-border-radius: $border-radius-base !default;
 $navbar-padding-horizontal: floor(($grid-gutter-width / 2)) !default;
@@ -230,3 +230,8 @@ $navbar-inverse-toggle-border-color: #333 !default;
 $rainbow-colors: #e7890b, #34c17d, #e04b35, #4c6de0, #c2306e, #fac43e, #2db3ac;
 
 $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
+
+
+:export {
+  navbarHeight: $navbar-height;
+}

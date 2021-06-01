@@ -5,10 +5,10 @@ import Avatar from "@agir/front/genericComponents/Avatar";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import { Hide } from "@agir/front/genericComponents/grid";
 
-import MenuLink from "./MenuLink";
+import MenuLink, { TopbarLink } from "./MenuLink";
 import UserMenu from "./UserMenu";
 
-const AnonymousLink = () => {
+export const AnonymousLinks = () => {
   return (
     <>
       <Hide over>
@@ -41,13 +41,34 @@ const UserLink = ({ user, routes, ...rest }) => {
   }, []);
 
   return (
-    <div style={{ position: "relative", padding: 0 }}>
-      <MenuLink {...rest} style={{ padding: 0 }} as="button" onClick={openMenu}>
-        <Avatar displayName={user.displayName} image={user.image} />
-        <Hide under>
-          <span>{user.displayName}</span>
-        </Hide>
-      </MenuLink>
+    <div style={{ position: "relative", padding: 0, margin: 0 }}>
+      <Hide under>
+        <MenuLink
+          {...rest}
+          style={{ padding: 0 }}
+          as="button"
+          onClick={openMenu}
+        >
+          <TopbarLink>
+            <Avatar
+              displayName={user.fullName || user.displayName}
+              image={user.image}
+              style={{ width: "28px", height: "28px" }}
+            />
+            <span>{user.fullName || user.displayName}</span>
+          </TopbarLink>
+        </MenuLink>
+      </Hide>
+      <Hide over>
+        <MenuLink
+          {...rest}
+          style={{ padding: 0 }}
+          as="button"
+          onClick={openMenu}
+        >
+          <Avatar displayName={user.displayName} image={user.image} />
+        </MenuLink>
+      </Hide>
       <UserMenu
         isOpen={isMenuOpen}
         onDismiss={closeMenu}
@@ -89,11 +110,11 @@ const RightLink = (props) => {
   if (user) {
     return <UserLink {...props} />;
   }
-  return <AnonymousLink {...props} />;
+  return <AnonymousLinks {...props} />;
 };
 
 RightLink.propTypes =
-  AnonymousLink.propTypes =
+  AnonymousLinks.propTypes =
   SettingsLink.propTypes =
   UserLink.propTypes =
     {

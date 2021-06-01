@@ -12,7 +12,7 @@ const SearchBarButton = styled(Button)``;
 const SearchBarInput = styled.input``;
 
 const SearchBarWrapper = styled.div`
-  max-width: ${({ $connected }) => ($connected ? "412px" : "353px")};
+  max-width: ${({ $connected }) => ($connected ? "353px" : "412px")};
   display: flex;
   border: 1px solid;
   border-color: ${({ $focused }) =>
@@ -35,6 +35,8 @@ const SearchBarWrapper = styled.div`
     border-radius: 0.5rem;
     display: flex;
     justify-content: center;
+    opacity: ${({ $focused }) => ($focused ? 1 : 0)};
+    transition: 0.1s ease;
   }
 
   ${SearchBarIndicator} {
@@ -76,7 +78,7 @@ const SearchBar = ({ isConnected = false }) => {
     }
   }, []);
   return (
-    <SearchBarWrapper $focused={isFocused} $isConnected={isConnected}>
+    <SearchBarWrapper $focused={isFocused} $connected={isConnected}>
       <SearchBarIndicator>
         <RawFeatherIcon
           name="search"
@@ -99,17 +101,15 @@ const SearchBar = ({ isConnected = false }) => {
         onFocus={handleFocus}
         onBlur={handleBlur}
       />
-      {isFocused && (
-        <SearchBarButton onClick={handleClick} type="submit" color="primary">
-          <RawFeatherIcon
-            name="arrow-right"
-            color="#fff"
-            width="1rem"
-            height="1rem"
-            stroke-width={2}
-          />
-        </SearchBarButton>
-      )}
+      <SearchBarButton onClick={handleClick} type="submit" color="primary">
+        <RawFeatherIcon
+          name="arrow-right"
+          color="#fff"
+          width="1rem"
+          height="1rem"
+          stroke-width={2}
+        />
+      </SearchBarButton>
     </SearchBarWrapper>
   );
 };

@@ -1,5 +1,6 @@
 import styled from "styled-components";
 
+import theme from "@agir/front/theme/_variables.scss";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Link from "@agir/front/app/Link";
@@ -9,7 +10,7 @@ const MenuLink = styled(Link)`
   display: flex;
   align-items: center;
   color: ${style.black1000};
-  font-weight: 500;
+  font-weight: 400;
   height: 3rem;
   border: none;
   background-color: transparent;
@@ -45,6 +46,43 @@ const MenuLink = styled(Link)`
       height: 2rem;
       width: 2rem;
     }
+  }
+`;
+
+export const TopbarLink = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: ${theme.navbarHeight};
+  padding-left: 11px;
+  padding-right: 11px;
+  transition: 0.2s ease;
+  font-size: 12px;
+  position: relative;
+
+  span {
+    margin: 0;
+    margin-top: 5px;
+    max-width: 75px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-wrap: initial;
+  }
+
+  &:hover {
+    color: ${style.primary500};
+  }
+  color: ${({ $active }) => ($active ? style.primary500 : "")};
+
+  div {
+    display: ${({ $active }) => ($active ? "block" : "none")};
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 100%;
+    height: 2px;
+    background-color: ${style.primary500};
   }
 `;
 
