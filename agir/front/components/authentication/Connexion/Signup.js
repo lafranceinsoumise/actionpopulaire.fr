@@ -112,7 +112,7 @@ const SignUp = () => {
         });
         return;
       }
-      const data = await signUp(formData);
+      const data = await signUp(formData, location?.state?.next);
       if (data.error) {
         setError(data.error);
         return;

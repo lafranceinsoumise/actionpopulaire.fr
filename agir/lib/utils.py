@@ -1,4 +1,4 @@
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import requests
 from PIL import Image
@@ -120,3 +120,7 @@ def get_client_ip(request):
             return x_forwarded_for.split(",")[0].strip()
 
     return request.META["REMOTE_ADDR"]
+
+
+def is_absolute_url(url):
+    return isinstance(url, str) and url != "" and bool(urlparse(url).netloc)
