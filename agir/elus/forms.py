@@ -11,23 +11,17 @@ from django.core.exceptions import NON_FIELD_ERRORS
 
 from agir.elus.models import (
     MandatMunicipal,
-    MUNICIPAL_DEFAULT_DATE_RANGE,
-    DEPARTEMENTAL_DEFAULT_DATE_RANGE,
-    REGIONAL_DEFAULT_DATE_RANGE,
     DELEGATIONS_CHOICES,
     MandatDepartemental,
     MandatRegional,
     MandatConsulaire,
     StatutMandat,
-    CONSULAIRE_DEFAULT_DATE_RANGE,
 )
 from agir.lib.form_fields import CommuneField
 from agir.people.models import Person
 
 
 class BaseMandatForm(forms.ModelForm):
-    default_date_range = None
-
     membre_reseau_elus = forms.ChoiceField(
         label="Souhaitez-vous faire partie du réseau des élu⋅es ?",
         choices=(
@@ -53,8 +47,6 @@ class BaseMandatForm(forms.ModelForm):
             self.fields["membre_reseau_elus"].initial = Person.MEMBRE_RESEAU_NON
         elif person.membre_reseau_elus != Person.MEMBRE_RESEAU_INCONNU:
             del self.fields["membre_reseau_elus"]
-
-        self.fields["dates"].initial = self.default_date_range
 
         self.helper = FormHelper()
         self.helper.add_input(Submit("valider", "Valider"))
@@ -103,7 +95,6 @@ class AvecDelegationMixin(forms.Form):
 
 
 class MandatMunicipalForm(AvecDelegationMixin, BaseMandatForm):
-    default_date_range = MUNICIPAL_DEFAULT_DATE_RANGE
     conseil = CommuneField(types=["COM", "SRM"], label="Commune")
 
     def __init__(self, *args, **kwargs):
@@ -149,15 +140,12 @@ class MandatDepartementalForm(AvecDelegationMixin, BaseMandatForm):
         required=True,
     )
 
-    default_date_range = DEPARTEMENTAL_DEFAULT_DATE_RANGE
-
     class Meta(BaseMandatForm.Meta):
         model = MandatDepartemental
         fields = BaseMandatForm.Meta.fields + ("delegations",)
 
 
 class MandatRegionalForm(AvecDelegationMixin, BaseMandatForm):
-    default_date_range = REGIONAL_DEFAULT_DATE_RANGE
     conseil = forms.ModelChoiceField(
         CollectiviteRegionale.objects.all(),
         label="Région ou collectivité unique",
@@ -171,7 +159,6 @@ class MandatRegionalForm(AvecDelegationMixin, BaseMandatForm):
 
 
 class MandatConsulaireForm(BaseMandatForm):
-    default_date_range = CONSULAIRE_DEFAULT_DATE_RANGE
     conseil = forms.ModelChoiceField(
         CirconscriptionConsulaire.objects.all(),
         label="Circonscription consulaire",

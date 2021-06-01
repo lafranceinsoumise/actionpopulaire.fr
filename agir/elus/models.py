@@ -20,10 +20,6 @@ __all__ = ["MandatMunicipal", "MandatDepartemental", "MandatRegional", "StatutMa
 
 from agir.lib.models import TimeStampedModel
 
-MUNICIPAL_DEFAULT_DATE_RANGE = DateRange(date(2020, 6, 28), date(2026, 3, 31))
-DEPARTEMENTAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 3, 29), date(2021, 3, 31))
-REGIONAL_DEFAULT_DATE_RANGE = DateRange(date(2015, 12, 13), date(2021, 3, 31))
-CONSULAIRE_DEFAULT_DATE_RANGE = DateRange(date(2021, 6, 1), date(2027, 5, 31))
 
 DELEGATIONS_CHOICES = (
     ("social", "Action sociale"),
@@ -230,6 +226,8 @@ class MandatAbstrait(UniqueWithinDates, MandatHistoryMixin, models.Model):
 
 @reversion.register()
 class MandatMunicipal(MandatAbstrait):
+    DEFAULT_DATE_RANGE = DateRange(date(2020, 6, 28), date(2026, 3, 31))
+
     MANDAT_INCONNU = "INC"
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
@@ -309,10 +307,6 @@ class MandatMunicipal(MandatAbstrait):
         default=MANDAT_EPCI_PAS_DE_MANDAT,
     )
 
-    def __init__(self, *args, **kwargs):
-        self._meta.get_field("dates").default = MUNICIPAL_DEFAULT_DATE_RANGE
-        super().__init__(*args, **kwargs)
-
     class Meta:
         verbose_name_plural = "Mandats municipaux"
         ordering = ("conseil", "person")
@@ -361,6 +355,8 @@ class MandatMunicipal(MandatAbstrait):
 
 @reversion.register()
 class MandatDepartemental(MandatAbstrait):
+    DEFAULT_DATE_RANGE = DateRange(date(2015, 3, 29), date(2021, 3, 31))
+
     MANDAT_INCONNU = "INC"
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
@@ -406,10 +402,6 @@ class MandatDepartemental(MandatAbstrait):
         blank=True,
         default=list,
     )
-
-    def __init__(self, *args, **kwargs):
-        self._meta.get_field("dates").default = DEPARTEMENTAL_DEFAULT_DATE_RANGE
-        super().__init__(*args, **kwargs)
 
     class Meta:
         verbose_name = "Mandat départemental"
@@ -466,6 +458,8 @@ class MandatDepartemental(MandatAbstrait):
 
 @reversion.register()
 class MandatRegional(MandatAbstrait):
+    DEFAULT_DATE_RANGE = DateRange(date(2015, 12, 13), date(2021, 3, 31))
+
     MANDAT_INCONNU = "INC"
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
     MANDAT_CONSEILLER_OPPOSITION = "OPP"
@@ -511,10 +505,6 @@ class MandatRegional(MandatAbstrait):
         blank=True,
         default=list,
     )
-
-    def __init__(self, *args, **kwargs):
-        self._meta.get_field("dates").default = REGIONAL_DEFAULT_DATE_RANGE
-        super().__init__(*args, **kwargs)
 
     class Meta:
         verbose_name = "Mandat régional"
@@ -580,6 +570,8 @@ class MandatRegional(MandatAbstrait):
 
 @reversion.register()
 class MandatConsulaire(MandatAbstrait):
+    DEFAULT_DATE_RANGE = DateRange(date(2021, 6, 1), date(2027, 5, 31))
+
     class Mandat(models.TextChoices):
         CONSEILLER = "C", "Conseiller⋅ère consulaire"
         MEMBRE_AFE = "M", "Conseiller⋅ère consulaire et membre de l'AFE"
@@ -644,6 +636,10 @@ types_elus = {
     "regional": MandatRegional,
     "consulaire": MandatConsulaire,
 }
+
+# Configure les valeurs de date par défaut pour chacun des modèles d'élus
+for model in types_elus.values():
+    model._meta.get_field("dates").default = model.DEFAULT_DATE_RANGE
 
 
 formulaire_parrainage_pattern = FilePattern(

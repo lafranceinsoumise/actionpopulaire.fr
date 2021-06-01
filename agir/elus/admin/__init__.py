@@ -20,12 +20,8 @@ from agir.elus.models import (
     MandatMunicipal,
     MandatDepartemental,
     MandatRegional,
-    MUNICIPAL_DEFAULT_DATE_RANGE,
-    DEPARTEMENTAL_DEFAULT_DATE_RANGE,
-    REGIONAL_DEFAULT_DATE_RANGE,
     RechercheParrainageMaire,
     MandatConsulaire,
-    CONSULAIRE_DEFAULT_DATE_RANGE,
 )
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
@@ -54,7 +50,6 @@ class BaseMandatAdmin(admin.ModelAdmin):
     add_form_template = "admin/change_form.html"
     change_form_template = "elus/admin/history_change_form.html"
     search_fields = ("person",)
-    default_date_range = None
 
     def get_conseil_queryset(self, request):
         raise NotImplementedError("Implémenter cette méthode est obligatoire")
@@ -275,7 +270,6 @@ class BaseMandatAdmin(admin.ModelAdmin):
     def get_changeform_initial_data(self, request):
         """Permet de préremplir le champs `dates' en fonction de la dernière élection"""
         initial = super().get_changeform_initial_data(request)
-        initial.setdefault("dates", self.default_date_range)
 
         if "person" in request.GET:
             try:
@@ -353,7 +347,6 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         "conseil",
         "reference",
     )
-    default_date_range = MUNICIPAL_DEFAULT_DATE_RANGE
 
     list_filter = (
         "statut",
@@ -452,7 +445,6 @@ class MandatDepartementAdmin(BaseMandatAdmin):
         DepartementFilter,
         DepartementRegionFilter,
     )
-    default_date_range = DEPARTEMENTAL_DEFAULT_DATE_RANGE
 
     fieldsets = (
         (
@@ -521,7 +513,6 @@ class MandatRegionalAdmin(BaseMandatAdmin):
         AppelEluFilter,
         RegionFilter,
     )
-    default_date_range = REGIONAL_DEFAULT_DATE_RANGE
 
     fieldsets = (
         (
@@ -594,7 +585,6 @@ class MandatConsulaireAdmin(BaseMandatAdmin):
         "person__is_2022",
         AppelEluFilter,
     )
-    default_date_range = CONSULAIRE_DEFAULT_DATE_RANGE
 
     fieldsets = (
         (
