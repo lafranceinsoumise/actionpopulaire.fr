@@ -63,7 +63,7 @@ const PERSON_NOTIFICATIONS = [
     label: "Suggestion d'événement",
     hasEmail: false,
     hasPush: true,
-    activityTypes: ["new-event-aroundme"],
+    activityTypes: ["event-suggestion"],
   },
   {
     id: "event_updates",
