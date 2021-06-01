@@ -20,11 +20,11 @@ class Command(BaseCommand):
     def handle(self, segment, limit=SUGGEST_LIMIT_METERS, *args, **options):
 
         if segment:
-            base_queryset = segment.get_subscribers_queryset()
+            person_queryset = segment.get_subscribers_queryset()
         else:
-            base_queryset = Person.all()
+            person_queryset = Person.all()
         for person in tqdm(
-            base_queryset.exclude(coordinates=None).filter(role__is_active=True)
+            person_queryset.exclude(coordinates=None).filter(role__is_active=True)
         ):
             base_queryset = (
                 Event.objects.with_serializer_prefetch(person)
