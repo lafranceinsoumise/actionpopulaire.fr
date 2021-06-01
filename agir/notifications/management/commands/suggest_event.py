@@ -1,6 +1,7 @@
 from django.contrib.gis.db.models.functions import Distance
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from tqdm import tqdm
 
 from agir.events.actions.notifications import new_event_suggestion_notification
 from agir.lib.management_utils import segment_argument
@@ -22,8 +23,8 @@ class Command(BaseCommand):
             base_queryset = segment.get_subscribers_queryset()
         else:
             base_queryset = Person.all()
-        for person in base_queryset.exclude(coordinates=None).filter(
-            role__is_active=True
+        for person in tqdm(
+            base_queryset.exclude(coordinates=None).filter(role__is_active=True)
         ):
             base_queryset = (
                 Event.objects.with_serializer_prefetch(person)
