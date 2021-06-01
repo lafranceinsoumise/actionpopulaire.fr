@@ -129,7 +129,9 @@ class BaseMandatConsulaire(BaseMandatView):
         return "consulaire"
 
     def get_conseil_avec_charniere(self):
-        return f"({self.object.conseil.nom})"
+        if self.object.conseil:
+            return f"({self.object.conseil.nom})"
+        return "(circonscription non renseignée)"
 
 
 class CreerMandatConsulaireView(BaseMandatConsulaire, CreateView):
