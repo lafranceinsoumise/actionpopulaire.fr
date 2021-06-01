@@ -180,7 +180,7 @@ export const TopBar = (props) => {
                 <>
                   <Hide under>
                     <div style={{ display: "flex" }}>
-                      <MenuLink href={routes.help}>
+                      <MenuLink href="/">
                         <TopbarLink $active={"/" === path}>
                           <FeatherIcon name="home" />
                           <span>Accueil</span>
@@ -194,13 +194,15 @@ export const TopBar = (props) => {
                           <div />
                         </TopbarLink>
                       </MenuLink>
-                      <MenuLink href="#">
-                        <TopbarLink>
-                          <FeatherIcon name="mail" />
-                          <span>Messages</span>
-                          <div />
-                        </TopbarLink>
-                      </MenuLink>
+                      {false && (
+                        <MenuLink href="#">
+                          <TopbarLink>
+                            <FeatherIcon name="mail" />
+                            <span>Messages</span>
+                            <div />
+                          </TopbarLink>
+                        </MenuLink>
+                      )}
                       <MenuLink href={routes.help}>
                         <TopbarLink>
                           <FeatherIcon name="help-circle" />

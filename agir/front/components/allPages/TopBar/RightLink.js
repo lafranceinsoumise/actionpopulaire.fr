@@ -53,7 +53,7 @@ const UserLink = ({ user, routes, ...rest }) => {
             <Avatar
               displayName={user.fullName || user.displayName}
               image={user.image}
-              style={{ width: "28px", height: "28px" }}
+              style={{ width: "28px", height: "28px", marginTop: 0 }}
             />
             <span>{user.fullName || user.displayName}</span>
           </TopbarLink>
