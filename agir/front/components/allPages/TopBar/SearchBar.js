@@ -3,38 +3,48 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Button from "@agir/front/genericComponents/Button";
 
 const SearchBarIndicator = styled.div``;
-const SearchBarButton = styled.button``;
+const SearchBarButton = styled(Button)``;
+
 const SearchBarInput = styled.input``;
 
 const SearchBarWrapper = styled.div`
-  max-width: 450px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  max-width: ${({ $connected }) => ($connected ? "412px" : "353px")};
+  display: flex;
   border: 1px solid;
   border-color: ${({ $focused }) =>
-    $focused ? style.black500 : style.black50};
-  background-color: ${({ $focused }) =>
-    $focused ? style.white : style.black50};
-  border-radius: 3px;
+    $focused ? style.black1000 : style.black100};
+  border-radius: 8px;
   align-items: center;
+  height: 40px;
 
-  ${SearchBarIndicator},
+  ${SearchBarIndicator} {
+    padding: 0;
+    padding-left: 18px;
+    padding-right: 0.5rem;
+  }
+
   ${SearchBarButton} {
-    height: 1.5rem;
-    margin: 0;
-    padding: 0 1rem;
+    margin: 4px;
+    padding: revert;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: center;
   }
 
   ${SearchBarIndicator} {
     align-self: center;
+    display: flex;
   }
 
   ${SearchBarInput} {
     width: 100%;
-    height: 3rem;
+    height: 2rem;
     margin: 0;
     padding: 0;
     color: ${style.black1000};
@@ -48,14 +58,9 @@ const SearchBarWrapper = styled.div`
       opacity: 1;
     }
   }
-
-  ${SearchBarButton} {
-    border: 0;
-    background: none;
-  }
 `;
 
-const SearchBar = () => {
+const SearchBar = ({ isConnected = false }) => {
   const inputRef = useRef();
   const [isFocused, setIsFocused] = useState(false);
   const handleFocus = useCallback(() => {
@@ -71,25 +76,37 @@ const SearchBar = () => {
     }
   }, []);
   return (
-    <SearchBarWrapper $focused={isFocused}>
+    <SearchBarWrapper $focused={isFocused} $isConnected={isConnected}>
       <SearchBarIndicator>
-        <FeatherIcon name="search" color={style.black500} alignOnText={false} />
+        <RawFeatherIcon
+          name="search"
+          color={style.black1000}
+          width="1rem"
+          height="1rem"
+          stroke-width={1.33}
+        />
       </SearchBarIndicator>
 
       <SearchBarInput
         ref={inputRef}
-        placeholder="Rechercher un groupe ou un événement"
+        placeholder={
+          !isConnected
+            ? "Rechercher un groupe ou une action"
+            : "Rechercher sur Action Populaire"
+        }
         type="text"
         name="q"
         onFocus={handleFocus}
         onBlur={handleBlur}
       />
       {isFocused && (
-        <SearchBarButton onClick={handleClick} type="submit">
-          <FeatherIcon
+        <SearchBarButton onClick={handleClick} type="submit" color="primary">
+          <RawFeatherIcon
             name="arrow-right"
-            color={style.black500}
-            alignOnText={false}
+            color="#fff"
+            width="1rem"
+            height="1rem"
+            stroke-width={2}
           />
         </SearchBarButton>
       )}

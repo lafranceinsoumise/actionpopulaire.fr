@@ -136,7 +136,7 @@ export const TopBar = (props) => {
               </MenuLink>
             </Hide>
             <Hide under as="form" method="get" action={routes.search}>
-              <SearchBar routes={routes} />
+              <SearchBar isConnected={isConnected} />
             </Hide>
           </HorizontalFlex>
           <PageFadeIn ready={isSessionLoaded}>
