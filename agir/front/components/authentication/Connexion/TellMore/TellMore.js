@@ -113,6 +113,10 @@ const MANDAT_OPTIONS = [
     label: "Mandat régional",
     value: "regional",
   },
+  {
+    label: "Mandat consulaire",
+    value: "consulaire",
+  },
 ];
 
 const TellMore = ({ dismiss }) => {

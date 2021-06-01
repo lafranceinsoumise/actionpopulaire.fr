@@ -50,6 +50,21 @@ urlpatterns = [
         name="supprimer_mandat_regional",
     ),
     path(
+        "mandat/consulaire/",
+        gestion_mandats.CreerMandatConsulaireView.as_view(),
+        name="creer_mandat_consulaire",
+    ),
+    path(
+        "mandat/consulaire/<int:pk>/",
+        gestion_mandats.ModifierMandatConsulaireView.as_view(),
+        name="modifier_mandat_consulaire",
+    ),
+    path(
+        "mandat/consulaire/<int:pk>/supprimer/",
+        gestion_mandats.SupprimerMandatConsulaireView.as_view(),
+        name="supprimer_mandat_consulaire",
+    ),
+    path(
         "parrainages/",
         recherche_parrainages.RechercheParrainagesView.as_view(),
         name="parrainages",

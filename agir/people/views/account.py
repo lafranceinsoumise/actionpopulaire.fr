@@ -1,4 +1,3 @@
-from itertools import chain
 from uuid import UUID
 
 from django.contrib import messages
@@ -12,7 +11,7 @@ from django.utils.http import urlquote
 from django.utils.translation import ugettext as _
 from django.views import View
 from django.views.decorators.cache import never_cache
-from django.views.generic import UpdateView, DeleteView, FormView, TemplateView
+from django.views.generic import UpdateView, DeleteView, FormView
 
 from agir.authentication.tokens import add_email_confirmation_token_generator
 from agir.authentication.utils import hard_login
@@ -21,7 +20,7 @@ from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
 )
 from agir.authentication.views import RedirectToMixin
-from agir.elus.models import MandatMunicipal, MandatDepartemental, MandatRegional
+from agir.elus.models import types_elus, MandatMunicipal
 from agir.people.forms import (
     SendValidationSMSForm,
     CodeValidationForm,
@@ -230,26 +229,25 @@ class MandatsView(SoftLoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         person = self.request.user.person
-        mandats_municipaux = MandatMunicipal.objects.filter(person=person).annotate(
-            epci=Case(
-                When(
-                    ~Q(communautaire=MandatMunicipal.MANDAT_EPCI_PAS_DE_MANDAT),
-                    then=F("conseil__epci__nom"),
-                ),
-                default=None,
-                output_field=CharField(),
-            )
-        )
-        mandats_departementaux = MandatDepartemental.objects.filter(
-            person=person
-        ).annotate(epci=Value(None, output_field=CharField()))
-        mandats_regionaux = MandatRegional.objects.filter(person=person).annotate(
-            epci=Value(None, output_field=CharField())
-        )
 
-        mandats = list(
-            chain(mandats_municipaux, mandats_departementaux, mandats_regionaux)
-        )
+        mandats = []
+        for type, model in types_elus.items():
+            qs = model.objects.filter(person=person)
+            if type == "municipal":
+                qs = qs.annotate(
+                    epci=Case(
+                        When(
+                            ~Q(communautaire=MandatMunicipal.MANDAT_EPCI_PAS_DE_MANDAT),
+                            then=F("conseil__epci__nom"),
+                        ),
+                        default=None,
+                        output_field=CharField(),
+                    )
+                )
+            else:
+                qs = qs.annotate(epci=Value(None, output_field=CharField()))
+
+            mandats.extend(qs)
 
         if not mandats or person.membre_reseau_elus == Person.MEMBRE_RESEAU_EXCLUS:
             kwargs["form"] = None

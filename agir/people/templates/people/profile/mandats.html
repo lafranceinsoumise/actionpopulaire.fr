@@ -30,8 +30,8 @@
             <a class="btn btn-xs btn-danger pull-right" href="{{ mandat.get_delete_url }}">
               Ce n'est pas vous ?
             </a>
-            <h4>{{ mandat.titre_complet }} <small>{% if mandat.actif %}mandat actif{% else %}ancien
-              mandat{% endif %}</small></h4>
+            <h4>{{ mandat.titre_complet }} <small>{% if mandat.actif %}mandat actif{% elif mandat.passe %}ancien
+              mandat{% else %}mandat pas encore débuté{% endif %}</small></h4>
             {% if mandat.epci %}
               <p><em>Aussi {% genrer "élu⋅e" %} à la {{ mandat.epci }}</em></p>
             {% endif %}
@@ -63,6 +63,7 @@
             <a href="{% url "elus:creer_mandat_municipal" %}" class="btn btn-default btn-block btn-wrap">Un mandat municipal</a>
             <a href="{% url "elus:creer_mandat_departemental" %}" class="btn btn-default btn-block btn-wrap">Un mandat départemental ou métropolitain</a>
             <a href="{% url "elus:creer_mandat_regional" %}" class="btn btn-default btn-block btn-wrap">Un mandat régional ou auprès d'une collectivité unique</a>
+            <a href="{% url "elus:creer_mandat_consulaire" %}" class="btn btn-default btn-block btn-wrap">Un mandat consulaire ou à l'assemblée des Français de l'étranger</a>
           </p>
         </div>
       </div>
