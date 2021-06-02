@@ -156,8 +156,7 @@ const items = [
     img: promo1,
     content: (
       <p>
-        <strong>Lancez une première conversation dans votre groupe !</strong>
-        <br />
+        <strong>Lancez une première conversation dans votre groupe ! </strong>
         Discustez de vos prochaines actions sur Action Populaire
       </p>
     ),
@@ -167,7 +166,7 @@ const items = [
     content: (
       <p>
         <strong>Joignez simplement vos membres : </strong>
-        Tous vos membres recevront un e-mail avec le contenu de votre message et
+        tous vos membres recevront un e-mail avec le contenu de votre message et
         pourront y répondre sur le site
       </p>
     ),
@@ -177,7 +176,7 @@ const items = [
     content: (
       <p>
         <strong>Organisez ensemble vos actions : </strong>
-        Les membres du groupes sont les seuls à voir et commenter
+        les membres du groupes sont les seuls à voir et commenter
       </p>
     ),
   },
@@ -197,21 +196,19 @@ export const PromoMessage = (props) => {
 
   const [itemIndex, setItemIndex] = useState(0);
 
-  const handleNext = useCallback(() => {
+  const handleNext = () => {
     setItemIndex((state) => (state + 1) % items.length);
-  }, []);
-  const handlePrev = useCallback(() => {
+  };
+  const handlePrev = () => {
     setItemIndex((state) => (state + items.length - 1) % items.length);
-  }, []);
-
-  const handleChange = useCallback((index) => {
+  };
+  const handleChange = (index) => {
     setItemIndex(index);
-  }, []);
-
-  const handleClick = useCallback(() => {
+  };
+  const handleClick = () => {
     onClick();
     !!onClose && onClose();
-  }, []);
+  };
 
   return (
     <Container>
