@@ -387,9 +387,8 @@ const ActivityCard = (props) => {
           Ce{" "}
           {dateFromISOString(event.startTime).toLocaleString({
             weekday: "long",
-          })}
-          {" : "}
-          {event.name} de {SupportGroup || Individual}
+          })}{" "}
+          : événement de {SupportGroup || Individual}
         </ActivityCardContainer>
       );
     case "group-coorganization-info":
