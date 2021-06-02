@@ -48,7 +48,7 @@ const MobileInfoRoute = (props) => {
       {group && group.hasMessages ? (
         <MessagesRoutePreview {...props} />
       ) : group.isManager ? (
-        <PromoMessage goToMessages={true} onClick={goToMessagesTab} />
+        <PromoMessage goToMessages onClick={goToMessagesTab} />
       ) : null}
 
       <GroupContactCard {...group} editLinkTo={groupSettingsLinks?.contact} />
@@ -91,7 +91,7 @@ const DesktopInfoRoute = (props) => {
       {group && group.hasMessages ? (
         <MessagesRoutePreview {...props} />
       ) : group.isManager ? (
-        <PromoMessage goToMessages={true} onClick={goToMessagesTab} />
+        <PromoMessage goToMessages onClick={goToMessagesTab} />
       ) : null}
 
       {group &&
