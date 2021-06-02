@@ -44,6 +44,7 @@ from agir.groups.serializers import (
     MembershipSerializer,
 )
 from agir.lib.pagination import APIPaginator
+from agir.msgs.actions import update_recipient_message
 from agir.donations.allocations import get_balance
 
 __all__ = [
@@ -357,6 +358,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
                 author=self.request.user.person, supportgroup=self.supportgroup
             )
             new_message_notifications(message)
+            update_recipient_message(message, self.request.user.person)
 
 
 @method_decorator(never_cache, name="get")
@@ -370,6 +372,11 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
     )
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (GlobalOrObjectPermissions,)
+
+    def get_object(self):
+        message = super().get_object()
+        update_recipient_message(message, self.request.user.person)
+        return message
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -416,6 +423,7 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
                 author=self.request.user.person, message=self.message
             )
             new_comment_notifications(comment)
+            update_recipient_message(self.message, self.request.user.person)
 
 
 class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
