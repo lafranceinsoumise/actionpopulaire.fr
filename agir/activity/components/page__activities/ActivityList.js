@@ -31,8 +31,8 @@ const Page = styled.article`
 const ActivityList = () => {
   const routes = useSelector(getRoutes);
 
-  let { data: session } = useSWR("/api/session/");
-  let { data: activities } = useSWR("/api/user/activities/");
+  const { data: session } = useSWR("/api/session/");
+  const { data: activities } = useSWR("/api/user/activities/");
   const unreadActivities = useMemo(() => getUnread(activities), [activities]);
 
   useEffect(() => {

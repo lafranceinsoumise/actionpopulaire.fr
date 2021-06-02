@@ -282,7 +282,7 @@ class AnnouncementAPITestCase(TestCase):
         self.assertEqual(response.data[0]["id"], str(self.non_custom_announcement.id))
         self.assertIsNotNone(response.data[0]["activityId"])
 
-    def test_announcement_activity_is_automatically_set_as_displayed_for_authenticated_user(
+    def test_announcement_activity_is_not_automatically_set_as_displayed_for_authenticated_user(
         self,
     ):
         self.client.force_login(self.person.role)
@@ -293,6 +293,24 @@ class AnnouncementAPITestCase(TestCase):
             status=Activity.STATUS_UNDISPLAYED,
         )
         response = self.client.get("/api/announcements/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], str(self.non_custom_announcement.id))
+        self.assertEqual(activity.pk, response.data[0]["activityId"])
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, Activity.STATUS_UNDISPLAYED)
+
+    def test_announcement_activity_is_automatically_set_as_displayed_if_mark_as_displayed_params_is_set_to_1(
+        self,
+    ):
+        self.client.force_login(self.person.role)
+        activity = Activity.objects.create(
+            recipient=self.person,
+            announcement=self.non_custom_announcement,
+            type=Activity.TYPE_ANNOUNCEMENT,
+            status=Activity.STATUS_UNDISPLAYED,
+        )
+        response = self.client.get("/api/announcements/?mark_as_displayed=1")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["id"], str(self.non_custom_announcement.id))

@@ -43,6 +43,8 @@ class UserActivitiesAPIView(ListAPIView):
     serializer_class = ActivitySerializer
 
     def get_queryset(self):
+        # Force creation of new non_custom announcement activities for the user
+        get_non_custom_announcements(self.request.user.person)
         return get_activities(self.request.user.person)
 
 
@@ -61,11 +63,12 @@ class AnnouncementsAPIView(ListAPIView):
     def get_queryset(self):
         if self.request.user.is_authenticated and self.request.user.person is not None:
             announcements = get_non_custom_announcements(self.request.user.person)
-            # Automatically mark related activities as read
-            Activity.objects.filter(
-                pk__in=[a.activity_id for a in announcements if a.activity_id],
-                status=Activity.STATUS_UNDISPLAYED,
-            ).update(status=Activity.STATUS_DISPLAYED)
+            # Automatically mark related activities if mark_as_displayed query param equals "1"
+            if self.request.GET.get("mark_as_displayed", "0") == "1":
+                Activity.objects.filter(
+                    pk__in=[a.activity_id for a in announcements if a.activity_id],
+                    status=Activity.STATUS_UNDISPLAYED,
+                ).update(status=Activity.STATUS_DISPLAYED)
 
             return announcements
         return get_non_custom_announcements()

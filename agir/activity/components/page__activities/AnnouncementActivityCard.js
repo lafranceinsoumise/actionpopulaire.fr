@@ -11,9 +11,10 @@ const StyledCard = styled.div`
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
-  padding: 0;
+  padding: 0 0 1.5rem;
 
   @media (max-width: ${style.collapse}px) {
+    background-color: ${style.white};
     padding: 1rem 1.5rem 1.5rem 1rem;
     box-shadow: ${style.elaborateShadow};
   }
@@ -23,6 +24,7 @@ const StyledCard = styled.div`
     flex-flow: column nowrap;
     margin-left: 0.75rem;
     justify-content: flex-start;
+    width: 100%;
 
     & > * {
       width: 100%;
@@ -34,6 +36,9 @@ const StyledCard = styled.div`
     }
 
     & > img {
+      width: 100%;
+      height: auto;
+
       @media (max-width: ${style.collapse}px) {
         border-radius: ${style.borderRadius};
       }

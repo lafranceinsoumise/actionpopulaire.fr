@@ -1,4 +1,13 @@
-from django.db.models import Prefetch, Q, Subquery, OuterRef
+from django.db.models import (
+    Prefetch,
+    Q,
+    Subquery,
+    OuterRef,
+    Case,
+    When,
+    Value,
+    IntegerField,
+)
 from django.utils import timezone
 
 from .models import Activity, Announcement
@@ -6,11 +15,14 @@ from ..events.models import Event
 
 
 def get_activities(person):
-    return (
-        activity
-        for activity in Activity.objects.without_required_action()
+    activities = (
+        Activity.objects.without_required_action()
         .filter(recipient=person)
-        .select_related("supportgroup", "individual")
+        .filter(
+            ~Q(type=Activity.TYPE_ANNOUNCEMENT)
+            | Q(type=Activity.TYPE_ANNOUNCEMENT, announcement__custom_display__exact="")
+        )
+        .select_related("supportgroup", "individual", "announcement")
         .prefetch_related(
             Prefetch(
                 "event",
@@ -18,7 +30,26 @@ def get_activities(person):
                     "subtype"
                 ),
             )
-        )[:40]
+        )
+        .distinct()
+        # Always display undisplayed announcement activities first
+        .annotate(
+            sort=Case(
+                When(
+                    type=Activity.TYPE_ANNOUNCEMENT,
+                    status=Activity.STATUS_UNDISPLAYED,
+                    then=0,
+                ),
+                default=1,
+                output_field=IntegerField(),
+            )
+        )
+        .order_by("sort", "-timestamp")
+    )
+
+    return (
+        activity
+        for activity in activities[:40]
         if person.role.has_perm("activity.view_activity", activity)
     )
 
@@ -66,19 +97,25 @@ def get_announcements(person=None):
     )
 
     if person:
-        announcements = announcements.filter(
-            pk__in=[
-                a.pk
-                for a in announcements
-                if a.segment is None
-                or a.segment.get_subscribers_queryset().filter(pk=person.id).exists()
-            ]
-        ).annotate(
-            activity_id=Subquery(
-                Activity.objects.filter(
-                    recipient=person, announcement_id=OuterRef("id")
-                ).values("id")[:1]
+        announcements = (
+            announcements.filter(
+                pk__in=[
+                    a.pk
+                    for a in announcements
+                    if a.segment is None
+                    or a.segment.get_subscribers_queryset()
+                    .filter(pk=person.id)
+                    .exists()
+                ]
             )
+            .annotate(
+                activity_id=Subquery(
+                    Activity.objects.filter(
+                        recipient=person, announcement_id=OuterRef("id")
+                    ).values("id")[:1]
+                ),
+            )
+            .distinct()
         )
         # Automatically create an activity for the person if none exists for the announcement
         Activity.objects.bulk_create(

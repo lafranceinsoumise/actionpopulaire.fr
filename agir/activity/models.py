@@ -54,13 +54,12 @@ class Activity(TimeStampedModel):
     TYPE_WAITING_LOCATION_EVENT = "waiting-location-event"
     TYPE_WAITING_LOCATION_GROUP = "waiting-location-group"
     TYPE_EVENT_SUGGESTION = "event-suggestion"
+    TYPE_ANNOUNCEMENT = "announcement"
     # TODO
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
     TYPE_GROUP_COORGANIZATION_ACCEPTED = "group-coorganization-accepted"
     TYPE_GROUP_COORGANIZATION_INVITE = "group-coorganization-invite"
     TYPE_WAITING_PAYMENT = "waiting-payment"
-    # Sans affichage d'une notification
-    TYPE_ANNOUNCEMENT = "announcement"
 
     DISPLAYED_TYPES = (
         TYPE_GROUP_INVITATION,
@@ -86,6 +85,7 @@ class Activity(TimeStampedModel):
         TYPE_NEW_MESSAGE,
         TYPE_NEW_COMMENT,
         TYPE_EVENT_SUGGESTION,
+        TYPE_ANNOUNCEMENT,
     )
 
     REQUIRED_ACTION_ACTIVITY_TYPES = (
@@ -214,7 +214,13 @@ class Activity(TimeStampedModel):
                 fields=("recipient", "timestamp"), name="notifications_by_recipient"
             ),
         )
-        unique_together = ("recipient", "announcement")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["recipient", "announcement"],
+                condition=models.Q(type="announcement"),
+                name="unique_for_recipient_and_announcement",
+            ),
+        ]
 
 
 class AnnouncementQuerySet(models.QuerySet):
