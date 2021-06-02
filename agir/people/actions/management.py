@@ -222,6 +222,7 @@ MERGE_STRATEGIES = {
     "display_name": merge_text_fields,
     "image": merge_text_fields,
     "rechercheparrainagemaire": merge_reassign_related,
+    "read_messages": merge_reassign_related,
 }
 
 
