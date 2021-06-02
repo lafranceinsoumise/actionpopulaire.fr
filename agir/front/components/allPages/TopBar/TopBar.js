@@ -13,6 +13,7 @@ import {
   getTopBarRightLink,
   getUser,
 } from "@agir/front/globalContext/reducers";
+import { useHasUnreadActivity } from "@agir/activity/common/hooks";
 import { Hide } from "@agir/front/genericComponents/grid";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -109,6 +110,8 @@ export const TopBar = (props) => {
   const isDesktop = useIsDesktop();
   const isConnected = useSelector(getIsConnected);
 
+  const hasUnreadActivity = useHasUnreadActivity();
+
   return (
     <NavbarContainer>
       {!isDesktop && !hideBannerDownload && <DownloadApp />}
@@ -188,10 +191,14 @@ export const TopBar = (props) => {
                         </TopbarLink>
                       </MenuLink>
                       <MenuLink href="/activite/">
-                        <TopbarLink $active={"/activite/" === path}>
+                        <TopbarLink
+                          isBadge={hasUnreadActivity}
+                          $active={"/activite/" === path}
+                        >
                           <FeatherIcon name="bell" />
                           <span>Notifications</span>
                           <div />
+                          <div class="notif" />
                         </TopbarLink>
                       </MenuLink>
                       {false && (

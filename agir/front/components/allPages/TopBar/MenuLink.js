@@ -84,6 +84,17 @@ export const TopbarLink = styled.div`
     height: 2px;
     background-color: ${style.primary500};
   }
+
+  div.notif {
+    display: ${({ isBadge }) => (isBadge ? "block" : "none")};
+    position: absolute;
+    top: 12px;
+    right: 30px;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 3rem;
+    background-color: ${style.redNSP};
+  }
 `;
 
 export default MenuLink;
