@@ -197,13 +197,10 @@ export const PromoMessage = (props) => {
   const [itemIndex, setItemIndex] = useState(0);
 
   const handleNext = () => {
-    setItemIndex((state) => (state + 1) % items.length);
+    setItemIndex((itemIndex + 1) % items.length);
   };
   const handlePrev = () => {
-    setItemIndex((state) => (state + items.length - 1) % items.length);
-  };
-  const handleChange = (index) => {
-    setItemIndex(index);
+    setItemIndex((itemIndex + items.length - 1) % items.length);
   };
   const handleClick = () => {
     onClick();
@@ -239,7 +236,7 @@ export const PromoMessage = (props) => {
           <Mark
             key={i}
             $active={i === itemIndex}
-            onClick={() => handleChange(i)}
+            onClick={() => setItemIndex(i)}
           />
         ))}
       </div>
