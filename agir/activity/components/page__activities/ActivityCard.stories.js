@@ -8,6 +8,9 @@ import { decorateArgs, reorganize } from "@agir/lib/utils/storyUtils";
 export default {
   component: ActivityCard,
   title: "Activities/ActivityCard",
+  parameters: {
+    layout: "centered",
+  },
   argTypes: {
     type: {
       name: "Type de carte",

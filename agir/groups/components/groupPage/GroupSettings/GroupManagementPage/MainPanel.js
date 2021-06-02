@@ -14,7 +14,15 @@ import { useGroupWord } from "@agir/groups/utils/group";
 const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 
 export const ReferentMainPanel = (props) => {
-  const { is2022, routes, editManager, editReferent, isLoading, onResetMembershipType, members, } = props;
+  const {
+    is2022,
+    routes,
+    editManager,
+    editReferent,
+    isLoading,
+    onResetMembershipType,
+    members,
+  } = props;
   const referents = useMemo(
     () => members.filter((member) => member.membershipType === REFERENT),
     [members]

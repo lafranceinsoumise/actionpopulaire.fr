@@ -3,12 +3,14 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 import { activityStatus } from "@agir/activity/common/helpers";
 import { dateFromISOString, displayHumanDate } from "@agir/lib/utils/time";
 import { getGenderedWord } from "@agir/lib/utils/display";
 import { routeConfig } from "@agir/front/app/routes.config";
-import style from "@agir/front/genericComponents/_variables.scss";
 
+import AnnouncementActivityCard from "./AnnouncementActivityCard";
 import Card from "@agir/front/genericComponents/Card";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 import EventCard from "@agir/front/genericComponents/EventCard";
@@ -424,6 +426,10 @@ const ActivityCard = (props) => {
           {meta && meta.oldGroup}&nbsp;&raquo;.
         </ActivityCardContainer>
       );
+    case "announcement":
+      return props?.announcement ? (
+        <AnnouncementActivityCard {...props.announcement} />
+      ) : null;
     default:
       return null;
   }
@@ -435,6 +441,7 @@ ActivityCard.propTypes = {
   individual: PropTypes.object,
   routes: PropTypes.object,
   meta: PropTypes.object,
+  announcement: PropTypes.object,
 };
 
 export default ActivityCard;

@@ -46,7 +46,19 @@ class AnnouncementAdmin(admin.ModelAdmin):
     MINIATURE_BOX = '<div style="margin: 0 10px;"><h4 style="margin:0;padding:0;">{type}</h4><img src="{link}"></div>'
 
     fieldsets = (
-        ("Contenu", {"fields": ("title", "link", "content", "image", "miniatures")}),
+        (
+            "Contenu",
+            {
+                "fields": (
+                    "title",
+                    "link",
+                    "link_label",
+                    "content",
+                    "image",
+                    "miniatures",
+                )
+            },
+        ),
         (
             "Conditions d'affichage",
             {
@@ -76,11 +88,15 @@ class AnnouncementAdmin(admin.ModelAdmin):
         desktop = format_html(
             self.MINIATURE_BOX, type="desktop", link=obj.image.desktop.url
         )
+        activity = format_html(
+            self.MINIATURE_BOX, type="activité", link=obj.image.activity.url
+        )
 
         return format_html(
-            '<div style="display:flex;">{mobile}{desktop}</div>',
+            '<div style="display:flex;">{mobile}{desktop}{activity}</div>',
             mobile=mobile,
             desktop=desktop,
+            activity=activity,
         )
 
     miniatures.short_description = "Affichage de l'image selon l'environnement"
