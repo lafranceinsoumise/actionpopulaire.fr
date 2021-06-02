@@ -50,6 +50,8 @@ $zindex__feedback-button: 15;
 $zindex__modal: 20;
 $zindex__panel: 20;
 
+$navbar-height: 72px;
+
 :export {
   white: $white;
 
@@ -99,4 +101,6 @@ $zindex__panel: 20;
   zindexModal: $zindex__modal;
   zindexPanel: $zindex__panel;
   zindexFeedbackButton: $zindex__feedback-button;
+
+  navbarHeight: $navbar-height;
 }

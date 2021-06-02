@@ -1,6 +1,5 @@
 import styled from "styled-components";
 
-import theme from "@agir/front/theme/_variables.scss";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Link from "@agir/front/app/Link";
@@ -54,7 +53,7 @@ export const TopbarLink = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: ${theme.navbarHeight};
+  height: ${style.navbarHeight};
   padding-left: 11px;
   padding-right: 11px;
   transition: 0.2s ease;

@@ -17,7 +17,6 @@ import { useHasUnreadActivity } from "@agir/activity/common/hooks";
 import { Hide } from "@agir/front/genericComponents/grid";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import theme from "@agir/front/theme/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -42,7 +41,7 @@ const NavbarContainer = styled.div`
   background-color: #fff;
 
   ${NavBar} {
-  height: ${theme.navbarHeight};
+  height: ${style.navbarHeight};
   align-items: center;
   display: flex;
   box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
