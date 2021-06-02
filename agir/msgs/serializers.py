@@ -4,7 +4,12 @@ from rest_framework import serializers
 from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
 from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
-from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment, UserReport
+from agir.msgs.models import (
+    SupportGroupMessage,
+    SupportGroupMessageComment,
+    UserReport,
+    SupportGroupMessageRecipient,
+)
 from agir.people.serializers import PersonSerializer
 
 
@@ -162,3 +167,52 @@ class UserReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserReport
         fields = ("reporter", "content_type", "object_id")
+
+
+class UserMessagesSerializer(BaseMessageSerializer):
+    group = serializers.SerializerMethodField(read_only=True)
+    unreadCommentCount = serializers.SerializerMethodField(
+        read_only=True, method_name="get_unread_comment_count"
+    )
+    isAuthor = serializers.SerializerMethodField(
+        read_only=True, method_name="get_is_author"
+    )
+    lastComment = serializers.DateTimeField(source="last_comment", default=None)
+    isUnread = serializers.BooleanField(source="is_unread", default=False)
+
+    def get_group(self, message):
+        return {
+            "id": message.supportgroup.id,
+            "name": message.supportgroup.name,
+        }
+
+    def get_unread_comment_count(self, message):
+        user = self.context["request"].user
+        if not user.is_authenticated or not user.person:
+            return 0
+        comment_count = message.comments.count()
+        if comment_count == 0:
+            return 0
+        try:
+            reading_state = message.readers.get(recipient=user.person)
+            return reading_state.unread_comments.count()
+        except SupportGroupMessageRecipient.DoesNotExist:
+            return comment_count
+
+    def get_is_author(self, message):
+        user = self.context["request"].user
+        return user.is_authenticated and user.person and message.author == user.person
+
+    class Meta:
+        model = SupportGroupMessage
+        fields = (
+            "id",
+            "created",
+            "author",
+            "text",
+            "group",
+            "unreadCommentCount",
+            "isAuthor",
+            "lastComment",
+            "isUnread",
+        )

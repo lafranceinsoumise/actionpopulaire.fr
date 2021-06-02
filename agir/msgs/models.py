@@ -104,7 +104,7 @@ class SupportGroupMessageRecipient(TimeStampedModel):
     def unread_comments(self):
         if self.message.deleted:
             return self.message.comments.none()
-        return self.message.comments.exclude(author=self.recipient).filter(
+        return self.message.comments.exclude(author_id=self.recipient.id).filter(
             created__gt=self.modified
         )
 
