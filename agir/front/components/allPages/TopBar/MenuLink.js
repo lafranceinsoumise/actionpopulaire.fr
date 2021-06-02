@@ -53,7 +53,7 @@ export const TopbarLink = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: ${style.navbarHeight};
+  height: 72px;
   padding-left: 11px;
   padding-right: 11px;
   transition: 0.2s ease;

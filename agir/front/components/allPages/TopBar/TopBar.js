@@ -41,7 +41,7 @@ const NavbarContainer = styled.div`
   background-color: #fff;
 
   ${NavBar} {
-  height: ${style.navbarHeight};
+  height: 72px;
   align-items: center;
   display: flex;
   box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
@@ -56,6 +56,7 @@ const NavbarContainer = styled.div`
     0px 3px 2px rgba(0, 35, 44, 0.05);
   @media (max-width: ${style.collapse}px) {
     padding: 1rem 1.5rem;
+    height: 100%;
   }
 `;
 
