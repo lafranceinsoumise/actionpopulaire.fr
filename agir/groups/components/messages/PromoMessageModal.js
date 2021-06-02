@@ -156,7 +156,9 @@ const items = [
     img: promo1,
     content: (
       <p>
-        <strong>Lancez une première conversation dans votre groupe ! </strong>
+        <strong>
+          Lancez une première conversation dans votre groupe&nbsp;!{" "}
+        </strong>
         Discustez de vos prochaines actions sur Action Populaire
       </p>
     ),
@@ -165,7 +167,7 @@ const items = [
     img: promo2,
     content: (
       <p>
-        <strong>Joignez simplement vos membres : </strong>
+        <strong>Joignez simplement vos membres&nbsp;: </strong>
         tous vos membres recevront un e-mail avec le contenu de votre message et
         pourront y répondre sur le site
       </p>
@@ -175,7 +177,7 @@ const items = [
     img: promo3,
     content: (
       <p>
-        <strong>Organisez ensemble vos actions : </strong>
+        <strong>Organisez ensemble vos actions&nbsp;: </strong>
         les membres du groupes sont les seuls à voir et commenter
       </p>
     ),
@@ -184,7 +186,7 @@ const items = [
     img: promo4,
     content: (
       <p>
-        <strong>Restez connecté·es ! </strong>
+        <strong>Restez connecté·es&nbsp;! </strong>
         Recevez les notifications de message en téléchargeant l’application
       </p>
     ),
