@@ -2,8 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 
-import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getAdminLink,
   getBackLink,
@@ -14,21 +12,21 @@ import {
   getUser,
 } from "@agir/front/globalContext/reducers";
 import { useHasUnreadActivity } from "@agir/activity/common/hooks";
-import { Hide } from "@agir/front/genericComponents/grid";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
 
+import { useIsDesktop, Hide } from "@agir/front/genericComponents/grid.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
-
+import DownloadApp from "@agir/front/genericComponents/DownloadApp.js";
+import Button from "@agir/front/genericComponents/Button";
 import Logo from "./Logo";
 import RightLink, { AnonymousLinks } from "./RightLink";
 import SearchBar from "./SearchBar";
 import AdminLink from "./AdminLink";
 import MenuLink, { TopbarLink } from "./MenuLink";
 import { TopBarMainLink } from "./TopBarMainLink";
-import DownloadApp from "@agir/front/genericComponents/DownloadApp.js";
-import Button from "@agir/front/genericComponents/Button";
 
 const NavBar = styled.div``;
 
@@ -183,14 +181,14 @@ export const TopBar = (props) => {
                 <>
                   <Hide under>
                     <div style={{ display: "flex" }}>
-                      <MenuLink href="/">
+                      <MenuLink route="events" href="/">
                         <TopbarLink $active={"/" === path}>
                           <FeatherIcon name="home" />
                           <span>Accueil</span>
                           <div />
                         </TopbarLink>
                       </MenuLink>
-                      <MenuLink href="/activite/">
+                      <MenuLink route="activities" href="/activite/">
                         <TopbarLink
                           isBadge={hasUnreadActivity}
                           $active={"/activite/" === path}

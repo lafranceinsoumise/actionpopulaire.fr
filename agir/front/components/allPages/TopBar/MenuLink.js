@@ -67,6 +67,7 @@ export const TopbarLink = styled.div`
     text-overflow: ellipsis;
     overflow: hidden;
     word-wrap: initial;
+    white-space: nowrap;
   }
 
   &:hover {
