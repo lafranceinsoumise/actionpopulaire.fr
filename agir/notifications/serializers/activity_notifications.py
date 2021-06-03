@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.template.defaultfilters import date as _date
 
 from agir.activity.models import Activity
 from agir.lib.serializers import FlexibleFieldsMixin
@@ -423,10 +424,13 @@ class NewCommentActivityNotificationSerializer(ActivityNotificationSerializer):
 
 
 class EventSuggestionNotificationSerializer(ActivityNotificationSerializer):
-    title = serializers.ReadOnlyField(default="📆 Passez à l'action !")
+    title = serializers.SerializerMethodField()
+
+    def get_title(self, activity):
+        return f"📆 Ce {_date(activity.event.start_time, 'l')} : passez à l'action !"
 
     def get_body(self, activity):
-        return f"Ce {activity.event.start_time.strftime('%A')} : {activity.event.name} {activity.supportgroup.name}"
+        return f"{activity.event.name}"
 
     def get_url(self, activity):
         return activity_notification_url(
