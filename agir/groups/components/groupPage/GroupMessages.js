@@ -19,7 +19,7 @@ import MessageModalTrigger, {
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 import DisplayNameAnnouncement from "@agir/groups/groupPage/Announcements/DisplayNameAnnouncement";
-import { EmptyMessages } from "./EmptyContent";
+import { PromoMessage } from "@agir/groups/messages/PromoMessageModal";
 
 const StyledButton = styled.div`
   text-align: center;
@@ -50,6 +50,10 @@ const StyledButton = styled.div`
 `;
 const StyledMessages = styled.div`
   margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 
   @media (max-width: ${style.collapse}px) {
     background-color: ${style.black50};
@@ -170,9 +174,11 @@ export const GroupMessages = (props) => {
                 />
               ))
             : null}
-          {Array.isArray(messages) && messages.length === 0 ? (
-            <EmptyMessages onClickSendMessage={writeNewMessage} />
-          ) : null}
+
+          {isManager && !isLoading && !messages?.length && (
+            <PromoMessage onClick={writeNewMessage} />
+          )}
+
           {typeof loadMoreMessages === "function" ? (
             <StyledButton>
               <Button

@@ -4,7 +4,6 @@ import EmptyContent, {
   MemberEmptyEvents,
   ManagerEmptyEvents,
   EmptyReports,
-  EmptyMessages,
 } from "./EmptyContent";
 
 export default {
@@ -25,4 +24,3 @@ Default.args = {
 export const EventsForMember = () => <MemberEmptyEvents />;
 export const EventsForManager = () => <ManagerEmptyEvents />;
 export const Reports = () => <EmptyReports />;
-export const Messages = () => <EmptyMessages onClickSendMessage={() => {}} />;
