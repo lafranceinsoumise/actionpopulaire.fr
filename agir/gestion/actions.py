@@ -71,7 +71,7 @@ no_todos.explication = "Vous devez d'abord terminer la liste de tâches"
 class Transition(Generic[T, E]):
     nom: str
     vers: E
-    condition: Callable[[T], bool] = toujours
+    condition: Union[Callable[[T, Role], bool], Callable[[T], bool]] = toujours
     class_name: str = ""
     permissions: List[str] = dataclasses.field(default_factory=list)
 
@@ -82,7 +82,12 @@ class Transition(Generic[T, E]):
         ):
             return "Vous n'avez pas les permissions requises pour cette action."
 
-        if not self.condition(instance):
+        try:
+            cond = self.condition(instance, role)
+        except TypeError:
+            cond = self.condition(instance)
+
+        if not cond:
             # noinspection PyUnresolvedReferences
             return self.condition.explication
 

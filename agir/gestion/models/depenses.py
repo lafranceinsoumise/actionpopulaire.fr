@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List
 
 import reversion
 from django.db import models
@@ -16,6 +16,21 @@ from agir.lib.model_fields import IBANField
 from agir.lib.models import TimeStampedModel, LocationMixin
 
 __all__ = ("Depense", "Reglement", "Fournisseur")
+
+
+def engagement_autorise(depense: "Depense", role):
+    compte = depense.compte
+    if role.has_perm("gestion.engager_depense") or role.has_perm(
+        "gestion.engager_depense", obj=compte
+    ):
+        return True
+    elif (
+        role.has_perm("gestion.gerer_depense")
+        or role.has_perm("gestion.gerer_depense", obj=compte)
+        and verifier_plafond_engagement(depense)
+    ):
+        return True
+    return False
 
 
 @reversion.register(follow=["documents"])
@@ -57,7 +72,7 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
                 nom="Engager la dépense",
                 vers=Etat.CONSTITUTION,
                 class_name="success",
-                permissions=["gestion.engager_depenses"],
+                condition=engagement_autorise,
             ),
         ],
         Etat.CONSTITUTION: [
@@ -341,6 +356,27 @@ CONDITIONS = {
 }
 
 
+def verifier_plafond_engagement(depense):
+    compte = depense.compte
+
+    # Il faut prendre en compte la nature hiérarchique des types
+    for type_part in (
+        depense.type.rsplit("-", i) for i in range(depense.type.count("-)"))
+    ):
+        if type_part in compte.configuration.get("engagement_automatique", {}):
+            plafond = compte.configuration["engagement_automatique"][type_part]
+            if plafond is True or depense.montant <= plafond:
+                return True
+
+            # Si un plafond est défini pour un type plus précis, soit il est plus élevé, et ça ne sert alors à rien
+            # de tester le plafond moins contraignant vu qu'on ne respecte déjà pas celui-ci.
+            # Soit il est moins élevé et vise à restreindre davantage ce sous-type de dépense, et on ne VEUT PAS
+            # utiliser le plafond plus élevé défini pour le type plus général.
+            break
+
+    return False
+
+
 def etat_initial(depense: Depense, createur: Role):
     compte = depense.compte
 
@@ -353,23 +389,10 @@ def etat_initial(depense: Depense, createur: Role):
 
     # il peut y a voir un plafond configuré pour ce type de dépense au-dessous duquel la dépense est engagée
     # automatiquement à sa création.
-    # Il faut prendre en compte la nature hiérarchique des types
-    for type_part in (
-        depense.type.rsplit("-", i) for i in range(depense.type.count("-)"))
-    ):
-        if type_part in compte.configuration.get("engagement_automatique", {}):
-            plafond = compte.configuration["engagement_automatique"][type_part]
+    if verifier_plafond_engagement(depense):
+        return Depense.Etat.CONSTITUTION
 
-            if plafond is True or depense.montant <= plafond:
-                return Depense.Etat.CONSTITUTION
-
-            # Si un plafond est défini pour un type plus précis, soit il est plus élevé, et ça ne sert alors à rien
-            # de tester le plafond moins contraignant vu qu'on ne respecte déjà pas celui-ci.
-            # Soit il est moins élevé et vise à restreindre davantage ce sous-type de dépense, et on ne VEUT PAS
-            # utiliser le plafond plus élevé défini pour le type plus général.
-            break
-
-        return Depense.Etat.ATTENTE_ENGAGEMENT
+    return Depense.Etat.ATTENTE_ENGAGEMENT
 
 
 def todos(depense: Depense):

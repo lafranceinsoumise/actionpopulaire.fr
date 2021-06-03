@@ -30,6 +30,11 @@ class DepenseForm(forms.ModelForm):
 
 
 class ProjetForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance._state.adding:
+            self.instance.etat = Projet.Etat.EN_CONSTITUTION
+
     class Meta:
         model = Projet
         fields = ()
