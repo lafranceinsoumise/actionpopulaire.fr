@@ -82,23 +82,15 @@ const UserLink = ({ user, routes, ...rest }) => {
 const SettingsLink = (props) => {
   const { settingsLink } = props;
   return (
-    <>
-      <Hide under>
-        <UserLink {...props} />
-      </Hide>
-
-      <Hide over>
-        <MenuLink
-          to={settingsLink.to}
-          href={settingsLink.href}
-          route={settingsLink.route}
-          title={settingsLink.label}
-          aria-label={settingsLink.label}
-        >
-          <FeatherIcon name="settings" />
-        </MenuLink>
-      </Hide>
-    </>
+    <MenuLink
+      to={settingsLink.to}
+      href={settingsLink.href}
+      route={settingsLink.route}
+      title={settingsLink.label}
+      aria-label={settingsLink.label}
+    >
+      <FeatherIcon name="settings" />
+    </MenuLink>
   );
 };
 
@@ -109,7 +101,18 @@ const RightLink = (props) => {
 
   return (
     <div style={{ position: "relative", padding: 0, margin: 0 }}>
-      {settingsLink ? <SettingsLink {...props} /> : <UserLink {...props} />}
+      {settingsLink ? (
+        <>
+          <Hide under>
+            <UserLink {...props} />
+          </Hide>
+          <Hide over>
+            <SettingsLink {...props} />
+          </Hide>
+        </>
+      ) : (
+        <UserLink {...props} />
+      )}
     </div>
   );
 };
