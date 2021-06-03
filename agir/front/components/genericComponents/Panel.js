@@ -127,6 +127,19 @@ const PanelFrame = styled.div`
   overflow: hidden;
   z-index: ${style.zindexPanel};
   pointer-events: ${({ $open }) => ($open ? "auto" : "none")};
+
+  @media (max-width: ${style.collapse}px) {
+    display: block;
+    width: 100%;
+    min-width: 100%;
+    z-index: ${({ $isBehindTopBar }) =>
+      $isBehindTopBar ? style.zindexTopBar - 1 : style.zindexPanel};
+
+    ${PanelContent} {
+      padding-top: ${({ $isBehindTopBar }) =>
+        $isBehindTopBar ? "4rem" : "1.5rem"};
+    }
+  }
 `;
 
 const getFocusableElements = (parent) => {
@@ -195,6 +208,7 @@ const Panel = (props) => {
     onClose,
     onBack,
     noScroll,
+    isBehindTopBar,
     className,
     style,
   } = props;
@@ -222,7 +236,11 @@ const Panel = (props) => {
   );
 
   return createPortal(
-    <PanelFrame ref={panelRef} $open={shouldShow}>
+    <PanelFrame
+      ref={panelRef}
+      $open={shouldShow}
+      $isBehindTopBar={isBehindTopBar}
+    >
       <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
       {transitions((tStyle, item) =>
         item ? (
@@ -258,6 +276,7 @@ Panel.propTypes = {
   onClose: PropTypes.func,
   onBack: PropTypes.func,
   noScroll: PropTypes.bool,
+  isBehindTopBar: PropTypes.bool,
   position: PropTypes.oneOf(["right", "left"]),
   title: PropTypes.string,
   className: PropTypes.string,

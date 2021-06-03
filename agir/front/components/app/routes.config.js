@@ -49,6 +49,7 @@ const TellMorePage = lazy(() =>
 const LogoutPage = lazy(() =>
   import("@agir/front/authentication/Connexion/Logout")
 );
+const MessagePage = lazy(() => import("@agir/msgs/MessagePage"));
 
 export const BASE_PATH = "/";
 
@@ -315,6 +316,16 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Déconnexion",
     Component: LogoutPage,
+  }),
+  messages: new RouteConfig({
+    id: "messages",
+    path: "/messages/:messagePk?/",
+    params: { messagePk: null },
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Messages",
+    Component: MessagePage,
+    hasLayout: false,
   }),
 };
 

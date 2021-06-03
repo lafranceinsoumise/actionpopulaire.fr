@@ -142,6 +142,12 @@ urlpatterns = [
     path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
     path("mes-groupes/", views.MyGroupsView.as_view(), name="list_my_groups"),
     path("navigation/", views.NavigationMenuView.as_view(), name="navigation_menu"),
+    path("messages/", views.UserMessagesView.as_view(), name="user_messages"),
+    path(
+        "messages/<uuid:pk>/",
+        views.UserMessagesView.as_view(),
+        name="user_message_details",
+    ),
     # old urls
     re_path("^old(.*)$", views.NBUrlsView.as_view(), name="old_urls"),
 ]

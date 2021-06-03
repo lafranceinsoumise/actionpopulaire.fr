@@ -301,3 +301,8 @@ class NotFoundView(ReactBaseView):
         response = super().dispatch(request, *args, **kwargs)
         response.status_code = 404
         return response
+
+
+@method_decorator(cache_decorators, name="get")
+class UserMessagesView(HardLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/app"

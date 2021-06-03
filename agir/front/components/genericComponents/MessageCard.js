@@ -254,8 +254,11 @@ const StyledComments = styled.div`
     margin-top: auto;
     padding: 1rem 0 0;
 
-    &:first-child,
     &:empty {
+      display: none;
+    }
+
+    &:first-child {
       padding-top: 0;
     }
   }
