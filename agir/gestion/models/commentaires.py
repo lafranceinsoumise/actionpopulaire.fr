@@ -4,6 +4,9 @@ from agir.lib.models import TimeStampedModel
 from agir.people.models import Person
 
 
+__all__ = ("Commentaire",)
+
+
 class Commentaire(TimeStampedModel):
     class Type(models.TextChoices):
         REM = "R", "Remarque"

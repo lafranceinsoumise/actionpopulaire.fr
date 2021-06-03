@@ -21,8 +21,7 @@ from agir.gestion.admin.inlines import (
     AjouterDepenseInline,
 )
 from agir.gestion.admin.views import AjouterReglementView, TransitionView
-from agir.gestion.models import Depense
-from agir.gestion.models.common import Document, Compte, Projet, Fournisseur
+from agir.gestion.models import Depense, Projet, Fournisseur, Document, Compte
 
 
 @admin.register(Compte)
@@ -171,11 +170,6 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
                 ),
                 name="gestion_depense_reglement",
             ),
-            path(
-                "<int:object_id>/transition/",
-                self.admin_site.admin_view(TransitionView.as_view(model=Depense)),
-                name="gestion_depense_transition",
-            ),
         ]
 
         return additional_urls + urls
@@ -184,16 +178,16 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
 @admin.register(Projet)
 class ProjetAdmin(BaseAdminMixin, VersionAdmin):
     form = ProjetForm
-    list_display = ("numero", "titre", "type", "statut")
+    list_display = ("numero", "titre", "type", "etat")
 
     fieldsets = (
         (
             None,
-            {"fields": ("numero_", "titre", "type", "statut", "event", "description")},
+            {"fields": ("numero_", "titre", "type", "etat", "event", "description")},
         ),
     )
 
-    readonly_fields = ("numero",)
+    readonly_fields = ("numero", "etat")
     autocomplete_fields = ("event",)
 
     inlines = [

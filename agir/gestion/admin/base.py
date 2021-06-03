@@ -1,11 +1,13 @@
-from functools import partial
-
 from django.contrib.admin.options import BaseModelAdmin, ModelAdmin
 from django.urls import path
 from django.utils.html import format_html
 
 from agir.gestion.admin.forms import CommentaireForm
-from agir.gestion.admin.views import CacherCommentaireView, AjouterCommentaireView
+from agir.gestion.admin.views import (
+    CacherCommentaireView,
+    AjouterCommentaireView,
+    TransitionView,
+)
 from agir.gestion.models import Commentaire
 from agir.lib.admin import get_admin_link
 
@@ -60,9 +62,9 @@ class BaseAdminMixin(BaseMixin, ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
+        opts = self.model._meta
 
         if hasattr(self.model, "commentaires"):
-            opts = self.model._meta
             urls = [
                 path(
                     "commenter/<int:object_id>",
@@ -77,6 +79,18 @@ class BaseAdminMixin(BaseMixin, ModelAdmin):
                         CacherCommentaireView.as_view(model_admin=self)
                     ),
                     name=f"{opts.app_label}_{opts.model_name}_cacher_commentaire",
+                ),
+                *urls,
+            ]
+
+        if hasattr(self.model, "transitions"):
+            urls = [
+                path(
+                    "<int:object_id>/transition/",
+                    self.admin_site.admin_view(
+                        TransitionView.as_view(model=self.model)
+                    ),
+                    name=f"{opts.app_label}_{opts.model_name}_transition",
                 ),
                 *urls,
             ]

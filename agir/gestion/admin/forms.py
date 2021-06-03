@@ -2,16 +2,16 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 
-from agir.gestion.models.commentaires import ajouter_commentaire
 from agir.gestion.admin.widgets import HierarchicalSelect
-from agir.gestion.models import Depense
 from agir.gestion.models import (
     Commentaire,
+    Depense,
     Document,
+    Fournisseur,
     Projet,
     Reglement,
-    Fournisseur,
 )
+from agir.gestion.models.commentaires import ajouter_commentaire
 from agir.gestion.typologies import TypeDocument
 
 
@@ -242,9 +242,9 @@ class ReglementForm(forms.ModelForm):
 
     def save(self, commit=True):
         if not self.cleaned_data.get("preuve"):
-            self.instance.statut = Reglement.Statut.ATTENTE
+            self.instance.etat = Reglement.Statut.ATTENTE
         else:
-            self.instance.statut = Reglement.Statut.REGLE
+            self.instance.etat = Reglement.Statut.REGLE
 
         return super().save(commit=commit)
 

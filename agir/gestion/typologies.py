@@ -83,6 +83,10 @@ class TypeProjet(TextChoices):
 
     ACTIONS = "ACT", "Actions"
 
+    EVENEMENT = "EVE", "Événements spécifiques"
+    EVENEMENT_AMFIS = "EVE-AMF", "AMFiS d'été"
+    CONVENTION = "EVE-CON", "Convention"
+
     DEPENSES_RH = "RH", "Dépenses RH mensuelles"
 
 

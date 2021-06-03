@@ -8,14 +8,17 @@ import dynamic_filenames
 import reversion
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
-from django.utils import timezone
-from django_countries.fields import CountryField
-from phonenumber_field.modelfields import PhoneNumberField
 
-from agir.gestion.typologies import TypeDocument, TypeProjet, NiveauAcces
-from agir.lib.model_fields import IBANField
-from agir.lib.models import TimeStampedModel, LocationMixin
+from agir.gestion.typologies import TypeDocument
+from agir.lib.models import TimeStampedModel
 from agir.lib.search import PrefixSearchQuery
+
+
+__all__ = (
+    "Document",
+    "Compte",
+)
+
 
 ALPHABET = ascii_uppercase + digits
 NUMERO_RE = re.compile("^[A-Z0-9]{3}-[A-Z0-9]{1,3}$")
@@ -183,215 +186,7 @@ class Compte(TimeStampedModel):
             ),
             ("engager_depense", "Engager une dépense pour ce compte"),
             ("gerer_depense", "Gérer les dépenses"),
+            ("controler_depense", "Contrôler les dépenses"),
+            ("gerer_projet", "Gérer les projets"),
+            ("contrôler_projet", "Contrôler les projets"),
         ]
-
-
-@reversion.register(follow=["documents", "depenses"])
-class Projet(NumeroUniqueMixin, TimeStampedModel):
-    """Le projet regroupe ensemble des dépenses liées entre elles
-
-    Un projet peut correspondre à un événement, ou à un type de de dépense précis.
-    (par exemple « organisation du meeting du 16 janvier » ou « paiement salaire mars »)
-    """
-
-    class StatutProjet(models.TextChoices):
-        DEMANDE_FINANCEMENT = "DFI", "Demande de financement"
-        EN_CONSTITUTION = "ECO", "En cours de constitution"
-        FINALISE = "FIN", "Finalisé par le secrétariat"
-        RENVOI = "REN", "Renvoyé par l'équipe financière"
-
-    titre = models.CharField(verbose_name="Titre du projet", max_length=40)
-    type = models.CharField(
-        verbose_name="Type de projet", choices=TypeProjet.choices, max_length=10
-    )
-    statut = models.CharField(
-        verbose_name="Statut", max_length=3, choices=StatutProjet.choices, blank=False
-    )
-    description = models.TextField(verbose_name="Description du projet", null=True)
-    event = models.ForeignKey(
-        to="events.Event",
-        verbose_name="Événement sur la plateforme",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-    )
-
-    niveau_acces = models.CharField(
-        verbose_name="Niveau d'accès",
-        max_length=1,
-        choices=NiveauAcces.choices,
-        blank=False,
-        default=NiveauAcces.SANS_RESTRICTION,
-    )
-
-    details = models.JSONField("Détails", default=dict)
-
-    documents = models.ManyToManyField(
-        to="Document", related_name="projets", related_query_name="projet"
-    )
-
-    def todos(self):
-        from ..actions.projets import todos
-
-        return todos(self)
-
-    class Meta:
-        verbose_name = "Projet"
-        verbose_name_plural = "Projets"
-
-
-class Reglement(TimeStampedModel):
-    class Statut(models.TextChoices):
-        ATTENTE = "C", "En cours"
-        REGLE = "R", "Réglé"
-        RAPPROCHE = "P", "Rapproché"
-
-    class Mode(models.TextChoices):
-        VIREMENT = "V", "Par virement"
-        PRELEV = "P", "Par prélèvement"
-        CHEQUE = "C", "Par chèque"
-        CARTE = "A", "Par carte bancaire"
-        CASH = "S", "En espèces"
-
-    depense = models.ForeignKey(
-        to="Depense",
-        verbose_name="Dépense concernée",
-        related_name="reglements",
-        related_query_name="reglement",
-        on_delete=models.PROTECT,
-    )
-
-    intitule = models.CharField(
-        verbose_name="Intitulé du réglement", max_length=200, blank=False
-    )
-
-    mode = models.CharField(
-        verbose_name="Mode de réglement",
-        max_length=1,
-        choices=Mode.choices,
-        blank=False,
-    )
-
-    montant = models.DecimalField(
-        verbose_name="Montant du règlement",
-        decimal_places=2,
-        null=False,
-        max_digits=10,
-    )
-    date = models.DateField(
-        verbose_name="Date du règlement", blank=False, null=False, default=timezone.now,
-    )
-
-    preuve = models.ForeignKey(
-        to="Document",
-        verbose_name="Preuve de paiement",
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT,
-    )
-
-    statut = models.CharField(
-        max_length=1, blank=False, choices=Statut.choices, default=Statut.ATTENTE
-    )
-
-    # lien vers le fournisseur
-    fournisseur = models.ForeignKey(
-        to="Fournisseur", null=True, blank=True, on_delete=models.SET_NULL,
-    )
-
-    # informations fournisseurs
-    nom_fournisseur = models.CharField(
-        verbose_name="Nom du fournisseur", blank=False, max_length=100
-    )
-
-    iban_fournisseur = IBANField(verbose_name="IBAN du fournisseur", blank=True)
-
-    contact_phone_fournisseur = PhoneNumberField(
-        verbose_name="Numéro de téléphone", blank=True
-    )
-    contact_email_fournisseur = models.EmailField(
-        verbose_name="Adresse email", blank=True
-    )
-
-    location_address1_fournisseur = models.CharField(
-        "adresse (1ère ligne)", max_length=100, blank=True
-    )
-    location_address2_fournisseur = models.CharField(
-        "adresse (1ère ligne)", max_length=100, blank=True
-    )
-    location_city_fournisseur = models.CharField("ville", max_length=100, blank=False)
-    location_zip_fournisseur = models.CharField(
-        "code postal", max_length=20, blank=False
-    )
-    location_country_fournisseur = CountryField(
-        "pays", blank_label="(sélectionner un pays)", default="FR", blank=False
-    )
-
-    class Meta:
-        verbose_name = "règlement"
-        ordering = ("date",)
-
-
-@reversion.register()
-class Fournisseur(LocationMixin, TimeStampedModel):
-    """Ce modèle permet d'enregistrer des fournisseurs récurrents.
-
-    Un fournisseur peut posséder une adresse, un IBAN pour réaliser des virements,
-    et des informations de contact.
-    """
-
-    nom = models.CharField(
-        verbose_name="Nom du fournisseur", blank=False, max_length=100
-    )
-    description = models.TextField(verbose_name="Description", blank=True)
-
-    iban = IBANField(verbose_name="IBAN du fournisseur", blank=True)
-
-    contact_phone = PhoneNumberField(verbose_name="Numéro de téléphone", blank=True)
-    contact_email = models.EmailField(verbose_name="Adresse email", blank=True)
-
-    def __str__(self):
-        return self.nom
-
-
-class Participation(TimeStampedModel):
-    """Ce modèle associe des personnes à des projets, et indique leur rôle sur le projet
-    """
-
-    class Role(models.TextChoices):
-        CANDIDAT = "CAN", "Candidat"
-        ORATEUR = "ORA", "Orateur"
-        ORGANISATION = (
-            "ORG",
-            "Organisation",
-        )
-        GESTION = "GES", "Gestion de projet"
-
-    projet = models.ForeignKey(
-        to=Projet,
-        verbose_name="Projet",
-        blank=False,
-        null=False,
-        on_delete=models.CASCADE,
-        related_name="participations",
-        related_query_name="participation",
-    )
-    person = models.ForeignKey(
-        to="people.Person",
-        verbose_name="Personne",
-        blank=False,
-        null=False,
-        on_delete=models.CASCADE,
-        related_name="+",
-        related_query_name="participation",
-    )
-    role = models.CharField(
-        verbose_name="Rôle sur ce projet", max_length=3, choices=Role.choices,
-    )
-
-    precisions = models.TextField(verbose_name="Précisions", blank=True)
-
-    class Meta:
-        verbose_name = "participation à un projet"
-        verbose_name_plural = "participations à des projets"
-        unique_together = ("projet", "person", "role")
