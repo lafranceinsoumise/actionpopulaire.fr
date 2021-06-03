@@ -146,6 +146,8 @@ def save_subscription_information(person, type, data, new=False):
 
 def subscription_success_redirect_url(type, id, data):
     params = {"agir_id": str(id)}
-    params.update({f"agir_{k}": v for k, v in data.items()})
     url = SUBSCRIPTION_SUCCESS_REDIRECT[type]
+    if data.get("next", None):
+        url = data.pop("next")
+    params.update({f"agir_{k}": v for k, v in data.items()})
     return add_query_params_to_url(url, params, as_fragment=True)
