@@ -14,8 +14,7 @@ import {
 import { useHasUnreadActivity } from "@agir/activity/common/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 
-import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
-import { Hide } from "@agir/front/genericComponents/grid";
+import { useIsDesktop, Hide } from "@agir/front/genericComponents/grid.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
