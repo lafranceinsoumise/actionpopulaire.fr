@@ -42,18 +42,19 @@ export const useCustomAnnouncement = (slug) => {
   );
 
   const announcementId = data?.id;
+  const announcementStatus = data?.status;
   const announcement = useMemo(
     () => {
       if (
         !announcementId ||
-        data?.status === activityStatus.STATUS_INTERACTED
+        announcementStatus === activityStatus.STATUS_INTERACTED
       ) {
         return null;
       }
       return data;
     },
     //eslint-disable-next-line
-    [announcementId]
+    [announcementId, announcementStatus]
   );
 
   const activityId = announcement?.activityId;
