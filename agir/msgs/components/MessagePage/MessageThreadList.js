@@ -174,6 +174,7 @@ DesktopThreadList.propTypes =
   MessageThreadList.propTypes =
     {
       messages: PropTypes.arrayOf(PropTypes.object),
+      messageRecipients: PropTypes.arrayOf(PropTypes.object),
       selectedMessage: PropTypes.object,
       user: PropTypes.shape({
         id: PropTypes.string.isRequired,

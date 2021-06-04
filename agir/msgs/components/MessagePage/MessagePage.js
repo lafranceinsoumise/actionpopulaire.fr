@@ -38,6 +38,7 @@ const MessagePage = ({ messagePk }) => {
 
   const { data: session } = useSWR("/api/session");
   const { data: messages } = useSWR("/api/user/messages/");
+  const { data: messageRecipients } = useSWR("/api/user/messages/recipients/");
   const { data: currentMessage } = useSWR(
     messagePk ? `/api/groupes/messages/${messagePk}/` : null
   );
@@ -81,6 +82,7 @@ const MessagePage = ({ messagePk }) => {
           {Array.isArray(messages) && messages.length > 0 ? (
             <MessageThreadList
               messages={messages}
+              messageRecipients={messageRecipients}
               selectedMessage={currentMessage}
               onSelect={handleSelect}
               user={session?.user}

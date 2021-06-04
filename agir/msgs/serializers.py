@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
+from agir.groups.models import SupportGroup
 from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
 from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
@@ -167,6 +168,15 @@ class UserReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserReport
         fields = ("reporter", "content_type", "object_id")
+
+
+class UserMessageRecipientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportGroup
+        fields = (
+            "id",
+            "name",
+        )
 
 
 class UserMessagesSerializer(BaseMessageSerializer):

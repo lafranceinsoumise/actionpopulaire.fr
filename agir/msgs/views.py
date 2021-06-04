@@ -2,14 +2,35 @@ from django.db.models import Case, Exists, IntegerField, Max, OuterRef, When
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
-from agir.groups.models import SupportGroup
+from agir.groups.models import Membership, SupportGroup
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageRecipient
-from agir.msgs.serializers import UserReportSerializer, UserMessagesSerializer
+from agir.msgs.serializers import (
+    UserReportSerializer,
+    UserMessagesSerializer,
+    UserMessageRecipientSerializer,
+)
 
 
 class UserReportAPIView(CreateAPIView):
     serializer_class = UserReportSerializer
     permission_classes = (IsAuthenticated,)
+
+
+class UserMessageRecipientsView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserMessageRecipientSerializer
+    queryset = SupportGroup.objects.active()
+
+    def get_queryset(self):
+        person = self.request.user.person
+        return (
+            self.queryset.filter(
+                memberships__person=person,
+                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+            )
+            .values("id", "name")
+            .order_by("name")
+        )
 
 
 class UserMessagesAPIView(ListAPIView):
