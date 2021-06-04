@@ -55,7 +55,7 @@ const UserLink = ({ user, routes, ...rest }) => {
               image={user.image}
               style={{ width: "28px", height: "28px", marginTop: 0 }}
             />
-            <span>{user.fullName || user.displayName}</span>
+            <span>{user.displayName || user.email}</span>
           </TopbarLink>
         </MenuLink>
       </Hide>
@@ -66,7 +66,7 @@ const UserLink = ({ user, routes, ...rest }) => {
           as="button"
           onClick={openMenu}
         >
-          <Avatar displayName={user.displayName} image={user.image} />
+          <Avatar displayName={user.displayName || user.email} image={user.image} />
         </MenuLink>
       </Hide>
       <UserMenu
