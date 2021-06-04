@@ -101,13 +101,6 @@ const Container = styled.div`
   border: 1px solid #dfdfdf;
   background-color: #fff;
 
-  p {
-    margin: 30px 0;
-    font-size: 18px;
-    text-align: center;
-    max-width: 600px;
-  }
-
   img {
     user-select: none;
   }
@@ -151,6 +144,21 @@ const Mark = styled.span`
     props.$active ? style.black700 : style.black200};
 `;
 
+const StyledContent = styled.div`
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 160px;
+
+  p {
+    margin: 30px 0;
+    font-size: 18px;
+    text-align: center;
+    max-width: 600px;
+  }
+`;
+
 const items = [
   {
     img: promo1,
@@ -178,7 +186,7 @@ const items = [
     content: (
       <p>
         <strong>Organisez ensemble vos actions&nbsp;: </strong>
-        les membres du groupes sont les seuls à voir et commenter
+        les membres du groupe sont les seuls à voir et commenter
       </p>
     ),
   },
@@ -243,7 +251,7 @@ export const PromoMessage = (props) => {
         ))}
       </div>
 
-      {items[itemIndex].content}
+      <StyledContent>{items[itemIndex].content}</StyledContent>
 
       <Button color="confirmed" onClick={handleClick} $wrap>
         <RawFeatherIcon

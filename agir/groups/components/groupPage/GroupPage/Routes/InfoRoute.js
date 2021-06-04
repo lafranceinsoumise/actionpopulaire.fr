@@ -5,6 +5,7 @@ import styled from "styled-components";
 
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import GroupLocation from "@agir/groups/groupPage/GroupLocation";
 import GroupContactCard from "@agir/groups/groupPage/GroupContactCard";
@@ -48,7 +49,10 @@ const MobileInfoRoute = (props) => {
       {group && group.hasMessages ? (
         <MessagesRoutePreview {...props} />
       ) : group.isManager ? (
-        <PromoMessage goToMessages onClick={goToMessagesTab} />
+        <>
+          <PromoMessage goToMessages onClick={goToMessagesTab} />
+          <Spacer size="1.5rem" />
+        </>
       ) : null}
 
       <GroupContactCard {...group} editLinkTo={groupSettingsLinks?.contact} />
@@ -91,7 +95,10 @@ const DesktopInfoRoute = (props) => {
       {group && group.hasMessages ? (
         <MessagesRoutePreview {...props} />
       ) : group.isManager ? (
-        <PromoMessage goToMessages onClick={goToMessagesTab} />
+        <>
+          <PromoMessage goToMessages onClick={goToMessagesTab} />
+          <Spacer size="1.5rem" />
+        </>
       ) : null}
 
       {group &&
