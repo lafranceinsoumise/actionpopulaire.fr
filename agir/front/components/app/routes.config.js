@@ -326,6 +326,7 @@ export const routeConfig = {
     label: "Messages",
     Component: MessagePage,
     hasLayout: false,
+    hideFeedbackButton: true,
   }),
 };
 

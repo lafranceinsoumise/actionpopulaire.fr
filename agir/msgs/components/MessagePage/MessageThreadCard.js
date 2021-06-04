@@ -36,9 +36,12 @@ const StyledCard = styled.button`
   cursor: pointer;
   background-color: ${({ $selected }) =>
     $selected ? style.black50 : style.white};
-
   box-shadow: inset ${({ $selected }) => ($selected ? "2px" : "0px")} 0px 0px
     ${style.primary500};
+
+  &[disabled] {
+    cursor: default;
+  }
 
   & > * {
     flex: 0 0 auto;
@@ -76,6 +79,7 @@ const StyledCard = styled.button`
 const MessageThreadCard = (props) => {
   const {
     message: { id, author, group, text, unreadCommentCount = 0 },
+    isLoading,
     isSelected,
     onClick,
   } = props;
@@ -85,7 +89,12 @@ const MessageThreadCard = (props) => {
   }, [onClick, id]);
 
   return (
-    <StyledCard type="button" onClick={handleClick} $selected={isSelected}>
+    <StyledCard
+      type="button"
+      onClick={handleClick}
+      $selected={isSelected}
+      disabled={isLoading}
+    >
       <Avatar name={author?.displayName} image={author?.image} />
       <article>
         <h5 title={`${author?.displayName} • ${group?.name}`}>
@@ -116,6 +125,7 @@ MessageThreadCard.propTypes = {
     text: PropTypes.string.isRequired,
     unreadCommentCount: PropTypes.number,
   }).isRequired,
+  isLoading: PropTypes.bool,
   isSelected: PropTypes.bool,
   onClick: PropTypes.func,
 };

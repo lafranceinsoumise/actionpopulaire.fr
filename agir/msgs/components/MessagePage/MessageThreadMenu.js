@@ -61,6 +61,7 @@ const StyledMenu = styled.menu`
 
 const MessageThreadMenu = (props) => {
   const {
+    isLoading,
     messages,
     selectedMessageId,
     notificationSettingLink,
@@ -77,7 +78,11 @@ const MessageThreadMenu = (props) => {
             Messages{typeof writeNewMessage !== "function" ? " reçus" : ""}
           </h2>
           {notificationSettingLink && (
-            <Link to={notificationSettingLink} style={{ lineHeight: 0 }}>
+            <Link
+              to={notificationSettingLink}
+              style={{ lineHeight: 0 }}
+              disabled={isLoading}
+            >
               <RawFeatherIcon
                 name="settings"
                 color={style.black1000}
@@ -94,6 +99,7 @@ const MessageThreadMenu = (props) => {
             icon="edit"
             color="confirmed"
             onClick={writeNewMessage}
+            disabled={isLoading}
             style={{
               borderRadius: style.borderRadius,
               width: "100%",
@@ -111,6 +117,7 @@ const MessageThreadMenu = (props) => {
             message={message}
             isSelected={message.id === selectedMessageId}
             onClick={onSelect}
+            disabled={isLoading}
           />
         ))}
       </ul>
@@ -119,6 +126,7 @@ const MessageThreadMenu = (props) => {
 };
 
 MessageThreadMenu.propTypes = {
+  isLoading: PropTypes.bool,
   messages: PropTypes.arrayOf(PropTypes.object),
   selectedMessageId: PropTypes.string,
   notificationSettingLink: PropTypes.string,
