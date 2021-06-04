@@ -15,9 +15,10 @@ const StyledNewMessageButton = styled.div`
   padding: 0.5rem 1.5rem 1.5rem;
 
   @media (max-width: ${style.collapse}px) {
+    background-color: ${style.white};
     padding: 1.5rem;
     position: fixed;
-    bottom: 80px;
+    bottom: 72px;
     left: 0;
     right: 0;
     box-shadow: ${style.cardShadow};
@@ -35,7 +36,7 @@ const StyledMenu = styled.menu`
   @media (max-width: ${style.collapse}px) {
     max-width: 100%;
     border-right: none;
-    padding-bottom: 140px;
+    padding-bottom: 200px;
   }
 
   header {

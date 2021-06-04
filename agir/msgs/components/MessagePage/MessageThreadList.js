@@ -7,6 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 import MessageCard from "@agir/front/genericComponents/MessageCard";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Panel from "@agir/front/genericComponents/Panel";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
@@ -49,6 +50,7 @@ const DesktopThreadList = (props) => {
   const {
     user,
     messages,
+    selectedMessagePk,
     selectedMessage,
     onSelect,
     onEdit,
@@ -63,11 +65,11 @@ const DesktopThreadList = (props) => {
 
   useEffect(() => {
     // Autoselect first message on desktop
-    !selectedMessage?.id &&
+    !selectedMessagePk &&
       Array.isArray(messages) &&
       messages[0] &&
       onSelect(messages[0].id);
-  }, [messages, selectedMessage, onSelect]);
+  }, [messages, selectedMessagePk, onSelect]);
 
   return (
     <StyledList>
@@ -78,26 +80,28 @@ const DesktopThreadList = (props) => {
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
       />
-      {selectedMessage ? (
-        <StyledContent>
-          <MessageCard
-            user={user}
-            message={selectedMessage}
-            comments={selectedMessage.comments}
-            onEdit={onEdit}
-            onComment={onComment}
-            onReport={onReport}
-            onDelete={onDelete}
-            onReportComment={onReportComment}
-            onDeleteComment={onDeleteComment}
-            isManager={selectedMessage.group.isManager}
-            groupURL={routeConfig.groupDetails.getLink({
-              groupPk: selectedMessage.group.id,
-              activeTab: "messages",
-            })}
-          />
-        </StyledContent>
-      ) : null}
+      <PageFadeIn ready={selectedMessagePk && selectedMessage}>
+        {selectedMessage ? (
+          <StyledContent>
+            <MessageCard
+              user={user}
+              message={selectedMessage}
+              comments={selectedMessage.comments}
+              onEdit={onEdit}
+              onComment={onComment}
+              onReport={onReport}
+              onDelete={onDelete}
+              onReportComment={onReportComment}
+              onDeleteComment={onDeleteComment}
+              isManager={selectedMessage.group.isManager}
+              groupURL={routeConfig.groupDetails.getLink({
+                groupPk: selectedMessage.group.id,
+                activeTab: "messages",
+              })}
+            />
+          </StyledContent>
+        ) : null}
+      </PageFadeIn>
     </StyledList>
   );
 };
@@ -106,6 +110,7 @@ const MobileThreadList = (props) => {
   const {
     user,
     messages,
+    selectedMessagePk,
     selectedMessage,
     onSelect,
     onEdit,
@@ -133,27 +138,29 @@ const MobileThreadList = (props) => {
         noScroll
         isBehindTopBar
       >
-        {selectedMessage && (
-          <StyledContent>
-            <MessageCard
-              user={user}
-              message={selectedMessage}
-              comments={selectedMessage?.comments}
-              onEdit={onEdit}
-              onComment={onComment}
-              onReport={onReport}
-              onDelete={onDelete}
-              onReportComment={onReportComment}
-              onDeleteComment={onDeleteComment}
-              isManager={selectedMessage?.group.isManager}
-              groupURL={routeConfig.groupDetails.getLink({
-                groupPk: selectedMessage?.group.id,
-                activeTab: "messages",
-              })}
-              withMobileCommentField
-            />
-          </StyledContent>
-        )}
+        <PageFadeIn ready={selectedMessagePk && selectedMessage}>
+          {selectedMessage && (
+            <StyledContent>
+              <MessageCard
+                user={user}
+                message={selectedMessage}
+                comments={selectedMessage?.comments}
+                onEdit={onEdit}
+                onComment={onComment}
+                onReport={onReport}
+                onDelete={onDelete}
+                onReportComment={onReportComment}
+                onDeleteComment={onDeleteComment}
+                isManager={selectedMessage?.group.isManager}
+                groupURL={routeConfig.groupDetails.getLink({
+                  groupPk: selectedMessage?.group.id,
+                  activeTab: "messages",
+                })}
+                withMobileCommentField
+              />
+            </StyledContent>
+          )}
+        </PageFadeIn>
       </Panel>
     </StyledList>
   );
@@ -174,7 +181,7 @@ DesktopThreadList.propTypes =
   MessageThreadList.propTypes =
     {
       messages: PropTypes.arrayOf(PropTypes.object),
-      messageRecipients: PropTypes.arrayOf(PropTypes.object),
+      selectedMessagePk: PropTypes.string,
       selectedMessage: PropTypes.object,
       user: PropTypes.shape({
         id: PropTypes.string.isRequired,
