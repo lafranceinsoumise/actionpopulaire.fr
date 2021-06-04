@@ -8,6 +8,7 @@ from rest_framework.validators import UniqueValidator
 from agir.elus.models import MandatMunicipal, StatutMandat, types_elus
 from agir.lib.data import french_zipcode_to_country_code, FRANCE_COUNTRY_CODES
 from agir.lib.serializers import FlexibleFieldsMixin
+from agir.lib.utils import is_absolute_url
 from . import models
 from .actions.subscription import (
     SUBSCRIPTION_TYPE_LFI,
@@ -76,6 +77,7 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         choices=("municipal", "maire", "departemental", "regional", "consulaire"),
         required=False,
     )
+    next = serializers.CharField(required=False, allow_blank=True, write_only=True)
 
     referrer = serializers.CharField(required=False)
 
@@ -90,6 +92,11 @@ class SubscriptionRequestSerializer(serializers.Serializer):
 
     def validate_contact_phone(self, value):
         return value and str(value)
+
+    def validate_next(self, value):
+        if not value or is_absolute_url(value):
+            return ""
+        return value
 
     def validate(self, data):
         if (

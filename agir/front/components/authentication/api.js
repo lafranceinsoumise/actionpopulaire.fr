@@ -61,7 +61,7 @@ export const logout = async () => {
   return result;
 };
 
-export const signUp = async (data) => {
+export const signUp = async (data, next) => {
   const result = {
     data: null,
     error: null,
@@ -70,6 +70,7 @@ export const signUp = async (data) => {
     email: data.email.trim(),
     location_zip: data.postalCode,
     location_country: data.country,
+    next: next || undefined,
   };
   const url = ENDPOINT.signUp;
   try {
