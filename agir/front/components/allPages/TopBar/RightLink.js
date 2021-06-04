@@ -41,7 +41,7 @@ const UserLink = ({ user, routes, ...rest }) => {
   }, []);
 
   return (
-    <div style={{ position: "relative", padding: 0, margin: 0 }}>
+    <>
       <Hide under>
         <MenuLink
           {...rest}
@@ -51,7 +51,7 @@ const UserLink = ({ user, routes, ...rest }) => {
         >
           <TopbarLink>
             <Avatar
-              displayName={user.fullName || user.displayName}
+              displayName={user.displayName || user.email}
               image={user.image}
               style={{ width: "28px", height: "28px", marginTop: 0 }}
             />
@@ -75,42 +75,46 @@ const UserLink = ({ user, routes, ...rest }) => {
         user={user}
         routes={routes}
       />
-    </div>
+    </>
   );
 };
 
 const SettingsLink = (props) => {
   const { settingsLink } = props;
   return (
-    <>
-      <Hide under>
-        <UserLink {...props} />
-      </Hide>
-
-      <Hide over>
-        <MenuLink
-          to={settingsLink.to}
-          href={settingsLink.href}
-          route={settingsLink.route}
-          title={settingsLink.label}
-          aria-label={settingsLink.label}
-        >
-          <FeatherIcon name="settings" />
-        </MenuLink>
-      </Hide>
-    </>
+    <MenuLink
+      to={settingsLink.to}
+      href={settingsLink.href}
+      route={settingsLink.route}
+      title={settingsLink.label}
+      aria-label={settingsLink.label}
+    >
+      <FeatherIcon name="settings" />
+    </MenuLink>
   );
 };
 
 const RightLink = (props) => {
   const { user, settingsLink } = props;
-  if (settingsLink) {
-    return <SettingsLink {...props} />;
-  }
-  if (user) {
-    return <UserLink {...props} />;
-  }
-  return <AnonymousLinks {...props} />;
+
+  if (!settingsLink && !user) return <AnonymousLinks {...props} />;
+
+  return (
+    <div style={{ position: "relative", padding: 0, margin: 0 }}>
+      {settingsLink ? (
+        <>
+          <Hide under>
+            <UserLink {...props} />
+          </Hide>
+          <Hide over>
+            <SettingsLink {...props} />
+          </Hide>
+        </>
+      ) : (
+        <UserLink {...props} />
+      )}
+    </div>
+  );
 };
 
 RightLink.propTypes =
