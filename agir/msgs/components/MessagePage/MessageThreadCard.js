@@ -6,7 +6,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 
-const StyledUnreadCommentBadge = styled.span`
+const StyledUnreadItemBadge = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,7 +78,7 @@ const StyledCard = styled.button`
 
 const MessageThreadCard = (props) => {
   const {
-    message: { id, author, group, text, unreadCommentCount = 0 },
+    message: { id, author, group, text, isUnread, unreadCommentCount },
     isLoading,
     isSelected,
     onClick,
@@ -87,6 +87,8 @@ const MessageThreadCard = (props) => {
   const handleClick = useCallback(() => {
     onClick && onClick(id);
   }, [onClick, id]);
+
+  const unreadItemCount = (isUnread ? 1 : 0) + (unreadCommentCount || 0);
 
   return (
     <StyledCard
@@ -102,12 +104,12 @@ const MessageThreadCard = (props) => {
         </h5>
         <p title={text}>{text}</p>
       </article>
-      <StyledUnreadCommentBadge
+      <StyledUnreadItemBadge
         aria-label="Nombre de commentaires non lus"
-        $empty={unreadCommentCount === 0}
+        $empty={unreadItemCount === 0}
       >
-        {unreadCommentCount}
-      </StyledUnreadCommentBadge>
+        {unreadItemCount}
+      </StyledUnreadItemBadge>
     </StyledCard>
   );
 };
@@ -124,6 +126,7 @@ MessageThreadCard.propTypes = {
     }).isRequired,
     text: PropTypes.string.isRequired,
     unreadCommentCount: PropTypes.number,
+    isUnread: PropTypes.bool,
   }).isRequired,
   isLoading: PropTypes.bool,
   isSelected: PropTypes.bool,

@@ -1,4 +1,13 @@
-from django.db.models import Case, Exists, IntegerField, Max, OuterRef, When
+from django.db.models import (
+    Case,
+    DateTimeField,
+    Exists,
+    IntegerField,
+    Max,
+    OuterRef,
+    When,
+)
+from django.db.models.functions import Greatest
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -54,13 +63,12 @@ class UserMessagesAPIView(ListAPIView):
             self.queryset.filter(supportgroup_id__in=person_groups)
             .select_related("supportgroup", "author")
             .prefetch_related("comments")
+            .annotate(is_unread=~Exists(user_message))
             .annotate(
-                is_unread=Case(
-                    When(Exists(user_message), then=0,),
-                    default=1,
-                    output_field=IntegerField(),
+                last_comment=Greatest(
+                    Max("comments__created"), "created", output_field=DateTimeField()
                 )
             )
-            .annotate(last_comment=Max("comments__created"))
-            .order_by("-is_unread", "-last_comment", "-created")
+            .distinct()
+            .order_by("-last_comment", "-created")
         )
