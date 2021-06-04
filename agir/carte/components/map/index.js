@@ -1,9 +1,14 @@
 import "ol/ol.css";
 import "./style.css";
-import listMap from "./listMap";
-import itemMap from "./itemMap";
 
-export default {
-  listMap,
-  itemMap,
-};
+export async function listMap() {
+  const listMapModule = (await import("./listMap")).default;
+
+  listMapModule.apply(null, arguments);
+}
+
+export async function itemMap() {
+  const itemMapModule = (await import("./itemMap")).default;
+
+  itemMapModule.apply(null, arguments);
+}
