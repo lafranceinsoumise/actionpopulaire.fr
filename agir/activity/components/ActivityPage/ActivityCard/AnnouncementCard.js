@@ -70,12 +70,12 @@ const StyledCard = styled.div`
   }
 `;
 
-const AnnouncementActivityCard = (props) => {
-  const { image, title, content, link, linkLabel } = props;
+const AnnouncementCard = (props) => {
+  const { image, title, content, link, linkLabel, config } = props;
 
   return (
     <StyledCard>
-      <FeatherIcon name="bell" color={style.black500} />
+      <FeatherIcon name={config.icon} color={style.black500} />
       <article>
         {image?.activity && <img src={image.activity} />}
         <h4>{title}</h4>
@@ -90,7 +90,7 @@ const AnnouncementActivityCard = (props) => {
   );
 };
 
-AnnouncementActivityCard.propTypes = {
+AnnouncementCard.propTypes = {
   id: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   link: PropTypes.string,
@@ -104,5 +104,8 @@ AnnouncementActivityCard.propTypes = {
   priority: PropTypes.number,
   activityId: PropTypes.number,
   customDisplay: PropTypes.string,
+  config: PropTypes.shape({
+    icon: PropTypes.string,
+  }),
 };
-export default AnnouncementActivityCard;
+export default AnnouncementCard;

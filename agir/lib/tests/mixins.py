@@ -13,7 +13,7 @@ from agir.lib.models import LocationMixin
 from agir.events.models import Calendar, Event, OrganizerConfig, RSVP
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.people.models import Person, PersonForm, PersonFormSubmission
-from agir.activity.models import Activity
+from agir.activity.models import Activity, Announcement
 
 PASSWORD = "incredible password"
 
@@ -116,29 +116,13 @@ def create_activity(person_email):
         except:
             person = person
 
+    type = random.choice(Activity.DISPLAYED_TYPES)
+    announcement = None
+    if type == Activity.TYPE_ANNOUNCEMENT:
+        announcement = get_random_object(Announcement)
+
     activity = {
-        "type": random.choice(
-            [
-                Activity.TYPE_WAITING_PAYMENT,
-                Activity.TYPE_GROUP_INVITATION,
-                Activity.TYPE_NEW_MEMBER,
-                Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
-                Activity.TYPE_WAITING_LOCATION_GROUP,
-                Activity.TYPE_GROUP_COORGANIZATION_INVITE,
-                Activity.TYPE_WAITING_LOCATION_EVENT,
-                Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED,
-                Activity.TYPE_GROUP_INFO_UPDATE,
-                Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
-                Activity.TYPE_NEW_ATTENDEE,
-                Activity.TYPE_EVENT_UPDATE,
-                Activity.TYPE_NEW_EVENT_MYGROUPS,
-                Activity.TYPE_NEW_REPORT,
-                Activity.TYPE_NEW_EVENT_AROUNDME,
-                Activity.TYPE_GROUP_COORGANIZATION_INFO,
-                Activity.TYPE_CANCELLED_EVENT,
-                Activity.TYPE_GROUP_CREATION_CONFIRMATION,
-            ]
-        ),
+        "type": type,
         "status": random.choice(
             [
                 Activity.STATUS_UNDISPLAYED,
@@ -150,6 +134,7 @@ def create_activity(person_email):
         "recipient": person,
         "individual": get_random_object(Person),
         "supportgroup": get_random_object(SupportGroup),
+        "announcement": announcement,
     }
     activity = Activity.objects.create(**activity)
 

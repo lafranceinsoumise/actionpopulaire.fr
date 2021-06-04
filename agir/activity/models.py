@@ -13,14 +13,6 @@ class ActivityQuerySet(models.QuerySet):
     def displayed(self):
         return self.filter(type__in=Activity.DISPLAYED_TYPES)
 
-    def with_required_action(self):
-        return self.displayed().filter(type__in=Activity.REQUIRED_ACTION_ACTIVITY_TYPES)
-
-    def without_required_action(self):
-        return self.displayed().exclude(
-            type__in=Activity.REQUIRED_ACTION_ACTIVITY_TYPES
-        )
-
 
 class ActivityManager(models.Manager.from_queryset(ActivityQuerySet)):
     def bulk_create(self, instances, send_post_save_signal=False, **kwargs):
@@ -86,9 +78,7 @@ class Activity(TimeStampedModel):
         TYPE_NEW_COMMENT,
         TYPE_EVENT_SUGGESTION,
         TYPE_ANNOUNCEMENT,
-    )
-
-    REQUIRED_ACTION_ACTIVITY_TYPES = (
+        # Old required action types :
         TYPE_WAITING_PAYMENT,
         TYPE_GROUP_INVITATION,
         TYPE_NEW_MEMBER,
