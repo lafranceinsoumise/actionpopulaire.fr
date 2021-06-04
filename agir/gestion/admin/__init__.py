@@ -1,6 +1,7 @@
 from functools import partial
 
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 from django.urls import path, reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
@@ -22,6 +23,7 @@ from agir.gestion.admin.inlines import (
 )
 from agir.gestion.admin.views import AjouterReglementView, TransitionView
 from agir.gestion.models import Depense, Projet, Fournisseur, Document, Compte
+from agir.people.models import Person
 
 
 @admin.register(Compte)
@@ -112,6 +114,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
                     "etat",
                     "type",
                     "compte",
+                    "projet",
                     "description",
                     "date_depense",
                     "beneficiaires",
@@ -124,6 +127,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
     readonly_fields = ("reglements", "etat")
 
     autocomplete_fields = (
+        "projet",
         "beneficiaires",
         "fournisseur",
     )
@@ -159,6 +163,28 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
         )
 
     reglements.short_description = "règlements effectués"
+
+    def get_changeform_initial_data(self, request):
+        initial = super().get_changeform_initial_data(request)
+
+        if "person" in request.GET:
+            try:
+                initial["beneficiaires"] = [
+                    Person.objects.get(id=request.GET["person"])
+                ]
+            except (Person.DoesNotExist, ValidationError):
+                pass
+
+        if "projet" in request.GET:
+            try:
+                initial["projet"] = Projet.objects.get(id=request.GET["projet"])
+            except (Projet.DoesNotExist, ValueError):
+                initial["projet"] = None
+
+        if "type" in request.GET:
+            initial["type"] = request.GET["type"]
+
+        return initial
 
     def get_urls(self):
         urls = super().get_urls()
