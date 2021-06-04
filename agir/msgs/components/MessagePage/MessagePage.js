@@ -1,5 +1,11 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import useSWR, { mutate } from "swr";
@@ -81,21 +87,46 @@ const useSelectMessage = () => {
   return handleSelect;
 };
 
-const useMessageActions = (currentMessage, onSelectMessage) => {
+const useMessageActions = (
+  user,
+  messageRecipients,
+  selectedMessage,
+  onSelectMessage
+) => {
   const shouldDismissAction = useRef(false);
 
   const [isLoading, setIsLoading] = useState(false);
+
   const [selectedGroupEvents, setSelectedGroupEvents] = useState([]);
+  const [selectedComment, setSelectedComment] = useState(null);
+
   const [messageAction, setMessageAction] = useState("");
 
-  const writeNewMessage = useCallback(() => {
-    setMessageAction("create");
-  }, []);
+  const canWriteNewMessage = useMemo(
+    () =>
+      !!user &&
+      Array.isArray(messageRecipients) &&
+      messageRecipients.length > 0,
+    [user, messageRecipients]
+  );
 
-  const dismissMessageAction = useCallback(() => {
-    setMessageAction("");
-    shouldDismissAction.current = false;
-  }, []);
+  const canEditSelectedMessage = useMemo(
+    () =>
+      canWriteNewMessage &&
+      selectedMessage?.group &&
+      messageRecipients.some((r) => r.id === selectedMessage.group.id),
+    [canWriteNewMessage, messageRecipients, selectedMessage]
+  );
+
+  const isAuthor = useMemo(() => {
+    if (!selectedMessage && !selectedComment) {
+      return false;
+    }
+    if (selectedComment) {
+      return user && selectedComment && selectedComment.author.id === user.id;
+    }
+    return user && selectedMessage && selectedMessage.author.id === user.id;
+  }, [user, selectedMessage, selectedComment]);
 
   const getSelectedGroupEvents = useCallback(async (group) => {
     shouldDismissAction.current = false;
@@ -116,15 +147,18 @@ const useMessageActions = (currentMessage, onSelectMessage) => {
     async (message) => {
       setIsLoading(true);
       shouldDismissAction.current = true;
-      if (message.id) {
-        // messageActions.updateMessage(message);
-        return;
-      }
       try {
-        const result = await groupAPI.createMessage(message.group.id, message);
+        const result = message.id
+          ? await groupAPI.updateMessage(message)
+          : await groupAPI.createMessage(message.group.id, message);
+
         if (result.data) {
-          onSelectMessage(result.data.id);
           mutate("/api/user/messages/");
+          if (message.id) {
+            mutate(`/api/groupes/messages/${message.id}/`, () => result.data);
+          } else {
+            onSelectMessage(result.data.id);
+          }
           setIsLoading(false);
         }
       } catch (e) {
@@ -134,16 +168,34 @@ const useMessageActions = (currentMessage, onSelectMessage) => {
     [onSelectMessage]
   );
 
+  const writeNewMessage = useCallback(() => {
+    setMessageAction("create");
+  }, []);
+
+  const editMessage = useCallback(() => {
+    getSelectedGroupEvents(selectedMessage.group);
+    setMessageAction("edit");
+  }, [getSelectedGroupEvents, selectedMessage]);
+
+  const dismissMessageAction = useCallback(() => {
+    setMessageAction("");
+    setSelectedComment("");
+    shouldDismissAction.current = false;
+  }, []);
+
   useEffect(() => {
     !isLoading && shouldDismissAction.current && dismissMessageAction();
   }, [isLoading, dismissMessageAction]);
 
   return {
     isLoading,
+
     messageAction,
     selectedGroupEvents,
+    selectedComment,
 
-    writeNewMessage,
+    writeNewMessage: canWriteNewMessage ? writeNewMessage : undefined,
+    editMessage: canEditSelectedMessage ? editMessage : undefined,
     dismissMessageAction,
     getSelectedGroupEvents,
     saveMessage,
@@ -156,18 +208,21 @@ const MessagePage = ({ messagePk }) => {
 
   const onSelectMessage = useSelectMessage();
 
-  const canWriteNewMessage =
-    !!user && Array.isArray(messageRecipients) && messageRecipients.length > 0;
-
   const {
     isLoading,
     messageAction,
     selectedGroupEvents,
     writeNewMessage,
+    editMessage,
     dismissMessageAction,
     getSelectedGroupEvents,
     saveMessage,
-  } = useMessageActions(currentMessage, onSelectMessage);
+  } = useMessageActions(
+    user,
+    messageRecipients,
+    currentMessage,
+    onSelectMessage
+  );
 
   return (
     <>
@@ -180,16 +235,18 @@ const MessagePage = ({ messagePk }) => {
         }
       >
         <StyledPage>
-          {canWriteNewMessage && (
+          {!!writeNewMessage && (
             <MessageModal
-              shouldShow={messageAction === "create"}
+              shouldShow={
+                messageAction === "create" || messageAction === "edit"
+              }
               onClose={dismissMessageAction}
               user={user}
               groups={messageRecipients}
               onSelectGroup={getSelectedGroupEvents}
               events={selectedGroupEvents}
               isLoading={isLoading}
-              message={null}
+              message={messageAction === "edit" ? currentMessage : null}
               onSend={saveMessage}
             />
           )}
@@ -199,8 +256,9 @@ const MessagePage = ({ messagePk }) => {
               selectedMessagePk={messagePk}
               selectedMessage={currentMessage}
               onSelect={onSelectMessage}
+              onEdit={editMessage}
               user={user}
-              writeNewMessage={canWriteNewMessage ? writeNewMessage : undefined}
+              writeNewMessage={writeNewMessage}
             />
           ) : (
             <EmptyMessagePage />

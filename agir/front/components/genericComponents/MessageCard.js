@@ -368,7 +368,7 @@ const MessageCard = (props) => {
   const canEdit = typeof onEdit === "function";
   const canDelete = typeof onDelete === "function";
   const canReport = typeof onReport === "function" && !isAuthor;
-  const hasActions = canDelete || canReport;
+  const hasActions = canEdit || canDelete || canReport;
 
   const messageURL = useMemo(() => {
     if (props.messageURL) {
