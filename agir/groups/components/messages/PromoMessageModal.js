@@ -121,6 +121,11 @@ const Title = styled.div`
   margin: 0.5rem 0;
   font-size: 1.5rem;
   font-weight: 700;
+
+  @media (max-width: ${style.collapse}px) {
+    font-size: 1rem;
+    text-align: center;
+  }
 `;
 
 const Arrow = styled.div`
@@ -149,13 +154,16 @@ const StyledContent = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 160px;
+  height: 100px;
 
   p {
-    margin: 30px 0;
-    font-size: 18px;
     text-align: center;
     max-width: 600px;
+    font-size: 18px;
+
+    @media (max-width: ${style.collapse}px) {
+      font-size: 14px;
+    }
   }
 `;
 
