@@ -43,17 +43,10 @@ class ProjetForm(forms.ModelForm):
 
 class CommentaireForm(forms.Form):
     type = forms.ChoiceField(
-        label="Type",
-        initial=Commentaire.Type.REM,
-        choices=Commentaire.Type.choices,
-        widget=forms.Select(attrs={"form": "commentaire-form"}),
+        label="Type", initial=Commentaire.Type.REM, choices=Commentaire.Type.choices,
     )
 
-    texte = forms.CharField(
-        label="Texte",
-        required=True,
-        widget=forms.Textarea(attrs={"form": "commentaire-form"}),
-    )
+    texte = forms.CharField(label="Texte", required=True,)
 
     def __init__(self, *args, user=None, **kwargs):
         self.user = user

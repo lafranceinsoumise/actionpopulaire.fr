@@ -1,6 +1,9 @@
+.gestion--organisation {
+    display: flex;
+    align-items: flex-start;
+}
 
-.side-container {
-    float: right;
+.gestion--side-container {
     width: 300px;
     background: #f8f8f8;
 
@@ -8,7 +11,7 @@
 }
 
 
-.side-container h2 {
+.gestion--side-container h2 {
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -17,57 +20,58 @@
     border-bottom: none
 }
 
-
-
-.transitions ul {
-    margin: 1em;
-    padding: 0;
-}
-
-.transitions li {
-    list-style-type: none;
-    margin-top: 0.5em;
-}
-
-.transitions button {
-    display: block;
+.gestion--button, a.gestion--button {
+    display: inline-block;
     padding: 10px 15px;
     border: none;
     border-radius: 4px;
     color: #fff;
+    background: #878787;
     cursor: pointer;
 }
 
-.transitions button:disabled {
+.gestion--button:disabled {
     cursor: not-allowed;
 }
 
-.transitions button.success {
+.gestion--button.success {
     background-color: #4c9c08;
 }
-.transitions button.success:hover {
+.gestion--button.success:hover {
     background-color: #76dc20;
 }
-.transitions button.success:disabled {
+.gestion--button.success:disabled {
     background-color: #98ad8a;
 }
 
-.transitions button.failure {
+.gestion--button.failure {
     background-color: #a7301e;
 }
-.transitions button.failure:hover {
+.gestion--button.failure:hover {
     background-color: #ea5741;
 }
-.transitions button.failure:disabled {
+.gestion--button.failure:disabled {
     background-color: #ac8076;
 }
 
-.todos li.imperatif {
+
+.gestion--transitions ul {
+    margin: 1em;
+    padding: 0;
+}
+
+.gestion--transitions li {
+    list-style-type: none;
+    margin-top: 0.5em;
+}
+
+
+.gestion--todos li.imperatif {
     font-weight: bold;
     color: #c26262;
 }
 
-.todos li.avertissement {
+.gestion--todos li.avertissement {
     font-weight: bold;
     color: #bda845;
 }
@@ -132,4 +136,13 @@ li.l1 {
 
 li.l2 {
     padding-left: 1em;
+}
+
+ul.gestion--liste {
+    margin-left: 5px;
+    padding-left: 5px;
+}
+
+.gestion--liste li {
+    font-weight: bold;
 }
