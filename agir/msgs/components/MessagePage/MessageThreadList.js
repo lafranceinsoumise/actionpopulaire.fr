@@ -80,7 +80,7 @@ const DesktopThreadList = (props) => {
     !selectedMessagePk &&
       Array.isArray(messages) &&
       messages[0] &&
-      onSelect(messages[0].id);
+      onSelect(messages[0].id, true);
   }, [messages, selectedMessagePk, onSelect]);
 
   return (

@@ -2,13 +2,10 @@ import uuid
 
 from django.contrib import messages
 from django.db.models import F
-from django.middleware.csrf import get_token
 from django.urls import reverse
 from rest_framework import serializers
 
-from agir.activity.actions import get_announcements
 from agir.activity.models import Activity
-from agir.activity.serializers import AnnouncementSerializer
 from agir.authentication.utils import (
     is_hard_logged,
     is_soft_logged,
@@ -16,6 +13,7 @@ from agir.authentication.utils import (
 )
 from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url
+from agir.msgs.actions import get_unread_message_count
 
 
 class UserContextSerializer(serializers.Serializer):
@@ -55,6 +53,9 @@ class SessionSerializer(serializers.Serializer):
     authentication = serializers.SerializerMethodField(read_only=True)
     bookmarkedEmails = serializers.SerializerMethodField(
         method_name="get_bookmarked_emails", read_only=True
+    )
+    unreadMessageCount = serializers.SerializerMethodField(
+        method_name="get_unread_message_count", read_only=True
     )
 
     def get_authentication(self, request):
@@ -155,3 +156,8 @@ class SessionSerializer(serializers.Serializer):
 
     def get_bookmarked_emails(self, request):
         return get_bookmarked_emails(request)
+
+    def get_unread_message_count(self, request):
+        if request.user.is_authenticated and request.user.person is not None:
+            return get_unread_message_count(request.user.person.pk)
+        return 0

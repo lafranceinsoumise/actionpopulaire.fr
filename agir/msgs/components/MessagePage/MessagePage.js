@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import Helmet from "react-helmet";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import useSWR, { mutate } from "swr";
@@ -81,8 +82,12 @@ const useMessageSWR = (messagePk) => {
 const useSelectMessage = () => {
   const history = useHistory();
   const handleSelect = useCallback(
-    (messagePk) => {
-      history.push(routeConfig.messages.getLink({ messagePk }));
+    (messagePk, doNotPush = false) => {
+      if (doNotPush) {
+        history.replace(routeConfig.messages.getLink({ messagePk }));
+      } else {
+        history.push(routeConfig.messages.getLink({ messagePk }));
+      }
     },
     [history]
   );
@@ -329,6 +334,9 @@ const MessagePage = ({ messagePk }) => {
 
   return (
     <>
+      <Helmet>
+        <title>Messages - Action Populaire</title>
+      </Helmet>
       <PageFadeIn
         ready={user && typeof messages !== "undefined"}
         wait={

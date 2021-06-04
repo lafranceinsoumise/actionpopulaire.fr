@@ -85,15 +85,29 @@ export const TopbarLink = styled.div`
     background-color: ${style.primary500};
   }
 
-  div.notif {
-    display: ${({ isBadge }) => (isBadge ? "block" : "none")};
+  small {
+    display: flex;
+    color: ${style.white};
     position: absolute;
-    top: 12px;
-    right: 30px;
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 3rem;
     background-color: ${style.redNSP};
+    font-weight: 700;
+    font-size: 11px;
+    border-radius: 100%;
+    align-items: center;
+    justify-content: center;
+    top: 10px;
+    right: 20px;
+    width: 18px;
+    height: 18px;
+    overflow: hidden;
+    white-space: nowrap;
+
+    &:empty {
+      top: 12px;
+      right: 30px;
+      width: 0.5rem;
+      height: 0.5rem;
+    }
   }
 `;
 
