@@ -100,14 +100,23 @@ class AnnouncementLinkView(DetailView):
         announcement = self.get_object()
         user = request.user
         if hasattr(user, "person"):
-            Activity.objects.update_or_create(
-                recipient=user.person,
-                announcement=announcement,
-                defaults={
-                    "type": Activity.TYPE_ANNOUNCEMENT,
-                    "status": Activity.STATUS_INTERACTED,
-                },
-            )
+            defaults = {
+                "type": Activity.TYPE_ANNOUNCEMENT,
+                "status": Activity.STATUS_INTERACTED,
+            }
+
+            activity = Activity.objects.filter(
+                recipient=user.person, announcement=announcement
+            ).first()
+            if activity is not None:
+                for key, value in defaults.items():
+                    setattr(activity, key, value)
+                activity.save()
+            else:
+                Activity.objects.create(
+                    recipient=user.person, announcement=announcement, **defaults
+                )
+
         return HttpResponseRedirect(announcement.link)
 
 
