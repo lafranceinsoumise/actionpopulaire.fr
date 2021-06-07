@@ -143,12 +143,12 @@ const MenuItem = styled.li`
 
       @media only screen and (max-width: ${style.collapse}px) {
         top: 3px;
-        right: 16px;
+        right: 20px;
       }
 
       @media only screen and (min-width: ${style.collapse}px) {
         top: 3px;
-        right: -6px;
+        right: -3px;
       }
     }
   }

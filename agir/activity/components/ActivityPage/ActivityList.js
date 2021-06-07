@@ -79,7 +79,7 @@ const ActivityList = () => {
         }
       >
         <LayoutTitle>
-          Actualités
+          Notifications
           <NotificationSettingLink root="activite" />
         </LayoutTitle>
         <LayoutSubtitle>

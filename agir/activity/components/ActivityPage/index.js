@@ -7,7 +7,7 @@ import ActivityList from "./ActivityList";
 const ActivityPage = (props) => (
   <>
     <Helmet>
-      <title>Actualités - Action populaire</title>
+      <title>Notifications - Action populaire</title>
     </Helmet>
     <ActivityList {...props} />
     <NotificationSettings />

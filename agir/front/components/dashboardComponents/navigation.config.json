@@ -19,8 +19,8 @@
     },
     {
       "id": "activities",
-      "icon": "align-left",
-      "title": "Actualités",
+      "icon": "bell",
+      "title": "Notifications",
       "to": "activities",
       "unreadActivityBadge": true,
       "desktop": true,
