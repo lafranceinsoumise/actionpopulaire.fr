@@ -230,7 +230,7 @@ export const routeConfig = {
     path: ["/activite/", "/activite/parametres/"],
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Actualités",
+    label: "Notifications",
     Component: ActivityPage,
     hasLayout: true,
     layoutProps: {

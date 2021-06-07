@@ -106,9 +106,9 @@ const ACTIVITY_CONFIG = {
         ? {
             to: routeConfig.groupSettings.getLink({
               groupPk: supportGroup.id,
-              activeTab: "members",
+              activePanel: "membres",
             }),
-            label: "Voir",
+            label: "Voir les membres",
           }
         : null,
   },

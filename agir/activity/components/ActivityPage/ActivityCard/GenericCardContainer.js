@@ -123,7 +123,6 @@ export const GenericCardContainer = React.memo((props) => {
               href={action?.href}
               route={action?.route}
               to={action?.to}
-              color="primary"
             >
               {action?.label}
             </Button>
