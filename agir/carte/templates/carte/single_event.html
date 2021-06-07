@@ -7,13 +7,6 @@
 {% block map_script %}
   {{ subtype_config|json_script:"subtypeConfig" }}
   {{ coordinates|json_script:"coordinates" }}
+  {% include "carte/single.bundle.html" %}
 
-  <script>
-    var subtype = JSON.parse(document.getElementById("subtypeConfig").textContent);
-    var coordinates = JSON.parse(document.getElementById("coordinates").textContent);
-    var popupContent = '<a href="{{ FRONT_DOMAIN }}{% url "view_event" event.id %}" style="color:' + subtype.color +
-      ';">{{ event.name }}</a><br />{{ event.get_display_date }}';
-
-    window.Agir['carte/map'].itemMap('map', coordinates, subtype, popupContent);
-  </script>
 {% endblock %}

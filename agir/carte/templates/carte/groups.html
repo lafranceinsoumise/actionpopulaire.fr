@@ -8,33 +8,10 @@
   {{ type_config|json_script:"typesConfig" }}
   {{ subtype_config|json_script:"subtypesConfig" }}
   {{ bounds|json_script:"boundsConfig" }}
+  {{ query_params|json_script:"queryParams" }}
   {% if commune %}
     {{ commune|json_script:"communeScript" }}
   {% endif %}
 
-  <script>
-    var types = JSON.parse(document.getElementById("typesConfig").textContent);
-    var subtypes = JSON.parse(document.getElementById("subtypesConfig").textContent);
-    var bounds = JSON.parse(document.getElementById("boundsConfig").textContent);
-
-    var showSearch = {% if hide_search %}false{% else %}true{% endif %};
-    var showActiveControl = {% if hide_active_control %}false{% else %}true{% endif %};
-
-    var commune = null;
-    var communeScriptElement = document.getElementById("communeScript");
-    if (communeScriptElement) {
-      commune = JSON.parse(communeScriptElement.textContent);
-    }
-
-    window.Agir['carte/map'].listMap('map', {
-      endpoint: '{% url "carte:group_list" %}{{ querystring }}',
-      listType: 'groups',
-      types,
-      subtypes,
-      bounds,
-      focusGeometry: commune,
-      showSearch,
-      showActiveControl
-    });
-  </script>
+  {% include "carte/groups.bundle.html" %}
 {% endblock %}

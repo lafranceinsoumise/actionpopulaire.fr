@@ -9,31 +9,9 @@
   {{ subtype_config|json_script:"subtypeConfig" }}
   {{ bounds|json_script:"boundsConfig" }}
   {{ controls|json_script:"controls" }}
+  {{ query_params|json_script:"queryParams" }}
   {% if commune %}
     {{ commune|json_script:"communeScript" }}
   {% endif %}
-  <script>
-    var types = JSON.parse(document.getElementById("typeConfig").textContent);
-    var subtypes = JSON.parse(document.getElementById("subtypeConfig").textContent);
-    var bounds = JSON.parse(document.getElementById("boundsConfig").textContent);
-    var controls = JSON.parse(document.getElementById("controls").textContent);
-
-    var commune = null;
-    var communeScriptElement = document.getElementById("communeScript");
-    if (communeScriptElement) {
-      commune = JSON.parse(communeScriptElement.textContent);
-    }
-
-    window.Agir['carte/map'].listMap('map', {
-      endpoint: '{% url "carte:event_list" %}{{ querystring }}',
-      listType: 'events',
-      types,
-      subtypes,
-      bounds,
-      focusGeometry: commune,
-      showSearch: controls.search,
-      showActiveControl: controls.active,
-      showLayerControl: controls.layers,
-    });
-  </script>
+  {% include "carte/events.bundle.html" %}
 {% endblock %}
