@@ -98,30 +98,25 @@ def depense_type(type, label):
             )
 
             if dep:
-                try:
-                    return format_html(
-                        '<ul class="gestion--liste"><li>{}</li></ul>{}',
-                        format_html_join(
-                            "</li><li>",
-                            '<a href="{}">{}</a>',
+                return format_html(
+                    '<ul class="gestion--liste"><li>{}</li></ul>{}',
+                    format_html_join(
+                        "</li><li>",
+                        '<a href="{}">{}</a>',
+                        (
                             (
-                                (
-                                    reverse(
-                                        "admin:gestion_depense_change", args=(d.id,)
-                                    ),
-                                    f"{d.numero} ({d.montant} €)",
-                                )
-                                for d in dep
-                            ),
+                                reverse("admin:gestion_depense_change", args=(d.id,)),
+                                f"{d.numero} ({d.montant} €)",
+                            )
+                            for d in dep
                         ),
-                        add_button,
-                    )
-                except Exception as e:
-                    print(e)
+                    ),
+                    add_button,
+                )
             else:
                 return add_button
 
-        return "PROUT"
+        return "-"
 
     func.short_description = label
     return func

@@ -246,12 +246,3 @@ class ProjetAdmin(BaseAdminMixin, VersionAdmin):
         "type",
         "etat",
     )
-
-    def render_change_form(
-        self, request, context, add=False, change=False, form_url="", obj=None
-    ):
-        for inline in context["inline_admin_formsets"]:
-            print(inline.opts, inline.formset.errors)
-        return super().render_change_form(
-            request, context, add=add, change=change, form_url=form_url, obj=obj
-        )

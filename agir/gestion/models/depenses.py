@@ -372,7 +372,7 @@ CONDITIONS = {
             Q(documents__type=TypeDocument.EXEMPLAIRE),
             "Vous devez joindre un exemplaire numérique du graphisme ou du maquettage realisé.",
             NiveauTodo.IMPERATIF,
-        )
+        ),
     ),
 }
 

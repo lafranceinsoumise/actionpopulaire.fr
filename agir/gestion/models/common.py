@@ -6,6 +6,7 @@ from string import ascii_uppercase, digits
 
 import dynamic_filenames
 import reversion
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
 
@@ -188,5 +189,23 @@ class Compte(TimeStampedModel):
             ("gerer_depense", "Gérer les dépenses"),
             ("controler_depense", "Contrôler les dépenses"),
             ("gerer_projet", "Gérer les projets"),
-            ("contrôler_projet", "Contrôler les projets"),
+            ("controler_projet", "Contrôler les projets"),
         ]
+
+
+class Autorisation(TimeStampedModel):
+    """Une autorisation reliée à un compte en particulier.
+    """
+
+    compte = models.ForeignKey(
+        to="Compte",
+        on_delete=models.CASCADE,
+        related_name="autorisations",
+        related_query_name="autorisation",
+    )
+
+    group = models.ForeignKey(
+        to="auth.Group", on_delete=models.CASCADE, related_name="+",
+    )
+
+    autorisations = ArrayField(models.CharField(max_length=100), default=list)
