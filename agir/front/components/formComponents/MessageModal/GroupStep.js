@@ -103,12 +103,8 @@ const StyledWrapper = styled.div`
 const GroupStepOption = (props) => {
   const { group, onSelect } = props;
 
-  const handleClick = useCallback(() => {
-    onSelect(group);
-  }, [onSelect, group]);
-
   return (
-    <StyledOption onClick={handleClick}>
+    <StyledOption onClick={() => onSelect(group)}>
       <i>
         <FaUsers size={20} color={style.white} />
       </i>
