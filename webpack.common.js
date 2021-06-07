@@ -6,8 +6,8 @@ require("dotenv").config({
 });
 
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
-  .BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin =
+  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { InjectManifest } = require("workbox-webpack-plugin");
 const webpack = require("webpack");
@@ -210,13 +210,9 @@ module.exports = {
         use: ["style-loader", "css-loader"],
       },
       {
-        test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf)$/,
+        test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/,
         exclude: [new RegExp("node_modules\\" + path.sep + "tinymce")],
         type: "asset/resource",
-      },
-      {
-        test: /\.svg$/,
-        type: "asset/inline",
       },
     ],
   },
