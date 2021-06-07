@@ -1,6 +1,7 @@
 from rest_framework.test import APITestCase
 
 from agir.groups.models import SupportGroup, Membership
+from agir.msgs.actions import update_recipient_message, get_unread_message_count
 from agir.msgs.models import (
     UserReport,
     SupportGroupMessage,
@@ -185,3 +186,105 @@ class UserMessagesAPITestCase(APITestCase):
         self.assertEqual(response.data[0]["id"], str(read_message.id))
         self.assertEqual(response.data[0]["unreadCommentCount"], 1)
         self.assertFalse(response.data[0]["isUnread"])
+
+
+class UpdateRecipientMessageActionTestCase(APITestCase):
+    def test_recipient_message_modified_field_is_updated(self):
+        supportgroup = SupportGroup.objects.create()
+        recipient = Person.objects.create(email="recipient@agis.msgs", create_role=True)
+        message = SupportGroupMessage.objects.create(
+            author=recipient, supportgroup=supportgroup
+        )
+        qs = SupportGroupMessageRecipient.objects.filter(
+            recipient=recipient, message=message
+        )
+        self.assertEqual(qs.count(), 0)
+        update_recipient_message(message, recipient)
+        self.assertEqual(qs.count(), 1)
+        original_modified = qs.first().modified
+        update_recipient_message(message, recipient)
+        self.assertEqual(qs.count(), 1)
+        self.assertTrue(qs.first().modified > original_modified)
+
+
+class GetUnreadMessageCountActionTestCase(APITestCase):
+    def setUp(self):
+        self.supportgroup = SupportGroup.objects.create()
+        self.reader = Person.objects.create(email="reader@agis.msgs", create_role=True)
+        self.writer = Person.objects.create(email="writer", create_role=True)
+        Membership.objects.create(supportgroup=self.supportgroup, person=self.reader)
+        Membership.objects.create(supportgroup=self.supportgroup, person=self.writer)
+
+    def test_get_unread_message_count(self):
+        # No messages
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 0)
+
+        # One unread message
+        message = SupportGroupMessage.objects.create(
+            author=self.writer, supportgroup=self.supportgroup, text="1"
+        )
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 1)
+
+        # One unread message with one unread comment
+        SupportGroupMessageComment.objects.create(
+            author=self.writer, message=message, text="1.1"
+        )
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 2)
+
+        # One unread message with two unread comments (one written by the recipient)
+        SupportGroupMessageComment.objects.create(
+            author=self.reader, message=message, text="1.2"
+        )
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 2)
+
+        # One unread message with two unread comments
+        # (one written by the recipient and one deleted)
+        SupportGroupMessageComment.objects.update(
+            author=self.writer, message=message, text="1.1", deleted=True
+        )
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 1)
+
+        # One read message with no unread comments
+        SupportGroupMessageRecipient.objects.create(
+            recipient=self.reader, message=message
+        )
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 0)
+
+        # One read message with one unread comment
+        SupportGroupMessageComment.objects.create(
+            author=self.writer, message=message, text="1.3"
+        )
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 1)
+
+        # One read message with one unread comment and one unread message with no comments
+        SupportGroupMessage.objects.create(
+            author=self.writer, supportgroup=self.supportgroup, text="2"
+        )
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 2)
+
+        # One read message with one unread comment,
+        # one unread message with no comments,
+        # and one unread deleted message
+        SupportGroupMessage.objects.create(
+            author=self.writer, supportgroup=self.supportgroup, text="3", deleted=True
+        )
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 2)
+
+        # One read message with one unread comment,
+        # one unread message with no comments,
+        # one unread deleted message,
+        # one unread message written by the recipient
+        SupportGroupMessage.objects.create(
+            author=self.reader, supportgroup=self.supportgroup, text="3", deleted=True
+        )
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 2)

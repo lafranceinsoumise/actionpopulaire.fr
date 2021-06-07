@@ -39,7 +39,7 @@ def get_unread_message_count(person_pk):
         .annotate(
             comment_count=Count(
                 "comments",
-                filter=Q(deleted=False) & ~Q(author_id=person_pk),
+                filter=(Q(comments__deleted=False) & ~Q(comments__author_id=person_pk)),
                 distinct=True,
             )
         )
@@ -73,4 +73,4 @@ def get_unread_message_count(person_pk):
         .values_list("unread_count", flat=True)
     )
 
-    return f"{sum(filter(None, unread_message_count))}"
+    return sum(filter(None, unread_message_count))
