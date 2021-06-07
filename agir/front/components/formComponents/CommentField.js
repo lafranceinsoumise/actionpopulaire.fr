@@ -215,7 +215,7 @@ export const CommentButton = (props) => {
   const { onClick } = props;
   return onClick ? (
     <StyledCommentButton onClick={onClick}>
-      Écrire un réponse
+      Écrire une réponse
     </StyledCommentButton>
   ) : null;
 };
@@ -360,7 +360,7 @@ const CommentField = (props) => {
                 autoFocus={isFocused}
                 label={user.displayName}
                 disabled={disabled || isLoading}
-                placeholder="Écrire un réponse"
+                placeholder="Écrire une réponse"
                 maxLength={1000}
                 hasCounter={false}
               />
@@ -373,7 +373,7 @@ const CommentField = (props) => {
           ) : (
             <>
               <StyledCommentButton onFocus={handleFocus}>
-                Écrire un réponse
+                Écrire une réponse
               </StyledCommentButton>
               <RawFeatherIcon name="send" color={style.primary500} small />
             </>
