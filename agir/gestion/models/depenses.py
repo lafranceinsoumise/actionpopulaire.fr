@@ -33,10 +33,29 @@ def engagement_autorise(depense: "Depense", role):
     return False
 
 
+def engager_depense(depense: "Depense"):
+    depense.date_depense = timezone.now()
+
+
+class DepenseQuerySet(models.QuerySet):
+    def annoter_reglement(self):
+        return self.annotate(
+            prevu=models.Sum("reglement__montant"),
+            regle=models.Sum(
+                Reglement.objects.filter(
+                    statut__in=[Reglement.Statut.REGLE, Reglement.Statut.RAPPROCHE],
+                    depense_id=models.OuterRef("id"),
+                ).values("montant")
+            ),
+        )
+
+
 @reversion.register(follow=["documents"])
 class Depense(NumeroUniqueMixin, TimeStampedModel):
     """Une dépense correspond à un paiement réalisé en lien avec une facture
     """
+
+    objects = DepenseQuerySet.as_manager()
 
     class Etat(models.TextChoices):
         REFUS = "R", "Dossier refusé"
@@ -51,28 +70,29 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
             Transition(
                 nom="Valider la dépense",
                 vers=Etat.ATTENTE_ENGAGEMENT,
-                class_name="failure",
+                class_name="success",
                 permissions=["gestion.gerer_depense"],
             ),
             Transition(
                 nom="Refuser la dépense",
                 vers=Etat.REFUS,
-                class_name="success",
+                class_name="failure",
                 permissions=["gestion.gerer_depense"],
             ),
         ],
         Etat.ATTENTE_ENGAGEMENT: [
             Transition(
-                nom="Refuser l'engagement de la dépense",
-                vers=Etat.REFUS,
-                class_name="failure",
-                permissions=["gestion.engager_depense", "gestion.gerer_depense"],
-            ),
-            Transition(
                 nom="Engager la dépense",
                 vers=Etat.CONSTITUTION,
                 class_name="success",
                 condition=engagement_autorise,
+                effect=engager_depense,
+            ),
+            Transition(
+                nom="Refuser l'engagement de la dépense",
+                vers=Etat.REFUS,
+                class_name="failure",
+                permissions=["gestion.engager_depense", "gestion.gerer_depense"],
             ),
         ],
         Etat.CONSTITUTION: [
@@ -126,6 +146,7 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
     projet = models.ForeignKey(
         to="Projet",
         null=True,
+        blank=True,
         related_name="depenses",
         related_query_name="depense",
         help_text="Le projet éventuel auquel est rattaché cette dépense.",
@@ -410,7 +431,9 @@ def todos(depense: Depense):
             )
     else:
         if depense.etat == Depense.Etat.COMPLET and not depense.depense_reglee:
-            todos_generaux.append(("La dépense doit être réglée avant clôture."))
+            todos_generaux.append(
+                ("La dépense doit être réglée avant clôture.", NiveauTodo.IMPERATIF)
+            )
 
         if not depense.documents.filter(type=TypeDocument.FACTURE).exists():
             todos_generaux.append(

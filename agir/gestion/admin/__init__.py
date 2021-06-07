@@ -1,5 +1,3 @@
-from functools import partial
-
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.urls import path, reverse
@@ -8,8 +6,8 @@ from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
 from agir.gestion.admin.base import BaseAdminMixin
+from agir.gestion.admin.filters import ProjetResponsableFilter, DepenseResponsableFilter
 from agir.gestion.admin.forms import (
-    DocumentInlineForm,
     DepenseForm,
     ProjetForm,
     DocumentForm,
@@ -89,18 +87,20 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
     form = DepenseForm
 
     list_filter = (
+        DepenseResponsableFilter,
         "type",
         "compte",
     )
 
     list_display = (
         "numero_",
+        "date_depense",
         "titre",
         "type",
+        "etat",
         "montant",
-        "date_depense",
         "compte",
-        "projet",
+        "reglement",
     )
 
     fieldsets = (
@@ -124,7 +124,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
         ("Informations de paiement", {"fields": ("fournisseur", "reglements")}),
     )
 
-    readonly_fields = ("reglements", "etat")
+    readonly_fields = ("reglement", "reglements", "etat")
 
     autocomplete_fields = (
         "projet",
@@ -132,6 +132,21 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
         "fournisseur",
     )
     inlines = [DepenseDocumentInline]
+
+    def reglement(self, obj):
+        if obj is None or obj.prevu is None:
+            return "Non réglée"
+
+        if obj.prevu < obj.montant:
+            return "Partiellement prévue"
+
+        if obj.regle is None:
+            return "Prévu mais non réglée"
+
+        if obj.regle < obj.montant:
+            return "Partiellement réglée"
+
+        return "Réglée"
 
     def reglements(self, obj):
         if obj is None or obj.id is None:
@@ -163,6 +178,9 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
         )
 
     reglements.short_description = "règlements effectués"
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annoter_reglement()
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
@@ -204,7 +222,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
 @admin.register(Projet)
 class ProjetAdmin(BaseAdminMixin, VersionAdmin):
     form = ProjetForm
-    list_display = ("numero", "titre", "type", "etat")
+    list_display = ("numero", "titre", "type", "etat", "event")
 
     fieldsets = (
         (
@@ -222,6 +240,12 @@ class ProjetAdmin(BaseAdminMixin, VersionAdmin):
         AjouterDepenseInline,
         ProjetDocumentInline,
     ]
+
+    list_filter = (
+        ProjetResponsableFilter,
+        "type",
+        "etat",
+    )
 
     def render_change_form(
         self, request, context, add=False, change=False, form_url="", obj=None

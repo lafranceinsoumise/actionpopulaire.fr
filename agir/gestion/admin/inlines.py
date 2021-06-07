@@ -3,21 +3,40 @@ from django.urls import reverse
 from django.utils.html import format_html_join, format_html
 
 from agir.gestion.admin.base import BaseMixin
-from agir.gestion.admin.forms import (
-    DocumentInlineForm,
-    DepenseDevisForm,
-)
+from agir.gestion.admin.forms import DepenseDevisForm
 from agir.gestion.models import Depense, Projet, Participation
 
 
 class BaseDocumentInline(admin.TabularInline):
+    verbose_name = "Document associé"
+    verbose_name_plural = "Documents associés"
     extra = 0
     show_change_link = True
-    form = DocumentInlineForm
 
     autocomplete_fields = ("document",)
+    readonly_fields = ("type_document", "fichier_document")
 
-    fields = ("document", *DocumentInlineForm.DOCUMENTS_FIELDS)
+    fields = ("document", "type_document", "fichier_document")
+
+    def type_document(self, obj):
+        if obj and obj.document:
+            return obj.get_type_display()
+        return "-"
+
+    type_document.short_description = "Type de document"
+
+    def fichier_document(self, obj):
+        if obj and obj.document:
+            doc = obj.document
+            if doc.fichier:
+                return format_html(
+                    '<a href="{}">{}</a>', doc.fichier.url, doc.fichier.name
+                )
+            else:
+                return "Pas encore de fichier"
+        return "-"
+
+    fichier_document.short_description = "Voir le fichier"
 
 
 class DepenseDocumentInline(BaseDocumentInline):

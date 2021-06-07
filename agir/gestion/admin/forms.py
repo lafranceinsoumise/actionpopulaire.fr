@@ -61,26 +61,6 @@ class CommentaireForm(forms.Form):
         )
 
 
-class DocumentInlineForm(forms.ModelForm):
-    DOCUMENTS_FIELDS = ("titre", "type", "fichier")
-
-    def __init__(self, *args, initial=None, instance=None, **kwargs):
-        if initial is None:
-            initial = {}
-
-        if instance and instance.document:
-            for f in self.DOCUMENTS_FIELDS:
-                initial.setdefault(f, getattr(instance.document, f))
-
-        super().__init__(*args, instance=instance, initial=initial, **kwargs)
-
-        if instance and instance.document:
-            self.fields["document"].disabled = True
-        else:
-            for f in self.DOCUMENTS_FIELDS:
-                self.fields[f].disabled = True
-
-
 class DepenseDevisForm(forms.ModelForm):
     devis = forms.FileField(label="Devis", max_length=30e6, required=False)  # 30 Mo
 
@@ -97,15 +77,6 @@ class DepenseDevisForm(forms.ModelForm):
         model = Depense
         fields = ()
         widgets = {"type": HierarchicalSelect}
-
-
-_document_fields = {
-    f.name: f.formfield()
-    for f in Document._meta.get_fields()
-    if f.name in DocumentInlineForm.DOCUMENTS_FIELDS
-}
-_document_fields.update(DocumentInlineForm.declared_fields)
-DocumentInlineForm.base_fields = DocumentInlineForm.declared_fields = _document_fields
 
 
 class ReglementForm(forms.ModelForm):

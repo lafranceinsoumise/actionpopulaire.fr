@@ -74,9 +74,10 @@ class Transition(Generic[T, E]):
     condition: Union[Callable[[T, Role], bool], Callable[[T], bool]] = toujours
     class_name: str = ""
     permissions: List[str] = dataclasses.field(default_factory=list)
+    effect: Callable[[T], None] = None
 
     def refus(self, instance: T, role: Role):
-        if all(
+        if self.permissions and all(
             not role.has_perm(p) and not role.has_perm(p, obj=instance)
             for p in self.permissions
         ):

@@ -155,5 +155,7 @@ class TransitionView(FormHandlerView):
             return self.lien_incorrect(message=refus)
 
         self.object.etat = transition.vers
+        if transition.effect is not None:
+            transition.effect(self.object)
         self.object.save(update_fields=["etat"])
         return self.retour_page_modification()
