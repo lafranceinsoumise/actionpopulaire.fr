@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 
-import { setActivityAsInteracted } from "@agir/activity/common/helpers";
+import { setActivityAsInteracted } from "@agir/activity/common/api";
 import { parseQueryStringParams } from "@agir/lib/utils/url";
 import logger from "@agir/lib/utils/logger";
 

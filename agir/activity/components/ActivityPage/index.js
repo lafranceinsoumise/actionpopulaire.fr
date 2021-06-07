@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet";
 import React from "react";
 
-import NotificationSettings from "@agir/activity/common/notificationSettings/NotificationSettings";
+import NotificationSettings from "@agir/activity/NotificationSettings/NotificationSettings";
 import ActivityList from "./ActivityList";
 
 const ActivityPage = (props) => (

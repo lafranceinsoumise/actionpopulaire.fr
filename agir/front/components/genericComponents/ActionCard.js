@@ -96,7 +96,7 @@ const ActionCard = (props) => {
                   href={typeof onConfirm === "string" ? onConfirm : undefined}
                   disabled={disabled}
                   className={dismissed ? "inactive" : ""}
-                  color="secondary"
+                  color="primary"
                 >
                   {confirmLabel}
                 </Button>

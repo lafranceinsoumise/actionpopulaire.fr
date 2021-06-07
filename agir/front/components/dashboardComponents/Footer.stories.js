@@ -34,7 +34,6 @@ const routes = {
   events: "#events",
   groups: "#groups",
   activity: "#activity",
-  "required-activity": "#required-activity",
   menu: "#menu",
   donations: "#donations",
   contact: "#contact",

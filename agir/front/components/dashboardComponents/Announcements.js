@@ -1,15 +1,19 @@
 import { animated, useSpring } from "@react-spring/web";
 import PropTypes from "prop-types";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import SwiperCore, { A11y, Pagination } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 import styled from "styled-components";
+import useSWR from "swr";
+
+import style from "@agir/front/genericComponents/_variables.scss";
+
+import { routeConfig } from "@agir/front/app/routes.config";
 
 import Announcement from "@agir/front/genericComponents/Announcement";
 
-import style from "@agir/front/genericComponents/_variables.scss";
 import "./Announcements.scss";
-import useSWR from "swr";
 
 SwiperCore.use([Pagination, A11y]);
 
@@ -106,7 +110,16 @@ BannerAnnouncements.propTypes = SidebarAnnouncements.propTypes = {
 
 const Announcements = (props) => {
   const { displayType } = props;
-  const { data: announcements } = useSWR("/api/announcements/");
+  const { pathname } = useLocation();
+  const shouldAutomaticallyMarkAsDisplayed = useMemo(
+    // Automatically set announcement activities as displayed except on activity page
+    () => (routeConfig.activities.match(pathname) ? "0" : "1"),
+    [pathname]
+  );
+  const { data: announcements } = useSWR(
+    "/api/announcements/?mark_as_displayed=" +
+      shouldAutomaticallyMarkAsDisplayed
+  );
 
   if (!announcements) return null;
 

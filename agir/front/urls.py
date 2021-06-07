@@ -111,12 +111,14 @@ urlpatterns = [
     ),
     path(
         "a-traiter/",
-        views.RequiredActivityView.as_view(),
+        RedirectView.as_view(pattern_name="list_activities", permanent=True),
         name="list_required_activities",
     ),
     path(
         "a-traiter/parametres/",
-        views.NotificationSettingsView.as_view(),
+        RedirectView.as_view(
+            pattern_name="list_activities.notification_settings", permanent=True
+        ),
         name="list_required_activities.notification_settings",
     ),
     path("", views.AgendaView.as_view(), name="dashboard",),
