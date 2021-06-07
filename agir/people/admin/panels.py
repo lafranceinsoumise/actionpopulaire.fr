@@ -240,7 +240,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                         reverse("admin:otp_totp_totpdevice_change", args=[device.id]),
                         device.name,
                     )
-                    for device in django_otp.devices_for_user(obj.role, confirmed=False)
+                    for device in django_otp.devices_for_user(obj.role, confirmed=True)
                 ),
             )
         return "-"
