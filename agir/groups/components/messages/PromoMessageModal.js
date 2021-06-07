@@ -101,13 +101,6 @@ const Container = styled.div`
   border: 1px solid #dfdfdf;
   background-color: #fff;
 
-  p {
-    margin: 30px 0;
-    font-size: 18px;
-    text-align: center;
-    max-width: 600px;
-  }
-
   img {
     user-select: none;
   }
@@ -128,6 +121,11 @@ const Title = styled.div`
   margin: 0.5rem 0;
   font-size: 1.5rem;
   font-weight: 700;
+
+  @media (max-width: ${style.collapse}px) {
+    font-size: 1rem;
+    text-align: center;
+  }
 `;
 
 const Arrow = styled.div`
@@ -149,6 +147,24 @@ const Mark = styled.span`
   transition: background-color 0.5s ease-in-out;
   background-color: ${(props) =>
     props.$active ? style.black700 : style.black200};
+`;
+
+const StyledContent = styled.div`
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+
+  p {
+    text-align: center;
+    max-width: 600px;
+    font-size: 18px;
+
+    @media (max-width: ${style.collapse}px) {
+      font-size: 14px;
+    }
+  }
 `;
 
 const items = [
@@ -178,7 +194,7 @@ const items = [
     content: (
       <p>
         <strong>Organisez ensemble vos actions&nbsp;: </strong>
-        les membres du groupes sont les seuls à voir et commenter
+        les membres du groupe sont les seuls à voir et commenter
       </p>
     ),
   },
@@ -243,7 +259,7 @@ export const PromoMessage = (props) => {
         ))}
       </div>
 
-      {items[itemIndex].content}
+      <StyledContent>{items[itemIndex].content}</StyledContent>
 
       <Button color="confirmed" onClick={handleClick} $wrap>
         <RawFeatherIcon
