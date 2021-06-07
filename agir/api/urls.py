@@ -23,6 +23,9 @@ from . import settings
 
 handler404 = NotFoundView.as_view()
 
+if not settings.ENABLE_FRONT:
+    handler404 = "agir.api.admin_views.page_not_found_view"
+
 urlpatterns = [
     path("nuntius/", include("nuntius.urls")),
     path("webhooks/", include("agir.webhooks.urls")),
@@ -36,7 +39,6 @@ urlpatterns = [
 ]
 
 if settings.ENABLE_ADMIN:
-    handler404 = 'agir.api.admin_views.page_not_found_view'
     urlpatterns.append(path("", include("agir.api.admin_urls")))
 
 if settings.ENABLE_API:
