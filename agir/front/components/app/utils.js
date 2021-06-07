@@ -54,7 +54,15 @@ export const lazy = (lazyImport, fallback) => {
   };
 
   LazyComponent.displayName = `LazyComponent`;
-  LazyComponent.preload = lazyImport;
+  LazyComponent.preload = async () => {
+    try {
+      return await lazyImport();
+    } catch (err) {
+      if (err.name !== "ChunkLoadError" && err instanceof Error) {
+        throw err;
+      }
+    }
+  };
 
   return LazyComponent;
 };
