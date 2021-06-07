@@ -100,7 +100,7 @@ export class RouteConfig {
 
 const notificationSettingRoute = new RouteConfig({
   id: "notificationSettings",
-  path: "/:root/parametres/",
+  path: "/:root*/parametres/",
   exact: true,
   neededAuthentication: AUTHENTICATION.HARD,
   label: "Paramètres de notification",
@@ -319,7 +319,7 @@ export const routeConfig = {
   }),
   messages: new RouteConfig({
     id: "messages",
-    path: "/messages/:messagePk?/",
+    path: ["/messages/:messagePk?/", "/messages/:messagePk/parametres/"],
     params: { messagePk: null },
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,

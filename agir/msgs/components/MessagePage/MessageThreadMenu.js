@@ -1,13 +1,13 @@
 import PropTypes from "prop-types";
 import React from "react";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import { Hide } from "@agir/front/genericComponents/grid";
-import Link from "@agir/front/app/Link";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import NotificationSettingLink from "@agir/activity/NotificationSettings/NotificationSettingLink";
 
 import MessageThreadCard from "./MessageThreadCard";
 
@@ -64,11 +64,13 @@ const MessageThreadMenu = (props) => {
     isLoading,
     messages,
     selectedMessageId,
-    notificationSettingLink,
     onSelect,
     writeNewMessage,
     ...rest
   } = props;
+
+  const { pathname } = useLocation();
+  const settingsRoot = pathname ? pathname.slice(1, -1) : "messages";
 
   return (
     <StyledMenu {...rest}>
@@ -77,20 +79,7 @@ const MessageThreadMenu = (props) => {
           <h2>
             Messages{typeof writeNewMessage !== "function" ? " reçus" : ""}
           </h2>
-          {notificationSettingLink && (
-            <Link
-              to={notificationSettingLink}
-              style={{ lineHeight: 0 }}
-              disabled={isLoading}
-            >
-              <RawFeatherIcon
-                name="settings"
-                color={style.black1000}
-                width="1.5rem"
-                height="1.5rem"
-              />
-            </Link>
-          )}
+          <NotificationSettingLink root={settingsRoot} iconLink />
         </header>
       </Hide>
       {typeof writeNewMessage === "function" ? (
