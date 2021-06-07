@@ -17,11 +17,9 @@ from django.conf.urls.static import static
 from django.urls import path, include
 from django_prometheus.exports import ExportToDjangoView as metric_view
 
+from agir.front.views import NotFoundView
 from agir.lib.http import with_http_basic_auth
 from . import settings
-
-from django.conf.urls import handler404
-from agir.front.views import NotFoundView
 
 handler404 = NotFoundView.as_view()
 
@@ -38,6 +36,7 @@ urlpatterns = [
 ]
 
 if settings.ENABLE_ADMIN:
+    handler404 = 'agir.api.admin_views.page_not_found_view'
     urlpatterns.append(path("", include("agir.api.admin_urls")))
 
 if settings.ENABLE_API:
