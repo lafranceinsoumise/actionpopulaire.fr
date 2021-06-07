@@ -7,6 +7,6 @@
 {% block map_script %}
   {{ subtype_config|json_script:"subtypeConfig" }}
   {{ coordinates|json_script:"coordinates" }}
-  {% include "carte/singleEvent.bundle.html" %}
+  {% include "carte/single.bundle.html" %}
 
 {% endblock %}
