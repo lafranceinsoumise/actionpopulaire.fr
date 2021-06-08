@@ -52,9 +52,6 @@ class SessionSerializer(serializers.Serializer):
     hasUnreadActivities = serializers.SerializerMethodField(
         method_name="get_has_unread_activities", read_only=True
     )
-    requiredActionActivitiesCount = serializers.SerializerMethodField(
-        method_name="get_required_action_activities_count", read_only=True
-    )
     authentication = serializers.SerializerMethodField(read_only=True)
     bookmarkedEmails = serializers.SerializerMethodField(
         method_name="get_bookmarked_emails", read_only=True
@@ -149,21 +146,11 @@ class SessionSerializer(serializers.Serializer):
     def get_has_unread_activities(self, request):
         if request.user.is_authenticated and request.user.person is not None:
             return (
-                Activity.objects.without_required_action()
+                Activity.objects.displayed()
                 .filter(
                     recipient=request.user.person, status=Activity.STATUS_UNDISPLAYED
                 )
                 .exists()
-            )
-
-    def get_required_action_activities_count(self, request):
-        if request.user.is_authenticated and request.user.person is not None:
-            return (
-                Activity.objects.with_required_action()
-                .filter(recipient=request.user.person)
-                .exclude(status=Activity.STATUS_INTERACTED)
-                .distinct()
-                .count()
             )
 
     def get_bookmarked_emails(self, request):

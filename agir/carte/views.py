@@ -207,7 +207,7 @@ class AbstractListMapView(MapViewMixin, TemplateView):
 
         bounds = parse_bounds(self.request.GET.get("bounds"))
 
-        querystring = ("?" + params.urlencode()) if params else ""
+        query_params = ("?" + params.urlencode()) if params else ""
 
         controls = {}
 
@@ -221,7 +221,7 @@ class AbstractListMapView(MapViewMixin, TemplateView):
             type_config=type_info,
             subtype_config=subtype_info,
             bounds=bounds,
-            querystring=mark_safe(querystring),
+            query_params=mark_safe(query_params),
             controls=controls,
             **kwargs
         )

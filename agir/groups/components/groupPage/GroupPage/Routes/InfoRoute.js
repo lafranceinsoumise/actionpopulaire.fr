@@ -5,6 +5,7 @@ import styled from "styled-components";
 
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import GroupLocation from "@agir/groups/groupPage/GroupLocation";
 import GroupContactCard from "@agir/groups/groupPage/GroupContactCard";
@@ -15,7 +16,7 @@ import GroupDonation from "@agir/groups/groupPage/GroupDonation";
 import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
 import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
-import { EmptyMessages } from "@agir/groups/groupPage/EmptyContent";
+import { PromoMessage } from "@agir/groups/messages/PromoMessageModal";
 
 import {
   ShortAgendaRoutePreview,
@@ -48,8 +49,12 @@ const MobileInfoRoute = (props) => {
       {group && group.hasMessages ? (
         <MessagesRoutePreview {...props} />
       ) : group.isManager ? (
-        <EmptyMessages goToMessages={goToMessagesTab} />
+        <>
+          <PromoMessage goToMessages onClick={goToMessagesTab} />
+          <Spacer size="1.5rem" />
+        </>
       ) : null}
+
       <GroupContactCard {...group} editLinkTo={groupSettingsLinks?.contact} />
       <GroupOrders {...group} />
       <GroupDescription {...group} editLinkTo={groupSettingsLinks?.general} />
@@ -90,8 +95,12 @@ const DesktopInfoRoute = (props) => {
       {group && group.hasMessages ? (
         <MessagesRoutePreview {...props} />
       ) : group.isManager ? (
-        <EmptyMessages goToMessages={goToMessagesTab} />
+        <>
+          <PromoMessage goToMessages onClick={goToMessagesTab} />
+          <Spacer size="1.5rem" />
+        </>
       ) : null}
+
       {group &&
       (group.hasUpcomingEvents || group.hasPastEvents || group.hasMessages) ? (
         <>

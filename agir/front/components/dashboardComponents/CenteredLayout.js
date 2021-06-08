@@ -130,13 +130,7 @@ export default CenteredLayout;
 
 CenteredLayout.propTypes = {
   icon: PropTypes.string,
-  active: PropTypes.oneOf([
-    "events",
-    "groups",
-    "activity",
-    "required-activity",
-    "menu",
-  ]),
+  active: PropTypes.oneOf(["events", "groups", "activity", "menu"]),
   routes: PropTypes.objectOf(
     PropTypes.oneOfType([
       PropTypes.string,

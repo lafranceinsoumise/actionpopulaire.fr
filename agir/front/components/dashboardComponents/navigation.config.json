@@ -18,18 +18,9 @@
       "secondaryLinks": "groups__personGroups"
     },
     {
-      "id": "requiredActivities",
-      "icon": "bell",
-      "title": "À faire",
-      "to": "requiredActivities",
-      "requiredActivityCounter": true,
-      "desktop": true,
-      "mobile": true
-    },
-    {
       "id": "activities",
-      "icon": "align-left",
-      "title": "Actualités",
+      "icon": "bell",
+      "title": "Notifications",
       "to": "activities",
       "unreadActivityBadge": true,
       "desktop": true,

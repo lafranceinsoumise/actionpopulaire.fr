@@ -2,8 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 
-import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getAdminLink,
   getBackLink,
@@ -13,20 +11,22 @@ import {
   getTopBarRightLink,
   getUser,
 } from "@agir/front/globalContext/reducers";
-import { Hide } from "@agir/front/genericComponents/grid";
+import { useHasUnreadActivity } from "@agir/activity/common/hooks";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
 
+import { useIsDesktop, Hide } from "@agir/front/genericComponents/grid.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
-
+import DownloadApp from "@agir/front/genericComponents/DownloadApp.js";
+import Button from "@agir/front/genericComponents/Button";
 import Logo from "./Logo";
-import RightLink from "./RightLink";
+import RightLink, { AnonymousLinks } from "./RightLink";
 import SearchBar from "./SearchBar";
 import AdminLink from "./AdminLink";
-import MenuLink from "./MenuLink";
+import MenuLink, { TopbarLink } from "./MenuLink";
 import { TopBarMainLink } from "./TopBarMainLink";
-import DownloadApp from "@agir/front/genericComponents/DownloadApp.js";
 
 const NavBar = styled.div``;
 
@@ -39,20 +39,22 @@ const NavbarContainer = styled.div`
   background-color: #fff;
 
   ${NavBar} {
-    padding: 0.75rem 2rem;
-    box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
-      0px 3px 2px rgba(0, 35, 44, 0.05);
+  height: 72px;
+  align-items: center;
+  display: flex;
+  box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
+    0px 3px 2px rgba(0, 35, 44, 0.05);
 
-    @media (max-width: ${+style.collapse - 1}px) {
-      padding: 1rem 1.5rem;
-    }
+  @media (max-width: ${style.collapse}px) {
+    padding: 1rem 1.5rem;
+  }
 
-  padding: 0.75rem 2rem;
   background-color: #fff;
   box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
     0px 3px 2px rgba(0, 35, 44, 0.05);
-  @media (max-width: ${+style.collapse - 1}px) {
+  @media (max-width: ${style.collapse}px) {
     padding: 1rem 1.5rem;
+    height: 100%;
   }
 `;
 
@@ -62,6 +64,8 @@ const TopBarContainer = styled.div`
   max-width: 1320px;
   margin: 0 auto;
   flex-grow: 1;
+  height: 100%;
+  align-items: center;
 `;
 
 const HorizontalFlex = styled.div`
@@ -86,6 +90,13 @@ const HorizontalFlex = styled.div`
   `}
 `;
 
+const StyledButton = styled(Button)`
+  height: 40px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 0.5rem;
+`;
+
 export const TopBar = (props) => {
   const { path, hideBannerDownload } = props;
   const routes = useSelector(getRoutes);
@@ -96,6 +107,8 @@ export const TopBar = (props) => {
   const adminLink = useSelector(getAdminLink);
   const isDesktop = useIsDesktop();
   const isConnected = useSelector(getIsConnected);
+
+  const hasUnreadActivity = useHasUnreadActivity();
 
   return (
     <NavbarContainer>
@@ -131,27 +144,88 @@ export const TopBar = (props) => {
               <TopBarMainLink path={path} />
             </Hide>
             <Hide under>
-              <MenuLink as={"a"} href="/">
-                <Logo />
-              </MenuLink>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <MenuLink as={"a"} href="/">
+                  <Logo />
+                </MenuLink>
+                {isConnected && (
+                  <StyledButton
+                    small
+                    as="Link"
+                    color="secondary"
+                    route="createEvent"
+                    icon="plus"
+                  >
+                    Créer un événement
+                  </StyledButton>
+                )}
+              </div>
             </Hide>
             <Hide under as="form" method="get" action={routes.search}>
-              <SearchBar routes={routes} />
+              <SearchBar isConnected={isConnected} />
             </Hide>
           </HorizontalFlex>
+
           <PageFadeIn ready={isSessionLoaded}>
             <HorizontalFlex>
-              <Hide under>
-                <MenuLink href={routes.help}>
-                  <FeatherIcon name="help-circle" />
-                  <span>Aide</span>
-                </MenuLink>
-              </Hide>
-              <RightLink
-                settingsLink={(isSessionLoaded && topBarRightLink) || undefined}
-                routes={routes}
-                user={user}
-              />
+              {!isConnected ? (
+                <>
+                  <Hide under>
+                    <MenuLink href={routes.help}>
+                      <span>Aide</span>
+                    </MenuLink>
+                  </Hide>
+                  <AnonymousLinks />
+                </>
+              ) : (
+                <>
+                  <Hide under>
+                    <div style={{ display: "flex" }}>
+                      <MenuLink route="events" href="/">
+                        <TopbarLink $active={"/" === path}>
+                          <FeatherIcon name="home" />
+                          <span>Accueil</span>
+                          <div />
+                        </TopbarLink>
+                      </MenuLink>
+                      <MenuLink route="activities" href="/activite/">
+                        <TopbarLink
+                          isBadge={hasUnreadActivity}
+                          $active={"/activite/" === path}
+                        >
+                          <FeatherIcon name="bell" />
+                          <span>Notifications</span>
+                          <div />
+                          <div class="notif" />
+                        </TopbarLink>
+                      </MenuLink>
+                      {false && (
+                        <MenuLink href="#">
+                          <TopbarLink>
+                            <FeatherIcon name="mail" />
+                            <span>Messages</span>
+                            <div />
+                          </TopbarLink>
+                        </MenuLink>
+                      )}
+                      <MenuLink href={routes.help}>
+                        <TopbarLink>
+                          <FeatherIcon name="help-circle" />
+                          <span>Aide</span>
+                          <div />
+                        </TopbarLink>
+                      </MenuLink>
+                    </div>
+                  </Hide>
+                  <RightLink
+                    settingsLink={
+                      (isSessionLoaded && topBarRightLink) || undefined
+                    }
+                    routes={routes}
+                    user={user}
+                  />
+                </>
+              )}
             </HorizontalFlex>
           </PageFadeIn>
         </TopBarContainer>

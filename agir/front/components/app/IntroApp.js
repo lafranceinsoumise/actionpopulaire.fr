@@ -154,6 +154,7 @@ const StyledWrapper = styled.div`
   flex-flow: column nowrap;
   text-align: center;
   justify-content: space-between;
+  touch-action: none;
 
   & > * {
     flex: 0 0 auto;

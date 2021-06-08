@@ -25,12 +25,7 @@ const GroupMessagePage = lazy(() =>
 );
 const GroupMap = lazy(() => import("@agir/carte/page__groupMap/GroupMap"));
 
-const ActivityPage = lazy(() =>
-  import("@agir/activity/page__activities/ActivityPage")
-);
-const RequiredActivityPage = lazy(() =>
-  import("@agir/activity/page__requiredActivities/RequiredActivityPage")
-);
+const ActivityPage = lazy(() => import("@agir/activity/ActivityPage"));
 
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
@@ -235,7 +230,7 @@ export const routeConfig = {
     path: ["/activite/", "/activite/parametres/"],
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Actualités",
+    label: "Notifications",
     Component: ActivityPage,
     hasLayout: true,
     layoutProps: {
@@ -244,20 +239,6 @@ export const routeConfig = {
     topBarRightLink: {
       label: notificationSettingRoute.label,
       to: notificationSettingRoute.getLink({ root: "activite" }),
-      protected: true,
-    },
-  }),
-  requiredActivities: new RouteConfig({
-    id: "requiredActivities",
-    path: ["/a-traiter/", "/a-traiter/parametres/"],
-    exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "À traiter",
-    Component: RequiredActivityPage,
-    hasLayout: true,
-    topBarRightLink: {
-      label: notificationSettingRoute.label,
-      to: notificationSettingRoute.getLink({ root: "a-traiter" }),
       protected: true,
     },
   }),

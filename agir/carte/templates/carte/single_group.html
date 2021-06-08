@@ -7,14 +7,5 @@
 {% block map_script %}
   {{ subtype_config|json_script:"subtypeConfig" }}
   {{ coordinates|json_script:"coordinates" }}
-
-
-  <script>
-    var subtype = JSON.parse(document.getElementById("subtypeConfig").textContent);
-    var coordinates = JSON.parse(document.getElementById("coordinates").textContent);
-    var popupContent = '<a href="{{ FRONT_DOMAIN }}{% url "view_group" group.id %}" style="color:' + subtype.color +
-      ';">{{ group.name }}</a>';
-
-    window.Agir['carte/map'].itemMap('map', coordinates, subtype, popupContent);
-  </script>
+  {% include "carte/single.bundle.html" %}
 {% endblock %}

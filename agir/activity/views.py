@@ -12,7 +12,6 @@ from rest_framework.response import Response
 
 from agir.activity.actions import (
     get_activities,
-    get_required_action_activities,
     get_non_custom_announcements,
     get_custom_announcements,
 )
@@ -43,15 +42,9 @@ class UserActivitiesAPIView(ListAPIView):
     serializer_class = ActivitySerializer
 
     def get_queryset(self):
+        # Force creation of new non_custom announcement activities for the user
+        get_non_custom_announcements(self.request.user.person)
         return get_activities(self.request.user.person)
-
-
-class UserRequiredActivitiesAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = ActivitySerializer
-
-    def get_queryset(self):
-        return get_required_action_activities(self.request.user.person)
 
 
 class AnnouncementsAPIView(ListAPIView):
@@ -61,11 +54,12 @@ class AnnouncementsAPIView(ListAPIView):
     def get_queryset(self):
         if self.request.user.is_authenticated and self.request.user.person is not None:
             announcements = get_non_custom_announcements(self.request.user.person)
-            # Automatically mark related activities as read
-            Activity.objects.filter(
-                pk__in=[a.activity_id for a in announcements if a.activity_id],
-                status=Activity.STATUS_UNDISPLAYED,
-            ).update(status=Activity.STATUS_DISPLAYED)
+            # Automatically mark related activities if mark_as_displayed query param equals "1"
+            if self.request.GET.get("mark_as_displayed", "0") == "1":
+                Activity.objects.filter(
+                    pk__in=[a.activity_id for a in announcements if a.activity_id],
+                    status=Activity.STATUS_UNDISPLAYED,
+                ).update(status=Activity.STATUS_DISPLAYED)
 
             return announcements
         return get_non_custom_announcements()
@@ -100,14 +94,23 @@ class AnnouncementLinkView(DetailView):
         announcement = self.get_object()
         user = request.user
         if hasattr(user, "person"):
-            Activity.objects.update_or_create(
-                recipient=user.person,
-                announcement=announcement,
-                defaults={
-                    "type": Activity.TYPE_ANNOUNCEMENT,
-                    "status": Activity.STATUS_INTERACTED,
-                },
-            )
+            defaults = {
+                "type": Activity.TYPE_ANNOUNCEMENT,
+                "status": Activity.STATUS_INTERACTED,
+            }
+
+            activity = Activity.objects.filter(
+                recipient=user.person, announcement=announcement
+            ).first()
+            if activity is not None:
+                for key, value in defaults.items():
+                    setattr(activity, key, value)
+                activity.save()
+            else:
+                Activity.objects.create(
+                    recipient=user.person, announcement=announcement, **defaults
+                )
+
         return HttpResponseRedirect(announcement.link)
 
 

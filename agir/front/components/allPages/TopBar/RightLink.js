@@ -5,10 +5,10 @@ import Avatar from "@agir/front/genericComponents/Avatar";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import { Hide } from "@agir/front/genericComponents/grid";
 
-import MenuLink from "./MenuLink";
+import MenuLink, { TopbarLink } from "./MenuLink";
 import UserMenu from "./UserMenu";
 
-const AnonymousLink = () => {
+export const AnonymousLinks = () => {
   return (
     <>
       <Hide over>
@@ -41,59 +41,84 @@ const UserLink = ({ user, routes, ...rest }) => {
   }, []);
 
   return (
-    <div style={{ position: "relative", padding: 0 }}>
-      <MenuLink {...rest} style={{ padding: 0 }} as="button" onClick={openMenu}>
-        <Avatar displayName={user.displayName} image={user.image} />
-        <Hide under>
-          <span>{user.displayName}</span>
-        </Hide>
-      </MenuLink>
+    <>
+      <Hide under>
+        <MenuLink
+          {...rest}
+          style={{ padding: 0 }}
+          as="button"
+          onClick={openMenu}
+        >
+          <TopbarLink>
+            <Avatar
+              displayName={user.displayName || user.email}
+              image={user.image}
+              style={{ width: "28px", height: "28px", marginTop: 0 }}
+            />
+            <span>{user.displayName || user.email}</span>
+          </TopbarLink>
+        </MenuLink>
+      </Hide>
+      <Hide over>
+        <MenuLink
+          {...rest}
+          style={{ padding: 0 }}
+          as="button"
+          onClick={openMenu}
+        >
+          <Avatar displayName={user.displayName || user.email} image={user.image} />
+        </MenuLink>
+      </Hide>
       <UserMenu
         isOpen={isMenuOpen}
         onDismiss={closeMenu}
         user={user}
         routes={routes}
       />
-    </div>
+    </>
   );
 };
 
 const SettingsLink = (props) => {
   const { settingsLink } = props;
   return (
-    <>
-      <Hide under>
-        <UserLink {...props} />
-      </Hide>
-
-      <Hide over>
-        <MenuLink
-          to={settingsLink.to}
-          href={settingsLink.href}
-          route={settingsLink.route}
-          title={settingsLink.label}
-          aria-label={settingsLink.label}
-        >
-          <FeatherIcon name="settings" />
-        </MenuLink>
-      </Hide>
-    </>
+    <MenuLink
+      to={settingsLink.to}
+      href={settingsLink.href}
+      route={settingsLink.route}
+      title={settingsLink.label}
+      aria-label={settingsLink.label}
+    >
+      <FeatherIcon name="settings" />
+    </MenuLink>
   );
 };
 
 const RightLink = (props) => {
   const { user, settingsLink } = props;
-  if (settingsLink) {
-    return <SettingsLink {...props} />;
-  }
-  if (user) {
-    return <UserLink {...props} />;
-  }
-  return <AnonymousLink {...props} />;
+
+  if (!settingsLink && !user) return <AnonymousLinks {...props} />;
+
+  return (
+    <div style={{ position: "relative", padding: 0, margin: 0 }}>
+      {settingsLink ? (
+        <>
+          <Hide under>
+            <UserLink {...props} />
+          </Hide>
+          <Hide over>
+            <SettingsLink {...props} />
+          </Hide>
+        </>
+      ) : (
+        <UserLink {...props} />
+      )}
+    </div>
+  );
 };
 
 RightLink.propTypes =
-  AnonymousLink.propTypes =
+  AnonymousLinks.propTypes =
   SettingsLink.propTypes =
   UserLink.propTypes =
     {

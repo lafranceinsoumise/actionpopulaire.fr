@@ -1,13 +1,13 @@
 import { Helmet } from "react-helmet";
 import React from "react";
 
-import NotificationSettings from "@agir/activity/common/notificationSettings/NotificationSettings";
+import NotificationSettings from "@agir/activity/NotificationSettings/NotificationSettings";
 import ActivityList from "./ActivityList";
 
 const ActivityPage = (props) => (
   <>
     <Helmet>
-      <title>Actualités - Action populaire</title>
+      <title>Notifications - Action populaire</title>
     </Helmet>
     <ActivityList {...props} />
     <NotificationSettings />

@@ -17,6 +17,45 @@ class ActivitySupportGroupSerializer(SupportGroupSerializer):
         fields = ["id", "name", "url", "routes"]
 
 
+class AnnouncementSerializer(serializers.ModelSerializer):
+    customDisplay = serializers.SlugField(source="custom_display", read_only=True)
+    link = serializers.HyperlinkedIdentityField(
+        view_name="activity:announcement_link", read_only=True
+    )
+    linkLabel = serializers.CharField(source="link_label")
+    startDate = serializers.DateTimeField(source="start_date", read_only=True)
+    endDate = serializers.DateTimeField(source="end_date", read_only=True)
+    image = serializers.SerializerMethodField(read_only=True)
+    activityId = serializers.IntegerField(
+        read_only=True, source="activity_id", default=None
+    )
+
+    def get_image(self, obj):
+        if obj.image:
+            return {
+                "desktop": obj.image.desktop.url,
+                "mobile": obj.image.mobile.url,
+                "activity": obj.image.activity.url,
+            }
+        return {}
+
+    class Meta:
+        model = Announcement
+        fields = [
+            "id",
+            "title",
+            "link",
+            "linkLabel",
+            "content",
+            "image",
+            "startDate",
+            "endDate",
+            "priority",
+            "activityId",
+            "customDisplay",
+        ]
+
+
 class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name="activity:api_activity")
@@ -45,6 +84,7 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     individual = PersonSerializer(fields=["displayName", "gender"], read_only=True)
 
     status = serializers.CharField()
+    announcement = AnnouncementSerializer(read_only=True)
 
     class Meta:
         model = Activity
@@ -58,39 +98,7 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "individual",
             "status",
             "meta",
-        ]
-
-
-class AnnouncementSerializer(serializers.ModelSerializer):
-    customDisplay = serializers.SlugField(source="custom_display", read_only=True)
-    link = serializers.HyperlinkedIdentityField(
-        view_name="activity:announcement_link", read_only=True
-    )
-    startDate = serializers.DateTimeField(source="start_date", read_only=True)
-    endDate = serializers.DateTimeField(source="end_date", read_only=True)
-    image = serializers.SerializerMethodField(read_only=True)
-    activityId = serializers.IntegerField(
-        source="activity_id", default=None, read_only=True
-    )
-
-    def get_image(self, obj):
-        if obj.image:
-            return {"desktop": obj.image.desktop.url, "mobile": obj.image.mobile.url}
-        return {}
-
-    class Meta:
-        model = Announcement
-        fields = [
-            "id",
-            "title",
-            "link",
-            "content",
-            "image",
-            "startDate",
-            "endDate",
-            "priority",
-            "activityId",
-            "customDisplay",
+            "announcement",
         ]
 
 

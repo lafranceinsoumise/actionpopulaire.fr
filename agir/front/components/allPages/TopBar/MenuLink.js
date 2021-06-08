@@ -9,7 +9,7 @@ const MenuLink = styled(Link)`
   display: flex;
   align-items: center;
   color: ${style.black1000};
-  font-weight: 500;
+  font-weight: 400;
   height: 3rem;
   border: none;
   background-color: transparent;
@@ -45,6 +45,55 @@ const MenuLink = styled(Link)`
       height: 2rem;
       width: 2rem;
     }
+  }
+`;
+
+export const TopbarLink = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 72px;
+  padding-left: 11px;
+  padding-right: 11px;
+  transition: 0.2s ease;
+  font-size: 12px;
+  position: relative;
+
+  span {
+    margin: 0;
+    margin-top: 5px;
+    max-width: 75px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-wrap: initial;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    color: ${style.primary500};
+  }
+  color: ${({ $active }) => ($active ? style.primary500 : "")};
+
+  div {
+    display: ${({ $active }) => ($active ? "block" : "none")};
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 100%;
+    height: 2px;
+    background-color: ${style.primary500};
+  }
+
+  div.notif {
+    display: ${({ isBadge }) => (isBadge ? "block" : "none")};
+    position: absolute;
+    top: 12px;
+    right: 30px;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 3rem;
+    background-color: ${style.redNSP};
   }
 `;
 
