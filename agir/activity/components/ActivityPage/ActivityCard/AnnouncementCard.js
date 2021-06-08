@@ -79,7 +79,7 @@ const AnnouncementCard = (props) => {
       <article>
         {image?.activity && (
           <a href={link} aria-label={linkLabel}>
-            <img src={image.activity} alt={title} />
+            <img src={image.activity} width="548" height="241" />
           </a>
         )}
         <h4>{title}</h4>

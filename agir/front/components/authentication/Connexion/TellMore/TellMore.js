@@ -203,6 +203,8 @@ const TellMore = ({ dismiss }) => {
           <img
             src={helloDesktop}
             alt="Bienvenue"
+            width="217"
+            height="227"
             style={{ width: "220px", paddingRight: "60px" }}
           />
         </LeftBlock>

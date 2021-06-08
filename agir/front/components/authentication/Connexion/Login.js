@@ -123,7 +123,12 @@ const Login = () => {
                 block
               >
                 <span>{email}</span>
-                <img src={arrowRight} style={{ color: "white" }} />
+                <img
+                  src={arrowRight}
+                  width="24"
+                  height="24"
+                  style={{ color: "white" }}
+                />
               </LoginMailButton>
             ))}
           </div>
@@ -165,7 +170,13 @@ const Login = () => {
             <ShowMore onClick={handleShowMore}>
               Se connecter avec un autre{" "}
               <InlineBlock>
-                e-mail <img src={chevronDown} alt="Afficher plus" />
+                e-mail{" "}
+                <img
+                  src={chevronDown}
+                  width="24"
+                  height="24"
+                  alt="Afficher plus"
+                />
               </InlineBlock>
             </ShowMore>
           ) : (
