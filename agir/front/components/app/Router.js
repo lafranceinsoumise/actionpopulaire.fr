@@ -39,7 +39,10 @@ export const ProtectedComponent = ({ Component, route, ...rest }) => {
 
   return (
     <Redirect
-      to={{ pathname: routeConfig.login.getLink(), state: { from: location } }}
+      to={{
+        pathname: routeConfig.login.getLink(),
+        state: { next: location.pathname },
+      }}
     />
   );
 };

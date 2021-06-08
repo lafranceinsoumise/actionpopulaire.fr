@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
+import { useLocation } from "react-router-dom";
 
 import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
 import { getMenuRoute, getRoutes } from "./routes.config";
@@ -15,6 +16,8 @@ export const GroupSettings = (props) => {
   const routes = useMemo(() => getRoutes(basePath, group), [basePath, group]);
   const menuRoute = useMemo(() => getMenuRoute(basePath), [basePath]);
   const isAuthorized = useAuthentication(globalRouteConfig.groupSettings);
+  const { pathname } = useLocation();
+
   const redirectTo = useMemo(() => {
     if (!group?.isManager) {
       return basePath;
@@ -22,11 +25,11 @@ export const GroupSettings = (props) => {
     if (isAuthorized === false) {
       return {
         pathname: globalRouteConfig.login.getLink(),
-        state: { from: { pathname: menuRoute.getLink() } },
+        state: { next: pathname },
       };
     }
     return null;
-  }, [group, isAuthorized, basePath, menuRoute]);
+  }, [group, isAuthorized, basePath, pathname]);
 
   const subtitle = useMemo(
     () =>
