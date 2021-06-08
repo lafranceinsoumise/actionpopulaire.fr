@@ -77,15 +77,11 @@ const MessagePage = ({ messagePk }) => {
         <title>Messages - Action Populaire</title>
       </Helmet>
       <NotificationSettings />
-      <PageFadeIn
-        ready={user && typeof messages !== "undefined"}
-        wait={
-          <StyledPage>
-            <Skeleton />
-          </StyledPage>
-        }
-      >
-        <StyledPage>
+      <StyledPage>
+        <PageFadeIn
+          ready={user && typeof messages !== "undefined"}
+          wait={<Skeleton />}
+        >
           {!!writeNewMessage && (
             <MessageModal
               shouldShow={shouldShowMessageModal}
@@ -128,8 +124,8 @@ const MessagePage = ({ messagePk }) => {
           ) : (
             <EmptyMessagePage />
           )}
-        </StyledPage>
-      </PageFadeIn>
+        </PageFadeIn>
+      </StyledPage>
       <Hide over>
         <Navigation active="messages" />
       </Hide>
