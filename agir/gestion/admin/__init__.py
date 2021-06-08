@@ -1,3 +1,4 @@
+from agir.gestion.typologies import TypeDepense
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.urls import path, reverse
@@ -21,6 +22,7 @@ from agir.gestion.admin.inlines import (
 )
 from agir.gestion.admin.views import AjouterReglementView, TransitionView
 from agir.gestion.models import Depense, Projet, Fournisseur, Document, Compte
+from agir.gestion.utils import montrer_montant
 from agir.people.models import Person
 
 
@@ -79,7 +81,48 @@ class DocumentAdmin(BaseAdminMixin, VersionAdmin):
                 )
             },
         ),
+        ("Lié à", {"fields": ["depenses", "projets"]}),
     )
+    readonly_fields = ("depenses", "projets")
+
+    def depenses(self, obj):
+        if obj is not None:
+            ds = obj.depenses.all()
+            if ds:
+                try:
+                    return format_html_join(
+                        mark_safe("<br>"),
+                        '<a href="{}">{}</a>',
+                        (
+                            (
+                                reverse("admin:gestion_depense_change", args=(d.id,)),
+                                f"{d.numero} — {d.titre} — {d.montant} €",
+                            )
+                            for d in ds
+                        ),
+                    )
+                except Exception as e:
+                    print(e)
+        return "-"
+
+    depenses.short_description = "dépenses"
+
+    def projets(self, obj):
+        ps = obj.projets.all()
+        if ps:
+            return format_html_join(
+                "<br>",
+                '<a href="{}">{}</a>',
+                (
+                    (
+                        reverse("admin:gestion_projet_change", args=(p.id,)),
+                        f"{p.numero} — {p.nom}",
+                    )
+                    for p in ps
+                ),
+            )
+
+        return "-"
 
 
 @admin.register(Depense)
@@ -88,8 +131,8 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
 
     list_filter = (
         DepenseResponsableFilter,
-        "type",
         "compte",
+        "type",
     )
 
     list_display = (
@@ -98,40 +141,57 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
         "titre",
         "type",
         "etat",
-        "montant",
+        "montant_",
         "compte",
         "reglement",
     )
 
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    "numero_",
-                    "titre",
-                    "montant",
-                    "etat",
-                    "type",
-                    "compte",
-                    "projet",
-                    "description",
-                    "date_depense",
-                    "beneficiaires",
-                )
-            },
-        ),
-        ("Informations de paiement", {"fields": ("fournisseur", "reglements")}),
-    )
-
-    readonly_fields = ("reglement", "reglements", "etat")
+    readonly_fields = ("montant_", "reglement", "reglements", "etat")
 
     autocomplete_fields = (
         "projet",
         "beneficiaires",
         "fournisseur",
+        "depenses_refacturees",
     )
     inlines = [DepenseDocumentInline]
+
+    def get_fieldsets(self, request, obj=None):
+        common_fields = [
+            "numero_",
+            "titre",
+            "montant",
+            "etat",
+            "date_depense",
+            "type",
+            "description",
+        ]
+
+        rel_fields = [
+            "compte",
+            "projet",
+        ]
+
+        if obj is not None and obj.type == TypeDepense.REFACTURATION:
+            return (
+                (None, {"fields": common_fields}),
+                ("Gestion", {"fields": [*rel_fields, "depenses_refacturees"]}),
+                ("Paiement", {"fields": ["reglements"]}),
+            )
+
+        return (
+            (None, {"fields": common_fields}),
+            ("Gestion", {"fields": rel_fields}),
+            ("Paiement", {"fields": ["fournisseur", "reglements"]}),
+        )
+
+    def montant_(self, obj):
+        if obj:
+            return montrer_montant(obj.montant)
+        return "-"
+
+    montant_.short_description = "Montant"
+    montant_.admin_order_field = "montant"
 
     def reglement(self, obj):
         if obj is None or obj.prevu is None:

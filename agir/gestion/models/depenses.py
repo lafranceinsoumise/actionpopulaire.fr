@@ -1,6 +1,7 @@
 from typing import List
 
 import reversion
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -195,6 +196,15 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         blank=True,
     )
 
+    depenses_refacturees = models.ManyToManyField(
+        to="Depense",
+        verbose_name="Dépenses à refacturer",
+        related_name="refacturations",
+        related_query_name="refacturation",
+        blank=True,
+        help_text="Toutes les dépenses concernées par cette refacturation.",
+    )
+
     niveau_acces = models.CharField(
         verbose_name="Niveau d'accès",
         max_length=1,
@@ -202,6 +212,17 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         blank=False,
         default=NiveauAcces.SANS_RESTRICTION,
     )
+
+    def clean(self, exclude=None):
+        errors = {}
+
+        try:
+            super().clean()
+        except ValidationError as e:
+            e.update_error_dict(errors)
+
+        if errors:
+            raise ValidationError(errors)
 
     @property
     def devis_present(self):

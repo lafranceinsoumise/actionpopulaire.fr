@@ -1,6 +1,9 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
+from django.db.models import Sum
+from django.urls import reverse
+from django.utils.html import format_html, format_html_join
 
 from agir.gestion.admin.widgets import HierarchicalSelect
 from agir.gestion.models import (
@@ -12,7 +15,7 @@ from agir.gestion.models import (
     Reglement,
 )
 from agir.gestion.models.commentaires import ajouter_commentaire
-from agir.gestion.typologies import TypeDocument
+from agir.gestion.typologies import TypeDocument, TypeDepense
 
 
 class DocumentForm(forms.ModelForm):
@@ -23,6 +26,80 @@ class DocumentForm(forms.ModelForm):
 
 
 class DepenseForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.type == TypeDepense.REFACTURATION and "montant" in self.fields:
+            montant = self.get_initial_for_field(self.fields["montant"], "montant")
+            total_factures = (
+                self.instance.depenses_refacturees.aggregate(Sum("montant"))[
+                    "montant__sum"
+                ]
+                or 0.0
+            )
+
+            if montant > total_factures:
+                self.fields[
+                    "montant"
+                ].help_text = "Le montant de cette refacturation est pour le moment supérieur à la somme des dépenses à refacturer"
+            else:
+                pct = montant / total_factures * 100
+                self.fields[
+                    "montant"
+                ].help_text = f"Cela représente {montant / total_factures:0.1%} % du total des dépenses refacturées."
+
+        if "depenses_refacturees" in self.fields:
+            depenses = self.get_initial_for_field(
+                self.fields["depenses_refacturees"], "depenses_refacturees"
+            )
+            if depenses:
+                self.fields["depenses_refacturees"].help_text = format_html(
+                    "Accéder aux dépenses : {}",
+                    format_html_join(
+                        " — ",
+                        '<a href="{}">{}</a>',
+                        (
+                            (
+                                reverse("admin:gestion_depense_change", args=(d.id,)),
+                                d.numero,
+                            )
+                            for d in depenses
+                        ),
+                    ),
+                )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        errors = {}
+
+        if cleaned_data.get("type") == TypeDepense.REFACTURATION and cleaned_data.get(
+            "depenses_refacturees"
+        ):
+            if "compte" in cleaned_data and any(
+                d.compte == cleaned_data["compte"]
+                for d in cleaned_data["depenses_refacturees"]
+            ):
+                errors.setdefault("depenses_refacturees", []).append(
+                    ValidationError(
+                        "Vous ne pouvez refacturer que des dépenses d'un autre compte.",
+                        code="refacturation_meme_compte",
+                    )
+                )
+
+            if len({d.compte for d in cleaned_data["depenses_refacturees"]}) > 1:
+                errors.setdefault("depenses_refacturees", []).append(
+                    ValidationError(
+                        "Toutes les dépenses refacturées doivent appartenir au même compte.",
+                        code="refacturation_comptes_multiples",
+                    )
+                )
+
+        if errors:
+            raise ValidationError(errors)
+
+        return cleaned_data
+
     class Meta:
         model = Depense
         fields = ()
@@ -46,7 +123,7 @@ class CommentaireForm(forms.Form):
         label="Type", initial=Commentaire.Type.REM, choices=Commentaire.Type.choices,
     )
 
-    texte = forms.CharField(label="Texte", required=True,)
+    texte = forms.CharField(label="Texte", required=True, widget=forms.Textarea)
 
     def __init__(self, *args, user=None, **kwargs):
         self.user = user

@@ -64,6 +64,8 @@ class TypeDepense(TextChoices):
     LOCATION_VEHICULE = "TRA-L", "Location d'un véhicule"
     FRAIS_KILOMETRIQUES = "TRA-K", "Frais kilométriques"
 
+    REFACTURATION = "REF", "Refacturation"
+
 
 class TypeProjet(TextChoices):
     CONFERENCE_PRESSE = "CON", "Conférence de presse"
