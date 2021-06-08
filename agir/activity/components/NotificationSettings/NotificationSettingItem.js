@@ -75,7 +75,7 @@ const NotificationSettingItem = (props) => {
   return (
     <StyledItem>
       <span>{notification.label}</span>
-      {notification.hasPush !== false && (
+      {notification.hasPush !== false ? (
         <StyledButton
           $active={push}
           aria-label={
@@ -86,8 +86,10 @@ const NotificationSettingItem = (props) => {
         >
           <RawFeatherIcon width="1.25rem" height="1.25rem" name="bell" />
         </StyledButton>
+      ) : (
+        <StyledButton style={{ visibility: "hidden" }}></StyledButton>
       )}
-      {notification.hasEmail !== false && (
+      {notification.hasEmail !== false ? (
         <StyledButton
           $active={email}
           aria-label={push ? "Désactiver l'e-mail" : "Activer l'e-mail"}
@@ -96,6 +98,8 @@ const NotificationSettingItem = (props) => {
         >
           <RawFeatherIcon width="1.25rem" height="1.25rem" name="mail" />
         </StyledButton>
+      ) : (
+        <StyledButton style={{ visibility: "hidden" }}></StyledButton>
       )}
     </StyledItem>
   );

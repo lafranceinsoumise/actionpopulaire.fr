@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from django.utils.functional import empty
+
 from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
@@ -20,7 +22,9 @@ from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
 from ..activity.models import Activity
 from ..lib.display import genrer
-from ..msgs.models import SupportGroupMessage
+from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
+from agir.notifications.models import Subscription
+import re
 
 NOTIFIED_CHANGES = {
     "name": "information",
@@ -444,7 +448,7 @@ def send_message_notification_email(message_pk):
         "MESSAGE_LINK": front_url("user_message_details", kwargs={"pk": message_pk}),
         "AUTHOR_STATUS": format_html(
             '{} de <a href="{}">{}</a>',
-            genrer(message.author.gender, "Animateur", "Animatrice", "Animateurice"),
+            genrer(message.author.gender, "Animateur", "Animatrice", "Animateur·ice"),
             front_url("view_group", args=[message.supportgroup.pk]),
             message.supportgroup.name,
         ),
@@ -459,5 +463,57 @@ def send_message_notification_email(message_pk):
         subject=subject,
         from_email=settings.EMAIL_FROM,
         recipients=message.supportgroup.members.filter(group_notifications=True),
+        bindings=bindings,
+    )
+
+
+@emailing_task
+@post_save_task
+def send_comment_notification_email(comment_pk):
+    comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
+
+    recipients = []
+    for p in comment.message.supportgroup.members.filter(group_notifications=True):
+        if (
+            not p.id == comment.author.id
+            and Subscription.objects.filter(
+                person=p,
+                type=Subscription.SUBSCRIPTION_EMAIL,
+                activity_type=Activity.TYPE_NEW_COMMENT,
+            ).exists()
+        ):
+            recipients.append(p)
+
+    if recipients is empty:
+        return
+
+    bindings = {
+        "MESSAGE_HTML": format_html_join(
+            "", "<p>{}</p>", ((p,) for p in comment.text.split("\n"))
+        ),
+        "DISPLAY_NAME": comment.author.display_name,
+        "MESSAGE_LINK": front_url(
+            "view_group_message", args=[comment.message.supportgroup.pk, comment_pk]
+        ),
+        "AUTHOR_STATUS": format_html(
+            '{} de <a href="{}">{}</a>',
+            genrer(comment.author.gender, "Animateur", "Animatrice", "Animateur·ice"),
+            front_url("view_group", args=[comment.message.supportgroup.pk]),
+            comment.message.supportgroup.name,
+        ),
+    }
+
+    message_reference = '"' + comment.message.text + '"'
+    message_reference = message_reference.replace("\n", "")
+    message_reference = re.sub("\s+", " ", message_reference)
+    if len(message_reference) > 80:
+        message_reference = message_reference[0:80] + '..."'
+    subject = f"Nouvelle réponse à un commentaire concernant {message_reference}"
+
+    send_mosaico_email(
+        code="NEW_MESSAGE",
+        subject=subject,
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
         bindings=bindings,
     )

@@ -31,8 +31,8 @@ class Migration(migrations.Migration):
                         blank=True,
                         choices=[
                             ("m", "Membres de GA"),
-                            ("M", "Animateurices et gestionnaires de GA"),
-                            ("R", "Animateurices de GA"),
+                            ("M", "Animateur·ices et gestionnaires de GA"),
+                            ("R", "Animateur·ices de GA"),
                         ],
                         max_length=1,
                         verbose_name="Statut GA",
