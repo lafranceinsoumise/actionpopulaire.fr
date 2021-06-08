@@ -131,11 +131,13 @@ const GroupsPage = () => {
         groups contient la liste des groupes suggérés,
          on place donc avant le texte introductif */}
           {!hasOwnGroups && (
-            <Onboarding type="group__suggestions" routes={routes} />
+            <>
+              <p>Suggestions de groupes près de chez vous :</p>
+              <Onboarding type="group__suggestions" routes={routes} />
+            </>
           )}
           {groups.length > 0 && (
             <GroupList>
-              <p>Suggestions de groupes près de chez vous :</p>
               {groups.map((group) => (
                 <GroupCard
                   key={group.id}
