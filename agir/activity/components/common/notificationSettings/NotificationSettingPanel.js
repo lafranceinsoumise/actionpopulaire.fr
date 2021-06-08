@@ -197,13 +197,8 @@ const NotificationSettingPanel = (props) => {
                 <StyledGroup key={subtype}>
                   <StyledGroupName>
                     <span>{subtype}</span>
-                    {byType[type][subtype].some(
-                      (notificationId) => byId[notificationId].hasPush !== false
-                    ) && <small>Notifications</small>}
-                    {byType[type][subtype].some(
-                      (notificationId) =>
-                        byId[notificationId].hasEmail !== false
-                    ) && <small>E-mail</small>}
+                    <small>Notifications</small>
+                    <small>E-mail</small>
                   </StyledGroupName>
                   {byType[type][subtype].map((notificationId) => (
                     <NotificationSettingItem
