@@ -207,6 +207,28 @@ class UpdateRecipientMessageActionTestCase(APITestCase):
         self.assertTrue(qs.first().modified > original_modified)
 
 
+class UserUnreadMessageCountAPITestCase(APITestCase):
+    def setUp(self):
+        self.group = SupportGroup.objects.create()
+        self.user = Person.objects.create(email="user@example.com", create_role=True,)
+        Membership.objects.create(
+            person=self.user,
+            supportgroup=self.group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+
+    def test_unauthenticated_user_cannot_get_message_recipients(self):
+        self.client.logout()
+        response = self.client.get("/api/user/messages/unread_count/")
+        self.assertEqual(response.status_code, 401)
+
+    def test_authenticated_user_can_get_message_recipients(self):
+        self.client.force_login(self.user.role)
+        response = self.client.get("/api/user/messages/unread_count/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("unreadMessageCount", response.data)
+
+
 class GetUnreadMessageCountActionTestCase(APITestCase):
     def setUp(self):
         self.supportgroup = SupportGroup.objects.create()

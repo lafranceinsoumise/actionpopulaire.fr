@@ -10,6 +10,11 @@ urlpatterns = [
         name="api_user_messages",
     ),
     path(
+        "api/user/messages/unread_count/",
+        views.unread_message_count,
+        name="api_user_unread_message_count",
+    ),
+    path(
         "api/user/messages/recipients/",
         views.UserMessageRecipientsView.as_view(),
         name="api_user_message_recipients",

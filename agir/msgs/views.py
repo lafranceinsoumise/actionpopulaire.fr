@@ -8,10 +8,13 @@ from django.db.models import (
     When,
 )
 from django.db.models.functions import Greatest
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from agir.groups.models import Membership, SupportGroup
+from agir.msgs.actions import get_unread_message_count
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageRecipient
 from agir.msgs.serializers import (
     UserReportSerializer,
@@ -72,3 +75,11 @@ class UserMessagesAPIView(ListAPIView):
             .distinct()
             .order_by("-last_comment", "-created")
         )
+
+
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def unread_message_count(request):
+    return Response(
+        {"unreadMessageCount": get_unread_message_count(request.user.person)}
+    )

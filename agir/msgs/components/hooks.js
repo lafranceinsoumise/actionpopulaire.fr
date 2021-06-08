@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import useSWR, { mutate } from "swr";
+
 import axios from "@agir/lib/utils/axios";
 import * as groupAPI from "@agir/groups/groupPage/api";
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -9,15 +10,21 @@ import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 
 export const useUnreadMessageCount = () => {
   const { data: session } = useSWR("/api/session/");
-  return session?.unreadMessageCount &&
-    !isNaN(parseInt(session.unreadMessageCount))
-    ? parseInt(session.unreadMessageCount)
+  const { data } = useSWR(
+    session?.user ? "/api/user/messages/unread_count/" : null,
+    {
+      refreshInterval: 1000,
+    }
+  );
+
+  return data?.unreadMessageCount && !isNaN(parseInt(data.unreadMessageCount))
+    ? parseInt(data.unreadMessageCount)
     : 0;
 };
 
 export const useMessageSWR = (messagePk, selectMessage) => {
   const dispatch = useDispatch();
-  const { data: session } = useSWR("/api/session");
+  const { data: session } = useSWR("/api/session/");
   const { data: messages } = useSWR("/api/user/messages/", {
     refreshInterval: 1000,
   });

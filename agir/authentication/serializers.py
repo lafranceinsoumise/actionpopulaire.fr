@@ -54,9 +54,6 @@ class SessionSerializer(serializers.Serializer):
     bookmarkedEmails = serializers.SerializerMethodField(
         method_name="get_bookmarked_emails", read_only=True
     )
-    unreadMessageCount = serializers.SerializerMethodField(
-        method_name="get_unread_message_count", read_only=True
-    )
 
     def get_authentication(self, request):
         if is_hard_logged(request):
@@ -156,8 +153,3 @@ class SessionSerializer(serializers.Serializer):
 
     def get_bookmarked_emails(self, request):
         return get_bookmarked_emails(request)
-
-    def get_unread_message_count(self, request):
-        if request.user.is_authenticated and request.user.person is not None:
-            return get_unread_message_count(request.user.person.pk)
-        return 0
