@@ -35,7 +35,7 @@ const StyledCard = styled.div`
       }
     }
 
-    & > img {
+    & > a > img {
       width: 100%;
       height: auto;
 
@@ -59,7 +59,7 @@ const StyledCard = styled.div`
       margin: 0;
     }
 
-    ${Button} {
+    footer > ${Button} {
       justify-content: center;
       align-self: flex-start;
       width: auto;
@@ -77,14 +77,20 @@ const AnnouncementCard = (props) => {
     <StyledCard>
       <FeatherIcon name={config.icon} color={style.black500} />
       <article>
-        {image?.activity && <img src={image.activity} />}
+        {image?.activity && (
+          <a href={link} aria-label={linkLabel}>
+            <img src={image.activity} alt={title} />
+          </a>
+        )}
         <h4>{title}</h4>
         <div dangerouslySetInnerHTML={{ __html: content }} />
-        {link && (
-          <Button as="a" href={link} color="primary" small>
-            {linkLabel || "En savoir plus"}
-          </Button>
-        )}
+        <footer>
+          {link && (
+            <Button as="a" href={link} color="primary" small>
+              {linkLabel || "En savoir plus"}
+            </Button>
+          )}
+        </footer>
       </article>
     </StyledCard>
   );
