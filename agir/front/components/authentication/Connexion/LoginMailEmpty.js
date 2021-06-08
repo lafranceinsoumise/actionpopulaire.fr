@@ -1,10 +1,8 @@
+import PropTypes from "prop-types";
 import React, { useState, useCallback } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import Link from "@agir/front/app/Link";
-import { login } from "@agir/front/authentication/api";
-import { routeConfig } from "@agir/front/app/routes.config";
-import { useHistory, useLocation } from "react-router-dom";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
@@ -44,38 +42,17 @@ const Form = styled.form`
   }
 `;
 
-const LoginMailEmpty = () => {
-  const history = useHistory();
-  const location = useLocation();
+const LoginMailEmpty = ({ onSubmit, error }) => {
   const [email, setEmail] = useState("");
-  const [error, setError] = useState({});
-
-  let next = "";
-  if (location.search !== undefined)
-    next = new URLSearchParams(location.search).get("next");
 
   const handleInputChange = useCallback((e) => {
     setEmail(e.target.value);
   }, []);
 
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      setError({});
-      const result = await login(email);
-      if (result.error) {
-        setError(result.error);
-        return;
-      }
-      const route = routeConfig.codeLogin.getLink();
-      history.push(route, {
-        email: email,
-        code: result.data && result.data.code,
-        next: next,
-      });
-    },
-    [history, email, next]
-  );
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(email);
+  };
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -83,7 +60,7 @@ const LoginMailEmpty = () => {
         <TextField
           id="email"
           label="Adresse e-mail"
-          error={error && (error.email || error.detail)}
+          error={error?.email || error?.detail}
           placeholder="Adresse e-mail"
           onChange={handleInputChange}
           value={email}
@@ -91,7 +68,7 @@ const LoginMailEmpty = () => {
           autoComplete="email"
           type="email"
         />
-        {!!error.detail && (
+        {error?.detail && (
           <Link route="codeLogin">
             Accéder à la page pour demander son code
           </Link>
@@ -106,4 +83,11 @@ const LoginMailEmpty = () => {
   );
 };
 
+LoginMailEmpty.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  error: PropTypes.shape({
+    email: PropTypes.string,
+    detail: PropTypes.string,
+  }),
+};
 export default LoginMailEmpty;

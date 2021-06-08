@@ -57,10 +57,12 @@ const ToastNotConnected = () => {
 const Login = () => {
   const history = useHistory();
   const location = useLocation();
+
+  const { isMobileApp } = useMobileApp();
   const [bookmarkedEmails] = useBookmarkedEmails();
+
   const [showMore, setShowMore] = useState(false);
   const [error, setError] = useState(null);
-  const { isMobileApp } = useMobileApp();
 
   const next = useMemo(() => {
     if (location.state?.next) {
@@ -74,7 +76,7 @@ const Login = () => {
     setShowMore(true);
   }, []);
 
-  const loginBookmarkedMail = useCallback(
+  const handleSubmit = useCallback(
     async (email) => {
       setError(null);
       const result = await login(email);
@@ -113,14 +115,14 @@ const Login = () => {
       {bookmarkedEmails.length > 0 && (
         <>
           <div style={{ marginTop: "1.5rem" }}>
-            {bookmarkedEmails.map((mail, id) => (
+            {bookmarkedEmails.map((email, id) => (
               <LoginMailButton
                 key={id}
                 color="primary"
-                onClick={() => loginBookmarkedMail(mail)}
+                onClick={() => handleSubmit(email)}
                 block
               >
-                <span>{mail}</span>
+                <span>{email}</span>
                 <img src={arrowRight} style={{ color: "white" }} />
               </LoginMailButton>
             ))}
@@ -167,14 +169,14 @@ const Login = () => {
               </InlineBlock>
             </ShowMore>
           ) : (
-            <LoginMailEmpty />
+            <LoginMailEmpty onSubmit={handleSubmit} error={error} />
           )}
         </>
       )}
 
       {bookmarkedEmails.length === 0 && (
         <>
-          <LoginMailEmpty />
+          <LoginMailEmpty onSubmit={handleSubmit} error={error} />
           {!isMobileApp && (
             <>
               <div
