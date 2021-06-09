@@ -365,7 +365,7 @@ def send_new_group_event_email(group_pk, event_pk):
         code="NEW_EVENT_MY_GROUPS_NOTIFICATION",
         subject=subject,
         from_email=settings.EMAIL_FROM,
-        recipients=recipients,
+        recipients=recipients_allowed,
         bindings=bindings,
     )
 
