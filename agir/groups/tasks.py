@@ -20,10 +20,10 @@ from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person
 from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
+from ..notifications.models import Subscription
 from ..activity.models import Activity
 from ..lib.display import genrer
 from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
-from agir.notifications.models import Subscription
 import re
 
 NOTIFIED_CHANGES = {
@@ -312,6 +312,19 @@ def send_new_group_event_email(group_pk, event_pk):
         return
 
     recipients = group.members.filter(group_notifications=True)
+
+    recipients_allowed = []
+    for r in recipients:
+        if Subscription.objects.filter(
+            person=r,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_EVENT_MYGROUPS,
+        ).exists():
+            recipients_allowed.append(r)
+
+    if recipients_allowed is empty:
+        return
+
     tz = timezone.get_current_timezone()
     now = timezone.now()
     start_time = event.start_time.astimezone(tz)
@@ -342,11 +355,23 @@ def send_new_group_event_email(group_pk, event_pk):
 def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
     recipients = Person.objects.filter(pk__in=recipients_pks)
 
+    recipients_allowed = []
+    for r in recipients:
+        if Subscription.objects.filter(
+            person=r,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+        ).exists():
+            recipients_allowed.append(r)
+
+    if recipients_allowed is empty:
+        return
+
     send_mosaico_email(
         code="TRANSFER_SENDER",
         subject=f"{bindings['MEMBER_COUNT']} membres ont bien été transférés",
         from_email=settings.EMAIL_FROM,
-        recipients=recipients,
+        recipients=recipients_allowed,
         bindings=bindings,
     )
 
@@ -355,11 +380,23 @@ def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
 def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
     recipients = Person.objects.filter(pk__in=recipients_pks)
 
+    recipients_allowed = []
+    for r in recipients:
+        if Subscription.objects.filter(
+            person=r,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+        ).exists():
+            recipients_allowed.append(r)
+
+    if recipients_allowed is empty:
+        return
+
     send_mosaico_email(
         code="TRANSFER_RECEIVER",
-        subject=f"De nouveaux membres ont été transferés dans {bindings['GROUP_DESTINATION']}",
+        subject=f"De nouveaux membres ont été transférés dans {bindings['GROUP_DESTINATION']}",
         from_email=settings.EMAIL_FROM,
-        recipients=recipients,
+        recipients=recipients_allowed,
         bindings=bindings,
     )
 
@@ -440,6 +477,22 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 @post_save_task
 def send_message_notification_email(message_pk):
     message = SupportGroupMessage.objects.get(pk=message_pk)
+
+    recipients = []
+    for p in message.supportgroup.members.filter(group_notifications=True):
+        if (
+            not p.id == message.author.id
+            and Subscription.objects.filter(
+                person=p,
+                type=Subscription.SUBSCRIPTION_EMAIL,
+                activity_type=Activity.TYPE_NEW_COMMENT,
+            ).exists()
+        ):
+            recipients.append(p)
+
+    if recipients is empty:
+        return
+
     bindings = {
         "MESSAGE_HTML": format_html_join(
             "", "<p>{}</p>", ((p,) for p in message.text.split("\n"))
@@ -460,7 +513,7 @@ def send_message_notification_email(message_pk):
         code="NEW_MESSAGE",
         subject=f"Vous avez un nouveau message de {message.author.display_name}",
         from_email=settings.EMAIL_FROM,
-        recipients=message.supportgroup.members.filter(group_notifications=True),
+        recipients=recipients,
         bindings=bindings,
     )
 
