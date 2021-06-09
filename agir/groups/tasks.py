@@ -121,6 +121,24 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
             meta={"changed_data": [f for f in changed_data if f in NOTIFIED_CHANGES]},
         )
 
+    notifications_enabled = Q(notifications_enabled=True) & Q(
+        person__group_notifications=True
+    )
+
+    recipients = [
+        membership.person
+        for membership in group.memberships.filter(
+            notifications_enabled
+        ).prefetch_related("person__emails")
+        if Subscription.objects.filter(
+            person=membership.person,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_GROUP_INFO_UPDATE,
+        ).exists()
+    ]
+    if recipients is empty:
+        return
+
     change_descriptions = [
         desc for id, desc in CHANGE_DESCRIPTION.items() if id in changed_categories
     ]
@@ -133,17 +151,6 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
         "GROUP_CHANGES": change_fragment,
         "GROUP_LINK": front_url("view_group", kwargs={"pk": support_group_pk}),
     }
-
-    notifications_enabled = Q(notifications_enabled=True) & Q(
-        person__group_notifications=True
-    )
-
-    recipients = [
-        membership.person
-        for membership in group.memberships.filter(
-            notifications_enabled
-        ).prefetch_related("person__emails")
-    ]
 
     send_mosaico_email(
         code="GROUP_CHANGED",
@@ -162,6 +169,18 @@ def send_joined_notification_email(membership_pk):
     )
     person_information = str(membership.person)
 
+    recipients = [
+        membership.person
+        for membership in membership.supportgroup.managers
+        if Subscription.objects.filter(
+            person=membership.person,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_MEMBER,
+        ).exists()
+    ]
+    if recipients is empty:
+        return
+
     bindings = {
         "GROUP_NAME": membership.supportgroup.name,
         "PERSON_INFORMATION": person_information,
@@ -174,7 +193,7 @@ def send_joined_notification_email(membership_pk):
         subject="Un nouveau membre dans votre "
         + ("équipe" if membership.supportgroup.is_2022 else "groupe"),
         from_email=settings.EMAIL_FROM,
-        recipients=membership.supportgroup.managers,
+        recipients=recipients,
         bindings=bindings,
     )
 
