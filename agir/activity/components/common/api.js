@@ -8,7 +8,7 @@ import { ACTIVITY_STATUS } from "@agir/activity/common/helpers";
 const log = logger(__filename);
 
 export const ENDPOINT = {
-  activities: "/api/user/activities/",
+  activities: "/api/user/activities/?page=:page&page_size=:pageSize",
   activity: "/api/activity/:activityId/",
   bulkUpdateActivityStatus: "/api/activity/bulk/update-status/",
   announcements: "/api/announcements/",
@@ -81,10 +81,8 @@ export const setAllActivitiesAsRead = async (ids = []) => {
   const success = await setActivitiesAsDisplayed(ids);
   if (!success) return;
 
-  await mutate(getActivityEndpoint("activities"), (activities) =>
-    activities.map((activity) => ({
-      ...activity,
-      status: ACTIVITY_STATUS.STATUS_DISPLAYED,
-    }))
-  );
+  await mutate("/api/session/", (session) => ({
+    ...session,
+    hasUnreadActivities: false,
+  }));
 };

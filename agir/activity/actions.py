@@ -17,11 +17,6 @@ from ..events.models import Event
 def get_activities(person):
     activities = (
         Activity.objects.displayed()
-        .filter(recipient=person)
-        .filter(
-            ~Q(type=Activity.TYPE_ANNOUNCEMENT)
-            | Q(type=Activity.TYPE_ANNOUNCEMENT, announcement__custom_display__exact="")
-        )
         .select_related("supportgroup", "individual", "announcement")
         .prefetch_related(
             Prefetch(
@@ -30,6 +25,13 @@ def get_activities(person):
                     "subtype"
                 ),
             )
+        )
+        .filter(recipient=person)
+        .exclude(supportgroup__isnull=False, supportgroup__published=False)
+        .exclude(~Q(event__visibility=Event.VISIBILITY_PUBLIC), event__isnull=False)
+        .filter(
+            ~Q(type=Activity.TYPE_ANNOUNCEMENT)
+            | Q(type=Activity.TYPE_ANNOUNCEMENT, announcement__custom_display__exact="")
         )
         .distinct()
         # Always display undisplayed announcement activities first
@@ -47,11 +49,10 @@ def get_activities(person):
         .order_by("sort", "-timestamp")
     )
 
-    return (
-        activity
-        for activity in activities[:40]
-        if person.role.has_perm("activity.view_activity", activity)
-    )
+    for activity in activities:
+        assert person.role.has_perm("activity.view_activity", activity)
+
+    return activities
 
 
 def get_announcements(person=None):

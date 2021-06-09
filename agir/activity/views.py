@@ -22,6 +22,7 @@ from agir.activity.serializers import (
     AnnouncementSerializer,
     CustomAnnouncementSerializer,
 )
+from agir.lib.pagination import APIPaginator
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     IsPersonPermission,
@@ -40,6 +41,7 @@ class ActivityAPIView(RetrieveUpdateAPIView):
 class UserActivitiesAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ActivitySerializer
+    pagination_class = APIPaginator
 
     def get_queryset(self):
         # Force creation of new non_custom announcement activities for the user

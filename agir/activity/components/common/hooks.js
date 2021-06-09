@@ -1,23 +1,72 @@
-import { useCallback } from "react";
-import useSWR from "swr";
+import { useCallback, useMemo } from "react";
+import useSWR, { useSWRInfinite } from "swr";
 
 import {
   setActivityAsInteracted,
   getActivityEndpoint,
 } from "@agir/activity/common/api";
-import { ACTIVITY_STATUS, getUnread } from "@agir/activity/common/helpers";
+import { ACTIVITY_STATUS } from "@agir/activity/common/helpers";
+
+const ACTIVITY_PAGE_SIZE = 10;
+
+export const useActivities = () => {
+  const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(
+    (index) =>
+      getActivityEndpoint("activities", {
+        page: index + 1,
+        pageSize: ACTIVITY_PAGE_SIZE,
+      })
+  );
+
+  const activities = useMemo(() => {
+    const activities = {};
+    const activityIds = [];
+    if (Array.isArray(data)) {
+      data.forEach(({ results }) => {
+        if (Array.isArray(results)) {
+          results.forEach((activity) => {
+            if (!activities[activity.id]) {
+              activities[activity.id] = activity;
+              activityIds.push(activity.id);
+            }
+          });
+        }
+      });
+    }
+    return activityIds.map((id) => activities[id]);
+  }, [data]);
+
+  const isLoadingInitialData = !data && !error;
+
+  const isLoadingMore =
+    isLoadingInitialData ||
+    (size > 0 && data && typeof data[size - 1] === "undefined");
+
+  const activityCount = (data && data[data.length - 1]?.count) || 0;
+  const isEmpty = activityCount === 0;
+  const isReachingEnd =
+    isEmpty ||
+    activities.length === activityCount ||
+    (data && data[data.length - 1]?.results?.length < ACTIVITY_PAGE_SIZE);
+  const isRefreshing = isValidating && data && data.length === size;
+
+  const loadMore = useCallback(() => setSize(size + 1), [setSize, size]);
+
+  return {
+    activities,
+    error,
+    isLoadingInitialData,
+    isLoadingMore,
+    isRefreshing,
+    loadMore: isEmpty || isReachingEnd ? undefined : loadMore,
+    mutate,
+  };
+};
 
 export const useHasUnreadActivity = () => {
-  const { data: activities } = useSWR(getActivityEndpoint("activities"), {
-    revalidateOnMount: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
-  const { data: session } = useSWR(activities ? null : "/api/session/");
+  const { data: session } = useSWR("/api/session/");
 
-  return activities
-    ? getUnread(activities).length > 0
-    : session && session.hasUnreadActivities;
+  return session && session.hasUnreadActivities;
 };
 
 export const useCustomAnnouncement = (slug) => {
