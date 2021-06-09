@@ -19,6 +19,8 @@ const SignupPage = () => {
           <Hide over style={{ textAlign: "center", marginTop: "3rem" }}>
             <img
               src={logoMobile}
+              width="70"
+              height="67"
               alt="logo"
               style={{ width: "69px", marginBottom: "1.5rem" }}
             />

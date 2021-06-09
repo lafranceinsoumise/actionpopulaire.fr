@@ -43,21 +43,39 @@ const ShareCard = (props) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img src={whatsappLogo} style={logoSpacing} alt="Whatsapp" />
+            <img
+              src={whatsappLogo}
+              width="24"
+              height="25"
+              style={logoSpacing}
+              alt="Whatsapp"
+            />
           </a>
           <a
             href={`https://t.me/share/url?url=${encodedLocation}`}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img src={telegramLogo} style={logoSpacing} alt="Telegram" />
+            <img
+              src={telegramLogo}
+              width="24"
+              height="24"
+              style={logoSpacing}
+              alt="Telegram"
+            />
           </a>
           <a
             href={`https://www.facebook.com/sharer/sharer.php?u=${encodedLocation}`}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img src={facebookLogo} style={logoSpacing} alt="Facebook" />
+            <img
+              src={facebookLogo}
+              width="24"
+              height="24"
+              style={logoSpacing}
+              alt="Facebook"
+            />
           </a>
           <a
             href={`https://twitter.com/intent/tweet?text=${encodedLocation}`}
@@ -66,6 +84,8 @@ const ShareCard = (props) => {
           >
             <img
               src={twitterLogo}
+              width="24"
+              height="20"
               style={{ ...logoSpacing, marginRight: 0 }}
               alt="Twitter"
             />

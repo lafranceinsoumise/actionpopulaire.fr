@@ -93,6 +93,8 @@ const EventDescription = ({
                   >
                     <img
                       src={url.thumbnail}
+                      width="400"
+                      height="250"
                       alt={
                         url.legend ||
                         "Photo de l'événement postée par l'utilisateur"

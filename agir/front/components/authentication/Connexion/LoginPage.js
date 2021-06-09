@@ -51,6 +51,8 @@ const LoginPage = () => {
                   <img
                     src={logoMobile}
                     alt="logo"
+                    width="70"
+                    height="67"
                     style={{ width: "69px", marginBottom: "1.5rem" }}
                   />
                 </Hide>

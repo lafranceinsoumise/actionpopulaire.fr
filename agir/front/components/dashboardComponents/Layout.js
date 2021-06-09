@@ -115,6 +115,8 @@ const FacebookLoginAd = () => {
     <FacebookLoginContainer>
       <img
         src={facebookLogo}
+        width="32"
+        height="32"
         style={{ height: "32px", marginBottom: "6px" }}
         alt="Facebook"
       />
@@ -135,6 +137,8 @@ const FacebookLoginAd = () => {
         <img
           style={{ height: "16px", marginRight: "5px" }}
           src={facebookWhiteLogo}
+          width="16"
+          height="16"
         />
         Connecter le compte
       </Button>

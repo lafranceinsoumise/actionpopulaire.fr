@@ -10,6 +10,7 @@ const EventFacebookLinkCard = ({ routes: { facebook } }) => (
       src={facebookLogo}
       alt="Facebook"
       height="24"
+      width="24"
       style={{ marginRight: "16px" }}
     />
     <a href={facebook} style={{ fontWeight: 500 }}>

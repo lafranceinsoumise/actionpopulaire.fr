@@ -236,6 +236,8 @@ const EventCardIllustration = (props) => {
     <Illustration>
       <img
         src={eventCardDefaultBackground}
+        width="359"
+        height="203"
         alt="Image d'illustration par défaut"
       />
     </Illustration>

@@ -64,7 +64,12 @@ const DeviceNotificationSubscription = (props) => {
           Ne ratez pas les actions près de chez vous et recevez les annonces de
           la campagne.
         </p>
-        <img src={notificationIllustration} aria-hidden="true" />
+        <img
+          src={notificationIllustration}
+          width="262"
+          height="162"
+          aria-hidden="true"
+        />
         <Button color="primary" onClick={onSubscribe}>
           Activer
         </Button>

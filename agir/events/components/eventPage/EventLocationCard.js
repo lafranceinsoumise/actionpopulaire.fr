@@ -99,12 +99,22 @@ const EventLocationCard = ({ schedule, location, routes, subtype }) => {
           <CalendarButtonHolder>
             <li>
               <a href={routes.googleExport}>
-                <img src={googleLogo} alt="logo Google" />
+                <img
+                  src={googleLogo}
+                  width="16"
+                  height="16"
+                  alt="logo Google"
+                />
               </a>
             </li>
             <li>
               <a href={routes.calendarExport}>
-                <img src={outlookLogo} alt="logo Outlook" />
+                <img
+                  src={outlookLogo}
+                  width="16"
+                  height="16"
+                  alt="logo Outlook"
+                />
               </a>
             </li>
           </CalendarButtonHolder>
