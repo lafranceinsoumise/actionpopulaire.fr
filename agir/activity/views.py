@@ -46,7 +46,13 @@ class UserActivitiesAPIView(ListAPIView):
     def get_queryset(self):
         # Force creation of new non_custom announcement activities for the user
         get_non_custom_announcements(self.request.user.person)
-        return get_activities(self.request.user.person)
+        activities = get_activities(self.request.user.person)
+
+        # Double-check permissions for embedded event / supportgroup
+        for activity in activities:
+            assert self.request.user.has_perm("activity.view_activity", activity)
+
+        return activities
 
 
 class AnnouncementsAPIView(ListAPIView):

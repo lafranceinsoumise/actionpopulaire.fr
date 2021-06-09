@@ -49,9 +49,6 @@ def get_activities(person):
         .order_by("sort", "-timestamp")
     )
 
-    for activity in activities:
-        assert person.role.has_perm("activity.view_activity", activity)
-
     return activities
 
 

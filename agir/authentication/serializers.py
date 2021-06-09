@@ -6,7 +6,7 @@ from django.middleware.csrf import get_token
 from django.urls import reverse
 from rest_framework import serializers
 
-from agir.activity.actions import get_announcements
+from agir.activity.actions import get_announcements, get_activities
 from agir.activity.models import Activity
 from agir.activity.serializers import AnnouncementSerializer
 from agir.authentication.utils import (
@@ -146,10 +146,8 @@ class SessionSerializer(serializers.Serializer):
     def get_has_unread_activities(self, request):
         if request.user.is_authenticated and request.user.person is not None:
             return (
-                Activity.objects.displayed()
-                .filter(
-                    recipient=request.user.person, status=Activity.STATUS_UNDISPLAYED
-                )
+                get_activities(request.user.person)
+                .filter(status=Activity.STATUS_UNDISPLAYED)
                 .exists()
             )
 
