@@ -192,9 +192,14 @@ def send_rsvp_notification(rsvp_pk):
             notifications_enabled=True
         )
         if organizer_config.person != rsvp.person
+        and Subscription.objects.filter(
+            person=organizer_config.person,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_ATTENDEE,
+        ).exists()
     ]
-
-    # TODO
+    if recipients is empty:
+        return
 
     attendee_bindings = {
         "EVENT_NAME": rsvp.event.name,
