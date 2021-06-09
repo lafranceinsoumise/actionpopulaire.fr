@@ -170,10 +170,10 @@ def send_joined_notification_email(membership_pk):
     person_information = str(membership.person)
 
     recipients = [
-        membership.person
-        for membership in membership.supportgroup.managers
+        managers
+        for managers in membership.supportgroup.managers
         if Subscription.objects.filter(
-            person=membership.person,
+            person=managers,
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=Activity.TYPE_NEW_MEMBER,
         ).exists()

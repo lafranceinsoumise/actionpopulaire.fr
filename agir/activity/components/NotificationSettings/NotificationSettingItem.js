@@ -75,26 +75,26 @@ const NotificationSettingItem = (props) => {
   return (
     <StyledItem>
       <span>{notification.label}</span>
-        <StyledButton
-          $active={push}
-          $hidden={notification.hasPush === false }
-          aria-label={
-            push ? "Désactiver la notification" : "Activer la notification"
-          }
-          onClick={togglePush}
-          disabled={disabled}
-        >
-          <RawFeatherIcon width="1.25rem" height="1.25rem" name="bell" />
-        </StyledButton>
-        <StyledButton
-          $active={email}
-          $hidden={notification.hasEmail === false }
-          aria-label={push ? "Désactiver l'e-mail" : "Activer l'e-mail"}
-          onClick={toggleEmail}
-          disabled={disabled}
-        >
-          <RawFeatherIcon width="1.25rem" height="1.25rem" name="mail" />
-        </StyledButton>
+      <StyledButton
+        $active={push}
+        $hidden={notification.hasPush === false}
+        aria-label={
+          push ? "Désactiver la notification" : "Activer la notification"
+        }
+        onClick={togglePush}
+        disabled={disabled}
+      >
+        <RawFeatherIcon width="1.25rem" height="1.25rem" name="bell" />
+      </StyledButton>
+      <StyledButton
+        $active={email}
+        $hidden={notification.hasEmail === false}
+        aria-label={push ? "Désactiver l'e-mail" : "Activer l'e-mail"}
+        onClick={toggleEmail}
+        disabled={disabled}
+      >
+        <RawFeatherIcon width="1.25rem" height="1.25rem" name="mail" />
+      </StyledButton>
     </StyledItem>
   );
 };

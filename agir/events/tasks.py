@@ -108,18 +108,6 @@ def send_event_changed_notification(event_pk, changed_data):
     if not changed_data:
         return
 
-    changed_categories = {NOTIFIED_CHANGES[f] for f in changed_data}
-    change_descriptions = [
-        desc for id, desc in CHANGE_DESCRIPTION.items() if id in changed_categories
-    ]
-    change_fragment = render_to_string(
-        template_name="lib/list_fragment.html", context={"items": change_descriptions}
-    )
-
-    notifications_enabled = Q(notifications_enabled=True) & Q(
-        person__event_notifications=True
-    )
-
     for r in event.attendees.all():
         activity = Activity.objects.filter(
             type=Activity.TYPE_EVENT_UPDATE,
@@ -141,6 +129,10 @@ def send_event_changed_notification(event_pk, changed_data):
                 meta={"changed_data": changed_data},
             )
 
+    notifications_enabled = Q(notifications_enabled=True) & Q(
+        person__event_notifications=True
+    )
+
     recipients = [
         rsvp.person
         for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
@@ -154,6 +146,14 @@ def send_event_changed_notification(event_pk, changed_data):
     ]
     if recipients is empty:
         return
+
+    changed_categories = {NOTIFIED_CHANGES[f] for f in changed_data}
+    change_descriptions = [
+        desc for id, desc in CHANGE_DESCRIPTION.items() if id in changed_categories
+    ]
+    change_fragment = render_to_string(
+        template_name="lib/list_fragment.html", context={"items": change_descriptions}
+    )
 
     bindings = {
         "EVENT_NAME": event.name,
