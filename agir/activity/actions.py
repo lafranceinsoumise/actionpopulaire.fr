@@ -99,7 +99,8 @@ def get_announcements(person=None):
                 )
                 for announcement in announcements
                 if announcement.activity_id is None
-            ]
+            ],
+            ignore_conflicts=True,
         )
 
         return announcements
