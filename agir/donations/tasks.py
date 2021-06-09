@@ -12,6 +12,8 @@ from agir.lib.sms import send_sms
 from agir.lib.utils import front_url, generate_token_params, shorten_url
 from agir.people.models import Person
 from agir.system_pay.models import SystemPaySubscription
+from ..notifications.models import Subscription
+from ..activity.models import Activity
 
 
 @emailing_task
@@ -79,6 +81,13 @@ def send_expiration_email_reminder(sp_subscription_pk):
     sp_subscription = SystemPaySubscription.objects.select_related(
         "subscription__person", "alias"
     ).get(pk=sp_subscription_pk)
+
+    if not Subscription.objects.filter(
+        person=sp_subscription.subscription.person,
+        type=Subscription.SUBSCRIPTION_EMAIL,
+        activity_type=Activity.TYPE_WAITING_PAYMENT,
+    ).exists():
+        return
 
     send_mosaico_email(
         code="CARD_EXPIRATION",

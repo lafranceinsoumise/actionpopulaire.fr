@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from django.utils.functional import empty
+
 import ics
 import requests
 from celery import shared_task
@@ -20,6 +22,8 @@ from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.people.models import Person
 from .models import Event, RSVP, OrganizerConfig
+from ..notifications.models import Subscription
+from ..activity.models import Activity
 
 # encodes the preferred order when showing the messages
 from agir.activity.models import Activity
@@ -142,7 +146,14 @@ def send_event_changed_notification(event_pk, changed_data):
         for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
             "person__emails"
         )
+        if Subscription.objects.filter(
+            person=rsvp.person,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_EVENT_UPDATE,
+        ).exists()
     ]
+    if recipients is empty:
+        return
 
     bindings = {
         "EVENT_NAME": event.name,
@@ -150,6 +161,7 @@ def send_event_changed_notification(event_pk, changed_data):
         "EVENT_LINK": front_url("view_event", kwargs={"pk": event_pk}),
         "EVENT_QUIT_LINK": front_url("quit_event", kwargs={"pk": event_pk}),
     }
+
     send_mosaico_email(
         code="EVENT_CHANGED",
         subject=_(
@@ -181,6 +193,8 @@ def send_rsvp_notification(rsvp_pk):
         )
         if organizer_config.person != rsvp.person
     ]
+
+    # TODO
 
     attendee_bindings = {
         "EVENT_NAME": rsvp.event.name,
@@ -278,7 +292,14 @@ def send_cancellation_notification(event_pk):
         for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
             "person__emails"
         )
+        if Subscription.objects.filter(
+            person=rsvp.person,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_CANCELLED_EVENT,
+        ).exists()
     ]
+    if recipients is empty:
+        return
 
     bindings = {"EVENT_NAME": event_name}
 
