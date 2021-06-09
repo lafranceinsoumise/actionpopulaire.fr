@@ -20,6 +20,7 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import NotificationSettingLink from "@agir/activity/NotificationSettings/NotificationSettingLink";
 
 import ActivityCard from "./ActivityCard";
+import ActivityMergerAnnouncement from "./ActivityMergerAnnouncement";
 import EmptyActivityList from "./EmptyActivityList";
 
 export const StyledList = styled.ul``;
@@ -89,6 +90,7 @@ const ActivityList = () => {
           <div>
             {activities.length > 0 ? (
               <StyledList type="activities">
+                <ActivityMergerAnnouncement />
                 {transitions((style, activity) => (
                   <animated.li style={style}>
                     <ActivityCard routes={routes} {...activity} />

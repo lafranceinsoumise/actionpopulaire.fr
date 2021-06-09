@@ -110,7 +110,7 @@ export const DownloadApp = () => {
           small
         />
       </div>
-      <AppLogo src={logo} alt="Logo" />
+      <AppLogo src={logo} width="52" height="52" alt="Logo Action Populaire" />
       <Content>
         <Title>ACTION POPULAIRE</Title>
         <Description>

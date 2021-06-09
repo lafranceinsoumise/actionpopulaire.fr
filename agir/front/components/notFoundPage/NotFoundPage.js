@@ -1,15 +1,17 @@
+import PropTypes from "prop-types";
 import React, { useEffect } from "react";
-
 import styled from "styled-components";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import background from "@agir/front/genericComponents/images/illustration-404.svg";
-import illustration from "@agir/front/offline/illustration.svg";
 import { useIsOffline } from "@agir/front/offline/hooks";
 
 import TopBar from "@agir/front/allPages/TopBar";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
+
+import illustration from "./illustration.svg";
 
 const Container = styled.div`
   display: flex;
@@ -95,7 +97,12 @@ export const NotFoundPage = ({
       <Container>
         {isOffline ? (
           <OfflineBlock>
-            <img src={illustration} style={{ marginBottom: "32px" }} />
+            <img
+              src={illustration}
+              width="163"
+              height="175"
+              style={{ marginBottom: "32px" }}
+            />
             <h1 style={{ marginBottom: "8px" }}>Pas de connexion</h1>
             <p>
               Connectez-vous à un
@@ -122,5 +129,10 @@ export const NotFoundPage = ({
       </Container>
     </PageStyle>
   );
+};
+NotFoundPage.propTypes = {
+  isTopBar: PropTypes.bool,
+  title: PropTypes.string,
+  subtitle: PropTypes.string,
 };
 export default NotFoundPage;

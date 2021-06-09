@@ -240,10 +240,14 @@ const CampaignOption = (props) => {
   }, [value, onChange]);
   return (
     <RadioBlock onClick={handleChange} $checked={selected}>
-      <img src={img} alt="Jean-Luc Mélenchon" />
+      <img src={img} width="114" height="114" alt="Jean-Luc Mélenchon" />
       <span>{label}</span>
       <InputRadio>
-        {selected ? <img src={checkCirclePrimary} alt="" /> : <div />}
+        {selected ? (
+          <img src={checkCirclePrimary} width="16" height="16" />
+        ) : (
+          <div />
+        )}
       </InputRadio>
     </RadioBlock>
   );

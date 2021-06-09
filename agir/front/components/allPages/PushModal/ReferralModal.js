@@ -108,7 +108,12 @@ export const ReferralModal = ({
   return (
     <Modal shouldShow={!!href && shouldShow}>
       <StyledModalContent>
-        <img src={modalImage} alt="Opération 300000 signatures !" />
+        <img
+          src={modalImage}
+          width="1200"
+          height="372"
+          alt="Opération 300000 signatures !"
+        />
         <h2>
           Récupérez votre lien d’invitation “Nous&nbsp;Sommes&nbsp;Pour&nbsp;!”
         </h2>

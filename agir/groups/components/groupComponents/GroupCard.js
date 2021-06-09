@@ -122,7 +122,7 @@ const GroupCard = ({
         {displayGroupLogo && (
           <Column collapse={0}>
             <Link to={routeConfig.groupDetails.getLink({ groupPk: id })}>
-              <img src={Svg} alt="Groupe" />
+              <img src={Svg} width="48" height="49" alt="Groupe" />
             </Link>
           </Column>
         )}

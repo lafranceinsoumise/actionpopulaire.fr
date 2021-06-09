@@ -31,7 +31,7 @@ const LoginFacebook = () => {
 
   return (
     <ButtonFacebook href={routes.facebookLogin} as={"a"}>
-      <img src={facebookImg} />
+      <img src={facebookImg} width="24" height="24" />
       &nbsp; Connexion avec Facebook
     </ButtonFacebook>
   );
