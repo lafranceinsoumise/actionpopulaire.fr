@@ -1,3 +1,4 @@
+from agir.notifications.models import Subscription
 from faker import Faker
 from unittest.mock import patch
 
@@ -69,6 +70,16 @@ class EventTasksTestCase(TestCase):
             event=self.event,
             person=self.attendee_no_notification,
             notifications_enabled=False,
+        )
+
+        Subscription.objects.bulk_create(
+            [
+                Subscription(
+                    person=p, type=Subscription.SUBSCRIPTION_EMAIL, activity_type=t,
+                )
+                for p in [self.attendee1, self.attendee2]
+                for t in [Activity.TYPE_EVENT_UPDATE, Activity.TYPE_NEW_ATTENDEE]
+            ]
         )
 
     def test_event_creation_mail(self):

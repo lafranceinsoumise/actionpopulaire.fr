@@ -186,21 +186,6 @@ def send_rsvp_notification(rsvp_pk):
     rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
     person_information = str(rsvp.person)
 
-    recipients = [
-        organizer_config.person
-        for organizer_config in rsvp.event.organizer_configs.filter(
-            notifications_enabled=True
-        )
-        if organizer_config.person != rsvp.person
-        and Subscription.objects.filter(
-            person=organizer_config.person,
-            type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_NEW_ATTENDEE,
-        ).exists()
-    ]
-    if recipients is empty:
-        return
-
     attendee_bindings = {
         "EVENT_NAME": rsvp.event.name,
         "EVENT_SCHEDULE": rsvp.event.get_display_date(),
@@ -229,6 +214,21 @@ def send_rsvp_notification(rsvp_pk):
     if rsvp.event.rsvps.count() > 50:
         return
 
+    recipients = []
+    recipients_allowed_email = []
+
+    for organizer_config in rsvp.event.organizer_configs.filter(
+        notifications_enabled=True
+    ):
+        if organizer_config.person != rsvp.person:
+            recipients.append(organizer_config.person)
+            if Subscription.objects.filter(
+                person=organizer_config.person,
+                type=Subscription.SUBSCRIPTION_EMAIL,
+                activity_type=Activity.TYPE_NEW_ATTENDEE,
+            ).exists():
+                recipients_allowed_email.append(organizer_config.person)
+
     organizer_bindings = {
         "EVENT_NAME": rsvp.event.name,
         "PERSON_INFORMATION": person_information,
@@ -239,7 +239,7 @@ def send_rsvp_notification(rsvp_pk):
         code="EVENT_RSVP_NOTIFICATION",
         subject=_("Un nouveau participant à l'un de vos événements"),
         from_email=settings.EMAIL_FROM,
-        recipients=recipients,
+        recipients=recipients_allowed_email,
         bindings=organizer_bindings,
     )
 
@@ -292,19 +292,19 @@ def send_cancellation_notification(event_pk):
         person__event_notifications=True
     )
 
-    recipients = [
-        rsvp.person
-        for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
-            "person__emails"
-        )
+    recipients = []
+    recipients_allowed_email = []
+
+    for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
+        "person__emails"
+    ):
+        recipients.append(rsvp.person)
         if Subscription.objects.filter(
             person=rsvp.person,
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=Activity.TYPE_CANCELLED_EVENT,
-        ).exists()
-    ]
-    if recipients is empty:
-        return
+        ).exists():
+            recipients_allowed_email.append(rsvp.person)
 
     bindings = {"EVENT_NAME": event_name}
 
@@ -312,7 +312,7 @@ def send_cancellation_notification(event_pk):
         code="EVENT_CANCELLATION",
         subject=_("Un événement auquel vous participiez a été annulé"),
         from_email=settings.EMAIL_FROM,
-        recipients=recipients,
+        recipients=recipients_allowed_email,
         bindings=bindings,
     )
 
