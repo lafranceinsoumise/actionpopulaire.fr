@@ -2,6 +2,7 @@ import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
 import throttle from "lodash/throttle";
 import debounce from "lodash/debounce";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useIntersection } from "react-use";
 import ResizeObserver from "resize-observer-polyfill";
 
 import logger from "@agir/lib/utils/logger";
@@ -171,4 +172,26 @@ export const useLocalStorage = (key, initialValue) => {
   };
 
   return [storedValue, update, remove];
+};
+
+/**
+ * Custom hook to implement an infinite scroll via an IntersectionObserver
+ * @param  {function}  loadMore      a function to load more items or a falsy value to stop the infinite scroll
+ * @param  {Boolean} isLoadingMore a boolean indicating if more items are being loaded
+ * @return {function}                a React ref to use on the last item node of a list - once the node is on screen the loadMore function will
+ *                                   be called unless isLoadingMore is true
+ */
+export const useInfiniteScroll = (loadMore, isLoadingMore) => {
+  const intersectionRef = useRef(null);
+  const intersection = useIntersection(intersectionRef, {
+    root: null,
+    rootMargin: "0px",
+    threshold: 1,
+  });
+
+  useEffect(() => {
+    !isLoadingMore && loadMore && intersection?.isIntersecting && loadMore();
+  }, [intersection, isLoadingMore, loadMore]);
+
+  return intersectionRef;
 };

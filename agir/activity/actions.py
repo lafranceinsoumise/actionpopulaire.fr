@@ -18,6 +18,8 @@ def get_activities(person):
     activities = (
         Activity.objects.displayed()
         .filter(recipient=person)
+        .exclude(supportgroup__published=False)
+        .exclude(event__visibility=Event.VISIBILITY_PUBLIC)
         .filter(
             ~Q(type=Activity.TYPE_ANNOUNCEMENT)
             | Q(type=Activity.TYPE_ANNOUNCEMENT, announcement__custom_display__exact="")
@@ -47,11 +49,10 @@ def get_activities(person):
         .order_by("sort", "-timestamp")
     )
 
-    return (
-        activity
-        for activity in activities[:40]
-        if person.role.has_perm("activity.view_activity", activity)
-    )
+    for activity in activities:
+        assert person.role.has_perm("activity.view_activity", activity)
+
+    return activities
 
 
 def get_announcements(person=None):
@@ -112,5 +113,35 @@ def get_non_custom_announcements(person=None):
     return get_announcements(person).filter(custom_display__exact="")
 
 
-def get_custom_announcements(person=None):
-    return get_announcements(person).exclude(custom_display__exact="")
+def get_custom_announcements(person, custom_display):
+    # Avoid calling get_announcement if an activity already exists for
+    # the person and the announcement
+    if person and custom_display:
+        today = timezone.now()
+        activity = (
+            Activity.objects.filter(
+                type=Activity.TYPE_ANNOUNCEMENT,
+                recipient=person,
+                announcement__custom_display__exact=custom_display,
+            )
+            .filter(
+                Q(announcement__start_date__lt=today)
+                & (
+                    Q(announcement__end_date__isnull=True)
+                    | Q(announcement__end_date__gt=today)
+                )
+            )
+            .only("id", "announcement_id")
+            .first()
+        )
+        if activity:
+            return Announcement.objects.filter(pk=activity.announcement_id,).annotate(
+                activity_id=Value(activity.id, IntegerField())
+            )
+
+    return (
+        get_announcements(person)
+        .exclude(custom_display__exact="")
+        .order_by("custom_display", "-priority", "-start_date", "end_date")
+        .distinct("custom_display")
+    )
