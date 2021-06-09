@@ -232,9 +232,6 @@ export const MessagesRoutePreview = (props) => {
   const { user, messages, goToMessagesTab, onClickMessage, isLoadingMessages } =
     props;
 
-  const [discussionAnnouncement, onCloseDiscussionAnnouncement] =
-    useCustomAnnouncement("DiscussionAnnouncement");
-
   if (
     (!isLoadingMessages && !Array.isArray(messages)) ||
     messages.length === 0
@@ -258,11 +255,7 @@ export const MessagesRoutePreview = (props) => {
             </button>
           )}
         </h3>
-        <DiscussionAnnouncement
-          isActive={!!discussionAnnouncement}
-          onClose={onCloseDiscussionAnnouncement}
-          link={discussionAnnouncement && discussionAnnouncement.link}
-        />
+        <DiscussionAnnouncement />
         <article>
           {Array.isArray(messages)
             ? messages.map((message) => (
