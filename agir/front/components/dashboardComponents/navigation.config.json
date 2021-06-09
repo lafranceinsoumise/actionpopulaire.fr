@@ -18,6 +18,15 @@
       "secondaryLinks": "groups__personGroups"
     },
     {
+      "id": "messages",
+      "icon": "mail",
+      "title": "Messages",
+      "to": "messages",
+      "unreadMessageCounter": true,
+      "desktop": true,
+      "mobile": true
+    },
+    {
       "id": "activities",
       "icon": "bell",
       "title": "Notifications",

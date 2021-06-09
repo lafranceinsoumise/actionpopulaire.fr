@@ -2,13 +2,10 @@ import uuid
 
 from django.contrib import messages
 from django.db.models import F
-from django.middleware.csrf import get_token
 from django.urls import reverse
 from rest_framework import serializers
 
-from agir.activity.actions import get_announcements
 from agir.activity.models import Activity
-from agir.activity.serializers import AnnouncementSerializer
 from agir.authentication.utils import (
     is_hard_logged,
     is_soft_logged,
@@ -16,6 +13,7 @@ from agir.authentication.utils import (
 )
 from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url
+from agir.msgs.actions import get_unread_message_count
 
 
 class UserContextSerializer(serializers.Serializer):

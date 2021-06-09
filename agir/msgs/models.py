@@ -77,3 +77,43 @@ class SupportGroupMessageComment(AbstractMessage):
     class Meta:
         verbose_name = "Commentaire de messages de groupe"
         verbose_name_plural = "Commentaires de messages de groupe"
+
+
+class SupportGroupMessageRecipient(TimeStampedModel):
+    recipient = models.ForeignKey(
+        "people.Person",
+        on_delete=models.CASCADE,
+        verbose_name="Destinataire",
+        related_name="read_messages",
+        null=False,
+    )
+    message = models.ForeignKey(
+        "SupportGroupMessage",
+        on_delete=models.CASCADE,
+        verbose_name="Message",
+        related_name="readers",
+        null=False,
+    )
+
+    def __str__(self):
+        return _("{recipient} --> {message}").format(
+            recipient=self.recipient, message=self.message,
+        )
+
+    @property
+    def unread_comments(self):
+        if self.message.deleted:
+            return self.message.comments.none()
+        return self.message.comments.exclude(author_id=self.recipient.id).filter(
+            created__gt=self.modified
+        )
+
+    class Meta:
+        verbose_name = "Message lu par l'utilisateur·ice"
+        verbose_name_plural = "Messages lus par les utilisateur·ices"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["recipient", "message"],
+                name="unique_for_message_and_recipient",
+            ),
+        ]

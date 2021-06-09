@@ -13,14 +13,16 @@ import {
 } from "@agir/front/globalContext/reducers";
 import { useHasUnreadActivity } from "@agir/activity/common/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-
+import { routeConfig } from "@agir/front/app/routes.config";
+import { useUnreadMessageCount } from "@agir/msgs/hooks";
 import { useIsDesktop, Hide } from "@agir/front/genericComponents/grid.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
-import DownloadApp from "@agir/front/genericComponents/DownloadApp.js";
+import DownloadApp from "@agir/front/genericComponents/DownloadApp";
 import Button from "@agir/front/genericComponents/Button";
+
 import Logo from "./Logo";
 import RightLink, { AnonymousLinks } from "./RightLink";
 import SearchBar from "./SearchBar";
@@ -39,22 +41,17 @@ const NavbarContainer = styled.div`
   background-color: #fff;
 
   ${NavBar} {
-  height: 72px;
-  align-items: center;
-  display: flex;
-  box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
-    0px 3px 2px rgba(0, 35, 44, 0.05);
+    height: 72px;
+    align-items: center;
+    display: flex;
+    background-color: #fff;
+    box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
+      0px 3px 2px rgba(0, 35, 44, 0.05);
 
-  @media (max-width: ${style.collapse}px) {
-    padding: 1rem 1.5rem;
-  }
-
-  background-color: #fff;
-  box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
-    0px 3px 2px rgba(0, 35, 44, 0.05);
-  @media (max-width: ${style.collapse}px) {
-    padding: 1rem 1.5rem;
-    height: 100%;
+    @media (max-width: ${style.collapse}px) {
+      padding: 1rem 1.5rem;
+      height: 100%;
+    }
   }
 `;
 
@@ -73,6 +70,10 @@ const HorizontalFlex = styled.div`
   align-items: center;
   flex-grow: 1;
 
+  @media only screen and (max-width: ${style.collapse}px) {
+    justify-content: ${({ center }) => (center ? "center" : "flex-start")};
+  }
+
   & > * {
     margin-left: 1.25em;
   }
@@ -80,14 +81,6 @@ const HorizontalFlex = styled.div`
   form {
     flex-grow: inherit;
   }
-
-  ${({ center }) =>
-    center &&
-    `
-    @media only screen and (max-width: ${style.collapse - 1}px) {
-      justify-content: center;
-    }
-  `}
 `;
 
 const StyledButton = styled(Button)`
@@ -109,6 +102,7 @@ export const TopBar = (props) => {
   const isConnected = useSelector(getIsConnected);
 
   const hasUnreadActivity = useHasUnreadActivity();
+  const unreadMessageCount = useUnreadMessageCount();
 
   return (
     <NavbarContainer>
@@ -145,7 +139,7 @@ export const TopBar = (props) => {
             </Hide>
             <Hide under>
               <div style={{ display: "flex", alignItems: "center" }}>
-                <MenuLink as={"a"} href="/">
+                <MenuLink as={"a"} href={routeConfig.events.getLink()}>
                   <Logo />
                 </MenuLink>
                 {isConnected && (
@@ -181,33 +175,33 @@ export const TopBar = (props) => {
                 <>
                   <Hide under>
                     <div style={{ display: "flex" }}>
-                      <MenuLink route="events" href="/">
-                        <TopbarLink $active={"/" === path}>
+                      <MenuLink route="events">
+                        <TopbarLink $active={routeConfig.events.match(path)}>
                           <FeatherIcon name="home" />
                           <span>Accueil</span>
                           <div />
                         </TopbarLink>
                       </MenuLink>
-                      <MenuLink route="activities" href="/activite/">
+                      <MenuLink route="activities">
                         <TopbarLink
-                          isBadge={hasUnreadActivity}
-                          $active={"/activite/" === path}
+                          $active={routeConfig.activities.match(path)}
                         >
                           <FeatherIcon name="bell" />
                           <span>Notifications</span>
                           <div />
-                          <div class="notif" />
+                          {hasUnreadActivity && <small />}
                         </TopbarLink>
                       </MenuLink>
-                      {false && (
-                        <MenuLink href="#">
-                          <TopbarLink>
-                            <FeatherIcon name="mail" />
-                            <span>Messages</span>
-                            <div />
-                          </TopbarLink>
-                        </MenuLink>
-                      )}
+                      <MenuLink route="messages">
+                        <TopbarLink $active={routeConfig.messages.match(path)}>
+                          <FeatherIcon name="mail" />
+                          <span>Messages</span>
+                          <div />
+                          {unreadMessageCount > 0 && (
+                            <small>{Math.min(unreadMessageCount, 99)}</small>
+                          )}
+                        </TopbarLink>
+                      </MenuLink>
                       <MenuLink href={routes.help}>
                         <TopbarLink>
                           <FeatherIcon name="help-circle" />
@@ -238,4 +232,5 @@ export default TopBar;
 
 TopBar.propTypes = {
   path: PropTypes.string,
+  hideBannerDownload: PropTypes.bool,
 };

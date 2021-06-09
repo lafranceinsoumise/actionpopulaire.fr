@@ -233,12 +233,33 @@ const StyledCommentCount = styled.p`
     height: 1rem;
   }
 `;
+const StyledNewComment = styled.div``;
 const StyledComments = styled.div`
-  && > * {
-    margin-top: 1rem;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+
+  @media (min-width: ${style.collapse}px) {
+    border-top: 1px solid ${style.black100};
+    transform: translateY(0.5rem);
+    padding-top: 1.5rem;
+
+    &:empty {
+      border-top: none;
+      transform: none;
+    }
+  }
+
+  ${StyledNewComment} {
+    margin-top: auto;
+    padding: 1rem 0 0;
+
+    &:empty {
+      display: none;
+    }
 
     &:first-child {
-      margin-top: 0;
+      padding-top: 0;
     }
   }
 `;
@@ -247,9 +268,6 @@ const StyledWrapper = styled.div`
   width: 100%;
   padding: 1.5rem;
   margin: 0;
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: flex-start;
   background-color: white;
   scroll-margin-top: 160px;
   border: 1px solid ${style.black100};
@@ -272,6 +290,10 @@ const StyledWrapper = styled.div`
 
   ${StyledMessage} {
     flex: 1 1 auto;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    min-height: 100%;
 
     & > * {
       margin-top: 1rem;
@@ -295,6 +317,8 @@ const StyledWrapper = styled.div`
     }
 
     ${StyledComments} {
+      flex: 1 1 auto;
+
       &::before {
         @media (max-width: 580px) {
           display: ${({ $withMobileCommentField }) =>
@@ -344,7 +368,7 @@ const MessageCard = (props) => {
   const canEdit = typeof onEdit === "function";
   const canDelete = typeof onDelete === "function";
   const canReport = typeof onReport === "function" && !isAuthor;
-  const hasActions = canDelete || canReport;
+  const hasActions = canEdit || canDelete || canReport;
 
   const messageURL = useMemo(() => {
     if (props.messageURL) {
@@ -502,24 +526,26 @@ const MessageCard = (props) => {
                 ))
               : null}
           </PageFadeIn>
-          {onComment ? (
-            withMobileCommentField ? (
-              <CommentField
-                isLoading={isLoading}
-                user={user}
-                onSend={handleComment}
-              />
-            ) : (
-              <ResponsiveLayout
-                MobileLayout={CommentButton}
-                DesktopLayout={CommentField}
-                isLoading={isLoading}
-                user={user}
-                onSend={handleComment}
-                onClick={onClick && handleClick}
-              />
-            )
-          ) : null}
+          <StyledNewComment>
+            {onComment ? (
+              withMobileCommentField ? (
+                <CommentField
+                  isLoading={isLoading}
+                  user={user}
+                  onSend={handleComment}
+                />
+              ) : (
+                <ResponsiveLayout
+                  MobileLayout={CommentButton}
+                  DesktopLayout={CommentField}
+                  isLoading={isLoading}
+                  user={user}
+                  onSend={handleComment}
+                  onClick={onClick && handleClick}
+                />
+              )
+            ) : null}
+          </StyledNewComment>
         </StyledComments>
         {withBottomButton && (
           <div style={{ textAlign: "center" }}>
