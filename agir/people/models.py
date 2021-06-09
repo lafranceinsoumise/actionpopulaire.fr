@@ -1,6 +1,8 @@
 import secrets
 import warnings
 from datetime import datetime
+
+from django.utils.safestring import mark_safe
 from dynamic_filenames import FilePattern
 from functools import reduce
 from operator import or_
@@ -614,7 +616,7 @@ class Person(
 
         return {
             **data,
-            "login_query": urlencode(generate_token_params(self)),
+            "login_query": mark_safe(urlencode(generate_token_params(self))),
             "greeting": self.formule_adresse,
             "full_name": self.get_full_name(),
             "short_name": self.get_short_name(),
