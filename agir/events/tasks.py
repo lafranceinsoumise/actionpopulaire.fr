@@ -235,13 +235,14 @@ def send_rsvp_notification(rsvp_pk):
         "MANAGE_EVENT_LINK": front_url("manage_event", kwargs={"pk": rsvp.event.pk}),
     }
 
-    send_mosaico_email(
-        code="EVENT_RSVP_NOTIFICATION",
-        subject=_("Un nouveau participant à l'un de vos événements"),
-        from_email=settings.EMAIL_FROM,
-        recipients=recipients_allowed_email,
-        bindings=organizer_bindings,
-    )
+    if recipients_allowed_email is not empty:
+        send_mosaico_email(
+            code="EVENT_RSVP_NOTIFICATION",
+            subject=_("Un nouveau participant à l'un de vos événements"),
+            from_email=settings.EMAIL_FROM,
+            recipients=recipients_allowed_email,
+            bindings=organizer_bindings,
+        )
 
     for r in recipients:
         # can merge activity with previous one if not displayed yet
@@ -308,13 +309,14 @@ def send_cancellation_notification(event_pk):
 
     bindings = {"EVENT_NAME": event_name}
 
-    send_mosaico_email(
-        code="EVENT_CANCELLATION",
-        subject=_("Un événement auquel vous participiez a été annulé"),
-        from_email=settings.EMAIL_FROM,
-        recipients=recipients_allowed_email,
-        bindings=bindings,
-    )
+    if recipients_allowed_email is not empty:
+        send_mosaico_email(
+            code="EVENT_CANCELLATION",
+            subject=_("Un événement auquel vous participiez a été annulé"),
+            from_email=settings.EMAIL_FROM,
+            recipients=recipients_allowed_email,
+            bindings=bindings,
+        )
 
     Activity.objects.bulk_create(
         [
