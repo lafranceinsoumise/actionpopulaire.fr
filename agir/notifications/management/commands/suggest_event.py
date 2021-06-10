@@ -41,7 +41,6 @@ class Command(BaseCommand):
                 )
                 .filter(distance__lte=limit)
                 .filter(start_time__lt=timezone.now() + timezone.timedelta(days=7))
-                .exclude(organizer_configs__as_group__members=person)
                 .exclude(attendees=person)
                 .distinct()
                 .order_by("distance")
