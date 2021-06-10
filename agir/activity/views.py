@@ -43,16 +43,27 @@ class UserActivitiesAPIView(ListAPIView):
     serializer_class = ActivitySerializer
     pagination_class = APIPaginator
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            self.check_activity_permissions(page)
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        self.check_activity_permissions(queryset)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def check_activity_permissions(self, queryset):
+        # Double-check permissions for embedded event / supportgroup
+        # and raise an error if needed
+        for activity in queryset:
+            assert self.request.user.has_perm("activity.view_activity", activity)
+
     def get_queryset(self):
         # Force creation of new non_custom announcement activities for the user
         get_non_custom_announcements(self.request.user.person)
-        activities = get_activities(self.request.user.person)
-
-        # Double-check permissions for embedded event / supportgroup
-        for activity in activities:
-            assert self.request.user.has_perm("activity.view_activity", activity)
-
-        return activities
+        return get_activities(self.request.user.person)
 
 
 class AnnouncementsAPIView(ListAPIView):
