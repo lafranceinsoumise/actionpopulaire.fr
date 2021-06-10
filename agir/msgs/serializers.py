@@ -78,6 +78,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     )
     DETAIL_FIELDS = (
         "id",
+        "lastUpdate",
         "created",
         "author",
         "text",
@@ -86,6 +87,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "comments",
     )
 
+    lastUpdate = serializers.DateTimeField(read_only=True, source="last_update")
     group = serializers.SerializerMethodField(read_only=True)
     linkedEvent = LinkedEventField(
         source="linked_event", required=False, allow_null=True,
@@ -139,6 +141,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "recentComments",
             "comments",
             "commentCount",
+            "lastUpdate",
         )
 
 
