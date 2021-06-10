@@ -289,34 +289,19 @@ def send_cancellation_notification(event_pk):
 
     event_name = event.name
 
-    notifications_enabled = Q(notifications_enabled=True) & Q(
-        person__event_notifications=True
-    )
-
-    recipients = []
-    recipients_allowed_email = []
-
-    for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
-        "person__emails"
-    ):
-        recipients.append(rsvp.person)
-        if Subscription.objects.filter(
-            person=rsvp.person,
-            type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_CANCELLED_EVENT,
-        ).exists():
-            recipients_allowed_email.append(rsvp.person)
+    recipients = [
+        rsvp.person for rsvp in event.rsvps.prefetch_related("person__emails")
+    ]
 
     bindings = {"EVENT_NAME": event_name}
 
-    if recipients_allowed_email is not empty:
-        send_mosaico_email(
-            code="EVENT_CANCELLATION",
-            subject=_("Un événement auquel vous participiez a été annulé"),
-            from_email=settings.EMAIL_FROM,
-            recipients=recipients_allowed_email,
-            bindings=bindings,
-        )
+    send_mosaico_email(
+        code="EVENT_CANCELLATION",
+        subject=_("Un événement auquel vous participiez a été annulé"),
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings,
+    )
 
     Activity.objects.bulk_create(
         [

@@ -72,7 +72,7 @@ const PERSON_NOTIFICATIONS = [
     label: "Mise à jour d'événement",
     hasEmail: true,
     hasPush: true,
-    activityTypes: ["event-update", "cancelled-event"],
+    activityTypes: ["event-update"],
   },
   {
     id: "event_reminders",
