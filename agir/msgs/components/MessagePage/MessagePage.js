@@ -26,10 +26,10 @@ const StyledPage = styled.div`
   margin: 0 auto;
   width: 100%;
   max-width: 1320px;
-  height: calc(100vh - 84px);
   padding: 2.625rem 1.5rem;
 
   @media (max-width: ${style.collapse}px) {
+    height: calc(100vh - 84px);
     padding: 0;
     height: auto;
     max-width: 100%;

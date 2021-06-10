@@ -22,6 +22,7 @@ const StyledNewMessageButton = styled.div`
     left: 0;
     right: 0;
     box-shadow: ${style.cardShadow};
+    z-index: 1;
   }
 `;
 
@@ -37,6 +38,7 @@ const StyledMenu = styled.menu`
     max-width: 100%;
     border-right: none;
     padding-bottom: 200px;
+    isolation: isolate;
   }
 
   header {
