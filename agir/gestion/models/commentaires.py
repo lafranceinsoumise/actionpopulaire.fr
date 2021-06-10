@@ -1,3 +1,4 @@
+import reversion
 from django.db import models
 
 from agir.lib.models import TimeStampedModel
@@ -7,10 +8,11 @@ from agir.people.models import Person
 __all__ = ("Commentaire",)
 
 
+@reversion.register(follow=["projet_set", "depense_set"])
 class Commentaire(TimeStampedModel):
     class Type(models.TextChoices):
         REM = "R", "Remarque"
-        TODO = "T", "À faire"
+        TODO = "T", "Todo"
 
     auteur = models.ForeignKey(
         to="people.Person",

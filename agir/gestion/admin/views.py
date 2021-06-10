@@ -1,4 +1,7 @@
+import reversion
 from django.contrib import messages
+from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.admin.options import get_content_type_for_model
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -7,6 +10,7 @@ from django.views.generic import CreateView, TemplateView, FormView
 
 from agir.gestion.admin.forms import ReglementForm, CommentaireForm
 from agir.gestion.models import Depense, Commentaire, Reglement
+from agir.gestion.utils import montrer_montant
 from agir.lib.admin import AdminViewMixin
 
 
@@ -18,6 +22,22 @@ class AjouterReglementView(AdminViewMixin, CreateView):
     def dispatch(self, request, *args, **kwargs):
         self.depense = get_object_or_404(Depense, pk=kwargs.get("object_id"))
         return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        with reversion.create_revision():
+            montant = montrer_montant(form.cleaned_data["montant"])
+            message = f"Ajout d'un réglement d'une valeur de {montant}"
+            reversion.set_user(self.request.user)
+            reversion.set_comment(message)
+            LogEntry.objects.log_action(
+                user_id=self.request.user.pk,
+                content_type_id=get_content_type_for_model(self.depense).pk,
+                object_id=self.depense.pk,
+                object_repr=str(self.depense),
+                action_flag=CHANGE,
+                change_message=message,
+            )
+            return super().form_valid(form)
 
     def get_form_kwargs(self):
         return {
@@ -76,8 +96,24 @@ class CacherCommentaireView(AdminViewMixin, TemplateView):
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.commentaire.cache = True
-        self.commentaire.save()
+        with reversion.create_revision():
+            e = "e" if self.commentaire.type == Commentaire.Type.REM else ""
+            message = (
+                f"{self.commentaire.get_type_display()} indiqué{e} comme traité{e}"
+            )
+
+            reversion.set_user(request.user)
+            reversion.set_comment(message)
+            self.commentaire.cache = True
+            self.commentaire.save()
+            LogEntry.objects.log_action(
+                user_id=request.user.id,
+                content_type_id=get_content_type_for_model(self.object).pk,
+                object_id=self.object.pk,
+                object_repr=str(self.object),
+                action_flag=CHANGE,
+                change_message=message,
+            )
 
         opts = self.model_admin.model._meta
         return HttpResponseRedirect(
@@ -127,7 +163,21 @@ class AjouterCommentaireView(FormView, FormHandlerView):
         form = CommentaireForm(data=request.POST, user=request.user)
 
         if form.is_valid():
-            form.save(self.object)
+            with reversion.create_revision():
+                type = Commentaire.Type(form.cleaned_data["type"])
+                e = "e" if type == Commentaire.Type.REM else ""
+                message = f"Ajout d'un{e} {type.label}"
+                reversion.set_user(request.user)
+                reversion.set_comment(message)
+                form.save(self.object)
+                LogEntry.objects.log_action(
+                    user_id=request.user.id,
+                    content_type_id=get_content_type_for_model(self.object).pk,
+                    object_id=self.object.pk,
+                    object_repr=str(self.object),
+                    action_flag=CHANGE,
+                    change_message=message,
+                )
             return super().retour_page_modification()
 
         return self.lien_incorrect()
@@ -137,15 +187,17 @@ class TransitionView(FormHandlerView):
     def post(self, request, *args, **kwargs):
         role = request.user
 
-        etat_suivant = request.POST.get("etat")
-
-        if not etat_suivant:
+        try:
+            etat_suivant = self.object.Etat(request.POST.get("etat"))
+        except ValueError:
             return self.lien_incorrect()
+
+        etat_actuel = self.object.Etat(self.object.etat)
 
         try:
             transition = next(
                 t
-                for t in self.model.TRANSITIONS.get(self.object.etat)
+                for t in self.model.TRANSITIONS.get(etat_actuel)
                 if t.vers == etat_suivant
             )
         except StopIteration:
@@ -154,8 +206,22 @@ class TransitionView(FormHandlerView):
         if refus := transition.refus(self.object, role):
             return self.lien_incorrect(message=refus)
 
-        self.object.etat = transition.vers
-        if transition.effect is not None:
-            transition.effect(self.object)
-        self.object.save(update_fields=["etat"])
+        with reversion.create_revision():
+            comment = f"{transition.nom} ({etat_actuel.label} => {etat_suivant.label})"
+            reversion.set_user(request.user)
+            reversion.set_comment(comment)
+            self.object.etat = transition.vers
+            if transition.effect is not None:
+                transition.effect(self.object)
+            self.object.save(update_fields=["etat"])
+
+            LogEntry.objects.log_action(
+                user_id=request.user.id,
+                content_type_id=get_content_type_for_model(self.object).pk,
+                object_id=self.object.pk,
+                object_repr=str(self.object),
+                action_flag=CHANGE,
+                change_message=comment,
+            )
+
         return self.retour_page_modification()

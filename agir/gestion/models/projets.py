@@ -18,7 +18,7 @@ __all__ = (
 )
 
 
-@reversion.register(follow=["documents", "depenses"])
+@reversion.register(follow=["participations"])
 class Projet(NumeroUniqueMixin, TimeStampedModel):
 
     """Le projet regroupe ensemble des dépenses liées entre elles
@@ -122,6 +122,7 @@ class Projet(NumeroUniqueMixin, TimeStampedModel):
         verbose_name_plural = "Projets"
 
 
+@reversion.register()
 class Participation(TimeStampedModel):
     """Ce modèle associe des personnes à des projets, et indique leur rôle sur le projet
     """

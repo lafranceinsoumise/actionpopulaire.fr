@@ -51,7 +51,7 @@ class DepenseQuerySet(models.QuerySet):
         )
 
 
-@reversion.register(follow=["documents"])
+@reversion.register()
 class Depense(NumeroUniqueMixin, TimeStampedModel):
     """Une dépense correspond à un paiement réalisé en lien avec une facture
     """
@@ -259,6 +259,7 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         verbose_name_plural = "Dépenses"
 
 
+@reversion.register(follow="depense")
 class Reglement(TimeStampedModel):
     class Statut(models.TextChoices):
         ATTENTE = "C", "En cours"
@@ -429,12 +430,17 @@ def etat_initial(depense: Depense, createur: Role):
     ):
         return Depense.Etat.CONSTITUTION
 
-    # il peut y a voir un plafond configuré pour ce type de dépense au-dessous duquel la dépense est engagée
-    # automatiquement à sa création.
-    if verifier_plafond_engagement(depense):
-        return Depense.Etat.CONSTITUTION
+    if createur.has_perm("gestion.gerer_depense") or createur.has_perm(
+        "gestion.gerer_depense", obj=compte
+    ):
+        # il peut y a voir un plafond configuré pour ce type de dépense au-dessous duquel la dépense est engagée
+        # automatiquement à sa création.
+        if verifier_plafond_engagement(depense):
+            return Depense.Etat.CONSTITUTION
 
-    return Depense.Etat.ATTENTE_ENGAGEMENT
+        return Depense.Etat.ATTENTE_ENGAGEMENT
+
+    return Depense.Etat.ATTENTE_VALIDATION
 
 
 def todos(depense: Depense):

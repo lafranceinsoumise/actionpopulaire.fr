@@ -1,3 +1,5 @@
+from agir.gestion.models.depenses import etat_initial
+
 from agir.gestion.typologies import TypeDepense
 from django.contrib import admin
 from django.core.exceptions import ValidationError
@@ -238,6 +240,14 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
         )
 
     reglements.short_description = "règlements effectués"
+
+    def save_model(self, request, obj, form, change):
+        """
+        Given a model instance save it to the database.
+        """
+        if not change:
+            obj.etat = etat_initial(obj, request.user)
+        super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
         return super().get_queryset(request).annoter_reglement()
