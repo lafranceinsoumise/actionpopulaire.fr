@@ -28,13 +28,15 @@ class Command(BaseCommand):
             role__is_active=True
         )
 
-        for person in tqdm(person_queryset, total=person_queryset.count()):
+        pbar = tqdm(total=person_queryset.count())
+        for person in person_queryset:
             base_queryset = (
                 Event.objects.with_serializer_prefetch(person)
                 .listed()
                 .upcoming()
                 .exclude(coordinates=None)
             )
+
             if not person.is_insoumise:
                 base_queryset = base_queryset.is_2022()
 
@@ -52,3 +54,6 @@ class Command(BaseCommand):
 
             if near_event is not None:
                 new_event_suggestion_notification(near_event, person)
+
+            pbar.update()
+        pbar.close()
