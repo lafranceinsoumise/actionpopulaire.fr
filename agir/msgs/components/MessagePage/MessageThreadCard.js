@@ -4,7 +4,12 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { routeConfig } from "@agir/front/app/routes.config";
+import { displayShortDate } from "@agir/lib/utils/time";
+import { timeAgo } from "@agir/lib/utils/time";
+
 import Avatar from "@agir/front/genericComponents/Avatar";
+import Avatars from "@agir/front/genericComponents/Avatars";
 
 const StyledUnreadItemBadge = styled.span`
   display: flex;
@@ -47,48 +52,85 @@ const StyledCard = styled.button`
     flex: 0 0 auto;
   }
 
-  ${Avatar} {
-    width: 2.5rem;
-    height: 2.5rem;
+  & > ${Avatar} {
+    width: 50px;
+    height: 50px;
+    margin-right: 8px;
   }
 
   & > article {
     flex: 1 1 auto;
-    margin: 0 12px;
+    margin: 0 18px 0 12px;
     min-width: 0;
+    color: ${style.black700};
 
+    a,
     h5,
     p {
+      margin: 0;
+      padding: 0;
+      display: block;
       font-weight: 400;
       font-size: 0.875rem;
-      color: ${style.black700};
+    }
+
+    a,
+    h5,
+    p span {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin: 0;
     }
 
-    h5 strong {
-      font-weight: inherit;
+    h5 {
       font-size: 1rem;
       color: ${style.black1000};
+    }
+
+    p {
+      display: flex;
+      justify-content: flex-start;
+
+      & > * {
+        flex: 0 0 auto;
+        margin: 0;
+
+        :first-child {
+          flex: 0 1 auto;
+        }
+      }
     }
   }
 `;
 
 const MessageThreadCard = (props) => {
+  const { message, isLoading, isSelected, onClick } = props;
+
   const {
-    message: { id, author, group, text, isUnread, unreadCommentCount },
-    isLoading,
-    isSelected,
-    onClick,
-  } = props;
+    id,
+    created,
+    author,
+    group,
+    isUnread,
+    unreadCommentCount,
+    lastComment,
+    lastUpdate,
+  } = message;
 
   const handleClick = useCallback(() => {
     onClick && onClick(id);
   }, [onClick, id]);
 
   const unreadItemCount = (isUnread ? 1 : 0) + (unreadCommentCount || 0);
+  const subject = message.subject || `Message du ${displayShortDate(created)}`;
+  const time = timeAgo(lastUpdate).replace("il y a", "");
+  const text = lastComment
+    ? `${lastComment.author.displayName} : ${lastComment.text}`
+    : `${message.author.displayName} : ${message.text}`;
+  const authors =
+    author.id && lastComment?.author && lastComment.author.id !== author.id
+      ? [author, lastComment.author]
+      : [author];
 
   return (
     <StyledCard
@@ -97,12 +139,19 @@ const MessageThreadCard = (props) => {
       $selected={isSelected}
       disabled={isLoading}
     >
-      <Avatar name={author?.displayName} image={author?.image} />
+      <Avatars people={authors} />
       <article>
-        <h5 title={`${author?.displayName} • ${group?.name}`}>
-          <strong>{author?.displayName}</strong>&nbsp;•&nbsp;{group?.name}
-        </h5>
-        <p title={text}>{text}</p>
+        <a
+          href={routeConfig.groupDetails.getLink({ groupPk: group.id })}
+          title={group.name}
+        >
+          {group.name}
+        </a>
+        <h5 title={subject}>{subject}</h5>
+        <p title={text}>
+          <span>{text}</span>
+          <span>&nbsp;•&nbsp;{time}</span>
+        </p>
       </article>
       <StyledUnreadItemBadge
         aria-label="Nombre de commentaires non lus"
@@ -117,14 +166,29 @@ const MessageThreadCard = (props) => {
 MessageThreadCard.propTypes = {
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    created: PropTypes.string.isRequired,
+    subject: PropTypes.string,
     author: PropTypes.shape({
+      id: PropTypes.string,
       displayName: PropTypes.string.isRequired,
       image: PropTypes.string,
     }).isRequired,
     group: PropTypes.shape({
+      id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
     }).isRequired,
     text: PropTypes.string.isRequired,
+    lastUpdate: PropTypes.string.isRequired,
+    lastComment: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      created: PropTypes.string.isRequired,
+      author: PropTypes.shape({
+        id: PropTypes.string,
+        displayName: PropTypes.string.isRequired,
+        image: PropTypes.string,
+      }).isRequired,
+      text: PropTypes.string.isRequired,
+    }),
     unreadCommentCount: PropTypes.number,
     isUnread: PropTypes.bool,
   }).isRequired,

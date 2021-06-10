@@ -187,8 +187,15 @@ class UserMessagesSerializer(BaseMessageSerializer):
     isAuthor = serializers.SerializerMethodField(
         read_only=True, method_name="get_is_author"
     )
-    lastComment = serializers.DateTimeField(source="last_comment", default=None)
-    isUnread = serializers.BooleanField(source="is_unread", default=False)
+    lastUpdate = serializers.DateTimeField(
+        source="last_update", default=None, read_only=True
+    )
+    isUnread = serializers.BooleanField(
+        source="is_unread", default=False, read_only=True
+    )
+    lastComment = serializers.SerializerMethodField(
+        method_name="get_last_comment", read_only=True
+    )
 
     def get_group(self, message):
         return {
@@ -213,6 +220,11 @@ class UserMessagesSerializer(BaseMessageSerializer):
         user = self.context["request"].user
         return user.is_authenticated and user.person and message.author == user.person
 
+    def get_last_comment(self, message):
+        if message.comments.exists():
+            comment = message.comments.order_by("-created").first()
+            return MessageCommentSerializer(comment, context=self.context).data
+
     class Meta:
         model = SupportGroupMessage
         fields = (
@@ -223,6 +235,7 @@ class UserMessagesSerializer(BaseMessageSerializer):
             "group",
             "unreadCommentCount",
             "isAuthor",
+            "lastUpdate",
             "lastComment",
             "isUnread",
         )

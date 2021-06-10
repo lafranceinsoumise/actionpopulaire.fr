@@ -17,13 +17,11 @@ const StyledWrapper = styled.span`
   ${Avatar} {
     width: 40px;
     height: 40px;
+    border: 3px solid white;
 
     :first-child {
       grid-column: 1/3;
       grid-row: 1/3;
-      width: 43px;
-      height: 43px;
-      border: 3px solid white;
       z-index: 1;
     }
 
@@ -37,15 +35,25 @@ const StyledWrapper = styled.span`
 const Avatars = (props) => {
   const { people, ...rest } = props;
 
-  if (!Array.isArray(people) || people.length < 2) {
+  if (!Array.isArray(people) || people.length === 0) {
     return null;
+  }
+
+  if (people.length === 1) {
+    return (
+      <Avatar
+        {...rest}
+        displayName={people[0].displayName}
+        image={people[0].image}
+      />
+    );
   }
 
   return (
     <StyledWrapper {...rest}>
       {people.slice(0, 2).map((person, i) => (
         <Avatar
-          key={person.id || i}
+          key={person.id + i}
           displayName={person.displayName}
           image={person.image}
         />
