@@ -116,13 +116,16 @@ export const useMessageActions = (
   );
 
   const isAuthor = useMemo(() => {
+    if (!user) {
+      return false;
+    }
     if (!selectedMessage && !selectedComment) {
       return false;
     }
     if (selectedComment) {
-      return user && selectedComment && selectedComment.author.id === user.id;
+      return selectedComment && selectedComment.author?.id === user.id;
     }
-    return user && selectedMessage && selectedMessage.author.id === user.id;
+    return selectedMessage && selectedMessage.author?.id === user.id;
   }, [user, selectedMessage, selectedComment]);
 
   const getSelectedGroupEvents = useCallback(async (group) => {
