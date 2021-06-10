@@ -50,8 +50,19 @@ class EventTasksTestCase(TestCase):
             location_country="FR",
         )
 
-        self.organizer_config = OrganizerConfig.objects.create(
-            person=self.creator, event=self.event
+        self.event_no_email = Event.objects.create(
+            name="Un événement",
+            start_time=now + timezone.timedelta(hours=2),
+            end_time=now + timezone.timedelta(hours=3),
+            contact_name="Moi",
+            contact_email="monevenement@moi.fr",
+            contact_phone="06 06 06 06 06",
+            contact_hide_phone=False,
+            location_name="ma maison",
+            location_address1="Place de la Bastille",
+            location_zip="75011",
+            location_city="Paris",
+            location_country="FR",
         )
 
         self.attendee1 = Person.objects.create_insoumise(
@@ -62,6 +73,14 @@ class EventTasksTestCase(TestCase):
         )
         self.attendee_no_notification = Person.objects.create_insoumise(
             "person3@participants.fr", create_role=True
+        )
+
+        self.organizer_config = OrganizerConfig.objects.create(
+            person=self.creator, event=self.event
+        )
+
+        self.organizer_config2 = OrganizerConfig.objects.create(
+            person=self.attendee_no_notification, event=self.event
         )
 
         self.rsvp1 = RSVP.objects.create(event=self.event, person=self.attendee1)
@@ -162,6 +181,13 @@ class EventTasksTestCase(TestCase):
             self.assert_(str(tasks.CHANGE_DESCRIPTION["information"]) in text)
             self.assert_(str(tasks.CHANGE_DESCRIPTION["timing"]) in text)
             self.assert_(str(tasks.CHANGE_DESCRIPTION["contact"]) not in text)
+
+    def test_changed_event_notification_mail_no_subscriptions(self):
+        tasks.send_event_changed_notification(
+            self.event_no_email.pk, ["name", "start_time"]
+        )
+
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_changed_event_activity(self):
         tasks.send_event_changed_notification(
