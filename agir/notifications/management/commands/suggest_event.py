@@ -22,7 +22,7 @@ class Command(BaseCommand):
         if segment:
             person_queryset = segment.get_subscribers_queryset()
         else:
-            person_queryset = Person.all()
+            person_queryset = Person.objects.all()
         for person in tqdm(
             person_queryset.exclude(coordinates=None).filter(role__is_active=True)
         ):
