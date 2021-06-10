@@ -387,12 +387,9 @@ class NewMessageActivityNotificationSerializer(ActivityNotificationSerializer):
 
     def get_url(self, activity):
         return activity_notification_url(
-            "view_group_message",
+            "user_message_details",
             activity=activity,
-            kwargs={
-                "pk": activity.supportgroup_id,
-                "message_pk": activity.meta["message"],
-            },
+            kwargs={"pk": activity.meta["message"],},
         )
 
 
@@ -414,12 +411,9 @@ class NewCommentActivityNotificationSerializer(ActivityNotificationSerializer):
 
     def get_url(self, activity):
         return activity_notification_url(
-            "view_group_message",
+            "user_message_details",
             activity=activity,
-            kwargs={
-                "pk": activity.supportgroup_id,
-                "message_pk": activity.meta["message"],
-            },
+            kwargs={"pk": activity.meta["message"],},
         )
 
 
