@@ -5,6 +5,7 @@ from agir.groups.models import SupportGroup
 from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
 from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
+from agir.msgs.actions import get_message_unread_comment_count
 from agir.msgs.models import (
     SupportGroupMessage,
     SupportGroupMessageComment,
@@ -210,14 +211,7 @@ class UserMessagesSerializer(BaseMessageSerializer):
         user = self.context["request"].user
         if not user.is_authenticated or not user.person:
             return 0
-        comment_count = message.comments.count()
-        if comment_count == 0:
-            return 0
-        try:
-            reading_state = message.readers.get(recipient=user.person)
-            return reading_state.unread_comments.count()
-        except SupportGroupMessageRecipient.DoesNotExist:
-            return comment_count
+        return get_message_unread_comment_count(user.person.pk, message.pk)
 
     def get_is_author(self, message):
         user = self.context["request"].user
