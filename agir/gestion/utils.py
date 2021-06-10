@@ -1,2 +1,5 @@
-def montrer_montant(m):
-    return f"{m:,.2f} €".replace(",", "\u00A0").replace(".", ",")
+from django.utils.html import format_html
+
+
+def lien(href, label):
+    return format_html('<a href="{}">{}</a>', href, label)

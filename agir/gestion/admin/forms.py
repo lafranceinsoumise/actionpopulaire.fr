@@ -171,15 +171,18 @@ class ReglementForm(forms.ModelForm):
     CHAMPS_FOURNISSEURS_REQUIS = ["nom", "location_city"]
 
     preuve = forms.FileField(
-        label="Preuve de paiement", help_text="Obligatoire, sauf pour les virements"
+        label="Preuve de paiement",
+        help_text="Obligatoire, sauf pour les virements",
+        required=False,
     )
 
     def __init__(self, *args, depense, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance.depense = depense
+        montant_restant = depense.montant_restant
 
         self.initial["intitule"] = depense.titre
-        self.initial["montant"] = depense.montant
+        self.initial["montant"] = montant_restant
 
         # on pré-remplit les informations de Fournisseur s'il y en avait un de sélectionné.
         if depense.fournisseur:
@@ -189,9 +192,16 @@ class ReglementForm(forms.ModelForm):
         self.fields["location_city_fournisseur"].required = False
         self.fields["location_zip_fournisseur"].required = False
 
-        montant_max = depense.montant_restant
-        self.fields["montant"].max_value = montant_max
-        self.fields["montant"].validators.append(MaxValueValidator(montant_max))
+        self.fields["montant"].max_value = montant_restant
+        self.fields["montant"].validators.append(MaxValueValidator(montant_restant))
+
+    def clean_montant(self):
+        if self.cleaned_data["montant"] <= 0:
+            raise ValidationError(
+                "Le montant réglé doit être strictement positif.",
+                code="amount_not_positive",
+            )
+        return self.cleaned_data["montant"]
 
     def clean(self):
         # Pour les virements, il faut nécessairement l'IBAN pour pouvoir effectuer le virement.
@@ -202,7 +212,6 @@ class ReglementForm(forms.ModelForm):
         ):
             for f in self.CHAMPS_FOURNISSEURS_REQUIS:
                 if not self.cleaned_data.get(f"{f}_fournisseur"):
-                    print("prout")
                     self.add_error(
                         f"{f}_fournisseur",
                         ValidationError(
@@ -272,25 +281,36 @@ class ReglementForm(forms.ModelForm):
 
     def _save_m2m(self):
         """Gérer correctement la création de la preuve de paiement."""
-        if self.cleaned_data.get("preuve"):
+        reglement_modifie = False
+
+        if "preuve" in self.cleaned_data:
             self.preuve = Document.objects.create(
-                titre=f"Preuve de paiement dépense {self.instance.depense.numero} — {self.instance.created.strftime('%d/%m/%Y')}",
+                titre=f"Preuve réglement {self.instance.intitule} — dépense {self.instance.depense.numero}",
                 type=TypeDocument.PAIEMENT,
                 requis=Document.Besoin.NECESSAIRE,
+                fichier=self.cleaned_data["preuve"],
                 description=f"Document créé automatiquement lors de l'ajout d'un règlement à la dépense "
-                f"{self.depense.numero}.",
+                f"{self.instance.depense.numero}.",
             )
             self.instance.preuve = self.preuve
-            self.instance.save()
+            reglement_modifie = True
 
         if self.fournisseur._state.adding:
             self.fournisseur.save()
+            self.instance.fournisseur = self.fournisseur
+            reglement_modifie = True
+            if not self.instance.depense.fournisseur:
+                self.instance.depense.fournisseur = self.fournisseur
+                self.instance.depense.save()
+
+        if reglement_modifie:
+            self.instance.save()
 
     def save(self, commit=True):
-        if not self.cleaned_data.get("preuve"):
-            self.instance.etat = Reglement.Statut.ATTENTE
+        if "preuve" not in self.cleaned_data:
+            self.instance.statut = Reglement.Statut.ATTENTE
         else:
-            self.instance.etat = Reglement.Statut.REGLE
+            self.instance.statut = Reglement.Statut.REGLE
 
         return super().save(commit=commit)
 

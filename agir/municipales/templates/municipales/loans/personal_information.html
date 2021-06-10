@@ -1,7 +1,7 @@
 {% extends "donations/personal_information.html" %}
 {% load display_lib %}
 
-{% block donation_reminder %}Je souhaite prêter <strong>{{ amount | display_price }}</strong> à
+{% block donation_reminder %}Je souhaite prêter <strong>{{ amount | display_price_in_cent }}</strong> à
   {{ campagne.nom_liste }}{% endblock %}
 
 {% block legal %}{% include "loans/legal.html" %}{% endblock %}

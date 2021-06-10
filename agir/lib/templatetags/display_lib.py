@@ -1,7 +1,7 @@
 from django import template
 
 from ..display import (
-    display_price as original_display_price,
+    display_price,
     pretty_time_since as original_pretty_time_since,
     genrer as original_genrer,
 )
@@ -9,11 +9,18 @@ from ..display import (
 register = template.Library()
 
 
-@register.filter(name="display_price")
-def display_price(value):
+@register.filter(name="display_price_in_cent")
+def display_price_in_cent(value):
     if isinstance(value, str):
         return value
-    return original_display_price(value)
+    return display_price(value, price_in_cents=True)
+
+
+@register.filter(name="display_price_in_unit")
+def display_price_in_unit(value):
+    if isinstance(value, str):
+        return value
+    return display_price(value, price_in_cents=False)
 
 
 @register.filter(name="pretty_time_since")

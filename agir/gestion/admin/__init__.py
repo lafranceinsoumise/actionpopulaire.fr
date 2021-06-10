@@ -1,3 +1,5 @@
+from django.template.loader import get_template, render_to_string
+
 from agir.gestion.models.depenses import etat_initial
 
 from agir.gestion.typologies import TypeDepense
@@ -24,7 +26,7 @@ from agir.gestion.admin.inlines import (
 )
 from agir.gestion.admin.views import AjouterReglementView, TransitionView
 from agir.gestion.models import Depense, Projet, Fournisseur, Document, Compte
-from agir.gestion.utils import montrer_montant
+from agir.lib.display import display_price
 from agir.people.models import Person
 
 
@@ -91,20 +93,17 @@ class DocumentAdmin(BaseAdminMixin, VersionAdmin):
         if obj is not None:
             ds = obj.depenses.all()
             if ds:
-                try:
-                    return format_html_join(
-                        mark_safe("<br>"),
-                        '<a href="{}">{}</a>',
+                return format_html_join(
+                    mark_safe("<br>"),
+                    '<a href="{}">{}</a>',
+                    (
                         (
-                            (
-                                reverse("admin:gestion_depense_change", args=(d.id,)),
-                                f"{d.numero} — {d.titre} — {d.montant} €",
-                            )
-                            for d in ds
-                        ),
-                    )
-                except Exception as e:
-                    print(e)
+                            reverse("admin:gestion_depense_change", args=(d.id,)),
+                            f"{d.numero} — {d.titre} — {d.montant} €",
+                        )
+                        for d in ds
+                    ),
+                )
         return "-"
 
     depenses.short_description = "dépenses"
@@ -189,7 +188,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
 
     def montant_(self, obj):
         if obj:
-            return montrer_montant(obj.montant)
+            return display_price(obj.montant, price_in_cents=False)
         return "-"
 
     montant_.short_description = "Montant"
@@ -211,32 +210,11 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
         return "Réglée"
 
     def reglements(self, obj):
-        if obj is None or obj.id is None:
+        if obj is None:
             return "-"
 
-        if obj.reglements.exists():
-            table = format_html(
-                "<table><thead><tr><th>Date</th><th>Montant</th><th>Statut</th></thead></tr><tbody>{}</tbody>",
-                format_html_join(
-                    "",
-                    "<tr><td>{date}</td><td>{montant}</td><td>{statut}</td>",
-                    (
-                        {
-                            "date": v.date.strftime("%d/%m/%Y"),
-                            "montant": "{}\u00A0€".format(v.montant),
-                            "statut": v.get_display_statut(),
-                        }
-                        for v in obj.reglements.all()
-                    ),
-                ),
-            )
-        else:
-            table = mark_safe("<div>Aucun réglement effectué pour le moment.</div>")
-
-        return format_html(
-            '{table}<div><a href="{link}">Ajouter un réglement</a>',
-            table=table,
-            link=reverse("admin:gestion_depense_reglement", args=(obj.id,)),
+        return render_to_string(
+            "admin/gestion/table_reglements.html", {"depense": obj,}
         )
 
     reglements.short_description = "règlements effectués"

@@ -259,7 +259,7 @@ class Depense(NumeroUniqueMixin, TimeStampedModel):
         verbose_name_plural = "Dépenses"
 
 
-@reversion.register(follow="depense")
+@reversion.register(follow=["depense"])
 class Reglement(TimeStampedModel):
     class Statut(models.TextChoices):
         ATTENTE = "C", "En cours"
@@ -337,7 +337,7 @@ class Reglement(TimeStampedModel):
         "adresse (1ère ligne)", max_length=100, blank=True
     )
     location_address2_fournisseur = models.CharField(
-        "adresse (1ère ligne)", max_length=100, blank=True
+        "adresse (2ère ligne)", max_length=100, blank=True
     )
     location_city_fournisseur = models.CharField("ville", max_length=100, blank=False)
     location_zip_fournisseur = models.CharField(

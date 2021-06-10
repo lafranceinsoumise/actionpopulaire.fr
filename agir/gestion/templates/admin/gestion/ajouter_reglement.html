@@ -22,7 +22,7 @@
   <div id="content-main">
     <h2>Ajouter un règlement</h2>
 
-    <form method="post" id="ajouter_reglement" novalidate>
+    <form method="post" id="ajouter_reglement" enctype="multipart/form-data">
       {% csrf_token %}
 
       {% if errors %}

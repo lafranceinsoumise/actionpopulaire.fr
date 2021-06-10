@@ -10,14 +10,14 @@ from django.views.generic import CreateView, TemplateView, FormView
 
 from agir.gestion.admin.forms import ReglementForm, CommentaireForm
 from agir.gestion.models import Depense, Commentaire, Reglement
-from agir.gestion.utils import montrer_montant
 from agir.lib.admin import AdminViewMixin
+from agir.lib.display import display_price
 
 
 class AjouterReglementView(AdminViewMixin, CreateView):
     model = Reglement
     form_class = ReglementForm
-    template_name = "gestion/ajouter_reglement.html"
+    template_name = "admin/gestion/ajouter_reglement.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.depense = get_object_or_404(Depense, pk=kwargs.get("object_id"))
@@ -25,7 +25,7 @@ class AjouterReglementView(AdminViewMixin, CreateView):
 
     def form_valid(self, form):
         with reversion.create_revision():
-            montant = montrer_montant(form.cleaned_data["montant"])
+            montant = display_price(form.cleaned_data["montant"], price_in_cents=False)
             message = f"Ajout d'un réglement d'une valeur de {montant}"
             reversion.set_user(self.request.user)
             reversion.set_comment(message)
@@ -83,9 +83,12 @@ class AjouterReglementView(AdminViewMixin, CreateView):
         )
         return kwargs
 
+    def get_success_url(self):
+        return reverse("admin:gestion_depense_change", args=(self.depense.id,))
+
 
 class CacherCommentaireView(AdminViewMixin, TemplateView):
-    template_name = "gestion/cacher_commentaire.html"
+    template_name = "admin/gestion/cacher_commentaire.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.commentaire = get_object_or_404(Commentaire, pk=kwargs["pk"])
