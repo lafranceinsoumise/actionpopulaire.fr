@@ -22,14 +22,14 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import MessageThreadList from "./MessageThreadList";
 import EmptyMessagePage from "./EmptyMessagePage";
 
-const StyledPage = styled.div`
+const StyledPage = styled(PageFadeIn)`
   margin: 0 auto;
   width: 100%;
   max-width: 1320px;
+  height: calc(100vh - 84px);
   padding: 2.625rem 1.5rem;
 
   @media (max-width: ${style.collapse}px) {
-    height: calc(100vh - 84px);
     padding: 0;
     height: auto;
     max-width: 100%;
@@ -77,54 +77,52 @@ const MessagePage = ({ messagePk }) => {
         <title>Messages - Action Populaire</title>
       </Helmet>
       <NotificationSettings />
-      <StyledPage>
-        <PageFadeIn
-          ready={user && typeof messages !== "undefined"}
-          wait={<Skeleton />}
-        >
-          {!!writeNewMessage && (
-            <MessageModal
-              shouldShow={shouldShowMessageModal}
-              onClose={dismissMessageAction}
-              user={user}
-              groups={messageRecipients}
-              onSelectGroup={getSelectedGroupEvents}
-              events={selectedGroupEvents}
-              isLoading={isLoading}
-              message={messageAction === "edit" ? currentMessage : null}
-              onSend={saveMessage}
-            />
-          )}
-          {currentMessage && (
-            <MessageActionModal
-              action={shouldShowMessageActionModal ? messageAction : undefined}
-              shouldShow={shouldShowMessageActionModal}
-              onClose={dismissMessageAction}
-              onDelete={onDelete}
-              onReport={onReport}
-              isLoading={isLoading}
-            />
-          )}
-          {Array.isArray(messages) && messages.length > 0 ? (
-            <MessageThreadList
-              isLoading={isLoading}
-              messages={messages}
-              selectedMessagePk={messagePk}
-              selectedMessage={currentMessage}
-              onSelect={onSelectMessage}
-              onEdit={editMessage}
-              onDelete={confirmDelete}
-              onReport={confirmReport}
-              onDeleteComment={confirmDeleteComment}
-              onReportComment={confirmReportComment}
-              user={user}
-              writeNewMessage={writeNewMessage}
-              onComment={writeNewComment}
-            />
-          ) : (
-            <EmptyMessagePage />
-          )}
-        </PageFadeIn>
+      <StyledPage
+        ready={user && typeof messages !== "undefined"}
+        wait={<Skeleton />}
+      >
+        {!!writeNewMessage && (
+          <MessageModal
+            shouldShow={shouldShowMessageModal}
+            onClose={dismissMessageAction}
+            user={user}
+            groups={messageRecipients}
+            onSelectGroup={getSelectedGroupEvents}
+            events={selectedGroupEvents}
+            isLoading={isLoading}
+            message={messageAction === "edit" ? currentMessage : null}
+            onSend={saveMessage}
+          />
+        )}
+        {currentMessage && (
+          <MessageActionModal
+            action={shouldShowMessageActionModal ? messageAction : undefined}
+            shouldShow={shouldShowMessageActionModal}
+            onClose={dismissMessageAction}
+            onDelete={onDelete}
+            onReport={onReport}
+            isLoading={isLoading}
+          />
+        )}
+        {Array.isArray(messages) && messages.length > 0 ? (
+          <MessageThreadList
+            isLoading={isLoading}
+            messages={messages}
+            selectedMessagePk={messagePk}
+            selectedMessage={currentMessage}
+            onSelect={onSelectMessage}
+            onEdit={editMessage}
+            onDelete={confirmDelete}
+            onReport={confirmReport}
+            onDeleteComment={confirmDeleteComment}
+            onReportComment={confirmReportComment}
+            user={user}
+            writeNewMessage={writeNewMessage}
+            onComment={writeNewComment}
+          />
+        ) : (
+          <EmptyMessagePage />
+        )}
       </StyledPage>
       <Hide over>
         <Navigation active="messages" />
