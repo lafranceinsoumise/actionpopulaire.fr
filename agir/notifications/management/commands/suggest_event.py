@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 .upcoming()
                 .exclude(coordinates=None)
             )
-            if person.is_2022:
+            if not person.is_insoumise:
                 base_queryset = base_queryset.is_2022()
 
             near_event = (
