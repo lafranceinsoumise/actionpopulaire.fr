@@ -77,7 +77,7 @@ class EventTasksTestCase(TestCase):
                 Subscription(
                     person=p, type=Subscription.SUBSCRIPTION_EMAIL, activity_type=t,
                 )
-                for p in [self.attendee1, self.attendee2]
+                for p in [self.creator, self.attendee1, self.attendee2]
                 for t in [Activity.TYPE_EVENT_UPDATE, Activity.TYPE_NEW_ATTENDEE]
             ]
         )
