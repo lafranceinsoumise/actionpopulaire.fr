@@ -29,7 +29,7 @@ class Command(BaseCommand):
         )
 
         pbar = tqdm(total=person_queryset.count())
-        for person in person_queryset:
+        for person in person_queryset.iterator():
             base_queryset = (
                 Event.objects.with_serializer_prefetch(person)
                 .listed()
