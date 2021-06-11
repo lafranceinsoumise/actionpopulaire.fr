@@ -20,9 +20,12 @@ import dj_email_url
 import sentry_sdk
 from django.contrib import messages
 from django.contrib.messages import ERROR
+from django.contrib.postgres.serializers import RangeSerializer
 from django.core.exceptions import ImproperlyConfigured
+from django.db.migrations.writer import MigrationWriter
 from django.utils.datetime_safe import datetime
 from django.utils.timezone import make_aware
+from psycopg2._range import DateRange
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
@@ -48,6 +51,13 @@ SILENCED_SYSTEM_CHECKS = [
     # social_django utilise encore des champs postgres JSON (au lieu du nouveau JSONField de Django)
     "fields.W904",
 ]
+
+# Django ne sait pas par défaut sérializer les types intervalle de psycopg2
+# Cela fait du coup planter `makemigrate` quand il tente de séralizer les valeurs
+# par défaut des champs de dates pour les modèles de mandats (dans l'appli élus).
+# Il faut enregistrer manuellement le serializer correspondant auprès du générateur
+# de migrations.
+MigrationWriter.register_serializer(DateRange, RangeSerializer)
 
 # Django < 3.1 not compatible with GDAL 3
 if os.environ.get("GDAL_LIBRARY_PATH"):

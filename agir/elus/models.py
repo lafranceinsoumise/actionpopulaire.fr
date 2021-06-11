@@ -642,7 +642,10 @@ types_elus = {
     "consulaire": MandatConsulaire,
 }
 
-# Configure les valeurs de date par défaut pour chacun des modèles d'élus
+# Le champ `dates` des modèles de mandat est défini sur la classe `MandatAbstrait`.
+# Comme les mandats ont des valeurs par défaut différentes, on ajuste cette valeur
+# par défaut ici (plutôt que d'avoir à redéfinir entièrement le champ sur chacun des
+# modèles concrets).
 for model in types_elus.values():
     model._meta.get_field("dates").default = model.DEFAULT_DATE_RANGE
 
