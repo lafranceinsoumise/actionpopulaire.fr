@@ -26,7 +26,7 @@
     "@babel/runtime-corejs3": "^7.13.17",
     "@react-spring/core": "^9.1.2",
     "@react-spring/shared": "^9.1.2",
-    "@react-spring/web": "^9.1.2",
+    "@react-spring/web": "^9.2.3",
     "@sentry/react": "^6.3.0",
     "@sentry/tracing": "^6.3.0",
     "axios": "^0.21.1",
