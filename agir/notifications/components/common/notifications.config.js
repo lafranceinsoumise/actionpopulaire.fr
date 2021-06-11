@@ -144,7 +144,7 @@ const GROUP_NOTIFICATIONS = [
     icon: "users",
     subtype: "Mises à jour du groupe",
     label: "Compte-rendu d'un événement du groupe",
-    hasEmail: false,
+    hasEmail: true,
     hasPush: true,
     isActive: true,
     activityTypes: ["new-report"],

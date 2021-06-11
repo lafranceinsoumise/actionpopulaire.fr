@@ -11,6 +11,7 @@ from django.utils import timezone
 from agir.lib.tests.mixins import create_group, create_location
 from agir.events.models import Event, OrganizerConfig
 from agir.people.models import Person
+from agir.notifications.models import Subscription
 from .. import tasks
 from ..actions.notifications import someone_joined_notification
 from ..actions.transfer import create_transfer_membership_activities
@@ -72,11 +73,36 @@ class NotificationTasksTestCase(TestCase):
         self.membership2 = Membership.objects.create(
             supportgroup=self.group, person=self.member2
         )
-        self.membership3 = Membership.objects.create(
+        self.membership_no_notification = Membership.objects.create(
             supportgroup=self.group,
             person=self.member_no_notification,
             notifications_enabled=False,
         )
+
+        Subscription.objects.bulk_create(
+            [
+                Subscription(
+                    person=p, type=Subscription.SUBSCRIPTION_EMAIL, activity_type=t,
+                )
+                for p in [self.creator, self.member1, self.member2]
+                for t in [
+                    Activity.TYPE_GROUP_INFO_UPDATE,
+                    Activity.TYPE_NEW_EVENT_MYGROUPS,
+                    Activity.TYPE_NEW_REPORT,
+                    Activity.TYPE_NEW_MESSAGE,
+                    Activity.TYPE_NEW_COMMENT,
+                    Activity.TYPE_NEW_MEMBER,
+                    Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
+                    Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
+                    Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+                    Activity.TYPE_WAITING_LOCATION_GROUP,
+                    Activity.TYPE_GROUP_COORGANIZATION_INVITE,
+                ]
+            ]
+        )
+
+        for s in Subscription.objects.filter(person=self.member_no_notification):
+            s.delete()
 
     def test_group_creation_mail(self):
         tasks.send_support_group_creation_notification(self.creator_membership.pk)

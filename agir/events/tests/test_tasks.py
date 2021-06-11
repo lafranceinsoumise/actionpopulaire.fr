@@ -1,4 +1,3 @@
-from agir.notifications.models import Subscription
 from faker import Faker
 from unittest.mock import patch
 
@@ -9,10 +8,13 @@ from django.core import mail
 from agir.lib.tests.mixins import create_location
 from agir.lib.utils import front_url
 from agir.people.models import Person
+from agir.notifications.models import Subscription
 
 from .. import tasks
 from ..models import Event, Calendar, RSVP, OrganizerConfig
 from ...activity.models import Activity
+
+from django.db.models import Q
 
 fake = Faker("fr_FR")
 
@@ -97,7 +99,13 @@ class EventTasksTestCase(TestCase):
                     person=p, type=Subscription.SUBSCRIPTION_EMAIL, activity_type=t,
                 )
                 for p in [self.creator, self.attendee1, self.attendee2]
-                for t in [Activity.TYPE_EVENT_UPDATE, Activity.TYPE_NEW_ATTENDEE]
+                for t in [
+                    Activity.TYPE_NEW_ATTENDEE,
+                    Activity.TYPE_EVENT_UPDATE,
+                    Activity.TYPE_EVENT_SUGGESTION,
+                    Activity.TYPE_WAITING_LOCATION_EVENT,
+                    Activity.TYPE_NEW_REPORT,
+                ]
             ]
         )
 
