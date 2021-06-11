@@ -22,17 +22,22 @@ class Command(BaseCommand):
         if segment:
             person_queryset = segment.get_subscribers_queryset()
         else:
-            person_queryset = Person.all()
-        for person in tqdm(
-            person_queryset.exclude(coordinates=None).filter(role__is_active=True)
-        ):
+            person_queryset = Person.objects.all()
+
+        person_queryset = person_queryset.exclude(coordinates=None).filter(
+            role__is_active=True
+        )
+
+        pbar = tqdm(total=person_queryset.count())
+        for person in person_queryset.iterator():
             base_queryset = (
                 Event.objects.with_serializer_prefetch(person)
                 .listed()
                 .upcoming()
                 .exclude(coordinates=None)
             )
-            if person.is_2022:
+
+            if not person.is_insoumise:
                 base_queryset = base_queryset.is_2022()
 
             near_event = (
@@ -41,7 +46,6 @@ class Command(BaseCommand):
                 )
                 .filter(distance__lte=limit)
                 .filter(start_time__lt=timezone.now() + timezone.timedelta(days=7))
-                .exclude(organizer_configs__as_group__members=person)
                 .exclude(attendees=person)
                 .distinct()
                 .order_by("distance")
@@ -50,3 +54,6 @@ class Command(BaseCommand):
 
             if near_event is not None:
                 new_event_suggestion_notification(near_event, person)
+
+            pbar.update()
+        pbar.close()
