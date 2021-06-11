@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
+import { useIntersection, usePrevious } from "react-use";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -21,11 +22,14 @@ const StyledCommentFieldWrapper = styled.div`
 `;
 
 const StyledContent = styled.article`
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+
   & > * {
     box-shadow: none;
     border: none;
     min-height: 100%;
-    display: flex;
   }
 `;
 const StyledList = styled.main`
@@ -48,14 +52,44 @@ const StyledList = styled.main`
 
   & > * {
     flex: 1 1 auto;
-
-    @media (min-width: ${style.collapse}px) {
-      height: 100%;
-      overflow-x: hidden;
-      overflow-y: auto;
-    }
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 `;
+
+const useAutoScrollToBottom = (commentLength = 0) => {
+  const scrollableRef = useRef(null);
+  const bottomRef = useRef(null);
+  const hasNewComments = useRef(false);
+
+  const intersection = useIntersection(bottomRef, {
+    root: scrollableRef.current,
+    rootMargin: "0px",
+    threshold: 1,
+  });
+
+  const isScrolledBottom = !!intersection?.isIntersecting;
+  const wasScrolledBottom = usePrevious(isScrolledBottom);
+
+  useEffect(() => {
+    hasNewComments.current = true;
+  }, [commentLength]);
+
+  useEffect(() => {
+    if (
+      bottomRef.current &&
+      wasScrolledBottom &&
+      !isScrolledBottom &&
+      hasNewComments.current
+    ) {
+      bottomRef.current.scrollIntoView(false);
+    }
+    hasNewComments.current = false;
+  }, [isScrolledBottom, wasScrolledBottom]);
+
+  return [scrollableRef, bottomRef];
+};
 
 const DesktopThreadList = (props) => {
   const {
@@ -75,6 +109,10 @@ const DesktopThreadList = (props) => {
     notificationSettingLink,
   } = props;
 
+  const [scrollableRef, bottomRef] = useAutoScrollToBottom(
+    selectedMessage?.comments?.length
+  );
+
   useEffect(() => {
     // Autoselect first message on desktop
     !selectedMessagePk &&
@@ -93,7 +131,7 @@ const DesktopThreadList = (props) => {
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
       />
-      <StyledContent>
+      <StyledContent ref={scrollableRef}>
         <PageFadeIn ready={selectedMessagePk && selectedMessage}>
           {selectedMessage ? (
             <MessageCard
@@ -114,6 +152,11 @@ const DesktopThreadList = (props) => {
               })}
             />
           ) : null}
+          <span
+            style={{ width: 1, height: 0 }}
+            aria-hidden={true}
+            ref={bottomRef}
+          />
         </PageFadeIn>
       </StyledContent>
     </StyledList>
@@ -137,6 +180,10 @@ const MobileThreadList = (props) => {
     notificationSettingLink,
   } = props;
 
+  const [scrollableRef, bottomRef] = useAutoScrollToBottom(
+    selectedMessage?.comments?.length
+  );
+
   return (
     <StyledList>
       <MessageThreadMenu
@@ -153,7 +200,7 @@ const MobileThreadList = (props) => {
         noScroll
         isBehindTopBar
       >
-        <StyledContent>
+        <StyledContent ref={scrollableRef}>
           {selectedMessage && (
             <MessageCard
               isLoading={isLoading}
@@ -172,6 +219,11 @@ const MobileThreadList = (props) => {
               })}
             />
           )}
+          <span
+            style={{ width: 1, height: 0 }}
+            aria-hidden={true}
+            ref={bottomRef}
+          />
         </StyledContent>
       </Panel>
       {selectedMessage && onComment && (

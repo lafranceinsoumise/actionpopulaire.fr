@@ -32,7 +32,7 @@ const StyledPage = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     padding: 0;
-    height: auto;
+    height: calc(100vh - 56px);
     max-width: 100%;
   }
 
