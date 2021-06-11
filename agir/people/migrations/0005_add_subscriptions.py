@@ -37,18 +37,11 @@ def migrate_default_subscriptions_switch_global_notifications_enabled(
     Subscription = apps.get_model("notifications", "Subscription")
     Person = apps.get_model("people", "Person")
 
-    notifications_event_enabled = Q(notifications_enabled=True) & Q(
-        person__event_notifications=True
-    )
-    notifications_group_enabled = Q(notifications_enabled=True) & Q(
-        person__group_notifications=False
-    )
-
     # ALL SUBSCRIPTIONS EMAIL
     Subscription.objects.bulk_create(
         [
             Subscription(person=p, type=SUBSCRIPTION_EMAIL, activity_type=t,)
-            for p in [Person.objects.all()]
+            for p in Person.objects.all()
             for t in [
                 # GENERAL
                 TYPE_REFERRAL,
@@ -62,7 +55,7 @@ def migrate_default_subscriptions_switch_global_notifications_enabled(
     Subscription.objects.bulk_create(
         [
             Subscription(person=p, type=SUBSCRIPTION_EMAIL, activity_type=t,)
-            for p in [Person.objects.all().filter(notifications_event_enabled)]
+            for p in Person.objects.all().filter(event_notifications=True)
             for t in [
                 # EVENTS
                 TYPE_EVENT_UPDATE,
@@ -73,8 +66,11 @@ def migrate_default_subscriptions_switch_global_notifications_enabled(
         ]
     )
     # GROUPS : delete default subscription (auto-created for groups) if notifications_group_enabled=False
-    for s in Subscription.objects.filter(notifications_group_enabled):
-        if s.activity_type in [
+    for s in Subscription.objects.filter(type=SUBSCRIPTION_EMAIL):
+        if (
+            s.person.group_notifications is False
+            or s.membership.group_notifications is False
+        ) and s.activity_type in [
             # GROUPS
             TYPE_NEW_EVENT_MYGROUPS,
             TYPE_NEW_REPORT,
