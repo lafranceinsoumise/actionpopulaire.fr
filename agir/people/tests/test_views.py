@@ -492,8 +492,6 @@ class InformationContactFormTestCases(TestCase):
             is_insoumise=True,
             subscribed=False,
             subscribed_sms=False,
-            group_notifications=False,
-            event_notifications=False,
             create_role=True,
         )
         self.client.force_login(self.person.role)
@@ -507,8 +505,6 @@ class InformationContactFormTestCases(TestCase):
                 "contact_phone": "0658985632",
                 "subscribed_sms": "on",
                 "subscribed_lfi": "on",
-                "group_notifications": "on",
-                "event_notifications": "on",
             },
             follow=True,
         )
@@ -516,8 +512,6 @@ class InformationContactFormTestCases(TestCase):
         self.person = Person.objects.get(pk=self.person.pk)
         self.assertTrue(self.person.subscribed)
         self.assertTrue(self.person.subscribed_sms)
-        self.assertTrue(self.person.group_notifications)
-        self.assertTrue(self.person.event_notifications)
 
         self.assertContains(
             response, "Nous envoyons parfois des SMS plutôt que des",

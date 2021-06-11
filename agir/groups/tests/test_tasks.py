@@ -12,12 +12,14 @@ from agir.lib.tests.mixins import create_group, create_location
 from agir.events.models import Event, OrganizerConfig
 from agir.people.models import Person
 from agir.notifications.models import Subscription
+from ...activity.models import Activity
 from .. import tasks
 from ..actions.notifications import someone_joined_notification
 from ..actions.transfer import create_transfer_membership_activities
 from ..models import SupportGroup, Membership
 from ..tasks import send_joined_notification_email
-from ...activity.models import Activity
+
+from agir.notifications.actions import DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES
 
 fake = Faker("fr_FR")
 
@@ -85,19 +87,7 @@ class NotificationTasksTestCase(TestCase):
                     person=p, type=Subscription.SUBSCRIPTION_EMAIL, activity_type=t,
                 )
                 for p in [self.creator, self.member1, self.member2]
-                for t in [
-                    Activity.TYPE_GROUP_INFO_UPDATE,
-                    Activity.TYPE_NEW_EVENT_MYGROUPS,
-                    Activity.TYPE_NEW_REPORT,
-                    Activity.TYPE_NEW_MESSAGE,
-                    Activity.TYPE_NEW_COMMENT,
-                    Activity.TYPE_NEW_MEMBER,
-                    Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
-                    Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
-                    Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
-                    Activity.TYPE_WAITING_LOCATION_GROUP,
-                    Activity.TYPE_GROUP_COORGANIZATION_INVITE,
-                ]
+                for t in DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES
             ]
         )
 
