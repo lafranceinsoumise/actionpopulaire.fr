@@ -5,6 +5,7 @@ from agir.groups.models import SupportGroup
 from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
 from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
+from agir.msgs.actions import get_message_unread_comment_count
 from agir.msgs.models import (
     SupportGroupMessage,
     SupportGroupMessageComment,
@@ -78,6 +79,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     )
     DETAIL_FIELDS = (
         "id",
+        "lastUpdate",
         "created",
         "author",
         "text",
@@ -86,6 +88,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "comments",
     )
 
+    lastUpdate = serializers.DateTimeField(read_only=True, source="last_update")
     group = serializers.SerializerMethodField(read_only=True)
     linkedEvent = LinkedEventField(
         source="linked_event", required=False, allow_null=True,
@@ -139,6 +142,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "recentComments",
             "comments",
             "commentCount",
+            "lastUpdate",
         )
 
 
@@ -187,8 +191,15 @@ class UserMessagesSerializer(BaseMessageSerializer):
     isAuthor = serializers.SerializerMethodField(
         read_only=True, method_name="get_is_author"
     )
-    lastComment = serializers.DateTimeField(source="last_comment", default=None)
-    isUnread = serializers.BooleanField(source="is_unread", default=False)
+    lastUpdate = serializers.DateTimeField(
+        source="last_update", default=None, read_only=True
+    )
+    isUnread = serializers.BooleanField(
+        source="is_unread", default=False, read_only=True
+    )
+    lastComment = serializers.SerializerMethodField(
+        method_name="get_last_comment", read_only=True
+    )
 
     def get_group(self, message):
         return {
@@ -200,18 +211,16 @@ class UserMessagesSerializer(BaseMessageSerializer):
         user = self.context["request"].user
         if not user.is_authenticated or not user.person:
             return 0
-        comment_count = message.comments.count()
-        if comment_count == 0:
-            return 0
-        try:
-            reading_state = message.readers.get(recipient=user.person)
-            return reading_state.unread_comments.count()
-        except SupportGroupMessageRecipient.DoesNotExist:
-            return comment_count
+        return get_message_unread_comment_count(user.person.pk, message.pk)
 
     def get_is_author(self, message):
         user = self.context["request"].user
         return user.is_authenticated and user.person and message.author == user.person
+
+    def get_last_comment(self, message):
+        if message.comments.exists():
+            comment = message.comments.order_by("-created").first()
+            return MessageCommentSerializer(comment, context=self.context).data
 
     class Meta:
         model = SupportGroupMessage
@@ -223,6 +232,7 @@ class UserMessagesSerializer(BaseMessageSerializer):
             "group",
             "unreadCommentCount",
             "isAuthor",
+            "lastUpdate",
             "lastComment",
             "isUnread",
         )

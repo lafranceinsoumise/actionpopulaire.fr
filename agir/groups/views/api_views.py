@@ -1,7 +1,8 @@
 import reversion
 from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Max, DateTimeField
+from django.db.models.functions import Greatest
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django_filters.rest_framework import DjangoFilterBackend
@@ -369,6 +370,11 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
             "supportgroup", "linked_event", "linked_event__subtype", "author"
         )
         .prefetch_related("comments")
+        .annotate(
+            last_update=Greatest(
+                Max("comments__created"), "created", output_field=DateTimeField()
+            )
+        )
     )
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (GlobalOrObjectPermissions,)

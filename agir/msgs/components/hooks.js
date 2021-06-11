@@ -33,6 +33,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
     data: currentMessage,
     error,
     isValidating,
+    mutate: mutateMessage,
   } = useSWR(messagePk ? `/api/groupes/messages/${messagePk}/` : null);
   const { pathname } = useLocation();
 
@@ -59,6 +60,17 @@ export const useMessageSWR = (messagePk, selectMessage) => {
       selectMessage &&
       selectMessage(null, true);
   }, [error, isValidating, selectMessage]);
+
+  useEffect(() => {
+    if (isValidating || !messages || !currentMessage) {
+      return;
+    }
+    const updatedMessage = messages.find((m) => m.id === currentMessage.id);
+    if (updatedMessage.lastUpdate === currentMessage.lastUpdate) {
+      return;
+    }
+    mutateMessage();
+  }, [isValidating, messages, currentMessage, mutateMessage]);
 
   return {
     user: session?.user,
@@ -153,8 +165,12 @@ export const useMessageActions = (
           : await groupAPI.createMessage(message.group.id, message);
         setIsLoading(false);
         mutate("/api/user/messages/");
-        if (message.id) {
-          mutate(`/api/groupes/messages/${message.id}/`, () => result.data);
+        if (!message.id) {
+          mutate(
+            `/api/groupes/messages/${message.id}/`,
+            () => result.data,
+            false
+          );
         } else {
           onSelectMessage(result.data.id);
         }
@@ -174,12 +190,16 @@ export const useMessageActions = (
           comment
         );
         setIsLoading(false);
-        mutate(`/api/groupes/messages/${selectedMessage.id}/`, (message) => ({
-          ...message,
-          comments: Array.isArray(message.comments)
-            ? [...message.comments, response.data]
-            : [response.data],
-        }));
+        mutate(
+          `/api/groupes/messages/${selectedMessage.id}/`,
+          (message) => ({
+            ...message,
+            comments: Array.isArray(message.comments)
+              ? [...message.comments, response.data]
+              : [response.data],
+          }),
+          false
+        );
         onSelectMessage(selectedMessage.id);
       } catch (e) {
         setIsLoading(false);

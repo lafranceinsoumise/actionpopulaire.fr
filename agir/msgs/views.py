@@ -6,6 +6,10 @@ from django.db.models import (
     Max,
     OuterRef,
     When,
+    Prefetch,
+    Count,
+    Subquery,
+    Q,
 )
 from django.db.models.functions import Greatest
 from rest_framework.decorators import api_view, permission_classes
@@ -15,7 +19,11 @@ from rest_framework.response import Response
 
 from agir.groups.models import Membership, SupportGroup
 from agir.msgs.actions import get_unread_message_count
-from agir.msgs.models import SupportGroupMessage, SupportGroupMessageRecipient
+from agir.msgs.models import (
+    SupportGroupMessage,
+    SupportGroupMessageRecipient,
+    SupportGroupMessageComment,
+)
 from agir.msgs.serializers import (
     UserReportSerializer,
     UserMessagesSerializer,
@@ -66,14 +74,27 @@ class UserMessagesAPIView(ListAPIView):
             self.queryset.filter(supportgroup_id__in=person_groups)
             .select_related("supportgroup", "author")
             .prefetch_related("comments")
-            .annotate(is_unread=~Exists(user_message))
             .annotate(
-                last_comment=Greatest(
+                is_unread=Case(
+                    When(
+                        created__lt=Subquery(
+                            Membership.objects.filter(
+                                supportgroup_id=OuterRef("supportgroup_id"),
+                                person_id=person.pk,
+                            ).values("created")[:1]
+                        ),
+                        then=False,
+                    ),
+                    default=~Exists(user_message),
+                )
+            )
+            .annotate(
+                last_update=Greatest(
                     Max("comments__created"), "created", output_field=DateTimeField()
                 )
             )
             .distinct()
-            .order_by("-last_comment", "-created")
+            .order_by("-last_update", "-created")
         )
 
 

@@ -2,7 +2,7 @@ import _sortBy from "lodash/sortBy";
 import React from "react";
 
 import mockMessages from "@agir/front/mockData/messages";
-
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import MessageThreadList from "./MessageThreadList";
 
 export default {
@@ -27,19 +27,21 @@ const Template = (args) => {
   );
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100vh",
-        padding: "0",
-      }}
-    >
-      <MessageThreadList
-        {...args}
-        selectedMessage={selected}
-        onSelect={setSelectedId}
-      />
-    </div>
+    <TestGlobalContextProvider>
+      <div
+        style={{
+          width: "100%",
+          height: "100vh",
+          padding: "0",
+        }}
+      >
+        <MessageThreadList
+          {...args}
+          selectedMessage={selected}
+          onSelect={setSelectedId}
+        />
+      </div>
+    </TestGlobalContextProvider>
   );
 };
 

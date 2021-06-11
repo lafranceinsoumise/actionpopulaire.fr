@@ -1,7 +1,11 @@
 from rest_framework.test import APITestCase
 
 from agir.groups.models import SupportGroup, Membership
-from agir.msgs.actions import update_recipient_message, get_unread_message_count
+from agir.msgs.actions import (
+    update_recipient_message,
+    get_unread_message_count,
+    get_message_unread_comment_count,
+)
 from agir.msgs.models import (
     UserReport,
     SupportGroupMessage,
@@ -233,9 +237,47 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
     def setUp(self):
         self.supportgroup = SupportGroup.objects.create()
         self.reader = Person.objects.create(email="reader@agis.msgs", create_role=True)
-        self.writer = Person.objects.create(email="writer", create_role=True)
+        self.writer = Person.objects.create(email="writer@agir.msgs", create_role=True)
         Membership.objects.create(supportgroup=self.supportgroup, person=self.reader)
         Membership.objects.create(supportgroup=self.supportgroup, person=self.writer)
+
+    def test_group_messages_before_membership_creation_are_not_counted(self):
+        supportgroup = SupportGroup.objects.create()
+        writer = Person.objects.create(email="writer@group.com", create_role=True)
+        new_member = Person.objects.create(
+            email="new_member@group.com", create_role=True
+        )
+
+        # A message is created before the person joins the group
+        message = SupportGroupMessage.objects.create(
+            author=writer, supportgroup=supportgroup, text="1"
+        )
+
+        # A comment for the message is created before the person joins the group
+        SupportGroupMessageComment.objects.create(
+            author=writer, message=message, text="1.1"
+        )
+        unread_message_count = get_unread_message_count(new_member.pk)
+        self.assertEqual(unread_message_count, 0)
+
+        # The person joins the group
+        Membership.objects.create(supportgroup=supportgroup, person=new_member)
+        unread_message_count = get_unread_message_count(new_member.pk)
+        self.assertEqual(unread_message_count, 0)
+
+        # A second comment for the message is created after the person has joined the group
+        SupportGroupMessageComment.objects.create(
+            author=writer, message=message, text="1.2"
+        )
+        unread_message_count = get_unread_message_count(new_member.pk)
+        self.assertEqual(unread_message_count, 1)
+
+        # A second message is created after the person has joined the group
+        SupportGroupMessage.objects.create(
+            author=writer, supportgroup=supportgroup, text="2"
+        )
+        unread_message_count = get_unread_message_count(new_member.pk)
+        self.assertEqual(unread_message_count, 2)
 
     def test_get_unread_message_count(self):
         # No messages
@@ -310,3 +352,61 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
         )
         unread_message_count = get_unread_message_count(self.reader.pk)
         self.assertEqual(unread_message_count, 2)
+
+
+class GetUnreadMessageCommentCountActionTestCase(APITestCase):
+    def setUp(self):
+        self.supportgroup = SupportGroup.objects.create()
+        self.reader = Person.objects.create(email="reader@agis.msgs", create_role=True)
+        self.writer = Person.objects.create(email="writer@agir.msgs", create_role=True)
+        Membership.objects.create(supportgroup=self.supportgroup, person=self.writer)
+        self.message = SupportGroupMessage.objects.create(
+            author=self.writer, supportgroup=self.supportgroup, text="1"
+        )
+
+    def test_comments_before_membership_creation_are_not_counted(self):
+        # A comment for the message is created before the person joins the group
+        SupportGroupMessageComment.objects.create(
+            author=self.writer, message=self.message, text="1.1"
+        )
+        unread_comment_count = get_message_unread_comment_count(
+            self.reader.pk, self.message.pk
+        )
+        self.assertEqual(unread_comment_count, 0)
+
+        # The person joins the group
+        Membership.objects.create(supportgroup=self.supportgroup, person=self.reader)
+        unread_comment_count = get_message_unread_comment_count(
+            self.reader.pk, self.message.pk
+        )
+        self.assertEqual(unread_comment_count, 0)
+
+        # A second comment for the message is created after the person has joined the group
+        SupportGroupMessageComment.objects.create(
+            author=self.writer, message=self.message, text="1.2"
+        )
+        unread_comment_count = get_message_unread_comment_count(
+            self.reader.pk, self.message.pk
+        )
+        self.assertEqual(unread_comment_count, 1)
+
+        # The message and its comment are read
+        SupportGroupMessageRecipient.objects.create(
+            recipient=self.reader, message=self.message
+        )
+        unread_comment_count = get_message_unread_comment_count(
+            self.reader.pk, self.message.pk
+        )
+        self.assertEqual(unread_comment_count, 0)
+
+        # A third and fourth comment for the message is created
+        SupportGroupMessageComment.objects.create(
+            author=self.writer, message=self.message, text="1.3"
+        )
+        SupportGroupMessageComment.objects.create(
+            author=self.writer, message=self.message, text="1.4"
+        )
+        unread_comment_count = get_message_unread_comment_count(
+            self.reader.pk, self.message.pk
+        )
+        self.assertEqual(unread_comment_count, 2)
