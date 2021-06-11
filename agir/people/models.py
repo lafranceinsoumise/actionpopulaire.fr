@@ -208,8 +208,6 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
         if subscribed is False:
             extra_fields.setdefault("newsletters", [])
-            extra_fields.setdefault("event_notifications", False)
-            extra_fields.setdefault("group_notifications", False)
         else:
             extra_fields.setdefault(
                 "newsletters", [Person.NEWSLETTER_LFI],

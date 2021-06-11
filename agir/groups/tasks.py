@@ -325,18 +325,16 @@ def send_new_group_event_email(group_pk, event_pk):
     if not OrganizerConfig.objects.filter(event=event, as_group=group):
         return
 
-    recipients = group.members.filter(group_notifications=True)
-
-    recipients_allowed = []
-    for r in recipients:
+    recipients = [
+        member
+        for member in group.members.all()
         if Subscription.objects.filter(
-            person=r,
+            person=member,
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=Activity.TYPE_NEW_EVENT_MYGROUPS,
-        ).exists():
-            recipients_allowed.append(r)
-
-    if recipients_allowed is empty:
+        ).exists()
+    ]
+    if recipients is empty:
         return
 
     tz = timezone.get_current_timezone()
@@ -360,7 +358,7 @@ def send_new_group_event_email(group_pk, event_pk):
         code="NEW_EVENT_MY_GROUPS_NOTIFICATION",
         subject=subject,
         from_email=settings.EMAIL_FROM,
-        recipients=recipients_allowed,
+        recipients=recipients,
         bindings=bindings,
     )
 
@@ -488,8 +486,9 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 def send_message_notification_email(message_pk):
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
-    recipients = []
-    for p in message.supportgroup.members.filter(group_notifications=True):
+    recipients = [
+        p
+        for p in message.supportgroup.members.all()
         if (
             not p.id == message.author.id
             and Subscription.objects.filter(
@@ -497,8 +496,8 @@ def send_message_notification_email(message_pk):
                 type=Subscription.SUBSCRIPTION_EMAIL,
                 activity_type=Activity.TYPE_NEW_COMMENT,
             ).exists()
-        ):
-            recipients.append(p)
+        )
+    ]
 
     if recipients is empty:
         return
@@ -533,8 +532,9 @@ def send_message_notification_email(message_pk):
 def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
 
-    recipients = []
-    for p in comment.message.supportgroup.members.filter(group_notifications=True):
+    recipients = [
+        p
+        for p in comment.message.supportgroup.members.all()
         if (
             not p.id == comment.author.id
             and Subscription.objects.filter(
@@ -542,8 +542,8 @@ def send_comment_notification_email(comment_pk):
                 type=Subscription.SUBSCRIPTION_EMAIL,
                 activity_type=Activity.TYPE_NEW_COMMENT,
             ).exists()
-        ):
-            recipients.append(p)
+        )
+    ]
 
     if recipients is empty:
         return

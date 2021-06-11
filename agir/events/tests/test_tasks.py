@@ -14,7 +14,10 @@ from .. import tasks
 from ..models import Event, Calendar, RSVP, OrganizerConfig
 from ...activity.models import Activity
 
-from django.db.models import Q
+from agir.notifications.actions import (
+    DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES,
+    DEFAULT_PERSON_SUBSCRIPTION_ACTIVITY_TYPES,
+)
 
 fake = Faker("fr_FR")
 

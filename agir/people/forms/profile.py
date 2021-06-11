@@ -374,9 +374,6 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
         fields.extend(
             [
                 Fieldset(
-                    "Notifications", "group_notifications", "event_notifications",
-                ),
-                Fieldset(
                     "Téléphone",
                     Row(ThirdCol("contact_phone"), HalfCol(validation_block)),
                     "subscribed_sms",

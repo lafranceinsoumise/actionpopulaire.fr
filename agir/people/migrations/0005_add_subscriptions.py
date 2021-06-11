@@ -1,5 +1,4 @@
-from django.db import migrations, models
-from django.db.models import Q
+from django.db import migrations
 
 TYPE_GROUP_INVITATION = "group-invitation"
 TYPE_NEW_MEMBER = "new-member"
@@ -33,7 +32,6 @@ SUBSCRIPTION_PUSH = "push"
 def migrate_default_subscriptions_switch_global_notifications_enabled(
     apps, schema_editor
 ):
-    Activity = apps.get_model("activity", "Activity")
     Subscription = apps.get_model("notifications", "Subscription")
     Person = apps.get_model("people", "Person")
 
