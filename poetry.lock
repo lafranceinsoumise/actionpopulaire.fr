@@ -110,11 +110,14 @@ python-versions = "*"
 
 [[package]]
 name = "beautifultable"
-version = "0.8.0"
-description = "Print ASCII tables for terminals"
+version = "1.0.1"
+description = "Print text tables for terminals"
 category = "main"
 optional = false
 python-versions = "*"
+
+[package.dependencies]
+wcwidth = "*"
 
 [[package]]
 name = "billiard"
@@ -1881,7 +1884,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 name = "wcwidth"
 version = "0.2.5"
 description = "Measures the displayed width of unicode strings in a terminal"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1982,7 +1985,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "f0f7bd2bfb6d6bbc88d39ba44627dbc2c2625e46e905f6a20450f830fca22bcc"
+content-hash = "b36cb6f037972d068bdb508224bf2bd150c29823ace1c3006d9648fcb3a8308c"
 
 [metadata.files]
 amqp = [
@@ -2026,8 +2029,8 @@ backcall = [
     {file = "backcall-0.2.0.tar.gz", hash = "sha256:5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e"},
 ]
 beautifultable = [
-    {file = "beautifultable-0.8.0-py2.py3-none-any.whl", hash = "sha256:28e2e93d44a4e84511c4869da4b907345435a06728925e295790f24e1d57300c"},
-    {file = "beautifultable-0.8.0.tar.gz", hash = "sha256:d44d9551bbed7bfa88675324f84efb9aa857384d44e9fb21eb530f0a0badb815"},
+    {file = "beautifultable-1.0.1-py2.py3-none-any.whl", hash = "sha256:8079a7b4179fbb5c0f61d8b3ddd036a1e2b9246d1725b2d2fcde214f9c69f61b"},
+    {file = "beautifultable-1.0.1.tar.gz", hash = "sha256:d2c9ce84f93794d8f158b0c76effba968d08fd2b4acce306911fe78210654dd1"},
 ]
 billiard = [
     {file = "billiard-3.6.4.0-py3-none-any.whl", hash = "sha256:87103ea78fa6ab4d5c751c4909bcff74617d985de7fa8b672cf8618afd5a875b"},
