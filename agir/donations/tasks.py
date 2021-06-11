@@ -82,13 +82,6 @@ def send_expiration_email_reminder(sp_subscription_pk):
         "subscription__person", "alias"
     ).get(pk=sp_subscription_pk)
 
-    if not Subscription.objects.filter(
-        person=sp_subscription.subscription.person,
-        type=Subscription.SUBSCRIPTION_EMAIL,
-        activity_type=Activity.TYPE_WAITING_PAYMENT,
-    ).exists():
-        return
-
     send_mosaico_email(
         code="CARD_EXPIRATION",
         subject="Mettez à jour votre carte bancaire !",
