@@ -96,19 +96,18 @@ class EventTasksTestCase(TestCase):
             notifications_enabled=False,
         )
 
+        # add TYPE_NEW_REPORT to test new_report
+        default_types = [Activity.TYPE_NEW_REPORT]
+        for t in DEFAULT_PERSON_SUBSCRIPTION_ACTIVITY_TYPES:
+            default_types.append(t)
+
         Subscription.objects.bulk_create(
             [
                 Subscription(
                     person=p, type=Subscription.SUBSCRIPTION_EMAIL, activity_type=t,
                 )
                 for p in [self.creator, self.attendee1, self.attendee2]
-                for t in [
-                    Activity.TYPE_NEW_ATTENDEE,
-                    Activity.TYPE_EVENT_UPDATE,
-                    Activity.TYPE_EVENT_SUGGESTION,
-                    Activity.TYPE_WAITING_LOCATION_EVENT,
-                    Activity.TYPE_NEW_REPORT,
-                ]
+                for t in default_types
             ]
         )
 

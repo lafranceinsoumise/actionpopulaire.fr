@@ -1,4 +1,9 @@
 from django.db import migrations
+from agir.notifications.actions import (
+    DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES,
+    DEFAULT_PERSON_SUBSCRIPTION_ACTIVITY_TYPES,
+)
+
 
 TYPE_GROUP_INVITATION = "group-invitation"
 TYPE_NEW_MEMBER = "new-member"
@@ -35,21 +40,22 @@ def migrate_default_subscriptions_switch_global_notifications_enabled(
     Subscription = apps.get_model("notifications", "Subscription")
     Person = apps.get_model("people", "Person")
 
-    # ALL SUBSCRIPTIONS EMAIL
+    # Add general email subscriptions
     Subscription.objects.bulk_create(
         [
             Subscription(person=p, type=SUBSCRIPTION_EMAIL, activity_type=t,)
             for p in Person.objects.all()
             for t in [
                 # GENERAL
-                TYPE_REFERRAL,
                 TYPE_TRANSFERRED_GROUP_MEMBER,
                 TYPE_GROUP_INVITATION,
-                TYPE_WAITING_PAYMENT,
             ]
         ]
     )
-    # EVENTS : add default subscriptions if notifications_event_enabled=True
+
+    # If 'event_notifications' or 'group_notifications' are set, add or remove their subscriptions
+
+    # Events : add default subscriptions if notifications_event_enabled=True
     Subscription.objects.bulk_create(
         [
             Subscription(person=p, type=SUBSCRIPTION_EMAIL, activity_type=t,)
@@ -57,31 +63,18 @@ def migrate_default_subscriptions_switch_global_notifications_enabled(
             for t in [
                 # EVENTS
                 TYPE_EVENT_UPDATE,
-                TYPE_NEW_ATTENDEE,
                 TYPE_EVENT_SUGGESTION,
+                TYPE_NEW_ATTENDEE,
                 TYPE_WAITING_LOCATION_EVENT,
             ]
         ]
     )
-    # GROUPS : delete default subscription (auto-created for groups) if notifications_group_enabled=False
+    # Groups : delete default subscription (auto-created for groups) if notifications_group_enabled=False
     for s in Subscription.objects.filter(type=SUBSCRIPTION_EMAIL):
         if (
             s.person.group_notifications is False
             or s.membership.group_notifications is False
-        ) and s.activity_type in [
-            # GROUPS
-            TYPE_NEW_EVENT_MYGROUPS,
-            TYPE_NEW_REPORT,
-            TYPE_GROUP_INFO_UPDATE,
-            TYPE_NEW_MESSAGE,
-            TYPE_NEW_COMMENT,
-            TYPE_NEW_MEMBER,
-            TYPE_ACCEPTED_INVITATION_MEMBER,
-            TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
-            TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
-            TYPE_WAITING_LOCATION_GROUP,
-            TYPE_GROUP_COORGANIZATION_INVITE,
-        ]:
+        ) and s.activity_type in DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES:
             s.delete()
 
 
