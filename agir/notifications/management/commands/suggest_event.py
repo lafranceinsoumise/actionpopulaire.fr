@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from tqdm import tqdm
 
+from agir.activity.models import Activity
 from agir.events.actions.notifications import new_event_suggestion_notification
 from agir.lib.management_utils import segment_argument
 from agir.people.models import Person
@@ -24,8 +25,18 @@ class Command(BaseCommand):
         else:
             person_queryset = Person.objects.all()
 
-        person_queryset = person_queryset.exclude(coordinates=None).filter(
-            role__is_active=True
+        person_queryset = (
+            person_queryset.exclude(coordinates=None)
+            .filter(
+                role__is_active=True,
+                role__last_login__gt=timezone.now() - timezone.timedelta(days=60),
+            )  # seulement les gens s'étant déjà connectés dans les 2 derniers mois
+            .exclude(
+                activities__in=Activity.objects.filter(
+                    type=Activity.TYPE_EVENT_SUGGESTION,
+                    created__gt=timezone.now() - timezone.timedelta(hours=18),
+                )
+            )  # exclure les personnes ayant déjà reçu une suggestion aujourd'hui
         )
 
         pbar = tqdm(total=person_queryset.count())
