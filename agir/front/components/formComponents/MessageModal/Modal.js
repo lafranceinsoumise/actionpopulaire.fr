@@ -24,6 +24,9 @@ const EMPTY_EVENTS = [
   },
 ];
 
+const SUBJECT_MAX_LENGTH = 150;
+const TEXT_MAX_LENGTH = 2000;
+
 const StyledIconButton = styled.button`
   display: flex;
   align-items: center;
@@ -154,7 +157,9 @@ const Modal = (props) => {
     };
   }, [message]);
 
-  const [text, setText] = useState((message && message.text) || "");
+  const [subject, setSubject] = useState(message?.subject || "");
+  const [text, setText] = useState(message?.text || "");
+
   const [hasBackButton, setHasBackButton] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(
     (message && message.linkedEvent) || null
@@ -163,15 +168,24 @@ const Modal = (props) => {
 
   const maySend = useMemo(() => {
     let maySend =
-      !isLoading && selectedEvent && text && text.trim().length <= 2000;
+      !isLoading &&
+      selectedEvent &&
+      subject.trim() &&
+      subject.trim().length <= SUBJECT_MAX_LENGTH &&
+      text.trim() &&
+      text.trim().length <= TEXT_MAX_LENGTH;
     if (Array.isArray(groups)) {
       return maySend && selectedGroup;
     }
     return maySend;
-  }, [groups, isLoading, selectedEvent, text, selectedGroup]);
+  }, [groups, isLoading, selectedEvent, subject, text, selectedGroup]);
 
-  const handleChangeText = useCallback((text) => {
-    setText(text);
+  const handleChangeMessage = useCallback((prop, text) => {
+    if (prop === "subject") {
+      setSubject(text);
+    } else {
+      setText(text);
+    }
   }, []);
 
   const handleSelectEvent = useCallback((event) => {
@@ -196,14 +210,24 @@ const Modal = (props) => {
     maySend &&
       onSend({
         ...(initialMessage || {}),
+        subject: subject.trim(),
         text: text.trim(),
         linkedEvent: selectedEvent,
         group: selectedGroup,
       });
-  }, [maySend, onSend, initialMessage, text, selectedEvent, selectedGroup]);
+  }, [
+    maySend,
+    onSend,
+    initialMessage,
+    subject,
+    text,
+    selectedEvent,
+    selectedGroup,
+  ]);
 
   useEffect(() => {
     if (shouldShow) {
+      setSubject(initialMessage?.subject || "");
       setText(initialMessage?.text || "");
       setSelectedEvent(initialMessage?.linkedEvent || null);
       setSelectedGroup(initialMessage?.group || null);
@@ -271,12 +295,14 @@ const Modal = (props) => {
           ) : (
             <MessageStep
               text={text}
+              subject={subject}
               event={selectedEvent}
               user={user}
-              onChange={handleChangeText}
+              onChange={handleChangeMessage}
               onClearEvent={handleClearEvent}
               disabled={isLoading}
-              maxLength={2000}
+              maxLength={TEXT_MAX_LENGTH}
+              subjectMaxLength={SUBJECT_MAX_LENGTH}
             />
           )}
         </StyledModalBody>
@@ -301,6 +327,7 @@ Modal.propTypes = {
   onSelectGroup: PropTypes.func,
   message: PropTypes.shape({
     id: PropTypes.string,
+    subject: PropTypes.string,
     text: PropTypes.string,
     linkedEvent: PropTypes.object,
     group: PropTypes.object,

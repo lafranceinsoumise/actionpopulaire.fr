@@ -80,7 +80,9 @@ const MessagePage = ({ messagePk }) => {
   return (
     <>
       <Helmet>
-        <title>Messages - Action Populaire</title>
+        <title>
+          {currentMessage?.subject || "Messages"} - Action Populaire
+        </title>
       </Helmet>
       <NotificationSettings />
       <StyledPage>

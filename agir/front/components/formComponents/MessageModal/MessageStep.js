@@ -92,6 +92,24 @@ const StyledWrapper = styled.div`
   ${StyledMessage} {
     font-size: 1rem;
 
+    header {
+      border-bottom: 1px solid ${style.black100};
+
+      input {
+        &,
+        &:focus,
+        &:hover {
+          outline: none;
+          border: none;
+          margin: 0;
+          background-color: transparent;
+          padding: 1rem 0;
+          font-weight: 500;
+          font-size: 1.125rem;
+        }
+      }
+    }
+
     textarea {
       max-height: 12rem;
 
@@ -128,23 +146,25 @@ const StyledWrapper = styled.div`
 `;
 
 const MessageStep = (props) => {
-  const { disabled, text, event, user, onChange, onClearEvent, maxLength } =
-    props;
+  const {
+    disabled,
+    subject,
+    text,
+    event,
+    user,
+    onChange,
+    onClearEvent,
+    maxLength,
+    subjectMaxLength,
+  } = props;
 
   const textFieldRef = useRef();
   const textFieldCursorPosition = useRef();
 
-  const handleInputChange = useCallback(
-    (e) => {
-      onChange(e.target.value);
-    },
-    [onChange]
-  );
-
   const handleEmojiSelect = useCallback(
     (emoji) => {
       if (!Array.isArray(textFieldCursorPosition.current)) {
-        onChange(text + emoji);
+        onChange("text", text + emoji);
         return;
       }
       const [start, end] = textFieldCursorPosition.current;
@@ -153,7 +173,7 @@ const MessageStep = (props) => {
         start + emoji.length,
         start + emoji.length,
       ];
-      onChange(newValue);
+      onChange("text", newValue);
     },
     [onChange, text]
   );
@@ -195,15 +215,26 @@ const MessageStep = (props) => {
         </span>
       </StyledLabel>
       <StyledMessage>
+        <header>
+          <TextField
+            id="messageSubject"
+            value={subject}
+            onChange={(e) => onChange("subject", e.target.value)}
+            autoFocus
+            disabled={disabled}
+            placeholder="Object du message"
+            maxLength={subjectMaxLength}
+            hasCounter={false}
+          />
+        </header>
         <TextField
           ref={textFieldRef}
           textArea
           id="messageContent"
           value={text}
-          onChange={handleInputChange}
-          autoFocus
+          onChange={(e) => onChange("text", e.target.value)}
           disabled={disabled}
-          placeholder="Quoi de neuf dans votre groupe ?"
+          placeholder="Votre message"
           maxLength={maxLength}
           hasCounter={false}
         />
@@ -221,6 +252,7 @@ const MessageStep = (props) => {
 };
 MessageStep.propTypes = {
   disabled: PropTypes.bool,
+  subject: PropTypes.string,
   text: PropTypes.string,
   event: PropTypes.object,
   user: PropTypes.shape({
@@ -230,5 +262,6 @@ MessageStep.propTypes = {
   onChange: PropTypes.func.isRequired,
   onClearEvent: PropTypes.func,
   maxLength: PropTypes.number,
+  subjectMaxLength: PropTypes.number,
 };
 export default MessageStep;
