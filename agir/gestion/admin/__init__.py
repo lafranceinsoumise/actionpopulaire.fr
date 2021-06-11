@@ -1,12 +1,9 @@
-from django.template.loader import get_template, render_to_string
-
-from agir.gestion.models.depenses import etat_initial
-
-from agir.gestion.typologies import TypeDepense
 from django.contrib import admin
 from django.core.exceptions import ValidationError
+from django.db.models import Count, Sum
+from django.template.loader import render_to_string
 from django.urls import path, reverse
-from django.utils.html import format_html, format_html_join
+from django.utils.html import format_html_join
 from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
@@ -16,6 +13,7 @@ from agir.gestion.admin.forms import (
     DepenseForm,
     ProjetForm,
     DocumentForm,
+    OrdreVirementForm,
 )
 from agir.gestion.admin.inlines import (
     DepenseDocumentInline,
@@ -26,6 +24,9 @@ from agir.gestion.admin.inlines import (
 )
 from agir.gestion.admin.views import AjouterReglementView, TransitionView
 from agir.gestion.models import Depense, Projet, Fournisseur, Document, Compte
+from agir.gestion.models.depenses import etat_initial
+from agir.gestion.models.virements import OrdreVirement
+from agir.gestion.typologies import TypeDepense
 from agir.lib.display import display_price
 from agir.people.models import Person
 
@@ -294,3 +295,42 @@ class ProjetAdmin(BaseAdminMixin, VersionAdmin):
         "type",
         "etat",
     )
+
+
+@admin.register(OrdreVirement)
+class OrdreVirementAdmin(BaseAdminMixin, VersionAdmin):
+    form = OrdreVirementForm
+    list_display = ("numero", "statut", "created", "date", "nb_reglements", "montant")
+
+    fields = ("numero_", "statut", "created", "date", "reglements", "fichier")
+    filter_horizontal = ("reglements",)
+
+    readonly_fields = ("statut", "created", "fichier")
+
+    def get_readonly_fields(self, request, obj=None):
+        rof = super().get_readonly_fields(request, obj=obj)
+        if obj:
+            return [*rof, "reglements"]
+        return rof
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(
+                nb_reglements=Count("reglements"), montant=Sum("reglements__montant")
+            )
+        )
+
+    def nb_reglements(self, obj):
+        return getattr(obj, "nb_reglements", "-")
+
+    nb_reglements.short_description = "Nombre de réglements"
+    nb_reglements.admin_order_field = "nb_reglements"
+
+    def montant(self, obj):
+        total = getattr(obj, "montant")
+        return display_price(total, price_in_cents=False) if total else "-"
+
+    montant.short_description = "Montant total"
+    montant.admin_order_field = "montant"

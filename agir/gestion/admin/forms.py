@@ -1,8 +1,10 @@
 from django import forms
+from django.core import validators
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.db.models import Sum
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
 from agir.gestion.admin.widgets import HierarchicalSelect
@@ -142,6 +144,8 @@ class DepenseDevisForm(forms.ModelForm):
     devis = forms.FileField(label="Devis", max_length=30e6, required=False)  # 30 Mo
 
     def _save_m2m(self):
+        super()._save_m2m()
+
         if "devis" in self.cleaned_data:
             document = Document.objects.create(
                 titre=f"Devis pour {self.instance.titre}",
@@ -281,6 +285,8 @@ class ReglementForm(forms.ModelForm):
 
     def _save_m2m(self):
         """Gérer correctement la création de la preuve de paiement."""
+        super()._save_m2m()
+
         reglement_modifie = False
 
         if "preuve" in self.cleaned_data:
@@ -332,3 +338,29 @@ class ReglementForm(forms.ModelForm):
             "location_zip_fournisseur",
             "location_country_fournisseur",
         )
+
+
+class OrdreVirementForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if "reglements" in self.fields:
+            self.fields["reglements"].queryset = self.fields[
+                "reglements"
+            ].queryset.filter(
+                statut=Reglement.Statut.ATTENTE, mode=Reglement.Mode.VIREMENT
+            )
+
+        if "date" in self.fields:
+            today = timezone.now().astimezone(timezone.get_current_timezone()).date()
+            self.fields["date"].min_value = today
+            self.fields["date"].validators.append(
+                validators.MinValueValidator(
+                    today,
+                    message="Impossible de créer un ordre de virement dans le passé",
+                )
+            )
+
+    def _save_m2m(self):
+        # TODO: créer l'ordre de virement avec sepaxml et le sauvegarder
+        super()._save_m2m()

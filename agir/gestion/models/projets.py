@@ -8,7 +8,7 @@ from django.utils.html import format_html
 from agir.lib.models import TimeStampedModel
 from agir.people.models import Person
 from .commentaires import Commentaire
-from .common import NumeroUniqueMixin
+from .common import ModeleGestionMixin
 from ..actions import Todo, NiveauTodo, Transition, no_todos
 from ..typologies import TypeProjet, NiveauAcces, TypeDepense, TypeDocument
 
@@ -19,7 +19,7 @@ __all__ = (
 
 
 @reversion.register(follow=["participations"])
-class Projet(NumeroUniqueMixin, TimeStampedModel):
+class Projet(ModeleGestionMixin, TimeStampedModel):
 
     """Le projet regroupe ensemble des dépenses liées entre elles
 

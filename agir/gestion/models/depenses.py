@@ -11,7 +11,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from agir.authentication.models import Role
 from agir.gestion.actions import Todo, NiveauTodo, Transition, no_todos
 
-from agir.gestion.models.common import NumeroUniqueMixin
+from agir.gestion.models.common import ModeleGestionMixin
 from agir.gestion.typologies import TypeDepense, NiveauAcces, TypeDocument
 from agir.lib.model_fields import IBANField
 from agir.lib.models import TimeStampedModel, LocationMixin
@@ -52,7 +52,7 @@ class DepenseQuerySet(models.QuerySet):
 
 
 @reversion.register()
-class Depense(NumeroUniqueMixin, TimeStampedModel):
+class Depense(ModeleGestionMixin, TimeStampedModel):
     """Une dépense correspond à un paiement réalisé en lien avec une facture
     """
 

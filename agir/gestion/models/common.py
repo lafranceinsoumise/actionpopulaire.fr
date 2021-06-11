@@ -65,7 +65,19 @@ class NumeroManager(models.Manager):
         return self.get(numero=numero)
 
 
-class NumeroUniqueMixin(models.Model):
+class ModeleGestionMixin(models.Model):
+    """Mixin à intégrer pour les modèles utilisés dans l'application de gestion
+
+    Ce mixin ajoute trois fonctionnalités principales :
+    - le système de numéro unique généré aléatoirement à la création qui permet de se référer à n'importe quelle
+      instance de façon unique
+    - le système de commentaires qui permet d'ajouter des remarques ou des todos sur mesure à chaque élément
+      de gestion.
+    - un système de configuration de recherche plein texte.
+
+    Une méthode `__str__` par défaut est aussi fournie si le modèle a un champ `titre`.
+    """
+
     objects = NumeroManager()
 
     numero = models.CharField(
@@ -93,7 +105,10 @@ class NumeroUniqueMixin(models.Model):
 
 
 @reversion.register()
-class Document(NumeroUniqueMixin, TimeStampedModel):
+class Document(ModeleGestionMixin, TimeStampedModel):
+    """Modèle représentant un élément justificatif, à associer à une instance d'un autre modèle de gestion
+    """
+
     class Besoin(models.TextChoices):
         NECESSAIRE = "NEC", "Strictement nécessaire"
         PREFERABLE = "PRE", "Préférable"
@@ -194,7 +209,7 @@ class Compte(TimeStampedModel):
 
 
 class Autorisation(TimeStampedModel):
-    """Une autorisation reliée à un compte en particulier.
+    """Une autorisation permet d'attribuer à un groupe des permissions sur un compte en particulier
     """
 
     compte = models.ForeignKey(
