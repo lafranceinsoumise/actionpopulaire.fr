@@ -129,15 +129,9 @@ def send_event_changed_notification(event_pk, changed_data):
                 meta={"changed_data": changed_data},
             )
 
-    notifications_enabled = Q(notifications_enabled=True) & Q(
-        person__event_notifications=True
-    )
-
     recipients = [
         rsvp.person
-        for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
-            "person__emails"
-        )
+        for rsvp in event.rsvps.prefetch_related("person__emails")
         if Subscription.objects.filter(
             person=rsvp.person,
             type=Subscription.SUBSCRIPTION_EMAIL,
@@ -217,9 +211,7 @@ def send_rsvp_notification(rsvp_pk):
     recipients = []
     recipients_allowed_email = []
 
-    for organizer_config in rsvp.event.organizer_configs.filter(
-        notifications_enabled=True
-    ):
+    for organizer_config in rsvp.event.organizer_configs.all():
         if organizer_config.person != rsvp.person:
             recipients.append(organizer_config.person)
             if Subscription.objects.filter(
@@ -343,15 +335,18 @@ def send_event_report(event_pk):
     if event.report_summary_sent:
         return
 
-    notifications_enabled = Q(notifications_enabled=True) & Q(
-        person__event_notifications=True
-    )
     recipients = [
         rsvp.person
-        for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
-            "person__emails"
-        )
+        for rsvp in event.rsvps.prefetch_related("person__emails")
+        if Subscription.objects.filter(
+            person=rsvp.person,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_REPORT,
+        ).exists()
     ]
+
+    if recipients is empty:
+        return
 
     bindings = {
         "EVENT_NAME": event.name,

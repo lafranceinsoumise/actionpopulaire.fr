@@ -121,21 +121,16 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
             meta={"changed_data": [f for f in changed_data if f in NOTIFIED_CHANGES]},
         )
 
-    notifications_enabled = Q(notifications_enabled=True) & Q(
-        person__group_notifications=True
-    )
-
     recipients = [
         membership.person
-        for membership in group.memberships.filter(
-            notifications_enabled
-        ).prefetch_related("person__emails")
+        for membership in group.memberships.prefetch_related("person__emails")
         if Subscription.objects.filter(
             person=membership.person,
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=Activity.TYPE_GROUP_INFO_UPDATE,
         ).exists()
     ]
+
     if recipients is empty:
         return
 
@@ -446,9 +441,7 @@ def geocode_support_group(supportgroup_pk):
         supportgroup.coordinates_type is not None
         and supportgroup.coordinates_type >= SupportGroup.COORDINATES_NO_POSITION
     ):
-        managers_filter = (
-            Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
-        ) & Q(notifications_enabled=True)
+        managers_filter = Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
         managing_membership = supportgroup.memberships.filter(managers_filter)
         managing_membership_recipients = [
             membership.person for membership in managing_membership
@@ -470,9 +463,7 @@ def geocode_support_group(supportgroup_pk):
 def create_accepted_invitation_member_activity(new_membership_pk):
     new_membership = Membership.objects.get(pk=new_membership_pk)
 
-    managers_filter = (Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)) & Q(
-        notifications_enabled=True
-    )
+    managers_filter = Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
     managing_membership = new_membership.supportgroup.memberships.filter(
         managers_filter
     )
@@ -578,7 +569,7 @@ def send_comment_notification_email(comment_pk):
     message_reference = re.sub("\s+", " ", message_reference)
     if len(message_reference) > 80:
         message_reference = message_reference[0:80] + '..."'
-    subject = f"Nouvelle réponse à un commentaire concernant {message_reference}"
+    subject = f"Nouvelle réponse au message {message_reference}"
 
     send_mosaico_email(
         code="NEW_MESSAGE",

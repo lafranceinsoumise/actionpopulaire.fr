@@ -70,9 +70,7 @@ def create_transfer_membership_activities(
     )
 
     # Create activities for target group managers
-    managers_filter = (Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)) & Q(
-        notifications_enabled=True
-    )
+    managers_filter = Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
     managing_membership = target_group.memberships.filter(managers_filter)
     managing_membership_recipients = [
         membership.person for membership in managing_membership
