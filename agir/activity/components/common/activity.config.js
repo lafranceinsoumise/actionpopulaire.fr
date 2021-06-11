@@ -4,12 +4,6 @@ const ACTIVITY_CONFIG = {
   announcement: {
     icon: "bell",
   },
-  "new-message": {
-    icon: "mail",
-  },
-  "new-comment": {
-    icon: "mail",
-  },
   "group-coorganization-accepted": {
     icon: "calendar",
     hasEvent: true,

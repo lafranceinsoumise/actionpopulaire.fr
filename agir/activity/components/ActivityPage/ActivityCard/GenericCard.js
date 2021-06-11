@@ -84,50 +84,6 @@ const GenericCard = (props) => {
         </GenericCardContainer>
       );
     }
-    case "new-message":
-      return (
-        <GenericCardContainer {...props}>
-          {Individual || "Quelqu'un"} a posté{" "}
-          <Link
-            to={
-              meta?.message
-                ? routeConfig.groupMessage.getLink({
-                    groupPk: supportGroup.id,
-                    messagePk: meta.message,
-                  })
-                : routeConfig.groupDetails.getLink({
-                    groupPk: supportGroup.id,
-                    activeTab: "messages",
-                  })
-            }
-          >
-            un nouveau message
-          </Link>{" "}
-          dans le groupe {SupportGroup}.
-        </GenericCardContainer>
-      );
-    case "new-comment":
-      return (
-        <GenericCardContainer {...props}>
-          {Individual || "Quelqu'un"} a posté une réponse dans{" "}
-          <Link
-            to={
-              meta?.message
-                ? routeConfig.groupMessage.getLink({
-                    groupPk: supportGroup.id,
-                    messagePk: meta.message,
-                  })
-                : routeConfig.groupDetails.getLink({
-                    groupPk: supportGroup.id,
-                    activeTab: "messages",
-                  })
-            }
-          >
-            une discussion à laquelle vous avez participé
-          </Link>{" "}
-          de {SupportGroup}.
-        </GenericCardContainer>
-      );
     case "waiting-location-group": {
       return (
         <GenericCardContainer {...props}>
