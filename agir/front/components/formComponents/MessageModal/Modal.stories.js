@@ -117,6 +117,7 @@ WithInitialData.args = {
       startTime: "2021-01-09 10:04:19",
       type: "G",
     },
+    subject: "Un beau message",
     text: "Bonjour !",
   },
 };
