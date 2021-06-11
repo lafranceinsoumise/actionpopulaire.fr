@@ -45,6 +45,9 @@ class AbstractMessage(BaseAPIResource):
 
 @reversion.register()
 class SupportGroupMessage(AbstractMessage):
+    subject = models.CharField(
+        "Objet", max_length=150, null=False, blank=True, default=""
+    )
     supportgroup = models.ForeignKey(
         "groups.SupportGroup",
         editable=False,

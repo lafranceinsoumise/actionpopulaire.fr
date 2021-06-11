@@ -71,6 +71,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "id",
         "created",
         "author",
+        "subject",
         "text",
         "group",
         "linkedEvent",
@@ -79,12 +80,13 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     )
     DETAIL_FIELDS = (
         "id",
-        "lastUpdate",
         "created",
         "author",
+        "subject",
         "text",
         "group",
         "linkedEvent",
+        "lastUpdate",
         "comments",
     )
 
@@ -135,6 +137,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "id",
             "created",
             "author",
+            "subject",
             "text",
             "image",
             "group",
@@ -228,6 +231,7 @@ class UserMessagesSerializer(BaseMessageSerializer):
             "id",
             "created",
             "author",
+            "subject",
             "text",
             "group",
             "unreadCommentCount",
