@@ -16,7 +16,7 @@ const StyledNewMessageButton = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     background-color: ${style.white};
-    padding: 1.5rem;
+    padding: 1rem;
     position: fixed;
     bottom: 72px;
     left: 0;
@@ -37,7 +37,7 @@ const StyledMenu = styled.menu`
   @media (max-width: ${style.collapse}px) {
     max-width: 100%;
     border-right: none;
-    padding-bottom: 200px;
+    padding-bottom: 160px;
     isolation: isolate;
   }
 
