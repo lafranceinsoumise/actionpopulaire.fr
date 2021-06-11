@@ -21,6 +21,5 @@ class Migration(migrations.Migration):
                 related_query_name="activities",
                 to="people.person",
             ),
-        ),
-        migrations.AlterUniqueTogether(name="activity", unique_together=set(),),
+        )
     ]
