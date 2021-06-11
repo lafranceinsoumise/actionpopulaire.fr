@@ -26,6 +26,10 @@ const StyledContent = styled.article`
   overflow-x: hidden;
   overflow-y: auto;
 
+  @media (max-width: ${style.collapse}px) {
+    padding-bottom: 64px;
+  }
+
   & > * {
     box-shadow: none;
     border: none;
@@ -195,7 +199,7 @@ const MobileThreadList = (props) => {
         writeNewMessage={writeNewMessage}
       />
       <Panel
-        style={{ padding: "56px 0", background: "white" }}
+        style={{ paddingLeft: "0", paddingRight: "0", background: "white" }}
         shouldShow={!!selectedMessage}
         noScroll
         isBehindTopBar

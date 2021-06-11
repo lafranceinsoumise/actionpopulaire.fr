@@ -6,8 +6,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
-import { useMobileApp, useDownloadBanner } from "@agir/front/app/hooks.js";
+import { useDownloadBanner } from "@agir/front/app/hooks.js";
 import {
   useDispatch,
   useSelector,
@@ -48,9 +47,7 @@ const Page = (props) => {
 
   const dispatch = useDispatch();
   const isSessionLoaded = useSelector(getIsSessionLoaded);
-  const isDesktop = useIsDesktop();
-  const { isMobileApp } = useMobileApp();
-  const [isBannerDownload, _] = useDownloadBanner();
+  const [isBannerDownload] = useDownloadBanner();
   const history = useHistory();
   const routeParams = useParams();
   const { pathname } = useLocation();
@@ -110,10 +107,7 @@ const Page = (props) => {
       <ErrorBoundary>
         {routeConfig.hideTopBar ? null : <TopBar path={pathname} />}
 
-        {!routeConfig.hideTopBar &&
-          !isMobileApp &&
-          !isDesktop &&
-          isBannerDownload && <Spacer size="80px" />}
+        {!routeConfig.hideTopBar && isBannerDownload && <Spacer size="80px" />}
 
         <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
           {routeConfig.hideConnectivityWarning ? null : (
@@ -139,10 +133,7 @@ const Page = (props) => {
     <ErrorBoundary>
       {routeConfig.hideTopBar ? null : <TopBar path={pathname} />}
 
-      {!routeConfig.hideTopBar &&
-        !isMobileApp &&
-        !isDesktop &&
-        isBannerDownload && <Spacer size="80px" />}
+      {!routeConfig.hideTopBar && isBannerDownload && <Spacer size="80px" />}
 
       {routeConfig.hideConnectivityWarning ? null : (
         <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />

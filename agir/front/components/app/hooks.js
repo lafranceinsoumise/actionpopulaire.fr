@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 
 import { parseQueryStringParams } from "@agir/lib/utils/url";
 import { useLocalStorage } from "@agir/lib/utils/hooks";
+import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
 
 export const useCustomBackNavigation = (callback) => {
   const history = useHistory();
@@ -57,9 +58,12 @@ export const useDownloadBanner = () => {
   const [bannerCount, setBannerCount] = useLocalStorage("BANNER_count", 0);
   const [visitCount] = useLocalStorage("AP_vcount", 0);
 
+  const isDesktop = useIsDesktop();
+  const { isMobileApp } = useMobileApp();
+
   const hide = useCallback(() => {
     setBannerCount(visitCount + 25);
   }, [setBannerCount, visitCount]);
 
-  return [bannerCount <= visitCount, hide];
+  return [!isMobileApp && !isDesktop && bannerCount <= visitCount, hide];
 };
