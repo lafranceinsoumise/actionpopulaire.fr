@@ -250,6 +250,10 @@ const StyledComments = styled.div`
     margin-top: auto;
     padding: 1rem 0 0;
 
+    @media (max-width: ${style.collapse}px) {
+      margin: 0 -2rem;
+    }
+
     &:empty {
       display: none;
     }
