@@ -202,8 +202,7 @@ class ActivityStatusUpdateViewTestCase(TestCase):
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
 
         self.assertCountEqual(
-            self.p1.received_notifications.filter(status=Activity.STATUS_DISPLAYED),
-            [self.a1],
+            self.p1.activities.filter(status=Activity.STATUS_DISPLAYED), [self.a1],
         )
 
     def test_can_update_multiple_activities(self):
@@ -219,7 +218,7 @@ class ActivityStatusUpdateViewTestCase(TestCase):
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
 
         self.assertCountEqual(
-            self.p1.received_notifications.filter(status=Activity.STATUS_INTERACTED),
+            self.p1.activities.filter(status=Activity.STATUS_INTERACTED),
             [self.a1, self.a2],
         )
 
