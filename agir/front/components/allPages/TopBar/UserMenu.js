@@ -141,7 +141,7 @@ export const UserMenu = (props) => {
             color="secondary"
             small
           >
-            Notifications et e-mail
+            Notifications et e-mails
           </Button>
         </article>
         <footer>
