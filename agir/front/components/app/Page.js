@@ -16,6 +16,7 @@ import {
   setBackLink,
   setTopBarRightLink,
   setAdminLink,
+  setPageTitle,
 } from "@agir/front/globalContext/actions";
 
 import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
@@ -59,6 +60,7 @@ const Page = (props) => {
       dispatch(setBackLink(null));
       dispatch(setTopBarRightLink(null));
       dispatch(setAdminLink(null));
+      dispatch(setPageTitle(routeConfig?.label || null));
     }
     //eslint-disable-next-line
   }, [pathname, routeConfig]);

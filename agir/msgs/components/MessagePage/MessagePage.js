@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect } from "react";
 import Helmet from "react-helmet";
 import styled from "styled-components";
 
@@ -10,6 +10,9 @@ import {
   useSelectMessage,
   useMessageActions,
 } from "@agir/msgs/hooks";
+import { useDispatch } from "@agir/front/globalContext/GlobalContext";
+import { setPageTitle } from "@agir/front/globalContext/actions";
+import { getMessageSubject } from "@agir/msgs/utils";
 
 import { Hide } from "@agir/front/genericComponents/grid";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
@@ -43,6 +46,7 @@ const StyledPage = styled.div`
 `;
 
 const MessagePage = ({ messagePk }) => {
+  const dispatch = useDispatch();
   const onSelectMessage = useSelectMessage();
   const { user, messages, messageRecipients, currentMessage } = useMessageSWR(
     messagePk,
@@ -77,12 +81,18 @@ const MessagePage = ({ messagePk }) => {
   const shouldShowMessageActionModal =
     messageAction === "report" || messageAction === "delete";
 
+  const pageTitle = currentMessage
+    ? getMessageSubject(currentMessage)
+    : "Messages";
+
+  useEffect(() => {
+    dispatch(setPageTitle(pageTitle));
+  }, [dispatch, pageTitle]);
+
   return (
     <>
       <Helmet>
-        <title>
-          {currentMessage?.subject || "Messages"} - Action Populaire
-        </title>
+        <title>{pageTitle} - Action Populaire</title>
       </Helmet>
       <NotificationSettings />
       <StyledPage>

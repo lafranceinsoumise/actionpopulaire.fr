@@ -4,8 +4,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { routeConfig } from "@agir/front/app/routes.config";
-import { displayShortDate } from "@agir/lib/utils/time";
+import { getMessageSubject } from "@agir/msgs/utils";
 import { timeAgo } from "@agir/lib/utils/time";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
@@ -113,7 +112,6 @@ const MessageThreadCard = (props) => {
 
   const {
     id,
-    created,
     author,
     group,
     isUnread,
@@ -127,7 +125,7 @@ const MessageThreadCard = (props) => {
   }, [onClick, id]);
 
   const unreadItemCount = (isUnread ? 1 : 0) + (unreadCommentCount || 0);
-  const subject = message.subject || `Message du ${displayShortDate(created)}`;
+  const subject = getMessageSubject(message);
   const time = timeAgo(lastUpdate).replace("il y a", "");
   const text = lastComment
     ? `${lastComment.author.displayName} : ${lastComment.text}`

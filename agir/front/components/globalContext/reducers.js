@@ -92,6 +92,13 @@ export const toasts = (state = [], action) => {
   return state;
 };
 
+export const pageTitle = (state = "", action) => {
+  if (action.type === ACTION_TYPE.SET_PAGE_TITLE) {
+    return action.title || "";
+  }
+  return state;
+};
+
 export const backLink = (state = null, action) => {
   if (action.type === ACTION_TYPE.INIT_ACTION) {
     return action.backLink || state;
@@ -275,6 +282,8 @@ export const getRouteById = (state, id) => state.routes[id] || null;
 
 export const getToasts = (state) => state.toasts;
 
+export const getPageTitle = (state) => state.pageTitle;
+
 export const getBackLink = (state) => {
   if (!state.backLink) return null;
   if (state.backLink.isProtected && state.isSessionLoaded && !state.user)
@@ -311,6 +320,7 @@ const reducers = {
   bookmarkedEmails,
   routes,
   toasts,
+  pageTitle,
   backLink,
   topBarRightLink,
   adminLink,
