@@ -145,8 +145,8 @@ CustomAnnouncementCard.propTypes = HookedCustomAnnouncementCard.propTypes = {
   title: PropTypes.string,
   children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]).isRequired,
 };
-CustomAnnouncementCard.propTypes.onClose = PropTypes.func.isRequired;
-CustomAnnouncementCard.propTypes.config = PropTypes.object.isRequired;
+CustomAnnouncementCard.propTypes.onClose = PropTypes.func;
+CustomAnnouncementCard.propTypes.config = PropTypes.object;
 HookedCustomAnnouncementCard.propTypes.slug = PropTypes.string.isRequired;
 
 export default HookedCustomAnnouncementCard;
