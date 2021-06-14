@@ -66,7 +66,10 @@ export const useMessageSWR = (messagePk, selectMessage) => {
       return;
     }
     const updatedMessage = messages.find((m) => m.id === currentMessage.id);
-    if (updatedMessage.lastUpdate === currentMessage.lastUpdate) {
+    if (
+      updatedMessage &&
+      updatedMessage.lastUpdate === currentMessage.lastUpdate
+    ) {
       return;
     }
     mutateMessage();
@@ -165,7 +168,7 @@ export const useMessageActions = (
           : await groupAPI.createMessage(message.group.id, message);
         setIsLoading(false);
         mutate("/api/user/messages/");
-        if (!message.id) {
+        if (message.id) {
           mutate(
             `/api/groupes/messages/${message.id}/`,
             () => result.data,
