@@ -56,6 +56,12 @@ const StyledList = styled.main`
     height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
+
+    &:first-child {
+      @media (min-width: ${style.collapse}px) {
+        flex: 0 0 400px;
+      }
+    }
   }
 `;
 

@@ -20,6 +20,9 @@ const TopBarMainLabel = styled.h1`
   font-size: 16px;
   line-height: 24px;
   margin: 1px 0 -1px 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
 
   &:hover {
     text-decoration: none;
@@ -43,7 +46,11 @@ export const TopBarMainLink = (props) => {
     );
   }
 
-  return <TopBarMainLabel>{pageTitle || currentRoute.label}</TopBarMainLabel>;
+  return (
+    <TopBarMainLabel title={pageTitle || currentRoute.label}>
+      {pageTitle || currentRoute.label}
+    </TopBarMainLabel>
+  );
 };
 
 TopBarMainLink.propTypes = {
