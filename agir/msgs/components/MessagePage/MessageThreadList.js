@@ -161,7 +161,6 @@ const DesktopThreadList = (props) => {
               isManager={selectedMessage.group.isManager}
               groupURL={routeConfig.groupDetails.getLink({
                 groupPk: selectedMessage.group.id,
-                activeTab: "messages",
               })}
             />
           ) : null}
@@ -238,7 +237,6 @@ const MobileThreadList = (props) => {
               isManager={selectedMessage?.group.isManager}
               groupURL={routeConfig.groupDetails.getLink({
                 groupPk: selectedMessage?.group.id,
-                activeTab: "messages",
               })}
             />
           )}
