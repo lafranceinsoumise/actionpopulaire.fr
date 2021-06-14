@@ -160,7 +160,7 @@ MERGE_STRATEGIES = {
     "poll_choices": merge_reassign_related,
     "payments": merge_reassign_related,
     "subscriptions": merge_reassign_related,
-    "received_notification": merge_reassign_related,
+    "activities": merge_reassign_related,
     "municipales2020_commune": None,
     "mandat_municipal": merge_reassign_related,
     "mandat_departemental": merge_reassign_related,

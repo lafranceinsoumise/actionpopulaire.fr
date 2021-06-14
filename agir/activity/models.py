@@ -145,8 +145,8 @@ class Activity(TimeStampedModel):
     recipient = models.ForeignKey(
         "people.Person",
         on_delete=models.CASCADE,
-        related_name="received_notifications",
-        related_query_name="received_notification",
+        related_name="activities",
+        related_query_name="activities",
     )
 
     status = models.CharField(

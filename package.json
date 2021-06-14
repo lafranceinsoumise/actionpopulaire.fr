@@ -25,8 +25,8 @@
   "dependencies": {
     "@babel/runtime-corejs3": "^7.13.17",
     "@react-spring/core": "^9.1.2",
-    "@react-spring/shared": "^9.1.2",
-    "@react-spring/web": "^9.1.2",
+    "@react-spring/shared": "^9.2.3",
+    "@react-spring/web": "^9.2.3",
     "@sentry/react": "^6.3.0",
     "@sentry/tracing": "^6.3.0",
     "axios": "^0.21.1",
@@ -100,7 +100,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.13.8",
     "@babel/plugin-transform-runtime": "^7.13.15",
     "@babel/preset-env": "^7.13.15",
-    "@babel/preset-react": "^7.13.13",
+    "@babel/preset-react": "^7.14.5",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.4.3",
     "@storybook/addon-actions": "^6.2.8",
     "@storybook/addon-essentials": "^6.2.8",
@@ -138,7 +138,7 @@
     "webpack-bundle-analyzer": "^4.4.1",
     "webpack-cli": "^4.6.0",
     "webpack-dev-server": "^3.11.2",
-    "webpack-merge": "^5.7.3",
+    "webpack-merge": "^5.8.0",
     "webpack-stats-plugin": "^1.0.3",
     "webpackbar": "5.0.0-3",
     "workbox-webpack-plugin": "^6.1.5"
