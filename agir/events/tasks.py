@@ -112,7 +112,7 @@ def send_event_changed_notification(event_pk, changed_data):
             activity_type=Activity.TYPE_EVENT_UPDATE,
         ).exists()
     ]
-    if recipients is empty:
+    if len(recipients) == 0:
         return
 
     changed_categories = {NOTIFIED_CHANGES[f] for f in changed_data}
@@ -319,7 +319,7 @@ def send_event_report(event_pk):
         ).exists()
     ]
 
-    if recipients is empty:
+    if len(recipients) == 0:
         return
 
     bindings = {
