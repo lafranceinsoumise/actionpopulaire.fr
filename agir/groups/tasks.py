@@ -131,7 +131,7 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
         ).exists()
     ]
 
-    if recipients is empty:
+    if len(recipients) == 0:
         return
 
     change_descriptions = [
@@ -173,7 +173,7 @@ def send_joined_notification_email(membership_pk):
             activity_type=Activity.TYPE_NEW_MEMBER,
         ).exists()
     ]
-    if recipients is empty:
+    if len(recipients) == 0:
         return
 
     bindings = {
@@ -334,7 +334,7 @@ def send_new_group_event_email(group_pk, event_pk):
             activity_type=Activity.TYPE_NEW_EVENT_MYGROUPS,
         ).exists()
     ]
-    if recipients is empty:
+    if len(recipients) == 0:
         return
 
     tz = timezone.get_current_timezone()
@@ -389,7 +389,7 @@ def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
         ).exists():
             recipients_allowed.append(r)
 
-    if recipients_allowed is empty:
+    if len(recipients_allowed) == 0:
         return
 
     send_mosaico_email(
@@ -487,7 +487,7 @@ def send_message_notification_email(message_pk):
         )
     ]
 
-    if recipients is empty:
+    if len(recipients) == 0:
         return
 
     bindings = {
@@ -533,7 +533,7 @@ def send_comment_notification_email(comment_pk):
         )
     ]
 
-    if recipients is empty:
+    if len(recipients) == 0:
         return
 
     bindings = {
