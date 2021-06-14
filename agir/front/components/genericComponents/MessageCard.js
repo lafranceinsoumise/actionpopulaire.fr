@@ -7,6 +7,7 @@ import { FaWhatsapp, FaTelegram } from "react-icons/fa";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { timeAgo } from "@agir/lib/utils/time";
 import { formatEvent } from "@agir/events/common/utils";
+import { getMessageSubject } from "@agir/msgs/utils";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -259,6 +260,12 @@ const StyledComments = styled.div`
     }
   }
 `;
+const StyledSubject = styled.h2`
+  font-size: 1.125rem;
+  line-height: 1.5;
+  font-weight: 600;
+  margin: 0 0 1.25rem;
+`;
 const StyledMessage = styled.div``;
 const StyledWrapper = styled.div`
   width: 100%;
@@ -430,6 +437,7 @@ const MessageCard = (props) => {
       $withMobileCommentField={withMobileCommentField}
     >
       <StyledMessage>
+        <StyledSubject>{getMessageSubject(message)}</StyledSubject>
         <StyledHeader>
           <Avatar {...author} />
           <h4>

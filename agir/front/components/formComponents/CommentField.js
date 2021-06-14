@@ -375,7 +375,7 @@ const CommentField = (props) => {
         rootElementRef.current,
         !isDesktop ? messageRef.current : null
       );
-  }, [autoScroll, isDesktop, value]);
+  }, [autoScroll, isDesktop, isExpanded, value]);
 
   return (
     <StyledWrapper

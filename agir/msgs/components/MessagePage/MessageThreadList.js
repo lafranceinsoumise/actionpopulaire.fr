@@ -59,7 +59,7 @@ const StyledList = styled.main`
   }
 `;
 
-const useAutoScrollToBottom = (commentLength = 0) => {
+const useAutoScrollToBottom = (commentLength = 0, messageId) => {
   const scrollableRef = useRef(null);
   const bottomRef = useRef(null);
   const hasNewComments = useRef(false);
@@ -76,6 +76,10 @@ const useAutoScrollToBottom = (commentLength = 0) => {
   useEffect(() => {
     hasNewComments.current = true;
   }, [commentLength]);
+
+  useEffect(() => {
+    hasNewComments.current = false;
+  }, [messageId]);
 
   useEffect(() => {
     if (
@@ -111,7 +115,8 @@ const DesktopThreadList = (props) => {
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
-    selectedMessage?.comments?.length
+    selectedMessage?.comments?.length,
+    selectedMessagePk
   );
 
   useEffect(() => {
@@ -171,6 +176,7 @@ const MobileThreadList = (props) => {
     user,
     messages,
     selectedMessage,
+    selectedMessagePk,
     onSelect,
     onEdit,
     onComment,
@@ -183,7 +189,8 @@ const MobileThreadList = (props) => {
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
-    selectedMessage?.comments?.length
+    selectedMessage?.comments?.length,
+    selectedMessagePk
   );
 
   return (
