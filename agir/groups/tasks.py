@@ -367,23 +367,11 @@ def send_new_group_event_email(group_pk, event_pk):
 def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
     recipients = Person.objects.filter(pk__in=recipients_pks)
 
-    recipients_allowed = []
-    for r in recipients:
-        if Subscription.objects.filter(
-            person=r,
-            type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
-        ).exists():
-            recipients_allowed.append(r)
-
-    if recipients_allowed is empty:
-        return
-
     send_mosaico_email(
         code="TRANSFER_SENDER",
         subject=f"{bindings['MEMBER_COUNT']} membres ont bien été transférés",
         from_email=settings.EMAIL_FROM,
-        recipients=recipients_allowed,
+        recipients=recipients,
         bindings=bindings,
     )
 
