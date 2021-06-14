@@ -67,7 +67,7 @@ const StyledCard = styled.button`
     h6,
     h5,
     p {
-      margin: 0;
+      margin: 0 0 0.25rem;
       padding: 0;
       display: block;
       font-weight: 400;
@@ -88,6 +88,7 @@ const StyledCard = styled.button`
 
     h5 {
       font-size: 1rem;
+      font-weight: 500;
       color: ${style.black1000};
     }
 
