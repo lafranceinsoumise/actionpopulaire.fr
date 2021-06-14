@@ -54,10 +54,6 @@ const NotificationSettingLink = (props) => {
     }
   }, [isMobileApp, dispatch, route]);
 
-  if (!isMobileApp) {
-    return null;
-  }
-
   if (iconLink) {
     return (
       <Link to={route} style={{ lineHeight: 0 }}>
@@ -70,7 +66,6 @@ const NotificationSettingLink = (props) => {
       </Link>
     );
   }
-
   return (
     <StyledLink as="Link" to={route} icon="settings" small>
       Paramètres de notifications
