@@ -12,8 +12,6 @@ from agir.lib.sms import send_sms
 from agir.lib.utils import front_url, generate_token_params, shorten_url
 from agir.people.models import Person
 from agir.system_pay.models import SystemPaySubscription
-from ..notifications.models import Subscription
-from ..activity.models import Activity
 
 
 @emailing_task

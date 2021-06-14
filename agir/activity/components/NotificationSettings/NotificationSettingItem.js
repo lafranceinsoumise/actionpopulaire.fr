@@ -89,7 +89,7 @@ const NotificationSettingItem = (props) => {
       <StyledButton
         $active={email}
         $hidden={notification.hasEmail === false}
-        aria-label={push ? "Désactiver l'e-mail" : "Activer l'e-mail"}
+        aria-label={email ? "Désactiver l'e-mail" : "Activer l'e-mail"}
         onClick={toggleEmail}
         disabled={disabled}
       >
