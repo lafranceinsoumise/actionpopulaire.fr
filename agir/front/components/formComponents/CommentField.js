@@ -49,6 +49,10 @@ const StyledWrapper = styled.form`
   margin-top: auto;
   max-width: 100%;
 
+  @media (max-width: ${style.collapse}px) {
+    max-height: 50vh;
+  }
+
   & > ${Avatar} {
     flex: 0 0 auto;
     width: 2rem;
@@ -225,12 +229,22 @@ CommentButton.propTypes = {
   onClick: PropTypes.func,
 };
 
+const updateScroll = (rootElement, messageElement) => {
+  if (!rootElement) {
+    return;
+  }
+  rootElement.style.minHeight = `${messageElement?.offsetHeight || 0}px`;
+  rootElement.scrollIntoView();
+};
+
 const CommentField = (props) => {
-  const { user, initialValue, id, onSend, isLoading, disabled } = props;
+  const { user, initialValue, id, onSend, isLoading, disabled, autoScroll } =
+    props;
 
   const hasSubmitted = useRef(false);
 
   const rootElementRef = useRef();
+  const messageRef = useRef();
   const fieldWrapperRef = useRef();
   const textFieldRef = useRef();
   const textFieldCursorPosition = useRef();
@@ -240,25 +254,42 @@ const CommentField = (props) => {
   const [value, setValue] = useState(initialValue || "");
 
   const isExpanded = !!value || isFocused;
-
   const maySend = !isLoading && value && value.trim().length <= 1000;
 
-  const handleFocus = useCallback(() => {
+  const handleFocus = () => {
     setIsFocused(true);
-  }, []);
+    autoScroll &&
+      updateScroll(
+        rootElementRef.current,
+        !isDesktop ? messageRef.current : null
+      );
+  };
 
-  const blurOnClickOutside = useCallback((event) => {
-    fieldWrapperRef.current &&
-      !fieldWrapperRef.current.contains(event.target) &&
-      setIsFocused(false);
-  }, []);
+  const blurOnClickOutside = useCallback(
+    (event) => {
+      fieldWrapperRef.current &&
+        !fieldWrapperRef.current.contains(event.target) &&
+        setIsFocused(false);
+      autoScroll &&
+        updateScroll(
+          rootElementRef.current,
+          !isDesktop ? messageRef.current : null
+        );
+    },
+    [isDesktop, autoScroll]
+  );
 
   const blurOnFocusOutside = useCallback(() => {
     fieldWrapperRef.current &&
       document.activeElement &&
       !fieldWrapperRef.current.contains(document.activeElement) &&
       setIsFocused(false);
-  }, []);
+    autoScroll &&
+      updateScroll(
+        rootElementRef.current,
+        !isDesktop ? messageRef.current : null
+      );
+  }, [isDesktop, autoScroll]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -339,11 +370,12 @@ const CommentField = (props) => {
   );
 
   useEffect(() => {
-    !isDesktop &&
-      isExpanded &&
-      rootElementRef.current &&
-      rootElementRef.current.scrollIntoView();
-  }, [isDesktop, isExpanded, value]);
+    autoScroll &&
+      updateScroll(
+        rootElementRef.current,
+        !isDesktop ? messageRef.current : null
+      );
+  }, [autoScroll, isDesktop, isExpanded, value]);
 
   return (
     <StyledWrapper
@@ -351,15 +383,9 @@ const CommentField = (props) => {
       $disabled={disabled || isLoading}
       onSubmit={handleSend}
       ref={rootElementRef}
-      style={{
-        minHeight:
-          !isDesktop && isExpanded && fieldWrapperRef.current
-            ? fieldWrapperRef.current.offsetHeight
-            : 0,
-      }}
     >
       <Avatar name={user.displayName} image={user.image} />
-      <StyledMessage>
+      <StyledMessage ref={messageRef}>
         <Avatar name={user.displayName} image={user.image} />
         <StyledField
           ref={fieldWrapperRef}
@@ -429,5 +455,6 @@ CommentField.propTypes = {
   onSend: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
+  autoScroll: PropTypes.bool,
 };
 export default CommentField;

@@ -7,7 +7,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 
-import CommentField from "@agir/front/formComponents/CommentField";
 import MessageCard from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Panel from "@agir/front/genericComponents/Panel";
@@ -15,25 +14,23 @@ import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import MessageThreadMenu from "./MessageThreadMenu";
 
-const StyledCommentFieldWrapper = styled.div`
-  isolation: isolate;
-  position: relative;
-  z-index: ${style.zindexPanel};
-`;
-
 const StyledContent = styled.article`
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
 
   @media (max-width: ${style.collapse}px) {
-    padding-bottom: 64px;
+    padding-bottom: 0;
   }
 
   & > * {
     box-shadow: none;
     border: none;
     min-height: 100%;
+
+    & > * {
+      border: none;
+    }
   }
 `;
 const StyledList = styled.main`
@@ -62,7 +59,7 @@ const StyledList = styled.main`
   }
 `;
 
-const useAutoScrollToBottom = (commentLength = 0) => {
+const useAutoScrollToBottom = (commentLength = 0, messageId) => {
   const scrollableRef = useRef(null);
   const bottomRef = useRef(null);
   const hasNewComments = useRef(false);
@@ -79,6 +76,10 @@ const useAutoScrollToBottom = (commentLength = 0) => {
   useEffect(() => {
     hasNewComments.current = true;
   }, [commentLength]);
+
+  useEffect(() => {
+    hasNewComments.current = false;
+  }, [messageId]);
 
   useEffect(() => {
     if (
@@ -114,7 +115,8 @@ const DesktopThreadList = (props) => {
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
-    selectedMessage?.comments?.length
+    selectedMessage?.comments?.length,
+    selectedMessagePk
   );
 
   useEffect(() => {
@@ -139,6 +141,7 @@ const DesktopThreadList = (props) => {
         <PageFadeIn ready={selectedMessagePk && selectedMessage}>
           {selectedMessage ? (
             <MessageCard
+              autoScrollOnComment
               isLoading={isLoading}
               user={user}
               message={selectedMessage}
@@ -173,6 +176,7 @@ const MobileThreadList = (props) => {
     user,
     messages,
     selectedMessage,
+    selectedMessagePk,
     onSelect,
     onEdit,
     onComment,
@@ -185,7 +189,8 @@ const MobileThreadList = (props) => {
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
-    selectedMessage?.comments?.length
+    selectedMessage?.comments?.length,
+    selectedMessagePk
   );
 
   return (
@@ -199,7 +204,12 @@ const MobileThreadList = (props) => {
         writeNewMessage={writeNewMessage}
       />
       <Panel
-        style={{ paddingLeft: "0", paddingRight: "0", background: "white" }}
+        style={{
+          paddingLeft: "0",
+          paddingRight: "0",
+          paddingBottom: "0",
+          background: "white",
+        }}
         shouldShow={!!selectedMessage}
         noScroll
         isBehindTopBar
@@ -207,6 +217,7 @@ const MobileThreadList = (props) => {
         <StyledContent ref={scrollableRef}>
           {selectedMessage && (
             <MessageCard
+              autoScrollOnComment
               withMobileCommentField
               isLoading={isLoading}
               user={user}

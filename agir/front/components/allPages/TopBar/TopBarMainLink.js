@@ -2,7 +2,10 @@ import React, { useMemo } from "react";
 
 import Logo from "./Logo";
 import { routeConfig } from "../../app/routes.config";
-import { getIsConnected } from "@agir/front/globalContext/reducers";
+import {
+  getIsConnected,
+  getPageTitle,
+} from "@agir/front/globalContext/reducers";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import PropTypes from "prop-types";
 import MenuLink from "@agir/front/allPages/TopBar/MenuLink";
@@ -26,6 +29,7 @@ const TopBarMainLabel = styled.h1`
 export const TopBarMainLink = (props) => {
   const { path } = props;
   const isConnected = useSelector(getIsConnected);
+  const pageTitle = useSelector(getPageTitle);
 
   const currentRoute = useMemo(() => {
     return Object.values(routeConfig).find((route) => route.match(path));
@@ -39,7 +43,7 @@ export const TopBarMainLink = (props) => {
     );
   }
 
-  return <TopBarMainLabel>{currentRoute.label}</TopBarMainLabel>;
+  return <TopBarMainLabel>{pageTitle || currentRoute.label}</TopBarMainLabel>;
 };
 
 TopBarMainLink.propTypes = {

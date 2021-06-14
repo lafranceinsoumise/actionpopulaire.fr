@@ -7,6 +7,7 @@ import { FaWhatsapp, FaTelegram } from "react-icons/fa";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { timeAgo } from "@agir/lib/utils/time";
 import { formatEvent } from "@agir/events/common/utils";
+import { getMessageSubject } from "@agir/msgs/utils";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -250,10 +251,6 @@ const StyledComments = styled.div`
     margin-top: auto;
     padding: 1rem 0 0;
 
-    @media (max-width: ${style.collapse}px) {
-      margin: 0 -2rem;
-    }
-
     &:empty {
       display: none;
     }
@@ -262,6 +259,12 @@ const StyledComments = styled.div`
       padding-top: 0;
     }
   }
+`;
+const StyledSubject = styled.h2`
+  font-size: 1.125rem;
+  line-height: 1.5;
+  font-weight: 600;
+  margin: 0 0 1.25rem;
 `;
 const StyledMessage = styled.div``;
 const StyledWrapper = styled.div`
@@ -356,6 +359,7 @@ const MessageCard = (props) => {
     withMobileCommentField,
     scrollIn,
     withBottomButton,
+    autoScrollOnComment,
   } = props;
 
   const { group, author, text, created, linkedEvent, commentCount } = message;
@@ -433,6 +437,7 @@ const MessageCard = (props) => {
       $withMobileCommentField={withMobileCommentField}
     >
       <StyledMessage>
+        <StyledSubject>{getMessageSubject(message)}</StyledSubject>
         <StyledHeader>
           <Avatar {...author} />
           <h4>
@@ -533,6 +538,7 @@ const MessageCard = (props) => {
                   isLoading={isLoading}
                   user={user}
                   onSend={handleComment}
+                  autoScroll={autoScrollOnComment}
                 />
               ) : (
                 <ResponsiveLayout
@@ -542,6 +548,7 @@ const MessageCard = (props) => {
                   user={user}
                   onSend={handleComment}
                   onClick={onClick && handleClick}
+                  autoScroll={autoScrollOnComment}
                 />
               )
             ) : null}
@@ -593,5 +600,6 @@ MessageCard.propTypes = {
   scrollIn: PropTypes.bool,
   isManager: PropTypes.bool,
   withBottomButton: PropTypes.bool,
+  autoScrollOnComment: PropTypes.bool,
 };
 export default MessageCard;

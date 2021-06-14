@@ -8,6 +8,8 @@
   "CLEAR_TOAST": "clearToast",
   "CLEAR_ALL_TOASTS": "clearAllToasts",
 
+  "SET_PAGE_TITLE": "setPageTitle",
+
   "SET_BACK_LINK_ACTION": "setBackLink",
   "SET_TOP_BAR_RIGHT_LINK_ACTION": "setTopBarRightLink",
   "SET_ADMIN_LINK_ACTION": "setAdminLink",

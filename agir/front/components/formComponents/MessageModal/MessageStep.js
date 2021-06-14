@@ -222,7 +222,7 @@ const MessageStep = (props) => {
             onChange={(e) => onChange("subject", e.target.value)}
             autoFocus
             disabled={disabled}
-            placeholder="Object du message"
+            placeholder="Objet du message"
             maxLength={subjectMaxLength}
             hasCounter={false}
           />
