@@ -64,17 +64,17 @@ const StyledCard = styled.button`
     min-width: 0;
     color: ${style.black700};
 
-    a,
+    h6,
     h5,
     p {
-      margin: 0;
+      margin: 0 0 0.25rem;
       padding: 0;
       display: block;
       font-weight: 400;
       font-size: 0.875rem;
     }
 
-    a,
+    h6,
     h5,
     p span {
       white-space: nowrap;
@@ -82,8 +82,13 @@ const StyledCard = styled.button`
       text-overflow: ellipsis;
     }
 
+    h6 {
+      color: ${(props) => props.theme.primary500};
+    }
+
     h5 {
       font-size: 1rem;
+      font-weight: 500;
       color: ${style.black1000};
     }
 
@@ -141,12 +146,7 @@ const MessageThreadCard = (props) => {
     >
       <Avatars people={authors} />
       <article>
-        <a
-          href={routeConfig.groupDetails.getLink({ groupPk: group.id })}
-          title={group.name}
-        >
-          {group.name}
-        </a>
+        <h6 title={group.name}>{group.name}</h6>
         <h5 title={subject}>{subject}</h5>
         <p title={text}>
           <span>{text}</span>

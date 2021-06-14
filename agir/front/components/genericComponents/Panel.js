@@ -6,7 +6,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { useDisableBodyScroll } from "@agir/lib/utils/hooks";
-
+import { useDownloadBanner } from "@agir/front/app/hooks.js";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const springConfig = {
@@ -136,8 +136,15 @@ const PanelFrame = styled.div`
       $isBehindTopBar ? style.zindexTopBar - 1 : style.zindexPanel};
 
     ${PanelContent} {
-      padding-top: ${({ $isBehindTopBar }) =>
-        $isBehindTopBar ? "4rem" : "1.5rem"};
+      padding-top: ${({ $isBehindTopBar, $hasDownloadBanner }) => {
+        if ($isBehindTopBar && $hasDownloadBanner) {
+          return "136px";
+        }
+        if ($isBehindTopBar) {
+          return "56px";
+        }
+        return "1.5rem";
+      }};
     }
   }
 `;
@@ -213,6 +220,8 @@ const Panel = (props) => {
     style,
   } = props;
 
+  const [hasDownloadBanner] = useDownloadBanner();
+
   const panelRef = useDisableBodyScroll(noScroll, shouldShow);
   const panelContentRef = useFocusTrap(shouldShow);
 
@@ -240,6 +249,7 @@ const Panel = (props) => {
       ref={panelRef}
       $open={shouldShow}
       $isBehindTopBar={isBehindTopBar}
+      $hasDownloadBanner={hasDownloadBanner}
     >
       <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
       {transitions((tStyle, item) =>

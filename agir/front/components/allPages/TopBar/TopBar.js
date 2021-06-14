@@ -15,7 +15,7 @@ import { useHasUnreadActivity } from "@agir/activity/common/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useUnreadMessageCount } from "@agir/msgs/hooks";
-import { useIsDesktop, Hide } from "@agir/front/genericComponents/grid.js";
+import { Hide } from "@agir/front/genericComponents/grid.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
@@ -98,7 +98,6 @@ export const TopBar = (props) => {
   const backLink = useSelector(getBackLink);
   const topBarRightLink = useSelector(getTopBarRightLink);
   const adminLink = useSelector(getAdminLink);
-  const isDesktop = useIsDesktop();
   const isConnected = useSelector(getIsConnected);
 
   const hasUnreadActivity = useHasUnreadActivity();
@@ -106,7 +105,7 @@ export const TopBar = (props) => {
 
   return (
     <NavbarContainer>
-      {!isDesktop && !hideBannerDownload && <DownloadApp />}
+      {!hideBannerDownload && <DownloadApp />}
       <NavBar>
         <AdminLink link={adminLink} />
         <TopBarContainer>

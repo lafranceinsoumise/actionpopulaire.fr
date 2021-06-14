@@ -190,10 +190,6 @@ const StyledHeader = styled.div`
       line-height: 1.4;
       font-weight: normal;
       margin-top: 0.25rem;
-
-      @media (max-width: ${style.collapse}px) {
-        display: none;
-      }
     }
   }
 
