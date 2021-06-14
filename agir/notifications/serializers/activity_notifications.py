@@ -381,6 +381,8 @@ class NewMessageActivityNotificationSerializer(ActivityNotificationSerializer):
     def get_body(self, activity):
         try:
             message = SupportGroupMessage.objects.get(pk=activity.meta["message"])
+            if message.subject:
+                return message.subject
             return message.text
         except:
             return f"Un nouveau message a été publié dans le groupe {activity.supportgroup.name}"
