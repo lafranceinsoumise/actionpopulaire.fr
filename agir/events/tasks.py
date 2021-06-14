@@ -26,8 +26,6 @@ from ..notifications.models import Subscription
 from ..activity.models import Activity
 
 # encodes the preferred order when showing the messages
-from agir.activity.models import Activity
-
 NOTIFIED_CHANGES = {
     "name": "information",
     "start_time": "timing",
@@ -104,30 +102,6 @@ def send_event_changed_notification(event_pk, changed_data):
     event = Event.objects.get(pk=event_pk)
 
     changed_data = [f for f in changed_data if f in NOTIFIED_CHANGES]
-
-    if not changed_data:
-        return
-
-    for r in event.attendees.all():
-        activity = Activity.objects.filter(
-            type=Activity.TYPE_EVENT_UPDATE,
-            recipient=r,
-            event=event,
-            status=Activity.STATUS_UNDISPLAYED,
-        ).first()
-        if activity is not None:
-            activity.meta["changed_data"] = list(
-                set(changed_data).union(activity.meta["changed_data"])
-            )
-            activity.timestamp = timezone.now()
-            activity.save()
-        else:
-            Activity.objects.create(
-                type=Activity.TYPE_EVENT_UPDATE,
-                recipient=r,
-                event=event,
-                meta={"changed_data": changed_data},
-            )
 
     recipients = [
         rsvp.person

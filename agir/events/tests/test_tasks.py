@@ -204,19 +204,7 @@ class EventTasksTestCase(TestCase):
             self.event.pk, ["name", "start_time", "end_time"]
         )
 
-        self.assertEqual(len(Activity.objects.all()), 3)
-
-        activities = Activity.objects.all()
-
-        self.assertCountEqual(
-            [a.recipient for a in activities],
-            [self.attendee1, self.attendee2, self.attendee_no_notification],
-        )
-
-        for activity in activities:
-            self.assertCountEqual(
-                activity.meta["changed_data"], ["name", "start_time", "end_time"]
-            )
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_send_event_report_mail(self):
         tasks.send_event_report(self.event.pk)
