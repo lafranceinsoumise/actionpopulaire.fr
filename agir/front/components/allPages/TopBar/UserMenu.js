@@ -103,7 +103,6 @@ const StyledUserMenu = styled.div`
 
 export const UserMenu = (props) => {
   const { user } = props;
-  const routeSettings = routeConfig.notificationSettings.getLink();
 
   return (
     <ResponsiveLayout
@@ -136,7 +135,7 @@ export const UserMenu = (props) => {
           </Button>
           <Button
             as="Link"
-            route={routeSettings}
+            route="notificationSettings"
             icon="settings"
             color="secondary"
             small
