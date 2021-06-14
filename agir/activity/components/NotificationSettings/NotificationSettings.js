@@ -7,7 +7,6 @@ import {
   getNotificationStatus,
 } from "@agir/notifications/common/notifications.config";
 import * as api from "@agir/notifications/common/api";
-import { useMobileApp } from "@agir/front/app/hooks";
 import { usePush } from "@agir/notifications/push/subscriptions";
 
 import { ProtectedComponent } from "@agir/front/app/Router";
@@ -102,7 +101,6 @@ const NotificationSettings = (props) => {
 const NotificationSettingRoute = () => {
   const history = useHistory();
   const routeMatch = useRouteMatch(routeConfig.notificationSettings.path);
-  const { isMobileApp } = useMobileApp();
 
   const close = useCallback(() => {
     if (routeMatch && routeMatch.params && routeMatch.params.root) {
@@ -115,7 +113,7 @@ const NotificationSettingRoute = () => {
       Component={NotificationSettings}
       route={routeConfig.notificationSettings}
       close={close}
-      isOpen={isMobileApp && !!routeMatch}
+      isOpen={!!routeMatch}
     />
   );
 };

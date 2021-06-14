@@ -84,7 +84,7 @@ const NotificationSettingItem = (props) => {
         onClick={togglePush}
         disabled={disabled}
       >
-        <RawFeatherIcon width="1.25rem" height="1.25rem" name="bell" />
+        <RawFeatherIcon width="1.25rem" height="1.25rem" name="smartphone" />
       </StyledButton>
       <StyledButton
         $active={email}
