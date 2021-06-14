@@ -207,11 +207,13 @@ const MobileThreadList = (props) => {
         <StyledContent ref={scrollableRef}>
           {selectedMessage && (
             <MessageCard
+              withMobileCommentField
               isLoading={isLoading}
               user={user}
               message={selectedMessage}
               comments={selectedMessage?.comments}
               onEdit={onEdit}
+              onComment={selectedMessage && onComment ? onComment : undefined}
               onReport={onReport}
               onDelete={onDelete}
               onReportComment={onReportComment}
@@ -230,11 +232,6 @@ const MobileThreadList = (props) => {
           />
         </StyledContent>
       </Panel>
-      {selectedMessage && onComment && (
-        <StyledCommentFieldWrapper>
-          <CommentField isLoading={isLoading} user={user} onSend={onComment} />
-        </StyledCommentFieldWrapper>
-      )}
     </StyledList>
   );
 };

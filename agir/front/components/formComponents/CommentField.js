@@ -4,6 +4,8 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
+
 import AnimatedMoreHorizontal from "@agir/front/genericComponents/AnimatedMoreHorizontal";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -228,9 +230,11 @@ const CommentField = (props) => {
 
   const hasSubmitted = useRef(false);
 
+  const rootElementRef = useRef();
   const fieldWrapperRef = useRef();
   const textFieldRef = useRef();
   const textFieldCursorPosition = useRef();
+  const isDesktop = useIsDesktop();
 
   const [isFocused, setIsFocused] = useState(false);
   const [value, setValue] = useState(initialValue || "");
@@ -334,11 +338,25 @@ const CommentField = (props) => {
     [maySend, value, onSend]
   );
 
+  useEffect(() => {
+    !isDesktop &&
+      isExpanded &&
+      rootElementRef.current &&
+      rootElementRef.current.scrollIntoView();
+  }, [isDesktop, isExpanded, value]);
+
   return (
     <StyledWrapper
       $isExpanded={isExpanded}
       $disabled={disabled || isLoading}
       onSubmit={handleSend}
+      ref={rootElementRef}
+      style={{
+        minHeight:
+          !isDesktop && isExpanded && fieldWrapperRef.current
+            ? fieldWrapperRef.current.offsetHeight
+            : 0,
+      }}
     >
       <Avatar name={user.displayName} image={user.image} />
       <StyledMessage>
