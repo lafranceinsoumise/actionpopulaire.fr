@@ -86,6 +86,7 @@ const StyledInlineMenuItems = styled.div`
     }
   }
 `;
+const StyledMessageHeader = styled.header``;
 const StyledMessageAuthor = styled.h5``;
 const StyledMessageContent = styled.p``;
 const StyledMessageTime = styled.div``;
@@ -100,9 +101,7 @@ const StyledWrapper = styled(animated.div)`
   border-top: 1px solid ${(props) => props.theme.black100};
 
   &:first-child {
-    @media (min-width: ${style.collapse}px) {
-      border-top: none;
-    }
+    border-top: none;
   }
 
   ${Avatar} {
@@ -116,20 +115,43 @@ const StyledWrapper = styled(animated.div)`
     display: flex;
     flex: 1 1 auto;
     border-radius: 8px;
-    flex-direction: row;
+    flex-direction: column;
+  }
+
+  ${StyledMessageHeader} {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    line-height: 1.5;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+
+    ${StyledMessageAuthor} {
+      flex: 1 1 auto;
+      padding: 0;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    ${StyledMessageTime} {
+      padding-left: 1rem;
+      flex: 0 0 auto;
+      font-size: 0.813rem;
+      color: ${style.black700};
+      font-style: normal;
+    }
+
+    ${StyledAction} {
+      flex: 0 0 auto;
+      padding-left: 1rem;
+      height: 18px;
+    }
   }
 
   ${StyledMessageContent} {
     flex: 1 1 auto;
     font-size: 0.875rem;
     margin: 0;
-
-    ${StyledMessageAuthor} {
-      padding: 0;
-      margin: 0;
-      font-weight: 700;
-      font-size: 0.875rem;
-    }
 
     article {
       margin: 0;
@@ -138,18 +160,6 @@ const StyledWrapper = styled(animated.div)`
       font-family: inherit;
       line-height: 1.65;
     }
-  }
-
-  ${StyledMessageTime} {
-    padding: 0 1rem;
-    flex: 0 0 auto;
-    font-size: 0.813rem;
-    color: ${style.black700};
-    font-style: normal;
-  }
-
-  ${StyledAction} {
-    flex: 0 0 auto;
   }
 `;
 
@@ -180,39 +190,41 @@ const Comment = (props) => {
     <StyledWrapper style={style}>
       <Avatar {...author} />
       <StyledMessage>
-        <StyledMessageContent>
+        <StyledMessageHeader>
           <StyledMessageAuthor>
             {author.displayName || (isAuthor && "Moi") || "Quelqu'un"}
           </StyledMessageAuthor>
+          <StyledMessageTime>
+            {created ? timeAgo(created) : null}
+          </StyledMessageTime>
+          {hasActions ? (
+            <StyledAction>
+              <InlineMenu
+                triggerIconName="more-horizontal"
+                triggerSize="1rem"
+                shouldDismissOnClick
+              >
+                <StyledInlineMenuItems>
+                  {canDelete && (
+                    <button onClick={handleDelete}>
+                      <RawFeatherIcon name="x" color={style.primary500} />
+                      Supprimer
+                    </button>
+                  )}
+                  {canReport && (
+                    <button onClick={handleReport}>
+                      <RawFeatherIcon name="flag" color={style.primary500} />
+                      Signaler
+                    </button>
+                  )}
+                </StyledInlineMenuItems>
+              </InlineMenu>
+            </StyledAction>
+          ) : null}
+        </StyledMessageHeader>
+        <StyledMessageContent>
           <ParsedString as="article">{text}</ParsedString>
         </StyledMessageContent>
-        <StyledMessageTime>
-          {created ? timeAgo(created) : null}
-        </StyledMessageTime>
-        {hasActions ? (
-          <StyledAction>
-            <InlineMenu
-              triggerIconName="more-horizontal"
-              triggerSize="1rem"
-              shouldDismissOnClick
-            >
-              <StyledInlineMenuItems>
-                {canDelete && (
-                  <button onClick={handleDelete}>
-                    <RawFeatherIcon name="x" color={style.primary500} />
-                    Supprimer
-                  </button>
-                )}
-                {canReport && (
-                  <button onClick={handleReport}>
-                    <RawFeatherIcon name="flag" color={style.primary500} />
-                    Signaler
-                  </button>
-                )}
-              </StyledInlineMenuItems>
-            </InlineMenu>
-          </StyledAction>
-        ) : null}
       </StyledMessage>
     </StyledWrapper>
   ));
