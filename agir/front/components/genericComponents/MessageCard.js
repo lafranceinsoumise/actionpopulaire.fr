@@ -237,14 +237,9 @@ const StyledComments = styled.div`
   justify-content: flex-start;
 
   @media (min-width: ${style.collapse}px) {
-    border-top: 1px solid ${style.black100};
-    transform: translateY(0.5rem);
-    padding-top: 1.5rem;
-
-    &:empty {
-      border-top: none;
-      transform: none;
-    }
+    border-top: ${({ $empty }) =>
+      $empty ? "none" : `1px solid ${style.black100}`};
+    transform: ${({ $empty }) => ($empty ? "none" : "translateY(0.5rem)")};
   }
 
   ${StyledNewComment} {
@@ -516,7 +511,9 @@ const MessageCard = (props) => {
             &ensp;Voir les {commentCount} commentaires
           </StyledCommentCount>
         ) : null}
-        <StyledComments>
+        <StyledComments
+          $empty={!Array.isArray(comments) || comments.length === 0}
+        >
           <PageFadeIn ready={Array.isArray(comments) && comments.length > 0}>
             {Array.isArray(comments) && comments.length > 0
               ? comments.map((comment) => (
