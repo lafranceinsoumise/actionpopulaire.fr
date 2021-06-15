@@ -112,7 +112,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     description = serializers.CharField(source="html_description")
     compteRendu = serializers.CharField(source="report_content")
     compteRenduPhotos = serializers.SerializerMethodField()
-    illustration = serializers.ImageField(source="image", read_only=True)
+    illustration = serializers.ImageField(source="image.thumbnail", read_only=True)
 
     startTime = serializers.DateTimeField(source="start_time")
     endTime = serializers.DateTimeField(source="end_time")
