@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView
 from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import (
     RetrieveUpdateAPIView,
     GenericAPIView,
@@ -151,3 +152,17 @@ class ActivityStatusUpdateView(GenericAPIView):
         ).update(status=serializer.validated_data["status"])
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["GET"])
+@permission_classes(())
+def get_unread_activity_count(request):
+    unread_activity_count = 0
+    if request.user.is_authenticated and request.user.person is not None:
+        unread_activity_count = (
+            get_activities(request.user.person)
+            .filter(status=Activity.STATUS_UNDISPLAYED)
+            .count()
+        )
+
+    return Response({"unreadActivityCount": unread_activity_count})

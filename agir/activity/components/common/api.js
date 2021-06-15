@@ -13,6 +13,7 @@ export const ENDPOINT = {
   bulkUpdateActivityStatus: "/api/activity/bulk/update-status/",
   announcements: "/api/announcements/",
   customAnnouncement: "/api/user/announcements/custom/:slug/",
+  unreadActivityCount: "/api/user/activities/unread-count/",
 };
 
 export const getActivityEndpoint = (key, params) => {

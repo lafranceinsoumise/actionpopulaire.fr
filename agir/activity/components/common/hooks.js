@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import useSWR, { useSWRInfinite } from "swr";
 
 import {
@@ -63,10 +63,17 @@ export const useActivities = () => {
   };
 };
 
-export const useHasUnreadActivity = () => {
+export const useUnreadActivityCount = () => {
   const { data: session } = useSWR("/api/session/");
+  const { data, mutate } = useSWR(getActivityEndpoint("unreadActivityCount"));
 
-  return session && session.hasUnreadActivities;
+  const user = session?.user;
+
+  useEffect(() => {
+    typeof user !== "undefined" && mutate();
+  }, [user, mutate]);
+
+  return data?.unreadActivityCount || 0;
 };
 
 export const useCustomAnnouncement = (slug) => {
