@@ -8,7 +8,6 @@ import { timeAgo } from "@agir/lib/utils/time";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import Link from "@agir/front/app/Link";
 import InlineMenu from "@agir/front/genericComponents/InlineMenu";
 import ParsedString from "@agir/front/genericComponents/ParsedString";
 
@@ -87,77 +86,49 @@ const StyledInlineMenuItems = styled.div`
     }
   }
 `;
-const StyledMessageHeader = styled.header``;
-const StyledMessageContent = styled.div``;
+const StyledMessageAuthor = styled.h5``;
+const StyledMessageContent = styled.p``;
+const StyledMessageTime = styled.div``;
 const StyledAction = styled.div``;
 const StyledMessage = styled.div``;
 const StyledWrapper = styled(animated.div)`
   display: flex;
   flex-flow: row nowrap;
+  align-items: flex-start;
   max-width: 100%;
+  padding: 1rem 0;
+  border-top: 1px solid ${(props) => props.theme.black100};
 
-  & + & {
-    margin-top: 1rem;
+  &:first-child {
+    @media (min-width: ${style.collapse}px) {
+      border-top: none;
+    }
   }
 
   ${Avatar} {
     flex: 0 0 auto;
     width: 2rem;
     height: 2rem;
-    margin-top: 5px;
     margin-right: 0.5rem;
   }
 
   ${StyledMessage} {
     display: flex;
+    flex: 1 1 auto;
     border-radius: 8px;
-    background-color: ${style.black50};
     flex-direction: row;
-    padding: 0.75rem;
-  }
-
-  ${StyledMessageHeader} {
-    font-size: 0.875rem;
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-
-    @media (max-width: ${style.collapse}px) {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    strong {
-      font-weight: 700;
-      font-size: 0.875rem;
-
-      a {
-        margin-left: 0.25rem;
-        text-decoration: underline;
-        font-weight: 500;
-        line-height: inherit;
-      }
-    }
-
-    em {
-      font-weight: normal;
-      font-size: 13px;
-      color: ${style.black700};
-      margin-left: 0.5rem;
-      font-style: normal;
-
-      @media (max-width: ${style.collapse}px) {
-        margin: 0.25rem 0;
-      }
-    }
   }
 
   ${StyledMessageContent} {
+    flex: 1 1 auto;
     font-size: 0.875rem;
+    margin: 0;
 
-    strong {
-      font-weight: 600;
-      font-size: inherit;
+    ${StyledMessageAuthor} {
+      padding: 0;
+      margin: 0;
+      font-weight: 700;
+      font-size: 0.875rem;
     }
 
     article {
@@ -169,9 +140,16 @@ const StyledWrapper = styled(animated.div)`
     }
   }
 
+  ${StyledMessageTime} {
+    padding: 0 1rem;
+    flex: 0 0 auto;
+    font-size: 0.813rem;
+    color: ${style.black700};
+    font-style: normal;
+  }
+
   ${StyledAction} {
     flex: 0 0 auto;
-    margin-left: 1rem;
   }
 `;
 
@@ -203,17 +181,14 @@ const Comment = (props) => {
       <Avatar {...author} />
       <StyledMessage>
         <StyledMessageContent>
-          <StyledMessageHeader>
-            <strong>
-              {author.displayName || (isAuthor && "Moi") || "Quelqu'un"}
-              {!author.displayName && isAuthor && (
-                <Link route="personalInformation">Ajouter mon nom</Link>
-              )}
-            </strong>
-            <em>{created ? timeAgo(created) : null}</em>
-          </StyledMessageHeader>
+          <StyledMessageAuthor>
+            {author.displayName || (isAuthor && "Moi") || "Quelqu'un"}
+          </StyledMessageAuthor>
           <ParsedString as="article">{text}</ParsedString>
         </StyledMessageContent>
+        <StyledMessageTime>
+          {created ? timeAgo(created) : null}
+        </StyledMessageTime>
         {hasActions ? (
           <StyledAction>
             <InlineMenu

@@ -56,6 +56,12 @@ const StyledList = styled.main`
     height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
+
+    &:first-child {
+      @media (min-width: ${style.collapse}px) {
+        flex: 0 0 400px;
+      }
+    }
   }
 `;
 
@@ -155,7 +161,6 @@ const DesktopThreadList = (props) => {
               isManager={selectedMessage.group.isManager}
               groupURL={routeConfig.groupDetails.getLink({
                 groupPk: selectedMessage.group.id,
-                activeTab: "messages",
               })}
             />
           ) : null}
@@ -232,7 +237,6 @@ const MobileThreadList = (props) => {
               isManager={selectedMessage?.group.isManager}
               groupURL={routeConfig.groupDetails.getLink({
                 groupPk: selectedMessage?.group.id,
-                activeTab: "messages",
               })}
             />
           )}

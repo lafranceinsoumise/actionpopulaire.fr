@@ -63,6 +63,11 @@ const TopBarContainer = styled.div`
   flex-grow: 1;
   height: 100%;
   align-items: center;
+
+  @media (max-width: ${style.collapse}px) {
+    max-width: 100%;
+    min-width: 0;
+  }
 `;
 
 const HorizontalFlex = styled.div`
@@ -76,6 +81,7 @@ const HorizontalFlex = styled.div`
 
   & > * {
     margin-left: 1.25em;
+    min-width: 0;
   }
 
   form {
@@ -132,6 +138,7 @@ export const TopBar = (props) => {
           ) : null}
           <HorizontalFlex
             center={!isConnected || path === "/" || typeof path === "undefined"}
+            style={{ minWidth: 0 }}
           >
             <Hide over>
               <TopBarMainLink path={path} />
