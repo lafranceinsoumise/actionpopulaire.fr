@@ -59,20 +59,14 @@ const StyledStaticMapWrapper = styled.div`
     width: 2rem;
     height: 2rem;
     opacity: ${({ $isLoaded }) => ($isLoaded ? 1 : 0)};
-    transform: ${({ $isLoaded, $animated }) =>
-      !$animated || $isLoaded
-        ? "translate(-50%, -50%)"
-        : "translate(-50%, -120px)"};
-    transition: opacity 300ms ease-in, transform 400ms ease-in;
-    will-change: transform;
+    transform: translate(-50%, -50%);
+    transition: opacity 300ms ease-in;
+    will-change: opacity;
   }
 
   & > svg + svg {
     transform-origin: bottom center;
-    transform: ${({ $isLoaded, $animated }) =>
-      !$animated || $isLoaded
-        ? "translate(-50%, -50%) scale(1,1)"
-        : "translate(-50%, -50%) scale(0,0)"};
+    transform: translate(-50%, -50%) scale(1, 1);
   }
 
   ${StyledAttribution} {
@@ -228,6 +222,5 @@ StaticMap.propTypes = {
     iconUrl: PropTypes.string,
     iconAnchor: PropTypes.string,
   }),
-  $animated: PropTypes.bool,
 };
 export default StaticMap;

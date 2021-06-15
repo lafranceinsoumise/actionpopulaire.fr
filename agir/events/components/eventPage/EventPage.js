@@ -185,7 +185,6 @@ const MobileLayout = (props) => {
             iconConfiguration={subtype}
             isStatic
             staticMapUrl={location?.staticMapUrl}
-            $animated
           />
         ) : null}
       </StyledMap>
