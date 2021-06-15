@@ -101,6 +101,7 @@ const getOtherEntryFiles = (compilation) => {
     "lib/IBANField",
     "lib/locationSearchField",
     "theme",
+    "fonts",
   ]
     .map((name) =>
       compilation.namedChunkGroups
@@ -118,6 +119,7 @@ module.exports = {
   entry: Object.assign(
     {
       theme: path.resolve(__dirname, "agir/front/components/theme/theme.scss"),
+      fonts: path.resolve(__dirname, "agir/front/components/fonts/fonts.scss"),
     },
     components
   ),
@@ -128,6 +130,13 @@ module.exports = {
       filename: `includes/theme.bundle.html`,
       inject: false,
       chunks: ["theme"],
+      templateContent: ({ htmlWebpackPlugin }) =>
+        `<link href="${htmlWebpackPlugin.files.css[0]}" rel="stylesheet">`,
+    }),
+    new HtmlWebpackPlugin({
+      filename: `includes/fonts.bundle.html`,
+      inject: false,
+      chunks: ["fonts"],
       templateContent: ({ htmlWebpackPlugin }) =>
         `<link href="${htmlWebpackPlugin.files.css[0]}" rel="stylesheet">`,
     }),
@@ -187,12 +196,15 @@ module.exports = {
         },
       },
       {
-        test: /theme\.scss$/,
+        test: /(theme|fonts)\.scss$/,
         use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
       },
       {
         test: /\.scss$/,
-        exclude: [new RegExp("theme\\" + path.sep + "theme.scss")],
+        exclude: [
+          new RegExp("theme\\" + path.sep + "theme.scss"),
+          new RegExp("fonts\\" + path.sep + "fonts.scss"),
+        ],
         use: [
           "style-loader",
           {
