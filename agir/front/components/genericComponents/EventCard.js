@@ -289,7 +289,7 @@ const EventCard = (props) => {
   return (
     <StyledCard onClick={handleClick}>
       <EventCardIllustration
-        image={illustration}
+        image={illustration?.thumbnail}
         subtype={subtype}
         coordinates={location?.coordinates?.coordinates}
         staticMapUrl={location?.staticMapUrl}
@@ -399,7 +399,9 @@ EventCard.propTypes = {
   name: PropTypes.string.isRequired,
   participantCount: PropTypes.number,
   hasSubscriptionForm: PropTypes.bool,
-  illustration: PropTypes.string,
+  illustration: PropTypes.shape({
+    thumbnail: PropTypes.string,
+  }),
   schedule: PropTypes.instanceOf(Interval).isRequired,
   location: PropTypes.shape({
     name: PropTypes.string,

@@ -112,7 +112,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     description = serializers.CharField(source="html_description")
     compteRendu = serializers.CharField(source="report_content")
     compteRenduPhotos = serializers.SerializerMethodField()
-    illustration = serializers.ImageField(source="image.thumbnail", read_only=True)
+    illustration = serializers.SerializerMethodField()
 
     startTime = serializers.DateTimeField(source="start_time")
     endTime = serializers.DateTimeField(source="end_time")
@@ -220,6 +220,13 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_is2022(self, obj):
         return obj.is_2022
+
+    def get_illustration(self, obj):
+        if obj.image:
+            return {
+                "thumbnail": obj.image.thumbnail.url,
+                "banner": obj.image.banner.url,
+            }
 
     def get_groups(self, obj):
         return SupportGroupSerializer(
