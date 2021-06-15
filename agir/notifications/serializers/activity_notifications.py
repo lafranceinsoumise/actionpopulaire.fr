@@ -1,5 +1,6 @@
-from rest_framework import serializers
 from django.template.defaultfilters import date as _date
+from django.utils.timezone import get_current_timezone
+from rest_framework import serializers
 
 from agir.activity.models import Activity
 from agir.lib.serializers import FlexibleFieldsMixin
@@ -249,7 +250,9 @@ class NewEventMyGroupsActivityNotificationSerializer(ActivityNotificationSeriali
     title = serializers.SerializerMethodField()
 
     def get_title(self, activity):
-        return f"📆 {activity.event.name}, {activity.event.start_time.strftime('%d/%m')} à {activity.event.start_time.strftime('%H:%M')}"
+        tz = get_current_timezone()
+        start_time = activity.event.start_time.astimezone(tz)
+        return f"📆 {activity.event.name}, {start_time.strftime('%d/%m')} à {start_time.strftime('%H:%M')}"
 
     def get_body(self, activity):
         return f"Nouvel événement de {activity.supportgroup.name} — Confirmez votre participation pour recevoir les mises à jour"
@@ -262,7 +265,9 @@ class NewEventMyGroupsActivityNotificationSerializer(ActivityNotificationSeriali
 
 class NewReportActivityNotificationSerializer(ActivityNotificationSerializer):
     def get_body(self, activity):
-        return f"Le compte-rendu de {activity.event.name} du {activity.event.start_time.strftime('%d/%m')} a été ajouté"
+        tz = get_current_timezone()
+        start_time = activity.event.start_time.astimezone(tz)
+        return f"Le compte-rendu de {activity.event.name} du {start_time.strftime('%d/%m')} a été ajouté"
 
     def get_url(self, activity):
         return activity_notification_url(
@@ -423,7 +428,9 @@ class EventSuggestionNotificationSerializer(ActivityNotificationSerializer):
     title = serializers.SerializerMethodField()
 
     def get_title(self, activity):
-        return f"📆 Ce {_date(activity.event.start_time, 'l')} : passez à l'action !"
+        tz = get_current_timezone()
+        start_time = activity.event.start_time.astimezone(tz)
+        return f"📆 Ce {_date(start_time, 'l')} : passez à l'action !"
 
     def get_body(self, activity):
         return f"{activity.event.name}"
