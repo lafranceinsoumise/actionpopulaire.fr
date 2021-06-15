@@ -8,7 +8,6 @@ import { timeAgo } from "@agir/lib/utils/time";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import Link from "@agir/front/app/Link";
 import InlineMenu from "@agir/front/genericComponents/InlineMenu";
 import ParsedString from "@agir/front/genericComponents/ParsedString";
 
@@ -88,77 +87,71 @@ const StyledInlineMenuItems = styled.div`
   }
 `;
 const StyledMessageHeader = styled.header``;
-const StyledMessageContent = styled.div``;
+const StyledMessageAuthor = styled.h5``;
+const StyledMessageContent = styled.p``;
+const StyledMessageTime = styled.div``;
 const StyledAction = styled.div``;
 const StyledMessage = styled.div``;
 const StyledWrapper = styled(animated.div)`
   display: flex;
   flex-flow: row nowrap;
+  align-items: flex-start;
   max-width: 100%;
+  padding: 1rem 0;
+  border-top: 1px solid ${(props) => props.theme.black100};
 
-  & + & {
-    margin-top: 1rem;
+  &:first-child {
+    border-top: none;
   }
 
   ${Avatar} {
     flex: 0 0 auto;
     width: 2rem;
     height: 2rem;
-    margin-top: 5px;
     margin-right: 0.5rem;
   }
 
   ${StyledMessage} {
     display: flex;
+    flex: 1 1 auto;
     border-radius: 8px;
-    background-color: ${style.black50};
-    flex-direction: row;
-    padding: 0.75rem;
+    flex-direction: column;
   }
 
   ${StyledMessageHeader} {
-    font-size: 0.875rem;
     display: flex;
-    flex-direction: row;
-    align-items: baseline;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    line-height: 1.5;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
 
-    @media (max-width: ${style.collapse}px) {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    strong {
+    ${StyledMessageAuthor} {
+      flex: 1 1 auto;
+      padding: 0;
+      margin: 0;
       font-weight: 700;
-      font-size: 0.875rem;
-
-      a {
-        margin-left: 0.25rem;
-        text-decoration: underline;
-        font-weight: 500;
-        line-height: inherit;
-      }
     }
 
-    em {
-      font-weight: normal;
-      font-size: 13px;
+    ${StyledMessageTime} {
+      padding-left: 1rem;
+      flex: 0 0 auto;
+      font-size: 0.813rem;
       color: ${style.black700};
-      margin-left: 0.5rem;
       font-style: normal;
+    }
 
-      @media (max-width: ${style.collapse}px) {
-        margin: 0.25rem 0;
-      }
+    ${StyledAction} {
+      flex: 0 0 auto;
+      padding-left: 1rem;
+      height: 18px;
     }
   }
 
   ${StyledMessageContent} {
+    flex: 1 1 auto;
     font-size: 0.875rem;
-
-    strong {
-      font-weight: 600;
-      font-size: inherit;
-    }
+    margin: 0;
 
     article {
       margin: 0;
@@ -167,11 +160,6 @@ const StyledWrapper = styled(animated.div)`
       font-family: inherit;
       line-height: 1.65;
     }
-  }
-
-  ${StyledAction} {
-    flex: 0 0 auto;
-    margin-left: 1rem;
   }
 `;
 
@@ -202,42 +190,41 @@ const Comment = (props) => {
     <StyledWrapper style={style}>
       <Avatar {...author} />
       <StyledMessage>
+        <StyledMessageHeader>
+          <StyledMessageAuthor>
+            {author.displayName || (isAuthor && "Moi") || "Quelqu'un"}
+          </StyledMessageAuthor>
+          <StyledMessageTime>
+            {created ? timeAgo(created) : null}
+          </StyledMessageTime>
+          {hasActions ? (
+            <StyledAction>
+              <InlineMenu
+                triggerIconName="more-horizontal"
+                triggerSize="1rem"
+                shouldDismissOnClick
+              >
+                <StyledInlineMenuItems>
+                  {canDelete && (
+                    <button onClick={handleDelete}>
+                      <RawFeatherIcon name="x" color={style.primary500} />
+                      Supprimer
+                    </button>
+                  )}
+                  {canReport && (
+                    <button onClick={handleReport}>
+                      <RawFeatherIcon name="flag" color={style.primary500} />
+                      Signaler
+                    </button>
+                  )}
+                </StyledInlineMenuItems>
+              </InlineMenu>
+            </StyledAction>
+          ) : null}
+        </StyledMessageHeader>
         <StyledMessageContent>
-          <StyledMessageHeader>
-            <strong>
-              {author.displayName || (isAuthor && "Moi") || "Quelqu'un"}
-              {!author.displayName && isAuthor && (
-                <Link route="personalInformation">Ajouter mon nom</Link>
-              )}
-            </strong>
-            <em>{created ? timeAgo(created) : null}</em>
-          </StyledMessageHeader>
           <ParsedString as="article">{text}</ParsedString>
         </StyledMessageContent>
-        {hasActions ? (
-          <StyledAction>
-            <InlineMenu
-              triggerIconName="more-horizontal"
-              triggerSize="1rem"
-              shouldDismissOnClick
-            >
-              <StyledInlineMenuItems>
-                {canDelete && (
-                  <button onClick={handleDelete}>
-                    <RawFeatherIcon name="x" color={style.primary500} />
-                    Supprimer
-                  </button>
-                )}
-                {canReport && (
-                  <button onClick={handleReport}>
-                    <RawFeatherIcon name="flag" color={style.primary500} />
-                    Signaler
-                  </button>
-                )}
-              </StyledInlineMenuItems>
-            </InlineMenu>
-          </StyledAction>
-        ) : null}
       </StyledMessage>
     </StyledWrapper>
   ));

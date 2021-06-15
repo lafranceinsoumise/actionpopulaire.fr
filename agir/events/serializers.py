@@ -248,7 +248,7 @@ class EventListSerializer(EventSerializer):
             obj.organizers_groups.distinct(),
             context=self.context,
             many=True,
-            fields=["name", "isMember"],
+            fields=["id", "name", "isMember"],
         ).data
 
 

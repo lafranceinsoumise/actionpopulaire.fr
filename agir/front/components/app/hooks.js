@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useHistory } from "react-router-dom";
+import { createGlobalState } from "react-use";
 
 import { parseQueryStringParams } from "@agir/lib/utils/url";
 import { useLocalStorage } from "@agir/lib/utils/hooks";
+import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
 
 export const useCustomBackNavigation = (callback) => {
   const history = useHistory();
@@ -53,13 +55,38 @@ export const useMobileApp = () => {
   return state;
 };
 
+const useHasDownloadBanner = createGlobalState(undefined);
 export const useDownloadBanner = () => {
   const [bannerCount, setBannerCount] = useLocalStorage("BANNER_count", 0);
   const [visitCount] = useLocalStorage("AP_vcount", 0);
 
-  const hide = useCallback(() => {
-    setBannerCount(visitCount + 25);
-  }, [setBannerCount, visitCount]);
+  const isDesktop = useIsDesktop();
+  const { isMobileApp } = useMobileApp();
 
-  return [bannerCount <= visitCount, hide];
+  const [hasBanner, setHasBanner] = useHasDownloadBanner();
+
+  useEffect(() => {
+    if (
+      hasBanner !== false &&
+      !isMobileApp &&
+      !isDesktop &&
+      bannerCount <= visitCount
+    ) {
+      setHasBanner(true);
+    }
+  }, [
+    hasBanner,
+    isMobileApp,
+    isDesktop,
+    bannerCount,
+    visitCount,
+    setHasBanner,
+  ]);
+
+  const hide = useCallback(() => {
+    setHasBanner(false);
+    setBannerCount(visitCount + 25);
+  }, [setBannerCount, visitCount, setHasBanner]);
+
+  return [!!hasBanner, hide];
 };

@@ -272,7 +272,9 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
         required=True,
         source="display_name",
     )
-    image = serializers.ImageField(required=False, label="Image de profil")
+    image = serializers.ImageField(
+        required=False, label="Image de profil", default=None, source="image.thumbnail"
+    )
     contactPhone = PhoneNumberField(
         source="contact_phone",
         required=False,

@@ -6,7 +6,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import logo from "@agir/front/genericComponents/logos/action-populaire_primary_mini.svg";
 
-import { useDownloadBanner, useMobileApp } from "@agir/front/app/hooks.js";
+import { useDownloadBanner } from "@agir/front/app/hooks.js";
 import { CONFIG } from "@agir/front/genericComponents/AppStore.js";
 import { getMobileOS } from "@agir/front/authentication/common.js";
 
@@ -89,10 +89,7 @@ const AppLogo = styled.img`
 const OS = getMobileOS();
 
 export const DownloadApp = () => {
-  const { isMobileApp } = useMobileApp();
   const [isBannerDownload, closeDownload] = useDownloadBanner();
-
-  if (isMobileApp) return null;
 
   if (!isBannerDownload) return null;
 

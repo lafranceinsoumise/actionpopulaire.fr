@@ -381,18 +381,17 @@ class NewMessageActivityNotificationSerializer(ActivityNotificationSerializer):
     def get_body(self, activity):
         try:
             message = SupportGroupMessage.objects.get(pk=activity.meta["message"])
+            if message.subject:
+                return message.subject
             return message.text
         except:
             return f"Un nouveau message a été publié dans le groupe {activity.supportgroup.name}"
 
     def get_url(self, activity):
         return activity_notification_url(
-            "view_group_message",
+            "user_message_details",
             activity=activity,
-            kwargs={
-                "pk": activity.supportgroup_id,
-                "message_pk": activity.meta["message"],
-            },
+            kwargs={"pk": activity.meta["message"],},
         )
 
 
@@ -414,12 +413,9 @@ class NewCommentActivityNotificationSerializer(ActivityNotificationSerializer):
 
     def get_url(self, activity):
         return activity_notification_url(
-            "view_group_message",
+            "user_message_details",
             activity=activity,
-            kwargs={
-                "pk": activity.supportgroup_id,
-                "message_pk": activity.meta["message"],
-            },
+            kwargs={"pk": activity.meta["message"],},
         )
 
 

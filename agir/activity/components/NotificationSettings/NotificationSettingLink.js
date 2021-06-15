@@ -5,6 +5,8 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
+import Link from "@agir/front/app/Link";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useMobileApp } from "@agir/front/app/hooks";
@@ -29,11 +31,11 @@ export const useNotificationSettingLink = (root) => {
     [root]
   );
 
-  return route;
+  return decodeURIComponent(route);
 };
 
 const NotificationSettingLink = (props) => {
-  const { root } = props;
+  const { root, iconLink = false } = props;
   const route = useNotificationSettingLink(root);
   const { isMobileApp } = useMobileApp();
   const dispatch = useDispatch();
@@ -41,11 +43,32 @@ const NotificationSettingLink = (props) => {
   useEffect(() => {
     if (!isMobileApp) {
       dispatch(setTopBarRightLink(null));
+    } else {
+      dispatch(
+        setTopBarRightLink({
+          label: routeConfig.notificationSettings.label,
+          to: route,
+          protected: true,
+        })
+      );
     }
-  }, [isMobileApp, dispatch]);
+  }, [isMobileApp, dispatch, route]);
 
   if (!isMobileApp) {
     return null;
+  }
+
+  if (iconLink) {
+    return (
+      <Link to={route} style={{ lineHeight: 0 }}>
+        <RawFeatherIcon
+          name="settings"
+          color={style.black1000}
+          width="1.5rem"
+          height="1.5rem"
+        />
+      </Link>
+    );
   }
 
   return (
@@ -56,6 +79,7 @@ const NotificationSettingLink = (props) => {
 };
 NotificationSettingLink.propTypes = {
   root: PropTypes.string.isRequired,
+  iconLink: PropTypes.bool,
 };
 
 export default NotificationSettingLink;

@@ -9,7 +9,6 @@ import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import TopBar from "@agir/front/allPages/TopBar";
 
 import { useMobileApp, useDownloadBanner } from "@agir/front/app/hooks";
-import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
 
 import MobileHome from "./MobileHome";
 import DesktopHome from "./DesktopHome";
@@ -23,9 +22,8 @@ const StyledHome = styled.div`
 `;
 
 const Home = (props) => {
-  const isDesktop = useIsDesktop();
   const { isMobileApp } = useMobileApp();
-  const [isBannerDownload, _] = useDownloadBanner();
+  const [isBannerDownload] = useDownloadBanner();
 
   if (isMobileApp) {
     return <IntroApp />;
@@ -34,9 +32,7 @@ const Home = (props) => {
   return (
     <>
       <TopBar />
-
-      {!isMobileApp && !isDesktop && isBannerDownload && <Spacer size="80px" />}
-
+      {isBannerDownload && <Spacer size="80px" />}
       <StyledHome>
         <ResponsiveLayout
           MobileLayout={MobileHome}

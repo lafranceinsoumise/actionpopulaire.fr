@@ -41,6 +41,8 @@ export const PullRight = styled.div`
  * Media queries
  */
 export const Hide = styled.div`
+  min-width: 0;
+
   @media (max-width: ${({ under }) => (under === true ? collapse : under)}px) {
     display: none;
   }

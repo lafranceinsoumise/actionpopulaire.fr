@@ -215,54 +215,25 @@ const MessageActionModal = (props) => {
   const { action, shouldShow, onClose, onDelete, onReport, isLoading, error } =
     props;
   const [step, setStep] = useState(0);
-  const nextStep = useRef(0);
-  const lastStep = useRef(null);
-
-  const Step = useMemo(() => {
-    const Step =
-      action && Steps[action] ? Steps[action][step] : lastStep.current;
-    lastStep.current = Step;
-    return Step;
-  }, [action, step]);
-
-  const handleDelete = useMemo(
-    () =>
-      typeof onDelete === "function"
-        ? () => {
-            nextStep.current += 1;
-            onDelete();
-          }
-        : undefined,
-    [onDelete]
-  );
-
-  const handleReport = useMemo(
-    () =>
-      typeof onReport === "function"
-        ? () => {
-            nextStep.current += 1;
-            onReport();
-          }
-        : undefined,
-    [onReport]
-  );
+  const Step = action && Steps[action] ? Steps[action][step] : null;
 
   useEffect(() => {
-    if (!isLoading && step !== nextStep.current) {
-      if (!error) {
-        setStep(nextStep.current);
-      } else {
-        nextStep.current = step;
-      }
+    if (!isLoading && !error) {
+      setStep((state) => state + 1);
     }
-  }, [isLoading, error, step]);
+  }, [isLoading, error]);
 
   useEffect(() => {
     if (shouldShow) {
       setStep(0);
-      nextStep.current = 0;
     }
   }, [shouldShow]);
+
+  useEffect(() => {
+    if (shouldShow && !Step) {
+      onClose();
+    }
+  }, [shouldShow, Step, onClose]);
 
   return (
     <ModalWrapper
@@ -274,8 +245,8 @@ const MessageActionModal = (props) => {
         {Step ? (
           <Step
             onClose={onClose}
-            onDelete={handleDelete}
-            onReport={handleReport}
+            onDelete={onDelete}
+            onReport={onReport}
             isLoading={isLoading}
           />
         ) : null}

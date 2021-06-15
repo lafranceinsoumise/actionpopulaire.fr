@@ -27,7 +27,7 @@ const getAvatarImageURL = (name, image) => {
 };
 const Avatar = styled.span.attrs(({ name, displayName, image }) => ({
   image: getAvatarImageURL(name || displayName, image),
-  title: name,
+  title: name || displayName,
 }))`
   border-radius: 100%;
   background-repeat: no-repeat;

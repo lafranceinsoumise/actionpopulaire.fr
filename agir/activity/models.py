@@ -74,8 +74,6 @@ class Activity(TimeStampedModel):
         TYPE_GROUP_CREATION_CONFIRMATION,
         TYPE_TRANSFERRED_GROUP_MEMBER,
         TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
-        TYPE_NEW_MESSAGE,
-        TYPE_NEW_COMMENT,
         TYPE_EVENT_SUGGESTION,
         TYPE_ANNOUNCEMENT,
         # Old required action types :
