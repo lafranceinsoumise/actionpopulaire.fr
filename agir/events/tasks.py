@@ -1,15 +1,11 @@
 from collections import OrderedDict
 
-from django.utils.functional import empty
-
 import ics
 import requests
 from celery import shared_task
 from django.conf import settings
 
-from django.db.models import Q
 from django.template.loader import render_to_string
-from django.utils import timezone
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
@@ -103,15 +99,15 @@ def send_event_changed_notification(event_pk, changed_data):
 
     changed_data = [f for f in changed_data if f in NOTIFIED_CHANGES]
 
-    recipients = [
-        rsvp.person
-        for rsvp in event.rsvps.prefetch_related("person__emails")
-        if Subscription.objects.filter(
-            person=rsvp.person,
-            type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_EVENT_UPDATE,
-        ).exists()
-    ]
+    persons = [rsvp.person for rsvp in event.rsvps.prefetch_related("person__emails")]
+
+    q = Subscription.objects.select_related("person").filter(
+        person__in=persons,
+        type=Subscription.SUBSCRIPTION_EMAIL,
+        activity_type=Activity.TYPE_EVENT_UPDATE,
+    )
+
+    recipients = [s.person for s in q]
     if len(recipients) == 0:
         return
 
@@ -182,18 +178,20 @@ def send_rsvp_notification(rsvp_pk):
     if rsvp.event.rsvps.count() > 50:
         return
 
-    recipients = []
+    recipients = [
+        organizer_config.person
+        for organizer_config in rsvp.event.organizer_configs.all()
+        if organizer_config.person != rsvp.person
+    ]
     recipients_allowed_email = []
 
-    for organizer_config in rsvp.event.organizer_configs.all():
-        if organizer_config.person != rsvp.person:
-            recipients.append(organizer_config.person)
-            if Subscription.objects.filter(
-                person=organizer_config.person,
-                type=Subscription.SUBSCRIPTION_EMAIL,
-                activity_type=Activity.TYPE_NEW_ATTENDEE,
-            ).exists():
-                recipients_allowed_email.append(organizer_config.person)
+    q = Subscription.objects.select_related("person").filter(
+        person__in=recipients,
+        type=Subscription.SUBSCRIPTION_EMAIL,
+        activity_type=Activity.TYPE_NEW_ATTENDEE,
+    )
+
+    recipients_allowed_email = [s.person for s in q]
 
     organizer_bindings = {
         "EVENT_NAME": rsvp.event.name,
@@ -201,7 +199,7 @@ def send_rsvp_notification(rsvp_pk):
         "MANAGE_EVENT_LINK": front_url("manage_event", kwargs={"pk": rsvp.event.pk}),
     }
 
-    if recipients_allowed_email is not empty:
+    if len(recipients_allowed_email) > 0:
         send_mosaico_email(
             code="EVENT_RSVP_NOTIFICATION",
             subject=_("Un nouveau participant à l'un de vos événements"),
@@ -309,16 +307,15 @@ def send_event_report(event_pk):
     if event.report_summary_sent:
         return
 
-    recipients = [
-        rsvp.person
-        for rsvp in event.rsvps.prefetch_related("person__emails")
-        if Subscription.objects.filter(
-            person=rsvp.person,
-            type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_NEW_REPORT,
-        ).exists()
-    ]
+    persons = [rsvp.person for rsvp in event.rsvps.prefetch_related("person__emails")]
 
+    q = Subscription.objects.select_related("person").filter(
+        person__in=persons,
+        type=Subscription.SUBSCRIPTION_EMAIL,
+        activity_type=Activity.TYPE_NEW_REPORT,
+    )
+
+    recipients = [s.person for s in q]
     if len(recipients) == 0:
         return
 

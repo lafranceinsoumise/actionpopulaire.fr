@@ -1,7 +1,5 @@
 from collections import OrderedDict
 
-from django.utils.functional import empty
-
 from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
@@ -121,16 +119,21 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
             meta={"changed_data": [f for f in changed_data if f in NOTIFIED_CHANGES]},
         )
 
-    recipients = [
+    persons = [
         membership.person
         for membership in group.memberships.prefetch_related("person__emails")
-        if Subscription.objects.filter(
-            person=membership.person,
+    ]
+    q = (
+        Subscription.objects.select_related("person")
+        .filter(
+            person__in=persons,
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=Activity.TYPE_GROUP_INFO_UPDATE,
-        ).exists()
-    ]
+        )
+        .distinct("person")
+    )
 
+    recipients = [s.person for s in q]
     if len(recipients) == 0:
         return
 
@@ -164,15 +167,19 @@ def send_joined_notification_email(membership_pk):
     )
     person_information = str(membership.person)
 
-    recipients = [
-        manager
-        for manager in membership.supportgroup.managers
-        if Subscription.objects.filter(
-            person=manager,
+    persons = [manager for manager in membership.supportgroup.managers]
+
+    q = (
+        Subscription.objects.select_related("person")
+        .filter(
+            person__in=persons,
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=Activity.TYPE_NEW_MEMBER,
-        ).exists()
-    ]
+        )
+        .distinct("person")
+    )
+
+    recipients = [s.person for s in q]
     if len(recipients) == 0:
         return
 
@@ -325,15 +332,19 @@ def send_new_group_event_email(group_pk, event_pk):
     if not OrganizerConfig.objects.filter(event=event, as_group=group):
         return
 
-    recipients = [
-        member
-        for member in group.members.all()
-        if Subscription.objects.filter(
-            person=member,
+    persons = [member for member in group.members.all()]
+
+    q = (
+        Subscription.objects.select_related("person")
+        .filter(
+            person__in=persons,
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=Activity.TYPE_NEW_EVENT_MYGROUPS,
-        ).exists()
-    ]
+        )
+        .distinct("person")
+    )
+
+    recipients = [s.person for s in q]
     if len(recipients) == 0:
         return
 
@@ -380,23 +391,25 @@ def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
 def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
     recipients = Person.objects.filter(pk__in=recipients_pks)
 
-    recipients_allowed = []
-    for r in recipients:
-        if Subscription.objects.filter(
-            person=r,
+    q = (
+        Subscription.objects.select_related("person")
+        .filter(
+            person__in=recipients,
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
-        ).exists():
-            recipients_allowed.append(r)
+        )
+        .distinct("person")
+    )
 
-    if len(recipients_allowed) == 0:
+    recipients = [s.person for s in q]
+    if len(recipients) == 0:
         return
 
     send_mosaico_email(
         code="TRANSFER_RECEIVER",
         subject=f"De nouveaux membres ont été transférés dans {bindings['GROUP_DESTINATION']}",
         from_email=settings.EMAIL_FROM,
-        recipients=recipients_allowed,
+        recipients=recipients,
         bindings=bindings,
     )
 
@@ -474,19 +487,19 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 def send_message_notification_email(message_pk):
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
-    recipients = [
-        p
-        for p in message.supportgroup.members.all()
-        if (
-            not p.id == message.author.id
-            and Subscription.objects.filter(
-                person=p,
-                type=Subscription.SUBSCRIPTION_EMAIL,
-                activity_type=Activity.TYPE_NEW_COMMENT,
-            ).exists()
-        )
-    ]
+    persons = [p for p in message.supportgroup.members.all()]
 
+    q = (
+        Subscription.objects.select_related("person")
+        .filter(
+            person__in=persons,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_MESSAGE,
+        )
+        .distinct("person")
+    )
+
+    recipients = [s.person for s in q]
     if len(recipients) == 0:
         return
 
@@ -522,19 +535,19 @@ def send_message_notification_email(message_pk):
 def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
 
-    recipients = [
-        p
-        for p in comment.message.supportgroup.members.all()
-        if (
-            not p.id == comment.author.id
-            and Subscription.objects.filter(
-                person=p,
-                type=Subscription.SUBSCRIPTION_EMAIL,
-                activity_type=Activity.TYPE_NEW_COMMENT,
-            ).exists()
-        )
-    ]
+    persons = [p for p in comment.message.supportgroup.members.all()]
 
+    q = (
+        Subscription.objects.select_related("person")
+        .filter(
+            person__in=persons,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_COMMENT,
+        )
+        .distinct("person")
+    )
+
+    recipients = [s.person for s in q]
     if len(recipients) == 0:
         return
 
