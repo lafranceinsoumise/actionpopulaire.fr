@@ -31,3 +31,5 @@ class OrdreVirement(ModeleGestionMixin, TimeStampedModel):
             filename_pattern="gestion/ordres/{uuid:.2base32}/{uuid}{ext}"
         ),
     )
+
+    search_config = (("numero", "B"),)

@@ -254,6 +254,12 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
     def transitions(self) -> List[Transition["Depense", Etat]]:
         return self.TRANSITIONS.get(self.Etat(self.etat), [])
 
+    search_config = (
+        ("numero", "B"),
+        ("titre", "A"),
+        ("description", "B"),
+    )
+
     class Meta:
         verbose_name = "Dépense"
         verbose_name_plural = "Dépenses"
@@ -345,6 +351,12 @@ class Reglement(TimeStampedModel):
     )
     location_country_fournisseur = CountryField(
         "pays", blank_label="(sélectionner un pays)", default="FR", blank=False
+    )
+
+    search_config = (
+        ("numero", "B"),
+        ("titre", "A"),
+        ("description", "B"),
     )
 
     class Meta:

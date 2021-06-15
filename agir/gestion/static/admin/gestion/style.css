@@ -1,3 +1,22 @@
+.gestion--recherche form {
+    padding: 0 16px;
+}
+
+.gestion--recherche label {
+    display: block;
+    font-weight: bold;
+}
+
+.gestion--recherche input {
+    display: block;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.gestion--recherche button {
+    display: block;
+}
+
 .gestion--organisation {
     display: flex;
     align-items: flex-start;
@@ -9,7 +28,6 @@
 
     margin: 0 0 0 20px;
 }
-
 
 .gestion--side-container h2 {
     font-size: 14px;

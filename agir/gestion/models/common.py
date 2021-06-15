@@ -6,19 +6,21 @@ from string import ascii_uppercase, digits
 
 import dynamic_filenames
 import reversion
+from django.contrib.admin.options import get_content_type_for_model
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.postgres.search import SearchVector, SearchRank
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVector, SearchRank, SearchVectorField
 from django.db import models
+from django.urls import reverse
 
 from agir.gestion.typologies import TypeDocument
 from agir.lib.models import TimeStampedModel
 from agir.lib.search import PrefixSearchQuery
 
 
-__all__ = (
-    "Document",
-    "Compte",
-)
+__all__ = ("Document", "Compte", "InstanceCherchable", "Autorisation")
 
 
 ALPHABET = ascii_uppercase + digits
@@ -36,14 +38,7 @@ class NumeroQueryset(models.QuerySet):
         if NUMERO_RE.match(query):
             return self.filter(numero__startswith=query)
 
-        search_config = self.model.search_config
-        vector = reduce(
-            add,
-            (
-                SearchVector(models.F(field), config=config, weight=weight)
-                for field, config, weight in search_config
-            ),
-        )
+        vector = self.model.search_vector()
 
         query = PrefixSearchQuery(
             query, config="french_unaccented"
@@ -100,6 +95,19 @@ class ModeleGestionMixin(models.Model):
         titre = f"{self.titre[70:]}..." if len(self.titre) > 70 else self.titre
         return f"« {titre} » ({self.numero})"
 
+    @classmethod
+    def search_vector(cls):
+        search_config = cls.search_config
+        return reduce(
+            add,
+            (
+                SearchVector(
+                    models.F(field), config="french_unaccented", weight=weight,
+                )
+                for field, weight in search_config
+            ),
+        )
+
     class Meta:
         abstract = True
 
@@ -154,10 +162,10 @@ class Document(ModeleGestionMixin, TimeStampedModel):
     )
 
     search_config = (
-        ("numero", "simple_unaccented", "B"),
-        ("titre", "french_unaccented", "A"),
-        ("identifiant", "simple_unaccented", "B"),
-        ("description", "french_unaccented", "C"),
+        ("numero", "B"),
+        ("titre", "A"),
+        ("identifiant", "B"),
+        ("description", "C"),
     )
 
     class Meta:
@@ -224,3 +232,34 @@ class Autorisation(TimeStampedModel):
     )
 
     autorisations = ArrayField(models.CharField(max_length=100), default=list)
+
+
+class InstanceCherchable(models.Model):
+    recherche = SearchVectorField(verbose_name="Champ de recherche", null=False)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    instance = GenericForeignKey()
+
+    @classmethod
+    def mettre_a_jour(cls, instance):
+        model = instance._meta.model
+        content_type = get_content_type_for_model(instance)
+        search_vector_query = model.objects.filter(pk=instance.pk).values(
+            vector=model.search_vector()
+        )
+
+        InstanceCherchable.objects.update_or_create(
+            content_type=content_type,
+            object_id=instance.pk,
+            defaults={"recherche": search_vector_query},
+        )
+
+    def lien_admin(self):
+        return reverse(
+            f"admin:gestion_{self.content_type.model}_change", args=(self.object_id,)
+        )
+
+    class Meta:
+        verbose_name = "Recherche"
+        verbose_name_plural = "Recherche"
+        indexes = (GinIndex(fields=("recherche",)),)

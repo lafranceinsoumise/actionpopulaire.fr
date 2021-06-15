@@ -117,6 +117,14 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
     def transitions(self):
         return self.TRANSITIONS[self.etat]
 
+    search_config = (
+        ("numero", "B"),
+        ("titre", "A"),
+        ("description", "C"),
+        ("event__name", "B"),
+        ("event__description", "B"),
+    )
+
     class Meta:
         verbose_name = "Projet"
         verbose_name_plural = "Projets"

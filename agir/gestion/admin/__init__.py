@@ -1,3 +1,11 @@
+import re
+
+from django.http import HttpResponseRedirect
+
+from agir.gestion.models.common import ModeleGestionMixin
+from django.contrib.postgres.search import SearchVector, SearchQuery
+
+from agir.gestion.utils import lien
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.db.models import Count, Sum
@@ -23,7 +31,14 @@ from agir.gestion.admin.inlines import (
     AjouterDepenseInline,
 )
 from agir.gestion.admin.views import AjouterReglementView, TransitionView
-from agir.gestion.models import Depense, Projet, Fournisseur, Document, Compte
+from agir.gestion.models import (
+    Depense,
+    Projet,
+    Fournisseur,
+    Document,
+    Compte,
+    InstanceCherchable,
+)
 from agir.gestion.models.depenses import etat_initial
 from agir.gestion.models.virements import OrdreVirement
 from agir.gestion.typologies import TypeDepense
@@ -334,3 +349,58 @@ class OrdreVirementAdmin(BaseAdminMixin, VersionAdmin):
 
     montant.short_description = "Montant total"
     montant.admin_order_field = "montant"
+
+
+@admin.register(InstanceCherchable)
+class InstanceCherchableAdmin(admin.ModelAdmin):
+    NUMERO_RE = re.compile(r"^[A-Z0-9]{3}-[A-Z0-9]{3}$")
+    list_display = ("content_type", "instance_link")
+    list_display_links = None
+
+    search_fields = ("recherche",)
+
+    def changelist_view(self, request, extra_context=None):
+        q = request.GET.get("q", "").strip().upper()
+        if self.NUMERO_RE.match(q):
+            for m in ModeleGestionMixin.__subclasses__():
+                try:
+                    return HttpResponseRedirect(
+                        reverse(
+                            f"admin:gestion_{m._meta.model_name}_change",
+                            args=(
+                                m.objects.values_list("id", flat=True).get(numero=q),
+                            ),
+                        )
+                    )
+                except m.DoesNotExist:
+                    pass
+
+        return super().changelist_view(request, extra_context=extra_context)
+
+    def get_search_results(self, request, queryset, search_term):
+        use_distinct = False
+        if search_term:
+            return (
+                queryset.filter(
+                    recherche=SearchQuery(search_term, config="french_unaccented")
+                ),
+                use_distinct,
+            )
+
+        return queryset, use_distinct
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def instance_link(self, obj):
+        if obj is None:
+            return "-"
+        return lien(obj.lien_admin(), str(obj.instance))
+
+    instance_link.short_description = "Page"
