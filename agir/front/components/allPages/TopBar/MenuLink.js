@@ -59,6 +59,7 @@ export const TopbarLink = styled.div`
   transition: 0.2s ease;
   font-size: 12px;
   position: relative;
+  color: ${({ $active }) => ($active ? style.primary500 : "")};
 
   span {
     margin: 0;
@@ -73,7 +74,6 @@ export const TopbarLink = styled.div`
   &:hover {
     color: ${style.primary500};
   }
-  color: ${({ $active }) => ($active ? style.primary500 : "")};
 
   div {
     display: ${({ $active }) => ($active ? "block" : "none")};

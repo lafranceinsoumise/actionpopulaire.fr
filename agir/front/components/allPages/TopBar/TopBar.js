@@ -11,7 +11,7 @@ import {
   getTopBarRightLink,
   getUser,
 } from "@agir/front/globalContext/reducers";
-import { useHasUnreadActivity } from "@agir/activity/common/hooks";
+import { useUnreadActivityCount } from "@agir/activity/common/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useUnreadMessageCount } from "@agir/msgs/hooks";
@@ -100,8 +100,8 @@ export const TopBar = (props) => {
   const adminLink = useSelector(getAdminLink);
   const isConnected = useSelector(getIsConnected);
 
-  const hasUnreadActivity = useHasUnreadActivity();
   const unreadMessageCount = useUnreadMessageCount();
+  const unreadActivityCount = useUnreadActivityCount();
 
   return (
     <NavbarContainer>
@@ -188,7 +188,11 @@ export const TopBar = (props) => {
                           <FeatherIcon name="bell" />
                           <span>Notifications</span>
                           <div />
-                          {hasUnreadActivity && <small />}
+                          {unreadActivityCount > 0 && (
+                            <small style={{ right: 30 }}>
+                              {Math.min(unreadActivityCount, 99)}
+                            </small>
+                          )}
                         </TopbarLink>
                       </MenuLink>
                       <MenuLink route="messages">

@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from "react";
-import { useTransition, animated } from "@react-spring/web";
 import styled from "styled-components";
 import useSWR from "swr";
 
@@ -8,7 +7,9 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 import { getUnread } from "@agir/activity/common/helpers";
+import { useActivities } from "@agir/activity/common/hooks";
 import { setAllActivitiesAsRead } from "@agir/activity/common/api";
+import { useInfiniteScroll } from "@agir/lib/utils/hooks";
 
 import {
   LayoutSubtitle,
@@ -53,7 +54,8 @@ const ActivityList = () => {
   const routes = useSelector(getRoutes);
 
   const { data: session } = useSWR("/api/session/");
-  const { data: activities } = useSWR("/api/user/activities/");
+  const { activities, isLoadingInitialData, isLoadingMore, loadMore } =
+    useActivities();
   const unreadActivities = useMemo(() => getUnread(activities), [activities]);
 
   useEffect(() => {
@@ -61,18 +63,12 @@ const ActivityList = () => {
       setAllActivitiesAsRead(unreadActivities.map(({ id }) => id));
     }
   }, [unreadActivities]);
-
-  const transitions = useTransition(activities, {
-    keys: ({ id }) => id,
-    initial: { transform: "translate3d(0,0,0)" },
-    enter: { opacity: 1, marginBottom: 16, maxHeight: "1000px" },
-    leave: { opacity: 0, marginBottom: 0, maxHeight: "0px" },
-  });
+  const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
   return (
     <Page>
       <PageFadeIn
-        ready={session && activities}
+        ready={session && !isLoadingInitialData}
         wait={
           <div style={{ marginTop: "32px" }}>
             <Skeleton />
@@ -91,11 +87,18 @@ const ActivityList = () => {
             {activities.length > 0 ? (
               <StyledList type="activities">
                 <ActivityMergerAnnouncement />
-                {transitions((style, activity) => (
-                  <animated.li style={style}>
-                    <ActivityCard routes={routes} {...activity} />
-                  </animated.li>
-                ))}
+                {activities.map((activity, i) =>
+                  i + 1 === activities.length ? (
+                    <li key={activity.id} ref={lastItemRef}>
+                      <ActivityCard routes={routes} {...activity} />
+                    </li>
+                  ) : (
+                    <li key={activity.id}>
+                      <ActivityCard routes={routes} {...activity} />
+                    </li>
+                  )
+                )}
+                {isLoadingMore && <Skeleton />}
               </StyledList>
             ) : (
               <EmptyActivityList />

@@ -47,9 +47,6 @@ class SessionSerializer(serializers.Serializer):
     facebookLogin = serializers.SerializerMethodField(
         method_name="get_facebook_login", read_only=True
     )
-    hasUnreadActivities = serializers.SerializerMethodField(
-        method_name="get_has_unread_activities", read_only=True
-    )
     authentication = serializers.SerializerMethodField(read_only=True)
     bookmarkedEmails = serializers.SerializerMethodField(
         method_name="get_bookmarked_emails", read_only=True
@@ -140,16 +137,6 @@ class SessionSerializer(serializers.Serializer):
             request.user.is_authenticated
             and request.user.social_auth.filter(provider="facebook").exists()
         )
-
-    def get_has_unread_activities(self, request):
-        if request.user.is_authenticated and request.user.person is not None:
-            return (
-                Activity.objects.displayed()
-                .filter(
-                    recipient=request.user.person, status=Activity.STATUS_UNDISPLAYED
-                )
-                .exists()
-            )
 
     def get_bookmarked_emails(self, request):
         return get_bookmarked_emails(request)
