@@ -58,6 +58,7 @@ const Router = ({ children }) => {
       return;
     }
     loader.style.opacity = "0";
+    loader.style.zIndex = -1;
     loader.addEventListener("transitionend", () => {
       const loader = document.getElementById("app_loader");
       loader && loader.remove();
