@@ -75,7 +75,8 @@ class ActivityAPIViewTestCase(TestCase):
         res = self.client.get("/api/user/activities/")
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 1)
+        self.assertIn("results", res.data)
+        self.assertEqual(len(res.data["results"]), 1)
 
     def test_cannot_view_own_activity_if_cannot_view_linked_event(self):
         event = Event.objects.create(
@@ -90,7 +91,8 @@ class ActivityAPIViewTestCase(TestCase):
         res = self.client.get("/api/user/activities/")
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 0)
+        self.assertIn("results", res.data)
+        self.assertEqual(len(res.data["results"]), 0)
 
 
 class AnnouncementTestCase(TestCase):

@@ -11,9 +11,9 @@ import {
   getTopBarRightLink,
   getUser,
 } from "@agir/front/globalContext/reducers";
-import { useHasUnreadActivity } from "@agir/activity/common/hooks";
+import { useUnreadActivityCount } from "@agir/activity/common/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-
+import { routeConfig } from "@agir/front/app/routes.config";
 import { useIsDesktop, Hide } from "@agir/front/genericComponents/grid.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -39,22 +39,16 @@ const NavbarContainer = styled.div`
   background-color: #fff;
 
   ${NavBar} {
-  height: 72px;
-  align-items: center;
-  display: flex;
-  box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
-    0px 3px 2px rgba(0, 35, 44, 0.05);
-
-  @media (max-width: ${style.collapse}px) {
-    padding: 1rem 1.5rem;
-  }
-
-  background-color: #fff;
-  box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
-    0px 3px 2px rgba(0, 35, 44, 0.05);
-  @media (max-width: ${style.collapse}px) {
-    padding: 1rem 1.5rem;
-    height: 100%;
+    height: 72px;
+    align-items: center;
+    display: flex;
+    background-color: #fff;
+    box-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
+      0px 3px 2px rgba(0, 35, 44, 0.05);
+    @media (max-width: ${style.collapse}px) {
+      padding: 1rem 1.5rem;
+      height: 100%;
+    }
   }
 `;
 
@@ -108,7 +102,7 @@ export const TopBar = (props) => {
   const isDesktop = useIsDesktop();
   const isConnected = useSelector(getIsConnected);
 
-  const hasUnreadActivity = useHasUnreadActivity();
+  const unreadActivityCount = useUnreadActivityCount();
 
   return (
     <NavbarContainer>
@@ -190,13 +184,16 @@ export const TopBar = (props) => {
                       </MenuLink>
                       <MenuLink route="activities" href="/activite/">
                         <TopbarLink
-                          isBadge={hasUnreadActivity}
-                          $active={"/activite/" === path}
+                          $active={routeConfig.activities.match(path)}
                         >
                           <FeatherIcon name="bell" />
                           <span>Notifications</span>
                           <div />
-                          <div class="notif" />
+                          {unreadActivityCount > 0 && (
+                            <small style={{ right: 30 }}>
+                              {Math.min(unreadActivityCount, 99)}
+                            </small>
+                          )}
                         </TopbarLink>
                       </MenuLink>
                       {false && (
@@ -238,4 +235,5 @@ export default TopBar;
 
 TopBar.propTypes = {
   path: PropTypes.string,
+  hideBannerDownload: PropTypes.bool,
 };
