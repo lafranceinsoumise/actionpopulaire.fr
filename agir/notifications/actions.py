@@ -4,8 +4,9 @@ from agir.notifications.models import Subscription
 
 DEFAULT_PERSON_SUBSCRIPTION_ACTIVITY_TYPES = [
     # GENERAL
-    Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
-    Activity.TYPE_GROUP_INVITATION,
+    # mandatory :
+    # Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+    # Activity.TYPE_GROUP_INVITATION,
     # mandatory :
     # Activity.TYPE_WAITING_PAYMENT,
     # EVENTS

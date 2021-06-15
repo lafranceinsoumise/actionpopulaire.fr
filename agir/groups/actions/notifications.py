@@ -74,7 +74,7 @@ def someone_joined_notification(membership, membership_count=1):
 
 @transaction.atomic()
 def new_message_notifications(message):
-    recipients = message.supportgroup.members.filter(group_notifications=True)
+    recipients = message.supportgroup.members.all()
     Activity.objects.bulk_create(
         [
             Activity(

@@ -285,6 +285,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                         recipient=r,
                         event=event,
                         status=Activity.STATUS_UNDISPLAYED,
+                        created__gt=timezone.now() + timedelta(minutes=2),
                     ).first()
                     if activity is not None:
                         activity.meta["changed_data"] = list(

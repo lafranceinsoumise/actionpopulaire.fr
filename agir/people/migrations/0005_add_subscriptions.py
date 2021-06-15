@@ -40,19 +40,6 @@ def migrate_default_subscriptions_switch_global_notifications_enabled(
     Subscription = apps.get_model("notifications", "Subscription")
     Person = apps.get_model("people", "Person")
 
-    # Add general email subscriptions
-    Subscription.objects.bulk_create(
-        [
-            Subscription(person=p, type=SUBSCRIPTION_EMAIL, activity_type=t,)
-            for p in Person.objects.all()
-            for t in [
-                # GENERAL
-                TYPE_TRANSFERRED_GROUP_MEMBER,
-                TYPE_GROUP_INVITATION,
-            ]
-        ]
-    )
-
     # If 'event_notifications' or 'group_notifications' are set, add or remove their subscriptions
 
     # Events : add default subscriptions if notifications_event_enabled=True

@@ -407,8 +407,6 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
         fields = (
             "contact_phone",
             "subscribed_sms",
-            "group_notifications",
-            "event_notifications",
         )
 
 

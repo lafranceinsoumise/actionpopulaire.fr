@@ -272,8 +272,6 @@ class ProfileTestCase(TestCase):
         self.person.is_insoumise = True
         self.person.subscribed = True
         self.person.subscribed_sms = True
-        self.person.event_notifications = True
-        self.person.group_notifications = True
         self.person.draw_notifications = True
         self.person.save()
 
@@ -282,8 +280,6 @@ class ProfileTestCase(TestCase):
         self.person.refresh_from_db()
         self.assertEqual(self.person.subscribed, False)
         self.assertEqual(self.person.subscribed_sms, False)
-        self.assertEqual(self.person.event_notifications, False)
-        self.assertEqual(self.person.group_notifications, False)
         self.assertEqual(self.person.draw_participation, False)
 
 
