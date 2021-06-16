@@ -6,6 +6,7 @@ import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
 import Button from "@agir/front/genericComponents/Button";
+import { Hide } from "@agir/front/genericComponents/grid";
 import Tooltip from "@agir/front/genericComponents/Tooltip";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -156,8 +157,9 @@ const MenuItem = styled.li`
   }
 
   @media only screen and (max-width: ${style.collapse}px) {
+    flex: 1 1 auto;
     display: ${({ mobile }) => (mobile ? "flex" : "none")};
-    width: 70px;
+    max-width: 70px;
     height: 70px;
     flex-direction: column;
     justify-content: center;
@@ -167,18 +169,10 @@ const MenuItem = styled.li`
     border-top: 2px solid
       ${(props) => (props.active ? style.primary500 : "transparent")};
 
-    & .large-only {
-      display: none;
-    }
-
     & ${RawFeatherIcon} {
       display: block;
       margin-bottom: 5px;
     }
-  }
-
-  @media only screen and (max-width: 340px) {
-    font-size: 9px;
   }
 
   @media only screen and (min-width: ${style.collapse}px) {
@@ -188,10 +182,6 @@ const MenuItem = styled.li`
     margin-bottom: 1rem;
     flex-flow: column nowrap;
     align-items: flex-start;
-
-    & .small-only {
-      display: none;
-    }
 
     & ${RawFeatherIcon} {
       color: ${(props) => (props.active ? style.primary500 : style.black500)};
@@ -237,7 +227,12 @@ const Counter = styled.span`
 
   @media only screen and (max-width: ${style.collapse}px) {
     top: 11px;
-    right: 16px;
+    right: 50%;
+    transform: translateX(calc(12px + 50%));
+  }
+
+  @media only screen and (max-width: 360px) {
+    top: 16px;
   }
 
   @media only screen and (min-width: ${style.collapse}px) {
@@ -301,8 +296,12 @@ const MenuLink = (props) => {
       <Link href={href} to={to}>
         {counter > 0 && <Counter>{counter}</Counter>}
         <FeatherIcon name={icon} inline />
-        <span className="small-only">{shortTitle || title}</span>
-        <span className="large-only">{title}</span>
+        <Hide as="span" over under={360}>
+          {shortTitle || title}
+        </Hide>
+        <Hide as="span" under>
+          {title}
+        </Hide>
         {external && <FeatherIcon name="external-link" inline small />}
       </Link>
       {Array.isArray(secondaryLinks) && secondaryLinks.length > 0 ? (
