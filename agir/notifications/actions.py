@@ -3,22 +3,10 @@ from agir.groups.models import Membership
 from agir.notifications.models import Subscription
 
 DEFAULT_PERSON_SUBSCRIPTION_ACTIVITY_TYPES = [
-    # GENERAL
-    # mandatory :
-    # Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
-    # Activity.TYPE_GROUP_INVITATION,
-    # mandatory :
-    # Activity.TYPE_WAITING_PAYMENT,
-    # EVENTS
     Activity.TYPE_EVENT_SUGGESTION,
     Activity.TYPE_EVENT_UPDATE,
-    # NEW REPORT not for groups only ? (from excel)
     Activity.TYPE_NEW_ATTENDEE,
     Activity.TYPE_WAITING_LOCATION_EVENT,
-    # mandatory :
-    # Activity.TYPE_CANCELLED_EVENT,
-    # No mail sent :
-    # Activity.TYPE_REFERRAL,
 ]
 
 DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES = [
@@ -30,8 +18,6 @@ DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES = [
     Activity.TYPE_NEW_REPORT,
     Activity.TYPE_NEW_MEMBER,
     Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
-    # mandatory
-    # Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
     Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
     Activity.TYPE_WAITING_LOCATION_GROUP,
     Activity.TYPE_GROUP_COORGANIZATION_INVITE,

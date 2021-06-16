@@ -1,16 +1,12 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, Div, Row
+from crispy_forms.layout import Submit
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from agir.lib.data import french_zipcode_to_country_code
-from agir.lib.form_components import FormGroup, FullCol
-from agir.lib.form_mixins import LocationFormMixin, french_zipcode_validator
 from agir.people.models import Person
-from agir.people.tasks import (
-    send_unsubscribe_email,
-    send_confirmation_email,
-)
+from agir.notifications.models import Subscription
+from agir.activity.models import Activity
+from agir.people.tasks import send_unsubscribe_email
 
 
 class AnonymousUnsubscribeForm(forms.Form):
@@ -30,6 +26,10 @@ class AnonymousUnsubscribeForm(forms.Form):
         try:
             person = Person.objects.get(email=email)
             send_unsubscribe_email.delay(person.id)
+            for s in Subscription.objects.filter(
+                type=Activity.SUBSCRIPTION_EMAIL, person=person
+            ):
+                s.delete()
             person.subscribed = False
             person.save()
         except Person.DoesNotExist:
