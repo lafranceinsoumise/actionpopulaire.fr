@@ -143,7 +143,7 @@ const PanelFrame = styled.div`
         if ($isBehindTopBar) {
           return "56px";
         }
-        return "0";
+        return "1.5rem";
       }};
     }
   }
