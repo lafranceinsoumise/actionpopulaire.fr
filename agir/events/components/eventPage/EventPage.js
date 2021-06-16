@@ -161,8 +161,10 @@ const MobileLayout = (props) => {
     <>
       <StyledMap
         style={{
-          backgroundColor: illustration ? style.white : style.secondary500,
-          backgroundImage: !illustration
+          backgroundColor: illustration?.thumbnail
+            ? style.white
+            : style.secondary500,
+          backgroundImage: !illustration?.thumbnail
             ? `url(${defaultEventImage})`
             : undefined,
         }}
@@ -171,11 +173,11 @@ const MobileLayout = (props) => {
           <>
             <StyledGroupImage
               aria-hidden="true"
-              style={{ backgroundImage: `url(${illustration})` }}
+              style={{ backgroundImage: `url(${illustration?.thumbnail})` }}
             />
             <StyledGroupImage
               aria-hidden="true"
-              style={{ backgroundImage: `url(${illustration})` }}
+              style={{ backgroundImage: `url(${illustration?.thumbnail})` }}
             />
           </>
         ) : hasMap ? (
@@ -304,7 +306,9 @@ EventPage.propTypes = {
   rsvp: PropTypes.string,
   compteRendu: PropTypes.string,
   compteRenduPhotos: PropTypes.arrayOf(PropTypes.object),
-  illustration: PropTypes.string,
+  illustration: PropTypes.shape({
+    thumbnail: PropTypes.string,
+  }),
   description: PropTypes.string,
   startTime: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     .isRequired,

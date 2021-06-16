@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 
 import styled from "styled-components";
 
-import { Column, Row } from "@agir/front/genericComponents/grid";
 import { DateTime } from "luxon";
 import Button from "@agir/front/genericComponents/Button";
 import Collapsible from "@agir/front/genericComponents/Collapsible.js";
@@ -148,10 +147,10 @@ const EventDescription = ({
         </DescriptionSection>
       ) : null}
 
-      {illustration && (
+      {illustration?.banner && (
         <DescriptionSection>
           <img
-            src={illustration}
+            src={illustration.banner}
             alt="Image d'illustration de l'événement postée par l'utilisateur"
             style={{
               maxWidth: "100%",
@@ -199,7 +198,10 @@ EventDescription.propTypes = {
       thumbnail: PropTypes.string,
     })
   ),
-  illustration: PropTypes.string,
+  illustration: PropTypes.shape({
+    banner: PropTypes.string,
+    thumbnail: PropTypes.string,
+  }),
   description: PropTypes.string,
   isOrganizer: PropTypes.bool,
   endTime: PropTypes.instanceOf(DateTime),

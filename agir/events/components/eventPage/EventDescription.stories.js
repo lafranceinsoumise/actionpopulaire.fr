@@ -42,7 +42,11 @@ Default.args = {
       image: "https://picsum.photos/200/200",
     },
   ],
-  illustration:
-    "https://i.picsum.photos/id/523/1920/1080.jpg?hmac=sy_3fHrsxYu8cmYYWmQ2yWzPMfGNI42qloxWKF97ISk",
+  illustration: {
+    thumbnail:
+      "https://i.picsum.photos/id/523/1920/1080.jpg?hmac=sy_3fHrsxYu8cmYYWmQ2yWzPMfGNI42qloxWKF97ISk",
+    banner:
+      "https://i.picsum.photos/id/523/1920/1080.jpg?hmac=sy_3fHrsxYu8cmYYWmQ2yWzPMfGNI42qloxWKF97ISk",
+  },
   description: htmlDummyText,
 };
