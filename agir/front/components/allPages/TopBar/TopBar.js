@@ -19,7 +19,6 @@ import { Hide } from "@agir/front/genericComponents/grid.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import DownloadApp from "@agir/front/genericComponents/DownloadApp";
 import Button from "@agir/front/genericComponents/Button";
 
@@ -86,6 +85,12 @@ const HorizontalFlex = styled.div`
 
   form {
     flex-grow: inherit;
+  }
+`;
+
+const PageFadeIn = styled.div`
+  & > div {
+    margin-right: 1rem;
   }
 `;
 
