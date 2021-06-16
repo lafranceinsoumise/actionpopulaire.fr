@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import useSWR, { mutate } from "swr";
+import { validate as uuidValidate } from "uuid";
 
 import axios from "@agir/lib/utils/axios";
 import * as groupAPI from "@agir/groups/groupPage/api";
@@ -34,7 +35,11 @@ export const useMessageSWR = (messagePk, selectMessage) => {
     error,
     isValidating,
     mutate: mutateMessage,
-  } = useSWR(messagePk ? `/api/groupes/messages/${messagePk}/` : null);
+  } = useSWR(
+    messagePk && uuidValidate(messagePk)
+      ? `/api/groupes/messages/${messagePk}/`
+      : null
+  );
   const { pathname } = useLocation();
 
   const currentMessageId = currentMessage?.id;

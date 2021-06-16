@@ -7,13 +7,13 @@ from django.http import (
     HttpResponsePermanentRedirect,
     Http404,
     FileResponse,
-    HttpResponse,
 )
+from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators import cache
-from django.views.generic import View, RedirectView, TemplateView
+from django.views.generic import View, RedirectView
 from django.views.generic.detail import BaseDetailView
 
 from agir.authentication.view_mixins import (
@@ -310,8 +310,11 @@ class UserMessagesView(HardLoginRequiredMixin, ReactBaseView):
 
 
 class UserMessageView(
-    GlobalOrObjectPermissionRequiredMixin, HardLoginRequiredMixin, ReactBaseView
+    GlobalOrObjectPermissionRequiredMixin, HardLoginRequiredMixin, ReactBaseView,
 ):
     permission_required = ("msgs.view_message",)
     queryset = SupportGroupMessage.objects.all()
     bundle_name = "front/app"
+
+    def get_object(self):
+        return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))
