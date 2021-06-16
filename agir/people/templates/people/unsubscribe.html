@@ -29,9 +29,10 @@
             Pour confirmer votre désinscription de nos lettres d'information avec l'adresse
             <strong>{{ email }}</strong>, cliquez sur le bouton ci-dessous.
           </div>
-          <form method="post" action="{% url "contact" %}" class="col-xs-12 col-md-4">
+          <form method="post" action="" class="col-xs-12 col-md-4">
             {% csrf_token %}
-            <button name="no_mail" type="submit" class="btn btn-primary btn-block margintopmore">Je me désinscris</button>
+            <input type="hidden" name="email" value="{{ email }}" />
+            <button type="submit" class="btn btn-primary btn-block margintopmore">Je me désinscris</button>
           </form>
         </div>
       </div>
