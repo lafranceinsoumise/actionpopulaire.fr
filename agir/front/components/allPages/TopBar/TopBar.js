@@ -19,6 +19,7 @@ import { Hide } from "@agir/front/genericComponents/grid.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import DownloadApp from "@agir/front/genericComponents/DownloadApp";
 import Button from "@agir/front/genericComponents/Button";
 
@@ -88,7 +89,7 @@ const HorizontalFlex = styled.div`
   }
 `;
 
-const PageFadeIn = styled.div`
+const StyledPageFadeIn = styled(PageFadeIn)`
   & > div {
     margin-right: 1rem;
   }
@@ -171,7 +172,7 @@ export const TopBar = (props) => {
             </Hide>
           </HorizontalFlex>
 
-          <PageFadeIn ready={isSessionLoaded}>
+          <StyledPageFadeIn ready={isSessionLoaded}>
             <HorizontalFlex>
               {!isConnected ? (
                 <>
@@ -236,7 +237,7 @@ export const TopBar = (props) => {
                 </>
               )}
             </HorizontalFlex>
-          </PageFadeIn>
+          </StyledPageFadeIn>
         </TopBarContainer>
       </NavBar>
     </NavbarContainer>
