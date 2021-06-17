@@ -16,16 +16,18 @@ class Subscription(UUIDIdentified, TimeStampedModel):
 
     # MANDATORY TYPES
     MANDATORY_EMAIL_TYPES = (
-        Activity.TYPE_CANCELLED_EVENT,
         Activity.TYPE_WAITING_PAYMENT,
+        # EVENT
+        Activity.TYPE_CANCELLED_EVENT,
         # GROUP
         Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
         Activity.TYPE_GROUP_INVITATION,
         Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
     )
     MANDATORY_PUSH_TYPES = (
-        Activity.TYPE_CANCELLED_EVENT,
         Activity.TYPE_WAITING_PAYMENT,
+        # EVENT
+        Activity.TYPE_CANCELLED_EVENT,
         # GROUP
         Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
         Activity.TYPE_GROUP_INVITATION,
