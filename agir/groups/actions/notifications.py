@@ -10,7 +10,6 @@ from agir.groups.tasks import (
     send_message_notification_email,
     send_comment_notification_email,
 )
-from agir.notifications.types import SubscriptionType
 
 
 @transaction.atomic()
@@ -20,7 +19,7 @@ def someone_joined_notification(membership, membership_count=1):
     Activity.objects.bulk_create(
         [
             Activity(
-                type=SubscriptionType.TYPE_NEW_MEMBER,
+                type=Activity.TYPE_NEW_MEMBER,
                 recipient=r,
                 supportgroup=membership.supportgroup,
                 individual=membership.person,
@@ -47,7 +46,7 @@ def someone_joined_notification(membership, membership_count=1):
         Activity.objects.bulk_create(
             [
                 Activity(
-                    type=SubscriptionType.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
+                    type=Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
                     recipient=r,
                     supportgroup=membership.supportgroup,
                     status=Activity.STATUS_UNDISPLAYED,
@@ -81,7 +80,7 @@ def new_message_notifications(message):
             Activity(
                 individual=message.author,
                 supportgroup=message.supportgroup,
-                type=SubscriptionType.TYPE_NEW_MESSAGE,
+                type=Activity.TYPE_NEW_MESSAGE,
                 recipient=r,
                 status=Activity.STATUS_UNDISPLAYED,
                 meta={"message": str(message.pk),},
@@ -105,7 +104,7 @@ def new_comment_notifications(comment):
             Activity(
                 individual=comment.author,
                 supportgroup=comment.message.supportgroup,
-                type=SubscriptionType.TYPE_NEW_COMMENT,
+                type=Activity.TYPE_NEW_COMMENT,
                 recipient=r,
                 status=Activity.STATUS_UNDISPLAYED,
                 meta={"message": str(comment.message.pk), "comment": str(comment.pk),},

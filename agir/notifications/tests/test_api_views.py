@@ -6,7 +6,6 @@ from agir.activity.models import Activity
 from agir.groups.models import SupportGroup, Membership
 from agir.notifications.models import Subscription
 from agir.people.models import Person
-from agir.notifications.types import SubscriptionType
 
 
 class ListSubscriptionsAPITestCase(APITestCase):
@@ -29,13 +28,13 @@ class ListSubscriptionsAPITestCase(APITestCase):
         self.person_subscription = Subscription.objects.create(
             person=self.person,
             type=Subscription.SUBSCRIPTION_PUSH,
-            activity_type=SubscriptionType.TYPE_WAITING_LOCATION_GROUP,
+            activity_type=Activity.TYPE_WAITING_LOCATION_GROUP,
             membership=self.person_membership,
         )
         self.other_person_subscription = Subscription.objects.create(
             person=self.other_person,
             type=Subscription.SUBSCRIPTION_PUSH,
-            activity_type=SubscriptionType.TYPE_EVENT_UPDATE,
+            activity_type=Activity.TYPE_EVENT_UPDATE,
         )
 
     def test_anonymous_person_cannot_get_subscriptions(self):
@@ -80,18 +79,18 @@ class CreateSubscriptionsAPITestCase(APITestCase):
         self.person_subscription = Subscription.objects.create(
             person=self.person,
             type=Subscription.SUBSCRIPTION_PUSH,
-            activity_type=SubscriptionType.TYPE_WAITING_LOCATION_GROUP,
+            activity_type=Activity.TYPE_WAITING_LOCATION_GROUP,
             membership=self.person_membership,
         )
         self.other_person_subscription = Subscription.objects.create(
             person=self.other_person,
             type=Subscription.SUBSCRIPTION_PUSH,
-            activity_type=SubscriptionType.TYPE_EVENT_UPDATE,
+            activity_type=Activity.TYPE_EVENT_UPDATE,
         )
 
         self.valid_data = {
             "type": Subscription.SUBSCRIPTION_PUSH,
-            "activityType": SubscriptionType.TYPE_GROUP_INVITATION,
+            "activityType": Activity.TYPE_GROUP_INVITATION,
             "group": None,
         }
 
@@ -207,12 +206,12 @@ class DeleteSubscriptionsAPITestCase(APITestCase):
         self.person_subscription = Subscription.objects.create(
             person=self.person,
             type=Subscription.SUBSCRIPTION_PUSH,
-            activity_type=SubscriptionType.TYPE_WAITING_LOCATION_GROUP,
+            activity_type=Activity.TYPE_WAITING_LOCATION_GROUP,
         )
         self.other_person_subscription = Subscription.objects.create(
             person=self.other_person,
             type=Subscription.SUBSCRIPTION_PUSH,
-            activity_type=SubscriptionType.TYPE_EVENT_UPDATE,
+            activity_type=Activity.TYPE_EVENT_UPDATE,
         )
 
         self.valid_data = [str(self.person_subscription.pk)]

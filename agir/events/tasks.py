@@ -20,7 +20,6 @@ from agir.people.models import Person
 from .models import Event, RSVP, OrganizerConfig
 from ..notifications.models import Subscription
 from ..activity.models import Activity
-from agir.notifications.types import SubscriptionType
 
 
 # encodes the preferred order when showing the messages
@@ -106,7 +105,7 @@ def send_event_changed_notification(event_pk, changed_data):
     q = Subscription.objects.select_related("person").filter(
         person__in=persons,
         type=Subscription.SUBSCRIPTION_EMAIL,
-        activity_type=SubscriptionType.TYPE_EVENT_UPDATE,
+        activity_type=Activity.TYPE_EVENT_UPDATE,
     )
 
     recipients = [s.person for s in q]
@@ -190,7 +189,7 @@ def send_rsvp_notification(rsvp_pk):
     q = Subscription.objects.select_related("person").filter(
         person__in=recipients,
         type=Subscription.SUBSCRIPTION_EMAIL,
-        activity_type=SubscriptionType.TYPE_NEW_ATTENDEE,
+        activity_type=Activity.TYPE_NEW_ATTENDEE,
     )
 
     recipients_allowed_email = [s.person for s in q]
@@ -214,7 +213,7 @@ def send_rsvp_notification(rsvp_pk):
         # can merge activity with previous one if not displayed yet
         Activity.objects.create(
             recipient=r,
-            type=SubscriptionType.TYPE_NEW_ATTENDEE,
+            type=Activity.TYPE_NEW_ATTENDEE,
             event=rsvp.event,
             individual=rsvp.person,
         )
@@ -271,9 +270,7 @@ def send_cancellation_notification(event_pk):
 
     Activity.objects.bulk_create(
         [
-            Activity(
-                type=SubscriptionType.TYPE_CANCELLED_EVENT, recipient=r, event=event,
-            )
+            Activity(type=Activity.TYPE_CANCELLED_EVENT, recipient=r, event=event,)
             for r in recipients
         ],
         send_post_save_signal=True,
@@ -316,7 +313,7 @@ def send_event_report(event_pk):
     q = Subscription.objects.select_related("person").filter(
         person__in=persons,
         type=Subscription.SUBSCRIPTION_EMAIL,
-        activity_type=SubscriptionType.TYPE_NEW_REPORT,
+        activity_type=Activity.TYPE_NEW_REPORT,
     )
 
     recipients = [s.person for s in q]
@@ -440,7 +437,7 @@ def notify_on_event_report(event_pk):
     event = Event.objects.get(pk=event_pk)
     Activity.objects.bulk_create(
         [
-            Activity(type=SubscriptionType.TYPE_NEW_REPORT, recipient=r, event=event)
+            Activity(type=Activity.TYPE_NEW_REPORT, recipient=r, event=event)
             for r in event.attendees.all()
         ],
         send_post_save_signal=True,
@@ -461,9 +458,7 @@ def geocode_event(event_pk):
         Activity.objects.bulk_create(
             (
                 Activity(
-                    type=SubscriptionType.TYPE_WAITING_LOCATION_EVENT,
-                    recipient=r,
-                    event=event,
+                    type=Activity.TYPE_WAITING_LOCATION_EVENT, recipient=r, event=event,
                 )
                 for r in event.organizers.all()
             ),

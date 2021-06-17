@@ -10,7 +10,6 @@ from agir.activity.models import Activity, Announcement
 from agir.events.models import Event
 from agir.mailing.models import Segment
 from agir.people.models import Person
-from agir.notifications.types import SubscriptionType
 
 
 class ActivityAPIViewTestCase(TestCase):
@@ -19,11 +18,11 @@ class ActivityAPIViewTestCase(TestCase):
         self.other_person = Person.objects.create_person("b@domain.pays")
 
         self.own_activity = Activity.objects.create(
-            recipient=self.person, type=SubscriptionType.TYPE_GROUP_INVITATION
+            recipient=self.person, type=Activity.TYPE_GROUP_INVITATION
         )
 
         self.others_activity = Activity.objects.create(
-            recipient=self.other_person, type=SubscriptionType.TYPE_EVENT_UPDATE
+            recipient=self.other_person, type=Activity.TYPE_EVENT_UPDATE
         )
 
         self.own_activity_url = reverse(
@@ -152,7 +151,7 @@ class AnnouncementTestCase(TestCase):
         Activity.objects.create(
             announcement=announcement,
             recipient=self.insoumise,
-            type=SubscriptionType.TYPE_ANNOUNCEMENT,
+            type=Activity.TYPE_ANNOUNCEMENT,
         )
         self.assertEqual(
             Activity.objects.filter(
@@ -175,15 +174,15 @@ class ActivityStatusUpdateViewTestCase(TestCase):
         self.p2 = Person.objects.create_insoumise(email="b@b.b", create_role=True)
 
         self.a1 = Activity.objects.create(
-            recipient=self.p1, type=SubscriptionType.TYPE_GROUP_INVITATION
+            recipient=self.p1, type=Activity.TYPE_GROUP_INVITATION
         )
 
         self.a2 = Activity.objects.create(
-            recipient=self.p1, type=SubscriptionType.TYPE_GROUP_COORGANIZATION_ACCEPTED
+            recipient=self.p1, type=Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED
         )
 
         self.a3 = Activity.objects.create(
-            recipient=self.p2, type=SubscriptionType.TYPE_NEW_ATTENDEE
+            recipient=self.p2, type=Activity.TYPE_NEW_ATTENDEE
         )
 
     def test_cannot_update_status_when_unauthenticated(self):
@@ -291,7 +290,7 @@ class AnnouncementAPITestCase(TestCase):
         activity = Activity.objects.create(
             recipient=self.person,
             announcement=self.non_custom_announcement,
-            type=SubscriptionType.TYPE_ANNOUNCEMENT,
+            type=Activity.TYPE_ANNOUNCEMENT,
             status=Activity.STATUS_UNDISPLAYED,
         )
         response = self.client.get("/api/announcements/")
@@ -309,7 +308,7 @@ class AnnouncementAPITestCase(TestCase):
         activity = Activity.objects.create(
             recipient=self.person,
             announcement=self.non_custom_announcement,
-            type=SubscriptionType.TYPE_ANNOUNCEMENT,
+            type=Activity.TYPE_ANNOUNCEMENT,
             status=Activity.STATUS_UNDISPLAYED,
         )
         response = self.client.get("/api/announcements/?mark_as_displayed=1")
@@ -354,7 +353,7 @@ class UserCustomAnnouncementAPITestCase(TestCase):
         activity = Activity.objects.create(
             recipient=self.person,
             announcement=self.custom_announcement,
-            type=SubscriptionType.TYPE_ANNOUNCEMENT,
+            type=Activity.TYPE_ANNOUNCEMENT,
             status=Activity.STATUS_UNDISPLAYED,
         )
         response = self.client.get(
@@ -373,7 +372,7 @@ class UserCustomAnnouncementAPITestCase(TestCase):
         Activity.objects.create(
             recipient=self.person,
             announcement=self.custom_announcement,
-            type=SubscriptionType.TYPE_ANNOUNCEMENT,
+            type=Activity.TYPE_ANNOUNCEMENT,
             status=Activity.STATUS_INTERACTED,
         )
         response = self.client.get(

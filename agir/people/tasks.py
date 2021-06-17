@@ -23,7 +23,6 @@ from .actions.subscription import (
 )
 from .models import Person, PersonFormSubmission, PersonEmail, PersonValidationSMS
 from .person_forms.display import default_person_form_display
-from agir.notifications.types import SubscriptionType
 
 
 @emailing_task
@@ -244,14 +243,14 @@ def notify_referrer(referrer_id, referred_id, referral_type):
 
     Activity.objects.create(
         recipient=referrer,
-        type=SubscriptionType.TYPE_REFERRAL,
+        type=Activity.TYPE_REFERRAL,
         status=Activity.STATUS_UNDISPLAYED,
         individual=referred,
         meta={
             "referralType": referral_type,
             "totalReferrals": Activity.objects.filter(
                 recipient=referrer,
-                type=SubscriptionType.TYPE_REFERRAL,
+                type=Activity.TYPE_REFERRAL,
                 meta__referalType=referral_type,
             ).count()
             + 1,

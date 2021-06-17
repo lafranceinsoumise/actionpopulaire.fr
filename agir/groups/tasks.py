@@ -23,7 +23,7 @@ from ..activity.models import Activity
 from ..lib.display import genrer
 from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
 import re
-from agir.notifications.types import SubscriptionType
+
 
 NOTIFIED_CHANGES = {
     "name": "information",
@@ -94,7 +94,7 @@ def create_group_creation_confirmation_activity(membership_pk):
     group = membership.supportgroup
 
     Activity.objects.create(
-        type=SubscriptionType.TYPE_GROUP_CREATION_CONFIRMATION,
+        type=Activity.TYPE_GROUP_CREATION_CONFIRMATION,
         recipient=referent,
         supportgroup=group,
         status=Activity.STATUS_UNDISPLAYED,
@@ -114,7 +114,7 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
 
     for r in group.members.all():
         Activity.objects.create(
-            type=SubscriptionType.TYPE_GROUP_INFO_UPDATE,
+            type=Activity.TYPE_GROUP_INFO_UPDATE,
             recipient=r,
             supportgroup=group,
             meta={"changed_data": [f for f in changed_data if f in NOTIFIED_CHANGES]},
@@ -129,7 +129,7 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
         .filter(
             person__in=persons,
             type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=SubscriptionType.TYPE_GROUP_INFO_UPDATE,
+            activity_type=Activity.TYPE_GROUP_INFO_UPDATE,
         )
         .distinct("person")
     )
@@ -175,7 +175,7 @@ def send_joined_notification_email(membership_pk):
         .filter(
             person__in=persons,
             type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=SubscriptionType.TYPE_NEW_MEMBER,
+            activity_type=Activity.TYPE_NEW_MEMBER,
         )
         .distinct("person")
     )
@@ -251,7 +251,7 @@ def invite_to_group(group_id, invited_email, inviter_id):
 
     if person:
         Activity.objects.create(
-            type=SubscriptionType.TYPE_GROUP_INVITATION,
+            type=Activity.TYPE_GROUP_INVITATION,
             recipient=person,
             supportgroup=group,
             meta={"joinUrl": join_url},
@@ -313,7 +313,7 @@ def notify_new_group_event(group_pk, event_pk):
     Activity.objects.bulk_create(
         [
             Activity(
-                type=SubscriptionType.TYPE_NEW_EVENT_MYGROUPS,
+                type=Activity.TYPE_NEW_EVENT_MYGROUPS,
                 recipient=r,
                 supportgroup=group,
                 event=event,
@@ -340,7 +340,7 @@ def send_new_group_event_email(group_pk, event_pk):
         .filter(
             person__in=persons,
             type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=SubscriptionType.TYPE_NEW_EVENT_MYGROUPS,
+            activity_type=Activity.TYPE_NEW_EVENT_MYGROUPS,
         )
         .distinct("person")
     )
@@ -397,7 +397,7 @@ def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
         .filter(
             person__in=recipients,
             type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=SubscriptionType.TYPE_TRANSFERRED_GROUP_MEMBER,
+            activity_type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
         )
         .distinct("person")
     )
@@ -449,7 +449,7 @@ def geocode_support_group(supportgroup_pk):
         Activity.objects.bulk_create(
             [
                 Activity(
-                    type=SubscriptionType.TYPE_WAITING_LOCATION_GROUP,
+                    type=Activity.TYPE_WAITING_LOCATION_GROUP,
                     recipient=r,
                     supportgroup=supportgroup,
                 )
@@ -472,7 +472,7 @@ def create_accepted_invitation_member_activity(new_membership_pk):
     Activity.objects.bulk_create(
         [
             Activity(
-                type=SubscriptionType.TYPE_ACCEPTED_INVITATION_MEMBER,
+                type=Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
                 recipient=r,
                 supportgroup=new_membership.supportgroup,
                 individual=new_membership.person,
@@ -495,7 +495,7 @@ def send_message_notification_email(message_pk):
         .filter(
             person__in=persons,
             type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=SubscriptionType.TYPE_NEW_MESSAGE,
+            activity_type=Activity.TYPE_NEW_MESSAGE,
         )
         .distinct("person")
     )
@@ -543,7 +543,7 @@ def send_comment_notification_email(comment_pk):
         .filter(
             person__in=persons,
             type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=SubscriptionType.TYPE_NEW_COMMENT,
+            activity_type=Activity.TYPE_NEW_COMMENT,
         )
         .distinct("person")
     )

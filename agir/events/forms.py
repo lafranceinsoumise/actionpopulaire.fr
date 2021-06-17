@@ -38,7 +38,8 @@ from .tasks import (
 from ..lib.form_fields import AcceptCreativeCommonsLicenceField
 from ..people.models import Person, PersonFormSubmission
 from ..activity.models import Activity
-from agir.notifications.types import SubscriptionType
+
+from agir.activity.models import Activity
 
 __all__ = [
     "EventForm",
@@ -282,7 +283,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
 
                 for r in event.attendees.all():
                     activity = Activity.objects.filter(
-                        type=SubscriptionType.TYPE_EVENT_UPDATE,
+                        type=Activity.TYPE_EVENT_UPDATE,
                         recipient=r,
                         event=event,
                         status=Activity.STATUS_UNDISPLAYED,
@@ -296,7 +297,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                         activity.save()
                     else:
                         Activity.objects.create(
-                            type=SubscriptionType.TYPE_EVENT_UPDATE,
+                            type=Activity.TYPE_EVENT_UPDATE,
                             recipient=r,
                             event=event,
                             meta={"changed_data": changed_data},
