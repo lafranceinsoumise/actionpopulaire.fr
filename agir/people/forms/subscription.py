@@ -27,11 +27,9 @@ class AnonymousUnsubscribeForm(forms.Form):
             person = Person.objects.get(email=email)
             send_unsubscribe_email.delay(person.id)
             person.newsletters = []
-            for s in Subscription.objects.filter(
+            Subscription.objects.filter(
                 type=Activity.SUBSCRIPTION_EMAIL, person=person
-            ):
-                s.delete()
-            person.subscribed = False
+            ).delete()
             person.save()
         except Person.DoesNotExist:
             pass
