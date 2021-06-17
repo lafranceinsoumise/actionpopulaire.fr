@@ -4,6 +4,7 @@ import logger from "@agir/lib/utils/logger";
 
 import "@agir/front/allPages/sentry";
 import "@agir/front/allPages/ios.js";
+import "@agir/front/allPages/fonts/fonts.css";
 import "@agir/front/genericComponents/style.scss";
 
 import { renderReactComponent } from "@agir/lib/utils/react";
