@@ -78,21 +78,18 @@ def migrate_default_subscriptions_switch_global_notifications_enabled(
     Person = apps.get_model("people", "Person")
 
     # Delete mandatory subscriptions for push and email (here MANDATORY_EMAIL_TYPES = MANDATORY_PUSH_TYPES)
-    Subscription.objects.filter(activity_type__in=MANDATORY_EMAIL_TYPES).delete()
+    # Optimization : Now delete with group notification deletion (see below)
+    # Subscription.objects.filter(activity_type__in=MANDATORY_EMAIL_TYPES).delete()
 
     # If 'event_notifications' or 'group_notifications' are set, add or remove their subscriptions :
 
     # Events : add default subscriptions if notifications_event_enabled=True
     Subscription.objects.bulk_create(
         [
-            Subscription(person=p, type=SUBSCRIPTION_EMAIL, activity_type=t,)
-            for p in Person.objects.all().filter(event_notifications=True)
-            for t in DEFAULT_PERSON_EMAIL_TYPES
-        ]
-    )
-    Subscription.objects.bulk_create(
-        [
-            Subscription(person=p, type=SUBSCRIPTION_PUSH, activity_type=t,)
+            (
+                Subscription(person=p, type=SUBSCRIPTION_EMAIL, activity_type=t,),
+                Subscription(person=p, type=SUBSCRIPTION_PUSH, activity_type=t,),
+            )
             for p in Person.objects.all().filter(event_notifications=True)
             for t in DEFAULT_PERSON_EMAIL_TYPES
         ]
@@ -100,10 +97,13 @@ def migrate_default_subscriptions_switch_global_notifications_enabled(
 
     # Groups : delete default subscription (auto-created for groups) if notifications_group_enabled=False
     for s in Subscription.objects.all():
-        if (
-            s.person.group_notifications is False
-            or s.membership.group_notifications is False
-        ) and s.activity_type in DEFAULT_GROUP_EMAIL_TYPES:
+        if s.activity_type in MANDATORY_EMAIL_TYPES or (
+            (
+                s.person.group_notifications is False
+                or s.membership.group_notifications is False
+            )
+            and s.activity_type in DEFAULT_GROUP_EMAIL_TYPES
+        ):
             s.delete()
 
 
