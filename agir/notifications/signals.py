@@ -21,10 +21,13 @@ from agir.notifications.tasks import (
 
 @receiver(post_save, sender=Activity, dispatch_uid="push_new_activity")
 def push_new_activity(sender, instance, created=False, **kwargs):
+
+    if instance is None or not created:
+        return
+
     if (
-        instance is None
-        or not created
-        or not Subscription.objects.filter(
+        not instance.type in Subscription.MANDATORY_PUSH_TYPES
+        and not Subscription.objects.filter(
             person=instance.recipient,
             type=Subscription.SUBSCRIPTION_PUSH,
             activity_type=instance.type,
