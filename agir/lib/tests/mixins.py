@@ -1,4 +1,4 @@
-from datetime import timedelta, tzinfo
+from datetime import timedelta
 import random
 
 from django.contrib.gis.geos import Point

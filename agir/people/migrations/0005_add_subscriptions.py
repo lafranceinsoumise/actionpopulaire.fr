@@ -11,9 +11,12 @@ def migrate_default_subscriptions_switch_global_notifications_enabled(
     Subscription = apps.get_model("notifications", "Subscription")
     Person = apps.get_model("people", "Person")
 
-    # TODO : delete mandatory subscriptions for push and email
+    # Delete mandatory subscriptions for push and email (here MANDATORY_EMAIL_TYPES = MANDATORY_PUSH_TYPES)
+    Subscription.objects.filter(
+        activity_type__in=SubscriptionType.MANDATORY_EMAIL_TYPES
+    ).delete()
 
-    # If 'event_notifications' or 'group_notifications' are set, add or remove their subscriptions
+    # If 'event_notifications' or 'group_notifications' are set, add or remove their subscriptions :
 
     # Events : add default subscriptions if notifications_event_enabled=True
     Subscription.objects.bulk_create(
