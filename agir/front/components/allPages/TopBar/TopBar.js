@@ -19,7 +19,6 @@ import { Hide } from "@agir/front/genericComponents/grid.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import DownloadApp from "@agir/front/genericComponents/DownloadApp";
 import Button from "@agir/front/genericComponents/Button";
 
@@ -166,7 +165,7 @@ export const TopBar = (props) => {
             </Hide>
           </HorizontalFlex>
 
-          <PageFadeIn ready={isSessionLoaded}>
+          {isSessionLoaded ? (
             <HorizontalFlex>
               {!isConnected ? (
                 <>
@@ -231,7 +230,7 @@ export const TopBar = (props) => {
                 </>
               )}
             </HorizontalFlex>
-          </PageFadeIn>
+          ) : null}
         </TopBarContainer>
       </NavBar>
     </NavbarContainer>
