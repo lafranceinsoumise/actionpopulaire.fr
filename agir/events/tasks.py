@@ -100,15 +100,14 @@ def send_event_changed_notification(event_pk, changed_data):
 
     changed_data = [f for f in changed_data if f in NOTIFIED_CHANGES]
 
-    persons = [rsvp.person for rsvp in event.rsvps.prefetch_related("person__emails")]
+    recipients = [
+        r.person
+        for r in event.rsvps.prefetch_related("person__emails").filter(
+            person__notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            person__notification_subscriptions__activity_type=Activity.TYPE_EVENT_UPDATE,
+        )
+    ]
 
-    q = Subscription.objects.select_related("person").filter(
-        person__in=persons,
-        type=Subscription.SUBSCRIPTION_EMAIL,
-        activity_type=Activity.TYPE_EVENT_UPDATE,
-    )
-
-    recipients = [s.person for s in q]
     if len(recipients) == 0:
         return
 
@@ -184,15 +183,15 @@ def send_rsvp_notification(rsvp_pk):
         for organizer_config in rsvp.event.organizer_configs.all()
         if organizer_config.person != rsvp.person
     ]
-    recipients_allowed_email = []
 
-    q = Subscription.objects.select_related("person").filter(
-        person__in=recipients,
-        type=Subscription.SUBSCRIPTION_EMAIL,
-        activity_type=Activity.TYPE_NEW_ATTENDEE,
-    )
-
-    recipients_allowed_email = [s.person for s in q]
+    recipients_allowed_email = [
+        s.person
+        for s in Subscription.objects.prefetch_related("person__emails").filter(
+            person__in=recipients,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_EVENT_UPDATE,
+        )
+    ]
 
     organizer_bindings = {
         "EVENT_NAME": rsvp.event.name,
@@ -308,15 +307,14 @@ def send_event_report(event_pk):
     if event.report_summary_sent:
         return
 
-    persons = [rsvp.person for rsvp in event.rsvps.prefetch_related("person__emails")]
+    recipients = [
+        r.person
+        for r in event.rsvps.prefetch_related("person__emails").filter(
+            person__notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            person__notification_subscriptions__activity_type=Activity.TYPE_NEW_REPORT,
+        )
+    ]
 
-    q = Subscription.objects.select_related("person").filter(
-        person__in=persons,
-        type=Subscription.SUBSCRIPTION_EMAIL,
-        activity_type=Activity.TYPE_NEW_REPORT,
-    )
-
-    recipients = [s.person for s in q]
     if len(recipients) == 0:
         return
 
