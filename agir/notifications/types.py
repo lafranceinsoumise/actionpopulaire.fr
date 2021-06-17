@@ -1,46 +1,51 @@
 class SubscriptionType:
 
-    # Avec affichage d'une notification
-    TYPE_GROUP_INVITATION = "group-invitation"
-    TYPE_NEW_MEMBER = "new-member"
-    TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER = "group-membership-limit-reminder"
-    TYPE_GROUP_INFO_UPDATE = "group-info-update"
+    TYPE_REFERRAL = "referral-accepted"
+
+    # PERSON/EVENT TYPES
     TYPE_NEW_ATTENDEE = "new-attendee"
     TYPE_EVENT_UPDATE = "event-update"
-    TYPE_NEW_EVENT_MYGROUPS = "new-event-mygroups"
-    TYPE_NEW_MESSAGE = "new-message"
-    TYPE_NEW_COMMENT = "new-comment"
-    TYPE_NEW_REPORT = "new-report"
     TYPE_CANCELLED_EVENT = "cancelled-event"
-    TYPE_REFERRAL = "referral-accepted"
-    TYPE_GROUP_CREATION_CONFIRMATION = "group-creation-confirmation"
-    TYPE_ACCEPTED_INVITATION_MEMBER = "accepted-invitation-member"
-    TYPE_TRANSFERRED_GROUP_MEMBER = "transferred-group-member"
-    TYPE_NEW_MEMBERS_THROUGH_TRANSFER = "new-members-through-transfer"
     TYPE_WAITING_LOCATION_EVENT = "waiting-location-event"
     TYPE_WAITING_LOCATION_GROUP = "waiting-location-group"
     TYPE_EVENT_SUGGESTION = "event-suggestion"
     TYPE_ANNOUNCEMENT = "announcement"
+
+    # GROUP TYPES
+    TYPE_NEW_REPORT = "new-report"
+    TYPE_NEW_EVENT_MYGROUPS = "new-event-mygroups"
+    TYPE_GROUP_INVITATION = "group-invitation"
+    TYPE_NEW_MEMBER = "new-member"
+    TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER = "group-membership-limit-reminder"
+    TYPE_GROUP_INFO_UPDATE = "group-info-update"
+    TYPE_NEW_MESSAGE = "new-message"
+    TYPE_NEW_COMMENT = "new-comment"
+    TYPE_GROUP_CREATION_CONFIRMATION = "group-creation-confirmation"
+    TYPE_ACCEPTED_INVITATION_MEMBER = "accepted-invitation-member"
+    TYPE_TRANSFERRED_GROUP_MEMBER = "transferred-group-member"
+    TYPE_NEW_MEMBERS_THROUGH_TRANSFER = "new-members-through-transfer"
+
     # TODO
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
     TYPE_GROUP_COORGANIZATION_ACCEPTED = "group-coorganization-accepted"
     TYPE_GROUP_COORGANIZATION_INVITE = "group-coorganization-invite"
     TYPE_WAITING_PAYMENT = "waiting-payment"
 
-    # MANDATORY
-    MANDATORY_PUSH_TYPES = (
+    # MANDATORY TYPES
+    MANDATORY_EMAIL_TYPES = (
+        TYPE_CANCELLED_EVENT,
+        TYPE_WAITING_PAYMENT,
+        # GROUP
         TYPE_TRANSFERRED_GROUP_MEMBER,
         TYPE_GROUP_INVITATION,
-        TYPE_WAITING_PAYMENT,
-        TYPE_CANCELLED_EVENT,
         TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
     )
-
-    MANDATORY_EMAIL_TYPES = (
+    MANDATORY_PUSH_TYPES = (
+        TYPE_CANCELLED_EVENT,
+        TYPE_WAITING_PAYMENT,
+        # GROUP
         TYPE_TRANSFERRED_GROUP_MEMBER,
         TYPE_GROUP_INVITATION,
-        TYPE_WAITING_PAYMENT,
-        TYPE_CANCELLED_EVENT,
         TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
     )
 
@@ -89,22 +94,6 @@ class SubscriptionType:
         TYPE_GROUP_CREATION_CONFIRMATION,
         TYPE_GROUP_COORGANIZATION_ACCEPTED,
     ]
-
-    # DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES = [
-    #     TYPE_NEW_EVENT_MYGROUPS,
-    #     TYPE_GROUP_COORGANIZATION_INFO,
-    #     TYPE_GROUP_INFO_UPDATE,
-    #     TYPE_NEW_MESSAGE,
-    #     TYPE_NEW_COMMENT,
-    #     TYPE_NEW_REPORT,
-    #     TYPE_NEW_MEMBER,
-    #     TYPE_ACCEPTED_INVITATION_MEMBER,
-    #     TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
-    #     TYPE_WAITING_LOCATION_GROUP,
-    #     TYPE_GROUP_COORGANIZATION_INVITE,
-    #     TYPE_GROUP_CREATION_CONFIRMATION,
-    #     TYPE_GROUP_COORGANIZATION_ACCEPTED,
-    # ]
 
     DISPLAYED_TYPES = (
         TYPE_GROUP_INVITATION,
