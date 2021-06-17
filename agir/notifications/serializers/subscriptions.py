@@ -2,11 +2,11 @@ from django.db import IntegrityError
 
 from rest_framework import serializers
 
-from agir.activity.models import Activity
 from agir.groups.models import Membership, SupportGroup
-from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.serializers import CurrentPersonField
 from agir.notifications.models import Subscription
+from agir.notifications.types import SubscriptionType
+
 
 __all__ = [
     "SubscriptionSupportGroupSerializer",
@@ -40,7 +40,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         allow_null=False,
     )
     activityType = serializers.ChoiceField(
-        choices=Activity.TYPE_CHOICES,
+        choices=SubscriptionType.TYPE_CHOICES,
         required=True,
         allow_blank=False,
         allow_null=False,

@@ -14,6 +14,7 @@ from agir.events.models import Calendar, Event, OrganizerConfig, RSVP
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.people.models import Person, PersonForm, PersonFormSubmission
 from agir.activity.models import Activity, Announcement
+from agir.notifications.types import SubscriptionType
 
 PASSWORD = "incredible password"
 
@@ -116,9 +117,9 @@ def create_activity(person_email):
         except:
             person = person
 
-    type = random.choice(Activity.DISPLAYED_TYPES)
+    type = random.choice(SubscriptionType.DISPLAYED_TYPES)
     announcement = None
-    if type == Activity.TYPE_ANNOUNCEMENT:
+    if type == SubscriptionType.TYPE_ANNOUNCEMENT:
         announcement = get_random_object(Announcement)
 
     activity = {

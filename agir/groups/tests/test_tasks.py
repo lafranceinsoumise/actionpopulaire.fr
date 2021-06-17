@@ -18,8 +18,7 @@ from ..actions.notifications import someone_joined_notification
 from ..actions.transfer import create_transfer_membership_activities
 from ..models import SupportGroup, Membership
 from ..tasks import send_joined_notification_email
-
-from agir.notifications.actions import DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES
+from agir.notifications.types import SubscriptionType
 
 fake = Faker("fr_FR")
 
@@ -87,7 +86,7 @@ class NotificationTasksTestCase(TestCase):
                     person=p, type=Subscription.SUBSCRIPTION_EMAIL, activity_type=t,
                 )
                 for p in [self.creator, self.member1, self.member2]
-                for t in DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES
+                for t in SubscriptionType.DEFAULT_GROUP_EMAIL_TYPES
             ]
         )
 
@@ -108,7 +107,7 @@ class NotificationTasksTestCase(TestCase):
 
     def test_create_group_creation_confirmation_activity(self):
         original_target_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_GROUP_CREATION_CONFIRMATION,
+            type=SubscriptionType.TYPE_GROUP_CREATION_CONFIRMATION,
             recipient=self.creator_membership.person,
             supportgroup=self.creator_membership.supportgroup,
         ).count()
@@ -116,7 +115,7 @@ class NotificationTasksTestCase(TestCase):
         tasks.create_group_creation_confirmation_activity(self.creator_membership.pk)
 
         new_target_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_GROUP_CREATION_CONFIRMATION,
+            type=SubscriptionType.TYPE_GROUP_CREATION_CONFIRMATION,
             recipient=self.creator_membership.person,
             supportgroup=self.creator_membership.supportgroup,
         ).count()
@@ -170,7 +169,7 @@ class NotificationTasksTestCase(TestCase):
         steps = tasks.GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS
 
         old_target_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
+            type=SubscriptionType.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
             recipient=creator_membership.person,
             supportgroup=supportgroup,
         ).count()
@@ -183,7 +182,7 @@ class NotificationTasksTestCase(TestCase):
             )
             someone_joined_notification(membership, membership_count=i)
             new_target_activity_count = Activity.objects.filter(
-                type=Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
+                type=SubscriptionType.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
                 recipient=creator_membership.person,
                 supportgroup=supportgroup,
             ).count()
@@ -192,7 +191,7 @@ class NotificationTasksTestCase(TestCase):
                     old_target_activity_count + 1,
                     new_target_activity_count,
                     "should create a '%s' activity at %d members"
-                    % (Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER, i),
+                    % (SubscriptionType.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER, i),
                 )
                 old_target_activity_count = new_target_activity_count
             else:
@@ -200,7 +199,7 @@ class NotificationTasksTestCase(TestCase):
                     old_target_activity_count,
                     new_target_activity_count,
                     "should not create a '%s' activity at %d members"
-                    % (Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER, i),
+                    % (SubscriptionType.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER, i),
                 )
 
     def test_changed_group_notification_mail(self):
@@ -282,7 +281,7 @@ class NotificationTasksTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
         old_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+            type=SubscriptionType.TYPE_TRANSFERRED_GROUP_MEMBER,
             recipient=transferred_member.person,
             supportgroup=target_group,
         ).count()
@@ -290,7 +289,7 @@ class NotificationTasksTestCase(TestCase):
             original_group, target_group, [transferred_member.person]
         )
         new_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+            type=SubscriptionType.TYPE_TRANSFERRED_GROUP_MEMBER,
             recipient=transferred_member.person,
             supportgroup=target_group,
         ).count()
@@ -332,7 +331,7 @@ class NotificationTasksTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
         old_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+            type=SubscriptionType.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
             recipient=transferred_member.person,
             supportgroup=target_group,
         ).count()
@@ -340,7 +339,7 @@ class NotificationTasksTestCase(TestCase):
             original_group, target_group, [transferred_member.person]
         )
         new_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+            type=SubscriptionType.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
             recipient=target_group_manager.person,
             supportgroup=target_group,
         ).count()
@@ -370,7 +369,7 @@ class NotificationTasksTestCase(TestCase):
             membership.person for membership in managing_membership
         ]
         old_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_WAITING_LOCATION_GROUP,
+            type=SubscriptionType.TYPE_WAITING_LOCATION_GROUP,
             recipient__in=managing_membership_recipients,
             supportgroup=supportgroup,
         ).count()
@@ -382,7 +381,7 @@ class NotificationTasksTestCase(TestCase):
         )
 
         new_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_WAITING_LOCATION_GROUP,
+            type=SubscriptionType.TYPE_WAITING_LOCATION_GROUP,
             recipient__in=managing_membership_recipients,
             supportgroup=supportgroup,
         ).count()
@@ -407,7 +406,7 @@ class NotificationTasksTestCase(TestCase):
             membership.person for membership in managing_membership
         ]
         old_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_WAITING_LOCATION_GROUP,
+            type=SubscriptionType.TYPE_WAITING_LOCATION_GROUP,
             recipient__in=managing_membership_recipients,
             supportgroup=supportgroup,
         ).count()
@@ -419,7 +418,7 @@ class NotificationTasksTestCase(TestCase):
         )
 
         new_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_WAITING_LOCATION_GROUP,
+            type=SubscriptionType.TYPE_WAITING_LOCATION_GROUP,
             recipient__in=managing_membership_recipients,
             supportgroup=supportgroup,
         ).count()
@@ -443,7 +442,7 @@ class NotificationTasksTestCase(TestCase):
         ]
 
         old_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
+            type=SubscriptionType.TYPE_ACCEPTED_INVITATION_MEMBER,
             recipient__in=managing_membership_recipients,
             supportgroup=supportgroup,
             individual=new_member,
@@ -452,7 +451,7 @@ class NotificationTasksTestCase(TestCase):
         tasks.create_accepted_invitation_member_activity(new_membership.pk)
 
         new_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
+            type=SubscriptionType.TYPE_ACCEPTED_INVITATION_MEMBER,
             recipient__in=managing_membership_recipients,
             supportgroup=supportgroup,
             individual=new_member,
@@ -482,14 +481,14 @@ class NotificationTasksTestCase(TestCase):
             event=event, person=self.creator, as_group=self.group
         )
         old_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_NEW_EVENT_MYGROUPS,
+            type=SubscriptionType.TYPE_NEW_EVENT_MYGROUPS,
             recipient__in=recipients,
             supportgroup=supportgroup,
             event=event,
         ).count()
         tasks.notify_new_group_event(supportgroup.pk, event.pk)
         new_activity_count = Activity.objects.filter(
-            type=Activity.TYPE_NEW_EVENT_MYGROUPS,
+            type=SubscriptionType.TYPE_NEW_EVENT_MYGROUPS,
             recipient__in=recipients,
             supportgroup=supportgroup,
             event=event,

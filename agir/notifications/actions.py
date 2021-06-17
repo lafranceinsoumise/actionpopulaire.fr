@@ -1,35 +1,12 @@
-from agir.activity.models import Activity
 from agir.groups.models import Membership
 from agir.notifications.models import Subscription
-
-DEFAULT_PERSON_SUBSCRIPTION_ACTIVITY_TYPES = [
-    Activity.TYPE_EVENT_SUGGESTION,
-    Activity.TYPE_EVENT_UPDATE,
-    Activity.TYPE_NEW_ATTENDEE,
-    Activity.TYPE_WAITING_LOCATION_EVENT,
-]
-
-DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES = [
-    Activity.TYPE_NEW_EVENT_MYGROUPS,
-    Activity.TYPE_GROUP_COORGANIZATION_INFO,
-    Activity.TYPE_GROUP_INFO_UPDATE,
-    Activity.TYPE_NEW_MESSAGE,
-    Activity.TYPE_NEW_COMMENT,
-    Activity.TYPE_NEW_REPORT,
-    Activity.TYPE_NEW_MEMBER,
-    Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
-    Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
-    Activity.TYPE_WAITING_LOCATION_GROUP,
-    Activity.TYPE_GROUP_COORGANIZATION_INVITE,
-    Activity.TYPE_GROUP_CREATION_CONFIRMATION,
-    Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED,
-]
+from agir.notifications.types import SubscriptionType
 
 
 def get_default_person_subscriptions(person):
     subscriptions = []
 
-    for activity_type in DEFAULT_PERSON_SUBSCRIPTION_ACTIVITY_TYPES:
+    for activity_type in SubscriptionType.DEFAULT_PERSON_EMAIL_TYPES:
         subscriptions += [
             Subscription(
                 person=person,
@@ -49,7 +26,7 @@ def get_default_person_subscriptions(person):
 def get_default_group_subscriptions(person, membership):
     subscriptions = []
 
-    for activity_type in DEFAULT_GROUP_SUBSCRIPTION_ACTIVITY_TYPES:
+    for activity_type in SubscriptionType.DEFAULT_GROUP_EMAIL_TYPES:
         subscriptions += [
             Subscription(
                 person=person,

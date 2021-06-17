@@ -9,6 +9,7 @@ from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from agir.people.models import Person
 
 from agir.notifications.serializers import ACTIVITY_NOTIFICATION_SERIALIZERS
+from agir.notifications.types import SubscriptionType
 
 
 class ActivityNotificationSerializersTestCase(APITestCase):
@@ -42,7 +43,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
             "oldGroup": supportgroup.name,
         }
         self.activity = Activity.objects.create(
-            type=Activity.TYPE_NEW_MESSAGE,
+            type=SubscriptionType.TYPE_NEW_MESSAGE,
             recipient=recipient,
             individual=individual,
             supportgroup=supportgroup,
@@ -51,7 +52,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         )
 
     def test_group_invitation_activity_type(self):
-        self.activity.type = Activity.TYPE_GROUP_INVITATION
+        self.activity.type = SubscriptionType.TYPE_GROUP_INVITATION
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -61,7 +62,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_new_member_activity_type(self):
-        self.activity.type = Activity.TYPE_NEW_MEMBER
+        self.activity.type = SubscriptionType.TYPE_NEW_MEMBER
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -71,7 +72,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_waiting_location_group_activity_type(self):
-        self.activity.type = Activity.TYPE_WAITING_LOCATION_GROUP
+        self.activity.type = SubscriptionType.TYPE_WAITING_LOCATION_GROUP
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -81,7 +82,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_waiting_location_event_activity_type(self):
-        self.activity.type = Activity.TYPE_WAITING_LOCATION_EVENT
+        self.activity.type = SubscriptionType.TYPE_WAITING_LOCATION_EVENT
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -91,7 +92,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_group_membership_limit_reminder_activity_type(self):
-        self.activity.type = Activity.TYPE_WAITING_LOCATION_EVENT
+        self.activity.type = SubscriptionType.TYPE_WAITING_LOCATION_EVENT
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         for i in range(4):
             self.activity.meta["membershipLimitNotificationStep"] = i
@@ -103,7 +104,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
             self.assertIn("icon", result.data)
 
     def test_group_info_update_activity_type(self):
-        self.activity.type = Activity.TYPE_GROUP_INFO_UPDATE
+        self.activity.type = SubscriptionType.TYPE_GROUP_INFO_UPDATE
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -113,7 +114,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_accepted_invitation_member_activity_type(self):
-        self.activity.type = Activity.TYPE_ACCEPTED_INVITATION_MEMBER
+        self.activity.type = SubscriptionType.TYPE_ACCEPTED_INVITATION_MEMBER
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -123,7 +124,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_new_attendee_activity_type(self):
-        self.activity.type = Activity.TYPE_NEW_ATTENDEE
+        self.activity.type = SubscriptionType.TYPE_NEW_ATTENDEE
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -133,7 +134,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_event_update_activity_type(self):
-        self.activity.type = Activity.TYPE_EVENT_UPDATE
+        self.activity.type = SubscriptionType.TYPE_EVENT_UPDATE
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -143,7 +144,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_new_event_mygroups_activity_type(self):
-        self.activity.type = Activity.TYPE_NEW_EVENT_MYGROUPS
+        self.activity.type = SubscriptionType.TYPE_NEW_EVENT_MYGROUPS
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -153,7 +154,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_new_report_activity_type(self):
-        self.activity.type = Activity.TYPE_NEW_REPORT
+        self.activity.type = SubscriptionType.TYPE_NEW_REPORT
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -163,7 +164,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_cancelled_event_activity_type(self):
-        self.activity.type = Activity.TYPE_CANCELLED_EVENT
+        self.activity.type = SubscriptionType.TYPE_CANCELLED_EVENT
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -173,7 +174,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_group_coorganization_accepted_activity_type(self):
-        self.activity.type = Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED
+        self.activity.type = SubscriptionType.TYPE_GROUP_COORGANIZATION_ACCEPTED
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -183,7 +184,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_new_members_through_transfer_activity_type(self):
-        self.activity.type = Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER
+        self.activity.type = SubscriptionType.TYPE_NEW_MEMBERS_THROUGH_TRANSFER
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -193,7 +194,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_transferred_group_member_activity_type(self):
-        self.activity.type = Activity.TYPE_TRANSFERRED_GROUP_MEMBER
+        self.activity.type = SubscriptionType.TYPE_TRANSFERRED_GROUP_MEMBER
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -203,7 +204,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_waiting_payment_activity_type(self):
-        self.activity.type = Activity.TYPE_WAITING_PAYMENT
+        self.activity.type = SubscriptionType.TYPE_WAITING_PAYMENT
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -213,7 +214,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_group_coorganization_invite_activity_type(self):
-        self.activity.type = Activity.TYPE_GROUP_COORGANIZATION_INVITE
+        self.activity.type = SubscriptionType.TYPE_GROUP_COORGANIZATION_INVITE
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -223,7 +224,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_new_event_suggestion_activity_type(self):
-        self.activity.type = Activity.TYPE_EVENT_SUGGESTION
+        self.activity.type = SubscriptionType.TYPE_EVENT_SUGGESTION
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -233,7 +234,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_group_coorganization_info_activity_type(self):
-        self.activity.type = Activity.TYPE_GROUP_COORGANIZATION_INFO
+        self.activity.type = SubscriptionType.TYPE_GROUP_COORGANIZATION_INFO
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -243,7 +244,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_new_message_activity_type(self):
-        self.activity.type = Activity.TYPE_NEW_MESSAGE
+        self.activity.type = SubscriptionType.TYPE_NEW_MESSAGE
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
@@ -253,7 +254,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("icon", result.data)
 
     def test_new_comment_activity_type(self):
-        self.activity.type = Activity.TYPE_NEW_COMMENT
+        self.activity.type = SubscriptionType.TYPE_NEW_COMMENT
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)
