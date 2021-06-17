@@ -1,10 +1,17 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
+from agir.groups.models import SupportGroup
 from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
 from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
-from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment, UserReport
+from agir.msgs.actions import get_message_unread_comment_count
+from agir.msgs.models import (
+    SupportGroupMessage,
+    SupportGroupMessageComment,
+    UserReport,
+    SupportGroupMessageRecipient,
+)
 from agir.people.serializers import PersonSerializer
 
 
@@ -64,8 +71,9 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "id",
         "created",
         "author",
+        "subject",
         "text",
-        # "image",
+        "group",
         "linkedEvent",
         "recentComments",
         "commentCount",
@@ -74,13 +82,15 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "id",
         "created",
         "author",
+        "subject",
         "text",
-        # "image",
         "group",
         "linkedEvent",
+        "lastUpdate",
         "comments",
     )
 
+    lastUpdate = serializers.DateTimeField(read_only=True, source="last_update")
     group = serializers.SerializerMethodField(read_only=True)
     linkedEvent = LinkedEventField(
         source="linked_event", required=False, allow_null=True,
@@ -127,6 +137,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "id",
             "created",
             "author",
+            "subject",
             "text",
             "image",
             "group",
@@ -134,6 +145,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "recentComments",
             "comments",
             "commentCount",
+            "lastUpdate",
         )
 
 
@@ -163,3 +175,68 @@ class UserReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserReport
         fields = ("reporter", "content_type", "object_id")
+
+
+class UserMessageRecipientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportGroup
+        fields = (
+            "id",
+            "name",
+        )
+
+
+class UserMessagesSerializer(BaseMessageSerializer):
+    group = serializers.SerializerMethodField(read_only=True)
+    unreadCommentCount = serializers.SerializerMethodField(
+        read_only=True, method_name="get_unread_comment_count"
+    )
+    isAuthor = serializers.SerializerMethodField(
+        read_only=True, method_name="get_is_author"
+    )
+    lastUpdate = serializers.DateTimeField(
+        source="last_update", default=None, read_only=True
+    )
+    isUnread = serializers.BooleanField(
+        source="is_unread", default=False, read_only=True
+    )
+    lastComment = serializers.SerializerMethodField(
+        method_name="get_last_comment", read_only=True
+    )
+
+    def get_group(self, message):
+        return {
+            "id": message.supportgroup.id,
+            "name": message.supportgroup.name,
+        }
+
+    def get_unread_comment_count(self, message):
+        user = self.context["request"].user
+        if not user.is_authenticated or not user.person:
+            return 0
+        return get_message_unread_comment_count(user.person.pk, message.pk)
+
+    def get_is_author(self, message):
+        user = self.context["request"].user
+        return user.is_authenticated and user.person and message.author == user.person
+
+    def get_last_comment(self, message):
+        if message.comments.exists():
+            comment = message.comments.order_by("-created").first()
+            return MessageCommentSerializer(comment, context=self.context).data
+
+    class Meta:
+        model = SupportGroupMessage
+        fields = (
+            "id",
+            "created",
+            "author",
+            "subject",
+            "text",
+            "group",
+            "unreadCommentCount",
+            "isAuthor",
+            "lastUpdate",
+            "lastComment",
+            "isUnread",
+        )

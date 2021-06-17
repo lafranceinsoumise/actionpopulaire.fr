@@ -5,9 +5,8 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { useMobileApp, useDownloadBanner } from "@agir/front/app/hooks.js";
+import { useDownloadBanner } from "@agir/front/app/hooks.js";
 
-import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
   getIsConnected,
@@ -35,8 +34,6 @@ const AgendaPage = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const path = useLocation().pathname;
 
-  const isDesktop = useIsDesktop();
-  const { isMobileApp } = useMobileApp();
   const [isBannerDownload, _] = useDownloadBanner();
 
   if (!isSessionLoaded) {
@@ -58,7 +55,7 @@ const AgendaPage = (props) => {
       <ConnectivityWarning hasTopBar />
       <TellMorePage />
 
-      {!isMobileApp && !isDesktop && isBannerDownload && <Spacer size="80px" />}
+      {isBannerDownload && <Spacer size="80px" />}
 
       <StyledWrapper>
         <Layout active="events" smallBackgroundColor={style.black25} hasBanner>

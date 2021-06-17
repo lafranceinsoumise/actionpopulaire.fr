@@ -35,6 +35,12 @@ export const clearAllToasts = () => ({
   type: ACTION_TYPE.CLEAR_ALL_TOASTS,
 });
 
+// PAGE TITLE
+export const setPageTitle = (title) => ({
+  type: ACTION_TYPE.SET_PAGE_TITLE,
+  title,
+});
+
 // BACK LINK
 export const setBackLink = (backLink) => ({
   type: ACTION_TYPE.SET_BACK_LINK_ACTION,

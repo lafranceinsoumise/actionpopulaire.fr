@@ -88,7 +88,6 @@ const GroupSuggestionCard = (props) => {
           iconConfiguration={iconConfiguration}
           isStatic
           staticMapUrl={staticMapUrl}
-          $animated
         />
       </StyledMap>
       <StyledBody>
@@ -121,6 +120,7 @@ GroupSuggestionCard.propTypes = {
     coordinates: PropTypes.shape({
       coordinates: PropTypes.arrayOf(PropTypes.number),
     }).isRequired,
+    staticMapUrl: PropTypes.string,
   }).isRequired,
 };
 export default GroupSuggestionCard;

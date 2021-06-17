@@ -19,6 +19,11 @@ urlpatterns = [
         name="api_user_activities",
     ),
     path(
+        "api/user/activities/unread-count/",
+        views.get_unread_activity_count,
+        name="api_user_unread_activity_count",
+    ),
+    path(
         "api/announcements/",
         views.AnnouncementsAPIView.as_view(),
         name="api_user_announcements",

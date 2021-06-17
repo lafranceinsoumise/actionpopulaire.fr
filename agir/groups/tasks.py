@@ -441,9 +441,7 @@ def send_message_notification_email(message_pk):
             "", "<p>{}</p>", ((p,) for p in message.text.split("\n"))
         ),
         "DISPLAY_NAME": message.author.display_name,
-        "MESSAGE_LINK": front_url(
-            "view_group_message", args=[message.supportgroup.pk, message_pk]
-        ),
+        "MESSAGE_LINK": front_url("user_message_details", kwargs={"pk": message_pk}),
         "AUTHOR_STATUS": format_html(
             '{} de <a href="{}">{}</a>',
             genrer(message.author.gender, "Animateur", "Animatrice", "Animateurice"),
@@ -451,10 +449,14 @@ def send_message_notification_email(message_pk):
             message.supportgroup.name,
         ),
     }
+    if message.subject:
+        subject = message.subject
+    else:
+        subject = f"Vous avez un nouveau message de {message.author.display_name}"
 
     send_mosaico_email(
         code="NEW_MESSAGE",
-        subject=f"Vous avez un nouveau message de {message.author.display_name}",
+        subject=subject,
         from_email=settings.EMAIL_FROM,
         recipients=message.supportgroup.members.filter(group_notifications=True),
         bindings=bindings,

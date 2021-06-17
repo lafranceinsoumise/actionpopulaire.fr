@@ -11,6 +11,16 @@ const user = {
   displayName: "Bill Murray",
   image: "https://www.fillmurray.com/200/200",
 };
+const groups = [
+  {
+    id: "a",
+    name: "Groupe A",
+  },
+  {
+    id: "b",
+    name: "Équipe B",
+  },
+];
 const events = [
   {
     id: "a",
@@ -95,6 +105,7 @@ export const Default = () => {
           onSend={handleSave}
           onDismiss={handleDismiss}
           user={user}
+          groups={groups}
           events={visibleEvents}
           loadMoreEvents={
             visibleEvents.length === events.length ? undefined : loadMoreEvents

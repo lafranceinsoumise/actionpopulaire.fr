@@ -66,7 +66,10 @@ const UserLink = ({ user, routes, ...rest }) => {
           as="button"
           onClick={openMenu}
         >
-          <Avatar displayName={user.displayName || user.email} image={user.image} />
+          <Avatar
+            displayName={user.displayName || user.email}
+            image={user.image}
+          />
         </MenuLink>
       </Hide>
       <UserMenu

@@ -6,7 +6,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { useDisableBodyScroll } from "@agir/lib/utils/hooks";
-
+import { useDownloadBanner } from "@agir/front/app/hooks.js";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const springConfig = {
@@ -127,6 +127,26 @@ const PanelFrame = styled.div`
   overflow: hidden;
   z-index: ${style.zindexPanel};
   pointer-events: ${({ $open }) => ($open ? "auto" : "none")};
+
+  @media (max-width: ${style.collapse}px) {
+    display: block;
+    width: 100%;
+    min-width: 100%;
+    z-index: ${({ $isBehindTopBar }) =>
+      $isBehindTopBar ? style.zindexTopBar - 1 : style.zindexPanel};
+
+    ${PanelContent} {
+      padding-top: ${({ $isBehindTopBar, $hasDownloadBanner }) => {
+        if ($isBehindTopBar && $hasDownloadBanner) {
+          return "136px";
+        }
+        if ($isBehindTopBar) {
+          return "56px";
+        }
+        return "1.5rem";
+      }};
+    }
+  }
 `;
 
 const getFocusableElements = (parent) => {
@@ -195,9 +215,12 @@ const Panel = (props) => {
     onClose,
     onBack,
     noScroll,
+    isBehindTopBar,
     className,
     style,
   } = props;
+
+  const [hasDownloadBanner] = useDownloadBanner();
 
   const panelRef = useDisableBodyScroll(noScroll, shouldShow);
   const panelContentRef = useFocusTrap(shouldShow);
@@ -222,7 +245,12 @@ const Panel = (props) => {
   );
 
   return createPortal(
-    <PanelFrame ref={panelRef} $open={shouldShow}>
+    <PanelFrame
+      ref={panelRef}
+      $open={shouldShow}
+      $isBehindTopBar={isBehindTopBar}
+      $hasDownloadBanner={hasDownloadBanner}
+    >
       <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
       {transitions((tStyle, item) =>
         item ? (
@@ -258,6 +286,7 @@ Panel.propTypes = {
   onClose: PropTypes.func,
   onBack: PropTypes.func,
   noScroll: PropTypes.bool,
+  isBehindTopBar: PropTypes.bool,
   position: PropTypes.oneOf(["right", "left"]),
   title: PropTypes.string,
   className: PropTypes.string,

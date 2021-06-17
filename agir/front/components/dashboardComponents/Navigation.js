@@ -16,7 +16,9 @@ import Link from "@agir/front/app/Link";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
-import { useHasUnreadActivity } from "@agir/activity/common/hooks";
+
+import { useUnreadMessageCount } from "@agir/msgs/hooks";
+import { useUnreadActivityCount } from "@agir/activity/common/hooks";
 
 const BottomBar = styled.nav`
   @media only screen and (max-width: ${style.collapse}px) {
@@ -345,7 +347,8 @@ MenuLink.propTypes = {
 };
 
 const Navigation = ({ active }) => {
-  const hasUnreadActivity = useHasUnreadActivity();
+  const unreadActivityCount = useUnreadActivityCount();
+  const unreadMessageCount = useUnreadMessageCount();
   const routes = useSelector(getRoutes);
 
   return (
@@ -363,7 +366,13 @@ const Navigation = ({ active }) => {
                   ? routeConfig[link.to].getLink()
                   : undefined
               }
-              hasUnreadBadge={!!link.unreadActivityBadge && hasUnreadActivity}
+              counter={
+                link.unreadMessageCounter
+                  ? unreadMessageCount
+                  : link.unreadActivityBadge
+                  ? unreadActivityCount
+                  : undefined
+              }
               secondaryLinks={
                 link.secondaryLinks && routes[link.secondaryLinks]
               }

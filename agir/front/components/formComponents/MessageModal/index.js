@@ -10,8 +10,10 @@ const MessageModal = (props) => {
     message,
     onSend,
     onDismiss,
+    groups,
     events,
     loadMoreEvents,
+    onSelectGroup,
     isLoading,
   } = props;
 
@@ -37,8 +39,10 @@ const MessageModal = (props) => {
         shouldShow={isOpen}
         onClose={handleClose}
         user={user}
+        groups={groups}
         events={events}
         loadMoreEvents={loadMoreEvents}
+        onSelectGroup={onSelectGroup}
         isLoading={isLoading}
         message={message}
         onSend={onSend}
@@ -47,14 +51,17 @@ const MessageModal = (props) => {
   );
 };
 MessageModal.propTypes = {
+  groups: PropTypes.arrayOf(PropTypes.object),
   events: PropTypes.arrayOf(PropTypes.object),
   selectedEvent: PropTypes.object,
   loadMoreEvents: PropTypes.func,
+  onSelectGroup: PropTypes.func,
   messageId: PropTypes.string,
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,
     text: PropTypes.string,
     linkedEvent: PropTypes.object,
+    group: PropTypes.object,
   }),
   onSend: PropTypes.func.isRequired,
   onDismiss: PropTypes.func,

@@ -4,6 +4,8 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
+
 import AnimatedMoreHorizontal from "@agir/front/genericComponents/AnimatedMoreHorizontal";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -44,7 +46,12 @@ const StyledAction = styled.div``;
 const StyledMessage = styled.div``;
 const StyledWrapper = styled.form`
   display: flex;
+  margin-top: auto;
   max-width: 100%;
+
+  @media (max-width: ${style.collapse}px) {
+    max-height: 50vh;
+  }
 
   & > ${Avatar} {
     flex: 0 0 auto;
@@ -214,7 +221,7 @@ export const CommentButton = (props) => {
   const { onClick } = props;
   return onClick ? (
     <StyledCommentButton onClick={onClick}>
-      Écrire un commentaire
+      Écrire une réponse
     </StyledCommentButton>
   ) : null;
 };
@@ -222,38 +229,67 @@ CommentButton.propTypes = {
   onClick: PropTypes.func,
 };
 
+const updateScroll = (rootElement, messageElement) => {
+  if (!rootElement) {
+    return;
+  }
+  rootElement.style.minHeight = `${messageElement?.offsetHeight || 0}px`;
+  rootElement.scrollIntoView();
+};
+
 const CommentField = (props) => {
-  const { user, initialValue, id, onSend, isLoading, disabled } = props;
+  const { user, initialValue, id, onSend, isLoading, disabled, autoScroll } =
+    props;
 
   const hasSubmitted = useRef(false);
 
+  const rootElementRef = useRef();
+  const messageRef = useRef();
   const fieldWrapperRef = useRef();
   const textFieldRef = useRef();
   const textFieldCursorPosition = useRef();
+  const isDesktop = useIsDesktop();
 
   const [isFocused, setIsFocused] = useState(false);
   const [value, setValue] = useState(initialValue || "");
 
   const isExpanded = !!value || isFocused;
-
   const maySend = !isLoading && value && value.trim().length <= 1000;
 
-  const handleFocus = useCallback(() => {
+  const handleFocus = () => {
     setIsFocused(true);
-  }, []);
+    autoScroll &&
+      updateScroll(
+        rootElementRef.current,
+        !isDesktop ? messageRef.current : null
+      );
+  };
 
-  const blurOnClickOutside = useCallback((event) => {
-    fieldWrapperRef.current &&
-      !fieldWrapperRef.current.contains(event.target) &&
-      setIsFocused(false);
-  }, []);
+  const blurOnClickOutside = useCallback(
+    (event) => {
+      fieldWrapperRef.current &&
+        !fieldWrapperRef.current.contains(event.target) &&
+        setIsFocused(false);
+      autoScroll &&
+        updateScroll(
+          rootElementRef.current,
+          !isDesktop ? messageRef.current : null
+        );
+    },
+    [isDesktop, autoScroll]
+  );
 
   const blurOnFocusOutside = useCallback(() => {
     fieldWrapperRef.current &&
       document.activeElement &&
       !fieldWrapperRef.current.contains(document.activeElement) &&
       setIsFocused(false);
-  }, []);
+    autoScroll &&
+      updateScroll(
+        rootElementRef.current,
+        !isDesktop ? messageRef.current : null
+      );
+  }, [isDesktop, autoScroll]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -333,14 +369,23 @@ const CommentField = (props) => {
     [maySend, value, onSend]
   );
 
+  useEffect(() => {
+    autoScroll &&
+      updateScroll(
+        rootElementRef.current,
+        !isDesktop ? messageRef.current : null
+      );
+  }, [autoScroll, isDesktop, isExpanded, value]);
+
   return (
     <StyledWrapper
       $isExpanded={isExpanded}
       $disabled={disabled || isLoading}
       onSubmit={handleSend}
+      ref={rootElementRef}
     >
       <Avatar name={user.displayName} image={user.image} />
-      <StyledMessage>
+      <StyledMessage ref={messageRef}>
         <Avatar name={user.displayName} image={user.image} />
         <StyledField
           ref={fieldWrapperRef}
@@ -359,7 +404,7 @@ const CommentField = (props) => {
                 autoFocus={isFocused}
                 label={user.displayName}
                 disabled={disabled || isLoading}
-                placeholder="Écrire un commentaire"
+                placeholder="Écrire une réponse"
                 maxLength={1000}
                 hasCounter={false}
               />
@@ -372,7 +417,7 @@ const CommentField = (props) => {
           ) : (
             <>
               <StyledCommentButton onFocus={handleFocus}>
-                Écrire un commentaire
+                Écrire une réponse
               </StyledCommentButton>
               <RawFeatherIcon name="send" color={style.primary500} small />
             </>
@@ -410,5 +455,6 @@ CommentField.propTypes = {
   onSend: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
+  autoScroll: PropTypes.bool,
 };
 export default CommentField;

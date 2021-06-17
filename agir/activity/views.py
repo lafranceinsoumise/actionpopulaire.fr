@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView
 from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import (
     RetrieveUpdateAPIView,
     GenericAPIView,
@@ -22,6 +23,7 @@ from agir.activity.serializers import (
     AnnouncementSerializer,
     CustomAnnouncementSerializer,
 )
+from agir.lib.pagination import APIPaginator
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     IsPersonPermission,
@@ -40,6 +42,24 @@ class ActivityAPIView(RetrieveUpdateAPIView):
 class UserActivitiesAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ActivitySerializer
+    pagination_class = APIPaginator
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            self.check_activity_permissions(page)
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        self.check_activity_permissions(queryset)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def check_activity_permissions(self, queryset):
+        # Double-check permissions for embedded event / supportgroup
+        # and raise an error if needed
+        for activity in queryset:
+            assert self.request.user.has_perm("activity.view_activity", activity)
 
     def get_queryset(self):
         # Force creation of new non_custom announcement activities for the user
@@ -132,3 +152,17 @@ class ActivityStatusUpdateView(GenericAPIView):
         ).update(status=serializer.validated_data["status"])
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["GET"])
+@permission_classes(())
+def get_unread_activity_count(request):
+    unread_activity_count = 0
+    if request.user.is_authenticated and request.user.person is not None:
+        unread_activity_count = (
+            get_activities(request.user.person)
+            .filter(status=Activity.STATUS_UNDISPLAYED)
+            .count()
+        )
+
+    return Response({"unreadActivityCount": unread_activity_count})

@@ -7,6 +7,7 @@ import { FaWhatsapp, FaTelegram } from "react-icons/fa";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { timeAgo } from "@agir/lib/utils/time";
 import { formatEvent } from "@agir/events/common/utils";
+import { getMessageSubject } from "@agir/msgs/utils";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -190,10 +191,6 @@ const StyledHeader = styled.div`
       line-height: 1.4;
       font-weight: normal;
       margin-top: 0.25rem;
-
-      @media (max-width: ${style.collapse}px) {
-        display: none;
-      }
     }
   }
 
@@ -233,23 +230,42 @@ const StyledCommentCount = styled.p`
     height: 1rem;
   }
 `;
+const StyledNewComment = styled.div``;
 const StyledComments = styled.div`
-  && > * {
-    margin-top: 1rem;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+
+  @media (min-width: ${style.collapse}px) {
+    border-top: ${({ $empty }) =>
+      $empty ? "none" : `1px solid ${style.black100}`};
+    transform: ${({ $empty }) => ($empty ? "none" : "translateY(0.5rem)")};
+  }
+
+  ${StyledNewComment} {
+    margin-top: auto;
+    padding: 1rem 0 0;
+
+    &:empty {
+      display: none;
+    }
 
     &:first-child {
-      margin-top: 0;
+      padding-top: 0;
     }
   }
+`;
+const StyledSubject = styled.h2`
+  font-size: 1.125rem;
+  line-height: 1.5;
+  font-weight: 600;
+  margin: 0 0 1.25rem;
 `;
 const StyledMessage = styled.div``;
 const StyledWrapper = styled.div`
   width: 100%;
   padding: 1.5rem;
   margin: 0;
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: flex-start;
   background-color: white;
   scroll-margin-top: 160px;
   border: 1px solid ${style.black100};
@@ -272,6 +288,10 @@ const StyledWrapper = styled.div`
 
   ${StyledMessage} {
     flex: 1 1 auto;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    min-height: 100%;
 
     & > * {
       margin-top: 1rem;
@@ -295,6 +315,8 @@ const StyledWrapper = styled.div`
     }
 
     ${StyledComments} {
+      flex: 1 1 auto;
+
       &::before {
         @media (max-width: 580px) {
           display: ${({ $withMobileCommentField }) =>
@@ -332,6 +354,7 @@ const MessageCard = (props) => {
     withMobileCommentField,
     scrollIn,
     withBottomButton,
+    autoScrollOnComment,
   } = props;
 
   const { group, author, text, created, linkedEvent, commentCount } = message;
@@ -344,7 +367,7 @@ const MessageCard = (props) => {
   const canEdit = typeof onEdit === "function";
   const canDelete = typeof onDelete === "function";
   const canReport = typeof onReport === "function" && !isAuthor;
-  const hasActions = canDelete || canReport;
+  const hasActions = canEdit || canDelete || canReport;
 
   const messageURL = useMemo(() => {
     if (props.messageURL) {
@@ -409,6 +432,7 @@ const MessageCard = (props) => {
       $withMobileCommentField={withMobileCommentField}
     >
       <StyledMessage>
+        <StyledSubject>{getMessageSubject(message)}</StyledSubject>
         <StyledHeader>
           <Avatar {...author} />
           <h4>
@@ -487,7 +511,9 @@ const MessageCard = (props) => {
             &ensp;Voir les {commentCount} commentaires
           </StyledCommentCount>
         ) : null}
-        <StyledComments>
+        <StyledComments
+          $empty={!Array.isArray(comments) || comments.length === 0}
+        >
           <PageFadeIn ready={Array.isArray(comments) && comments.length > 0}>
             {Array.isArray(comments) && comments.length > 0
               ? comments.map((comment) => (
@@ -502,24 +528,28 @@ const MessageCard = (props) => {
                 ))
               : null}
           </PageFadeIn>
-          {onComment ? (
-            withMobileCommentField ? (
-              <CommentField
-                isLoading={isLoading}
-                user={user}
-                onSend={handleComment}
-              />
-            ) : (
-              <ResponsiveLayout
-                MobileLayout={CommentButton}
-                DesktopLayout={CommentField}
-                isLoading={isLoading}
-                user={user}
-                onSend={handleComment}
-                onClick={onClick && handleClick}
-              />
-            )
-          ) : null}
+          <StyledNewComment>
+            {onComment ? (
+              withMobileCommentField ? (
+                <CommentField
+                  isLoading={isLoading}
+                  user={user}
+                  onSend={handleComment}
+                  autoScroll={autoScrollOnComment}
+                />
+              ) : (
+                <ResponsiveLayout
+                  MobileLayout={CommentButton}
+                  DesktopLayout={CommentField}
+                  isLoading={isLoading}
+                  user={user}
+                  onSend={handleComment}
+                  onClick={onClick && handleClick}
+                  autoScroll={autoScrollOnComment}
+                />
+              )
+            ) : null}
+          </StyledNewComment>
         </StyledComments>
         {withBottomButton && (
           <div style={{ textAlign: "center" }}>
@@ -567,5 +597,6 @@ MessageCard.propTypes = {
   scrollIn: PropTypes.bool,
   isManager: PropTypes.bool,
   withBottomButton: PropTypes.bool,
+  autoScrollOnComment: PropTypes.bool,
 };
 export default MessageCard;

@@ -7,18 +7,19 @@ from django.http import (
     HttpResponsePermanentRedirect,
     Http404,
     FileResponse,
-    HttpResponse,
 )
+from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators import cache
-from django.views.generic import View, RedirectView, TemplateView
+from django.views.generic import View, RedirectView
 from django.views.generic.detail import BaseDetailView
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
     SoftLoginRequiredMixin,
+    GlobalOrObjectPermissionRequiredMixin,
 )
 from agir.groups.models import SupportGroup
 from agir.lib.http import add_query_params_to_url
@@ -32,6 +33,7 @@ from ..events.views.event_views import EventDetailMixin
 from ..groups.serializers import SupportGroupSerializer
 from ..groups.views.public_views import SupportGroupDetailMixin
 from ..lib.utils import generate_token_params
+from ..msgs.models import SupportGroupMessage
 
 
 class NBUrlsView(View):
@@ -301,3 +303,18 @@ class NotFoundView(ReactBaseView):
         response = super().dispatch(request, *args, **kwargs)
         response.status_code = 404
         return response
+
+
+class UserMessagesView(HardLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/app"
+
+
+class UserMessageView(
+    GlobalOrObjectPermissionRequiredMixin, HardLoginRequiredMixin, ReactBaseView,
+):
+    permission_required = ("msgs.view_message",)
+    queryset = SupportGroupMessage.objects.all()
+    bundle_name = "front/app"
+
+    def get_object(self):
+        return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))

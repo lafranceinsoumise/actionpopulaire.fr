@@ -210,7 +210,6 @@ const GroupBanner = (props) => {
             iconConfiguration={iconConfiguration}
             isStatic
             staticMapUrl={location?.staticMapUrl}
-            $animated
           />
         ) : null}
       </StyledMap>
