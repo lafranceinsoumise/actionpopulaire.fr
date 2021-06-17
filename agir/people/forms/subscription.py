@@ -32,7 +32,7 @@ class AnonymousUnsubscribeForm(forms.Form):
             send_unsubscribe_email.delay(person.id)
             person.group_notifications = False
             person.event_notifications = False
-            person.subscribed = False
+            person.newsletters = []
             person.save()
         except Person.DoesNotExist:
             pass

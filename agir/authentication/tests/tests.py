@@ -83,15 +83,16 @@ class MailLinkTestCase(TestCase):
             response, reverse("short_code_login") + "?next=" + reverse("create_group"),
         )
 
-    def test_unsubscribe_shows_direct_unsubscribe_form_when_logged_in(self):
-        message_preferences_path = reverse("contact")
+    def test_unsubscribe_use_hidden_email_field_when_logged_in(self):
         unsubscribe_path = reverse("unsubscribe")
-
         self.client.force_login(self.person.role)
         response = self.client.get(unsubscribe_path)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.person.email)
-        self.assertContains(response, 'action="{}"'.format(message_preferences_path))
+        self.assertContains(
+            response,
+            '<input type="hidden" name="email" value="{}" />'.format(self.person.email),
+        )
 
 
 class AuthorizationTestCase(TestCase):

@@ -32,6 +32,17 @@ class UnsubscribeView(SimpleOpengraphMixin, FormView):
     meta_title = "Ne plus recevoir de emails"
     meta_description = "Désabonnez-vous des emails de la France insoumise"
 
+    def get_success_url(self):
+        if not self.request.user.is_authenticated or self.request.user.person is None:
+            return self.success_url
+
+        messages.add_message(
+            self.request,
+            messages.INFO,
+            "Vous êtes maintenant désinscrit⋅e de toutes les lettres d'information.",
+        )
+        return reverse_lazy("contact")
+
     def form_valid(self, form):
         form.unsubscribe()
         return super().form_valid(form)
