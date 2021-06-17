@@ -1,7 +1,9 @@
 from django.db import models
 
 from agir.lib.models import TimeStampedModel, UUIDIdentified
-from agir.notifications.types import SubscriptionType
+
+#
+from agir.activity.models import Activity
 
 
 class Subscription(UUIDIdentified, TimeStampedModel):
@@ -11,6 +13,70 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         (SUBSCRIPTION_EMAIL, "Email"),
         (SUBSCRIPTION_PUSH, "Push"),
     )
+
+    # MANDATORY TYPES
+    MANDATORY_EMAIL_TYPES = (
+        Activity.TYPE_CANCELLED_EVENT,
+        Activity.TYPE_WAITING_PAYMENT,
+        # GROUP
+        Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+        Activity.TYPE_GROUP_INVITATION,
+        Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
+    )
+    MANDATORY_PUSH_TYPES = (
+        Activity.TYPE_CANCELLED_EVENT,
+        Activity.TYPE_WAITING_PAYMENT,
+        # GROUP
+        Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+        Activity.TYPE_GROUP_INVITATION,
+        Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
+    )
+
+    # DEFAULT PERSON/EVENT TYPES
+    DEFAULT_PERSON_EMAIL_TYPES = [
+        Activity.TYPE_EVENT_SUGGESTION,
+        Activity.TYPE_EVENT_UPDATE,
+        Activity.TYPE_NEW_ATTENDEE,
+        Activity.TYPE_WAITING_LOCATION_EVENT,
+    ]
+    DEFAULT_PERSON_PUSH_TYPES = [
+        Activity.TYPE_EVENT_SUGGESTION,
+        Activity.TYPE_EVENT_UPDATE,
+        Activity.TYPE_NEW_ATTENDEE,
+        Activity.TYPE_WAITING_LOCATION_EVENT,
+    ]
+
+    # DEFAULT GROUP TYPES
+    DEFAULT_GROUP_EMAIL_TYPES = [
+        Activity.TYPE_NEW_EVENT_MYGROUPS,
+        Activity.TYPE_GROUP_COORGANIZATION_INFO,
+        Activity.TYPE_GROUP_INFO_UPDATE,
+        Activity.TYPE_NEW_MESSAGE,
+        Activity.TYPE_NEW_COMMENT,
+        Activity.TYPE_NEW_REPORT,
+        Activity.TYPE_NEW_MEMBER,
+        Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
+        Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+        Activity.TYPE_WAITING_LOCATION_GROUP,
+        Activity.TYPE_GROUP_COORGANIZATION_INVITE,
+        Activity.TYPE_GROUP_CREATION_CONFIRMATION,
+        Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED,
+    ]
+    DEFAULT_GROUP_PUSH_TYPES = [
+        Activity.TYPE_NEW_EVENT_MYGROUPS,
+        Activity.TYPE_GROUP_COORGANIZATION_INFO,
+        Activity.TYPE_GROUP_INFO_UPDATE,
+        Activity.TYPE_NEW_MESSAGE,
+        Activity.TYPE_NEW_COMMENT,
+        Activity.TYPE_NEW_REPORT,
+        Activity.TYPE_NEW_MEMBER,
+        Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
+        Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+        Activity.TYPE_WAITING_LOCATION_GROUP,
+        Activity.TYPE_GROUP_COORGANIZATION_INVITE,
+        Activity.TYPE_GROUP_CREATION_CONFIRMATION,
+        Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED,
+    ]
 
     person = models.ForeignKey(
         "people.Person",
@@ -22,7 +88,7 @@ class Subscription(UUIDIdentified, TimeStampedModel):
     )
     type = models.CharField("Type", max_length=5, choices=SUBSCRIPTION_CHOICES)
     activity_type = models.CharField(
-        "Type", max_length=50, choices=SubscriptionType.TYPE_CHOICES
+        "Type", max_length=50, choices=Activity.TYPE_CHOICES
     )
 
     class Meta:

@@ -18,7 +18,6 @@ from ..models import SupportGroup, Membership, SupportGroupSubtype
 from ...activity.models import Activity
 
 from agir.lib.tests.mixins import create_group
-from agir.notifications.types import SubscriptionType
 
 
 class SupportGroupMixin:
@@ -233,7 +232,7 @@ class InvitationTestCase(TestCase):
 
         activity = activities.get()
 
-        self.assertEqual(activity.type, SubscriptionType.TYPE_GROUP_INVITATION)
+        self.assertEqual(activity.type, Activity.TYPE_GROUP_INVITATION)
         self.assertEqual(activity.supportgroup, self.group)
 
     def test_invitation_mail_is_sent_to_new_user(self):

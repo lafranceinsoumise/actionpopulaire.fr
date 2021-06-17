@@ -26,7 +26,6 @@ from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     IsPersonPermission,
 )
-from agir.notifications.types import SubscriptionType
 
 
 class ActivityAPIView(RetrieveUpdateAPIView):
@@ -96,7 +95,7 @@ class AnnouncementLinkView(DetailView):
         user = request.user
         if hasattr(user, "person"):
             defaults = {
-                "type": SubscriptionType.TYPE_ANNOUNCEMENT,
+                "type": Activity.TYPE_ANNOUNCEMENT,
                 "status": Activity.STATUS_INTERACTED,
             }
 

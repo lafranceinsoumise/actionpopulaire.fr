@@ -10,7 +10,6 @@ from agir.people.models import Person
 from ..actions import notifications
 from ..models import Event, Calendar, RSVP, OrganizerConfig
 from ...activity.models import Activity
-from agir.notifications.types import SubscriptionType
 
 
 class EventNotificationsActionsTestCase(TestCase):
@@ -73,7 +72,7 @@ class EventNotificationsActionsTestCase(TestCase):
 
     def test_new_event_suggestion_with_person_organized_event(self):
         original_target_activity_count = Activity.objects.filter(
-            type=SubscriptionType.TYPE_EVENT_SUGGESTION,
+            type=Activity.TYPE_EVENT_SUGGESTION,
             recipient=self.attendee1,
             individual=self.event.organizers.first(),
         ).count()
@@ -81,7 +80,7 @@ class EventNotificationsActionsTestCase(TestCase):
         notifications.new_event_suggestion_notification(self.event, self.attendee1)
 
         new_target_activity_count = Activity.objects.filter(
-            type=SubscriptionType.TYPE_EVENT_SUGGESTION,
+            type=Activity.TYPE_EVENT_SUGGESTION,
             recipient=self.attendee1,
             individual=self.event.organizers.first(),
         ).count()
@@ -90,7 +89,7 @@ class EventNotificationsActionsTestCase(TestCase):
 
     def test_new_event_suggestion_with_group_organized_event(self):
         original_target_activity_count = Activity.objects.filter(
-            type=SubscriptionType.TYPE_EVENT_SUGGESTION,
+            type=Activity.TYPE_EVENT_SUGGESTION,
             recipient=self.attendee1,
             supportgroup=self.group_event.organizers_groups.first(),
         ).count()
@@ -99,7 +98,7 @@ class EventNotificationsActionsTestCase(TestCase):
         )
 
         new_target_activity_count = Activity.objects.filter(
-            type=SubscriptionType.TYPE_EVENT_SUGGESTION,
+            type=Activity.TYPE_EVENT_SUGGESTION,
             recipient=self.attendee1,
             supportgroup=self.group_event.organizers_groups.first(),
         ).count()

@@ -14,8 +14,6 @@ from .. import tasks
 from ..models import Event, Calendar, RSVP, OrganizerConfig
 from ...activity.models import Activity
 
-from agir.notifications.types import SubscriptionType
-
 
 fake = Faker("fr_FR")
 
@@ -95,8 +93,8 @@ class EventTasksTestCase(TestCase):
         )
 
         # add TYPE_NEW_REPORT to test new_report
-        default_types = [SubscriptionType.TYPE_NEW_REPORT]
-        for t in SubscriptionType.DEFAULT_PERSON_EMAIL_TYPES:
+        default_types = [Activity.TYPE_NEW_REPORT]
+        for t in Subscription.DEFAULT_PERSON_EMAIL_TYPES:
             default_types.append(t)
 
         Subscription.objects.bulk_create(
@@ -231,7 +229,7 @@ class EventTasksTestCase(TestCase):
         event = self.event
         organizers = event.organizers.all()
         old_activity_count = Activity.objects.filter(
-            type=SubscriptionType.TYPE_WAITING_LOCATION_EVENT,
+            type=Activity.TYPE_WAITING_LOCATION_EVENT,
             recipient__in=organizers,
             event=event,
         ).count()
@@ -241,7 +239,7 @@ class EventTasksTestCase(TestCase):
         self.assertEqual(event.coordinates_type, Event.COORDINATES_NO_POSITION)
 
         new_activity_count = Activity.objects.filter(
-            type=SubscriptionType.TYPE_WAITING_LOCATION_EVENT,
+            type=Activity.TYPE_WAITING_LOCATION_EVENT,
             recipient__in=organizers,
             event=event,
         ).count()
@@ -258,7 +256,7 @@ class EventTasksTestCase(TestCase):
         event = self.event
         organizers = event.organizers.all()
         old_activity_count = Activity.objects.filter(
-            type=SubscriptionType.TYPE_WAITING_LOCATION_EVENT,
+            type=Activity.TYPE_WAITING_LOCATION_EVENT,
             recipient__in=organizers,
             event=event,
         ).count()
@@ -268,7 +266,7 @@ class EventTasksTestCase(TestCase):
         self.assertLess(event.coordinates_type, Event.COORDINATES_NO_POSITION)
 
         new_activity_count = Activity.objects.filter(
-            type=SubscriptionType.TYPE_WAITING_LOCATION_EVENT,
+            type=Activity.TYPE_WAITING_LOCATION_EVENT,
             recipient__in=organizers,
             event=event,
         ).count()

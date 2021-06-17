@@ -1,12 +1,11 @@
 from agir.groups.models import Membership
 from agir.notifications.models import Subscription
-from agir.notifications.types import SubscriptionType
 
 
 def get_default_person_subscriptions(person):
     subscriptions = []
 
-    for activity_type in SubscriptionType.DEFAULT_PERSON_EMAIL_TYPES:
+    for activity_type in Subscription.DEFAULT_PERSON_EMAIL_TYPES:
         subscriptions += [
             Subscription(
                 person=person,
@@ -26,7 +25,7 @@ def get_default_person_subscriptions(person):
 def get_default_group_subscriptions(person, membership):
     subscriptions = []
 
-    for activity_type in SubscriptionType.DEFAULT_GROUP_EMAIL_TYPES:
+    for activity_type in Subscription.DEFAULT_GROUP_EMAIL_TYPES:
         subscriptions += [
             Subscription(
                 person=person,

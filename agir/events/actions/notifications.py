@@ -1,13 +1,12 @@
 from django.db import transaction
 
 from agir.activity.models import Activity
-from agir.notifications.types import SubscriptionType
 
 
 @transaction.atomic()
 def new_event_suggestion_notification(event, recipient):
     activity_config = {
-        "type": SubscriptionType.TYPE_EVENT_SUGGESTION,
+        "type": Activity.TYPE_EVENT_SUGGESTION,
         "event": event,
     }
     if event.organizers_groups.count() > 0:
