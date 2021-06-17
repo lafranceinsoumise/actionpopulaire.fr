@@ -1,7 +1,7 @@
 from django.db import models
 
-from agir.activity.models import Activity
 from agir.lib.models import TimeStampedModel, UUIDIdentified
+from agir.notifications.types import SubscriptionType
 
 
 class Subscription(UUIDIdentified, TimeStampedModel):
@@ -22,7 +22,7 @@ class Subscription(UUIDIdentified, TimeStampedModel):
     )
     type = models.CharField("Type", max_length=5, choices=SUBSCRIPTION_CHOICES)
     activity_type = models.CharField(
-        "Type", max_length=50, choices=Activity.TYPE_CHOICES
+        "Type", max_length=50, choices=SubscriptionType.TYPE_CHOICES
     )
 
     class Meta:

@@ -11,6 +11,7 @@ from agir.groups.tasks import (
 )
 from agir.lib.utils import front_url
 from agir.people.models import Person
+from agir.notifications.types import SubscriptionType
 
 
 def send_membership_transfer_email_notifications(
@@ -58,7 +59,7 @@ def create_transfer_membership_activities(
     Activity.objects.bulk_create(
         [
             Activity(
-                type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+                type=SubscriptionType.TYPE_TRANSFERRED_GROUP_MEMBER,
                 status=Activity.STATUS_UNDISPLAYED,
                 recipient=r,
                 supportgroup=target_group,
@@ -78,7 +79,7 @@ def create_transfer_membership_activities(
     Activity.objects.bulk_create(
         [
             Activity(
-                type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
+                type=SubscriptionType.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
                 recipient=r,
                 supportgroup=target_group,
                 meta={

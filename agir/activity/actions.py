@@ -12,6 +12,7 @@ from django.utils import timezone
 
 from .models import Activity, Announcement
 from ..events.models import Event
+from agir.notifications.types import SubscriptionType
 
 
 def get_activities(person):
@@ -19,8 +20,11 @@ def get_activities(person):
         Activity.objects.displayed()
         .filter(recipient=person)
         .filter(
-            ~Q(type=Activity.TYPE_ANNOUNCEMENT)
-            | Q(type=Activity.TYPE_ANNOUNCEMENT, announcement__custom_display__exact="")
+            ~Q(type=SubscriptionType.TYPE_ANNOUNCEMENT)
+            | Q(
+                type=SubscriptionType.TYPE_ANNOUNCEMENT,
+                announcement__custom_display__exact="",
+            )
         )
         .select_related("supportgroup", "individual", "announcement")
         .prefetch_related(
@@ -36,7 +40,7 @@ def get_activities(person):
         .annotate(
             sort=Case(
                 When(
-                    type=Activity.TYPE_ANNOUNCEMENT,
+                    type=SubscriptionType.TYPE_ANNOUNCEMENT,
                     status=Activity.STATUS_UNDISPLAYED,
                     then=0,
                 ),
@@ -93,7 +97,7 @@ def get_announcements(person=None):
         Activity.objects.bulk_create(
             [
                 Activity(
-                    type=Activity.TYPE_ANNOUNCEMENT,
+                    type=SubscriptionType.TYPE_ANNOUNCEMENT,
                     recipient=person,
                     announcement=announcement,
                 )

@@ -5,6 +5,8 @@ from agir.activity.models import Activity
 from agir.lib.serializers import FlexibleFieldsMixin
 from agir.lib.utils import front_url
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
+from agir.notifications.types import SubscriptionType
+
 
 __all__ = ["ACTIVITY_NOTIFICATION_SERIALIZERS"]
 
@@ -439,26 +441,26 @@ class EventSuggestionNotificationSerializer(ActivityNotificationSerializer):
 
 
 ACTIVITY_NOTIFICATION_SERIALIZERS = {
-    Activity.TYPE_GROUP_INVITATION: GroupInvitationActivityNotificationSerializer,
-    Activity.TYPE_NEW_MEMBER: NewMemberActivityNotificationSerializer,
-    Activity.TYPE_WAITING_LOCATION_GROUP: WaitingLocationGroupActivityNotificationSerializer,
-    Activity.TYPE_WAITING_LOCATION_EVENT: WaitingLocationEventActivityNotificationSerializer,
-    Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER: GroupMembershipLimitReminderActivityNotificationSerializer,
-    Activity.TYPE_GROUP_INFO_UPDATE: GroupInfoUpdateActivityNotificationSerializer,
-    Activity.TYPE_ACCEPTED_INVITATION_MEMBER: AcceptedInvitationMemberActivityNotificationSerializer,
-    Activity.TYPE_NEW_ATTENDEE: NewAttendeeActivityNotificationSerializer,
-    Activity.TYPE_EVENT_UPDATE: EventUpdateActivityNotificationSerializer,
-    Activity.TYPE_NEW_EVENT_MYGROUPS: NewEventMyGroupsActivityNotificationSerializer,
-    Activity.TYPE_NEW_REPORT: NewReportActivityNotificationSerializer,
-    Activity.TYPE_CANCELLED_EVENT: CancelledEventActivityNotificationSerializer,
-    Activity.TYPE_REFERRAL: ReferralActivityNotificationSerializer,
-    Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED: GroupCoorganizationAcceptedActivityNotificationSerializer,
-    Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER: NewMembersThroughTransferActivityNotificationSerializer,
-    Activity.TYPE_TRANSFERRED_GROUP_MEMBER: TransferredGroupMemberActivityNotificationSerializer,
-    Activity.TYPE_WAITING_PAYMENT: WaitingPaymentActivityNotificationSerializer,
-    Activity.TYPE_GROUP_COORGANIZATION_INVITE: GroupCoorganizationInviteActivityNotificationSerializer,
-    Activity.TYPE_GROUP_COORGANIZATION_INFO: GroupCoorganizationInfoActivityNotificationSerializer,
-    Activity.TYPE_NEW_MESSAGE: NewMessageActivityNotificationSerializer,
-    Activity.TYPE_NEW_COMMENT: NewCommentActivityNotificationSerializer,
-    Activity.TYPE_EVENT_SUGGESTION: EventSuggestionNotificationSerializer,
+    SubscriptionType.TYPE_GROUP_INVITATION: GroupInvitationActivityNotificationSerializer,
+    SubscriptionType.TYPE_NEW_MEMBER: NewMemberActivityNotificationSerializer,
+    SubscriptionType.TYPE_WAITING_LOCATION_GROUP: WaitingLocationGroupActivityNotificationSerializer,
+    SubscriptionType.TYPE_WAITING_LOCATION_EVENT: WaitingLocationEventActivityNotificationSerializer,
+    SubscriptionType.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER: GroupMembershipLimitReminderActivityNotificationSerializer,
+    SubscriptionType.TYPE_GROUP_INFO_UPDATE: GroupInfoUpdateActivityNotificationSerializer,
+    SubscriptionType.TYPE_ACCEPTED_INVITATION_MEMBER: AcceptedInvitationMemberActivityNotificationSerializer,
+    SubscriptionType.TYPE_NEW_ATTENDEE: NewAttendeeActivityNotificationSerializer,
+    SubscriptionType.TYPE_EVENT_UPDATE: EventUpdateActivityNotificationSerializer,
+    SubscriptionType.TYPE_NEW_EVENT_MYGROUPS: NewEventMyGroupsActivityNotificationSerializer,
+    SubscriptionType.TYPE_NEW_REPORT: NewReportActivityNotificationSerializer,
+    SubscriptionType.TYPE_CANCELLED_EVENT: CancelledEventActivityNotificationSerializer,
+    SubscriptionType.TYPE_REFERRAL: ReferralActivityNotificationSerializer,
+    SubscriptionType.TYPE_GROUP_COORGANIZATION_ACCEPTED: GroupCoorganizationAcceptedActivityNotificationSerializer,
+    SubscriptionType.TYPE_NEW_MEMBERS_THROUGH_TRANSFER: NewMembersThroughTransferActivityNotificationSerializer,
+    SubscriptionType.TYPE_TRANSFERRED_GROUP_MEMBER: TransferredGroupMemberActivityNotificationSerializer,
+    SubscriptionType.TYPE_WAITING_PAYMENT: WaitingPaymentActivityNotificationSerializer,
+    SubscriptionType.TYPE_GROUP_COORGANIZATION_INVITE: GroupCoorganizationInviteActivityNotificationSerializer,
+    SubscriptionType.TYPE_GROUP_COORGANIZATION_INFO: GroupCoorganizationInfoActivityNotificationSerializer,
+    SubscriptionType.TYPE_NEW_MESSAGE: NewMessageActivityNotificationSerializer,
+    SubscriptionType.TYPE_NEW_COMMENT: NewCommentActivityNotificationSerializer,
+    SubscriptionType.TYPE_EVENT_SUGGESTION: EventSuggestionNotificationSerializer,
 }
