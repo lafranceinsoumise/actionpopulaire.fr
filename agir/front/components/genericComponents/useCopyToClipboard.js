@@ -1,44 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
+import { useCopyToClipboard as useCTC } from "react-use";
 
 const useCopyToClipboard = (text = "", resetInterval = 5000) => {
   const [isCopied, setIsCopied] = useState(false);
+  const [state, copyToClipboard] = useCTC();
+  const { error } = state;
 
   const handleCopy = useCallback(() => {
-    if (
-      typeof text !== "string" ||
-      typeof window === "undefined" ||
-      (typeof navigator.clipboard === "undefined" &&
-        typeof document.execCommand === "undefined")
-    ) {
-      return;
+    if (text) {
+      copyToClipboard(text);
+      setIsCopied(true);
     }
-
-    if (typeof navigator.clipboard === "undefined") {
-      const inputEl = document.createElement("input");
-      inputEl.value = text;
-      inputEl.width = "0";
-      inputEl.height = "0";
-      document.body.appendChild(inputEl);
-      inputEl.select();
-      setIsCopied(document.execCommand("copy"));
-      document.body.removeChild(inputEl);
-      return;
-    }
-
-    navigator.clipboard
-      .writeText(String(text))
-      .then(() => {
-        setIsCopied(true);
-      })
-      .catch((e) => {
-        setIsCopied(false);
-        console.error(e.message);
-      });
-  }, [text]);
+  }, [text, copyToClipboard]);
 
   useEffect(() => {
     setIsCopied(false);
   }, [text]);
+
+  useEffect(() => {
+    error && console.error(error?.message);
+  }, [error]);
 
   useEffect(() => {
     let timeout;
@@ -48,7 +29,7 @@ const useCopyToClipboard = (text = "", resetInterval = 5000) => {
     return () => {
       clearTimeout(timeout);
     };
-  }, [isCopied, resetInterval]);
+  }, [isCopied, resetInterval, copyToClipboard]);
 
   return [isCopied, handleCopy];
 };
