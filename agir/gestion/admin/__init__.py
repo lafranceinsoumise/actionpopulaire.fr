@@ -1,14 +1,10 @@
 import re
 
-from django.http import HttpResponseRedirect
-
-from agir.gestion.models.common import ModeleGestionMixin
-from django.contrib.postgres.search import SearchVector, SearchQuery
-
-from agir.gestion.utils import lien
 from django.contrib import admin
+from django.contrib.postgres.search import SearchQuery
 from django.core.exceptions import ValidationError
 from django.db.models import Count, Sum
+from django.http import HttpResponseRedirect, QueryDict
 from django.template.loader import render_to_string
 from django.urls import path, reverse
 from django.utils.html import format_html_join
@@ -39,10 +35,13 @@ from agir.gestion.models import (
     Compte,
     InstanceCherchable,
 )
+from agir.gestion.models.common import ModeleGestionMixin
 from agir.gestion.models.depenses import etat_initial
 from agir.gestion.models.virements import OrdreVirement
 from agir.gestion.typologies import TypeDepense
+from agir.gestion.utils import lien
 from agir.lib.display import display_price
+from agir.lib.http import add_query_params_to_url
 from agir.people.models import Person
 
 
@@ -189,7 +188,9 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
             "projet",
         ]
 
-        if obj is not None and obj.type == TypeDepense.REFACTURATION:
+        if request.GET.get("type") == TypeDepense.REFACTURATION or (
+            obj is not None and obj.type == TypeDepense.REFACTURATION
+        ):
             return (
                 (None, {"fields": common_fields}),
                 ("Gestion", {"fields": [*rel_fields, "depenses_refacturees"]}),
@@ -263,8 +264,15 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
             except (Projet.DoesNotExist, ValueError):
                 initial["projet"] = None
 
-        if "type" in request.GET:
-            initial["type"] = request.GET["type"]
+        if "depenses_refacturees" in request.GET:
+            try:
+                initial["depenses_refacturees"] = Depense.objects.filter(
+                    id__in=[
+                        int(i) for i in request.GET["depenses_refacturees"].split(",")
+                    ]
+                )
+            except ValueError:
+                pass
 
         return initial
 
@@ -310,6 +318,21 @@ class ProjetAdmin(BaseAdminMixin, VersionAdmin):
         "type",
         "etat",
     )
+
+    def render_change_form(
+        self, request, context, add=False, change=False, form_url="", obj=None
+    ):
+        if context["original"] is not None:
+            qp = QueryDict(mutable=True)
+            qp["type"] = TypeDepense.REFACTURATION
+            qp["depenses_refacturees"] = ",".join(
+                str(d.id) for d in context["original"].depenses.all()
+            )
+            context[
+                "refacturation_url"
+            ] = f'{reverse("admin:gestion_depense_add")}?{qp.urlencode()}'
+
+        return super().render_change_form(request, context, add, change, form_url, obj)
 
 
 @admin.register(OrdreVirement)
