@@ -15,7 +15,7 @@ def creer_ou_mettre_a_jour_recherche(sender, instance, raw, **kwargs):
         content_type=content_type,
         object_id=instance.pk,
         defaults={
-            "recherche": sender.objects.values(search_vector_def, flat=True).filter(
+            "recherche": sender.objects.values(v=search_vector_def).filter(
                 pk=instance.pk
             )
         },

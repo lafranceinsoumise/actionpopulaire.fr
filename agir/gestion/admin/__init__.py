@@ -197,7 +197,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
             )
 
         return (
-            (None, {"fields": common_fields}),
+            (None, {"fields": [*common_fields, "beneficiaires"]}),
             ("Gestion", {"fields": rel_fields}),
             ("Paiement", {"fields": ["fournisseur", "reglements"]}),
         )
