@@ -135,7 +135,7 @@ class AdminViewMixin(ContextMixin, View):
         kwargs.setdefault("has_delete_permission", False)
         kwargs.setdefault("show_close", False)
 
-        kwargs.update(self.model_admin.admin_site.each_context(request=self.request))
+        kwargs.update(model_admin.admin_site.each_context(request=self.request))
 
         return super().get_context_data(**kwargs)
 
