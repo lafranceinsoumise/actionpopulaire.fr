@@ -25,7 +25,7 @@ django-crispy-forms = "==1.*" # better forms
 django-otp = "==0.7.*"  # 2FA in admin
 django-filter = "==2.*"  # add useful filters
 django-oauth-toolkit = "==1.*"  # add OAuth server
-rules = "==2.*"  # add useful authorization rules
+rules = "==3.*"  # add useful authorization rules
 django-reversion = "==3.*"  # versioning of models
 ## Django Rest Framework
 djangorestframework = "==3.*,>=3.10"
