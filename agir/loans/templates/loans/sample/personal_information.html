@@ -1,7 +1,7 @@
 {% extends "donations/personal_information.html" %}
 {% load display_lib %}
 
-{% block donation_reminder %}Je souhaite prêter <strong>{{ amount | display_price }}</strong> à la campagne européenne
+{% block donation_reminder %}Je souhaite prêter <strong>{{ amount | display_price_in_cent }}</strong> à la campagne européenne
   de la France insoumise.
 {% endblock %}
 

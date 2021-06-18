@@ -1,0 +1,82 @@
+{% extends "admin/change_form.html" %}
+{% load static admin_urls %}
+
+{% block extrahead %}{{ block.super }}
+  <link rel="stylesheet" href="{% static "admin/gestion/style.css" %}">
+{% endblock %}
+
+{% block content %}
+  <div class="gestion--organisation">
+    {{ block.super }}
+    <div class="gestion--side-container module">
+      {% if transitions %}
+        <div class="gestion--transitions">
+          <h2>Étapes suivantes</h2>
+          <form id="transition-form" method="post" action="{% url opts|admin_urlname:"transition" object_id %}">
+            {% csrf_token %}
+
+            <ul>
+              {% for transition in transitions %}
+                <li>
+                  <button
+                      type="submit" name="etat" value="{{ transition.vers }}"
+                      class="gestion--button {{ transition.class_name }}"
+                      {% if transition.disabled %}disabled title="{{ transition.disabled }}"{% endif %}
+                  >
+                    {{ transition.nom }}
+                  </button>
+                </li>
+              {% endfor %}
+            </ul>
+          </form>
+
+        </div>
+      {% endif %}
+      {% if todos or commentaires_todo %}
+        <div class="gestion--todos">
+          <h2>À faire</h2>
+
+          {% for category, ts in todos %}
+            <h3>{{ category }}</h3>
+            <ul>
+              {% for message, niveau in ts %}
+                <li class="{{ niveau }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endfor %}
+          {% if commentaires_todo %}
+            <h3>Autres tâches</h3>
+            <ul>
+              {% for commentaire in commentaires_todo %}
+                {% include "admin/gestion/commentaire.html" %}
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if commentaires_rem %}
+        <div class="remarques">
+          <h2>Remarques</h2>
+          <ul>
+            {% for commentaire in commentaires_rem %}
+              {% include "admin/gestion/commentaire.html" %}
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+      {% if commentaire_form %}
+        <div class="ajouter-commentaire">
+          <h2>Ajouter une information</h2>
+          <div class="content">
+            <form id="commentaire-form" method="post" action="{% url opts|admin_urlname:"commenter" object_id %}">
+              {% csrf_token %}
+
+              {{ commentaire_form }}
+              <button class="gestion--button" type="submit">Ajouter</button>
+            </form>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

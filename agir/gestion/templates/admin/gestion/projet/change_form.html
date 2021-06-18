@@ -1,0 +1,10 @@
+{% extends "admin/gestion/change_form.html" %}
+
+{% block object-tools-items %}
+  {% if refacturation_url %}
+    <li>
+      <a href="{{ refacturation_url }}">Refacturer le projet</a>
+    </li>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

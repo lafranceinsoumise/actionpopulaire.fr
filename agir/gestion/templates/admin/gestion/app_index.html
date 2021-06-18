@@ -1,0 +1,21 @@
+{% extends "admin/app_index.html" %}
+{% load static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static "admin/gestion/style.css" %}">
+{% endblock %}
+
+{% block sidebar %}
+  <div id="content-related">
+  <div class="module gestion--recherche">
+    <h2>Rechercher</h2>
+
+    <form method="get" action="{% url "admin:gestion_instancecherchable_changelist" %}">
+      <label for="recherche">Numéro ou texte à chercher</label>
+      <input id="recherche" type="search" name="q">
+      <button class="gestion--button" type="submit">Rechercher</button>
+    </form>
+  </div>
+  </div>
+{% endblock %}

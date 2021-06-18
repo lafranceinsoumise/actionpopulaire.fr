@@ -127,9 +127,7 @@ class SpendingRequestAdmin(admin.ModelAdmin):
         return [
             path(
                 "<uuid:pk>/review/",
-                self.admin_site.admin_view(
-                    partial(HandleRequestView.as_view(), model_admin=self)
-                ),
+                self.admin_site.admin_view(HandleRequestView.as_view(model_admin=self)),
                 name="donations_spendingrequest_review",
             )
         ] + super().get_urls()

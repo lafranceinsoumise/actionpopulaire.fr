@@ -1,0 +1,166 @@
+.gestion--recherche form {
+    padding: 0 16px;
+}
+
+.gestion--recherche label {
+    display: block;
+    font-weight: bold;
+}
+
+.gestion--recherche input {
+    display: block;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.gestion--recherche button {
+    display: block;
+}
+
+.gestion--organisation {
+    display: flex;
+    align-items: flex-start;
+}
+
+.gestion--side-container {
+    width: 300px;
+    background: #f8f8f8;
+
+    margin: 0 0 0 20px;
+}
+
+.gestion--side-container h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 5px 15px;
+    margin-bottom: 12px;
+    border-bottom: none
+}
+
+.gestion--button, a.gestion--button {
+    display: inline-block;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    background: #878787;
+    cursor: pointer;
+}
+
+.gestion--button:disabled {
+    cursor: not-allowed;
+}
+
+.gestion--button.success {
+    background-color: #4c9c08;
+}
+.gestion--button.success:hover {
+    background-color: #76dc20;
+}
+.gestion--button.success:disabled {
+    background-color: #98ad8a;
+}
+
+.gestion--button.failure {
+    background-color: #a7301e;
+}
+.gestion--button.failure:hover {
+    background-color: #ea5741;
+}
+.gestion--button.failure:disabled {
+    background-color: #ac8076;
+}
+
+
+.gestion--transitions ul {
+    margin: 1em;
+    padding: 0;
+}
+
+.gestion--transitions li {
+    list-style-type: none;
+    margin-top: 0.5em;
+}
+
+
+.gestion--todos li.imperatif {
+    font-weight: bold;
+    color: #c26262;
+}
+
+.gestion--todos li.avertissement {
+    font-weight: bold;
+    color: #bda845;
+}
+
+li.commentaire .texte {
+    font-weight: bold;
+}
+
+li.commentaire a {
+    display: inline-block;
+    color: #fff;
+    margin: 5px 0;
+}
+
+.ajouter-commentaire .content {
+    margin: .5em 15px;
+}
+
+.ajouter-commentaire label {
+    display: block;
+    margin: .5em 0 0;
+}
+
+.ajouter-commentaire select {
+    display: block;
+}
+
+.ajouter-commentaire textarea {
+    display: block;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.ajouter-commentaire button {
+    padding: 10px 15px;
+    margin-top: .5em;
+}
+
+.cacher-commentaire input {
+    background: #a41515;
+    border-radius: 4px;
+    padding: 10px 15px;
+    color: #fff;
+}
+
+.cacher-commentaire .cancel-link {
+    background: #ccc;
+    display: inline-block;
+    vertical-align: middle;
+    height: 15px;
+    line-height: 15px;
+    border-radius: 4px;
+    padding: 10px 15px;
+    color: #333;
+    margin: 0 0 0 10px;
+}
+
+li.l1 {
+    font-weight: bold;
+}
+
+li.l2 {
+    padding-left: 1em;
+}
+
+ul.gestion--liste {
+    margin-left: 5px;
+    padding-left: 5px;
+}
+
+.gestion--liste li {
+    font-weight: bold;
+}

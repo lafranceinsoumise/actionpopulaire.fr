@@ -115,13 +115,13 @@
 
     <div class="montant">
       <span>Quote-part : {{ nombre }} ex. distribués, soit {{ pourcentage }} :</span>
-      <div class="droite">{{ montant|display_price }}</div>
+      <div class="droite">{{ montant|display_price_in_cent }}</div>
     </div>
   </div>
 </div>
 
 <div>
-  Certifié sincère et conforme la présente note de débit arrêtée à la somme de {{ montant|display_price }} à inscrire
+  Certifié sincère et conforme la présente note de débit arrêtée à la somme de {{ montant|display_price_in_cent }} à inscrire
   au compte 7032 du compte de campagne.
 </div>
 
