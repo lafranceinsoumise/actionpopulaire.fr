@@ -17,6 +17,7 @@ const StyledCard = styled(Card)`
   justify-content: flex-start;
   padding: 0;
   border: none;
+  box-shadow: none;
 
   && {
     @media (min-width: ${style.collapse}px) {
