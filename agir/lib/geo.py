@@ -16,6 +16,23 @@ MULTIPLE_SPACES = re.compile("\s\s+")
 BAN_ENDPOINT = "https://api-adresse.data.gouv.fr/search"
 NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/"
 
+# source: https://www.iso.org/obp/ui/#iso:code:3166:FR
+FRENCH_COUNTRY_CODES = [
+    "FR",  # France métropolitaine
+    "GP",  # Guadeloupe
+    "GF",  # Guyane française
+    "RE",  # La Réunion
+    "MQ",  # Martinique
+    "YT",  # Mayotte
+    "NC",  # Nouvelle-Calédonie
+    "PF",  # Polynésie française
+    "BL",  # Saint-Barthélemy
+    "MF",  # Saint-Martin
+    "PM",  # Saint-Pierre-et-Miquelon
+    "TF",  # Terres australes françaises
+    "WF",  # Wallis-et-Futuna
+]
+
 
 def normaliser_nom_ville(s):
     return MULTIPLE_SPACES.sub(" ", NON_WORD.sub(" ", unidecode(s.strip()))).lower()
@@ -30,7 +47,7 @@ def geocode_element(item):
 
     # geocoding only if got at least: country AND (city OR zip)
     if item.location_country and (item.location_city or item.location_zip):
-        if item.location_country == "FR":
+        if item.location_country in FRENCH_COUNTRY_CODES:
             geocode_france(item)
         else:
             geocode_internationally(item)
