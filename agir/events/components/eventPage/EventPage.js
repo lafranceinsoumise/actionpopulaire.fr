@@ -23,7 +23,8 @@ import Link from "@agir/front/app/Link";
 import EventHeader from "./EventHeader";
 import EventLocationCard from "./EventLocationCard";
 import EventFacebookLinkCard from "./EventFacebookLinkCard";
-import EventDescription from "./EventDescription";
+import EventDescriptionCard from "./EventDescriptionCard";
+import EventPhotosCard from "./EventPhotosCard";
 import {
   Column,
   Container,
@@ -48,6 +49,7 @@ import logger from "@agir/lib/utils/logger";
 import * as api from "@agir/events/common/api";
 
 import defaultEventImage from "@agir/front/genericComponents/images/banner-map-background.svg";
+import EventReportCard from "./EventReportCard";
 
 const log = logger(__filename);
 
@@ -198,9 +200,9 @@ const MobileLayout = (props) => {
             </Card>
             <EventLocationCard {...props} />
             <EventInfoCard {...props} />
-            <Card>
-              <EventDescription {...props} illustration={null} />
-            </Card>
+            <EventPhotosCard {...props} />
+            <EventReportCard {...props} />
+            <EventDescriptionCard {...props} />
             {contact && <ContactCard {...contact} />}
             {routes?.facebook && <EventFacebookLinkCard {...props} />}
             <ShareCard url={routes?.details} />
@@ -245,7 +247,9 @@ const DesktopLayout = (props) => {
         <Column grow>
           <div>
             <EventHeader {...props} />
-            <EventDescription {...props} />
+            <EventPhotosCard {...props} />
+            <EventReportCard {...props} />
+            <EventDescriptionCard {...props} />
             {Array.isArray(groups) && groups.length > 0 && (
               <GroupCards>
                 <h3 style={{ marginTop: "2.5rem" }}>Organisé par</h3>
