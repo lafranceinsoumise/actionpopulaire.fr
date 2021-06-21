@@ -1,14 +1,14 @@
 import reversion
 from django.contrib.gis.db.models.functions import Distance
+from django.core.validators import validate_email
 from django.db import transaction
 from django.db.models import F, Max, DateTimeField
 from django.db.models.functions import Greatest
+from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django_filters.rest_framework import DjangoFilterBackend
-from django.urls import reverse_lazy, reverse
-from django.core.validators import validate_email
-
+from rest_framework import exceptions
 from rest_framework import status
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.generics import (
@@ -24,8 +24,9 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import exceptions
 
+from agir.donations.allocations import get_balance
+from agir.donations.models import SpendingRequest
 from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
 from agir.groups.actions.notifications import (
@@ -35,7 +36,6 @@ from agir.groups.actions.notifications import (
 )
 from agir.groups.filters import GroupAPIFilterSet
 from agir.groups.models import SupportGroup, SupportGroupSubtype, Membership
-from agir.people.models import Person
 from agir.groups.serializers import (
     SupportGroupLegacySerializer,
     SupportGroupSubtypeSerializer,
@@ -45,8 +45,9 @@ from agir.groups.serializers import (
     MembershipSerializer,
 )
 from agir.lib.pagination import APIPaginator
+from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
-from agir.donations.allocations import get_balance
+from agir.people.models import Person
 
 __all__ = [
     "LegacyGroupSearchAPIView",
@@ -68,7 +69,7 @@ __all__ = [
     "GroupUpdateAPIView",
     "GroupInvitationAPIView",
     "GroupMemberUpdateAPIView",
-    "GroupDonationAPIView",
+    "GroupFinanceAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -599,12 +600,33 @@ class GroupFinancePermission(GlobalOrObjectPermissions):
     }
 
 
-class GroupDonationAPIView(GenericAPIView):
+class GroupFinanceAPIView(GenericAPIView):
     queryset = SupportGroup.objects.all()
     permission_classes = (GroupFinancePermission,)
     serializer_class = SupportGroupSerializer
 
     def get(self, request, *args, **kwargs):
         group = self.get_object()
-        total_donation = get_balance(group)
-        return Response(status=status.HTTP_200_OK, data={"donation": total_donation})
+        donation = get_balance(group)
+        spending_requests = [
+            {
+                "id": spending_request.id,
+                "title": spending_request.title,
+                "status": spending_request.get_status_display(),
+                "date": spending_request.spending_date,
+                "link": front_url(
+                    "manage_spending_request", kwargs={"pk": spending_request.pk}
+                ),
+            }
+            for spending_request in (
+                SpendingRequest.objects.filter(group=group)
+                .exclude(status=SpendingRequest.STATUS_PAID)
+                .order_by("-spending_date")
+                .only("id", "title", "status", "spending_date")
+            )
+        ]
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data={"donation": donation, "spendingRequests": spending_requests},
+        )
