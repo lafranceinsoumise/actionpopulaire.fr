@@ -89,6 +89,12 @@ const HorizontalFlex = styled.div`
   }
 `;
 
+const StyledPageFadeIn = styled(PageFadeIn)`
+  & > div {
+    margin-right: 1rem;
+  }
+`;
+
 const StyledButton = styled(Button)`
   height: 40px;
   font-size: 16px;
@@ -166,7 +172,7 @@ export const TopBar = (props) => {
             </Hide>
           </HorizontalFlex>
 
-          <PageFadeIn ready={isSessionLoaded}>
+          <StyledPageFadeIn ready={isSessionLoaded}>
             <HorizontalFlex>
               {!isConnected ? (
                 <>
@@ -231,7 +237,7 @@ export const TopBar = (props) => {
                 </>
               )}
             </HorizontalFlex>
-          </PageFadeIn>
+          </StyledPageFadeIn>
         </TopBarContainer>
       </NavBar>
     </NavbarContainer>
