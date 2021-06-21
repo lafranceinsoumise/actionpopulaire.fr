@@ -103,6 +103,13 @@ const StyledActionButtons = styled.div`
   }
 `;
 
+const StyledButton = styled(Button)`
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 0.5rem;
+`;
+
 const RSVPButton = (props) => {
   const user = useSelector(getUser);
   const { id, forUsers, hasPrice, routes, hasSubscriptionForm } = props;
@@ -169,16 +176,16 @@ const RSVPButton = (props) => {
 
   return (
     <StyledActionButtons>
-      <ActionButton
+      <StyledButton
         type="submit"
-        color="secondary"
+        color="primary"
         disabled={isLoading}
         onClick={
           shouldUpdateSubscription ? openSubscriptionTypeModal : handleRSVP
         }
       >
         Participer à l'événement
-      </ActionButton>
+      </StyledButton>
       {shouldUpdateSubscription ? (
         <SubscriptionTypeModal
           shouldShow={hasSubscriptionTypeModal}
@@ -215,9 +222,9 @@ const ActionButtons = (props) => {
           Événement terminé
         </Button>
         {isOrganizer && (
-          <ActionButton icon="settings" as="a" href={routes.manage}>
+          <StyledButton icon="settings" as="a" href={routes.manage} color="primary">
             Gérer l'événement
-          </ActionButton>
+          </StyledButton>
         )}
       </StyledActionButtons>
     );
@@ -249,9 +256,9 @@ const ActionButtons = (props) => {
             </ActionButton>
           )}
           {isOrganizer && (
-            <ActionButton icon="settings" as="a" href={routes.manage}>
+            <StyledButton icon="settings" as="a" href={routes.manage} color="primary">
               Gérer l'événement
-            </ActionButton>
+            </StyledButton>
           )}
           {allowGuests && (hasSubscriptionForm || hasPrice) && (
             <ActionButton as="a" href={routes.rsvp} type="submit">
