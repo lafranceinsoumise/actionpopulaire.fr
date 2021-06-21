@@ -8,14 +8,10 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { useDownloadBanner } from "@agir/front/app/hooks.js";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import {
-  getIsConnected,
-  getIsSessionLoaded,
-} from "@agir/front/globalContext/reducers";
+import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
 
 import Agenda from "@agir/events/agendaPage/Agenda";
 import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
-import Homepage from "@agir/front/app/Homepage/Home";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
 import TopBar from "@agir/front/allPages/TopBar";
@@ -30,7 +26,6 @@ const StyledWrapper = styled.div`
 `;
 
 const AgendaPage = (props) => {
-  const isConnected = useSelector(getIsConnected);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const path = useLocation().pathname;
 
@@ -38,15 +33,6 @@ const AgendaPage = (props) => {
 
   if (!isSessionLoaded) {
     return null;
-  }
-
-  if (!isConnected) {
-    return (
-      <>
-        <ConnectivityWarning hasTopBar={false} />
-        <Homepage />
-      </>
-    );
   }
 
   return (
