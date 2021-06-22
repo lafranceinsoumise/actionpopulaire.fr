@@ -130,21 +130,30 @@ class FacebookPageField(models.CharField):
 
 
 class FacebookEventField(models.CharField):
+    # Regular expression for FB event URLs with an event ID
     FACEBOOK_EVENT_ID_RE = re.compile(
-        r"^(?:(?:https://)?www.facebook.com/events/)?([0-9]{15,20})(?:/.*)?$"
+        r"^(?:(?:https://)?(?:www\.)?(?:facebook|m\.facebook).com/events/)?([0-9]{15,20})(?:/.*)?$"
+    )
+    # Regular expression for FB regular and short event URLs
+    FACEBOOK_EVENT_URL_RE = re.compile(
+        r"^((?:https://)?(?:www\.)?(?:facebook|fb|m\.facebook)\.(?:com|me)/(?:events|e)/(?:\d\w{0,20}))(?:/.*)?$"
     )
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault("max_length", 20)
+        kwargs.setdefault("max_length", 255)
         super().__init__(*args, **kwargs)
 
     def to_python(self, value):
         if value in self.empty_values:
             return value
-
-        value = self.FACEBOOK_EVENT_ID_RE.match(value)
-        if value:
-            return value.group(1)
+        # First we try to match an URL with an FB event ID (for backward compatibility)
+        match = self.FACEBOOK_EVENT_ID_RE.match(value)
+        if match:
+            return f"https://www.facebook.com/events/{match.group(1)}"
+        # If no FB id is found, we try to match a supported FB event URL (e.g. to allow for short URLs)
+        match = self.FACEBOOK_EVENT_URL_RE.match(value)
+        if match:
+            return match.group(1)
         else:
             raise exceptions.ValidationError(
                 "Vous devez indiquez soit l'identifiant de l'événement Facebook, soit son URL",
