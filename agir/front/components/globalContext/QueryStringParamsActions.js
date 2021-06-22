@@ -14,7 +14,7 @@ const QueryStringParamsActions = ({ user }) => {
   const handleFromActivity = useCallback(async (activityId) => {
     fromActivityUpdated.current = true;
     try {
-      await setActivityAsInteracted(activityId);
+      await setActivityAsInteracted(activityId, true);
     } catch (e) {
       log.debug(e);
     }

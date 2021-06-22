@@ -8,17 +8,17 @@ from agir.lib.search import PrefixSearchQuery
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {"fields": ("timestamp", "type", "recipient", "status", "pushed")}),
+        (None, {"fields": ("timestamp", "type", "recipient", "status", "push_status")}),
         (
             "Éléments liés",
             {"fields": ("event", "supportgroup", "individual", "announcement", "meta")},
         ),
         ("Création et modification", {"fields": ("created", "modified")}),
     )
-    list_display = ("type", "timestamp", "recipient", "status", "pushed")
-    list_filter = ("type", "status", "pushed")
+    list_display = ("type", "timestamp", "recipient", "status", "push_status")
+    list_filter = ("type", "status", "push_status")
 
-    readonly_fields = ("created", "modified", "pushed")
+    readonly_fields = ("created", "modified", "push_status")
     autocomplete_fields = (
         "recipient",
         "event",

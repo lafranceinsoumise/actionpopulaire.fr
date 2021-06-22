@@ -153,8 +153,11 @@ class Activity(TimeStampedModel):
         "Statut", max_length=1, choices=STATUS_CHOICES, default=STATUS_UNDISPLAYED
     )
 
-    pushed = models.BooleanField(
-        "Notification push envoyée", default=False, null=False,
+    push_status = models.CharField(
+        "Statut notification push",
+        max_length=1,
+        choices=STATUS_CHOICES,
+        default=STATUS_UNDISPLAYED,
     )
 
     event = models.ForeignKey(

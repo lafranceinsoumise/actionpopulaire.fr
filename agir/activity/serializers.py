@@ -83,7 +83,10 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     )
     individual = PersonSerializer(fields=["displayName", "gender"], read_only=True)
 
-    status = serializers.CharField()
+    status = serializers.CharField(required=False)
+    pushStatus = serializers.CharField(
+        source="push_status", write_only=True, required=False
+    )
     announcement = AnnouncementSerializer(read_only=True)
 
     class Meta:
@@ -97,6 +100,7 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "supportGroup",
             "individual",
             "status",
+            "pushStatus",
             "meta",
             "announcement",
         ]
