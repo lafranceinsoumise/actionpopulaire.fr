@@ -6,7 +6,6 @@ import FeatherIcon, {
   RawFeatherIcon,
 } from "@agir/front/genericComponents/FeatherIcon";
 import Button from "@agir/front/genericComponents/Button";
-import { Hide } from "@agir/front/genericComponents/grid";
 import Tooltip from "@agir/front/genericComponents/Tooltip";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -241,6 +240,12 @@ const Counter = styled.span`
   }
 `;
 
+const Title = styled.span`
+  @media (max-width: 360px) {
+    font-size: 10px;
+  }
+`;
+
 const TooltipGroups = () => {
   const user = useSelector(getUser);
   const [shouldShow, setShouldShow] = React.useState(false);
@@ -282,7 +287,6 @@ const MenuLink = (props) => {
     to,
     icon,
     title,
-    shortTitle,
     active,
     counter,
     hasUnreadBadge,
@@ -296,12 +300,7 @@ const MenuLink = (props) => {
       <Link href={href} to={to}>
         {counter > 0 && <Counter>{counter}</Counter>}
         <FeatherIcon name={icon} inline />
-        <Hide as="span" over under={360}>
-          {shortTitle || title}
-        </Hide>
-        <Hide as="span" under>
-          {title}
-        </Hide>
+        <Title>{title}</Title>
         {external && <FeatherIcon name="external-link" inline small />}
       </Link>
       {Array.isArray(secondaryLinks) && secondaryLinks.length > 0 ? (
@@ -331,7 +330,6 @@ MenuLink.propTypes = {
   to: PropTypes.string,
   icon: PropTypes.string,
   title: PropTypes.string,
-  shortTitle: PropTypes.string,
   active: PropTypes.bool,
   counter: PropTypes.number,
   hasUnreadBadge: PropTypes.bool,
