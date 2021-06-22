@@ -14,25 +14,22 @@ import { Column, Row } from "@agir/front/genericComponents/grid";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
-const StyledParagraph = styled.p`
+const StyledChildrenWrapper = styled.div`
   margin-bottom: 0;
+  color: ${(props) => (props.$isUnread ? style.black1000 : style.black700)};
+
+  strong,
+  a {
+    font-weight: 600;
+    text-decoration: none;
+    color: inherit;
+  }
 `;
 
 const LowMarginCard = styled(Card)`
   @media only screen and (min-width: ${style.collapse}px) {
     padding: 0;
     border: none;
-  }
-  p {
-    & > strong,
-    & > a {
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    & > a {
-      color: ${style.primary500};
-    }
   }
 
   ${Button} {
@@ -95,27 +92,37 @@ export const GenericCardContainer = React.memo((props) => {
     return null;
   }
 
+  const isUnread = status !== ACTIVITY_STATUS.STATUS_INTERACTED;
+
   return (
-    <LowMarginCard isUnread={status === ACTIVITY_STATUS.STATUS_UNDISPLAYED}>
+    <LowMarginCard>
       <Row gutter="8" align="flex-start">
         <Column width="1rem" collapse={0} style={{ paddingTop: "2px" }}>
-          <FeatherIcon name={iconName} color={style.black500} />
+          <FeatherIcon
+            name={iconName}
+            color={isUnread ? style.primary500 : style.black500}
+          />
         </Column>
         <Column collapse={0} grow style={{ fontSize: "15px" }}>
-          <StyledParagraph>{children}</StyledParagraph>
-          <p
-            style={{
-              margin: "0.125rem 0 0",
-              fontSize: "13px",
-              color: style.black700,
-              fontWeight: 400,
-            }}
-          >
-            {date}
-          </p>
+          <StyledChildrenWrapper $isUnread={isUnread}>
+            {children}
+          </StyledChildrenWrapper>
+          {!config.hideDate && (
+            <p
+              style={{
+                margin: "0.125rem 0 0",
+                fontSize: "13px",
+                color: style.black500,
+                fontWeight: 400,
+              }}
+            >
+              {date}
+            </p>
+          )}
           {action && (
             <Button
               small
+              color="primary"
               as={typeof action.onClick !== "function" ? "Link" : undefined}
               onClick={
                 typeof action.onClick === "function" ? action : undefined
@@ -139,6 +146,7 @@ export const GenericCardContainer = React.memo((props) => {
 });
 GenericCardContainer.displayName = "GenericCardContainer";
 GenericCardContainer.propTypes = {
+  id: PropTypes.number.isRequired,
   status: PropTypes.oneOf(Object.values(ACTIVITY_STATUS)),
   type: PropTypes.string.isRequired,
   event: PropTypes.object, // see event card PropTypes
@@ -148,6 +156,7 @@ GenericCardContainer.propTypes = {
     icon: PropTypes.string,
     hasEvent: PropTypes.bool,
     action: PropTypes.func,
+    hideDate: PropTypes.bool,
   }),
 };
 
