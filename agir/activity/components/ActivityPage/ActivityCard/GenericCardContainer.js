@@ -1,6 +1,6 @@
 import { Interval } from "luxon";
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -61,8 +61,64 @@ const EventCardContainer = styled.div`
   }
 `;
 
-export const GenericCardContainer = React.memo((props) => {
-  const { status, timestamp, event, children, config } = props;
+const ActivityCardAction = (props) => {
+  const { config } = props;
+
+  const action =
+    config && typeof config.action === "function" ? config.action(props) : null;
+
+  if (!action) {
+    return null;
+  }
+
+  if (action.href && props.id) {
+    return (
+      <Button
+        small
+        color="primary"
+        as="Link"
+        href={`/activite/${props.id}/lien/`}
+        params={{ next: action.href }}
+      >
+        {action?.label}
+      </Button>
+    );
+  }
+
+  if (typeof action.onClick === "function") {
+    return (
+      <Button small color="primary" onClick={action.onClick}>
+        {action?.label}
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      small
+      color="primary"
+      as="Link"
+      route={action?.route}
+      to={action?.to}
+    >
+      {action?.label}
+    </Button>
+  );
+};
+
+ActivityCardAction.propTypes = {
+  id: PropTypes.number,
+  config: PropTypes.shape({
+    action: PropTypes.func,
+  }),
+};
+
+export const GenericCardContainer = (props) => {
+  const { id, status, timestamp, event, children, config, onClick } = props;
+
+  const [isUnread, setIsUnread] = useState(
+    status !== ACTIVITY_STATUS.STATUS_INTERACTED
+  );
 
   const date = useMemo(
     () =>
@@ -80,22 +136,20 @@ export const GenericCardContainer = React.memo((props) => {
     [event]
   );
 
-  const action = useMemo(
-    () =>
-      config && typeof config.action === "function"
-        ? config.action(props)
-        : null,
-    [props, config]
-  );
-
   if (!config) {
     return null;
   }
 
-  const isUnread = status !== ACTIVITY_STATUS.STATUS_INTERACTED;
+  const handleClick =
+    onClick && isUnread
+      ? async () => {
+          await onClick(id);
+          setIsUnread(false);
+        }
+      : undefined;
 
   return (
-    <LowMarginCard>
+    <LowMarginCard onClick={handleClick}>
       <Row gutter="8" align="flex-start">
         <Column width="1rem" collapse={0} style={{ paddingTop: "2px" }}>
           <FeatherIcon
@@ -119,21 +173,7 @@ export const GenericCardContainer = React.memo((props) => {
               {date}
             </p>
           )}
-          {action && (
-            <Button
-              small
-              color="primary"
-              as={typeof action.onClick !== "function" ? "Link" : undefined}
-              onClick={
-                typeof action.onClick === "function" ? action : undefined
-              }
-              href={action?.href}
-              route={action?.route}
-              to={action?.to}
-            >
-              {action?.label}
-            </Button>
-          )}
+          <ActivityCardAction {...props} />
         </Column>
       </Row>
       {config.hasEvent && (
@@ -143,14 +183,13 @@ export const GenericCardContainer = React.memo((props) => {
       )}
     </LowMarginCard>
   );
-});
-GenericCardContainer.displayName = "GenericCardContainer";
+};
 GenericCardContainer.propTypes = {
-  id: PropTypes.number.isRequired,
+  id: PropTypes.number,
   status: PropTypes.oneOf(Object.values(ACTIVITY_STATUS)),
   type: PropTypes.string.isRequired,
-  event: PropTypes.object, // see event card PropTypes
-  timestamp: PropTypes.string.isRequired,
+  event: PropTypes.object,
+  timestamp: PropTypes.string,
   children: PropTypes.node,
   config: PropTypes.shape({
     icon: PropTypes.string,
@@ -158,6 +197,7 @@ GenericCardContainer.propTypes = {
     action: PropTypes.func,
     hideDate: PropTypes.bool,
   }),
+  onClick: PropTypes.func,
 };
 
 export default GenericCardContainer;

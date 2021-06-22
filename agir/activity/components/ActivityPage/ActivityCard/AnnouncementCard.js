@@ -27,7 +27,8 @@ const StyledContent = styled.p`
     }
   }
 
-  & > div {
+  & > span {
+    display: block;
     margin: 0.5rem 0;
 
     & > p {
@@ -41,9 +42,9 @@ const StyledContent = styled.p`
 `;
 
 const AnnouncementCard = (props) => {
-  const { image, title, content, link, linkLabel } = props;
+  const { activityId, image, title, content, link, linkLabel } = props;
   return (
-    <GenericCardContainer {...props}>
+    <GenericCardContainer {...props} id={activityId} onClick={undefined}>
       <StyledContent>
         {image?.activity && (
           <a href={link} aria-label={linkLabel}>
@@ -51,14 +52,13 @@ const AnnouncementCard = (props) => {
           </a>
         )}
         <strong style={{ fontWeight: 600 }}>{title}</strong>
-        <div dangerouslySetInnerHTML={{ __html: content }} />
+        <span dangerouslySetInnerHTML={{ __html: content }} />
       </StyledContent>
     </GenericCardContainer>
   );
 };
 
 AnnouncementCard.propTypes = {
-  id: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   link: PropTypes.string,
   linkLabel: PropTypes.string,
