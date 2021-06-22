@@ -72,7 +72,6 @@ export const DEFAULT_FORM_DATA = {
   startTime: startDate.toUTCString(),
   endTime: endDate.toUTCString(),
   subtype: null,
-  forUsers: "",
   onlineUrl: "",
   location: {
     name: "",
@@ -129,12 +128,6 @@ export const FORM_FIELD_CONSTRAINTS = {
     },
     datetime: {
       message: "Indiquez une date et heure valides",
-    },
-  },
-  forUsers: {
-    presence: {
-      allowEmpty: false,
-      message: "Choisissez parmi les options proposées",
     },
   },
   subtype: {

@@ -52,14 +52,6 @@ class SearchView(TemplateView):
         upcoming_events = self.querysets["upcoming_events"]
         past_events = self.querysets["past_events"]
 
-        if (
-            self.request.user.is_authenticated
-            and hasattr(self.request.user, "person")
-            and self.request.user.person.is_2022_only
-        ):
-            upcoming_events = upcoming_events.is_2022()
-            past_events = past_events.is_2022()
-
         support_groups = support_groups.search(q).order_by("name")[:20]
 
         upcoming_events = upcoming_events.search(q).order_by(

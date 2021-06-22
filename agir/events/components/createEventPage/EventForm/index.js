@@ -22,7 +22,6 @@ import LocationField from "@agir/front/formComponents/LocationField.js";
 import NameField from "./NameField";
 import OrganizerGroupField from "./OrganizerGroupField";
 import DateField from "./DateField";
-import ForUsersField from "./ForUsersField";
 import SubtypeField from "./SubtypeField";
 import ContactField from "./ContactField";
 import OnlineUrlField from "./OnlineUrlField";
@@ -162,7 +161,6 @@ const EventForm = () => {
   const nameRef = useRef(null);
   const organizerGroupRef = useRef(null);
   const dateRef = useRef(null);
-  const forUsersRef = useRef(null);
   const subtypeRef = useRef(null);
   const onlineUrlRef = useRef(null);
   const locationRef = useRef(null);
@@ -283,9 +281,6 @@ const EventForm = () => {
         break;
       case !!((errors["startTime"] || errors["endTime"]) && dateRef.current):
         scrollTarget = dateRef.current;
-        break;
-      case !!(errors["forUsers"] && forUsersRef.current):
-        scrollTarget = forUsersRef.current;
         break;
       case !!(errors["subtype"] && subtypeRef.current):
         scrollTarget = subtypeRef.current;
@@ -413,16 +408,6 @@ const EventForm = () => {
         endTime={formData.endTime}
         error={errors && (errors.startTime || errors.endTime)}
         onChange={updateDate}
-        disabled={isLoading}
-        required
-      />
-      <Spacer size="1rem" ref={forUsersRef} />
-      <ForUsersField
-        name="forUsers"
-        value={formData.forUsers}
-        onChange={updateValue}
-        options={options.forUsers}
-        error={errors && errors.forUsers}
         disabled={isLoading}
         required
       />

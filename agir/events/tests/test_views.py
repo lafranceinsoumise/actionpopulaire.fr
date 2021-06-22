@@ -114,10 +114,10 @@ class EventSearchViewTestCase(TestCase):
         self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
 
-    def test_2022_only_person_can_search_through_2022_events_only(self):
+    def test_2022_only_person_can_search_through_all_events(self):
         self.client.force_login(self.person_2022.role)
         res = self.client.get(reverse("search_event") + "?q=e")
-        self.assertNotContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
 
 
@@ -1219,21 +1219,6 @@ class RSVPTestCase(TestCase):
             data={"custom-field": "another custom value"},
         )
         self.assertContains(res, "Ce formulaire est maintenant fermé.")
-
-    def test_cannot_rsvp_if_external(self):
-        self.person.is_insoumise = False
-        self.person.save()
-        self.client.force_login(self.person.role)
-
-        url = reverse("view_event", kwargs={"pk": self.simple_event.pk})
-
-        # cannot see the form
-        response = self.client.get(url)
-        self.assertNotIn("Participer à cet événement", response.content.decode())
-
-        # cannot actually post the form
-        self.client.post(reverse("rsvp_event", kwargs={"pk": self.simple_event.pk}))
-        self.assertNotIn(self.person, self.simple_event.attendees.all())
 
     def test_cannot_rsvp_if_form_is_yet_to_open(self):
         self.client.force_login(self.person.role)

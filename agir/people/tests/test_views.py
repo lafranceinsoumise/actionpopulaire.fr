@@ -89,10 +89,10 @@ class DashboardSearchTestCase(TestCase):
         self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
 
-    def test_2022_only_person_can_search_through_2022_events_only(self):
+    def test_2022_only_person_can_search_through_all_events(self):
         self.client.force_login(self.person_2022.role)
         res = self.client.get(reverse("dashboard_search") + "?q=e")
-        self.assertNotContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
 
 

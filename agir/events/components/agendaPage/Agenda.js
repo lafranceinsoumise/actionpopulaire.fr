@@ -2,7 +2,6 @@ import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { useLocation } from "react-router-dom";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
