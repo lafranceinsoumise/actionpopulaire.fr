@@ -35,8 +35,15 @@ def display_address(object):
     return format_html_join(mark_safe("<br/>"), "{}", ((part,) for part in parts))
 
 
-def display_price(price):
-    return "{}\u00A0€".format(floatformat(price / 100, 2))
+def display_price(price, price_in_cents=True):
+    """Représente correctement un prix exprimé comme un nombre entier de centimes
+
+    Dans l'application, c'est notamment le cas pour tous les montants liés aux paiements,
+    dons, souscriptions, etc.
+    """
+    if price_in_cents:
+        price = price / 100
+    return "{}\u00A0€".format(floatformat(price, 2))
 
 
 def pretty_time_since(d, relative_to=None):

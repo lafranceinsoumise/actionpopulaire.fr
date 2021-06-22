@@ -1,0 +1,14 @@
+{% load admin_urls %}
+
+<li class="commentaire">
+  <div>
+    Ajouté par <strong>
+    {{ commentaire.get_auteur_display }}
+  </strong> le {{ commentaire.created|date:"SHORT_DATETIME_FORMAT" }}
+  </div>
+  <div class="texte">{{ commentaire.texte }}</div>
+  <a class="button" href="{% url opts|admin_urlname:"cacher_commentaire" commentaire.id|admin_urlquote %}">
+    C'est fait !
+  </a>
+
+</li>

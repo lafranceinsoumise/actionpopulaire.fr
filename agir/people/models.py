@@ -475,10 +475,21 @@ class Person(
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        if self.first_name and self.last_name:
-            return "{} {} <{}>".format(self.first_name, self.last_name, self.email)
+        parts = []
+        if self.first_name:
+            parts.append(self.first_name)
+        if self.last_name:
+            parts.append(self.last_name)
+        if self.display_name:
+            parts.append(f"({self.display_name})")
+
+        if self.email:
+            parts.append(f"<{self.email}>")
+
+        if parts:
+            return " ".join(parts)
         else:
-            return self.email or "<pas d'email>"
+            return "<aucune nom ou email>"
 
     def __repr__(self):
         return f"{self.__class__.__name__}(pk={self.pk!r}, email={self.email})"
