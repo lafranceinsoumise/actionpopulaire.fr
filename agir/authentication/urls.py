@@ -9,6 +9,7 @@ from .views import (
     LoginAPIView,
     CheckCodeAPIView,
     LogoutAPIView,
+    ping,
 )
 
 
@@ -29,6 +30,7 @@ urlpatterns = [
         name="social_login_error",
     ),
     path("api/session/", SessionContextAPIView.as_view(), name="api_session"),
+    path("api/ping/", ping, name="api_ping"),
     path("api/connexion/", LoginAPIView.as_view(), name="api_login"),
     path("api/connexion/code/", CheckCodeAPIView.as_view(), name="api_check_code"),
     path("api/deconnexion/", LogoutAPIView.as_view(), name="api_logout"),
