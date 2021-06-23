@@ -1,3 +1,4 @@
+import decimal
 import re
 import secrets
 from functools import reduce
@@ -15,10 +16,10 @@ from django.contrib.postgres.search import SearchVector, SearchRank, SearchVecto
 from django.db import models
 from django.urls import reverse
 
-from agir.gestion.typologies import TypeDocument
+from agir.gestion.models.configuration import EngagementAutomatique
+from agir.gestion.typologies import TypeDocument, TypeDepense
 from agir.lib.models import TimeStampedModel
 from agir.lib.search import PrefixSearchQuery
-
 
 __all__ = ("Document", "Compte", "InstanceCherchable", "Autorisation")
 
@@ -192,6 +193,8 @@ class Compte(TimeStampedModel):
     configuration = models.JSONField(
         verbose_name="Configuration", default=dict, null=False, blank=True
     )
+
+    engagement_automatique = EngagementAutomatique()
 
     def __str__(self):
         return f"{self.nom} ({self.designation})"

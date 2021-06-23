@@ -1,3 +1,5 @@
+import re
+from decimal import Decimal
 from typing import List
 
 import reversion
@@ -411,16 +413,23 @@ CONDITIONS = {
 }
 
 
+TYPE_DERNIERE_PARTIE_RE = re.compile(r"(?:^|-)[^-]+$")
+
+
 def verifier_plafond_engagement(depense):
     compte = depense.compte
 
     # Il faut prendre en compte la nature hiérarchique des types
-    for type_part in (
-        depense.type.rsplit("-", i) for i in range(depense.type.count("-)"))
-    ):
-        if type_part in compte.configuration.get("engagement_automatique", {}):
-            plafond = compte.configuration["engagement_automatique"][type_part]
-            if plafond is True or depense.montant <= plafond:
+    # Pour cela on boucle sur la liste de ce type et de ses types parents, dans l'ordre du plus spécifique au plus
+    # général
+    type_parts = depense.type.split("-")
+    type_mro = ["-".join(type_parts[:i]) for i in range(len(type_parts), 0, -1)]
+
+    for type_depense in type_mro:
+        if type_depense in compte.engagement_automatique:
+            plafond = compte.engagement_automatique[type_depense]
+
+            if depense.montant <= plafond:
                 return True
 
             # Si un plafond est défini pour un type plus précis, soit il est plus élevé, et ça ne sert alors à rien
