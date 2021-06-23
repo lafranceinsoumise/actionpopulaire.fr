@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import React from "react";
 import { render, fireEvent, cleanup } from "@testing-library/react";
 import TypeWidget from "@agir/donations/donationForm/TypeWidget";
