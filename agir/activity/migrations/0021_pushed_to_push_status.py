@@ -25,9 +25,9 @@ class Migration(migrations.Migration):
             name="push_status",
             field=models.CharField(
                 choices=[
-                    ("U", "Pas encore présentée au destinataire"),
-                    ("S", "Présentée au destinataire"),
-                    ("I", "Le destinataire a interagi avec"),
+                    ("U", "Pas énvoyée au destinataire"),
+                    ("S", "Envoyée au destinataire"),
+                    ("I", "Cliquée par le destinataire"),
                 ],
                 default="U",
                 max_length=1,

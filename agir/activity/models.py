@@ -133,6 +133,11 @@ class Activity(TimeStampedModel):
         (STATUS_DISPLAYED, "Présentée au destinataire"),
         (STATUS_INTERACTED, "Le destinataire a interagi avec"),
     )  # attention : l'ordre croissant par niveau d'interaction est important
+    PUSH_STATUS_CHOICES = (
+        (STATUS_UNDISPLAYED, "Pas énvoyée au destinataire"),
+        (STATUS_DISPLAYED, "Envoyée au destinataire"),
+        (STATUS_INTERACTED, "Cliquée par le destinataire"),
+    )  # attention : l'ordre croissant par niveau d'interaction est important
 
     objects = ActivityManager()
 
@@ -156,7 +161,7 @@ class Activity(TimeStampedModel):
     push_status = models.CharField(
         "Statut notification push",
         max_length=1,
-        choices=STATUS_CHOICES,
+        choices=PUSH_STATUS_CHOICES,
         default=STATUS_UNDISPLAYED,
     )
 
