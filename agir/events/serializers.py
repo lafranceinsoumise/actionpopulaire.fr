@@ -208,7 +208,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             routes["admin"] = admin_url("events_event_change", args=[obj.pk])
 
         if obj.facebook:
-            routes["facebook"] = f"https://www.facebook.com/events/{obj.facebook}"
+            routes["facebook"] = obj.facebook
 
         routes["googleExport"] = obj.get_google_calendar_url()
 

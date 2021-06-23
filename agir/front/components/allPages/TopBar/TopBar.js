@@ -19,7 +19,6 @@ import { Hide } from "@agir/front/genericComponents/grid.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import DownloadApp from "@agir/front/genericComponents/DownloadApp";
 import Button from "@agir/front/genericComponents/Button";
 
@@ -79,19 +78,20 @@ const HorizontalFlex = styled.div`
     justify-content: ${({ center }) => (center ? "center" : "flex-start")};
   }
 
+  @media only screen and (min-width: ${style.collapse}px) {
+    & > *:last-child {
+      margin-right: 1rem;
+    }
+  }
+
   & > * {
-    margin-left: 1.25em;
+    margin-left: 1rem;
     min-width: 0;
+    flex-shrink: 0;
   }
 
   form {
     flex-grow: inherit;
-  }
-`;
-
-const StyledPageFadeIn = styled(PageFadeIn)`
-  & > div {
-    margin-right: 1rem;
   }
 `;
 
@@ -150,30 +150,36 @@ export const TopBar = (props) => {
               <TopBarMainLink path={path} />
             </Hide>
             <Hide under>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <MenuLink as={"a"} href={routeConfig.events.getLink()}>
-                  <Logo />
-                </MenuLink>
-                {isConnected && (
-                  <StyledButton
-                    small
-                    as="Link"
-                    color="secondary"
-                    route="createEvent"
-                    icon="plus"
-                  >
-                    Créer un événement
-                  </StyledButton>
-                )}
-              </div>
+              <MenuLink as={"a"} href={routeConfig.events.getLink()}>
+                <Logo />
+              </MenuLink>
             </Hide>
-            <Hide under as="form" method="get" action={routes.search}>
+            <Hide under>
+              {isConnected && (
+                <StyledButton
+                  small
+                  as="Link"
+                  color="secondary"
+                  route="createEvent"
+                  icon="plus"
+                >
+                  Créer un événement
+                </StyledButton>
+              )}
+            </Hide>
+            <Hide
+              under
+              as="form"
+              method="get"
+              action={routes.search}
+              style={{ flexShrink: 1 }}
+            >
               <SearchBar isConnected={isConnected} />
             </Hide>
           </HorizontalFlex>
 
-          <StyledPageFadeIn ready={isSessionLoaded}>
-            <HorizontalFlex>
+          {isSessionLoaded ? (
+            <HorizontalFlex style={{ flexGrow: 0 }}>
               {!isConnected ? (
                 <>
                   <Hide under>
@@ -237,7 +243,7 @@ export const TopBar = (props) => {
                 </>
               )}
             </HorizontalFlex>
-          </StyledPageFadeIn>
+          ) : null}
         </TopBarContainer>
       </NavBar>
     </NavbarContainer>

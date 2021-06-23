@@ -43,7 +43,6 @@ import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 import useSWR from "swr";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
-import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 
 import logger from "@agir/lib/utils/logger";
 import * as api from "@agir/events/common/api";
@@ -433,17 +432,14 @@ export const ConnectedEventPage = (props) => {
           <title>{eventData.name} — Action Populaire</title>
         </Helmet>
       )}
-      <PageFadeIn
-        ready={isSessionLoaded && eventData}
-        wait={
-          <ResponsiveLayout
-            DesktopLayout={DesktopSkeleton}
-            MobileLayout={MobileSkeleton}
-          />
-        }
-      >
-        {eventData && <EventPage {...eventData} logged={isConnected} />}
-      </PageFadeIn>
+      {isSessionLoaded && eventData ? (
+        <EventPage {...eventData} logged={isConnected} />
+      ) : (
+        <ResponsiveLayout
+          DesktopLayout={DesktopSkeleton}
+          MobileLayout={MobileSkeleton}
+        />
+      )}
       <Footer />
     </>
   );
