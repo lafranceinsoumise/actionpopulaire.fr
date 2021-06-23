@@ -45,7 +45,7 @@ const StyledButton = styled(Button)`
   font-size: 16px;
   font-weight: 500;
   border-radius: 0.5rem;
-  margin-top: 16px;
+  margin: 0 16px;
 `;
 
 const EventDescription = ({
