@@ -10,7 +10,6 @@ class OrdreVirement(ModeleGestionMixin, TimeStampedModel):
     class Statut(models.TextChoices):
         EMIS = "E", "Émis"
         TRANSMIS = "T", "Transmis à la banque"
-        RAPPROCHE = "R", "Rapproché"
 
     statut = models.CharField(
         verbose_name="Statut", max_length=1, choices=Statut.choices, default=Statut.EMIS
