@@ -2,11 +2,11 @@ import decimal
 
 from django.contrib.auth.models import Group, Permission
 from hypothesis import given, strategies as st
-from hypothesis.extra.django import TestCase
 
 from agir.gestion.models import Compte, Depense, Autorisation
 from agir.gestion.models.depenses import etat_initial
 from agir.gestion.typologies import TypeDepense
+from agir.lib.tests.strategies import TestCase
 from agir.people.models import Person
 
 MONTANT_MAX = decimal.Decimal("99999999.99")
@@ -52,13 +52,7 @@ def decimaux_croissants(draw, min_value="0.00", max_value=MONTANT_MAX, equal=Tru
 
 
 class EngagementDepenseTestCase(TestCase):
-    def setup_example(self):
-        # hypothesis n'execute pas setUp pour chaque exemple
-        # du coup il faut tout mettre dansd un
-        super().setup_example()
-        self.setup_instances()
-
-    def setup_instances(self):
+    def setUp(self) -> None:
         self.compte = Compte.objects.create(
             designation="LFI", nom="La France insoumise",
         )
@@ -70,7 +64,6 @@ class EngagementDepenseTestCase(TestCase):
         self.group.user_set.add(self.person.role)
 
     def test_creation_dans_etat_attente_engagement(self):
-        self.setup_instances()
         d = Depense(
             titre="Ma dépense",
             compte=self.compte,
@@ -83,8 +76,6 @@ class EngagementDepenseTestCase(TestCase):
         )
 
     def test_creation_dans_etat_attente_engagement_avec_permission(self):
-        self.setup_instances()
-
         Autorisation.objects.create(
             compte=self.compte, group=self.group, autorisations=["engager_depense"]
         )
