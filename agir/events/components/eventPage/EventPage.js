@@ -49,6 +49,7 @@ import * as api from "@agir/events/common/api";
 
 import defaultEventImage from "@agir/front/genericComponents/images/banner-map-background.svg";
 import EventReportCard from "./EventReportCard";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 const log = logger(__filename);
 
@@ -98,7 +99,8 @@ const IndexLinkAnchor = styled(Link)`
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  margin: 20px 0;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
 
   &,
   &:hover,
@@ -108,9 +110,8 @@ const IndexLinkAnchor = styled(Link)`
     color: #585858;
   }
 
-  span {
-    transform: rotate(180deg) translateY(-1.5px);
-    transform-origin: center center;
+  svg {
+    height: 16px;
   }
 `;
 
@@ -236,8 +237,7 @@ const DesktopLayout = (props) => {
         <Column grow>
           {logged && (
             <IndexLinkAnchor route="events">
-              <span>&#10140;</span>
-              &ensp; Liste des événements
+              <FeatherIcon name="arrow-left" /> &nbsp; Liste des événements
             </IndexLinkAnchor>
           )}
         </Column>
