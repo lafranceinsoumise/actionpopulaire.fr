@@ -6,7 +6,9 @@ import logger from "@agir/lib/utils/logger";
 const log = logger(__filename);
 
 export const useIsOffline = () => {
-  const { data, error, isValidating } = useSWR("/api/session/");
+  const { data, error, isValidating } = useSWR("/api/ping/", {
+    refreshInterval: 10000,
+  });
   const [unloading, setUnloading] = useState(false);
 
   log.debug(`Unloading : ${unloading}`, unloading);
