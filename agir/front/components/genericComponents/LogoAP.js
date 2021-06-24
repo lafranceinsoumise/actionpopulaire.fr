@@ -8,11 +8,11 @@ import svgLogoSmall from "@agir/front/genericComponents/logos/action-populaire_s
 
 const LogoAP = styled.img.attrs(({ small }) => ({
   src: small ? svgLogoSmall : svgLogo,
-  width: small ? "183" : "127",
-  height: small ? "48" : "36",
+  width: small ? "182" : "149",
+  height: small ? "35" : "56",
 }))`
-  height: ${(props) => props.height || "auto"};
-  width: ${(props) => props.width || "auto"};
+  height: ${(props) => props.height + "px" || "auto"};
+  width: ${(props) => props.width + "px" || "auto"};
 `;
 
 LogoAP.propTypes = {
