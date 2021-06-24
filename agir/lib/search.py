@@ -4,8 +4,7 @@ from django.contrib.postgres.search import SearchQuery
 from django.utils.encoding import force_text
 
 # taken from django-watson: https://github.com/etianen/django-watson/blob/2226de139b6e177bfbe2824b1749478dbcce3318/watson/backends.py#L26
-RE_POSTGRES_ESCAPE_CHARS = re.compile(r"[&:(|)!><]", re.UNICODE)
-RE_SPACE = re.compile(r"[\s]+", re.UNICODE)
+RE_POSTGRES_ESCAPE_CHARS = re.compile(r"[&:(|)!><$]", re.UNICODE)
 
 
 # inspired from django-watson:
@@ -20,8 +19,13 @@ def escape_query(text, re_escape_chars):
     """
     text = force_text(text)
     text = re_escape_chars.sub(" ", text)  # Replace harmful characters with space.
+    words = text.split()
+    query = " & ".join("$${0}$$".format(word) for word in words)
+    if query:
+        # utiliser le dernier mot seulement comme un préfixe
+        query = f"{query}:*"
 
-    return " & ".join("$${0}$$:*".format(word) for word in text.split())
+    return query
 
 
 class PrefixSearchQuery(SearchQuery):

@@ -1,19 +1,18 @@
+import random
+import re
 from secrets import token_urlsafe
 
 import ics
-import random
-import re
 from django.conf import settings
-from django.db.models import JSONField, Prefetch
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.db.models import Case, Sum, Count, When, CharField, F, Q
+from django.db.models import JSONField, Prefetch
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
-from django.utils.datastructures import MultiValueDict
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
@@ -137,6 +136,7 @@ class EventQuerySet(models.QuerySet):
         )
 
     def search(self, query):
+        """Recherche sur l'ensemble des champs texte de l'événement"""
         vector = (
             SearchVector(models.F("name"), config="french_unaccented", weight="A")
             + SearchVector(
@@ -155,6 +155,27 @@ class EventQuerySet(models.QuerySet):
                 models.F("report_content"), config="french_unaccented", weight="C"
             )
         )
+        query = PrefixSearchQuery(query, config="french_unaccented")
+
+        return (
+            self.annotate(search=vector)
+            .filter(search=query)
+            .annotate(rank=SearchRank(vector, query))
+            .order_by("-rank")
+        )
+
+    def simple_search(self, query):
+        """Cherche uniquement sur le nom de l'événement, le nom du lieu et le nom de la ville"""
+        vector = (
+            SearchVector(models.F("name"), config="french_unaccented", weight="A")
+            + SearchVector(
+                models.F("location_name"), config="french_unaccented", weight="B"
+            )
+            + SearchVector(
+                models.F("location_city"), config="french_unaccented", weight="C"
+            )
+        )
+
         query = PrefixSearchQuery(query, config="french_unaccented")
 
         return (
