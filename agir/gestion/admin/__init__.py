@@ -377,7 +377,7 @@ class OrdreVirementAdmin(BaseAdminMixin, VersionAdmin):
 @admin.register(InstanceCherchable)
 class InstanceCherchableAdmin(admin.ModelAdmin):
     NUMERO_RE = re.compile(r"^[A-Z0-9]{3}-[A-Z0-9]{3}$")
-    list_display = ("content_type", "instance_link")
+    list_display = ("type_instance", "lien_instance")
     list_display_links = None
 
     search_fields = ("recherche",)
@@ -385,18 +385,19 @@ class InstanceCherchableAdmin(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         q = request.GET.get("q", "").strip().upper()
         if self.NUMERO_RE.match(q):
-            for m in ModeleGestionMixin.__subclasses__():
-                try:
-                    return HttpResponseRedirect(
-                        reverse(
-                            f"admin:gestion_{m._meta.model_name}_change",
-                            args=(
-                                m.objects.values_list("id", flat=True).get(numero=q),
-                            ),
-                        )
+            try:
+                r = InstanceCherchable.objects.select_related("content_type").get(
+                    numero=q
+                )
+            except InstanceCherchable.DoesNotExist:
+                pass
+            else:
+                return HttpResponseRedirect(
+                    reverse(
+                        f"admin:{r.content_type.app_label}_{r.content_type.model}_change",
+                        args=(r.object_id,),
                     )
-                except m.DoesNotExist:
-                    pass
+                )
 
         return super().changelist_view(request, extra_context=extra_context)
 
@@ -421,9 +422,21 @@ class InstanceCherchableAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    def instance_link(self, obj):
+    def lien_numero(self, obj):
+        return lien(obj.lien_admin(), obj.numero)
+
+    lien_numero.short_description = "Numéro"
+
+    def type_instance(self, obj):
+        if obj is None:
+            return "-"
+        return obj.content_type.name
+
+    type_instance.short_description = "Type d'objet"
+
+    def lien_instance(self, obj):
         if obj is None:
             return "-"
         return lien(obj.lien_admin(), str(obj.instance))
 
-    instance_link.short_description = "Page"
+    lien_instance.short_description = "Titre"

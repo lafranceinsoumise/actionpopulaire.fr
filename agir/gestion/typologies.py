@@ -9,6 +9,7 @@ class Etat(TextChoices):
 
 class TypeDocument(TextChoices):
     DEVIS = "DEV", "Devis"
+    CONTRAT = "CON", "Contrat"
     FACTURE = "FAC", "Facture"
 
     JUSTIFICATIF = "JUS", "Justificatif de dépense"
@@ -69,21 +70,28 @@ class TypeDepense(TextChoices):
 
 class TypeProjet(TextChoices):
     CONFERENCE_PRESSE = "CON", "Conférence de presse"
-    REUNION_PUBLIQUE = "REU", "Réunion publique"
+
+    REUNION_PUBLIQUE = "REU", "Réunion publique et meetings"
     REUNION_PUBLIQUE_LOCALE = "REU-loc", "Réunion publique organisée localement"
     REUNION_PUBLIQUE_ORATEUR = "REU-ora", "Réunion publique avec un orateur national"
     REUNION_PUBLIQUE_CANDIDAT = "REU-can", "Réunion publique avec un candidat"
+    REUNION_PUBLIQUE_MEETING = "REU-mee", "Meeting"
 
     DEBATS = "DEB", "Débats et conférences"
     DEBATS_ASSO = "DEB-aso", "Débat organisé par une association"
     DEBATS_CONF = "DEB-con", "Conférence"
     DEBATS_CAFE = "DEB-caf", "Café-débat"
+    DEBATS_PROJECTION = "DEB-pro", "Projection et débat"
 
-    MANIFESTATION = "MAN", "Manifestation publique"
+    MANIFESTATION = "MAN", "Manifestations et événements publics"
     MANIFESTATION_LOCALE = "MAN-loc", "Manifestation ou marche organisée localement"
     MANIFESTATION_NATIONALE = "MAN-nat", "Manifestation ou marche nationale"
+    MANIFESTATION_PIQUE_NIQUE = "MAN-pic", "Pique-nique ou apéro citoyen"
+    MANIFESTATION_ECOUTE_COLLECTIVE = "MAN-eco", "Écoute collective"
+    MANIFESTATION_FETE = "MAN-fet", "Fête (auberge espagnole)"
+    MANIFESTATION_CARAVANE = "MAN-car", "Caravane"
 
-    ACTIONS = "ACT", "Actions"
+    ACTIONS = "ACT", "Autres actions publiques"
 
     EVENEMENT = "EVE", "Événements spécifiques"
     EVENEMENT_AMFIS = "EVE-AMF", "AMFiS d'été"
