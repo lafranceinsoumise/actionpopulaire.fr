@@ -8,7 +8,7 @@ const { CONFIG_TYPES } = require("./webpack.common");
 
 const STATIC_URL = "/static";
 
-module.exports = merge.merge(common, {
+const production = {
   devtool: "source-map",
   output: {
     publicPath: path.join(STATIC_URL, "components/"),
@@ -25,4 +25,33 @@ module.exports = merge.merge(common, {
       SENTRY_ENV: "production",
     }),
   ],
-});
+};
+
+const createCompiler = (config) => {
+  const compiler = webpack(config);
+  return () => {
+    return new Promise((resolve, reject) => {
+      compiler.run((err, stats) => {
+        if (err) return reject(err);
+        console.log(stats.toString({ colors: true }) + "\n");
+        resolve();
+      });
+    });
+  };
+};
+
+const es5Config = merge.merge(
+  {
+    plugins: [new CleanWebpackPlugin()],
+  },
+  common(CONFIG_TYPES.ES5),
+  production
+);
+const es2015Config = merge.merge(common(CONFIG_TYPES.ES2015), production);
+
+(async () => {
+  console.log("# ES5 Build");
+  await createCompiler(es5Config)();
+  console.log("# ES2015 Build");
+  await createCompiler(es2015Config)();
+})();
