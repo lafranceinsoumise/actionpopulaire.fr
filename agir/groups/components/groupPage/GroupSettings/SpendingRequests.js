@@ -1,0 +1,132 @@
+import PropTypes from "prop-types";
+import React from "react";
+import styled from "styled-components";
+
+import Button from "@agir/front/genericComponents/Button";
+
+const StyledSpendingRequest = styled.a`
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.5rem 0 1rem;
+  border-top: 1px solid ${(props) => props.theme.black100};
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+  }
+
+  &,
+  &:hover,
+  &:focus {
+    color: ${(props) => props.theme.black1000};
+    text-decoration: none;
+  }
+
+  & > span {
+    flex: 0 0 auto;
+    margin-top: 0.5rem;
+  }
+
+  & > span:first-child {
+    flex: 1 1 auto;
+    padding-right: 1rem;
+    display: flex;
+    flex-flow: column nowrap;
+    font-size: 0.875rem;
+
+    & > * {
+      margin: 0;
+      padding: 0;
+    }
+
+    strong {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    span {
+      font-size: inherit;
+      color: ${(props) => props.theme.primary500};
+      margin: 0.25rem 0;
+    }
+
+    small {
+      font-size: inherit;
+      font-weight: 400;
+      color: ${(props) => props.theme.black700};
+    }
+  }
+`;
+const StyledSpendingRequests = styled.div`
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+  }
+
+  & > ${Button} {
+    justify-content: flex-start;
+    text-align: left;
+  }
+`;
+
+const SpendingRequest = (props) => {
+  const { title, status, date, link } = props;
+  return (
+    <StyledSpendingRequest href={link} aria-label="Voir la demande">
+      <span>
+        <strong>{title}</strong>
+        <span>{date.slice(0, 10).split("-").reverse().join("/")}</span>
+        <small>{status}</small>
+      </span>
+      <Button as="span" small>
+        Voir la demande
+      </Button>
+    </StyledSpendingRequest>
+  );
+};
+
+SpendingRequest.propTypes = {
+  id: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  status: PropTypes.string.isRequired,
+  date: PropTypes.string.isRequired,
+  link: PropTypes.string.isRequired,
+};
+
+const SpendingRequests = ({ newSpendingRequestLink, spendingRequests }) => {
+  return (
+    <StyledSpendingRequests>
+      {Array.isArray(spendingRequests) && spendingRequests.length > 0 && (
+        <ul>
+          {spendingRequests.map((spendingRequest) => (
+            <li key={spendingRequest.id}>
+              <SpendingRequest {...spendingRequest} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {newSpendingRequestLink && (
+        <Button
+          as="a"
+          icon="mail"
+          href={newSpendingRequestLink}
+          color="secondary"
+          $wrap
+        >
+          Créer une demande de dépense
+        </Button>
+      )}
+    </StyledSpendingRequests>
+  );
+};
+
+SpendingRequests.propTypes = {
+  newSpendingRequestLink: PropTypes.string,
+  spendingRequests: PropTypes.arrayOf(
+    PropTypes.shape(SpendingRequest.propTypes)
+  ),
+};
+export default SpendingRequests;

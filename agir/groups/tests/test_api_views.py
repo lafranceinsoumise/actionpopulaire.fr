@@ -2,6 +2,7 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 from unittest.mock import patch
 
+from agir.donations.models import SpendingRequest, Operation
 from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person
 
@@ -310,3 +311,66 @@ class GroupInvitationAPIViewTestCase(APITestCase):
         )
         invite_to_group.assert_called()
         self.assertEqual(res.status_code, 201)
+
+
+class GroupFinanceAPITestCase(APITestCase):
+    def setUp(self):
+        self.group = SupportGroup.objects.create(name="group Test")
+        self.simple_member = Person.objects.create(
+            email="simple_member@agir.local", create_role=True
+        )
+        self.manager_member = Person.objects.create(
+            email="manager@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.simple_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.manager_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        self.donation_operation = Operation.objects.create(group=self.group, amount=10)
+        self.spending_request = SpendingRequest.objects.create(
+            group=self.group,
+            title="Ma demande de dépense",
+            event=None,
+            category=SpendingRequest.CATEGORY_HARDWARE,
+            category_precisions="Super truc trop cool",
+            explanation="On en a VRAIMENT VRAIMENT besoin.",
+            spending_date=timezone.now(),
+            provider="Super CLIENT",
+            iban="FR65 0382 9038 7327 9323 466",
+            amount=8500,
+        )
+
+    def test_anonymous_person_cannot_view_group_finance(self):
+        self.client.logout()
+        res = self.client.get(f"/api/groupes/{self.group.pk}/finance/",)
+        self.assertEqual(res.status_code, 401)
+
+    def test_group_member_cannot_view_group_finance(self):
+        self.client.force_login(self.simple_member.role)
+        res = self.client.get(f"/api/groupes/{self.group.pk}/finance/",)
+        self.assertEqual(res.status_code, 403)
+
+    def test_group_manager_can_view_group_finance(self):
+        self.client.force_login(self.manager_member.role)
+        res = self.client.get(f"/api/groupes/{self.group.pk}/finance/",)
+        self.assertEqual(res.status_code, 200)
+
+    def test_api_response_contains_a_donation_property(self):
+        self.client.force_login(self.manager_member.role)
+        res = self.client.get(f"/api/groupes/{self.group.pk}/finance/",)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("donation", res.data)
+        self.assertEqual(res.data["donation"], 10)
+
+    def test_api_response_contains_the_list_of_the_group_spending_requests(self):
+        self.client.force_login(self.manager_member.role)
+        res = self.client.get(f"/api/groupes/{self.group.pk}/finance/",)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("spendingRequests", res.data)
+        self.assertEqual(len(res.data["spendingRequests"]), 1)
