@@ -5,6 +5,15 @@
 
 {% block title %}{{ person_form.title }}{% endblock %}
 
+{% block css %}
+  {{ block.super }}
+  <style>
+    .form-control {
+      scroll-margin-top: 200px;
+    }
+  </style>
+{% endblock %}
+
 {% block main %}
   <div class="row">
     <div class="col-xs-12 col-md-8 col-md-offset-2">
