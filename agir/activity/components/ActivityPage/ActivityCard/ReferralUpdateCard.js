@@ -7,6 +7,7 @@ import GenericCardContainer from "./GenericCardContainer";
 
 const ReferralUpdateCard = (props) => {
   const {
+    id,
     individual,
     routes,
     meta: { totalReferrals },
@@ -49,9 +50,12 @@ const ReferralUpdateCard = (props) => {
         secret&nbsp;?!
         <br />
         Si vous n'y aviez pas encore songé, il est peut-être temps de{" "}
-        <a href={routes.createGroup}>
+        <Link
+          href={`/activite/${id}/lien/`}
+          params={{ next: routes.createGroup }}
+        >
           créer une équipe de soutien dans votre ville
-        </a>{" "}
+        </Link>{" "}
         ;)
       </GenericCardContainer>
     );
@@ -76,6 +80,7 @@ const ReferralUpdateCard = (props) => {
   );
 };
 ReferralUpdateCard.propTypes = {
+  id: PropTypes.number.isRequired,
   individual: PropTypes.shape({
     displayName: PropTypes.string,
   }),

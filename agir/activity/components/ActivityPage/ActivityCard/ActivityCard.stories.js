@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 import React from "react";
 
 import CONFIG from "@agir/activity/common/activity.config";
+import { ACTIVITY_STATUS } from "@agir/activity/common/helpers";
 import group from "@agir/front/mockData/group";
 import events from "@agir/front/mockData/events";
 
@@ -85,9 +86,10 @@ const Template = decorateArgs(
 export const Default = Template.bind({});
 Default.args = {
   id: 1,
-  type: "group-coorganization-accepted",
+  type: "announcement",
   event,
   supportGroup: group,
+  status: ACTIVITY_STATUS.STATUS_DISPLAYED,
   individual: {
     displayName: "Clara",
     email: "clara@example.com",
@@ -122,5 +124,16 @@ Default.args = {
     priority: 0,
     activityId: 1341,
     customDisplay: "",
+    status: ACTIVITY_STATUS.STATUS_DISPLAYED,
+  },
+};
+
+export const Interacted = Template.bind({});
+Interacted.args = {
+  ...Default.args,
+  status: ACTIVITY_STATUS.STATUS_INTERACTED,
+  announcement: {
+    ...Default.args.announcement,
+    status: ACTIVITY_STATUS.STATUS_INTERACTED,
   },
 };

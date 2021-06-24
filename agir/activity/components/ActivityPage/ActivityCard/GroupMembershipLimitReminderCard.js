@@ -1,24 +1,38 @@
 import PropTypes from "prop-types";
 import React from "react";
 
+import { routeConfig } from "@agir/front/app/routes.config";
+import Link from "@agir/front/app/Link";
 import GenericCardContainer from "./GenericCardContainer";
 
 const GroupMembershipLimitReminderCard = (props) => {
-  const { supportGroup, meta = {}, routes } = props;
+  const { id, supportGroup, meta = {}, routes } = props;
   const { membershipCount, membershipLimitNotificationStep } = meta;
+
+  const SupportGroup = supportGroup ? (
+    <Link to={routeConfig.groupDetails.getLink({ groupPk: supportGroup.id })}>
+      {supportGroup.name}
+    </Link>
+  ) : null;
+
   switch (membershipLimitNotificationStep) {
     case 0:
       return (
         <GenericCardContainer {...props}>
           <strong>
             Action requise&nbsp;: votre équipe ne respecte plus la{" "}
-            <a href={routes.charteEquipes}>charte des équipes de soutien</a>
+            <Link
+              href={`/activite/${id}/lien/`}
+              params={{ next: routes.charteEquipes }}
+            >
+              charte des équipes de soutien
+            </Link>
           </strong>
           <br />
-          <a href={supportGroup.url}>{supportGroup.name}</a> a atteint{" "}
-          {membershipCount} personnes&nbsp;! Il est maintenant impossible que
-          des nouvelles personnes la rejoignent. Divisez votre équipe en équipes
-          plus petites maintenant pour renforcer le réseau d’action.
+          {SupportGroup} a atteint {membershipCount} personnes&nbsp;! Il est
+          maintenant impossible que des nouvelles personnes la rejoignent.
+          Divisez votre équipe en équipes plus petites maintenant pour renforcer
+          le réseau d’action.
         </GenericCardContainer>
       );
     case 1:
@@ -27,13 +41,15 @@ const GroupMembershipLimitReminderCard = (props) => {
         <GenericCardContainer {...props}>
           <strong>Votre équipe est trop nombreuse</strong>
           <br />
-          <a href={supportGroup.url}>{supportGroup.name}</a> compte plus de{" "}
-          {membershipCount - 1} personnes&nbsp;! Il est temps de vous diviser en
-          plusieurs équipes pour permettre une plus grande répartition de
-          l’action.{" "}
-          <a href={routes.groupTransferHelp}>
+          {SupportGroup} compte plus de {membershipCount - 1} personnes&nbsp;!
+          Il est temps de vous diviser en plusieurs équipes pour permettre une
+          plus grande répartition de l’action.{" "}
+          <Link
+            href={`/activite/${id}/lien/`}
+            params={{ next: routes.groupTransferHelp }}
+          >
             En savoir plus sur la division des équipes
-          </a>
+          </Link>
         </GenericCardContainer>
       );
     case 3:
@@ -43,13 +59,16 @@ const GroupMembershipLimitReminderCard = (props) => {
             Gardez un oeil sur le nombre de membres de votre équipe
           </strong>
           <br />
-          <a href={supportGroup.url}>{supportGroup.name}</a> a dépassé les{" "}
-          {membershipCount - 1} personnes ! Afin que chacun·e puisse s'impliquer
-          et pour permettre une plus grande répartition de votre action, nous
-          vous invitons à diviser votre équipe.{" "}
-          <a href={routes.groupTransferHelp}>
+          {SupportGroup} a dépassé les {membershipCount - 1} personnes ! Afin
+          que chacun·e puisse s'impliquer et pour permettre une plus grande
+          répartition de votre action, nous vous invitons à diviser votre
+          équipe.{" "}
+          <Link
+            href={`/activite/${id}/lien/`}
+            params={{ next: routes.groupTransferHelp }}
+          >
             En savoir plus sur la division des équipes
-          </a>
+          </Link>
         </GenericCardContainer>
       );
     default:
@@ -60,16 +79,17 @@ const GroupMembershipLimitReminderCard = (props) => {
             votre équipe&nbsp;!
           </strong>
           <br />
-          <a href={supportGroup.url}>{supportGroup.name}</a> a atteint le nombre
-          idéal de personnes. Désormais, favorisez la création d'autres équipes
-          autour de chez vous par d’autres membres, de manière à renforcer le
-          réseau d'action.
+          {SupportGroup} a atteint le nombre idéal de personnes. Désormais,
+          favorisez la création d'autres équipes autour de chez vous par
+          d’autres membres, de manière à renforcer le réseau d'action.
         </GenericCardContainer>
       );
   }
 };
 GroupMembershipLimitReminderCard.propTypes = {
+  id: PropTypes.number.isRequired,
   supportGroup: PropTypes.shape({
+    id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     url: PropTypes.string,
     routes: PropTypes.shape({
