@@ -236,13 +236,7 @@ class EventRsvpPersonFormDisplay(PersonFormDisplay):
 class AutoCompleteEventView(AutocompleteJsonView):
     def get_queryset(self):
         """Return queryset based on ModelAdmin.get_search_results()."""
-        qs = models.Event.objects.all()
-        qs, search_use_distinct = super(
-            EventAdmin, self.model_admin
-        ).get_search_results(self.request, qs, self.term)
-        if search_use_distinct:
-            qs = qs.distinct()
-        return qs
+        return models.Event.objects.simple_search(self.term)
 
 
 @admin.register(models.Event)

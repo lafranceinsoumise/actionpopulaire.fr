@@ -256,7 +256,12 @@ class ReglementForm(forms.ModelForm):
                 ),
             )
 
-        if self.cleaned_data.get("mode") == Reglement.Mode.VIREMENT:
+        if (
+            self.cleaned_data.get("mode") == Reglement.Mode.VIREMENT
+            and "preuve" not in self.cleaned_data
+        ):
+            # Si on enregistre un virement à effectuer via un ordre de virement (en l'absence de preuve)
+            # il faut bien sûr avoir l'IBAN du fournisseur
             if not self.fournisseur.iban and "iban_fournisseur" not in self.errors:
                 self.add_error(
                     "iban_fournisseur"

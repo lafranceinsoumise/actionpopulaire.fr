@@ -1,3 +1,4 @@
+import decimal
 import re
 import secrets
 from functools import reduce
@@ -15,10 +16,10 @@ from django.contrib.postgres.search import SearchVector, SearchRank, SearchVecto
 from django.db import models
 from django.urls import reverse
 
-from agir.gestion.typologies import TypeDocument
+from agir.gestion.models.configuration import EngagementAutomatique
+from agir.gestion.typologies import TypeDocument, TypeDepense
 from agir.lib.models import TimeStampedModel
 from agir.lib.search import PrefixSearchQuery
-
 
 __all__ = ("Document", "Compte", "InstanceCherchable", "Autorisation")
 
@@ -193,6 +194,8 @@ class Compte(TimeStampedModel):
         verbose_name="Configuration", default=dict, null=False, blank=True
     )
 
+    engagement_automatique = EngagementAutomatique()
+
     def __str__(self):
         return f"{self.nom} ({self.designation})"
 
@@ -235,6 +238,15 @@ class Autorisation(TimeStampedModel):
 
 
 class InstanceCherchable(models.Model):
+    numero = models.CharField(
+        verbose_name="Numéro unique",
+        max_length=7,
+        editable=False,
+        blank=True,
+        default=numero_unique,
+        unique=True,
+        help_text="Numéro unique pour identifier chaque objet sur la plateforme.",
+    )
     recherche = SearchVectorField(verbose_name="Champ de recherche", null=False)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
@@ -244,14 +256,13 @@ class InstanceCherchable(models.Model):
     def mettre_a_jour(cls, instance):
         model = instance._meta.model
         content_type = get_content_type_for_model(instance)
-        search_vector_query = model.objects.filter(pk=instance.pk).values(
-            vector=model.search_vector()
-        )
+        instance_qs = model.objects.filter(pk=instance.pk)
 
         InstanceCherchable.objects.update_or_create(
+            numero=instance_qs.values("numero"),
             content_type=content_type,
             object_id=instance.pk,
-            defaults={"recherche": search_vector_query},
+            defaults={"recherche": instance_qs.values(v=model.search_vector())},
         )
 
     def lien_admin(self):
