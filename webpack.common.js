@@ -5,7 +5,6 @@ require("dotenv").config({
   path: path.join(__dirname, ".env"),
 });
 
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -54,17 +53,31 @@ const aliases = applications.reduce((obj, app) => {
 }, {});
 
 // Generate an HTML fragment with all chunks tag for each entry
-const htmlPlugins = Object.keys(components).map(
-  (entry) =>
-    new HtmlWebpackPlugin({
-      filename: `includes/${entry}.bundle.html`,
-      scriptLoading: "blocking",
-      inject: false,
-      chunks: [entry],
-      templateContent: ({ htmlWebpackPlugin }) =>
-        htmlWebpackPlugin.tags.headTags + htmlWebpackPlugin.tags.bodyTags,
-    })
-);
+const htmlPlugins = (type) =>
+  type !== "es5"
+    ? Object.keys(components).map(
+        (entry) =>
+          new HtmlWebpackPlugin({
+            filename: `includes/${entry}.bundle.html`,
+            scriptLoading: "blocking",
+            inject: false,
+            chunks: [entry],
+            templateContent: ({ htmlWebpackPlugin }) =>
+              type === "dev"
+                ? htmlWebpackPlugin.tags.headTags +
+                  htmlWebpackPlugin.tags.bodyTags
+                : htmlWebpackPlugin.files.js
+                    .map(
+                      (file) =>
+                        `<script type="module" src="${file}"></script><script nomodule src="${file.replace(
+                          ".mjs",
+                          ".js"
+                        )}"></script>`
+                    )
+                    .join(""),
+          })
+      )
+    : [];
 
 // List all chunks on which main app depends for preloading by service worker
 let _cachedAppEntryFiles;
@@ -113,7 +126,75 @@ const getOtherEntryFiles = (compilation) => {
   return _cachedOtherEntryFiles;
 };
 
-module.exports = {
+const configureBabelLoader = (type) => ({
+  test: /\.m?js$/,
+  include: [
+    path.resolve(__dirname, "agir"),
+    type === "es2015+"
+      ? undefined
+      : path.resolve(__dirname, "node_modules/react-spring"),
+  ].filter(Boolean),
+  exclude: type === "es2015+" ? [] : [new RegExp("node_modules\\" + path.sep)],
+  use: {
+    loader: "babel-loader",
+    options: {
+      cacheDirectory: process.env.BABEL_CACHE_DIRECTORY || true,
+      babelrc: false,
+      exclude: [/core-js/, /regenerator-runtime/],
+      presets: [
+        "@babel/preset-react",
+        [
+          "@babel/preset-env",
+          {
+            loose: true,
+            modules: false,
+            // debug: true,
+            corejs: 3,
+            useBuiltIns: "usage",
+            targets: {
+              browsers:
+                type === "es5"
+                  ? [
+                      "> 0.5% in FR",
+                      "last 2 versions",
+                      "Firefox ESR",
+                      "not dead",
+                      "not IE 11",
+                    ]
+                  : [
+                      "last 2 Chrome versions",
+                      "not Chrome < 60",
+                      "last 2 Safari versions",
+                      "not Safari < 10.1",
+                      "last 2 iOS versions",
+                      "not iOS < 10.3",
+                      "last 2 Firefox versions",
+                      "not Firefox < 54",
+                      "last 2 Edge versions",
+                      "not Edge < 15",
+                    ],
+            },
+          },
+        ],
+      ],
+      plugins: [
+        "@babel/plugin-syntax-dynamic-import",
+        "babel-plugin-styled-components",
+        "@babel/plugin-proposal-object-rest-spread",
+        [
+          "@babel/plugin-transform-runtime",
+          {
+            corejs: 3,
+            useESModules: true,
+          },
+        ],
+        type === "dev" ? require.resolve("react-refresh/babel") : undefined,
+      ].filter(Boolean),
+    },
+  },
+});
+
+module.exports = (type = "es5") => ({
   context: path.resolve(__dirname, "agir/"),
   entry: Object.assign(
     {
@@ -123,7 +204,7 @@ module.exports = {
   ),
   plugins: [
     new WebpackBar(),
-    ...htmlPlugins,
+    ...htmlPlugins(type),
     new HtmlWebpackPlugin({
       filename: `includes/theme.bundle.html`,
       inject: false,
@@ -131,13 +212,20 @@ module.exports = {
       templateContent: ({ htmlWebpackPlugin }) =>
         `<link href="${htmlWebpackPlugin.files.css[0]}" rel="stylesheet">`,
     }),
-    new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({ filename: "[name]-[chunkhash].css" }),
-    new webpack.IgnorePlugin(
-      new RegExp("^.\\" + path.sep + "locale$"),
-      /moment$/
-    ),
-    new BundleAnalyzerPlugin({ analyzerMode: "static", openAnalyzer: false }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^\.\/locale$/,
+      contextRegExp: /moment$/,
+    }),
+    new BundleAnalyzerPlugin({
+      analyzerMode: "static",
+      openAnalyzer: false,
+      reportFilename: type === "es2015+" ? "es2015_report.html" : "report.html",
+      reportTitle:
+        type === "es2015+"
+          ? "es2015+ webpack build report"
+          : "es5 webpack build report",
+    }),
     new InjectManifest({
       swSrc: path.resolve(
         __dirname,
@@ -167,25 +255,13 @@ module.exports = {
   output: {
     libraryTarget: "window",
     library: ["Agir", "[name]"],
-    filename: "[name]-[chunkhash].js",
+    filename:
+      type === "es2015+" ? "[name]-[chunkhash].mjs" : "[name]-[chunkhash].js",
     path: DISTPATH,
   },
   module: {
     rules: [
-      {
-        test: /\.m?js$/,
-        include: [
-          path.resolve(__dirname, "agir"),
-          path.resolve(__dirname, "node_modules/react-spring"),
-        ],
-        exclude: [new RegExp("node_modules\\" + path.sep)],
-        use: {
-          loader: "babel-loader",
-          options: {
-            cacheDirectory: process.env.BABEL_CACHE_DIRECTORY || true,
-          },
-        },
-      },
+      configureBabelLoader(type),
       {
         test: /theme\.scss$/,
         use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
@@ -232,4 +308,4 @@ module.exports = {
   watchOptions: {
     ignored: /node_modules/,
   },
-};
+});

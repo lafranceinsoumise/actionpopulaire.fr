@@ -1,3 +1,4 @@
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const path = require("path");
 const webpack = require("webpack");
 const merge = require("webpack-merge");
@@ -6,7 +7,7 @@ const common = require("./webpack.common.js");
 
 const STATIC_URL = "/static";
 
-module.exports = merge.merge(common, {
+const production = {
   devtool: "source-map",
   output: {
     publicPath: path.join(STATIC_URL, "components/"),
@@ -23,4 +24,31 @@ module.exports = merge.merge(common, {
       SENTRY_ENV: "production",
     }),
   ],
-});
+};
+
+const createCompiler = (config) => {
+  const compiler = webpack(config);
+  return () => {
+    return new Promise((resolve, reject) => {
+      compiler.run((err, stats) => {
+        if (err) return reject(err);
+        console.log(stats.toString({ colors: true }) + "\n");
+        resolve();
+      });
+    });
+  };
+};
+
+const legacyConfig = merge.merge(
+  {
+    plugins: [new CleanWebpackPlugin()],
+  },
+  common("es5"),
+  production
+);
+const modernConfig = merge.merge(common("es2015+"), production);
+
+(async () => {
+  await createCompiler(legacyConfig)();
+  await createCompiler(modernConfig)();
+})();
