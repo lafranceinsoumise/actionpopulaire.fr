@@ -83,9 +83,6 @@ const EventDescription = ({
   endTime,
   routes,
 }) => {
-  if (!illustration?.banner) {
-    console.log("bravo");
-  }
   return (
     <>
       {description ? (
