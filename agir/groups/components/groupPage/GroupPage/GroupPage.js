@@ -23,7 +23,12 @@ export const GroupPage = (props) => {
       }
     >
       {group === false ? (
-        <NotFoundPage isTopBar={false} title="Groupe" subtitle="Ce groupe" />
+        <NotFoundPage
+          isTopBar={false}
+          title="Groupe"
+          subtitle="Ce groupe"
+          reloadOnReconnection={false}
+        />
       ) : (
         <ResponsiveLayout
           {...props}
@@ -38,5 +43,6 @@ export const GroupPage = (props) => {
 GroupPage.propTypes = {
   isLoading: PropTypes.bool,
   activeTab: PropTypes.string,
+  group: PropTypes.object,
 };
 export default GroupPage;

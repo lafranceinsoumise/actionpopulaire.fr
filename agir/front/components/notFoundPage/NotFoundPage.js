@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useEffect } from "react";
+import { usePrevious } from "react-use";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -65,24 +66,21 @@ const OfflineBlock = styled.div`
   }
 `;
 
-// Most of the time, if we are in the app on unknow URL, it is because of service worker no network handling
 export const NotFoundPage = ({
   isTopBar = true,
   title = "Page",
   subtitle = "Cette page",
+  reloadOnReconnection = true,
 }) => {
   const isOffline = useIsOffline();
+  const wasOffline = usePrevious(isOffline);
 
-  // We try to reload every 5 second
   useEffect(() => {
-    if (!isOffline) {
-      return;
-    }
-
-    setTimeout(() => {
+    reloadOnReconnection &&
+      wasOffline &&
+      !isOffline &&
       window.location.reload();
-    }, 5000);
-  }, [isOffline]);
+  }, [reloadOnReconnection, isOffline, wasOffline]);
 
   if (isOffline === null) return null;
 
@@ -134,5 +132,6 @@ NotFoundPage.propTypes = {
   isTopBar: PropTypes.bool,
   title: PropTypes.string,
   subtitle: PropTypes.string,
+  reloadOnReconnection: PropTypes.bool,
 };
 export default NotFoundPage;

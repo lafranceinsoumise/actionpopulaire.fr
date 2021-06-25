@@ -4,6 +4,7 @@ import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { useIsOffline } from "@agir/front/offline/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 import { getUnread } from "@agir/activity/common/helpers";
@@ -22,6 +23,7 @@ import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 import NotificationSettingLink from "@agir/activity/NotificationSettings/NotificationSettingLink";
+import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 
 import ActivityCard from "./ActivityCard";
 import ActivityMergerAnnouncement from "./ActivityMergerAnnouncement";
@@ -54,6 +56,7 @@ const Page = styled.article`
 `;
 
 const ActivityList = () => {
+  const isOffline = useIsOffline();
   const routes = useSelector(getRoutes);
 
   const { data: session } = useSWR("/api/session/");
@@ -114,6 +117,8 @@ const ActivityList = () => {
                 )}
                 {isLoadingMore && <Skeleton />}
               </StyledList>
+            ) : isOffline ? (
+              <NotFoundPage isTopBar={false} reloadOnReconnection={false} />
             ) : (
               <EmptyActivityList />
             )}
