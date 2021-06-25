@@ -1677,7 +1677,7 @@ requests = ">=2.0.1,<3.0.0"
 
 [[package]]
 name = "rules"
-version = "2.2"
+version = "3.0"
 description = "Awesome Django authorization, without the database"
 category = "main"
 optional = false
@@ -2047,7 +2047,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "df1c801533d8c01236a567af3df610d86fb965fabd250a06bf1c5c88822aa80b"
+content-hash = "e8f720848bc897e727473b7f732c7158b1f156230057202f30c377722e04b2bc"
 
 [metadata.files]
 amqp = [
@@ -3200,7 +3200,8 @@ requests-toolbelt = [
     {file = "requests_toolbelt-0.9.1-py2.py3-none-any.whl", hash = "sha256:380606e1d10dc85c3bd47bf5a6095f815ec007be7a8b69c878507068df059e6f"},
 ]
 rules = [
-    {file = "rules-2.2.tar.gz", hash = "sha256:9bae429f9d4f91a375402990da1541f9e093b0ac077221d57124d06eeeca4405"},
+    {file = "rules-3.0-py2.py3-none-any.whl", hash = "sha256:8194937b537c8a384eafe21750f1d396e1aecdc833e7d06808a5b805ae42a852"},
+    {file = "rules-3.0.tar.gz", hash = "sha256:9141e2fdb7f300fcb59f2f06619fe4ff52bb846eb112ba8c30444f971d6af05e"},
 ]
 s3transfer = [
     {file = "s3transfer-0.4.2-py2.py3-none-any.whl", hash = "sha256:9b3752887a2880690ce628bc263d6d13a3864083aeacff4890c1c9839a5eb0bc"},
