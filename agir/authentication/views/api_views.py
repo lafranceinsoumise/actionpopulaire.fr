@@ -3,8 +3,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.middleware.csrf import get_token
+from django.views.decorators.cache import never_cache
 
 from rest_framework import exceptions, permissions, status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,6 +24,7 @@ __all__ = [
     "LoginAPIView",
     "CheckCodeAPIView",
     "LogoutAPIView",
+    "ping",
 ]
 
 send_mail_email_bucket = TokenBucket("SendMail", 5, 600)
@@ -48,6 +51,13 @@ class SessionContextAPIView(RetrieveAPIView):
 
     def get_object(self):
         return self.request
+
+
+@never_cache
+@api_view(["GET"])
+@permission_classes(())
+def ping(request):
+    return Response("pong")
 
 
 class LoginAPIView(APIView):

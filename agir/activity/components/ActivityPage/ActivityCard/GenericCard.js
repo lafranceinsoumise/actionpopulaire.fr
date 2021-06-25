@@ -27,7 +27,11 @@ const GenericCard = (props) => {
         </Link>
       ),
       SupportGroup: supportGroup && (
-        <a href={supportGroup.url}>{supportGroup.name}</a>
+        <Link
+          to={routeConfig.groupDetails.getLink({ groupPk: supportGroup.id })}
+        >
+          {supportGroup.name}
+        </Link>
       ),
       Individual: individual && <strong>{individual.displayName}</strong>,
     }),
@@ -193,8 +197,12 @@ const GenericCard = (props) => {
         <GenericCardContainer {...props}>
           {meta && meta.transferredMemberships} membre
           {meta && meta.transferredMemberships > 0 ? "s" : ""} ont rejoint{" "}
-          <a href={supportGroup.routes.manage}>{supportGroup.name}</a> suite à
-          un transfert depuis &laquo;&nbsp;
+          <Link
+            to={routeConfig.groupSettings.getLink({ groupPk: supportGroup.id })}
+          >
+            {supportGroup.name}
+          </Link>{" "}
+          suite à un transfert depuis &laquo;&nbsp;
           {meta && meta.oldGroup}&nbsp;&raquo;.
         </GenericCardContainer>
       );

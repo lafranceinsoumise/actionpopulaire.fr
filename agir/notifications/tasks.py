@@ -24,8 +24,8 @@ def send_webpush_activity(activity_pk, webpush_device_pk):
 
     try:
         result = webpush_device.send_message(message)
-        if activity.pushed == False:
-            activity.pushed = True
+        if activity.push_status == Activity.STATUS_UNDISPLAYED:
+            activity.push_status = Activity.STATUS_DISPLAYED
             activity.save()
         return result
     except WebPushError as e:
@@ -64,8 +64,8 @@ def send_apns_activity(activity_pk, apns_device_pk):
         else:
             raise e
 
-    if activity.pushed == False:
-        activity.pushed = True
+    if activity.push_status == Activity.STATUS_UNDISPLAYED:
+        activity.push_status = Activity.STATUS_DISPLAYED
         activity.save()
     return result
 

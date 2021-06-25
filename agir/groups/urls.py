@@ -104,7 +104,7 @@ api_urlpatterns = [
     ),
     path(
         "<uuid:pk>/finance/",
-        views.GroupDonationAPIView.as_view(),
+        views.GroupFinanceAPIView.as_view(),
         name="api_group_finance",
     ),
 ]

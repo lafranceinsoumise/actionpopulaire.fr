@@ -1,4 +1,5 @@
 from django.http import HttpResponseRedirect
+from django.utils.http import is_safe_url
 from django.views.generic import DetailView
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -23,11 +24,13 @@ from agir.activity.serializers import (
     AnnouncementSerializer,
     CustomAnnouncementSerializer,
 )
+from agir.api import settings
 from agir.lib.pagination import APIPaginator
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     IsPersonPermission,
 )
+from agir.lib.utils import front_url
 
 
 class ActivityAPIView(RetrieveUpdateAPIView):
@@ -166,3 +169,35 @@ def get_unread_activity_count(request):
         )
 
     return Response({"unreadActivityCount": unread_activity_count})
+
+
+@api_view(["GET"])
+@permission_classes(())
+def follow_activity_link(request, pk):
+    user = request.user
+    if user.is_authenticated and user.person is not None:
+        try:
+            activity = Activity.objects.get(pk=pk, recipient=user.person)
+            activity.status = Activity.STATUS_INTERACTED
+            activity.save()
+        except Activity.DoesNotExist:
+            pass
+
+    next = request.GET.get("next", front_url("list_activities"))
+    allowed_hosts = {
+        s.strip("/").rsplit("/", 1)[-1]
+        for s in [
+            settings.MAIN_DOMAIN,
+            settings.API_DOMAIN,
+            settings.FRONT_DOMAIN,
+            settings.NSP_DOMAIN,
+            "https://infos.actionpopulaire.fr",
+        ]
+    }
+    url_is_safe = is_safe_url(
+        url=next, allowed_hosts=allowed_hosts, require_https=True,
+    )
+    if not url_is_safe:
+        next = front_url("list_activities")
+
+    return HttpResponseRedirect(next)

@@ -4,100 +4,61 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import Button from "@agir/front/genericComponents/Button";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import GenericCardContainer from "./GenericCardContainer";
 
-const StyledCard = styled.div`
+const StyledContent = styled.p`
   display: flex;
-  flex-flow: row nowrap;
-  align-items: flex-start;
-  padding: 0 0 1.5rem;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  width: 100%;
+  margin: 0;
 
-  @media (max-width: ${style.collapse}px) {
-    background-color: ${style.white};
-    padding: 1rem 1.5rem 1.5rem 1rem;
-    box-shadow: ${style.elaborateShadow};
+  & > * {
+    margin: 0;
   }
 
-  article {
-    display: flex;
-    flex-flow: column nowrap;
-    margin-left: 0.75rem;
-    justify-content: flex-start;
+  & > a > img {
     width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
 
-    & > * {
-      width: 100%;
-      margin: 1rem 0 0;
+    @media (max-width: ${style.collapse}px) {
+      border-radius: ${style.borderRadius};
+    }
+  }
 
-      &:first-child {
-        margin-top: 0;
+  & > span {
+    display: block;
+    margin: 0.5rem 0;
+
+    & > p {
+      margin-bottom: 0.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
       }
-    }
-
-    & > a > img {
-      width: 100%;
-      height: auto;
-
-      @media (max-width: ${style.collapse}px) {
-        border-radius: ${style.borderRadius};
-      }
-    }
-
-    h4,
-    p {
-      line-height: 1.5;
-      font-size: 1rem;
-    }
-
-    h4 + div,
-    p + p {
-      margin-top: 0.5rem;
-    }
-
-    p {
-      margin: 0;
-    }
-
-    footer > ${Button} {
-      justify-content: center;
-      align-self: flex-start;
-      width: auto;
-      max-width: 100;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
   }
 `;
 
 const AnnouncementCard = (props) => {
-  const { image, title, content, link, linkLabel, config } = props;
-
+  const { activityId, image, title, content, link, linkLabel } = props;
   return (
-    <StyledCard>
-      <FeatherIcon name={config.icon} color={style.black500} />
-      <article>
+    <GenericCardContainer {...props} id={activityId} onClick={undefined}>
+      <StyledContent>
         {image?.activity && (
           <a href={link} aria-label={linkLabel}>
             <img src={image.activity} width="548" height="241" />
           </a>
         )}
-        <h4>{title}</h4>
-        <div dangerouslySetInnerHTML={{ __html: content }} />
-        <footer>
-          {link && (
-            <Button as="a" href={link} color="primary" small>
-              {linkLabel || "En savoir plus"}
-            </Button>
-          )}
-        </footer>
-      </article>
-    </StyledCard>
+        <strong style={{ fontWeight: 600 }}>{title}</strong>
+        <span dangerouslySetInnerHTML={{ __html: content }} />
+      </StyledContent>
+    </GenericCardContainer>
   );
 };
 
 AnnouncementCard.propTypes = {
-  id: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   link: PropTypes.string,
   linkLabel: PropTypes.string,
@@ -113,5 +74,6 @@ AnnouncementCard.propTypes = {
   config: PropTypes.shape({
     icon: PropTypes.string,
   }),
+  status: PropTypes.string,
 };
 export default AnnouncementCard;

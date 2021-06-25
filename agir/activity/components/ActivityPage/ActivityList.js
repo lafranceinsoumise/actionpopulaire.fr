@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
@@ -8,7 +8,10 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 import { getUnread } from "@agir/activity/common/helpers";
 import { useActivities } from "@agir/activity/common/hooks";
-import { setAllActivitiesAsRead } from "@agir/activity/common/api";
+import {
+  setAllActivitiesAsRead,
+  setActivityAsInteracted,
+} from "@agir/activity/common/api";
 import { useInfiniteScroll } from "@agir/lib/utils/hooks";
 
 import {
@@ -63,6 +66,9 @@ const ActivityList = () => {
       setAllActivitiesAsRead(unreadActivities.map(({ id }) => id));
     }
   }, [unreadActivities]);
+
+  const onClickActivity = useCallback(setActivityAsInteracted, []);
+
   const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
   return (
@@ -90,11 +96,19 @@ const ActivityList = () => {
                 {activities.map((activity, i) =>
                   i + 1 === activities.length ? (
                     <li key={activity.id} ref={lastItemRef}>
-                      <ActivityCard routes={routes} {...activity} />
+                      <ActivityCard
+                        routes={routes}
+                        {...activity}
+                        onClick={onClickActivity}
+                      />
                     </li>
                   ) : (
                     <li key={activity.id}>
-                      <ActivityCard routes={routes} {...activity} />
+                      <ActivityCard
+                        routes={routes}
+                        {...activity}
+                        onClick={onClickActivity}
+                      />
                     </li>
                   )
                 )}

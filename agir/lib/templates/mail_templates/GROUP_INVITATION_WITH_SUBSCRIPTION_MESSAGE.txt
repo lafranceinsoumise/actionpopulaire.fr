@@ -16,9 +16,3 @@ Si vous ne souhaitez pas nous faire de signalement, vous pouvez tout simplement 
   
 ------------------------------------------------------------------
 Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
-
->> Choisir les emails que vous recevez
-{{ preferences_link }}
-
->> Arrêter complètement de recevoir des emails
-{{ unsubscribe_link }}
