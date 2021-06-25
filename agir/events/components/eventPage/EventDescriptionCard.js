@@ -9,6 +9,8 @@ import Collapsible from "@agir/front/genericComponents/Collapsible.js";
 import Card from "../../../front/components/genericComponents/Card";
 import Spacer from "../../../front/components/genericComponents/Spacer";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 const DescriptionSection = styled.div`
   margin: 0;
 
@@ -48,6 +50,32 @@ const StyledButton = styled(Button)`
   margin: 0 16px;
 `;
 
+const StyledActionButtons = styled.div`
+  display: inline-grid;
+  grid-gap: 0.5rem;
+  grid-template-columns: auto auto;
+  padding: 0.5rem 0;
+
+  @media (max-width: ${style.collapse}px) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+  }
+
+  ${Button} {
+    margin: 0;
+    justify-content: center;
+
+    && *,
+    && *::before {
+      flex: 0 0 auto;
+    }
+  }
+
+  ${Button} + ${Button} {
+    margin-left: 0;
+  }
+`;
+
 const EventDescription = ({
   illustration,
   description,
@@ -84,13 +112,15 @@ const EventDescription = ({
               fadingOverflow
             />
             <Spacer />
-            <StyledButton as="a" href={routes.edit}>
-              Modifier la description
-            </StyledButton>
+            <StyledActionButtons>
+              <StyledButton as="a" href={routes.edit}>
+                Modifier la description
+              </StyledButton>
 
-            <StyledButton as="a" href={routes.edit}>
-              Ajouter une image d'illustration
-            </StyledButton>
+              <StyledButton as="a" href={routes.edit}>
+                Ajouter une image d'illustration
+              </StyledButton>
+            </StyledActionButtons>
           </DescriptionSection>
         </Card>
       ) : null}
