@@ -36,6 +36,10 @@ const MapContainer = styled.div`
     * {
       border-radius: 8px;
     }
+
+    display: ${(props) => {
+      return props.hideMap ? "none" : "initial";
+    }};
   }
 
   & > * {
@@ -75,13 +79,14 @@ const EventLocationCard = ({
   routes,
   subtype,
   isStatic,
+  hideMap,
 }) => {
   let interval = displayInterval(schedule);
   interval = interval.charAt(0).toUpperCase() + interval.slice(1);
   return (
     <StyledCard>
       {location && location.coordinates && (
-        <MapContainer>
+        <MapContainer hideMap={hideMap}>
           {location?.coordinates?.coordinates ? (
             <Map
               zoom={14}
@@ -158,6 +163,7 @@ EventLocationCard.propTypes = {
   }),
   subtype: PropTypes.object,
   isStatic: PropTypes.bool,
+  hideMap: PropTypes.bool,
 };
 
 export default EventLocationCard;

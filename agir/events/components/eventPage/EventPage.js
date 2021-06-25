@@ -155,8 +155,7 @@ const StyledMap = styled.div`
 `;
 
 const MobileLayout = (props) => {
-  const { contact, routes, groups, illustration, location, subtype } =
-    props;
+  const { contact, routes, groups, illustration, location, subtype } = props;
   const hasMap =
     location?.coordinates && Array.isArray(location?.coordinates?.coordinates);
 
@@ -205,6 +204,7 @@ const MobileLayout = (props) => {
               routes={routes}
               subtype={subtype}
               isStatic={true}
+              hideMap={illustration === null}
             />
             <EventInfoCard {...props} />
             <EventPhotosCard {...props} />
