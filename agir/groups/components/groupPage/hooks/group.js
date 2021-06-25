@@ -3,16 +3,24 @@ import useSWR from "swr";
 import logger from "@agir/lib/utils/logger";
 
 import * as api from "@agir/groups/groupPage/api";
+import { useIsOffline } from "@agir/front/offline/hooks";
 
 const log = logger(__filename);
 
 export const useGroup = (groupPk) => {
+  const isOffline = useIsOffline();
   const { data, error } = useSWR(
     api.getGroupPageEndpoint("getGroup", { groupPk })
   );
   log.debug("Group data", data);
 
-  if ([403, 404].includes(error?.response?.status)) return false;
+  if (
+    error?.name === "NetworkError" ||
+    [403, 404].includes(error?.response?.status) ||
+    (isOffline && !data)
+  )
+    return false;
+
   return data;
 };
 
