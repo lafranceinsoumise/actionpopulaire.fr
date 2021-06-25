@@ -30,11 +30,26 @@ const WithLinebreak = styled.span`
 const MapContainer = styled.div`
   margin: -1.5rem -1.5rem 1.5rem;
 
+  @media (max-width: ${style.collapse}px) {
+    margin: 24px 0 0 0;
+
+    * {
+      border-radius: 8px;
+    }
+  }
+
   & > * {
     display: block;
     border: 0;
     width: 100%;
     min-height: 216px;
+  }
+`;
+
+const StyledCard = styled(Card)`
+  @media (max-width: ${style.collapse}px) {
+    display: flex;
+    flex-flow: column-reverse;
   }
 `;
 
@@ -54,73 +69,79 @@ const CalendarButtonHolder = styled.ul`
   }
 `;
 
-const EventLocationCard = ({ schedule, location, routes, subtype }) => {
+const EventLocationCard = ({
+  schedule,
+  location,
+  routes,
+  subtype,
+  isStatic,
+}) => {
   let interval = displayInterval(schedule);
   interval = interval.charAt(0).toUpperCase() + interval.slice(1);
   return (
-    <Card>
+    <StyledCard>
       {location && location.coordinates && (
-        <Hide under>
-          <MapContainer>
-            {location?.coordinates?.coordinates ? (
-              <Map
-                zoom={14}
-                center={location.coordinates.coordinates}
-                iconConfiguration={subtype}
-                isStatic={false}
-              />
-            ) : (
-              <iframe src={routes.map} />
-            )}
-          </MapContainer>
-        </Hide>
+        <MapContainer>
+          {location?.coordinates?.coordinates ? (
+            <Map
+              zoom={14}
+              center={location.coordinates.coordinates}
+              iconConfiguration={subtype}
+              isStatic={isStatic}
+            />
+          ) : (
+            <iframe src={routes.map} />
+          )}
+        </MapContainer>
       )}
-      <IconList>
-        <IconListItem name="clock">{interval}</IconListItem>
-        {location && (location.name || location.address) && (
-          <IconListItem name="map-pin">
-            <WithLinebreak>
-              {location.name && (
-                <>
-                  <LocationName>{location.name}</LocationName>
-                  {"\n"}
-                </>
-              )}
-              {location.address}
-            </WithLinebreak>
-          </IconListItem>
-        )}
-      </IconList>
-      <Row style={{ marginTop: "0.5rem" }}>
-        <Column grow width={["content", "content"]}>
-          <a href={routes.calendarExport}>Ajouter à mon agenda</a>
-        </Column>
-        <Column width={["content", "content"]}>
-          <CalendarButtonHolder>
-            <li>
-              <a href={routes.googleExport}>
-                <img
-                  src={googleLogo}
-                  width="16"
-                  height="16"
-                  alt="logo Google"
-                />
-              </a>
-            </li>
-            <li>
-              <a href={routes.calendarExport}>
-                <img
-                  src={outlookLogo}
-                  width="16"
-                  height="16"
-                  alt="logo Outlook"
-                />
-              </a>
-            </li>
-          </CalendarButtonHolder>
-        </Column>
-      </Row>
-    </Card>
+      <div>
+        <IconList>
+          <IconListItem name="clock">{interval}</IconListItem>
+          {location && (location.name || location.address) && (
+            <IconListItem name="map-pin">
+              <WithLinebreak>
+                {location.name && (
+                  <>
+                    <LocationName>{location.name}</LocationName>
+                    {"\n"}
+                  </>
+                )}
+                {location.address}
+              </WithLinebreak>
+            </IconListItem>
+          )}
+        </IconList>
+        <Row style={{ marginTop: "0.5rem" }}>
+          <Column grow width={["content", "content"]}>
+            <a href={routes.calendarExport}>Ajouter à mon agenda</a>
+          </Column>
+          <Column width={["content", "content"]}>
+            <CalendarButtonHolder>
+              <li>
+                <a href={routes.googleExport}>
+                  <img
+                    src={googleLogo}
+                    width="16"
+                    height="16"
+                    alt="logo Google"
+                  />
+                </a>
+              </li>
+              <li>
+                <a href={routes.calendarExport}>
+                  <img
+                    src={outlookLogo}
+                    width="16"
+                    height="16"
+                    alt="logo Outlook"
+                  />
+                </a>
+              </li>
+            </CalendarButtonHolder>
+          </Column>
+        </Row>
+      </div>
+    </StyledCard>
   );
 };
 EventLocationCard.propTypes = {
@@ -136,6 +157,7 @@ EventLocationCard.propTypes = {
     googleExport: PropTypes.string,
   }),
   subtype: PropTypes.object,
+  isStatic: PropTypes.bool,
 };
 
 export default EventLocationCard;

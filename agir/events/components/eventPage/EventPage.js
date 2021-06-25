@@ -155,7 +155,8 @@ const StyledMap = styled.div`
 `;
 
 const MobileLayout = (props) => {
-  const { contact, routes, groups, illustration, location, subtype } = props;
+  const { contact, routes, groups, illustration, location, subtype } =
+    props;
   const hasMap =
     location?.coordinates && Array.isArray(location?.coordinates?.coordinates);
 
@@ -198,7 +199,13 @@ const MobileLayout = (props) => {
             <Card>
               <EventHeader {...props} />
             </Card>
-            <EventLocationCard {...props} />
+            <EventLocationCard
+              schedule={props.schedule}
+              location={location}
+              routes={routes}
+              subtype={subtype}
+              isStatic={true}
+            />
             <EventInfoCard {...props} />
             <EventPhotosCard {...props} />
             <EventReportCard {...props} />
