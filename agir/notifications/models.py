@@ -1,9 +1,7 @@
 from django.db import models
 
-from agir.lib.models import TimeStampedModel, UUIDIdentified
-
-#
 from agir.activity.models import Activity
+from agir.lib.models import TimeStampedModel, UUIDIdentified
 
 
 class Subscription(UUIDIdentified, TimeStampedModel):

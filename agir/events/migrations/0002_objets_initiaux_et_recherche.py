@@ -13,7 +13,7 @@ setweight(to_tsvector('french_unaccented', COALESCE("name", '')), 'A')
 """
 DELETE_SEARCH_INDEX = """
 -- noinspection SqlResolve
-DELETE INDEX events_event_search ON events_event;
+DROP INDEX events_event_search RESTRICT;
 """
 
 

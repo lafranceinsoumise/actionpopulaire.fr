@@ -81,8 +81,6 @@ class Activity(TimeStampedModel):
         TYPE_GROUP_CREATION_CONFIRMATION,
         TYPE_TRANSFERRED_GROUP_MEMBER,
         TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
-        TYPE_NEW_MESSAGE,
-        TYPE_NEW_COMMENT,
         TYPE_EVENT_SUGGESTION,
         TYPE_ANNOUNCEMENT,
         # Old required action types :
@@ -142,6 +140,11 @@ class Activity(TimeStampedModel):
         (STATUS_DISPLAYED, "Présentée au destinataire"),
         (STATUS_INTERACTED, "Le destinataire a interagi avec"),
     )  # attention : l'ordre croissant par niveau d'interaction est important
+    PUSH_STATUS_CHOICES = (
+        (STATUS_UNDISPLAYED, "Pas énvoyée au destinataire"),
+        (STATUS_DISPLAYED, "Envoyée au destinataire"),
+        (STATUS_INTERACTED, "Cliquée par le destinataire"),
+    )  # attention : l'ordre croissant par niveau d'interaction est important
 
     objects = ActivityManager()
 
@@ -162,8 +165,11 @@ class Activity(TimeStampedModel):
         "Statut", max_length=1, choices=STATUS_CHOICES, default=STATUS_UNDISPLAYED
     )
 
-    pushed = models.BooleanField(
-        "Notification push envoyée", default=False, null=False,
+    push_status = models.CharField(
+        "Statut notification push",
+        max_length=1,
+        choices=PUSH_STATUS_CHOICES,
+        default=STATUS_UNDISPLAYED,
     )
 
     event = models.ForeignKey(

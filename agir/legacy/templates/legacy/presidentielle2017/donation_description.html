@@ -1,6 +1,6 @@
 {% load display_lib %}
 <div>
   <h4>Don à la campagne présidentielle 2017</h4>
-  <div>Vous avez donné <strong>{{ payment.price | display_price }}</strong> pour la campagne présidentielle 2017 de
+  <div>Vous avez donné <strong>{{ payment.price | display_price_in_cent }}</strong> pour la campagne présidentielle 2017 de
     Jean-Luc Mélenchon le {{ payment.created | date }}</div>
 </div>

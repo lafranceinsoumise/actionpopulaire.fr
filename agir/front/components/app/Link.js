@@ -10,18 +10,16 @@ import { addQueryStringParams } from "@agir/lib/utils/url";
 
 const ExternalLink = (props) => {
   const { component, params, ...rest } = props;
-
   let href = props.href;
   if (params) {
     href = addQueryStringParams(href, params);
   }
-
   if (component) {
     const Component = component;
-    return <Component href={href} {...rest} />;
+    return <Component {...rest} href={href} />;
   }
 
-  return <a href={href} {...rest} />;
+  return <a {...rest} href={href} />;
 };
 ExternalLink.propTypes = {
   href: PropTypes.string.isRequired,

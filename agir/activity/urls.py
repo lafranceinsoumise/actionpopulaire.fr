@@ -34,8 +34,9 @@ urlpatterns = [
         name="api_user_custom_announcement",
     ),
     path(
-        "activite/<uuid:pk>/lien/",
+        "annonce/<uuid:pk>/lien/",
         views.AnnouncementLinkView.as_view(),
         name="announcement_link",
     ),
+    path("activite/<int:pk>/lien/", views.follow_activity_link, name="activity_link",),
 ]

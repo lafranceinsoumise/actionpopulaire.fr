@@ -12,8 +12,10 @@ from django.utils.html import escape
 from django.views.decorators.cache import never_cache
 from django.views.generic import UpdateView, DetailView
 from django.views.generic.list import ListView
+from html2text import html2text
 
 from agir.events.models import Event
+from agir.front.view_mixins import ObjectOpengraphMixin
 from agir.mailing.actions import create_campaign_from_submission
 from agir.people import tasks
 from agir.people.models import PersonForm, PersonFormSubmission
@@ -21,13 +23,23 @@ from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
 
 
-class BasePeopleFormView(UpdateView):
+class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
     queryset = PersonForm.objects.published()
     template_name = "people/person_form.html"
 
     def setup(self, *args, **kwargs):
         super().setup(*args, **kwargs)
         self.person_form_instance = self.get_person_form_instance()
+
+    def get_meta_title(self):
+        if self.person_form_instance.title:
+            return "{} — {}".format(self.person_form_instance.title, self.title_suffix)
+        return self.title_suffix
+
+    def get_meta_description(self):
+        if self.person_form_instance.description:
+            return html2text(self.person_form_instance.description)
+        return ""
 
     def get_success_url(self):
         return reverse(

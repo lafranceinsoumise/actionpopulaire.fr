@@ -5,6 +5,7 @@ import { Redirect } from "react-router-dom";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useGroupMessage } from "@agir/groups/groupPage/hooks";
+import { useIsOffline } from "@agir/front/offline/hooks";
 
 import {
   useDispatch,
@@ -18,6 +19,7 @@ import {
 } from "@agir/front/globalContext/reducers";
 
 import CenteredLayout from "@agir/front/dashboardComponents/CenteredLayout";
+import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
@@ -27,6 +29,7 @@ import UnavailableMessagePage from "./UnavailableMessagePage";
 const PageSkeleton = <Skeleton />;
 
 const Page = ({ groupPk, messagePk }) => {
+  const isOffline = useIsOffline();
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const backLink = useSelector(getBackLink);
   const user = useSelector(getUser);
@@ -84,6 +87,10 @@ const Page = ({ groupPk, messagePk }) => {
       );
     }
   }, [group, dispatch]);
+
+  if (isOffline && (!group || !message)) {
+    return <NotFoundPage reloadOnReconnection={false} isTopBar={false} />;
+  }
 
   if (
     !isLoading &&

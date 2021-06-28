@@ -19,13 +19,6 @@ from agir.activity.models import Activity
 def get_activities(person):
     activities = (
         Activity.objects.displayed()
-        .filter(recipient=person)
-        .filter(
-            ~Q(type=Activity.TYPE_ANNOUNCEMENT)
-            | Q(
-                type=Activity.TYPE_ANNOUNCEMENT, announcement__custom_display__exact="",
-            )
-        )
         .select_related("supportgroup", "individual", "announcement")
         .prefetch_related(
             Prefetch(

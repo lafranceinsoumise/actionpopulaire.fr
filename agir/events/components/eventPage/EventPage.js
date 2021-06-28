@@ -3,7 +3,12 @@ import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 import styled from "styled-components";
+import useSWR from "swr";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
+import logger from "@agir/lib/utils/logger";
+import * as api from "@agir/events/common/api";
 import {
   useDispatch,
   useSelector,
@@ -17,9 +22,9 @@ import {
   getIsConnected,
   getIsSessionLoaded,
 } from "@agir/front/globalContext/reducers";
+import { useIsOffline } from "@agir/front/offline/hooks";
 
 import Link from "@agir/front/app/Link";
-
 import EventHeader from "./EventHeader";
 import EventLocationCard from "./EventLocationCard";
 import EventFacebookLinkCard from "./EventFacebookLinkCard";
@@ -38,14 +43,7 @@ import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import Map from "@agir/carte/common/Map";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage.js";
-
-import style from "@agir/front/genericComponents/_variables.scss";
-import useSWR from "swr";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
-import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
-
-import logger from "@agir/lib/utils/logger";
-import * as api from "@agir/events/common/api";
 
 import defaultEventImage from "@agir/front/genericComponents/images/banner-map-background.svg";
 
@@ -373,6 +371,7 @@ const MobileSkeleton = () => (
 
 export const ConnectedEventPage = (props) => {
   const { eventPk } = props;
+  const isOffline = useIsOffline();
   const isConnected = useSelector(getIsConnected);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const dispatch = useDispatch();
@@ -413,12 +412,17 @@ export const ConnectedEventPage = (props) => {
     }
   }, [eventData, dispatch]);
 
-  if ([403, 404].includes(error?.response?.status))
+  if (
+    error?.message === "NetworkError" ||
+    [403, 404].includes(error?.response?.status) ||
+    (isOffline && !eventData)
+  )
     return (
       <NotFoundPage
         isTopBar={false}
         title="Événement"
         subtitle="Cet événement"
+        reloadOnReconnection={false}
       />
     );
 
@@ -429,17 +433,14 @@ export const ConnectedEventPage = (props) => {
           <title>{eventData.name} — Action Populaire</title>
         </Helmet>
       )}
-      <PageFadeIn
-        ready={isSessionLoaded && eventData}
-        wait={
-          <ResponsiveLayout
-            DesktopLayout={DesktopSkeleton}
-            MobileLayout={MobileSkeleton}
-          />
-        }
-      >
-        {eventData && <EventPage {...eventData} logged={isConnected} />}
-      </PageFadeIn>
+      {isSessionLoaded && eventData ? (
+        <EventPage {...eventData} logged={isConnected} />
+      ) : (
+        <ResponsiveLayout
+          DesktopLayout={DesktopSkeleton}
+          MobileLayout={MobileSkeleton}
+        />
+      )}
       <Footer />
     </>
   );

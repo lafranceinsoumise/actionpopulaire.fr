@@ -18,16 +18,22 @@ import logger from "@agir/lib/utils/logger";
 
 const log = logger(__filename);
 
-export const ProtectedComponent = ({ Component, route, ...rest }) => {
+export const ProtectedComponent = ({
+  Component,
+  AnonymousComponent = null,
+  route,
+  ...rest
+}) => {
   const location = useLocation();
   const isAuthorized = useAuthentication(route);
 
   useEffect(() => {
-    if (typeof Component.preload === "function") {
-      log.debug("Preloading", Component);
-      Component.preload();
+    const PreloadedComponent = AnonymousComponent || Component;
+    if (typeof PreloadedComponent.preload === "function") {
+      log.debug("Preloading", PreloadedComponent);
+      PreloadedComponent.preload();
     }
-  }, [Component]);
+  }, [AnonymousComponent, Component]);
 
   if (isAuthorized === null) {
     return null;
@@ -35,6 +41,12 @@ export const ProtectedComponent = ({ Component, route, ...rest }) => {
 
   if (isAuthorized === true) {
     return <Page Component={Component} routeConfig={route} {...rest} />;
+  }
+
+  if (AnonymousComponent) {
+    return (
+      <Page Component={AnonymousComponent} routeConfig={route} {...rest} />
+    );
   }
 
   return (
@@ -48,6 +60,7 @@ export const ProtectedComponent = ({ Component, route, ...rest }) => {
 };
 ProtectedComponent.propTypes = {
   Component: PropTypes.elementType.isRequired,
+  AnonymousComponent: PropTypes.elementType,
   route: PropTypes.object.isRequired,
 };
 
@@ -70,7 +83,11 @@ const Router = ({ children }) => {
       <Switch>
         {routes.map((route) => (
           <Route key={route.id} path={route.path} exact={!!route.exact}>
-            <ProtectedComponent Component={route.Component} route={route} />
+            <ProtectedComponent
+              Component={route.Component}
+              AnonymousComponent={route.AnonymousComponent}
+              route={route}
+            />
           </Route>
         ))}
         <Route key="not-found">

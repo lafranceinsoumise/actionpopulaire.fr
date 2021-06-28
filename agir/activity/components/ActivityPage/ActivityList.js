@@ -1,14 +1,18 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { useIsOffline } from "@agir/front/offline/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 import { getUnread } from "@agir/activity/common/helpers";
 import { useActivities } from "@agir/activity/common/hooks";
-import { setAllActivitiesAsRead } from "@agir/activity/common/api";
+import {
+  setAllActivitiesAsRead,
+  setActivityAsInteracted,
+} from "@agir/activity/common/api";
 import { useInfiniteScroll } from "@agir/lib/utils/hooks";
 
 import {
@@ -19,6 +23,7 @@ import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 import NotificationSettingLink from "@agir/activity/NotificationSettings/NotificationSettingLink";
+import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 
 import ActivityCard from "./ActivityCard";
 import ActivityMergerAnnouncement from "./ActivityMergerAnnouncement";
@@ -51,6 +56,7 @@ const Page = styled.article`
 `;
 
 const ActivityList = () => {
+  const isOffline = useIsOffline();
   const routes = useSelector(getRoutes);
 
   const { data: session } = useSWR("/api/session/");
@@ -63,6 +69,9 @@ const ActivityList = () => {
       setAllActivitiesAsRead(unreadActivities.map(({ id }) => id));
     }
   }, [unreadActivities]);
+
+  const onClickActivity = useCallback(setActivityAsInteracted, []);
+
   const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
   return (
@@ -90,16 +99,26 @@ const ActivityList = () => {
                 {activities.map((activity, i) =>
                   i + 1 === activities.length ? (
                     <li key={activity.id} ref={lastItemRef}>
-                      <ActivityCard routes={routes} {...activity} />
+                      <ActivityCard
+                        routes={routes}
+                        {...activity}
+                        onClick={onClickActivity}
+                      />
                     </li>
                   ) : (
                     <li key={activity.id}>
-                      <ActivityCard routes={routes} {...activity} />
+                      <ActivityCard
+                        routes={routes}
+                        {...activity}
+                        onClick={onClickActivity}
+                      />
                     </li>
                   )
                 )}
                 {isLoadingMore && <Skeleton />}
               </StyledList>
+            ) : isOffline ? (
+              <NotFoundPage isTopBar={false} reloadOnReconnection={false} />
             ) : (
               <EmptyActivityList />
             )}

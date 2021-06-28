@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import { addQueryStringParams } from "./url.js";
 
 describe("URL utils", function () {

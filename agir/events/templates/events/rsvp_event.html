@@ -3,6 +3,15 @@
 
 {% block title %}S'inscrire pour «&nbsp;{{ event.name }}&nbsp;»{% endblock %}
 
+{% block css %}
+  {{ block.super }}
+  <style>
+    .form-control {
+      scroll-margin-top: 200px;
+    }
+  </style>
+{% endblock %}
+
 {% block main %}
   <div class="row">
     <div class="col-responsive">

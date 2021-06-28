@@ -3,6 +3,15 @@ import { routeConfig } from "@agir/front/app/routes.config";
 const ACTIVITY_CONFIG = {
   announcement: {
     icon: "bell",
+    hideDate: true,
+    action: ({ link, linkLabel }) => {
+      return link
+        ? {
+            label: linkLabel || "En savoir plus",
+            href: link,
+          }
+        : null;
+    },
   },
   "group-coorganization-accepted": {
     icon: "calendar",

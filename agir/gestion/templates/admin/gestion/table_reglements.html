@@ -1,0 +1,49 @@
+{% load display_lib %}
+{% with reglements=depense.reglements.all %}
+  {% if reglements %}
+    <table>
+      <thead>
+      <tr>
+        <th>Intitulé</th>
+        <th>Date</th>
+        <th>Montant</th>
+        <th>Mode</th>
+        <th>Statut</th>
+        <th>Preuve</th>
+        <th>Fournisseur</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      {% for r in reglements %}
+        <tr>
+          <td>{{ r.intitule }}</td>
+          <td>{{ r.date|date:"d/m/Y" }}</td>
+          <td>{{ r.montant|display_price_in_unit }}</td>
+          <td>{{ r.get_mode_display }}</td>
+          <td>{{ r.get_statut_display }}</td>
+          <td>
+            {% if r.preuve_id %}
+              <a href="{% url "admin:gestion_document_change" r.preuve_id %}">{{ r.preuve.titre }}</a>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            {% if r.fournisseur_id %}
+              <a href="{% url "admin:gestion_fournisseur_change" r.fournisseur_id %}">{{ r.fournisseur.nom }}</a>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div>Aucun réglement effectué pour le moment.</div>
+  {% endif %}
+{% endwith %}
+{% if depense.montant_restant > 0 %}
+  <div><a href="{% url "admin:gestion_depense_reglement" depense.pk %}">Ajouter un réglement</a></div>
+{% endif %}

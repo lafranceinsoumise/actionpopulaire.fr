@@ -142,6 +142,7 @@ INSTALLED_APPS = [
     "agir.legacy",
     "agir.telegram",
     "agir.elus.apps.ElusConfig",
+    "agir.gestion.apps.GestionConfig",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",
     "django.contrib.auth",
@@ -778,7 +779,8 @@ DJAN_API_KEY = os.environ.get("DJAN_API_KEY")
 
 # nuntius
 NUNTIUS_REDIS_CONNECTION_GETTER = "agir.api.redis.get_auth_redis_client"
-NUNTIUS_IMAGES_URL = os.environ.get("NUNTIUS_IMAGES_URL", None)
+NUNTIUS_PUBLIC_URL = FRONT_DOMAIN
+NUNTIUS_IMAGES_URL = None
 NUNTIUS_LINKS_URL = os.environ.get(
     "NUNTIUS_LINKS_URL", "https://www.actionpopulaire.fr"
 )

@@ -1,3 +1,4 @@
+import re
 from collections import OrderedDict
 
 from celery import shared_task
@@ -18,12 +19,10 @@ from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person
 from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
-from ..notifications.models import Subscription
 from ..activity.models import Activity
 from ..lib.display import genrer
 from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
-import re
-
+from ..notifications.models import Subscription
 
 NOTIFIED_CHANGES = {
     "name": "information",

@@ -13,6 +13,7 @@ import {
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 import { setPageTitle } from "@agir/front/globalContext/actions";
 import { getMessageSubject } from "@agir/msgs/utils";
+import { useIsOffline } from "@agir/front/offline/hooks";
 
 import { Hide } from "@agir/front/genericComponents/grid";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
@@ -21,6 +22,7 @@ import Navigation from "@agir/front/dashboardComponents/Navigation";
 import NotificationSettings from "@agir/activity/NotificationSettings/NotificationSettings";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 
 import MessageThreadList from "./MessageThreadList";
 import EmptyMessagePage from "./EmptyMessagePage";
@@ -46,6 +48,7 @@ const StyledPage = styled.div`
 `;
 
 const MessagePage = ({ messagePk }) => {
+  const isOffline = useIsOffline();
   const dispatch = useDispatch();
   const onSelectMessage = useSelectMessage();
   const { user, messages, messageRecipients, currentMessage } = useMessageSWR(
@@ -96,53 +99,59 @@ const MessagePage = ({ messagePk }) => {
       </Helmet>
       <NotificationSettings />
       <StyledPage>
-        <StyledPageFadeIn
-          ready={user && typeof messages !== "undefined"}
-          wait={<Skeleton />}
-        >
-          {!!writeNewMessage && (
-            <MessageModal
-              shouldShow={shouldShowMessageModal}
-              onClose={dismissMessageAction}
-              user={user}
-              groups={messageRecipients}
-              onSelectGroup={getSelectedGroupEvents}
-              events={selectedGroupEvents}
-              isLoading={isLoading}
-              message={messageAction === "edit" ? currentMessage : null}
-              onSend={saveMessage}
-            />
-          )}
-          {currentMessage && (
-            <MessageActionModal
-              action={shouldShowMessageActionModal ? messageAction : undefined}
-              shouldShow={shouldShowMessageActionModal}
-              onClose={dismissMessageAction}
-              onDelete={onDelete}
-              onReport={onReport}
-              isLoading={isLoading}
-            />
-          )}
-          {Array.isArray(messages) && messages.length > 0 ? (
-            <MessageThreadList
-              isLoading={isLoading}
-              messages={messages}
-              selectedMessagePk={messagePk}
-              selectedMessage={currentMessage}
-              onSelect={onSelectMessage}
-              onEdit={editMessage}
-              onDelete={confirmDelete}
-              onReport={confirmReport}
-              onDeleteComment={confirmDeleteComment}
-              onReportComment={confirmReportComment}
-              user={user}
-              writeNewMessage={writeNewMessage}
-              onComment={writeNewComment}
-            />
-          ) : (
-            <EmptyMessagePage />
-          )}
-        </StyledPageFadeIn>
+        {!isOffline || !messages ? (
+          <StyledPageFadeIn
+            ready={user && typeof messages !== "undefined"}
+            wait={<Skeleton />}
+          >
+            {!!writeNewMessage && (
+              <MessageModal
+                shouldShow={shouldShowMessageModal}
+                onClose={dismissMessageAction}
+                user={user}
+                groups={messageRecipients}
+                onSelectGroup={getSelectedGroupEvents}
+                events={selectedGroupEvents}
+                isLoading={isLoading}
+                message={messageAction === "edit" ? currentMessage : null}
+                onSend={saveMessage}
+              />
+            )}
+            {currentMessage && (
+              <MessageActionModal
+                action={
+                  shouldShowMessageActionModal ? messageAction : undefined
+                }
+                shouldShow={shouldShowMessageActionModal}
+                onClose={dismissMessageAction}
+                onDelete={onDelete}
+                onReport={onReport}
+                isLoading={isLoading}
+              />
+            )}
+            {Array.isArray(messages) && messages.length > 0 ? (
+              <MessageThreadList
+                isLoading={isLoading}
+                messages={messages}
+                selectedMessagePk={messagePk}
+                selectedMessage={currentMessage}
+                onSelect={onSelectMessage}
+                onEdit={editMessage}
+                onDelete={confirmDelete}
+                onReport={confirmReport}
+                onDeleteComment={confirmDeleteComment}
+                onReportComment={confirmReportComment}
+                user={user}
+                writeNewMessage={writeNewMessage}
+                onComment={writeNewComment}
+              />
+            ) : (
+              <EmptyMessagePage />
+            )}
+          </StyledPageFadeIn>
+        ) : (
+          <NotFoundPage isTopBar={false} reloadOnReconnection={false} />
+        )}
       </StyledPage>
       <Hide over>
         <Navigation active="messages" />

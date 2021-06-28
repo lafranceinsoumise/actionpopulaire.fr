@@ -10,27 +10,13 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "./HeaderPanel";
+import SpendingRequests from "./SpendingRequests";
 
 import { StyledTitle } from "./styledComponents.js";
 
 import { getGroupPageEndpoint } from "@agir/groups/groupPage/api.js";
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 import { useGroupWord } from "@agir/groups/utils/group";
-
-const Buttons = styled.div`
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-gap: 0.5rem;
-
-  @media (max-width: ${style.collapse}px) {
-    grid-template-columns: 1fr;
-  }
-
-  ${Button} {
-    margin: 0;
-    justify-content: center;
-  }
-`;
 
 const DonationSkeleton = styled.p`
   height: 36px;
@@ -45,10 +31,13 @@ const GroupFinancePage = (props) => {
   const group = useGroup(groupPk);
   const withGroupWord = useGroupWord(group);
   const { data } = useSWR(getGroupPageEndpoint("getFinance", { groupPk }));
+
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle>{withGroupWord`Dons alloués à mon groupe`}</StyledTitle>
+      <StyledTitle
+        style={{ fontSize: "1.25rem" }}
+      >{withGroupWord`Dons alloués à mon groupe`}</StyledTitle>
       <PageFadeIn ready={!!data} wait={<DonationSkeleton />}>
         <p style={{ fontSize: "2rem", margin: 0 }}>
           {new Intl.NumberFormat("fr-FR", {
@@ -67,26 +56,31 @@ const GroupFinancePage = (props) => {
         Vous pouvez allouer des dons à vos actions sur la{" "}
         <a href="/dons/">page de dons</a>.
       </p>
-      <p style={{ color: style.black700 }}>
-        Vous pouvez déjà créer une demande, mais vous ne pourrez la faire
-        valider que lorsque votre allocation sera suffisante.
-      </p>
-
-      <Spacer size="1rem" />
-      <Buttons>
-        <Button as="a" href={group?.routes?.donations}>
+      <p>
+        <Button as="a" href={group?.routes?.donations} color="secondary">
           Allouer un don
         </Button>
-        {group?.routes?.createSpendingRequest && (
-          <Button as="a" href={group.routes.createSpendingRequest} $wrap>
-            Je crée une demande de dépense
-          </Button>
-        )}
-      </Buttons>
+      </p>
 
-      <Spacer size="1.5rem" />
+      <PageFadeIn ready={!!data}>
+        <Spacer size="2rem" />
+        <StyledTitle style={{ fontSize: "1.25rem" }}>
+          Demandes de dépense
+        </StyledTitle>
+        <p style={{ color: style.black700 }}>
+          Vous pouvez déjà créer une demande, mais vous ne pourrez la faire
+          valider que lorsque votre allocation sera suffisante.
+        </p>
+        <Spacer size=".5rem" />
+        <SpendingRequests
+          spendingRequests={data?.spendingRequests}
+          newSpendingRequestLink={group?.routes?.createSpendingRequest}
+        />
+      </PageFadeIn>
 
-      <StyledTitle>
+      <Spacer size="3rem" />
+
+      <StyledTitle style={{ fontSize: "1.25rem" }}>
         {withGroupWord`Solliciter des dons pour mon groupe`}
       </StyledTitle>
 

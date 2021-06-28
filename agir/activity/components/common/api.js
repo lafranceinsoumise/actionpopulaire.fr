@@ -28,16 +28,15 @@ export const getActivityEndpoint = (key, params) => {
 
 export const updateActivityStatus = async (
   activityId,
-  status = ACTIVITY_STATUS.STATUS_INTERACTED
+  status = ACTIVITY_STATUS.STATUS_INTERACTED,
+  fromPush = false
 ) => {
   let result = false;
   if (!activityId) {
     return result;
   }
   const url = getActivityEndpoint("activity", { activityId });
-  const data = {
-    status,
-  };
+  const data = fromPush ? { pushStatus: status } : { status };
   let res = null;
   try {
     res = await axios.put(url, data);
@@ -50,8 +49,8 @@ export const updateActivityStatus = async (
   return result;
 };
 
-export const setActivityAsInteracted = (activityId) =>
-  updateActivityStatus(activityId, ACTIVITY_STATUS.STATUS_INTERACTED);
+export const setActivityAsInteracted = (activityId, fromPush) =>
+  updateActivityStatus(activityId, ACTIVITY_STATUS.STATUS_INTERACTED, fromPush);
 
 export const setActivityAsDisplayed = (activityId) =>
   updateActivityStatus(activityId, ACTIVITY_STATUS.STATUS_DISPLAYED);

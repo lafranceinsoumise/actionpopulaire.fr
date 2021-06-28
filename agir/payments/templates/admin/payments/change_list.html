@@ -4,6 +4,6 @@
 {% block result_list %}
   {{ block.super }}
   <p>
-    Total des paiements sélectionnés : {{ cl.sum | display_price }}
+    Total des paiements sélectionnés : {{ cl.sum | display_price_in_cent }}
   </p>
 {% endblock %}

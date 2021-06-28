@@ -24,18 +24,18 @@
         <div class="alert alert-success">
           {% block donation_reminder %}
             <p>
-              Je souhaite donner <strong>{% if monthly %}chaque mois {% endif %}{{ amount | display_price }}</strong>
+              Je souhaite donner <strong>{% if monthly %}chaque mois {% endif %}{{ amount | display_price_in_cent }}</strong>
               à {% block donation_dest %}la France insoumise.{% endblock %}
             </p>
           {% endblock %}
           {% if allocations %}
             <p>{% if monthly %}Chaque mois :{% else %}Ce don sera alloué comme suivant :{% endif %}
             <ul>
-              <li><strong>{{ national | display_price }}</strong> seront alloués aux activités et campagnes
+              <li><strong>{{ national | display_price_in_cent }}</strong> seront alloués aux activités et campagnes
                 nationales
               </li>
               {% for group, amount in allocations.items %}
-                <li><strong>{{ amount | display_price }}</strong> seront alloués au financement des activités du groupe
+                <li><strong>{{ amount | display_price_in_cent }}</strong> seront alloués au financement des activités du groupe
                   d'action « <em>{{ group.name }}</em> »
                 </li>
               {% endfor %}

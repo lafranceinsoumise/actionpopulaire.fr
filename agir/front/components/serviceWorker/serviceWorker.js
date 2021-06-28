@@ -16,12 +16,13 @@ webpackAssets.unshift({
 });
 precacheAndRoute(webpackAssets);
 
-// Use network first for HTML
+// Use network only for HTML and for pinging the API
 registerRoute(
   // Check to see if the request is a navigation to a new page
   ({ request }) => request.mode === "navigate",
   new NetworkOnly()
 );
+registerRoute("/api/ping/", new NetworkOnly());
 
 // Use network first or stale cache for some API endpoints
 

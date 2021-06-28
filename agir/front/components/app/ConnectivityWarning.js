@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useIsOffline } from "@agir/front/offline/hooks";
-import logger from "@agir/lib/utils/logger";
 import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
-import styles from "@agir/front/genericComponents/_variables.scss";
+
+import { useIsOffline } from "@agir/front/offline/hooks";
+import { useDownloadBanner } from "@agir/front/app/hooks.js";
+import logger from "@agir/lib/utils/logger";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 
 const log = logger(__filename);
@@ -15,7 +17,15 @@ const StyledWarning = styled(animated.div)`
   z-index: ${style.zindexTopBar};
 
   @media (max-width: ${style.collapse}px) {
-    top: ${({ $hasTopBar }) => ($hasTopBar ? "56px" : "0")};
+    top: ${({ $hasTopBar, $hasDownloadBanner }) => {
+      if ($hasTopBar && $hasDownloadBanner) {
+        return "136px";
+      }
+      if ($hasTopBar) {
+        return "56px";
+      }
+      return "0";
+    }};
   }
 
   & > div {
@@ -32,6 +42,7 @@ const StyledWarning = styled(animated.div)`
 `;
 
 const ConnectivityWarning = ({ hasTopBar }) => {
+  const [hasDownloadBanner] = useDownloadBanner();
   const offline = useIsOffline();
   log.debug(`Offline ${offline}`);
   const [display, setDisplay] = useState(offline);
@@ -40,11 +51,11 @@ const ConnectivityWarning = ({ hasTopBar }) => {
   const [backgroundColor, color, warning] = useMemo(() => {
     switch (offline) {
       case false:
-        return [styles.green500, styles.green100, "Connexion rétablie"];
+        return [style.green500, style.green100, "Connexion rétablie"];
       case true:
-        return [styles.redNSP, styles.red100, "Aucune connexion internet"];
+        return [style.redNSP, style.red100, "Aucune connexion internet"];
       default:
-        return [styles.primary500, styles.primary100, "Connexion en cours..."];
+        return [style.primary500, style.primary100, "Connexion en cours..."];
     }
   }, [offline]);
 
@@ -69,6 +80,7 @@ const ConnectivityWarning = ({ hasTopBar }) => {
             color,
           }}
           $hasTopBar={hasTopBar}
+          $hasDownloadBanner={hasDownloadBanner}
         >
           <div>{warning}</div>
         </StyledWarning>

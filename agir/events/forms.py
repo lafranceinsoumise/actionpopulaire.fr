@@ -1,4 +1,5 @@
 from datetime import timedelta
+from functools import partial
 
 from crispy_forms import layout
 from crispy_forms.helper import FormHelper
@@ -9,9 +10,9 @@ from django.db import transaction
 from django.template.defaultfilters import floatformat
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from functools import partial
 from phonenumber_field.formfields import PhoneNumberField
 
+from agir.activity.models import Activity
 from agir.events.actions import legal
 from agir.events.actions.legal import needs_approval
 from agir.groups.models import SupportGroup, Membership
@@ -37,9 +38,6 @@ from .tasks import (
 )
 from ..lib.form_fields import AcceptCreativeCommonsLicenceField
 from ..people.models import Person, PersonFormSubmission
-from ..activity.models import Activity
-
-from agir.activity.models import Activity
 
 __all__ = [
     "EventForm",

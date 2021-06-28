@@ -328,7 +328,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             path(
                 "<uuid:pk>/add_email/",
                 self.admin_site.admin_view(
-                    partial(AddPersonEmailView.as_view(), model_admin=self)
+                    AddPersonEmailView.as_view(model_admin=self)
                 ),
                 name="people_person_addemail",
             ),

@@ -103,7 +103,7 @@ const RightLink = (props) => {
   if (!settingsLink && !user) return <AnonymousLinks {...props} />;
 
   return (
-    <div style={{ position: "relative", padding: 0, margin: 0 }}>
+    <div style={{ position: "relative", padding: 0 }}>
       {settingsLink ? (
         <>
           <Hide under>

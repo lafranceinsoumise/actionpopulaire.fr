@@ -3,6 +3,7 @@ from typing import Iterable
 import django_countries
 from django.contrib import admin
 from django.contrib.admin import helpers
+from django.contrib.admin.options import IS_POPUP_VAR
 from django.db.models import Model
 from django.urls import reverse
 from django.utils.html import escape, format_html_join
@@ -85,9 +86,13 @@ class RegionListFilter(admin.SimpleListFilter):
 class AdminViewMixin(ContextMixin, View):
     model_admin = None
 
-    def get_admin_helpers(self, form, fields: Iterable[str] = None, fieldsets=None):
+    def get_admin_helpers(
+        self, form, fields: Iterable[str] = None, fieldsets=None, readonly_fields=None
+    ):
         if fieldsets is None:
             fieldsets = [(None, {"fields": list(fields)})]
+        if readonly_fields is None:
+            readonly_fields = []
 
         model_admin = self.kwargs.get("model_admin") or self.model_admin
 
@@ -96,6 +101,7 @@ class AdminViewMixin(ContextMixin, View):
             fieldsets=fieldsets,
             model_admin=model_admin,
             prepopulated_fields={},
+            readonly_fields=readonly_fields,
         )
 
         return {
@@ -111,7 +117,10 @@ class AdminViewMixin(ContextMixin, View):
         kwargs.setdefault("opts", model_admin.model._meta)
         kwargs.setdefault("add", False)
         kwargs.setdefault("change", False)
-        kwargs.setdefault("is_popup", False)
+        kwargs.setdefault(
+            "is_popup",
+            IS_POPUP_VAR in self.request.POST or IS_POPUP_VAR in self.request.GET,
+        )
         kwargs.setdefault("save_as", False)
         kwargs.setdefault(
             "has_add_permission", model_admin.has_add_permission(self.request)
@@ -125,6 +134,8 @@ class AdminViewMixin(ContextMixin, View):
         kwargs.setdefault("has_editable_inline_admin_formsets", False)
         kwargs.setdefault("has_delete_permission", False)
         kwargs.setdefault("show_close", False)
+
+        kwargs.update(model_admin.admin_site.each_context(request=self.request))
 
         return super().get_context_data(**kwargs)
 
