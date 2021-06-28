@@ -32,11 +32,6 @@ const DescriptionSection = styled.div`
     }
   }
 
-  h2 {
-    font-size: 1.25rem;
-    margin-bottom: 16px;
-  }
-
   img {
     margin: 10px 0px;
   }
@@ -88,7 +83,7 @@ const EventDescription = ({
       {description ? (
         <Card>
           <DescriptionSection>
-            <h2>L'événement</h2>
+            <b>L'événement</b>
             {illustration?.banner && (
               <DescriptionSection>
                 <img
