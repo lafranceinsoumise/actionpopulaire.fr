@@ -19,8 +19,6 @@ const PERSON_NOTIFICATIONS = [
     hasPush: true,
     activityTypes: [
       "referral-accepted",
-      "transferred-group-member",
-      "group-invitation",
     ],
   },
   {

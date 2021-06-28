@@ -459,7 +459,7 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 def send_message_notification_email(message_pk):
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
-    recipients = Person.objects.exclude(person=message.author).filter(
+    recipients = Person.objects.exclude(id=message.author.id).filter(
         notification_subscriptions__membership__supportgroup=message.supportgroup,
         notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
         notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
@@ -504,7 +504,7 @@ def send_comment_notification_email(comment_pk):
         comment.author for comment in comment.message.comments.all()
     ]
 
-    recipients = Person.objects.exclude(person=comment.author).filter(
+    recipients = Person.objects.exclude(id=comment.author.id).filter(
         notification_subscriptions__membership__supportgroup=comment.message.supportgroup,
         notification_subscriptions__membership_id__in=authors.values_list(
             "id", flat=True
