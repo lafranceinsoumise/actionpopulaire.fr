@@ -1,6 +1,8 @@
 import re
 from collections import OrderedDict
 
+from django.db.models.expressions import OuterRef, Subquery
+
 from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
@@ -120,13 +122,12 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
         )
 
     recipients = [
-        membership.person
-        for membership in group.memberships.prefetch_related("person__emails")
-        .filter(
-            person__notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-            person__notification_subscriptions__activity_type=Activity.TYPE_GROUP_INFO_UPDATE,
+        s.person
+        for s in Subscription.objects.select_related("person").filter(
+            membership_id__in=group.memberships.values_list("id", flat=True),
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_GROUP_INFO_UPDATE,
         )
-        .distinct("person")
     ]
 
     if len(recipients) == 0:
@@ -164,13 +165,13 @@ def send_joined_notification_email(membership_pk):
 
     recipients = [
         s.person
-        for s in Subscription.objects.select_related("person")
-        .filter(
-            person__in=membership.supportgroup.managers,
+        for s in Subscription.objects.select_related("person").filter(
+            membership_id__in=membership.supportgroup.memberships.filter(
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
+            ).values_list("id", flat=True),
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=Activity.TYPE_NEW_MEMBER,
         )
-        .distinct("person")
     ]
 
     if len(recipients) == 0:
@@ -327,13 +328,11 @@ def send_new_group_event_email(group_pk, event_pk):
 
     recipients = [
         s.person
-        for s in Subscription.objects.select_related("person")
-        .filter(
-            person__in=group.members.all(),
+        for s in Subscription.objects.select_related("person").filter(
+            membership_id__in=group.memberships.all().values_list("id", flat=True),
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=Activity.TYPE_NEW_EVENT_MYGROUPS,
         )
-        .distinct("person")
     ]
 
     if len(recipients) == 0:
@@ -386,7 +385,7 @@ def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
         s.person
         for s in Subscription.objects.select_related("person")
         .filter(
-            person__in=recipients,
+            membership_id__in=recipients.values_list("id", flat=True),
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
         )
@@ -479,10 +478,13 @@ def send_message_notification_email(message_pk):
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
     recipients = [
-        p
-        for p in message.supportgroup.members.prefetch_related("person__emails").filter(
-            person__notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-            person__notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
+        subscription.person
+        for subscription in Subscription.objects.exclude(person=message.author).filter(
+            membership_id__in=message.supportgroup.memberships.values_list(
+                "id", flat=True
+            ),
+            activity_type=Activity.TYPE_NEW_MESSAGE,
+            type=Subscription.SUBSCRIPTION_EMAIL,
         )
     ]
 
@@ -521,15 +523,17 @@ def send_message_notification_email(message_pk):
 def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
 
+    authors = [comment.message.author] + [
+        comment.author for comment in comment.message.comments.all()
+    ]
+
     recipients = [
-        s.person
-        for s in Subscription.objects.select_related("person")
-        .filter(
-            person__in=comment.message.supportgroup.members.all(),
+        subscription.person
+        for subscription in Subscription.objects.exclude(person=comment.author).filter(
+            membership_id__in=authors.values_list("id", flat=True),
+            activity_type=Activity.TYPE_NEW_MESSAGE,
             type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_NEW_COMMENT,
         )
-        .distinct("person")
     ]
 
     if len(recipients) == 0:
