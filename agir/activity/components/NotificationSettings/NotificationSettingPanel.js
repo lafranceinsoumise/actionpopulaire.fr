@@ -165,7 +165,7 @@ const NotificationSettingPanel = (props) => {
           padding: "0 1.5rem 0.5rem",
         }}
       >
-        Notifications
+        Paramètres de notifications et e-mails
       </h3>
       {typeof subscribeDevice === "function" ? (
         <StyledDeviceSubscription>

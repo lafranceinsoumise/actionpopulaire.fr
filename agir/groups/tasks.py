@@ -119,15 +119,11 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
             meta={"changed_data": [f for f in changed_data if f in NOTIFIED_CHANGES]},
         )
 
-    recipients = [
-        membership.person
-        for membership in group.memberships.prefetch_related("person__emails")
-        .filter(
-            person__notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-            person__notification_subscriptions__activity_type=Activity.TYPE_GROUP_INFO_UPDATE,
-        )
-        .distinct("person")
-    ]
+    recipients = Person.objects.filter(
+        notification_subscriptions__membership__supportgroup=group,
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+        notification_subscriptions__activity_type=Activity.TYPE_GROUP_INFO_UPDATE,
+    )
 
     if len(recipients) == 0:
         return
@@ -162,16 +158,12 @@ def send_joined_notification_email(membership_pk):
     )
     person_information = str(membership.person)
 
-    recipients = [
-        s.person
-        for s in Subscription.objects.select_related("person")
-        .filter(
-            person__in=membership.supportgroup.managers,
-            type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_NEW_MEMBER,
-        )
-        .distinct("person")
-    ]
+    recipients = Person.objects.filter(
+        notification_subscriptions__membership__supportgroup=membership.supportgroup,
+        notification_subscriptions__membership__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_MEMBER,
+    )
 
     if len(recipients) == 0:
         return
@@ -325,16 +317,11 @@ def send_new_group_event_email(group_pk, event_pk):
     if not OrganizerConfig.objects.filter(event=event, as_group=group):
         return
 
-    recipients = [
-        s.person
-        for s in Subscription.objects.select_related("person")
-        .filter(
-            person__in=group.members.all(),
-            type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_NEW_EVENT_MYGROUPS,
-        )
-        .distinct("person")
-    ]
+    recipients = Person.objects.filter(
+        notification_subscriptions__membership__supportgroup=group,
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_EVENT_MYGROUPS,
+    )
 
     if len(recipients) == 0:
         return
@@ -380,18 +367,12 @@ def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
 
 @emailing_task
 def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
-    recipients = Person.objects.filter(pk__in=recipients_pks)
 
-    recipients = [
-        s.person
-        for s in Subscription.objects.select_related("person")
-        .filter(
-            person__in=recipients,
-            type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
-        )
-        .distinct("person")
-    ]
+    recipients = Person.objects.filter(
+        pk__in=recipients_pks,
+        type=Subscription.SUBSCRIPTION_EMAIL,
+        activity_type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+    )
 
     if len(recipients) == 0:
         return
@@ -478,13 +459,11 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 def send_message_notification_email(message_pk):
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
-    recipients = [
-        p
-        for p in message.supportgroup.members.prefetch_related("person__emails").filter(
-            person__notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-            person__notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
-        )
-    ]
+    recipients = Person.objects.exclude(person=message.author).filter(
+        notification_subscriptions__membership__supportgroup=message.supportgroup,
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
+    )
 
     if len(recipients) == 0:
         return
@@ -521,16 +500,18 @@ def send_message_notification_email(message_pk):
 def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
 
-    recipients = [
-        s.person
-        for s in Subscription.objects.select_related("person")
-        .filter(
-            person__in=comment.message.supportgroup.members.all(),
-            type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_NEW_COMMENT,
-        )
-        .distinct("person")
+    authors = [comment.message.author] + [
+        comment.author for comment in comment.message.comments.all()
     ]
+
+    recipients = Person.objects.exclude(person=comment.author).filter(
+        notification_subscriptions__membership__supportgroup=comment.message.supportgroup,
+        notification_subscriptions__membership_id__in=authors.values_list(
+            "id", flat=True
+        ),
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
+    )
 
     if len(recipients) == 0:
         return

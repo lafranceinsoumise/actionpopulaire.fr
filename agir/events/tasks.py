@@ -189,7 +189,7 @@ def send_rsvp_notification(rsvp_pk):
         for s in Subscription.objects.prefetch_related("person__emails").filter(
             person__in=recipients,
             type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_EVENT_UPDATE,
+            activity_type=Activity.TYPE_NEW_ATTENDEE,
         )
     ]
 

@@ -29,9 +29,9 @@ const PERSON_NOTIFICATIONS = [
     icon: "lock",
     subtype: "Compte et sécurité",
     label: "Alertes de sécurité et de paiement",
-    hasEmail: true,
-    hasPush: true,
-    activityTypes: ["waiting-payment"],
+    hasEmail: false,
+    hasPush: false,
+    activityTypes: [],
   },
   {
     id: "donation_reminders",
