@@ -1,8 +1,6 @@
 import re
 from collections import OrderedDict
 
-from django.db.models.expressions import OuterRef, Subquery
-
 from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
