@@ -1,4 +1,5 @@
 from django.db import migrations
+from django.db.models import Q, Case, When, BooleanField
 
 SUBSCRIPTION_EMAIL = "email"
 SUBSCRIPTION_PUSH = "push"
@@ -85,26 +86,32 @@ def migrate_default_subscriptions_switch_global_notifications_enabled(
 
     # Events : add default subscriptions if notifications_event_enabled=True
     Subscription.objects.bulk_create(
-        [
-            (
-                Subscription(person=p, type=SUBSCRIPTION_EMAIL, activity_type=t,),
-                Subscription(person=p, type=SUBSCRIPTION_PUSH, activity_type=t,),
-            )
-            for p in Person.objects.all().filter(event_notifications=True)
-            for t in DEFAULT_PERSON_EMAIL_TYPES
-        ]
+        sum(
+            [
+                [
+                    Subscription(person=p, type=SUBSCRIPTION_EMAIL, activity_type=t,),
+                    Subscription(person=p, type=SUBSCRIPTION_PUSH, activity_type=t,),
+                ]
+                for p in Person.objects.all().filter(event_notifications=True)
+                for t in DEFAULT_PERSON_EMAIL_TYPES
+            ],
+            [],
+        ),
+        ignore_conflicts=True,
     )
 
     # Groups : delete default subscription (auto-created for groups) if notifications_group_enabled=False
-    for s in Subscription.objects.all():
-        if s.activity_type in MANDATORY_EMAIL_TYPES or (
-            (
-                s.person.group_notifications is False
-                or s.membership.group_notifications is False
-            )
-            and s.activity_type in DEFAULT_GROUP_EMAIL_TYPES
-        ):
-            s.delete()
+    Subscription.objects.annotate(
+        is_disabled=Case(
+            When(person__group_notifications=False, then=True),
+            When(membership__notifications_enabled=False, then=True),
+            default=False,
+            output_field=BooleanField(),
+        ),
+    ).filter(
+        Q(activity_type__in=MANDATORY_EMAIL_TYPES)
+        | Q(activity_type__in=DEFAULT_GROUP_EMAIL_TYPES, is_disabled=True)
+    ).delete()
 
 
 def reverse_subscriptions_migrations(apps, schema_editor):
