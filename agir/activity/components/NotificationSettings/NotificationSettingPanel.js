@@ -197,7 +197,7 @@ const NotificationSettingPanel = (props) => {
                 <StyledGroup key={subtype}>
                   <StyledGroupName>
                     <span>{subtype}</span>
-                    <small>Notifications</small>
+                    <small>Téléphone</small>
                     <small>E-mail</small>
                   </StyledGroupName>
                   {byType[type][subtype].map((notificationId) => (
