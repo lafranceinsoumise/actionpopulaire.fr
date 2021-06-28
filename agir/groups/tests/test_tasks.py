@@ -11,12 +11,14 @@ from django.utils import timezone
 from agir.lib.tests.mixins import create_group, create_location
 from agir.events.models import Event, OrganizerConfig
 from agir.people.models import Person
+from agir.notifications.models import Subscription
+from ...activity.models import Activity
 from .. import tasks
 from ..actions.notifications import someone_joined_notification
 from ..actions.transfer import create_transfer_membership_activities
 from ..models import SupportGroup, Membership
 from ..tasks import send_joined_notification_email
-from ...activity.models import Activity
+
 
 fake = Faker("fr_FR")
 
@@ -72,11 +74,24 @@ class NotificationTasksTestCase(TestCase):
         self.membership2 = Membership.objects.create(
             supportgroup=self.group, person=self.member2
         )
-        self.membership3 = Membership.objects.create(
+        self.membership_no_notification = Membership.objects.create(
             supportgroup=self.group,
             person=self.member_no_notification,
             notifications_enabled=False,
         )
+
+        Subscription.objects.bulk_create(
+            [
+                Subscription(
+                    person=p, type=Subscription.SUBSCRIPTION_EMAIL, activity_type=t,
+                )
+                for p in [self.creator, self.member1, self.member2]
+                for t in Subscription.DEFAULT_GROUP_EMAIL_TYPES
+            ]
+        )
+
+        for s in Subscription.objects.filter(person=self.member_no_notification):
+            s.delete()
 
     def test_group_creation_mail(self):
         tasks.send_support_group_creation_notification(self.creator_membership.pk)

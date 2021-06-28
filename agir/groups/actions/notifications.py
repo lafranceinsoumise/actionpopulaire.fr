@@ -8,6 +8,7 @@ from agir.groups.tasks import (
     send_joined_notification_email,
     send_alert_capacity_email,
     send_message_notification_email,
+    send_comment_notification_email,
 )
 
 
@@ -73,7 +74,7 @@ def someone_joined_notification(membership, membership_count=1):
 
 @transaction.atomic()
 def new_message_notifications(message):
-    recipients = message.supportgroup.members.filter(group_notifications=True)
+    recipients = message.supportgroup.members.all()
     Activity.objects.bulk_create(
         [
             Activity(
@@ -113,3 +114,5 @@ def new_comment_notifications(comment):
         ],
         send_post_save_signal=True,
     )
+
+    send_comment_notification_email.delay(comment.pk)

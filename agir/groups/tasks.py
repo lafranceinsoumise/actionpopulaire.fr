@@ -1,3 +1,4 @@
+import re
 from collections import OrderedDict
 
 from celery import shared_task
@@ -20,7 +21,8 @@ from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
 from ..activity.models import Activity
 from ..lib.display import genrer
-from ..msgs.models import SupportGroupMessage
+from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
+from ..notifications.models import Subscription
 
 NOTIFIED_CHANGES = {
     "name": "information",
@@ -117,6 +119,19 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
             meta={"changed_data": [f for f in changed_data if f in NOTIFIED_CHANGES]},
         )
 
+    recipients = [
+        membership.person
+        for membership in group.memberships.prefetch_related("person__emails")
+        .filter(
+            person__notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            person__notification_subscriptions__activity_type=Activity.TYPE_GROUP_INFO_UPDATE,
+        )
+        .distinct("person")
+    ]
+
+    if len(recipients) == 0:
+        return
+
     change_descriptions = [
         desc for id, desc in CHANGE_DESCRIPTION.items() if id in changed_categories
     ]
@@ -129,17 +144,6 @@ def send_support_group_changed_notification(support_group_pk, changed_data):
         "GROUP_CHANGES": change_fragment,
         "GROUP_LINK": front_url("view_group", kwargs={"pk": support_group_pk}),
     }
-
-    notifications_enabled = Q(notifications_enabled=True) & Q(
-        person__group_notifications=True
-    )
-
-    recipients = [
-        membership.person
-        for membership in group.memberships.filter(
-            notifications_enabled
-        ).prefetch_related("person__emails")
-    ]
 
     send_mosaico_email(
         code="GROUP_CHANGED",
@@ -158,6 +162,20 @@ def send_joined_notification_email(membership_pk):
     )
     person_information = str(membership.person)
 
+    recipients = [
+        s.person
+        for s in Subscription.objects.select_related("person")
+        .filter(
+            person__in=membership.supportgroup.managers,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_MEMBER,
+        )
+        .distinct("person")
+    ]
+
+    if len(recipients) == 0:
+        return
+
     bindings = {
         "GROUP_NAME": membership.supportgroup.name,
         "PERSON_INFORMATION": person_information,
@@ -170,7 +188,7 @@ def send_joined_notification_email(membership_pk):
         subject="Un nouveau membre dans votre "
         + ("équipe" if membership.supportgroup.is_2022 else "groupe"),
         from_email=settings.EMAIL_FROM,
-        recipients=membership.supportgroup.managers,
+        recipients=recipients,
         bindings=bindings,
     )
 
@@ -307,7 +325,20 @@ def send_new_group_event_email(group_pk, event_pk):
     if not OrganizerConfig.objects.filter(event=event, as_group=group):
         return
 
-    recipients = group.members.filter(group_notifications=True)
+    recipients = [
+        s.person
+        for s in Subscription.objects.select_related("person")
+        .filter(
+            person__in=group.members.all(),
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_EVENT_MYGROUPS,
+        )
+        .distinct("person")
+    ]
+
+    if len(recipients) == 0:
+        return
+
     tz = timezone.get_current_timezone()
     now = timezone.now()
     start_time = event.start_time.astimezone(tz)
@@ -351,9 +382,23 @@ def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
 def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
     recipients = Person.objects.filter(pk__in=recipients_pks)
 
+    recipients = [
+        s.person
+        for s in Subscription.objects.select_related("person")
+        .filter(
+            person__in=recipients,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+        )
+        .distinct("person")
+    ]
+
+    if len(recipients) == 0:
+        return
+
     send_mosaico_email(
         code="TRANSFER_RECEIVER",
-        subject=f"De nouveaux membres ont été transferés dans {bindings['GROUP_DESTINATION']}",
+        subject=f"De nouveaux membres ont été transférés dans {bindings['GROUP_DESTINATION']}",
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
@@ -386,9 +431,7 @@ def geocode_support_group(supportgroup_pk):
         supportgroup.coordinates_type is not None
         and supportgroup.coordinates_type >= SupportGroup.COORDINATES_NO_POSITION
     ):
-        managers_filter = (
-            Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
-        ) & Q(notifications_enabled=True)
+        managers_filter = Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
         managing_membership = supportgroup.memberships.filter(managers_filter)
         managing_membership_recipients = [
             membership.person for membership in managing_membership
@@ -410,9 +453,7 @@ def geocode_support_group(supportgroup_pk):
 def create_accepted_invitation_member_activity(new_membership_pk):
     new_membership = Membership.objects.get(pk=new_membership_pk)
 
-    managers_filter = (Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)) & Q(
-        notifications_enabled=True
-    )
+    managers_filter = Q(membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER)
     managing_membership = new_membership.supportgroup.memberships.filter(
         managers_filter
     )
@@ -436,6 +477,18 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 @post_save_task
 def send_message_notification_email(message_pk):
     message = SupportGroupMessage.objects.get(pk=message_pk)
+
+    recipients = [
+        p
+        for p in message.supportgroup.members.prefetch_related("person__emails").filter(
+            person__notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            person__notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
+        )
+    ]
+
+    if len(recipients) == 0:
+        return
+
     bindings = {
         "MESSAGE_HTML": format_html_join(
             "", "<p>{}</p>", ((p,) for p in message.text.split("\n"))
@@ -444,7 +497,7 @@ def send_message_notification_email(message_pk):
         "MESSAGE_LINK": front_url("user_message_details", kwargs={"pk": message_pk}),
         "AUTHOR_STATUS": format_html(
             '{} de <a href="{}">{}</a>',
-            genrer(message.author.gender, "Animateur", "Animatrice", "Animateurice"),
+            genrer(message.author.gender, "Animateur", "Animatrice", "Animateur·ice"),
             front_url("view_group", args=[message.supportgroup.pk]),
             message.supportgroup.name,
         ),
@@ -458,6 +511,57 @@ def send_message_notification_email(message_pk):
         code="NEW_MESSAGE",
         subject=subject,
         from_email=settings.EMAIL_FROM,
-        recipients=message.supportgroup.members.filter(group_notifications=True),
+        recipients=recipients,
+        bindings=bindings,
+    )
+
+
+@emailing_task
+@post_save_task
+def send_comment_notification_email(comment_pk):
+    comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
+
+    recipients = [
+        s.person
+        for s in Subscription.objects.select_related("person")
+        .filter(
+            person__in=comment.message.supportgroup.members.all(),
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_NEW_COMMENT,
+        )
+        .distinct("person")
+    ]
+
+    if len(recipients) == 0:
+        return
+
+    bindings = {
+        "MESSAGE_HTML": format_html_join(
+            "", "<p>{}</p>", ((p,) for p in comment.text.split("\n"))
+        ),
+        "DISPLAY_NAME": comment.author.display_name,
+        "MESSAGE_LINK": front_url(
+            "view_group_message", args=[comment.message.supportgroup.pk, comment_pk]
+        ),
+        "AUTHOR_STATUS": format_html(
+            '{} de <a href="{}">{}</a>',
+            genrer(comment.author.gender, "Animateur", "Animatrice", "Animateur·ice"),
+            front_url("view_group", args=[comment.message.supportgroup.pk]),
+            comment.message.supportgroup.name,
+        ),
+    }
+
+    message_reference = '"' + comment.message.text + '"'
+    message_reference = message_reference.replace("\n", "")
+    message_reference = re.sub("\s+", " ", message_reference)
+    if len(message_reference) > 80:
+        message_reference = message_reference[0:80] + '..."'
+    subject = f"Nouvelle réponse au message {message_reference}"
+
+    send_mosaico_email(
+        code="NEW_MESSAGE",
+        subject=subject,
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
         bindings=bindings,
     )

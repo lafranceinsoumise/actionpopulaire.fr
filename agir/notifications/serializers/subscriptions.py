@@ -1,10 +1,8 @@
 from django.db import IntegrityError
-
 from rest_framework import serializers
 
 from agir.activity.models import Activity
 from agir.groups.models import Membership, SupportGroup
-from agir.groups.serializers import SupportGroupSerializer
 from agir.lib.serializers import CurrentPersonField
 from agir.notifications.models import Subscription
 

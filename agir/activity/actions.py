@@ -13,6 +13,8 @@ from django.utils import timezone
 from .models import Activity, Announcement
 from ..events.models import Event
 
+from agir.activity.models import Activity
+
 
 def get_activities(person):
     activities = (

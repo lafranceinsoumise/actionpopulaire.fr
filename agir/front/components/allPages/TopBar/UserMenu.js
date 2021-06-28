@@ -13,6 +13,8 @@ import Popin from "@agir/front/genericComponents/Popin";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
+import { routeConfig } from "@agir/front/app/routes.config";
+
 const IconLink = styled(Link)``;
 const StyledUserMenu = styled.div`
   margin: -1rem;
@@ -101,6 +103,7 @@ const StyledUserMenu = styled.div`
 
 export const UserMenu = (props) => {
   const { user } = props;
+
   return (
     <ResponsiveLayout
       MobileLayout={BottomSheet}
@@ -119,7 +122,7 @@ export const UserMenu = (props) => {
           <p>
             <strong>{user.displayName}</strong>
           </p>
-          <p>{user.fullName}</p>
+          {user.fullName !== user.email && <p>{user.fullName}</p>}
           <p>{user.email}</p>
           <Button
             as="Link"
@@ -129,6 +132,15 @@ export const UserMenu = (props) => {
             small
           >
             Paramètres
+          </Button>
+          <Button
+            as="Link"
+            route="notificationSettings"
+            icon="settings"
+            color="secondary"
+            small
+          >
+            Notifications et e-mails
           </Button>
         </article>
         <footer>

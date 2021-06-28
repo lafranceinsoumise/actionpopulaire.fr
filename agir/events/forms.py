@@ -1,4 +1,5 @@
 from datetime import timedelta
+from functools import partial
 
 from crispy_forms import layout
 from crispy_forms.helper import FormHelper
@@ -9,9 +10,9 @@ from django.db import transaction
 from django.template.defaultfilters import floatformat
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from functools import partial
 from phonenumber_field.formfields import PhoneNumberField
 
+from agir.activity.models import Activity
 from agir.events.actions import legal
 from agir.events.actions.legal import needs_approval
 from agir.groups.models import SupportGroup, Membership
@@ -51,6 +52,24 @@ __all__ = [
     "BaseRSVPForm",
     "ExternalRSVPForm",
 ]
+
+# encodes the preferred order when showing the messages
+NOTIFIED_CHANGES = {
+    "name": "information",
+    "start_time": "timing",
+    "end_time": "timing",
+    "contact_name": "contact",
+    "contact_email": "contact",
+    "contact_phone": "contact",
+    "location_name": "location",
+    "location_address1": "location",
+    "location_address2": "location",
+    "location_city": "location",
+    "location_zip": "location",
+    "location_country": "location",
+    "description": "information",
+    "facebook": "information",
+}
 
 
 class AgendaChoiceField(forms.ModelChoiceField):
@@ -253,6 +272,35 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         else:
             # send changes notification
             if self.changed_data:
+
+                event = Event.objects.get(pk=self.instance.pk)
+
+                changed_data = [f for f in self.changed_data if f in NOTIFIED_CHANGES]
+                if not changed_data:
+                    return
+
+                for r in event.attendees.all():
+                    activity = Activity.objects.filter(
+                        type=Activity.TYPE_EVENT_UPDATE,
+                        recipient=r,
+                        event=event,
+                        status=Activity.STATUS_UNDISPLAYED,
+                        created__gt=timezone.now() + timedelta(minutes=2),
+                    ).first()
+                    if activity is not None:
+                        activity.meta["changed_data"] = list(
+                            set(changed_data).union(activity.meta["changed_data"])
+                        )
+                        activity.timestamp = timezone.now()
+                        activity.save()
+                    else:
+                        Activity.objects.create(
+                            type=Activity.TYPE_EVENT_UPDATE,
+                            recipient=r,
+                            event=event,
+                            meta={"changed_data": changed_data},
+                        )
+
                 send_event_changed_notification.delay(
                     self.instance.pk, self.changed_data
                 )

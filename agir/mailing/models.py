@@ -42,8 +42,8 @@ class Segment(BaseSegment, models.Model):
     GA_STATUS_CHOICES = (
         (GA_STATUS_NOT_MEMBER, "Non membres de GA"),
         (GA_STATUS_MEMBER, "Membres de GA"),
-        (GA_STATUS_MANAGER, "Animateurices et gestionnaires de GA"),
-        (GA_STATUS_REFERENT, "Animateurices de GA"),
+        (GA_STATUS_MANAGER, "Animateur·ices et gestionnaires de GA"),
+        (GA_STATUS_REFERENT, "Animateur·ices de GA"),
     )
 
     name = models.CharField("Nom", max_length=255)

@@ -1,4 +1,3 @@
-from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, DestroyAPIView
 
 from agir.lib.rest_framework_permissions import IsPersonPermission

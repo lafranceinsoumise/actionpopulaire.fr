@@ -7,6 +7,7 @@ from agir.lib.serializers import FlexibleFieldsMixin
 from agir.lib.utils import front_url
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 
+
 __all__ = ["ACTIVITY_NOTIFICATION_SERIALIZERS"]
 
 CHANGED_DATA_LABEL = {

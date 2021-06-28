@@ -1,4 +1,4 @@
-from datetime import timedelta, tzinfo
+from datetime import timedelta
 import random
 
 from django.contrib.gis.geos import Point
@@ -14,6 +14,7 @@ from agir.events.models import Calendar, Event, OrganizerConfig, RSVP
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.people.models import Person, PersonForm, PersonFormSubmission
 from agir.activity.models import Activity, Announcement
+
 
 PASSWORD = "incredible password"
 

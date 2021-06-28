@@ -5,9 +5,7 @@ import requests
 from celery import shared_task
 from django.conf import settings
 
-from django.db.models import Q
 from django.template.loader import render_to_string
-from django.utils import timezone
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
@@ -20,10 +18,11 @@ from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.people.models import Person
 from .models import Event, RSVP, OrganizerConfig
+from ..notifications.models import Subscription
+from ..activity.models import Activity
+
 
 # encodes the preferred order when showing the messages
-from agir.activity.models import Activity
-
 NOTIFIED_CHANGES = {
     "name": "information",
     "start_time": "timing",
@@ -101,7 +100,15 @@ def send_event_changed_notification(event_pk, changed_data):
 
     changed_data = [f for f in changed_data if f in NOTIFIED_CHANGES]
 
-    if not changed_data:
+    recipients = [
+        r.person
+        for r in event.rsvps.prefetch_related("person__emails").filter(
+            person__notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            person__notification_subscriptions__activity_type=Activity.TYPE_EVENT_UPDATE,
+        )
+    ]
+
+    if len(recipients) == 0:
         return
 
     changed_categories = {NOTIFIED_CHANGES[f] for f in changed_data}
@@ -112,44 +119,13 @@ def send_event_changed_notification(event_pk, changed_data):
         template_name="lib/list_fragment.html", context={"items": change_descriptions}
     )
 
-    notifications_enabled = Q(notifications_enabled=True) & Q(
-        person__event_notifications=True
-    )
-
-    for r in event.attendees.all():
-        activity = Activity.objects.filter(
-            type=Activity.TYPE_EVENT_UPDATE,
-            recipient=r,
-            event=event,
-            status=Activity.STATUS_UNDISPLAYED,
-        ).first()
-        if activity is not None:
-            activity.meta["changed_data"] = list(
-                set(changed_data).union(activity.meta["changed_data"])
-            )
-            activity.timestamp = timezone.now()
-            activity.save()
-        else:
-            Activity.objects.create(
-                type=Activity.TYPE_EVENT_UPDATE,
-                recipient=r,
-                event=event,
-                meta={"changed_data": changed_data},
-            )
-
-    recipients = [
-        rsvp.person
-        for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
-            "person__emails"
-        )
-    ]
-
     bindings = {
         "EVENT_NAME": event.name,
         "EVENT_CHANGES": change_fragment,
         "EVENT_LINK": front_url("view_event", kwargs={"pk": event_pk}),
         "EVENT_QUIT_LINK": front_url("quit_event", kwargs={"pk": event_pk}),
     }
+
     send_mosaico_email(
         code="EVENT_CHANGED",
         subject=_(
@@ -173,14 +149,6 @@ def send_event_changed_notification(event_pk, changed_data):
 def send_rsvp_notification(rsvp_pk):
     rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
     person_information = str(rsvp.person)
-
-    recipients = [
-        organizer_config.person
-        for organizer_config in rsvp.event.organizer_configs.filter(
-            notifications_enabled=True
-        )
-        if organizer_config.person != rsvp.person
-    ]
 
     attendee_bindings = {
         "EVENT_NAME": rsvp.event.name,
@@ -210,19 +178,35 @@ def send_rsvp_notification(rsvp_pk):
     if rsvp.event.rsvps.count() > 50:
         return
 
+    recipients = [
+        organizer_config.person
+        for organizer_config in rsvp.event.organizer_configs.all()
+        if organizer_config.person != rsvp.person
+    ]
+
+    recipients_allowed_email = [
+        s.person
+        for s in Subscription.objects.prefetch_related("person__emails").filter(
+            person__in=recipients,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Activity.TYPE_EVENT_UPDATE,
+        )
+    ]
+
     organizer_bindings = {
         "EVENT_NAME": rsvp.event.name,
         "PERSON_INFORMATION": person_information,
         "MANAGE_EVENT_LINK": front_url("manage_event", kwargs={"pk": rsvp.event.pk}),
     }
 
-    send_mosaico_email(
-        code="EVENT_RSVP_NOTIFICATION",
-        subject=_("Un nouveau participant à l'un de vos événements"),
-        from_email=settings.EMAIL_FROM,
-        recipients=recipients,
-        bindings=organizer_bindings,
-    )
+    if len(recipients_allowed_email) > 0:
+        send_mosaico_email(
+            code="EVENT_RSVP_NOTIFICATION",
+            subject=_("Un nouveau participant à l'un de vos événements"),
+            from_email=settings.EMAIL_FROM,
+            recipients=recipients_allowed_email,
+            bindings=organizer_bindings,
+        )
 
     for r in recipients:
         # can merge activity with previous one if not displayed yet
@@ -269,15 +253,8 @@ def send_cancellation_notification(event_pk):
 
     event_name = event.name
 
-    notifications_enabled = Q(notifications_enabled=True) & Q(
-        person__event_notifications=True
-    )
-
     recipients = [
-        rsvp.person
-        for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
-            "person__emails"
-        )
+        rsvp.person for rsvp in event.rsvps.prefetch_related("person__emails")
     ]
 
     bindings = {"EVENT_NAME": event_name}
@@ -330,15 +307,16 @@ def send_event_report(event_pk):
     if event.report_summary_sent:
         return
 
-    notifications_enabled = Q(notifications_enabled=True) & Q(
-        person__event_notifications=True
-    )
     recipients = [
-        rsvp.person
-        for rsvp in event.rsvps.filter(notifications_enabled).prefetch_related(
-            "person__emails"
+        r.person
+        for r in event.rsvps.prefetch_related("person__emails").filter(
+            person__notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            person__notification_subscriptions__activity_type=Activity.TYPE_NEW_REPORT,
         )
     ]
+
+    if len(recipients) == 0:
+        return
 
     bindings = {
         "EVENT_NAME": event.name,
@@ -478,7 +456,7 @@ def geocode_event(event_pk):
         Activity.objects.bulk_create(
             (
                 Activity(
-                    type=Activity.TYPE_WAITING_LOCATION_EVENT, recipient=r, event=event
+                    type=Activity.TYPE_WAITING_LOCATION_EVENT, recipient=r, event=event,
                 )
                 for r in event.organizers.all()
             ),

@@ -8,10 +8,12 @@ from django.core import mail
 from agir.lib.tests.mixins import create_location
 from agir.lib.utils import front_url
 from agir.people.models import Person
+from agir.notifications.models import Subscription
 
 from .. import tasks
 from ..models import Event, Calendar, RSVP, OrganizerConfig
 from ...activity.models import Activity
+
 
 fake = Faker("fr_FR")
 
@@ -49,8 +51,19 @@ class EventTasksTestCase(TestCase):
             location_country="FR",
         )
 
-        self.organizer_config = OrganizerConfig.objects.create(
-            person=self.creator, event=self.event
+        self.event_no_email = Event.objects.create(
+            name="Un événement",
+            start_time=now + timezone.timedelta(hours=2),
+            end_time=now + timezone.timedelta(hours=3),
+            contact_name="Moi",
+            contact_email="monevenement@moi.fr",
+            contact_phone="06 06 06 06 06",
+            contact_hide_phone=False,
+            location_name="ma maison",
+            location_address1="Place de la Bastille",
+            location_zip="75011",
+            location_city="Paris",
+            location_country="FR",
         )
 
         self.attendee1 = Person.objects.create_insoumise(
@@ -63,12 +76,35 @@ class EventTasksTestCase(TestCase):
             "person3@participants.fr", create_role=True
         )
 
+        self.organizer_config = OrganizerConfig.objects.create(
+            person=self.creator, event=self.event
+        )
+
+        self.organizer_config2 = OrganizerConfig.objects.create(
+            person=self.attendee_no_notification, event=self.event
+        )
+
         self.rsvp1 = RSVP.objects.create(event=self.event, person=self.attendee1)
         self.rsvp2 = RSVP.objects.create(event=self.event, person=self.attendee2)
         self.rsvp3 = RSVP.objects.create(
             event=self.event,
             person=self.attendee_no_notification,
             notifications_enabled=False,
+        )
+
+        # add TYPE_NEW_REPORT to test new_report
+        default_types = [Activity.TYPE_NEW_REPORT]
+        for t in Subscription.DEFAULT_PERSON_EMAIL_TYPES:
+            default_types.append(t)
+
+        Subscription.objects.bulk_create(
+            [
+                Subscription(
+                    person=p, type=Subscription.SUBSCRIPTION_EMAIL, activity_type=t,
+                )
+                for p in [self.creator, self.attendee1, self.attendee2]
+                for t in default_types
+            ]
         )
 
     def test_event_creation_mail(self):
@@ -152,24 +188,19 @@ class EventTasksTestCase(TestCase):
             self.assert_(str(tasks.CHANGE_DESCRIPTION["timing"]) in text)
             self.assert_(str(tasks.CHANGE_DESCRIPTION["contact"]) not in text)
 
+    def test_changed_event_notification_mail_no_subscriptions(self):
+        tasks.send_event_changed_notification(
+            self.event_no_email.pk, ["name", "start_time"]
+        )
+
+        self.assertEqual(len(mail.outbox), 0)
+
     def test_changed_event_activity(self):
         tasks.send_event_changed_notification(
             self.event.pk, ["name", "start_time", "end_time"]
         )
 
-        self.assertEqual(len(Activity.objects.all()), 3)
-
-        activities = Activity.objects.all()
-
-        self.assertCountEqual(
-            [a.recipient for a in activities],
-            [self.attendee1, self.attendee2, self.attendee_no_notification],
-        )
-
-        for activity in activities:
-            self.assertCountEqual(
-                activity.meta["changed_data"], ["name", "start_time", "end_time"]
-            )
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_send_event_report_mail(self):
         tasks.send_event_report(self.event.pk)

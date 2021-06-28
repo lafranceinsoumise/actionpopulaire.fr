@@ -134,15 +134,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         (_("Dates"), {"fields": ("created", "modified", "last_login")}),
         (
             _("Paramètres mails"),
-            {
-                "fields": (
-                    "newsletters",
-                    "subscribed_sms",
-                    "event_notifications",
-                    "group_notifications",
-                    "campaigns_link",
-                )
-            },
+            {"fields": ("newsletters", "subscribed_sms", "campaigns_link",)},
         ),
         (
             _("Paramètres de participation"),
