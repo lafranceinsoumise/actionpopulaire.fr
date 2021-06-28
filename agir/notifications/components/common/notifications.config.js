@@ -15,7 +15,7 @@ const PERSON_NOTIFICATIONS = [
     icon: "rss",
     subtype: "Nouveautés",
     label: "Nouveautés qui me concernent",
-    hasEmail: true,
+    hasEmail: false,
     hasPush: true,
     activityTypes: [
       "referral-accepted",
