@@ -368,16 +368,11 @@ def send_membership_transfer_sender_confirmation(bindings, recipients_pks):
 @emailing_task
 def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
 
-    recipients = [
-        s.person
-        for s in Subscription.objects.select_related("person")
-        .filter(
-            person__in=recipients_pks,
-            type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
-        )
-        .distinct("person")
-    ]
+    recipients = Person.objects.filter(
+        pk__in=recipients_pks,
+        type=Subscription.SUBSCRIPTION_EMAIL,
+        activity_type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+    )
 
     if len(recipients) == 0:
         return
