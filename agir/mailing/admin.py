@@ -82,7 +82,15 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         ),
         (
             "Réseau des élus",
-            {"fields": ("elu", "elu_municipal", "elu_departemental", "elu_regional",)},
+            {
+                "fields": (
+                    "elu",
+                    "elu_municipal",
+                    "elu_departemental",
+                    "elu_regional",
+                    "elu_consulaire",
+                )
+            },
         ),
         ("Combiner des segments", {"fields": ("add_segments", "exclude_segments")}),
         ("Abonnés", {"fields": ("get_subscribers_count",)}),
