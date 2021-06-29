@@ -94,7 +94,7 @@ export const BannerAnnouncements = (props) => {
   ) : null;
 };
 
-const SidebarAnnouncements = (props) => {
+export const SidebarAnnouncements = (props) => {
   const { announcements } = props;
 
   return announcements.length > 0
