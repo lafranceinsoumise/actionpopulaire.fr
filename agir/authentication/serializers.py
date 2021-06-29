@@ -65,9 +65,12 @@ class SessionSerializer(serializers.Serializer):
             "signup": reverse("signup"),
             "login": reverse("short_code_login"),
             "help": "https://infos.actionpopulaire.fr",
+            "resources": "https://infos.actionpopulaire.fr",
             "logout": reverse("disconnect"),
             "personalInformation": reverse("personal_information"),
             "nspReferral": front_url("nsp_referral"),
+            "materiel": "https://materiel.lafranceinsoumise.fr/",
+            "donations": front_url("donation_amount"),
         }
 
         if request.user.is_authenticated and request.user.person is not None:
@@ -82,18 +85,8 @@ class SessionSerializer(serializers.Serializer):
             if person.is_insoumise:
                 routes.update(
                     {
-                        "materiel": "https://materiel.lafranceinsoumise.fr/",
-                        "resources": "https://lafranceinsoumise.fr/fiches_pour_agir/",
                         "news": "https://lafranceinsoumise.fr/actualites/",
                         "thematicTeams": front_url("thematic_teams_list"),
-                    }
-                )
-            else:
-                routes.update(
-                    {
-                        "materiel": "https://noussommespour.fr/boutique/",
-                        "resources": "https://noussommespour.fr/sinformer/",
-                        "donations": "https://noussommespour.fr/don/",
                     }
                 )
 
