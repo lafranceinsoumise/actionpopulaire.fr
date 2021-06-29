@@ -90,7 +90,6 @@ const StyledUnsupportedSubscription = styled.div`
   grid-template-columns: 1fr;
   grid-template-rows: auto auto;
   background: ${style.black50};
-  grid-gap: 1rem;
   width: calc(100% - 3rem);
   margin: 0 auto 1.5rem;
 
@@ -173,7 +172,7 @@ const NotificationSettingPanel = (props) => {
           padding: "0 1.5rem 0.5rem",
         }}
       >
-        Paramètres de notifications et e-mails
+        Paramètres de notifications&nbsp;<InlineBlock>et e-mails</InlineBlock>
       </h3>
       <p>
         Paramétrez la réception de vos e-mails et des push de

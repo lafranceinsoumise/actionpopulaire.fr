@@ -500,15 +500,12 @@ def send_message_notification_email(message_pk):
 def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
 
-    authors = [comment.message.author] + [
-        comment.author for comment in comment.message.comments.all()
-    ]
+    comment_authors = list(comment.message.comments.values_list("author_id", flat=True))
+    comment_authors = set(comment_authors + [comment.message.author_id])
 
     recipients = Person.objects.exclude(id=comment.author.id).filter(
         notification_subscriptions__membership__supportgroup=comment.message.supportgroup,
-        notification_subscriptions__membership_id__in=authors.values_list(
-            "id", flat=True
-        ),
+        notification_subscriptions__person__in=comment_authors,
         notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
         notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
     )
