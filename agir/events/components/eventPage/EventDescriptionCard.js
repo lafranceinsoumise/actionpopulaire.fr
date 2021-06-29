@@ -104,15 +104,17 @@ const EventDescriptionCard = ({
               fadingOverflow
             />
             <Spacer />
-            <StyledActionButtons>
-              <StyledButton as="a" href={routes.edit}>
-                Modifier la description
-              </StyledButton>
+            {isOrganizer && endTime > DateTime.local() && (
+              <StyledActionButtons>
+                <StyledButton as="a" href={routes.edit}>
+                  Modifier la description
+                </StyledButton>
 
-              <StyledButton as="a" href={routes.edit}>
-                Ajouter une image d'illustration
-              </StyledButton>
-            </StyledActionButtons>
+                <StyledButton as="a" href={routes.edit}>
+                  Ajouter une image d'illustration
+                </StyledButton>
+              </StyledActionButtons>
+            )}
           </DescriptionSection>
         </Card>
       ) : null}
