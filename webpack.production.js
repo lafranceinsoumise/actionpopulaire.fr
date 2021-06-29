@@ -4,6 +4,7 @@ const webpack = require("webpack");
 const merge = require("webpack-merge");
 
 const common = require("./webpack.common.js");
+const { CONFIG_TYPES } = require("./webpack.common");
 
 const STATIC_URL = "/static";
 
@@ -39,16 +40,18 @@ const createCompiler = (config) => {
   };
 };
 
-const legacyConfig = merge.merge(
+const es5Config = merge.merge(
   {
     plugins: [new CleanWebpackPlugin()],
   },
-  common("es5"),
+  common(CONFIG_TYPES.ES5),
   production
 );
-const modernConfig = merge.merge(common("es2015+"), production);
+const es2015Config = merge.merge(common(CONFIG_TYPES.ES2015), production);
 
 (async () => {
-  await createCompiler(legacyConfig)();
-  await createCompiler(modernConfig)();
+  console.log("# ES5 Build");
+  await createCompiler(es5Config)();
+  console.log("# ES2015 Build");
+  await createCompiler(es2015Config)();
 })();

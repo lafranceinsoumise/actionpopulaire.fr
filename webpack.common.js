@@ -18,6 +18,12 @@ const DISTPATH = path.resolve(__dirname, "assets/components");
 const isDirectory = (f) => fs.statSync(f).isDirectory();
 const directoryHasFile = (f) => (d) => fs.readdirSync(d).includes(f);
 
+const CONFIG_TYPES = {
+  ES2015: "es2015+",
+  ES5: "es5",
+  DEV: "dev",
+};
+
 // establish the list of Django applications with a `components` folder
 const applications = fs
   .readdirSync(path.resolve(__dirname, "agir"))
@@ -54,30 +60,36 @@ const aliases = applications.reduce((obj, app) => {
 
 // Generate an HTML fragment with all chunks tag for each entry
 const htmlPlugins = (type) =>
-  type !== "es5"
-    ? Object.keys(components).map(
-        (entry) =>
-          new HtmlWebpackPlugin({
-            filename: `includes/${entry}.bundle.html`,
-            scriptLoading: "blocking",
-            inject: false,
-            chunks: [entry],
-            templateContent: ({ htmlWebpackPlugin }) =>
-              type === "dev"
-                ? htmlWebpackPlugin.tags.headTags +
-                  htmlWebpackPlugin.tags.bodyTags
-                : htmlWebpackPlugin.files.js
-                    .map(
-                      (file) =>
-                        `<script type="module" src="${file}"></script><script nomodule src="${file.replace(
-                          ".mjs",
-                          ".js"
-                        )}"></script>`
-                    )
-                    .join(""),
-          })
-      )
-    : [];
+  Object.keys(components).map(
+    (entry) =>
+      new HtmlWebpackPlugin({
+        filename: `includes/${entry}.${
+          type === CONFIG_TYPES.ES2015 ? "modules" : "bundle"
+        }.html`,
+        scriptLoading: "defer",
+        inject: false,
+        chunks: [entry],
+        templateContent: ({ htmlWebpackPlugin }) => {
+          switch (type) {
+            case CONFIG_TYPES.DEV:
+              return (
+                htmlWebpackPlugin.tags.headTags +
+                htmlWebpackPlugin.tags.bodyTags
+              );
+            case CONFIG_TYPES.ES2015:
+              return htmlWebpackPlugin.files.js
+                .map((file) => `<script type="module" src="${file}"></script>`)
+                .join("");
+            case CONFIG_TYPES.ES5:
+              return (
+                htmlWebpackPlugin.files.js
+                  .map((file) => `<script nomodule src="${file}"></script>`)
+                  .join("") + `{% include "${entry}.modules.html" %}`
+              );
+          }
+        },
+      })
+  );
 
 // List all chunks on which main app depends for preloading by service worker
 let _cachedAppEntryFiles;
@@ -126,61 +138,58 @@ const getOtherEntryFiles = (compilation) => {
   return _cachedOtherEntryFiles;
 };
 
+const es5Browsers = [
+  "> 0.5% in FR",
+  "last 2 versions",
+  "Firefox ESR",
+  "not dead",
+  "not IE 11",
+];
+const es2015Browsers = [
+  "last 2 Chrome versions",
+  "not Chrome < 60",
+  "last 2 Safari versions",
+  "not Safari < 10.1",
+  "last 2 iOS versions",
+  "not iOS < 10.3",
+  "last 2 Firefox versions",
+  "not Firefox < 54",
+  "last 2 Edge versions",
+  "not Edge < 15",
+];
+
 const configureBabelLoader = (type) => ({
   test: /\.m?js$/,
   include: [
     path.resolve(__dirname, "agir"),
-    type === "es2015+"
+    type === CONFIG_TYPES.ES2015
       ? undefined
       : path.resolve(__dirname, "node_modules/react-spring"),
   ].filter(Boolean),
-  exclude: type === "es2015+" ? [] : [new RegExp("node_modules\\" + path.sep)],
+  exclude:
+    type === CONFIG_TYPES.ES2015
+      ? []
+      : [new RegExp("node_modules\\" + path.sep)],
   use: {
     loader: "babel-loader",
     options: {
       cacheDirectory: process.env.BABEL_CACHE_DIRECTORY || true,
-      babelrc: false,
-      exclude: [/core-js/, /regenerator-runtime/],
+      exclude: [/core-js/, /regenerator-runtime/, /webpack[\\/]buildin/],
       presets: [
         "@babel/preset-react",
         [
           "@babel/preset-env",
           {
-            loose: true,
             modules: false,
-            // debug: true,
             corejs: 3,
             useBuiltIns: "usage",
-            targets: {
-              browsers:
-                type === "es5"
-                  ? [
-                      "> 0.5% in FR",
-                      "last 2 versions",
-                      "Firefox ESR",
-                      "not dead",
-                      "not IE 11",
-                    ]
-                  : [
-                      "last 2 Chrome versions",
-                      "not Chrome < 60",
-                      "last 2 Safari versions",
-                      "not Safari < 10.1",
-                      "last 2 iOS versions",
-                      "not iOS < 10.3",
-                      "last 2 Firefox versions",
-                      "not Firefox < 54",
-                      "last 2 Edge versions",
-                      "not Edge < 15",
-                    ],
-            },
+            targets: type === CONFIG_TYPES.ES5 ? es5Browsers : es2015Browsers,
           },
         ],
       ],
       plugins: [
         "@babel/plugin-syntax-dynamic-import",
         "babel-plugin-styled-components",
-        "@babel/plugin-proposal-object-rest-spread",
         [
           "@babel/plugin-transform-runtime",
           {
@@ -194,7 +203,7 @@ const configureBabelLoader = (type) => ({
   },
 });
 
-module.exports = (type = "es5") => ({
+module.exports = (type = CONFIG_TYPES.ES5) => ({
   context: path.resolve(__dirname, "agir/"),
   entry: Object.assign(
     {
@@ -220,43 +229,47 @@ module.exports = (type = "es5") => ({
     new BundleAnalyzerPlugin({
       analyzerMode: "static",
       openAnalyzer: false,
-      reportFilename: type === "es2015+" ? "es2015_report.html" : "report.html",
+      reportFilename:
+        type === CONFIG_TYPES.ES2015 ? "es2015_report.html" : "report.html",
       reportTitle:
-        type === "es2015+"
+        type === CONFIG_TYPES.ES2015
           ? "es2015+ webpack build report"
           : "es5 webpack build report",
     }),
-    new InjectManifest({
-      swSrc: path.resolve(
-        __dirname,
-        "agir/front/components/serviceWorker/serviceWorker.js"
-      ),
-      swDest: "service-worker.js",
-      maximumFileSizeToCacheInBytes: 7000000,
-      include: [
-        ({ asset, compilation }) => {
-          const mainAppEntryFiles = getAppEntryFiles(compilation);
-          const otherEntryFiles = getOtherEntryFiles(compilation);
+    type === CONFIG_TYPES.ES2015
+      ? new InjectManifest({
+          swSrc: path.resolve(
+            __dirname,
+            "agir/front/components/serviceWorker/serviceWorker.js"
+          ),
+          swDest: "service-worker.js",
+          maximumFileSizeToCacheInBytes: 7000000,
+          include: [
+            ({ asset, compilation }) => {
+              const mainAppEntryFiles = getAppEntryFiles(compilation);
+              const otherEntryFiles = getOtherEntryFiles(compilation);
 
-          return (
-            mainAppEntryFiles.includes(asset.name) ||
-            !(
-              otherEntryFiles.includes(asset.name) ||
-              [/front\/skins/, /\.html$/, /\.LICENSE.txt/].some((excluded) =>
-                excluded.test(asset.name)
-              )
-            )
-          );
-        },
-      ],
-    }),
+              return (
+                mainAppEntryFiles.includes(asset.name) ||
+                !(
+                  otherEntryFiles.includes(asset.name) ||
+                  [/front\/skins/, /\.html$/, /\.LICENSE.txt/].some(
+                    (excluded) => excluded.test(asset.name)
+                  )
+                )
+              );
+            },
+          ],
+        })
+      : null,
     new webpack.EnvironmentPlugin(["WEBPUSH_PUBLIC_KEY"]),
-  ],
+  ].filter(Boolean),
   output: {
     libraryTarget: "window",
     library: ["Agir", "[name]"],
-    filename:
-      type === "es2015+" ? "[name]-[chunkhash].mjs" : "[name]-[chunkhash].js",
+    filename: `[name]-[chunkhash].${
+      type === CONFIG_TYPES.ES2015 ? "mjs" : "js"
+    }`,
     path: DISTPATH,
   },
   module: {
@@ -309,3 +322,5 @@ module.exports = (type = "es5") => ({
     ignored: /node_modules/,
   },
 });
+
+module.exports.CONFIG_TYPES = CONFIG_TYPES;

@@ -143,6 +143,5 @@
     "webpack-stats-plugin": "^1.0.3",
     "webpackbar": "5.0.0-3",
     "workbox-webpack-plugin": "^6.1.5"
-  },
-  "browserslist": "> 0.5% in FR, last 2 versions, Firefox ESR, not dead, not IE 11"
+  }
 }
