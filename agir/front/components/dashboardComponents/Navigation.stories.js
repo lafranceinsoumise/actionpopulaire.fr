@@ -3,7 +3,7 @@ import React from "react";
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
 import Navigation from "./Navigation";
 import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
-import { activityStatus } from "@agir/activity/common/helpers";
+import { ACTIVITY_STATUS } from "@agir/activity/common/helpers";
 
 const mockRoutes = [
   ...CONFIG.menuLinks.map((link) => link.route),
@@ -41,7 +41,7 @@ const Template = (args) => (
       activities: Object.keys([...Array(args.unreadActivityCount)]).map(
         (i) => ({
           id: i,
-          status: activityStatus.STATUS_UNDISPLAYED,
+          status: ACTIVITY_STATUS.STATUS_UNDISPLAYED,
         })
       ),
     }}
