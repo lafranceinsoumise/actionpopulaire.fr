@@ -184,7 +184,7 @@ class SupportGroup(
 
     @property
     def is_full(self):
-        return self.is_2022 and self.members_count >= self.MEMBERSHIP_LIMIT
+        return self.members_count >= self.MEMBERSHIP_LIMIT
 
     @property
     def is_certified(self):

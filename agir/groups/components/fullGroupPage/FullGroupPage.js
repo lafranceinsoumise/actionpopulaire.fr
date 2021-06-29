@@ -54,38 +54,10 @@ const FullGroupPage = ({ groupPk }) => {
   const routes = useSelector(getRoutes);
 
   const { data: fullGroup } = useSWR(
-    groupPk ? `/api/groupes/${groupPk}/` : null,
-    // TODO: remove fetcher once group detail API endpoint is available
-    () => {
-      try {
-        const dataElement = document.getElementById("exportedContent");
-        if (!dataElement) {
-          return null;
-        }
-        const { fullGroup } = JSON.parse(dataElement.textContent);
-
-        return fullGroup;
-      } catch (e) {
-        return null;
-      }
-    }
+    groupPk ? `/api/groupes/${groupPk}/` : null
   );
   const { data: groupSuggestions } = useSWR(
-    groupPk ? `/api/groupes/${groupPk}/suggestions/` : null,
-    // TODO: remove fetcher once group suggestions API endpoint is available
-    () => {
-      try {
-        const dataElement = document.getElementById("exportedContent");
-        if (!dataElement) {
-          return null;
-        }
-        const { groupSuggestions } = JSON.parse(dataElement.textContent);
-
-        return groupSuggestions;
-      } catch (e) {
-        return null;
-      }
-    }
+    groupPk ? `/api/groupes/${groupPk}/suggestions/` : null
   );
 
   return (

@@ -51,7 +51,7 @@ class GroupJoinAPITestCase(APITestCase):
         res = self.client.post(f"/api/groupes/{group_2022.pk}/rejoindre/")
         self.assertEqual(res.status_code, 201)
 
-    def test_person_cannot_join_full_2022_group(self):
+    def test_person_cannot_join_full_group(self):
         self.client.force_login(self.person.role)
         full_group = SupportGroup.objects.create(type=SupportGroup.TYPE_2022)
         for i in range(SupportGroup.MEMBERSHIP_LIMIT + 1):
