@@ -23,28 +23,32 @@ const StyledCard = styled(Card)`
 const EventReportCard = ({ compteRendu, isOrganizer, endTime, routes }) => {
   const isPast = endTime < DateTime.local();
 
+  if (!isPast) {
+    return null;
+  }
+
+  if (!compteRendu && !isOrganizer) {
+    return null;
+  }
+  
   return (
-    <>
-      {isPast && (compteRendu || isOrganizer) ? (
-        <StyledCard>
-          <b>Compte-rendu</b>
-          {compteRendu ? (
-            <Collapsible
-              dangerouslySetInnerHTML={{ __html: compteRendu }}
-              style={{ margin: "1em 0 3em" }}
-              fadingOverflow
-            />
-          ) : (
-            <p>Il n'y a pas encore de compte-rendu de cet événement.</p>
-          )}
-          {isOrganizer && endTime < DateTime.local() && (
-            <StyledButton as="a" href={routes.compteRendu}>
-              {compteRendu ? "Modifier le" : "Ajouter un"} compte-rendu
-            </StyledButton>
-          )}
-        </StyledCard>
-      ) : null}
-    </>
+    <StyledCard>
+      <b>Compte-rendu</b>
+      {compteRendu ? (
+        <Collapsible
+          dangerouslySetInnerHTML={{ __html: compteRendu }}
+          style={{ margin: "1em 0 3em" }}
+          fadingOverflow
+        />
+      ) : (
+        <p>Il n'y a pas encore de compte-rendu de cet événement.</p>
+      )}
+      {isOrganizer && (
+        <StyledButton as="a" href={routes.compteRendu}>
+          {compteRendu ? "Modifier le" : "Ajouter un"} compte-rendu
+        </StyledButton>
+      )}
+    </StyledCard>
   );
 };
 
