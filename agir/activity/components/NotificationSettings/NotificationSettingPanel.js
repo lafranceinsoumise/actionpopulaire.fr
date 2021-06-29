@@ -111,6 +111,15 @@ const StyledPanel = styled(Panel)`
     margin-left: 1.5rem;
     padding-bottom: 0;
   }
+
+  > p {
+    padding: 0 1.5rem 0.5rem;
+    display: inline-block;
+  }
+`;
+
+const InlineBlock = styled.div`
+  display: inline-block;
 `;
 
 const NotificationSettingPanel = (props) => {
@@ -123,7 +132,6 @@ const NotificationSettingPanel = (props) => {
     disabled,
     ready,
     subscribeDevice,
-    unsubscribeDevice,
     isPushAvailable,
     subscriptionError,
     pushIsReady,
@@ -167,6 +175,10 @@ const NotificationSettingPanel = (props) => {
       >
         Paramètres de notifications et e-mails
       </h3>
+      <p>
+        Paramétrez la réception de vos e-mails et des push de
+        l'application&nbsp;<InlineBlock>sur votre téléphone.</InlineBlock>
+      </p>
       {typeof subscribeDevice === "function" ? (
         <StyledDeviceSubscription>
           <h5>Notifications désactivées</h5>
@@ -178,15 +190,12 @@ const NotificationSettingPanel = (props) => {
             Activer
           </Button>
         </StyledDeviceSubscription>
-      ) : typeof unsubscribeDevice === "function" ? (
-        <div style={{ padding: "0 1.5rem 1.5rem" }}>
-          <Button color="choose" small onClick={unsubscribeDevice}>
-            Désactiver les notifications
-          </Button>
-        </div>
       ) : pushIsReady && !isPushAvailable ? (
         <StyledUnsupportedSubscription>
-          <p>Les notifications ne sont actuellement pas supportées.</p>
+          <p>
+            Les notifications mobiles ne sont actuellement pas supportées sur
+            votre appareil.
+          </p>
         </StyledUnsupportedSubscription>
       ) : null}
       <PageFadeIn ready={ready}>
@@ -238,7 +247,6 @@ NotificationSettingPanel.propTypes = {
   activeNotifications: PropTypes.object,
   onChange: PropTypes.func.isRequired,
   subscribeDevice: PropTypes.func,
-  unsubscribeDevice: PropTypes.func,
   disabled: PropTypes.bool,
   ready: PropTypes.bool,
   isPushAvailable: PropTypes.bool,
