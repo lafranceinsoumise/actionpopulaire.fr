@@ -133,14 +133,13 @@ class UserGroupsView(ListAPIView):
         group_suggestions = []
 
         if person.coordinates is not None:
-            group_suggestions = self.get_queryset().exclude(
-                memberships__person=self.request.user.person
+            group_suggestions = (
+                self.get_queryset()
+                .exclude(memberships__person=self.request.user.person)
+                .annotate(distance=Distance("coordinates", person.coordinates))
+                .order_by("distance")[:3]
             )
-            if person.is_2022_only:
-                group_suggestions = group_suggestions.is_2022()
-            group_suggestions = group_suggestions.annotate(
-                distance=Distance("coordinates", person.coordinates)
-            ).order_by("distance")[:3]
+
             for group in group_suggestions:
                 group.membership = None
 
@@ -186,17 +185,14 @@ class NearGroupsAPIView(ListAPIView):
             return SupportGroup.objects.none()
 
         groups = (
-            SupportGroup.objects.active()
-            .exclude(pk=self.supportgroup.pk)
-            .exclude(coordinates__isnull=True)
+            (
+                SupportGroup.objects.active()
+                .exclude(pk=self.supportgroup.pk)
+                .exclude(coordinates__isnull=True)
+            )
+            .annotate(distance=Distance("coordinates", self.supportgroup.coordinates))
+            .order_by("distance")
         )
-
-        if self.supportgroup.is_2022:
-            groups = groups.is_2022()
-
-        groups = groups.annotate(
-            distance=Distance("coordinates", self.supportgroup.coordinates)
-        ).order_by("distance")
 
         return groups[:3]
 
@@ -462,10 +458,6 @@ class GroupJoinAPIView(CreateAPIView):
                     "redirectTo": f'{reverse_lazy("short_code_login")}?next={reverse("view_group", kwargs={"pk": self.object.pk})}'
                 },
             )
-        if self.object.is_2022 and not request.user.person.is_2022:
-            raise PermissionDenied(detail={"redirectTo": f'{reverse("join")}?type=2'},)
-        if not self.object.is_2022 and not request.user.person.is_insoumise:
-            raise PermissionDenied(detail={"redirectTo": f'{reverse("join")}?type=I'},)
         if self.object.is_full:
             raise PermissionDenied(
                 detail={

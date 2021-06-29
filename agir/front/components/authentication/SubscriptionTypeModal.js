@@ -87,7 +87,7 @@ const SUBSCRIPTION_TYPE = {
     confirmColor: style.redNSP,
     target: {
       event: "participer à cet événement",
-      group: "rejoindre cette équipe",
+      group: "rejoindre ce groupe",
     },
     content:
       "Vous êtes membre de la France Insoumise mais vous n’avez pas encore soutenu la campagne de Jean-Luc Mélenchon pour 2022. Confirmez votre soutien",

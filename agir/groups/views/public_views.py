@@ -131,8 +131,7 @@ class ThematicTeamsViews(ListView):
 
 class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("groups.view_supportgroup",)
-    meta_description = "Rejoignez les groupes d'action de la France insoumise."
-    meta_description_2022 = "Rejoignez les équipes de soutien de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
+    meta_description = "Rejoignez les groupes d'action de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
     queryset = SupportGroup.objects.all()
     bundle_name = "front/app"
     data_script_id = "exportedGroup"
@@ -141,9 +140,7 @@ class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
         return HttpResponseGone()
 
     def can_join(self):
-        if self.object.is_2022:
-            return self.request.user.person.is_2022
-        return self.request.user.person.is_insoumise
+        return True
 
     @method_decorator(login_required(login_url=reverse_lazy("short_code_login")))
     def post(self, request, *args, **kwargs):

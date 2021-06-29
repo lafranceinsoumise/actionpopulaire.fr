@@ -203,14 +203,14 @@ const StyledContent = styled.div`
 `;
 
 const ManagerActions = (props) => {
-  const { is2022 = false, groupSettingsLinks, routes } = props;
+  const { groupSettingsLinks, routes } = props;
 
   return (
     <StyledContent>
       <StyledPanel>
         <h6>Gestion du groupe</h6>
         <Button as="Link" route="createEvent" color="primary" icon="plus" small>
-          Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
+          Créer un événement du groupe
         </Button>
         <ul>
           {groupSettingsLinks?.members && (
@@ -275,17 +275,17 @@ const ManagerActions = (props) => {
         </ul>
       </StyledPanel>
       <Button as="Link" route="createEvent" color="primary" icon="plus" small>
-        Créer un événement {is2022 ? "de l'équipe" : "du groupe"}
+        Créer un événement du groupe
       </Button>
       <Button as="Link" to={groupSettingsLinks?.menu} icon="settings" small>
-        Gestion {is2022 ? "de l'équipe" : "du groupe"}
+        Gestion du groupe
       </Button>
     </StyledContent>
   );
 };
 
 const MobileMemberActions = (props) => {
-  const { is2022 = false, routes, isMenuOpen, openMenu, closeMenu } = props;
+  const { routes, isMenuOpen, openMenu, closeMenu } = props;
 
   return (
     <div
@@ -297,14 +297,14 @@ const MobileMemberActions = (props) => {
       }}
     >
       <Button onClick={openMenu} color="default" icon="check" small>
-        Vous êtes membre {is2022 ? "de l'équipe" : "du groupe"}
+        Vous êtes membre du groupe
       </Button>
       <BottomSheet isOpen={isMenuOpen} onDismiss={closeMenu} position="bottom">
         <StyledList>
           <li>
             <a href={routes.quit}>
               <FeatherIcon small inline color={style.primary500} name="users" />
-              Quitter {is2022 ? "l'équipe" : "le groupe"}
+              Quitter le groupe
             </a>
           </li>
         </StyledList>
@@ -313,7 +313,7 @@ const MobileMemberActions = (props) => {
   );
 };
 const DesktopMemberActions = (props) => {
-  const { is2022 = false, routes, isMenuOpen, openMenu, closeMenu } = props;
+  const { routes, isMenuOpen, openMenu, closeMenu } = props;
 
   return (
     <div
@@ -324,14 +324,14 @@ const DesktopMemberActions = (props) => {
       }}
     >
       <Button onClick={openMenu} color="default" icon="check">
-        Vous êtes membre {is2022 ? "de l'équipe" : "du groupe"}
+        Vous êtes membre du groupe
       </Button>
       <Popin isOpen={isMenuOpen} onDismiss={closeMenu} position="bottom">
         <StyledList>
           <li>
             <a href={routes.quit}>
               <FeatherIcon small inline color={style.primary500} name="users" />
-              Quitter {is2022 ? "l'équipe" : "le groupe"}
+              Quitter le groupe
             </a>
           </li>
         </StyledList>
@@ -340,7 +340,6 @@ const DesktopMemberActions = (props) => {
   );
 };
 DesktopMemberActions.propTypes = MobileMemberActions.propTypes = {
-  is2022: PropTypes.bool,
   routes: PropTypes.object,
   isMenuOpen: PropTypes.bool,
   openMenu: PropTypes.func,
@@ -391,7 +390,6 @@ ManagerActions.propTypes =
     {
       isMember: PropTypes.bool,
       isManager: PropTypes.bool,
-      is2022: PropTypes.bool,
       routes: PropTypes.object,
       groupSettingsLinks: PropTypes.object,
     };

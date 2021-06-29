@@ -20,18 +20,18 @@ const GroupMembershipLimitReminderCard = (props) => {
       return (
         <GenericCardContainer {...props}>
           <strong>
-            Action requise&nbsp;: votre équipe ne respecte plus la{" "}
+            Action requise&nbsp;: votre groupe ne respecte plus la{" "}
             <Link
               href={`/activite/${id}/lien/`}
               params={{ next: routes.charteEquipes }}
             >
-              charte des équipes de soutien
+              charte des groupes d'action
             </Link>
           </strong>
           <br />
           {SupportGroup} a atteint {membershipCount} personnes&nbsp;! Il est
           maintenant impossible que des nouvelles personnes la rejoignent.
-          Divisez votre équipe en équipes plus petites maintenant pour renforcer
+          Divisez votre groupe en groupes plus petites maintenant pour renforcer
           le réseau d’action.
         </GenericCardContainer>
       );
@@ -39,16 +39,16 @@ const GroupMembershipLimitReminderCard = (props) => {
     case 2:
       return (
         <GenericCardContainer {...props}>
-          <strong>Votre équipe est trop nombreuse</strong>
+          <strong>Votre groupe est trop nombreux</strong>
           <br />
           {SupportGroup} compte plus de {membershipCount - 1} personnes&nbsp;!
-          Il est temps de vous diviser en plusieurs équipes pour permettre une
+          Il est temps de vous diviser en plusieurs groupes pour permettre une
           plus grande répartition de l’action.{" "}
           <Link
             href={`/activite/${id}/lien/`}
             params={{ next: routes.groupTransferHelp }}
           >
-            En savoir plus sur la division des équipes
+            En savoir plus sur la division des groupes
           </Link>
         </GenericCardContainer>
       );
@@ -56,18 +56,18 @@ const GroupMembershipLimitReminderCard = (props) => {
       return (
         <GenericCardContainer {...props}>
           <strong>
-            Gardez un oeil sur le nombre de membres de votre équipe
+            Gardez un oeil sur le nombre de membres de votre groupe
           </strong>
           <br />
           {SupportGroup} a dépassé les {membershipCount - 1} personnes ! Afin
           que chacun·e puisse s'impliquer et pour permettre une plus grande
           répartition de votre action, nous vous invitons à diviser votre
-          équipe.{" "}
+          groupe.{" "}
           <Link
             href={`/activite/${id}/lien/`}
             params={{ next: routes.groupTransferHelp }}
           >
-            En savoir plus sur la division des équipes
+            En savoir plus sur la division des groupes
           </Link>
         </GenericCardContainer>
       );
@@ -76,11 +76,11 @@ const GroupMembershipLimitReminderCard = (props) => {
         <GenericCardContainer {...props}>
           <strong>
             Bravo, vous êtes maintenant {membershipCount || "nombreux·ses"} dans
-            votre équipe&nbsp;!
+            votre groupe&nbsp;!
           </strong>
           <br />
           {SupportGroup} a atteint le nombre idéal de personnes. Désormais,
-          favorisez la création d'autres équipes autour de chez vous par
+          favorisez la création d'autres groupes autour de chez vous par
           d’autres membres, de manière à renforcer le réseau d'action.
         </GenericCardContainer>
       );

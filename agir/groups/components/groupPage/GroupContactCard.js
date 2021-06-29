@@ -94,7 +94,7 @@ const GroupContactCard = (props) => {
     <Card>
       {Array.isArray(referents) && referents.length > 0 ? (
         <StyledReferentSection>
-          <p>{referentTitle} de l’équipe</p>
+          <p>{referentTitle} du groupe</p>
         </StyledReferentSection>
       ) : null}
       {contact ? (

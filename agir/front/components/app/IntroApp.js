@@ -208,7 +208,7 @@ const items = [
   {
     header: img3,
     title: "Rejoignez ou créez",
-    body: "une équipe de soutien autour de vous !",
+    body: "un groupe d'action autour de vous !",
   },
   {},
 ];

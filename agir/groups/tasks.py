@@ -75,8 +75,7 @@ def send_support_group_creation_notification(membership_pk):
 
     send_mosaico_email(
         code="GROUP_CREATION",
-        subject="Les informations de votre "
-        + ("nouvelle équipe" if group.is_2022 else "nouveau groupe"),
+        subject="Les informations de votre nouveau groupe",
         from_email=settings.EMAIL_FROM,
         recipients=[referent],
         bindings=bindings,
@@ -177,8 +176,7 @@ def send_joined_notification_email(membership_pk):
     }
     send_mosaico_email(
         code="GROUP_SOMEONE_JOINED_NOTIFICATION",
-        subject="Un nouveau membre dans votre "
-        + ("équipe" if membership.supportgroup.is_2022 else "groupe"),
+        subject="Un nouveau membre dans votre groupe",
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
@@ -186,8 +184,8 @@ def send_joined_notification_email(membership_pk):
 
 
 ALERT_CAPACITY_SUBJECTS = {
-    21: "Votre équipe compte plus de 20 membres !",
-    30: "Action requise : votre équipe ne respecte plus la charte des équipes de soutien",
+    21: "Votre groupe compte plus de 20 membres !",
+    30: "Action requise : votre groupe ne respecte plus la charte des groupes d'action",
 }
 
 

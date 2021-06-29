@@ -189,17 +189,6 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
                 '"{}" did not return 404'.format(page),
             )
 
-    def test_cannot_join_group_if_external(self):
-        self.other_person.is_insoumise = False
-        self.other_person.save()
-        self.client.force_login(self.other_person.role)
-
-        url = reverse("view_group", kwargs={"pk": self.manager_group.pk})
-
-        # cannot join
-        self.client.post(url, data={"action": "join"}, follow=True)
-        self.assertNotIn(self.other_person, self.manager_group.members.all())
-
     def test_transfer_allowed_for_managers(self):
         res = self.client.post(
             reverse("transfer_group_members", kwargs={"pk": self.manager_group.pk})

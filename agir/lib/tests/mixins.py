@@ -158,7 +158,7 @@ def create_group():
                 SupportGroup.TYPE_LOCAL_GROUP,
                 SupportGroup.TYPE_THEMATIC,
                 SupportGroup.TYPE_FUNCTIONAL,
-                SupportGroup.TYPE_PROFESSIONAL,
+                SupportGroup.TYPE_2022,
             ]
         ),
         "description": fake.paragraph(),

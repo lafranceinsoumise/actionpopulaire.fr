@@ -52,23 +52,12 @@ class ObjectOpengraphMixin(SimpleOpengraphMixin):
     def get_meta_title(self):
         return "{} — {}".format(self.object.name, self.title_suffix)
 
-    def is_2022_object(self):
-        return hasattr(self.object, "is_2022") and self.object.is_2022 == True
-
     # noinspection PyUnresolvedReferences
     def get_meta_image(self):
-        url = static("front/assets/og_image_LFI.jpg")
+        url = static("front/assets/og_image_NSP.jpg")
         if hasattr(self.object, "image") and self.object.image:
             url = self.object.image.url
-        elif self.is_2022_object():
-            url = static("front/assets/og_image_NSP.jpg")
         return urljoin(settings.FRONT_DOMAIN, url)
-
-    # noinspection PyUnresolvedReferences
-    def get_meta_description(self):
-        if self.is_2022_object() and hasattr(self, "meta_description_2022"):
-            return self.meta_description_2022
-        return self.meta_description
 
 
 class ChangeLocationBaseView(UpdateView):

@@ -67,7 +67,7 @@ const ACTIVITY_CONFIG = {
         return supportGroup?.routes?.membershipTransfer
           ? {
               href: supportGroup.routes.membershipTransfer,
-              label: "Diviser mon équipe",
+              label: "Diviser mon groupe",
             }
           : null;
       }
@@ -75,7 +75,7 @@ const ACTIVITY_CONFIG = {
       return routes?.groupTransferHelp
         ? {
             href: routes?.groupTransferHelp,
-            label: "Diviser mon équipe",
+            label: "Diviser mon groupe",
           }
         : null;
     },

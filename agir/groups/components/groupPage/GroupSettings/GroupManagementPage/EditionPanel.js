@@ -12,7 +12,6 @@ import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButto
 import Toast from "@agir/front/genericComponents/Toast";
 
 import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
-import { useGroupWord } from "@agir/groups/utils/group";
 
 const [REFERENT, MANAGER, MEMBER] = [100, 50, 10];
 
@@ -39,10 +38,7 @@ const EditionPanel = (props) => {
     selectedMembershipType,
     errors,
     isLoading,
-    is2022,
   } = props;
-
-  const withGroupWord = useGroupWord({ is2022 });
 
   const candidates = useMemo(
     () =>
@@ -67,8 +63,8 @@ const EditionPanel = (props) => {
       <Spacer size="1rem" />
       {members.length === 1 ? (
         <span style={{ color: style.black700 }}>
-          {withGroupWord`Accueillez d’abord un·e membre dans votre groupe pour pouvoir lui donner un rôle de
-            gestionnaire.`}
+          Accueillez d’abord un·e membre dans votre groupe pour pouvoir lui
+          donner un rôle de gestionnaire.
         </span>
       ) : candidates.length === 0 ? (
         <span style={{ color: style.black700 }}>
@@ -108,11 +104,11 @@ const EditionPanel = (props) => {
             </StyledList>
             <StyledList>
               <div />
-              {withGroupWord`Modifier les informations du groupe`}
+              Modifier les informations du groupe
             </StyledList>
             <StyledList>
               <div />
-              {withGroupWord`Créer des événements au nom du groupe`}
+              Créer des événements au nom du groupe
             </StyledList>
           </div>
           {errors?.membershipType && (
@@ -137,7 +133,6 @@ EditionPanel.propTypes = {
   selectedMembershipType: PropTypes.oneOf([REFERENT, MANAGER, MEMBER]),
   errors: PropTypes.object,
   isLoading: PropTypes.bool,
-  is2022: PropTypes.bool,
 };
 
 export default EditionPanel;

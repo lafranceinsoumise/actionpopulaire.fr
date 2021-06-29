@@ -25,17 +25,7 @@ class CreateGroupForm extends React.Component {
     let state = {
       fields: props.initial || {},
       skipType: false,
-      types: props.types.reduce((result, type) => {
-        if (type.id === NSP_GROUP_TYPE_ID) {
-          result.unshift({
-            ...type,
-            fullWidth: true,
-          });
-        } else {
-          result.push(type);
-        }
-        return result;
-      }, []),
+      types: props.types,
     };
 
     if (state.types.length === 1 && !state.types[0].disabled) {
@@ -314,7 +304,6 @@ class ValidateStep extends FormStep {
   render() {
     const { fields, types } = this.props;
     const groupType = types.find((t) => t.id === fields.type) || {};
-    const is2022 = groupType.id === NSP_GROUP_TYPE_ID;
 
     return (
       <div className="row padtopmore padbottommore">
@@ -346,27 +335,18 @@ class ValidateStep extends FormStep {
           </dl>
         </div>
         <div className="col-md-6">
-          {is2022 ? (
-            <p>
-              Pour finir, il vous reste juste à choisir un nom pour votre
-              équipe&nbsp;! Choisissez un nom simple et descriptif (par exemple
-              : &laquo;&nbsp;Équipe de soutien de la Porte
-              d'Arras&nbsp;&raquo;).
-            </p>
-          ) : (
-            <p>
-              Pour finir, il vous reste juste à choisir un nom pour votre
-              groupe&nbsp;! Choisissez un nom simple et descriptif (par exemple
-              : &laquo;&nbsp;Groupe d'action de la Porte d'Arras&nbsp;&raquo;).
-            </p>
-          )}
+          <p>
+            Pour finir, il vous reste juste à choisir un nom pour votre
+            groupe&nbsp;! Choisissez un nom simple et descriptif (par exemple :
+            &laquo;&nbsp;Groupe d'action de la Porte d'Arras&nbsp;&raquo;).
+          </p>
           <form onSubmit={this.post}>
             <div className="form-group">
               <input
                 className="form-control"
                 ref={(i) => (this.groupName = i)}
                 type="text"
-                placeholder={`Nom ${is2022 ? "de l'équipe" : "du groupe"}`}
+                placeholder="Nom du groupe"
                 required
               />
             </div>
@@ -375,7 +355,7 @@ class ValidateStep extends FormStep {
               type="submit"
               disabled={!this.state.maySubmit || this.state.processing}
             >
-              Créer mon {is2022 ? "équipe" : "groupe"}
+              Créer mon groupe
             </button>
           </form>
           <form>
@@ -383,14 +363,13 @@ class ValidateStep extends FormStep {
               <label>
                 <input onChange={this.toggleMaySubmit} type="checkbox" />
                 Je m'engage à respecter{" "}
-                {is2022 ? (
+                {groupType.id === NSP_GROUP_TYPE_ID ? (
                   <a
                     href="https://infos.actionpopulaire.fr/charte-des-equipes-de-soutien-nous-sommes-pour/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    la charte des équipes de soutien «&nbsp;Nous Sommes
-                    Pour&nbsp;!&nbsp;»
+                    la charte des groupes d'action
                   </a>
                 ) : (
                   <a

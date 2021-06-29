@@ -25,7 +25,7 @@ class GroupJoinAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 403)
         self.assertIn("redirectTo", res.data)
 
-    def test_2022_person_cannot_join_insoumise_group(self):
+    def test_2022_person_can_join_insoumise_group(self):
         person_2022 = Person.objects.create(
             email="2022@example.com",
             create_role=True,
@@ -37,10 +37,9 @@ class GroupJoinAPITestCase(APITestCase):
         )
         self.client.force_login(person_2022.role)
         res = self.client.post(f"/api/groupes/{group_insoumise.pk}/rejoindre/")
-        self.assertEqual(res.status_code, 403)
-        self.assertIn("redirectTo", res.data)
+        self.assertEqual(res.status_code, 201)
 
-    def test_insoumise_person_cannot_join_2022_group(self):
+    def test_insoumise_person_can_join_2022_group(self):
         person_insoumise = Person.objects.create(
             email="insoumise@example.com",
             create_role=True,
@@ -50,8 +49,7 @@ class GroupJoinAPITestCase(APITestCase):
         group_2022 = SupportGroup.objects.create(type=SupportGroup.TYPE_2022)
         self.client.force_login(person_insoumise.role)
         res = self.client.post(f"/api/groupes/{group_2022.pk}/rejoindre/")
-        self.assertEqual(res.status_code, 403)
-        self.assertIn("redirectTo", res.data)
+        self.assertEqual(res.status_code, 201)
 
     def test_person_cannot_join_full_2022_group(self):
         self.client.force_login(self.person.role)

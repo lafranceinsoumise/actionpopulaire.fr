@@ -64,7 +64,7 @@ class GroupFilterSet(django_filters.FilterSet):
 
 class GroupAPIFilterSet(GroupFilterSet, django_filters.rest_framework.FilterSet):
     is_2022 = django_filters.BooleanFilter(
-        method="filter_is_2022", label="Groupes NSP uniquement",
+        method="filter_is_2022", label="Groupes d'action 2022 uniquement",
     )
     is_insoumise = django_filters.BooleanFilter(
         method="filter_is_insoumise", label="Groupes LFI uniquement",

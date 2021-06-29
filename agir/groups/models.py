@@ -81,16 +81,14 @@ class SupportGroup(
     TYPE_LOCAL_GROUP = "L"
     TYPE_THEMATIC = "B"
     TYPE_FUNCTIONAL = "F"
-    TYPE_PROFESSIONAL = "P"
     TYPE_2022 = "2"
 
     TYPE_LFI_CHOICES = (
         (TYPE_LOCAL_GROUP, "Groupe local"),
         (TYPE_THEMATIC, "Groupe thématique"),
         (TYPE_FUNCTIONAL, "Groupe fonctionnel"),
-        (TYPE_PROFESSIONAL, "Groupe professionel"),
     )
-    TYPE_NSP_CHOICES = ((TYPE_2022, "Équipe de soutien « Nous Sommes Pour ! »"),)
+    TYPE_NSP_CHOICES = ((TYPE_2022, "Groupe d'action"),)
 
     TYPE_CHOICES = TYPE_LFI_CHOICES + TYPE_NSP_CHOICES
 
@@ -98,7 +96,6 @@ class SupportGroup(
         TYPE_LOCAL_GROUP: {"color": "#4a64ac", "icon_name": "users"},
         TYPE_THEMATIC: {"color": "#49b37d", "icon_name": "book"},
         TYPE_FUNCTIONAL: {"color": "#e14b35", "icon_name": "cog"},
-        TYPE_PROFESSIONAL: {"color": "#f4981e", "icon_name": "industry"},
         TYPE_2022: {"color": "#571aff", "icon_name": "users"},
     }
 
@@ -113,18 +110,15 @@ class SupportGroup(
         " des fonctions précises (formations, organisation"
         " des apparitions publiques, rédaction de tracts, chorale insoumise,"
         " journaux locaux, auto-organisation, etc…).",
-        TYPE_PROFESSIONAL: "Les groupes d’action professionnels rassemblent des insoumis⋅es qui"
-        " souhaitent agir au sein de leur entreprise ou de leur lieu d’étude.",
-        TYPE_2022: "Les équipes de soutien « Nous Sommes Pour ! » peuvent être rejointes par toutes les personnes "
-        "ayant parainné la candidature de Jean-Luc Mélenchon.",
+        TYPE_2022: "Les groupes d'action peuvent être rejoints par toutes les personnes "
+        "soutenant la candidature de Jean-Luc Mélenchon pour l'élection présidentielle de 2022.",
     }
 
     TYPE_DISABLED_DESCRIPTION = {
         TYPE_LOCAL_GROUP: "",
         TYPE_THEMATIC: "",
         TYPE_FUNCTIONAL: "",
-        TYPE_PROFESSIONAL: "",
-        TYPE_2022: "✅ Vous animez déjà une équipe de soutien",
+        TYPE_2022: "✅ Vous animez déjà un groupe d'action",
     }
 
     MEMBERSHIP_LIMIT = 30

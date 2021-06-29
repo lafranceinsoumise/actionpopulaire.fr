@@ -147,18 +147,18 @@ class GroupMembershipLimitReminderActivityNotificationSerializer(
             "membershipLimitNotificationStep"
         ]
         if membership_limit_notification_step == 0:
-            return f"Vous êtes maintenant {membership_count} dans votre équipe ! Vous avez atteint le nombre idéal de personnes"
+            return f"Vous êtes maintenant {membership_count} dans votre groupe ! Vous avez atteint le nombre idéal de personnes"
 
         if (
             membership_limit_notification_step == 1
             or membership_limit_notification_step == 2
         ):
-            return f"Votre groupe a atteint les {membership_count} personnes ! Afin que chacun·e puisse s'impliquer et pour permettre une plus grande répartition de l'action, nous vous invitons à diviser votre équipe"
+            return f"Votre groupe a atteint les {membership_count} personnes ! Afin que chacun·e puisse s'impliquer et pour permettre une plus grande répartition de l'action, nous vous invitons à diviser votre groupe"
 
         if membership_limit_notification_step == 3:
-            return f"Votre équipe est trop nombreuse {activity.supportgroup.name} compte plus de {membership_count - 1} personnes ! Il est temps de vous diviser en plusieurs équipes pour permettre une plus grande répartition de l’action"
+            return f"Votre groupe est trop nombreux : {activity.supportgroup.name} compte plus de {membership_count - 1} personnes ! Il est temps de vous diviser en plusieurs groupes pour permettre une plus grande répartition de l’action"
 
-        return "Votre équipe a trop de membres. Divisez-la pour renforcer le réseau d'action"
+        return "Votre groupe a trop de membres. Divisez-la pour renforcer le réseau d'action"
 
     def get_url(self, activity):
         return activity_notification_url(
@@ -328,7 +328,7 @@ class TransferredGroupMemberActivityNotificationSerializer(
     )
 
     def get_body(self, activity):
-        return f"Vous avez été transféré·e de {activity.meta['oldGroup']} et avez rejoint {activity.supportgroup.name}. Votre nouvelle équipe vous attend !"
+        return f"Vous avez été transféré·e de {activity.meta['oldGroup']} et avez rejoint {activity.supportgroup.name}. Votre nouveau groupe vous attend !"
 
     def get_url(self, activity):
         return activity_notification_url(
