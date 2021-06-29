@@ -6,8 +6,8 @@ import styled from "styled-components";
 import { DateTime } from "luxon";
 import Button from "@agir/front/genericComponents/Button";
 import Collapsible from "@agir/front/genericComponents/Collapsible.js";
-import Card from "../../../front/components/genericComponents/Card";
-import Spacer from "../../../front/components/genericComponents/Spacer";
+import Card from "@agir/front/components/genericComponents/Card";
+import Spacer from "@agir/front/components/genericComponents/Spacer";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
