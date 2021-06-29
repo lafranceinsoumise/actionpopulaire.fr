@@ -1,5 +1,7 @@
 const webpackConfig = require("../webpack.common");
 
+const baseConfig = webpackConfig(webpackConfig.CONFIG_TYPES.DEV);
+
 module.exports = {
   core: {
     builder: "webpack5",
@@ -24,7 +26,7 @@ module.exports = {
 
     config.resolve = {
       ...config.resolve,
-      alias: { ...config.resolve.alias, ...webpackConfig.resolve.alias },
+      alias: { ...config.resolve.alias, ...baseConfig.resolve.alias },
     };
 
     config.devtool = "eval";
