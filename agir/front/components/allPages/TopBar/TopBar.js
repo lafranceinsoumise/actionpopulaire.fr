@@ -95,6 +95,10 @@ const HorizontalFlex = styled.div`
     margin-right: 1em;
   }
 
+  & > *:last-child {
+    margin-right: 0;
+  }
+
   form {
     flex-grow: inherit;
   }
