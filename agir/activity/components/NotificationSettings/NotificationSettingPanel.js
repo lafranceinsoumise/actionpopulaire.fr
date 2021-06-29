@@ -196,10 +196,7 @@ const NotificationSettingPanel = (props) => {
         </StyledDeviceSubscription>
       ) : pushIsReady && !isPushAvailable && !isDesktop ? (
         <StyledUnsupportedSubscription>
-          <p>
-            Les notifications mobiles ne sont actuellement pas supportées sur
-            votre appareil.
-          </p>
+          <p>Installez l'application pour recevoir des notifications</p>
         </StyledUnsupportedSubscription>
       ) : null}
       <PageFadeIn ready={ready}>
