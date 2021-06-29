@@ -6,8 +6,8 @@ import styled from "styled-components";
 import { DateTime } from "luxon";
 import Button from "@agir/front/genericComponents/Button";
 import Collapsible from "@agir/front/genericComponents/Collapsible.js";
-import Card from "@agir/front/components/genericComponents/Card";
-import Spacer from "@agir/front/components/genericComponents/Spacer";
+import Card from "@agir/front/genericComponents/Card";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -71,7 +71,7 @@ const StyledActionButtons = styled.div`
   }
 `;
 
-const EventDescription = ({
+const EventDescriptionCard = ({
   illustration,
   description,
   isOrganizer,
@@ -144,7 +144,7 @@ const EventDescription = ({
   );
 };
 
-EventDescription.propTypes = {
+EventDescriptionCard.propTypes = {
   compteRendu: PropTypes.string,
   compteRenduPhotos: PropTypes.arrayOf(
     PropTypes.shape({
@@ -163,4 +163,4 @@ EventDescription.propTypes = {
   rsvp: PropTypes.string,
 };
 
-export default EventDescription;
+export default EventDescriptionCard;

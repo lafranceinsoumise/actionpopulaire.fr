@@ -4,6 +4,8 @@ import Button from "../../../front/components/genericComponents/Button";
 import { DateTime } from "luxon";
 import Card from "../../../front/components/genericComponents/Card";
 
+import style from "@agir/front/genericComponents/_variables.scss";
+
 const Thumbnails = styled.div`
   display: grid;
   grid-gap: 0.5rem;

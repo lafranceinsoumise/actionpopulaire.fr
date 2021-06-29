@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Collapsible from "../../../front/components/genericComponents/Collapsible";
 import Button from "../../../front/components/genericComponents/Button";
 import Card from "../../../front/components/genericComponents/Card";
+import style from "@agir/front/genericComponents/_variables.scss";
 
 const StyledButton = styled(Button)`
   height: 48px;
