@@ -9,6 +9,8 @@ import Button from "@agir/front/genericComponents/Button";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Panel, { StyledBackButton } from "@agir/front/genericComponents/Panel";
 
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
+
 import NotificationSettingItem from "./NotificationSettingItem";
 
 const StyledGroupName = styled.div`
@@ -137,6 +139,8 @@ const NotificationSettingPanel = (props) => {
     pushIsReady,
   } = props;
 
+  const isDesktop = useIsDesktop();
+
   const [byType, icons] = useMemo(() => {
     const result = {};
     const icons = {};
@@ -190,7 +194,7 @@ const NotificationSettingPanel = (props) => {
             Activer
           </Button>
         </StyledDeviceSubscription>
-      ) : pushIsReady && !isPushAvailable ? (
+      ) : pushIsReady && !isPushAvailable && !isDesktop ? (
         <StyledUnsupportedSubscription>
           <p>
             Les notifications mobiles ne sont actuellement pas supportées sur
