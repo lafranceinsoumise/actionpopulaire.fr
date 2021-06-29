@@ -17,11 +17,7 @@ const PERSON_NOTIFICATIONS = [
     label: "Nouveautés qui me concernent",
     hasEmail: true,
     hasPush: true,
-    activityTypes: [
-      "referral-accepted",
-      "transferred-group-member",
-      "group-invitation",
-    ],
+    activityTypes: ["referral-accepted"],
   },
   {
     id: "security_and_payment_alerts",
