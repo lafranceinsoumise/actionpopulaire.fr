@@ -101,6 +101,11 @@ const StyledUserMenu = styled.div`
   }
 `;
 
+const StyledButton = styled(Button)`
+  width: 230px;
+  justify-content: center;
+`;
+
 export const UserMenu = (props) => {
   const { user } = props;
 
@@ -124,7 +129,7 @@ export const UserMenu = (props) => {
           </p>
           {user.fullName !== user.email && <p>{user.fullName}</p>}
           <p>{user.email}</p>
-          <Button
+          <StyledButton
             as="Link"
             route="personalInformation"
             icon="settings"
@@ -132,8 +137,9 @@ export const UserMenu = (props) => {
             small
           >
             Paramètres
-          </Button>
-          <Button
+          </StyledButton>
+          <br />
+          <StyledButton
             as="Link"
             route="notificationSettings"
             icon="settings"
@@ -141,10 +147,10 @@ export const UserMenu = (props) => {
             small
           >
             Notifications et e-mails
-          </Button>
+          </StyledButton>
         </article>
         <footer>
-          <Button
+          <StyledButton
             as="Link"
             route="logout"
             icon="power"
@@ -155,7 +161,7 @@ export const UserMenu = (props) => {
             small
           >
             Me déconnecter
-          </Button>
+          </StyledButton>
         </footer>
       </StyledUserMenu>
     </ResponsiveLayout>
