@@ -7,7 +7,7 @@ import { FaWhatsapp, FaTelegram } from "react-icons/fa";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { timeAgo } from "@agir/lib/utils/time";
 import { formatEvent } from "@agir/events/common/utils";
-import { getMessageSubject } from "@agir/msgs/utils";
+import { getMessageSubject } from "@agir/msgs/common/utils";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
 import Button from "@agir/front/genericComponents/Button";
