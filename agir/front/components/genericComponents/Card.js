@@ -51,7 +51,7 @@ const Card = styled.div`
   }
 
   box-shadow: ${style.cardShadow};
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   overflow: hidden;
   border-bottom: 1px solid ${style.black50};
 

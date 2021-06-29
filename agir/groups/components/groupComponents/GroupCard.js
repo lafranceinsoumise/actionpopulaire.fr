@@ -60,7 +60,7 @@ const StyledGroupButton = styled(Button)`
   height: 48px;
   font-size: 16px;
   font-weight: 500;
-  border-radius: 0.5rem;
+  border-radius: ${style.borderRadius};
   margin-top: 16px;
 `;
 

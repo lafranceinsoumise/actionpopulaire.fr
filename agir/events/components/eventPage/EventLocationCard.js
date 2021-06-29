@@ -34,7 +34,7 @@ const MapContainer = styled.div`
     margin: 24px 0 0 0;
 
     * {
-      border-radius: 8px;
+  border-radius: ${style.borderRadius};
     }
 
     display: ${(props) => {
