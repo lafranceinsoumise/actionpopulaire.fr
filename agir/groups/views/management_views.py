@@ -118,6 +118,7 @@ class SupportGroupManagementView(RedirectView):
 
 class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
     template_name = "groups/create.html"
+    manager_per_type_limit = 2
 
     def get_context_data(self, **kwargs):
         person = self.request.user.person
@@ -135,44 +136,26 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
         )
 
         types = []
-        disabled_types = []
 
-        is_2022_group_manager = (
-            SupportGroup.objects.active()
-            .filter(
-                type__in=[choice[0] for choice in SupportGroup.TYPE_NSP_CHOICES],
-                memberships__person=person,
-                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        for id, label in SupportGroup.TYPE_NSP_CHOICES + SupportGroup.TYPE_LFI_CHOICES:
+            disabled = self.manager_per_type_limit <= (
+                SupportGroup.objects.active()
+                .filter(
+                    type=id,
+                    memberships__person=person,
+                    memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                )
+                .count()
             )
-            .exists()
-        )
-
-        if is_2022_group_manager:
-            disabled_types.extend(SupportGroup.TYPE_NSP_CHOICES)
-        else:
-            types.extend(SupportGroup.TYPE_NSP_CHOICES)
-
-        types.extend(SupportGroup.TYPE_LFI_CHOICES)
-
-        types = [
-            {
-                "id": id,
-                "label": label,
-                "description": SupportGroup.TYPE_DESCRIPTION[id],
-                "disabledDescription": SupportGroup.TYPE_DISABLED_DESCRIPTION[id],
-                "disabled": False,
-            }
-            for id, label in types
-        ] + [
-            {
-                "id": id,
-                "label": label,
-                "description": SupportGroup.TYPE_DESCRIPTION[id],
-                "disabledDescription": SupportGroup.TYPE_DISABLED_DESCRIPTION[id],
-                "disabled": True,
-            }
-            for id, label in disabled_types
-        ]
+            types.append(
+                {
+                    "id": id,
+                    "label": label,
+                    "description": SupportGroup.TYPE_DESCRIPTION[id],
+                    "disabledDescription": SupportGroup.TYPE_DISABLED_DESCRIPTION[id],
+                    "disabled": disabled,
+                }
+            )
 
         subtypes = [
             dict_to_camelcase(s.get_subtype_information())

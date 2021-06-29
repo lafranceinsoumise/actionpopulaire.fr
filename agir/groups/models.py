@@ -115,10 +115,10 @@ class SupportGroup(
     }
 
     TYPE_DISABLED_DESCRIPTION = {
-        TYPE_LOCAL_GROUP: "",
-        TYPE_THEMATIC: "",
-        TYPE_FUNCTIONAL: "",
-        TYPE_2022: "✅ Vous animez déjà un groupe d'action",
+        TYPE_LOCAL_GROUP: "✅ Vous animez déjà deux groupes locaux",
+        TYPE_THEMATIC: "✅ Vous animez déjà deux groupes thématiques",
+        TYPE_FUNCTIONAL: "✅ Vous animez déjà deux groupes fonctionnels",
+        TYPE_2022: "✅ Vous animez déjà deux groupes d'action",
     }
 
     MEMBERSHIP_LIMIT = 30
