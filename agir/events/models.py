@@ -384,16 +384,18 @@ class Event(
         encoder=CustomJSONEncoder,
     )
 
+    FOR_USERS_ALL = "A"
     FOR_USERS_INSOUMIS = "I"
     FOR_USERS_2022 = "2"
     FOR_USERS_CHOICES = (
+        (FOR_USERS_ALL, "Tous les utilisateurs"),
         (FOR_USERS_INSOUMIS, "Les insoumis⋅es"),
         (FOR_USERS_2022, "Les signataires « Nous Sommes Pour ! »"),
     )
 
     for_users = models.CharField(
         "Utilisateur⋅ices de la plateforme concerné⋅es par l'événement",
-        default=FOR_USERS_INSOUMIS,
+        default=FOR_USERS_ALL,
         max_length=1,
         blank=False,
         choices=FOR_USERS_CHOICES,
@@ -592,9 +594,7 @@ class Event(
         return f"https://calendar.google.com/calendar/render?{urlencode(query)}&sprop=name:Action%20Populaire"
 
     def can_rsvp(self, person):
-        return (self.for_users == Event.FOR_USERS_2022 and person.is_2022) or (
-            self.for_users == Event.FOR_USERS_INSOUMIS and person.is_insoumise
-        )
+        return True
 
 
 class EventSubtype(BaseSubtype):

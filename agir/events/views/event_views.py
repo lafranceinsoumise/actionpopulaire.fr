@@ -87,16 +87,6 @@ class EventSearchView(FilterView):
     )
     filter_class = EventFilter
 
-    def dispatch(self, request, *args, **kwargs):
-        if (
-            self.request.user.is_authenticated
-            and hasattr(self.request.user, "person")
-            and request.user.person.is_2022_only
-        ):
-            self.queryset = self.queryset.is_2022()
-
-        return super().dispatch(request, *args, **kwargs)
-
 
 class EventContextMixin:
     def get_context_data(self, **kwargs):

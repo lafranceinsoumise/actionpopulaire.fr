@@ -69,8 +69,7 @@
     "contact": null,
     "distance": null,
     "is2022": false,
-    "forUsers": "I",
-    "hasRightSubscription": true
+    "forUsers": "I"
   },
   {
     "id": "819cbe27-910e-4074-b50a-4ae644e8751d",
@@ -142,7 +141,6 @@
     "contact": null,
     "distance": null,
     "is2022": false,
-    "forUsers": "I",
-    "hasRightSubscription": true
+    "forUsers": "I"
   }
 ]

@@ -48,9 +48,6 @@ class Command(BaseCommand):
                 .exclude(coordinates=None)
             )
 
-            if not person.is_insoumise:
-                base_queryset = base_queryset.is_2022()
-
             near_event = (
                 base_queryset.annotate(
                     distance=Distance("coordinates", person.coordinates)

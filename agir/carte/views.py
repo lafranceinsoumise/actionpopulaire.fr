@@ -90,14 +90,11 @@ class EventsView(AnonymousAPIView, ListAPIView):
     serializer_class = serializers.MapEventSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
     filterset_class = EventFilter
-
-    def get_queryset(self):
-        qs = Event.objects.listed()
-
-        if self.request.GET.get("var") == "nsp_only":
-            qs = qs.is_2022()
-
-        return qs.filter(coordinates__isnull=False).select_related("subtype")
+    queryset = (
+        Event.objects.listed()
+        .filter(coordinates__isnull=False)
+        .select_related("subtype")
+    )
 
     @method_decorator(cache.cache_page(300))
     @cache.cache_control(public=True)
