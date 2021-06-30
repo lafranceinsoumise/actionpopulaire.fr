@@ -21,7 +21,6 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import footerBanner from "./images/footer-banner.jpg";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import { useMobileApp } from "@agir/front/app/hooks";
-import { routeConfig } from "@agir/front/app/routes.config";
 
 const FooterForm = styled.div`
   display: flex;
@@ -287,9 +286,12 @@ export const Footer = (props) => {
               {routes.donations && <Link route="donations">Faire un don</Link>}
               <Link route="eventMap">Carte des événements</Link>
               <Link route="groupMap">Carte des groupes</Link>
-              <a href="https://materiel.lafranceinsoumise.fr/" target="_blank">
+              <Link
+                href="https://materiel.lafranceinsoumise.fr/"
+                target="_blank"
+              >
                 Commander du matériel
-              </a>
+              </Link>
             </p>
           </div>
 
@@ -307,20 +309,19 @@ export const Footer = (props) => {
           <div>
             <h3>La campagne présidentielle</h3>
             <p>
-              <a href="https://melenchon2022.fr/" target="_blank">
+              <Link href="https://melenchon2022.fr/" target="_blank">
                 Mélenchon2022.fr
-              </a>
+              </Link>
               {routes.programme && (
-                <Link
-                  href="https://melenchon2022.fr/programme/"
-                  target="_blank"
-                >
+                <Link href={routes.programme} target="_blank">
                   Le programme l'Avenir en commun
                 </Link>
               )}
-              <a href="https://melenchon2022.fr/agenda/" target="_blank">
-                Agenda de la campagne
-              </a>
+              {routes.agenda && (
+                <Link href={routes.agenda} target="_blank">
+                  Agenda de la campagne
+                </Link>
+              )}
             </p>
           </div>
 
