@@ -10,6 +10,7 @@ import Card from "@agir/front/genericComponents/Card";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import { Hide } from "../../../front/components/genericComponents/grid";
 
 const DescriptionSection = styled.div`
   margin: 0;
@@ -92,16 +93,18 @@ const EventDescriptionCard = ({
             <b>L'événement</b>
             {illustration?.banner && (
               <DescriptionSection>
-                <img
-                  src={illustration.banner}
-                  alt="Image d'illustration de l'événement postée par l'utilisateur"
-                  style={{
-                    maxWidth: "100%",
-                    height: "auto",
-                    maxHeight: "500px",
-                    borderRadius: "8px",
-                  }}
-                />
+                <Hide under>
+                  <img
+                    src={illustration.banner}
+                    alt="Image d'illustration de l'événement postée par l'utilisateur"
+                    style={{
+                      maxWidth: "100%",
+                      height: "auto",
+                      maxHeight: "500px",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </Hide>
               </DescriptionSection>
             )}
 
