@@ -71,6 +71,14 @@ const StyledActionButtons = styled.div`
   }
 `;
 
+const StyledCard = styled(Card)`
+  margin-bottom: 24px;
+  box-shadow: ${style.cardShadow};
+  border-radius: ${style.borderRadius};
+  overflow: hidden;
+  border-bottom: 1px solid ${style.black50};
+`;
+
 const EventDescriptionCard = ({
   illustration,
   description,
@@ -81,7 +89,7 @@ const EventDescriptionCard = ({
   return (
     <>
       {description ? (
-        <Card>
+        <StyledCard>
           <DescriptionSection>
             <b>L'événement</b>
             {illustration?.banner && (
@@ -116,11 +124,11 @@ const EventDescriptionCard = ({
               </StyledActionButtons>
             )}
           </DescriptionSection>
-        </Card>
+        </StyledCard>
       ) : null}
 
       {!description && isOrganizer && endTime > DateTime.local() && (
-        <Card>
+        <StyledCard>
           <DescriptionSection>
             <h2>Ajoutez une description !</h2>
             <p>
@@ -140,7 +148,7 @@ const EventDescriptionCard = ({
               )}
             </div>
           </DescriptionSection>
-        </Card>
+        </StyledCard>
       )}
     </>
   );

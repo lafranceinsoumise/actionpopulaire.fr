@@ -11,8 +11,17 @@ import facebookLogo from "@agir/front/genericComponents/logos/facebook.svg";
 import twitterLogo from "@agir/front/genericComponents/logos/twitter.svg";
 import telegramLogo from "@agir/front/genericComponents/logos/telegram.svg";
 import whatsappLogo from "@agir/front/genericComponents/logos/whatsapp.svg";
+import styled from "styled-components";
 
 let logoSpacing = { margin: "0 8px" };
+
+const StyledCard = styled(Card)`
+  margin-bottom: 24px;
+  box-shadow: ${style.cardShadow};
+  border-radius: ${style.borderRadius};
+  overflow: hidden;
+  border-bottom: 1px solid ${style.black50};
+`;
 
 const ShareCard = (props) => {
   const { url, title } = props;
@@ -32,7 +41,7 @@ const ShareCard = (props) => {
 
   const inputEl = useRef(null);
   return (
-    <Card style={{ padding: "1.5rem" }}>
+    <StyledCard style={{ padding: "1.5rem" }}>
       <Row gutter={2} style={{ marginBottom: "1rem" }}>
         <Column grow collapse={false}>
           <b>{title || "Partager"}</b>
@@ -117,7 +126,7 @@ const ShareCard = (props) => {
           </Button>
         </Column>
       </Row>
-    </Card>
+    </StyledCard>
   );
 };
 ShareCard.propTypes = {
