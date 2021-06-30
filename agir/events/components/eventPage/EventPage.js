@@ -99,7 +99,7 @@ const IndexLinkAnchor = styled(Link)`
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  margin: 2.5rem 16px 1.5rem;
+  margin: 2.5rem 1rem 1.5rem;
 
   &,
   &:hover,
