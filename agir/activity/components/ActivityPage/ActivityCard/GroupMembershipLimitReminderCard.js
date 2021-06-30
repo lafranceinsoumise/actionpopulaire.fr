@@ -31,7 +31,7 @@ const GroupMembershipLimitReminderCard = (props) => {
           <br />
           {SupportGroup} a atteint {membershipCount} personnes&nbsp;! Il est
           maintenant impossible que des nouvelles personnes la rejoignent.
-          Divisez votre groupe en groupes plus petites maintenant pour renforcer
+          Divisez votre groupe en groupes plus petits maintenant pour renforcer
           le réseau d’action.
         </GenericCardContainer>
       );
