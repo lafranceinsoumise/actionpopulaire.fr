@@ -213,7 +213,7 @@ const MobileLayout = (props) => {
             <ShareCard url={routes?.details} />
             {Array.isArray(groups) && groups.length > 0 && (
               <CardLikeSection>
-                <h3>Organisé par</h3>
+                <b>Organisé par</b>
                 {groups.map((group, key) => (
                   <GroupCard key={key} {...group} isEmbedded />
                 ))}
