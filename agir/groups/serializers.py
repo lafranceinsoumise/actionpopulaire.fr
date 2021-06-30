@@ -263,18 +263,14 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             routes["geolocate"] = front_url(
                 "change_group_location", kwargs={"pk": obj.pk}
             )
+            routes["invitation"] = front_url(
+                "view_group_settings_contact", kwargs={"pk": obj.pk},
+            )
+            routes["orders"] = "https://materiel.lafranceinsoumise.fr/"
             if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
                 routes["materiel"] = front_url(
                     "view_group_settings_materiel", kwargs={"pk": obj.pk}
                 )
-            if not obj.is_2022:
-                routes["invitation"] = front_url(
-                    "view_group_settings_contact", kwargs={"pk": obj.pk},
-                )
-                routes["orders"] = "https://materiel.lafranceinsoumise.fr/"
-            else:
-                routes["orders"] = "https://noussommespour.fr/boutique/"
-
             if obj.is_certified:
                 routes["financement"] = front_url(
                     "view_group_settings_finance", kwargs={"pk": obj.pk},
