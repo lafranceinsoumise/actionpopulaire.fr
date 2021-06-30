@@ -212,7 +212,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
     components
   ),
   plugins: [
-    new WebpackBar(),
+    new WebpackBar({ name: `${type} build` }),
     ...htmlPlugins(type),
     new HtmlWebpackPlugin({
       filename: `includes/theme.bundle.html`,

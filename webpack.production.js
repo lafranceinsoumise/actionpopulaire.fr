@@ -34,7 +34,10 @@ const createCompiler = (config) => {
       compiler.run((err, stats) => {
         if (err) return reject(err);
         console.log(stats.toString({ colors: true }) + "\n");
-        resolve();
+        compiler.close((closeErr) => {
+          if (closeErr) return reject(closeErr);
+          resolve();
+        });
       });
     });
   };
@@ -50,8 +53,6 @@ const es5Config = merge.merge(
 const es2015Config = merge.merge(common(CONFIG_TYPES.ES2015), production);
 
 (async () => {
-  console.log("# ES5 Build");
   await createCompiler(es5Config)();
-  console.log("# ES2015 Build");
   await createCompiler(es2015Config)();
 })();
