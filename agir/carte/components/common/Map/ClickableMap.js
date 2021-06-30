@@ -1,7 +1,7 @@
 import React from "react";
 import Map from "@agir/carte/common/Map";
 import PropTypes from "prop-types";
-import { useMobileApp } from "@agir/front/app/hooks";
+import {useMobileApp} from "@agir/front/app/hooks";
 
 const ClickableMap = (props) => {
   const { location, zoom, subtype, center } = props;
@@ -12,12 +12,10 @@ const ClickableMap = (props) => {
 
   const appleHref = `https://maps.apple.com/?ll=${latitude},${longitude}`;
   const androidHref = `geo:${latitude},${longitude}?q=${location.address}`;
-  const googleHref = `https://www.google.fr/maps/search/${location.address}`;
-  let href;
 
+  let href = `https://www.google.fr/maps/search/${location.address}`;
   if (isAndroid) href = androidHref;
   else if (isIOS) href = appleHref;
-  else href = googleHref;
 
   return (
     <Map
