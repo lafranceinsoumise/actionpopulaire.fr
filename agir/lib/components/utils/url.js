@@ -25,7 +25,7 @@ export const addQueryStringParams = (url, params = {}) => {
 };
 
 export const parseQueryStringParams = (url) => {
-  const params = {};
+  const params = Object.create(null);
   let queryString = url ? url.split("?")[1] : window.location.search.slice(1);
   if (!queryString) {
     return params;
