@@ -218,11 +218,16 @@ const ActionButtons = (props) => {
   if (past) {
     return (
       <StyledActionButtons>
-        <Button disabled color="unavailable">
+        <StyledButton disabled color="unavailable">
           Événement terminé
-        </Button>
+        </StyledButton>
         {isOrganizer && (
-          <StyledButton icon="settings" as="a" href={routes.manage} color="primary">
+          <StyledButton
+            icon="settings"
+            as="a"
+            href={routes.manage}
+            color="primary"
+          >
             Gérer l'événement
           </StyledButton>
         )}
