@@ -28,7 +28,8 @@ import Link from "@agir/front/app/Link";
 import EventHeader from "./EventHeader";
 import EventLocationCard from "./EventLocationCard";
 import EventFacebookLinkCard from "./EventFacebookLinkCard";
-import EventDescription from "./EventDescription";
+import EventDescriptionCard from "./EventDescriptionCard";
+import EventPhotosCard from "./EventPhotosCard";
 import {
   Column,
   Container,
@@ -46,6 +47,8 @@ import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage.js";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 import defaultEventImage from "@agir/front/genericComponents/images/banner-map-background.svg";
+import EventReportCard from "./EventReportCard";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 const log = logger(__filename);
 
@@ -95,7 +98,8 @@ const IndexLinkAnchor = styled(Link)`
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  margin: 20px 0;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
 
   &,
   &:hover,
@@ -105,9 +109,8 @@ const IndexLinkAnchor = styled(Link)`
     color: #585858;
   }
 
-  span {
-    transform: rotate(180deg) translateY(-1.5px);
-    transform-origin: center center;
+  svg {
+    height: 16px;
   }
 `;
 
@@ -194,11 +197,18 @@ const MobileLayout = (props) => {
             <Card>
               <EventHeader {...props} />
             </Card>
-            <EventLocationCard {...props} />
+            <EventLocationCard
+              schedule={props.schedule}
+              location={location}
+              routes={routes}
+              subtype={subtype}
+              isStatic={true}
+              hideMap={illustration === null}
+            />
             <EventInfoCard {...props} />
-            <Card>
-              <EventDescription {...props} illustration={null} />
-            </Card>
+            <EventPhotosCard {...props} />
+            <EventReportCard {...props} />
+            <EventDescriptionCard {...props} />
             {contact && <ContactCard {...contact} />}
             {routes?.facebook && <EventFacebookLinkCard {...props} />}
             <ShareCard url={routes?.details} />
@@ -233,8 +243,7 @@ const DesktopLayout = (props) => {
         <Column grow>
           {logged && (
             <IndexLinkAnchor route="events">
-              <span>&#10140;</span>
-              &ensp; Liste des événements
+              <FeatherIcon name="arrow-left" /> &nbsp; Liste des événements
             </IndexLinkAnchor>
           )}
         </Column>
@@ -243,7 +252,9 @@ const DesktopLayout = (props) => {
         <Column grow>
           <div>
             <EventHeader {...props} />
-            <EventDescription {...props} />
+            <EventPhotosCard {...props} />
+            <EventReportCard {...props} />
+            <EventDescriptionCard {...props} />
             {Array.isArray(groups) && groups.length > 0 && (
               <GroupCards>
                 <h3 style={{ marginTop: "2.5rem" }}>Organisé par</h3>
