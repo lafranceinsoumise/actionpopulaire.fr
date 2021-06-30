@@ -46,8 +46,8 @@ class ListSubscriptionsAPITestCase(APITestCase):
         self.client.force_login(self.person.role)
         res = self.client.get("/api/notifications/subscriptions/")
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(len(res.data), 1)
-        self.assertEqual(res.data[0]["id"], str(self.person_subscription.id))
+        self.assertEqual(len(res.data), 5)
+        self.assertEqual(res.data[4]["id"], str(self.person_subscription.id))
 
 
 class CreateSubscriptionsAPITestCase(APITestCase):

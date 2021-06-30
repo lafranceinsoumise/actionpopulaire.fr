@@ -13,7 +13,7 @@ from agir.notifications.models import Subscription
 from .. import tasks
 from ..models import Event, Calendar, RSVP, OrganizerConfig
 from ...activity.models import Activity
-
+from ...groups.models import SupportGroup, Membership
 
 fake = Faker("fr_FR")
 
@@ -76,8 +76,24 @@ class EventTasksTestCase(TestCase):
             "person3@participants.fr", create_role=True
         )
 
+        self.organizer_group = SupportGroup.objects.create(name="Groupe")
+        Membership.objects.create(
+            supportgroup=self.organizer_group,
+            person=self.creator,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        Membership.objects.create(
+            supportgroup=self.organizer_group, person=self.attendee1,
+        )
+        Membership.objects.create(
+            supportgroup=self.organizer_group, person=self.attendee2,
+        )
+        Membership.objects.create(
+            supportgroup=self.organizer_group, person=self.attendee_no_notification,
+        )
+
         self.organizer_config = OrganizerConfig.objects.create(
-            person=self.creator, event=self.event
+            person=self.creator, event=self.event, as_group=self.organizer_group
         )
 
         self.organizer_config2 = OrganizerConfig.objects.create(
@@ -92,20 +108,7 @@ class EventTasksTestCase(TestCase):
             notifications_enabled=False,
         )
 
-        # add TYPE_NEW_REPORT to test new_report
-        default_types = [Activity.TYPE_NEW_REPORT]
-        for t in Subscription.DEFAULT_PERSON_EMAIL_TYPES:
-            default_types.append(t)
-
-        Subscription.objects.bulk_create(
-            [
-                Subscription(
-                    person=p, type=Subscription.SUBSCRIPTION_EMAIL, activity_type=t,
-                )
-                for p in [self.creator, self.attendee1, self.attendee2]
-                for t in default_types
-            ]
-        )
+        Subscription.objects.filter(person=self.attendee_no_notification).delete()
 
     def test_event_creation_mail(self):
         tasks.send_event_creation_notification(self.organizer_config.pk)

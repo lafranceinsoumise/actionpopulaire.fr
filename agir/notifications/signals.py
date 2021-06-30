@@ -8,14 +8,16 @@ from push_notifications.models import APNSDevice, GCMDevice, WebPushDevice
 from agir.activity.models import Activity
 from agir.groups.models import Membership
 from agir.notifications.actions import (
-    create_default_person_subscriptions,
     create_default_group_membership_subscriptions,
+    create_default_person_push_subscriptions,
+    create_default_person_email_subscriptions,
 )
 from agir.notifications.models import Subscription
 from agir.notifications.tasks import (
     send_apns_activity,
     send_fcm_activity,
 )
+from agir.people.models import Person
 
 
 @receiver(post_save, sender=Activity, dispatch_uid="push_new_activity")
@@ -83,7 +85,7 @@ def push_device_post_save_handler(sender, instance, created=False, **kwargs):
     )
 
     if is_first_device:
-        create_default_person_subscriptions(instance.user.person)
+        create_default_person_push_subscriptions(instance.user.person)
 
 
 @receiver(
@@ -110,3 +112,21 @@ def membership_post_save_handler(sender, instance, created=False, **kwargs):
         return
 
     create_default_group_membership_subscriptions(instance.person, instance)
+
+
+@receiver(
+    post_save, sender=Person, dispatch_uid="create_default_person_email_subscriptions"
+)
+def person_post_save_handler(sender, instance, created=False, **kwargs):
+    if (
+        instance is None
+        or not created
+        or Subscription.objects.filter(
+            person=instance,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Subscription.DEFAULT_PERSON_EMAIL_TYPES,
+        ).exists()
+    ):
+        return
+
+    create_default_person_email_subscriptions(instance)
