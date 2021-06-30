@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from functools import partial
 
-from push_notifications.models import APNSDevice, GCMDevice
+from push_notifications.models import APNSDevice, GCMDevice, WebPushDevice
 
 from agir.activity.models import Activity
 from agir.groups.models import Membership
@@ -78,6 +78,7 @@ def push_device_post_save_handler(sender, instance, created=False, **kwargs):
         and not Subscription.objects.filter(person=instance.user.person).exists()
         and APNSDevice.objects.filter(user=instance.user).count()
         + GCMDevice.objects.filter(user=instance.user).count()
+        + WebPushDevice.objects.filter(user=instance.user).count()
         == 1
     )
 
@@ -90,6 +91,11 @@ def push_device_post_save_handler(sender, instance, created=False, **kwargs):
     sender=GCMDevice,
     dispatch_uid="create_default_person_subscriptions__fcm",
 )
+def fcm_device_replace_webpush(sender, instance, created=False, **kwargs):
+    if instance is not None and created is True:
+        WebPushDevice.objects.filter(user=instance.user).update(active=False)
+
+
 @receiver(
     post_save, sender=Membership, dispatch_uid="create_default_membership_subscriptions"
 )
