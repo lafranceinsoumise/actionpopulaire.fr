@@ -10,7 +10,7 @@ import Card from "@agir/front/genericComponents/Card";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { Hide } from "../../../front/components/genericComponents/grid";
+import { Hide } from "@agir/front/genericComponents/grid";
 
 const DescriptionSection = styled.div`
   margin: 0;
