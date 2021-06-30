@@ -17,6 +17,7 @@ import { displayInterval } from "@agir/lib/utils/time";
 
 import googleLogo from "./assets/Google.svg";
 import outlookLogo from "./assets/Outlook.svg";
+import ClickableMap from "@agir/carte/common/Map/ClickableMap";
 
 const LocationName = styled.span`
   color: ${style.black1000};
@@ -34,7 +35,7 @@ const MapContainer = styled.div`
     margin: 24px 0 0 0;
 
     * {
-  border-radius: ${style.borderRadius};
+      border-radius: ${style.borderRadius};
     }
 
     display: ${(props) => {
@@ -83,17 +84,29 @@ const EventLocationCard = ({
 }) => {
   let interval = displayInterval(schedule);
   interval = interval.charAt(0).toUpperCase() + interval.slice(1);
+
   return (
     <StyledCard>
       {location && location.coordinates && (
         <MapContainer hideMap={hideMap}>
           {location?.coordinates?.coordinates ? (
-            <Map
-              zoom={14}
-              center={location.coordinates.coordinates}
-              iconConfiguration={subtype}
-              isStatic={isStatic}
-            />
+            <>
+              {isStatic ? (
+                <ClickableMap
+                  location={location}
+                  zoom={14}
+                  center={location.coordinates.coordinates}
+                  subtype={subtype}
+                />
+              ) : (
+                <Map
+                  zoom={14}
+                  center={location.coordinates.coordinates}
+                  iconConfiguration={subtype}
+                  isStatic={isStatic}
+                />
+              )}
+            </>
           ) : (
             <iframe src={routes.map} />
           )}

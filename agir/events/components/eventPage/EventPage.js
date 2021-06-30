@@ -49,6 +49,7 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import defaultEventImage from "@agir/front/genericComponents/images/banner-map-background.svg";
 import EventReportCard from "./EventReportCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import ClickableMap from "@agir/carte/common/Map/ClickableMap";
 
 const log = logger(__filename);
 
@@ -182,12 +183,11 @@ const MobileLayout = (props) => {
             />
           </>
         ) : hasMap ? (
-          <Map
-            zoom={11}
+          <ClickableMap
             center={location.coordinates.coordinates}
-            iconConfiguration={subtype}
-            isStatic
-            staticMapUrl={location?.staticMapUrl}
+            location={location}
+            zoom={11}
+            subtype={subtype}
           />
         ) : null}
       </StyledMap>
