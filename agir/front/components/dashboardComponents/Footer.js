@@ -306,20 +306,20 @@ export const Footer = (props) => {
             </div>
           ) : (
             <>
-              {routes.noussommespour ? (
+              {routes.melenchon2022 ? (
                 <div>
                   <h3>Nous sommes pour</h3>
                   <p>
-                    {routes.noussommespour.home && (
-                      <Link href={routes.noussommespour.home}>Signer</Link>
+                    {routes.melenchon2022.home && (
+                      <Link href={routes.melenchon2022.home}>Signer</Link>
                     )}
-                    {routes.noussommespour.eventMapPage && (
-                      <Link href={routes.noussommespour.eventMapPage}>
+                    {routes.melenchon2022.eventMapPage && (
+                      <Link href={routes.melenchon2022.eventMapPage}>
                         Carte des événements
                       </Link>
                     )}
-                    {routes.noussommespour.groupsMap && (
-                      <Link href={routes.noussommespour.groupsMap}>
+                    {routes.melenchon2022.groupsMap && (
+                      <Link href={routes.melenchon2022.groupsMap}>
                         Carte des groupes
                       </Link>
                     )}
@@ -363,10 +363,8 @@ export const Footer = (props) => {
                   Le programme l'Avenir en commun
                 </Link>
               )}
-              {routes.noussommespour && (
-                <Link href={routes.noussommespour.home}>
-                  Nous Sommes Pour !
-                </Link>
+              {routes.melenchon2022 && (
+                <Link href={routes.melenchon2022.home}>Mélenchon 2022</Link>
               )}
               {routes.lafranceinsoumise && (
                 <Link href={routes.lafranceinsoumise.home}>
