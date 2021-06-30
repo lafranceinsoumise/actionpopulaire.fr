@@ -1,0 +1,42 @@
+name: Build front bundles
+on: [push]
+
+jobs:
+  webpack:
+    name: Webpack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-${{ hashFiles('package-lock.json') }}
+            npm-
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.babel-cache
+          key: babel-${{ hashFiles('agir/**/*.js') }}
+          restore-keys: |
+            babel-${{ hashFiles('agir/**/*.js') }}
+            babel-
+
+      - name: Install node dependencies
+        run: npm ci
+
+      - name: Build bundles
+        run: npm run build
+        env:
+          BABEL_CACHE_DIRECTORY: ~/.babel-cache
+          WEBPUSH_PUBLIC_KEY: "dummy"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: assets-${{ github.sha }}
+          path: assets/
