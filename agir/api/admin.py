@@ -2,14 +2,13 @@ from django.contrib import admin
 from django_otp.plugins.otp_totp.admin import TOTPDeviceAdmin as BaseTOTPDeviceAdmin
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from push_notifications.admin import DeviceAdmin
-from push_notifications.models import GCMDevice, WNSDevice, APNSDevice, WebPushDevice
+from push_notifications.models import GCMDevice, WNSDevice, APNSDevice
 
 admin.site.unregister(TOTPDevice)
 
 admin.site.unregister(GCMDevice)
 admin.site.unregister(WNSDevice)
 admin.site.unregister(APNSDevice)
-admin.site.unregister(WebPushDevice)
 
 
 @admin.register(TOTPDevice)
@@ -30,6 +29,5 @@ class PushDeviceAdmin(DeviceAdmin):
     get_person.short_description = "Personne"
 
 
-admin.site.register(WebPushDevice, PushDeviceAdmin)
 admin.site.register(APNSDevice, PushDeviceAdmin)
 admin.site.register(GCMDevice, PushDeviceAdmin)
