@@ -21,7 +21,6 @@ const cardTypes = {
 };
 
 const Card = styled.div`
-  margin-bottom: 24px;
   background: ${({ type }) =>
     type && cardTypes[type] && cardTypes[type].background
       ? cardTypes[type].background
@@ -50,14 +49,10 @@ const Card = styled.div`
         : ""}
   }
 
-  box-shadow: ${style.cardShadow};
-  border-radius: ${style.borderRadius};
-  overflow: hidden;
-  border-bottom: 1px solid ${style.black50};
-
   @media (max-width: ${style.collapse}px) {
     border: none;
     box-shadow: ${style.elaborateShadow};
+    border-radius: 0;
     padding: 1rem;
   }
 
