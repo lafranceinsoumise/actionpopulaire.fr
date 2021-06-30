@@ -11,7 +11,7 @@ const ClickableMap = (props) => {
   let longitude = location.coordinates.coordinates.toString().split(",")[0];
 
   const appleHref = `https://maps.apple.com/?ll=${latitude},${longitude}`;
-  const androidHref = `geo:${latitude},${longitude}?q=${location.address}`;
+  const androidHref = `geo:${latitude},${longitude}`;
 
   let href = `https://www.google.fr/maps/search/${location.address}`;
   if (isAndroid) {
