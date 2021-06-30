@@ -57,8 +57,6 @@ const StyledCard = styled(Card)`
     flex-flow: column-reverse;
   }
   margin-bottom: 24px;
-  box-shadow: ${style.cardShadow};
-  border-radius: ${style.borderRadius};
   overflow: hidden;
   border-bottom: 1px solid ${style.black50};
 `;

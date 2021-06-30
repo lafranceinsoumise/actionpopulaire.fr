@@ -10,6 +10,7 @@ import Card from "@agir/front/genericComponents/Card";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import { Hide } from "@agir/front/genericComponents/grid";
 
 const DescriptionSection = styled.div`
   margin: 0;
@@ -73,8 +74,6 @@ const StyledActionButtons = styled.div`
 
 const StyledCard = styled(Card)`
   margin-bottom: 24px;
-  box-shadow: ${style.cardShadow};
-  border-radius: ${style.borderRadius};
   overflow: hidden;
   border-bottom: 1px solid ${style.black50};
 `;
@@ -94,16 +93,18 @@ const EventDescriptionCard = ({
             <b>L'événement</b>
             {illustration?.banner && (
               <DescriptionSection>
-                <img
-                  src={illustration.banner}
-                  alt="Image d'illustration de l'événement postée par l'utilisateur"
-                  style={{
-                    maxWidth: "100%",
-                    height: "auto",
-                    maxHeight: "500px",
-                    borderRadius: "8px",
-                  }}
-                />
+                <Hide under>
+                  <img
+                    src={illustration.banner}
+                    alt="Image d'illustration de l'événement postée par l'utilisateur"
+                    style={{
+                      maxWidth: "100%",
+                      height: "auto",
+                      maxHeight: "500px",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </Hide>
               </DescriptionSection>
             )}
 
@@ -118,9 +119,15 @@ const EventDescriptionCard = ({
                   Modifier la description
                 </StyledButton>
 
-                <StyledButton as="a" href={routes.edit}>
-                  Ajouter une image d'illustration
-                </StyledButton>
+                {!illustration.banner ? (
+                  <StyledButton as="a" href={routes.edit}>
+                    Ajouter une image d'illustration
+                  </StyledButton>
+                ) : (
+                  <StyledButton as="a" href={routes.edit}>
+                    Changer l'image d'illustration
+                  </StyledButton>
+                )}
               </StyledActionButtons>
             )}
           </DescriptionSection>
