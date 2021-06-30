@@ -54,13 +54,13 @@ const EventPhotosCard = ({ compteRenduPhotos, endTime, rsvp, routes }) => {
   const isPast = endTime < DateTime.local();
 
   if (!isPast) {
-    return null
+    return null;
   }
 
   if (compteRenduPhotos.length === 0 && rsvp !== "CO") {
     return null;
   }
-  
+
   return (
     <StyledCard>
       <b>Photos</b>
@@ -78,12 +78,10 @@ const EventPhotosCard = ({ compteRenduPhotos, endTime, rsvp, routes }) => {
                 width="400"
                 height="250"
                 alt={
-                  url.legend ||
-                  "Photo de l'événement postée par l'utilisateur"
+                  url.legend || "Photo de l'événement postée par l'utilisateur"
                 }
                 title={
-                  url.legend ||
-                  "Photo de l'événement postée par l'utilisateur"
+                  url.legend || "Photo de l'événement postée par l'utilisateur"
                 }
               />
             </a>

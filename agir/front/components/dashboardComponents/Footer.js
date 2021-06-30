@@ -199,7 +199,7 @@ const StyledFooter = styled.div`
       }
 
       h3 {
-        color: inherit;
+        color: ${style.primary500};
         text-transform: uppercase;
         margin-top: 0;
         margin-bottom: 0.75rem;
@@ -284,103 +284,64 @@ export const Footer = (props) => {
           <div>
             <h3>Action populaire</h3>
             <p>
-              {!isSignedIn && <Link route="login">Se connecter</Link>}
               {routes.donations && <Link route="donations">Faire un don</Link>}
+              <Link route="eventMap">Carte des événements</Link>
+              <Link route="groupMap">Carte des groupes</Link>
+              <a href="https://materiel.lafranceinsoumise.fr/" target="_blank">
+                Commander du matériel
+              </a>
+            </p>
+          </div>
+
+          <div>
+            <h3>Liens utiles</h3>
+            <p>
+              {!isSignedIn && <Link route="login">Se connecter</Link>}
+              {isSignedIn && <Link route="logout">Se déconnecter</Link>}
               {routes.help && <Link route="help">Besoin d'aide ?</Link>}
               {routes.legal && <Link route="legal">Mentions légales</Link>}
               {routes.contact && <Link route="contact">Contact</Link>}
-              {isSignedIn && <Link route="logout">Se déconnecter</Link>}
             </p>
           </div>
-          {isSignedIn ? (
-            <div>
-              <h3>Explorer</h3>
-              <p>
-                <Link route="events">Evénements proches de chez moi</Link>
-                <Link route="eventMap">Carte des événements</Link>
-                <Link route="groupMap">Carte des groupes d’actions</Link>
-                {routes.thematicTeams && (
-                  <Link route="thematicTeams">Les livrets thématiques</Link>
-                )}
-              </p>
-            </div>
-          ) : (
-            <>
-              {routes.noussommespour ? (
-                <div>
-                  <h3>Nous sommes pour</h3>
-                  <p>
-                    {routes.noussommespour.home && (
-                      <Link href={routes.noussommespour.home}>Signer</Link>
-                    )}
-                    {routes.noussommespour.eventMapPage && (
-                      <Link href={routes.noussommespour.eventMapPage}>
-                        Carte des événements
-                      </Link>
-                    )}
-                    {routes.noussommespour.groupsMap && (
-                      <Link href={routes.noussommespour.groupsMap}>
-                        Carte des groupes
-                      </Link>
-                    )}
-                  </p>
-                </div>
-              ) : null}
-              {routes.lafranceinsoumise ? (
-                <div>
-                  <h3>La France insoumise</h3>
-                  <p>
-                    {routes.lafranceinsoumise.home && (
-                      <Link href={routes.lafranceinsoumise.home}>
-                        Rejoindre
-                      </Link>
-                    )}
-                    {routes.lafranceinsoumise.eventMapPage && (
-                      <Link href={routes.lafranceinsoumise.eventMapPage}>
-                        Carte des événements
-                      </Link>
-                    )}
-                    {routes.lafranceinsoumise.groupMapPage && (
-                      <Link href={routes.lafranceinsoumise.groupMapPage}>
-                        Carte des groupes d’actions
-                      </Link>
-                    )}
-                    {routes.lafranceinsoumise.thematicTeams && (
-                      <Link href={routes.lafranceinsoumise.thematicTeams}>
-                        Les livrets thématiques
-                      </Link>
-                    )}
-                  </p>
-                </div>
-              ) : null}
-            </>
-          )}
+
           <div>
-            <h3>Les autres sites</h3>
+            <h3>La campagne présidentielle</h3>
             <p>
+              <a href="https://melenchon2022.fr/" target="_blank">
+                Mélenchon2022.fr
+              </a>
               {routes.programme && (
-                <Link href={routes.programme}>
+                <Link
+                  href="https://melenchon2022.fr/programme/"
+                  target="_blank"
+                >
                   Le programme l'Avenir en commun
                 </Link>
               )}
-              {routes.noussommespour && (
-                <Link href={routes.noussommespour.home}>
-                  Nous Sommes Pour !
-                </Link>
-              )}
+              <a href="https://melenchon2022.fr/agenda/" target="_blank">
+                Agenda de la campagne
+              </a>
+            </p>
+          </div>
+
+          <div>
+            <h3>Les autres sites</h3>
+            <p>
               {routes.lafranceinsoumise && (
                 <Link href={routes.lafranceinsoumise.home}>
                   La France insoumise
                 </Link>
               )}
-              {routes.jlmBlog && (
-                <Link href={routes.jlmBlog}>Le blog de Jean-Luc Mélenchon</Link>
-              )}
+
               {routes.linsoumission && (
                 <Link href={routes.linsoumission}>L'insoumission</Link>
               )}
+              {routes.jlmBlog && (
+                <Link href={routes.jlmBlog}>Le blog de Jean-Luc Mélenchon</Link>
+              )}
             </p>
           </div>
+
           {!isMobileApp && (
             <div>
               <AppStore type="apple" />

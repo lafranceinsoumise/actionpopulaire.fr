@@ -30,7 +30,7 @@ const EventReportCard = ({ compteRendu, isOrganizer, endTime, routes }) => {
   if (!compteRendu && !isOrganizer) {
     return null;
   }
-  
+
   return (
     <StyledCard>
       <b>Compte-rendu</b>
