@@ -307,13 +307,11 @@ def send_event_report(event_pk):
     if event.report_summary_sent:
         return
 
-    recipients = [
-        r.person
-        for r in event.rsvps.prefetch_related("person__emails").filter(
-            person__notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-            person__notification_subscriptions__activity_type=Activity.TYPE_NEW_REPORT,
-        )
-    ]
+    recipients = event.attendees.filter(
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_REPORT,
+        notification_subscriptions__membership__supportgroup__in=event.organizers_groups.all(),
+    )
 
     if len(recipients) == 0:
         return
