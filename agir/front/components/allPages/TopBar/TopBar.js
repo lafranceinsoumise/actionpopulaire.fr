@@ -14,7 +14,7 @@ import {
 import { useUnreadActivityCount } from "@agir/activity/common/hooks";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { routeConfig } from "@agir/front/app/routes.config";
-import { useUnreadMessageCount } from "@agir/msgs/common/hooks";
+import { useUnreadMessageCount } from "@agir/msgs/hooks";
 import { Hide } from "@agir/front/genericComponents/grid.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 

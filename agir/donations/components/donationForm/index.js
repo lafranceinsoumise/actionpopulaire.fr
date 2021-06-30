@@ -36,9 +36,6 @@ const render = (widget, element) => {
 
 const replaceForm = (selector) => {
   const form = document.querySelector(selector);
-  if (!form) {
-    return;
-  }
   const props = { initial: {} };
 
   const typeSelect = form.querySelector('select[name="type"]');

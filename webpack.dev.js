@@ -1,4 +1,3 @@
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const path = require("path");
 const merge = require("webpack-merge");
 const webpack = require("webpack");
@@ -6,12 +5,16 @@ const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin"
 
 const common = require("./webpack.common.js");
 
+common.module.rules[0].use.options.plugins = [
+  require.resolve("react-refresh/babel"),
+];
+
 const serverName = process.env.JS_SERVER || "agir.local";
 const port = process.env.JS_SERVER
   ? +process.env.JS_SERVER.split(":")[1] || 3000
   : 3000;
 
-module.exports = merge.merge(common("dev"), {
+module.exports = merge.merge(common, {
   mode: "development",
   devtool: "eval-source-map",
   output: {
@@ -45,7 +48,6 @@ module.exports = merge.merge(common("dev"), {
     emitOnErrors: false,
   },
   plugins: [
-    new CleanWebpackPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new ReactRefreshWebpackPlugin(),
     new webpack.EnvironmentPlugin({

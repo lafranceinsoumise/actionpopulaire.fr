@@ -82,7 +82,7 @@ export const Column = styled.div`
     padding-left: 0;
     padding-right: 0;
 
-    & > & > ${Card} {
+    & > ${Column} > ${Card} {
       ${(props) => (props.stack ? "margin-bottom: 0px;" : "")}
     }
   }

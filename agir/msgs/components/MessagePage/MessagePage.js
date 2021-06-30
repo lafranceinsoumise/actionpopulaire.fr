@@ -9,10 +9,10 @@ import {
   useMessageSWR,
   useSelectMessage,
   useMessageActions,
-} from "@agir/msgs/common/hooks";
+} from "@agir/msgs/hooks";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 import { setPageTitle } from "@agir/front/globalContext/actions";
-import { getMessageSubject } from "@agir/msgs/common/utils";
+import { getMessageSubject } from "@agir/msgs/utils";
 import { useIsOffline } from "@agir/front/offline/hooks";
 
 import { Hide } from "@agir/front/genericComponents/grid";
