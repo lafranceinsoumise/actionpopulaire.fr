@@ -14,7 +14,6 @@ const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 
 export const ReferentMainPanel = (props) => {
   const {
-    is2022,
     routes,
     editManager,
     editReferent,
@@ -47,13 +46,7 @@ export const ReferentMainPanel = (props) => {
       <Spacer size=".5rem" />
       <span style={{ color: style.black700 }}>
         Pour respecter la{" "}
-        <a
-          href={
-            is2022
-              ? "https://infos.actionpopulaire.fr/charte-des-equipes-de-soutien-nous-sommes-pour/"
-              : "https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/"
-          }
-        >
+        <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
           charte des groupes d'actions
         </a>
         , votre groupe doit être animé à parité de genre.
@@ -146,7 +139,6 @@ export const ReferentMainPanel = (props) => {
 };
 
 ReferentMainPanel.propTypes = {
-  is2022: PropTypes.bool,
   routes: PropTypes.object,
   editManager: PropTypes.func,
   editReferent: PropTypes.func,

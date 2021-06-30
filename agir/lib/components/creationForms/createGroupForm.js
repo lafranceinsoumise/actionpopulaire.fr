@@ -15,8 +15,6 @@ import "./style.css";
 import PropTypes from "prop-types";
 import * as Sentry from "@sentry/react";
 
-const NSP_GROUP_TYPE_ID = "2";
-
 class CreateGroupForm extends React.Component {
   constructor(props) {
     super(props);
@@ -363,23 +361,13 @@ class ValidateStep extends FormStep {
               <label>
                 <input onChange={this.toggleMaySubmit} type="checkbox" />
                 Je m'engage à respecter{" "}
-                {groupType.id === NSP_GROUP_TYPE_ID ? (
-                  <a
-                    href="https://infos.actionpopulaire.fr/charte-des-equipes-de-soutien-nous-sommes-pour/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    la charte des groupes d'action
-                  </a>
-                ) : (
-                  <a
-                    href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    la charte des groupes de la France insoumise
-                  </a>
-                )}
+                <a
+                  href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  la charte des groupes d'action
+                </a>
               </label>
             </div>
           </form>
