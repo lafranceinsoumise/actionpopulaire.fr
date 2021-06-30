@@ -92,7 +92,7 @@ const HorizontalFlex = styled.div`
     min-width: 0;
     flex-shrink: 0;
     max-width: 100%;
-    margin-right: 1em;
+    margin-right: 1rem;
   }
 
   & > *:last-child {
@@ -205,7 +205,7 @@ export const TopBar = (props) => {
                 </>
               ) : (
                 <>
-                  <Hide under>
+                  <Hide under style={{ marginRight: 0 }}>
                     <div style={{ display: "flex" }}>
                       <MenuLink route="events">
                         <TopbarLink $active={routeConfig.events.match(path)}>
