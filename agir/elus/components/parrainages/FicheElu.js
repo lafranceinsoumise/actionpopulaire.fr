@@ -208,7 +208,7 @@ const FormulaireTerminerParrainage = ({ elu, onStatusChange }) => {
         </p>
         <p>
           <strong>Conseil</strong> : Utilisez{" "}
-          <a href="https://noussommespour.fr/le-guide-de-la-recherche-des-parrainages/">
+          <a href="https://melenchon2022.fr/le-guide-de-la-recherche-des-parrainages/">
             la documentation
           </a>{" "}
           pour vous aider dans votre discours . Prenez rendez-vous par

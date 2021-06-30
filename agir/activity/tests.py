@@ -107,7 +107,7 @@ class AnnouncementTestCase(TestCase):
         )
 
         a2 = Announcement.objects.create(
-            title="2ème annonce", link="https://noussommespour.fr", content="GO SIGNEZ"
+            title="2ème annonce", link="https://melenchon2022.fr", content="GO SIGNEZ"
         )
 
         announcements = get_announcements(self.insoumise)

@@ -363,8 +363,8 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
                 HTML(
                     format_html(
                         '<a href="{url}" class="btn btn-primary">{label}</a>',
-                        url=f"https://noussommespour.fr/preferences/?_{urlencode(generate_token_params(self.instance))}",
-                        label="Paramétrer les emails de « Nous Sommes Pour ! »",
+                        url=f"https://melenchon2022.fr/preferences/?_{urlencode(generate_token_params(self.instance))}",
+                        label="Paramétrer les emails de « melenchon2022.fr »",
                     )
                 )
             )
