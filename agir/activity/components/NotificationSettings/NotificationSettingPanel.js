@@ -5,7 +5,6 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Accordion from "@agir/front/genericComponents/Accordion";
-import Button from "@agir/front/genericComponents/Button";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Panel, { StyledBackButton } from "@agir/front/genericComponents/Panel";
 
@@ -51,39 +50,6 @@ const StyledGroup = styled.div`
 
 const AccordionContent = styled.div`
   padding: 1.5rem;
-`;
-
-const StyledDeviceSubscription = styled.div`
-  padding: 1rem;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  align-items: center;
-  background: ${style.primary100};
-  grid-gap: 0 1rem;
-  width: calc(100% - 3rem);
-  margin: 0 auto 1.5rem;
-
-  h5,
-  p {
-    font-size: 0.875rem;
-    line-height: 1.5;
-    margin: 0;
-    padding: 0;
-  }
-
-  h5 {
-    font-weight: 700;
-  }
-
-  p {
-    font-weight: 400;
-  }
-
-  ${Button} {
-    grid-column: 2/3;
-    grid-row: 1/3;
-  }
 `;
 
 const StyledUnsupportedSubscription = styled.div`
@@ -132,9 +98,7 @@ const NotificationSettingPanel = (props) => {
     onChange,
     disabled,
     ready,
-    subscribeDevice,
     isPushAvailable,
-    subscriptionError,
     pushIsReady,
   } = props;
 
@@ -182,22 +146,11 @@ const NotificationSettingPanel = (props) => {
         Paramétrez la réception de vos e-mails et des push de
         l'application&nbsp;<InlineBlock>sur votre téléphone.</InlineBlock>
       </p>
-      {typeof subscribeDevice === "function" ? (
-        <StyledDeviceSubscription>
-          <h5>Notifications désactivées</h5>
-          <p>Autorisez les notifications sur cet appareil</p>
-          {subscriptionError && (
-            <p style={{ color: style.redNSP }}>{subscriptionError}</p>
-          )}
-          <Button color="primary" onClick={subscribeDevice}>
-            Activer
-          </Button>
-        </StyledDeviceSubscription>
-      ) : pushIsReady && !isPushAvailable && !isDesktop ? (
+      {pushIsReady && !isPushAvailable && !isDesktop && (
         <StyledUnsupportedSubscription>
           <p>Installez l'application pour recevoir des notifications</p>
         </StyledUnsupportedSubscription>
-      ) : null}
+      )}
       <PageFadeIn ready={ready}>
         {Object.keys(byType).map((type) => (
           <Accordion key={type} name={type} icon={icons[type] || "settings"}>
