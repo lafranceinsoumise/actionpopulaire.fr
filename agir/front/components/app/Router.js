@@ -16,6 +16,8 @@ import { useAuthentication } from "@agir/front/authentication/hooks";
 
 import logger from "@agir/lib/utils/logger";
 
+import ScrollMemory from "react-router-scroll-memory";
+
 const log = logger(__filename);
 
 export const ProtectedComponent = ({
@@ -83,6 +85,7 @@ const Router = ({ children }) => {
       <Switch>
         {routes.map((route) => (
           <Route key={route.id} path={route.path} exact={!!route.exact}>
+            <ScrollMemory />
             <ProtectedComponent
               Component={route.Component}
               AnonymousComponent={route.AnonymousComponent}
