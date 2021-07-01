@@ -370,8 +370,8 @@ def send_membership_transfer_receiver_confirmation(bindings, recipients_pks):
 
     recipients = Person.objects.filter(
         pk__in=recipients_pks,
-        type=Subscription.SUBSCRIPTION_EMAIL,
-        activity_type=Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,
     )
 
     if len(recipients) == 0:
