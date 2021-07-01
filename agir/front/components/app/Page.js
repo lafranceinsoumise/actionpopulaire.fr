@@ -89,17 +89,9 @@ const Page = (props) => {
   }, [history]);
 
   useMemo(() => {
-    if (
-      [
-        routesConfig.events.path,
-        routesConfig.activities.path,
-        routesConfig.groups.path,
-      ].includes(pathname)
-    ) {
-      return;
-    }
-    typeof window !== "undefined" && window.scrollTo && window.scrollTo(0, 0);
-  }, [pathname]);
+    if (!!routeConfig.keepScroll) return;
+    typeof window !== "undefined" && !!window.scrollTo && window.scrollTo(0, 0);
+  }, []);
 
   if (routeConfig.isPartial) {
     return (
