@@ -262,7 +262,7 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
             ).active(),
             context=self.context,
             many=True,
-            fields=["id", "name", "is2022", "contact", "location"],
+            fields=["id", "name", "contact", "location"],
         ).data
 
     def get_subtype(self, request):
@@ -297,9 +297,7 @@ class EventOrganizerGroupField(serializers.RelatedField):
         if obj is None:
             return None
         return SupportGroupSerializer(
-            obj,
-            context=self.context,
-            fields=["id", "name", "is2022", "contact", "location"],
+            obj, context=self.context, fields=["id", "name", "contact", "location"],
         ).data
 
     def to_internal_value(self, pk):

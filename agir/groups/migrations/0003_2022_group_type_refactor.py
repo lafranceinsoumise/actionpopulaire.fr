@@ -6,31 +6,19 @@ from django.db import migrations, models
 def professional_type_to_subtype(apps, schema_editor):
     SupportGroupSubtype = apps.get_model("groups", "SupportGroupSubtype")
     SupportGroup = apps.get_model("groups", "SupportGroup")
-
-    # Create a new "professional" subtype of "2022" type
     subtype, created = SupportGroupSubtype.objects.update_or_create(
         label="groupe d'action professionnel",
         defaults={
             "description": "Groupe d'action professionnel",
-            "visibility": "A",  # all
+            "visibility": "A",
             "color": "#f4981e",
             "icon_name": "industry",
-            "type": "2",  # campagne 2022
+            "type": "L",
         },
     )
-    professional_groups = SupportGroup.objects.filter(type="P")
-    professional_groups_pks = []
-    # Change "P" type to "2"
-    for professional_group in professional_groups:
-        professional_groups_pks.append(professional_group.pk)
-        professional_group.type = "2"
-
-    SupportGroup.objects.bulk_update(
-        [professional_group for professional_group in professional_groups],
-        fields=["type"],
-    )
-    # Add the newly created subtype to former "P"-type groups
-    subtype.supportgroups.add(*professional_groups_pks)
+    subtype.supportgroups.add(*SupportGroup.objects.filter(type="P"))
+    SupportGroup.objects.filter(type__in=["P", "2"]).update(type="L")
+    SupportGroupSubtype.objects.filter(type__in=["P", "2"]).update(type="L")
 
 
 class Migration(migrations.Migration):
@@ -51,7 +39,6 @@ class Migration(migrations.Migration):
                     ("L", "Groupe local"),
                     ("B", "Groupe thématique"),
                     ("F", "Groupe fonctionnel"),
-                    ("2", "Groupe d'action"),
                 ],
                 default="L",
                 max_length=1,
@@ -66,7 +53,6 @@ class Migration(migrations.Migration):
                     ("L", "Groupe local"),
                     ("B", "Groupe thématique"),
                     ("F", "Groupe fonctionnel"),
-                    ("2", "Groupe d'action"),
                 ],
                 max_length=1,
                 verbose_name="type de groupe",

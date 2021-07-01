@@ -28,17 +28,13 @@ from ..lib.views import AnonymousAPIView
 
 def is_active_group():
     n = now()
-    return (
-        Q(type=SupportGroup.TYPE_2022)
-        | Q(
-            organized_events__start_time__range=(
-                n - timedelta(days=62),
-                n + timedelta(days=31),
-            ),
-            organized_events__visibility=Event.VISIBILITY_PUBLIC,
-        )
-        | Q(created__gt=n - timedelta(days=31))
-    )
+    return Q(
+        organized_events__start_time__range=(
+            n - timedelta(days=62),
+            n + timedelta(days=31),
+        ),
+        organized_events__visibility=Event.VISIBILITY_PUBLIC,
+    ) | Q(created__gt=n - timedelta(days=31))
 
 
 def parse_bounds(bounds):

@@ -63,25 +63,9 @@ class GroupFilterSet(django_filters.FilterSet):
 
 
 class GroupAPIFilterSet(GroupFilterSet, django_filters.rest_framework.FilterSet):
-    is_2022 = django_filters.BooleanFilter(
-        method="filter_is_2022", label="Groupes d'action 2022 uniquement",
-    )
-    is_insoumise = django_filters.BooleanFilter(
-        method="filter_is_insoumise", label="Groupes LFI uniquement",
-    )
     exclude = django_filters.CharFilter(
         method="filter_exclude", label="Sauf l'id de groupe",
     )
-
-    def filter_is_2022(self, qs, name, value):
-        if value is True:
-            return qs.is_2022()
-        return qs
-
-    def filter_is_insoumise(self, qs, name, value):
-        if value is True:
-            return qs.is_insoumise()
-        return qs
 
     def filter_exclude(self, qs, name, value):
         return qs.exclude(pk__in=[value])

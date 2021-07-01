@@ -16,11 +16,6 @@ def get_general_stats(start, end):
         meta__subscriptions__NSP__date__lt=end.isoformat(),
     )
 
-    membres_equipes = Person.objects.filter(
-        memberships__supportgroup__type=SupportGroup.TYPE_2022,
-        memberships__supportgroup__published=True,
-    )
-
     ouvert_news = Person.objects.filter(
         campaignsentevent__datetime__range=(start, end),
         campaignsentevent__open_count__gt=0,
@@ -70,31 +65,11 @@ def get_general_stats(start, end):
         "ga_LFI": SupportGroup.objects.active()
         .filter(type=SupportGroup.TYPE_LOCAL_GROUP, created__range=(start, end))
         .count(),
-        "equipes_NSP": SupportGroup.objects.active()
-        .filter(type=SupportGroup.TYPE_2022, created__range=(start, end))
-        .count(),
         "membres_ga_LFI": Person.objects.filter(
             memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
             memberships__supportgroup__published=True,
         )
         .filter(memberships__created__range=(start, end))
-        .distinct()
-        .count(),
-        "membres_equipes_NSP": membres_equipes.filter(
-            memberships__created__range=(start, end)
-        )
-        .distinct()
-        .count(),
-        "membres_equipes_NSP_insoumis": membres_equipes.filter(
-            memberships__created__range=(start, end)
-        )
-        .filter(is_insoumise=True)
-        .distinct()
-        .count(),
-        "membres_equipes_NSP_non_insoumis": membres_equipes.filter(
-            memberships__created__range=(start, end)
-        )
-        .filter(is_insoumise=False)
         .distinct()
         .count(),
     }
@@ -123,9 +98,6 @@ def get_instant_stats():
         "ga_LFI_certifies": SupportGroup.objects.certified()
         .filter(published=True)
         .count(),
-        "equipes_NSP": SupportGroup.objects.active()
-        .filter(type=SupportGroup.TYPE_2022)
-        .count(),
         "membres_ga_LFI": Person.objects.filter(
             supportgroups__type=SupportGroup.TYPE_LOCAL_GROUP,
             supportgroups__published=True,
@@ -137,23 +109,6 @@ def get_instant_stats():
             supportgroups__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
             supportgroups__published=True,
         )
-        .distinct()
-        .count(),
-        "membres_equipes_NSP": Person.objects.filter(
-            supportgroups__type=SupportGroup.TYPE_2022, supportgroups__published=True,
-        )
-        .distinct()
-        .count(),
-        "membres_equipes_NSP_insoumis": Person.objects.filter(
-            supportgroups__type=SupportGroup.TYPE_2022, supportgroups__published=True,
-        )
-        .filter(is_insoumise=True)
-        .distinct()
-        .count(),
-        "membres_equipes_NSP_non_insoumis": Person.objects.filter(
-            supportgroups__type=SupportGroup.TYPE_2022, supportgroups__published=True,
-        )
-        .filter(is_insoumise=False)
         .distinct()
         .count(),
         "insoumis_non_NSP": Person.objects.filter(

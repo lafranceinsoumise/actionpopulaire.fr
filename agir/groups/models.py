@@ -32,12 +32,6 @@ class SupportGroupQuerySet(models.QuerySet):
     def certified(self):
         return self.filter(subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES)
 
-    def is_2022(self):
-        return self.filter(type=SupportGroup.TYPE_2022)
-
-    def is_insoumise(self):
-        return self.exclude(type=SupportGroup.TYPE_2022)
-
     def search(self, query):
         vector = (
             SearchVector(models.F("name"), config="french_unaccented", weight="A")
@@ -81,22 +75,17 @@ class SupportGroup(
     TYPE_LOCAL_GROUP = "L"
     TYPE_THEMATIC = "B"
     TYPE_FUNCTIONAL = "F"
-    TYPE_2022 = "2"
 
-    TYPE_LFI_CHOICES = (
+    TYPE_CHOICES = (
         (TYPE_LOCAL_GROUP, "Groupe local"),
         (TYPE_THEMATIC, "Groupe thématique"),
         (TYPE_FUNCTIONAL, "Groupe fonctionnel"),
     )
-    TYPE_NSP_CHOICES = ((TYPE_2022, "Groupe d'action"),)
-
-    TYPE_CHOICES = TYPE_LFI_CHOICES + TYPE_NSP_CHOICES
 
     TYPE_PARAMETERS = {
         TYPE_LOCAL_GROUP: {"color": "#4a64ac", "icon_name": "users"},
         TYPE_THEMATIC: {"color": "#49b37d", "icon_name": "book"},
         TYPE_FUNCTIONAL: {"color": "#e14b35", "icon_name": "cog"},
-        TYPE_2022: {"color": "#571aff", "icon_name": "users"},
     }
 
     TYPE_DESCRIPTION = {
@@ -110,15 +99,12 @@ class SupportGroup(
         " des fonctions précises (formations, organisation"
         " des apparitions publiques, rédaction de tracts, chorale insoumise,"
         " journaux locaux, auto-organisation, etc…).",
-        TYPE_2022: "Les groupes d'action peuvent être rejoints par toutes les personnes "
-        "soutenant la candidature de Jean-Luc Mélenchon pour l'élection présidentielle de 2022.",
     }
 
     TYPE_DISABLED_DESCRIPTION = {
         TYPE_LOCAL_GROUP: "✅ Vous animez déjà deux groupes locaux",
         TYPE_THEMATIC: "✅ Vous animez déjà deux groupes thématiques",
         TYPE_FUNCTIONAL: "✅ Vous animez déjà deux groupes fonctionnels",
-        TYPE_2022: "✅ Vous animez déjà deux groupes d'action",
     }
 
     MEMBERSHIP_LIMIT = 30
@@ -200,10 +186,6 @@ class SupportGroup(
     def external_help_text(self):
         subtype = self.subtypes.filter(allow_external=True).first()
         return subtype.external_help_text or ""
-
-    @property
-    def is_2022(self):
-        return self.type == self.TYPE_2022
 
     class Meta:
         verbose_name = _("groupe d'action")

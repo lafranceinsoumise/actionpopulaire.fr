@@ -147,9 +147,7 @@ class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
         self.object = self.get_object()
 
         if not self.can_join():
-            return HttpResponseRedirect(
-                f'{reverse("join")}?type={"2" if self.object.is_2022 else "I"}'
-            )
+            return HttpResponseRedirect(f'{reverse("join")}')
 
         if request.POST["action"] == "join":
             if self.object.is_full:

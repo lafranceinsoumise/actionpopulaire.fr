@@ -137,7 +137,7 @@ class CreateSupportGroupView(HardLoginRequiredMixin, TemplateView):
 
         types = []
 
-        for id, label in SupportGroup.TYPE_NSP_CHOICES + SupportGroup.TYPE_LFI_CHOICES:
+        for id, label in SupportGroup.TYPE_CHOICES:
             disabled = self.manager_per_type_limit <= (
                 SupportGroup.objects.active()
                 .filter(
