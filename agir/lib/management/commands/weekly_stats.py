@@ -88,12 +88,8 @@ class Command(BaseCommand):
         print("**\nIV) Groupes**")
         print_stock("Groupes d'actions LFI", "ga_LFI")
         print(f"dont certifiés : {instant_stats['ga_LFI_certifies']}")
-        print_stock("Équipes NSP", "equipes_NSP")
         print_stock("Membres de GA LFI", "membres_ga_LFI")
         print(f"dont de GA certifiés : {instant_stats['membres_ga_LFI_certifies']}")
-        print_stock("Membres équipes de soutien NSP", "membres_equipes_NSP")
-        print_stock("dont insoumis", "membres_equipes_NSP_insoumis")
-        print_stock("dont non insoumis", "membres_equipes_NSP_non_insoumis")
 
         print("**\nV) Progression possible**")
         print(f"Insoumis non NSP : {instant_stats['insoumis_non_NSP']}")
