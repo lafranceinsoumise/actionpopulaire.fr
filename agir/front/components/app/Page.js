@@ -28,6 +28,8 @@ import ErrorBoundary from "./ErrorBoundary";
 import logger from "@agir/lib/utils/logger";
 import useTracking from "./useTracking";
 
+import { routeConfig as routesConfig } from "@agir/front/app/routes.config";
+
 const log = logger(__filename);
 
 const StyledPage = styled.div`
@@ -87,8 +89,17 @@ const Page = (props) => {
   }, [history]);
 
   useMemo(() => {
+    if (
+      [
+        routesConfig.events.path,
+        routesConfig.activities.path,
+        routesConfig.groups.path,
+      ].includes(pathname)
+    ) {
+      return;
+    }
     typeof window !== "undefined" && window.scrollTo && window.scrollTo(0, 0);
-  }, []);
+  }, [pathname]);
 
   if (routeConfig.isPartial) {
     return (
