@@ -119,7 +119,7 @@ const EventDescriptionCard = ({
                   Modifier la description
                 </StyledButton>
 
-                {!illustration.banner ? (
+                {!illustration?.banner ? (
                   <StyledButton as="a" href={routes.edit}>
                     Ajouter une image d'illustration
                   </StyledButton>
