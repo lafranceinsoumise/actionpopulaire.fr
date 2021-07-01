@@ -28,8 +28,6 @@ import ErrorBoundary from "./ErrorBoundary";
 import logger from "@agir/lib/utils/logger";
 import useTracking from "./useTracking";
 
-import { routeConfig as routesConfig } from "@agir/front/app/routes.config";
-
 const log = logger(__filename);
 
 const StyledPage = styled.div`
@@ -91,7 +89,7 @@ const Page = (props) => {
   useMemo(() => {
     if (!!routeConfig.keepScroll) return;
     typeof window !== "undefined" && !!window.scrollTo && window.scrollTo(0, 0);
-  }, []);
+  }, [routeConfig]);
 
   if (routeConfig.isPartial) {
     return (
