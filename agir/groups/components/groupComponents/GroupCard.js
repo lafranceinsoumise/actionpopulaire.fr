@@ -66,6 +66,14 @@ const DiscountCodesSection = styled.section`
   }
 `;
 
+const StyledGroupButton = styled(Button)`
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: ${style.borderRadius};
+  margin-top: 16px;
+`;
+
 let GroupButton = ({
   as = "a",
   to,
@@ -199,26 +207,26 @@ const GroupCard = ({
             </Hide>
           </GroupButton>
         ) : null}
-        <GroupButton
+        <StyledGroupButton
           as="Link"
-          color={isEmbedded || isMember ? "primary" : "default"}
+          color={isEmbedded ? "default" : "primary"}
           to={routeConfig.groupDetails.getLink({ groupPk: id })}
         >
           Voir le groupe
-        </GroupButton>
+        </StyledGroupButton>
         {routes.fund && (
           <GroupButton href={routes.fund} icon="fast-forward">
             Financer
           </GroupButton>
         )}
         {isManager && (
-          <GroupButton
+          <StyledGroupButton
             as="Link"
             to={routeConfig.groupSettings.getLink({ groupPk: id })}
             icon="settings"
           >
             Gestion
-          </GroupButton>
+          </StyledGroupButton>
         )}
       </Row>
       {displayMembership && isMember && (

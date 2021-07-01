@@ -98,6 +98,13 @@ const StyledActionButtons = styled.div`
   }
 `;
 
+const StyledButton = styled(Button)`
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: ${style.borderRadius};
+`;
+
 const RSVPButton = (props) => {
   const { id, hasPrice, routes, hasSubscriptionForm } = props;
 
@@ -139,14 +146,14 @@ const RSVPButton = (props) => {
 
   return (
     <StyledActionButtons>
-      <ActionButton
+      <StyledButton
         type="submit"
-        color="secondary"
+        color="primary"
         disabled={isLoading}
         onClick={handleRSVP}
       >
         Participer à l'événement
-      </ActionButton>
+      </StyledButton>
     </StyledActionButtons>
   );
 };
@@ -169,13 +176,18 @@ const ActionButtons = (props) => {
   if (past) {
     return (
       <StyledActionButtons>
-        <Button disabled color="unavailable">
+        <StyledButton disabled color="unavailable">
           Événement terminé
-        </Button>
+        </StyledButton>
         {isOrganizer && (
-          <ActionButton icon="settings" as="a" href={routes.manage}>
+          <StyledButton
+            icon="settings"
+            as="a"
+            href={routes.manage}
+            color="primary"
+          >
             Gérer l'événement
-          </ActionButton>
+          </StyledButton>
         )}
       </StyledActionButtons>
     );
@@ -207,9 +219,14 @@ const ActionButtons = (props) => {
             </ActionButton>
           )}
           {isOrganizer && (
-            <ActionButton icon="settings" as="a" href={routes.manage}>
+            <StyledButton
+              icon="settings"
+              as="a"
+              href={routes.manage}
+              color="primary"
+            >
               Gérer l'événement
-            </ActionButton>
+            </StyledButton>
           )}
           {allowGuests && (hasSubscriptionForm || hasPrice) && (
             <ActionButton as="a" href={routes.rsvp} type="submit">

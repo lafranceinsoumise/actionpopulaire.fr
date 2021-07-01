@@ -34,10 +34,6 @@ const Card = styled.div`
       ? cardTypes[type].backgroundColor
       : cardTypes.default.background};
   padding: 1.5rem;
-  border-radius: ${({ type }) =>
-    type && cardTypes[type] && cardTypes[type].borderRadius
-      ? cardTypes[type].borderRadius
-      : cardTypes.default.borderRadius};
   font-weight: 500;
   cursor: ${({ onClick }) => (onClick ? "pointer" : "default")};
   border: 1px solid;

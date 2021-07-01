@@ -3,20 +3,21 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from functools import partial
 
-from push_notifications.models import APNSDevice, WebPushDevice, GCMDevice
+from push_notifications.models import APNSDevice, GCMDevice, WebPushDevice
 
 from agir.activity.models import Activity
 from agir.groups.models import Membership
 from agir.notifications.actions import (
-    create_default_person_subscriptions,
     create_default_group_membership_subscriptions,
+    create_default_person_push_subscriptions,
+    create_default_person_email_subscriptions,
 )
 from agir.notifications.models import Subscription
 from agir.notifications.tasks import (
-    send_webpush_activity,
     send_apns_activity,
     send_fcm_activity,
 )
+from agir.people.models import Person
 
 
 @receiver(post_save, sender=Activity, dispatch_uid="push_new_activity")
@@ -34,19 +35,6 @@ def push_new_activity(sender, instance, created=False, **kwargs):
         ).exists()
     ):
         return
-
-    # SEND WEBPUSH NOTIFICATIONS
-    webpush_device_pks = [
-        webpush_device.pk
-        for webpush_device in WebPushDevice.objects.filter(
-            user=instance.recipient.role, active=True
-        )
-    ]
-
-    for webpush_device_pk in webpush_device_pks:
-        transaction.on_commit(
-            partial(send_webpush_activity.delay, instance.pk, webpush_device_pk,)
-        )
 
     # SEND APPLE PUSH NOTIFICATION SERVICE NOTIFICATIONS
     apns_device_pks = [
@@ -77,11 +65,6 @@ def push_new_activity(sender, instance, created=False, **kwargs):
 
 @receiver(
     post_save,
-    sender=WebPushDevice,
-    dispatch_uid="create_default_person_subscriptions__wp",
-)
-@receiver(
-    post_save,
     sender=APNSDevice,
     dispatch_uid="create_default_person_subscriptions__apns",
 )
@@ -96,13 +79,13 @@ def push_device_post_save_handler(sender, instance, created=False, **kwargs):
         and created is True
         and not Subscription.objects.filter(person=instance.user.person).exists()
         and APNSDevice.objects.filter(user=instance.user).count()
-        + WebPushDevice.objects.filter(user=instance.user).count()
         + GCMDevice.objects.filter(user=instance.user).count()
+        + WebPushDevice.objects.filter(user=instance.user).count()
         == 1
     )
 
     if is_first_device:
-        create_default_person_subscriptions(instance.user.person)
+        create_default_person_push_subscriptions(instance.user.person)
 
 
 @receiver(
@@ -129,3 +112,21 @@ def membership_post_save_handler(sender, instance, created=False, **kwargs):
         return
 
     create_default_group_membership_subscriptions(instance.person, instance)
+
+
+@receiver(
+    post_save, sender=Person, dispatch_uid="create_default_person_email_subscriptions"
+)
+def person_post_save_handler(sender, instance, created=False, **kwargs):
+    if (
+        instance is None
+        or not created
+        or Subscription.objects.filter(
+            person=instance,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=Subscription.DEFAULT_PERSON_EMAIL_TYPES,
+        ).exists()
+    ):
+        return
+
+    create_default_person_email_subscriptions(instance)

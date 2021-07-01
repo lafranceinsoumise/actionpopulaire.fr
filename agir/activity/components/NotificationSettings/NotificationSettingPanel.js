@@ -5,9 +5,10 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Accordion from "@agir/front/genericComponents/Accordion";
-import Button from "@agir/front/genericComponents/Button";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Panel, { StyledBackButton } from "@agir/front/genericComponents/Panel";
+
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import NotificationSettingItem from "./NotificationSettingItem";
 
@@ -51,46 +52,12 @@ const AccordionContent = styled.div`
   padding: 1.5rem;
 `;
 
-const StyledDeviceSubscription = styled.div`
-  padding: 1rem;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  align-items: center;
-  background: ${style.primary100};
-  grid-gap: 0 1rem;
-  width: calc(100% - 3rem);
-  margin: 0 auto 1.5rem;
-
-  h5,
-  p {
-    font-size: 0.875rem;
-    line-height: 1.5;
-    margin: 0;
-    padding: 0;
-  }
-
-  h5 {
-    font-weight: 700;
-  }
-
-  p {
-    font-weight: 400;
-  }
-
-  ${Button} {
-    grid-column: 2/3;
-    grid-row: 1/3;
-  }
-`;
-
 const StyledUnsupportedSubscription = styled.div`
   padding: 1rem;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto auto;
   background: ${style.black50};
-  grid-gap: 1rem;
   width: calc(100% - 3rem);
   margin: 0 auto 1.5rem;
 
@@ -131,11 +98,11 @@ const NotificationSettingPanel = (props) => {
     onChange,
     disabled,
     ready,
-    subscribeDevice,
     isPushAvailable,
-    subscriptionError,
     pushIsReady,
   } = props;
+
+  const isDesktop = useIsDesktop();
 
   const [byType, icons] = useMemo(() => {
     const result = {};
@@ -173,31 +140,17 @@ const NotificationSettingPanel = (props) => {
           padding: "0 1.5rem 0.5rem",
         }}
       >
-        Paramètres de notifications et e-mails
+        Paramètres de notifications&nbsp;<InlineBlock>et e-mails</InlineBlock>
       </h3>
       <p>
         Paramétrez la réception de vos e-mails et des push de
         l'application&nbsp;<InlineBlock>sur votre téléphone.</InlineBlock>
       </p>
-      {typeof subscribeDevice === "function" ? (
-        <StyledDeviceSubscription>
-          <h5>Notifications désactivées</h5>
-          <p>Autorisez les notifications sur cet appareil</p>
-          {subscriptionError && (
-            <p style={{ color: style.redNSP }}>{subscriptionError}</p>
-          )}
-          <Button color="primary" onClick={subscribeDevice}>
-            Activer
-          </Button>
-        </StyledDeviceSubscription>
-      ) : pushIsReady && !isPushAvailable ? (
+      {pushIsReady && !isPushAvailable && !isDesktop && (
         <StyledUnsupportedSubscription>
-          <p>
-            Les notifications mobiles ne sont actuellement pas supportées sur
-            votre appareil.
-          </p>
+          <p>Installez l'application pour recevoir des notifications</p>
         </StyledUnsupportedSubscription>
-      ) : null}
+      )}
       <PageFadeIn ready={ready}>
         {Object.keys(byType).map((type) => (
           <Accordion key={type} name={type} icon={icons[type] || "settings"}>

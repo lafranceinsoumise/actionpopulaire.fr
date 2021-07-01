@@ -122,86 +122,6 @@ const useServerSubscription = (endpoint, token) => {
   };
 };
 
-const useWebPush = () => {
-  const [browserReady, setBrowserReady] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [browserSubscription, setBrowserSubscription] = useState(null);
-
-  const {
-    ready: serverReady,
-    isSubscribed,
-    subscribe: serverSubscribe,
-    unsubscribe,
-  } = useServerSubscription(SUBSCRIPTION_TYPES.WEBPUSH, browserSubscription);
-
-  const subscribe = useCallback(async () => {
-    if (subscription) {
-      return await serverSubscribe();
-    }
-
-    setErrorMessage("");
-    await askPermission();
-    const subscription = await webpushSubscribe(window.AgirSW);
-
-    setBrowserReady(true);
-    if (!subscription) {
-      setErrorMessage("Une erreur est survenue.");
-    } else {
-      setBrowserSubscription(getSubscriptionData(subscription));
-    }
-  }, [serverSubscribe, window.AgirSW]);
-
-  useEffect(() => {
-    (async () => {
-      if (!window.AgirSW?.pushManager) return;
-
-      const pushSubscription =
-        await window.AgirSW?.pushManager?.getSubscription();
-      setBrowserReady(true);
-
-      if (!pushSubscription) {
-        return;
-      }
-
-      setBrowserSubscription(getSubscriptionData(pushSubscription));
-    })();
-  }, [window.AgirSW]);
-
-  if (!window.AgirSW || !window.AgirSW.pushManager) {
-    log.debug("WebPush : PushManager not available.");
-
-    return {
-      ready: true,
-      available: false,
-    };
-  }
-
-  if (!browserReady) {
-    log.debug("WebPush : Waiting for browser subscription");
-
-    return {
-      ready: false,
-    };
-  }
-
-  if (!browserSubscription) {
-    log.debug("WebPush : Faild to get browser subscription");
-    return {
-      ready: true,
-      available: false,
-    };
-  }
-
-  return {
-    ready: serverReady,
-    available: true,
-    isSubscribed: isSubscribed,
-    subscribe,
-    unsubscribe: isSubscribed ? unsubscribe : undefined,
-    errorMessage,
-  };
-};
-
 const useAndroidPush = () => {
   const { isAndroid } = useMobileApp();
   const [token] = useLocalStorage("AP_FCMToken", null, { raw: true });
@@ -323,7 +243,6 @@ const useIOSPush = () => {
 export const usePush = () => {
   const iosPush = useIOSPush();
   const androidPush = useAndroidPush();
-  const webPush = useWebPush();
 
   if (iosPush.ready && iosPush.available) {
     return iosPush;
@@ -333,12 +252,8 @@ export const usePush = () => {
     return androidPush;
   }
 
-  if (webPush.ready && webPush.available) {
-    return webPush;
-  }
-
   return {
-    ready: iosPush.ready && androidPush.ready && webPush.ready,
+    ready: iosPush.ready && androidPush.ready,
     available: false,
   };
 };

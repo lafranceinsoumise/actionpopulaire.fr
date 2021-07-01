@@ -17,6 +17,7 @@ import { displayInterval } from "@agir/lib/utils/time";
 
 import googleLogo from "./assets/Google.svg";
 import outlookLogo from "./assets/Outlook.svg";
+import ClickableMap from "@agir/carte/common/Map/ClickableMap";
 
 const LocationName = styled.span`
   color: ${style.black1000};
@@ -30,12 +31,34 @@ const WithLinebreak = styled.span`
 const MapContainer = styled.div`
   margin: -1.5rem -1.5rem 1.5rem;
 
+  @media (max-width: ${style.collapse}px) {
+    margin: 24px 0 0 0;
+
+    * {
+      border-radius: ${style.borderRadius};
+    }
+
+    display: ${(props) => {
+      return props.hideMap ? "none" : "initial";
+    }};
+  }
+
   & > * {
     display: block;
     border: 0;
     width: 100%;
     min-height: 216px;
   }
+`;
+
+const StyledCard = styled(Card)`
+  @media (max-width: ${style.collapse}px) {
+    display: flex;
+    flex-flow: column-reverse;
+  }
+  margin-bottom: 24px;
+  overflow: hidden;
+  border-bottom: 1px solid ${style.black50};
 `;
 
 const CalendarButtonHolder = styled.ul`
@@ -54,73 +77,92 @@ const CalendarButtonHolder = styled.ul`
   }
 `;
 
-const EventLocationCard = ({ schedule, location, routes, subtype }) => {
+const EventLocationCard = ({
+  schedule,
+  location,
+  routes,
+  subtype,
+  isStatic,
+  hideMap,
+}) => {
   let interval = displayInterval(schedule);
   interval = interval.charAt(0).toUpperCase() + interval.slice(1);
+
   return (
-    <Card>
+    <StyledCard>
       {location && location.coordinates && (
-        <Hide under>
-          <MapContainer>
-            {location?.coordinates?.coordinates ? (
-              <Map
-                zoom={14}
-                center={location.coordinates.coordinates}
-                iconConfiguration={subtype}
-                isStatic={false}
-              />
-            ) : (
-              <iframe src={routes.map} />
-            )}
-          </MapContainer>
-        </Hide>
-      )}
-      <IconList>
-        <IconListItem name="clock">{interval}</IconListItem>
-        {location && (location.name || location.address) && (
-          <IconListItem name="map-pin">
-            <WithLinebreak>
-              {location.name && (
-                <>
-                  <LocationName>{location.name}</LocationName>
-                  {"\n"}
-                </>
+        <MapContainer hideMap={hideMap}>
+          {location?.coordinates?.coordinates ? (
+            <>
+              {isStatic ? (
+                <ClickableMap
+                  location={location}
+                  zoom={14}
+                  center={location.coordinates.coordinates}
+                  subtype={subtype}
+                />
+              ) : (
+                <Map
+                  zoom={14}
+                  center={location.coordinates.coordinates}
+                  iconConfiguration={subtype}
+                  isStatic={isStatic}
+                />
               )}
-              {location.address}
-            </WithLinebreak>
-          </IconListItem>
-        )}
-      </IconList>
-      <Row style={{ marginTop: "0.5rem" }}>
-        <Column grow width={["content", "content"]}>
-          <a href={routes.calendarExport}>Ajouter à mon agenda</a>
-        </Column>
-        <Column width={["content", "content"]}>
-          <CalendarButtonHolder>
-            <li>
-              <a href={routes.googleExport}>
-                <img
-                  src={googleLogo}
-                  width="16"
-                  height="16"
-                  alt="logo Google"
-                />
-              </a>
-            </li>
-            <li>
-              <a href={routes.calendarExport}>
-                <img
-                  src={outlookLogo}
-                  width="16"
-                  height="16"
-                  alt="logo Outlook"
-                />
-              </a>
-            </li>
-          </CalendarButtonHolder>
-        </Column>
-      </Row>
-    </Card>
+            </>
+          ) : (
+            <iframe src={routes.map} />
+          )}
+        </MapContainer>
+      )}
+      <div>
+        <IconList>
+          <IconListItem name="clock">{interval}</IconListItem>
+          {location && (location.name || location.address) && (
+            <IconListItem name="map-pin">
+              <WithLinebreak>
+                {location.name && (
+                  <>
+                    <LocationName>{location.name}</LocationName>
+                    {"\n"}
+                  </>
+                )}
+                {location.address}
+              </WithLinebreak>
+            </IconListItem>
+          )}
+        </IconList>
+        <Row style={{ marginTop: "0.5rem" }}>
+          <Column grow width={["content", "content"]}>
+            <a href={routes.calendarExport}>Ajouter à mon agenda</a>
+          </Column>
+          <Column width={["content", "content"]}>
+            <CalendarButtonHolder>
+              <li>
+                <a href={routes.googleExport}>
+                  <img
+                    src={googleLogo}
+                    width="16"
+                    height="16"
+                    alt="logo Google"
+                  />
+                </a>
+              </li>
+              <li>
+                <a href={routes.calendarExport}>
+                  <img
+                    src={outlookLogo}
+                    width="16"
+                    height="16"
+                    alt="logo Outlook"
+                  />
+                </a>
+              </li>
+            </CalendarButtonHolder>
+          </Column>
+        </Row>
+      </div>
+    </StyledCard>
   );
 };
 EventLocationCard.propTypes = {
@@ -136,6 +178,8 @@ EventLocationCard.propTypes = {
     googleExport: PropTypes.string,
   }),
   subtype: PropTypes.object,
+  isStatic: PropTypes.bool,
+  hideMap: PropTypes.bool,
 };
 
 export default EventLocationCard;
