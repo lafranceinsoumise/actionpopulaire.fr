@@ -4,7 +4,7 @@ Notification de changement de groupe
   
 {{ GREETINGS }},
 
-[{{ GROUP_SENDER }}]({{ GROUP_SENDER_URL }}) dont vous faites partie dépassait le nombre idéal de membre. Les animateur·ices l'ont donc divisée en plusieurs équipes.
+[{{ GROUP_SENDER }}]({{ GROUP_SENDER_URL }}) dont vous faites partie dépassait le nombre idéal de membre. Les animateur·ices l'ont donc divisée en plusieurs groupes.
 
 Vous recevez ce mail parce que les animateur·ices de {{ GROUP_SENDER }} vous ont transféré·e : vous avez rejoint [{{ GROUP_DESTINATION }}]({{ GROUP_DESTINATION_URL }}) et avez quitté {{ GROUP_SENDER }}.
   

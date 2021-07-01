@@ -189,17 +189,6 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
                 '"{}" did not return 404'.format(page),
             )
 
-    def test_cannot_join_group_if_external(self):
-        self.other_person.is_insoumise = False
-        self.other_person.save()
-        self.client.force_login(self.other_person.role)
-
-        url = reverse("view_group", kwargs={"pk": self.manager_group.pk})
-
-        # cannot join
-        self.client.post(url, data={"action": "join"}, follow=True)
-        self.assertNotIn(self.other_person, self.manager_group.members.all())
-
     def test_transfer_allowed_for_managers(self):
         res = self.client.post(
             reverse("transfer_group_members", kwargs={"pk": self.manager_group.pk})
@@ -259,9 +248,7 @@ class InvitationTestCase(TestCase):
 
         res = self.client.get(join_url)
         self.assertEqual(res.status_code, 200)
-        self.assertContains(
-            res, "Vous avez été invité⋅e à rejoindre la France insoumise"
-        )
+        self.assertContains(res, "Vous avez été invité⋅e à rejoindre")
 
         res = self.client.post(
             join_url,
@@ -317,49 +304,6 @@ class InvitationTestCase(TestCase):
         self.assertEqual(
             send_abuse_report_message.delay.call_args[0], (str(self.referent.id),)
         )
-
-
-class SupportGroupListViewTestCase(TestCase):
-    def setUp(self):
-        self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
-        day = timezone.timedelta(days=1)
-        hour = timezone.timedelta(hours=1)
-
-        self.person_insoumise = Person.objects.create_insoumise(
-            "person@lfi.com", create_role=True
-        )
-        self.person_2022 = Person.objects.create_person(
-            "person@nsp.com", create_role=True, is_2022=True, is_insoumise=False
-        )
-
-        self.group_insoumis = SupportGroup.objects.create(
-            name="Groupe Insoumis",
-            type=SupportGroup.TYPE_LOCAL_GROUP,
-            location_name="location",
-            location_address1="somewhere",
-            location_city="Over",
-            location_country="DE",
-        )
-        self.group_2022 = SupportGroup.objects.create(
-            name="Groupe NSP",
-            type=SupportGroup.TYPE_2022,
-            location_name="location",
-            location_address1="somewhere",
-            location_city="Over",
-            location_country="DE",
-        )
-
-    def test_insoumise_persone_can_search_through_all_groups(self):
-        self.client.force_login(self.person_insoumise.role)
-        res = self.client.get(reverse("search_group") + "?q=g")
-        self.assertContains(res, self.group_insoumis.name)
-        self.assertContains(res, self.group_2022.name)
-
-    def test_2022_only_person_can_search_through_all_groups(self):
-        self.client.force_login(self.person_2022.role)
-        res = self.client.get(reverse("search_group") + "?q=g")
-        self.assertContains(res, self.group_insoumis.name)
-        self.assertContains(res, self.group_2022.name)
 
 
 class GroupDetailAPIViewTestCase(TestCase):

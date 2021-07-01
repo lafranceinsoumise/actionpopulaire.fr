@@ -9,7 +9,7 @@ const groupTypes = [
   "Groupe thématique",
   "Groupe fonctionnel",
   "Groupe professionel",
-  "Équipe de soutien « Nous Sommes Pour ! »",
+  "Groupe d'action",
 ];
 
 export default {

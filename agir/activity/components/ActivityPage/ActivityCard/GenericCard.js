@@ -189,7 +189,7 @@ const GenericCard = (props) => {
         <GenericCardContainer {...props}>
           Vous avez été transféré·e de &laquo;&nbsp;{meta && meta.oldGroup}
           &nbsp;&raquo; et avez rejoint {SupportGroup}.<br />
-          Votre nouvelle équipe vous attend !
+          Votre nouveau groupe vous attend !
         </GenericCardContainer>
       );
     case "new-members-through-transfer":

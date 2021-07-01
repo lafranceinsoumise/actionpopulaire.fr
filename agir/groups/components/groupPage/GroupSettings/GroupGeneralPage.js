@@ -19,7 +19,6 @@ import {
 } from "@agir/groups/groupPage/api.js";
 
 import { StyledTitle } from "./styledComponents.js";
-import { useGroupWord } from "@agir/groups/utils/group";
 
 const GroupGeneralPage = (props) => {
   const { onBack, illustration, groupPk } = props;
@@ -28,7 +27,6 @@ const GroupGeneralPage = (props) => {
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
   );
-  const withGroupWord = useGroupWord(group);
 
   const [imageHasChanged, setImageHasChanged] = useState(false);
   const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
@@ -127,7 +125,7 @@ const GroupGeneralPage = (props) => {
       <TextField
         id="name"
         name="name"
-        label={withGroupWord`Nom du groupe*`}
+        label="Nom du groupe*"
         onChange={handleChange}
         value={formData.name}
         error={errors?.name}
@@ -138,7 +136,7 @@ const GroupGeneralPage = (props) => {
       <RichTextField
         id="description"
         name="description"
-        label={withGroupWord`Description du groupe*`}
+        label="Description du groupe*"
         placeholder=""
         onChange={handleDescriptionChange}
         value={formData.description}

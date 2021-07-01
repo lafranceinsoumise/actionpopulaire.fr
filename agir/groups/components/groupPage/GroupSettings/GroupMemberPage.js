@@ -17,7 +17,6 @@ import { StyledTitle } from "./styledComponents.js";
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 import { getGroupPageEndpoint } from "@agir/groups/groupPage/api.js";
-import { useGroupWord } from "@agir/groups/utils/group";
 
 const StyledSkeleton = styled.div`
   & > * {
@@ -52,7 +51,6 @@ const MembersSkeleton = (
 const GroupMemberPage = (props) => {
   const { onBack, illustration, groupPk } = props;
   const group = useGroup(groupPk);
-  const withGroupWord = useGroupWord(group);
   const { data: members } = useSWR(
     getGroupPageEndpoint("getMembers", { groupPk })
   );
@@ -88,11 +86,9 @@ const GroupMemberPage = (props) => {
             />
             <Spacer size="0.5rem" />
             <Hide under>
-              {withGroupWord`Transférer des membres de votre groupe vers un autre groupe`}
+              Transférer des membres de votre groupe vers un autre groupe
             </Hide>
-            <Hide over>
-              {withGroupWord`Transférer des membres vers un autre groupe`}
-            </Hide>
+            <Hide over>Transférer des membres vers un autre groupe</Hide>
           </a>
         )}
       </PageFadeIn>

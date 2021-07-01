@@ -79,7 +79,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     labels = serializers.SerializerMethodField(read_only=True)
 
     discountCodes = serializers.SerializerMethodField(read_only=True)
-    is2022 = serializers.SerializerMethodField(read_only=True)
     isFull = serializers.SerializerMethodField(read_only=True)
 
     routes = RoutesField(routes=GROUP_ROUTES, read_only=True)
@@ -127,9 +126,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
             ]
         return []
 
-    def get_is2022(self, obj):
-        return obj.is_2022
-
     def get_isFull(self, obj):
         return obj.is_full
 
@@ -144,7 +140,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     name = serializers.CharField(read_only=True,)
     type = serializers.SerializerMethodField(read_only=True,)
     description = serializers.CharField(read_only=True, source="html_description")
-    is2022 = serializers.SerializerMethodField(read_only=True,)
     isFull = serializers.SerializerMethodField(read_only=True,)
     isCertified = serializers.BooleanField(read_only=True, source="is_certified")
     location = LocationSerializer(read_only=True, source="*")
@@ -203,9 +198,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_type(self, obj):
         return obj.get_type_display()
-
-    def get_is2022(self, obj):
-        return obj.is_2022
 
     def get_isFull(self, obj):
         return obj.is_full

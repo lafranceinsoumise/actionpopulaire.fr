@@ -14,8 +14,18 @@ import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
 
-import GroupIconLfi from "./images/group-icon__lfi.svg";
-import GroupIconNsp from "./images/group-icon__nsp.svg";
+const GroupIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin: 0;
+  padding: 0;
+  border-radius: 100%;
+  background-color: ${(props) => props.theme.black50};
+  color: ${(props) => props.theme.black1000};
+`;
 
 const Label = styled.span`
   font-size: 13px;
@@ -96,7 +106,6 @@ const GroupCard = ({
   displayDescription,
   displayMembership,
   isEmbedded = false,
-  is2022 = false,
 }) => {
   const history = useHistory();
   const handleClick = useCallback(
@@ -110,7 +119,6 @@ const GroupCard = ({
     },
     [history, id]
   );
-  const Svg = useMemo(() => (is2022 ? GroupIconNsp : GroupIconLfi), [is2022]);
   const parsedDiscountCodes = useMemo(
     () => parseDiscountCodes(discountCodes),
     [discountCodes]
@@ -122,7 +130,9 @@ const GroupCard = ({
         {displayGroupLogo && (
           <Column collapse={0}>
             <Link to={routeConfig.groupDetails.getLink({ groupPk: id })}>
-              <img src={Svg} width="48" height="49" alt="Groupe" />
+              <GroupIcon>
+                <FeatherIcon name="users" />
+              </GroupIcon>
             </Link>
           </Column>
         )}
@@ -223,24 +233,19 @@ const GroupCard = ({
 GroupCard.propTypes = {
   name: PropTypes.string.isRequired,
   description: PropTypes.string,
-  eventCount: PropTypes.number.isRequired,
-  membersCount: PropTypes.number.isRequired,
+  eventCount: PropTypes.number,
+  membersCount: PropTypes.number,
   isMember: PropTypes.bool,
   isManager: PropTypes.bool,
   typeLabel: PropTypes.string,
   labels: PropTypes.arrayOf(PropTypes.string),
-  routes: PropTypes.shape({
-    page: PropTypes.string.isRequired,
-    fund: PropTypes.string,
-    manage: PropTypes.string,
-  }),
+  routes: PropTypes.object,
   displayGroupLogo: PropTypes.bool,
   displayType: PropTypes.bool,
   displayDescription: PropTypes.bool,
   displayMembership: PropTypes.bool,
   ...DiscountCodesSection.propTypes,
   isEmbedded: PropTypes.bool,
-  is2022: PropTypes.bool,
 };
 
 GroupCard.defaultProps = {
@@ -249,7 +254,6 @@ GroupCard.defaultProps = {
   displayDescription: true,
   displayMembership: true,
   isManager: false,
-  is2022: false,
 };
 
 export default GroupCard;

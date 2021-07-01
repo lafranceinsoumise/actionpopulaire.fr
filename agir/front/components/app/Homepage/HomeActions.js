@@ -93,7 +93,7 @@ const HomeActions = () => {
         />
         <h4>Organisez</h4>
         <p>
-          Créez une équipe de soutien, commandez du matériel, tracts et
+          Créez un groupe d'action, commandez du matériel, tracts et
           affiches&nbsp;!
         </p>
         <Button color="secondary">Passer à l'action</Button>

@@ -164,14 +164,11 @@ class FullSupportGroupView(SoftLoginRequiredMixin, ReactSingleObjectView):
         person_groups = None
 
         if person.coordinates is not None:
-            person_groups = SupportGroup.objects.active()
-
-            if person.is_2022_only:
-                person_groups = person_groups.is_2022()
-
-            person_groups = person_groups.annotate(
-                distance=Distance("coordinates", person.coordinates)
-            ).order_by("distance")[:3]
+            person_groups = (
+                SupportGroup.objects.active()
+                .annotate(distance=Distance("coordinates", person.coordinates))
+                .order_by("distance")[:3]
+            )
 
             for group in person_groups:
                 person_groups.membership = None
@@ -253,18 +250,14 @@ class NSPReferralView(SoftLoginRequiredMixin, RedirectView):
 class EventDetailView(
     ObjectOpengraphMixin, EventDetailMixin, BaseDetailView, ReactBaseView
 ):
-    meta_description = (
-        "Participez aux événements organisés par les membres de la France insoumise."
-    )
-    meta_description_2022 = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
+    meta_description = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
     bundle_name = "front/app"
 
 
 class SupportGroupDetailView(
     ObjectOpengraphMixin, SupportGroupDetailMixin, BaseDetailView, ReactBaseView
 ):
-    meta_description = "Rejoignez les groupes d'action de la France insoumise."
-    meta_description_2022 = "Rejoignez les équipes de soutien de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
+    meta_description = "Rejoignez les groupes d'action de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
     bundle_name = "front/app"
 
 
