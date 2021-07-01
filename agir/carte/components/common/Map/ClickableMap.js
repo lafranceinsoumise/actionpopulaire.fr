@@ -1,7 +1,7 @@
 import React from "react";
 import Map from "@agir/carte/common/Map";
 import PropTypes from "prop-types";
-import {useMobileApp} from "@agir/front/app/hooks";
+import { useMobileApp } from "@agir/front/app/hooks";
 
 const ClickableMap = (props) => {
   const { location, zoom, subtype, center } = props;
