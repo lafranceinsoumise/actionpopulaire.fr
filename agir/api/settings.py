@@ -359,7 +359,7 @@ EMAIL_TEMPLATES = {
     "TRANSFER_SENDER": "https://mosaico.lafranceinsoumise.fr/emails/13cecf70-acd6-46a8-9bd8-63cf1bbb79ec.html",
     # TRANSFER_RECEIVER variables : GREETINGS, GROUP_SENDER, GROUP_SENDER_URL, MEMBERS_COUNT, GROUP_NAME, MEMBER_LIST
     "TRANSFER_RECEIVER": "https://mosaico.lafranceinsoumise.fr/emails/53046516-d961-4190-8302-4f239fd30caa.html",
-    # YOU_HAVE_BEEN_TRANSFERED variables : GREETINGS, GROUP_SENDER, GROUP_SENDER_URL, GROUP_RECEIVER, GROUP_RECEIVER_URL
+    # YOU_HAVE_BEEN_TRANSFERED variables : GREETINGS, GROUP_SENDER, GROUP_SENDER_URL, GROUP_DESTINATION, GROUP_DESTINATION_URL
     "TRANSFER_ALERT": "https://mosaico.lafranceinsoumise.fr/emails/8eca0332-bcb0-4e1d-816f-9da8bfcb570b.html",
     # GROUP_ALERT_CAPACITY variables : GROUP_NAME, GROUP_NAME_URL, TRANSFER_LINK
     "GROUP_ALERT_CAPACITY_21": "https://mosaico.lafranceinsoumise.fr/emails/8add9bc8-ef7a-4fc6-8591-d4bc0c8ec226.html",
