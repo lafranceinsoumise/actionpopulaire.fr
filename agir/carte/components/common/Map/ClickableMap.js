@@ -1,7 +1,21 @@
 import React from "react";
 import Map from "@agir/carte/common/Map";
 import PropTypes from "prop-types";
+import styled from "styled-components";
 import { useMobileApp } from "@agir/front/app/hooks";
+
+const StyledLink = styled.a`
+  position: relative;
+  & > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+  }
+`;
 
 const ClickableMap = (props) => {
   const { location, zoom, iconConfiguration } = props;
@@ -21,16 +35,15 @@ const ClickableMap = (props) => {
   }
 
   return (
-    <Map
-      as={"a"}
-      href={href}
-      target="_blank"
-      center={location.coordinates.coordinates}
-      staticMapUrl={location.staticMapUrl}
-      isStatic={true}
-      iconConfiguration={iconConfiguration}
-      zoom={zoom}
-    />
+    <StyledLink href={href} target="_blank" rel="noreferrer">
+      <Map
+        center={location.coordinates.coordinates}
+        staticMapUrl={location.staticMapUrl}
+        isStatic={true}
+        iconConfiguration={iconConfiguration}
+        zoom={zoom}
+      />
+    </StyledLink>
   );
 };
 
