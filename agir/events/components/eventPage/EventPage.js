@@ -41,7 +41,6 @@ import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
-import Map from "@agir/carte/common/Map";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage.js";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
@@ -226,7 +225,7 @@ const MobileLayout = (props) => {
 };
 
 const DesktopLayout = (props) => {
-  const { logged, groups, contact, participantCount, routes } = props;
+  const { logged, groups, contact, participantCount, routes, subtype } = props;
 
   return (
     <Container
@@ -266,7 +265,7 @@ const DesktopLayout = (props) => {
         <StyledColumn width="380px">
           <EventLocationCard {...props} />
           {contact && <ContactCard {...contact} />}
-          {(participantCount > 1 || groups?.length > 0) && (
+          {(participantCount > 1 || groups?.length > 0 || subtype?.label) && (
             <EventInfoCard {...props} />
           )}
           {routes?.facebook && <EventFacebookLinkCard {...props} />}
