@@ -6,9 +6,7 @@
 }
 
 .type-selectors {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  padding-top: 0.8rem;
 }
 
 .type-selector {

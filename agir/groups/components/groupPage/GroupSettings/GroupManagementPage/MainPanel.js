@@ -46,7 +46,7 @@ export const ReferentMainPanel = (props) => {
       <Spacer size=".5rem" />
       <span style={{ color: style.black700 }}>
         Pour respecter la{" "}
-        <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
+        <a href="https://infos.actionpopulaire.fr/charte-des-groupes-action-populaire/">
           charte des groupes d'actions
         </a>
         , votre groupe doit être animé à parité de genre.

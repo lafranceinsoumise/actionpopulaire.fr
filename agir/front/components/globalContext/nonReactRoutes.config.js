@@ -26,6 +26,6 @@ export default {
   newGroupHelp: "https://infos.actionpopulaire.fr/groupes/nouvelle-equipe/",
   groupTransferHelp: "https://infos.actionpopulaire.fr/nombre-ideal-division/",
   charteEquipes:
-    "https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/",
+    "https://infos.actionpopulaire.fr/charte-des-groupes-action-populaire/",
   facebookLogin: "/connexion/social/login/facebook/",
 };
