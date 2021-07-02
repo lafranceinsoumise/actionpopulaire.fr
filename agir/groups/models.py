@@ -89,16 +89,15 @@ class SupportGroup(
     }
 
     TYPE_DESCRIPTION = {
-        TYPE_LOCAL_GROUP: "Les groupes d’action géographiques de la France insoumise sont constitués sur la base d’un"
-        " territoire réduit (quartier, villages ou petites villes, cantons). Chaque insoumis⋅e peut assurer"
-        " l’animation d’un seul groupe d’action géographique.",
-        TYPE_THEMATIC: "Les groupes d’action thématiques réunissent des insoumis⋅es qui"
-        " souhaitent agir de concert sur un thème donné en lien avec les livrets"
-        " thématiques correspondant.",
-        TYPE_FUNCTIONAL: "Les groupes d’action fonctionnels remplissent"
-        " des fonctions précises (formations, organisation"
-        " des apparitions publiques, rédaction de tracts, chorale insoumise,"
-        " journaux locaux, auto-organisation, etc…).",
+        TYPE_LOCAL_GROUP: "Les groupes locaux réunissent les personnes sur la base d'un territoire réduit (quartier, "
+        "village ou petite ville), ceux étudiants d'un même lieu d'étude, professionnels d'un même "
+        "lieu de travail. Chacun·e ne peut animer qu'un seul groupe local, étudiant et "
+        "professionnel.",
+        TYPE_THEMATIC: "Les groupes thématiques réunissent celles et ceux qui souhaitent agir ensemble sur un thème "
+        "donné en lien avec les livrets thématiques de l'Avenir en Commun.",
+        TYPE_FUNCTIONAL: "Les groupes fonctionnels rassemblent les personnes d'une même zone s'organisant à plusieurs "
+        "pour accomplir des fonctions précises (gestion d'un local, organisation des manifestation, "
+        "etc.)",
     }
 
     TYPE_DISABLED_DESCRIPTION = {
