@@ -71,7 +71,7 @@
     "react-router-dom": "^5.2.0",
     "react-select": "^4.3.1",
     "react-spring-bottom-sheet": "^3.4.0",
-    "react-stepzilla": "^6.0.2",
+    "react-stepzilla": "^7.0.0",
     "react-toastify": "^7.0.4",
     "react-transition-group": "^4.4.2",
     "react-use": "^17.2.4",
