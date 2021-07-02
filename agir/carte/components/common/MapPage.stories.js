@@ -5,7 +5,7 @@ import MapPage from "./MapPage";
 
 export default {
   component: MapPage,
-  title: "Map/MapPage",
+  title: "OpenLayersMap/MapPage",
 };
 
 const Template = (args) => {

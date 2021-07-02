@@ -1,10 +1,10 @@
 import React from "react";
 
-import Map from "./Map";
+import OpenLayersMap from "./OpenLayersMap";
 
 export default {
-  component: Map,
-  title: "Map/Map",
+  component: OpenLayersMap,
+  title: "OpenLayersMap/OpenLayersMap",
 };
 
 const Template = (args) => {
@@ -16,7 +16,7 @@ const Template = (args) => {
         padding: "20vh 20vw",
       }}
     >
-      <Map {...args} />
+      <OpenLayersMap {...args} />
     </div>
   );
 };

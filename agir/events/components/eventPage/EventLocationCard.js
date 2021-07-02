@@ -37,10 +37,6 @@ const MapContainer = styled.div`
     * {
       border-radius: ${style.borderRadius};
     }
-
-    display: ${(props) => {
-      return props.hideMap ? "none" : "initial";
-    }};
   }
 
   & > * {
@@ -90,16 +86,15 @@ const EventLocationCard = ({
 
   return (
     <StyledCard>
-      {location && location.coordinates && (
-        <MapContainer hideMap={hideMap}>
+      {location && location.coordinates && !hideMap ? (
+        <MapContainer>
           {location?.coordinates?.coordinates ? (
             <>
               {isStatic ? (
                 <ClickableMap
                   location={location}
                   zoom={14}
-                  center={location.coordinates.coordinates}
-                  subtype={subtype}
+                  iconConfiguration={subtype}
                 />
               ) : (
                 <Map
@@ -114,7 +109,7 @@ const EventLocationCard = ({
             <iframe src={routes.map} />
           )}
         </MapContainer>
-      )}
+      ) : null}
       <div>
         <IconList>
           <IconListItem name="clock">{interval}</IconListItem>
