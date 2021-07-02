@@ -140,7 +140,7 @@ class GroupTypeStep extends FormStep {
             <a href="https://infos.actionpopulaire.fr/charte-des-groupes-action-populaire/">
               une charte d'éthique
             </a>{" "}
-            dans la gestion du groupe
+            dans la gestion du groupe.
           </p>
           <p>
             Ces groupes répondent à des besoins différents. Vous pouvez
