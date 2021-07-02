@@ -34,7 +34,7 @@
       {% if commune.website %}
         <p><i class="fa fa-link" aria-hidden="true"></i> <a href="{{ commune.website }}">{{ commune.website }}</a></p>{% endif %}
       {% if commune.contact_email %}
-        <p><i class="fa fa-email" aria-hidden="true"></i> <a href="mailto:{{ commune.contact_email }}">{{ commune.contact_email }}</a>
+        <p><i class="fa fa-envelope" aria-hidden="true"></i> <a href="mailto:{{ commune.contact_email }}">{{ commune.contact_email }}</a>
         </p>{% endif %}
 
       <a href="{% url "procuration_commune" commune.code_departement commune.slug %}">
