@@ -81,9 +81,11 @@
           <p class="col-xs-12 col-md-4"><a class="btn btn-sm btn-default" href="{% url "manage_account" %}">Ajouter ou changer d'adresse email</a></p>
         {% endif %}
         </div>
-        <div class="row">
-          {% crispy form %}
-        </div>
+        <fieldset>
+          <legend>Notifications et e-mails Action Populaire</legend>
+          <a href="{% url "list_activities.notification_settings" %}" class="btn btn-primary">Paramétrer mes notifications et emails</a>
+        </fieldset>
+        {% crispy form %}
       </div>
     </div>
   </div>
