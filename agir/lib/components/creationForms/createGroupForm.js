@@ -133,7 +133,7 @@ class GroupTypeStep extends FormStep {
             dès lors qu'elle respecte le cadre et la démarche qui nous réunit
             autour de l'Avenir en Commun et de la candidature de Jean-Luc
             Mélenchon dans un esprit d'ouverture, de bienveillance et de volonté
-            de se projeter dans l'action
+            de se projeter dans l'action.
           </p>
           <p>
             En créant votre groupe, vous vous engagez à respecter{" "}
