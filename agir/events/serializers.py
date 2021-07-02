@@ -95,8 +95,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "location",
         "isOrganizer",
         "rsvp",
-        "hasRightSubscription",
-        "is2022",
         "routes",
         "groups",
         "distance",
@@ -121,7 +119,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     isOrganizer = serializers.SerializerMethodField()
     rsvp = serializers.SerializerMethodField()
-    # participantCount = serializers.IntegerField(source="participants")
 
     options = EventOptionsSerializer(source="*")
 
@@ -132,12 +129,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     contact = ContactMixinSerializer(source="*")
 
     distance = serializers.SerializerMethodField()
-
-    is2022 = serializers.SerializerMethodField()
-
-    forUsers = serializers.CharField(source="for_users")
-
-    hasRightSubscription = serializers.SerializerMethodField()
 
     subtype = EventSubtypeSerializer()
 
@@ -184,12 +175,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_rsvp(self, obj):
         return self.rsvp and self.rsvp.status
 
-    def get_hasRightSubscription(self, obj):
-        user = self.context["request"].user
-        if hasattr(user, "person"):
-            return obj.can_rsvp(user.person)
-        return None
-
     def get_compteRenduPhotos(self, obj):
         return [
             {
@@ -217,9 +202,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_distance(self, obj):
         if hasattr(obj, "distance") and obj.distance is not None:
             return obj.distance.m
-
-    def get_is2022(self, obj):
-        return obj.is_2022
 
     def get_illustration(self, obj):
         if obj.image:
@@ -261,7 +243,6 @@ class EventListSerializer(EventSerializer):
 
 class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
     organizerGroup = serializers.SerializerMethodField()
-    forUsers = serializers.SerializerMethodField()
     subtype = serializers.SerializerMethodField()
     defaultContact = serializers.SerializerMethodField()
     onlineUrl = serializers.SerializerMethodField()
@@ -281,7 +262,7 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
             ).active(),
             context=self.context,
             many=True,
-            fields=["id", "name", "is2022", "contact", "location"],
+            fields=["id", "name", "contact", "location"],
         ).data
 
     def get_subtype(self, request):
@@ -292,15 +273,6 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
             context=self.context,
             many=True,
         ).data
-
-    def get_forUsers(self, request):
-        if self.person and self.person.is_2022 and not self.person.is_insoumise:
-            return [Event.FOR_USERS_2022]
-
-        if self.person and not self.person.is_2022 and self.person.is_insoumise:
-            return [Event.FOR_USERS_INSOUMIS]
-
-        return [Event.FOR_USERS_2022, Event.FOR_USERS_INSOUMIS]
 
     def get_defaultContact(self, request):
         contact = {
@@ -325,9 +297,7 @@ class EventOrganizerGroupField(serializers.RelatedField):
         if obj is None:
             return None
         return SupportGroupSerializer(
-            obj,
-            context=self.context,
-            fields=["id", "name", "is2022", "contact", "location"],
+            obj, context=self.context, fields=["id", "name", "contact", "location"],
         ).data
 
     def to_internal_value(self, pk):
@@ -347,7 +317,6 @@ class CreateEventSerializer(serializers.Serializer):
     endTime = serializers.DateTimeField(source="end_time")
     contact = NestedContactSerializer(source="*")
     location = NestedLocationSerializer(source="*")
-    forUsers = serializers.CharField(source="for_users", required=True)
     subtype = serializers.PrimaryKeyRelatedField(
         queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
     )

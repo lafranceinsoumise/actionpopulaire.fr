@@ -43,7 +43,7 @@ const routes = {
     eventsMap: "#lfi:eventsMap",
     thematicTeams: "#lfi:thematicTeams",
   },
-  noussommespour: {
+  melenchon2022: {
     home: "#nsp:home",
     groupsMap: "#nsp:groupsMap",
     eventsMap: "#nsp:eventsMap",

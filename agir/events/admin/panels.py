@@ -263,7 +263,6 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             _("Informations"),
             {
                 "fields": (
-                    "for_users",
                     "subtype",
                     "description",
                     "allow_html",

@@ -20,7 +20,7 @@ const ONBOARDING_TYPE = {
     createRoute: "createEvent",
   },
   group__suggestions: {
-    title: "Rejoignez une équipe proche de chez vous",
+    title: "Rejoignez un groupe proche de chez vous",
     body: (
       <>
         <p>
@@ -39,7 +39,7 @@ const ONBOARDING_TYPE = {
     color: "secondary",
   },
   group__creation: {
-    title: "Ou bien créez votre équipe !",
+    title: "Ou bien créez votre groupe !",
     body: (
       <>
         <p>
@@ -47,24 +47,28 @@ const ONBOARDING_TYPE = {
           candidature de Jean-Luc Mélenchon.{" "}
         </p>
         <p>
-          Besoin d’inspiration pour animer votre équipe ? &nbsp;
-          <a href="https://infos.actionpopulaire.fr/" target="_blank">
+          Besoin d’inspiration pour animer votre groupe ? &nbsp;
+          <a
+            href="https://infos.actionpopulaire.fr/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Voici quelques pistes
           </a>
           .
         </p>
       </>
     ),
-    createLabel: "Créer une équipe",
+    createLabel: "Créer un groupe",
     createRouteId: "createGroup",
   },
   fullGroup__creation: {
-    title: "Ou bien animez votre propre équipe et invitez-y vos amis !",
+    title: "Ou bien animez votre propre groupe et invitez-y vos amis !",
     body: ({ routes }) => [
       <span key="text">
-        Créez votre équipe en quelques clics, et commencez dès aujourd’hui à
+        Créez votre groupe en quelques clics, et commencez dès aujourd’hui à
         organiser des actions pour soutenir la candidature de Jean-Luc
-        Mélenchon. Besoin d’inspiration pour animer votre équipe ?{" "}
+        Mélenchon. Besoin d’inspiration pour animer votre groupe ?{" "}
       </span>,
       routes.newGroupHelp && (
         <a key="link" href={routes.newGroupHelp}>
@@ -72,15 +76,15 @@ const ONBOARDING_TYPE = {
         </a>
       ),
     ],
-    createLabel: "Créer une équipe de soutien",
+    createLabel: "Créer un groupe d'action",
     createRouteId: "createGroup",
   },
   group__nsp: {
     img: onboardingActionImage,
-    title: "Rejoignez ou organisez une équipe de soutien",
-    body: "Les équipes de soutien permettent aux militants de s’organiser dans leur quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain et organisez des moments de réflexions politiques !",
-    createLabel: "Créer une équipe",
-    mapLabel: "Voir les équipes dans ma ville",
+    title: "Rejoignez ou organisez un groupe d'action",
+    body: "Les groupes d'actions permettent aux militants de s’organiser dans leur quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain et organisez des moments de réflexions politiques !",
+    createLabel: "Créer un groupe",
+    mapLabel: "Voir les groupes dans ma ville",
     mapRoute: "groupMap",
     createRouteId: "createGroup",
   },

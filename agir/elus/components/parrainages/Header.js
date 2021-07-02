@@ -99,7 +99,7 @@ const Header = ({ onClose }) => {
         <HeaderLink href="/" aria-label="Action populaire" grow>
           <Logo />
         </HeaderLink>
-        <HeaderLink href="https://noussommespour.fr/le-guide-de-la-recherche-des-parrainages/">
+        <HeaderLink href="https://melenchon2022.fr/le-guide-de-la-recherche-des-parrainages/">
           <FeatherIcon name="help-circle" />
           <span>Aide</span>
         </HeaderLink>

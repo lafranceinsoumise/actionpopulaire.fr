@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
 import useSWR from "swr";
@@ -52,7 +52,6 @@ const GroupManagementPage = (props) => {
   const [errors, setErrors] = useState({});
   const [selectedMember, setSelectedMember] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const is2022 = useMemo(() => group?.is2022, [group]);
 
   const editManager = useCallback(() => {
     setSelectedMembershipType(MANAGER);
@@ -118,13 +117,12 @@ const GroupManagementPage = (props) => {
             editReferent={editReferent}
             illustration={illustration}
             members={members || []}
-            is2022={is2022}
             routes={group?.routes}
             onResetMembershipType={resetMembershipType}
             isLoading={isLoading}
           />
         ) : (
-          <ManagerMainPanel is2022={is2022} group={group} />
+          <ManagerMainPanel group={group} />
         )}
       </PageFadeIn>
       {transition(
@@ -140,7 +138,6 @@ const GroupManagementPage = (props) => {
                 selectedMembershipType={item}
                 errors={errors}
                 isLoading={isLoading}
-                is2022={is2022}
               />
             </EditionPanelWrapper>
           )

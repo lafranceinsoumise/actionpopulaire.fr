@@ -28,17 +28,13 @@ from ..lib.views import AnonymousAPIView
 
 def is_active_group():
     n = now()
-    return (
-        Q(type=SupportGroup.TYPE_2022)
-        | Q(
-            organized_events__start_time__range=(
-                n - timedelta(days=62),
-                n + timedelta(days=31),
-            ),
-            organized_events__visibility=Event.VISIBILITY_PUBLIC,
-        )
-        | Q(created__gt=n - timedelta(days=31))
-    )
+    return Q(
+        organized_events__start_time__range=(
+            n - timedelta(days=62),
+            n + timedelta(days=31),
+        ),
+        organized_events__visibility=Event.VISIBILITY_PUBLIC,
+    ) | Q(created__gt=n - timedelta(days=31))
 
 
 def parse_bounds(bounds):
@@ -90,14 +86,11 @@ class EventsView(AnonymousAPIView, ListAPIView):
     serializer_class = serializers.MapEventSerializer
     filter_backends = (BBoxFilterBackend, DjangoFilterBackend)
     filterset_class = EventFilter
-
-    def get_queryset(self):
-        qs = Event.objects.listed()
-
-        if self.request.GET.get("var") == "nsp_only":
-            qs = qs.is_2022()
-
-        return qs.filter(coordinates__isnull=False).select_related("subtype")
+    queryset = (
+        Event.objects.listed()
+        .filter(coordinates__isnull=False)
+        .select_related("subtype")
+    )
 
     @method_decorator(cache.cache_page(300))
     @cache.cache_control(public=True)

@@ -54,38 +54,10 @@ const FullGroupPage = ({ groupPk }) => {
   const routes = useSelector(getRoutes);
 
   const { data: fullGroup } = useSWR(
-    groupPk ? `/api/groupes/${groupPk}/` : null,
-    // TODO: remove fetcher once group detail API endpoint is available
-    () => {
-      try {
-        const dataElement = document.getElementById("exportedContent");
-        if (!dataElement) {
-          return null;
-        }
-        const { fullGroup } = JSON.parse(dataElement.textContent);
-
-        return fullGroup;
-      } catch (e) {
-        return null;
-      }
-    }
+    groupPk ? `/api/groupes/${groupPk}/` : null
   );
   const { data: groupSuggestions } = useSWR(
-    groupPk ? `/api/groupes/${groupPk}/suggestions/` : null,
-    // TODO: remove fetcher once group suggestions API endpoint is available
-    () => {
-      try {
-        const dataElement = document.getElementById("exportedContent");
-        if (!dataElement) {
-          return null;
-        }
-        const { groupSuggestions } = JSON.parse(dataElement.textContent);
-
-        return groupSuggestions;
-      } catch (e) {
-        return null;
-      }
-    }
+    groupPk ? `/api/groupes/${groupPk}/suggestions/` : null
   );
 
   return (
@@ -99,10 +71,10 @@ const FullGroupPage = ({ groupPk }) => {
             <p>Désolé, vous ne pouvez pas rejoindre ce groupe.</p>
             <p>
               Pour favoriser l'implication de chacun·e et la répartition de
-              l'action sur le tout le territoire, nous privilégions les petites
-              équipes.
+              l'action sur le tout le territoire, nous privilégions les petits
+              groupes.
             </p>
-            <p>Rejoignez une autre équipe proche de chez vous&nbsp;:</p>
+            <p>Rejoignez un autre groupe proche de chez vous&nbsp;:</p>
           </StyledBlock>
           {routes.groupsMap ? <Map src={routes.groupsMap} /> : null}
           {Array.isArray(groupSuggestions) && groupSuggestions.length > 0 && (

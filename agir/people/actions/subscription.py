@@ -57,7 +57,7 @@ SUBSCRIPTIONS_EMAILS = {
         "confirmation": SubscriptionMessageInfo(
             code="SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE",
             subject="Confirmez votre e-mail pour valider votre signature !",
-            from_email="Nous sommes pour <nepasrepondre@noussommespour.fr>",
+            from_email="Mélenchon 2022 <nepasrepondre@melenchon2022.fr>",
         )
     },
     SUBSCRIPTION_TYPE_EXTERNAL: {},

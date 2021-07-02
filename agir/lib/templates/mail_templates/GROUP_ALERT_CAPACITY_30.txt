@@ -1,14 +1,14 @@
   
   
-Action requise : votre équipe ne respecte plus la charte des équipes de soutien  
+Action requise : votre groupe ne respecte plus la charte des groupes d'action
   
 {{ GROUP_NAME }} a atteint 30 personnes !
 
  **Il est maintenant impossible que de nouvelles personnes vous rejoigne.**
 
-Afin de favoriser l'implication de chacun·e et la répartition de l'action dans tous les quartiers de votre ville, nous privilégions les petites équipes.
+Afin de favoriser l'implication de chacun·e et la répartition de l'action dans tous les quartiers de votre ville, nous privilégions les petits groupes.
 
-Pour pouvoir accueillir des nouvelles personnes qui souhaitent défendre notre programme, divisez votre équipe en **transférant une partie de vos membres dans une équipe plus petite.** Proposez à vos membres de créer des équipes voisines dans votre ville et transférez-y une partie de vos membres.
+Pour pouvoir accueillir des nouvelles personnes qui souhaitent défendre notre programme, divisez votre groupe en **transférant une partie de vos membres dans un groupe plus petit.** Proposez à vos membres de créer des groupes voisins dans votre ville et transférez-y une partie de vos membres.
 
 Pour en savoir plus, visitez le [centre d'aide](https://infos.actionpopulaire.fr/groupes/).  
   

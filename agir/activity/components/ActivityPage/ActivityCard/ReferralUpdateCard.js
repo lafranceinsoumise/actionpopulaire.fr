@@ -54,7 +54,7 @@ const ReferralUpdateCard = (props) => {
           href={`/activite/${id}/lien/`}
           params={{ next: routes.createGroup }}
         >
-          créer une équipe de soutien dans votre ville
+          créer un groupe d'action dans votre ville
         </Link>{" "}
         ;)
       </GenericCardContainer>

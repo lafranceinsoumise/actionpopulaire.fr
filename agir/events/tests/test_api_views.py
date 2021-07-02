@@ -280,14 +280,6 @@ class CreateEventAPITestCase(APITestCase):
         self.assertIn("city", res.data["location"])
         self.assertIn("country", res.data["location"])
 
-    def test_event_is_not_created_with_missing_for_users(self):
-        self.client.force_login(self.person.role)
-        res = self.client.post(
-            "/api/evenements/creer/", data={**self.valid_data, "forUsers": None}
-        )
-        self.assertEqual(res.status_code, 422)
-        self.assertIn("forUsers", res.data)
-
     def test_event_is_not_created_with_missing_subtype(self):
         self.client.force_login(self.person.role)
         res = self.client.post(
@@ -338,7 +330,7 @@ class RSVPEventAPITestCase(APITestCase):
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 401)
 
-    def test_2022_person_cannot_rsvp_insoumise_event(self):
+    def test_2022_person_can_rsvp_insoumise_event(self):
         person_2022 = Person.objects.create(
             email="2022@example.com",
             create_role=True,
@@ -353,9 +345,9 @@ class RSVPEventAPITestCase(APITestCase):
         )
         self.client.force_login(person_2022.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 201)
 
-    def test_insoumise_person_cannot_rsvp_2022_event(self):
+    def test_insoumise_person_can_rsvp_2022_event(self):
         person_insoumise = Person.objects.create(
             email="insoumise@example.com",
             create_role=True,
@@ -370,7 +362,7 @@ class RSVPEventAPITestCase(APITestCase):
         )
         self.client.force_login(person_insoumise.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 201)
 
     def test_person_cannot_rsvp_event_with_subscription_form(self):
         subscription_form = PersonForm.objects.create()

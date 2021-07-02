@@ -16,7 +16,6 @@ import { StyledTitle } from "./styledComponents.js";
 
 import { getGroupPageEndpoint } from "@agir/groups/groupPage/api.js";
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
-import { useGroupWord } from "@agir/groups/utils/group";
 
 const DonationSkeleton = styled.p`
   height: 36px;
@@ -29,15 +28,14 @@ const GroupFinancePage = (props) => {
   const { onBack, illustration, groupPk } = props;
 
   const group = useGroup(groupPk);
-  const withGroupWord = useGroupWord(group);
   const { data } = useSWR(getGroupPageEndpoint("getFinance", { groupPk }));
 
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle
-        style={{ fontSize: "1.25rem" }}
-      >{withGroupWord`Dons alloués à mon groupe`}</StyledTitle>
+      <StyledTitle style={{ fontSize: "1.25rem" }}>
+        Dons alloués à mon groupe
+      </StyledTitle>
       <PageFadeIn ready={!!data} wait={<DonationSkeleton />}>
         <p style={{ fontSize: "2rem", margin: 0 }}>
           {new Intl.NumberFormat("fr-FR", {
@@ -81,11 +79,11 @@ const GroupFinancePage = (props) => {
       <Spacer size="3rem" />
 
       <StyledTitle style={{ fontSize: "1.25rem" }}>
-        {withGroupWord`Solliciter des dons pour mon groupe`}
+        Solliciter des dons pour mon groupe
       </StyledTitle>
 
       <p style={{ color: style.black700 }}>
-        {withGroupWord`Partagez ce lien pour solliciter des dons pour votre groupe :`}
+        Partagez ce lien pour solliciter des dons pour votre groupe&nbsp;:
       </p>
 
       <ShareLink

@@ -15,7 +15,6 @@ import {
 } from "@agir/front/globalContext/GlobalContext";
 import {
   setAdminLink,
-  setIs2022,
   setTopBarRightLink,
 } from "@agir/front/globalContext/actions";
 import {
@@ -391,12 +390,6 @@ export const ConnectedEventPage = (props) => {
   );
 
   log.debug("Event data", eventData);
-
-  let { is2022 } = eventData || {};
-
-  useEffect(() => {
-    is2022 === true && dispatch(setIs2022());
-  }, [is2022, dispatch]);
 
   useEffect(() => {
     if (

@@ -34,23 +34,6 @@ class DashboardSearchTestCase(TestCase):
             "person@nsp.com", create_role=True, is_2022=True, is_insoumise=False
         )
 
-        self.group_insoumis = SupportGroup.objects.create(
-            name="Groupe Insoumis",
-            type=SupportGroup.TYPE_LOCAL_GROUP,
-            location_name="location",
-            location_address1="somewhere",
-            location_city="Over",
-            location_country="DE",
-        )
-        self.group_2022 = SupportGroup.objects.create(
-            name="Groupe NSP",
-            type=SupportGroup.TYPE_2022,
-            location_name="location",
-            location_address1="somewhere",
-            location_city="Over",
-            location_country="DE",
-        )
-
         self.subtype = EventSubtype.objects.create(
             label="sous-type",
             visibility=EventSubtype.VISIBILITY_ALL,
@@ -71,28 +54,16 @@ class DashboardSearchTestCase(TestCase):
             for_users=Event.FOR_USERS_2022,
         )
 
-    def test_insoumise_persone_can_search_through_all_groups(self):
-        self.client.force_login(self.person_insoumise.role)
-        res = self.client.get(reverse("dashboard_search") + "?q=g")
-        self.assertContains(res, self.group_insoumis.name)
-        self.assertContains(res, self.group_2022.name)
-
-    def test_2022_only_person_can_search_through_all_groups(self):
-        self.client.force_login(self.person_2022.role)
-        res = self.client.get(reverse("dashboard_search") + "?q=g")
-        self.assertContains(res, self.group_insoumis.name)
-        self.assertContains(res, self.group_2022.name)
-
     def test_insoumise_persone_can_search_through_all_events(self):
         self.client.force_login(self.person_insoumise.role)
         res = self.client.get(reverse("dashboard_search") + "?q=e")
         self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
 
-    def test_2022_only_person_can_search_through_2022_events_only(self):
+    def test_2022_only_person_can_search_through_all_events(self):
         self.client.force_login(self.person_2022.role)
         res = self.client.get(reverse("dashboard_search") + "?q=e")
-        self.assertNotContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
 
 

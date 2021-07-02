@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -9,13 +10,10 @@ import Spacer from "@agir/front/genericComponents/Spacer.js";
 
 import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
 
-import { useGroupWord } from "@agir/groups/utils/group";
-
 const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 
 export const ReferentMainPanel = (props) => {
   const {
-    is2022,
     routes,
     editManager,
     editReferent,
@@ -27,8 +25,6 @@ export const ReferentMainPanel = (props) => {
     () => members.filter((member) => member.membershipType === REFERENT),
     [members]
   );
-
-  const withGroupWord = useGroupWord({ is2022 });
 
   const managers = useMemo(
     () =>
@@ -45,21 +41,15 @@ export const ReferentMainPanel = (props) => {
     <>
       <StyledTitle>Animateurs et animatrices</StyledTitle>
       <span style={{ color: style.black700 }}>
-        {withGroupWord`Les animateur·ices organisent la vie du groupe.`}
+        Les animateur·ices organisent la vie du groupe.
       </span>
       <Spacer size=".5rem" />
       <span style={{ color: style.black700 }}>
         Pour respecter la{" "}
-        <a
-          href={
-            is2022
-              ? "https://infos.actionpopulaire.fr/charte-des-equipes-de-soutien-nous-sommes-pour/"
-              : "https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/"
-          }
-        >
-          {withGroupWord`charte des groupes d'actions`}
+        <a href="https://infos.actionpopulaire.fr/charte-des-groupes-action-populaire/">
+          charte des groupes d'actions
         </a>
-        , {withGroupWord`votre groupe doit être animé à parité de genre.`}
+        , votre groupe doit être animé à parité de genre.
       </span>
       <Spacer size="1.5rem" />
       <GroupMemberList
@@ -83,7 +73,7 @@ export const ReferentMainPanel = (props) => {
             style={{ paddingTop: "3px" }}
           />
           <Spacer size="0.5rem" />
-          {withGroupWord`Changer l'animation du groupe`}
+          Changer l'animation du groupe
         </a>
       )}
       {routes?.animationChangeRequest && routes?.referentResignmentRequest && (
@@ -112,8 +102,8 @@ export const ReferentMainPanel = (props) => {
       </span>
       <Spacer size="0.5rem" />
       <span style={{ color: style.black700 }}>
-        {withGroupWord`Ces derniers ont accès à la liste des membres, peuvent modifier les
-        informations et créer des événements au nom du groupe.`}
+        Ces derniers ont accès à la liste des membres, peuvent modifier les
+        informations et créer des événements au nom du groupe.
       </span>
       <Spacer size="1.5rem" />
       <GroupMemberList
@@ -125,9 +115,10 @@ export const ReferentMainPanel = (props) => {
       {routes?.certificationRequest && (
         <>
           <Spacer size="1.5rem" />
-          <StyledTitle>{withGroupWord`Certifier le groupe`}</StyledTitle>
+          <StyledTitle>Certifier le groupe</StyledTitle>
           <span style={{ color: style.black700 }}>
-            {withGroupWord`Votre groupe n'a pas encore de certification. Vous pouvez la demander en cliquant sur le bouton`}
+            Votre groupe n'a pas encore de certification. Vous pouvez la
+            demander en cliquant sur le bouton
           </span>
           <Spacer size="1.5rem" />
           <Button as="a" href={routes.certificationRequest} color="primary">
@@ -135,11 +126,11 @@ export const ReferentMainPanel = (props) => {
           </Button>
         </>
       )}
-      {!is2022 && routes?.deleteGroup && (
+      {routes?.deleteGroup && (
         <>
           <hr />
           <a href={routes.deleteGroup} style={{ color: style.redNSP }}>
-            {withGroupWord`Supprimer le groupe`}
+            Supprimer le groupe
           </a>
         </>
       )}
@@ -147,16 +138,23 @@ export const ReferentMainPanel = (props) => {
   );
 };
 
+ReferentMainPanel.propTypes = {
+  routes: PropTypes.object,
+  editManager: PropTypes.func,
+  editReferent: PropTypes.func,
+  isLoading: PropTypes.bool,
+  onResetMembershipType: PropTypes.func,
+  members: PropTypes.arrayOf(PropTypes.object),
+};
+
 export const ManagerMainPanel = (props) => {
   const { group } = props;
-  const withGroupWord = useGroupWord(group);
 
   return (
     <>
       <StyledTitle>Gestion et animation</StyledTitle>
       <span>
-        {withGroupWord`Vous êtes gestionnaire du groupe `}
-        <strong>{group.name}</strong>.
+        Vous êtes gestionnaire du groupe <strong>{group.name}</strong>.
       </span>
 
       <>
@@ -187,4 +185,10 @@ export const ManagerMainPanel = (props) => {
       </>
     </>
   );
+};
+
+ManagerMainPanel.propTypes = {
+  group: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+  }),
 };

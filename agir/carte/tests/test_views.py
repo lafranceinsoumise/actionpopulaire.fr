@@ -3,12 +3,10 @@ from django.urls import reverse
 from django.utils import timezone
 
 from agir.api.redis import using_separate_redis_server
-from agir.lib.tests.mixins import FakeDataMixin
-
-from agir.people.models import Person, PersonValidationSMS, generate_code
 from agir.events.models import Event, EventSubtype
-from agir.groups.models import SupportGroup
+from agir.lib.tests.mixins import FakeDataMixin
 from agir.lib.tests.mixins import create_location
+from agir.people.models import Person
 
 
 @using_separate_redis_server
@@ -74,38 +72,8 @@ class EventsMapTestCase(TestCase):
         self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
 
-    def test_2022_only_person_can_search_through_2022_events_only(self):
+    def test_2022_only_person_can_search_through_all_events(self):
         self.client.force_login(self.person_2022.role)
         res = self.client.get(reverse("carte:event_list") + "?var=nsp_only")
-        self.assertNotContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
-
-
-@using_separate_redis_server
-class GroupsMapTestCase(TestCase):
-    def setUp(self):
-        self.person_insoumise = Person.objects.create_insoumise(
-            "person@lfi.com", create_role=True
-        )
-        self.person_2022 = Person.objects.create_person(
-            "person@nsp.com", create_role=True, is_2022=True, is_insoumise=False
-        )
-        location = create_location()
-        self.group_insoumis = SupportGroup.objects.create(
-            name="Groupe Insoumis", type=SupportGroup.TYPE_LOCAL_GROUP, **location
-        )
-        self.group_2022 = SupportGroup.objects.create(
-            name="Groupe NSP", type=SupportGroup.TYPE_2022, **location
-        )
-
-    def test_insoumise_persone_can_search_through_all_groups(self):
-        self.client.force_login(self.person_insoumise.role)
-        res = self.client.get(reverse("carte:group_list"))
-        self.assertContains(res, self.group_insoumis.name)
-        self.assertContains(res, self.group_2022.name)
-
-    def test_2022_only_person_can_search_through_all_groups(self):
-        self.client.force_login(self.person_2022.role)
-        res = self.client.get(reverse("carte:group_list") + "?var=nsp_only")
-        self.assertContains(res, self.group_insoumis.name)
-        self.assertContains(res, self.group_2022.name)

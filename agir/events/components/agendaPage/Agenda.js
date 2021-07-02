@@ -2,7 +2,6 @@ import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { useLocation } from "react-router-dom";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -18,7 +17,6 @@ import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
-  getIs2022,
   getIsSessionLoaded,
   getRoutes,
   getUser,
@@ -279,7 +277,6 @@ SuggestionsEvents.propTypes = {
 
 const Agenda = () => {
   const routes = useSelector(getRoutes);
-  const is2022 = useSelector(getIs2022);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const user = useSelector(getUser);
 
@@ -354,10 +351,7 @@ const Agenda = () => {
                 )}
                 <Row style={{ marginTop: "4rem" }}>
                   <Column grow>
-                    <Onboarding
-                      type={is2022 ? "group__nsp" : "group__action"}
-                      routes={routes}
-                    />
+                    <Onboarding type="group__action" routes={routes} />
                   </Column>
                 </Row>
                 <Row style={{ marginTop: "4rem" }}>

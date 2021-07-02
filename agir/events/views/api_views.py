@@ -63,8 +63,6 @@ class EventRsvpedAPIView(ListAPIView):
     def get_queryset(self):
         person = self.request.user.person
         queryset = Event.objects.public().with_serializer_prefetch(person)
-        if person.is_2022_only:
-            queryset = queryset.is_2022()
 
         return (
             (

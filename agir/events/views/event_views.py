@@ -87,16 +87,6 @@ class EventSearchView(FilterView):
     )
     filter_class = EventFilter
 
-    def dispatch(self, request, *args, **kwargs):
-        if (
-            self.request.user.is_authenticated
-            and hasattr(self.request.user, "person")
-            and request.user.person.is_2022_only
-        ):
-            self.queryset = self.queryset.is_2022()
-
-        return super().dispatch(request, *args, **kwargs)
-
 
 class EventContextMixin:
     def get_context_data(self, **kwargs):
@@ -113,10 +103,7 @@ class EventContextMixin:
 
 class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("events.view_event",)
-    meta_description = (
-        "Participez aux événements organisés par les membres de la France insoumise."
-    )
-    meta_description_2022 = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
+    meta_description = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
     queryset = Event.objects.all()
     bundle_name = "front/app"
     data_script_id = "exportedEvent"

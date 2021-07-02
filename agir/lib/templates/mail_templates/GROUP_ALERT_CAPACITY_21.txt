@@ -4,11 +4,11 @@ Votre groupe compte plus de 20 membres !
   
 [{{ GROUP_NAME }}]({{ GROUP_NAME_URL }}) compte plus de 20 membres.
 
-Afin de favoriser l'implication de chacun·e et la répartition de l'action dans tous les quartiers de votre ville, nous privilégions les petites équipes.
+Afin de favoriser l'implication de chacun·e et la répartition de l'action dans tous les quartiers de votre ville, nous privilégions les petits groupes.
 
-La taille idéale d'une équipe est de **11 personnes**.
+La taille idéale d'un groupe est de **11 personnes**.
 
-Vous pouvez diviser votre équipe en transférant une partie de vos membres dans une équipe plus petite. Proposez à vos membres de **créer une équipe voisine** dans votre ville et transférez-y une partie de vos membres.
+Vous pouvez diviser votre groupe en transférant une partie de vos membres dans un groupe plus petit. Proposez à vos membres de **créer un groupe voisin** dans votre ville et transférez-y une partie de vos membres.
 
  ****  
   

@@ -1,14 +1,11 @@
 import PropTypes from "prop-types";
-import React, { useEffect } from "react";
+import React from "react";
 
 import GroupPageComponent from "./GroupPage";
 import NewGroupPageModal from "@agir/groups/groupPage/NewGroupPageModal";
 
-import {
-  useDispatch,
-  useSelector,
-} from "@agir/front/globalContext/GlobalContext";
-import { setIs2022 } from "@agir/front/globalContext/actions";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+
 import {
   getIsSessionLoaded,
   getIsConnected,
@@ -26,7 +23,6 @@ const GroupPage = (props) => {
   const isConnected = useSelector(getIsConnected);
   const backLink = useSelector(getBackLink);
   const user = useSelector(getUser);
-  const dispatch = useDispatch();
 
   const {
     group,
@@ -44,12 +40,6 @@ const GroupPage = (props) => {
 
   const [hasNewGroupPageModal, onCloseNewGroupPageModal] =
     useCustomAnnouncement("NewGroupPageModal");
-
-  const { is2022 } = group || {};
-
-  useEffect(() => {
-    is2022 === true && dispatch(setIs2022());
-  }, [is2022, dispatch]);
 
   return (
     <>

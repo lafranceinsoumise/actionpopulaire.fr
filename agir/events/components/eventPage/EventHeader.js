@@ -1,23 +1,18 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { mutate } from "swr";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import {
-  getIsConnected,
-  getRoutes,
-  getUser,
-} from "@agir/front/globalContext/reducers";
+import { getIsConnected, getRoutes } from "@agir/front/globalContext/reducers";
 import * as api from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import { Hide } from "@agir/front/genericComponents/grid";
-import SubscriptionTypeModal from "@agir/front/authentication/SubscriptionTypeModal";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
@@ -111,20 +106,9 @@ const StyledButton = styled(Button)`
 `;
 
 const RSVPButton = (props) => {
-  const user = useSelector(getUser);
-  const { id, forUsers, hasPrice, routes, hasSubscriptionForm } = props;
+  const { id, hasPrice, routes, hasSubscriptionForm } = props;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [hasSubscriptionTypeModal, setHasSubscriptionTypeModal] =
-    useState(false);
-
-  const openSubscriptionTypeModal = useCallback(() => {
-    setHasSubscriptionTypeModal(true);
-  }, []);
-
-  const closeSubscriptionTypeModal = useCallback(() => {
-    setHasSubscriptionTypeModal(false);
-  }, []);
 
   const handleRSVP = useCallback(
     async (e) => {
@@ -148,7 +132,6 @@ const RSVPButton = (props) => {
       }
 
       setIsLoading(false);
-      setHasSubscriptionTypeModal(false);
 
       await mutate(
         api.getEventEndpoint("getEvent", { eventPk: id }),
@@ -158,21 +141,8 @@ const RSVPButton = (props) => {
         })
       );
     },
-    [id, hasPrice, routes]
+    [id, hasPrice, routes, hasSubscriptionForm]
   );
-
-  const shouldUpdateSubscription = useMemo(() => {
-    if (!user) {
-      return null;
-    }
-    if (forUsers === "2" && user.is2022) {
-      return null;
-    }
-    if (forUsers === "I" && user.isInsoumise) {
-      return null;
-    }
-    return forUsers === "2" ? "NSP" : "LFI";
-  }, [user, forUsers]);
 
   return (
     <StyledActionButtons>
@@ -180,22 +150,10 @@ const RSVPButton = (props) => {
         type="submit"
         color="primary"
         disabled={isLoading}
-        onClick={
-          shouldUpdateSubscription ? openSubscriptionTypeModal : handleRSVP
-        }
+        onClick={handleRSVP}
       >
         Participer à l'événement
       </StyledButton>
-      {shouldUpdateSubscription ? (
-        <SubscriptionTypeModal
-          shouldShow={hasSubscriptionTypeModal}
-          type={shouldUpdateSubscription}
-          target="event"
-          onConfirm={handleRSVP}
-          onCancel={closeSubscriptionTypeModal}
-          isLoading={isLoading}
-        />
-      ) : null}
     </StyledActionButtons>
   );
 };
@@ -300,19 +258,14 @@ RSVPButton.propTypes = ActionButtons.propTypes = {
   rsvped: PropTypes.bool,
   logged: PropTypes.bool,
   isOrganizer: PropTypes.bool,
+  allowGuests: PropTypes.bool,
   routes: PropTypes.shape({
     manage: PropTypes.string,
     rsvp: PropTypes.string,
   }),
 };
 
-const AdditionalMessage = ({
-  isOrganizer,
-  logged,
-  rsvped,
-  price,
-  forUsers,
-}) => {
+const AdditionalMessage = ({ isOrganizer, logged, rsvped, price }) => {
   const location = useLocation();
 
   if (!logged) {
@@ -320,14 +273,14 @@ const AdditionalMessage = ({
       <div>
         <ActionLink
           route="login"
-          params={{ from: "event", forUsers, next: location.pathname }}
+          params={{ from: "event", next: location.pathname }}
         >
           Je me connecte
         </ActionLink>{" "}
         ou{" "}
         <ActionLink
           route="signup"
-          params={{ from: "event", forUsers, next: location.pathname }}
+          params={{ from: "event", next: location.pathname }}
         >
           je m'inscris
         </ActionLink>{" "}
@@ -363,7 +316,6 @@ AdditionalMessage.propTypes = {
   isOrganizer: PropTypes.bool,
   price: PropTypes.string,
   routes: PropTypes.object,
-  forUsers: PropTypes.string,
 };
 
 const EventHeader = ({
@@ -374,8 +326,6 @@ const EventHeader = ({
   schedule,
   routes,
   isOrganizer,
-  forUsers,
-  hasRightSubscription,
   onlineUrl,
   allowGuests,
   hasSubscriptionForm,
@@ -405,8 +355,6 @@ const EventHeader = ({
         rsvped={rsvped}
         routes={routes}
         isOrganizer={isOrganizer}
-        forUsers={forUsers}
-        hasRightSubscription={hasRightSubscription}
         hasPrice={!!options && !!options.price}
         onlineUrl={onlineUrl}
         allowGuests={allowGuests}
@@ -422,7 +370,6 @@ const EventHeader = ({
           rsvped={rsvped}
           price={options.price}
           routes={{ ...routes, ...globalRoutes }}
-          forUsers={forUsers}
         />
       )}
     </EventHeaderContainer>
@@ -443,8 +390,6 @@ EventHeader.propTypes = {
   }),
   rsvp: PropTypes.string,
   routes: PropTypes.object,
-  forUsers: PropTypes.string,
-  hasRightSubscription: PropTypes.bool,
   allowGuests: PropTypes.bool,
 };
 

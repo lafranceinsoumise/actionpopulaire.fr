@@ -15,7 +15,6 @@ import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButto
 import LocationField from "@agir/front/formComponents/LocationField.js";
 
 import { StyledTitle } from "./styledComponents.js";
-import { useGroupWord } from "@agir/groups/utils/group";
 
 import {
   updateGroup,
@@ -45,7 +44,6 @@ const GroupLocalizationPage = (props) => {
   const { data: group, mutate } = useSWR(
     getGroupPageEndpoint("getGroup", { groupPk })
   );
-  const withGroupWord = useGroupWord(group);
 
   const handleInputChange = useCallback((_, name, value) => {
     setFormLocation((formLocation) => ({ ...formLocation, [name]: value }));
@@ -129,7 +127,8 @@ const GroupLocalizationPage = (props) => {
         indiquez un endroit à proximité (café, mairie...)
         <Spacer size="0.5rem" />
         <strong>
-          {withGroupWord`Merci d'indiquer une adresse précise avec numéro de rue, sans quoi le groupe n'apparaîtra pas sur la carte.`}
+          Merci d'indiquer une adresse précise avec numéro de rue, sans quoi le
+          groupe n'apparaîtra pas sur la carte.
         </strong>
       </span>
 

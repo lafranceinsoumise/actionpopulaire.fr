@@ -6,13 +6,11 @@ import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config"
 import { getMenuRoute, getRoutes } from "./routes.config";
 import { useAuthentication } from "@agir/front/authentication/hooks";
 import { getGroupTypeWithLocation } from "@agir/groups/groupPage/utils";
-import { useGroupWord } from "@agir/groups/utils/group";
 
 import ObjectManagement from "@agir/front/genericComponents/ObjectManagement";
 
 export const GroupSettings = (props) => {
   const { group, basePath } = props;
-  const withGroupWord = useGroupWord(group);
   const routes = useMemo(() => getRoutes(basePath, group), [basePath, group]);
   const menuRoute = useMemo(() => getMenuRoute(basePath), [basePath]);
   const isAuthorized = useAuthentication(globalRouteConfig.groupSettings);
@@ -33,14 +31,12 @@ export const GroupSettings = (props) => {
 
   const subtitle = useMemo(
     () =>
-      group
-        ? group?.type && !group?.is2022
-          ? `Gestion de votre ${getGroupTypeWithLocation(
-              group.type
-            ).toLowerCase()}`
-          : withGroupWord`Gestion de votre groupe d'actions`
+      group?.type
+        ? `Gestion de votre ${getGroupTypeWithLocation(
+            group.type
+          ).toLowerCase()}`
         : "",
-    [group, withGroupWord]
+    [group]
   );
 
   if (!group) {
@@ -62,7 +58,6 @@ export const GroupSettings = (props) => {
 GroupSettings.propTypes = {
   group: PropTypes.shape({
     id: PropTypes.string,
-    is2022: PropTypes.bool,
     name: PropTypes.string,
     type: PropTypes.string,
     isManager: PropTypes.bool,

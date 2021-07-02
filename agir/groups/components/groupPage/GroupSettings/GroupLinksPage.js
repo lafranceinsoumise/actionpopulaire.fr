@@ -76,10 +76,7 @@ const GroupLinksPage = (props) => {
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle>
-        Liens et réseaux sociaux
-        {" " + (group.is2022 ? "de l'équipe" : "du groupe")}
-      </StyledTitle>
+      <StyledTitle>Liens et réseaux sociaux du groupe</StyledTitle>
 
       <Spacer size="1rem" />
 

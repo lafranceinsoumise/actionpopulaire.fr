@@ -15,8 +15,6 @@ import "./style.css";
 import PropTypes from "prop-types";
 import * as Sentry from "@sentry/react";
 
-const NSP_GROUP_TYPE_ID = "2";
-
 class CreateGroupForm extends React.Component {
   constructor(props) {
     super(props);
@@ -25,17 +23,7 @@ class CreateGroupForm extends React.Component {
     let state = {
       fields: props.initial || {},
       skipType: false,
-      types: props.types.reduce((result, type) => {
-        if (type.id === NSP_GROUP_TYPE_ID) {
-          result.unshift({
-            ...type,
-            fullWidth: true,
-          });
-        } else {
-          result.push(type);
-        }
-        return result;
-      }, []),
+      types: props.types,
     };
 
     if (state.types.length === 1 && !state.types[0].disabled) {
@@ -140,36 +128,26 @@ class GroupTypeStep extends FormStep {
       <div className="row padtopmore padbottommore">
         <div className="col-sm-4">
           <h3>Quel type de groupe voulez-vous créer&nbsp;?</h3>
-          {this.props.types.length > 1 && (
-            <>
-              <blockquote>
-                <p>
-                  &laquo;&nbsp;Chaque insoumis.e peut créer ou rejoindre un ou
-                  plusieurs groupes d’action dès lors qu’il respecte le cadre et
-                  la démarche de la France insoumise dans un esprit d’ouverture,
-                  de bienveillance et de volonté de se projeter dans
-                  l’action.&nbsp;&raquo;
-                </p>
-                <footer>
-                  <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
-                    Charte des groupes d’action de la France insoumise
-                  </a>
-                </footer>
-              </blockquote>
-              <p>
-                La{" "}
-                <a href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/">
-                  Charte des groupes d’action de la France insoumise
-                </a>{" "}
-                définit plusieurs types de groupes différents.
-              </p>
-              <p>
-                Ces groupes répondent à des besoins différents. Vous pouvez
-                parfaitement participer à plusieurs groupes en fonction de vos
-                intérêts.
-              </p>
-            </>
-          )}
+          <p>
+            Chaque personne peut créer un groupe local et en rejoindre plusieurs
+            dès lors qu'elle respecte le cadre et la démarche qui nous réunit
+            autour de l'Avenir en Commun et de la candidature de Jean-Luc
+            Mélenchon dans un esprit d'ouverture, de bienveillance et de volonté
+            de se projeter dans l'action.
+          </p>
+          <p>
+            En créant votre groupe, vous vous engagez à respecter{" "}
+            <a href="https://infos.actionpopulaire.fr/charte-des-groupes-action-populaire/">
+              une charte d'éthique
+            </a>{" "}
+            dans l'animation du groupe.
+          </p>
+          <p>
+            Ces groupes répondent à des besoins différents. Vous pouvez
+            parfaitement participer à plusieurs groupes en fonction de vos
+            intérêts. En revanche, vous ne pouvez animer qu'un seul groupe de
+            chaque type.
+          </p>
         </div>
 
         <div className="col-sm-8 padbottom type-selectors">
@@ -314,7 +292,6 @@ class ValidateStep extends FormStep {
   render() {
     const { fields, types } = this.props;
     const groupType = types.find((t) => t.id === fields.type) || {};
-    const is2022 = groupType.id === NSP_GROUP_TYPE_ID;
 
     return (
       <div className="row padtopmore padbottommore">
@@ -346,27 +323,18 @@ class ValidateStep extends FormStep {
           </dl>
         </div>
         <div className="col-md-6">
-          {is2022 ? (
-            <p>
-              Pour finir, il vous reste juste à choisir un nom pour votre
-              équipe&nbsp;! Choisissez un nom simple et descriptif (par exemple
-              : &laquo;&nbsp;Équipe de soutien de la Porte
-              d'Arras&nbsp;&raquo;).
-            </p>
-          ) : (
-            <p>
-              Pour finir, il vous reste juste à choisir un nom pour votre
-              groupe&nbsp;! Choisissez un nom simple et descriptif (par exemple
-              : &laquo;&nbsp;Groupe d'action de la Porte d'Arras&nbsp;&raquo;).
-            </p>
-          )}
+          <p>
+            Pour finir, il vous reste juste à choisir un nom pour votre
+            groupe&nbsp;! Choisissez un nom simple et descriptif (par exemple :
+            &laquo;&nbsp;Groupe d'action de la Porte d'Arras&nbsp;&raquo;).
+          </p>
           <form onSubmit={this.post}>
             <div className="form-group">
               <input
                 className="form-control"
                 ref={(i) => (this.groupName = i)}
                 type="text"
-                placeholder={`Nom ${is2022 ? "de l'équipe" : "du groupe"}`}
+                placeholder="Nom du groupe"
                 required
               />
             </div>
@@ -375,7 +343,7 @@ class ValidateStep extends FormStep {
               type="submit"
               disabled={!this.state.maySubmit || this.state.processing}
             >
-              Créer mon {is2022 ? "équipe" : "groupe"}
+              Créer mon groupe
             </button>
           </form>
           <form>
@@ -383,24 +351,13 @@ class ValidateStep extends FormStep {
               <label>
                 <input onChange={this.toggleMaySubmit} type="checkbox" />
                 Je m'engage à respecter{" "}
-                {is2022 ? (
-                  <a
-                    href="https://infos.actionpopulaire.fr/charte-des-equipes-de-soutien-nous-sommes-pour/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    la charte des équipes de soutien «&nbsp;Nous Sommes
-                    Pour&nbsp;!&nbsp;»
-                  </a>
-                ) : (
-                  <a
-                    href="https://lafranceinsoumise.fr/groupes-appui/charte-groupes-dappui-de-france-insoumise/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    la charte des groupes de la France insoumise
-                  </a>
-                )}
+                <a
+                  href="https://infos.actionpopulaire.fr/charte-des-groupes-action-populaire/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  la charte des groupes d'action
+                </a>
               </label>
             </div>
           </form>
