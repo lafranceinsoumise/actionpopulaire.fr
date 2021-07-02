@@ -28,6 +28,8 @@ const GroupMap = lazy(() => import("@agir/carte/page__groupMap/GroupMap"));
 
 const ActivityPage = lazy(() => import("@agir/activity/ActivityPage"));
 
+const ToolsPage = lazy(() => import("@agir/front/toolsPage"));
+
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
 );
@@ -247,6 +249,13 @@ export const routeConfig = {
       protected: true,
     },
     keepScroll: true,
+  }),
+  tools: new RouteConfig({
+    id: "tools",
+    path: "/outils/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    Component: ToolsPage,
   }),
   notificationSettings: notificationSettingRoute,
   menu: new RouteConfig({

@@ -150,6 +150,10 @@ class ActivityView(SoftLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
 
 
+class ToolsView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/app"
+
+
 class NotificationSettingsView(HardLoginRequiredMixin, ReactBaseView):
     bundle_name = "front/app"
 

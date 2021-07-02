@@ -109,6 +109,7 @@ urlpatterns = [
         views.NotificationSettingsView.as_view(),
         name="list_activities.notification_settings",
     ),
+    path("outils/", views.ToolsView.as_view(), name="tools",),
     path(
         "a-traiter/",
         RedirectView.as_view(pattern_name="list_activities", permanent=True),
