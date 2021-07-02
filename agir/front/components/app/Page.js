@@ -87,8 +87,9 @@ const Page = (props) => {
   }, [history]);
 
   useMemo(() => {
-    typeof window !== "undefined" && window.scrollTo && window.scrollTo(0, 0);
-  }, []);
+    if (!!routeConfig.keepScroll) return;
+    typeof window !== "undefined" && !!window.scrollTo && window.scrollTo(0, 0);
+  }, [routeConfig]);
 
   if (routeConfig.isPartial) {
     return (

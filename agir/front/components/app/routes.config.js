@@ -122,6 +122,7 @@ export const routeConfig = {
     hideFeedbackButton: true,
     hideTopBar: true,
     hideConnectivityWarning: true,
+    keepScroll: true,
   }),
   eventMap: new RouteConfig({
     id: "eventMap",
@@ -178,6 +179,7 @@ export const routeConfig = {
     layoutProps: {
       smallBackgroundColor: style.black25,
     },
+    keepScroll: true,
   }),
   groupMap: new RouteConfig({
     id: "groupMap",
@@ -244,6 +246,7 @@ export const routeConfig = {
       to: notificationSettingRoute.getLink({ root: "activite" }),
       protected: true,
     },
+    keepScroll: true,
   }),
   notificationSettings: notificationSettingRoute,
   menu: new RouteConfig({
