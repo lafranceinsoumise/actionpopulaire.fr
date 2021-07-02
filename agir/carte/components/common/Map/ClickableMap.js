@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { useMobileApp } from "@agir/front/app/hooks";
 
 const ClickableMap = (props) => {
-  const { location, zoom, subtype, center } = props;
+  const { location, zoom, iconConfiguration } = props;
   const isIOS = useMobileApp().isIOS;
   const isAndroid = useMobileApp().isAndroid;
   let latitude = location.coordinates.coordinates.toString().split(",")[1];
@@ -25,9 +25,10 @@ const ClickableMap = (props) => {
       as={"a"}
       href={href}
       target="_blank"
-      center={center}
+      center={location.coordinates.coordinates}
+      staticMapUrl={location.staticMapUrl}
       isStatic={true}
-      iconConfiguration={subtype}
+      iconConfiguration={iconConfiguration}
       zoom={zoom}
     />
   );
@@ -39,11 +40,10 @@ ClickableMap.propTypes = {
     address: PropTypes.string,
     shortAddress: PropTypes.string,
     coordinates: PropTypes.shape({
-      coordinates: PropTypes.arrayOf(PropTypes.number),
+      coordinates: PropTypes.arrayOf(PropTypes.number).isRequired,
     }),
     staticMapUrl: PropTypes.string,
   }),
-  center: PropTypes.arrayOf(PropTypes.number).isRequired,
   zoom: PropTypes.number,
   iconConfiguration: PropTypes.shape({
     iconName: PropTypes.string,

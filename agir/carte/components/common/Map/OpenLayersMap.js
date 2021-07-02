@@ -127,7 +127,7 @@ const StyledMapWrapper = styled.div`
   }
 `;
 
-const Map = (props) => {
+const OpenLayersMap = (props) => {
   const { center, zoom = 14, iconConfiguration, isStatic, ...rest } = props;
 
   const [isLoaded, setIsLoaded] = useState(0);
@@ -169,7 +169,7 @@ const Map = (props) => {
 
   return <StyledMapWrapper ref={mapRef} $isLoaded={isLoaded} {...rest} />;
 };
-Map.propTypes = {
+OpenLayersMap.propTypes = {
   isStatic: PropTypes.bool,
   center: PropTypes.arrayOf(PropTypes.number).isRequired,
   zoom: PropTypes.number,
@@ -180,4 +180,4 @@ Map.propTypes = {
     iconAnchor: PropTypes.string,
   }),
 };
-export default Map;
+export default OpenLayersMap;

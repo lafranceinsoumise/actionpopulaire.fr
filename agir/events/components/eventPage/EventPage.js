@@ -182,10 +182,9 @@ const MobileLayout = (props) => {
           </>
         ) : hasMap ? (
           <ClickableMap
-            center={location.coordinates.coordinates}
             location={location}
             zoom={11}
-            subtype={subtype}
+            iconConfiguration={subtype}
           />
         ) : null}
       </StyledMap>
