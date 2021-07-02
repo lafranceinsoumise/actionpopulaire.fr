@@ -4,7 +4,7 @@
   <meta name="viewport" content="initial-scale=1.0">
   <meta name="format-detection" content="telephone=no">
   <title>TITLE</title>
-  
+
   <style type="text/css">
     body{ Margin: 0; padding: 0; }
     img{ border: 0px; display: block; }
@@ -94,13 +94,13 @@
     }
   </style>
   <style type="text/css">
-    
+
     #ko_textBlock_5 .links-color a, #ko_textBlock_5 .links-color a:link, #ko_textBlock_5 .links-color a:visited, #ko_textBlock_5 .links-color a:hover{
       color: #571AFF;
       color: #571AFF;
       text-decoration: underline
     }
-     #ko_textBlock_5 .long-text p{ Margin: 1em 0px }  #ko_textBlock_5 .long-text p:last-child{ Margin-bottom: 0px }  #ko_textBlock_5 .long-text p:first-child{ Margin-top: 0px } 
+     #ko_textBlock_5 .long-text p{ Margin: 1em 0px }  #ko_textBlock_5 .long-text p:last-child{ Margin-bottom: 0px }  #ko_textBlock_5 .long-text p:first-child{ Margin-top: 0px }
     #ko_footerBlock_2 .links-color a, #ko_footerBlock_2 .links-color a:link, #ko_footerBlock_2 .links-color a:visited, #ko_footerBlock_2 .links-color a:hover{
       color: #919191;
       color: #919191;
@@ -113,7 +113,7 @@
   <center>
 
   <!-- preheaderBlock -->
-  
+
   <!-- /preheaderBlock -->
 
   <table class="vb-outer" style="background-color: #ffffff;" id="ko_actionpopulaireBlock_3" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
@@ -165,7 +165,25 @@
         <div class="oldwebkit" style="max-width: 570px;">
         <table class="vb-container fullpad" style="border-collapse: separate; border-spacing: 18px; padding-left: 0; padding-right: 0; width: 100%; max-width: 570px; background-color: #ffffff;" width="570" cellspacing="18" cellpadding="0" border="0" bgcolor="#ffffff">
           <tbody><tr>
-            <td class="long-text links-color" style="text-align: left; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000a2c;" align="left"><p style="Margin: 1em 0px; Margin-top: 0px;">{{ GREETINGS }},<br></p><p style="Margin: 1em 0px;"><strong><a href="{{ GROUP_SENDER_URL }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">{{ GROUP_SENDER }}</a> </strong>a transféré {{ MEMBERS_COUNT }} membres vers {{ GROUP_NAME }} :<br></p><p style="Margin: 1em 0px;">{{ MEMBERS_LIST }}</p><p style="Margin: 1em 0px;"><a href="{{ MANAGE_GROUP_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">Cliquez-ici</a> pour accéder à la page d'administration de {{ GROUP_NAME }}.<br></p><p style="Margin: 1em 0px; Margin-bottom: 0px;">Amitiés,<br>L'équipe d'Action Populaire</p></td>
+            <td class="long-text links-color" style="text-align: left; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000a2c;" align="left">
+              <p style="Margin: 1em 0px; Margin-top: 0px;">{{ GREETINGS }},
+                <br>
+              </p>
+              <p style="Margin: 1em 0px;">
+                <strong><a href="{{ GROUP_SENDER_URL }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">{{ GROUP_SENDER }}</a> </strong>a transféré {{ MEMBERS_COUNT }} membres vers {{ GROUP_DESTINATION }} :
+                <br>
+              </p>
+              <p style="Margin: 1em 0px;">
+                {{ MEMBERS_LIST }}
+              </p>
+              <p style="Margin: 1em 0px;">
+                <a href="{{ MANAGE_GROUP_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">Cliquez-ici</a> pour accéder à la page d'administration de {{ GROUP_DESTINATION }}.
+                <br>
+              </p>
+              <p style="Margin: 1em 0px; Margin-bottom: 0px;">
+                Amitiés,<br>L'équipe d'Action Populaire
+              </p>
+            </td>
           </tr>
         </tbody></table>
         </div>

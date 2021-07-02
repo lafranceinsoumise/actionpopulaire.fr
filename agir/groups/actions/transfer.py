@@ -33,8 +33,11 @@ def send_membership_transfer_email_notifications(
         "GROUP_SENDER_URL": front_url("view_group", args=(original_group_pk,)),
         "GROUP_DESTINATION": target_group.name,
         "GROUP_DESTINATION_URL": front_url("view_group", args=(target_group_pk,)),
+        "MANAGE_GROUP_LINK": front_url(
+            "view_group_settings_members", args=(target_group_pk,)
+        ),
         "MEMBER_LIST": format_html_join(
-            mark_safe("<br>"), "{}", [p.get_full_name() for p in transferred_people]
+            mark_safe("<br>"), "{}", [p.display_name for p in transferred_people]
         ),
         "MEMBER_COUNT": len(transferred_people_pks),
     }
