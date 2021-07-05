@@ -4,8 +4,6 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { useCustomAnnouncement } from "@agir/activity/common/hooks";
-
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import MessageCard from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -186,42 +184,7 @@ export const AgendaRoutePreview = (props) => {
   );
 };
 
-export const ShortAgendaRoutePreview = (props) => {
-  const { upcomingEvents, pastEvents, goToAgendaTab } = props;
-
-  const { lastEvent, isUpcoming } = useMemo(() => {
-    if (Array.isArray(upcomingEvents) && upcomingEvents.length > 0) {
-      return { isUpcoming: true, lastEvent: [upcomingEvents[0]] };
-    }
-    if (Array.isArray(pastEvents) && pastEvents.length > 0) {
-      return { isUpcoming: false, lastEvent: [pastEvents[0]] };
-    }
-    return { isUpcoming: false, lastEvent: null };
-  }, [upcomingEvents, pastEvents]);
-
-  return (
-    <RoutePreview>
-      <PageFadeIn ready={!!lastEvent} wait={<Skeleton boxes={1} />}>
-        <h3>
-          <span>{isUpcoming ? "Événement à venir" : "Dernier événement"}</span>
-          {goToAgendaTab && (
-            <button onClick={goToAgendaTab}>
-              Agenda{" "}
-              <RawFeatherIcon
-                name="arrow-right"
-                width="1rem"
-                height="1rem"
-                strokeWidth={3}
-              />
-            </button>
-          )}
-        </h3>
-        {lastEvent && <GroupEventList events={lastEvent} />}
-      </PageFadeIn>
-    </RoutePreview>
-  );
-};
-ShortAgendaRoutePreview.propTypes = AgendaRoutePreview.propTypes = {
+AgendaRoutePreview.propTypes = {
   group: PropTypes.object,
   upcomingEvents: PropTypes.arrayOf(PropTypes.object),
   pastEvents: PropTypes.arrayOf(PropTypes.object),

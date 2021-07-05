@@ -18,11 +18,7 @@ import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
 import { PromoMessage } from "@agir/groups/messages/PromoMessageModal";
 
-import {
-  ShortAgendaRoutePreview,
-  AgendaRoutePreview,
-  MessagesRoutePreview,
-} from "./RoutePreviews";
+import { AgendaRoutePreview, MessagesRoutePreview } from "./RoutePreviews";
 
 const StyledShareCard = styled.div`
   box-shadow: rgba(0, 35, 44, 0.5) 0px 0px 1px,
@@ -40,11 +36,7 @@ const MobileInfoRoute = (props) => {
   return (
     <>
       {group && (group.hasUpcomingEvents || group.hasPastEvents) ? (
-        group.isMember ? (
-          <ShortAgendaRoutePreview {...props} />
-        ) : (
-          <AgendaRoutePreview {...props} />
-        )
+        <AgendaRoutePreview {...props} />
       ) : null}
       {group && group.hasMessages ? (
         <MessagesRoutePreview {...props} />
@@ -86,11 +78,7 @@ const DesktopInfoRoute = (props) => {
   return (
     <>
       {group && (group.hasUpcomingEvents || group.hasPastEvents) ? (
-        group.isMember ? (
-          <ShortAgendaRoutePreview {...props} />
-        ) : (
-          <AgendaRoutePreview {...props} />
-        )
+        <AgendaRoutePreview {...props} />
       ) : null}
       {group && group.hasMessages ? (
         <MessagesRoutePreview {...props} />
