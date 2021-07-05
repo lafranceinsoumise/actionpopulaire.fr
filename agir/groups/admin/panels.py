@@ -97,7 +97,7 @@ class MembersFilter(admin.SimpleListFilter):
 
 
 class TooMuchMembersFilter(admin.SimpleListFilter):
-    MEMBERS_LIMIT = 30
+    MEMBERS_LIMIT = models.SupportGroup.MEMBERSHIP_LIMIT
 
     title = "Groupe d'action avec trop de membres ({} actuellement)".format(
         MEMBERS_LIMIT
