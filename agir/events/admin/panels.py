@@ -286,6 +286,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "max_participants",
                     "allow_guests",
                     "subscription_form",
+                    "attendee_count",
                     "rsvps_buttons",
                     "payment_parameters",
                     "enable_jitsi",
@@ -340,6 +341,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "coordinates_type",
         "rsvps_buttons",
         "legal_informations",
+        "attendee_count",
     )
     date_hierarchy = "start_time"
 
