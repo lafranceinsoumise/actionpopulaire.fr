@@ -3,6 +3,7 @@ import re
 from secrets import token_urlsafe
 
 import ics
+import pytz
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
@@ -305,6 +306,15 @@ class Event(
 
     start_time = CustomDateTimeField(_("date et heure de début"), blank=False)
     end_time = CustomDateTimeField(_("date et heure de fin"), blank=False)
+    timezone = models.CharField(
+        "Fuseau horaire",
+        max_length=255,
+        choices=((name, name) for name in pytz.all_timezones),
+        default=timezone.get_default_timezone().zone,
+        blank=False,
+        null=False,
+    )
+
     max_participants = models.IntegerField(
         "Nombre maximum de participants", blank=True, null=True
     )
