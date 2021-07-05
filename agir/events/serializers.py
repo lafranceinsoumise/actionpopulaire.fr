@@ -92,6 +92,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "hasSubscriptionForm",
         "startTime",
         "endTime",
+        "timezone",
         "location",
         "isOrganizer",
         "rsvp",
@@ -112,8 +113,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     compteRenduPhotos = serializers.SerializerMethodField()
     illustration = serializers.SerializerMethodField()
 
-    startTime = serializers.DateTimeField(source="start_time")
-    endTime = serializers.DateTimeField(source="end_time")
+    startTime = serializers.SerializerMethodField()
+    endTime = serializers.SerializerMethodField()
+    timezone = serializers.CharField()
 
     location = LocationSerializer(source="*")
 
@@ -165,6 +167,12 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             self.organizer_config = self.rsvp = None
 
         return super().to_representation(instance)
+
+    def get_startTime(self, obj):
+        return obj.local_start_time.isoformat()
+
+    def get_endTime(self, obj):
+        return obj.local_end_time.isoformat()
 
     def get_hasSubscriptionForm(self, obj):
         return bool(obj.subscription_form_id)
