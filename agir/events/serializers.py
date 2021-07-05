@@ -1,5 +1,7 @@
 from datetime import timedelta
 
+from django.utils import timezone
+from pytz import utc, InvalidTimeError
 from rest_framework import serializers
 
 from agir.front.serializer_utils import RoutesField
@@ -314,6 +316,20 @@ class EventOrganizerGroupField(serializers.RelatedField):
         return self.queryset.model.objects.get(pk=pk)
 
 
+class DateTimeWithTimezoneField(serializers.DateTimeField):
+    def enforce_timezone(self, value):
+        field_timezone = getattr(self, "timezone", self.default_timezone())
+
+        if field_timezone is not None and not timezone.is_aware(value):
+            try:
+                return timezone.make_aware(value, field_timezone)
+            except InvalidTimeError:
+                self.fail("make_aware", timezone=field_timezone)
+        elif (field_timezone is None) and timezone.is_aware(value):
+            return timezone.make_naive(value, utc)
+        return value
+
+
 class CreateEventSerializer(serializers.Serializer):
     id = serializers.UUIDField(read_only=True)
     url = serializers.HyperlinkedIdentityField(
@@ -321,8 +337,9 @@ class CreateEventSerializer(serializers.Serializer):
     )
 
     name = serializers.CharField(max_length=100, min_length=3)
-    startTime = serializers.DateTimeField(source="start_time")
-    endTime = serializers.DateTimeField(source="end_time")
+    timezone = serializers.CharField()
+    startTime = DateTimeWithTimezoneField(source="start_time")
+    endTime = DateTimeWithTimezoneField(source="end_time")
     contact = NestedContactSerializer(source="*")
     location = NestedLocationSerializer(source="*")
     subtype = serializers.PrimaryKeyRelatedField(

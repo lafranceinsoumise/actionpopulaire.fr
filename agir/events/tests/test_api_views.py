@@ -28,6 +28,7 @@ class CreateEventAPITestCase(APITestCase):
             "name": "Nouvel événement",
             "startTime": str(self.start_time),
             "endTime": str(self.end_time),
+            "timezone": timezone.get_default_timezone_name(),
             "contact": {
                 "name": "Quelqu'un",
                 "email": "quelquun@agir.test",

@@ -1,4 +1,5 @@
 import axios from "@agir/lib/utils/axios";
+import { DateTime } from "luxon";
 import React, {
   useCallback,
   useEffect,
@@ -98,14 +99,26 @@ const createEvent = async (data) => {
     data: null,
     errors: null,
   };
+
   const url = "/api/evenements/creer/";
-  const body = {
-    ...data,
-    subtype: data.subtype && data.subtype.id,
-    organizerGroup: data.organizerGroup && data.organizerGroup.id,
-  };
 
   try {
+    const startTime = DateTime.fromISO(data.startTime)
+      .setZone(data.timezone, { keepLocalTime: true })
+      .toISO();
+
+    const endTime = DateTime.fromISO(data.endTime)
+      .setZone(data.timezone, { keepLocalTime: true })
+      .toISO();
+
+    const body = {
+      ...data,
+      startTime,
+      endTime,
+      subtype: data.subtype && data.subtype.id,
+      organizerGroup: data.organizerGroup && data.organizerGroup.id,
+    };
+
     const response = await axios.post(url, body);
     result.data = response.data;
   } catch (e) {
@@ -279,7 +292,10 @@ const EventForm = () => {
       case !!(errors["organizerGroup"] && organizerGroupRef.current):
         scrollTarget = organizerGroupRef.current;
         break;
-      case !!((errors["startTime"] || errors["endTime"]) && dateRef.current):
+      case !!(
+        (errors["startTime"] || errors["endTime"] || errors["timezone"]) &&
+        dateRef.current
+      ):
         scrollTarget = dateRef.current;
         break;
       case !!(errors["subtype"] && subtypeRef.current):
@@ -406,8 +422,13 @@ const EventForm = () => {
       <DateField
         startTime={formData.startTime}
         endTime={formData.endTime}
-        error={errors && (errors.startTime || errors.endTime)}
+        $
+        timezone={formData.timezone}
+        error={
+          errors && (errors.startTime || errors.endTime || errors.timezone)
+        }
         onChange={updateDate}
+        onChangeTimezone={(timezone) => updateValue("timezone", timezone)}
         disabled={isLoading}
         required
       />
