@@ -253,6 +253,7 @@ export const routeConfig = {
   tools: new RouteConfig({
     id: "tools",
     path: "/outils/",
+    label: "Outils",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     Component: ToolsPage,

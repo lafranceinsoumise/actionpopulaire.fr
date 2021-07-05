@@ -1,19 +1,25 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import axios from "@agir/lib/utils/axios";
+import { Hide } from "@agir/front/genericComponents/grid";
 
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const Container = styled.div`
   padding: 25px 85px;
+
+  @media (max-width: ${style.collapse}px) {
+    padding: 20px;
+  }
 `;
 
 const BlockTitle = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 43px;
+  margin-bottom: 23px;
 
   > div:first-child {
     display: flex;
@@ -37,7 +43,7 @@ const Title = styled.div`
 const Subtitle = styled.div`
   font-weight: 600;
   font-size: 1rem;
-  margin-bottom: 20px;
+  margin: 20px 0;
 `;
 
 const StyledButton = styled(Button)`
@@ -50,6 +56,11 @@ const StyledButton = styled(Button)`
 const ItemActionContainer = styled(Button)`
   border-radius: 4px;
   border: 1px solid black;
+
+  // background-image
+  background-color: blue;
+  width: 100%;
+  height: 240px;
 `;
 
 const ItemAction = ({ image, description }) => {
@@ -62,6 +73,38 @@ const ItemAction = ({ image, description }) => {
 };
 
 const ToolsPage = () => {
+  const [categories, setCategories] = useState([]);
+  const [pages, setPages] = useState([]);
+
+  const getPagesByCategory = async (id) => {
+    const url = `https://infos.actionpopulaire.fr/wp-json/wp/v2/pages?per_page=100&categories=${id}`;
+    const { data } = await axios.get(url);
+    return data;
+  };
+
+  const getWPCategories = async () => {
+    const url =
+      "https://infos.actionpopulaire.fr/wp-json/wp/v2/categories/?per_page=100";
+    const { data } = await axios.get(url);
+    setCategories(data);
+
+    // Fill Pages by categories
+    let pagesSorted = [];
+    let requests = data.map(async (c) => {
+      return getPagesByCategory(c.id).then((data) => {
+        pagesSorted[c.id] = data;
+      });
+    });
+
+    Promise.all(requests).then(() => {
+      setPages(pagesSorted);
+    });
+  };
+
+  useEffect(() => {
+    getWPCategories();
+  }, []);
+
   return (
     <Container>
       <BlockTitle>
@@ -69,20 +112,23 @@ const ToolsPage = () => {
           <RawFeatherIcon name="shopping-bag" color={style.black1000} />
           <Title>Commandez du matériel</Title>
         </div>
-        <StyledButton
-          small
-          as="Link"
-          color="secondary"
-          href="https://materiel.lafranceinsoumise.fr/"
-          target="_blank"
-        >
-          Accéder au site matériel
-          <RawFeatherIcon
-            name="arrow-up-right"
-            color={style.black1000}
-            width="1.25rem"
-          />
-        </StyledButton>
+
+        <Hide under>
+          <StyledButton
+            small
+            as="Link"
+            color="secondary"
+            href="https://materiel.lafranceinsoumise.fr/"
+            target="_blank"
+          >
+            Accéder au site matériel
+            <RawFeatherIcon
+              name="arrow-up-right"
+              color={style.black1000}
+              width="1.25rem"
+            />
+          </StyledButton>
+        </Hide>
       </BlockTitle>
 
       <BlockContent></BlockContent>
@@ -92,24 +138,40 @@ const ToolsPage = () => {
           <RawFeatherIcon name="book-open" color={style.black1000} />
           <Title>Se former à l'action</Title>
         </div>
-        <StyledButton
-          small
-          as="Link"
-          color="secondary"
-          href="https://materiel.lafranceinsoumise.fr/"
-          target="_blank"
-        >
-          Accéder au fiches pratiques
-          <RawFeatherIcon
-            name="arrow-up-right"
-            color={style.black1000}
-            width="1.25rem"
-          />
-        </StyledButton>
+
+        <Hide under>
+          <StyledButton
+            small
+            as="Link"
+            color="secondary"
+            href="https://materiel.lafranceinsoumise.fr/"
+            target="_blank"
+          >
+            Accéder au fiches pratiques
+            <RawFeatherIcon
+              name="arrow-up-right"
+              color={style.black1000}
+              width="1.25rem"
+            />
+          </StyledButton>
+        </Hide>
       </BlockTitle>
 
       <BlockContent>
-        <Subtitle>Actions rapides en quelques clics !</Subtitle>
+        {/* <Subtitle>Actions rapides en quelques clics !</Subtitle> */}
+
+        {categories.map((category) => (
+          <>
+            <Subtitle key={category.id}>{category.name}</Subtitle>
+
+            {pages[category.id]?.map((page) => (
+              <>
+                {page?.title?.rendered}
+                <br />
+              </>
+            ))}
+          </>
+        ))}
 
         <ItemAction image="" description="Titre d'action" />
       </BlockContent>
