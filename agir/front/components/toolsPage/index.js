@@ -53,21 +53,46 @@ const StyledButton = styled(Button)`
   border-radius: 0.5rem;
 `;
 
-const ItemActionContainer = styled(Button)`
-  border-radius: 4px;
-  border: 1px solid black;
+const ItemActionContainer = styled.div`
+  box-shadow: 0px 0px 2px rgb(0 0 0 / 50%), 0px 3px 3px rgb(0 35 44 / 10%);
+  border-radius: 8px;
+  overflow: hidden;
+  width: 340px;
+  display: inline-flex;
+  flex-direction: column;
+  margin-right: 24px;
+  margin-bottom: 24px;
 
-  // background-image
-  background-color: blue;
-  width: 100%;
-  height: 240px;
+  > div:first-child {
+    ${({ img }) => `
+      background-image: url(${img});
+      background-position: center;
+      background-size: cover;
+      height: 190px;
+    `}
+  }
+
+  > div:last-child {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    height: 82px;
+    overflow: hidden;
+    padding: 6px 16px;
+  }
 `;
 
-const ItemAction = ({ image, description }) => {
+const ListItemAction = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`;
+
+const ItemAction = ({ image, title }) => {
   return (
-    <ItemActionContainer>
-      <div>image background : {image}</div>
-      <div>{description}</div>
+    <ItemActionContainer img={image}>
+      <div />
+      <div>{title}</div>
     </ItemActionContainer>
   );
 };
@@ -77,15 +102,35 @@ const ToolsPage = () => {
   const [pages, setPages] = useState([]);
 
   const getPagesByCategory = async (id) => {
-    const url = `https://infos.actionpopulaire.fr/wp-json/wp/v2/pages?per_page=100&categories=${id}`;
+    const url = `https://infos.actionpopulaire.fr/wp-json/wp/v2/pages?per_page=100&_fields=categories,title,featured_media&categories=${id}`;
     const { data } = await axios.get(url);
-    return data;
+
+    // Add featured image to pages
+    let pages = [];
+    let requests = data.map(async (p) => {
+      const imageUrl = `https://infos.actionpopulaire.fr/wp-json/wp/v2/media/${p.featured_media}`;
+      return axios.get(imageUrl).then((res) => {
+        pages.push({
+          ...p,
+          img: res.data.guid.rendered,
+          title: p.title.rendered,
+        });
+      });
+    });
+
+    return Promise.all(requests).then(() => {
+      return pages;
+    });
   };
 
   const getWPCategories = async () => {
+    // TODO: filter by categories in query possible ?
     const url =
       "https://infos.actionpopulaire.fr/wp-json/wp/v2/categories/?per_page=100";
-    const { data } = await axios.get(url);
+    let { data } = await axios.get(url);
+
+    // Get only categories 15, 16, 17
+    data = data.filter((e) => ([15, 16, 17].includes(e.id) ? e : null));
     setCategories(data);
 
     // Fill Pages by categories
@@ -158,22 +203,17 @@ const ToolsPage = () => {
       </BlockTitle>
 
       <BlockContent>
-        {/* <Subtitle>Actions rapides en quelques clics !</Subtitle> */}
-
         {categories.map((category) => (
           <>
             <Subtitle key={category.id}>{category.name}</Subtitle>
 
-            {pages[category.id]?.map((page) => (
-              <>
-                {page?.title?.rendered}
-                <br />
-              </>
-            ))}
+            <ListItemAction>
+              {pages[category.id]?.map((page) => (
+                <ItemAction image={page.img} title={page.title} />
+              ))}
+            </ListItemAction>
           </>
         ))}
-
-        <ItemAction image="" description="Titre d'action" />
       </BlockContent>
 
       <BlockTitle>
