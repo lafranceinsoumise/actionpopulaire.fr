@@ -143,7 +143,7 @@ const NotificationSettingPanel = (props) => {
         Paramètres de notifications&nbsp;<InlineBlock>et e-mails</InlineBlock>
       </h3>
       <p>
-        Paramétrez la réception de vos e-mails et des notifications
+        Paramétrez la réception de vos e-mails et des notifications&nbsp;
         <InlineBlock>sur votre téléphone.</InlineBlock>
       </p>
       {pushIsReady && !isPushAvailable && !isDesktop && (
