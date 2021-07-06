@@ -13,7 +13,6 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from django.core.exceptions import PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django.db.models import Count, Max, Func, Value
 from django.db.models.functions import Concat, Substr
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
@@ -25,7 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.authentication.models import Role
 from agir.elus.models import types_elus
-from agir.groups.models import SupportGroup
+from agir.groups.models import SupportGroup, Membership
 from agir.lib.admin import (
     DisplayContactPhoneMixin,
     CenterOnFranceMixin,
@@ -111,12 +110,9 @@ class AnimateMoreThanOneGroup(admin.SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        result = []
         if self.value() == "animate_more_than_one_group":
-            for p in queryset:
-                if p.number_of_groups_animated > 1:
-                    result.append(p.pk)
-            return Person.objects.filter(pk__in=result)
+            return queryset.annotate(animated_groups=models.Count("memberships", filter=models.Q(
+                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER))).filter(animated_groups__gt=1)
 
 
 @admin.register(Person)
