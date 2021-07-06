@@ -1,6 +1,7 @@
 from datetime import timedelta
 from functools import partial
 
+import pytz
 from crispy_forms import layout
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Row, Field
@@ -36,7 +37,8 @@ from .tasks import (
     notify_on_event_report,
     geocode_event,
 )
-from ..lib.form_fields import AcceptCreativeCommonsLicenceField
+from ..lib.form_fields import AcceptCreativeCommonsLicenceField, DateTimePickerWidget
+from ..lib.utils import replace_datetime_timezone
 from ..people.models import Person, PersonFormSubmission
 
 __all__ = [
@@ -88,8 +90,17 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
     )
 
     def __init__(self, *args, person, **kwargs):
-        super(EventForm, self).__init__(*args, **kwargs)
-
+        event = kwargs.get("instance", None)
+        if event is not None:
+            kwargs.update(
+                {
+                    "initial": {
+                        "start_time": event.local_start_time,
+                        "end_time": event.local_end_time,
+                    }
+                }
+            )
+        super().__init__(*args, **kwargs)
         self.person = person
 
         excluded_fields = []
@@ -153,6 +164,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
             Row(
                 HalfCol(
                     Row(FullCol("name")),
+                    Row(FullCol("timezone")),
                     Row(HalfCol("start_time"), HalfCol("end_time")),
                     Row(FullCol("allow_guests")),
                 ),
@@ -213,12 +225,18 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         ):
             self.instance.visibility = Event.VISIBILITY_ORGANIZER
 
-        if (
-            cleaned_data.get("end_time")
-            and cleaned_data.get("start_time")
-            and cleaned_data["end_time"] - cleaned_data["start_time"]
-            > timedelta(days=7)
-        ):
+        start = cleaned_data.get("start_time")
+        end = cleaned_data.get("end_time")
+        timezone = cleaned_data.get("timezone")
+
+        if timezone and start:
+            cleaned_data.update(
+                {"start_time": replace_datetime_timezone(start, timezone)}
+            )
+        if timezone and end:
+            cleaned_data.update({"end_time": replace_datetime_timezone(end, timezone)})
+
+        if end and start and end - start > timedelta(days=7):
             raise ValidationError(
                 {"end_time": _("L'événement ne peut pas durer plus de 7 jours.")}
             )
@@ -344,6 +362,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
             "subtype",
             "legal",
             "online_url",
+            "timezone",
         )
 
 

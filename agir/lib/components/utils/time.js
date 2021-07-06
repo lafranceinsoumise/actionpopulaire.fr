@@ -18,8 +18,10 @@ const OTHER_YEAR_FORMAT = {
   day: "numeric",
 };
 
-export function dateFromISOString(s) {
-  return DateTime.fromISO(s).setLocale("fr");
+export function dateFromISOString(isostring, zone) {
+  return zone
+    ? DateTime.fromISO(isostring, { zone }).setLocale("fr")
+    : DateTime.fromISO(isostring).setLocale("fr");
 }
 
 export function displayHumanDay(datetime, relativeTo, interval) {

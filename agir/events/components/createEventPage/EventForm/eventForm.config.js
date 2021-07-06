@@ -71,6 +71,7 @@ export const DEFAULT_FORM_DATA = {
   organizerGroup: null,
   startTime: startDate.toUTCString(),
   endTime: endDate.toUTCString(),
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   subtype: null,
   onlineUrl: "",
   location: {
@@ -128,6 +129,12 @@ export const FORM_FIELD_CONSTRAINTS = {
     },
     datetime: {
       message: "Indiquez une date et heure valides",
+    },
+  },
+  timezone: {
+    presence: {
+      allowEmpty: false,
+      message: "Indiquez un fuseau horaire",
     },
   },
   subtype: {

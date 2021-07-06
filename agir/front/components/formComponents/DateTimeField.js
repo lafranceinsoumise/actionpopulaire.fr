@@ -113,7 +113,10 @@ const StyledField = styled.div`
 `;
 
 const parseDatetime = (datetime) => {
-  const date = moment(datetime).isValid() ? moment(datetime) : moment();
+  const date = moment(datetime).isValid()
+    ? moment.parseZone(datetime)
+    : moment();
+
   return {
     date: date.format("DD/MM/YYYY"),
     time: date.format("HH:mm"),

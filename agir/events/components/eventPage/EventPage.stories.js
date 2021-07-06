@@ -76,6 +76,7 @@ Default.args = {
   contact: { ...ContactCardStory.args },
   startTime: defaultStartTime.toISO(),
   endTime: defaultEndTime.toISO(),
+  timezone: "Europe/Paris",
   options: { price: null },
   routes: testAppRoutes,
   locationName: "Place de la République",

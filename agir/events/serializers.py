@@ -1,5 +1,7 @@
 from datetime import timedelta
 
+from django.utils import timezone
+from pytz import utc, InvalidTimeError
 from rest_framework import serializers
 
 from agir.front.serializer_utils import RoutesField
@@ -92,6 +94,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "hasSubscriptionForm",
         "startTime",
         "endTime",
+        "timezone",
         "location",
         "isOrganizer",
         "rsvp",
@@ -112,8 +115,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     compteRenduPhotos = serializers.SerializerMethodField()
     illustration = serializers.SerializerMethodField()
 
-    startTime = serializers.DateTimeField(source="start_time")
-    endTime = serializers.DateTimeField(source="end_time")
+    startTime = serializers.SerializerMethodField()
+    endTime = serializers.SerializerMethodField()
+    timezone = serializers.CharField()
 
     location = LocationSerializer(source="*")
 
@@ -165,6 +169,12 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             self.organizer_config = self.rsvp = None
 
         return super().to_representation(instance)
+
+    def get_startTime(self, obj):
+        return obj.local_start_time.isoformat()
+
+    def get_endTime(self, obj):
+        return obj.local_end_time.isoformat()
 
     def get_hasSubscriptionForm(self, obj):
         return bool(obj.subscription_form_id)
@@ -306,6 +316,20 @@ class EventOrganizerGroupField(serializers.RelatedField):
         return self.queryset.model.objects.get(pk=pk)
 
 
+class DateTimeWithTimezoneField(serializers.DateTimeField):
+    def enforce_timezone(self, value):
+        field_timezone = getattr(self, "timezone", self.default_timezone())
+
+        if field_timezone is not None and not timezone.is_aware(value):
+            try:
+                return timezone.make_aware(value, field_timezone)
+            except InvalidTimeError:
+                self.fail("make_aware", timezone=field_timezone)
+        elif (field_timezone is None) and timezone.is_aware(value):
+            return timezone.make_naive(value, utc)
+        return value
+
+
 class CreateEventSerializer(serializers.Serializer):
     id = serializers.UUIDField(read_only=True)
     url = serializers.HyperlinkedIdentityField(
@@ -313,8 +337,9 @@ class CreateEventSerializer(serializers.Serializer):
     )
 
     name = serializers.CharField(max_length=100, min_length=3)
-    startTime = serializers.DateTimeField(source="start_time")
-    endTime = serializers.DateTimeField(source="end_time")
+    timezone = serializers.CharField()
+    startTime = DateTimeWithTimezoneField(source="start_time")
+    endTime = DateTimeWithTimezoneField(source="end_time")
     contact = NestedContactSerializer(source="*")
     location = NestedLocationSerializer(source="*")
     subtype = serializers.PrimaryKeyRelatedField(

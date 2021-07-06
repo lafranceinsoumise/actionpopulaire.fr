@@ -319,6 +319,7 @@ class EventPagesTestCase(TestCase):
                 "end_time": formats.localize_input(
                     self.now + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"
                 ),
+                "timezone": timezone.get_default_timezone().zone,
                 "contact_name": "Arthur",
                 "contact_email": "a@ziefzji.fr",
                 "contact_phone": "06 06 06 06 06",
@@ -513,6 +514,7 @@ class EventPagesTestCase(TestCase):
                 "end_time": formats.localize_input(
                     self.now + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"
                 ),
+                "timezone": timezone.get_default_timezone().zone,
                 "contact_name": "Arthur",
                 "contact_email": "a@ziefzji.fr",
                 "contact_phone": "06 06 06 06 06",

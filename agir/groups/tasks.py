@@ -326,7 +326,7 @@ def send_new_group_event_email(group_pk, event_pk):
 
     tz = timezone.get_current_timezone()
     now = timezone.now()
-    start_time = event.start_time.astimezone(tz)
+    start_time = event.local_start_time
     simple_date = _date(start_time, "l j F").capitalize()
     bindings = {
         "GROUP": group.name.capitalize(),

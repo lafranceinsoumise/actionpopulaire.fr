@@ -3,6 +3,8 @@ import re
 from secrets import token_urlsafe
 
 import ics
+import pytz
+from django import forms
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
@@ -208,9 +210,18 @@ class RSVPQuerySet(models.QuerySet):
         return self.filter(condition)
 
 
+class CustomDateTimeFormField(forms.DateTimeField):
+    widget = DateTimePickerWidget
+
+    def prepare_value(self, value):
+        return value
+
+
 class CustomDateTimeField(models.DateTimeField):
     def formfield(self, **kwargs):
-        defaults = {"widget": DateTimePickerWidget}
+        defaults = {
+            "form_class": CustomDateTimeFormField,
+        }
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
@@ -305,6 +316,15 @@ class Event(
 
     start_time = CustomDateTimeField(_("date et heure de début"), blank=False)
     end_time = CustomDateTimeField(_("date et heure de fin"), blank=False)
+    timezone = models.CharField(
+        "Fuseau horaire",
+        max_length=255,
+        choices=((name, name) for name in pytz.all_timezones),
+        default=timezone.get_default_timezone().zone,
+        blank=False,
+        null=False,
+    )
+
     max_participants = models.IntegerField(
         "Nombre maximum de participants", blank=True, null=True
     )
@@ -464,33 +484,44 @@ class Event(
     def type(self):
         return self.subtype.type
 
+    @property
+    def local_start_time(self):
+        tz = pytz.timezone(self.timezone)
+        return self.start_time.astimezone(tz)
+
+    @property
+    def local_end_time(self):
+        tz = pytz.timezone(self.timezone)
+        return self.end_time.astimezone(tz)
+
     def get_display_date(self):
-        tz = timezone.get_current_timezone()
-        start_time = self.start_time.astimezone(tz)
-        end_time = self.end_time.astimezone(tz)
+        start_time = self.local_start_time
+        end_time = self.local_end_time
 
         if start_time.date() == end_time.date():
             date = formats.date_format(start_time, "DATE_FORMAT")
-            return _("le {date}, de {start_hour} à {end_hour}").format(
+            return _("le {date}, de {start_hour} à {end_hour} ({tz})").format(
                 date=date,
                 start_hour=formats.time_format(start_time, "TIME_FORMAT"),
                 end_hour=formats.time_format(end_time, "TIME_FORMAT"),
+                tz=self.timezone,
             )
 
-        return _("du {start_date}, {start_time} au {end_date}, {end_time}").format(
+        return _(
+            "du {start_date}, {start_time} au {end_date}, {end_time} ({tz})"
+        ).format(
             start_date=formats.date_format(start_time, "DATE_FORMAT"),
             start_time=formats.date_format(start_time, "TIME_FORMAT"),
             end_date=formats.date_format(end_time, "DATE_FORMAT"),
             end_time=formats.date_format(end_time, "TIME_FORMAT"),
+            tz=self.timezone,
         )
 
     def get_simple_display_date(self):
-        tz = timezone.get_current_timezone()
-        start_time = self.start_time.astimezone(tz)
-
-        return _("le {date} à {time}").format(
-            date=formats.date_format(start_time, "DATE_FORMAT"),
-            time=formats.time_format(start_time, "TIME_FORMAT"),
+        return _("le {date} à {time} ({tz})").format(
+            date=formats.date_format(self.local_start_time, "DATE_FORMAT"),
+            time=formats.time_format(self.local_start_time, "TIME_FORMAT"),
+            tz=self.timezone,
         )
 
     def is_past(self):
@@ -573,9 +604,8 @@ class Event(
     def get_google_calendar_url(self):
         # https://github.com/InteractionDesignFoundation/add-event-to-calendar-docs/blob/master/services/google.md
         df = "%Y%m%dT%H%M00"
-        tz = timezone.get_current_timezone()
-        start_time = self.start_time.astimezone(tz).strftime(df)
-        end_time = self.end_time.astimezone(tz).strftime(df)
+        start_time = self.local_start_time.strftime(df)
+        end_time = self.local_end_time.strftime(df)
 
         details = f"{self.description}<p><a href={self.get_absolute_url()}>Page de l'événement</a></p>"
         if self.online_url:
@@ -583,7 +613,7 @@ class Event(
 
         query = {
             "action": "TEMPLATE",
-            "ctz": timezone.get_current_timezone_name(),
+            "ctz": self.timezone,
             "text": self.name,
             "dates": f"{start_time}/{end_time}",
             "location": self.short_address,

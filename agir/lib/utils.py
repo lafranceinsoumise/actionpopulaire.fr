@@ -1,5 +1,6 @@
 from urllib.parse import urljoin, urlparse
 
+import pytz
 import requests
 from PIL import Image
 from django.conf import settings
@@ -7,6 +8,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.http import QueryDict
 from django.urls import reverse
+from django.utils.datetime_safe import datetime
 from django.utils.functional import lazy
 from io import BytesIO
 from stdimage.utils import render_variations
@@ -124,3 +126,12 @@ def get_client_ip(request):
 
 def is_absolute_url(url):
     return isinstance(url, str) and url != "" and bool(urlparse(url).netloc)
+
+
+def replace_datetime_timezone(dt, timezone_name):
+    timezone = pytz.timezone(timezone_name)
+    return timezone.localize(
+        datetime(
+            dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond,
+        ),
+    )

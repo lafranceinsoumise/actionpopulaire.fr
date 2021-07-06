@@ -1,5 +1,5 @@
 {% extends "front/layout.html" %}
-{% load crispy_forms_tags l10n pagination %}
+{% load crispy_forms_tags l10n pagination tz %}
 
 {% block title %}Rechercher des événements{% endblock %}
 
@@ -54,7 +54,9 @@
             <i class="fa fa-calendar" aria-hidden="true"></i>
             <a href="{% url 'view_event' event.pk %}">{{ event.name }}</a>
             <br>
-            {{ event.start_time|date:"l d F o à H:i" }} - {{ event.short_location }}
+            {% localtime off %}
+            {{ event.local_start_time|date:"l d F o à H:i" }} - {{ event.short_location }}
+            {% endlocaltime %}
             {% if event.distance %} - {{ event.distance.km|floatformat }} km{% endif %}
           </div>
         </div>
