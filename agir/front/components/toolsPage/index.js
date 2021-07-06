@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
 import axios from "@agir/lib/utils/axios";
+import style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
 
+import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
@@ -62,6 +63,7 @@ const ItemActionContainer = styled.div`
   flex-direction: column;
   margin-right: 24px;
   margin-bottom: 24px;
+  color: ${style.black1000};
 
   > div:first-child {
     ${({ img }) => `
@@ -85,14 +87,17 @@ const ItemActionContainer = styled.div`
 
 const ListItemAction = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  // flex-wrap: wrap;
+  max-width: 100%;
+  overflow-y: hidden;
+  overflow-x: auto;
 `;
 
 const ItemAction = ({ image, title }) => {
   return (
     <ItemActionContainer img={image}>
       <div />
-      <div>{title}</div>
+      <div dangerouslySetInnerHTML={{ __html: title }}></div>
     </ItemActionContainer>
   );
 };
@@ -102,7 +107,7 @@ const ToolsPage = () => {
   const [pages, setPages] = useState([]);
 
   const getPagesByCategory = async (id) => {
-    const url = `https://infos.actionpopulaire.fr/wp-json/wp/v2/pages?per_page=100&_fields=categories,title,featured_media&categories=${id}`;
+    const url = `https://infos.actionpopulaire.fr/wp-json/wp/v2/pages?per_page=100&_fields=categories,title,link,featured_media&categories=${id}`;
     const { data } = await axios.get(url);
 
     // Add featured image to pages
@@ -209,7 +214,9 @@ const ToolsPage = () => {
 
             <ListItemAction>
               {pages[category.id]?.map((page) => (
-                <ItemAction image={page.img} title={page.title} />
+                <Link href={page.link}>
+                  <ItemAction image={page.img} title={page.title} />
+                </Link>
               ))}
             </ListItemAction>
           </>
