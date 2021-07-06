@@ -22,6 +22,7 @@ from dynamic_filenames import FilePattern
 from slugify import slugify
 from stdimage.models import StdImageField
 
+from agir.gestion.typologies import TypeProjet
 from agir.groups.models import Membership, SupportGroup
 from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.form_fields import DateTimePickerWidget
@@ -634,7 +635,7 @@ class EventSubtype(BaseSubtype):
     TYPE_OTHER_EVENTS = "O"
 
     TYPE_CHOICES = (
-        (TYPE_GROUP_MEETING, _("Réunion de groupe")),
+        (TYPE_GROUP_MEETING, _("Réunion privée de groupe")),
         (TYPE_PUBLIC_MEETING, _("Événement public")),
         (TYPE_PUBLIC_ACTION, _("Action publique")),
         (TYPE_OTHER_EVENTS, _("Autre")),
@@ -689,6 +690,14 @@ class EventSubtype(BaseSubtype):
         default=False,
         help_text="Le sous-type d'événement apparaîtra en premier dans la liste des sous-types disponibles, "
         "par exemple lors de la création d'un événement.",
+    )
+
+    related_project_type = models.CharField(
+        verbose_name="Type de projet de gestion associé",
+        choices=TypeProjet.choices,
+        max_length=10,
+        null=True,
+        blank=True,
     )
 
     class Meta:

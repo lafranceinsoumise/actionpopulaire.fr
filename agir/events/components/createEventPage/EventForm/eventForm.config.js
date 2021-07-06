@@ -39,7 +39,7 @@ export const FOR_USERS_OPTIONS = [
 
 export const EVENT_TYPES = {
   G: {
-    label: "Réunion de groupe",
+    label: "Réunion privée de groupe",
     description:
       "Une réunion qui concerne principalement les membres du groupes, et non le public de façon générale. Par exemple, la réunion hebdomadaire du groupe, une réunion de travail, ou l'audition d'une association",
   },

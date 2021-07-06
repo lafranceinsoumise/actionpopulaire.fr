@@ -35,9 +35,13 @@ from ..lib.utils import admin_url
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
-    iconName = serializers.SerializerMethodField()
-    icon = serializers.SerializerMethodField()
-    color = serializers.SerializerMethodField()
+    iconName = serializers.SerializerMethodField(read_only=True)
+    icon = serializers.SerializerMethodField(read_only=True)
+    color = serializers.SerializerMethodField(read_only=True)
+    needsDocuments = serializers.SerializerMethodField(read_only=True)
+
+    def get_needsDocuments(self, obj):
+        return obj.related_project_type is not None
 
     def get_iconName(self, obj):
         return obj.icon_name or obj.TYPES_PARAMETERS[obj.type]["icon_name"]
@@ -63,6 +67,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
             "icon",
             "iconName",
             "type",
+            "needsDocuments",
         )
 
 
