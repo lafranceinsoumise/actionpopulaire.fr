@@ -28,7 +28,7 @@ const GroupMap = lazy(() => import("@agir/carte/page__groupMap/GroupMap"));
 
 const ActivityPage = lazy(() => import("@agir/activity/ActivityPage"));
 
-const ToolsPage = lazy(() => import("@agir/front/toolsPage"));
+const ToolsPage = lazy(() => import("@agir/front/toolsPage/toolsPage"));
 
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")

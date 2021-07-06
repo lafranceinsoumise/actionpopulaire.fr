@@ -9,10 +9,10 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-import img_JLM_2022 from "@agir/front/genericComponents/logos/JLM_2022.jpg";
-import img_AvenirEnCommun from "@agir/front/genericComponents/logos/AvenirEnCommun.jpg";
-import img_Linsoumission from "@agir/front/genericComponents/logos/Linsoumission.jpg";
-import img_Comparateur from "@agir/front/genericComponents/logos/Comparateur.jpg";
+import img_JLM_2022 from "./images/JLM_2022.jpg";
+import img_AvenirEnCommun from "./images/AvenirEnCommun.jpg";
+import img_Linsoumission from "./images/Linsoumission.jpg";
+import img_Comparateur from "./images/Comparateur.jpg";
 import bricksNSP from "@agir/front/genericComponents/images/login_bg_desktop.svg";
 
 import Navigation from "@agir/front/dashboardComponents/Navigation";
@@ -151,12 +151,13 @@ const ItemWebsiteContainer = styled.div`
 
 const BannerToolContainer = styled.div`
   width: 100%;
+  height: 138px;
   background-color: ${style.primary500};
   color: white;
   font-size: 48px;
   font-weight: 700;
   padding: 42px;
-  height: 138px;
+  margin-bottom: 48px;
   overflow: hidden;
   position: relative;
   border-radius: 0.5rem;
@@ -197,7 +198,6 @@ const BannerHelpContainer = styled.div`
     position: absolute;
     background-image: url(${bricksNSP});
     background-repeat: no-repeat;
-    // transform: rotate(-9deg);
     transform: scaleX(-1);
   }
 `;
@@ -409,18 +409,19 @@ const ToolsPage = () => {
 
       <BlockContent>
         {categories.map((category) => (
-          <>
-            <Subtitle key={category.id}>{category.name}</Subtitle>
+          <React.Fragment key={category.id}>
+            <Subtitle>{category.name}</Subtitle>
             <ListItemAction>
-              {pages[category.id]?.map((page) => (
+              {pages[category.id]?.map((page, id) => (
                 <ItemAction
+                  key={id}
                   image={page.img}
                   title={page.title}
                   href={page.link}
                 />
               ))}
             </ListItemAction>
-          </>
+          </React.Fragment>
         ))}
       </BlockContent>
 
@@ -440,8 +441,8 @@ const ToolsPage = () => {
       </BlockTitle>
 
       <BlockContent>
-        {WEBSITES.map((w) => (
-          <ItemWebsite img={w.img} href={w.href} title={w.title} />
+        {WEBSITES.map((w, id) => (
+          <ItemWebsite key={id} img={w.img} href={w.href} title={w.title} />
         ))}
       </BlockContent>
 
