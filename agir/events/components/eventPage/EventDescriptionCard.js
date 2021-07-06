@@ -87,7 +87,7 @@ const EventDescriptionCard = ({
 }) => {
   return (
     <>
-      {description ? (
+      {description || illustration?.banner ? (
         <StyledCard>
           <DescriptionSection>
             <b>L'événement</b>
@@ -108,17 +108,21 @@ const EventDescriptionCard = ({
               </DescriptionSection>
             )}
 
-            <Collapsible
-              dangerouslySetInnerHTML={{ __html: description }}
-              fadingOverflow
-            />
+            {description && (
+              <Collapsible
+                dangerouslySetInnerHTML={{ __html: description }}
+                fadingOverflow
+              />
+            )}
+
             <Spacer />
             {isOrganizer && endTime > DateTime.local() && (
               <StyledActionButtons>
-                <StyledButton as="a" href={routes.edit}>
-                  Modifier la description
-                </StyledButton>
-
+                {description && (
+                  <StyledButton as="a" href={routes.edit}>
+                    Modifier la description
+                  </StyledButton>
+                )}
                 {!illustration?.banner ? (
                   <StyledButton as="a" href={routes.edit}>
                     Ajouter une image d'illustration
