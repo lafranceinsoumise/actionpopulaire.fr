@@ -242,6 +242,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
         ):
             routes["createEvent"] = f'{front_url("create_event")}?group={str(obj.pk)}'
+            routes["createSpendingRequest"] = front_url(
+                "create_spending_request", kwargs={"group_id": obj.pk}
+            )
             routes["settings"] = front_url("view_group_settings", kwargs={"pk": obj.pk})
             routes["edit"] = front_url(
                 "view_group_settings_general", kwargs={"pk": obj.pk}
@@ -273,9 +276,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         ):
             routes["animation"] = front_url(
                 "view_group_settings_management", kwargs={"pk": obj.pk}
-            )
-            routes["createSpendingRequest"] = front_url(
-                "create_spending_request", kwargs={"group_id": obj.pk}
             )
             routes[
                 "animationChangeRequest"
