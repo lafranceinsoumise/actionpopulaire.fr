@@ -1,19 +1,19 @@
 import { Interval } from "luxon";
-import React from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Card from "@agir/front/genericComponents/Card";
-import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
+import { Column, Row } from "@agir/front/genericComponents/grid";
 import {
   IconList,
   IconListItem,
 } from "@agir/front/genericComponents/FeatherIcon";
 import Map from "@agir/carte/common/Map";
 
-import { displayInterval } from "@agir/lib/utils/time";
+import { dateFromISOString, displayInterval } from "@agir/lib/utils/time";
 
 import googleLogo from "./assets/Google.svg";
 import outlookLogo from "./assets/Outlook.svg";
@@ -80,9 +80,25 @@ const EventLocationCard = ({
   subtype,
   isStatic,
   hideMap,
+  timezone,
 }) => {
-  let interval = displayInterval(schedule);
-  interval = interval.charAt(0).toUpperCase() + interval.slice(1);
+  const { interval, localInterval } = useMemo(() => {
+    let interval = displayInterval(schedule);
+    interval = interval.charAt(0).toUpperCase() + interval.slice(1);
+
+    let localInterval = null;
+    if (schedule.start.zoneName !== timezone) {
+      localInterval = Interval.fromDateTimes(
+        dateFromISOString(schedule.start.toISO(), timezone),
+        dateFromISOString(schedule.end.toISO(), timezone)
+      );
+      localInterval = displayInterval(localInterval);
+      localInterval =
+        localInterval.charAt(0).toUpperCase() + localInterval.slice(1);
+      localInterval = localInterval !== interval ? localInterval : null;
+    }
+    return { interval, localInterval };
+  }, [schedule, timezone]);
 
   return (
     <StyledCard>
@@ -112,7 +128,14 @@ const EventLocationCard = ({
       ) : null}
       <div>
         <IconList>
-          <IconListItem name="clock">{interval}</IconListItem>
+          <IconListItem name="clock">
+            {interval}
+            {localInterval && (
+              <span style={{ display: "block", color: "#999999" }}>
+                {localInterval} ({timezone})
+              </span>
+            )}
+          </IconListItem>
           {location && (location.name || location.address) && (
             <IconListItem name="map-pin">
               <WithLinebreak>
@@ -161,6 +184,7 @@ const EventLocationCard = ({
   );
 };
 EventLocationCard.propTypes = {
+  timezone: PropTypes.string,
   schedule: PropTypes.instanceOf(Interval),
   location: PropTypes.shape({
     name: PropTypes.string,

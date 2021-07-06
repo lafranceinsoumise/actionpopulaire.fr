@@ -422,7 +422,6 @@ const EventForm = () => {
       <DateField
         startTime={formData.startTime}
         endTime={formData.endTime}
-        $
         timezone={formData.timezone}
         error={
           errors && (errors.startTime || errors.endTime || errors.timezone)

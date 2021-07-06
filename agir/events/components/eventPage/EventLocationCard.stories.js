@@ -39,6 +39,7 @@ const Template = decorateArgs(
 
 export const Default = Template.bind({});
 Default.args = {
+  timezone: "Europe/Paris",
   startTime: DateTime.local().plus({ days: 1 }).toMillis(),
   duration: 2,
   locationName: "Place de la République",
