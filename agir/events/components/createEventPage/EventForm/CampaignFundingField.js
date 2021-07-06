@@ -29,6 +29,10 @@ const CampaignFundingField = (props) => {
     onChange(noSpending && willSendDocuments);
   }, [onChange, noSpending, willSendDocuments]);
 
+  useEffect(() => {
+    setWillSendDocuments(needsDocuments ? false : true);
+  }, [needsDocuments]);
+
   return (
     <StyledCampaignFundingField>
       <div style={{ paddingBottom: ".5rem" }}>
