@@ -17,6 +17,7 @@ const StyledField = styled.label`
   font-size: 1rem;
   line-height: 1.5;
   cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
+  font-weight: 400;
 
   input {
     position: absolute;
@@ -47,7 +48,7 @@ const StyledField = styled.label`
       if ($disabled) {
         return style.black100;
       }
-      return style.white;
+      return "transparent";
     }};
     transition: all 200ms ease-in;
   }
@@ -59,16 +60,30 @@ const StyledField = styled.label`
 
   ${StyledLabel} {
     flex: 1 1 auto;
-    font-weight: 400;
+    font-weight: inherit;
     color: ${({ $disabled }) => ($disabled ? style.black500 : style.black1000)};
   }
 `;
 
 const CheckboxField = (props) => {
-  const { id, onChange, value = false, label, ...rest } = props;
+  const {
+    id,
+    onChange,
+    value = false,
+    label,
+    className,
+    style,
+    ...rest
+  } = props;
 
   return (
-    <StyledField htmlFor={id} $checked={!!value} $disabled={rest.disabled}>
+    <StyledField
+      style={style}
+      className={className}
+      htmlFor={id}
+      $checked={!!value}
+      $disabled={rest.disabled}
+    >
       <input
         {...rest}
         type="checkbox"
@@ -98,6 +113,8 @@ CheckboxField.propTypes = {
   id: PropTypes.string,
   label: PropTypes.node,
   disabled: PropTypes.bool,
+  style: PropTypes.object,
+  className: PropTypes.string,
 };
 
 export default CheckboxField;

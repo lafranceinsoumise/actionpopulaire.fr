@@ -26,6 +26,7 @@ import DateField from "./DateField";
 import SubtypeField from "./SubtypeField";
 import ContactField from "./ContactField";
 import OnlineUrlField from "./OnlineUrlField";
+import CampaignFundingField from "./CampaignFundingField";
 
 const StyledGlobalError = styled.p`
   padding: 0 0 1rem;
@@ -166,6 +167,7 @@ const EventForm = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [newEventPk, setNewEventPk] = useState(null);
+  const [campaignFunding, setCampaignFunding] = useState(false);
 
   const history = useHistory();
   const { search } = useLocation();
@@ -489,10 +491,23 @@ const EventForm = () => {
         />
       </fieldset>
       <Spacer size="2rem" />
+      <CampaignFundingField
+        onChange={setCampaignFunding}
+        disabled={isLoading}
+        groupPk={formData?.organizerGroup?.id}
+        isCertified={!!formData?.organizerGroup?.is2022Certified}
+        needsDocuments={!!formData?.subtype?.needsDocuments}
+      />
+      <Spacer size="1rem" />
       {errors && errors.global && (
         <StyledGlobalError>{errors.global}</StyledGlobalError>
       )}
-      <Button disabled={isLoading} type="submit" color="secondary" block>
+      <Button
+        disabled={!campaignFunding || isLoading}
+        type="submit"
+        color="secondary"
+        block
+      >
         Créer l'événement
       </Button>
       <p>
