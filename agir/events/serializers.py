@@ -277,7 +277,7 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
             ).active(),
             context=self.context,
             many=True,
-            fields=["id", "name", "contact", "location"],
+            fields=["id", "name", "contact", "location", "is2022Certified"],
         ).data
 
     def get_subtype(self, request):
