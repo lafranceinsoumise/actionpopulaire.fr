@@ -36,7 +36,7 @@ from agir.lib.utils import generate_token_params
 from . import metrics
 from .model_fields import MandatesField, ValidatedPhoneNumberField
 from .person_forms.models import *
-from ..groups.models import SupportGroup
+from ..groups.models import SupportGroup, Membership
 from ..lib.display import genrer
 from ..lib.model_fields import ChoiceArrayField
 
@@ -662,11 +662,10 @@ class Person(
 
     @property
     def number_of_groups_animated(self):
-        anime = 0
-        for g in SupportGroup.objects.all():
-            if self in g.managers:
-                anime += 1
-        return anime
+        return SupportGroup.objects.filter(
+            memberships__person=self,
+            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        ).count()
 
 
 class PersonTag(AbstractLabel):
