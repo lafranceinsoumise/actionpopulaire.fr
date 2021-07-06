@@ -111,8 +111,14 @@ class AnimateMoreThanOneGroup(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == "animate_more_than_one_group":
-            return queryset.annotate(animated_groups=models.Count("memberships", filter=models.Q(
-                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER))).filter(animated_groups__gt=1)
+            return queryset.annotate(
+                animated_groups=models.Count(
+                    "memberships",
+                    filter=models.Q(
+                        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
+                    ),
+                )
+            ).filter(animated_groups__gt=1)
 
 
 @admin.register(Person)
