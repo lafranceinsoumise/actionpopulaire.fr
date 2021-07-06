@@ -47,6 +47,11 @@ const BlockContent = styled.div`
 const Title = styled.div`
   font-weight: 700;
   font-size: 26px;
+
+  @media (max-width: ${style.collapse}px) {
+    font-size: 20px;
+    font-weight: 600;
+  }
 `;
 
 const Subtitle = styled.div`
@@ -122,6 +127,7 @@ const ItemWebsiteContainer = styled.div`
   color: ${style.black1000};
 
   > div:first-child {
+    display: flex;
     width: 113px;
     ${({ img }) => `
       background-image: url(${img});
@@ -131,12 +137,37 @@ const ItemWebsiteContainer = styled.div`
   }
 
   > div:last-child {
-    flex-grow: 1;
-    justify-content: center;
     align-items: center;
     display: flex;
+
+    justify-content: space-between;
+    flex-grow: 1;
+    padding: 20px;
   }
 `;
+
+const WEBSITES = [
+  {
+    title: "Mélenchon 2022",
+    img: img_JLM_2022,
+    href: nonReactRoutes.jlm2022,
+  },
+  {
+    title: "L'avenir en commun",
+    img: img_AvenirEnCommun,
+    href: nonReactRoutes.programme,
+  },
+  {
+    title: "L'insoumission",
+    img: img_Linsoumission,
+    href: nonReactRoutes.linsoumission,
+  },
+  {
+    title: "Comparateur de programme",
+    img: img_Comparateur,
+    href: nonReactRoutes.comparateur,
+  },
+];
 
 const ItemAction = ({ image, title, href }) => {
   return (
@@ -187,33 +218,19 @@ const ItemWebsite = ({ img, href, title }) => (
   <Link href={href}>
     <ItemWebsiteContainer img={img}>
       <div />
-      <div>{title}</div>
+      <div>
+        <div>{title}</div>
+        <div>
+          <RawFeatherIcon
+            name="arrow-right"
+            color={style.black1000}
+            width="1.25rem"
+          />
+        </div>
+      </div>
     </ItemWebsiteContainer>
   </Link>
 );
-
-const WEBSITES = [
-  {
-    title: "Mélenchon 2022",
-    img: img_JLM_2022,
-    href: nonReactRoutes.jlm2022,
-  },
-  {
-    title: "L'avenir en commun",
-    img: img_AvenirEnCommun,
-    href: nonReactRoutes.programme,
-  },
-  {
-    title: "L'insoumission",
-    img: img_Linsoumission,
-    href: nonReactRoutes.linsoumission,
-  },
-  {
-    title: "Comparateur de programme",
-    img: img_Comparateur,
-    href: nonReactRoutes.comparateur,
-  },
-];
 
 const ToolsPage = () => {
   const [categories, setCategories] = useState([]);
@@ -225,7 +242,7 @@ const ToolsPage = () => {
 
     // Add featured image to pages
     let pages = [];
-    let requests = data.map(async (p) => {
+    const requests = data.map(async (p) => {
       const imageUrl = `https://infos.actionpopulaire.fr/wp-json/wp/v2/media/${p.featured_media}`;
       return axios.get(imageUrl).then((res) => {
         pages.push({
@@ -253,7 +270,7 @@ const ToolsPage = () => {
 
     // Fill Pages by categories
     let pagesSorted = [];
-    let requests = data.map(async (c) => {
+    const requests = data.map(async (c) => {
       return getPagesByCategory(c.id).then((data) => {
         pagesSorted[c.id] = data;
       });
@@ -306,7 +323,6 @@ const ToolsPage = () => {
         {categories.map((category) => (
           <>
             <Subtitle key={category.id}>{category.name}</Subtitle>
-
             <ListItemAction>
               {pages[category.id]?.map((page) => (
                 <ItemAction
