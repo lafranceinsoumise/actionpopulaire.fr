@@ -375,7 +375,7 @@ const ToolsPage = () => {
         <BannerTool />
       </Hide>
 
-      {/* TO ADD LATER 
+      {/* TO ADD LATER :
         <BlockTitle>
         <div>
           <RawFeatherIcon name="shopping-bag" color={style.black1000} />
@@ -391,9 +391,6 @@ const ToolsPage = () => {
 
       <Hide over>
         <LinkMaterial />
-      </Hide>
-
-      <Hide over>
         <hr />
       </Hide> */}
 

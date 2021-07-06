@@ -351,30 +351,31 @@ const Navigation = ({ active }) => {
   return (
     <BottomBar>
       <Menu>
-        {CONFIG.menuLinks.map((link) =>
-          link.href || routes[link.route] || link.to ? (
-            <MenuLink
-              {...link}
-              key={link.id}
-              active={active === link.id}
-              href={link.href || routes[link.route]}
-              to={
-                link.to && routeConfig[link.to]
-                  ? routeConfig[link.to].getLink()
-                  : undefined
-              }
-              counter={
-                link.unreadMessageCounter
-                  ? unreadMessageCount
-                  : link.unreadActivityBadge
-                  ? unreadActivityCount
-                  : undefined
-              }
-              secondaryLinks={
-                link.secondaryLinks && routes[link.secondaryLinks]
-              }
-            />
-          ) : null
+        {CONFIG.menuLinks.map(
+          (link) =>
+            (link.href || routes[link.route] || link.to) && (
+              <MenuLink
+                {...link}
+                key={link.id}
+                active={active === link.id}
+                href={link.href || routes[link.route]}
+                to={
+                  link.to && routeConfig[link.to]
+                    ? routeConfig[link.to].getLink()
+                    : undefined
+                }
+                counter={
+                  link.unreadMessageCounter
+                    ? unreadMessageCount
+                    : link.unreadActivityBadge
+                    ? unreadActivityCount
+                    : undefined
+                }
+                secondaryLinks={
+                  link.secondaryLinks && routes[link.secondaryLinks]
+                }
+              />
+            )
         )}
       </Menu>
     </BottomBar>
@@ -386,21 +387,22 @@ export const SecondaryNavigation = () => {
   return (
     <SecondaryMenu style={{ padding: 0 }}>
       <SecondaryMenuItem key="title">LIENS</SecondaryMenuItem>
-      {CONFIG.secondaryLinks.map((link) =>
-        link.href || routes[link.route] || routeConfig[link.to] ? (
-          <SecondaryMenuItem key={link.id}>
-            <Link
-              href={link.href || routes[link.route]}
-              to={
-                link.to && routeConfig[link.to]
-                  ? routeConfig[link.to].getLink()
-                  : undefined
-              }
-            >
-              {link.title}
-            </Link>
-          </SecondaryMenuItem>
-        ) : null
+      {CONFIG.secondaryLinks.map(
+        (link) =>
+          (link.href || routes[link.route] || routeConfig[link.to]) && (
+            <SecondaryMenuItem key={link.id}>
+              <Link
+                href={link.href || routes[link.route]}
+                to={
+                  link.to && routeConfig[link.to]
+                    ? routeConfig[link.to].getLink()
+                    : undefined
+                }
+              >
+                {link.title}
+              </Link>
+            </SecondaryMenuItem>
+          )
       )}
     </SecondaryMenu>
   );

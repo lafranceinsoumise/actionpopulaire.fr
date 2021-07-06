@@ -211,6 +211,7 @@ Layout.defaultProps = {
     events: "/evenements",
     groups: "/mes-groupes",
     activity: "/activite",
+    tools: "/outils",
   },
   desktopOnlyFooter: true,
   hasBanner: false,

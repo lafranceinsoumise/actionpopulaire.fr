@@ -108,12 +108,11 @@ const Page = (props) => {
   if (!routeConfig.hasLayout) {
     return (
       <ErrorBoundary>
-        {routeConfig.hideTopBar ? null : <TopBar path={pathname} />}
-
+        {!routeConfig.hideTopBar && <TopBar path={pathname} />}
         {!routeConfig.hideTopBar && isBannerDownload && <Spacer size="80px" />}
 
         <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
-          {routeConfig.hideConnectivityWarning ? null : (
+          {!routeConfig.hideConnectivityWarning && (
             <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
           )}
           <Suspense fallback={<div />}>
@@ -123,7 +122,7 @@ const Page = (props) => {
               {...rest}
               data={[]}
             />
-            {routeConfig.hideFeedbackButton ? null : (
+            {!routeConfig.hideFeedbackButton && (
               <FeedbackButton style={{ bottom: "1rem" }} />
             )}
           </Suspense>
@@ -134,13 +133,12 @@ const Page = (props) => {
 
   return (
     <ErrorBoundary>
-      {routeConfig.hideTopBar ? null : <TopBar path={pathname} />}
-
+      {!routeConfig.hideTopBar && <TopBar path={pathname} />}
       {!routeConfig.hideTopBar && isBannerDownload && <Spacer size="80px" />}
-
-      {routeConfig.hideConnectivityWarning ? null : (
+      {!routeConfig.hideConnectivityWarning && (
         <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
       )}
+
       <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
         <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
           <Suspense fallback={<div />}>
@@ -150,7 +148,7 @@ const Page = (props) => {
               {...rest}
               data={[]}
             />
-            {routeConfig.hideFeedbackButton ? null : <FeedbackButton />}
+            {!routeConfig.hideFeedbackButton && <FeedbackButton />}
           </Suspense>
         </Layout>
       </StyledPage>
