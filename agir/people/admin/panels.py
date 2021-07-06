@@ -13,6 +13,7 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from django.core.exceptions import PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
+from django.db.models import Count, Max, Func, Value, Q
 from django.db.models.functions import Concat, Substr
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
@@ -112,9 +113,9 @@ class AnimateMoreThanOneGroup(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() == "animate_more_than_one_group":
             return queryset.annotate(
-                animated_groups=models.Count(
+                animated_groups=Count(
                     "memberships",
-                    filter=models.Q(
+                    filter=Q(
                         memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
                     ),
                 )
