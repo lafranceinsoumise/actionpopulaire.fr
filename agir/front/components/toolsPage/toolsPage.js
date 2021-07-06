@@ -187,7 +187,8 @@ const BannerHelpContainer = styled.div`
     padding: 24px;
   }
 
-  div {
+  ::after {
+    content: url(${bricksNSP});
     @media (max-width: ${style.collapse}px) {
       display: none;
     }
@@ -196,8 +197,6 @@ const BannerHelpContainer = styled.div`
     width: 530px;
     height: 100%;
     position: absolute;
-    background-image: url(${bricksNSP});
-    background-repeat: no-repeat;
     transform: scaleX(-1);
   }
 `;
@@ -285,7 +284,6 @@ const BannerHelp = () => (
         width="1.25rem"
       />
     </StyledButton>
-    <div />
   </BannerHelpContainer>
 );
 
