@@ -7,7 +7,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:ci": "cross-env CI=true jest --coverage --ci --maxWorkers=2 --reporters=default",
-    "build": "webpack --config webpack.production.js",
+    "build": "node ./webpack.production.js",
     "build:dev": "webpack --config webpack.dev.js",
     "watch": "webpack serve --config webpack.dev.js",
     "watch:chill": "webpack serve --config webpack.dev.js --name chill",
@@ -143,6 +143,5 @@
     "webpack-stats-plugin": "^1.0.3",
     "webpackbar": "5.0.0-3",
     "workbox-webpack-plugin": "^6.1.5"
-  },
-  "browserslist": "> 0.5% in FR, last 2 versions, Firefox ESR, not dead, not IE 11"
+  }
 }
