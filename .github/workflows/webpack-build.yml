@@ -30,13 +30,21 @@ jobs:
       - name: Install node dependencies
         run: npm ci
 
-      - name: Build bundles
+      - name: Build staging bundles
         run: npm run build
+        if: ${{ github.ref != 'refs/heads/production'}}
         env:
-          BABEL_CACHE_DIRECTORY: ~/.babel-cache
-          WEBPUSH_PUBLIC_KEY: "dummy"
+          WEBPUSH_PUBLIC_KEY: "${{ secrets.WEBPUSH_PUBLIC_KEY }}"
+          SENTRY_ENV: "staging"
+
+      - name: Build production bundles
+        run: npm run build
+        if: ${{ github.ref == 'refs/heads/production'}}
+        env:
+          WEBPUSH_PUBLIC_KEY: "${{ secrets.WEBPUSH_PUBLIC_KEY }}"
+          SENTRY_ENV: "production"
 
       - uses: actions/upload-artifact@v2
         with:
-          name: assets-${{ github.sha }}
+          name: assets
           path: assets/
