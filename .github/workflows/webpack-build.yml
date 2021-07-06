@@ -51,3 +51,6 @@ jobs:
         with:
           name: assets
           path: assets/
+
+      - name: Tell the team
+        run: curl -s "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}\&text=Build%20${{ github.sha }}%20terminé"
