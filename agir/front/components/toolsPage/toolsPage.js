@@ -67,7 +67,7 @@ const StyledButton = styled(Button)`
   height: 40px;
   font-size: 1rem;
   font-weight: 500;
-  border-radius: 0.5rem;
+  border-radius: ${(props) => props.theme.borderRadius};
 
   ${RawFeatherIcon} {
     margin-left: 4px;
@@ -76,7 +76,7 @@ const StyledButton = styled(Button)`
 
 const ItemActionContainer = styled.div`
   box-shadow: 0px 0px 2px rgb(0 0 0 / 50%), 0px 3px 3px rgb(0 35 44 / 10%);
-  border-radius: 0.5rem;
+  border-radius: ${(props) => props.theme.borderRadius};
   overflow: hidden;
   width: 340px;
   display: inline-flex;
@@ -122,7 +122,7 @@ const ItemWebsiteContainer = styled.div`
   height: 65px;
   max-width: 388px;
   width: 100%;
-  border-radius: 0.5rem;
+  border-radius: ${(props) => props.theme.borderRadius};
   box-shadow: 0px 0px 2px rgb(0 0 0 / 50%), 0px 3px 3px rgb(0 35 44 / 10%);
   margin-right: 1.5rem;
   margin-bottom: 1rem;
@@ -160,7 +160,7 @@ const BannerToolContainer = styled.div`
   margin-bottom: 48px;
   overflow: hidden;
   position: relative;
-  border-radius: 0.5rem;
+  border-radius: ${(props) => props.theme.borderRadius};
 
   div {
     top: 60px;
@@ -180,7 +180,7 @@ const BannerHelpContainer = styled.div`
   font-weight: 700;
   overflow: hidden;
   position: relative;
-  border-radius: 0.5rem;
+  border-radius: ${(props) => props.theme.borderRadius};
   padding: 47px;
 
   @media (max-width: ${style.collapse}px) {

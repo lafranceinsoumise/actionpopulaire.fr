@@ -64,14 +64,6 @@
       "external": true
     },
     {
-      "id": "menu",
-      "icon": "more-horizontal",
-      "title": "Plus",
-      "to": "menu",
-      "desktop": false,
-      "mobile": false
-    },
-    {
       "id": "settings",
       "icon": "settings",
       "title": "Paramètres",
