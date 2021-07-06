@@ -660,13 +660,6 @@ class Person(
         """Simple raccourci pour vérifier les permissions"""
         return self.role.has_perm(perm, obj)
 
-    @property
-    def number_of_groups_animated(self):
-        return SupportGroup.objects.filter(
-            memberships__person=self,
-            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-        ).count()
-
 
 class PersonTag(AbstractLabel):
     """
