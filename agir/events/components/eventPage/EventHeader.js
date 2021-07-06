@@ -229,7 +229,7 @@ const ActionButtons = (props) => {
             </StyledButton>
           )}
           {allowGuests && (hasSubscriptionForm || hasPrice) && (
-            <ActionButton as="a" href={routes.rsvp} type="submit">
+            <ActionButton as="Link" href={routes.rsvp}>
               Ajouter une personne
             </ActionButton>
           )}
