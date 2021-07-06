@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
-
 import axios from "@agir/lib/utils/axios";
 import style from "@agir/front/genericComponents/_variables.scss";
+import styled from "styled-components";
+
 import { Hide } from "@agir/front/genericComponents/grid";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
-
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
@@ -16,7 +15,9 @@ import img_Linsoumission from "@agir/front/genericComponents/logos/Linsoumission
 import img_Comparateur from "@agir/front/genericComponents/logos/Comparateur.jpg";
 import bricksNSP from "@agir/front/genericComponents/images/login_bg_desktop.svg";
 
+import Navigation from "@agir/front/dashboardComponents/Navigation";
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const Container = styled.div`
   padding: 25px 85px;
@@ -82,6 +83,7 @@ const ItemActionContainer = styled.div`
   flex-direction: column;
   margin-right: 1.5rem;
   margin-bottom: 1rem;
+  margin-top: 1px;
   color: ${style.black1000};
 
   > div:first-child {
@@ -223,17 +225,6 @@ const WEBSITES = [
   },
 ];
 
-const ItemAction = ({ image, title, href }) => {
-  return (
-    <Link href={href}>
-      <ItemActionContainer img={image}>
-        <div />
-        <div dangerouslySetInnerHTML={{ __html: title }}></div>
-      </ItemActionContainer>
-    </Link>
-  );
-};
-
 const LinkInfoAction = () => (
   <StyledButton
     small
@@ -277,7 +268,7 @@ const BannerTool = () => (
 
 const BannerHelp = () => (
   <BannerHelpContainer>
-    Une question&nbsp;? Un problème&nbsp;? Pas&nbsp;de&nbsp;panique&nbsp;!
+    Une question&nbsp;? Un&nbsp;problème&nbsp;? Pas&nbsp;de&nbsp;panique&nbsp;!
     <br />
     <Spacer size="30px" />
     <StyledButton
@@ -297,6 +288,17 @@ const BannerHelp = () => (
     <div />
   </BannerHelpContainer>
 );
+
+const ItemAction = ({ image, title, href }) => {
+  return (
+    <Link href={href}>
+      <ItemActionContainer img={image}>
+        <div />
+        <div dangerouslySetInnerHTML={{ __html: title }}></div>
+      </ItemActionContainer>
+    </Link>
+  );
+};
 
 const ItemWebsite = ({ img, href, title }) => (
   <Link href={href}>
@@ -457,6 +459,10 @@ const ToolsPage = () => {
       <BannerHelp />
 
       <Spacer size="100px" />
+
+      <Hide over>
+        <Navigation active={routeConfig.tools.id} />
+      </Hide>
     </Container>
   );
 };

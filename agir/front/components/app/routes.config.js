@@ -257,7 +257,7 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Outils",
     Component: ToolsPage,
-    // hasLayout: true,
+    hideFeedbackButton: true,
   }),
   notificationSettings: notificationSettingRoute,
   menu: new RouteConfig({
