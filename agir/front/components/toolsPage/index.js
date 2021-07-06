@@ -4,15 +4,17 @@ import styled from "styled-components";
 import axios from "@agir/lib/utils/axios";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { Hide } from "@agir/front/genericComponents/grid";
+import Button from "@agir/front/genericComponents/Button";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import Link from "@agir/front/app/Link";
-import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import img_JLM_2022 from "@agir/front/genericComponents/logos/JLM_2022.jpg";
 import img_AvenirEnCommun from "@agir/front/genericComponents/logos/AvenirEnCommun.jpg";
 import img_Linsoumission from "@agir/front/genericComponents/logos/Linsoumission.jpg";
 import img_Comparateur from "@agir/front/genericComponents/logos/Comparateur.jpg";
+import bricksNSP from "@agir/front/genericComponents/images/login_bg_desktop.svg";
 
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 
@@ -104,7 +106,6 @@ const ItemActionContainer = styled.div`
 
 const ListItemAction = styled.div`
   display: flex;
-  // flex-wrap: wrap;
   max-width: 100%;
   overflow-y: hidden;
   overflow-x: auto;
@@ -143,6 +144,59 @@ const ItemWebsiteContainer = styled.div`
     justify-content: space-between;
     flex-grow: 1;
     padding: 20px;
+  }
+`;
+
+const BannerToolContainer = styled.div`
+  width: 100%;
+  background-color: ${style.primary500};
+  color: white;
+  font-size: 48px;
+  font-weight: 700;
+  padding: 42px;
+  height: 138px;
+  overflow: hidden;
+  position: relative;
+  border-radius: 0.5rem;
+
+  div {
+    top: 60px;
+    right: -64px;
+    width: 600px;
+    height: 170px;
+    position: absolute;
+    background-color: ${style.redNSP};
+    transform: rotate(-9deg);
+  }
+`;
+
+const BannerHelpContainer = styled.div`
+  width: 100%;
+  background-color: ${style.secondary100};
+  font-size: 20px;
+  font-weight: 700;
+  overflow: hidden;
+  position: relative;
+  border-radius: 0.5rem;
+  padding: 47px;
+
+  @media (max-width: ${style.collapse}px) {
+    padding: 24px;
+  }
+
+  div {
+    @media (max-width: ${style.collapse}px) {
+      display: none;
+    }
+    bottom: -38px;
+    right: 0;
+    width: 530px;
+    height: 100%;
+    position: absolute;
+    background-image: url(${bricksNSP});
+    background-repeat: no-repeat;
+    // transform: rotate(-9deg);
+    transform: scaleX(-1);
   }
 `;
 
@@ -212,6 +266,36 @@ const LinkMaterial = () => (
       width="1.25rem"
     />
   </StyledButton>
+);
+
+const BannerTool = () => (
+  <BannerToolContainer>
+    Outils
+    <div />
+  </BannerToolContainer>
+);
+
+const BannerHelp = () => (
+  <BannerHelpContainer>
+    Une question&nbsp;? Un problème&nbsp;? Pas&nbsp;de&nbsp;panique&nbsp;!
+    <br />
+    <Spacer size="30px" />
+    <StyledButton
+      small
+      as="Link"
+      color="secondary"
+      href="https://infos.actionpopulaire.fr"
+      target="_blank"
+    >
+      Accéder au centre d'aide
+      <RawFeatherIcon
+        name="arrow-up-right"
+        color={style.black1000}
+        width="1.25rem"
+      />
+    </StyledButton>
+    <div />
+  </BannerHelpContainer>
 );
 
 const ItemWebsite = ({ img, href, title }) => (
@@ -287,7 +371,12 @@ const ToolsPage = () => {
 
   return (
     <Container>
-      <BlockTitle>
+      <Hide under>
+        <BannerTool />
+      </Hide>
+
+      {/* TO ADD LATER 
+        <BlockTitle>
         <div>
           <RawFeatherIcon name="shopping-bag" color={style.black1000} />
           <Title>Commandez du matériel</Title>
@@ -306,7 +395,7 @@ const ToolsPage = () => {
 
       <Hide over>
         <hr />
-      </Hide>
+      </Hide> */}
 
       <BlockTitle>
         <div>
@@ -368,7 +457,9 @@ const ToolsPage = () => {
         </div>
       </BlockTitle>
 
-      <BlockContent></BlockContent>
+      <BannerHelp />
+
+      <Spacer size="100px" />
     </Container>
   );
 };
