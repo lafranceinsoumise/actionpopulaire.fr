@@ -25,6 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.authentication.models import Role
 from agir.elus.models import types_elus
+from agir.groups.models import SupportGroup
 from agir.lib.admin import (
     DisplayContactPhoneMixin,
     CenterOnFranceMixin,
@@ -97,6 +98,25 @@ class SegmentFilter(AutocompleteFilter):
 class TagListFilter(AutocompleteFilter):
     field_name = "tags"
     title = "Tags"
+
+
+class AnimateMoreThanOneGroup(admin.SimpleListFilter):
+    title = "Cette personne annime plus d'un groupe d'action"
+    parameter_name = "Person who animate more than one group"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("animate_more_than_one_group", "Anime plus d'un groupe"),
+            ("", ""),
+        )
+
+    def queryset(self, request, queryset):
+        result = []
+        if self.value() == "animate_more_than_one_group":
+            for p in queryset:
+                if p.number_of_groups_animated > 1:
+                    result.append(p.pk)
+            return Person.objects.filter(pk__in=result)
 
 
 @admin.register(Person)
@@ -189,6 +209,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "draw_participation",
         "gender",
         TagListFilter,
+        AnimateMoreThanOneGroup,
     )
 
     inlines = (RSVPInline, MembershipInline, EmailInline)

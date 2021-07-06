@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
 from agir.authentication.models import Role
+from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person
 
 
@@ -105,6 +106,29 @@ class BasicPersonTestCase(TestCase):
     def test_default_display_name_is_set_upon_creation_based_on_email(self):
         person = Person.objects.create_insoumise("test1@domain.com")
         self.assertEqual(person.display_name, "TE")
+
+    def test__person_animate_zero_groups(self):
+        person = Person.objects.create_insoumise("test1@domain.com")
+        self.assertEqual(person.number_of_groups_animated, 0)
+
+    def test__person_animate_multiple_groups(self):
+        person = Person.objects.create_insoumise("test1@domain.com")
+        supportgroup = SupportGroup.objects.create(name="Test")
+        supportgroup2 = SupportGroup.objects.create(name="Test2")
+
+        Membership.objects.create(
+            supportgroup=supportgroup,
+            person=person,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+
+        Membership.objects.create(
+            supportgroup=supportgroup2,
+            person=person,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+
+        self.assertEqual(person.number_of_groups_animated, 2)
 
 
 class ContactPhoneTestCase(TestCase):
