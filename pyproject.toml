@@ -22,7 +22,7 @@ django-dynamic-filenames = "==1.*"  # better handling of upload path for file fi
 unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
 ## additional features
 django-crispy-forms = "==1.*" # better forms
-django-otp = "==0.7.*"  # 2FA in admin
+django-otp = "==1.0.*"  # 2FA in admin
 django-filter = "==2.*"  # add useful filters
 django-oauth-toolkit = "==1.*"  # add OAuth server
 rules = "==3.*"  # add useful authorization rules
