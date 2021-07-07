@@ -20,26 +20,28 @@ import onDOMReady from "@agir/lib/utils/onDOMReady";
  * Par défaut tinymce inclue les fichiers de skin
  */
 require.context(
-  "file-loader?name=[path][name].[ext]&outputPath=front&context=node_modules/tinymce!tinymce/skins",
+  "file-loader?name=[path][name].[ext]&context=node_modules/tinymce!tinymce/skins",
   true,
   /.*/
 );
 
-const initRichEditor = () => {
-  if (window.AgirRichEditor) {
-    return;
-  }
-  tinymce.init({
-    selector: "textarea.richeditorwidget",
-    plugins: "link autolink image lists",
-    toolbar: "bold italic | formatselect | link image | bullist numlist",
-    menubar: false,
-    statusbar: false,
-    language: "fr_FR",
-    block_formats: "Paragraphe=p;Titre=h2;Sous-titre=h3;Petit titre=h4",
-  });
+const config = {
+  selector: "textarea.richeditorwidget",
+  plugins: "link autolink image lists",
+  toolbar: "bold italic | formatselect | link image | bullist numlist",
+  menubar: false,
+  statusbar: false,
+  language: "fr_FR",
+  block_formats: "Paragraphe=p;Titre=h2;Sous-titre=h3;Petit titre=h4",
+  skin: "oxide",
+  skin_url: "/static/components/skins/ui/oxide",
+};
 
-  window.AgirRichEditor = 1;
+const initRichEditor = () => {
+  if (!window.AgirRichEditor) {
+    tinymce.init(config);
+    window.AgirRichEditor = 1;
+  }
 };
 
 onDOMReady(initRichEditor);
