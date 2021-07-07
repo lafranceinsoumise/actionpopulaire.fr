@@ -128,14 +128,26 @@ const EventLocationCard = ({
       ) : null}
       <div>
         <IconList>
-          <IconListItem name="clock">
-            {interval}
-            {localInterval && (
-              <span style={{ display: "block", color: "#999999" }}>
-                {localInterval} ({timezone})
+          {localInterval ? (
+            <IconListItem name="clock">
+              <strong>({schedule.start.zoneName})</strong>
+              <br />
+              {interval}
+              <span
+                style={{
+                  paddingTop: 4,
+                  display: "block",
+                  color: style.black500,
+                }}
+              >
+                <strong>({timezone})</strong>
+                <br />
+                {localInterval}
               </span>
-            )}
-          </IconListItem>
+            </IconListItem>
+          ) : (
+            <IconListItem name="clock">{interval}</IconListItem>
+          )}
           {location && (location.name || location.address) && (
             <IconListItem name="map-pin">
               <WithLinebreak>
