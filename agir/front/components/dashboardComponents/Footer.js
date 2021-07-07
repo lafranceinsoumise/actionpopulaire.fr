@@ -19,7 +19,6 @@ import LogoAP from "@agir/front/genericComponents/LogoAP";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import footerBanner from "./images/footer-banner.jpg";
-import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import { useMobileApp } from "@agir/front/app/hooks";
 
 const FooterForm = styled.div`
@@ -370,16 +369,19 @@ Footer.defaultProps = {
   hideBanner: false,
   displayOnMobileApp: false,
 };
+
 const ConnectedFooter = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const is2022 = useSelector(getIs2022);
   const routes = useSelector(getRoutes);
   const user = useSelector(getUser);
 
+  if (!isSessionLoaded) {
+    return null;
+  }
+
   return (
-    <PageFadeIn ready={isSessionLoaded}>
-      <Footer {...props} routes={routes} isSignedIn={!!user} is2022={is2022} />
-    </PageFadeIn>
+    <Footer {...props} routes={routes} isSignedIn={!!user} is2022={is2022} />
   );
 };
 export default ConnectedFooter;
