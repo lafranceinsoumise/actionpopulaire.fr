@@ -7,15 +7,15 @@ const WP_MEDIA_URL = `${WP_API_URL}media/`;
 
 const getPagesByCategory = async (id) => {
   const { data: pages } = await axios.get(`${WP_PAGE_URL}&categories=${id}`);
-  const requests = pages.map(async (p) => {
+  const requests = pages.map(async (page) => {
     const { data: media } = await axios.get(
-      `${WP_MEDIA_URL}${p.featured_media}`
+      `${WP_MEDIA_URL}${page.featured_media}`
     );
     return {
       category_id: id,
-      ...p,
+      ...page,
       img: media?.guid?.rendered,
-      title: p?.title?.rendered,
+      title: page?.title?.rendered,
     };
   });
   const responses = await Promise.all(requests);
@@ -24,11 +24,15 @@ const getPagesByCategory = async (id) => {
 
 export const getWPCategories = async () => {
   // TODO: filter by category ids in query possible ?
-  let { data: categories } = await axios.get(WP_CATEGORIES_URL);
+  let { data } = await axios.get(WP_CATEGORIES_URL);
 
   // Keep only 3 categories
-  categories = categories.filter((e) => [15, 16, 17].includes(e.id));
-  const requests = categories.map((c) => getPagesByCategory(c.id));
+  const categories = data.filter((category) =>
+    [15, 16, 17].includes(category.id)
+  );
+  const requests = categories.map((category) =>
+    getPagesByCategory(category.id)
+  );
   const responses = await Promise.all(requests);
 
   const pages = responses.reduce((pagesSorted, page) => {
