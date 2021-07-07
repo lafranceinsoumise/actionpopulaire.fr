@@ -355,7 +355,7 @@ class MandatMunicipal(MandatAbstrait):
 
 @reversion.register()
 class MandatDepartemental(MandatAbstrait):
-    DEFAULT_DATE_RANGE = DateRange(date(2015, 3, 29), date(2021, 3, 31))
+    DEFAULT_DATE_RANGE = DateRange(date(2021, 7, 1), date(2027, 3, 31))
 
     MANDAT_INCONNU = "INC"
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
@@ -458,7 +458,7 @@ class MandatDepartemental(MandatAbstrait):
 
 @reversion.register()
 class MandatRegional(MandatAbstrait):
-    DEFAULT_DATE_RANGE = DateRange(date(2015, 12, 13), date(2021, 3, 31))
+    DEFAULT_DATE_RANGE = DateRange(date(2021, 7, 1), date(2027, 3, 31))
 
     MANDAT_INCONNU = "INC"
     MANDAT_CONSEILLER_MAJORITE = "MAJ"
