@@ -5,7 +5,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
 from agir.authentication.models import Role
-from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person
 
 
