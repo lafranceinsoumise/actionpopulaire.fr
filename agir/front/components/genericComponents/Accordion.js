@@ -63,10 +63,10 @@ const Frame = styled.div`
 
 const Accordion = memo((props) => {
   const { children, icon, name, isDefaultOpen = false } = props;
-  const previous = usePrevious(isOpen);
   const [bind, { height: viewHeight }] = useMeasure();
 
   const [isOpen, setOpen] = useState(isDefaultOpen);
+  const previous = usePrevious(isOpen);
 
   const { height, opacity } = useSpring({
     from: { height: 0, opacity: 0 },
