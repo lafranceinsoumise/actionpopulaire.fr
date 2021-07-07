@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "@agir/lib/utils/axios";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
@@ -19,6 +18,7 @@ import Navigation from "@agir/front/dashboardComponents/Navigation";
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
+import { getWPCategories } from "./api.js";
 
 const Container = styled.div`
   padding: 25px 85px;
@@ -107,7 +107,16 @@ const ItemActionContainer = styled.div`
   }
 `;
 
-const ListItemAction = styled.div`
+const CarrouselContainer = styled.div`
+  height: 272px;
+  width: 80px;
+  background-color: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ListItemActionContainer = styled.div`
   display: flex;
   max-width: 100%;
   overflow-y: hidden;
@@ -295,6 +304,20 @@ const ItemAction = ({ image, title, href }) => {
   );
 };
 
+const ListItemAction = ({ pages }) => (
+  <ListItemActionContainer>
+    {pages?.map((page, id) => (
+      <ItemAction
+        key={id}
+        image={page.img}
+        title={page.title}
+        href={page.link}
+      />
+    ))}
+    {/* <CarrouselContainer /> */}
+  </ListItemActionContainer>
+);
+
 const ItemWebsite = ({ img, href, title }) => (
   <Link href={href}>
     <ItemWebsiteContainer img={img}>
@@ -318,53 +341,12 @@ const ToolsPage = () => {
   const [pages, setPages] = useState([]);
   const isDesktop = useIsDesktop();
 
-  const getPagesByCategory = async (id) => {
-    const url = `https://infos.actionpopulaire.fr/wp-json/wp/v2/pages?per_page=100&_fields=categories,title,link,featured_media&categories=${id}`;
-    const { data } = await axios.get(url);
-
-    // Add featured image to pages
-    let pages = [];
-    const requests = data.map(async (p) => {
-      const imageUrl = `https://infos.actionpopulaire.fr/wp-json/wp/v2/media/${p.featured_media}`;
-      return axios.get(imageUrl).then((res) => {
-        pages.push({
-          ...p,
-          img: res.data.guid.rendered,
-          title: p.title.rendered,
-        });
-      });
-    });
-
-    return Promise.all(requests).then(() => {
-      return pages;
-    });
-  };
-
-  const getWPCategories = async () => {
-    // TODO: filter by categories in query possible ?
-    const url =
-      "https://infos.actionpopulaire.fr/wp-json/wp/v2/categories/?per_page=100";
-    let { data } = await axios.get(url);
-
-    // Get only categories 15, 16, 17
-    data = data.filter((e) => ([15, 16, 17].includes(e.id) ? e : null));
-    setCategories(data);
-
-    // Fill Pages by categories
-    let pagesSorted = [];
-    const requests = data.map(async (c) => {
-      return getPagesByCategory(c.id).then((data) => {
-        pagesSorted[c.id] = data;
-      });
-    });
-
-    Promise.all(requests).then(() => {
-      setPages(pagesSorted);
-    });
-  };
-
   useEffect(() => {
-    getWPCategories();
+    (async () => {
+      const [categories, pages] = await getWPCategories();
+      setCategories(categories);
+      setPages(pages);
+    })();
   }, []);
 
   return (
@@ -407,16 +389,7 @@ const ToolsPage = () => {
         {categories.map((category) => (
           <React.Fragment key={category.id}>
             <Subtitle>{category.name}</Subtitle>
-            <ListItemAction>
-              {pages[category.id]?.map((page, id) => (
-                <ItemAction
-                  key={id}
-                  image={page.img}
-                  title={page.title}
-                  href={page.link}
-                />
-              ))}
-            </ListItemAction>
+            <ListItemAction pages={pages[category.id]} />
           </React.Fragment>
         ))}
       </BlockContent>
