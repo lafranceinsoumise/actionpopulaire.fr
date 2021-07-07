@@ -36,7 +36,6 @@ from agir.lib.utils import generate_token_params
 from . import metrics
 from .model_fields import MandatesField, ValidatedPhoneNumberField
 from .person_forms.models import *
-from ..groups.models import SupportGroup, Membership
 from ..lib.display import genrer
 from ..lib.model_fields import ChoiceArrayField
 
