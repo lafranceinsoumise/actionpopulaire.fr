@@ -24,6 +24,7 @@ from django.views.generic import (
     DetailView,
 )
 from django.views.generic.detail import SingleObjectMixin
+from PIL import Image, ImageDraw
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
@@ -72,6 +73,19 @@ __all__ = [
 
 # PUBLIC VIEWS
 # ============
+
+class EventThumbnailView(View):
+
+    def get(self, request, *args, **kwargs):
+        image = self.generate_thumbnail()
+        response = HttpResponse(mimetype="image/png")
+        image.save(response, "PNG")
+        return response
+
+    def generate_thumbnail():
+        image = Image.new("RGB", (int(1200), int(630)), "#707070")
+        draw = ImageDraw.Draw(image)
+        return image
 
 
 class EventSearchView(FilterView):
