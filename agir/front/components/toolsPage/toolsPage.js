@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
@@ -83,7 +83,7 @@ const ItemActionContainer = styled.div`
   display: inline-flex;
   flex-direction: column;
   margin-right: 1.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 2px;
   margin-top: 1px;
   color: ${style.black1000};
 
@@ -107,20 +107,63 @@ const ItemActionContainer = styled.div`
   }
 `;
 
-const CarrouselContainer = styled.div`
-  height: 272px;
-  width: 80px;
-  background-color: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7));
+const CarrouselArrow = styled.div`
+  z-index: 5;
+  ${({ toRight }) =>
+    toRight
+      ? `
+  right: 0px;
+  background : linear-gradient(270deg, rgba(0, 10, 44, 0.75) -34.62%, rgba(79, 79, 79, 0.627155) 21.79%, rgba(79, 79, 79, 0.365386) 47.12%, rgba(79, 79, 79, 0) 94.23%);
+  `
+      : `
+  left: 0px;
+  background: linear-gradient(270deg, rgba(0, 10, 44, 0.75) -32.05%, rgba(79, 79, 79, 0.627155) 19.23%, rgba(79, 79, 79, 0.248871) 61.54%, rgba(79, 79, 79, 0) 100%);
+  `};
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
+  top: 0px;
+  height: 100%;
+  width: 80px;
+  cursor: pointer;
+
+  ${RawFeatherIcon} {
+    color: white;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    display: none;
+  }
 `;
 
 const ListItemActionContainer = styled.div`
   display: flex;
+  position: relative;
   max-width: 100%;
-  overflow-y: hidden;
   overflow-x: auto;
+
+  @media (min-width: ${style.collapse}px) {
+    overflow-y: hidden;
+    overflow: hidden;
+  }
+
+  div:first-child {
+    margin-left: 2px;
+  }
+`;
+
+const Carrousel = styled.div`
+  display: flex;
+  position: relative;
+  max-width: 100%;
+  overflow-x: auto;
+
+  @media (min-width: ${style.collapse}px) {
+    overflow-y: hidden;
+    overflow: hidden;
+  }
 
   div:first-child {
     margin-left: 2px;
@@ -304,19 +347,89 @@ const ItemAction = ({ image, title, href }) => {
   );
 };
 
-const ListItemAction = ({ pages }) => (
-  <ListItemActionContainer>
-    {pages?.map((page, id) => (
-      <ItemAction
-        key={id}
-        image={page.img}
-        title={page.title}
-        href={page.link}
-      />
-    ))}
-    {/* <CarrouselContainer /> */}
-  </ListItemActionContainer>
-);
+const ListItemAction = ({ pages }) => {
+  const containerRef = useRef(null);
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+
+  const handleScroll = (direction) => {
+    const containerSize = containerRef.current?.offsetWidth;
+    let position = (position = containerRef.current.scrollLeft - containerSize);
+    if (direction == "right")
+      position = containerRef.current.scrollLeft + containerSize;
+    containerRef.current.scrollTo({
+      top: 0,
+      left: position,
+      behavior: "smooth",
+    });
+    setTimeout(() => {
+      updateCarrousel();
+    }, 600);
+  };
+
+  const updateCarrousel = () => {
+    const containerSize = containerRef.current?.offsetWidth;
+    const children = containerRef.current.querySelectorAll("a");
+    const childrenSize = Array.from(children).reduce(
+      (size, element) => size + element.offsetWidth,
+      0
+    );
+    const scrollLeft = containerRef.current.scrollLeft;
+
+    if (childrenSize <= containerSize) {
+      setShowLeftScroll(false);
+      setShowRightScroll(false);
+      return;
+    }
+
+    if (scrollLeft <= 0) {
+      setShowLeftScroll(false);
+      setShowRightScroll(true);
+      return;
+    }
+    if (scrollLeft + containerSize >= childrenSize) {
+      setShowLeftScroll(true);
+      setShowRightScroll(false);
+      return;
+    }
+
+    if (scrollLeft > 0) setShowLeftScroll(true);
+    if (scrollLeft + containerSize < childrenSize) setShowRightScroll(true);
+  };
+
+  useEffect(() => {
+    updateCarrousel();
+  }, [pages, containerRef]);
+
+  // if (!pages) return null;
+
+  return (
+    <ListItemActionContainer>
+      {showLeftScroll && (
+        <CarrouselArrow toRight={false} onClick={() => handleScroll("left")}>
+          <RawFeatherIcon name="chevron-left" />
+        </CarrouselArrow>
+      )}
+
+      <Carrousel ref={containerRef}>
+        {pages?.map((page, id) => (
+          <ItemAction
+            key={id}
+            image={page.img}
+            title={page.title}
+            href={page.link}
+          />
+        ))}
+      </Carrousel>
+
+      {showRightScroll && (
+        <CarrouselArrow toRight={true} onClick={() => handleScroll("right")}>
+          <RawFeatherIcon name="chevron-right" />
+        </CarrouselArrow>
+      )}
+    </ListItemActionContainer>
+  );
+};
 
 const ItemWebsite = ({ img, href, title }) => (
   <Link href={href}>
