@@ -96,6 +96,33 @@ class MembersFilter(admin.SimpleListFilter):
             )
 
 
+class TooMuchMembersFilter(admin.SimpleListFilter):
+    MEMBERS_LIMIT = models.SupportGroup.MEMBERSHIP_LIMIT
+
+    title = "Groupe d'action avec trop de membres ({} actuellement)".format(
+        MEMBERS_LIMIT
+    )
+    parameter_name = "group with too much members"
+
+    def lookups(self, request, model_admin):
+        return (
+            (
+                "less_than_{}_members".format(self.MEMBERS_LIMIT),
+                "Moins de {} membres".format(self.MEMBERS_LIMIT),
+            ),
+            (
+                "more_than_{}_members".format(self.MEMBERS_LIMIT),
+                "Plus de {} membres".format(self.MEMBERS_LIMIT),
+            ),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "less_than_{}_members".format(self.MEMBERS_LIMIT):
+            return queryset.filter(membership_count__lt=self.MEMBERS_LIMIT)
+        if self.value() == "more_than_{}_members".format(self.MEMBERS_LIMIT):
+            return queryset.filter(membership_count__gte=self.MEMBERS_LIMIT)
+
+
 @admin.register(models.SupportGroup)
 class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     form = SupportGroupAdminForm
@@ -192,6 +219,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "type",
         "subtypes",
         "tags",
+        TooMuchMembersFilter,
     )
 
     search_fields = ("name", "description", "location_city")

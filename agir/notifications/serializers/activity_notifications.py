@@ -1,12 +1,10 @@
 from django.template.defaultfilters import date as _date
-from django.utils.timezone import get_current_timezone
 from rest_framework import serializers
 
 from agir.activity.models import Activity
 from agir.lib.serializers import FlexibleFieldsMixin
 from agir.lib.utils import front_url
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
-
 
 __all__ = ["ACTIVITY_NOTIFICATION_SERIALIZERS"]
 
@@ -251,8 +249,7 @@ class NewEventMyGroupsActivityNotificationSerializer(ActivityNotificationSeriali
     title = serializers.SerializerMethodField()
 
     def get_title(self, activity):
-        tz = get_current_timezone()
-        start_time = activity.event.start_time.astimezone(tz)
+        start_time = activity.event.local_start_time
         return f"📆 {activity.event.name}, {start_time.strftime('%d/%m')} à {start_time.strftime('%H:%M')}"
 
     def get_body(self, activity):
@@ -266,8 +263,7 @@ class NewEventMyGroupsActivityNotificationSerializer(ActivityNotificationSeriali
 
 class NewReportActivityNotificationSerializer(ActivityNotificationSerializer):
     def get_body(self, activity):
-        tz = get_current_timezone()
-        start_time = activity.event.start_time.astimezone(tz)
+        start_time = activity.event.local_start_time
         return f"Le compte-rendu de {activity.event.name} du {start_time.strftime('%d/%m')} a été ajouté"
 
     def get_url(self, activity):
@@ -429,8 +425,7 @@ class EventSuggestionNotificationSerializer(ActivityNotificationSerializer):
     title = serializers.SerializerMethodField()
 
     def get_title(self, activity):
-        tz = get_current_timezone()
-        start_time = activity.event.start_time.astimezone(tz)
+        start_time = activity.event.local_start_time
         return f"📆 Ce {_date(start_time, 'l')} : passez à l'action !"
 
     def get_body(self, activity):

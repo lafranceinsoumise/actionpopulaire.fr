@@ -4,7 +4,7 @@ import StaticMap from "./StaticMap";
 
 export default {
   component: StaticMap,
-  title: "Map/StaticMap",
+  title: "OpenLayersMap/StaticMap",
 };
 
 const Template = (args) => {

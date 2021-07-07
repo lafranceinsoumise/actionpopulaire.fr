@@ -13,7 +13,9 @@ const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
 const CreateEvent = lazy(() =>
   import("@agir/events/createEventPage/CreateEvent")
 );
-const EventSettings = lazy(() => import("@agir/events/EventSettings"));
+const EventSettings = lazy(() =>
+  import("@agir/events/EventSettings/EventSettings")
+);
 
 const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
 const FullGroupPage = lazy(() =>
@@ -26,7 +28,9 @@ const GroupMessagePage = lazy(() =>
 );
 const GroupMap = lazy(() => import("@agir/carte/page__groupMap/GroupMap"));
 
-const ActivityPage = lazy(() => import("@agir/activity/ActivityPage"));
+const ActivityPage = lazy(() =>
+  import("@agir/activity/ActivityPage/ActivityPage")
+);
 
 const ToolsPage = lazy(() => import("@agir/front/toolsPage/toolsPage"));
 
@@ -52,7 +56,7 @@ const TellMorePage = lazy(() =>
 const LogoutPage = lazy(() =>
   import("@agir/front/authentication/Connexion/Logout")
 );
-const MessagePage = lazy(() => import("@agir/msgs/MessagePage"));
+const MessagePage = lazy(() => import("@agir/msgs/MessagePage/MessagePage"));
 
 export const BASE_PATH = "/";
 

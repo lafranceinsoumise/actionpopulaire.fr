@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { getMessageSubject } from "@agir/msgs/utils";
+import { getMessageSubject } from "@agir/msgs/common/utils";
 import { timeAgo } from "@agir/lib/utils/time";
 
 import Avatar from "@agir/front/genericComponents/Avatar";

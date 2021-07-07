@@ -17,7 +17,7 @@ import Link from "@agir/front/app/Link";
 import { routeConfig } from "@agir/front/app/routes.config";
 import CONFIG from "@agir/front/dashboardComponents/navigation.config";
 
-import { useUnreadMessageCount } from "@agir/msgs/hooks";
+import { useUnreadMessageCount } from "@agir/msgs/common/hooks";
 import { useUnreadActivityCount } from "@agir/activity/common/hooks";
 
 const BottomBar = styled.nav`

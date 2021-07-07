@@ -90,6 +90,7 @@ class ImageSizeWarningTestCase(TestCase):
             "name": "enter event name here",
             "start_time": start_str,
             "end_time": end_str,
+            "timezone": timezone.get_default_timezone().zone,
             "contact_email": "a@ziefzji.fr",
             "contact_phone": "06 06 06 06 06",
             "location_name": "somewhere",

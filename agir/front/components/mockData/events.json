@@ -8,6 +8,7 @@
     "compteRendu": "",
     "compteRenduPhotos": [],
     "illustration": null,
+    "timezone": "Europe/Paris",
     "startTime": "2021-01-09T10:04:19.429049+01:00",
     "endTime": "2021-01-09T13:04:19.429049+01:00",
     "location": {
@@ -80,6 +81,7 @@
     "compteRendu": "",
     "compteRenduPhotos": [],
     "illustration": null,
+    "timezone": "Europe/Lisbon",
     "startTime": "2021-01-09T10:04:19.393624+01:00",
     "endTime": "2021-01-09T13:04:19.393624+01:00",
     "location": {

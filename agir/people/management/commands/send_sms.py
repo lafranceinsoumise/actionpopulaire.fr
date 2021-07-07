@@ -4,7 +4,6 @@ from pathlib import Path
 
 from django.contrib.gis.db.models.functions import Distance as DistanceFunction
 from django.core.management.base import BaseCommand, CommandError
-from django.utils import timezone
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import number_type, PhoneNumberType
 from tqdm import tqdm
@@ -117,11 +116,7 @@ class Command(BaseCommand):
 
             self.stdout.write(f"Événement : {event.name}")
             self.stdout.write(event.short_location())
-            self.stdout.write(
-                event.start_time.astimezone(timezone.get_default_timezone()).strftime(
-                    "Le %d/%m/%Y à %H:%M"
-                )
-            )
+            self.stdout.write(event.local_start_time.strftime("Le %d/%m/%Y à %H:%M"))
             self.stdout.write("\n")  # ligne vide
 
         if coordinates:  # two case : central point coordinates or any other

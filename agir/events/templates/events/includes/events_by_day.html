@@ -1,3 +1,5 @@
+{%  load tz %}
+
 <div class="list-group">
   {% regroup events by start_time.date as events_days %}
   {% for day, day_events in events_days %}
@@ -19,9 +21,12 @@
                 &bull; <a href="{% url "manage_event" event.pk %}">Gestion</a>
               </small>
             </strong>
-          {% if event.organizers_groups|length > 0 %}(organisé par
-                  {{ event.organizers_groups.all|join:', ' }}){% endif %}
-            <div>{{ event.start_time|date:"H:i" }} - {{ event.short_location }}</div>
+            {% if event.organizers_groups|length > 0 %}(organisé par
+              {{ event.organizers_groups.all|join:', ' }})
+            {% endif %}
+            {% localtime off %}
+              <div>{{ event.local_start_time|date:"H:i" }} - {{ event.short_location }}</div>
+            {% endlocaltime %}
           </div>
         </div>
       </div>

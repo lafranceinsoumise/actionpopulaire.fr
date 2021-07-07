@@ -12,6 +12,7 @@ import Card from "@agir/front/genericComponents/Card";
 import Collapsible from "@agir/front/genericComponents/Collapsible.js";
 import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import Link from "@agir/front/app/Link";
 
 const GroupIcon = styled.div`
@@ -72,6 +73,10 @@ const StyledGroupButton = styled(Button)`
   font-weight: 500;
   border-radius: ${style.borderRadius};
   margin-top: 16px;
+
+  && + && {
+    margin-left: 0;
+  }
 `;
 
 let GroupButton = ({
@@ -195,39 +200,51 @@ const GroupCard = ({
         </DiscountCodesSection>
       )}
       <Row gutter={6} style={{ marginTop: "1.5rem" }}>
-        {!isEmbedded && !isMember && (
+        {[
+          !isEmbedded && !isMember && (
+            <StyledGroupButton
+              key="join"
+              color="primary"
+              as="Link"
+              to={routeConfig.groupDetails.getLink({ groupPk: id })}
+            >
+              Rejoindre
+              <Hide as="span" under={800}>
+                &nbsp;le groupe
+              </Hide>
+            </StyledGroupButton>
+          ),
           <StyledGroupButton
-            color="primary"
             as="Link"
+            key="browse"
+            color="default"
             to={routeConfig.groupDetails.getLink({ groupPk: id })}
           >
-            Rejoindre
-            <Hide as="span" under={800}>
-              &nbsp;le groupe
-            </Hide>
-          </StyledGroupButton>
-        )}
-        <StyledGroupButton
-          as="Link"
-          color="default"
-          to={routeConfig.groupDetails.getLink({ groupPk: id })}
-        >
-          Voir le groupe
-        </StyledGroupButton>
-        {routes.fund && (
-          <GroupButton href={routes.fund} icon="fast-forward">
-            Financer
-          </GroupButton>
-        )}
-        {isManager && (
-          <StyledGroupButton
-            as="Link"
-            to={routeConfig.groupSettings.getLink({ groupPk: id })}
-            icon="settings"
-          >
-            Gestion
-          </StyledGroupButton>
-        )}
+            Voir le groupe
+          </StyledGroupButton>,
+          routes.fund && (
+            <GroupButton key="fund" href={routes.fund} icon="fast-forward">
+              Financer
+            </GroupButton>
+          ),
+          isManager && (
+            <StyledGroupButton
+              key="manage"
+              as="Link"
+              to={routeConfig.groupSettings.getLink({ groupPk: id })}
+              icon="settings"
+            >
+              Gestion
+            </StyledGroupButton>
+          ),
+        ]
+          .filter(Boolean)
+          .map((button, i) => (
+            <React.Fragment key={button.key + i}>
+              {i > 0 && <Spacer size="0.5rem" />}
+              {button}
+            </React.Fragment>
+          ))}
       </Row>
       {displayMembership && isMember && (
         <div style={{ marginTop: "1em" }}>

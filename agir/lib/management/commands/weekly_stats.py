@@ -48,22 +48,24 @@ class Command(BaseCommand):
         )
 
         print("**\nI) Signataires**")
-        print_stock("Signataires NSP", "soutiens_NSP")
-        print_stock("dont insoumis", "soutiens_NSP_insoumis")
-        print_stock("dont non insoumis", "soutiens_NSP_non_insoumis")
+        print_stock("Signataires 2022", "soutiens_2022")
+        print_stock("dont insoumis", "soutiens_2022_insoumis")
+        print_stock("dont non insoumis", "soutiens_2022_non_insoumis")
 
         print("**\nII) Email**")
-        print_flux("Total insoumis (signataires NSP) ayant ouvert un email", "news_LFI")
+        print_flux(
+            "Total insoumis (signataires 2022) ayant ouvert un email", "news_LFI"
+        )
         print(
             f"Taux d'ouverture Insoumis : {main_week_stats['taux_news_LFI'] : > .2f} % / "
             f"{previous_week_stats['taux_news_LFI'] : > .2f} % / {twelveweeksstats['taux_news_LFI'] : > .2f} %"
         )
         print_flux(
-            "Total signataires NSP (non-insoumis) ayant ouvert un email", "news_NSP"
+            "Total signataires 2022 (non-insoumis) ayant ouvert un email", "news_2022"
         )
         print(
-            f"Taux d'ouverture NSP : {main_week_stats['taux_news_NSP'] : > .2f} % / "
-            f"{previous_week_stats['taux_news_NSP'] : > .2f} % / {twelveweeksstats['taux_news_NSP'] : > .2f} %"
+            f"Taux d'ouverture 2022 : {main_week_stats['taux_news_2022'] : > .2f} % / "
+            f"{previous_week_stats['taux_news_2022'] : > .2f} % / {twelveweeksstats['taux_news_2022'] : > .2f} %"
         )
         print("**Emails de la semaine**")
         for c in Campaign.objects.filter(created__range=(start, end)):
@@ -80,22 +82,20 @@ class Command(BaseCommand):
         print("**\nIII) Action populaire**")
         print_flux("Connexions", "ap_users")
         print_flux("Dont insoumis", "ap_users_LFI")
-        print_flux("Dont NSP (non LFI)", "ap_users_NSP")
+        print_flux("Dont 2022 (non LFI)", "ap_users_2022")
         print_flux("Événements", "ap_events")
-        print_flux("de la FI", "ap_events_LFI")
-        print_flux("de la campagne", "ap_events_NSP")
 
         print("**\nIV) Groupes**")
-        print_stock("Groupes d'actions LFI", "ga_LFI")
-        print(f"dont certifiés : {instant_stats['ga_LFI_certifies']}")
-        print_stock("Membres de GA LFI", "membres_ga_LFI")
-        print(f"dont de GA certifiés : {instant_stats['membres_ga_LFI_certifies']}")
+        print_stock("Groupes d'actions", "ga")
+        print(f"dont certifiés : {instant_stats['ga_certifies']}")
+        print_stock("Membres de GA", "membres_ga")
+        print(f"dont de GA certifiés : {instant_stats['membres_ga_certifies']}")
 
         print("**\nV) Progression possible**")
-        print(f"Insoumis non NSP : {instant_stats['insoumis_non_NSP']}")
+        print(f"Insoumis non 2022 : {instant_stats['insoumis_non_2022']}")
         print(
-            f"dont mails ouvert 3 derniers mois : {instant_stats['insoumis_non_NSP_newsletter']}"
+            f"dont mails ouvert 3 derniers mois : {instant_stats['insoumis_non_2022_newsletter']}"
         )
         print(
-            f"dont contactables par SMS : environ {instant_stats['insoumis_non_NSP_phone']}"
+            f"dont contactables par SMS : environ {instant_stats['insoumis_non_2022_phone']}"
         )

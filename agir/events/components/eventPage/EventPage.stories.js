@@ -2,13 +2,12 @@ import React from "react";
 import { DateTime } from "luxon";
 
 import { EventPage } from "./EventPage";
+
 import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
-import { Default as DescriptionStory } from "./EventDescription.stories";
-import { Default as EventInfoStory } from "./EventInfoCard.stories";
-import { Default as GroupCardStory } from "@agir/groups/groupComponents/GroupCard.stories";
-import { Default as ContactCardStory } from "@agir/front/genericComponents/ContactCard.stories";
 import TopBar from "@agir/front/allPages/TopBar";
-import { decorateArgs, reorganize } from "@agir/lib/utils/storyUtils";
+import { decorateArgs } from "@agir/lib/utils/storyUtils";
+
+import events from "@agir/front/mockData/events";
 
 export default {
   component: EventPage,
@@ -57,27 +56,12 @@ const testGlobalRoutes = { login: "#login", join: "#signin" };
 const defaultStartTime = DateTime.local().plus({ days: 2 });
 const defaultEndTime = defaultStartTime.plus({ hours: 2 });
 
-const Template = decorateArgs(
-  reorganize({
-    location: { name: "locationName", address: "locationAddress" },
-  }),
-  EventPage
-);
+const Template = decorateArgs(EventPage);
 
 export const Default = Template.bind({});
 Default.args = {
-  id: "12343432423",
-  name: "Super événement",
-  ...DescriptionStory.args,
-  ...EventInfoStory.args,
-  isOrganizer: false,
-  rsvp: "CO",
-  groups: [{ ...GroupCardStory.args }],
-  contact: { ...ContactCardStory.args },
+  ...events[0],
   startTime: defaultStartTime.toISO(),
   endTime: defaultEndTime.toISO(),
-  options: { price: null },
   routes: testAppRoutes,
-  locationName: "Place de la République",
-  locationAddress: "Place de la République\n75011 Paris",
 };

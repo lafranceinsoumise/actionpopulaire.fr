@@ -41,7 +41,6 @@ import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
-import Map from "@agir/carte/common/Map";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage.js";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
@@ -182,10 +181,9 @@ const MobileLayout = (props) => {
           </>
         ) : hasMap ? (
           <ClickableMap
-            center={location.coordinates.coordinates}
             location={location}
             zoom={11}
-            subtype={subtype}
+            iconConfiguration={subtype}
           />
         ) : null}
       </StyledMap>
@@ -196,6 +194,7 @@ const MobileLayout = (props) => {
               <EventHeader {...props} />
             </Card>
             <EventLocationCard
+              timezone={props.timezone}
               schedule={props.schedule}
               location={location}
               routes={routes}
