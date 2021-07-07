@@ -18,6 +18,7 @@ import bricksNSP from "@agir/front/genericComponents/images/login_bg_desktop.svg
 import Navigation from "@agir/front/dashboardComponents/Navigation";
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 import { routeConfig } from "@agir/front/app/routes.config";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 const Container = styled.div`
   padding: 25px 85px;
@@ -162,7 +163,8 @@ const BannerToolContainer = styled.div`
   position: relative;
   border-radius: ${(props) => props.theme.borderRadius};
 
-  div {
+  ::after {
+    content: "";
     top: 60px;
     right: -64px;
     width: 600px;
@@ -258,12 +260,7 @@ const LinkMaterial = () => (
   </StyledButton>
 );
 
-const BannerTool = () => (
-  <BannerToolContainer>
-    Outils
-    <div />
-  </BannerToolContainer>
-);
+const BannerTool = () => <BannerToolContainer>Outils</BannerToolContainer>;
 
 const BannerHelp = () => (
   <BannerHelpContainer>
@@ -319,6 +316,7 @@ const ItemWebsite = ({ img, href, title }) => (
 const ToolsPage = () => {
   const [categories, setCategories] = useState([]);
   const [pages, setPages] = useState([]);
+  const isDesktop = useIsDesktop();
 
   const getPagesByCategory = async (id) => {
     const url = `https://infos.actionpopulaire.fr/wp-json/wp/v2/pages?per_page=100&_fields=categories,title,link,featured_media&categories=${id}`;
@@ -459,9 +457,7 @@ const ToolsPage = () => {
 
       <Spacer size="100px" />
 
-      <Hide over>
-        <Navigation active={routeConfig.tools.id} />
-      </Hide>
+      {!isDesktop && <Navigation active={routeConfig.tools.id} />}
     </Container>
   );
 };
