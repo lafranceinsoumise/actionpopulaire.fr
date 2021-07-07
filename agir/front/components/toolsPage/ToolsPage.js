@@ -354,7 +354,7 @@ const ListItemAction = ({ pages }) => {
 
   const handleScroll = (direction) => {
     const containerSize = containerRef.current?.offsetWidth;
-    let position = (position = containerRef.current.scrollLeft - containerSize);
+    let position = containerRef.current.scrollLeft - containerSize;
     if (direction == "right")
       position = containerRef.current.scrollLeft + containerSize;
     containerRef.current.scrollTo({

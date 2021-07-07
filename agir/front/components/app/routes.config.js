@@ -32,7 +32,7 @@ const ActivityPage = lazy(() =>
   import("@agir/activity/ActivityPage/ActivityPage")
 );
 
-const ToolsPage = lazy(() => import("@agir/front/toolsPage/toolsPage"));
+const ToolsPage = lazy(() => import("@agir/front/toolsPage/ToolsPage"));
 
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
