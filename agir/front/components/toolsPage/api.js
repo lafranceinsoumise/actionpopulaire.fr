@@ -6,14 +6,16 @@ const WP_PAGE_URL = `${WP_API_URL}pages?per_page=100&_fields=categories,title,li
 const WP_MEDIA_URL = `${WP_API_URL}media/`;
 
 const getPagesByCategory = async (id) => {
-  const { data } = await axios.get(`${WP_PAGE_URL}&categories=${id}`);
-  const requests = data.map(async (p) => {
-    const res = await axios.get(`${WP_MEDIA_URL}${p.featured_media}`);
+  const { data: pages } = await axios.get(`${WP_PAGE_URL}&categories=${id}`);
+  const requests = pages.map(async (p) => {
+    const { data: media } = await axios.get(
+      `${WP_MEDIA_URL}${p.featured_media}`
+    );
     return {
       category_id: id,
       ...p,
-      img: res.data.guid.rendered,
-      title: p.title.rendered,
+      img: media?.guid?.rendered,
+      title: p?.title?.rendered,
     };
   });
   const responses = await Promise.all(requests);
@@ -22,11 +24,10 @@ const getPagesByCategory = async (id) => {
 
 export const getWPCategories = async () => {
   // TODO: filter by category ids in query possible ?
-  let { data } = await axios.get(WP_CATEGORIES_URL);
+  let { data: categories } = await axios.get(WP_CATEGORIES_URL);
 
-  // Get only categories 15, 16, 17
-  const categories = data.filter((e) => [15, 16, 17].includes(e.id));
-
+  // Keep only 3 categories
+  categories = categories.filter((e) => [15, 16, 17].includes(e.id));
   const requests = categories.map((c) => getPagesByCategory(c.id));
   const responses = await Promise.all(requests);
 
