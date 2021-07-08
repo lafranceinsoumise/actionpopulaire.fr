@@ -213,10 +213,8 @@ class TransitionView(FormHandlerView):
             comment = f"{transition.nom} ({etat_actuel.label} => {etat_suivant.label})"
             reversion.set_user(request.user)
             reversion.set_comment(comment)
-            self.object.etat = transition.vers
-            if transition.effect is not None:
-                transition.effect(self.object)
-            self.object.save(update_fields=["etat"])
+            transition.appliquer(self.object)
+            self.object.save()
 
             LogEntry.objects.log_action(
                 user_id=request.user.id,

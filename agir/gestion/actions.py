@@ -96,3 +96,11 @@ class Transition(Generic[T, E]):
             return self.condition.explication
 
         return None
+
+    def appliquer(self, instance: T):
+        if self.effect:
+            self.effect(instance)
+
+        instance.etat = self.vers
+
+        return ins
