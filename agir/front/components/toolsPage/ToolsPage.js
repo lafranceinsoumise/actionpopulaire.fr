@@ -351,21 +351,7 @@ const ListItemAction = ({ pages }) => {
   const containerRef = useRef(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
-
-  const handleScroll = (direction) => {
-    const containerSize = containerRef.current?.offsetWidth;
-    let position = containerRef.current.scrollLeft - containerSize;
-    if (direction == "right")
-      position = containerRef.current.scrollLeft + containerSize;
-    containerRef.current.scrollTo({
-      top: 0,
-      left: position,
-      behavior: "smooth",
-    });
-    setTimeout(() => {
-      updateCarrousel();
-    }, 600);
-  };
+  const [isUpdateCarrousel, setUpdateCarrousel] = useState(true);
 
   const updateCarrousel = () => {
     const containerSize = containerRef.current?.offsetWidth;
@@ -397,9 +383,32 @@ const ListItemAction = ({ pages }) => {
     if (scrollLeft + containerSize < childrenSize) setShowRightScroll(true);
   };
 
+  const handleScroll = (direction) => {
+    const containerSize = containerRef.current?.offsetWidth;
+    let position = containerRef.current.scrollLeft - containerSize;
+    if (direction == "right")
+      position = containerRef.current.scrollLeft + containerSize;
+    containerRef.current.scrollTo({
+      top: 0,
+      left: position,
+      behavior: "smooth",
+    });
+    setUpdateCarrousel(true);
+  };
+
   useEffect(() => {
-    updateCarrousel();
-  }, [pages, containerRef]);
+    let timeout;
+    if (isUpdateCarrousel) {
+      timeout = setTimeout(() => {
+        updateCarrousel();
+        setUpdateCarrousel(false);
+      }, 600);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [pages, isUpdateCarrousel, containerRef]);
 
   // if (!pages) return null;
 

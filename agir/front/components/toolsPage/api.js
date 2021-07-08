@@ -18,18 +18,14 @@ const getPagesByCategory = async (id) => {
       title: page?.title?.rendered,
     };
   });
-  const responses = await Promise.all(requests);
-  return responses;
+  return await Promise.all(requests);
 };
 
 export const getWPCategories = async () => {
-  // TODO: filter by category ids in query possible ?
-  let { data } = await axios.get(WP_CATEGORIES_URL);
-
-  // Keep only 3 categories
-  const categories = data.filter((category) =>
-    [15, 16, 17].includes(category.id)
+  const { data: categories } = await axios.get(
+    `${WP_CATEGORIES_URL}&include=15,16,17`
   );
+
   const requests = categories.map((category) =>
     getPagesByCategory(category.id)
   );
