@@ -1,10 +1,12 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useRef } from "react";
-import { BottomSheet as RSBS } from "react-spring-bottom-sheet";
+import React, { useCallback, useRef, Suspense } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import "react-spring-bottom-sheet/dist/style.css";
+
+import { lazy } from "@agir/front/app/utils";
+
+const RSBS = lazy(() => import("./ReactSpringBottomSheet"));
 
 const StyledBottomSheetFooter = styled.footer`
   &::before {
@@ -69,26 +71,28 @@ export const BottomSheet = (props) => {
   );
 
   return (
-    <StyledBottomSheet
-      open={isOpen}
-      onDismiss={onDismiss}
-      onSpringStart={handleSpringStart}
-      defaultSnap={({ snapPoints, minHeight, lastSnap }) =>
-        lastSnap || Math.max(minHeight, snapPoints[0])
-      }
-      snapPoints={({ maxHeight }) => [
-        2 * (maxHeight / 3),
-        maxHeight - maxHeight / 10,
-        maxHeight / 3,
-      ]}
-      footer={
-        <StyledBottomSheetFooter>
-          <button onClick={onDismiss}>Fermer</button>
-        </StyledBottomSheetFooter>
-      }
-    >
-      <div ref={contentRef}>{children}</div>
-    </StyledBottomSheet>
+    <Suspense fallback={null}>
+      <StyledBottomSheet
+        open={isOpen}
+        onDismiss={onDismiss}
+        onSpringStart={handleSpringStart}
+        defaultSnap={({ snapPoints, minHeight, lastSnap }) =>
+          lastSnap || Math.max(minHeight, snapPoints[0])
+        }
+        snapPoints={({ maxHeight }) => [
+          2 * (maxHeight / 3),
+          maxHeight - maxHeight / 10,
+          maxHeight / 3,
+        ]}
+        footer={
+          <StyledBottomSheetFooter>
+            <button onClick={onDismiss}>Fermer</button>
+          </StyledBottomSheetFooter>
+        }
+      >
+        <div ref={contentRef}>{children}</div>
+      </StyledBottomSheet>
+    </Suspense>
   );
 };
 
