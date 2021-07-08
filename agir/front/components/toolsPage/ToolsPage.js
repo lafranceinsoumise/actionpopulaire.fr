@@ -109,17 +109,23 @@ const ItemActionContainer = styled.div`
   }
 `;
 
-const CarrouselArrow = styled.div`
+const CarrouselArrowContainer = styled.div`
   z-index: 5;
+  background: linear-gradient(
+    270deg,
+    rgba(0, 10, 44, 0.75) -34.62%,
+    rgba(79, 79, 79, 0.627155) 21.79%,
+    rgba(79, 79, 79, 0.365386) 47.12%,
+    rgba(79, 79, 79, 0) 94.23%
+  );
   ${({ toRight }) =>
     toRight
       ? `
   right: 0px;
-  background : linear-gradient(270deg, rgba(0, 10, 44, 0.75) -34.62%, rgba(79, 79, 79, 0.627155) 21.79%, rgba(79, 79, 79, 0.365386) 47.12%, rgba(79, 79, 79, 0) 94.23%);
   `
       : `
   left: 0px;
-  background: linear-gradient(270deg, rgba(0, 10, 44, 0.75) -32.05%, rgba(79, 79, 79, 0.627155) 19.23%, rgba(79, 79, 79, 0.248871) 61.54%, rgba(79, 79, 79, 0) 100%);
+  transform: rotate(-180deg);
   `};
 
   display: inline-flex;
@@ -149,10 +155,6 @@ const ListItemActionContainer = styled.div`
   @media (min-width: ${style.collapse}px) {
     overflow-y: hidden;
     overflow: hidden;
-  }
-
-  div:first-child {
-    margin-left: 2px;
   }
 `;
 
@@ -403,6 +405,15 @@ const ListItemAction = ({ pages }) => {
     setUpdateCarrousel(true);
   };
 
+  const CarrouselArrow = ({ direction }) => (
+    <CarrouselArrowContainer
+      toRight={direction === "right"}
+      onClick={() => handleScroll(direction)}
+    >
+      <RawFeatherIcon name="chevron-right" />
+    </CarrouselArrowContainer>
+  );
+
   useEffect(() => {
     let timeout;
     if (isUpdateCarrousel) {
@@ -421,11 +432,7 @@ const ListItemAction = ({ pages }) => {
 
   return (
     <ListItemActionContainer>
-      {showLeftScroll && (
-        <CarrouselArrow toRight={false} onClick={() => handleScroll("left")}>
-          <RawFeatherIcon name="chevron-left" />
-        </CarrouselArrow>
-      )}
+      {showLeftScroll && <CarrouselArrow direction="left" />}
 
       <Carrousel ref={containerRef}>
         {pages?.map((page, id) => (
@@ -438,11 +445,7 @@ const ListItemAction = ({ pages }) => {
         ))}
       </Carrousel>
 
-      {showRightScroll && (
-        <CarrouselArrow toRight={true} onClick={() => handleScroll("right")}>
-          <RawFeatherIcon name="chevron-right" />
-        </CarrouselArrow>
-      )}
+      {showRightScroll && <CarrouselArrow direction="right" />}
     </ListItemActionContainer>
   );
 };
