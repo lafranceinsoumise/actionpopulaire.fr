@@ -1,4 +1,3 @@
-import { transparentize } from "polished";
 import PropTypes from "prop-types";
 import React, { useCallback, useRef } from "react";
 import { BottomSheet as RSBS } from "react-spring-bottom-sheet";
@@ -35,7 +34,7 @@ const StyledBottomSheet = styled(RSBS)`
     z-index: ${style.zindexPanel};
   }
   [data-rsbs-backdrop] {
-    background-color: ${transparentize(0.4, style.black1000)};
+    background-color: rgba(0, 10, 44, 0.6);
   }
   [data-rsbs-footer] {
     padding: 0;

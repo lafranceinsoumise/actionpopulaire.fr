@@ -6,8 +6,6 @@ import { render, cleanup, fireEvent } from "@testing-library/react";
 
 import ActionCard from "../ActionCard";
 
-jest.mock("polished");
-
 describe("genericComponents/ActionCard", function () {
   afterEach(cleanup);
   it("should render props.text", async function () {
