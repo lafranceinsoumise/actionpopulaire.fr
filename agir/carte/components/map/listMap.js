@@ -1,5 +1,5 @@
 import Feature from "ol/Feature";
-import * as proj from "ol/proj";
+import { fromLonLat } from "ol/proj";
 import VectorSource from "ol/source/Vector";
 import axios from "axios/index";
 import Point from "ol/geom/Point";
@@ -85,7 +85,7 @@ class Display {
 
   getFeatureFor(item) {
     const feature = new Feature({
-      geometry: new Point(proj.fromLonLat(item.coordinates.coordinates)),
+      geometry: new Point(fromLonLat(item.coordinates.coordinates)),
       popupAnchor: (this.popupAnchors[item.subtype] || -5) - ARROW_SIZE,
       popupContent: this.formatPopup(item),
     });

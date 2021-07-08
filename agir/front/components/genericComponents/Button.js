@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
-import { darken, transparentize } from "polished";
 import { icons } from "feather-icons";
 import Link from "@agir/front/app/Link";
 
@@ -65,7 +64,7 @@ export const buttonColors = {
   danger: {
     $background: style.redNSP,
     $labelColor: style.white,
-    $hoverBackground: darken(0.1, style.redNSP),
+    $hoverBackground: "#d81836",
   },
 };
 
@@ -104,14 +103,14 @@ export const Button = styled.button.attrs(
   font-size: ${({ $small }) => ($small ? "0.875rem" : "1rem")};
 
   color: ${({ $labelColor, disabled }) =>
-    disabled ? transparentize(0.3, $labelColor) : $labelColor};
+    disabled && $labelColor !== style.white ? $labelColor + "4D" : $labelColor};
   background-color: ${({ $background, disabled }) =>
-    disabled ? transparentize(0.7, $background) : $background};
+    disabled && $background !== style.white ? $background + "B7" : $background};
   border: 1px solid transparent;
   border-color: ${({ $borderColor, $background, disabled }) => {
     if (!$borderColor || !$background) return "transparent";
     if ($borderColor) return $borderColor;
-    if (disabled) return transparentize(0.7, $background);
+    if (disabled && $background !== style.white) return $background + "B3";
     return $background;
   }}}
   cursor: pointer;
@@ -131,8 +130,8 @@ export const Button = styled.button.attrs(
         : `background-color: ${$hoverBackground};`} // disabled buttons must not change color on hover
     text-decoration: none;
     color: ${({ $hoverLabelColor, $labelColor, disabled }) =>
-      disabled
-        ? transparentize(0.3, $labelColor)
+      disabled && $labelColor !== style.white
+        ? $labelColor + "4D"
         : $hoverLabelColor || $labelColor};
     border-color: ${({
       $hoverBorderColor,
@@ -143,7 +142,7 @@ export const Button = styled.button.attrs(
       if (!$borderColor || !$background) return "transparent";
       if ($hoverBorderColor) return $hoverBorderColor;
       if ($borderColor) return $borderColor;
-      if (disabled) return transparentize(0.7, $background);
+      if (disabled && $background !== style.white) return $background + "B7";
       return $background;
     }}}
   }

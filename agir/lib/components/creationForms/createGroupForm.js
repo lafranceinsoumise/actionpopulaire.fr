@@ -13,7 +13,7 @@ import LocationStep from "./steps/LocationStep";
 
 import "./style.css";
 import PropTypes from "prop-types";
-import * as Sentry from "@sentry/react";
+import { captureMessage } from "@sentry/react";
 
 class CreateGroupForm extends React.Component {
   constructor(props) {
@@ -368,7 +368,7 @@ class ValidateStep extends FormStep {
                 <ul>
                   {Object.entries(this.state.error.response.data.errors).map(
                     ([field, msg]) => {
-                      Sentry.captureMessage(`ValidationError: ${field} ${msg}`);
+                      captureMessage(`ValidationError: ${field} ${msg}`);
                       return <li key={field}>{msg}</li>;
                     }
                   )}
