@@ -11,16 +11,46 @@ from agir.gestion.admin.widgets import HierarchicalSelect
 from agir.gestion.models import (
     Commentaire,
     Depense,
-    Document,
     Fournisseur,
     Projet,
     Reglement,
 )
+from agir.gestion.models.documents import Document, VersionDocument
 from agir.gestion.models.commentaires import ajouter_commentaire
 from agir.gestion.typologies import TypeDocument, TypeDepense
 
 
 class DocumentForm(forms.ModelForm):
+    titre_version = forms.CharField(label="Nom de la version", required=False,)
+    fichier = forms.FileField(label="Fichier de la version", required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data.get("titre_version") and not cleaned_data.get("fichier"):
+            self.add_error(
+                "fichier",
+                ValidationError(
+                    "Choisissez le fichier à télécharger pour cette nouvelle version.",
+                    code="fichier_manquant",
+                ),
+            )
+        elif cleaned_data.get("fichier") and not cleaned_data.get("titre_version"):
+            self.add_error(
+                "titre_version",
+                ValidationError("Indiquez le titre de la nouvelle version du fichier"),
+            )
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        if self.cleaned_data.get("fichier"):
+            VersionDocument.objects.create(
+                document=self.instance,
+                titre=self.cleaned_data["titre_version"],
+                fichier=self.cleaned_data["fichier"],
+            )
+
     class Meta:
         model = Document
         fields = ()

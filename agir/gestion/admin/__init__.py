@@ -25,16 +25,17 @@ from agir.gestion.admin.inlines import (
     ProjetDocumentInline,
     ProjetParticipationInline,
     AjouterDepenseInline,
+    VersionDocumentInline,
 )
 from agir.gestion.admin.views import AjouterReglementView, TransitionView
 from agir.gestion.models import (
     Depense,
     Projet,
     Fournisseur,
-    Document,
     Compte,
     InstanceCherchable,
 )
+from agir.gestion.models.documents import Document
 from agir.gestion.models.common import ModeleGestionMixin
 from agir.gestion.models.depenses import etat_initial
 from agir.gestion.models.virements import OrdreVirement
@@ -86,21 +87,15 @@ class DocumentAdmin(BaseAdminMixin, VersionAdmin):
         "requis",
     )
 
+    inlines = (VersionDocumentInline,)
+
     fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    "numero_",
-                    "titre",
-                    "identifiant",
-                    "type",
-                    "requis",
-                    "fichier",
-                )
-            },
-        ),
+        (None, {"fields": ("numero_", "titre", "identifiant", "type", "requis",)},),
         ("Lié à", {"fields": ["depenses", "projets"]}),
+        (
+            "Ajouter une version de ce document",
+            {"fields": ("titre_version", "fichier")},
+        ),
     )
     readonly_fields = ("depenses", "projets")
 
