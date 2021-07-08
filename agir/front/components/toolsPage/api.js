@@ -1,39 +1,44 @@
 import axios from "@agir/lib/utils/axios";
 
 const WP_API_URL = "https://infos.actionpopulaire.fr/wp-json/wp/v2/";
-const WP_CATEGORIES_URL = `${WP_API_URL}categories/?per_page=100`;
-const WP_PAGE_URL = `${WP_API_URL}pages?per_page=100&_fields=categories,title,link,featured_media`;
-const WP_MEDIA_URL = `${WP_API_URL}media/`;
+const WP_PAGE_URL = `${WP_API_URL}pages?per_page=100&&_embed=wp:term,wp:featuredmedia&categories=15,16,17`;
+const CATEGORY_LIST = [15, 16, 17];
 
-const getPagesByCategory = async (id) => {
-  const { data: pages } = await axios.get(`${WP_PAGE_URL}&categories=${id}`);
-  const requests = pages.map(async (page) => {
-    const { data: media } = await axios.get(
-      `${WP_MEDIA_URL}${page.featured_media}`
-    );
-    return {
-      category_id: id,
-      ...page,
-      img: media?.guid?.rendered,
-      title: page?.title?.rendered,
+/** return [categories, pages] */
+export const getWPPagesAndCategories = async () => {
+  const { data } = await axios.get(
+    `${WP_PAGE_URL}&categories=${CATEGORY_LIST.toString()}`
+  );
+
+  let categories = [];
+  const pages = data.reduce((pagesSorted, page) => {
+    const page_categories = page._embedded["wp:term"];
+    const filtered_categories = page_categories.reduce((res, cat) => {
+      const cat_filtered = cat.filter(
+        (c) => c.taxonomy === "category" && CATEGORY_LIST.includes(c.id),
+        []
+      );
+      return [...res, ...cat_filtered];
+    }, []);
+
+    // Add to category list
+    const category = filtered_categories[0];
+    categories[category.id] = { id: category.id, name: category.name };
+
+    const p = {
+      id: page.id,
+      title: page.title.rendered,
+      img: page._embedded["wp:featuredmedia"][0].source_url,
+      link: page.link,
+      category_id: category.id,
+      category_name: category.name,
     };
-  });
-  return await Promise.all(requests);
-};
 
-export const getWPCategories = async () => {
-  const { data: categories } = await axios.get(
-    `${WP_CATEGORIES_URL}&include=15,16,17`
-  );
+    if (!pagesSorted[category.id]) pagesSorted[category.id] = [p];
+    else pagesSorted[category.id].push(p);
 
-  const requests = categories.map((category) =>
-    getPagesByCategory(category.id)
-  );
-  const responses = await Promise.all(requests);
-
-  const pages = responses.reduce((pagesSorted, page) => {
-    pagesSorted[page[0].category_id] = page;
     return pagesSorted;
   }, []);
+
   return [categories, pages];
 };

@@ -18,7 +18,7 @@ import Navigation from "@agir/front/dashboardComponents/Navigation";
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
-import { getWPCategories } from "./api.js";
+import { getWPPagesAndCategories } from "./api.js";
 
 const Container = styled.div`
   padding: 25px 85px;
@@ -465,7 +465,7 @@ const ToolsPage = () => {
 
   useEffect(() => {
     (async () => {
-      const [categories, pages] = await getWPCategories();
+      const [categories, pages] = await getWPPagesAndCategories();
       setCategories(categories);
       setPages(pages);
     })();
