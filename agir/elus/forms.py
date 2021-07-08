@@ -35,13 +35,15 @@ class BaseMandatForm(forms.ModelForm):
         label="Dates de votre mandat",
         required=True,
         help_text="Indiquez la date de votre entrée au conseil, et la date approximative à laquelle votre"
-        " mandat devrait se finir (à moins que vous n'ayiez déjà démissionné).",
+        " mandat devrait se finir (à moins que votre mandat ne se soit déjà terminé).",
     )
 
     def __init__(self, *args, person, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.instance.person = person
+
+        self.fields["dates"].initial = self.instance._meta.get_field("dates").default
 
         if person.membre_reseau_elus == Person.MEMBRE_RESEAU_NON:
             self.fields["membre_reseau_elus"].initial = Person.MEMBRE_RESEAU_NON
