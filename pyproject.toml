@@ -33,7 +33,7 @@ djangorestframework-gis = "==0.16.*"
 ## adapters for third-party systems
 django-redis = "==4.*"
 psycopg2 = "*"
-django-prometheus = "==1.*"
+django-prometheus = "==2.*"
 # celery
 celery = "==4.*"
 celery-prometheus-exporter = "==1.*"
