@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
@@ -346,6 +348,11 @@ const ItemAction = ({ image, title, href }) => {
     </Link>
   );
 };
+ItemAction.propTypes = {
+  title: PropTypes.string.isRequired,
+  href: PropTypes.string.isRequired,
+  image: PropTypes.string.isRequired,
+};
 
 const ListItemAction = ({ pages }) => {
   const containerRef = useRef(null);
@@ -439,6 +446,18 @@ const ListItemAction = ({ pages }) => {
     </ListItemActionContainer>
   );
 };
+ListItemAction.propTypes = {
+  pages: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      title: PropTypes.string,
+      img: PropTypes.string,
+      link: PropTypes.string,
+      category_id: PropTypes.number,
+      category_name: PropTypes.string,
+    })
+  ),
+};
 
 const ItemWebsite = ({ img, href, title }) => (
   <Link href={href}>
@@ -457,6 +476,11 @@ const ItemWebsite = ({ img, href, title }) => (
     </ItemWebsiteContainer>
   </Link>
 );
+ItemWebsite.propTypes = {
+  title: PropTypes.string.isRequired,
+  href: PropTypes.string.isRequired,
+  img: PropTypes.string.isRequired,
+};
 
 const ToolsPage = () => {
   const isDesktop = useIsDesktop();
