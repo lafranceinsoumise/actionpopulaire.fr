@@ -34,11 +34,15 @@ const StyledList = styled.ul`
 `;
 
 const GroupFacts = (props) => {
-  const { facts } = props;
+  const { subtypes, facts } = props;
 
-  if (!facts || Object.values(facts).filter(Boolean).length === 0) {
+  if (
+    (!Array.isArray(subtypes) || subtypes.length === 0) &&
+    (!facts || Object.values(facts).filter(Boolean).length === 0)
+  ) {
     return null;
   }
+
   const {
     eventCount,
     memberCount,
@@ -84,6 +88,12 @@ const GroupFacts = (props) => {
             <span>Dernière activité&nbsp;: {timeAgo(lastActivityDate)}</span>
           </li>
         )}
+        {Array.isArray(subtypes) && subtypes.length > 0 && (
+          <li>
+            <FeatherIcon name="folder" small inline />
+            <span>{subtypes.join(", ")}</span>
+          </li>
+        )}
       </StyledList>
     </Card>
   );
@@ -97,5 +107,6 @@ GroupFacts.propTypes = {
     creationDate: PropTypes.string,
     lastActivityDate: PropTypes.string,
   }),
+  subtypes: PropTypes.arrayOf(PropTypes.string),
 };
 export default GroupFacts;
