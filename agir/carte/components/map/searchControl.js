@@ -1,5 +1,5 @@
 import Control from "ol/control/Control";
-import * as proj from "ol/proj";
+import { fromLonLat } from "ol/proj";
 import { OpenStreetMapProvider } from "leaflet-geosearch";
 import { from, fromEvent, merge } from "rxjs";
 import {
@@ -42,7 +42,7 @@ export default function makeSearchControl(view) {
 
   function goToCoordinates(coords) {
     view.animate({
-      center: proj.fromLonLat(coords),
+      center: fromLonLat(coords),
       zoom: 14,
     });
   }
