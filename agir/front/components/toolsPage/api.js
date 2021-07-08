@@ -1,7 +1,7 @@
 import axios from "@agir/lib/utils/axios";
 
 const WP_API_URL = "https://infos.actionpopulaire.fr/wp-json/wp/v2/";
-const WP_PAGE_URL = `${WP_API_URL}pages?per_page=100&&_embed=wp:term,wp:featuredmedia&categories=15,16,17`;
+const WP_PAGE_URL = `${WP_API_URL}pages?per_page=100&&_embed=wp:term,wp:featuredmedia`;
 const CATEGORY_LIST = [15, 16, 17];
 
 /** return [categories, pages] */
