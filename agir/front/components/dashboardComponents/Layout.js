@@ -170,7 +170,7 @@ const Layout = (props) => {
           </MainColumn>
           <SidebarColumn>
             <FacebookLoginAd />
-            <Announcements displayType="sidebar" />
+            <Announcements />
             <SecondaryNavigation />
           </SidebarColumn>
         </Row>
