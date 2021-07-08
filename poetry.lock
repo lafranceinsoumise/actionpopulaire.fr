@@ -481,19 +481,17 @@ Django = ">=2.2"
 
 [[package]]
 name = "django-countries"
-version = "5.5"
+version = "7.2.1"
 description = "Provides a country field for Django models."
 category = "main"
 optional = false
 python-versions = "*"
 
-[package.dependencies]
-six = "*"
-
 [package.extras]
-dev = ["tox", "django", "pytest", "pytest-django", "djangorestframework", "mock"]
+dev = ["tox", "black", "django", "pytest", "pytest-django", "djangorestframework", "graphene-django"]
 maintainer = ["transifex-client", "zest.releaser", "django"]
-test = ["pytest", "pytest-django", "pytest-cov", "mock"]
+pyuca = ["pyuca"]
+test = ["pytest", "pytest-django", "pytest-cov", "graphene-django"]
 
 [[package]]
 name = "django-crispy-forms"
@@ -2061,7 +2059,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "0ffe0d2c7cbd7428d06f3f46fb43a3458dc8a4e5309369be29d874e7d0e184b1"
+content-hash = "e4944b7bb0eae6c55cf77c4dc876cc453abcd63b8b64d5134e4e31e45708b1ad"
 
 [metadata.files]
 amqp = [
@@ -2336,8 +2334,8 @@ django-cors-headers = [
     {file = "django_cors_headers-3.7.0-py3-none-any.whl", hash = "sha256:1ac2b1213de75a251e2ba04448da15f99bcfcbe164288ae6b5ff929dc49b372f"},
 ]
 django-countries = [
-    {file = "django-countries-5.5.tar.gz", hash = "sha256:1cefad9ec804d6a0318b91c5394b5aef00336755928f44d0a6420507719d65c8"},
-    {file = "django_countries-5.5-py2.py3-none-any.whl", hash = "sha256:22e96236101783cfe5222ef5174972242a7e8176336d119a4dc111aedce35897"},
+    {file = "django-countries-7.2.1.tar.gz", hash = "sha256:26878b54d36bedff30b4535ceefcb8af6784741a8b30b1b8a662fb14a936a4ab"},
+    {file = "django_countries-7.2.1-py3-none-any.whl", hash = "sha256:adc965f1d348124274b7d918fc1aad5e29609758af999e1822baa9f2cc06d1b8"},
 ]
 django-crispy-forms = [
     {file = "django-crispy-forms-1.12.0.tar.gz", hash = "sha256:d196db62ee8b4fc32d1f9583d0e4be1bb17328b662682c1ecb9fb77bbc0fcf77"},
