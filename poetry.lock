@@ -557,15 +557,14 @@ six = "*"
 
 [[package]]
 name = "django-otp"
-version = "0.7.5"
+version = "1.0.6"
 description = "A pluggable framework for adding two-factor authentication to Django using one-time passwords."
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-django = ">=1.11"
-six = ">=1.10.0"
+django = ">=2.2"
 
 [package.extras]
 qrcode = ["qrcode"]
@@ -2062,7 +2061,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "42d84114506bf4ec2db0ed8e3caf7f663ffdc0bbc70ea702974531ae23a0099e"
+content-hash = "0ffe0d2c7cbd7428d06f3f46fb43a3458dc8a4e5309369be29d874e7d0e184b1"
 
 [metadata.files]
 amqp = [
@@ -2360,8 +2359,8 @@ django-oauth-toolkit = [
     {file = "django_oauth_toolkit-1.5.0-py3-none-any.whl", hash = "sha256:b2e346a7c1e222774bfb370f21b556b92b408395b4c23914e2d1b241b2e5376a"},
 ]
 django-otp = [
-    {file = "django-otp-0.7.5.tar.gz", hash = "sha256:1f16c2b93fe484706ff16ac6f5e64ecc73dd240318c333e0560384ba548d3837"},
-    {file = "django_otp-0.7.5-py2.py3-none-any.whl", hash = "sha256:cd4975539be478417033561e9832a1a69a583189f680e92a649f412c661f90aa"},
+    {file = "django-otp-1.0.6.tar.gz", hash = "sha256:0d56dd2a7fbb6ee6e54557e036ca64add0bd3596f471794bad673b7637d5e935"},
+    {file = "django_otp-1.0.6-py3-none-any.whl", hash = "sha256:01b5888f0bde5125e139433aacb947e52d5c406fa56c9db43c3e8d75b5c323c4"},
 ]
 django-phonenumber-field = [
     {file = "django-phonenumber-field-3.0.1.tar.gz", hash = "sha256:794ebbc3068a7af75aa72a80cb0cec67e714ff8409a965968040f1fd210b2d97"},
