@@ -20,7 +20,7 @@ import Navigation from "@agir/front/dashboardComponents/Navigation";
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
-import { getWPPagesAndCategories } from "./api.js";
+import { useWPPagesAndCategories } from "./api.js";
 
 const Container = styled.div`
   padding: 25px 85px;
@@ -259,7 +259,7 @@ const BannerHelpContainer = styled.div`
   }
 `;
 
-const WEBSITES = [
+export const WEBSITES = [
   {
     title: "Mélenchon 2022",
     img: img_JLM_2022,
@@ -340,7 +340,7 @@ const BannerHelp = () => (
   </BannerHelpContainer>
 );
 
-const ItemAction = ({ image, title, href }) => {
+export const ItemAction = ({ image, title, href }) => {
   return (
     <Link href={href}>
       <ItemActionContainer img={image}>
@@ -356,7 +356,7 @@ ItemAction.propTypes = {
   image: PropTypes.string.isRequired,
 };
 
-const ListItemAction = ({ pages }) => {
+export const ListItemAction = ({ pages }) => {
   const containerRef = useRef(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
@@ -462,7 +462,7 @@ ListItemAction.propTypes = {
   ),
 };
 
-const ItemWebsite = ({ img, href, title }) => (
+export const ItemWebsite = ({ img, href, title }) => (
   <Link href={href}>
     <ItemWebsiteContainer img={img}>
       <div />
@@ -487,7 +487,7 @@ ItemWebsite.propTypes = {
 
 const ToolsPage = () => {
   const isDesktop = useIsDesktop();
-  const [categories, pages] = getWPPagesAndCategories();
+  const [categories, pages] = useWPPagesAndCategories();
 
   return (
     <Container>

@@ -5,7 +5,7 @@ const WP_PAGE_URL = `${WP_API_URL}pages?per_page=100&&_embed=wp:term,wp:featured
 const CATEGORY_LIST = [15, 16, 17];
 
 /** return [categories, pages] */
-export const getWPPagesAndCategories = () => {
+export const useWPPagesAndCategories = () => {
   const { data } = useSWR(
     `${WP_PAGE_URL}&categories=${CATEGORY_LIST.toString()}`,
     {
