@@ -459,17 +459,8 @@ const ItemWebsite = ({ img, href, title }) => (
 );
 
 const ToolsPage = () => {
-  const [categories, setCategories] = useState([]);
-  const [pages, setPages] = useState([]);
   const isDesktop = useIsDesktop();
-
-  useEffect(() => {
-    (async () => {
-      const [categories, pages] = await getWPPagesAndCategories();
-      setCategories(categories);
-      setPages(pages);
-    })();
-  }, []);
+  const [categories, pages] = getWPPagesAndCategories();
 
   return (
     <Container>

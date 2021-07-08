@@ -1,17 +1,17 @@
-import axios from "@agir/lib/utils/axios";
+import useSWR from "swr";
 
 const WP_API_URL = "https://infos.actionpopulaire.fr/wp-json/wp/v2/";
 const WP_PAGE_URL = `${WP_API_URL}pages?per_page=100&&_embed=wp:term,wp:featuredmedia`;
 const CATEGORY_LIST = [15, 16, 17];
 
 /** return [categories, pages] */
-export const getWPPagesAndCategories = async () => {
-  const { data } = await axios.get(
+export const getWPPagesAndCategories = () => {
+  const { data } = useSWR(
     `${WP_PAGE_URL}&categories=${CATEGORY_LIST.toString()}`
   );
 
   let categories = [];
-  const pages = data.reduce((pagesSorted, page) => {
+  const pages = data?.reduce((pagesSorted, page) => {
     const page_categories = page._embedded["wp:term"];
     const filtered_categories = page_categories.reduce((res, cat) => {
       const cat_filtered = cat.filter(
