@@ -410,7 +410,7 @@ const ListItemAction = ({ pages }) => {
     };
   }, [pages, isUpdateCarrousel, containerRef]);
 
-  // if (!pages) return null;
+  if (!pages) return null;
 
   return (
     <ListItemActionContainer>
