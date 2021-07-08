@@ -14,7 +14,7 @@ dj-database-url = "==0.5.*"  # for easing up database settings
 dj-email-url = "==0.2.*"  # for easing up SMTP settings
 django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields
-django-countries = "==5.*"  # country fields
+django-countries = "==7.*"  # country fields
 django-phonenumber-field = "==3.*"  # phone number field
 phonenumbers = "==8.12.11"  # optional requirement of django-phonenumber-field
 django-stdimage = "==5.*"  # better image field with handling of variations
@@ -22,7 +22,7 @@ django-dynamic-filenames = "==1.*"  # better handling of upload path for file fi
 unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
 ## additional features
 django-crispy-forms = "==1.*" # better forms
-django-otp = "==0.7.*"  # 2FA in admin
+django-otp = "==1.*"  # 2FA in admin
 django-filter = "==2.*"  # add useful filters
 django-oauth-toolkit = "==1.*"  # add OAuth server
 rules = "==3.*"  # add useful authorization rules
@@ -33,7 +33,7 @@ djangorestframework-gis = "==0.16.*"
 ## adapters for third-party systems
 django-redis = "==4.*"
 psycopg2 = "*"
-django-prometheus = "==1.*"
+django-prometheus = "==2.*"
 # celery
 celery = "==4.*"
 celery-prometheus-exporter = "==1.*"
@@ -81,7 +81,7 @@ django-silk = "*"
 sentry-sdk = "*"
 django-push-notifications = "*"
 pywebpush = "*"
-social-auth-core = "==4.0.2"
+social-auth-core = "==4.*"
 django-storages = "^1.11.1"
 qrcode = {extras = ["pil"], version = "^6.1"}
 
