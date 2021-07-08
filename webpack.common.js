@@ -198,6 +198,9 @@ const configureBabelLoader = (type) => ({
           },
         ],
         type === "dev" ? require.resolve("react-refresh/babel") : undefined,
+        type !== "dev"
+          ? require.resolve("babel-plugin-transform-react-remove-prop-types")
+          : undefined,
       ].filter(Boolean),
     },
   },
