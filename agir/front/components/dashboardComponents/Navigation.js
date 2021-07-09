@@ -30,7 +30,6 @@ const BottomBar = styled.nav`
     box-shadow: inset 0px 1px 0px #eeeeee;
     height: 72px;
     padding: 0 0.5rem;
-    z-index: 5;
   }
 `;
 

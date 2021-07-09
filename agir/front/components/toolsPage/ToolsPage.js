@@ -31,6 +31,7 @@ const StyledPage = styled.div`
   width: 100%;
   margin: 0 auto;
   padding: 0rem 1.5rem;
+  isolation: isolation;
 
   @media (max-width: ${style.collapse}px) {
     padding: 0 20px;
@@ -223,21 +224,19 @@ const ItemWebsiteContainer = styled.div`
   color: ${style.black1000};
 
   > div:first-child {
-    div {
-      width: 113px;
-      height: 100%;
-      ${({ img }) => `
-        background-image: url(${img});
-        background-position: center;
-        background-size: cover;
-      `}
-    }
+    flex: 0 0 113px;
+    height: 100%;
+    ${({ img }) => `
+      background-image: url(${img});
+      background-position: center;
+      background-size: cover;
+    `}
   }
 
   > div:last-child {
+    flex-grow: 1;
     align-items: center;
     display: flex;
-
     justify-content: space-between;
     flex-grow: 1;
     padding: 20px;
@@ -261,7 +260,7 @@ const BannerTool = styled.div`
     content: "Outils";
   }
 
-  ::after {
+  :after {
     content: "";
     top: 50px;
     right: -64px;
@@ -282,12 +281,13 @@ const BannerHelpContainer = styled.div`
   position: relative;
   border-radius: ${(props) => props.theme.borderRadius};
   padding: 47px;
+  isolation: isolate;
 
   @media (max-width: ${style.collapse}px) {
     padding: 24px;
   }
 
-  ::after {
+  :after {
     content: url(${bricksNSP});
     position: absolute;
     right: -232px;
@@ -324,8 +324,9 @@ export const WEBSITES = [
   },
 ];
 
-const LinkInfoAction = () => (
+const LinkInfoAction = (props) => (
   <StyledButton
+    className={props.className}
     small
     as="Link"
     color="secondary"
@@ -342,8 +343,9 @@ const LinkInfoAction = () => (
   </StyledButton>
 );
 
-const LinkMaterial = () => (
+const LinkMaterial = (props) => (
   <StyledButton
+    className={props.className}
     small
     as="Link"
     color="secondary"
@@ -512,9 +514,7 @@ ListItemAction.propTypes = {
 export const ItemWebsite = ({ img, href, title }) => (
   <Link href={href}>
     <ItemWebsiteContainer img={img}>
-      <div>
-        <div />
-      </div>
+      <div />
       <div>
         <div>{title}</div>
         <div>
@@ -553,9 +553,7 @@ const ToolsPage = () => {
           </Hide>
         )}
 
-        <Hide under>
-          <BannerTool />
-        </Hide>
+        <Hide under as={BannerTool} />
 
         {/* TO ADD LATER :
         <BlockTitle>
@@ -564,9 +562,7 @@ const ToolsPage = () => {
           <Title>Commandez du matériel</Title>
         </div>
 
-        <Hide under>
-          <LinkMaterial />
-        </Hide>
+        <Hide under as={LinkMaterial} />
       </BlockTitle>
 
       <BlockContent></BlockContent>
@@ -582,9 +578,7 @@ const ToolsPage = () => {
             <Title>Se former à l'action</Title>
           </div>
 
-          <Hide under>
-            <LinkInfoAction />
-          </Hide>
+          <Hide under as={LinkInfoAction} />
         </BlockTitle>
 
         <BlockContent>
@@ -596,13 +590,9 @@ const ToolsPage = () => {
           ))}
         </BlockContent>
 
-        <Hide over>
-          <LinkInfoAction />
-        </Hide>
+        <Hide over as={LinkInfoAction} />
 
-        <Hide over>
-          <hr />
-        </Hide>
+        <Hide over as="hr" />
 
         <BlockTitle>
           <div>
@@ -617,9 +607,7 @@ const ToolsPage = () => {
           ))}
         </BlockContent>
 
-        <Hide over>
-          <hr />
-        </Hide>
+        <Hide over as="hr" />
 
         <BlockTitle>
           <div>
