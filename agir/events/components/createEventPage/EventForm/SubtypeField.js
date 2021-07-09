@@ -5,72 +5,10 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
-
-import Button from "@agir/front/genericComponents/Button";
-import Panel from "@agir/front/genericComponents/Panel";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-
-import { EVENT_TYPES } from "./eventForm.config";
+import SubtypePanel from "@agir/events/common/SubtypePanel";
 
 import { routeConfig } from "@agir/front/app/routes.config";
-
-const StyledOption = styled.li`
-  display: flex;
-  flex-flow: row nowrap;
-  min-height: 2.75rem;
-  align-items: flex-start;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: ${({ $selected }) => ($selected ? style.primary500 : style.black1000)};
-  font-weight: ${({ $selected }) => ($selected ? 600 : 400)};
-  cursor: ${({ $selected }) => ($selected ? "default" : "pointer")};
-
-  & + & {
-    padding-top: 0.5rem;
-  }
-
-  & > button {
-    display: ${({ $selected }) => ($selected ? "none" : "inline")};
-    margin-left: auto;
-  }
-
-  & > span {
-    color: ${style.primary500};
-    display: inline-block;
-    font-size: 1rem;
-    line-height: 1;
-    height: 1rem;
-    width: 1rem;
-    padding-top: 0.25rem;
-  }
-
-  & > strong {
-    font-weight: 400;
-    padding: 0 0.5rem;
-  }
-`;
-
-const StyledOptions = styled.div`
-  display: flex;
-  flex-flow: column nowrap;
-  padding-top: 0.5rem;
-
-  ul {
-    padding: 0;
-    list-style: none;
-
-    & > strong {
-      display: block;
-      height: 2.75rem;
-      font-weight: 600;
-      font-size: 1rem;
-      line-height: 1.5;
-      display: flex;
-      align-items: center;
-    }
-  }
-`;
 
 const StyledDefaultOption = styled.button``;
 const StyledDefaultOptions = styled.div`
@@ -127,35 +65,6 @@ const StyledField = styled.div`
   }
 `;
 
-const SubtypeOption = (props) => {
-  const { option, onClick, selected } = props;
-
-  const handleClick = useCallback(() => {
-    onClick(option);
-  }, [option, onClick]);
-
-  return (
-    <StyledOption
-      $selected={selected}
-      title={option.description}
-      onClick={handleClick}
-    >
-      <span className={`fa fa-${option.iconName || "calendar"}`} />
-      <strong>
-        {option.description && (
-          <>
-            {option.description[0].toUpperCase()}
-            {option.description.slice(1)}
-          </>
-        )}
-      </strong>
-      <Button type="button" color="choose" onClick={handleClick} small>
-        Choisir
-      </Button>
-    </StyledOption>
-  );
-};
-
 const DefaultOption = (props) => {
   const { option, onClick, selected, disabled } = props;
 
@@ -190,7 +99,7 @@ const DefaultOption = (props) => {
     </StyledDefaultOption>
   );
 };
-SubtypeOption.propTypes = DefaultOption.propTypes = {
+DefaultOption.propTypes = {
   option: PropTypes.shape({
     id: PropTypes.number,
     label: PropTypes.string,
@@ -220,8 +129,6 @@ const SubtypeField = (props) => {
     history.replace(BASE_ROUTE);
   }, [history]);
 
-  const panelPosition = useResponsiveMemo("right", "left");
-
   const handleChange = useCallback(
     (subtype) => {
       onChange(name, subtype);
@@ -234,23 +141,6 @@ const SubtypeField = (props) => {
     () => (Array.isArray(props.options) ? props.options : []),
     [props.options]
   );
-
-  const options = useMemo(() => {
-    const categories = {};
-    subtypes.forEach((subtype) => {
-      const category =
-        subtype.type && EVENT_TYPES[subtype.type] ? subtype.type : "O";
-      categories[category] = categories[category] || {
-        ...EVENT_TYPES[category],
-      };
-      categories[category].subtypes = categories[category].subtypes || [];
-      categories[category].subtypes.push(subtype);
-    });
-
-    return Object.values(categories).filter((category) =>
-      Array.isArray(category.subtypes)
-    );
-  }, [subtypes]);
 
   const defaultOptions = useMemo(() => subtypes.slice(0, 5), [subtypes]);
 
@@ -289,30 +179,13 @@ const SubtypeField = (props) => {
           {value ? "Changer" : "+ d'options"}
         </button>
       </StyledDefaultOptions>
-      <Panel
-        position={panelPosition}
-        shouldShow={isPanelOpen}
+      <SubtypePanel
         onClose={closePanel}
-        onBack={closePanel}
-        title="Type de l'événement"
-        noScroll
-      >
-        <StyledOptions>
-          {options.map((category) => (
-            <ul key={category.label}>
-              <strong title={category.description}>{category.label}</strong>
-              {category.subtypes.map((subtype) => (
-                <SubtypeOption
-                  key={subtype.id}
-                  onClick={handleChange}
-                  option={subtype}
-                  selected={!!value && value.id === subtype.id}
-                />
-              ))}
-            </ul>
-          ))}
-        </StyledOptions>
-      </Panel>
+        onChange={handleChange}
+        value={value}
+        options={subtypes}
+        shouldShow={isPanelOpen}
+      />
     </StyledField>
   );
 };

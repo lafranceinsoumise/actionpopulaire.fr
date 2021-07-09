@@ -4,7 +4,7 @@ import RequiredDocumentModal from "./RequiredDocumentModal";
 
 export default {
   component: RequiredDocumentModal,
-  title: "EventRequiredDocuments/RequiredDocumentModal",
+  title: "Event Required Documents/RequiredDocumentModal",
 };
 
 const Template = (args) => <RequiredDocumentModal {...args} />;
