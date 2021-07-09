@@ -25,9 +25,3 @@ export const Default = Template.bind({});
 Default.args = {
   ...WEBSITES[0],
 };
-
-export const Static = Template.bind({});
-Static.args = {
-  ...Default.args,
-  isStatic: true,
-};
