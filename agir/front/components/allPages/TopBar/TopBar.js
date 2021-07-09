@@ -237,10 +237,10 @@ export const TopBar = (props) => {
                           )}
                         </TopbarLink>
                       </MenuLink>
-                      <MenuLink href={routes.help}>
-                        <TopbarLink>
-                          <FeatherIcon name="help-circle" />
-                          <span>Aide</span>
+                      <MenuLink route="tools">
+                        <TopbarLink $active={routeConfig.tools.match(path)}>
+                          <FeatherIcon name="flag" />
+                          <span>Outils</span>
                           <div />
                         </TopbarLink>
                       </MenuLink>

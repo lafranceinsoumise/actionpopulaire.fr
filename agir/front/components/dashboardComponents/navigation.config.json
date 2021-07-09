@@ -55,15 +55,6 @@
       "external": true
     },
     {
-      "id": "resources",
-      "icon": "help-circle",
-      "title": "Aide",
-      "route": "resources",
-      "desktop": true,
-      "mobile": false,
-      "external": true
-    },
-    {
       "id": "settings",
       "icon": "settings",
       "title": "Paramètres",
