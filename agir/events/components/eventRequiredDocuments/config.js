@@ -37,3 +37,8 @@ export const EVENT_DOCUMENT_TYPES = {
       "Ce document est nécessaire lorsque vous organisez une manifestation, une réunion publique extérieure, ou encore un pique-nique, un apéro citoyen ou une table militante.",
   },
 };
+
+export const EVENT_PROJECT_STATUS = {
+  pending: "P",
+  archived: "A",
+};
