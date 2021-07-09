@@ -45,6 +45,16 @@
       "external": true
     },
     {
+      "id": "tools",
+      "icon": "flag",
+      "title": "Outils",
+      "route": "tools",
+      "to": "tools",
+      "desktop": true,
+      "mobile": true,
+      "external": false
+    },
+    {
       "id": "resources",
       "icon": "book-open",
       "title": "Ressources",
@@ -52,14 +62,6 @@
       "desktop": true,
       "mobile": false,
       "external": true
-    },
-    {
-      "id": "menu",
-      "icon": "more-horizontal",
-      "title": "Plus",
-      "to": "menu",
-      "desktop": false,
-      "mobile": true
     },
     {
       "id": "settings",

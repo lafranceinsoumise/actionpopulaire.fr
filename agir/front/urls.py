@@ -109,6 +109,7 @@ urlpatterns = [
         views.BaseAppHardAuthView.as_view(),
         name="list_activities.notification_settings",
     ),
+    path("outils/", views.BaseAppSoftAuthView.as_view(), name="tools",),
     path(
         "a-traiter/",
         RedirectView.as_view(pattern_name="list_activities", permanent=True),

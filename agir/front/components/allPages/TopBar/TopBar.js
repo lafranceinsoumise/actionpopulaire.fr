@@ -130,8 +130,8 @@ export const TopBar = (props) => {
       <NavBar>
         <AdminLink link={adminLink} />
         <TopBarContainer>
-          {isSessionLoaded ? (
-            backLink ? (
+          {isSessionLoaded &&
+            (backLink ? (
               <Hide over>
                 <MenuLink
                   to={backLink.to}
@@ -149,8 +149,7 @@ export const TopBar = (props) => {
                   <FeatherIcon name="search" />
                 </MenuLink>
               </Hide>
-            )
-          ) : null}
+            ))}
           <HorizontalFlex
             center={!isConnected || path === "/" || typeof path === "undefined"}
             style={{
@@ -192,7 +191,7 @@ export const TopBar = (props) => {
             </Hide>
           </HorizontalFlex>
 
-          {isSessionLoaded ? (
+          {isSessionLoaded && (
             <HorizontalFlex style={{ flexGrow: 0 }}>
               {!isConnected ? (
                 <>
@@ -257,7 +256,7 @@ export const TopBar = (props) => {
                 </>
               )}
             </HorizontalFlex>
-          ) : null}
+          )}
         </TopBarContainer>
       </NavBar>
     </NavbarContainer>

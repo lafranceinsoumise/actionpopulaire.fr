@@ -32,6 +32,8 @@ const ActivityPage = lazy(() =>
   import("@agir/activity/ActivityPage/ActivityPage")
 );
 
+const ToolsPage = lazy(() => import("@agir/front/toolsPage/ToolsPage"));
+
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
 );
@@ -251,6 +253,15 @@ export const routeConfig = {
       protected: true,
     },
     keepScroll: true,
+  }),
+  tools: new RouteConfig({
+    id: "tools",
+    path: "/outils/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Outils",
+    Component: ToolsPage,
+    hideFeedbackButton: true,
   }),
   notificationSettings: notificationSettingRoute,
   menu: new RouteConfig({
