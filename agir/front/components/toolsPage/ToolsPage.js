@@ -119,6 +119,11 @@ const ItemActionContainer = styled.div`
   flex-direction: column;
   color: ${style.black1000};
 
+  @media (max-width: ${style.collapse}px) {
+    width: 290px;
+    height: 180px;
+  }
+
   > div:first-child {
     ${({ img }) => `
       background-image: url(${img});
@@ -127,6 +132,10 @@ const ItemActionContainer = styled.div`
       height: 190px;
     `}
     margin-left: 1px;
+
+    @media (max-width: ${style.collapse}px) {
+      height: 120px;
+    }
   }
 
   > div:last-child {
@@ -137,6 +146,7 @@ const ItemActionContainer = styled.div`
     height: 82px;
     overflow: hidden;
     padding: 6px 16px;
+    background-color: #fafafa;
   }
 `;
 
