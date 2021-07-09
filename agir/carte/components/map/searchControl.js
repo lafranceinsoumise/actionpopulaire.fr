@@ -1,15 +1,17 @@
 import Control from "ol/control/Control";
 import { fromLonLat } from "ol/proj";
 import { OpenStreetMapProvider } from "leaflet-geosearch";
-import { from, fromEvent, merge } from "rxjs";
 import {
+  from,
+  fromEvent,
+  merge,
   debounceTime,
   map,
   filter,
   switchMap,
   startWith,
   tap,
-} from "rxjs/operators";
+} from "rxjs";
 
 import { element } from "./utils";
 
