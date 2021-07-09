@@ -43,9 +43,3 @@ export const Default = Template.bind({});
 Default.args = {
   pages: mockPages,
 };
-
-export const Static = Template.bind({});
-Static.args = {
-  ...Default.args,
-  isStatic: true,
-};

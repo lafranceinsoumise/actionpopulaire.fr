@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
+import Helmet from "react-helmet";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
@@ -14,27 +15,60 @@ import img_JLM_2022 from "./images/JLM_2022.jpg";
 import img_AvenirEnCommun from "./images/AvenirEnCommun.jpg";
 import img_Linsoumission from "./images/Linsoumission.jpg";
 import img_Comparateur from "./images/Comparateur.jpg";
-import bricksNSP from "@agir/front/genericComponents/images/login_bg_desktop.svg";
+import bricksNSP from "./images/bricksNSP.svg";
 
+import Footer from "@agir/front/dashboardComponents/Footer";
 import Navigation from "@agir/front/dashboardComponents/Navigation";
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import { useWPPagesAndCategories } from "./api.js";
+import { getIsConnected } from "@agir/front/globalContext/reducers";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
 
-const Container = styled.div`
-  padding: 25px 85px;
+const StyledPage = styled.div`
+  max-width: 1320px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0rem 1.5rem;
+  isolation: isolation;
 
   @media (max-width: ${style.collapse}px) {
-    padding: 20px;
+    padding: 0 20px;
+  }
+`;
+
+const IndexLinkAnchor = styled(Link)`
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  margin: 2.5rem 1rem 1.5rem;
+
+  & {
+    text-decoration: none;
+    color: #585858;
+  }
+
+  &:hover,
+  &:focus,
+  &:active {
+    text-decoration: none;
+    color: #333;
+  }
+
+  svg {
+    height: 16px;
   }
 `;
 
 const BlockTitle = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 23px;
-  margin-top: 23px;
+  margin-bottom: 40px;
+  margin-top: 40px;
 
   > div:first-child {
     display: flex;
@@ -67,7 +101,6 @@ const Subtitle = styled.div`
 `;
 
 const StyledButton = styled(Button)`
-  height: 40px;
   font-size: 1rem;
   font-weight: 500;
   border-radius: ${(props) => props.theme.borderRadius};
@@ -84,10 +117,12 @@ const ItemActionContainer = styled.div`
   width: 340px;
   display: inline-flex;
   flex-direction: column;
-  margin-right: 1.5rem;
-  margin-bottom: 2px;
-  margin-top: 1px;
   color: ${style.black1000};
+
+  @media (max-width: ${style.collapse}px) {
+    width: 290px;
+    height: 180px;
+  }
 
   > div:first-child {
     ${({ img }) => `
@@ -96,6 +131,11 @@ const ItemActionContainer = styled.div`
       background-size: cover;
       height: 190px;
     `}
+    margin-left: 1px;
+
+    @media (max-width: ${style.collapse}px) {
+      height: 120px;
+    }
   }
 
   > div:last-child {
@@ -106,7 +146,14 @@ const ItemActionContainer = styled.div`
     height: 82px;
     overflow: hidden;
     padding: 6px 16px;
+    background-color: #fafafa;
   }
+`;
+
+const StyledLink = styled(Link)`
+  margin-right: 1.5rem;
+  margin-bottom: 2px;
+  margin-top: 1px;
 `;
 
 const CarrouselArrowContainer = styled.div`
@@ -169,8 +216,8 @@ const Carrousel = styled.div`
     overflow: hidden;
   }
 
-  div:first-child {
-    margin-left: 2px;
+  > a:first-child {
+    margin-left: 1px;
   }
 `;
 
@@ -187,8 +234,8 @@ const ItemWebsiteContainer = styled.div`
   color: ${style.black1000};
 
   > div:first-child {
-    display: flex;
-    width: 113px;
+    flex: 0 0 113px;
+    height: 100%;
     ${({ img }) => `
       background-image: url(${img});
       background-position: center;
@@ -197,16 +244,16 @@ const ItemWebsiteContainer = styled.div`
   }
 
   > div:last-child {
+    flex-grow: 1;
     align-items: center;
     display: flex;
-
     justify-content: space-between;
     flex-grow: 1;
     padding: 20px;
   }
 `;
 
-const BannerToolContainer = styled.div`
+const BannerTool = styled.div`
   width: 100%;
   height: 138px;
   background-color: ${style.primary500};
@@ -219,15 +266,19 @@ const BannerToolContainer = styled.div`
   position: relative;
   border-radius: ${(props) => props.theme.borderRadius};
 
-  ::after {
+  ::before {
+    content: "Outils";
+  }
+
+  :after {
     content: "";
-    top: 60px;
+    top: 50px;
     right: -64px;
     width: 600px;
     height: 170px;
     position: absolute;
     background-color: ${style.redNSP};
-    transform: rotate(-9deg);
+    transform: rotate(-6deg);
   }
 `;
 
@@ -240,22 +291,23 @@ const BannerHelpContainer = styled.div`
   position: relative;
   border-radius: ${(props) => props.theme.borderRadius};
   padding: 47px;
+  isolation: isolate;
 
   @media (max-width: ${style.collapse}px) {
     padding: 24px;
   }
 
-  ::after {
+  :after {
     content: url(${bricksNSP});
-    @media (max-width: ${style.collapse}px) {
-      display: none;
-    }
-    bottom: -38px;
-    right: 0;
-    width: 530px;
-    height: 100%;
     position: absolute;
-    transform: scaleX(-1);
+    right: -232px;
+    top: -485px;
+
+    @media (max-width: ${style.collapse}px) {
+      right: -465px;
+      top: -460px;
+      transform: scale(0.5);
+    }
   }
 `;
 
@@ -282,15 +334,17 @@ export const WEBSITES = [
   },
 ];
 
-const LinkInfoAction = () => (
+const LinkInfoAction = (props) => (
   <StyledButton
+    className={props.className}
     small
     as="Link"
     color="secondary"
     href="https://materiel.lafranceinsoumise.fr/"
     target="_blank"
+    $wrap
   >
-    Accéder au fiches pratiques
+    Accéder aux fiches pratiques
     <RawFeatherIcon
       name="arrow-up-right"
       color={style.black1000}
@@ -299,13 +353,15 @@ const LinkInfoAction = () => (
   </StyledButton>
 );
 
-const LinkMaterial = () => (
+const LinkMaterial = (props) => (
   <StyledButton
+    className={props.className}
     small
     as="Link"
     color="secondary"
     href="https://materiel.lafranceinsoumise.fr/"
     target="_blank"
+    $wrap
   >
     Accéder au site matériel
     <RawFeatherIcon
@@ -316,11 +372,12 @@ const LinkMaterial = () => (
   </StyledButton>
 );
 
-const BannerTool = () => <BannerToolContainer>Outils</BannerToolContainer>;
-
 const BannerHelp = () => (
   <BannerHelpContainer>
-    Une question&nbsp;? Un&nbsp;problème&nbsp;? Pas&nbsp;de&nbsp;panique&nbsp;!
+    <span style={{ zIndex: 2, position: "relative" }}>
+      Une question&nbsp;? Un&nbsp;problème&nbsp;?
+      Pas&nbsp;de&nbsp;panique&nbsp;!
+    </span>
     <br />
     <Spacer size="30px" />
     <StyledButton
@@ -329,6 +386,8 @@ const BannerHelp = () => (
       color="secondary"
       href="https://infos.actionpopulaire.fr"
       target="_blank"
+      $wrap
+      style={{ zIndex: 2, position: "relative" }}
     >
       Accéder au centre d'aide
       <RawFeatherIcon
@@ -342,12 +401,12 @@ const BannerHelp = () => (
 
 export const ItemAction = ({ image, title, href }) => {
   return (
-    <Link href={href}>
+    <StyledLink href={href}>
       <ItemActionContainer img={image}>
         <div />
         <div dangerouslySetInnerHTML={{ __html: title }}></div>
       </ItemActionContainer>
-    </Link>
+    </StyledLink>
   );
 };
 ItemAction.propTypes = {
@@ -488,23 +547,32 @@ ItemWebsite.propTypes = {
 const ToolsPage = () => {
   const isDesktop = useIsDesktop();
   const [categories, pages] = useWPPagesAndCategories();
+  const isConnected = useSelector(getIsConnected);
 
   return (
-    <Container>
-      <Hide under>
-        <BannerTool />
-      </Hide>
+    <StyledPage>
+      <Helmet>
+        <title>Outils - Action Populaire</title>
+      </Helmet>
+      <div>
+        {isConnected && (
+          <Hide under>
+            <IndexLinkAnchor route="events">
+              <RawFeatherIcon name="arrow-left" /> &nbsp; Liste des événements
+            </IndexLinkAnchor>
+          </Hide>
+        )}
 
-      {/* TO ADD LATER :
+        <Hide under as={BannerTool} />
+
+        {/* TO ADD LATER :
         <BlockTitle>
         <div>
           <RawFeatherIcon name="shopping-bag" color={style.black1000} />
           <Title>Commandez du matériel</Title>
         </div>
 
-        <Hide under>
-          <LinkMaterial />
-        </Hide>
+        <Hide under as={LinkMaterial} />
       </BlockTitle>
 
       <BlockContent></BlockContent>
@@ -514,64 +582,59 @@ const ToolsPage = () => {
         <hr />
       </Hide> */}
 
-      <BlockTitle>
-        <div>
-          <RawFeatherIcon name="book-open" color={style.black1000} />
-          <Title>Se former à l'action</Title>
-        </div>
+        <BlockTitle>
+          <div>
+            <RawFeatherIcon name="book-open" color={style.black1000} />
+            <Title>Se former à l'action</Title>
+          </div>
 
-        <Hide under>
-          <LinkInfoAction />
-        </Hide>
-      </BlockTitle>
+          <Hide under as={LinkInfoAction} />
+        </BlockTitle>
 
-      <BlockContent>
-        {categories.map((category) => (
-          <React.Fragment key={category.id}>
-            <Subtitle>{category.name}</Subtitle>
-            <ListItemAction pages={pages[category.id]} />
-          </React.Fragment>
-        ))}
-      </BlockContent>
+        <BlockContent>
+          {categories.map((category) => (
+            <React.Fragment key={category.id}>
+              <Subtitle>{category.name}</Subtitle>
+              <ListItemAction pages={pages[category.id]} />
+            </React.Fragment>
+          ))}
+        </BlockContent>
 
-      <Hide over>
-        <LinkInfoAction />
-      </Hide>
+        <Hide over as={LinkInfoAction} />
 
-      <Hide over>
-        <hr />
-      </Hide>
+        <Hide over as="hr" />
 
-      <BlockTitle>
-        <div>
-          <RawFeatherIcon name="mouse-pointer" color={style.black1000} />
-          <Title>Je m'informe en ligne</Title>
-        </div>
-      </BlockTitle>
+        <BlockTitle>
+          <div>
+            <RawFeatherIcon name="mouse-pointer" color={style.black1000} />
+            <Title>Je m'informe en ligne</Title>
+          </div>
+        </BlockTitle>
 
-      <BlockContent>
-        {WEBSITES.map((w, id) => (
-          <ItemWebsite key={id} img={w.img} href={w.href} title={w.title} />
-        ))}
-      </BlockContent>
+        <BlockContent>
+          {WEBSITES.map((w, id) => (
+            <ItemWebsite key={id} img={w.img} href={w.href} title={w.title} />
+          ))}
+        </BlockContent>
 
-      <Hide over>
-        <hr />
-      </Hide>
+        <Hide over as="hr" />
 
-      <BlockTitle>
-        <div>
-          <RawFeatherIcon name="help-circle" color={style.black1000} />
-          <Title>Besoin d'aide ?</Title>
-        </div>
-      </BlockTitle>
+        <BlockTitle>
+          <div>
+            <RawFeatherIcon name="help-circle" color={style.black1000} />
+            <Title>Besoin d'aide ?</Title>
+          </div>
+        </BlockTitle>
 
-      <BannerHelp />
+        <BannerHelp />
 
-      <Spacer size="100px" />
+        <Spacer size="30px" />
 
-      {!isDesktop && <Navigation active={routeConfig.tools.id} />}
-    </Container>
+        {!isDesktop && <Navigation active={routeConfig.tools.id} />}
+
+        <Footer />
+      </div>
+    </StyledPage>
   );
 };
 

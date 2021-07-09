@@ -36,15 +36,6 @@
       "mobile": true
     },
     {
-      "id": "materiel",
-      "icon": "shopping-bag",
-      "title": "Matériel",
-      "route": "materiel",
-      "desktop": true,
-      "mobile": false,
-      "external": true
-    },
-    {
       "id": "tools",
       "icon": "flag",
       "title": "Outils",
@@ -55,10 +46,10 @@
       "external": false
     },
     {
-      "id": "resources",
-      "icon": "book-open",
-      "title": "Ressources",
-      "route": "resources",
+      "id": "materiel",
+      "icon": "shopping-bag",
+      "title": "Matériel",
+      "route": "materiel",
       "desktop": true,
       "mobile": false,
       "external": true
