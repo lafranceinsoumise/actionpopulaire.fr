@@ -35,10 +35,10 @@ const EventInfoCard = ({ groups, participantCount, subtype }) => (
           ))}
         </IconListItem>
       )}
-      {subtype?.label && (
+      {subtype?.description && (
         <IconListItem name="folder">
-          {subtype.label[0].toUpperCase()}
-          {subtype.label.slice(1)}
+          {subtype.description[0].toUpperCase()}
+          {subtype.description.slice(1)}
         </IconListItem>
       )}
       {participantCount > 1 && (
@@ -55,7 +55,7 @@ EventInfoCard.propTypes = {
     PropTypes.shape({ name: PropTypes.string, url: PropTypes.string })
   ),
   subtype: PropTypes.shape({
-    label: PropTypes.string,
+    description: PropTypes.string,
   }),
   participantCount: PropTypes.number,
 };
