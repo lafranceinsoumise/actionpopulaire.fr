@@ -512,7 +512,6 @@ ListItemAction.propTypes = {
 export const ItemWebsite = ({ img, href, title }) => (
   <Link href={href}>
     <ItemWebsiteContainer img={img}>
-      {/* <div /> */}
       <div>
         <div />
       </div>
