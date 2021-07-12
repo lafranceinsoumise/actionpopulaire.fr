@@ -227,7 +227,7 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
         return "Réglée"
 
     def reglements(self, obj):
-        if obj is None:
+        if obj is None or obj.id is None:
             return "-"
 
         return render_to_string(
