@@ -3,11 +3,12 @@ from unittest.mock import patch
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
-from agir.events.models import EventSubtype, OrganizerConfig
+from agir.events.models import Event, EventSubtype, OrganizerConfig, RSVP
 from agir.gestion.models import Projet
 from agir.gestion.typologies import TypeProjet
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import create_location, get_random_object
+from agir.people.models import Person, PersonForm
 
 
 class CreateEventAPITestCase(APITestCase):
@@ -342,10 +343,6 @@ class CreateEventAPITestCase(APITestCase):
         self.assertTrue(Projet.objects.filter(event_id=new_event_id).exists())
 
 
-from agir.events.models import Event, RSVP
-from agir.people.models import Person, PersonForm
-
-
 class RSVPEventAPITestCase(APITestCase):
     def setUp(self):
         self.person = Person.objects.create(
@@ -518,3 +515,60 @@ class QuitEventAPITestCase(APITestCase):
         res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 204)
         self.assertFalse(RSVP.objects.filter(event=event, person=self.person,).exists())
+
+
+class UpdateEventAPITestCase(APITestCase):
+    def setUp(self):
+        self.unrelated_person = Person.objects.create(
+            email="unrelated_person@example.com", create_role=True,
+        )
+        self.organizer = Person.objects.create(
+            email="organizer@example.com", create_role=True,
+        )
+        start_time = timezone.now() + timezone.timedelta(days=3)
+        end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
+        self.a_subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL, label="A subtype"
+        )
+        self.another_subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL, label="Another subtype"
+        )
+        self.event = Event.objects.create(
+            name="Event",
+            start_time=start_time,
+            end_time=end_time,
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.a_subtype,
+            organizer_person=self.organizer,
+        )
+
+    def test_anonymous_person_cannot_update(self):
+        self.client.logout()
+        data = {"subtype": self.another_subtype.pk}
+        res = self.client.patch(f"/api/evenements/{self.event.pk}/modifier/", data=data)
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_organizer_cannot_update(self):
+        self.client.force_login(self.unrelated_person.role)
+        data = {"subtype": self.another_subtype.pk}
+        res = self.client.patch(f"/api/evenements/{self.event.pk}/modifier/", data=data)
+        self.assertEqual(res.status_code, 403)
+
+    def test_organizer_cannot_post_non_public_subtype(self):
+        self.client.force_login(self.organizer.role)
+        hidden_subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_NONE, label="Hidden subtype"
+        )
+        data = {"subtype": hidden_subtype.pk}
+        res = self.client.patch(f"/api/evenements/{self.event.pk}/modifier/", data=data)
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("subtype", res.data)
+
+    def test_organizer_can_post_valid_subtype(self):
+        self.client.force_login(self.organizer.role)
+        data = {"subtype": self.another_subtype.pk}
+        res = self.client.patch(f"/api/evenements/{self.event.pk}/modifier/", data=data)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("subtype", res.data)
+        self.assertEqual(res.data["subtype"], data["subtype"])

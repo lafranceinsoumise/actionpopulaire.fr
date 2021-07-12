@@ -12,6 +12,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     CreateAPIView,
     DestroyAPIView,
+    UpdateAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -25,7 +26,8 @@ from agir.events.models import RSVP
 from agir.events.serializers import (
     EventSerializer,
     EventListSerializer,
-    EventCreateOptionsSerializer,
+    EventPropertyOptionsSerializer,
+    UpdateEventSerializer,
     CreateEventSerializer,
 )
 
@@ -35,6 +37,7 @@ __all__ = [
     "EventSuggestionsAPIView",
     "EventCreateOptionsAPIView",
     "CreateEventAPIView",
+    "UpdateEventAPIView",
     "RSVPEventAPIView",
 ]
 
@@ -142,9 +145,26 @@ class EventSuggestionsAPIView(ListAPIView):
         return result
 
 
+class EventManagementPermissions(GlobalOrObjectPermissions):
+    perms_map = {
+        "OPTIONS": [],
+        "GET": [],
+        "POST": ["events.add_event",],
+        "PUT": [],
+        "PATCH": [],
+    }
+    object_perms_map = {
+        "OPTIONS": [],
+        "GET": [],
+        "POST": [],
+        "PUT": ["events.change_event"],
+        "PATCH": ["events.change_event"],
+    }
+
+
 class EventCreateOptionsAPIView(RetrieveAPIView):
-    permission_ = ("events.add_event",)
-    serializer_class = EventCreateOptionsSerializer
+    permission_classes = (EventManagementPermissions,)
+    serializer_class = EventPropertyOptionsSerializer
     queryset = Event.objects.all()
 
     def initial(self, request, *args, **kwargs):
@@ -159,9 +179,15 @@ class EventCreateOptionsAPIView(RetrieveAPIView):
 
 
 class CreateEventAPIView(CreateAPIView):
-    permission_ = ("events.add_event",)
+    permission_classes = (EventManagementPermissions,)
     serializer_class = CreateEventSerializer
     queryset = Event.objects.all()
+
+
+class UpdateEventAPIView(UpdateAPIView):
+    permission_classes = (EventManagementPermissions,)
+    queryset = Event.objects.all()
+    serializer_class = UpdateEventSerializer
 
 
 class RSVPEventPermissions(GlobalOrObjectPermissions):
