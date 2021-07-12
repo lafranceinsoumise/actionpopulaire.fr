@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -118,10 +118,10 @@ const INITIAL_DATA = {
   description: "",
 };
 
-const RequiredDocumentCard = (props) => {
+const RequiredDocumentModal = (props) => {
   const { type, shouldShow, isLoading, onClose, onSubmit, errors } = props;
 
-  const [data, setData] = useState(INITIAL_DATA);
+  const [data, setData] = useState({ ...INITIAL_DATA });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -129,6 +129,10 @@ const RequiredDocumentCard = (props) => {
   };
 
   const maySubmit = !isLoading && !!data?.file && !!data?.name;
+
+  useEffect(() => {
+    !shouldShow && setData({ ...INITIAL_DATA });
+  }, [shouldShow]);
 
   return (
     <Modal
@@ -200,7 +204,7 @@ const RequiredDocumentCard = (props) => {
   );
 };
 
-RequiredDocumentCard.propTypes = {
+RequiredDocumentModal.propTypes = {
   type: PropTypes.string.isRequired,
   shouldShow: PropTypes.bool,
   isLoading: PropTypes.bool,
@@ -209,4 +213,4 @@ RequiredDocumentCard.propTypes = {
   errors: PropTypes.object,
 };
 
-export default RequiredDocumentCard;
+export default RequiredDocumentModal;
