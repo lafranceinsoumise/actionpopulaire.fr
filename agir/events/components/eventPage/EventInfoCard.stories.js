@@ -25,5 +25,9 @@ Default.args = {
       name: "Groupe Daisy",
     },
   ],
+  subtype: {
+    label: "la-bel",
+    description: "des crip tion",
+  },
   participantCount: 6,
 };
