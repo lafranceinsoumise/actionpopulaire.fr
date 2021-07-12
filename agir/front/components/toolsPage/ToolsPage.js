@@ -429,7 +429,6 @@ export const ItemAction = ({ image, title, href }) => {
     <StyledLink href={href}>
       <ItemActionContainer img={image}>
         <div />
-        {/* <div dangerouslySetInnerHTML={{ __html: title }}></div> */}
         <div>
           <span dangerouslySetInnerHTML={{ __html: title }} />
         </div>
