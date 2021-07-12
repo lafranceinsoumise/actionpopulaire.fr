@@ -219,7 +219,7 @@ class SupportGroupSubtype(BaseSubtype):
     )
 
     def __str__(self):
-        return self.description
+        return f"{self.description} / ({self.label})"
 
     class Meta:
         verbose_name = _("sous-type")
