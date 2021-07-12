@@ -251,7 +251,7 @@ class EventListSerializer(EventSerializer):
         ).data
 
 
-class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
+class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
     organizerGroup = serializers.SerializerMethodField()
     subtype = serializers.SerializerMethodField()
     defaultContact = serializers.SerializerMethodField()
@@ -377,8 +377,8 @@ class CreateEventSerializer(serializers.Serializer):
                 {"endTime": "Votre événement doit durer moins d’une semaine"}
             )
 
-        data["organizer_group"] = data.pop("organizerGroup")
         data["organizer_person"] = data.pop("organizerPerson")
+        data["organizer_group"] = data.pop("organizerGroup")
 
         return data
 
@@ -400,3 +400,18 @@ class CreateEventSerializer(serializers.Serializer):
         event = Event.objects.create(**validated_data)
         self.schedule_tasks(event, validated_data)
         return event
+
+
+class UpdateEventSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    name = serializers.CharField(read_only=True)
+    subtype = serializers.PrimaryKeyRelatedField(
+        queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
+    )
+
+    class Meta:
+        model = Event
+        fields = ["id", "name", "subtype"]
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)

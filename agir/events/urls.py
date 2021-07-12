@@ -96,6 +96,11 @@ urlpatterns = [
         name="api_create_event",
     ),
     path(
+        "api/evenements/<uuid:pk>/modifier/",
+        views.UpdateEventAPIView.as_view(),
+        name="api_update_event",
+    ),
+    path(
         "api/evenements/rsvped/",
         views.EventRsvpedAPIView.as_view(),
         name="api_event_rsvped",
