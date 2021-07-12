@@ -130,9 +130,9 @@ export const TopBar = (props) => {
       <NavBar>
         <AdminLink link={adminLink} />
         <TopBarContainer>
-          <Hide over>
-            {isSessionLoaded &&
-              (backLink ? (
+          {isSessionLoaded && (
+            <Hide over>
+              {backLink ? (
                 <MenuLink
                   to={backLink.to}
                   href={backLink.href}
@@ -146,8 +146,9 @@ export const TopBar = (props) => {
                 <MenuLink href={routes.search}>
                   <FeatherIcon name="search" />
                 </MenuLink>
-              ))}
-          </Hide>
+              )}
+            </Hide>
+          )}
           <HorizontalFlex
             center={!isConnected || path === "/" || typeof path === "undefined"}
             style={{
