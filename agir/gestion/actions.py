@@ -77,11 +77,14 @@ class Transition(Generic[T, E]):
     effect: Callable[[T], None] = None
 
     def refus(self, instance: T, role: Role):
-        if self.permissions and all(
-            not role.has_perm(p) and not role.has_perm(p, obj=instance)
-            for p in self.permissions
-        ):
-            return "Vous n'avez pas les permissions requises pour cette action."
+        compte = getattr(instance, "compte", None)
+        if self.permissions:
+            if not any(
+                role.has_perm(p)
+                or (compte is not None and role.has_perm(p, obj=compte))
+                for p in self.permissions
+            ):
+                return "Vous n'avez pas les permissions requises pour cette action."
 
         try:
             cond = self.condition(instance, role)
