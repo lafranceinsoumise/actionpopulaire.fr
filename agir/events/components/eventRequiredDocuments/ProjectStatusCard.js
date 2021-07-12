@@ -4,7 +4,8 @@ import styled from "styled-components";
 
 import { EVENT_PROJECT_STATUS } from "./config";
 
-const StyledCard = styled.figure`
+const StyledCard = styled.div`
+  text-align: left;
   border-radius: ${(props) => props.theme.borderRadius};
   box-shadow: ${(props) => props.theme.cardShadow};
   width: 100%;
@@ -38,7 +39,8 @@ const ProjectStatusCard = (props) => {
       <StyledCard $pending>
         <h4>Vos documents sont en relecture par le secrétariat général</h4>
         <p>
-          Vous pouvez en ajouter encore en cliquant sur le bouton ci-dessous.
+          Vous pouvez en ajouter encore autant que nécessaire jusqu’à leur
+          relecture.
         </p>
       </StyledCard>
     );

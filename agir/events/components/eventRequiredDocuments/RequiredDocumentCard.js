@@ -16,6 +16,7 @@ const StyledCard = styled.div`
   width: 100%;
   padding: 0;
   margin: 0;
+  text-align: left;
 
   @media (min-width: ${(props) => props.theme.collapse}px) {
     max-width: 680px;
@@ -80,7 +81,7 @@ const StyledCard = styled.div`
 `;
 
 const RequiredDocumentCard = (props) => {
-  const { type, onUpload, onDismiss } = props;
+  const { type, onUpload, onDismiss, ...rest } = props;
 
   if (!type || !EVENT_DOCUMENT_TYPES[type]) {
     return null;
@@ -89,7 +90,7 @@ const RequiredDocumentCard = (props) => {
   const { image, name, description, templateLink } = EVENT_DOCUMENT_TYPES[type];
 
   return (
-    <StyledCard $img={image}>
+    <StyledCard {...rest} $img={image}>
       <div>
         <h4>{name}</h4>
         <Spacer size="0.5rem" />

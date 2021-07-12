@@ -12,6 +12,7 @@ const StyledCard = styled.figure`
   padding: 1rem;
   border-radius: ${(props) => props.theme.borderRadius};
   box-shadow: ${(props) => props.theme.cardShadow};
+  text-align: left;
 
   & > * {
     margin: 0;
