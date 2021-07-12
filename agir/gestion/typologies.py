@@ -21,10 +21,21 @@ class TypeDocument(TextChoices):
     PAIEMENT_CHEQUE = "PAY-CHK", "Scan du chèque"
     PAIEMENT_TICKET = "PAY-TKT", "Ticket de caisse"
 
-    ATTESTATION_GRATUITE = "GRA", "Attestation de gratuité"
     EXEMPLAIRE = "EXA", "Exemplaire fourni"
     PHOTOGRAPHIE = "PHO", "Photographie de l'objet ou de l'événement"
     AUTRE = "AUT", "Autre (à détailler dans les commentaires)"
+
+    ATTESTATION = "ATT"
+    ATTESTATION_GRATUITE = "ATT-GRA", "Attestation de gratuité"
+    ATTESTATION_CONCOURS_NATURE = "ATT-CON", "Attestation de concours en nature"
+    ATTESTATION_REGLEMENT_CONSOMMATIONS = (
+        "ATT-REG",
+        "Attestation de réglement des consommations",
+    )
+    DEMANDE_AUTORISATION_ESPACE_PUBLIC = (
+        "ATT-ESP",
+        "Demande d'autorisation d'occupation de l'espace public",
+    )
 
 
 class TypeDepense(TextChoices):
