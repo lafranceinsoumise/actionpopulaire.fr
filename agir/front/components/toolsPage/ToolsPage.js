@@ -155,10 +155,16 @@ const ItemActionContainer = styled.div`
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    flex-grow: 1;
     height: 82px;
-    overflow: hidden;
     padding: 6px 16px;
+
+    span {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      max-height: 42px;
+      overflow: hidden;
+    }
   }
 `;
 
@@ -423,7 +429,10 @@ export const ItemAction = ({ image, title, href }) => {
     <StyledLink href={href}>
       <ItemActionContainer img={image}>
         <div />
-        <div dangerouslySetInnerHTML={{ __html: title }}></div>
+        {/* <div dangerouslySetInnerHTML={{ __html: title }}></div> */}
+        <div>
+          <span dangerouslySetInnerHTML={{ __html: title }} />
+        </div>
       </ItemActionContainer>
     </StyledLink>
   );
@@ -498,7 +507,7 @@ export const ListItemAction = ({ pages }) => {
       timeout = setTimeout(() => {
         updateCarrousel();
         setUpdateCarrousel(false);
-      }, 600);
+      }, 800);
     }
 
     return () => {
@@ -511,7 +520,6 @@ export const ListItemAction = ({ pages }) => {
   return (
     <ListItemActionContainer>
       {showLeftScroll && <CarrouselArrow direction="left" />}
-
       <Carrousel ref={containerRef}>
         {pages?.map((page, id) => (
           <ItemAction
@@ -522,7 +530,6 @@ export const ListItemAction = ({ pages }) => {
           />
         ))}
       </Carrousel>
-
       {showRightScroll && <CarrouselArrow direction="right" />}
     </ListItemActionContainer>
   );
