@@ -30,13 +30,16 @@ export const useWPPagesAndCategories = () => {
     const category = filtered_categories[0];
     categories[category.id] = { id: category.id, name: category.name };
 
-    let title = page.title.rendered;
-    if (title.length > 70) title = title.slice(0, 70) + "...";
+    const title = page.title.rendered;
+    const embed = page._embedded["wp:featuredmedia"][0];
+    const medias = embed.media_details?.sizes;
+    const media = medias.medium_large || medias.medium || medias.large || embed;
+    const image = media.source_url;
 
     const p = {
       id: page.id,
       title: title,
-      img: page._embedded["wp:featuredmedia"][0].source_url,
+      img: image,
       link: page.link,
       category_id: category.id,
       category_name: category.name,

@@ -67,7 +67,7 @@ const IndexLinkAnchor = styled(Link)`
 const BlockTitle = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   margin-top: 40px;
 
   > div:first-child {
@@ -84,9 +84,10 @@ const BlockContent = styled.div`
   margin-bottom: 20px;
 `;
 
-const Title = styled.div`
+const Title = styled.h2`
   font-weight: 700;
   font-size: 26px;
+  margin: 0;
 
   @media (max-width: ${style.collapse}px) {
     font-size: 20px;
@@ -94,10 +95,11 @@ const Title = styled.div`
   }
 `;
 
-const Subtitle = styled.div`
+const Subtitle = styled.h3`
   font-weight: 600;
   font-size: 1rem;
   margin: 20px 0;
+  margin-bottom: 10px;
 `;
 
 const StyledButton = styled(Button)`
@@ -125,16 +127,27 @@ const ItemActionContainer = styled.div`
   }
 
   > div:first-child {
+    position: relative;
+
     ${({ img }) => `
       background-image: url(${img});
       background-position: center;
       background-size: cover;
       height: 190px;
     `}
-    margin-left: 1px;
 
     @media (max-width: ${style.collapse}px) {
       height: 120px;
+    }
+
+    :after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0));
     }
   }
 
@@ -142,11 +155,16 @@ const ItemActionContainer = styled.div`
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    flex-grow: 1;
     height: 82px;
-    overflow: hidden;
     padding: 6px 16px;
-    background-color: #fafafa;
+
+    span {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      max-height: 42px;
+      overflow: hidden;
+    }
   }
 `;
 
@@ -234,6 +252,9 @@ const ItemWebsiteContainer = styled.div`
   color: ${style.black1000};
 
   > div:first-child {
+    @media (max-width: 350px) {
+      flex: 0 0 90px;
+    }
     flex: 0 0 113px;
     height: 100%;
     ${({ img }) => `
@@ -253,7 +274,7 @@ const ItemWebsiteContainer = styled.div`
   }
 `;
 
-const BannerTool = styled.div`
+const BannerTool = styled.h1`
   width: 100%;
   height: 138px;
   background-color: ${style.primary500};
@@ -302,6 +323,10 @@ const BannerHelpContainer = styled.div`
     position: absolute;
     right: -232px;
     top: -485px;
+
+    @media (max-width: 450px) {
+      display: none;
+    }
 
     @media (max-width: ${style.collapse}px) {
       right: -465px;
@@ -404,7 +429,9 @@ export const ItemAction = ({ image, title, href }) => {
     <StyledLink href={href}>
       <ItemActionContainer img={image}>
         <div />
-        <div dangerouslySetInnerHTML={{ __html: title }}></div>
+        <div>
+          <span dangerouslySetInnerHTML={{ __html: title }} />
+        </div>
       </ItemActionContainer>
     </StyledLink>
   );
@@ -479,7 +506,7 @@ export const ListItemAction = ({ pages }) => {
       timeout = setTimeout(() => {
         updateCarrousel();
         setUpdateCarrousel(false);
-      }, 600);
+      }, 800);
     }
 
     return () => {
@@ -492,7 +519,6 @@ export const ListItemAction = ({ pages }) => {
   return (
     <ListItemActionContainer>
       {showLeftScroll && <CarrouselArrow direction="left" />}
-
       <Carrousel ref={containerRef}>
         {pages?.map((page, id) => (
           <ItemAction
@@ -503,7 +529,6 @@ export const ListItemAction = ({ pages }) => {
           />
         ))}
       </Carrousel>
-
       {showRightScroll && <CarrouselArrow direction="right" />}
     </ListItemActionContainer>
   );

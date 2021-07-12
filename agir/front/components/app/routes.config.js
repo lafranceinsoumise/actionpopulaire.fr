@@ -262,6 +262,11 @@ export const routeConfig = {
     label: "Outils",
     Component: ToolsPage,
     hideFeedbackButton: true,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
   }),
   notificationSettings: notificationSettingRoute,
   menu: new RouteConfig({
