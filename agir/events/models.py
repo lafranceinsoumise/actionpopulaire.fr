@@ -6,6 +6,7 @@ import ics
 import pytz
 from django import forms
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -22,7 +23,7 @@ from dynamic_filenames import FilePattern
 from slugify import slugify
 from stdimage.models import StdImageField
 
-from agir.gestion.typologies import TypeProjet
+from agir.gestion.typologies import TypeProjet, TypeDocument
 from agir.groups.models import Membership, SupportGroup
 from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.form_fields import DateTimePickerWidget
@@ -698,6 +699,21 @@ class EventSubtype(BaseSubtype):
         max_length=10,
         null=True,
         blank=True,
+    )
+
+    required_documents = ArrayField(
+        verbose_name="Attestations requises",
+        base_field=models.CharField(
+            choices=(
+                choice
+                for choice in TypeDocument.choices
+                if f"{TypeDocument.ATTESTATION}-" in choice[0]
+            ),
+            max_length=10,
+        ),
+        null=False,
+        blank=False,
+        default=list,
     )
 
     class Meta:
