@@ -448,7 +448,7 @@ class EventProjectSerializer(serializers.ModelSerializer):
     projectId = serializers.IntegerField(source="id", read_only=True)
     event = ProjectEventSerializer(read_only=True)
     status = serializers.CharField(source="etat", read_only=True)
-    absentDocumentTypes = serializers.JSONField(
+    dismissedDocumentTypes = serializers.JSONField(
         source="details.documents.absents", default=list, read_only=True
     )
     requiredDocumentTypes = serializers.JSONField(
@@ -471,7 +471,7 @@ class EventProjectSerializer(serializers.ModelSerializer):
             "projectId",
             "event",
             "status",
-            "absentDocumentTypes",
+            "dismissedDocumentTypes",
             "requiredDocumentTypes",
             "documents",
             "limitDate",

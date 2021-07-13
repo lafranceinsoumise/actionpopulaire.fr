@@ -34,6 +34,10 @@ const StyledCurrentValue = styled.button`
       font-weight: 600;
       font-size: 1rem;
       color: ${(props) => props.theme.primary500};
+
+      &::first-letter {
+        text-transform: uppercase;
+      }
     }
   }
 `;

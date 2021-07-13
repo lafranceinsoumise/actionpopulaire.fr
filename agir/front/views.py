@@ -26,6 +26,7 @@ from .view_mixins import (
     SimpleOpengraphMixin,
     ObjectOpengraphMixin,
 )
+from ..events.models import Event
 from ..events.views.event_views import EventDetailMixin
 from ..groups.views.public_views import SupportGroupDetailMixin
 from ..lib.utils import generate_token_params
@@ -136,6 +137,14 @@ class NotFoundView(BaseAppView):
 class UserMessageView(BaseAppHardAuthView, GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("msgs.view_message",)
     queryset = SupportGroupMessage.objects.all()
+
+    def get_object(self):
+        return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))
+
+
+class EventProjectView(BaseAppHardAuthView, GlobalOrObjectPermissionRequiredMixin):
+    permission_required = "event.change_event"
+    queryset = Event.objects.all()
 
     def get_object(self):
         return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))

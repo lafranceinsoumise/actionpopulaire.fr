@@ -75,7 +75,7 @@ const SentDocumentsCard = (props) => {
           <li key={doc.id}>
             <RawFeatherIcon as="i" name="file-text" />
             <span>{doc.name}</span>
-            <Button small as="a" href={doc.link} color="primary">
+            <Button small as="a" href={doc.file} color="primary">
               Voir
             </Button>
           </li>
@@ -88,9 +88,10 @@ const SentDocumentsCard = (props) => {
 SentDocumentsCard.propTypes = {
   documents: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.string.isRequired,
+      id: PropTypes.number.isRequired,
       name: PropTypes.string.isRequired,
-      link: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+      file: PropTypes.string.isRequired,
     })
   ),
 };

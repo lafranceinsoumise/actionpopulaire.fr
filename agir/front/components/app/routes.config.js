@@ -16,6 +16,9 @@ const CreateEvent = lazy(() =>
 const EventSettings = lazy(() =>
   import("@agir/events/EventSettings/EventSettings")
 );
+const EventRequiredDocuments = lazy(() =>
+  import("@agir/events/eventRequiredDocuments/EventRequiredDocumentsPage")
+);
 
 const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
 const FullGroupPage = lazy(() =>
@@ -173,6 +176,19 @@ export const routeConfig = {
     Component: EventSettings,
     hideTopBar: true,
     hideFeedbackButton: true,
+  }),
+  eventRequiredDocuments: new RouteConfig({
+    id: "eventRequiredDocuments",
+    path: "/evenements/:eventPk/documents/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Documents de l'événement",
+    Component: EventRequiredDocuments,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
   }),
   groups: new RouteConfig({
     id: "groups",

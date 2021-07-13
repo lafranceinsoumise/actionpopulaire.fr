@@ -205,7 +205,7 @@ const RequiredDocumentModal = (props) => {
 };
 
 RequiredDocumentModal.propTypes = {
-  type: PropTypes.string.isRequired,
+  type: PropTypes.string,
   shouldShow: PropTypes.bool,
   isLoading: PropTypes.bool,
   onClose: PropTypes.func,

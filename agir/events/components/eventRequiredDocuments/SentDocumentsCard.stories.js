@@ -20,13 +20,13 @@ Default.args = {
       id: "a",
       type: "ABC",
       name: "Prêt de retro-projecteur",
-      link: "#docABC",
+      file: "#docABC",
     },
     {
       id: "b",
       type: "CBA",
       name: "Attestation de règlement des consommations",
-      link: "#docCBA",
+      file: "#docCBA",
     },
   ],
 };

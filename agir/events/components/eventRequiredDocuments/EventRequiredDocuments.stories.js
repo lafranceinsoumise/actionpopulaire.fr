@@ -35,7 +35,6 @@ Default.args = {
   subtypes,
   projectId: "abc",
   status: "pending",
-  absentDocumentTypes: [Object.keys(EVENT_DOCUMENT_TYPES)[2]],
   requiredDocumentTypes: Object.keys(EVENT_DOCUMENT_TYPES).slice(0, 2),
   documents: [
     {

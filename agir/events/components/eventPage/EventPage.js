@@ -107,6 +107,10 @@ const IndexLinkAnchor = styled(Link)`
     color: #585858;
   }
 
+  @media (${(props) => props.theme.collapse}px) {
+    display: none;
+  }
+
   svg {
     height: 16px;
   }

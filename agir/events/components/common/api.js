@@ -8,6 +8,7 @@ export const ENDPOINT = {
   eventPropertyOptions: "/api/evenements/options/",
   createEvent: "/api/evenements/creer/",
   updateEvent: "/api/evenements/:eventPk/modifier/",
+  eventProject: "/api/evenements/:eventPk/projet/",
 };
 
 export const getEventEndpoint = (key, params) => {
