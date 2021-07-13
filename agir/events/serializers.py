@@ -27,6 +27,7 @@ from .tasks import (
     send_secretariat_notification,
     geocode_event,
 )
+from ..gestion.models import Projet
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupDetailSerializer
 from ..groups.serializers import SupportGroupSerializer
@@ -403,5 +404,8 @@ class CreateEventSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         event = Event.objects.create(**validated_data)
+        # Create a gestion project if needed for the event's subtype
+        if event.subtype.related_project_type is not None:
+            Projet.objects.from_event(event)
         self.schedule_tasks(event, validated_data)
         return event

@@ -4,6 +4,8 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from agir.events.models import EventSubtype, OrganizerConfig
+from agir.gestion.models import Projet
+from agir.gestion.typologies import TypeProjet
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import create_location, get_random_object
 
@@ -306,6 +308,38 @@ class CreateEventAPITestCase(APITestCase):
         )
         self.assertEqual(res.status_code, 422)
         self.assertIn("onlineUrl", res.data)
+
+    def test_gestion_projet_is_created_for_related_new_event_subtype(self):
+        self.client.force_login(self.person.role)
+
+        subtype_without_related_project_type = EventSubtype.objects.create(
+            label="2017!",
+            related_project_type=None,
+            visibility=EventSubtype.VISIBILITY_ALL,
+        )
+        res = self.client.post(
+            "/api/evenements/creer/",
+            data={
+                **self.valid_data,
+                "subtype": subtype_without_related_project_type.id,
+            },
+        )
+        self.assertEqual(res.status_code, 201)
+        new_event_id = res.data["id"]
+        self.assertFalse(Projet.objects.filter(event_id=new_event_id).exists())
+
+        subtype_with_related_project_type = EventSubtype.objects.create(
+            label="2022!",
+            related_project_type=TypeProjet.DEBATS,
+            visibility=EventSubtype.VISIBILITY_ALL,
+        )
+        res = self.client.post(
+            "/api/evenements/creer/",
+            data={**self.valid_data, "subtype": subtype_with_related_project_type.id,},
+        )
+        self.assertEqual(res.status_code, 201)
+        new_event_id = res.data["id"]
+        self.assertTrue(Projet.objects.filter(event_id=new_event_id).exists())
 
 
 from agir.events.models import Event, RSVP
