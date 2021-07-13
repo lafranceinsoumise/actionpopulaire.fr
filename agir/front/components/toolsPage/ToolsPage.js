@@ -252,8 +252,8 @@ const ItemWebsiteContainer = styled.div`
   color: ${style.black1000};
 
   > div:first-child {
-    @media (max-width: 350px) {
-      flex: 0 0 90px;
+    @media (max-width: 380px) {
+      flex: 0 0 88px;
     }
     flex: 0 0 113px;
     height: 100%;
@@ -271,6 +271,11 @@ const ItemWebsiteContainer = styled.div`
     justify-content: space-between;
     flex-grow: 1;
     padding: 20px;
+
+    @media (max-width: 380px) {
+      font-size: 15px;
+      padding: 10px;
+    }
   }
 `;
 
@@ -343,19 +348,31 @@ export const WEBSITES = [
     href: nonReactRoutes.jlm2022,
   },
   {
-    title: "L'avenir en commun",
+    title: (
+      <>
+        Notre programme&nbsp;:
+        <br />
+        L'avenir en commun
+      </>
+    ),
     img: img_AvenirEnCommun,
     href: nonReactRoutes.programme,
   },
   {
-    title: "L'insoumission",
-    img: img_Linsoumission,
-    href: nonReactRoutes.linsoumission,
-  },
-  {
-    title: "Comparateur de programme",
+    title: <>Le comparateur de&nbsp;programme</>,
     img: img_Comparateur,
     href: nonReactRoutes.comparateur,
+  },
+  {
+    title: (
+      <>
+        Notre média&nbsp;:
+        <br />
+        L'insoumission
+      </>
+    ),
+    img: img_Linsoumission,
+    href: nonReactRoutes.linsoumission,
   },
 ];
 
