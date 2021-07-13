@@ -83,7 +83,7 @@ django-push-notifications = "*"
 pywebpush = "*"
 social-auth-core = "==4.0.2"
 django-storages = "^1.11.1"
-qrcode = {extras = ["pil"], version = "^6.1"}
+qrcode = {extras = ["pil"], version = "^7.1"}
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
