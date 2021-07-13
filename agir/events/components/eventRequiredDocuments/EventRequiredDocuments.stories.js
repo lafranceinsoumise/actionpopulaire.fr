@@ -35,12 +35,15 @@ Default.args = {
   subtypes,
   projectId: "abc",
   status: "pending",
+  absentDocumentTypes: [Object.keys(EVENT_DOCUMENT_TYPES)[2]],
   requiredDocumentTypes: Object.keys(EVENT_DOCUMENT_TYPES).slice(0, 2),
   documents: [
     {
       id: "doc",
+      type: Object.keys(EVENT_DOCUMENT_TYPES)[3],
+      description: "Attestation de concours en nature",
       name: "Attestation de concours en nature",
-      link: "#doc",
+      file: "#doc",
     },
   ],
   limitDate: "2022-01-01 00:00:00",

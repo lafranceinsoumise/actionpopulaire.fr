@@ -120,4 +120,9 @@ urlpatterns = [
         views.RSVPEventAPIView.as_view(),
         name="api_rsvp_event",
     ),
+    path(
+        "api/evenements/<uuid:event_id>/projet/",
+        views.EventProjectAPIView.as_view(),
+        name="api_event_project",
+    ),
 ]

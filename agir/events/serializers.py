@@ -27,7 +27,7 @@ from .tasks import (
     send_secretariat_notification,
     geocode_event,
 )
-from ..gestion.models import Projet
+from ..gestion.models import Projet, Document
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupDetailSerializer
 from ..groups.serializers import SupportGroupSerializer
@@ -424,3 +424,55 @@ class UpdateEventSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         return super().update(instance, validated_data)
+
+
+class EventProjectDocumentSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="titre")
+    file = serializers.FileField(source="fichier")
+
+    class Meta:
+        model = Document
+        fields = ["id", "name", "type", "description", "file"]
+
+
+class ProjectEventSerializer(serializers.ModelSerializer):
+    endTime = serializers.DateTimeField(source="end_time", read_only=True)
+    subtype = EventSubtypeSerializer(read_only=True)
+
+    class Meta:
+        model = Event
+        fields = ["id", "name", "endTime", "subtype"]
+
+
+class EventProjectSerializer(serializers.ModelSerializer):
+    projectId = serializers.IntegerField(source="id", read_only=True)
+    event = ProjectEventSerializer(read_only=True)
+    status = serializers.CharField(source="etat", read_only=True)
+    absentDocumentTypes = serializers.JSONField(
+        source="details.documents.absents", default=list, read_only=True
+    )
+    requiredDocumentTypes = serializers.JSONField(
+        source="event.subtype.required_documents", read_only=True
+    )
+    documents = serializers.SerializerMethodField(read_only=True)
+    limitDate = serializers.SerializerMethodField(read_only=True)
+
+    def get_documents(self, obj):
+        return EventProjectDocumentSerializer(
+            obj.documents, many=True, context=self.context,
+        ).data
+
+    def get_limitDate(self, obj):
+        return obj.event.end_time + timedelta(days=15)
+
+    class Meta:
+        model = Projet
+        fields = [
+            "projectId",
+            "event",
+            "status",
+            "absentDocumentTypes",
+            "requiredDocumentTypes",
+            "documents",
+            "limitDate",
+        ]

@@ -218,6 +218,7 @@ const EventRequiredDocuments = (props) => {
 };
 
 EventRequiredDocuments.propTypes = {
+  projectId: PropTypes.number,
   event: PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
@@ -228,10 +229,13 @@ EventRequiredDocuments.propTypes = {
     }),
   }),
   status: PropTypes.string,
+  absentDocumentTypes: PropTypes.arrayOf(PropTypes.string),
   requiredDocumentTypes: PropTypes.arrayOf(PropTypes.string),
   documents: PropTypes.arrayOf(PropTypes.object),
   limitDate: PropTypes.string,
+
   subtypes: PropTypes.arrayOf(PropTypes.object),
+
   onSaveDocument: PropTypes.func.isRequired,
   onDismissDocument: PropTypes.func.isRequired,
   onChangeSubtype: PropTypes.func.isRequired,

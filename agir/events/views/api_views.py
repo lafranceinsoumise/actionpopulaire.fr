@@ -13,6 +13,7 @@ from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
     UpdateAPIView,
+    get_object_or_404,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -29,6 +30,7 @@ from agir.events.serializers import (
     EventPropertyOptionsSerializer,
     UpdateEventSerializer,
     CreateEventSerializer,
+    EventProjectSerializer,
 )
 
 __all__ = [
@@ -39,7 +41,10 @@ __all__ = [
     "CreateEventAPIView",
     "UpdateEventAPIView",
     "RSVPEventAPIView",
+    "EventProjectAPIView",
 ]
+
+from agir.gestion.models import Projet
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
 
@@ -258,3 +263,24 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
         rsvp.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EventProjectPermission(GlobalOrObjectPermissions):
+    perms_map = {
+        "GET": [],
+    }
+    object_perms_map = {"GET": ["events.change_event"]}
+
+
+class EventProjectAPIView(RetrieveAPIView):
+    permission_classes = (EventProjectPermission,)
+    serializer_class = EventProjectSerializer
+    queryset = (
+        Projet.objects.filter(event__isnull=False)
+        .select_related("event", "event__subtype")
+        .prefetch_related("documents")
+    )
+    lookup_field = "event_id"
+
+    def check_object_permissions(self, request, obj):
+        return super().check_object_permissions(request, obj.event)
