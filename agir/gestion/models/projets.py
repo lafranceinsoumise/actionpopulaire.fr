@@ -138,11 +138,16 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
         default=NiveauAcces.SANS_RESTRICTION,
     )
 
-    details = models.JSONField("Détails", default=dict)
-
     documents = models.ManyToManyField(
         to="Document", related_name="projets", related_query_name="projet"
     )
+
+    # Ce champ JSON est utilisé pour sauvegarder un certain nombre de réglages du projet.
+    # (ci-dessous, une clé "a.b" désigne la clé "b" de l'objet à la clé "a" de l'objet détails)
+    # Pour le moment, les clés suivantes sont définies :
+    # - la clé "documents.absents" est une liste de type de documents normalement requis pour ce type de projets, mais
+    #   indiqué comme explicitement absent sur le projet concerné.
+    details = models.JSONField("Détails", default=dict)
 
     def todos(self):
         return todos(self)
