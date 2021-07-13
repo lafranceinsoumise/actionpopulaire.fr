@@ -26,7 +26,7 @@ from agir.people.models import PersonFormSubmission
 from agir.people.person_forms.display import PersonFormDisplay
 from . import actions
 from . import views
-from .forms import EventAdminForm
+from .forms import EventAdminForm, EventSubtypeAdminForm
 from .. import models
 from ..actions import legal
 from ..forms import EventLegalForm
@@ -596,6 +596,7 @@ class EventTagAdmin(admin.ModelAdmin):
 
 @admin.register(models.EventSubtype)
 class EventSubtypeAdmin(admin.ModelAdmin):
+    form = EventSubtypeAdminForm
     list_display = (
         "label",
         "description",
