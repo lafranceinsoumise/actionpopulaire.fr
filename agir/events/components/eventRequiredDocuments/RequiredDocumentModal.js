@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
+import { usePrevious } from "react-use";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -9,6 +10,8 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import FileField from "@agir/front/formComponents/FileField";
 import TextField from "@agir/front/formComponents/TextField";
+
+import { EVENT_DOCUMENT_TYPES } from "./config";
 
 const StyledIconButton = styled.button`
   border: none;
@@ -112,16 +115,17 @@ const StyledModalContent = styled.div`
   }
 `;
 
-const INITIAL_DATA = {
+const INITIAL_DATA = (type) => ({
   file: null,
-  name: "",
+  name: EVENT_DOCUMENT_TYPES[type]?.name || "",
   description: "",
-};
+});
 
 const RequiredDocumentModal = (props) => {
   const { type, shouldShow, isLoading, onClose, onSubmit, errors } = props;
 
-  const [data, setData] = useState({ ...INITIAL_DATA });
+  const [data, setData] = useState({ ...INITIAL_DATA(type) });
+  const wasLoading = usePrevious(isLoading);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -131,8 +135,14 @@ const RequiredDocumentModal = (props) => {
   const maySubmit = !isLoading && !!data?.file && !!data?.name;
 
   useEffect(() => {
-    !shouldShow && setData({ ...INITIAL_DATA });
-  }, [shouldShow]);
+    !!type && setData({ ...INITIAL_DATA(type) });
+  }, [type]);
+
+  useEffect(() => {
+    if (wasLoading && !isLoading && !errors) {
+      onClose();
+    }
+  }, [isLoading, wasLoading, errors, onClose]);
 
   return (
     <Modal
@@ -159,9 +169,8 @@ const RequiredDocumentModal = (props) => {
             onChange={(file) => setData({ ...data, file })}
             label="Télécharger le document"
             helpText="Formats autorisés : .PDF .PNG .JPG .DOCX"
-            accept=".pdf,.png,.jpg,.docx"
+            accept=".pdf,.png,.jpg,.jpeg,.docx"
             error={errors?.file}
-            required
           />
           <Spacer size="1.25rem" />
           <TextField

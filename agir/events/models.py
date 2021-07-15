@@ -669,6 +669,12 @@ class EventSubtype(BaseSubtype):
         ),
     }
 
+    EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES = [
+        choice
+        for choice in TypeDocument.choices
+        if f"{TypeDocument.ATTESTATION}-" in choice[0]
+    ]
+
     type = models.CharField(_("Type d'événement"), max_length=1, choices=TYPE_CHOICES)
 
     default_description = DescriptionField(
@@ -704,12 +710,7 @@ class EventSubtype(BaseSubtype):
     required_documents = ArrayField(
         verbose_name="Attestations requises",
         base_field=models.CharField(
-            choices=(
-                choice
-                for choice in TypeDocument.choices
-                if f"{TypeDocument.ATTESTATION}-" in choice[0]
-            ),
-            max_length=10,
+            choices=EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES, max_length=10,
         ),
         null=False,
         blank=False,

@@ -193,7 +193,10 @@ const EventRequiredDocuments = (props) => {
         requiredDocumentTypes.length > 0 && (
           <StyledDocumentList $required>
             <h4>
-              {requiredDocumentTypes.length} informations requises
+              {requiredDocumentTypes.length}{" "}
+              {requiredDocumentTypes.length > 1
+                ? "informations requises"
+                : "information requise"}
               <small>À compléter avant le {displayShortDate(limitDate)}</small>
             </h4>
             <Spacer size="1.5rem" />

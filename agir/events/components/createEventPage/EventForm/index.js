@@ -424,6 +424,7 @@ const EventForm = () => {
         groupPk={formData?.organizerGroup?.id}
         isCertified={!!formData?.organizerGroup?.is2022Certified}
         needsDocuments={!!formData?.subtype?.needsDocuments}
+        endTime={formData?.endTime}
       />
       <Spacer size="1rem" />
       {errors && errors.global && (

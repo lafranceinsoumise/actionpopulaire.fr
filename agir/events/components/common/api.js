@@ -9,6 +9,7 @@ export const ENDPOINT = {
   createEvent: "/api/evenements/creer/",
   updateEvent: "/api/evenements/:eventPk/modifier/",
   eventProject: "/api/evenements/:eventPk/projet/",
+  addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
 };
 
 export const getEventEndpoint = (key, params) => {
@@ -101,6 +102,64 @@ export const updateEvent = async (eventPk, data) => {
     result.data = response.data;
   } catch (e) {
     result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};
+
+export const updateEventProject = async (eventPk, data) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("eventProject", { eventPk });
+
+  try {
+    const response = await axios.patch(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};
+
+export const addEventProjectDocument = async (eventPk, data) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const headers = {
+    "content-type": "multipart/form-data",
+  };
+  const url = getEventEndpoint("addEventProjectDocument", { eventPk });
+  const body = new FormData();
+
+  Object.keys(data).forEach((e) => {
+    body.append(e, data[e]);
+  });
+
+  try {
+    const response = await axios.post(url, body, { headers });
+    result.data = response.data;
+  } catch (e) {
+    if (!e.response || !e.response.data) {
+      result.errors = e.message;
+    } else if (e.response.status === 400 && data.file) {
+      result.errors = {
+        file: "La taille du fichier ne doit pas dépasser le 2.5 Mo",
+      };
+    } else {
+      result.errors = Object.entries(e.response.data).reduce(
+        (errors, [field, error]) => ({
+          ...errors,
+          [field]: Array.isArray(error) ? error[0] : error,
+        }),
+        {}
+      );
+    }
   }
 
   return result;

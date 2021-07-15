@@ -1,4 +1,5 @@
 from datetime import timedelta
+from pathlib import PurePath
 
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
@@ -427,8 +428,17 @@ class UpdateEventSerializer(serializers.ModelSerializer):
 
 
 class EventProjectDocumentSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source="titre")
+    name = serializers.CharField(source="titre", max_length=200)
     file = serializers.FileField(source="fichier")
+
+    def validate_file(self, value):
+        ext = PurePath(value.name).suffix
+        if ext.lower() not in [".pdf", ".jpg", ".jpeg", ".png", ".docx"]:
+            raise serializers.ValidationError(
+                detail="Format de fichier incorrect, seuls .PDF, .JPG, .PNG et .DOCX sont autorisés",
+                code="formulaire_format_incorrect",
+            )
+        return value
 
     class Meta:
         model = Document
@@ -449,7 +459,7 @@ class EventProjectSerializer(serializers.ModelSerializer):
     event = ProjectEventSerializer(read_only=True)
     status = serializers.CharField(source="etat", read_only=True)
     dismissedDocumentTypes = serializers.JSONField(
-        source="details.documents.absents", default=list, read_only=True
+        source="details.documents.absent", default=list,
     )
     requiredDocumentTypes = serializers.JSONField(
         source="event.subtype.required_documents", read_only=True
@@ -457,9 +467,37 @@ class EventProjectSerializer(serializers.ModelSerializer):
     documents = serializers.SerializerMethodField(read_only=True)
     limitDate = serializers.SerializerMethodField(read_only=True)
 
+    def validate_dismissedDocumentTypes(self, types):
+        if not isinstance(types, list):
+            raise serializers.ValidationError("Format invalide")
+        invalid_types = [t for t in types if t not in self.Meta.valid_document_types]
+        if len(invalid_types) > 0:
+            raise serializers.ValidationError(
+                f"Valeurs non autorisée : {','.join(invalid_types)}"
+            )
+
+        return types
+
+    def validate(self, data):
+        if (
+            data.get("details")
+            and data["details"].get("documents")
+            and data["details"]["documents"].get("absent")
+        ):
+            dismissed_document_types = data["details"]["documents"].get("absent")
+            data.update({"details": self.instance.details})
+            if data["details"].get("documents") is None:
+                data["details"]["documents"] = {}
+            data["details"]["documents"]["absent"] = dismissed_document_types
+
+        return super().validate(data)
+
     def get_documents(self, obj):
+        uploaded_documents = obj.documents.filter(
+            type__in=self.Meta.valid_document_types
+        )
         return EventProjectDocumentSerializer(
-            obj.documents, many=True, context=self.context,
+            uploaded_documents, many=True, context=self.context,
         ).data
 
     def get_limitDate(self, obj):
@@ -475,4 +513,8 @@ class EventProjectSerializer(serializers.ModelSerializer):
             "requiredDocumentTypes",
             "documents",
             "limitDate",
+        ]
+        valid_document_types = [
+            choice[0]
+            for choice in EventSubtype.EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES
         ]

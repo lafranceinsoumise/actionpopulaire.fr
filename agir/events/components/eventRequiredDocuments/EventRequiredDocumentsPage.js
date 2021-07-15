@@ -1,12 +1,17 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import useSWR from "swr";
 
 import EventRequiredDocument from "./EventRequiredDocuments";
 
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
-import { getEventEndpoint, updateEvent } from "@agir/events/common/api";
+import {
+  getEventEndpoint,
+  updateEvent,
+  updateEventProject,
+  addEventProjectDocument,
+} from "@agir/events/common/api";
 import { useEventFormOptions } from "@agir/events/common/hooks";
 
 const EventRequiredDocumentsPage = (props) => {
@@ -17,6 +22,7 @@ const EventRequiredDocumentsPage = (props) => {
   const { subtype } = useEventFormOptions();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState(null);
 
   const {
     projectId,
@@ -28,7 +34,7 @@ const EventRequiredDocumentsPage = (props) => {
     limitDate,
   } = data || {};
 
-  const handleChangeSubtype = useCallback(
+  const changeSubtype = useCallback(
     async (subtype) => {
       setIsLoading(true);
       await updateEvent(eventPk, { subtype: subtype.id });
@@ -38,6 +44,54 @@ const EventRequiredDocumentsPage = (props) => {
     [eventPk, mutate]
   );
 
+  const saveDocument = useCallback(
+    async (doc) => {
+      setIsLoading(true);
+      setErrors(null);
+      const result = await addEventProjectDocument(eventPk, doc);
+      if (result.errors) {
+        setErrors(result.errors);
+      } else {
+        mutate();
+      }
+      setIsLoading(false);
+    },
+    [eventPk, mutate]
+  );
+
+  const dismissDocumentType = useCallback(
+    async (documentType) => {
+      if (dismissedDocumentTypes.includes(documentType)) {
+        mutate();
+        return;
+      }
+      setIsLoading(true);
+      setErrors(null);
+      const result = await updateEventProject(eventPk, {
+        dismissedDocumentTypes: [...dismissedDocumentTypes, documentType],
+      });
+      if (result.errors) {
+        setErrors(result.errors);
+      } else {
+        mutate();
+      }
+      setIsLoading(false);
+    },
+    [eventPk, dismissedDocumentTypes, mutate]
+  );
+
+  const requiredDocumentTypesLeft = useMemo(() => {
+    if (!documents) {
+      return;
+    }
+    const sentDocumentTypes = documents.map((doc) => doc.type);
+    return requiredDocumentTypes.filter(
+      (type) =>
+        !dismissedDocumentTypes.includes(type) &&
+        !sentDocumentTypes.includes(type)
+    );
+  }, [dismissedDocumentTypes, requiredDocumentTypes, documents]);
+
   return (
     <PageFadeIn ready={!!data}>
       {data && (
@@ -45,16 +99,15 @@ const EventRequiredDocumentsPage = (props) => {
           projectId={projectId}
           event={event}
           status={status}
-          requiredDocumentTypes={requiredDocumentTypes.filter(
-            (type) => !dismissedDocumentTypes.includes(type)
-          )}
+          requiredDocumentTypes={requiredDocumentTypesLeft}
           documents={documents}
           limitDate={limitDate}
           subtypes={subtype}
           isLoading={isLoading}
-          onSaveDocument={console.log}
-          onDismissDocument={console.log}
-          onChangeSubtype={handleChangeSubtype}
+          errors={errors}
+          onSaveDocument={saveDocument}
+          onDismissDocument={dismissDocumentType}
+          onChangeSubtype={changeSubtype}
         />
       )}
     </PageFadeIn>

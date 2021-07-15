@@ -1,7 +1,8 @@
 from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
-from django.db.models import Q
+from django.db import transaction
+from django.db.models import Q, Prefetch
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -13,7 +14,7 @@ from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
     UpdateAPIView,
-    get_object_or_404,
+    RetrieveUpdateAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -31,17 +32,20 @@ from agir.events.serializers import (
     UpdateEventSerializer,
     CreateEventSerializer,
     EventProjectSerializer,
+    EventProjectDocumentSerializer,
 )
 
 __all__ = [
     "EventDetailAPIView",
     "EventRsvpedAPIView",
     "EventSuggestionsAPIView",
+    "EventSuggestionsAPIView",
     "EventCreateOptionsAPIView",
     "CreateEventAPIView",
     "UpdateEventAPIView",
     "RSVPEventAPIView",
     "EventProjectAPIView",
+    "CreateEventProjectDocumentAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -266,21 +270,46 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
 
 
 class EventProjectPermission(GlobalOrObjectPermissions):
-    perms_map = {
-        "GET": [],
+    perms_map = {"GET": [], "PUT": [], "PATCH": []}
+    object_perms_map = {
+        "GET": ["events.change_event"],
+        "PUT": ["events.change_event"],
+        "PATCH": ["events.change_event"],
     }
-    object_perms_map = {"GET": ["events.change_event"]}
 
 
-class EventProjectAPIView(RetrieveAPIView):
+class EventProjectAPIView(RetrieveUpdateAPIView):
     permission_classes = (EventProjectPermission,)
     serializer_class = EventProjectSerializer
-    queryset = (
-        Projet.objects.filter(event__isnull=False)
-        .select_related("event", "event__subtype")
-        .prefetch_related("documents")
+    queryset = Projet.objects.filter(event__isnull=False).select_related(
+        "event", "event__subtype"
     )
     lookup_field = "event_id"
 
     def check_object_permissions(self, request, obj):
         return super().check_object_permissions(request, obj.event)
+
+
+class CreateEventProjectDocumentPermission(GlobalOrObjectPermissions):
+    perms_map = {
+        "POST": [],
+    }
+    object_perms_map = {
+        "POST": ["events.change_event"],
+    }
+
+
+class CreateEventProjectDocumentAPIView(CreateAPIView):
+    permission_classes = (CreateEventProjectDocumentPermission,)
+    serializer_class = EventProjectDocumentSerializer
+    queryset = Projet.objects.filter(event__isnull=False)
+    lookup_field = "event_id"
+
+    def check_object_permissions(self, request, obj):
+        return super().check_object_permissions(request, obj.event)
+
+    def perform_create(self, serializer):
+        project = self.get_object()
+        with transaction.atomic():
+            document = serializer.save()
+            project.documents.add(document)

@@ -1,9 +1,13 @@
 from unittest.mock import patch
 
+import tempfile
+
+from PIL import Image
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from agir.events.models import Event, EventSubtype, OrganizerConfig, RSVP
+from agir.events.serializers import EventProjectSerializer
 from agir.gestion.models import Projet
 from agir.gestion.typologies import TypeProjet
 from agir.groups.models import SupportGroup, Membership
@@ -572,3 +576,261 @@ class UpdateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn("subtype", res.data)
         self.assertEqual(res.data["subtype"], data["subtype"])
+
+
+class EventProjectAPITestCase(APITestCase):
+    def setUp(self):
+        self.unrelated_person = Person.objects.create(
+            email="unrelated_person@example.com", create_role=True,
+        )
+        self.organizer = Person.objects.create(
+            email="organizer@example.com", create_role=True,
+        )
+        start_time = timezone.now() + timezone.timedelta(days=3)
+        end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
+        self.a_subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL,
+            label="A subtype",
+            type=EventSubtype.TYPE_PUBLIC_ACTION,
+        )
+        self.event = Event.objects.create(
+            name="Event",
+            start_time=start_time,
+            end_time=end_time,
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.a_subtype,
+            organizer_person=self.organizer,
+        )
+        self.project = Projet.objects.create(
+            titre="Project", type=TypeProjet.choices[0][0], event=self.event
+        )
+        self.event_wo_project = Event.objects.create(
+            name="Event without project",
+            start_time=start_time,
+            end_time=end_time,
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.a_subtype,
+            organizer_person=self.organizer,
+        )
+        self.valid_update_data = {
+            "dismissedDocumentTypes": [
+                EventProjectSerializer.Meta.valid_document_types[0]
+            ]
+        }
+
+    ## GET
+    def test_anonymous_person_cannot_retrieve_project(self):
+        self.client.logout()
+        res = self.client.get(f"/api/evenements/{self.event.pk}/projet/")
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_organizer_person_cannot_retrieve_project(self):
+        self.client.force_login(self.unrelated_person.role)
+        res = self.client.get(f"/api/evenements/{self.event.pk}/projet/")
+        self.assertEqual(res.status_code, 403)
+
+    def test_organizer_person_cannot_retrieve_project_if_none_exists(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.event_wo_project.pk}/projet/")
+        self.assertEqual(res.status_code, 404)
+
+    def test_organizer_person_can_retrieve_project_if_one_exists(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.event.pk}/projet/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data["projectId"], self.project.pk)
+
+    ## PATCH
+    def test_anonymous_person_cannot_update_project(self):
+        self.client.logout()
+        res = self.client.patch(
+            f"/api/evenements/{self.event.pk}/projet/", data=self.valid_update_data
+        )
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_organizer_person_cannot_update_project(self):
+        self.client.force_login(self.unrelated_person.role)
+        res = self.client.patch(
+            f"/api/evenements/{self.event.pk}/projet/", data=self.valid_update_data
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_organizer_person_cannot_update_project_if_none_exists(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.patch(
+            f"/api/evenements/{self.event_wo_project.pk}/projet/",
+            data=self.valid_update_data,
+        )
+        self.assertEqual(res.status_code, 404)
+
+    def test_organizer_person_cannot_update_with_invalid_data(self):
+        self.client.force_login(self.organizer.role)
+        data = {"dismissedDocumentTypes": None}
+        res = self.client.patch(f"/api/evenements/{self.event.pk}/projet/", data=data,)
+        self.assertEqual(res.status_code, 422)
+
+        data = {
+            "dismissedDocumentTypes": [
+                "NOT-" + EventProjectSerializer.Meta.valid_document_types[0]
+            ]
+        }
+        res = self.client.patch(f"/api/evenements/{self.event.pk}/projet/", data=data,)
+        self.assertEqual(res.status_code, 422)
+
+    def test_organizer_person_can_update_project_if_one_exists(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.patch(
+            f"/api/evenements/{self.event.pk}/projet/", data=self.valid_update_data
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data["projectId"], self.project.pk)
+        self.assertEqual(
+            res.data["dismissedDocumentTypes"],
+            self.valid_update_data["dismissedDocumentTypes"],
+        )
+
+    def test_updating_dismissed_document_types_does_not_override_instance_details(self):
+        self.client.force_login(self.organizer.role)
+        self.project.details = {"a": "a", "documents": {"b": "b"}}
+        self.project.save()
+        res = self.client.patch(
+            f"/api/evenements/{self.event.pk}/projet/", data=self.valid_update_data
+        )
+        self.assertEqual(res.status_code, 200)
+        self.project.refresh_from_db()
+        self.assertEqual(
+            self.project.details,
+            {
+                "a": "a",
+                "documents": {
+                    "b": "b",
+                    "absent": self.valid_update_data["dismissedDocumentTypes"],
+                },
+            },
+        )
+
+
+class CreateEventProjectDocumentAPITestCase(APITestCase):
+    def setUp(self):
+        self.unrelated_person = Person.objects.create(
+            email="unrelated_person@example.com", create_role=True,
+        )
+        self.organizer = Person.objects.create(
+            email="organizer@example.com", create_role=True,
+        )
+        start_time = timezone.now() + timezone.timedelta(days=3)
+        end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
+        self.a_subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL,
+            label="A subtype",
+            type=EventSubtype.TYPE_PUBLIC_ACTION,
+        )
+        self.event = Event.objects.create(
+            name="Event",
+            start_time=start_time,
+            end_time=end_time,
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.a_subtype,
+            organizer_person=self.organizer,
+        )
+        self.project = Projet.objects.create(
+            titre="Project", type=TypeProjet.choices[0][0], event=self.event
+        )
+        self.event_wo_project = Event.objects.create(
+            name="Event without project",
+            start_time=start_time,
+            end_time=end_time,
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.a_subtype,
+            organizer_person=self.organizer,
+        )
+
+        image = Image.new("RGB", (100, 100))
+        tmp_file = tempfile.NamedTemporaryFile(suffix=".jpg")
+        image.save(tmp_file)
+        tmp_file.seek(0)
+
+        self.valid_data = {
+            "type": EventProjectSerializer.Meta.valid_document_types[0],
+            "name": "A document",
+            "description": "A description",
+            "file": tmp_file,
+        }
+
+    def test_anonymous_person_cannot_add_document(self):
+        self.client.logout()
+        res = self.client.post(
+            f"/api/evenements/{self.event.pk}/projet/document/",
+            data=self.valid_data,
+            format="multipart",
+        )
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_organizer_person_cannot_add_document(self):
+        self.client.force_login(self.unrelated_person.role)
+        res = self.client.post(
+            f"/api/evenements/{self.event.pk}/projet/document/",
+            data=self.valid_data,
+            format="multipart",
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_organizer_person_cannot_add_document_if_project_does_not_exists(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.post(
+            f"/api/evenements/{self.event_wo_project.pk}/projet/document/",
+            data=self.valid_data,
+            format="multipart",
+        )
+        self.assertEqual(res.status_code, 404)
+
+    def test_organizer_person_cannot_add_document_if_type_is_invalid(self):
+        self.client.force_login(self.organizer.role)
+        data = {**self.valid_data, "type": "Not a valid type"}
+        res = self.client.post(
+            f"/api/evenements/{self.event.pk}/projet/document/",
+            data=data,
+            format="multipart",
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("type", res.data)
+
+    def test_organizer_person_cannot_add_document_if_name_is_invalid(self):
+        self.client.force_login(self.organizer.role)
+        data = {**self.valid_data, "name": ""}
+        res = self.client.post(
+            f"/api/evenements/{self.event.pk}/projet/document/",
+            data=data,
+            format="multipart",
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("name", res.data)
+
+    def test_organizer_person_cannot_add_document_if_file_is_invalid(self):
+        self.client.force_login(self.organizer.role)
+        data = {**self.valid_data, "file": ""}
+        res = self.client.post(
+            f"/api/evenements/{self.event.pk}/projet/document/",
+            data=data,
+            format="multipart",
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("file", res.data)
+
+    def test_organizer_person_can_add_document_if_project_exists_and_data_is_valid(
+        self,
+    ):
+        original_document_length = self.project.documents.count()
+        self.client.force_login(self.organizer.role)
+        res = self.client.post(
+            f"/api/evenements/{self.event.pk}/projet/document/",
+            data=self.valid_data,
+            format="multipart",
+        )
+        self.assertEqual(res.status_code, 201)
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.documents.count(), original_document_length + 1)

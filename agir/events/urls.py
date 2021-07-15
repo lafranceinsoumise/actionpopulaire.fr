@@ -125,4 +125,9 @@ urlpatterns = [
         views.EventProjectAPIView.as_view(),
         name="api_event_project",
     ),
+    path(
+        "api/evenements/<uuid:event_id>/projet/document/",
+        views.CreateEventProjectDocumentAPIView.as_view(),
+        name="api_create_event_project_document",
+    ),
 ]

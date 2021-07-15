@@ -1,5 +1,6 @@
+import { DateTime } from "luxon";
 import PropTypes from "prop-types";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -17,13 +18,24 @@ const StyledCampaignFundingField = styled.div`
   }
 `;
 
+const DOCUMENT_SENDING_DELAY = 15; //days
+
 const CampaignFundingField = (props) => {
-  const { onChange, needsDocuments, isCertified, groupPk, disabled } = props;
+  const { onChange, needsDocuments, isCertified, groupPk, disabled, endTime } =
+    props;
 
   const [noSpending, setNoSpending] = useState(false);
   const [willSendDocuments, setWillSendDocuments] = useState(
     needsDocuments ? false : true
   );
+
+  const limitDate = useMemo(() => {
+    if (!needsDocuments || !endTime) {
+      return "";
+    }
+    const end = DateTime.fromJSDate(new Date(endTime));
+    return end.plus({ days: 15 }).toFormat("dd/LL/yyyy");
+  }, [needsDocuments, endTime]);
 
   useEffect(() => {
     onChange(noSpending && willSendDocuments);
@@ -59,8 +71,8 @@ const CampaignFundingField = (props) => {
         {needsDocuments && (
           <p>
             Tout prêt de matériel ou de lieu doit être justifié d’une
-            attestation à télécharger sur Action Populaire d’ici à 15 jours
-            après la fin de l’événement.{" "}
+            attestation à télécharger sur Action Populaire d’ici à{" "}
+            {DOCUMENT_SENDING_DELAY} jours après la fin de l’événement.{" "}
             <a href="https://infos.actionpopulaire.fr/">En savoir plus</a>
           </p>
         )}
@@ -75,7 +87,11 @@ const CampaignFundingField = (props) => {
       {needsDocuments && (
         <CheckboxField
           style={{ fontWeight: 600 }}
-          label="J’envoie toutes les attestations le cas échéant avant le 12/05"
+          label={
+            limitDate
+              ? `J’envoie toutes les attestations le cas échéant avant le ${limitDate}`
+              : "J’envoie toutes les attestations le cas échéant avant la date limite"
+          }
           onChange={(evt) => setWillSendDocuments(!!evt.target.checked)}
           value={willSendDocuments}
           disabled={disabled}
@@ -90,5 +106,6 @@ CampaignFundingField.propTypes = {
   isCertified: PropTypes.bool,
   needsDocuments: PropTypes.bool,
   disabled: PropTypes.bool,
+  endTime: PropTypes.string,
 };
 export default CampaignFundingField;
