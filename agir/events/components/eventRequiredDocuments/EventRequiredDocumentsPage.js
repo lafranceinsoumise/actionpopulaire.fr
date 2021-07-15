@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import useSWR from "swr";
 
 import EventRequiredDocument from "./EventRequiredDocuments";
@@ -80,18 +80,6 @@ const EventRequiredDocumentsPage = (props) => {
     [eventPk, dismissedDocumentTypes, mutate]
   );
 
-  const requiredDocumentTypesLeft = useMemo(() => {
-    if (!documents) {
-      return;
-    }
-    const sentDocumentTypes = documents.map((doc) => doc.type);
-    return requiredDocumentTypes.filter(
-      (type) =>
-        !dismissedDocumentTypes.includes(type) &&
-        !sentDocumentTypes.includes(type)
-    );
-  }, [dismissedDocumentTypes, requiredDocumentTypes, documents]);
-
   return (
     <PageFadeIn ready={!!data}>
       {data && (
@@ -99,7 +87,8 @@ const EventRequiredDocumentsPage = (props) => {
           projectId={projectId}
           event={event}
           status={status}
-          requiredDocumentTypes={requiredDocumentTypesLeft}
+          dismissDocumentTypes={dismissedDocumentTypes}
+          requiredDocumentTypes={requiredDocumentTypes}
           documents={documents}
           limitDate={limitDate}
           subtypes={subtype}

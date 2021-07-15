@@ -43,6 +43,7 @@ const StyledField = styled.div`
     ${Button} {
       width: auto;
       margin-top: 0.5rem;
+      text-align: left;
     }
   }
 `;

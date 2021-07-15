@@ -10,6 +10,7 @@ import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import EventSubtypePicker from "./EventSubtypePicker";
+import NoRequiredDocumentCard from "./NoRequiredDocumentCard";
 import ProjectStatusCard from "./ProjectStatusCard";
 import RequiredDocumentCard from "./RequiredDocumentCard";
 import RequiredDocumentModal from "./RequiredDocumentModal";
@@ -122,8 +123,9 @@ const EventRequiredDocuments = (props) => {
     event,
     subtypes,
     status,
-    requiredDocumentTypes,
-    documents,
+    dismissedDocumentTypes = [],
+    requiredDocumentTypes = [],
+    documents = [],
     limitDate,
     onChangeSubtype,
     onSaveDocument,
@@ -135,21 +137,28 @@ const EventRequiredDocuments = (props) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [selectedType, setSelectedType] = useState(null);
 
-  const unrequiredDocumentTypes = useMemo(() => {
+  const [required, unrequired] = useMemo(() => {
     const documentTypes = Object.keys(EVENT_DOCUMENT_TYPES);
-    if (
-      !Array.isArray(requiredDocumentTypes) ||
-      requiredDocumentTypes.length === 0
-    ) {
-      return documentTypes;
+    const sentDocumentTypes = documents.map((doc) => doc.type);
+
+    const required = Array.isArray(requiredDocumentTypes)
+      ? requiredDocumentTypes.filter(
+          (type) =>
+            !dismissedDocumentTypes.includes(type) &&
+            !sentDocumentTypes.includes(type)
+        )
+      : [];
+
+    if (required.length === documentTypes.length) {
+      return [required, []];
     }
-    if (requiredDocumentTypes.length === documentTypes.length) {
-      return [];
+
+    if (required.length === 0) {
+      return [required, documentTypes];
     }
-    return documentTypes.filter(
-      (type) => !requiredDocumentTypes.includes(type)
-    );
-  }, [requiredDocumentTypes]);
+
+    return [required, documentTypes.filter((type) => !required.includes(type))];
+  }, [requiredDocumentTypes, dismissedDocumentTypes, documents]);
 
   const expand = () => setIsCollapsed(false);
 
@@ -180,6 +189,7 @@ const EventRequiredDocuments = (props) => {
       </header>
       <Spacer size="1.5rem" />
       <section>
+        {requiredDocumentTypes.length === 0 && <NoRequiredDocumentCard />}
         <ProjectStatusCard status={status} />
         <SentDocumentsCard documents={documents} />
         <EventSubtypePicker
@@ -189,29 +199,28 @@ const EventRequiredDocuments = (props) => {
         />
       </section>
       <Spacer size="2rem" />
-      {Array.isArray(requiredDocumentTypes) &&
-        requiredDocumentTypes.length > 0 && (
-          <StyledDocumentList $required>
-            <h4>
-              {requiredDocumentTypes.length}{" "}
-              {requiredDocumentTypes.length > 1
-                ? "informations requises"
-                : "information requise"}
-              <small>À compléter avant le {displayShortDate(limitDate)}</small>
-            </h4>
-            <Spacer size="1.5rem" />
-            {requiredDocumentTypes.map((type, i) => (
-              <RequiredDocumentCard
-                key={type}
-                type={type}
-                onUpload={selectType}
-                onDismiss={onDismissDocument}
-                style={{ marginTop: i && "1rem" }}
-              />
-            ))}
-          </StyledDocumentList>
-        )}
-      {unrequiredDocumentTypes.length > 0 && (
+      {required.length > 0 && (
+        <StyledDocumentList $required>
+          <h4>
+            {required.length}{" "}
+            {required.length > 1
+              ? "informations requises"
+              : "information requise"}
+            <small>À compléter avant le {displayShortDate(limitDate)}</small>
+          </h4>
+          <Spacer size="1.5rem" />
+          {required.map((type, i) => (
+            <RequiredDocumentCard
+              key={type}
+              type={type}
+              onUpload={selectType}
+              onDismiss={onDismissDocument}
+              style={{ marginTop: i && "1rem" }}
+            />
+          ))}
+        </StyledDocumentList>
+      )}
+      {unrequired.length > 0 && (
         <StyledDocumentList>
           <h4>
             Ajouter d’autres documents
@@ -224,7 +233,7 @@ const EventRequiredDocuments = (props) => {
               <FeatherIcon width="1.5rem" height="1.5rem" name="chevron-down" />
             </Button>
           ) : (
-            unrequiredDocumentTypes.map((type, i) => (
+            unrequired.map((type, i) => (
               <RequiredDocumentCard
                 key={type}
                 type={type}
@@ -259,6 +268,7 @@ EventRequiredDocuments.propTypes = {
     }),
   }),
   status: PropTypes.string,
+  dismissedDocumentTypes: PropTypes.arrayOf(PropTypes.string),
   requiredDocumentTypes: PropTypes.arrayOf(PropTypes.string),
   documents: PropTypes.arrayOf(PropTypes.object),
   limitDate: PropTypes.string,

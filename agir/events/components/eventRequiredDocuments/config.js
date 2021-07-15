@@ -39,6 +39,6 @@ export const EVENT_DOCUMENT_TYPES = {
 };
 
 export const EVENT_PROJECT_STATUS = {
-  pending: "DFI",
+  pending: "ECO",
   archived: "CLO",
 };
