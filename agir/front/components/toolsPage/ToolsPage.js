@@ -231,7 +231,7 @@ const ListItemActionContainer = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     position: absolute;
-    max-width: calc(100% + 42px);
+    max-width: calc(100% + 40px);
     left: -20px;
     top: 0;
     height: ${heightCardMin};
@@ -276,6 +276,10 @@ const ItemWebsiteContainer = styled.div`
   margin-bottom: 1rem;
   overflow: hidden;
   color: ${style.black1000};
+
+  @media (max-width: ${style.collapse}px) {
+    margin-right: 20px;
+  }
 
   > div:first-child {
     @media (max-width: 380px) {
