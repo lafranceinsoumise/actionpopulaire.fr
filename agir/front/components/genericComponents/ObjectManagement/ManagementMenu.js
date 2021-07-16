@@ -172,7 +172,7 @@ const ManagementMenu = (props) => {
         <BackButton onClick={onBack} />
       </Hide>
       <Spacer size="1rem" />
-      <h6>{subtitle}</h6>
+      {!!subtitle && <h6>{subtitle}</h6>}
       <h4>{title}</h4>
       <Spacer size="1rem" />
       <ul>

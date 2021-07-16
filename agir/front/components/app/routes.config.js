@@ -13,10 +13,6 @@ const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
 const CreateEvent = lazy(() =>
   import("@agir/events/createEventPage/CreateEvent")
 );
-const EventSettings = lazy(() =>
-  import("@agir/events/EventSettings/EventSettings")
-);
-
 const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
 const FullGroupPage = lazy(() =>
   import("@agir/groups/fullGroupPage/FullGroupPage")
@@ -166,13 +162,14 @@ export const routeConfig = {
   }),
   eventSettings: new RouteConfig({
     id: "eventSettings",
-    path: "/evenements/:eventPk/parametres/",
+    path: "/evenements/:eventPk/gestion/:activePanel?/",
+    params: { activePanel: null },
     exact: true,
-    neededAuthentication: AUTHENTICATION.NONE,
+    neededAuthentication: AUTHENTICATION.HARD,
     label: "Paramètres de l'événement",
-    Component: EventSettings,
-    hideTopBar: true,
+    Component: EventPage,
     hideFeedbackButton: true,
+    // isPartial: true
   }),
   groups: new RouteConfig({
     id: "groups",

@@ -73,6 +73,15 @@ supportgroup_patterns = [
     path("", include(supportgroup_settings_patterns)),
 ]
 
+event_settings_patterns = [
+    path("gestion/", views.BaseAppHardAuthView.as_view(), name="view_event_settings",),
+    path(
+        "gestion/membres/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_members",
+    ),
+]
+
 urlpatterns = [
     path("connexion/", views.LoginView.as_view(), name="short_code_login"),
     path("inscription/", views.SignupView.as_view(), name="signup"),
@@ -136,6 +145,8 @@ urlpatterns = [
         name="create_event_sub",
     ),
     path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
+    # path("evenements/<uuid:pk>/gestion/", include(event_settings_patterns)),
+    path("evenements/<uuid:pk>/gestion/", views.BaseAppHardAuthView.as_view(), name="view_event_settings",),
     path("mes-groupes/", views.BaseAppSoftAuthView.as_view(), name="list_my_groups"),
     path("navigation/", views.BaseAppSoftAuthView.as_view(), name="navigation_menu"),
     path("messages/", views.BaseAppHardAuthView.as_view(), name="user_messages"),

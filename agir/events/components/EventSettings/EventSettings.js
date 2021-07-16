@@ -1,59 +1,56 @@
-import React from "react";
+import PropTypes from "prop-types";
+import React, { useMemo } from "react";
+import { useLocation } from "react-router-dom";
+
+import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
+import { getMenuRoute, getRoutes } from "./routes.config";
+import { useAuthentication } from "@agir/front/authentication/hooks";
 
 import ObjectManagement from "@agir/front/genericComponents/ObjectManagement";
 
-import events from "@agir/front/mockData/events.json";
+export const EventSettings = (props) => {
+  const { event, basePath } = props;
+  const routes = useMemo(() => getRoutes(basePath, event), [basePath, event]);
+  const menuRoute = useMemo(() => getMenuRoute(basePath), [basePath]);
+  const isAuthorized = useAuthentication(globalRouteConfig.eventSettings);
+  const { pathname } = useLocation();
 
-const MENU_ITEMS_EVENTS = {
-  information: {
-    id: "information",
-    label: "Général",
-    icon: "file-text",
-  },
-  participants: {
-    id: "participants",
-    label: "Participant·es",
-    labelFunction: (object) =>
-      `${(object && object.participantCount) || ""} Participant·es`.trim(),
-    icon: "users",
-  },
-  organizerGroups: {
-    id: "organizerGroups",
-    label: "Co-organisation",
-    icon: "settings",
-  },
-  rights: {
-    id: "rights",
-    label: "Droits",
-    icon: "lock",
-  },
-  onlineMeeting: {
-    id: "onlineMeeting",
-    label: "Vidéoconférence",
-    icon: "video",
-  },
-  contact: {
-    id: "contact",
-    label: "Contact",
-    icon: "mail",
-  },
-  location: {
-    id: "location",
-    label: "Localisation",
-    icon: "map-pin",
-  },
-  report: {
-    id: "report",
-    label: "Compte-rendu",
-    disabledLabel: "À remplir à la fin de l’événement",
-    disabled: true,
-    icon: "image",
-  },
-};
+  const redirectTo = useMemo(() => {
+    if (!event?.isManager) {
+      return basePath;
+    }
+    if (isAuthorized === false) {
+      return {
+        pathname: globalRouteConfig.login.getLink(),
+        state: { next: pathname },
+      };
+    }
+    return null;
+  }, [event, isAuthorized, basePath, pathname]);
 
-export const EventSettings = () => {
-  return <ObjectManagement object={events[0]} menu_items={MENU_ITEMS_EVENTS} />;
+  if (!event) {
+    return null;
+  }
+
+  return (
+    <ObjectManagement
+      title={event?.name}
+      eventPk={event?.id}
+      basePath={basePath}
+      routes={routes}
+      menuLink={menuRoute.getLink()}
+      redirectTo={redirectTo}
+    />
+  );
 };
-EventSettings.propTypes = {};
+EventSettings.propTypes = {
+  event: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    type: PropTypes.string,
+    isManager: PropTypes.bool,
+  }).isRequired,
+  basePath: PropTypes.string.isRequired,
+};
 
 export default EventSettings;

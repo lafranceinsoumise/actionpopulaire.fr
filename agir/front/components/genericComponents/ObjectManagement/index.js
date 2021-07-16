@@ -207,6 +207,9 @@ export const ObjectManagement = (props) => {
   const { basePath, menuLink, redirectTo, ...rest } = props;
 
   const hasRoute = useRouteMatch(menuLink);
+  console.log("OBJECT MANAGEMENT : props ", props);
+  console.log("OBJECT MANAGEMENT : menuLink, hasRoute", menuLink, hasRoute);
+
   const { push } = useHistory();
 
   const goToMenu = useCallback(() => {
@@ -227,7 +230,8 @@ export const ObjectManagement = (props) => {
       MobileLayout={MobilePanel}
       DesktopLayout={DesktopPanel}
       menuLink={menuLink}
-      shouldShow={!!hasRoute}
+      // shouldShow={!!hasRoute}
+      shouldShow={true}
       goToMenu={goToMenu}
       onClose={closePanel}
     />
