@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@babel/runtime-corejs3": "^7.14.7",
-    "@react-spring/core": "^9.2.3",
+    "@react-spring/core": "^9.2.4",
     "@react-spring/shared": "^9.2.3",
     "@react-spring/web": "^9.2.3",
     "@sentry/react": "^6.9.0",
@@ -84,7 +84,7 @@
     "sass-loader": "12.1.0",
     "short-uuid": "^4.2.0",
     "styled-components": "^5.3.0",
-    "swiper": "^6.7.1",
+    "swiper": "^6.7.5",
     "swr": "^0.5.6",
     "tinymce": "^5.8.2",
     "tinymce-i18n": "^20.12.25",
