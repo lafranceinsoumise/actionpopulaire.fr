@@ -1,3 +1,6 @@
+import locale
+import urllib.request
+from PIL import Image, ImageDraw, ImageFont
 import ics
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
@@ -24,14 +27,13 @@ from django.views.generic import (
     DetailView,
 )
 from django.views.generic.detail import SingleObjectMixin
-from PIL import Image, ImageDraw
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
     GlobalOrObjectPermissionRequiredMixin,
     SoftLoginRequiredMixin,
 )
-from agir.events.actions.rsvps import assign_jitsi_meeting
+from agir.events.actions.rsvps import assign_jitsi_meeting, logger
 from agir.front.view_mixins import (
     ChangeLocationBaseView,
     FilterView,
@@ -47,12 +49,13 @@ from ..forms import (
     AuthorForm,
     EventLegalForm,
 )
-from ..models import Event, RSVP
+from ..models import Event, RSVP, EventSubtype
 from ..tasks import (
     send_cancellation_notification,
     send_event_report,
     send_secretariat_notification,
 )
+from ...carte.models import StaticMapImage
 
 __all__ = [
     "ManageEventView",
@@ -68,23 +71,208 @@ __all__ = [
     "UploadEventImageView",
     "EventSearchView",
     "EventDetailMixin",
+    "EventThumbnailView",
 ]
 
 
 # PUBLIC VIEWS
 # ============
 
-class EventThumbnailView(View):
+
+class EventThumbnailView(DetailView):
+    model = Event
+    event = None
 
     def get(self, request, *args, **kwargs):
+        self.event = self.get_object()
         image = self.generate_thumbnail()
-        response = HttpResponse(mimetype="image/png")
+        response = HttpResponse(content_type="image/png")
         image.save(response, "PNG")
         return response
 
-    def generate_thumbnail():
-        image = Image.new("RGB", (int(1200), int(630)), "#707070")
+    def generate_thumbnail(self):
+        image = Image.new("RGB", (int(1200), int(630)), "#FFFFFF")
         draw = ImageDraw.Draw(image)
+
+        if self.event.coordinates is None:
+            illustration = Image.open("Frame-193.png")
+            image.paste(illustration, (0, 0), illustration)
+        else:
+            static_map_image = StaticMapImage.objects.filter(
+                center__distance_lt=(
+                    self.event.coordinates,
+                    StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
+                ),
+            ).first()
+
+            illustration = Image.open(static_map_image.image.path)
+            illustration = illustration.resize((1200, 278), Image.ANTIALIAS)
+            image.paste(illustration, (0, 0), illustration)
+            icon = Image.open("rectangle16.png")
+            icon = icon.resize((50, 65), Image.ANTIALIAS)
+            image.paste(icon, (575, 75), icon)
+
+            subtype_icon = Image.open(self.event.subtype.icon.path)
+            subtype_icon = subtype_icon.resize((35, 55), Image.ANTIALIAS)
+            image.paste(subtype_icon, (580, 75), subtype_icon)
+
+        url = "https://github.com/google/fonts/blob/main/ofl/poppins/Poppins-Regular.ttf?raw=true"
+        urllib.request.urlretrieve(url, "poppins.ttf")
+
+        # set locale for displaying day name in french
+        locale.setlocale(locale.LC_ALL, "fr_FR.utf8")
+        date = self.event.start_time.strftime("%A %d %B À %-H:%M").capitalize()
+
+        if len(self.event.name) < 30:
+            font = ImageFont.truetype(
+                "poppins.ttf",
+                size=27,
+                encoding="utf-8",
+                layout_engine=ImageFont.LAYOUT_BASIC,
+            )
+            draw.text((100, 350), date, fill=(87, 26, 255, 0), align="left", font=font)
+            if self.event.location_city is not None:
+                draw.text(
+                    (100 + 13 * len(date), 350),
+                    " - "
+                    + self.event.location_city
+                    + " ("
+                    + self.event.location_zip
+                    + ")",
+                    fill=(79, 79, 79, 0),
+                    align="left",
+                    font=font,
+                )
+            font = ImageFont.truetype(
+                "poppins.ttf",
+                size=56,
+                encoding="utf-8",
+                layout_engine=ImageFont.LAYOUT_BASIC,
+            )
+            draw.text(
+                (100, 400), self.event.name, fill=(0, 0, 0, 0), align="left", font=font
+            )
+        elif len(self.event.name) < 36:
+            font = ImageFont.truetype(
+                "poppins.ttf",
+                size=27,
+                encoding="utf-8",
+                layout_engine=ImageFont.LAYOUT_BASIC,
+            )
+            draw.text((100, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
+            if self.event.location_city is not None:
+                draw.text(
+                    (100 + 13 * len(date), 319),
+                    " - "
+                    + self.event.location_city
+                    + " ("
+                    + self.event.location_zip
+                    + ")",
+                    fill=(79, 79, 79, 0),
+                    align="left",
+                    font=font,
+                )
+
+            font = ImageFont.truetype(
+                "poppins.ttf",
+                size=45,
+                encoding="utf-8",
+                layout_engine=ImageFont.LAYOUT_BASIC,
+            )
+            draw.text(
+                (100, 369), self.event.name, fill=(0, 0, 0, 0), align="left", font=font
+            )
+        elif len(self.event.name) < 74:
+            font = ImageFont.truetype(
+                "poppins.ttf",
+                size=27,
+                encoding="utf-8",
+                layout_engine=ImageFont.LAYOUT_BASIC,
+            )
+            draw.text((100, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
+            if self.event.location_city is not None:
+                draw.text(
+                    (100 + 13 * len(date), 319),
+                    " - "
+                    + self.event.location_city
+                    + " ("
+                    + self.event.location_zip
+                    + ")",
+                    fill=(79, 79, 79, 0),
+                    align="left",
+                    font=font,
+                )
+
+            font = ImageFont.truetype(
+                "poppins.ttf",
+                size=45,
+                encoding="utf-8",
+                layout_engine=ImageFont.LAYOUT_BASIC,
+            )
+            draw.text(
+                (100, 369),
+                self.event.name[0:36],
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=font,
+            )
+            draw.text(
+                (100, 430),
+                self.event.name[37:73],
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=font,
+            )
+        else:
+            font = ImageFont.truetype(
+                "poppins.ttf",
+                size=27,
+                encoding="utf-8",
+                layout_engine=ImageFont.LAYOUT_BASIC,
+            )
+            draw.text((100, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
+            if self.event.location_city is not None:
+                draw.text(
+                    (100 + 13 * len(date), 319),
+                    " - "
+                    + self.event.location_city
+                    + " ("
+                    + self.event.location_zip
+                    + ")",
+                    fill=(79, 79, 79, 0),
+                    align="left",
+                    font=font,
+                )
+
+            font = ImageFont.truetype(
+                "poppins.ttf",
+                size=45,
+                encoding="utf-8",
+                layout_engine=ImageFont.LAYOUT_BASIC,
+            )
+            draw.text(
+                (100, 369),
+                self.event.name[0:36],
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=font,
+            )
+            draw.text(
+                (100, 430),
+                self.event.name[37:73] + "...",
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=font,
+            )
+
+        logo_ap = Image.open("logo-AP.png")
+        white_rect = Image.open("Rectangle-blanc.png")
+        white_rect = white_rect.resize((45, 45), Image.ANTIALIAS)
+        logo_ap = logo_ap.resize((230, 45), Image.ANTIALIAS)
+        logo_ap.paste(white_rect, (117, 560), white_rect)
+        draw.rectangle((0, 535, 1200, 630), fill=(244, 237, 15, 0))
+        image.paste(logo_ap, (100, 560), logo_ap)
+
         return image
 
 
