@@ -61,10 +61,6 @@ const EventRequiredDocumentsPage = (props) => {
 
   const dismissDocumentType = useCallback(
     async (documentType) => {
-      if (dismissedDocumentTypes.includes(documentType)) {
-        mutate();
-        return;
-      }
       setIsLoading(true);
       setErrors(null);
       const result = await updateEventProject(eventPk, {
@@ -87,7 +83,7 @@ const EventRequiredDocumentsPage = (props) => {
           projectId={projectId}
           event={event}
           status={status}
-          dismissDocumentTypes={dismissedDocumentTypes}
+          dismissedDocumentTypes={dismissedDocumentTypes}
           requiredDocumentTypes={requiredDocumentTypes}
           documents={documents}
           limitDate={limitDate}

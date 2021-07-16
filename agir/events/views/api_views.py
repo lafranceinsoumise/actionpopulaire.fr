@@ -33,6 +33,7 @@ from agir.events.serializers import (
     CreateEventSerializer,
     EventProjectSerializer,
     EventProjectDocumentSerializer,
+    EventProjectListItemSerializer,
 )
 
 __all__ = [
@@ -46,6 +47,7 @@ __all__ = [
     "RSVPEventAPIView",
     "EventProjectAPIView",
     "CreateEventProjectDocumentAPIView",
+    "EventProjectsAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -276,6 +278,25 @@ class EventProjectPermission(GlobalOrObjectPermissions):
         "PUT": ["events.change_event"],
         "PATCH": ["events.change_event"],
     }
+
+
+class EventProjectsAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = EventProjectListItemSerializer
+    queryset = Projet.objects.filter(event__isnull=False)
+
+    def get_queryset(self):
+        organized_events = self.request.user.person.organizer_configs.values_list(
+            "event_id", flat=True
+        )
+        if len(organized_events) == 0:
+            return self.queryset.none()
+
+        return (
+            self.queryset.filter(event__in=organized_events)
+            .select_related("event", "event__subtype")
+            .order_by("event__end_time")
+        )
 
 
 class EventProjectAPIView(RetrieveUpdateAPIView):

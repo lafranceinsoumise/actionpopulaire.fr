@@ -834,3 +834,49 @@ class CreateEventProjectDocumentAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 201)
         self.project.refresh_from_db()
         self.assertEqual(self.project.documents.count(), original_document_length + 1)
+
+
+class EventProjectsAPITestCase(APITestCase):
+    def setUp(self):
+        self.unrelated_person = Person.objects.create(
+            email="unrelated_person@example.com", create_role=True,
+        )
+        self.organizer = Person.objects.create(
+            email="organizer@example.com", create_role=True,
+        )
+        start_time = timezone.now() + timezone.timedelta(days=3)
+        end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
+        self.a_subtype = EventSubtype.objects.create(
+            visibility=EventSubtype.VISIBILITY_ALL,
+            label="A subtype",
+            type=EventSubtype.TYPE_PUBLIC_ACTION,
+        )
+        self.event = Event.objects.create(
+            name="Event",
+            start_time=start_time,
+            end_time=end_time,
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.a_subtype,
+            organizer_person=self.organizer,
+        )
+        self.project = Projet.objects.create(
+            titre="Project", type=TypeProjet.choices[0][0], event=self.event
+        )
+
+    def test_anonymous_person_cannot_retrieve_projects(self):
+        self.client.logout()
+        res = self.client.get(f"/api/evenements/projets/")
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_organizer_person_can_retrieve_no_project(self):
+        self.client.force_login(self.unrelated_person.role)
+        res = self.client.get(f"/api/evenements/projets/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(res.data), 0)
+
+    def test_organizer_person_can_retrieve_projects(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/projets/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(res.data), 1)

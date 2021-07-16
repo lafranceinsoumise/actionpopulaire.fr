@@ -518,3 +518,53 @@ class EventProjectSerializer(serializers.ModelSerializer):
             choice[0]
             for choice in EventSubtype.EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES
         ]
+
+
+class EventProjectListItemSerializer(serializers.ModelSerializer):
+    projectId = serializers.IntegerField(source="id", read_only=True)
+    event = ProjectEventSerializer(read_only=True)
+    status = serializers.CharField(source="etat", read_only=True)
+    limitDate = serializers.SerializerMethodField(read_only=True)
+    missingDocumentCount = serializers.SerializerMethodField(read_only=True)
+
+    def get_limitDate(self, obj):
+        return obj.event.end_time + timedelta(days=15)
+
+    def get_missingDocumentCount(self, obj):
+        required_types = obj.event.subtype.required_documents
+
+        if len(required_types) == 0:
+            return 0
+
+        dismissed_types = []
+        if (
+            obj.details
+            and obj.details.get("documents")
+            and obj.details["documents"].get("absent")
+        ):
+            dismissed_types = obj.details["documents"]["absent"]
+
+        required_types = [t for t in required_types if t not in dismissed_types]
+
+        if len(required_types) == 0:
+            return 0
+
+        sent_types = obj.documents.values_list("type", flat=True)
+
+        required_types = [t for t in required_types if t not in sent_types]
+
+        return len(required_types)
+
+    class Meta:
+        model = Projet
+        fields = [
+            "projectId",
+            "event",
+            "status",
+            "missingDocumentCount",
+            "limitDate",
+        ]
+        valid_document_types = [
+            choice[0]
+            for choice in EventSubtype.EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES
+        ]

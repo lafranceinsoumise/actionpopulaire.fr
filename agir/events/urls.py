@@ -111,6 +111,11 @@ urlpatterns = [
         name="api_event_suggestions",
     ),
     path(
+        "api/evenements/projets/",
+        views.EventProjectsAPIView.as_view(),
+        name="api_event_projects",
+    ),
+    path(
         "api/evenements/<uuid:pk>/",
         views.EventDetailAPIView.as_view(),
         name="api_event_view",

@@ -8,6 +8,7 @@ export const ENDPOINT = {
   eventPropertyOptions: "/api/evenements/options/",
   createEvent: "/api/evenements/creer/",
   updateEvent: "/api/evenements/:eventPk/modifier/",
+  eventProjects: "/api/evenements/projets/",
   eventProject: "/api/evenements/:eventPk/projet/",
   addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
 };

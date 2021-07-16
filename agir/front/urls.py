@@ -124,6 +124,11 @@ urlpatterns = [
     ),
     path("", views.BaseAppCachedView.as_view(), name="dashboard",),
     path(
+        "documents-justificatifs/",
+        views.BaseAppSoftAuthView.as_view(),
+        name="event_required_documents",
+    ),
+    path(
         "evenements/",
         RedirectView.as_view(pattern_name="dashboard"),
         name="list_events",
