@@ -26,6 +26,9 @@ import { useWPPagesAndCategories } from "./api.js";
 import { getIsConnected } from "@agir/front/globalContext/reducers";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 
+const heightCard = "277px";
+const heightCardMin = "184px";
+
 const StyledPage = styled.div`
   max-width: 1320px;
   width: 100%;
@@ -211,11 +214,28 @@ const CarrouselArrowContainer = styled.div`
   }
 `;
 
+const ResponsiveContainer = styled.div`
+  position: relative;
+  height: ${heightCard};
+  @media (max-width: ${style.collapse}px) {
+    height: ${heightCardMin};
+  }
+`;
+
 const ListItemActionContainer = styled.div`
   display: flex;
-  position: relative;
-  max-width: 100%;
   overflow-x: auto;
+  max-width: 100%;
+  position: relative;
+  height: ${heightCard};
+
+  @media (max-width: ${style.collapse}px) {
+    position: absolute;
+    max-width: calc(100% + 42px);
+    left: -20px;
+    top: 0;
+    height: ${heightCardMin};
+  }
 
   @media (min-width: ${style.collapse}px) {
     overflow-y: hidden;
@@ -236,6 +256,12 @@ const Carrousel = styled.div`
 
   > a:first-child {
     margin-left: 1px;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    > a:first-child {
+      margin-left: 20px;
+    }
   }
 `;
 
@@ -638,7 +664,9 @@ const ToolsPage = () => {
             {categories.map((category) => (
               <React.Fragment key={category.id}>
                 <Subtitle>{category.name}</Subtitle>
-                <ListItemAction pages={pages[category.id]} />
+                <ResponsiveContainer>
+                  <ListItemAction pages={pages[category.id]} />
+                </ResponsiveContainer>
               </React.Fragment>
             ))}
           </BlockContent>
