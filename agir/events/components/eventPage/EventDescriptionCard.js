@@ -109,7 +109,7 @@ const EventDescriptionCard = ({
               {description ? "Modifier la" : "Ajouter une"} description
             </Button>
             <Button as="a" href={routes.edit}>
-              {image ? "Changer l'" : "Ajouter une "} image d'illustration
+              {image ? "Changer l'" : "Ajouter une "}image d'illustration
             </Button>
           </StyledActionButtons>
         )}
