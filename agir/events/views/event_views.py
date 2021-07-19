@@ -112,9 +112,14 @@ class EventThumbnailView(DetailView):
             icon = icon.resize((50, 65), Image.ANTIALIAS)
             image.paste(icon, (575, 75), icon)
 
-            subtype_icon = Image.open(self.event.subtype.icon.path)
-            subtype_icon = subtype_icon.resize((35, 55), Image.ANTIALIAS)
-            image.paste(subtype_icon, (580, 75), subtype_icon)
+            if self.event.subtype.icon:
+                subtype_icon = Image.open(self.event.subtype.icon.path)
+                subtype_icon = subtype_icon.resize((35, 55), Image.ANTIALIAS)
+                image.paste(subtype_icon, (580, 75), subtype_icon)
+            elif self.event.subtype.default_image:
+                subtype_icon = Image.open(self.event.subtype.default_image.path)
+                subtype_icon = subtype_icon.resize((35, 55), Image.ANTIALIAS)
+                image.paste(subtype_icon, (580, 75), subtype_icon)
 
         url = "https://github.com/google/fonts/blob/main/ofl/poppins/Poppins-Regular.ttf?raw=true"
         urllib.request.urlretrieve(url, "poppins.ttf")
