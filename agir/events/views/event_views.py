@@ -135,10 +135,10 @@ class EventThumbnailView(DetailView):
                 encoding="utf-8",
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
-            draw.text((100, 350), date, fill=(87, 26, 255, 0), align="left", font=font)
+            draw.text((108, 350), date, fill=(87, 26, 255, 0), align="left", font=font)
             if self.event.location_city is not None:
                 draw.text(
-                    (100 + 13 * len(date), 350),
+                    (108 + 13 * len(date), 350),
                     " - "
                     + self.event.location_city
                     + " ("
@@ -155,7 +155,7 @@ class EventThumbnailView(DetailView):
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
             draw.text(
-                (100, 400), self.event.name, fill=(0, 0, 0, 0), align="left", font=font
+                (108, 400), self.event.name, fill=(0, 0, 0, 0), align="left", font=font
             )
         elif len(self.event.name) < 36:
             font = ImageFont.truetype(
@@ -164,10 +164,10 @@ class EventThumbnailView(DetailView):
                 encoding="utf-8",
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
-            draw.text((100, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
+            draw.text((108, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
             if self.event.location_city is not None:
                 draw.text(
-                    (100 + 13 * len(date), 319),
+                    (108 + 13 * len(date), 319),
                     " - "
                     + self.event.location_city
                     + " ("
@@ -185,7 +185,7 @@ class EventThumbnailView(DetailView):
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
             draw.text(
-                (100, 369), self.event.name, fill=(0, 0, 0, 0), align="left", font=font
+                (108, 369), self.event.name, fill=(0, 0, 0, 0), align="left", font=font
             )
         elif len(self.event.name) < 74:
             font = ImageFont.truetype(
@@ -194,10 +194,10 @@ class EventThumbnailView(DetailView):
                 encoding="utf-8",
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
-            draw.text((100, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
+            draw.text((108, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
             if self.event.location_city is not None:
                 draw.text(
-                    (100 + 13 * len(date), 319),
+                    (108 + 13 * len(date), 319),
                     " - "
                     + self.event.location_city
                     + " ("
@@ -215,14 +215,14 @@ class EventThumbnailView(DetailView):
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
             draw.text(
-                (100, 369),
+                (108, 369),
                 self.event.name[0:36],
                 fill=(0, 0, 0, 0),
                 align="left",
                 font=font,
             )
             draw.text(
-                (100, 430),
+                (108, 430),
                 self.event.name[37:73],
                 fill=(0, 0, 0, 0),
                 align="left",
@@ -235,10 +235,10 @@ class EventThumbnailView(DetailView):
                 encoding="utf-8",
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
-            draw.text((100, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
+            draw.text((108, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
             if self.event.location_city is not None:
                 draw.text(
-                    (100 + 13 * len(date), 319),
+                    (108 + 13 * len(date), 319),
                     " - "
                     + self.event.location_city
                     + " ("
@@ -256,14 +256,14 @@ class EventThumbnailView(DetailView):
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
             draw.text(
-                (100, 369),
+                (108, 369),
                 self.event.name[0:36],
                 fill=(0, 0, 0, 0),
                 align="left",
                 font=font,
             )
             draw.text(
-                (100, 430),
+                (108, 430),
                 self.event.name[37:73] + "...",
                 fill=(0, 0, 0, 0),
                 align="left",
