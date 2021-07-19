@@ -265,13 +265,9 @@ class EventThumbnailView(DetailView):
                 font=font,
             )
 
-        logo_ap = Image.open("logo-AP.png")
-        white_rect = Image.open("Rectangle-blanc.png")
-        white_rect = white_rect.resize((45, 45), Image.ANTIALIAS)
-        logo_ap = logo_ap.resize((230, 45), Image.ANTIALIAS)
-        logo_ap.paste(white_rect, (117, 560), white_rect)
-        draw.rectangle((0, 535, 1200, 630), fill=(244, 237, 15, 0))
-        image.paste(logo_ap, (100, 560), logo_ap)
+        logo_ap = Image.open("bande-ap.png")
+        logo_ap = logo_ap.resize((1200, 95), Image.ANTIALIAS)
+        image.paste(logo_ap, (0, 535), logo_ap)
 
         return image
 
