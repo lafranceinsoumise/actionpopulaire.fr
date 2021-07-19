@@ -103,6 +103,10 @@ class EventDetailView(
     )
 
 
+class EventProjectView(HardLoginRequiredMixin, EventDetailView):
+    permission_required = "event.change_event"
+
+
 class SupportGroupDetailView(
     ObjectOpengraphMixin, SupportGroupDetailMixin, BaseDetailView, ReactBaseView
 ):
@@ -137,14 +141,6 @@ class NotFoundView(BaseAppView):
 class UserMessageView(BaseAppHardAuthView, GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("msgs.view_message",)
     queryset = SupportGroupMessage.objects.all()
-
-    def get_object(self):
-        return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))
-
-
-class EventProjectView(BaseAppHardAuthView, GlobalOrObjectPermissionRequiredMixin):
-    permission_required = "event.change_event"
-    queryset = Event.objects.all()
 
     def get_object(self):
         return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))

@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
+import Helmet from "react-helmet";
 import { Redirect } from "react-router-dom";
 import useSWR from "swr";
 
@@ -85,21 +86,26 @@ const EventRequiredDocumentsPage = (props) => {
   return (
     <PageFadeIn ready={!!data}>
       {data && (
-        <EventRequiredDocument
-          projectId={projectId}
-          event={event}
-          status={status}
-          dismissedDocumentTypes={dismissedDocumentTypes}
-          requiredDocumentTypes={requiredDocumentTypes}
-          documents={documents}
-          limitDate={limitDate}
-          subtypes={subtype}
-          isLoading={isLoading}
-          errors={errors}
-          onSaveDocument={saveDocument}
-          onDismissDocument={dismissDocumentType}
-          onChangeSubtype={changeSubtype}
-        />
+        <>
+          <Helmet>
+            <title>{event.name} — Action Populaire</title>
+          </Helmet>
+          <EventRequiredDocument
+            projectId={projectId}
+            event={event}
+            status={status}
+            dismissedDocumentTypes={dismissedDocumentTypes}
+            requiredDocumentTypes={requiredDocumentTypes}
+            documents={documents}
+            limitDate={limitDate}
+            subtypes={subtype}
+            isLoading={isLoading}
+            errors={errors}
+            onSaveDocument={saveDocument}
+            onDismissDocument={dismissDocumentType}
+            onChangeSubtype={changeSubtype}
+          />
+        </>
       )}
     </PageFadeIn>
   );
