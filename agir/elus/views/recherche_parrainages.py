@@ -1,4 +1,6 @@
+import reversion
 from data_france.models import EluMunicipal
+from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import Distance as D
@@ -14,11 +16,17 @@ from django.db.models import (
     IntegerField,
 )
 from django.db.models.functions import Coalesce
-from django.views.generic import TemplateView
+from django.urls import reverse_lazy
+from django.views.generic import FormView
 from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
-from agir.elus.models import RechercheParrainageMaire, StatutRechercheParrainage
+from agir.elus.forms import DemandeAccesApplicationParrainagesForm
+from agir.elus.models import (
+    RechercheParrainageMaire,
+    StatutRechercheParrainage,
+    AccesApplicationParrainages,
+)
 from agir.elus.serializers import (
     EluMunicipalSerializer,
     ModifierRechercheSerializer,
@@ -179,3 +187,34 @@ class ModifierRechercheParrainageView(UpdateAPIView):
         return RechercheParrainageMaire.objects.filter(
             person=self.request.user.person, statut=StatutRechercheParrainage.EN_COURS,
         )
+
+
+class DemandeAccesParrainagesView(SoftLoginRequiredMixin, FormView):
+    form_class = DemandeAccesApplicationParrainagesForm
+    template_name = "elus/parrainages/demande-acces.html"
+    success_url = reverse_lazy("dashboard")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.request.user.person
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+
+        with reversion.create_revision():
+            reversion.set_user(self.request.user)
+            reversion.set_comment("Demande d'accès à l'application de parrainage")
+
+            AccesApplicationParrainages.objects.get_or_create(
+                person=self.request.user.person,
+                defaults={"etat": AccesApplicationParrainages.Etat.EN_ATTENTE},
+            )
+
+        messages.add_message(
+            request=self.request,
+            level=messages.SUCCESS,
+            message="Votre demande a été enregistrée et sera étudiée avant validation.",
+        )
+
+        return super().form_valid(form)

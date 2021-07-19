@@ -170,3 +170,29 @@ class MandatConsulaireForm(BaseMandatForm):
 
     class Meta(BaseMandatForm.Meta):
         model = MandatConsulaire
+
+
+class DemandeAccesApplicationParrainagesForm(forms.ModelForm):
+    engagement = forms.BooleanField(
+        required=True,
+        label="Je m'engage à respecter les consignes données dans mes approches avec les élus susceptibles de parrainer la candidature de JLM.",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for f in self.fields:
+            self.fields[f].required = True
+
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("valider", "Valider"))
+
+    class Meta:
+        model = Person
+        fields = (
+            "first_name",
+            "last_name",
+            "contact_phone",
+            "location_zip",
+            "location_city",
+        )

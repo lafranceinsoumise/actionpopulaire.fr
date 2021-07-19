@@ -1,4 +1,5 @@
 from data_france.models import CollectiviteDepartementale, CollectiviteRegionale
+from django.contrib import messages
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -118,7 +119,7 @@ class ViewsTestCase(TestCase):
         self.assertEqual(mandat.conseil.code, "00002")
 
 
-class ParrainagesTestCase(TestCase):
+class AccesParrainagesTestCase(TestCase):
     def test_acces_impossible_par_defaut(self):
         p = Person.objects.create_insoumise(email="test@dom.fr", create_role=True)
         self.client.force_login(p.role)
@@ -154,3 +155,41 @@ class ParrainagesTestCase(TestCase):
 
         res = self.client.get(reverse("elus:parrainages"))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+
+class DemandeAccesParrainagesTestCase(TestCase):
+    def test_creation_demande_acces(self):
+        p = Person.objects.create_person("volontaire@groupe.fr", create_role=True)
+        self.client.force_login(p.role)
+
+        url = reverse("elus:demande_acces_parrainages")
+
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        res = self.client.post(
+            url,
+            {
+                "first_name": "Philippe",
+                "last_name": "Edouard",
+                "contact_phone": "06 98 23 45 23",
+                "location_zip": "95000",
+                "location_city": "Cergy",
+                "engagement": "Y",
+            },
+        )
+
+        self.assertRedirects(res, reverse("dashboard"), fetch_redirect_response=False)
+
+        self.assertTrue(
+            AccesApplicationParrainages.objects.filter(
+                person=p, etat=AccesApplicationParrainages.Etat.EN_ATTENTE
+            )
+        )
+
+        res = self.client.get(reverse("dashboard"))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        msgs = list(res.context["messages"])
+        self.assertEqual(len(msgs), 1)
+        self.assertEqual(msgs[0].level, messages.SUCCESS)
