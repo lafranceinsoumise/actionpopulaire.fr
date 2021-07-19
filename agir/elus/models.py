@@ -727,3 +727,28 @@ class RechercheParrainageMaire(TimeStampedModel):
                 condition=~models.Q(statut=StatutRechercheParrainage.ANNULEE),
             )
         ]
+
+
+@reversion.register()
+class AccesApplicationParrainages(models.Model):
+    class Etat(models.TextChoices):
+        EN_ATTENTE = "A", "En attente"
+        VALIDE = "V", "Validée"
+        REFUSE = "R", "Refusée"
+
+    person = models.OneToOneField(
+        to="people.Person", on_delete=models.CASCADE, null=False
+    )
+    etat = models.CharField(
+        verbose_name="État de la demande",
+        max_length=1,
+        blank=False,
+        choices=Etat.choices,
+        default=Etat.EN_ATTENTE,
+    )
+
+    class Meta:
+        verbose_name = (
+            verbose_name_plural
+        ) = "Accès à l'application de recherches de parrainages"
+        ordering = ("etat", "person")

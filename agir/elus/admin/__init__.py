@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import reversion
+from reversion.admin import VersionAdmin
 from data_france.admin import EluMunicipalAdmin as OriginalEluMunicipalAdmin
 from data_france.models import (
     CirconscriptionConsulaire,
@@ -22,6 +23,7 @@ from agir.elus.models import (
     MandatRegional,
     RechercheParrainageMaire,
     MandatConsulaire,
+    AccesApplicationParrainages,
 )
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
@@ -754,3 +756,11 @@ class EluMunicipalAdmin(OriginalEluMunicipalAdmin):
             return display_list_of_links((m, str(m.person)) for m in ms)
 
     mandats_associes.short_description = "Personnes associées à cette fiche"
+
+
+@admin.register(AccesApplicationParrainages)
+class AccesApplicationParrainagesAdmin(VersionAdmin):
+    list_display = ("person", "etat")
+    list_filter = ("etat",)
+
+    fields = ("person", "etat")
