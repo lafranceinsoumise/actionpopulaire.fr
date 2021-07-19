@@ -124,6 +124,16 @@ class EventThumbnailView(DetailView):
         url = "https://github.com/google/fonts/blob/main/ofl/poppins/Poppins-Regular.ttf?raw=true"
         urllib.request.urlretrieve(url, "poppins.ttf")
 
+        url = "https://github.com/google/fonts/blob/main/ofl/poppins/Poppins-SemiBold.ttf?raw=true"
+        urllib.request.urlretrieve(url, "poppins-bold.ttf")
+
+        font_bold = ImageFont.truetype(
+            "poppins-bold.ttf",
+            size=27,
+            encoding="utf-8",
+            layout_engine=ImageFont.LAYOUT_BASIC,
+        )
+
         # set locale for displaying day name in french
         locale.setlocale(locale.LC_ALL, "fr_FR.utf8")
         date = self.event.start_time.strftime("%A %d %B À %-H:%M").capitalize()
@@ -135,19 +145,18 @@ class EventThumbnailView(DetailView):
                 encoding="utf-8",
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
-            draw.text((108, 350), date, fill=(87, 26, 255, 0), align="left", font=font)
-            if self.event.location_city is not None:
-                draw.text(
-                    (108 + 13 * len(date), 350),
-                    " - "
-                    + self.event.location_city
-                    + " ("
-                    + self.event.location_zip
-                    + ")",
-                    fill=(79, 79, 79, 0),
-                    align="left",
-                    font=font,
-                )
+            draw.text(
+                (108, 350),
+                self.event.location_city.upper()
+                + " ("
+                + self.event.location_zip
+                + ") — "
+                + date.upper(),
+                fill=(87, 26, 255, 0),
+                align="left",
+                font=font_bold,
+            )
+
             font = ImageFont.truetype(
                 "poppins.ttf",
                 size=56,
@@ -164,19 +173,17 @@ class EventThumbnailView(DetailView):
                 encoding="utf-8",
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
-            draw.text((108, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
-            if self.event.location_city is not None:
-                draw.text(
-                    (108 + 13 * len(date), 319),
-                    " - "
-                    + self.event.location_city
-                    + " ("
-                    + self.event.location_zip
-                    + ")",
-                    fill=(79, 79, 79, 0),
-                    align="left",
-                    font=font,
-                )
+            draw.text(
+                (108, 319),
+                self.event.location_city.upper()
+                + " ("
+                + self.event.location_zip
+                + ") — "
+                + date.upper(),
+                fill=(87, 26, 255, 0),
+                align="left",
+                font=font_bold,
+            )
 
             font = ImageFont.truetype(
                 "poppins.ttf",
@@ -194,19 +201,17 @@ class EventThumbnailView(DetailView):
                 encoding="utf-8",
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
-            draw.text((108, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
-            if self.event.location_city is not None:
-                draw.text(
-                    (108 + 13 * len(date), 319),
-                    " - "
-                    + self.event.location_city
-                    + " ("
-                    + self.event.location_zip
-                    + ")",
-                    fill=(79, 79, 79, 0),
-                    align="left",
-                    font=font,
-                )
+            draw.text(
+                (108, 319),
+                self.event.location_city.upper()
+                + " ("
+                + self.event.location_zip
+                + ") — "
+                + date.upper(),
+                fill=(87, 26, 255, 0),
+                align="left",
+                font=font_bold,
+            )
 
             font = ImageFont.truetype(
                 "poppins.ttf",
@@ -235,19 +240,17 @@ class EventThumbnailView(DetailView):
                 encoding="utf-8",
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
-            draw.text((108, 319), date, fill=(87, 26, 255, 0), align="left", font=font)
-            if self.event.location_city is not None:
-                draw.text(
-                    (108 + 13 * len(date), 319),
-                    " - "
-                    + self.event.location_city
-                    + " ("
-                    + self.event.location_zip
-                    + ")",
-                    fill=(79, 79, 79, 0),
-                    align="left",
-                    font=font,
-                )
+            draw.text(
+                (108, 319),
+                self.event.location_city.upper()
+                + " ("
+                + self.event.location_zip
+                + ") — "
+                + date.upper(),
+                fill=(87, 26, 255, 0),
+                align="left",
+                font=font_bold,
+            )
 
             font = ImageFont.truetype(
                 "poppins.ttf",
