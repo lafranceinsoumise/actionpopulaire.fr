@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
+import { Redirect } from "react-router-dom";
 import useSWR from "swr";
 
 import EventRequiredDocument from "./EventRequiredDocuments";
@@ -13,10 +14,11 @@ import {
   addEventProjectDocument,
 } from "@agir/events/common/api";
 import { useEventFormOptions } from "@agir/events/common/hooks";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const EventRequiredDocumentsPage = (props) => {
   const { eventPk } = props;
-  const { data, mutate } = useSWR(
+  const { data, mutate, error } = useSWR(
     getEventEndpoint("eventProject", { eventPk })
   );
   const { subtype } = useEventFormOptions();
@@ -75,6 +77,10 @@ const EventRequiredDocumentsPage = (props) => {
     },
     [eventPk, dismissedDocumentTypes, mutate]
   );
+
+  if (error?.response?.status === 403 || error?.response?.status === 404) {
+    return <Redirect to={routeConfig.eventDetails.getLink({ eventPk })} />;
+  }
 
   return (
     <PageFadeIn ready={!!data}>
