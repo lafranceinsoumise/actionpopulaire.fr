@@ -76,7 +76,7 @@ const StyledModalContent = styled.div`
 `;
 
 export const MissingDocumentModal = (props) => {
-  const { shouldShow, onClose, projects } = props;
+  const { shouldShow, onClose, projects, isBlocked } = props;
 
   return (
     <Modal shouldShow={shouldShow} onClose={onClose} noScroll>
@@ -86,6 +86,17 @@ export const MissingDocumentModal = (props) => {
         </CloseButton>
         <header>
           <h3>Mes documents justificatifs</h3>
+          {isBlocked && (
+            <Toast style={{ display: "block", margin: " 0 0 1.5rem" }}>
+              <strong>
+                Action requise : vous avez des documents en attente.
+              </strong>
+              <br />
+              Tant que vous n’aurez pas envoyé ces documents (ou indiqué qu’ils
+              ne sont pas nécessaires), vous ne pourrez plus créer d’événement
+              public.
+            </Toast>
+          )}
           <p>
             <strong>
               Pour chaque événement public visant à susciter des
@@ -133,6 +144,7 @@ MissingDocumentModal.propTypes = {
       limitDate: PropTypes.string.isRequired,
     })
   ),
+  isBlocked: PropTypes.bool,
 };
 
 export default MissingDocumentModal;

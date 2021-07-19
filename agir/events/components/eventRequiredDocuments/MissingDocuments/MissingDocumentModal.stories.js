@@ -23,6 +23,7 @@ Default.args = {
     missingDocumentCount: 2,
     limitDate: "2022-01-01 00:00:00",
   })),
+  isBlocked: true,
 };
 
 export const Empty = Template.bind({});
