@@ -124,8 +124,6 @@ class EventTasksTestCase(TestCase):
             "name",
             "location_name",
             "short_address",
-            "contact_name",
-            "contact_phone",
         ]:
             self.assert_(
                 getattr(self.event, item) in text, "{} missing in message".format(item)
