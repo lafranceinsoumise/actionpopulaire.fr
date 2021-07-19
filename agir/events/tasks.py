@@ -468,3 +468,28 @@ def geocode_event(event_pk):
             ),
             send_post_save_signal=True,
         )
+
+
+@emailing_task
+def send_post_event_required_documents_reminder_email(event_pk):
+    event = Event.objects.select_related("subtype").get(pk=event_pk)
+    organizers = event.organizers.all()
+    document_deadline = event.end_time + timedelta(days=15)
+
+    bindings = {
+        "EVENT_NAME": event.name,
+        "DOCUMENTS_LINK": front_url(
+            "event_project", auto_login=False, kwargs={"pk": event.pk}
+        ),
+        "DOCUMENT_DEADLINE": document_deadline.strftime("%d/%m"),
+        "REQUIRED_DOCUMENT_TYPES": event.subtype.required_documents,
+        "NEEDS_DOCUMENTS": len(event.subtype.required_documents) > 0,
+    }
+
+    send_mosaico_email(
+        code="POST_EVENT_REQUIRED_DOCUMENTS_REMINDER",
+        subject=_("Rappel : envoyez les justificatifs de l'événement d'hier"),
+        from_email=settings.EMAIL_FROM,
+        recipients=[organizer for organizer in organizers],
+        bindings=bindings,
+    )

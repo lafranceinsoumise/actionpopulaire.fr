@@ -1,0 +1,30 @@
+Rappel : envoyez les justificatifs de l'événement d'hier
+  
+{{ GREETINGS }},
+
+Votre événement >> {{ EVENT_NAME }} << a eu lieu hier, félicitations !
+
+Envoyez a minima ces justificatifs ou indiquez qu'ils ne sont pas nécessaire avant le {{ DOCUMENT_DEADLINE }} :
+  {% if "ATT-CON" in REQUIRED_DOCUMENT_TYPES %}
+  * Attestation de concours en nature - {{ DOCUMENTS_LINK }}
+  {% endif %}
+  {% if "ATT-REG" in REQUIRED_DOCUMENT_TYPES %}
+  * Attestation de règlement des consommations - {{ DOCUMENTS_LINK }}
+  {% endif %}
+  {% if "ATT-GRA" in REQUIRED_DOCUMENT_TYPES %}
+  * Attestation pour les salles municipales - {{ DOCUMENTS_LINK }}
+  {% endif %}
+  {% if "ATT-ESP" in REQUIRED_DOCUMENT_TYPES %}
+  * Copie de la demande d'autorisation d'occupation de l'espace public - {{ DOCUMENTS_LINK }}
+  {% endif %}
+
+Attention :
+vous ne pourrez plus créer d’événement public après le {{ DOCUMENT_DEADLINE }} sans avoir complété la page des documents de cet événement.
+
+> J'envoie les documents : {{ DOCUMENTS_LINK }}
+  
+📄 Si nécessaire, vous pouvez téléchargez dès maintenant les modèles vierges qui vous seront nécessaires sur la page des documents de l'événement :
+> https://mosaico.lafranceinsoumise.fr/mosaico/{{ DOCUMENTS_LINK }}
+
+Amitiés,  
+L’équipe d’Action Populaire
