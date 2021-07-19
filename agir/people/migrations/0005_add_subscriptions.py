@@ -101,6 +101,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("people", "0004_display_name_and_image"),
+        ("notifications", "0008_initials"),
     ]
 
     operations = [
