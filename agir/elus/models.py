@@ -737,7 +737,10 @@ class AccesApplicationParrainages(models.Model):
         REFUSE = "R", "Refusée"
 
     person = models.OneToOneField(
-        to="people.Person", on_delete=models.CASCADE, null=False
+        to="people.Person",
+        on_delete=models.CASCADE,
+        null=False,
+        related_name="acces_application_parrainages",
     )
     etat = models.CharField(
         verbose_name="État de la demande",
