@@ -52,6 +52,13 @@ const Container = styled.form`
     width: 100%;
     max-width: 356px;
     justify-content: center;
+
+    &[type="button"] {
+      background-color: transparent;
+      color: ${style.black500};
+      font-size: 0.875rem;
+      font-weight: 400;
+    }
   }
 `;
 
@@ -293,6 +300,10 @@ const ChooseNewsletters = ({ dismiss }) => {
         <Spacer size="2rem" />
         <Button color="primary" type="submit" disabled={submitted}>
           Continuer
+        </Button>
+        <Spacer size="1rem" />
+        <Button type="button" onClick={dismiss} disabled={submitted}>
+          Passer cette étape
         </Button>
       </Container>
     </div>
