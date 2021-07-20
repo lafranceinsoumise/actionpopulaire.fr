@@ -1,56 +1,101 @@
-import _sortBy from "lodash/sortBy";
-import React, { Suspense, useMemo } from "react";
-import { useHistory, useRouteMatch } from "react-router-dom";
+import PropTypes from "prop-types";
+import React from "react";
+import styled from "styled-components";
 
-import { lazy } from "@agir/front/app/utils";
-import { routeConfig } from "@agir/front/app/routes.config";
-import { useMissingRequiredEventDocuments } from "@agir/events/common/hooks";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import Toast from "@agir/front/genericComponents/Toast";
 
-import MissingDocumentWarning from "./MissingDocumentWarning";
+import MissingDocumentList from "./MissingDocumentList";
 
-const MissingDocumentModal = lazy(() => import("./MissingDocumentModal"));
-
-const MissingDocuments = () => {
-  const history = useHistory();
-  const { projects } = useMissingRequiredEventDocuments();
-  const modalRouteMatch = useRouteMatch(
-    routeConfig.missingEventDocumentModal.path
-  );
-
-  const missingDocumentCount = useMemo(() => {
-    if (!Array.isArray(projects)) {
-      return 0;
+const StyledContent = styled.div`
+  header {
+    h3 {
+      padding: 0;
+      margin: 0 0 1rem;
+      font-weight: 700;
+      font-size: 1.625rem;
+      line-height: 1.5;
+      max-width: calc(100% - 3rem);
     }
-    return projects.reduce(
-      (count, project) => (count += project.missingDocumentCount),
-      0
-    );
-  }, [projects]);
 
-  const limitDate = useMemo(() => {
-    if (!Array.isArray(projects) || projects.length === 0) {
-      return null;
+    p {
+      margin: 0;
+
+      strong {
+        font-weight: 600;
+      }
     }
-    return _sortBy(projects, ["limitDate"])[0].limitDate;
-  }, [projects]);
+  }
 
-  const closeModal = () => history.push(routeConfig.events.getLink());
+  ${Toast} {
+    width: 100%;
+  }
+`;
+
+export const MissingDocumentModal = (props) => {
+  const { projects, isBlocked } = props;
 
   return (
-    <>
-      <MissingDocumentWarning
-        missingDocumentCount={missingDocumentCount}
-        limitDate={limitDate}
-      />
-      <Suspense fallback={null}>
-        <MissingDocumentModal
-          shouldShow={!!modalRouteMatch}
-          projects={projects}
-          onClose={closeModal}
-        />
-      </Suspense>
-    </>
+    <StyledContent>
+      <header>
+        <h3>Mes documents justificatifs</h3>
+        {isBlocked && (
+          <Toast style={{ display: "block", margin: " 0 0 1.5rem" }}>
+            <strong>
+              Action requise : vous avez des documents en attente.
+            </strong>
+            <br />
+            Tant que vous n’aurez pas envoyé ces documents (ou indiqué qu’ils ne
+            sont pas nécessaires), vous ne pourrez plus créer d’événement
+            public.
+          </Toast>
+        )}
+        <p>
+          <strong>
+            Pour chaque événement public visant à susciter des suffrages&nbsp;:
+          </strong>{" "}
+          envoyez des documents justifiant que vous n’avez engagé aucun frais
+          personnel.{" "}
+          <a href="https://infos.actionpopulaire.fr">En savoir plus</a>
+        </p>
+        <Spacer size="0.5rem" />
+        <p>
+          <strong>Attention&nbsp;:</strong> vous ne pourrez plus créer
+          d’événement public si vous en avez un de plus de 15 jours ayant des
+          documents manquants.
+        </p>
+      </header>
+      <Spacer size="1.5rem" />
+      <PageFadeIn ready={Array.isArray(projects)}>
+        {projects && projects.length > 0 ? (
+          <MissingDocumentList projects={projects} />
+        ) : (
+          <Toast $color="#16A460" style={{ margin: 0, fontWeight: 500 }}>
+            <RawFeatherIcon name="check" strokeWidth={2} />
+            &ensp;Vous êtes à jour de vos documents à envoyer&nbsp;!
+          </Toast>
+        )}
+      </PageFadeIn>
+    </StyledContent>
   );
 };
 
-export default MissingDocuments;
+MissingDocumentModal.propTypes = {
+  projects: PropTypes.arrayOf(
+    PropTypes.shape({
+      event: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        endTime: PropTypes.string.isRequired,
+      }),
+      projectId: PropTypes.number.isRequired,
+      missingDocumentCount: PropTypes.number.isRequired,
+      limitDate: PropTypes.string.isRequired,
+    })
+  ),
+  isBlocked: PropTypes.bool,
+};
+
+export default MissingDocumentModal;

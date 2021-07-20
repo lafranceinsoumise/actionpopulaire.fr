@@ -16,6 +16,11 @@ const CreateEvent = lazy(() =>
 const EventSettings = lazy(() =>
   import("@agir/events/EventSettings/EventSettings")
 );
+const MissingDocumentsPage = lazy(() =>
+  import(
+    "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsPage"
+  )
+);
 const EventRequiredDocuments = lazy(() =>
   import("@agir/events/eventRequiredDocuments/EventRequiredDocumentsPage")
 );
@@ -121,7 +126,7 @@ const notificationSettingRoute = new RouteConfig({
 export const routeConfig = {
   events: new RouteConfig({
     id: "events",
-    path: ["/", "/documents-justificatifs/"],
+    path: "/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Événements",
@@ -133,13 +138,14 @@ export const routeConfig = {
     hideConnectivityWarning: true,
     keepScroll: true,
   }),
-  missingEventDocumentModal: new RouteConfig({
-    id: "missingEventDocumentModal",
-    path: "/documents-justificatifs/",
+  missingEventDocuments: new RouteConfig({
+    id: "missingEventDocuments",
+    path: "/evenements/documents-justificatifs/",
     exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Documents justificatis",
-    isPartial: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Documents justificatifs",
+    Component: MissingDocumentsPage,
+    hasLayout: false,
     backLink: {
       route: "events",
       label: "Liste des événements",

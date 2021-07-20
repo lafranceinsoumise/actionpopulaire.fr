@@ -25,6 +25,7 @@ const IndexLinkAnchor = styled(Link)`
   text-transform: uppercase;
   display: flex;
   align-items: center;
+  margin-bottom: 1.5rem;
 
   &,
   &:hover,
@@ -37,6 +38,10 @@ const IndexLinkAnchor = styled(Link)`
   svg {
     height: 16px;
     width: 16px;
+  }
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    display: none;
   }
 `;
 
@@ -175,7 +180,6 @@ const EventRequiredDocuments = (props) => {
       <IndexLinkAnchor route="events">
         <FeatherIcon name="arrow-left" /> &nbsp; Liste des événements
       </IndexLinkAnchor>
-      <Spacer size="1.5rem" />
       <header>
         <h3>Documents de l'événement public</h3>
         <h2>{event.name}</h2>

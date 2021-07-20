@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { displayShortDate } from "@agir/lib/utils/time";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import Link from "@agir/front/app/Link";
 import Toast from "@agir/front/genericComponents/Toast";
 
 const StyledToast = styled(Toast)`
@@ -23,6 +22,9 @@ const StyledToast = styled(Toast)`
     display: flex;
     flex-flow: column nowrap;
     gap: 0.25rem;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
 
     &,
     &:hover,
@@ -61,7 +63,7 @@ const StyledToast = styled(Toast)`
 `;
 
 export const MissingDocumentWarning = (props) => {
-  const { missingDocumentCount, limitDate } = props;
+  const { missingDocumentCount, limitDate, onClick } = props;
 
   if (!missingDocumentCount) {
     return null;
@@ -69,7 +71,7 @@ export const MissingDocumentWarning = (props) => {
 
   return (
     <StyledToast>
-      <Link route="missingEventDocumentModal">
+      <button type="button" onClick={onClick}>
         <strong>
           <span>
             {missingDocumentCount}{" "}
@@ -81,7 +83,7 @@ export const MissingDocumentWarning = (props) => {
           <FeatherIcon name="chevron-right" />
         </strong>
         <span>À compléter avant le {displayShortDate(limitDate)}</span>
-      </Link>
+      </button>
     </StyledToast>
   );
 };
@@ -89,6 +91,7 @@ export const MissingDocumentWarning = (props) => {
 MissingDocumentWarning.propTypes = {
   missingDocumentCount: PropTypes.number,
   limitDate: PropTypes.string,
+  onClick: PropTypes.func.isRequired,
 };
 
 export default MissingDocumentWarning;

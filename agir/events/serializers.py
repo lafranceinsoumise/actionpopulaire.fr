@@ -15,6 +15,11 @@ from agir.lib.serializers import (
     CurrentPersonField,
 )
 from . import models
+from .actions.required_documents import (
+    get_project_document_deadline,
+    get_is_blocking_project,
+    get_project_missing_document_count,
+)
 from .models import (
     Event,
     EventSubtype,
@@ -466,6 +471,7 @@ class EventProjectSerializer(serializers.ModelSerializer):
     )
     documents = serializers.SerializerMethodField(read_only=True)
     limitDate = serializers.SerializerMethodField(read_only=True)
+    isBlocking = serializers.SerializerMethodField(read_only=True)
 
     def validate_dismissedDocumentTypes(self, types):
         if not isinstance(types, list):
@@ -501,7 +507,10 @@ class EventProjectSerializer(serializers.ModelSerializer):
         ).data
 
     def get_limitDate(self, obj):
-        return obj.event.end_time + timedelta(days=15)
+        return get_project_document_deadline(obj)
+
+    def get_isBlocking(self, obj):
+        return get_is_blocking_project(obj)
 
     class Meta:
         model = Projet
@@ -513,6 +522,7 @@ class EventProjectSerializer(serializers.ModelSerializer):
             "requiredDocumentTypes",
             "documents",
             "limitDate",
+            "isBlocking",
         ]
         valid_document_types = [
             choice[0]
@@ -526,34 +536,16 @@ class EventProjectListItemSerializer(serializers.ModelSerializer):
     status = serializers.CharField(source="etat", read_only=True)
     limitDate = serializers.SerializerMethodField(read_only=True)
     missingDocumentCount = serializers.SerializerMethodField(read_only=True)
+    isBlocking = serializers.SerializerMethodField(read_only=True)
 
     def get_limitDate(self, obj):
-        return obj.event.end_time + timedelta(days=15)
+        return get_project_document_deadline(obj)
 
     def get_missingDocumentCount(self, obj):
-        required_types = obj.event.subtype.required_documents
+        return get_project_missing_document_count(obj)
 
-        if len(required_types) == 0:
-            return 0
-
-        dismissed_types = []
-        if (
-            obj.details
-            and obj.details.get("documents")
-            and obj.details["documents"].get("absent")
-        ):
-            dismissed_types = obj.details["documents"]["absent"]
-
-        required_types = [t for t in required_types if t not in dismissed_types]
-
-        if len(required_types) == 0:
-            return 0
-
-        sent_types = obj.documents.values_list("type", flat=True)
-
-        required_types = [t for t in required_types if t not in sent_types]
-
-        return len(required_types)
+    def get_isBlocking(self, obj):
+        return get_is_blocking_project(obj)
 
     class Meta:
         model = Projet
@@ -563,6 +555,7 @@ class EventProjectListItemSerializer(serializers.ModelSerializer):
             "status",
             "missingDocumentCount",
             "limitDate",
+            "isBlocking",
         ]
         valid_document_types = [
             choice[0]

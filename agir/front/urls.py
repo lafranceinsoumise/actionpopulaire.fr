@@ -124,11 +124,6 @@ urlpatterns = [
     ),
     path("", views.BaseAppCachedView.as_view(), name="dashboard",),
     path(
-        "documents-justificatifs/",
-        views.BaseAppSoftAuthView.as_view(),
-        name="event_required_documents",
-    ),
-    path(
         "evenements/",
         RedirectView.as_view(pattern_name="dashboard"),
         name="list_events",
@@ -139,6 +134,11 @@ urlpatterns = [
         "evenements/creer/<path>/",
         views.BaseAppSoftAuthView.as_view(),
         name="create_event_sub",
+    ),
+    path(
+        "evenements/documents-justificatifs/",
+        views.BaseAppSoftAuthView.as_view(),
+        name="event_required_documents",
     ),
     path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
     path(
