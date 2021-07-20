@@ -14,7 +14,7 @@ import { useMissingRequiredEventDocuments } from "@agir/events/common/hooks";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 import Link from "@agir/front/app/Link";
-import { Container } from "@agir/front/genericComponents/grid";
+import { Container, Hide } from "@agir/front/genericComponents/grid";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -47,16 +47,9 @@ const Illustration = styled.div`
   background-image: url(${illustration});
 `;
 
-const StyledInfoBlock = styled.div`
+const StyledInfoBlock = styled(Hide)`
   margin: 0;
   padding: 0;
-
-  @media (min-width: ${style.collapse}px) {
-    display: ${({ $desktop }) => ($desktop ? "block" : "none")};
-  }
-  @media (max-width: ${style.collapse}px) {
-    display: ${({ $mobile }) => ($mobile ? "block" : "none")};
-  }
 
   & > * {
     margin: 0;
@@ -189,12 +182,12 @@ const CreateEvent = () => {
               )}
               <Spacer size="1.5rem" />
               <h2>Nouvel événement</h2>
-              <InfoBlock $mobile />
+              <InfoBlock over />
               <Spacer size="1.5rem" />
               <EventForm />
             </div>
             <div>
-              <InfoBlock $desktop />
+              <InfoBlock under />
             </div>
           </StyledContainer>
         )}
