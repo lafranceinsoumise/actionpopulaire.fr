@@ -157,6 +157,7 @@ const MobileLayout = (props) => {
   const { contact, routes, groups, illustration, location, subtype } = props;
   const hasMap =
     location?.coordinates && Array.isArray(location?.coordinates?.coordinates);
+  const activePathname = `/evenements/${props.id}/`;
 
   return (
     <>
@@ -222,6 +223,7 @@ const MobileLayout = (props) => {
           </StyledColumn>
         </Row>
       </Container>
+      <EventSettings event={props} basePath={activePathname} />
     </>
   );
 };
@@ -278,10 +280,7 @@ const DesktopLayout = (props) => {
           </StyledColumn>
         </Row>
       </Container>
-      <EventSettings 
-        event={props} 
-        basePath={activePathname} 
-      />
+      <EventSettings event={props} basePath={activePathname} />
     </>
   );
 };

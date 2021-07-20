@@ -74,9 +74,40 @@ supportgroup_patterns = [
 ]
 
 event_settings_patterns = [
+    path("", views.EventDetailView.as_view(), name="view_event"),
     path("gestion/", views.BaseAppHardAuthView.as_view(), name="view_event_settings",),
     path(
         "gestion/membres/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_members",
+    ),
+    path(
+        "gestion/general/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_members",
+    ),
+    path(
+        "gestion/organisation/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_members",
+    ),
+    path(
+        "gestion/droits/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_members",
+    ),
+    path(
+        "gestion/video-conference/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_members",
+    ),
+    path(
+        "gestion/contact/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_members",
+    ),
+    path(
+        "gestion/localisation/",
         views.BaseAppHardAuthView.as_view(),
         name="view_event_settings_members",
     ),
@@ -144,9 +175,8 @@ urlpatterns = [
         views.BaseAppSoftAuthView.as_view(),
         name="create_event_sub",
     ),
-    path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
-    # path("evenements/<uuid:pk>/gestion/", include(event_settings_patterns)),
-    path("evenements/<uuid:pk>/gestion/", views.BaseAppHardAuthView.as_view(), name="view_event_settings",),
+    # path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
+    path("evenements/<uuid:pk>/", include(event_settings_patterns)),
     path("mes-groupes/", views.BaseAppSoftAuthView.as_view(), name="list_my_groups"),
     path("navigation/", views.BaseAppSoftAuthView.as_view(), name="navigation_menu"),
     path("messages/", views.BaseAppHardAuthView.as_view(), name="user_messages"),

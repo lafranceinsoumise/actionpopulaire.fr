@@ -3,11 +3,11 @@ import React, { useState, useCallback } from "react";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
 import GroupLink from "./GroupLink.js";
-import HeaderPanel from "./HeaderPanel";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import TextField from "@agir/front/formComponents/TextField";
 import Button from "@agir/front/genericComponents/Button";
 
-import { StyledTitle } from "./styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 

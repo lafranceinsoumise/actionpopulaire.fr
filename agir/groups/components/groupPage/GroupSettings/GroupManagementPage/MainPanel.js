@@ -8,7 +8,7 @@ import Button from "@agir/front/genericComponents/Button.js";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 
-import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 
 const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 

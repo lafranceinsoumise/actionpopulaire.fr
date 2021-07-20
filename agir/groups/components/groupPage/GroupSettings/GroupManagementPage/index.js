@@ -9,7 +9,7 @@ import { ManagerMainPanel, ReferentMainPanel } from "./MainPanel";
 import EditionPanel from "./EditionPanel";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
-import HeaderPanel from "@agir/groups/groupPage/GroupSettings/HeaderPanel";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 

@@ -170,6 +170,7 @@ export const routeConfig = {
     Component: EventPage,
     hideFeedbackButton: true,
     // isPartial: true
+    // isPartial: false,
   }),
   groups: new RouteConfig({
     id: "groups",

@@ -10,16 +10,16 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Map from "@agir/carte/common/Map";
-import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
 import LocationField from "@agir/front/formComponents/LocationField.js";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
 
-import {
-  updateGroup,
-  getGroupPageEndpoint,
-} from "@agir/groups/groupPage/api.js";
+// import {
+//   updateGroup,
+//   getGroupPageEndpoint,
+// } from "@agir/groups/groupPage/api.js";
 
 const StyledMap = styled(Map)`
   height: 208px;
@@ -33,17 +33,16 @@ const StyledMapConfig = styled(Map)`
   }
 `;
 
-const GroupLocalizationPage = (props) => {
-  const { onBack, illustration, groupPk } = props;
+const EventLocation = (props) => {
+  const { onBack, illustration, eventPk } = props;
   const sendToast = useToast();
   const [formLocation, setFormLocation] = useState({});
   const [config, setConfig] = useState(null);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
-  const { data: group, mutate } = useSWR(
-    getGroupPageEndpoint("getGroup", { groupPk })
-  );
+  const { data: event, mutate } = useSWR();
+  // geteventPageEndpoint("getevent", { eventPk })
 
   const handleInputChange = useCallback((_, name, value) => {
     setFormLocation((formLocation) => ({ ...formLocation, [name]: value }));
@@ -54,32 +53,32 @@ const GroupLocalizationPage = (props) => {
       e.preventDefault();
 
       setErrors({});
-      setIsLoading(true);
-      const res = await updateGroup(groupPk, { location: formLocation });
-      setIsLoading(false);
-      if (res.error) {
-        setErrors(res.error?.location);
-        return;
-      }
-      sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-      mutate((group) => {
-        return { ...group, ...res.data };
-      });
+      //   setIsLoading(true);
+      //   const res = await updateevent(eventPk, { location: formLocation });
+      //   setIsLoading(false);
+      //   if (res.error) {
+      //     setErrors(res.error?.location);
+      //     return;
+      //   }
+      //   sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
+      //   mutate((event) => {
+      //     return { ...event, ...res.data };
+      //   });
     },
-    [formLocation, groupPk, mutate, sendToast]
+    [formLocation, eventPk, mutate, sendToast]
   );
 
-  useEffect(() => {
-    setIsLoading(false);
-    setFormLocation({
-      name: group?.location.name,
-      address1: group?.location.address1,
-      address2: group?.location.address2,
-      zip: group?.location.zip,
-      city: group?.location.city,
-      country: group?.location.country,
-    });
-  }, [group]);
+  //   useEffect(() => {
+  //     setIsLoading(false);
+  //     setFormLocation({
+  //       name: event?.location.name,
+  //       address1: event?.location.address1,
+  //       address2: event?.location.address2,
+  //       zip: event?.location.zip,
+  //       city: event?.location.city,
+  //       country: event?.location.country,
+  //     });
+  //   }, [event]);
 
   if (config) {
     return (
@@ -92,7 +91,7 @@ const GroupLocalizationPage = (props) => {
         <StyledTitle>Personnaliser la localisation</StyledTitle>
 
         <Spacer size="1rem" />
-        <StyledMapConfig center={group?.location?.coordinates?.coordinates} />
+        <StyledMapConfig center={event?.location?.coordinates?.coordinates} />
 
         <Spacer size="2rem" />
         <div style={{ display: "flex", justifyContent: "center" }}>
@@ -110,14 +109,14 @@ const GroupLocalizationPage = (props) => {
       <StyledTitle>Localisation</StyledTitle>
       <Spacer size="1rem" />
       <StyledMap
-        center={group?.location?.coordinates?.coordinates || []}
-        iconConfiguration={group?.iconConfiguration}
+        center={event?.location?.coordinates?.coordinates || []}
+        iconConfiguration={event?.iconConfiguration}
       />
       <Spacer size="0.5rem" />
       {/* <Button small $wrap onClick={() => setConfig(true)}>
         Personnaliser la localisation sur la carte
       </Button> */}
-      <Button as="a" small $wrap href={group?.routes?.geolocate}>
+      <Button as="a" small $wrap href={event?.routes?.geolocate}>
         Personnaliser la localisation sur la carte
       </Button>
       <Spacer size="1rem" />
@@ -155,9 +154,9 @@ const GroupLocalizationPage = (props) => {
     </form>
   );
 };
-GroupLocalizationPage.propTypes = {
+EventLocation.propTypes = {
   onBack: PropTypes.func,
   illustration: PropTypes.string,
-  groupPk: PropTypes.string,
+  eventPk: PropTypes.string,
 };
-export default GroupLocalizationPage;
+export default EventLocation;

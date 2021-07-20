@@ -207,8 +207,6 @@ export const ObjectManagement = (props) => {
   const { basePath, menuLink, redirectTo, ...rest } = props;
 
   const hasRoute = useRouteMatch(menuLink);
-  console.log("OBJECT MANAGEMENT : props ", props);
-  console.log("OBJECT MANAGEMENT : menuLink, hasRoute", menuLink, hasRoute);
 
   const { push } = useHistory();
 
@@ -220,9 +218,10 @@ export const ObjectManagement = (props) => {
     basePath && push(basePath);
   }, [basePath, push]);
 
-  if (!!hasRoute && redirectTo) {
-    return <Redirect to={redirectTo} />;
-  }
+  // if (!!hasRoute && redirectTo) {
+  //   console.log("REDIRECT TO")
+  //   return <Redirect to={redirectTo} />;
+  // }
 
   return (
     <ResponsiveLayout
@@ -230,8 +229,7 @@ export const ObjectManagement = (props) => {
       MobileLayout={MobilePanel}
       DesktopLayout={DesktopPanel}
       menuLink={menuLink}
-      // shouldShow={!!hasRoute}
-      shouldShow={true}
+      shouldShow={!!hasRoute}
       goToMenu={goToMenu}
       onClose={closePanel}
     />

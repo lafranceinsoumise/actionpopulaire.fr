@@ -12,13 +12,13 @@ import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js"
 import ImageField from "@agir/front/formComponents/ImageField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
-import HeaderPanel from "./HeaderPanel";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import {
   updateGroup,
   getGroupPageEndpoint,
 } from "@agir/groups/groupPage/api.js";
 
-import { StyledTitle } from "./styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 
 const GroupGeneralPage = (props) => {
   const { onBack, illustration, groupPk } = props;

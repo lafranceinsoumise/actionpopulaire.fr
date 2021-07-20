@@ -4,7 +4,11 @@ import logoMobile from "@agir/front/genericComponents/logos/action-populaire_min
 import { Hide } from "@agir/front/genericComponents/grid";
 import Signup from "./Signup";
 import LeftBlockDesktop from "./LeftBlockDesktop";
-import { MainBlock, Container, BackgroundMobile } from "./styledComponents";
+import {
+  MainBlock,
+  Container,
+  BackgroundMobile,
+} from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
 const SignupPage = () => {
   return (

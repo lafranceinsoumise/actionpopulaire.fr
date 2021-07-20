@@ -1,0 +1,71 @@
+import PropTypes from "prop-types";
+import React, { useState } from "react";
+import useSWR from "swr";
+
+import styled from "styled-components";
+import style from "@agir/front/genericComponents/_variables.scss";
+
+import Spacer from "@agir/front/genericComponents/Spacer.js";
+
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
+import OnlineUrlField from "@agir/events/createEventPage/EventForm/OnlineUrlField";
+import Button from "@agir/front/genericComponents/Button";
+
+const EventVisio = (props) => {
+  const { onBack, illustration, eventPk } = props;
+
+  const [onlineUrl, setOnlineUrl] = useState("");
+  const [errors, setErrors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const updateValue = (e) => {
+    setOnlineUrl(e);
+  };
+
+  const handleSubmit = () => {
+    return true;
+  };
+
+  return (
+    <>
+      <HeaderPanel onBack={onBack} illustration={illustration} />
+      <StyledTitle>Visioconférence</StyledTitle>
+
+      <span style={{ color: style.black700 }}>
+        Pour vos réunions en ligne, utilisez le service d’Action Populaire.
+        Votre salon de visioconférence est déjà prêt si vous voulez
+        l’utiliser&nbsp;!
+      </span>
+
+      <Spacer size="1rem" />
+
+      <OnlineUrlField
+        label="URL de votre visio-conférence sur Action Populaire"
+        name="onlineUrl"
+        onChange={updateValue}
+        error={errors && errors.onlineUrl}
+        value={onlineUrl}
+        defaultUrl={"video.com"}
+        placeholder="URL de la visio-conférence"
+      />
+
+      <Spacer size="1rem" />
+
+      <Button
+        color="secondary"
+        $wrap
+        disabled={isLoading}
+        onClick={handleSubmit}
+      >
+        Enregistrer
+      </Button>
+    </>
+  );
+};
+EventVisio.propTypes = {
+  onBack: PropTypes.func,
+  illustration: PropTypes.string,
+  eventPk: PropTypes.string,
+};
+export default EventVisio;

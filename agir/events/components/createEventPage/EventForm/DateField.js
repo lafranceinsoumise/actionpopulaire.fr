@@ -72,6 +72,7 @@ const DateField = (props) => {
     error,
     required,
     disabled,
+    className,
   } = props;
 
   const [hasTimezone, setHasTimezone] = useState(false);
@@ -119,7 +120,7 @@ const DateField = (props) => {
   }, [duration, updateStartTime, startTime]);
 
   return (
-    <Field>
+    <Field className={className}>
       <div>
         <DateTimeField
           label={`Date et heure ${

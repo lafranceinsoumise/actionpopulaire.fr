@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from agir.front.views import BaseAppView
 
 urlpatterns = [
     path("evenements/liste/", views.EventSearchView.as_view(), name="search_event"),
@@ -14,16 +15,16 @@ urlpatterns = [
         views.EventIcsView.as_view(),
         name="ics_event",
     ),
-    path(
-        "evenements/<uuid:pk>/manage/",
-        views.ManageEventView.as_view(),
-        name="manage_event",
-    ),
     # path(
-    #     "evenements/<uuid:pk>/gestion/",
+    #     "evenements/<uuid:pk>/manage/",
     #     views.ManageEventView.as_view(),
     #     name="manage_event",
     # ),
+    path(
+        "evenements/<uuid:pk>/gestion/",
+        BaseAppView,
+        name="manage_event",
+    ),
     path(
         "evenements/<uuid:pk>/modifier/",
         views.ModifyEventView.as_view(),

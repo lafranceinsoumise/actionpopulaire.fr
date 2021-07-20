@@ -11,7 +11,7 @@ import Button from "@agir/front/genericComponents/Button";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
 import Toast from "@agir/front/genericComponents/Toast";
 
-import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 
 const [REFERENT, MANAGER, MEMBER] = [100, 50, 10];
 

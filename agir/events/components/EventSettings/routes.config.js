@@ -4,12 +4,32 @@ import {
   routeConfig as globalRouteConfig,
 } from "@agir/front/app/routes.config";
 
-// import illustrationManage from "@agir/front/genericComponents/images/group_members.svg";
+import illustrationManage from "@agir/front/genericComponents/images/group_members.svg";
+import illustrationGeneral from "@agir/front/genericComponents/images/group_general.svg";
+import illustrationFinance from "@agir/front/genericComponents/images/group_financement.svg";
+import illustrationContact from "@agir/front/genericComponents/images/group_contact.svg";
+import illustrationLinks from "@agir/front/genericComponents/images/group_links.svg";
+import illustrationVisio from "@agir/front/genericComponents/images/video-conference.svg";
 
 const EventGeneral = lazy(() =>
   import("@agir/events/EventSettings/EventGeneral")
 );
-
+const EventParticipants = lazy(() =>
+  import("@agir/events/EventSettings/EventParticipants")
+);
+const EventOrganization = lazy(() =>
+  import("@agir/events/EventSettings/EventOrganization")
+);
+const EventRights = lazy(() =>
+  import("@agir/events/EventSettings/EventRights")
+);
+const EventVisio = lazy(() => import("@agir/events/EventSettings/EventVisio"));
+const EventContact = lazy(() =>
+  import("@agir/events/EventSettings/EventContact")
+);
+const EventLocation = lazy(() =>
+  import("@agir/events/EventSettings/EventLocation")
+);
 
 export const menuRoute = {
   id: "menu",
@@ -25,6 +45,7 @@ export const routeConfig = {
     exact: true,
     label: "Général",
     icon: "file",
+    illustration: illustrationGeneral,
     Component: EventGeneral,
     isActive: true,
     menuGroup: 1,
@@ -35,7 +56,7 @@ export const routeConfig = {
     exact: true,
     label: "X participant.es",
     icon: "users",
-    Component: EventGeneral,
+    Component: EventParticipants,
     isActive: true,
     menuGroup: 1,
   },
@@ -45,7 +66,8 @@ export const routeConfig = {
     exact: true,
     label: "Co-organisation",
     icon: "settings",
-    Component: EventGeneral,
+    illustration: illustrationManage,
+    Component: EventOrganization,
     isActive: true,
     menuGroup: 1,
   },
@@ -55,7 +77,8 @@ export const routeConfig = {
     exact: true,
     label: "Droits",
     icon: "lock",
-    Component: EventGeneral,
+    illustration: illustrationManage,
+    Component: EventRights,
     isActive: true,
     menuGroup: 1,
   },
@@ -65,7 +88,8 @@ export const routeConfig = {
     exact: true,
     label: "Vidéo-conférence",
     icon: "video",
-    Component: EventGeneral,
+    illustration: illustrationVisio,
+    Component: EventVisio,
     isActive: true,
     menuGroup: 2,
   },
@@ -75,7 +99,7 @@ export const routeConfig = {
     exact: true,
     label: "Contact",
     icon: "mail",
-    Component: EventGeneral,
+    Component: EventContact,
     isActive: true,
     menuGroup: 2,
   },
@@ -85,7 +109,7 @@ export const routeConfig = {
     exact: true,
     label: "Localisation",
     icon: "map-pin",
-    Component: EventGeneral,
+    Component: EventLocation,
     isActive: true,
     menuGroup: 2,
   },

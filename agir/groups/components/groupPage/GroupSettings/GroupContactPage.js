@@ -10,9 +10,9 @@ import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
-import HeaderPanel from "./HeaderPanel";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 
-import { StyledTitle } from "./styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 
 import {
   updateGroup,

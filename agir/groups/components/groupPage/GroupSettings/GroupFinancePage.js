@@ -9,10 +9,10 @@ import Button from "@agir/front/genericComponents/Button";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import ShareLink from "@agir/front/genericComponents/ShareLink.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
-import HeaderPanel from "./HeaderPanel";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import SpendingRequests from "./SpendingRequests";
 
-import { StyledTitle } from "./styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 
 import { getGroupPageEndpoint } from "@agir/groups/groupPage/api.js";
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
