@@ -8,7 +8,7 @@ import {
   MainBlock,
   Container,
   BackgroundMobile,
-} from "@agir/front/genericComponents/ObjectManagement/styledComponents";
+} from "./styledComponents";
 
 const SignupPage = () => {
   return (

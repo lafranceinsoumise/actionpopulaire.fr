@@ -11,7 +11,7 @@ import {
   MainBlock,
   Container,
   BackgroundMobile,
-} from "@agir/front/genericComponents/ObjectManagement/styledComponents";
+} from "./styledComponents";
 import AuthenticatedLogin from "./AuthenticatedLogin";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";

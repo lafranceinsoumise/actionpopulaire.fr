@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { BlockSwitchLink } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
+import { BlockSwitchLink } from "./styledComponents";
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import CountryField from "@agir/front/formComponents/CountryField";
