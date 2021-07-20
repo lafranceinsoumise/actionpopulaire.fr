@@ -422,7 +422,7 @@ const EventForm = () => {
         onChange={setCampaignFunding}
         disabled={isLoading}
         groupPk={formData?.organizerGroup?.id}
-        isCertified={!!formData?.organizerGroup?.is2022Certified}
+        isCertified={!!formData?.organizerGroup?.isCertified}
         needsDocuments={!!formData?.subtype?.needsDocuments}
         endTime={formData?.endTime}
       />

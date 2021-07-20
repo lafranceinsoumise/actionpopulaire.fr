@@ -178,13 +178,13 @@ class SupportGroup(
     def is_certified(self):
         return self.subtypes.filter(
             label__in=settings.CERTIFIED_GROUP_SUBTYPES
-            + settings.CERTIFIED_2022_GROUP_SUBTYPES
         ).exists()
 
     @property
     def is_2022_certified(self):
         return self.subtypes.filter(
             label__in=settings.CERTIFIED_2022_GROUP_SUBTYPES
+            + settings.CERTIFIED_GROUP_SUBTYPES
         ).exists()
 
     @property
