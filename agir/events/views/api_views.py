@@ -2,12 +2,12 @@ from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
-from django.db.models import Q, Prefetch
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from rest_framework import status
-from rest_framework.exceptions import NotFound, MethodNotAllowed, PermissionDenied
+from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
@@ -52,7 +52,10 @@ __all__ = [
 
 from agir.gestion.models import Projet
 
-from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
+from agir.lib.rest_framework_permissions import (
+    GlobalOrObjectPermissions,
+    HasSpecificPermissions,
+)
 
 from agir.lib.tasks import geocode_person
 
@@ -156,43 +159,34 @@ class EventSuggestionsAPIView(ListAPIView):
         return result
 
 
-class EventManagementPermissions(GlobalOrObjectPermissions):
-    perms_map = {
-        "OPTIONS": [],
-        "GET": [],
-        "POST": ["events.add_event",],
-        "PUT": [],
-        "PATCH": [],
-    }
-    object_perms_map = {
-        "OPTIONS": [],
-        "GET": [],
-        "POST": [],
-        "PUT": ["events.change_event"],
-        "PATCH": ["events.change_event"],
-    }
-
-
 class EventCreateOptionsAPIView(RetrieveAPIView):
-    permission_classes = (EventManagementPermissions,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = EventPropertyOptionsSerializer
     queryset = Event.objects.all()
-
-    def initial(self, request, *args, **kwargs):
-        user = request.user
-        if user.is_anonymous or not user.person:
-            raise PermissionDenied()
-        self.person = user.person
-        return super().initial(request, *args, **kwargs)
 
     def get_object(self):
         return self.request
 
 
+class CreateEventPermissions(HasSpecificPermissions):
+    permissions = ["events.add_event"]
+
+
 class CreateEventAPIView(CreateAPIView):
-    permission_classes = (EventManagementPermissions,)
+    permission_classes = (CreateEventPermissions,)
     serializer_class = CreateEventSerializer
     queryset = Event.objects.all()
+
+
+class EventManagementPermissions(GlobalOrObjectPermissions):
+    perms_map = {
+        "PUT": [],
+        "PATCH": [],
+    }
+    object_perms_map = {
+        "PUT": ["events.change_event"],
+        "PATCH": ["events.change_event"],
+    }
 
 
 class UpdateEventAPIView(UpdateAPIView):
