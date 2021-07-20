@@ -1,4 +1,3 @@
-import _sortBy from "lodash/sortBy";
 import React, { Suspense, useMemo, useState } from "react";
 
 import { lazy } from "@agir/front/app/utils";
@@ -25,7 +24,7 @@ const MissingDocuments = () => {
     if (!Array.isArray(projects) || projects.length === 0) {
       return null;
     }
-    return _sortBy(projects, ["limitDate"])[0].limitDate;
+    return projects.map((project) => project.limitDate).sort()[0];
   }, [projects]);
 
   const isBlocked = useMemo(() => {
