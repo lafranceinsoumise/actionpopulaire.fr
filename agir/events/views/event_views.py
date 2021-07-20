@@ -139,12 +139,6 @@ class EventThumbnailView(DetailView):
         date = self.event.start_time.strftime("%A %d %B À %-H:%M").capitalize()
 
         if len(self.event.name) < 30:
-            font = ImageFont.truetype(
-                "poppins.ttf",
-                size=27,
-                encoding="utf-8",
-                layout_engine=ImageFont.LAYOUT_BASIC,
-            )
             draw.text(
                 (108, 350),
                 self.event.location_city.upper()
@@ -157,22 +151,10 @@ class EventThumbnailView(DetailView):
                 font=font_bold,
             )
 
-            font = ImageFont.truetype(
-                "poppins.ttf",
-                size=56,
-                encoding="utf-8",
-                layout_engine=ImageFont.LAYOUT_BASIC,
-            )
             draw.text(
-                (108, 400), self.event.name, fill=(0, 0, 0, 0), align="left", font=font
+                (108, 400), self.event.name.capitalize(), fill=(0, 0, 0, 0), align="left", font=self.get_image_font(56)
             )
         elif len(self.event.name) < 36:
-            font = ImageFont.truetype(
-                "poppins.ttf",
-                size=27,
-                encoding="utf-8",
-                layout_engine=ImageFont.LAYOUT_BASIC,
-            )
             draw.text(
                 (108, 319),
                 self.event.location_city.upper()
@@ -192,7 +174,7 @@ class EventThumbnailView(DetailView):
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
             draw.text(
-                (108, 369), self.event.name, fill=(0, 0, 0, 0), align="left", font=font
+                (108, 369), self.event.name.capitalize(), fill=(0, 0, 0, 0), align="left", font=self.get_image_font(45)
             )
         elif len(self.event.name) < 74:
             font = ImageFont.truetype(
@@ -213,33 +195,21 @@ class EventThumbnailView(DetailView):
                 font=font_bold,
             )
 
-            font = ImageFont.truetype(
-                "poppins.ttf",
-                size=45,
-                encoding="utf-8",
-                layout_engine=ImageFont.LAYOUT_BASIC,
-            )
             draw.text(
                 (108, 369),
-                self.event.name[0:36],
+                self.event.name[0:36].capitalize(),
                 fill=(0, 0, 0, 0),
                 align="left",
-                font=font,
+                font=self.get_image_font(45),
             )
             draw.text(
                 (108, 430),
                 self.event.name[37:73],
                 fill=(0, 0, 0, 0),
                 align="left",
-                font=font,
+                font=self.get_image_font(45),
             )
         else:
-            font = ImageFont.truetype(
-                "poppins.ttf",
-                size=27,
-                encoding="utf-8",
-                layout_engine=ImageFont.LAYOUT_BASIC,
-            )
             draw.text(
                 (108, 319),
                 self.event.location_city.upper()
@@ -252,25 +222,19 @@ class EventThumbnailView(DetailView):
                 font=font_bold,
             )
 
-            font = ImageFont.truetype(
-                "poppins.ttf",
-                size=45,
-                encoding="utf-8",
-                layout_engine=ImageFont.LAYOUT_BASIC,
-            )
             draw.text(
                 (108, 369),
-                self.event.name[0:36],
+                self.event.name[0:36].capitalize(),
                 fill=(0, 0, 0, 0),
                 align="left",
-                font=font,
+                font=self.get_image_font(45),
             )
             draw.text(
                 (108, 430),
                 self.event.name[37:73] + "...",
                 fill=(0, 0, 0, 0),
                 align="left",
-                font=font,
+                font=self.get_image_font(45),
             )
 
         logo_ap = Image.open("bande-ap.png")
@@ -278,6 +242,14 @@ class EventThumbnailView(DetailView):
         image.paste(logo_ap, (0, 535), logo_ap)
 
         return image
+
+    def get_image_font(self, size):
+        return ImageFont.truetype(
+            "poppins.ttf",
+            size=size,
+            encoding="utf-8",
+            layout_engine=ImageFont.LAYOUT_BASIC,
+        )
 
 
 class EventSearchView(FilterView):
