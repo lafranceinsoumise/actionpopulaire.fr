@@ -175,7 +175,8 @@ class MandatConsulaireForm(BaseMandatForm):
 class DemandeAccesApplicationParrainagesForm(forms.ModelForm):
     engagement = forms.BooleanField(
         required=True,
-        label="Je m'engage à respecter les consignes données dans mes approches avec les élus susceptibles de parrainer la candidature de JLM.",
+        label="Je m'engage à respecter les consignes données dans mes approches avec les élu·es susceptibles de"
+        " parrainer la candidature de JLM.",
     )
 
     def __init__(self, *args, **kwargs):
