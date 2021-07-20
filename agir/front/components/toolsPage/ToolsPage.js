@@ -708,7 +708,7 @@ const ToolsPage = () => {
           {!isDesktop && <Navigation active={routeConfig.tools.id} />}
         </div>
       </StyledPage>
-      <Footer />
+      <Footer displayOnMobileApp />
     </>
   );
 };
