@@ -290,7 +290,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
           {
             loader: "css-loader",
             options: {
-              modules: { compileType: "icss", auto: /\.scss$/i },
+              modules: { mode: "icss", auto: /\.scss$/i },
             },
           },
           "sass-loader",
