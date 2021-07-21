@@ -1,6 +1,7 @@
 from datetime import timedelta
 from pathlib import PurePath
 
+from django.db import transaction
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
 from rest_framework import serializers
@@ -409,12 +410,13 @@ class CreateEventSerializer(serializers.Serializer):
             send_new_group_event_email.delay(data["organizer_group"].pk, event.pk)
 
     def create(self, validated_data):
-        event = Event.objects.create(**validated_data)
-        # Create a gestion project if needed for the event's subtype
-        if event.subtype.related_project_type is not None:
-            Projet.objects.from_event(event)
-        self.schedule_tasks(event, validated_data)
-        return event
+        with transaction.atomic():
+            event = Event.objects.create(**validated_data)
+            # Create a gestion project if needed for the event's subtype
+            if event.subtype.related_project_type is not None:
+                Projet.objects.from_event(event, event.organizers.first().role)
+            self.schedule_tasks(event, validated_data)
+            return event
 
 
 class UpdateEventSerializer(serializers.ModelSerializer):
@@ -429,7 +431,11 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "subtype"]
 
     def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
+        with transaction.atomic():
+            event = super().update(instance, validated_data)
+            if Projet.objects.filter(event=event).exists():
+                Projet.objects.from_event(event, event.organizers.first().role)
+            return event
 
 
 class EventProjectDocumentSerializer(serializers.ModelSerializer):
