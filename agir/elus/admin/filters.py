@@ -6,7 +6,7 @@ from agir.elus.models import MandatMunicipal
 from agir.lib.autocomplete_filter import AutocompleteFilter, SelectModelFilter
 
 
-class CommuneFilter(AutocompleteFilter):
+class ConseilFilter(AutocompleteFilter):
     field_name = "conseil"
     title = "Commune d'élection"
 

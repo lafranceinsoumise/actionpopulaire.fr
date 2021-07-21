@@ -262,6 +262,16 @@ class MandatMunicipalForm(MandatForm):
             legender_elu_municipal_depuis_fiche_rne(self, instance.reference)
 
 
+class MandatDepartementalForm(MandatForm):
+    def __init__(self, *args, **kwargs):
+        super(MandatDepartementalForm, self).__init__(*args, **kwargs)
+
+        self.fields["conseil"].error_messages["invalid_choice"] = (
+            "Pour les collectivités qui ont aussi un rôle régional, passez par le formulaire d'ajout d'un élu "
+            "régional. Pour Paris, passez par le formulaire d'ajout d'un élu municipal."
+        )
+
+
 class RechercheParrainageForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

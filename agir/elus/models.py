@@ -417,26 +417,14 @@ class MandatDepartemental(MandatAbstrait):
         return "Nouveau mandat départemental"
 
     def titre_complet(self, conseil_avant=False):
-        metropole = (
-            self.conseil
-            and self.conseil.type == CollectiviteDepartementale.TYPE_CONSEIL_METROPOLE
-        )
-
         if self.mandat in [
             self.MANDAT_INCONNU,
             self.MANDAT_CONSEILLER_MAJORITE,
             self.MANDAT_CONSEILLER_OPPOSITION,
         ]:
-
-            if metropole:
-                titre = genrer(self.person.gender, "Conseiller⋅ère métropolitain⋅e")
-            else:
-                titre = genrer(self.person.gender, "Conseiller⋅ère départemental⋅e")
+            titre = genrer(self.person.gender, "Conseiller⋅ère")
         else:
-            adjectif = "" if metropole else " départemental"
-            titre = genrer(
-                self.person.gender, f"{self.get_mandat_display()} du conseil{adjectif}",
-            )
+            titre = genrer(self.person.gender, self.get_mandat_display())
 
         if self.conseil is None:
             return titre
