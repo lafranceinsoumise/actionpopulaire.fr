@@ -84,32 +84,37 @@ event_settings_patterns = [
     path(
         "gestion/general/",
         views.BaseAppHardAuthView.as_view(),
-        name="view_event_settings_members",
+        name="view_event_settings_general",
     ),
     path(
         "gestion/organisation/",
         views.BaseAppHardAuthView.as_view(),
-        name="view_event_settings_members",
+        name="view_event_settings_organisation",
     ),
     path(
         "gestion/droits/",
         views.BaseAppHardAuthView.as_view(),
-        name="view_event_settings_members",
+        name="view_event_settings_rights",
     ),
     path(
         "gestion/video-conference/",
         views.BaseAppHardAuthView.as_view(),
-        name="view_event_settings_members",
+        name="view_event_settings_video",
     ),
     path(
         "gestion/contact/",
         views.BaseAppHardAuthView.as_view(),
-        name="view_event_settings_members",
+        name="view_event_settings_contact",
     ),
     path(
         "gestion/localisation/",
         views.BaseAppHardAuthView.as_view(),
-        name="view_event_settings_members",
+        name="view_event_settings_location",
+    ),
+    path(
+        "gestion/compte-rendy/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_feedback",
     ),
 ]
 

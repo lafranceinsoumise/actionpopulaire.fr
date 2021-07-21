@@ -169,8 +169,6 @@ export const routeConfig = {
     label: "Paramètres de l'événement",
     Component: EventPage,
     hideFeedbackButton: true,
-    // isPartial: true
-    // isPartial: false,
   }),
   groups: new RouteConfig({
     id: "groups",

@@ -6,9 +6,6 @@ import {
 
 import illustrationManage from "@agir/front/genericComponents/images/group_members.svg";
 import illustrationGeneral from "@agir/front/genericComponents/images/group_general.svg";
-import illustrationFinance from "@agir/front/genericComponents/images/group_financement.svg";
-import illustrationContact from "@agir/front/genericComponents/images/group_contact.svg";
-import illustrationLinks from "@agir/front/genericComponents/images/group_links.svg";
 import illustrationVisio from "@agir/front/genericComponents/images/video-conference.svg";
 
 const EventGeneral = lazy(() =>
@@ -29,6 +26,9 @@ const EventContact = lazy(() =>
 );
 const EventLocation = lazy(() =>
   import("@agir/events/EventSettings/EventLocation")
+);
+const EventFeedback = lazy(() =>
+  import("@agir/events/EventSettings/EventFeedback")
 );
 
 export const menuRoute = {
@@ -110,6 +110,16 @@ export const routeConfig = {
     label: "Localisation",
     icon: "map-pin",
     Component: EventLocation,
+    isActive: true,
+    menuGroup: 2,
+  },
+  feedback: {
+    id: "feedback",
+    path: "compte-rendu/",
+    exact: true,
+    label: "Compte-rendu",
+    icon: "image",
+    Component: EventFeedback,
     isActive: true,
     menuGroup: 2,
   },

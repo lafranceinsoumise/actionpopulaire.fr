@@ -7,12 +7,9 @@ import { useToast } from "@agir/front/globalContext/hooks.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
-import Button from "@agir/front/genericComponents/Button";
-import TextField from "@agir/front/formComponents/TextField";
-import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
 import ImageField from "@agir/front/formComponents/ImageField";
-import CheckboxField from "@agir/front/formComponents/CheckboxField";
-import RadioField from "@agir/front/formComponents/RadioField";
+import Button from "@agir/front/genericComponents/Button";
+import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import DateField from "@agir/events/createEventPage/EventForm/DateField";
 
@@ -27,7 +24,7 @@ const StyledDateField = styled(DateField)`
   }
 `;
 
-const EventGeneral = (props) => {
+const EventFeedback = (props) => {
   const { onBack, illustration, eventPk } = props;
   const sendToast = useToast();
 
@@ -43,24 +40,11 @@ const EventGeneral = (props) => {
   const [imageHasChanged, setImageHasChanged] = useState(false);
   const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
 
-  useEffect(() => {}, []);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setErrors((errors) => ({ ...errors, [name]: null }));
     setFormData((formData) => ({ ...formData, [name]: value }));
   };
-
-  const handleChangeValue = (name, value) => {
-    // setErrors((errors) => ({ ...errors, ["leitmotiv"]: null }));
-    setFormData((formData) => ({ ...formData, [name]: value }));
-  };
-
-  const handleDescriptionChange = useCallback((value) => {
-    // lose focus if uncomment :
-    // setErrors((errors) => ({ ...errors, ["description"]: null }));
-    setFormData((formData) => ({ ...formData, ["description"]: value }));
-  }, []);
 
   const handleChangeImage = useCallback(
     (value) => {
@@ -75,19 +59,6 @@ const EventGeneral = (props) => {
   const handleCheckImageLicence = useCallback((event) => {
     setHasCheckedImageLicence(event.target.checked);
     setErrors((errors) => ({ ...errors, image: null }));
-  }, []);
-
-  const updateDate = useCallback((startTime, endTime) => {
-    setErrors((state) => ({
-      ...state,
-      startTime: undefined,
-      endTime: undefined,
-    }));
-    setFormData((state) => ({
-      ...state,
-      startTime,
-      endTime,
-    }));
   }, []);
 
   const handleSubmit = async (e) => {
@@ -127,67 +98,23 @@ const EventGeneral = (props) => {
   return (
     <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle>Général</StyledTitle>
-
-      <span style={{ color: style.black700 }}>
-        Ces informations seront affichées en public.
-      </span>
-
-      <Spacer size="1rem" />
-
-      <TextField
-        id="name"
-        name="name"
-        label="Nom de l'événement*"
-        onChange={handleChange}
-        value={formData.name}
-        error={errors?.name}
-      />
-      <Spacer size="1rem" />
-
-      <div>
-        <StyledDateField
-          startTime={formData.startTime}
-          endTime={formData.endTime}
-          timezone={formData.timezone}
-          error={
-            errors && (errors.startTime || errors.endTime || errors.timezone)
-          }
-          onChange={updateDate}
-          onChangeTimezone={(e) => handleChangeValue("timezone", e)}
-          disabled={isLoading}
-          required
-        />
-      </div>
+      <StyledTitle>Compte-rendu</StyledTitle>
 
       <Spacer size="1rem" />
 
       <RichTextField
-        id="description"
-        name="description"
-        label="Description*"
+        id="feedback"
+        name="feedback"
+        label="Écrire un compte-rendu*"
         placeholder=""
-        onChange={handleDescriptionChange}
-        value={formData.description}
-        error={errors?.description}
+        onChange={handleChange}
+        value={formData.feedback}
+        error={errors?.feedback}
       />
 
       <Spacer size="1rem" />
 
-      <TextField
-        id="url"
-        name="url"
-        label="Url de l'événement sur Facebook"
-        onChange={handleChange}
-        value={formData.url}
-        error={errors?.url}
-      />
-
-      <h4>Image mise en avant</h4>
-      <span style={{ color: style.black700 }}>
-        Taille : 1200*630px ou plus. Elle apparaîtra sur la page et sur les
-        réseaux sociaux.
-      </span>
+      <h4>Ajouter une photo</h4>
       <Spacer size="0.5rem" />
       <ImageField
         name="image"
@@ -217,20 +144,6 @@ const EventGeneral = (props) => {
         </>
       )}
 
-      <Spacer size="1rem" />
-
-      <RadioField
-        id="leitmotiv"
-        label="Pour quoi l’événement est-il organisé ?"
-        value={formData?.leitmotiv}
-        onChange={(e) => handleChangeValue("leitmotiv", e)}
-        disabled={false}
-        options={[
-          { label: "Oui", value: "1" },
-          { label: "Non", value: "0" },
-        ]}
-      />
-
       <Spacer size="2rem" />
       <Button
         color="secondary"
@@ -243,9 +156,9 @@ const EventGeneral = (props) => {
     </form>
   );
 };
-EventGeneral.propTypes = {
+EventFeedback.propTypes = {
   onBack: PropTypes.func,
   illustration: PropTypes.string,
   eventPk: PropTypes.string,
 };
-export default EventGeneral;
+export default EventFeedback;

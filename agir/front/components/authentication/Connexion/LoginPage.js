@@ -7,11 +7,7 @@ import AutoLogin from "./AutoLogin";
 import LeftBlockDesktop from "./LeftBlockDesktop";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
-import {
-  MainBlock,
-  Container,
-  BackgroundMobile,
-} from "./styledComponents";
+import { MainBlock, Container, BackgroundMobile } from "./styledComponents";
 import AuthenticatedLogin from "./AuthenticatedLogin";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
