@@ -87,19 +87,18 @@ const Page = (props) => {
   }, [history]);
 
   useMemo(() => {
-    if (!!routeConfig.keepScroll) return;
-    typeof window !== "undefined" && !!window.scrollTo && window.scrollTo(0, 0);
+    if (!routeConfig.keepScroll) {
+      typeof window !== "undefined" &&
+        !!window.scrollTo &&
+        window.scrollTo(0, 0);
+    }
   }, [routeConfig]);
 
   if (routeConfig.isPartial) {
     return (
       <ErrorBoundary>
         <Suspense fallback={<div />}>
-          <Component
-            {...(routeConfig.routeProps || {})}
-            {...routeParams}
-            {...rest}
-          />
+          <Component route={routeConfig} {...routeParams} {...rest} />
         </Suspense>
       </ErrorBoundary>
     );
@@ -116,12 +115,7 @@ const Page = (props) => {
             <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
           )}
           <Suspense fallback={<div />}>
-            <Component
-              {...(routeConfig.routeProps || {})}
-              {...routeParams}
-              {...rest}
-              data={[]}
-            />
+            <Component route={routeConfig} {...routeParams} {...rest} />
             {!routeConfig.hideFeedbackButton && (
               <FeedbackButton style={{ bottom: "1rem" }} />
             )}
@@ -142,12 +136,7 @@ const Page = (props) => {
       <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
         <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
           <Suspense fallback={<div />}>
-            <Component
-              {...(routeConfig.routeProps || {})}
-              {...routeParams}
-              {...rest}
-              data={[]}
-            />
+            <Component route={routeConfig} {...routeParams} {...rest} />
             {!routeConfig.hideFeedbackButton && <FeedbackButton />}
           </Suspense>
         </Layout>

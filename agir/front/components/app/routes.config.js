@@ -16,6 +16,14 @@ const CreateEvent = lazy(() =>
 const EventSettings = lazy(() =>
   import("@agir/events/EventSettings/EventSettings")
 );
+const MissingDocumentsPage = lazy(() =>
+  import(
+    "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsPage"
+  )
+);
+const EventRequiredDocuments = lazy(() =>
+  import("@agir/events/eventRequiredDocuments/EventRequiredDocumentsPage")
+);
 
 const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
 const FullGroupPage = lazy(() =>
@@ -130,6 +138,20 @@ export const routeConfig = {
     hideConnectivityWarning: true,
     keepScroll: true,
   }),
+  missingEventDocuments: new RouteConfig({
+    id: "missingEventDocuments",
+    path: "/evenements/documents-justificatifs/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Documents justificatifs",
+    Component: MissingDocumentsPage,
+    hasLayout: false,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
+  }),
   eventMap: new RouteConfig({
     id: "eventMap",
     path: "/evenements/carte/",
@@ -173,6 +195,19 @@ export const routeConfig = {
     Component: EventSettings,
     hideTopBar: true,
     hideFeedbackButton: true,
+  }),
+  eventRequiredDocuments: new RouteConfig({
+    id: "eventRequiredDocuments",
+    path: "/evenements/:eventPk/documents/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Documents de l'événement",
+    Component: EventRequiredDocuments,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
   }),
   groups: new RouteConfig({
     id: "groups",

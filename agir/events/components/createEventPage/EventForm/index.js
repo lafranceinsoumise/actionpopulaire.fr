@@ -1,20 +1,13 @@
-import axios from "@agir/lib/utils/axios";
-import { DateTime } from "luxon";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { validateData } from "./eventForm.config";
 import { routeConfig } from "@agir/front/app/routes.config";
+import { useEventFormOptions } from "@agir/events/common/hooks";
+import { createEvent } from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -26,6 +19,7 @@ import DateField from "./DateField";
 import SubtypeField from "./SubtypeField";
 import ContactField from "./ContactField";
 import OnlineUrlField from "./OnlineUrlField";
+import CampaignFundingField from "./CampaignFundingField";
 
 const StyledGlobalError = styled.p`
   padding: 0 0 1rem;
@@ -94,78 +88,12 @@ const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
   );
 };
 
-const createEvent = async (data) => {
-  const result = {
-    data: null,
-    errors: null,
-  };
-
-  const url = "/api/evenements/creer/";
-
-  try {
-    const startTime = DateTime.fromISO(data.startTime)
-      .setZone(data.timezone, { keepLocalTime: true })
-      .toISO();
-
-    const endTime = DateTime.fromISO(data.endTime)
-      .setZone(data.timezone, { keepLocalTime: true })
-      .toISO();
-
-    const body = {
-      ...data,
-      startTime,
-      endTime,
-      subtype: data.subtype && data.subtype.id,
-      organizerGroup: data.organizerGroup && data.organizerGroup.id,
-    };
-
-    const response = await axios.post(url, body);
-    result.data = response.data;
-  } catch (e) {
-    result.errors = (e.response && e.response.data) || { global: e.message };
-  }
-
-  if (result.errors && typeof result.errors === "object") {
-    result.errors = formatErrors(result.errors);
-  }
-
-  return result;
-};
-
-const useEventFormOptions = () => {
-  const { data: eventOptions } = useSWR(`/api/evenements/options/`);
-
-  const organizerGroup = useMemo(() => {
-    if (eventOptions && Array.isArray(eventOptions.organizerGroup)) {
-      return [
-        ...eventOptions.organizerGroup.map((group) => ({
-          ...group,
-          label: group.name,
-          value: group.id,
-        })),
-        {
-          id: null,
-          value: null,
-          label: "À titre individuel",
-          contact: eventOptions.defaultContact,
-        },
-      ];
-    }
-  }, [eventOptions]);
-
-  return eventOptions
-    ? {
-        ...eventOptions,
-        organizerGroup,
-      }
-    : {};
-};
-
 const EventForm = () => {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [newEventPk, setNewEventPk] = useState(null);
+  const [campaignFunding, setCampaignFunding] = useState(false);
 
   const history = useHistory();
   const { search } = useLocation();
@@ -332,8 +260,9 @@ const EventForm = () => {
       const result = await createEvent(formData);
       setIsLoading(false);
       if (result.errors) {
-        setErrors(result.errors);
-        scrollToError(result.errors);
+        const errors = formatErrors(result.errors);
+        setErrors(errors);
+        scrollToError(errors);
         return;
       }
       if (!result.data || !result.data.id) {
@@ -489,10 +418,24 @@ const EventForm = () => {
         />
       </fieldset>
       <Spacer size="2rem" />
+      <CampaignFundingField
+        onChange={setCampaignFunding}
+        disabled={isLoading}
+        groupPk={formData?.organizerGroup?.id}
+        isCertified={!!formData?.organizerGroup?.isCertified}
+        needsDocuments={!!formData?.subtype?.needsDocuments}
+        endTime={formData?.endTime}
+      />
+      <Spacer size="1rem" />
       {errors && errors.global && (
         <StyledGlobalError>{errors.global}</StyledGlobalError>
       )}
-      <Button disabled={isLoading} type="submit" color="secondary" block>
+      <Button
+        disabled={!campaignFunding || isLoading}
+        type="submit"
+        color="secondary"
+        block
+      >
         Créer l'événement
       </Button>
       <p>

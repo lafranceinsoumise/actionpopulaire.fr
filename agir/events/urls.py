@@ -96,6 +96,11 @@ urlpatterns = [
         name="api_create_event",
     ),
     path(
+        "api/evenements/<uuid:pk>/modifier/",
+        views.UpdateEventAPIView.as_view(),
+        name="api_update_event",
+    ),
+    path(
         "api/evenements/rsvped/",
         views.EventRsvpedAPIView.as_view(),
         name="api_event_rsvped",
@@ -106,6 +111,11 @@ urlpatterns = [
         name="api_event_suggestions",
     ),
     path(
+        "api/evenements/projets/",
+        views.EventProjectsAPIView.as_view(),
+        name="api_event_projects",
+    ),
+    path(
         "api/evenements/<uuid:pk>/",
         views.EventDetailAPIView.as_view(),
         name="api_event_view",
@@ -114,5 +124,15 @@ urlpatterns = [
         "api/evenements/<uuid:pk>/inscription/",
         views.RSVPEventAPIView.as_view(),
         name="api_rsvp_event",
+    ),
+    path(
+        "api/evenements/<uuid:event_id>/projet/",
+        views.EventProjectAPIView.as_view(),
+        name="api_event_project",
+    ),
+    path(
+        "api/evenements/<uuid:event_id>/projet/document/",
+        views.CreateEventProjectDocumentAPIView.as_view(),
+        name="api_create_event_project_document",
     ),
 ]

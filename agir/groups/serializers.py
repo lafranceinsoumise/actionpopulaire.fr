@@ -143,6 +143,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     description = serializers.CharField(read_only=True, source="html_description")
     isFull = serializers.SerializerMethodField(read_only=True,)
     isCertified = serializers.BooleanField(read_only=True, source="is_certified")
+    is2022Certified = serializers.BooleanField(
+        read_only=True, source="is_2022_certified"
+    )
     location = LocationSerializer(read_only=True, source="*")
     contact = serializers.SerializerMethodField(read_only=True,)
     image = serializers.ImageField(read_only=True)

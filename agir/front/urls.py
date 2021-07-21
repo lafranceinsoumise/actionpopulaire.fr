@@ -135,7 +135,17 @@ urlpatterns = [
         views.BaseAppSoftAuthView.as_view(),
         name="create_event_sub",
     ),
+    path(
+        "evenements/documents-justificatifs/",
+        views.BaseAppSoftAuthView.as_view(),
+        name="event_required_documents",
+    ),
     path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
+    path(
+        "evenements/<uuid:pk>/documents/",
+        views.EventProjectView.as_view(),
+        name="event_project",
+    ),
     path("mes-groupes/", views.BaseAppSoftAuthView.as_view(), name="list_my_groups"),
     path("navigation/", views.BaseAppSoftAuthView.as_view(), name="navigation_menu"),
     path("messages/", views.BaseAppHardAuthView.as_view(), name="user_messages"),

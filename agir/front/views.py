@@ -26,6 +26,7 @@ from .view_mixins import (
     SimpleOpengraphMixin,
     ObjectOpengraphMixin,
 )
+from ..events.models import Event
 from ..events.views.event_views import EventDetailMixin
 from ..groups.views.public_views import SupportGroupDetailMixin
 from ..lib.utils import generate_token_params
@@ -100,6 +101,10 @@ class EventDetailView(
         "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon "
         "pour 2022 "
     )
+
+
+class EventProjectView(HardLoginRequiredMixin, EventDetailView):
+    permission_required = "event.change_event"
 
 
 class SupportGroupDetailView(

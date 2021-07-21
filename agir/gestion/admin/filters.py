@@ -17,7 +17,7 @@ class ProjetResponsableFilter(SimpleListFilter):
         elif value == "G":
             return queryset.filter(
                 etat__in=[
-                    Projet.Etat.DEMANDE_FINANCEMENT,
+                    Projet.Etat.CREE_PLATEFORME,
                     Projet.Etat.EN_CONSTITUTION,
                     Projet.Etat.RENVOI,
                 ]

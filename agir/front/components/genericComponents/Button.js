@@ -66,6 +66,18 @@ export const buttonColors = {
     $labelColor: style.white,
     $hoverBackground: "#d81836",
   },
+  link: {
+    $background: style.white,
+    $hoverBackground: style.white,
+    $labelColor: style.primary500,
+    style: {
+      textDecoration: "underline",
+      fontSize: "inherit",
+      fontWeight: "inherit",
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+  },
 };
 
 /**

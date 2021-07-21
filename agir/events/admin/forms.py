@@ -20,6 +20,7 @@ from agir.people.models import Person
 from agir.people.person_forms.forms import BasePersonForm
 from .. import models
 from ..tasks import send_organizer_validation_notification
+from ...gestion.typologies import TypeDocument
 from ...lib.form_fields import AdminRichEditorWidget
 from ...lib.forms import CoordinatesFormMixin
 
@@ -359,3 +360,16 @@ class NewParticipantForm(BasePersonForm):
     class Meta:
         model = Person
         fields = BILLING_FIELDS
+
+
+class EventSubtypeAdminForm(forms.ModelForm):
+    required_documents = forms.MultipleChoiceField(
+        label="Attestations requises",
+        choices=(
+            choice
+            for choice in TypeDocument.choices
+            if f"{TypeDocument.ATTESTATION}-" in choice[0]
+        ),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )

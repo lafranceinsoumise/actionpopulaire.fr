@@ -7,7 +7,7 @@ import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import SelectField from "@agir/front/formComponents/SelectField";
 import TimezoneField from "@agir/front/formComponents/TimezoneField";
 
-import { EVENT_DEFAULT_DURATIONS } from "./eventForm.config";
+import { EVENT_DEFAULT_DURATIONS } from "@agir/events/common/utils";
 
 import "moment/locale/fr";
 
