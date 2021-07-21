@@ -41,10 +41,10 @@ export const creerRechercheParrainage = async (idElu) => {
     if (e.response) {
       if (e.response.status === 403 || e.response.status === 401) {
         throw new Error(DISCONNECTED_MESSAGE);
-      } else if (e.response.status === 400) {
+      } else if (e.response.status === 422 || e.response.status === 400) {
         throw new Error(
           Object.keys(e.response.data)
-            .map((k) => `${k} : ${e.response.data[k]}.`)
+            .map((k) => e.response.data[k])
             .join("\n")
         );
       }

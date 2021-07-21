@@ -26,10 +26,11 @@ from agir.elus.models import (
     MandatMunicipal,
     MandatDepartemental,
     MandatRegional,
-    RechercheParrainageMaire,
+    RechercheParrainage,
     MandatConsulaire,
     AccesApplicationParrainages,
     MandatDepute,
+    CHAMPS_ELUS_PARRAINAGES,
 )
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
@@ -42,6 +43,7 @@ from .filters import (
     AppelEluFilter,
     ReferenceFilter,
     MandatsFilter,
+    TypeEluFilter,
 )
 from .forms import (
     PERSON_FIELDS,
@@ -735,27 +737,41 @@ class MandatDeputeAdmin(BaseMandatAdmin):
         pass
 
 
-@admin.register(RechercheParrainageMaire)
+@admin.register(RechercheParrainage)
 class RechercherParrainageMaireAdmin(admin.ModelAdmin):
     form = RechercheParrainageForm
 
-    autocomplete_fields = ("elu", "person")
-    list_display = ("elu", "person", "statut", "formulaire")
+    autocomplete_fields = (*CHAMPS_ELUS_PARRAINAGES, "person")
+    list_display = ("nom_elu", "type_elu_label", "person", "statut", "formulaire")
     readonly_fields = (
+        "nom_elu",
+        "type_elu_label",
         "statut_display",
         "person",
     )
 
-    list_filter = ("statut",)
-    fields = ("elu", "person", "statut_display", "commentaires", "formulaire")
+    list_filter = ("statut", TypeEluFilter)
+    fields = ("person", "statut_display", "commentaires", "formulaire")
 
-    search_fields = ("elu__search",)
+    search_fields = ("elu_municipal__search",)
 
-    def get_fields(self, request, obj=None):
+    def get_fieldsets(self, request, obj=None):
         if obj is None:
-            return ("elu", "commentaires", "formulaire")
+            return (
+                (
+                    "Élu·e sollicité·e",
+                    {
+                        "fields": ("maire", "elu_departemental", "depute"),
+                        "description": "Choisissez un élu à partir des sélecteurs suivants, en fonction de son type de mandat.",
+                    },
+                ),
+                ("Détails", {"fields": ("commentaires", "formulaire")}),
+            )
 
-        return super().get_fields(request, obj=obj)
+        return (
+            ("Élu·e sollicité·e", {"fields": ("nom_elu", "type_elu_label")},),
+            ("Détails", {"fields": self.get_fields(request, obj=obj)}),
+        )
 
     def get_search_results(self, request, queryset, search_term):
         use_distinct = False
@@ -768,13 +784,31 @@ class RechercherParrainageMaireAdmin(admin.ModelAdmin):
             )
         return queryset, use_distinct
 
+    def nom_elu(self, obj):
+        if obj:
+            if t := obj.type_elu:
+                elu = getattr(obj, t)
+                return f"{elu.nom}, {elu.prenom}"
+            return "Élu·e supprimé·e"
+        return "-"
+
+    nom_elu.short_description = "Nom de l'élu·e"
+
+    def type_elu_label(self, obj):
+        if obj:
+            if t := obj.type_elu:
+                return self.model._meta.get_field(t).verbose_name
+        return "-"
+
+    type_elu_label.short_description = "Type de mandat"
+
     def statut_display(self, obj):
         if obj:
             statut = obj.get_statut_display()
 
             links = []
 
-            if obj.statut != RechercheParrainageMaire.Statut.VALIDEE and obj.formulaire:
+            if obj.statut != RechercheParrainage.Statut.VALIDEE and obj.formulaire:
                 links.append(
                     (
                         reverse(
@@ -784,7 +818,7 @@ class RechercherParrainageMaireAdmin(admin.ModelAdmin):
                         "Confirmer ce parrainage",
                     )
                 )
-            if obj.statut != RechercheParrainageMaire.Statut.ANNULEE:
+            if obj.statut != RechercheParrainage.Statut.ANNULEE:
                 links.append(
                     (
                         reverse(

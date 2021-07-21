@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import TemplateView
 
-from agir.elus.models import RechercheParrainageMaire
+from agir.elus.models import RechercheParrainage
 from agir.lib.admin import AdminViewMixin
 
 
@@ -11,9 +11,7 @@ class ChangerStatutBaseView(AdminViewMixin, TemplateView):
     statut = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.object = get_object_or_404(
-            RechercheParrainageMaire, pk=kwargs["object_id"]
-        )
+        self.object = get_object_or_404(RechercheParrainage, pk=kwargs["object_id"])
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -32,10 +30,10 @@ class ChangerStatutBaseView(AdminViewMixin, TemplateView):
 
 
 class ConfirmerParrainageView(ChangerStatutBaseView):
-    statut = RechercheParrainageMaire.Statut.VALIDEE
+    statut = RechercheParrainage.Statut.VALIDEE
     template_name = "elus/admin/confirmer_parrainage.html"
 
 
 class AnnulerParrainageView(ChangerStatutBaseView):
-    statut = RechercheParrainageMaire.Statut.ANNULEE
+    statut = RechercheParrainage.Statut.ANNULEE
     template_name = "elus/admin/annuler_parrainage.html"
