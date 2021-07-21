@@ -11,8 +11,8 @@ const StyledToast = styled(Toast)`
   margin: 0 0 2rem;
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
-    width: calc(100% - 3rem);
-    margin: 0 auto 1.5rem;
+    width: calc(100vw - 3rem);
+    margin: 0 0 1.5rem 1.5rem;
   }
 
   & > * {
