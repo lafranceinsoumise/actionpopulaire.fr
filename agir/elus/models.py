@@ -405,6 +405,17 @@ class MandatDepartemental(MandatAbstrait):
         default=list,
     )
 
+    reference = models.ForeignKey(
+        "data_france.EluDepartemental",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Référence dans le RNE",
+        help_text="La fiche correspondant à cet élu dans le Répertoire National des Élus",
+        related_name="elus",
+        related_query_name="elu",
+    )
+
     class Meta:
         verbose_name = "Mandat départemental"
         verbose_name_plural = "Mandats départementaux"
