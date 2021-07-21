@@ -122,7 +122,7 @@ class MandatsFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == "D":
-            return queryset.annotate(n=Count("mandatmunicipal")).filter(n__gt=1)
+            return queryset.annotate(n=Count("elu")).filter(n__gt=1)
         elif value in ["O", "N"]:
             return queryset.annotate(
                 avec_mandat=Exists(

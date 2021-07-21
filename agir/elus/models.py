@@ -266,6 +266,8 @@ class MandatMunicipal(MandatAbstrait):
         blank=True,
         verbose_name="Référence dans le RNE",
         help_text="La fiche correspondant à cet élu dans le Répertoire National des Élus",
+        related_name="elus",
+        related_query_name="elu",
     )
 
     person = models.ForeignKey(
@@ -623,11 +625,62 @@ class MandatConsulaire(MandatAbstrait):
         verbose_name_plural = "mandats consulaires"
 
 
+@reversion.register()
+class MandatDepute(MandatAbstrait):
+    DEFAULT_DATE_RANGE = DateRange(date(2017, 7, 1), date(2022, 6, 30))
+
+    person = models.ForeignKey(
+        "people.Person",
+        verbose_name="Élu",
+        on_delete=models.CASCADE,
+        related_name="mandats_deputes",
+        related_query_name="mandat_depute",
+    )
+
+    conseil = models.ForeignKey(
+        "data_france.CirconscriptionLegislative",
+        verbose_name="Circonscription",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+
+    reference = models.ForeignKey(
+        "data_france.Depute",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Référence dans les données AN",
+        help_text="La fiche correspondant à cet élu dans la base de l'AN",
+        related_name="elus",
+        related_query_name="elu",
+    )
+
+    def titre_complet(self, conseil_avant=False):
+        titre = genrer(self.person.gender, "député⋅e")
+
+        if not self.conseil:
+            circo = "circonscription inconnue"
+        else:
+            circo = str(self.conseil)
+
+        if conseil_avant:
+            return f"{circo}, {titre}"
+
+        return f"{titre} de la {circo}"
+
+    class Meta:
+        verbose_name = "Mandat de député⋅e"
+        verbose_name_plural = "Mandats de député⋅e"
+        ordering = ("person", "conseil")
+
+
 types_elus = {
     "municipal": MandatMunicipal,
     "departemental": MandatDepartemental,
     "regional": MandatRegional,
     "consulaire": MandatConsulaire,
+    "depute": MandatDepute,
 }
 
 # Le champ `dates` des modèles de mandat est défini sur la classe `MandatAbstrait`.

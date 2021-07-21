@@ -205,17 +205,19 @@ creer_mandat_declared_fields.update(MandatForm.declared_fields)
 MandatForm.base_fields = MandatForm.declared_fields = creer_mandat_declared_fields
 
 
-def legender_elu_municipal_depuis_fiche_rne(form, reference):
+def legender_elu_depuis_fiche_rne(form, reference):
     form.fields["reference"].help_text = format_html(
         '<a href="{}">{}</a>',
         reverse("admin:data_france_elumunicipal_change", args=(reference.id,)),
         "Voir la fiche dans le Répertoire National des élus",
     )
 
-    form.fields["mandat"].help_text = f"Dans la fiche RNE : {reference.fonction}"
-    form.fields[
-        "communautaire"
-    ].help_text = f"Dans la fiche RNE : {reference.fonction_epci}"
+    if "mandat" in form.fields:
+        form.fields["mandat"].help_text = f"Dans la fiche RNE : {reference.fonction}"
+    if "communautaire" in form.fields:
+        form.fields[
+            "communautaire"
+        ].help_text = f"Dans la fiche RNE : {reference.fonction_epci}"
 
     form.fields["last_name"].help_text = f"Dans la fiche RNE : {reference.nom}"
     form.fields["first_name"].help_text = f"Dans la fiche RNE : {reference.prenom}"
@@ -259,7 +261,15 @@ class MandatMunicipalForm(MandatForm):
                 self.fields["communautaire"].label = f"Mandat auprès de la {epci.nom}"
 
         if instance and instance.reference:
-            legender_elu_municipal_depuis_fiche_rne(self, instance.reference)
+            legender_elu_depuis_fiche_rne(self, instance.reference)
+
+
+class MandatDeputeForm(MandatForm):
+    def __init__(self, *args, instance=None, **kwargs):
+        super().__init__(*args, instance=instance, **kwargs)
+
+        if instance and instance.reference:
+            legender_elu_depuis_fiche_rne(self, instance.reference)
 
 
 class MandatDepartementalForm(MandatForm):
