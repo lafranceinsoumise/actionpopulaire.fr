@@ -2,12 +2,17 @@ from datetime import datetime
 
 import reversion
 from reversion.admin import VersionAdmin
-from data_france.admin import EluMunicipalAdmin as OriginalEluMunicipalAdmin
+from data_france.admin import (
+    EluMunicipalAdmin as OriginalEluMunicipalAdmin,
+    DeputeAdmin as OriginalDeputeAdmin,
+)
 from data_france.models import (
     CirconscriptionConsulaire,
+    CirconscriptionLegislative,
     Commune,
     CollectiviteDepartementale,
     CollectiviteRegionale,
+    Depute,
     EluMunicipal,
 )
 from django.contrib import admin
@@ -24,6 +29,7 @@ from agir.elus.models import (
     RechercheParrainageMaire,
     MandatConsulaire,
     AccesApplicationParrainages,
+    MandatDepute,
 )
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
@@ -43,6 +49,7 @@ from .forms import (
     MandatMunicipalForm,
     RechercheParrainageForm,
     MandatDepartementalForm,
+    MandatDeputeForm,
 )
 from .views import ConfirmerParrainageView, AnnulerParrainageView
 from ...lib.admin import display_list_of_links
@@ -113,7 +120,12 @@ class BaseMandatAdmin(admin.ModelAdmin):
                                 "create_new_person",
                                 "conseil",
                                 "statut",
-                                "mandat",
+                                *(
+                                    ("mandat",)
+                                    if "mandat"
+                                    in [f.name for f in self.model._meta.get_fields()]
+                                    else ()
+                                ),
                                 "dates",
                             )
                         },
@@ -656,6 +668,77 @@ class MandatConsulaireAdmin(BaseMandatAdmin):
         pass
 
 
+@admin.register(MandatDepute)
+class MandatDeputeAdmin(BaseMandatAdmin):
+    form = MandatDeputeForm
+    list_filter = (
+        "statut",
+        DatesFilter,
+        "person__is_insoumise",
+        "person__is_2022",
+        AppelEluFilter,
+    )
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "person",
+                    "conseil",
+                    "statut",
+                    "membre_reseau_elus",
+                    "is_insoumise",
+                    "is_2022",
+                    "signataire_appel",
+                    "commentaires",
+                )
+            },
+        ),
+        (
+            "Informations sur l'élu⋅e",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "gender",
+                    "email_officiel",
+                    "contact_phone",
+                    "location_address1",
+                    "location_address2",
+                    "location_zip",
+                    "location_city",
+                    "new_email",
+                )
+            },
+        ),
+        ("Précisions sur le mandat", {"fields": ("dates",)},),
+    )
+
+    list_display = (
+        "person",
+        "conseil",
+        "membre_reseau_elus",
+        "statut",
+        "actif",
+        "is_insoumise_display",
+        "is_2022_display",
+        "is_2022_appel_elus",
+    )
+
+    readonly_fields = (
+        "actif",
+        "person_link",
+    )
+    autocomplete_fields = ("conseil",)
+
+    def get_conseil_queryset(self, request):
+        return CirconscriptionLegislative.objects.all()
+
+    class Media:
+        pass
+
+
 @admin.register(RechercheParrainageMaire)
 class RechercherParrainageMaireAdmin(admin.ModelAdmin):
     form = RechercheParrainageForm
@@ -771,3 +854,11 @@ class AccesApplicationParrainagesAdmin(VersionAdmin):
     list_filter = ("etat",)
 
     fields = ("person", "etat")
+
+
+admin.site.unregister(Depute)
+
+
+@admin.register(Depute)
+class DeputeAdmin(OriginalDeputeAdmin):
+    list_filter = OriginalDeputeAdmin.list_filter + (MandatsFilter,)
