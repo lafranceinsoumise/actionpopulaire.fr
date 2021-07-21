@@ -19,19 +19,37 @@ __all__ = (
 
 
 class ProjetManager(NumeroManager):
-    def from_event(self, event):
+    def from_event(self, event, user):
         try:
-            return self.get(event=event)
+            projet = self.get(event=event)
         except self.model.DoesNotExist:
-            pass
+            with reversion.create_revision():
+                reversion.set_comment("Création à partir d'un événement utilisateur")
+                reversion.set_user(user)
+                titre = event.name if len(event.name) < 40 else f"{event.name[:39]}…"
+                return self.create(
+                    event=event,
+                    etat=Projet.Etat.CREE_PLATEFORME,
+                    titre=titre,
+                    type=event.subtype.related_project_type,
+                    description="Ce projet a été généré automatiquement à partir d'un événement créé par un "
+                    "utilisateur d'Action Populaire.",
+                )
+        else:
+            if projet.type != event.subtype.related_project_type:
+                with reversion.create_revision():
+                    reversion.set_comment(
+                        "Changement du type d'événement associé par l'utilisateur"
+                    )
+                    reversion.set_user(user)
+                    projet.type = (
+                        event.subtype.related_project_type
+                        if event.subtype.related_project_type is not None
+                        else TypeProjet.ACTIONS
+                    )
+                    projet.save(update_fields=["type"])
 
-        return self.create(
-            event=event,
-            etat=Projet.Etat.CREE_PLATEFORME,
-            titre=event.name,
-            type=event.subtype.related_project_type,
-            description="Ce projet a été généré automatiquement à partir d'un événement créé par un utilisateur d'Action Populaire.",
-        )
+            return projet
 
 
 @reversion.register(follow=["participations"])
