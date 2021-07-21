@@ -152,7 +152,11 @@ class EventThumbnailView(DetailView):
             )
 
             draw.text(
-                (108, 400), self.event.name.capitalize(), fill=(0, 0, 0, 0), align="left", font=self.get_image_font(56)
+                (108, 400),
+                self.event.name.capitalize(),
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=self.get_image_font(56),
             )
         elif len(self.event.name) < 36:
             draw.text(
@@ -174,7 +178,11 @@ class EventThumbnailView(DetailView):
                 layout_engine=ImageFont.LAYOUT_BASIC,
             )
             draw.text(
-                (108, 369), self.event.name.capitalize(), fill=(0, 0, 0, 0), align="left", font=self.get_image_font(45)
+                (108, 369),
+                self.event.name.capitalize(),
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=self.get_image_font(45),
             )
         elif len(self.event.name) < 74:
             font = ImageFont.truetype(
