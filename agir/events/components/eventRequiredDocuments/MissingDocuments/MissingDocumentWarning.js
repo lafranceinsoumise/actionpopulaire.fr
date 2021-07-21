@@ -78,7 +78,7 @@ export const MissingDocumentWarning = (props) => {
             {missingDocumentCount > 1
               ? "informations requises"
               : "information requise"}{" "}
-            sur vos précédents événements publics
+            sur vos événements publics
           </span>
           <FeatherIcon name="chevron-right" />
         </strong>
