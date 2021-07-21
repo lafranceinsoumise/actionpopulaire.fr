@@ -111,25 +111,19 @@ class BaseMandatAdmin(admin.ModelAdmin):
                 # (nom, prénom, etc.) mènerait soit à ignorer les données saisies par
                 # l'utilisateur, soit à écraser les données existantes sans les présenter
                 # d'abord à l'utilisateur.
+                own_fields = {f.name for f in self.model._meta.get_fields()}.difference(
+                    ["person", "email_officiel"]
+                )
+                additional_fields = [
+                    f
+                    for _, params in self.fieldsets
+                    for f in params["fields"]
+                    if f in own_fields
+                ]
+
                 return (
-                    (
-                        None,
-                        {
-                            "fields": (
-                                "person",
-                                "create_new_person",
-                                "conseil",
-                                "statut",
-                                *(
-                                    ("mandat",)
-                                    if "mandat"
-                                    in [f.name for f in self.model._meta.get_fields()]
-                                    else ()
-                                ),
-                                "dates",
-                            )
-                        },
-                    ),
+                    ("Compte", {"fields": ("person", "create_new_person",),},),
+                    ("Détails", {"fields": additional_fields}),
                 )
 
         additional_fieldsets = ()
