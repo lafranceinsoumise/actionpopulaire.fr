@@ -135,8 +135,13 @@ class MandatMunicipalForm(AvecDelegationMixin, BaseMandatForm):
 
 
 class MandatDepartementalForm(AvecDelegationMixin, BaseMandatForm):
+    # La Corse, la Martinique et la Guyane ont des collectivités uniques, et leurs conseillers sont élus simultanément
+    # aux régionales, et selon des modalités proches. On empêche de créer des conseillers départementaux du coup.
+    # Idem pour Paris dont les conseillers sont élus aux municipales.
     conseil = forms.ModelChoiceField(
-        CollectiviteDepartementale.objects.all(),
+        queryset=CollectiviteDepartementale.objects.exclude(
+            code__in=["20R", "75C", "972R", "973R"]
+        ),
         label="Département ou métropole",
         empty_label="Choisissez la collectivité",
         required=True,
@@ -148,8 +153,10 @@ class MandatDepartementalForm(AvecDelegationMixin, BaseMandatForm):
 
 
 class MandatRegionalForm(AvecDelegationMixin, BaseMandatForm):
+    # Mayotte a des compétences régionales mais les conseillers sont élus par canton,
+    # comme des conseillers départementaux classiques.
     conseil = forms.ModelChoiceField(
-        CollectiviteRegionale.objects.all(),
+        queryset=CollectiviteRegionale.objects.exclude(code="976R"),
         label="Région ou collectivité unique",
         empty_label="Choisissez la collectivité",
         required=True,

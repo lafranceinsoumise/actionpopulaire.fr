@@ -28,7 +28,7 @@ from agir.elus.models import (
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
 from .filters import (
-    CommuneFilter,
+    ConseilFilter,
     DepartementFilter,
     DepartementRegionFilter,
     RegionFilter,
@@ -42,6 +42,7 @@ from .forms import (
     MandatForm,
     MandatMunicipalForm,
     RechercheParrainageForm,
+    MandatDepartementalForm,
 )
 from .views import ConfirmerParrainageView, AnnulerParrainageView
 from ...lib.admin import display_list_of_links
@@ -357,7 +358,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         "person__is_insoumise",
         "person__is_2022",
         AppelEluFilter,
-        CommuneFilter,
+        ConseilFilter,
         DepartementFilter,
         DepartementRegionFilter,
         ReferenceFilter,
@@ -436,6 +437,8 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
 
 @admin.register(MandatDepartemental)
 class MandatDepartementAdmin(BaseMandatAdmin):
+    form = MandatDepartementalForm
+
     autocomplete_fields = ("conseil",)
     list_filter = (
         "statut",
@@ -444,8 +447,8 @@ class MandatDepartementAdmin(BaseMandatAdmin):
         "person__is_insoumise",
         "person__is_2022",
         AppelEluFilter,
-        DepartementFilter,
-        DepartementRegionFilter,
+        ConseilFilter,
+        RegionFilter,
     )
 
     fieldsets = (
@@ -498,7 +501,11 @@ class MandatDepartementAdmin(BaseMandatAdmin):
     )
 
     def get_conseil_queryset(self, request):
-        return CollectiviteDepartementale.objects.all()
+        # On n'autorise pas ces collectivités comme choix pour un élu départemental
+        # Les élus de ces conseils doivent être ajoutés comme des élus régionaux.
+        return CollectiviteDepartementale.objects.exclude(
+            code__in=["20R", "75C", "972R", "973R", "976R"]
+        )
 
     class Media:
         pass
