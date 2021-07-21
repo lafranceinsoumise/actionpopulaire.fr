@@ -23,7 +23,7 @@ from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.elus.forms import DemandeAccesApplicationParrainagesForm
 from agir.elus.models import (
-    RechercheParrainageMaire,
+    RechercheParrainage,
     StatutRechercheParrainage,
     AccesApplicationParrainages,
 )
@@ -40,7 +40,7 @@ from agir.lib.rest_framework_permissions import (
 )
 
 ID_RECHERCHE_PARRAINAGE_SUBQUERY = Subquery(
-    RechercheParrainageMaire.objects.filter(elu_id=OuterRef("id")).values("id")[:1]
+    RechercheParrainage.objects.filter(maire_id=OuterRef("id")).values("id")[:1]
 )
 
 
@@ -51,7 +51,7 @@ def queryset_elus(person):
         .annotate(
             statut=Coalesce(
                 Subquery(
-                    RechercheParrainageMaire.objects.filter(elu_id=OuterRef("id"))
+                    RechercheParrainage.objects.filter(maire_id=OuterRef("id"))
                     .bloquant()
                     .annotate(
                         statut_composite=Case(
@@ -133,8 +133,8 @@ class RechercheParrainagesView(
                 recherche_parrainage_maire_id=Value(None, output_field=IntegerField()),
                 distance=Distance("commune__geometry", person.coordinates),
                 pris=Exists(
-                    RechercheParrainageMaire.objects.filter(
-                        elu_id=OuterRef("id")
+                    RechercheParrainage.objects.filter(
+                        maire_id=OuterRef("id")
                     ).bloquant()
                 ),
             )
@@ -184,8 +184,10 @@ class ModifierRechercheParrainageView(UpdateAPIView):
     serializer_class = ModifierRechercheSerializer
 
     def get_queryset(self):
-        return RechercheParrainageMaire.objects.filter(
-            person=self.request.user.person, statut=StatutRechercheParrainage.EN_COURS,
+        return RechercheParrainage.objects.filter(
+            person=self.request.user.person,
+            statut=StatutRechercheParrainage.EN_COURS,
+            maire__isnull=False,
         )
 
 

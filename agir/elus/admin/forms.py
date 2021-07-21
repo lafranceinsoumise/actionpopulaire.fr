@@ -5,7 +5,11 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
-from agir.elus.models import DELEGATIONS_CHOICES, RechercheParrainageMaire
+from agir.elus.models import (
+    DELEGATIONS_CHOICES,
+    RechercheParrainage,
+    CHAMPS_ELUS_PARRAINAGES,
+)
 from agir.lib.data import FRANCE_COUNTRY_CODES
 from agir.people.actions.subscription import (
     SUBSCRIPTION_TYPE_NSP,
@@ -292,7 +296,19 @@ class RechercheParrainageForm(forms.ModelForm):
         new = self.instance._state.adding
 
         if new:
-            self.instance.statut = RechercheParrainageMaire.Statut.VALIDEE
+            self.instance.statut = RechercheParrainage.Statut.VALIDEE
 
-        if "elu" in self.fields:
-            self.fields["elu"].required = new
+    def clean(self):
+        cleaned_data = super().clean()
+
+        nb_mandats = sum(1 for f in CHAMPS_ELUS_PARRAINAGES if cleaned_data.get(f))
+
+        if nb_mandats == 0:
+            self.add_error(
+                None,
+                "Vous devez sélectionner un mandat parmi les différents mandats possibles.",
+            )
+        elif nb_mandats > 1:
+            self.add_error(None, "Vous devez sélectionner un type de mandat seulement.")
+
+        return cleaned_data
