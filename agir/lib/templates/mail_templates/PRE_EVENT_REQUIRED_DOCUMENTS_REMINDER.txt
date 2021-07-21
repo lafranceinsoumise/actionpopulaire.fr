@@ -1,0 +1,30 @@
+Votre événement a lieu demain : pensez aux justificatifs
+  
+{{ GREETINGS }},
+
+Votre événement >> {{ EVENT_NAME }} << a bientôt lieu !
+
+À l’exception des réunions internes, la loi vous interdit d'engager des frais personnels dans le cadre de la campagne présidentielle.
+Étant donné qu'il s'agit d'un événement public,
+vous devrez envoyer a minima ces justificatifs ou indiquer qu'ils ne sont pas nécessaire :
+  {% if "ATT-CON" in REQUIRED_DOCUMENT_TYPES %}
+  * Attestation de concours en nature - {{ DOCUMENTS_LINK }}{% endif %}
+  {% if "ATT-REG" in REQUIRED_DOCUMENT_TYPES %}
+  * Attestation de règlement des consommations - {{ DOCUMENTS_LINK }}
+  {% endif %}
+  {% if "ATT-GRA" in REQUIRED_DOCUMENT_TYPES %}
+  * Attestation pour les salles municipales - {{ DOCUMENTS_LINK }}
+  {% endif %}
+  {% if "ATT-ESP" in REQUIRED_DOCUMENT_TYPES %}
+  * Copie de la demande d'autorisation d'occupation de l'espace public - {{ DOCUMENTS_LINK }}
+  {% endif %}
+
+📄 Téléchargez dès maintenant les modèles vierges qui vous seront nécessaires sur la page des documents de l'événement
+>> {{ DOCUMENTS_LINK }}
+
+Attention :
+vous ne pourrez plus créer d’événement public après le {{ DOCUMENT_DEADLINE }} sans avoir complété la page des documents.
+Aller aux documents de l'événement : {{ DOCUMENTS_LINK }}
+  
+Amitiés,  
+L’équipe d’Action Populaire
