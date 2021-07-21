@@ -112,7 +112,7 @@ event_settings_patterns = [
         name="view_event_settings_location",
     ),
     path(
-        "gestion/compte-rendy/",
+        "gestion/compte-rendu/",
         views.BaseAppHardAuthView.as_view(),
         name="view_event_settings_feedback",
     ),

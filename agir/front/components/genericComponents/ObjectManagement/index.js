@@ -83,6 +83,7 @@ const MobilePanel = (props) => {
     shouldShow,
     onClose,
     goToMenu,
+    cancel,
     ...rest
   } = props;
 
@@ -103,6 +104,7 @@ const MobilePanel = (props) => {
         subtitle={subtitle}
         items={routes}
         onBack={onClose}
+        cancel={cancel}
       />
       {transition((style, item) => (
         <StyledSubPanel style={shouldAnimate.current > 1 ? style : undefined}>
@@ -139,6 +141,7 @@ const DesktopPanel = (props) => {
     shouldShow,
     onClose,
     goToMenu,
+    cancel,
     ...rest
   } = props;
 
@@ -157,6 +160,7 @@ const DesktopPanel = (props) => {
         subtitle={subtitle}
         items={routes}
         onBack={onClose}
+        cancel={cancel}
       />
       <div
         style={{

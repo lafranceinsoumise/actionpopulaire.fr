@@ -140,6 +140,21 @@ const StyledMenu = styled.div`
   }
 `;
 
+const CancelLink = styled.div`
+  color: ${style.redNSP};
+  cursor: pointer;
+
+  > div {
+    padding: 0.5rem 0;
+    user-select: none;
+  }
+
+  hr {
+    border-color: ${style.black200};
+    margin: 0.5rem 0;
+  }
+`;
+
 const ManagementMenuItem = (props) => {
   const { item } = props;
 
@@ -164,7 +179,7 @@ ManagementMenuItem.propTypes = {
 };
 
 const ManagementMenu = (props) => {
-  const { items, title, subtitle, onBack } = props;
+  const { items, title, subtitle, onBack, cancel } = props;
 
   return (
     <StyledMenu>
@@ -192,6 +207,12 @@ const ManagementMenu = (props) => {
             </li>
           ))}
       </ul>
+      {cancel && (
+        <CancelLink>
+          <hr />
+          <div onClick={cancel?.onClick}>{cancel?.label}</div>
+        </CancelLink>
+      )}
     </StyledMenu>
   );
 };
@@ -200,6 +221,10 @@ ManagementMenu.propTypes = {
   subtitle: PropTypes.string,
   items: PropTypes.arrayOf(ManagementMenuItem.propTypes.item).isRequired,
   onBack: PropTypes.func.isRequired,
+  cancel: PropTypes.shape({
+    label: PropTypes.string,
+    onClick: PropTypes.func,
+  }),
 };
 
 export default ManagementMenu;

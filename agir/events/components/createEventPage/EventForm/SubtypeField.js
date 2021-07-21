@@ -73,7 +73,8 @@ const StyledOptions = styled.div`
 `;
 
 const StyledDefaultOption = styled.button``;
-const StyledDefaultOptions = styled.div`
+
+export const StyledDefaultOptions = styled.div`
   display: flex;
   flex-flow: row wrap;
   gap: 0.5rem;
@@ -127,7 +128,7 @@ const StyledField = styled.div`
   }
 `;
 
-const SubtypeOption = (props) => {
+export const SubtypeOption = (props) => {
   const { option, onClick, selected } = props;
 
   const handleClick = useCallback(() => {
@@ -156,7 +157,7 @@ const SubtypeOption = (props) => {
   );
 };
 
-const DefaultOption = (props) => {
+export const DefaultOption = (props) => {
   const { option, onClick, selected, disabled } = props;
 
   const handleClick = useCallback(() => {

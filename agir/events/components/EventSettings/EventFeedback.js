@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
@@ -11,18 +11,9 @@ import ImageField from "@agir/front/formComponents/ImageField";
 import Button from "@agir/front/genericComponents/Button";
 import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
-import DateField from "@agir/events/createEventPage/EventForm/DateField";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
-
-const StyledDateField = styled(DateField)`
-  @media (min-width: ${style.collapse}px) {
-    && {
-      grid-template-columns: 190px 170px 160px;
-    }
-  }
-`;
 
 const EventFeedback = (props) => {
   const { onBack, illustration, eventPk } = props;
@@ -114,8 +105,7 @@ const EventFeedback = (props) => {
 
       <Spacer size="1rem" />
 
-      <h4>Ajouter une photo</h4>
-      <Spacer size="0.5rem" />
+      <h4>Ajouter une image</h4>
       <ImageField
         name="image"
         value={formData.image}
@@ -151,7 +141,7 @@ const EventFeedback = (props) => {
         disabled={isLoading}
         onClick={handleSubmit}
       >
-        Enregistrer
+        Enregistrer les informations
       </Button>
     </form>
   );

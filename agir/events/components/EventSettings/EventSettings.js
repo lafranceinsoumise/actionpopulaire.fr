@@ -15,6 +15,8 @@ export const EventSettings = (props) => {
   const isAuthorized = useAuthentication(globalRouteConfig.eventSettings);
   const { pathname } = useLocation();
 
+  const cancelEvent = { label: "Annuler l'événement", onClick: () => {} };
+
   const redirectTo = useMemo(() => {
     if (!event?.isManager) {
       return basePath;
@@ -40,6 +42,7 @@ export const EventSettings = (props) => {
       routes={routes}
       menuLink={menuRoute.getLink()}
       redirectTo={redirectTo}
+      cancel={cancelEvent}
     />
   );
 };

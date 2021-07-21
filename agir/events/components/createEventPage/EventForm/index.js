@@ -132,7 +132,7 @@ const createEvent = async (data) => {
   return result;
 };
 
-const useEventFormOptions = () => {
+export const useEventFormOptions = () => {
   const { data: eventOptions } = useSWR(`/api/evenements/options/`);
 
   const organizerGroup = useMemo(() => {
