@@ -19,7 +19,7 @@ vous devrez envoyer a minima ces justificatifs ou indiquer qu'ils ne sont pas n�
   * Copie de la demande d'autorisation d'occupation de l'espace public - {{ DOCUMENTS_LINK }}
   {% endif %}
 
-📄 Téléchargez dès maintenant les modèles vierges qui vous seront nécessaires sur la page des documents de l'événement
+ Téléchargez dès maintenant les modèles vierges qui vous seront nécessaires sur la page des documents de l'événement
 >> {{ DOCUMENTS_LINK }}
 
 Attention :

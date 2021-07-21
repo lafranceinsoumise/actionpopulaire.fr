@@ -23,7 +23,7 @@ vous ne pourrez plus créer d’événement public après le {{ DOCUMENT_DEADLIN
 
 > J'envoie les documents : {{ DOCUMENTS_LINK }}
   
-📄 Si nécessaire, vous pouvez téléchargez dès maintenant les modèles vierges qui vous seront nécessaires sur la page des documents de l'événement :
+ Si nécessaire, vous pouvez téléchargez dès maintenant les modèles vierges qui vous seront nécessaires sur la page des documents de l'événement :
 > https://mosaico.lafranceinsoumise.fr/mosaico/{{ DOCUMENTS_LINK }}
 
 Amitiés,  
