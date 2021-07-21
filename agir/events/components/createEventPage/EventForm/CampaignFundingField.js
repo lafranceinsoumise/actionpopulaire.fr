@@ -21,8 +21,15 @@ const StyledCampaignFundingField = styled.div`
 const DOCUMENT_SENDING_DELAY = 15; //days
 
 const CampaignFundingField = (props) => {
-  const { onChange, needsDocuments, isCertified, groupPk, disabled, endTime } =
-    props;
+  const {
+    onChange,
+    needsDocuments,
+    isPrivate,
+    isCertified,
+    groupPk,
+    disabled,
+    endTime,
+  } = props;
 
   const [noSpending, setNoSpending] = useState(false);
   const [willSendDocuments, setWillSendDocuments] = useState(
@@ -79,7 +86,11 @@ const CampaignFundingField = (props) => {
       </div>
       <CheckboxField
         style={{ fontWeight: 600 }}
-        label="Je n’engagerai aucune dépense personnelle pour cet événement"
+        label={
+          isPrivate
+            ? "J'ai compris"
+            : "Je n’engagerai aucune dépense personnelle pour cet événement"
+        }
         onChange={(evt) => setNoSpending(!!evt.target.checked)}
         value={noSpending}
         disabled={disabled}
@@ -103,6 +114,7 @@ const CampaignFundingField = (props) => {
 CampaignFundingField.propTypes = {
   onChange: PropTypes.func.isRequired,
   groupPk: PropTypes.string,
+  isPrivate: PropTypes.bool,
   isCertified: PropTypes.bool,
   needsDocuments: PropTypes.bool,
   disabled: PropTypes.bool,
