@@ -250,8 +250,8 @@ def legender_elu_depuis_fiche_rne(form, reference):
 
 
 class MandatMunicipalForm(MandatForm):
-    def __init__(self, *args, instance=None, **kwargs):
-        super().__init__(*args, instance=instance, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         if "communautaire" in self.fields:
             if self.instance.conseil is None or self.instance.conseil.epci is None:
@@ -260,16 +260,16 @@ class MandatMunicipalForm(MandatForm):
                 epci = self.instance.conseil.epci
                 self.fields["communautaire"].label = f"Mandat auprès de la {epci.nom}"
 
-        if instance and instance.reference:
-            legender_elu_depuis_fiche_rne(self, instance.reference)
+        if self.instance.reference:
+            legender_elu_depuis_fiche_rne(self, self.instance.reference)
 
 
 class MandatDeputeForm(MandatForm):
-    def __init__(self, *args, instance=None, **kwargs):
-        super().__init__(*args, instance=instance, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        if instance and instance.reference:
-            legender_elu_depuis_fiche_rne(self, instance.reference)
+        if self.instance.reference:
+            legender_elu_depuis_fiche_rne(self, self.instance.reference)
 
 
 class MandatDepartementalForm(MandatForm):
@@ -280,6 +280,9 @@ class MandatDepartementalForm(MandatForm):
             "Pour les collectivités qui ont aussi un rôle régional, passez par le formulaire d'ajout d'un élu "
             "régional. Pour Paris, passez par le formulaire d'ajout d'un élu municipal."
         )
+
+        if self.instance.reference:
+            legender_elu_depuis_fiche_rne(self, self.instance.reference)
 
 
 class RechercheParrainageForm(forms.ModelForm):

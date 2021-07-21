@@ -451,7 +451,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
 class MandatDepartementAdmin(BaseMandatAdmin):
     form = MandatDepartementalForm
 
-    autocomplete_fields = ("conseil",)
+    autocomplete_fields = ("conseil", "reference")
     list_filter = (
         "statut",
         "mandat",
@@ -461,6 +461,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
         AppelEluFilter,
         ConseilFilter,
         RegionFilter,
+        ReferenceFilter,
     )
 
     fieldsets = (
@@ -476,6 +477,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
                     "is_insoumise",
                     "is_2022",
                     "signataire_appel",
+                    "reference",
                     "commentaires",
                 )
             },
