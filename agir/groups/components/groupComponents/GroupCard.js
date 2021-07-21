@@ -14,6 +14,7 @@ import { Column, Hide, Row } from "@agir/front/genericComponents/grid";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Link from "@agir/front/app/Link";
+import ShareLink from "@agir/front/genericComponents/ShareLink";
 
 const GroupIcon = styled.div`
   display: flex;
@@ -87,11 +88,16 @@ let GroupButton = ({
   color = "default",
   icon,
 }) => (
-  <Column width={["33%", "content"]} collapse={500}>
-    <Button as={as} to={to} href={href} color={color} icon={icon} small>
-      {children}
-    </Button>
-  </Column>
+  <StyledGroupButton
+    as={as}
+    to={to}
+    href={href}
+    color={color}
+    icon={icon}
+    small
+  >
+    {children}
+  </StyledGroupButton>
 );
 GroupButton.propTypes = {
   as: PropTypes.string,
@@ -191,9 +197,17 @@ const GroupCard = ({
         <DiscountCodesSection>
           <h5>Codes matériels :</h5>
           <ul>
-            {parsedDiscountCodes.map(({ code, expiration }) => (
+            {parsedDiscountCodes.map(({ code, date }) => (
               <li key={code}>
-                {code} <span>(expire {expiration})</span>
+                <ShareLink
+                  color="secondary"
+                  url={code}
+                  label="Copier"
+                  $wrap={400}
+                />
+                <p style={{ fontSize: "0.875rem", paddingTop: ".25rem" }}>
+                  Expiration&nbsp;: {date}
+                </p>
               </li>
             ))}
           </ul>
@@ -202,7 +216,7 @@ const GroupCard = ({
       <Row gutter={6} style={{ marginTop: "1.5rem" }}>
         {[
           !isEmbedded && !isMember && (
-            <StyledGroupButton
+            <GroupButton
               key="join"
               color="primary"
               as="Link"
@@ -212,30 +226,30 @@ const GroupCard = ({
               <Hide as="span" under={800}>
                 &nbsp;le groupe
               </Hide>
-            </StyledGroupButton>
+            </GroupButton>
           ),
-          <StyledGroupButton
+          <GroupButton
             as="Link"
             key="browse"
             color="default"
             to={routeConfig.groupDetails.getLink({ groupPk: id })}
           >
             Voir le groupe
-          </StyledGroupButton>,
+          </GroupButton>,
           routes.fund && (
             <GroupButton key="fund" href={routes.fund} icon="fast-forward">
               Financer
             </GroupButton>
           ),
           isManager && (
-            <StyledGroupButton
+            <GroupButton
               key="manage"
               as="Link"
               to={routeConfig.groupSettings.getLink({ groupPk: id })}
               icon="settings"
             >
               Gestion
-            </StyledGroupButton>
+            </GroupButton>
           ),
         ]
           .filter(Boolean)
