@@ -1,6 +1,8 @@
-import React, { Suspense, useMemo, useState } from "react";
+import React, { Suspense, useMemo } from "react";
+import { useHistory, useRouteMatch } from "react-router-dom";
 
 import { lazy } from "@agir/front/app/utils";
+import { routeConfig } from "@agir/front/app/routes.config";
 import { useMissingRequiredEventDocuments } from "@agir/events/common/hooks";
 
 import MissingDocumentWarning from "./MissingDocumentWarning";
@@ -8,8 +10,11 @@ import MissingDocumentWarning from "./MissingDocumentWarning";
 const MissingDocumentModal = lazy(() => import("./MissingDocumentModal"));
 
 const MissingDocuments = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const history = useHistory();
+  const routeMatch = useRouteMatch(routeConfig.missingEventDocumentsModal.path);
+
   const { projects } = useMissingRequiredEventDocuments();
+
   const missingDocumentCount = useMemo(() => {
     if (!Array.isArray(projects)) {
       return 0;
@@ -34,8 +39,13 @@ const MissingDocuments = () => {
     return projects.some((project) => project.isBlocking);
   }, [projects]);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const openModal = () =>
+    history.push(routeConfig.missingEventDocumentsModal.getLink());
+  const closeModal = () => history.push(routeConfig.events.getLink());
+
+  if (!missingDocumentCount) {
+    return null;
+  }
 
   return (
     <>
@@ -46,7 +56,7 @@ const MissingDocuments = () => {
       />
       <Suspense fallback={null}>
         <MissingDocumentModal
-          shouldShow={isModalOpen}
+          shouldShow={!!routeMatch}
           projects={projects}
           onClose={closeModal}
           isBlocked={isBlocked}

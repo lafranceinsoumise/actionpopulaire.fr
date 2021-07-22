@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
+import hrefs from "@agir/front/globalContext/nonReactRoutes.config";
+
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -58,7 +60,7 @@ export const MissingDocumentModal = (props) => {
           </strong>{" "}
           envoyez des documents justifiant que vous n’avez engagé aucun frais
           personnel.{" "}
-          <a href="https://infos.actionpopulaire.fr">En savoir plus</a>
+          <a href={hrefs.campaignEventDocumentHelp}>En savoir plus</a>
         </p>
         <Spacer size="0.5rem" />
         <p>

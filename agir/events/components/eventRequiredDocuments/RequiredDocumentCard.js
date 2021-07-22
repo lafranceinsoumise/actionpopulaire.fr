@@ -103,7 +103,13 @@ const RequiredDocumentCard = (props) => {
           Ajouter un justificatif
         </Button>
         {templateLink && (
-          <Button as="a" href="" download={templateLink}>
+          <Button
+            as="a"
+            href={templateLink}
+            download={`modele__${name}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <RawFeatherIcon name="file" style={{ marginRight: "0.5rem" }} />
             Modèle vierge
           </Button>

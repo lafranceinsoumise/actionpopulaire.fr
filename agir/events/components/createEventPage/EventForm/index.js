@@ -423,6 +423,7 @@ const EventForm = () => {
         disabled={isLoading}
         groupPk={formData?.organizerGroup?.id}
         isCertified={!!formData?.organizerGroup?.isCertified}
+        isPrivate={formData?.subtype?.type === "G"}
         needsDocuments={!!formData?.subtype?.needsDocuments}
         endTime={formData?.endTime}
       />

@@ -19,6 +19,10 @@ const Template = (args) => {
   );
 };
 
+export const Private = Template.bind({});
+Private.args = {
+  isPrivate: true,
+};
 export const CertifiedWithDocs = Template.bind({});
 CertifiedWithDocs.args = {
   isCertified: true,
