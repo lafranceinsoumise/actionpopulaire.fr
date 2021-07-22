@@ -6,6 +6,7 @@ from celery import shared_task
 from django.conf import settings
 
 from django.template.loader import render_to_string
+from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
@@ -150,6 +151,14 @@ def send_rsvp_notification(rsvp_pk):
     rsvp = RSVP.objects.select_related("person", "event").get(pk=rsvp_pk)
     person_information = str(rsvp.person)
 
+    if rsvp.event.subscription_form:
+        additional_message = format_html(
+            '<div style="margin-top: 16px; padding: 16px; background-color: #EEE;">{}</div>',
+            rsvp.event.subscription_form.html_confirmation_note(),
+        )
+    else:
+        additional_message = ""
+
     attendee_bindings = {
         "EVENT_NAME": rsvp.event.name,
         "EVENT_SCHEDULE": rsvp.event.get_display_date(),
@@ -158,6 +167,7 @@ def send_rsvp_notification(rsvp_pk):
         "LOCATION_NAME": rsvp.event.location_name,
         "LOCATION_ADDRESS": rsvp.event.short_address,
         "EVENT_LINK": front_url("view_event", auto_login=False, args=[rsvp.event.pk]),
+        "ADDITIONAL_INFORMATION": additional_message,
     }
 
     send_mosaico_email(
