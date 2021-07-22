@@ -48,7 +48,6 @@ const StyledDateField = styled(DateField)`
   }
 `;
 
-
 const ChooseSubtype = ({ options, selected, onClick, onBack }) => {
   return (
     <>
@@ -81,7 +80,6 @@ const EventGeneral = (props) => {
   const { data: event, mutate } = useSWR(
     api.getEventEndpoint("getEvent", { eventPk })
   );
-  // console.log("USE SWR EVENT : ", event);
 
   const eventOptions = useEventFormOptions();
   const subtypes = useMemo(

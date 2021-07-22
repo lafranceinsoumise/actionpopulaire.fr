@@ -4,6 +4,7 @@ import styled from "styled-components";
 import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
+import * as api from "@agir/events/common/api";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -15,11 +16,6 @@ import LocationField from "@agir/front/formComponents/LocationField.js";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
-
-// import {
-//   updateGroup,
-//   getGroupPageEndpoint,
-// } from "@agir/groups/groupPage/api.js";
 
 const StyledMap = styled(Map)`
   height: 208px;
@@ -35,14 +31,16 @@ const StyledMapConfig = styled(Map)`
 
 const EventLocation = (props) => {
   const { onBack, illustration, eventPk } = props;
+
+  const { data: event, mutate } = useSWR(
+    api.getEventEndpoint("getEvent", { eventPk })
+  );
   const sendToast = useToast();
+
   const [formLocation, setFormLocation] = useState({});
   const [config, setConfig] = useState(null);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-
-  const { data: event, mutate } = useSWR();
-  // geteventPageEndpoint("getevent", { eventPk })
 
   const handleInputChange = useCallback((_, name, value) => {
     setFormLocation((formLocation) => ({ ...formLocation, [name]: value }));
@@ -68,17 +66,17 @@ const EventLocation = (props) => {
     [formLocation, eventPk, mutate, sendToast]
   );
 
-  //   useEffect(() => {
-  //     setIsLoading(false);
-  //     setFormLocation({
-  //       name: event?.location.name,
-  //       address1: event?.location.address1,
-  //       address2: event?.location.address2,
-  //       zip: event?.location.zip,
-  //       city: event?.location.city,
-  //       country: event?.location.country,
-  //     });
-  //   }, [event]);
+  useEffect(() => {
+    setIsLoading(false);
+    setFormLocation({
+      name: event?.location.name,
+      address1: event?.location.address1,
+      address2: event?.location.address2,
+      zip: event?.location.zip,
+      city: event?.location.city,
+      country: event?.location.country,
+    });
+  }, [event]);
 
   if (config) {
     return (

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import useSWR from "swr";
 
 import styled from "styled-components";
@@ -12,15 +12,25 @@ import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styl
 import OnlineUrlField from "@agir/events/createEventPage/EventForm/OnlineUrlField";
 import Button from "@agir/front/genericComponents/Button";
 
+import * as api from "@agir/events/common/api";
+
 const EventVisio = (props) => {
   const { onBack, illustration, eventPk } = props;
+
+  const { data: event, mutate } = useSWR(
+    api.getEventEndpoint("getEvent", { eventPk })
+  );
 
   const [onlineUrl, setOnlineUrl] = useState("");
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const updateValue = (e) => {
-    setOnlineUrl(e);
+  useEffect(() => {
+    setOnlineUrl(event.onlineUrl);
+  }, [event]);
+
+  const updateValue = (_, value) => {
+    setOnlineUrl(value);
   };
 
   const handleSubmit = () => {
@@ -39,19 +49,16 @@ const EventVisio = (props) => {
       </span>
 
       <Spacer size="1rem" />
-
       <OnlineUrlField
         label="URL de votre visio-conférence sur Action Populaire"
         name="onlineUrl"
         onChange={updateValue}
         error={errors && errors.onlineUrl}
         value={onlineUrl}
-        defaultUrl={"video.com"}
         placeholder="URL de la visio-conférence"
       />
 
       <Spacer size="1rem" />
-
       <Button
         color="secondary"
         $wrap

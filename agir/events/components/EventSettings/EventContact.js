@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
+import * as api from "@agir/events/common/api";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
@@ -26,12 +27,12 @@ const StyledDateField = styled(DateField)`
 
 const EventContact = (props) => {
   const { onBack, illustration, eventPk } = props;
+
+  const { data: event, mutate } = useSWR(
+    api.getEventEndpoint("getEvent", { eventPk })
+  );
+  console.log("event swr", event);
   const sendToast = useToast();
-
-  console.log("event general with pk : ", eventPk);
-
-  const { data: event, mutate } = useSWR();
-  // getGroupPageEndpoint("getGroup", { groupPk })
 
   const [contact, setContact] = useState({});
   const [errors, setErrors] = useState({});
@@ -39,7 +40,14 @@ const EventContact = (props) => {
   const [imageHasChanged, setImageHasChanged] = useState(false);
   const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    setContact({
+      name: event.contact.name,
+      email: event.contact.email,
+      phone: event.contact.phone,
+      hidePhone: event.contact.hidePhone,
+    });
+  }, [event]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -1,11 +1,11 @@
 import PropTypes from "prop-types";
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import useSWR from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
+import * as api from "@agir/events/common/api";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import styled from "styled-components";
 
 import ImageField from "@agir/front/formComponents/ImageField";
 import Button from "@agir/front/genericComponents/Button";
@@ -18,11 +18,9 @@ import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPa
 const EventFeedback = (props) => {
   const { onBack, illustration, eventPk } = props;
   const sendToast = useToast();
-
-  console.log("event general with pk : ", eventPk);
-
-  const { data: event, mutate } = useSWR();
-  // getGroupPageEndpoint("getGroup", { groupPk })
+  const { data: event, mutate } = useSWR(
+    api.getEventEndpoint("getEvent", { eventPk })
+  );
 
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
@@ -86,6 +84,13 @@ const EventFeedback = (props) => {
     // });
   };
 
+  useEffect(() => {
+    setFormData({
+      feedback: event.compteRendu,
+      photo: !!event.compteRenduPhotos?.length && event.compteRenduPhotos[0],
+    });
+  }, [event]);
+
   return (
     <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
@@ -108,9 +113,9 @@ const EventFeedback = (props) => {
       <h4>Ajouter une image</h4>
       <ImageField
         name="image"
-        value={formData.image}
+        value={formData.photo}
         onChange={handleChangeImage}
-        error={errors?.image}
+        error={errors?.photo}
         accept=".jpg,.jpeg,.gif,.png"
       />
 
