@@ -188,6 +188,7 @@ MERGE_STRATEGIES = {
     "mandat_departemental": merge_reassign_related,
     "mandat_regional": merge_reassign_related,
     "mandat_consulaire": merge_reassign_related,
+    "mandat_depute": merge_reassign_related,
     "campaignsentevent": None,
     "notification_subscriptions": None,
     # Simple fields
@@ -243,7 +244,7 @@ MERGE_STRATEGIES = {
     "transferoperation": None,
     "display_name": merge_text_fields,
     "image": merge_text_fields,
-    "rechercheparrainagemaire": merge_reassign_related,
+    "rechercheparrainage": merge_reassign_related,
     "read_messages": merge_reassign_related,
     "depense": None,
     "acces_application_parrainages": merge_acces_application_parrainages,
