@@ -32,7 +32,7 @@ from .view_mixins import (
 from ..events.views.event_views import EventDetailMixin
 from ..groups.serializers import SupportGroupSerializer
 from ..groups.views.public_views import SupportGroupDetailMixin
-from ..lib.utils import generate_token_params
+from ..lib.utils import generate_token_params, front_url
 from ..msgs.models import SupportGroupMessage
 
 
@@ -252,6 +252,11 @@ class EventDetailView(
 ):
     meta_description = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
     bundle_name = "front/app"
+
+    def get_meta_image(self):
+        return front_url(
+            "view_og_image_event", kwargs={"pk": self.object.pk,}, absolute=True
+        )
 
 
 class SupportGroupDetailView(
