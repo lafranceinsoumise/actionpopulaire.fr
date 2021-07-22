@@ -75,7 +75,15 @@ const SentDocumentsCard = (props) => {
           <li key={doc.id}>
             <RawFeatherIcon as="i" name="file-text" />
             <span>{doc.name}</span>
-            <Button small as="a" href={doc.file} color="primary">
+            <Button
+              small
+              as="a"
+              href={doc.file}
+              download={doc.name}
+              target="_blank"
+              rel="noopener noreferrer"
+              color="primary"
+            >
               Voir
             </Button>
           </li>
