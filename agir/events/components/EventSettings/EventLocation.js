@@ -32,9 +32,11 @@ const StyledMapConfig = styled(Map)`
 const EventLocation = (props) => {
   const { onBack, illustration, eventPk } = props;
 
-  const { data: event, mutate } = useSWR(
+  let { data: event, mutate } = useSWR(
     api.getEventEndpoint("getEvent", { eventPk })
   );
+  event.location.coordinates = [2.338383, 48.864503];
+  console.log("event swr", event);
   const sendToast = useToast();
 
   const [formLocation, setFormLocation] = useState({});
@@ -120,17 +122,16 @@ const EventLocation = (props) => {
       <Spacer size="1rem" />
 
       <span style={{ color: style.black700 }}>
-        Si vous ne souhaitez pas rendre votre adresse personnelle publique,
-        indiquez un endroit à proximité (café, mairie...)
+        Si vous ne souhaitez pas rendre cette adresse publique, indiquez un
+        endroit à proximité (café, mairie...)
         <Spacer size="0.5rem" />
         <strong>
-          Merci d'indiquer une adresse précise avec numéro de rue, sans quoi le
-          groupe n'apparaîtra pas sur la carte.
+          Merci d'indiquer une adresse précise avec numéro de rue, sans quoi
+          l'événement n'apparaîtra pas sur la carte.
         </strong>
       </span>
 
       <Spacer size="1.5rem" />
-
       <LocationField
         name="location"
         location={formLocation}
