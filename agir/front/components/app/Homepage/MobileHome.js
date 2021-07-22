@@ -36,7 +36,6 @@ const StyledHome = styled.main`
 
     ${Button} {
       width: 100%;
-      justify-content: center;
     }
   }
 `;

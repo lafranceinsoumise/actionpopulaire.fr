@@ -99,8 +99,10 @@ export const Button = styled.button.attrs(
     as: as === "Link" ? Link : as,
   })
 )`
-  display: ${({ $block }) => ($block ? "flex" : "inline-flex")};;
+  display: ${({ $block }) => ($block ? "flex" : "inline-flex")};
+  width: ${({ $block }) => ($block ? "100%" : "auto")};
   align-items: center;
+  justify-content: center;
   white-space: ${({ $wrap }) => ($wrap ? "normal" : "nowrap")};
   padding: ${({ $small }) => ($small ? "0.5rem 0.75rem" : "0.75rem 1.5rem")};
   line-height: ${({ $small }) =>
@@ -108,10 +110,10 @@ export const Button = styled.button.attrs(
       ? "1rem"
       : "1.5rem"}; /* pour s'assurer que les liens sont correctement centrés */
   margin: 0;
-  border-radius: ${style.defaultBorderRadius};
+  border-radius: ${style.borderRadius};
 
   text-align: center;
-  font-weight: 700;
+  font-weight: 500;
   font-size: ${({ $small }) => ($small ? "0.875rem" : "1rem")};
 
   color: ${({ $labelColor, disabled }) =>
@@ -128,10 +130,6 @@ export const Button = styled.button.attrs(
   cursor: pointer;
   ${({ $hasTransition }) =>
     $hasTransition ? "transition: all 250ms ease-in;" : ""}
-
-  & + & {
-    margin-left: ${({ $block }) => ($block ? "0" : "0.5rem")};
-  }
 
   &:hover,
   &:focus,

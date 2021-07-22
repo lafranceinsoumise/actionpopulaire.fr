@@ -54,7 +54,6 @@ const StyledLink = styled(Link)`
   }
 
   & > ${Button} {
-    border-radius: ${(props) => props.theme.borderRadius};
     font-weight: 600;
     margin-top: 10px;
     align-self: flex-start;

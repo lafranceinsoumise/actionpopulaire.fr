@@ -95,7 +95,6 @@ const StyledModalFooter = styled.footer`
 
   ${Button} {
     width: 100%;
-    justify-content: center;
   }
 `;
 const StyledModalContent = styled.div`

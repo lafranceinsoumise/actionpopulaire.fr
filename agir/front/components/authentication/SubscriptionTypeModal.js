@@ -73,7 +73,6 @@ const StyledModalContent = styled.div`
   ${Button} {
     max-width: 356px;
     width: 100%;
-    justify-content: center;
     flex-wrap: wrap;
     white-space: normal;
   }

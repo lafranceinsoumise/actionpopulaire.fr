@@ -66,10 +66,8 @@ const StyledHome = styled.main`
 
       ${Button} {
         width: auto;
-        justify-content: center;
         height: 70px;
         font-size: 1.25rem;
-        margin: 0;
       }
     }
   }

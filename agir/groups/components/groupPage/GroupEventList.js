@@ -44,14 +44,15 @@ const StyledList = styled.div`
     &:focus,
     &:active {
       background-color: transparent;
-    }
-    @media (min-width: ${style.collapse}px) {
-      padding-left: 0;
-      padding-right: 0;
-    }
-    @media (max-width: ${style.collapse}px) {
-      width: 100%;
-      justify-content: center;
+
+      @media (min-width: ${style.collapse}px) {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      @media (max-width: ${style.collapse}px) {
+        width: 100%;
+      }
     }
   }
 `;

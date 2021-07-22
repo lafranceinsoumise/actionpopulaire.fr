@@ -32,9 +32,6 @@ const SearchBarWrapper = styled.div`
     padding: revert;
     width: 2rem;
     height: 2rem;
-    border-radius: 0.5rem;
-    display: flex;
-    justify-content: center;
     opacity: ${({ $focused }) => ($focused ? 1 : 0)};
     transition: 0.1s ease;
   }

@@ -61,7 +61,6 @@ const StyledDiv = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    justify-content: center;
   }
 `;
 

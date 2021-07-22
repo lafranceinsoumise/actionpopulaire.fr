@@ -94,16 +94,11 @@ const StyledUserMenu = styled.div`
     margin: 0;
     padding: 1rem 0;
     border-top: 1px solid ${style.black100};
-
-    ${Button} {
-      margin: 0;
-    }
   }
-`;
 
-const StyledButton = styled(Button)`
-  width: 230px;
-  justify-content: center;
+  ${Button} {
+    width: 230px;
+  }
 `;
 
 export const UserMenu = (props) => {
@@ -129,7 +124,7 @@ export const UserMenu = (props) => {
           </p>
           {user.fullName !== user.email && <p>{user.fullName}</p>}
           <p>{user.email}</p>
-          <StyledButton
+          <Button
             as="Link"
             route="personalInformation"
             icon="settings"
@@ -137,9 +132,9 @@ export const UserMenu = (props) => {
             small
           >
             Paramètres
-          </StyledButton>
+          </Button>
           <br />
-          <StyledButton
+          <Button
             as="Link"
             route="notificationSettings"
             icon="settings"
@@ -147,10 +142,10 @@ export const UserMenu = (props) => {
             small
           >
             Notifications et e-mails
-          </StyledButton>
+          </Button>
         </article>
         <footer>
-          <StyledButton
+          <Button
             as="Link"
             route="logout"
             icon="power"
@@ -161,7 +156,7 @@ export const UserMenu = (props) => {
             small
           >
             Me déconnecter
-          </StyledButton>
+          </Button>
         </footer>
       </StyledUserMenu>
     </ResponsiveLayout>

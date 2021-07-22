@@ -68,18 +68,6 @@ const DiscountCodesSection = styled.section`
   }
 `;
 
-const StyledGroupButton = styled(Button)`
-  height: 48px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: ${style.borderRadius};
-  margin-top: 16px;
-
-  && + && {
-    margin-left: 0;
-  }
-`;
-
 let GroupButton = ({
   as = "a",
   to,
@@ -88,16 +76,16 @@ let GroupButton = ({
   color = "default",
   icon,
 }) => (
-  <StyledGroupButton
+  <Button
+    style={{ marginTop: "1rem" }}
     as={as}
     to={to}
     href={href}
     color={color}
     icon={icon}
-    small
   >
     {children}
-  </StyledGroupButton>
+  </Button>
 );
 GroupButton.propTypes = {
   as: PropTypes.string,
@@ -213,7 +201,7 @@ const GroupCard = ({
           </ul>
         </DiscountCodesSection>
       )}
-      <Row gutter={6} style={{ marginTop: "1.5rem" }}>
+      <Row gutter={6} style={{ paddingTop: ".5rem" }}>
         {[
           !isEmbedded && !isMember && (
             <GroupButton

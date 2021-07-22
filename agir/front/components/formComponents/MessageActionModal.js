@@ -38,7 +38,6 @@ const StyledModalFooter = styled.footer`
 
   ${Button} {
     flex: 1 1 auto;
-    justify-content: center;
     transition: opacity 250ms ease-in-out;
   }
 

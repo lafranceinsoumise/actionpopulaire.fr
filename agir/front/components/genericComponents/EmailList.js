@@ -17,7 +17,7 @@ const StyledEmailList = styled.div`
   }
 
   input,
-  button {
+  ${Button} {
     &,
     &:hover,
     &:focus {
@@ -37,10 +37,6 @@ const StyledEmailList = styled.div`
     background-color: ${style.white};
     padding: 0.25rem 0.5rem;
     cursor: text;
-  }
-
-  ${Button} {
-    justify-content: center;
   }
 `;
 

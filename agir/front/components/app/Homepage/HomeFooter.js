@@ -34,9 +34,7 @@ const StyledFooter = styled.main`
   }
 
   ${Button} {
-    margin: 0;
     width: 100%;
-    justify-content: center;
     height: 70px;
     font-size: 1.25rem;
     border: 1px solid ${style.white};

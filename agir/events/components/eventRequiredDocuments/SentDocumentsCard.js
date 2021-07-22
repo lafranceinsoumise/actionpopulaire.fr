@@ -44,13 +44,6 @@ const StyledCard = styled.figure`
         overflow-x: hidden;
         text-overflow: ellipsis;
       }
-
-      ${Button} {
-        height: 2rem;
-        border-radius: ${(props) => props.theme.borderRadius};
-        font-weight: 600;
-        font-size: 0.813rem;
-      }
     }
 
     li + li {

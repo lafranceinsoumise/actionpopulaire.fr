@@ -34,10 +34,9 @@ const LowMarginCard = styled(Card)`
 
   ${Button} {
     margin: 0.5rem 0 1rem;
-    justify-content: center;
     align-self: flex-start;
     width: auto;
-    max-width: 100;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
 

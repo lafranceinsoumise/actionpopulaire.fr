@@ -258,7 +258,7 @@ const FormulaireTerminerParrainage = ({ elu, onStatusChange }) => {
         <Button
           color="primary"
           disabled={state.isLoading || decision === null}
-          block={true}
+          block
         >
           Envoyer les informations
         </Button>

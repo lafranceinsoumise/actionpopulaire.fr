@@ -36,14 +36,6 @@ const Thumbnails = styled.div`
   }
 `;
 
-const StyledButton = styled(Button)`
-  height: 48px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: ${style.borderRadius};
-  margin-top: 16px;
-`;
-
 const StyledCard = styled(Card)`
   p {
     margin: 0;
@@ -94,10 +86,10 @@ const EventPhotosCard = ({ compteRenduPhotos, endTime, rsvp, routes }) => {
         <p>Il n'y a pas encore de photo de cet événement.</p>
       )}
       {rsvp === "CO" && (
-        <div>
-          <StyledButton as="a" href={routes.addPhoto}>
+        <div style={{ paddingTop: "1rem" }}>
+          <Button as="a" href={routes.addPhoto}>
             Ajouter une photo
-          </StyledButton>
+          </Button>
         </div>
       )}
     </StyledCard>

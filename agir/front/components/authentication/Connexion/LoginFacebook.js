@@ -6,23 +6,15 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 
 const ButtonFacebook = styled(Button)`
-  max-width: 100%;
   width: 100%;
   margin-top: 20px;
-  justify-content: center;
-  font-weight: normal;
-  background-color: white;
+  background-color: ${(props) => props.theme.white};
   border: 1px solid #c4c4c4;
   transition: ease 0.2s;
 
   &:hover {
     background-color: #eee;
     border-color: #999;
-  }
-
-  img {
-    width: 1.5rem;
-    height: 1.5rem;
   }
 `;
 

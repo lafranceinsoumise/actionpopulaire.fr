@@ -1,9 +1,12 @@
 import React from "react";
+import styled from "styled-components";
+
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import styled from "styled-components";
-import style from "@agir/front/genericComponents/_variables.scss";
+import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+
 import logo from "@agir/front/genericComponents/logos/action-populaire_primary_mini.svg";
 
 import { useDownloadBanner } from "@agir/front/app/hooks.js";
@@ -40,30 +43,16 @@ const Content = styled.div`
   }
 `;
 
-const DownloadMinus = styled(Button)`
-  border-radius: 50px;
-  background-color: #fff;
-  width: 52px;
-  height: 52px;
-  color: ${style.primary500};
-  font-size: 13px;
-  font-weight: 700;
-  justify-content: center;
-
-  @media (min-width: 422px) {
-    display: none;
-  }
-`;
-
 const Download = styled(Button)`
-  background-color: #fff;
+  background-color: ${style.white};
   color: ${style.primary500};
   font-size: 13px;
   font-weight: 700;
-  justify-content: center;
 
   @media (max-width: 421px) {
-    display: none;
+    border-radius: 50px;
+    width: 52px;
+    height: 52px;
   }
 `;
 
@@ -116,17 +105,18 @@ export const DownloadApp = () => {
         </Description>
       </Content>
       <div style={{ paddingRight: "18px" }}>
-        <DownloadMinus
-          as="a"
-          href={"iOS" === OS ? CONFIG.apple.href : CONFIG.google.href}
-        >
-          <FeatherIcon name="download" color={style.primary500} />
-        </DownloadMinus>
         <Download
           as="a"
           href={"iOS" === OS ? CONFIG.apple.href : CONFIG.google.href}
+          aria-label="Télécharger"
         >
-          Télécharger
+          <ResponsiveLayout
+            breakpoint={421}
+            MobileLayout={() => (
+              <FeatherIcon name="download" color={style.primary500} />
+            )}
+            DesktopLayout={() => "Télécharger"}
+          />
         </Download>
       </div>
     </StyledContainer>

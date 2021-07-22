@@ -25,8 +25,6 @@ const StyledBlock = styled.div`
 
   ${Button} {
     margin-bottom: 1rem;
-    text-align: center;
-    justify-content: center;
   }
 `;
 

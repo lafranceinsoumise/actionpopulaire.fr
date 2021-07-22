@@ -119,7 +119,6 @@ const StyledButton = styled(Button)`
   width: 330px;
   height: 70px;
   font-size: 20px;
-  justify-content: center;
   margin-top: 2rem;
 `;
 
