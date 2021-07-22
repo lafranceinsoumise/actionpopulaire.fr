@@ -131,6 +131,11 @@ urlpatterns = [
     path("evenements/carte/", views.BaseAppCachedView.as_view(), name="event_map_page"),
     path("evenements/creer/", views.BaseAppSoftAuthView.as_view(), name="create_event"),
     path(
+        "documents-justificatifs/",
+        views.BaseAppSoftAuthView.as_view(),
+        name="event_required_documents_modal",
+    ),
+    path(
         "evenements/creer/<path>/",
         views.BaseAppSoftAuthView.as_view(),
         name="create_event_sub",

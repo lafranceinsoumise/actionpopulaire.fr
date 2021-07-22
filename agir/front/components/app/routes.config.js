@@ -126,7 +126,7 @@ const notificationSettingRoute = new RouteConfig({
 export const routeConfig = {
   events: new RouteConfig({
     id: "events",
-    path: "/",
+    path: ["/", "/documents-justificatifs/"],
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Événements",
@@ -137,6 +137,14 @@ export const routeConfig = {
     hideTopBar: true,
     hideConnectivityWarning: true,
     keepScroll: true,
+  }),
+  missingEventDocumentsModal: new RouteConfig({
+    id: "missingEventDocuments",
+    path: "/documents-justificatifs/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Documents justificatifs",
+    isPartial: true,
   }),
   missingEventDocuments: new RouteConfig({
     id: "missingEventDocuments",
