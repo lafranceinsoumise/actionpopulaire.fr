@@ -253,7 +253,7 @@ class EventThumbnailView(DetailView):
 
     def get_image_font(self, size):
         return ImageFont.truetype(
-            "poppins.ttf",
+            "Poppins-Medium.ttf",
             size=size,
             encoding="utf-8",
             layout_engine=ImageFont.LAYOUT_BASIC,
