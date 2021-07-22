@@ -21,7 +21,6 @@ const StyledModalContent = styled.div`
   @media (max-width: ${(props) => props.theme.collapse}px) {
     max-width: 100%;
     padding: 1.5rem;
-    border-radius: 0;
     margin: 0;
     min-height: 100%;
   }

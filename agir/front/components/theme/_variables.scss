@@ -126,11 +126,11 @@ $btn-border-radius-small: $btn-border-radius-base;
 // TODO: Rename `$input-border-radius` to `$input-border-radius-base` in v4
 //** Default `.form-control` border radius
 // This has no effect on `<select>`s in some browsers, due to the limited stylability of `<select>`s in CSS.
-$input-border-radius: 0px;
+$input-border-radius: 4px;
 //** Large `.form-control` border radius
-$input-border-radius-large: 0px;
+$input-border-radius-large: 4px;
 //** Small `.form-control` border radius
-$input-border-radius-small: 0px;
+$input-border-radius-small: 4px;
 
 //== Media queries breakpoints
 //

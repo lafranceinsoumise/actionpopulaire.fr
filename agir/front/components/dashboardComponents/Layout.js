@@ -89,7 +89,7 @@ const MainContainer = styled(Container)`
 const FacebookLoginContainer = styled.div`
   background-color: #e8f2fe;
   max-width: 255px;
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   padding: 24px;
   font-size: 14px;
   margin-bottom: 16px;

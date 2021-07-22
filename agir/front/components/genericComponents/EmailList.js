@@ -24,7 +24,7 @@ const StyledEmailList = styled.div`
       height: 2rem;
       margin: 0;
       outline: none;
-      border-radius: 0;
+      border-radius: ${style.softBorderRadius};
       white-space: nowrap;
     }
   }

@@ -149,7 +149,7 @@ const StyledBlock = styled.section`
       background-repeat: no-repeat;
       background-position: center center;
       background-size: cover;
-      border-radius: 8px;
+      border-radius: ${style.borderRadius};
 
       @media (max-width: ${style.collapse}px) {
         height: 138px;

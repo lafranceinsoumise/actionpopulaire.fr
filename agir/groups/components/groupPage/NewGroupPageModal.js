@@ -23,7 +23,7 @@ const StyledModalContent = styled.div`
   justify-content: center;
   text-align: center;
   box-shadow: ${style.elaborateShadow};
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
 
   @media (max-width: ${style.collapse}px) {
     max-width: 100%;

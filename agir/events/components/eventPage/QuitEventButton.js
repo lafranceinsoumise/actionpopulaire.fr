@@ -17,7 +17,7 @@ const StyledDialog = styled.div`
   max-width: 415px;
   margin: 40px auto;
   background-color: ${(props) => props.theme.white};
-  border-radius: $[style.borderRadius];
+  border-radius: ${style.borderRadius};
   padding: 1rem;
 
   @media (max-width: ${(props) => props.theme.collapse}px) {

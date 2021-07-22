@@ -121,7 +121,7 @@ const FooterBanner = styled.div`
   max-width: 1400px;
   margin: 0 auto 1rem;
   background-color: ${style.primary500};
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   height: 360px;
   display: flex;
   flex-flow: row nowrap;

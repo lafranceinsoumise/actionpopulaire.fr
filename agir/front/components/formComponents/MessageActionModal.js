@@ -49,7 +49,7 @@ const StyledModalContent = styled.div`
   max-width: 415px;
   margin: 40px auto;
   background-color: ${style.white};
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   padding: 1rem;
 
   @media (max-width: ${style.collapse}px) {

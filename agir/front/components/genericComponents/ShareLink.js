@@ -44,7 +44,7 @@ const StyledDiv = styled.div`
     flex: 1 1 240px;
     width: 100%;
     border: 1px solid ${style.black100};
-    border-radius: 0;
+    border-radius: ${style.softBorderRadius};
     padding: 0.5rem;
     margin-right: 0.5rem;
 

@@ -17,7 +17,7 @@ const StyledCommentButton = styled.button`
     display: flex;
     width: 100%;
     margin: 0;
-    border-radius: 8px;
+    border-radius: ${style.borderRadius};
     border: none;
     padding: 0.5rem 0.75rem;
     text-decoration: none;
@@ -68,7 +68,7 @@ const StyledWrapper = styled.form`
   ${StyledMessage} {
     display: flex;
     flex: 1 1 auto;
-    border-radius: 8px;
+    border-radius: ${style.borderRadius};
     background-color: ${({ $disabled }) =>
       $disabled ? style.black100 : style.black50};
     border: none;

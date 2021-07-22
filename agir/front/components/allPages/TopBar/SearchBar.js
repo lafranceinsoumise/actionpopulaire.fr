@@ -17,7 +17,7 @@ const SearchBarWrapper = styled.div`
   border: 1px solid;
   border-color: ${({ $focused }) =>
     $focused ? style.black1000 : style.black100};
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   align-items: center;
   height: 40px;
 
@@ -50,6 +50,7 @@ const SearchBarWrapper = styled.div`
     border: none;
     background-color: transparent;
     outline: none;
+    border-radius: ${style.softBorderRadius}
 
     &::placeholder {
       color: ${style.black500};
