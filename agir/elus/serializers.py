@@ -79,6 +79,8 @@ class CreerRechercheSerializer(serializers.Serializer):
                 code="duplicated_elu",
             )
 
+        return value
+
     def create(self, validated_data):
         return RechercheParrainage.objects.create(
             maire=self.validated_data["maire"],
