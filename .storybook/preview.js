@@ -1,4 +1,5 @@
 import React from "react";
+import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import { MemoryRouter } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 
@@ -14,8 +15,10 @@ export const parameters = {
 
 export const decorators = [
   (Story) => (
-    <ThemeProvider theme={style}>
-      <MemoryRouter initialEntries={["/"]}>{Story()}</MemoryRouter>
-    </ThemeProvider>
+    <TestGlobalContextProvider>
+      <ThemeProvider theme={style}>
+        <MemoryRouter initialEntries={["/"]}>{Story()}</MemoryRouter>
+      </ThemeProvider>
+    </TestGlobalContextProvider>
   ),
 ];
