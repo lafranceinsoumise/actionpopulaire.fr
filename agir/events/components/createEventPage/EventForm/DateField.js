@@ -2,14 +2,13 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
+import { DateTime } from "luxon";
+import "moment/locale/fr";
 
 import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import SelectField from "@agir/front/formComponents/SelectField";
 import TimezoneField from "@agir/front/formComponents/TimezoneField";
-
 import { EVENT_DEFAULT_DURATIONS } from "./eventForm.config";
-
-import "moment/locale/fr";
 
 const TimezoneToggle = styled.p`
   display: flex;
@@ -73,9 +72,10 @@ const DateField = (props) => {
     required,
     disabled,
     className,
+    showTimezone = false,
   } = props;
 
-  const [hasTimezone, setHasTimezone] = useState(false);
+  const [hasTimezone, setHasTimezone] = useState(showTimezone);
   const [duration, setDuration] = useState(EVENT_DEFAULT_DURATIONS[0]);
 
   const updateStartTime = useCallback(
@@ -113,11 +113,34 @@ const DateField = (props) => {
     [startTime, onChange]
   );
 
+  // useEffect(() => {
+  //   if (duration && duration.value) {
+  //     updateStartTime(startTime);
+  //   }
+  // }, [duration, updateStartTime, startTime]);
+
   useEffect(() => {
-    if (duration && duration.value) {
-      updateStartTime(startTime);
-    }
-  }, [duration, updateStartTime, startTime]);
+    // Show endTime only if its customized more than [1h, 1h30, 2h, 3h]
+    let startDate = new Date(startTime);
+    startDate = DateTime.fromJSDate(startDate);
+    let endDate = new Date(endTime);
+    endDate = DateTime.fromJSDate(endDate);
+    const startDatePlus1H = startDate.plus({ hours: 1 });
+    const startDatePlus1H30 = startDate.plus({ hours: 1, minutes: 30 });
+    const startDatePlus2H = startDate.plus({ hours: 2 });
+    const startDatePlus3H = startDate.plus({ hours: 3 });
+    let isCustomDate = false;
+    if (
+      ![
+        startDatePlus1H.ts,
+        startDatePlus1H30.ts,
+        startDatePlus2H.ts,
+        startDatePlus3H.ts,
+      ].includes(endDate.ts)
+    )
+      isCustomDate = true;
+    setDuration(EVENT_DEFAULT_DURATIONS[!isCustomDate ? 0 : 4]);
+  }, [startTime]);
 
   return (
     <Field className={className}>

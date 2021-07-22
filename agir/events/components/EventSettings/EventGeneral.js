@@ -5,7 +5,6 @@ import useSWR from "swr";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 import { useTransition } from "@react-spring/web";
 
-import { PanelWrapper } from "@agir/front/genericComponents/ObjectManagement/PanelWrapper";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 
@@ -22,6 +21,9 @@ import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButto
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
+import { PanelWrapper } from "@agir/front/genericComponents/ObjectManagement/PanelWrapper";
+
+import * as api from "@agir/events/common/api";
 
 import { useEventFormOptions } from "@agir/events/createEventPage/EventForm/index.js";
 import {
@@ -46,9 +48,10 @@ const StyledDateField = styled(DateField)`
   }
 `;
 
+
 const ChooseSubtype = ({ options, selected, onClick, onBack }) => {
   return (
-    <div>
+    <>
       <BackButton onClick={onBack} />
       <StyledTitle>Choisir le type de l'événement</StyledTitle>
       <Spacer size="1rem" />
@@ -67,7 +70,7 @@ const ChooseSubtype = ({ options, selected, onClick, onBack }) => {
           </ul>
         ))}
       </StyledOptions>
-    </div>
+    </>
   );
 };
 
@@ -75,18 +78,16 @@ const EventGeneral = (props) => {
   const { onBack, illustration, eventPk } = props;
   const sendToast = useToast();
 
-  console.log("event general with pk : ", eventPk);
+  const { data: event, mutate } = useSWR(
+    api.getEventEndpoint("getEvent", { eventPk })
+  );
+  // console.log("USE SWR EVENT : ", event);
 
-  const { data: event, mutate } = useSWR();
-  // getGroupPageEndpoint("getGroup", { groupPk })
-
-  const [selectedSubtype, setSelectedSubtype] = useState(null);
   const eventOptions = useEventFormOptions();
   const subtypes = useMemo(
     () => (Array.isArray(eventOptions.subtype) ? eventOptions.subtype : []),
     [eventOptions.subtype]
   );
-  // console.log("event subtypes : ", subtypes);
   const options = useMemo(() => {
     const categories = {};
     subtypes.forEach((subtype) => {
@@ -103,7 +104,6 @@ const EventGeneral = (props) => {
       Array.isArray(category.subtypes)
     );
   }, [subtypes]);
-  console.log("options ", options);
 
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
@@ -111,10 +111,22 @@ const EventGeneral = (props) => {
   const originalImage = useMemo(() => event?.image, [event]);
   const [imageHasChanged, setImageHasChanged] = useState(false);
   const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
+  const [submenuOpen, setSubmenuOpen] = useState(false);
 
   useEffect(() => {
-    setFormData({ subtype: options[0] });
-  }, []);
+    setFormData({
+      name: event.name,
+      description: event.description,
+      url: event.routes.facebook,
+      date: event.description,
+      image: event.illustration,
+      subtype: event.subtype,
+      startTime: event.startTime,
+      endTime: event.endTime,
+      timezone: event.timezone,
+      // leitmotiv: event., // still exist LFI / NSP ?
+    });
+  }, [event]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -195,10 +207,10 @@ const EventGeneral = (props) => {
     // });
   };
 
-  const transition = useTransition(selectedSubtype, slideInTransition);
+  const transition = useTransition(submenuOpen, slideInTransition);
 
   const handleBack = useCallback(() => {
-    setSelectedSubtype(null);
+    setSubmenuOpen(false);
     setErrors({});
   }, []);
 
@@ -228,6 +240,7 @@ const EventGeneral = (props) => {
             startTime={formData.startTime}
             endTime={formData.endTime}
             timezone={formData.timezone}
+            showTimezone
             error={
               errors && (errors.startTime || errors.endTime || errors.timezone)
             }
@@ -301,8 +314,8 @@ const EventGeneral = (props) => {
           onChange={(e) => handleChangeValue("leitmotiv", e)}
           disabled={false}
           options={[
-            { label: "Oui", value: "1" },
-            { label: "Non", value: "0" },
+            { label: "La campagne présidentielle", value: "1" },
+            { label: "Une autre campagne de la France Insoumise", value: "0" },
           ]}
         />
 
@@ -312,22 +325,22 @@ const EventGeneral = (props) => {
         </div>
 
         {formData?.subtype && (
-          <>
+          <div>
             <StyledDefaultOptions style={{ display: "inline-flex" }}>
               <DefaultOption
                 option={formData.subtype}
-                onClick={() => setSelectedSubtype(true)}
+                onClick={() => setSubmenuOpen(true)}
                 selected
               />
             </StyledDefaultOptions>
             <Link
               href={"#"}
-              onClick={() => setSelectedSubtype(true)}
+              onClick={() => setSubmenuOpen(true)}
               style={{ marginLeft: "0.5rem" }}
             >
               Changer
             </Link>
-          </>
+          </div>
         )}
 
         <Spacer size="2rem" />
@@ -349,7 +362,7 @@ const EventGeneral = (props) => {
                 options={options}
                 onClick={(e) => {
                   handleChangeValue("subtype", e);
-                  setSelectedSubtype(null);
+                  setSubmenuOpen(false);
                 }}
                 onBack={handleBack}
               />

@@ -69,21 +69,17 @@ const EventParticipants = (props) => {
       </BlockTitle>
 
       <Spacer size="1rem" />
-
       <ShareLink
         label="Copier les e-mails des membres"
         color="primary"
         url={members?.map(({ email }) => email).join(", ") || ""}
         $wrap
       />
-      <Spacer size="1rem" />
-
-      <MemberList members={[group]} />
 
       <Spacer size="1rem" />
-
-      <MemberList members={members} />
-
+      <MemberList key={0} members={[group]} />
+      <Spacer size="1rem" />
+      <MemberList key={1} members={members} />
       <Spacer size="1rem" />
     </>
   );

@@ -51,7 +51,7 @@ const StyledOption = styled.li`
   }
 `;
 
-const StyledOptions = styled.div`
+export const StyledOptions = styled.div`
   display: flex;
   flex-flow: column nowrap;
   padding-top: 0.5rem;
