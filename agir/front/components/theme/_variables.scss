@@ -100,7 +100,7 @@ $border-radius-small: 0px;
 //
 //## For each of Bootstrap's buttons, define text, background and border color.
 
-$btn-font-weight: 700;
+$btn-font-weight: 500;
 
 $btn-primary-color: white !default;
 $btn-primary-bg: $brand-purple !default;
@@ -115,9 +115,9 @@ $btn-info-bg: #dfdfdf !default;
 $btn-info-border: $btn-info-bg !default;
 
 // Allows for customizing button radius independently from global border radius
-$btn-border-radius-base: 0;
-$btn-border-radius-large: 0;
-$btn-border-radius-small: 0;
+$btn-border-radius-base: 8px;
+$btn-border-radius-large: $btn-border-radius-base;
+$btn-border-radius-small: $btn-border-radius-base;
 
 //== Forms
 //
