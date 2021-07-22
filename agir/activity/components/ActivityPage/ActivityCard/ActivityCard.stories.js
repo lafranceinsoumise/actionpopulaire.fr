@@ -7,7 +7,6 @@ import group from "@agir/front/mockData/group";
 import events from "@agir/front/mockData/events";
 
 import ActivityCard from "./index";
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 
 import { decorateArgs, reorganize } from "@agir/lib/utils/storyUtils";
 
@@ -62,11 +61,7 @@ const convertDatetimes = ({
   };
 };
 
-const ActivityCardStory = (props) => (
-  <TestGlobalContextProvider value={{ routes: props.routes }}>
-    <ActivityCard {...props} />
-  </TestGlobalContextProvider>
-);
+const ActivityCardStory = (props) => <ActivityCard {...props} />;
 
 const Template = decorateArgs(
   convertDatetimes,

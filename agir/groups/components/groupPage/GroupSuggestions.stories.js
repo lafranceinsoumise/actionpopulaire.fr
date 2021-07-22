@@ -1,6 +1,5 @@
 import React from "react";
 
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import GroupSuggestions from "./GroupSuggestions";
 
 export default {
@@ -9,13 +8,7 @@ export default {
 };
 
 const Template = (args) => {
-  return (
-    <TestGlobalContextProvider
-      value={{ routes: { groupMapPage: "#groupMapPage" } }}
-    >
-      <GroupSuggestions {...args} />
-    </TestGlobalContextProvider>
-  );
+  return <GroupSuggestions {...args} />;
 };
 
 export const Default = Template.bind({});

@@ -1,7 +1,5 @@
 import React from "react";
 
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
-
 import EventRequiredDocuments from "./EventRequiredDocuments";
 
 import events from "@agir/front/mockData/events.json";
@@ -20,12 +18,10 @@ export default {
 };
 
 const Template = (args) => (
-  <TestGlobalContextProvider>
-    <EventRequiredDocuments
-      {...args}
-      status={EVENT_PROJECT_STATUS[args.status]}
-    />
-  </TestGlobalContextProvider>
+  <EventRequiredDocuments
+    {...args}
+    status={EVENT_PROJECT_STATUS[args.status]}
+  />
 );
 
 export const Default = Template.bind({});

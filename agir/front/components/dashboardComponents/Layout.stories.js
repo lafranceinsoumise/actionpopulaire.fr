@@ -9,16 +9,7 @@ export default {
   title: "Dashboard/Layout",
 };
 
-const Template = (args) => (
-  <TestGlobalContextProvider
-    value={{
-      routes: args.routes,
-      announcements: [],
-    }}
-  >
-    <Layout {...args} />
-  </TestGlobalContextProvider>
-);
+const Template = (args) => <Layout {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

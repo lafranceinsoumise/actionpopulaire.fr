@@ -1,7 +1,6 @@
 import React from "react";
 
 import DeviceNotificationSubscription from "./DeviceNotificationSubscription";
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 
 export default {
   component: DeviceNotificationSubscription,
@@ -9,11 +8,7 @@ export default {
 };
 
 const Template = (args) => {
-  return (
-    <TestGlobalContextProvider>
-      <DeviceNotificationSubscription {...args} />
-    </TestGlobalContextProvider>
-  );
+  return <DeviceNotificationSubscription {...args} />;
 };
 
 export const Default = Template.bind({});
