@@ -11,6 +11,7 @@ import ImageField from "@agir/front/formComponents/ImageField";
 import Button from "@agir/front/genericComponents/Button";
 import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
@@ -21,6 +22,8 @@ const EventFeedback = (props) => {
   const { data: event, mutate } = useSWR(
     api.getEventEndpoint("getEvent", { eventPk })
   );
+  console.log("event is ");
+  console.log(event);
 
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
@@ -29,9 +32,8 @@ const EventFeedback = (props) => {
   const [imageHasChanged, setImageHasChanged] = useState(false);
   const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setErrors((errors) => ({ ...errors, [name]: null }));
+  const handleChange = (name, value) => {
+    // setErrors((errors) => ({ ...errors, [name]: null }));
     setFormData((formData) => ({ ...formData, [name]: value }));
   };
 
@@ -52,36 +54,22 @@ const EventFeedback = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setErrors({});
     setIsLoading(true);
-
-    if (formData.image && imageHasChanged && !hasCheckedImageLicence) {
-      setErrors((errors) => ({
-        ...errors,
-        image:
-          "Vous devez acceptez les licences pour envoyer votre image en conformité.",
-      }));
-      setIsLoading(false);
+    const res = await api.updateEvent(eventPk, {
+      compteRendu: formData.compteRendu,
+      compteRenduPhotos: [formData.image],
+    });
+    setIsLoading(false);
+    if (res.error) {
+      setErrors(res.error);
       return;
     }
-
-    console.log("formData to send", formData);
-
-    // const res = await updateGroup(groupPk, {
-    //   ...formData,
-    //   image: imageHasChanged ? formData.image : undefined,
-    // });
-
-    setIsLoading(false);
-
-    // if (res.error) {
-    //   setErrors(res.error);
-    //   return;
-    // }
-    // sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-    // mutate((group) => {
-    //   return { ...group, ...res.data };
-    // });
+    sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
+    mutate((event) => {
+      return { ...event, ...res.data };
+    });
   };
 
   useEffect(() => {
@@ -97,19 +85,17 @@ const EventFeedback = (props) => {
       <StyledTitle>Compte-rendu</StyledTitle>
 
       <Spacer size="1rem" />
-
       <RichTextField
         id="feedback"
-        name="feedback"
+        name="compteRendu"
         label="Écrire un compte-rendu*"
         placeholder=""
-        onChange={handleChange}
-        value={formData.feedback}
-        error={errors?.feedback}
+        onChange={(e) => handleChange("compteRendu", e)}
+        value={formData.compteRendu}
+        error={errors?.compteRendu}
       />
 
       <Spacer size="1rem" />
-
       <h4>Ajouter une image</h4>
       <ImageField
         name="image"

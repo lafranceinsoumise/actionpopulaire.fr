@@ -32,8 +32,21 @@ const EventVisio = (props) => {
     setOnlineUrl(value);
   };
 
-  const handleSubmit = () => {
-    return true;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setErrors({});
+    setIsLoading(true);
+    const res = await api.updateEvent(eventPk, { onlineUrl });
+    setIsLoading(false);
+    if (res.error) {
+      setErrors(res.error);
+      return;
+    }
+    sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
+    mutate((event) => {
+      return { ...event, ...res.data };
+    });
   };
 
   return (

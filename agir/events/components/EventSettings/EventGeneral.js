@@ -116,13 +116,11 @@ const EventGeneral = (props) => {
       name: event.name,
       description: event.description,
       url: event.routes.facebook,
-      date: event.description,
       image: event.illustration,
       subtype: event.subtype,
       startTime: event.startTime,
       endTime: event.endTime,
       timezone: event.timezone,
-      // leitmotiv: event., // still exist LFI / NSP ?
     });
   }, [event]);
 
@@ -186,23 +184,21 @@ const EventGeneral = (props) => {
       return;
     }
 
-    console.log("formData to send", formData);
-
-    // const res = await updateGroup(groupPk, {
-    //   ...formData,
-    //   image: imageHasChanged ? formData.image : undefined,
-    // });
+    const res = await api.updateEvent(eventPk, {
+      ...formData,
+      image: imageHasChanged ? formData.image : undefined,
+    });
 
     setIsLoading(false);
 
-    // if (res.error) {
-    //   setErrors(res.error);
-    //   return;
-    // }
-    // sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-    // mutate((group) => {
-    //   return { ...group, ...res.data };
-    // });
+    if (res.error) {
+      setErrors(res.error);
+      return;
+    }
+    sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
+    mutate((event) => {
+      return { ...event, ...res.data };
+    });
   };
 
   const transition = useTransition(submenuOpen, slideInTransition);
@@ -303,19 +299,6 @@ const EventGeneral = (props) => {
             />
           </>
         )}
-
-        <Spacer size="1rem" />
-        <RadioField
-          id="leitmotiv"
-          label="Pour quoi l’événement est-il organisé ?"
-          value={formData?.leitmotiv}
-          onChange={(e) => handleChangeValue("leitmotiv", e)}
-          disabled={false}
-          options={[
-            { label: "La campagne présidentielle", value: "1" },
-            { label: "Une autre campagne de la France Insoumise", value: "0" },
-          ]}
-        />
 
         <Spacer size="1rem" />
         <div>

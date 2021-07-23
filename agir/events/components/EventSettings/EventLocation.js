@@ -36,7 +36,6 @@ const EventLocation = (props) => {
     api.getEventEndpoint("getEvent", { eventPk })
   );
   event.location.coordinates = [2.338383, 48.864503];
-  console.log("event swr", event);
   const sendToast = useToast();
 
   const [formLocation, setFormLocation] = useState({});
@@ -48,25 +47,22 @@ const EventLocation = (props) => {
     setFormLocation((formLocation) => ({ ...formLocation, [name]: value }));
   }, []);
 
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      setErrors({});
-      //   setIsLoading(true);
-      //   const res = await updateevent(eventPk, { location: formLocation });
-      //   setIsLoading(false);
-      //   if (res.error) {
-      //     setErrors(res.error?.location);
-      //     return;
-      //   }
-      //   sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-      //   mutate((event) => {
-      //     return { ...event, ...res.data };
-      //   });
-    },
-    [formLocation, eventPk, mutate, sendToast]
-  );
+    setErrors({});
+    setIsLoading(true);
+    const res = await api.updateEvent(eventPk, { location: formLocation });
+    setIsLoading(false);
+    if (res.error) {
+      setErrors(res.error);
+      return;
+    }
+    sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
+    mutate((event) => {
+      return { ...event, ...res.data };
+    });
+  };
 
   useEffect(() => {
     setIsLoading(false);

@@ -6,24 +6,14 @@ import { useToast } from "@agir/front/globalContext/hooks.js";
 import * as api from "@agir/events/common/api";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
-import DateField from "@agir/events/createEventPage/EventForm/DateField";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
-
-const StyledDateField = styled(DateField)`
-  @media (min-width: ${style.collapse}px) {
-    && {
-      grid-template-columns: 190px 170px 160px;
-    }
-  }
-`;
 
 const EventContact = (props) => {
   const { onBack, illustration, eventPk } = props;
@@ -31,14 +21,11 @@ const EventContact = (props) => {
   const { data: event, mutate } = useSWR(
     api.getEventEndpoint("getEvent", { eventPk })
   );
-  console.log("event swr", event);
   const sendToast = useToast();
 
   const [contact, setContact] = useState({});
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [imageHasChanged, setImageHasChanged] = useState(false);
-  const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
 
   useEffect(() => {
     setContact({
@@ -64,36 +51,19 @@ const EventContact = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setErrors({});
     setIsLoading(true);
-
-    if (contact.image && imageHasChanged && !hasCheckedImageLicence) {
-      setErrors((errors) => ({
-        ...errors,
-        image:
-          "Vous devez acceptez les licences pour envoyer votre image en conformité.",
-      }));
-      setIsLoading(false);
+    const res = await api.updateEvent(eventPk, { contact });
+    setIsLoading(false);
+    if (res.error) {
+      setErrors(res.error);
       return;
     }
-
-    console.log("contact to send", contact);
-
-    // const res = await updateGroup(groupPk, {
-    //   ...contact,
-    //   image: imageHasChanged ? contact.image : undefined,
-    // });
-
-    setIsLoading(false);
-
-    // if (res.error) {
-    //   setErrors(res.error);
-    //   return;
-    // }
-    // sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-    // mutate((group) => {
-    //   return { ...group, ...res.data };
-    // });
+    sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
+    mutate((event) => {
+      return { ...event, ...res.data };
+    });
   };
 
   return (
