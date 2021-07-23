@@ -95,7 +95,7 @@ class EventThumbnailView(DetailView):
         draw = ImageDraw.Draw(image)
 
         if self.event.coordinates is None:
-            illustration = Image.open("Frame-193.png")
+            illustration = Image.open("assets/og-image/Frame-193.png")
             image.paste(illustration, (0, 0), illustration)
         else:
             static_map_image = StaticMapImage.objects.filter(
@@ -108,7 +108,7 @@ class EventThumbnailView(DetailView):
             illustration = Image.open(static_map_image.image.path)
             illustration = illustration.resize((1200, 278), Image.ANTIALIAS)
             image.paste(illustration, (0, 0), illustration)
-            icon = Image.open("rectangle16.png")
+            icon = Image.open("assets/og-image/rectangle16.png")
             icon = icon.resize((50, 65), Image.ANTIALIAS)
             image.paste(icon, (575, 75), icon)
 
@@ -122,13 +122,13 @@ class EventThumbnailView(DetailView):
                 image.paste(subtype_icon, (580, 75), subtype_icon)
 
         url = "https://github.com/google/fonts/blob/main/ofl/poppins/Poppins-Regular.ttf?raw=true"
-        urllib.request.urlretrieve(url, "poppins.ttf")
+        urllib.request.urlretrieve(url, "assets/og-image/poppins.ttf")
 
         url = "https://github.com/google/fonts/blob/main/ofl/poppins/Poppins-SemiBold.ttf?raw=true"
-        urllib.request.urlretrieve(url, "poppins-bold.ttf")
+        urllib.request.urlretrieve(url, "assets/og-image/poppins-bold.ttf")
 
         font_bold = ImageFont.truetype(
-            "poppins-bold.ttf",
+            "assets/og-image/poppins-bold.ttf",
             size=27,
             encoding="utf-8",
             layout_engine=ImageFont.LAYOUT_BASIC,
@@ -172,7 +172,7 @@ class EventThumbnailView(DetailView):
             )
 
             font = ImageFont.truetype(
-                "poppins.ttf",
+                "assets/og-image/poppins.ttf",
                 size=45,
                 encoding="utf-8",
                 layout_engine=ImageFont.LAYOUT_BASIC,
@@ -245,7 +245,7 @@ class EventThumbnailView(DetailView):
                 font=self.get_image_font(45),
             )
 
-        logo_ap = Image.open("bande-ap.png")
+        logo_ap = Image.open("assets/og-image/bande-ap.png")
         logo_ap = logo_ap.resize((1200, 95), Image.ANTIALIAS)
         image.paste(logo_ap, (0, 535), logo_ap)
 
@@ -253,7 +253,7 @@ class EventThumbnailView(DetailView):
 
     def get_image_font(self, size):
         return ImageFont.truetype(
-            "Poppins-Medium.ttf",
+            "assets/og-image/Poppins-Medium.ttf",
             size=size,
             encoding="utf-8",
             layout_engine=ImageFont.LAYOUT_BASIC,
