@@ -3,7 +3,7 @@ import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import TextField from "@agir/front/formComponents/TextField";
 import styled from "styled-components";
 
-import { useEventFormOptions } from "@agir/events/createEventPage/EventForm/index.js";
+import { useEventFormOptions } from "@agir/events/common/hooks";
 
 const StyledField = styled.div`
   > span:first-child {

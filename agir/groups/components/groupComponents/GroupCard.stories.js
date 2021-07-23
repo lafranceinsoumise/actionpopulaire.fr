@@ -27,17 +27,7 @@ const setRoutes = ({ fund, manage, ...args }) => ({
   },
 });
 
-const convertDates = ({ discountCodes, ...args }) => ({
-  ...args,
-  discountCodes:
-    discountCodes &&
-    discountCodes.map(({ code, expirationDate }) => ({
-      code,
-      expirationDate: DateTime.fromISO(expirationDate),
-    })),
-});
-
-const Template = decorateArgs(setRoutes, convertDates, GroupCard);
+const Template = decorateArgs(setRoutes, GroupCard);
 
 const DEFAULT_DESCRIPTION = `
 <p>I hate yogurt. It's just stuff with bits in. You hate me; you want to kill me! Well, go on! Kill me! KILL ME! You've swallowed a planet! The way I see it, every life is a pile of good things and bad things.…hey.…the good things don't always soften the bad things; but vice-versa the bad things don't necessarily spoil the good things and make them unimportant.</p>

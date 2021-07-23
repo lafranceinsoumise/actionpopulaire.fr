@@ -29,7 +29,7 @@ const AgendaPage = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const path = useLocation().pathname;
 
-  const [isBannerDownload, _] = useDownloadBanner();
+  const [isBannerDownload] = useDownloadBanner();
 
   if (!isSessionLoaded) {
     return null;

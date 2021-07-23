@@ -1,5 +1,7 @@
 from datetime import timedelta
+from pathlib import PurePath
 
+from django.db import transaction
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
 from rest_framework import serializers
@@ -14,6 +16,11 @@ from agir.lib.serializers import (
     CurrentPersonField,
 )
 from . import models
+from .actions.required_documents import (
+    get_project_document_deadline,
+    get_is_blocking_project,
+    get_project_missing_document_count,
+)
 from .models import (
     Event,
     EventSubtype,
@@ -27,6 +34,7 @@ from .tasks import (
     send_secretariat_notification,
     geocode_event,
 )
+from ..gestion.models import Projet, Document
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupDetailSerializer
 from ..groups.serializers import SupportGroupSerializer
@@ -35,9 +43,13 @@ from ..lib.utils import admin_url
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
-    iconName = serializers.SerializerMethodField()
-    icon = serializers.SerializerMethodField()
-    color = serializers.SerializerMethodField()
+    iconName = serializers.SerializerMethodField(read_only=True)
+    icon = serializers.SerializerMethodField(read_only=True)
+    color = serializers.SerializerMethodField(read_only=True)
+    needsDocuments = serializers.SerializerMethodField(read_only=True)
+
+    def get_needsDocuments(self, obj):
+        return obj.related_project_type is not None
 
     def get_iconName(self, obj):
         return obj.icon_name or obj.TYPES_PARAMETERS[obj.type]["icon_name"]
@@ -63,6 +75,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
             "icon",
             "iconName",
             "type",
+            "needsDocuments",
         )
 
 
@@ -251,7 +264,7 @@ class EventListSerializer(EventSerializer):
         ).data
 
 
-class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
+class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
     organizerGroup = serializers.SerializerMethodField()
     subtype = serializers.SerializerMethodField()
     defaultContact = serializers.SerializerMethodField()
@@ -272,7 +285,7 @@ class EventCreateOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
             ).active(),
             context=self.context,
             many=True,
-            fields=["id", "name", "contact", "location"],
+            fields=["id", "name", "contact", "location", "isCertified"],
         ).data
 
     def get_subtype(self, request):
@@ -377,8 +390,8 @@ class CreateEventSerializer(serializers.Serializer):
                 {"endTime": "Votre événement doit durer moins d’une semaine"}
             )
 
-        data["organizer_group"] = data.pop("organizerGroup")
         data["organizer_person"] = data.pop("organizerPerson")
+        data["organizer_group"] = data.pop("organizerGroup")
 
         return data
 
@@ -397,6 +410,160 @@ class CreateEventSerializer(serializers.Serializer):
             send_new_group_event_email.delay(data["organizer_group"].pk, event.pk)
 
     def create(self, validated_data):
-        event = Event.objects.create(**validated_data)
-        self.schedule_tasks(event, validated_data)
-        return event
+        with transaction.atomic():
+            event = Event.objects.create(**validated_data)
+            # Create a gestion project if needed for the event's subtype
+            if event.subtype.related_project_type is not None:
+                Projet.objects.from_event(event, event.organizers.first().role)
+            self.schedule_tasks(event, validated_data)
+            return event
+
+
+class UpdateEventSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    name = serializers.CharField(read_only=True)
+    subtype = serializers.PrimaryKeyRelatedField(
+        queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
+    )
+
+    class Meta:
+        model = Event
+        fields = ["id", "name", "subtype"]
+
+    def update(self, instance, validated_data):
+        with transaction.atomic():
+            event = super().update(instance, validated_data)
+            if Projet.objects.filter(event=event).exists():
+                Projet.objects.from_event(event, event.organizers.first().role)
+            return event
+
+
+class EventProjectDocumentSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="titre", max_length=200)
+    file = serializers.FileField(source="fichier")
+
+    def validate_file(self, value):
+        ext = PurePath(value.name).suffix
+        if ext.lower() not in [".pdf", ".jpg", ".jpeg", ".png", ".docx"]:
+            raise serializers.ValidationError(
+                detail="Format de fichier incorrect, seuls .PDF, .JPG, .PNG et .DOCX sont autorisés",
+                code="formulaire_format_incorrect",
+            )
+        return value
+
+    class Meta:
+        model = Document
+        fields = ["id", "name", "type", "description", "file"]
+
+
+class ProjectEventSerializer(serializers.ModelSerializer):
+    endTime = serializers.DateTimeField(source="end_time", read_only=True)
+    subtype = EventSubtypeSerializer(read_only=True)
+
+    class Meta:
+        model = Event
+        fields = ["id", "name", "endTime", "subtype"]
+
+
+class EventProjectSerializer(serializers.ModelSerializer):
+    projectId = serializers.IntegerField(source="id", read_only=True)
+    event = ProjectEventSerializer(read_only=True)
+    status = serializers.CharField(source="etat", read_only=True)
+    dismissedDocumentTypes = serializers.JSONField(
+        source="details.documents.absent", default=list,
+    )
+    requiredDocumentTypes = serializers.JSONField(
+        source="event.subtype.required_documents", read_only=True
+    )
+    documents = serializers.SerializerMethodField(read_only=True)
+    limitDate = serializers.SerializerMethodField(read_only=True)
+    isBlocking = serializers.SerializerMethodField(read_only=True)
+
+    def validate_dismissedDocumentTypes(self, types):
+        if not isinstance(types, list):
+            raise serializers.ValidationError("Format invalide")
+        invalid_types = [t for t in types if t not in self.Meta.valid_document_types]
+        if len(invalid_types) > 0:
+            raise serializers.ValidationError(
+                f"Valeurs non autorisée : {','.join(invalid_types)}"
+            )
+
+        return types
+
+    def validate(self, data):
+        if (
+            data.get("details")
+            and data["details"].get("documents")
+            and data["details"]["documents"].get("absent")
+        ):
+            dismissed_document_types = data["details"]["documents"].get("absent")
+            data.update({"details": self.instance.details})
+            if data["details"].get("documents") is None:
+                data["details"]["documents"] = {}
+            data["details"]["documents"]["absent"] = dismissed_document_types
+
+        return super().validate(data)
+
+    def get_documents(self, obj):
+        uploaded_documents = obj.documents.filter(
+            type__in=self.Meta.valid_document_types
+        )
+        return EventProjectDocumentSerializer(
+            uploaded_documents, many=True, context=self.context,
+        ).data
+
+    def get_limitDate(self, obj):
+        return get_project_document_deadline(obj)
+
+    def get_isBlocking(self, obj):
+        return get_is_blocking_project(obj)
+
+    class Meta:
+        model = Projet
+        fields = [
+            "projectId",
+            "event",
+            "status",
+            "dismissedDocumentTypes",
+            "requiredDocumentTypes",
+            "documents",
+            "limitDate",
+            "isBlocking",
+        ]
+        valid_document_types = [
+            choice[0]
+            for choice in EventSubtype.EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES
+        ]
+
+
+class EventProjectListItemSerializer(serializers.ModelSerializer):
+    projectId = serializers.IntegerField(source="id", read_only=True)
+    event = ProjectEventSerializer(read_only=True)
+    status = serializers.CharField(source="etat", read_only=True)
+    limitDate = serializers.SerializerMethodField(read_only=True)
+    missingDocumentCount = serializers.SerializerMethodField(read_only=True)
+    isBlocking = serializers.SerializerMethodField(read_only=True)
+
+    def get_limitDate(self, obj):
+        return get_project_document_deadline(obj)
+
+    def get_missingDocumentCount(self, obj):
+        return get_project_missing_document_count(obj)
+
+    def get_isBlocking(self, obj):
+        return get_is_blocking_project(obj)
+
+    class Meta:
+        model = Projet
+        fields = [
+            "projectId",
+            "event",
+            "status",
+            "missingDocumentCount",
+            "limitDate",
+            "isBlocking",
+        ]
+        valid_document_types = [
+            choice[0]
+            for choice in EventSubtype.EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES
+        ]

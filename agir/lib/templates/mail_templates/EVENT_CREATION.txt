@@ -1,32 +1,56 @@
-Bonjour  
-
-Votre événement a été mis en ligne ! Voici un résumé de ses informations :
-
-Nom de l'événement : {{ EVENT_NAME }}
-Horaires : {{ EVENT_SCHEDULE }}
-Nom du contact : {{ CONTACT_NAME }}  
-Email de contact : {{ CONTACT_EMAIL }}  
-Téléphone de contact : {{ CONTACT_PHONE }} ({{ CONTACT_PHONE_VISIBILITY }})  
-Nom du lieu de RDV : {{ LOCATION_NAME }}
-Adresse de RDV : {{ LOCATION_ADDRESS }}
-
->> Pour encourager les gens à s'inscrire à votre événement, ajoutez une description et une image à votre événement :
-{{ MANAGE_EVENT_LINK }}
-
->> Invitez vos amis à participer à cet événement avec ce lien :
+Votre événement a été mis en ligne !
+  
+{{ EVENT_NAME }}
 {{ EVENT_LINK }}
 
-Merci d’organiser un événement. Chacune des actions que vous menez participe à la construction de notre mouvement. Un long travail de terrain nous attend encore. Ensemble, nous pouvons faire triompher nos idées et construire l’Avenir en commun.
+{{ EVENT_SCHEDULE }}  
+{{ LOCATION_NAME }}  
+{{ LOCATION_ADDRESS }}  
 
+{% if NEEDS_DOCUMENTS == "True" %}
+    #### À lire : justificatifs à envoyer après vos événements publics
+
+    À l’exception des réunions internes, la loi vous interdit d'engager des frais personnels dans le cadre de la campagne présidentielle
+    Vous devrez envoyer a minima les justificatifs suivants ou indiquer qu'ils ne sont pas nécessaire.
+
+      {% if "ATT-CON" in REQUIRED_DOCUMENT_TYPES %}
+      * Attestation de concours en nature - {{ DOCUMENTS_LINK }}
+      {% endif %}
+      {% if "ATT-REG" in REQUIRED_DOCUMENT_TYPES %}
+      * Attestation de règlement des consommations - {{ DOCUMENTS_LINK }}
+      {% endif %}
+      {% if "ATT-GRA" in REQUIRED_DOCUMENT_TYPES %}
+      * Attestation pour les salles municipales - {{ DOCUMENTS_LINK }}
+      {% endif %}
+      {% if "ATT-ESP" in REQUIRED_DOCUMENT_TYPES %}
+      * Copie de la demande d'autorisation d'occupation de l'espace public - {{ DOCUMENTS_LINK }}
+      {% endif %}
+
+     Téléchargez dès maintenant les modèles vierges qui vous seront nécessaires sur la page des documents de l'événement :
+    {{ DOCUMENTS_LINK }}
+    Attention : vous ne pourrez plus créer d’événement public après le {{ DOCUMENT_DEADLINE }} sans action de votre part.
+{% endif %}
+
+Pour encourager les autres membres à rejoindre votre événement, complétez ces 3 étapes :  
+
+1. Ajoutez une description et une image
+Comment accéder au lieu, quel est le programme et les liens pour être tenu au courant : rassurez les membres qui voudraient participer !
+Je complète les informations : {{ MANAGE_EVENT_LINK }}
+  
+2. Invitez vos amis à participer à l'événement
+[➡ Partager sur Facebook](https://www.facebook.com/sharer.php?u={{ EVENT_LINK_ENCODED }})  
+[➡ Partager sur Twitter](https://twitter.com/intent/tweet?text=Participez%20à%20{{ EVENT_NAME_ENCODED }}%20{{ EVENT_LINK_ENCODED }})  
+[➡ Partager sur Whatsapp](https://api.whatsapp.com/send?text={{ EVENT_LINK_ENCODED }})  
+
+
+3. Découvrez les fiches pratiques
+Visitez le centre d'aide qui contient des astuces et conseils pour les organisateurs d'événement.
+Aller au centre d'aide : https://infos.actionpopulaire.fr/
+
+
+
+Merci d’organiser un événement. Chacune des actions que vous menez participe à la construction de notre mouvement.
+Un long travail de terrain nous attend encore. Ensemble, nous pouvons faire triompher nos idées et construire l’Avenir en commun.
 
 Amitiés,  
-L’équipe d’Action Populaire  
-
-------------------------------------------------------------------
-Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
-
->> Choisir les emails que vous recevez
-{{ preferences_link }}
-
->> Arrêter complètement de recevoir des emails
-{{ unsubscribe_link }}
+L’équipe d’Action Populaire

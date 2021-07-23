@@ -13,6 +13,14 @@ const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
 const CreateEvent = lazy(() =>
   import("@agir/events/createEventPage/CreateEvent")
 );
+const MissingDocumentsPage = lazy(() =>
+  import(
+    "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsPage"
+  )
+);
+const EventRequiredDocuments = lazy(() =>
+  import("@agir/events/eventRequiredDocuments/EventRequiredDocumentsPage")
+);
 const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
 const FullGroupPage = lazy(() =>
   import("@agir/groups/fullGroupPage/FullGroupPage")
@@ -114,7 +122,7 @@ const notificationSettingRoute = new RouteConfig({
 export const routeConfig = {
   events: new RouteConfig({
     id: "events",
-    path: "/",
+    path: ["/", "/documents-justificatifs/"],
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Événements",
@@ -125,6 +133,28 @@ export const routeConfig = {
     hideTopBar: true,
     hideConnectivityWarning: true,
     keepScroll: true,
+  }),
+  missingEventDocumentsModal: new RouteConfig({
+    id: "missingEventDocuments",
+    path: "/documents-justificatifs/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Documents justificatifs",
+    isPartial: true,
+  }),
+  missingEventDocuments: new RouteConfig({
+    id: "missingEventDocuments",
+    path: "/evenements/documents-justificatifs/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Documents justificatifs",
+    Component: MissingDocumentsPage,
+    hasLayout: false,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
   }),
   eventMap: new RouteConfig({
     id: "eventMap",
@@ -169,6 +199,19 @@ export const routeConfig = {
     label: "Paramètres de l'événement",
     Component: EventPage,
     hideFeedbackButton: true,
+  }),
+  eventRequiredDocuments: new RouteConfig({
+    id: "eventRequiredDocuments",
+    path: "/evenements/:eventPk/documents/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Documents de l'événement",
+    Component: EventRequiredDocuments,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
   }),
   groups: new RouteConfig({
     id: "groups",

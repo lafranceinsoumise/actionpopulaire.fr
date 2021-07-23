@@ -5,7 +5,11 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
-from agir.elus.models import DELEGATIONS_CHOICES, RechercheParrainageMaire
+from agir.elus.models import (
+    DELEGATIONS_CHOICES,
+    RechercheParrainage,
+    CHAMPS_ELUS_PARRAINAGES,
+)
 from agir.lib.data import FRANCE_COUNTRY_CODES
 from agir.people.actions.subscription import (
     SUBSCRIPTION_TYPE_NSP,
@@ -205,17 +209,19 @@ creer_mandat_declared_fields.update(MandatForm.declared_fields)
 MandatForm.base_fields = MandatForm.declared_fields = creer_mandat_declared_fields
 
 
-def legender_elu_municipal_depuis_fiche_rne(form, reference):
+def legender_elu_depuis_fiche_rne(form, reference):
     form.fields["reference"].help_text = format_html(
         '<a href="{}">{}</a>',
         reverse("admin:data_france_elumunicipal_change", args=(reference.id,)),
         "Voir la fiche dans le Répertoire National des élus",
     )
 
-    form.fields["mandat"].help_text = f"Dans la fiche RNE : {reference.fonction}"
-    form.fields[
-        "communautaire"
-    ].help_text = f"Dans la fiche RNE : {reference.fonction_epci}"
+    if "mandat" in form.fields:
+        form.fields["mandat"].help_text = f"Dans la fiche RNE : {reference.fonction}"
+    if "communautaire" in form.fields:
+        form.fields[
+            "communautaire"
+        ].help_text = f"Dans la fiche RNE : {reference.fonction_epci}"
 
     form.fields["last_name"].help_text = f"Dans la fiche RNE : {reference.nom}"
     form.fields["first_name"].help_text = f"Dans la fiche RNE : {reference.prenom}"
@@ -248,8 +254,8 @@ def legender_elu_municipal_depuis_fiche_rne(form, reference):
 
 
 class MandatMunicipalForm(MandatForm):
-    def __init__(self, *args, instance=None, **kwargs):
-        super().__init__(*args, instance=instance, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         if "communautaire" in self.fields:
             if self.instance.conseil is None or self.instance.conseil.epci is None:
@@ -258,8 +264,29 @@ class MandatMunicipalForm(MandatForm):
                 epci = self.instance.conseil.epci
                 self.fields["communautaire"].label = f"Mandat auprès de la {epci.nom}"
 
-        if instance and instance.reference:
-            legender_elu_municipal_depuis_fiche_rne(self, instance.reference)
+        if self.instance.reference:
+            legender_elu_depuis_fiche_rne(self, self.instance.reference)
+
+
+class MandatDeputeForm(MandatForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.reference:
+            legender_elu_depuis_fiche_rne(self, self.instance.reference)
+
+
+class MandatDepartementalForm(MandatForm):
+    def __init__(self, *args, **kwargs):
+        super(MandatDepartementalForm, self).__init__(*args, **kwargs)
+
+        self.fields["conseil"].error_messages["invalid_choice"] = (
+            "Pour les collectivités qui ont aussi un rôle régional, passez par le formulaire d'ajout d'un élu "
+            "régional. Pour Paris, passez par le formulaire d'ajout d'un élu municipal."
+        )
+
+        if self.instance.reference:
+            legender_elu_depuis_fiche_rne(self, self.instance.reference)
 
 
 class RechercheParrainageForm(forms.ModelForm):
@@ -269,7 +296,19 @@ class RechercheParrainageForm(forms.ModelForm):
         new = self.instance._state.adding
 
         if new:
-            self.instance.statut = RechercheParrainageMaire.Statut.VALIDEE
+            self.instance.statut = RechercheParrainage.Statut.VALIDEE
 
-        if "elu" in self.fields:
-            self.fields["elu"].required = new
+    def clean(self):
+        cleaned_data = super().clean()
+
+        nb_mandats = sum(1 for f in CHAMPS_ELUS_PARRAINAGES if cleaned_data.get(f))
+
+        if nb_mandats == 0:
+            self.add_error(
+                None,
+                "Vous devez sélectionner un mandat parmi les différents mandats possibles.",
+            )
+        elif nb_mandats > 1:
+            self.add_error(None, "Vous devez sélectionner un type de mandat seulement.")
+
+        return cleaned_data

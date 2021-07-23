@@ -169,15 +169,24 @@ class SupportGroup(
 
     @property
     def is_full(self):
-        return (
-            self.type == self.TYPE_LOCAL_GROUP
-            and self.members_count >= self.MEMBERSHIP_LIMIT
-        )
+        return False
+        # (Temporarily disabled)
+        # return (
+        #     self.type == self.TYPE_LOCAL_GROUP
+        #     and self.members_count >= self.MEMBERSHIP_LIMIT
+        # )
 
     @property
     def is_certified(self):
         return self.subtypes.filter(
             label__in=settings.CERTIFIED_GROUP_SUBTYPES
+        ).exists()
+
+    @property
+    def is_2022_certified(self):
+        return self.subtypes.filter(
+            label__in=settings.CERTIFIED_2022_GROUP_SUBTYPES
+            + settings.CERTIFIED_GROUP_SUBTYPES
         ).exists()
 
     @property

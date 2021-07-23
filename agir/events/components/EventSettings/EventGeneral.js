@@ -24,14 +24,26 @@ import { PanelWrapper } from "@agir/front/genericComponents/ObjectManagement/Pan
 
 import * as api from "@agir/events/common/api";
 
-import { useEventFormOptions } from "@agir/events/createEventPage/EventForm/index.js";
+import { useEventFormOptions } from "@agir/events/common/hooks";
+
+import {
+  DefaultOption,
+  StyledDefaultOptions
+  // SubtypeOption,
+  // StyledOptions,
+} from "@agir/events/createEventPage/EventForm/SubtypeField.js";
+
 import {
   SubtypeOption,
-  DefaultOption,
-  StyledDefaultOptions,
+  // StyledDefaultOptions,
   StyledOptions,
-} from "@agir/events/createEventPage/EventForm/SubtypeField.js";
-import { EVENT_TYPES } from "@agir/events/createEventPage/EventForm/eventForm.config";
+} from "@agir/events/common/SubtypePanel";
+
+
+// import { EVENT_TYPES } from "@agir/events/createEventPage/EventForm/eventForm.config";
+// import { DEFAULT_FORM_DATA } from "@agir/events/createEventPage/EventForm/eventForm.config";
+import { EVENT_TYPES } from "@agir/events/common/utils";
+
 
 const slideInTransition = {
   from: { transform: "translateX(66%)" },

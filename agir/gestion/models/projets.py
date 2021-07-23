@@ -8,7 +8,7 @@ from django.utils.html import format_html
 from agir.lib.models import TimeStampedModel
 from agir.people.models import Person
 from .commentaires import Commentaire
-from .common import ModeleGestionMixin
+from .common import ModeleGestionMixin, NumeroManager
 from ..actions import Todo, NiveauTodo, Transition, no_todos
 from ..typologies import TypeProjet, NiveauAcces, TypeDepense, TypeDocument
 
@@ -16,6 +16,40 @@ __all__ = (
     "Projet",
     "Participation",
 )
+
+
+class ProjetManager(NumeroManager):
+    def from_event(self, event, user):
+        try:
+            projet = self.get(event=event)
+        except self.model.DoesNotExist:
+            with reversion.create_revision():
+                reversion.set_comment("Création à partir d'un événement utilisateur")
+                reversion.set_user(user)
+                titre = event.name if len(event.name) < 40 else f"{event.name[:39]}…"
+                return self.create(
+                    event=event,
+                    etat=Projet.Etat.CREE_PLATEFORME,
+                    titre=titre,
+                    type=event.subtype.related_project_type,
+                    description="Ce projet a été généré automatiquement à partir d'un événement créé par un "
+                    "utilisateur d'Action Populaire.",
+                )
+        else:
+            if projet.type != event.subtype.related_project_type:
+                with reversion.create_revision():
+                    reversion.set_comment(
+                        "Changement du type d'événement associé par l'utilisateur"
+                    )
+                    reversion.set_user(user)
+                    projet.type = (
+                        event.subtype.related_project_type
+                        if event.subtype.related_project_type is not None
+                        else TypeProjet.ACTIONS
+                    )
+                    projet.save(update_fields=["type"])
+
+            return projet
 
 
 @reversion.register(follow=["participations"])
@@ -27,8 +61,10 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
     (par exemple « organisation du meeting du 16 janvier » ou « paiement salaire mars »)
     """
 
+    objects = ProjetManager()
+
     class Etat(models.TextChoices):
-        DEMANDE_FINANCEMENT = "DFI", "Demande de financement"
+        CREE_PLATEFORME = "DFI", "Créé sur la plateforme"
         REFUSE = "REF", "Refusé"
         EN_CONSTITUTION = "ECO", "En cours de constitution"
         FINALISE = "FIN", "Finalisé par le secrétariat"
@@ -36,7 +72,7 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
         CLOTURE = "CLO", "Clôturé"
 
     TRANSITIONS = {
-        Etat.DEMANDE_FINANCEMENT: [
+        Etat.CREE_PLATEFORME: [
             Transition(
                 nom="Accepter le projet",
                 vers=Etat.EN_CONSTITUTION,
@@ -85,7 +121,7 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
         max_length=3,
         choices=Etat.choices,
         blank=False,
-        default=Etat.DEMANDE_FINANCEMENT,
+        default=Etat.CREE_PLATEFORME,
     )
     description = models.TextField(verbose_name="Description du projet", null=True)
     event = models.ForeignKey(

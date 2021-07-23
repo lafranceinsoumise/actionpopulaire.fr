@@ -26,6 +26,9 @@ import { useWPPagesAndCategories } from "./api.js";
 import { getIsConnected } from "@agir/front/globalContext/reducers";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 
+const heightCard = "277px";
+const heightCardMin = "184px";
+
 const StyledPage = styled.div`
   max-width: 1320px;
   width: 100%;
@@ -211,11 +214,28 @@ const CarrouselArrowContainer = styled.div`
   }
 `;
 
+const ResponsiveContainer = styled.div`
+  position: relative;
+  height: ${heightCard};
+  @media (max-width: ${style.collapse}px) {
+    height: ${heightCardMin};
+  }
+`;
+
 const ListItemActionContainer = styled.div`
   display: flex;
-  position: relative;
-  max-width: 100%;
   overflow-x: auto;
+  max-width: 100%;
+  position: relative;
+  height: ${heightCard};
+
+  @media (max-width: ${style.collapse}px) {
+    position: absolute;
+    max-width: calc(100% + 40px);
+    left: -20px;
+    top: 0;
+    height: ${heightCardMin};
+  }
 
   @media (min-width: ${style.collapse}px) {
     overflow-y: hidden;
@@ -237,6 +257,12 @@ const Carrousel = styled.div`
   > a:first-child {
     margin-left: 1px;
   }
+
+  @media (max-width: ${style.collapse}px) {
+    > a:first-child {
+      margin-left: 20px;
+    }
+  }
 `;
 
 const ItemWebsiteContainer = styled.div`
@@ -251,9 +277,13 @@ const ItemWebsiteContainer = styled.div`
   overflow: hidden;
   color: ${style.black1000};
 
+  @media (max-width: ${style.collapse}px) {
+    margin-right: 20px;
+  }
+
   > div:first-child {
-    @media (max-width: 350px) {
-      flex: 0 0 90px;
+    @media (max-width: 380px) {
+      flex: 0 0 88px;
     }
     flex: 0 0 113px;
     height: 100%;
@@ -271,6 +301,11 @@ const ItemWebsiteContainer = styled.div`
     justify-content: space-between;
     flex-grow: 1;
     padding: 20px;
+
+    @media (max-width: 380px) {
+      font-size: 15px;
+      padding: 10px;
+    }
   }
 `;
 
@@ -343,19 +378,31 @@ export const WEBSITES = [
     href: nonReactRoutes.jlm2022,
   },
   {
-    title: "L'avenir en commun",
+    title: (
+      <>
+        Notre programme&nbsp;:
+        <br />
+        L'avenir en commun
+      </>
+    ),
     img: img_AvenirEnCommun,
     href: nonReactRoutes.programme,
   },
   {
-    title: "L'insoumission",
-    img: img_Linsoumission,
-    href: nonReactRoutes.linsoumission,
-  },
-  {
-    title: "Comparateur de programme",
+    title: <>Le comparateur de&nbsp;programme</>,
     img: img_Comparateur,
     href: nonReactRoutes.comparateur,
+  },
+  {
+    title: (
+      <>
+        Notre média&nbsp;:
+        <br />
+        L'insoumission
+      </>
+    ),
+    img: img_Linsoumission,
+    href: nonReactRoutes.linsoumission,
   },
 ];
 
@@ -365,7 +412,7 @@ const LinkInfoAction = (props) => (
     small
     as="Link"
     color="secondary"
-    href="https://materiel.lafranceinsoumise.fr/"
+    href="https://infos.actionpopulaire.fr"
     target="_blank"
     $wrap
   >
@@ -575,22 +622,23 @@ const ToolsPage = () => {
   const isConnected = useSelector(getIsConnected);
 
   return (
-    <StyledPage>
-      <Helmet>
-        <title>Outils - Action Populaire</title>
-      </Helmet>
-      <div>
-        {isConnected && (
-          <Hide under>
-            <IndexLinkAnchor route="events">
-              <RawFeatherIcon name="arrow-left" /> &nbsp; Liste des événements
-            </IndexLinkAnchor>
-          </Hide>
-        )}
+    <>
+      <StyledPage>
+        <Helmet>
+          <title>Outils - Action Populaire</title>
+        </Helmet>
+        <div>
+          {isConnected && (
+            <Hide under>
+              <IndexLinkAnchor route="events">
+                <RawFeatherIcon name="arrow-left" /> &nbsp; Liste des événements
+              </IndexLinkAnchor>
+            </Hide>
+          )}
 
-        <Hide under as={BannerTool} />
+          <Hide under as={BannerTool} />
 
-        {/* TO ADD LATER :
+          {/* TO ADD LATER :
         <BlockTitle>
         <div>
           <RawFeatherIcon name="shopping-bag" color={style.black1000} />
@@ -607,59 +655,61 @@ const ToolsPage = () => {
         <hr />
       </Hide> */}
 
-        <BlockTitle>
-          <div>
-            <RawFeatherIcon name="book-open" color={style.black1000} />
-            <Title>Se former à l'action</Title>
-          </div>
+          <BlockTitle>
+            <div>
+              <RawFeatherIcon name="book-open" color={style.black1000} />
+              <Title>Se former à l'action</Title>
+            </div>
 
-          <Hide under as={LinkInfoAction} />
-        </BlockTitle>
+            <Hide under as={LinkInfoAction} />
+          </BlockTitle>
 
-        <BlockContent>
-          {categories.map((category) => (
-            <React.Fragment key={category.id}>
-              <Subtitle>{category.name}</Subtitle>
-              <ListItemAction pages={pages[category.id]} />
-            </React.Fragment>
-          ))}
-        </BlockContent>
+          <BlockContent>
+            {categories.map((category) => (
+              <React.Fragment key={category.id}>
+                <Subtitle>{category.name}</Subtitle>
+                <ResponsiveContainer>
+                  <ListItemAction pages={pages[category.id]} />
+                </ResponsiveContainer>
+              </React.Fragment>
+            ))}
+          </BlockContent>
 
-        <Hide over as={LinkInfoAction} />
+          <Hide over as={LinkInfoAction} />
 
-        <Hide over as="hr" />
+          <Hide over as="hr" />
 
-        <BlockTitle>
-          <div>
-            <RawFeatherIcon name="mouse-pointer" color={style.black1000} />
-            <Title>Je m'informe en ligne</Title>
-          </div>
-        </BlockTitle>
+          <BlockTitle>
+            <div>
+              <RawFeatherIcon name="mouse-pointer" color={style.black1000} />
+              <Title>Je m'informe en ligne</Title>
+            </div>
+          </BlockTitle>
 
-        <BlockContent>
-          {WEBSITES.map((w, id) => (
-            <ItemWebsite key={id} img={w.img} href={w.href} title={w.title} />
-          ))}
-        </BlockContent>
+          <BlockContent>
+            {WEBSITES.map((w, id) => (
+              <ItemWebsite key={id} img={w.img} href={w.href} title={w.title} />
+            ))}
+          </BlockContent>
 
-        <Hide over as="hr" />
+          <Hide over as="hr" />
 
-        <BlockTitle>
-          <div>
-            <RawFeatherIcon name="help-circle" color={style.black1000} />
-            <Title>Besoin d'aide ?</Title>
-          </div>
-        </BlockTitle>
+          <BlockTitle>
+            <div>
+              <RawFeatherIcon name="help-circle" color={style.black1000} />
+              <Title>Besoin d'aide ?</Title>
+            </div>
+          </BlockTitle>
 
-        <BannerHelp />
+          <BannerHelp />
 
-        <Spacer size="30px" />
+          <Spacer size="30px" />
 
-        {!isDesktop && <Navigation active={routeConfig.tools.id} />}
-
-        <Footer />
-      </div>
-    </StyledPage>
+          {!isDesktop && <Navigation active={routeConfig.tools.id} />}
+        </div>
+      </StyledPage>
+      <Footer displayOnMobileApp />
+    </>
   );
 };
 

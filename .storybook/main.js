@@ -17,7 +17,7 @@ module.exports = {
         {
           loader: "css-loader",
           options: {
-            modules: { compileType: "icss", auto: /\.scss$/i },
+            modules: { mode: "icss", auto: /\.scss$/i },
           },
         },
         "sass-loader",

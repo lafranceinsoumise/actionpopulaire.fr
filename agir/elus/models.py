@@ -1,4 +1,7 @@
 from datetime import date
+from functools import reduce
+from itertools import combinations
+from operator import or_, and_
 
 import reversion
 from data_france.models import CollectiviteDepartementale, CollectiviteRegionale
@@ -266,6 +269,8 @@ class MandatMunicipal(MandatAbstrait):
         blank=True,
         verbose_name="Référence dans le RNE",
         help_text="La fiche correspondant à cet élu dans le Répertoire National des Élus",
+        related_name="elus",
+        related_query_name="elu",
     )
 
     person = models.ForeignKey(
@@ -403,6 +408,17 @@ class MandatDepartemental(MandatAbstrait):
         default=list,
     )
 
+    reference = models.ForeignKey(
+        "data_france.EluDepartemental",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Référence dans le RNE",
+        help_text="La fiche correspondant à cet élu dans le Répertoire National des Élus",
+        related_name="elus",
+        related_query_name="elu",
+    )
+
     class Meta:
         verbose_name = "Mandat départemental"
         verbose_name_plural = "Mandats départementaux"
@@ -417,26 +433,14 @@ class MandatDepartemental(MandatAbstrait):
         return "Nouveau mandat départemental"
 
     def titre_complet(self, conseil_avant=False):
-        metropole = (
-            self.conseil
-            and self.conseil.type == CollectiviteDepartementale.TYPE_CONSEIL_METROPOLE
-        )
-
         if self.mandat in [
             self.MANDAT_INCONNU,
             self.MANDAT_CONSEILLER_MAJORITE,
             self.MANDAT_CONSEILLER_OPPOSITION,
         ]:
-
-            if metropole:
-                titre = genrer(self.person.gender, "Conseiller⋅ère métropolitain⋅e")
-            else:
-                titre = genrer(self.person.gender, "Conseiller⋅ère départemental⋅e")
+            titre = genrer(self.person.gender, "Conseiller⋅ère")
         else:
-            adjectif = "" if metropole else " départemental"
-            titre = genrer(
-                self.person.gender, f"{self.get_mandat_display()} du conseil{adjectif}",
-            )
+            titre = genrer(self.person.gender, self.get_mandat_display())
 
         if self.conseil is None:
             return titre
@@ -635,11 +639,62 @@ class MandatConsulaire(MandatAbstrait):
         verbose_name_plural = "mandats consulaires"
 
 
+@reversion.register()
+class MandatDepute(MandatAbstrait):
+    DEFAULT_DATE_RANGE = DateRange(date(2017, 7, 1), date(2022, 6, 30))
+
+    person = models.ForeignKey(
+        "people.Person",
+        verbose_name="Élu",
+        on_delete=models.CASCADE,
+        related_name="mandats_deputes",
+        related_query_name="mandat_depute",
+    )
+
+    conseil = models.ForeignKey(
+        "data_france.CirconscriptionLegislative",
+        verbose_name="Circonscription",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+
+    reference = models.ForeignKey(
+        "data_france.Depute",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Référence dans les données AN",
+        help_text="La fiche correspondant à cet élu dans la base de l'AN",
+        related_name="elus",
+        related_query_name="elu",
+    )
+
+    def titre_complet(self, conseil_avant=False):
+        titre = genrer(self.person.gender, "député⋅e")
+
+        if not self.conseil:
+            circo = "circonscription inconnue"
+        else:
+            circo = str(self.conseil)
+
+        if conseil_avant:
+            return f"{circo}, {titre}"
+
+        return f"{titre} de la {circo}"
+
+    class Meta:
+        verbose_name = "Mandat de député⋅e"
+        verbose_name_plural = "Mandats de député⋅e"
+        ordering = ("person", "conseil")
+
+
 types_elus = {
     "municipal": MandatMunicipal,
     "departemental": MandatDepartemental,
     "regional": MandatRegional,
     "consulaire": MandatConsulaire,
+    "depute": MandatDepute,
 }
 
 # Le champ `dates` des modèles de mandat est défini sur la classe `MandatAbstrait`.
@@ -667,21 +722,44 @@ class StatutRechercheParrainage(models.IntegerChoices):
     VALIDEE = 3, "Promesse reçue et validée"
 
 
-class RechercheParrainageMaireQueryset(models.QuerySet):
+class RechercheParrainageQueryset(models.QuerySet):
     def bloquant(self):
-        return self.exclude(statut=RechercheParrainageMaire.Statut.ANNULEE)
+        return self.exclude(statut=RechercheParrainage.Statut.ANNULEE)
 
 
-class RechercheParrainageMaire(TimeStampedModel):
-    objects = RechercheParrainageMaireQueryset.as_manager()
+CHAMPS_ELUS_PARRAINAGES = ["maire", "elu_departemental", "depute"]
+
+
+class RechercheParrainage(TimeStampedModel):
+    objects = RechercheParrainageQueryset.as_manager()
 
     Statut = StatutRechercheParrainage
-    elu = models.ForeignKey(
+
+    maire = models.ForeignKey(
         to="data_france.EluMunicipal",
-        verbose_name="Élu⋅e parrain",
+        verbose_name="Maire",
         on_delete=models.SET_NULL,
         related_name="recherches_parrainages",
         related_query_name="rechercher_parrainage",
+        null=True,
+        blank=True,
+    )
+    elu_departemental = models.ForeignKey(
+        to="data_france.EluDepartemental",
+        verbose_name="Élu·e départemental·e",
+        on_delete=models.SET_NULL,
+        related_name="parrainages",
+        related_query_name="parrainage",
+        null=True,
+        blank=True,
+    )
+
+    depute = models.ForeignKey(
+        to="data_france.Depute",
+        verbose_name="Député·e",
+        on_delete=models.SET_NULL,
+        related_name="parrainages",
+        related_query_name="parrainage",
         null=True,
         blank=True,
     )
@@ -708,22 +786,80 @@ class RechercheParrainageMaire(TimeStampedModel):
         null=True,
     )
 
+    @property
+    def type_elu(self):
+        try:
+            return next(
+                f for f in CHAMPS_ELUS_PARRAINAGES if getattr(self, f) is not None
+            )
+        except StopIteration:
+            return None
+
     def __str__(self):
-        return f"{self.elu} — {self.get_statut_display().lower()}"
+        type = self.type_elu
+        nom_elu = getattr(self, type) if type else "Élu·e inconnu·e"
+
+        return f"{nom_elu} — {self.get_statut_display().lower()}"
 
     class Meta:
-        verbose_name = "Recherche de parrainage de maire"
-        verbose_name_plural = "Recherches de parrainages de maires"
-        # TODO: rajouter une contrainte qui garantit qu'il n'existe qu'une recherche active par élu
+        verbose_name = "Parrainages pour la présidentielle"
+        verbose_name_plural = "Parrainages pour la présidentielle"
 
         permissions = [
             ("acces_parrainages", "Donne l'accès à l'interface de parrainage")
         ]
 
         constraints = [
-            models.UniqueConstraint(
-                name="recherche_parrainage_un_seul_actif",
-                fields=["elu"],
-                condition=~models.Q(statut=StatutRechercheParrainage.ANNULEE),
-            )
+            # TODO: tester le comportement des contraintes uniques par rapport aux NULL
+            # On veut une contrainte unique par type de mandat qui peut être pointé
+            # à noter que Postgresql ne pose pas de problème avec les valeurs NULL, qui sont considérées comme
+            # distinctes.
+            *(
+                models.UniqueConstraint(
+                    name=f"parrainage_un_seul_actif_{f}",
+                    fields=[f],
+                    condition=~models.Q(statut=StatutRechercheParrainage.ANNULEE),
+                )
+                for f in CHAMPS_ELUS_PARRAINAGES
+            ),
+            # on ne veut pas que deux types de mandats soient pointés en même temps par une même
+            # instance de parrainage
+            models.CheckConstraint(
+                check=reduce(
+                    and_,
+                    (
+                        ~models.Q(**{f"{a}__isnull": False, f"{b}__isnull": False})
+                        for a, b in combinations(CHAMPS_ELUS_PARRAINAGES, 2)
+                    ),
+                ),
+                name="parrainage_un_seul_elu",
+            ),
         ]
+
+
+@reversion.register()
+class AccesApplicationParrainages(models.Model):
+    class Etat(models.TextChoices):
+        EN_ATTENTE = "A", "En attente"
+        VALIDE = "V", "Validée"
+        REFUSE = "R", "Refusée"
+
+    person = models.OneToOneField(
+        to="people.Person",
+        on_delete=models.CASCADE,
+        null=False,
+        related_name="acces_application_parrainages",
+    )
+    etat = models.CharField(
+        verbose_name="État de la demande",
+        max_length=1,
+        blank=False,
+        choices=Etat.choices,
+        default=Etat.EN_ATTENTE,
+    )
+
+    class Meta:
+        verbose_name = (
+            verbose_name_plural
+        ) = "Accès à l'application de recherches de parrainages"
+        ordering = ("etat", "person")

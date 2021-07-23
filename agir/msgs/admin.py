@@ -61,6 +61,7 @@ class SupportGroupMessageAdmin(VersionAdmin):
         "created",
         "modified",
         "author",
+        "subject",
         "text",
         "image",
         "linked_event",
@@ -71,10 +72,12 @@ class SupportGroupMessageAdmin(VersionAdmin):
         "author",
         "supportgroup",
         "linked_event",
+        "subject",
         "text",
         "image",
     )
     list_display = (
+        "subject",
         "text_excerpt",
         "created",
         "supportgroup",

@@ -13,6 +13,7 @@ import Page from "./Page";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage.js";
 
 import { useAuthentication } from "@agir/front/authentication/hooks";
+import ScrollMemory from "react-router-scroll-memory";
 
 import logger from "@agir/lib/utils/logger";
 
@@ -80,6 +81,7 @@ const Router = ({ children }) => {
 
   return (
     <BrowserRouter basename={BASE_PATH}>
+      <ScrollMemory />
       <Switch>
         {routes.map((route) => (
           <Route key={route.id} path={route.path} exact={!!route.exact}>

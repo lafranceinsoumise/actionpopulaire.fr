@@ -1,18 +1,20 @@
 import { Helmet } from "react-helmet";
-import React from "react";
+import React, { useMemo } from "react";
+import { Redirect } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-
 import {
   getIsSessionLoaded,
   getBackLink,
 } from "@agir/front/globalContext/reducers";
+import { useMissingRequiredEventDocuments } from "@agir/events/common/hooks";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 import Link from "@agir/front/app/Link";
-import { Container } from "@agir/front/genericComponents/grid";
+import { Container, Hide } from "@agir/front/genericComponents/grid";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -45,16 +47,9 @@ const Illustration = styled.div`
   background-image: url(${illustration});
 `;
 
-const StyledInfoBlock = styled.div`
+const StyledInfoBlock = styled(Hide)`
   margin: 0;
   padding: 0;
-
-  @media (min-width: ${style.collapse}px) {
-    display: ${({ $desktop }) => ($desktop ? "block" : "none")};
-  }
-  @media (max-width: ${style.collapse}px) {
-    display: ${({ $mobile }) => ($mobile ? "block" : "none")};
-  }
 
   & > * {
     margin: 0;
@@ -151,35 +146,51 @@ const CreateEvent = () => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const backLink = useSelector(getBackLink);
 
+  const { projects } = useMissingRequiredEventDocuments();
+
+  const isBlocked = useMemo(() => {
+    if (!Array.isArray(projects) || projects.length === 0) {
+      return false;
+    }
+    return projects.some((project) => project.isBlocking);
+  }, [projects]);
+
   return (
     <>
       <Helmet>
         <title>Nouvel événement - Action populaire</title>
       </Helmet>
-      <PageFadeIn wait={<CreateEventSkeleton />} ready={isSessionLoaded}>
-        <StyledContainer>
-          <div>
-            {!!backLink && (
-              <IndexLinkAnchor
-                to={backLink.to}
-                href={backLink.href}
-                route={backLink.route}
-                aria-label={backLink.label || "Retour à l'accueil"}
-                title={backLink.label || "Retour à l'accueil"}
-              >
-                <RawFeatherIcon name="arrow-left" color={style.black1000} />
-              </IndexLinkAnchor>
-            )}
-            <Spacer size="1.5rem" />
-            <h2>Nouvel événement</h2>
-            <InfoBlock $mobile />
-            <Spacer size="1.5rem" />
-            <EventForm />
-          </div>
-          <div>
-            <InfoBlock $desktop />
-          </div>
-        </StyledContainer>
+      <PageFadeIn
+        wait={<CreateEventSkeleton />}
+        ready={isSessionLoaded && typeof projects !== "undefined"}
+      >
+        {isBlocked ? (
+          <Redirect to={routeConfig.missingEventDocuments.getLink()} />
+        ) : (
+          <StyledContainer>
+            <div>
+              {!!backLink && (
+                <IndexLinkAnchor
+                  to={backLink.to}
+                  href={backLink.href}
+                  route={backLink.route}
+                  aria-label={backLink.label || "Retour à l'accueil"}
+                  title={backLink.label || "Retour à l'accueil"}
+                >
+                  <RawFeatherIcon name="arrow-left" color={style.black1000} />
+                </IndexLinkAnchor>
+              )}
+              <Spacer size="1.5rem" />
+              <h2>Nouvel événement</h2>
+              <InfoBlock over />
+              <Spacer size="1.5rem" />
+              <EventForm />
+            </div>
+            <div>
+              <InfoBlock under />
+            </div>
+          </StyledContainer>
+        )}
       </PageFadeIn>
     </>
   );

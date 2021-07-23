@@ -1,17 +1,20 @@
 from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
+from django.db import transaction
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from rest_framework import status
-from rest_framework.exceptions import NotFound, MethodNotAllowed, PermissionDenied
+from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
     CreateAPIView,
     DestroyAPIView,
+    UpdateAPIView,
+    RetrieveUpdateAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -25,20 +28,34 @@ from agir.events.models import RSVP
 from agir.events.serializers import (
     EventSerializer,
     EventListSerializer,
-    EventCreateOptionsSerializer,
+    EventPropertyOptionsSerializer,
+    UpdateEventSerializer,
     CreateEventSerializer,
+    EventProjectSerializer,
+    EventProjectDocumentSerializer,
+    EventProjectListItemSerializer,
 )
 
 __all__ = [
     "EventDetailAPIView",
     "EventRsvpedAPIView",
     "EventSuggestionsAPIView",
+    "EventSuggestionsAPIView",
     "EventCreateOptionsAPIView",
     "CreateEventAPIView",
+    "UpdateEventAPIView",
     "RSVPEventAPIView",
+    "EventProjectAPIView",
+    "CreateEventProjectDocumentAPIView",
+    "EventProjectsAPIView",
 ]
 
-from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
+from agir.gestion.models import Projet
+
+from agir.lib.rest_framework_permissions import (
+    GlobalOrObjectPermissions,
+    HasSpecificPermissions,
+)
 
 from agir.lib.tasks import geocode_person
 
@@ -143,25 +160,39 @@ class EventSuggestionsAPIView(ListAPIView):
 
 
 class EventCreateOptionsAPIView(RetrieveAPIView):
-    permission_ = ("events.add_event",)
-    serializer_class = EventCreateOptionsSerializer
+    permission_classes = (IsAuthenticated,)
+    serializer_class = EventPropertyOptionsSerializer
     queryset = Event.objects.all()
-
-    def initial(self, request, *args, **kwargs):
-        user = request.user
-        if user.is_anonymous or not user.person:
-            raise PermissionDenied()
-        self.person = user.person
-        return super().initial(request, *args, **kwargs)
 
     def get_object(self):
         return self.request
 
 
+class CreateEventPermissions(HasSpecificPermissions):
+    permissions = ["events.add_event"]
+
+
 class CreateEventAPIView(CreateAPIView):
-    permission_ = ("events.add_event",)
+    permission_classes = (CreateEventPermissions,)
     serializer_class = CreateEventSerializer
     queryset = Event.objects.all()
+
+
+class EventManagementPermissions(GlobalOrObjectPermissions):
+    perms_map = {
+        "PUT": [],
+        "PATCH": [],
+    }
+    object_perms_map = {
+        "PUT": ["events.change_event"],
+        "PATCH": ["events.change_event"],
+    }
+
+
+class UpdateEventAPIView(UpdateAPIView):
+    permission_classes = (EventManagementPermissions,)
+    queryset = Event.objects.all()
+    serializer_class = UpdateEventSerializer
 
 
 class RSVPEventPermissions(GlobalOrObjectPermissions):
@@ -232,3 +263,68 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
         rsvp.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EventProjectPermission(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "PUT": [], "PATCH": []}
+    object_perms_map = {
+        "GET": ["events.change_event"],
+        "PUT": ["events.change_event"],
+        "PATCH": ["events.change_event"],
+    }
+
+
+class EventProjectsAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = EventProjectListItemSerializer
+    queryset = Projet.objects.filter(event__isnull=False)
+
+    def get_queryset(self):
+        organized_events = self.request.user.person.organizer_configs.values_list(
+            "event_id", flat=True
+        )
+        if len(organized_events) == 0:
+            return self.queryset.none()
+
+        return (
+            self.queryset.filter(event__in=organized_events)
+            .select_related("event", "event__subtype")
+            .order_by("event__end_time")
+        )
+
+
+class EventProjectAPIView(RetrieveUpdateAPIView):
+    permission_classes = (EventProjectPermission,)
+    serializer_class = EventProjectSerializer
+    queryset = Projet.objects.filter(event__isnull=False).select_related(
+        "event", "event__subtype"
+    )
+    lookup_field = "event_id"
+
+    def check_object_permissions(self, request, obj):
+        return super().check_object_permissions(request, obj.event)
+
+
+class CreateEventProjectDocumentPermission(GlobalOrObjectPermissions):
+    perms_map = {
+        "POST": [],
+    }
+    object_perms_map = {
+        "POST": ["events.change_event"],
+    }
+
+
+class CreateEventProjectDocumentAPIView(CreateAPIView):
+    permission_classes = (CreateEventProjectDocumentPermission,)
+    serializer_class = EventProjectDocumentSerializer
+    queryset = Projet.objects.filter(event__isnull=False)
+    lookup_field = "event_id"
+
+    def check_object_permissions(self, request, obj):
+        return super().check_object_permissions(request, obj.event)
+
+    def perform_create(self, serializer):
+        project = self.get_object()
+        with transaction.atomic():
+            document = serializer.save()
+            project.documents.add(document)

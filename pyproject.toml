@@ -39,7 +39,7 @@ celery = "==4.*"
 celery-prometheus-exporter = "==1.*"
 # redis
 redis = ">=3.2.0"
-hiredis = "==1.*"
+hiredis = "==2.*"
 # HTTP
 requests = ">=2.20.0, ==2.*"
 # HTML
@@ -70,7 +70,7 @@ pyrogram = "==0.*"
 tgcrypto = "*"
 tenacity = "*"
 pandas = "==1.*"
-data-france = "0.12.1"
+data-france = "0.13.1"
 beautifultable = "==1.0.*"
 scipy = "==1.*"
 PyYAML = "==5.*"

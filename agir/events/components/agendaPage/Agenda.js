@@ -28,6 +28,7 @@ import Onboarding from "@agir/front/genericComponents/Onboarding";
 import useSWR from "swr";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
+import MissingDocumentsWidget from "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsWidget";
 import logger from "@agir/lib/utils/logger";
 
 const log = logger(__filename);
@@ -307,6 +308,7 @@ const Agenda = () => {
 
   return (
     <StyledAgenda>
+      <MissingDocumentsWidget />
       <header>
         <TopBar>
           <LayoutTitle>Événements</LayoutTitle>

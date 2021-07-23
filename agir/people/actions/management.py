@@ -4,6 +4,7 @@ from django.db import transaction, IntegrityError
 
 __all__ = ["merge_persons"]
 
+from agir.elus.models import AccesApplicationParrainages
 from agir.people.models import Person
 
 
@@ -142,6 +143,27 @@ def merge_comments(p1, p2, _field):
     p1.commentaires = f"{p1.commentaires}\n\n{p2.commentaires}".strip()
 
 
+def merge_acces_application_parrainages(p1, p2, _field):
+    try:
+        ac2 = p2.acces_application_parrainages
+    except AccesApplicationParrainages.DoesNotExist:
+        return
+
+    ac1, _created = AccesApplicationParrainages.objects.get_or_create(person=p1)
+
+    ac1.etat = max(
+        ac1.etat,
+        ac2.etat,
+        key=[
+            AccesApplicationParrainages.Etat.EN_ATTENTE,
+            AccesApplicationParrainages.Etat.REFUSE,
+            AccesApplicationParrainages.Etat.VALIDE,
+        ].index,
+    )
+
+    ac1.save()
+
+
 MERGE_STRATEGIES = {
     # Many2one
     "form_submissions": merge_reassign_related,
@@ -166,6 +188,7 @@ MERGE_STRATEGIES = {
     "mandat_departemental": merge_reassign_related,
     "mandat_regional": merge_reassign_related,
     "mandat_consulaire": merge_reassign_related,
+    "mandat_depute": merge_reassign_related,
     "campaignsentevent": None,
     "notification_subscriptions": None,
     # Simple fields
@@ -221,9 +244,10 @@ MERGE_STRATEGIES = {
     "transferoperation": None,
     "display_name": merge_text_fields,
     "image": merge_text_fields,
-    "rechercheparrainagemaire": merge_reassign_related,
+    "rechercheparrainage": merge_reassign_related,
     "read_messages": merge_reassign_related,
     "depense": None,
+    "acces_application_parrainages": merge_acces_application_parrainages,
 }
 
 
