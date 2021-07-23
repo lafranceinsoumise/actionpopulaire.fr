@@ -24,7 +24,8 @@ const StyledMenuItem = styled(NavLink)`
   font-size: 1rem;
   line-height: 1.1;
   font-weight: 500;
-  color: ${({ disabled }) => (disabled ? style.black500 : style.black1000)};
+  color: ${({ disabled, cancel }) =>
+    cancel ? style.redNSP : disabled ? style.black500 : style.black1000};
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 
   && {
@@ -73,7 +74,7 @@ const StyledMenuItem = styled(NavLink)`
 
   &.active {
     span {
-      color: ${style.primary500};
+      color: ${({ cancel }) => (cancel ? style.redNSP : style.primary500)};
     }
 
     ${RawFeatherIcon} {
@@ -140,27 +141,14 @@ const StyledMenu = styled.div`
   }
 `;
 
-const CancelLink = styled.div`
-  color: ${style.redNSP};
-  cursor: pointer;
-
-  > div {
-    padding: 0.5rem 0;
-    user-select: none;
-  }
-
-  hr {
-    border-color: ${style.black200};
-    margin: 0.5rem 0;
-  }
-`;
-
 const ManagementMenuItem = (props) => {
-  const { item } = props;
+  const { item, cancel = false, disabled = false } = props;
 
   return (
-    <StyledMenuItem to={item.getLink()}>
-      <RawFeatherIcon width="1rem" height="1rem" name={item.icon} />
+    <StyledMenuItem to={item.getLink()} cancel={cancel} disabled={disabled}>
+      {item.icon && (
+        <RawFeatherIcon width="1rem" height="1rem" name={item.icon} />
+      )}
       <span>{item.label}</span>
     </StyledMenuItem>
   );
@@ -174,7 +162,7 @@ ManagementMenuItem.propTypes = {
     icon: PropTypes.string,
     disabled: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
     getLink: PropTypes.func.isRequired,
-    menuGroup: PropTypes.oneOf([1, 2]),
+    menuGroup: PropTypes.oneOf([1, 2, 3]),
   }),
 };
 
@@ -195,7 +183,7 @@ const ManagementMenu = (props) => {
           .filter((item) => item.menuGroup === 1)
           .map((item) => (
             <li key={item.id}>
-              <ManagementMenuItem item={item} />
+              <ManagementMenuItem item={item} disabled={item.isPending} />
             </li>
           ))}
         <hr />
@@ -203,16 +191,23 @@ const ManagementMenu = (props) => {
           .filter((item) => item.menuGroup === 2)
           .map((item) => (
             <li key={item.id}>
-              <ManagementMenuItem item={item} />
+              <ManagementMenuItem item={item} disabled={item.isPending} />
             </li>
           ))}
+        {cancel && (
+          <>
+            <hr />
+            <Spacer size="1rem" />
+            {items
+              .filter((item) => item.menuGroup === 3)
+              .map((item) => (
+                <li key={item.id}>
+                  <ManagementMenuItem item={item} cancel={true} />
+                </li>
+              ))}
+          </>
+        )}
       </ul>
-      {cancel && (
-        <CancelLink>
-          <hr />
-          <div onClick={cancel?.onClick}>{cancel?.label}</div>
-        </CancelLink>
-      )}
     </StyledMenu>
   );
 };

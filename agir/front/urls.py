@@ -116,6 +116,11 @@ event_settings_patterns = [
         views.BaseAppHardAuthView.as_view(),
         name="view_event_settings_feedback",
     ),
+    path(
+        "gestion/annuler/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_cancel",
+    ),
 ]
 
 urlpatterns = [

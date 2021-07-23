@@ -31,10 +31,7 @@ import {
   StyledDefaultOptions,
 } from "@agir/events/createEventPage/EventForm/SubtypeField.js";
 
-import {
-  SubtypeOption,
-  StyledOptions,
-} from "@agir/events/common/SubtypePanel";
+import { SubtypeOption, StyledOptions } from "@agir/events/common/SubtypePanel";
 
 import { EVENT_TYPES } from "@agir/events/common/utils";
 

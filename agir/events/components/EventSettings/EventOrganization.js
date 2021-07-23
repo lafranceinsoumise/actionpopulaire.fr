@@ -58,7 +58,7 @@ const EventOrganization = (props) => {
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle>Co-organisation</StyledTitle>
+      <StyledTitle>Organisation</StyledTitle>
 
       <Spacer size="1rem" />
 
@@ -78,6 +78,25 @@ const EventOrganization = (props) => {
       />
 
       <MemberList members={[group]} />
+
+      <Spacer size="2rem" />
+
+      <StyledTitle>Participants organisateurs</StyledTitle>
+      <Spacer size="1rem" />
+      <span style={{ color: style.black700 }}>
+        Donnez des droits d’accès à des participant·es pour leur permettre de
+        gérer l’événement.
+      </span>
+      <Spacer size="1rem" />
+
+      <MemberList
+        members={members}
+        addButtonLabel="Ajouter un autre organisateur"
+        onAdd={() => {
+          console.log("AJOUT D'UN ORGA !");
+        }}
+        isLoading={isLoading}
+      />
 
       <Spacer size="1rem" />
     </>

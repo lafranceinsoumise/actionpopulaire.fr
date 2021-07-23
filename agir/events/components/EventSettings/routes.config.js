@@ -30,6 +30,9 @@ const EventLocation = lazy(() =>
 const EventFeedback = lazy(() =>
   import("@agir/events/EventSettings/EventFeedback")
 );
+const EventCancelation = lazy(() =>
+  import("@agir/events/EventSettings/EventCancelation")
+);
 
 export const menuRoute = {
   id: "menu",
@@ -64,21 +67,10 @@ export const routeConfig = {
     id: "organisation",
     path: "organisation/",
     exact: true,
-    label: "Co-organisation",
+    label: "Organisation",
     icon: "settings",
     illustration: illustrationManage,
     Component: EventOrganization,
-    isActive: true,
-    menuGroup: 1,
-  },
-  rights: {
-    id: "rights",
-    path: "droits/",
-    exact: true,
-    label: "Droits",
-    icon: "lock",
-    illustration: illustrationManage,
-    Component: EventRights,
     isActive: true,
     menuGroup: 1,
   },
@@ -123,6 +115,16 @@ export const routeConfig = {
     isActive: true,
     isPending: true,
     menuGroup: 2,
+  },
+  cancelation: {
+    id: "cancelation",
+    path: "annuler/",
+    exact: true,
+    label: "Annuler l'événement",
+    icon: "",
+    Component: EventCancelation,
+    isActive: true,
+    menuGroup: 3,
   },
 };
 
