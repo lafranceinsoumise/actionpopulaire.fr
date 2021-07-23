@@ -19,8 +19,8 @@ const EventOrganization = (props) => {
     api.getEventEndpoint("getEvent", { eventPk })
   );
 
-  const [value, setValue] = useState("");
-  const [options, setOptions] = useState([]);
+  // const [value, setValue] = useState("");
+  // const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const group = {
@@ -32,36 +32,35 @@ const EventOrganization = (props) => {
     { email: "pascal@preprod.com", displayName: "Pascal Preprod" },
   ];
 
-  const handleChange = (value) => {
-    setValue(value);
-  };
+  // const handleChange = (value) => {
+  //   setValue(value);
+  // };
 
-  const handleSearch = async (q) => {
-    await new Promise((resolve) => {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        if (!q) {
-          setOptions(defaultOptions);
-        } else {
-          setOptions(
-            defaultOptions.filter((option) => {
-              return option.label.toLowerCase().includes(q.toLowerCase);
-            })
-          );
-        }
-        resolve();
-      }, 3000);
-    });
-  };
+  // const handleSearch = async (q) => {
+  //   await new Promise((resolve) => {
+  //     setIsLoading(true);
+  //     setTimeout(() => {
+  //       setIsLoading(false);
+  //       if (!q) {
+  //         setOptions(defaultOptions);
+  //       } else {
+  //         setOptions(
+  //           defaultOptions.filter((option) => {
+  //             return option.label.toLowerCase().includes(q.toLowerCase);
+  //           })
+  //         );
+  //       }
+  //       resolve();
+  //     }, 3000);
+  //   });
+  // };
 
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle>Organisation</StyledTitle>
+      <StyledTitle>Groupes co-organisateurs</StyledTitle>
 
       <Spacer size="1rem" />
-
       <span style={{ color: style.black700 }}>
         Invitez des groupes à organiser votre événement.Ils s’afficheront sur la
         page publiquement.
@@ -69,31 +68,39 @@ const EventOrganization = (props) => {
 
       <Spacer size="1rem" />
 
+      {/* 
       <SearchAndSelectField
         value={value}
         onChange={handleChange}
         onSearch={handleSearch}
         isLoading={isLoading}
         defaultOptions={options}
+      /> */}
+
+      <MemberList
+        members={[group]}
+        addButtonLabel="Ajouter un groupe co-organisateur"
+        onAdd={() => {
+          console.log("Add group right !");
+        }}
+        isLoading={isLoading}
       />
 
-      <MemberList members={[group]} />
-
       <Spacer size="2rem" />
-
       <StyledTitle>Participants organisateurs</StyledTitle>
+
       <Spacer size="1rem" />
       <span style={{ color: style.black700 }}>
         Donnez des droits d’accès à des participant·es pour leur permettre de
         gérer l’événement.
       </span>
-      <Spacer size="1rem" />
 
+      <Spacer size="1rem" />
       <MemberList
         members={members}
         addButtonLabel="Ajouter un autre organisateur"
         onAdd={() => {
-          console.log("AJOUT D'UN ORGA !");
+          console.log("Add people right !");
         }}
         isLoading={isLoading}
       />
