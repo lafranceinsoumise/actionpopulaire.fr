@@ -1,3 +1,6 @@
+import locale
+import urllib.request
+from PIL import Image, ImageDraw, ImageFont
 import ics
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
@@ -24,13 +27,14 @@ from django.views.generic import (
     DetailView,
 )
 from django.views.generic.detail import SingleObjectMixin
+from django.templatetags import static
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
     GlobalOrObjectPermissionRequiredMixin,
     SoftLoginRequiredMixin,
 )
-from agir.events.actions.rsvps import assign_jitsi_meeting
+from agir.events.actions.rsvps import assign_jitsi_meeting, logger
 from agir.front.view_mixins import (
     ChangeLocationBaseView,
     FilterView,
@@ -46,12 +50,14 @@ from ..forms import (
     AuthorForm,
     EventLegalForm,
 )
-from ..models import Event, RSVP
+from ..models import Event, RSVP, EventSubtype
 from ..tasks import (
     send_cancellation_notification,
     send_event_report,
     send_secretariat_notification,
 )
+from ...api import settings
+from ...carte.models import StaticMapImage
 
 __all__ = [
     "ManageEventView",
@@ -67,11 +73,176 @@ __all__ = [
     "UploadEventImageView",
     "EventSearchView",
     "EventDetailMixin",
+    "EventThumbnailView",
 ]
 
 
 # PUBLIC VIEWS
 # ============
+
+
+class EventThumbnailView(DetailView):
+    model = Event
+    event = None
+    static_root = "{}/static/front/og-image/".format(settings.FRONT_DOMAIN)
+
+    def get(self, request, *args, **kwargs):
+        self.event = self.get_object()
+        image = self.generate_thumbnail()
+        response = HttpResponse(content_type="image/png")
+        image.save(response, "PNG")
+        return response
+
+    def generate_thumbnail(self):
+        image = Image.new("RGB", (int(1200), int(630)), "#FFFFFF")
+        draw = ImageDraw.Draw(image)
+
+        if self.event.coordinates is None:
+            illustration = Image.open(self.static_root + "Frame-193.png")
+            image.paste(illustration, (0, 0), illustration)
+        else:
+            static_map_image = StaticMapImage.objects.filter(
+                center__distance_lt=(
+                    self.event.coordinates,
+                    StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
+                ),
+            ).first()
+
+            illustration = Image.open(static_map_image.image.path)
+            illustration = illustration.resize((1200, 278), Image.ANTIALIAS)
+            image.paste(illustration, (0, 0), illustration)
+            icon = Image.open(self.static_root + "rectangle16.png")
+            icon = icon.resize((50, 65), Image.ANTIALIAS)
+            image.paste(icon, (575, 75), icon)
+
+            if self.event.subtype.icon:
+                subtype_icon = Image.open(self.event.subtype.icon.path)
+                subtype_icon = subtype_icon.resize((35, 55), Image.ANTIALIAS)
+                image.paste(subtype_icon, (580, 75), subtype_icon)
+            elif self.event.subtype.default_image:
+                subtype_icon = Image.open(self.event.subtype.default_image.path)
+                subtype_icon = subtype_icon.resize((35, 55), Image.ANTIALIAS)
+                image.paste(subtype_icon, (580, 75), subtype_icon)
+
+        font_bold = ImageFont.truetype(
+            self.static_root + "poppins-bold.ttf",
+            size=27,
+            encoding="utf-8",
+            layout_engine=ImageFont.LAYOUT_BASIC,
+        )
+
+        # set locale for displaying day name in french
+        locale.setlocale(locale.LC_ALL, "fr_FR.utf8")
+        date = self.event.start_time.strftime("%A %d %B À %-H:%M").capitalize()
+
+        if len(self.event.name) < 30:
+            draw.text(
+                (108, 350),
+                self.event.location_city.upper()
+                + " ("
+                + self.event.location_zip
+                + ") — "
+                + date.upper(),
+                fill=(87, 26, 255, 0),
+                align="left",
+                font=font_bold,
+            )
+
+            draw.text(
+                (108, 400),
+                self.event.name.capitalize(),
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=self.get_image_font(56),
+            )
+        elif len(self.event.name) < 36:
+            draw.text(
+                (108, 319),
+                self.event.location_city.upper()
+                + " ("
+                + self.event.location_zip
+                + ") — "
+                + date.upper(),
+                fill=(87, 26, 255, 0),
+                align="left",
+                font=font_bold,
+            )
+
+            draw.text(
+                (108, 369),
+                self.event.name.capitalize(),
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=self.get_image_font(45),
+            )
+        elif len(self.event.name) < 74:
+            draw.text(
+                (108, 319),
+                self.event.location_city.upper()
+                + " ("
+                + self.event.location_zip
+                + ") — "
+                + date.upper(),
+                fill=(87, 26, 255, 0),
+                align="left",
+                font=font_bold,
+            )
+
+            draw.text(
+                (108, 369),
+                self.event.name[0:36].capitalize(),
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=self.get_image_font(45),
+            )
+            draw.text(
+                (108, 430),
+                self.event.name[37:73],
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=self.get_image_font(45),
+            )
+        else:
+            draw.text(
+                (108, 319),
+                self.event.location_city.upper()
+                + " ("
+                + self.event.location_zip
+                + ") — "
+                + date.upper(),
+                fill=(87, 26, 255, 0),
+                align="left",
+                font=font_bold,
+            )
+
+            draw.text(
+                (108, 369),
+                self.event.name[0:36].capitalize(),
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=self.get_image_font(45),
+            )
+            draw.text(
+                (108, 430),
+                self.event.name[37:73] + "...",
+                fill=(0, 0, 0, 0),
+                align="left",
+                font=self.get_image_font(45),
+            )
+
+        logo_ap = Image.open(self.static_root + "bande-ap.png")
+        logo_ap = logo_ap.resize((1200, 95), Image.ANTIALIAS)
+        image.paste(logo_ap, (0, 535), logo_ap)
+
+        return image
+
+    def get_image_font(self, size):
+        return ImageFont.truetype(
+            self.static_root + "Poppins-Medium.ttf",
+            size=size,
+            encoding="utf-8",
+            layout_engine=ImageFont.LAYOUT_BASIC,
+        )
 
 
 class EventSearchView(FilterView):

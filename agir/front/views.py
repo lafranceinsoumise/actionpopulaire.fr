@@ -29,7 +29,7 @@ from .view_mixins import (
 from ..events.models import Event
 from ..events.views.event_views import EventDetailMixin
 from ..groups.views.public_views import SupportGroupDetailMixin
-from ..lib.utils import generate_token_params
+from ..lib.utils import generate_token_params, front_url
 from ..msgs.models import SupportGroupMessage
 
 cache_decorators = [cache.cache_page(30), cache.cache_control(public=True)]
@@ -239,3 +239,74 @@ class NSPReferralView(SoftLoginRequiredMixin, RedirectView):
 
         url = add_query_params_to_url(url, params)
         return url
+
+
+class EventDetailView(
+    ObjectOpengraphMixin, EventDetailMixin, BaseDetailView, ReactBaseView
+):
+    meta_description = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
+    bundle_name = "front/app"
+
+    def get_meta_image(self):
+        return front_url(
+            "view_og_image_event", kwargs={"pk": self.object.pk,}, absolute=True
+        )
+
+
+class SupportGroupDetailView(
+    ObjectOpengraphMixin, SupportGroupDetailMixin, BaseDetailView, ReactBaseView
+):
+    meta_description = "Rejoignez les groupes d'action de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
+    bundle_name = "front/app"
+
+
+class SupportGroupMessageDetailView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/app"
+
+
+class ServiceWorker(View):
+    def get(self, *args, **kwargs):
+        return FileResponse(
+            open(
+                os.path.join(
+                    os.path.dirname(settings.BASE_DIR),
+                    "assets",
+                    "components",
+                    "service-worker.js",
+                ),
+                "rb",
+            )
+        )
+
+
+@method_decorator(cache_decorators, name="get")
+class OfflineApp(ReactBaseView):
+    bundle_name = "front/app"
+
+
+class CreateEventView(SoftLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/app"
+
+
+class NotFoundView(ReactBaseView):
+    bundle_name = "front/app"
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        response.status_code = 404
+        return response
+
+
+class UserMessagesView(HardLoginRequiredMixin, ReactBaseView):
+    bundle_name = "front/app"
+
+
+class UserMessageView(
+    GlobalOrObjectPermissionRequiredMixin, HardLoginRequiredMixin, ReactBaseView,
+):
+    permission_required = ("msgs.view_message",)
+    queryset = SupportGroupMessage.objects.all()
+    bundle_name = "front/app"
+
+    def get_object(self):
+        return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))
