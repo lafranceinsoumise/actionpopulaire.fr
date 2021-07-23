@@ -126,7 +126,6 @@ export const updateEvent = async (eventPk, data) => {
     } else {
       result.error = e.message;
     }
-
   }
   return result;
 };

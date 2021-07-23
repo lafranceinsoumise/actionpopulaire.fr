@@ -88,7 +88,6 @@ const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
   );
 };
 
-
 const EventForm = () => {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [errors, setErrors] = useState({});

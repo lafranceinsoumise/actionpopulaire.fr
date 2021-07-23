@@ -28,22 +28,15 @@ import { useEventFormOptions } from "@agir/events/common/hooks";
 
 import {
   DefaultOption,
-  StyledDefaultOptions
-  // SubtypeOption,
-  // StyledOptions,
+  StyledDefaultOptions,
 } from "@agir/events/createEventPage/EventForm/SubtypeField.js";
 
 import {
   SubtypeOption,
-  // StyledDefaultOptions,
   StyledOptions,
 } from "@agir/events/common/SubtypePanel";
 
-
-// import { EVENT_TYPES } from "@agir/events/createEventPage/EventForm/eventForm.config";
-// import { DEFAULT_FORM_DATA } from "@agir/events/createEventPage/EventForm/eventForm.config";
 import { EVENT_TYPES } from "@agir/events/common/utils";
-
 
 const slideInTransition = {
   from: { transform: "translateX(66%)" },
