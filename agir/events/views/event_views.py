@@ -27,6 +27,7 @@ from django.views.generic import (
     DetailView,
 )
 from django.views.generic.detail import SingleObjectMixin
+from django.templatetags import static
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
@@ -55,6 +56,7 @@ from ..tasks import (
     send_event_report,
     send_secretariat_notification,
 )
+from ...api import settings
 from ...carte.models import StaticMapImage
 
 __all__ = [
@@ -82,6 +84,7 @@ __all__ = [
 class EventThumbnailView(DetailView):
     model = Event
     event = None
+    static_root = "${}/static/events/og-image/".format(settings.FRONT_DOMAIN)
 
     def get(self, request, *args, **kwargs):
         self.event = self.get_object()
@@ -95,7 +98,7 @@ class EventThumbnailView(DetailView):
         draw = ImageDraw.Draw(image)
 
         if self.event.coordinates is None:
-            illustration = Image.open("assets/og-image/Frame-193.png")
+            illustration = Image.open(self.static_root + "Frame-193.png")
             image.paste(illustration, (0, 0), illustration)
         else:
             static_map_image = StaticMapImage.objects.filter(
@@ -108,7 +111,7 @@ class EventThumbnailView(DetailView):
             illustration = Image.open(static_map_image.image.path)
             illustration = illustration.resize((1200, 278), Image.ANTIALIAS)
             image.paste(illustration, (0, 0), illustration)
-            icon = Image.open("assets/og-image/rectangle16.png")
+            icon = Image.open(self.static_root + "rectangle16.png")
             icon = icon.resize((50, 65), Image.ANTIALIAS)
             image.paste(icon, (575, 75), icon)
 
@@ -121,14 +124,8 @@ class EventThumbnailView(DetailView):
                 subtype_icon = subtype_icon.resize((35, 55), Image.ANTIALIAS)
                 image.paste(subtype_icon, (580, 75), subtype_icon)
 
-        url = "https://github.com/google/fonts/blob/main/ofl/poppins/Poppins-Regular.ttf?raw=true"
-        urllib.request.urlretrieve(url, "assets/og-image/poppins.ttf")
-
-        url = "https://github.com/google/fonts/blob/main/ofl/poppins/Poppins-SemiBold.ttf?raw=true"
-        urllib.request.urlretrieve(url, "assets/og-image/poppins-bold.ttf")
-
         font_bold = ImageFont.truetype(
-            "assets/og-image/poppins-bold.ttf",
+            self.static_root + "poppins-bold.ttf",
             size=27,
             encoding="utf-8",
             layout_engine=ImageFont.LAYOUT_BASIC,
@@ -172,7 +169,7 @@ class EventThumbnailView(DetailView):
             )
 
             font = ImageFont.truetype(
-                "assets/og-image/poppins.ttf",
+                self.static_root + "poppins.ttf",
                 size=45,
                 encoding="utf-8",
                 layout_engine=ImageFont.LAYOUT_BASIC,
@@ -186,7 +183,7 @@ class EventThumbnailView(DetailView):
             )
         elif len(self.event.name) < 74:
             font = ImageFont.truetype(
-                "poppins.ttf",
+                self.static_root + "poppins.ttf",
                 size=27,
                 encoding="utf-8",
                 layout_engine=ImageFont.LAYOUT_BASIC,
@@ -245,7 +242,7 @@ class EventThumbnailView(DetailView):
                 font=self.get_image_font(45),
             )
 
-        logo_ap = Image.open("assets/og-image/bande-ap.png")
+        logo_ap = Image.open(self.static_root + "bande-ap.png")
         logo_ap = logo_ap.resize((1200, 95), Image.ANTIALIAS)
         image.paste(logo_ap, (0, 535), logo_ap)
 
@@ -253,7 +250,7 @@ class EventThumbnailView(DetailView):
 
     def get_image_font(self, size):
         return ImageFont.truetype(
-            "assets/og-image/Poppins-Medium.ttf",
+            self.static_root + "Poppins-Medium.ttf",
             size=size,
             encoding="utf-8",
             layout_engine=ImageFont.LAYOUT_BASIC,
