@@ -168,12 +168,6 @@ class EventThumbnailView(DetailView):
                 font=font_bold,
             )
 
-            font = ImageFont.truetype(
-                self.static_root + "poppins.ttf",
-                size=45,
-                encoding="utf-8",
-                layout_engine=ImageFont.LAYOUT_BASIC,
-            )
             draw.text(
                 (108, 369),
                 self.event.name.capitalize(),
@@ -182,12 +176,6 @@ class EventThumbnailView(DetailView):
                 font=self.get_image_font(45),
             )
         elif len(self.event.name) < 74:
-            font = ImageFont.truetype(
-                self.static_root + "poppins.ttf",
-                size=27,
-                encoding="utf-8",
-                layout_engine=ImageFont.LAYOUT_BASIC,
-            )
             draw.text(
                 (108, 319),
                 self.event.location_city.upper()
