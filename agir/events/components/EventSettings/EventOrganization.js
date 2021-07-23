@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import styled from "styled-components";
+import * as api from "@agir/events/common/api";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import SearchAndSelectField from "@agir/front/formComponents/SearchAndSelectField";
@@ -15,11 +15,13 @@ import MemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 const EventOrganization = (props) => {
   const { onBack, illustration, eventPk } = props;
 
+  const { data: event, mutate } = useSWR(
+    api.getEventEndpoint("getEvent", { eventPk })
+  );
+
   const [value, setValue] = useState("");
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  console.log("event general with pk : ", eventPk);
 
   const group = {
     email: "pole@group.com",
@@ -29,9 +31,6 @@ const EventOrganization = (props) => {
     { email: "pascal@preprod.com", displayName: "Pascal Preprod" },
     { email: "pascal@preprod.com", displayName: "Pascal Preprod" },
   ];
-
-  const { data: event, mutate } = useSWR();
-  // getGroupPageEndpoint("getGroup", { groupPk })
 
   const handleChange = (value) => {
     setValue(value);

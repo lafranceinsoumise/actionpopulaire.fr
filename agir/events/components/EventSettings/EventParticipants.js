@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 import useSWR from "swr";
+import * as api from "@agir/events/common/api";
 
 import styled from "styled-components";
 
@@ -37,7 +38,9 @@ const BlockTitle = styled.div`
 const EventParticipants = (props) => {
   const { onBack, illustration, eventPk } = props;
 
-  console.log("event general with pk : ", eventPk);
+  const { data: event, mutate } = useSWR(
+    api.getEventEndpoint("getEvent", { eventPk })
+  );
 
   const group = {
     email: "pole@group.com",
@@ -47,9 +50,6 @@ const EventParticipants = (props) => {
     { email: "pascal@preprod.com", displayName: "Pascal Preprod" },
     { email: "pascal@preprod.com", displayName: "Pascal Preprod" },
   ];
-
-  const { data: event, mutate } = useSWR();
-  // getGroupPageEndpoint("getGroup", { groupPk })
 
   return (
     <>

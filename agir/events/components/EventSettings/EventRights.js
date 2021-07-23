@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 import useSWR from "swr";
+import * as api from "@agir/events/common/api";
 
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -14,7 +15,9 @@ import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberLis
 const EventRights = (props) => {
   const { onBack, illustration, eventPk } = props;
 
-  console.log("event general with pk : ", eventPk);
+  const { data: event, mutate } = useSWR(
+    api.getEventEndpoint("getEvent", { eventPk })
+  );
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,9 +28,6 @@ const EventRights = (props) => {
   const members = [
     { email: "pascal@preprod.com", displayName: "Pascal Preprod" },
   ];
-
-  const { data: event, mutate } = useSWR();
-  // getGroupPageEndpoint("getGroup", { groupPk })
 
   return (
     <>

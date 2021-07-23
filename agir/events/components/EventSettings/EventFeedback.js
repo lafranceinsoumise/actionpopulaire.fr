@@ -22,8 +22,6 @@ const EventFeedback = (props) => {
   const { data: event, mutate } = useSWR(
     api.getEventEndpoint("getEvent", { eventPk })
   );
-  console.log("event is ");
-  console.log(event);
 
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
