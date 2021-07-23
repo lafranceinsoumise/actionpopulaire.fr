@@ -1,4 +1,4 @@
-import * as proj from "ol/proj";
+import { fromLonLat } from "ol/proj";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
@@ -136,7 +136,7 @@ const OpenLayersMap = (props) => {
   const mapRef = useCallback(
     async (mapElement) => {
       if (mapObject.current && mapElement) {
-        mapObject.current.getView().setCenter(proj.fromLonLat(center));
+        mapObject.current.getView().setCenter(fromLonLat(center));
         mapObject.current.getView().setZoom(zoom);
         setIsLoaded(true);
       } else if (mapElement) {
@@ -162,7 +162,7 @@ const OpenLayersMap = (props) => {
 
   useEffect(() => {
     mapObject.current &&
-      mapObject.current.getView().setCenter(proj.fromLonLat(center));
+      mapObject.current.getView().setCenter(fromLonLat(center));
   }, [center]);
 
   isLoaded && mapObject.current && mapObject.current.updateSize();

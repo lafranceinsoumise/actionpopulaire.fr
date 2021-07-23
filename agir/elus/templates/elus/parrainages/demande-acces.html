@@ -1,0 +1,38 @@
+{% extends "front/layout.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}Demande d'accès à l'application de recherche de parrainages{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <style>
+    .form-control {
+      scroll-margin-top: 200px;
+    }
+
+    .intro {
+      margin-bottom: 1em;
+    }
+  </style>
+{% endblock %}
+
+{% block main %}
+  <div class="row">
+    <div class="col-xs-12 col-md-8 col-md-offset-2">
+      <h2 class="headline center">
+        Je suis volontaire pour rechercher des parrainages
+      </h2>
+      <div class="row">
+          <div class="col-xs-12 col-md-8 col-md-offset-2 intro">
+            Pour obtenir l'accès à l'application de recherche de parrainages, merci de nous confirmez les quelques
+            informations suivantes. Vous recevrez une confirmation après validation.
+          </div>
+          <div class="col-xs-12 col-md-8 col-md-offset-2">
+            {% crispy form %}
+          </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

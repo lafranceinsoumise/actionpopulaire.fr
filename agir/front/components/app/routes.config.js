@@ -16,6 +16,14 @@ const CreateEvent = lazy(() =>
 const EventSettings = lazy(() =>
   import("@agir/events/EventSettings/EventSettings")
 );
+const MissingDocumentsPage = lazy(() =>
+  import(
+    "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsPage"
+  )
+);
+const EventRequiredDocuments = lazy(() =>
+  import("@agir/events/eventRequiredDocuments/EventRequiredDocumentsPage")
+);
 
 const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
 const FullGroupPage = lazy(() =>
@@ -31,6 +39,8 @@ const GroupMap = lazy(() => import("@agir/carte/page__groupMap/GroupMap"));
 const ActivityPage = lazy(() =>
   import("@agir/activity/ActivityPage/ActivityPage")
 );
+
+const ToolsPage = lazy(() => import("@agir/front/toolsPage/ToolsPage"));
 
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
@@ -116,7 +126,7 @@ const notificationSettingRoute = new RouteConfig({
 export const routeConfig = {
   events: new RouteConfig({
     id: "events",
-    path: "/",
+    path: ["/", "/documents-justificatifs/"],
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Événements",
@@ -127,6 +137,28 @@ export const routeConfig = {
     hideTopBar: true,
     hideConnectivityWarning: true,
     keepScroll: true,
+  }),
+  missingEventDocumentsModal: new RouteConfig({
+    id: "missingEventDocuments",
+    path: "/documents-justificatifs/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Documents justificatifs",
+    isPartial: true,
+  }),
+  missingEventDocuments: new RouteConfig({
+    id: "missingEventDocuments",
+    path: "/evenements/documents-justificatifs/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Documents justificatifs",
+    Component: MissingDocumentsPage,
+    hasLayout: false,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
   }),
   eventMap: new RouteConfig({
     id: "eventMap",
@@ -171,6 +203,19 @@ export const routeConfig = {
     Component: EventSettings,
     hideTopBar: true,
     hideFeedbackButton: true,
+  }),
+  eventRequiredDocuments: new RouteConfig({
+    id: "eventRequiredDocuments",
+    path: "/evenements/:eventPk/documents/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.HARD,
+    label: "Documents de l'événement",
+    Component: EventRequiredDocuments,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
   }),
   groups: new RouteConfig({
     id: "groups",
@@ -251,6 +296,20 @@ export const routeConfig = {
       protected: true,
     },
     keepScroll: true,
+  }),
+  tools: new RouteConfig({
+    id: "tools",
+    path: "/outils/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Outils",
+    Component: ToolsPage,
+    hideFeedbackButton: true,
+    backLink: {
+      route: "events",
+      label: "Liste des événements",
+      isProtected: true,
+    },
   }),
   notificationSettings: notificationSettingRoute,
   menu: new RouteConfig({

@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
-import * as Sentry from "@sentry/react";
+import { ErrorBoundary as SentryErrorBoundary } from "@sentry/react";
 
 import generateLogger from "@agir/lib/utils/logger";
 
@@ -66,7 +66,7 @@ const ProdErrorBoundary = (props) => {
   };
 
   return (
-    <Sentry.ErrorBoundary fallback={fallback}>{children}</Sentry.ErrorBoundary>
+    <SentryErrorBoundary fallback={fallback}>{children}</SentryErrorBoundary>
   );
 };
 

@@ -8,9 +8,10 @@ import {
   IconList,
   IconListItem,
 } from "@agir/front/genericComponents/FeatherIcon";
+
 import Link from "@agir/front/app/Link";
 
-const EventInfoCard = ({ groups, participantCount }) => (
+const EventInfoCard = ({ groups, participantCount, subtype }) => (
   <Card>
     <IconList>
       {groups.length > 0 && (
@@ -34,6 +35,12 @@ const EventInfoCard = ({ groups, participantCount }) => (
           ))}
         </IconListItem>
       )}
+      {subtype?.description && (
+        <IconListItem name="folder">
+          {subtype.description[0].toUpperCase()}
+          {subtype.description.slice(1)}
+        </IconListItem>
+      )}
       {participantCount > 1 && (
         <IconListItem name="user-check">
           {participantCount} participant⋅es
@@ -47,6 +54,9 @@ EventInfoCard.propTypes = {
   groups: PropTypes.arrayOf(
     PropTypes.shape({ name: PropTypes.string, url: PropTypes.string })
   ),
+  subtype: PropTypes.shape({
+    description: PropTypes.string,
+  }),
   participantCount: PropTypes.number,
 };
 

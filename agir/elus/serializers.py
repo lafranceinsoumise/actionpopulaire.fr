@@ -5,7 +5,7 @@ from data_france.typologies import Fonction
 from django.db.models import TextChoices, Q
 from rest_framework import serializers
 
-from agir.elus.models import RechercheParrainageMaire
+from agir.elus.models import RechercheParrainage
 
 CRITERE_INCLUSION_ELUS = Q(fonction__in=[Fonction.MAIRE, Fonction.MAIRE_DELEGUE]) | Q(
     fonction_epci=Fonction.PRESIDENT
@@ -63,23 +63,39 @@ class EluMunicipalSerializer(serializers.Serializer):
 class CreerRechercheSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     elu = serializers.PrimaryKeyRelatedField(
-        queryset=EluMunicipal.objects.filter(CRITERE_INCLUSION_ELUS), required=True
+        queryset=EluMunicipal.objects.filter(CRITERE_INCLUSION_ELUS),
+        required=True,
+        source="maire",
     )
 
+    def validate_elu(self, value):
+        if (
+            RechercheParrainage.objects.filter(maire=value,)
+            .exclude(statut=RechercheParrainage.Statut.ANNULEE)
+            .exists()
+        ):
+            raise serializers.ValidationError(
+                detail="Quelqu'un d'autre a indiqué s'occuper de ce maire entre-temps !",
+                code="duplicated_elu",
+            )
+
+        return value
+
     def create(self, validated_data):
-        return RechercheParrainageMaire.objects.create(
-            elu=self.validated_data["elu"], person=self.context["request"].user.person
+        return RechercheParrainage.objects.create(
+            maire=self.validated_data["maire"],
+            person=self.context["request"].user.person,
         )
 
 
 class ModifierRechercheSerializer(serializers.Serializer):
     statut = serializers.ChoiceField(
         choices=[
-            RechercheParrainageMaire.Statut.ENGAGEMENT,
-            RechercheParrainageMaire.Statut.REFUS,
-            RechercheParrainageMaire.Statut.NE_SAIT_PAS,
-            RechercheParrainageMaire.Statut.AUTRE_ENGAGEMENT,
-            RechercheParrainageMaire.Statut.ANNULEE,
+            RechercheParrainage.Statut.ENGAGEMENT,
+            RechercheParrainage.Statut.REFUS,
+            RechercheParrainage.Statut.NE_SAIT_PAS,
+            RechercheParrainage.Statut.AUTRE_ENGAGEMENT,
+            RechercheParrainage.Statut.ANNULEE,
         ]
     )
 
@@ -100,8 +116,8 @@ class ModifierRechercheSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         if attrs["statut"] in [
-            RechercheParrainageMaire.Statut.NE_SAIT_PAS,
-            RechercheParrainageMaire.Statut.AUTRE_ENGAGEMENT,
+            RechercheParrainage.Statut.NE_SAIT_PAS,
+            RechercheParrainage.Statut.AUTRE_ENGAGEMENT,
         ] and not attrs.get("commentaires"):
             raise serializers.ValidationError(
                 detail={"commentaires": "Ce champ est requis avec ce statut."},

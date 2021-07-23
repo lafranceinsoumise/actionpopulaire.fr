@@ -1,7 +1,8 @@
 import rules
 
 from agir.events.models import Event
-from ..authentication.models import Role
+from .actions.required_documents import get_is_blocking_project
+from ..gestion.models import Projet
 from ..lib.rules import is_authenticated_person
 
 
@@ -42,7 +43,19 @@ def is_free_event(role, event=None):
     return event is not None and event.is_free
 
 
-rules.add_perm("events.add_event", is_authenticated_person)
+@rules.predicate
+def has_event_with_missing_documents(role):
+    organized_event_projects = Projet.objects.filter(
+        event__in=role.person.organized_events.select_related("subtype").filter(
+            subtype__related_project_type__isnull=False
+        )
+    )
+    return any(get_is_blocking_project(project) for project in organized_event_projects)
+
+
+rules.add_perm(
+    "events.add_event", is_authenticated_person & ~has_event_with_missing_documents
+)
 rules.add_perm(
     "events.view_event",
     is_public_event

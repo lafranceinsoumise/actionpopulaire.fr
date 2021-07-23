@@ -100,6 +100,11 @@ class PersonQueryset(models.QuerySet):
             reduce(or_, (Q(**{f"elu_{label}": True}) for label in types_elus))
         )
 
+    def app(self, installed=True):
+        if installed:
+            return self.exclude(Q(role__apnsdevice=None) & Q(role__gcmdevice=None))
+        return self.filter(Q(role__apnsdevice=None) & Q(role__gcmdevice=None))
+
 
 def get_default_display_name(
     email="", first_name="", last_name="", display_name="", **kwargs

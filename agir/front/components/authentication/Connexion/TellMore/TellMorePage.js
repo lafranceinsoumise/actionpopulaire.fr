@@ -55,7 +55,12 @@ const TellMorePage = () => {
     return <Redirect to={routeConfig.tellMore.getLink()} />;
   }
 
-  if (campaignIsLoading || tellMoreIsLoading || newslettersAreLoading) {
+  if (
+    !isTellMorePage ||
+    campaignIsLoading ||
+    tellMoreIsLoading ||
+    newslettersAreLoading
+  ) {
     return null;
   }
 

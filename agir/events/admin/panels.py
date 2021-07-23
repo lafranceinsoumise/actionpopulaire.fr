@@ -26,7 +26,7 @@ from agir.people.models import PersonFormSubmission
 from agir.people.person_forms.display import PersonFormDisplay
 from . import actions
 from . import views
-from .forms import EventAdminForm
+from .forms import EventAdminForm, EventSubtypeAdminForm
 from .. import models
 from ..actions import legal
 from ..forms import EventLegalForm
@@ -596,8 +596,16 @@ class EventTagAdmin(admin.ModelAdmin):
 
 @admin.register(models.EventSubtype)
 class EventSubtypeAdmin(admin.ModelAdmin):
-    list_display = ("label", "description", "type", "visibility", "has_priority")
-    list_filter = ("type", "visibility", "has_priority")
+    form = EventSubtypeAdminForm
+    list_display = (
+        "label",
+        "description",
+        "type",
+        "visibility",
+        "has_priority",
+        "related_project_type",
+    )
+    list_filter = ("type", "visibility", "has_priority", "related_project_type")
 
     search_fields = ("label", "description")
 

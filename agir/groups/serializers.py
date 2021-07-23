@@ -139,9 +139,13 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     name = serializers.CharField(read_only=True,)
     type = serializers.SerializerMethodField(read_only=True,)
+    subtypes = serializers.SerializerMethodField(read_only=True)
     description = serializers.CharField(read_only=True, source="html_description")
     isFull = serializers.SerializerMethodField(read_only=True,)
     isCertified = serializers.BooleanField(read_only=True, source="is_certified")
+    is2022Certified = serializers.BooleanField(
+        read_only=True, source="is_2022_certified"
+    )
     location = LocationSerializer(read_only=True, source="*")
     contact = serializers.SerializerMethodField(read_only=True,)
     image = serializers.ImageField(read_only=True)
@@ -198,6 +202,13 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_type(self, obj):
         return obj.get_type_display()
+
+    def get_subtypes(self, obj):
+        return (
+            obj.subtypes.filter(description__isnull=False, hide_text_label=False)
+            .exclude(label__in=settings.CERTIFIED_GROUP_SUBTYPES)
+            .values_list("description", flat=True)
+        )
 
     def get_isFull(self, obj):
         return obj.is_full

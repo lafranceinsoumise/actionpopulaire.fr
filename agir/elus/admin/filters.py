@@ -2,11 +2,11 @@ from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, Exists, OuterRef
 from django.utils import timezone
 
-from agir.elus.models import MandatMunicipal
+from agir.elus.models import MandatMunicipal, CHAMPS_ELUS_PARRAINAGES
 from agir.lib.autocomplete_filter import AutocompleteFilter, SelectModelFilter
 
 
-class CommuneFilter(AutocompleteFilter):
+class ConseilFilter(AutocompleteFilter):
     field_name = "conseil"
     title = "Commune d'élection"
 
@@ -122,11 +122,28 @@ class MandatsFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == "D":
-            return queryset.annotate(n=Count("mandatmunicipal")).filter(n__gt=1)
+            return queryset.annotate(n=Count("elu")).filter(n__gt=1)
         elif value in ["O", "N"]:
             return queryset.annotate(
                 avec_mandat=Exists(
                     MandatMunicipal.objects.filter(reference_id=OuterRef("id"))
                 )
             ).filter(avec_mandat=value == "O")
+        return queryset
+
+
+class TypeEluFilter(SimpleListFilter):
+    parameter_name = "type-elu"
+    title = "Type d'élu·e"
+
+    def lookups(self, request, model_admin):
+        return (
+            (f, model_admin.model._meta.get_field(f).verbose_name)
+            for f in CHAMPS_ELUS_PARRAINAGES
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value in CHAMPS_ELUS_PARRAINAGES:
+            return queryset.filter(**{f"{value}__isnull": False})
         return queryset

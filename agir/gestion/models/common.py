@@ -53,10 +53,7 @@ class NumeroQueryset(models.QuerySet):
         )
 
 
-class NumeroManager(models.Manager):
-    def get_queryset(self):
-        return NumeroQueryset(self.model, using=self._db)
-
+class NumeroManager(models.Manager.from_queryset(NumeroQueryset)):
     def get_by_natural_key(self, numero):
         return self.get(numero=numero)
 

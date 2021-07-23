@@ -140,13 +140,18 @@ const HookedCustomAnnouncementCard = ({ slug, ...rest }) => {
   ) : null;
 };
 
-CustomAnnouncementCard.propTypes = HookedCustomAnnouncementCard.propTypes = {
+CustomAnnouncementCard.propTypes = {
   illustration: PropTypes.string,
   title: PropTypes.string,
   children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]).isRequired,
+  onClose: PropTypes.func,
+  config: PropTypes.object,
 };
-CustomAnnouncementCard.propTypes.onClose = PropTypes.func;
-CustomAnnouncementCard.propTypes.config = PropTypes.object;
-HookedCustomAnnouncementCard.propTypes.slug = PropTypes.string.isRequired;
+HookedCustomAnnouncementCard.propTypes = {
+  illustration: PropTypes.string,
+  title: PropTypes.string,
+  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]).isRequired,
+  slug: PropTypes.string.isRequired,
+};
 
 export default HookedCustomAnnouncementCard;

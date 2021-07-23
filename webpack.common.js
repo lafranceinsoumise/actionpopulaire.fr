@@ -198,6 +198,9 @@ const configureBabelLoader = (type) => ({
           },
         ],
         type === "dev" ? require.resolve("react-refresh/babel") : undefined,
+        type !== "dev"
+          ? require.resolve("babel-plugin-transform-react-remove-prop-types")
+          : undefined,
       ].filter(Boolean),
     },
   },
@@ -287,7 +290,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
           {
             loader: "css-loader",
             options: {
-              modules: { compileType: "icss", auto: /\.scss$/i },
+              modules: { mode: "icss", auto: /\.scss$/i },
             },
           },
           "sass-loader",

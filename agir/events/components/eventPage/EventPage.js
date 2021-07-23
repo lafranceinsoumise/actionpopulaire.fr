@@ -107,6 +107,10 @@ const IndexLinkAnchor = styled(Link)`
     color: #585858;
   }
 
+  @media (${(props) => props.theme.collapse}px) {
+    display: none;
+  }
+
   svg {
     height: 16px;
   }
@@ -225,7 +229,7 @@ const MobileLayout = (props) => {
 };
 
 const DesktopLayout = (props) => {
-  const { logged, groups, contact, participantCount, routes } = props;
+  const { logged, groups, contact, participantCount, routes, subtype } = props;
 
   return (
     <Container
@@ -265,7 +269,7 @@ const DesktopLayout = (props) => {
         <StyledColumn width="380px">
           <EventLocationCard {...props} />
           {contact && <ContactCard {...contact} />}
-          {(participantCount > 1 || groups?.length > 0) && (
+          {(participantCount > 1 || groups?.length > 0 || subtype?.label) && (
             <EventInfoCard {...props} />
           )}
           {routes?.facebook && <EventFacebookLinkCard {...props} />}

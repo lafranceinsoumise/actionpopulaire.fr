@@ -44,11 +44,11 @@ export const Hide = styled.div`
   min-width: 0;
 
   @media (max-width: ${({ under }) => (under === true ? collapse : under)}px) {
-    display: none;
+    display: none !important;
   }
 
   @media (min-width: ${({ over }) => (over === true ? collapse : over)}px) {
-    display: none;
+    display: none !important;
   }
 `;
 

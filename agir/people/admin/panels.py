@@ -13,7 +13,7 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from django.core.exceptions import PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django.db.models import Count, Max, Func, Value
+from django.db.models import Count, Max, Func, Value, Q
 from django.db.models.functions import Concat, Substr
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
@@ -25,6 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from agir.authentication.models import Role
 from agir.elus.models import types_elus
+from agir.groups.models import SupportGroup, Membership
 from agir.lib.admin import (
     DisplayContactPhoneMixin,
     CenterOnFranceMixin,
@@ -97,6 +98,28 @@ class SegmentFilter(AutocompleteFilter):
 class TagListFilter(AutocompleteFilter):
     field_name = "tags"
     title = "Tags"
+
+
+class AnimateMoreThanOneGroup(admin.SimpleListFilter):
+    title = "Cette personne annime plus d'un groupe d'action"
+    parameter_name = "Person who animate more than one group"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("animate_more_than_one_group", "Anime plus d'un groupe"),
+            ("", ""),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "animate_more_than_one_group":
+            return queryset.annotate(
+                animated_groups=Count(
+                    "memberships",
+                    filter=Q(
+                        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
+                    ),
+                )
+            ).filter(animated_groups__gt=1)
 
 
 @admin.register(Person)
@@ -189,6 +212,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "draw_participation",
         "gender",
         TagListFilter,
+        AnimateMoreThanOneGroup,
     )
 
     inlines = (RSVPInline, MembershipInline, EmailInline)

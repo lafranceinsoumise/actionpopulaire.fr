@@ -1,7 +1,7 @@
 /* eslint-env browser */
 
 import Feature from "ol/Feature";
-import * as proj from "ol/proj";
+import { fromLonLat } from "ol/proj";
 import VectorSource from "ol/source/Vector";
 import Point from "ol/geom/Point";
 import VectorLayer from "ol/layer/Vector";
@@ -19,7 +19,7 @@ export default async function itemMap(
 ) {
   const style = makeStyle(iconConfiguration);
   const feature = new Feature({
-    geometry: new Point(proj.fromLonLat(coordinates)),
+    geometry: new Point(fromLonLat(coordinates)),
   });
   feature.setStyle(style);
   const layer = new VectorLayer({
@@ -33,6 +33,6 @@ export default async function itemMap(
   }
 
   const map = setUpMap(htmlElementId, [layer]);
-  map.getView().setCenter(proj.fromLonLat(coordinates));
+  map.getView().setCenter(fromLonLat(coordinates));
   map.getView().setZoom(14);
 }

@@ -1,30 +1,20 @@
-import React from "react";
-import style from "@agir/front/genericComponents/_variables.scss";
+import PropTypes from "prop-types";
 import styled from "styled-components";
 
 const StyledToast = styled.div`
+  display: flex;
   padding: 1rem;
   border: 1px solid #000a2c;
   position: relative;
   margin-top: 2rem;
-
-  div {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 6px;
-    background-color: ${style.redNSP};
-  }
-`;
-
-const Toast = ({ children }) => {
-  return (
-    <StyledToast>
-      <div></div>
-      {children}
-    </StyledToast>
+  background: linear-gradient(
+    90deg,
+    ${(props) => props.$color || props.theme.redNSP} 6px,
+    transparent 6px,
+    transparent
   );
+`;
+StyledToast.propTypes = {
+  $color: PropTypes.string,
 };
-
-export default Toast;
+export default StyledToast;

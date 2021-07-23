@@ -87,19 +87,18 @@ const Page = (props) => {
   }, [history]);
 
   useMemo(() => {
-    if (!!routeConfig.keepScroll) return;
-    typeof window !== "undefined" && !!window.scrollTo && window.scrollTo(0, 0);
+    if (!routeConfig.keepScroll) {
+      typeof window !== "undefined" &&
+        !!window.scrollTo &&
+        window.scrollTo(0, 0);
+    }
   }, [routeConfig]);
 
   if (routeConfig.isPartial) {
     return (
       <ErrorBoundary>
         <Suspense fallback={<div />}>
-          <Component
-            {...(routeConfig.routeProps || {})}
-            {...routeParams}
-            {...rest}
-          />
+          <Component route={routeConfig} {...routeParams} {...rest} />
         </Suspense>
       </ErrorBoundary>
     );
@@ -108,22 +107,16 @@ const Page = (props) => {
   if (!routeConfig.hasLayout) {
     return (
       <ErrorBoundary>
-        {routeConfig.hideTopBar ? null : <TopBar path={pathname} />}
-
+        {!routeConfig.hideTopBar && <TopBar path={pathname} />}
         {!routeConfig.hideTopBar && isBannerDownload && <Spacer size="80px" />}
 
         <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
-          {routeConfig.hideConnectivityWarning ? null : (
+          {!routeConfig.hideConnectivityWarning && (
             <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
           )}
           <Suspense fallback={<div />}>
-            <Component
-              {...(routeConfig.routeProps || {})}
-              {...routeParams}
-              {...rest}
-              data={[]}
-            />
-            {routeConfig.hideFeedbackButton ? null : (
+            <Component route={routeConfig} {...routeParams} {...rest} />
+            {!routeConfig.hideFeedbackButton && (
               <FeedbackButton style={{ bottom: "1rem" }} />
             )}
           </Suspense>
@@ -134,23 +127,17 @@ const Page = (props) => {
 
   return (
     <ErrorBoundary>
-      {routeConfig.hideTopBar ? null : <TopBar path={pathname} />}
-
+      {!routeConfig.hideTopBar && <TopBar path={pathname} />}
       {!routeConfig.hideTopBar && isBannerDownload && <Spacer size="80px" />}
-
-      {routeConfig.hideConnectivityWarning ? null : (
+      {!routeConfig.hideConnectivityWarning && (
         <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
       )}
+
       <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
         <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
           <Suspense fallback={<div />}>
-            <Component
-              {...(routeConfig.routeProps || {})}
-              {...routeParams}
-              {...rest}
-              data={[]}
-            />
-            {routeConfig.hideFeedbackButton ? null : <FeedbackButton />}
+            <Component route={routeConfig} {...routeParams} {...rest} />
+            {!routeConfig.hideFeedbackButton && <FeedbackButton />}
           </Suspense>
         </Layout>
       </StyledPage>

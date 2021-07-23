@@ -7,7 +7,7 @@ import Text from "ol/style/Text";
 import Fill from "ol/style/Fill";
 import Icon from "ol/style/Icon";
 import Overlay from "ol/Overlay";
-import * as proj from "ol/proj";
+import { fromLonLat, transformExtent } from "ol/proj";
 import Feature from "ol/Feature";
 import VectorSource from "ol/source/Vector";
 import Point from "ol/geom/Point";
@@ -27,7 +27,7 @@ const ARROW_SIZE = 20;
 
 export function setUpMap(elementId, layers) {
   const view = new View({
-    center: proj.fromLonLat([2, 47]),
+    center: fromLonLat([2, 47]),
     zoom: 6,
     enableRotation: false,
   });
@@ -51,7 +51,7 @@ export function setUpMap(elementId, layers) {
 export function fitBounds(map, bounds) {
   map
     .getView()
-    .fit(proj.transformExtent(bounds, "EPSG:4326", "EPSG:3857"), map.getSize());
+    .fit(transformExtent(bounds, "EPSG:4326", "EPSG:3857"), map.getSize());
 }
 
 export function setUpPopup(map) {
@@ -168,7 +168,7 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
         }),
       ];
   const feature = new Feature({
-    geometry: new Point(proj.fromLonLat(center)),
+    geometry: new Point(fromLonLat(center)),
   });
   feature.setStyle(styles);
   const map = new Map({
@@ -188,7 +188,7 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
       }),
     ],
     view: new View({
-      center: proj.fromLonLat(center),
+      center: fromLonLat(center),
       zoom,
       enableRotation: false,
     }),

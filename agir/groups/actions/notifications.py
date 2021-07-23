@@ -63,7 +63,11 @@ def someone_joined_notification(membership, membership_count=1):
         )
     if (
         membership.supportgroup.type == SupportGroup.TYPE_LOCAL_GROUP
-        and membership_count in [21, 30]
+        and membership_count
+        in [
+            21,
+            # 30, (Temporarily disabled)
+        ]
     ):
         transaction.on_commit(
             partial(

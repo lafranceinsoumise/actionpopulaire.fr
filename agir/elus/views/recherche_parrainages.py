@@ -1,4 +1,6 @@
+import reversion
 from data_france.models import EluMunicipal
+from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import Distance as D
@@ -14,11 +16,17 @@ from django.db.models import (
     IntegerField,
 )
 from django.db.models.functions import Coalesce
-from django.views.generic import TemplateView
+from django.urls import reverse_lazy
+from django.views.generic import FormView
 from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
-from agir.elus.models import RechercheParrainageMaire, StatutRechercheParrainage
+from agir.elus.forms import DemandeAccesApplicationParrainagesForm
+from agir.elus.models import (
+    RechercheParrainage,
+    StatutRechercheParrainage,
+    AccesApplicationParrainages,
+)
 from agir.elus.serializers import (
     EluMunicipalSerializer,
     ModifierRechercheSerializer,
@@ -32,7 +40,7 @@ from agir.lib.rest_framework_permissions import (
 )
 
 ID_RECHERCHE_PARRAINAGE_SUBQUERY = Subquery(
-    RechercheParrainageMaire.objects.filter(elu_id=OuterRef("id")).values("id")[:1]
+    RechercheParrainage.objects.filter(maire_id=OuterRef("id")).values("id")[:1]
 )
 
 
@@ -43,7 +51,7 @@ def queryset_elus(person):
         .annotate(
             statut=Coalesce(
                 Subquery(
-                    RechercheParrainageMaire.objects.filter(elu_id=OuterRef("id"))
+                    RechercheParrainage.objects.filter(maire_id=OuterRef("id"))
                     .bloquant()
                     .annotate(
                         statut_composite=Case(
@@ -125,8 +133,8 @@ class RechercheParrainagesView(
                 recherche_parrainage_maire_id=Value(None, output_field=IntegerField()),
                 distance=Distance("commune__geometry", person.coordinates),
                 pris=Exists(
-                    RechercheParrainageMaire.objects.filter(
-                        elu_id=OuterRef("id")
+                    RechercheParrainage.objects.filter(
+                        maire_id=OuterRef("id")
                     ).bloquant()
                 ),
             )
@@ -176,6 +184,39 @@ class ModifierRechercheParrainageView(UpdateAPIView):
     serializer_class = ModifierRechercheSerializer
 
     def get_queryset(self):
-        return RechercheParrainageMaire.objects.filter(
-            person=self.request.user.person, statut=StatutRechercheParrainage.EN_COURS,
+        return RechercheParrainage.objects.filter(
+            person=self.request.user.person,
+            statut=StatutRechercheParrainage.EN_COURS,
+            maire__isnull=False,
         )
+
+
+class DemandeAccesParrainagesView(SoftLoginRequiredMixin, FormView):
+    form_class = DemandeAccesApplicationParrainagesForm
+    template_name = "elus/parrainages/demande-acces.html"
+    success_url = reverse_lazy("dashboard")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.request.user.person
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+
+        with reversion.create_revision():
+            reversion.set_user(self.request.user)
+            reversion.set_comment("Demande d'accès à l'application de parrainage")
+
+            AccesApplicationParrainages.objects.get_or_create(
+                person=self.request.user.person,
+                defaults={"etat": AccesApplicationParrainages.Etat.EN_ATTENTE},
+            )
+
+        messages.add_message(
+            request=self.request,
+            level=messages.SUCCESS,
+            message="Votre demande a été enregistrée et sera étudiée avant validation.",
+        )
+
+        return super().form_valid(form)

@@ -114,20 +114,21 @@ const NavigationPage = ({ active }) => {
         <title>Menu - Action populaire</title>
       </Helmet>
       <Menu>
-        {MAIN_LINKS.map((link) =>
-          link.href || routes[link.route] ? (
-            <MenuLink
-              {...link}
-              key={link.id}
-              active={active === link.id}
-              href={link.href || routes[link.route]}
-              to={
-                link.to && routeConfig[link.to]
-                  ? routeConfig[link.to].path
-                  : undefined
-              }
-            />
-          ) : null
+        {MAIN_LINKS.map(
+          (link) =>
+            (link.href || routes[link.route]) && (
+              <MenuLink
+                {...link}
+                key={link.id}
+                active={active === link.id}
+                href={link.href || routes[link.route]}
+                to={
+                  link.to && routeConfig[link.to]
+                    ? routeConfig[link.to].path
+                    : undefined
+                }
+              />
+            )
         )}
       </Menu>
     </Navigation>
@@ -137,5 +138,5 @@ const NavigationPage = ({ active }) => {
 export default NavigationPage;
 
 NavigationPage.propTypes = {
-  active: PropTypes.oneOf(["events", "groups", "activity", "menu"]),
+  active: PropTypes.oneOf(["events", "groups", "activity", "menu", "tools"]),
 };

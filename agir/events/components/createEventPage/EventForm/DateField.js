@@ -7,7 +7,7 @@ import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import SelectField from "@agir/front/formComponents/SelectField";
 import TimezoneField from "@agir/front/formComponents/TimezoneField";
 
-import { EVENT_DEFAULT_DURATIONS } from "./eventForm.config";
+import { EVENT_DEFAULT_DURATIONS } from "@agir/events/common/utils";
 
 import "moment/locale/fr";
 
@@ -52,7 +52,7 @@ const TimezoneToggle = styled.p`
 
 const Field = styled.div`
   display: inline-grid;
-  grid-template-columns: auto 160px 160px;
+  grid-template-columns: auto 160px 270px;
   grid-auto-rows: auto auto;
   grid-gap: 0.5rem;
 

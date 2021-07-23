@@ -130,9 +130,9 @@ export const TopBar = (props) => {
       <NavBar>
         <AdminLink link={adminLink} />
         <TopBarContainer>
-          {isSessionLoaded ? (
-            backLink ? (
-              <Hide over>
+          {isSessionLoaded && (
+            <Hide over>
+              {backLink ? (
                 <MenuLink
                   to={backLink.to}
                   href={backLink.href}
@@ -142,15 +142,13 @@ export const TopBar = (props) => {
                 >
                   <FeatherIcon name="arrow-left" />
                 </MenuLink>
-              </Hide>
-            ) : (
-              <Hide over>
+              ) : (
                 <MenuLink href={routes.search}>
                   <FeatherIcon name="search" />
                 </MenuLink>
-              </Hide>
-            )
-          ) : null}
+              )}
+            </Hide>
+          )}
           <HorizontalFlex
             center={!isConnected || path === "/" || typeof path === "undefined"}
             style={{
@@ -192,7 +190,7 @@ export const TopBar = (props) => {
             </Hide>
           </HorizontalFlex>
 
-          {isSessionLoaded ? (
+          {isSessionLoaded && (
             <HorizontalFlex style={{ flexGrow: 0 }}>
               {!isConnected ? (
                 <>
@@ -238,10 +236,10 @@ export const TopBar = (props) => {
                           )}
                         </TopbarLink>
                       </MenuLink>
-                      <MenuLink href={routes.help}>
-                        <TopbarLink>
-                          <FeatherIcon name="help-circle" />
-                          <span>Aide</span>
+                      <MenuLink route="tools">
+                        <TopbarLink $active={routeConfig.tools.match(path)}>
+                          <FeatherIcon name="flag" />
+                          <span>Outils</span>
                           <div />
                         </TopbarLink>
                       </MenuLink>
@@ -257,7 +255,7 @@ export const TopBar = (props) => {
                 </>
               )}
             </HorizontalFlex>
-          ) : null}
+          )}
         </TopBarContainer>
       </NavBar>
     </NavbarContainer>

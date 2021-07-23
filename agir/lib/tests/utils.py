@@ -37,7 +37,7 @@ def import_communes_test_data():
             nom="Département",
             type=CollectiviteDepartementale.TYPE_CONSEIL_DEPARTEMENTAL,
             type_nom=TypeNom.ARTICLE_LE,
-            departement=dep,
+            region=reg,
             actif=True,
         )
         c1 = Commune.objects.create(
