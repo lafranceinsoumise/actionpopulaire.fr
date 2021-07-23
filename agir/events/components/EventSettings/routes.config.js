@@ -54,7 +54,7 @@ export const routeConfig = {
     id: "members",
     path: "membres/",
     exact: true,
-    label: "X participant.es",
+    label: "X Participant·es",
     icon: "users",
     Component: EventParticipants,
     isActive: true,
@@ -121,6 +121,7 @@ export const routeConfig = {
     icon: "image",
     Component: EventFeedback,
     isActive: true,
+    isPending: true,
     menuGroup: 2,
   },
 };

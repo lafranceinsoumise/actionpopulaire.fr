@@ -13,7 +13,6 @@ import TextField from "@agir/front/formComponents/TextField";
 import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
 import ImageField from "@agir/front/formComponents/ImageField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
-import RadioField from "@agir/front/formComponents/RadioField";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import DateField from "@agir/events/createEventPage/EventForm/DateField";
 import Link from "@agir/front/app/Link";
@@ -43,7 +42,7 @@ const slideInTransition = {
 const StyledDateField = styled(DateField)`
   @media (min-width: ${style.collapse}px) {
     && {
-      grid-template-columns: 190px 170px 160px;
+      grid-template-columns: 190px 159px 180px;
     }
   }
 `;

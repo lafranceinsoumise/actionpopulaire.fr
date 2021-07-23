@@ -57,10 +57,10 @@ const EventParticipants = (props) => {
       <BlockTitle>
         <h3>Participant·es</h3>
         <div>
-          <StyledLink href={"#"}>
+          {/* <StyledLink href={"#"}>
             <RawFeatherIcon name="mail" height="13px" />
             Inviter à l’événement
-          </StyledLink>
+          </StyledLink> */}
           <StyledLink href={"#"} style={{ marginLeft: "10px" }}>
             <RawFeatherIcon name="settings" height="13px" />
             Inviter à co-organiser
@@ -76,9 +76,9 @@ const EventParticipants = (props) => {
         $wrap
       />
 
-      <Spacer size="1rem" />
-      <MemberList key={0} members={[group]} />
-      <Spacer size="1rem" />
+      {/* <Spacer size="1rem" />
+      <MemberList key={0} members={[group]} /> */}
+      <Spacer size="2rem" />
       <MemberList key={1} members={members} />
       <Spacer size="1rem" />
     </>

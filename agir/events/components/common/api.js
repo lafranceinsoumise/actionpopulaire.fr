@@ -6,7 +6,7 @@ export const ENDPOINT = {
   quitEvent: "/api/evenements/:eventPk/inscription/",
 
   getParticipants: "/api/evenements/:eventPk/participants/",
-  updateEvent: "/api/evenements/:eventPk/update/",
+  updateEvent: "/api/evenements/:eventPk/modifier/",
 };
 
 export const getEventEndpoint = (key, params) => {

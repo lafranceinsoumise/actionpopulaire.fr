@@ -94,7 +94,7 @@ const EventFeedback = (props) => {
       />
 
       <Spacer size="1rem" />
-      <h4>Ajouter une image</h4>
+      <h4>Ajouter une photo</h4>
       <ImageField
         name="image"
         value={formData.photo}
