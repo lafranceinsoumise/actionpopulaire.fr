@@ -17,9 +17,6 @@ const EventParticipants = lazy(() =>
 const EventOrganization = lazy(() =>
   import("@agir/events/EventSettings/EventOrganization")
 );
-const EventRights = lazy(() =>
-  import("@agir/events/EventSettings/EventRights")
-);
 const EventVisio = lazy(() => import("@agir/events/EventSettings/EventVisio"));
 const EventContact = lazy(() =>
   import("@agir/events/EventSettings/EventContact")
