@@ -84,7 +84,7 @@ __all__ = [
 class EventThumbnailView(DetailView):
     model = Event
     event = None
-    static_root = "${}/static/front/og-image/".format(settings.FRONT_DOMAIN)
+    static_root = "{}/static/front/og-image/".format(settings.FRONT_DOMAIN)
 
     def get(self, request, *args, **kwargs):
         self.event = self.get_object()
