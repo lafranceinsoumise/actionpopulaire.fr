@@ -36,18 +36,17 @@ export const parseDiscountCodes = (discountCodes) => {
   }
 
   return discountCodes.map((code) => {
-    let expiration = code.expirationDate
-      ? code.expirationDate.diffNow
-        ? code.expirationDate
-        : DateTime.fromJSDate(new Date(code.expirationDate))
-      : "";
-    expiration = expiration.diffNow ? expiration.diffNow("days").days : "";
+    const expirationDateTime = DateTime.fromJSDate(
+      new Date(code.expirationDate)
+    );
+    let expiration = expirationDateTime.diffNow("days").days;
     expiration =
       typeof expiration === "number" ? `${Math.ceil(expiration)} jours` : "";
 
     return {
       ...code,
       expiration,
+      date: expirationDateTime.setLocale("fr-FR").toFormat("dd MMMM yyyy"),
     };
   });
 };
