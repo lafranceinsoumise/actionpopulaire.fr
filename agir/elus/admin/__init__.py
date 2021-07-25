@@ -884,6 +884,7 @@ class AccesApplicationParrainagesAdmin(VersionAdmin):
     list_filter = ("etat",)
 
     fields = ("person", "etat")
+    autocomplete_fields = ("person",)
 
 
 admin.site.unregister(Depute)
