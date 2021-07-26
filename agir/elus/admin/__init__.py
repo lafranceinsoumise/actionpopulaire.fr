@@ -546,6 +546,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
                     "is_insoumise",
                     "is_2022",
                     "signataire_appel",
+                    "reference",
                     "commentaires",
                 )
             },

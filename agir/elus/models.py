@@ -510,6 +510,17 @@ class MandatRegional(MandatAbstrait):
         default=list,
     )
 
+    reference = models.ForeignKey(
+        "data_france.EluRegional",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Référence dans le RNE",
+        help_text="La fiche correspondant à cet élu dans le Répertoire National des Élus",
+        related_name="elus",
+        related_query_name="elu",
+    )
+
     class Meta:
         verbose_name = "Mandat régional"
         verbose_name_plural = "Mandats régionaux"
