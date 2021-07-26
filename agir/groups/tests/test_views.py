@@ -49,11 +49,17 @@ class SupportGroupMixin:
         )
 
         self.member_group = SupportGroup.objects.create(name="Member")
-        Membership.objects.create(person=self.person, supportgroup=self.member_group)
+        Membership.objects.create(
+            person=self.person,
+            supportgroup=self.member_group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
 
         # other memberships
         Membership.objects.create(
-            person=self.other_person, supportgroup=self.member_group
+            person=self.other_person,
+            supportgroup=self.member_group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
         now = timezone.now()

@@ -13,12 +13,16 @@ class GroupRulesTestCase(TestCase):
         )
         self.group1 = SupportGroup.objects.create(name="Groupe 1")
         self.membership1 = Membership.objects.create(
-            person=self.person, supportgroup=self.group1
+            person=self.person,
+            supportgroup=self.group1,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
         self.group2 = SupportGroup.objects.create(name="Groupe 2")
         self.membership2 = Membership.objects.create(
-            person=self.person, supportgroup=self.group2
+            person=self.person,
+            supportgroup=self.group2,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
     def test_is_published(self):
@@ -64,6 +68,9 @@ class SupportGroupPermissionsTestCase(TestCase):
         self.member = Person.objects.create_insoumise(
             "membre@agir.local", create_role=True
         )
+        self.follower = Person.objects.create_insoumise(
+            "abonnee@agir.local", create_role=True
+        )
         self.outsider = Person.objects.create_insoumise(
             "outsider@agir.local", create_role=True
         )
@@ -81,13 +88,21 @@ class SupportGroupPermissionsTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
         self.member_membership = Membership.objects.create(
-            supportgroup=self.group, person=self.member
+            supportgroup=self.group,
+            person=self.member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        self.follower_membership = Membership.objects.create(
+            supportgroup=self.group,
+            person=self.follower,
+            membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER,
         )
 
     def test_can_view_published_group(self):
         self.assertTrue(self.referent.has_perm("groups.view_supportgroup", self.group))
         self.assertTrue(self.manager.has_perm("groups.view_supportgroup", self.group))
         self.assertTrue(self.member.has_perm("groups.view_supportgroup", self.group))
+        self.assertTrue(self.follower.has_perm("groups.view_supportgroup", self.group))
         self.assertTrue(self.outsider.has_perm("groups.view_supportgroup", self.group))
         self.assertTrue(self.anonymous.has_perm("groups.view_supportgroup", self.group))
 
@@ -98,6 +113,7 @@ class SupportGroupPermissionsTestCase(TestCase):
         self.assertFalse(self.referent.has_perm("groups.view_supportgroup", self.group))
         self.assertFalse(self.manager.has_perm("groups.view_supportgroup", self.group))
         self.assertFalse(self.member.has_perm("groups.view_supportgroup", self.group))
+        self.assertFalse(self.follower.has_perm("groups.view_supportgroup", self.group))
         self.assertFalse(self.outsider.has_perm("groups.view_supportgroup", self.group))
         self.assertFalse(
             self.anonymous.has_perm("groups.view_supportgroup", self.group)
@@ -109,6 +125,9 @@ class SupportGroupPermissionsTestCase(TestCase):
         )
         self.assertTrue(self.manager.has_perm("groups.change_supportgroup", self.group))
         self.assertFalse(self.member.has_perm("groups.change_supportgroup", self.group))
+        self.assertFalse(
+            self.follower.has_perm("groups.change_supportgroup", self.group)
+        )
         self.assertFalse(
             self.outsider.has_perm("groups.change_supportgroup", self.group)
         )
@@ -125,6 +144,9 @@ class SupportGroupPermissionsTestCase(TestCase):
         )
         self.assertTrue(
             self.member.has_perm("groups.delete_membership", self.member_membership)
+        )
+        self.assertTrue(
+            self.follower.has_perm("groups.delete_membership", self.follower_membership)
         )
 
         self.manager_membership.membership_type = Membership.MEMBERSHIP_TYPE_REFERENT
@@ -145,6 +167,9 @@ class SupportGroupPermissionsTestCase(TestCase):
             self.member.has_perm("groups.add_manager_to_supportgroup", self.group)
         )
         self.assertFalse(
+            self.follower.has_perm("groups.add_manager_to_supportgroup", self.group)
+        )
+        self.assertFalse(
             self.outsider.has_perm("groups.add_manager_to_supportgroup", self.group)
         )
         self.assertFalse(
@@ -160,6 +185,9 @@ class SupportGroupPermissionsTestCase(TestCase):
         )
         self.assertFalse(
             self.member.has_perm("groups.add_referent_to_supportgroup", self.group)
+        )
+        self.assertFalse(
+            self.follower.has_perm("groups.add_referent_to_supportgroup", self.group)
         )
         self.assertFalse(
             self.outsider.has_perm("groups.add_referent_to_supportgroup", self.group)

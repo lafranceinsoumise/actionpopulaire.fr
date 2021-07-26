@@ -241,11 +241,13 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
     This model also indicates if the person is referent for this support group
     """
 
+    MEMBERSHIP_TYPE_FOLLOWER = 5
     MEMBERSHIP_TYPE_MEMBER = 10
     MEMBERSHIP_TYPE_MANAGER = 50
     MEMBERSHIP_TYPE_REFERENT = 100
     MEMBERSHIP_TYPE_CHOICES = (
-        (MEMBERSHIP_TYPE_MEMBER, "Membre du groupe"),
+        (MEMBERSHIP_TYPE_FOLLOWER, "Abonné⋅e du groupe"),
+        (MEMBERSHIP_TYPE_MEMBER, "Membre actif du groupe"),
         (MEMBERSHIP_TYPE_MANAGER, "Membre gestionnaire"),
         (MEMBERSHIP_TYPE_REFERENT, "Animateur⋅rice"),
     )
@@ -269,7 +271,7 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
     membership_type = models.IntegerField(
         _("Statut dans le groupe"),
         choices=MEMBERSHIP_TYPE_CHOICES,
-        default=MEMBERSHIP_TYPE_MEMBER,
+        default=MEMBERSHIP_TYPE_FOLLOWER,
     )
 
     notifications_enabled = models.BooleanField(
@@ -282,6 +284,7 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
         verbose_name = _("adhésion")
         verbose_name_plural = _("adhésions")
         unique_together = ("supportgroup", "person")
+        ordering = ["-membership_type"]
 
     def __str__(self):
         return _("{person} --> {supportgroup},  ({type})").format(
@@ -289,6 +292,10 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
             supportgroup=self.supportgroup,
             type=self.get_membership_type_display(),
         )
+
+    @property
+    def is_active_member(self):
+        return self.membership_type >= Membership.MEMBERSHIP_TYPE_MEMBER
 
     @property
     def is_referent(self):

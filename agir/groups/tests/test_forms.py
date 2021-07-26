@@ -16,7 +16,12 @@ class TransferFormTestCase(TestCase):
         ]
 
         memberships = [
-            Membership.objects.create(person=p, supportgroup=group1) for p in people
+            Membership.objects.create(
+                person=p,
+                supportgroup=group1,
+                membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+            )
+            for p in people
         ]
 
         form = TransferGroupMembersForm(
