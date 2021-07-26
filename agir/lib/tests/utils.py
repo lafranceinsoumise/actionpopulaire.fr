@@ -6,7 +6,7 @@ from data_france.models import (
     CollectiviteRegionale,
     CollectiviteDepartementale,
 )
-from data_france.typologies import TypeNom
+from data_france.utils import TypeNom
 from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.db import transaction
 
