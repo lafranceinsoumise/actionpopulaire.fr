@@ -170,20 +170,20 @@ python-versions = "*"
 
 [[package]]
 name = "boto3"
-version = "1.18.6"
+version = "1.18.7"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.6"
 
 [package.dependencies]
-botocore = ">=1.21.6,<1.22.0"
+botocore = ">=1.21.7,<1.22.0"
 jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.5.0,<0.6.0"
 
 [[package]]
 name = "botocore"
-version = "1.21.6"
+version = "1.21.7"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -374,7 +374,7 @@ python-versions = "*"
 
 [[package]]
 name = "data-france"
-version = "0.13.2"
+version = "0.13.3"
 description = "Paquet agrégeant des données administratives publiques pour en rendre l'utilisation facile."
 category = "main"
 optional = false
@@ -740,7 +740,7 @@ boltons = ">=20.0.0"
 
 [[package]]
 name = "faker"
-version = "8.10.2"
+version = "8.10.3"
 description = "Faker is a Python package that generates fake data for you."
 category = "main"
 optional = false
@@ -2062,7 +2062,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "6e7db7647e8eba65844349316e38c12c96ad04fcf067a026be7ec17612a9c16d"
+content-hash = "bd44ede33f4dd986331bfd7b41b26af026d6806921a82385617141ba1ec1e697"
 
 [metadata.files]
 amqp = [
@@ -2126,12 +2126,12 @@ boltons = [
     {file = "boltons-21.0.0.tar.gz", hash = "sha256:65e70a79a731a7fe6e98592ecfb5ccf2115873d01dbc576079874629e5c90f13"},
 ]
 boto3 = [
-    {file = "boto3-1.18.6-py3-none-any.whl", hash = "sha256:68fbc8b7c13448f53164692163cc056fa242f8d7c39abbb77efc67b174b8f2a9"},
-    {file = "boto3-1.18.6.tar.gz", hash = "sha256:a0f5a806d072bd532c86ef10a2a5f7f1ca7e8e0e506561a21ab5d462a93aa810"},
+    {file = "boto3-1.18.7-py3-none-any.whl", hash = "sha256:c7f45b0417395d3020c98cdc10f942939883018210e29dbfe6fbfc0a74e503ec"},
+    {file = "boto3-1.18.7.tar.gz", hash = "sha256:a012570d3535ec6c4db97e60ef51c2f39f38246429e1455cecc26c633ed81c10"},
 ]
 botocore = [
-    {file = "botocore-1.21.6-py3-none-any.whl", hash = "sha256:c92dc2b69aec36b7482e5b05ac0a00d65ac972d745a74546942f09c95e68d335"},
-    {file = "botocore-1.21.6.tar.gz", hash = "sha256:cabff036f702411f47c6dae09134315e0b524c8eda6bb1de99ee75fc1ee07f7f"},
+    {file = "botocore-1.21.7-py3-none-any.whl", hash = "sha256:34c8b151a25616ed7791218f6d7780c3a97725fe3ceeaa28085b345a8513af6e"},
+    {file = "botocore-1.21.7.tar.gz", hash = "sha256:dcf399d21170bb899e00d2a693bddcc79e61471fbfead8500a65578700a3190a"},
 ]
 cached-property = [
     {file = "cached-property-1.5.2.tar.gz", hash = "sha256:9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130"},
@@ -2288,8 +2288,8 @@ cysystemd = [
     {file = "cysystemd-1.4.8.tar.gz", hash = "sha256:1027ef86aba8a484526d33f4d0f96f01a3b2531cc4d20d08cd0271f9dc90a442"},
 ]
 data-france = [
-    {file = "data-france-0.13.2.tar.gz", hash = "sha256:d0d5ba436448cf4953b17b6c668ca2398896c38ef07d869815cd87c968a70ca8"},
-    {file = "data_france-0.13.2-py3-none-any.whl", hash = "sha256:bff2cc3850235f5ce97d7ffff24d89ac541a535f130a0605399be7245669f2de"},
+    {file = "data-france-0.13.3.tar.gz", hash = "sha256:9999b8aa082c83700bbd140718a0b10c92b809f99341759f09bed71116fa8d58"},
+    {file = "data_france-0.13.3-py3-none-any.whl", hash = "sha256:0e83bcabc66a1b9cb27498692650e902cac67a22d46729a631fbb45fc85b92a6"},
 ]
 decorator = [
     {file = "decorator-5.0.9-py3-none-any.whl", hash = "sha256:6e5c199c16f7a9f0e3a61a4a54b3d27e7dad0dbdde92b944426cb20914376323"},
@@ -2405,8 +2405,8 @@ face = [
     {file = "face-20.1.1.tar.gz", hash = "sha256:7d59ca5ba341316e58cf72c6aff85cca2541cf5056c4af45cb63af9a814bed3e"},
 ]
 faker = [
-    {file = "Faker-8.10.2-py3-none-any.whl", hash = "sha256:5e4bc11b01c2d8ddea63fa6fbd9916e9166038de0a407daba3220cf6f0157320"},
-    {file = "Faker-8.10.2.tar.gz", hash = "sha256:2f62a30e79e7802655ee7f0cc88a49c39622a5d11f609992bf6ffbbbbf65db25"},
+    {file = "Faker-8.10.3-py3-none-any.whl", hash = "sha256:f27a2a5c34042752f9d5fea2a9667aed5265d7d7bdd5ce83bc03b2f8a540d148"},
+    {file = "Faker-8.10.3.tar.gz", hash = "sha256:771b21ab55924867ac865f4b0c2f547c200172293b1056be16289584ef1215cb"},
 ]
 flask = [
     {file = "Flask-1.1.2-py2.py3-none-any.whl", hash = "sha256:8a4fdd8936eba2512e9c85df320a37e694c93945b33ef33c89946a340a238557"},
