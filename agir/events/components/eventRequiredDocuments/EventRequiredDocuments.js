@@ -10,7 +10,6 @@ import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import EventSubtypePicker from "./EventSubtypePicker";
-import NoRequiredDocumentCard from "./NoRequiredDocumentCard";
 import ProjectStatusCard from "./ProjectStatusCard";
 import RequiredDocumentCard from "./RequiredDocumentCard";
 import RequiredDocumentModal from "./RequiredDocumentModal";
@@ -197,8 +196,11 @@ const EventRequiredDocuments = (props) => {
       </header>
       <Spacer size="1.5rem" />
       <section>
-        {requiredDocumentTypes.length === 0 && <NoRequiredDocumentCard />}
-        <ProjectStatusCard status={status} />
+        <ProjectStatusCard
+          status={status}
+          hasRequiredDocuments={requiredDocumentTypes.length > 0}
+          hasMissingDocuments={required.length > 0}
+        />
         <SentDocumentsCard documents={documents} />
         <EventSubtypePicker
           value={event.subtype}

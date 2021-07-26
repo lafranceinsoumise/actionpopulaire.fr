@@ -32,9 +32,23 @@ const StyledCard = styled.div`
 `;
 
 const ProjectStatusCard = (props) => {
-  const { status } = props;
+  const { status, hasRequiredDocuments, hasMissingDocuments } = props;
 
-  if (status === EVENT_PROJECT_STATUS.pending) {
+  const step = EVENT_PROJECT_STATUS[status];
+
+  if (!hasRequiredDocuments) {
+    return (
+      <StyledCard $pending>
+        <h4>Votre événement privé ne nécessite pas de documents</h4>
+        <p>
+          Vous avez changé le type de l’événement. Dans le cadre d’un événement
+          privé, vous n’avez pas besoin d’envoyer de document.
+        </p>
+      </StyledCard>
+    );
+  }
+
+  if (step === "pending" && !hasMissingDocuments) {
     return (
       <StyledCard $pending>
         <h4>Vos documents sont en relecture par le secrétariat général</h4>
@@ -46,7 +60,7 @@ const ProjectStatusCard = (props) => {
     );
   }
 
-  if (status === EVENT_PROJECT_STATUS.archived) {
+  if (step === "archived") {
     return (
       <StyledCard>
         <h4>Événement archivé</h4>
@@ -58,11 +72,25 @@ const ProjectStatusCard = (props) => {
     );
   }
 
+  if (step === "refused") {
+    return (
+      <StyledCard>
+        <h4>Événement public refusé</h4>
+        <p>
+          Veuillez prendre contact avec le secréatariat général pour plus
+          d’informations
+        </p>
+      </StyledCard>
+    );
+  }
+
   return null;
 };
 
 ProjectStatusCard.propTypes = {
   status: PropTypes.string,
+  hasRequiredDocuments: PropTypes.bool,
+  hasMissingDocuments: PropTypes.bool,
 };
 
 export default ProjectStatusCard;
