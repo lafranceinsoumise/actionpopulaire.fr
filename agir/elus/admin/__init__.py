@@ -31,6 +31,7 @@ from agir.elus.models import (
     AccesApplicationParrainages,
     MandatDepute,
     CHAMPS_ELUS_PARRAINAGES,
+    MandatDeputeEuropeen,
 )
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
@@ -700,6 +701,19 @@ class MandatDeputeAdmin(BaseMandatAdmin):
 
     class Media:
         pass
+
+
+@admin.register(MandatDeputeEuropeen)
+class MandatDeputeEuropeenAdmin(BaseMandatAdmin):
+    list_display = (
+        "person",
+        "membre_reseau_elus",
+        "statut",
+        "actif",
+        "is_insoumise_display",
+        "is_2022_display",
+        "is_2022_appel_elus",
+    )
 
 
 @admin.register(RechercheParrainage)

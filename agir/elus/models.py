@@ -700,12 +700,47 @@ class MandatDepute(MandatAbstrait):
         ordering = ("person", "conseil")
 
 
+@reversion.register()
+class MandatDeputeEuropeen(MandatAbstrait):
+    DEFAULT_DATE_RANGE = DateRange(date(2019, 6, 1), date(2024, 5, 31))
+
+    person = models.ForeignKey(
+        "people.Person",
+        verbose_name="Élu",
+        on_delete=models.CASCADE,
+        related_name="mandats_depute_europeen",
+        related_query_name="mandat_depute_depute_europeen",
+    )
+
+    reference = models.ForeignKey(
+        "data_france.DeputeEuropeen",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Référence dans les données du RNE",
+        help_text="La fiche correspondant à cet élu dans le répertoire national des élus",
+        related_name="elus",
+        related_query_name="elu",
+    )
+
+    def titre_complet(self, conseil_avant=False):
+        return genrer(
+            self.person.gender, "député européen", "députée européenne", "député"
+        )
+
+    class Meta:
+        verbose_name = "Mandat de député⋅e européen⋅ne"
+        verbose_name_plural = "Mandats de député⋅e européen⋅ne"
+        ordering = ("person",)
+
+
 types_elus = {
     "municipal": MandatMunicipal,
     "departemental": MandatDepartemental,
     "regional": MandatRegional,
     "consulaire": MandatConsulaire,
     "depute": MandatDepute,
+    "depute_europeen": MandatDeputeEuropeen,
 }
 
 # Le champ `dates` des modèles de mandat est défini sur la classe `MandatAbstrait`.
