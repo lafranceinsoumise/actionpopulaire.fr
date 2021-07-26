@@ -253,7 +253,14 @@ def legender_elu_depuis_fiche_rne(form, reference):
             )
 
 
-class MandatMunicipalForm(MandatForm):
+class AvecReferenceMixin(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(AvecReferenceMixin, self).__init__(*args, **kwargs)
+        if self.instance.reference:
+            legender_elu_depuis_fiche_rne(self, self.instance.reference)
+
+
+class MandatMunicipalForm(AvecReferenceMixin, MandatForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -264,19 +271,12 @@ class MandatMunicipalForm(MandatForm):
                 epci = self.instance.conseil.epci
                 self.fields["communautaire"].label = f"Mandat auprès de la {epci.nom}"
 
-        if self.instance.reference:
-            legender_elu_depuis_fiche_rne(self, self.instance.reference)
+
+class MandatDeputeForm(AvecReferenceMixin, MandatForm):
+    pass
 
 
-class MandatDeputeForm(MandatForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if self.instance.reference:
-            legender_elu_depuis_fiche_rne(self, self.instance.reference)
-
-
-class MandatDepartementalForm(MandatForm):
+class MandatDepartementalForm(AvecReferenceMixin, MandatForm):
     def __init__(self, *args, **kwargs):
         super(MandatDepartementalForm, self).__init__(*args, **kwargs)
 
@@ -285,8 +285,19 @@ class MandatDepartementalForm(MandatForm):
             "régional. Pour Paris, passez par le formulaire d'ajout d'un élu municipal."
         )
 
-        if self.instance.reference:
-            legender_elu_depuis_fiche_rne(self, self.instance.reference)
+
+class MandatRegionalForm(AvecReferenceMixin, MandatForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["conseil"].error_messages["invalid_choice"] = (
+            "Pour Mayotte, bien qu'ayant des attributions régionales, les élus sont élus canton par canton et sont "
+            "considérés comme des élus départementaux."
+        )
+
+
+class MandatDeputeEuropeenForm(AvecReferenceMixin, MandatForm):
+    pass
 
 
 class RechercheParrainageForm(forms.ModelForm):

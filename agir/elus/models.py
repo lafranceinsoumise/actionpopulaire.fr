@@ -895,6 +895,16 @@ class RechercheParrainage(TimeStampedModel):
 
         return f"{nom_elu} — {self.get_statut_display().lower()}"
 
+    @classmethod
+    def trouver_parrainage(cls, obj):
+        ref_model = obj._meta.get_field("reference").related_model
+        field = next(
+            f.name
+            for f in cls._meta.get_fields()
+            if isinstance(f, models.ForeignKey) and f.related_model is ref_model
+        )
+        return cls.objects.get(**{f"{field}__elu": obj.id})
+
     class Meta:
         verbose_name = "Parrainages pour la présidentielle"
         verbose_name_plural = "Parrainages pour la présidentielle"

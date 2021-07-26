@@ -53,9 +53,11 @@ from .forms import (
     RechercheParrainageForm,
     MandatDepartementalForm,
     MandatDeputeForm,
+    MandatDeputeEuropeenForm,
+    MandatRegionalForm,
 )
 from .views import ConfirmerParrainageView, AnnulerParrainageView
-from ...lib.admin import display_list_of_links
+from ...lib.admin import display_list_of_links, get_admin_link
 
 
 class BaseMandatAdmin(admin.ModelAdmin):
@@ -86,6 +88,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
         """
         can_view_person = request.user.has_perm("people.view_person")
         create_new_person = request.GET.get("nouvelle") == "O"
+        original_fieldsets = super().get_fieldsets(request, obj=obj)
 
         # cas de la création d'un nouveau mandat
         if obj is None:
@@ -105,7 +108,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
                             ),
                         },
                     )
-                    for title, params in super().get_fieldsets(request, obj=obj)
+                    for title, params in original_fieldsets
                 )
             else:
                 # Si on utilise une personne existante, on n'affiche que les champs
@@ -119,7 +122,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
                 )
                 additional_fields = [
                     f
-                    for _, params in super().get_fieldsets(request, obj=obj)
+                    for _, params in original_fieldsets
                     for f in params["fields"]
                     if f in own_fields
                 ]
@@ -173,12 +176,12 @@ class BaseMandatAdmin(admin.ModelAdmin):
                                 ),
                             },
                         )
-                        for title, params in self.fieldsets
+                        for title, params in original_fieldsets
                     )
                 )
                 + additional_fieldsets
             )
-        return self.fieldsets + additional_fieldsets
+        return original_fieldsets + additional_fieldsets
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj) + (
@@ -191,7 +194,8 @@ class BaseMandatAdmin(admin.ModelAdmin):
             "is_insoumise_display",
             "is_2022_display",
             "is_2022_appel_elus",
-            "distance",
+            "statut_parrainage",
+            "parrainage_link",
         )
 
         if obj is not None:
@@ -277,17 +281,6 @@ class BaseMandatAdmin(admin.ModelAdmin):
     is_2022_appel_elus.short_description = "Soutien 2022 via appel élus"
     is_2022_appel_elus.boolean = True
 
-    def distance(self, obj):
-        if obj.distance is None:
-            return "-"
-
-        if obj.distance == 0:
-            return "Dans le périmètre"
-
-        return f"{obj.distance.km:.0f} km"
-
-    distance.short_description = "Distance entre l'adresse et le lieu d'élection"
-
     def get_changeform_initial_data(self, request):
         """Permet de préremplir le champs `dates' en fonction de la dernière élection"""
         initial = super().get_changeform_initial_data(request)
@@ -360,6 +353,32 @@ class BaseMandatAdmin(admin.ModelAdmin):
     membre_reseau_elus.short_description = "Membre du réseau ?"
     membre_reseau_elus.admin_order_field = "person__membre_reseau_elus"
 
+    def statut_parrainage(self, obj):
+        if obj and obj.reference_id:
+            try:
+                parrainage = RechercheParrainage.trouver_parrainage(obj)
+            except RechercheParrainage.DoesNotExist:
+                pass
+            else:
+                return parrainage.get_statut_display()
+        return "-"
+
+    statut_parrainage.short_description = "Parrainage 2022"
+
+    def parrainage_link(self, obj):
+        if obj and obj.reference_id:
+            try:
+                parrainage = RechercheParrainage.trouver_parrainage(obj)
+            except RechercheParrainage.DoesNotExist:
+                pass
+            else:
+                return format_html(
+                    '<a href="{}">{}</a>',
+                    get_admin_link(parrainage),
+                    parrainage.get_statut_display(),
+                )
+        return "-"
+
 
 @admin.register(MandatMunicipal)
 class MandatMunicipalAdmin(BaseMandatAdmin):
@@ -368,6 +387,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         "conseil",
         "reference",
     )
+    readonly_fields = ("distance",)
 
     list_filter = (
         "mandat",
@@ -388,6 +408,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         "is_insoumise_display",
         "is_2022_display",
         "is_2022_appel_elus",
+        "statut_parrainage",
     )
     fieldsets = (
         (
@@ -403,6 +424,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                     "is_insoumise",
                     "is_2022",
                     "signataire_appel",
+                    "parrainage_link",
                     "reference",
                     "commentaires",
                 )
@@ -443,6 +465,17 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("person")
 
+    def distance(self, obj):
+        if obj.distance is None:
+            return "-"
+
+        if obj.distance == 0:
+            return "Dans le périmètre"
+
+        return f"{obj.distance.km:.0f} km"
+
+    distance.short_description = "Distance entre l'adresse et le lieu d'élection"
+
     class Media:
         pass
 
@@ -469,6 +502,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
         "is_insoumise_display",
         "is_2022_display",
         "is_2022_appel_elus",
+        "statut_parrainage",
     )
     fieldsets = (
         (
@@ -483,6 +517,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
                     "is_insoumise",
                     "is_2022",
                     "signataire_appel",
+                    "parrainage_link",
                     "reference",
                     "commentaires",
                 )
@@ -495,6 +530,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
                     "first_name",
                     "last_name",
                     "gender",
+                    "date_of_birth",
                     "email_officiel",
                     "contact_phone",
                     "location_address1",
@@ -521,6 +557,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
 
 @admin.register(MandatRegional)
 class MandatRegionalAdmin(BaseMandatAdmin):
+    form = MandatRegionalForm
     autocomplete_fields = ("reference",)
     list_filter = ("mandat", RegionFilter, ReferenceFilter)
 
@@ -534,6 +571,8 @@ class MandatRegionalAdmin(BaseMandatAdmin):
         "is_insoumise_display",
         "is_2022_display",
         "is_2022_appel_elus",
+        "parrainage_link",
+        "statut_parrainage",
     )
     fieldsets = (
         (
@@ -548,6 +587,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
                     "is_insoumise",
                     "is_2022",
                     "signataire_appel",
+                    "parrainage_link",
                     "reference",
                     "commentaires",
                 )
@@ -560,6 +600,7 @@ class MandatRegionalAdmin(BaseMandatAdmin):
                     "first_name",
                     "last_name",
                     "gender",
+                    "date_of_birth",
                     "email_officiel",
                     "contact_phone",
                     "location_address1",
@@ -619,6 +660,7 @@ class MandatConsulaireAdmin(BaseMandatAdmin):
                     "first_name",
                     "last_name",
                     "gender",
+                    "date_of_birth",
                     "email_officiel",
                     "contact_phone",
                     "location_address1",
@@ -658,6 +700,7 @@ class MandatDeputeAdmin(BaseMandatAdmin):
         "is_insoumise_display",
         "is_2022_display",
         "is_2022_appel_elus",
+        "statut_parrainage",
     )
     fieldsets = (
         (
@@ -671,6 +714,7 @@ class MandatDeputeAdmin(BaseMandatAdmin):
                     "is_insoumise",
                     "is_2022",
                     "signataire_appel",
+                    "parrainage_link",
                     "reference",
                     "commentaires",
                 )
@@ -683,6 +727,7 @@ class MandatDeputeAdmin(BaseMandatAdmin):
                     "first_name",
                     "last_name",
                     "gender",
+                    "date_of_birth",
                     "email_officiel",
                     "contact_phone",
                     "location_address1",
@@ -705,6 +750,8 @@ class MandatDeputeAdmin(BaseMandatAdmin):
 
 @admin.register(MandatDeputeEuropeen)
 class MandatDeputeEuropeenAdmin(BaseMandatAdmin):
+    form = MandatDeputeEuropeenForm
+
     list_display = (
         "person",
         "membre_reseau_elus",
@@ -713,6 +760,45 @@ class MandatDeputeEuropeenAdmin(BaseMandatAdmin):
         "is_insoumise_display",
         "is_2022_display",
         "is_2022_appel_elus",
+        "statut_parrainage",
+    )
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "person",
+                    "statut",
+                    "membre_reseau_elus",
+                    "is_insoumise",
+                    "is_2022",
+                    "signataire_appel",
+                    "parrainage_link",
+                    "reference",
+                    "commentaires",
+                )
+            },
+        ),
+        (
+            "Informations sur l'élu⋅e",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "gender",
+                    "date_of_birth",
+                    "email_officiel",
+                    "contact_phone",
+                    "location_address1",
+                    "location_address2",
+                    "location_zip",
+                    "location_city",
+                    "new_email",
+                )
+            },
+        ),
+        ("Précisions sur le mandat", {"fields": ("dates",)},),
     )
 
 
