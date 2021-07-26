@@ -1,5 +1,12 @@
 import { useMemo } from "react";
 
+export const MEMBERSHIP_TYPES = {
+  FOLLOWER: 5,
+  MEMBER: 10,
+  MANAGER: 50,
+  REFERENT: 100,
+};
+
 const LFI_NSP_GROUP_WORD_LABELS = {
   "votre groupe doit être animé": "votre équipe doit être animée",
   "un autre groupe": "une autre équipe",

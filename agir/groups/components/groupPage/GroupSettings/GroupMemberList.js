@@ -31,7 +31,7 @@ const MemberList = styled.div`
 const GroupMemberList = ({
   members,
   onAdd,
-  onChangeMembership,
+  onChangeMembershipType,
   addButtonLabel,
   isLoading,
 }) => {
@@ -49,7 +49,7 @@ const GroupMemberList = ({
         <GroupMember
           key={member.id}
           isLoading={isLoading}
-          onChangeMembership={onChangeMembership}
+          onChangeMembershipType={onChangeMembershipType}
           {...member}
         />
       ))}
@@ -62,7 +62,7 @@ const GroupMemberList = ({
 GroupMemberList.propTypes = {
   members: PropTypes.arrayOf(PropTypes.shape(GroupMember.propTypes)),
   onAdd: PropTypes.func,
-  onChangeMembership: PropTypes.func,
+  onChangeMembershipType: PropTypes.func,
   addButtonLabel: PropTypes.node,
   isLoading: PropTypes.bool,
 };

@@ -11,6 +11,8 @@ import InlineMenu from "@agir/front/genericComponents/InlineMenu";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
+import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
+
 const Name = styled.span``;
 const Role = styled.span``;
 const Email = styled.span``;
@@ -131,10 +133,10 @@ const Member = styled.div`
 `;
 
 const MEMBERSHIP_TYPE_LABEL = {
-  5: ["Abonné·e", "Abonnée", "Abonné"],
-  10: "Membre actif",
-  50: "Gestionnaire",
-  100: ["Animateur·ice", "Animatrice", "Animateur"],
+  [MEMBERSHIP_TYPES.FOLLOWER]: ["Abonné·e", "Abonnée", "Abonné"],
+  [MEMBERSHIP_TYPES.MEMBER]: "Membre actif",
+  [MEMBERSHIP_TYPES.MANAGER]: "Gestionnaire",
+  [MEMBERSHIP_TYPES.REFERENT]: ["Animateur·ice", "Animatrice", "Animateur"],
 };
 
 const MembershipType = ({ gender, membershipType }) => {
@@ -202,7 +204,7 @@ const GroupMember = (props) => {
     membershipType,
     email,
     gender,
-    onChangeMembership,
+    onChangeMembershipType,
     onResetMembershipType,
     isLoading,
   } = props;
@@ -210,7 +212,7 @@ const GroupMember = (props) => {
   const menuTriggerSize = useResponsiveMemo(1, 1.5);
 
   const actions = [
-    onChangeMembership && membershipType === 10
+    onChangeMembershipType && membershipType === MEMBERSHIP_TYPES.MEMBER
       ? {
           label: (
             <>
@@ -219,11 +221,11 @@ const GroupMember = (props) => {
             </>
           ),
           handler: () => {
-            onChangeMembership(id, 5);
+            onChangeMembershipType(id, MEMBERSHIP_TYPES.FOLLOWER);
           },
         }
       : undefined,
-    onChangeMembership && membershipType === 5
+    onChangeMembershipType && membershipType === MEMBERSHIP_TYPES.FOLLOWER
       ? {
           label: (
             <>
@@ -232,7 +234,7 @@ const GroupMember = (props) => {
             </>
           ),
           handler: () => {
-            onChangeMembership(id, 10);
+            onChangeMembershipType(id, MEMBERSHIP_TYPES.MEMBER);
           },
         }
       : undefined,
@@ -260,7 +262,7 @@ const GroupMember = (props) => {
       </Name>
       <MembershipType gender={gender} membershipType={membershipType} />
       {actions.length > 0 ? (
-        <InlineMenu triggerSize={`${menuTriggerSize}rem`} shouldDismissOnCLick>
+        <InlineMenu triggerSize={`${menuTriggerSize}rem`} shouldDismissOnClick>
           <InlineMenuList>
             {actions.map((action) => (
               <li key={action.label}>
@@ -282,12 +284,15 @@ GroupMember.propTypes = {
   displayName: PropTypes.string,
   image: PropTypes.string,
   email: PropTypes.string,
-  membershipType: PropTypes.oneOf(
-    Object.keys(MEMBERSHIP_TYPE_LABEL).map(Number)
-  ).isRequired,
+  membershipType: PropTypes.oneOf([
+    MEMBERSHIP_TYPES.FOLLOWER,
+    MEMBERSHIP_TYPES.MEMBER,
+    MEMBERSHIP_TYPES.REFERENT,
+    MEMBERSHIP_TYPES.MANAGER,
+  ]).isRequired,
   gender: PropTypes.oneOf(["", ...Object.values(GENDER)]),
   onResetMembershipType: PropTypes.func,
-  onChangeMembership: PropTypes.func,
+  onChangeMembershipType: PropTypes.func,
   isLoading: PropTypes.bool,
 };
 

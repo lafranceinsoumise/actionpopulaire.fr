@@ -38,7 +38,13 @@ const Popins = {
 };
 
 export const PopinContainer = (props) => {
-  const { isOpen, onDismiss, position = "bottom-right", children } = props;
+  const {
+    isOpen,
+    onDismiss,
+    position = "bottom-right",
+    shouldDismissOnClick = false,
+    children,
+  } = props;
 
   const popinRef = useRef();
   const popinTransition = useTransition(isOpen, fadeInTransition);
@@ -64,7 +70,11 @@ export const PopinContainer = (props) => {
 
   return popinTransition((style, item) =>
     item ? (
-      <Popin ref={popinRef} style={style}>
+      <Popin
+        ref={popinRef}
+        style={style}
+        onClick={shouldDismissOnClick ? onDismiss : undefined}
+      >
         {children}
       </Popin>
     ) : null
@@ -74,6 +84,7 @@ PopinContainer.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onDismiss: PropTypes.func,
   position: PropTypes.oneOf(Object.keys(Popins)),
+  shouldDismissOnClick: PropTypes.bool,
   children: PropTypes.node,
 };
 

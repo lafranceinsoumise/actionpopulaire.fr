@@ -19,8 +19,7 @@ import {
 } from "@agir/groups/groupPage/api.js";
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
-
-const [REFERENT, MANAGER, MEMBER] = [100, 50, 10];
+import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
 const slideInTransition = {
   from: { transform: "translateX(66%)" },
@@ -37,7 +36,6 @@ const EditionPanelWrapper = styled(animated.div)`
   width: 100%;
   height: 100%;
   box-shadow: ${style.elaborateShadow};
-  will-change: transform;
 `;
 
 const GroupManagementPage = (props) => {
@@ -54,11 +52,11 @@ const GroupManagementPage = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const editManager = useCallback(() => {
-    setSelectedMembershipType(MANAGER);
+    setSelectedMembershipType(MEMBERSHIP_TYPES.MANAGER);
   }, []);
 
   const editReferent = useCallback(() => {
-    setSelectedMembershipType(REFERENT);
+    setSelectedMembershipType(MEMBERSHIP_TYPES.REFERENT);
   }, []);
 
   const selectMember = useCallback((option) => {
@@ -93,7 +91,7 @@ const GroupManagementPage = (props) => {
 
   const resetMembershipType = useCallback(
     (memberId) => {
-      updateMembershipType(memberId, MEMBER);
+      updateMembershipType(memberId, MEMBERSHIP_TYPES.MEMBER);
     },
     [updateMembershipType]
   );
