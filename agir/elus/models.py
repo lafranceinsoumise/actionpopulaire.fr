@@ -791,8 +791,8 @@ class RechercheParrainage(TimeStampedModel):
         to="data_france.EluMunicipal",
         verbose_name="Maire",
         on_delete=models.SET_NULL,
-        related_name="recherches_parrainages",
-        related_query_name="rechercher_parrainage",
+        related_name="parrainages",
+        related_query_name="parrainage",
         null=True,
         blank=True,
     )

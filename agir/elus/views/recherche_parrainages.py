@@ -112,8 +112,8 @@ class RechercheParrainagesView(
             EluMunicipal.objects.filter(CRITERE_INCLUSION_ELUS)
             .select_related("commune")
             .filter(
-                rechercher_parrainage__statut=StatutRechercheParrainage.EN_COURS,
-                rechercher_parrainage__person_id=person.id,
+                parrainage__statut=StatutRechercheParrainage.EN_COURS,
+                parrainage__person_id=person.id,
             )
             .annotate(
                 statut=Value(

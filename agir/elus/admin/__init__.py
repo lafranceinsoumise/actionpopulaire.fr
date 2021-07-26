@@ -45,6 +45,7 @@ from .filters import (
     ReferenceFilter,
     MandatsFilter,
     TypeEluFilter,
+    ParrainagesFilter,
 )
 from .forms import (
     PERSON_FIELDS,
@@ -395,6 +396,7 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
         DepartementFilter,
         DepartementRegionFilter,
         ReferenceFilter,
+        ParrainagesFilter,
     )
 
     list_display = (
@@ -490,6 +492,7 @@ class MandatDepartementAdmin(BaseMandatAdmin):
         ConseilFilter,
         RegionFilter,
         ReferenceFilter,
+        ParrainagesFilter,
     )
 
     list_display = (
@@ -559,7 +562,12 @@ class MandatDepartementAdmin(BaseMandatAdmin):
 class MandatRegionalAdmin(BaseMandatAdmin):
     form = MandatRegionalForm
     autocomplete_fields = ("reference",)
-    list_filter = ("mandat", RegionFilter, ReferenceFilter)
+    list_filter = (
+        "mandat",
+        RegionFilter,
+        ReferenceFilter,
+        ParrainagesFilter,
+    )
 
     list_display = (
         "person",
@@ -689,7 +697,10 @@ class MandatDeputeAdmin(BaseMandatAdmin):
         "conseil",
         "reference",
     )
-    list_filter = (ReferenceFilter,)
+    list_filter = (
+        ReferenceFilter,
+        ParrainagesFilter,
+    )
 
     list_display = (
         "person",
@@ -751,6 +762,11 @@ class MandatDeputeAdmin(BaseMandatAdmin):
 @admin.register(MandatDeputeEuropeen)
 class MandatDeputeEuropeenAdmin(BaseMandatAdmin):
     form = MandatDeputeEuropeenForm
+
+    list_filter = (
+        ReferenceFilter,
+        ParrainagesFilter,
+    )
 
     list_display = (
         "person",
