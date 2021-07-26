@@ -853,7 +853,32 @@ class RechercheParrainage(TimeStampedModel):
         verbose_name="Formulaire de promesse signé",
         upload_to=formulaire_parrainage_pattern,
         null=True,
+        blank=True,
     )
+
+    def validate_unique(self, exclude=None):
+        try:
+            super(RechercheParrainage, self).validate_unique(exclude=exclude)
+        except ValidationError as exc:
+            errors = exc.error_dict
+        else:
+            errors = {}
+
+        if t := self.type_elu:
+            if (
+                RechercheParrainage.objects.filter(**{t: getattr(self, t)})
+                .exclude(statut=RechercheParrainage.Statut.ANNULEE)
+                .exclude(id=self.id)
+                .exists()
+            ):
+                errors.setdefault(self.type_elu, []).append(
+                    ValidationError(
+                        message="Il existe déjà une fiche pour cet élu !", code="unique"
+                    )
+                )
+
+        if errors:
+            raise ValidationError(errors)
 
     @property
     def type_elu(self):

@@ -740,11 +740,11 @@ class RechercherParrainageMaireAdmin(admin.ModelAdmin):
                 (
                     "Élu·e sollicité·e",
                     {
-                        "fields": ("maire", "elu_departemental", "depute"),
+                        "fields": CHAMPS_ELUS_PARRAINAGES,
                         "description": "Choisissez un élu à partir des sélecteurs suivants, en fonction de son type de mandat.",
                     },
                 ),
-                ("Détails", {"fields": ("commentaires", "formulaire")}),
+                ("Détails", {"fields": ("choix", "commentaires", "formulaire")}),
             )
 
         return (
@@ -837,6 +837,15 @@ class RechercherParrainageMaireAdmin(admin.ModelAdmin):
         ] + urls
 
 
+@admin.register(AccesApplicationParrainages)
+class AccesApplicationParrainagesAdmin(VersionAdmin):
+    list_display = ("person", "etat")
+    list_filter = ("etat",)
+
+    fields = ("person", "etat")
+    autocomplete_fields = ("person",)
+
+
 admin.site.unregister(EluMunicipal)
 
 
@@ -855,15 +864,6 @@ class EluMunicipalAdmin(OriginalEluMunicipalAdmin):
             return display_list_of_links((m, str(m.person)) for m in ms)
 
     mandats_associes.short_description = "Personnes associées à cette fiche"
-
-
-@admin.register(AccesApplicationParrainages)
-class AccesApplicationParrainagesAdmin(VersionAdmin):
-    list_display = ("person", "etat")
-    list_filter = ("etat",)
-
-    fields = ("person", "etat")
-    autocomplete_fields = ("person",)
 
 
 admin.site.unregister(Depute)

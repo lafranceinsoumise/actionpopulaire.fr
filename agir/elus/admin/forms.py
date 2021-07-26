@@ -290,25 +290,56 @@ class MandatDepartementalForm(MandatForm):
 
 
 class RechercheParrainageForm(forms.ModelForm):
+    choix = forms.ChoiceField(
+        label="Parraine ou non",
+        choices=(
+            (RechercheParrainage.Statut.VALIDEE, "Parraine"),
+            (RechercheParrainage.Statut.REFUS, "Refuse de parrainer"),
+        ),
+        initial=RechercheParrainage.Statut.VALIDEE,
+        required=False,
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         new = self.instance._state.adding
 
         if new:
-            self.instance.statut = RechercheParrainage.Statut.VALIDEE
+            self.fields["choix"].required = True
 
     def clean(self):
         cleaned_data = super().clean()
 
-        nb_mandats = sum(1 for f in CHAMPS_ELUS_PARRAINAGES if cleaned_data.get(f))
+        if self.instance._state.adding:
+            nb_mandats = sum(1 for f in CHAMPS_ELUS_PARRAINAGES if cleaned_data.get(f))
 
-        if nb_mandats == 0:
-            self.add_error(
-                None,
-                "Vous devez sélectionner un mandat parmi les différents mandats possibles.",
-            )
-        elif nb_mandats > 1:
-            self.add_error(None, "Vous devez sélectionner un type de mandat seulement.")
+            if nb_mandats == 0:
+                self.add_error(
+                    None,
+                    "Vous devez sélectionner un mandat parmi les différents mandats possibles.",
+                )
+            elif nb_mandats > 1:
+                self.add_error(
+                    None, "Vous devez sélectionner un type de mandat seulement."
+                )
+
+            if (
+                "choix" in cleaned_data
+                and int(cleaned_data["choix"]) == RechercheParrainage.Statut.VALIDEE
+            ):
+                if not cleaned_data.get("formulaire"):
+                    self.add_error(
+                        "formulaire",
+                        forms.ValidationError(
+                            "Vous devez joindre le formulaire pour cet élu",
+                            code="required",
+                        ),
+                    )
 
         return cleaned_data
+
+    def save(self, commit=True):
+        if self.instance._state.adding:
+            self.instance.statut = self.cleaned_data["choix"]
+        return super(RechercheParrainageForm, self).save(commit=commit)
