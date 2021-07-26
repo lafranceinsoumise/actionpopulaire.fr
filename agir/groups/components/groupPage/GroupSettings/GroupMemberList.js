@@ -3,22 +3,38 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-
 import GroupMember from "./GroupMember";
 import AddPair from "./AddPair";
 
 const MemberList = styled.div`
-  box-shadow: ${style.cardShadow};
-  border-radius: 8px;
-  overflow: hidden;
+  box-shadow: ${(props) => props.theme.cardShadow};
+  border-radius: ${(props) => props.theme.borderRadius};
 
   & > * {
-    border-bottom: 1px solid ${style.black50};
+    background-color: transparent;
+    border-bottom: 1px solid ${(props) => props.theme.black50};
+
+    &:first-child {
+      border-radius: ${(props) => props.theme.borderRadius}
+        ${(props) => props.theme.borderRadius} 0 0;
+    }
+    &:last-child {
+      border-radius: 0 0 ${(props) => props.theme.borderRadius}
+        ${(props) => props.theme.borderRadius};
+    }
+    &:only-child {
+      border-radius: ${(props) => props.theme.borderRadius};
+    }
   }
 `;
 
-const GroupMemberList = ({ members, onAdd, addButtonLabel, isLoading }) => {
+const GroupMemberList = ({
+  members,
+  onAdd,
+  onChangeMembership,
+  addButtonLabel,
+  isLoading,
+}) => {
   const list = useMemo(
     () =>
       Array.isArray(members)
@@ -30,7 +46,12 @@ const GroupMemberList = ({ members, onAdd, addButtonLabel, isLoading }) => {
   return (
     <MemberList>
       {list.map((member) => (
-        <GroupMember key={member.id} isLoading={isLoading} {...member} />
+        <GroupMember
+          key={member.id}
+          isLoading={isLoading}
+          onChangeMembership={onChangeMembership}
+          {...member}
+        />
       ))}
       {onAdd && addButtonLabel && (
         <AddPair onClick={onAdd} label={addButtonLabel} />
@@ -41,6 +62,7 @@ const GroupMemberList = ({ members, onAdd, addButtonLabel, isLoading }) => {
 GroupMemberList.propTypes = {
   members: PropTypes.arrayOf(PropTypes.shape(GroupMember.propTypes)),
   onAdd: PropTypes.func,
+  onChangeMembership: PropTypes.func,
   addButtonLabel: PropTypes.node,
   isLoading: PropTypes.bool,
 };
