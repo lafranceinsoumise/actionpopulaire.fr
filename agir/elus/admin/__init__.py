@@ -105,7 +105,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
                             ),
                         },
                     )
-                    for title, params in self.fieldsets
+                    for title, params in super().get_fieldsets(request, obj=obj)
                 )
             else:
                 # Si on utilise une personne existante, on n'affiche que les champs
@@ -119,7 +119,7 @@ class BaseMandatAdmin(admin.ModelAdmin):
                 )
                 additional_fields = [
                     f
-                    for _, params in self.fieldsets
+                    for _, params in super().get_fieldsets(request, obj=obj)
                     for f in params["fields"]
                     if f in own_fields
                 ]

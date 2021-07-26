@@ -773,7 +773,13 @@ class RechercheParrainageQueryset(models.QuerySet):
         return self.exclude(statut=RechercheParrainage.Statut.ANNULEE)
 
 
-CHAMPS_ELUS_PARRAINAGES = ["maire", "elu_departemental", "depute"]
+CHAMPS_ELUS_PARRAINAGES = [
+    "maire",
+    "elu_departemental",
+    "elu_regional",
+    "depute",
+    "depute_europeen",
+]
 
 
 class RechercheParrainage(TimeStampedModel):
@@ -799,10 +805,27 @@ class RechercheParrainage(TimeStampedModel):
         null=True,
         blank=True,
     )
-
+    elu_regional = models.ForeignKey(
+        to="data_france.EluRegional",
+        verbose_name="Élu·e régional·e",
+        on_delete=models.SET_NULL,
+        related_name="parrainages",
+        related_query_name="parrainage",
+        null=True,
+        blank=True,
+    )
     depute = models.ForeignKey(
         to="data_france.Depute",
         verbose_name="Député·e",
+        on_delete=models.SET_NULL,
+        related_name="parrainages",
+        related_query_name="parrainage",
+        null=True,
+        blank=True,
+    )
+    depute_europeen = models.ForeignKey(
+        to="data_france.DeputeEuropeen",
+        verbose_name="Député·e européen·e",
         on_delete=models.SET_NULL,
         related_name="parrainages",
         related_query_name="parrainage",
