@@ -76,6 +76,10 @@ const StyledDocumentList = styled.div`
   }
 `;
 
+const ContactFormLink = styled.p`
+  color: ${(props) => props.theme.black700};
+  text-align: center;
+`;
 const StyledWrapper = styled.main`
   text-align: center;
   padding: 1.5rem 1.5rem 5rem;
@@ -248,6 +252,13 @@ const EventRequiredDocuments = (props) => {
           )}
         </StyledDocumentList>
       )}
+      <Spacer size="2rem" />
+      <ContactFormLink>
+        Besoin d'aide&nbsp;? Vous pouvez nous contacter via{" "}
+        <a href="https://infos.actionpopulaire.fr/contact/">
+          le formulaire en ligne
+        </a>
+      </ContactFormLink>
       <RequiredDocumentModal
         type={selectedType}
         shouldShow={!!selectedType}
