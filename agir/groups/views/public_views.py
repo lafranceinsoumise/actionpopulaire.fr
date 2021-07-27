@@ -1,4 +1,8 @@
+import os
+
 import ics
+from PIL import Image, ImageDraw, ImageFont
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError, transaction
@@ -16,10 +20,12 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, DeleteView, ListView
 
+from agir.api import settings
 from agir.authentication.view_mixins import (
     GlobalOrObjectPermissionRequiredMixin,
     HardLoginRequiredMixin,
 )
+from agir.carte.models import StaticMapImage
 from agir.front.view_mixins import FilterView
 from agir.groups.actions.notifications import someone_joined_notification
 from agir.groups.filters import GroupFilterSet
@@ -169,3 +175,164 @@ class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
             )
 
         return HttpResponseBadRequest()
+
+
+class GroupThumbnailView(DetailView):
+    model = SupportGroup
+    group = None
+    static_root = "{}/agir/front/static/front/og-image/".format(os.getcwd())
+
+    def get(self, request, *args, **kwargs):
+        self.group = self.get_object()
+
+        image = self.generate_thumbnail()
+        response = HttpResponse(content_type="image/png")
+        image.save(response, "PNG")
+        return response
+
+    def generate_thumbnail(self):
+        group_type = self.group.type
+
+        image = Image.new("RGB", (int(1200), int(630)), "#FFFFFF")
+        draw = ImageDraw.Draw(image)
+
+        bandeau = Image.open(self.static_root + "bandeau-ap-centre.png")
+        bandeau = bandeau.resize((1200, 95), Image.ANTIALIAS)
+        image.paste(bandeau, (0, 535), bandeau)
+
+        for type in self.group.TYPE_CHOICES:
+            u, v = type
+            if u == self.group.type:
+                group_type = v
+
+        if self.group.coordinates is None:
+            illustration = Image.open(self.static_root + "Frame-193.png")
+            image.paste(illustration, (0, 0), illustration)
+        else:
+            static_map_image = StaticMapImage.objects.filter(
+                center__distance_lt=(
+                    self.group.coordinates,
+                    StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
+                ),
+            ).first()
+
+            illustration = Image.open(static_map_image.image.path)
+            illustration = illustration.resize((1200, 225), Image.ANTIALIAS)
+            image.paste(illustration, (0, 0), illustration)
+
+            if self.group.image:
+                avatar = Image.open(self.group.image.path)
+            else:
+                avatar = Image.open(self.static_root + "avatar.png")
+            avatar = avatar.resize((148, 148), Image.ANTIALIAS)
+            image.paste(avatar, (526, 130), avatar)
+
+        if len(self.group.name) < 30:
+            if self.group.location_city is not None:
+                draw.text(
+                    (390, 350),
+                    "{} À {} ({})".format(
+                        group_type, self.group.location_city, self.group.location_zip
+                    ).upper(),
+                    fill=(87, 26, 255, 0),
+                    align="center",
+                    font=self.get_image_font(27),
+                )
+
+            draw.text(
+                (389, 400),
+                self.group.name.capitalize(),
+                fill=(0, 0, 0, 0),
+                align="center",
+                font=self.get_image_font(45),
+            )
+
+        elif len(self.group.name) < 36:
+            if self.group.location_city is not None:
+                draw.text(
+                    (390, 350),
+                    "{} À {} ({})".format(
+                        group_type, self.group.location_city, self.group.location_zip
+                    ).upper(),
+                    fill=(87, 26, 255, 0),
+                    align="center",
+                    font=self.get_image_font(27),
+                )
+
+            draw.text(
+                (389, 350),
+                group_type.upper(),
+                fill=(87, 26, 255, 0),
+                align="center",
+                font=self.get_image_font(27),
+            )
+            draw.text(
+                (389, 400),
+                self.group.name.capitalize(),
+                fill=(0, 0, 0, 0),
+                align="center",
+                font=self.get_image_font(45),
+            )
+        elif len(self.group.name) < 40:
+            if self.group.location_city is not None:
+                draw.text(
+                    (390, 350),
+                    "{} À {} ({})".format(
+                        group_type, self.group.location_city, self.group.location_zip
+                    ).upper(),
+                    fill=(87, 26, 255, 0),
+                    align="center",
+                    font=self.get_image_font(27),
+                )
+
+            draw.text(
+                (330, 370),
+                self.group.name[0:26].capitalize(),
+                fill=(0, 0, 0, 0),
+                align="center",
+                font=self.get_image_font(45),
+            )
+            draw.text(
+                (120, 430),
+                self.group.name[27:39].capitalize(),
+                fill=(0, 0, 0, 0),
+                align="center",
+                font=self.get_image_font(45),
+            )
+
+        else:
+            if self.group.location_city is not None:
+                draw.text(
+                    (390, 320),
+                    "{} À {} ({})".format(
+                        group_type, self.group.location_city, self.group.location_zip
+                    ).upper(),
+                    fill=(87, 26, 255, 0),
+                    align="center",
+                    font=self.get_image_font(27),
+                )
+
+            draw.text(
+                (330, 370),
+                self.group.name[0:26].capitalize(),
+                fill=(0, 0, 0, 0),
+                align="center",
+                font=self.get_image_font(45),
+            )
+            draw.text(
+                (120, 430),
+                self.group.name[27:64] + "...",
+                fill=(0, 0, 0, 0),
+                align="center",
+                font=self.get_image_font(45),
+            )
+
+        return image
+
+    def get_image_font(self, size):
+        return ImageFont.truetype(
+            self.static_root + "Poppins-Medium.ttf",
+            size=size,
+            encoding="utf-8",
+            layout_engine=ImageFont.LAYOUT_BASIC,
+        )
