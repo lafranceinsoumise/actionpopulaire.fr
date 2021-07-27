@@ -3,8 +3,6 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTransition, animated } from "@react-spring/web";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-
 const fadeInTransition = {
   from: { opacity: 0 },
   enter: { opacity: 1 },
@@ -13,27 +11,38 @@ const fadeInTransition = {
 };
 
 const BasePopin = styled(animated.div)`
+  isolation: isolate;
   position: absolute;
   z-index: 1;
   min-width: 250px;
+  height: auto;
   padding: 1rem;
-  background-color: ${style.white};
-  border: 1px solid ${style.black100};
-  box-shadow: 0px 3px 2px rgba(0, 35, 44, 0.05);
+  background-color: ${(props) => props.theme.white};
+  box-shadow: ${(props) => props.theme.cardShadow};
+  border-radius: ${(props) => props.theme.borderRadius};
+
+  & > * {
+    margin: 0;
+  }
 `;
 
 const Popins = {
   "bottom-right": styled(BasePopin)`
     right: 0;
-    bottom: 0;
+    bottom: -${(props) => props.$gap};
     transform: translateY(100%);
   `,
   bottom: styled(BasePopin)`
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: -${(props) => props.$gap};
     width: 100%;
     transform: translateY(100%);
+  `,
+  right: styled(BasePopin)`
+    left: 100%;
+    transform: translateX(${(props) => props.$gap});
+    top: 0;
   `,
 };
 
@@ -42,6 +51,7 @@ export const PopinContainer = (props) => {
     isOpen,
     onDismiss,
     position = "bottom-right",
+    gap = "0.5rem",
     shouldDismissOnClick = false,
     children,
   } = props;
@@ -73,6 +83,7 @@ export const PopinContainer = (props) => {
       <Popin
         ref={popinRef}
         style={style}
+        $gap={gap}
         onClick={shouldDismissOnClick ? onDismiss : undefined}
       >
         {children}
@@ -84,6 +95,7 @@ PopinContainer.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onDismiss: PropTypes.func,
   position: PropTypes.oneOf(Object.keys(Popins)),
+  gap: PropTypes.string,
   shouldDismissOnClick: PropTypes.bool,
   children: PropTypes.node,
 };
