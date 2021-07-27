@@ -2,6 +2,7 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 
 from . import views
+from .views.public_views import GroupThumbnailView
 
 uuid = r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}"
 simple_id = r"[0-9]+"
@@ -179,5 +180,10 @@ urlpatterns = [
         "groupes/invitation/abus/",
         views.InvitationAbuseReportingView.as_view(),
         name="report_invitation_abuse",
+    ),
+    path(
+        "groupes/<uuid:pk>/og-image/",
+        GroupThumbnailView.as_view(),
+        name="group_og_image",
     ),
 ]
