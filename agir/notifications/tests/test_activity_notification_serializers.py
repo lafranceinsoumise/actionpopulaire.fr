@@ -60,6 +60,16 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("url", result.data)
         self.assertIn("icon", result.data)
 
+    def test_new_follower_activity_type(self):
+        self.activity.type = Activity.TYPE_NEW_FOLLOWER
+        serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
+        result = serializer(instance=self.activity)
+        self.assertEqual(result.data.get("tag"), self.activity.type)
+        self.assertIn("title", result.data)
+        self.assertIn("body", result.data)
+        self.assertIn("url", result.data)
+        self.assertIn("icon", result.data)
+
     def test_new_member_activity_type(self):
         self.activity.type = Activity.TYPE_NEW_MEMBER
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]

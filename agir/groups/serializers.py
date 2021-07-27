@@ -20,6 +20,7 @@ from agir.lib.serializers import (
 from agir.people.serializers import PersonSerializer
 from . import models
 from .actions import get_promo_codes
+from .actions.notifications import member_to_follower_notification
 from .models import Membership, SupportGroup
 from ..front.serializer_utils import RoutesField
 from ..lib.utils import front_url, admin_url
@@ -440,6 +441,13 @@ class MembershipSerializer(serializers.ModelSerializer):
             )
 
         return data
+
+    def update(self, instance, validated_data):
+        was_active_member = instance.is_active_member
+        instance = super().update(instance, validated_data)
+        if was_active_member and not instance.is_active_member:
+            member_to_follower_notification(instance)
+        return instance
 
     class Meta:
         model = Membership

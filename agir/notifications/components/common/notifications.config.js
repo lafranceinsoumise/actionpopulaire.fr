@@ -188,6 +188,7 @@ const GROUP_NOTIFICATIONS = [
     hasPush: true,
     isActive: (group) => group.isManager,
     activityTypes: [
+      "new-follower",
       "new-member",
       "accepted-invitation-member",
       "group-membership-limit-reminder",

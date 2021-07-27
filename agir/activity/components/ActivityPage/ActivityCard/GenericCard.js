@@ -80,11 +80,34 @@ const GenericCard = (props) => {
         </GenericCardContainer>
       );
     }
+    case "new-follower": {
+      return (
+        <GenericCardContainer {...props}>
+          {Individual || "Quelqu'un"} suit désormais votre groupe {SupportGroup}
+          .
+        </GenericCardContainer>
+      );
+    }
     case "new-member": {
       return (
         <GenericCardContainer {...props}>
           {Individual || "Quelqu'un"} a rejoint {SupportGroup}. Prenez le temps
           de l’accueillir&nbsp;!
+        </GenericCardContainer>
+      );
+    }
+    case "member-status-changed": {
+      return (
+        <GenericCardContainer {...props}>
+          <strong>
+            Vous n’êtes plus membre actif du groupe {SupportGroup}
+          </strong>
+          <br />
+          Vous avez été indiqué comme “abonné·e” par les gestionnaires de ce
+          groupe.
+          <br />
+          Vous continuerez de recevoir la plupart des informations du groupe,
+          sauf les messages destinés uniquement aux membres actifs.
         </GenericCardContainer>
       );
     }

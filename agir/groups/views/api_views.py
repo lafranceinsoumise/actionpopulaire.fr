@@ -466,7 +466,6 @@ class JoinGroupAPIView(CreateAPIView, DestroyAPIView):
                 return Response(status=status.HTTP_204_NO_CONTENT)
             membership.membership_type = self.target_membership_type
             membership.save()
-            # TODO: send member-status-changed notification
             return Response(status=status.HTTP_200_OK)
         except Membership.DoesNotExist:
             with transaction.atomic():
@@ -610,10 +609,7 @@ class GroupMemberUpdateAPIView(UpdateAPIView):
     serializer_class = MembershipSerializer
 
     def check_object_permissions(self, request, obj):
-        # Object permission are for the membership's support group, not the object itself
-        return super(GroupMemberUpdateAPIView, self).check_object_permissions(
-            request, obj.supportgroup
-        )
+        return super().check_object_permissions(request, obj.supportgroup)
 
 
 class GroupFinancePermission(GlobalOrObjectPermissions):
