@@ -50,7 +50,7 @@ class GroupJoinAPITestCase(APITestCase):
     #             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
     #         )
     #     res = self.client.post(f"/api/groupes/{full_group.pk}/rejoindre/")
-    #     self.assertEqual(res.status_code, 403)
+    #     self.assertEqual(res.status_code, 405)
     #     self.assertIn("error_code", res.data)
     #     self.assertEqual(res.data["error_code"], res.data)
 
@@ -191,6 +191,105 @@ class GroupFollowAPITestCase(APITestCase):
         res = self.client.post(f"/api/groupes/{group.pk}/rejoindre/")
         self.assertEqual(res.status_code, 201)
         someone_joined_notification.assert_called()
+
+
+class QuitGroupAPITestCase(APITestCase):
+    def setUp(self):
+        self.member = Person.objects.create(
+            email="member@example.com", create_role=True,
+        )
+        self.first_ref = Person.objects.create(
+            email="referent@example.com", create_role=True,
+        )
+        self.group = SupportGroup.objects.create()
+        self.membership = Membership.objects.create(
+            person=self.member,
+            supportgroup=self.group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        Membership.objects.create(
+            person=self.first_ref,
+            supportgroup=self.group,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+
+    def test_anonymous_person_cannot_quit_group(self):
+        self.client.logout()
+        res = self.client.delete(f"/api/groupes/{self.group.pk}/quitter/")
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_member_cannot_quit_group(self):
+        non_member = Person.objects.create(
+            email="non_member@example.com", create_role=True,
+        )
+        self.client.force_login(non_member.role)
+        res = self.client.delete(f"/api/groupes/{self.group.pk}/quitter/")
+        self.assertEqual(res.status_code, 404)
+
+    def test_last_referent_cannot_quit_group(self):
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group,
+                membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            ).count(),
+            1,
+        )
+        self.client.force_login(self.first_ref.role)
+        res = self.client.delete(f"/api/groupes/{self.group.pk}/quitter/")
+        self.assertEqual(res.status_code, 403)
+        self.assertIn("error_code", res.data)
+        self.assertEqual(res.data["error_code"], "group_last_referent")
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group,
+                membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            ).count(),
+            1,
+        )
+
+    def test_non_last_referent_can_quit_group(self):
+        second_ref = Person.objects.create(
+            email="second_ref@example.com", create_role=True,
+        )
+        Membership.objects.create(
+            person=second_ref,
+            supportgroup=self.group,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group,
+                membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            ).count(),
+            2,
+        )
+        self.client.force_login(second_ref.role)
+        res = self.client.delete(f"/api/groupes/{self.group.pk}/quitter/")
+        self.assertEqual(res.status_code, 204)
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group,
+                membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            ).count(),
+            1,
+        )
+
+    def test_member_can_quit_group(self):
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group, person=self.member,
+            ).count(),
+            1,
+        )
+        self.client.force_login(self.member.role)
+        res = self.client.delete(f"/api/groupes/{self.group.pk}/quitter/")
+        self.assertEqual(res.status_code, 204)
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group, person=self.member,
+            ).count(),
+            0,
+        )
 
 
 class GroupUpdateAPIViewTestCase(APITestCase):

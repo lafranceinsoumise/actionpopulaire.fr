@@ -64,8 +64,9 @@ __all__ = [
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
-    "GroupJoinAPIView",
-    "GroupFollowAPIView",
+    "JoinGroupAPIView",
+    "FollowGroupAPIView",
+    "QuitGroupAPIView",
     "GroupMembersAPIView",
     "GroupUpdateAPIView",
     "GroupInvitationAPIView",
@@ -446,7 +447,7 @@ class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
         instance.save()
 
 
-class GroupJoinAPIView(CreateAPIView):
+class JoinGroupAPIView(CreateAPIView, DestroyAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = SupportGroup.objects.active()
     target_membership_type = Membership.MEMBERSHIP_TYPE_MEMBER
@@ -457,7 +458,6 @@ class GroupJoinAPIView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         supportgroup = self.get_object()
-        self.check_object_permissions(request, supportgroup)
         try:
             membership = Membership.objects.get(
                 supportgroup=supportgroup, person=request.user.person,
@@ -481,11 +481,40 @@ class GroupJoinAPIView(CreateAPIView):
             return Response(status=status.HTTP_201_CREATED)
 
 
-class GroupFollowAPIView(GroupJoinAPIView):
+class FollowGroupAPIView(JoinGroupAPIView):
     target_membership_type = Membership.MEMBERSHIP_TYPE_FOLLOWER
 
     def check_object_permissions(self, request, obj):
         pass
+
+
+class QuitGroupAPIView(DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = SupportGroup.objects.all()
+
+    def destroy(self, request, *args, **kwargs):
+        supportgroup = self.get_object()
+
+        membership = get_object_or_404(
+            Membership.objects.all(),
+            supportgroup=supportgroup,
+            person=request.user.person,
+        )
+
+        if (
+            membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+            and not Membership.objects.filter(
+                supportgroup=membership.supportgroup,
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+            )
+            .exclude(id=membership.id)
+            .exists()
+        ):
+            raise PermissionDenied(detail={"error_code": "group_last_referent"})
+
+        membership.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class GroupMembersViewPermissions(GlobalOrObjectPermissions):

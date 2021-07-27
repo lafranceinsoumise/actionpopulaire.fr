@@ -45,6 +45,7 @@ const MemberActions = ({ onQuit }) => {
         isOpen={isMenuOpen}
         onDismiss={closeMenu}
         position="bottom"
+        shouldDismissOnClick
       >
         <StyledMenuList>
           <li>
