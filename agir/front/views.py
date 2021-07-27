@@ -115,6 +115,11 @@ class SupportGroupDetailView(
         "pour 2022 "
     )
 
+    def get_meta_image(self):
+        return front_url(
+            "group_og_image", kwargs={"pk": self.object.pk,}, absolute=True
+        )
+
 
 class ServiceWorker(View):
     def get(self, *args, **kwargs):
