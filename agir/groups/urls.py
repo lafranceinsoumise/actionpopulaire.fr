@@ -38,6 +38,11 @@ api_urlpatterns = [
         "<uuid:pk>/rejoindre/", views.GroupJoinAPIView.as_view(), name="api_group_join",
     ),
     path(
+        "<uuid:pk>/suivre/",
+        views.GroupFollowAPIView.as_view(),
+        name="api_group_follow",
+    ),
+    path(
         "<uuid:pk>/suggestions/",
         views.NearGroupsAPIView.as_view(),
         name="api_near_groups_view",

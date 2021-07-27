@@ -65,6 +65,7 @@ __all__ = [
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
     "GroupJoinAPIView",
+    "GroupFollowAPIView",
     "GroupMembersAPIView",
     "GroupUpdateAPIView",
     "GroupInvitationAPIView",
@@ -446,46 +447,45 @@ class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
 
 
 class GroupJoinAPIView(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = SupportGroup.objects.active()
+    target_membership_type = Membership.MEMBERSHIP_TYPE_MEMBER
 
-    def initial(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        super().initial(request, *args, **kwargs)
-
-    def check_permissions(self, request):
-        if not request.user.is_authenticated or request.user.person is None:
-            raise PermissionDenied(
-                detail={
-                    "redirectTo": f'{reverse_lazy("short_code_login")}?next={reverse("view_group", kwargs={"pk": self.object.pk})}'
-                },
-            )
-        if self.object.is_full:
-            raise PermissionDenied(
-                detail={
-                    "redirectTo": reverse("full_group", kwargs={"pk": self.object.pk})
-                }
-            )
-        if Membership.objects.filter(
-            person=request.user.person, supportgroup=self.object
-        ).exists():
-            raise PermissionDenied(
-                detail={
-                    "redirectTo": reverse("view_group", kwargs={"pk": self.object.pk})
-                },
-            )
+    def check_object_permissions(self, request, obj):
+        if obj.is_full:
+            raise PermissionDenied(detail={"error_code": "full_group"})
 
     def create(self, request, *args, **kwargs):
-        with transaction.atomic():
-            membership = Membership.objects.create(
-                supportgroup=self.object,
-                person=request.user.person,
-                membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        supportgroup = self.get_object()
+        self.check_object_permissions(request, supportgroup)
+        try:
+            membership = Membership.objects.get(
+                supportgroup=supportgroup, person=request.user.person,
             )
-            someone_joined_notification(
-                membership, membership_count=self.object.members_count
-            )
+            if membership.membership_type == self.target_membership_type:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            membership.membership_type = self.target_membership_type
+            membership.save()
+            # TODO: send member-status-changed notification
+            return Response(status=status.HTTP_200_OK)
+        except Membership.DoesNotExist:
+            with transaction.atomic():
+                membership = Membership.objects.create(
+                    supportgroup=supportgroup,
+                    person=request.user.person,
+                    membership_type=self.target_membership_type,
+                )
+                someone_joined_notification(
+                    membership, membership_count=supportgroup.members_count
+                )
             return Response(status=status.HTTP_201_CREATED)
+
+
+class GroupFollowAPIView(GroupJoinAPIView):
+    target_membership_type = Membership.MEMBERSHIP_TYPE_FOLLOWER
+
+    def check_object_permissions(self, request, obj):
+        pass
 
 
 class GroupMembersViewPermissions(GlobalOrObjectPermissions):
