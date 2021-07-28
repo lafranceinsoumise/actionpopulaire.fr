@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 from agir.activity.models import Activity
 from agir.events.actions.notifications import new_event_suggestion_notification
+from agir.events.tasks import send_event_suggestion_email
 from agir.lib.management_utils import segment_argument
 from agir.people.models import Person
 from agir.events.models import Event
@@ -62,6 +63,7 @@ class Command(BaseCommand):
 
             if near_event is not None:
                 new_event_suggestion_notification(near_event, person)
+                send_event_suggestion_email.delay(near_event.pk, person.pk)
 
             pbar.update()
         pbar.close()
