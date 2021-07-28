@@ -5,7 +5,6 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
-import Collapsible from "@agir/front/genericComponents/Collapsible";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
@@ -19,12 +18,6 @@ const DescriptionSection = styled.div`
     max-height: 500px;
     border-radius: ${(props) => props.theme.borderRadius};
     margin-bottom: 1rem;
-  }
-
-  & > div {
-    & *:last-child {
-      margin-bottom: 0;
-    }
   }
 
   & > p {
@@ -88,10 +81,7 @@ const EventDescriptionCard = ({
             />
           ) : null}
           {description ? (
-            <Collapsible
-              dangerouslySetInnerHTML={{ __html: description }}
-              fadingOverflow
-            />
+            <div dangerouslySetInnerHTML={{ __html: description }} />
           ) : canEdit ? (
             <p>
               <strong>Ajoutez une description !</strong> Donner tous les
