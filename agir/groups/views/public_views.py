@@ -3,6 +3,7 @@ import os
 import ics
 from PIL import Image, ImageDraw, ImageFont
 
+from django.contrib.staticfiles import finders
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError, transaction
@@ -180,7 +181,7 @@ class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
 class GroupThumbnailView(DetailView):
     model = SupportGroup
     group = None
-    static_root = "{}/agir/front/static/front/og-image/".format(os.getcwd())
+    static_root = "front/og-image/"
 
     def get(self, request, *args, **kwargs):
         self.group = self.get_object()
@@ -196,7 +197,8 @@ class GroupThumbnailView(DetailView):
         image = Image.new("RGB", (int(1200), int(630)), "#FFFFFF")
         draw = ImageDraw.Draw(image)
 
-        bandeau = Image.open(self.static_root + "bandeau-ap-centre.png")
+        bandeau_path = finders.find(self.static_root + "bandeau-ap-centre.png")
+        bandeau = Image.open(bandeau_path)
         bandeau = bandeau.resize((1200, 95), Image.ANTIALIAS)
         image.paste(bandeau, (0, 535), bandeau)
 
@@ -206,7 +208,8 @@ class GroupThumbnailView(DetailView):
                 group_type = v
 
         if self.group.coordinates is None:
-            illustration = Image.open(self.static_root + "Frame-193.png")
+            illustration_path = finders.find(self.static_root + "Frame-193.png")
+            illustration = Image.open(illustration_path)
             image.paste(illustration, (0, 0), illustration)
         else:
             static_map_image = StaticMapImage.objects.filter(
@@ -223,7 +226,8 @@ class GroupThumbnailView(DetailView):
             if self.group.image:
                 avatar = Image.open(self.group.image.path)
             else:
-                avatar = Image.open(self.static_root + "avatar.png")
+                avatar_path = finders.find(self.static_root + "avatar.png")
+                avatar = Image.open(avatar_path)
             avatar = avatar.resize((148, 148), Image.ANTIALIAS)
             image.paste(avatar, (526, 130), avatar)
 
@@ -330,8 +334,9 @@ class GroupThumbnailView(DetailView):
         return image
 
     def get_image_font(self, size):
+        font_path = finders.find(self.static_root + "Poppins-Medium.ttf")
         return ImageFont.truetype(
-            self.static_root + "Poppins-Medium.ttf",
+            font_path,
             size=size,
             encoding="utf-8",
             layout_engine=ImageFont.LAYOUT_BASIC,
