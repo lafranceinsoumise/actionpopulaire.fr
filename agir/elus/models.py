@@ -903,7 +903,9 @@ class RechercheParrainage(TimeStampedModel):
             for f in cls._meta.get_fields()
             if isinstance(f, models.ForeignKey) and f.related_model is ref_model
         )
-        return cls.objects.get(**{f"{field}__elu": obj.id})
+        return cls.objects.exclude(statut=cls.Statut.ANNULEE).get(
+            **{f"{field}__elu": obj.id}
+        )
 
     class Meta:
         verbose_name = "Parrainages pour la présidentielle"
