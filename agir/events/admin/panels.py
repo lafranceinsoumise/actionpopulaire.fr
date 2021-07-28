@@ -286,7 +286,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "max_participants",
                     "allow_guests",
                     "subscription_form",
-                    "participants",
+                    "participants_display",
                     "rsvps_buttons",
                     "payment_parameters",
                     "enable_jitsi",
@@ -341,7 +341,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "coordinates_type",
         "rsvps_buttons",
         "legal_informations",
-        "participants",
+        "participants_display",
     )
     date_hierarchy = "start_time"
 
@@ -492,6 +492,15 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             )
 
     rsvps_buttons.short_description = _("Inscriptions")
+
+    def participants_display(self, obj):
+        if obj:
+            if obj.participants != obj.participants_confirmes:
+                return f"{obj.participants} participants (dont {obj.participants_confirmes} confirmes)"
+            return str(obj.participants)
+        return "-"
+
+    participants_display.short_description = "Nombre de participants"
 
     def add_organizer(self, request, pk):
         return views.add_organizer(self, request, pk)
