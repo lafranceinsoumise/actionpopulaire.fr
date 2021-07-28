@@ -9,7 +9,6 @@ import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import { routeConfig } from "@agir/front/app/routes.config";
-import { useMobileApp } from "@agir/front/app/hooks";
 
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 
@@ -37,22 +36,17 @@ export const useNotificationSettingLink = (root) => {
 const NotificationSettingLink = (props) => {
   const { root, iconLink = false } = props;
   const route = useNotificationSettingLink(root);
-  const { isMobileApp } = useMobileApp();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!isMobileApp) {
-      dispatch(setTopBarRightLink(null));
-    } else {
-      dispatch(
-        setTopBarRightLink({
-          label: routeConfig.notificationSettings.label,
-          to: route,
-          protected: true,
-        })
-      );
-    }
-  }, [isMobileApp, dispatch, route]);
+    dispatch(
+      setTopBarRightLink({
+        label: routeConfig.notificationSettings.label,
+        to: route,
+        protected: true,
+      })
+    );
+  }, [dispatch, route]);
 
   if (iconLink) {
     return (

@@ -1,9 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import { useIsDesktop } from "../../../front/components/genericComponents/grid";
-import FeatherIcon from "../../../front/components/genericComponents/FeatherIcon";
-import Logo from "../../../front/components/allPages/TopBar/Logo";
+
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
+import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
+
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import LogoAP from "@agir/front/genericComponents/LogoAP";
 
 const HeaderLink = styled.a`
   border: none;
@@ -54,7 +57,7 @@ const HeaderContainer = styled.div`
 const HeaderContent = styled.nav`
   max-width: 1320px;
 
-  background-color: #fff;  
+  background-color: #fff;
   margin: 0 auto;
   padding: 0 1.5rem;
   @media (max-width: ${({ theme }) => +theme.collapse - 1}px) {
@@ -63,7 +66,7 @@ const HeaderContent = styled.nav`
 
   display: flex;
   justify-content: space-between;
-  align:items: center;  
+  align:items: center;
 `;
 
 const BackButton = ({ onClick }) => {
@@ -92,12 +95,16 @@ BackButton.propTypes = {
 };
 
 const Header = ({ onClose }) => {
+  const small = useResponsiveMemo(true, false);
   return (
     <HeaderContainer>
       <HeaderContent>
         <BackButton onClick={onClose} />
         <HeaderLink href="/" aria-label="Action populaire" grow>
-          <Logo />
+          <LogoAP
+            small={small}
+            style={{ height: small ? "2.188rem" : "3.5rem", width: "auto" }}
+          />
         </HeaderLink>
         <HeaderLink href="https://melenchon2022.fr/le-guide-de-la-recherche-des-parrainages/">
           <FeatherIcon name="help-circle" />

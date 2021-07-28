@@ -14,7 +14,7 @@ import Agenda from "@agir/events/agendaPage/Agenda";
 import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
-import TopBar from "@agir/front/allPages/TopBar";
+import TopBar from "@agir/front/allPages/TopBar/TopBar";
 import { useLocation } from "react-router-dom";
 
 const StyledWrapper = styled.div`

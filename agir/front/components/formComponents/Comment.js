@@ -88,7 +88,7 @@ const StyledInlineMenuItems = styled.div`
 `;
 const StyledMessageHeader = styled.header``;
 const StyledMessageAuthor = styled.h5``;
-const StyledMessageContent = styled.p``;
+const StyledMessageContent = styled.div``;
 const StyledMessageTime = styled.div``;
 const StyledAction = styled.div``;
 const StyledMessage = styled.div``;

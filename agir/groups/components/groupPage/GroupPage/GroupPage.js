@@ -44,6 +44,5 @@ GroupPage.propTypes = {
   group: PropTypes.object,
   isLoading: PropTypes.bool,
   activeTab: PropTypes.string,
-  group: PropTypes.object,
 };
 export default GroupPage;

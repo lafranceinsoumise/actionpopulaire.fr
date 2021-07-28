@@ -8,7 +8,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import background from "@agir/front/genericComponents/images/illustration-404.svg";
 import { useIsOffline } from "@agir/front/offline/hooks";
 
-import TopBar from "@agir/front/allPages/TopBar";
+import TopBar from "@agir/front/allPages/TopBar/TopBar";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 

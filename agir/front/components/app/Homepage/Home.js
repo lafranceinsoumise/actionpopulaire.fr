@@ -6,7 +6,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import IntroApp from "@agir/front/app/IntroApp";
 import Footer from "@agir/front/dashboardComponents/Footer";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
-import TopBar from "@agir/front/allPages/TopBar";
+import TopBar from "@agir/front/allPages/TopBar/TopBar";
 
 import { useMobileApp, useDownloadBanner } from "@agir/front/app/hooks";
 
