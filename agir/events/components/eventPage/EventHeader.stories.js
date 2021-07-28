@@ -14,7 +14,7 @@ const defaultStartTime = DateTime.local().plus({ days: 2 });
 
 export default {
   component: EventHeader,
-  title: "Events/EventHeader",
+  title: "Events/EventPage/EventHeader",
   decorators: [
     (story, { args }) => (
       <TestGlobalContextProvider

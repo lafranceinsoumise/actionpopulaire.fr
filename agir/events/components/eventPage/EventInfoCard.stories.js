@@ -4,7 +4,7 @@ import EventInfoCard from "./EventInfoCard";
 
 export default {
   component: EventInfoCard,
-  title: "Events/EventInfo",
+  title: "Events/EventPage/EventInfo",
 };
 
 const Template = (args) => <EventInfoCard {...args} />;

@@ -11,7 +11,7 @@ import events from "@agir/front/mockData/events";
 
 export default {
   component: EventPage,
-  title: "Events/EventPage",
+  title: "Events/EventPage/EventPage",
   decorators: [
     (story, { args }) => (
       <TestGlobalContextProvider
