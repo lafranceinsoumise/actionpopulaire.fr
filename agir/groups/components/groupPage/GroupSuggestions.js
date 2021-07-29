@@ -4,7 +4,7 @@ import { animated, useSpring } from "@react-spring/web";
 import styled from "styled-components";
 import SwiperCore, { A11y } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
-
+import "swiper/swiper.scss";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
