@@ -39,6 +39,12 @@ export const EVENT_DOCUMENT_TYPES = {
 };
 
 export const EVENT_PROJECT_STATUS = {
-  pending: "ECO",
-  archived: "CLO",
+  DFI: "pending",
+  ECO: "pending",
+  REN: "pending",
+
+  CLO: "archived",
+  FIN: "archived",
+
+  REF: "refused",
 };
