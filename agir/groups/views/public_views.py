@@ -277,10 +277,10 @@ class GroupThumbnailView(DetailView):
                 align="center",
                 font=self.get_image_font(45),
             )
-        elif len(self.group.name) < 40:
+        elif len(self.group.name) < 50:
             if self.group.location_city is not None:
                 draw.text(
-                    (390, 350),
+                    (390, 320),
                     "{} À {} ({})".format(
                         group_type, self.group.location_city, self.group.location_zip
                     ).upper(),
@@ -289,20 +289,21 @@ class GroupThumbnailView(DetailView):
                     font=self.get_image_font(27),
                 )
 
-            draw.text(
-                (330, 370),
-                self.group.name[0:26].capitalize(),
-                fill=(0, 0, 0, 0),
-                align="center",
-                font=self.get_image_font(45),
-            )
-            draw.text(
-                (120, 430),
-                self.group.name[27:39].capitalize(),
-                fill=(0, 0, 0, 0),
-                align="center",
-                font=self.get_image_font(45),
-            )
+                draw.text(
+                    (330, 370),
+                    self.group.name[0:30],
+                    fill=(0, 0, 0, 0),
+                    align="center",
+                    font=self.get_image_font(45),
+                )
+
+                draw.text(
+                    (120, 430),
+                    self.group.name[31:49],
+                    fill=(0, 0, 0, 0),
+                    align="center",
+                    font=self.get_image_font(45),
+                )
 
         else:
             if self.group.location_city is not None:
