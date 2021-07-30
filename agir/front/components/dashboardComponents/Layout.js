@@ -128,10 +128,8 @@ const FacebookLoginAd = () => {
       <Button
         style={{ margin: "16px 0" }}
         small
-        $background="#1778f2"
-        $hoverBackground="#1778f2"
-        $labelColor="#fff"
-        as="a"
+        color="facebook"
+        link
         href={routes.facebookLogin}
       >
         <img

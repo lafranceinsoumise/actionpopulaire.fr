@@ -263,7 +263,7 @@ export const Footer = (props) => {
               )}
             </article>
             <div>
-              <Button as="Link" color="secondary" route="signup">
+              <Button link color="secondary" route="signup">
                 Créer mon compte
               </Button>
             </div>

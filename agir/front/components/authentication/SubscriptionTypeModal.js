@@ -113,8 +113,7 @@ const SUBSCRIPTION_TYPE = {
 
 export const SubscriptionTypeModal = (props) => {
   const { type, target, onConfirm, onCancel, shouldShow, isLoading } = props;
-  const { image, title, content, confirmLabel, confirmColor } =
-    SUBSCRIPTION_TYPE[type];
+  const { image, title, content, confirmLabel } = SUBSCRIPTION_TYPE[type];
   const targetLabel = SUBSCRIPTION_TYPE[type].target[target];
 
   return (
@@ -128,13 +127,7 @@ export const SubscriptionTypeModal = (props) => {
           {content} pour {targetLabel}.
         </p>
         <footer>
-          <Button
-            onClick={onConfirm}
-            disabled={isLoading}
-            $background={confirmColor}
-            $hoverBackground={confirmColor}
-            $labelColor={style.white}
-          >
+          <Button onClick={onConfirm} disabled={isLoading} color="primary">
             {confirmLabel}
           </Button>
           <Spacer size="1.5rem" />

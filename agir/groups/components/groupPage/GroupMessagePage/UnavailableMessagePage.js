@@ -37,11 +37,11 @@ const UnavailableMessagePage = (props) => {
         est réservé aux membres du groupe.
       </p>
       {groupURL ? (
-        <Button color="primary" as="Link" to={groupURL}>
+        <Button color="primary" link to={groupURL}>
           Voir le groupe
         </Button>
       ) : null}
-      <Button color="white" as="Link" route="help">
+      <Button color="white" link route="help">
         Voir l'aide en ligne
       </Button>
     </StyledBlock>

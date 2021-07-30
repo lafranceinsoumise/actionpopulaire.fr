@@ -75,7 +75,7 @@ const ActivityCardAction = (props) => {
       <Button
         small
         color="primary"
-        as="Link"
+        link
         href={`/activite/${props.id}/lien/`}
         params={{ next: action.href }}
       >
@@ -93,13 +93,7 @@ const ActivityCardAction = (props) => {
   }
 
   return (
-    <Button
-      small
-      color="primary"
-      as="Link"
-      route={action?.route}
-      to={action?.to}
-    >
+    <Button small color="primary" link route={action?.route} to={action?.to}>
       {action?.label}
     </Button>
   );

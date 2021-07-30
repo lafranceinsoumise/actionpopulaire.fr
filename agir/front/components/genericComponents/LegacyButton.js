@@ -176,7 +176,7 @@ export const Button = styled.button.attrs(
             color: encodeURI($labelColor),
             fill: $iconFill ? "currentColor" : "none",
           })
-          .replace("#", "%23")
+          .replace(/#/g, "%23")
         /*
          * problème bizarre, quand le SVG est utilisé dans un URL data:
          * Il faut remplacer les # des couleurs par l'équivalent url-encoded, mais

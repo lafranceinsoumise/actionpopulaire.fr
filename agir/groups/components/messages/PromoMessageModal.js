@@ -261,7 +261,7 @@ export const PromoMessage = (props) => {
 
       <StyledContent>{items[itemIndex].content}</StyledContent>
 
-      <Button color="confirmed" onClick={handleClick} $wrap>
+      <Button color="confirmed" onClick={handleClick} wrap>
         <RawFeatherIcon
           name="edit"
           width="1.5rem"

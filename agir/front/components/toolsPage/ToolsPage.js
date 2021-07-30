@@ -400,11 +400,11 @@ const LinkInfoAction = (props) => (
   <Button
     className={props.className}
     small
-    as="Link"
+    link
     color="secondary"
     href="https://infos.actionpopulaire.fr"
     target="_blank"
-    $wrap
+    wrap
   >
     Accéder aux fiches pratiques&ensp;
     <RawFeatherIcon
@@ -419,11 +419,11 @@ const LinkMaterial = (props) => (
   <Button
     className={props.className}
     small
-    as="Link"
+    link
     color="secondary"
     href="https://materiel.lafranceinsoumise.fr/"
     target="_blank"
-    $wrap
+    wrap
   >
     Accéder au site matériel&ensp;
     <RawFeatherIcon
@@ -444,11 +444,11 @@ const BannerHelp = () => (
     <Spacer size="30px" />
     <Button
       small
-      as="Link"
+      link
       color="secondary"
       href="https://infos.actionpopulaire.fr"
       target="_blank"
-      $wrap
+      wrap
       style={{ zIndex: 2, position: "relative" }}
     >
       Accéder au centre d'aide&ensp;

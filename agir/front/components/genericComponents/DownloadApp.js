@@ -106,7 +106,7 @@ export const DownloadApp = () => {
       </Content>
       <div style={{ paddingRight: "18px" }}>
         <Download
-          as="a"
+          link
           href={"iOS" === OS ? CONFIG.apple.href : CONFIG.google.href}
           aria-label="Télécharger"
         >

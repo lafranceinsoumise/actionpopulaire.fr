@@ -50,11 +50,11 @@ const HomeFooter = () => {
     <StyledFooter>
       <h2>Passez&nbsp;à l'action&nbsp;!</h2>
       <Spacer size="2rem" />
-      <Button as="Link" to="/inscription/" color="tertiary">
+      <Button link to="/inscription/" color="tertiary">
         S'inscrire
       </Button>
       <Spacer size="1rem" />
-      <Button as="Link" to="/connexion/" color="primary">
+      <Button link to="/connexion/" color="primary">
         Se connecter
       </Button>
     </StyledFooter>

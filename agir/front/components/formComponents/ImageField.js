@@ -112,7 +112,7 @@ const ImageField = forwardRef((props, ref) => {
             onChange={handleChange}
             value=""
           />
-          <Button type="button" inline $wrap onClick={handleClick}>
+          <Button type="button" inline wrap onClick={handleClick}>
             <RawFeatherIcon name="camera" style={{ marginRight: "0.5rem" }} />
             {imageName ? "Remplacer l'image" : "Ajouter une image"}
           </Button>

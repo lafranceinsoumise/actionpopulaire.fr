@@ -112,7 +112,7 @@ export const NotFoundPage = ({
               style={{ maxWidth: 450, marginTop: "2rem" }}
               color="primary"
               block
-              as="Link"
+              link
               route="events"
             >
               Retourner à l'accueil
@@ -124,7 +124,6 @@ export const NotFoundPage = ({
           </>
         )}
       </Container>
-      12
     </PageStyle>
   );
 };

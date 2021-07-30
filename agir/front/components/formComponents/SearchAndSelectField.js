@@ -194,14 +194,7 @@ const Option = ({ innerRef, ...innerProps }) => {
         {sublabel ? <span>{sublabel}</span> : null}
       </p>
       {buttonLabel && (
-        <Button
-          type="button"
-          $background="transparent"
-          $hoverBackground="transparent"
-          $labelColor={style.black1000}
-          $borderColor={style.black200}
-          small
-        >
+        <Button type="button" color="choose" small>
           {buttonLabel}
         </Button>
       )}

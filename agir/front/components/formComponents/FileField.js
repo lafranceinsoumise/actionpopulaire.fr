@@ -97,7 +97,7 @@ const FileField = forwardRef((props, ref) => {
             color={error ? "danger" : fileName ? "primary" : "default"}
             type="button"
             inline
-            $wrap
+            wrap
             onClick={handleClick}
             title={fileName ? "Remplacer le document" : "Ajouter un document"}
           >

@@ -87,7 +87,7 @@ const EventPhotosCard = ({ compteRenduPhotos, endTime, rsvp, routes }) => {
       )}
       {rsvp === "CO" && (
         <div style={{ paddingTop: "1rem" }}>
-          <Button as="a" href={routes.addPhoto}>
+          <Button link href={routes.addPhoto}>
             Ajouter une photo
           </Button>
         </div>

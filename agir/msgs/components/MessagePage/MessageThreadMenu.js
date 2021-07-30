@@ -91,7 +91,7 @@ const MessageThreadMenu = (props) => {
             color="confirmed"
             onClick={writeNewMessage}
             disabled={isLoading}
-            style={{ width: "100%" }}
+            block
           >
             Nouveau message
           </Button>

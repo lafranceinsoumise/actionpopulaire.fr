@@ -39,20 +39,8 @@ const StyledList = styled.div`
   }
 
   & > ${Button} {
-    &,
-    &:hover,
-    &:focus,
-    &:active {
-      background-color: transparent;
-
-      @media (min-width: ${style.collapse}px) {
-        padding-left: 0;
-        padding-right: 0;
-      }
-
-      @media (max-width: ${style.collapse}px) {
-        width: 100%;
-      }
+    @media (max-width: ${style.collapse}px) {
+      width: 100%;
     }
   }
 `;
@@ -107,13 +95,18 @@ const GroupEventList = (props) => {
           eventList.map((event) => <EventCard key={event.id} {...event} />)}
       </PageFadeIn>
       {isReady && typeof loadMore === "function" ? (
-        <Button color="white" onClick={loadMore} disabled={isLoading}>
+        <Button color="link" onClick={loadMore} disabled={isLoading}>
           {loadMoreLabel ? (
             loadMoreLabel
           ) : (
             <>
-              Charger plus d’événements&ensp;
-              <RawFeatherIcon name="chevron-down" width="1em" strokeWidth={3} />
+              Charger plus d’événements
+              <RawFeatherIcon
+                name="chevron-down"
+                width="1em"
+                strokeWidth={3}
+                style={{ marginLeft: ".5rem" }}
+              />
             </>
           )}
         </Button>

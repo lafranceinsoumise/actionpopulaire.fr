@@ -40,7 +40,7 @@ const EventReportCard = ({ compteRendu, isOrganizer, endTime, routes }) => {
         <p>Il n'y a pas encore de compte-rendu de cet événement.</p>
       )}
       {isOrganizer && (
-        <Button style={{ marginTop: "1rem" }} as="a" href={routes.compteRendu}>
+        <Button style={{ marginTop: "1rem" }} link href={routes.compteRendu}>
           {compteRendu ? "Modifier le" : "Ajouter un"} compte-rendu
         </Button>
       )}

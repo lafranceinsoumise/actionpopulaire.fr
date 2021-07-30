@@ -189,11 +189,14 @@ const CodeConnexion = () => {
           disabled={submitted}
           autoFocus
         />
-        <div>
-          <Button color="primary" disabled={submitted} style={{ height: 40 }}>
-            Valider
-          </Button>
-        </div>
+        <Button
+          block
+          color="primary"
+          disabled={submitted}
+          style={{ height: 40 }}
+        >
+          Valider
+        </Button>
       </Form>
     </Container>
   );

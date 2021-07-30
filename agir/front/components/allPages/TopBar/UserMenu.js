@@ -125,7 +125,7 @@ export const UserMenu = (props) => {
           {user.fullName !== user.email && <p>{user.fullName}</p>}
           <p>{user.email}</p>
           <Button
-            as="Link"
+            link
             route="personalInformation"
             icon="settings"
             color="secondary"
@@ -135,7 +135,7 @@ export const UserMenu = (props) => {
           </Button>
           <br />
           <Button
-            as="Link"
+            link
             route="notificationSettings"
             icon="settings"
             color="secondary"
@@ -145,16 +145,7 @@ export const UserMenu = (props) => {
           </Button>
         </article>
         <footer>
-          <Button
-            as="Link"
-            route="logout"
-            icon="power"
-            $background={style.white}
-            $labelColor={style.black1000}
-            $hoverBackground={style.black25}
-            $borderColor={style.black200}
-            small
-          >
+          <Button link route="logout" icon="power" color="choose" small>
             Me déconnecter
           </Button>
         </footer>

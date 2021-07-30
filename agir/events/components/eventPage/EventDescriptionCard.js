@@ -96,10 +96,10 @@ const EventDescriptionCard = ({
 
         {canEdit && (
           <StyledActionButtons>
-            <Button as="a" href={routes.edit}>
+            <Button link href={routes.edit}>
               {description ? "Modifier la" : "Ajouter une"} description
             </Button>
-            <Button as="a" href={routes.edit}>
+            <Button link href={routes.edit}>
               {image ? "Changer l'" : "Ajouter une "}image d'illustration
             </Button>
           </StyledActionButtons>

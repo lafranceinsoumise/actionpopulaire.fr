@@ -81,20 +81,6 @@ const StyledActions = styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
-
-  ${Button} {
-    margin: 0;
-    justify-content: center;
-
-    && *,
-    && *::before {
-      flex: 0 0 auto;
-    }
-  }
-
-  ${Button} + ${Button} {
-    margin-left: 0;
-  }
 `;
 
 const RSVPButton = (props) => {
@@ -172,7 +158,7 @@ const Actions = (props) => {
           Événement terminé
         </Button>
         {isOrganizer && (
-          <Button icon="settings" as="a" href={routes.manage} color="primary">
+          <Button icon="settings" link href={routes.manage} color="primary">
             Gérer l'événement
           </Button>
         )}
@@ -197,7 +183,7 @@ const Actions = (props) => {
           {!!onlineUrl && (
             <Button
               icon="video"
-              as="a"
+              link
               href={onlineUrl}
               target="_blank"
               color="primary"
@@ -206,12 +192,12 @@ const Actions = (props) => {
             </Button>
           )}
           {isOrganizer && (
-            <Button icon="settings" as="a" href={routes.manage} color="primary">
+            <Button icon="settings" link href={routes.manage} color="primary">
               Gérer l'événement
             </Button>
           )}
           {allowGuests && (hasSubscriptionForm || hasPrice) && (
-            <Button as="Link" href={routes.rsvp}>
+            <Button link href={routes.rsvp}>
               Ajouter une personne
             </Button>
           )}

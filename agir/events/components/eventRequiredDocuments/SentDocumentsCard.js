@@ -70,7 +70,7 @@ const SentDocumentsCard = (props) => {
             <span>{doc.name}</span>
             <Button
               small
-              as="a"
+              link
               href={doc.file}
               download={doc.name}
               target="_blank"

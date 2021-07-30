@@ -163,7 +163,7 @@ export const TopBar = (props) => {
               {isConnected && (
                 <Button
                   small
-                  as="Link"
+                  link
                   color="secondary"
                   route="createEvent"
                   icon="plus"

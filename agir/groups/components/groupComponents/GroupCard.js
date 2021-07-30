@@ -68,17 +68,10 @@ const DiscountCodesSection = styled.section`
   }
 `;
 
-let GroupButton = ({
-  as = "a",
-  to,
-  href,
-  children,
-  color = "default",
-  icon,
-}) => (
+const GroupButton = ({ to, href, children, color = "default", icon }) => (
   <Button
     style={{ marginTop: "1rem" }}
-    as={as}
+    link
     to={to}
     href={href}
     color={color}
@@ -88,7 +81,6 @@ let GroupButton = ({
   </Button>
 );
 GroupButton.propTypes = {
-  as: PropTypes.string,
   to: PropTypes.string,
   href: PropTypes.string,
   children: PropTypes.node,
@@ -207,7 +199,7 @@ const GroupCard = ({
             <GroupButton
               key="join"
               color="primary"
-              as="Link"
+              link
               to={routeConfig.groupDetails.getLink({ groupPk: id })}
             >
               Rejoindre
@@ -217,7 +209,7 @@ const GroupCard = ({
             </GroupButton>
           ),
           <GroupButton
-            as="Link"
+            link
             key="browse"
             color="default"
             to={routeConfig.groupDetails.getLink({ groupPk: id })}
@@ -232,7 +224,7 @@ const GroupCard = ({
           isManager && (
             <GroupButton
               key="manage"
-              as="Link"
+              link
               to={routeConfig.groupSettings.getLink({ groupPk: id })}
               icon="settings"
             >

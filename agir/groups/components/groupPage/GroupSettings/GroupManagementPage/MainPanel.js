@@ -4,11 +4,11 @@ import React, { useMemo } from "react";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
-import Button from "@agir/front/genericComponents/Button.js";
-import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon.js";
-import Spacer from "@agir/front/genericComponents/Spacer.js";
+import Button from "@agir/front/genericComponents/Button";
+import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
+import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents";
 
 const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
 
@@ -121,7 +121,7 @@ export const ReferentMainPanel = (props) => {
             demander en cliquant sur le bouton
           </span>
           <Spacer size="1.5rem" />
-          <Button as="a" href={routes.certificationRequest} color="primary">
+          <Button link href={routes.certificationRequest} color="primary">
             Demander la certification
           </Button>
         </>
