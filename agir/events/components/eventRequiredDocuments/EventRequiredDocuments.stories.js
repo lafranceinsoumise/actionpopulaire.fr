@@ -17,12 +17,7 @@ export default {
   },
 };
 
-const Template = (args) => (
-  <EventRequiredDocuments
-    {...args}
-    status={EVENT_PROJECT_STATUS[args.status]}
-  />
-);
+const Template = (args) => <EventRequiredDocuments {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

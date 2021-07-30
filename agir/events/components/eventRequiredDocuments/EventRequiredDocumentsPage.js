@@ -4,7 +4,7 @@ import Helmet from "react-helmet";
 import { Redirect } from "react-router-dom";
 import useSWR from "swr";
 
-import EventRequiredDocument from "./EventRequiredDocuments";
+import EventRequiredDocuments from "./EventRequiredDocuments";
 
 import Footer from "@agir/front/dashboardComponents/Footer";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -91,7 +91,7 @@ const EventRequiredDocumentsPage = (props) => {
           <Helmet>
             <title>{event.name} — Action Populaire</title>
           </Helmet>
-          <EventRequiredDocument
+          <EventRequiredDocuments
             projectId={projectId}
             event={event}
             status={status}

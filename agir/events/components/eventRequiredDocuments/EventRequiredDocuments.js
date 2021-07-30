@@ -10,7 +10,6 @@ import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import EventSubtypePicker from "./EventSubtypePicker";
-import NoRequiredDocumentCard from "./NoRequiredDocumentCard";
 import ProjectStatusCard from "./ProjectStatusCard";
 import RequiredDocumentCard from "./RequiredDocumentCard";
 import RequiredDocumentModal from "./RequiredDocumentModal";
@@ -69,6 +68,10 @@ const StyledDocumentList = styled.div`
   }
 `;
 
+const ContactFormLink = styled.p`
+  color: ${(props) => props.theme.black700};
+  text-align: center;
+`;
 const StyledWrapper = styled.main`
   text-align: center;
   padding: 1.5rem 1.5rem 5rem;
@@ -186,8 +189,11 @@ const EventRequiredDocuments = (props) => {
       </header>
       <Spacer size="1.5rem" />
       <section>
-        {requiredDocumentTypes.length === 0 && <NoRequiredDocumentCard />}
-        <ProjectStatusCard status={status} />
+        <ProjectStatusCard
+          status={status}
+          hasRequiredDocuments={requiredDocumentTypes.length > 0}
+          hasMissingDocuments={required.length > 0}
+        />
         <SentDocumentsCard documents={documents} />
         <EventSubtypePicker
           value={event.subtype}
@@ -241,6 +247,13 @@ const EventRequiredDocuments = (props) => {
           )}
         </StyledDocumentList>
       )}
+      <Spacer size="2rem" />
+      <ContactFormLink>
+        Besoin d'aide&nbsp;? Vous pouvez nous contacter via{" "}
+        <a href="https://infos.actionpopulaire.fr/contact/">
+          le formulaire en ligne
+        </a>
+      </ContactFormLink>
       <RequiredDocumentModal
         type={selectedType}
         shouldShow={!!selectedType}
