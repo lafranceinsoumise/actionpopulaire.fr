@@ -510,6 +510,17 @@ class MandatRegional(MandatAbstrait):
         default=list,
     )
 
+    reference = models.ForeignKey(
+        "data_france.EluRegional",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Référence dans le RNE",
+        help_text="La fiche correspondant à cet élu dans le Répertoire National des Élus",
+        related_name="elus",
+        related_query_name="elu",
+    )
+
     class Meta:
         verbose_name = "Mandat régional"
         verbose_name_plural = "Mandats régionaux"
@@ -689,12 +700,47 @@ class MandatDepute(MandatAbstrait):
         ordering = ("person", "conseil")
 
 
+@reversion.register()
+class MandatDeputeEuropeen(MandatAbstrait):
+    DEFAULT_DATE_RANGE = DateRange(date(2019, 6, 1), date(2024, 5, 31))
+
+    person = models.ForeignKey(
+        "people.Person",
+        verbose_name="Élu",
+        on_delete=models.CASCADE,
+        related_name="mandats_depute_europeen",
+        related_query_name="mandat_depute_depute_europeen",
+    )
+
+    reference = models.ForeignKey(
+        "data_france.DeputeEuropeen",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Référence dans les données du RNE",
+        help_text="La fiche correspondant à cet élu dans le répertoire national des élus",
+        related_name="elus",
+        related_query_name="elu",
+    )
+
+    def titre_complet(self, conseil_avant=False):
+        return genrer(
+            self.person.gender, "député européen", "députée européenne", "député"
+        )
+
+    class Meta:
+        verbose_name = "Mandat de député⋅e européen⋅ne"
+        verbose_name_plural = "Mandats de député⋅e européen⋅ne"
+        ordering = ("person",)
+
+
 types_elus = {
     "municipal": MandatMunicipal,
     "departemental": MandatDepartemental,
     "regional": MandatRegional,
     "consulaire": MandatConsulaire,
     "depute": MandatDepute,
+    "depute_europeen": MandatDeputeEuropeen,
 }
 
 # Le champ `dates` des modèles de mandat est défini sur la classe `MandatAbstrait`.
@@ -727,7 +773,13 @@ class RechercheParrainageQueryset(models.QuerySet):
         return self.exclude(statut=RechercheParrainage.Statut.ANNULEE)
 
 
-CHAMPS_ELUS_PARRAINAGES = ["maire", "elu_departemental", "depute"]
+CHAMPS_ELUS_PARRAINAGES = [
+    "maire",
+    "elu_departemental",
+    "elu_regional",
+    "depute",
+    "depute_europeen",
+]
 
 
 class RechercheParrainage(TimeStampedModel):
@@ -739,8 +791,8 @@ class RechercheParrainage(TimeStampedModel):
         to="data_france.EluMunicipal",
         verbose_name="Maire",
         on_delete=models.SET_NULL,
-        related_name="recherches_parrainages",
-        related_query_name="rechercher_parrainage",
+        related_name="parrainages",
+        related_query_name="parrainage",
         null=True,
         blank=True,
     )
@@ -753,10 +805,27 @@ class RechercheParrainage(TimeStampedModel):
         null=True,
         blank=True,
     )
-
+    elu_regional = models.ForeignKey(
+        to="data_france.EluRegional",
+        verbose_name="Élu·e régional·e",
+        on_delete=models.SET_NULL,
+        related_name="parrainages",
+        related_query_name="parrainage",
+        null=True,
+        blank=True,
+    )
     depute = models.ForeignKey(
         to="data_france.Depute",
         verbose_name="Député·e",
+        on_delete=models.SET_NULL,
+        related_name="parrainages",
+        related_query_name="parrainage",
+        null=True,
+        blank=True,
+    )
+    depute_europeen = models.ForeignKey(
+        to="data_france.DeputeEuropeen",
+        verbose_name="Député·e européen·e",
         on_delete=models.SET_NULL,
         related_name="parrainages",
         related_query_name="parrainage",
@@ -784,7 +853,32 @@ class RechercheParrainage(TimeStampedModel):
         verbose_name="Formulaire de promesse signé",
         upload_to=formulaire_parrainage_pattern,
         null=True,
+        blank=True,
     )
+
+    def validate_unique(self, exclude=None):
+        try:
+            super(RechercheParrainage, self).validate_unique(exclude=exclude)
+        except ValidationError as exc:
+            errors = exc.error_dict
+        else:
+            errors = {}
+
+        if t := self.type_elu:
+            if (
+                RechercheParrainage.objects.filter(**{t: getattr(self, t)})
+                .exclude(statut=RechercheParrainage.Statut.ANNULEE)
+                .exclude(id=self.id)
+                .exists()
+            ):
+                errors.setdefault(self.type_elu, []).append(
+                    ValidationError(
+                        message="Il existe déjà une fiche pour cet élu !", code="unique"
+                    )
+                )
+
+        if errors:
+            raise ValidationError(errors)
 
     @property
     def type_elu(self):
@@ -800,6 +894,18 @@ class RechercheParrainage(TimeStampedModel):
         nom_elu = getattr(self, type) if type else "Élu·e inconnu·e"
 
         return f"{nom_elu} — {self.get_statut_display().lower()}"
+
+    @classmethod
+    def trouver_parrainage(cls, obj):
+        ref_model = obj._meta.get_field("reference").related_model
+        field = next(
+            f.name
+            for f in cls._meta.get_fields()
+            if isinstance(f, models.ForeignKey) and f.related_model is ref_model
+        )
+        return cls.objects.exclude(statut=cls.Statut.ANNULEE).get(
+            **{f"{field}__elu": obj.id}
+        )
 
     class Meta:
         verbose_name = "Parrainages pour la présidentielle"
