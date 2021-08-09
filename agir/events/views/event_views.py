@@ -2,6 +2,7 @@ import locale
 import os
 
 import ics
+import pytz
 from PIL import Image, ImageDraw, ImageFont
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
@@ -146,7 +147,13 @@ class EventThumbnailView(DetailView):
 
         # set locale for displaying day name in french
         locale.setlocale(locale.LC_ALL, "fr_FR.utf8")
-        date = self.event.start_time.strftime("%A %d %B À %-H:%M").capitalize()
+        date = (
+            self.event.start_time.astimezone(pytz.timezone(self.event.timezone))
+            .strftime(
+                f"%A %d %B À %-H:%M{' %Z' if self.event.timezone != settings.TIME_ZONE else ''}"
+            )
+            .capitalize()
+        )
 
         if len(self.event.name) < 30:
             draw.text(
