@@ -112,7 +112,15 @@ class EventThumbnailView(DetailView):
 
             static_map_image.image.open()
             illustration = Image.open(static_map_image.image)
-            illustration = illustration.resize((1200, 278), Image.ANTIALIAS)
+            illustration = illustration.resize(
+                (1200, round(illustration.height * (1200 / illustration.width))),
+                Image.ANTIALIAS,
+            )
+            crop_w = (illustration.width - 1200) / 2
+            crop_h = (illustration.height - 278) / 2
+            illustration = illustration.crop(
+                (crop_w, crop_h, crop_w + 1200, crop_h + 278)
+            )
             image.paste(illustration, (0, 0), illustration)
             icon = Image.open(os.path.join(self.static_root, "rectangle16.png"))
             icon = icon.resize((50, 65), Image.ANTIALIAS)
