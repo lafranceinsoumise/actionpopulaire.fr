@@ -101,6 +101,10 @@ export const updateEvent = async (eventPk, data) => {
   let headers = undefined;
   let body = data;
 
+  if (body.subtype) {
+    body.subtype = body.subtype.id;
+  }
+
   if (body.image || body.compteRenduPhotos?.length > 0) {
     body = new FormData();
     Object.keys(data).forEach((e) => {
@@ -112,7 +116,7 @@ export const updateEvent = async (eventPk, data) => {
   }
 
   console.log("formData to update event :", data);
-  return;
+  // return;
 
   try {
     const response = await axios.patch(url, body, { headers });

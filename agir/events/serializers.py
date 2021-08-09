@@ -421,14 +421,23 @@ class CreateEventSerializer(serializers.Serializer):
 
 class UpdateEventSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
-    name = serializers.CharField(read_only=True)
     subtype = serializers.PrimaryKeyRelatedField(
         queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
     )
 
     class Meta:
         model = Event
-        fields = ["id", "name", "subtype"]
+        fields = [
+            "id",
+            "name",
+            "subtype",
+            "description",
+            "image",
+            "start_time",
+            "end_time",
+            "timezone",
+            "facebook",
+        ]
 
     def update(self, instance, validated_data):
         with transaction.atomic():

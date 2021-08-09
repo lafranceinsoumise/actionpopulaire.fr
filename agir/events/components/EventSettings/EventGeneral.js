@@ -116,7 +116,7 @@ const EventGeneral = (props) => {
     setFormData({
       name: event.name,
       description: event.description,
-      url: event.routes.facebook,
+      facebook: event.routes.facebook,
       image: event.illustration,
       subtype: event.subtype,
       startTime: event.startTime,
@@ -259,12 +259,12 @@ const EventGeneral = (props) => {
 
         <Spacer size="1rem" />
         <TextField
-          id="url"
-          name="url"
+          id="facebook"
+          name="facebook"
           label="Url de l'événement sur Facebook"
           onChange={handleChange}
-          value={formData.url}
-          error={errors?.url}
+          value={formData.facebook}
+          error={errors?.facebook}
         />
 
         <h4>Image mise en avant</h4>
