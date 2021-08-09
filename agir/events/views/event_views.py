@@ -1,7 +1,8 @@
 import locale
-import urllib.request
-from PIL import Image, ImageDraw, ImageFont
+import os
+
 import ics
+from PIL import Image, ImageDraw, ImageFont
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
@@ -27,14 +28,13 @@ from django.views.generic import (
     DetailView,
 )
 from django.views.generic.detail import SingleObjectMixin
-from django.templatetags import static
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
     GlobalOrObjectPermissionRequiredMixin,
     SoftLoginRequiredMixin,
 )
-from agir.events.actions.rsvps import assign_jitsi_meeting, logger
+from agir.events.actions.rsvps import assign_jitsi_meeting
 from agir.front.view_mixins import (
     ChangeLocationBaseView,
     FilterView,
@@ -50,7 +50,7 @@ from ..forms import (
     AuthorForm,
     EventLegalForm,
 )
-from ..models import Event, RSVP, EventSubtype
+from ..models import Event, RSVP
 from ..tasks import (
     send_cancellation_notification,
     send_event_report,
@@ -84,7 +84,9 @@ __all__ = [
 class EventThumbnailView(DetailView):
     model = Event
     event = None
-    static_root = "{}/static/front/og-image/".format(settings.FRONT_DOMAIN)
+    static_root = os.path.join(
+        settings.BASE_DIR, "front", "static", "front", "og-image"
+    )
 
     def get(self, request, *args, **kwargs):
         self.event = self.get_object()
@@ -98,7 +100,7 @@ class EventThumbnailView(DetailView):
         draw = ImageDraw.Draw(image)
 
         if self.event.coordinates is None:
-            illustration = Image.open(self.static_root + "Frame-193.png")
+            illustration = Image.open(os.path.join(self.static_root, "Frame-193.png"))
             image.paste(illustration, (0, 0), illustration)
         else:
             static_map_image = StaticMapImage.objects.filter(
@@ -108,24 +110,27 @@ class EventThumbnailView(DetailView):
                 ),
             ).first()
 
-            illustration = Image.open(static_map_image.image.path)
+            static_map_image.image.open()
+            illustration = Image.open(static_map_image.image)
             illustration = illustration.resize((1200, 278), Image.ANTIALIAS)
             image.paste(illustration, (0, 0), illustration)
-            icon = Image.open(self.static_root + "rectangle16.png")
+            icon = Image.open(os.path.join(self.static_root, "rectangle16.png"))
             icon = icon.resize((50, 65), Image.ANTIALIAS)
             image.paste(icon, (575, 75), icon)
 
             if self.event.subtype.icon:
-                subtype_icon = Image.open(self.event.subtype.icon.path)
+                self.event.subtype.icon.open()
+                subtype_icon = Image.open(self.event.subtype.icon)
                 subtype_icon = subtype_icon.resize((35, 55), Image.ANTIALIAS)
                 image.paste(subtype_icon, (580, 75), subtype_icon)
             elif self.event.subtype.default_image:
-                subtype_icon = Image.open(self.event.subtype.default_image.path)
+                self.event.subtype.default_image.open()
+                subtype_icon = Image.open(self.event.subtype.default_image)
                 subtype_icon = subtype_icon.resize((35, 55), Image.ANTIALIAS)
                 image.paste(subtype_icon, (580, 75), subtype_icon)
 
         font_bold = ImageFont.truetype(
-            self.static_root + "poppins-bold.ttf",
+            os.path.join(self.static_root, "poppins-bold.ttf"),
             size=27,
             encoding="utf-8",
             layout_engine=ImageFont.LAYOUT_BASIC,
@@ -230,7 +235,7 @@ class EventThumbnailView(DetailView):
                 font=self.get_image_font(45),
             )
 
-        logo_ap = Image.open(self.static_root + "bande-ap.png")
+        logo_ap = Image.open(os.path.join(self.static_root, "bande-ap.png"))
         logo_ap = logo_ap.resize((1200, 95), Image.ANTIALIAS)
         image.paste(logo_ap, (0, 535), logo_ap)
 
@@ -238,7 +243,7 @@ class EventThumbnailView(DetailView):
 
     def get_image_font(self, size):
         return ImageFont.truetype(
-            self.static_root + "Poppins-Medium.ttf",
+            os.path.join(self.static_root, "Poppins-Medium.ttf"),
             size=size,
             encoding="utf-8",
             layout_engine=ImageFont.LAYOUT_BASIC,
