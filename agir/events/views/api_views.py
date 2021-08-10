@@ -27,6 +27,7 @@ from agir.events.models import Event
 from agir.events.models import RSVP
 from agir.events.serializers import (
     EventSerializer,
+    EventAdvancedSerializer,
     EventListSerializer,
     EventPropertyOptionsSerializer,
     UpdateEventSerializer,
@@ -48,6 +49,7 @@ __all__ = [
     "EventProjectAPIView",
     "CreateEventProjectDocumentAPIView",
     "EventProjectsAPIView",
+    "EventParticipantsAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -95,6 +97,12 @@ class EventRsvpedAPIView(ListAPIView):
 class EventDetailAPIView(RetrieveAPIView):
     permission_ = ("events.view_event",)
     serializer_class = EventSerializer
+    queryset = Event.objects.all()
+
+
+class EventParticipantsAPIView(RetrieveAPIView):
+    permission_ = "events.change_event"
+    serializer_class = EventAdvancedSerializer
     queryset = Event.objects.all()
 
 

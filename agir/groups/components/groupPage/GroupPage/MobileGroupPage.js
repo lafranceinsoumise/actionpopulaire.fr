@@ -12,7 +12,7 @@ import { getGroupSettingLinks } from "@agir/groups/groupPage/GroupSettings/route
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
-import GroupSettings from "@agir/groups/groupPage/GroupSettings";
+import GroupSettings from "@agir/groups/groupPage/GroupSettings/GroupSettings";
 import GroupBanner from "../GroupBanner";
 import GroupUserActions from "../GroupUserActions";
 import GroupPageMenu from "../GroupPageMenu";

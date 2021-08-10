@@ -6,7 +6,7 @@ import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config"
 import { getMenuRoute, getRoutes } from "./routes.config";
 import { useAuthentication } from "@agir/front/authentication/hooks";
 
-import ObjectManagement from "@agir/front/genericComponents/ObjectManagement";
+import ObjectManagement from "@agir/front/genericComponents/ObjectManagement/ObjectManagement";
 
 export const EventSettings = (props) => {
   const { event, basePath } = props;

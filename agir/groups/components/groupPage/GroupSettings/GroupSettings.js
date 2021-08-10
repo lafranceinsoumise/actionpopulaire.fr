@@ -7,7 +7,7 @@ import { getMenuRoute, getRoutes } from "./routes.config";
 import { useAuthentication } from "@agir/front/authentication/hooks";
 import { getGroupTypeWithLocation } from "@agir/groups/groupPage/utils";
 
-import ObjectManagement from "@agir/front/genericComponents/ObjectManagement";
+import ObjectManagement from "@agir/front/genericComponents/ObjectManagement/ObjectManagement";
 
 export const GroupSettings = (props) => {
   const { group, basePath } = props;

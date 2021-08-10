@@ -117,7 +117,7 @@ const EventGeneral = (props) => {
       name: event.name,
       description: event.description,
       facebook: event.routes.facebook,
-      image: event.illustration,
+      image: event.illustration?.banner,
       subtype: event.subtype,
       startTime: event.startTime,
       endTime: event.endTime,

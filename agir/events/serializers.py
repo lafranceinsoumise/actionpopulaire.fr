@@ -36,8 +36,8 @@ from .tasks import (
 )
 from ..gestion.models import Projet, Document
 from ..groups.models import Membership, SupportGroup
-from ..groups.serializers import SupportGroupDetailSerializer
-from ..groups.serializers import SupportGroupSerializer
+from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
+from ..people.serializers import PersonSerializer
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
 from ..lib.utils import admin_url
 
@@ -113,6 +113,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "rsvp",
         "routes",
         "groups",
+        "participants",
         "distance",
         "compteRendu",
         "subtype",
@@ -142,6 +143,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     routes = RoutesField(routes=EVENT_ROUTES)
 
     groups = serializers.SerializerMethodField()
+
+    participants = serializers.SerializerMethodField()
 
     contact = ContactMixinSerializer(source="*")
 
@@ -251,6 +254,19 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 "routes",
                 "is2022",
             ],
+        ).data
+
+    def get_participants(self, obj):
+        return None
+
+
+class EventAdvancedSerializer(EventSerializer):
+    def get_participants(self, obj):
+        return PersonSerializer(
+            obj.attendees,
+            context=self.context,
+            many=True,
+            fields=["id", "email", "firstName", "lastName", "displayName"],
         ).data
 
 

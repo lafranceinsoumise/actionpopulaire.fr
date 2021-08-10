@@ -108,6 +108,8 @@ export const updateEvent = async (eventPk, data) => {
   if (body.image || body.compteRenduPhotos?.length > 0) {
     body = new FormData();
     Object.keys(data).forEach((e) => {
+      // TODO : field facebook undefined error
+      // data[e] && body.append(e, data[e]);
       body.append(e, data[e]);
     });
     headers = {
@@ -115,8 +117,7 @@ export const updateEvent = async (eventPk, data) => {
     };
   }
 
-  console.log("formData to update event :", data);
-  // return;
+  console.log("formData to update event :", body);
 
   try {
     const response = await axios.patch(url, body, { headers });
@@ -133,24 +134,6 @@ export const updateEvent = async (eventPk, data) => {
   }
   return result;
 };
-
-// export const updateEvent = async (eventPk, data) => {
-//   const result = {
-//     data: null,
-//     errors: null,
-//   };
-
-//   const url = getEventEndpoint("updateEvent", { eventPk });
-
-//   try {
-//     const response = await axios.patch(url, data);
-//     result.data = response.data;
-//   } catch (e) {
-//     result.errors = (e.response && e.response.data) || { global: e.message };
-//   }
-
-//   return result;
-// };
 
 export const updateEventProject = async (eventPk, data) => {
   const result = {
@@ -205,6 +188,24 @@ export const addEventProjectDocument = async (eventPk, data) => {
         {}
       );
     }
+  }
+
+  return result;
+};
+
+export const getParticipants = async (eventPk) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("getParticipants", { eventPk });
+
+  try {
+    const response = await axios.patch(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
   }
 
   return result;

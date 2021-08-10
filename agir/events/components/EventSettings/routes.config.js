@@ -54,7 +54,7 @@ export const routeConfig = {
     id: "members",
     path: "membres/",
     exact: true,
-    label: "X Participant·es",
+    label: "Participant·es",
     icon: "users",
     Component: EventParticipants,
     isActive: true,
