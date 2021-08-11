@@ -29,7 +29,7 @@ rules = "==3.*"  # add useful authorization rules
 django-reversion = "==3.*"  # versioning of models
 ## Django Rest Framework
 djangorestframework = "==3.*,>=3.10"
-djangorestframework-gis = "==0.16.*"
+djangorestframework-gis = "==0.17"
 ## adapters for third-party systems
 django-redis = "==5.*"
 psycopg2 = "*"
