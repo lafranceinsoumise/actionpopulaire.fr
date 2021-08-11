@@ -588,7 +588,11 @@ class Event(
             return price
 
         for mapping in self.payment_parameters.get("mappings", []):
-            values = [submission_data.get(field) for field in mapping["fields"]]
+            values = [
+                submission_data.get(field)
+                for field in mapping["fields"]
+                if submission_data.get(field) is not None
+            ]
 
             d = {tuple(v for v in m["values"]): m["price"] for m in mapping["mapping"]}
 
