@@ -14,6 +14,10 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import illustration from "./illustration.svg";
 
+import logger from "@agir/lib/utils/logger";
+
+const log = logger(__filename);
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -83,6 +87,10 @@ export const NotFoundPage = ({
   }, [reloadOnReconnection, isOffline, wasOffline]);
 
   if (isOffline === null) return null;
+
+  if (!isOffline) {
+    log.debug(`React 404 on page ${window.location.pathname}`);
+  }
 
   return (
     <PageStyle>
