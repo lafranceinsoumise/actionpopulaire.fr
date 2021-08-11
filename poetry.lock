@@ -1587,22 +1587,22 @@ py = {version = "*", markers = "implementation_name == \"pypy\""}
 
 [[package]]
 name = "qrcode"
-version = "6.1"
+version = "7.2"
 description = "QR Code image generator"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.6"
 
 [package.dependencies]
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 pillow = {version = "*", optional = true, markers = "extra == \"pil\""}
-six = "*"
 
 [package.extras]
-dev = ["tox", "pytest", "mock"]
+all = ["zest.releaser", "tox", "pytest", "pytest", "pytest-cov", "pillow"]
+dev = ["tox", "pytest"]
 maintainer = ["zest.releaser"]
 pil = ["pillow"]
-test = ["pytest", "pytest-cov", "mock"]
+test = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "redis"
@@ -2072,7 +2072,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "5710041e7b84328b6f25baf26c59bcf63552fb695b81a61e2783eda0e1603081"
+content-hash = "3f6be4969dc2c43043e830b9061bd1be3d207b53902051d84063fbfa6c5904e4"
 
 [metadata.files]
 amqp = [
@@ -3149,8 +3149,7 @@ pyzmq = [
     {file = "pyzmq-22.2.1.tar.gz", hash = "sha256:6d18c76676771fd891ca8e0e68da0bbfb88e30129835c0ade748016adb3b6242"},
 ]
 qrcode = [
-    {file = "qrcode-6.1-py2.py3-none-any.whl", hash = "sha256:3996ee560fc39532910603704c82980ff6d4d5d629f9c3f25f34174ce8606cf5"},
-    {file = "qrcode-6.1.tar.gz", hash = "sha256:505253854f607f2abf4d16092c61d4e9d511a3b4392e60bff957a68592b04369"},
+    {file = "qrcode-7.2.tar.gz", hash = "sha256:153ad96f5892e6fe2f3699296240976ac3a6d068e2eb48bbfc64b4c4c4d675ea"},
 ]
 redis = [
     {file = "redis-3.5.3-py2.py3-none-any.whl", hash = "sha256:432b788c4530cfe16d8d943a09d40ca6c16149727e4afe8c2c9d5580c59d9f24"},
