@@ -93,7 +93,7 @@
     "workbox-cacheable-response": "^6.1.5",
     "workbox-expiration": "^6.1.5",
     "workbox-precaching": "^6.1.5",
-    "workbox-routing": "^6.1.5",
+    "workbox-routing": "^6.2.3",
     "workbox-strategies": "^6.1.5"
   },
   "devDependencies": {
@@ -103,7 +103,7 @@
     "@babel/preset-env": "^7.14.7",
     "@babel/preset-react": "^7.14.5",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.4.3",
-    "@storybook/addon-actions": "^6.3.4",
+    "@storybook/addon-actions": "^6.3.7",
     "@storybook/addon-essentials": "^6.3.4",
     "@storybook/addon-links": "^6.3.4",
     "@storybook/builder-webpack5": "^6.3.4",
@@ -136,7 +136,7 @@
     "react-test-renderer": "^17.0.2",
     "sb": "^6.3.0",
     "style-loader": "^3.0.0",
-    "webpack": "^5.43.0",
+    "webpack": "^5.50.0",
     "webpack-bundle-analyzer": "^4.4.2",
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^3.11.2",
