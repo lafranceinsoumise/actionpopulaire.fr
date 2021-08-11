@@ -31,7 +31,7 @@ django-reversion = "==3.*"  # versioning of models
 djangorestframework = "==3.*,>=3.10"
 djangorestframework-gis = "==0.16.*"
 ## adapters for third-party systems
-django-redis = "==4.*"
+django-redis = "==5.*"
 psycopg2 = "*"
 django-prometheus = "==2.*"
 # celery
