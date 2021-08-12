@@ -9,7 +9,6 @@ from rest_framework import serializers
 from agir.front.serializer_utils import RoutesField
 from agir.lib.serializers import (
     LocationSerializer,
-    ContactMixinSerializer,
     NestedLocationSerializer,
     NestedContactSerializer,
     FlexibleFieldsMixin,
@@ -117,6 +116,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "distance",
         "compteRendu",
         "subtype",
+        "onlineUrl",
     ]
 
     id = serializers.UUIDField()
@@ -146,7 +146,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     participants = serializers.SerializerMethodField()
 
-    contact = ContactMixinSerializer(source="*")
+    contact = NestedContactSerializer(source="*")
 
     distance = serializers.SerializerMethodField()
 
@@ -440,6 +440,12 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     subtype = serializers.PrimaryKeyRelatedField(
         queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
     )
+    startTime = DateTimeWithTimezoneField(source="start_time")
+    endTime = DateTimeWithTimezoneField(source="end_time")
+    contact = NestedContactSerializer(source="*")
+    location = LocationSerializer(source="*")
+    compteRendu = serializers.CharField(source="report_content")
+    # compteRenduPhotos = serializers.CharField(source="report_image")
 
     class Meta:
         model = Event
@@ -449,10 +455,15 @@ class UpdateEventSerializer(serializers.ModelSerializer):
             "subtype",
             "description",
             "image",
-            "start_time",
-            "end_time",
+            "startTime",
+            "endTime",
             "timezone",
             "facebook",
+            "online_url",
+            "contact",
+            "location",
+            "compteRendu",
+            # "compteRenduPhotos"
         ]
 
     def update(self, instance, validated_data):

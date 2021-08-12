@@ -53,7 +53,7 @@ const EventParticipants = (props) => {
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <BlockTitle>
-        <h3>{participants.length} Participant·es</h3>
+        <h3>{participants?.length} Participant·es</h3>
         <div>
           {/* <StyledLink href={"#"}>
             <RawFeatherIcon name="mail" height="13px" />

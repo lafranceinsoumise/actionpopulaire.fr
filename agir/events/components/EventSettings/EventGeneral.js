@@ -194,6 +194,11 @@ const EventGeneral = (props) => {
 
     if (res.error) {
       setErrors(res.error);
+      sendToast(
+        "Une erreur est survenue, veuillez réessayer plus tard",
+        "ERROR",
+        { autoClose: true }
+      );
       return;
     }
     sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });

@@ -4,13 +4,13 @@ import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import Spacer from "@agir/front/genericComponents/Spacer.js";
-
-import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
+import Spacer from "@agir/front/genericComponents/Spacer.js";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
 import OnlineUrlField from "@agir/events/createEventPage/EventForm/OnlineUrlField";
 import Button from "@agir/front/genericComponents/Button";
 
+import { useToast } from "@agir/front/globalContext/hooks.js";
 import * as api from "@agir/events/common/api";
 
 const EventVisio = (props) => {
@@ -20,6 +20,7 @@ const EventVisio = (props) => {
     api.getEventEndpoint("getEvent", { eventPk })
   );
 
+  const sendToast = useToast();
   const [onlineUrl, setOnlineUrl] = useState("");
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,10 +38,15 @@ const EventVisio = (props) => {
 
     setErrors({});
     setIsLoading(true);
-    const res = await api.updateEvent(eventPk, { onlineUrl });
+    const res = await api.updateEvent(eventPk, { online_url: onlineUrl });
     setIsLoading(false);
     if (res.error) {
       setErrors(res.error);
+      sendToast(
+        "Une erreur est survenue, veuillez réessayer plus tard",
+        "ERROR",
+        { autoClose: true }
+      );
       return;
     }
     sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
@@ -64,9 +70,9 @@ const EventVisio = (props) => {
       <OnlineUrlField
         label="URL de votre visio-conférence sur Action Populaire"
         name="onlineUrl"
+        value={onlineUrl}
         onChange={updateValue}
         error={errors && errors.onlineUrl}
-        value={onlineUrl}
         placeholder="URL de la visio-conférence"
       />
 

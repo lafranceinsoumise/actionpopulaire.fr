@@ -35,7 +35,6 @@ const EventLocation = (props) => {
   let { data: event, mutate } = useSWR(
     api.getEventEndpoint("getEvent", { eventPk })
   );
-  event.location.coordinates = [2.338383, 48.864503];
   const sendToast = useToast();
 
   const [formLocation, setFormLocation] = useState({});

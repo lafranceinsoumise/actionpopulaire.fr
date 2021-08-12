@@ -37,10 +37,10 @@ const EventFeedback = (props) => {
 
   const handleChangeImage = useCallback(
     (value) => {
-      setErrors((errors) => ({ ...errors, image: null }));
+      setErrors((errors) => ({ ...errors, compteRenduPhotos: null }));
       setImageHasChanged(value !== originalImage);
       value && value !== originalImage && setHasCheckedImageLicence(false);
-      setFormData((formData) => ({ ...formData, image: value }));
+      setFormData((formData) => ({ ...formData, compteRenduPhotos: value }));
     },
     [originalImage]
   );
@@ -57,7 +57,7 @@ const EventFeedback = (props) => {
     setIsLoading(true);
     const res = await api.updateEvent(eventPk, {
       compteRendu: formData.compteRendu,
-      compteRenduPhotos: [formData.image],
+      compteRenduPhotos: [formData.compteRenduPhotos],
     });
     setIsLoading(false);
     if (res.error) {
@@ -72,8 +72,9 @@ const EventFeedback = (props) => {
 
   useEffect(() => {
     setFormData({
-      feedback: event.compteRendu,
-      photo: !!event.compteRenduPhotos?.length && event.compteRenduPhotos[0],
+      compteRendu: event.compteRendu,
+      compteRenduPhotos:
+        !!event.compteRenduPhotos?.length && event.compteRenduPhotos[0],
     });
   }, [event]);
 
@@ -96,14 +97,14 @@ const EventFeedback = (props) => {
       <Spacer size="1rem" />
       <h4>Ajouter une photo</h4>
       <ImageField
-        name="image"
-        value={formData.photo}
+        name="compteRenduPhotos"
+        value={formData.compteRenduPhotos}
         onChange={handleChangeImage}
         error={errors?.photo}
         accept=".jpg,.jpeg,.gif,.png"
       />
 
-      {formData.image && imageHasChanged && (
+      {formData.compteRenduPhotos && imageHasChanged && (
         <>
           <Spacer size="0.5rem" />
           <CheckboxField
