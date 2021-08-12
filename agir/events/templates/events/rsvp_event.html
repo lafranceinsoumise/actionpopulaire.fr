@@ -26,11 +26,6 @@
           <ul>
             <li><strong>Prix</strong> : {{ rsvp.payment.get_price_display }}</li>
             <li><strong>Numéro de transaction</strong> : {{ rsvp.payment.pk }}</li>
-            <li><strong>Mode de paiement</strong> : {{ rsvp.payment.get_mode_display }}
-              {% if rsvp.payment.can_cancel %}
-                <a class="btn btn-default" href="{% url "rsvp_change_payment" rsvp.pk %}">Payer maintenant</a>
-              {% endif %}
-            </li>
             <li>
               <strong>Status</strong> : {{ rsvp.payment.get_status_display }}
               {% if rsvp.payment.can_retry %}
