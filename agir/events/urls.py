@@ -147,4 +147,9 @@ urlpatterns = [
         views.EventParticipantsAPIView.as_view(),
         name="api_event_view",
     ),
+    path(
+        "api/evenements/<uuid:pk>/organizers/",
+        views.UpdateEventOrganizersAPIView.as_view(),
+        name="api_event_view",
+    ),
 ]

@@ -1,64 +1,116 @@
 import PropTypes from "prop-types";
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import * as api from "@agir/events/common/api";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
-import SearchAndSelectField from "@agir/front/formComponents/SearchAndSelectField";
+import SelectField from "@agir/front/formComponents/SelectField";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
 import MemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 
+import { PanelWrapper } from "@agir/front/genericComponents/ObjectManagement/PanelWrapper";
+import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
+import Button from "@agir/front/genericComponents/Button";
+
+import { useTransition } from "@react-spring/web";
+import { useToast } from "@agir/front/globalContext/hooks.js";
+
+const slideInTransition = {
+  from: { transform: "translateX(66%)" },
+  enter: { transform: "translateX(0%)" },
+  leave: { transform: "translateX(100%)" },
+};
+
+const AddOrganizer = ({ eventPk, participants, onBack }) => {
+  const [selectedParticipant, setSelectedParticipant] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const sendToast = useToast();
+
+  const selectParticipant = (value) => {
+    setSelectedParticipant(value);
+  };
+
+  const onSubmit = async () => {
+    setIsLoading(true);
+    const res = await api.addOrganizer(eventPk, selectedParticipant);
+    setIsLoading(false);
+    if (res.error) {
+      console.log("error", res.error);
+      sendToast(res.error, "ERROR", { autoClose: true });
+      return;
+    }
+    sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
+
+    onBack();
+  };
+
+  return (
+    <>
+      <BackButton onClick={onBack} />
+      <StyledTitle>Ajouter un autre organisateur</StyledTitle>
+      <Spacer size="1rem" />
+
+      {!participants?.length ? (
+        <span style={{ color: style.black700 }}>
+          Accueillez d’abord un·e participant·e à l'événement pour pouvoir lui
+          donner un rôle d'organisateur·ice.
+        </span>
+      ) : (
+        <SelectField
+          label="Choisir un participant"
+          placeholder="Sélection"
+          options={participants.map((participant) => ({
+            label: `${participant.displayName} (${participant.email})`,
+            value: participant,
+          }))}
+          onChange={selectParticipant}
+          value={selectedParticipant}
+        />
+      )}
+
+      {selectedParticipant && (
+        <>
+          <Spacer size="1rem" />
+          <MemberList members={[selectedParticipant.value]} />
+        </>
+      )}
+
+      <Spacer size="1rem" />
+      <Button color="secondary" onClick={onSubmit} disabled={isLoading}>
+        Confirmer
+      </Button>
+    </>
+  );
+};
+
 const EventOrganization = (props) => {
   const { onBack, illustration, eventPk } = props;
 
+  // const group = {
+  //   email: "pole@group.com",
+  //   displayName: "Pôle groupe d'action",
+  // };
+
   const { data: event, mutate } = useSWR(
-    api.getEventEndpoint("getEvent", { eventPk })
+    api.getEventEndpoint("getParticipants", { eventPk })
   );
 
-  // const [value, setValue] = useState("");
-  // const [options, setOptions] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [submenuOpen, setSubmenuOpen] = useState(false);
+  const transition = useTransition(submenuOpen, slideInTransition);
 
-  const group = {
-    email: "pole@group.com",
-    displayName: "Pôle groupe d'action",
-  };
-  const members = [
-    { email: "pascal@preprod.com", displayName: "Pascal Preprod" },
-    { email: "pascal@preprod.com", displayName: "Pascal Preprod" },
-  ];
-
-  // const handleChange = (value) => {
-  //   setValue(value);
-  // };
-
-  // const handleSearch = async (q) => {
-  //   await new Promise((resolve) => {
-  //     setIsLoading(true);
-  //     setTimeout(() => {
-  //       setIsLoading(false);
-  //       if (!q) {
-  //         setOptions(defaultOptions);
-  //       } else {
-  //         setOptions(
-  //           defaultOptions.filter((option) => {
-  //             return option.label.toLowerCase().includes(q.toLowerCase);
-  //           })
-  //         );
-  //       }
-  //       resolve();
-  //     }, 3000);
-  //   });
-  // };
+  const handleBack = useCallback(() => {
+    setSubmenuOpen(false);
+  }, []);
 
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle>Groupes co-organisateurs</StyledTitle>
+
+      {/* <StyledTitle>Groupes co-organisateurs</StyledTitle>
 
       <Spacer size="1rem" />
       <span style={{ color: style.black700 }}>
@@ -67,16 +119,6 @@ const EventOrganization = (props) => {
       </span>
 
       <Spacer size="1rem" />
-
-      {/* 
-      <SearchAndSelectField
-        value={value}
-        onChange={handleChange}
-        onSearch={handleSearch}
-        isLoading={isLoading}
-        defaultOptions={options}
-      /> */}
-
       <MemberList
         members={[group]}
         addButtonLabel="Ajouter un groupe co-organisateur"
@@ -86,7 +128,8 @@ const EventOrganization = (props) => {
         isLoading={isLoading}
       />
 
-      <Spacer size="2rem" />
+      <Spacer size="2rem" /> */}
+
       <StyledTitle>Participants organisateurs</StyledTitle>
 
       <Spacer size="1rem" />
@@ -97,15 +140,34 @@ const EventOrganization = (props) => {
 
       <Spacer size="1rem" />
       <MemberList
-        members={members}
+        members={event?.organizers}
         addButtonLabel="Ajouter un autre organisateur"
-        onAdd={() => {
-          console.log("Add people right !");
-        }}
-        isLoading={isLoading}
+        onAdd={() => setSubmenuOpen(true)}
       />
 
       <Spacer size="1rem" />
+
+      {transition(
+        (style, item) =>
+          item && (
+            <PanelWrapper style={style}>
+              <AddOrganizer
+                onClick={(e) => {
+                  setSubmenuOpen(false);
+                }}
+                eventPk={eventPk}
+                // Participants not organizers
+                participants={
+                  event?.participants?.filter(
+                    (x) =>
+                      !!event?.organizers?.filter((y) => x.id !== y.id)?.length
+                  ) || []
+                }
+                onBack={handleBack}
+              />
+            </PanelWrapper>
+          )
+      )}
     </>
   );
 };

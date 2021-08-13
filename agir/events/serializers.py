@@ -83,7 +83,7 @@ EVENT_ROUTES = {
     "map": "carte:single_event_map",
     "rsvp": "rsvp_event",
     "cancel": "quit_event",
-    "manage": "manage_event",
+    "manage": "view_event_settings_general",
     "calendarExport": "ics_event",
     "compteRendu": "edit_event_report",
     "addPhoto": "upload_event_image",
@@ -113,6 +113,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "routes",
         "groups",
         "participants",
+        "organizers",
         "distance",
         "compteRendu",
         "subtype",
@@ -145,6 +146,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     groups = serializers.SerializerMethodField()
 
     participants = serializers.SerializerMethodField()
+
+    organizers = serializers.SerializerMethodField()
 
     contact = NestedContactSerializer(source="*")
 
@@ -259,11 +262,22 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_participants(self, obj):
         return None
 
+    def get_organizers(self, obj):
+        return None
+
 
 class EventAdvancedSerializer(EventSerializer):
     def get_participants(self, obj):
         return PersonSerializer(
             obj.attendees,
+            context=self.context,
+            many=True,
+            fields=["id", "email", "firstName", "lastName", "displayName"],
+        ).data
+
+    def get_organizers(self, obj):
+        return PersonSerializer(
+            obj.organizers,
             context=self.context,
             many=True,
             fields=["id", "email", "firstName", "lastName", "displayName"],
@@ -433,6 +447,15 @@ class CreateEventSerializer(serializers.Serializer):
                 Projet.objects.from_event(event, event.organizers.first().role)
             self.schedule_tasks(event, validated_data)
             return event
+
+
+class UpdateEventOrganizerSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    # rsvp = self.cleaned_data["organizer"]
+    # organizer_config = OrganizerConfig(event=rsvp.event, person=rsvp.person)
+    # organizer_config.save()
+
+    # def post()
 
 
 class UpdateEventSerializer(serializers.ModelSerializer):

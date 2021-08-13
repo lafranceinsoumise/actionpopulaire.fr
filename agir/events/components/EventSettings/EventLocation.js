@@ -35,6 +35,7 @@ const EventLocation = (props) => {
   let { data: event, mutate } = useSWR(
     api.getEventEndpoint("getEvent", { eventPk })
   );
+  const updateLocationUrl = api.getEventEndpoint("updateLocation", { eventPk });
   const sendToast = useToast();
 
   const [formLocation, setFormLocation] = useState({});
@@ -111,7 +112,7 @@ const EventLocation = (props) => {
       {/* <Button small $wrap onClick={() => setConfig(true)}>
         Personnaliser la localisation sur la carte
       </Button> */}
-      <Button as="a" small $wrap href={event?.routes?.geolocate}>
+      <Button as="a" small $wrap href={updateLocationUrl}>
         Personnaliser la localisation sur la carte
       </Button>
       <Spacer size="1rem" />

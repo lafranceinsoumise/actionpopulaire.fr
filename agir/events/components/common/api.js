@@ -13,6 +13,9 @@ export const ENDPOINT = {
   eventProject: "/api/evenements/:eventPk/projet/",
   addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
   getParticipants: "/api/evenements/:eventPk/participants/",
+  addOrganizer: "/api/evenements/:eventPk/organizers/",
+  cancelEvent: "/evenements/:eventPk/annuler/",
+  updateLocation: "/evenements/:eventPk/localisation/",
 };
 
 export const getEventEndpoint = (key, params) => {
@@ -108,8 +111,6 @@ export const updateEvent = async (eventPk, data) => {
   if (body.image || body.compteRenduPhotos?.length > 0) {
     body = new FormData();
     Object.keys(data).forEach((e) => {
-      // TODO : field facebook undefined error
-      // data[e] && body.append(e, data[e]);
       body.append(e, data[e]);
     });
     headers = {
@@ -203,6 +204,24 @@ export const getParticipants = async (eventPk) => {
 
   try {
     const response = await axios.patch(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};
+
+export const addOrganizer = async (eventPk, data) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("addOrganizer", { eventPk });
+
+  try {
+    const response = await axios.post(url, data);
     result.data = response.data;
   } catch (e) {
     result.errors = (e.response && e.response.data) || { global: e.message };

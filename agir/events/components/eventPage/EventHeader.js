@@ -182,8 +182,8 @@ const ActionButtons = (props) => {
         {isOrganizer && (
           <StyledButton
             icon="settings"
-            as="a"
-            href={routes.manage}
+            as="Link"
+            route={routes.manage}
             color="primary"
           >
             Gérer l'événement
@@ -221,8 +221,8 @@ const ActionButtons = (props) => {
           {isOrganizer && (
             <StyledButton
               icon="settings"
-              as="a"
-              href={routes.manage}
+              as="Link"
+              route={routes.manage}
               color="primary"
             >
               Gérer l'événement

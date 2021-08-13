@@ -35,6 +35,7 @@ from agir.events.serializers import (
     EventProjectSerializer,
     EventProjectDocumentSerializer,
     EventProjectListItemSerializer,
+    UpdateEventOrganizerSerializer,
 )
 
 __all__ = [
@@ -50,6 +51,7 @@ __all__ = [
     "CreateEventProjectDocumentAPIView",
     "EventProjectsAPIView",
     "EventParticipantsAPIView",
+    "UpdateEventOrganizersAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -201,6 +203,12 @@ class UpdateEventAPIView(UpdateAPIView):
     permission_classes = (EventManagementPermissions,)
     queryset = Event.objects.all()
     serializer_class = UpdateEventSerializer
+
+
+class UpdateEventOrganizersAPIView(UpdateAPIView):
+    permission_classes = (EventManagementPermissions,)
+    queryset = Event.objects.all()
+    serializer_class = UpdateEventOrganizerSerializer
 
 
 class RSVPEventPermissions(GlobalOrObjectPermissions):
