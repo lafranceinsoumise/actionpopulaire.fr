@@ -34,7 +34,9 @@ const StyledMenuItem = styled(NavLink)`
 
   &:hover {
     text-decoration: none;
-    cursor: pointer;
+    cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+    color: ${({ disabled, cancel }) =>
+      cancel ? style.redNSP : disabled ? style.black500 : style.primary500};
   }
 
   & > * {
@@ -74,7 +76,8 @@ const StyledMenuItem = styled(NavLink)`
 
   &.active {
     span {
-      color: ${({ cancel }) => (cancel ? style.redNSP : style.primary500)};
+      color: ${({ cancel, disabled }) =>
+        cancel ? style.redNSP : disabled ? style.black500 : style.primary500};
     }
 
     ${RawFeatherIcon} {
@@ -145,11 +148,22 @@ const ManagementMenuItem = (props) => {
   const { item, cancel = false, disabled = false } = props;
 
   return (
-    <StyledMenuItem to={item.getLink()} cancel={cancel} disabled={disabled}>
+    <StyledMenuItem
+      to={disabled ? "#" : item.getLink()}
+      cancel={cancel}
+      disabled={disabled}
+    >
       {item.icon && (
         <RawFeatherIcon width="1rem" height="1rem" name={item.icon} />
       )}
-      <span>{item.label}</span>
+      <div>
+        <span>{item.label}</span>
+        {disabled && (
+          <span style={{ fontSize: "12px" }}>
+            <br />A remplir à la fin de l'événement
+          </span>
+        )}
+      </div>
     </StyledMenuItem>
   );
 };
