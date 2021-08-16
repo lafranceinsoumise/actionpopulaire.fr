@@ -111,8 +111,12 @@ class EventThumbnailView(DetailView):
                 ),
             ).first()
 
-            static_map_image.image.open()
-            illustration = Image.open(static_map_image.image)
+            if static_map_image is None:
+                illustration = Image.open(self.static_root + "Frame-193.png")
+            else:
+                static_map_image.image.open()
+                illustration = Image.open(static_map_image.image)
+
             illustration = illustration.resize(
                 (1200, round(illustration.height * (1200 / illustration.width))),
                 Image.ANTIALIAS,
