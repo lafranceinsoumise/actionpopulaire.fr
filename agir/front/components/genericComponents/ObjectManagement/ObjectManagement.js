@@ -40,7 +40,7 @@ const StyledSubPanel = styled(animated.div)`
 `;
 
 const StyledPanel = styled(Panel)`
-  padding: 0;
+  padding: 0 !important;
   overflow-x: hidden;
   background-color: transparent;
 
