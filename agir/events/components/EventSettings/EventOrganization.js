@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -10,7 +10,7 @@ import SelectField from "@agir/front/formComponents/SelectField";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
-import MemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
+import MemberList from "./EventMemberList";
 
 import { PanelWrapper } from "@agir/front/genericComponents/ObjectManagement/PanelWrapper";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
@@ -36,7 +36,7 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
 
   const onSubmit = async () => {
     setIsLoading(true);
-    const res = await api.addOrganizer(eventPk, selectedParticipant);
+    const res = await api.addOrganizer(eventPk, selectedParticipant.value);
     setIsLoading(false);
     if (res.error) {
       console.log("error", res.error);
@@ -51,17 +51,17 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
   return (
     <>
       <BackButton onClick={onBack} />
-      <StyledTitle>Ajouter un autre organisateur</StyledTitle>
+      <StyledTitle>Ajouter un·e autre organisateur·ice</StyledTitle>
       <Spacer size="1rem" />
 
-      {!participants?.length ? (
+      {!participants.length ? (
         <span style={{ color: style.black700 }}>
           Accueillez d’abord un·e participant·e à l'événement pour pouvoir lui
           donner un rôle d'organisateur·ice.
         </span>
       ) : (
         <SelectField
-          label="Choisir un participant"
+          label="Choisir un·e participant·e"
           placeholder="Sélection"
           options={participants.map((participant) => ({
             label: `${participant.displayName} (${participant.email})`,
@@ -76,13 +76,12 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
         <>
           <Spacer size="1rem" />
           <MemberList members={[selectedParticipant.value]} />
+          <Spacer size="1rem" />
+          <Button color="secondary" onClick={onSubmit} disabled={isLoading}>
+            Confirmer
+          </Button>
         </>
       )}
-
-      <Spacer size="1rem" />
-      <Button color="secondary" onClick={onSubmit} disabled={isLoading}>
-        Confirmer
-      </Button>
     </>
   );
 };
@@ -90,13 +89,17 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
 const EventOrganization = (props) => {
   const { onBack, illustration, eventPk } = props;
 
-  // const group = {
-  //   email: "pole@group.com",
-  //   displayName: "Pôle groupe d'action",
-  // };
-
   const { data: event, mutate } = useSWR(
     api.getEventEndpoint("getParticipants", { eventPk })
+  );
+
+  const organizers = useMemo(
+    () =>
+      event?.organizers?.map((organizer) => {
+        organizer.memberType = 1;
+        return organizer;
+      }) || [],
+    [event]
   );
 
   const [submenuOpen, setSubmenuOpen] = useState(false);
@@ -130,7 +133,7 @@ const EventOrganization = (props) => {
 
       <Spacer size="2rem" /> */}
 
-      <StyledTitle>Participants organisateurs</StyledTitle>
+      <StyledTitle>Participant·es organisateur·ices</StyledTitle>
 
       <Spacer size="1rem" />
       <span style={{ color: style.black700 }}>
@@ -140,8 +143,8 @@ const EventOrganization = (props) => {
 
       <Spacer size="1rem" />
       <MemberList
-        members={event?.organizers}
-        addButtonLabel="Ajouter un autre organisateur"
+        members={organizers}
+        addButtonLabel="Ajouter un·e autre organisateur·ice"
         onAdd={() => setSubmenuOpen(true)}
       />
 

@@ -5,8 +5,8 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import GroupMember from "./GroupMember";
-import ButtonAddList from "@agir/front/genericComponents/ObjectManagement/ButtonAddList";
+import EventMember from "./EventMember";
+import ButtonAddList from "@agir/front/genericComponents/ObjectManagement/ButtonAddList.js";
 
 const MemberList = styled.div`
   box-shadow: ${style.cardShadow};
@@ -18,7 +18,7 @@ const MemberList = styled.div`
   }
 `;
 
-const GroupMemberList = ({ members, onAdd, addButtonLabel, isLoading }) => {
+const EventMemberList = ({ members, onAdd, addButtonLabel, isLoading }) => {
   const list = useMemo(
     () =>
       Array.isArray(members)
@@ -30,7 +30,7 @@ const GroupMemberList = ({ members, onAdd, addButtonLabel, isLoading }) => {
   return (
     <MemberList>
       {list.map((member) => (
-        <GroupMember key={member.id} isLoading={isLoading} {...member} />
+        <EventMember key={member.id} isLoading={isLoading} {...member} />
       ))}
       {onAdd && addButtonLabel && (
         <ButtonAddList onClick={onAdd} label={addButtonLabel} />
@@ -38,11 +38,11 @@ const GroupMemberList = ({ members, onAdd, addButtonLabel, isLoading }) => {
     </MemberList>
   );
 };
-GroupMemberList.propTypes = {
-  members: PropTypes.arrayOf(PropTypes.shape(GroupMember.propTypes)),
+EventMemberList.propTypes = {
+  members: PropTypes.arrayOf(PropTypes.shape(EventMember.propTypes)),
   onAdd: PropTypes.func,
   addButtonLabel: PropTypes.node,
   isLoading: PropTypes.bool,
 };
 
-export default GroupMemberList;
+export default EventMemberList;

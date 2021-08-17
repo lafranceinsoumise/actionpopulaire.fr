@@ -11,10 +11,11 @@ import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
-import MemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
+import MemberList from "./EventMemberList";
 
 import { routeConfig } from "./routes.config";
 import { RouteConfig } from "@agir/front/app/routes.config.js";
+
 const organisationLink = new RouteConfig(routeConfig.organisation);
 
 const StyledLink = styled(Link)`
@@ -46,8 +47,24 @@ const EventParticipants = (props) => {
     api.getEventEndpoint("getParticipants", { eventPk })
   );
 
-  // const group = useMemo(() => event?.groups?.length ? event.groups[0] : undefined, [event]);
-  const participants = useMemo(() => event?.participants, [event]);
+  const participants = useMemo(() => event?.participants || [], [event]);
+  const organizers = useMemo(
+    () =>
+      event?.organizers?.map((organizer) => {
+        organizer.memberType = 1;
+        return organizer;
+      }) || [],
+    [event]
+  );
+  const participants_detailed = useMemo(() => {
+    return (
+      participants.filter(
+        (participant) =>
+          !!organizers.filter((organizer) => participant.id !== organizer.id)
+            ?.length
+      ) || []
+    ).concat(organizers);
+  }, [participants, organizers]);
 
   return (
     <>
@@ -71,16 +88,14 @@ const EventParticipants = (props) => {
 
       <Spacer size="1rem" />
       <ShareLink
-        label="Copier les e-mails des membres"
+        label="Copier les e-mails des participant·es"
         color="primary"
         url={participants?.map(({ email }) => email).join(", ") || ""}
         $wrap
       />
 
-      {/* <Spacer size="1rem" />
-      <MemberList key={0} members={[group]} /> */}
       <Spacer size="2rem" />
-      <MemberList key={1} members={participants} />
+      <MemberList key={1} members={participants_detailed} />
       <Spacer size="1rem" />
     </>
   );
