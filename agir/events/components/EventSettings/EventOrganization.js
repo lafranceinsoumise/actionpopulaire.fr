@@ -36,7 +36,9 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
 
   const onSubmit = async () => {
     setIsLoading(true);
-    const res = await api.addOrganizer(eventPk, selectedParticipant.value);
+    const res = await api.addOrganizer(eventPk, {
+      organizer_id: selectedParticipant.value.id,
+    });
     setIsLoading(false);
     if (res.error) {
       console.log("error", res.error);
@@ -102,6 +104,17 @@ const EventOrganization = (props) => {
     [event]
   );
 
+  const not_organizers = useMemo(
+    () =>
+      event?.participants?.filter(
+        (participant) =>
+          !event?.organizers?.filter(
+            (organizer) => participant.id === organizer.id
+          )?.length
+      ) || [],
+    [event]
+  );
+
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const transition = useTransition(submenuOpen, slideInTransition);
 
@@ -155,17 +168,9 @@ const EventOrganization = (props) => {
           item && (
             <PanelWrapper style={style}>
               <AddOrganizer
-                onClick={(e) => {
-                  setSubmenuOpen(false);
-                }}
+                onClick={() => setSubmenuOpen(false)}
                 eventPk={eventPk}
-                // Participants not organizers
-                participants={
-                  event?.participants?.filter(
-                    (x) =>
-                      !!event?.organizers?.filter((y) => x.id !== y.id)?.length
-                  ) || []
-                }
+                participants={not_organizers}
                 onBack={handleBack}
               />
             </PanelWrapper>

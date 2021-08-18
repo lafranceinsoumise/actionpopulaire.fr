@@ -449,15 +449,6 @@ class CreateEventSerializer(serializers.Serializer):
             return event
 
 
-class UpdateEventOrganizerSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(read_only=True)
-    # rsvp = self.cleaned_data["organizer"]
-    # organizer_config = OrganizerConfig(event=rsvp.event, person=rsvp.person)
-    # organizer_config.save()
-
-    # def post()
-
-
 class UpdateEventSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
     subtype = serializers.PrimaryKeyRelatedField(

@@ -60,7 +60,7 @@ const EventParticipants = (props) => {
     return (
       participants.filter(
         (participant) =>
-          !!organizers.filter((organizer) => participant.id !== organizer.id)
+          !organizers.filter((organizer) => participant.id === organizer.id)
             ?.length
       ) || []
     ).concat(organizers);

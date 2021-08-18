@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
 from django.db.models import Q
+from django.http.response import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -18,13 +19,15 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from agir.events.actions.rsvps import (
     rsvp_to_free_event,
     is_participant,
 )
-from agir.events.models import Event
+from agir.events.models import Event, OrganizerConfig
 from agir.events.models import RSVP
+from agir.people.models import Person
 from agir.events.serializers import (
     EventSerializer,
     EventAdvancedSerializer,
@@ -35,7 +38,6 @@ from agir.events.serializers import (
     EventProjectSerializer,
     EventProjectDocumentSerializer,
     EventProjectListItemSerializer,
-    UpdateEventOrganizerSerializer,
 )
 
 __all__ = [
@@ -51,7 +53,7 @@ __all__ = [
     "CreateEventProjectDocumentAPIView",
     "EventProjectsAPIView",
     "EventParticipantsAPIView",
-    "UpdateEventOrganizersAPIView",
+    "CreateOrganizerConfigView",
 ]
 
 from agir.gestion.models import Projet
@@ -190,10 +192,12 @@ class CreateEventAPIView(CreateAPIView):
 
 class EventManagementPermissions(GlobalOrObjectPermissions):
     perms_map = {
+        "POST": [],
         "PUT": [],
         "PATCH": [],
     }
     object_perms_map = {
+        "POST": ["events.change_event"],
         "PUT": ["events.change_event"],
         "PATCH": ["events.change_event"],
     }
@@ -205,10 +209,16 @@ class UpdateEventAPIView(UpdateAPIView):
     serializer_class = UpdateEventSerializer
 
 
-class UpdateEventOrganizersAPIView(UpdateAPIView):
+class CreateOrganizerConfigView(APIView):
     permission_classes = (EventManagementPermissions,)
-    queryset = Event.objects.all()
-    serializer_class = UpdateEventOrganizerSerializer
+
+    def post(self, request, pk):
+        organizer_id = request.data.get("organizer_id")
+        event = Event.objects.get(pk=pk)
+        person = Person.objects.get(pk=organizer_id)
+        organizer_config = OrganizerConfig(event=event, person=person)
+        organizer_config.save()
+        return JsonResponse({"data": True})
 
 
 class RSVPEventPermissions(GlobalOrObjectPermissions):
