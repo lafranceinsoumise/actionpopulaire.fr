@@ -20,12 +20,12 @@ urlpatterns = [
         views.EventIcsView.as_view(),
         name="ics_event",
     ),
-    # path(
-    #     "evenements/<uuid:pk>/manage/",
-    #     views.ManageEventView.as_view(),
-    #     name="manage_event",
-    # ),
-    path("evenements/<uuid:pk>/gestion/", BaseAppView, name="manage_event",),
+    path(
+        "evenements/<uuid:pk>/manage/",
+        views.ManageEventView.as_view(),
+        name="manage_event",
+    ),
+    path("evenements/<uuid:pk>/gestion/", BaseAppView, name="manage_event_api",),
     path(
         "evenements/<uuid:pk>/modifier/",
         views.ModifyEventView.as_view(),
