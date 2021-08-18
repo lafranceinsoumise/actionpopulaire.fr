@@ -32,7 +32,9 @@ class Command(BaseCommand):
             ]
         )
 
-        for i, rsvp in enumerate(event.rsvps.order_by("created")):
+        for i, rsvp in enumerate(
+            event.rsvps.filter(form_submission__isnull=False).order_by("created")
+        ):
             writer.writerow(
                 [
                     "R" + str(rsvp.pk),
@@ -55,7 +57,7 @@ class Command(BaseCommand):
                         str(rsvp.person.id),
                         rsvp.person.email,
                         guest.submission.data.get("gender", ""),
-                        guest.submission.data[category_field],
+                        guest.submission.data.get(category_field, ""),
                         display_price(event.get_price(guest.submission.data)),
                         "completed"
                         if guest.status == RSVP.STATUS_CONFIRMED
