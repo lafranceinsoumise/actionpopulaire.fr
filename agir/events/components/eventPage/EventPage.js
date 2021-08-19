@@ -349,6 +349,7 @@ EventPage.propTypes = {
     join: PropTypes.string,
     cancel: PropTypes.string,
     manage: PropTypes.string,
+    manageMobile: PropTypes.string,
     calendarExport: PropTypes.string,
     googleExport: PropTypes.string,
     facebook: PropTypes.string,

@@ -77,14 +77,14 @@ event_settings_patterns = [
     path("", views.EventDetailView.as_view(), name="view_event"),
     path("gestion/", views.BaseAppHardAuthView.as_view(), name="view_event_settings",),
     path(
-        "gestion/membres/",
-        views.BaseAppHardAuthView.as_view(),
-        name="view_event_settings_members",
-    ),
-    path(
         "gestion/general/",
         views.BaseAppHardAuthView.as_view(),
         name="view_event_settings_general",
+    ),
+    path(
+        "gestion/participants/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_members",
     ),
     path(
         "gestion/organisation/",

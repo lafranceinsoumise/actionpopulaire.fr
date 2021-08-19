@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { mutate } from "swr";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getIsConnected, getRoutes } from "@agir/front/globalContext/reducers";
 import * as api from "@agir/events/common/api";
@@ -173,6 +174,8 @@ const ActionButtons = (props) => {
     hasSubscriptionForm,
   } = props;
 
+  const isDesktop = useIsDesktop();
+
   if (past) {
     return (
       <StyledActionButtons>
@@ -183,7 +186,7 @@ const ActionButtons = (props) => {
           <StyledButton
             icon="settings"
             as="Link"
-            route={routes.manage}
+            route={isDesktop ? routes.manage : routes.manageMobile}
             color="primary"
           >
             Gérer l'événement
@@ -222,7 +225,7 @@ const ActionButtons = (props) => {
             <StyledButton
               icon="settings"
               as="Link"
-              route={routes.manage}
+              route={isDesktop ? routes.manage : routes.manageMobile}
               color="primary"
             >
               Gérer l'événement

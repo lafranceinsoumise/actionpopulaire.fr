@@ -84,6 +84,7 @@ EVENT_ROUTES = {
     "rsvp": "rsvp_event",
     "cancel": "quit_event",
     "manage": "view_event_settings_general",
+    "manageMobile": "view_event_settings",
     "calendarExport": "ics_event",
     "compteRendu": "edit_event_report",
     "addPhoto": "upload_event_image",

@@ -50,9 +50,9 @@ export const routeConfig = {
     isActive: true,
     menuGroup: 1,
   },
-  members: {
-    id: "members",
-    path: "membres/",
+  participants: {
+    id: "participants",
+    path: "participants/",
     exact: true,
     label: "Participant·es",
     icon: "users",
