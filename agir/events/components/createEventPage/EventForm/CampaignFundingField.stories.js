@@ -1,6 +1,5 @@
 import React from "react";
 
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import CampaignFundingField from "./CampaignFundingField";
 
 export default {
@@ -12,11 +11,7 @@ export default {
 };
 
 const Template = (args) => {
-  return (
-    <TestGlobalContextProvider>
-      <CampaignFundingField {...args} />
-    </TestGlobalContextProvider>
-  );
+  return <CampaignFundingField {...args} />;
 };
 
 export const Private = Template.bind({});

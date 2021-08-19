@@ -3,7 +3,6 @@ import React from "react";
 import group from "@agir/front/mockData/group.json";
 
 import GroupUserActions from "./GroupUserActions";
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 
 export default {
   component: GroupUserActions,
@@ -11,11 +10,7 @@ export default {
 };
 
 const Template = (args) => {
-  return (
-    <TestGlobalContextProvider value={{ csrfToken: "12345" }}>
-      <GroupUserActions {...args} />
-    </TestGlobalContextProvider>
-  );
+  return <GroupUserActions {...args} />;
 };
 
 export const Default = Template.bind({});

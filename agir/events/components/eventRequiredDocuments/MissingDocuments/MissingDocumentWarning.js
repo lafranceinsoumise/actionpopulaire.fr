@@ -42,12 +42,11 @@ const StyledToast = styled(Toast)`
       font-weight: 500;
       display: flex;
       align-items: center;
+      max-width: 100%;
 
       & > span:first-child {
         flex: 1 1 auto;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        padding-right: 0.5rem;
       }
     }
 
