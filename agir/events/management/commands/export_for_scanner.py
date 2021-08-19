@@ -43,7 +43,7 @@ class Command(BaseCommand):
                     str(rsvp.person.id),
                     rsvp.person.email,
                     rsvp.person.gender or "",
-                    rsvp.form_submission.data[category_field],
+                    rsvp.form_submission.data.get(category_field, ""),
                     display_price(event.get_price(rsvp.form_submission.data)),
                     "completed" if rsvp.status == RSVP.STATUS_CONFIRMED else "on-hold",
                 ]
