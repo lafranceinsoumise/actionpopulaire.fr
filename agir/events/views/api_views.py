@@ -211,6 +211,7 @@ class UpdateEventAPIView(UpdateAPIView):
 
 class CreateOrganizerConfigView(APIView):
     permission_classes = (EventManagementPermissions,)
+    queryset = OrganizerConfig.objects.all()
 
     def post(self, request, pk):
         organizer_id = request.data.get("organizer_id")
