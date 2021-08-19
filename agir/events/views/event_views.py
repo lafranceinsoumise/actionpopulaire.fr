@@ -1,6 +1,7 @@
 import locale
 import urllib.request
 from PIL import Image, ImageDraw, ImageFont
+from django.http.response import JsonResponse
 import ics
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
@@ -587,12 +588,6 @@ class ModifyEventView(ImageSizeWarningMixin, BaseEventAdminView, UpdateView):
 
 @method_decorator(never_cache, name="get")
 class CancelEventView(BaseEventAdminView, DetailView):
-    template_name = "events/cancel.html"
-    success_url = reverse_lazy("list_events")
-
-    def get_queryset(self):
-        return Event.objects.upcoming(as_of=timezone.now(), published_only=False)
-
     def post(self, request, *args, **kwargs):
         self.object = self.event = self.get_object()
 
@@ -601,13 +596,13 @@ class CancelEventView(BaseEventAdminView, DetailView):
 
         send_cancellation_notification.delay(self.object.pk)
 
-        messages.add_message(
-            request,
-            messages.WARNING,
-            _("L'événement « {} » a bien été annulé.").format(self.object.name),
+        return JsonResponse(
+            {
+                "data": _("L'événement « {} » a bien été annulé.").format(
+                    self.object.name
+                )
+            }
         )
-
-        return HttpResponseRedirect(self.success_url)
 
 
 @method_decorator(never_cache, name="get")

@@ -229,3 +229,21 @@ export const addOrganizer = async (eventPk, data) => {
 
   return result;
 };
+
+export const cancelEvent = async (eventPk) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("cancelEvent", { eventPk });
+
+  try {
+    const response = await axios.post(url);
+    result.data = response.data;
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};

@@ -4,18 +4,37 @@ import useSWR from "swr";
 
 import * as api from "@agir/events/common/api";
 
-import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
+import { useToast } from "@agir/front/globalContext/hooks.js";
+import { routeConfig } from "@agir/front/app/routes.config";
+import { useHistory } from "react-router-dom";
 
 const EventCancelation = (props) => {
   const { onBack, illustration, eventPk } = props;
 
+  const history = useHistory();
+  const sendToast = useToast();
   const { data: event } = useSWR(api.getEventEndpoint("getEvent", { eventPk }));
-  const cancelUrl = api.getEventEndpoint("cancelEvent", { eventPk });
+
+  const handleCancel = async () => {
+    const { data, error } = await api.cancelEvent(eventPk);
+
+    if (error) {
+      sendToast(
+        "Une erreur est survenue, veuillez réessayer plus tard",
+        "ERROR",
+        { autoClose: true }
+      );
+      return;
+    }
+    sendToast(data.data, "SUCCESS", { autoClose: true });
+    const route = routeConfig.events.getLink();
+    history.push(route);
+  };
 
   return (
     <>
@@ -34,9 +53,9 @@ const EventCancelation = (props) => {
       <p>Cette action est irréversible.</p>
 
       <Spacer size="1rem" />
-      <Link route={cancelUrl}>
-        <Button color="danger">Annuler l'événement</Button>
-      </Link>
+      <Button onClick={handleCancel} color="danger">
+        Annuler l'événement
+      </Button>
     </>
   );
 };
