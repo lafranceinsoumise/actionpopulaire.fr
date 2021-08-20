@@ -33,7 +33,9 @@ class Command(BaseCommand):
         )
 
         for i, rsvp in enumerate(
-            event.rsvps.filter(form_submission__isnull=False).order_by("created")
+            event.rsvps.filter(form_submission__isnull=False)
+            .select_related("person", "form_submission")
+            .order_by("created")
         ):
             writer.writerow(
                 [
@@ -48,7 +50,9 @@ class Command(BaseCommand):
                     "completed" if rsvp.status == RSVP.STATUS_CONFIRMED else "on-hold",
                 ]
             )
-            for j, guest in enumerate(rsvp.identified_guests.order_by("id")):
+            for j, guest in enumerate(
+                rsvp.identified_guests.select_related("submission").order_by("id")
+            ):
                 writer.writerow(
                     [
                         "G" + str(rsvp.pk) + "g" + str(guest.pk),
