@@ -19,7 +19,7 @@ class PhoneNumbersTestCase(TestCase):
 
         self.assertTrue(is_mobile_number(p("07 34 98 56 78")))
 
-        self.assertTrue(is_mobile_number(p("06 90 48 25 64")))  # Guadeloupe, en +33
+        self.assertFalse(is_mobile_number(p("06 90 48 25 64")))  # Guadeloupe, en +33
 
         self.assertTrue(
             is_mobile_number(p("+590 6 90 48 25 64"))  # Guadeloupe, en +590
