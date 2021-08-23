@@ -503,7 +503,9 @@ const MessageCard = (props) => {
             ) : null}
           </StyledAction>
         </StyledHeader>
-        <StyledContent onClick={handleClick}>{text}</StyledContent>
+        <StyledContent as="div" onClick={handleClick}>
+          {text}
+        </StyledContent>
         {event ? <EventCard {...event} /> : null}
         {commentCount ? (
           <StyledCommentCount onClick={handleClick}>

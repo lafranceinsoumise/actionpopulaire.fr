@@ -7,7 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import TopBar from "@agir/front/allPages/TopBar";
+import TopBar from "@agir/front/allPages/TopBar/TopBar";
 
 const StyledWrapper = styled.main`
   margin: 0 auto;
