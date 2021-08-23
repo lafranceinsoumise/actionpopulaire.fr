@@ -70,7 +70,7 @@ export const DesktopNavBar = (props) => {
           <>
             <Button
               small
-              as="Link"
+              link
               color="secondary"
               route="createEvent"
               icon="plus"

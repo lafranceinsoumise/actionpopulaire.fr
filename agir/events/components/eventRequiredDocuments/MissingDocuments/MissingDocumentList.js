@@ -54,10 +54,16 @@ const StyledLink = styled(Link)`
   }
 
   & > ${Button} {
-    border-radius: ${(props) => props.theme.borderRadius};
     font-weight: 600;
     margin-top: 10px;
     align-self: flex-start;
+    background-color: #fbd8dd;
+    border-color: #fbd8dd;
+
+    &:hover {
+      background-color: #fbd8dddc;
+      border-color: #fbd8dddc;
+    }
   }
 `;
 
@@ -98,7 +104,7 @@ export const MissingDocumentList = (props) => {
                 <FeatherIcon name="chevron-right" />
               </strong>
               <span>À compléter avant le {displayShortDate(limitDate)}</span>
-              <Button $background="#FBD8DD" $hoverBackground="#FBD8DDDC" small>
+              <Button small>
                 {missingDocumentCount}{" "}
                 {missingDocumentCount > 1
                   ? "informations requises"

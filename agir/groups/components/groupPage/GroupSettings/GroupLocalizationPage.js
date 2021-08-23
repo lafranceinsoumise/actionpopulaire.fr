@@ -11,7 +11,7 @@ import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Map from "@agir/carte/common/Map";
 import HeaderPanel from "./HeaderPanel";
-import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
+import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
 import LocationField from "@agir/front/formComponents/LocationField.js";
 
 import { StyledTitle } from "./styledComponents.js";
@@ -96,7 +96,7 @@ const GroupLocalizationPage = (props) => {
 
         <Spacer size="2rem" />
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button color="secondary" $wrap disabled={isLoading}>
+          <Button color="secondary" wrap disabled={isLoading}>
             Enregistrer les informations
           </Button>
         </div>
@@ -114,10 +114,10 @@ const GroupLocalizationPage = (props) => {
         iconConfiguration={group?.iconConfiguration}
       />
       <Spacer size="0.5rem" />
-      {/* <Button small $wrap onClick={() => setConfig(true)}>
+      {/* <Button small wrap onClick={() => setConfig(true)}>
         Personnaliser la localisation sur la carte
       </Button> */}
-      <Button as="a" small $wrap href={group?.routes?.geolocate}>
+      <Button link small wrap href={group?.routes?.geolocate}>
         Personnaliser la localisation sur la carte
       </Button>
       <Spacer size="1rem" />
@@ -143,7 +143,7 @@ const GroupLocalizationPage = (props) => {
       />
 
       <Spacer size="2rem" />
-      <Button color="secondary" $wrap disabled={isLoading}>
+      <Button color="secondary" wrap disabled={isLoading}>
         Enregistrer
       </Button>
 

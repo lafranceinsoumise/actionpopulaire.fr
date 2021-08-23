@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import Button from "@agir/front/genericComponents/Button";
 import Modal from "@agir/front/genericComponents/Modal";
@@ -18,11 +16,11 @@ const log = logger(__filename);
 const StyledDialog = styled.div`
   max-width: 415px;
   margin: 40px auto;
-  background-color: ${style.white};
-  border-radius: 8px;
+  background-color: ${(props) => props.theme.white};
+  border-radius: ${(props) => props.theme.borderRadius};
   padding: 1rem;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0;
     border-radius: 0;
     max-width: 100%;
@@ -51,7 +49,6 @@ const StyledDialog = styled.div`
 
     ${Button} {
       flex: 1 1 auto;
-      justify-content: center;
       transition: opacity 250ms ease-in-out;
     }
 
@@ -63,7 +60,7 @@ const StyledDialog = styled.div`
 const StyledWrapper = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  font-color: ${style.black500};
+  font-color: ${(props) => props.theme.black500};
 `;
 
 const QuitEventButton = ({ id }) => {

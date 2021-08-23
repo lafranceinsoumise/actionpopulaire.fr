@@ -62,7 +62,7 @@ const NotificationSettingLink = (props) => {
   }
 
   return (
-    <StyledLink as="Link" to={route} icon="settings" small>
+    <StyledLink link to={route} icon="settings" small>
       Notifications et e-mails
     </StyledLink>
   );

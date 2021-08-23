@@ -14,6 +14,7 @@ const StyledEditor = styled(ReactQuill)`
   padding: 0;
   font-size: 1rem;
   border: 1px solid;
+  border-radius: ${style.softBorderRadius};
   border-color: ${({ $invalid, $focused, readOnly }) => {
     if ($invalid) {
       return style.redNSP;

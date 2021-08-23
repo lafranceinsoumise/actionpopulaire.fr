@@ -51,9 +51,7 @@ const Container = styled.form`
   }
 
   & > ${Button} {
-    margin: 0;
     max-width: 100%;
-    justify-content: center;
 
     @media (max-width: ${style.collapse}px) {
       width: 100%;

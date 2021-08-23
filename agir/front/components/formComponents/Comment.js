@@ -114,7 +114,7 @@ const StyledWrapper = styled(animated.div)`
   ${StyledMessage} {
     display: flex;
     flex: 1 1 auto;
-    border-radius: 8px;
+    border-radius: ${style.borderRadius};
     flex-direction: column;
   }
 

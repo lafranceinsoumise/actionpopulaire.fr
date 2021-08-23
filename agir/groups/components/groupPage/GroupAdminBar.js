@@ -49,18 +49,18 @@ const GroupAdminBar = (props) => {
   return (
     <StyledBar>
       <LeftSection>
-        <Button as="Link" route="createEvent" color="primary" icon="plus">
+        <Button link route="createEvent" color="primary" icon="plus">
           Créer un événement du groupe
         </Button>
       </LeftSection>
       <RightSection>
         {routes.settings && (
-          <Button as="a" href={routes.settings} icon="settings">
+          <Button link href={routes.settings} icon="settings">
             Paramètres
           </Button>
         )}
         {routes.members && (
-          <Button as="a" href={routes.members} icon="users">
+          <Button link href={routes.members} icon="users">
             Membres
           </Button>
         )}
