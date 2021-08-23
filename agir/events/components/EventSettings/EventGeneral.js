@@ -175,6 +175,8 @@ const EventGeneral = (props) => {
     setErrors({});
     setIsLoading(true);
 
+    if (!formData.facebook) delete formData.facebook;
+
     if (formData.image && imageHasChanged && !hasCheckedImageLicence) {
       setErrors((errors) => ({
         ...errors,

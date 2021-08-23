@@ -118,8 +118,6 @@ export const updateEvent = async (eventPk, data) => {
     };
   }
 
-  console.log("formData to update event :", body);
-
   try {
     const response = await axios.patch(url, body, { headers });
     result.data = response.data;
