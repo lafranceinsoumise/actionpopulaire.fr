@@ -103,7 +103,7 @@ const RequiredDocumentCard = (props) => {
           <Button
             link
             href={templateLink}
-            download={`modele__${name}`}
+            download={templateLink}
             target="_blank"
             rel="noopener noreferrer"
           >

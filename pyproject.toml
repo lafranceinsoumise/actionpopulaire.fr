@@ -16,7 +16,7 @@ django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields
 django-countries = "==7.*"  # country fields
 django-phonenumber-field = "==3.*"  # phone number field
-phonenumbers = "==8.12.11"  # optional requirement of django-phonenumber-field
+phonenumbers = "==8.12.29"  # optional requirement of django-phonenumber-field
 django-stdimage = "==5.*"  # better image field with handling of variations
 django-dynamic-filenames = "==1.*"  # better handling of upload path for file fields
 unicode-slugify = "==0.1.*"  # optional requirement of django-dynamic-filenames
@@ -29,9 +29,9 @@ rules = "==3.*"  # add useful authorization rules
 django-reversion = "==3.*"  # versioning of models
 ## Django Rest Framework
 djangorestframework = "==3.*,>=3.10"
-djangorestframework-gis = "==0.16.*"
+djangorestframework-gis = "==0.17"
 ## adapters for third-party systems
-django-redis = "==4.*"
+django-redis = "==5.*"
 psycopg2 = "*"
 django-prometheus = "==2.*"
 # celery
@@ -43,7 +43,7 @@ hiredis = "==2.*"
 # HTTP
 requests = ">=2.20.0, ==2.*"
 # HTML
-bleach = "==3.*"  # sanitize HTML
+bleach = "==4.*"  # sanitize HTML
 "html2text" = "==2020.*"  # transforms HTML to text (used for plain text versions of HTML emails)
 markdown = "==3.*"  # convert markdown text to HTML (should be deprecated)
 # image handling
@@ -70,7 +70,7 @@ pyrogram = "==0.*"
 tgcrypto = "*"
 tenacity = "*"
 pandas = "==1.*"
-data-france = "0.13.1"
+data-france = "0.13.3"
 beautifultable = "==1.0.*"
 scipy = "==1.*"
 PyYAML = "==5.*"
@@ -83,7 +83,7 @@ django-push-notifications = "*"
 pywebpush = "*"
 social-auth-core = "==4.0.2"
 django-storages = "^1.11.1"
-qrcode = {extras = ["pil"], version = "^6.1"}
+qrcode = {extras = ["pil"], version = "^7.2"}
 
 [tool.poetry.dev-dependencies]
 ipython = "*"

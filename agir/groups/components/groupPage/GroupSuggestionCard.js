@@ -21,8 +21,9 @@ const StyledCard = styled(Card)`
   cursor: pointer;
 
   @media (max-width: ${style.collapse}px) {
-    max-width: 294px;
     width: calc(100vw - 4rem);
+    max-width: 294px;
+    height: 360px;
   }
 
   ${StyledMap} {
