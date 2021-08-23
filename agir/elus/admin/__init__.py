@@ -830,7 +830,7 @@ class MandatDeputeEuropeenAdmin(BaseMandatAdmin):
 
 
 @admin.register(RechercheParrainage)
-class RechercherParrainageMaireAdmin(admin.ModelAdmin):
+class RechercheParrainageAdmin(admin.ModelAdmin):
     form = RechercheParrainageForm
 
     autocomplete_fields = (*CHAMPS_ELUS_PARRAINAGES, "person")
@@ -845,7 +845,7 @@ class RechercherParrainageMaireAdmin(admin.ModelAdmin):
     list_filter = ("statut", TypeEluFilter)
     fields = ("person", "statut_display", "commentaires", "formulaire")
 
-    search_fields = ("elu_municipal__search",)
+    search_fields = ("search",)
 
     def get_fieldsets(self, request, obj=None):
         if obj is None:
@@ -870,7 +870,7 @@ class RechercherParrainageMaireAdmin(admin.ModelAdmin):
         if search_term:
             return (
                 queryset.filter(
-                    elu__search=SearchQuery(search_term, config="data_france_search")
+                    search=SearchQuery(search_term, config="data_france_search")
                 ),
                 use_distinct,
             )
