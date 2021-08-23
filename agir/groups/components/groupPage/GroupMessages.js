@@ -29,22 +29,21 @@ const StyledButton = styled.div`
   }
 
   ${Button} {
-    width: auto;
-    margin: 0 auto;
-    justify-content: center;
-
     &,
     &:hover,
     &:focus,
     &:active {
       background-color: white;
-    }
+      width: auto;
+      margin: 0 auto;
+      justify-content: center;
 
-    @media (max-width: ${style.collapse}px) {
-      width: 100%;
-      margin-top: 1rem;
-      font-size: 0.875rem;
-      box-shadow: ${style.elaborateShadow};
+      @media (max-width: ${style.collapse}px) {
+        width: 100%;
+        margin-top: 1rem;
+        font-size: 0.875rem;
+        box-shadow: ${style.elaborateShadow};
+      }
     }
   }
 `;

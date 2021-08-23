@@ -5,7 +5,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import Button from "@agir/front/genericComponents/Button.js";
+import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "./HeaderPanel";
 import DiscountCode from "./DiscountCode";
@@ -52,11 +52,11 @@ const GroupMaterielPage = (props) => {
             <Button
               icon="external-link"
               color="primary"
-              as="a"
+              link
               href={ordersURL}
               target="_blank"
               rel="noopener noreferrer"
-              $wrap
+              wrap
             >
               Site d’achat de matériel
             </Button>

@@ -17,7 +17,7 @@ const SearchBarWrapper = styled.div`
   border: 1px solid;
   border-color: ${({ $focused }) =>
     $focused ? style.black1000 : style.black100};
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   align-items: center;
   height: 40px;
 
@@ -32,9 +32,6 @@ const SearchBarWrapper = styled.div`
     padding: revert;
     width: 2rem;
     height: 2rem;
-    border-radius: 0.5rem;
-    display: flex;
-    justify-content: center;
     opacity: ${({ $focused }) => ($focused ? 1 : 0)};
     transition: 0.1s ease;
   }
@@ -53,6 +50,7 @@ const SearchBarWrapper = styled.div`
     border: none;
     background-color: transparent;
     outline: none;
+    border-radius: ${style.softBorderRadius}
 
     &::placeholder {
       color: ${style.black500};

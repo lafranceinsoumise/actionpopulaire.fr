@@ -29,20 +29,12 @@ const ContainerConnexion = styled.div`
 
 const LoginMailButton = styled(Button)`
   margin-top: 0.5rem;
-  margin-left: 0;
-  max-width: 100%;
-  width: 100%;
   justify-content: space-between;
 
-  span {
-    max-width: 90%;
+  & > span {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-  }
-
-  & + & {
-    margin-left: 0;
   }
 `;
 

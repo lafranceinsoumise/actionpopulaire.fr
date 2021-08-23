@@ -41,8 +41,7 @@ const StyledWrapper = styled.div`
 
   ${Button} {
     width: 100%;
-    justify-content: center;
-    margin: 0 0 1rem;
+    margin-bottom: 1rem;
   }
 `;
 

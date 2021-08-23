@@ -42,13 +42,6 @@ const InterrogationMark = styled.div`
   font-weight: 500;
 `;
 
-const StyledButton = styled(Button)`
-  max-width: 450px;
-  width: 100%;
-  margin-top: 2rem;
-  justify-content: center;
-`;
-
 const PageStyle = styled.div`
   display: flex;
   flex-direction: column;
@@ -115,9 +108,15 @@ export const NotFoundPage = ({
               {title + " "}introuvable
             </h1>
             <span>{subtitle + " "}n’existe pas ou plus</span>
-            <StyledButton color="primary" block as="Link" route="events">
+            <Button
+              style={{ maxWidth: 450, marginTop: "2rem" }}
+              color="primary"
+              block
+              link
+              route="events"
+            >
               Retourner à l'accueil
-            </StyledButton>
+            </Button>
             <span style={{ marginTop: "2rem", backgroundColor: "#fff" }}>
               ou consulter le{" "}
               <a href="https://infos.actionpopulaire.fr/">centre d'aide</a>

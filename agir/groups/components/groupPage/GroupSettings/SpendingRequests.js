@@ -24,7 +24,8 @@ const StyledSpendingRequest = styled.a`
     text-decoration: none;
   }
 
-  & > span {
+  & > span,
+  & > ${Button} {
     flex: 0 0 auto;
     margin-top: 0.5rem;
   }
@@ -81,7 +82,7 @@ const SpendingRequest = (props) => {
         <span>{date.slice(0, 10).split("-").reverse().join("/")}</span>
         <small>{status}</small>
       </span>
-      <Button as="span" small>
+      <Button color="default" small>
         Voir la demande
       </Button>
     </StyledSpendingRequest>
@@ -110,11 +111,11 @@ const SpendingRequests = ({ newSpendingRequestLink, spendingRequests }) => {
       )}
       {newSpendingRequestLink && (
         <Button
-          as="a"
+          link
           icon="mail"
           href={newSpendingRequestLink}
           color="secondary"
-          $wrap
+          wrap
         >
           Créer une demande de dépense
         </Button>

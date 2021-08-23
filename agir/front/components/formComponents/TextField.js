@@ -42,7 +42,7 @@ const StyledField = styled.label`
   ${StyledInput}, ${StyledTextArea} {
     grid-row: 3;
     grid-column: 1/3;
-    border-radius: 0;
+    border-radius: ${style.softBorderRadius};
     border: 1px solid;
     border-color: ${({ $invalid }) =>
       $invalid ? style.redNSP : style.black100};

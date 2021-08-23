@@ -17,10 +17,11 @@ const StyledInputs = styled.span``;
 const StyledInput = styled(Datetime)`
   .rdtPicker {
     width: calc(100% + 2px);
-    margin-top: 0px;
+    margin-top: 4px;
     margin-left: -1px;
     background-color: ${style.white};
     border: 1px solid ${style.black100};
+    border-radius: ${style.softBorderRadius};
     box-shadow: 0px 3px 2px rgba(0, 35, 44, 0.05);
 
     @media (max-width: ${style.collapse}px) {
@@ -62,7 +63,7 @@ const StyledField = styled.div`
   }
   ${StyledInput} {
     flex: 1 1 200px;
-    border-radius: 0;
+    border-radius: ${style.softBorderRadius};
     border: 1px solid;
     border-color: ${({ $invalid }) =>
       $invalid ? style.redNSP : style.black100};
@@ -78,6 +79,7 @@ const StyledField = styled.div`
       outline: none;
       width: 100%;
       height: 100%;
+      border-radius: inherit;
     }
 
     &:last-child {

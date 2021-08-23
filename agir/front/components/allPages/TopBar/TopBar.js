@@ -104,13 +104,6 @@ const HorizontalFlex = styled.div`
   }
 `;
 
-const StyledButton = styled(Button)`
-  height: 40px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 0.5rem;
-`;
-
 export const TopBar = (props) => {
   const { path, hideBannerDownload } = props;
   const routes = useSelector(getRoutes);
@@ -168,15 +161,16 @@ export const TopBar = (props) => {
             </Hide>
             <Hide under>
               {isConnected && (
-                <StyledButton
+                <Button
                   small
-                  as="Link"
+                  link
                   color="secondary"
                   route="createEvent"
                   icon="plus"
+                  style={{ height: 40 }}
                 >
                   Créer un événement
-                </StyledButton>
+                </Button>
               )}
             </Hide>
             <Hide

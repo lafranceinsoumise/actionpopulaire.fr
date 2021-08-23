@@ -1,12 +1,12 @@
 import React from "react";
 
-import Button, { buttonColors } from "./Button";
+import LegacyButton, { buttonColors } from "./LegacyButton";
 import { allIcons } from "./FeatherIcon";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 
 export default {
-  component: Button,
-  title: "Generic/Button",
+  component: LegacyButton,
+  title: "Generic/LegacyButton (deprecated)",
   argTypes: {
     color: {
       control: {
@@ -28,7 +28,7 @@ export default {
   },
 };
 
-const Template = (args) => <Button {...args} />;
+const Template = (args) => <LegacyButton {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
@@ -71,32 +71,32 @@ SmallExample.args = { ...Default.args, small: true };
 export const DisabledExample = Template.bind({});
 DisabledExample.args = { ...Default.args, disabled: true };
 
-export const LinkButton = Template.bind({});
-LinkButton.args = {
+export const LinkLegacyButton = Template.bind({});
+LinkLegacyButton.args = {
   ...Default.args,
   as: "a",
   href: "#some.link",
 };
 
-export const IconButton = Template.bind({});
-IconButton.args = {
+export const IconLegacyButton = Template.bind({});
+IconLegacyButton.args = {
   ...Default.args,
   icon: "copy",
 };
 
-export const ButtonAndLink = (args) => (
+export const LegacyButtonAndLink = (args) => (
   <Row gutter={6} style={{ margin: "2rem" }}>
     <Column>
-      <Button {...args}>Bouton</Button>
+      <LegacyButton {...args}>Bouton</LegacyButton>
     </Column>
     <Column>
-      <Button as="a" href="#some.link" {...args}>
+      <LegacyButton link href="#some.link" {...args}>
         Lien
-      </Button>
+      </LegacyButton>
     </Column>
   </Row>
 );
-ButtonAndLink.args = {
+LegacyButtonAndLink.args = {
   ...Default.args,
 };
 
@@ -115,7 +115,9 @@ export const WithTransition = (args) => {
     [state, colors]
   );
 
-  return <Button {...args} color={color} small={small} onClick={updateState} />;
+  return (
+    <LegacyButton {...args} color={color} small={small} onClick={updateState} />
+  );
 };
 WithTransition.args = {
   ...Default.args,
