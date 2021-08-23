@@ -77,7 +77,7 @@ const DateField = (props) => {
   } = props;
 
   const [hasTimezone, setHasTimezone] = useState(showTimezone);
-  const [duration, setDuration] = useState(EVENT_DEFAULT_DURATIONS[0]);
+  const [duration, setDuration] = useState({});
 
   const updateStartTime = useCallback(
     (startTime) => {
@@ -96,10 +96,6 @@ const DateField = (props) => {
     [endTime, duration, onChange]
   );
 
-  const updateDuration = useCallback((duration) => {
-    setDuration(duration);
-  }, []);
-
   const updateEndTime = useCallback(
     (endTime) => {
       let start = moment(startTime);
@@ -114,14 +110,19 @@ const DateField = (props) => {
     [startTime, onChange]
   );
 
-  // useEffect(() => {
-  //   if (duration && duration.value) {
-  //     updateStartTime(startTime);
-  //   }
-  // }, [duration, updateStartTime, startTime]);
+  const updateDuration = useCallback((duration) => {
+    setDuration(duration);
+  }, []);
 
   useEffect(() => {
-    // Show endTime only if its customized more than [1h, 1h30, 2h, 3h]
+    if (duration && duration.value) {
+      updateStartTime(startTime);
+    }
+  }, [duration, updateStartTime, startTime]);
+
+  // Show DateField endTime only if its customized, not in [1h, 1h30, 2h, 3h]
+  useEffect(() => {
+    if (!startTime) return;
     let startDate = new Date(startTime);
     startDate = DateTime.fromJSDate(startDate);
     let endDate = new Date(endTime);
@@ -130,26 +131,19 @@ const DateField = (props) => {
     const startDatePlus1H30 = startDate.plus({ hours: 1, minutes: 30 });
     const startDatePlus2H = startDate.plus({ hours: 2 });
     const startDatePlus3H = startDate.plus({ hours: 3 });
-    let isCustomDate = false;
-    if (
-      ![
-        startDatePlus1H.ts,
-        startDatePlus1H30.ts,
-        startDatePlus2H.ts,
-        startDatePlus3H.ts,
-      ].includes(endDate.ts)
-    )
-      isCustomDate = true;
-    setDuration(EVENT_DEFAULT_DURATIONS[!isCustomDate ? 0 : 4]);
+    let indexDuration = 4;
+    if (startDatePlus1H.ts === endDate.ts) indexDuration = 0;
+    if (startDatePlus1H30.ts === endDate.ts) indexDuration = 1;
+    if (startDatePlus2H.ts === endDate.ts) indexDuration = 2;
+    if (startDatePlus3H.ts === endDate.ts) indexDuration = 3;
+    setDuration(EVENT_DEFAULT_DURATIONS[indexDuration]);
   }, [startTime]);
 
   return (
     <Field className={className}>
       <div>
         <DateTimeField
-          label={`Date et heure ${
-            duration.value === null ? "de début" : ""
-          }`.trim()}
+          label={`Date et heure ${!duration.value ? "de début" : ""}`.trim()}
           value={startTime}
           onChange={updateStartTime}
           error={error}
@@ -160,7 +154,7 @@ const DateField = (props) => {
       <div>
         <SelectField
           label="Durée"
-          value={duration}
+          value={duration.value ? duration : EVENT_DEFAULT_DURATIONS[4]}
           onChange={updateDuration}
           options={EVENT_DEFAULT_DURATIONS}
           disabled={disabled}
@@ -182,7 +176,7 @@ const DateField = (props) => {
           </button>
         </TimezoneToggle>
       )}
-      {duration.value === null && (
+      {!duration.value && (
         <div>
           <DateTimeField
             label="Date et heure de fin"
