@@ -124,20 +124,9 @@ class EventThumbnailView(DetailView):
                     (crop_w, crop_h, crop_w + 1200, crop_h + 278)
                 )
                 image.paste(illustration, (0, 0), illustration)
-                icon = Image.open(os.path.join(self.static_root, "rectangle16.png"))
+                icon = Image.open(os.path.join(self.static_root, "map-marker.png"))
                 icon = icon.resize((50, 65), Image.ANTIALIAS)
                 image.paste(icon, (575, 75), icon)
-
-                if self.event.subtype.icon:
-                    self.event.subtype.icon.open()
-                    subtype_icon = Image.open(self.event.subtype.icon)
-                    subtype_icon = subtype_icon.resize((35, 55), Image.ANTIALIAS)
-                    image.paste(subtype_icon, (580, 75), subtype_icon)
-                elif self.event.subtype.default_image:
-                    self.event.subtype.default_image.open()
-                    subtype_icon = Image.open(self.event.subtype.default_image)
-                    subtype_icon = subtype_icon.resize((35, 55), Image.ANTIALIAS)
-                    image.paste(subtype_icon, (580, 75), subtype_icon)
             else:
                 illustration = Image.open(self.static_root + "Frame-193.png")
 

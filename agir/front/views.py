@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.auth import logout
@@ -248,6 +249,9 @@ class EventDetailView(
     bundle_name = "front/app"
 
     def get_meta_image(self):
+        if hasattr(self.object, "image") and self.object.image:
+            return urljoin(settings.FRONT_DOMAIN, self.object.image.url)
+
         return front_url(
             "view_og_image_event", kwargs={"pk": self.object.pk,}, absolute=True
         )
