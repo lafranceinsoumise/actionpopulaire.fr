@@ -119,7 +119,6 @@ const StyledButton = styled(Button)`
   width: 330px;
   height: 70px;
   font-size: 20px;
-  justify-content: center;
   margin-top: 2rem;
 `;
 
@@ -338,7 +337,7 @@ const IntroApp2 = () => {
                   <>
                     <StyledButton
                       color="primary"
-                      as="Link"
+                      link
                       route="signup"
                       style={{ marginTop: "0" }}
                     >
@@ -347,7 +346,7 @@ const IntroApp2 = () => {
                     <StyledButton
                       color="secondary"
                       style={{ marginTop: "0.5rem", marginLeft: "0px" }}
-                      as="Link"
+                      link
                       route="login"
                     >
                       Je me connecte

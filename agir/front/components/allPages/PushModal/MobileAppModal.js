@@ -26,13 +26,13 @@ const StyledModalContent = styled.div`
   max-width: 600px;
   padding: 0 0 36px;
   margin: 60px auto 0;
-  box-shadow: ${style.elaborateShadow};
-  border-radius: 8px;
-  background-color: ${style.white};
+  box-shadow: ${(props) => props.theme.elaborateShadow};
+  border-radius: ${(props) => props.theme.borderRadius};
+  background-color: ${(props) => props.theme.white};
   overflow-x: hidden;
   overflow-y: auto;
 
-  @media (max-width: ${style.collapse}px) {
+  @media (max-width: ${(props) => props.theme.collapse}px) {
     margin-top: 20px;
     max-width: calc(100% - 40px);
     padding: 0 0 1.5rem;
@@ -42,7 +42,7 @@ const StyledModalContent = styled.div`
     margin: 0;
     padding: 0 3.375rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       padding: 0 1.5rem;
     }
   }
@@ -52,7 +52,7 @@ const StyledModalContent = styled.div`
     top: 1rem;
     right: 1rem;
     padding: 0;
-    color: ${style.black1000};
+    color: ${(props) => props.theme.black1000};
     z-index: 1;
     background-color: transparent;
     border: none;
@@ -66,13 +66,13 @@ const StyledModalContent = styled.div`
     position: relative;
     width: 100%;
     height: 177px;
-    background-color: ${style.secondary500};
+    background-color: ${(props) => props.theme.secondary500};
     background-image: url(${modalImage});
     background-position: bottom center;
     background-repeat: no-repeat;
     margin-bottom: 56px;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       height: 100px;
       background-size: 160px auto;
     }
@@ -96,7 +96,7 @@ const StyledModalContent = styled.div`
   h4 {
     height: 2rem;
     font-size: 1rem;
-    color: ${style.primary500};
+    color: ${(props) => props.theme.primary500};
     text-transform: uppercase;
   }
 
@@ -112,7 +112,7 @@ const StyledModalContent = styled.div`
     line-height: 1.6;
     padding-bottom: 2.5rem;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       font-size: 0.875rem;
     }
   }
@@ -122,7 +122,7 @@ const StyledModalContent = styled.div`
     align-items: stretch;
     text-align: center;
 
-    @media (max-width: ${style.collapse}px) {
+    @media (max-width: ${(props) => props.theme.collapse}px) {
       display: block;
     }
   }

@@ -21,8 +21,9 @@ const StyledCard = styled(Card)`
   cursor: pointer;
 
   @media (max-width: ${style.collapse}px) {
-    max-width: 294px;
     width: calc(100vw - 4rem);
+    max-width: 294px;
+    height: 360px;
   }
 
   ${StyledMap} {
@@ -98,7 +99,7 @@ const GroupSuggestionCard = (props) => {
           {(zip || city) && <span>{`${zip} ${city}`.trim()}</span>}
         </p>
         <Button
-          as="Link"
+          link
           to={routeConfig.groupDetails.getLink({ groupPk: id })}
           small
           color="secondary"

@@ -89,7 +89,7 @@ const MainContainer = styled(Container)`
 const FacebookLoginContainer = styled.div`
   background-color: #e8f2fe;
   max-width: 255px;
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   padding: 24px;
   font-size: 14px;
   margin-bottom: 16px;
@@ -128,10 +128,8 @@ const FacebookLoginAd = () => {
       <Button
         style={{ margin: "16px 0" }}
         small
-        $background="#1778f2"
-        $hoverBackground="#1778f2"
-        $labelColor="#fff"
-        as="a"
+        color="facebook"
+        link
         href={routes.facebookLogin}
       >
         <img

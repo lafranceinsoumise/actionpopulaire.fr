@@ -75,4 +75,7 @@ class RSVPTestCase(TestCase):
             event=self.event,
         )
 
+        # on supprime la valeur en cache
+        del self.event.all_attendee_count
+
         self.assertEqual(self.event.participants, 12)

@@ -2,28 +2,23 @@ import React from "react";
 import { DateTime } from "luxon";
 
 import EventHeader from "./EventHeader";
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
+
+import events from "@agir/front/mockData/events";
+
 import {
   scheduleFromStartTimeAndDuration,
   decorateArgs,
 } from "@agir/lib/utils/storyUtils";
 
-const routes = { login: "#login", join: "#signin" };
-
-const defaultStartTime = DateTime.local().plus({ days: 2 });
+const pastStartTime = DateTime.local().minus({ days: 2 });
+const upcomingStartTime = DateTime.local().plus({ days: 2 });
 
 export default {
   component: EventHeader,
   title: "Events/EventPage/EventHeader",
-  decorators: [
-    (story, { args }) => (
-      <TestGlobalContextProvider
-        value={{ user: args.logged ? {} : null, routes }}
-      >
-        <div style={{ margin: "1rem" }}>{story()}</div>
-      </TestGlobalContextProvider>
-    ),
-  ],
+  parameters: {
+    layout: "padded",
+  },
   argTypes: {
     logged: {
       type: "boolean",
@@ -49,74 +44,50 @@ export default {
 
 const Template = decorateArgs(
   scheduleFromStartTimeAndDuration(),
-  ({ price, rsvped, ...args }) => {
-    return (
-      <EventHeader
-        {...args}
-        options={price !== "" ? { price } : {}}
-        rsvp={rsvped ? { id: "prout" } : null}
-      />
-    );
+  ({ rsvped, ...args }) => {
+    return <EventHeader {...args} rsvp={rsvped ? "CO" : ""} />;
   }
 );
 
 export const Default = Template.bind({});
 Default.args = {
-  name: "Mon événement",
-  startTime: defaultStartTime.toMillis(),
-  duration: 2,
-  logged: true,
-  price: "",
-  routes: {
-    page: "#page",
-    join: "#join",
-    cancel: "#cancel",
-  },
+  ...events[0],
+  startTime: pastStartTime,
   rsvped: true,
+  options: {},
 };
 
-export const NotLogged = Template.bind({});
-Default.args = {
-  name: "Mon événement",
-  startTime: defaultStartTime.toMillis(),
-  duration: 2,
-  logged: false,
-  price: "",
-  routes: {
-    page: "#page",
-    join: "#join",
-    cancel: "#cancel",
-  },
+export const Upcoming = Template.bind({});
+Upcoming.args = {
+  ...events[0],
+  startTime: upcomingStartTime,
   rsvped: true,
+  options: {},
 };
 
 export const NoRSVP = Template.bind({});
-Default.args = {
-  name: "Mon événement",
-  startTime: defaultStartTime.toMillis(),
-  duration: 2,
-  logged: true,
-  price: "",
-  routes: {
-    page: "#page",
-    join: "#join",
-    cancel: "#cancel",
-  },
+NoRSVP.args = {
+  ...Upcoming.args,
   rsvped: false,
 };
 
-export const isOnline = Template.bind({});
-Default.args = {
-  name: "Mon événement en ligne",
-  startTime: defaultStartTime.toMillis(),
-  duration: 2,
-  logged: true,
-  price: "",
-  routes: {
-    page: "#page",
-    join: "#join",
-    cancel: "#cancel",
-  },
+export const NORSVPWithPrice = Template.bind({});
+NORSVPWithPrice.args = {
+  ...Upcoming.args,
+  options: { price: "100$" },
+};
+
+export const RSVPWithPrice = Template.bind({});
+RSVPWithPrice.args = {
+  ...Upcoming.args,
   rsvped: true,
-  visioConf: "https://actionpopulaire.fr",
+  allowGuests: true,
+  options: { price: "100$" },
+};
+
+export const OnlineEvent = Template.bind({});
+OnlineEvent.args = {
+  ...Upcoming.args,
+  rsvped: true,
+  onlineUrl: "https://actionpopulaire.fr",
 };

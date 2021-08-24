@@ -4,7 +4,7 @@ import { animated, useSpring } from "@react-spring/web";
 import styled from "styled-components";
 import SwiperCore, { A11y } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
-
+import "swiper/swiper.scss";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -143,7 +143,7 @@ export const GroupSuggestions = (props) => {
     <PageFadeIn ready={Array.isArray(groups) && groups.length > 0}>
       <StyledWrapper>
         <h4>Autres groupes qui peuvent vous intéresser</h4>
-        <Button as="Link" route="groupMap" icon="map" small>
+        <Button link route="groupMap" icon="map" small>
           Carte des groupes
         </Button>
         <ResponsiveLayout

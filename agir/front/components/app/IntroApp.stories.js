@@ -1,6 +1,5 @@
 import React from "react";
 
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 import IntroApp from "./IntroApp";
 
 export default {
@@ -8,11 +7,7 @@ export default {
   title: "app/IntroApp",
 };
 
-const Template = (args) => (
-  <TestGlobalContextProvider>
-    <IntroApp {...args} />
-  </TestGlobalContextProvider>
-);
+const Template = (args) => <IntroApp {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {};

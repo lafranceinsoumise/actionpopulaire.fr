@@ -38,7 +38,6 @@ const StyledModalFooter = styled.footer`
 
   ${Button} {
     flex: 1 1 auto;
-    justify-content: center;
     transition: opacity 250ms ease-in-out;
   }
 
@@ -50,7 +49,7 @@ const StyledModalContent = styled.div`
   max-width: 415px;
   margin: 40px auto;
   background-color: ${style.white};
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   padding: 1rem;
 
   @media (max-width: ${style.collapse}px) {

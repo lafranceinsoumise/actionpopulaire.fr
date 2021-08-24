@@ -70,14 +70,9 @@ const StyledForm = styled.form`
   padding: 1.5rem;
   min-height: 200px;
 
-  ${Button},
   && input,
   && textarea {
     border-radius: ${(props) => props.theme.borderRadius};
-  }
-
-  ${Button} {
-    font-weight: 600;
   }
 `;
 
@@ -85,7 +80,7 @@ const StyledModalContent = styled.div`
   max-width: 600px;
   margin: 40px auto;
   background-color: white;
-  border-radius: 8px;
+  border-radius: ${(props) => props.theme.borderRadius};
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     border-radius: 0;

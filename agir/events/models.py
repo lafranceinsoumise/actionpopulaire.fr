@@ -118,8 +118,7 @@ class EventQuerySet(models.QuerySet):
                 ),
                 default=Coalesce(Count("rsvps__identified_guests") + Count("rsvps"), 0),
                 output_field=CharField(),
-            )
-        ).annotate(
+            ),
             confirmed_attendee_count=Case(
                 When(payment_parameters=None, then=F("all_attendee_count")),
                 When(
@@ -136,7 +135,7 @@ class EventQuerySet(models.QuerySet):
                     0,
                 ),
                 output_field=CharField(),
-            )
+            ),
         )
 
     def search(self, query):
@@ -461,26 +460,26 @@ class Event(
             url=event_url,
         )
 
+    def _get_participants_counts(self):
+        self.all_attendee_count, self.confirmed_attendee_count = (
+            self.__class__.objects.with_participants()
+            .values_list("all_attendee_count", "confirmed_attendee_count")
+            .get(id=self.id)
+        )
+
     @property
     def participants(self):
-        try:
-            return self.all_attendee_count
-        except AttributeError:
-            if self.subscription_form:
-                return (
-                    self.rsvps.annotate(
-                        identified_guests_count=Count("identified_guests")
-                    ).aggregate(participants=Sum(F("identified_guests_count") + 1))[
-                        "participants"
-                    ]
-                    or 0
-                )
-            return (
-                self.rsvps.aggregate(participants=Sum(models.F("guests") + 1))[
-                    "participants"
-                ]
-                or 0
-            )
+        if not hasattr(self, "all_attendee_count"):
+            self._get_participants_counts()
+
+        return self.all_attendee_count
+
+    @property
+    def participants_confirmes(self):
+        if not hasattr(self, "confirmed_attendee_count"):
+            self._get_participants_counts()
+
+        return self.confirmed_attendee_count
 
     @property
     def type(self):

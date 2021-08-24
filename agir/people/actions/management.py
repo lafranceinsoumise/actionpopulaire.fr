@@ -189,6 +189,7 @@ MERGE_STRATEGIES = {
     "mandat_regional": merge_reassign_related,
     "mandat_consulaire": merge_reassign_related,
     "mandat_depute": merge_reassign_related,
+    "mandat_depute_depute_europeen": merge_reassign_related,
     "campaignsentevent": None,
     "notification_subscriptions": None,
     # Simple fields

@@ -52,7 +52,7 @@ const GroupOrders = (props) => {
         </StyledList>
       ) : null}
       {orderURL ? (
-        <Button as="a" href={orderURL} color="primary" small inline>
+        <Button link href={orderURL} color="primary" small inline>
           Commander du matériel
         </Button>
       ) : null}

@@ -7,7 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import TopBar from "@agir/front/allPages/TopBar";
+import TopBar from "@agir/front/allPages/TopBar/TopBar";
 
 const StyledWrapper = styled.main`
   margin: 0 auto;
@@ -43,7 +43,7 @@ const AuthenticatedLogin = ({ user }) => {
           compte <strong>{user.email}</strong>
         </p>
         <Spacer size="2rem" />
-        <Button as="Link" route="dashboard" color="secondary">
+        <Button link route="dashboard" color="secondary">
           Revenir à l’accueil
         </Button>
         <Spacer size="3.25rem" />

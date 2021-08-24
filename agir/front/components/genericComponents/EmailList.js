@@ -17,14 +17,14 @@ const StyledEmailList = styled.div`
   }
 
   input,
-  button {
+  ${Button} {
     &,
     &:hover,
     &:focus {
       height: 2rem;
       margin: 0;
       outline: none;
-      border-radius: 0;
+      border-radius: ${style.softBorderRadius};
       white-space: nowrap;
     }
   }
@@ -37,10 +37,6 @@ const StyledEmailList = styled.div`
     background-color: ${style.white};
     padding: 0.25rem 0.5rem;
     cursor: text;
-  }
-
-  ${Button} {
-    justify-content: center;
   }
 `;
 

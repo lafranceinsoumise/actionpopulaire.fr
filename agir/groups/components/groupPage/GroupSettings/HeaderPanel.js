@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import { Hide } from "@agir/front/genericComponents/grid";
-import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
+import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
 
 import styled from "styled-components";
 

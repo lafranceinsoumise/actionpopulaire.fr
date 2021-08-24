@@ -7,13 +7,8 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Link from "@agir/front/app/Link";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
-import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import Button from "@agir/front/genericComponents/Button";
-import Popin from "@agir/front/genericComponents/Popin";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
-
-import { routeConfig } from "@agir/front/app/routes.config";
 
 const IconLink = styled(Link)``;
 const StyledUserMenu = styled.div`
@@ -94,77 +89,56 @@ const StyledUserMenu = styled.div`
     margin: 0;
     padding: 1rem 0;
     border-top: 1px solid ${style.black100};
-
-    ${Button} {
-      margin: 0;
-    }
   }
-`;
 
-const StyledButton = styled(Button)`
-  width: 230px;
-  justify-content: center;
+  ${Button} {
+    width: 230px;
+  }
 `;
 
 export const UserMenu = (props) => {
   const { user } = props;
 
   return (
-    <ResponsiveLayout
-      MobileLayout={BottomSheet}
-      DesktopLayout={Popin}
-      noPadding
-      {...props}
-    >
-      <StyledUserMenu>
-        <header>
-          <Avatar displayName={user.displayName} image={user.image} />
-          <IconLink route="personalInformation">
-            <RawFeatherIcon name="edit-2" width="1rem" height="1rem" />
-          </IconLink>
-        </header>
-        <article>
-          <p>
-            <strong>{user.displayName}</strong>
-          </p>
-          {user.fullName !== user.email && <p>{user.fullName}</p>}
-          <p>{user.email}</p>
-          <StyledButton
-            as="Link"
-            route="personalInformation"
-            icon="settings"
-            color="secondary"
-            small
-          >
-            Paramètres
-          </StyledButton>
-          <br />
-          <StyledButton
-            as="Link"
-            route="notificationSettings"
-            icon="settings"
-            color="secondary"
-            small
-          >
-            Notifications et e-mails
-          </StyledButton>
-        </article>
-        <footer>
-          <StyledButton
-            as="Link"
-            route="logout"
-            icon="power"
-            $background={style.white}
-            $labelColor={style.black1000}
-            $hoverBackground={style.black25}
-            $borderColor={style.black200}
-            small
-          >
-            Me déconnecter
-          </StyledButton>
-        </footer>
-      </StyledUserMenu>
-    </ResponsiveLayout>
+    <StyledUserMenu>
+      <header>
+        <Avatar displayName={user.displayName} image={user.image} />
+        <IconLink route="personalInformation">
+          <RawFeatherIcon name="edit-2" width="1rem" height="1rem" />
+        </IconLink>
+      </header>
+      <article>
+        <p>
+          <strong>{user.displayName}</strong>
+        </p>
+        {user.fullName !== user.email && <p>{user.fullName}</p>}
+        <p>{user.email}</p>
+        <Button
+          link
+          route="personalInformation"
+          icon="settings"
+          color="secondary"
+          small
+        >
+          Paramètres
+        </Button>
+        <br />
+        <Button
+          link
+          route="notificationSettings"
+          icon="settings"
+          color="secondary"
+          small
+        >
+          Notifications et e-mails
+        </Button>
+      </article>
+      <footer>
+        <Button link route="logout" icon="power" color="choose" small>
+          Me déconnecter
+        </Button>
+      </footer>
+    </StyledUserMenu>
   );
 };
 UserMenu.propTypes = {
@@ -174,9 +148,6 @@ UserMenu.propTypes = {
     email: PropTypes.string,
     image: PropTypes.string,
   }),
-  isOpen: PropTypes.bool,
-  onOpen: PropTypes.func,
-  onDismiss: PropTypes.func,
 };
 
 export default UserMenu;

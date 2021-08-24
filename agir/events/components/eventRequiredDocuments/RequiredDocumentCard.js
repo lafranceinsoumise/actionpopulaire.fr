@@ -65,10 +65,7 @@ const StyledCard = styled.div`
 
     ${Button} {
       width: 100%;
-      border-radius: ${(props) => props.theme.borderRadius};
-      font-weight: 600;
       margin: 1rem 0 0;
-      justify-content: center;
 
       @media (min-width: ${(props) => props.theme.collapse}px) {
         justify-content: flex-start;
@@ -104,9 +101,9 @@ const RequiredDocumentCard = (props) => {
         </Button>
         {templateLink && (
           <Button
-            as="a"
+            link
             href={templateLink}
-            download={`modele__${name}`}
+            download={templateLink}
             target="_blank"
             rel="noopener noreferrer"
           >

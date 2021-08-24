@@ -13,7 +13,7 @@ import melenchon2022Logo from "@agir/front/genericComponents/logos/melenchon2022
 const StyledArticle = styled.article`
   padding: 0 1.5rem;
 
-  @media (min-width: ${style.collapse}px) {
+  @media (min-width: ${(props) => props.theme.collapse}px) {
     max-width: 850px;
     margin: 0 auto;
     text-align: center;
@@ -34,7 +34,7 @@ const StyledArticle = styled.article`
     span {
       display: none;
 
-      @media (min-width: ${style.collapse}px) {
+      @media (min-width: ${(props) => props.theme.collapse}px) {
         display: inline;
       }
     }
@@ -45,13 +45,13 @@ const StyledArticle = styled.article`
     padding: 1rem 0 1.25rem;
     line-height: 1.7;
 
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       padding: 0.5rem 0 1.5rem;
     }
   }
 
   nav {
-    @media (min-width: ${style.collapse}px) {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
       display: flex;
       flex-flow: row nowrap;
       justify-content: space-between;
@@ -64,15 +64,15 @@ const StyledArticle = styled.article`
       align-items: center;
       justify-content: center;
       height: 5rem;
-      border-radius: 8px;
-      border: 1px solid ${style.black200};
+      border-radius: ${(props) => props.theme.borderRadius};
+      border: 1px solid ${(props) => props.theme.black200};
 
-      @media (min-width: ${style.collapse}px) {
+      @media (min-width: ${(props) => props.theme.collapse}px) {
         flex: 1 1 270px;
       }
 
       &:hover {
-        border-color: ${style.black500};
+        border-color: ${(props) => props.theme.black500};
       }
     }
   }
