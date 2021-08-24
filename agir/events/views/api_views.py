@@ -20,6 +20,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import exceptions, permissions, status
 
 from agir.events.actions.rsvps import (
     rsvp_to_free_event,
@@ -218,8 +219,9 @@ class CreateOrganizerConfigAPIView(APIView):
         event = Event.objects.get(pk=pk)
         person = Person.objects.get(pk=organizer_id)
         if len(OrganizerConfig.objects.filter(event=event, person=person)) > 0:
-            return JsonResponse(
-                {"message": "Cette personne est déjà organisateur·ice"}, status=500
+            raise exceptions.ValidationError(
+                detail={"detail": "Cette personne est déjà organisateur·ice"},
+                code="invalid_format",
             )
         organizer_config = OrganizerConfig(event=event, person=person)
         organizer_config.save()

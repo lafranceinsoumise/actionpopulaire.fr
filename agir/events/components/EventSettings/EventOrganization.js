@@ -41,7 +41,7 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
     });
     setIsLoading(false);
     if (res.errors) {
-      sendToast(res.errors.message, "ERROR", { autoClose: true });
+      sendToast(res.errors.detail, "ERROR", { autoClose: true });
       onBack();
       return;
     }
