@@ -38,7 +38,7 @@ const EventVisio = (props) => {
 
     setErrors({});
     setIsLoading(true);
-    const res = await api.updateEvent(eventPk, { online_url: onlineUrl });
+    const res = await api.updateEvent(eventPk, { onlineUrl });
     setIsLoading(false);
     if (res.error) {
       setErrors(res.error);

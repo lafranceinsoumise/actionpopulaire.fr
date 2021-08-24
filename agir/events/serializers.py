@@ -457,6 +457,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     )
     startTime = DateTimeWithTimezoneField(source="start_time")
     endTime = DateTimeWithTimezoneField(source="end_time")
+    onlineUrl = serializers.URLField(source="online_url")
     contact = NestedContactSerializer(source="*")
     location = LocationSerializer(source="*")
     compteRendu = serializers.CharField(source="report_content")
@@ -474,7 +475,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
             "endTime",
             "timezone",
             "facebook",
-            "online_url",
+            "onlineUrl",
             "contact",
             "location",
             "compteRendu",
