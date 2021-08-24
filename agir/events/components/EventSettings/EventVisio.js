@@ -56,7 +56,7 @@ const EventVisio = (props) => {
   };
 
   return (
-    <>
+    <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <StyledTitle>Visioconférence</StyledTitle>
 
@@ -77,15 +77,10 @@ const EventVisio = (props) => {
       />
 
       <Spacer size="1rem" />
-      <Button
-        color="secondary"
-        $wrap
-        disabled={isLoading}
-        onClick={handleSubmit}
-      >
+      <Button color="secondary" wrap disabled={isLoading} type="submit">
         Enregistrer
       </Button>
-    </>
+    </form>
   );
 };
 EventVisio.propTypes = {

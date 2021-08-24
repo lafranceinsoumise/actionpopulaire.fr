@@ -38,7 +38,14 @@ const EventLocation = (props) => {
   const updateLocationUrl = api.getEventEndpoint("updateLocation", { eventPk });
   const sendToast = useToast();
 
-  const [formLocation, setFormLocation] = useState({});
+  const [formLocation, setFormLocation] = useState({
+    name: "",
+    address1: "",
+    address2: "",
+    zip: "",
+    city: "",
+    country: "FR",
+  });
   const [config, setConfig] = useState(null);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -91,7 +98,7 @@ const EventLocation = (props) => {
 
         <Spacer size="2rem" />
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button color="secondary" $wrap disabled={isLoading}>
+          <Button color="secondary" wrap disabled={isLoading}>
             Enregistrer les informations
           </Button>
         </div>
@@ -109,10 +116,7 @@ const EventLocation = (props) => {
         iconConfiguration={event?.iconConfiguration}
       />
       <Spacer size="0.5rem" />
-      {/* <Button small $wrap onClick={() => setConfig(true)}>
-        Personnaliser la localisation sur la carte
-      </Button> */}
-      <Button as="a" small $wrap href={updateLocationUrl}>
+      <Button link small wrap href={updateLocationUrl}>
         Personnaliser la localisation sur la carte
       </Button>
       <Spacer size="1rem" />
@@ -140,12 +144,6 @@ const EventLocation = (props) => {
       <Button color="secondary" $wrap disabled={isLoading}>
         Enregistrer
       </Button>
-
-      {/* <hr />
-      <Spacer size="1rem" />
-      <a href="#" style={{ color: style.redNSP }}>
-        Supprimer la localisation (déconseillé)
-      </a> */}
     </form>
   );
 };

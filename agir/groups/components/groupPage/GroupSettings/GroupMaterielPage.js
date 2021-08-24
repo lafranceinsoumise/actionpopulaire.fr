@@ -10,7 +10,7 @@ import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import DiscountCode from "./DiscountCode";
 
-import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 

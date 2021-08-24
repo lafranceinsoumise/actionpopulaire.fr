@@ -53,7 +53,7 @@ __all__ = [
     "CreateEventProjectDocumentAPIView",
     "EventProjectsAPIView",
     "EventParticipantsAPIView",
-    "CreateOrganizerConfigView",
+    "CreateOrganizerConfigAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -209,7 +209,7 @@ class UpdateEventAPIView(UpdateAPIView):
     serializer_class = UpdateEventSerializer
 
 
-class CreateOrganizerConfigView(APIView):
+class CreateOrganizerConfigAPIView(APIView):
     permission_classes = (EventManagementPermissions,)
     queryset = OrganizerConfig.objects.all()
 

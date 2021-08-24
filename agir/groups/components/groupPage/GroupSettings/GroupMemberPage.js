@@ -13,7 +13,7 @@ import Spacer from "@agir/front/genericComponents/Spacer.js";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 
-import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 import { getGroupPageEndpoint } from "@agir/groups/groupPage/api.js";

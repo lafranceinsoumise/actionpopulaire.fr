@@ -5,12 +5,12 @@ import * as api from "@agir/events/common/api";
 
 import styled from "styled-components";
 
-import Spacer from "@agir/front/genericComponents/Spacer.js";
-import ShareLink from "@agir/front/genericComponents/ShareLink.js";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import MemberList from "./EventMemberList";
 
 import { routeConfig } from "./routes.config";
@@ -50,18 +50,17 @@ const EventParticipants = (props) => {
   const participants = useMemo(() => event?.participants || [], [event]);
   const organizers = useMemo(
     () =>
-      event?.organizers?.map((organizer) => {
-        organizer.memberType = 1;
-        return organizer;
-      }) || [],
+      event?.organizers?.map((organizer) => ({
+        ...organizer,
+        memberType: 1,
+      })) || [],
     [event]
   );
   const participants_detailed = useMemo(() => {
     return (
       participants.filter(
         (participant) =>
-          !organizers.filter((organizer) => participant.id === organizer.id)
-            ?.length
+          !organizers.some((organizer) => participant.id === organizer.id)
       ) || []
     ).concat(organizers);
   }, [participants, organizers]);
@@ -72,10 +71,6 @@ const EventParticipants = (props) => {
       <BlockTitle>
         <h3>{participants?.length} Participant·es</h3>
         <div>
-          {/* <StyledLink href={"#"}>
-            <RawFeatherIcon name="mail" height="13px" />
-            Inviter à l’événement
-          </StyledLink> */}
           <StyledLink
             to={organisationLink.getLink()}
             style={{ marginLeft: "10px" }}

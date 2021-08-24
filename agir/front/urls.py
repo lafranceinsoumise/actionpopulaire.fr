@@ -190,7 +190,6 @@ urlpatterns = [
         views.BaseAppSoftAuthView.as_view(),
         name="create_event_sub",
     ),
-    # path("evenements/<uuid:pk>/", views.EventDetailView.as_view(), name="view_event"),
     path("evenements/<uuid:pk>/", include(event_settings_patterns)),
     path(
         "evenements/documents-justificatifs/",

@@ -102,10 +102,10 @@ const EventOrganization = (props) => {
 
   const organizers = useMemo(
     () =>
-      event?.organizers?.map((organizer) => {
-        organizer.memberType = 1;
-        return organizer;
-      }) || [],
+      event?.organizers?.map((organizer) => ({
+        ...organizer,
+        memberType: 1,
+      })) || [],
     [event]
   );
 
@@ -113,9 +113,9 @@ const EventOrganization = (props) => {
     () =>
       event?.participants?.filter(
         (participant) =>
-          !event?.organizers?.filter(
+          !event?.organizers?.some(
             (organizer) => participant.id === organizer.id
-          )?.length
+          )
       ) || [],
     [event]
   );
@@ -130,26 +130,6 @@ const EventOrganization = (props) => {
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-
-      {/* <StyledTitle>Groupes co-organisateurs</StyledTitle>
-
-      <Spacer size="1rem" />
-      <span style={{ color: style.black700 }}>
-        Invitez des groupes à organiser votre événement.Ils s’afficheront sur la
-        page publiquement.
-      </span>
-
-      <Spacer size="1rem" />
-      <MemberList
-        members={[group]}
-        addButtonLabel="Ajouter un groupe co-organisateur"
-        onAdd={() => {
-          console.log("Add group right !");
-        }}
-        isLoading={isLoading}
-      />
-
-      <Spacer size="2rem" /> */}
 
       <StyledTitle>Participant·es organisateur·ices</StyledTitle>
 

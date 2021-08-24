@@ -104,7 +104,16 @@ const EventGeneral = (props) => {
     );
   }, [subtypes]);
 
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    facebook: null,
+    image: null,
+    subtype: "",
+    startTime: "",
+    endTime: "",
+    timezone: "",
+  });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const originalImage = useMemo(() => event?.image, [event]);
@@ -132,13 +141,10 @@ const EventGeneral = (props) => {
   };
 
   const handleChangeValue = (name, value) => {
-    // setErrors((errors) => ({ ...errors, ["leitmotiv"]: null }));
     setFormData((formData) => ({ ...formData, [name]: value }));
   };
 
   const handleDescriptionChange = useCallback((value) => {
-    // lose focus if uncomment :
-    // setErrors((errors) => ({ ...errors, ["description"]: null }));
     setFormData((formData) => ({ ...formData, ["description"]: value }));
   }, []);
 
@@ -333,12 +339,7 @@ const EventGeneral = (props) => {
         )}
 
         <Spacer size="2rem" />
-        <Button
-          color="secondary"
-          $wrap
-          disabled={isLoading}
-          onClick={handleSubmit}
-        >
+        <Button color="secondary" wrap disabled={isLoading} type="submit">
           Enregistrer
         </Button>
       </form>

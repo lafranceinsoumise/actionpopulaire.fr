@@ -127,15 +127,13 @@ const DateField = (props) => {
     startDate = DateTime.fromJSDate(startDate);
     let endDate = new Date(endTime);
     endDate = DateTime.fromJSDate(endDate);
-    const startDatePlus1H = startDate.plus({ hours: 1 });
-    const startDatePlus1H30 = startDate.plus({ hours: 1, minutes: 30 });
-    const startDatePlus2H = startDate.plus({ hours: 2 });
-    const startDatePlus3H = startDate.plus({ hours: 3 });
+    // Convert to minutes
+    const currentDuration = (endDate.ts - startDate.ts) / 60000;
     let indexDuration = 4;
-    if (startDatePlus1H.ts === endDate.ts) indexDuration = 0;
-    if (startDatePlus1H30.ts === endDate.ts) indexDuration = 1;
-    if (startDatePlus2H.ts === endDate.ts) indexDuration = 2;
-    if (startDatePlus3H.ts === endDate.ts) indexDuration = 3;
+    const len = EVENT_DEFAULT_DURATIONS.length;
+    for (var i = 0; i < len; i++)
+      if (EVENT_DEFAULT_DURATIONS[i].value === currentDuration)
+        indexDuration = i;
     setDuration(EVENT_DEFAULT_DURATIONS[indexDuration]);
   }, [startTime]);
 

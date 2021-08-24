@@ -23,7 +23,12 @@ const EventContact = (props) => {
   );
   const sendToast = useToast();
 
-  const [contact, setContact] = useState({});
+  const [contact, setContact] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    hidePhone: false,
+  });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -118,12 +123,7 @@ const EventContact = (props) => {
       />
 
       <Spacer size="2rem" />
-      <Button
-        color="secondary"
-        $wrap
-        disabled={isLoading}
-        onClick={handleSubmit}
-      >
+      <Button color="secondary" wrap disabled={isLoading} type="submit">
         Enregistrer
       </Button>
     </form>

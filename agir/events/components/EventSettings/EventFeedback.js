@@ -23,7 +23,10 @@ const EventFeedback = (props) => {
     api.getEventEndpoint("getEvent", { eventPk })
   );
 
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    compteRendu: "",
+    compteRenduPhotos: [],
+  });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const originalImage = useMemo(() => event?.image, [event]);
@@ -125,12 +128,7 @@ const EventFeedback = (props) => {
       )}
 
       <Spacer size="2rem" />
-      <Button
-        color="secondary"
-        $wrap
-        disabled={isLoading}
-        onClick={handleSubmit}
-      >
+      <Button color="secondary" wrap disabled={isLoading} type="submit">
         Enregistrer les informations
       </Button>
     </form>

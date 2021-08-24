@@ -148,7 +148,7 @@ urlpatterns = [
     ),
     path(
         "api/evenements/<uuid:pk>/organizers/",
-        views.CreateOrganizerConfigView.as_view(),
+        views.CreateOrganizerConfigAPIView.as_view(),
         name="api_event_organizers",
     ),
 ]

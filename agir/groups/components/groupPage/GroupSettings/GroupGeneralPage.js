@@ -18,7 +18,7 @@ import {
   getGroupPageEndpoint,
 } from "@agir/groups/groupPage/api.js";
 
-import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
 const GroupGeneralPage = (props) => {
   const { onBack, illustration, groupPk } = props;
