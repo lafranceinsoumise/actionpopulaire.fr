@@ -26,8 +26,8 @@ const StyledOption = styled.li`
     padding-top: 0.5rem;
   }
 
-  & > button {
-    display: ${({ $selected }) => ($selected ? "none" : "inline")};
+  & > ${Button} {
+    visibility: ${({ $selected }) => ($selected ? "hidden" : "visible")};
     margin-left: auto;
   }
 

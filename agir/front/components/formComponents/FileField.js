@@ -41,7 +41,6 @@ const StyledField = styled.div`
     }
 
     ${Button} {
-      width: auto;
       margin-top: 0.5rem;
       text-align: left;
     }
@@ -98,7 +97,7 @@ const FileField = forwardRef((props, ref) => {
             color={error ? "danger" : fileName ? "primary" : "default"}
             type="button"
             inline
-            $wrap
+            wrap
             onClick={handleClick}
             title={fileName ? "Remplacer le document" : "Ajouter un document"}
           >

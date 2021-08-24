@@ -61,7 +61,7 @@ const StyledField = styled.label`
   }
 
   ${StyledControl} {
-    border-radius: 0;
+    border-radius: ${style.softBorderRadius};
     border: 1px solid;
     max-width: 100%;
     height: 40px;
@@ -103,7 +103,7 @@ const StyledField = styled.label`
       right: 0;
       width: 100%;
       margin: 0;
-      border-radius: 0.5rem 0.5rem 0 0;
+      border-radius: ${style.borderRadius} ${style.borderRadius} 0 0;
       padding-top: 0.875rem;
       max-height: 388px;
       overflow-x: hidden;

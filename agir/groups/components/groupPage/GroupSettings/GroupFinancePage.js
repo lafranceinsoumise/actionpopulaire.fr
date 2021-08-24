@@ -55,7 +55,7 @@ const GroupFinancePage = (props) => {
         <a href="/dons/">page de dons</a>.
       </p>
       <p>
-        <Button as="a" href={group?.routes?.donations} color="secondary">
+        <Button link href={group?.routes?.donations} color="secondary">
           Allouer un don
         </Button>
       </p>

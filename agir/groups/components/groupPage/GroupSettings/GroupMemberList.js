@@ -10,7 +10,7 @@ import ButtonAddList from "@agir/front/genericComponents/ObjectManagement/Button
 
 const MemberList = styled.div`
   box-shadow: ${style.cardShadow};
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   overflow: hidden;
 
   & > * {

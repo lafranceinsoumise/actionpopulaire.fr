@@ -34,6 +34,7 @@ const StyledField = styled.label`
     margin-right: 0.5rem;
     width: 1rem;
     height: 1rem;
+    border-radius: ${style.softBorderRadius};
     border-style: solid;
     border-width: ${({ $checked }) => ($checked ? 0 : 1)}px;
     border-color: ${({ $disabled }) =>

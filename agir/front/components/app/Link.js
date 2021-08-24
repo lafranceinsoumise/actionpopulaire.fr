@@ -77,11 +77,11 @@ const Link = (props) => {
   if (route) {
     return <RouteLink {...props} />;
   }
-  if (href) {
-    return <ExternalLink {...props} />;
-  }
   if (to) {
     return <RouterLink to={to} {...props} />;
+  }
+  if (href) {
+    return <ExternalLink {...props} />;
   }
 
   return null;

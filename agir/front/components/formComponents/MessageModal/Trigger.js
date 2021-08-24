@@ -4,22 +4,11 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-const StyledFloatingButton = styled.button`
-  border: none;
+const StyledFloatingButton = styled(Button)`
   margin: 0 auto;
-  text-decoration: none;
-  background-color: ${style.primary500};
-  cursor: pointer;
-  text-align: center;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  color: ${style.white};
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  width: auto;
   height: 54px;
   padding: 0 2rem;
   position: fixed;
@@ -28,14 +17,7 @@ const StyledFloatingButton = styled.button`
   transform: translateX(-50%);
   z-index: 20;
 
-  &:focus,
-  &:hover {
-    outline: none;
-  }
-
   span {
-    font-size: 1rem;
-    font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -132,7 +114,7 @@ export const FloatingTrigger = (props) => {
   const { label, onClick } = props;
 
   return (
-    <StyledFloatingButton onClick={onClick}>
+    <StyledFloatingButton color="primary" onClick={onClick}>
       <RawFeatherIcon
         name="edit-2"
         color="white"

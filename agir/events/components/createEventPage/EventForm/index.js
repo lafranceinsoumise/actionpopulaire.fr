@@ -55,19 +55,6 @@ const StyledForm = styled.form`
       }
     }
   }
-
-  & > ${Button} {
-    display: block;
-    margin: 0;
-    width: 100%;
-    justify-content: center;
-  }
-
-  & > ${Button} + p {
-    padding: 1rem 0;
-    font-size: 0.813rem;
-    text-align: center;
-  }
 `;
 import { DEFAULT_FORM_DATA } from "./eventForm.config";
 
@@ -438,7 +425,9 @@ const EventForm = () => {
       >
         Créer l'événement
       </Button>
-      <p>
+      <p
+        style={{ padding: "1rem 0", fontSize: "0.813rem", textAlign: "center" }}
+      >
         Vous pourrez modifier ces informations après la création de l’événement.
       </p>
     </StyledForm>

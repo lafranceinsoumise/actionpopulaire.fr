@@ -25,7 +25,7 @@ const StyledModalContent = styled.div`
   padding: 0 0 36px;
   margin: 60px auto 0;
   box-shadow: ${style.elaborateShadow};
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   background-color: ${style.white};
   overflow-x: hidden;
   overflow-y: auto;
@@ -261,7 +261,7 @@ export const PromoMessage = (props) => {
 
       <StyledContent>{items[itemIndex].content}</StyledContent>
 
-      <Button color="confirmed" onClick={handleClick} $wrap>
+      <Button color="confirmed" onClick={handleClick} wrap>
         <RawFeatherIcon
           name="edit"
           width="1.5rem"

@@ -8,7 +8,7 @@ import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberLis
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import SelectField from "@agir/front/formComponents/SelectField";
 import Button from "@agir/front/genericComponents/Button";
-import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
+import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
 import Toast from "@agir/front/genericComponents/Toast";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";

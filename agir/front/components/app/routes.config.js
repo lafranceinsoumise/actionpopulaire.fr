@@ -255,7 +255,7 @@ export const routeConfig = {
   }),
   groupMessage: new RouteConfig({
     id: "groupMessage",
-    path: "/groupes/:groupPk/messages/:messagePk/",
+    path: "/groupes/:groupPk/message/:messagePk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Message du groupe",

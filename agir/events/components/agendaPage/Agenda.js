@@ -315,14 +315,14 @@ const Agenda = () => {
           <div>
             <Button
               small
-              as="Link"
+              link
               color="secondary"
               route="createEvent"
               icon="plus"
             >
               Créer un événement
             </Button>
-            <Button small as="Link" route="eventMap" icon="map">
+            <Button small link route="eventMap" icon="map">
               Carte
             </Button>
           </div>

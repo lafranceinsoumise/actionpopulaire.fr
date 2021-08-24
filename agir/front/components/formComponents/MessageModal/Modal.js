@@ -95,14 +95,13 @@ const StyledModalFooter = styled.footer`
 
   ${Button} {
     width: 100%;
-    justify-content: center;
   }
 `;
 const StyledModalContent = styled.div`
   max-width: 600px;
   margin: 40px auto;
   background-color: white;
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
 
   @media (max-width: ${style.collapse}px) {
     border-radius: 0;

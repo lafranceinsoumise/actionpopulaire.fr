@@ -68,39 +68,19 @@ const DiscountCodesSection = styled.section`
   }
 `;
 
-const StyledGroupButton = styled(Button)`
-  height: 48px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: ${style.borderRadius};
-  margin-top: 16px;
-
-  && + && {
-    margin-left: 0;
-  }
-`;
-
-let GroupButton = ({
-  as = "a",
-  to,
-  href,
-  children,
-  color = "default",
-  icon,
-}) => (
-  <StyledGroupButton
-    as={as}
+const GroupButton = ({ to, href, children, color = "default", icon }) => (
+  <Button
+    style={{ marginTop: "1rem" }}
+    link
     to={to}
     href={href}
     color={color}
     icon={icon}
-    small
   >
     {children}
-  </StyledGroupButton>
+  </Button>
 );
 GroupButton.propTypes = {
-  as: PropTypes.string,
   to: PropTypes.string,
   href: PropTypes.string,
   children: PropTypes.node,
@@ -213,13 +193,13 @@ const GroupCard = ({
           </ul>
         </DiscountCodesSection>
       )}
-      <Row gutter={6} style={{ marginTop: "1.5rem" }}>
+      <Row gutter={6} style={{ paddingTop: ".5rem" }}>
         {[
           !isEmbedded && !isMember && (
             <GroupButton
               key="join"
               color="primary"
-              as="Link"
+              link
               to={routeConfig.groupDetails.getLink({ groupPk: id })}
             >
               Rejoindre
@@ -229,7 +209,7 @@ const GroupCard = ({
             </GroupButton>
           ),
           <GroupButton
-            as="Link"
+            link
             key="browse"
             color="default"
             to={routeConfig.groupDetails.getLink({ groupPk: id })}
@@ -244,7 +224,7 @@ const GroupCard = ({
           isManager && (
             <GroupButton
               key="manage"
-              as="Link"
+              link
               to={routeConfig.groupSettings.getLink({ groupPk: id })}
               icon="settings"
             >

@@ -328,7 +328,6 @@ const TellMore = ({ dismiss }) => {
                 maxWidth: "100%",
                 marginTop: "1rem",
                 marginBottom: "2rem",
-                justifyContent: "center",
               }}
             >
               Enregistrer

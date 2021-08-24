@@ -18,7 +18,7 @@ export const StyledDefaultOptions = styled.div`
   gap: 0.5rem;
 
   button {
-    border-radius: 0;
+    border-radius: ${style.borderRadius};
     border: none;
     box-shadow: none;
     padding: 0;

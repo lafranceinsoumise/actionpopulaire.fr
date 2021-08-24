@@ -99,7 +99,7 @@ const GroupSuggestionCard = (props) => {
           {(zip || city) && <span>{`${zip} ${city}`.trim()}</span>}
         </p>
         <Button
-          as="Link"
+          link
           to={routeConfig.groupDetails.getLink({ groupPk: id })}
           small
           color="secondary"

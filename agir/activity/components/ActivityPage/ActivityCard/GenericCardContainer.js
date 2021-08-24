@@ -34,10 +34,9 @@ const LowMarginCard = styled(Card)`
 
   ${Button} {
     margin: 0.5rem 0 1rem;
-    justify-content: center;
     align-self: flex-start;
     width: auto;
-    max-width: 100;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
 
@@ -76,7 +75,7 @@ const ActivityCardAction = (props) => {
       <Button
         small
         color="primary"
-        as="Link"
+        link
         href={`/activite/${props.id}/lien/`}
         params={{ next: action.href }}
       >
@@ -94,13 +93,7 @@ const ActivityCardAction = (props) => {
   }
 
   return (
-    <Button
-      small
-      color="primary"
-      as="Link"
-      route={action?.route}
-      to={action?.to}
-    >
+    <Button small color="primary" link route={action?.route} to={action?.to}>
       {action?.label}
     </Button>
   );

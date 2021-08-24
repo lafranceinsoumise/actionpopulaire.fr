@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
-import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
+import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
 import GroupLink from "./GroupLink.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import TextField from "@agir/front/formComponents/TextField";
