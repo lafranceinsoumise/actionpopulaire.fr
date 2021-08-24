@@ -110,7 +110,7 @@ const ShareCard = (props) => {
               width: "100%",
               height: "32px",
               border: `1px solid ${style.black100}`,
-              borderRadius: "8px",
+              borderRadius: style.softBorderRadius,
               padding: "8px",
             }}
             readOnly

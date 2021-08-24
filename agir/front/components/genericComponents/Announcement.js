@@ -10,7 +10,7 @@ const Image = styled.div`
   background-repeat: no-repeat;
   background-size: 0 0, cover;
   background-position: center center;
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
 
   @media (max-width: ${style.collapse}px) {
     flex: 0 0 80px;

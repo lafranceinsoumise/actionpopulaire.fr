@@ -21,7 +21,7 @@ const StyledModalBody = styled.div`
   margin: 100px auto 0;
   background-color: white;
   box-shadow: ${style.elaborateShadow};
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
 
   @media (max-width: ${style.collapse}px) {
     max-width: calc(100% - 20px);

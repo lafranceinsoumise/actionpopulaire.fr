@@ -1,66 +1,15 @@
 import React from "react";
 
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
-import { Footer } from "./Footer";
+import Footer from "./Footer";
 
 export default {
   component: Footer,
   title: "Dashboard/Footer",
 };
 
-const Template = (args) => (
-  <TestGlobalContextProvider
-    value={{
-      isSessionLoaded: true,
-      user: args.isSigned || null,
-      routes: args.routes,
-    }}
-  >
-    <Footer {...args} />
-  </TestGlobalContextProvider>
+const Template = (args, { globals }) => (
+  <Footer hasBanner={globals.auth !== "authenticated"} {...args} />
 );
 
-const routes = {
-  dashboard: "#dashboard",
-  search: "#search",
-  personalInformation: "#personalInformation",
-  contactConfiguration: "#contactConfiguration",
-  join: "#join",
-  login: "#login",
-  createGroup: "#createGroup",
-  createEvent: "#createEvent",
-  groupsMap: "#groupsMap",
-  eventsMap: "#eventsMap",
-  events: "#events",
-  groups: "#groups",
-  activity: "#activity",
-  menu: "#menu",
-  donations: "#donations",
-  contact: "#contact",
-  lafranceinsoumise: {
-    home: "#lfi:home",
-    groupsMap: "#lfi:groupsMap",
-    eventsMap: "#lfi:eventsMap",
-    thematicTeams: "#lfi:thematicTeams",
-  },
-  melenchon2022: {
-    home: "#nsp:home",
-    groupsMap: "#nsp:groupsMap",
-    eventsMap: "#nsp:eventsMap",
-  },
-  jlmBlog: "#jlmBlog",
-  linsoumission: "#linsoumission",
-};
-export const Anonymous = Template.bind({});
-Anonymous.args = {
-  hasBanner: true,
-  routes,
-  isSignedIn: false,
-};
-
-export const SignedIn = Template.bind({});
-SignedIn.args = {
-  hasBanner: false,
-  routes,
-  isSignedIn: true,
-};
+export const Default = Template.bind({});
+Default.args = {};

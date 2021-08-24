@@ -34,9 +34,7 @@ const StyledFooter = styled.main`
   }
 
   ${Button} {
-    margin: 0;
     width: 100%;
-    justify-content: center;
     height: 70px;
     font-size: 1.25rem;
     border: 1px solid ${style.white};
@@ -52,11 +50,11 @@ const HomeFooter = () => {
     <StyledFooter>
       <h2>Passez&nbsp;à l'action&nbsp;!</h2>
       <Spacer size="2rem" />
-      <Button as="Link" to="/inscription/" color="tertiary">
+      <Button link to="/inscription/" color="tertiary">
         S'inscrire
       </Button>
       <Spacer size="1rem" />
-      <Button as="Link" to="/connexion/" color="primary">
+      <Button link to="/connexion/" color="primary">
         Se connecter
       </Button>
     </StyledFooter>

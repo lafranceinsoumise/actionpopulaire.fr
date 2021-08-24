@@ -4,7 +4,7 @@ import { DateTime } from "luxon";
 import { EventPage } from "./EventPage";
 
 import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
-import TopBar from "@agir/front/allPages/TopBar";
+import TopBar from "@agir/front/allPages/TopBar/TopBar";
 import { decorateArgs } from "@agir/lib/utils/storyUtils";
 
 import events from "@agir/front/mockData/events";

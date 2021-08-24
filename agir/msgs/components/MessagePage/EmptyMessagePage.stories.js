@@ -1,7 +1,5 @@
 import React from "react";
 
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
-
 import EmptyMessagePage from "./EmptyMessagePage";
 
 export default {
@@ -10,11 +8,7 @@ export default {
 };
 
 const Template = (args) => {
-  return (
-    <TestGlobalContextProvider>
-      <EmptyMessagePage {...args} />
-    </TestGlobalContextProvider>
-  );
+  return <EmptyMessagePage {...args} />;
 };
 
 export const Default = Template.bind({});

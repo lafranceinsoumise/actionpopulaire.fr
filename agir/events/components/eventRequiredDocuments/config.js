@@ -3,12 +3,17 @@ import imgDocB from "./images/doc_B.jpg";
 import imgDocC from "./images/doc_C.jpg";
 import imgDocD from "./images/doc_D.jpg";
 
+const staticPath = "/static/front/modeles/";
+const attestationA = `${staticPath}Attestation_concours_en_nature.pdf`;
+const attestationB = `${staticPath}Attestation_cafe_debat.pdf`;
+const attestationC = `${staticPath}Attestation_salle_municipale.pdf`;
+
 export const EVENT_DOCUMENT_TYPES = {
   "ATT-CON": {
     type: "ATT-CON",
     image: imgDocA,
     name: "Attestation de concours en nature",
-    templateLink: "",
+    templateLink: attestationA,
     description:
       "Nécessaire lorsque vous empruntez n’importe quel matériel, comme une sono, un barnum, une estrade, un rétro-projecteur, etc.",
   },
@@ -16,7 +21,7 @@ export const EVENT_DOCUMENT_TYPES = {
     type: "ATT-REG",
     image: imgDocB,
     name: "Attestation de règlement des consommations",
-    templateLink: "",
+    templateLink: attestationB,
     description:
       "Certifie que les consommations ont été réglées directement à l'établissement par les participants, et non par l'organisateur⋅rice de l'événement.",
   },
@@ -24,7 +29,7 @@ export const EVENT_DOCUMENT_TYPES = {
     type: "ATT-GRA",
     image: imgDocC,
     name: "Attestation pour les salles municipales",
-    templateLink: "",
+    templateLink: attestationC,
     description:
       "Cette attestation est nécessaire pour certifier que la mise à disposition de la salle municipale est gratuite et s'adresse à toutes les autres forces politiques et leurs candidats. Elle doit vous être délivrée par la mairie.",
   },
@@ -39,6 +44,12 @@ export const EVENT_DOCUMENT_TYPES = {
 };
 
 export const EVENT_PROJECT_STATUS = {
-  pending: "ECO",
-  archived: "CLO",
+  DFI: "pending",
+  ECO: "pending",
+  REN: "pending",
+
+  CLO: "archived",
+  FIN: "archived",
+
+  REF: "refused",
 };

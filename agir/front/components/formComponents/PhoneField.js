@@ -43,7 +43,7 @@ const StyledField = styled.label`
 
     input {
       display: block;
-      border-radius: 0;
+      border-radius: ${style.softBorderRadius};
       border: 1px solid;
       border-color: ${({ $invalid }) =>
         $invalid ? style.redNSP : style.black100};

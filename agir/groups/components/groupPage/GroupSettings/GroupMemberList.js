@@ -10,7 +10,7 @@ import AddPair from "./AddPair";
 
 const MemberList = styled.div`
   box-shadow: ${style.cardShadow};
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   overflow: hidden;
 
   & > * {

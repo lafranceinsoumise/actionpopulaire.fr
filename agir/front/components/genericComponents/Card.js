@@ -5,7 +5,7 @@ import styled from "styled-components";
 const cardTypes = {
   default: {
     background: style.white,
-    borderRadius: style.defaultBorderRadius,
+    borderRadius: 0,
   },
   primary: {
     background: style.primary100,
