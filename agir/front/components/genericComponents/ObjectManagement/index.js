@@ -40,20 +40,22 @@ const StyledSubPanel = styled(animated.div)`
 `;
 
 const StyledPanel = styled(Panel)`
-  padding: 0;
-  overflow-x: hidden;
-  background-color: transparent;
+  && {
+    padding: 0;
+    overflow-x: hidden;
+    background-color: transparent;
 
-  @media (min-width: ${style.collapse}px) {
-    min-width: 0;
-    display: flex;
-    flex-flow: row nowrap;
+    @media (min-width: ${style.collapse}px) {
+      min-width: 0;
+      display: flex;
+      flex-flow: row nowrap;
 
-    & > * {
-      flex: 1 1 auto;
+      & > * {
+        flex: 1 1 auto;
 
-      &:first-child {
-        z-index: 2;
+        &:first-child {
+          z-index: 2;
+        }
       }
     }
   }

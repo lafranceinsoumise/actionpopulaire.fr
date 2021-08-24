@@ -18,6 +18,7 @@ const Spacer = styled.span.attrs((props) => ({
   display: block;
   margin: 0;
   padding: 0;
+  line-height: 0;
   width: ${({ $width }) => $width};
   min-width: ${({ $width }) => $width};
   height: ${({ $height }) => $height};

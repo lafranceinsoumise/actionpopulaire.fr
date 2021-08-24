@@ -100,7 +100,7 @@ const ManagerActions = (props) => {
     <StyledWrapper>
       <StyledPanel>
         <h6>Gestion du groupe</h6>
-        <Button as="Link" route="createEvent" color="primary" icon="plus" small>
+        <Button link route="createEvent" color="primary" icon="plus" small>
           Créer un événement du groupe
         </Button>
         <ul>
@@ -165,10 +165,10 @@ const ManagerActions = (props) => {
           )}
         </ul>
       </StyledPanel>
-      <Button as="Link" route="createEvent" color="primary" icon="plus" small>
+      <Button link route="createEvent" color="primary" icon="plus" small>
         Créer un événement du groupe
       </Button>
-      <Button as="Link" to={groupSettingsLinks?.menu} icon="settings" small>
+      <Button link to={groupSettingsLinks?.menu} icon="settings" small>
         Gestion du groupe
       </Button>
     </StyledWrapper>

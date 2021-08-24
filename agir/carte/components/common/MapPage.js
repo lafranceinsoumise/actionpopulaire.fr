@@ -77,7 +77,7 @@ const MapPage = (props) => {
       </Helmet>
       <Header>
         {user && (
-          <Button as="Link" route={backRoute} icon="arrow-left">
+          <Button link route={backRoute} icon="arrow-left">
             <span>{backLabel}</span>
           </Button>
         )}

@@ -35,7 +35,7 @@ const RSVPButton = ({ id, hasSubscriptionForm, rsvped, routes, schedule }) => {
   if (rsvped) {
     return (
       <Button
-        as="Link"
+        link
         small
         color="confirmed"
         icon="check"
@@ -52,7 +52,7 @@ const RSVPButton = ({ id, hasSubscriptionForm, rsvped, routes, schedule }) => {
 
   if (hasSubscriptionForm) {
     return (
-      <Button small as="a" href={routes.rsvp}>
+      <Button small link href={routes.rsvp}>
         Participer
       </Button>
     );
@@ -332,7 +332,7 @@ const EventCard = (props) => {
             <Button
               small
               color="primary"
-              as="Link"
+              link
               to={
                 routeConfig.eventDetails
                   ? routeConfig.eventDetails.getLink({ eventPk: id })
@@ -362,7 +362,7 @@ const EventCard = (props) => {
                   small
                   color="tertiary"
                   icon="file-text"
-                  as="Link"
+                  link
                   to={
                     routeConfig.eventDetails
                       ? routeConfig.eventDetails.getLink({ eventPk: id })

@@ -1,0 +1,32 @@
+{
+  "id": "e39b7094-7652-4398-ad9b-fb4efea283dd",
+  "firstName": "Juno",
+  "displayName": "Juno",
+  "email": "admin@agir.local",
+  "image": "https://www.fillmurray.com/200/200",
+  "fullName": "Juno Juno",
+  "isInsoumise": true,
+  "is2022": true,
+  "isAgir": true,
+  "groups": [
+    "8b548f5d-2ba6-4ac1-9a72-f4062d037386",
+    "c358f300-d19d-4242-8c6a-5b718321a5a4",
+    "4cdaceee-c625-4f72-bf49-5797bcf297d0",
+    "05152828-427d-4457-964e-9702ccc19f52",
+    "3a32fc55-7507-4d5f-bb57-a66daad63461",
+    "39c8887a-9b69-442a-a77e-cb06b02ded8e",
+    "71143856-f8b1-4eec-a9f2-fd4b3c2d4983",
+    "ccd567c8-56f1-4104-927f-2454aff4980a",
+    "277620eb-4462-45b0-bc09-fa759ec6bf06",
+    "8e42818c-012d-4ffb-bced-f5b392f84863",
+    "c1500b19-5391-48b5-8f5c-e9c59230b1ab",
+    "4adfcf21-096a-43d9-a91e-09c6ff79c1bb",
+    "344a99e1-c47a-4361-a50e-da63c8dbab76",
+    "e5bbf6a4-4819-443b-99df-9cdee3df7f9e",
+    "fe6a3b18-67ab-4c1c-a273-b2ea4ac302db",
+    "77d055f5-dce7-4ffd-9151-8a1a9fa5a9d5",
+    "3e5ba0d3-f935-4cf1-8ce7-126c1cb4970f",
+    "bcc310b7-1a20-4746-9945-1e82843308a1",
+    "64ed1c08-6329-4bee-aaae-c3d6a1ca0ec7"
+  ]
+}

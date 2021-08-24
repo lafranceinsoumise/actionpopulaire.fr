@@ -66,13 +66,6 @@ const StyledDocumentList = styled.div`
       font-weight: 400;
     }
   }
-
-  ${Button} {
-    width: 100%;
-    justify-content: center;
-    font-weight: 600;
-    border-radius: ${(props) => props.theme.borderRadius};
-  }
 `;
 
 const ContactFormLink = styled.p`
@@ -238,9 +231,9 @@ const EventRequiredDocuments = (props) => {
           </h4>
           <Spacer size="1.5rem" />
           {isCollapsed ? (
-            <Button $block onClick={expand}>
-              Voir tout{" "}
-              <FeatherIcon width="1.5rem" height="1.5rem" name="chevron-down" />
+            <Button style={{ width: "100%" }} onClick={expand}>
+              Voir tout&ensp;
+              <FeatherIcon width="1rem" height="1rem" name="chevron-down" />
             </Button>
           ) : (
             unrequired.map((type, i) => (

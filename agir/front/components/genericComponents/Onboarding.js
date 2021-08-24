@@ -149,7 +149,7 @@ const StyledBlock = styled.section`
       background-repeat: no-repeat;
       background-position: center center;
       background-size: cover;
-      border-radius: 8px;
+      border-radius: ${style.borderRadius};
 
       @media (max-width: ${style.collapse}px) {
         height: 138px;
@@ -224,17 +224,17 @@ const Onboarding = (props) => {
       </article>
       <footer>
         {createRoute && (
-          <Button as="Link" color="secondary" route={createRoute}>
+          <Button link color="secondary" route={createRoute}>
             {createLabel || "Créer"}
           </Button>
         )}
         {createRouteId && routes[createRouteId] && (
-          <Button as="a" color="secondary" href={routes[createRouteId]}>
+          <Button link color="secondary" href={routes[createRouteId]}>
             {createLabel || "Créer"}
           </Button>
         )}
         {routes[mapRoute] && (
-          <Button as="Link" route={mapRoute} color={color}>
+          <Button link route={mapRoute} color={color}>
             {mapLabel || "Voir la carte"}
           </Button>
         )}

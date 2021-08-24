@@ -54,7 +54,7 @@ const GroupsPageHeader = () => {
       <div>
         {routes.createGroup && (
           <Button
-            as="a"
+            link
             href={routes.createGroup}
             icon="plus"
             color="secondary"
@@ -63,7 +63,7 @@ const GroupsPageHeader = () => {
             Créer un groupe
           </Button>
         )}
-        <Button as="Link" icon="map" route="groupMap" small>
+        <Button link icon="map" route="groupMap" small>
           Carte
         </Button>
       </div>

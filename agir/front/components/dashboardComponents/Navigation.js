@@ -216,7 +216,7 @@ const Counter = styled.span`
   font-size: 9px;
   height: 16px;
   width: 16px;
-  border-radius: 8px;
+  border-radius: ${style.borderRadius};
   z-index: ${style.zindexNavigationCounter};
   display: flex;
   align-items: center;

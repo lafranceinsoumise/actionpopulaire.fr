@@ -105,16 +105,6 @@ const Subtitle = styled.h3`
   margin-bottom: 10px;
 `;
 
-const StyledButton = styled(Button)`
-  font-size: 1rem;
-  font-weight: 500;
-  border-radius: ${(props) => props.theme.borderRadius};
-
-  ${RawFeatherIcon} {
-    margin-left: 4px;
-  }
-`;
-
 const ItemActionContainer = styled.div`
   box-shadow: 0px 0px 2px rgb(0 0 0 / 50%), 0px 3px 3px rgb(0 35 44 / 10%);
   border-radius: ${(props) => props.theme.borderRadius};
@@ -407,41 +397,41 @@ export const WEBSITES = [
 ];
 
 const LinkInfoAction = (props) => (
-  <StyledButton
+  <Button
     className={props.className}
     small
-    as="Link"
+    link
     color="secondary"
     href="https://infos.actionpopulaire.fr"
     target="_blank"
-    $wrap
+    wrap
   >
-    Accéder aux fiches pratiques
+    Accéder aux fiches pratiques&ensp;
     <RawFeatherIcon
       name="arrow-up-right"
       color={style.black1000}
       width="1.25rem"
     />
-  </StyledButton>
+  </Button>
 );
 
 const LinkMaterial = (props) => (
-  <StyledButton
+  <Button
     className={props.className}
     small
-    as="Link"
+    link
     color="secondary"
     href="https://materiel.lafranceinsoumise.fr/"
     target="_blank"
-    $wrap
+    wrap
   >
-    Accéder au site matériel
+    Accéder au site matériel&ensp;
     <RawFeatherIcon
       name="arrow-up-right"
       color={style.black1000}
       width="1.25rem"
     />
-  </StyledButton>
+  </Button>
 );
 
 const BannerHelp = () => (
@@ -452,22 +442,22 @@ const BannerHelp = () => (
     </span>
     <br />
     <Spacer size="30px" />
-    <StyledButton
+    <Button
       small
-      as="Link"
+      link
       color="secondary"
       href="https://infos.actionpopulaire.fr"
       target="_blank"
-      $wrap
+      wrap
       style={{ zIndex: 2, position: "relative" }}
     >
-      Accéder au centre d'aide
+      Accéder au centre d'aide&ensp;
       <RawFeatherIcon
         name="arrow-up-right"
         color={style.black1000}
         width="1.25rem"
       />
-    </StyledButton>
+    </Button>
   </BannerHelpContainer>
 );
 

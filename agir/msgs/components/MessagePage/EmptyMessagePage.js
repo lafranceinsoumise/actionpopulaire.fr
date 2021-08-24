@@ -55,7 +55,7 @@ const EmptyMessagePage = () => (
       Sur Action Populaire, les animateurs de groupe peuvent envoyer des
       messages à leur membres pour organiser l'action.
     </p>
-    <Button as="Link" color="primary" route="groups">
+    <Button link color="primary" route="groups">
       Voir les groupes
     </Button>
   </StyledEmptyPage>

@@ -1,5 +1,5 @@
 {
-  "search": "/recherche",
+  "search": "/recherche/",
   "personalInformation": "/profil/identite/",
   "contactConfiguration": "/profil/contact/",
   "createGroup": "/groupes/creer/",

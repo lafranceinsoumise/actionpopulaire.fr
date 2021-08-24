@@ -5,11 +5,11 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon.js";
-import ShareLink from "@agir/front/genericComponents/ShareLink.js";
-import Spacer from "@agir/front/genericComponents/Spacer.js";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import ShareLink from "@agir/front/genericComponents/ShareLink";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
+import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents";
 
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 

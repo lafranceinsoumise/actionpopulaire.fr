@@ -85,7 +85,7 @@ const StyledPanel = styled(Panel)`
   }
 `;
 
-const InlineBlock = styled.div`
+const InlineBlock = styled.span`
   display: inline-block;
 `;
 

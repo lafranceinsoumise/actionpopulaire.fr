@@ -35,7 +35,7 @@ const AnonymousActions = () => {
     <StyledWrapper>
       <Button
         $block
-        as="Link"
+        link
         color="success"
         route="login"
         params={{
@@ -49,7 +49,7 @@ const AnonymousActions = () => {
       </Button>
       <Button
         $block
-        as="Link"
+        link
         route="login"
         params={{
           from: "group",

@@ -48,10 +48,8 @@ const Container = styled.form`
   }
 
   & > ${Button} {
-    margin: 0;
     width: 100%;
     max-width: 356px;
-    justify-content: center;
 
     &[type="button"] {
       background-color: transparent;

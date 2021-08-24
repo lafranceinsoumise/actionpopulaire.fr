@@ -36,7 +36,6 @@ const StyledHome = styled.main`
 
     ${Button} {
       width: 100%;
-      justify-content: center;
     }
   }
 `;
@@ -51,11 +50,11 @@ const Home = () => {
           Action Populaire est le réseau social d'action de Jean-Luc Mélenchon
           pour l'élection présidentielle de 2022.
         </h5>
-        <Button color="primary" as="Link" route="signup">
+        <Button color="primary" link route="signup">
           S'inscrire
         </Button>
         <Spacer size="11px" />
-        <Button color="white" as="Link" route="login">
+        <Button color="white" link route="login">
           Se connecter
         </Button>
       </header>

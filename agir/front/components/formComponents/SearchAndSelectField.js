@@ -115,7 +115,7 @@ const StyledField = styled.label`
   }
 
   ${StyledControl} {
-    border-radius: 0;
+    border-radius: ${style.softBorderRadius};
     border: 1px solid;
     max-width: 100%;
     height: 40px;
@@ -194,14 +194,7 @@ const Option = ({ innerRef, ...innerProps }) => {
         {sublabel ? <span>{sublabel}</span> : null}
       </p>
       {buttonLabel && (
-        <Button
-          type="button"
-          $background="transparent"
-          $hoverBackground="transparent"
-          $labelColor={style.black1000}
-          $borderColor={style.black200}
-          small
-        >
+        <Button type="button" color="choose" small>
           {buttonLabel}
         </Button>
       )}

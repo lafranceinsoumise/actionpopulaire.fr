@@ -13,31 +13,24 @@ const Form = styled.form`
   display: flex;
   text-align: left;
 
-  Button {
-    margin-top: 1.5rem;
-    margin-left: 0.625rem;
-    width: 140px;
-    height: 41px;
-    justify-content: center;
+  @media (max-width: ${style.collapse}px) {
+    flex-direction: column;
   }
 
   & > :first-child {
-    width: 100%;
+    flex: 1 1 auto;
   }
 
-  @media (max-width: ${style.collapse}px) {
-    flex-flow: wrap;
-    & > :first-child {
-      max-width: 100%;
+  ${Button} {
+    margin-top: 1.5rem;
+    margin-left: 0.625rem;
+    flex: 0 0 140px;
+    height: 41px;
+
+    @media (max-width: ${style.collapse}px) {
       width: 100%;
-    }
-    div {
-      width: 100%;
-      Button {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 0.875rem;
-      }
+      margin-left: 0;
+      margin-top: 0.875rem;
     }
   }
 `;
