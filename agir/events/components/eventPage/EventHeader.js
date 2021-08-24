@@ -161,7 +161,12 @@ const Actions = (props) => {
           Événement terminé
         </Button>
         {isOrganizer && (
-          <Button icon="settings" link href={isDesktop ? routes.manage : routes.manageMobile} color="primary">
+          <Button
+            icon="settings"
+            link
+            href={isDesktop ? routes.manage : routes.manageMobile}
+            color="primary"
+          >
             Gérer l'événement
           </Button>
         )}
@@ -195,7 +200,12 @@ const Actions = (props) => {
             </Button>
           )}
           {isOrganizer && (
-            <Button icon="settings" link href={isDesktop ? routes.manage : routes.manageMobile} color="primary">
+            <Button
+              icon="settings"
+              link
+              href={isDesktop ? routes.manage : routes.manageMobile}
+              color="primary"
+            >
               Gérer l'événement
             </Button>
           )}

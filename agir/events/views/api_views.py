@@ -217,6 +217,10 @@ class CreateOrganizerConfigView(APIView):
         organizer_id = request.data.get("organizer_id")
         event = Event.objects.get(pk=pk)
         person = Person.objects.get(pk=organizer_id)
+        if len(OrganizerConfig.objects.filter(event=event, person=person)) > 0:
+            return JsonResponse(
+                {"message": "Cette personne est déjà organisateur·ice"}, status=500
+            )
         organizer_config = OrganizerConfig(event=event, person=person)
         organizer_config.save()
         return JsonResponse({"data": True})

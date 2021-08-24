@@ -40,13 +40,12 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
       organizer_id: selectedParticipant.value.id,
     });
     setIsLoading(false);
-    if (res.error) {
-      console.log("error", res.error);
-      sendToast(res.error, "ERROR", { autoClose: true });
+    if (res.errors) {
+      sendToast(res.errors.message, "ERROR", { autoClose: true });
+      onBack();
       return;
     }
     sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-
     onBack();
   };
 
