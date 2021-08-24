@@ -115,7 +115,7 @@ const MEMBER_ROLE_ICON = {
   1: <FaLock />,
 };
 
-const GroupMember = (props) => {
+const EventMember = (props) => {
   const { id, displayName, image = "", memberType, email, gender } = props;
 
   const role = useMemo(() => {
@@ -144,8 +144,8 @@ const GroupMember = (props) => {
     </Member>
   );
 };
-GroupMember.propTypes = {
-  id: PropTypes.number,
+EventMember.propTypes = {
+  id: PropTypes.string,
   displayName: PropTypes.string,
   image: PropTypes.string,
   email: PropTypes.string,
@@ -153,4 +153,4 @@ GroupMember.propTypes = {
   gender: PropTypes.oneOf(["", ...Object.values(GENDER)]),
 };
 
-export default GroupMember;
+export default EventMember;

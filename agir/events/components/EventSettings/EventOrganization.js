@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useState, useCallback, useMemo } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import * as api from "@agir/events/common/api";
@@ -46,6 +46,7 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
       return;
     }
     sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
+    mutate(api.getEventEndpoint("getParticipants", { eventPk }));
     onBack();
   };
 
@@ -86,11 +87,16 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
     </>
   );
 };
+AddOrganizer.propTypes = {
+  onBack: PropTypes.func,
+  participants: PropTypes.arrayOf(PropTypes.object),
+  eventPk: PropTypes.string,
+};
 
 const EventOrganization = (props) => {
   const { onBack, illustration, eventPk } = props;
 
-  const { data: event, mutate } = useSWR(
+  const { data: event } = useSWR(
     api.getEventEndpoint("getParticipants", { eventPk })
   );
 
