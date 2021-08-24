@@ -189,7 +189,7 @@ const ManagementMenu = (props) => {
         <BackButton onClick={onBack} />
       </Hide>
       <Spacer size="1rem" />
-      {!!subtitle && <h6>{subtitle}</h6>}
+      <h6>{subtitle}</h6>
       <h4>{title}</h4>
       <Spacer size="1rem" />
       <ul>
@@ -216,7 +216,7 @@ const ManagementMenu = (props) => {
               .filter((item) => item.menuGroup === 3)
               .map((item) => (
                 <li key={item.id}>
-                  <ManagementMenuItem item={item} cancel={true} />
+                  <ManagementMenuItem item={item} cancel />
                 </li>
               ))}
           </>
