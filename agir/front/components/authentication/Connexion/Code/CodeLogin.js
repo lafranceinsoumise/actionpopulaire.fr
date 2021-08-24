@@ -65,14 +65,9 @@ const Form = styled.div`
     grid-template-columns: 100%;
   }
 
-  ${Button} {
-    height: 41px;
-    justify-content: center;
-    margin-top: 1.5rem;
-    width: 100%;
-
-    @media (max-width: ${style.collapse}px) {
-      margin-top: 0;
+  & > div {
+    @media (min-width: ${style.collapse}px) {
+      margin-top: 1.5rem;
     }
   }
 `;
@@ -194,11 +189,14 @@ const CodeConnexion = () => {
           disabled={submitted}
           autoFocus
         />
-        <div>
-          <Button color="primary" disabled={submitted}>
-            Valider
-          </Button>
-        </div>
+        <Button
+          block
+          color="primary"
+          disabled={submitted}
+          style={{ height: 40 }}
+        >
+          Valider
+        </Button>
       </Form>
     </Container>
   );

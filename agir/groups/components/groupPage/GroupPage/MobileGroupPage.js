@@ -8,6 +8,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useTabs } from "./routes.config";
 import { getGroupSettingLinks } from "@agir/groups/groupPage/GroupSettings/routes.config";
+import { useDownloadBanner } from "@agir/front/app/hooks.js";
 
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
@@ -33,28 +34,32 @@ const StyledTab = styled.div`
   max-width: 100%;
   margin: 0;
   padding: 0;
-  scroll-margin-top: 160px;
-
-  @media (max-width: ${style.collapse}px) {
-    scroll-margin-top: 100px;
-  }
+  scroll-margin-top: ${(props) =>
+    props.$hasDownloadBanner ? "180px" : "100px"};
 `;
 
 const Tab = (props) => {
-  const { scrollIntoView, children } = props;
+  const { scrollIntoView, children, hasDownloadBanner } = props;
   const tabRef = useRef();
   useEffect(() => {
     scrollIntoView && tabRef.current && tabRef.current.scrollIntoView();
   }, [scrollIntoView]);
-  return <StyledTab ref={tabRef}>{children}</StyledTab>;
+  return (
+    <StyledTab $hasDownloadBanner={hasDownloadBanner} ref={tabRef}>
+      {children}
+    </StyledTab>
+  );
 };
 Tab.propTypes = {
   scrollIntoView: PropTypes.bool,
   children: PropTypes.node,
+  hasDownloadBanner: PropTypes.bool,
 };
 
 const MobileGroupPage = (props) => {
   const { group, allEvents } = props;
+  const [hasDownloadBanner] = useDownloadBanner();
+
   const { hasTabs, tabs, activeTabId, activePathname, onTabChange } = useTabs(
     props,
     true
@@ -119,10 +124,10 @@ const MobileGroupPage = (props) => {
         <GroupPageMenu
           tabs={tabs}
           hasTabs={hasTabs}
-          stickyOffset={56}
+          stickyOffset={hasDownloadBanner ? 134 : 54}
           activeTabId={activeTabId}
         />
-        <Tab>
+        <Tab hasDownloadBanner={hasDownloadBanner}>
           <R
             {...props}
             groupSettingsLinks={groupSettingsLinks}

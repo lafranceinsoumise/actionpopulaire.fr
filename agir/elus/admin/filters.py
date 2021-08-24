@@ -2,7 +2,11 @@ from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, Exists, OuterRef
 from django.utils import timezone
 
-from agir.elus.models import MandatMunicipal, CHAMPS_ELUS_PARRAINAGES
+from agir.elus.models import (
+    MandatMunicipal,
+    CHAMPS_ELUS_PARRAINAGES,
+    RechercheParrainage,
+)
 from agir.lib.autocomplete_filter import AutocompleteFilter, SelectModelFilter
 
 
@@ -129,6 +133,31 @@ class MandatsFilter(SimpleListFilter):
                     MandatMunicipal.objects.filter(reference_id=OuterRef("id"))
                 )
             ).filter(avec_mandat=value == "O")
+        return queryset
+
+
+class ParrainagesFilter(SimpleListFilter):
+    parameter_name = "parrainage"
+    title = "Parrainage pour 2022"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("O", "Avec un parrainage confirmé"),
+            ("N", "Sans parrainage pour le moment"),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+
+        if value == "O":
+            return queryset.filter(
+                reference__parrainage__statut=RechercheParrainage.Statut.VALIDEE
+            )
+        elif value == "N":
+            return queryset.exclude(
+                reference__parrainage__statut=RechercheParrainage.Statut.VALIDEE
+            )
+
         return queryset
 
 

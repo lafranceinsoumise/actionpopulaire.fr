@@ -20,16 +20,32 @@ export default {
 
 const Template = (args) => (
   <div style={{ maxWidth: 372, width: "100%" }}>
-    <ProjectStatusCard {...args} status={EVENT_PROJECT_STATUS[args.status]} />
+    <ProjectStatusCard {...args} />
   </div>
 );
 
+export const WithoutRequiredDocs = Template.bind({});
+WithoutRequiredDocs.args = {
+  status: "DFI",
+  hasRequiredDocuments: false,
+  hasMissingDocuments: false,
+};
+
 export const Pending = Template.bind({});
 Pending.args = {
-  status: "pending",
+  status: "DFI",
+  hasRequiredDocuments: true,
+  hasMissingDocuments: false,
 };
 
 export const Archived = Template.bind({});
 Archived.args = {
-  status: "archived",
+  ...Pending.args,
+  status: "CLO",
+};
+
+export const Refused = Template.bind({});
+Refused.args = {
+  ...Pending.args,
+  status: "REF",
 };

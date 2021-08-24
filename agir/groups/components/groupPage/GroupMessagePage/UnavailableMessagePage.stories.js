@@ -1,7 +1,6 @@
 import React from "react";
 
 import UnavailableMessagePage from "./UnavailableMessagePage";
-import { TestGlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
 
 export default {
   component: UnavailableMessagePage,
@@ -9,13 +8,7 @@ export default {
 };
 
 const Template = (args) => {
-  return (
-    <TestGlobalContextProvider
-      value={{ backLink: { href: "back", label: "Retour à l'accueil" } }}
-    >
-      <UnavailableMessagePage {...args} />
-    </TestGlobalContextProvider>
-  );
+  return <UnavailableMessagePage {...args} />;
 };
 
 export const Default = Template.bind({});

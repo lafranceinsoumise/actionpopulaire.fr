@@ -22,7 +22,7 @@ import {
 import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
-import TopBar from "@agir/front/allPages/TopBar";
+import TopBar from "@agir/front/allPages/TopBar/TopBar";
 
 import ErrorBoundary from "./ErrorBoundary";
 import logger from "@agir/lib/utils/logger";

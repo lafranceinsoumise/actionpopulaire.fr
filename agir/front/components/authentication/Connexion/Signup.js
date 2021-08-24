@@ -213,16 +213,7 @@ const SignUp = () => {
       {error && !!error.rgpd && <Toast>{error.rgpd}</Toast>}
       {error && !!error.global && <Toast>{error.global}</Toast>}
 
-      <Button
-        type="submit"
-        color="primary"
-        style={{
-          marginTop: "2rem",
-          maxWidth: "100%",
-          width: "100%",
-          justifyContent: "center",
-        }}
-      >
+      <Button type="submit" color="primary" style={{ marginTop: "2rem" }} block>
         {location.state?.from === "event"
           ? "Je participe !"
           : "Créer mon compte"}

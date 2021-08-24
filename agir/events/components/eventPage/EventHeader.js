@@ -54,7 +54,6 @@ const SmallText = styled.div`
   font-color: ${style.black500};
 `;
 
-const ActionButton = styled(Button)``;
 const ActionLink = styled(Link)`
   font-weight: 700;
   text-decoration: underline;
@@ -72,7 +71,7 @@ const ActionDetails = styled.div`
   }
 `;
 
-const StyledActionButtons = styled.div`
+const StyledActions = styled.div`
   display: inline-grid;
   grid-gap: 0.5rem;
   grid-template-columns: auto auto;
@@ -82,27 +81,6 @@ const StyledActionButtons = styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
-
-  ${Button} {
-    margin: 0;
-    justify-content: center;
-
-    && *,
-    && *::before {
-      flex: 0 0 auto;
-    }
-  }
-
-  ${Button} + ${Button} {
-    margin-left: 0;
-  }
-`;
-
-const StyledButton = styled(Button)`
-  height: 48px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: ${style.borderRadius};
 `;
 
 const RSVPButton = (props) => {
@@ -145,20 +123,20 @@ const RSVPButton = (props) => {
   );
 
   return (
-    <StyledActionButtons>
-      <StyledButton
+    <StyledActions>
+      <Button
         type="submit"
         color="primary"
         disabled={isLoading}
         onClick={handleRSVP}
       >
         Participer à l'événement
-      </StyledButton>
-    </StyledActionButtons>
+      </Button>
+    </StyledActions>
   );
 };
 
-const ActionButtons = (props) => {
+const Actions = (props) => {
   const {
     id,
     name,
@@ -175,65 +153,55 @@ const ActionButtons = (props) => {
 
   if (past) {
     return (
-      <StyledActionButtons>
-        <StyledButton disabled color="unavailable">
+      <StyledActions>
+        <Button disabled color="unavailable">
           Événement terminé
-        </StyledButton>
+        </Button>
         {isOrganizer && (
-          <StyledButton
-            icon="settings"
-            as="a"
-            href={routes.manage}
-            color="primary"
-          >
+          <Button icon="settings" link href={routes.manage} color="primary">
             Gérer l'événement
-          </StyledButton>
+          </Button>
         )}
-      </StyledActionButtons>
+      </StyledActions>
     );
   }
 
   if (!logged) {
     return (
-      <StyledActionButtons>
-        <ActionButton color="secondary" disabled={true}>
+      <StyledActions>
+        <Button color="secondary" disabled={true}>
           Participer à l'événement
-        </ActionButton>
-      </StyledActionButtons>
+        </Button>
+      </StyledActions>
     );
   }
 
   if (rsvped) {
     return (
       <>
-        <StyledActionButtons>
+        <StyledActions>
           {!!onlineUrl && (
-            <ActionButton
+            <Button
               icon="video"
-              as="a"
+              link
               href={onlineUrl}
               target="_blank"
               color="primary"
             >
               Rejoindre en ligne
-            </ActionButton>
+            </Button>
           )}
           {isOrganizer && (
-            <StyledButton
-              icon="settings"
-              as="a"
-              href={routes.manage}
-              color="primary"
-            >
+            <Button icon="settings" link href={routes.manage} color="primary">
               Gérer l'événement
-            </StyledButton>
+            </Button>
           )}
           {allowGuests && (hasSubscriptionForm || hasPrice) && (
-            <ActionButton as="Link" href={routes.rsvp}>
+            <Button link href={routes.rsvp}>
               Ajouter une personne
-            </ActionButton>
+            </Button>
           )}
-        </StyledActionButtons>
+        </StyledActions>
         <ActionDetails>
           <div>
             <RawFeatherIcon name="check" color="green" /> &nbsp;Vous participez
@@ -248,7 +216,7 @@ const ActionButtons = (props) => {
 
   return <RSVPButton {...props} />;
 };
-RSVPButton.propTypes = ActionButtons.propTypes = {
+RSVPButton.propTypes = Actions.propTypes = {
   id: PropTypes.string,
   name: PropTypes.string,
   onlineUrl: PropTypes.string,
@@ -348,7 +316,7 @@ const EventHeader = ({
       <Hide under>
         <EventDate>{eventDate}</EventDate>
       </Hide>
-      <ActionButtons
+      <Actions
         id={id}
         past={past}
         logged={logged}

@@ -48,7 +48,7 @@ const JoinGroupButton = (props) => {
     return (
       <div>
         <Button
-          as="Link"
+          link
           color="success"
           route="login"
           params={{

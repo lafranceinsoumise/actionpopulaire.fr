@@ -42,15 +42,6 @@ const StyledActionButtons = styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
   }
-
-  ${Button} {
-    margin: 0;
-    justify-content: center;
-    height: 48px;
-    font-size: 16px;
-    font-weight: 500;
-    border-radius: ${(props) => props.theme.borderRadius};
-  }
 `;
 
 const StyledCard = styled(Card)`
@@ -105,10 +96,10 @@ const EventDescriptionCard = ({
 
         {canEdit && (
           <StyledActionButtons>
-            <Button as="a" href={routes.edit}>
+            <Button link href={routes.edit}>
               {description ? "Modifier la" : "Ajouter une"} description
             </Button>
-            <Button as="a" href={routes.edit}>
+            <Button link href={routes.edit}>
               {image ? "Changer l'" : "Ajouter une "}image d'illustration
             </Button>
           </StyledActionButtons>

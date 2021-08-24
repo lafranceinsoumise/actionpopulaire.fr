@@ -89,7 +89,7 @@ const ActionCard = (props) => {
                 typeof onConfirm === "function") && (
                 <Button
                   small
-                  as={typeof onConfirm === "string" ? "a" : undefined}
+                  link={typeof onConfirm === "string"}
                   onClick={
                     typeof onConfirm === "function" ? onConfirm : undefined
                   }
@@ -105,7 +105,7 @@ const ActionCard = (props) => {
                 typeof onDismiss === "function") && (
                 <Button
                   small
-                  as={typeof onDismiss === "string" ? "a" : undefined}
+                  link={typeof onDismiss === "string"}
                   onClick={
                     typeof onDismiss === "function" ? onDismiss : undefined
                   }

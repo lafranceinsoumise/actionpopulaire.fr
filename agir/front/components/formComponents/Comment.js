@@ -88,7 +88,7 @@ const StyledInlineMenuItems = styled.div`
 `;
 const StyledMessageHeader = styled.header``;
 const StyledMessageAuthor = styled.h5``;
-const StyledMessageContent = styled.p``;
+const StyledMessageContent = styled.div``;
 const StyledMessageTime = styled.div``;
 const StyledAction = styled.div``;
 const StyledMessage = styled.div``;
@@ -114,7 +114,7 @@ const StyledWrapper = styled(animated.div)`
   ${StyledMessage} {
     display: flex;
     flex: 1 1 auto;
-    border-radius: 8px;
+    border-radius: ${style.borderRadius};
     flex-direction: column;
   }
 

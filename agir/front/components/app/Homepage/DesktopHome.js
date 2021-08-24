@@ -66,10 +66,8 @@ const StyledHome = styled.main`
 
       ${Button} {
         width: auto;
-        justify-content: center;
         height: 70px;
         font-size: 1.25rem;
-        margin: 0;
       }
     }
   }
@@ -89,11 +87,11 @@ const Home = () => {
           pour l'élection présidentielle de 2022.
         </h5>
         <div>
-          <Button color="primary" as="Link" route="signup">
+          <Button color="primary" link route="signup">
             Je crée mon compte
           </Button>
           <Spacer size="1rem" />
-          <Button color="white" as="Link" route="login">
+          <Button color="white" link route="login">
             Je me connecte
           </Button>
         </div>

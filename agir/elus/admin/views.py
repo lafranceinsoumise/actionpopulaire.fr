@@ -20,9 +20,7 @@ class ChangerStatutBaseView(AdminViewMixin, TemplateView):
         self.object.save(update_fields=["statut"])
 
         return HttpResponseRedirect(
-            reverse(
-                "admin:elus_rechercheparrainagemaire_change", args=(self.object.id,)
-            )
+            reverse("admin:elus_rechercheparrainage_change", args=(self.object.id,))
         )
 
     def get_context_data(self, **kwargs):

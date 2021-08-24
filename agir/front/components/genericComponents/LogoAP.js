@@ -13,12 +13,13 @@ const LogoAP = styled.img.attrs(({ small }) => ({
 }))`
   height: ${(props) => props.height + "px" || "auto"};
   width: ${(props) => props.width + "px" || "auto"};
+  vertical-align: unset;
 `;
 
 LogoAP.propTypes = {
   small: PropTypes.bool,
-  width: PropTypes.string,
-  height: PropTypes.string,
+  width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   alt: PropTypes.string,
 };
 LogoAP.defaultProps = {

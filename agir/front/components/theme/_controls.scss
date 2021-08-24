@@ -60,34 +60,16 @@ fieldset {
 // Buttons
 // 	@include button-size($padding-base-vertical, $padding-base-horizontal, $font-size, $line-height-base, $btn-border-radius-base);
 .btn {
-  @include button-size(
-    12px,
-    24px,
-    14px,
-    $line-height-base,
-    $btn-border-radius-base
-  );
+  @include button-size(12px, 24px, 16px, 24px, $btn-border-radius-base);
 }
 .btn-lg {
-  @include button-size(
-    $padding-large-vertical,
-    $padding-large-horizontal,
-    16px,
-    $line-height-large,
-    $btn-border-radius-large
-  );
+  @include button-size(12px, 24px, 16px, 24px, $btn-border-radius-large);
 }
 .btn-sm {
-  @include button-size(
-    6px,
-    12px,
-    13px,
-    $line-height-small,
-    $btn-border-radius-small
-  );
+  @include button-size(8px, 12px, 14px, 16px, $btn-border-radius-small);
 }
 .btn-xs {
-  @include button-size(3px, 7px, 12px, 1, $btn-border-radius-small);
+  @include button-size(3px, 7px, 13px, 1, $btn-border-radius-small);
 }
 
 button,
