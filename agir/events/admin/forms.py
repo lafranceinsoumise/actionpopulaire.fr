@@ -309,6 +309,12 @@ class NewParticipantForm(BasePersonForm):
 
         return self.cleaned_data
 
+    @property
+    def submission_data(self):
+        data = BasePersonForm.submission_data.fget(self)
+        data["admin"] = True
+        return data
+
     def save(self, commit=True):
         cleaned_data = self.cleaned_data
 
