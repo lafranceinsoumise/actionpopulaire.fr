@@ -82,20 +82,20 @@ class CalendarField(forms.Field):
     def get_queryset(self):
         return models.Calendar.objects.raw(
             """
-                        WITH RECURSIVE calendars AS (
-                            SELECT id, name, 0 AS depth, slug::text AS path
-                            FROM events_calendar
-                            WHERE parent_id IS NULL
-                          UNION ALL 
-                            SELECT c.id, c.name, p.depth + 1 AS depth, CONCAT(p.path, ':', c.slug) AS path
-                            FROM events_calendar AS c
-                            JOIN calendars AS p
-                            ON parent_id = p.id
-                        )
-                        SELECT id, name, depth
-                        FROM calendars
-                        ORDER BY path;
-                    """
+            WITH RECURSIVE calendars AS (
+                SELECT id, name, 0 AS depth, slug::text AS path
+                FROM events_calendar
+                WHERE parent_id IS NULL
+              UNION ALL
+                SELECT c.id, c.name, p.depth + 1 AS depth, CONCAT(p.path, ':', c.slug) AS path
+                FROM events_calendar AS c
+                JOIN calendars AS p
+                ON parent_id = p.id
+            )
+            SELECT id, name, depth
+            FROM calendars
+            ORDER BY path;
+            """
         )
 
     def label_from_instance(self, obj):
@@ -228,7 +228,7 @@ class NewParticipantForm(BasePersonForm):
     )
 
     new_person_email = forms.EmailField(
-        label="Email de la nouvelle personne", required=False
+        label="ou si non-inscrit, email d'inscription", required=False
     )
 
     insoumise = forms.BooleanField(
