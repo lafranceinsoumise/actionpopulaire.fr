@@ -307,6 +307,13 @@ class NewParticipantForm(BasePersonForm):
                 if f not in self.cleaned_data:
                     self.data[f] = getattr(self.cleaned_data["existing_person"], f)
 
+        if self.cleaned_data.get("payment_mode", None) not in ("tpe", "money", None):
+            for f in BILLING_FIELDS:
+                if f != "location_address2" and f not in self.cleaned_data:
+                    self.add_error(
+                        f, ValidationError("Champ requis pour ce mode de paiement.")
+                    )
+
         return self.cleaned_data
 
     @property
