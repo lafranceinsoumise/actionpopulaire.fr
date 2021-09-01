@@ -22,6 +22,7 @@ from django.urls import reverse, path
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from rangefilter.filters import DateRangeFilter
 
 from agir.authentication.models import Role
 from agir.elus.models import types_elus
@@ -101,7 +102,7 @@ class TagListFilter(AutocompleteFilter):
 
 
 class AnimateMoreThanOneGroup(admin.SimpleListFilter):
-    title = "Cette personne annime plus d'un groupe d'action"
+    title = "Cette personne anime plus d'un groupe d'action"
     parameter_name = "Person who animate more than one group"
 
     def lookups(self, request, model_admin):
@@ -213,6 +214,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "gender",
         TagListFilter,
         AnimateMoreThanOneGroup,
+        ("created", DateRangeFilter),
     )
 
     inlines = (RSVPInline, MembershipInline, EmailInline)
@@ -223,6 +225,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     # mais n'est en réalité pas utilisé pour déterminer les champs
     # de recherche
     search_fields = ["search", "contact_phone"]
+    date_hierarchy = "created"
 
     def get_search_results(self, request, queryset, search_term):
         if search_term:
