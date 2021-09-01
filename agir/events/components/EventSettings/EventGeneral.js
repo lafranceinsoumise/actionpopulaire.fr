@@ -31,7 +31,7 @@ import {
   StyledDefaultOptions,
 } from "@agir/events/createEventPage/EventForm/SubtypeField.js";
 
-import { SubtypeOption, StyledOptions } from "@agir/events/common/SubtypePanel";
+import { SubtypeOptions } from "@agir/events/common/SubtypePanel";
 
 import { EVENT_TYPES } from "@agir/events/common/utils";
 
@@ -55,21 +55,7 @@ const ChooseSubtype = ({ options, selected, onClick, onBack }) => {
       <BackButton onClick={onBack} />
       <StyledTitle>Choisir le type de l'événement</StyledTitle>
       <Spacer size="1rem" />
-      <StyledOptions>
-        {options?.map((category) => (
-          <ul key={category.label}>
-            <strong title={category.description}>{category.label}</strong>
-            {category?.subtypes?.map((subtype) => (
-              <SubtypeOption
-                key={subtype.id}
-                onClick={onClick}
-                option={subtype}
-                selected={!!selected && selected.id === subtype.id}
-              />
-            ))}
-          </ul>
-        ))}
-      </StyledOptions>
+      <SubtypeOptions options={options} onClick={onClick} selected={selected} />
     </>
   );
 };
