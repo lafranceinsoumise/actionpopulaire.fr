@@ -39,6 +39,8 @@ class Activity(TimeStampedModel):
     TYPE_WAITING_LOCATION_GROUP = "waiting-location-group"
     TYPE_EVENT_SUGGESTION = "event-suggestion"
     TYPE_ANNOUNCEMENT = "announcement"
+    TYPE_REMINDER_DOCS_EVENT_EVE = "reminder-docs-event-eve"
+    TYPE_REMINDER_DOCS_EVENT_NEXTDAY = "reminder-docs-event-nextday"
 
     # GROUP TYPES
     TYPE_NEW_REPORT = "new-report"
@@ -130,6 +132,14 @@ class Activity(TimeStampedModel):
         ),
         (TYPE_GROUP_CREATION_CONFIRMATION, "Groupe créé"),
         (TYPE_EVENT_SUGGESTION, "Événement suggéré"),
+        (
+            TYPE_REMINDER_DOCS_EVENT_EVE,
+            "Rappel à la veille d'un événement des documents à envoyer",
+        ),
+        (
+            TYPE_REMINDER_DOCS_EVENT_NEXTDAY,
+            "Rappel au lendemain d'un événement des documents à envoyer",
+        ),
     )
 
     STATUS_UNDISPLAYED = "U"
