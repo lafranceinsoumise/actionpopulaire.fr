@@ -31,6 +31,7 @@ const OnlineUrlField = (props) => {
   const defaultUrl = options.onlineUrl;
   const [isOnline, setIsOnline] = useState(!!value);
   const [onlineUrl, setOnlineUrl] = useState(value);
+  const [isAuto, setIsAuto] = useState(false);
 
   useEffect(() => {
     setIsOnline(!!value);
@@ -43,10 +44,11 @@ const OnlineUrlField = (props) => {
 
   const handleChangeUrl = (event) => {
     if (!event.target.checked) {
-      onChange(name, "");
+      setIsAuto(false);
       return;
     }
     onChange(name, defaultUrl);
+    setIsAuto(true);
   };
 
   const handleChangeOnline = (event) => {
@@ -72,7 +74,7 @@ const OnlineUrlField = (props) => {
             <CheckboxField
               disabled={disabled}
               label="Utiliser le service de visio-conférence automatique de La France insoumise"
-              value={onlineUrl === defaultUrl}
+              value={isAuto && onlineUrl === defaultUrl}
               onChange={handleChangeUrl}
             />
           )}

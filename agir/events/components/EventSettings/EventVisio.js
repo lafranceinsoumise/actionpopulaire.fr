@@ -69,11 +69,11 @@ const EventVisio = (props) => {
       <Spacer size="1rem" />
       <OnlineUrlField
         label="URL de votre visio-conférence sur Action Populaire"
+        placeholder="URL de la visio-conférence"
         name="onlineUrl"
         value={onlineUrl}
         onChange={updateValue}
         error={errors && errors.onlineUrl}
-        placeholder="URL de la visio-conférence"
       />
 
       <Spacer size="1rem" />
