@@ -13,11 +13,6 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import MemberList from "./EventMemberList";
 
-import { routeConfig } from "./routes.config";
-import { RouteConfig } from "@agir/front/app/routes.config.js";
-
-const organisationLink = new RouteConfig(routeConfig.organisation);
-
 const StyledLink = styled(Link)`
   font-size: 13px;
   display: inline-flex;
@@ -56,10 +51,7 @@ const EventParticipants = (props) => {
       <BlockTitle>
         <h3>{participants?.concat(organizers).length} Participant·es</h3>
         <div>
-          <StyledLink
-            to={organisationLink.getLink()}
-            style={{ marginLeft: "10px" }}
-          >
+          <StyledLink to={"../organisation/"} style={{ marginLeft: "10px" }}>
             <RawFeatherIcon name="settings" height="13px" />
             Inviter à co-organiser
           </StyledLink>
