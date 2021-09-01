@@ -960,8 +960,17 @@ class RechercheParrainage(TimeStampedModel):
         ]
 
 
+class AccesApplicationParrainagesQueryset(models.QuerySet):
+    def search(self, query):
+        return self.filter(
+            person__search=PrefixSearchQuery(query, config="simple_unaccented")
+        )
+
+
 @reversion.register()
 class AccesApplicationParrainages(models.Model):
+    objects = AccesApplicationParrainagesQueryset.as_manager()
+
     class Etat(models.TextChoices):
         EN_ATTENTE = "A", "En attente"
         VALIDE = "V", "Validée"
@@ -986,3 +995,6 @@ class AccesApplicationParrainages(models.Model):
             verbose_name_plural
         ) = "Accès à l'application de recherches de parrainages"
         ordering = ("etat", "person")
+
+    def __str__(self):
+        return f"Accès {self.get_etat_display().lower()} pour {self.person}"

@@ -957,6 +957,15 @@ class AccesApplicationParrainagesAdmin(VersionAdmin):
 
     fields = ("person", "etat")
     autocomplete_fields = ("person",)
+    search_fields = ("people__search",)
+
+    def get_search_results(self, request, queryset, search_term):
+        usedistinct = False
+
+        if search_term:
+            return queryset.search(search_term), usedistinct
+
+        return queryset, usedistinct
 
 
 admin.site.unregister(EluMunicipal)
