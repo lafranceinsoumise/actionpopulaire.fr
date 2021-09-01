@@ -5,7 +5,7 @@ import EventDescriptionCard from "./EventDescriptionCard";
 
 export default {
   component: EventDescriptionCard,
-  title: "Events/EventDescriptionCard",
+  title: "Events/EventPage/EventDescriptionCard",
   parameters: {
     layout: "centered",
   },
