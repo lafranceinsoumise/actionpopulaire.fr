@@ -100,25 +100,8 @@ const EventOrganization = (props) => {
     api.getEventEndpoint("getParticipants", { eventPk })
   );
 
-  const organizers = useMemo(
-    () =>
-      event?.organizers?.map((organizer) => ({
-        ...organizer,
-        memberType: 1,
-      })) || [],
-    [event]
-  );
-
-  const not_organizers = useMemo(
-    () =>
-      event?.participants?.filter(
-        (participant) =>
-          !event?.organizers?.some(
-            (organizer) => participant.id === organizer.id
-          )
-      ) || [],
-    [event]
-  );
+  const participants = useMemo(() => event?.participants || [], [event]);
+  const organizers = useMemo(() => event?.organizers || [], [event]);
 
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const transition = useTransition(submenuOpen, slideInTransition);
@@ -155,7 +138,7 @@ const EventOrganization = (props) => {
               <AddOrganizer
                 onClick={() => setSubmenuOpen(false)}
                 eventPk={eventPk}
-                participants={not_organizers}
+                participants={participants}
                 onBack={handleBack}
               />
             </PanelWrapper>

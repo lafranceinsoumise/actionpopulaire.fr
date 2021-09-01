@@ -146,10 +146,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     groups = serializers.SerializerMethodField()
 
-    participants = serializers.SerializerMethodField()
-
-    organizers = serializers.SerializerMethodField()
-
     contact = NestedContactSerializer(source="*")
 
     distance = serializers.SerializerMethodField()
@@ -260,29 +256,30 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             ],
         ).data
 
-    def get_participants(self, obj):
-        return None
-
-    def get_organizers(self, obj):
-        return None
-
 
 class EventAdvancedSerializer(EventSerializer):
+
+    participants = serializers.SerializerMethodField()
+
+    organizers = serializers.SerializerMethodField()
+
     def get_participants(self, obj):
-        return PersonSerializer(
-            obj.attendees,
-            context=self.context,
-            many=True,
-            fields=["id", "email", "firstName", "lastName", "displayName"],
-        ).data
+        return [
+            {"id": person.id, "email": person.email, "displayName": person.display_name}
+            for person in obj.attendees.all()
+            if person not in obj.organizers.all()
+        ]
 
     def get_organizers(self, obj):
-        return PersonSerializer(
-            obj.organizers,
-            context=self.context,
-            many=True,
-            fields=["id", "email", "firstName", "lastName", "displayName"],
-        ).data
+        return [
+            {
+                "id": person.id,
+                "email": person.email,
+                "displayName": person.display_name,
+                "memberType": 1,
+            }
+            for person in obj.organizers.all()
+        ]
 
 
 class EventListSerializer(EventSerializer):
