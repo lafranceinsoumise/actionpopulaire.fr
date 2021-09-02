@@ -256,12 +256,17 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 class EventListSerializer(EventSerializer):
     def get_groups(self, obj):
-        return SupportGroupSerializer(
-            obj.organizers_groups.distinct(),
-            context=self.context,
-            many=True,
-            fields=["id", "name", "isMember"],
-        ).data
+        user = self.context["request"].user
+        return [
+            {
+                "id": group.id,
+                "name": group.name,
+                "isMember": user.is_authenticated
+                and user.person is not None
+                and group.memberships.filter(person=user.person).exists(),
+            }
+            for group in obj.organizers_groups.distinct()
+        ]
 
 
 class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
