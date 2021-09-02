@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
+import { Redirect } from "react-router-dom";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
 import { getMenuRoute, getRoutes } from "./routes.config";
@@ -14,6 +16,7 @@ export const EventSettings = (props) => {
   const menuRoute = useMemo(() => getMenuRoute(basePath), [basePath]);
   const isAuthorized = useAuthentication(globalRouteConfig.eventSettings);
   const { pathname } = useLocation();
+  const isDesktop = useIsDesktop();
 
   const cancelEvent = { label: "Annuler l'événement", onClick: () => {} };
 
@@ -33,6 +36,10 @@ export const EventSettings = (props) => {
   if (!event) {
     return null;
   }
+
+  // Open first panel on Desktop
+  if (isDesktop && pathname.substr(-8) === "gestion/")
+    return <Redirect to={"general/"} />;
 
   return (
     <ObjectManagement

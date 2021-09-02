@@ -6,7 +6,6 @@ import styled from "styled-components";
 import { mutate } from "swr";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getIsConnected, getRoutes } from "@agir/front/globalContext/reducers";
 import * as api from "@agir/events/common/api";
@@ -152,7 +151,7 @@ const Actions = (props) => {
     hasSubscriptionForm,
   } = props;
 
-  const isDesktop = useIsDesktop();
+  const manageUrl = "gestion/";
 
   if (past) {
     return (
@@ -161,12 +160,7 @@ const Actions = (props) => {
           Événement terminé
         </Button>
         {isOrganizer && (
-          <Button
-            icon="settings"
-            link
-            href={isDesktop ? routes.manage : routes.manageMobile}
-            color="primary"
-          >
+          <Button icon="settings" link to={manageUrl} color="primary">
             Gérer l'événement
           </Button>
         )}
@@ -200,12 +194,7 @@ const Actions = (props) => {
             </Button>
           )}
           {isOrganizer && (
-            <Button
-              icon="settings"
-              link
-              href={isDesktop ? routes.manage : routes.manageMobile}
-              color="primary"
-            >
+            <Button icon="settings" link to={manageUrl} color="primary">
               Gérer l'événement
             </Button>
           )}
