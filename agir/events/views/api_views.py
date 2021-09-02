@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.http.response import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.utils.functional import cached_property
 from rest_framework import status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
@@ -55,6 +56,7 @@ __all__ = [
     "EventProjectsAPIView",
     "EventParticipantsAPIView",
     "CreateOrganizerConfigAPIView",
+    "CancelEventAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -65,6 +67,7 @@ from agir.lib.rest_framework_permissions import (
 )
 
 from agir.lib.tasks import geocode_person
+from ..tasks import send_cancellation_notification
 
 
 class EventRsvpedAPIView(ListAPIView):
@@ -226,6 +229,22 @@ class CreateOrganizerConfigAPIView(APIView):
         organizer_config = OrganizerConfig(event=event, person=person)
         organizer_config.save()
         return JsonResponse({"data": True})
+
+
+class CancelEventAPIView(APIView):
+    permission_classes = (EventManagementPermissions,)
+    queryset = Event.objects.all()
+
+    def post(self, request, pk):
+        event = Event.objects.get(pk=pk)
+        event.visibility = Event.VISIBILITY_ADMIN
+        event.save()
+
+        send_cancellation_notification.delay(pk)
+
+        return JsonResponse(
+            {"data": _("L'événement « {} » a bien été annulé.").format(event.name)}
+        )
 
 
 class RSVPEventPermissions(GlobalOrObjectPermissions):

@@ -37,7 +37,7 @@ urlpatterns = [
     ),
     path(
         "evenements/<uuid:pk>/annuler/",
-        views.CancelEventView.as_view(),
+        views.CancelEventAPIView.as_view(),
         name="cancel_event",
     ),
     path(

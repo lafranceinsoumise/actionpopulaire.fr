@@ -1,5 +1,4 @@
 import locale
-from django.http.response import JsonResponse
 import os
 import ics
 import pytz
@@ -53,7 +52,6 @@ from ..forms import (
 )
 from ..models import Event, RSVP
 from ..tasks import (
-    send_cancellation_notification,
     send_event_report,
     send_secretariat_notification,
 )
@@ -64,7 +62,6 @@ __all__ = [
     "ManageEventView",
     "ModifyEventView",
     "QuitEventView",
-    "CancelEventView",
     "EventParticipationView",
     "EventIcsView",
     "ChangeEventLocationView",
@@ -606,25 +603,6 @@ class ModifyEventView(ImageSizeWarningMixin, BaseEventAdminView, UpdateView):
         )
 
         return res
-
-
-@method_decorator(never_cache, name="get")
-class CancelEventView(BaseEventAdminView, DetailView):
-    def post(self, request, *args, **kwargs):
-        self.object = self.event = self.get_object()
-
-        self.event.visibility = Event.VISIBILITY_ADMIN
-        self.event.save()
-
-        send_cancellation_notification.delay(self.object.pk)
-
-        return JsonResponse(
-            {
-                "data": _("L'événement « {} » a bien été annulé.").format(
-                    self.object.name
-                )
-            }
-        )
 
 
 @method_decorator(never_cache, name="get")
