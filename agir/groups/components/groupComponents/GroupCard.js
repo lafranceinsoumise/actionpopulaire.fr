@@ -229,13 +229,7 @@ const GroupCard = ({
             <GroupButton
               key="manage"
               link
-              to={
-                isDesktop
-                  ? routeConfig.groupSettings
-                      .getLink({ groupPk: id })
-                      .concat(groupRouteConfig.members.path)
-                  : routeConfig.groupSettings.getLink({ groupPk: id })
-              }
+              to={routeConfig.groupSettings.getLink({ groupPk: id })}
               icon="settings"
             >
               Gestion

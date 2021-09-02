@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
+import { Redirect } from "react-router-dom";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
 import { getMenuRoute, getRoutes } from "./routes.config";
@@ -15,6 +17,7 @@ export const GroupSettings = (props) => {
   const menuRoute = useMemo(() => getMenuRoute(basePath), [basePath]);
   const isAuthorized = useAuthentication(globalRouteConfig.groupSettings);
   const { pathname } = useLocation();
+  const isDesktop = useIsDesktop();
 
   const redirectTo = useMemo(() => {
     if (!group?.isManager) {
@@ -42,6 +45,10 @@ export const GroupSettings = (props) => {
   if (!group) {
     return null;
   }
+
+  // Open first panel on Desktop
+  if (isDesktop && pathname.substr(-8) === "gestion/")
+    return <Redirect to={"membres/"} />;
 
   return (
     <ObjectManagement
