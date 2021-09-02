@@ -4,7 +4,7 @@ import EventFacebookLinkCard from "./EventFacebookLinkCard";
 
 export default {
   component: EventFacebookLinkCard,
-  title: "Events/FacebookLink",
+  title: "Events/EventPage/FacebookLink",
 };
 
 const Template = (args) => <EventFacebookLinkCard {...args} />;

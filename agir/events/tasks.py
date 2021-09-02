@@ -5,7 +5,7 @@ import ics
 import requests
 from celery import shared_task
 from django.conf import settings
-
+from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.http import urlencode
@@ -14,15 +14,14 @@ from django.utils.translation import ugettext_lazy as _
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.lib.celery import emailing_task, http_task, post_save_task
 from agir.lib.display import str_summary
-from agir.lib.html import sanitize_html
 from agir.lib.geo import geocode_element
+from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.people.models import Person
 from .models import Event, RSVP, OrganizerConfig
-from ..notifications.models import Subscription
 from ..activity.models import Activity
-
+from ..notifications.models import Subscription
 
 # encodes the preferred order when showing the messages
 NOTIFIED_CHANGES = {
@@ -526,5 +525,48 @@ def send_post_event_required_documents_reminder_email(event_pk):
         subject=_("Rappel : envoyez les justificatifs de l'événement d'hier"),
         from_email=settings.EMAIL_FROM,
         recipients=[organizer for organizer in organizers],
+        bindings=bindings,
+    )
+
+
+@emailing_task
+def send_event_suggestion_email(event_pk, recipient_pk):
+    try:
+        event = Event.objects.get(pk=event_pk)
+    except Event.DoesNotExist:
+        return
+
+    subscription = Subscription.objects.filter(
+        person_id=recipient_pk,
+        type=Subscription.SUBSCRIPTION_EMAIL,
+        activity_type=Activity.TYPE_EVENT_SUGGESTION,
+    )
+
+    if not subscription.exists():
+        return
+
+    group = event.organizers_groups.first()
+    if group is not None:
+        subject = f"Participez à l'action de {group.name.capitalize()} !"
+    else:
+        subject = "Participez à cette action !"
+
+    start_time = event.local_start_time
+    simple_date = _date(start_time, "l j F").capitalize()
+
+    bindings = {
+        "TITLE": subject,
+        "EVENT_NAME": event.name.capitalize(),
+        "EVENT_SCHEDULE": f"{simple_date} à {_date(start_time, 'G:i')}",
+        "LOCATION_NAME": event.location_name,
+        "LOCATION_ZIP": event.location_zip,
+        "EVENT_LINK": event.get_absolute_url(),
+    }
+
+    send_mosaico_email(
+        code="EVENT_SUGGESTION",
+        subject=subject,
+        from_email=settings.EMAIL_FROM,
+        recipients=[subscription.first().person],
         bindings=bindings,
     )

@@ -60,3 +60,13 @@ export const parseQueryStringParams = (url) => {
 
   return params;
 };
+
+export const slugify = (string, separator = "-") => {
+  return string
+    .toString()
+    .normalize("NFD")
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, "") // remove all chars not letters, numbers and spaces (to be replaced)
+    .trim()
+    .replace(/\s+/g, separator);
+};
