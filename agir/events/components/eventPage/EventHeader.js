@@ -84,7 +84,7 @@ const StyledActions = styled.div`
 `;
 
 const RSVPButton = (props) => {
-  const { id, hasPrice, routes, hasSubscriptionForm } = props;
+  const { id, hasPrice, routes, hasSubscriptionForm, isOrganizer } = props;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -132,6 +132,11 @@ const RSVPButton = (props) => {
       >
         Participer à l'événement
       </Button>
+      {isOrganizer && (
+        <Button icon="settings" link href={routes.manage} color="primary">
+          Gérer l'événement
+        </Button>
+      )}
     </StyledActions>
   );
 };
