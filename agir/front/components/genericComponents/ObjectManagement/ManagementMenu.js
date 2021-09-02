@@ -160,7 +160,8 @@ const ManagementMenuItem = (props) => {
         <span>{item.label}</span>
         {disabled && (
           <span style={{ fontSize: "12px" }}>
-            <br />A remplir à la fin de l'événement
+            <br />
+            {item.textDisabled}
           </span>
         )}
       </div>
@@ -181,7 +182,7 @@ ManagementMenuItem.propTypes = {
 };
 
 const ManagementMenu = (props) => {
-  const { items, title, subtitle, onBack, cancel } = props;
+  const { items, title, subtitle, onBack, cancel, isFinished } = props;
 
   return (
     <StyledMenu>
@@ -197,7 +198,10 @@ const ManagementMenu = (props) => {
           .filter((item) => item.menuGroup === 1)
           .map((item) => (
             <li key={item.id}>
-              <ManagementMenuItem item={item} disabled={item.isPending} />
+              <ManagementMenuItem
+                item={item}
+                disabled={item.canDisabled && !isFinished}
+              />
             </li>
           ))}
         <hr />
@@ -205,7 +209,10 @@ const ManagementMenu = (props) => {
           .filter((item) => item.menuGroup === 2)
           .map((item) => (
             <li key={item.id}>
-              <ManagementMenuItem item={item} disabled={item.isPending} />
+              <ManagementMenuItem
+                item={item}
+                disabled={item.canDisabled && !isFinished}
+              />
             </li>
           ))}
         {cancel && (

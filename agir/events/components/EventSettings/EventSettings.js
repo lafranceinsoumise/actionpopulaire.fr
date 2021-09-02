@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { DateTime, Interval } from "luxon";
 import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { Redirect } from "react-router-dom";
@@ -41,6 +42,9 @@ export const EventSettings = (props) => {
   if (isDesktop && pathname.substr(-8) === "gestion/")
     return <Redirect to={"general/"} />;
 
+  const now = DateTime.local();
+  const isFinished = now > event.endTime;
+
   return (
     <ObjectManagement
       title={event?.name}
@@ -50,6 +54,7 @@ export const EventSettings = (props) => {
       menuLink={menuRoute.getLink()}
       redirectTo={redirectTo}
       cancel={cancelEvent}
+      isFinished={isFinished}
     />
   );
 };
