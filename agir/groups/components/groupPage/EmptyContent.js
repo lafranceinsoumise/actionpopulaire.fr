@@ -160,7 +160,7 @@ export const ManagerEmptyEvents = () => (
     <p>Vous n’avez pas encore créé d’événement.</p>
     <p>
       Besoin d’idée ? Consultez notre{" "}
-      <a href="https://infos.actionpopulaire.fr/groupes/nouvelle-equipe/">
+      <a href="https://infos.actionpopulaire.fr/groupes/nouveau-groupe/">
         guide pour les nouveaux groupes
       </a>
     </p>

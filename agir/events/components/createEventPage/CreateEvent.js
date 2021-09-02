@@ -124,7 +124,7 @@ const InfoBlock = (props) => (
       personnes aux alentours.
       <Spacer size="0.5rem" />
       <a
-        href="https://infos.actionpopulaire.fr/groupes/nouvelle-equipe/"
+        href="https://infos.actionpopulaire.fr/groupes/nouveau-groupe/"
         target="_blank"
         rel="noopener noreferrer"
       >
