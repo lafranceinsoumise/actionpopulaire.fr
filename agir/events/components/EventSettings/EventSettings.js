@@ -22,7 +22,7 @@ export const EventSettings = (props) => {
   const cancelEvent = { label: "Annuler l'événement", onClick: () => {} };
 
   const redirectTo = useMemo(() => {
-    if (!event?.isManager) {
+    if (!event?.isOrganizer) {
       return basePath;
     }
     if (isAuthorized === false) {

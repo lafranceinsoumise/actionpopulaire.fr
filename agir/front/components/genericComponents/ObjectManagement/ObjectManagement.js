@@ -226,10 +226,9 @@ export const ObjectManagement = (props) => {
     basePath && push(basePath);
   }, [basePath, push]);
 
-  // if (!!hasRoute && redirectTo) {
-  //   console.log("REDIRECT TO")
-  //   return <Redirect to={redirectTo} />;
-  // }
+  if (!!hasRoute && redirectTo) {
+    return <Redirect to={redirectTo} />;
+  }
 
   return (
     <ResponsiveLayout
