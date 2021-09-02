@@ -267,10 +267,8 @@ const CommentField = (props) => {
 
   const blurOnClickOutside = useCallback(
     (event) => {
-      fieldWrapperRef.current &&
-        !fieldWrapperRef.current.contains(event.target) &&
-        setIsFocused(false);
-      autoScroll &&
+      if (!fieldWrapperRef.current?.contains(event.target)) setIsFocused(false);
+      if (autoScroll)
         updateScroll(
           rootElementRef.current,
           !isDesktop ? messageRef.current : null
@@ -280,11 +278,10 @@ const CommentField = (props) => {
   );
 
   const blurOnFocusOutside = useCallback(() => {
-    fieldWrapperRef.current &&
-      document.activeElement &&
-      !fieldWrapperRef.current.contains(document.activeElement) &&
+    document.activeElement &&
+      !fieldWrapperRef.current?.contains(document.activeElement) &&
       setIsFocused(false);
-    autoScroll &&
+    if (autoScroll)
       updateScroll(
         rootElementRef.current,
         !isDesktop ? messageRef.current : null
@@ -293,12 +290,10 @@ const CommentField = (props) => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      isFocused &&
-        !value &&
+      if (isFocused && !value) {
         document.addEventListener("click", blurOnClickOutside);
-      isFocused &&
-        !value &&
         document.addEventListener("keyup", blurOnFocusOutside);
+      }
 
       return () => {
         document.removeEventListener("click", blurOnClickOutside);
@@ -344,6 +339,7 @@ const CommentField = (props) => {
   const handleSend = useCallback(
     (e) => {
       e.preventDefault();
+      blurOnClickOutside(e);
       if (maySend) {
         onSend(value);
         hasSubmitted.current = true;
@@ -391,7 +387,7 @@ const CommentField = (props) => {
           ref={fieldWrapperRef}
           onClick={!disabled ? handleFocus : undefined}
         >
-          {isExpanded ? (
+          {isFocused ? (
             <>
               <TextField
                 ref={textFieldRef}
@@ -416,14 +412,18 @@ const CommentField = (props) => {
             </>
           ) : (
             <>
-              <StyledCommentButton onFocus={handleFocus}>
+              <StyledCommentButton
+                onFocus={handleFocus}
+                onClick={handleFocus}
+                onTouchStart={handleFocus}
+              >
                 Écrire une réponse
               </StyledCommentButton>
               <RawFeatherIcon name="send" color={style.primary500} small />
             </>
           )}
         </StyledField>
-        {isExpanded ? (
+        {isFocused ? (
           <StyledAction>
             {isLoading ? (
               <AnimatedMoreHorizontal />
