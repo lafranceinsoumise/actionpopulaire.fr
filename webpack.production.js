@@ -33,6 +33,13 @@ const createCompiler = (config) => {
     return new Promise((resolve, reject) => {
       compiler.run((err, stats) => {
         if (err) return reject(err);
+        if (stats.compilation.errors.length > 0) {
+          console.error("Webpack compilation errors:");
+          console.dir(
+            stats.compilation.errors.map((err) => err.message || err)
+          );
+          return process.exit(1);
+        }
         console.log(stats.toString({ colors: true }) + "\n");
         resolve();
       });
