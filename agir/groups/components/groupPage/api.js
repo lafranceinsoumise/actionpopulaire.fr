@@ -323,3 +323,5 @@ export const getFinance = async (groupPk) => {
 
   return result;
 };
+
+export const saveGroupLink = console.log;

@@ -76,7 +76,7 @@ const GroupLinks = (props) => {
           <li key={link.url}>
             <LinkIcon url={link.url} />
             &ensp;
-            <a href={link.url}>{link.name}</a>
+            <a href={link.url}>{link.label}</a>
           </li>
         ))}
       </StyledList>
@@ -88,7 +88,7 @@ GroupLinks.propTypes = {
   links: PropTypes.arrayOf(
     PropTypes.shape({
       url: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
     })
   ),
   editLinkTo: PropTypes.string,
