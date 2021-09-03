@@ -20,6 +20,7 @@ from agir.lib.serializers import (
 from agir.people.serializers import PersonSerializer
 from . import models
 from .actions import get_promo_codes
+from .actions.notifications import member_to_follower_notification
 from .models import Membership, SupportGroup
 from ..front.serializer_utils import RoutesField
 from ..lib.utils import front_url, admin_url
@@ -75,6 +76,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
         source="members_count", read_only=True
     )
     isMember = serializers.SerializerMethodField(read_only=True)
+    isActiveMember = serializers.SerializerMethodField(read_only=True,)
     isManager = serializers.SerializerMethodField(read_only=True)
     labels = serializers.SerializerMethodField(read_only=True)
 
@@ -97,6 +99,9 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_isMember(self, obj):
         return self.membership is not None
+
+    def get_isActiveMember(self, obj):
+        return self.membership is not None and self.membership.is_active_member
 
     def get_isManager(self, obj):
         return (
@@ -134,6 +139,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     id = serializers.UUIDField(read_only=True,)
 
     isMember = serializers.SerializerMethodField(read_only=True,)
+    isActiveMember = serializers.SerializerMethodField(read_only=True,)
     isManager = serializers.SerializerMethodField(read_only=True,)
     isReferent = serializers.SerializerMethodField(read_only=True,)
 
@@ -178,6 +184,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_isMember(self, obj):
         return self.membership is not None
+
+    def get_isActiveMember(self, obj):
+        return self.membership is not None and self.membership.is_active_member
 
     def get_isManager(self, obj):
         return (
@@ -432,6 +441,13 @@ class MembershipSerializer(serializers.ModelSerializer):
             )
 
         return data
+
+    def update(self, instance, validated_data):
+        was_active_member = instance.is_active_member
+        instance = super().update(instance, validated_data)
+        if was_active_member and not instance.is_active_member:
+            member_to_follower_notification(instance)
+        return instance
 
     class Meta:
         model = Membership

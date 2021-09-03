@@ -25,7 +25,9 @@ class GroupMessagesTestAPICase(APITestCase):
             email="member@example.com", create_role=True,
         )
         Membership.objects.create(
-            supportgroup=self.group, person=self.member,
+            supportgroup=self.group,
+            person=self.member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
         self.non_member = Person.objects.create(
             email="non_member@example.com", create_role=True
@@ -243,7 +245,9 @@ class GroupMessageCommentAPITestCase(APITestCase):
             create_role=True,
         )
         Membership.objects.create(
-            supportgroup=self.group, person=self.member,
+            supportgroup=self.group,
+            person=self.member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
         self.non_member = Person.objects.create(
             email="non_member@example.com", create_role=True
@@ -257,7 +261,9 @@ class GroupMessageCommentAPITestCase(APITestCase):
             email="other_member@example.com", create_role=True,
         )
         Membership.objects.create(
-            supportgroup=self.group, person=self.other_member,
+            supportgroup=self.group,
+            person=self.other_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
     def test_member_can_get_message_comments(self):

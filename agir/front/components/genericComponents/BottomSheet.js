@@ -36,6 +36,7 @@ const StyledBottomSheet = styled(RSBS)`
     z-index: ${style.zindexPanel};
   }
   [data-rsbs-backdrop] {
+    z-index: ${style.zindexPanel};
     background-color: rgba(0, 10, 44, 0.6);
   }
   [data-rsbs-footer] {
@@ -76,9 +77,7 @@ export const BottomSheet = (props) => {
         open={isOpen}
         onDismiss={onDismiss}
         onSpringStart={handleSpringStart}
-        defaultSnap={({ snapPoints, minHeight, lastSnap }) =>
-          lastSnap || Math.max(minHeight, snapPoints[0])
-        }
+        defaultSnap={({ minHeight }) => minHeight}
         snapPoints={({ maxHeight }) => [
           2 * (maxHeight / 3),
           maxHeight - maxHeight / 10,

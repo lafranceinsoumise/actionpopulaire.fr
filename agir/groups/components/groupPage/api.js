@@ -3,7 +3,10 @@ import axios from "@agir/lib/utils/axios";
 export const ENDPOINT = {
   getGroup: "/api/groupes/:groupPk/",
   getGroupSuggestions: "/api/groupes/:groupPk/suggestions/",
+
   joinGroup: "/api/groupes/:groupPk/rejoindre/",
+  followGroup: "/api/groupes/:groupPk/suivre/",
+  quitGroup: "/api/groupes/:groupPk/quitter/",
 
   getUpcomingEvents: "/api/groupes/:groupPk/evenements/a-venir/",
   getPastEvents:
@@ -181,6 +184,38 @@ export const joinGroup = async (groupPk) => {
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const followGroup = async (groupPk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("followGroup", { groupPk });
+  try {
+    const response = await axios.post(url, {});
+    result.data = response.data;
+  } catch (e) {
+    result.error = e?.response?.data || e.message;
+  }
+
+  return result;
+};
+
+export const quitGroup = async (groupPk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("quitGroup", { groupPk });
+  try {
+    const response = await axios.delete(url, {});
+    result.data = response.data;
+  } catch (e) {
+    result.error = e?.response?.data || e.message;
   }
 
   return result;

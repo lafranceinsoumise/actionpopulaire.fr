@@ -22,8 +22,7 @@ class GroupJoinAPITestCase(APITestCase):
         self.client.logout()
         group = SupportGroup.objects.create()
         res = self.client.post(f"/api/groupes/{group.pk}/rejoindre/")
-        self.assertEqual(res.status_code, 403)
-        self.assertIn("redirectTo", res.data)
+        self.assertEqual(res.status_code, 401)
 
     def test_2022_person_can_join_group(self):
         person_2022 = Person.objects.create(
@@ -51,10 +50,11 @@ class GroupJoinAPITestCase(APITestCase):
     #             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
     #         )
     #     res = self.client.post(f"/api/groupes/{full_group.pk}/rejoindre/")
-    #     self.assertEqual(res.status_code, 403)
-    #     self.assertIn("redirectTo", res.data)
+    #     self.assertEqual(res.status_code, 405)
+    #     self.assertIn("error_code", res.data)
+    #     self.assertEqual(res.data["error_code"], res.data)
 
-    def test_person_cannot_join_if_already_member(self):
+    def test_no_content_response_if_already_member(self):
         person_group = SupportGroup.objects.create()
         Membership.objects.create(
             supportgroup=person_group,
@@ -63,8 +63,20 @@ class GroupJoinAPITestCase(APITestCase):
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/groupes/{person_group.pk}/rejoindre/")
-        self.assertEqual(res.status_code, 403)
-        self.assertIn("redirectTo", res.data)
+        self.assertEqual(res.status_code, 204)
+
+    def test_ok_response_if_already_follower(self):
+        person_group = SupportGroup.objects.create()
+        membership = Membership.objects.create(
+            supportgroup=person_group,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+        )
+        self.client.force_login(self.person.role)
+        res = self.client.post(f"/api/groupes/{person_group.pk}/rejoindre/")
+        self.assertEqual(res.status_code, 200)
+        membership.refresh_from_db()
+        self.assertEqual(membership.membership_type, Membership.MEMBERSHIP_TYPE_MEMBER)
 
     def test_authenticated_person_can_join_available_group(self):
         group = SupportGroup.objects.create()
@@ -94,6 +106,190 @@ class GroupJoinAPITestCase(APITestCase):
         res = self.client.post(f"/api/groupes/{group.pk}/rejoindre/")
         self.assertEqual(res.status_code, 201)
         someone_joined_notification.assert_called()
+
+
+class GroupFollowAPITestCase(APITestCase):
+    def setUp(self):
+        self.person = Person.objects.create(
+            email="person@example.com",
+            create_role=True,
+            is_insoumise=True,
+            is_2022=True,
+        )
+
+    def test_anonymous_person_cannot_follow(self):
+        self.client.logout()
+        group = SupportGroup.objects.create()
+        res = self.client.post(f"/api/groupes/{group.pk}/suivre/")
+        self.assertEqual(res.status_code, 401)
+
+    # (Temporarily disabled)
+    # def test_person_can_follow_full_group(self):
+    #     self.client.force_login(self.person.role)
+    #     full_group = SupportGroup.objects.create(type=SupportGroup.TYPE_LOCAL_GROUP)
+    #     for i in range(SupportGroup.MEMBERSHIP_LIMIT + 1):
+    #         member = Person.objects.create(email=f"member_{i}@example.com")
+    #         Membership.objects.create(
+    #             supportgroup=full_group,
+    #             person=member,
+    #             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+    #         )
+    #     res = self.client.post(f"/api/groupes/{full_group.pk}/suivre/")
+    #     self.assertEqual(res.status_code, 200)
+
+    def test_no_content_response_if_already_follower(self):
+        person_group = SupportGroup.objects.create()
+        Membership.objects.create(
+            supportgroup=person_group,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+        )
+        self.client.force_login(self.person.role)
+        res = self.client.post(f"/api/groupes/{person_group.pk}/suivre/")
+        self.assertEqual(res.status_code, 204)
+
+    def test_ok_response_if_already_member(self):
+        person_group = SupportGroup.objects.create()
+        membership = Membership.objects.create(
+            supportgroup=person_group,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        self.client.force_login(self.person.role)
+        res = self.client.post(f"/api/groupes/{person_group.pk}/suivre/")
+        self.assertEqual(res.status_code, 200)
+        membership.refresh_from_db()
+        self.assertEqual(
+            membership.membership_type, Membership.MEMBERSHIP_TYPE_FOLLOWER
+        )
+
+    def test_authenticated_person_can_follow_group(self):
+        group = SupportGroup.objects.create()
+        self.client.force_login(self.person.role)
+        res = self.client.post(f"/api/groupes/{group.pk}/suivre/")
+        self.assertEqual(res.status_code, 201)
+
+    def test_membership_is_created_upoin_following(self):
+        group = SupportGroup.objects.create()
+        self.client.force_login(self.person.role)
+        self.assertFalse(
+            Membership.objects.filter(person=self.person, supportgroup=group).exists()
+        )
+        res = self.client.post(f"/api/groupes/{group.pk}/suivre/")
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(
+            Membership.objects.filter(person=self.person, supportgroup=group).exists()
+        )
+
+    @patch("agir.groups.views.api_views.someone_joined_notification")
+    def test_someone_joined_notification_is_sent_upon_joining(
+        self, someone_joined_notification
+    ):
+        group = SupportGroup.objects.create()
+        self.client.force_login(self.person.role)
+        someone_joined_notification.assert_not_called()
+        res = self.client.post(f"/api/groupes/{group.pk}/rejoindre/")
+        self.assertEqual(res.status_code, 201)
+        someone_joined_notification.assert_called()
+
+
+class QuitGroupAPITestCase(APITestCase):
+    def setUp(self):
+        self.member = Person.objects.create(
+            email="member@example.com", create_role=True,
+        )
+        self.first_ref = Person.objects.create(
+            email="referent@example.com", create_role=True,
+        )
+        self.group = SupportGroup.objects.create()
+        self.membership = Membership.objects.create(
+            person=self.member,
+            supportgroup=self.group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        Membership.objects.create(
+            person=self.first_ref,
+            supportgroup=self.group,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+
+    def test_anonymous_person_cannot_quit_group(self):
+        self.client.logout()
+        res = self.client.delete(f"/api/groupes/{self.group.pk}/quitter/")
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_member_cannot_quit_group(self):
+        non_member = Person.objects.create(
+            email="non_member@example.com", create_role=True,
+        )
+        self.client.force_login(non_member.role)
+        res = self.client.delete(f"/api/groupes/{self.group.pk}/quitter/")
+        self.assertEqual(res.status_code, 404)
+
+    def test_last_referent_cannot_quit_group(self):
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group,
+                membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            ).count(),
+            1,
+        )
+        self.client.force_login(self.first_ref.role)
+        res = self.client.delete(f"/api/groupes/{self.group.pk}/quitter/")
+        self.assertEqual(res.status_code, 403)
+        self.assertIn("error_code", res.data)
+        self.assertEqual(res.data["error_code"], "group_last_referent")
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group,
+                membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            ).count(),
+            1,
+        )
+
+    def test_non_last_referent_can_quit_group(self):
+        second_ref = Person.objects.create(
+            email="second_ref@example.com", create_role=True,
+        )
+        Membership.objects.create(
+            person=second_ref,
+            supportgroup=self.group,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group,
+                membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            ).count(),
+            2,
+        )
+        self.client.force_login(second_ref.role)
+        res = self.client.delete(f"/api/groupes/{self.group.pk}/quitter/")
+        self.assertEqual(res.status_code, 204)
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group,
+                membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            ).count(),
+            1,
+        )
+
+    def test_member_can_quit_group(self):
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group, person=self.member,
+            ).count(),
+            1,
+        )
+        self.client.force_login(self.member.role)
+        res = self.client.delete(f"/api/groupes/{self.group.pk}/quitter/")
+        self.assertEqual(res.status_code, 204)
+        self.assertEqual(
+            Membership.objects.filter(
+                supportgroup=self.group, person=self.member,
+            ).count(),
+            0,
+        )
 
 
 class GroupUpdateAPIViewTestCase(APITestCase):

@@ -82,6 +82,20 @@ class GroupInvitationActivityNotificationSerializer(ActivityNotificationSerializ
         )
 
 
+class NewFollowerActivityNotificationSerializer(ActivityNotificationSerializer):
+    title = serializers.ReadOnlyField(default="Nouveau·lle abonné·e à votre groupe ! 😀")
+
+    def get_body(self, activity):
+        return f"{activity.individual.display_name} suit désormais {activity.supportgroup.name}"
+
+    def get_url(self, activity):
+        return activity_notification_url(
+            "view_group_settings_members",
+            activity=activity,
+            kwargs={"pk": activity.supportgroup_id},
+        )
+
+
 class NewMemberActivityNotificationSerializer(ActivityNotificationSerializer):
     title = serializers.ReadOnlyField(default="Nouveau membre dans votre groupe ! 😀")
 
@@ -467,6 +481,7 @@ class ReminderDocsEventNextdayActivityNotificationSerializer(
 
 ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_GROUP_INVITATION: GroupInvitationActivityNotificationSerializer,
+    Activity.TYPE_NEW_FOLLOWER: NewFollowerActivityNotificationSerializer,
     Activity.TYPE_NEW_MEMBER: NewMemberActivityNotificationSerializer,
     Activity.TYPE_WAITING_LOCATION_GROUP: WaitingLocationGroupActivityNotificationSerializer,
     Activity.TYPE_WAITING_LOCATION_EVENT: WaitingLocationEventActivityNotificationSerializer,
