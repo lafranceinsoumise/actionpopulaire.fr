@@ -212,6 +212,26 @@ const ResponsiveContainer = styled.div`
   }
 `;
 
+const SkeletonContainer = styled.div`
+  width: 100%;
+  overflow: hidden;
+  overflow-x: auto;
+
+  > div {
+    width: 1000px;
+    margin-bottom: 6px;
+  }
+`;
+
+const SkeletonItem = styled(ResponsiveContainer)`
+  background-color: ${style.black50};
+  width: 300px;
+  border-radius: 6px;
+  margin-right: 12px;
+  margin-bottom: 12px;
+  display: inline-flex;
+`;
+
 const ListItemActionContainer = styled.div`
   display: flex;
   overflow-x: auto;
@@ -461,6 +481,20 @@ const BannerHelp = () => (
   </BannerHelpContainer>
 );
 
+const Skeleton = () => (
+  <SkeletonContainer>
+    <div>
+      <SkeletonItem />
+      <SkeletonItem />
+    </div>
+    <div>
+      <SkeletonItem />
+      <SkeletonItem />
+      <SkeletonItem />
+    </div>
+  </SkeletonContainer>
+);
+
 export const ItemAction = ({ image, title, href }) => {
   return (
     <StyledLink href={href}>
@@ -628,23 +662,6 @@ const ToolsPage = () => {
 
           <Hide under as={BannerTool} />
 
-          {/* TO ADD LATER :
-        <BlockTitle>
-        <div>
-          <RawFeatherIcon name="shopping-bag" color={style.black1000} />
-          <Title>Commandez du matériel</Title>
-        </div>
-
-        <Hide under as={LinkMaterial} />
-      </BlockTitle>
-
-      <BlockContent></BlockContent>
-
-      <Hide over>
-        <LinkMaterial />
-        <hr />
-      </Hide> */}
-
           <BlockTitle>
             <div>
               <RawFeatherIcon name="book-open" color={style.black1000} />
@@ -655,6 +672,8 @@ const ToolsPage = () => {
           </BlockTitle>
 
           <BlockContent>
+            {!categories?.length && <Skeleton />}
+
             {categories.map((category) => (
               <React.Fragment key={category.id}>
                 <Subtitle>{category.name}</Subtitle>
