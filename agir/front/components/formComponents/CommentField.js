@@ -258,11 +258,12 @@ const CommentField = (props) => {
 
   const handleFocus = () => {
     setIsFocused(true);
-    autoScroll &&
+    if (autoScroll) {
       updateScroll(
         rootElementRef.current,
         !isDesktop ? messageRef.current : null
       );
+    }
   };
 
   const blurOnClickOutside = useCallback(
@@ -270,11 +271,12 @@ const CommentField = (props) => {
       if (!fieldWrapperRef.current?.contains(event.target)) {
         setIsFocused(false);
       }
-      autoScroll &&
+      if (autoScroll) {
         updateScroll(
           rootElementRef.current,
           !isDesktop ? messageRef.current : null
         );
+      }
     },
     [isDesktop, autoScroll]
   );
@@ -286,11 +288,12 @@ const CommentField = (props) => {
     ) {
       setIsFocused(false);
     }
-    autoScroll &&
+    if (autoScroll) {
       updateScroll(
         rootElementRef.current,
         !isDesktop ? messageRef.current : null
       );
+    }
   }, [isDesktop, autoScroll]);
 
   useEffect(() => {
@@ -330,9 +333,8 @@ const CommentField = (props) => {
 
   const handleEmojiOpen = useCallback(() => {
     if (
-      textFieldRef.current &&
-      typeof textFieldRef.current.selectionStart === "number" &&
-      typeof textFieldRef.current.selectionEnd === "number"
+      typeof textFieldRef.current?.selectionStart === "number" &&
+      typeof textFieldRef.current?.selectionEnd === "number"
     ) {
       textFieldCursorPosition.current = [
         textFieldRef.current.selectionStart,
@@ -371,11 +373,12 @@ const CommentField = (props) => {
   );
 
   useEffect(() => {
-    autoScroll &&
+    if (autoScroll) {
       updateScroll(
         rootElementRef.current,
         !isDesktop ? messageRef.current : null
       );
+    }
   }, [autoScroll, isDesktop, isExpanded, value]);
 
   return (
