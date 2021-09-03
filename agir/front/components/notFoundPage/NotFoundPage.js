@@ -82,7 +82,9 @@ export const NotFoundPage = ({
   if (isOffline === null) return null;
 
   if (!isOffline) {
-    logger.error(`React 404 on page ${window.location.pathname}`);
+    logger.error(
+      `React shows a 'Not found page' : ${window.location.pathname}`
+    );
   }
 
   return (
