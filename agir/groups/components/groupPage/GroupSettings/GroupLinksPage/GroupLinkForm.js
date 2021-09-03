@@ -8,7 +8,7 @@ import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponen
 import TextField from "@agir/front/formComponents/TextField";
 
 const GroupLinkForm = (props) => {
-  const { onBack, onSubmit, selectedLink, errors, isLoading } = props;
+  const { onBack, onSubmit, onDelete, selectedLink, errors, isLoading } = props;
   const [linkData, setLinkData] = useState({});
 
   useEffect(() => {
@@ -32,6 +32,12 @@ const GroupLinkForm = (props) => {
     e.preventDefault();
     onSubmit(linkData);
   };
+
+  const handleDelete = selectedLink.id
+    ? () => {
+        onDelete(selectedLink.id);
+      }
+    : undefined;
 
   return (
     <>
@@ -67,13 +73,34 @@ const GroupLinkForm = (props) => {
           required
         />
         <Spacer size="1rem" />
-        <Button
-          type="submit"
-          disabled={isLoading || !linkData.label || !linkData.url}
-          color="secondary"
+        <footer
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "1rem",
+          }}
         >
-          {isNew ? "Ajouter ce lien" : "Enregistrer"}
-        </Button>
+          <Button
+            type="submit"
+            disabled={isLoading || !linkData.label || !linkData.url}
+            color="secondary"
+            style={{ flex: "0 0 auto" }}
+          >
+            {isNew ? "Ajouter ce lien" : "Enregistrer"}
+          </Button>
+          {handleDelete && (
+            <Button
+              onClick={handleDelete}
+              type="button"
+              disabled={isLoading}
+              color="danger"
+              style={{ flex: "0 0 auto" }}
+            >
+              Supprimer le lien
+            </Button>
+          )}
+        </footer>
       </form>
     </>
   );
@@ -81,6 +108,7 @@ const GroupLinkForm = (props) => {
 GroupLinkForm.propTypes = {
   onBack: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func,
   selectedLink: PropTypes.shape({
     id: PropTypes.number,
     label: PropTypes.string,

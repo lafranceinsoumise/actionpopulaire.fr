@@ -31,6 +31,9 @@ export const ENDPOINT = {
   getFinance: "/api/groupes/:groupPk/finance/",
 
   report: "/api/report/",
+
+  createGroupExternalLink: "/api/groupes/:groupPk/link/",
+  groupExternalLink: "/api/groupes/:groupPk/link/:linkPk/",
 };
 
 export const getGroupPageEndpoint = (key, params) => {
@@ -324,4 +327,71 @@ export const getFinance = async (groupPk) => {
   return result;
 };
 
-export const saveGroupLink = console.log;
+export const createGroupLink = async (groupPk, body) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+
+  const url = getGroupPageEndpoint("createGroupExternalLink", { groupPk });
+
+  try {
+    const response = await axios.post(url, body);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const updateGroupLink = async (groupPk, linkPk, body) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+
+  const url = getGroupPageEndpoint("groupExternalLink", {
+    groupPk,
+    linkPk,
+  });
+
+  try {
+    const response = await axios.put(url, body);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const saveGroupLink = (groupPk, link) => {
+  const body = {
+    url: encodeURI(
+      link.url.includes("http") ? link.url.trim() : `https://${link.url.trim()}`
+    ),
+    label: link.label,
+  };
+  return link.id
+    ? updateGroupLink(groupPk, link.id, body)
+    : createGroupLink(groupPk, body);
+};
+
+export const deleteGroupLink = async (groupPk, linkPk) => {
+  const result = {
+    success: false,
+    error: null,
+  };
+
+  const url = getGroupPageEndpoint("groupExternalLink", { groupPk, linkPk });
+
+  try {
+    await axios.delete(url);
+    result.success = true;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};

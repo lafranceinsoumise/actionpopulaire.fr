@@ -17,6 +17,7 @@ import { useGroup } from "@agir/groups/groupPage/hooks/group";
 import {
   getGroupPageEndpoint,
   saveGroupLink,
+  deleteGroupLink,
 } from "@agir/groups/groupPage/api";
 import { useToast } from "@agir/front/globalContext/hooks";
 
@@ -67,6 +68,28 @@ const GroupLinksPage = (props) => {
     [sendToast, groupPk]
   );
 
+  const deleteLink = useCallback(
+    async (linkPk) => {
+      setIsLoading(true);
+      const res = await deleteGroupLink(groupPk, linkPk);
+      setIsLoading(false);
+
+      if (res.error) {
+        sendToast(
+          "Le lien n'a pas pu être supprimé. Veuillez ressayer.",
+          "ERROR",
+          { autoClose: true }
+        );
+        return;
+      }
+
+      sendToast("Le lien a été supprimé", "SUCCESS", { autoClose: true });
+      setSelectedLink(null);
+      mutate(getGroupPageEndpoint("getGroup", { groupPk }));
+    },
+    [sendToast, groupPk]
+  );
+
   const handleBack = useCallback(() => {
     setSelectedLink(null);
     setErrors({});
@@ -89,6 +112,7 @@ const GroupLinksPage = (props) => {
               <GroupLinkForm
                 onBack={handleBack}
                 onSubmit={saveLink}
+                onDelete={deleteLink}
                 selectedLink={selectedLink}
                 errors={errors}
                 isLoading={isLoading}

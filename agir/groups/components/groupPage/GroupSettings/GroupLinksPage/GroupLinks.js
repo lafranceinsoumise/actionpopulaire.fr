@@ -2,12 +2,14 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Button from "@agir/front/genericComponents/Button";
+import LinkIcon from "@agir/front/genericComponents/LinkIcon";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 const GroupLink = styled.button`
   display: flex;
+  align-items: center;
   width: 100%;
   padding: 1rem 0;
   cursor: pointer;
@@ -32,6 +34,9 @@ const GroupLink = styled.button`
     flex: 1 1 auto;
     padding: 0 0.5rem;
     text-align: left;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 `;
 
@@ -61,7 +66,7 @@ const GroupLinks = (props) => {
     <>
       {links.map((link) => (
         <GroupLink key={link.id} onClick={() => onEdit(link)}>
-          <RawFeatherIcon name="globe" width="1rem" height="1rem" />
+          <LinkIcon url={link.url} />
           <strong>{link.label}</strong>
           <RawFeatherIcon name="edit-2" width="1rem" height="1rem" />
         </GroupLink>
