@@ -28,7 +28,7 @@ class EventCheckPaymentMode(AbstractCheckPaymentMode):
     order = "AFLFI"
     address = [
         "La France insoumise - Service Événement",
-        "43 rue de Dunkerque",
+        "25 passage Dubail",
         "75010 Paris",
     ]
     additional_information = (

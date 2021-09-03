@@ -29,6 +29,7 @@ from django.views.generic import (
     DetailView,
 )
 from django.views.generic.detail import SingleObjectMixin
+from rest_framework import status
 
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
@@ -433,7 +434,7 @@ class UploadEventImageView(
         try:
             self.event = Event.objects.get(pk=pk)
         except Event.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return HttpResponse(status=status.HTTP_404_NOT_FOUND)
 
         return super().dispatch(request, *args, **kwargs)
 

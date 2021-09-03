@@ -7,6 +7,7 @@ import reversion
 from data_france.models import CollectiviteDepartementale, CollectiviteRegionale
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.postgres.fields import ArrayField, DateRangeField
+from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.db import models
 from django.urls import reverse
@@ -22,7 +23,7 @@ from agir.lib.history import HistoryMixin
 __all__ = ["MandatMunicipal", "MandatDepartemental", "MandatRegional", "StatutMandat"]
 
 from agir.lib.models import TimeStampedModel
-
+from agir.lib.search import PrefixSearchQuery
 
 DELEGATIONS_CHOICES = (
     ("social", "Action sociale"),
@@ -772,6 +773,9 @@ class RechercheParrainageQueryset(models.QuerySet):
     def bloquant(self):
         return self.exclude(statut=RechercheParrainage.Statut.ANNULEE)
 
+    def rechercher(self, query):
+        return self.filter(search=PrefixSearchQuery(query, config="data_france_search"))
+
 
 CHAMPS_ELUS_PARRAINAGES = [
     "maire",
@@ -856,6 +860,8 @@ class RechercheParrainage(TimeStampedModel):
         blank=True,
     )
 
+    search = SearchVectorField(verbose_name="Champ de recherche", null=True)
+
     def validate_unique(self, exclude=None):
         try:
             super(RechercheParrainage, self).validate_unique(exclude=exclude)
@@ -907,6 +913,17 @@ class RechercheParrainage(TimeStampedModel):
             **{f"{field}__elu": obj.id}
         )
 
+    def save(self, **kwargs):
+        if "update_fields" not in kwargs or any(
+            f in kwargs["update_fields"] for f in CHAMPS_ELUS_PARRAINAGES
+        ):
+            type = self.type_elu
+            if type:
+                self.search = getattr(self, type).search
+            else:
+                self.search = None
+        super().save(**kwargs)
+
     class Meta:
         verbose_name = "Parrainages pour la présidentielle"
         verbose_name_plural = "Parrainages pour la présidentielle"
@@ -943,8 +960,17 @@ class RechercheParrainage(TimeStampedModel):
         ]
 
 
+class AccesApplicationParrainagesQueryset(models.QuerySet):
+    def search(self, query):
+        return self.filter(
+            person__search=PrefixSearchQuery(query, config="simple_unaccented")
+        )
+
+
 @reversion.register()
 class AccesApplicationParrainages(models.Model):
+    objects = AccesApplicationParrainagesQueryset.as_manager()
+
     class Etat(models.TextChoices):
         EN_ATTENTE = "A", "En attente"
         VALIDE = "V", "Validée"
@@ -969,3 +995,6 @@ class AccesApplicationParrainages(models.Model):
             verbose_name_plural
         ) = "Accès à l'application de recherches de parrainages"
         ordering = ("etat", "person")
+
+    def __str__(self):
+        return f"Accès {self.get_etat_display().lower()} pour {self.person}"
