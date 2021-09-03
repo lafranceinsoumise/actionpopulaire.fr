@@ -3,7 +3,7 @@ from functools import partial
 from django.db import transaction
 
 from agir.activity.models import Activity
-from agir.groups.models import SupportGroup
+from agir.groups.models import SupportGroup, Membership
 from agir.groups.tasks import (
     GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS,
     send_joined_notification_email,
@@ -16,11 +16,15 @@ from agir.groups.tasks import (
 @transaction.atomic()
 def someone_joined_notification(membership, membership_count=1):
     recipients = membership.supportgroup.managers
-
+    activity_type = (
+        Activity.TYPE_NEW_MEMBER
+        if membership.is_active_member
+        else Activity.TYPE_NEW_FOLLOWER
+    )
     Activity.objects.bulk_create(
         [
             Activity(
-                type=Activity.TYPE_NEW_MEMBER,
+                type=activity_type,
                 recipient=r,
                 supportgroup=membership.supportgroup,
                 individual=membership.person,
@@ -30,6 +34,9 @@ def someone_joined_notification(membership, membership_count=1):
         ],
         send_post_save_signal=True,
     )
+
+    if not membership.is_active_member:
+        return
 
     membership_limit_notication_steps = [
         membership.supportgroup.MEMBERSHIP_LIMIT + step
@@ -124,3 +131,12 @@ def new_comment_notifications(comment):
     )
 
     send_comment_notification_email.delay(comment.pk)
+
+
+@transaction.atomic()
+def member_to_follower_notification(membership):
+    Activity.objects.create(
+        type=Activity.TYPE_MEMBER_STATUS_CHANGED,
+        recipient=membership.person,
+        supportgroup=membership.supportgroup,
+    )

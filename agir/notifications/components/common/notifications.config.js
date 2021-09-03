@@ -108,7 +108,11 @@ const PERSON_NOTIFICATIONS = [
     label: "Tâches à effectuer ",
     hasEmail: false,
     hasPush: true,
-    activityTypes: ["waiting-location-event"],
+    activityTypes: [
+      "waiting-location-event",
+      "reminder-docs-event-eve",
+      "reminder-docs-event-nextday",
+    ],
   },
   {
     id: "event_organizer_updates",
@@ -188,6 +192,7 @@ const GROUP_NOTIFICATIONS = [
     hasPush: true,
     isActive: (group) => group.isManager,
     activityTypes: [
+      "new-follower",
       "new-member",
       "accepted-invitation-member",
       "group-membership-limit-reminder",

@@ -66,13 +66,21 @@ class DonationTestMixin:
             name="Groupe", type=SupportGroup.TYPE_LOCAL_GROUP
         )
         self.group.subtypes.set([certified_subtype])
-        Membership.objects.create(supportgroup=self.group, person=self.p1)
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.p1,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
 
         self.other_group = SupportGroup.objects.create(
             name="Autre groupe", type=SupportGroup.TYPE_LOCAL_GROUP
         )
         self.other_group.subtypes.set([certified_subtype])
-        Membership.objects.create(supportgroup=self.other_group, person=self.p1)
+        Membership.objects.create(
+            supportgroup=self.other_group,
+            person=self.p1,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
 
 
 class DonationTestCase(DonationTestMixin, TestCase):

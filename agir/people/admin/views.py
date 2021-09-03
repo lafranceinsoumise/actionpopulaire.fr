@@ -23,7 +23,7 @@ class FormSubmissionViewsMixin:
     person_form_display = default_person_form_display
 
     def get_submission_queryset(self, form):
-        return form.submissions.all()
+        return form.submissions.all().select_related("person")
 
     def generate_result_table(self, form, html=True, fieldsets_titles=True):
         submissions = self.get_submission_queryset(form)

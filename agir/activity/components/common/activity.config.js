@@ -102,6 +102,9 @@ const ACTIVITY_CONFIG = {
           }
         : null,
   },
+  "new-follower": {
+    icon: "rss",
+  },
   "new-member": {
     icon: "user-plus",
     action: ({ supportGroup }) =>
@@ -112,6 +115,18 @@ const ACTIVITY_CONFIG = {
               activePanel: "membres",
             }),
             label: "Voir les membres",
+          }
+        : null,
+  },
+  "member-status-changed": {
+    icon: "info",
+    action: ({ supportGroup }) =>
+      supportGroup?.id
+        ? {
+            to: routeConfig.groupDetails.getLink({
+              groupPk: supportGroup.id,
+            }),
+            label: "Voir le groupe",
           }
         : null,
   },

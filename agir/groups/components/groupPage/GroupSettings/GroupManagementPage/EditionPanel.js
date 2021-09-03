@@ -13,7 +13,7 @@ import Toast from "@agir/front/genericComponents/Toast";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
-const [REFERENT, MANAGER, MEMBER] = [100, 50, 10];
+import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
 const StyledList = styled.div`
   display: flex;
@@ -44,9 +44,11 @@ const EditionPanel = (props) => {
     () =>
       members && selectedMembershipType
         ? members.filter((m) =>
-            selectedMembershipType === REFERENT
-              ? m.membershipType !== REFERENT
-              : m.membershipType === MEMBER
+            selectedMembershipType === MEMBERSHIP_TYPES.REFERENT
+              ? [MEMBERSHIP_TYPES.MEMBER, MEMBERSHIP_TYPES.MANAGER].includes(
+                  m.membershipType
+                )
+              : m.membershipType === MEMBERSHIP_TYPES.MEMBER
           )
         : [],
     [members, selectedMembershipType]
@@ -56,7 +58,7 @@ const EditionPanel = (props) => {
     <>
       <BackButton onClick={onBack} />
       <StyledTitle>
-        {selectedMembershipType === REFERENT
+        {selectedMembershipType === MEMBERSHIP_TYPES.REFERENT
           ? "Ajouter un binôme animateur"
           : "Ajouter un·e gestionnaire"}
       </StyledTitle>
@@ -92,7 +94,7 @@ const EditionPanel = (props) => {
           <div>
             Ce membre pourra :
             <Spacer size="0.5rem" />
-            {selectedMembershipType === REFERENT && (
+            {selectedMembershipType === MEMBERSHIP_TYPES.REFERENT && (
               <StyledList>
                 <div />
                 Modifier les permissions des gestionnaires
@@ -130,7 +132,12 @@ EditionPanel.propTypes = {
   selectMember: PropTypes.func,
   onSubmit: PropTypes.func,
   selectedMember: PropTypes.object,
-  selectedMembershipType: PropTypes.oneOf([REFERENT, MANAGER, MEMBER]),
+  selectedMembershipType: PropTypes.oneOf([
+    MEMBERSHIP_TYPES.REFERENT,
+    MEMBERSHIP_TYPES.MANAGER,
+    MEMBERSHIP_TYPES.MEMBER,
+    MEMBERSHIP_TYPES.FOLLOWER,
+  ]),
   errors: PropTypes.object,
   isLoading: PropTypes.bool,
 };

@@ -39,12 +39,16 @@ class Activity(TimeStampedModel):
     TYPE_WAITING_LOCATION_GROUP = "waiting-location-group"
     TYPE_EVENT_SUGGESTION = "event-suggestion"
     TYPE_ANNOUNCEMENT = "announcement"
+    TYPE_REMINDER_DOCS_EVENT_EVE = "reminder-docs-event-eve"
+    TYPE_REMINDER_DOCS_EVENT_NEXTDAY = "reminder-docs-event-nextday"
 
     # GROUP TYPES
     TYPE_NEW_REPORT = "new-report"
     TYPE_NEW_EVENT_MYGROUPS = "new-event-mygroups"
     TYPE_GROUP_INVITATION = "group-invitation"
+    TYPE_NEW_FOLLOWER = "new-follower"
     TYPE_NEW_MEMBER = "new-member"
+    TYPE_MEMBER_STATUS_CHANGED = "member-status-changed"
     TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER = "group-membership-limit-reminder"
     TYPE_GROUP_INFO_UPDATE = "group-info-update"
     TYPE_NEW_MESSAGE = "new-message"
@@ -62,7 +66,9 @@ class Activity(TimeStampedModel):
 
     DISPLAYED_TYPES = (
         TYPE_GROUP_INVITATION,
+        TYPE_NEW_FOLLOWER,
         TYPE_NEW_MEMBER,
+        TYPE_MEMBER_STATUS_CHANGED,
         TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
         TYPE_GROUP_INFO_UPDATE,
         TYPE_NEW_ATTENDEE,
@@ -97,7 +103,12 @@ class Activity(TimeStampedModel):
     TYPE_CHOICES = (
         (TYPE_WAITING_PAYMENT, "Paiement en attente"),
         (TYPE_GROUP_INVITATION, "Invitation à un groupe"),
+        (TYPE_NEW_FOLLOWER, "Nouveau·lle abonné·e dans le groupe"),
         (TYPE_NEW_MEMBER, "Nouveau membre dans le groupe"),
+        (
+            TYPE_MEMBER_STATUS_CHANGED,
+            "Un membre actif du groupe a été passé au statut abonné·e",
+        ),
         (
             TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
             "Les membres du groupes sont de plus en plus nombreux",
@@ -130,6 +141,14 @@ class Activity(TimeStampedModel):
         ),
         (TYPE_GROUP_CREATION_CONFIRMATION, "Groupe créé"),
         (TYPE_EVENT_SUGGESTION, "Événement suggéré"),
+        (
+            TYPE_REMINDER_DOCS_EVENT_EVE,
+            "Rappel à la veille d'un événement des documents à envoyer",
+        ),
+        (
+            TYPE_REMINDER_DOCS_EVENT_NEXTDAY,
+            "Rappel au lendemain d'un événement des documents à envoyer",
+        ),
     )
 
     STATUS_UNDISPLAYED = "U"

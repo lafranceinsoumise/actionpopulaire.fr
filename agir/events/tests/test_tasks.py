@@ -83,13 +83,19 @@ class EventTasksTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
         Membership.objects.create(
-            supportgroup=self.organizer_group, person=self.attendee1,
+            supportgroup=self.organizer_group,
+            person=self.attendee1,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
         Membership.objects.create(
-            supportgroup=self.organizer_group, person=self.attendee2,
+            supportgroup=self.organizer_group,
+            person=self.attendee2,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
         Membership.objects.create(
-            supportgroup=self.organizer_group, person=self.attendee_no_notification,
+            supportgroup=self.organizer_group,
+            person=self.attendee_no_notification,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
         self.organizer_config = OrganizerConfig.objects.create(

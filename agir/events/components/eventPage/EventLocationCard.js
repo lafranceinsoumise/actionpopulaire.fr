@@ -15,9 +15,8 @@ import Map from "@agir/carte/common/Map";
 
 import { dateFromISOString, displayInterval } from "@agir/lib/utils/time";
 
-import googleLogo from "./assets/Google.svg";
-import outlookLogo from "./assets/Outlook.svg";
 import ClickableMap from "@agir/carte/common/Map/ClickableMap";
+import AddToCalendarWidget from "./AddToCalendarWidget";
 
 const LocationName = styled.span`
   color: ${style.black1000};
@@ -53,35 +52,20 @@ const StyledCard = styled(Card)`
     flex-flow: column-reverse;
   }
   margin-bottom: 24px;
-  overflow: hidden;
   border-bottom: 1px solid ${style.black50};
 `;
 
-const CalendarButtonHolder = styled.ul`
-  margin: 0;
-  padding: 0;
-
-  li {
-    display: inline;
-    list-style: none;
-  }
-
-  * + * {
-    margin-left: 1rem;
-    border-left: 1px ${style.black100} solid;
-    padding-left: 1rem;
-  }
-`;
-
-const EventLocationCard = ({
-  schedule,
-  location,
-  routes,
-  subtype,
-  isStatic,
-  hideMap,
-  timezone,
-}) => {
+const EventLocationCard = (props) => {
+  const {
+    name,
+    schedule,
+    location,
+    routes,
+    subtype,
+    isStatic,
+    hideMap,
+    timezone,
+  } = props;
   const { interval, localInterval } = useMemo(() => {
     let interval = displayInterval(schedule);
     interval = interval.charAt(0).toUpperCase() + interval.slice(1);
@@ -163,32 +147,8 @@ const EventLocationCard = ({
           )}
         </IconList>
         <Row style={{ marginTop: "0.5rem" }}>
-          <Column grow width={["content", "content"]}>
-            <a href={routes.calendarExport}>Ajouter à mon agenda</a>
-          </Column>
-          <Column width={["content", "content"]}>
-            <CalendarButtonHolder>
-              <li>
-                <a href={routes.googleExport}>
-                  <img
-                    src={googleLogo}
-                    width="16"
-                    height="16"
-                    alt="logo Google"
-                  />
-                </a>
-              </li>
-              <li>
-                <a href={routes.calendarExport}>
-                  <img
-                    src={outlookLogo}
-                    width="16"
-                    height="16"
-                    alt="logo Outlook"
-                  />
-                </a>
-              </li>
-            </CalendarButtonHolder>
+          <Column grow>
+            <AddToCalendarWidget routes={routes} name={name} />
           </Column>
         </Row>
       </div>
@@ -196,6 +156,7 @@ const EventLocationCard = ({
   );
 };
 EventLocationCard.propTypes = {
+  name: PropTypes.string,
   timezone: PropTypes.string,
   schedule: PropTypes.instanceOf(Interval),
   location: PropTypes.shape({

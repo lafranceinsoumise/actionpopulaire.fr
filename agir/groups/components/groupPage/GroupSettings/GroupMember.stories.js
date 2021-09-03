@@ -7,9 +7,6 @@ import GroupMember from "./GroupMember.js";
 export default {
   component: GroupMember,
   title: "GroupSettings/GroupMember",
-  parameters: {
-    layout: "centered",
-  },
   argTypes: {
     gender: {
       control: {
@@ -31,16 +28,20 @@ Member.args = {
   image: "https://www.fillmurray.com/200/200",
 };
 
+export const Follower = Template.bind({});
+Follower.args = {
+  ...Member.args,
+  membershipType: 5,
+};
+
 export const Manager = Template.bind({});
 Manager.args = {
   ...Member.args,
   membershipType: 50,
-  image: "https://www.fillmurray.com/200/200",
 };
 
 export const Referent = Template.bind({});
 Referent.args = {
   ...Member.args,
   membershipType: 100,
-  image: "https://www.fillmurray.com/200/200",
 };

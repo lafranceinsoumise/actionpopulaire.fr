@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.utils.translation import ugettext_lazy as _
 
-from agir.groups.models import SupportGroupSubtype, SupportGroup
+from agir.groups.models import SupportGroupSubtype, SupportGroup, Membership
 from agir.lib.form_fields import AdminRichEditorWidget
 from agir.lib.forms import CoordinatesFormMixin
 from agir.people.models import Person
@@ -37,6 +37,17 @@ class AddMemberForm(forms.Form):
     person = forms.ModelChoiceField(
         Person.objects.all(), required=True, label=_("Personne à ajouter")
     )
+    membership_type = forms.ChoiceField(
+        choices=(
+            choice
+            for choice in Membership.MEMBERSHIP_TYPE_CHOICES
+            if choice[0] <= Membership.MEMBERSHIP_TYPE_MEMBER
+        ),
+        initial=Membership.MEMBERSHIP_TYPE_MEMBER,
+        widget=forms.RadioSelect,
+        required=True,
+        label="Statut",
+    )
 
     def __init__(self, group, model_admin, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -58,5 +69,7 @@ class AddMemberForm(forms.Form):
 
     def save(self):
         return models.Membership.objects.create(
-            person=self.cleaned_data["person"], supportgroup=self.group
+            person=self.cleaned_data["person"],
+            supportgroup=self.group,
+            membership_type=self.cleaned_data["membership_type"],
         )

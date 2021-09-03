@@ -214,7 +214,7 @@ const TellMore = ({ dismiss }) => {
             <h2>Complétez les informations vous concernant</h2>
             <TextField
               label="Nom public"
-              helpText="Le nom que pourrons voir les membres avec qui vous interagissez.
+              helpText="Le nom que pourront voir les membres avec qui vous interagissez.
               Indiquez par exemple votre prénom ou un pseudonyme."
               error={error && error.displayName}
               name="displayName"

@@ -25,22 +25,37 @@ class MembershipTestCase(APITestCase):
         self.privileged_user = Person.objects.create_superperson("super@user.fr", None)
 
     def test_can_create_membership(self):
-        Membership.objects.create(supportgroup=self.supportgroup, person=self.person)
+        Membership.objects.create(
+            supportgroup=self.supportgroup,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
 
     def test_cannot_create_without_person(self):
         with self.assertRaises(IntegrityError):
-            Membership.objects.create(supportgroup=self.supportgroup)
+            Membership.objects.create(
+                supportgroup=self.supportgroup,
+                membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+            )
 
     def test_cannot_create_without_supportgroup(self):
         with self.assertRaises(IntegrityError):
-            Membership.objects.create(person=self.person)
+            Membership.objects.create(
+                person=self.person, membership_type=Membership.MEMBERSHIP_TYPE_MEMBER
+            )
 
     def test_unique_membership_for_person_and_group(self):
-        Membership.objects.create(person=self.person, supportgroup=self.supportgroup)
+        Membership.objects.create(
+            person=self.person,
+            supportgroup=self.supportgroup,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
 
         with self.assertRaises(IntegrityError):
             Membership.objects.create(
-                person=self.person, supportgroup=self.supportgroup
+                person=self.person,
+                supportgroup=self.supportgroup,
+                membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
             )
 
 
@@ -58,7 +73,9 @@ class MessageTestCase(TestCase):
             email="member@example.com", create_role=True,
         )
         Membership.objects.create(
-            supportgroup=self.group, person=self.member,
+            supportgroup=self.group,
+            person=self.member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
     def test_can_create_message(self):

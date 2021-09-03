@@ -60,14 +60,14 @@ const GroupCards = styled.div`
 `;
 const CardLikeSection = styled.section``;
 const StyledColumn = styled(Column)`
+  a,
+  strong {
+    font-weight: 600;
+  }
+
   & > ${Card}, & > ${CardLikeSection} {
     font-size: 14px;
     font-weight: 400;
-
-    & a,
-    & strong {
-      font-weight: 600;
-    }
 
     @media (max-width: ${style.collapse}px) {
       padding: 1.375rem;
@@ -158,7 +158,8 @@ const StyledMap = styled.div`
 `;
 
 const MobileLayout = (props) => {
-  const { contact, routes, groups, illustration, location, subtype } = props;
+  const { name, contact, routes, groups, illustration, location, subtype } =
+    props;
   const hasMap =
     location?.coordinates && Array.isArray(location?.coordinates?.coordinates);
   const activePathname = `/evenements/${props.id}/`;
@@ -201,6 +202,7 @@ const MobileLayout = (props) => {
               <EventHeader {...props} />
             </Card>
             <EventLocationCard
+              name={name}
               timezone={props.timezone}
               schedule={props.schedule}
               location={location}

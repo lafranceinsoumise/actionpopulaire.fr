@@ -17,6 +17,8 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         Activity.TYPE_WAITING_PAYMENT,
         # EVENT
         Activity.TYPE_CANCELLED_EVENT,
+        Activity.TYPE_REMINDER_DOCS_EVENT_EVE,
+        Activity.TYPE_REMINDER_DOCS_EVENT_NEXTDAY,
         # GROUP
         Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
         Activity.TYPE_GROUP_INVITATION,
@@ -44,6 +46,8 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         Activity.TYPE_EVENT_UPDATE,
         Activity.TYPE_NEW_ATTENDEE,
         Activity.TYPE_WAITING_LOCATION_EVENT,
+        Activity.TYPE_REMINDER_DOCS_EVENT_EVE,
+        Activity.TYPE_REMINDER_DOCS_EVENT_NEXTDAY,
     ]
 
     # DEFAULT GROUP TYPES
@@ -69,6 +73,7 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         Activity.TYPE_NEW_MESSAGE,
         Activity.TYPE_NEW_COMMENT,
         Activity.TYPE_NEW_REPORT,
+        Activity.TYPE_NEW_FOLLOWER,
         Activity.TYPE_NEW_MEMBER,
         Activity.TYPE_ACCEPTED_INVITATION_MEMBER,
         Activity.TYPE_NEW_MEMBERS_THROUGH_TRANSFER,

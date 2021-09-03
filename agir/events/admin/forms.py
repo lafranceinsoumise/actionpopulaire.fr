@@ -82,20 +82,20 @@ class CalendarField(forms.Field):
     def get_queryset(self):
         return models.Calendar.objects.raw(
             """
-                        WITH RECURSIVE calendars AS (
-                            SELECT id, name, 0 AS depth, slug::text AS path
-                            FROM events_calendar
-                            WHERE parent_id IS NULL
-                          UNION ALL 
-                            SELECT c.id, c.name, p.depth + 1 AS depth, CONCAT(p.path, ':', c.slug) AS path
-                            FROM events_calendar AS c
-                            JOIN calendars AS p
-                            ON parent_id = p.id
-                        )
-                        SELECT id, name, depth
-                        FROM calendars
-                        ORDER BY path;
-                    """
+            WITH RECURSIVE calendars AS (
+                SELECT id, name, 0 AS depth, slug::text AS path
+                FROM events_calendar
+                WHERE parent_id IS NULL
+              UNION ALL
+                SELECT c.id, c.name, p.depth + 1 AS depth, CONCAT(p.path, ':', c.slug) AS path
+                FROM events_calendar AS c
+                JOIN calendars AS p
+                ON parent_id = p.id
+            )
+            SELECT id, name, depth
+            FROM calendars
+            ORDER BY path;
+            """
         )
 
     def label_from_instance(self, obj):
@@ -228,7 +228,7 @@ class NewParticipantForm(BasePersonForm):
     )
 
     new_person_email = forms.EmailField(
-        label="Email de la nouvelle personne", required=False
+        label="ou si non-inscrit, email d'inscription", required=False
     )
 
     insoumise = forms.BooleanField(
@@ -307,7 +307,25 @@ class NewParticipantForm(BasePersonForm):
                 if f not in self.cleaned_data:
                     self.data[f] = getattr(self.cleaned_data["existing_person"], f)
 
+        if self.cleaned_data.get("payment_mode", None) not in (
+            PAYMENT_MODES["tpe"],
+            PAYMENT_MODES["money"],
+            None,
+        ):
+            print(self.cleaned_data.get("payment_mode"))
+            for f in BILLING_FIELDS:
+                if f != "location_address2" and not self.cleaned_data.get(f):
+                    self.add_error(
+                        f, ValidationError("Champ requis pour ce mode de paiement.")
+                    )
+
         return self.cleaned_data
+
+    @property
+    def submission_data(self):
+        data = BasePersonForm.submission_data.fget(self)
+        data["admin"] = True
+        return data
 
     def save(self, commit=True):
         cleaned_data = self.cleaned_data
