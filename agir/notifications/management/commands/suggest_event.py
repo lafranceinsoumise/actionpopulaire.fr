@@ -63,7 +63,8 @@ class Command(BaseCommand):
 
             if near_event is not None:
                 new_event_suggestion_notification(near_event, person)
-                send_event_suggestion_email.delay(near_event.pk, person.pk)
+                # Avoid sending event suggestions via email until stricter rules are defined
+                # send_event_suggestion_email.delay(near_event.pk, person.pk)
 
             pbar.update()
         pbar.close()
