@@ -60,15 +60,14 @@ const Form = styled.div`
   width: 100%;
   max-width: 600px;
   justify-content: center;
+  align-items: end;
 
   @media (max-width: ${style.collapse}px) {
     grid-template-columns: 100%;
   }
 
-  & > div {
-    @media (min-width: ${style.collapse}px) {
-      margin-top: 1.5rem;
-    }
+  & > ${Button} {
+    margin-bottom: 4px;
   }
 `;
 

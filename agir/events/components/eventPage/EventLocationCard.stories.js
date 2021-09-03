@@ -10,7 +10,7 @@ import {
 
 export default {
   component: EventLocationCard,
-  title: "Events/EventLocation",
+  title: "Events/EventPage/EventLocation",
   argTypes: {
     startTime: {
       type: "string",

@@ -206,15 +206,6 @@ class BaseMandatAdmin(admin.ModelAdmin):
     def get_autocomplete_fields(self, request):
         return super().get_autocomplete_fields(request) + ("person",)
 
-    def get_list_filter(self, request):
-        return (
-            "statut",
-            DatesFilter,
-            "person__is_insoumise",
-            "person__is_2022",
-            AppelEluFilter,
-        ) + super().get_list_filter(request)
-
     def get_search_results(self, request, queryset, search_term):
         use_distinct = False
         if search_term:
@@ -391,6 +382,11 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
     readonly_fields = ("distance",)
 
     list_filter = (
+        "statut",
+        DatesFilter,
+        "person__is_insoumise",
+        "person__is_2022",
+        AppelEluFilter,
         "mandat",
         ConseilFilter,
         DepartementFilter,
@@ -488,6 +484,11 @@ class MandatDepartementAdmin(BaseMandatAdmin):
 
     autocomplete_fields = ("conseil", "reference")
     list_filter = (
+        "statut",
+        DatesFilter,
+        "person__is_insoumise",
+        "person__is_2022",
+        AppelEluFilter,
         "mandat",
         ConseilFilter,
         RegionFilter,
@@ -563,6 +564,11 @@ class MandatRegionalAdmin(BaseMandatAdmin):
     form = MandatRegionalForm
     autocomplete_fields = ("reference",)
     list_filter = (
+        "statut",
+        DatesFilter,
+        "person__is_insoumise",
+        "person__is_2022",
+        AppelEluFilter,
         "mandat",
         RegionFilter,
         ReferenceFilter,
@@ -698,6 +704,11 @@ class MandatDeputeAdmin(BaseMandatAdmin):
         "reference",
     )
     list_filter = (
+        "statut",
+        DatesFilter,
+        "person__is_insoumise",
+        "person__is_2022",
+        AppelEluFilter,
         ReferenceFilter,
         ParrainagesFilter,
     )
@@ -819,7 +830,7 @@ class MandatDeputeEuropeenAdmin(BaseMandatAdmin):
 
 
 @admin.register(RechercheParrainage)
-class RechercherParrainageMaireAdmin(admin.ModelAdmin):
+class RechercheParrainageAdmin(admin.ModelAdmin):
     form = RechercheParrainageForm
 
     autocomplete_fields = (*CHAMPS_ELUS_PARRAINAGES, "person")
@@ -834,7 +845,7 @@ class RechercherParrainageMaireAdmin(admin.ModelAdmin):
     list_filter = ("statut", TypeEluFilter)
     fields = ("person", "statut_display", "commentaires", "formulaire")
 
-    search_fields = ("elu_municipal__search",)
+    search_fields = ("search",)
 
     def get_fieldsets(self, request, obj=None):
         if obj is None:
@@ -859,7 +870,7 @@ class RechercherParrainageMaireAdmin(admin.ModelAdmin):
         if search_term:
             return (
                 queryset.filter(
-                    elu__search=SearchQuery(search_term, config="data_france_search")
+                    search=SearchQuery(search_term, config="data_france_search")
                 ),
                 use_distinct,
             )
@@ -946,6 +957,15 @@ class AccesApplicationParrainagesAdmin(VersionAdmin):
 
     fields = ("person", "etat")
     autocomplete_fields = ("person",)
+    search_fields = ("people__search",)
+
+    def get_search_results(self, request, queryset, search_term):
+        usedistinct = False
+
+        if search_term:
+            return queryset.search(search_term), usedistinct
+
+        return queryset, usedistinct
 
 
 admin.site.unregister(EluMunicipal)

@@ -451,6 +451,34 @@ class EventSuggestionNotificationSerializer(ActivityNotificationSerializer):
         )
 
 
+class ReminderDocsEventPreActivityNotificationSerializer(
+    ActivityNotificationSerializer
+):
+    title = serializers.ReadOnlyField(default="Rappel")
+    body = serializers.ReadOnlyField(
+        default="Votre événement a lieu demain : pensez aux justificatifs"
+    )
+
+    def get_url(self, activity):
+        return activity_notification_url(
+            "event_project", activity=activity, kwargs={"pk": activity.event_id},
+        )
+
+
+class ReminderDocsEventNextdayActivityNotificationSerializer(
+    ActivityNotificationSerializer
+):
+    title = serializers.ReadOnlyField(default="Rappel")
+    body = serializers.ReadOnlyField(
+        default="Envoyez les justificatifs de l'événement d'hier"
+    )
+
+    def get_url(self, activity):
+        return activity_notification_url(
+            "event_project", activity=activity, kwargs={"pk": activity.event_id},
+        )
+
+
 ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_GROUP_INVITATION: GroupInvitationActivityNotificationSerializer,
     Activity.TYPE_NEW_FOLLOWER: NewFollowerActivityNotificationSerializer,
@@ -475,4 +503,6 @@ ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_NEW_MESSAGE: NewMessageActivityNotificationSerializer,
     Activity.TYPE_NEW_COMMENT: NewCommentActivityNotificationSerializer,
     Activity.TYPE_EVENT_SUGGESTION: EventSuggestionNotificationSerializer,
+    Activity.TYPE_REMINDER_DOCS_EVENT_EVE: ReminderDocsEventPreActivityNotificationSerializer,
+    Activity.TYPE_REMINDER_DOCS_EVENT_NEXTDAY: ReminderDocsEventNextdayActivityNotificationSerializer,
 }

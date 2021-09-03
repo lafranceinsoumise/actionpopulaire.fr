@@ -82,7 +82,7 @@ class PaymentManagementAdminMixin:
         if not PAYMENT_MODES[payment.mode].can_admin:
             return format_html(
                 '<a href="{}" target="_blank" class="button">Effectuer le paiement en ligne</a>',
-                front_url("payment_page", args=[payment.pk]),
+                front_url("payment_retry", args=[payment.pk]),
             )
 
         statuses = [

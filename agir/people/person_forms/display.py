@@ -39,7 +39,9 @@ class PersonFormDisplay:
     def _get_form_and_submissions(self, submissions_or_form):
         if isinstance(submissions_or_form, PersonForm):
             form = submissions_or_form
-            submissions = form.submissions.all().order_by("created")
+            submissions = (
+                form.submissions.all().order_by("created").select_related("person")
+            )
         else:
             submissions = submissions_or_form
             form = submissions[0].form

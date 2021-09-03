@@ -223,6 +223,9 @@ class AddParticipantView(SingleObjectMixin, FormView):
         if self.event.is_free:
             for field in self.additional_billing_fields:
                 form.fields.pop(field)
+        else:
+            for field in self.additional_billing_fields:
+                form.fields[field].required = False
 
         return form
 
