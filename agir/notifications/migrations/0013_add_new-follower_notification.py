@@ -33,7 +33,7 @@ def remove_new_follower_subscriptions(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("notifications", "0011_delete_subscription"),
+        ("notifications", "0012_event_doc_reminder_subscription"),
     ]
 
     operations = [
