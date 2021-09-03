@@ -267,8 +267,10 @@ const CommentField = (props) => {
 
   const blurOnClickOutside = useCallback(
     (event) => {
-      if (!fieldWrapperRef.current?.contains(event.target)) setIsFocused(false);
-      if (autoScroll)
+      if (!fieldWrapperRef.current?.contains(event.target)) {
+        setIsFocused(false);
+      }
+      autoScroll &&
         updateScroll(
           rootElementRef.current,
           !isDesktop ? messageRef.current : null
@@ -278,10 +280,13 @@ const CommentField = (props) => {
   );
 
   const blurOnFocusOutside = useCallback(() => {
-    document.activeElement &&
-      !fieldWrapperRef.current?.contains(document.activeElement) &&
+    if (
+      document.activeElement &&
+      !fieldWrapperRef.current?.contains(document.activeElement)
+    ) {
       setIsFocused(false);
-    if (autoScroll)
+    }
+    autoScroll &&
       updateScroll(
         rootElementRef.current,
         !isDesktop ? messageRef.current : null
