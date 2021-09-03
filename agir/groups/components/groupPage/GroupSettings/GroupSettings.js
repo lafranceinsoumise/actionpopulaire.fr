@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
-import { useLocation } from "react-router-dom";
-import { Redirect } from "react-router-dom";
+import { useLocation, Redirect, useRouteMatch } from "react-router-dom";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
@@ -46,9 +45,12 @@ export const GroupSettings = (props) => {
     return null;
   }
 
+  const routeMenuMatch = useRouteMatch(menuRoute.path);
+
   // Open first panel on Desktop
-  if (isDesktop && pathname.substr(-8) === "gestion/")
-    return <Redirect to={"membres/"} />;
+  if (isDesktop && routeMenuMatch?.isExact) {
+    return <Redirect to="membres/" />;
+  }
 
   return (
     <ObjectManagement

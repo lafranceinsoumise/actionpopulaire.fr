@@ -1,8 +1,7 @@
 import PropTypes from "prop-types";
-import { DateTime, Interval } from "luxon";
+import { DateTime } from "luxon";
 import React, { useMemo } from "react";
-import { useLocation } from "react-router-dom";
-import { Redirect } from "react-router-dom";
+import { useLocation, Redirect, useRouteMatch } from "react-router-dom";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
@@ -38,12 +37,15 @@ export const EventSettings = (props) => {
     return null;
   }
 
+  const routeMenuMatch = useRouteMatch(menuRoute.path);
+
   // Open first panel on Desktop
-  if (isDesktop && pathname.substr(-8) === "gestion/")
-    return <Redirect to={"general/"} />;
+  if (isDesktop && routeMenuMatch?.isExact) {
+    return <Redirect to="general/" />;
+  }
 
   const now = DateTime.local();
-  const isFinished = now > event.endTime;
+  const isPast = now > event.endTime;
 
   return (
     <ObjectManagement
@@ -54,7 +56,7 @@ export const EventSettings = (props) => {
       menuLink={menuRoute.getLink()}
       redirectTo={redirectTo}
       cancel={cancelEvent}
-      isFinished={isFinished}
+      isPast={isPast}
     />
   );
 };

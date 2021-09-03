@@ -275,7 +275,8 @@ class EventAdvancedSerializer(EventSerializer):
                 "id": person.id,
                 "email": person.email,
                 "displayName": person.display_name,
-                "memberType": 1,
+                "gender": person.gender,
+                "isOrganizer": True,
             }
             for person in obj.organizers.all()
         ]

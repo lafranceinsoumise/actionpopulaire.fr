@@ -14,7 +14,7 @@ export const ENDPOINT = {
   addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
   getParticipants: "/api/evenements/:eventPk/participants/",
   addOrganizer: "/api/evenements/:eventPk/organizers/",
-  cancelEvent: "/evenements/:eventPk/annuler/",
+  cancelEvent: "/api/evenements/:eventPk/annuler/",
   updateLocation: "/evenements/:eventPk/localisation/",
 };
 

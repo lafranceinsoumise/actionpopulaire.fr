@@ -4,7 +4,6 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
-import { routeConfig as groupRouteConfig } from "@agir/groups/groupPage/GroupSettings/routes.config";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { parseDiscountCodes } from "@agir/groups/groupPage/utils";
 
@@ -16,7 +15,6 @@ import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Link from "@agir/front/app/Link";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 const GroupIcon = styled.div`
   display: flex;
@@ -109,7 +107,6 @@ const GroupCard = ({
   isEmbedded = false,
 }) => {
   const history = useHistory();
-  const isDesktop = useIsDesktop();
 
   const handleClick = useCallback(
     (e) => {

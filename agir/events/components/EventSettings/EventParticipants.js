@@ -44,14 +44,15 @@ const EventParticipants = (props) => {
 
   const participants = useMemo(() => event?.participants || [], [event]);
   const organizers = useMemo(() => event?.organizers || [], [event]);
+  const allParticipants = participants.concat(organizers);
 
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <BlockTitle>
-        <h3>{participants?.concat(organizers).length} Participant·es</h3>
+        <h3>{allParticipants.length} Participant·es</h3>
         <div>
-          <StyledLink to={"../organisation/"} style={{ marginLeft: "10px" }}>
+          <StyledLink to="../organisation/" style={{ marginLeft: "10px" }}>
             <RawFeatherIcon name="settings" height="13px" />
             Inviter à co-organiser
           </StyledLink>
@@ -62,17 +63,12 @@ const EventParticipants = (props) => {
       <ShareLink
         label="Copier les e-mails des participant·es"
         color="primary"
-        url={
-          participants
-            ?.concat(organizers)
-            .map(({ email }) => email)
-            .join(", ") || ""
-        }
+        url={allParticipants.map(({ email }) => email).join(", ") || ""}
         $wrap
       />
 
       <Spacer size="2rem" />
-      <MemberList key={1} members={organizers.concat(participants)} />
+      <MemberList key={1} members={allParticipants} />
       <Spacer size="1rem" />
     </>
   );

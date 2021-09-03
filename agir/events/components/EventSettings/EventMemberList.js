@@ -21,9 +21,7 @@ const MemberList = styled.div`
 const EventMemberList = ({ members, onAdd, addButtonLabel, isLoading }) => {
   const list = useMemo(
     () =>
-      Array.isArray(members)
-        ? _sortBy(members, "membershipType").reverse()
-        : [],
+      Array.isArray(members) ? _sortBy(members, "isOrganizer").reverse() : [],
     [members]
   );
 

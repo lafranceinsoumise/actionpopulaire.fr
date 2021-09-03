@@ -36,11 +36,6 @@ urlpatterns = [
         name="quit_event",
     ),
     path(
-        "evenements/<uuid:pk>/annuler/",
-        views.CancelEventAPIView.as_view(),
-        name="cancel_event",
-    ),
-    path(
         "evenements/<uuid:pk>/inscription/",
         views.RSVPEventView.as_view(),
         name="rsvp_event",
@@ -150,5 +145,10 @@ urlpatterns = [
         "api/evenements/<uuid:pk>/organizers/",
         views.CreateOrganizerConfigAPIView.as_view(),
         name="api_event_organizers",
+    ),
+    path(
+        "api/evenements/<uuid:pk>/annuler/",
+        views.CancelEventAPIView.as_view(),
+        name="cancel_event",
     ),
 ]

@@ -107,7 +107,7 @@ const Member = styled.div`
 
 const MEMBER_ROLE_LABEL = {
   0: "",
-  1: ["Organisateur·ice", "Animatrice", "Animateur"],
+  1: ["Organisateur·ice", "Organisatrice", "Organisateur"],
 };
 
 const MEMBER_ROLE_ICON = {
@@ -116,10 +116,10 @@ const MEMBER_ROLE_ICON = {
 };
 
 const EventMember = (props) => {
-  const { id, displayName, image = "", memberType, email, gender } = props;
+  const { id, displayName, image = "", isOrganizer, email, gender } = props;
 
   const role = useMemo(() => {
-    const label = MEMBER_ROLE_LABEL[String(memberType)];
+    const label = MEMBER_ROLE_LABEL[isOrganizer ? 1 : 0];
     if (!label) {
       return "";
     }
@@ -127,7 +127,7 @@ const EventMember = (props) => {
       return getGenderedWord(gender, ...label);
     }
     return label;
-  }, [memberType, gender]);
+  }, [isOrganizer, gender]);
 
   return (
     <Member>
@@ -135,7 +135,7 @@ const EventMember = (props) => {
       <Role>
         {role && (
           <span>
-            {MEMBER_ROLE_ICON[memberType]}&ensp;{role}
+            {MEMBER_ROLE_ICON[isOrganizer ? 1 : 0]}&ensp;{role}
           </span>
         )}
       </Role>
@@ -149,7 +149,7 @@ EventMember.propTypes = {
   displayName: PropTypes.string,
   image: PropTypes.string,
   email: PropTypes.string,
-  memberType: PropTypes.oneOf(Object.keys(MEMBER_ROLE_LABEL).map(Number)),
+  isOrganizer: PropTypes.oneOf(Object.keys(MEMBER_ROLE_LABEL).map(Number)),
   gender: PropTypes.oneOf(["", ...Object.values(GENDER)]),
 };
 

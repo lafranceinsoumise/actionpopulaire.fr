@@ -182,7 +182,7 @@ ManagementMenuItem.propTypes = {
 };
 
 const ManagementMenu = (props) => {
-  const { items, title, subtitle, onBack, cancel, isFinished } = props;
+  const { items, title, subtitle, onBack, cancel, isPast } = props;
 
   return (
     <StyledMenu>
@@ -200,7 +200,7 @@ const ManagementMenu = (props) => {
             <li key={item.id}>
               <ManagementMenuItem
                 item={item}
-                disabled={item.canDisabled && !isFinished}
+                disabled={item.canDisabled && !isPast}
               />
             </li>
           ))}
@@ -211,7 +211,7 @@ const ManagementMenu = (props) => {
             <li key={item.id}>
               <ManagementMenuItem
                 item={item}
-                disabled={item.canDisabled && !isFinished}
+                disabled={item.canDisabled && !isPast}
               />
             </li>
           ))}
