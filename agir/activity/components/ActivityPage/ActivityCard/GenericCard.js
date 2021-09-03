@@ -103,7 +103,7 @@ const GenericCard = (props) => {
             Vous n’êtes plus membre actif du groupe {SupportGroup}
           </strong>
           <br />
-          Vous avez été indiqué comme “abonné·e” par les gestionnaires de ce
+          Vous avez été indiqué comme "abonné·e" par les gestionnaires de ce
           groupe.
           <br />
           Vous continuerez de recevoir la plupart des informations du groupe,
