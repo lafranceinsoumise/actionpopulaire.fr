@@ -1,4 +1,5 @@
 from datetime import timedelta
+from functools import partial, update_wrapper
 
 from django.conf import settings
 from django.contrib import admin
@@ -11,7 +12,6 @@ from django.utils import timezone
 from django.utils.html import format_html, escape, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from functools import partial, update_wrapper
 
 from agir.events.models import Event
 from agir.groups import proxys
@@ -29,7 +29,6 @@ from .forms import SupportGroupAdminForm
 from .. import models
 from ..actions.promo_codes import get_promo_codes
 from ..models import Membership
-from ...people.models import Person
 
 
 class MembershipInline(admin.TabularInline):
@@ -50,6 +49,12 @@ class MembershipInline(admin.TabularInline):
 
     def has_add_permission(self, request, obj=None):
         return False
+
+
+class ExternalLinkInline(admin.TabularInline):
+    extra = 0
+    model = models.SupportGroupExternalLink
+    fields = ("url", "label")
 
 
 class GroupHasEventsFilter(admin.SimpleListFilter):
@@ -185,7 +190,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
             },
         ),
     )
-    inlines = (MembershipInline,)
+    inlines = (MembershipInline, ExternalLinkInline)
     readonly_fields = (
         "id",
         "link",

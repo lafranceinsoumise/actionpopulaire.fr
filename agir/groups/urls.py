@@ -115,6 +115,16 @@ api_urlpatterns = [
         views.GroupFinanceAPIView.as_view(),
         name="api_group_finance",
     ),
+    path(
+        "<uuid:pk>/link/",
+        views.CreateSupportGroupExternalLinkAPIView.as_view(),
+        name="api_group_link_create",
+    ),
+    path(
+        "<uuid:group_pk>/link/<int:pk>/",
+        views.RetrieveUpdateDestroySupportGroupExternalLinkAPIView.as_view(),
+        name="api_group_link_retrieve_update_destroy",
+    ),
 ]
 
 urlpatterns = [
