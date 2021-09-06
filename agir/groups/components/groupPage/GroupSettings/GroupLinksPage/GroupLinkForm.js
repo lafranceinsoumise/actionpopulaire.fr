@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
-import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
+
 import TextField from "@agir/front/formComponents/TextField";
 
 const GroupLinkForm = (props) => {

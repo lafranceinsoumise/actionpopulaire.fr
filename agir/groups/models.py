@@ -23,6 +23,7 @@ __all__ = [
     "SupportGroupSubtype",
     "Membership",
     "TransferOperation",
+    "SupportGroupExternalLink",
 ]
 
 
