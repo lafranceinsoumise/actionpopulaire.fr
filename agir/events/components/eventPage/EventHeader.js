@@ -16,6 +16,7 @@ import { Hide } from "@agir/front/genericComponents/grid";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
+import { menuRoute } from "@agir/events/EventSettings/routes.config";
 
 import QuitEventButton from "./QuitEventButton";
 
@@ -151,8 +152,6 @@ const Actions = (props) => {
     hasSubscriptionForm,
   } = props;
 
-  const manageUrl = "gestion/";
-
   if (past) {
     return (
       <StyledActions>
@@ -189,7 +188,7 @@ const Actions = (props) => {
             </Button>
           )}
           {isOrganizer && (
-            <Button icon="settings" link to={manageUrl} color="primary">
+            <Button icon="settings" link to={menuRoute.path} color="primary">
               Gérer l'événement
             </Button>
           )}
