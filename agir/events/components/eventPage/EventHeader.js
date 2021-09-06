@@ -159,11 +159,6 @@ const Actions = (props) => {
         <Button disabled color="unavailable">
           Événement terminé
         </Button>
-        {isOrganizer && (
-          <Button icon="settings" link to={manageUrl} color="primary">
-            Gérer l'événement
-          </Button>
-        )}
       </StyledActions>
     );
   }

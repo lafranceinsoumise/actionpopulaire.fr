@@ -17,11 +17,12 @@ from rest_framework.generics import (
     DestroyAPIView,
     UpdateAPIView,
     RetrieveUpdateAPIView,
+    GenericAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import exceptions, permissions, status
+from rest_framework import exceptions, status
 
 from agir.events.actions.rsvps import (
     rsvp_to_free_event,
@@ -209,7 +210,7 @@ class EventManagementPermissions(GlobalOrObjectPermissions):
 
 class UpdateEventAPIView(UpdateAPIView):
     permission_classes = (EventManagementPermissions,)
-    queryset = Event.objects.all()
+    queryset = Event.objects.upcoming(as_of=timezone.now(), published_only=False)
     serializer_class = UpdateEventSerializer
 
 
@@ -231,11 +232,14 @@ class CreateOrganizerConfigAPIView(APIView):
         return JsonResponse({"data": True})
 
 
-class CancelEventAPIView(APIView):
+class CancelEventAPIView(GenericAPIView):
     permission_classes = (EventManagementPermissions,)
-    queryset = Event.objects.all()
+    queryset = Event.objects.upcoming(as_of=timezone.now(), published_only=False)
 
     def post(self, request, pk):
+        self.object = self.get_object()
+        self.check_object_permissions(request, self.object)
+
         event = Event.objects.get(pk=pk)
         event.visibility = Event.VISIBILITY_ADMIN
         event.save()
