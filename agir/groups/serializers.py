@@ -21,7 +21,7 @@ from agir.people.serializers import PersonSerializer
 from . import models
 from .actions import get_promo_codes
 from .actions.notifications import member_to_follower_notification
-from .models import Membership, SupportGroup
+from .models import Membership, SupportGroup, SupportGroupExternalLink
 from ..front.serializer_utils import RoutesField
 from ..lib.utils import front_url, admin_url
 
@@ -157,8 +157,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     image = serializers.ImageField(read_only=True)
 
     referents = serializers.SerializerMethodField(read_only=True,)
-    # TODO: add links to SupporGroup model
-    links = []
+    links = serializers.SerializerMethodField(read_only=True,)
 
     facts = serializers.SerializerMethodField(read_only=True,)
     iconConfiguration = serializers.SerializerMethodField(read_only=True,)
@@ -370,6 +369,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             self.membership is not None and obj.messages.filter(deleted=False).exists()
         )
 
+    def get_links(self, obj):
+        return obj.links.values("id", "label", "url")
+
 
 class SupportGroupUpdateSerializer(serializers.ModelSerializer):
     contact = NestedContactSerializer(source="*")
@@ -452,3 +454,9 @@ class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
         fields = ["id", "displayName", "image", "email", "gender", "membershipType"]
+
+
+class SupportGroupExternalLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportGroupExternalLink
+        fields = ["id", "label", "url"]

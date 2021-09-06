@@ -493,3 +493,18 @@ class DescriptionMixin(models.Model):
             return settings.ADMIN_ALLOWED_TAGS
         else:
             return settings.USER_ALLOWED_TAGS
+
+
+class ExternalLinkMixin(models.Model):
+    url = models.URLField("URL", max_length=255, blank=False, null=False)
+    label = models.CharField(
+        "titre", help_text="Titre à afficher", max_length=255, blank=False, null=False,
+    )
+
+    class Meta:
+        abstract = True
+        verbose_name = "Lien personnalisé"
+        verbose_name_plural = "Liens personnalisés"
+
+    def __str__(self):
+        return f"{self.label} <{self.url}>"

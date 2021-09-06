@@ -35,7 +35,12 @@ from agir.groups.actions.notifications import (
     someone_joined_notification,
 )
 from agir.groups.filters import GroupAPIFilterSet
-from agir.groups.models import SupportGroup, SupportGroupSubtype, Membership
+from agir.groups.models import (
+    SupportGroup,
+    SupportGroupSubtype,
+    Membership,
+    SupportGroupExternalLink,
+)
 from agir.groups.serializers import (
     SupportGroupLegacySerializer,
     SupportGroupSubtypeSerializer,
@@ -43,6 +48,7 @@ from agir.groups.serializers import (
     SupportGroupDetailSerializer,
     SupportGroupUpdateSerializer,
     MembershipSerializer,
+    SupportGroupExternalLinkSerializer,
 )
 from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
@@ -72,6 +78,8 @@ __all__ = [
     "GroupInvitationAPIView",
     "GroupMemberUpdateAPIView",
     "GroupFinanceAPIView",
+    "CreateSupportGroupExternalLinkAPIView",
+    "RetrieveUpdateDestroySupportGroupExternalLinkAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -651,3 +659,44 @@ class GroupFinanceAPIView(GenericAPIView):
             status=status.HTTP_200_OK,
             data={"donation": donation, "spendingRequests": spending_requests},
         )
+
+
+class CreateSupportGroupExternalLinkPermissions(GlobalOrObjectPermissions):
+    perms_map = {"POST": []}
+    object_perms_map = {
+        "POST": ["groups.change_supportgroup"],
+    }
+
+
+class CreateSupportGroupExternalLinkAPIView(CreateAPIView):
+    queryset = SupportGroup.objects.all()
+    permission_classes = (CreateSupportGroupExternalLinkPermissions,)
+    serializer_class = SupportGroupExternalLinkSerializer
+
+    def create(self, request, *args, **kwargs):
+        self.supportgroup = self.get_object()
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(supportgroup=self.supportgroup)
+
+
+class RetrieveUpdateDestroySupportGroupExternalLinkPermisns(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "PUT": [], "PATCH": [], "DELETE": []}
+    object_perms_map = {
+        "GET": ["groups.view_supportgroup"],
+        "PUT": ["groups.change_supportgroup"],
+        "PATCH": ["groups.change_supportgroup"],
+        "DELETE": ["groups.change_supportgroup"],
+    }
+
+
+class RetrieveUpdateDestroySupportGroupExternalLinkAPIView(
+    RetrieveUpdateDestroyAPIView
+):
+    queryset = SupportGroupExternalLink.objects.all()
+    permission_classes = (RetrieveUpdateDestroySupportGroupExternalLinkPermisns,)
+    serializer_class = SupportGroupExternalLinkSerializer
+
+    def check_object_permissions(self, request, obj):
+        return super().check_object_permissions(request, obj.supportgroup)
