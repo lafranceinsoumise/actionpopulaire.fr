@@ -16,7 +16,7 @@ import { Hide } from "@agir/front/genericComponents/grid";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
-import { menuRoute } from "@agir/events/EventSettings/routes.config";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 import QuitEventButton from "./QuitEventButton";
 
@@ -159,7 +159,12 @@ const Actions = (props) => {
           Événement terminé
         </Button>
         {isOrganizer && (
-          <Button icon="settings" link to={menuRoute.path} color="primary">
+          <Button
+            icon="settings"
+            link
+            to={routeConfig.eventSettings.getLink({ eventPk: id })}
+            color="primary"
+          >
             Gérer l'événement
           </Button>
         )}
@@ -193,7 +198,12 @@ const Actions = (props) => {
             </Button>
           )}
           {isOrganizer && (
-            <Button icon="settings" link to={menuRoute.path} color="primary">
+            <Button
+              icon="settings"
+              link
+              to={routeConfig.eventSettings.getLink({ eventPk: id })}
+              color="primary"
+            >
               Gérer l'événement
             </Button>
           )}

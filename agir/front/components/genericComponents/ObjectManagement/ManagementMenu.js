@@ -215,7 +215,7 @@ const ManagementMenu = (props) => {
               />
             </li>
           ))}
-        {cancel && (
+        {cancel && !isPast && (
           <>
             <hr />
             <Spacer size="1rem" />

@@ -237,10 +237,7 @@ class CancelEventAPIView(GenericAPIView):
     queryset = Event.objects.upcoming(as_of=timezone.now(), published_only=False)
 
     def post(self, request, pk):
-        self.object = self.get_object()
-        self.check_object_permissions(request, self.object)
-
-        event = Event.objects.get(pk=pk)
+        event = self.get_object()
         event.visibility = Event.VISIBILITY_ADMIN
         event.save()
 
