@@ -13,6 +13,7 @@ from agir.lib.models import (
     DescriptionMixin,
     BaseSubtype,
     TimeStampedModel,
+    ExternalLinkMixin,
 )
 from agir.lib.search import PrefixSearchQuery
 
@@ -329,3 +330,18 @@ class TransferOperation(models.Model):
         verbose_name = "Transfert de membres"
         verbose_name_plural = "Transferts de membres"
         ordering = ("timestamp", "former_group")
+
+
+class SupportGroupExternalLink(ExternalLinkMixin):
+
+    supportgroup = models.ForeignKey(
+        SupportGroup,
+        on_delete=models.CASCADE,
+        related_name="links",
+        related_query_name="link",
+        null=False,
+    )
+
+    class Meta:
+        verbose_name = "Lien ou réseau social de l’équipe"
+        verbose_name_plural = "Liens et réseaux sociaux de l’équipe"

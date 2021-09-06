@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 from unittest.mock import patch
 
 from agir.donations.models import SpendingRequest, Operation
-from agir.groups.models import SupportGroup, Membership
+from agir.groups.models import SupportGroup, Membership, SupportGroupExternalLink
 from agir.people.models import Person
 
 import uuid
@@ -557,3 +557,168 @@ class GroupFinanceAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn("spendingRequests", res.data)
         self.assertEqual(len(res.data["spendingRequests"]), 1)
+
+
+class GroupExternalLinkAPITestCase(APITestCase):
+    def setUp(self):
+        self.group = SupportGroup.objects.create(name="group Test")
+
+        self.non_member = Person.objects.create(
+            email="non_member@agir.local", create_role=True
+        )
+        self.simple_member = Person.objects.create(
+            email="simple_member@agir.local", create_role=True
+        )
+        self.manager_member = Person.objects.create(
+            email="manager@agir.local", create_role=True
+        )
+
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.simple_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.manager_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+
+        self.external_link = SupportGroupExternalLink.objects.create(
+            url="http://agir.local", label="AP", supportgroup=self.group
+        )
+
+        self.valid_data = {
+            "url": "http://agir.local",
+            "label": "AP",
+        }
+
+    def test_anonymous_can_retrieve_a_link(self):
+        self.client.logout()
+        res = self.client.get(
+            f"/api/groupes/{self.group.pk}/link/{self.external_link.pk}/",
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("url", res.data)
+        self.assertIn("label", res.data)
+
+    def test_non_group_member_can_retrieve_a_link(self):
+        self.client.force_login(self.non_member.role)
+        res = self.client.get(
+            f"/api/groupes/{self.group.pk}/link/{self.external_link.pk}/",
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("url", res.data)
+        self.assertIn("label", res.data)
+
+    def test_group_member_can_retrieve_a_link(self):
+        self.client.force_login(self.simple_member.role)
+        res = self.client.get(
+            f"/api/groupes/{self.group.pk}/link/{self.external_link.pk}/",
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("url", res.data)
+        self.assertIn("label", res.data)
+
+    def test_group_manager_can_retrieve_a_link(self):
+        self.client.force_login(self.manager_member.role)
+        res = self.client.get(
+            f"/api/groupes/{self.group.pk}/link/{self.external_link.pk}/",
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("url", res.data)
+        self.assertIn("label", res.data)
+
+    def test_anonymous_cannot_add_a_link(self):
+        self.client.logout()
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/link/", data=self.valid_data,
+        )
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_group_member_cannot_add_a_link(self):
+        self.client.force_login(self.non_member.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/link/", data=self.valid_data,
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_group_member_cannot_add_a_link(self):
+        self.client.force_login(self.simple_member.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/link/", data=self.valid_data,
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_group_manager_can_add_a_link(self):
+        self.client.force_login(self.manager_member.role)
+        res = self.client.post(
+            f"/api/groupes/{self.group.pk}/link/", data=self.valid_data,
+        )
+        self.assertEqual(res.status_code, 201)
+        self.assertIn("url", res.data)
+        self.assertIn("label", res.data)
+
+    def test_anonymous_cannot_update_a_link(self):
+        self.client.logout()
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/link/{self.external_link.pk}/",
+            data=self.valid_data,
+        )
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_group_member_cannot_update_a_link(self):
+        self.client.force_login(self.non_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/link/{self.external_link.pk}/",
+            data=self.valid_data,
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_group_member_cannot_update_a_link(self):
+        self.client.force_login(self.simple_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/link/{self.external_link.pk}/",
+            data=self.valid_data,
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_group_manager_can_update_a_link(self):
+        self.client.force_login(self.manager_member.role)
+        res = self.client.patch(
+            f"/api/groupes/{self.group.pk}/link/{self.external_link.pk}/",
+            data=self.valid_data,
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("url", res.data)
+        self.assertIn("label", res.data)
+
+    def test_anonymous_cannot_delete_a_link(self):
+        self.client.logout()
+        res = self.client.delete(
+            f"/api/groupes/{self.group.pk}/link/{self.external_link.pk}/"
+        )
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_group_member_cannot_delete_a_link(self):
+        self.client.force_login(self.non_member.role)
+        res = self.client.delete(
+            f"/api/groupes/{self.group.pk}/link/{self.external_link.pk}/"
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_group_member_cannot_delete_a_link(self):
+        self.client.force_login(self.simple_member.role)
+        res = self.client.delete(
+            f"/api/groupes/{self.group.pk}/link/{self.external_link.pk}/"
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_group_manager_can_delete_a_link(self):
+        self.client.force_login(self.manager_member.role)
+        pk = self.external_link.pk
+        res = self.client.delete(f"/api/groupes/{self.group.pk}/link/{pk}/")
+        self.assertEqual(res.status_code, 204)
+        res = self.client.get(f"/api/groupes/{self.group.pk}/link/{pk}/")
+        self.assertEqual(res.status_code, 404)

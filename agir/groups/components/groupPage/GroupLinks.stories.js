@@ -12,19 +12,19 @@ const Template = (args) => {
   const links = [
     {
       url: "https://www.youtube.com/channel/UCZpyv_I2kx4FemBXYgKfomQ/",
-      name: "YouTube",
+      label: "YouTube",
     },
     {
       url: "https://twitter.com/NousSommesPour",
-      name: "Twitter",
+      label: "Twitter",
     },
     {
       url: "https://www.facebook.com/NousSommesPour",
-      name: "Facebook",
+      label: "Facebook",
     },
     {
       url: "https://www.instagram.com/noussommespour/",
-      name: "Instagram",
+      label: "Instagram",
     },
   ];
   if (url && name) {
@@ -39,5 +39,5 @@ const Template = (args) => {
 export const Default = Template.bind({});
 Default.args = {
   url: "https://example.com",
-  name: "Lien personnalisé",
+  label: "Lien personnalisé",
 };

@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
-import useSWR, { useSWRInfinite } from "swr";
+import useSWR from "swr";
+import useSWRInfinite from "swr/infinite";
 
 import logger from "@agir/lib/utils/logger";
 
