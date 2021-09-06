@@ -154,7 +154,7 @@ form_urls = [
 
 
 dashboard_urls = [  # dashboard
-    path("recherche", views.SearchView.as_view(), name="dashboard_search"),
+    path("recherche/", views.SearchView.as_view(), name="dashboard_search"),
 ]
 
 
