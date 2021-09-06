@@ -110,7 +110,7 @@ export const routeConfig = {
     icon: "image",
     Component: EventFeedback,
     isActive: true,
-    canDisabled: true,
+    forPastEventsOnly: true,
     textDisabled: "A remplir à la fin de l'événement",
     menuGroup: 2,
   },

@@ -200,7 +200,7 @@ const ManagementMenu = (props) => {
             <li key={item.id}>
               <ManagementMenuItem
                 item={item}
-                disabled={item.canDisabled && !isPast}
+                disabled={item.forPastEventsOnly && !isPast}
               />
             </li>
           ))}
@@ -211,7 +211,7 @@ const ManagementMenu = (props) => {
             <li key={item.id}>
               <ManagementMenuItem
                 item={item}
-                disabled={item.canDisabled && !isPast}
+                disabled={item.forPastEventsOnly && !isPast}
               />
             </li>
           ))}

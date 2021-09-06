@@ -210,7 +210,7 @@ class EventManagementPermissions(GlobalOrObjectPermissions):
 
 class UpdateEventAPIView(UpdateAPIView):
     permission_classes = (EventManagementPermissions,)
-    queryset = Event.objects.upcoming(as_of=timezone.now(), published_only=False)
+    queryset = Event.objects.all()
     serializer_class = UpdateEventSerializer
 
 
