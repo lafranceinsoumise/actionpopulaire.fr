@@ -123,13 +123,9 @@ const InfoBlock = (props) => (
       En publiant votre événement, ce dernier sera visible à toutes les
       personnes aux alentours.
       <Spacer size="0.5rem" />
-      <a
-        href="https://infos.actionpopulaire.fr/groupes/nouveau-groupe/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <Link route="newGroupHelp" target="_blank" rel="noopener noreferrer">
         Besoin d'idées d'événements&nbsp;?
-      </a>
+      </Link>
       <Spacer size="0.5rem" />
       <a
         href="https://infos.actionpopulaire.fr/"
