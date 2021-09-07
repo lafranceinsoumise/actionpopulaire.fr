@@ -52,18 +52,18 @@ const GroupMemberMainPanel = (props) => {
         members={activeMembers}
         onChangeMembershipType={onChangeMembershipType}
       />
+      <Spacer size="2.5rem" />
+      <StyledTitle>
+        {followers.length}&nbsp;
+        {followers.length === 1 ? "Abonné·e" : "Abonné·es"}
+      </StyledTitle>
+      <p style={{ color: style.black700, margin: 0 }}>
+        Toutes les personnes intéressées par votre groupe. Vous pouvez passer un
+        membre actif en abonné·e.
+      </p>
+      <Spacer size="1rem" />
       {followers.length > 0 ? (
         <>
-          <Spacer size="2.5rem" />
-          <StyledTitle>
-            {followers.length}&nbsp;
-            {followers.length > 1 ? "Abonné·es" : "Abonné·e"}
-          </StyledTitle>
-          <p style={{ color: style.black700, margin: 0 }}>
-            Toutes les personnes intéressées par votre groupe. Vous pouvez
-            passer un membre actif en abonné·e.
-          </p>
-          <Spacer size="1rem" />
           <ShareLink
             label="Copier les e-mails des abonné·es"
             color="primary"
@@ -76,7 +76,35 @@ const GroupMemberMainPanel = (props) => {
             onChangeMembershipType={onChangeMembershipType}
           />
         </>
-      ) : null}
+      ) : (
+        <p
+          style={{
+            padding: "1.5rem",
+            boxShadow: style.cardShadow,
+            borderRadius: style.borderRadius,
+          }}
+        >
+          Votre groupe n'a pas encore d'abonné·es.
+          <br />
+          <br />
+          <strong style={{ fontWeight: 600 }}>
+            Vous pouvez passer un membre qui n'est plus actif sur le groupe en
+            abonné
+          </strong>
+          , pour qu'il ne compte pas dans votre nombre de membres actifs. Il ne
+          recevra plus certains messages destinés aux membres actifs.
+          <br />
+          <br />
+          N'importe quel membre d'Action Populaire peut suivre votre groupe en
+          cliquant sur le bouton "Suivre" sur la page de votre groupe.
+          <br />
+          <br />
+          Il n'y a pas de limite de nombre d'abonné·es&nbsp;:{" "}
+          <strong style={{ fontWeight: 600 }}>
+            essayez d'en avoir le plus possible&nbsp;!
+          </strong>
+        </p>
+      )}
       <Spacer size="2.5rem" />
       {routes?.membershipTransfer && (
         <a

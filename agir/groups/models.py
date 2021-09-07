@@ -170,6 +170,12 @@ class SupportGroup(
         return Membership.objects.filter(supportgroup=self).count()
 
     @property
+    def active_members_count(self):
+        return Membership.objects.filter(
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER, supportgroup=self
+        ).count()
+
+    @property
     def is_full(self):
         return False
         # (Temporarily disabled)
