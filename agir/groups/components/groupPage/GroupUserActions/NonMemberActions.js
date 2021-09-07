@@ -1,15 +1,12 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import Modal from "@agir/front/genericComponents/Modal";
-import ShareLink from "@agir/front/genericComponents/ShareLink";
-import style from "@agir/front/genericComponents/_variables.scss";
-import { FaWhatsapp, FaFacebook } from "react-icons/fa";
+import ModalShare from "@agir/front/genericComponents/ModalShare";
 
 const StyledWrapper = styled.div`
   display: flex;
@@ -49,47 +46,13 @@ const StyledContainer = styled.div`
   }
 `;
 
-const ModalContainer = styled.div`
-  background: white;
-  height: 60%;
-  width: 40%;
-  margin: 5% auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  border-radius: s ${style.borderRadius};
-
-  @media (max-width: ${style.collapse}px) {
-    width: 90%;
-    height: 90%;
-  }
-`;
-
-const ModalContent = styled.div`
-  display: inline-flex;
-  flex-direction: column;
-  padding: 1rem;
-
-  h1 {
-    font-size: 1rem;
-  }
-
-  > ${Button} {
-    margin-bottom: 1rem;
-    color: white;
-  }
-`;
-
 const NonMemberActions = (props) => {
   const { onJoin, onFollow, isLoading, routes } = props;
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const url = encodeURIComponent(routes.details);
-
-  const handleClose = () => setIsOpen(false);
-  const handleShare = () => setIsOpen(true);
+  const handleClose = useCallback(() => setIsOpen(false), []);
+  const handleShare = useCallback(() => setIsOpen(true), []);
 
   return (
     <StyledWrapper>
@@ -126,58 +89,11 @@ const NonMemberActions = (props) => {
         </Button>
       </StyledContainer>
 
-      <Modal shouldShow={isOpen} onClose={handleClose}>
-        <ModalContainer>
-          <ModalContent>
-            <h1>Partager la page</h1>
-
-            <Button
-              style={{ backgroundColor: style.facebook }}
-              type="button"
-              link
-              target="_blank"
-              rel="noopener noreferrer"
-              href={`https://www.facebook.com/sharer/sharer.php?u=${url}`}
-            >
-              <FaFacebook
-                size="1.5rem"
-                height="32"
-                width="32"
-                color={style.white}
-              />
-              &nbsp; Partager sur Facebook
-            </Button>
-            <Button
-              style={{ backgroundColor: style.twitter }}
-              type="button"
-              link
-              target="_blank"
-              rel="noopener noreferrer"
-              href={`https://twitter.com/intent/tweet?text=${url}`}
-            >
-              <RawFeatherIcon name="twitter" width="1.5rem" height="1.5rem" />
-              &nbsp; Partager sur Twitter
-            </Button>
-            <Button
-              style={{ backgroundColor: style.whatsapp }}
-              type="button"
-              link
-              target="_blank"
-              rel="noopener noreferrer"
-              href={`https://wa.me/?text=${url}`}
-            >
-              <FaWhatsapp
-                size="1.5rem"
-                height="32"
-                width="32"
-                color={style.white}
-              />
-              &nbsp; Partager sur Whatsapp
-            </Button>
-            <ShareLink label="Copier le lien" url={routes.details} />
-          </ModalContent>
-        </ModalContainer>
-      </Modal>
+      <ModalShare
+        shouldShow={isOpen}
+        onClose={handleClose}
+        url={routes.details}
+      />
     </StyledWrapper>
   );
 };
