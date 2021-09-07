@@ -129,7 +129,9 @@ class EventThumbnailView(DetailView):
                 icon = icon.resize((50, 65), Image.ANTIALIAS)
                 image.paste(icon, (575, 75), icon)
             else:
-                illustration = Image.open(self.static_root + "Frame-193.png")
+                illustration = Image.open(
+                    os.path.join(self.static_root, "Frame-193.png")
+                )
 
         font_bold = ImageFont.truetype(
             os.path.join(self.static_root, "poppins-bold.ttf"),
