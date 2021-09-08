@@ -195,7 +195,21 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return bool(obj.subscription_form_id)
 
     def get_isOrganizer(self, obj):
-        return bool(self.organizer_config)
+        user = self.context["request"].user
+
+        if not user.is_authenticated or not user.person:
+            return False
+
+        if bool(self.organizer_config):
+            return True
+
+        if obj.organizers_groups.filter(
+            memberships__person=user.person,
+            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        ).exists():
+            return True
+
+        return False
 
     def get_rsvp(self, obj):
         return self.rsvp and self.rsvp.status
