@@ -110,9 +110,18 @@ const EventOrganization = (props) => {
     setSubmenuOpen(false);
   }, []);
 
+  const group = {
+    displayName: event?.groups[0]?.name,
+  };
+
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
+
+      <StyledTitle>Groupe</StyledTitle>
+      <Spacer size="1rem" />
+      <MemberList members={[group]} />
+      <Spacer size="1rem" />
 
       <StyledTitle>Participant·es organisateur·ices</StyledTitle>
 

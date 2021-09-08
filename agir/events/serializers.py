@@ -32,6 +32,7 @@ from .tasks import (
     send_event_creation_notification,
     send_secretariat_notification,
     geocode_event,
+    send_event_changed_notification,
 )
 from ..gestion.models import Projet, Document
 from ..groups.models import Membership, SupportGroup
@@ -499,6 +500,41 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
+
+        if (
+            validated_data.get("end_time")
+            and validated_data.get("start_time")
+            and validated_data["end_time"] - validated_data["start_time"]
+            > timedelta(days=7)
+        ):
+            raise serializers.ValidationError(
+                {"endTime": "Votre événement doit durer moins d’une semaine"}
+            )
+
+        changed_data = {}
+        for field, value in validated_data.items():
+            new_value = value
+            old_value = getattr(instance, field)
+            if new_value != old_value:
+                changed_data[field] = new_value
+
+        if not changed_data:
+            return instance
+
+        instance = super().update(instance, validated_data)
+        if "image" in changed_data and changed_data.get("image", None):
+            changed_data["image"] = instance.image.url
+
+        if (
+            "location_address1" in changed_data
+            or "location_address2" in changed_data
+            or "location_zip" in changed_data
+            or "location_city" in changed_data
+            or "location_country" in changed_data
+        ):
+            geocode_event.delay(self.instance.pk)
+            send_event_changed_notification.delay(self.instance.pk, self.changed_data)
+
         with transaction.atomic():
             event = super().update(instance, validated_data)
             if Projet.objects.filter(event=event).exists():
