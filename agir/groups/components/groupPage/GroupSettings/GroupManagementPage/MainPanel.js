@@ -8,7 +8,7 @@ import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 

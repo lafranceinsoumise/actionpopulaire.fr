@@ -6,13 +6,13 @@ import { useToast } from "@agir/front/globalContext/hooks.js";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import Spacer from "@agir/front/genericComponents/Spacer.js";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
-import HeaderPanel from "./HeaderPanel";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 
-import { StyledTitle } from "./styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
 import {
   updateGroup,

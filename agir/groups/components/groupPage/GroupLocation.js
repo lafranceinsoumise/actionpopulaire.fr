@@ -66,14 +66,16 @@ const GroupLocation = (props) => {
     location;
 
   if (
-    !name &&
-    !address1 &&
-    !address2 &&
-    !city &&
-    !zip &&
-    !state &&
-    !country &&
-    !coordinates
+    !(
+      name ||
+      address1 ||
+      address2 ||
+      city ||
+      zip ||
+      state ||
+      country ||
+      coordinates
+    )
   ) {
     return null;
   }

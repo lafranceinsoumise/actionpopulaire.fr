@@ -39,7 +39,7 @@ const Button = styled.button`
   }
 `;
 
-const AddPair = ({ label, onClick }) => {
+const ButtonAddList = ({ label, onClick }) => {
   return (
     <Button onClick={onClick}>
       <RawFeatherIcon name="plus" />
@@ -48,8 +48,8 @@ const AddPair = ({ label, onClick }) => {
   );
 };
 
-AddPair.propTypes = {
+ButtonAddList.propTypes = {
   label: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
 };
-export default AddPair;
+export default ButtonAddList;

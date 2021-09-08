@@ -73,6 +73,56 @@ supportgroup_patterns = [
     path("", include(supportgroup_settings_patterns)),
 ]
 
+event_settings_patterns = [
+    path("", views.EventDetailView.as_view(), name="view_event"),
+    path("gestion/", views.BaseAppHardAuthView.as_view(), name="view_event_settings",),
+    path(
+        "gestion/general/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_general",
+    ),
+    path(
+        "gestion/participants/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_members",
+    ),
+    path(
+        "gestion/organisation/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_organisation",
+    ),
+    path(
+        "gestion/droits/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_rights",
+    ),
+    path(
+        "gestion/video-conference/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_video",
+    ),
+    path(
+        "gestion/contact/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_contact",
+    ),
+    path(
+        "gestion/localisation/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_location",
+    ),
+    path(
+        "gestion/compte-rendu/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_feedback",
+    ),
+    path(
+        "gestion/annuler/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_cancel",
+    ),
+]
+
 urlpatterns = [
     path("connexion/", views.LoginView.as_view(), name="short_code_login"),
     path("inscription/", views.SignupView.as_view(), name="signup"),
@@ -140,6 +190,7 @@ urlpatterns = [
         views.BaseAppSoftAuthView.as_view(),
         name="create_event_sub",
     ),
+    path("evenements/<uuid:pk>/", include(event_settings_patterns)),
     path(
         "evenements/documents-justificatifs/",
         views.BaseAppSoftAuthView.as_view(),

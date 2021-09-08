@@ -1,3 +1,4 @@
+import datetime
 from datetime import timedelta
 
 from django.utils import timezone
@@ -46,8 +47,13 @@ def get_project_missing_document_count(project):
 
 
 def get_is_blocking_project(project):
-    missing_document_count = get_project_missing_document_count(project)
-    deadline = get_project_document_deadline(project)
-    now = timezone.now()
+    # Avoid blocking event creations before October the 1st 2021
+    if datetime.date.today() < datetime.date(2021, 10, 1):
+        return False
 
-    return missing_document_count > 0 and now > deadline
+    deadline = get_project_document_deadline(project)
+    if timezone.now() < deadline:
+        return False
+
+    missing_document_count = get_project_missing_document_count(project)
+    return missing_document_count > 0

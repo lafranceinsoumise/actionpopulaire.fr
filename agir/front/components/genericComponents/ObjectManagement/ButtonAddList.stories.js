@@ -1,13 +1,13 @@
 import React from "react";
 
-import AddPair from "./AddPair.js";
+import ButtonAddList from "./ButtonAddList.js";
 
 export default {
-  component: AddPair,
-  title: "GroupSettings/AddPair",
+  component: ButtonAddList,
+  title: "GroupSettings/ButtonAddList",
 };
 
-const Template = (args) => <AddPair {...args} />;
+const Template = (args) => <ButtonAddList {...args} />;
 
 export const Default = Template.bind({});
 

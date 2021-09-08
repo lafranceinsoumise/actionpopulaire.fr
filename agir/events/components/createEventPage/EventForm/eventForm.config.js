@@ -7,7 +7,7 @@ let startDate = new Date();
 startDate = DateTime.fromJSDate(startDate).plus({ days: 1 });
 let endDate = startDate.plus({ hours: 1 });
 startDate = new Date(startDate.ts);
-endDate = new Date(startDate.ts);
+endDate = new Date(endDate.ts);
 
 export const DEFAULT_FORM_DATA = {
   name: "",

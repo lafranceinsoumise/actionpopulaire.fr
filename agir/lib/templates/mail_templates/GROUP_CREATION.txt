@@ -10,7 +10,7 @@ En tant qu'animateur-ice, vous pouvez gérer « {{ group_name }} » à tout mome
 Nous vous conseillons de lire ces idées et conseils à destination des nouveaux animateur-ices.
 
 >> Que faire après avoir créé mon groupe d'action ?
-https://infos.actionpopulaire.fr/groupes/nouvelle-equipe/
+https://infos.actionpopulaire.fr/groupes/nouveau-groupe/
 
 >> Vous pouvez inviter vos amis à vous rejoindre avec ce lien :
 {{ GROUP_LINK }}
