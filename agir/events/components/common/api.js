@@ -125,7 +125,7 @@ export const updateEvent = async (eventPk, data) => {
     if (e.response && e.response.data) {
       result.error =
         e.response.status === 400 && data.image
-          ? { image: "La taille du fichier ne doit pas dépasser le 2.5 Mo" }
+          ? { image: "La taille du fichier ne doit pas dépasser 2.5 Mo" }
           : e.response.data;
     } else {
       result.error = e.message;
