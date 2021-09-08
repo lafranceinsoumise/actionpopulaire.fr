@@ -10,6 +10,8 @@ import FollowerActions from "./FollowerActions";
 import MemberActions from "./MemberActions";
 import ManagerActions from "./ManagerActions";
 
+import SecondaryActions from "./SecondaryActions";
+
 const StyledContent = styled.div`
   padding: 0;
   display: flex;
@@ -28,43 +30,21 @@ const StyledContent = styled.div`
 `;
 
 const GroupUserActions = (props) => {
-  const { isAuthenticated, isMember, isActiveMember, isManager } = props;
+  const { isAuthenticated, isMember, isActiveMember, isManager, routes } =
+    props;
 
-  if (!isAuthenticated) {
-    return (
-      <StyledContent>
-        <AnonymousActions />
-      </StyledContent>
-    );
-  }
-
-  if (!isMember) {
-    return (
-      <StyledContent>
-        <NonMemberActions {...props} />
-      </StyledContent>
-    );
-  }
-
-  if (!isActiveMember) {
-    return (
-      <StyledContent>
-        <FollowerActions {...props} />
-      </StyledContent>
-    );
-  }
-
-  if (!isManager) {
-    return (
-      <StyledContent>
-        <MemberActions {...props} />
-      </StyledContent>
-    );
-  }
+  const isNonMemberActions = !isAuthenticated && !isMember;
+  const isFollowerActions = !isNonMemberActions && !isActiveMember;
+  const isMemberActions = !isFollowerActions && !isManager;
 
   return (
     <StyledContent>
-      <ManagerActions {...props} />
+      {!isAuthenticated && <AnonymousActions {...props} />}
+      {isNonMemberActions && <NonMemberActions {...props} />}
+      {isFollowerActions && <FollowerActions {...props} />}
+      {isMemberActions && <MemberActions {...props} />}
+      {!isMemberActions && <ManagerActions {...props} />}
+      <SecondaryActions routes={routes} />
     </StyledContent>
   );
 };
