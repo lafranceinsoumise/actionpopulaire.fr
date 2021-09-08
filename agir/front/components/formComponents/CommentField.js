@@ -258,47 +258,50 @@ const CommentField = (props) => {
 
   const handleFocus = () => {
     setIsFocused(true);
-    autoScroll &&
+    if (autoScroll) {
       updateScroll(
         rootElementRef.current,
         !isDesktop ? messageRef.current : null
       );
+    }
   };
 
   const blurOnClickOutside = useCallback(
     (event) => {
-      fieldWrapperRef.current &&
-        !fieldWrapperRef.current.contains(event.target) &&
+      if (!fieldWrapperRef.current?.contains(event.target)) {
         setIsFocused(false);
-      autoScroll &&
+      }
+      if (autoScroll) {
         updateScroll(
           rootElementRef.current,
           !isDesktop ? messageRef.current : null
         );
+      }
     },
     [isDesktop, autoScroll]
   );
 
   const blurOnFocusOutside = useCallback(() => {
-    fieldWrapperRef.current &&
+    if (
       document.activeElement &&
-      !fieldWrapperRef.current.contains(document.activeElement) &&
+      !fieldWrapperRef.current?.contains(document.activeElement)
+    ) {
       setIsFocused(false);
-    autoScroll &&
+    }
+    if (autoScroll) {
       updateScroll(
         rootElementRef.current,
         !isDesktop ? messageRef.current : null
       );
+    }
   }, [isDesktop, autoScroll]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      isFocused &&
-        !value &&
+      if (isFocused && !value) {
         document.addEventListener("click", blurOnClickOutside);
-      isFocused &&
-        !value &&
         document.addEventListener("keyup", blurOnFocusOutside);
+      }
 
       return () => {
         document.removeEventListener("click", blurOnClickOutside);
@@ -330,9 +333,8 @@ const CommentField = (props) => {
 
   const handleEmojiOpen = useCallback(() => {
     if (
-      textFieldRef.current &&
-      typeof textFieldRef.current.selectionStart === "number" &&
-      typeof textFieldRef.current.selectionEnd === "number"
+      typeof textFieldRef.current?.selectionStart === "number" &&
+      typeof textFieldRef.current?.selectionEnd === "number"
     ) {
       textFieldCursorPosition.current = [
         textFieldRef.current.selectionStart,
@@ -344,6 +346,7 @@ const CommentField = (props) => {
   const handleSend = useCallback(
     (e) => {
       e.preventDefault();
+      blurOnClickOutside(e);
       if (maySend) {
         onSend(value);
         hasSubmitted.current = true;
@@ -370,11 +373,12 @@ const CommentField = (props) => {
   );
 
   useEffect(() => {
-    autoScroll &&
+    if (autoScroll) {
       updateScroll(
         rootElementRef.current,
         !isDesktop ? messageRef.current : null
       );
+    }
   }, [autoScroll, isDesktop, isExpanded, value]);
 
   return (
@@ -391,7 +395,7 @@ const CommentField = (props) => {
           ref={fieldWrapperRef}
           onClick={!disabled ? handleFocus : undefined}
         >
-          {isExpanded ? (
+          {isFocused ? (
             <>
               <TextField
                 ref={textFieldRef}
@@ -416,14 +420,18 @@ const CommentField = (props) => {
             </>
           ) : (
             <>
-              <StyledCommentButton onFocus={handleFocus}>
+              <StyledCommentButton
+                onFocus={handleFocus}
+                onClick={handleFocus}
+                onTouchStart={handleFocus}
+              >
                 Écrire une réponse
               </StyledCommentButton>
               <RawFeatherIcon name="send" color={style.primary500} small />
             </>
           )}
         </StyledField>
-        {isExpanded ? (
+        {isFocused ? (
           <StyledAction>
             {isLoading ? (
               <AnimatedMoreHorizontal />
