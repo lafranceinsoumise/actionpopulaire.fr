@@ -2,14 +2,14 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
+import { DateTime } from "luxon";
+import "moment/locale/fr";
 
 import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import SelectField from "@agir/front/formComponents/SelectField";
 import TimezoneField from "@agir/front/formComponents/TimezoneField";
 
 import { EVENT_DEFAULT_DURATIONS } from "@agir/events/common/utils";
-
-import "moment/locale/fr";
 
 const TimezoneToggle = styled.p`
   display: flex;
@@ -72,10 +72,12 @@ const DateField = (props) => {
     error,
     required,
     disabled,
+    className,
+    showTimezone = false,
   } = props;
 
-  const [hasTimezone, setHasTimezone] = useState(false);
-  const [duration, setDuration] = useState(EVENT_DEFAULT_DURATIONS[0]);
+  const [hasTimezone, setHasTimezone] = useState(showTimezone);
+  const [duration, setDuration] = useState({});
 
   const updateStartTime = useCallback(
     (startTime) => {
@@ -94,10 +96,6 @@ const DateField = (props) => {
     [endTime, duration, onChange]
   );
 
-  const updateDuration = useCallback((duration) => {
-    setDuration(duration);
-  }, []);
-
   const updateEndTime = useCallback(
     (endTime) => {
       let start = moment(startTime);
@@ -112,19 +110,38 @@ const DateField = (props) => {
     [startTime, onChange]
   );
 
+  const updateDuration = useCallback((duration) => {
+    setDuration(duration);
+  }, []);
+
   useEffect(() => {
     if (duration && duration.value) {
       updateStartTime(startTime);
     }
   }, [duration, updateStartTime, startTime]);
 
+  // Show DateField endTime only if its customized, not in [1h, 1h30, 2h, 3h]
+  useEffect(() => {
+    if (!startTime) return;
+    let startDate = new Date(startTime);
+    startDate = DateTime.fromJSDate(startDate);
+    let endDate = new Date(endTime);
+    endDate = DateTime.fromJSDate(endDate);
+    // Convert to minutes
+    const currentDuration = (endDate.ts - startDate.ts) / 60000;
+    let indexDuration = 4;
+    const len = EVENT_DEFAULT_DURATIONS.length;
+    for (var i = 0; i < len; i++)
+      if (EVENT_DEFAULT_DURATIONS[i].value === currentDuration)
+        indexDuration = i;
+    setDuration(EVENT_DEFAULT_DURATIONS[indexDuration]);
+  }, [startTime]);
+
   return (
-    <Field>
+    <Field className={className}>
       <div>
         <DateTimeField
-          label={`Date et heure ${
-            duration.value === null ? "de début" : ""
-          }`.trim()}
+          label={`Date et heure ${!duration.value ? "de début" : ""}`.trim()}
           value={startTime}
           onChange={updateStartTime}
           error={error}
@@ -135,7 +152,7 @@ const DateField = (props) => {
       <div>
         <SelectField
           label="Durée"
-          value={duration}
+          value={duration.value ? duration : EVENT_DEFAULT_DURATIONS[4]}
           onChange={updateDuration}
           options={EVENT_DEFAULT_DURATIONS}
           disabled={disabled}
@@ -157,7 +174,7 @@ const DateField = (props) => {
           </button>
         </TimezoneToggle>
       )}
-      {duration.value === null && (
+      {!duration.value && (
         <div>
           <DateTimeField
             label="Date et heure de fin"

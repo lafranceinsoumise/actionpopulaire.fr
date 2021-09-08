@@ -1,15 +1,14 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
-import { animated, useTransition } from "@react-spring/web";
-import styled from "styled-components";
+import { useTransition } from "@react-spring/web";
 import useSWR from "swr";
 
-import style from "@agir/front/genericComponents/_variables.scss";
 import { ManagerMainPanel, ReferentMainPanel } from "./MainPanel";
 import EditionPanel from "./EditionPanel";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
-import HeaderPanel from "@agir/groups/groupPage/GroupSettings/HeaderPanel";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
+import { PanelWrapper } from "@agir/front/genericComponents/ObjectManagement/PanelWrapper";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
@@ -26,17 +25,6 @@ const slideInTransition = {
   enter: { transform: "translateX(0%)" },
   leave: { transform: "translateX(100%)" },
 };
-
-const EditionPanelWrapper = styled(animated.div)`
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 2rem;
-  background-color: white;
-  width: 100%;
-  height: 100%;
-  box-shadow: ${style.elaborateShadow};
-`;
 
 const GroupManagementPage = (props) => {
   const { onBack, illustration, groupPk } = props;
@@ -126,7 +114,7 @@ const GroupManagementPage = (props) => {
       {transition(
         (style, item) =>
           item && (
-            <EditionPanelWrapper style={style}>
+            <PanelWrapper style={style}>
               <EditionPanel
                 members={members}
                 onBack={handleBack}
@@ -137,7 +125,7 @@ const GroupManagementPage = (props) => {
                 errors={errors}
                 isLoading={isLoading}
               />
-            </EditionPanelWrapper>
+            </PanelWrapper>
           )
       )}
     </>

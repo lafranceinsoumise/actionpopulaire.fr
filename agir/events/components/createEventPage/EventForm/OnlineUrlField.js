@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import TextField from "@agir/front/formComponents/TextField";
 import styled from "styled-components";
+
+import { useEventFormOptions } from "@agir/events/common/hooks";
 
 const StyledField = styled.div`
   > span:first-child {
@@ -19,14 +21,22 @@ const OnlineUrlField = (props) => {
     label,
     placeholder,
     value,
-    defaultUrl,
     onChange,
     error,
     disabled,
     ...rest
   } = props;
 
+  const options = useEventFormOptions();
+  const defaultUrl = options.onlineUrl;
   const [isOnline, setIsOnline] = useState(!!value);
+  const [onlineUrl, setOnlineUrl] = useState(value);
+  const [isAuto, setIsAuto] = useState(false);
+
+  useEffect(() => {
+    setIsOnline(!!value);
+    setOnlineUrl(value);
+  }, [value]);
 
   const handleChange = (e) => {
     onChange(name, e.target.value);
@@ -34,10 +44,11 @@ const OnlineUrlField = (props) => {
 
   const handleChangeUrl = (event) => {
     if (!event.target.checked) {
-      onChange(name, "");
+      setIsAuto(false);
       return;
     }
     onChange(name, defaultUrl);
+    setIsAuto(true);
   };
 
   const handleChangeOnline = (event) => {
@@ -63,7 +74,7 @@ const OnlineUrlField = (props) => {
             <CheckboxField
               disabled={disabled}
               label="Utiliser le service de visio-conférence automatique de La France insoumise"
-              value={value === defaultUrl}
+              value={isAuto && onlineUrl === defaultUrl}
               onChange={handleChangeUrl}
             />
           )}
@@ -73,7 +84,7 @@ const OnlineUrlField = (props) => {
             disabled={disabled}
             name="url"
             error={error}
-            value={value}
+            value={onlineUrl}
             onChange={handleChange}
             placeholder={placeholder}
           />

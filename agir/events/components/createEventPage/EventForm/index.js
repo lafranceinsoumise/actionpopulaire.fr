@@ -372,7 +372,6 @@ const EventForm = () => {
           onChange={updateValue}
           error={errors && errors.onlineUrl}
           value={formData.onlineUrl}
-          defaultUrl={options.onlineUrl}
           placeholder="URL de la visio-conférence (facultatif)"
         />
         <Spacer size="1.5rem" ref={locationRef} />

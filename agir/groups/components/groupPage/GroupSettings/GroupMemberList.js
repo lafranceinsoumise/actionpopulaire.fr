@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import GroupMember from "./GroupMember";
-import AddPair from "./AddPair";
+import ButtonAddList from "@agir/front/genericComponents/ObjectManagement/ButtonAddList";
 
 const MemberList = styled.div`
   box-shadow: ${(props) => props.theme.cardShadow};
@@ -54,7 +54,7 @@ const GroupMemberList = ({
         />
       ))}
       {onAdd && addButtonLabel && (
-        <AddPair onClick={onAdd} label={addButtonLabel} />
+        <ButtonAddList onClick={onAdd} label={addButtonLabel} />
       )}
     </MemberList>
   );

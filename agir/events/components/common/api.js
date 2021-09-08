@@ -5,12 +5,17 @@ export const ENDPOINT = {
   getEvent: "/api/evenements/:eventPk/",
   rsvpEvent: "/api/evenements/:eventPk/inscription/",
   quitEvent: "/api/evenements/:eventPk/inscription/",
+
   eventPropertyOptions: "/api/evenements/options/",
   createEvent: "/api/evenements/creer/",
   updateEvent: "/api/evenements/:eventPk/modifier/",
   eventProjects: "/api/evenements/projets/",
   eventProject: "/api/evenements/:eventPk/projet/",
   addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
+  getParticipants: "/api/evenements/:eventPk/participants/",
+  addOrganizer: "/api/evenements/:eventPk/organizers/",
+  cancelEvent: "/api/evenements/:eventPk/annuler/",
+  updateLocation: "/evenements/:eventPk/localisation/",
 };
 
 export const getEventEndpoint = (key, params) => {
@@ -93,18 +98,39 @@ export const createEvent = async (data) => {
 export const updateEvent = async (eventPk, data) => {
   const result = {
     data: null,
-    errors: null,
+    error: null,
   };
-
   const url = getEventEndpoint("updateEvent", { eventPk });
+  let headers = undefined;
+  let body = data;
 
-  try {
-    const response = await axios.patch(url, data);
-    result.data = response.data;
-  } catch (e) {
-    result.errors = (e.response && e.response.data) || { global: e.message };
+  if (body.subtype) {
+    body.subtype = body.subtype.id;
   }
 
+  if (body.image || body.compteRenduPhotos?.length > 0) {
+    body = new FormData();
+    Object.keys(data).forEach((e) => {
+      body.append(e, data[e]);
+    });
+    headers = {
+      "content-type": "multipart/form-data",
+    };
+  }
+
+  try {
+    const response = await axios.patch(url, body, { headers });
+    result.data = response.data;
+  } catch (e) {
+    if (e.response && e.response.data) {
+      result.error =
+        e.response.status === 400 && data.image
+          ? { image: "La taille du fichier ne doit pas dépasser 2.5 Mo" }
+          : e.response.data;
+    } else {
+      result.error = e.message;
+    }
+  }
   return result;
 };
 
@@ -161,6 +187,60 @@ export const addEventProjectDocument = async (eventPk, data) => {
         {}
       );
     }
+  }
+
+  return result;
+};
+
+export const getParticipants = async (eventPk) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("getParticipants", { eventPk });
+
+  try {
+    const response = await axios.patch(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};
+
+export const addOrganizer = async (eventPk, data) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("addOrganizer", { eventPk });
+
+  try {
+    const response = await axios.post(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};
+
+export const cancelEvent = async (eventPk) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("cancelEvent", { eventPk });
+
+  try {
+    const response = await axios.post(url);
+    result.data = response.data;
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
   }
 
   return result;

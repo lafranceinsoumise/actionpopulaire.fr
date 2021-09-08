@@ -21,7 +21,6 @@ export const Default = Template.bind({});
 Default.args = {
   name: "visioConf",
   label: "Visio-conférence",
-  defaultUrl: "https://actionpopulaire.fr",
   placeholder: "URL de la visio-conférence (facultatif)",
   error: "",
 };
