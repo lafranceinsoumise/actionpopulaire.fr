@@ -176,15 +176,17 @@ const ConnectedUserActions = (props) => {
       )}
 
       <ModalConfirmation
+        key={1}
         shouldShow={isOpenModalJoin}
         onClose={() => setIsOpenModalJoin(false)}
         title={modalJoinTitle}
         description={modalJoinDescription}
         dismissLabel={modalJoinDismiss}
         confirmationLabel={modalJoinConfirm}
-        confirmationUrl="#"
+        confirmationUrl="messages"
       />
       <ModalConfirmation
+        key={2}
         shouldShow={isOpenModalFollow}
         onClose={() => setIsOpenModalFollow(false)}
         title={modalFollowTitle}
