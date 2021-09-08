@@ -11,6 +11,7 @@ from agir.groups.tasks import (
     send_message_notification_email,
     send_comment_notification_email,
 )
+from agir.notifications.models import Subscription
 
 
 @transaction.atomic()
@@ -111,9 +112,43 @@ def new_message_notifications(message):
 
 @transaction.atomic()
 def new_comment_notifications(comment):
-    recipients = [comment.message.author] + [
-        comment.author for comment in comment.message.comments.all()
-    ]
+    comment_authors = list(comment.message.comments.values_list("author_id", flat=True))
+    comment_authors = set(comment_authors + [comment.message.author_id])
+
+    participant_recipients = comment.message.supportgroup.members.exclude(
+        id=comment.author.id
+    ).filter(
+        notification_subscriptions__membership__supportgroup=comment.message.supportgroup,
+        notification_subscriptions__person__in=comment_authors,
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+    )
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                individual=comment.author,
+                supportgroup=comment.message.supportgroup,
+                type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+                recipient=r,
+                status=Activity.STATUS_UNDISPLAYED,
+                meta={"message": str(comment.message.pk), "comment": str(comment.pk),},
+            )
+            for r in participant_recipients
+        ],
+        send_post_save_signal=True,
+    )
+
+    other_recipients = (
+        comment.message.supportgroup.members.exclude(id=comment.author.id)
+        .exclude(id__in=participant_recipients.values_list("id", flat=True))
+        .filter(
+            notification_subscriptions__membership__supportgroup=comment.message.supportgroup,
+            notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
+            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
+        )
+    )
+
     Activity.objects.bulk_create(
         [
             Activity(
@@ -124,8 +159,7 @@ def new_comment_notifications(comment):
                 status=Activity.STATUS_UNDISPLAYED,
                 meta={"message": str(comment.message.pk), "comment": str(comment.pk),},
             )
-            for r in recipients
-            if r.pk != comment.author.pk
+            for r in other_recipients
         ],
         send_post_save_signal=True,
     )
