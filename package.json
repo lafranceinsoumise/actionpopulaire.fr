@@ -84,7 +84,7 @@
     "sass-loader": "12.1.0",
     "short-uuid": "^4.2.0",
     "styled-components": "^5.3.1",
-    "swiper": "^7.0.3",
+    "swiper": "^7.0.4",
     "swr": "^1.0.0",
     "tinymce": "^5.9.2",
     "tinymce-i18n": "^20.12.25",
