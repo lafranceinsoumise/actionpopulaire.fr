@@ -127,29 +127,25 @@ class EventSuggestionsAPIView(ListAPIView):
     def get_queryset(self):
         person = self.request.user.person
         person_groups = person.supportgroups.all()
-        base_queryset = Event.objects.with_serializer_prefetch(person)
+        base_queryset = Event.objects.with_serializer_prefetch(person).select_related(
+            "subtype"
+        )
 
-        groups_events = (
-            base_queryset.upcoming()
-            .filter(organizers_groups__in=person_groups)
-            .distinct()
+        groups_events = base_queryset.upcoming().filter(
+            organizers_groups__in=person_groups
         )
 
         organized_events = (
-            base_queryset.past()
-            .filter(organizers=person)
-            .distinct()
-            .order_by("-start_time")[:10]
+            base_queryset.past().filter(organizers=person).order_by("-start_time")[:10]
         )
 
         past_events = (
             base_queryset.past()
             .filter(Q(rsvps__person=person) | Q(organizers_groups__in=person_groups))
-            .distinct()
             .order_by("-start_time")[:10]
         )
 
-        result = groups_events.union(organized_events, past_events)
+        result = groups_events | organized_events | past_events
 
         if person.coordinates is not None:
             near_events = (
@@ -162,16 +158,10 @@ class EventSuggestionsAPIView(ListAPIView):
                 .order_by("distance")[:10]
             )
 
-            result = (
-                base_queryset.filter(
-                    pk__in=[e.pk for e in near_events] + [e.pk for e in result]
-                )
-                .annotate(distance=Distance("coordinates", person.coordinates))
-                .order_by("start_time")
-                .distinct()
-            ).select_related("subtype")
-        else:
-            result = result.order_by("start_time")
+            result = result | near_events
+            result.annotate(distance=Distance("coordinates", person.coordinates))
+
+        result = result.distinct().order_by("start_time")
 
         return result
 
