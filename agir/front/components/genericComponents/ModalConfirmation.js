@@ -59,7 +59,6 @@ const ModalConfirmation = (props) => {
         <ModalContent>
           <h1>{title}</h1>
           {description}
-
           <Spacer size="1rem" />
           {!!confirmationUrl && (
             <Button
@@ -87,6 +86,11 @@ const ModalConfirmation = (props) => {
 ModalConfirmation.propTypes = {
   shouldShow: PropTypes.bool,
   onClose: PropTypes.func,
+  title: PropTypes.string,
+  description: PropTypes.string,
+  dismissLabel: PropTypes.string,
+  confirmationLabel: PropTypes.string,
+  confirmationUrl: PropTypes.string,
 };
 
 export default ModalConfirmation;
