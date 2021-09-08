@@ -13,40 +13,47 @@ const port = process.env.JS_SERVER
 
 module.exports = merge.merge(common("dev"), {
   mode: "development",
-  devtool: "eval-source-map",
+  devtool: "eval-cheap-module-source-map",
   output: {
     publicPath: `http://${serverName}:${port}/static/components/`,
     devtoolModuleFilenameTemplate: "webpack://[absolute-resource-path]",
-    filename: "[name]-[fullhash].js",
+    filename: "[name].js",
+    pathinfo: false,
+  },
+  optimization: {
+    runtimeChunk: true,
+    removeAvailableModules: false,
+    removeEmptyChunks: false,
+    splitChunks: false,
+    moduleIds: "named",
+    chunkIds: "named",
+    emitOnErrors: false,
   },
   watchOptions: {
     poll: 1000,
   },
   devServer: {
-    publicPath: `http://${serverName}:${port}/static/components/`,
-    public: `${serverName}:${port}`,
-    contentBase: path.join(__dirname, "/assets/components/"),
-    compress: true,
-    hot: true,
-    hotOnly: true,
+    hot: "only",
     host: serverName === "localhost" ? "localhost" : "0.0.0.0",
     port: port,
+    devMiddleware: {
+      publicPath: `http://${serverName}:${port}/static/components/`,
+      writeToDisk: true,
+    },
+    client: {
+      webSocketURL: `auto://${serverName}:${port}`,
+    },
+    static: {
+      directory: path.join(__dirname, "/assets/components/"),
+      watch: false,
+    },
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
-    writeToDisk: true,
-    allowedHosts: ["agir.local"], // l'appli Django est toujours sur agir.local
-    injectClient: ({ name }) => name !== "chill",
-    injectHot: ({ name }) => name !== "chill",
-  },
-  optimization: {
-    moduleIds: "named",
-    chunkIds: "named",
-    emitOnErrors: false,
+    allowedHosts: ["agir.local"],
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
     new ReactRefreshWebpackPlugin(),
     new webpack.EnvironmentPlugin({
       DEBUG: "agir:*", // default value if not defined in .env

@@ -7,7 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import { Hide } from "@agir/front/genericComponents/grid";
-import NotificationSettingLink from "@agir/activity/NotificationSettings/NotificationSettingLink";
+import NotificationSettingLink from "@agir/notifications/NotificationSettings/NotificationSettingLink";
 
 import MessageThreadCard from "./MessageThreadCard";
 

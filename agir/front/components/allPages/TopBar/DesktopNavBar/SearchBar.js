@@ -4,10 +4,12 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { search as searchRoute } from "@agir/front/globalContext/nonReactRoutes.config";
+import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Button from "@agir/front/genericComponents/Button";
+
+const searchRoute = nonReactRoutes.search;
 
 const SearchBarIndicator = styled.div``;
 const SearchBarButton = styled(Button)``;

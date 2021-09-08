@@ -14,7 +14,7 @@ const BOOKMARKED_EMAILS_COOKIE_OPTIONS = {
 };
 
 export const getBookmarkedEmails = () => {
-  let cookieData = Cookies.getJSON(BOOKMARKED_EMAILS_COOKIE_NAME);
+  let cookieData = JSON.parse(Cookies.get(BOOKMARKED_EMAILS_COOKIE_NAME));
   if (!cookieData) {
     return [];
   }
@@ -24,7 +24,7 @@ export const getBookmarkedEmails = () => {
 export const bookmarkEmails = (emails) => {
   Cookies.set(
     BOOKMARKED_EMAILS_COOKIE_NAME,
-    emails,
+    JSON.stringify(emails),
     BOOKMARKED_EMAILS_COOKIE_OPTIONS
   );
 
@@ -33,7 +33,10 @@ export const bookmarkEmails = (emails) => {
 
 export const bookmarkEmail = (email) => {
   const bookmarkedEmails = getBookmarkedEmails();
-  const cookieData = [email, ...bookmarkedEmails.filter((e) => e !== email)];
+  const cookieData = JSON.stringify([
+    email,
+    ...bookmarkedEmails.filter((e) => e !== email),
+  ]);
 
   Cookies.set(
     BOOKMARKED_EMAILS_COOKIE_NAME,
