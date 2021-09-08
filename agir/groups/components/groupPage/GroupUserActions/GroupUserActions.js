@@ -33,18 +33,29 @@ const GroupUserActions = (props) => {
   const { isAuthenticated, isMember, isActiveMember, isManager, routes } =
     props;
 
-  const isNonMemberActions = !isAuthenticated && !isMember;
-  const isFollowerActions = !isNonMemberActions && !isActiveMember;
-  const isMemberActions = !isFollowerActions && !isManager;
+  const isAnonymousActions = !isAuthenticated;
+  const isNonMemberActions = !isAnonymousActions && !isMember;
+  const isFollowerActions =
+    !isAnonymousActions && !isNonMemberActions && !isActiveMember;
+  const isMemberActions =
+    !isAnonymousActions &&
+    !isNonMemberActions &&
+    !isFollowerActions &&
+    !isManager;
+  const isManagerActions =
+    !isAnonymousActions &&
+    !isNonMemberActions &&
+    !isFollowerActions &&
+    !isMemberActions;
 
   return (
     <StyledContent>
-      {!isAuthenticated && <AnonymousActions {...props} />}
+      {isAnonymousActions && <AnonymousActions {...props} />}
       {isNonMemberActions && <NonMemberActions {...props} />}
       {isFollowerActions && <FollowerActions {...props} />}
       {isMemberActions && <MemberActions {...props} />}
-      {!isMemberActions && <ManagerActions {...props} />}
-      <SecondaryActions routes={routes} />
+      {isManagerActions && <ManagerActions {...props} />}
+      <SecondaryActions isAuthenticated={isAuthenticated} routes={routes} />
     </StyledContent>
   );
 };
