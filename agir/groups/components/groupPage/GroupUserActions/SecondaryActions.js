@@ -38,7 +38,7 @@ const SecondaryActions = ({ routes }) => {
   return (
     <StyledWrapper>
       <StyledContainer>
-        <Button type="button">
+        <Button type="button" link route={"messages"}>
           <RawFeatherIcon name="mail" width="1rem" height="1rem" />
           Contacter
         </Button>

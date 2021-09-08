@@ -9,7 +9,6 @@ import NonMemberActions from "./NonMemberActions";
 import FollowerActions from "./FollowerActions";
 import MemberActions from "./MemberActions";
 import ManagerActions from "./ManagerActions";
-
 import SecondaryActions from "./SecondaryActions";
 
 const StyledContent = styled.div`
@@ -55,7 +54,7 @@ const GroupUserActions = (props) => {
       {isFollowerActions && <FollowerActions {...props} />}
       {isMemberActions && <MemberActions {...props} />}
       {isManagerActions && <ManagerActions {...props} />}
-      <SecondaryActions isAuthenticated={isAuthenticated} routes={routes} />
+      <SecondaryActions routes={routes} />
     </StyledContent>
   );
 };
