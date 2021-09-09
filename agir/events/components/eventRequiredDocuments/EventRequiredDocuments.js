@@ -193,6 +193,9 @@ const EventRequiredDocuments = (props) => {
           status={status}
           hasRequiredDocuments={requiredDocumentTypes.length > 0}
           hasMissingDocuments={required.length > 0}
+          hasDismissedAllDocuments={
+            requiredDocumentTypes.length <= dismissedDocumentTypes.length
+          }
         />
         <SentDocumentsCard documents={documents} />
         <EventSubtypePicker
