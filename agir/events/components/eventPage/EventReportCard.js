@@ -1,10 +1,12 @@
 import { DateTime } from "luxon";
 import React from "react";
 import styled from "styled-components";
-import Collapsible from "../../../front/components/genericComponents/Collapsible";
-import Button from "../../../front/components/genericComponents/Button";
-import Card from "../../../front/components/genericComponents/Card";
+import Collapsible from "@agir/front/genericComponents/Collapsible";
+import Button from "@agir/front/genericComponents/Button";
+import Card from "@agir/front/genericComponents/Card";
+import Spacer from "@agir/front/genericComponents/Spacer.js";
 import style from "@agir/front/genericComponents/_variables.scss";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledCard = styled(Card)`
   p {
@@ -16,7 +18,7 @@ const StyledCard = styled(Card)`
   border-bottom: 1px solid ${style.black50};
 `;
 
-const EventReportCard = ({ compteRendu, isOrganizer, endTime, routes }) => {
+const EventReportCard = ({ id, compteRendu, isOrganizer, endTime, routes }) => {
   const isPast = endTime < DateTime.local();
 
   if (!isPast) {
@@ -30,6 +32,7 @@ const EventReportCard = ({ compteRendu, isOrganizer, endTime, routes }) => {
   return (
     <StyledCard>
       <b>Compte-rendu</b>
+      <Spacer size="0.5rem" />
       {compteRendu ? (
         <Collapsible
           dangerouslySetInnerHTML={{ __html: compteRendu }}
@@ -40,7 +43,13 @@ const EventReportCard = ({ compteRendu, isOrganizer, endTime, routes }) => {
         <p>Il n'y a pas encore de compte-rendu de cet événement.</p>
       )}
       {isOrganizer && (
-        <Button style={{ marginTop: "1rem" }} link href={routes.compteRendu}>
+        <Button
+          style={{ marginTop: "1rem" }}
+          link
+          to={
+            routeConfig.eventSettings.getLink({ eventPk: id }) + "compte-rendu/"
+          }
+        >
           {compteRendu ? "Modifier le" : "Ajouter un"} compte-rendu
         </Button>
       )}

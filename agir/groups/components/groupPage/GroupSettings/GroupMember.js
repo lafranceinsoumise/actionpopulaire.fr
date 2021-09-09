@@ -63,7 +63,7 @@ const Member = styled.div`
   background-color: ${style.white};
   padding: 0.75rem 1rem;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0 1rem;
 
   & > * {

@@ -1,9 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import Button from "../../../front/components/genericComponents/Button";
 import { DateTime } from "luxon";
-import Card from "../../../front/components/genericComponents/Card";
 
+import Card from "@agir/front/genericComponents/Card";
+import Button from "@agir/front/genericComponents/Button";
+import Spacer from "@agir/front/genericComponents/Spacer.js";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 const Thumbnails = styled.div`
@@ -52,35 +53,38 @@ const EventPhotosCard = ({ compteRenduPhotos, endTime, rsvp, routes }) => {
     return null;
   }
 
-  if (compteRenduPhotos.length === 0 && rsvp !== "CO") {
+  if (compteRenduPhotos?.length === 0 && rsvp !== "CO") {
     return null;
   }
 
   return (
     <StyledCard>
       <b>Photos</b>
-      {compteRenduPhotos.length > 0 ? (
+      <Spacer size="0.5rem" />
+
+      {compteRenduPhotos?.length > 0 ? (
         <Thumbnails>
-          {compteRenduPhotos.map((url) => (
-            <a
-              key={url.image}
-              href={url.image}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <img
-                src={url.thumbnail}
-                width="400"
-                height="250"
-                alt={
-                  url.legend || "Photo de l'événement postée par l'utilisateur"
-                }
-                title={
-                  url.legend || "Photo de l'événement postée par l'utilisateur"
-                }
-              />
-            </a>
-          ))}
+          {Array.isArray(compteRenduPhotos) &&
+            compteRenduPhotos.map((url) => {
+              const legend =
+                url.legend || "Photo de l'événement postée par l'utilisateur";
+              return (
+                <a
+                  key={url.image}
+                  href={url.image}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <img
+                    src={url.thumbnail}
+                    width="400"
+                    height="250"
+                    alt={legend}
+                    title={legend}
+                  />
+                </a>
+              );
+            })}
         </Thumbnails>
       ) : (
         <p>Il n'y a pas encore de photo de cet événement.</p>

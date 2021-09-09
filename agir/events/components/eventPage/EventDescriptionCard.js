@@ -8,6 +8,7 @@ import Card from "@agir/front/genericComponents/Card";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const DescriptionSection = styled.div`
   margin: 0;
@@ -44,11 +45,11 @@ const StyledCard = styled(Card)`
 `;
 
 const EventDescriptionCard = ({
+  id,
   illustration,
   description,
   isOrganizer,
   endTime,
-  routes,
 }) => {
   const image = useResponsiveMemo(null, illustration?.banner);
   const canEdit = isOrganizer && endTime > DateTime.local();
@@ -65,31 +66,38 @@ const EventDescriptionCard = ({
         <Spacer size="1rem" />
 
         <DescriptionSection>
-          {image ? (
+          {image && (
             <img
               src={image}
               alt="Image d'illustration de l'événement postée par l'utilisateur"
             />
-          ) : null}
+          )}
           {description ? (
             <div dangerouslySetInnerHTML={{ __html: description }} />
-          ) : canEdit ? (
-            <p>
-              <strong>Ajoutez une description !</strong> Donner tous les
-              informations nécessaires aux participants de votre événement.
-              Comment accéder au lieu, quel est le programme, les liens pour
-              être tenu au courant...{" "}
-              {image ? "Et ajoutez une image\xa0!" : null}
-            </p>
-          ) : null}
+          ) : (
+            canEdit && (
+              <p>
+                <strong>Ajoutez une description !</strong> Donner tous les
+                informations nécessaires aux participants de votre événement.
+                Comment accéder au lieu, quel est le programme, les liens pour
+                être tenu au courant... {!image && "Et ajoutez une image\xa0!"}
+              </p>
+            )
+          )}
         </DescriptionSection>
 
         {canEdit && (
           <StyledActionButtons>
-            <Button link href={routes.edit}>
+            <Button
+              link
+              to={routeConfig.eventSettings.getLink({ eventPk: id })}
+            >
               {description ? "Modifier la" : "Ajouter une"} description
             </Button>
-            <Button link href={routes.edit}>
+            <Button
+              link
+              to={routeConfig.eventSettings.getLink({ eventPk: id })}
+            >
               {image ? "Changer l'" : "Ajouter une "}image d'illustration
             </Button>
           </StyledActionButtons>

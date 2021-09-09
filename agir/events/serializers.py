@@ -117,6 +117,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "organizers",
         "distance",
         "compteRendu",
+        "compteRenduPhotos",
         "subtype",
         "onlineUrl",
     ]
@@ -128,7 +129,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     description = serializers.CharField(source="html_description")
     compteRendu = serializers.CharField(source="report_content")
-    compteRenduPhotos = serializers.SerializerMethodField()
+    compteRenduPhotos = serializers.SerializerMethodField(source="report_image")
+
     illustration = serializers.SerializerMethodField()
 
     startTime = serializers.SerializerMethodField()
@@ -216,7 +218,16 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return self.rsvp and self.rsvp.status
 
     def get_compteRenduPhotos(self, obj):
-        return [
+        photos = []
+        if obj.report_image:
+            photos = [
+                {
+                    "image": obj.report_image.url,
+                    "thumbnail": obj.report_image.thumbnail.url,
+                    "banner": obj.report_image.banner.url,
+                }
+            ]
+        photos = photos + [
             {
                 "image": instance.image.url,
                 "thumbnail": instance.image.thumbnail.url,
@@ -224,6 +235,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             }
             for instance in obj.images.all()
         ]
+        return photos
 
     def get_routes(self, obj):
         routes = {}
@@ -478,7 +490,9 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     contact = NestedContactSerializer(source="*")
     location = LocationSerializer(source="*")
     compteRendu = serializers.CharField(source="report_content")
-    # compteRenduPhotos = serializers.CharField(source="report_image")
+    compteRenduPhotos = serializers.ImageField(
+        source="report_image", allow_empty_file=True, allow_null=True
+    )
 
     class Meta:
         model = Event
@@ -496,7 +510,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
             "contact",
             "location",
             "compteRendu",
-            # "compteRenduPhotos"
+            "compteRenduPhotos",
         ]
 
     def update(self, instance, validated_data):
