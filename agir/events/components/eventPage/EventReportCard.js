@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Collapsible from "@agir/front/genericComponents/Collapsible";
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
-import Spacer from "@agir/front/genericComponents/Spacer.js";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { routeConfig } from "@agir/front/app/routes.config";
 
@@ -46,9 +46,10 @@ const EventReportCard = ({ id, compteRendu, isOrganizer, endTime, routes }) => {
         <Button
           style={{ marginTop: "1rem" }}
           link
-          to={
-            routeConfig.eventSettings.getLink({ eventPk: id }) + "compte-rendu/"
-          }
+          to={routeConfig.eventSettings.getLink({
+            eventPk: id,
+            activePanel: "compte-rendu",
+          })}
         >
           {compteRendu ? "Modifier le" : "Ajouter un"} compte-rendu
         </Button>

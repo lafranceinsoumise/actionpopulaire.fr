@@ -93,11 +93,7 @@ const EventFeedback = (props) => {
   useEffect(() => {
     setFormData({
       compteRendu: event.compteRendu,
-      compteRenduPhoto:
-        event.compteRenduPhotos?.length &&
-        event.compteRenduPhotos[0]?.isReportImage
-          ? event.compteRenduPhotos[0]?.image
-          : null,
+      compteRenduPhoto: event.compteRenduMainPhoto?.image,
     });
   }, [event]);
 

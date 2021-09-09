@@ -117,6 +117,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "organizers",
         "distance",
         "compteRendu",
+        "compteRenduMainPhoto",
         "compteRenduPhotos",
         "subtype",
         "onlineUrl",
@@ -129,7 +130,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     description = serializers.CharField(source="html_description")
     compteRendu = serializers.CharField(source="report_content")
-    compteRenduPhotos = serializers.SerializerMethodField(source="report_image")
+    compteRenduMainPhoto = serializers.SerializerMethodField(source="report_image")
+    compteRenduPhotos = serializers.SerializerMethodField()
 
     illustration = serializers.SerializerMethodField()
 
@@ -217,18 +219,16 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_rsvp(self, obj):
         return self.rsvp and self.rsvp.status
 
-    def get_compteRenduPhotos(self, obj):
-        photos = []
+    def get_compteRenduMainPhoto(self, obj):
         if obj.report_image:
-            photos = [
-                {
-                    "image": obj.report_image.url,
-                    "thumbnail": obj.report_image.thumbnail.url,
-                    "banner": obj.report_image.banner.url,
-                    "isReportImage": True,
-                }
-            ]
-        photos = photos + [
+            return {
+                "image": obj.report_image.url,
+                "thumbnail": obj.report_image.thumbnail.url,
+                "banner": obj.report_image.banner.url,
+            }
+
+    def get_compteRenduPhotos(self, obj):
+        return [
             {
                 "image": instance.image.url,
                 "thumbnail": instance.image.thumbnail.url,
@@ -236,7 +236,6 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
             }
             for instance in obj.images.all()
         ]
-        return photos
 
     def get_routes(self, obj):
         routes = {}
