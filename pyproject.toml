@@ -26,7 +26,7 @@ django-otp = "==1.*"  # 2FA in admin
 django-filter = "==2.*"  # add useful filters
 django-oauth-toolkit = "==1.*"  # add OAuth server
 rules = "==3.*"  # add useful authorization rules
-django-reversion = "==3.*"  # versioning of models
+django-reversion = "==4.*"  # versioning of models
 ## Django Rest Framework
 djangorestframework = "==3.*,>=3.10"
 djangorestframework-gis = "==0.17"
