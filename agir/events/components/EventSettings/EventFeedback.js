@@ -25,7 +25,7 @@ const EventFeedback = (props) => {
 
   const [formData, setFormData] = useState({
     compteRendu: "",
-    compteRenduPhotos: "",
+    compteRenduPhoto: "",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +43,7 @@ const EventFeedback = (props) => {
       setErrors((errors) => ({ ...errors, image: null }));
       setImageHasChanged(value !== originalImage);
       value && value !== originalImage && setHasCheckedImageLicence(false);
-      setFormData((formData) => ({ ...formData, compteRenduPhotos: value }));
+      setFormData((formData) => ({ ...formData, compteRenduPhoto: value }));
     },
     [originalImage]
   );
@@ -60,7 +60,7 @@ const EventFeedback = (props) => {
     setIsLoading(true);
 
     if (
-      formData.compteRenduPhotos &&
+      formData.compteRenduPhoto &&
       imageHasChanged &&
       !hasCheckedImageLicence
     ) {
@@ -73,11 +73,11 @@ const EventFeedback = (props) => {
       return;
     }
 
-    if (!imageHasChanged) delete formData.compteRenduPhotos;
+    if (!imageHasChanged) delete formData.compteRenduPhoto;
 
     const res = await api.updateEvent(eventPk, {
       compteRendu: formData.compteRendu,
-      compteRenduPhotos: formData.compteRenduPhotos,
+      compteRenduPhotos: formData.compteRenduPhoto,
     });
     setIsLoading(false);
     if (res.error) {
@@ -93,7 +93,7 @@ const EventFeedback = (props) => {
   useEffect(() => {
     setFormData({
       compteRendu: event.compteRendu,
-      compteRenduPhotos:
+      compteRenduPhoto:
         event.compteRenduPhotos?.length &&
         event.compteRenduPhotos[0]?.isReportImage
           ? event.compteRenduPhotos[0]?.image
@@ -120,7 +120,7 @@ const EventFeedback = (props) => {
       <Spacer size="1rem" />
 
       <h4>
-        {!formData.compteRenduPhotos || imageHasChanged
+        {!formData.compteRenduPhoto || imageHasChanged
           ? "Ajouter une photo"
           : "Photo"}
       </h4>
@@ -130,14 +130,14 @@ const EventFeedback = (props) => {
       </span>
       <Spacer size="0.5rem" />
       <ImageField
-        name="compteRenduPhotos"
-        value={formData.compteRenduPhotos}
+        name="compteRenduPhoto"
+        value={formData.compteRenduPhoto}
         onChange={handleChangeImage}
         error={errors?.image}
         accept=".jpg,.jpeg,.gif,.png"
       />
 
-      {formData.compteRenduPhotos && imageHasChanged && (
+      {formData.compteRenduPhoto && imageHasChanged && (
         <>
           <Spacer size="0.5rem" />
           <CheckboxField
@@ -157,7 +157,7 @@ const EventFeedback = (props) => {
         </>
       )}
 
-      {formData.compteRenduPhotos && (
+      {formData.compteRenduPhoto && (
         <>
           <Spacer size="0.5rem" />
           <Button link small href={event?.routes.addPhoto}>
