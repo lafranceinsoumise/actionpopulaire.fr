@@ -440,15 +440,11 @@ class VolunteerFormTestCases(TestCase):
                 "agir localement": "on",
                 "agir listes électorales": "on",
                 "volontaire_procurations": "on",
-                "draw_participation": "on",
-                "gender": "O",
             },
             follow=True,
         )
 
         self.person = Person.objects.get(pk=self.person.pk)
-        self.assertTrue(self.person.draw_participation)
-        self.assertEqual(self.person.gender, "O")
         self.assertContains(response, "N’attendez pas les consignes pour agir.")
 
 
