@@ -225,6 +225,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
                     "image": obj.report_image.url,
                     "thumbnail": obj.report_image.thumbnail.url,
                     "banner": obj.report_image.banner.url,
+                    "isReportImage": True,
                 }
             ]
         photos = photos + [
