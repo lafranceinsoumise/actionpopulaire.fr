@@ -15,7 +15,7 @@ dj-email-url = "==0.2.*"  # for easing up SMTP settings
 django-cors-headers = "==3.*"  # configuring CORS Headers
 ## model and form fields
 django-countries = "==7.*"  # country fields
-django-phonenumber-field = "==3.*"  # phone number field
+django-phonenumber-field = "==5.*"  # phone number field
 phonenumbers = "==8.12.29"  # optional requirement of django-phonenumber-field
 django-stdimage = "==5.*"  # better image field with handling of variations
 django-dynamic-filenames = "==1.*"  # better handling of upload path for file fields
@@ -96,7 +96,7 @@ pympler = "*"
 locust = "*"
 pyquery = "*"
 jedi = "==0.17.*"  # version 0.18.* fait crasher IPython (08/01/2021)
-hypothesis = {extras = ["django"], version = "^6.13.14"}
+hypothesis = {extras = ["django"], version = "^6.20.0"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
