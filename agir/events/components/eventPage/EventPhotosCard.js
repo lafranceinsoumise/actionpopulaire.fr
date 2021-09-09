@@ -53,7 +53,7 @@ const EventPhotosCard = ({ compteRenduPhotos, endTime, rsvp, routes }) => {
     return null;
   }
 
-  if (compteRenduPhotos?.length === 0 && rsvp !== "CO") {
+  if (compteRenduPhotos.length === 0 && rsvp !== "CO") {
     return null;
   }
 
@@ -62,7 +62,7 @@ const EventPhotosCard = ({ compteRenduPhotos, endTime, rsvp, routes }) => {
       <b>Photos</b>
       <Spacer size="0.5rem" />
 
-      {compteRenduPhotos?.length > 0 ? (
+      {compteRenduPhotos.length > 0 ? (
         <Thumbnails>
           {Array.isArray(compteRenduPhotos) &&
             compteRenduPhotos.map((url) => {
