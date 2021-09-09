@@ -4,9 +4,6 @@ import { useHistory, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import Spacer from "@agir/front/genericComponents/Spacer";
-
-import { useDownloadBanner } from "@agir/front/app/hooks.js";
 import {
   useDispatch,
   useSelector,
@@ -19,10 +16,8 @@ import {
   setPageTitle,
 } from "@agir/front/globalContext/actions";
 
-import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
-import TopBar from "@agir/front/allPages/TopBar/TopBar";
 
 import ErrorBoundary from "./ErrorBoundary";
 import logger from "@agir/lib/utils/logger";
@@ -48,7 +43,7 @@ const Page = (props) => {
 
   const dispatch = useDispatch();
   const isSessionLoaded = useSelector(getIsSessionLoaded);
-  const [isBannerDownload] = useDownloadBanner();
+
   const history = useHistory();
   const routeParams = useParams();
   const { pathname } = useLocation();
@@ -107,13 +102,7 @@ const Page = (props) => {
   if (!routeConfig.hasLayout) {
     return (
       <ErrorBoundary>
-        {!routeConfig.hideTopBar && <TopBar path={pathname} />}
-        {!routeConfig.hideTopBar && isBannerDownload && <Spacer size="80px" />}
-
         <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
-          {!routeConfig.hideConnectivityWarning && (
-            <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
-          )}
           <Suspense fallback={<div />}>
             <Component route={routeConfig} {...routeParams} {...rest} />
             {!routeConfig.hideFeedbackButton && (
@@ -127,12 +116,6 @@ const Page = (props) => {
 
   return (
     <ErrorBoundary>
-      {!routeConfig.hideTopBar && <TopBar path={pathname} />}
-      {!routeConfig.hideTopBar && isBannerDownload && <Spacer size="80px" />}
-      {!routeConfig.hideConnectivityWarning && (
-        <ConnectivityWarning hasTopBar={!routeConfig.hideTopBar} />
-      )}
-
       <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
         <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
           <Suspense fallback={<div />}>

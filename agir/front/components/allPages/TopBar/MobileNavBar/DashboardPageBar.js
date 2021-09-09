@@ -11,7 +11,7 @@ import RightLink from "./RightLink";
 import StyledBar, { IconLink } from "./StyledBar";
 
 export const DashboardPageBar = (props) => {
-  const { user, settingsLink } = props;
+  const { isLoading, user, settingsLink } = props;
   return (
     <StyledBar>
       <IconLink route="search">
@@ -22,13 +22,16 @@ export const DashboardPageBar = (props) => {
           <LogoAP small style={{ height: "36px", width: "auto" }} />
         </Link>
       </h1>
-      <RightLink user={user} settingsLink={settingsLink} />
+      <RightLink
+        isLoading={isLoading}
+        user={user}
+        settingsLink={settingsLink}
+      />
     </StyledBar>
   );
 };
 DashboardPageBar.propTypes = {
-  title: PropTypes.string,
-  backLink: PropTypes.object,
+  isLoading: PropTypes.bool,
   settingsLink: PropTypes.object,
   user: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
 };
