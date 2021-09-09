@@ -87,7 +87,7 @@ qrcode = {extras = ["pil"], version = "^7.2"}
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
-black = "==19.10b0"
+black = "==21.8b0"
 coverage = "*"
 django-debug-toolbar = "*"
 redislite = "*"  # used for testing
