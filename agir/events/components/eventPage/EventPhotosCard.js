@@ -64,8 +64,7 @@ const EventPhotosCard = ({ compteRenduPhotos, endTime, rsvp, routes }) => {
 
       {compteRenduPhotos.length > 0 ? (
         <Thumbnails>
-          {Array.isArray(compteRenduPhotos) &&
-            compteRenduPhotos.map((url) => {
+          {compteRenduPhotos.map((url) => {
               const legend =
                 url.legend || "Photo de l'événement postée par l'utilisateur";
               return (
