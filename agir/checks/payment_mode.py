@@ -11,10 +11,14 @@ class AbstractCheckPaymentMode(AbstractPaymentMode):
 
     title = "Votre paiement par chèque"
     category = "check"
+    label = "Par chèque"
     order = None
     address = None
     additional_information = None
-    warnings = []
+    warnings = [
+        "N'oubliez pas d'indiquer le numéro au dos de votre chèque ! Seul celui-ci permettra de traiter votre chèque"
+        " dans les meilleurs délais."
+    ]
 
     def __init__(self):
         self.view = CheckView.as_view(

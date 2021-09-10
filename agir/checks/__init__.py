@@ -6,7 +6,6 @@ from agir.checks.payment_mode import AbstractCheckPaymentMode
 class DonationCheckPaymentMode(AbstractCheckPaymentMode):
     id = "check_donations"
     url_fragment = "cheque-don"
-    label = _("Par chèque")
 
     order = "AFLFI"
     address = ["AFLFI - Dons", "BP 45", "91305 MASSY CEDEX"]
@@ -15,15 +14,10 @@ class DonationCheckPaymentMode(AbstractCheckPaymentMode):
         " quand ce sera fait (à moins que vous n'ayez désactivé les notifications)."
     )
 
-    warnings = [
-        "N'oubliez pas d'indiquer le numéro au dos de votre chèque ! Seul celui-ci permettra de traiter votre chèque dans les meilleurs délais."
-    ]
-
 
 class EventCheckPaymentMode(AbstractCheckPaymentMode):
     id = "check_events"
     url_fragment = "cheque-evenement"
-    label = _("Par chèque")
 
     order = "AFLFI"
     address = [
@@ -36,6 +30,15 @@ class EventCheckPaymentMode(AbstractCheckPaymentMode):
         " quand ce sera fait (à moins que vous n'ayez désactivé les notifications)."
     )
 
-    warnings = [
-        "N'oubliez pas d'indiquer le numéro au dos de votre chèque ! Seul celui-ci permettra de traiter votre chèque dans les meilleurs délais."
-    ]
+
+class AFCPJLMCheck(AbstractCheckPaymentMode):
+    id = "check_jlm2022_evenements"
+    url_fragment = "cheque-melenchon2022-evenements"
+
+    order = "AFCP JLM 2022"
+    address = ["Mélenchon 2022 — Service Événement", "25 passage Dubail", "75010 Paris"]
+
+    additional_information = (
+        "Votre versement ne sera confirmé qu'à réception du chèque. Vous recevrez un message de confirmation quand ce "
+        " sera fait."
+    )
