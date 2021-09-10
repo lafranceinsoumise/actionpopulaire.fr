@@ -10,9 +10,9 @@ from django.utils.translation import ugettext_lazy as _
 from agir.donations.validators import validate_iban
 from agir.lib.form_fields import IBANField as FormIBANField
 from agir.lib.iban import to_iban, IBAN
+from agir.lib.utils import validate_facebook_event_url
 
-
-FACEBOOK_ERROR = (
+INVALID_FACEBOOK_EVENT_LINK_MESSAGE = (
     "Vous devez indiquez soit l'identifiant de la page Facebook, soit son URL"
 )
 
@@ -129,30 +129,8 @@ class FacebookPageField(models.CharField):
             return value.group(1)
         else:
             raise exceptions.ValidationError(
-                FACEBOOK_ERROR, params={"value": value},
+                INVALID_FACEBOOK_EVENT_LINK_MESSAGE, params={"value": value},
             )
-
-
-def facebookEventValidator(url):
-    # Regular expression for FB event URLs with an event ID
-    FACEBOOK_EVENT_ID_RE = re.compile(
-        r"^(?:(?:https://)?(?:www\.)?(?:facebook|m\.facebook).com/events/)?([0-9]{15,20})(?:/.*)?$"
-    )
-    # Regular expression for FB regular and short event URLs
-    FACEBOOK_EVENT_URL_RE = re.compile(
-        r"^((?:https://)?(?:www\.)?(?:facebook|fb|m\.facebook)\.(?:com|me)/(?:events|e)/(?:\d\w{0,20}))(?:/.*)?$"
-    )
-
-    # First we try to match an URL with an FB event ID (for backward compatibility)
-    match = FACEBOOK_EVENT_ID_RE.match(url)
-    if match:
-        return f"https://www.facebook.com/events/{match.group(1)}"
-    # If no FB id is found, we try to match a supported FB event URL (e.g. to allow for short URLs)
-    match = FACEBOOK_EVENT_URL_RE.match(url)
-    if match:
-        return match.group(1)
-
-    return False
 
 
 class FacebookEventField(models.CharField):
@@ -164,10 +142,10 @@ class FacebookEventField(models.CharField):
         if value in self.empty_values:
             return value
 
-        facebook_value = facebookEventValidator(value)
+        facebook_value = validate_facebook_event_url(value)
         if not facebook_value:
             raise exceptions.ValidationError(
-                FACEBOOK_ERROR, params={"value": value},
+                INVALID_FACEBOOK_EVENT_LINK_MESSAGE, params={"value": value},
             )
         return facebook_value
 

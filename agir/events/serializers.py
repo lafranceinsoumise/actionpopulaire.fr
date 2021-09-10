@@ -14,7 +14,8 @@ from agir.lib.serializers import (
     FlexibleFieldsMixin,
     CurrentPersonField,
 )
-from agir.lib.model_fields import facebookEventValidator
+from agir.lib.model_fields import INVALID_FACEBOOK_EVENT_LINK_MESSAGE
+from agir.lib.utils import validate_facebook_event_url
 
 from . import models
 from .actions.required_documents import (
@@ -43,24 +44,7 @@ from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSeria
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
 from ..lib.utils import admin_url, replace_datetime_timezone
 
-
-# encodes the preferred order when showing the messages
-NOTIFIED_CHANGES = {
-    "name": "information",
-    "start_time": "timing",
-    "end_time": "timing",
-    "contact_name": "contact",
-    "contact_email": "contact",
-    "contact_phone": "contact",
-    "location_name": "location",
-    "location_address1": "location",
-    "location_address2": "location",
-    "location_city": "location",
-    "location_zip": "location",
-    "location_country": "location",
-    "description": "information",
-    "facebook": "information",
-}
+from agir.events.tasks import NOTIFIED_CHANGES
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
@@ -468,7 +452,7 @@ class CreateEventSerializer(serializers.Serializer):
             and data["end_time"] - data["start_time"] > timedelta(days=7)
         ):
             raise serializers.ValidationError(
-                {"endTime": "Votre événement doit durer moins d’une semaine"}
+                {"endTime": "L'événement ne peut pas durer plus de 7 jours."}
             )
 
         data["organizer_person"] = data.pop("organizerPerson")
@@ -535,10 +519,8 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         ]
 
     def validate_facebook(self, value):
-        if not facebookEventValidator(value):
-            raise serializers.ValidationError(
-                "Vous devez indiquez soit l'identifiant de la page Facebook, soit son URL"
-            )
+        if not validate_facebook_event_url(value):
+            raise serializers.ValidationError(INVALID_FACEBOOK_EVENT_LINK_MESSAGE)
 
     def update(self, instance, validated_data):
         start = validated_data.get("start_time")

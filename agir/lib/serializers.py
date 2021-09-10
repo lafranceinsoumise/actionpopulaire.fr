@@ -5,6 +5,7 @@ from django_countries.serializer_fields import CountryField
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
+from phonenumber_field.serializerfields import PhoneNumberField
 
 from .tasks import create_static_map_image_from_coordinates
 from agir.carte.models import StaticMapImage
@@ -138,11 +139,7 @@ class NestedContactSerializer(serializers.Serializer):
     """
 
     name = serializers.CharField(
-        label="Nom du contact",
-        required=True,
-        allow_blank=True,
-        max_length=255,
-        source="contact_name",
+        label="Nom du contact", required=True, max_length=255, source="contact_name",
     )
 
     email = serializers.EmailField(
@@ -152,10 +149,9 @@ class NestedContactSerializer(serializers.Serializer):
         source="contact_email",
     )
 
-    phone = serializers.CharField(
+    phone = PhoneNumberField(
         label="Numéro de téléphone du contact",
         required=True,
-        allow_blank=True,
         max_length=30,
         source="contact_phone",
     )

@@ -60,15 +60,15 @@ const EventContact = (props) => {
     setErrors({});
     setIsLoading(true);
     const res = await api.updateEvent(eventPk, { contact });
-    setIsLoading(false);
     if (res.error) {
-      setErrors(res.error);
+      setErrors(res.error?.contact);
       return;
     }
     sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
     mutate((event) => {
       return { ...event, ...res.data };
     });
+    setIsLoading(false);
   };
 
   return (
