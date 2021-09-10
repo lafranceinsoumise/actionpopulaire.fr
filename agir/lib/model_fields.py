@@ -12,6 +12,11 @@ from agir.lib.form_fields import IBANField as FormIBANField
 from agir.lib.iban import to_iban, IBAN
 
 
+FACEBOOK_ERROR = (
+    "Vous devez indiquez soit l'identifiant de la page Facebook, soit son URL"
+)
+
+
 class IBANFieldDescriptor:
     def __init__(self, field):
         self.field = field
@@ -124,12 +129,11 @@ class FacebookPageField(models.CharField):
             return value.group(1)
         else:
             raise exceptions.ValidationError(
-                "Vous devez indiquez soit l'identifiant de la page Facebook, soit son URL",
-                params={"value": value},
+                FACEBOOK_ERROR, params={"value": value},
             )
 
 
-class FacebookEventField(models.CharField):
+def facebookEventValidator(url):
     # Regular expression for FB event URLs with an event ID
     FACEBOOK_EVENT_ID_RE = re.compile(
         r"^(?:(?:https://)?(?:www\.)?(?:facebook|m\.facebook).com/events/)?([0-9]{15,20})(?:/.*)?$"
@@ -139,6 +143,19 @@ class FacebookEventField(models.CharField):
         r"^((?:https://)?(?:www\.)?(?:facebook|fb|m\.facebook)\.(?:com|me)/(?:events|e)/(?:\d\w{0,20}))(?:/.*)?$"
     )
 
+    # First we try to match an URL with an FB event ID (for backward compatibility)
+    match = FACEBOOK_EVENT_ID_RE.match(url)
+    if match:
+        return f"https://www.facebook.com/events/{match.group(1)}"
+    # If no FB id is found, we try to match a supported FB event URL (e.g. to allow for short URLs)
+    match = FACEBOOK_EVENT_URL_RE.match(url)
+    if match:
+        return match.group(1)
+
+    return False
+
+
+class FacebookEventField(models.CharField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("max_length", 255)
         super().__init__(*args, **kwargs)
@@ -146,19 +163,13 @@ class FacebookEventField(models.CharField):
     def to_python(self, value):
         if value in self.empty_values:
             return value
-        # First we try to match an URL with an FB event ID (for backward compatibility)
-        match = self.FACEBOOK_EVENT_ID_RE.match(value)
-        if match:
-            return f"https://www.facebook.com/events/{match.group(1)}"
-        # If no FB id is found, we try to match a supported FB event URL (e.g. to allow for short URLs)
-        match = self.FACEBOOK_EVENT_URL_RE.match(value)
-        if match:
-            return match.group(1)
-        else:
+
+        facebook_value = facebookEventValidator(value)
+        if not facebook_value:
             raise exceptions.ValidationError(
-                "Vous devez indiquez soit l'identifiant de l'événement Facebook, soit son URL",
-                params={"value": value},
+                FACEBOOK_ERROR, params={"value": value},
             )
+        return facebook_value
 
     def formfield(self, **kwargs):
         defaults = {"max_length": 255}

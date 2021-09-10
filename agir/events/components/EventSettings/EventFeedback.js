@@ -77,7 +77,7 @@ const EventFeedback = (props) => {
 
     const res = await api.updateEvent(eventPk, {
       compteRendu: formData.compteRendu,
-      compteRenduPhotos: formData.compteRenduPhoto,
+      compteRenduPhoto: formData.compteRenduPhoto,
     });
     setIsLoading(false);
     if (res.error) {

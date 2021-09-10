@@ -108,7 +108,7 @@ export const updateEvent = async (eventPk, data) => {
     body.subtype = body.subtype.id;
   }
 
-  if (body.image || body.compteRenduPhotos) {
+  if (body.image || body.compteRenduPhoto) {
     body = new FormData();
     Object.keys(data).forEach((e) => {
       body.append(e, data[e]);
