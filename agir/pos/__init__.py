@@ -10,4 +10,4 @@ class MoneyPaymentMode(AbstractMoneyPaymentMode):
 class TPEPaymentMode(AbstractMoneyPaymentMode):
     id = "tpe"
     url_fragment = "tpe"
-    label = "Paiment sur place par carte bleue"
+    label = "Paiement sur place par carte bleue"
