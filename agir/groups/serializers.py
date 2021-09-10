@@ -72,9 +72,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     url = serializers.HyperlinkedIdentityField(view_name="view_group", read_only=True)
 
     eventCount = serializers.ReadOnlyField(source="events_count", read_only=True)
-    membersCount = serializers.SerializerMethodField(
-        source="members_count", read_only=True
-    )
+    membersCount = serializers.SerializerMethodField(read_only=True)
     isMember = serializers.SerializerMethodField(read_only=True)
     isActiveMember = serializers.SerializerMethodField(read_only=True,)
     isManager = serializers.SerializerMethodField(read_only=True)
@@ -231,7 +229,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_facts(self, obj):
         facts = {
-            "memberCount": obj.members_count,
+            "activeMemberCount": obj.active_members_count,
             "eventCount": obj.events_count,
             "creationDate": obj.created,
             "isCertified": obj.is_certified,

@@ -2,13 +2,14 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
+import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
 import Button from "@agir/front/genericComponents/Button";
-import Spacer from "@agir/front/genericComponents/Spacer.js";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents.js";
+import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents";
 
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
+import { getGenderedWord } from "@agir/lib/utils/display";
 
 const StyledContent = styled.div`
   p {
@@ -61,8 +62,14 @@ const ConfirmPanel = (props) => {
               votre groupe.
             </p>
             <p>
-              Il ne recevra plus les messages postés sur Action Populaire que
-              vous destinez aux membres actifs.
+              {getGenderedWord(
+                selectedMember?.gender,
+                "Ce membre",
+                "Elle",
+                "Il"
+              )}{" "}
+              ne recevra plus les messages postés sur Action Populaire que vous
+              destinez aux membres actifs.
             </p>
             <p>
               {selectedMember?.displayName} restera abonné·e à votre groupe.

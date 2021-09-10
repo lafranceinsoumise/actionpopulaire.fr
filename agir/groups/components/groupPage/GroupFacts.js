@@ -45,7 +45,7 @@ const GroupFacts = (props) => {
 
   const {
     eventCount,
-    memberCount,
+    activeMemberCount,
     isCertified,
     creationDate,
     lastActivityDate,
@@ -62,11 +62,12 @@ const GroupFacts = (props) => {
             </span>
           </li>
         )}
-        {!!memberCount && (
+        {!!activeMemberCount && (
           <li>
             <FeatherIcon name="users" small inline />
             <span>
-              {memberCount} membre{memberCount > 1 && "s"}
+              {activeMemberCount}{" "}
+              {activeMemberCount > 1 ? "membres actifs" : "membre actif"}
             </span>
           </li>
         )}
@@ -102,7 +103,7 @@ const GroupFacts = (props) => {
 GroupFacts.propTypes = {
   facts: PropTypes.shape({
     eventCount: PropTypes.number,
-    memberCount: PropTypes.number,
+    activeMemberCount: PropTypes.number,
     isCertified: PropTypes.bool,
     creationDate: PropTypes.string,
     lastActivityDate: PropTypes.string,
