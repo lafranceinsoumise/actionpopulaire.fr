@@ -32,6 +32,7 @@ const Template = (args, { globals }) => (
 
 export const Default = Template.bind({});
 Default.args = {
+  isLoading: false,
   path: "/",
   unreadMessageCount: 3,
   unreadActivityCount: 10,

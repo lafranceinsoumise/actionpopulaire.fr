@@ -46,7 +46,8 @@ const StyledBar = styled.div`
 
   ${IconLink} {
     display: flex;
-    height: 100%;
+    height: 2rem;
+    width: 2rem;
     align-items: center;
     color: ${(props) => props.theme.black1000};
     line-height: 0;

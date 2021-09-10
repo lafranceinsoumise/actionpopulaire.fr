@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
+  getIsSessionLoaded,
   getUser,
   getPageTitle,
   getBackLink,
@@ -16,6 +17,7 @@ import SecondaryPageBar from "./SecondaryPageBar";
 const MobileNavBar = (props) => {
   const { path } = props;
 
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
   const user = useSelector(getUser);
   const pageTitle = useSelector(getPageTitle);
   const backLink = useSelector(getBackLink);
@@ -29,13 +31,18 @@ const MobileNavBar = (props) => {
 
   return isSecondary ? (
     <SecondaryPageBar
+      isLoading={!isSessionLoaded}
       backLink={backLink}
       settingsLink={user ? settingsLink : null}
       title={pageTitle || currentRoute.label}
       user={user}
     />
   ) : (
-    <DashboardPageBar settingsLink={user ? settingsLink : null} user={user} />
+    <DashboardPageBar
+      isLoading={!isSessionLoaded}
+      settingsLink={user ? settingsLink : null}
+      user={user}
+    />
   );
 };
 
