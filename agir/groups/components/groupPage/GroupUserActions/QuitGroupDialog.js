@@ -85,10 +85,10 @@ const QuitGroupButton = (props) => {
           )}
           {isActiveMember ? (
             <p>
-              Vous ne serez plus considéré·e comme membre actif de votre groupe.
+              Voulez-vous vraiment quitter le groupe ? Vous ne recevrez plus
+              aucune actualité de ce groupe.
               <br />
-              Vous ne recevez plus les messages postés sur Action Populaire
-              destinés aux membres actifs.
+              Vous pourrez rejoindre le groupe à nouveau à tout moment.
             </p>
           ) : (
             <p>
