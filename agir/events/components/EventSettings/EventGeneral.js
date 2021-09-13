@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import useSWR from "swr";
 
-import { useToast } from "@agir/front/globalContext/hooks.js";
+import { useToast } from "@agir/front/globalContext/hooks";
 import { useTransition } from "@react-spring/web";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -10,16 +10,16 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import TextField from "@agir/front/formComponents/TextField";
-import RichTextField from "@agir/front/formComponents/RichText/RichTextField.js";
+import RichTextField from "@agir/front/formComponents/RichText/RichTextField";
 import ImageField from "@agir/front/formComponents/ImageField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
-import Spacer from "@agir/front/genericComponents/Spacer.js";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import DateField from "@agir/events/createEventPage/EventForm/DateField";
 import Link from "@agir/front/app/Link";
-import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
+import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
 
-import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
-import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import { PanelWrapper } from "@agir/front/genericComponents/ObjectManagement/PanelWrapper";
 
 import * as api from "@agir/events/common/api";
@@ -29,9 +29,10 @@ import { useEventFormOptions } from "@agir/events/common/hooks";
 import {
   DefaultOption,
   StyledDefaultOptions,
-} from "@agir/events/createEventPage/EventForm/SubtypeField.js";
+} from "@agir/events/createEventPage/EventForm/SubtypeField";
 
 import { SubtypeOptions } from "@agir/events/common/SubtypePanel";
+import OrganizerGroupField from "@agir/events/common/OrganizerGroupField";
 
 import { EVENT_TYPES } from "@agir/events/common/utils";
 
@@ -99,7 +100,9 @@ const EventGeneral = (props) => {
     startTime: "",
     endTime: "",
     timezone: "",
+    organizerGroup: null,
   });
+
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const originalImage = useMemo(() => event?.image, [event]);
@@ -108,7 +111,8 @@ const EventGeneral = (props) => {
   const [submenuOpen, setSubmenuOpen] = useState(false);
 
   useEffect(() => {
-    setFormData({
+    setFormData((state) => ({
+      ...state,
       name: event.name,
       description: event.description,
       facebook: event.routes.facebook,
@@ -117,8 +121,36 @@ const EventGeneral = (props) => {
       startTime: event.startTime,
       endTime: event.endTime,
       timezone: event.timezone,
-    });
+    }));
   }, [event]);
+
+  useEffect(() => {
+    if (
+      formData.organizerGroup !== null ||
+      !event ||
+      !eventOptions?.organizerGroup
+    ) {
+      return;
+    }
+
+    if (event?.groups[0]) {
+      setFormData((state) => ({
+        ...state,
+        organizerGroup: eventOptions.organizerGroup.find(
+          ({ id }) => id === event.groups[0].id
+        ) || {
+          ...event.groups[0],
+          label: event.groups[0],
+        },
+      }));
+      return;
+    }
+
+    setFormData((state) => ({
+      ...state,
+      organizerGroup: eventOptions.organizerGroup.find(({ id }) => id === null),
+    }));
+  }, [formData.organizerGroup, event, eventOptions]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -180,6 +212,7 @@ const EventGeneral = (props) => {
     const res = await api.updateEvent(eventPk, {
       ...formData,
       image: imageHasChanged ? formData.image : undefined,
+      organizerGroup: formData?.organizerGroup?.id,
     });
 
     setIsLoading(false);
@@ -225,7 +258,16 @@ const EventGeneral = (props) => {
           value={formData.name}
           error={errors?.name}
         />
-
+        <Spacer size="1rem" />
+        <OrganizerGroupField
+          name="organizerGroup"
+          value={formData.organizerGroup}
+          onChange={handleChangeValue}
+          error={errors?.organizerGroup}
+          disabled={isLoading}
+          options={eventOptions.organizerGroup}
+          required
+        />
         <Spacer size="1rem" />
         <div>
           <StyledDateField

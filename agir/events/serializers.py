@@ -503,25 +503,9 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     compteRenduPhoto = serializers.ImageField(
         source="report_image", allow_empty_file=True, allow_null=True
     )
-
-    class Meta:
-        model = Event
-        fields = [
-            "id",
-            "name",
-            "subtype",
-            "description",
-            "image",
-            "startTime",
-            "endTime",
-            "timezone",
-            "facebook",
-            "onlineUrl",
-            "contact",
-            "location",
-            "compteRendu",
-            "compteRenduPhoto",
-        ]
+    organizerGroup = EventOrganizerGroupField(
+        write_only=True, required=False, allow_null=True
+    )
 
     def validate_facebook(self, value):
         if value is None:
@@ -530,62 +514,25 @@ class UpdateEventSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(INVALID_FACEBOOK_EVENT_LINK_MESSAGE)
         return value
 
-    def update(self, instance, validated_data):
-        start = validated_data.get("start_time")
-        end = validated_data.get("end_time")
-        eventTimezone = validated_data.get("timezone")
+    def validate(self, data):
+        organizer = self.context["request"].user.person
+        if data.get("organizerGroup", None):
+            if (
+                not organizer in data["organizerGroup"].referents
+                and not organizer in data["organizerGroup"].managers
+            ):
+                raise serializers.ValidationError(
+                    {
+                        "organizerGroup": "Veuillez choisir un groupe dont vous êtes animateur·ice"
+                    }
+                )
 
-        if start and end and end - start > timedelta(days=7):
-            raise serializers.ValidationError(
-                {"endTime": "L'événement ne peut pas durer plus de 7 jours."}
-            )
+            data["organizer_group"] = data.pop("organizerGroup")
 
-        if eventTimezone and start:
-            validated_data.update(
-                {"start_time": replace_datetime_timezone(start, eventTimezone)}
-            )
-        if eventTimezone and end:
-            validated_data.update(
-                {"end_time": replace_datetime_timezone(end, eventTimezone)}
-            )
+        return data
 
-        subtype = self.instance.subtype
-
-        #  assign default description images if its not filled
-        if not validated_data.get("description"):
-            validated_data.update({"description": subtype.default_description})
-        if not validated_data.get("image"):
-            validated_data.update({"image": subtype.default_image})
-
-        # notify members if it is organized by a group
-        # if (
-        #     self.organizer_config
-        #     and self.organizer_config.as_group != self.validated_data["as_group"]
-        # ):
-        #     self.organizer_config.as_group = self.validated_data["as_group"]
-        #     self.organizer_config.save()
-        #     notify_new_group_event.delay(self.validated_data["as_group"].pk, self.instance.pk)
-        #     send_new_group_event_email.delay(self.validated_data["as_group"].pk, self.instance.pk)
-
-        # if self.organizers_groups.length > 0:
-        #     notify_new_group_event.delay(self.organizers_groups.pk, self.instance.pk)
-        #     send_new_group_event_email.delay(self.organizers_groups.pk, self.instance.pk)
-
-        changed_data = {}
-        for field, value in validated_data.items():
-            new_value = value
-            old_value = getattr(instance, field)
-            if new_value != old_value:
-                changed_data[field] = new_value
-
-        if not changed_data:
-            return instance
-
-        instance = super().update(instance, validated_data)
-        if "image" in changed_data and changed_data.get("image", None):
-            changed_data["image"] = instance.image.url
-
-        # update geolocation
+    def schedule_tasks(self, event, changed_data):
+        # update geolocation if address has changed
         if (
             "location_address1" in changed_data
             or "location_address2" in changed_data
@@ -593,10 +540,10 @@ class UpdateEventSerializer(serializers.ModelSerializer):
             or "location_city" in changed_data
             or "location_country" in changed_data
         ):
-            geocode_event.delay(self.instance.pk)
+            geocode_event.delay(event.pk)
 
         # notify participants if important data changed
-        event = Event.objects.get(pk=self.instance.pk)
+        event = Event.objects.get(pk=event.pk)
         changed_data_notify = [f for f in changed_data if f in NOTIFIED_CHANGES]
 
         if changed_data_notify:
@@ -622,13 +569,89 @@ class UpdateEventSerializer(serializers.ModelSerializer):
                         meta={"changed_data": changed_data_notify},
                     )
 
-            send_event_changed_notification.delay(self.instance.pk, changed_data)
+            send_event_changed_notification.delay(event.pk, changed_data)
+
+        # Notify group members if it is organizer group has been changed
+        if changed_data.get("organizerGroup", None):
+            notify_new_group_event.delay(changed_data["organizer_group"], event.pk)
+            send_new_group_event_email.delay(changed_data["organizer_group"], event.pk)
+
+    def update(self, instance, validated_data):
+        start = validated_data.get("start_time")
+        end = validated_data.get("end_time")
+        eventTimezone = validated_data.get("timezone")
+
+        if start and end and end - start > timedelta(days=7):
+            raise serializers.ValidationError(
+                {"endTime": "L'événement ne peut pas durer plus de 7 jours."}
+            )
+
+        if eventTimezone and start:
+            validated_data.update(
+                {"start_time": replace_datetime_timezone(start, eventTimezone)}
+            )
+        if eventTimezone and end:
+            validated_data.update(
+                {"end_time": replace_datetime_timezone(end, eventTimezone)}
+            )
+
+        subtype = self.instance.subtype
+
+        # Assign default description images if its not filled
+        if not validated_data.get("description"):
+            validated_data.update({"description": subtype.default_description})
+        if not validated_data.get("image"):
+            validated_data.update({"image": subtype.default_image})
+
+        changed_data = {}
+        for field, value in validated_data.items():
+            if hasattr(instance, field):
+                new_value = value
+                old_value = getattr(instance, field)
+                if new_value != old_value:
+                    changed_data[field] = new_value
+            if field == "organizer_group":
+                if (
+                    value
+                    and not OrganizerConfig.objects.filter(
+                        event=self.instance, as_group=value
+                    ).exists()
+                ):
+                    changed_data[field] = value.pk
+
+        if not changed_data:
+            return instance
+
+        instance = super().update(instance, validated_data)
+        if "image" in changed_data and changed_data.get("image", None):
+            changed_data["image"] = instance.image.url
 
         with transaction.atomic():
             event = super().update(instance, validated_data)
             if Projet.objects.filter(event=event).exists():
                 Projet.objects.from_event(event, event.organizers.first().role)
+            self.schedule_tasks(event, changed_data)
             return event
+
+    class Meta:
+        model = Event
+        fields = [
+            "id",
+            "name",
+            "subtype",
+            "description",
+            "image",
+            "startTime",
+            "endTime",
+            "timezone",
+            "facebook",
+            "onlineUrl",
+            "contact",
+            "location",
+            "compteRendu",
+            "compteRenduPhoto",
+            "organizerGroup",
+        ]
 
 
 class EventProjectDocumentSerializer(serializers.ModelSerializer):
