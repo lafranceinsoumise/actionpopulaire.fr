@@ -6,7 +6,7 @@ import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButto
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 import { getGenderedWord } from "@agir/lib/utils/display";

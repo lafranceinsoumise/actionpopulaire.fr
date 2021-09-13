@@ -24,8 +24,8 @@ const StyledMenuItem = styled(NavLink)`
   font-size: 1rem;
   line-height: 1.1;
   font-weight: 500;
-  color: ${({ disabled, cancel }) =>
-    cancel ? style.redNSP : disabled ? style.black500 : style.black1000};
+  color: ${({ disabled, $cancel }) =>
+    $cancel ? style.redNSP : disabled ? style.black500 : style.black1000};
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 
   && {
@@ -35,8 +35,8 @@ const StyledMenuItem = styled(NavLink)`
   &:hover {
     text-decoration: none;
     cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
-    color: ${({ disabled, cancel }) =>
-      cancel ? style.redNSP : disabled ? style.black500 : style.primary500};
+    color: ${({ disabled, $cancel }) =>
+      $cancel ? style.redNSP : disabled ? style.black500 : style.primary500};
   }
 
   & > * {
@@ -76,8 +76,8 @@ const StyledMenuItem = styled(NavLink)`
 
   &.active {
     span {
-      color: ${({ cancel, disabled }) =>
-        cancel ? style.redNSP : disabled ? style.black500 : style.primary500};
+      color: ${({ $cancel, disabled }) =>
+        $cancel ? style.redNSP : disabled ? style.black500 : style.primary500};
     }
 
     ${RawFeatherIcon} {
@@ -150,7 +150,7 @@ const ManagementMenuItem = (props) => {
   return (
     <StyledMenuItem
       to={disabled ? "#" : item.getLink()}
-      cancel={cancel}
+      $cancel={cancel}
       disabled={disabled}
     >
       {item.icon && (
@@ -173,12 +173,14 @@ ManagementMenuItem.propTypes = {
   item: PropTypes.shape({
     id: PropTypes.string,
     label: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-    disabledLabel: PropTypes.string,
+    textDisabled: PropTypes.string,
     icon: PropTypes.string,
     disabled: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
     getLink: PropTypes.func.isRequired,
     menuGroup: PropTypes.oneOf([1, 2, 3]),
   }),
+  cancel: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
 
 const ManagementMenu = (props) => {
@@ -241,6 +243,7 @@ ManagementMenu.propTypes = {
     label: PropTypes.string,
     onClick: PropTypes.func,
   }),
+  isPast: PropTypes.bool,
 };
 
 export default ManagementMenu;
