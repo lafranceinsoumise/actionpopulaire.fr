@@ -36,7 +36,6 @@ from .tasks import (
 from ..gestion.models import Projet, Document
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
-from ..people.serializers import PersonSerializer
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
 from ..lib.utils import admin_url
 
