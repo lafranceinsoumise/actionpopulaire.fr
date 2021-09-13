@@ -29,7 +29,7 @@ const StyledContainer = styled.div`
   }
 `;
 
-const SecondaryActions = ({ routes }) => {
+const SecondaryActions = ({ routes, ...rest }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleClose = useCallback(() => setIsOpen(false), []);
@@ -38,10 +38,12 @@ const SecondaryActions = ({ routes }) => {
   return (
     <StyledWrapper>
       <StyledContainer>
-        <Button type="button" link route={"messages"}>
-          <RawFeatherIcon name="mail" width="1rem" height="1rem" />
-          Contacter
-        </Button>
+        <a href={`mailto:${rest?.contact.email}`}>
+          <Button type="button">
+            <RawFeatherIcon name="mail" width="1rem" height="1rem" />
+            Contacter
+          </Button>
+        </a>
         {!!routes?.donations && (
           <Button type="button" link route={routes.donations}>
             <RawFeatherIcon name="upload" width="1rem" height="1rem" />

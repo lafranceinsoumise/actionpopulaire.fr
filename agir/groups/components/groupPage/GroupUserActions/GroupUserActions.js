@@ -54,7 +54,7 @@ const GroupUserActions = (props) => {
       {isFollowerActions && <FollowerActions {...props} />}
       {isMemberActions && <MemberActions {...props} />}
       {isManagerActions && <ManagerActions {...props} />}
-      <SecondaryActions routes={routes} />
+      <SecondaryActions routes={routes} {...props} />
     </StyledContent>
   );
 };
