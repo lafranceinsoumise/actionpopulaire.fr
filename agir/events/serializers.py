@@ -15,8 +15,10 @@ from agir.lib.serializers import (
     FlexibleFieldsMixin,
     CurrentPersonField,
 )
-from agir.lib.model_fields import INVALID_FACEBOOK_EVENT_LINK_MESSAGE
-from agir.lib.utils import validate_facebook_event_url
+from agir.lib.utils import (
+    validate_facebook_event_url,
+    INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
+)
 
 from . import models
 from .actions.required_documents import (

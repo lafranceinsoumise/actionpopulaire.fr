@@ -10,10 +10,9 @@ from django.utils.translation import ugettext_lazy as _
 from agir.donations.validators import validate_iban
 from agir.lib.form_fields import IBANField as FormIBANField
 from agir.lib.iban import to_iban, IBAN
-from agir.lib.utils import validate_facebook_event_url
-
-INVALID_FACEBOOK_EVENT_LINK_MESSAGE = (
-    "Vous devez indiquez soit l'identifiant de la page Facebook, soit son URL"
+from agir.lib.utils import (
+    validate_facebook_event_url,
+    INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
 )
 
 

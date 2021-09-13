@@ -17,6 +17,10 @@ from stdimage.utils import render_variations
 from agir.authentication.tokens import connection_token_generator
 from agir.lib.http import add_query_params_to_url
 
+INVALID_FACEBOOK_EVENT_LINK_MESSAGE = (
+    "Vous devez indiquez soit l'identifiant de la page Facebook, soit son URL"
+)
+
 
 def _querydict_from_dict(d):
     q = QueryDict(mutable=True)
