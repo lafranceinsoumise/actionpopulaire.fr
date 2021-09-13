@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useTransition, animated } from "@react-spring/web";
+import { useEffectOnce } from "react-use";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -8,6 +9,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser, getRoutes } from "@agir/front/globalContext/reducers";
 import { useMobileApp } from "@agir/front/app/hooks";
+import { useLocalStorage } from "@agir/lib/utils/hooks";
 
 import Tooltip from "@agir/front/genericComponents/Tooltip";
 
@@ -102,21 +104,17 @@ FeedbackButton.propTypes = {
 const ConnectedFeedbackButton = (props) => {
   const user = useSelector(getUser);
   const routes = useSelector(getRoutes);
+  const [visitCount, setVisitCount] = useLocalStorage("AP_vcount", 0);
 
   const href = routes && routes.feedbackForm;
 
   const [shouldPushTooltip, setShouldPushTooltip] = useState(false);
 
-  useEffect(() => {
-    if (!window.localStorage) {
-      return;
-    }
-    let visitCount = window.localStorage.getItem("AP_vcount");
-    visitCount = !isNaN(parseInt(visitCount)) ? parseInt(visitCount) : 0;
-    visitCount += 1;
-    visitCount % 20 === 3 && setShouldPushTooltip(true);
-    window.localStorage.setItem("AP_vcount", visitCount);
-  }, []);
+  useEffectOnce(() => {
+    const count = visitCount + 1;
+    count % 20 === 3 && setShouldPushTooltip(true);
+    setVisitCount(count);
+  });
 
   return (
     <FeedbackButton

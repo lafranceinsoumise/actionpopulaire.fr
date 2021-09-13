@@ -132,13 +132,21 @@ export const useDisableBodyScroll = (isActive, shouldDisable) => {
 export function useMeasure() {
   const ref = useRef();
   const [bounds, set] = useState({ left: 0, top: 0, width: 0, height: 0 });
+
   const [resizeObserver] = useState(
     () => new ResizeObserver(([entry]) => set(entry.contentRect))
   );
+
   useEffect(() => {
-    if (ref.current) resizeObserver.observe(ref.current);
+    if (!resizeObserver) {
+      return;
+    }
+    if (ref.current) {
+      resizeObserver.observe(ref.current);
+    }
     return () => resizeObserver.disconnect();
   }, [resizeObserver]);
+
   return [{ ref }, bounds];
 }
 

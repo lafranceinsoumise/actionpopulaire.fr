@@ -59,7 +59,7 @@ const FollowerActions = ({ onJoin, onQuit }) => {
         </ResponsiveLayout>
       </div>
       <Button $block onClick={onJoin}>
-        <RawFeatherIcon name="user-plus" width="1.5rem" height="1.5rem" />
+        <RawFeatherIcon name="plus" width="1.5rem" height="1.5rem" />
         <Spacer size="10px" />
         Rejoindre
       </Button>

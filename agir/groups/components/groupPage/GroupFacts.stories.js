@@ -26,7 +26,7 @@ const Template = (args) => {
 export const Default = Template.bind({});
 Default.args = {
   eventCount: 5,
-  memberCount: 12,
+  activeMemberCount: 12,
   isCertified: true,
   creationDate: "2021-01-08 00:00:00",
   lastActivityDate: "2021-01-05 00:00:00",

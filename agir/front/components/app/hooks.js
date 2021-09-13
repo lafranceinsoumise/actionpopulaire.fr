@@ -4,7 +4,7 @@ import { createGlobalState } from "react-use";
 
 import { parseQueryStringParams } from "@agir/lib/utils/url";
 import { useLocalStorage } from "@agir/lib/utils/hooks";
-import { useIsDesktop } from "@agir/front/genericComponents/grid.js";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 export const useCustomBackNavigation = (callback) => {
   const history = useHistory();

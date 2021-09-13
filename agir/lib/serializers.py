@@ -1,14 +1,16 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
+from django_countries.serializer_fields import CountryField
+from phonenumber_field.phonenumber import to_python
 from rest_framework import serializers, exceptions
 from rest_framework.fields import empty
-from django_countries.serializer_fields import CountryField
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
 from phonenumber_field.serializerfields import PhoneNumberField
 
-from .tasks import create_static_map_image_from_coordinates
 from agir.carte.models import StaticMapImage
+from .geo import FRENCH_COUNTRY_CODES
+from .tasks import create_static_map_image_from_coordinates
 
 
 class NullAsBlankMixin:
@@ -128,10 +130,28 @@ class ExistingRelatedLabelField(RelatedLabelField):
 
 
 class PhoneField(serializers.CharField):
-    def get_attribute(self, instance):
-        if instance.contact_hide_phone:
-            return None
-        return super().get_attribute(instance)
+    region = "FR"
+    default_error_messages = {
+        "invalid_format": "Saisissez un numéro de téléphone français valide ou un numéro avec un indicatif "
+        "international."
+    }
+
+    def to_internal_value(self, value):
+        phone_number = super().to_internal_value(value)
+        phone_number = to_python(phone_number, region=self.region)
+        if not phone_number:
+            return ""
+
+        if phone_number.is_valid():
+            return str(phone_number)
+
+        if self.region == "FR":
+            for country_code in FRENCH_COUNTRY_CODES:
+                phone_number = to_python(value, country_code)
+                if phone_number.is_valid():
+                    return str(phone_number)
+
+        self.fail("invalid_format")
 
 
 class NestedContactSerializer(serializers.Serializer):
@@ -149,7 +169,7 @@ class NestedContactSerializer(serializers.Serializer):
         source="contact_email",
     )
 
-    phone = PhoneNumberField(
+    phone = PhoneField(
         label="Numéro de téléphone du contact",
         required=True,
         max_length=30,

@@ -33,12 +33,6 @@ class VolunteerForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
 
         self.helper.layout = Layout(
             Row(
-                FullCol(
-                    Fieldset(
-                        "Vie du mouvement",
-                        Row(HalfCol("draw_participation"), HalfCol("gender")),
-                    )
-                ),
                 HalfCol(
                     Fieldset(
                         "Agir près de chez vous",
@@ -54,21 +48,6 @@ class VolunteerForm(ContactPhoneNumberMixin, TagMixin, forms.ModelForm):
             )
         )
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if cleaned_data["draw_participation"] and not cleaned_data["gender"]:
-            self.add_error(
-                "gender",
-                forms.ValidationError(
-                    _(
-                        "Votre genre est obligatoire pour pouvoir organiser un tirage au sort paritaire"
-                    )
-                ),
-            )
-
-        return cleaned_data
-
     class Meta:
         model = Person
-        fields = ("draw_participation", "gender")
+        fields = ()

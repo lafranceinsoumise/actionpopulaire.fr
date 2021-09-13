@@ -7,8 +7,9 @@ import axios from "@agir/lib/utils/axios";
 const fetcher = async (url) => {
   if (url === "/api/session/") {
     const res = await fetch(url, {
+      method: "GET",
+      credentials: "include",
       mode: "no-cors",
-      headers: { Accept: "*/*" },
     });
     return res.json();
   }

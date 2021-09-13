@@ -14,11 +14,9 @@ const BOOKMARKED_EMAILS_COOKIE_OPTIONS = {
 };
 
 export const getBookmarkedEmails = () => {
-  let cookieData = JSON.parse(Cookies.get(BOOKMARKED_EMAILS_COOKIE_NAME));
-  if (!cookieData) {
-    return [];
-  }
-  return cookieData;
+  let cookieData = Cookies.get(BOOKMARKED_EMAILS_COOKIE_NAME);
+  cookieData = cookieData && JSON.parse(cookieData);
+  return cookieData || [];
 };
 
 export const bookmarkEmails = (emails) => {

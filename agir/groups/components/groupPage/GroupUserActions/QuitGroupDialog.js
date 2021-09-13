@@ -78,22 +78,29 @@ const QuitGroupButton = (props) => {
     >
       <StyledDialog>
         <main>
-          <h4>Quitter le groupe</h4>
+          {isActiveMember ? (
+            <h4>Quitter le groupe {groupName}&nbsp;?</h4>
+          ) : (
+            <h4>Ne plus suivre le groupe {groupName}&nbsp;?</h4>
+          )}
           {isActiveMember ? (
             <p>
-              Souhaitez-vous réellement quitter <strong>{groupName}</strong>
-              &nbsp;?
+              Vous ne serez plus considéré·e comme membre actif de votre groupe.
+              <br />
+              Vous ne recevez plus les messages postés sur Action Populaire
+              destinés aux membres actifs.
             </p>
           ) : (
             <p>
-              Souhaitez-vous réellement arretêr de suivre{" "}
-              <strong>{groupName}</strong>&nbsp;?
+              Vous ne recevrez plus les actualités de ce groupe.
+              <br />
+              Vous pouvez suivre ce groupe à nouveau à tout moment.
             </p>
           )}
         </main>
         <footer>
           <Button color="danger" onClick={onConfirm} disabled={isLoading}>
-            {isActiveMember ? "Quitter le groupe" : "Arrêter d'être abonné·e"}
+            {isActiveMember ? "Quitter le groupe" : "Ne plus suivre"}
           </Button>
           <Button color="default" onClick={onDismiss} disabled={isLoading}>
             Annuler

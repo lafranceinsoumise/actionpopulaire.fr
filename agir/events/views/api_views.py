@@ -48,7 +48,6 @@ __all__ = [
     "EventDetailAdvancedAPIView",
     "EventRsvpedAPIView",
     "EventSuggestionsAPIView",
-    "EventSuggestionsAPIView",
     "EventCreateOptionsAPIView",
     "CreateEventAPIView",
     "UpdateEventAPIView",
@@ -159,7 +158,9 @@ class EventSuggestionsAPIView(ListAPIView):
             )
 
             result = result | near_events
-            result.annotate(distance=Distance("coordinates", person.coordinates))
+            result = result.annotate(
+                distance=Distance("coordinates", person.coordinates)
+            )
 
         result = result.distinct().order_by("start_time")
 

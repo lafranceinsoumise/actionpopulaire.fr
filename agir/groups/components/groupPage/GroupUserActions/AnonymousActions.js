@@ -43,7 +43,7 @@ const AnonymousActions = () => {
           next: location.pathname,
         }}
       >
-        <RawFeatherIcon name="user-plus" width="1.5rem" height="1.5rem" />
+        <RawFeatherIcon name="plus" width="1.5rem" height="1.5rem" />
         <Spacer size="10px" />
         Rejoindre
       </Button>
@@ -56,7 +56,7 @@ const AnonymousActions = () => {
           next: location.pathname,
         }}
       >
-        <RawFeatherIcon name="plus" width="1.5rem" height="1.5rem" />
+        <RawFeatherIcon name="rss" width="1.5rem" height="1.5rem" />
         <Spacer size="10px" />
         Suivre
       </Button>
