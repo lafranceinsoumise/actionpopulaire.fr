@@ -56,7 +56,7 @@ GroupLinks.propTypes = {
   links: PropTypes.arrayOf(
     PropTypes.shape({
       url: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
     })
   ),
   editLinkTo: PropTypes.string,

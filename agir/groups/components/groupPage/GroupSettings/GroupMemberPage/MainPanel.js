@@ -9,7 +9,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
