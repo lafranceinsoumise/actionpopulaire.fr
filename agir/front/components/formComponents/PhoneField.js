@@ -97,6 +97,9 @@ const PhoneField = forwardRef((props, ref) => {
           name="phone"
           value={value || ""}
           onChange={onChange}
+          onInit={(owner) => {
+            owner.lastInputValue = value || "";
+          }}
         />
       </StyledInput>
       <StyledIcon>
