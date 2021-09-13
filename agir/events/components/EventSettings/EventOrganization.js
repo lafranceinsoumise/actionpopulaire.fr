@@ -46,7 +46,7 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
       return;
     }
     sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-    mutate(api.getEventEndpoint("getParticipants", { eventPk }));
+    mutate(api.getEventEndpoint("getDetailAdvanced", { eventPk }));
     onBack();
   };
 
@@ -97,7 +97,7 @@ const EventOrganization = (props) => {
   const { onBack, illustration, eventPk } = props;
 
   const { data: event } = useSWR(
-    api.getEventEndpoint("getParticipants", { eventPk })
+    api.getEventEndpoint("getDetailAdvanced", { eventPk })
   );
 
   const participants = useMemo(() => event?.participants || [], [event]);

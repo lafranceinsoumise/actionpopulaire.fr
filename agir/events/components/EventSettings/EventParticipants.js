@@ -39,7 +39,7 @@ const EventParticipants = (props) => {
   const { onBack, illustration, eventPk } = props;
 
   const { data: event, mutate } = useSWR(
-    api.getEventEndpoint("getParticipants", { eventPk })
+    api.getEventEndpoint("getDetailAdvanced", { eventPk })
   );
 
   const participants = useMemo(() => event?.participants || [], [event]);

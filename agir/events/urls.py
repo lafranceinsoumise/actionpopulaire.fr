@@ -1,7 +1,6 @@
 from django.urls import path
 
 from . import views
-from agir.front.views import BaseAppView
 
 urlpatterns = [
     path(
@@ -137,9 +136,9 @@ urlpatterns = [
         name="api_create_event_project_document",
     ),
     path(
-        "api/evenements/<uuid:pk>/participants/",
-        views.EventParticipantsAPIView.as_view(),
-        name="api_event_participants",
+        "api/evenements/<uuid:pk>/details-avances/",
+        views.EventDetailAdvancedAPIView.as_view(),
+        name="api_event_details",
     ),
     path(
         "api/evenements/<uuid:pk>/organizers/",

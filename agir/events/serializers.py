@@ -11,6 +11,7 @@ from agir.lib.serializers import (
     LocationSerializer,
     NestedLocationSerializer,
     NestedContactSerializer,
+    ContactMixinSerializer,
     FlexibleFieldsMixin,
     CurrentPersonField,
 )
@@ -155,7 +156,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     groups = serializers.SerializerMethodField()
 
-    contact = NestedContactSerializer(source="*")
+    contact = ContactMixinSerializer(source="*")
 
     distance = serializers.SerializerMethodField()
 
@@ -293,6 +294,8 @@ class EventAdvancedSerializer(EventSerializer):
     participants = serializers.SerializerMethodField()
 
     organizers = serializers.SerializerMethodField()
+
+    contact = NestedContactSerializer(source="*")
 
     def get_participants(self, obj):
         return [
@@ -521,6 +524,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     def validate_facebook(self, value):
         if not validate_facebook_event_url(value):
             raise serializers.ValidationError(INVALID_FACEBOOK_EVENT_LINK_MESSAGE)
+        return value
 
     def update(self, instance, validated_data):
         start = validated_data.get("start_time")

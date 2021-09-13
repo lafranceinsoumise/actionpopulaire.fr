@@ -12,14 +12,14 @@ const StyledCard = styled(Card)`
   border-bottom: 1px solid ${style.black50};
 `;
 
-const ContactCard = ({ name, phone, hidePhone, email }) => (
+const ContactCard = ({ name, phone, email }) => (
   <StyledCard>
     <p>
       <b>Contact</b>
     </p>
     <IconList>
       {name && <IconListItem name="user">{name}</IconListItem>}
-      {phone && !hidePhone && <IconListItem name="phone">{phone}</IconListItem>}
+      {phone && <IconListItem name="phone">{phone}</IconListItem>}
       {email && <IconListItem name="mail">{email}</IconListItem>}
     </IconList>
   </StyledCard>

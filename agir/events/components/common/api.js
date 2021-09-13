@@ -12,7 +12,7 @@ export const ENDPOINT = {
   eventProjects: "/api/evenements/projets/",
   eventProject: "/api/evenements/:eventPk/projet/",
   addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
-  getParticipants: "/api/evenements/:eventPk/participants/",
+  getDetailAdvanced: "/api/evenements/:eventPk/details-avances/",
   addOrganizer: "/api/evenements/:eventPk/organizers/",
   cancelEvent: "/api/evenements/:eventPk/annuler/",
   updateLocation: "/evenements/:eventPk/localisation/",
@@ -192,13 +192,13 @@ export const addEventProjectDocument = async (eventPk, data) => {
   return result;
 };
 
-export const getParticipants = async (eventPk) => {
+export const getDetailAdvanced = async (eventPk) => {
   const result = {
     data: null,
     errors: null,
   };
 
-  const url = getEventEndpoint("getParticipants", { eventPk });
+  const url = getEventEndpoint("getDetailAdvanced", { eventPk });
 
   try {
     const response = await axios.patch(url, data);
