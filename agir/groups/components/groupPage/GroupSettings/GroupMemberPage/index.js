@@ -5,7 +5,7 @@ import styled from "styled-components";
 import useSWR from "swr";
 
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
-import HeaderPanel from "@agir/groups/groupPage/GroupSettings/HeaderPanel";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 
 import MainPanel from "./MainPanel";
 import ConfirmPanel from "./ConfirmPanel";
