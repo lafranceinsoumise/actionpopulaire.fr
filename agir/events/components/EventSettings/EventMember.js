@@ -116,7 +116,7 @@ const MEMBER_ROLE_ICON = {
 };
 
 const EventMember = (props) => {
-  const { id, displayName, image = "", isOrganizer, email, gender } = props;
+  const { displayName, image = "", isOrganizer, email, gender } = props;
 
   const role = useMemo(() => {
     const label = MEMBER_ROLE_LABEL[isOrganizer ? 1 : 0];
@@ -149,7 +149,7 @@ EventMember.propTypes = {
   displayName: PropTypes.string,
   image: PropTypes.string,
   email: PropTypes.string,
-  isOrganizer: PropTypes.oneOf(Object.keys(MEMBER_ROLE_LABEL).map(Number)),
+  isOrganizer: PropTypes.bool,
   gender: PropTypes.oneOf(["", ...Object.values(GENDER)]),
 };
 

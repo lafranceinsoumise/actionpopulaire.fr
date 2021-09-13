@@ -38,7 +38,7 @@ const BlockTitle = styled.div`
 const EventParticipants = (props) => {
   const { onBack, illustration, eventPk } = props;
 
-  const { data: event, mutate } = useSWR(
+  const { data: event } = useSWR(
     api.getEventEndpoint("getDetailAdvanced", { eventPk })
   );
 
