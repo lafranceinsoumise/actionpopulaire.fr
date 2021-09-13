@@ -1,4 +1,5 @@
 from datetime import timedelta
+from functools import partial
 from pathlib import PurePath
 
 from django.db import transaction
@@ -40,6 +41,7 @@ from .tasks import (
     send_secretariat_notification,
     geocode_event,
     send_event_changed_notification,
+    notify_on_event_report,
 )
 from ..gestion.models import Projet, Document
 from ..groups.models import Membership, SupportGroup
@@ -576,61 +578,53 @@ class UpdateEventSerializer(serializers.ModelSerializer):
             notify_new_group_event.delay(changed_data["organizer_group"], event.pk)
             send_new_group_event_email.delay(changed_data["organizer_group"], event.pk)
 
+        if changed_data.get("report_content", None):
+            notify_on_event_report.delay(event.pk)
+
     def update(self, instance, validated_data):
         start = validated_data.get("start_time")
         end = validated_data.get("end_time")
-        eventTimezone = validated_data.get("timezone")
+        tz = validated_data.get("timezone")
 
         if start and end and end - start > timedelta(days=7):
             raise serializers.ValidationError(
                 {"endTime": "L'événement ne peut pas durer plus de 7 jours."}
             )
-
-        if eventTimezone and start:
-            validated_data.update(
-                {"start_time": replace_datetime_timezone(start, eventTimezone)}
-            )
-        if eventTimezone and end:
-            validated_data.update(
-                {"end_time": replace_datetime_timezone(end, eventTimezone)}
-            )
-
-        subtype = self.instance.subtype
+        if tz and start:
+            validated_data.update({"start_time": replace_datetime_timezone(start, tz)})
+        if tz and end:
+            validated_data.update({"end_time": replace_datetime_timezone(end, tz)})
 
         # Assign default description images if its not filled
         if not validated_data.get("description"):
-            validated_data.update({"description": subtype.default_description})
+            validated_data.update({"description": instance.subtype.default_description})
         if not validated_data.get("image"):
-            validated_data.update({"image": subtype.default_image})
+            validated_data.update({"image": instance.subtype.default_image})
 
         changed_data = {}
         for field, value in validated_data.items():
-            if hasattr(instance, field):
-                new_value = value
-                old_value = getattr(instance, field)
-                if new_value != old_value:
-                    changed_data[field] = new_value
             if field == "organizer_group":
                 if (
                     value
                     and not OrganizerConfig.objects.filter(
-                        event=self.instance, as_group=value
+                        event=instance, as_group=value
                     ).exists()
                 ):
                     changed_data[field] = value.pk
-
-        if not changed_data:
-            return instance
-
-        instance = super().update(instance, validated_data)
-        if "image" in changed_data and changed_data.get("image", None):
-            changed_data["image"] = instance.image.url
+            elif field == "report_content":
+                if not instance.report_content:
+                    changed_data[field] = value
+            elif hasattr(instance, field):
+                new_value = value
+                old_value = getattr(instance, field)
+                if new_value != old_value:
+                    changed_data[field] = new_value
 
         with transaction.atomic():
             event = super().update(instance, validated_data)
             if Projet.objects.filter(event=event).exists():
                 Projet.objects.from_event(event, event.organizers.first().role)
-            self.schedule_tasks(event, changed_data)
+            transaction.on_commit(partial(self.schedule_tasks, event, changed_data))
             return event
 
     class Meta:
