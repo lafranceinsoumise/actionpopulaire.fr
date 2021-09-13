@@ -31,7 +31,7 @@ class EventCheckPaymentMode(AbstractCheckPaymentMode):
     )
 
 
-class AFCPJLMCheck(AbstractCheckPaymentMode):
+class AFCPJLMCheckPaymentMode(AbstractCheckPaymentMode):
     id = "check_jlm2022_evenements"
     url_fragment = "cheque-melenchon2022-evenements"
 
