@@ -522,6 +522,8 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         ]
 
     def validate_facebook(self, value):
+        if value is None:
+            return ""
         if not validate_facebook_event_url(value):
             raise serializers.ValidationError(INVALID_FACEBOOK_EVENT_LINK_MESSAGE)
         return value

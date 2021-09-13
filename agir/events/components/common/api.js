@@ -108,6 +108,10 @@ export const updateEvent = async (eventPk, data) => {
     body.subtype = body.subtype.id;
   }
 
+  if (!body.facebook) {
+    delete body.facebook;
+  }
+
   if (body.image || body.compteRenduPhoto) {
     body = new FormData();
     Object.keys(data).forEach((e) => {
