@@ -41,7 +41,7 @@ const EventRequiredDocumentsPage = (props) => {
   const changeSubtype = useCallback(
     async (subtype) => {
       setIsLoading(true);
-      await updateEvent(eventPk, { subtype: subtype.id });
+      await updateEvent(eventPk, { subtype });
       setIsLoading(false);
       mutate();
     },
