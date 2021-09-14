@@ -164,6 +164,7 @@ def validate_facebook_event_url(url):
     return False
 
 
+# Returns a clean email subject for new_message and new_comment < 80 chars
 def clean_subject_email(subject):
     subject = subject.replace("\n", "")
     subject = re.sub("\s+", " ", subject)
