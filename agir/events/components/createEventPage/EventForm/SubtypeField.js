@@ -132,7 +132,6 @@ const SubtypeField = (props) => {
 
   const handleChange = useCallback(
     (subtype) => {
-      console.log(subtype);
       onChange(name, subtype);
       closePanel();
     },

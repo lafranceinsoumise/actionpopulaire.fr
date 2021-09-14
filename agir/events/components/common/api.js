@@ -102,15 +102,10 @@ export const updateEvent = async (eventPk, data) => {
   };
   const url = getEventEndpoint("updateEvent", { eventPk });
   let headers = undefined;
-  let body = data;
+  let body = { ...data };
 
-  if (body.subtype) {
-    body.subtype = body.subtype.id;
-  }
-
-  if (!body.facebook) {
-    delete body.facebook;
-  }
+  body.subtype = body?.subtype?.id || undefined;
+  body.facebook = body.facebook || undefined;
 
   if (body.image || body.compteRenduPhoto) {
     body = new FormData();

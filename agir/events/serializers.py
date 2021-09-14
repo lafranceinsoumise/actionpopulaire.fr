@@ -499,7 +499,9 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     startTime = DateTimeWithTimezoneField(source="start_time")
     endTime = DateTimeWithTimezoneField(source="end_time")
     onlineUrl = serializers.URLField(source="online_url")
+    facebook = serializers.CharField(default="", allow_blank=True, allow_null=True)
     contact = NestedContactSerializer(source="*")
+    image = serializers.ImageField(allow_empty_file=True, allow_null=True)
     location = LocationSerializer(source="*")
     compteRendu = serializers.CharField(source="report_content")
     compteRenduPhoto = serializers.ImageField(
@@ -510,8 +512,6 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     )
 
     def validate_facebook(self, value):
-        if value is None:
-            return ""
         if not validate_facebook_event_url(value):
             raise serializers.ValidationError(INVALID_FACEBOOK_EVENT_LINK_MESSAGE)
         return value
@@ -598,7 +598,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         # Assign default description images if its not filled
         if not validated_data.get("description"):
             validated_data.update({"description": instance.subtype.default_description})
-        if not validated_data.get("image"):
+        if not instance.image and not validated_data.get("image"):
             validated_data.update({"image": instance.subtype.default_image})
 
         changed_data = {}

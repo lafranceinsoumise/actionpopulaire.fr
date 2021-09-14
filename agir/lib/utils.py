@@ -143,6 +143,9 @@ def replace_datetime_timezone(dt, timezone_name):
 
 
 def validate_facebook_event_url(url):
+    if not url or url is "":
+        return True
+
     # Regular expression for FB event URLs with an event ID
     FACEBOOK_EVENT_ID_RE = re.compile(
         r"^(?:(?:https://)?(?:www\.)?(?:facebook|m\.facebook).com/events/)?([0-9]{15,20})(?:/.*)?$"

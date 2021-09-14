@@ -40,7 +40,7 @@ const EventGeneral = (props) => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    facebook: null,
+    facebook: "",
     image: null,
     subtype: null,
     startTime: "",
@@ -56,6 +56,10 @@ const EventGeneral = (props) => {
   const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
 
   useEffect(() => {
+    setIsLoading(false);
+    setImageHasChanged(false);
+    setHasCheckedImageLicence(false);
+
     setFormData((state) => ({
       ...state,
       name: event.name,
@@ -157,6 +161,8 @@ const EventGeneral = (props) => {
     });
 
     setIsLoading(false);
+    setImageHasChanged(false);
+    setHasCheckedImageLicence(false);
 
     if (res.error) {
       setErrors(res.error);
