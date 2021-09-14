@@ -161,8 +161,6 @@ const EventGeneral = (props) => {
     });
 
     setIsLoading(false);
-    setImageHasChanged(false);
-    setHasCheckedImageLicence(false);
 
     if (res.error) {
       setErrors(res.error);
