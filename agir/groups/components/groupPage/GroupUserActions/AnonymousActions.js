@@ -60,7 +60,6 @@ const AnonymousActions = () => {
         <Spacer size="10px" />
         Suivre
       </Button>
-      <p>Votre email sera communiqué aux animateur·ices</p>
     </StyledWrapper>
   );
 };

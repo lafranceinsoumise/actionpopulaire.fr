@@ -12,13 +12,6 @@ const StyledWrapper = styled.div`
   flex-flow: column nowrap;
   gap: 0.5rem;
 
-  ${Button} {
-    ${"" /* TODO: remove after Button refactoring merge */}
-    width: 100%;
-    margin: 0;
-    justify-content: center;
-  }
-
   p {
     margin: 0.5rem 0 0;
     text-align: center;
@@ -49,7 +42,6 @@ const NonMemberActions = (props) => {
         <Spacer size="10px" />
         Suivre
       </Button>
-      <p>Votre email sera communiqué aux animateur·ices</p>
     </StyledWrapper>
   );
 };
