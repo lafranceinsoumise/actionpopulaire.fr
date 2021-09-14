@@ -162,3 +162,11 @@ def validate_facebook_event_url(url):
         return match.group(1)
 
     return False
+
+
+def clean_subject_email(subject):
+    subject = subject.replace("\n", "")
+    subject = re.sub("\s+", " ", subject)
+    if len(subject) > 80:
+        subject = subject[0:80] + '..."'
+    return subject

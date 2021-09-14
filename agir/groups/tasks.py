@@ -14,7 +14,7 @@ from agir.events.models import Event, OrganizerConfig
 from agir.lib.celery import emailing_task, http_task, post_save_task
 from agir.lib.geo import geocode_element
 from agir.lib.mailing import send_mosaico_email
-from agir.lib.utils import front_url
+from agir.lib.utils import front_url, clean_subject_email
 from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person
 from .actions.invitation import make_abusive_invitation_report_link
@@ -455,6 +455,7 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 @emailing_task
 @post_save_task
 def send_message_notification_email(message_pk):
+
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
     recipients = Person.objects.exclude(id=message.author.id).filter(
@@ -479,10 +480,12 @@ def send_message_notification_email(message_pk):
             message.supportgroup.name,
         ),
     }
+
     if message.subject:
         subject = message.subject
     else:
-        subject = f"Vous avez un nouveau message de {message.author.display_name}"
+        subject = f"Nouveau message de {message.author.display_name}"
+    subject = clean_subject_email(subject)
 
     send_mosaico_email(
         code="NEW_MESSAGE",
@@ -497,16 +500,17 @@ def send_message_notification_email(message_pk):
 @post_save_task
 def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
+    message_initial = comment.message
 
     recipients = Person.objects.exclude(id=comment.author.id).filter(
-        notification_subscriptions__membership__supportgroup=comment.message.supportgroup,
-        notification_subscriptions__person__in=comment.message.comments.values_list(
+        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
+        notification_subscriptions__person__in=message_initial.comments.values_list(
             "author_id", flat=True
         ),
         notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
         notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
     ) | Person.objects.exclude(id=comment.author.id).filter(
-        notification_subscriptions__membership__supportgroup=comment.message.supportgroup,
+        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
         notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
         notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
     )
@@ -522,22 +526,21 @@ def send_comment_notification_email(comment_pk):
         ),
         "DISPLAY_NAME": comment.author.display_name,
         "MESSAGE_LINK": front_url(
-            "view_group_message", args=[comment.message.supportgroup.pk, comment_pk]
+            "view_group_message", args=[message_initial.supportgroup.pk, comment_pk]
         ),
         "AUTHOR_STATUS": format_html(
             '{} de <a href="{}">{}</a>',
             genrer(comment.author.gender, "Animateur", "Animatrice", "Animateur·ice"),
-            front_url("view_group", args=[comment.message.supportgroup.pk]),
-            comment.message.supportgroup.name,
+            front_url("view_group", args=[message_initial.supportgroup.pk]),
+            message_initial.supportgroup.name,
         ),
     }
 
-    message_reference = '"' + comment.message.text + '"'
-    message_reference = message_reference.replace("\n", "")
-    message_reference = re.sub("\s+", " ", message_reference)
-    if len(message_reference) > 80:
-        message_reference = message_reference[0:80] + '..."'
-    subject = f"Nouvelle réponse au message {message_reference}"
+    if message_initial.subject:
+        subject = message_initial.subject
+    else:
+        subject = f"Nouveau message de {message_initial.author.display_name}"
+    subject = clean_subject_email(subject)
 
     send_mosaico_email(
         code="NEW_MESSAGE",
