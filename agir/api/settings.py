@@ -701,6 +701,8 @@ USER_ALLOWED_TAGS = [
     "h2",
     "h3",
     "h4",
+    "u",
+    "s",
 ]
 ADMIN_ALLOWED_TAGS = USER_ALLOWED_TAGS + ["table", "tr", "td", "th"]
 
