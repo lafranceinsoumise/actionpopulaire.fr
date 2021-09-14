@@ -41,7 +41,7 @@ const routeConfig = {
     id: "reports",
     path: "/groupes/:groupPk/comptes-rendus/",
     exact: false,
-    label: "Comptes-rendus",
+    label: "Comptes rendus",
     hasTab: true,
     hasRoute: (group) => group.isManager || group.hasPastEventReports,
   },

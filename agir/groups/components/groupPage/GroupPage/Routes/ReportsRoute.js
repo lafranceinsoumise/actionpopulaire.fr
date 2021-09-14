@@ -8,12 +8,12 @@ import GroupEventList from "@agir/groups/groupPage/GroupEventList";
 const ReportsRoute = ({ group, pastEventReports }) => (
   <>
     <Helmet>
-      <title>Comptes-rendus du groupe : {group.name} - Action populaire</title>
+      <title>Comptes rendus du groupe : {group.name} - Action populaire</title>
     </Helmet>
     {Array.isArray(pastEventReports) && pastEventReports.length === 0 ? (
       <EmptyReports />
     ) : (
-      <GroupEventList title="Comptes-rendus" events={pastEventReports} />
+      <GroupEventList title="Comptes rendus" events={pastEventReports} />
     )}
   </>
 );
