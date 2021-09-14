@@ -86,10 +86,10 @@ const ModalConfirmation = (props) => {
 ModalConfirmation.propTypes = {
   shouldShow: PropTypes.bool,
   onClose: PropTypes.func,
-  title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  description: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  dismissLabel: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  confirmationLabel: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  title: PropTypes.node,
+  description: PropTypes.node,
+  dismissLabel: PropTypes.node,
+  confirmationLabel: PropTypes.node,
   confirmationUrl: PropTypes.string,
 };
 
