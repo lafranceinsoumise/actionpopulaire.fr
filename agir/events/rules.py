@@ -3,6 +3,7 @@ import rules
 from agir.events.models import Event
 from .actions.required_documents import get_is_blocking_project
 from ..gestion.models import Projet
+from ..groups.models import Membership
 from ..lib.rules import is_authenticated_person
 
 
@@ -18,9 +19,21 @@ def is_public_event(role, event=None):
 
 @rules.predicate
 def is_organizer_of_event(role, event=None):
-    return (
-        event is not None and role.person.organized_events.filter(pk=event.pk).exists()
-    )
+    if event is None:
+        return False
+
+    # The person who created the event:
+    if role.person.organized_events.filter(pk=event.pk).exists():
+        return True
+
+    # All the managers of the groups organizing the event:
+    if event.organizers_groups.filter(
+        memberships__person=role.person,
+        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+    ).exists():
+        return True
+
+    return False
 
 
 @rules.predicate

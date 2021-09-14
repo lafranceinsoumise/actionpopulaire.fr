@@ -23,6 +23,7 @@ __all__ = [
     "SupportGroupSubtype",
     "Membership",
     "TransferOperation",
+    "SupportGroupExternalLink",
 ]
 
 
@@ -167,6 +168,12 @@ class SupportGroup(
     @property
     def members_count(self):
         return Membership.objects.filter(supportgroup=self).count()
+
+    @property
+    def active_members_count(self):
+        return Membership.objects.filter(
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER, supportgroup=self
+        ).count()
 
     @property
     def is_full(self):

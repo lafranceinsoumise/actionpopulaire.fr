@@ -173,6 +173,13 @@
       <div class="row">
         <div class="col-md-6">
           <ul class="list-group">
+            {% for supportgroup in organizing_groups %}
+              <li class="list-group-item list-group-item-success">
+                {{ supportgroup.name }}
+              </li>
+            {% endfor %}
+          </ul>
+          <ul class="list-group">
             {% for organizer in organizers %}
               <li class="list-group-item list-group-item-success">
                 {% if organizer.first_name and organizer.last_name %}

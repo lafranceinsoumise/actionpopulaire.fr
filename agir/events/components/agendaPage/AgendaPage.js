@@ -15,7 +15,6 @@ import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 import Layout from "@agir/front/dashboardComponents/Layout";
 import TellMorePage from "@agir/front/authentication/Connexion/TellMore/TellMorePage";
 import TopBar from "@agir/front/allPages/TopBar/TopBar";
-import { useLocation } from "react-router-dom";
 
 const StyledWrapper = styled.div`
   padding-top: 72px;
@@ -27,7 +26,6 @@ const StyledWrapper = styled.div`
 
 const AgendaPage = (props) => {
   const isSessionLoaded = useSelector(getIsSessionLoaded);
-  const path = useLocation().pathname;
 
   const [isBannerDownload] = useDownloadBanner();
 
@@ -37,7 +35,7 @@ const AgendaPage = (props) => {
 
   return (
     <>
-      <TopBar path={path} />
+      <TopBar />
       <ConnectivityWarning hasTopBar />
       <TellMorePage />
 

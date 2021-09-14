@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 import { usePrevious } from "react-use";
 import styled from "styled-components";
+import { captureMessage } from "@sentry/react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -13,10 +14,6 @@ import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import illustration from "./illustration.svg";
-
-import generateLogger from "@agir/lib/utils/logger";
-
-const logger = generateLogger(__filename);
 
 const Container = styled.div`
   display: flex;
@@ -82,8 +79,9 @@ export const NotFoundPage = ({
   if (isOffline === null) return null;
 
   if (!isOffline) {
-    logger.error(
-      `React shows a 'Not found page' : ${window.location.pathname}`
+    captureMessage(
+      `React shows a 'Not found page' : ${window.location.pathname}`,
+      "debug"
     );
   }
 

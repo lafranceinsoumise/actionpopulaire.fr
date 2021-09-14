@@ -1,13 +1,10 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+
 import axios from "@agir/lib/utils/axios";
 import logger from "@agir/lib/utils/logger";
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { useIOSMessages } from "@agir/front/allPages/ios";
-import {
-  getSubscriptionData,
-  webpushSubscribe,
-} from "@agir/notifications/push/webpushUtils";
 import { useMobileApp } from "@agir/front/app/hooks";
-import { useLocalStorage } from "react-use";
+import { useLocalStorage } from "@agir/lib/utils/hooks";
 
 const log = logger(__filename);
 
@@ -16,22 +13,6 @@ const SUBSCRIPTION_TYPES = {
   APPLE: "apple",
   WEBPUSH: "webpush",
 };
-
-async function askPermission() {
-  let permissionResult = await new Promise((resolve, reject) => {
-    const permissionPromise = Notification.requestPermission(function (result) {
-      resolve(result);
-    });
-
-    if (permissionPromise) {
-      permissionPromise.then(resolve, reject);
-    }
-  });
-
-  if (permissionResult !== "granted") {
-    throw new Error("We weren't granted permission.");
-  }
-}
 
 const useServerSubscription = (endpoint, token) => {
   const [ready, setReady] = useState(false);

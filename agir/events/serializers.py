@@ -9,7 +9,6 @@ from rest_framework import serializers
 from agir.front.serializer_utils import RoutesField
 from agir.lib.serializers import (
     LocationSerializer,
-    ContactMixinSerializer,
     NestedLocationSerializer,
     NestedContactSerializer,
     FlexibleFieldsMixin,
@@ -36,8 +35,7 @@ from .tasks import (
 )
 from ..gestion.models import Projet, Document
 from ..groups.models import Membership, SupportGroup
-from ..groups.serializers import SupportGroupDetailSerializer
-from ..groups.serializers import SupportGroupSerializer
+from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
 from ..lib.utils import admin_url
 
@@ -84,7 +82,7 @@ EVENT_ROUTES = {
     "map": "carte:single_event_map",
     "rsvp": "rsvp_event",
     "cancel": "quit_event",
-    "manage": "manage_event",
+    "manage": "view_event_settings",
     "calendarExport": "ics_event",
     "compteRendu": "edit_event_report",
     "addPhoto": "upload_event_image",
@@ -113,9 +111,12 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "rsvp",
         "routes",
         "groups",
+        "participants",
+        "organizers",
         "distance",
         "compteRendu",
         "subtype",
+        "onlineUrl",
     ]
 
     id = serializers.UUIDField()
@@ -143,7 +144,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     groups = serializers.SerializerMethodField()
 
-    contact = ContactMixinSerializer(source="*")
+    contact = NestedContactSerializer(source="*")
 
     distance = serializers.SerializerMethodField()
 
@@ -193,7 +194,21 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return bool(obj.subscription_form_id)
 
     def get_isOrganizer(self, obj):
-        return bool(self.organizer_config)
+        user = self.context["request"].user
+
+        if not user.is_authenticated or not user.person:
+            return False
+
+        if bool(self.organizer_config):
+            return True
+
+        if obj.organizers_groups.filter(
+            memberships__person=user.person,
+            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        ).exists():
+            return True
+
+        return False
 
     def get_rsvp(self, obj):
         return self.rsvp and self.rsvp.status
@@ -254,14 +269,45 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         ).data
 
 
+class EventAdvancedSerializer(EventSerializer):
+
+    participants = serializers.SerializerMethodField()
+
+    organizers = serializers.SerializerMethodField()
+
+    def get_participants(self, obj):
+        return [
+            {"id": person.id, "email": person.email, "displayName": person.display_name}
+            for person in obj.attendees.all()
+            if person not in obj.organizers.all()
+        ]
+
+    def get_organizers(self, obj):
+        return [
+            {
+                "id": person.id,
+                "email": person.email,
+                "displayName": person.display_name,
+                "gender": person.gender,
+                "isOrganizer": True,
+            }
+            for person in obj.organizers.all()
+        ]
+
+
 class EventListSerializer(EventSerializer):
     def get_groups(self, obj):
-        return SupportGroupSerializer(
-            obj.organizers_groups.distinct(),
-            context=self.context,
-            many=True,
-            fields=["id", "name", "isMember"],
-        ).data
+        user = self.context["request"].user
+        return [
+            {
+                "id": group.id,
+                "name": group.name,
+                "isMember": user.is_authenticated
+                and user.person is not None
+                and group.memberships.filter(person=user.person).exists(),
+            }
+            for group in obj.organizers_groups.distinct()
+        ]
 
 
 class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
@@ -421,14 +467,35 @@ class CreateEventSerializer(serializers.Serializer):
 
 class UpdateEventSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
-    name = serializers.CharField(read_only=True)
     subtype = serializers.PrimaryKeyRelatedField(
         queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
     )
+    startTime = DateTimeWithTimezoneField(source="start_time")
+    endTime = DateTimeWithTimezoneField(source="end_time")
+    onlineUrl = serializers.URLField(source="online_url")
+    contact = NestedContactSerializer(source="*")
+    location = LocationSerializer(source="*")
+    compteRendu = serializers.CharField(source="report_content")
+    # compteRenduPhotos = serializers.CharField(source="report_image")
 
     class Meta:
         model = Event
-        fields = ["id", "name", "subtype"]
+        fields = [
+            "id",
+            "name",
+            "subtype",
+            "description",
+            "image",
+            "startTime",
+            "endTime",
+            "timezone",
+            "facebook",
+            "onlineUrl",
+            "contact",
+            "location",
+            "compteRendu",
+            # "compteRenduPhotos"
+        ]
 
     def update(self, instance, validated_data):
         with transaction.atomic():

@@ -49,6 +49,8 @@ import EventReportCard from "./EventReportCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import ClickableMap from "@agir/carte/common/Map/ClickableMap";
 
+import EventSettings from "@agir/events/EventSettings/EventSettings";
+
 const log = logger(__filename);
 
 const GroupCards = styled.div`
@@ -160,6 +162,7 @@ const MobileLayout = (props) => {
     props;
   const hasMap =
     location?.coordinates && Array.isArray(location?.coordinates?.coordinates);
+  const activePathname = `/evenements/${props.id}/`;
 
   return (
     <>
@@ -226,6 +229,7 @@ const MobileLayout = (props) => {
           </StyledColumn>
         </Row>
       </Container>
+      <EventSettings event={props} basePath={activePathname} />
     </>
   );
 };
@@ -233,52 +237,57 @@ const MobileLayout = (props) => {
 const DesktopLayout = (props) => {
   const { logged, groups, contact, participantCount, routes, subtype } = props;
 
+  const activePathname = `/evenements/${props.id}/`;
+
   return (
-    <Container
-      style={{
-        margin: "0 auto 4rem",
-        padding: "0 4rem",
-        maxWidth: "1336px",
-        width: "100%",
-      }}
-    >
-      <Row style={{ minHeight: 56 }}>
-        <Column grow>
-          {logged && (
-            <IndexLinkAnchor route="events">
-              <FeatherIcon name="arrow-left" /> &nbsp; Liste des événements
-            </IndexLinkAnchor>
-          )}
-        </Column>
-      </Row>
-      <Row gutter={32}>
-        <Column grow>
-          <div>
-            <EventHeader {...props} />
-            <EventPhotosCard {...props} />
-            <EventReportCard {...props} />
-            <EventDescriptionCard {...props} />
-            {Array.isArray(groups) && groups.length > 0 && (
-              <GroupCards>
-                <h3 style={{ marginTop: "2.5rem" }}>Organisé par</h3>
-                {groups.map((group, key) => (
-                  <GroupCard key={key} {...group} isEmbedded />
-                ))}
-              </GroupCards>
+    <>
+      <Container
+        style={{
+          margin: "0 auto 4rem",
+          padding: "0 4rem",
+          maxWidth: "1336px",
+          width: "100%",
+        }}
+      >
+        <Row style={{ minHeight: 56 }}>
+          <Column grow>
+            {logged && (
+              <IndexLinkAnchor route="events">
+                <FeatherIcon name="arrow-left" /> &nbsp; Liste des événements
+              </IndexLinkAnchor>
             )}
-          </div>
-        </Column>
-        <StyledColumn width="380px">
-          <EventLocationCard {...props} />
-          {contact && <ContactCard {...contact} />}
-          {(participantCount > 1 || groups?.length > 0 || subtype?.label) && (
-            <EventInfoCard {...props} />
-          )}
-          {routes?.facebook && <EventFacebookLinkCard {...props} />}
-          <ShareCard url={routes?.details} />
-        </StyledColumn>
-      </Row>
-    </Container>
+          </Column>
+        </Row>
+        <Row gutter={32}>
+          <Column grow>
+            <div>
+              <EventHeader {...props} />
+              <EventPhotosCard {...props} />
+              <EventReportCard {...props} />
+              <EventDescriptionCard {...props} />
+              {Array.isArray(groups) && groups.length > 0 && (
+                <GroupCards>
+                  <h3 style={{ marginTop: "2.5rem" }}>Organisé par</h3>
+                  {groups.map((group, key) => (
+                    <GroupCard key={key} {...group} isEmbedded />
+                  ))}
+                </GroupCards>
+              )}
+            </div>
+          </Column>
+          <StyledColumn width="380px">
+            <EventLocationCard {...props} />
+            {contact && <ContactCard {...contact} />}
+            {(participantCount > 1 || groups?.length > 0 || subtype?.label) && (
+              <EventInfoCard {...props} />
+            )}
+            {routes?.facebook && <EventFacebookLinkCard {...props} />}
+            <ShareCard url={routes?.details} />
+          </StyledColumn>
+        </Row>
+      </Container>
+      <EventSettings event={props} basePath={activePathname} />
+    </>
   );
 };
 
@@ -342,6 +351,7 @@ EventPage.propTypes = {
     join: PropTypes.string,
     cancel: PropTypes.string,
     manage: PropTypes.string,
+    manageMobile: PropTypes.string,
     calendarExport: PropTypes.string,
     googleExport: PropTypes.string,
     facebook: PropTypes.string,

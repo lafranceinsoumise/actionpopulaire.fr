@@ -1,7 +1,6 @@
 from datetime import timedelta
 from functools import partial
 
-import pytz
 from crispy_forms import layout
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Row, Field
@@ -15,7 +14,6 @@ from phonenumber_field.formfields import PhoneNumberField
 
 from agir.activity.models import Activity
 from agir.events.actions import legal
-from agir.events.actions.legal import needs_approval
 from agir.groups.models import SupportGroup, Membership
 from agir.groups.tasks import notify_new_group_event, send_new_group_event_email
 from agir.lib.form_components import *
@@ -28,16 +26,14 @@ from agir.lib.form_mixins import (
 )
 from agir.payments.payment_modes import PaymentModeField
 from agir.people.forms import BasePersonForm
-from .models import Event, OrganizerConfig, RSVP, EventImage, EventSubtype
+from .models import Event, OrganizerConfig, EventImage, EventSubtype
 from .tasks import (
-    send_event_creation_notification,
     send_event_changed_notification,
     send_external_rsvp_confirmation,
-    send_secretariat_notification,
     notify_on_event_report,
     geocode_event,
 )
-from ..lib.form_fields import AcceptCreativeCommonsLicenceField, DateTimePickerWidget
+from ..lib.form_fields import AcceptCreativeCommonsLicenceField
 from ..lib.utils import replace_datetime_timezone
 from ..people.models import Person, PersonFormSubmission
 
@@ -81,9 +77,7 @@ class AgendaChoiceField(forms.ModelChoiceField):
 
 class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.ModelForm):
     geocoding_task = geocode_event
-
     image_field = "image"
-
     subtype = forms.ModelChoiceField(
         queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
         to_field_name="label",
@@ -91,21 +85,17 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
 
     def __init__(self, *args, person, **kwargs):
         event = kwargs.get("instance", None)
-        if event is not None:
-            kwargs.update(
-                {
-                    "initial": {
-                        "start_time": event.local_start_time,
-                        "end_time": event.local_end_time,
-                    }
+        kwargs.update(
+            {
+                "initial": {
+                    "start_time": event.local_start_time,
+                    "end_time": event.local_end_time,
                 }
-            )
+            }
+        )
         super().__init__(*args, **kwargs)
         self.person = person
-
         excluded_fields = []
-
-        self.is_creation = self.instance._state.adding
         self.fields["image"].help_text = _(
             """
         Vous pouvez ajouter une image de bannière à votre événement : elle apparaîtra alors sur la page de votre
@@ -136,25 +126,38 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         self.fields["name"].label = "Nom de l'événement"
         self.fields["name"].help_text = None
 
-        if not self.is_creation:
+        try:
+            self.organizer_config = OrganizerConfig.objects.get(
+                person=self.person, event=self.instance
+            )
+            self.fields["as_group"].initial = self.organizer_config.as_group
+        except OrganizerConfig.DoesNotExist:
             try:
-                self.organizer_config = OrganizerConfig.objects.get(
-                    person=self.person, event=self.instance
+                self.organizer_config = None
+                organizer_config = OrganizerConfig.objects.get(
+                    event=self.instance,
+                    as_group__in=Membership.objects.filter(
+                        person=person,
+                        membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                    ).values_list("supportgroup_id", flat=True),
                 )
+                self.fields["as_group"].initial = organizer_config.as_group
             except OrganizerConfig.DoesNotExist:
                 raise PermissionDenied(
                     "Vous ne pouvez pas modifier un événement que vous n'organisez pas."
                 )
-            self.fields["as_group"].initial = self.organizer_config.as_group
-            del self.fields["subtype"]
 
-            excluded_fields = self.instance.subtype.config.get("excluded_fields", [])
-            if "image" in excluded_fields:
-                excluded_fields.append("image_accept_license")
+        del self.fields["subtype"]
 
-            for f in excluded_fields:
-                if f in self.fields:
-                    del self.fields[f]
+        excluded_fields = self.instance.subtype.config.get("excluded_fields", [])
+        if "image" in excluded_fields:
+            excluded_fields.append("image_accept_license")
+        if self.organizer_config is None:
+            excluded_fields.append("as_group")
+
+        for f in excluded_fields:
+            if f in self.fields:
+                del self.fields[f]
 
         self.helper = FormHelper()
         self.helper.form_method = "POST"
@@ -218,13 +221,6 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
     def clean(self):
         cleaned_data = super().clean()
 
-        if (
-            self.is_creation
-            and isinstance(cleaned_data.get("legal"), dict)
-            and needs_approval(cleaned_data["legal"])
-        ):
-            self.instance.visibility = Event.VISIBILITY_ORGANIZER
-
         start = cleaned_data.get("start_time")
         end = cleaned_data.get("end_time")
         timezone = cleaned_data.get("timezone")
@@ -244,9 +240,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         return cleaned_data
 
     def save(self, commit=True):
-        subtype = (
-            self.cleaned_data["subtype"] if self.is_creation else self.instance.subtype
-        )
+        subtype = self.instance.subtype
 
         if not self.cleaned_data["description"]:
             self.instance.description = subtype.default_description
@@ -260,70 +254,50 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
         return res
 
     def _save_m2m(self):
-        if self.is_creation:
-            self.organizer_config = OrganizerConfig.objects.create(
-                person=self.person,
-                event=self.instance,
-                as_group=self.cleaned_data["as_group"],
-            )
-
-            RSVP.objects.create(person=self.person, event=self.instance)
-        elif self.organizer_config.as_group != self.cleaned_data["as_group"]:
+        if (
+            self.organizer_config
+            and self.organizer_config.as_group != self.cleaned_data["as_group"]
+        ):
             self.organizer_config.as_group = self.cleaned_data["as_group"]
             self.organizer_config.save()
 
     def schedule_tasks(self):
         super().schedule_tasks()
+        # send changes notification
+        if self.changed_data:
 
-        # if it's a new event creation, send the confirmation notification and geolocate it
-        if self.is_creation:
-            # membership attribute created by _save_m2m
-            send_event_creation_notification.delay(self.organizer_config.pk)
-            if self.organizer_config.event.visibility == Event.VISIBILITY_ORGANIZER:
-                send_secretariat_notification.delay(
-                    self.organizer_config.event.pk,
-                    self.organizer_config.person.pk,
-                    complete=False,
-                )
+            event = Event.objects.get(pk=self.instance.pk)
 
-        else:
-            # send changes notification
-            if self.changed_data:
+            changed_data = [f for f in self.changed_data if f in NOTIFIED_CHANGES]
+            if not changed_data:
+                return
 
-                event = Event.objects.get(pk=self.instance.pk)
-
-                changed_data = [f for f in self.changed_data if f in NOTIFIED_CHANGES]
-                if not changed_data:
-                    return
-
-                for r in event.attendees.all():
-                    activity = Activity.objects.filter(
+            for r in event.attendees.all():
+                activity = Activity.objects.filter(
+                    type=Activity.TYPE_EVENT_UPDATE,
+                    recipient=r,
+                    event=event,
+                    status=Activity.STATUS_UNDISPLAYED,
+                    created__gt=timezone.now() + timedelta(minutes=2),
+                ).first()
+                if activity is not None:
+                    activity.meta["changed_data"] = list(
+                        set(changed_data).union(activity.meta["changed_data"])
+                    )
+                    activity.timestamp = timezone.now()
+                    activity.save()
+                else:
+                    Activity.objects.create(
                         type=Activity.TYPE_EVENT_UPDATE,
                         recipient=r,
                         event=event,
-                        status=Activity.STATUS_UNDISPLAYED,
-                        created__gt=timezone.now() + timedelta(minutes=2),
-                    ).first()
-                    if activity is not None:
-                        activity.meta["changed_data"] = list(
-                            set(changed_data).union(activity.meta["changed_data"])
-                        )
-                        activity.timestamp = timezone.now()
-                        activity.save()
-                    else:
-                        Activity.objects.create(
-                            type=Activity.TYPE_EVENT_UPDATE,
-                            recipient=r,
-                            event=event,
-                            meta={"changed_data": changed_data},
-                        )
+                        meta={"changed_data": changed_data},
+                    )
 
-                send_event_changed_notification.delay(
-                    self.instance.pk, self.changed_data
-                )
+            send_event_changed_notification.delay(self.instance.pk, self.changed_data)
 
         # also notify members if it is organized by a group
-        if self.cleaned_data["as_group"] and "as_group" in self.changed_data:
+        if self.cleaned_data.get("as_group", None) and "as_group" in self.changed_data:
             transaction.on_commit(
                 partial(
                     notify_new_group_event.delay,

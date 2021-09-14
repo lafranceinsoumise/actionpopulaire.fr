@@ -53,6 +53,7 @@ class Activity(TimeStampedModel):
     TYPE_GROUP_INFO_UPDATE = "group-info-update"
     TYPE_NEW_MESSAGE = "new-message"
     TYPE_NEW_COMMENT = "new-comment"
+    TYPE_NEW_COMMENT_RESTRICTED = "new-comment-restricted"
     TYPE_GROUP_CREATION_CONFIRMATION = "group-creation-confirmation"
     TYPE_ACCEPTED_INVITATION_MEMBER = "accepted-invitation-member"
     TYPE_TRANSFERRED_GROUP_MEMBER = "transferred-group-member"
@@ -114,7 +115,11 @@ class Activity(TimeStampedModel):
             "Les membres du groupes sont de plus en plus nombreux",
         ),
         (TYPE_NEW_MESSAGE, "Nouveau message dans un de vos groupes"),
-        (TYPE_NEW_COMMENT, "Nouveau commentaire dans une de vos discussions"),
+        (TYPE_NEW_COMMENT, "Nouveau commentaire dans un de vos groupes"),
+        (
+            TYPE_NEW_COMMENT_RESTRICTED,
+            "Nouveau commentaire dans une de vos discussions",
+        ),
         (TYPE_WAITING_LOCATION_GROUP, "Préciser la localisation du groupe"),
         (TYPE_GROUP_COORGANIZATION_INVITE, "Invitation à coorganiser un groupe reçue"),
         (TYPE_WAITING_LOCATION_EVENT, "Préciser la localisation d'un événement"),

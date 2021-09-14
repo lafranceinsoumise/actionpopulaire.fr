@@ -502,6 +502,7 @@ ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_GROUP_COORGANIZATION_INFO: GroupCoorganizationInfoActivityNotificationSerializer,
     Activity.TYPE_NEW_MESSAGE: NewMessageActivityNotificationSerializer,
     Activity.TYPE_NEW_COMMENT: NewCommentActivityNotificationSerializer,
+    Activity.TYPE_NEW_COMMENT_RESTRICTED: NewCommentActivityNotificationSerializer,
     Activity.TYPE_EVENT_SUGGESTION: EventSuggestionNotificationSerializer,
     Activity.TYPE_REMINDER_DOCS_EVENT_EVE: ReminderDocsEventPreActivityNotificationSerializer,
     Activity.TYPE_REMINDER_DOCS_EVENT_NEXTDAY: ReminderDocsEventNextdayActivityNotificationSerializer,

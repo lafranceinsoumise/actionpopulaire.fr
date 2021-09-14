@@ -22,7 +22,7 @@ import {
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
-import NotificationSettingLink from "@agir/activity/NotificationSettings/NotificationSettingLink";
+import NotificationSettingLink from "@agir/notifications/NotificationSettings/NotificationSettingLink";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 
 import ActivityCard from "./ActivityCard";

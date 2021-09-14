@@ -14,8 +14,15 @@ import onboardingThematicImage from "./images/onboarding__thematic.jpg";
 const ONBOARDING_TYPE = {
   event: {
     img: onboardingEventImage,
-    title: "Organisez un événement près de chez vous !",
-    body: "Agissez et organisez un événement de soutien, tel qu’une action de solidarité, une réunion en ligne pour discuter du programme, une écoute collective des futurs meetings... Organisez-vous avec d’autres membres pour soutenir la campagne !",
+    title: <>Organisez un événement près de chez vous&nbsp;!</>,
+    body: (
+      <>
+        Agissez et organisez un événement de soutien, tel qu’une action de
+        solidarité, une réunion en ligne pour discuter du programme, une écoute
+        collective des futurs meetings... Organisez-vous avec d’autres membres
+        pour soutenir la campagne&nbsp;!
+      </>
+    ),
     createLabel: "Créer un événement",
     createRoute: "createEvent",
   },
@@ -29,7 +36,7 @@ const ONBOARDING_TYPE = {
         </p>
         <p>
           Rejoignez un groupe, agissez sur le terrain et organisez des moments
-          de réflexions politiques !
+          de réflexions politiques&nbsp;!
         </p>
       </>
     ),
@@ -39,7 +46,7 @@ const ONBOARDING_TYPE = {
     color: "secondary",
   },
   group__creation: {
-    title: "Ou bien créez votre groupe !",
+    title: <>Ou bien créez votre groupe&nbsp;!</>,
     body: (
       <>
         <p>
@@ -47,7 +54,7 @@ const ONBOARDING_TYPE = {
           candidature de Jean-Luc Mélenchon.{" "}
         </p>
         <p>
-          Besoin d’inspiration pour animer votre groupe ? &nbsp;
+          Besoin d’inspiration pour animer votre groupe&nbsp;? &nbsp;
           <a
             href="https://infos.actionpopulaire.fr/"
             target="_blank"
@@ -63,12 +70,12 @@ const ONBOARDING_TYPE = {
     createRouteId: "createGroup",
   },
   fullGroup__creation: {
-    title: "Ou bien animez votre propre groupe et invitez-y vos amis !",
+    title: <>Ou bien animez votre propre groupe et invitez-y vos amis&nbsp;!</>,
     body: ({ routes }) => [
       <span key="text">
         Créez votre groupe en quelques clics, et commencez dès aujourd’hui à
         organiser des actions pour soutenir la candidature de Jean-Luc
-        Mélenchon. Besoin d’inspiration pour animer votre groupe ?{" "}
+        Mélenchon. Besoin d’inspiration pour animer votre groupe&nbsp;?{" "}
       </span>,
       routes.newGroupHelp && (
         <a key="link" href={routes.newGroupHelp}>
@@ -82,7 +89,13 @@ const ONBOARDING_TYPE = {
   group__nsp: {
     img: onboardingActionImage,
     title: "Rejoignez ou organisez un groupe d'action",
-    body: "Les groupes d'actions permettent aux militants de s’organiser dans leur quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain et organisez des moments de réflexions politiques !",
+    body: (
+      <>
+        Les groupes d'actions permettent aux militants de s’organiser dans leur
+        quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain
+        et organisez des moments de réflexions politiques&nbsp;!
+      </>
+    ),
     createLabel: "Créer un groupe",
     mapLabel: "Voir les groupes dans ma ville",
     mapRoute: "groupMap",
@@ -92,7 +105,13 @@ const ONBOARDING_TYPE = {
     img: onboardingActionImage,
     title:
       "Rejoignez un groupe d’action de votre ville pour militer localement",
-    body: "Les groupes d’actions permettent aux militants de s’organiser dans leur quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain et organisez des moments de réflexions politiques !",
+    body: (
+      <>
+        Les groupes d’actions permettent aux militants de s’organiser dans leur
+        quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain
+        et organisez des moments de réflexions politiques&nbsp;!
+      </>
+    ),
     createLabel: "Créer un groupe",
     mapLabel: "Voir les groupes dans ma ville",
     mapRoute: "groupMap",
@@ -106,7 +125,7 @@ const ONBOARDING_TYPE = {
         Les groupes thématiques locaux font vivre des thèmes du programme{" "}
         <strong>l’Avenir en Commun</strong> dans un quartier ou une ville.
         Rejoignez un groupe proche de chez vous sur un thème qui vous tient à
-        coeur !
+        coeur&nbsp;!
       </>
     ),
     createLabel: "Créer un groupe",

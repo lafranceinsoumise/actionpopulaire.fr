@@ -7,10 +7,10 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
-import HeaderPanel from "./HeaderPanel";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import DiscountCode from "./DiscountCode";
 
-import { StyledTitle } from "./styledComponents.js";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 

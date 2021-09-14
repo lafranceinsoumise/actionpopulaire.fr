@@ -1,13 +1,14 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Redirect, useRouteMatch } from "react-router-dom";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
 import { getMenuRoute, getRoutes } from "./routes.config";
 import { useAuthentication } from "@agir/front/authentication/hooks";
 import { getGroupTypeWithLocation } from "@agir/groups/groupPage/utils";
 
-import ObjectManagement from "@agir/front/genericComponents/ObjectManagement";
+import ObjectManagement from "@agir/front/genericComponents/ObjectManagement/ObjectManagement";
 
 export const GroupSettings = (props) => {
   const { group, basePath } = props;
@@ -15,6 +16,7 @@ export const GroupSettings = (props) => {
   const menuRoute = useMemo(() => getMenuRoute(basePath), [basePath]);
   const isAuthorized = useAuthentication(globalRouteConfig.groupSettings);
   const { pathname } = useLocation();
+  const isDesktop = useIsDesktop();
 
   const redirectTo = useMemo(() => {
     if (!group?.isManager) {
@@ -41,6 +43,13 @@ export const GroupSettings = (props) => {
 
   if (!group) {
     return null;
+  }
+
+  const routeMenuMatch = useRouteMatch(menuRoute.path);
+
+  // Open first panel on Desktop
+  if (isDesktop && routeMenuMatch?.isExact) {
+    return <Redirect to="membres/" />;
   }
 
   return (

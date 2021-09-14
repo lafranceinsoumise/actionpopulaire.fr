@@ -215,7 +215,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
     components
   ),
   plugins: [
-    new WebpackBar(),
+    type !== CONFIG_TYPES.DEV && new WebpackBar(),
     ...htmlPlugins(type),
     new HtmlWebpackPlugin({
       filename: `includes/theme.bundle.html`,
@@ -225,20 +225,22 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
         `<link href="${htmlWebpackPlugin.files.css[0]}" rel="stylesheet">`,
     }),
     new MiniCssExtractPlugin({ filename: "[name]-[chunkhash].css" }),
-    new webpack.IgnorePlugin({
-      resourceRegExp: /^\.\/locale$/,
-      contextRegExp: /moment$/,
-    }),
-    new BundleAnalyzerPlugin({
-      analyzerMode: "static",
-      openAnalyzer: false,
-      reportFilename:
-        type === CONFIG_TYPES.ES2015 ? "es2015_report.html" : "report.html",
-      reportTitle:
-        type === CONFIG_TYPES.ES2015
-          ? "es2015+ webpack build report"
-          : "es5 webpack build report",
-    }),
+    type !== CONFIG_TYPES.DEV &&
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^\.\/locale$/,
+        contextRegExp: /moment$/,
+      }),
+    type !== CONFIG_TYPES.DEV &&
+      new BundleAnalyzerPlugin({
+        analyzerMode: "static",
+        openAnalyzer: false,
+        reportFilename:
+          type === CONFIG_TYPES.ES2015 ? "es2015_report.html" : "report.html",
+        reportTitle:
+          type === CONFIG_TYPES.ES2015
+            ? "es2015+ webpack build report"
+            : "es5 webpack build report",
+      }),
     type === CONFIG_TYPES.ES2015
       ? new InjectManifest({
           swSrc: path.resolve(

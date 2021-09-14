@@ -11,7 +11,8 @@ import SubtypePanel from "@agir/events/common/SubtypePanel";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledDefaultOption = styled.button``;
-const StyledDefaultOptions = styled.div`
+
+export const StyledDefaultOptions = styled.div`
   display: flex;
   flex-flow: row wrap;
   gap: 0.5rem;
@@ -65,7 +66,7 @@ const StyledField = styled.div`
   }
 `;
 
-const DefaultOption = (props) => {
+export const DefaultOption = (props) => {
   const { option, onClick, selected, disabled } = props;
 
   const handleClick = useCallback(() => {

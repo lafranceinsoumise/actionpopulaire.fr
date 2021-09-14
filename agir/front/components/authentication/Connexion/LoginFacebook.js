@@ -14,7 +14,7 @@ const LoginFacebook = () => {
   const routes = useSelector(getRoutes);
 
   return (
-    <ButtonFacebook color="choose" href={routes.facebookLogin}>
+    <ButtonFacebook link color="choose" href={routes.facebookLogin}>
       <img src={facebookImg} width="24" height="24" />
       &nbsp; Connexion avec Facebook
     </ButtonFacebook>

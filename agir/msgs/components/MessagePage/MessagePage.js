@@ -19,7 +19,7 @@ import { Hide } from "@agir/front/genericComponents/grid";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import Navigation from "@agir/front/dashboardComponents/Navigation";
-import NotificationSettings from "@agir/activity/NotificationSettings/NotificationSettings";
+import NotificationSettings from "@agir/notifications/NotificationSettings/NotificationSettings";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";

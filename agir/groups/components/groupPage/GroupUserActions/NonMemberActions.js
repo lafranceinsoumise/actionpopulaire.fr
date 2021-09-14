@@ -33,12 +33,12 @@ const NonMemberActions = (props) => {
         disabled={isLoading}
         onClick={onJoin}
       >
-        <RawFeatherIcon name="user-plus" width="1.5rem" height="1.5rem" />
+        <RawFeatherIcon name="plus" width="1.5rem" height="1.5rem" />
         <Spacer size="10px" />
         Rejoindre
       </Button>
       <Button type="button" disabled={isLoading} onClick={onFollow}>
-        <RawFeatherIcon name="plus" width="1.5rem" height="1.5rem" />
+        <RawFeatherIcon name="rss" width="1.5rem" height="1.5rem" />
         <Spacer size="10px" />
         Suivre
       </Button>

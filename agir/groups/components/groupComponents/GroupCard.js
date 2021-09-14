@@ -107,9 +107,10 @@ const GroupCard = ({
   isEmbedded = false,
 }) => {
   const history = useHistory();
+
   const handleClick = useCallback(
     (e) => {
-      if (["A", "BUTTON"].includes(e.target.tagName.toUpperCase())) {
+      if (["A", "INPUT", "BUTTON"].includes(e.target.tagName.toUpperCase())) {
         return;
       }
       id &&

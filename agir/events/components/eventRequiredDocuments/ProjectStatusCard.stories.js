@@ -28,6 +28,15 @@ export const WithoutRequiredDocs = Template.bind({});
 WithoutRequiredDocs.args = {
   status: "DFI",
   hasRequiredDocuments: false,
+  hasDismissedAllDocuments: false,
+  hasMissingDocuments: false,
+};
+
+export const AllDocumentsDismissed = Template.bind({});
+AllDocumentsDismissed.args = {
+  status: "DFI",
+  hasRequiredDocuments: true,
+  hasDismissedAllDocuments: true,
   hasMissingDocuments: false,
 };
 
@@ -35,6 +44,7 @@ export const Pending = Template.bind({});
 Pending.args = {
   status: "DFI",
   hasRequiredDocuments: true,
+  hasDismissedAllDocuments: false,
   hasMissingDocuments: false,
 };
 

@@ -130,6 +130,9 @@ class ContactStep extends FormStep {
                   name="phone"
                   value={phone || ""}
                   onChange={this.handleInputChange}
+                  onInit={(owner) => {
+                    owner.lastInputValue = phone || "";
+                  }}
                 />
                 {this.showError("phone")}
               </div>

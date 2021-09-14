@@ -4,11 +4,11 @@ import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
 import { mutate } from "swr";
 
-import HeaderPanel from "@agir/groups/groupPage/GroupSettings/HeaderPanel";
+import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
 
 import GroupLinks from "./GroupLinks";
 import GroupLinkForm from "./GroupLinkForm";

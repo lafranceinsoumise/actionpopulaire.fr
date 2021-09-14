@@ -22,7 +22,7 @@ import GroupSuggestions from "@agir/groups/groupPage/GroupSuggestions";
 import GroupPageMenu from "@agir/groups/groupPage/GroupPageMenu";
 import GroupOrders from "@agir/groups/groupPage/GroupOrders";
 
-import GroupSettings from "@agir/groups/groupPage/GroupSettings";
+import GroupSettings from "@agir/groups/groupPage/GroupSettings/GroupSettings";
 import { getGroupSettingLinks } from "@agir/groups/groupPage/GroupSettings/routes.config";
 
 import Routes from "./Routes";

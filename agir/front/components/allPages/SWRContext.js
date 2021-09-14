@@ -5,6 +5,14 @@ import { SWRConfig } from "swr";
 import axios from "@agir/lib/utils/axios";
 
 const fetcher = async (url) => {
+  if (url === "/api/session/") {
+    const res = await fetch(url, {
+      method: "GET",
+      credentials: "include",
+      mode: "no-cors",
+    });
+    return res.json();
+  }
   const res = await axios.get(url);
   return res.data;
 };

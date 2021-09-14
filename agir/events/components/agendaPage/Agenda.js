@@ -124,7 +124,7 @@ const otherEventConfig = {
     filter: (events) =>
       events.filter(
         (event) =>
-          event.distance &&
+          typeof event.distance === "number" &&
           event.distance < 100 * 1000 &&
           !event.rsvp &&
           dateFromISOString(event.endTime) > DateTime.local()

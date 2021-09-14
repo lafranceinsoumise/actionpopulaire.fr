@@ -34,6 +34,7 @@ const Template = (args, { globals }) => {
 
 export const Default = Template.bind({});
 Default.args = {
+  isLoading: false,
   title: "Page title !",
   backLink: {
     to: "/",

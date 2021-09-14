@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter,
   Redirect,
@@ -7,13 +7,20 @@ import {
   Switch,
   useLocation,
 } from "react-router-dom";
+import ScrollMemory from "react-router-scroll-memory";
 
 import routes, { BASE_PATH, routeConfig } from "./routes.config";
 import Page from "./Page";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage.js";
 
 import { useAuthentication } from "@agir/front/authentication/hooks";
-import ScrollMemory from "react-router-scroll-memory";
+
+import Spacer from "@agir/front/genericComponents/Spacer";
+
+import { useDownloadBanner } from "@agir/front/app/hooks.js";
+
+import TopBar from "@agir/front/allPages/TopBar/TopBar";
+import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 
 import logger from "@agir/lib/utils/logger";
 
@@ -35,6 +42,27 @@ export const ProtectedComponent = ({
       PreloadedComponent.preload();
     }
   }, [AnonymousComponent, Component]);
+
+  const [loader, setLoader] = useState();
+
+  useEffect(() => {
+    if (!loader) {
+      return;
+    }
+
+    loader.addEventListener("transitionend", () => {
+      const loader = document.getElementById("app_loader");
+      loader && loader.remove();
+    });
+    loader.style.opacity = "0";
+    loader.style.zIndex = -1;
+
+    setLoader(null);
+  }, [loader]);
+
+  useEffect(() => {
+    isAuthorized !== null && setLoader(document.getElementById("app_loader"));
+  }, [isAuthorized]);
 
   if (isAuthorized === null) {
     return null;
@@ -66,25 +94,18 @@ ProtectedComponent.propTypes = {
 };
 
 const Router = ({ children }) => {
-  useEffect(() => {
-    const loader = document.getElementById("app_loader");
-    if (!loader) {
-      return;
-    }
-    loader.style.opacity = "0";
-    loader.style.zIndex = -1;
-    loader.addEventListener("transitionend", () => {
-      const loader = document.getElementById("app_loader");
-      loader && loader.remove();
-    });
-  }, []);
+  const [isBannerDownload] = useDownloadBanner();
 
   return (
     <BrowserRouter basename={BASE_PATH}>
-      <ScrollMemory />
       <Switch>
         {routes.map((route) => (
           <Route key={route.id} path={route.path} exact={!!route.exact}>
+            {!route.hideTopBar && <TopBar />}
+            {!route.hideTopBar && isBannerDownload && <Spacer size="80px" />}
+            {!route.hideConnectivityWarning && (
+              <ConnectivityWarning hasTopBar={!route.hideTopBar} />
+            )}
             <ProtectedComponent
               Component={route.Component}
               AnonymousComponent={route.AnonymousComponent}
@@ -97,6 +118,7 @@ const Router = ({ children }) => {
         </Route>
       </Switch>
       {children}
+      <ScrollMemory />
     </BrowserRouter>
   );
 };
