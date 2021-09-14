@@ -104,14 +104,18 @@ export const updateEvent = async (eventPk, data) => {
   let headers = undefined;
   let body = { ...data };
 
-  body.subtype = body?.subtype?.id || undefined;
-  body.facebook = body.facebook || undefined;
+  if (body.subtype) {
+    body.subtype = body.subtype?.id;
+  }
 
   if (body.image || body.compteRenduPhoto) {
-    body = new FormData();
-    Object.keys(data).forEach((e) => {
-      body.append(e, data[e]);
+    const formData = new FormData();
+    Object.keys(body).forEach((e) => {
+      if (typeof body[e] !== "undefined") {
+        formData.append(e, body[e]);
+      }
     });
+    body = formData;
     headers = {
       "content-type": "multipart/form-data",
     };

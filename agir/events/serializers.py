@@ -499,7 +499,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     startTime = DateTimeWithTimezoneField(source="start_time")
     endTime = DateTimeWithTimezoneField(source="end_time")
     onlineUrl = serializers.URLField(source="online_url")
-    facebook = serializers.CharField(default="", allow_blank=True, allow_null=True)
+    facebook = serializers.CharField(allow_blank=True)
     contact = NestedContactSerializer(source="*")
     image = serializers.ImageField(allow_empty_file=True, allow_null=True)
     location = LocationSerializer(source="*")
@@ -512,6 +512,8 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     )
 
     def validate_facebook(self, value):
+        if not value or value == "":
+            return value
         if not validate_facebook_event_url(value):
             raise serializers.ValidationError(INVALID_FACEBOOK_EVENT_LINK_MESSAGE)
         return value
@@ -571,7 +573,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
                         meta={"changed_data": changed_data_notify},
                     )
 
-            send_event_changed_notification.delay(event.pk, changed_data)
+            send_event_changed_notification.delay(event.pk, changed_data_notify)
 
         # Notify group members if it is organizer group has been changed
         if changed_data.get("organizerGroup", None):
@@ -614,6 +616,12 @@ class UpdateEventSerializer(serializers.ModelSerializer):
             elif field == "report_content":
                 if not instance.report_content:
                     changed_data[field] = value
+            elif field == "subtype":
+                if value is not None:
+                    changed_data[field] = value.pk
+            elif field == "image":
+                if value is not None:
+                    changed_data[field] = str(value)
             elif hasattr(instance, field):
                 new_value = value
                 old_value = getattr(instance, field)
