@@ -56,7 +56,6 @@ const EventGeneral = (props) => {
   const [hasCheckedImageLicence, setHasCheckedImageLicence] = useState(false);
 
   useEffect(() => {
-    setIsLoading(false);
     setImageHasChanged(false);
     setHasCheckedImageLicence(false);
 
