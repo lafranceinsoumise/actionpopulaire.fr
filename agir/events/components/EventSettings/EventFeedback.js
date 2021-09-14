@@ -17,7 +17,7 @@ import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styl
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
 
 const EventFeedback = (props) => {
-  const { onBack, illustration, eventPk } = props;
+  const { eventPk, onBack, illustration } = props;
   const sendToast = useToast();
   const { data: event, mutate } = useSWR(
     api.getEventEndpoint("getEvent", { eventPk })
@@ -25,7 +25,7 @@ const EventFeedback = (props) => {
 
   const [formData, setFormData] = useState({
     compteRendu: "",
-    compteRenduPhotos: [],
+    compteRenduPhoto: "",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -40,10 +40,10 @@ const EventFeedback = (props) => {
 
   const handleChangeImage = useCallback(
     (value) => {
-      setErrors((errors) => ({ ...errors, compteRenduPhotos: null }));
+      setErrors((errors) => ({ ...errors, image: null }));
       setImageHasChanged(value !== originalImage);
       value && value !== originalImage && setHasCheckedImageLicence(false);
-      setFormData((formData) => ({ ...formData, compteRenduPhotos: value }));
+      setFormData((formData) => ({ ...formData, compteRenduPhoto: value }));
     },
     [originalImage]
   );
@@ -58,9 +58,26 @@ const EventFeedback = (props) => {
 
     setErrors({});
     setIsLoading(true);
+
+    if (
+      formData.compteRenduPhoto &&
+      imageHasChanged &&
+      !hasCheckedImageLicence
+    ) {
+      setErrors((errors) => ({
+        ...errors,
+        image:
+          "Vous devez acceptez les licences pour envoyer votre image en conformité.",
+      }));
+      setIsLoading(false);
+      return;
+    }
+
+    if (!imageHasChanged) delete formData.compteRenduPhoto;
+
     const res = await api.updateEvent(eventPk, {
       compteRendu: formData.compteRendu,
-      compteRenduPhotos: [formData.compteRenduPhotos],
+      compteRenduPhoto: formData.compteRenduPhoto,
     });
     setIsLoading(false);
     if (res.error) {
@@ -76,8 +93,7 @@ const EventFeedback = (props) => {
   useEffect(() => {
     setFormData({
       compteRendu: event.compteRendu,
-      compteRenduPhotos:
-        !!event.compteRenduPhotos?.length && event.compteRenduPhotos[0],
+      compteRenduPhoto: event.compteRenduMainPhoto?.image,
     });
   }, [event]);
 
@@ -98,16 +114,26 @@ const EventFeedback = (props) => {
       />
 
       <Spacer size="1rem" />
-      <h4>Ajouter une photo</h4>
+
+      <h4>
+        {!formData.compteRenduPhoto || imageHasChanged
+          ? "Ajouter une photo"
+          : "Photo"}
+      </h4>
+      <span style={{ color: style.black700 }}>
+        Cette image apparaîtra en tête de votre compte-rendu, et dans les
+        partages que vous ferez du compte-rendu sur les réseaux sociaux.
+      </span>
+      <Spacer size="0.5rem" />
       <ImageField
-        name="compteRenduPhotos"
-        value={formData.compteRenduPhotos}
+        name="compteRenduPhoto"
+        value={formData.compteRenduPhoto}
         onChange={handleChangeImage}
-        error={errors?.photo}
+        error={errors?.image}
         accept=".jpg,.jpeg,.gif,.png"
       />
 
-      {formData.compteRenduPhotos && imageHasChanged && (
+      {formData.compteRenduPhoto && imageHasChanged && (
         <>
           <Spacer size="0.5rem" />
           <CheckboxField
@@ -124,6 +150,15 @@ const EventFeedback = (props) => {
             }
             onChange={handleCheckImageLicence}
           />
+        </>
+      )}
+
+      {formData.compteRenduPhoto && (
+        <>
+          <Spacer size="0.5rem" />
+          <Button link small href={event?.routes.addPhoto}>
+            Ajouter d'autres photos
+          </Button>
         </>
       )}
 

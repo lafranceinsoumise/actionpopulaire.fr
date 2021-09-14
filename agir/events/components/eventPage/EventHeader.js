@@ -134,7 +134,12 @@ const RSVPButton = (props) => {
         Participer à l'événement
       </Button>
       {isOrganizer && (
-        <Button icon="settings" link href={routes.manage} color="primary">
+        <Button
+          icon="settings"
+          link
+          to={routeConfig.eventSettings.getLink({ eventPk: id })}
+          color="primary"
+        >
           Gérer l'événement
         </Button>
       )}

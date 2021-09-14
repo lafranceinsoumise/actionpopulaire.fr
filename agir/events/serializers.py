@@ -1,4 +1,5 @@
 from datetime import timedelta
+from functools import partial
 from pathlib import PurePath
 
 from django.db import transaction
@@ -11,9 +12,15 @@ from agir.lib.serializers import (
     LocationSerializer,
     NestedLocationSerializer,
     NestedContactSerializer,
+    ContactMixinSerializer,
     FlexibleFieldsMixin,
     CurrentPersonField,
 )
+from agir.lib.utils import (
+    validate_facebook_event_url,
+    INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
+)
+
 from . import models
 from .actions.required_documents import (
     get_project_document_deadline,
@@ -28,16 +35,21 @@ from .models import (
     jitsi_default_domain,
     jitsi_default_room_name,
 )
+from agir.activity.models import Activity
 from .tasks import (
     send_event_creation_notification,
     send_secretariat_notification,
     geocode_event,
+    send_event_changed_notification,
+    notify_on_event_report,
 )
 from ..gestion.models import Projet, Document
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
-from ..lib.utils import admin_url
+from ..lib.utils import admin_url, replace_datetime_timezone
+
+from agir.events.tasks import NOTIFIED_CHANGES
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
@@ -115,6 +127,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "organizers",
         "distance",
         "compteRendu",
+        "compteRenduMainPhoto",
+        "compteRenduPhotos",
         "subtype",
         "onlineUrl",
     ]
@@ -126,7 +140,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     description = serializers.CharField(source="html_description")
     compteRendu = serializers.CharField(source="report_content")
+    compteRenduMainPhoto = serializers.SerializerMethodField(source="report_image")
     compteRenduPhotos = serializers.SerializerMethodField()
+
     illustration = serializers.SerializerMethodField()
 
     startTime = serializers.SerializerMethodField()
@@ -144,7 +160,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     groups = serializers.SerializerMethodField()
 
-    contact = NestedContactSerializer(source="*")
+    contact = ContactMixinSerializer(source="*")
 
     distance = serializers.SerializerMethodField()
 
@@ -213,6 +229,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_rsvp(self, obj):
         return self.rsvp and self.rsvp.status
 
+    def get_compteRenduMainPhoto(self, obj):
+        if obj.report_image:
+            return {
+                "image": obj.report_image.url,
+                "thumbnail": obj.report_image.thumbnail.url,
+                "banner": obj.report_image.banner.url,
+            }
+
     def get_compteRenduPhotos(self, obj):
         return [
             {
@@ -274,6 +298,8 @@ class EventAdvancedSerializer(EventSerializer):
     participants = serializers.SerializerMethodField()
 
     organizers = serializers.SerializerMethodField()
+
+    contact = NestedContactSerializer(source="*")
 
     def get_participants(self, obj):
         return [
@@ -433,7 +459,7 @@ class CreateEventSerializer(serializers.Serializer):
             and data["end_time"] - data["start_time"] > timedelta(days=7)
         ):
             raise serializers.ValidationError(
-                {"endTime": "Votre événement doit durer moins d’une semaine"}
+                {"endTime": "L'événement ne peut pas durer plus de 7 jours."}
             )
 
         data["organizer_person"] = data.pop("organizerPerson")
@@ -473,10 +499,141 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     startTime = DateTimeWithTimezoneField(source="start_time")
     endTime = DateTimeWithTimezoneField(source="end_time")
     onlineUrl = serializers.URLField(source="online_url")
+    facebook = serializers.CharField(allow_blank=True)
     contact = NestedContactSerializer(source="*")
+    image = serializers.ImageField(allow_empty_file=True, allow_null=True)
     location = LocationSerializer(source="*")
     compteRendu = serializers.CharField(source="report_content")
-    # compteRenduPhotos = serializers.CharField(source="report_image")
+    compteRenduPhoto = serializers.ImageField(
+        source="report_image", allow_empty_file=True, allow_null=True
+    )
+    organizerGroup = EventOrganizerGroupField(
+        write_only=True, required=False, allow_null=True
+    )
+
+    def validate_facebook(self, value):
+        if not value or value == "":
+            return value
+        if not validate_facebook_event_url(value):
+            raise serializers.ValidationError(INVALID_FACEBOOK_EVENT_LINK_MESSAGE)
+        return value
+
+    def validate(self, data):
+        organizer = self.context["request"].user.person
+        if data.get("organizerGroup", None):
+            if (
+                not organizer in data["organizerGroup"].referents
+                and not organizer in data["organizerGroup"].managers
+            ):
+                raise serializers.ValidationError(
+                    {
+                        "organizerGroup": "Veuillez choisir un groupe dont vous êtes animateur·ice"
+                    }
+                )
+
+            data["organizer_group"] = data.pop("organizerGroup")
+
+        return data
+
+    def schedule_tasks(self, event, changed_data):
+        # update geolocation if address has changed
+        if (
+            "location_address1" in changed_data
+            or "location_address2" in changed_data
+            or "location_zip" in changed_data
+            or "location_city" in changed_data
+            or "location_country" in changed_data
+        ):
+            geocode_event.delay(event.pk)
+
+        # notify participants if important data changed
+        event = Event.objects.get(pk=event.pk)
+        changed_data_notify = [f for f in changed_data if f in NOTIFIED_CHANGES]
+
+        if changed_data_notify:
+            for r in event.attendees.all():
+                activity = Activity.objects.filter(
+                    type=Activity.TYPE_EVENT_UPDATE,
+                    recipient=r,
+                    event=event,
+                    status=Activity.STATUS_UNDISPLAYED,
+                    created__gt=timezone.now() + timedelta(minutes=2),
+                ).first()
+                if activity is not None:
+                    activity.meta["changed_data"] = list(
+                        set(changed_data_notify).union(activity.meta["changed_data"])
+                    )
+                    activity.timestamp = timezone.now()
+                    activity.save()
+                else:
+                    Activity.objects.create(
+                        type=Activity.TYPE_EVENT_UPDATE,
+                        recipient=r,
+                        event=event,
+                        meta={"changed_data": changed_data_notify},
+                    )
+
+            send_event_changed_notification.delay(event.pk, changed_data_notify)
+
+        # Notify group members if it is organizer group has been changed
+        if changed_data.get("organizerGroup", None):
+            notify_new_group_event.delay(changed_data["organizer_group"], event.pk)
+            send_new_group_event_email.delay(changed_data["organizer_group"], event.pk)
+
+        if changed_data.get("report_content", None):
+            notify_on_event_report.delay(event.pk)
+
+    def update(self, instance, validated_data):
+        start = validated_data.get("start_time")
+        end = validated_data.get("end_time")
+        tz = validated_data.get("timezone")
+
+        if start and end and end - start > timedelta(days=7):
+            raise serializers.ValidationError(
+                {"endTime": "L'événement ne peut pas durer plus de 7 jours."}
+            )
+        if tz and start:
+            validated_data.update({"start_time": replace_datetime_timezone(start, tz)})
+        if tz and end:
+            validated_data.update({"end_time": replace_datetime_timezone(end, tz)})
+
+        # Assign default description images if its not filled
+        if not validated_data.get("description"):
+            validated_data.update({"description": instance.subtype.default_description})
+        if not instance.image and not validated_data.get("image"):
+            validated_data.update({"image": instance.subtype.default_image})
+
+        changed_data = {}
+        for field, value in validated_data.items():
+            if field == "organizer_group":
+                if (
+                    value
+                    and not OrganizerConfig.objects.filter(
+                        event=instance, as_group=value
+                    ).exists()
+                ):
+                    changed_data[field] = value.pk
+            elif field == "report_content":
+                if not instance.report_content:
+                    changed_data[field] = value
+            elif field == "subtype":
+                if value is not None:
+                    changed_data[field] = value.pk
+            elif field == "image":
+                if value is not None:
+                    changed_data[field] = str(value)
+            elif hasattr(instance, field):
+                new_value = value
+                old_value = getattr(instance, field)
+                if new_value != old_value:
+                    changed_data[field] = new_value
+
+        with transaction.atomic():
+            event = super().update(instance, validated_data)
+            if Projet.objects.filter(event=event).exists():
+                Projet.objects.from_event(event, event.organizers.first().role)
+            transaction.on_commit(partial(self.schedule_tasks, event, changed_data))
+            return event
 
     class Meta:
         model = Event
@@ -494,15 +651,9 @@ class UpdateEventSerializer(serializers.ModelSerializer):
             "contact",
             "location",
             "compteRendu",
-            # "compteRenduPhotos"
+            "compteRenduPhoto",
+            "organizerGroup",
         ]
-
-    def update(self, instance, validated_data):
-        with transaction.atomic():
-            event = super().update(instance, validated_data)
-            if Projet.objects.filter(event=event).exists():
-                Projet.objects.from_event(event, event.organizers.first().role)
-            return event
 
 
 class EventProjectDocumentSerializer(serializers.ModelSerializer):

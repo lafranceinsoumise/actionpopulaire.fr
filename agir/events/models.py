@@ -24,9 +24,8 @@ from slugify import slugify
 from stdimage.models import StdImageField
 
 from agir.gestion.typologies import TypeProjet, TypeDocument
-from agir.groups.models import Membership, SupportGroup
-from agir.lib.form_fields import CustomJSONEncoder
-from agir.lib.form_fields import DateTimePickerWidget
+from agir.groups.models import Membership
+from agir.lib.form_fields import CustomJSONEncoder, DateTimePickerWidget
 from agir.lib.model_fields import FacebookEventField
 from agir.lib.models import (
     BaseAPIResource,

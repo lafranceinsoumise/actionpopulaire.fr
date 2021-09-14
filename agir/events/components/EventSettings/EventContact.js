@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useState, useEffect, useCallback } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
 import * as api from "@agir/events/common/api";
@@ -18,8 +18,8 @@ import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPa
 const EventContact = (props) => {
   const { onBack, illustration, eventPk } = props;
 
-  const { data: event, mutate } = useSWR(
-    api.getEventEndpoint("getEvent", { eventPk })
+  const { data: event, mutate: mutateAPI } = useSWR(
+    api.getEventEndpoint("getDetailAdvanced", { eventPk })
   );
   const sendToast = useToast();
 
@@ -34,10 +34,10 @@ const EventContact = (props) => {
 
   useEffect(() => {
     setContact({
-      name: event.contact.name,
-      email: event.contact.email,
-      phone: event.contact.phone,
-      hidePhone: event.contact.hidePhone,
+      name: event?.contact.name,
+      email: event?.contact.email,
+      phone: event?.contact.phone,
+      hidePhone: event?.contact.hidePhone,
     });
   }, [event]);
 
@@ -61,14 +61,16 @@ const EventContact = (props) => {
     setIsLoading(true);
     const res = await api.updateEvent(eventPk, { contact });
     setIsLoading(false);
+
     if (res.error) {
-      setErrors(res.error);
+      setErrors(res.error?.contact);
       return;
     }
     sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-    mutate((event) => {
+    mutateAPI((event) => {
       return { ...event, ...res.data };
     });
+    mutate(api.getEventEndpoint("getEvent", { eventPk }));
   };
 
   return (

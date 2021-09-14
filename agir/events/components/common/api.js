@@ -12,7 +12,7 @@ export const ENDPOINT = {
   eventProjects: "/api/evenements/projets/",
   eventProject: "/api/evenements/:eventPk/projet/",
   addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
-  getParticipants: "/api/evenements/:eventPk/participants/",
+  getDetailAdvanced: "/api/evenements/:eventPk/details-avances/",
   addOrganizer: "/api/evenements/:eventPk/organizers/",
   cancelEvent: "/api/evenements/:eventPk/annuler/",
   updateLocation: "/evenements/:eventPk/localisation/",
@@ -102,17 +102,20 @@ export const updateEvent = async (eventPk, data) => {
   };
   const url = getEventEndpoint("updateEvent", { eventPk });
   let headers = undefined;
-  let body = data;
+  let body = { ...data };
 
   if (body.subtype) {
-    body.subtype = body.subtype.id;
+    body.subtype = body.subtype?.id;
   }
 
-  if (body.image || body.compteRenduPhotos?.length > 0) {
-    body = new FormData();
-    Object.keys(data).forEach((e) => {
-      body.append(e, data[e]);
+  if (body.image || body.compteRenduPhoto) {
+    const formData = new FormData();
+    Object.keys(body).forEach((e) => {
+      if (typeof body[e] !== "undefined") {
+        formData.append(e, body[e]);
+      }
     });
+    body = formData;
     headers = {
       "content-type": "multipart/form-data",
     };
@@ -192,13 +195,13 @@ export const addEventProjectDocument = async (eventPk, data) => {
   return result;
 };
 
-export const getParticipants = async (eventPk) => {
+export const getDetailAdvanced = async (eventPk) => {
   const result = {
     data: null,
     errors: null,
   };
 
-  const url = getEventEndpoint("getParticipants", { eventPk });
+  const url = getEventEndpoint("getDetailAdvanced", { eventPk });
 
   try {
     const response = await axios.patch(url, data);

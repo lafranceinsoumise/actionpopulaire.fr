@@ -45,6 +45,7 @@ from agir.events.serializers import (
 
 __all__ = [
     "EventDetailAPIView",
+    "EventDetailAdvancedAPIView",
     "EventRsvpedAPIView",
     "EventSuggestionsAPIView",
     "EventCreateOptionsAPIView",
@@ -54,7 +55,6 @@ __all__ = [
     "EventProjectAPIView",
     "CreateEventProjectDocumentAPIView",
     "EventProjectsAPIView",
-    "EventParticipantsAPIView",
     "CreateOrganizerConfigAPIView",
     "CancelEventAPIView",
 ]
@@ -108,7 +108,7 @@ class EventDetailAPIView(RetrieveAPIView):
     queryset = Event.objects.all()
 
 
-class EventParticipantsAPIView(RetrieveAPIView):
+class EventDetailAdvancedAPIView(RetrieveAPIView):
     permission_ = "events.change_event"
     serializer_class = EventAdvancedSerializer
     queryset = Event.objects.all()

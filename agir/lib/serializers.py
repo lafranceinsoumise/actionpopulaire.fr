@@ -6,6 +6,7 @@ from rest_framework import serializers, exceptions
 from rest_framework.fields import empty
 from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
+from phonenumber_field.serializerfields import PhoneNumberField
 
 from agir.carte.models import StaticMapImage
 from .geo import FRENCH_COUNTRY_CODES
@@ -158,11 +159,7 @@ class NestedContactSerializer(serializers.Serializer):
     """
 
     name = serializers.CharField(
-        label="Nom du contact",
-        required=True,
-        allow_blank=True,
-        max_length=255,
-        source="contact_name",
+        label="Nom du contact", required=True, max_length=255, source="contact_name",
     )
 
     email = serializers.EmailField(
@@ -175,7 +172,6 @@ class NestedContactSerializer(serializers.Serializer):
     phone = PhoneField(
         label="Numéro de téléphone du contact",
         required=True,
-        allow_blank=True,
         max_length=30,
         source="contact_phone",
     )

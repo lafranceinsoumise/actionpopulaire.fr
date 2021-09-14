@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import useSWR, { mutate } from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -46,7 +46,7 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
       return;
     }
     sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-    mutate(api.getEventEndpoint("getParticipants", { eventPk }));
+    mutate(api.getEventEndpoint("getDetailAdvanced", { eventPk }));
     onBack();
   };
 
@@ -97,7 +97,7 @@ const EventOrganization = (props) => {
   const { onBack, illustration, eventPk } = props;
 
   const { data: event } = useSWR(
-    api.getEventEndpoint("getParticipants", { eventPk })
+    api.getEventEndpoint("getDetailAdvanced", { eventPk })
   );
 
   const participants = useMemo(() => event?.participants || [], [event]);
@@ -106,13 +106,28 @@ const EventOrganization = (props) => {
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const transition = useTransition(submenuOpen, slideInTransition);
 
-  const handleBack = useCallback(() => {
+  const openMenu = () => {
+    setSubmenuOpen(true);
+  };
+
+  const closeMenu = () => {
     setSubmenuOpen(false);
-  }, []);
+  };
 
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
+
+      {event?.groups?.length > 0 && (
+        <>
+          <StyledTitle>Groupes</StyledTitle>
+          <Spacer size="1rem" />
+          <MemberList
+            members={event.groups.map((group) => ({ displayName: group.name }))}
+          />
+          <Spacer size="1rem" />
+        </>
+      )}
 
       <StyledTitle>Participant·es organisateur·ices</StyledTitle>
 
@@ -126,7 +141,7 @@ const EventOrganization = (props) => {
       <MemberList
         members={organizers}
         addButtonLabel="Ajouter un·e autre organisateur·ice"
-        onAdd={() => setSubmenuOpen(true)}
+        onAdd={openMenu}
       />
 
       <Spacer size="1rem" />
@@ -139,7 +154,7 @@ const EventOrganization = (props) => {
                 onClick={() => setSubmenuOpen(false)}
                 eventPk={eventPk}
                 participants={participants}
-                onBack={handleBack}
+                onBack={closeMenu}
               />
             </PanelWrapper>
           )

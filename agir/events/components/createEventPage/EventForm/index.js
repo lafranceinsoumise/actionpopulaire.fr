@@ -14,7 +14,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import LocationField from "@agir/front/formComponents/LocationField.js";
 
 import NameField from "./NameField";
-import OrganizerGroupField from "./OrganizerGroupField";
+import OrganizerGroupField from "@agir/events/common/OrganizerGroupField";
 import DateField from "./DateField";
 import SubtypeField from "./SubtypeField";
 import ContactField from "./ContactField";

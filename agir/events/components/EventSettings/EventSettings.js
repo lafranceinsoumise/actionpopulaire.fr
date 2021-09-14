@@ -10,15 +10,16 @@ import { useAuthentication } from "@agir/front/authentication/hooks";
 
 import ObjectManagement from "@agir/front/genericComponents/ObjectManagement/ObjectManagement";
 
+const cancelEvent = { label: "Annuler l'événement", onClick: () => {} };
+
 export const EventSettings = (props) => {
   const { event, basePath } = props;
   const routes = useMemo(() => getRoutes(basePath, event), [basePath, event]);
   const menuRoute = useMemo(() => getMenuRoute(basePath), [basePath]);
   const isAuthorized = useAuthentication(globalRouteConfig.eventSettings);
+  const routeMenuMatch = useRouteMatch(menuRoute.path);
   const { pathname } = useLocation();
   const isDesktop = useIsDesktop();
-
-  const cancelEvent = { label: "Annuler l'événement", onClick: () => {} };
 
   const redirectTo = useMemo(() => {
     if (!event?.isOrganizer) {
@@ -36,8 +37,6 @@ export const EventSettings = (props) => {
   if (!event) {
     return null;
   }
-
-  const routeMenuMatch = useRouteMatch(menuRoute.path);
 
   // Open first panel on Desktop
   if (isDesktop && routeMenuMatch?.isExact) {
@@ -65,7 +64,8 @@ EventSettings.propTypes = {
     id: PropTypes.string,
     name: PropTypes.string,
     type: PropTypes.string,
-    isManager: PropTypes.bool,
+    isOrganizer: PropTypes.bool,
+    endTime: PropTypes.string,
   }).isRequired,
   basePath: PropTypes.string.isRequired,
 };
