@@ -49,13 +49,22 @@ class ChangeEventPermissionsTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
 
-        self.other_group_manager = Person.objects.create(
-            email="other_group_manager@agir.local", create_role=True
+        self.event_organizer_group_referent = Person.objects.create(
+            email="event_organizer_group_referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=self.event_organizer_group,
+            person=self.event_organizer_group_referent,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+
+        self.other_group_referent = Person.objects.create(
+            email="other_group_referent@agir.local", create_role=True
         )
         Membership.objects.create(
             supportgroup=self.other_group,
-            person=self.other_group_manager,
-            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+            person=self.other_group_referent,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
         start_time = timezone.now()
@@ -110,19 +119,31 @@ class ChangeEventPermissionsTestCase(TestCase):
             self.event_organizer.has_perm("events.change_event", self.group_event)
         )
 
-    def test_group_manager_can_change_any_group_organized_event(self):
+    def test_group_referent_can_change_any_group_organized_event(self):
+        self.assertFalse(
+            self.event_organizer_group_referent.has_perm(
+                "events.change_event", self.personal_event
+            )
+        )
+        self.assertTrue(
+            self.event_organizer_group_referent.has_perm(
+                "events.change_event", self.group_event
+            )
+        )
+        self.assertFalse(
+            self.other_group_referent.has_perm("events.change_event", self.group_event)
+        )
+
+    def test_group_manager_cannot_change_any_event(self):
         self.assertFalse(
             self.event_organizer_group_manager.has_perm(
                 "events.change_event", self.personal_event
             )
         )
-        self.assertTrue(
+        self.assertFalse(
             self.event_organizer_group_manager.has_perm(
                 "events.change_event", self.group_event
             )
-        )
-        self.assertFalse(
-            self.other_group_manager.has_perm("events.change_event", self.group_event)
         )
 
     def test_group_member_cannot_change_any_event(self):

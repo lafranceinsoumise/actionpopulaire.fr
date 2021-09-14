@@ -220,7 +220,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
         if obj.organizers_groups.filter(
             memberships__person=user.person,
-            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
         ).exists():
             return True
 

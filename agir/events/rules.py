@@ -29,7 +29,7 @@ def is_organizer_of_event(role, event=None):
     # All the managers of the groups organizing the event:
     if event.organizers_groups.filter(
         memberships__person=role.person,
-        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
     ).exists():
         return True
 

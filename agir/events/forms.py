@@ -138,7 +138,7 @@ class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.Model
                     event=self.instance,
                     as_group__in=Membership.objects.filter(
                         person=person,
-                        membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                        membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
                     ).values_list("supportgroup_id", flat=True),
                 )
                 self.fields["as_group"].initial = organizer_config.as_group
