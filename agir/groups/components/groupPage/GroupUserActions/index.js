@@ -4,6 +4,7 @@ import { useHistory } from "react-router-dom";
 import { mutate } from "swr";
 
 import GroupUserActions from "./GroupUserActions";
+import SecondaryActions from "./SecondaryActions";
 import QuitGroupDialog from "./QuitGroupDialog";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -14,6 +15,26 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useToast } from "@agir/front/globalContext/hooks.js";
+
+import styled from "styled-components";
+import style from "@agir/front/genericComponents/_variables.scss";
+
+const StyledContent = styled.div`
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  flex-flow: column nowrap;
+  margin-bottom: 2rem;
+
+  @media (max-width: ${style.collapse}px) {
+    background-color: white;
+    width: 100%;
+    padding: 0 1rem 1.5rem;
+    margin-bottom: 0;
+    align-items: center;
+    display: ${({ hideOnMobile }) => (hideOnMobile ? "none" : "flex")};
+  }
+`;
 
 const modalJoinDescription = (
   <>
@@ -156,14 +177,17 @@ const ConnectedUserActions = (props) => {
 
   return (
     <>
-      <GroupUserActions
-        {...props}
-        isAuthenticated={!!user}
-        isLoading={isLoading}
-        onJoin={joinGroup}
-        onFollow={followGroup}
-        onQuit={openQuitDialog}
-      />
+      <StyledContent>
+        <GroupUserActions
+          {...props}
+          isAuthenticated={!!user}
+          isLoading={isLoading}
+          onJoin={joinGroup}
+          onFollow={followGroup}
+          onQuit={openQuitDialog}
+        />
+        <SecondaryActions {...props} />
+      </StyledContent>
       {isMember && (
         <QuitGroupDialog
           groupName={name}
