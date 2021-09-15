@@ -112,7 +112,7 @@ export const updateEvent = async (eventPk, data) => {
     const formData = new FormData();
     Object.keys(body).forEach((e) => {
       if (typeof body[e] !== "undefined") {
-        formData.append(e, body[e]);
+        formData.append(e, body[e] || "");
       }
     });
     body = formData;

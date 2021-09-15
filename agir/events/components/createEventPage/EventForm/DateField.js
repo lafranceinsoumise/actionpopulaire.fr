@@ -62,6 +62,24 @@ const Field = styled.div`
   }
 `;
 
+const getDuration = (startTime, endTime) => {
+  if (!startTime || !endTime) {
+    return EVENT_DEFAULT_DURATIONS[0];
+  }
+
+  let startDate = new Date(startTime);
+  startDate = DateTime.fromJSDate(startDate);
+
+  let endDate = new Date(endTime);
+  endDate = DateTime.fromJSDate(endDate);
+
+  return (
+    EVENT_DEFAULT_DURATIONS.find(
+      ({ value }) => value === (endDate.ts - startDate.ts) / 60000
+    ) || EVENT_DEFAULT_DURATIONS[EVENT_DEFAULT_DURATIONS.length - 1]
+  );
+};
+
 const DateField = (props) => {
   const {
     onChange,
@@ -77,7 +95,7 @@ const DateField = (props) => {
   } = props;
 
   const [hasTimezone, setHasTimezone] = useState(showTimezone);
-  const [duration, setDuration] = useState({});
+  const [duration, setDuration] = useState(undefined);
 
   const updateStartTime = useCallback(
     (startTime) => {
@@ -97,7 +115,7 @@ const DateField = (props) => {
   );
 
   const updateEndTime = useCallback(
-    (endTime) => {
+    (endTime, duration) => {
       let start = moment(startTime);
       let end = moment(endTime);
       if (start.isAfter(end)) {
@@ -105,43 +123,38 @@ const DateField = (props) => {
       }
       start = start.format();
       end = end.format();
+      duration && setDuration(duration);
       onChange(start, end);
     },
     [startTime, onChange]
   );
 
-  const updateDuration = useCallback((duration) => {
-    setDuration(duration);
-  }, []);
+  const updateDuration = useCallback(
+    (duration) => {
+      if (duration && duration.value) {
+        updateEndTime(
+          moment(startTime).add(duration.value, "minutes"),
+          duration
+        );
+      } else {
+        setDuration(duration);
+      }
+    },
+    [startTime, updateEndTime]
+  );
 
   useEffect(() => {
-    if (duration && duration.value) {
-      updateStartTime(startTime);
-    }
-  }, [duration, updateStartTime, startTime]);
-
-  // Show DateField endTime only if its customized, not in [1h, 1h30, 2h, 3h]
-  useEffect(() => {
-    if (!startTime) return;
-    let startDate = new Date(startTime);
-    startDate = DateTime.fromJSDate(startDate);
-    let endDate = new Date(endTime);
-    endDate = DateTime.fromJSDate(endDate);
-    // Convert to minutes
-    const currentDuration = (endDate.ts - startDate.ts) / 60000;
-    let indexDuration = 4;
-    const len = EVENT_DEFAULT_DURATIONS.length;
-    for (var i = 0; i < len; i++)
-      if (EVENT_DEFAULT_DURATIONS[i].value === currentDuration)
-        indexDuration = i;
-    setDuration(EVENT_DEFAULT_DURATIONS[indexDuration]);
-  }, [startTime]);
+    !duration &&
+      startTime &&
+      endTime &&
+      setDuration(getDuration(startTime, endTime));
+  }, [duration, startTime, endTime]);
 
   return (
     <Field className={className}>
       <div>
         <DateTimeField
-          label={`Date et heure ${!duration.value ? "de début" : ""}`.trim()}
+          label={`Date et heure ${!duration?.value ? "de début" : ""}`.trim()}
           value={startTime}
           onChange={updateStartTime}
           error={error}
@@ -152,7 +165,7 @@ const DateField = (props) => {
       <div>
         <SelectField
           label="Durée"
-          value={duration.value ? duration : EVENT_DEFAULT_DURATIONS[4]}
+          value={duration?.value ? duration : EVENT_DEFAULT_DURATIONS[4]}
           onChange={updateDuration}
           options={EVENT_DEFAULT_DURATIONS}
           disabled={disabled}
@@ -174,7 +187,7 @@ const DateField = (props) => {
           </button>
         </TimezoneToggle>
       )}
-      {!duration.value && (
+      {!duration?.value && (
         <div>
           <DateTimeField
             label="Date et heure de fin"
@@ -195,7 +208,9 @@ DateField.propTypes = {
   startTime: PropTypes.string,
   endTime: PropTypes.string,
   error: PropTypes.string,
+  className: PropTypes.string,
   required: PropTypes.bool,
   disabled: PropTypes.bool,
+  showTimezone: PropTypes.bool,
 };
 export default DateField;

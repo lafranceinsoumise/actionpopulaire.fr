@@ -93,6 +93,7 @@ const EventContact = (props) => {
         onChange={handleChange}
         value={contact.name}
         error={errors?.name}
+        required
       />
       <Spacer size="1rem" />
 
@@ -103,6 +104,7 @@ const EventContact = (props) => {
         onChange={handleChange}
         value={contact.email}
         error={errors?.email}
+        required
       />
       <Spacer size="1rem" />
 
@@ -113,6 +115,7 @@ const EventContact = (props) => {
         onChange={handleChange}
         value={contact.phone}
         error={errors?.phone}
+        required
       />
       <Spacer size="1rem" />
 
