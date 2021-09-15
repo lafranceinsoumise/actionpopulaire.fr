@@ -121,23 +121,28 @@ const EventOrganization = (props) => {
       {event?.groups?.length > 0 && (
         <>
           <StyledTitle>Groupes</StyledTitle>
-          <Spacer size="1rem" />
+          <span style={{ color: style.black700 }}>
+            Les groupes organisateurs de l'événement.
+          </span>
+          <Spacer size=".5rem" />
+          <span style={{ color: style.black700 }}>
+            Tous les animateur·ices de ces groupes peuvent accéder à la gestion
+            de l'événement et la liste des participant·es.
+          </span>
+          <Spacer size="1.5rem" />
           <MemberList
             members={event.groups.map((group) => ({ displayName: group.name }))}
           />
-          <Spacer size="1rem" />
+          <Spacer size="1.5rem" />
         </>
       )}
 
       <StyledTitle>Participant·es organisateur·ices</StyledTitle>
-
-      <Spacer size="1rem" />
       <span style={{ color: style.black700 }}>
         Donnez des droits d’accès à des participant·es pour leur permettre de
         gérer l’événement.
       </span>
-
-      <Spacer size="1rem" />
+      <Spacer size="1.5rem" />
       <MemberList
         members={organizers}
         addButtonLabel="Ajouter un·e autre organisateur·ice"
