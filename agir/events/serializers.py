@@ -15,6 +15,7 @@ from agir.lib.serializers import (
     ContactMixinSerializer,
     FlexibleFieldsMixin,
     CurrentPersonField,
+    CurrentPersonDefault,
 )
 from agir.lib.utils import (
     validate_facebook_event_url,
@@ -526,11 +527,11 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        organizer = self.context["request"].user.person
+        data["organizerPerson"] = self.context["request"].user.person
         if data.get("organizerGroup", None):
             if (
-                not organizer in data["organizerGroup"].referents
-                and not organizer in data["organizerGroup"].managers
+                not data["organizerPerson"] in data["organizerGroup"].referents
+                and not data["organizerPerson"] in data["organizerGroup"].managers
             ):
                 raise serializers.ValidationError(
                     {
@@ -538,57 +539,54 @@ class UpdateEventSerializer(serializers.ModelSerializer):
                     }
                 )
 
-            data["organizer_group"] = data.pop("organizerGroup")
-
         return data
 
-    def schedule_tasks(self, event, changed_data):
-        # update geolocation if address has changed
+    def schedule_tasks(
+        self, event, changed_fields, changed_supportgroup, has_new_report
+    ):
+        # Update geolocation if address has changed
         if (
-            "location_address1" in changed_data
-            or "location_address2" in changed_data
-            or "location_zip" in changed_data
-            or "location_city" in changed_data
-            or "location_country" in changed_data
+            "location_address1" in changed_fields
+            or "location_address2" in changed_fields
+            or "location_zip" in changed_fields
+            or "location_city" in changed_fields
+            or "location_country" in changed_fields
         ):
             geocode_event.delay(event.pk)
 
-        # notify participants if important data changed
-        event = Event.objects.get(pk=event.pk)
-        changed_data_notify = [f for f in changed_data if f in NOTIFIED_CHANGES]
-
-        if changed_data_notify:
-            for r in event.attendees.all():
-                activity = Activity.objects.filter(
+        # Notify participants if important data changed
+        for r in event.attendees.all():
+            activity = Activity.objects.filter(
+                type=Activity.TYPE_EVENT_UPDATE,
+                recipient=r,
+                event=event,
+                status=Activity.STATUS_UNDISPLAYED,
+                created__gt=timezone.now() + timedelta(minutes=2),
+            ).first()
+            if activity is not None:
+                activity.meta["changed_data"] = list(
+                    set(changed_fields).union(activity.meta["changed_data"])
+                )
+                activity.timestamp = timezone.now()
+                activity.save()
+            else:
+                Activity.objects.create(
                     type=Activity.TYPE_EVENT_UPDATE,
                     recipient=r,
                     event=event,
-                    status=Activity.STATUS_UNDISPLAYED,
-                    created__gt=timezone.now() + timedelta(minutes=2),
-                ).first()
-                if activity is not None:
-                    activity.meta["changed_data"] = list(
-                        set(changed_data_notify).union(activity.meta["changed_data"])
-                    )
-                    activity.timestamp = timezone.now()
-                    activity.save()
-                else:
-                    Activity.objects.create(
-                        type=Activity.TYPE_EVENT_UPDATE,
-                        recipient=r,
-                        event=event,
-                        meta={"changed_data": changed_data_notify},
-                    )
+                    meta={"changed_data": changed_fields},
+                )
 
-            send_event_changed_notification.delay(event.pk, changed_data_notify)
+        send_event_changed_notification.delay(event.pk, changed_fields)
+
+        # Notify participants if new event report has been created
+        if has_new_report:
+            notify_on_event_report.delay(event.pk)
 
         # Notify group members if it is organizer group has been changed
-        if changed_data.get("organizerGroup", None):
-            notify_new_group_event.delay(changed_data["organizer_group"], event.pk)
-            send_new_group_event_email.delay(changed_data["organizer_group"], event.pk)
-
-        if changed_data.get("report_content", None):
-            notify_on_event_report.delay(event.pk)
+        if changed_supportgroup:
+            notify_new_group_event.delay(changed_supportgroup, event.pk)
+            send_new_group_event_email.delay(changed_supportgroup, event.pk)
 
     def update(self, instance, validated_data):
         start = validated_data.get("start_time")
@@ -610,36 +608,49 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         if not instance.image and not validated_data.get("image"):
             validated_data.update({"image": instance.subtype.default_image})
 
-        changed_data = {}
-        for field, value in validated_data.items():
-            if field == "organizer_group":
-                if (
-                    value
-                    and not OrganizerConfig.objects.filter(
-                        event=instance, as_group=value
-                    ).exists()
-                ):
-                    changed_data[field] = value.pk
-            elif field == "report_content":
-                if not instance.report_content:
-                    changed_data[field] = value
-            elif field == "subtype":
-                if value is not None:
-                    changed_data[field] = value.pk
-            elif field == "image":
-                if value is not None:
-                    changed_data[field] = str(value)
-            elif hasattr(instance, field):
-                new_value = value
-                old_value = getattr(instance, field)
-                if new_value != old_value:
-                    changed_data[field] = new_value
+        changed_data_fields = [
+            field
+            for field, value in validated_data.items()
+            if field in NOTIFIED_CHANGES
+            and hasattr(instance, field)
+            and getattr(instance, field) != value
+        ]
+        has_new_report = not instance.report_content and validated_data.get(
+            "report_content"
+        )
+        changed_supportgroup = None
 
         with transaction.atomic():
             event = super().update(instance, validated_data)
+
+            # Update / remove organizer group if needed
+            if (
+                "organizerGroup" in validated_data
+                and not OrganizerConfig.objects.filter(
+                    event=instance, as_group=validated_data["organizerGroup"]
+                ).exists()
+            ):
+                OrganizerConfig.objects.update_or_create(
+                    person=validated_data["organizerPerson"],
+                    event=instance,
+                    defaults={"as_group": validated_data["organizerGroup"],},
+                )
+                # Add group to changed data if one has been specified
+                if validated_data["organizerGroup"] is not None:
+                    changed_supportgroup = str(validated_data["organizerGroup"].pk)
+
             if Projet.objects.filter(event=event).exists():
                 Projet.objects.from_event(event, event.organizers.first().role)
-            transaction.on_commit(partial(self.schedule_tasks, event, changed_data))
+
+            transaction.on_commit(
+                partial(
+                    self.schedule_tasks,
+                    event,
+                    changed_data_fields,
+                    changed_supportgroup,
+                    has_new_report,
+                )
+            )
             return event
 
     class Meta:

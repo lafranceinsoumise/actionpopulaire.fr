@@ -18,7 +18,10 @@ import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styl
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
 
 const StyledMap = styled(Map)`
-  height: 208px;
+  && {
+    width: 100%;
+    height: 208px;
+  }
 `;
 
 const StyledMapConfig = styled(Map)`
@@ -66,9 +69,10 @@ const EventLocation = (props) => {
       return;
     }
     sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-    mutate((event) => {
-      return { ...event, ...res.data };
-    });
+    mutate((event) => ({
+      ...event,
+      location: { ...res.data.location, coordinates: null },
+    }));
   };
 
   useEffect(() => {
@@ -113,7 +117,7 @@ const EventLocation = (props) => {
       <Spacer size="1rem" />
       <StyledMap
         center={event?.location?.coordinates?.coordinates || []}
-        iconConfiguration={event?.iconConfiguration}
+        iconConfiguration={event?.subtype}
       />
       <Spacer size="0.5rem" />
       <Button link small wrap href={updateLocationUrl}>
