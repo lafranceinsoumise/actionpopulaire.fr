@@ -172,7 +172,7 @@ urlpatterns = [
         ),
         name="list_required_activities.notification_settings",
     ),
-    path("evenements/", views.BaseAppCachedView.as_view(), name="dashboard",),
+    # path("", views.BaseAppCachedView.as_view(), name="dashboard",),
     path(
         "evenements/",
         RedirectView.as_view(pattern_name="dashboard"),
