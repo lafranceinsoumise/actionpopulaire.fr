@@ -21,7 +21,7 @@ const StyledContainer = styled.div`
 
   ${Button} {
     background-color: white;
-    font-size: 12px;
+    font-size: 14px;
     border: none;
     display: inline-flex;
     flex-direction: column;
@@ -40,18 +40,18 @@ const SecondaryActions = ({ routes, ...rest }) => {
       <StyledContainer>
         <a href={`mailto:${rest?.contact.email}`}>
           <Button type="button">
-            <RawFeatherIcon name="mail" width="1rem" height="1rem" />
+            <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
             Contacter
           </Button>
         </a>
         {!!routes?.donations && (
           <Button type="button" link route={routes.donations}>
-            <RawFeatherIcon name="upload" width="1rem" height="1rem" />
+            <RawFeatherIcon name="upload" width="1.5rem" height="1.5rem" />
             Financer
           </Button>
         )}
         <Button type="button" onClick={handleShare}>
-          <RawFeatherIcon name="share-2" width="1rem" height="1rem" />
+          <RawFeatherIcon name="share-2" width="1.5rem" height="1.5rem" />
           Partager
         </Button>
         <ModalShare
