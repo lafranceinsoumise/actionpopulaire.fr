@@ -22,6 +22,7 @@ import {
   getIsSessionLoaded,
 } from "@agir/front/globalContext/reducers";
 import { useIsOffline } from "@agir/front/offline/hooks";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 import Link from "@agir/front/app/Link";
 import EventHeader from "./EventHeader";
@@ -415,7 +416,7 @@ export const ConnectedEventPage = (props) => {
     ) {
       dispatch(
         setTopBarRightLink({
-          href: eventData.routes.manage,
+          to: routeConfig.eventSettings.getLink({ eventPk: eventData.id }),
           label: "Gestion de l'événement",
         })
       );
