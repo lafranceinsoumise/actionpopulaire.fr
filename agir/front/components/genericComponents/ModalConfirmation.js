@@ -4,7 +4,9 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
+import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import Modal from "@agir/front/genericComponents/Modal";
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -50,7 +52,16 @@ const ModalConfirmation = (props) => {
   } = props;
 
   return (
-    <Modal shouldShow={shouldShow} onClose={onClose}>
+    <ResponsiveLayout
+      DesktopLayout={Modal}
+      MobileLayout={BottomSheet}
+      shouldShow={shouldShow}
+      isOpen={shouldShow}
+      onClose={onClose}
+      onDismiss={onClose}
+      shouldDismissOnClick
+      noScroll
+    >
       <ModalContainer>
         <ModalContent>
           <h1>{title}</h1>
@@ -75,7 +86,7 @@ const ModalConfirmation = (props) => {
           </Button>
         </ModalContent>
       </ModalContainer>
-    </Modal>
+    </ResponsiveLayout>
   );
 };
 
