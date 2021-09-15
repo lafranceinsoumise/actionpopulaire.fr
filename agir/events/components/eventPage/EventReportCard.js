@@ -31,7 +31,7 @@ const EventReportCard = ({ id, compteRendu, isOrganizer, endTime, routes }) => {
 
   return (
     <StyledCard>
-      <b>Compte-rendu</b>
+      <b>Compte rendu</b>
       <Spacer size="0.5rem" />
       {compteRendu ? (
         <Collapsible
@@ -40,7 +40,7 @@ const EventReportCard = ({ id, compteRendu, isOrganizer, endTime, routes }) => {
           fadingOverflow
         />
       ) : (
-        <p>Il n'y a pas encore de compte-rendu de cet événement.</p>
+        <p>Il n'y a pas encore de compte rendu de cet événement.</p>
       )}
       {isOrganizer && (
         <Button
@@ -48,10 +48,10 @@ const EventReportCard = ({ id, compteRendu, isOrganizer, endTime, routes }) => {
           link
           to={routeConfig.eventSettings.getLink({
             eventPk: id,
-            activePanel: "compte-rendu",
+            activePanel: "compte rendu",
           })}
         >
-          {compteRendu ? "Modifier le" : "Ajouter un"} compte-rendu
+          {compteRendu ? "Modifier le" : "Ajouter un"} compte rendu
         </Button>
       )}
     </StyledCard>

@@ -180,7 +180,7 @@ const GenericCard = (props) => {
     case "new-report":
       return (
         <GenericCardContainer {...props}>
-          Le compte-rendu de l'événement {Event} a été ajouté par les
+          Le compte rendu de l'événement {Event} a été ajouté par les
           organisateurs
         </GenericCardContainer>
       );

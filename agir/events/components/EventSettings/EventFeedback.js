@@ -73,11 +73,9 @@ const EventFeedback = (props) => {
       return;
     }
 
-    if (!imageHasChanged) delete formData.compteRenduPhoto;
-
     const res = await api.updateEvent(eventPk, {
       compteRendu: formData.compteRendu,
-      compteRenduPhoto: formData.compteRenduPhoto,
+      compteRenduPhoto: imageHasChanged ? formData.compteRenduPhoto : undefined,
     });
     setIsLoading(false);
     if (res.error) {
@@ -91,6 +89,7 @@ const EventFeedback = (props) => {
   };
 
   useEffect(() => {
+    setImageHasChanged(false);
     setFormData({
       compteRendu: event.compteRendu,
       compteRenduPhoto: event.compteRenduMainPhoto?.image,
@@ -100,13 +99,13 @@ const EventFeedback = (props) => {
   return (
     <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
-      <StyledTitle>Compte-rendu</StyledTitle>
+      <StyledTitle>Compte rendu</StyledTitle>
 
       <Spacer size="1rem" />
       <RichTextField
         id="feedback"
         name="compteRendu"
-        label="Écrire un compte-rendu*"
+        label="Écrire un compte rendu*"
         placeholder=""
         onChange={(e) => handleChange("compteRendu", e)}
         value={formData.compteRendu}
@@ -121,8 +120,8 @@ const EventFeedback = (props) => {
           : "Photo"}
       </h4>
       <span style={{ color: style.black700 }}>
-        Cette image apparaîtra en tête de votre compte-rendu, et dans les
-        partages que vous ferez du compte-rendu sur les réseaux sociaux.
+        Cette image apparaîtra en tête de votre compte rendu, et dans les
+        partages que vous ferez du compte rendu sur les réseaux sociaux.
       </span>
       <Spacer size="0.5rem" />
       <ImageField
@@ -153,7 +152,7 @@ const EventFeedback = (props) => {
         </>
       )}
 
-      {formData.compteRenduPhoto && (
+      {formData.compteRenduPhoto && !imageHasChanged && (
         <>
           <Spacer size="0.5rem" />
           <Button link small href={event?.routes.addPhoto}>

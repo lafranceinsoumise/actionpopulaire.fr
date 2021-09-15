@@ -20,11 +20,12 @@ const Thumbnails = styled.div`
     width: 100%;
     height: 100%;
     overflow: hidden;
+    text-align: center;
   }
 
   img {
     margin: 0;
-    width: 100%;
+    width: auto;
     height: 100%;
     transform: scale(1);
     transition: transform 100ms ease-in-out;
