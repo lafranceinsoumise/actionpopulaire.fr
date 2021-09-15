@@ -207,7 +207,7 @@ const ConnectedUserActions = (props) => {
         description={modalJoinDescription}
         dismissLabel={modalJoinDismiss}
         confirmationLabel={modalJoinConfirm}
-        confirmationUrl="messages"
+        confirmationUrl={`mailto:${props?.contact?.email}`}
       />
       <ModalConfirmation
         key={2}
