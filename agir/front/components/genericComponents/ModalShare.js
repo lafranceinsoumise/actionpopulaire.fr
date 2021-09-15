@@ -12,9 +12,7 @@ import { FaWhatsapp, FaFacebook, FaTelegramPlane } from "react-icons/fa";
 
 const ModalContainer = styled.div`
   background: white;
-  height: 50%;
-  min-height: 365px;
-  width: 40%;
+  width: fit-content;
   margin: 5% auto;
   display: flex;
   align-items: center;
@@ -24,8 +22,6 @@ const ModalContainer = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     width: 90%;
-    height: 70%;
-    min-height: 400px;
   }
 `;
 
