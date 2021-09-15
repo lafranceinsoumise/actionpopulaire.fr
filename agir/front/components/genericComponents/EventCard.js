@@ -369,7 +369,7 @@ const EventCard = (props) => {
                       : routes.details
                   }
                 >
-                  Voir le compte-rendu
+                  Voir le compte rendu
                 </Button>
               </>
             )}

@@ -106,7 +106,7 @@ export const routeConfig = {
     id: "feedback",
     path: "compte-rendu/",
     exact: true,
-    label: "Compte-rendu",
+    label: "Compte rendu",
     icon: "image",
     Component: EventFeedback,
     isActive: true,

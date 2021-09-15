@@ -170,7 +170,7 @@ export const ManagerEmptyEvents = () => (
 
 export const EmptyReports = () => (
   <EmptyContent icon="file-text">
-    <p>Votre groupe n’a pas encore publié de compte-rendu.</p>
+    <p>Votre groupe n’a pas encore publié de compte rendu.</p>
     <p>
       Ajoutez-en à vos événement passés pour tenir au courant les membres de
       comment s’est déroulé votre événement&nbsp;!
