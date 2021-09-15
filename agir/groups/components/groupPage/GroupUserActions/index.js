@@ -24,12 +24,13 @@ const StyledContent = styled.div`
   display: flex;
   align-items: flex-start;
   flex-flow: column nowrap;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 
   @media (max-width: ${style.collapse}px) {
     background-color: white;
     width: 100%;
     padding: 0 1rem 1.5rem;
+    padding-bottom: 0.5rem;
     margin-bottom: 0;
     align-items: center;
     display: ${({ hideOnMobile }) => (hideOnMobile ? "none" : "flex")};
