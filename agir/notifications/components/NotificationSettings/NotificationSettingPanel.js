@@ -11,7 +11,6 @@ import Link from "@agir/front/app/Link";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import NotificationSettingItem from "./NotificationSettingItem";
-import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
@@ -152,7 +151,7 @@ const NotificationSettingPanel = (props) => {
         téléphone.
         <br />
         Vous recevez les e-mails sur votre adresse <u>{user.email}</u>&nbsp;
-        <Link route={nonReactRoutes.personalInformation}>(modifier)</Link>
+        <Link route="personalInformation">(modifier)</Link>
       </p>
       {pushIsReady && !isPushAvailable && !isDesktop && (
         <StyledUnsupportedSubscription>
