@@ -511,6 +511,13 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         write_only=True, required=False, allow_null=True
     )
 
+    def validate_contact(self, value):
+        if value and not value.get("contact_email") or value["contact_email"] == "":
+            raise serializers.ValidationError(
+                detail={"email": "Ce champ ne peut être vide."}
+            )
+        return value
+
     def validate_facebook(self, value):
         if not value or value == "":
             return value
