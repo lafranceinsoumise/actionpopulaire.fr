@@ -7,10 +7,14 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Accordion from "@agir/front/genericComponents/Accordion";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Panel, { StyledBackButton } from "@agir/front/genericComponents/Panel";
-
+import Link from "@agir/front/app/Link";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import NotificationSettingItem from "./NotificationSettingItem";
+import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
+
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
 
 const StyledGroupName = styled.div`
   display: grid;
@@ -102,6 +106,7 @@ const NotificationSettingPanel = (props) => {
     pushIsReady,
   } = props;
 
+  const user = useSelector(getUser);
   const isDesktop = useIsDesktop();
 
   const [byType, icons] = useMemo(() => {
@@ -143,8 +148,11 @@ const NotificationSettingPanel = (props) => {
         Paramètres de notifications&nbsp;<InlineBlock>et e-mails</InlineBlock>
       </h3>
       <p>
-        Paramétrez la réception de vos e-mails et des notifications&nbsp;
-        <InlineBlock>sur votre téléphone.</InlineBlock>
+        Paramétrez la réception de vos e-mails et des notifications sur votre
+        téléphone.
+        <br />
+        Vous recevez les e-mails sur votre adresse <u>{user.email}</u>&nbsp;
+        <Link route={nonReactRoutes.personalInformation}>(modifier)</Link>
       </p>
       {pushIsReady && !isPushAvailable && !isDesktop && (
         <StyledUnsupportedSubscription>

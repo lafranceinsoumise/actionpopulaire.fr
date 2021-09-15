@@ -9,10 +9,9 @@ import {
 import * as api from "@agir/notifications/common/api";
 import { usePush } from "@agir/notifications/push/subscriptions";
 
-import { ProtectedComponent } from "@agir/front/app/Router";
-
 import NotificationSettingPanel from "./NotificationSettingPanel";
 
+import { ProtectedComponent } from "@agir/front/app/Router";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const NotificationSettings = (props) => {
