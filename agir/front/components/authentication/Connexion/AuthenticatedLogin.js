@@ -43,7 +43,7 @@ const AuthenticatedLogin = ({ user }) => {
           compte <strong>{user.email}</strong>
         </p>
         <Spacer size="2rem" />
-        <Button link route="dashboard" color="secondary">
+        <Button link route="events" color="secondary">
           Revenir à l’accueil
         </Button>
         <Spacer size="3.25rem" />
