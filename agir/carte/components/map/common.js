@@ -194,5 +194,23 @@ export function createMap(center, zoom, target, iconConfiguration, isStatic) {
     }),
   });
 
-  return map;
+  /**
+   * Function to handle update of the center coordinates of the map
+   * @param  {Number[]} newCenter               The new center coordinates
+   */
+  const updateMapCenter = (newCenter) => {
+    // Avoid updating the map if nothing has changed
+    if (newCenter[0] === center[0] && newCenter[1] === center[1]) {
+      return;
+    }
+    // Update the view center
+    map.getView().setCenter(fromLonLat(newCenter));
+    // Update the marker position
+    feature.setGeometry(new Point(fromLonLat(newCenter)));
+  };
+
+  return {
+    map,
+    updateMapCenter,
+  };
 }

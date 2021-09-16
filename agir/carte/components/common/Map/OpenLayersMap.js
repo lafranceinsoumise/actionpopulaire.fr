@@ -136,8 +136,8 @@ const OpenLayersMap = (props) => {
   const mapRef = useCallback(
     async (mapElement) => {
       if (mapObject.current && mapElement) {
-        mapObject.current.getView().setCenter(fromLonLat(center));
-        mapObject.current.getView().setZoom(zoom);
+        mapObject.current.map.getView().setZoom(zoom);
+        mapObject.current.updateMapCenter(center);
         setIsLoaded(true);
       } else if (mapElement) {
         try {
@@ -149,7 +149,7 @@ const OpenLayersMap = (props) => {
             iconConfiguration,
             isStatic
           );
-          mapObject.current.once("postrender", () => {
+          mapObject.current.map.once("postrender", () => {
             setIsLoaded(true);
           });
         } catch (e) {
@@ -161,11 +161,10 @@ const OpenLayersMap = (props) => {
   );
 
   useEffect(() => {
-    mapObject.current &&
-      mapObject.current.getView().setCenter(fromLonLat(center));
+    mapObject.current && mapObject.current.updateMapCenter(center);
   }, [center]);
 
-  isLoaded && mapObject.current && mapObject.current.updateSize();
+  isLoaded && mapObject.current && mapObject.current.map.updateSize();
 
   return <StyledMapWrapper ref={mapRef} $isLoaded={isLoaded} {...rest} />;
 };
