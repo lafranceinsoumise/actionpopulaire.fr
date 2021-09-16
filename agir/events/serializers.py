@@ -7,6 +7,8 @@ from django.utils import timezone
 from pytz import utc, InvalidTimeError
 from rest_framework import serializers
 
+from agir.activity.models import Activity
+from agir.events.tasks import NOTIFIED_CHANGES
 from agir.front.serializer_utils import RoutesField
 from agir.lib.serializers import (
     LocationSerializer,
@@ -15,13 +17,11 @@ from agir.lib.serializers import (
     ContactMixinSerializer,
     FlexibleFieldsMixin,
     CurrentPersonField,
-    CurrentPersonDefault,
 )
 from agir.lib.utils import (
     validate_facebook_event_url,
     INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
 )
-
 from . import models
 from .actions.required_documents import (
     get_project_document_deadline,
@@ -36,7 +36,6 @@ from .models import (
     jitsi_default_domain,
     jitsi_default_room_name,
 )
-from agir.activity.models import Activity
 from .tasks import (
     send_event_creation_notification,
     send_secretariat_notification,
@@ -50,7 +49,18 @@ from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSeria
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
 from ..lib.utils import admin_url, replace_datetime_timezone
 
-from agir.events.tasks import NOTIFIED_CHANGES
+
+EVENT_ROUTES = {
+    "details": "view_event",
+    "map": "carte:single_event_map",
+    "rsvp": "rsvp_event",
+    "cancel": "quit_event",
+    "manage": "view_event_settings",
+    "calendarExport": "ics_event",
+    "compteRendu": "edit_event_report",
+    "addPhoto": "upload_event_image",
+    "edit": "edit_event",
+}
 
 
 class EventSubtypeSerializer(serializers.ModelSerializer):
@@ -88,19 +98,6 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
             "type",
             "needsDocuments",
         )
-
-
-EVENT_ROUTES = {
-    "details": "view_event",
-    "map": "carte:single_event_map",
-    "rsvp": "rsvp_event",
-    "cancel": "quit_event",
-    "manage": "view_event_settings",
-    "calendarExport": "ics_event",
-    "compteRendu": "edit_event_report",
-    "addPhoto": "upload_event_image",
-    "edit": "edit_event",
-}
 
 
 class EventOptionsSerializer(serializers.Serializer):
@@ -170,6 +167,10 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     allowGuests = serializers.BooleanField(source="allow_guests")
 
     onlineUrl = serializers.URLField(source="online_url")
+
+    isPast = serializers.SerializerMethodField(
+        read_only=True, method_name="get_is_past"
+    )
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -292,6 +293,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 "is2022",
             ],
         ).data
+
+    def get_is_past(self, obj):
+        return obj.is_past()
 
 
 class EventAdvancedSerializer(EventSerializer):
@@ -493,6 +497,8 @@ class CreateEventSerializer(serializers.Serializer):
 
 
 class UpdateEventSerializer(serializers.ModelSerializer):
+    PAST_ONLY_FIELDS = ["compteRendu", "compteRenduPhoto"]
+
     id = serializers.UUIDField(read_only=True)
     subtype = serializers.PrimaryKeyRelatedField(
         queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
@@ -512,7 +518,49 @@ class UpdateEventSerializer(serializers.ModelSerializer):
         write_only=True, required=False, allow_null=True
     )
 
+    def to_internal_value(self, data):
+        # Validate fields that can be modified only before / after the event's end
+        if self.instance.is_past():
+            error_message = "Ce champs ne peut être modifié après la fin de l'événement"
+            forbidden_fields = [
+                field
+                for field, value in data.items()
+                if field not in self.PAST_ONLY_FIELDS
+            ]
+        else:
+            error_message = "Ce champs ne peut être modifié avant la fin de l'événement"
+            forbidden_fields = [
+                field for field, value in data.items() if field in self.PAST_ONLY_FIELDS
+            ]
+
+        if len(forbidden_fields) > 0:
+            errors = {
+                field: error_message
+                for field in forbidden_fields
+                if not isinstance(data[field], dict)
+            } | {
+                field: {key: error_message for key in data[field].keys()}
+                for field in forbidden_fields
+                if isinstance(data[field], dict)
+            }
+            raise serializers.ValidationError(errors)
+
+        return super().to_internal_value(data)
+
     def validate_contact(self, value):
+        if self.instance.is_past():
+            forbidden_fields = [
+                field
+                for field, value in value.items()
+                if field not in self.PAST_ONLY_FIELDS
+            ]
+            if len(forbidden_fields) > 0:
+                raise serializers.ValidationError(
+                    {
+                        field: "Ce champs ne peut être modifié après la fin de l'événement"
+                        for field in forbidden_fields
+                    }
+                )
         if value and not value.get("contact_email") or value["contact_email"] == "":
             raise serializers.ValidationError(
                 detail={"email": "Ce champ ne peut être vide."}

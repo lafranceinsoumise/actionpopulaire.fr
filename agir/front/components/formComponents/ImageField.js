@@ -45,7 +45,17 @@ const StyledField = styled.div`
 `;
 
 const ImageField = forwardRef((props, ref) => {
-  const { id, name, value, onChange, error, label, helpText, ...rest } = props;
+  const {
+    id,
+    name,
+    value,
+    onChange,
+    error,
+    label,
+    helpText,
+    disabled,
+    ...rest
+  } = props;
 
   const labelRef = useRef(null);
   const handleChange = useCallback(
@@ -105,6 +115,7 @@ const ImageField = forwardRef((props, ref) => {
           {helpText && <StyledHelpText>{helpText}</StyledHelpText>}
           <input
             {...rest}
+            disabled={disabled}
             ref={ref}
             id={id}
             name={name}
@@ -112,14 +123,26 @@ const ImageField = forwardRef((props, ref) => {
             onChange={handleChange}
             value=""
           />
-          <Button type="button" inline wrap onClick={handleClick}>
+          <Button
+            type="button"
+            inline
+            wrap
+            onClick={handleClick}
+            disabled={disabled}
+          >
             <RawFeatherIcon name="camera" style={{ marginRight: "0.5rem" }} />
             {imageName ? "Remplacer l'image" : "Ajouter une image"}
           </Button>
           {imageName && (
-            <a href="#" onClick={deleteImage} style={{ marginTop: "0.5rem" }}>
+            <Button
+              inline
+              color="link"
+              disabled={disabled}
+              onClick={deleteImage}
+              style={{ marginTop: 0 }}
+            >
               Supprimer l'image
-            </a>
+            </Button>
           )}
         </label>
       </StyledField>
@@ -137,6 +160,7 @@ ImageField.propTypes = {
   label: PropTypes.string,
   helpText: PropTypes.string,
   error: PropTypes.string,
+  disabled: PropTypes.bool,
 };
 
 ImageField.displayName = "ImageField";

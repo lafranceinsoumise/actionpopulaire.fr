@@ -83,6 +83,10 @@ const StyledField = styled.label`
         $invalid ? style.redNSP : style.black1000};
     }
 
+    &.select__control--is-disabled {
+      background-color: ${style.black100};
+    }
+
     @media (max-width: ${style.collapse}px) {
       font-size: 1rem;
     }

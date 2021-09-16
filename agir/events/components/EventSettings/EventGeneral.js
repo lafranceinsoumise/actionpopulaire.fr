@@ -174,6 +174,8 @@ const EventGeneral = (props) => {
     mutate((event) => ({ ...event, ...res.data }));
   };
 
+  const isDisabled = !event || event.isPast || isLoading;
+
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -190,7 +192,7 @@ const EventGeneral = (props) => {
           onChange={handleChange}
           value={formData.name}
           error={errors?.name}
-          disabled={isLoading}
+          disabled={isDisabled}
         />
         <Spacer size="1rem" />
         <OrganizerGroupField
@@ -198,7 +200,7 @@ const EventGeneral = (props) => {
           value={formData.organizerGroup}
           onChange={handleChangeValue}
           error={errors?.organizerGroup}
-          disabled={isLoading}
+          disabled={isDisabled}
           options={options.organizerGroup}
           required
         />
@@ -214,7 +216,7 @@ const EventGeneral = (props) => {
             }
             onChange={updateDate}
             onChangeTimezone={(e) => handleChangeValue("timezone", e)}
-            disabled={isLoading}
+            disabled={isDisabled}
             required
           />
         </div>
@@ -227,7 +229,7 @@ const EventGeneral = (props) => {
           onChange={handleDescriptionChange}
           value={formData.description}
           error={errors?.description}
-          disabled={isLoading}
+          disabled={isDisabled}
         />
         <Spacer size="1rem" />
         <TextField
@@ -237,7 +239,7 @@ const EventGeneral = (props) => {
           onChange={handleChange}
           value={formData.facebook}
           error={errors?.facebook}
-          disabled={isLoading}
+          disabled={isDisabled}
         />
         <h4>Image mise en avant</h4>
         <span style={{ color: style.black700 }}>
@@ -251,7 +253,7 @@ const EventGeneral = (props) => {
           onChange={handleChangeImage}
           error={errors?.image}
           accept=".jpg,.jpeg,.gif,.png"
-          disabled={isLoading}
+          disabled={isDisabled}
         />
         {formData.image && imageHasChanged && (
           <>
@@ -269,7 +271,7 @@ const EventGeneral = (props) => {
                 </span>
               }
               onChange={handleCheckImageLicence}
-              disabled={isLoading}
+              disabled={isDisabled}
             />
           </>
         )}
@@ -279,11 +281,11 @@ const EventGeneral = (props) => {
           value={formData.subtype}
           options={options?.subtype}
           onChange={handleChangeValue}
-          disabled={isLoading}
+          disabled={isDisabled}
         />
 
         <Spacer size="2rem" />
-        <Button color="secondary" wrap disabled={isLoading} type="submit">
+        <Button color="secondary" wrap disabled={isDisabled} type="submit">
           Enregistrer
         </Button>
       </form>

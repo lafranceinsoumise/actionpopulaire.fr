@@ -11,7 +11,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import Map from "@agir/carte/common/Map";
-import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
 import LocationField from "@agir/front/formComponents/LocationField.js";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents.js";
@@ -21,14 +20,6 @@ const StyledMap = styled(Map)`
   && {
     width: 100%;
     height: 208px;
-  }
-`;
-
-const StyledMapConfig = styled(Map)`
-  height: calc(100vh - 230px);
-
-  @media (min-width: ${style.collapse}px) {
-    height: 400px;
   }
 `;
 
@@ -49,7 +40,7 @@ const EventLocation = (props) => {
     city: "",
     country: "FR",
   });
-  const [config, setConfig] = useState(null);
+
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
@@ -87,28 +78,7 @@ const EventLocation = (props) => {
     });
   }, [event]);
 
-  if (config) {
-    return (
-      <>
-        <BackButton
-          onClick={() => {
-            setConfig(false);
-          }}
-        />
-        <StyledTitle>Personnaliser la localisation</StyledTitle>
-
-        <Spacer size="1rem" />
-        <StyledMapConfig center={event?.location?.coordinates?.coordinates} />
-
-        <Spacer size="2rem" />
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button color="secondary" wrap disabled={isLoading}>
-            Enregistrer les informations
-          </Button>
-        </div>
-      </>
-    );
-  }
+  const isDisabled = !event || event.isPast || isLoading;
 
   return (
     <form onSubmit={handleSubmit}>
@@ -120,7 +90,7 @@ const EventLocation = (props) => {
         iconConfiguration={event?.subtype}
       />
       <Spacer size="0.5rem" />
-      <Button link small wrap href={updateLocationUrl}>
+      <Button link small wrap href={updateLocationUrl} disabled={isDisabled}>
         Personnaliser la localisation sur la carte
       </Button>
       <Spacer size="1rem" />
@@ -142,10 +112,11 @@ const EventLocation = (props) => {
         onChange={handleInputChange}
         error={errors && errors.location}
         required
+        disabled={isDisabled}
       />
 
       <Spacer size="2rem" />
-      <Button color="secondary" $wrap disabled={isLoading}>
+      <Button color="secondary" $wrap disabled={isDisabled}>
         Enregistrer
       </Button>
     </form>

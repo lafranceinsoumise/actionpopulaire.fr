@@ -1,9 +1,8 @@
 import PropTypes from "prop-types";
-import { DateTime } from "luxon";
 import React, { useMemo } from "react";
 import { useLocation, Redirect, useRouteMatch } from "react-router-dom";
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
 import { getMenuRoute, getRoutes } from "./routes.config";
 import { useAuthentication } from "@agir/front/authentication/hooks";
@@ -43,9 +42,6 @@ export const EventSettings = (props) => {
     return <Redirect to="general/" />;
   }
 
-  const now = DateTime.local();
-  const isPast = now > event.endTime;
-
   return (
     <ObjectManagement
       title={event?.name}
@@ -55,7 +51,7 @@ export const EventSettings = (props) => {
       menuLink={menuRoute.getLink()}
       redirectTo={redirectTo}
       cancel={cancelEvent}
-      isPast={isPast}
+      isPast={event?.isPast}
     />
   );
 };
@@ -65,6 +61,7 @@ EventSettings.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
     isOrganizer: PropTypes.bool,
+    isPast: PropTypes.bool,
     endTime: PropTypes.string,
   }).isRequired,
   basePath: PropTypes.string.isRequired,
