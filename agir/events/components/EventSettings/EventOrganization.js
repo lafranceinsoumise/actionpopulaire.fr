@@ -129,10 +129,26 @@ const EventOrganization = (props) => {
             Tous les animateur·ices de ces groupes peuvent accéder à la gestion
             de l'événement et la liste des participant·es.
           </span>
-          <Spacer size="1.5rem" />
+          <Spacer size="1rem" />
           <MemberList
             members={event.groups.map((group) => ({ displayName: group.name }))}
           />
+          <Spacer size="1rem" />
+          <p
+            style={{
+              margin: 0,
+              backgroundColor: style.secondary100,
+              color: style.black700,
+              padding: "0.75rem 1rem",
+              fontSize: "0.875rem",
+            }}
+          >
+            <strong style={{ display: "block", fontWeight: 500 }}>
+              Nouvelle version de l'interface de gestion des événements&nbsp;:
+            </strong>
+            la co-organisation entre les groupes sera de nouveau très vite
+            disponible&nbsp;!
+          </p>
           <Spacer size="1.5rem" />
         </>
       )}
