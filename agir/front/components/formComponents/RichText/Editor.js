@@ -38,6 +38,8 @@ const StyledEditor = styled(ReactQuill)`
     }
     return style.black100;
   }};
+  background-color: ${({ readOnly }) =>
+    readOnly ? style.black100 : "transparent"};
 
   && > .ql-container {
     border: none;
@@ -55,7 +57,7 @@ const StyledEditor = styled(ReactQuill)`
       font-family: ${style.fontFamilyBase};
       font-size: 1rem;
       line-height: ${style.lineHeightBase};
-      color: ${style.textColor};
+      color: ${({ readOnly }) => (readOnly ? style.black500 : style.textColor)};
       h1,
       h2,
       h3,

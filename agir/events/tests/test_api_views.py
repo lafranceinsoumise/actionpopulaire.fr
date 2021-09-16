@@ -546,6 +546,15 @@ class UpdateEventAPITestCase(APITestCase):
             subtype=self.a_subtype,
             organizer_person=self.organizer,
         )
+        self.past_event = Event.objects.create(
+            name="Event",
+            start_time=timezone.now() - timezone.timedelta(days=3),
+            end_time=timezone.now() - timezone.timedelta(days=2),
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.a_subtype,
+            organizer_person=self.organizer,
+        )
 
     def test_anonymous_person_cannot_update(self):
         self.client.logout()
@@ -576,6 +585,36 @@ class UpdateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn("subtype", res.data)
         self.assertEqual(res.data["subtype"], data["subtype"])
+
+    def test_can_update_event_report_only_for_past_events(self):
+        self.client.force_login(self.organizer.role)
+        data = {"compteRendu": "ABC"}
+
+        res = self.client.patch(f"/api/evenements/{self.event.pk}/modifier/", data=data)
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("compteRendu", res.data)
+
+        res = self.client.patch(
+            f"/api/evenements/{self.past_event.pk}/modifier/", data=data
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("compteRendu", res.data)
+        self.assertEqual(res.data["compteRendu"], data["compteRendu"])
+
+    def test_can_update_event_only_for_upcoming_events(self):
+        self.client.force_login(self.organizer.role)
+        data = {"name": "ABC"}
+
+        res = self.client.patch(
+            f"/api/evenements/{self.past_event.pk}/modifier/", data=data
+        )
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("name", res.data)
+
+        res = self.client.patch(f"/api/evenements/{self.event.pk}/modifier/", data=data)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("name", res.data)
+        self.assertEqual(res.data["name"], data["name"])
 
 
 class EventProjectAPITestCase(APITestCase):

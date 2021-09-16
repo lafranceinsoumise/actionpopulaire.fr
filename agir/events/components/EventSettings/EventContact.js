@@ -73,6 +73,8 @@ const EventContact = (props) => {
     mutate(api.getEventEndpoint("getEvent", { eventPk }));
   };
 
+  const isDisabled = !event || event.isPast || isLoading;
+
   return (
     <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
@@ -93,6 +95,7 @@ const EventContact = (props) => {
         onChange={handleChange}
         value={contact.name}
         error={errors?.name}
+        disabled={isDisabled}
         required
       />
       <Spacer size="1rem" />
@@ -104,6 +107,7 @@ const EventContact = (props) => {
         onChange={handleChange}
         value={contact.email}
         error={errors?.email}
+        disabled={isDisabled}
         required
       />
       <Spacer size="1rem" />
@@ -115,6 +119,7 @@ const EventContact = (props) => {
         onChange={handleChange}
         value={contact.phone}
         error={errors?.phone}
+        disabled={isDisabled}
         required
       />
       <Spacer size="1rem" />
@@ -125,10 +130,11 @@ const EventContact = (props) => {
         value={contact?.hidePhone}
         error={errors?.hidePhone}
         onChange={handleCheckboxChange}
+        disabled={isDisabled}
       />
 
       <Spacer size="2rem" />
-      <Button color="secondary" wrap disabled={isLoading} type="submit">
+      <Button color="secondary" wrap disabled={isDisabled} type="submit">
         Enregistrer
       </Button>
     </form>

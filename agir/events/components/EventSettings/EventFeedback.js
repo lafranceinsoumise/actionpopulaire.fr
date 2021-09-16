@@ -96,6 +96,8 @@ const EventFeedback = (props) => {
     });
   }, [event]);
 
+  const isDisabled = !event || !event.isPast || isLoading;
+
   return (
     <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
@@ -110,6 +112,7 @@ const EventFeedback = (props) => {
         onChange={(e) => handleChange("compteRendu", e)}
         value={formData.compteRendu}
         error={errors?.compteRendu}
+        disabled={isDisabled}
       />
 
       <Spacer size="1rem" />
@@ -130,6 +133,7 @@ const EventFeedback = (props) => {
         onChange={handleChangeImage}
         error={errors?.image}
         accept=".jpg,.jpeg,.gif,.png"
+        disabled={isDisabled}
       />
 
       {formData.compteRenduPhoto && imageHasChanged && (
@@ -148,6 +152,7 @@ const EventFeedback = (props) => {
               </span>
             }
             onChange={handleCheckImageLicence}
+            disabled={isDisabled}
           />
         </>
       )}
@@ -162,7 +167,7 @@ const EventFeedback = (props) => {
       )}
 
       <Spacer size="2rem" />
-      <Button color="secondary" wrap disabled={isLoading} type="submit">
+      <Button color="secondary" wrap disabled={isDisabled} type="submit">
         Enregistrer les informations
       </Button>
     </form>

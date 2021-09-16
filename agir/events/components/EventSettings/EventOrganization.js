@@ -161,8 +161,10 @@ const EventOrganization = (props) => {
       <Spacer size="1.5rem" />
       <MemberList
         members={organizers}
-        addButtonLabel="Ajouter un·e autre organisateur·ice"
-        onAdd={openMenu}
+        addButtonLabel={
+          event && !event.isPast ? "Ajouter un·e autre organisateur·ice" : ""
+        }
+        onAdd={event && !event.isPast ? openMenu : undefined}
       />
 
       <Spacer size="1rem" />
