@@ -180,6 +180,15 @@ class EventThumbnailView(DetailView):
         event_details = self.clean_location()
         event_details += date.upper()
 
+        # For a long event name : display it on 2 lines. Split on the space index to avoid cutting words
+        if len(self.event.name) >= 36:
+            event_name1 = self.event.name[0:36]
+            event_name2 = self.event.name[36:73]
+            end = event_name1.rfind(" ")
+            if end:
+                event_name1 = self.event.name[0:end]
+                event_name2 = self.event.name[end + 1 : 73]
+
         if len(self.event.name) < 30:
             draw.text(
                 (108, 350),
@@ -223,14 +232,14 @@ class EventThumbnailView(DetailView):
 
             draw.text(
                 (108, 369),
-                self.event.name[0:36].capitalize(),
+                event_name1.capitalize(),
                 fill=(0, 0, 0, 0),
                 align="left",
                 font=self.get_image_font(45),
             )
             draw.text(
                 (108, 430),
-                self.event.name[37:73],
+                event_name2,
                 fill=(0, 0, 0, 0),
                 align="left",
                 font=self.get_image_font(45),
@@ -246,14 +255,14 @@ class EventThumbnailView(DetailView):
 
             draw.text(
                 (108, 369),
-                self.event.name[0:36].capitalize(),
+                event_name1.capitalize(),
                 fill=(0, 0, 0, 0),
                 align="left",
                 font=self.get_image_font(45),
             )
             draw.text(
                 (108, 430),
-                self.event.name[37:73] + "...",
+                event_name2 + "...",
                 fill=(0, 0, 0, 0),
                 align="left",
                 font=self.get_image_font(45),
