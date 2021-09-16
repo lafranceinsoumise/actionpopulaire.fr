@@ -12,6 +12,7 @@ export const PanelWrapper = styled(animated.div)`
   height: 100%;
   box-shadow: ${style.elaborateShadow};
   will-change: transform;
+  overflow-y: auto;
 `;
 
 export default PanelWrapper;
