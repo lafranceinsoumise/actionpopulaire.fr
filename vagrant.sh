@@ -18,7 +18,7 @@ sudo apt-get update -qq > /dev/null
 
 echo "## Install Python..."
 if ! (dpkg -s python3.9 && dpkg -s python3.9-dev) &> /dev/null; then
-    sudo apt-get -yqq install python3.9 python3.9-dev python3.9-venv python3.9-distutils python3-pip libsystemd-dev > /dev/null
+    sudo apt-get -yqq install python3.9 python3.9-dev python3.9-venv python3.9-distutils python3-pip python-is-python3 libsystemd-dev > /dev/null
     sudo -H pip3 install poetry
 fi
 
