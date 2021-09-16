@@ -13,6 +13,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 const ModalContainer = styled.div`
   background: white;
   width: 40%;
+  max-width: 500px;
   margin: 5% auto;
   display: flex;
   align-items: center;

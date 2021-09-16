@@ -90,15 +90,6 @@ const ConnectedUserActions = (props) => {
       return window.location.reload();
     }
     setIsLoading(false);
-    sendToast(
-      <>
-        Vous êtes maintenant membre du groupe <strong>{name}</strong>&nbsp;!
-      </>,
-      "SUCCESS",
-      {
-        autoClose: true,
-      }
-    );
     mutate(api.getGroupPageEndpoint("getGroup", { groupPk: id }), (group) => ({
       ...group,
       isMember: true,
@@ -114,15 +105,6 @@ const ConnectedUserActions = (props) => {
       return window.location.reload();
     }
     setIsLoading(false);
-    sendToast(
-      <>
-        Vous êtes maintenant abonné·e au groupe <strong>{name}</strong>&nbsp;!
-      </>,
-      "SUCCESS",
-      {
-        autoClose: true,
-      }
-    );
     mutate(api.getGroupPageEndpoint("getGroup", { groupPk: id }), (group) => ({
       ...group,
       isMember: true,
