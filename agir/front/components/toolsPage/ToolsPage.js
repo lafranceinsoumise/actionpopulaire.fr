@@ -17,7 +17,6 @@ import img_Linsoumission from "./images/Linsoumission.jpg";
 import img_Comparateur from "./images/Comparateur.jpg";
 import bricksNSP from "./images/bricksNSP.svg";
 
-import Footer from "@agir/front/dashboardComponents/Footer";
 import Navigation from "@agir/front/dashboardComponents/Navigation";
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -441,7 +440,7 @@ const LinkMaterial = (props) => (
     small
     link
     color="secondary"
-    href="https://materiel.lafranceinsoumise.fr/"
+    route="materiel"
     target="_blank"
     wrap
   >
@@ -646,79 +645,76 @@ const ToolsPage = () => {
   const isConnected = useSelector(getIsConnected);
 
   return (
-    <>
-      <StyledPage>
-        <Helmet>
-          <title>Outils - Action Populaire</title>
-        </Helmet>
-        <div>
-          {isConnected && (
-            <Hide under>
-              <IndexLinkAnchor route="events">
-                <RawFeatherIcon name="arrow-left" /> &nbsp; Liste des événements
-              </IndexLinkAnchor>
-            </Hide>
-          )}
+    <StyledPage>
+      <Helmet>
+        <title>Outils - Action Populaire</title>
+      </Helmet>
+      <div>
+        {isConnected && (
+          <Hide under>
+            <IndexLinkAnchor route="events">
+              <RawFeatherIcon name="arrow-left" /> &nbsp; Liste des événements
+            </IndexLinkAnchor>
+          </Hide>
+        )}
 
-          <Hide under as={BannerTool} />
+        <Hide under as={BannerTool} />
 
-          <BlockTitle>
-            <div>
-              <RawFeatherIcon name="book-open" color={style.black1000} />
-              <Title>Se former à l'action</Title>
-            </div>
+        <BlockTitle>
+          <div>
+            <RawFeatherIcon name="book-open" color={style.black1000} />
+            <Title>Se former à l'action</Title>
+          </div>
 
-            <Hide under as={LinkInfoAction} />
-          </BlockTitle>
+          <Hide under as={LinkInfoAction} />
+        </BlockTitle>
 
-          <BlockContent>
-            {!categories?.length && <Skeleton />}
+        <BlockContent>
+          {!categories?.length && <Skeleton />}
 
-            {categories.map((category) => (
-              <React.Fragment key={category.id}>
-                <Subtitle>{category.name}</Subtitle>
-                <ResponsiveContainer>
-                  <ListItemAction pages={pages[category.id]} />
-                </ResponsiveContainer>
-              </React.Fragment>
-            ))}
-          </BlockContent>
+          {categories.map((category) => (
+            <React.Fragment key={category.id}>
+              <Subtitle>{category.name}</Subtitle>
+              <ResponsiveContainer>
+                <ListItemAction pages={pages[category.id]} />
+              </ResponsiveContainer>
+            </React.Fragment>
+          ))}
+        </BlockContent>
 
-          <Hide over as={LinkInfoAction} />
+        <Hide over as={LinkInfoAction} />
 
-          <Hide over as="hr" />
+        <Hide over as="hr" />
 
-          <BlockTitle>
-            <div>
-              <RawFeatherIcon name="mouse-pointer" color={style.black1000} />
-              <Title>Je m'informe en ligne</Title>
-            </div>
-          </BlockTitle>
+        <BlockTitle>
+          <div>
+            <RawFeatherIcon name="mouse-pointer" color={style.black1000} />
+            <Title>Je m'informe en ligne</Title>
+          </div>
+        </BlockTitle>
 
-          <BlockContent>
-            {WEBSITES.map((w, id) => (
-              <ItemWebsite key={id} img={w.img} href={w.href} title={w.title} />
-            ))}
-          </BlockContent>
+        <BlockContent>
+          {WEBSITES.map((w, id) => (
+            <ItemWebsite key={id} img={w.img} href={w.href} title={w.title} />
+          ))}
+        </BlockContent>
 
-          <Hide over as="hr" />
+        <Hide over as="hr" />
 
-          <BlockTitle>
-            <div>
-              <RawFeatherIcon name="help-circle" color={style.black1000} />
-              <Title>Besoin d'aide ?</Title>
-            </div>
-          </BlockTitle>
+        <BlockTitle>
+          <div>
+            <RawFeatherIcon name="help-circle" color={style.black1000} />
+            <Title>Besoin d'aide ?</Title>
+          </div>
+        </BlockTitle>
 
-          <BannerHelp />
+        <BannerHelp />
 
-          <Spacer size="30px" />
+        <Spacer size="30px" />
 
-          {!isDesktop && <Navigation active={routeConfig.tools.id} />}
-        </div>
-      </StyledPage>
-      <Footer displayOnMobileApp />
-    </>
+        {!isDesktop && <Navigation active={routeConfig.tools.id} />}
+      </div>
+    </StyledPage>
   );
 };
 

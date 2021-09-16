@@ -130,9 +130,8 @@ export const routeConfig = {
     AnonymousComponent: HomePage,
     hasLayout: false,
     hideFeedbackButton: true,
-    hideTopBar: true,
-    hideConnectivityWarning: true,
     keepScroll: true,
+    hideFooterBanner: true,
   }),
   missingEventDocumentsModal: new RouteConfig({
     id: "missingEventDocuments",
@@ -163,6 +162,7 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Carte des événements",
     Component: EventMap,
+    hideFooter: true,
   }),
   createEvent: new RouteConfig({
     id: "createEvent",
@@ -233,6 +233,7 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Carte des groupes",
     Component: GroupMap,
+    hideFooter: true,
   }),
   fullGroup: new RouteConfig({
     id: "fullGroup",
@@ -301,6 +302,7 @@ export const routeConfig = {
     label: "Outils",
     Component: ToolsPage,
     hideFeedbackButton: true,
+    displayFooterOnMobileApp: true,
     backLink: {
       route: "events",
       label: "Liste des événements",
@@ -316,9 +318,8 @@ export const routeConfig = {
     label: "Menu",
     Component: NavigationPage,
     hasLayout: true,
+    displayFooterOnMobileApp: true,
     layoutProps: {
-      desktopOnlyFooter: false,
-      displayFooterOnMobileApp: true,
       style: { paddingBottom: 0 },
     },
   }),
@@ -331,6 +332,7 @@ export const routeConfig = {
     Component: LoginPage,
     hideTopBar: true,
     hideFeedbackButton: true,
+    hideFooter: true,
   }),
   signup: new RouteConfig({
     id: "signup",
@@ -341,6 +343,7 @@ export const routeConfig = {
     Component: SignupPage,
     hideTopBar: true,
     hideFeedbackButton: true,
+    hideFooter: true,
   }),
   codeLogin: new RouteConfig({
     id: "codeLogin",
@@ -351,6 +354,7 @@ export const routeConfig = {
     Component: CodeLoginPage,
     hideTopBar: true,
     hideFeedbackButton: true,
+    hideFooter: true,
   }),
   codeSignup: new RouteConfig({
     id: "codeSignup",
@@ -361,6 +365,7 @@ export const routeConfig = {
     Component: CodeSignupPage,
     hideTopBar: true,
     hideFeedbackButton: true,
+    hideFooter: true,
   }),
   tellMore: new RouteConfig({
     id: "tellMore",
@@ -372,6 +377,7 @@ export const routeConfig = {
     hideTopBar: true,
     hideFeedbackButton: true,
     hidePushModal: true,
+    hideFooter: true,
   }),
   logout: new RouteConfig({
     id: "logout",

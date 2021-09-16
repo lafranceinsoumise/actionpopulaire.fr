@@ -6,7 +6,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { getRoutes } from "@agir/front/globalContext/reducers";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 
-import { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
+import { LayoutTitle } from "@agir/front/dashboardComponents/Layout/StyledComponents";
 import Button from "@agir/front/genericComponents/Button";
 
 const StyledHeader = styled.header`

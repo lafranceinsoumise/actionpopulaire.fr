@@ -20,6 +20,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { useDownloadBanner } from "@agir/front/app/hooks.js";
 
 import TopBar from "@agir/front/allPages/TopBar/TopBar";
+import Footer from "@agir/front/app/Footer";
 import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 
 import logger from "@agir/lib/utils/logger";
@@ -111,6 +112,12 @@ const Router = ({ children }) => {
               AnonymousComponent={route.AnonymousComponent}
               route={route}
             />
+            {!route.hideFooter && (
+              <Footer
+                hideBanner={route.hideFooterBanner}
+                displayOnMobileApp={route.displayFooterOnMobileApp}
+              />
+            )}
           </Route>
         ))}
         <Route key="not-found">

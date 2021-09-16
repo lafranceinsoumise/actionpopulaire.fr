@@ -6,12 +6,7 @@
   "groupsMap": "/carte/groupes/",
   "eventsMap": "/carte/evenements/",
   "donations": "/dons/",
-  "lafranceinsoumise": {
-    "home": "https://lafranceinsoumise.fr",
-    "groupMapPage": "https://lafranceinsoumise.fr/groupes-action/carte-groupes/",
-    "eventMapPage": "https://lafranceinsoumise.fr/groupes-action/les-evenements-locaux/",
-    "thematicTeams": "/equipes-thematiques/"
-  },
+  "lafranceinsoumise": "https://lafranceinsoumise.fr",
   "jlm2022": "https://melenchon2022.fr",
   "programme": "https://melenchon2022.fr/programme/",
   "comparateur": "https://melenchon2022.fr/comparateur/",
@@ -28,5 +23,6 @@
   "groupTransferHelp": "https://infos.actionpopulaire.fr/nombre-ideal-division/",
   "charteEquipes": "https://infos.actionpopulaire.fr/charte-des-groupes-action-populaire/",
   "facebookLogin": "/connexion/social/login/facebook/",
-  "campaignEventDocumentHelp": "https://infos.actionpopulaire.fr/documents-comptes-de-campagne/"
+  "campaignEventDocumentHelp": "https://infos.actionpopulaire.fr/documents-comptes-de-campagne/",
+  "materiel": "https://materiel.lafranceinsoumise.fr/"
 }

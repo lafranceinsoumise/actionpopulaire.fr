@@ -6,7 +6,6 @@ import useSWR from "swr";
 
 import EventRequiredDocuments from "./EventRequiredDocuments";
 
-import Footer from "@agir/front/dashboardComponents/Footer";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
 import {
@@ -106,7 +105,6 @@ const EventRequiredDocumentsPage = (props) => {
             onDismissDocument={dismissDocumentType}
             onChangeSubtype={changeSubtype}
           />
-          <Footer />
         </>
       )}
     </PageFadeIn>
