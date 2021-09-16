@@ -13,6 +13,7 @@ from agir.lib.models import (
     DescriptionMixin,
     BaseSubtype,
     TimeStampedModel,
+    ExternalLinkMixin,
 )
 from agir.lib.search import PrefixSearchQuery
 
@@ -22,6 +23,7 @@ __all__ = [
     "SupportGroupSubtype",
     "Membership",
     "TransferOperation",
+    "SupportGroupExternalLink",
 ]
 
 
@@ -168,6 +170,12 @@ class SupportGroup(
         return Membership.objects.filter(supportgroup=self).count()
 
     @property
+    def active_members_count(self):
+        return Membership.objects.filter(
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER, supportgroup=self
+        ).count()
+
+    @property
     def is_full(self):
         return False
         # (Temporarily disabled)
@@ -241,11 +249,13 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
     This model also indicates if the person is referent for this support group
     """
 
+    MEMBERSHIP_TYPE_FOLLOWER = 5
     MEMBERSHIP_TYPE_MEMBER = 10
     MEMBERSHIP_TYPE_MANAGER = 50
     MEMBERSHIP_TYPE_REFERENT = 100
     MEMBERSHIP_TYPE_CHOICES = (
-        (MEMBERSHIP_TYPE_MEMBER, "Membre du groupe"),
+        (MEMBERSHIP_TYPE_FOLLOWER, "Abonné⋅e du groupe"),
+        (MEMBERSHIP_TYPE_MEMBER, "Membre actif du groupe"),
         (MEMBERSHIP_TYPE_MANAGER, "Membre gestionnaire"),
         (MEMBERSHIP_TYPE_REFERENT, "Animateur⋅rice"),
     )
@@ -269,7 +279,7 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
     membership_type = models.IntegerField(
         _("Statut dans le groupe"),
         choices=MEMBERSHIP_TYPE_CHOICES,
-        default=MEMBERSHIP_TYPE_MEMBER,
+        default=MEMBERSHIP_TYPE_FOLLOWER,
     )
 
     notifications_enabled = models.BooleanField(
@@ -282,6 +292,7 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
         verbose_name = _("adhésion")
         verbose_name_plural = _("adhésions")
         unique_together = ("supportgroup", "person")
+        ordering = ["-membership_type"]
 
     def __str__(self):
         return _("{person} --> {supportgroup},  ({type})").format(
@@ -289,6 +300,10 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
             supportgroup=self.supportgroup,
             type=self.get_membership_type_display(),
         )
+
+    @property
+    def is_active_member(self):
+        return self.membership_type >= Membership.MEMBERSHIP_TYPE_MEMBER
 
     @property
     def is_referent(self):
@@ -322,3 +337,18 @@ class TransferOperation(models.Model):
         verbose_name = "Transfert de membres"
         verbose_name_plural = "Transferts de membres"
         ordering = ("timestamp", "former_group")
+
+
+class SupportGroupExternalLink(ExternalLinkMixin):
+
+    supportgroup = models.ForeignKey(
+        SupportGroup,
+        on_delete=models.CASCADE,
+        related_name="links",
+        related_query_name="link",
+        null=False,
+    )
+
+    class Meta:
+        verbose_name = "Lien ou réseau social de l’équipe"
+        verbose_name_plural = "Liens et réseaux sociaux de l’équipe"

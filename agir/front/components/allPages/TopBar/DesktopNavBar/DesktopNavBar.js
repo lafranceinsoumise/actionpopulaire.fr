@@ -13,7 +13,11 @@ import SearchBar from "./SearchBar";
 import AdminLink from "./AdminLink";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getAdminLink, getUser } from "@agir/front/globalContext/reducers";
+import {
+  getAdminLink,
+  getUser,
+  getIsSessionLoaded,
+} from "@agir/front/globalContext/reducers";
 import { useUnreadActivityCount } from "@agir/activity/common/hooks";
 import { useUnreadMessageCount } from "@agir/msgs/common/hooks";
 
@@ -50,8 +54,14 @@ const StyledBar = styled.div`
 `;
 
 export const DesktopNavBar = (props) => {
-  const { user, path, unreadMessageCount, unreadActivityCount, adminLink } =
-    props;
+  const {
+    isLoading,
+    user,
+    path,
+    unreadMessageCount,
+    unreadActivityCount,
+    adminLink,
+  } = props;
 
   const createEventLabel = useResponsiveMemo(
     "Créer",
@@ -66,7 +76,7 @@ export const DesktopNavBar = (props) => {
         <LogoLink route="events">
           <LogoAP height={56} width={149} />
         </LogoLink>
-        {!!user && (
+        {!isLoading && !!user && (
           <>
             <Button
               small
@@ -85,6 +95,7 @@ export const DesktopNavBar = (props) => {
         </div>
         <Spacer size="1rem" />
         <RightLinks
+          isLoading={isLoading}
           user={user}
           path={path}
           unreadMessageCount={unreadMessageCount}
@@ -95,6 +106,7 @@ export const DesktopNavBar = (props) => {
   );
 };
 DesktopNavBar.propTypes = {
+  isLoading: PropTypes.bool,
   user: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
   path: PropTypes.string,
   unreadMessageCount: PropTypes.number,
@@ -105,12 +117,14 @@ DesktopNavBar.propTypes = {
 const ConnectedDesktopNavBar = (props) => {
   const adminLink = useSelector(getAdminLink);
   const user = useSelector(getUser);
+  const isSessionLoaded = useSelector(getIsSessionLoaded);
   const unreadMessageCount = useUnreadMessageCount();
   const unreadActivityCount = useUnreadActivityCount();
 
   return (
     <DesktopNavBar
       {...props}
+      isLoading={!isSessionLoaded}
       user={user}
       unreadMessageCount={unreadMessageCount}
       unreadActivityCount={unreadActivityCount}

@@ -59,7 +59,11 @@ class OrganizerAsGroupTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
         self.group2 = SupportGroup.objects.create(name="Nom")
-        Membership.objects.create(person=self.person, supportgroup=self.group2)
+        Membership.objects.create(
+            person=self.person,
+            supportgroup=self.group2,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
 
         self.organizer_config = OrganizerConfig(
             person=self.person, event=self.event, is_creator=True

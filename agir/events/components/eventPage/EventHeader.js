@@ -16,6 +16,7 @@ import { Hide } from "@agir/front/genericComponents/grid";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 import QuitEventButton from "./QuitEventButton";
 
@@ -84,7 +85,7 @@ const StyledActions = styled.div`
 `;
 
 const RSVPButton = (props) => {
-  const { id, hasPrice, routes, hasSubscriptionForm } = props;
+  const { id, hasPrice, routes, hasSubscriptionForm, isOrganizer } = props;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -132,6 +133,16 @@ const RSVPButton = (props) => {
       >
         Participer à l'événement
       </Button>
+      {isOrganizer && (
+        <Button
+          icon="settings"
+          link
+          to={routeConfig.eventSettings.getLink({ eventPk: id })}
+          color="primary"
+        >
+          Gérer l'événement
+        </Button>
+      )}
     </StyledActions>
   );
 };
@@ -158,7 +169,12 @@ const Actions = (props) => {
           Événement terminé
         </Button>
         {isOrganizer && (
-          <Button icon="settings" link href={routes.manage} color="primary">
+          <Button
+            icon="settings"
+            link
+            to={routeConfig.eventSettings.getLink({ eventPk: id })}
+            color="primary"
+          >
             Gérer l'événement
           </Button>
         )}
@@ -192,7 +208,12 @@ const Actions = (props) => {
             </Button>
           )}
           {isOrganizer && (
-            <Button icon="settings" link href={routes.manage} color="primary">
+            <Button
+              icon="settings"
+              link
+              to={routeConfig.eventSettings.getLink({ eventPk: id })}
+              color="primary"
+            >
               Gérer l'événement
             </Button>
           )}

@@ -190,9 +190,9 @@ const EventStep = (props) => {
       {hasEmailWarning && (
         <StyledWarning>
           <span>
-            Tous vos membres <strong>recevront un e-mail</strong> avec le
-            contenu de votre message et{" "}
-            <strong>pourront y répondre&nbsp;!</strong>
+            Les membres et abonné·es de votre groupe
+            <strong>recevront un e-mail</strong> avec le contenu de votre
+            message et <strong>pourront y répondre&nbsp;!</strong>
           </span>
           <span>
             (Il ne recevront pas d’e-mails pour chaque commentaire ou

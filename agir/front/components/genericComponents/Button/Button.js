@@ -304,8 +304,8 @@ const DangerButton = styled(BaseButton)`
 `;
 const FacebookButton = styled(BaseButton)`
   color: ${style.white};
-  background-color: #1778f2;
-  border-color: #1778f2;
+  background-color: ${style.facebook};
+  border-color: ${style.facebook};
 
   &:hover,
   &:focus,

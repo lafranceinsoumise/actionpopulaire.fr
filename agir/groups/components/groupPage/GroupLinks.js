@@ -5,9 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Card from "./GroupPageCard";
-
-import { FaFacebook, FaTwitter, FaYoutube, FaInstagram } from "react-icons/fa";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import LinkIcon from "@agir/front/genericComponents/LinkIcon";
 
 const StyledList = styled.ul`
   list-style: none;
@@ -18,54 +16,24 @@ const StyledList = styled.ul`
   li {
     color: ${style.primary500};
     display: flex;
-    align-items: baseline;
+    height: 27px;
+    align-items: center;
 
     a {
+      max-width: 240px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
       display: inline-block;
-      height: 26px;
       color: ${style.black1000};
     }
   }
 `;
 
-const LinkIcon = ({ url }) => {
-  switch (true) {
-    case /youtube.com/.test(url):
-      return (
-        <FaYoutube
-          style={{ color: "#ff0000", width: "1rem", height: "1rem" }}
-        />
-      );
-    case /twitter.com/.test(url):
-      return (
-        <FaTwitter
-          style={{ color: "#1da1f2", width: "1rem", height: "1rem" }}
-        />
-      );
-    case /facebook.com/.test(url):
-      return (
-        <FaFacebook
-          style={{ color: "#1778f2", width: "1rem", height: "1rem" }}
-        />
-      );
-    case /instagram.com/.test(url):
-      return (
-        <FaInstagram
-          style={{ color: "#000000", width: "1rem", height: "1rem" }}
-        />
-      );
-    default:
-      return <FeatherIcon name="globe" small inline />;
-  }
-};
-LinkIcon.propTypes = {
-  url: PropTypes.string,
-};
-
 const GroupLinks = (props) => {
   const { links, editLinkTo } = props;
 
-  if (!Array.isArray(links)) {
+  if (!Array.isArray(links) || links.length === 0) {
     return null;
   }
 
@@ -73,10 +41,10 @@ const GroupLinks = (props) => {
     <Card title="Nos liens" editLinkTo={editLinkTo}>
       <StyledList>
         {links.map((link) => (
-          <li key={link.url}>
+          <li title={link.label} key={link.id}>
             <LinkIcon url={link.url} />
             &ensp;
-            <a href={link.url}>{link.name}</a>
+            <a href={link.url}>{link.label}</a>
           </li>
         ))}
       </StyledList>
@@ -88,7 +56,7 @@ GroupLinks.propTypes = {
   links: PropTypes.arrayOf(
     PropTypes.shape({
       url: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
     })
   ),
   editLinkTo: PropTypes.string,

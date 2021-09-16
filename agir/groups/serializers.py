@@ -20,7 +20,8 @@ from agir.lib.serializers import (
 from agir.people.serializers import PersonSerializer
 from . import models
 from .actions import get_promo_codes
-from .models import Membership, SupportGroup
+from .actions.notifications import member_to_follower_notification
+from .models import Membership, SupportGroup, SupportGroupExternalLink
 from ..front.serializer_utils import RoutesField
 from ..lib.utils import front_url, admin_url
 
@@ -71,10 +72,9 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     url = serializers.HyperlinkedIdentityField(view_name="view_group", read_only=True)
 
     eventCount = serializers.ReadOnlyField(source="events_count", read_only=True)
-    membersCount = serializers.SerializerMethodField(
-        source="members_count", read_only=True
-    )
+    membersCount = serializers.SerializerMethodField(read_only=True)
     isMember = serializers.SerializerMethodField(read_only=True)
+    isActiveMember = serializers.SerializerMethodField(read_only=True,)
     isManager = serializers.SerializerMethodField(read_only=True)
     labels = serializers.SerializerMethodField(read_only=True)
 
@@ -97,6 +97,9 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_isMember(self, obj):
         return self.membership is not None
+
+    def get_isActiveMember(self, obj):
+        return self.membership is not None and self.membership.is_active_member
 
     def get_isManager(self, obj):
         return (
@@ -134,6 +137,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     id = serializers.UUIDField(read_only=True,)
 
     isMember = serializers.SerializerMethodField(read_only=True,)
+    isActiveMember = serializers.SerializerMethodField(read_only=True,)
     isManager = serializers.SerializerMethodField(read_only=True,)
     isReferent = serializers.SerializerMethodField(read_only=True,)
 
@@ -151,8 +155,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     image = serializers.ImageField(read_only=True)
 
     referents = serializers.SerializerMethodField(read_only=True,)
-    # TODO: add links to SupporGroup model
-    links = []
+    links = serializers.SerializerMethodField(read_only=True,)
 
     facts = serializers.SerializerMethodField(read_only=True,)
     iconConfiguration = serializers.SerializerMethodField(read_only=True,)
@@ -178,6 +181,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_isMember(self, obj):
         return self.membership is not None
+
+    def get_isActiveMember(self, obj):
+        return self.membership is not None and self.membership.is_active_member
 
     def get_isManager(self, obj):
         return (
@@ -223,7 +229,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_facts(self, obj):
         facts = {
-            "memberCount": obj.members_count,
+            "activeMemberCount": obj.active_members_count,
             "eventCount": obj.events_count,
             "creationDate": obj.created,
             "isCertified": obj.is_certified,
@@ -361,6 +367,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             self.membership is not None and obj.messages.filter(deleted=False).exists()
         )
 
+    def get_links(self, obj):
+        return obj.links.values("id", "label", "url")
+
 
 class SupportGroupUpdateSerializer(serializers.ModelSerializer):
     contact = NestedContactSerializer(source="*")
@@ -433,6 +442,19 @@ class MembershipSerializer(serializers.ModelSerializer):
 
         return data
 
+    def update(self, instance, validated_data):
+        was_active_member = instance.is_active_member
+        instance = super().update(instance, validated_data)
+        if was_active_member and not instance.is_active_member:
+            member_to_follower_notification(instance)
+        return instance
+
     class Meta:
         model = Membership
         fields = ["id", "displayName", "image", "email", "gender", "membershipType"]
+
+
+class SupportGroupExternalLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportGroupExternalLink
+        fields = ["id", "label", "url"]

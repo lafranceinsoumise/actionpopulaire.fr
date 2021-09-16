@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 
 import DownloadApp from "@agir/front/genericComponents/DownloadApp";
@@ -15,7 +16,7 @@ const StyledPageHead = styled.div`
   isolation: isolate;
 `;
 
-const TopBar = ({ path, hideBannerDownload }) => {
+export const TopBar = ({ path, hideBannerDownload }) => {
   return (
     <StyledPageHead>
       {!hideBannerDownload && <DownloadApp />}
@@ -28,4 +29,10 @@ TopBar.propTypes = {
   path: PropTypes.string,
   hideBannerDownload: PropTypes.bool,
 };
-export default TopBar;
+
+const RouterTopBar = (props) => {
+  const { pathname } = useLocation();
+  return <TopBar {...props} path={pathname} />;
+};
+
+export default RouterTopBar;

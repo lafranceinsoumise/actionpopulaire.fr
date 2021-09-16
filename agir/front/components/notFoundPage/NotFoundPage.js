@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 import { usePrevious } from "react-use";
 import styled from "styled-components";
+import { captureMessage } from "@sentry/react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -76,6 +77,13 @@ export const NotFoundPage = ({
   }, [reloadOnReconnection, isOffline, wasOffline]);
 
   if (isOffline === null) return null;
+
+  if (!isOffline) {
+    captureMessage(
+      `React shows a 'Not found page' : ${window.location.pathname}`,
+      "debug"
+    );
+  }
 
   return (
     <PageStyle>

@@ -8,9 +8,9 @@ import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon as FeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { StyledTitle } from "@agir/groups/groupPage/GroupSettings/styledComponents";
+import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
-const [REFERENT, MANAGER /*, MEMBER */] = [100, 50, 10];
+import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
 export const ReferentMainPanel = (props) => {
   const {
@@ -22,14 +22,17 @@ export const ReferentMainPanel = (props) => {
     members,
   } = props;
   const referents = useMemo(
-    () => members.filter((member) => member.membershipType === REFERENT),
+    () =>
+      members.filter(
+        (member) => member.membershipType === MEMBERSHIP_TYPES.REFERENT
+      ),
     [members]
   );
 
   const managers = useMemo(
     () =>
       members
-        .filter((member) => member.membershipType === MANAGER)
+        .filter((member) => member.membershipType === MEMBERSHIP_TYPES.MANAGER)
         .map((member) => ({
           ...member,
           onResetMembershipType,

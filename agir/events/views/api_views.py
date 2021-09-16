@@ -3,8 +3,10 @@ from datetime import timedelta
 from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
 from django.db.models import Q
+from django.http.response import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.utils.functional import cached_property
 from rest_framework import status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
@@ -15,18 +17,23 @@ from rest_framework.generics import (
     DestroyAPIView,
     UpdateAPIView,
     RetrieveUpdateAPIView,
+    GenericAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import exceptions, status
 
 from agir.events.actions.rsvps import (
     rsvp_to_free_event,
     is_participant,
 )
-from agir.events.models import Event
+from agir.events.models import Event, OrganizerConfig
 from agir.events.models import RSVP
+from agir.people.models import Person
 from agir.events.serializers import (
     EventSerializer,
+    EventAdvancedSerializer,
     EventListSerializer,
     EventPropertyOptionsSerializer,
     UpdateEventSerializer,
@@ -38,8 +45,8 @@ from agir.events.serializers import (
 
 __all__ = [
     "EventDetailAPIView",
+    "EventDetailAdvancedAPIView",
     "EventRsvpedAPIView",
-    "EventSuggestionsAPIView",
     "EventSuggestionsAPIView",
     "EventCreateOptionsAPIView",
     "CreateEventAPIView",
@@ -48,6 +55,8 @@ __all__ = [
     "EventProjectAPIView",
     "CreateEventProjectDocumentAPIView",
     "EventProjectsAPIView",
+    "CreateOrganizerConfigAPIView",
+    "CancelEventAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -58,6 +67,7 @@ from agir.lib.rest_framework_permissions import (
 )
 
 from agir.lib.tasks import geocode_person
+from ..tasks import send_cancellation_notification
 
 
 class EventRsvpedAPIView(ListAPIView):
@@ -98,6 +108,12 @@ class EventDetailAPIView(RetrieveAPIView):
     queryset = Event.objects.all()
 
 
+class EventDetailAdvancedAPIView(RetrieveAPIView):
+    permission_ = "events.change_event"
+    serializer_class = EventAdvancedSerializer
+    queryset = Event.objects.all()
+
+
 class EventSuggestionsAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = EventListSerializer
@@ -110,29 +126,25 @@ class EventSuggestionsAPIView(ListAPIView):
     def get_queryset(self):
         person = self.request.user.person
         person_groups = person.supportgroups.all()
-        base_queryset = Event.objects.with_serializer_prefetch(person)
+        base_queryset = Event.objects.with_serializer_prefetch(person).select_related(
+            "subtype"
+        )
 
-        groups_events = (
-            base_queryset.upcoming()
-            .filter(organizers_groups__in=person_groups)
-            .distinct()
+        groups_events = base_queryset.upcoming().filter(
+            organizers_groups__in=person_groups
         )
 
         organized_events = (
-            base_queryset.past()
-            .filter(organizers=person)
-            .distinct()
-            .order_by("-start_time")[:10]
+            base_queryset.past().filter(organizers=person).order_by("-start_time")[:10]
         )
 
         past_events = (
             base_queryset.past()
             .filter(Q(rsvps__person=person) | Q(organizers_groups__in=person_groups))
-            .distinct()
             .order_by("-start_time")[:10]
         )
 
-        result = groups_events.union(organized_events, past_events)
+        result = groups_events | organized_events | past_events
 
         if person.coordinates is not None:
             near_events = (
@@ -145,16 +157,12 @@ class EventSuggestionsAPIView(ListAPIView):
                 .order_by("distance")[:10]
             )
 
-            result = (
-                base_queryset.filter(
-                    pk__in=[e.pk for e in near_events] + [e.pk for e in result]
-                )
-                .annotate(distance=Distance("coordinates", person.coordinates))
-                .order_by("start_time")
-                .distinct()
-            ).select_related("subtype")
-        else:
-            result = result.order_by("start_time")
+            result = result | near_events
+            result = result.annotate(
+                distance=Distance("coordinates", person.coordinates)
+            )
+
+        result = result.distinct().order_by("start_time")
 
         return result
 
@@ -180,10 +188,12 @@ class CreateEventAPIView(CreateAPIView):
 
 class EventManagementPermissions(GlobalOrObjectPermissions):
     perms_map = {
+        "POST": [],
         "PUT": [],
         "PATCH": [],
     }
     object_perms_map = {
+        "POST": ["events.change_event"],
         "PUT": ["events.change_event"],
         "PATCH": ["events.change_event"],
     }
@@ -193,6 +203,40 @@ class UpdateEventAPIView(UpdateAPIView):
     permission_classes = (EventManagementPermissions,)
     queryset = Event.objects.all()
     serializer_class = UpdateEventSerializer
+
+
+class CreateOrganizerConfigAPIView(APIView):
+    permission_classes = (EventManagementPermissions,)
+    queryset = OrganizerConfig.objects.all()
+
+    def post(self, request, pk):
+        organizer_id = request.data.get("organizer_id")
+        event = Event.objects.get(pk=pk)
+        person = Person.objects.get(pk=organizer_id)
+        if len(OrganizerConfig.objects.filter(event=event, person=person)) > 0:
+            raise exceptions.ValidationError(
+                detail={"detail": "Cette personne est déjà organisateur·ice"},
+                code="invalid_format",
+            )
+        organizer_config = OrganizerConfig(event=event, person=person)
+        organizer_config.save()
+        return JsonResponse({"data": True})
+
+
+class CancelEventAPIView(GenericAPIView):
+    permission_classes = (EventManagementPermissions,)
+    queryset = Event.objects.upcoming(as_of=timezone.now(), published_only=False)
+
+    def post(self, request, pk):
+        event = self.get_object()
+        event.visibility = Event.VISIBILITY_ADMIN
+        event.save()
+
+        send_cancellation_notification.delay(pk)
+
+        return JsonResponse(
+            {"data": _("L'événement « {} » a bien été annulé.").format(event.name)}
+        )
 
 
 class RSVPEventPermissions(GlobalOrObjectPermissions):

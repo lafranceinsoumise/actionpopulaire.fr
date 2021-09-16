@@ -5,16 +5,24 @@ import GroupMemberList from "./GroupMemberList.js";
 export default {
   component: GroupMemberList,
   title: "GroupSettings/GroupMemberList",
-  parameters: {
-    layout: "centered",
-  },
 };
 
-const Template = (args) => <GroupMemberList {...args} />;
+const Template = (args) => (
+  <div style={{ padding: "1.5rem" }}>
+    <GroupMemberList {...args} />
+  </div>
+);
 
 export const Default = Template.bind({});
 Default.args = {
   members: [
+    {
+      id: 0,
+      displayName: "Clément Verde",
+      email: "admin@example.fr",
+      membershipType: 5,
+      image: "https://www.fillmurray.com/200/200",
+    },
     {
       id: 1,
       displayName: "Clément Verde",

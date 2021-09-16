@@ -4,13 +4,18 @@ import React, { useState } from "react";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import { IconLink } from "./StyledBar";
 import UserMenu from "../UserMenu";
 
 export const RightLink = (props) => {
-  const { user, settingsLink } = props;
+  const { isLoading, user, settingsLink } = props;
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  if (isLoading) {
+    return <IconLink as={Spacer} size="2rem" />;
+  }
 
   if (!user) {
     return (
@@ -63,6 +68,7 @@ export const RightLink = (props) => {
 };
 
 RightLink.propTypes = {
+  isLoading: PropTypes.bool,
   user: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
   settingsLink: PropTypes.object,
 };

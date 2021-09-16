@@ -15,15 +15,11 @@ const StyledBackButton = styled.button`
     text-align: left;
     cursor: pointer;
   }
-  &:hover,
-  &:focus {
-    opacity: 0.75;
-  }
 `;
 
-const BackButton = ({ onClick }) => {
+const BackButton = (props) => {
   return (
-    <StyledBackButton type="button" onClick={onClick}>
+    <StyledBackButton {...props} type="button">
       <RawFeatherIcon
         name="arrow-left"
         aria-label="Retour"

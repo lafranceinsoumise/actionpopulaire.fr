@@ -35,7 +35,12 @@ from agir.groups.actions.notifications import (
     someone_joined_notification,
 )
 from agir.groups.filters import GroupAPIFilterSet
-from agir.groups.models import SupportGroup, SupportGroupSubtype, Membership
+from agir.groups.models import (
+    SupportGroup,
+    SupportGroupSubtype,
+    Membership,
+    SupportGroupExternalLink,
+)
 from agir.groups.serializers import (
     SupportGroupLegacySerializer,
     SupportGroupSubtypeSerializer,
@@ -43,6 +48,7 @@ from agir.groups.serializers import (
     SupportGroupDetailSerializer,
     SupportGroupUpdateSerializer,
     MembershipSerializer,
+    SupportGroupExternalLinkSerializer,
 )
 from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
@@ -64,12 +70,16 @@ __all__ = [
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
-    "GroupJoinAPIView",
+    "JoinGroupAPIView",
+    "FollowGroupAPIView",
+    "QuitGroupAPIView",
     "GroupMembersAPIView",
     "GroupUpdateAPIView",
     "GroupInvitationAPIView",
     "GroupMemberUpdateAPIView",
     "GroupFinanceAPIView",
+    "CreateSupportGroupExternalLinkAPIView",
+    "RetrieveUpdateDestroySupportGroupExternalLinkAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -445,45 +455,73 @@ class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
         instance.save()
 
 
-class GroupJoinAPIView(CreateAPIView):
+class JoinGroupAPIView(CreateAPIView, DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = SupportGroup.objects.active()
+    target_membership_type = Membership.MEMBERSHIP_TYPE_MEMBER
 
-    def initial(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        super().initial(request, *args, **kwargs)
-
-    def check_permissions(self, request):
-        if not request.user.is_authenticated or request.user.person is None:
-            raise PermissionDenied(
-                detail={
-                    "redirectTo": f'{reverse_lazy("short_code_login")}?next={reverse("view_group", kwargs={"pk": self.object.pk})}'
-                },
-            )
-        if self.object.is_full:
-            raise PermissionDenied(
-                detail={
-                    "redirectTo": reverse("full_group", kwargs={"pk": self.object.pk})
-                }
-            )
-        if Membership.objects.filter(
-            person=request.user.person, supportgroup=self.object
-        ).exists():
-            raise PermissionDenied(
-                detail={
-                    "redirectTo": reverse("view_group", kwargs={"pk": self.object.pk})
-                },
-            )
+    def check_object_permissions(self, request, obj):
+        if obj.is_full:
+            raise PermissionDenied(detail={"error_code": "full_group"})
 
     def create(self, request, *args, **kwargs):
-        with transaction.atomic():
-            membership = Membership.objects.create(
-                supportgroup=self.object, person=request.user.person
+        supportgroup = self.get_object()
+        try:
+            membership = Membership.objects.get(
+                supportgroup=supportgroup, person=request.user.person,
             )
-            someone_joined_notification(
-                membership, membership_count=self.object.members_count
-            )
+            if membership.membership_type == self.target_membership_type:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            membership.membership_type = self.target_membership_type
+            membership.save()
+            return Response(status=status.HTTP_200_OK)
+        except Membership.DoesNotExist:
+            with transaction.atomic():
+                membership = Membership.objects.create(
+                    supportgroup=supportgroup,
+                    person=request.user.person,
+                    membership_type=self.target_membership_type,
+                )
+                someone_joined_notification(
+                    membership, membership_count=supportgroup.members_count
+                )
             return Response(status=status.HTTP_201_CREATED)
+
+
+class FollowGroupAPIView(JoinGroupAPIView):
+    target_membership_type = Membership.MEMBERSHIP_TYPE_FOLLOWER
+
+    def check_object_permissions(self, request, obj):
+        pass
+
+
+class QuitGroupAPIView(DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = SupportGroup.objects.all()
+
+    def destroy(self, request, *args, **kwargs):
+        supportgroup = self.get_object()
+
+        membership = get_object_or_404(
+            Membership.objects.all(),
+            supportgroup=supportgroup,
+            person=request.user.person,
+        )
+
+        if (
+            membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+            and not Membership.objects.filter(
+                supportgroup=membership.supportgroup,
+                membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+            )
+            .exclude(id=membership.id)
+            .exists()
+        ):
+            raise PermissionDenied(detail={"error_code": "group_last_referent"})
+
+        membership.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class GroupMembersViewPermissions(GlobalOrObjectPermissions):
@@ -579,10 +617,7 @@ class GroupMemberUpdateAPIView(UpdateAPIView):
     serializer_class = MembershipSerializer
 
     def check_object_permissions(self, request, obj):
-        # Object permission are for the membership's support group, not the object itself
-        return super(GroupMemberUpdateAPIView, self).check_object_permissions(
-            request, obj.supportgroup
-        )
+        return super().check_object_permissions(request, obj.supportgroup)
 
 
 class GroupFinancePermission(GlobalOrObjectPermissions):
@@ -624,3 +659,44 @@ class GroupFinanceAPIView(GenericAPIView):
             status=status.HTTP_200_OK,
             data={"donation": donation, "spendingRequests": spending_requests},
         )
+
+
+class CreateSupportGroupExternalLinkPermissions(GlobalOrObjectPermissions):
+    perms_map = {"POST": []}
+    object_perms_map = {
+        "POST": ["groups.change_supportgroup"],
+    }
+
+
+class CreateSupportGroupExternalLinkAPIView(CreateAPIView):
+    queryset = SupportGroup.objects.all()
+    permission_classes = (CreateSupportGroupExternalLinkPermissions,)
+    serializer_class = SupportGroupExternalLinkSerializer
+
+    def create(self, request, *args, **kwargs):
+        self.supportgroup = self.get_object()
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(supportgroup=self.supportgroup)
+
+
+class RetrieveUpdateDestroySupportGroupExternalLinkPermisns(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "PUT": [], "PATCH": [], "DELETE": []}
+    object_perms_map = {
+        "GET": ["groups.view_supportgroup"],
+        "PUT": ["groups.change_supportgroup"],
+        "PATCH": ["groups.change_supportgroup"],
+        "DELETE": ["groups.change_supportgroup"],
+    }
+
+
+class RetrieveUpdateDestroySupportGroupExternalLinkAPIView(
+    RetrieveUpdateDestroyAPIView
+):
+    queryset = SupportGroupExternalLink.objects.all()
+    permission_classes = (RetrieveUpdateDestroySupportGroupExternalLinkPermisns,)
+    serializer_class = SupportGroupExternalLinkSerializer
+
+    def check_object_permissions(self, request, obj):
+        return super().check_object_permissions(request, obj.supportgroup)

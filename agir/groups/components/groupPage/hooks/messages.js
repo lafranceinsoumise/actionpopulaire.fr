@@ -5,7 +5,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import useSWR, { useSWRInfinite } from "swr";
+import useSWR from "swr";
+import useSWRInfinite from "swr/infinite";
 
 import * as api from "@agir/groups/groupPage/api";
 

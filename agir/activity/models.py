@@ -46,11 +46,14 @@ class Activity(TimeStampedModel):
     TYPE_NEW_REPORT = "new-report"
     TYPE_NEW_EVENT_MYGROUPS = "new-event-mygroups"
     TYPE_GROUP_INVITATION = "group-invitation"
+    TYPE_NEW_FOLLOWER = "new-follower"
     TYPE_NEW_MEMBER = "new-member"
+    TYPE_MEMBER_STATUS_CHANGED = "member-status-changed"
     TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER = "group-membership-limit-reminder"
     TYPE_GROUP_INFO_UPDATE = "group-info-update"
     TYPE_NEW_MESSAGE = "new-message"
     TYPE_NEW_COMMENT = "new-comment"
+    TYPE_NEW_COMMENT_RESTRICTED = "new-comment-restricted"
     TYPE_GROUP_CREATION_CONFIRMATION = "group-creation-confirmation"
     TYPE_ACCEPTED_INVITATION_MEMBER = "accepted-invitation-member"
     TYPE_TRANSFERRED_GROUP_MEMBER = "transferred-group-member"
@@ -64,7 +67,9 @@ class Activity(TimeStampedModel):
 
     DISPLAYED_TYPES = (
         TYPE_GROUP_INVITATION,
+        TYPE_NEW_FOLLOWER,
         TYPE_NEW_MEMBER,
+        TYPE_MEMBER_STATUS_CHANGED,
         TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
         TYPE_GROUP_INFO_UPDATE,
         TYPE_NEW_ATTENDEE,
@@ -99,13 +104,22 @@ class Activity(TimeStampedModel):
     TYPE_CHOICES = (
         (TYPE_WAITING_PAYMENT, "Paiement en attente"),
         (TYPE_GROUP_INVITATION, "Invitation à un groupe"),
+        (TYPE_NEW_FOLLOWER, "Nouveau·lle abonné·e dans le groupe"),
         (TYPE_NEW_MEMBER, "Nouveau membre dans le groupe"),
+        (
+            TYPE_MEMBER_STATUS_CHANGED,
+            "Un membre actif du groupe a été passé au statut abonné·e",
+        ),
         (
             TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
             "Les membres du groupes sont de plus en plus nombreux",
         ),
         (TYPE_NEW_MESSAGE, "Nouveau message dans un de vos groupes"),
-        (TYPE_NEW_COMMENT, "Nouveau commentaire dans une de vos discussions"),
+        (TYPE_NEW_COMMENT, "Nouveau commentaire dans un de vos groupes"),
+        (
+            TYPE_NEW_COMMENT_RESTRICTED,
+            "Nouveau commentaire dans une de vos discussions",
+        ),
         (TYPE_WAITING_LOCATION_GROUP, "Préciser la localisation du groupe"),
         (TYPE_GROUP_COORGANIZATION_INVITE, "Invitation à coorganiser un groupe reçue"),
         (TYPE_WAITING_LOCATION_EVENT, "Préciser la localisation d'un événement"),

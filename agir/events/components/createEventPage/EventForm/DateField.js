@@ -2,14 +2,14 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
+import { DateTime } from "luxon";
+import "moment/locale/fr";
 
 import DateTimeField from "@agir/front/formComponents/DateTimeField";
 import SelectField from "@agir/front/formComponents/SelectField";
 import TimezoneField from "@agir/front/formComponents/TimezoneField";
 
 import { EVENT_DEFAULT_DURATIONS } from "@agir/events/common/utils";
-
-import "moment/locale/fr";
 
 const TimezoneToggle = styled.p`
   display: flex;
@@ -62,6 +62,24 @@ const Field = styled.div`
   }
 `;
 
+const getDuration = (startTime, endTime) => {
+  if (!startTime || !endTime) {
+    return EVENT_DEFAULT_DURATIONS[0];
+  }
+
+  let startDate = new Date(startTime);
+  startDate = DateTime.fromJSDate(startDate);
+
+  let endDate = new Date(endTime);
+  endDate = DateTime.fromJSDate(endDate);
+
+  return (
+    EVENT_DEFAULT_DURATIONS.find(
+      ({ value }) => value === (endDate.ts - startDate.ts) / 60000
+    ) || EVENT_DEFAULT_DURATIONS[EVENT_DEFAULT_DURATIONS.length - 1]
+  );
+};
+
 const DateField = (props) => {
   const {
     onChange,
@@ -72,10 +90,12 @@ const DateField = (props) => {
     error,
     required,
     disabled,
+    className,
+    showTimezone = false,
   } = props;
 
-  const [hasTimezone, setHasTimezone] = useState(false);
-  const [duration, setDuration] = useState(EVENT_DEFAULT_DURATIONS[0]);
+  const [hasTimezone, setHasTimezone] = useState(showTimezone);
+  const [duration, setDuration] = useState(undefined);
 
   const updateStartTime = useCallback(
     (startTime) => {
@@ -94,12 +114,8 @@ const DateField = (props) => {
     [endTime, duration, onChange]
   );
 
-  const updateDuration = useCallback((duration) => {
-    setDuration(duration);
-  }, []);
-
   const updateEndTime = useCallback(
-    (endTime) => {
+    (endTime, duration) => {
       let start = moment(startTime);
       let end = moment(endTime);
       if (start.isAfter(end)) {
@@ -107,24 +123,38 @@ const DateField = (props) => {
       }
       start = start.format();
       end = end.format();
+      duration && setDuration(duration);
       onChange(start, end);
     },
     [startTime, onChange]
   );
 
+  const updateDuration = useCallback(
+    (duration) => {
+      if (duration && duration.value) {
+        updateEndTime(
+          moment(startTime).add(duration.value, "minutes"),
+          duration
+        );
+      } else {
+        setDuration(duration);
+      }
+    },
+    [startTime, updateEndTime]
+  );
+
   useEffect(() => {
-    if (duration && duration.value) {
-      updateStartTime(startTime);
-    }
-  }, [duration, updateStartTime, startTime]);
+    !duration &&
+      startTime &&
+      endTime &&
+      setDuration(getDuration(startTime, endTime));
+  }, [duration, startTime, endTime]);
 
   return (
-    <Field>
+    <Field className={className}>
       <div>
         <DateTimeField
-          label={`Date et heure ${
-            duration.value === null ? "de début" : ""
-          }`.trim()}
+          label={`Date et heure ${!duration?.value ? "de début" : ""}`.trim()}
           value={startTime}
           onChange={updateStartTime}
           error={error}
@@ -135,7 +165,7 @@ const DateField = (props) => {
       <div>
         <SelectField
           label="Durée"
-          value={duration}
+          value={duration?.value ? duration : EVENT_DEFAULT_DURATIONS[4]}
           onChange={updateDuration}
           options={EVENT_DEFAULT_DURATIONS}
           disabled={disabled}
@@ -157,7 +187,7 @@ const DateField = (props) => {
           </button>
         </TimezoneToggle>
       )}
-      {duration.value === null && (
+      {!duration?.value && (
         <div>
           <DateTimeField
             label="Date et heure de fin"
@@ -178,7 +208,9 @@ DateField.propTypes = {
   startTime: PropTypes.string,
   endTime: PropTypes.string,
   error: PropTypes.string,
+  className: PropTypes.string,
   required: PropTypes.bool,
   disabled: PropTypes.bool,
+  showTimezone: PropTypes.bool,
 };
 export default DateField;

@@ -184,6 +184,7 @@ def create_group():
                 person=person,
                 membership_type=random.choice(
                     [
+                        Membership.MEMBERSHIP_TYPE_FOLLOWER,
                         Membership.MEMBERSHIP_TYPE_MEMBER,
                         Membership.MEMBERSHIP_TYPE_MANAGER,
                         Membership.MEMBERSHIP_TYPE_REFERENT,
@@ -505,7 +506,9 @@ def load_fake_data():
         membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
     )
     Membership.objects.create(
-        supportgroup=groups["user1_group"], person=people["user2"]
+        supportgroup=groups["user1_group"],
+        person=people["user2"],
+        membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
     )
     thematic_groups = {
         "thematic_booklet": SupportGroup.objects.create(

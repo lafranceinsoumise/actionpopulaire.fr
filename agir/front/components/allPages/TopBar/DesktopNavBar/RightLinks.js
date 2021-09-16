@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Popin from "@agir/front/genericComponents/Popin";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
@@ -93,7 +94,7 @@ const IconLink = styled(Link)`
     }
   }
 `;
-const StyledWrapper = styled.div`
+const StyledWrapper = styled(PageFadeIn)`
   height: 100%;
   display: flex;
   margin-left: auto;
@@ -101,72 +102,78 @@ const StyledWrapper = styled.div`
 `;
 
 const RightLinks = (props) => {
-  const { user, path, unreadActivityCount, unreadMessageCount } = props;
+  const { isLoading, user, path, unreadActivityCount, unreadMessageCount } =
+    props;
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-
-  if (!user) {
-    return (
-      <StyledWrapper>
-        <StyledLink route="help">Aide</StyledLink>
-        <Spacer size="1.5rem" />
-        <StyledLink route="login">Connexion</StyledLink>
-        <Spacer size="1.5rem" />
-        <StyledLink route="signup">Inscription</StyledLink>
-      </StyledWrapper>
-    );
-  }
 
   const openUserMenu = () => setIsUserMenuOpen(true);
   const closeUserMenu = () => setIsUserMenuOpen(false);
 
   return (
-    <StyledWrapper style={{ position: "relative" }}>
-      <Popin
-        isOpen={isUserMenuOpen}
-        onDismiss={closeUserMenu}
-        shouldDismissOnClick
-        position="bottom-right"
-      >
-        <UserMenu user={user} />
-      </Popin>
-      <IconLink route="events" $active={routeConfig.events.match(path)}>
-        <FeatherIcon name="home" />
-        <span>Accueil</span>
-      </IconLink>
-      <IconLink route="activities" $active={routeConfig.activities.match(path)}>
-        <FeatherIcon name="bell" />
-        <span>Notifications</span>
-        {unreadActivityCount > 0 && (
-          <small style={{ right: 30 }}>
-            {Math.min(unreadActivityCount, 99)}
-          </small>
-        )}
-      </IconLink>
-      <IconLink route="messages" $active={routeConfig.messages.match(path)}>
-        <FeatherIcon name="mail" />
-        <span>Messages</span>
-        {unreadMessageCount > 0 && (
-          <small>{Math.min(unreadMessageCount, 99)}</small>
-        )}
-      </IconLink>
-      <IconLink route="tools" $active={routeConfig.tools.match(path)}>
-        <FeatherIcon name="flag" />
-        <span>Outils</span>
-      </IconLink>
-      <IconLink as="button" onClick={openUserMenu}>
-        <Avatar
-          displayName={user.displayName}
-          image={user.image}
-          style={{ width: "28px", height: "28px", marginTop: 0 }}
-        />
-        <span>{user.displayName}</span>
-      </IconLink>
+    <StyledWrapper ready={!isLoading} style={{ position: "relative" }}>
+      {!user ? (
+        <>
+          <StyledLink route="help">Aide</StyledLink>
+          <Spacer size="1.5rem" />
+          <StyledLink route="login">Connexion</StyledLink>
+          <Spacer size="1.5rem" />
+          <StyledLink route="signup">Inscription</StyledLink>
+        </>
+      ) : (
+        <>
+          {" "}
+          <Popin
+            isOpen={isUserMenuOpen}
+            onDismiss={closeUserMenu}
+            shouldDismissOnClick
+            position="bottom-right"
+          >
+            <UserMenu user={user} />
+          </Popin>
+          <IconLink route="events" $active={routeConfig.events.match(path)}>
+            <FeatherIcon name="home" />
+            <span>Accueil</span>
+          </IconLink>
+          <IconLink
+            route="activities"
+            $active={routeConfig.activities.match(path)}
+          >
+            <FeatherIcon name="bell" />
+            <span>Notifications</span>
+            {unreadActivityCount > 0 && (
+              <small style={{ right: 30 }}>
+                {Math.min(unreadActivityCount, 99)}
+              </small>
+            )}
+          </IconLink>
+          <IconLink route="messages" $active={routeConfig.messages.match(path)}>
+            <FeatherIcon name="mail" />
+            <span>Messages</span>
+            {unreadMessageCount > 0 && (
+              <small>{Math.min(unreadMessageCount, 99)}</small>
+            )}
+          </IconLink>
+          <IconLink route="tools" $active={routeConfig.tools.match(path)}>
+            <FeatherIcon name="flag" />
+            <span>Outils</span>
+          </IconLink>
+          <IconLink as="button" onClick={openUserMenu}>
+            <Avatar
+              displayName={user.displayName}
+              image={user.image}
+              style={{ width: "28px", height: "28px", marginTop: 0 }}
+            />
+            <span>{user.displayName}</span>
+          </IconLink>
+        </>
+      )}
     </StyledWrapper>
   );
 };
 
 RightLinks.propTypes = {
+  isLoading: PropTypes.bool,
   user: PropTypes.oneOfType([
     PropTypes.shape({
       displayName: PropTypes.string,

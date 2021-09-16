@@ -126,7 +126,7 @@ export const routeConfig = {
     icon: "at-sign",
     Component: GroupSettingsLinks,
     illustration: illustrationLinks,
-    isActive: false,
+    isActive: true,
     menuGroup: 2,
   },
 };

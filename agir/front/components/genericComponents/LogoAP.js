@@ -11,6 +11,8 @@ const LogoAP = styled.img.attrs(({ small }) => ({
   width: small ? "182" : "149",
   height: small ? "35" : "56",
 }))`
+  font-size: 0;
+  color: transparent;
   height: ${(props) => props.height + "px" || "auto"};
   width: ${(props) => props.width + "px" || "auto"};
   vertical-align: unset;

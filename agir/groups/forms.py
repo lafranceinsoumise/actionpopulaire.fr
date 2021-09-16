@@ -340,7 +340,9 @@ class TransferGroupMembersForm(forms.Form):
 
             for membership in memberships:
                 Membership.objects.update_or_create(
-                    person=membership.person, supportgroup=target_group
+                    person=membership.person,
+                    supportgroup=target_group,
+                    membership_type=membership.membership_type,
                 )
                 membership.delete()
 

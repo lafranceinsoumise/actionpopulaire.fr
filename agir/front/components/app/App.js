@@ -2,31 +2,15 @@ import { Helmet } from "react-helmet";
 import React from "react";
 
 import { GlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
-import { SWRConfig } from "swr";
-import axios from "@agir/lib/utils/axios";
+import SWRContext from "@agir/front/allPages/SWRContext";
 
 import PushModal from "@agir/front/allPages/PushModal/PushModal";
 
 import Router from "./Router";
 
-const fetcher = async (url) => {
-  const res = await axios.get(url);
-  return res.data;
-};
-
-const errorRetry = (error, ...rest) => {
-  if ([403, 404].includes(error.status)) return;
-  SWRConfig.default.onErrorRetry(error, ...rest);
-};
-
 export default function App() {
   return (
-    <SWRConfig
-      value={{
-        fetcher,
-        onErrorRetry: errorRetry,
-      }}
-    >
+    <SWRContext>
       <GlobalContextProvider hasRouter hasToasts>
         <Router>
           <Helmet>
@@ -35,6 +19,6 @@ export default function App() {
           <PushModal isActive />
         </Router>
       </GlobalContextProvider>
-    </SWRConfig>
+    </SWRContext>
   );
 }

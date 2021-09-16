@@ -42,7 +42,7 @@ const StyledCurrentValue = styled.button`
   }
 `;
 
-const SubtypeField = (props) => {
+const EventSubtypePicker = (props) => {
   const { onChange, value, disabled } = props;
 
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -81,10 +81,10 @@ const SubtypeField = (props) => {
     </>
   );
 };
-SubtypeField.propTypes = {
+EventSubtypePicker.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.object.isRequired,
   options: PropTypes.arrayOf(PropTypes.object),
   disabled: PropTypes.bool,
 };
-export default SubtypeField;
+export default EventSubtypePicker;

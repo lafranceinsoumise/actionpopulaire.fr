@@ -32,7 +32,10 @@ const Template = (args, { globals }) => {
 };
 
 export const Default = Template.bind({});
-Default.args = {};
+Default.args = {
+  isLoading: false,
+  settingsLink: null,
+};
 
 export const WithSettingsLink = Template.bind({});
 WithSettingsLink.args = {

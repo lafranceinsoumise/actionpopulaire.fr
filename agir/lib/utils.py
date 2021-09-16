@@ -1,5 +1,6 @@
 from urllib.parse import urljoin, urlparse
 
+import re
 import pytz
 import requests
 from PIL import Image
@@ -15,6 +16,10 @@ from stdimage.utils import render_variations
 
 from agir.authentication.tokens import connection_token_generator
 from agir.lib.http import add_query_params_to_url
+
+INVALID_FACEBOOK_EVENT_LINK_MESSAGE = (
+    "Vous devez indiquez soit l'identifiant de la page Facebook, soit son URL"
+)
 
 
 def _querydict_from_dict(d):
@@ -135,3 +140,34 @@ def replace_datetime_timezone(dt, timezone_name):
             dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond,
         ),
     )
+
+
+def validate_facebook_event_url(url):
+    # Regular expression for FB event URLs with an event ID
+    FACEBOOK_EVENT_ID_RE = re.compile(
+        r"^(?:(?:https://)?(?:www\.)?(?:facebook|m\.facebook).com/events/)?([0-9]{15,20})(?:/.*)?$"
+    )
+    # Regular expression for FB regular and short event URLs
+    FACEBOOK_EVENT_URL_RE = re.compile(
+        r"^((?:https://)?(?:www\.)?(?:facebook|fb|m\.facebook)\.(?:com|me)/(?:events|e)/(?:\d\w{0,20}))(?:/.*)?$"
+    )
+
+    # First we try to match an URL with an FB event ID (for backward compatibility)
+    match = FACEBOOK_EVENT_ID_RE.match(url)
+    if match:
+        return f"https://www.facebook.com/events/{match.group(1)}"
+    # If no FB id is found, we try to match a supported FB event URL (e.g. to allow for short URLs)
+    match = FACEBOOK_EVENT_URL_RE.match(url)
+    if match:
+        return match.group(1)
+
+    return False
+
+
+# Returns a clean email subject for new_message and new_comment < 80 chars
+def clean_subject_email(subject):
+    subject = subject.replace("\n", "")
+    subject = re.sub("\s+", " ", subject)
+    if len(subject) > 80:
+        subject = subject[0:80] + '..."'
+    return subject

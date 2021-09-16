@@ -7,7 +7,7 @@ from rest_framework.validators import UniqueValidator
 
 from agir.elus.models import MandatMunicipal, StatutMandat, types_elus
 from agir.lib.data import french_zipcode_to_country_code, FRANCE_COUNTRY_CODES
-from agir.lib.serializers import FlexibleFieldsMixin
+from agir.lib.serializers import FlexibleFieldsMixin, PhoneField
 from agir.lib.utils import is_absolute_url
 from . import models
 from .actions.subscription import (
@@ -275,7 +275,7 @@ class PersonSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     image = serializers.ImageField(
         required=False, label="Image de profil", default=None, source="image.thumbnail"
     )
-    contactPhone = PhoneNumberField(
+    contactPhone = PhoneField(
         source="contact_phone",
         required=False,
         allow_blank=True,

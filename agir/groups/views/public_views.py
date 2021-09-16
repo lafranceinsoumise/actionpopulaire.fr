@@ -157,7 +157,9 @@ class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
             try:
                 with transaction.atomic():
                     membership = Membership.objects.create(
-                        supportgroup=self.object, person=request.user.person
+                        supportgroup=self.object,
+                        person=request.user.person,
+                        membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
                     )
                     someone_joined_notification(
                         membership, membership_count=self.object.members_count

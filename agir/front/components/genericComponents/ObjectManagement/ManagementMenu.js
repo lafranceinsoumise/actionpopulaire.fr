@@ -24,7 +24,8 @@ const StyledMenuItem = styled(NavLink)`
   font-size: 1rem;
   line-height: 1.1;
   font-weight: 500;
-  color: ${({ disabled }) => (disabled ? style.black500 : style.black1000)};
+  color: ${({ disabled, $cancel }) =>
+    $cancel ? style.redNSP : disabled ? style.black500 : style.black1000};
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 
   && {
@@ -33,7 +34,9 @@ const StyledMenuItem = styled(NavLink)`
 
   &:hover {
     text-decoration: none;
-    cursor: pointer;
+    cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+    color: ${({ disabled, $cancel }) =>
+      $cancel ? style.redNSP : disabled ? style.black500 : style.primary500};
   }
 
   & > * {
@@ -73,7 +76,8 @@ const StyledMenuItem = styled(NavLink)`
 
   &.active {
     span {
-      color: ${style.primary500};
+      color: ${({ $cancel, disabled }) =>
+        $cancel ? style.redNSP : disabled ? style.black500 : style.primary500};
     }
 
     ${RawFeatherIcon} {
@@ -141,12 +145,26 @@ const StyledMenu = styled.div`
 `;
 
 const ManagementMenuItem = (props) => {
-  const { item } = props;
+  const { item, cancel = false, disabled = false } = props;
 
   return (
-    <StyledMenuItem to={item.getLink()}>
-      <RawFeatherIcon width="1rem" height="1rem" name={item.icon} />
-      <span>{item.label}</span>
+    <StyledMenuItem
+      to={disabled ? "#" : item.getLink()}
+      $cancel={cancel}
+      disabled={disabled}
+    >
+      {item.icon && (
+        <RawFeatherIcon width="1rem" height="1rem" name={item.icon} />
+      )}
+      <div>
+        <span>{item.label}</span>
+        {disabled && (
+          <span style={{ fontSize: "12px" }}>
+            <br />
+            {item.textDisabled}
+          </span>
+        )}
+      </div>
     </StyledMenuItem>
   );
 };
@@ -155,16 +173,18 @@ ManagementMenuItem.propTypes = {
   item: PropTypes.shape({
     id: PropTypes.string,
     label: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-    disabledLabel: PropTypes.string,
+    textDisabled: PropTypes.string,
     icon: PropTypes.string,
     disabled: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
     getLink: PropTypes.func.isRequired,
-    menuGroup: PropTypes.oneOf([1, 2]),
+    menuGroup: PropTypes.oneOf([1, 2, 3]),
   }),
+  cancel: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
 
 const ManagementMenu = (props) => {
-  const { items, title, subtitle, onBack } = props;
+  const { items, title, subtitle, onBack, cancel, isPast } = props;
 
   return (
     <StyledMenu>
@@ -180,7 +200,10 @@ const ManagementMenu = (props) => {
           .filter((item) => item.menuGroup === 1)
           .map((item) => (
             <li key={item.id}>
-              <ManagementMenuItem item={item} />
+              <ManagementMenuItem
+                item={item}
+                disabled={item.forPastEventsOnly && !isPast}
+              />
             </li>
           ))}
         <hr />
@@ -188,9 +211,25 @@ const ManagementMenu = (props) => {
           .filter((item) => item.menuGroup === 2)
           .map((item) => (
             <li key={item.id}>
-              <ManagementMenuItem item={item} />
+              <ManagementMenuItem
+                item={item}
+                disabled={item.forPastEventsOnly && !isPast}
+              />
             </li>
           ))}
+        {cancel && !isPast && (
+          <>
+            <hr />
+            <Spacer size="1rem" />
+            {items
+              .filter((item) => item.menuGroup === 3)
+              .map((item) => (
+                <li key={item.id}>
+                  <ManagementMenuItem item={item} cancel />
+                </li>
+              ))}
+          </>
+        )}
       </ul>
     </StyledMenu>
   );
@@ -200,6 +239,11 @@ ManagementMenu.propTypes = {
   subtitle: PropTypes.string,
   items: PropTypes.arrayOf(ManagementMenuItem.propTypes.item).isRequired,
   onBack: PropTypes.func.isRequired,
+  cancel: PropTypes.shape({
+    label: PropTypes.string,
+    onClick: PropTypes.func,
+  }),
+  isPast: PropTypes.bool,
 };
 
 export default ManagementMenu;

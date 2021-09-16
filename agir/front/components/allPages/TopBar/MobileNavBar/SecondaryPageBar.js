@@ -15,7 +15,7 @@ const defaultBackLink = {
 };
 
 const SecondaryPageBar = (props) => {
-  const { title, user, settingsLink } = props;
+  const { isLoading, title, user, settingsLink } = props;
   const backLink = props.backLink || defaultBackLink;
   return (
     <StyledBar>
@@ -29,12 +29,17 @@ const SecondaryPageBar = (props) => {
         <RawFeatherIcon name="arrow-left" width="1.5rem" height="1.5rem" />
       </IconLink>
       <h2>{title}</h2>
-      <RightLink user={user} settingsLink={settingsLink} />
+      <RightLink
+        isLoading={isLoading}
+        user={user}
+        settingsLink={settingsLink}
+      />
     </StyledBar>
   );
 };
 
 SecondaryPageBar.propTypes = {
+  isLoading: PropTypes.bool,
   title: PropTypes.string,
   backLink: PropTypes.object,
   settingsLink: PropTypes.object,

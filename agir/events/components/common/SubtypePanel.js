@@ -109,6 +109,26 @@ SubtypeOption.propTypes = {
   selected: PropTypes.bool,
 };
 
+export const SubtypeOptions = ({ options, onClick, selected }) => {
+  return (
+    <StyledOptions>
+      {options.map((category) => (
+        <ul key={category.label}>
+          <strong title={category.description}>{category.label}</strong>
+          {category.subtypes.map((subtype) => (
+            <SubtypeOption
+              key={subtype.id}
+              onClick={onClick}
+              option={subtype}
+              selected={!!selected && selected.id === subtype.id}
+            />
+          ))}
+        </ul>
+      ))}
+    </StyledOptions>
+  );
+};
+
 const SubtypeField = (props) => {
   const { shouldShow, onChange, onClose, value } = props;
 
@@ -145,28 +165,14 @@ const SubtypeField = (props) => {
       title="Type de l'événement"
       noScroll
     >
-      <StyledOptions>
-        {options.map((category) => (
-          <ul key={category.label}>
-            <strong title={category.description}>{category.label}</strong>
-            {category.subtypes.map((subtype) => (
-              <SubtypeOption
-                key={subtype.id}
-                onClick={onChange}
-                option={subtype}
-                selected={!!value && value.id === subtype.id}
-              />
-            ))}
-          </ul>
-        ))}
-      </StyledOptions>
+      <SubtypeOptions options={options} onClick={onChange} selected={value} />
     </Panel>
   );
 };
 SubtypeField.propTypes = {
   onClose: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
-  value: PropTypes.object.isRequired,
+  value: PropTypes.object,
   options: PropTypes.arrayOf(PropTypes.object),
   shouldShow: PropTypes.bool,
 };

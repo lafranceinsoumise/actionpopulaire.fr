@@ -35,7 +35,15 @@ api_urlpatterns = [
     path("sous-types/", views.GroupSubtypesView.as_view(), name="api_group_subtypes",),
     path("<uuid:pk>/", views.GroupDetailAPIView.as_view(), name="api_group_view",),
     path(
-        "<uuid:pk>/rejoindre/", views.GroupJoinAPIView.as_view(), name="api_group_join",
+        "<uuid:pk>/rejoindre/", views.JoinGroupAPIView.as_view(), name="api_group_join",
+    ),
+    path(
+        "<uuid:pk>/suivre/",
+        views.FollowGroupAPIView.as_view(),
+        name="api_group_follow",
+    ),
+    path(
+        "<uuid:pk>/quitter/", views.QuitGroupAPIView.as_view(), name="api_group_quit",
     ),
     path(
         "<uuid:pk>/suggestions/",
@@ -106,6 +114,16 @@ api_urlpatterns = [
         "<uuid:pk>/finance/",
         views.GroupFinanceAPIView.as_view(),
         name="api_group_finance",
+    ),
+    path(
+        "<uuid:pk>/link/",
+        views.CreateSupportGroupExternalLinkAPIView.as_view(),
+        name="api_group_link_create",
+    ),
+    path(
+        "<uuid:group_pk>/link/<int:pk>/",
+        views.RetrieveUpdateDestroySupportGroupExternalLinkAPIView.as_view(),
+        name="api_group_link_retrieve_update_destroy",
     ),
 ]
 

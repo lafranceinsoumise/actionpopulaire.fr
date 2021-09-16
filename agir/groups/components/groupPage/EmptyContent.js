@@ -5,6 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Link from "@agir/front/app/Link";
 
 const StyledIcon = styled.div`
   position: relative;
@@ -160,16 +161,16 @@ export const ManagerEmptyEvents = () => (
     <p>Vous n’avez pas encore créé d’événement.</p>
     <p>
       Besoin d’idée ? Consultez notre{" "}
-      <a href="https://infos.actionpopulaire.fr/groupes/nouvelle-equipe/">
+      <Link route="newGroupHelp" target="_blank" rel="noopener noreferrer">
         guide pour les nouveaux groupes
-      </a>
+      </Link>
     </p>
   </EmptyContent>
 );
 
 export const EmptyReports = () => (
   <EmptyContent icon="file-text">
-    <p>Votre groupe n’a pas encore publié de compte-rendu.</p>
+    <p>Votre groupe n’a pas encore publié de compte rendu.</p>
     <p>
       Ajoutez-en à vos événement passés pour tenir au courant les membres de
       comment s’est déroulé votre événement&nbsp;!

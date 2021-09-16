@@ -32,7 +32,7 @@ from agir.lib.models import (
     TimeStampedModel,
 )
 from agir.lib.search import PrefixSearchQuery
-from agir.lib.utils import generate_token_params
+from agir.lib.utils import generate_token_params, resize_and_autorotate
 from . import metrics
 from .model_fields import MandatesField, ValidatedPhoneNumberField
 from .person_forms.models import *
@@ -394,6 +394,7 @@ class Person(
     image = StdImageField(
         _("image de profil"),
         upload_to=person_image_path,
+        render_variations=resize_and_autorotate,
         variations={"thumbnail": (200, 200, True), "admin_thumbnail": (100, 100, True)},
         blank=True,
         help_text=_("Vous pouvez ajouter une image publique de profil"),

@@ -69,15 +69,20 @@ class NotificationTasksTestCase(TestCase):
         )
 
         self.membership1 = Membership.objects.create(
-            supportgroup=self.group, person=self.member1
+            supportgroup=self.group,
+            person=self.member1,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
         self.membership2 = Membership.objects.create(
-            supportgroup=self.group, person=self.member2
+            supportgroup=self.group,
+            person=self.member2,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
         self.membership_no_notification = Membership.objects.create(
             supportgroup=self.group,
             person=self.member_no_notification,
             notifications_enabled=False,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
         Subscription.objects.bulk_create(
@@ -178,7 +183,9 @@ class NotificationTasksTestCase(TestCase):
             should_have_activity = (i - SupportGroup.MEMBERSHIP_LIMIT) in steps
             member = Person.objects.create_insoumise("person%d@membe.rs" % i)
             membership = Membership.objects.create(
-                supportgroup=supportgroup, person=member
+                supportgroup=supportgroup,
+                person=member,
+                membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
             )
             someone_joined_notification(membership, membership_count=i)
             new_target_activity_count = Activity.objects.filter(
@@ -430,7 +437,9 @@ class NotificationTasksTestCase(TestCase):
 
         new_member = Person.objects.create_insoumise("invited@group.member")
         new_membership = Membership.objects.create(
-            supportgroup=supportgroup, person=new_member
+            supportgroup=supportgroup,
+            person=new_member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
         managers_filter = (

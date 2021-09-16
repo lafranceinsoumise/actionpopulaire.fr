@@ -35,5 +35,11 @@ if (process.env.NODE_ENV === "production") {
     // We recommend adjusting this value in production, or using tracesSampler
     // for finer control
     tracesSampleRate: 0.1,
+
+    ignoreErrors: [
+      // Email link Microsoft Outlook crawler compatibility error
+      // cf. https://forum.sentry.io/t/unhandledrejection-non-error-promise-rejection-captured-with-value/14062
+      "Non-Error promise rejection captured with value: Object Not Found Matching Id:",
+    ],
   });
 }
