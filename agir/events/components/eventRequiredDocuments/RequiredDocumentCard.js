@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import Spacer from "@agir/front/genericComponents/Spacer";
+import Spacer, { InlineSpacer } from "@agir/front/genericComponents/Spacer";
 
 import { EVENT_DOCUMENT_TYPES } from "./config";
 
@@ -41,10 +41,12 @@ const StyledCard = styled.div`
 
   & > div {
     padding: 1rem;
+    text-align: center;
 
     @media (min-width: ${(props) => props.theme.collapse}px) {
       flex: 1 1 auto;
       padding: 1.5rem;
+      text-align: left;
     }
 
     & > * {
@@ -56,22 +58,24 @@ const StyledCard = styled.div`
       font-weight: 600;
       font-size: 16px;
       line-height: 1.5;
+      text-align: left;
     }
 
     p {
       line-height: 1.6;
       color: ${(props) => props.theme.black700};
+      text-align: left;
     }
 
     ${Button} {
       width: 100%;
-      margin: 1rem 0 0;
+      padding: 1rem 1.3rem;
+      margin: 0;
 
       @media (min-width: ${(props) => props.theme.collapse}px) {
         justify-content: flex-start;
         display: inline-flex;
         width: auto;
-        margin-right: 1rem;
       }
     }
   }
@@ -92,6 +96,7 @@ const RequiredDocumentCard = (props) => {
         <h4>{name}</h4>
         <Spacer size="0.5rem" />
         <p>{description}</p>
+        <Spacer size="1rem" />
         <Button
           onClick={() => onUpload(type)}
           color={onDismiss ? "primary" : "default"}
@@ -99,23 +104,28 @@ const RequiredDocumentCard = (props) => {
           <RawFeatherIcon name="upload" style={{ marginRight: "0.5rem" }} />
           Ajouter un justificatif
         </Button>
-        {templateLink && (
-          <Button
-            link
-            href={templateLink}
-            download={templateLink}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <RawFeatherIcon name="file" style={{ marginRight: "0.5rem" }} />
-            Modèle vierge
-          </Button>
+        {onDismiss && (
+          <>
+            <InlineSpacer size="1rem" />
+            <Button color="secondary" onClick={() => onDismiss(type)}>
+              <RawFeatherIcon name="x" style={{ marginRight: "0.5rem" }} />
+              Non applicable
+            </Button>
+          </>
         )}
         <br />
-        {onDismiss && (
-          <Button small color="link" onClick={() => onDismiss(type)}>
-            Non appliquable
-          </Button>
+        {templateLink && (
+          <>
+            <Spacer size="1rem" />
+            <a
+              href={templateLink}
+              download={templateLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Télécharger le modèle vierge
+            </a>
+          </>
         )}
       </div>
     </StyledCard>
