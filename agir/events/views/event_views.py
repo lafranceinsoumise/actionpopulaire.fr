@@ -94,6 +94,35 @@ class EventThumbnailView(DetailView):
         image.save(response, "PNG")
         return response
 
+    def clean_location(self):
+        event_details = ""
+        location_city = ""
+        location_zip = ""
+
+        if self.event.location_city and self.event.location_city != "":
+            location_city = self.event.location_city.upper()
+
+        if self.event.location_zip and self.event.location_zip != "":
+            location_zip = self.event.location_zip
+
+        if len(location_city) > 0:
+            event_details = location_city
+
+        if len(location_zip) > 0:
+            if len(location_city) > 0:
+                event_details += " (" + location_zip + ") - "
+            else:
+                event_details = location_zip
+        return event_details
+
+    def get_image_font(self, size):
+        return ImageFont.truetype(
+            os.path.join(self.static_root, "Poppins-Medium.ttf"),
+            size=size,
+            encoding="utf-8",
+            layout_engine=ImageFont.LAYOUT_BASIC,
+        )
+
     def generate_thumbnail(self):
         image = Image.new("RGB", (int(1200), int(630)), "#FFFFFF")
         draw = ImageDraw.Draw(image)
@@ -147,14 +176,14 @@ class EventThumbnailView(DetailView):
             .capitalize()
         )
 
+        # Get details of events like "Ville (75000) - Date"
+        event_details = self.clean_location()
+        event_details += date.upper()
+
         if len(self.event.name) < 30:
             draw.text(
                 (108, 350),
-                self.event.location_city.upper()
-                + " ("
-                + self.event.location_zip
-                + ") — "
-                + date.upper(),
+                event_details,
                 fill=(87, 26, 255, 0),
                 align="left",
                 font=font_bold,
@@ -170,11 +199,7 @@ class EventThumbnailView(DetailView):
         elif len(self.event.name) < 36:
             draw.text(
                 (108, 319),
-                self.event.location_city.upper()
-                + " ("
-                + self.event.location_zip
-                + ") — "
-                + date.upper(),
+                event_details,
                 fill=(87, 26, 255, 0),
                 align="left",
                 font=font_bold,
@@ -190,11 +215,7 @@ class EventThumbnailView(DetailView):
         elif len(self.event.name) < 74:
             draw.text(
                 (108, 319),
-                self.event.location_city.upper()
-                + " ("
-                + self.event.location_zip
-                + ") — "
-                + date.upper(),
+                event_details,
                 fill=(87, 26, 255, 0),
                 align="left",
                 font=font_bold,
@@ -217,11 +238,7 @@ class EventThumbnailView(DetailView):
         else:
             draw.text(
                 (108, 319),
-                self.event.location_city.upper()
-                + " ("
-                + self.event.location_zip
-                + ") — "
-                + date.upper(),
+                event_details,
                 fill=(87, 26, 255, 0),
                 align="left",
                 font=font_bold,
@@ -247,14 +264,6 @@ class EventThumbnailView(DetailView):
         image.paste(logo_ap, (0, 535), logo_ap)
 
         return image
-
-    def get_image_font(self, size):
-        return ImageFont.truetype(
-            os.path.join(self.static_root, "Poppins-Medium.ttf"),
-            size=size,
-            encoding="utf-8",
-            layout_engine=ImageFont.LAYOUT_BASIC,
-        )
 
 
 class EventSearchView(FilterView):
