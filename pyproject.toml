@@ -74,7 +74,6 @@ data-france = "0.13.4"
 beautifultable = "==1.0.*"
 scipy = "==1.*"
 PyYAML = "==5.*"
-xlwt = "==1.*"
 django-admin-rangefilter = "*"
 faker = "*"
 django-silk = "*"
@@ -84,6 +83,7 @@ pywebpush = "*"
 social-auth-core = "==4.0.2"
 django-storages = "^1.11.1"
 qrcode = {extras = ["pil"], version = "^7.2"}
+xlsxwriter = "*"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
@@ -96,7 +96,7 @@ pympler = "*"
 locust = "*"
 pyquery = "*"
 jedi = "==0.17.*"  # version 0.18.* fait crasher IPython (08/01/2021)
-hypothesis = {extras = ["django"], version = "^6.13.14"}
+hypothesis = {extras = ["django"], version = "^6.21.4"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
