@@ -55,6 +55,8 @@ const EventVisio = (props) => {
     });
   };
 
+  const isDisabled = !event || event.isPast || isLoading;
+
   return (
     <form onSubmit={handleSubmit}>
       <HeaderPanel onBack={onBack} illustration={illustration} />
@@ -74,10 +76,11 @@ const EventVisio = (props) => {
         value={onlineUrl}
         onChange={updateValue}
         error={errors && errors.onlineUrl}
+        disabled={isDisabled}
       />
 
       <Spacer size="1rem" />
-      <Button color="secondary" wrap disabled={isLoading} type="submit">
+      <Button color="secondary" wrap disabled={isDisabled} type="submit">
         Enregistrer
       </Button>
     </form>

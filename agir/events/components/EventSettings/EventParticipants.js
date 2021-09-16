@@ -51,12 +51,14 @@ const EventParticipants = (props) => {
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <BlockTitle>
         <h3>{allParticipants.length} Participant·es</h3>
-        <div>
-          <StyledLink to="../organisation/" style={{ marginLeft: "10px" }}>
-            <RawFeatherIcon name="settings" height="13px" />
-            Inviter à co-organiser
-          </StyledLink>
-        </div>
+        {event && !event.isPast && (
+          <div>
+            <StyledLink to="../organisation/" style={{ marginLeft: "10px" }}>
+              <RawFeatherIcon name="settings" height="13px" />
+              Inviter à co-organiser
+            </StyledLink>
+          </div>
+        )}
       </BlockTitle>
 
       <Spacer size="1rem" />
