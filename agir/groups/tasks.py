@@ -509,10 +509,6 @@ def send_comment_notification_email(comment_pk):
         ),
         notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
         notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
-    ) | Person.objects.exclude(id=comment.author.id).filter(
-        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
-        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
     )
 
     recipients = recipients.distinct()

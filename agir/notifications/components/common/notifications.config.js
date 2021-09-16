@@ -177,7 +177,7 @@ const GROUP_NOTIFICATIONS = [
     icon: "users",
     subtype: "Discussions",
     label: "Réponses à toutes les discussions",
-    hasEmail: true,
+    hasEmail: false,
     hasPush: true,
     isActive: true,
     activityTypes: ["new-comment"],
