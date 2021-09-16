@@ -84,7 +84,7 @@ const ConnectedUserActions = (props) => {
           <ShareLink
             label="Copier"
             color="primary"
-            url={contact?.email}
+            url={contact.email}
             $wrap
           />
         </>

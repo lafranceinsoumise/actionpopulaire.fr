@@ -76,9 +76,9 @@ const SecondaryActions = ({ routes, contact }) => {
         <ModalConfirmation
           shouldShow={isContactOpen}
           onClose={handleContactClose}
-          title={"Contacter les organisateur·ices"}
+          title="Contacter les organisateur·ices"
           description={contactDescription}
-          dismissLabel={"Non merci"}
+          dismissLabel="Non merci"
         />
       </StyledContainer>
     </StyledWrapper>
