@@ -13,7 +13,7 @@ from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models, transaction, IntegrityError
-from django.db.models import JSONField
+from django.db.models import JSONField, Subquery, OuterRef
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -73,6 +73,15 @@ class PersonQueryset(models.QuerySet):
             return self.filter(q)
         else:
             return self.filter(q | Q(contact_phone__icontains=query[1:]))
+
+    def preload_email(self):
+        return self.annotate(
+            _email=Subquery(
+                PersonEmail.objects.filter(person_id=OuterRef("id"))
+                .order_by("_bounced", "_order")
+                .values("address")[:1]
+            )
+        )
 
     def annotate_elus(self, current=True):
         from agir.elus.models import types_elus
@@ -506,6 +515,8 @@ class Person(
 
     @property
     def email(self):
+        if hasattr(self, "_email"):
+            return self._email
         return self.primary_email.address if self.primary_email else ""
 
     @property
@@ -518,6 +529,8 @@ class Person(
 
     @cached_property
     def primary_email(self):
+        if hasattr(self, "_email"):
+            del self._email
         return self.emails.filter(_bounced=False).first() or self.emails.first()
 
     @property

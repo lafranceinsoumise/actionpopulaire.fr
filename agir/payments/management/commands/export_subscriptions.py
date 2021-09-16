@@ -116,15 +116,15 @@ class Command(BaseCommand):
         results = glom(payments, [FILE_DESC])
 
         df = pd.DataFrame(results)
-        xls_buffer = BytesIO()
-        df.to_excel(xls_buffer, engine="xlwt", index=False)
-        xls_file = xls_buffer.getvalue()
+        xlsx_buffer = BytesIO()
+        df.to_excel(xlsx_buffer, engine="xlsxwriter", index=False)
+        xlsx_file = xlsx_buffer.getvalue()
 
         if not output and not emails:
-            self.stdout.buffer.write(xls_file)
+            self.stdout.buffer.write(xlsx_file)
 
         if output:
-            output.write(xls_file)
+            output.write(xlsx_file)
 
         if emails:
             connection = get_connection()
@@ -140,8 +140,8 @@ class Command(BaseCommand):
                         connection=connection,
                     )
                     message.attach(
-                        f"export-{month[0].strftime('%m-%Y')}.xls",
-                        xls_file,
-                        "application/vnd.ms-excel",
+                        f"export-{month[0].strftime('%m-%Y')}.xlsx",
+                        xlsx_file,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     )
                     message.send()

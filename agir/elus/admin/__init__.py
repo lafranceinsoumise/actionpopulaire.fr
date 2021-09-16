@@ -57,7 +57,11 @@ from .forms import (
     MandatDeputeEuropeenForm,
     MandatRegionalForm,
 )
-from .views import ConfirmerParrainageView, AnnulerParrainageView
+from .views import (
+    ConfirmerParrainageView,
+    AnnulerParrainageView,
+    ExporterAccesApplication,
+)
 from ...lib.admin import display_list_of_links, get_admin_link
 
 
@@ -959,6 +963,8 @@ class AccesApplicationParrainagesAdmin(VersionAdmin):
     autocomplete_fields = ("person",)
     search_fields = ("people__search",)
 
+    change_list_template = "elus/admin/accesapplicationparrainages/change_list.html"
+
     def get_search_results(self, request, queryset, search_term):
         usedistinct = False
 
@@ -966,6 +972,19 @@ class AccesApplicationParrainagesAdmin(VersionAdmin):
             return queryset.search(search_term), usedistinct
 
         return queryset, usedistinct
+
+    def get_urls(self):
+        info = self.model._meta.app_label, self.model._meta.model_name
+
+        return [
+            path(
+                "export/",
+                self.admin_site.admin_view(
+                    ExporterAccesApplication.as_view(model_admin=self)
+                ),
+                name="%s_%s_export" % info,
+            )
+        ] + super().get_urls()
 
 
 admin.site.unregister(EluMunicipal)

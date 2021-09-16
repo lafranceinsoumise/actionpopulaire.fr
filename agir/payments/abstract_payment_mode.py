@@ -8,11 +8,37 @@ class AbstractPaymentMode:
 
     @property
     def id(self):
+        """L'identifiant du mode de paiement tel qu'il est notamment sauvegardé en base de données"""
+        raise NotImplementedError(
+            "Obligatoire pour tous les modes de paiement, même historiques."
+        )
+
+    @property
+    def title(self):
+        """Le titre long du mode de paiement, par exemple dans les emails récapitulatifs"""
+        raise NotImplementedError(
+            "Obligatoire pour tous les modes de paiement, même historiques."
+        )
+
+    @property
+    def label(self):
+        """Le libellé court du mode de paiement, par exemple dans les formulaires de choix du mode"""
+        return self.title
+
+    @property
+    def category(self):
+        """Un champ utilisé pour pouvoir regrouper plusieurs modes de paiement liés entre eux"""
         raise NotImplementedError("Must implement this property.")
 
     @property
+    def url_fragment(self):
+        return self.id
+
+    @property
     def payment_view(self):
-        raise NotImplementedError("Must implement this property.")
+        raise NotImplementedError(
+            "Cette propriété est obligatoire pour pouvoir réaliser de nouveaux paiements."
+        )
 
     @property
     def subscription_view(self):
@@ -28,14 +54,6 @@ class AbstractPaymentMode:
         an error. This property must return a method.
         """
         raise NotImplementedError("Must implement this property")
-
-    @property
-    def category(self):
-        raise NotImplementedError("Must implement this property.")
-
-    @property
-    def url_fragment(self):
-        return self.id
 
     @staticmethod
     def get_urls():

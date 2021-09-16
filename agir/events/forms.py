@@ -607,12 +607,18 @@ class BillingForm(forms.ModelForm):
         self.fields["event"].initial = event
         self.fields["is_guest"].initial = is_guest
 
+        if event.payment_parameters.get("payment_modes"):
+            self.fields["payment_mode"].payment_modes = event.payment_parameters[
+                "payment_modes"
+            ]
+
         # si l'événement est dans moins d'une semaine, on refuse le paiement par chèque
         if event.start_time - timezone.now() < timezone.timedelta(days=7):
-            self.fields["payment_mode"].payment_modes = ["system_pay"]
-            self.fields[
-                "payment_mode"
-            ].help_text = "Il n'est plus possible de payer en ligne par chèque à moins d'une semaine de l'événement."
+            self.fields["payment_mode"].payment_modes = [
+                p
+                for p in self.fields["payment_mode"].payment_modes
+                if p.category != "check"
+            ]
 
         for f in [
             "first_name",

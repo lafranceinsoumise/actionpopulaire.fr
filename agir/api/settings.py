@@ -751,6 +751,7 @@ PAYMENT_MODES = [
     "agir.system_pay.SystemPayPaymentMode",
     "agir.checks.DonationCheckPaymentMode",
     "agir.checks.EventCheckPaymentMode",
+    "agir.checks.AFCPJLMCheckPaymentMode",
     "agir.pos.MoneyPaymentMode",
     "agir.pos.TPEPaymentMode",
     "agir.payments.imported.ImportedPaymentMode",

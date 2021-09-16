@@ -11,4 +11,4 @@ class ImportedPaymentMode(AbstractPaymentMode):
 
     id = "imported"
     category = "imported"
-    label = "Paiement importé depuis un autre système de paiement"
+    title = "Paiement importé depuis un autre système de paiement"
