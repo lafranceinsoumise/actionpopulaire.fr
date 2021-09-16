@@ -29,7 +29,7 @@ const StyledContainer = styled.div`
   }
 `;
 
-const SecondaryActions = ({ routes, ...rest }) => {
+const SecondaryActions = ({ routes, contact }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleClose = useCallback(() => setIsOpen(false), []);
@@ -38,12 +38,14 @@ const SecondaryActions = ({ routes, ...rest }) => {
   return (
     <StyledWrapper>
       <StyledContainer>
-        <a href={`mailto:${rest?.contact.email}`}>
-          <Button type="button">
-            <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
-            Contacter
-          </Button>
-        </a>
+        {contact?.email && (
+          <a href={`mailto:${contact.email}`}>
+            <Button type="button">
+              <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
+              Contacter
+            </Button>
+          </a>
+        )}
         {!!routes?.donations && (
           <Button type="button" link route={routes.donations}>
             <RawFeatherIcon name="upload" width="1.5rem" height="1.5rem" />
@@ -66,6 +68,9 @@ const SecondaryActions = ({ routes, ...rest }) => {
 
 SecondaryActions.propTypes = {
   routes: PropTypes.object,
+  contact: PropTypes.shape({
+    email: PropTypes.string,
+  }),
 };
 
 export default SecondaryActions;
