@@ -36,7 +36,7 @@ import {
   ResponsiveLayout,
   Row,
 } from "@agir/front/genericComponents/grid";
-import Footer from "@agir/front/dashboardComponents/Footer";
+
 import ContactCard from "@agir/front/genericComponents/ContactCard";
 import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
@@ -460,7 +460,6 @@ export const ConnectedEventPage = (props) => {
           MobileLayout={MobileSkeleton}
         />
       )}
-      <Footer />
     </>
   );
 };

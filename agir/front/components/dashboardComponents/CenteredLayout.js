@@ -8,8 +8,6 @@ import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-import Footer from "@agir/front/dashboardComponents/Footer";
-
 const IndexLinkAnchor = styled(Link)`
   font-weight: 600;
   font-size: 12px;
@@ -86,44 +84,38 @@ const MainContainer = styled(Container)`
 `;
 
 const CenteredLayout = (props) => (
-  <>
-    <MainContainer {...props}>
-      <Row align="center">
-        <MainColumn grow>
-          {!!props.backLink && (
-            <section>
-              <IndexLinkAnchor
-                to={props.backLink.to}
-                href={props.backLink.href}
-                route={props.backLink.route}
-              >
-                <span>&#10140;</span>
-                &ensp; {props.backLink.label || "Retour à l'accueil"}
-              </IndexLinkAnchor>
-            </section>
-          )}
+  <MainContainer {...props}>
+    <Row align="center">
+      <MainColumn grow>
+        {!!props.backLink && (
           <section>
-            <header>
-              {props.icon ? (
-                <RawFeatherIcon
-                  name={props.icon}
-                  width="2rem"
-                  height="2rem"
-                  color={style.primary500}
-                />
-              ) : null}
-              {props.title ? <LayoutTitle>{props.title}</LayoutTitle> : null}
-            </header>
-            {props.children}
+            <IndexLinkAnchor
+              to={props.backLink.to}
+              href={props.backLink.href}
+              route={props.backLink.route}
+            >
+              <span>&#10140;</span>
+              &ensp; {props.backLink.label || "Retour à l'accueil"}
+            </IndexLinkAnchor>
           </section>
-        </MainColumn>
-      </Row>
-    </MainContainer>
-    <Footer
-      desktopOnly={props.desktopOnlyFooter}
-      displayOnMobileApp={props.displayFooterOnMobileApp}
-    />
-  </>
+        )}
+        <section>
+          <header>
+            {props.icon ? (
+              <RawFeatherIcon
+                name={props.icon}
+                width="2rem"
+                height="2rem"
+                color={style.primary500}
+              />
+            ) : null}
+            {props.title ? <LayoutTitle>{props.title}</LayoutTitle> : null}
+          </header>
+          {props.children}
+        </section>
+      </MainColumn>
+    </Row>
+  </MainContainer>
 );
 
 export default CenteredLayout;
@@ -146,15 +138,12 @@ CenteredLayout.propTypes = {
   title: PropTypes.string,
   subtitle: PropTypes.string,
   children: PropTypes.node,
-  desktopOnlyFooter: PropTypes.bool,
-  hasBanner: PropTypes.bool,
   backLink: PropTypes.shape({
     to: PropTypes.string,
     href: PropTypes.string,
     route: PropTypes.string,
     label: PropTypes.string,
   }),
-  displayFooterOnMobileApp: PropTypes.bool,
 };
 CenteredLayout.defaultProps = {
   routes: {
@@ -162,7 +151,4 @@ CenteredLayout.defaultProps = {
     groups: "/mes-groupes",
     activity: "/activite",
   },
-  desktopOnlyFooter: true,
-  hasBanner: false,
-  displayFooterOnMobileApp: false,
 };

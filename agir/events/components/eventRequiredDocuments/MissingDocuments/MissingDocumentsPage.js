@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import Helmet from "react-helmet";
 import styled from "styled-components";
 
-import Footer from "@agir/front/dashboardComponents/Footer";
 import Link from "@agir/front/app/Link";
 
 import MissingDocuments from "./MissingDocuments";
@@ -72,7 +71,6 @@ const MissingDocumentsPage = () => {
         </IndexLinkAnchor>
         <MissingDocuments projects={projects} isBlocked={isBlocked} />
       </StyledPage>
-      <Footer />
     </>
   );
 };

@@ -4,7 +4,6 @@ import styled from "styled-components";
 
 import Announcements from "@agir/front/dashboardComponents/Announcements";
 import FacebookLoginAd from "@agir/front/dashboardComponents/FacebookLoginAd";
-import Footer from "@agir/front/dashboardComponents/Footer";
 import Navigation, {
   SecondaryNavigation,
 } from "@agir/front/dashboardComponents/Navigation";
@@ -39,32 +38,29 @@ const MainContainer = styled(Container)`
 const Layout = (props) => {
   const { title, subtitle, children } = props;
   return (
-    <>
-      <MainContainer {...props}>
-        <Row gutter={50} align="flex-start">
-          <FixedColumn width="320px">
-            <Navigation {...props} />
-          </FixedColumn>
-          <MainColumn grow>
-            <section>
-              {props.title ? (
-                <header>
-                  <LayoutTitle>{title}</LayoutTitle>
-                  <LayoutSubtitle>{subtitle}</LayoutSubtitle>
-                </header>
-              ) : null}
-              {children}
-            </section>
-          </MainColumn>
-          <SidebarColumn>
-            <FacebookLoginAd />
-            <Announcements />
-            <SecondaryNavigation />
-          </SidebarColumn>
-        </Row>
-      </MainContainer>
-      <Footer />
-    </>
+    <MainContainer {...props}>
+      <Row gutter={50} align="flex-start">
+        <FixedColumn width="320px">
+          <Navigation {...props} />
+        </FixedColumn>
+        <MainColumn grow>
+          <section>
+            {props.title ? (
+              <header>
+                <LayoutTitle>{title}</LayoutTitle>
+                <LayoutSubtitle>{subtitle}</LayoutSubtitle>
+              </header>
+            ) : null}
+            {children}
+          </section>
+        </MainColumn>
+        <SidebarColumn>
+          <FacebookLoginAd />
+          <Announcements />
+          <SecondaryNavigation />
+        </SidebarColumn>
+      </Row>
+    </MainContainer>
   );
 };
 

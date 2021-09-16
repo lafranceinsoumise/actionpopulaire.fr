@@ -146,6 +146,8 @@ const StyledSearchLink = styled(Link)`
 
 const StyledWrapper = styled.div`
   position: fixed;
+  top: 0;
+  z-index: ${style.zindexTopBar + 1};
   width: 100%;
   height: 100vh;
   display: flex;

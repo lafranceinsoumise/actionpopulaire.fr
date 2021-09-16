@@ -117,7 +117,7 @@ const Page = (props) => {
   return (
     <ErrorBoundary>
       <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
-        <Layout {...(routeConfig.layoutProps || {})} active={routeConfig.id}>
+        <Layout active={routeConfig.id}>
           <Suspense fallback={<div />}>
             <Component route={routeConfig} {...routeParams} {...rest} />
             {!routeConfig.hideFeedbackButton && <FeedbackButton />}
