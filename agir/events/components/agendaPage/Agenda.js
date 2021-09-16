@@ -8,7 +8,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { Row } from "@agir/donations/donationForm/AllocationsWidget/Styles";
 import { Column } from "@agir/front/genericComponents/grid";
 import Card from "@agir/front/genericComponents/Card";
-import { LayoutTitle } from "@agir/front/dashboardComponents/Layout";
+import { LayoutTitle } from "@agir/front/dashboardComponents/Layout/StyledComponents";
 import Button from "@agir/front/genericComponents/Button";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import Link from "@agir/front/app/Link";
