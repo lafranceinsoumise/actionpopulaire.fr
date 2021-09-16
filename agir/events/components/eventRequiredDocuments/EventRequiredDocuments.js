@@ -214,6 +214,11 @@ const EventRequiredDocuments = (props) => {
               : "information requise"}
             <small>À compléter avant le {displayShortDate(limitDate)}</small>
           </h4>
+          <Spacer size="1rem" />
+          <p style={{ textAlign: "center", lineHeight: 1.6 }}>
+            Si votre événement n’a pas eu recours a un élément demandé, vous
+            pouvez cliquer sur le bouton “non applicable”.
+          </p>
           <Spacer size="1.5rem" />
           {required.map((type, i) => (
             <RequiredDocumentCard
@@ -252,10 +257,11 @@ const EventRequiredDocuments = (props) => {
       )}
       <Spacer size="2rem" />
       <ContactFormLink>
-        Besoin d'aide&nbsp;? Vous pouvez nous contacter via{" "}
-        <a href="https://infos.actionpopulaire.fr/contact/">
-          le formulaire en ligne
-        </a>
+        Besoin d'aide&nbsp;? Vous pouvez nous contacter par e-mail&nbsp;:
+        <Spacer size="1rem" />
+        <Button link href="https://infos.actionpopulaire.fr/contact/">
+          Formulaire de contact
+        </Button>
       </ContactFormLink>
       <RequiredDocumentModal
         type={selectedType}
