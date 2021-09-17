@@ -88,8 +88,9 @@ const EventGeneral = (props) => {
         organizerGroup: options.organizerGroup.find(
           ({ id }) => id === event.groups[0].id
         ) || {
-          ...event.groups[0],
-          label: event.groups[0],
+          id: event.groups[0].id,
+          value: event.groups[0].id,
+          label: event.groups[0].name,
         },
       }));
       return;
