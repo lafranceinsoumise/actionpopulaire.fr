@@ -4,8 +4,11 @@ import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import ShareLink from "@agir/front/genericComponents/ShareLink";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import ModalShare from "@agir/front/genericComponents/ModalShare";
+import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
 const StyledWrapper = styled.div`
   display: flex;
@@ -30,21 +33,30 @@ const StyledContainer = styled.div`
 `;
 
 const SecondaryActions = ({ routes, contact }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
 
-  const handleClose = useCallback(() => setIsOpen(false), []);
-  const handleShare = useCallback(() => setIsOpen(true), []);
+  const handleShareClose = useCallback(() => setIsShareOpen(false), []);
+  const handleShareOpen = useCallback(() => setIsShareOpen(true), []);
+  const handleContactClose = useCallback(() => setIsContactOpen(false), []);
+  const handleContactOpen = useCallback(() => setIsContactOpen(true), []);
+
+  const contactDescription = (
+    <>
+      <Spacer size="1rem" />
+      <ShareLink label="Copier" color="primary" url={contact?.email} $wrap />
+      <Spacer size="1rem" />
+    </>
+  );
 
   return (
     <StyledWrapper>
       <StyledContainer>
         {contact?.email && (
-          <a href={`mailto:${contact.email}`}>
-            <Button type="button">
-              <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
-              Contacter
-            </Button>
-          </a>
+          <Button type="button" onClick={handleContactOpen}>
+            <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
+            Contacter
+          </Button>
         )}
         {!!routes?.donations && (
           <Button type="button" link route={routes.donations}>
@@ -52,14 +64,21 @@ const SecondaryActions = ({ routes, contact }) => {
             Financer
           </Button>
         )}
-        <Button type="button" onClick={handleShare}>
+        <Button type="button" onClick={handleShareOpen}>
           <RawFeatherIcon name="share-2" width="1.5rem" height="1.5rem" />
           Partager
         </Button>
         <ModalShare
-          shouldShow={isOpen}
-          onClose={handleClose}
+          shouldShow={isShareOpen}
+          onClose={handleShareClose}
           url={routes.details}
+        />
+        <ModalConfirmation
+          shouldShow={isContactOpen}
+          onClose={handleContactClose}
+          title="Contacter les organisateur·ices"
+          description={contactDescription}
+          dismissLabel="Non merci"
         />
       </StyledContainer>
     </StyledWrapper>
