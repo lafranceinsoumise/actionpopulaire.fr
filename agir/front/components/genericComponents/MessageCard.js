@@ -128,7 +128,7 @@ const StyledAction = styled.div`
   }
 `;
 const StyledGroupLink = styled(Link)``;
-const StyledContent = styled(ParsedString)`
+const StyledContent = styled.div`
   padding: 0;
   font-size: inherit;
   line-height: 1.65;
@@ -503,8 +503,8 @@ const MessageCard = (props) => {
             ) : null}
           </StyledAction>
         </StyledHeader>
-        <StyledContent as="div" onClick={handleClick}>
-          {text}
+        <StyledContent onClick={handleClick}>
+          <ParsedString>{text}</ParsedString>
         </StyledContent>
         {event ? <EventCard {...event} /> : null}
         {commentCount ? (
