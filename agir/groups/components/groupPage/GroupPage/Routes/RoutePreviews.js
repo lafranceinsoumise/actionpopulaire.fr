@@ -10,7 +10,6 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 import GroupEventList from "@agir/groups/groupPage/GroupEventList";
-import DiscussionAnnouncement from "@agir/groups/groupPage/Announcements/DiscussionAnnouncement";
 
 const RoutePreview = styled.div`
   margin: 0;
@@ -218,7 +217,6 @@ export const MessagesRoutePreview = (props) => {
             </button>
           )}
         </h3>
-        <DiscussionAnnouncement />
         <article>
           {Array.isArray(messages)
             ? messages.map((message) => (
