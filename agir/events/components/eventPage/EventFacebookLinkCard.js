@@ -1,8 +1,9 @@
 import React from "react";
-import Card from "../../../front/components/genericComponents/Card";
-import facebookLogo from "../../../front/components/genericComponents/logos/facebook.svg";
 import PropTypes from "prop-types";
-import FeatherIcon from "../../../front/components/genericComponents/FeatherIcon";
+
+import Card from "@agir/front/genericComponents/Card";
+import facebookLogo from "@agir/front/genericComponents/logos/facebook.svg";
+import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 const EventFacebookLinkCard = ({ routes: { facebook } }) => (
   <Card>

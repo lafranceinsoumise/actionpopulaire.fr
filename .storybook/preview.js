@@ -8,7 +8,7 @@ import user from "@agir/front/mockData/user";
 import routes from "@agir/front/globalContext/nonReactRoutes.config";
 
 import "./style.css";
-import "../agir/front/components/genericComponents/style.scss";
+import "@agir/front/genericComponents/style.scss";
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
