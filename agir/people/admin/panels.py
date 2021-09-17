@@ -335,7 +335,10 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             for m in model.objects.filter(person=obj):
                 mandats.append(
                     (
-                        reverse(f"admin:elus_mandat{attr}_change", args=(m.id,)),
+                        reverse(
+                            f"admin:elus_mandat{attr.replace('_', '')}_change",
+                            args=(m.id,),
+                        ),
                         m.titre_complet(conseil_avant=True),
                     )
                 )
