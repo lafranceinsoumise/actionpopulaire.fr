@@ -131,7 +131,10 @@ const EventOrganization = (props) => {
           </span>
           <Spacer size="1rem" />
           <MemberList
-            members={event.groups.map((group) => ({ displayName: group.name }))}
+            members={event.groups.map((group) => ({
+              id: group.id,
+              displayName: group.name,
+            }))}
           />
           <Spacer size="1rem" />
           <p
