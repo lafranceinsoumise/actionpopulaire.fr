@@ -113,18 +113,9 @@ class AuthorizationTestCase(TestCase):
         for url in [
             "/evenements/creer/",
             "/groupes/creer/",
-            reverse("edit_event", args=[self.group.pk]),
+            reverse("view_event_settings", args=[self.group.pk]),
         ]:
             response = self.client.get(url)
             query = QueryDict(mutable=True)
             query["next"] = url
             self.assertRedirects(response, "/connexion/?%s" % query.urlencode(safe="/"))
-
-    def test_403_when_editing_event(self):
-        self.client.force_login(self.person.role)
-
-        response = self.client.get("/evenements/%s/modifier/" % self.event.pk)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        response = self.client.post("/evenements/%s/modifier/" % self.event.pk)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
