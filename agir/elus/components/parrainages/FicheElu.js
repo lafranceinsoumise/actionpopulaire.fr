@@ -11,7 +11,7 @@ import {
 } from "./types";
 import Button from "@agir/front/genericComponents/Button";
 import { creerRechercheParrainage, terminerParrainage } from "./queries";
-import AnimatedMoreHorizontal from "../../../front/components/genericComponents/AnimatedMoreHorizontal";
+import AnimatedMoreHorizontal from "@agir/front/genericComponents/AnimatedMoreHorizontal";
 
 const Presentation = () => (
   <div>

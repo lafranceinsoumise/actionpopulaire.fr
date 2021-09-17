@@ -5,8 +5,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import ResultBox from "./ResultBox";
 import { InfosElu } from "./types";
 import defaultAxios from "axios";
-import { useDebounce } from "../../../lib/components/utils/hooks";
-import AnimatedMoreHorizontal from "../../../front/components/genericComponents/AnimatedMoreHorizontal";
+import { useDebounce } from "@agir/lib/utils/hooks";
+import AnimatedMoreHorizontal from "@agir/front/genericComponents/AnimatedMoreHorizontal";
 import ScrollableBlock from "./ScrollableBlock";
 import { chercherElus } from "./queries";
 
