@@ -51,6 +51,7 @@ $border-radius: 8px;
 
 $zindex__mainContent: 2;
 $zindex__topBar: 10;
+$zindex__bottomBar: 10;
 $zindex__navigationCounter: 10;
 $zindex__feedback-button: 15;
 $zindex__modal: 20;
@@ -107,6 +108,7 @@ $zindex__panel: 20;
 
   zindexMainContent: $zindex__mainContent;
   zindexTopBar: $zindex__topBar;
+  zindexBottomBar: $zindex__bottomBar;
   zindexNavigationCounter: $zindex__navigationCounter;
   zindexModal: $zindex__modal;
   zindexPanel: $zindex__panel;
