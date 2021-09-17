@@ -35,6 +35,11 @@ api_urlpatterns = [
     path("sous-types/", views.GroupSubtypesView.as_view(), name="api_group_subtypes",),
     path("<uuid:pk>/", views.GroupDetailAPIView.as_view(), name="api_group_view",),
     path(
+        "<uuid:pk>/details-avances/",
+        views.GroupDetailAdvancedAPIView.as_view(),
+        name="api_group_advanced_view",
+    ),
+    path(
         "<uuid:pk>/rejoindre/", views.JoinGroupAPIView.as_view(), name="api_group_join",
     ),
     path(

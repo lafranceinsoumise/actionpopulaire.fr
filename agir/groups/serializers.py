@@ -151,7 +151,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         read_only=True, source="is_2022_certified"
     )
     location = LocationSerializer(read_only=True, source="*")
-    contact = serializers.SerializerMethodField(read_only=True,)
+    contact = ContactMixinSerializer(source="*")
     image = serializers.ImageField(read_only=True)
 
     referents = serializers.SerializerMethodField(read_only=True,)
@@ -196,15 +196,6 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             self.membership is not None
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
         )
-
-    def get_contact(self, instance):
-        if self.get_isManager(instance):
-            return NestedContactSerializer(
-                source="*", context=self.context
-            ).to_representation(instance)
-        return ContactMixinSerializer(
-            source="*", context=self.context
-        ).to_representation(instance)
 
     def get_type(self, obj):
         return obj.get_type_display()
@@ -369,6 +360,10 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_links(self, obj):
         return obj.links.values("id", "label", "url")
+
+
+class SupportGroupAdvancedSerializer(SupportGroupDetailSerializer):
+    contact = NestedContactSerializer(source="*")
 
 
 class SupportGroupUpdateSerializer(serializers.ModelSerializer):

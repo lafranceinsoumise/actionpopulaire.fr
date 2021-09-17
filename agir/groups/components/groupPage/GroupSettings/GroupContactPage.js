@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useState, useEffect, useCallback } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
@@ -26,8 +26,8 @@ const GroupContactPage = (props) => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsloading] = useState(true);
 
-  const { data: group, mutate } = useSWR(
-    getGroupPageEndpoint("getGroup", { groupPk })
+  const { data: group, mutate: mutateAPI } = useSWR(
+    getGroupPageEndpoint("getGroupAdvanced", { groupPk })
   );
 
   const handleCheckboxChange = useCallback(
@@ -57,9 +57,10 @@ const GroupContactPage = (props) => {
         return;
       }
       sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
-      mutate((group) => {
+      mutateAPI((group) => {
         return { ...group, ...res.data };
       });
+      mutate(getGroupPageEndpoint("getGroup", { groupPk }));
     },
     [contact, groupPk, mutate, sendToast]
   );

@@ -3,6 +3,7 @@ import { DateTime } from "luxon";
 
 export const ENDPOINT = {
   getEvent: "/api/evenements/:eventPk/",
+  getDetailAdvanced: "/api/evenements/:eventPk/details-avances/",
   rsvpEvent: "/api/evenements/:eventPk/inscription/",
   quitEvent: "/api/evenements/:eventPk/inscription/",
 
@@ -12,7 +13,6 @@ export const ENDPOINT = {
   eventProjects: "/api/evenements/projets/",
   eventProject: "/api/evenements/:eventPk/projet/",
   addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
-  getDetailAdvanced: "/api/evenements/:eventPk/details-avances/",
   addOrganizer: "/api/evenements/:eventPk/organizers/",
   cancelEvent: "/api/evenements/:eventPk/annuler/",
   updateLocation: "/evenements/:eventPk/localisation/",

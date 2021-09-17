@@ -2,6 +2,7 @@ import axios from "@agir/lib/utils/axios";
 
 export const ENDPOINT = {
   getGroup: "/api/groupes/:groupPk/",
+  getGroupAdvanced: "/api/groupes/:groupPk/details-avances/",
   getGroupSuggestions: "/api/groupes/:groupPk/suggestions/",
 
   joinGroup: "/api/groupes/:groupPk/rejoindre/",
@@ -391,6 +392,24 @@ export const deleteGroupLink = async (groupPk, linkPk) => {
     result.success = true;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const getGroupAdvanced = async (groupPk) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("getGroupAdvanced", { groupPk });
+
+  try {
+    const response = await axios.patch(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
   }
 
   return result;

@@ -46,6 +46,7 @@ from agir.groups.serializers import (
     SupportGroupSubtypeSerializer,
     SupportGroupSerializer,
     SupportGroupDetailSerializer,
+    SupportGroupAdvancedSerializer,
     SupportGroupUpdateSerializer,
     MembershipSerializer,
     SupportGroupExternalLinkSerializer,
@@ -61,6 +62,7 @@ __all__ = [
     "GroupSubtypesView",
     "UserGroupsView",
     "GroupDetailAPIView",
+    "GroupDetailAdvancedAPIView",
     "NearGroupsAPIView",
     "GroupEventsAPIView",
     "GroupPastEventsAPIView",
@@ -170,6 +172,12 @@ class GroupDetailPermissions(GlobalOrObjectPermissions):
 class GroupDetailAPIView(RetrieveAPIView):
     permission_classes = (GroupDetailPermissions,)
     serializer_class = SupportGroupDetailSerializer
+    queryset = SupportGroup.objects.active()
+
+
+class GroupDetailAdvancedAPIView(RetrieveAPIView):
+    permission_classes = (GroupDetailPermissions,)
+    serializer_class = SupportGroupAdvancedSerializer
     queryset = SupportGroup.objects.active()
 
 
