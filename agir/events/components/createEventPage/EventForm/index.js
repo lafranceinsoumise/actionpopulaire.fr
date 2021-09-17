@@ -4,7 +4,10 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { validateData } from "./eventForm.config";
+import {
+  DEFAULT_FORM_DATA,
+  validateData,
+} from "@agir/events/common/eventForm.config";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useEventFormOptions } from "@agir/events/common/hooks";
 import { createEvent } from "@agir/events/common/api";
@@ -56,7 +59,6 @@ const StyledForm = styled.form`
     }
   }
 `;
-import { DEFAULT_FORM_DATA } from "./eventForm.config";
 
 const formatErrors = (errors, fields = DEFAULT_FORM_DATA) => {
   if (typeof errors !== "object") {

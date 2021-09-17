@@ -1,17 +1,15 @@
+from datetime import timedelta
 from functools import partial
 from unittest import mock
 
-from datetime import timedelta
-
+from django.contrib import messages
 from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
-from django.contrib import messages
 from django.test import TestCase
 from django.utils import timezone, formats
 from django.utils.http import urlencode
-
-from rest_framework.reverse import reverse
 from rest_framework import status
+from rest_framework.reverse import reverse
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.carte.views import EventMapView
@@ -27,8 +25,6 @@ from agir.lib.utils import front_url
 from agir.payments.actions.payments import complete_payment
 from agir.payments.models import Payment
 from agir.people.models import Person, PersonForm, PersonFormSubmission, PersonTag
-
-from ..forms import EventForm
 from ..models import (
     Event,
     Calendar,
@@ -301,178 +297,6 @@ class EventPagesTestCase(TestCase):
             res, self.organized_event.name, status_code=status.HTTP_410_GONE
         )
 
-    @mock.patch.object(EventForm, "geocoding_task")
-    @mock.patch("agir.events.forms.send_event_changed_notification")
-    def test_can_modify_organized_event(
-        self, patched_send_notification, patched_geocode
-    ):
-        self.client.force_login(self.person.role)
-        response = self.client.get(
-            reverse("edit_event", kwargs={"pk": self.organized_event.pk})
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        response = self.client.post(
-            reverse("edit_event", kwargs={"pk": self.organized_event.pk}),
-            data={
-                "name": "New Name",
-                "start_time": formats.localize_input(
-                    self.now + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"
-                ),
-                "end_time": formats.localize_input(
-                    self.now + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"
-                ),
-                "timezone": timezone.get_default_timezone().zone,
-                "contact_name": "Arthur",
-                "contact_email": "a@ziefzji.fr",
-                "contact_phone": "06 06 06 06 06",
-                "location_name": "somewhere",
-                "location_address1": "over",
-                "location_zip": "27492",
-                "location_city": "rainbow",
-                "location_country": "FR",
-                "description": "New description",
-                "notify": "on",
-                "as_group": self.group.pk,
-            },
-        )
-
-        # the form redirects to the event manage page on success
-        self.assertRedirects(
-            response, reverse("manage_event", kwargs={"pk": self.organized_event.pk})
-        )
-
-        # accessing the messages: see https://stackoverflow.com/a/14909727/1122474
-        messages = list(response.wsgi_request._messages)
-
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(messages[0].level_tag, "success")
-
-        # send_support_group_changed_notification.delay should have been called once, with the pk of the group as
-        # first argument, and the changes as the second
-        patched_send_notification.delay.assert_called_once()
-        args = patched_send_notification.delay.call_args[0]
-
-        self.assertEqual(args[0], self.organized_event.pk)
-        self.assertCountEqual(
-            args[1],
-            [
-                "name",
-                "start_time",
-                "end_time",
-                "contact_name",
-                "contact_email",
-                "contact_phone",
-                "location_name",
-                "location_address1",
-                "location_zip",
-                "location_city",
-                "description",
-                "as_group",
-            ],
-        )
-
-        patched_geocode.delay.assert_called_once()
-        args = patched_geocode.delay.call_args[0]
-
-        self.assertEqual(args[0], self.organized_event.pk)
-        self.assertIn(self.group, self.organized_event.organizers_groups.all())
-
-    def test_cannot_modify_rsvp_event(self):
-        self.client.force_login(self.person.role)
-
-        # manage_page
-        response = self.client.get(
-            reverse("manage_event", kwargs={"pk": self.rsvped_event.pk})
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # get edit page
-        response = self.client.get(
-            reverse("edit_event", kwargs={"pk": self.rsvped_event.pk})
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # post edit page
-        response = self.client.post(
-            reverse("edit_event", kwargs={"pk": self.rsvped_event.pk}),
-            data={
-                "name": "New Name",
-                "start_time": formats.localize_input(
-                    timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"
-                ),
-                "end_time": formats.localize_input(
-                    timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"
-                ),
-                "contact_name": "Arthur",
-                "contact_email": "a@ziefzji.fr",
-                "contact_phone": "06 06 06 06 06",
-                "location_name": "somewhere",
-                "location_address1": "over",
-                "location_zip": "the",
-                "location_city": "rainbow",
-                "location_country": "FR",
-                "description": "New description",
-                "notify": "on",
-            },
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # add organizer
-        response = self.client.post(
-            reverse("manage_event", kwargs={"pk": self.rsvped_event.pk}),
-            data={"organizer": str(self.other_rsvp1.pk)},
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_cannot_modify_other_event(self):
-        self.client.force_login(self.person.role)
-
-        # manage_page
-        response = self.client.get(
-            reverse("manage_event", kwargs={"pk": self.other_event.pk})
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # get edit page
-        response = self.client.get(
-            reverse("edit_event", kwargs={"pk": self.other_event.pk})
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # post edit page
-        response = self.client.post(
-            reverse("edit_event", kwargs={"pk": self.other_event.pk}),
-            data={
-                "name": "New Name",
-                "start_time": formats.localize_input(
-                    timezone.now() + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"
-                ),
-                "end_time": formats.localize_input(
-                    timezone.now() + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"
-                ),
-                "contact_name": "Arthur",
-                "contact_email": "a@ziefzji.fr",
-                "contact_phone": "06 06 06 06 06",
-                "location_name": "somewhere",
-                "location_address1": "over",
-                "location_zip": "the",
-                "location_city": "rainbow",
-                "location_country": "FR",
-                "description": "New description",
-                "notify": "on",
-            },
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        # add organizer
-        response = self.client.post(
-            reverse("manage_event", kwargs={"pk": self.other_event.pk}),
-            data={"organizer": str(self.other_rsvp2.pk)},
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
     def test_can_edit_legal_fields(self):
         self.client.force_login(self.person.role)
         res = self.client.get(
@@ -496,98 +320,6 @@ class EventPagesTestCase(TestCase):
         )
         self.assertContains(res, "Nom de la salle")
 
-    def test_excluded_fields_are_not_in_form(self):
-        self.subtype.config = {"excluded_fields": ["name"]}
-        self.subtype.save()
-
-        self.client.force_login(self.person.role)
-
-        response = self.client.get(
-            reverse("edit_event", kwargs={"pk": self.organized_event.pk})
-        )
-
-        self.assertNotContains(response, "Nom de l'événement")
-
-        response = self.client.post(
-            reverse("edit_event", kwargs={"pk": self.organized_event.pk}),
-            data={
-                "name": "New Name",
-                "start_time": formats.localize_input(
-                    self.now + timezone.timedelta(hours=2), "%d/%m/%Y %H:%M"
-                ),
-                "end_time": formats.localize_input(
-                    self.now + timezone.timedelta(hours=4), "%d/%m/%Y %H:%M"
-                ),
-                "timezone": timezone.get_default_timezone().zone,
-                "contact_name": "Arthur",
-                "contact_email": "a@ziefzji.fr",
-                "contact_phone": "06 06 06 06 06",
-                "location_name": "somewhere",
-                "location_address1": "over",
-                "location_zip": "74928",
-                "location_city": "rainbow",
-                "location_country": "FR",
-                "description": "New description",
-                "notify": "on",
-                "as_group": self.group.pk,
-            },
-        )
-
-        # the form redirects to the event manage page on success
-        self.assertRedirects(
-            response, reverse("manage_event", kwargs={"pk": self.organized_event.pk})
-        )
-
-        self.organized_event.refresh_from_db()
-        self.assertEqual(self.organized_event.name, "Organized event")
-
-    @mock.patch("agir.events.views.event_views.send_event_report")
-    def test_can_send_event_report_if_its_possible(self, send_event_report):
-        """ Si les conditions sont réunies, on peut envoyer le résumé par mail.
-
-        Les conditions sont : le mail n'a jamais été envoyé, l'événement est passé, le compte-rendu n'est pas vide."""
-        self.client.force_login(self.person.role)
-        session = self.client.session
-
-        response = self.client.post(
-            reverse("send_event_report", kwargs={"pk": self.past_event.pk})
-        )
-        self.assertRedirects(
-            response, reverse("manage_event", kwargs={"pk": self.past_event.pk})
-        )
-        send_event_report.delay.assert_called_once()
-
-        # # on simule le fait que le compte-rendu a bien été envoyé
-        self.past_event.report_summary_sent = True
-        self.past_event.save()
-        response = self.client.get(
-            reverse("manage_event", kwargs={"pk": self.past_event.pk})
-        )
-        self.assertContains(response, "Ce compte-rendu a déjà été envoyé")
-
-    @mock.patch("agir.events.views.event_views.send_event_report")
-    def test_report_is_sent_in_event_manage(self, send_event_report):
-        """
-        Test si le template affiche bien le fait que le compte-rendu à été envoyé la première fois que l'on retourne sur la page, mais pas les fois suivantes.
-        """
-        self.client.force_login(self.person.role)
-
-        self.client.post(
-            reverse("send_event_report", kwargs={"pk": self.past_event.pk})
-        )
-
-        response = self.client.get(
-            reverse("manage_event", kwargs={"pk": self.past_event.pk})
-        )
-        # la tache `send event_report` n'est pas appeler. Mais une variable de session temporaire est utliser pour informer que le mail à été envoyé
-        self.assertContains(response, "Ce compte-rendu a déjà été envoyé.")
-
-        response = self.client.get(
-            reverse("manage_event", kwargs={"pk": self.past_event.pk})
-        )
-        # la deuxième fois la variable de session n'existe plus
-        self.assertNotContains(response, "Ce compte-rendu a déjà été envoyé")
-
     @mock.patch("agir.events.views.event_views.send_event_report")
     def test_can_not_send_event_report_when_nocondition(self, send_event_report):
         """ Si une des conditions manque, l'envoi du mail ne se fait pas.
@@ -607,31 +339,6 @@ class EventPagesTestCase(TestCase):
             reverse("send_event_report", kwargs={"pk": self.already_sent_event.pk})
         )
         send_event_report.delay.assert_not_called()
-
-    @mock.patch("django.db.transaction.on_commit")
-    def test_attendees_notified_when_report_is_posted(self, on_commit):
-        now = timezone.now()
-        past_event = Event.objects.create(
-            name="Evenement terminé",
-            start_time=now - timedelta(days=1, hours=2),
-            end_time=now - timedelta(days=1),
-            subtype=self.subtype,
-        )
-        OrganizerConfig.objects.create(event=past_event, person=self.person)
-        RSVP.objects.create(event=past_event, person=self.other_person)
-
-        self.client.force_login(self.person.role)
-        res = self.client.post(
-            reverse("edit_event_report", args=[past_event.pk]),
-            data={"report_content": "Un super compte-rendu de malade."},
-        )
-        self.assertRedirects(res, reverse("manage_event", args=[past_event.pk]))
-
-        on_commit.assert_called_once()
-        partial = on_commit.call_args[0][0]
-
-        self.assertEqual(partial.func, notify_on_event_report.delay)
-        self.assertEqual(partial.args, (past_event.pk,))
 
 
 class RSVPTestCase(TestCase):

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -18,7 +18,6 @@ import MessageModalTrigger, {
 } from "@agir/front/formComponents/MessageModal/Trigger";
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
-import DisplayNameAnnouncement from "@agir/groups/groupPage/Announcements/DisplayNameAnnouncement";
 import { PromoMessage } from "@agir/groups/messages/PromoMessageModal";
 
 const StyledButton = styled.div`
@@ -119,7 +118,6 @@ export const GroupMessages = (props) => {
           Messages
         </PageFadeIn>
       </h3>
-      <DisplayNameAnnouncement />
       {Array.isArray(messages) && writeNewMessage ? (
         <ResponsiveLayout
           MobileLayout={FloatingMessageModalTrigger}

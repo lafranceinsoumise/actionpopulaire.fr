@@ -111,7 +111,8 @@ export const routeConfig = {
     Component: EventFeedback,
     isActive: true,
     forPastEventsOnly: true,
-    textDisabled: "A remplir à la fin de l'événement",
+    disabled: (event) => !event.isPast,
+    disabledLabel: "A remplir à la fin de l'événement",
     menuGroup: 2,
   },
   cancelation: {
@@ -121,8 +122,9 @@ export const routeConfig = {
     label: "Annuler l'événement",
     icon: "",
     Component: EventCancelation,
-    isActive: true,
+    isActive: (event) => !event.isPast,
     menuGroup: 3,
+    isCancel: true,
   },
 };
 
@@ -145,6 +147,10 @@ export const getRoutes = (basePath, event) =>
     (route) =>
       new RouteConfig({
         ...route,
+        disabled:
+          typeof route?.disabled === "function"
+            ? route.disabled(event)
+            : route.disabled === true,
         path: basePath + menuRoute.path + route.path,
       })
   );

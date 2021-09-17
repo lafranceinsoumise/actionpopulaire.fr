@@ -85,7 +85,6 @@ const MobilePanel = (props) => {
     shouldShow,
     onClose,
     goToMenu,
-    cancel,
     ...rest
   } = props;
 
@@ -106,7 +105,6 @@ const MobilePanel = (props) => {
         subtitle={subtitle}
         items={routes}
         onBack={onClose}
-        cancel={cancel}
         {...rest}
       />
       {transition((style, item) => (
@@ -144,7 +142,6 @@ const DesktopPanel = (props) => {
     shouldShow,
     onClose,
     goToMenu,
-    cancel,
     ...rest
   } = props;
 
@@ -163,7 +160,6 @@ const DesktopPanel = (props) => {
         subtitle={subtitle}
         items={routes}
         onBack={onClose}
-        cancel={cancel}
         {...rest}
       />
       <div
@@ -209,7 +205,6 @@ MobilePanel.propTypes = DesktopPanel.propTypes = {
   shouldShow: PropTypes.bool,
   onClose: PropTypes.func,
   goToMenu: PropTypes.func,
-  cancel: PropTypes.func,
 };
 
 export const ObjectManagement = (props) => {

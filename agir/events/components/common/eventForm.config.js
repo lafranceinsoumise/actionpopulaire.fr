@@ -1,5 +1,6 @@
-import validate from "@agir/lib/utils/validate";
 import { DateTime } from "luxon";
+
+import validate from "@agir/lib/utils/validate";
 
 import { COUNTRIES } from "@agir/front/formComponents/CountryField";
 

@@ -17,6 +17,7 @@ import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPa
 import OrganizerGroupField from "@agir/events/common/OrganizerGroupField";
 import EventSubtypeField from "@agir/events/EventSettings/EventSubtypeField";
 
+import { DEFAULT_FORM_DATA } from "@agir/events/common/eventForm.config";
 import * as api from "@agir/events/common/api";
 import { useToast } from "@agir/front/globalContext/hooks";
 import { useEventFormOptions } from "@agir/events/common/hooks";
@@ -38,15 +39,15 @@ const EventGeneral = (props) => {
   );
 
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    facebook: "",
-    image: null,
-    subtype: null,
-    startTime: "",
-    endTime: "",
-    timezone: "",
-    organizerGroup: null,
+    name: DEFAULT_FORM_DATA.name,
+    organizerGroup: DEFAULT_FORM_DATA.organizerGroup,
+    startTime: DEFAULT_FORM_DATA.startTime,
+    endTime: DEFAULT_FORM_DATA.endTime,
+    timezone: DEFAULT_FORM_DATA.timezone,
+    description: DEFAULT_FORM_DATA.description,
+    facebook: DEFAULT_FORM_DATA.facebook,
+    image: DEFAULT_FORM_DATA.image,
+    subtype: DEFAULT_FORM_DATA.subtype,
   });
 
   const [errors, setErrors] = useState({});

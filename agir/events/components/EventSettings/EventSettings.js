@@ -9,8 +9,6 @@ import { useAuthentication } from "@agir/front/authentication/hooks";
 
 import ObjectManagement from "@agir/front/genericComponents/ObjectManagement/ObjectManagement";
 
-const cancelEvent = { label: "Annuler l'événement", onClick: () => {} };
-
 export const EventSettings = (props) => {
   const { event, basePath } = props;
   const routes = useMemo(() => getRoutes(basePath, event), [basePath, event]);
@@ -50,7 +48,6 @@ export const EventSettings = (props) => {
       routes={routes}
       menuLink={menuRoute.getLink()}
       redirectTo={redirectTo}
-      cancel={cancelEvent}
       isPast={event?.isPast}
     />
   );
@@ -62,7 +59,7 @@ EventSettings.propTypes = {
     type: PropTypes.string,
     isOrganizer: PropTypes.bool,
     isPast: PropTypes.bool,
-    endTime: PropTypes.string,
+    endTime: PropTypes.object,
   }).isRequired,
   basePath: PropTypes.string.isRequired,
 };

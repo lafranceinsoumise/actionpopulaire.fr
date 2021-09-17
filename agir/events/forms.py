@@ -1,47 +1,31 @@
-from datetime import timedelta
-from functools import partial
-
 from crispy_forms import layout
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Row, Field
+from crispy_forms.layout import Submit, Row
 from django import forms
-from django.core.exceptions import PermissionDenied, ValidationError
-from django.db import transaction
 from django.template.defaultfilters import floatformat
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.formfields import PhoneNumberField
 
-from agir.activity.models import Activity
 from agir.events.actions import legal
-from agir.groups.models import SupportGroup, Membership
-from agir.groups.tasks import notify_new_group_event, send_new_group_event_email
 from agir.lib.form_components import *
 from agir.lib.form_mixins import (
-    LocationFormMixin,
-    ContactFormMixin,
     GeocodingBaseForm,
     MetaFieldsMixin,
-    ImageFormMixin,
 )
 from agir.payments.payment_modes import PaymentModeField
 from agir.people.forms import BasePersonForm
-from .models import Event, OrganizerConfig, EventImage, EventSubtype
+from .models import Event, OrganizerConfig, EventImage
 from .tasks import (
-    send_event_changed_notification,
     send_external_rsvp_confirmation,
-    notify_on_event_report,
     geocode_event,
 )
 from ..lib.form_fields import AcceptCreativeCommonsLicenceField
-from ..lib.utils import replace_datetime_timezone
 from ..people.models import Person, PersonFormSubmission
 
 __all__ = [
-    "EventForm",
     "AddOrganizerForm",
     "EventGeocodingForm",
-    "EventReportForm",
     "EventLegalForm",
     "UploadEventImageForm",
     "AuthorForm",
@@ -73,271 +57,6 @@ NOTIFIED_CHANGES = {
 class AgendaChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
-
-
-class EventForm(LocationFormMixin, ContactFormMixin, ImageFormMixin, forms.ModelForm):
-    geocoding_task = geocode_event
-    image_field = "image"
-    subtype = forms.ModelChoiceField(
-        queryset=EventSubtype.objects.filter(visibility=EventSubtype.VISIBILITY_ALL),
-        to_field_name="label",
-    )
-
-    def __init__(self, *args, person, **kwargs):
-        event = kwargs.get("instance", None)
-        kwargs.update(
-            {
-                "initial": {
-                    "start_time": event.local_start_time,
-                    "end_time": event.local_end_time,
-                }
-            }
-        )
-        super().__init__(*args, **kwargs)
-        self.person = person
-        excluded_fields = []
-        self.fields["image"].help_text = _(
-            """
-        Vous pouvez ajouter une image de bannière à votre événement : elle apparaîtra alors sur la page de votre
-        événement, et comme illustration si vous le partagez sur les réseaux sociaux. Pour cela, choisissez une image
-        à peu près deux fois plus large que haute, et de dimensions supérieures à 1200 par 630 pixels.
-        """
-        )
-
-        self.fields["description"].help_text = _(
-            """
-        Cette description doit permettre de comprendre rapidement sur quoi porte et comment se passera votre événement.
-        Incluez toutes les informations pratiques qui pourraient être utiles aux personnes qui souhaiteraient
-        participer (matériel à amener, précisions sur le lieu ou contraintes particulières, par exemple).
-        """
-        )
-
-        self.fields["as_group"] = forms.ModelChoiceField(
-            queryset=SupportGroup.objects.filter(
-                memberships__person=person,
-                memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-                published=True,
-            ),
-            empty_label="Ne pas créer au nom d'un groupe",
-            label=_("Créer l'événement au nom d'un groupe"),
-            required=False,
-        )
-
-        self.fields["name"].label = "Nom de l'événement"
-        self.fields["name"].help_text = None
-
-        try:
-            self.organizer_config = OrganizerConfig.objects.get(
-                person=self.person, event=self.instance
-            )
-            self.fields["as_group"].initial = self.organizer_config.as_group
-        except OrganizerConfig.DoesNotExist:
-            try:
-                self.organizer_config = None
-                organizer_config = OrganizerConfig.objects.get(
-                    event=self.instance,
-                    as_group__in=Membership.objects.filter(
-                        person=person,
-                        membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
-                    ).values_list("supportgroup_id", flat=True),
-                )
-                self.fields["as_group"].initial = organizer_config.as_group
-            except OrganizerConfig.DoesNotExist:
-                raise PermissionDenied(
-                    "Vous ne pouvez pas modifier un événement que vous n'organisez pas."
-                )
-
-        del self.fields["subtype"]
-
-        excluded_fields = self.instance.subtype.config.get("excluded_fields", [])
-        if "image" in excluded_fields:
-            excluded_fields.append("image_accept_license")
-        if self.organizer_config is None:
-            excluded_fields.append("as_group")
-
-        for f in excluded_fields:
-            if f in self.fields:
-                del self.fields[f]
-
-        self.helper = FormHelper()
-        self.helper.form_method = "POST"
-        self.helper.add_input(Submit("submit", "Sauvegarder et publier"))
-
-        self.helper.layout = Layout(
-            Row(
-                HalfCol(
-                    Row(FullCol("name")),
-                    Row(FullCol("timezone")),
-                    Row(HalfCol("start_time"), HalfCol("end_time")),
-                    Row(FullCol("allow_guests")),
-                ),
-                HalfCol(Row(FullCol("image"), FullCol("image_accept_license"))),
-            ),
-            Row(FullCol("online_url")),
-            Row(FullCol("description")),
-            Row(
-                HalfCol(
-                    Section(
-                        _("Informations de contact"),
-                        Row(TwoThirdCol("contact_name")),
-                        Row(TwoThirdCol("contact_email")),
-                        Row(TwoThirdCol("contact_phone", "contact_hide_phone")),
-                        Row(TwoThirdCol("as_group")),
-                        Row(TwoThirdCol("facebook")),
-                    )
-                ),
-                HalfCol(
-                    Section(
-                        _("Lieu"),
-                        Row(
-                            FullCol(
-                                HTML(
-                                    "<p><b>Merci d'indiquer une adresse précise avec numéro de rue, sans quoi l'événement n'apparaîtra"
-                                    " pas sur la carte.</b>"
-                                    " Si les réunions se déroulent chez vous et que vous ne souhaitez pas rendre cette adresse"
-                                    " publique, vous pouvez indiquer un endroit à proximité, comme un café, ou votre mairie."
-                                )
-                            )
-                        ),
-                        Row(TwoThirdCol("location_name")),
-                        Row(
-                            TwoThirdCol(
-                                Field("location_address1", placeholder=_("1ère ligne")),
-                                Field("location_address2", placeholder=_("2ème ligne")),
-                            )
-                        ),
-                        Row(
-                            Div("location_zip", css_class="col-md-4"),
-                            Div("location_city", css_class="col-md-8"),
-                        ),
-                        Row(Div("location_country", css_class="col-md-12")),
-                    )
-                ),
-            ),
-        )
-
-        remove_excluded_field_from_layout(self.helper.layout, excluded_fields)
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        start = cleaned_data.get("start_time")
-        end = cleaned_data.get("end_time")
-        timezone = cleaned_data.get("timezone")
-
-        if timezone and start:
-            cleaned_data.update(
-                {"start_time": replace_datetime_timezone(start, timezone)}
-            )
-        if timezone and end:
-            cleaned_data.update({"end_time": replace_datetime_timezone(end, timezone)})
-
-        if end and start and end - start > timedelta(days=7):
-            raise ValidationError(
-                {"end_time": _("L'événement ne peut pas durer plus de 7 jours.")}
-            )
-
-        return cleaned_data
-
-    def save(self, commit=True):
-        subtype = self.instance.subtype
-
-        if not self.cleaned_data["description"]:
-            self.instance.description = subtype.default_description
-        if not self.cleaned_data["image"]:
-            self.instance.image = subtype.default_image
-
-        res = super().save(commit)
-        if commit:
-            self.schedule_tasks()
-
-        return res
-
-    def _save_m2m(self):
-        if (
-            self.organizer_config
-            and self.organizer_config.as_group != self.cleaned_data["as_group"]
-        ):
-            self.organizer_config.as_group = self.cleaned_data["as_group"]
-            self.organizer_config.save()
-
-    def schedule_tasks(self):
-        super().schedule_tasks()
-        # send changes notification
-        if self.changed_data:
-
-            event = Event.objects.get(pk=self.instance.pk)
-
-            changed_data = [f for f in self.changed_data if f in NOTIFIED_CHANGES]
-            if not changed_data:
-                return
-
-            for r in event.attendees.all():
-                activity = Activity.objects.filter(
-                    type=Activity.TYPE_EVENT_UPDATE,
-                    recipient=r,
-                    event=event,
-                    status=Activity.STATUS_UNDISPLAYED,
-                    created__gt=timezone.now() + timedelta(minutes=2),
-                ).first()
-                if activity is not None:
-                    activity.meta["changed_data"] = list(
-                        set(changed_data).union(activity.meta["changed_data"])
-                    )
-                    activity.timestamp = timezone.now()
-                    activity.save()
-                else:
-                    Activity.objects.create(
-                        type=Activity.TYPE_EVENT_UPDATE,
-                        recipient=r,
-                        event=event,
-                        meta={"changed_data": changed_data},
-                    )
-
-            send_event_changed_notification.delay(self.instance.pk, self.changed_data)
-
-        # also notify members if it is organized by a group
-        if self.cleaned_data.get("as_group", None) and "as_group" in self.changed_data:
-            transaction.on_commit(
-                partial(
-                    notify_new_group_event.delay,
-                    self.cleaned_data["as_group"].pk,
-                    self.instance.pk,
-                )
-            )
-            transaction.on_commit(
-                partial(
-                    send_new_group_event_email.delay,
-                    self.cleaned_data["as_group"].pk,
-                    self.instance.pk,
-                )
-            )
-
-    class Meta:
-        model = Event
-        fields = (
-            "name",
-            "image",
-            "allow_guests",
-            "start_time",
-            "end_time",
-            "contact_name",
-            "contact_email",
-            "contact_phone",
-            "contact_hide_phone",
-            "facebook",
-            "location_name",
-            "location_address1",
-            "location_address2",
-            "location_city",
-            "location_zip",
-            "location_country",
-            "description",
-            "subtype",
-            "legal",
-            "online_url",
-            "timezone",
-        )
 
 
 class RSVPChoiceField(forms.ModelChoiceField):
@@ -386,37 +105,6 @@ class EventGeocodingForm(GeocodingBaseForm):
     class Meta:
         model = Event
         fields = ("coordinates",)
-
-
-class EventReportForm(ImageFormMixin, forms.ModelForm):
-    image_field = "image"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.already_published = bool(self.instance.report_content)
-
-        self.fields["report_image"].label = "Image de couverture (optionnelle)"
-
-        self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", _("Sauvegarder et publier")))
-        self.helper.layout = Layout(
-            "report_content", "report_image", "image_accept_license"
-        )
-
-    def save(self, commit=True):
-        instance = super().save(commit)
-
-        if not self.already_published:
-            transaction.on_commit(
-                partial(notify_on_event_report.delay, self.instance.pk)
-            )
-
-        return instance
-
-    class Meta:
-        model = Event
-        fields = ("report_image", "report_content")
 
 
 class EventLegalForm(MetaFieldsMixin, forms.Form):
