@@ -29,6 +29,7 @@ const BottomBar = styled.nav`
     height: 72px;
     padding: 0 0.5rem;
     z-index: ${style.zindexBottomBar};
+    isolation: isolate;
   }
 `;
 
