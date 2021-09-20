@@ -176,11 +176,13 @@ class CreateEventAPIView(CreateAPIView):
 
 class EventManagementPermissions(GlobalOrObjectPermissions):
     perms_map = {
+        "GET": [],
         "POST": [],
         "PUT": [],
         "PATCH": [],
     }
     object_perms_map = {
+        "GET": ["events.change_event"],
         "POST": ["events.change_event"],
         "PUT": ["events.change_event"],
         "PATCH": ["events.change_event"],
@@ -188,13 +190,12 @@ class EventManagementPermissions(GlobalOrObjectPermissions):
 
 
 class EventDetailAPIView(RetrieveAPIView):
-    permission_classes = EventManagementPermissions
     serializer_class = EventSerializer
     queryset = Event.objects.all()
 
 
 class EventDetailAdvancedAPIView(RetrieveAPIView):
-    permission_classes = EventManagementPermissions
+    permission_classes = (EventManagementPermissions,)
     serializer_class = EventAdvancedSerializer
     queryset = Event.objects.all()
 
