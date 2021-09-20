@@ -319,6 +319,7 @@ const Agenda = () => {
               color="secondary"
               route="createEvent"
               icon="plus"
+              wrap
             >
               Créer un événement
             </Button>
