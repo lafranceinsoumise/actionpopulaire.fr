@@ -102,18 +102,6 @@ class EventRsvpedAPIView(ListAPIView):
         )
 
 
-class EventDetailAPIView(RetrieveAPIView):
-    permission_ = ("events.view_event",)
-    serializer_class = EventSerializer
-    queryset = Event.objects.all()
-
-
-class EventDetailAdvancedAPIView(RetrieveAPIView):
-    permission_ = "events.change_event"
-    serializer_class = EventAdvancedSerializer
-    queryset = Event.objects.all()
-
-
 class EventSuggestionsAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = EventListSerializer
@@ -197,6 +185,18 @@ class EventManagementPermissions(GlobalOrObjectPermissions):
         "PUT": ["events.change_event"],
         "PATCH": ["events.change_event"],
     }
+
+
+class EventDetailAPIView(RetrieveAPIView):
+    permission_classes = EventManagementPermissions
+    serializer_class = EventSerializer
+    queryset = Event.objects.all()
+
+
+class EventDetailAdvancedAPIView(RetrieveAPIView):
+    permission_classes = EventManagementPermissions
+    serializer_class = EventAdvancedSerializer
+    queryset = Event.objects.all()
 
 
 class UpdateEventAPIView(UpdateAPIView):
