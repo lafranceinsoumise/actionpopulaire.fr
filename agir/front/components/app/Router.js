@@ -99,6 +99,7 @@ const Router = ({ children }) => {
 
   return (
     <BrowserRouter basename={BASE_PATH}>
+      <ScrollMemory />
       <Switch>
         {routes.map((route) => (
           <Route key={route.id} path={route.path} exact={!!route.exact}>
@@ -125,7 +126,6 @@ const Router = ({ children }) => {
         </Route>
       </Switch>
       {children}
-      <ScrollMemory />
     </BrowserRouter>
   );
 };
