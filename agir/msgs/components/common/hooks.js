@@ -25,9 +25,11 @@ export const useUnreadMessageCount = () => {
 
 export const useMessageSWR = (messagePk, selectMessage) => {
   const dispatch = useDispatch();
+  const isAutoRefreshPausedRef = useRef(false);
   const { data: session } = useSWR("/api/session/");
   const { data: messages } = useSWR("/api/user/messages/", {
     refreshInterval: 1000,
+    isPaused: () => isAutoRefreshPausedRef.current,
   });
   const { data: messageRecipients } = useSWR("/api/user/messages/recipients/");
   const {
@@ -85,6 +87,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
     messages,
     messageRecipients,
     currentMessage,
+    isAutoRefreshPausedRef,
   };
 };
 
@@ -275,9 +278,18 @@ export const useMessageActions = (
 
   const dismissMessageAction = useCallback(() => {
     if (messageAction === "delete" && selectedMessage && selectedComment) {
-      mutate(`/api/groupes/messages/${selectedMessage.id}/`);
+      mutate(`/api/groupes/messages/${selectedMessage.id}/`, (data) => ({
+        ...data,
+        comments: data.comments.filter(
+          (comment) => comment.id === selectedComment.id
+        ),
+      }));
     } else if (messageAction === "delete") {
-      mutate(`/api/user/messages/`);
+      mutate(
+        `/api/user/messages/`,
+        (data) => data.filter((message) => message.id !== selectedMessage.id),
+        false
+      );
       onSelectMessage(null);
     }
     setMessageAction("");

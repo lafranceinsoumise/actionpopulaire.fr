@@ -51,10 +51,13 @@ const MessagePage = ({ messagePk }) => {
   const isOffline = useIsOffline();
   const dispatch = useDispatch();
   const onSelectMessage = useSelectMessage();
-  const { user, messages, messageRecipients, currentMessage } = useMessageSWR(
-    messagePk,
-    onSelectMessage
-  );
+  const {
+    user,
+    messages,
+    messageRecipients,
+    currentMessage,
+    isAutoRefreshPausedRef,
+  } = useMessageSWR(messagePk, onSelectMessage);
 
   const {
     isLoading,
@@ -78,6 +81,9 @@ const MessagePage = ({ messagePk }) => {
     currentMessage,
     onSelectMessage
   );
+
+  // Pause messages' autorefresh while an action is ongoing
+  isAutoRefreshPausedRef.current = isLoading || !!messageAction;
 
   const shouldShowMessageModal =
     messageAction === "create" || messageAction === "edit";
