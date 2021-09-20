@@ -56,6 +56,8 @@ const TopBar = styled.div`
     display: flex;
     flex-direction: row-reverse;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 
     @media only screen and (max-width: ${style.collapse}px) {
       flex-direction: row;
@@ -67,9 +69,6 @@ const TopBar = styled.div`
   & ${Button} + ${Button} {
     @media only screen and (min-width: ${style.collapse}px) {
       margin-right: 0.5rem;
-    }
-    @media only screen and (max-width: ${style.collapse}px) {
-      margin-left: 0.5rem;
     }
   }
 `;
@@ -319,7 +318,6 @@ const Agenda = () => {
               color="secondary"
               route="createEvent"
               icon="plus"
-              wrap
             >
               Créer un événement
             </Button>
