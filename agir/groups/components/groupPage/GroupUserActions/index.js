@@ -81,12 +81,7 @@ const ConnectedUserActions = (props) => {
           <Spacer size="0.5rem" />
           Envoyez-leur un message pour vous présenter&nbsp;!
           <Spacer size="0.5rem" />
-          <ShareLink
-            label="Copier"
-            color="primary"
-            url={contact.email}
-            $wrap
-          />
+          <ShareLink label="Copier" color="primary" url={contact.email} $wrap />
         </>
       )}
     </>

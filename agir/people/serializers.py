@@ -66,13 +66,17 @@ class SubscriptionRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True,)
     location_zip = serializers.CharField(required=True)
     first_name = serializers.CharField(
-        max_length=person_fields["first_name"].max_length, required=False
+        max_length=person_fields["first_name"].max_length,
+        required=False,
+        allow_blank=True,
     )
     last_name = serializers.CharField(
-        max_length=person_fields["last_name"].max_length, required=False
+        max_length=person_fields["last_name"].max_length,
+        required=False,
+        allow_blank=True,
     )
-    contact_phone = PhoneNumberField(required=False)
-    location_country = CountryField(required=False)
+    contact_phone = PhoneNumberField(required=False, allow_blank=True)
+    location_country = CountryField(required=False, allow_blank=True)
     mandat = serializers.ChoiceField(
         choices=("municipal", "maire", "departemental", "regional", "consulaire"),
         required=False,
