@@ -483,7 +483,7 @@ class JoinGroupAPIView(CreateAPIView, DestroyAPIView):
                     membership_type=self.target_membership_type,
                 )
                 someone_joined_notification(
-                    membership, membership_count=supportgroup.members_count
+                    membership, membership_count=supportgroup.active_members_count
                 )
             return Response(status=status.HTTP_201_CREATED)
 

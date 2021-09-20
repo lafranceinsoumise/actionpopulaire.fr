@@ -29,8 +29,8 @@ const GroupMembershipLimitReminderCard = (props) => {
             </Link>
           </strong>
           <br />
-          {SupportGroup} a atteint {membershipCount} personnes&nbsp;! Il est
-          maintenant impossible que des nouvelles personnes la rejoignent.
+          {SupportGroup} a atteint {membershipCount} membres actifs&nbsp;! Il
+          est maintenant impossible que des nouvelles personnes la rejoignent.
           Divisez votre groupe en groupes plus petits maintenant pour renforcer
           le réseau d’action.
         </GenericCardContainer>
@@ -41,9 +41,9 @@ const GroupMembershipLimitReminderCard = (props) => {
         <GenericCardContainer {...props}>
           <strong>Votre groupe est trop nombreux</strong>
           <br />
-          {SupportGroup} compte plus de {membershipCount - 1} personnes&nbsp;!
-          Il est temps de vous diviser en plusieurs groupes pour permettre une
-          plus grande répartition de l’action.{" "}
+          {SupportGroup} compte plus de {membershipCount - 1} membres
+          actifs&nbsp;! Il est temps de vous diviser en plusieurs groupes pour
+          permettre une plus grande répartition de l’action.{" "}
           <Link
             href={`/activite/${id}/lien/`}
             params={{ next: routes.groupTransferHelp }}
@@ -59,8 +59,8 @@ const GroupMembershipLimitReminderCard = (props) => {
             Gardez un oeil sur le nombre de membres de votre groupe
           </strong>
           <br />
-          {SupportGroup} a dépassé les {membershipCount - 1} personnes ! Afin
-          que chacun·e puisse s'impliquer et pour permettre une plus grande
+          {SupportGroup} a dépassé les {membershipCount - 1} membres actifs !
+          Afin que chacun·e puisse s'impliquer et pour permettre une plus grande
           répartition de votre action, nous vous invitons à diviser votre
           groupe.{" "}
           <Link
@@ -79,7 +79,7 @@ const GroupMembershipLimitReminderCard = (props) => {
             votre groupe&nbsp;!
           </strong>
           <br />
-          {SupportGroup} a atteint le nombre idéal de personnes. Désormais,
+          {SupportGroup} a atteint le nombre idéal de membres actifs. Désormais,
           favorisez la création d'autres groupes autour de chez vous par
           d’autres membres, de manière à renforcer le réseau d'action.
         </GenericCardContainer>
