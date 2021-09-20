@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useState, useMemo } from "react";
 import useSWR, { mutate } from "swr";
 
+import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import * as api from "@agir/events/common/api";
 
@@ -18,6 +19,19 @@ import Button from "@agir/front/genericComponents/Button";
 
 import { useTransition } from "@react-spring/web";
 import { useToast } from "@agir/front/globalContext/hooks.js";
+
+const StyledList = styled.div`
+  display: flex;
+  align-items: center;
+  div {
+    display: inline-flex;
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: ${style.primary500};
+    border-radius: 2rem;
+    margin-right: 0.5rem;
+  }
+`;
 
 const slideInTransition = {
   from: { transform: "translateX(66%)" },
@@ -79,6 +93,27 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
           <Spacer size="1rem" />
           <MemberList members={[selectedParticipant.value]} />
           <Spacer size="1rem" />
+          <div>
+            Ce participant pourra :
+            <Spacer size="0.5rem" />
+            <StyledList>
+              <div />
+              Voir la liste des participant·es
+            </StyledList>
+            <StyledList>
+              <div />
+              Modifier les organisateurs
+            </StyledList>
+            <StyledList>
+              <div />
+              Modifier les informations de l’événement
+            </StyledList>
+            <StyledList>
+              <div />
+              Annuler l’événement
+            </StyledList>
+          </div>
+          <Spacer size="1rem" />
           <Button color="secondary" onClick={onSubmit} disabled={isLoading}>
             Confirmer
           </Button>
@@ -131,24 +166,11 @@ const EventOrganization = (props) => {
           </span>
           <Spacer size="1rem" />
           <MemberList
-            members={event.groups.map((group) => ({ displayName: group.name }))}
+            members={event.groups.map((group) => ({
+              id: group.id,
+              displayName: group.name,
+            }))}
           />
-          <Spacer size="1rem" />
-          <p
-            style={{
-              margin: 0,
-              backgroundColor: style.secondary100,
-              color: style.black700,
-              padding: "0.75rem 1rem",
-              fontSize: "0.875rem",
-            }}
-          >
-            <strong style={{ display: "block", fontWeight: 500 }}>
-              Nouvelle version de l'interface de gestion des événements&nbsp;:
-            </strong>
-            la co-organisation entre les groupes sera de nouveau très vite
-            disponible&nbsp;!
-          </p>
           <Spacer size="1.5rem" />
         </>
       )}
