@@ -100,6 +100,7 @@ const Buttons = styled.div`
 const Illustration = styled.div`
   background-color: ${({ $img }) => ($img ? "#e5e5e5" : "#fafafa")};
   display: grid;
+  isolation: isolate;
   z-index: 0;
   width: 100%;
   max-width: 270px;
