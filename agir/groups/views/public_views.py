@@ -162,7 +162,7 @@ class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
                         membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
                     )
                     someone_joined_notification(
-                        membership, membership_count=self.object.members_count
+                        membership, membership_count=self.object.active_members_count
                     )
             except IntegrityError:
                 pass  # the person is already a member of the group
