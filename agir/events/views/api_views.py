@@ -189,7 +189,17 @@ class EventManagementPermissions(GlobalOrObjectPermissions):
     }
 
 
+class EventViewPermissions(GlobalOrObjectPermissions):
+    perms_map = {
+        "GET": [],
+    }
+    object_perms_map = {
+        "GET": ["events.view_event"],
+    }
+
+
 class EventDetailAPIView(RetrieveAPIView):
+    permission_classes = (EventViewPermissions,)
     serializer_class = EventSerializer
     queryset = Event.objects.all()
 
