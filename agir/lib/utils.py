@@ -149,7 +149,7 @@ def validate_facebook_event_url(url):
     )
     # Regular expression for FB regular and short event URLs
     FACEBOOK_EVENT_URL_RE = re.compile(
-        r"^((?:https://)?(?:www\.)?(?:facebook|fb|m\.facebook)\.(?:com|me)/(?:events|e)/(?:\d\w{0,20}))(?:/.*)?$"
+        r"^((?:https://)?(?:www\.)?(?:facebook|fb|m\.facebook)\.(?:com|me)/(?:events|e)/(?:[\d\w]{0,20}))(?:/.*)?$"
     )
 
     # First we try to match an URL with an FB event ID (for backward compatibility)
