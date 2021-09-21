@@ -82,6 +82,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isFull = serializers.SerializerMethodField(read_only=True)
 
     routes = RoutesField(routes=GROUP_ROUTES, read_only=True)
+    isCertified = serializers.BooleanField(read_only=True, source="is_certified")
 
     def to_representation(self, instance):
         user = self.context["request"].user

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
@@ -40,11 +40,11 @@ InternalLink.propTypes = {
 };
 
 const RouteLink = (props) => {
-  const { route, ...rest } = props;
+  const { route, routeParams, ...rest } = props;
   const routes = useSelector(getRoutes);
   const hasRouter = useSelector(getHasRouter);
 
-  const { url, isInternal = false } = React.useMemo(() => {
+  const { url, isInternal = false } = useMemo(() => {
     if (routes[route]) {
       return {
         url: routes[route],
@@ -53,14 +53,16 @@ const RouteLink = (props) => {
     }
     if (routeConfig[route]) {
       return {
-        url: routeConfig[route].getLink(),
+        url: routeParams
+          ? routeConfig[route].getLink(routeParams)
+          : routeConfig[route].getLink(),
         isInternal: true,
       };
     }
     return {
       url: route,
     };
-  }, [routes, route]);
+  }, [routes, route, routeParams]);
 
   return hasRouter && isInternal ? (
     <InternalLink {...rest} to={url} />
@@ -70,6 +72,7 @@ const RouteLink = (props) => {
 };
 RouteLink.propTypes = {
   route: PropTypes.string.isRequired,
+  routeParams: PropTypes.object,
 };
 
 const Link = (props) => {
