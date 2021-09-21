@@ -62,7 +62,7 @@ EventSettings.propTypes = {
     type: PropTypes.string,
     isOrganizer: PropTypes.bool,
     isPast: PropTypes.bool,
-    endTime: PropTypes.string,
+    endTime: PropTypes.oneOf(PropTypes.string, PropTypes.object),
   }).isRequired,
   basePath: PropTypes.string.isRequired,
 };

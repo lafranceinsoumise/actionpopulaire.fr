@@ -209,7 +209,7 @@ MobilePanel.propTypes = DesktopPanel.propTypes = {
   shouldShow: PropTypes.bool,
   onClose: PropTypes.func,
   goToMenu: PropTypes.func,
-  cancel: PropTypes.func,
+  cancel: PropTypes.oneOf(PropTypes.func, PropTypes.object),
 };
 
 export const ObjectManagement = (props) => {
