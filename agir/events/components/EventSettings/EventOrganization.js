@@ -200,7 +200,17 @@ const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
 
   const handleSearch = async (e) => {
     const { data, errors } = await apiGroup.searchGroup(e);
-    setGroupSearched(data.results);
+    // Filter already organizer groups
+    setGroupSearched(
+      data.results
+        .reduce((result, groupSearch) => {
+          if (!groups.some((group) => group.id === groupSearch.id)) {
+            return [...result, groupSearch];
+          }
+          return result;
+        }, [])
+        ?.slice(0, 4)
+    );
   };
 
   return (
