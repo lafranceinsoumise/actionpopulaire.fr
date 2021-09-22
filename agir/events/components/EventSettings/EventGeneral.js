@@ -41,8 +41,8 @@ const EventGeneral = (props) => {
   const [formData, setFormData] = useState({
     name: DEFAULT_FORM_DATA.name,
     organizerGroup: DEFAULT_FORM_DATA.organizerGroup,
-    startTime: DEFAULT_FORM_DATA.startTime,
-    endTime: DEFAULT_FORM_DATA.endTime,
+    startTime: "",
+    endTime: "",
     timezone: DEFAULT_FORM_DATA.timezone,
     description: DEFAULT_FORM_DATA.description,
     facebook: DEFAULT_FORM_DATA.facebook,
