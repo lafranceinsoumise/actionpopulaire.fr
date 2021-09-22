@@ -127,7 +127,7 @@ class TestCase(HypothesisTestCase):
         setup_example = getattr(self.__class__, "setup_example")
 
         # Si `setup_example` a été redéfini pour la classe TestCase concrète,
-        return setup_example == TestCase.setup_example()
+        return setup_example == TestCase.setup_example
 
     def _callSetUp(self):
         test_method = getattr(self, self._testMethodName)
