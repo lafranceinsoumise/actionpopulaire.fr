@@ -15,9 +15,10 @@ from django.core.management import BaseCommand
 from django.db import transaction
 from django.template import Template, Context
 from django.utils import timezone
+from tqdm import tqdm
 
 from agir.events.models import Event, RSVP
-from agir.lib.utils import generate_token_params
+from agir.lib.utils import generate_token_params, grouper
 from agir.people.models import Person, PersonTag
 
 
@@ -25,6 +26,8 @@ RED = "91"
 GREEN = "92"
 
 COLORED_TEXT = "\033[{color}m{text}\033[0m"
+
+EMAILS_BY_CONNECTION = 500
 
 
 def colored_text(text, color):
@@ -74,6 +77,12 @@ def get_current_status(config):
         config["status_file"], parse_dates=["subscribe_limit"], index_col="order"
     )
 
+    try:
+        with open(config["envoyes"]) as f:
+            envoyes = f.read().split()
+    except FileNotFoundError:
+        envoyes = []
+
     if status.subscribe_limit.dt.tz is None:
         status["subscribe_limit"] = status.subscribe_limit.dt.tz_localize(
             timezone.get_default_timezone()
@@ -119,6 +128,7 @@ def get_current_status(config):
         & ~status._unable
         & (status.subscribe_limit > now)
     )
+    status["_email_envoye"] = status.id.isin(envoyes)
     status["_available"] = status._exists & status.subscribe_limit.isnull()
 
     return status
@@ -312,12 +322,13 @@ class Command(BaseCommand):
         )
 
         status.loc[new_draws, "subscribe_limit"] = limit
+        status.loc[new_draws, "_active"] = True
 
         if self.verbosity >= 1:
             drawn_counts = Counter(status.loc[new_draws, "college"])
-            print("Tirage :")
+            self.stdout.write("Tirage :\n")
             for g, c in drawn_counts.items():
-                print(f"{g}: {c} personnes")
+                self.stdout.write(f"{g}: {c} personnes\n")
 
         if do_it:
             status[[c for c in status.columns if not c.startswith("_")]].to_csv(
@@ -326,64 +337,69 @@ class Command(BaseCommand):
 
         tag_current = PersonTag.objects.get(label=f"{config['tag_prefix']} - ouvert")
 
-        active_persons = {
-            str(p.id): p
-            for p in Person.objects.filter(
-                id__in=status.loc[status._active | new_draws, "id"]
-            )
-        }
-
         if do_it:
             with transaction.atomic():
                 # on retire la possibilité de s'inscrire aux précédents
-                tag_current.people.remove(*tag_current.people.all())
-
                 # on ajoute les nouveaux aux deux tags
-                tag_current.people.add(
-                    *status.loc[status._active | new_draws, "id"].map(active_persons)
-                )
+                tag_current.people.set(status.loc[status._active, "id"])
+
+            self.send_emails(config, status)
+
+    def send_emails(self, config, status):
+        sending = status._active & ~status._mail_envoye
+
+        if self.verbosity >= 1:
+            print(f"{sending.sum()} emails à envoyer.")
+
+        persons = {
+            str(p.id): p
+            for p in Person.objects.filter(id__in=status.loc[sending, "id"])
+        }
 
         with open(config["email_html_file"]) as f:
             html_template = Template(f.read())
         with open(config["email_text_file"]) as f:
             text_template = Template(f.read())
 
-        connection = get_connection()
-
         locale.setlocale(locale.LC_TIME, "fr_FR.UTF-8")
 
-        with connection:
-            for i, row in enumerate(status.loc[new_draws].itertuples()):
-                person = active_persons[row.id]
+        with open(config["envoyes"], mode="a") as f:
+            for g in grouper(
+                tqdm(
+                    status.loc[sending].itertuples(), total=sending.sum(), disable=None
+                ),
+                EMAILS_BY_CONNECTION,
+            ):
+                connection = get_connection()
+                with connection:
+                    for i, row in enumerate(g):
+                        person = persons[row.id]
 
-                context = Context(
-                    {
-                        "email": person.email,
-                        "login_query": urlencode(generate_token_params(person)),
-                        "limit_time": row.subscribe_limit.strftime(
-                            "%A %d %B avant %Hh"
-                        ),
-                    }
-                )
+                        context = Context(
+                            {
+                                "email": person.email,
+                                "login_query": urlencode(generate_token_params(person)),
+                                "limit_time": row.subscribe_limit.strftime(
+                                    "%A %d %B avant %Hh"
+                                ),
+                            }
+                        )
 
-                html_message = html_template.render(context)
-                text_message = text_template.render(context)
+                        html_message = html_template.render(context)
+                        text_message = text_template.render(context)
 
-                msg = EmailMultiAlternatives(
-                    subject=config["email_subject"],
-                    body=text_message,
-                    from_email=config.get(
-                        "email_from",
-                        "La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
-                    ),
-                    to=[person.email],
-                    connection=connection,
-                )
-                msg.attach_alternative(html_message, "text/html")
+                        msg = EmailMultiAlternatives(
+                            subject=config["email_subject"],
+                            body=text_message,
+                            from_email=config.get(
+                                "email_from",
+                                "La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
+                            ),
+                            to=[person.email],
+                            connection=connection,
+                        )
+                        msg.attach_alternative(html_message, "text/html")
 
-                print(row.college, end="\n" if i % 80 == 79 else "", flush=True)
-
-                if do_it:
-                    msg.send(fail_silently=False)
-
-        print()  # newline
+                        msg.send(fail_silently=False)
+                        f.write(f"{row.id}\n")
+                        f.flush()
