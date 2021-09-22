@@ -938,12 +938,9 @@ class IdentifiedGuest(ExportModelOperationsMixin("identified_guest"), models.Mod
 
 
 class OrganizerConfig(ExportModelOperationsMixin("organizer_config"), models.Model):
-    person = models.ForeignKey(
-        "people.Person",
-        related_name="organizer_configs",
-        on_delete=models.CASCADE,
-        editable=False,
-    )
+
+    is_creator = models.BooleanField(_("Créateur de l'événement"), default=False)
+
     event = models.ForeignKey(
         "Event",
         related_name="organizer_configs",
@@ -951,7 +948,13 @@ class OrganizerConfig(ExportModelOperationsMixin("organizer_config"), models.Mod
         editable=False,
     )
 
-    is_creator = models.BooleanField(_("Créateur de l'événement"), default=False)
+    person = models.ForeignKey(
+        "people.Person",
+        related_name="organizer_configs",
+        on_delete=models.CASCADE,
+        editable=False,
+    )
+
     as_group = models.ForeignKey(
         "groups.SupportGroup",
         related_name="organizer_configs",

@@ -146,6 +146,11 @@ urlpatterns = [
         name="api_event_organizers",
     ),
     path(
+        "api/evenements/<uuid:pk>/group-organizers/",
+        views.EventGroupsOrganizersAPIView.as_view(),
+        name="api_event_group_organizers",
+    ),
+    path(
         "api/evenements/<uuid:pk>/annuler/",
         views.CancelEventAPIView.as_view(),
         name="cancel_event",

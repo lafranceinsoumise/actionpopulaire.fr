@@ -76,9 +76,7 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
   const [isLoading, setIsLoading] = useState(false);
   const sendToast = useToast();
 
-  const selectParticipant = (value) => {
-    setSelectedParticipant(value);
-  };
+  const selectParticipant = (value) => setSelectedParticipant(value);
 
   const onSubmit = async () => {
     setIsLoading(true);
@@ -170,11 +168,11 @@ const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
   const onSubmit = async () => {
     setIsLoading(true);
 
-    // apiGroup.inviteToGroup(groupPk)
-    // const res = await apiGroup.inviteToGroup(groupPk, {
-    //   email: selectedGroup.value.id,
-    // });
-    // setIsLoading(false);
+    const res = await api.inviteGroupOrganizer(eventPk, {
+      groupPk: selectedGroup.id,
+    });
+
+    setIsLoading(false);
     // if (res.errors) {
     //   sendToast(res.errors.detail, "ERROR", { autoClose: true });
     //   onBack();

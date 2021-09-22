@@ -31,6 +31,7 @@ from agir.events.actions.rsvps import (
 from agir.events.models import Event, OrganizerConfig
 from agir.events.models import RSVP
 from agir.people.models import Person
+from agir.groups.models import SupportGroup
 from agir.events.serializers import (
     EventSerializer,
     EventAdvancedSerializer,
@@ -56,6 +57,7 @@ __all__ = [
     "CreateEventProjectDocumentAPIView",
     "EventProjectsAPIView",
     "CreateOrganizerConfigAPIView",
+    "EventGroupsOrganizersAPIView",
     "CancelEventAPIView",
 ]
 
@@ -220,6 +222,37 @@ class CreateOrganizerConfigAPIView(APIView):
             )
         organizer_config = OrganizerConfig(event=event, person=person)
         organizer_config.save()
+        return JsonResponse({"data": True})
+
+
+# View to send and accept group invitation to an event organization
+class EventGroupsOrganizersAPIView(APIView):
+    permission_classes = (EventManagementPermissions,)
+    queryset = OrganizerConfig.objects.all()
+
+    # group invitation
+    def post(self, request, pk):
+        print("===== LETS CO ORGANIZE WITH GROUPS", flush=True)
+
+        event = Event.objects.get(pk=pk)
+        group_id = request.data.get("groupPk")
+        print(group_id, flush=True)
+        group = SupportGroup.objects.get(pk=group_id)
+        print(vars(group), flush=True)
+
+        # check group exist
+        if not group:
+            return JsonResponse({"data": False})
+
+        # check group not already invited
+        if len(OrganizerConfig.objects.filter(event=event, group=group)) > 0:
+            raise exceptions.ValidationError(
+                detail={"detail": "Ce groupe coorganise déjà l'événement"},
+                code="invalid_format",
+            )
+
+        # TODO : TASK SEND MAIL TO GROUP ORGANIZERS
+
         return JsonResponse({"data": True})
 
 

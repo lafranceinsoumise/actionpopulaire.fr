@@ -61,8 +61,8 @@ class Activity(TimeStampedModel):
 
     # TODO
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
-    TYPE_GROUP_COORGANIZATION_ACCEPTED = "group-coorganization-accepted"
     TYPE_GROUP_COORGANIZATION_INVITE = "group-coorganization-invite"
+    TYPE_GROUP_COORGANIZATION_ACCEPTED = "group-coorganization-accepted"
     TYPE_WAITING_PAYMENT = "waiting-payment"
 
     DISPLAYED_TYPES = (
@@ -80,9 +80,9 @@ class Activity(TimeStampedModel):
         TYPE_REFERRAL,
         TYPE_GROUP_COORGANIZATION_INFO,
         TYPE_ACCEPTED_INVITATION_MEMBER,
-        TYPE_GROUP_COORGANIZATION_ACCEPTED,
         TYPE_WAITING_LOCATION_EVENT,
         TYPE_GROUP_COORGANIZATION_INVITE,
+        TYPE_GROUP_COORGANIZATION_ACCEPTED,
         TYPE_WAITING_LOCATION_GROUP,
         TYPE_WAITING_PAYMENT,
         TYPE_GROUP_CREATION_CONFIRMATION,
@@ -95,7 +95,6 @@ class Activity(TimeStampedModel):
         TYPE_GROUP_INVITATION,
         TYPE_NEW_MEMBER,
         TYPE_WAITING_LOCATION_GROUP,
-        TYPE_GROUP_COORGANIZATION_INVITE,
         TYPE_WAITING_LOCATION_EVENT,
         TYPE_GROUP_CREATION_CONFIRMATION,
         TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
@@ -121,8 +120,8 @@ class Activity(TimeStampedModel):
             "Nouveau commentaire dans une de vos discussions",
         ),
         (TYPE_WAITING_LOCATION_GROUP, "Préciser la localisation du groupe"),
-        (TYPE_GROUP_COORGANIZATION_INVITE, "Invitation à coorganiser un groupe reçue"),
         (TYPE_WAITING_LOCATION_EVENT, "Préciser la localisation d'un événement"),
+        (TYPE_GROUP_COORGANIZATION_INVITE, "Invitation à coorganiser un groupe reçue"),
         (
             TYPE_GROUP_COORGANIZATION_ACCEPTED,
             "Invitation à coorganiser un groupe acceptée",
