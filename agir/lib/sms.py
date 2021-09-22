@@ -1,5 +1,4 @@
 import logging
-from itertools import zip_longest
 
 import ovh
 from collections import namedtuple
@@ -8,6 +7,8 @@ from django.utils import timezone
 from math import ceil
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import number_type, PhoneNumberType
+
+from agir.lib.utils import grouper
 
 logger = logging.getLogger(__name__)
 
@@ -187,10 +188,6 @@ def _send_sms(message, recipients, at=None):
 
 def to_phone_number(n):
     return PhoneNumber.from_string(n, region="FR") if isinstance(n, str) else n
-
-
-def grouper(it, n):
-    return ([e for e in g if e is not None] for g in zip_longest(*[iter(it)] * n))
 
 
 MessageLength = namedtuple("MessageLength", ["encoding", "byte_length", "messages"])
