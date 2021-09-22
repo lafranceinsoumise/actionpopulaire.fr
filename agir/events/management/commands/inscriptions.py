@@ -346,7 +346,7 @@ class Command(BaseCommand):
             self.send_emails(config, status)
 
     def send_emails(self, config, status):
-        sending = status._active & ~status._mail_envoye
+        sending = status._active & ~status._email_envoye
 
         if self.verbosity >= 1:
             print(f"{sending.sum()} emails à envoyer.")
