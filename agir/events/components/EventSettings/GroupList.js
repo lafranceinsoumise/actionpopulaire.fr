@@ -18,11 +18,12 @@ const StyledList = styled.div`
 `;
 
 const GroupList = ({
-  groups,
+  groups = [],
+  children,
   onAdd,
   addButtonLabel,
   isLoading,
-  handleAction,
+  selectGroup,
 }) => (
   <StyledList>
     {groups.map((group) => {
@@ -36,10 +37,11 @@ const GroupList = ({
           key={group.id}
           isLoading={isLoading}
           description={description}
-          handleAction={handleAction}
+          selectGroup={selectGroup}
         />
       );
     })}
+    {children}
     {onAdd && addButtonLabel && (
       <ButtonAddList onClick={onAdd} label={addButtonLabel} />
     )}
@@ -48,10 +50,11 @@ const GroupList = ({
 
 GroupList.propTypes = {
   groups: PropTypes.arrayOf(PropTypes.shape(GroupItem.propTypes)),
+  children: PropTypes.node,
   onAdd: PropTypes.func,
   addButtonLabel: PropTypes.node,
   isLoading: PropTypes.bool,
-  handleAction: PropTypes.func,
+  selectGroup: PropTypes.func,
 };
 
 export default GroupList;

@@ -73,42 +73,38 @@ const StyledGroup = styled.div`
   }
 `;
 
-const GroupItem = ({
-  id,
-  name,
-  image = "",
-  description = "",
-  handleAction,
-}) => (
-  <StyledGroup>
-    {image ? (
-      <Avatar image={image} name={name} />
-    ) : (
-      <RawFeatherIcon width="1rem" height="1rem" name="users" />
-    )}
-    <Name>
-      {name}
-      <Description>{description}</Description>
-    </Name>
+const GroupItem = ({ id, name, image = "", description = "", selectGroup }) => {
+  return (
+    <StyledGroup>
+      {image ? (
+        <Avatar image={image} name={name} />
+      ) : (
+        <RawFeatherIcon width="1rem" height="1rem" name="users" />
+      )}
+      <Name>
+        {name}
+        <Description>{description}</Description>
+      </Name>
 
-    {handleAction && (
-      <Button
-        color="choose"
-        small
-        onClick={() => handleAction({ id, name, description })}
-      >
-        Inviter
-      </Button>
-    )}
-  </StyledGroup>
-);
+      {selectGroup && (
+        <Button
+          color="choose"
+          small
+          onClick={() => selectGroup({ id, name, description })}
+        >
+          Inviter
+        </Button>
+      )}
+    </StyledGroup>
+  );
+};
 
 GroupItem.propTypes = {
   id: PropTypes.string,
   name: PropTypes.string,
   image: PropTypes.string,
   description: PropTypes.string,
-  handleAction: PropTypes.func,
+  selectGroup: PropTypes.func,
 };
 
 export default GroupItem;

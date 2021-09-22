@@ -69,7 +69,7 @@ from agir.lib.rest_framework_permissions import (
 )
 
 from agir.lib.tasks import geocode_person
-from ..tasks import send_cancellation_notification
+from ..tasks import send_cancellation_notification, send_group_invitation_notification
 
 
 class EventRsvpedAPIView(ListAPIView):
@@ -232,26 +232,24 @@ class EventGroupsOrganizersAPIView(APIView):
 
     # group invitation
     def post(self, request, pk):
-        print("===== LETS CO ORGANIZE WITH GROUPS", flush=True)
-
         event = Event.objects.get(pk=pk)
         group_id = request.data.get("groupPk")
-        print(group_id, flush=True)
         group = SupportGroup.objects.get(pk=group_id)
-        print(vars(group), flush=True)
+        print("==== GROUP COORGANIZATION :", flush=True)
 
         # check group exist
         if not group:
             return JsonResponse({"data": False})
 
         # check group not already invited
-        if len(OrganizerConfig.objects.filter(event=event, group=group)) > 0:
+        if len(OrganizerConfig.objects.filter(event=event, as_group=group)) > 0:
             raise exceptions.ValidationError(
                 detail={"detail": "Ce groupe coorganise déjà l'événement"},
                 code="invalid_format",
             )
 
-        # TODO : TASK SEND MAIL TO GROUP ORGANIZERS
+        # Send notification and mail to managers of group invited
+        send_group_invitation_notification.delay(pk, group, self.request.user.person)
 
         return JsonResponse({"data": True})
 

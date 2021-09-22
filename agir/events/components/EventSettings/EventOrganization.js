@@ -14,6 +14,7 @@ import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styl
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
 import MemberList from "./EventMemberList";
 import GroupList from "./GroupList";
+import GroupItem from "./GroupItem";
 
 import { PanelWrapper } from "@agir/front/genericComponents/ObjectManagement/PanelWrapper";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton.js";
@@ -200,14 +201,12 @@ const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
     const { data, errors } = await apiGroup.searchGroup(e);
     // Filter already organizer groups
     setGroupSearched(
-      data.results
-        .reduce((result, groupSearch) => {
-          if (!groups.some((group) => group.id === groupSearch.id)) {
-            return [...result, groupSearch];
-          }
-          return result;
-        }, [])
-        ?.slice(0, 4)
+      data.results.reduce((result, groupSearch) => {
+        if (!groups.some((group) => group.id === groupSearch.id)) {
+          return [...result, groupSearch];
+        }
+        return result;
+      }, [])
     );
   };
 
@@ -243,7 +242,13 @@ const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
           {!!groupSearched?.length && (
             <>
               <Spacer size="2rem" />
-              <GroupList groups={groupSearched} handleAction={selectGroup} />
+              {groupSearched.slice(0, 4).length > 4 && (
+                <p>4 des {groupSearched.length} résultats</p>
+              )}
+              <GroupList
+                groups={groupSearched.slice(0, 4)}
+                selectGroup={selectGroup}
+              />
               <Spacer size="1rem" />
             </>
           )}
@@ -257,7 +262,9 @@ const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
         </>
       ) : (
         <>
-          <GroupList groups={[selectedGroup]} />
+          <GroupList>
+            <GroupItem key={selectedGroup.id} {...selectedGroup} />
+          </GroupList>
           <Spacer size="1rem" />
           <div>
             <StyledListBlock>
@@ -295,9 +302,11 @@ const EventOrganization = (props) => {
 
   const participants = useMemo(() => event?.participants || [], [event]);
   const organizers = useMemo(() => event?.organizers || [], [event]);
+  const groups = useMemo(() => event?.groups || [], [event]);
 
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const [submenuGroupOpen, setSubmenuGroupOpen] = useState(false);
+
   const transition = useTransition(submenuOpen, slideInTransition);
   const transitionGroup = useTransition(submenuGroupOpen, slideInTransition);
 
@@ -311,7 +320,7 @@ const EventOrganization = (props) => {
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
 
-      {event?.groups?.length > 0 && (
+      {!!event?.groups?.length && (
         <>
           <StyledTitle>Groupes</StyledTitle>
           <span style={{ color: style.black700 }}>
@@ -325,7 +334,7 @@ const EventOrganization = (props) => {
           <Spacer size="1rem" />
 
           <GroupList
-            groups={event.groups}
+            groups={groups}
             addButtonLabel={
               event && !event.isPast ? "Ajouter un groupe co-organisateur" : ""
             }
@@ -372,7 +381,7 @@ const EventOrganization = (props) => {
               <AddGroupOrganizer
                 onClick={() => setSubmenuGroupOpen(false)}
                 eventPk={eventPk}
-                groups={event.groups}
+                groups={groups}
                 onBack={closeMenuGroup}
               />
             </PanelWrapper>

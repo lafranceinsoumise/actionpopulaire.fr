@@ -570,3 +570,44 @@ def send_event_suggestion_email(event_pk, recipient_pk):
         recipients=[subscription.first().person],
         bindings=bindings,
     )
+
+
+@emailing_task
+@post_save_task
+def send_group_invitation_notification(event_pk, group, member):
+    event = Event.objects.get(pk=event_pk)
+
+    try:
+        event = Event.objects.get(pk=event_pk)
+    except Event.DoesNotExist:
+        return
+
+    subject = f"Votre groupe {group.name} est invité à co-organiser {event.name}"
+    recipients = group.managers
+    bindings = {
+        "TITLE": subject,
+        "EVENT_NAME": event.name,
+        "GROUP_NAME": event.name,
+        "MEMBER": member.displayName,
+    }
+
+    return
+    send_mosaico_email(
+        code="EVENT_GROUP_COORGANIZATION_INVITE",
+        subject=subject,
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings,
+    )
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
+                recipient=r,
+                event=event,
+            )
+            for r in recipients
+        ],
+        send_post_save_signal=True,
+    )
