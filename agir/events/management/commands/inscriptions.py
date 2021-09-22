@@ -309,9 +309,6 @@ class Command(BaseCommand):
             ]
         )
 
-        if new_draws.sum() == 0:
-            return
-
         # obligé de passer par UTC sinon Pandas fait chier :(
         limit = (
             pd.Timestamp(
@@ -330,14 +327,14 @@ class Command(BaseCommand):
             for g, c in drawn_counts.items():
                 self.stdout.write(f"{g}: {c} personnes\n")
 
-        if do_it:
-            status[[c for c in status.columns if not c.startswith("_")]].to_csv(
-                config["status_file"]
-            )
-
         tag_current = PersonTag.objects.get(label=f"{config['tag_prefix']} - ouvert")
 
         if do_it:
+            if new_draws.sum():
+                status[[c for c in status.columns if not c.startswith("_")]].to_csv(
+                    config["status_file"]
+                )
+
             with transaction.atomic():
                 # on retire la possibilité de s'inscrire aux précédents
                 # on ajoute les nouveaux aux deux tags
