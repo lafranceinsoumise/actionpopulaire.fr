@@ -60,7 +60,7 @@ export const MissingDocumentModal = (props) => {
           </strong>{" "}
           envoyez des documents justifiant que vous n’avez engagé aucun frais
           personnel.{" "}
-          <a href={hrefs.campaignFundingHelp}>En savoir plus</a>
+          <a href={hrefs.campaignEventDocumentHelp}>En savoir plus</a>
         </p>
         <Spacer size="0.5rem" />
         <p>

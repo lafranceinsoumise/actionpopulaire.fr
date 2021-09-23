@@ -59,7 +59,7 @@ const CampaignFundingField = (props) => {
         <p>
           À l’exception des réunions internes, la loi vous interdit d'engager
           des frais personnels dans le cadre de la campagne présidentielle.{" "}
-          <a href={hrefs.campaignFundingHelp}>En savoir plus</a>
+          <a href={hrefs.campaignEventDocumentHelp}>En savoir plus</a>
         </p>
         {isCertified && (
           <p>
@@ -73,7 +73,7 @@ const CampaignFundingField = (props) => {
               les demandes de dépense
             </Link>{" "}
             de la France insoumise.{" "}
-            <a href={hrefs.campaignFundingHelp}>En savoir plus</a>
+            <a href={hrefs.campaignEventDocumentHelp}>En savoir plus</a>
           </p>
         )}
         {needsDocuments && (
@@ -81,7 +81,7 @@ const CampaignFundingField = (props) => {
             Tout prêt de matériel ou de lieu doit être justifié d’une
             attestation à télécharger sur Action Populaire d’ici à{" "}
             {DOCUMENT_SENDING_DELAY} jours après la fin de l’événement.{" "}
-            <a href={hrefs.campaignFundingHelp}>En savoir plus</a>
+            <a href={hrefs.campaignEventDocumentHelp}>En savoir plus</a>
           </p>
         )}
       </div>
