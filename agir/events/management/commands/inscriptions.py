@@ -181,7 +181,6 @@ def get_stats(status, config):
         # On utilise un modèle bayésien simple :
         # - on considère que chaque tirage au sort est une variable de Bernoulli : soit la personne
         #   accepte, avec une probabilité `p`, soit elle refuse, avec une probabilité `1-p`
-        # - au sein de chaque collège, on considère que cette probabilité `p` est identique.
         # - on cherche donc à estimer, pour chaque collège, la valeur de cette probabilité `p`.
         #
         # On choisit donc comme prior pour `p` une distribution Beta, car il s'agit de la distribution
@@ -200,9 +199,9 @@ def get_stats(status, config):
 
         # Toutefois, ce qui nous intéresse in fine, c'est le nombre de personnes à tirer pour espérer remplir
         # l'objectif, sans néanmoins risquer de le dépasser. Si on suppose que le taux réel est de `p`, il faudrait
-        # tirer en moyenne
+        # tirer en moyenne 1/p fois notre objectif final pour faire le nombre d'inscriptions prévu.
 
-        # Enfin, pour décider combien de personnes on tire, on prend le 95ème centile que nous donne
+        # Comme on a pas le taux réel, et pour limiter les risques, on prend le 95ème centile que nous donne
         # notre distribution a posteriori : dit autrement, on estime qu'il y a 95 % de chances que le taux
         # réel de réponse positive soit pire que ce taux, compte tenu de notre prior et des réponses déjà observées.
         # Il s'agit donc en quelque sorte d'une "borne maximum" (à 95 %) sur la valeur du taux réel.
