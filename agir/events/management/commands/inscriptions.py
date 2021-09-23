@@ -190,7 +190,7 @@ def get_stats(status, config):
         # On utilise les deux paramètres `subscription_prior` et `prior_weight`  pour paramétrer cette
         # distribution a priori et obtenir les paramètres classiques `a` et `b`
         subscription_prior = config["subscription_prior"]
-        prior_weight = 5
+        prior_weight = config.get("subscription_prior_weight", 5)
         a = subscription_prior * prior_weight
         b = (1 - subscription_prior) * prior_weight
         # Dit autrement, `subscription_prior` est la moyenne souhaitée pour la distribution a priori,
