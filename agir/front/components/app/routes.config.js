@@ -61,6 +61,9 @@ const LogoutPage = lazy(() =>
   import("@agir/front/authentication/Connexion/Logout")
 );
 const MessagePage = lazy(() => import("@agir/msgs/MessagePage/MessagePage"));
+const DonationPage = lazy(() =>
+  import("@agir/donations/donationPage/DonationPage")
+);
 
 export const BASE_PATH = "/";
 
@@ -398,6 +401,19 @@ export const routeConfig = {
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
+  }),
+  donations: new RouteConfig({
+    id: "donations",
+    path: "/donner/:type?/",
+    params: { type: null },
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Dons",
+    Component: DonationPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    hideTopBar: true,
   }),
 };
 

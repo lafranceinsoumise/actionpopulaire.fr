@@ -96,7 +96,7 @@ const Login = () => {
         <span>Pas encore de compte ?</span>
         &nbsp;
         <span>
-          <Link route="signup" params={{ ...(location.state || {}), next }}>
+          <Link route="signup" state={{ ...(location.state || {}), next }}>
             Je m'inscris
           </Link>
         </span>

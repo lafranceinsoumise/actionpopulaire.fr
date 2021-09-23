@@ -220,6 +220,12 @@ urlpatterns = [
         views.UserMessageView.as_view(),
         name="user_message_details.notification_settings",
     ),
+    path("donner/", views.DonationView.as_view(), name="donations",),
+    path(
+        "donner/melenchon2022/",
+        views.DonationViewJLM2022.as_view(),
+        name="donations_jlm2022",
+    ),
     # old urls
     re_path("^old(.*)$", views.NBUrlsView.as_view(), name="old_urls"),
 ]

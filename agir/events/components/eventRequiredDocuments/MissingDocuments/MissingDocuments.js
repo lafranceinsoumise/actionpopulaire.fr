@@ -59,8 +59,7 @@ export const MissingDocumentModal = (props) => {
             Pour chaque événement public visant à susciter des suffrages&nbsp;:
           </strong>{" "}
           envoyez des documents justifiant que vous n’avez engagé aucun frais
-          personnel.{" "}
-          <a href={hrefs.campaignFundingHelp}>En savoir plus</a>
+          personnel. <a href={hrefs.campaignFundingHelp}>En savoir plus</a>
         </p>
         <Spacer size="0.5rem" />
         <p>

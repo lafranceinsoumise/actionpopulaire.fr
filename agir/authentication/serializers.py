@@ -70,7 +70,6 @@ class SessionSerializer(serializers.Serializer):
             "personalInformation": reverse("personal_information"),
             "nspReferral": front_url("nsp_referral"),
             "materiel": "https://materiel.lafranceinsoumise.fr/",
-            "donations": front_url("donation_amount"),
         }
 
         if request.user.is_authenticated and request.user.person is not None:
