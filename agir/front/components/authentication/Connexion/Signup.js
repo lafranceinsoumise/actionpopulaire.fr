@@ -144,7 +144,7 @@ const SignUp = () => {
         <span>Déjà inscrit·e ?</span>
         &nbsp;
         <span>
-          <Link route="login" params={location.state}>
+          <Link route="login" state={location.state}>
             Je me connecte
           </Link>
         </span>

@@ -28,14 +28,21 @@ ExternalLink.propTypes = {
 };
 
 const InternalLink = (props) => {
-  const { to, params, ...rest } = props;
+  const { to, params, state, ...rest } = props;
 
-  const next = params ? { pathname: to, state: { ...params } } : to;
+  let pathname = to;
+
+  if (params) {
+    pathname = addQueryStringParams(pathname, params, true);
+  }
+
+  const next = state ? { pathname, state } : pathname;
 
   return <RouterLink {...rest} to={next} />;
 };
 InternalLink.propTypes = {
   to: PropTypes.string.isRequired,
+  state: PropTypes.object,
   params: PropTypes.object,
 };
 
