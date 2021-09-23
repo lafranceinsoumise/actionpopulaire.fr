@@ -273,6 +273,7 @@ class Command(BaseCommand):
         update_parser.add_argument(
             "-f", "--fake-it", action="store_false", dest="do_it"
         )
+        update_parser.add_argument("-c", "--college")
         update_parser.set_defaults(command=self.update_and_draw)
 
         refresh_email_parser = subparsers.add_parser(
@@ -299,7 +300,7 @@ class Command(BaseCommand):
         with open(config["email_html_file"], "wb") as f:
             f.write(r.content)
 
-    def update_and_draw(self, config, do_it=False, **options):
+    def update_and_draw(self, config, do_it=False, college=None, **options):
         status = get_current_status(config)
         stats = get_stats(status, config)
 
@@ -310,6 +311,9 @@ class Command(BaseCommand):
                 for id in g["id"].iloc[: stats.loc[name, "to_draw"]]
             ]
         )
+
+        if college is not None:
+            new_draws &= status.college == college
 
         # obligé de passer par UTC sinon Pandas fait chier :(
         limit = (
@@ -338,8 +342,8 @@ class Command(BaseCommand):
                 )
 
             with transaction.atomic():
-                # on retire la possibilité de s'inscrire aux précédents
-                # on ajoute les nouveaux aux deux tags
+                # on met à jour le tag, ce qui retire l'accès à ceux qui ont dépassé leur période d'inscription
+                # et l'ouvre aux nouveaux tirés
                 tag_current.people.set(status.loc[status._active, "id"])
 
             self.send_emails(config, status)
