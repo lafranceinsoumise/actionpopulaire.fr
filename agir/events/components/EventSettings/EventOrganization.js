@@ -174,14 +174,14 @@ const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
     });
 
     setIsLoading(false);
-    // if (res.errors) {
-    //   sendToast(res.errors.detail, "ERROR", { autoClose: true });
-    //   onBack();
-    //   return;
-    // }
-    // sendToast("Informations mises à jour", "SUCCESS", { autoClose: true });
+    if (res.errors) {
+      sendToast(res.errors.detail, "ERROR", { autoClose: true });
+      onBack();
+      return;
+    }
+    sendToast("Invitation envoyée", "SUCCESS", { autoClose: true });
     // mutate(api.getEventEndpoint("getDetailAdvanced", { eventPk }));
-    // onBack();
+    onBack();
   };
 
   const selectGroup = useCallback((value) => {
@@ -303,6 +303,7 @@ const EventOrganization = (props) => {
   const participants = useMemo(() => event?.participants || [], [event]);
   const organizers = useMemo(() => event?.organizers || [], [event]);
   const groups = useMemo(() => event?.groups || [], [event]);
+  const groupsInvited = useMemo(() => event?.groups_invited || [], [event]);
 
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const [submenuGroupOpen, setSubmenuGroupOpen] = useState(false);
@@ -339,7 +340,16 @@ const EventOrganization = (props) => {
               event && !event.isPast ? "Ajouter un groupe co-organisateur" : ""
             }
             onAdd={event && !event.isPast ? openMenuGroup : undefined}
-          />
+          >
+            {groupsInvited?.map((g) => (
+              <GroupItem
+                key={g.id}
+                {...g}
+                label="Invitation en attente"
+                disabled
+              />
+            ))}
+          </GroupList>
           <Spacer size="1.5rem" />
         </>
       )}

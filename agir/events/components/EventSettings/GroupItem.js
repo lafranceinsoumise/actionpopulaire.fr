@@ -9,6 +9,7 @@ import Button from "@agir/front/genericComponents/Button";
 
 const Name = styled.span``;
 const Description = styled.span``;
+const Label = styled.span``;
 const StyledGroup = styled.div`
   background-color: ${style.white};
   padding: 0.75rem 1rem;
@@ -17,6 +18,7 @@ const StyledGroup = styled.div`
   grid-template-rows: auto auto;
   align-items: center;
   grid-gap: 0 1rem;
+  opacity: ${({ disabled }) => (disabled ? 0.7 : 1)};
 
   @media (max-width: ${style.collapse}px) {
     grid-template-columns: auto 1fr;
@@ -71,11 +73,23 @@ const StyledGroup = styled.div`
     white-space: nowrap;
     overflow: hidden;
   }
+
+  ${Label} {
+    font-size: 13px;
+  }
 `;
 
-const GroupItem = ({ id, name, image = "", description = "", selectGroup }) => {
+const GroupItem = ({
+  id,
+  name,
+  image = "",
+  description = "",
+  selectGroup,
+  label,
+  disabled,
+}) => {
   return (
-    <StyledGroup>
+    <StyledGroup disabled={disabled}>
       {image ? (
         <Avatar image={image} name={name} />
       ) : (
@@ -95,6 +109,7 @@ const GroupItem = ({ id, name, image = "", description = "", selectGroup }) => {
           Inviter
         </Button>
       )}
+      {!!label && <Label>{label}</Label>}
     </StyledGroup>
   );
 };

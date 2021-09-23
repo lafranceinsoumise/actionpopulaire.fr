@@ -6,6 +6,7 @@ import requests
 from celery import shared_task
 from django.conf import settings
 from django.template.defaultfilters import date as _date
+from django.utils.timezone import now
 from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.http import urlencode
@@ -573,25 +574,26 @@ def send_event_suggestion_email(event_pk, recipient_pk):
 
 
 @emailing_task
-@post_save_task
 def send_group_invitation_notification(event_pk, group, member):
-    event = Event.objects.get(pk=event_pk)
 
+    event = Event.objects.get(pk=event_pk)
     try:
         event = Event.objects.get(pk=event_pk)
     except Event.DoesNotExist:
         return
 
     subject = f"Votre groupe {group.name} est invité à co-organiser {event.name}"
-    recipients = group.managers
+    recipients = group.referents
     bindings = {
         "TITLE": subject,
         "EVENT_NAME": event.name,
-        "GROUP_NAME": event.name,
-        "MEMBER": member.displayName,
+        "GROUP_NAME": group.name,
+        "MEMBER": member.display_name,
+        "DATE": now(),
+        # TODO : link to view that accept event coorganizing invitation (redirect to event page with Toast)
+        "ACCEPT_LINK": front_url("view_event", kwargs={"pk": event_pk}),
     }
 
-    return
     send_mosaico_email(
         code="EVENT_GROUP_COORGANIZATION_INVITE",
         subject=subject,
@@ -600,14 +602,23 @@ def send_group_invitation_notification(event_pk, group, member):
         bindings=bindings,
     )
 
+    # Add activity for all group referents that hasnt been notified yet
     Activity.objects.bulk_create(
         [
             Activity(
                 type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
                 recipient=r,
                 event=event,
+                supportgroup=group,
             )
             for r in recipients
+            if Activity.objects.filter(
+                type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
+                recipient=r,
+                event=event,
+                supportgroup=group,
+            )
+            is None
         ],
         send_post_save_signal=True,
     )

@@ -118,18 +118,18 @@ const GenericCard = (props) => {
         </GenericCardContainer>
       );
     }
+    case "waiting-location-event": {
+      return (
+        <GenericCardContainer {...props}>
+          Précisez la localisation de votre événement&nbsp;: {Event}
+        </GenericCardContainer>
+      );
+    }
     case "group-coorganization-invite": {
       return (
         <GenericCardContainer {...props}>
           {Individual || "Quelqu'un"} a proposé à {SupportGroup} de co-organiser{" "}
           {Event}
-        </GenericCardContainer>
-      );
-    }
-    case "waiting-location-event": {
-      return (
-        <GenericCardContainer {...props}>
-          Précisez la localisation de votre événement&nbsp;: {Event}
         </GenericCardContainer>
       );
     }

@@ -225,7 +225,7 @@ class CreateOrganizerConfigAPIView(APIView):
         return JsonResponse({"data": True})
 
 
-# View to send and accept group invitation to an event organization
+# Send and accept group invitation to an event organization
 class EventGroupsOrganizersAPIView(APIView):
     permission_classes = (EventManagementPermissions,)
     queryset = OrganizerConfig.objects.all()
@@ -241,15 +241,16 @@ class EventGroupsOrganizersAPIView(APIView):
         if not group:
             return JsonResponse({"data": False})
 
-        # check group not already invited
+        # check group already invited
         if len(OrganizerConfig.objects.filter(event=event, as_group=group)) > 0:
             raise exceptions.ValidationError(
                 detail={"detail": "Ce groupe coorganise déjà l'événement"},
                 code="invalid_format",
             )
 
-        # Send notification and mail to managers of group invited
-        send_group_invitation_notification.delay(pk, group, self.request.user.person)
+        # Send notification and email to managers of group invited
+        # TODO : .delay()
+        send_group_invitation_notification(pk, group, self.request.user.person)
 
         return JsonResponse({"data": True})
 

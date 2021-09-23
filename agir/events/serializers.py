@@ -306,6 +306,8 @@ class EventAdvancedSerializer(EventSerializer):
 
     contact = NestedContactSerializer(source="*")
 
+    groups_invited = serializers.SerializerMethodField()
+
     def get_participants(self, obj):
         return [
             {"id": person.id, "email": person.email, "displayName": person.display_name}
@@ -323,6 +325,22 @@ class EventAdvancedSerializer(EventSerializer):
                 "isOrganizer": True,
             }
             for person in obj.organizers.all()
+        ]
+
+    def get_groups_invited(self, obj):
+        activities = Activity.objects.filter(
+            type=Activity.TYPE_GROUP_COORGANIZATION_INVITE, event=obj.pk
+        )
+        # .distinct("supportgroup")
+
+        # get groups invited from activities sent
+        groups_invited = SupportGroup.objects.filter(
+            pk__in=activities.values_list("supportgroup")
+        )
+
+        return [
+            {"id": group.id, "name": group.name, "description": group.description,}
+            for group in groups_invited
         ]
 
 
