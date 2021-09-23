@@ -231,7 +231,7 @@ const AmountStep = (props) => {
         hasGroup && groupPercentage
           ? [
               {
-                id: group?.id,
+                group: group?.id,
                 amount: (amount * groupPercentage) / 100,
               },
             ]

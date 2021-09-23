@@ -60,4 +60,8 @@ urlpatterns = [
         views.DeleteDocumentView.as_view(),
         name="delete_document",
     ),
+    # API views
+    path(
+        "api/dons/", views.CreateDonationAPIView.as_view(), name="api_create_donation",
+    ),
 ]

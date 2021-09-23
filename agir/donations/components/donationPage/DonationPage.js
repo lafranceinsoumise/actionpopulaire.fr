@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import useSWR from "swr";
 
@@ -7,9 +7,11 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
 import AmountStep from "./AmountStep";
 
+import { createDonation } from "./api";
+
 const DonationPage = () => {
-  const [isLoading] = useState(false);
-  const [error] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const { data: session } = useSWR("/api/session/");
 
@@ -35,6 +37,18 @@ const DonationPage = () => {
     }
   );
 
+  const handleSubmit = useCallback(async (data) => {
+    setIsLoading(true);
+    setError("");
+    const result = await createDonation(data);
+    setIsLoading(false);
+    if (result.error || !result?.data?.next) {
+      setError(result.error || "Une erreur est survenue. Veuillez ressayer.");
+      return;
+    }
+    window.location.href = result.data.next;
+  }, []);
+
   return (
     <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
       <AmountStep
@@ -46,7 +60,7 @@ const DonationPage = () => {
         }
         isLoading={isLoading}
         error={error}
-        onSubmit={console.log}
+        onSubmit={handleSubmit}
       />
     </PageFadeIn>
   );

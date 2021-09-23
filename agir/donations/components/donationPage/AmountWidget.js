@@ -123,7 +123,6 @@ const AmountWidget = (props) => {
             id="customAmount"
             type="number"
             min="0"
-            max="4600"
             step="1"
             value={customAmount ? customAmount / 100 : ""}
             onChange={updateCustomAmount}
