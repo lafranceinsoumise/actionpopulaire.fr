@@ -78,10 +78,10 @@ def get_current_status(config):
     )
 
     try:
-        with open(config["envoyes"]) as f:
-            envoyes = f.read().split()
+        with open(config["email_sent_file"]) as f:
+            email_sent = f.read().split()
     except FileNotFoundError:
-        envoyes = []
+        email_sent = []
 
     if status.subscribe_limit.dt.tz is None:
         status["subscribe_limit"] = status.subscribe_limit.dt.tz_localize(
@@ -128,7 +128,7 @@ def get_current_status(config):
         & ~status._unable
         & (status.subscribe_limit > now)
     )
-    status["_email_envoye"] = status.id.isin(envoyes)
+    status["_email_envoye"] = status.id.isin(email_sent)
     status["_available"] = status._exists & status.subscribe_limit.isnull()
 
     return status
@@ -241,8 +241,11 @@ def config_file(string):
 
     current_dir = p.parent
 
-    for k in ["status_file", "email_html_file", "email_text_file"]:
-        config[k] = current_dir / Path(config[k])
+    for k in ["status_file", "email_html_file", "email_text_file", "email_sent_file"]:
+        if k in config:
+            config[k] = Path(config[k])
+            if not config[k].is_absolute():
+                config[k] = current_dir / config[k]
 
     return config
 
@@ -360,7 +363,7 @@ class Command(BaseCommand):
 
         locale.setlocale(locale.LC_TIME, "fr_FR.UTF-8")
 
-        with open(config["envoyes"], mode="a") as f:
+        with open(config["email_sent_file"], mode="a") as f:
             for g in grouper(
                 tqdm(
                     status.loc[sending].itertuples(), total=sending.sum(), disable=None
