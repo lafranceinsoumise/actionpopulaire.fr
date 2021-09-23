@@ -1,3 +1,4 @@
+from itertools import zip_longest, chain, islice
 from urllib.parse import urljoin, urlparse
 
 import re
@@ -171,3 +172,16 @@ def clean_subject_email(subject):
     if len(subject) > 80:
         subject = subject[0:80] + '..."'
     return subject
+
+
+def grouper(it, n):
+    """Subdivise un itérateur en groupes successifs de taille maximale n"""
+    if n <= 0:
+        raise ValueError("`n` doit être en entier positif")
+    it = iter(it)
+    while True:
+        try:
+            f = next(it)
+        except StopIteration:
+            return
+        yield chain((f,), islice(it, n - 1))

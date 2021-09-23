@@ -12,7 +12,7 @@ from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from agir.events.models import Calendar
+from agir.events.models import Calendar, RSVP
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.admin import (
     CenterOnFranceMixin,
@@ -508,10 +508,10 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     def get_submission_queryset(self, form):
         return (
             PersonFormSubmission.objects.filter(
-                Q(rsvp__event=self.instance) | Q(guest_rsvp__event=self.instance)
+                Q(rsvp__event=self.instance) | Q(guest_rsvp__event=self.instance),
             )
-            .select_related("rsvp", "rsvp_guest", "person", "form")
-            .prefetch_related("person__emails")
+            .exclude(rsvp__status=RSVP.STATUS_CANCELED)
+            .select_related("rsvp", "rsvp_guest")
         )
 
     # noinspection PyMethodOverriding

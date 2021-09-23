@@ -91,36 +91,50 @@ def person_with_role(draw, **kwargs):
 
 
 class TestCase(HypothesisTestCase):
-    """Classe helper pour faire marcher setUp avec Hypothesis
+    """Classe helper qui permet d'utiliser tests classiques et tests hypothesis dans le même TestCase
 
-    Le comportement de `hypothesis.extra.django.TestCase` est en partie cassée par rapport à la façon dont la classe
-    Django correspondante fonctionne. En effet, dans les tests Django, on initialise souvent des instances de base de
-    données, en comptant sur le fait qu'ils seront détruits automatiquement avant le test suivant par le rollback
-    effectué à la fin du test.
+    Avec `hypothesis.extra.django.TestCase`, il n'est pas aisé de mélanger des tests hypothesis et des tests
+    "classiques" qui ne font pas usage d'hypothesis.
 
-    Malheureusement, pour un test hypothesis, `hypothesis.extra.django.TestCase` appelle `setUp`, puise initialise la
-    transaction avant chaque exemple (en appelant éventuellement `setup_example` juste après), avec un rollback après
-    chaque exemple. Cela signifie que l'effet du `setUp` n'est pas dans la transaction et n'est donc pas rollback.
+    En effet, dans les tests Django classiques, on initialise souvent des instances de base de données, en comptant sur
+    le fait qu'ils seront détruits automatiquement avant le test suivant par le rollback effectué à la fin du test.
+
+    Or hypothesis ajoute un mécanisme supplémentaire de set up et de tear down : `setup_example`, et `teardown_example`
+    qui s'exécutent pour chaque exemple, tandis que `setUp` et `tearDown` s'exécutent une fois pour chaque test,
+    indépendamment du nombre d'exemples. Pour garder le système de transactions fonctionnel, hypothesis déplace la
+    création et le rollback de la transaction avant et après chaque exemple, et non plus avant et après chaque test. Ce
+    sont donc les instances de modèle créées dans `setup_example` qui sont automatiquement rollback, et non celles
+    créées dans `setUp`.
+
+    Cela crée donc un problème pour les TestCase mixtes : les instances de modèles créées dans `setUp` seront
+    automatiquement rollback dans les tests classiques… mais pas dans les tests hypothesis, et il n'y a donc pas de
+    solution évidente pour écrire une fonction de `setUp` commune aux deux types de tests.
 
     Avec cette classe, la méthode `setUp` est appelée au début du test pour les tests django classiques,
-    mais non pour les tests hypothesis où elle est appelée au début de chaque exemple à la place.
+    mais non pour les tests hypothesis où elle est appelée au début de chaque exemple à la place, ce qui permet de
+    définir seulement `setUp` et d'avoir le même comportement de rollback pour les deux types de test.
 
-    Par contre, dans le cas où la classe définit une méthode `setup_example` appelée avant celle définie ci-dessous
-    dans l'ordre de résolution, on revient au fonctionnement normal, avec `setUp` appelée au début du test, et
-    `setup_example` appelé pour chaque exemple, et il faut dans ce cas être vigilant à ne pas créer d'objets de base de
-    données dans le `setUp` sans les détruire explicitement dans le `tearDown`.
+    Par contre, dans le cas où la classe définit une méthode `setup_example`, on revient au fonctionnement normal pour
+    un test hypothesis :
+    - `setUp` est appelée au début du test, hors de la transaction
+    - `setup_example` est appelée pour chaque exemple
+
+    Il faut dans ce cas être vigilant à ne pas créer d'objets de base de données dans le `setUp` sans les détruire
+    explicitement dans le `tearDown`.
     """
 
-    def _should_call_setup_teardown_anyway(self):
+    def _should_call_setup_teardown_each_example(self):
         setup_example = getattr(self.__class__, "setup_example")
-        return setup_example != TestCase.setup_example
+
+        # Si `setup_example` a été redéfini pour la classe TestCase concrète,
+        return setup_example == TestCase.setup_example
 
     def _callSetUp(self):
         test_method = getattr(self, self._testMethodName)
 
         if (
             not getattr(test_method, "is_hypothesis_test", False)
-            or self._should_call_setup_teardown_anyway()
+            or not self._should_call_setup_teardown_each_example()
         ):
             self.setUp()
 
@@ -128,16 +142,16 @@ class TestCase(HypothesisTestCase):
         test_method = getattr(self, self._testMethodName)
         if (
             not getattr(test_method, "is_hypothesis_test", False)
-            or self._should_call_setup_teardown_anyway()
+            or not self._should_call_setup_teardown_each_example()
         ):
             self.tearDown()
 
     def setup_example(self):
         super().setup_example()
-        if not self._should_call_setup_teardown_anyway():
+        if self._should_call_setup_teardown_each_example():
             self.setUp()
 
     def teardown_example(self, example):
-        if not self._should_call_setup_teardown_anyway():
+        if self._should_call_setup_teardown_each_example():
             self.tearDown()
         super().teardown_example(example)
