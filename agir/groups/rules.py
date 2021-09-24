@@ -22,6 +22,8 @@ def is_at_least_manager_for_group(role, object=None):
         supportgroup = object.supportgroup
     elif isinstance(object, SupportGroupMessageComment):
         supportgroup = object.message.supportgroup
+    elif isinstance(object, Membership):
+        supportgroup = object.supportgroup
     else:
         return False
 
@@ -36,8 +38,22 @@ def is_at_least_manager_for_group(role, object=None):
 
 
 @rules.predicate
-def is_at_least_referent_for_group(role, supportgroup=None):
-    return supportgroup is not None and Membership.objects.filter(
+def is_at_least_referent_for_group(role, object=None):
+    if object is None:
+        return False
+
+    if isinstance(object, SupportGroup):
+        supportgroup = object
+    elif isinstance(object, SupportGroupMessage):
+        supportgroup = object.supportgroup
+    elif isinstance(object, SupportGroupMessageComment):
+        supportgroup = object.message.supportgroup
+    elif isinstance(object, Membership):
+        supportgroup = object.supportgroup
+    else:
+        return False
+
+    return Membership.objects.filter(
         membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
         person=role.person,
         supportgroup=supportgroup,
@@ -166,7 +182,7 @@ rules.add_perm(
 )
 rules.add_perm(
     "groups.change_membership_type",
-    is_authenticated_person & is_at_least_referent_for_group,
+    is_authenticated_person & is_at_least_manager_for_group,
 )
 rules.add_perm(
     "groups.view_group_finance",

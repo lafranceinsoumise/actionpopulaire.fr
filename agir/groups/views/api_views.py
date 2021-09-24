@@ -602,7 +602,7 @@ class GroupInvitationAPIView(GenericAPIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-class GroupManagementPermission(GlobalOrObjectPermissions):
+class GroupMemberUpdatePermission(GlobalOrObjectPermissions):
     perms_map = {
         "PATCH": [],
     }
@@ -613,11 +613,31 @@ class GroupManagementPermission(GlobalOrObjectPermissions):
 
 class GroupMemberUpdateAPIView(UpdateAPIView):
     queryset = Membership.objects.all()
-    permission_classes = (GroupManagementPermission,)
+    permission_classes = (GroupMemberUpdatePermission,)
     serializer_class = MembershipSerializer
 
+    def check_request_data_permissions(self, request, obj):
+        # Group manager can only change membership type for members / followers
+        user_should_be_at_least_referent = (
+            request.data.get("membershipType", 0) >= Membership.MEMBERSHIP_TYPE_MANAGER
+            or obj.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+        )
+        if (
+            user_should_be_at_least_referent
+            and Membership.objects.get(
+                person=request.user.person, supportgroup=obj.supportgroup
+            ).membership_type
+            < Membership.MEMBERSHIP_TYPE_REFERENT
+        ):
+            self.permission_denied(
+                request,
+                message=getattr("groups.change_membership_type", "message", None),
+                code=getattr("groups.change_membership_type", "code", None),
+            )
+
     def check_object_permissions(self, request, obj):
-        return super().check_object_permissions(request, obj.supportgroup)
+        super().check_object_permissions(request, obj)
+        self.check_request_data_permissions(request, obj)
 
 
 class GroupFinancePermission(GlobalOrObjectPermissions):
