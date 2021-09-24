@@ -180,7 +180,7 @@ const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
       return;
     }
     sendToast("Invitation envoyée", "SUCCESS", { autoClose: true });
-    // mutate(api.getEventEndpoint("getDetailAdvanced", { eventPk }));
+    mutate(api.getEventEndpoint("getDetailAdvanced", { eventPk }));
     onBack();
   };
 

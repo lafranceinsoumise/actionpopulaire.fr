@@ -574,6 +574,7 @@ def send_event_suggestion_email(event_pk, recipient_pk):
 
 
 @emailing_task
+@post_save_task
 def send_group_invitation_notification(event_pk, group, member):
 
     event = Event.objects.get(pk=event_pk)
@@ -584,14 +585,22 @@ def send_group_invitation_notification(event_pk, group, member):
 
     subject = f"Votre groupe {group.name} est invité à co-organiser {event.name}"
     recipients = group.referents
+
+    query_args = {
+        "group": group.pk,
+    }
+    accept_group_coorganization_url = front_url(
+        "event_group_coorganization", kwargs={"pk": event_pk}
+    )
+    accept_group_coorganization_url += "?" + urlencode(query_args)
+
     bindings = {
         "TITLE": subject,
         "EVENT_NAME": event.name,
         "GROUP_NAME": group.name,
         "MEMBER": member.display_name,
         "DATE": now(),
-        # TODO : link to view that accept event coorganizing invitation (redirect to event page with Toast)
-        "ACCEPT_LINK": front_url("view_event", kwargs={"pk": event_pk}),
+        "ACCEPT_LINK": accept_group_coorganization_url,
     }
 
     send_mosaico_email(
@@ -612,13 +621,44 @@ def send_group_invitation_notification(event_pk, group, member):
                 supportgroup=group,
             )
             for r in recipients
-            if Activity.objects.filter(
-                type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
-                recipient=r,
-                event=event,
-                supportgroup=group,
-            )
-            is None
+            # Filter already sent activity, Not working
+            # if Activity.objects.filter(
+            #     type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
+            #     recipient=r,
+            #     event=event,
+            #     supportgroup=group,
+            # )
+            # is None
         ],
         send_post_save_signal=True,
+    )
+
+
+@emailing_task
+def send_group_invitation_validated_notification(event_pk, group):
+
+    event = Event.objects.get(pk=event_pk)
+    try:
+        event = Event.objects.get(pk=event_pk)
+    except Event.DoesNotExist:
+        return
+
+    subject = f"{group.name} a accepté de co-organiser {event.name}"
+
+    # Notify current event referents
+    recipients = event.organizers
+
+    bindings = {
+        "TITLE": subject,
+        "EVENT_NAME": event.name,
+        "GROUP_NAME": group.name,
+        "DATE": now(),
+    }
+
+    send_mosaico_email(
+        code="EVENT_GROUP_COORGANIZATION_ACCEPTED",
+        subject=subject,
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings,
     )

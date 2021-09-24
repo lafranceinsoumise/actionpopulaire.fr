@@ -235,7 +235,6 @@ class EventGroupsOrganizersAPIView(APIView):
         event = Event.objects.get(pk=pk)
         group_id = request.data.get("groupPk")
         group = SupportGroup.objects.get(pk=group_id)
-        print("==== GROUP COORGANIZATION :", flush=True)
 
         # check group exist
         if not group:

@@ -384,7 +384,7 @@ EMAIL_TEMPLATES = {
     "EVENT_SUGGESTION": "https://mosaico.lafranceinsoumise.fr/emails/cddee054-74cb-4efa-8349-dbb925d6cdaf.html",
     # EVENT_GROUP_COORGANIZATION_INVITE variables: TITLE, EVENT_NAME, GROUP_NAME, MEMBER, ACCEPT_LINK, DATE
     "EVENT_GROUP_COORGANIZATION_INVITE": "https://mosaico.lafranceinsoumise.fr/emails/83173a92-0069-4cba-882c-9e524aeff67f.html",
-    # EVENT_GROUP_COORGANIZATION_ACCEPTED variables: TITLE, EVENT_NAME, GROUP_NAME, DATE, LINK
+    # EVENT_GROUP_COORGANIZATION_ACCEPTED variables: TITLE, EVENT_NAME, GROUP_NAME, DATE
     "EVENT_GROUP_COORGANIZATION_ACCEPTED": "https://mosaico.lafranceinsoumise.fr/emails/4433bd2c-2dfb-4646-97ee-7be8f9315637.html",
 }
 

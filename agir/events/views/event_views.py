@@ -1,3 +1,5 @@
+from agir.groups.models import SupportGroup
+from agir.activity.models import Activity
 import locale
 import os
 import ics
@@ -51,13 +53,17 @@ from ..forms import (
     AuthorForm,
     EventLegalForm,
 )
-from ..models import Event, RSVP
+from ..models import Event, RSVP, OrganizerConfig
+
 from ..tasks import (
     send_event_report,
     send_secretariat_notification,
+    send_group_invitation_validated_notification,
 )
 from ...api import settings
 from ...carte.models import StaticMapImage
+from django.utils.http import urlencode
+
 
 __all__ = [
     "ManageEventView",
@@ -73,6 +79,7 @@ __all__ = [
     "EventSearchView",
     "EventDetailMixin",
     "EventThumbnailView",
+    "ConfirmEventGroupCoorganization",
 ]
 
 
@@ -640,6 +647,69 @@ class EditEventReportView(
 
     def get_queryset(self):
         return Event.objects.past(as_of=timezone.now())
+
+
+@method_decorator(never_cache, name="get")
+class ConfirmEventGroupCoorganization(View):
+    def get(self, request, pk, *args, **kwargs):
+
+        event = Event.objects.get(pk=pk)
+        group_id = request.GET.get("group")
+        group = SupportGroup.objects.get(pk=group_id)
+        person = self.request.user.person
+
+        if not event or not group or not person:
+            return False
+
+        # Check person is organizer of group
+        if not person in group.referents:
+            return False
+
+        # organizers_groups = event.organizers_groups.values_list() # dont work
+        organizers_groups = OrganizerConfig.objects.filter(event=event, as_group=group)
+
+        # check group already coorganizer
+        if len(organizers_groups) > 0:
+            params = {
+                "toast": True,
+                "type": "INFO",
+                "text": "Votre groupe est déjà coorganisateur",
+            }
+            return HttpResponseRedirect(
+                reverse("view_event", kwargs={"pk": pk}) + "?" + urlencode(params)
+            )
+
+        activity_groups_invited = Activity.objects.filter(
+            event=event, type=Activity.TYPE_GROUP_COORGANIZATION_INVITE
+        )
+        # .distinct("supportgroup") # dont work
+        groups_invited = SupportGroup.objects.filter(
+            pk__in=activity_groups_invited.values_list("supportgroup")
+        )
+
+        # check group have been invited to event
+        if not group in groups_invited:
+            params = {
+                "toast": True,
+                "type": "ERROR",
+                "text": "Une erreure est apparue",
+            }
+            return HttpResponseRedirect(
+                reverse("view_event", kwargs={"pk": pk}) + "?" + urlencode(params)
+            )
+
+        # Add group to organizer_groups of event
+        organizer_config = OrganizerConfig.objects.create(
+            event=event, as_group=group, person=person
+        )
+        organizer_config.save()
+
+        # TODO : Delete / update Activity TYPE_GROUP_COORGANIZATION_INVITE ?
+        activity_groups_invited.delete()
+
+        send_group_invitation_validated_notification(pk, group)
+        # .delay()
+        return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}) + "?toast")
 
 
 class SendEventReportView(
