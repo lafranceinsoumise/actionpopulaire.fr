@@ -26,6 +26,7 @@ import useTracking from "./useTracking";
 const log = logger(__filename);
 
 const StyledPage = styled.div`
+  isolation: isolate;
   ${({ $hasTopBar }) =>
     $hasTopBar
       ? `

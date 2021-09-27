@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from agir.donations.models import SpendingRequest, Operation
 from agir.groups.models import SupportGroup, Membership, SupportGroupExternalLink
+from agir.lib.tests.mixins import create_membership
 from agir.people.models import Person
 
 import uuid
@@ -722,3 +723,207 @@ class GroupExternalLinkAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 204)
         res = self.client.get(f"/api/groupes/{self.group.pk}/link/{pk}/")
         self.assertEqual(res.status_code, 404)
+
+
+class GroupMembershipUpdateAPITestCase(APITestCase):
+    def setUp(self):
+        self.group = SupportGroup.objects.create(name="Group")
+        self.non_member = Person.objects.create(
+            email="non_member@agir.local", create_role=True
+        )
+        self.follower = create_membership(
+            supportgroup=self.group, membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER
+        ).person
+        self.member = create_membership(
+            supportgroup=self.group, membership_type=Membership.MEMBERSHIP_TYPE_MEMBER
+        ).person
+        self.referent = create_membership(
+            supportgroup=self.group, membership_type=Membership.MEMBERSHIP_TYPE_REFERENT
+        ).person
+        self.manager = create_membership(
+            supportgroup=self.group, membership_type=Membership.MEMBERSHIP_TYPE_MANAGER
+        ).person
+        self.target = create_membership(
+            supportgroup=self.group, membership_type=Membership.MEMBERSHIP_TYPE_MEMBER
+        )
+
+    def test_only_referents_and_managers_can_set_follower_to_member(self):
+        data = {"membershipType": Membership.MEMBERSHIP_TYPE_MEMBER}
+        self.target.membership_type = Membership.MEMBERSHIP_TYPE_FOLLOWER
+        self.target.save()
+        # Anonymous
+        self.client.logout()
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 401)
+        # Non member
+        self.client.force_login(user=self.non_member.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Follower
+        self.client.force_login(user=self.follower.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Member
+        self.client.force_login(user=self.member.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Manager
+        self.client.force_login(user=self.manager.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 200)
+        # Referent
+        self.client.force_login(user=self.referent.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 200)
+
+    def test_only_referents_can_change_a_referent_membership_type(self):
+        data = {"membershipType": Membership.MEMBERSHIP_TYPE_MANAGER}
+        self.target.membership_type = Membership.MEMBERSHIP_TYPE_REFERENT
+        self.target.save()
+        # Anonymous
+        self.client.logout()
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 401)
+        # Non member
+        self.client.force_login(user=self.non_member.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Follower
+        self.client.force_login(user=self.follower.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Member
+        self.client.force_login(user=self.member.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Manager
+        self.client.force_login(user=self.manager.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Referent
+        self.client.force_login(user=self.referent.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 200)
+
+    def test_only_referents_can_change_a_manager_membership_type(self):
+        data = {"membershipType": Membership.MEMBERSHIP_TYPE_REFERENT}
+        self.target.membership_type = Membership.MEMBERSHIP_TYPE_MANAGER
+        self.target.save()
+        # Anonymous
+        self.client.logout()
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 401)
+        # Non member
+        self.client.force_login(user=self.non_member.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Follower
+        self.client.force_login(user=self.follower.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Member
+        self.client.force_login(user=self.member.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Manager
+        self.client.force_login(user=self.manager.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Referent
+        self.client.force_login(user=self.referent.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 200)
+
+    def test_only_referents_can_set_referents(self):
+        data = {"membershipType": Membership.MEMBERSHIP_TYPE_REFERENT}
+        self.target.membership_type = Membership.MEMBERSHIP_TYPE_MEMBER
+        self.target.save()
+        # Anonymous
+        self.client.logout()
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 401)
+        # Non member
+        self.client.force_login(user=self.non_member.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Follower
+        self.client.force_login(user=self.follower.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Member
+        self.client.force_login(user=self.member.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Manager
+        self.client.force_login(user=self.manager.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Referent
+        self.client.force_login(user=self.referent.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 200)
+
+    def test_only_referents_can_set_managers(self):
+        data = {"membershipType": Membership.MEMBERSHIP_TYPE_MANAGER}
+        self.target.membership_type = Membership.MEMBERSHIP_TYPE_MEMBER
+        self.target.save()
+        # Anonymous
+        self.client.logout()
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 401)
+        # Non member
+        self.client.force_login(user=self.non_member.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Follower
+        self.client.force_login(user=self.follower.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Member
+        self.client.force_login(user=self.member.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Manager
+        self.client.force_login(user=self.manager.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 403)
+        # Referent
+        self.client.force_login(user=self.referent.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 200)
+
+    def test_cannot_set_more_than_two_referents_for_a_group(self):
+        group = SupportGroup.objects.create(name="G")
+        a_member = create_membership(
+            supportgroup=group, membership_type=Membership.MEMBERSHIP_TYPE_MEMBER
+        )
+        another_member = create_membership(
+            supportgroup=group, membership_type=Membership.MEMBERSHIP_TYPE_MEMBER
+        )
+        the_first_referent = create_membership(
+            supportgroup=group, membership_type=Membership.MEMBERSHIP_TYPE_REFERENT
+        )
+        data = {"membershipType": Membership.MEMBERSHIP_TYPE_REFERENT}
+        self.client.force_login(user=the_first_referent.person.role)
+        res = self.client.patch(f"/api/groupes/members/{a_member.id}/", data=data)
+        self.assertEqual(res.status_code, 200)
+        res = self.client.patch(f"/api/groupes/members/{another_member.id}/", data=data)
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("membershipType", res.data)
+
+    @patch("agir.groups.serializers.member_to_follower_notification")
+    def test_notification_is_sent_for_member_to_follower_change(
+        self, member_to_follower_notification
+    ):
+        data = {"membershipType": Membership.MEMBERSHIP_TYPE_MEMBER}
+        self.target.membership_type = Membership.MEMBERSHIP_TYPE_FOLLOWER
+        self.target.save()
+        member_to_follower_notification.assert_not_called()
+        self.client.force_login(user=self.referent.role)
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 200)
+        member_to_follower_notification.assert_not_called()
+        data = {"membershipType": Membership.MEMBERSHIP_TYPE_FOLLOWER}
+        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        self.assertEqual(res.status_code, 200)
+        member_to_follower_notification.assert_called()

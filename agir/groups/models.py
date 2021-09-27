@@ -181,7 +181,7 @@ class SupportGroup(
         # (Temporarily disabled)
         # return (
         #     self.type == self.TYPE_LOCAL_GROUP
-        #     and self.members_count >= self.MEMBERSHIP_LIMIT
+        #     and self.active_members_count >= self.MEMBERSHIP_LIMIT
         # )
 
     @property

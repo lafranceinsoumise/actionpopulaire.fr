@@ -70,7 +70,7 @@ const EventSubtypeField = (props) => {
         <label>Type de l'événement</label>
       </div>
 
-      {value && (
+      {selectedSubtype && (
         <div>
           <StyledDefaultOptions style={{ display: "inline-flex" }}>
             <DefaultOption
@@ -114,7 +114,7 @@ const EventSubtypeField = (props) => {
 
 EventSubtypeField.propTypes = {
   name: PropTypes.string,
-  value: PropTypes.object,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
   options: PropTypes.arrayOf(PropTypes.object),
   onChange: PropTypes.func,
   disabled: PropTypes.bool,

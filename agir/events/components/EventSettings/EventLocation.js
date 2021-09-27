@@ -87,7 +87,9 @@ const EventLocation = (props) => {
       <Spacer size="1rem" />
       <StyledMap
         center={event?.location?.coordinates?.coordinates || []}
-        iconConfiguration={event?.subtype}
+        iconConfiguration={
+          typeof event?.subtype === "object" ? event.subtype : undefined
+        }
       />
       <Spacer size="0.5rem" />
       <Button link small wrap href={updateLocationUrl} disabled={isDisabled}>

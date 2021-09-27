@@ -397,6 +397,7 @@ export const routeConfig = {
     Component: MessagePage,
     hasLayout: false,
     hideFeedbackButton: true,
+    hideFooter: true,
   }),
 };
 

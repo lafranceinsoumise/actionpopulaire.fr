@@ -118,7 +118,11 @@ const GroupContactCard = (props) => {
           {contact.email && (
             <a href={`mailto:${contact.email}`}>{contact.email}</a>
           )}
-          {contact.phone && <span>{contact.phone}</span>}
+          {contact.phone && (
+            <span>
+              {contact.phone} {contact.hidePhone && " (caché)"}
+            </span>
+          )}
         </StyledContactSection>
       ) : null}
     </Card>

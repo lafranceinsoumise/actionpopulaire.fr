@@ -387,7 +387,7 @@ class BaseSubtype(TimeStampedModel, AbstractLabel):
 
 
 banner_path = FilePattern(
-    filename_pattern="{app_label}/{model_name}/{instance.id}/banner{ext}"
+    filename_pattern="{app_label}/{model_name}/{instance.id}/banner/{uuid:base32}{ext}"
 )
 
 

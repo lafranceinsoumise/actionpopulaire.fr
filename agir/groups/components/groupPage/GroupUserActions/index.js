@@ -9,6 +9,7 @@ import QuitGroupDialog from "./QuitGroupDialog";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import ShareLink from "@agir/front/genericComponents/ShareLink";
 
 import * as api from "@agir/groups/groupPage/api";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
@@ -37,24 +38,12 @@ const StyledContent = styled.div`
   }
 `;
 
-const modalJoinDescription = (
-  <>
-    Vous venez de rejoindre le groupe en tant que membre. Les animateur·ices du
-    groupe ont été informé·es de votre arrivée.
-    <Spacer size="0.5rem" />
-    C’est maintenant que tout se joue : faites la rencontre avec les
-    animateur·ices.
-    <Spacer size="0.5rem" />
-    Envoyez-leur un message pour vous présenter&nbsp;!
-  </>
-);
 const modalJoinConfirm = (
   <>
     <RawFeatherIcon name="mail" width="1.2rem" />
     &nbsp; Je me présente !
   </>
 );
-const modalJoinDismiss = "Non merci";
 const modalFollowDescription = (
   <>
     Vous recevrez l’actualité de ce groupe.
@@ -65,7 +54,7 @@ const modalFollowDescription = (
 );
 
 const ConnectedUserActions = (props) => {
-  const { id, name, isMember, isActiveMember } = props;
+  const { id, name, isMember, isActiveMember, contact } = props;
 
   const [isLoading, setIsLoading] = useState(false);
   const [isQuitting, setIsQuitting] = useState(false);
@@ -79,6 +68,26 @@ const ConnectedUserActions = (props) => {
   const user = useSelector(getUser);
   const history = useHistory();
   const sendToast = useToast();
+
+  const modalJoinDescription = (
+    <>
+      Vous venez de rejoindre le groupe en tant que membre. Les animateur·ices
+      du groupe ont été informé·es de votre arrivée.
+      <Spacer size="0.5rem" />
+      {!!contact?.email && (
+        <>
+          C’est maintenant que tout se joue : faites la rencontre avec les
+          animateur·ices.
+          <Spacer size="0.5rem" />
+          Envoyez-leur un message pour vous présenter&nbsp;!
+          <Spacer size="0.5rem" />
+          <ShareLink label="Copier" color="primary" url={contact.email} $wrap />
+        </>
+      )}
+    </>
+  );
+
+  const modalJoinDismiss = !!contact?.email ? "Non merci" : "Ok !";
 
   const joinGroup = useCallback(async () => {
     setIsLoading(true);
@@ -189,10 +198,6 @@ const ConnectedUserActions = (props) => {
         title={modalJoinTitle}
         description={modalJoinDescription}
         dismissLabel={modalJoinDismiss}
-        confirmationLabel={modalJoinConfirm}
-        confirmationUrl={
-          props?.contact?.email ? `mailto:${props?.contact?.email}` : undefined
-        }
       />
       <ModalConfirmation
         key={2}

@@ -15,9 +15,10 @@ from django.core.management import BaseCommand
 from django.db import transaction
 from django.template import Template, Context
 from django.utils import timezone
+from tqdm import tqdm
 
 from agir.events.models import Event, RSVP
-from agir.lib.utils import generate_token_params
+from agir.lib.utils import generate_token_params, grouper
 from agir.people.models import Person, PersonTag
 
 
@@ -25,6 +26,8 @@ RED = "91"
 GREEN = "92"
 
 COLORED_TEXT = "\033[{color}m{text}\033[0m"
+
+EMAILS_BY_CONNECTION = 500
 
 
 def colored_text(text, color):
@@ -74,6 +77,12 @@ def get_current_status(config):
         config["status_file"], parse_dates=["subscribe_limit"], index_col="order"
     )
 
+    try:
+        with open(config["email_sent_file"]) as f:
+            email_sent = f.read().split()
+    except FileNotFoundError:
+        email_sent = []
+
     if status.subscribe_limit.dt.tz is None:
         status["subscribe_limit"] = status.subscribe_limit.dt.tz_localize(
             timezone.get_default_timezone()
@@ -119,6 +128,7 @@ def get_current_status(config):
         & ~status._unable
         & (status.subscribe_limit > now)
     )
+    status["_email_envoye"] = status.id.isin(email_sent)
     status["_available"] = status._exists & status.subscribe_limit.isnull()
 
     return status
@@ -171,7 +181,6 @@ def get_stats(status, config):
         # On utilise un modèle bayésien simple :
         # - on considère que chaque tirage au sort est une variable de Bernoulli : soit la personne
         #   accepte, avec une probabilité `p`, soit elle refuse, avec une probabilité `1-p`
-        # - au sein de chaque collège, on considère que cette probabilité `p` est identique.
         # - on cherche donc à estimer, pour chaque collège, la valeur de cette probabilité `p`.
         #
         # On choisit donc comme prior pour `p` une distribution Beta, car il s'agit de la distribution
@@ -181,7 +190,7 @@ def get_stats(status, config):
         # On utilise les deux paramètres `subscription_prior` et `prior_weight`  pour paramétrer cette
         # distribution a priori et obtenir les paramètres classiques `a` et `b`
         subscription_prior = config["subscription_prior"]
-        prior_weight = 5
+        prior_weight = config.get("subscription_prior_weight", 5)
         a = subscription_prior * prior_weight
         b = (1 - subscription_prior) * prior_weight
         # Dit autrement, `subscription_prior` est la moyenne souhaitée pour la distribution a priori,
@@ -190,9 +199,9 @@ def get_stats(status, config):
 
         # Toutefois, ce qui nous intéresse in fine, c'est le nombre de personnes à tirer pour espérer remplir
         # l'objectif, sans néanmoins risquer de le dépasser. Si on suppose que le taux réel est de `p`, il faudrait
-        # tirer en moyenne
+        # tirer en moyenne 1/p fois notre objectif final pour faire le nombre d'inscriptions prévu.
 
-        # Enfin, pour décider combien de personnes on tire, on prend le 95ème centile que nous donne
+        # Comme on a pas le taux réel, et pour limiter les risques, on prend le 95ème centile que nous donne
         # notre distribution a posteriori : dit autrement, on estime qu'il y a 95 % de chances que le taux
         # réel de réponse positive soit pire que ce taux, compte tenu de notre prior et des réponses déjà observées.
         # Il s'agit donc en quelque sorte d'une "borne maximum" (à 95 %) sur la valeur du taux réel.
@@ -231,8 +240,11 @@ def config_file(string):
 
     current_dir = p.parent
 
-    for k in ["status_file", "email_html_file", "email_text_file"]:
-        config[k] = current_dir / Path(config[k])
+    for k in ["status_file", "email_html_file", "email_text_file", "email_sent_file"]:
+        if k in config:
+            config[k] = Path(config[k])
+            if not config[k].is_absolute():
+                config[k] = current_dir / config[k]
 
     return config
 
@@ -261,6 +273,7 @@ class Command(BaseCommand):
         update_parser.add_argument(
             "-f", "--fake-it", action="store_false", dest="do_it"
         )
+        update_parser.add_argument("-c", "--college")
         update_parser.set_defaults(command=self.update_and_draw)
 
         refresh_email_parser = subparsers.add_parser(
@@ -287,7 +300,7 @@ class Command(BaseCommand):
         with open(config["email_html_file"], "wb") as f:
             f.write(r.content)
 
-    def update_and_draw(self, config, do_it=False, **options):
+    def update_and_draw(self, config, do_it=False, college=None, **options):
         status = get_current_status(config)
         stats = get_stats(status, config)
 
@@ -299,8 +312,8 @@ class Command(BaseCommand):
             ]
         )
 
-        if new_draws.sum() == 0:
-            return
+        if college is not None:
+            new_draws &= status.college == college
 
         # obligé de passer par UTC sinon Pandas fait chier :(
         limit = (
@@ -312,78 +325,84 @@ class Command(BaseCommand):
         )
 
         status.loc[new_draws, "subscribe_limit"] = limit
+        status.loc[new_draws, "_active"] = True
 
         if self.verbosity >= 1:
             drawn_counts = Counter(status.loc[new_draws, "college"])
-            print("Tirage :")
+            self.stdout.write("Tirage :\n")
             for g, c in drawn_counts.items():
-                print(f"{g}: {c} personnes")
-
-        if do_it:
-            status[[c for c in status.columns if not c.startswith("_")]].to_csv(
-                config["status_file"]
-            )
+                self.stdout.write(f"{g}: {c} personnes\n")
 
         tag_current = PersonTag.objects.get(label=f"{config['tag_prefix']} - ouvert")
 
-        active_persons = {
-            str(p.id): p
-            for p in Person.objects.filter(
-                id__in=status.loc[status._active | new_draws, "id"]
-            )
-        }
-
         if do_it:
-            with transaction.atomic():
-                # on retire la possibilité de s'inscrire aux précédents
-                tag_current.people.remove(*tag_current.people.all())
-
-                # on ajoute les nouveaux aux deux tags
-                tag_current.people.add(
-                    *status.loc[status._active | new_draws, "id"].map(active_persons)
+            if new_draws.sum():
+                status[[c for c in status.columns if not c.startswith("_")]].to_csv(
+                    config["status_file"]
                 )
+
+            with transaction.atomic():
+                # on met à jour le tag, ce qui retire l'accès à ceux qui ont dépassé leur période d'inscription
+                # et l'ouvre aux nouveaux tirés
+                tag_current.people.set(status.loc[status._active, "id"])
+
+            self.send_emails(config, status)
+
+    def send_emails(self, config, status):
+        sending = status._active & ~status._email_envoye
+
+        if self.verbosity >= 1:
+            print(f"{sending.sum()} emails à envoyer.")
+
+        persons = {
+            str(p.id): p
+            for p in Person.objects.filter(id__in=status.loc[sending, "id"])
+        }
 
         with open(config["email_html_file"]) as f:
             html_template = Template(f.read())
         with open(config["email_text_file"]) as f:
             text_template = Template(f.read())
 
-        connection = get_connection()
-
         locale.setlocale(locale.LC_TIME, "fr_FR.UTF-8")
 
-        with connection:
-            for i, row in enumerate(status.loc[new_draws].itertuples()):
-                person = active_persons[row.id]
+        with open(config["email_sent_file"], mode="a") as f:
+            for g in grouper(
+                tqdm(
+                    status.loc[sending].itertuples(), total=sending.sum(), disable=None
+                ),
+                EMAILS_BY_CONNECTION,
+            ):
+                connection = get_connection()
+                with connection:
+                    for i, row in enumerate(g):
+                        person = persons[row.id]
 
-                context = Context(
-                    {
-                        "email": person.email,
-                        "login_query": urlencode(generate_token_params(person)),
-                        "limit_time": row.subscribe_limit.strftime(
-                            "%A %d %B avant %Hh"
-                        ),
-                    }
-                )
+                        context = Context(
+                            {
+                                "email": person.email,
+                                "login_query": urlencode(generate_token_params(person)),
+                                "limit_time": row.subscribe_limit.strftime(
+                                    "%A %d %B avant %Hh"
+                                ),
+                            }
+                        )
 
-                html_message = html_template.render(context)
-                text_message = text_template.render(context)
+                        html_message = html_template.render(context)
+                        text_message = text_template.render(context)
 
-                msg = EmailMultiAlternatives(
-                    subject=config["email_subject"],
-                    body=text_message,
-                    from_email=config.get(
-                        "email_from",
-                        "La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
-                    ),
-                    to=[person.email],
-                    connection=connection,
-                )
-                msg.attach_alternative(html_message, "text/html")
+                        msg = EmailMultiAlternatives(
+                            subject=config["email_subject"],
+                            body=text_message,
+                            from_email=config.get(
+                                "email_from",
+                                "La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
+                            ),
+                            to=[person.email],
+                            connection=connection,
+                        )
+                        msg.attach_alternative(html_message, "text/html")
 
-                print(row.college, end="\n" if i % 80 == 79 else "", flush=True)
-
-                if do_it:
-                    msg.send(fail_silently=False)
-
-        print()  # newline
+                        msg.send(fail_silently=False)
+                        f.write(f"{row.id}\n")
+                        f.flush()

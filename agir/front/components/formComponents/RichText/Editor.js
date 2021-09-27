@@ -167,7 +167,6 @@ const StyledEditor = styled(ReactQuill)`
 
 const MODULES = {
   toolbar: [
-    "null",
     { header: 2 },
     { header: 3 },
     "bold",

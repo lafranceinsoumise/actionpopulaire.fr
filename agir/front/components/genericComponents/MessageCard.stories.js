@@ -141,3 +141,17 @@ NoEvent.args = {
     linkedEvent: null,
   },
 };
+
+export const MultilineMessage = Template.bind({});
+MultilineMessage.args = {
+  ...NoComments.args,
+  message: {
+    ...NoComments.args.message,
+    text: `
+      Un message
+      sur
+      plusieurs lignes.
+      Point.
+    `,
+  },
+};

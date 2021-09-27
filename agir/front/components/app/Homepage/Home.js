@@ -10,14 +10,6 @@ import { useMobileApp } from "@agir/front/app/hooks";
 import MobileHome from "./MobileHome";
 import DesktopHome from "./DesktopHome";
 
-const StyledHome = styled.div`
-  padding-top: 72px;
-
-  @media (max-width: ${style.collapse}px) {
-    padding-top: 56px;
-  }
-`;
-
 const Home = (props) => {
   const { isMobileApp } = useMobileApp();
 
@@ -26,13 +18,11 @@ const Home = (props) => {
   }
 
   return (
-    <StyledHome>
-      <ResponsiveLayout
-        MobileLayout={MobileHome}
-        DesktopLayout={DesktopHome}
-        {...props}
-      />
-    </StyledHome>
+    <ResponsiveLayout
+      MobileLayout={MobileHome}
+      DesktopLayout={DesktopHome}
+      {...props}
+    />
   );
 };
 

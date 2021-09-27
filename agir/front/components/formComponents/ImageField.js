@@ -123,19 +123,12 @@ const ImageField = forwardRef((props, ref) => {
             onChange={handleChange}
             value=""
           />
-          <Button
-            type="button"
-            inline
-            wrap
-            onClick={handleClick}
-            disabled={disabled}
-          >
+          <Button type="button" wrap onClick={handleClick} disabled={disabled}>
             <RawFeatherIcon name="camera" style={{ marginRight: "0.5rem" }} />
             {imageName ? "Remplacer l'image" : "Ajouter une image"}
           </Button>
           {imageName && (
             <Button
-              inline
               color="link"
               disabled={disabled}
               onClick={deleteImage}

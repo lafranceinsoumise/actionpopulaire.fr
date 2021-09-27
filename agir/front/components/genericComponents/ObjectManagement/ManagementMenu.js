@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
@@ -145,23 +145,17 @@ const StyledMenu = styled.div`
 `;
 
 const ManagementMenuItem = (props) => {
-  const { item, cancel = false, disabled = false } = props;
+  const { disabled, getLink, icon, label, disabledLabel, isCancel } = props;
 
   return (
-    <StyledMenuItem
-      to={disabled ? "#" : item.getLink()}
-      $cancel={cancel}
-      disabled={disabled}
-    >
-      {item.icon && (
-        <RawFeatherIcon width="1rem" height="1rem" name={item.icon} />
-      )}
+    <StyledMenuItem to={getLink()} $cancel={isCancel} disabled={disabled}>
+      {icon && <RawFeatherIcon width="1rem" height="1rem" name={icon} />}
       <div>
-        <span>{item.label}</span>
+        <span>{label}</span>
         {disabled && (
           <span style={{ fontSize: "12px" }}>
             <br />
-            {item.textDisabled}
+            {disabledLabel}
           </span>
         )}
       </div>
@@ -170,21 +164,32 @@ const ManagementMenuItem = (props) => {
 };
 
 ManagementMenuItem.propTypes = {
-  item: PropTypes.shape({
-    id: PropTypes.string,
-    label: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-    textDisabled: PropTypes.string,
-    icon: PropTypes.string,
-    disabled: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
-    getLink: PropTypes.func.isRequired,
-    menuGroup: PropTypes.oneOf([1, 2, 3]),
-  }),
-  cancel: PropTypes.bool,
+  id: PropTypes.string,
+  label: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  textDisabled: PropTypes.string,
+  icon: PropTypes.string,
   disabled: PropTypes.bool,
+  getLink: PropTypes.func.isRequired,
+  menuGroup: PropTypes.oneOf([1, 2, 3]),
+  isCancel: PropTypes.bool,
 };
 
 const ManagementMenu = (props) => {
-  const { items, title, subtitle, onBack, cancel, isPast } = props;
+  const { items, title, subtitle, onBack } = props;
+
+  const groupedItems = useMemo(
+    () =>
+      Object.values(
+        items.reduce((o, item) => {
+          if (item.menuGroup) {
+            o[item.menuGroup] = o[item.menuGroup] || [];
+          }
+          o[item.menuGroup].push(item);
+          return o;
+        }, {})
+      ),
+    [items]
+  );
 
   return (
     <StyledMenu>
@@ -196,38 +201,31 @@ const ManagementMenu = (props) => {
       <h4>{title}</h4>
       <Spacer size="1rem" />
       <ul>
-        {items
-          .filter((item) => item.menuGroup === 1)
-          .map((item) => (
-            <li key={item.id}>
-              <ManagementMenuItem
-                item={item}
-                disabled={item.forPastEventsOnly && !isPast}
-              />
-            </li>
-          ))}
-        <hr />
-        {items
-          .filter((item) => item.menuGroup === 2)
-          .map((item) => (
-            <li key={item.id}>
-              <ManagementMenuItem
-                item={item}
-                disabled={item.forPastEventsOnly && !isPast}
-              />
-            </li>
-          ))}
-        {cancel && !isPast && (
+        {groupedItems[0].map((item) => (
+          <li key={item.id}>
+            <ManagementMenuItem {...item} />
+          </li>
+        ))}
+        {groupedItems[1] && (
           <>
             <hr />
             <Spacer size="1rem" />
-            {items
-              .filter((item) => item.menuGroup === 3)
-              .map((item) => (
-                <li key={item.id}>
-                  <ManagementMenuItem item={item} cancel />
-                </li>
-              ))}
+            {groupedItems[1].map((item) => (
+              <li key={item.id}>
+                <ManagementMenuItem {...item} />
+              </li>
+            ))}
+          </>
+        )}
+        {groupedItems[2] && (
+          <>
+            <hr />
+            <Spacer size="1rem" />
+            {groupedItems[2].map((item) => (
+              <li key={item.id}>
+                <ManagementMenuItem {...item} />
+              </li>
+            ))}
           </>
         )}
       </ul>
@@ -237,13 +235,9 @@ const ManagementMenu = (props) => {
 ManagementMenu.propTypes = {
   title: PropTypes.string.isRequired,
   subtitle: PropTypes.string,
-  items: PropTypes.arrayOf(ManagementMenuItem.propTypes.item).isRequired,
+  items: PropTypes.arrayOf(PropTypes.shape(ManagementMenuItem.propTypes))
+    .isRequired,
   onBack: PropTypes.func.isRequired,
-  cancel: PropTypes.shape({
-    label: PropTypes.string,
-    onClick: PropTypes.func,
-  }),
-  isPast: PropTypes.bool,
 };
 
 export default ManagementMenu;

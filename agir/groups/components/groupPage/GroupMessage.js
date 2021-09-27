@@ -13,8 +13,6 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 
-import DisplayNameAnnouncement from "@agir/groups/groupPage/Announcements/DisplayNameAnnouncement";
-
 const StyledMessage = styled.div``;
 const StyledWrapper = styled.div`
   @media (max-width: ${style.collapse}px) {
@@ -79,7 +77,6 @@ export const GroupMessage = (props) => {
         wait={<Skeleton style={{ margin: "1rem 0" }} />}
       >
         <StyledMessage>
-          {message && <DisplayNameAnnouncement />}
           {message && (
             <MessageCard
               message={message}

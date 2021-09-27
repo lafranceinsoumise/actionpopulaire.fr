@@ -1,11 +1,14 @@
 import { DateTime } from "luxon";
+import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
+
 import Collapsible from "@agir/front/genericComponents/Collapsible";
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import style from "@agir/front/genericComponents/_variables.scss";
+
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledCard = styled(Card)`
@@ -18,7 +21,7 @@ const StyledCard = styled(Card)`
   border-bottom: 1px solid ${style.black50};
 `;
 
-const EventReportCard = ({ id, compteRendu, isOrganizer, endTime, routes }) => {
+const EventReportCard = ({ id, compteRendu, isOrganizer, endTime }) => {
   const isPast = endTime < DateTime.local();
 
   if (!isPast) {
@@ -48,7 +51,7 @@ const EventReportCard = ({ id, compteRendu, isOrganizer, endTime, routes }) => {
           link
           to={routeConfig.eventSettings.getLink({
             eventPk: id,
-            activePanel: "compte rendu",
+            activePanel: "compte-rendu",
           })}
         >
           {compteRendu ? "Modifier le" : "Ajouter un"} compte rendu
@@ -58,4 +61,10 @@ const EventReportCard = ({ id, compteRendu, isOrganizer, endTime, routes }) => {
   );
 };
 
+EventReportCard.propTypes = {
+  id: PropTypes.string,
+  compteRendu: PropTypes.string,
+  isOrganizer: PropTypes.bool,
+  endTime: PropTypes.object,
+};
 export default EventReportCard;

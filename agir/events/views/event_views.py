@@ -2,6 +2,7 @@ from agir.groups.models import SupportGroup
 from agir.activity.models import Activity
 import locale
 import os
+
 import ics
 import pytz
 from PIL import Image, ImageDraw, ImageFont
@@ -24,10 +25,11 @@ from django.utils.translation import ugettext as _, ngettext
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import (
-    CreateView,
     UpdateView,
     DeleteView,
     DetailView,
+    RedirectView,
+    CreateView,
 )
 from django.views.generic.detail import SingleObjectMixin
 from rest_framework import status
@@ -42,16 +44,12 @@ from agir.front.view_mixins import (
     ChangeLocationBaseView,
     FilterView,
 )
-from agir.lib.views import ImageSizeWarningMixin
 from ..filters import EventFilter
 from ..forms import (
-    EventForm,
-    AddOrganizerForm,
     EventGeocodingForm,
-    EventReportForm,
+    EventLegalForm,
     UploadEventImageForm,
     AuthorForm,
-    EventLegalForm,
 )
 from ..models import Event, RSVP, OrganizerConfig
 
@@ -526,100 +524,24 @@ class BaseEventAdminView(
 
 
 @method_decorator(never_cache, name="get")
-class ManageEventView(BaseEventAdminView, DetailView):
-    template_name = "events/manage.html"
-
-    error_messages = {
-        "denied": _(
-            "Vous ne pouvez pas accéder à cette page sans être organisateur de l'événement."
-        )
-    }
-
-    def get_success_url(self):
-        return reverse("manage_event", kwargs={"pk": self.object.pk})
-
-    def get_form(self):
-        kwargs = {}
-
-        if self.request.method in ("POST", "PUT"):
-            kwargs.update({"data": self.request.POST})
-
-        return AddOrganizerForm(self.object, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        if "add_organizer_form" not in kwargs:
-            kwargs["add_organizer_form"] = self.get_form()
-
-        try:
-            report_is_sent = self.request.session["report_sent"] == str(self.object.pk)
-            del self.request.session["report_sent"]
-        except KeyError:
-            report_is_sent = False
-
-        legal_form = EventLegalForm(self.object)
-
-        return super().get_context_data(
-            report_is_sent=report_is_sent,
-            organizers=self.object.organizers.all(),
-            organizing_groups=self.object.organizers_groups.all().distinct(),
-            rsvps=self.object.rsvps.all(),
-            legal_sections=legal_form.included_sections,
-            incomplete_sections=list(legal_form.incomplete_sections),
-            **kwargs,
-        )
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if self.object.is_past():
-            raise PermissionDenied(
-                _("Vous ne pouvez pas ajouter d'organisateur à un événement terminé.")
-            )
-
-        form = self.get_form()
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(self.get_success_url())
-
-        return self.render_to_response(self.get_context_data(add_organizer_form=form))
+class ManageEventView(RedirectView):
+    permanent = True
+    pattern_name = "view_event_settings"
+    query_string = True
 
 
 @method_decorator(never_cache, name="get")
-class ModifyEventView(ImageSizeWarningMixin, BaseEventAdminView, UpdateView):
-    template_name = "events/modify.html"
-    form_class = EventForm
-    image_field = "image"
+class ModifyEventView(RedirectView):
+    permanent = True
+    pattern_name = "view_event_settings_general"
+    query_string = True
 
-    def get_success_url(self):
-        return reverse("manage_event", kwargs={"pk": self.object.pk})
 
-    def get_queryset(self):
-        return Event.objects.upcoming(as_of=timezone.now(), published_only=False)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["person"] = self.request.user.person
-        return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Modifiez votre événement")
-        return context
-
-    def form_valid(self, form):
-        # first get response to make sure there's no error when saving the model before adding message
-        res = super().form_valid(form)
-
-        messages.add_message(
-            request=self.request,
-            level=messages.SUCCESS,
-            message=format_html(
-                _("Les modifications de l'événement <em>{}</em> ont été enregistrées."),
-                self.object.name,
-            ),
-        )
-
-        return res
+@method_decorator(never_cache, name="get")
+class EditEventReportView(RedirectView,):
+    permanent = True
+    pattern_name = "view_event_settings_feedback"
+    query_string = True
 
 
 @method_decorator(never_cache, name="get")
@@ -632,21 +554,6 @@ class ChangeEventLocationView(
 
     def get_queryset(self):
         return Event.objects.upcoming(as_of=timezone.now(), published_only=False)
-
-
-@method_decorator(never_cache, name="get")
-class EditEventReportView(
-    BaseEventAdminView, ImageSizeWarningMixin, UpdateView,
-):
-    template_name = "events/edit_event_report.html"
-    form_class = EventReportForm
-    image_field = "report_image"
-
-    def get_success_url(self):
-        return reverse("manage_event", args=(self.object.pk,))
-
-    def get_queryset(self):
-        return Event.objects.past(as_of=timezone.now())
 
 
 @method_decorator(never_cache, name="get")
