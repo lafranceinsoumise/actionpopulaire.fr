@@ -13,10 +13,6 @@ const ACTIVITY_CONFIG = {
         : null;
     },
   },
-  "group-coorganization-accepted": {
-    icon: "calendar",
-    hasEvent: true,
-  },
   "group-info-update": {
     icon: "info",
   },
@@ -149,6 +145,10 @@ const ACTIVITY_CONFIG = {
             label: "Voir",
           }
         : null,
+  },
+  "group-coorganization-accepted": {
+    icon: "calendar",
+    hasEvent: true,
   },
   "waiting-location-event": {
     icon: "alert-circle",

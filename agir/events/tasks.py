@@ -639,6 +639,7 @@ def send_group_invitation_notification(event_pk, group_id, member_id):
 
 
 @emailing_task
+@post_save_task
 def send_group_invitation_validated_notification(event_pk, group_id):
 
     event = Event.objects.get(pk=event_pk)
@@ -649,10 +650,24 @@ def send_group_invitation_validated_notification(event_pk, group_id):
     except Event.DoesNotExist:
         return
 
-    subject = f"{group.name} a accepté de co-organiser {event.name}"
-
     # Notify current event referents
     recipients = event.organizers
+
+    # Add activity to all recipients
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED,
+                recipient=r,
+                event=event,
+                supportgroup=group,
+            )
+            for r in recipients
+        ],
+        send_post_save_signal=True,
+    )
+
+    subject = f"{group.name} a accepté de co-organiser {event.name}"
 
     bindings = {
         "TITLE": subject,

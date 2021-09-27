@@ -707,8 +707,7 @@ class ConfirmEventGroupCoorganization(View):
         )
         organizer_config.save()
 
-        # TODO : Delete / update status Activity TYPE_GROUP_COORGANIZATION_INVITE ?
-        # Replace by accepted notification
+        # Delete activity TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED one in task
         activity_groups_invited.delete()
 
         send_group_invitation_validated_notification.delay(pk, group_id)

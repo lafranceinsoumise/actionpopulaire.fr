@@ -248,7 +248,6 @@ class EventGroupsOrganizersAPIView(APIView):
             )
 
         # Send notification and email to managers of group invited
-        # send_group_invitation_notification(pk, group, self.request.user.person)
         send_group_invitation_notification.delay(
             pk, group_id, self.request.user.person.id
         )
