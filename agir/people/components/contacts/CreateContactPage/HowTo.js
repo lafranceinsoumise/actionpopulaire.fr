@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { animated, useSpring } from "@react-spring/web";
+import { usePrevious } from "react-use";
 import styled from "styled-components";
 
 import { useLocalStorage, useMeasure } from "@agir/lib/utils/hooks";
@@ -76,6 +77,7 @@ const StyledCard = styled(animated.div)`
 export const HowTo = (props) => {
   const { isInitiallyCollapsed, onClose } = props;
   const [isCollapsed, setIsCollapsed] = useState(isInitiallyCollapsed);
+  const wasCollapsed = usePrevious(isCollapsed);
 
   const open = () => setIsCollapsed(false);
   const close = () => {
@@ -98,9 +100,15 @@ export const HowTo = (props) => {
   });
 
   return (
-    <StyledCard style={{ height }}>
+    <StyledCard
+      style={{
+        // Prevent animation if initially opened
+        height: !isCollapsed && wasCollapsed === isCollapsed ? "auto" : height,
+      }}
+    >
       <div {...bind}>
         <StyledHeader
+          type="button"
           as={isCollapsed ? "button" : undefined}
           onClick={isCollapsed ? open : undefined}
         >
@@ -141,7 +149,9 @@ export const HowTo = (props) => {
           </li>
         </StyledBody>
         <StyledFooter style={{ opacity }}>
-          <Button onClick={close}>Compris</Button>
+          <Button type="button" onClick={close}>
+            Compris
+          </Button>
         </StyledFooter>
       </div>
     </StyledCard>

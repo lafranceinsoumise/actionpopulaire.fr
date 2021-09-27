@@ -24,7 +24,7 @@ Default.args = {
     nl2022: true,
     isGroupFollower: true,
     isLiaison: true,
-    liaisonAddress: "25 passage Dubail",
-    liaisonCity: "Paris",
+    address: "25 passage Dubail",
+    city: "Paris",
   },
 };

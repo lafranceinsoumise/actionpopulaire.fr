@@ -48,7 +48,7 @@ const StyledWrapper = styled.div`
 `;
 
 const ConfirmContact = (props) => {
-  const { data, onBack, onConfirm } = props;
+  const { data, onBack, onConfirm, isLoading } = props;
   return (
     <StyledWrapper>
       <h2>Confirmer les informations</h2>
@@ -57,33 +57,35 @@ const ConfirmContact = (props) => {
           {data.firstName} {data.lastName}
         </h4>
         <p>{data.phone}</p>
-        {data.liaisonAddress ? <p>{data.liaisonAddress}</p> : null}
+        {data.address ? <p>{data.address}</p> : null}
         <p>
-          {data.zip} {data.liaisonCity}
+          {data.zip} {data.city}
         </p>
         <p style={{ color: style.primary500 }}>{data.email}</p>
       </div>
       <Spacer size="1.5rem" />
       <ul>
         <li>Soutien Jean-Luc Mélenchon pour 2022</li>
-        {data.nl2022 || data.nl2022_exceptionnel || data.isGroupFollower ? (
+        {data.nl2022 || data.nl2022_exceptionnel || data.group ? (
           <li>{`Recevra ${[
             data.nl2022_exceptionnel && "les informations très importantes",
             data.nl2022 && "hebdomadaires",
-            data.isGroupFollower && "les actualités du groupe d'action",
+            data.group && "les actualités du groupe d'action",
           ]
             .filter(Boolean)
             .join(", ")}`}</li>
         ) : null}
-        {data.isLiaison ? <li>Sera correspondant·e de l’immeuble</li> : null}
+        {data.isLiaison ? (
+          <li>Sera correspondant·e de l’immeuble ou de la rue</li>
+        ) : null}
       </ul>
       <Spacer size="2.5rem" />
       <footer>
-        <Button icon="arrow-left" onClick={onBack}>
+        <Button icon="arrow-left" onClick={onBack} disabled={isLoading}>
           Modifier
         </Button>
         <Spacer style={{ display: "inline-block" }} size="1rem" />
-        <Button color="secondary" onClick={onConfirm}>
+        <Button color="secondary" onClick={onConfirm} disabled={isLoading}>
           Enregistrer le soutien
         </Button>
       </footer>
@@ -100,12 +102,13 @@ ConfirmContact.propTypes = {
     email: PropTypes.string.isRequired,
     nl2022_exceptionnel: PropTypes.bool,
     nl2022: PropTypes.bool,
-    isGroupFollower: PropTypes.bool,
+    group: PropTypes.string,
     isLiaison: PropTypes.bool,
-    liaisonAddress: PropTypes.string,
-    liaisonCity: PropTypes.string,
+    address: PropTypes.string,
+    city: PropTypes.string,
   }),
   onBack: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool,
 };
 export default ConfirmContact;

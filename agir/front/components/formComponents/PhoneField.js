@@ -115,7 +115,7 @@ PhoneField.propTypes = {
   onChange: PropTypes.func.isRequired,
   id: PropTypes.string,
   label: PropTypes.node,
-  helpText: PropTypes.string,
+  helpText: PropTypes.node,
   error: PropTypes.string,
 };
 

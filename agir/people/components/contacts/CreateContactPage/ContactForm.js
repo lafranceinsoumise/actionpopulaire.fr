@@ -10,8 +10,22 @@ import PhoneField from "@agir/front/formComponents/PhoneField";
 import SelectField from "@agir/front/formComponents/SelectField";
 import TextField from "@agir/front/formComponents/TextField";
 
+import HowTo from "./HowTo";
+import NoGroupCard from "./NoGroupCard";
+import { StepTitle } from "./StyledComponents";
+
 const StyledForm = styled.form`
   h2 {
+    font-size: 1.625rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem;
+
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      display: none;
+    }
+  }
+
+  h3 {
     font-weight: 700;
     font-size: 1.25rem;
     margin: 0 0 1.5rem;
@@ -31,7 +45,7 @@ const StyledForm = styled.form`
 `;
 
 export const ContactForm = (props) => {
-  const { error, isLoading, onSubmit, groups } = props;
+  const { initialData, error, isLoading, onSubmit, groups } = props;
 
   const [data, setData] = useState({
     firstName: "",
@@ -42,6 +56,7 @@ export const ContactForm = (props) => {
     nl2022_exceptionnel: true,
     nl2022: false,
     isLiaison: false,
+    ...(initialData || {}),
   });
 
   const handleChange = useCallback((e) => {
@@ -67,6 +82,14 @@ export const ContactForm = (props) => {
     }));
   }, []);
 
+  const handleCheckIsGroupFollower = useCallback((e) => {
+    const { checked } = e.target;
+    setData((state) => ({
+      ...state,
+      group: checked ? groupOptions[0] : null,
+    }));
+  }, []);
+
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
@@ -86,18 +109,18 @@ export const ContactForm = (props) => {
     [groups]
   );
 
-  useEffect(() => {
-    if (groupOptions && !data.group) {
-      setData((state) => ({
-        ...state,
-        group: groupOptions[0],
-      }));
-    }
-  }, [data, groupOptions]);
-
   return (
     <StyledForm onSubmit={handleSubmit}>
-      <h2>Nouveau soutien</h2>
+      <h2>Ajouter un soutien</h2>
+      <HowTo />
+      <Spacer size="1.5rem" />
+      {!groupOptions && (
+        <>
+          <NoGroupCard />
+          <Spacer size="1.5rem" />
+        </>
+      )}
+      <h3>Nouveau soutien</h3>
       <TextField
         label="Prénom"
         name="firstName"
@@ -184,39 +207,41 @@ export const ContactForm = (props) => {
         error={error?.nl2022}
         disabled={isLoading}
       />
-      {data.group && (
+      {groupOptions && (
         <>
           <Spacer size=".5rem" />
           <CheckboxField
             label="Actualités du groupe d’action"
-            onChange={handleCheck}
-            value={data.isGroupFollower}
+            onChange={handleCheckIsGroupFollower}
+            value={!!data.group}
             id="isGroupFollower"
             name="isGroupFollower"
-            error={error?.isGroupFollower}
             disabled={isLoading}
           />
+          {data.group && (
+            <>
+              <Spacer size="1.5rem" />
+              <SelectField
+                label="Ajouter un contact à quel groupe ?"
+                placeholder="Choisissez un groupe d'action"
+                onChange={handleSelectGroup}
+                value={data.group}
+                id="group"
+                name="group"
+                options={groupOptions}
+                error={error?.group}
+                disabled={isLoading}
+                required
+              />
+            </>
+          )}
         </>
       )}
       <Spacer size="1.5rem" />
-      {groupOptions && (
-        <>
-          <SelectField
-            label="Ajouter un contact à quel groupe ?"
-            placeholder="Choisissez un groupe d'action"
-            onChange={handleSelectGroup}
-            value={data.group}
-            id="group"
-            name="group"
-            options={groupOptions}
-            error={error?.group}
-            disabled={isLoading}
-            required
-          />
-          <Spacer size="1.5rem" />
-        </>
-      )}
-      <h4>Souhaitez-vous devenir correspondant·e pour votre immeuble&nbsp;?</h4>
+      <h4>
+        Souhaitez-vous devenir correspondant·e pour votre immeuble ou votre
+        rue&nbsp;?
+      </h4>
       <p>
         <em>
           « Nous vous enverrons des informations et du matériel pour diffuser
@@ -226,7 +251,7 @@ export const ContactForm = (props) => {
       </p>
       <Spacer size=".5rem" />
       <CheckboxField
-        label="Devenir correspondant·e dans cet immeuble"
+        label="Devenir correspondant·e"
         onChange={handleCheck}
         value={data.isLiaison}
         id="isLiaison"
@@ -245,24 +270,24 @@ export const ContactForm = (props) => {
                 correspondant·e
               </em>
             }
-            id="liaisonAddress"
-            name="liaisonAddress"
-            error={error?.liaisonAddress}
+            id="address"
+            name="address"
+            error={error?.address}
             placeholder=""
             onChange={handleChange}
-            value={data.liaisonAddress}
+            value={data.address}
             disabled={isLoading}
             required
           />
           <Spacer size="1rem" />
           <TextField
             label="Nom de la ville"
-            id="liaisonCity"
-            name="liaisonCity"
-            error={error?.liaisonCity}
+            id="city"
+            name="city"
+            error={error?.city}
             placeholder=""
             onChange={handleChange}
-            value={data.liaisonCity}
+            value={data.city}
             disabled={isLoading}
             required
           />
@@ -276,6 +301,7 @@ export const ContactForm = (props) => {
   );
 };
 ContactForm.propTypes = {
+  initialData: PropTypes.object,
   error: PropTypes.object,
   isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
