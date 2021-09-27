@@ -26,5 +26,6 @@ Default.args = {
     isLiaison: true,
     address: "25 passage Dubail",
     city: "Paris",
+    country: "FR",
   },
 };

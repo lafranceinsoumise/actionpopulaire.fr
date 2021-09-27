@@ -17,14 +17,15 @@ from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     GlobalOnlyPermissions,
 )
+from agir.people.actions.subscription import SUBSCRIPTION_TYPE_AP
 from agir.people.models import Person
 from agir.people.serializers import (
     SubscriptionRequestSerializer,
     ManageNewslettersRequestSerializer,
     RetrievePersonRequestSerializer,
     PersonSerializer,
+    ContactSerializer,
 )
-from agir.people.actions.subscription import SUBSCRIPTION_TYPE_AP
 
 
 class SubscriptionAPIView(GenericAPIView):
@@ -147,3 +148,34 @@ class ReferrerInformationView(APIView):
         if not nom:
             raise Http404
         return Response(nom, status.HTTP_200_OK)
+
+
+class NewContacPermissions(GlobalOrObjectPermissions):
+    perms_map = {
+        "POST": ["people.create_contact"],
+    }
+    object_perms_map = {
+        "POST": [],
+    }
+
+
+class CreateNewContactView(CreateAPIView):
+    serializer_class = ContactSerializer
+    queryset = Person.objects.all()
+    permission_classes = (NewContacPermissions,)
+
+
+class ValidateNewContactView(CreateNewContactView):
+    serializer_class = ContactSerializer
+    queryset = Person.objects.all()
+    permission_classes = (NewContacPermissions,)
+
+    def perform_create(self, serializer):
+        # Do not actually create the contact after validation
+        pass
+
+    def create(self, request, *args, **kwargs):
+        # Update the response status code from the default 201 to 200
+        response = super(ValidateNewContactView, self).create(request, *args, **kwargs)
+        response.status_code = status.HTTP_202_ACCEPTED
+        return response

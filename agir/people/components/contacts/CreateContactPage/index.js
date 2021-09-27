@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import useSWR from "swr";
+
+import { validateContact, createContact } from "./api";
 
 import { Banner, BackButton } from "./StyledComponents";
 import ConfirmContact from "./ConfirmContact";
@@ -24,23 +26,40 @@ const CreateContactPage = (props) => {
   const pageIsReady =
     typeof user !== "undefined" && typeof groups !== "undefined";
 
-  const submitForm = (data) => {
-    setData(data);
+  const submitForm = useCallback(async (formData) => {
+    setIsLoading(true);
+    setErrors({});
+    const result = await validateContact(formData);
+    setIsLoading(false);
+    if (result.errors || !result.valid) {
+      setErrors(result.errors);
+      return;
+    }
+    setData(formData);
     setStep(1);
-  };
+  }, []);
 
-  const confirmData = () => {
+  const confirmData = useCallback(async () => {
+    setIsLoading(true);
+    setErrors({});
+    const result = await createContact(data);
+    setIsLoading(false);
+    if (result.errors) {
+      setErrors(result.errors);
+      setStep(1);
+      return;
+    }
     setStep(2);
-  };
+  }, [data]);
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     setStep((step) => Math.max(0, step - 1));
-  };
+  }, []);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setData(null);
     setStep(0);
-  };
+  }, []);
 
   return (
     <div>
@@ -60,7 +79,7 @@ const CreateContactPage = (props) => {
         >
           {step === 0 && (
             <>
-              <BackButton link route="events">
+              <BackButton disabled={isLoading} link route="events">
                 Retour à l'accueil
               </BackButton>
               <ContactForm
@@ -74,7 +93,7 @@ const CreateContactPage = (props) => {
           )}
           {step === 1 && (
             <>
-              <BackButton onClick={goBack} />
+              <BackButton disabled={isLoading} onClick={goBack} />
               <ConfirmContact
                 isLoading={isLoading}
                 data={data}

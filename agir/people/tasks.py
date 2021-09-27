@@ -256,3 +256,28 @@ def notify_referrer(referrer_id, referred_id, referral_type):
             + 1,
         },
     )
+
+
+@shared_task
+@post_save_task
+def notify_contact(person_pk, is_new=False):
+    person = Person.objects.prefetch_related("emails").get(pk=person_pk)
+    bindings = {
+        "FORENAME": person.first_name,
+        "CREATION_DATE": person.created,
+        "ACCOUNT_LINK": front_url("contact"),
+        "DELETE_LINK": front_url("delete_account"),
+    }
+
+    if is_new:
+        template_code = "NEW_CONTACT_PERSON_SUBSCRIPTION"
+    else:
+        template_code = "NEW_CONTACT_PERSON_UPDATE"
+
+    send_mosaico_email(
+        code=template_code,
+        subject=_("Merci pour votre soutien !"),
+        from_email=settings.EMAIL_FROM,
+        recipients=[person],
+        bindings=bindings,
+    )

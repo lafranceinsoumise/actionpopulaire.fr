@@ -49,6 +49,12 @@ const StyledWrapper = styled.div`
 
 const ConfirmContact = (props) => {
   const { data, onBack, onConfirm, isLoading } = props;
+  const newsletters = [
+    data.newsletters.includes("2022_exceptionnel") &&
+      "les informations très importantes",
+    data.newsletters.includes("2022") && "hebdomadaires",
+    data.group && "les actualités du groupe d'action",
+  ].filter(Boolean);
   return (
     <StyledWrapper>
       <h2>Confirmer les informations</h2>
@@ -58,24 +64,16 @@ const ConfirmContact = (props) => {
         </h4>
         <p>{data.phone}</p>
         {data.address ? <p>{data.address}</p> : null}
-        <p>
-          {data.zip} {data.city}
-        </p>
+        <p>{`${data.zip} ${data.city || ""} ${data.country || ""}`.trim()}</p>
         <p style={{ color: style.primary500 }}>{data.email}</p>
       </div>
       <Spacer size="1.5rem" />
       <ul>
         <li>Soutien Jean-Luc Mélenchon pour 2022</li>
-        {data.nl2022 || data.nl2022_exceptionnel || data.group ? (
-          <li>{`Recevra ${[
-            data.nl2022_exceptionnel && "les informations très importantes",
-            data.nl2022 && "hebdomadaires",
-            data.group && "les actualités du groupe d'action",
-          ]
-            .filter(Boolean)
-            .join(", ")}`}</li>
+        {newsletters.length > 0 ? (
+          <li>{`Recevra ${newsletters.join(", ")}`}</li>
         ) : null}
-        {data.isLiaison ? (
+        {data.newsletters.includes("2022_liaison") ? (
           <li>Sera correspondant·e de l’immeuble ou de la rue</li>
         ) : null}
       </ul>
@@ -100,10 +98,8 @@ ConfirmContact.propTypes = {
     zip: PropTypes.string.isRequired,
     phone: PropTypes.string,
     email: PropTypes.string.isRequired,
-    nl2022_exceptionnel: PropTypes.bool,
-    nl2022: PropTypes.bool,
-    group: PropTypes.string,
-    isLiaison: PropTypes.bool,
+    newsletters: PropTypes.arrayOf(PropTypes.string).isRequired,
+    group: PropTypes.object,
     address: PropTypes.string,
     city: PropTypes.string,
   }),

@@ -6,6 +6,7 @@ import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
+import CountryField from "@agir/front/formComponents/CountryField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
 import SelectField from "@agir/front/formComponents/SelectField";
 import TextField from "@agir/front/formComponents/TextField";
@@ -13,6 +14,8 @@ import TextField from "@agir/front/formComponents/TextField";
 import HowTo from "./HowTo";
 import NoGroupCard from "./NoGroupCard";
 import { StepTitle } from "./StyledComponents";
+
+const NEWSLETTER_2022_LIAISON = "2022_liaison";
 
 const StyledForm = styled.form`
   h2 {
@@ -45,7 +48,7 @@ const StyledForm = styled.form`
 `;
 
 export const ContactForm = (props) => {
-  const { initialData, error, isLoading, onSubmit, groups } = props;
+  const { initialData, errors, isLoading, onSubmit, groups } = props;
 
   const [data, setData] = useState({
     firstName: "",
@@ -53,9 +56,7 @@ export const ContactForm = (props) => {
     zip: "",
     email: "",
     phone: "",
-    nl2022_exceptionnel: true,
-    nl2022: false,
-    isLiaison: false,
+    newsletters: ["2022_exceptionnel"],
     ...(initialData || {}),
   });
 
@@ -75,18 +76,34 @@ export const ContactForm = (props) => {
     }));
   }, []);
 
-  const handleSelectGroup = useCallback((group) => {
-    setData((state) => ({
-      ...state,
-      group,
-    }));
-  }, []);
-
   const handleCheckIsGroupFollower = useCallback((e) => {
     const { checked } = e.target;
     setData((state) => ({
       ...state,
-      group: checked ? groupOptions[0] : null,
+      group: checked ? groupOptions[0] : undefined,
+    }));
+  }, []);
+
+  const handleCheckNewsletter = useCallback((e) => {
+    const { name, checked } = e.target;
+    setData((state) => {
+      const newState = { ...state };
+      newState["newsletters"] = checked
+        ? [...state.newsletters, name]
+        : state.newsletters.filter((nl) => nl !== name);
+      if (name === NEWSLETTER_2022_LIAISON) {
+        newState["address"] = checked ? "" : undefined;
+        newState["city"] = checked ? "" : undefined;
+        newState["country"] = checked ? "FR" : undefined;
+      }
+      return newState;
+    });
+  }, []);
+
+  const handleSelectGroup = useCallback((group) => {
+    setData((state) => ({
+      ...state,
+      group,
     }));
   }, []);
 
@@ -128,7 +145,8 @@ export const ContactForm = (props) => {
         onChange={handleChange}
         value={data.firstName}
         disabled={isLoading}
-        required
+        required={false}
+        error={errors?.firstName}
       />
       <Spacer size="1rem" />
       <TextField
@@ -138,38 +156,39 @@ export const ContactForm = (props) => {
         onChange={handleChange}
         value={data.lastName}
         disabled={isLoading}
-        required
+        required={false}
+        error={errors?.lastName}
       />
       <Spacer size="1rem" />
       <TextField
         label="Code postal"
         id="zip"
-        error={error?.zip}
+        error={errors?.zip}
         name="zip"
         placeholder=""
         onChange={handleChange}
         value={data.zip}
         disabled={isLoading}
-        required
+        required={false}
       />
       <Spacer size="1rem" />
       <TextField
         label="E-mail"
         id="email"
-        error={error?.email}
+        error={errors?.email}
         name="email"
         placeholder=""
         onChange={handleChange}
         value={data.email}
         disabled={isLoading}
-        required
+        required={false}
       />
       <Spacer size="1rem" />
       <PhoneField
         label="Numéro de téléphone"
         id="phone"
         name="phone"
-        error={error?.phone}
+        error={errors?.phone}
         onChange={handleChange}
         value={data.phone}
         disabled={isLoading}
@@ -190,21 +209,19 @@ export const ContactForm = (props) => {
             <em>« Jean-Luc Mélenchon fait un meeting dans votre ville »</em>
           </>
         }
-        onChange={handleCheck}
-        value={data.nl2022_exceptionnel}
-        id="nl2022_exceptionnel"
-        name="nl2022_exceptionnel"
-        error={error?.nl2022_exceptionnel}
+        onChange={handleCheckNewsletter}
+        value={data.newsletters.includes("2022_exceptionnel")}
+        id="2022_exceptionnel"
+        name="2022_exceptionnel"
         disabled={isLoading}
       />
       <Spacer size=".5rem" />
       <CheckboxField
         label="Informations hebdomadaires"
-        onChange={handleCheck}
-        value={data.nl2022}
-        id="nl2022"
-        name="nl2022"
-        error={error?.nl2022}
+        onChange={handleCheckNewsletter}
+        value={data.newsletters.includes("2022")}
+        id="2022"
+        name="2022"
         disabled={isLoading}
       />
       {groupOptions && (
@@ -229,9 +246,9 @@ export const ContactForm = (props) => {
                 id="group"
                 name="group"
                 options={groupOptions}
-                error={error?.group}
+                error={errors?.group}
                 disabled={isLoading}
-                required
+                required={false}
               />
             </>
           )}
@@ -252,14 +269,13 @@ export const ContactForm = (props) => {
       <Spacer size=".5rem" />
       <CheckboxField
         label="Devenir correspondant·e"
-        onChange={handleCheck}
-        value={data.isLiaison}
-        id="isLiaison"
-        name="isLiaison"
-        error={error?.isLiaison}
+        onChange={handleCheckNewsletter}
+        value={data.newsletters.includes(NEWSLETTER_2022_LIAISON)}
+        id={NEWSLETTER_2022_LIAISON}
+        name={NEWSLETTER_2022_LIAISON}
         disabled={isLoading}
       />
-      {data.isLiaison && (
+      {data.newsletters.includes(NEWSLETTER_2022_LIAISON) && (
         <>
           <Spacer size="1rem" />
           <TextField
@@ -272,25 +288,38 @@ export const ContactForm = (props) => {
             }
             id="address"
             name="address"
-            error={error?.address}
+            error={errors?.address}
             placeholder=""
             onChange={handleChange}
             value={data.address}
             disabled={isLoading}
-            required
+            required={false}
           />
           <Spacer size="1rem" />
           <TextField
             label="Nom de la ville"
             id="city"
             name="city"
-            error={error?.city}
+            error={errors?.city}
             placeholder=""
             onChange={handleChange}
             value={data.city}
             disabled={isLoading}
-            required
+            required={false}
           />
+          <Spacer size="1rem" />
+          <CountryField
+            label="Pays"
+            id="country"
+            name="country"
+            error={errors?.country}
+            placeholder=""
+            onChange={handleChange}
+            value={data.country}
+            disabled={isLoading}
+            required={false}
+          />
+          <Spacer size="1rem" />
         </>
       )}
       <Spacer size="1.5rem" />
@@ -302,7 +331,7 @@ export const ContactForm = (props) => {
 };
 ContactForm.propTypes = {
   initialData: PropTypes.object,
-  error: PropTypes.object,
+  errors: PropTypes.object,
   isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
   groups: PropTypes.arrayOf(PropTypes.object),
