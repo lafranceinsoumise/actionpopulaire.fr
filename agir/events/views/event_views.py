@@ -653,22 +653,25 @@ class EditEventReportView(
 class ConfirmEventGroupCoorganization(View):
     def get(self, request, pk, *args, **kwargs):
 
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse("dashboard"))
+
         event = Event.objects.get(pk=pk)
         group_id = request.GET.get("group")
         group = SupportGroup.objects.get(pk=group_id)
         person = self.request.user.person
 
         if not event or not group or not person:
-            return False
+            return HttpResponseRedirect(reverse("dashboard"))
 
         # Check person is organizer of group
         if not person in group.referents:
-            return False
+            return HttpResponseRedirect(reverse("dashboard"))
 
         # organizers_groups = event.organizers_groups.values_list() # dont work
         organizers_groups = OrganizerConfig.objects.filter(event=event, as_group=group)
 
-        # check group already coorganizer
+        # Check group already coorganizer
         if len(organizers_groups) > 0:
             params = {
                 "toast": True,
@@ -687,7 +690,7 @@ class ConfirmEventGroupCoorganization(View):
             pk__in=activity_groups_invited.values_list("supportgroup")
         )
 
-        # check group have been invited to event
+        # Check group have been invited to event
         if not group in groups_invited:
             params = {
                 "toast": True,
@@ -698,17 +701,17 @@ class ConfirmEventGroupCoorganization(View):
                 reverse("view_event", kwargs={"pk": pk}) + "?" + urlencode(params)
             )
 
-        # Add group to organizer_groups of event
+        # Add group with validating referent as organizer of the event
         organizer_config = OrganizerConfig.objects.create(
             event=event, as_group=group, person=person
         )
         organizer_config.save()
 
-        # TODO : Delete / update Activity TYPE_GROUP_COORGANIZATION_INVITE ?
+        # TODO : Delete / update status Activity TYPE_GROUP_COORGANIZATION_INVITE ?
+        # Replace by accepted notification
         activity_groups_invited.delete()
 
-        send_group_invitation_validated_notification(pk, group)
-        # .delay()
+        send_group_invitation_validated_notification.delay(pk, group_id)
         return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}) + "?toast")
 
 

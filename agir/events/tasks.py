@@ -21,6 +21,7 @@ from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.people.models import Person
 from .models import Event, RSVP, OrganizerConfig
+from ..groups.models import SupportGroup
 from ..activity.models import Activity
 from ..notifications.models import Subscription
 
@@ -575,9 +576,12 @@ def send_event_suggestion_email(event_pk, recipient_pk):
 
 @emailing_task
 @post_save_task
-def send_group_invitation_notification(event_pk, group, member):
+def send_group_invitation_notification(event_pk, group_id, member_id):
 
     event = Event.objects.get(pk=event_pk)
+    group = SupportGroup.objects.get(pk=group_id)
+    member = Person.objects.get(pk=member_id)
+
     try:
         event = Event.objects.get(pk=event_pk)
     except Event.DoesNotExist:
@@ -635,9 +639,11 @@ def send_group_invitation_notification(event_pk, group, member):
 
 
 @emailing_task
-def send_group_invitation_validated_notification(event_pk, group):
+def send_group_invitation_validated_notification(event_pk, group_id):
 
     event = Event.objects.get(pk=event_pk)
+    group = SupportGroup.objects.get(pk=group_id)
+
     try:
         event = Event.objects.get(pk=event_pk)
     except Event.DoesNotExist:

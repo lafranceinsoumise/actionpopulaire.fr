@@ -274,8 +274,8 @@ const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
             </StyledListBlock>
             <StyledListBlock>
               <div />
-              Ces derniers <b>ne pourront pas accéder aux paramètres</b> de
-              l’événement sauf si vous leur en donnez les droits.
+              Ces derniers <b>pourront accéder aux paramètres</b> de
+              l’événement.
             </StyledListBlock>
           </div>
           <Spacer size="1rem" />
