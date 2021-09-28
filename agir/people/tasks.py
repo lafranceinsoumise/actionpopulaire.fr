@@ -264,7 +264,7 @@ def notify_contact(person_pk, is_new=False):
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
     bindings = {
         "FORENAME": person.first_name,
-        "CREATION_DATE": person.created,
+        "CREATION_DATE": person.created.strftime("%d/%m/%Y"),
         "ACCOUNT_LINK": front_url("contact"),
         "DELETE_LINK": front_url("delete_account"),
     }
