@@ -41,14 +41,6 @@ const SecondaryActions = ({ routes, contact }) => {
   const handleContactClose = useCallback(() => setIsContactOpen(false), []);
   const handleContactOpen = useCallback(() => setIsContactOpen(true), []);
 
-  const contactDescription = (
-    <>
-      <Spacer size="1rem" />
-      <ShareLink label="Copier" color="primary" url={contact?.email} $wrap />
-      <Spacer size="1rem" />
-    </>
-  );
-
   return (
     <StyledWrapper>
       <StyledContainer>
@@ -76,10 +68,21 @@ const SecondaryActions = ({ routes, contact }) => {
         <ModalConfirmation
           shouldShow={isContactOpen}
           onClose={handleContactClose}
-          title="Contacter les organisateur·ices"
-          description={contactDescription}
-          dismissLabel="Non merci"
-        />
+          title="Contacter le groupe"
+        >
+          <p style={{ margin: "1rem 0" }}>
+            Vous souhaitez rejoindre ce groupe ou bien recevoir des informations
+            ? Envoyez un message aux animateur·ices de ce groupe d'action via
+            leur e-mail&nbsp;:
+            <Spacer size="1rem" />
+            <ShareLink
+              label="Copier"
+              color="primary"
+              url={contact?.email}
+              $wrap
+            />
+          </p>
+        </ModalConfirmation>
       </StyledContainer>
     </StyledWrapper>
   );
