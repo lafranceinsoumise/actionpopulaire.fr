@@ -15,6 +15,7 @@ const StyledButton = styled(Link)`
   @media (min-width: ${(props) => props.theme.collapse}px) {
     flex-flow: row nowrap;
     width: 100%;
+    text-align: left;
   }
 
   &:hover,
@@ -24,7 +25,7 @@ const StyledButton = styled(Link)`
     outline: none;
 
     @media (min-width: ${(props) => props.theme.collapse}px) {
-      opacity: 0.8;
+      opacity: 0.9;
     }
   }
 
@@ -40,6 +41,7 @@ const StyledButton = styled(Link)`
 
     @media (min-width: ${(props) => props.theme.collapse}px) {
       transform: scale(0.75);
+      transform-origin: center left;
     }
 
     & > * {
@@ -51,16 +53,16 @@ const StyledButton = styled(Link)`
     font-weight: 400;
     font-size: 0.875rem;
 
-    @media (min-width: ${(props) => props.theme.collapse}px) {
-      margin-left: 0.5rem;
-    }
-
     @media (max-width: ${(props) => props.theme.collapse}px) {
       margin-top: 0.688rem;
     }
   }
 `;
+
 const StyledButtons = styled.nav`
+  padding: 0;
+  margin: 0;
+
   @media (max-width: ${(props) => props.theme.collapse}px) {
     display: flex;
     justify-content: center;
