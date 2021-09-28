@@ -241,17 +241,17 @@ class EventGroupsOrganizersAPIView(APIView):
     permission_classes = (EventManagementPermissions,)
     queryset = OrganizerConfig.objects.all()
 
-    # group invitation
+    # Group invitation
     def post(self, request, pk):
         event = Event.objects.get(pk=pk)
         group_id = request.data.get("groupPk")
         group = SupportGroup.objects.get(pk=group_id)
 
-        # check group exist
+        # Check group exist
         if not group:
             return JsonResponse({"data": False})
 
-        # check group already invited
+        # Check group already invited
         if len(OrganizerConfig.objects.filter(event=event, as_group=group)) > 0:
             raise exceptions.ValidationError(
                 detail={"detail": "Ce groupe coorganise déjà l'événement"},

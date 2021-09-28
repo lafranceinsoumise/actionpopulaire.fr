@@ -590,7 +590,7 @@ class ConfirmEventGroupCoorganization(View):
             )
 
         activity_groups_invited = Activity.objects.filter(
-            event=event, type=Activity.TYPE_GROUP_COORGANIZATION_INVITE
+            event=event, type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
         )
         # .distinct("supportgroup") # dont work
         groups_invited = SupportGroup.objects.filter(
@@ -608,16 +608,20 @@ class ConfirmEventGroupCoorganization(View):
                 reverse("view_event", kwargs={"pk": pk}) + "?" + urlencode(params)
             )
 
+        # Get current organizers of event to send them notification
+        event_organizers_id = list(event.organizers.all().values_list("id"))
+
         # Add group with validating referent as organizer of the event
         organizer_config = OrganizerConfig.objects.create(
             event=event, as_group=group, person=person
         )
         organizer_config.save()
 
-        # Delete activity TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED one in task
-        activity_groups_invited.delete()
+        # Delete activities TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED ones in task
+        activity_groups_invited.filter(supportgroup=group).delete()
 
         send_group_invitation_validated_notification.delay(pk, group_id)
+        # send_group_invitation_validated_notification.delay(pk, group_id, event_organizers_id)
         return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}) + "?toast")
 
 

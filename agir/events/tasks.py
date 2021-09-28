@@ -640,10 +640,10 @@ def send_group_invitation_notification(event_pk, group_id, member_id):
 
 @emailing_task
 @post_save_task
-def send_group_invitation_validated_notification(event_pk, group_id):
+def send_group_invitation_validated_notification(event_pk, group_pk):
 
     event = Event.objects.get(pk=event_pk)
-    group = SupportGroup.objects.get(pk=group_id)
+    group = SupportGroup.objects.get(pk=group_pk)
 
     try:
         event = Event.objects.get(pk=event_pk)
@@ -651,9 +651,10 @@ def send_group_invitation_validated_notification(event_pk, group_id):
         return
 
     # Notify current event referents
-    recipients = event.organizers
+    recipients = event.organizers.all()
+    # recipients = Person.objects.filter(pk__in=organizers_id)
 
-    # Add activity to all recipients
+    # # Add activity to all recipients
     Activity.objects.bulk_create(
         [
             Activity(
@@ -666,6 +667,34 @@ def send_group_invitation_validated_notification(event_pk, group_id):
         ],
         send_post_save_signal=True,
     )
+
+    # Add activity to current organizers
+    # Activity.objects.bulk_create(
+    #     [
+    #         Activity(
+    #             type=Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED_FROM,
+    #             recipient=r,
+    #             event=event,
+    #             supportgroup=group,
+    #         )
+    #         for r in recipients
+    #     ],
+    #     send_post_save_signal=True,
+    # )
+
+    # # Add activity to new organizers of group invited (group referents)
+    # Activity.objects.bulk_create(
+    #     [
+    #         Activity(
+    #             type=Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED_TO,
+    #             recipient=r,
+    #             event=event,
+    #             supportgroup=group,
+    #         )
+    #         for r in group.referents
+    #     ],
+    #     send_post_save_signal=True,
+    # )
 
     subject = f"{group.name} a accepté de co-organiser {event.name}"
 

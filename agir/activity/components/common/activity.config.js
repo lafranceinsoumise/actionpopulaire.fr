@@ -138,6 +138,19 @@ const ACTIVITY_CONFIG = {
   },
   "group-coorganization-invite": {
     icon: "mail",
+    action: ({ event, supportGroup }) =>
+      event?.id && supportGroup?.id
+        ? {
+            href:
+              routeConfig.eventDetails.getLink({ eventPk: event.id }) +
+              `confirm-group-coorganization/?group=${supportGroup.id}`,
+            label: "Accepter",
+          }
+        : null,
+  },
+  "group-coorganization-accepted": {
+    icon: "calendar",
+    hasEvent: true,
     action: ({ event }) =>
       event?.id
         ? {
@@ -145,10 +158,6 @@ const ACTIVITY_CONFIG = {
             label: "Voir",
           }
         : null,
-  },
-  "group-coorganization-accepted": {
-    icon: "calendar",
-    hasEvent: true,
   },
   "waiting-location-event": {
     icon: "alert-circle",

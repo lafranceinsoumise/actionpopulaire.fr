@@ -139,6 +139,20 @@ const GenericCard = (props) => {
           {SupportGroup} a accepté de co-organiser votre événement {Event}
         </GenericCardContainer>
       );
+    case "group-coorganization-accepted-from":
+      return (
+        <GenericCardContainer {...props}>
+          Le groupe {SupportGroup} a accepté de co-organiser votre événement{" "}
+          {Event}
+        </GenericCardContainer>
+      );
+    case "group-coorganization-accepted-to":
+      return (
+        <GenericCardContainer {...props}>
+          Votre groupe {SupportGroup} a accepté de co-organiser l'événement{" "}
+          {Event}
+        </GenericCardContainer>
+      );
     case "group-info-update":
       return (
         <GenericCardContainer {...props}>

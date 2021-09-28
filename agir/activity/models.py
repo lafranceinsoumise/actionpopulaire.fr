@@ -63,6 +63,8 @@ class Activity(TimeStampedModel):
     TYPE_GROUP_COORGANIZATION_INFO = "group-coorganization-info"
     TYPE_GROUP_COORGANIZATION_INVITE = "group-coorganization-invite"
     TYPE_GROUP_COORGANIZATION_ACCEPTED = "group-coorganization-accepted"
+    TYPE_GROUP_COORGANIZATION_ACCEPTED_FROM = "group-coorganization-accepted-from"
+    TYPE_GROUP_COORGANIZATION_ACCEPTED_TO = "group-coorganization-accepted-to"
     TYPE_WAITING_PAYMENT = "waiting-payment"
 
     DISPLAYED_TYPES = (
@@ -83,6 +85,8 @@ class Activity(TimeStampedModel):
         TYPE_WAITING_LOCATION_EVENT,
         TYPE_GROUP_COORGANIZATION_INVITE,
         TYPE_GROUP_COORGANIZATION_ACCEPTED,
+        TYPE_GROUP_COORGANIZATION_ACCEPTED_FROM,
+        TYPE_GROUP_COORGANIZATION_ACCEPTED_TO,
         TYPE_WAITING_LOCATION_GROUP,
         TYPE_WAITING_PAYMENT,
         TYPE_GROUP_CREATION_CONFIRMATION,
@@ -121,10 +125,21 @@ class Activity(TimeStampedModel):
         ),
         (TYPE_WAITING_LOCATION_GROUP, "Préciser la localisation du groupe"),
         (TYPE_WAITING_LOCATION_EVENT, "Préciser la localisation d'un événement"),
-        (TYPE_GROUP_COORGANIZATION_INVITE, "Invitation à coorganiser un groupe reçue"),
+        (
+            TYPE_GROUP_COORGANIZATION_INVITE,
+            "Invitation à coorganiser un événement reçue",
+        ),
         (
             TYPE_GROUP_COORGANIZATION_ACCEPTED,
-            "Invitation à coorganiser un groupe acceptée",
+            "Invitation à coorganiser un événement acceptée",
+        ),
+        (
+            TYPE_GROUP_COORGANIZATION_ACCEPTED_FROM,
+            "Invitation de leur groupe à coorganiser mon événement acceptée",
+        ),
+        (
+            TYPE_GROUP_COORGANIZATION_ACCEPTED_TO,
+            "Invitation de mon groupe à coorganiser leur événement acceptée",
         ),
         (TYPE_GROUP_INFO_UPDATE, "Mise à jour des informations du groupe"),
         (TYPE_ACCEPTED_INVITATION_MEMBER, "Invitation à rejoindre un groupe acceptée"),
