@@ -580,14 +580,10 @@ class ConfirmEventGroupCoorganization(View):
 
         # Check group already coorganizer
         if len(organizers_groups) > 0:
-            params = {
-                "toast": True,
-                "type": "INFO",
-                "text": "Votre groupe est déjà coorganisateur",
-            }
-            return HttpResponseRedirect(
-                reverse("view_event", kwargs={"pk": pk}) + "?" + urlencode(params)
+            messages.add_message(
+                self.request, messages.INFO, "Votre groupe est déjà coorganisateur",
             )
+            return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
 
         activity_groups_invited = Activity.objects.filter(
             event=event, type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
@@ -599,17 +595,13 @@ class ConfirmEventGroupCoorganization(View):
 
         # Check group have been invited to event
         if not group in groups_invited:
-            params = {
-                "toast": True,
-                "type": "ERROR",
-                "text": "Une erreure est apparue",
-            }
-            return HttpResponseRedirect(
-                reverse("view_event", kwargs={"pk": pk}) + "?" + urlencode(params)
+            messages.add_message(
+                self.request, messages.ERROR, "Une erreure est apparue",
             )
+            return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
 
         # Get current organizers of event to send them notification
-        event_organizers_id = list(event.organizers.all().values_list("id"))
+        event_organizers_id = list(event.organizers.all().values_list("id", flat=True))
 
         # Add group with validating referent as organizer of the event
         organizer_config = OrganizerConfig.objects.create(
@@ -620,9 +612,13 @@ class ConfirmEventGroupCoorganization(View):
         # Delete activities TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED ones in task
         activity_groups_invited.filter(supportgroup=group).delete()
 
-        send_group_invitation_validated_notification.delay(pk, group_id)
-        # send_group_invitation_validated_notification.delay(pk, group_id, event_organizers_id)
-        return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}) + "?toast")
+        send_group_invitation_validated_notification.delay(
+            pk, group_id, event_organizers_id
+        )
+        messages.add_message(
+            self.request, messages.SUCCESS, "Vous avez accepté l'invitation",
+        )
+        return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
 
 
 class SendEventReportView(

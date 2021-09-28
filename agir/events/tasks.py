@@ -640,7 +640,7 @@ def send_group_invitation_notification(event_pk, group_id, member_id):
 
 @emailing_task
 @post_save_task
-def send_group_invitation_validated_notification(event_pk, group_pk):
+def send_group_invitation_validated_notification(event_pk, group_pk, organizers_id):
 
     event = Event.objects.get(pk=event_pk)
     group = SupportGroup.objects.get(pk=group_pk)
@@ -651,10 +651,9 @@ def send_group_invitation_validated_notification(event_pk, group_pk):
         return
 
     # Notify current event referents
-    recipients = event.organizers.all()
-    # recipients = Person.objects.filter(pk__in=organizers_id)
+    recipients = Person.objects.filter(pk__in=organizers_id)
 
-    # # Add activity to all recipients
+    # Add activity to all recipients
     Activity.objects.bulk_create(
         [
             Activity(
@@ -668,7 +667,7 @@ def send_group_invitation_validated_notification(event_pk, group_pk):
         send_post_save_signal=True,
     )
 
-    # Add activity to current organizers
+    # # Add activity to current organizers
     # Activity.objects.bulk_create(
     #     [
     #         Activity(
