@@ -81,3 +81,13 @@ export const BackButton = styled(Button).attrs((props) => ({
     display: none;
   }
 `;
+
+export const PageContent = styled.main`
+  margin: 0 auto;
+  max-width: 680px;
+  padding: 0 3.25rem 3.5rem;
+
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    padding: 1.5rem;
+  }
+`;

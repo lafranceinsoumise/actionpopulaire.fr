@@ -4,7 +4,7 @@ import useSWR from "swr";
 
 import { validateContact, createContact } from "./api";
 
-import { Banner, BackButton } from "./StyledComponents";
+import { Banner, BackButton, PageContent } from "./StyledComponents";
 import ConfirmContact from "./ConfirmContact";
 import ContactForm from "./ContactForm";
 import ContactSuccess from "./ContactSuccess";
@@ -64,7 +64,7 @@ const CreateContactPage = (props) => {
   return (
     <div>
       <Banner />
-      <main style={{ margin: "0 auto", maxWidth: 680, padding: "1.5rem" }}>
+      <PageContent>
         <PageFadeIn
           ready={pageIsReady}
           wait={
@@ -109,7 +109,7 @@ const CreateContactPage = (props) => {
             </>
           )}
         </PageFadeIn>
-      </main>
+      </PageContent>
     </div>
   );
 };

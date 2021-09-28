@@ -268,7 +268,7 @@ export const ContactForm = (props) => {
       </p>
       <Spacer size=".5rem" />
       <CheckboxField
-        label="Devenir correspondant·e"
+        label="Devenir correspondant·e de l'immeuble ou de la rue"
         onChange={handleCheckNewsletter}
         value={data.newsletters.includes(NEWSLETTER_2022_LIAISON)}
         id={NEWSLETTER_2022_LIAISON}
