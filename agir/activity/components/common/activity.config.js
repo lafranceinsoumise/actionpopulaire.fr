@@ -159,6 +159,28 @@ const ACTIVITY_CONFIG = {
           }
         : null,
   },
+  "group-coorganization-accepted-from": {
+    icon: "calendar",
+    hasEvent: true,
+    action: ({ event }) =>
+      event?.id
+        ? {
+            to: routeConfig.eventDetails.getLink({ eventPk: event.id }),
+            label: "Voir",
+          }
+        : null,
+  },
+  "group-coorganization-accepted-to": {
+    icon: "calendar",
+    hasEvent: true,
+    action: ({ event }) =>
+      event?.id
+        ? {
+            to: routeConfig.eventDetails.getLink({ eventPk: event.id }),
+            label: "Voir",
+          }
+        : null,
+  },
   "waiting-location-event": {
     icon: "alert-circle",
     action: ({ event }) =>

@@ -575,7 +575,6 @@ class ConfirmEventGroupCoorganization(View):
         if not person in group.referents:
             return HttpResponseRedirect(reverse("dashboard"))
 
-        # organizers_groups = event.organizers_groups.values_list() # dont work
         organizers_groups = OrganizerConfig.objects.filter(event=event, as_group=group)
 
         # Check group already coorganizer

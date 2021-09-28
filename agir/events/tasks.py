@@ -649,11 +649,11 @@ def send_group_invitation_validated_notification(event_pk, group_pk, organizers_
     # Notify current event referents
     recipients = Person.objects.filter(pk__in=organizers_id)
 
-    # Add activity to all recipients
+    # Add activity to current organizers
     Activity.objects.bulk_create(
         [
             Activity(
-                type=Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED,
+                type=Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED_FROM,
                 recipient=r,
                 event=event,
                 supportgroup=group,
@@ -663,33 +663,19 @@ def send_group_invitation_validated_notification(event_pk, group_pk, organizers_
         send_post_save_signal=True,
     )
 
-    # # Add activity to current organizers
-    # Activity.objects.bulk_create(
-    #     [
-    #         Activity(
-    #             type=Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED_FROM,
-    #             recipient=r,
-    #             event=event,
-    #             supportgroup=group,
-    #         )
-    #         for r in recipients
-    #     ],
-    #     send_post_save_signal=True,
-    # )
-
-    # # Add activity to new organizers of group invited (group referents)
-    # Activity.objects.bulk_create(
-    #     [
-    #         Activity(
-    #             type=Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED_TO,
-    #             recipient=r,
-    #             event=event,
-    #             supportgroup=group,
-    #         )
-    #         for r in group.referents
-    #     ],
-    #     send_post_save_signal=True,
-    # )
+    # Add activity to new organizers of group invited (group referents)
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_GROUP_COORGANIZATION_ACCEPTED_TO,
+                recipient=r,
+                event=event,
+                supportgroup=group,
+            )
+            for r in group.referents
+        ],
+        send_post_save_signal=True,
+    )
 
     subject = f"{group.name} a accepté de co-organiser {event.name}"
 
