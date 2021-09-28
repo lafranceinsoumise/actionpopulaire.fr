@@ -203,3 +203,30 @@ export const useInfiniteScroll = (loadMore, isLoadingMore) => {
 
   return intersectionRef;
 };
+
+/**
+ * Custom React hook to preload an image file and use its loading state
+ * @param  {string} src  The image file URL
+ * @return {boolean}     Whether the image file has been downloaded yet or not
+ */
+export const useImageLoad = (src) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(false);
+    const onReady = () => {
+      setIsLoaded(true);
+    };
+    const placeholder = new Image();
+    placeholder.addEventListener("load", onReady);
+    placeholder.addEventListener("error", onReady);
+    placeholder.src = src;
+
+    return () => {
+      placeholder.removeEventListener("load", onReady);
+      placeholder.removeEventListener("error", onReady);
+    };
+  }, [src]);
+
+  return isLoaded;
+};
