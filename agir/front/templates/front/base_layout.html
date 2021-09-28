@@ -61,6 +61,12 @@
         Vous utilisez une version obsolète de votre navigateur. Veuillez le  <a href="http://browsehappy.com/">mettre à jour</a> pour visionner votre site correctement.      </div>
     <![endif]-->
 {% block whole_page %}
+  {% if hide_feedback_button %}
+    <script>
+      window.Agir = window.Agir || {};
+      window.Agir.hideFeedbackButton = true;
+    </script>
+  {% endif %}
   {% include "front/legacyPages.bundle.html"%}
   {% block full_width %}
     <div class="wrap container" role="document">

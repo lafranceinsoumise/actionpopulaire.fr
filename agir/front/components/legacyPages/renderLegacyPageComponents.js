@@ -12,13 +12,14 @@ import SWRContext from "@agir/front/allPages/SWRContext";
 const renderLegacyPageComponents = () => {
   const root = document.createElement("div");
   document.body.appendChild(root);
+  const hideFeedbackButton = !!window?.Agir?.hideFeedbackButton;
   renderReactComponent(
     <SWRContext>
       <GlobalContextProvider>
         <>
           <TopBar hideBannerDownload />
           <PushModal isActive />
-          <FeedbackButton />
+          {hideFeedbackButton ? null : <FeedbackButton />}
         </>
       </GlobalContextProvider>
     </SWRContext>,
