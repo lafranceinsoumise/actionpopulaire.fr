@@ -5,6 +5,10 @@ from . import models
 
 @rules.predicate
 def is_person(role, obj):
+    """
+    Checks if the user is authenticated, is A person and
+    is THE PERSON to be accessed
+    """
     return (
         obj
         and role.is_authenticated
@@ -15,6 +19,9 @@ def is_person(role, obj):
 
 @rules.predicate
 def is_a_person(role):
+    """
+    Checks if the user is authenticated and is A person
+    """
     return role.is_authenticated and role.person is not None
 
 
