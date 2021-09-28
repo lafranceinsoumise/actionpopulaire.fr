@@ -29,11 +29,12 @@ const Template = ({
       shouldShow={isOpen}
       onClose={handleClose}
       title={title}
-      description={description}
       dismissLabel={dismissLabel}
       confirmationLabel={confirmationLabel}
       confirmationUrl={confirmationUrl}
-    />
+    >
+      {description}
+    </ModalConfirmation>
   );
 };
 
