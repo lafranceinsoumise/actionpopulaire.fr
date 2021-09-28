@@ -175,7 +175,8 @@ class ValidateNewContactView(CreateNewContactView):
         pass
 
     def create(self, request, *args, **kwargs):
-        # Update the response status code from the default 201 to 200
+        # Update the response status code from the default 201 CREATED to 202 ACCEPTED
+        # since we dont actually "create" anything here
         response = super(ValidateNewContactView, self).create(request, *args, **kwargs)
         response.status_code = status.HTTP_202_ACCEPTED
         return response

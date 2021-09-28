@@ -26,6 +26,12 @@ const CreateContactPage = (props) => {
   const pageIsReady =
     typeof user !== "undefined" && typeof groups !== "undefined";
 
+  /**
+   * Handles submission of the contact form (1st step) data for validation only
+   * delegating the actual saving of the data to next step. Renders the 2nd step upon
+   * success and display field errors upon failure.
+   * @type {object}   The form field data object
+   */
   const submitForm = useCallback(async (formData) => {
     setIsLoading(true);
     setErrors({});
@@ -39,6 +45,10 @@ const CreateContactPage = (props) => {
     setStep(1);
   }, []);
 
+  /**
+   * Handles submission of the contact form data for actually creating the
+   * contact. Renders the 3rd step upon success and the 1st upon failure.
+   */
   const confirmData = useCallback(async () => {
     setIsLoading(true);
     setErrors({});
@@ -56,6 +66,9 @@ const CreateContactPage = (props) => {
     setStep((step) => Math.max(0, step - 1));
   }, []);
 
+  /**
+   * Resets form data and renders the 1st step
+   */
   const resetForm = useCallback(() => {
     setData(null);
     setStep(0);
