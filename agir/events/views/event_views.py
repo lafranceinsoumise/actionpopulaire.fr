@@ -560,7 +560,7 @@ class ChangeEventLocationView(
 class ConfirmEventGroupCoorganization(View):
     def get(self, request, pk, *args, **kwargs):
 
-        if not self.request.user.is_authenticated:
+        if not self.request.user.is_authenticated or self.request.user.person is None:
             return HttpResponseRedirect(reverse("dashboard"))
 
         event = Event.objects.get(pk=pk)

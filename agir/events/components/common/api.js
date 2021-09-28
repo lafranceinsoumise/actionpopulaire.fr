@@ -13,8 +13,8 @@ export const ENDPOINT = {
   eventProject: "/api/evenements/:eventPk/projet/",
   addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
   getDetailAdvanced: "/api/evenements/:eventPk/details-avances/",
-  addOrganizer: "/api/evenements/:eventPk/organizers/",
-  inviteGroupOrganizer: "/api/evenements/:eventPk/group-organizers/",
+  addOrganizer: "/api/evenements/:eventPk/organisateurs/",
+  inviteGroupOrganizer: "/api/evenements/:eventPk/group-organisateurs/",
   cancelEvent: "/api/evenements/:eventPk/annuler/",
   updateLocation: "/evenements/:eventPk/localisation/",
 };

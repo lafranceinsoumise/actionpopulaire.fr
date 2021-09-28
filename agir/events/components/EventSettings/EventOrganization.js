@@ -77,8 +77,6 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
   const [isLoading, setIsLoading] = useState(false);
   const sendToast = useToast();
 
-  const selectParticipant = (value) => setSelectedParticipant(value);
-
   const onSubmit = async () => {
     setIsLoading(true);
     const res = await api.addOrganizer(eventPk, {
@@ -86,7 +84,11 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
     });
     setIsLoading(false);
     if (res.errors) {
-      sendToast(res.errors.detail, "ERROR", { autoClose: true });
+      sendToast(
+        res.errors?.detail || "L'invitation n'a pas pu être envoyée",
+        "ERROR",
+        { autoClose: true }
+      );
       onBack();
       return;
     }
@@ -114,7 +116,7 @@ const AddOrganizer = ({ eventPk, participants, onBack }) => {
             label: `${participant.displayName} (${participant.email})`,
             value: participant,
           }))}
-          onChange={selectParticipant}
+          onChange={setSelectedParticipant}
           value={selectedParticipant}
         />
       )}
@@ -184,9 +186,15 @@ const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
     onBack();
   };
 
-  const selectGroup = useCallback((value) => {
-    setSelectedGroup(value);
-  }, []);
+  const handleSearch = async (e) => {
+    const { data, errors } = await apiGroup.searchGroup(e);
+    // Filter already organizer groups
+    setGroupSearched(
+      data.results.filter(
+        (result) => !groups.some((group) => group.id === result.id)
+      )
+    );
+  };
 
   const handleChange = (e) => {
     setSearch(e.target.value);
@@ -195,19 +203,6 @@ const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
       return;
     }
     setGroupSearched([]);
-  };
-
-  const handleSearch = async (e) => {
-    const { data, errors } = await apiGroup.searchGroup(e);
-    // Filter already organizer groups
-    setGroupSearched(
-      data.results.reduce((result, groupSearch) => {
-        if (!groups.some((group) => group.id === groupSearch.id)) {
-          return [...result, groupSearch];
-        }
-        return result;
-      }, [])
-    );
   };
 
   return (
@@ -247,7 +242,7 @@ const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
               )}
               <GroupList
                 groups={groupSearched.slice(0, 4)}
-                selectGroup={selectGroup}
+                selectGroup={setSelectedGroup}
               />
               <Spacer size="1rem" />
             </>
@@ -293,6 +288,8 @@ AddGroupOrganizer.propTypes = {
   eventPk: PropTypes.string,
 };
 
+const [MENU_ORGANIZER, MENU_GROUP] = ["menu-organizer", "menu-group"];
+
 const EventOrganization = (props) => {
   const { onBack, illustration, eventPk } = props;
 
@@ -305,17 +302,16 @@ const EventOrganization = (props) => {
   const groups = useMemo(() => event?.groups || [], [event]);
   const groupsInvited = useMemo(() => event?.groups_invited || [], [event]);
 
-  const [submenuOpen, setSubmenuOpen] = useState(false);
-  const [submenuGroupOpen, setSubmenuGroupOpen] = useState(false);
+  const [submenuOpen, setSubmenuOpen] = useState(null);
 
-  const transition = useTransition(submenuOpen, slideInTransition);
-  const transitionGroup = useTransition(submenuGroupOpen, slideInTransition);
-
-  const openMenu = () => setSubmenuOpen(true);
-  const closeMenu = () => setSubmenuOpen(false);
-
-  const openMenuGroup = () => setSubmenuGroupOpen(true);
-  const closeMenuGroup = () => setSubmenuGroupOpen(false);
+  const transition = useTransition(
+    MENU_ORGANIZER === submenuOpen,
+    slideInTransition
+  );
+  const transitionGroup = useTransition(
+    MENU_GROUP === submenuOpen,
+    slideInTransition
+  );
 
   return (
     <>
@@ -339,7 +335,11 @@ const EventOrganization = (props) => {
             addButtonLabel={
               event && !event.isPast ? "Ajouter un groupe co-organisateur" : ""
             }
-            onAdd={event && !event.isPast ? openMenuGroup : undefined}
+            onAdd={
+              event && !event.isPast
+                ? () => setSubmenuOpen(MENU_GROUP)
+                : undefined
+            }
           >
             {groupsInvited?.map((g) => (
               <GroupItem
@@ -365,7 +365,11 @@ const EventOrganization = (props) => {
         addButtonLabel={
           event && !event.isPast ? "Ajouter un·e autre organisateur·ice" : ""
         }
-        onAdd={event && !event.isPast ? openMenu : undefined}
+        onAdd={
+          event && !event.isPast
+            ? () => setSubmenuOpen(MENU_ORGANIZER)
+            : undefined
+        }
       />
 
       <Spacer size="1rem" />
@@ -378,7 +382,7 @@ const EventOrganization = (props) => {
                 onClick={() => setSubmenuOpen(false)}
                 eventPk={eventPk}
                 participants={participants}
-                onBack={closeMenu}
+                onBack={() => setSubmenuOpen(null)}
               />
             </PanelWrapper>
           )
@@ -392,7 +396,7 @@ const EventOrganization = (props) => {
                 onClick={() => setSubmenuGroupOpen(false)}
                 eventPk={eventPk}
                 groups={groups}
-                onBack={closeMenuGroup}
+                onBack={() => setSubmenuOpen(null)}
               />
             </PanelWrapper>
           )

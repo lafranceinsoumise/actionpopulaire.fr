@@ -146,12 +146,12 @@ urlpatterns = [
         name="api_event_details",
     ),
     path(
-        "api/evenements/<uuid:pk>/organizers/",
+        "api/evenements/<uuid:pk>/organisateurs/",
         views.CreateOrganizerConfigAPIView.as_view(),
         name="api_event_organizers",
     ),
     path(
-        "api/evenements/<uuid:pk>/group-organizers/",
+        "api/evenements/<uuid:pk>/group-organisateurs/",
         views.EventGroupsOrganizersAPIView.as_view(),
         name="api_event_group_organizers",
     ),

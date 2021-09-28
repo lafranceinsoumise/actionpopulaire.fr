@@ -7,6 +7,7 @@ from django.http.response import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext as _
+from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 from rest_framework import status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
@@ -236,33 +237,30 @@ class CreateOrganizerConfigAPIView(APIView):
         return JsonResponse({"data": True})
 
 
-# Send and accept group invitation to an event organization
-class EventGroupsOrganizersAPIView(APIView):
+# Send group invitations to organize an event
+class EventGroupsOrganizersAPIView(CreateAPIView):
     permission_classes = (EventManagementPermissions,)
-    queryset = OrganizerConfig.objects.all()
+    # Restrict to public and upcoming events
+    queryset = Event.objects.public().upcoming()
 
-    # Group invitation
-    def post(self, request, pk):
-        event = Event.objects.get(pk=pk)
-        group_id = request.data.get("groupPk")
-        group = SupportGroup.objects.get(pk=group_id)
-
-        # Check group exist
-        if not group:
-            return JsonResponse({"data": False})
-
-        # Check group already invited
-        if len(OrganizerConfig.objects.filter(event=event, as_group=group)) > 0:
+    def create(self, request, *args, **kwargs):
+        # Use pk in URL to retrieve the event, returns 404 if not found,
+        # check the permissions if found
+        event = self.get_object()
+        # Retrieve group by id or return a 404 response
+        group = get_object_or_404(
+            SupportGroup.objects.active(), pk=request.data.get("groupPk")
+        )
+        # Check if group is already organizing the event
+        if OrganizerConfig.objects.filter(event=event, as_group=group).exists():
             raise exceptions.ValidationError(
                 detail={"detail": "Ce groupe coorganise déjà l'événement"},
                 code="invalid_format",
             )
-
-        # Send notification and email to managers of group invited
         send_group_invitation_notification.delay(
-            pk, group_id, self.request.user.person.id
+            str(event.id), str(group.id), self.request.user.person.id
         )
-        return JsonResponse({"data": True})
+        return Response({"data": True}, status=status.HTTP_201_CREATED)
 
 
 class CancelEventAPIView(GenericAPIView):

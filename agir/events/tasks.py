@@ -590,13 +590,9 @@ def send_group_invitation_notification(event_pk, group_id, member_id):
     subject = f"Votre groupe {group.name} est invité à co-organiser {event.name}"
     recipients = group.referents
 
-    query_args = {
-        "group": group.pk,
-    }
     accept_group_coorganization_url = front_url(
-        "event_group_coorganization", kwargs={"pk": event_pk}
+        "event_group_coorganization", query={"group": group.pk}, kwargs={"pk": event_pk}
     )
-    accept_group_coorganization_url += "?" + urlencode(query_args)
 
     bindings = {
         "TITLE": subject,
