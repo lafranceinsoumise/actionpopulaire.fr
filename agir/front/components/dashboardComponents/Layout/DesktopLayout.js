@@ -9,7 +9,7 @@ import Navigation, {
 } from "@agir/front/dashboardComponents/Navigation";
 
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
-
+import ActionButtons from "@agir/front/app/ActionButtons";
 import { LayoutTitle, LayoutSubtitle } from "./StyledComponents";
 
 const FixedColumn = styled(Column)`
@@ -55,6 +55,10 @@ const Layout = (props) => {
           </section>
         </MainColumn>
         <SidebarColumn>
+          <div style={{ marginBottom: "2rem" }}>
+            <h4 style={{ margin: "0 0 .5rem" }}>Mes actions</h4>
+            <ActionButtons />
+          </div>
           <FacebookLoginAd />
           <Announcements />
           <SecondaryNavigation />

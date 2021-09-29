@@ -6,11 +6,12 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { Row } from "@agir/donations/donationForm/AllocationsWidget/Styles";
-import { Column } from "@agir/front/genericComponents/grid";
+import { Column, Hide } from "@agir/front/genericComponents/grid";
 import Card from "@agir/front/genericComponents/Card";
 import { LayoutTitle } from "@agir/front/dashboardComponents/Layout/StyledComponents";
 import Button from "@agir/front/genericComponents/Button";
 import EventCard from "@agir/front/genericComponents/EventCard";
+import ActionButtons from "@agir/front/app/ActionButtons";
 import Link from "@agir/front/app/Link";
 
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
@@ -309,35 +310,72 @@ const Agenda = () => {
     <StyledAgenda>
       <MissingDocumentsWidget />
       <header>
+        <Hide over>
+          <h2
+            style={{
+              textAlign: "center",
+              fontWeight: 600,
+              fontSize: "1.25rem",
+              marginBottom: "1.5rem",
+            }}
+          >
+            Bonjour {user?.firstName || user?.displayName} 👋
+          </h2>
+          <ActionButtons />
+        </Hide>
         <TopBar>
-          <LayoutTitle>Événements</LayoutTitle>
-          <div>
-            <Button
-              small
-              link
-              color="secondary"
-              route="createEvent"
-              icon="plus"
-            >
-              Créer un événement
-            </Button>
+          <LayoutTitle>
+            Bonjour {user?.firstName || user?.displayName} 👋
+          </LayoutTitle>
+          <Hide under>
             <Button small link route="eventMap" icon="map">
               Carte
             </Button>
-          </div>
+          </Hide>
         </TopBar>
       </header>
       <PageFadeIn ready={rsvpedEvents && suggestions} wait={<Skeleton />}>
         <Row style={{ marginBottom: "4rem" }}>
           <Column grow>
-            {rsvpedEvents && rsvpedEvents.length > 0 && (
+            {rsvpedEvents && rsvpedEvents.length > 0 ? (
               <>
-                <h2 style={{ marginTop: 0 }}>Mes événements</h2>
+                <Hide as="h2" under style={{ marginTop: 0 }}>
+                  Mes événements
+                </Hide>
+                <Hide
+                  over
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "0 1rem .5rem",
+                  }}
+                >
+                  <h2 style={{ margin: 0, flex: "1 1 auto" }}>
+                    Événements à venir
+                  </h2>
+                  <Button small link route="eventMap" icon="map">
+                    Carte
+                  </Button>
+                </Hide>
                 {rsvpedEvents.map((event) => (
                   <EventCard key={event.id} {...event} />
                 ))}
                 <h2>Autres événements près de chez moi</h2>
               </>
+            ) : (
+              <Hide
+                over
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "0 1rem .5rem",
+                }}
+              >
+                <h2 style={{ margin: 0, flex: "1 1 auto" }}>Mes événements</h2>
+                <Button small link route="eventMap" icon="map">
+                  Carte
+                </Button>
+              </Hide>
             )}
             <PageFadeIn
               ready={isSessionLoaded && suggestions}
