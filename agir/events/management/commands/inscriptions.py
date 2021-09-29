@@ -43,7 +43,7 @@ def count_by(df, by):
 
 
 def df_to_table(df, columns=None, colors=True):
-    table = beautifultable.BeautifulTable(max_width=160)
+    table = beautifultable.BeautifulTable(maxwidth=160)
 
     df = df.reset_index().copy()
 
@@ -70,7 +70,7 @@ def df_to_table(df, columns=None, colors=True):
 
     table.columns.header = columns or list(df.columns)
 
-    return table
+    return str(table)
 
 
 def get_current_status(config):
