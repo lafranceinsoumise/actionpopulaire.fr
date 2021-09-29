@@ -68,7 +68,7 @@ def df_to_table(df, columns=None, colors=True):
     for tup in df.itertuples(index=False):
         table.rows.append(tup)
 
-    table.columns.header = [df.index.name] + (columns or list(df.columns))
+    table.columns.header = columns or list(df.columns)
 
     return table
 
