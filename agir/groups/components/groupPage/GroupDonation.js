@@ -20,7 +20,7 @@ const GroupFacts = (props) => {
       <p>Chaque euro compte.</p>
       <Button
         route="donations"
-        params={{ groupPk: id }}
+        params={{ group: id }}
         link
         color="secondary"
         style={{ marginTop: "0.5rem" }}
