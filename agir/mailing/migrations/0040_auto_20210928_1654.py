@@ -7,13 +7,18 @@ import django_countries.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mailing', '0039_segment_elu_consulaire'),
+        ("mailing", "0039_segment_elu_consulaire"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='segment',
-            name='countries',
-            field=django_countries.fields.CountryField(blank=True, max_length=754, multiple=True, verbose_name='Limiter aux pays'),
+            model_name="segment",
+            name="countries",
+            field=django_countries.fields.CountryField(
+                blank=True,
+                max_length=754,
+                multiple=True,
+                verbose_name="Limiter aux pays",
+            ),
         ),
     ]
