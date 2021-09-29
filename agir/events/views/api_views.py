@@ -70,7 +70,10 @@ from agir.lib.rest_framework_permissions import (
 )
 
 from agir.lib.tasks import geocode_person
-from ..tasks import send_cancellation_notification, send_group_invitation_notification
+from ..tasks import (
+    send_cancellation_notification,
+    send_group_coorganization_invitation_notification,
+)
 
 
 class EventRsvpedAPIView(ListAPIView):
@@ -257,7 +260,7 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
                 detail={"detail": "Ce groupe coorganise déjà l'événement"},
                 code="invalid_format",
             )
-        send_group_invitation_notification.delay(
+        send_group_coorganization_invitation_notification.delay(
             str(event.id), str(group.id), self.request.user.person.id
         )
         return Response({"data": True}, status=status.HTTP_201_CREATED)

@@ -333,7 +333,7 @@ class EventAdvancedSerializer(EventSerializer):
     def get_groups_invited(self, obj):
 
         invitations = Invitation.objects.filter(
-            event=obj, choice=Invitation.INVITATION_PENDING
+            event=obj, status=Invitation.INVITATION_PENDING
         )
         groups_invited = SupportGroup.objects.filter(
             pk__in=invitations.values_list("group")

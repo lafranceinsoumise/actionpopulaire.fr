@@ -1056,26 +1056,39 @@ class Invitation(TimeStampedModel):
     INVITATION_ACCEPTED = "accepted"
     INVITATION_REFUSED = "refused"
 
-    CHOICES = (
+    STATUSES = (
         (INVITATION_PENDING, "En attente"),
         (INVITATION_ACCEPTED, "Acceptée"),
         (INVITATION_REFUSED, "Refusée"),
     )
 
-    person_demand = models.ForeignKey("people.Person", on_delete=models.CASCADE,)
+    person_request = models.ForeignKey(
+        "people.Person",
+        on_delete=models.CASCADE,
+        verbose_name="Personne qui émet l'invitation",
+    )
     person_respond = models.ForeignKey(
         "people.Person",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name="person_respond",
+        verbose_name="Personne qui répond à l'invitation",
     )
-    event = models.ForeignKey("events.Event", on_delete=models.CASCADE)
-    group = models.ForeignKey("groups.SupportGroup", on_delete=models.CASCADE)
-    choice = models.CharField(
-        "choice",
+    event = models.ForeignKey(
+        "events.Event",
+        on_delete=models.CASCADE,
+        verbose_name="Evenement de l'invitation",
+    )
+    group = models.ForeignKey(
+        "groups.SupportGroup",
+        on_delete=models.CASCADE,
+        verbose_name="Groupe invité à l'événement",
+    )
+    status = models.CharField(
+        "status",
         max_length=20,
-        choices=CHOICES,
+        choices=STATUSES,
         default=INVITATION_PENDING,
         null=False,
         blank=False,
@@ -1087,6 +1100,6 @@ class Invitation(TimeStampedModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["person_demand", "event", "group"], name="unique",
+                fields=["person_request", "event", "group"], name="unique",
             ),
         ]

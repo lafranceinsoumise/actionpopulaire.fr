@@ -76,7 +76,7 @@ urlpatterns = [
         name="send_event_report",
     ),
     path(
-        "evenements/<uuid:pk>/confirm-group-coorganization/",
+        "evenements/<uuid:pk>/confirmer-groupe-coorganisateur/",
         views.ConfirmEventGroupCoorganization.as_view(),
         name="event_group_coorganization",
     ),

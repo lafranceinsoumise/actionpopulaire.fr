@@ -143,7 +143,7 @@ const ACTIVITY_CONFIG = {
         ? {
             href:
               routeConfig.eventDetails.getLink({ eventPk: event.id }) +
-              `confirm-group-coorganization/?group=${supportGroup.id}`,
+              `confirmer-groupe-coorganisateur/?group=${supportGroup.id}`,
             label: "Accepter",
           }
         : null,

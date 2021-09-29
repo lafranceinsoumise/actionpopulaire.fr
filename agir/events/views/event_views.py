@@ -56,7 +56,7 @@ from ..models import Event, RSVP, Invitation, OrganizerConfig
 from ..tasks import (
     send_event_report,
     send_secretariat_notification,
-    send_group_invitation_coorganize_validated_notification,
+    send_validated_group_coorganization_invitation_notification,
 )
 from ...api import settings
 from ...carte.models import StaticMapImage
@@ -586,7 +586,7 @@ class ConfirmEventGroupCoorganization(View):
 
         # Get pending group invitations
         invitation_groups_pending = Invitation.objects.filter(
-            event=event, choice=Invitation.INVITATION_PENDING,
+            event=event, status=Invitation.INVITATION_PENDING,
         )
         groups_invited = SupportGroup.objects.filter(
             pk__in=invitation_groups_pending.values_list("group")
@@ -613,12 +613,12 @@ class ConfirmEventGroupCoorganization(View):
 
         # Update invitation to accepted
         invitation = invitation_groups_pending.filter(group=group)
-        invitation.update(person_respond=person, choice=Invitation.INVITATION_ACCEPTED)
+        invitation.update(person_respond=person, status=Invitation.INVITATION_ACCEPTED)
 
         # Delete activities TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED ones in task
         activity_groups_invited.filter(supportgroup=group).delete()
 
-        send_group_invitation_coorganize_validated_notification.delay(
+        send_validated_group_coorganization_invitation_notification.delay(
             pk, group_id, event_organizers_id
         )
         messages.add_message(

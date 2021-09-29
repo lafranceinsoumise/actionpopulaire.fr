@@ -576,7 +576,7 @@ def send_event_suggestion_email(event_pk, recipient_pk):
 
 @emailing_task
 @post_save_task
-def send_group_invitation_notification(event_pk, group_id, member_id):
+def send_group_coorganization_invitation_notification(event_pk, group_id, member_id):
 
     event = Event.objects.get(pk=event_pk)
     group = SupportGroup.objects.get(pk=group_id)
@@ -629,31 +629,31 @@ def send_group_invitation_notification(event_pk, group_id, member_id):
     if not invitation.exists():
         # Add invitations to group referents
         invitation = Invitation.objects.create(
-            person_demand=member,
+            person_request=member,
             event=event,
             group=group,
-            choice=Invitation.INVITATION_PENDING,
+            status=Invitation.INVITATION_PENDING,
         )
         invitation.save()
         return
 
     # The invitation exist yet : update date and last member asking
     # pending
-    if invitation.filter(choice=Invitation.INVITATION_PENDING).exists():
-        invitation.update(person_demand=member, timestamp=now())
+    if invitation.filter(status=Invitation.INVITATION_PENDING).exists():
+        invitation.update(person_request=member, timestamp=now())
         return
 
     # refused : set to pending
-    if invitation.filter(choice=Invitation.INVITATION_REFUSED).exists():
+    if invitation.filter(status=Invitation.INVITATION_REFUSED).exists():
         invitation.update(
-            person_demand=member, choise=Invitation.INVITATION_PENDING, timestamp=now()
+            person_request=member, status=Invitation.INVITATION_PENDING, timestamp=now()
         )
         return
 
 
 @emailing_task
 @post_save_task
-def send_group_invitation_coorganize_validated_notification(
+def send_validated_group_coorganization_invitation_notification(
     event_pk, group_pk, organizers_id
 ):
 
