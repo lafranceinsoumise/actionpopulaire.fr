@@ -578,13 +578,17 @@ def send_event_suggestion_email(event_pk, recipient_pk):
 @post_save_task
 def send_group_coorganization_invitation_notification(event_pk, group_id, member_id):
 
-    event = Event.objects.get(pk=event_pk)
-    group = SupportGroup.objects.get(pk=group_id)
-    member = Person.objects.get(pk=member_id)
-
     try:
         event = Event.objects.get(pk=event_pk)
     except Event.DoesNotExist:
+        return
+    try:
+        group = SupportGroup.objects.get(pk=group_id)
+    except SupportGroup.DoesNotExist:
+        return
+    try:
+        member = Person.objects.get(pk=member_id)
+    except Person.DoesNotExist:
         return
 
     subject = f"Votre groupe {group.name} est invité à co-organiser {event.name}"

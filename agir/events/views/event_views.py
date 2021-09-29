@@ -563,13 +563,18 @@ class ConfirmEventGroupCoorganization(View):
         if not self.request.user.is_authenticated or self.request.user.person is None:
             return HttpResponseRedirect(reverse("dashboard"))
 
-        event = Event.objects.get(pk=pk)
-        group_id = request.GET.get("group")
-        group = SupportGroup.objects.get(pk=group_id)
-        person = self.request.user.person
+        # Get event, group, person
+        try:
+            event = Event.objects.get(pk=pk)
+        except Event.DoesNotExist:
+            raise Http404()
 
-        if not event or not group or not person:
-            return HttpResponseRedirect(reverse("dashboard"))
+        group_id = request.GET.get("group")
+        try:
+            group = SupportGroup.objects.get(pk=group_id)
+        except SupportGroup.DoesNotExist:
+            raise Http404()
+        person = self.request.user.person
 
         # Check person is organizer of group
         if not person in group.referents:
@@ -577,7 +582,7 @@ class ConfirmEventGroupCoorganization(View):
 
         organizers_groups = OrganizerConfig.objects.filter(event=event, as_group=group)
 
-        # Check group already coorganizer
+        # Check group is already coorganizer
         if len(organizers_groups) > 0:
             messages.add_message(
                 self.request, messages.INFO, "Votre groupe est déjà coorganisateur",
@@ -591,21 +596,20 @@ class ConfirmEventGroupCoorganization(View):
         groups_invited = SupportGroup.objects.filter(
             pk__in=invitation_groups_pending.values_list("group")
         )
-        activity_groups_invited = Activity.objects.filter(
-            event=event, type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
-        )
 
         # Check group have been invited to event
         if not group in groups_invited:
             messages.add_message(
-                self.request, messages.ERROR, "Une erreure est apparue",
+                self.request,
+                messages.ERROR,
+                "Votre groupe n'est pas ou plus invité à cet événement.",
             )
             return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
 
         # Get current organizers of event to send them notification
         event_organizers_id = list(event.organizers.all().values_list("id", flat=True))
 
-        # Add group with validating referent as organizer of the event
+        # Add group as organizer of event, with its referent accepting invitation
         organizer_config = OrganizerConfig.objects.create(
             event=event, as_group=group, person=person
         )
@@ -616,6 +620,9 @@ class ConfirmEventGroupCoorganization(View):
         invitation.update(person_respond=person, status=Invitation.INVITATION_ACCEPTED)
 
         # Delete activities TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED ones in task
+        activity_groups_invited = Activity.objects.filter(
+            event=event, type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
+        )
         activity_groups_invited.filter(supportgroup=group).delete()
 
         send_validated_group_coorganization_invitation_notification.delay(

@@ -18,6 +18,8 @@ from agir.lib.serializers import (
     FlexibleFieldsMixin,
     CurrentPersonField,
 )
+from agir.people.serializers import PersonSerializer
+
 from agir.lib.utils import (
     validate_facebook_event_url,
     INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
@@ -332,8 +334,8 @@ class EventAdvancedSerializer(EventSerializer):
 
     def get_groups_invited(self, obj):
 
-        invitations = Invitation.objects.filter(
-            event=obj, status=Invitation.INVITATION_PENDING
+        invitations = obj.group_coorganization_invitations.filter(
+            status=Invitation.INVITATION_PENDING
         )
         groups_invited = SupportGroup.objects.filter(
             pk__in=invitations.values_list("group")

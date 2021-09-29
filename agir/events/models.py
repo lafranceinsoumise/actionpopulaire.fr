@@ -1078,6 +1078,7 @@ class Invitation(TimeStampedModel):
     event = models.ForeignKey(
         "events.Event",
         on_delete=models.CASCADE,
+        related_name="group_coorganization_invitations",
         verbose_name="Evenement de l'invitation",
     )
     group = models.ForeignKey(
