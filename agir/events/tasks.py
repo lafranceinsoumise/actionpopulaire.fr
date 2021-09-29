@@ -653,7 +653,9 @@ def send_group_invitation_notification(event_pk, group_id, member_id):
 
 @emailing_task
 @post_save_task
-def send_group_invitation_validated_notification(event_pk, group_pk, organizers_id):
+def send_group_invitation_coorganize_validated_notification(
+    event_pk, group_pk, organizers_id
+):
 
     event = Event.objects.get(pk=event_pk)
     group = SupportGroup.objects.get(pk=group_pk)

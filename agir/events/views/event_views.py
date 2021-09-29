@@ -56,7 +56,7 @@ from ..models import Event, RSVP, Invitation, OrganizerConfig
 from ..tasks import (
     send_event_report,
     send_secretariat_notification,
-    send_group_invitation_validated_notification,
+    send_group_invitation_coorganize_validated_notification,
 )
 from ...api import settings
 from ...carte.models import StaticMapImage
@@ -618,7 +618,7 @@ class ConfirmEventGroupCoorganization(View):
         # Delete activities TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED ones in task
         activity_groups_invited.filter(supportgroup=group).delete()
 
-        send_group_invitation_validated_notification.delay(
+        send_group_invitation_coorganize_validated_notification.delay(
             pk, group_id, event_organizers_id
         )
         messages.add_message(
