@@ -93,6 +93,7 @@ class RSVPEventView(SoftLoginRequiredMixin, DetailView):
             )
 
         kwargs = {
+            "hide_feedback_button": True,
             "person_form_instance": self.event.subscription_form,
             "event": self.event,
             "submission_data": default_person_form_display.get_formatted_submission(

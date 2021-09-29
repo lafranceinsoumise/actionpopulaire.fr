@@ -15,14 +15,12 @@ const ModalContainer = styled.div`
   width: 40%;
   max-width: 500px;
   margin: 5% auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
   border-radius: ${style.borderRadius};
 
   @media (max-width: ${style.collapse}px) {
-    width: 90%;
+    width: 100%;
+    max-width: unset;
+    display: block;
   }
 `;
 
@@ -46,8 +44,8 @@ const ModalConfirmation = (props) => {
     shouldShow = false,
     onClose,
     title,
-    description,
-    dismissLabel = "Terminer",
+    children,
+    dismissLabel,
     confirmationLabel = "",
     confirmationUrl = "",
   } = props;
@@ -66,7 +64,7 @@ const ModalConfirmation = (props) => {
       <ModalContainer>
         <ModalContent>
           <h1>{title}</h1>
-          {description}
+          {children}
           <Spacer size="1rem" />
           {!!confirmationUrl && (
             <Button
@@ -78,13 +76,15 @@ const ModalConfirmation = (props) => {
               {confirmationLabel}
             </Button>
           )}
-          <Button
-            type="button"
-            onClick={onClose}
-            style={{ color: style.black1000 }}
-          >
-            {dismissLabel}
-          </Button>
+          {dismissLabel && (
+            <Button
+              type="button"
+              onClick={onClose}
+              style={{ color: style.black1000 }}
+            >
+              {dismissLabel}
+            </Button>
+          )}
         </ModalContent>
       </ModalContainer>
     </ResponsiveLayout>
@@ -95,7 +95,7 @@ ModalConfirmation.propTypes = {
   shouldShow: PropTypes.bool,
   onClose: PropTypes.func,
   title: PropTypes.node,
-  description: PropTypes.node,
+  children: PropTypes.node,
   dismissLabel: PropTypes.node,
   confirmationLabel: PropTypes.node,
   confirmationUrl: PropTypes.string,

@@ -66,6 +66,7 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
+            hide_feedback_button=True,
             person_form=self.person_form_instance,
             is_authorized=self.person_form_instance.is_authorized(self.object),
             **kwargs,

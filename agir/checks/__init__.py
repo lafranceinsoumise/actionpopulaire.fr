@@ -1,5 +1,3 @@
-from django.utils.translation import ugettext_lazy as _
-
 from agir.checks.payment_mode import AbstractCheckPaymentMode
 
 
