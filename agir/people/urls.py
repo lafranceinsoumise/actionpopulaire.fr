@@ -32,6 +32,16 @@ api_urls = [
         api.ReferrerInformationView.as_view(),
         name="api_referrer_information",
     ),
+    path(
+        "api/soutiens/valider/",
+        api.ValidateNewContactView.as_view(),
+        name="api_validate_new_contact",
+    ),
+    path(
+        "api/soutiens/creer/",
+        api.CreateNewContactView.as_view(),
+        name="api_create_new_contact",
+    ),
 ]
 
 subscribe_urls = [
