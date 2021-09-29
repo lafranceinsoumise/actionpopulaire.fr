@@ -166,10 +166,6 @@ class CreateNewContactView(CreateAPIView):
 
 
 class ValidateNewContactView(CreateNewContactView):
-    serializer_class = ContactSerializer
-    queryset = Person.objects.all()
-    permission_classes = (NewContacPermissions,)
-
     def perform_create(self, serializer):
         # Do not actually create the contact after validation
         pass
