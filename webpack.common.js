@@ -189,7 +189,21 @@ const configureBabelLoader = (type) => ({
       ],
       plugins: [
         "@babel/plugin-syntax-dynamic-import",
-        "babel-plugin-styled-components",
+        [
+          "babel-plugin-styled-components",
+          {
+            // This option enhances the attached CSS class name on each component with richer output to help identify your components in the DOM.
+            displayName: type === CONFIG_TYPES.DEV,
+            // Remove comments and whitespace from the CSS.
+            minify: type !== CONFIG_TYPES.DEV,
+            // Transpile tagged template literals into optimized code.
+            transpileTemplateLiterals: type !== CONFIG_TYPES.DEV,
+            // By default minifiers cannot properly perform dead code elimination on styled components because they are assumed to have side effects. This enables "pure annotations" to tell the compiler that they do not have side effects.
+            pure: type !== CONFIG_TYPES.DEV,
+            // Enable SSR optimization
+            ssr: false,
+          },
+        ],
         [
           "@babel/plugin-transform-runtime",
           {
@@ -197,8 +211,10 @@ const configureBabelLoader = (type) => ({
             useESModules: true,
           },
         ],
-        type === "dev" ? require.resolve("react-refresh/babel") : undefined,
-        type !== "dev"
+        type === CONFIG_TYPES.DEV
+          ? require.resolve("react-refresh/babel")
+          : undefined,
+        type !== CONFIG_TYPES.DEV
           ? require.resolve("babel-plugin-transform-react-remove-prop-types")
           : undefined,
       ].filter(Boolean),
