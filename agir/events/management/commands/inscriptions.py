@@ -44,7 +44,6 @@ def count_by(df, by):
 
 def df_to_table(df, columns=None, colors=True):
     table = beautifultable.BeautifulTable(max_width=160)
-    table.column_headers = [df.index.name] + (columns or list(df.columns))
 
     df = df.reset_index().copy()
 
@@ -67,7 +66,9 @@ def df_to_table(df, columns=None, colors=True):
         df = df[["college"] + columns]
 
     for tup in df.itertuples(index=False):
-        table.append_row(tup)
+        table.rows.append(tup)
+
+    table.columns.header = [df.index.name] + (columns or list(df.columns))
 
     return table
 
