@@ -1,6 +1,7 @@
-from itertools import chain
+﻿from itertools import chain
 from uuid import UUID
 
+from django.db.models import Subquery, OuterRef, QuerySet
 from django.utils.text import capfirst
 from functools import reduce
 
@@ -15,7 +16,7 @@ from operator import or_
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import NumberParseException
 
-from agir.people.models import Person, PersonForm
+from agir.people.models import Person, PersonForm, PersonEmail
 from agir.people.person_forms.fields import (
     PREDEFINED_CHOICES,
     PREDEFINED_CHOICES_REVERSE,
@@ -39,12 +40,20 @@ class PersonFormDisplay:
     def _get_form_and_submissions(self, submissions_or_form):
         if isinstance(submissions_or_form, PersonForm):
             form = submissions_or_form
-            submissions = (
-                form.submissions.all().order_by("created").select_related("person")
-            )
-        else:
+            submissions = form.submissions.all().order_by("created")
+        elif isinstance(submissions_or_form, QuerySet):
             submissions = submissions_or_form
-            form = submissions[0].form
+            form = PersonForm.objects.get(submissions__in=submissions[:1])
+        else:
+            raise TypeError("`submissions_or_form")
+
+        submissions = submissions.select_related("person").annotate(
+            email=Subquery(
+                PersonEmail.objects.filter(person_id=OuterRef("person__id"))
+                .order_by("_bounced", "_order")
+                .values("address")[:1]
+            )
+        )
 
         return form, submissions
 
@@ -134,6 +143,10 @@ class PersonFormDisplay:
             localize(submission.created.astimezone(get_current_timezone()))
             for submission in submissions
         ]
+
+        for s in submissions:
+            # copier l'email de façon à éviter une requête pour l'email PAR submission
+            s.person._email = s.email
 
         if html:
             id_field_template = (

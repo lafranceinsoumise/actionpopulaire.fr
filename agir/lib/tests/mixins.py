@@ -200,6 +200,19 @@ def create_groups(how_many=2):
     return groups
 
 
+@transaction.atomic
+def create_membership(
+    supportgroup=None, person=None, membership_type=Membership.MEMBERSHIP_TYPE_MEMBER
+):
+    if supportgroup is None:
+        supportgroup = create_group()
+    if person is None:
+        person = Person.objects.create(email=fake.email(), create_role=True)
+    return Membership.objects.create(
+        supportgroup=supportgroup, person=person, membership_type=membership_type
+    )
+
+
 # EVENTS
 def create_event():
     organizer = get_random_object(Person)

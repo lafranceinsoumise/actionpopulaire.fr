@@ -38,21 +38,6 @@ const StyledContent = styled.div`
   }
 `;
 
-const modalJoinConfirm = (
-  <>
-    <RawFeatherIcon name="mail" width="1.2rem" />
-    &nbsp; Je me présente !
-  </>
-);
-const modalFollowDescription = (
-  <>
-    Vous recevrez l’actualité de ce groupe.
-    <Spacer size="0.5rem" />
-    Vous pouvez le rejoindre en tant que membre pour recevoir les messages
-    destinés aux membres actifs à tout moment.
-  </>
-);
-
 const ConnectedUserActions = (props) => {
   const { id, name, isMember, isActiveMember, contact } = props;
 
@@ -68,24 +53,6 @@ const ConnectedUserActions = (props) => {
   const user = useSelector(getUser);
   const history = useHistory();
   const sendToast = useToast();
-
-  const modalJoinDescription = (
-    <>
-      Vous venez de rejoindre le groupe en tant que membre. Les animateur·ices
-      du groupe ont été informé·es de votre arrivée.
-      <Spacer size="0.5rem" />
-      {!!contact?.email && (
-        <>
-          C’est maintenant que tout se joue : faites la rencontre avec les
-          animateur·ices.
-          <Spacer size="0.5rem" />
-          Envoyez-leur un message pour vous présenter&nbsp;!
-          <Spacer size="0.5rem" />
-          <ShareLink label="Copier" color="primary" url={contact.email} $wrap />
-        </>
-      )}
-    </>
-  );
 
   const modalJoinDismiss = !!contact?.email ? "Non merci" : "Ok !";
 
@@ -196,16 +163,38 @@ const ConnectedUserActions = (props) => {
         shouldShow={isOpenModalJoin}
         onClose={() => setIsOpenModalJoin(false)}
         title={modalJoinTitle}
-        description={modalJoinDescription}
         dismissLabel={modalJoinDismiss}
-      />
+      >
+        Vous venez de rejoindre le groupe en tant que membre. Les animateur·ices
+        du groupe ont été informé·es de votre arrivée.
+        <Spacer size="0.5rem" />
+        {!!contact?.email && (
+          <>
+            C’est maintenant que tout se joue : faites la rencontre avec les
+            animateur·ices.
+            <Spacer size="0.5rem" />
+            Envoyez-leur un message pour vous présenter&nbsp;!
+            <Spacer size="0.5rem" />
+            <ShareLink
+              label="Copier"
+              color="primary"
+              url={contact.email}
+              $wrap
+            />
+          </>
+        )}
+      </ModalConfirmation>
       <ModalConfirmation
         key={2}
         shouldShow={isOpenModalFollow}
         onClose={() => setIsOpenModalFollow(false)}
         title={modalFollowTitle}
-        description={modalFollowDescription}
-      />
+      >
+        Vous recevrez l’actualité de ce groupe.
+        <Spacer size="0.5rem" />
+        Vous pouvez le rejoindre en tant que membre pour recevoir les messages
+        destinés aux membres actifs à tout moment.
+      </ModalConfirmation>
     </>
   );
 };

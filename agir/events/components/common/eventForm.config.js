@@ -13,8 +13,8 @@ endDate = new Date(endDate.ts);
 export const DEFAULT_FORM_DATA = {
   name: "",
   organizerGroup: null,
-  startTime: startDate.toUTCString(),
-  endTime: endDate.toUTCString(),
+  startTime: startDate.toISOString(),
+  endTime: endDate.toISOString(),
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   subtype: null,
   onlineUrl: "",

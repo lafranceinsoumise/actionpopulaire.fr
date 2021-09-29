@@ -297,7 +297,7 @@ EMAIL_TEMPLATES = {
     ################
     ## TEMPLATE NSP
     ################
-    "SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/7dd4eeb2-c7ce-40f6-a6c7-8207594b64f1.html",
+    "SUBSCRIPTION_CONFIRMATION_NSP_MESSAGE": "https://mosaico.lafranceinsoumise.fr/emails/a60a6bd0-5557-4527-94b3-72d1f0fce049.html",
     ################
     ## TEMPLATE AP
     ################

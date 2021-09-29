@@ -44,7 +44,9 @@ const GroupLinks = (props) => {
           <li title={link.label} key={link.id}>
             <LinkIcon url={link.url} />
             &ensp;
-            <a href={link.url}>{link.label}</a>
+            <a href={link.url} target="_blank" rel="noopener noreferrer">
+              {link.label}
+            </a>
           </li>
         ))}
       </StyledList>
