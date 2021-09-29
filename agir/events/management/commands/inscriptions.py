@@ -288,12 +288,13 @@ class Command(BaseCommand):
     def print_stats(self, config, columns=None, colors=False, **options):
         status = get_current_status(config)
 
-        print(
-            f"Pour le moment : {status._drawn.sum()} tirés, {status._subscribed.sum()} inscrits."
+        self.stdout.write(
+            f"Pour le moment : {status._drawn.sum()} tirés, {status._subscribed.sum()} inscrits.\n"
         )
 
         stats = get_stats(status, config)
-        print(df_to_table(stats, columns, colors))
+        self.stdout.write(df_to_table(stats, columns, colors))
+        self.stdout.write("\n")
 
     def download_email(self, config, **options):
         r = requests.get(config["email_link"])
@@ -329,9 +330,10 @@ class Command(BaseCommand):
 
         if self.verbosity >= 1:
             drawn_counts = Counter(status.loc[new_draws, "college"])
-            self.stdout.write("Tirage :\n")
-            for g, c in drawn_counts.items():
-                self.stdout.write(f"{g}: {c} personnes\n")
+            if drawn_counts:
+                self.stdout.write("Tirage :\n")
+                for g, c in drawn_counts.items():
+                    self.stdout.write(f"{g}: {c} personnes\n")
 
         tag_current = PersonTag.objects.get(label=f"{config['tag_prefix']} - ouvert")
 
@@ -351,8 +353,8 @@ class Command(BaseCommand):
     def send_emails(self, config, status):
         sending = status._active & ~status._email_envoye
 
-        if self.verbosity >= 1:
-            print(f"{sending.sum()} emails à envoyer.")
+        if self.verbosity >= 1 and sending.sum():
+            self.stdout.write(f"{sending.sum()} emails à envoyer.\n")
 
         persons = {
             str(p.id): p
