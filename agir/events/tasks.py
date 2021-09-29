@@ -20,7 +20,7 @@ from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.people.models import Person
-from .models import Event, RSVP, OrganizerConfig
+from .models import Event, RSVP, Invitation, OrganizerConfig
 from ..groups.models import SupportGroup
 from ..activity.models import Activity
 from ..notifications.models import Subscription
@@ -621,17 +621,34 @@ def send_group_invitation_notification(event_pk, group_id, member_id):
                 supportgroup=group,
             )
             for r in recipients
-            # Filter already sent activity, Not working
-            # if Activity.objects.filter(
-            #     type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
-            #     recipient=r,
-            #     event=event,
-            #     supportgroup=group,
-            # )
-            # is None
         ],
         send_post_save_signal=True,
     )
+
+    invitation = Invitation.objects.filter(event=event, group=group)
+    if not invitation.exists():
+        # Add invitations to group referents
+        invitation = Invitation.objects.create(
+            person_demand=member,
+            event=event,
+            group=group,
+            choice=Invitation.INVITATION_PENDING,
+        )
+        invitation.save()
+        return
+
+    # The invitation exist yet : update date and last member asking
+    # pending
+    if invitation.filter(choice=Invitation.INVITATION_PENDING).exists():
+        invitation.update(person_demand=member, timestamp=now())
+        return
+
+    # refused : set to pending
+    if invitation.filter(choice=Invitation.INVITATION_REFUSED).exists():
+        invitation.update(
+            person_demand=member, choise=Invitation.INVITATION_PENDING, timestamp=now()
+        )
+        return
 
 
 @emailing_task

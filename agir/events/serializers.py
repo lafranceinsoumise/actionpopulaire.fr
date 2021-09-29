@@ -31,6 +31,7 @@ from .actions.required_documents import (
 from .models import (
     Event,
     EventSubtype,
+    Invitation,
     OrganizerConfig,
     RSVP,
     jitsi_default_domain,
@@ -330,16 +331,13 @@ class EventAdvancedSerializer(EventSerializer):
         ]
 
     def get_groups_invited(self, obj):
-        activities = Activity.objects.filter(
-            type=Activity.TYPE_GROUP_COORGANIZATION_INVITE, event=obj.pk
-        )
-        # .distinct("supportgroup")
 
-        # get groups invited from activities sent
+        invitations = Invitation.objects.filter(
+            event=obj, choice=Invitation.INVITATION_PENDING
+        )
         groups_invited = SupportGroup.objects.filter(
-            pk__in=activities.values_list("supportgroup")
+            pk__in=invitations.values_list("group")
         )
-
         return [
             {"id": group.id, "name": group.name, "description": group.description,}
             for group in groups_invited

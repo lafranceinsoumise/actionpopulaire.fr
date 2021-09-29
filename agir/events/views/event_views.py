@@ -51,7 +51,7 @@ from ..forms import (
     UploadEventImageForm,
     AuthorForm,
 )
-from ..models import Event, RSVP, OrganizerConfig
+from ..models import Event, RSVP, Invitation, OrganizerConfig
 
 from ..tasks import (
     send_event_report,
@@ -584,12 +584,15 @@ class ConfirmEventGroupCoorganization(View):
             )
             return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
 
+        # Get pending group invitations
+        invitation_groups_pending = Invitation.objects.filter(
+            event=event, choice=Invitation.INVITATION_PENDING,
+        )
+        groups_invited = SupportGroup.objects.filter(
+            pk__in=invitation_groups_pending.values_list("group")
+        )
         activity_groups_invited = Activity.objects.filter(
             event=event, type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
-        )
-        # .distinct("supportgroup") # dont work
-        groups_invited = SupportGroup.objects.filter(
-            pk__in=activity_groups_invited.values_list("supportgroup")
         )
 
         # Check group have been invited to event
@@ -607,6 +610,10 @@ class ConfirmEventGroupCoorganization(View):
             event=event, as_group=group, person=person
         )
         organizer_config.save()
+
+        # Update invitation to accepted
+        invitation = invitation_groups_pending.filter(group=group)
+        invitation.update(person_respond=person, choice=Invitation.INVITATION_ACCEPTED)
 
         # Delete activities TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED ones in task
         activity_groups_invited.filter(supportgroup=group).delete()

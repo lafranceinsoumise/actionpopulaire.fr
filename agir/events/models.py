@@ -1048,3 +1048,45 @@ class JitsiMeeting(models.Model):
 
     class Meta:
         verbose_name = "Visio-conférence"
+
+
+class Invitation(TimeStampedModel):
+
+    INVITATION_PENDING = "pending"
+    INVITATION_ACCEPTED = "accepted"
+    INVITATION_REFUSED = "refused"
+
+    CHOICES = (
+        (INVITATION_PENDING, "En attente"),
+        (INVITATION_ACCEPTED, "Acceptée"),
+        (INVITATION_REFUSED, "Refusée"),
+    )
+
+    person_demand = models.ForeignKey("people.Person", on_delete=models.CASCADE,)
+    person_respond = models.ForeignKey(
+        "people.Person",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="person_respond",
+    )
+    event = models.ForeignKey("events.Event", on_delete=models.CASCADE)
+    group = models.ForeignKey("groups.SupportGroup", on_delete=models.CASCADE)
+    choice = models.CharField(
+        "choice",
+        max_length=20,
+        choices=CHOICES,
+        default=INVITATION_PENDING,
+        null=False,
+        blank=False,
+    )
+    timestamp = models.DateTimeField(
+        verbose_name="Date de l'invitation", null=False, default=timezone.now,
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["person_demand", "event", "group"], name="unique",
+            ),
+        ]
