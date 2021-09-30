@@ -13,6 +13,7 @@ import Button from "@agir/front/genericComponents/Button";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import ActionButtons from "@agir/front/app/ActionButtons";
 import Link from "@agir/front/app/Link";
+import UpcomingEvents from "@agir/events/common/UpcomingEvents";
 
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 
@@ -339,45 +340,48 @@ const Agenda = () => {
         <Row style={{ marginBottom: "4rem" }}>
           <Column grow>
             {rsvpedEvents && rsvpedEvents.length > 0 ? (
-              <>
-                <Hide as="h2" under style={{ marginTop: 0 }}>
-                  Mes événements
-                </Hide>
-                <Hide
-                  over
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "0 1rem 1rem",
-                  }}
-                >
-                  <h2 style={{ margin: 0, flex: "1 1 auto" }}>
-                    Événements à venir
-                  </h2>
-                  <Button small link route="eventMap" icon="map">
-                    Carte
-                  </Button>
-                </Hide>
-                {rsvpedEvents.map((event) => (
-                  <EventCard key={event.id} {...event} />
-                ))}
-                <h2>Autres événements près de chez moi</h2>
-              </>
-            ) : (
               <Hide
                 over
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "0 1rem 1rem",
+                  padding: "0 1.5rem 2rem",
                 }}
               >
-                <h2 style={{ margin: 0, flex: "1 1 auto" }}>Mes événements</h2>
-                <Button small link route="eventMap" icon="map">
-                  Carte
-                </Button>
+                <h2
+                  style={{
+                    fontWeight: 600,
+                    fontSize: "1.125rem",
+                    margin: "0 0 0.5rem",
+                    flex: "1 1 auto",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  Mes événements prévus
+                </h2>
+                <UpcomingEvents events={rsvpedEvents} />
               </Hide>
-            )}
+            ) : null}
+            <Hide
+              over
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "0 1.5rem 1rem",
+              }}
+            >
+              <h2
+                style={{
+                  fontWeight: 600,
+                  fontSize: "1.125rem",
+                  margin: 0,
+                  flex: "1 1 auto",
+                }}
+              >
+                Événements près de chez moi
+              </h2>
+              <Button small link route="eventMap" icon="map">
+                Carte
+              </Button>
+            </Hide>
             <PageFadeIn
               ready={isSessionLoaded && suggestions}
               wait={<Skeleton />}
