@@ -249,6 +249,8 @@ MERGE_STRATEGIES = {
     "read_messages": merge_reassign_related,
     "depense": None,
     "acces_application_parrainages": merge_acces_application_parrainages,
+    "person_respond": merge_reassign_related,
+    "invitation": merge_reassign_related,
 }
 
 
