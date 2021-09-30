@@ -31,7 +31,7 @@ const StyledForm = styled.form`
   h3 {
     font-weight: 700;
     font-size: 1.25rem;
-    margin: 0 0 1.5rem;
+    margin: 0;
   }
 
   h4 {
@@ -46,6 +46,36 @@ const StyledForm = styled.form`
     font-size: 0.875rem;
   }
 `;
+
+const scrollToError = (errors) => {
+  if (
+    typeof window === "undefined" ||
+    !errors ||
+    Object.values(errors).filter(Boolean).length === 0
+  ) {
+    return;
+  }
+  const keys = Object.entries(errors)
+    .filter(([key, value]) => Boolean(value))
+    .map(([key]) => key);
+  let scrollTarget = null;
+  for (let i = 0; keys[0] && !scrollTarget; i += 1) {
+    scrollTarget = document.querySelector(`[data-scroll="${keys[0]}"]`);
+  }
+  if (!scrollTarget) {
+    return;
+  }
+  const rect = scrollTarget.getBoundingClientRect();
+  const isVisible =
+    rect.top - 100 >= 0 &&
+    rect.bottom + 100 <=
+      (window.innerHeight || document.documentElement.clientHeight);
+
+  !isVisible &&
+    window.scrollTo({
+      top: scrollTarget.offsetTop - 100,
+    });
+};
 
 export const ContactForm = (props) => {
   const { initialData, errors, isLoading, onSubmit, groups } = props;
@@ -126,6 +156,10 @@ export const ContactForm = (props) => {
     [groups]
   );
 
+  useEffect(() => {
+    scrollToError(errors);
+  }, [errors]);
+
   return (
     <StyledForm onSubmit={handleSubmit}>
       <h2>Ajouter un soutien</h2>
@@ -138,6 +172,7 @@ export const ContactForm = (props) => {
         </>
       )}
       <h3>Nouveau soutien</h3>
+      <Spacer data-scroll="firstName" size="1.5rem" />
       <TextField
         label="Prénom"
         name="firstName"
@@ -148,7 +183,7 @@ export const ContactForm = (props) => {
         required={false}
         error={errors?.firstName}
       />
-      <Spacer size="1rem" />
+      <Spacer data-scroll="lastName" size="1rem" />
       <TextField
         label="Nom"
         name="lastName"
@@ -159,7 +194,7 @@ export const ContactForm = (props) => {
         required={false}
         error={errors?.lastName}
       />
-      <Spacer size="1rem" />
+      <Spacer data-scroll="zip" size="1rem" />
       <TextField
         label="Code postal"
         id="zip"
@@ -171,7 +206,7 @@ export const ContactForm = (props) => {
         disabled={isLoading}
         required={false}
       />
-      <Spacer size="1rem" />
+      <Spacer data-scroll="email" size="1rem" />
       <TextField
         label="E-mail"
         id="email"
@@ -182,8 +217,9 @@ export const ContactForm = (props) => {
         value={data.email}
         disabled={isLoading}
         required={false}
+        type="email"
       />
-      <Spacer size="1rem" />
+      <Spacer data-scroll="phone" size="1rem" />
       <PhoneField
         label="Numéro de téléphone"
         id="phone"
@@ -199,14 +235,17 @@ export const ContactForm = (props) => {
           </em>
         }
       />
-      <Spacer size="1rem" />
+      <Spacer data-scroll="newsletters" size="1rem" />
       <h4>Souhaitez-vous recevoir les&nbsp;:</h4>
       <CheckboxField
         label={
           <>
             Informations très importantes et exceptionnelles
             <br />
-            <em>« Jean-Luc Mélenchon fait un meeting dans votre ville »</em>
+            <em>
+              &laquo;&nbsp;Jean-Luc Mélenchon fait un meeting dans votre
+              ville&nbsp;&raquo;
+            </em>
           </>
         }
         onChange={handleCheckNewsletter}
@@ -228,7 +267,7 @@ export const ContactForm = (props) => {
         <>
           <Spacer size=".5rem" />
           <CheckboxField
-            label="Actualités du groupe d’action"
+            label="Actualités du groupe d'action proche de chez vous"
             onChange={handleCheckIsGroupFollower}
             value={!!data.group}
             id="isGroupFollower"
@@ -237,9 +276,9 @@ export const ContactForm = (props) => {
           />
           {data.group && (
             <>
-              <Spacer size="1.5rem" />
+              <Spacer data-scroll="group" size="1.5rem" />
               <SelectField
-                label="Ajouter un contact à quel groupe ?"
+                label="Ajouter le soutien au groupe\xA0:"
                 placeholder="Choisissez un groupe d'action"
                 onChange={handleSelectGroup}
                 value={data.group}
@@ -261,9 +300,9 @@ export const ContactForm = (props) => {
       </h4>
       <p>
         <em>
-          « Nous vous enverrons des informations et du matériel pour diffuser
-          nos propositions et inciter vos voisins à aller voter pour tout
-          changer en 2022 »
+          &laquo;&nbsp;Nous vous enverrons des informations et du matériel pour
+          diffuser nos propositions et inciter vos voisins à aller voter pour
+          tout changer en 2022&nbsp;&raquo;
         </em>
       </p>
       <Spacer size=".5rem" />
@@ -277,7 +316,7 @@ export const ContactForm = (props) => {
       />
       {data.newsletters.includes(NEWSLETTER_2022_LIAISON) && (
         <>
-          <Spacer size="1rem" />
+          <Spacer data-scroll="address" size="1rem" />
           <TextField
             label="Numéro et nom de la rue"
             helpText={
@@ -295,7 +334,7 @@ export const ContactForm = (props) => {
             disabled={isLoading}
             required={false}
           />
-          <Spacer size="1rem" />
+          <Spacer data-scroll="city" size="1rem" />
           <TextField
             label="Nom de la ville"
             id="city"
@@ -307,7 +346,7 @@ export const ContactForm = (props) => {
             disabled={isLoading}
             required={false}
           />
-          <Spacer size="1rem" />
+          <Spacer data-scroll="country" size="1rem" />
           <CountryField
             label="Pays"
             id="country"

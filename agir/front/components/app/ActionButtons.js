@@ -57,6 +57,13 @@ const StyledButton = styled(Link)`
       margin-top: 0.688rem;
     }
   }
+
+  &:hover > strong,
+  &:focus > strong {
+    @media (min-width: ${(props) => props.theme.collapse}px) {
+      color: ${(props) => props.theme.primary500};
+    }
+  }
 `;
 
 const StyledButtons = styled.nav`

@@ -117,6 +117,8 @@ export const HowTo = (props) => {
         >
           <strong>Comment ça marche</strong>
           <animated.button
+            type="button"
+            tabIndex="-1"
             onClick={!isCollapsed ? close : undefined}
             style={{ transform }}
           >
@@ -155,7 +157,11 @@ export const HowTo = (props) => {
           </li>
         </StyledBody>
         <StyledFooter style={{ opacity }}>
-          <Button type="button" onClick={close}>
+          <Button
+            tabIndex={isCollapsed ? "-1" : undefined}
+            type="button"
+            onClick={close}
+          >
             Compris
           </Button>
         </StyledFooter>

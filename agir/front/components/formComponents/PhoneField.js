@@ -91,6 +91,7 @@ const PhoneField = forwardRef((props, ref) => {
       <StyledInput>
         <Cleave
           {...rest}
+          type="phone"
           htmlRef={ref}
           id={id}
           options={{ phone: true, phoneRegionCode: "FR" }}
