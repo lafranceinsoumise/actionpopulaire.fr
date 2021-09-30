@@ -77,7 +77,14 @@ const ConfirmContact = (props) => {
           <li>Sera correspondant·e de l’immeuble ou de la rue</li>
         ) : null}
       </ul>
-      <Spacer size="2.5rem" />
+      <Spacer size="2rem" />
+      <p>Le soutien recevra un e-mail lui confirmant ces informations.</p>
+      <Spacer size="0.5rem" />
+      <p>
+        En enregistrant cette personne vous confirmez avoir reçu son
+        consentement oral. Tout abus sera sanctionné.
+      </p>
+      <Spacer size="1rem" />
       <footer>
         <Button icon="arrow-left" onClick={onBack} disabled={isLoading}>
           Modifier
