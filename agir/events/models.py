@@ -1067,23 +1067,24 @@ class Invitation(TimeStampedModel):
         on_delete=models.CASCADE,
         verbose_name="Personne qui émet l'invitation",
     )
-    person_respond = models.ForeignKey(
+    person_response = models.ForeignKey(
         "people.Person",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="person_respond",
+        related_name="invitation_response",
         verbose_name="Personne qui répond à l'invitation",
     )
     event = models.ForeignKey(
         "events.Event",
         on_delete=models.CASCADE,
-        related_name="group_coorganization_invitations",
+        related_name="invitations",
         verbose_name="Evenement de l'invitation",
     )
     group = models.ForeignKey(
         "groups.SupportGroup",
         on_delete=models.CASCADE,
+        related_name="invitations",
         verbose_name="Groupe invité à l'événement",
     )
     status = models.CharField(
