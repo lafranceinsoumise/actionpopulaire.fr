@@ -94,7 +94,9 @@ def send_event_creation_notification(organizer_config_pk):
         attachments=(
             {
                 "filename": "event.ics",
-                "content": str(ics.Calendar(events=[event.to_ics()])),
+                "content": str(
+                    ics.Calendar(events=[event.to_ics(text_only_description=True)])
+                ),
                 "mimetype": "text/calendar",
             },
         ),
@@ -145,7 +147,9 @@ def send_event_changed_notification(event_pk, changed_data):
         attachments=(
             {
                 "filename": "event.ics",
-                "content": str(ics.Calendar(events=[event.to_ics()])),
+                "content": str(
+                    ics.Calendar(events=[event.to_ics(text_only_description=True)])
+                ),
                 "mimetype": "text/calendar",
             },
         ),
@@ -186,7 +190,9 @@ def send_rsvp_notification(rsvp_pk):
         attachments=(
             {
                 "filename": "event.ics",
-                "content": str(ics.Calendar(events=[rsvp.event.to_ics()])),
+                "content": str(
+                    ics.Calendar(events=[rsvp.event.to_ics(text_only_description=True)])
+                ),
                 "mimetype": "text/calendar",
             },
         ),
