@@ -259,28 +259,27 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
                 code="invalid_format",
             )
 
-        invitation = Invitation.objects.filter(event=event, group=group)
-        if not invitation.exists():
+        # Create or update invitation
+        try:
+            invitation = Invitation.objects.get(event=event, group=group)
+            # The invitation exist yet : update date and last member asking
+            # pending
+            if invitation.status == Invitation.STATUS_PENDING:
+                invitation.person_sender = member
+            # refused : set to pending
+            elif invitation.status == Invitation.STATUS_REFUSED:
+                invitation.person_sender = (member,)
+                invitation.status = Invitation.STATUS_PENDING
+        except Invitation.DoesNotExist:
             # Add invitations to group referents
             invitation = Invitation.objects.create(
-                person_request=member,
+                person_sender=member,
                 event=event,
                 group=group,
                 status=Invitation.STATUS_PENDING,
             )
-            invitation.save()
-        else:
-            # The invitation exist yet : update date and last member asking
-            # pending
-            if invitation.filter(status=Invitation.STATUS_PENDING).exists():
-                invitation.update(person_request=member, timestamp=now())
-            # refused : set to pending
-            elif invitation.filter(status=Invitation.STATUS_REFUSED).exists():
-                invitation.update(
-                    person_request=member,
-                    status=Invitation.STATUS_PENDING,
-                    timestamp=now(),
-                )
+
+        invitation.save()
 
         send_group_coorganization_invitation_notification.delay(invitation.pk)
         return Response({"data": True}, status=status.HTTP_201_CREATED)

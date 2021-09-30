@@ -1062,12 +1062,12 @@ class Invitation(TimeStampedModel):
         (STATUS_REFUSED, "Refusée"),
     )
 
-    person_request = models.ForeignKey(
+    person_sender = models.ForeignKey(
         "people.Person",
         on_delete=models.CASCADE,
         verbose_name="Personne qui émet l'invitation",
     )
-    person_response = models.ForeignKey(
+    person_recipient = models.ForeignKey(
         "people.Person",
         on_delete=models.CASCADE,
         null=True,
@@ -1095,13 +1095,8 @@ class Invitation(TimeStampedModel):
         null=False,
         blank=False,
     )
-    timestamp = models.DateTimeField(
-        verbose_name="Date de l'invitation", null=False, default=timezone.now,
-    )
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
-                fields=["person_request", "event", "group"], name="unique",
-            ),
+            models.UniqueConstraint(fields=["event", "group"], name="unique",),
         ]

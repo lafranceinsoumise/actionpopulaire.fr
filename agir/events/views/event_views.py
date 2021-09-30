@@ -589,16 +589,14 @@ class ConfirmEventGroupCoorganization(View):
             )
             return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
 
-        # Get pending group invitations
-        invitation_groups_pending = Invitation.objects.filter(
-            event=event, status=Invitation.STATUS_PENDING,
-        )
-        groups_invited = SupportGroup.objects.filter(
-            pk__in=invitation_groups_pending.values_list("group")
-        )
-
-        # Check group have been invited to event
-        if not group in groups_invited:
+        # Get pending group invitation
+        try:
+            invitation = Invitation.objects.get(
+                event=event,
+                group=group,
+                status__in=(Invitation.STATUS_PENDING, Invitation.STATUS_REFUSED),
+            )
+        except Invitation.DoesNotExist:
             messages.add_message(
                 self.request,
                 messages.ERROR,
@@ -616,8 +614,9 @@ class ConfirmEventGroupCoorganization(View):
         organizer_config.save()
 
         # Update invitation to accepted
-        invitation = invitation_groups_pending.filter(group=group)
-        invitation.update(person_response=person, status=Invitation.STATUS_ACCEPTED)
+        invitation.person_recipient = person
+        invitation.status = Invitation.STATUS_ACCEPTED
+        invitation.save()
 
         # Delete activities TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED ones in task
         activity_groups_invited = Activity.objects.filter(
@@ -626,7 +625,7 @@ class ConfirmEventGroupCoorganization(View):
         activity_groups_invited.filter(supportgroup=group).delete()
 
         send_validated_group_coorganization_invitation_notification.delay(
-            pk, group_id, event_organizers_id
+            invitation.id, event_organizers_id
         )
         messages.add_message(
             self.request, messages.SUCCESS, "Vous avez accepté l'invitation",

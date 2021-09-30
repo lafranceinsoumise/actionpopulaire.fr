@@ -585,7 +585,7 @@ def send_group_coorganization_invitation_notification(invitation_pk):
 
     event = invitation.event
     group = invitation.group
-    member = invitation.person_request
+    member = invitation.person_sender
 
     subject = f"Votre groupe {group.name} est invité à co-organiser {event.name}"
     recipients = group.referents
@@ -629,16 +629,16 @@ def send_group_coorganization_invitation_notification(invitation_pk):
 @emailing_task
 @post_save_task
 def send_validated_group_coorganization_invitation_notification(
-    event_pk, group_pk, organizers_id
+    invitation_id, organizers_id
 ):
 
-    event = Event.objects.get(pk=event_pk)
-    group = SupportGroup.objects.get(pk=group_pk)
-
     try:
-        event = Event.objects.get(pk=event_pk)
-    except Event.DoesNotExist:
+        invitation = Invitation.objects.get(pk=invitation_id)
+    except Invitation.DoesNotExist:
         return
+
+    event = invitation.event
+    group = invitation.group
 
     # Notify current event referents
     recipients = Person.objects.filter(pk__in=organizers_id)
