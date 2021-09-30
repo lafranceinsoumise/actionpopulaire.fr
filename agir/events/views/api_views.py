@@ -5,7 +5,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.http.response import JsonResponse
 from django.urls import reverse
-from django.utils import timezone
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
@@ -29,7 +29,7 @@ from agir.events.actions.rsvps import (
     rsvp_to_free_event,
     is_participant,
 )
-from agir.events.models import Event, OrganizerConfig
+from agir.events.models import Event, OrganizerConfig, Invitation
 from agir.events.models import RSVP
 from agir.people.models import Person
 from agir.groups.models import SupportGroup
@@ -143,10 +143,7 @@ class EventSuggestionsAPIView(ListAPIView):
         if person.coordinates is not None:
             near_events = (
                 base_queryset.upcoming()
-                .filter(
-                    start_time__lt=timezone.now() + timedelta(days=30),
-                    do_not_list=False,
-                )
+                .filter(start_time__lt=now() + timedelta(days=30), do_not_list=False,)
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")[:10]
             )
@@ -254,12 +251,41 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
         group = get_object_or_404(
             SupportGroup.objects.active(), pk=request.data.get("groupPk")
         )
+        member = self.request.user.person
         # Check if group is already organizing the event
         if OrganizerConfig.objects.filter(event=event, as_group=group).exists():
             raise exceptions.ValidationError(
                 detail={"detail": "Ce groupe coorganise déjà l'événement"},
                 code="invalid_format",
             )
+
+        invitation = Invitation.objects.filter(event=event, group=group)
+        if not invitation.exists():
+            # Add invitations to group referents
+            invitation = Invitation.objects.create(
+                person_request=member,
+                event=event,
+                group=group,
+                status=Invitation.INVITATION_PENDING,
+            )
+            invitation.save()
+            return
+
+        # The invitation exist yet : update date and last member asking
+        # pending
+        if invitation.filter(status=Invitation.INVITATION_PENDING).exists():
+            invitation.update(person_request=member, timestamp=now())
+            return
+
+        # refused : set to pending
+        if invitation.filter(status=Invitation.INVITATION_REFUSED).exists():
+            invitation.update(
+                person_request=member,
+                status=Invitation.INVITATION_PENDING,
+                timestamp=now(),
+            )
+            return
+
         send_group_coorganization_invitation_notification.delay(
             str(event.id), str(group.id), self.request.user.person.id
         )
@@ -268,7 +294,7 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
 
 class CancelEventAPIView(GenericAPIView):
     permission_classes = (EventManagementPermissions,)
-    queryset = Event.objects.upcoming(as_of=timezone.now(), published_only=False)
+    queryset = Event.objects.upcoming(as_of=now(), published_only=False)
 
     def post(self, request, pk):
         event = self.get_object()
@@ -340,7 +366,7 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
     def destroy(self, request, *args, **kwargs):
         try:
             rsvp = (
-                RSVP.objects.filter(event__end_time__gte=timezone.now())
+                RSVP.objects.filter(event__end_time__gte=now())
                 .select_related("event")
                 .get(event=self.object, person=self.request.user.person)
             )
