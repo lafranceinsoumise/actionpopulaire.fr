@@ -98,11 +98,6 @@ const StyledAgenda = styled.div`
     margin-bottom: 0;
   }
 
-  & h2 {
-    font-size: 18px;
-    font-weight: 500;
-  }
-
   & h2,
   & ${Day}, & ${EmptyAgenda} {
     margin: 2rem 0 1rem;
@@ -110,6 +105,11 @@ const StyledAgenda = styled.div`
     @media (max-width: ${style.collapse}px) {
       margin: 2rem 25px 1rem;
     }
+  }
+
+  & h2 {
+    font-size: 18px;
+    font-weight: 500;
   }
 
   & ${Card} + ${Card} {
@@ -308,7 +308,6 @@ const Agenda = () => {
 
   return (
     <StyledAgenda>
-      <MissingDocumentsWidget />
       <header>
         <Hide over>
           <h2
@@ -317,6 +316,7 @@ const Agenda = () => {
               fontWeight: 600,
               fontSize: "1.25rem",
               marginBottom: "1.5rem",
+              marginTop: 0,
             }}
           >
             Bonjour {user?.firstName || user?.displayName} 👋
@@ -334,6 +334,7 @@ const Agenda = () => {
           </Hide>
         </TopBar>
       </header>
+      <MissingDocumentsWidget />
       <PageFadeIn ready={rsvpedEvents && suggestions} wait={<Skeleton />}>
         <Row style={{ marginBottom: "4rem" }}>
           <Column grow>
@@ -347,7 +348,7 @@ const Agenda = () => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    padding: "0 1rem .5rem",
+                    padding: "0 1rem 1rem",
                   }}
                 >
                   <h2 style={{ margin: 0, flex: "1 1 auto" }}>
@@ -368,7 +369,7 @@ const Agenda = () => {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  padding: "0 1rem .5rem",
+                  padding: "0 1rem 1rem",
                 }}
               >
                 <h2 style={{ margin: 0, flex: "1 1 auto" }}>Mes événements</h2>

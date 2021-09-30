@@ -55,7 +55,6 @@ const TabListWrapper = styled.div`
 
   @media (max-width: ${style.collapse}px) {
     width: calc(100% - 50px);
-    width: calc(100vw - 50px);
     margin: 0 auto;
   }
 

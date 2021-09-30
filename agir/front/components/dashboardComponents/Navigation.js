@@ -87,36 +87,6 @@ const MenuItem = styled.li`
   position: relative;
   color: ${(props) => (props.active ? style.primary500 : "")};
 
-  & a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  & ${RawFeatherIcon} {
-    position: relative;
-
-    &::after {
-      content: "";
-      display: block;
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      border-radius: 100%;
-      background-color: ${({ hasUnreadBadge }) =>
-        hasUnreadBadge ? "crimson" : "transparent"};
-
-      @media only screen and (max-width: ${style.collapse}px) {
-        top: 3px;
-        right: 20px;
-      }
-
-      @media only screen and (min-width: ${style.collapse}px) {
-        top: 3px;
-        right: -3px;
-      }
-    }
-  }
-
   @media only screen and (max-width: ${style.collapse}px) {
     flex: 1 1 auto;
     display: ${({ mobile }) => (mobile ? "flex" : "none")};
@@ -169,6 +139,36 @@ const MenuItem = styled.li`
       }
     }
   }
+
+  & a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  & ${RawFeatherIcon} {
+    position: relative;
+
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 100%;
+      background-color: ${({ hasUnreadBadge }) =>
+        hasUnreadBadge ? "crimson" : "transparent"};
+
+      @media only screen and (max-width: ${style.collapse}px) {
+        top: 3px;
+        right: 20px;
+      }
+
+      @media only screen and (min-width: ${style.collapse}px) {
+        top: 3px;
+        right: -3px;
+      }
+    }
+  }
 `;
 
 const Counter = styled.span`
@@ -204,7 +204,10 @@ const Counter = styled.span`
 
 const Title = styled.span`
   @media (max-width: 360px) {
-    font-size: 10px;
+    font-size: 0.563rem;
+  }
+  @media (max-width: 340px) {
+    display: none;
   }
 `;
 

@@ -101,6 +101,7 @@ const GroupContactPage = (props) => {
       <TextField
         id="email"
         name="email"
+        type="email"
         label={"Adresse e-mail du groupe"}
         onChange={handleChange}
         value={contact?.email}

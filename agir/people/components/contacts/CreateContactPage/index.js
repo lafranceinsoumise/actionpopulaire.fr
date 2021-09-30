@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import useSWR from "swr";
 
 import { validateContact, createContact } from "./api";
@@ -73,6 +73,10 @@ const CreateContactPage = (props) => {
     setData(null);
     setStep(0);
   }, []);
+
+  useEffect(() => {
+    typeof window !== "undefined" && window.scrollTo({ top: 0 });
+  }, [step]);
 
   return (
     <div>
