@@ -22,9 +22,12 @@ const StyledHeader = styled.header`
   padding: 0;
   margin: 0;
 
-  span {
+  button {
     transform-origin: "center center";
     line-height: 0;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
   }
 `;
 
@@ -113,9 +116,12 @@ export const HowTo = (props) => {
           onClick={isCollapsed ? open : undefined}
         >
           <strong>Comment ça marche</strong>
-          <animated.span style={{ transform }}>
+          <animated.button
+            onClick={!isCollapsed ? close : undefined}
+            style={{ transform }}
+          >
             <RawFeatherIcon name="chevron-down" />
-          </animated.span>
+          </animated.button>
         </StyledHeader>
         <StyledBody style={{ opacity }}>
           <li>
