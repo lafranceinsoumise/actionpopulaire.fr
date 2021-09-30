@@ -20,7 +20,7 @@ from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.people.models import Person
-from .models import Event, RSVP, OrganizerConfig
+from .models import Event, RSVP, Invitation, OrganizerConfig
 from ..groups.models import SupportGroup
 from ..activity.models import Activity
 from ..notifications.models import Subscription
@@ -576,26 +576,22 @@ def send_event_suggestion_email(event_pk, recipient_pk):
 
 @emailing_task
 @post_save_task
-def send_group_coorganization_invitation_notification(event_pk, group_id, member_id):
+def send_group_coorganization_invitation_notification(invitation_pk):
 
     try:
-        event = Event.objects.get(pk=event_pk)
-    except Event.DoesNotExist:
+        invitation = Invitation.objects.get(pk=invitation_pk)
+    except Invitation.DoesNotExist:
         return
-    try:
-        group = SupportGroup.objects.get(pk=group_id)
-    except SupportGroup.DoesNotExist:
-        return
-    try:
-        member = Person.objects.get(pk=member_id)
-    except Person.DoesNotExist:
-        return
+
+    event = invitation.event
+    group = invitation.group
+    member = invitation.person_request
 
     subject = f"Votre groupe {group.name} est invité à co-organiser {event.name}"
     recipients = group.referents
 
     accept_group_coorganization_url = front_url(
-        "event_group_coorganization", query={"group": group.pk}, kwargs={"pk": event_pk}
+        "event_group_coorganization", query={"group": group.pk}, kwargs={"pk": event.pk}
     )
 
     bindings = {

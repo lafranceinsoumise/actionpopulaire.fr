@@ -24,7 +24,8 @@ const slideInTransition = {
   leave: { transform: "translateX(100%)" },
 };
 
-const [MENU_ORGANIZER, MENU_GROUP] = ["menu-organizer", "menu-group"];
+const MENU_ORGANIZER = "menu-organizer";
+const MENU_GROUP = "menu-group";
 
 const EventOrganization = (props) => {
   const { onBack, illustration, eventPk } = props;
@@ -40,14 +41,7 @@ const EventOrganization = (props) => {
 
   const [submenuOpen, setSubmenuOpen] = useState(null);
 
-  const transition = useTransition(
-    MENU_ORGANIZER === submenuOpen,
-    slideInTransition
-  );
-  const transitionGroup = useTransition(
-    MENU_GROUP === submenuOpen,
-    slideInTransition
-  );
+  const transition = useTransition(!!submenuOpen, slideInTransition);
 
   return (
     <>
@@ -114,26 +108,22 @@ const EventOrganization = (props) => {
         (style, item) =>
           item && (
             <PanelWrapper style={style}>
-              <AddOrganizer
-                onClick={() => setSubmenuOpen(false)}
-                eventPk={eventPk}
-                participants={participants}
-                onBack={() => setSubmenuOpen(null)}
-              />
-            </PanelWrapper>
-          )
-      )}
-
-      {transitionGroup(
-        (style, item) =>
-          item && (
-            <PanelWrapper style={style}>
-              <AddGroupOrganizer
-                onClick={() => setSubmenuGroupOpen(false)}
-                eventPk={eventPk}
-                groups={groups}
-                onBack={() => setSubmenuOpen(null)}
-              />
+              {MENU_ORGANIZER === submenuOpen && (
+                <AddOrganizer
+                  onClick={() => setSubmenuOpen(false)}
+                  eventPk={eventPk}
+                  participants={participants}
+                  onBack={() => setSubmenuOpen(null)}
+                />
+              )}
+              {MENU_GROUP === submenuOpen && (
+                <AddGroupOrganizer
+                  onClick={() => setSubmenuGroupOpen(false)}
+                  eventPk={eventPk}
+                  groups={groups}
+                  onBack={() => setSubmenuOpen(null)}
+                />
+              )}
             </PanelWrapper>
           )
       )}

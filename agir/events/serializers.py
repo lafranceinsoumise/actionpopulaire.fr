@@ -346,7 +346,7 @@ class EventAdvancedSerializer(EventSerializer):
     def get_groups_invited(self, obj):
 
         groups_invited = SupportGroup.objects.filter(
-            invitations__status=Invitation.INVITATION_PENDING, invitations__event=obj
+            invitations__status=Invitation.STATUS_PENDING, invitations__event=obj
         )
         return [
             {"id": group.id, "name": group.name, "description": group.description,}

@@ -1052,14 +1052,14 @@ class JitsiMeeting(models.Model):
 
 class Invitation(TimeStampedModel):
 
-    INVITATION_PENDING = "pending"
-    INVITATION_ACCEPTED = "accepted"
-    INVITATION_REFUSED = "refused"
+    STATUS_PENDING = "pending"
+    STATUS_ACCEPTED = "accepted"
+    STATUS_REFUSED = "refused"
 
     STATUSES = (
-        (INVITATION_PENDING, "En attente"),
-        (INVITATION_ACCEPTED, "Acceptée"),
-        (INVITATION_REFUSED, "Refusée"),
+        (STATUS_PENDING, "En attente"),
+        (STATUS_ACCEPTED, "Acceptée"),
+        (STATUS_REFUSED, "Refusée"),
     )
 
     person_request = models.ForeignKey(
@@ -1091,7 +1091,7 @@ class Invitation(TimeStampedModel):
         "status",
         max_length=20,
         choices=STATUSES,
-        default=INVITATION_PENDING,
+        default=STATUS_PENDING,
         null=False,
         blank=False,
     )

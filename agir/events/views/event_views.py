@@ -591,7 +591,7 @@ class ConfirmEventGroupCoorganization(View):
 
         # Get pending group invitations
         invitation_groups_pending = Invitation.objects.filter(
-            event=event, status=Invitation.INVITATION_PENDING,
+            event=event, status=Invitation.STATUS_PENDING,
         )
         groups_invited = SupportGroup.objects.filter(
             pk__in=invitation_groups_pending.values_list("group")
@@ -617,7 +617,7 @@ class ConfirmEventGroupCoorganization(View):
 
         # Update invitation to accepted
         invitation = invitation_groups_pending.filter(group=group)
-        invitation.update(person_response=person, status=Invitation.INVITATION_ACCEPTED)
+        invitation.update(person_response=person, status=Invitation.STATUS_ACCEPTED)
 
         # Delete activities TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED ones in task
         activity_groups_invited = Activity.objects.filter(

@@ -266,29 +266,23 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
                 person_request=member,
                 event=event,
                 group=group,
-                status=Invitation.INVITATION_PENDING,
+                status=Invitation.STATUS_PENDING,
             )
             invitation.save()
-            return
+        else:
+            # The invitation exist yet : update date and last member asking
+            # pending
+            if invitation.filter(status=Invitation.STATUS_PENDING).exists():
+                invitation.update(person_request=member, timestamp=now())
+            # refused : set to pending
+            elif invitation.filter(status=Invitation.STATUS_REFUSED).exists():
+                invitation.update(
+                    person_request=member,
+                    status=Invitation.STATUS_PENDING,
+                    timestamp=now(),
+                )
 
-        # The invitation exist yet : update date and last member asking
-        # pending
-        if invitation.filter(status=Invitation.INVITATION_PENDING).exists():
-            invitation.update(person_request=member, timestamp=now())
-            return
-
-        # refused : set to pending
-        if invitation.filter(status=Invitation.INVITATION_REFUSED).exists():
-            invitation.update(
-                person_request=member,
-                status=Invitation.INVITATION_PENDING,
-                timestamp=now(),
-            )
-            return
-
-        send_group_coorganization_invitation_notification.delay(
-            str(event.id), str(group.id), self.request.user.person.id
-        )
+        send_group_coorganization_invitation_notification.delay(invitation.pk)
         return Response({"data": True}, status=status.HTTP_201_CREATED)
 
 
