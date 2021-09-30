@@ -114,44 +114,18 @@ export const useMessages = (group) => {
 
 export const useMessage = (group, messagePk) => {
   const hasMessage = group && group.isMember && messagePk;
-  const dispatch = useDispatch();
-  const getMessage = useCallback(
-    (state) => getMessageById(state, messagePk),
-    [messagePk]
-  );
-  const message = useSelector(getMessage);
-  const isLoading = useSelector(getIsLoadingMessages);
-  const isUpdating = useSelector(getIsUpdatingMessages);
-
   const getMessageEndpoint = useCallback(
     () => hasMessage && api.getGroupPageEndpoint("getMessage", { messagePk }),
     [hasMessage, messagePk]
   );
 
-  const { data } = useSWR(getMessageEndpoint, { refreshInterval: 1000 });
-
-  useEffect(() => {
-    !isLoading &&
-      hasMessage &&
-      !data &&
-      dispatch(messageActions.loadMessages());
-  }, [isLoading, dispatch, hasMessage, data]);
-
-  useEffect(() => {
-    data && dispatch(messageActions.setMessage(data));
-  }, [dispatch, data]);
-
-  useEffect(
-    () => () => {
-      dispatch(messageActions.clearMessages());
-    },
-    [dispatch]
-  );
+  const { data: message, error } = useSWR(getMessageEndpoint, {
+    refreshInterval: 1000,
+  });
 
   return {
-    message,
-    isLoading: message === null || typeof data === "undefined" || isLoading,
-    isUpdating,
+    message: error ? null : message,
+    isLoading: typeof message === "undefined" && !error,
   };
 };
 
