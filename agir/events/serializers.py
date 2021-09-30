@@ -320,7 +320,17 @@ class EventAdvancedSerializer(EventSerializer):
 
     # Return organizers and referents from organizers_groups
     def get_organizers(self, obj):
+        current_organizers = obj.organizers.all()
         return [
+            {
+                "id": person.id,
+                "email": person.email,
+                "displayName": person.display_name,
+                "gender": person.gender,
+                "isOrganizer": True,
+            }
+            for person in current_organizers
+        ] + [
             {
                 "id": person.id,
                 "email": person.email,
@@ -330,6 +340,7 @@ class EventAdvancedSerializer(EventSerializer):
             }
             for group in obj.organizers_groups.distinct()
             for person in group.referents
+            if person not in current_organizers
         ]
 
     def get_groups_invited(self, obj):
