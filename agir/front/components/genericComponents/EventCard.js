@@ -22,7 +22,7 @@ const Illustration = styled.div`
   isolation: isolate;
   z-index: 0;
   width: 100%;
-  max-width: 270px;
+  max-width: 225px;
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: -1rem -1rem 1rem;
@@ -54,10 +54,10 @@ const Illustration = styled.div`
   }
 
   img {
-    max-height: 125px;
+    height: 125px;
 
     @media (max-width: ${(props) => props.theme.collapse}px) {
-      max-height: 150px;
+      height: 150px;
     }
     margin: 0 auto;
     align-self: center;
@@ -78,11 +78,12 @@ const StyledCard = styled(Card)`
 
   @media (min-width: ${(props) => props.theme.collapse}px) {
     display: grid;
-    grid-template-columns: 270px 1fr;
+    grid-template-columns: 225px 1fr;
     grid-template-rows: auto auto;
     padding: 0;
     box-shadow: none;
     border: 1px solid ${(props) => props.theme.black100};
+    min-height: 125px;
   }
 
   ${Illustration} {
@@ -100,6 +101,7 @@ const StyledCard = styled(Card)`
 
     @media (min-width: ${(props) => props.theme.collapse}px) {
       padding: 1.5rem;
+      align-self: stretch;
     }
 
     h4 {
