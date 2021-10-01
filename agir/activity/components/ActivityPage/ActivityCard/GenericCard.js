@@ -118,13 +118,6 @@ const GenericCard = (props) => {
         </GenericCardContainer>
       );
     }
-    case "waiting-location-event": {
-      return (
-        <GenericCardContainer {...props}>
-          Précisez la localisation de votre événement&nbsp;: {Event}
-        </GenericCardContainer>
-      );
-    }
     case "group-coorganization-invite": {
       return (
         <GenericCardContainer {...props}>
@@ -133,24 +126,17 @@ const GenericCard = (props) => {
         </GenericCardContainer>
       );
     }
+    case "waiting-location-event": {
+      return (
+        <GenericCardContainer {...props}>
+          Précisez la localisation de votre événement&nbsp;: {Event}
+        </GenericCardContainer>
+      );
+    }
     case "group-coorganization-accepted":
       return (
         <GenericCardContainer {...props}>
           {SupportGroup} a accepté de co-organiser votre événement {Event}
-        </GenericCardContainer>
-      );
-    case "group-coorganization-accepted-from":
-      return (
-        <GenericCardContainer {...props}>
-          Le groupe {SupportGroup} a accepté de co-organiser votre événement{" "}
-          {Event}
-        </GenericCardContainer>
-      );
-    case "group-coorganization-accepted-to":
-      return (
-        <GenericCardContainer {...props}>
-          Votre groupe {SupportGroup} a accepté de co-organiser l'événement{" "}
-          {Event}
         </GenericCardContainer>
       );
     case "group-info-update":
