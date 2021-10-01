@@ -18,6 +18,8 @@ from agir.lib.serializers import (
     FlexibleFieldsMixin,
     CurrentPersonField,
 )
+from agir.people.serializers import PersonSerializer
+
 from agir.lib.utils import (
     validate_facebook_event_url,
     INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
@@ -31,6 +33,7 @@ from .actions.required_documents import (
 from .models import (
     Event,
     EventSubtype,
+    Invitation,
     OrganizerConfig,
     RSVP,
     jitsi_default_domain,
@@ -60,6 +63,7 @@ EVENT_ROUTES = {
     "compteRendu": "edit_event_report",
     "addPhoto": "upload_event_image",
     "edit": "edit_event",
+    "inviteGroupCoorganize": "event_group_coorganization",
 }
 
 
@@ -306,6 +310,8 @@ class EventAdvancedSerializer(EventSerializer):
 
     contact = NestedContactSerializer(source="*")
 
+    groups_invited = serializers.SerializerMethodField()
+
     def get_participants(self, obj):
         return [
             {"id": person.id, "email": person.email, "displayName": person.display_name}
@@ -313,7 +319,9 @@ class EventAdvancedSerializer(EventSerializer):
             if person not in obj.organizers.all()
         ]
 
+    # Return organizers and referents from organizers_groups
     def get_organizers(self, obj):
+        current_organizers = obj.organizers.all()
         return [
             {
                 "id": person.id,
@@ -322,7 +330,28 @@ class EventAdvancedSerializer(EventSerializer):
                 "gender": person.gender,
                 "isOrganizer": True,
             }
-            for person in obj.organizers.all()
+            for person in current_organizers
+        ] + [
+            {
+                "id": person.id,
+                "email": person.email,
+                "displayName": person.display_name,
+                "gender": person.gender,
+                "isOrganizer": True,
+            }
+            for group in obj.organizers_groups.distinct()
+            for person in group.referents
+            if person not in current_organizers
+        ]
+
+    def get_groups_invited(self, obj):
+
+        groups_invited = SupportGroup.objects.filter(
+            invitations__status=Invitation.STATUS_PENDING, invitations__event=obj
+        )
+        return [
+            {"id": group.id, "name": group.name, "description": group.description,}
+            for group in groups_invited
         ]
 
 
