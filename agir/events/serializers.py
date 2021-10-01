@@ -63,6 +63,7 @@ EVENT_ROUTES = {
     "compteRendu": "edit_event_report",
     "addPhoto": "upload_event_image",
     "edit": "edit_event",
+    "inviteGroupCoorganize": "event_group_coorganization",
 }
 
 
