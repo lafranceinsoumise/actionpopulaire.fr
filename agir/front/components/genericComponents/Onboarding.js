@@ -156,7 +156,7 @@ const StyledBlock = styled.section`
   padding: 0;
 
   @media (max-width: ${style.collapse}px) {
-    padding: 0 1rem;
+    padding: 0;
   }
 
   header {

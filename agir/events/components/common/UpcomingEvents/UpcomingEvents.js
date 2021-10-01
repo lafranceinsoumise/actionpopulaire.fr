@@ -17,11 +17,9 @@ export const SingleSlide = styled(animated.div)`
 export const Carousel = styled(animated.div)`
   .swiper {
     .swiper-slide {
+      box-sizing: border-box;
       width: auto;
       padding: 1px;
-    }
-    .swiper-wrapper {
-      margin-bottom: 1.5rem;
     }
   }
 `;
