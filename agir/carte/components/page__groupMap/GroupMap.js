@@ -17,9 +17,10 @@ const GroupMap = () => {
       type="groups"
       createLinkProps={{
         as: "a",
-        href: routes.createGroup,
+        route: routes.createGroup,
         children: "Créer un groupe dans mon quartier",
       }}
+      searchUrl="/groupes/liste/"
       mapURL={routes.groupsMap}
       user={user}
     />

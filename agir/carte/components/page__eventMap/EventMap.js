@@ -20,6 +20,7 @@ const EventMap = () => {
         route: "createEvent",
         children: "Créer un événement dans mon quartier",
       }}
+      searchUrl="/evenements/liste/"
       mapURL={routes.eventsMap}
       user={user}
     />
