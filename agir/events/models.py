@@ -26,6 +26,7 @@ from stdimage.models import StdImageField
 from agir.gestion.typologies import TypeProjet, TypeDocument
 from agir.groups.models import Membership
 from agir.lib.form_fields import CustomJSONEncoder, DateTimePickerWidget
+from agir.lib.html import textify
 from agir.lib.model_fields import FacebookEventField
 from agir.lib.models import (
     BaseAPIResource,
@@ -447,14 +448,18 @@ class Event(
     def __repr__(self):
         return f"{self.__class__.__name__}(id={str(self.pk)!r}, name={self.name!r})"
 
-    def to_ics(self):
+    def to_ics(self, text_only_description=False):
         event_url = front_url("view_event", args=[self.pk], auto_login=False)
+        if text_only_description:
+            description = textify(self.description) + " " + event_url
+        else:
+            description = self.description + f"<p>{event_url}</p>"
         return ics.Event(
             name=self.name,
             begin=self.start_time,
             end=self.end_time,
             uid=str(self.pk),
-            description=self.description + f"<p>{event_url}</p>",
+            description=description,
             location=self.short_address,
             url=event_url,
         )
