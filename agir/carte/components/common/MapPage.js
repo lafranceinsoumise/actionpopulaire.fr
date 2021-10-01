@@ -59,11 +59,15 @@ const Header = styled.header`
 const Map = styled.iframe`
   margin: 0;
   padding: 0;
+  border: none;
+  overflow: hidden;
   width: 100%;
   height: 100%;
   height: calc(100vh - 172px);
-  border: none;
-  overflow: hidden;
+  display: block;
+  @media (max-width: ${style.collapse}px) {
+    height: calc(100vh - 156px);
+  }
 `;
 
 const MapPage = (props) => {
