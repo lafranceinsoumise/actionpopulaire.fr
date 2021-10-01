@@ -5,10 +5,15 @@ import styled from "styled-components";
 import { displayShortDate } from "@agir/lib/utils/time";
 
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
-import Toast from "@agir/front/genericComponents/Toast";
 
-const StyledToast = styled(Toast)`
+const StyledWarning = styled.div`
+  padding: 1rem;
   margin: 0 0 2rem;
+  background-color: ${(props) => props.theme.white};
+  border-radius: ${(props) => props.theme.borderRadius};
+  border: 1px solid ${(props) => props.theme.redNSP};
+  box-shadow: 0px 0px 2px rgba(233, 58, 85, 0.5),
+    0px 3px 3px rgba(233, 58, 85, 0.1);
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0 0 1.5rem;
@@ -40,12 +45,20 @@ const StyledToast = styled(Toast)`
       line-height: 1.5;
       font-weight: 500;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       max-width: 100%;
 
-      & > span:first-child {
-        flex: 1 1 auto;
-        padding-right: 0.5rem;
+      & > span {
+        flex: 0 0 auto;
+
+        &:first-child {
+          color: ${(props) => props.theme.redNSP};
+        }
+
+        &:nth-child(2) {
+          flex: 1 1 auto;
+          padding: 0 0.5rem;
+        }
       }
     }
 
@@ -53,9 +66,10 @@ const StyledToast = styled(Toast)`
       margin: 0;
       padding: 0;
       font-size: 0.875rem;
-      font-weight: 400;
+      font-weight: 500;
       line-height: 1.6;
       color: ${(props) => props.theme.redNSP};
+      padding-left: 2rem;
     }
   }
 `;
@@ -68,9 +82,10 @@ export const MissingDocumentWarning = (props) => {
   }
 
   return (
-    <StyledToast>
+    <StyledWarning>
       <button type="button" onClick={onClick}>
         <strong>
+          <FeatherIcon name="alert-circle" />
           <span>
             {missingDocumentCount}{" "}
             {missingDocumentCount > 1
@@ -82,7 +97,7 @@ export const MissingDocumentWarning = (props) => {
         </strong>
         <span>À compléter avant le {displayShortDate(limitDate)}</span>
       </button>
-    </StyledToast>
+    </StyledWarning>
   );
 };
 
