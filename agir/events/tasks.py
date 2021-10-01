@@ -578,11 +578,7 @@ def send_event_suggestion_email(event_pk, recipient_pk):
 @post_save_task
 def send_group_coorganization_invitation_notification(invitation_pk):
 
-    try:
-        invitation = Invitation.objects.get(pk=invitation_pk)
-    except Invitation.DoesNotExist:
-        return
-
+    invitation = Invitation.objects.get(pk=invitation_pk)
     event = invitation.event
     group = invitation.group
     member = invitation.person_sender
@@ -632,11 +628,7 @@ def send_validated_group_coorganization_invitation_notification(
     invitation_id, organizers_id
 ):
 
-    try:
-        invitation = Invitation.objects.get(pk=invitation_id)
-    except Invitation.DoesNotExist:
-        return
-
+    invitation = Invitation.objects.get(pk=invitation_id)
     event = invitation.event
     group = invitation.group
 
