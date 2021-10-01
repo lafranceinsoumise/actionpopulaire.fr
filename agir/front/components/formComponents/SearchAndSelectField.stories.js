@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React from "react";
 
 import SearchAndSelectField from "./SearchAndSelectField";
 
@@ -12,14 +12,14 @@ export default {
 };
 
 const Template = (args) => {
-  const [value, setValue] = useState(args.value);
-  const [options, setOptions] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const handleChange = useCallback((value) => {
+  const [value, setValue] = React.useState(args.value);
+  const [options, setOptions] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const handleChange = React.useCallback((value) => {
     setValue(value);
   }, []);
 
-  const handleSearch = useCallback(async (q) => {
+  const handleSearch = React.useCallback(async (q) => {
     await new Promise((resolve) => {
       setIsLoading(true);
       setTimeout(() => {

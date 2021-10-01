@@ -395,22 +395,3 @@ export const deleteGroupLink = async (groupPk, linkPk) => {
 
   return result;
 };
-
-export const searchGroup = async (data) => {
-  const result = {
-    data: null,
-    errors: null,
-  };
-
-  try {
-    const response = await axios.get("/api/groupes/recherche/", {
-      params: { q: data },
-      headers: { Accept: "application/json" },
-    });
-    result.data = response.data;
-  } catch (e) {
-    result.errors = (e.response && e.response.data) || { global: e.message };
-  }
-
-  return result;
-};

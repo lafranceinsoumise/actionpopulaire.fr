@@ -75,11 +75,6 @@ urlpatterns = [
         views.SendEventReportView.as_view(),
         name="send_event_report",
     ),
-    path(
-        "evenements/<uuid:pk>/confirmer-groupe-coorganisateur/",
-        views.ConfirmEventGroupCoorganization.as_view(),
-        name="event_group_coorganization",
-    ),
     path("agenda/<slug:slug>/", views.CalendarView.as_view(), name="view_calendar"),
     path(
         "agenda/<slug:slug>/icalendar/",
@@ -146,14 +141,9 @@ urlpatterns = [
         name="api_event_details",
     ),
     path(
-        "api/evenements/<uuid:pk>/organisateurs/",
+        "api/evenements/<uuid:pk>/organizers/",
         views.CreateOrganizerConfigAPIView.as_view(),
         name="api_event_organizers",
-    ),
-    path(
-        "api/evenements/<uuid:pk>/groupes-organisateurs/",
-        views.EventGroupsOrganizersAPIView.as_view(),
-        name="api_event_group_organizers",
     ),
     path(
         "api/evenements/<uuid:pk>/annuler/",

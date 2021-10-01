@@ -14,12 +14,14 @@
   "SET_TOP_BAR_RIGHT_LINK_ACTION": "setTopBarRightLink",
   "SET_ADMIN_LINK_ACTION": "setAdminLink",
 
+  "SET_MESSAGES_ACTION": "setMessages",
+
   "LOADING_MESSAGES_ACTION": "loadingMessages",
   "REFRESHING_MESSAGES_ACTION": "refreshingMessages",
   "REFRESHED_MESSAGES_ACTION": "refreshedMessages",
-  "SET_MESSAGE_ACTION": "setMessage",
   "SET_MESSAGES_ACTION": "setMessages",
   "CLEAR_MESSAGES_ACTION": "clearMessages",
+  "SET_MESSAGE_ACTION": "setMessage",
   "CREATING_MESSAGE_ACTION": "creatingMessage",
   "CREATED_MESSAGE_ACTION": "createdMessage",
   "UPDATING_MESSAGE_ACTION": "updatingMessage",

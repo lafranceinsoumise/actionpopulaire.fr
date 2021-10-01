@@ -1,3 +1,5 @@
+from itertools import chain
+
 from django.db import transaction, IntegrityError
 
 __all__ = ["merge_persons"]
@@ -247,8 +249,6 @@ MERGE_STRATEGIES = {
     "read_messages": merge_reassign_related,
     "depense": None,
     "acces_application_parrainages": merge_acces_application_parrainages,
-    "invitation_response": merge_reassign_related,
-    "invitation": merge_reassign_related,
 }
 
 
