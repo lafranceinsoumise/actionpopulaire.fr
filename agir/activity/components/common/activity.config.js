@@ -1,4 +1,5 @@
 import { routeConfig } from "@agir/front/app/routes.config";
+import { addQueryStringParams } from "@agir/lib/utils/url";
 
 const ACTIVITY_CONFIG = {
   announcement: {
@@ -141,8 +142,9 @@ const ACTIVITY_CONFIG = {
     action: ({ event, supportGroup }) =>
       event?.id && supportGroup?.id
         ? {
-            href:
-              event.routes?.inviteGroupCoorganize + `?group=${supportGroup.id}`,
+            href: addQueryStringParams(event.routes.inviteGroupCoorganize, {
+              group: supportGroup.id,
+            }),
             label: "Accepter",
           }
         : null,
