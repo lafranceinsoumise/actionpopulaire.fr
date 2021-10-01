@@ -7,35 +7,32 @@ import { displayShortDate } from "@agir/lib/utils/time";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledWarning = styled.div`
-  padding: 1rem;
   margin: 0 0 2rem;
-  background-color: ${(props) => props.theme.white};
-  border-radius: ${(props) => props.theme.borderRadius};
-  border: 1px solid ${(props) => props.theme.redNSP};
-  box-shadow: 0px 0px 2px rgba(233, 58, 85, 0.5),
-    0px 3px 3px rgba(233, 58, 85, 0.1);
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     margin: 0 0 1.5rem;
   }
 
-  & > * {
+  & > button {
     width: 100%;
+    padding: 1rem;
+    background-color: ${(props) => props.theme.white};
+    border-radius: ${(props) => props.theme.borderRadius};
+    border: 1px solid ${(props) => props.theme.redNSP};
+    box-shadow: 0px 0px 2px rgba(233, 58, 85, 0.5),
+      0px 3px 3px rgba(233, 58, 85, 0.1);
     text-align: left;
     margin: 0;
     display: flex;
     flex-flow: column nowrap;
     gap: 0.25rem;
     background-color: transparent;
-    border: none;
     cursor: pointer;
 
-    &,
     &:hover,
     &:focus {
       color: ${(props) => props.theme.black1000};
       text-decoration: none;
-      outline: none;
     }
 
     & > strong {
