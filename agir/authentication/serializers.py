@@ -116,6 +116,7 @@ class SessionSerializer(serializers.Serializer):
                 "message": m.message,
                 "html": True,
                 "type": m.level_tag.upper(),
+                "tags": m.extra_tags,
             }
             for m in messages.get_messages(request)
         ]

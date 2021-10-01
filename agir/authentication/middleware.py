@@ -81,6 +81,7 @@ class MailLinkMiddleware:
                 request=request,
                 level=messages.WARNING,
                 message=self.get_just_connected_message(link_user),
+                extra_tags="ANONYMOUS_TO_SOFT_LOGIN_CONNECTION",
             )
         elif request.user != link_user:
             # we have a link_user, but current user is already logged in: we show a warning offering to connect with
@@ -95,6 +96,7 @@ class MailLinkMiddleware:
                 message=self.get_already_connected_message(
                     request.user, link_user, link_url
                 ),
+                extra_tags="LOGGED_IN_TO_SOFT_LOGIN_CONNECTION",
             )
 
         return HttpResponseRedirect(url)

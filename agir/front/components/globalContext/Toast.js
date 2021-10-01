@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -7,8 +7,9 @@ import {
   useSelector,
   useDispatch,
 } from "@agir/front/globalContext/GlobalContext";
-import { getToasts } from "@agir/front/globalContext/reducers";
+import { getToasts, getUser } from "@agir/front/globalContext/reducers";
 import { clearToast } from "@agir/front/globalContext/actions";
+import SoftLoginModal from "@agir/front/authentication/SoftLoginModal";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import "react-toastify/dist/ReactToastify.min.css";
@@ -128,7 +129,8 @@ export const Toast = (props) => {
 };
 
 const ConnectedToast = (props) => {
-  const toasts = useSelector(getToasts);
+  const allToasts = useSelector(getToasts);
+  const user = useSelector(getUser);
   const dispatch = useDispatch();
   const handleClear = useCallback(
     (toastId) => {
@@ -136,7 +138,29 @@ const ConnectedToast = (props) => {
     },
     [dispatch]
   );
-  return <Toast {...props} toasts={toasts} onClear={handleClear} />;
+
+  const [softLoginToastId, toasts] = useMemo(() => {
+    let softLoginToastId = null;
+    const toasts = allToasts.filter((toast) => {
+      if (toast.tags.includes("ANONYMOUS_TO_SOFT_LOGIN_CONNECTION")) {
+        softLoginToastId = toast.toastId;
+        return false;
+      }
+      return true;
+    });
+    return [softLoginToastId, toasts];
+  }, [allToasts]);
+
+  return (
+    <>
+      <SoftLoginModal
+        user={user}
+        shouldShow={!!softLoginToastId}
+        onClose={() => handleClear(softLoginToastId)}
+      />
+      <Toast {...props} toasts={toasts} onClear={handleClear} />
+    </>
+  );
 };
 
 Toast.propTypes = {
