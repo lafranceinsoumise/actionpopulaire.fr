@@ -163,6 +163,7 @@ export const routeConfig = {
     label: "Carte des événements",
     Component: EventMap,
     hideFooter: true,
+    hideFeedbackButton: true,
   }),
   createEvent: new RouteConfig({
     id: "createEvent",
@@ -234,6 +235,7 @@ export const routeConfig = {
     label: "Carte des groupes",
     Component: GroupMap,
     hideFooter: true,
+    hideFeedbackButton: true,
   }),
   fullGroup: new RouteConfig({
     id: "fullGroup",
