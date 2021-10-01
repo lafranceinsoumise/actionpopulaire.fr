@@ -9,25 +9,22 @@ import { useLocalStorage, useMeasure } from "@agir/lib/utils/hooks";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-const StyledHeader = styled.header`
+const StyledHeader = styled.button`
   background-color: transparent;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border: none;
   outline: none;
-  cursor: ${({ as }) => (as === "button" ? "pointer" : "default")};
+  cursor: pointer;
   width: 100%;
   height: 3.5rem;
   padding: 0;
   margin: 0;
 
-  button {
+  span {
     transform-origin: "center center";
     line-height: 0;
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
   }
 `;
 
@@ -110,20 +107,11 @@ export const HowTo = (props) => {
       }}
     >
       <div {...bind}>
-        <StyledHeader
-          type="button"
-          as={isCollapsed ? "button" : undefined}
-          onClick={isCollapsed ? open : undefined}
-        >
+        <StyledHeader type="button" onClick={isCollapsed ? open : close}>
           <strong>Comment ça marche</strong>
-          <animated.button
-            type="button"
-            tabIndex="-1"
-            onClick={!isCollapsed ? close : undefined}
-            style={{ transform }}
-          >
+          <animated.span style={{ transform }}>
             <RawFeatherIcon name="chevron-down" />
-          </animated.button>
+          </animated.span>
         </StyledHeader>
         <StyledBody style={{ opacity }}>
           <li>

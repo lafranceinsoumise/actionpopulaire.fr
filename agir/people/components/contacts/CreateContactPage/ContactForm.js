@@ -161,7 +161,7 @@ export const ContactForm = (props) => {
   }, [errors]);
 
   return (
-    <StyledForm onSubmit={handleSubmit}>
+    <StyledForm autoComplete="off" onSubmit={handleSubmit}>
       <h2>Ajouter un soutien</h2>
       <HowTo />
       <Spacer size="1.5rem" />
@@ -278,7 +278,7 @@ export const ContactForm = (props) => {
             <>
               <Spacer data-scroll="group" size="1.5rem" />
               <SelectField
-                label="Ajouter le soutien au groupe\xA0:"
+                label="Ajouter le soutien au groupe :"
                 placeholder="Choisissez un groupe d'action"
                 onChange={handleSelectGroup}
                 value={data.group}
