@@ -179,6 +179,7 @@ export const routeConfig = {
       label: "Liste des événements",
       isProtected: true,
     },
+    hideFooter: true,
   }),
   eventDetails: new RouteConfig({
     id: "eventDetails",
