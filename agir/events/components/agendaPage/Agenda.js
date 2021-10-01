@@ -103,7 +103,7 @@ const StyledAgenda = styled.div`
     margin: 2rem 0 1rem;
 
     @media (max-width: ${style.collapse}px) {
-      margin: 2rem 25px 1rem;
+      margin: 2rem 1rem 1rem;
     }
   }
 
