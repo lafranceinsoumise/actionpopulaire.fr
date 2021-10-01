@@ -42,6 +42,7 @@ const MobileNavBar = (props) => {
       isLoading={!isSessionLoaded}
       settingsLink={user ? settingsLink : null}
       user={user}
+      hasSearchLink={currentRoute && currentRoute?.id === "events"}
     />
   );
 };
