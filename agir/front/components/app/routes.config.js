@@ -410,6 +410,7 @@ export const routeConfig = {
     label: "Nouveau soutien",
     Component: CreateContactPage,
     hasLayout: false,
+    hideFooter: true,
   }),
 };
 
