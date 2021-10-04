@@ -11,7 +11,7 @@ import illustrationContact from "@agir/front/genericComponents/images/group_cont
 import illustrationLinks from "@agir/front/genericComponents/images/group_links.svg";
 
 const GroupSettingsMembers = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/GroupMemberPage")
+  import("@agir/groups/groupPage/GroupSettings/GroupMembersPage")
 );
 const GroupSettingsManage = lazy(() =>
   import("@agir/groups/groupPage/GroupSettings/GroupManagementPage")

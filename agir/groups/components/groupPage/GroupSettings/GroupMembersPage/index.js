@@ -62,7 +62,7 @@ const MembersSkeleton = (
   </StyledSkeleton>
 );
 
-const GroupMemberPage = (props) => {
+const GroupMembersPage = (props) => {
   const { onBack, illustration, groupPk } = props;
   const sendToast = useToast();
 
@@ -149,9 +149,9 @@ const GroupMemberPage = (props) => {
     </>
   );
 };
-GroupMemberPage.propTypes = {
+GroupMembersPage.propTypes = {
   onBack: PropTypes.func,
   illustration: PropTypes.string,
   groupPk: PropTypes.string,
 };
-export default GroupMemberPage;
+export default GroupMembersPage;
