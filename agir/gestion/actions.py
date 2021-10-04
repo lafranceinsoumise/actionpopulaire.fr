@@ -103,4 +103,4 @@ class Transition(Generic[T, E]):
 
         instance.etat = self.vers
 
-        return ins
+        return instance
