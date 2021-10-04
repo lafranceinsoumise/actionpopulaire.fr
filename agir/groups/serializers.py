@@ -418,6 +418,13 @@ class MembershipSerializer(serializers.ModelSerializer):
     membershipType = serializers.ChoiceField(
         source="membership_type", choices=Membership.MEMBERSHIP_TYPE_CHOICES
     )
+    personalInfoConsent = serializers.BooleanField(
+        source="personal_information_sharing_consent", read_only=True
+    )
+    hasGroupNotifications = serializers.SerializerMethodField(read_only=True)
+
+    def get_hasGroupNotifications(self, membership):
+        return membership.subscription_set.exists()
 
     def validate(self, data):
         membership_type = data.get("membership_type", None)
@@ -451,7 +458,16 @@ class MembershipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Membership
-        fields = ["id", "displayName", "image", "email", "gender", "membershipType"]
+        fields = [
+            "id",
+            "displayName",
+            "image",
+            "email",
+            "gender",
+            "membershipType",
+            "personalInfoConsent",
+            "hasGroupNotifications",
+        ]
 
 
 class SupportGroupExternalLinkSerializer(serializers.ModelSerializer):

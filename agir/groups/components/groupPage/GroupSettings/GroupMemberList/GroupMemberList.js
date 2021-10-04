@@ -12,6 +12,8 @@ const MemberList = styled.div`
 
   & > * {
     background-color: transparent;
+    outline: none;
+    border: none;
     border-bottom: 1px solid ${(props) => props.theme.black50};
 
     &:first-child {
@@ -31,7 +33,7 @@ const MemberList = styled.div`
 const GroupMemberList = ({
   members,
   onAdd,
-  onChangeMembershipType,
+  onClickMember,
   addButtonLabel,
   isLoading,
 }) => {
@@ -49,7 +51,7 @@ const GroupMemberList = ({
         <GroupMember
           key={member.id}
           isLoading={isLoading}
-          onChangeMembershipType={onChangeMembershipType}
+          onClick={onClickMember}
           {...member}
         />
       ))}
@@ -62,7 +64,7 @@ const GroupMemberList = ({
 GroupMemberList.propTypes = {
   members: PropTypes.arrayOf(PropTypes.shape(GroupMember.propTypes)),
   onAdd: PropTypes.func,
-  onChangeMembershipType: PropTypes.func,
+  onClickMember: PropTypes.func,
   addButtonLabel: PropTypes.node,
   isLoading: PropTypes.bool,
 };

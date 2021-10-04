@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import GroupMemberCard from "./GroupMemberCard";
@@ -12,42 +13,42 @@ const GroupMemberFile = (props) => {
   const { member, onBack, onChangeMembershipType, isReferent } = props;
   const hasFacts = useMemo(
     () =>
-      [member.is2022, member.hasGroupNotifications, member.isLiaison].some(
+      [member?.is2022, member?.hasGroupNotifications, member?.isLiaison].some(
         (i) => typeof i === "boolean"
       ),
     [member]
   );
   return (
-    <div>
+    <PageFadeIn ready={!!member}>
       <BackButton onClick={onBack} />
       <Spacer size="1.5rem" />
       <GroupMemberCard
-        id={member.id}
-        displayName={member.displayName}
-        firstName={member.firstName}
-        lastName={member.lastName}
-        gender={member.gender}
-        image={member.image}
-        email={member.email}
-        phone={member.phone}
-        address={member.address}
-        created={member.created}
-        membershipType={member.membershipType}
-        subscriber={member.subscriber}
+        id={member?.id}
+        displayName={member?.displayName}
+        firstName={member?.firstName}
+        lastName={member?.lastName}
+        gender={member?.gender}
+        image={member?.image}
+        email={member?.email}
+        phone={member?.phone}
+        address={member?.address}
+        created={member?.created}
+        membershipType={member?.membershipType}
+        subscriber={member?.subscriber}
       />
       {hasFacts && (
         <>
           <Spacer size="1.5rem" />
           <GroupMemberFacts
-            is2022={member.is2022}
-            isLiaison={member.isLiaison}
-            hasGroupNotifications={member.hasGroupNotifications}
+            is2022={member?.is2022}
+            isLiaison={member?.isLiaison}
+            hasGroupNotifications={member?.hasGroupNotifications}
           />
         </>
       )}
       <Spacer size="1.5rem" />
       <GroupMemberActions
-        currentMembershipType={member.membershipType}
+        currentMembershipType={member?.membershipType}
         isReferent={isReferent}
         onChangeMembershipType={onChangeMembershipType}
       />
@@ -60,7 +61,7 @@ const GroupMemberFile = (props) => {
         Cette personne a transmis ces informations volontairement à votre
         groupe. Elles sont strictement confidentielles.
       </p>
-    </div>
+    </PageFadeIn>
   );
 };
 

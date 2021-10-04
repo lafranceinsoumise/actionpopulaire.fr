@@ -13,6 +13,9 @@ import illustrationLinks from "@agir/front/genericComponents/images/group_links.
 const GroupSettingsMembers = lazy(() =>
   import("@agir/groups/groupPage/GroupSettings/GroupMembersPage")
 );
+const GroupSettingsContacts = lazy(() =>
+  import("@agir/groups/groupPage/GroupSettings/GroupContactsPage")
+);
 const GroupSettingsManage = lazy(() =>
   import("@agir/groups/groupPage/GroupSettings/GroupManagementPage")
 );
@@ -47,9 +50,19 @@ export const routeConfig = {
     id: "members",
     path: "membres/",
     exact: true,
-    label: "Membres",
+    label: "Membres actifs",
     icon: "users",
     Component: GroupSettingsMembers,
+    isActive: true,
+    menuGroup: 1,
+  },
+  contacts: {
+    id: "contacts",
+    path: "contacts/",
+    exact: true,
+    label: "Contacts",
+    icon: "rss",
+    Component: GroupSettingsContacts,
     isActive: true,
     menuGroup: 1,
   },

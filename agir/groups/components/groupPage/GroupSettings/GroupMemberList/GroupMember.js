@@ -7,9 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { GENDER, getGenderedWord } from "@agir/lib/utils/display";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import InlineMenu from "@agir/front/genericComponents/InlineMenu";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
@@ -17,54 +15,19 @@ const Name = styled.span``;
 const Role = styled.span``;
 const Email = styled.span``;
 
-const InlineMenuList = styled.ul`
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: stretch;
-  list-style: none;
-  color: ${style.primary500};
-  padding: 0;
-  margin: 0;
-  font-size: 0.875rem;
-
-  @media (max-width: ${style.collapse}px) {
-    padding: 1.5rem;
-    font-size: 1rem;
-  }
-
-  button,
-  button:focus,
-  button:hover {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    text-align: left;
-    white-space: nowrap;
-    cursor: pointer;
-    background-color: transparent;
-    outline: none;
-    border: none;
-    font-size: inherit;
-    color: ${style.black1000};
-
-    ${RawFeatherIcon} {
-      width: 0.875rem;
-      height: 0.875rem;
-
-      @media (max-width: ${style.collapse}px) {
-        width: 1rem;
-        height: 1rem;
-      }
-    }
-  }
-`;
-
 const Member = styled.div`
   background-color: ${style.white};
   padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
   gap: 0 1rem;
+  width: 100%;
+  text-align: left;
+  cursor: ${(props) => (props.as === "button" ? "pointer" : "default")};
+
+  &[disabled] {
+    cursor: default;
+  }
 
   & > * {
     margin: 0;
@@ -139,7 +102,7 @@ const MEMBERSHIP_TYPE_LABEL = {
   [MEMBERSHIP_TYPES.REFERENT]: ["Animateur·ice", "Animatrice", "Animateur"],
 };
 
-const MembershipType = ({ gender, membershipType }) => {
+const MembershipType = ({ gender, membershipType, hasGroupNotifications }) => {
   const role = useMemo(() => {
     const label = MEMBERSHIP_TYPE_LABEL[String(membershipType)];
     if (!label) {
@@ -152,15 +115,15 @@ const MembershipType = ({ gender, membershipType }) => {
   }, [membershipType, gender]);
 
   switch (membershipType) {
-    case 5:
-      return (
+    case MEMBERSHIP_TYPES.FOLLOWER:
+      return hasGroupNotifications ? (
         <Role style={{ color: style.black500 }}>
           <RawFeatherIcon name="rss" small />
           &ensp;
           <span>{role}</span>
         </Role>
-      );
-    case 10:
+      ) : null;
+    case MEMBERSHIP_TYPES.MEMBER:
       return (
         <Role>
           <RawFeatherIcon name="user" small />
@@ -168,7 +131,7 @@ const MembershipType = ({ gender, membershipType }) => {
           <span>{role}</span>
         </Role>
       );
-    case 50:
+    case MEMBERSHIP_TYPES.MANAGER:
       return (
         <Role style={{ color: style.green500 }}>
           <RawFeatherIcon name="settings" small />
@@ -176,7 +139,7 @@ const MembershipType = ({ gender, membershipType }) => {
           <span>{role}</span>
         </Role>
       );
-    case 100:
+    case MEMBERSHIP_TYPES.REFERENT:
       return (
         <Role style={{ color: style.primary500 }}>
           <RawFeatherIcon name="lock" small />
@@ -194,6 +157,7 @@ MembershipType.propTypes = {
     Object.keys(MEMBERSHIP_TYPE_LABEL).map(Number)
   ).isRequired,
   gender: PropTypes.oneOf(["", ...Object.values(GENDER)]),
+  hasGroupNotifications: PropTypes.bool,
 };
 
 const GroupMember = (props) => {
@@ -204,77 +168,36 @@ const GroupMember = (props) => {
     membershipType,
     email,
     gender,
-    onChangeMembershipType,
-    onResetMembershipType,
+    hasGroupNotifications,
+    onClick,
     isLoading,
   } = props;
 
-  const menuTriggerSize = useResponsiveMemo(1, 1.5);
-
-  const actions = [
-    onChangeMembershipType && membershipType === MEMBERSHIP_TYPES.MEMBER
-      ? {
-          label: (
-            <>
-              <RawFeatherIcon color={style.primary500} name="user-x" />
-              &ensp;Retirer des membres actifs
-            </>
-          ),
-          handler: () => {
-            onChangeMembershipType(id, MEMBERSHIP_TYPES.FOLLOWER);
-          },
-        }
-      : undefined,
-    onChangeMembershipType && membershipType === MEMBERSHIP_TYPES.FOLLOWER
-      ? {
-          label: (
-            <>
-              <RawFeatherIcon color={style.primary500} name="user-check" />
-              &ensp;Passer en membre actif
-            </>
-          ),
-          handler: () => {
-            onChangeMembershipType(id, MEMBERSHIP_TYPES.MEMBER);
-          },
-        }
-      : undefined,
-    onResetMembershipType
-      ? {
-          label: (
-            <>
-              <RawFeatherIcon color={style.primary500} name="eye-off" />
-              &ensp;Retirer le droit
-            </>
-          ),
-          handler: () => {
-            onResetMembershipType(id);
-          },
-        }
-      : undefined,
-  ].filter(Boolean);
+  const handleClick = () => {
+    onClick && onClick(id);
+  };
 
   return (
-    <Member>
+    <Member
+      onClick={handleClick}
+      disabled={isLoading}
+      type={typeof onClick === "function" ? "button" : undefined}
+      as={typeof onClick === "function" ? "button" : "div"}
+    >
       <Avatar image={image} name={displayName} />
       <Name>
         {displayName}
         <Email>{email}</Email>
       </Name>
-      <MembershipType gender={gender} membershipType={membershipType} />
-      {actions.length > 0 ? (
-        <InlineMenu triggerSize={`${menuTriggerSize}rem`} shouldDismissOnClick>
-          <InlineMenuList>
-            {actions.map((action) => (
-              <li key={action.label}>
-                <button disabled={isLoading} onClick={action.handler}>
-                  {action.label}
-                </button>
-              </li>
-            ))}
-          </InlineMenuList>
-        </InlineMenu>
+      <MembershipType
+        gender={gender}
+        membershipType={membershipType}
+        hasGroupNotifications={hasGroupNotifications}
+      />
+      {typeof onClick === "function" ? (
+        <RawFeatherIcon name="arrow-right" />
       ) : (
-        <Spacer size={`${menuTriggerSize + 0.5}rem`} />
+        <Spacer size={`2rem`} />
       )}
     </Member>
   );
@@ -291,9 +214,9 @@ GroupMember.propTypes = {
     MEMBERSHIP_TYPES.MANAGER,
   ]).isRequired,
   gender: PropTypes.oneOf(["", ...Object.values(GENDER)]),
-  onResetMembershipType: PropTypes.func,
-  onChangeMembershipType: PropTypes.func,
+  onClick: PropTypes.func,
   isLoading: PropTypes.bool,
+  hasGroupNotifications: PropTypes.bool,
 };
 
 export default GroupMember;
