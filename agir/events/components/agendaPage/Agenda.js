@@ -118,7 +118,6 @@ const otherEventConfig = {
         (event) =>
           typeof event.distance === "number" &&
           event.distance < 100 * 1000 &&
-          !event.rsvp &&
           dateFromISOString(event.endTime) > DateTime.local()
       ),
   },
@@ -364,7 +363,7 @@ const Agenda = () => {
               flex: "1 1 auto",
             }}
           >
-            Événements près de chez moi
+            Événements
           </h2>
           <Button small link route="eventMap" icon="map">
             Carte
