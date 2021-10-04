@@ -288,6 +288,25 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
         help_text=_("Je recevrai des messages en cas de modification du groupe."),
     )
 
+    default_subscriptions_enabled = models.BooleanField(
+        _("Ajout des notifications par défaut du groupe après création"),
+        default=True,
+        help_text=_(
+            "J'accepte de recevoir les notifications par défaut de ce groupe. Je pourrai changer mes préferences de "
+            "notifications à tout moment. "
+        ),
+    )
+
+    personal_information_sharing_consent = models.BooleanField(
+        _(
+            "Consentement au partage des informations personnelles avec les animateur·ices et gestionnaires du groupe"
+        ),
+        default=False,
+        help_text=_(
+            "J'accepte de partager mes informations personnelles avec les animateur·ices et gestionnaires de ce groupe"
+        ),
+    )
+
     class Meta:
         verbose_name = _("adhésion")
         verbose_name_plural = _("adhésions")

@@ -53,7 +53,9 @@ const ConfirmContact = (props) => {
     data.newsletters.includes("2022_exceptionnel") &&
       "les informations très importantes",
     data.newsletters.includes("2022") && "hebdomadaires",
-    data.group && "les actualités du groupe d'action",
+    data.group?.id &&
+      data.hasGroupNotifications &&
+      "les actualités du groupe d'action",
   ].filter(Boolean);
   return (
     <StyledWrapper>
@@ -69,16 +71,22 @@ const ConfirmContact = (props) => {
       </div>
       <Spacer size="1.5rem" />
       <ul>
-        <li>Soutien Jean-Luc Mélenchon pour 2022</li>
+        {data.is2022 ? <li>Soutien Jean-Luc Mélenchon pour 2022</li> : null}
         {newsletters.length > 0 ? (
           <li>{`Recevra ${newsletters.join(", ")}`}</li>
         ) : null}
         {data.newsletters.includes("2022_liaison") ? (
           <li>Sera correspondant·e de l’immeuble ou de la rue</li>
         ) : null}
+        {data.group?.id ? (
+          <li>
+            Ces informations seront accessibles aux gestionnaires et
+            animateur·ices du groupe <strong>{data.group.name}</strong>
+          </li>
+        ) : null}
       </ul>
       <Spacer size="2rem" />
-      <p>Le soutien recevra un e-mail lui confirmant ces informations.</p>
+      <p>Le contact recevra un e-mail lui confirmant ces informations.</p>
       <Spacer size="0.5rem" />
       <p>
         En enregistrant cette personne vous confirmez avoir reçu son
@@ -91,7 +99,7 @@ const ConfirmContact = (props) => {
         </Button>
         <Spacer style={{ display: "inline-block" }} size="1rem" />
         <Button color="secondary" onClick={onConfirm} disabled={isLoading}>
-          Enregistrer le soutien
+          Enregistrer le contact
         </Button>
       </footer>
     </StyledWrapper>
@@ -105,8 +113,10 @@ ConfirmContact.propTypes = {
     zip: PropTypes.string.isRequired,
     phone: PropTypes.string,
     email: PropTypes.string.isRequired,
+    is2022: PropTypes.bool.isRequired,
     newsletters: PropTypes.arrayOf(PropTypes.string).isRequired,
     group: PropTypes.object,
+    hasGroupNotifications: PropTypes.bool,
     address: PropTypes.string,
     city: PropTypes.string,
   }),

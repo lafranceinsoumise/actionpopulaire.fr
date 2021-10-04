@@ -1,8 +1,8 @@
 import axios from "@agir/lib/utils/axios";
 
 export const ENDPOINT = {
-  validateContact: "/api/soutiens/valider/",
-  createContact: "/api/soutiens/creer/",
+  validateContact: "/api/contacts/valider/",
+  createContact: "/api/contacts/creer/",
 };
 
 export const getContactEndpoint = (key, params) => {
@@ -21,7 +21,7 @@ export const validateContact = async (data) => {
     errors: null,
   };
 
-  const body = { ...data, group: data?.group?.value || undefined };
+  const body = { ...data, group: data?.group?.id || undefined };
   const url = getContactEndpoint("validateContact");
 
   try {
@@ -40,7 +40,7 @@ export const createContact = async (data) => {
     errors: null,
   };
 
-  const body = { ...data, group: data?.group?.value || undefined };
+  const body = { ...data, group: data?.group?.id || undefined };
   const url = getContactEndpoint("createContact");
 
   try {

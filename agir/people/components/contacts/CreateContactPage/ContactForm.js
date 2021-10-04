@@ -86,6 +86,7 @@ export const ContactForm = (props) => {
     zip: "",
     email: "",
     phone: "",
+    is2022: true,
     newsletters: ["2022_exceptionnel"],
     ...(initialData || {}),
   });
@@ -103,14 +104,6 @@ export const ContactForm = (props) => {
     setData((state) => ({
       ...state,
       [name]: checked,
-    }));
-  }, []);
-
-  const handleCheckIsGroupFollower = useCallback((e) => {
-    const { checked } = e.target;
-    setData((state) => ({
-      ...state,
-      group: checked ? groupOptions[0] : undefined,
     }));
   }, []);
 
@@ -133,6 +126,9 @@ export const ContactForm = (props) => {
   const handleSelectGroup = useCallback((group) => {
     setData((state) => ({
       ...state,
+      hasGroupNotifications: group?.id
+        ? state.hasGroupNotifications
+        : undefined,
       group,
     }));
   }, []);
@@ -148,10 +144,18 @@ export const ContactForm = (props) => {
   const groupOptions = useMemo(
     () =>
       Array.isArray(groups) && groups.length > 0
-        ? groups.map((group) => ({
-            value: group.id,
-            label: group.name,
-          }))
+        ? [
+            ...groups.map((group) => ({
+              ...group,
+              value: group.id,
+              label: group.name,
+            })),
+            {
+              id: null,
+              value: "",
+              label: "Ne pas ajouter à un groupe",
+            },
+          ]
         : null,
     [groups]
   );
@@ -160,9 +164,19 @@ export const ContactForm = (props) => {
     scrollToError(errors);
   }, [errors]);
 
+  useEffect(() => {
+    !data.group &&
+      Array.isArray(groupOptions) &&
+      groupOptions.length > 0 &&
+      setData((state) => ({
+        ...state,
+        group: groupOptions[0],
+      }));
+  }, [groupOptions, data.group]);
+
   return (
     <StyledForm autoComplete="off" onSubmit={handleSubmit}>
-      <h2>Ajouter un soutien</h2>
+      <h2>Ajouter un contact</h2>
       <HowTo />
       <Spacer size="1.5rem" />
       {!groupOptions && (
@@ -171,7 +185,12 @@ export const ContactForm = (props) => {
           <Spacer size="1.5rem" />
         </>
       )}
-      <h3>Nouveau soutien</h3>
+      <h3>Nouveau contact</h3>
+      <Spacer size="0.5rem" />
+      <em>
+        &laquo;&nbsp;Souhaitez-vous nous laisser votre
+        contact&nbsp;?&nbsp;&raquo;
+      </em>
       <Spacer data-scroll="firstName" size="1.5rem" />
       <TextField
         label="Prénom"
@@ -221,7 +240,7 @@ export const ContactForm = (props) => {
       />
       <Spacer data-scroll="phone" size="1rem" />
       <PhoneField
-        label="Numéro de téléphone"
+        label="Téléphone mobile"
         id="phone"
         name="phone"
         error={errors?.phone}
@@ -235,7 +254,20 @@ export const ContactForm = (props) => {
           </em>
         }
       />
-      <Spacer data-scroll="newsletters" size="1rem" />
+      <Spacer data-scroll="newsletters" size="2rem" />
+      <h4>
+        &laquo;&nbsp;Souhaitez-vous compter dans les soutiens de Jean-Luc
+        Mélenchon pour 2022&nbsp;?&nbsp;&raquo;
+      </h4>
+      <CheckboxField
+        label="Je veux compter dans les soutiens"
+        onChange={handleCheck}
+        value={data.is2022}
+        id="is2022"
+        name="is2022"
+        disabled={isLoading}
+      />
+      <Spacer data-scroll="newsletters" size="1.5rem" />
       <h4>Souhaitez-vous recevoir les&nbsp;:</h4>
       <CheckboxField
         label={
@@ -256,7 +288,16 @@ export const ContactForm = (props) => {
       />
       <Spacer size=".5rem" />
       <CheckboxField
-        label="Informations hebdomadaires"
+        label={
+          <>
+            Informations de la campagne
+            <br />
+            <em>
+              &laquo;&nbsp;Jean-Luc Mélenchon va passer à la TV la semaine
+              prochaine&nbsp;&raquo;
+            </em>
+          </>
+        }
         onChange={handleCheckNewsletter}
         value={data.newsletters.includes("2022")}
         id="2022"
@@ -265,32 +306,32 @@ export const ContactForm = (props) => {
       />
       {groupOptions && (
         <>
+          <Spacer data-scroll="group" size="1.5rem" />
+          <SelectField
+            label="Groupe auquel ajouter le contact"
+            placeholder="Choisissez un groupe d'action"
+            onChange={handleSelectGroup}
+            value={data.group}
+            id="group"
+            name="group"
+            options={groupOptions}
+            error={errors?.group}
+            disabled={isLoading}
+            required={false}
+          />
+        </>
+      )}
+      {data.group?.id && (
+        <>
           <Spacer size=".5rem" />
           <CheckboxField
-            label="Actualités du groupe d'action proche de chez vous"
-            onChange={handleCheckIsGroupFollower}
-            value={!!data.group}
-            id="isGroupFollower"
-            name="isGroupFollower"
+            label="Je veux recevoir les actualités du groupe"
+            onChange={handleCheck}
+            value={data.hasGroupNotifications}
+            id="hasGroupNotifications"
+            name="hasGroupNotifications"
             disabled={isLoading}
           />
-          {data.group && (
-            <>
-              <Spacer data-scroll="group" size="1.5rem" />
-              <SelectField
-                label="Ajouter le soutien au groupe :"
-                placeholder="Choisissez un groupe d'action"
-                onChange={handleSelectGroup}
-                value={data.group}
-                id="group"
-                name="group"
-                options={groupOptions}
-                error={errors?.group}
-                disabled={isLoading}
-                required={false}
-              />
-            </>
-          )}
         </>
       )}
       <Spacer size="1.5rem" />

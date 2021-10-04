@@ -37,7 +37,7 @@ const StyledWrapper = styled.div`
 `;
 
 const ContactSuccess = (props) => {
-  const { user, onReset } = props;
+  const { user, data, onReset } = props;
   return (
     <StyledWrapper>
       <svg
@@ -59,15 +59,17 @@ const ContactSuccess = (props) => {
       <h2>Contact enregistré</h2>
       <Spacer size="0.875rem" />
       <p>{`Merci pour votre aide ${user?.firstName || ""}`.trim()}&nbsp;!</p>
-      <p>
-        Si vous avez indiqué que ce soutien souhaite recevoir l’actualité de
-        votre groupe, vous pourrez retrouver ses informations dans la gestion de
-        votre groupe
-      </p>
+      {data?.group?.name ? (
+        <p>
+          Les gestionnaires et animateur·ices du groupe{" "}
+          <strong>{data.group.name}</strong> pourront accéder aux informations
+          du nouveau contact dans la gestion de leur groupe
+        </p>
+      ) : null}
       <Spacer size="2.5rem" />
       <footer>
         <Button onClick={onReset} color="primary">
-          Ajouter un nouveau soutien
+          Ajouter un nouveau contact
         </Button>
         <Button link route="events">
           Fermer
@@ -81,6 +83,9 @@ ContactSuccess.propTypes = {
   onReset: PropTypes.func.isRequired,
   user: PropTypes.shape({
     firstName: PropTypes.string.isRequired,
+  }),
+  data: PropTypes.shape({
+    group: PropTypes.object,
   }),
 };
 export default ContactSuccess;
