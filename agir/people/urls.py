@@ -33,12 +33,12 @@ api_urls = [
         name="api_referrer_information",
     ),
     path(
-        "api/soutiens/valider/",
+        "api/contacts/valider/",
         api.ValidateNewContactView.as_view(),
         name="api_validate_new_contact",
     ),
     path(
-        "api/soutiens/creer/",
+        "api/contacts/creer/",
         api.CreateNewContactView.as_view(),
         name="api_create_new_contact",
     ),

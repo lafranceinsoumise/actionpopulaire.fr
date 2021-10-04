@@ -405,10 +405,10 @@ export const routeConfig = {
   }),
   createContact: new RouteConfig({
     id: "createContact",
-    path: "/soutiens/creer/",
+    path: "/contacts/creer/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Nouveau soutien",
+    label: "Nouveau contact",
     Component: CreateContactPage,
     hasLayout: false,
     hideFooter: true,

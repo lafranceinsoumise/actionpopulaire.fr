@@ -220,7 +220,7 @@ urlpatterns = [
         views.UserMessageView.as_view(),
         name="user_message_details.notification_settings",
     ),
-    path("soutiens/creer/", views.BaseAppSoftAuthView.as_view(), name="create_contact"),
+    path("contacts/creer/", views.BaseAppSoftAuthView.as_view(), name="create_contact"),
     # old urls
     re_path("^old(.*)$", views.NBUrlsView.as_view(), name="old_urls"),
 ]

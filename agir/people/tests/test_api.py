@@ -118,18 +118,20 @@ class CreateContactAPITestCase(APITestCase):
             "zip": "75010",
             "newsletters": ["2022", "2022_exceptionnel", "2022_liaison"],
             "group": str(self.group.id),
+            "hasGroupNotifications": False,
+            "is2022": True,
         }
 
     def test_anonymous_cannot_create_a_contact(self):
         self.client.logout()
-        res = self.client.post("/api/soutiens/creer/", data=self.valid_data)
+        res = self.client.post("/api/contacts/creer/", data=self.valid_data)
         self.assertEqual(res.status_code, 401)
 
     def test_cannot_create_a_contact_without_first_name(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data}
         data.pop("firstName")
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("firstName", res.data)
 
@@ -137,7 +139,7 @@ class CreateContactAPITestCase(APITestCase):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data}
         data.pop("lastName")
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("lastName", res.data)
 
@@ -145,14 +147,14 @@ class CreateContactAPITestCase(APITestCase):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data}
         data.pop("email")
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("email", res.data)
 
     def test_cannot_create_a_contact_with_invalid_email(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data, "email": "not an email"}
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("email", res.data)
 
@@ -160,63 +162,63 @@ class CreateContactAPITestCase(APITestCase):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data}
         data.pop("zip")
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("zip", res.data)
 
     def test_cannot_create_a_contact_with_invalid_phone(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data, "phone": "not a phone number"}
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("phone", res.data)
 
     def test_cannot_create_a_contact_with_invalid_newsletter_choice(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data, "newsletters": ["not a newsletter"]}
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("newsletters", res.data)
 
     def test_cannot_create_a_contact_with_an_empty_address(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data, "address": ""}
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("address", res.data)
 
     def test_cannot_create_a_contact_with_an_empty_city(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data, "city": ""}
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("city", res.data)
 
     def test_cannot_create_a_contact_with_an_empty_country(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data, "country": ""}
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("country", res.data)
 
     def test_cannot_create_a_contact_with_an_invalid_country(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data, "country": "not a country code"}
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("country", res.data)
 
     def test_cannot_create_a_contact_with_an_invalid_group(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data, "group": "not a group id"}
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("group", res.data)
 
     def test_can_create_a_new_contact_with_valid_data(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data}
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 201)
         person_pk = res.data.get("id")
         self.assertTrue(Person.objects.get(pk=person_pk).is_2022)
@@ -224,21 +226,18 @@ class CreateContactAPITestCase(APITestCase):
     def test_can_update_a_contact_with_valid_data(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data, "email": self.existing_person.primary_email.address}
-        self.assertFalse(self.existing_person.is_2022)
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 201)
-        self.existing_person.refresh_from_db()
-        self.assertTrue(self.existing_person.is_2022)
 
     def test_a_membership_is_created_for_the_contact_with_a_group_id(self):
         email = "groupfollower@agir.local"
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data, "email": email}
         data.pop("group")
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 201)
         person = Person.objects.get(pk=res.data.get("id"))
         self.assertFalse(self.group.members.filter(id=person.id).exists())
         data = {**self.valid_data, "email": email}
-        res = self.client.post("/api/soutiens/creer/", data=data)
+        res = self.client.post("/api/contacts/creer/", data=data)
         self.assertTrue(self.group.members.filter(id=person.id).exists())

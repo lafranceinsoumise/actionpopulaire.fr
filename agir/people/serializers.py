@@ -351,7 +351,7 @@ class ContactSerializer(serializers.ModelSerializer):
         allow_blank=True,
         label="Numéro de téléphone",
     )
-    is2022 = serializers.HiddenField(source="is_2022", default=True)
+    is2022 = serializers.BooleanField(source="is_2022", default=False)
     newsletters = PersonNewsletterListField(required=False, allow_empty=True)
     address = serializers.CharField(
         required=False,
@@ -367,8 +367,9 @@ class ContactSerializer(serializers.ModelSerializer):
     )
     country = CountryField(required=False, allow_blank=False, source="location_country")
     group = serializers.PrimaryKeyRelatedField(
-        queryset=SupportGroup.objects.active(), required=False,
+        queryset=SupportGroup.objects.active(), required=False, allow_null=True
     )
+    hasGroupNotifications = serializers.BooleanField(write_only=True, default=False)
     subscriber = CurrentPersonField()
 
     def validate(self, data):
@@ -384,6 +385,7 @@ class ContactSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         group = None
+        has_group_notifications = validated_data.pop("hasGroupNotifications")
         if "group" in validated_data:
             group = validated_data.pop("group")
 
@@ -429,7 +431,11 @@ class ContactSerializer(serializers.ModelSerializer):
             Membership.objects.get_or_create(
                 supportgroup=group,
                 person=person,
-                defaults={"membership_type": Membership.MEMBERSHIP_TYPE_FOLLOWER},
+                defaults={
+                    "membership_type": Membership.MEMBERSHIP_TYPE_FOLLOWER,
+                    "personal_information_sharing_consent": True,
+                    "default_subscriptions_enabled": has_group_notifications,
+                },
             )
 
         return person
@@ -449,10 +455,10 @@ class ContactSerializer(serializers.ModelSerializer):
             "city",
             "country",
             "group",
+            "hasGroupNotifications",
             "subscriber",
         )
         updatable_fields = (
-            "is_2022",
             "contact_phone",
             "location_address1",
             "location_zip",

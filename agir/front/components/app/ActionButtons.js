@@ -109,7 +109,7 @@ const ActionButtons = () => {
       </StyledButton>
       <StyledButton route="createContact" color="primary500">
         <RawFeatherIcon name="user-plus" />
-        <strong>Ajouter un soutien</strong>
+        <strong>Ajouter un contact</strong>
       </StyledButton>
       <StyledButton route="donations" color="redNSP">
         <RawFeatherIcon name="heart" />

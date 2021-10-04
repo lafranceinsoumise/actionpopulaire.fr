@@ -122,7 +122,7 @@ const CreateContactPage = (props) => {
           {step === 2 && (
             <>
               <BackButton onClick={resetForm} />
-              <ContactSuccess user={user} onReset={resetForm} />
+              <ContactSuccess data={data} user={user} onReset={resetForm} />
             </>
           )}
         </PageFadeIn>

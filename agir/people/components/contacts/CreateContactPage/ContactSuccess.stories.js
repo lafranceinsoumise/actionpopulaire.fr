@@ -17,4 +17,7 @@ Default.args = {
   user: {
     firstName: "Foo",
   },
+  group: {
+    name: "Belleville - Ménilmontant",
+  },
 };
