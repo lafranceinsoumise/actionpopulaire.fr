@@ -142,7 +142,7 @@ const ConnectedToast = (props) => {
   const [softLoginToastId, toasts] = useMemo(() => {
     let softLoginToastId = null;
     const toasts = allToasts.filter((toast) => {
-      if (toast.tags.includes("ANONYMOUS_TO_SOFT_LOGIN_CONNECTION")) {
+      if (toast.tags?.includes("ANONYMOUS_TO_SOFT_LOGIN_CONNECTION")) {
         softLoginToastId = toast.toastId;
         return false;
       }
