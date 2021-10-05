@@ -20,6 +20,11 @@ urlpatterns = [
         name="monthly_donation_information",
     ),
     path(
+        "2022/dons-mensuels/informations/",
+        views.MonthlyDonation2022PersonalInformationView.as_view(),
+        name="monthly_donation_2022_information",
+    ),
+    path(
         "dons-mensuels/deja-donateur/",
         views.AlreadyHasSubscriptionView.as_view(),
         name="already_has_subscription",

@@ -49,6 +49,7 @@ __all__ = (
     "DonationPersonalInformationView",
     "Donation2022PersonalInformationView",
     "MonthlyDonationPersonalInformationView",
+    "MonthlyDonation2022PersonalInformationView",
     "MonthlyDonationEmailSentView",
     "MonthlyDonationEmailConfirmationView",
     "AlreadyHasSubscriptionView",
@@ -279,6 +280,16 @@ class MonthlyDonationPersonalInformationView(
             return HttpResponseRedirect(
                 reverse("monthly_donation_confirmation_email_sent")
             )
+
+
+class MonthlyDonation2022PersonalInformationView(
+    MonthlyDonationPersonalInformationView
+):
+    form_class = forms.AllocationMonthlyDonorForm
+    template_name = "donations/personal_information_2022.html"
+    payment_mode = AFCP2022SystemPayPaymentMode.id
+    session_namespace = DONATION_SESSION_NAMESPACE
+    first_step_url = "donations_2022_amount"
 
 
 class MonthlyDonationEmailSentView(TemplateView):
