@@ -4,7 +4,6 @@ from . import views
 
 
 urlpatterns = [
-    path("dons/", views.AskAmountView.as_view(), name="donation_amount"),
     path(
         "dons/informations/",
         views.DonationPersonalInformationView.as_view(),

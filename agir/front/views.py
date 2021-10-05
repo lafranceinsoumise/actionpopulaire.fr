@@ -324,5 +324,5 @@ class DonationView(BaseAppCachedView):
     )
 
 
-class DonationViewJLM2022(DonationView):
+class Donation2022View(DonationView):
     meta_title = "Je donne à Mélenchon 2022"

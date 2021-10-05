@@ -420,7 +420,7 @@ export const routeConfig = {
   }),
   donations: new RouteConfig({
     id: "donations",
-    path: "/donner/:type?/",
+    path: "/:type?/dons/",
     params: { type: null },
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,

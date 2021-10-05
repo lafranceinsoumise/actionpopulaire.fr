@@ -20,7 +20,7 @@ const DonationPage = () => {
   const urlParams = new URLSearchParams(search);
 
   const type = params?.type || "LFI";
-  const groupPk = type !== "melenchon2022" && urlParams.get("group");
+  const groupPk = type !== "2022" && urlParams.get("group");
 
   const { data: group } = useSWR(groupPk && `/api/groupes/${groupPk}/`, {
     revalidateIfStale: false,
@@ -29,7 +29,7 @@ const DonationPage = () => {
   });
 
   const { data: userGroups } = useSWR(
-    session?.user && type !== "melenchon2022" && "/api/groupes/",
+    session?.user && type !== "2022" && "/api/groupes/",
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,

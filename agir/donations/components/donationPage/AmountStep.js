@@ -257,10 +257,10 @@ const AmountStep = (props) => {
               </StyledGroupLink>
             ) : null}
             <h2>Faire un don</h2>
-            {type !== "melenchon2022" ? (
+            {type !== "2022" ? (
               <h4>
                 À la France insoumise (faire un don à{" "}
-                <Link route="donations" routeParams={{ type: "melenchon2022" }}>
+                <Link route="donations" routeParams={{ type: "2022" }}>
                   Mélenchon 2022
                 </Link>
                 &nbsp;?)

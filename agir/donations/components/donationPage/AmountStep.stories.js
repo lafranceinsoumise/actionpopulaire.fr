@@ -29,7 +29,7 @@ Default.args = {
 export const JLM2022 = Template.bind({});
 JLM2022.args = {
   ...Default.args,
-  type: "melenchon2022",
+  type: "2022",
 };
 
 export const WithGroupLink = Template.bind({});

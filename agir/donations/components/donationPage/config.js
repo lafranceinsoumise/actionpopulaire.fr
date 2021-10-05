@@ -51,7 +51,7 @@ const LFI = {
 };
 
 const CONFIG = {
-  melenchon2022,
+  2022: melenchon2022,
   LFI,
   default: LFI,
 };
