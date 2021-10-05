@@ -146,35 +146,6 @@ const StyledMain = styled.main`
   p + p {
     margin-top: 0.5rem;
   }
-
-  form {
-    ${StepButton} {
-      margin: 0 auto;
-      width: 100%;
-      max-width: 400px;
-      height: 80px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 4.5rem;
-
-      & > span {
-        font-weight: 400;
-        font-size: 0.875rem;
-
-        strong {
-          font-weight: 600;
-          font-size: 1.25rem;
-        }
-      }
-
-      ${RawFeatherIcon} {
-        position: absolute;
-        right: 1.5rem;
-      }
-    }
-  }
 `;
 
 const StyledIllustration = styled.div``;
@@ -240,110 +211,107 @@ const AmountStep = (props) => {
   };
 
   return (
-    <Theme type={type}>
-      <StyledPage>
-        <StyledIllustration aria-hidden="true" />
-        <StyledBody>
-          <StyledMain>
-            <StyledLogo aria-hidden="true" />
-            {!hasGroup && hasGroups ? (
-              <StyledGroupLink>
-                <RawFeatherIcon name="share" />
-                <span>
-                  <strong>Pour faire un don fléché</strong> vers votre groupe
-                  d'action certifié, utilisez le bouton "financer" dans{" "}
-                  <Link route="groups">la page de votre groupe</Link>
-                </span>
-              </StyledGroupLink>
-            ) : null}
-            <h2>Faire un don</h2>
-            {type !== "melenchon2022" ? (
-              <h4>
-                À la France insoumise (faire un don à{" "}
-                <Link route="donations" routeParams={{ type: "melenchon2022" }}>
-                  Mélenchon 2022
-                </Link>
-                &nbsp;?)
-              </h4>
-            ) : (
-              <Spacer size="1rem" />
-            )}
-            {hasGroup ? (
-              <>
-                <StyledGroup>
-                  <RawFeatherIcon name="arrow-right-circle" />
-                  <span>
-                    Financement des actions du groupe
-                    <strong>{group.name}</strong>
-                  </span>
-                </StyledGroup>
-                <p>
-                  Pour financer ses actions, le groupe d’action certifié a la
-                  possibilité de se constituer une enveloppe par l’intermédiaire
-                  de dons alloués.{" "}
-                  <Link route="donationHelp">En savoir plus</Link>
-                </p>
-              </>
-            ) : (
-              <>
-                <p>
-                  Chaque don nous aide à l’organisation d’événements, à l’achat
-                  de matériel, au fonctionnement de ce site, etc.
-                </p>
-                <p>
-                  Nous avons besoin du soutien financier de chacun·e d’entre
-                  vous.
-                </p>
-              </>
-            )}
-            <form onSubmit={handleSubmit}>
-              <AmountWidget
-                disabled={isLoading}
-                amount={amount}
-                byMonth={byMonth}
-                groupPercentage={hasGroup ? groupPercentage : undefined}
-                onChangeAmount={setAmount}
-                onChangeByMonth={setByMonth}
-                onChangeGroupPercentage={
-                  hasGroup ? setGroupPercentage : undefined
-                }
-              />
-              {!isLoading && error ? (
-                <StyledErrorMessage>{error}</StyledErrorMessage>
-              ) : null}
-              <StepButton type="submit" disabled={!amount || isLoading}>
-                <span>
-                  <strong>Suivant</strong>
-                  <br />
-                  1/3 étapes
-                </span>
-                <RawFeatherIcon name="arrow-right" />
-              </StepButton>
-            </form>
-            <hr />
-            <LegalParagraph>
-              Les dons seront versés à La France insoumise. Premier alinéa de
-              l’article 11-4 de la loi 88-227 du 11 mars 1988 modifiée : une
-              personne physique peut verser un don à un parti ou groupement
-              politique si elle est de nationalité française ou si elle réside
-              en France.
-            </LegalParagraph>
-            <PaymentParagraph>
+    <StyledPage>
+      <StyledIllustration aria-hidden="true" />
+      <StyledBody>
+        <StyledMain>
+          <StyledLogo aria-hidden="true" />
+          {!hasGroup && hasGroups ? (
+            <StyledGroupLink>
+              <RawFeatherIcon name="share" />
               <span>
-                <RawFeatherIcon width="1rem" height="1rem" name="lock" />
-                &ensp;SÉCURISÉ ET ANONYME
+                <strong>Pour faire un don fléché</strong> vers votre groupe
+                d'action certifié, utilisez le bouton "financer" dans{" "}
+                <Link route="groups">la page de votre groupe</Link>
               </span>
-              <img
-                width="366"
-                height="26"
-                src={acceptedPaymentMethods}
-                alt="Moyens de paiement acceptés : Visa, Visa Electron, Mastercard, Maestro, Carte Bleue, E-Carte Bleue"
-              />
-            </PaymentParagraph>
-          </StyledMain>
-        </StyledBody>
-      </StyledPage>
-    </Theme>
+            </StyledGroupLink>
+          ) : null}
+          <h2>Faire un don</h2>
+          {type !== "melenchon2022" ? (
+            <h4>
+              À la France insoumise (faire un don à{" "}
+              <Link route="donations" routeParams={{ type: "melenchon2022" }}>
+                Mélenchon 2022
+              </Link>
+              &nbsp;?)
+            </h4>
+          ) : (
+            <Spacer size="1rem" />
+          )}
+          {hasGroup ? (
+            <>
+              <StyledGroup>
+                <RawFeatherIcon name="arrow-right-circle" />
+                <span>
+                  Financement des actions du groupe
+                  <strong>{group.name}</strong>
+                </span>
+              </StyledGroup>
+              <p>
+                Pour financer ses actions, le groupe d’action certifié a la
+                possibilité de se constituer une enveloppe par l’intermédiaire
+                de dons alloués.{" "}
+                <Link route="donationHelp">En savoir plus</Link>
+              </p>
+            </>
+          ) : (
+            <>
+              <p>
+                Chaque don nous aide à l’organisation d’événements, à l’achat de
+                matériel, au fonctionnement de ce site, etc.
+              </p>
+              <p>
+                Nous avons besoin du soutien financier de chacun·e d’entre vous.
+              </p>
+            </>
+          )}
+          <form onSubmit={handleSubmit}>
+            <AmountWidget
+              disabled={isLoading}
+              amount={amount}
+              byMonth={byMonth}
+              groupPercentage={hasGroup ? groupPercentage : undefined}
+              onChangeAmount={setAmount}
+              onChangeByMonth={setByMonth}
+              onChangeGroupPercentage={
+                hasGroup ? setGroupPercentage : undefined
+              }
+            />
+            {!isLoading && error ? (
+              <StyledErrorMessage>{error}</StyledErrorMessage>
+            ) : null}
+            <StepButton type="submit" disabled={!amount || isLoading}>
+              <span>
+                <strong>Suivant</strong>
+                <br />
+                1/3 étapes
+              </span>
+              <RawFeatherIcon name="arrow-right" />
+            </StepButton>
+          </form>
+          <hr />
+          <LegalParagraph>
+            Les dons seront versés à La France insoumise. Premier alinéa de
+            l’article 11-4 de la loi 88-227 du 11 mars 1988 modifiée : une
+            personne physique peut verser un don à un parti ou groupement
+            politique si elle est de nationalité française ou si elle réside en
+            France.
+          </LegalParagraph>
+          <PaymentParagraph>
+            <span>
+              <RawFeatherIcon width="1rem" height="1rem" name="lock" />
+              &ensp;SÉCURISÉ ET ANONYME
+            </span>
+            <img
+              width="366"
+              height="26"
+              src={acceptedPaymentMethods}
+              alt="Moyens de paiement acceptés : Visa, Visa Electron, Mastercard, Maestro, Carte Bleue, E-Carte Bleue"
+            />
+          </PaymentParagraph>
+        </StyledMain>
+      </StyledBody>
+    </StyledPage>
   );
 };
 

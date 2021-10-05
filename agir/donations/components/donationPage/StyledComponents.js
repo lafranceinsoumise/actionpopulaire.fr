@@ -61,6 +61,31 @@ export const StepButton = styled(BaseButton).attrs(() => ({
     border-color: ${(props) => props.theme.secondary500};
     opacity: 0.5;
   }
+
+  margin: 0 auto;
+  width: 100%;
+  max-width: 400px;
+  height: 80px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4.5rem;
+
+  & > span {
+    font-weight: 400;
+    font-size: 0.875rem;
+
+    strong {
+      font-weight: 600;
+      font-size: 1.25rem;
+    }
+  }
+
+  ${RawFeatherIcon} {
+    position: absolute;
+    right: 1.5rem;
+  }
 `;
 
 export const SelectedButton = styled(Button).attrs(() => ({
