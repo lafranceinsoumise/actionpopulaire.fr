@@ -331,6 +331,7 @@ class Person(
     NEWSLETTER_2022_EN_LIGNE = "2022_en_ligne"
     NEWSLETTER_2022_CHEZ_MOI = "2022_chez_moi"
     NEWSLETTER_2022_PROGRAMME = "2022_programme"
+    NEWSLETTER_2022_LIAISON = "2022_liaison"
     NEWSLETTERS_CHOICES = (
         (NEWSLETTER_LFI, "Lettre d'information de la France insoumise"),
         (NEWSLETTER_2022, "Lettre d'information NSP"),
@@ -338,6 +339,7 @@ class Person(
         (NEWSLETTER_2022_EN_LIGNE, "NSP actions en ligne"),
         (NEWSLETTER_2022_CHEZ_MOI, "NSP agir près de chez moi"),
         (NEWSLETTER_2022_PROGRAMME, "NSP processus programme"),
+        (NEWSLETTER_2022_LIAISON, "NSP Correspondant·e d'immeuble ou de rue"),
     )
 
     newsletters = ChoiceArrayField(

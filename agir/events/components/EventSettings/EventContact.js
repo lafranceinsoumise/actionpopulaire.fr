@@ -103,6 +103,7 @@ const EventContact = (props) => {
       <TextField
         id="email"
         name="email"
+        type="email"
         label="Adresse e-mail à contacter*"
         onChange={handleChange}
         value={contact.email}

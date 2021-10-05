@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
+import useSWR from "swr";
 
 import Announcements from "@agir/front/dashboardComponents/Announcements";
 import FacebookLoginAd from "@agir/front/dashboardComponents/FacebookLoginAd";
@@ -9,8 +10,9 @@ import Navigation, {
 } from "@agir/front/dashboardComponents/Navigation";
 
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
-
+import ActionButtons from "@agir/front/app/ActionButtons";
 import { LayoutTitle, LayoutSubtitle } from "./StyledComponents";
+import UpcomingEvents from "@agir/events/common/UpcomingEvents";
 
 const FixedColumn = styled(Column)`
   position: sticky;
@@ -37,6 +39,9 @@ const MainContainer = styled(Container)`
 
 const Layout = (props) => {
   const { title, subtitle, children } = props;
+
+  const { data: events } = useSWR("/api/evenements/rsvped/");
+
   return (
     <MainContainer {...props}>
       <Row gutter={50} align="flex-start">
@@ -55,6 +60,18 @@ const Layout = (props) => {
           </section>
         </MainColumn>
         <SidebarColumn>
+          <div style={{ margin: "0 0 2rem" }}>
+            <h4 style={{ margin: "0 0 .5rem" }}>Mes actions</h4>
+            <ActionButtons />
+          </div>
+          {events ? (
+            <div style={{ margin: "0 0 2rem" }}>
+              <h4 style={{ lineHeight: 1.5, margin: "0 0 .5rem" }}>
+                Mes événements prévus
+              </h4>
+              <UpcomingEvents orientation="vertical" events={events} />
+            </div>
+          ) : null}
           <FacebookLoginAd />
           <Announcements />
           <SecondaryNavigation />

@@ -61,6 +61,9 @@ const LogoutPage = lazy(() =>
   import("@agir/front/authentication/Connexion/Logout")
 );
 const MessagePage = lazy(() => import("@agir/msgs/MessagePage/MessagePage"));
+const CreateContactPage = lazy(() =>
+  import("@agir/people/contacts/CreateContactPage")
+);
 
 export const BASE_PATH = "/";
 
@@ -177,6 +180,7 @@ export const routeConfig = {
       label: "Liste des événements",
       isProtected: true,
     },
+    hideFooter: true,
   }),
   eventDetails: new RouteConfig({
     id: "eventDetails",
@@ -399,6 +403,16 @@ export const routeConfig = {
     Component: MessagePage,
     hasLayout: false,
     hideFeedbackButton: true,
+    hideFooter: true,
+  }),
+  createContact: new RouteConfig({
+    id: "createContact",
+    path: "/contacts/creer/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Nouveau contact",
+    Component: CreateContactPage,
+    hasLayout: false,
     hideFooter: true,
   }),
 };
