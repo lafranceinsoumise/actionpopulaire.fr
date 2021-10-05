@@ -59,6 +59,7 @@ const Breadcrumb = styled.div`
   > div {
     cursor: pointer;
     color: ${(props) => props.theme.secondary500};
+    font-weight: bold;
   }
   > div:nth-of-type(2) {
     color: ${(props) => props.theme.primary500};
@@ -100,16 +101,38 @@ const StyledDescription = styled.div`
   }
 `;
 
+const StyledAmountInformations = styled.div`
+  padding: 1rem;
+  background-color: ${(props) => props.theme.primary100};
+  color: ${(props) => props.theme.primary500};
+  border-radius: 4px;
+  ul {
+    margin: 0;
+  }
+`;
+
+const GroupedFields = styled.div`
+  @media (max-width: ${style.collapse}px) {
+    flex: 0 1;
+    display: flex;
+    flex-direction: row;
+  }
+
+  @media (max-width: 450px) {
+    flex-direction: column;
+  }
+`;
+
 const helpEmail =
   "Si vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou melenchon2022.fr, utilisez l'adresse avec laquelle vous êtes inscrit·e";
 const helpNationality =
-  "Si double nationalité dont française : indiquez française";
+  "Si double nationalité dont française : indiquez France";
 const helpPhone =
   "Nous sommes dans l'obligation de pouvoir vous contacter en cas de demande de vérification par la CNCCFP.";
 
 const DonationPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
   const isDesktop = useIsDesktop();
 
   const { data: session } = useSWR("/api/session/");
@@ -144,31 +167,45 @@ const DonationPage = () => {
     amount: 500,
     to: type,
     type: "S",
+    allocations: [],
     // personal informations
     email: "",
-    firstName: "",
-    lastName: "",
-    phone: "",
-    nationality: "",
-    // address1: "",
-    address: "",
-    // zip: "",
-    postalCode: "",
-    city: "",
-    country: "FR",
+    first_name: "",
+    last_name: "",
+    contact_phone: "",
+    nationality: "FR",
+    location_address1: "",
+    location_zip: "",
+    location_city: "",
+    location_country: "FR",
     // checkboxes
-    consentCertification: false,
-    newsletterLFI: false,
+    subscribed_lfi: false,
+    consent_certification: false,
   });
 
+  const amount = formData.amount;
+  const groupAmount =
+    Array.isArray(formData?.allocations) && formData.allocations[0]?.amount;
+  const nationalAmount = amount - groupAmount;
+  const amountString = parseInt(amount / 100) + "," + (amount % 100);
+  const groupAmountString =
+    parseInt(groupAmount / 100) + "," + (groupAmount % 100);
+  const nationalAmountString =
+    parseInt(nationalAmount / 100) + "," + (nationalAmount % 100);
+
   const handleChange = (e) => {
+    console.log("formdata ", formData);
     const { name, value } = e.target;
-    // setError((error) => ({ ...error, [name]: null }));
+    // setErrors((error) => ({ ...error, [name]: null }));
     setFormData((formData) => ({ ...formData, [name]: value }));
   };
 
   const handleChangeCountry = (country) => {
-    setFormData((formData) => ({ ...formData, country: country }));
+    setFormData((formData) => ({ ...formData, location_country: country }));
+  };
+
+  const handleChangeNationality = (country) => {
+    setFormData((formData) => ({ ...formData, nationality: country }));
   };
 
   const handleCheckboxChange = (e) => {
@@ -180,20 +217,28 @@ const DonationPage = () => {
 
   const handleAmountSubmit = useCallback(async (data) => {
     setIsLoading(true);
-    setError("");
-    const result = await createDonation(data);
+    setErrors({});
+
+    console.log("amount submit data", data);
+
+    // const result = await createDonation(data);
+    const { data: result, errors } = await createDonation(data);
+
+    console.log("amount submit res", result);
+    console.log("amount submit errors", errors);
 
     setFormData({
       ...formData,
-      amount: data.amount,
-      type: data.type,
-      to: data.to,
+      ...result,
     });
     setShowModal(true);
 
     setIsLoading(false);
-    if (result.error || !result?.data?.next) {
-      setError(result.error || "Une erreur est survenue. Veuillez ressayer.");
+    if (errors) {
+      // setErrors(errors || "Une erreur est survenue. Veuillez ressayer.");
+      setErrors({
+        amount: errors || "Une erreur est survenue. Veuillez ressayer.",
+      });
       return;
     }
     // window.location.href = result.data.next;
@@ -214,16 +259,13 @@ const DonationPage = () => {
             userGroups.groups.some((group) => group.isCertified)
           }
           isLoading={isLoading}
-          error={error}
+          error={errors?.amount}
           onSubmit={handleAmountSubmit}
         />
 
         <Modal shouldShow={showModal} onClose={closeModal}>
           <ModalContainer>
-            <Title>
-              Je donne {parseInt(formData.amount / 100)},{formData.amount % 100}{" "}
-              euros
-            </Title>
+            <Title>Je donne {amountString}€ euros</Title>
             <Breadcrumb>
               <div onClick={closeModal}>1. Montant</div>
               <RawFeatherIcon name="chevron-right" width="1rem" height="1rem" />
@@ -234,6 +276,25 @@ const DonationPage = () => {
 
             <Spacer size="1rem" />
 
+            {groupPk && (
+              <>
+                <StyledAmountInformations>
+                  Je fais un don de <b>{amountString}€</b> qui sera réparti :
+                  <br />
+                  <ul>
+                    <li>
+                      <b>{groupAmountString}€ </b> pour le groupe {group?.name}
+                    </li>
+                    <li>
+                      <b>{nationalAmountString}€ </b> pour les activités
+                      nationales
+                    </li>
+                  </ul>
+                </StyledAmountInformations>
+                <Spacer size="1rem" />
+              </>
+            )}
+
             <StyledForm onSubmit={handleInformationsSubmit}>
               <TextField
                 id="email"
@@ -241,8 +302,8 @@ const DonationPage = () => {
                 label="Adresse e-mail*"
                 onChange={handleChange}
                 value={formData.email}
-                error={error?.email}
-                helpText={!isDesktop && helpEmail}
+                error={errors?.email}
+                helpText={(!isDesktop && helpEmail) || ""}
               />
               <Hide under as={StyledDescription}>
                 {helpEmail}
@@ -250,33 +311,35 @@ const DonationPage = () => {
 
               <Spacer size="1rem" />
 
-              <TextField
-                id="firstName"
-                name="firstName"
-                label="Prénom*"
-                onChange={handleChange}
-                value={formData.firstName}
-                error={error?.firstName}
-              />
-              <Spacer size="1rem" />
-              <TextField
-                id="lastName"
-                name="lastName"
-                label="Nom de famille*"
-                onChange={handleChange}
-                value={formData.lastName}
-                error={error?.lastName}
-              />
+              <GroupedFields>
+                <TextField
+                  id="first_name"
+                  name="first_name"
+                  label="Prénom*"
+                  onChange={handleChange}
+                  value={formData.first_name}
+                  error={errors?.first_name}
+                />
+                <Spacer size="1rem" />
+                <TextField
+                  id="last_name"
+                  name="last_name"
+                  label="Nom de famille*"
+                  onChange={handleChange}
+                  value={formData.last_name}
+                  error={errors?.last_name}
+                />
+              </GroupedFields>
               <Spacer size="1rem" />
 
               <CountryField
                 label="Nationalité*"
-                name="country"
+                name="nationality"
                 placeholder=""
-                value={formData.country}
-                onChange={handleChangeCountry}
-                error={error?.country}
-                helpText={!isDesktop && helpNationality}
+                value={formData.nationality}
+                onChange={handleChangeNationality}
+                error={errors?.nationality}
+                helpText={(!isDesktop && helpNationality) || ""}
               />
               <Hide under as={StyledDescription}>
                 {helpNationality}
@@ -288,45 +351,49 @@ const DonationPage = () => {
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                error={error?.address}
+                error={errors?.address}
               />
               <Spacer size="1rem" />
-              <TextField
-                label="Code postal*"
-                name="postalCode"
-                value={formData.postalCode}
-                onChange={handleChange}
-                error={error?.postalCode}
-                style={{ maxWidth: "160px" }}
-              />
-              <Spacer size="1rem" />
-              <TextField
-                label="Ville*"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                error={error?.city}
-              />
+
+              <GroupedFields>
+                <TextField
+                  label="Code postal*"
+                  name="location_zip"
+                  value={formData.location_zip}
+                  onChange={handleChange}
+                  error={errors?.location_zip}
+                  style={{ maxWidth: "160px", width: "160px" }}
+                />
+                <Spacer size="1rem" />
+                <TextField
+                  label="Ville*"
+                  name="location_city"
+                  value={formData.location_city}
+                  onChange={handleChange}
+                  error={errors?.location_city}
+                  style={{ width: "100%" }}
+                />
+              </GroupedFields>
               <Spacer size="1rem" />
               <CountryField
                 label="Pays*"
-                name="country"
+                name="location_country"
                 placeholder=""
-                value={formData.country}
+                value={formData.location_country}
                 onChange={handleChangeCountry}
-                error={error?.country}
+                error={errors?.location_country}
               />
               <Spacer size="1rem" />
 
               <TextField
-                id="phone"
-                name="phone"
+                id="contact_phone"
+                name="contact_phone"
                 label="Téléphone*"
                 onChange={handleChange}
-                value={formData.phone}
-                error={error?.phone}
+                value={formData.contact_phone}
+                error={errors?.phone}
                 style={{ maxWidth: "370px" }}
-                helpText={!isDesktop && helpPhone}
+                helpText={(!isDesktop && helpPhone) || ""}
               />
               <Hide under as={StyledDescription}>
                 {helpPhone}
@@ -337,16 +404,16 @@ const DonationPage = () => {
                 name="consentCertification"
                 label="Je certifie sur l'honneur être une personne physique et que le réglement de mon don ne provient pas d'une personne morale (association, société, société civile...) mais de mon compte bancaire personnel.*"
                 value={formData.consentCertification}
-                error={error?.consentCertification}
+                error={errors?.consentCertification}
                 onChange={handleCheckboxChange}
               />
               <Spacer size="1rem" />
 
               <CheckboxField
-                name="newsletterLFI"
+                name="subscribed_lfi"
                 label="Recevoir les lettres d'information de la France insoumise"
-                value={formData?.newsletterLFI}
-                error={error?.newsletterLFI}
+                value={formData?.subscribed_lfi}
+                error={errors?.subscribed_lfi}
                 onChange={handleCheckboxChange}
               />
               <Spacer size="1rem" />
