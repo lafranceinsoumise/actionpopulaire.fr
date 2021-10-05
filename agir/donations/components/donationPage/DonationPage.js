@@ -7,10 +7,11 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import AmountStep from "./AmountStep";
-import { Link, StepButton, Theme } from "./StyledComponents";
+import { StepButton, Theme } from "./StyledComponents";
 import Modal from "@agir/front/genericComponents/Modal";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
+import Toast from "@agir/front/genericComponents/Toast";
 
 import { Hide } from "@agir/front/genericComponents/grid";
 
@@ -21,7 +22,8 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import CountryField from "@agir/front/formComponents/CountryField";
 
-import { createDonation } from "./api";
+import * as api from "./api";
+
 
 const ModalContainer = styled.div`
   width: 70%;
@@ -168,7 +170,7 @@ const DonationPage = () => {
     to: type,
     type: "S",
     allocations: [],
-    // personal informations
+    // informations
     email: "",
     first_name: "",
     last_name: "",
@@ -180,7 +182,7 @@ const DonationPage = () => {
     location_country: "FR",
     // checkboxes
     subscribed_lfi: false,
-    consent_certification: false,
+    consent_certification: false
   });
 
   const amount = formData.amount;
@@ -194,9 +196,8 @@ const DonationPage = () => {
     parseInt(nationalAmount / 100) + "," + (nationalAmount % 100);
 
   const handleChange = (e) => {
-    console.log("formdata ", formData);
     const { name, value } = e.target;
-    // setErrors((error) => ({ ...error, [name]: null }));
+    setErrors((error) => ({ ...error, [name]: null }));
     setFormData((formData) => ({ ...formData, [name]: value }));
   };
 
@@ -209,6 +210,7 @@ const DonationPage = () => {
   };
 
   const handleCheckboxChange = (e) => {
+    setErrors({...errors, [e.target.name]: null});
     setFormData((formData) => ({
       ...formData,
       [e.target.name]: e.target.checked,
@@ -219,33 +221,42 @@ const DonationPage = () => {
     setIsLoading(true);
     setErrors({});
 
-    console.log("amount submit data", data);
-
-    // const result = await createDonation(data);
-    const { data: result, errors } = await createDonation(data);
-
-    console.log("amount submit res", result);
-    console.log("amount submit errors", errors);
+    const { data: result, errors: apiErrors } = await api.createDonation(data);
 
     setFormData({
       ...formData,
       ...result,
     });
     setShowModal(true);
-
     setIsLoading(false);
-    if (errors) {
-      // setErrors(errors || "Une erreur est survenue. Veuillez ressayer.");
+
+    if (apiErrors) {
       setErrors({
-        amount: errors || "Une erreur est survenue. Veuillez ressayer.",
+        amount: apiErrors || "Une erreur est survenue. Veuillez ressayer.",
       });
       return;
     }
     // window.location.href = result.data.next;
   }, []);
 
-  const handleInformationsSubmit = () => {
-    console.log("TODO");
+  const handleInformationsSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors({});
+
+    if (!formData.consent_certification) {
+      setErrors({ consent_certification: "Vous devez cocher la case précédente pour continuer"});
+      setIsLoading(false);
+      return;
+    }
+
+    const { data: result, errors: apiErrors } = await api.sendDonation(formData);
+
+    setIsLoading(false);
+    if (apiErrors) {
+      setErrors(apiErrors);
+      return;
+    }
   };
 
   return (
@@ -283,10 +294,10 @@ const DonationPage = () => {
                   <br />
                   <ul>
                     <li>
-                      <b>{groupAmountString}€ </b> pour le groupe {group?.name}
+                      <b>{groupAmountString}€</b> pour le groupe {group?.name}
                     </li>
                     <li>
-                      <b>{nationalAmountString}€ </b> pour les activités
+                      <b>{nationalAmountString}€</b> pour les activités
                       nationales
                     </li>
                   </ul>
@@ -401,19 +412,18 @@ const DonationPage = () => {
               <Spacer size="1rem" />
 
               <CheckboxField
-                name="consentCertification"
+                name="consent_certification"
                 label="Je certifie sur l'honneur être une personne physique et que le réglement de mon don ne provient pas d'une personne morale (association, société, société civile...) mais de mon compte bancaire personnel.*"
-                value={formData.consentCertification}
-                error={errors?.consentCertification}
+                value={formData.consent_certification}
                 onChange={handleCheckboxChange}
               />
+              {errors?.consent_certification && <Toast style={{marginTop: "0.5rem"}}>{errors?.consent_certification}</Toast>}
               <Spacer size="1rem" />
 
               <CheckboxField
                 name="subscribed_lfi"
                 label="Recevoir les lettres d'information de la France insoumise"
                 value={formData?.subscribed_lfi}
-                error={errors?.subscribed_lfi}
                 onChange={handleCheckboxChange}
               />
               <Spacer size="1rem" />

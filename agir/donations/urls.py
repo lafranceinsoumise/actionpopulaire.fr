@@ -64,4 +64,7 @@ urlpatterns = [
     path(
         "api/dons/", views.CreateDonationAPIView.as_view(), name="api_create_donation",
     ),
+    path(
+        "api/envoyer-dons/", views.CreateDonationAPIView.as_view(), name="api_send_donation",
+    ),
 ]
