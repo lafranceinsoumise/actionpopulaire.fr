@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React from "react";
 
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -11,15 +11,16 @@ import GroupMemberActions from "./GroupMemberActions";
 
 const GroupMemberFile = (props) => {
   const { member, onBack, onChangeMembershipType, isReferent } = props;
-  const hasFacts = useMemo(
-    () =>
-      [member?.is2022, member?.hasGroupNotifications, member?.isLiaison].some(
-        (i) => typeof i === "boolean"
-      ),
-    [member]
-  );
+
   return (
-    <PageFadeIn ready={!!member}>
+    <PageFadeIn
+      ready={!!member}
+      css={`
+        ${Spacer} + ${Spacer} {
+          display: none;
+        }
+      `}
+    >
       <BackButton onClick={onBack} />
       <Spacer size="1.5rem" />
       <GroupMemberCard
@@ -36,16 +37,12 @@ const GroupMemberFile = (props) => {
         membershipType={member?.membershipType}
         subscriber={member?.subscriber}
       />
-      {hasFacts && (
-        <>
-          <Spacer size="1.5rem" />
-          <GroupMemberFacts
-            is2022={member?.is2022}
-            isLiaison={member?.isLiaison}
-            hasGroupNotifications={member?.hasGroupNotifications}
-          />
-        </>
-      )}
+      <Spacer size="1.5rem" />
+      <GroupMemberFacts
+        is2022={member?.is2022}
+        isLiaison={member?.isLiaison}
+        hasGroupNotifications={member?.hasGroupNotifications}
+      />
       <Spacer size="1.5rem" />
       <GroupMemberActions
         currentMembershipType={member?.membershipType}

@@ -5,7 +5,7 @@ import MembershipPanel from "@agir/groups/groupPage/GroupSettings/MembershipPane
 import MainPanel from "./MainPanel";
 
 const GroupMembersPage = (props) => (
-  <MembershipPanel MainPanel={MainPanel} {...props} />
+  <MembershipPanel {...props} MainPanel={MainPanel} unselectMemberAfterUpdate />
 );
 
 export default GroupMembersPage;

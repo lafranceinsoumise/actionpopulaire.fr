@@ -6,7 +6,7 @@ import Avatar from "@agir/front/genericComponents/Avatar";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { displayHumanDateString } from "@agir/lib/utils/time";
+import { timeAgo } from "@agir/lib/utils/time";
 import { GENDER } from "@agir/lib/utils/display";
 import {
   MEMBERSHIP_TYPES,
@@ -153,9 +153,11 @@ const GroupMemberCard = (props) => {
         <p>
           <span>
             <FeatherIcon small name="clock" />
-            &ensp;Contact ajouté le{" "}
-            {displayHumanDateString(created).split(" à ")[0]}
-            {subscriber ? ` par ${subscriber}` : ""}
+            &ensp;
+            {membershipType === MEMBERSHIP_TYPES.FOLLOWER
+              ? `Contact ajouté ${timeAgo(created, "day").split(" à ")[0]}
+            ${subscriber ? ` par ${subscriber}` : ""}`
+              : `Membre depuis ${timeAgo(created, "day").split(" à ")[0]}`}
           </span>
         </p>
       </div>

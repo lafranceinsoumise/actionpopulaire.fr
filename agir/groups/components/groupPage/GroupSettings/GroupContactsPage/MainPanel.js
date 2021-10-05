@@ -56,24 +56,23 @@ const GroupContactsMainPanel = (props) => {
       <Spacer size="1.5rem" />
       <GroupMemberList members={followers} onClickMember={onClickMember} />
       <Spacer size="2rem" />
-      <p
+      <footer
         css={`
           color: ${({ theme }) => theme.black700};
           font-size: 0.875rem;
         `}
       >
-        Lorsque vous ajoutez un contact, ou bien quand un membre d’Action
-        Populaire clique sur “Suivre le groupe”, ses informations s’affichent
-        ici.
-      </p>
-      <p
-        css={`
-          color: ${({ theme }) => theme.black700};
-          font-size: 0.875rem;
-        `}
-      >
-        Les contacts ne comptent pas dans le total des membres du groupe.
-      </p>
+        <p>
+          Lorsque vous ajoutez un contact, ou bien quand un membre d’Action
+          Populaire clique sur “Suivre le groupe”, ses informations s’affichent
+          ici.
+        </p>
+        <p>
+          Vos contacts qui reçoivent vos messages et nouveaux événements par
+          e-mail sont indiqués comme « abonnés ».
+        </p>
+        <p>Les contacts ne comptent pas dans le total des membres du groupe.</p>
+      </footer>
     </>
   );
 };

@@ -123,14 +123,6 @@ const MembershipType = ({ gender, membershipType, hasGroupNotifications }) => {
           <span>{role}</span>
         </Role>
       ) : null;
-    case MEMBERSHIP_TYPES.MEMBER:
-      return (
-        <Role>
-          <RawFeatherIcon name="user" small />
-          &ensp;
-          <span>{role}</span>
-        </Role>
-      );
     case MEMBERSHIP_TYPES.MANAGER:
       return (
         <Role style={{ color: style.green500 }}>

@@ -23,7 +23,9 @@ const StyledList = styled.ul`
 const GroupMemberFacts = (props) => {
   const { is2022, isLiaison, hasGroupNotifications } = props;
 
-  return (
+  return [is2022, hasGroupNotifications, isLiaison].some(
+    (i) => typeof i === "boolean"
+  ) ? (
     <StyledList>
       <h4>À propos</h4>
       <li>
@@ -38,7 +40,7 @@ const GroupMemberFacts = (props) => {
       </li>
       {isLiaison && <li>Correspondant·e de son immeuble</li>}
     </StyledList>
-  );
+  ) : null;
 };
 
 GroupMemberFacts.propTypes = {

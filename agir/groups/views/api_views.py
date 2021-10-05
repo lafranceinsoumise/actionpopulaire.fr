@@ -4,7 +4,6 @@ from django.core.validators import validate_email
 from django.db import transaction
 from django.db.models import F, Max, DateTimeField
 from django.db.models.functions import Greatest
-from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django_filters.rest_framework import DjangoFilterBackend
@@ -49,6 +48,7 @@ from agir.groups.serializers import (
     SupportGroupUpdateSerializer,
     MembershipSerializer,
     SupportGroupExternalLinkSerializer,
+    MemberPersonalInformationSerializer,
 )
 from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
@@ -76,6 +76,7 @@ __all__ = [
     "GroupMembersAPIView",
     "GroupUpdateAPIView",
     "GroupInvitationAPIView",
+    "MemberPersonalInformationAPIView",
     "GroupMemberUpdateAPIView",
     "GroupFinanceAPIView",
     "CreateSupportGroupExternalLinkAPIView",
@@ -600,6 +601,21 @@ class GroupInvitationAPIView(GenericAPIView):
 
         invite_to_group.delay(group.pk, email, user_id)
         return Response(status=status.HTTP_201_CREATED)
+
+
+class MemberPersonalInformationPermission(GlobalOrObjectPermissions):
+    perms_map = {
+        "GET": [],
+    }
+    object_perms_map = {
+        "GET": ["groups.change_membership_type"],
+    }
+
+
+class MemberPersonalInformationAPIView(RetrieveAPIView):
+    queryset = Membership.objects.all()
+    permission_classes = (MemberPersonalInformationPermission,)
+    serializer_class = MemberPersonalInformationSerializer
 
 
 class GroupMemberUpdatePermission(GlobalOrObjectPermissions):

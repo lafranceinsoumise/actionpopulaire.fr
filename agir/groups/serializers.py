@@ -16,6 +16,7 @@ from agir.lib.serializers import (
     ContactMixinSerializer,
     NestedContactSerializer,
     NestedLocationSerializer,
+    PhoneField,
 )
 from agir.people.serializers import PersonSerializer
 from . import models
@@ -24,6 +25,7 @@ from .actions.notifications import member_to_follower_notification
 from .models import Membership, SupportGroup, SupportGroupExternalLink
 from ..front.serializer_utils import RoutesField
 from ..lib.utils import front_url, admin_url
+from ..people.models import Person
 
 
 class SupportGroupLegacySerializer(CountryFieldMixin, serializers.ModelSerializer):
@@ -468,6 +470,90 @@ class MembershipSerializer(serializers.ModelSerializer):
             "personalInfoConsent",
             "hasGroupNotifications",
         ]
+
+
+class MemberPersonalInformationSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    displayName = serializers.CharField(source="person.display_name", read_only=True)
+    firstName = serializers.CharField(source="person.first_name", read_only=True)
+    lastName = serializers.CharField(source="person.last_name", read_only=True)
+    gender = serializers.CharField(source="person.gender", read_only=True)
+    image = serializers.ImageField(
+        default=None, source="person.image.thumbnail", read_only=True
+    )
+    email = serializers.EmailField(source="person.email", read_only=True)
+    phone = PhoneField(source="person.contact_phone", read_only=True)
+    address = serializers.CharField(source="person.short_address", read_only=True)
+    is2022 = serializers.BooleanField(source="person.is_2022", read_only=True)
+    isLiaison = serializers.SerializerMethodField(read_only=True)
+    created = serializers.DateTimeField(read_only=True)
+    membershipType = serializers.IntegerField(source="membership_type", read_only=True)
+    subscriber = serializers.SerializerMethodField(read_only=True)
+    hasGroupNotifications = serializers.SerializerMethodField(read_only=True)
+    personalInfoConsent = serializers.BooleanField(
+        source="personal_information_sharing_consent", read_only=True
+    )
+
+    def get_subscriber(self, membership):
+        meta = membership.person.meta
+        if (
+            not meta
+            or "subscriptions" not in meta
+            or "AP" not in meta["subscriptions"]
+            or "subscriber" not in meta["subscriptions"]["AP"]
+        ):
+            return None
+        subscriber = Person.objects.filter(
+            id=meta["subscriptions"]["AP"]["subscriber"]
+        ).first()
+        if not subscriber:
+            return None
+        return subscriber.display_name
+
+    def get_isLiaison(self, membership):
+        return Person.NEWSLETTER_2022_LIAISON in membership.person.newsletters
+
+    def get_hasGroupNotifications(self, membership):
+        return membership.subscription_set.exists()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Remove restricted fields if personal_information_sharing_consent value is False
+        if self.instance and not self.instance.personal_information_sharing_consent:
+            for f in set(self.fields).intersection(self.Meta.restricted_fields):
+                del self.fields[f]
+
+    class Meta:
+        model = Membership
+        fields = (
+            "id",
+            "displayName",
+            "firstName",
+            "lastName",
+            "gender",
+            "image",
+            "email",
+            "phone",
+            "address",
+            "created",
+            "membershipType",
+            "subscriber",
+            "is2022",
+            "isLiaison",
+            "hasGroupNotifications",
+            "personalInfoConsent",
+        )
+        restricted_fields = (
+            "firstName",
+            "lastName",
+            "gender",
+            "image",
+            "phone",
+            "address",
+            "is2022",
+            "isLiaison",
+            "hasGroupNotifications",
+        )
 
 
 class SupportGroupExternalLinkSerializer(serializers.ModelSerializer):

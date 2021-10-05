@@ -91,14 +91,19 @@ api_urlpatterns = [
         name="api_group_message_comment_detail",
     ),
     path(
-        "<uuid:pk>/members/",
+        "<uuid:pk>/membres/",
         views.GroupMembersAPIView.as_view(),
         name="api_group_members",
     ),
     path(
-        "members/<int:pk>/",
+        "membres/<int:pk>/",
         views.GroupMemberUpdateAPIView.as_view(),
         name="api_group_member_update",
+    ),
+    path(
+        "membres/<int:pk>/informations/",
+        views.MemberPersonalInformationAPIView.as_view(),
+        name="api_group_member_details",
     ),
     path(
         "<uuid:pk>/update/",

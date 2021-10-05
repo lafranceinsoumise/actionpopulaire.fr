@@ -1,13 +1,13 @@
+import uuid
+from unittest.mock import patch
+
 from django.utils import timezone
 from rest_framework.test import APITestCase
-from unittest.mock import patch
 
 from agir.donations.models import SpendingRequest, Operation
 from agir.groups.models import SupportGroup, Membership, SupportGroupExternalLink
 from agir.lib.tests.mixins import create_membership
 from agir.people.models import Person
-
-import uuid
 
 
 class GroupJoinAPITestCase(APITestCase):
@@ -753,27 +753,27 @@ class GroupMembershipUpdateAPITestCase(APITestCase):
         self.target.save()
         # Anonymous
         self.client.logout()
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 401)
         # Non member
         self.client.force_login(user=self.non_member.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Follower
         self.client.force_login(user=self.follower.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Member
         self.client.force_login(user=self.member.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Manager
         self.client.force_login(user=self.manager.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 200)
         # Referent
         self.client.force_login(user=self.referent.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 200)
 
     def test_only_referents_can_change_a_referent_membership_type(self):
@@ -782,27 +782,27 @@ class GroupMembershipUpdateAPITestCase(APITestCase):
         self.target.save()
         # Anonymous
         self.client.logout()
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 401)
         # Non member
         self.client.force_login(user=self.non_member.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Follower
         self.client.force_login(user=self.follower.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Member
         self.client.force_login(user=self.member.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Manager
         self.client.force_login(user=self.manager.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Referent
         self.client.force_login(user=self.referent.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 200)
 
     def test_only_referents_can_change_a_manager_membership_type(self):
@@ -811,27 +811,27 @@ class GroupMembershipUpdateAPITestCase(APITestCase):
         self.target.save()
         # Anonymous
         self.client.logout()
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 401)
         # Non member
         self.client.force_login(user=self.non_member.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Follower
         self.client.force_login(user=self.follower.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Member
         self.client.force_login(user=self.member.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Manager
         self.client.force_login(user=self.manager.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Referent
         self.client.force_login(user=self.referent.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 200)
 
     def test_only_referents_can_set_referents(self):
@@ -840,27 +840,27 @@ class GroupMembershipUpdateAPITestCase(APITestCase):
         self.target.save()
         # Anonymous
         self.client.logout()
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 401)
         # Non member
         self.client.force_login(user=self.non_member.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Follower
         self.client.force_login(user=self.follower.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Member
         self.client.force_login(user=self.member.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Manager
         self.client.force_login(user=self.manager.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Referent
         self.client.force_login(user=self.referent.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 200)
 
     def test_only_referents_can_set_managers(self):
@@ -869,27 +869,27 @@ class GroupMembershipUpdateAPITestCase(APITestCase):
         self.target.save()
         # Anonymous
         self.client.logout()
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 401)
         # Non member
         self.client.force_login(user=self.non_member.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Follower
         self.client.force_login(user=self.follower.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Member
         self.client.force_login(user=self.member.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Manager
         self.client.force_login(user=self.manager.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 403)
         # Referent
         self.client.force_login(user=self.referent.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 200)
 
     def test_cannot_set_more_than_two_referents_for_a_group(self):
@@ -905,9 +905,9 @@ class GroupMembershipUpdateAPITestCase(APITestCase):
         )
         data = {"membershipType": Membership.MEMBERSHIP_TYPE_REFERENT}
         self.client.force_login(user=the_first_referent.person.role)
-        res = self.client.patch(f"/api/groupes/members/{a_member.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{a_member.id}/", data=data)
         self.assertEqual(res.status_code, 200)
-        res = self.client.patch(f"/api/groupes/members/{another_member.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{another_member.id}/", data=data)
         self.assertEqual(res.status_code, 422)
         self.assertIn("membershipType", res.data)
 
@@ -920,10 +920,89 @@ class GroupMembershipUpdateAPITestCase(APITestCase):
         self.target.save()
         member_to_follower_notification.assert_not_called()
         self.client.force_login(user=self.referent.role)
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 200)
         member_to_follower_notification.assert_not_called()
         data = {"membershipType": Membership.MEMBERSHIP_TYPE_FOLLOWER}
-        res = self.client.patch(f"/api/groupes/members/{self.target.id}/", data=data)
+        res = self.client.patch(f"/api/groupes/membres/{self.target.id}/", data=data)
         self.assertEqual(res.status_code, 200)
         member_to_follower_notification.assert_called()
+
+
+class MemberPersonalInformationAPITestCase(APITestCase):
+    def setUp(self):
+        self.group = SupportGroup.objects.create(name="Group")
+        self.non_member = Person.objects.create(
+            email="non_member@agir.local", create_role=True
+        )
+        self.follower = create_membership(
+            supportgroup=self.group, membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER
+        ).person
+        self.member = create_membership(
+            supportgroup=self.group, membership_type=Membership.MEMBERSHIP_TYPE_MEMBER
+        ).person
+        self.referent = create_membership(
+            supportgroup=self.group, membership_type=Membership.MEMBERSHIP_TYPE_REFERENT
+        ).person
+        self.manager = create_membership(
+            supportgroup=self.group, membership_type=Membership.MEMBERSHIP_TYPE_MANAGER
+        ).person
+        self.target = create_membership(
+            supportgroup=self.group, membership_type=Membership.MEMBERSHIP_TYPE_MEMBER
+        )
+
+    def test_only_referents_and_managers_can_access_member_personal_info(self):
+        # Anonymous
+        self.client.logout()
+        res = self.client.get(f"/api/groupes/membres/{self.target.id}/informations/")
+        self.assertEqual(res.status_code, 401)
+        # Non member
+        self.client.force_login(user=self.non_member.role)
+        res = self.client.get(f"/api/groupes/membres/{self.target.id}/informations/")
+        self.assertEqual(res.status_code, 403)
+        # Follower
+        self.client.force_login(user=self.follower.role)
+        res = self.client.get(f"/api/groupes/membres/{self.target.id}/informations/")
+        self.assertEqual(res.status_code, 403)
+        # Member
+        self.client.force_login(user=self.member.role)
+        res = self.client.get(f"/api/groupes/membres/{self.target.id}/informations/")
+        self.assertEqual(res.status_code, 403)
+        # Manager
+        self.client.force_login(user=self.manager.role)
+        res = self.client.get(f"/api/groupes/membres/{self.target.id}/informations/")
+        self.assertEqual(res.status_code, 200)
+        # Referent
+        self.client.force_login(user=self.referent.role)
+        res = self.client.get(f"/api/groupes/membres/{self.target.id}/informations/")
+        self.assertEqual(res.status_code, 200)
+
+    def test_restricted_information_are_not_accessible_without_member_consent(self):
+        restricted_fields = [
+            "firstName",
+            "lastName",
+            "gender",
+            "image",
+            "phone",
+            "address",
+            "is2022",
+            "isLiaison",
+            "hasGroupNotifications",
+        ]
+        self.target.personal_information_sharing_consent = False
+        self.target.save()
+        self.client.force_login(user=self.referent.role)
+
+        res = self.client.get(f"/api/groupes/membres/{self.target.id}/informations/")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("id", res.data)
+        for field in restricted_fields:
+            self.assertNotIn(field, res.data)
+
+        self.target.personal_information_sharing_consent = True
+        self.target.save()
+        res = self.client.get(f"/api/groupes/membres/{self.target.id}/informations/")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("id", res.data)
+        for field in restricted_fields:
+            self.assertIn(field, res.data)
