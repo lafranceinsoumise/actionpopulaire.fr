@@ -220,6 +220,7 @@ urlpatterns = [
         views.UserMessageView.as_view(),
         name="user_message_details.notification_settings",
     ),
+    path("contacts/creer/", views.BaseAppSoftAuthView.as_view(), name="create_contact"),
     path("donner/", views.DonationView.as_view(), name="donations",),
     path(
         "donner/melenchon2022/",

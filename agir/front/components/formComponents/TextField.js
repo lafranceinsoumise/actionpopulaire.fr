@@ -163,7 +163,7 @@ TextField.propTypes = {
   type: PropTypes.oneOf(["text", "email", "password"]),
   id: PropTypes.string,
   label: PropTypes.node,
-  helpText: PropTypes.string,
+  helpText: PropTypes.node,
   error: PropTypes.string,
   maxLength: PropTypes.number,
   textArea: PropTypes.bool,

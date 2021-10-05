@@ -11,12 +11,18 @@ import RightLink from "./RightLink";
 import StyledBar, { IconLink } from "./StyledBar";
 
 export const DashboardPageBar = (props) => {
-  const { isLoading, user, settingsLink } = props;
+  const { isLoading, user, settingsLink, hasSearchLink } = props;
   return (
     <StyledBar>
-      <IconLink route="search">
-        <RawFeatherIcon name="search" />
-      </IconLink>
+      {hasSearchLink ? (
+        <IconLink route="search">
+          <RawFeatherIcon name="search" />
+        </IconLink>
+      ) : (
+        <IconLink href={routeConfig.events.getLink()}>
+          <RawFeatherIcon name="arrow-left" width="1.5rem" height="1.5rem" />
+        </IconLink>
+      )}
       <h1>
         <Link href={routeConfig.events.getLink()}>
           <LogoAP small style={{ height: "36px", width: "auto" }} />
@@ -34,5 +40,6 @@ DashboardPageBar.propTypes = {
   isLoading: PropTypes.bool,
   settingsLink: PropTypes.object,
   user: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+  hasSearchLink: PropTypes.bool,
 };
 export default DashboardPageBar;

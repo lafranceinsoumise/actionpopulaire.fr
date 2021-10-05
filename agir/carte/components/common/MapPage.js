@@ -4,9 +4,9 @@ import React from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import { Hide } from "@agir/front/genericComponents/grid";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const CONFIG = {
   events: {
@@ -28,8 +28,10 @@ const Header = styled.header`
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-  justify-content: center;
   background-color: white;
+  padding: 0 20px;
+  flex-direction: row;
+  justify-content: space-between;
 
   & > h1 {
     text-align: center;
@@ -40,17 +42,6 @@ const Header = styled.header`
     margin: 0;
   }
 
-  & > ${Button} {
-    position: absolute;
-    left: 1.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-
-    @media (max-width: ${style.collapse}px) {
-      display: none;
-    }
-  }
-
   & > a:last-child {
     font-size: 13px;
   }
@@ -59,15 +50,45 @@ const Header = styled.header`
 const Map = styled.iframe`
   margin: 0;
   padding: 0;
+  border: none;
+  overflow: hidden;
   width: 100%;
   height: 100%;
   height: calc(100vh - 172px);
-  border: none;
-  overflow: hidden;
+  display: block;
+  @media (max-width: ${style.collapse}px) {
+    height: calc(100vh - 138px);
+  }
 `;
 
+const MapFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 82px;
+`;
+
+const StyledActionButtons = styled.div`
+  min-width: 310px;
+  display: inline-flex;
+  justify-content: space-around;
+`;
+
+const ActionButtons = ({ searchUrl, createLinkProps }) => (
+  <StyledActionButtons>
+    <Button link href={searchUrl}>
+      <RawFeatherIcon name="search" height="1rem" color={style.black1000} />
+      &nbsp;Rechercher
+    </Button>
+    <Button color="secondary" link route={createLinkProps.route}>
+      <RawFeatherIcon name="plus" height="1rem" color={style.black1000} />
+      &nbsp;Créer
+    </Button>
+  </StyledActionButtons>
+);
+
 const MapPage = (props) => {
-  const { user, type, mapURL, createLinkProps } = props;
+  const { user, type, mapURL, createLinkProps, searchUrl } = props;
   const { title, backRoute, backLabel } = CONFIG[type];
 
   return (
@@ -75,18 +96,25 @@ const MapPage = (props) => {
       <Helmet>
         <title>{title} - Action populaire</title>
       </Helmet>
-      <Header>
+      <Hide under as={Header}>
         {user && (
           <Button link route={backRoute} icon="arrow-left">
             <span>{backLabel}</span>
           </Button>
         )}
-        <Hide under as="h1">
-          {title}
-        </Hide>
-        {user && <Link {...createLinkProps} />}
-      </Header>
+        <h1>{title}</h1>
+        <ActionButtons
+          searchUrl={searchUrl}
+          createLinkProps={createLinkProps}
+        />
+      </Hide>
       <Map src={mapURL}></Map>
+      <Hide over as={MapFooter}>
+        <ActionButtons
+          searchUrl={searchUrl}
+          createLinkProps={createLinkProps}
+        />
+      </Hide>
     </main>
   );
 };

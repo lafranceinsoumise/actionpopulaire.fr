@@ -105,6 +105,7 @@ def membership_post_save_handler(sender, instance, created=False, **kwargs):
     if (
         instance is None
         or not created
+        or not instance.default_subscriptions_enabled
         or Subscription.objects.filter(
             person=instance.person, membership=instance
         ).exists()

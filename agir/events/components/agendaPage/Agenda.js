@@ -2,34 +2,34 @@ import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import styled from "styled-components";
+import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { Row } from "@agir/donations/donationForm/AllocationsWidget/Styles";
-import { Column } from "@agir/front/genericComponents/grid";
-import Card from "@agir/front/genericComponents/Card";
-import { LayoutTitle } from "@agir/front/dashboardComponents/Layout/StyledComponents";
+import ActionButtons from "@agir/front/app/ActionButtons";
 import Button from "@agir/front/genericComponents/Button";
+import Card from "@agir/front/genericComponents/Card";
 import EventCard from "@agir/front/genericComponents/EventCard";
-import Link from "@agir/front/app/Link";
-
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
+import FilterTabs from "@agir/front/genericComponents/FilterTabs";
+import { Hide } from "@agir/front/genericComponents/grid";
+import { LayoutTitle } from "@agir/front/dashboardComponents/Layout/StyledComponents";
+import Link from "@agir/front/app/Link";
+import MissingDocumentsWidget from "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsWidget";
+import Onboarding from "@agir/front/genericComponents/Onboarding";
+import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import UpcomingEvents from "@agir/events/common/UpcomingEvents";
 
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
 import {
   getIsSessionLoaded,
   getRoutes,
   getUser,
 } from "@agir/front/globalContext/reducers";
-
-import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
-import FilterTabs from "@agir/front/genericComponents/FilterTabs";
-import Onboarding from "@agir/front/genericComponents/Onboarding";
-import useSWR from "swr";
-import Skeleton from "@agir/front/genericComponents/Skeleton";
-import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
-import MissingDocumentsWidget from "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsWidget";
 import logger from "@agir/lib/utils/logger";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
 
 const log = logger(__filename);
 
@@ -45,11 +45,6 @@ const TopBar = styled.div`
 
   & > ${LayoutTitle} {
     margin: 0;
-
-    @media (max-width: ${style.collapse}px) {
-      flex: 0 0 100%;
-      margin-bottom: 1rem;
-    }
   }
 
   & > div {
@@ -74,13 +69,19 @@ const TopBar = styled.div`
 `;
 
 const Day = styled.h3`
-  color: ${style.black500};
-  text-transform: uppercase;
-  font-size: 14px;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 600;
   margin-top: 24px;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
 `;
 
 const EmptyAgenda = styled.div`
+  padding: 1rem 0 0;
+
   & p {
     strong {
       color: ${style.black1000};
@@ -93,22 +94,14 @@ const EmptyAgenda = styled.div`
 `;
 
 const StyledAgenda = styled.div`
-  & header {
-    margin-bottom: 0;
+  @media (max-width: ${(props) => props.theme.collapse}px) {
+    box-sizing: border-box;
+    padding: 0 1rem;
   }
 
   & h2 {
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: 500;
-  }
-
-  & h2,
-  & ${Day}, & ${EmptyAgenda} {
-    margin: 2rem 0 1rem;
-
-    @media (max-width: ${style.collapse}px) {
-      margin: 2rem 25px 1rem;
-    }
   }
 
   & ${Card} + ${Card} {
@@ -125,7 +118,6 @@ const otherEventConfig = {
         (event) =>
           typeof event.distance === "number" &&
           event.distance < 100 * 1000 &&
-          !event.rsvp &&
           dateFromISOString(event.endTime) > DateTime.local()
       ),
   },
@@ -287,6 +279,7 @@ const Agenda = () => {
   const { data: rsvped } = useSWR("/api/evenements/rsvped/", {
     isPaused,
   });
+
   const { data: suggestions } = useSWR("/api/evenements/suggestions/", {
     isPaused,
   });
@@ -307,63 +300,85 @@ const Agenda = () => {
 
   return (
     <StyledAgenda>
-      <MissingDocumentsWidget />
       <header>
+        <Hide over>
+          <h2
+            style={{
+              textAlign: "center",
+              fontWeight: 600,
+              fontSize: "1.25rem",
+              marginBottom: "1.5rem",
+              marginTop: 0,
+            }}
+          >
+            Bonjour {user?.firstName || user?.displayName} 👋
+          </h2>
+          <ActionButtons />
+        </Hide>
         <TopBar>
-          <LayoutTitle>Événements</LayoutTitle>
-          <div>
-            <Button
-              small
-              link
-              color="secondary"
-              route="createEvent"
-              icon="plus"
-            >
-              Créer un événement
-            </Button>
+          <LayoutTitle>
+            Bonjour {user?.firstName || user?.displayName} 👋
+          </LayoutTitle>
+          <Hide under>
             <Button small link route="eventMap" icon="map">
               Carte
             </Button>
-          </div>
+          </Hide>
         </TopBar>
       </header>
-      <PageFadeIn ready={rsvpedEvents && suggestions} wait={<Skeleton />}>
-        <Row style={{ marginBottom: "4rem" }}>
-          <Column grow>
-            {rsvpedEvents && rsvpedEvents.length > 0 && (
-              <>
-                <h2 style={{ marginTop: 0 }}>Mes événements</h2>
-                {rsvpedEvents.map((event) => (
-                  <EventCard key={event.id} {...event} />
-                ))}
-                <h2>Autres événements près de chez moi</h2>
-              </>
-            )}
-            <PageFadeIn
-              ready={isSessionLoaded && suggestions}
-              wait={<Skeleton />}
+      <MissingDocumentsWidget />
+      <PageFadeIn
+        style={{ marginBottom: "4rem" }}
+        ready={rsvpedEvents && suggestions}
+        wait={<Skeleton />}
+      >
+        {rsvpedEvents && rsvpedEvents.length > 0 ? (
+          <Hide over style={{ padding: "0 0 2rem" }}>
+            <h2
+              style={{
+                fontWeight: 600,
+                fontSize: "1.125rem",
+                margin: "0 0 0.5rem",
+                lineHeight: 1.4,
+              }}
             >
-              {/* Suggested events are longer to load than rsvped,
-              so when rsvpedEvents is loaded we still display skeleton
-              only on this part */}
-              <>
-                {isSessionLoaded && suggestions && (
-                  <SuggestionsEvents suggestions={suggestions} />
-                )}
-                <Row style={{ marginTop: "4rem" }}>
-                  <Column grow>
-                    <Onboarding type="group__action" routes={routes} />
-                  </Column>
-                </Row>
-                <Row style={{ marginTop: "4rem" }}>
-                  <Column grow>
-                    <Onboarding type="event" routes={routes} />
-                  </Column>
-                </Row>
-              </>
-            </PageFadeIn>
-          </Column>
-        </Row>
+              Mes événements prévus
+            </h2>
+            <UpcomingEvents events={rsvpedEvents} />
+          </Hide>
+        ) : null}
+        <Hide
+          over
+          style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "0 0 1rem",
+          }}
+        >
+          <h2
+            style={{
+              fontWeight: 600,
+              fontSize: "1.125rem",
+              margin: 0,
+              flex: "1 1 auto",
+            }}
+          >
+            Événements
+          </h2>
+          <Button small link route="eventMap" icon="map">
+            Carte
+          </Button>
+        </Hide>
+        <PageFadeIn ready={isSessionLoaded && suggestions} wait={<Skeleton />}>
+          {isSessionLoaded && suggestions && (
+            <SuggestionsEvents suggestions={suggestions} />
+          )}
+          <Spacer size="4rem" />
+          <Onboarding type="group__action" routes={routes} />
+          <Spacer size="4rem" />
+          <Onboarding type="event" routes={routes} />
+          <Spacer size="4rem" />
+        </PageFadeIn>
       </PageFadeIn>
       <FeedbackButton />
     </StyledAgenda>

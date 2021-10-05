@@ -212,14 +212,14 @@ class GroupMessagesTestAPICase(APITestCase):
         self.assertEqual(res.status_code, 204)
         self.assertEqual(self.group.messages.first().deleted, True)
 
-    def test_author_cannot_delete_own_message(self):
+    def test_other_group_managers_can_delete_group_messages(self):
         message = SupportGroupMessage.objects.create(
             supportgroup=self.group, author=self.manager, text="Lorem"
         )
         self.create_other_manager()
         self.client.force_login(self.other_manager.role)
         res = self.client.delete(f"/api/groupes/messages/{message.pk}/")
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 204)
 
 
 class GroupMessageCommentAPITestCase(APITestCase):

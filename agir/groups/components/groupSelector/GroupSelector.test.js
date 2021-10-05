@@ -3,7 +3,7 @@
  */
 import React from "react";
 
-import { cleanup, fireEvent, render } from "@testing-library/react";
+import { act, cleanup, fireEvent, render } from "@testing-library/react";
 
 import GroupSelector from "./GroupSelector";
 
@@ -28,7 +28,7 @@ test("GroupSelector dans son état initial", () => {
   // il existe un faux éléments placeholder
   component.getByText("Choisissez un groupe...");
 
-  const input = component.getByRole("textbox"); // input type="text"
+  const input = component.getByRole("combobox");
   expect(input.value).toEqual("");
 
   fireEvent.focus(input);
@@ -43,27 +43,14 @@ test("GroupSelector dans son état initial", () => {
 });
 
 test("Recherche simple dans GroupSelector", async () => {
-  let lastSearch = null;
-  let signalAfterSearch = null;
-
-  const afterSearch = new Promise((resolve) => {
-    signalAfterSearch = resolve;
-  });
-
-  const search = (q) => {
-    lastSearch = q;
-    setImmediate(signalAfterSearch);
-    return Promise.resolve([{ id: "3", name: "Groupe 3" }]);
-  };
-
+  const promise = Promise.resolve([{ id: "3", name: "Groupe 3" }]);
+  const search = jest.fn(() => promise);
   const component = render(<GroupSelector groupChoices={[]} search={search} />);
-
-  const input = component.getByRole("textbox"); // input type="text"
-
+  const input = component.getByRole("combobox");
+  expect(search.mock.calls).toHaveLength(0);
   fireEvent.input(input, { target: { value: "try" } });
-  expect(lastSearch).toEqual("try");
-
-  await afterSearch;
-
+  expect(search.mock.calls).toHaveLength(1);
+  expect(search.mock.calls[0][0]).toEqual("try");
+  await act(() => promise);
   component.getByText("Groupe 3");
 });
