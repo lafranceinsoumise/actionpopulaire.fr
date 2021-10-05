@@ -13,6 +13,7 @@ from functools import partial
 from agir.authentication.tokens import monthly_donation_confirmation_token_generator
 from agir.authentication.utils import soft_login
 from agir.authentication.view_mixins import VerifyLinkSignatureMixin
+from agir.checks import AFCPJLMCheckPaymentMode
 from agir.donations.allocations import create_monthly_donation
 from agir.donations.apps import DonsConfig
 from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
@@ -31,7 +32,7 @@ from agir.payments.actions.subscriptions import (
 )
 from agir.payments.models import Payment, Subscription
 from agir.people.models import Person
-from agir.donations import forms
+from agir.donations import forms, AFCP2022SystemPayPaymentMode
 from agir.donations.form_fields import (
     serialize_allocations,
     deserialize_allocations,
@@ -46,6 +47,7 @@ from agir.donations.tasks import (
 __all__ = (
     "AskAmountView",
     "DonationPersonalInformationView",
+    "Donation2022PersonalInformationView",
     "MonthlyDonationPersonalInformationView",
     "MonthlyDonationEmailSentView",
     "MonthlyDonationEmailConfirmationView",
@@ -183,6 +185,14 @@ class DonationPersonalInformationView(
         self.clear_session()
 
         return redirect_to_payment(payment)
+
+
+class Donation2022PersonalInformationView(BasePersonalInformationView):
+    form_class = forms.AllocationDonorForm
+    template_name = "donations/personal_information_2022.html"
+    payment_modes = [AFCP2022SystemPayPaymentMode, AFCPJLMCheckPaymentMode]
+    session_namespace = DONATION_SESSION_NAMESPACE
+    first_step_url = "donations_2022_amount"
 
 
 class MonthlyDonationPersonalInformationView(

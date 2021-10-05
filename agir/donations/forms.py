@@ -177,12 +177,17 @@ class PaymentModeFormMixin(forms.ModelForm):
         payment_modes=["system_pay", "check_donations"], label="Mode de versement"
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, payment_modes=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.helper.layout.fields.insert(
             self.helper.layout.fields.index("declaration"), "mode"
         )
+        # Allow overriding of default payment mode choices
+        if payment_modes:
+            self.fields["mode"] = PaymentModeField(
+                payment_modes=payment_modes, label="Mode de versement"
+            )
 
 
 class AllocationDonorFormMixin(forms.Form):

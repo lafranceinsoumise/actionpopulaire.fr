@@ -7,7 +7,7 @@ from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url_lazy
 
 TO_LFI = "LFI"
-TO_JLM2022 = "melenchon2022"
+TO_JLM2022 = "2022"
 
 TYPE_SINGLE_TIME = "S"
 TYPE_MONTHLY = "M"
@@ -44,6 +44,8 @@ class CreateDonationSerializer(serializers.Serializer):
         """
         Returns the redirection URL for the next donation step if validation succeeds
         """
+        if data and data["to"] == TO_JLM2022:
+            return front_url_lazy("donation_2022_information", absolute=True)
         if data and data["type"] == TYPE_MONTHLY:
             return front_url_lazy("monthly_donation_information", absolute=True)
         if data and data["type"] == TYPE_SINGLE_TIME:
