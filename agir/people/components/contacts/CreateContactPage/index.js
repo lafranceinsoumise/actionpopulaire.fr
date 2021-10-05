@@ -15,7 +15,7 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 const CreateContactPage = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState(null);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState({});
   const [step, setStep] = useState(0);
 
   const { data: session } = useSWR("/api/session/");
@@ -70,7 +70,10 @@ const CreateContactPage = (props) => {
    * Resets form data and renders the 1st step
    */
   const resetForm = useCallback(() => {
-    setData(null);
+    setData((data) => ({
+      // Reset everything, except the selected group
+      group: data.group,
+    }));
     setStep(0);
   }, []);
 

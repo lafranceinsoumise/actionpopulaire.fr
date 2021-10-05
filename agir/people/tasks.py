@@ -267,9 +267,12 @@ def notify_contact(person_pk, is_new=False):
         "CREATION_DATE": person.created.strftime("%d/%m/%Y"),
         "ACCOUNT_LINK": front_url("contact"),
         "DELETE_LINK": front_url("delete_account"),
+        "login_query": person.get_subscriber_data()["login_query"],
     }
 
-    if is_new:
+    if is_new and person.is_2022:
+        template_code = "NEW_CONTACT_PERSON_2022_SUBSCRIPTION"
+    elif is_new:
         template_code = "NEW_CONTACT_PERSON_SUBSCRIPTION"
     else:
         template_code = "NEW_CONTACT_PERSON_UPDATE"
