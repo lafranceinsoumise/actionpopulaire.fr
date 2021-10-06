@@ -211,9 +211,7 @@ const DesktopGroupPage = (props) => {
               ) : null}
               <GroupLinks {...group} editLinkTo={groupSettingsLinks?.links} />
               <GroupFacts {...group} />
-              {group.routes && group.routes.donations && (
-                <GroupDonation url={group.routes.donations} />
-              )}
+              <GroupDonation {...group} />
             </div>
           </Column>
         </Row>

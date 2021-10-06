@@ -32,7 +32,7 @@ const StyledContainer = styled.div`
   }
 `;
 
-const SecondaryActions = ({ routes, contact }) => {
+const SecondaryActions = ({ id, isCertified, routes, contact }) => {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
 
@@ -50,8 +50,8 @@ const SecondaryActions = ({ routes, contact }) => {
             Contacter
           </Button>
         )}
-        {!!routes?.donations && (
-          <Button type="button" link route={routes.donations}>
+        {isCertified && (
+          <Button type="button" link route="donations" params={{ group: id }}>
             <RawFeatherIcon name="upload" width="1.5rem" height="1.5rem" />
             Financer
           </Button>
@@ -89,6 +89,8 @@ const SecondaryActions = ({ routes, contact }) => {
 };
 
 SecondaryActions.propTypes = {
+  id: PropTypes.string.isRequired,
+  isCertified: PropTypes.bool,
   routes: PropTypes.object,
   contact: PropTypes.shape({
     email: PropTypes.string,

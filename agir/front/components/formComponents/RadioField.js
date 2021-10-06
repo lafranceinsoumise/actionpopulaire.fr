@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-
 const StyledOptionLabel = styled.span``;
 const StyledBox = styled.span``;
 
@@ -12,7 +10,7 @@ const StyledOption = styled.label`
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
-  font-size: 1rem;
+  font-size: ${({ $small }) => ($small ? "0.875rem" : "1rem")};
   line-height: 1.5;
   cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
   margin-bottom: 0;
@@ -35,47 +33,51 @@ const StyledOption = styled.label`
     border-radius: 100%;
     border-style: solid;
     border-width: 1px;
-    border-color: ${({ $checked, $disabled }) => {
-      if ($checked && $disabled) {
-        return style.primary150;
+    border-color: ${(props) => {
+      if (props.$checked && props.$disabled) {
+        return props.theme.primary150;
       }
-      if ($checked) {
-        return style.primary500;
+      if (props.$checked) {
+        return props.theme.primary500;
       }
-      if ($disabled) {
-        return style.black200;
+      if (props.$disabled) {
+        return props.theme.black200;
       }
-      return style.black1000;
+      return props.theme.black1000;
     }};
-    background: ${({ $checked, $disabled }) => {
-      if ($checked && $disabled) {
-        return `radial-gradient(circle, ${style.primary150} 4px, ${style.white} 5px, ${style.white} 6px, ${style.primary150} 7px)`;
+    background: ${(props) => {
+      if (props.$checked && props.$disabled) {
+        return `radial-gradient(circle, ${props.theme.primary150} 4px, ${props.theme.white} 5px, ${props.theme.white} 6px, ${props.theme.primary150} 7px)`;
       }
-      if ($checked) {
-        return `radial-gradient(circle, ${style.primary500} 4px, ${style.white} 5px, ${style.white} 6px, ${style.primary500} 7px)`;
+      if (props.$checked) {
+        return `radial-gradient(circle, ${props.theme.primary500} 4px, ${props.theme.white} 5px, ${props.theme.white} 6px, ${props.theme.primary500} 7px)`;
       }
-      if ($disabled) {
-        return style.black100;
+      if (props.$disabled) {
+        return props.theme.black100;
       }
-      return style.white;
+      return props.theme.white;
     }};
     transition: all 100ms ease-in;
   }
 
   &:hover ${StyledBox} {
     ${({ $checked, $disabled }) =>
-      !$disabled && !$checked ? `background: ${style.black50};` : ""};
+      !$disabled && !$checked
+        ? `background: ${(props) => props.theme.black50};`
+        : ""};
   }
 
   input:focus + ${StyledBox} {
-    box-shadow: ${({ $disabled }) =>
-      !$disabled ? `0 0 0 4px ${style.primary100}` : "none"};
+    box-shadow: ${(props) =>
+      !props.$disabled ? `0 0 0 4px ${props.theme.primary100}` : "none"};
   }
 
   ${StyledOptionLabel} {
+    padding-top: ${({ $small }) => ($small ? ".1rem" : "0")};
     flex: 1 1 auto;
     font-weight: 400;
-    color: ${({ $disabled }) => ($disabled ? style.black500 : style.black1000)};
+    color: ${(props) =>
+      props.$disabled ? props.theme.black500 : props.theme.black1000};
   }
 `;
 
@@ -109,7 +111,7 @@ const StyledField = styled.div`
 
   ${StyledError} {
     display: ${({ $invalid }) => ($invalid ? "flex" : "none")};
-    color: ${style.redNSP};
+    color: ${(props) => props.theme.redNSP};
   }
 `;
 
@@ -123,6 +125,7 @@ const RadioField = (props) => {
     error,
     helpText,
     disabled,
+    small,
     ...rest
   } = props;
 
@@ -150,6 +153,7 @@ const RadioField = (props) => {
             htmlFor={option.value}
             $checked={value === option.value}
             $disabled={disabled}
+            $small={small}
           >
             <input
               {...rest}
@@ -183,6 +187,7 @@ RadioField.propTypes = {
   disabled: PropTypes.bool,
   error: PropTypes.string,
   helpText: PropTypes.string,
+  small: PropTypes.bool,
 };
 
 export default RadioField;

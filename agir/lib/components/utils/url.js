@@ -1,7 +1,7 @@
 export const parseURL = (url) =>
   new URL(url, window.location && window.location.origin);
 
-export const addQueryStringParams = (url, params = {}) => {
+export const addQueryStringParams = (url, params = {}, relative = false) => {
   if (!url) {
     return "";
   }
@@ -18,7 +18,11 @@ export const addQueryStringParams = (url, params = {}) => {
     Object.entries(params).forEach(([key, value]) => {
       parsedURL.searchParams.set(key, value);
     });
-    return parsedURL.toString();
+    parsedURL = parsedURL.toString();
+    if (window?.location && relative) {
+      parsedURL = parsedURL.replace(window.location.origin, "");
+    }
+    return parsedURL;
   } catch (e) {
     return url;
   }

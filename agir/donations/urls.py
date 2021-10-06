@@ -4,16 +4,25 @@ from . import views
 
 
 urlpatterns = [
-    path("dons/", views.AskAmountView.as_view(), name="donation_amount"),
     path(
         "dons/informations/",
         views.DonationPersonalInformationView.as_view(),
         name="donation_information",
     ),
     path(
+        "2022/dons/informations/",
+        views.Donation2022PersonalInformationView.as_view(),
+        name="donation_2022_information",
+    ),
+    path(
         "dons-mensuels/informations/",
         views.MonthlyDonationPersonalInformationView.as_view(),
         name="monthly_donation_information",
+    ),
+    path(
+        "2022/dons-mensuels/informations/",
+        views.MonthlyDonation2022PersonalInformationView.as_view(),
+        name="monthly_donation_2022_information",
     ),
     path(
         "dons-mensuels/deja-donateur/",
@@ -59,5 +68,9 @@ urlpatterns = [
         "financement/requete/<uuid:spending_request_id>/document/<int:pk>/supprimer/",
         views.DeleteDocumentView.as_view(),
         name="delete_document",
+    ),
+    # API views
+    path(
+        "api/dons/", views.CreateDonationAPIView.as_view(), name="api_create_donation",
     ),
 ]
