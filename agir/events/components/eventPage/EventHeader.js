@@ -262,14 +262,14 @@ const AdditionalMessage = ({ isOrganizer, logged, rsvped, price }) => {
       <div>
         <ActionLink
           route="login"
-          params={{ from: "event", next: location.pathname }}
+          state={{ from: "event", next: location.pathname }}
         >
           Je me connecte
         </ActionLink>{" "}
         ou{" "}
         <ActionLink
           route="signup"
-          params={{ from: "event", next: location.pathname }}
+          state={{ from: "event", next: location.pathname }}
         >
           je m'inscris
         </ActionLink>{" "}

@@ -5,23 +5,34 @@ import Card from "./GroupPageCard";
 import Button from "@agir/front/genericComponents/Button";
 
 const GroupFacts = (props) => {
-  const { url } = props;
+  const { id, isCertified } = props;
 
-  return url ? (
+  if (!isCertified) {
+    return null;
+  }
+
+  return (
     <Card title="Financez les actions du groupe">
       <p>
         Pour que ce groupe puisse financer ses frais de fonctionnement et
         s’équiper en matériel, vous pouvez contribuer financièrement.
       </p>
       <p>Chaque euro compte.</p>
-      <Button href={url} link color="secondary" style={{ marginTop: "0.5rem" }}>
+      <Button
+        route="donations"
+        params={{ group: id }}
+        link
+        color="secondary"
+        style={{ marginTop: "0.5rem" }}
+      >
         Faire un don
       </Button>
     </Card>
-  ) : null;
+  );
 };
 
 GroupFacts.propTypes = {
-  url: PropTypes.string,
+  id: PropTypes.string.isRequired,
+  isCertified: PropTypes.bool,
 };
 export default GroupFacts;

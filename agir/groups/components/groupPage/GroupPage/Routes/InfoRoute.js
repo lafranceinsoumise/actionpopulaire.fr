@@ -53,9 +53,7 @@ const MobileInfoRoute = (props) => {
       <GroupLinks {...group} editLinkTo={groupSettingsLinks?.links} />
       <GroupFacts {...group} />
       <GroupLocation {...group} groupSettingsLinks={groupSettingsLinks} />
-      {group.routes && group.routes.donations && (
-        <GroupDonation url={group.routes.donations} />
-      )}
+      <GroupDonation {...group} />
       <StyledShareCard>
         <ShareCard
           url={group.routes?.details}
