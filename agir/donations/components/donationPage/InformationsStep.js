@@ -15,27 +15,42 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import CountryField from "@agir/front/formComponents/CountryField";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
-const STextField = styled(TextField)``;
+const BlockFields = styled.div``;
+
+const StyledPostalCodeTextField = styled(TextField)`
+  max-width: 160px;
+  width: 160px;
+  @media (min-width: ${style.collapse}px) {
+    margin-right: 130px;
+  }
+`;
 
 const StyledForm = styled.form`
-  @media (min-width: ${style.collapse}px) {
-    label {
-      display: flex;
-      flex: 0 1;
-      align-items: center;
-      span {
-        width: 160px;
-      }
-      input {
-        flex: 1;
-        width: 100%;
+  ${BlockFields} {
+    @media (min-width: ${style.collapse}px) {
+      label {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        > span:nth-of-type(1) {
+          width: 160px;
+        }
+        input {
+          flex-grow: 1;
+          flex-basis: 300px;
+          width: 100%;
+        }
+
+        > span:nth-of-type(2) {
+          flex-basis: 196px;
+          padding: 0;
+        }
+        > span:nth-of-type(3) {
+          flex-grow: 1;
+          flex-basis: 40px;
+        }
       }
     }
-  }
-
-  ${STextField} {
-    display: flex;
-    background-color: orange;
   }
 `;
 
@@ -101,111 +116,119 @@ export const InformationsStep = ({
     }));
   };
 
+  // Submit with payment_mode
+  const handleSubmit = (e, value) => {
+    setFormData({ ...formData, payment_mode: value }, () => {
+      onSubmit(e);
+    });
+  };
+
   return (
     <StyledForm onSubmit={onSubmit}>
-      <TextField
-        id="email"
-        name="email"
-        label="Adresse e-mail*"
-        onChange={handleChange}
-        value={formData.email}
-        error={errors?.email}
-        helpText={(!isDesktop && helpEmail) || ""}
-      />
-      <Hide under as={StyledDescription}>
-        {helpEmail}
-      </Hide>
-
-      <Spacer size="1rem" />
-
-      <GroupedFields>
+      <BlockFields>
         <TextField
-          id="first_name"
-          name="first_name"
-          label="Prénom*"
+          id="email"
+          name="email"
+          label="Adresse e-mail*"
           onChange={handleChange}
-          value={formData.first_name}
-          error={errors?.first_name}
+          value={formData.email}
+          error={errors?.email}
+          helpText={(!isDesktop && helpEmail) || ""}
+        />
+        <Hide under as={StyledDescription}>
+          {helpEmail}
+        </Hide>
+
+        <Spacer size="1rem" />
+
+        <GroupedFields>
+          <TextField
+            id="first_name"
+            name="first_name"
+            label="Prénom*"
+            onChange={handleChange}
+            value={formData.first_name}
+            error={errors?.first_name}
+          />
+          <Spacer size="1rem" />
+          <TextField
+            id="last_name"
+            name="last_name"
+            label="Nom de famille*"
+            onChange={handleChange}
+            value={formData.last_name}
+            error={errors?.last_name}
+          />
+        </GroupedFields>
+        <Spacer size="1rem" />
+
+        <CountryField
+          label="Nationalité*"
+          name="nationality"
+          placeholder=""
+          value={formData.nationality}
+          onChange={handleChangeNationality}
+          error={errors?.nationality}
+          helpText={(!isDesktop && helpNationality) || ""}
+        />
+        <Hide under as={StyledDescription}>
+          {helpNationality}
+        </Hide>
+        <Spacer size="1rem" />
+
+        <TextField
+          label="Adresse*"
+          name="location_address1"
+          value={formData.location_address1}
+          onChange={handleChange}
+          error={errors?.location_address1}
         />
         <Spacer size="1rem" />
-        <TextField
-          id="last_name"
-          name="last_name"
-          label="Nom de famille*"
-          onChange={handleChange}
-          value={formData.last_name}
-          error={errors?.last_name}
-        />
-      </GroupedFields>
-      <Spacer size="1rem" />
 
-      <CountryField
-        label="Nationalité*"
-        name="nationality"
-        placeholder=""
-        value={formData.nationality}
-        onChange={handleChangeNationality}
-        error={errors?.nationality}
-        helpText={(!isDesktop && helpNationality) || ""}
-      />
-      <Hide under as={StyledDescription}>
-        {helpNationality}
-      </Hide>
-      <Spacer size="1rem" />
-
-      <TextField
-        label="Adresse*"
-        name="address"
-        value={formData.address}
-        onChange={handleChange}
-        error={errors?.address}
-      />
-      <Spacer size="1rem" />
-
-      <GroupedFields>
-        <TextField
-          label="Code postal*"
-          name="location_zip"
-          value={formData.location_zip}
-          onChange={handleChange}
-          error={errors?.location_zip}
-          style={{ maxWidth: "160px", width: "160px" }}
+        <GroupedFields>
+          <StyledPostalCodeTextField
+            label="Code postal*"
+            name="location_zip"
+            value={formData.location_zip}
+            onChange={handleChange}
+            error={errors?.location_zip}
+          />
+          <Spacer size="1rem" />
+          <TextField
+            label="Ville*"
+            name="location_city"
+            value={formData.location_city}
+            onChange={handleChange}
+            error={errors?.location_city}
+            style={{ width: "100%" }}
+          />
+        </GroupedFields>
+        <Spacer size="1rem" />
+        <CountryField
+          label="Pays*"
+          name="location_country"
+          placeholder=""
+          value={formData.location_country}
+          onChange={handleChangeCountry}
+          error={errors?.location_country}
         />
         <Spacer size="1rem" />
-        <TextField
-          label="Ville*"
-          name="location_city"
-          value={formData.location_city}
-          onChange={handleChange}
-          error={errors?.location_city}
-          style={{ width: "100%" }}
-        />
-      </GroupedFields>
-      <Spacer size="1rem" />
-      <CountryField
-        label="Pays*"
-        name="location_country"
-        placeholder=""
-        value={formData.location_country}
-        onChange={handleChangeCountry}
-        error={errors?.location_country}
-      />
-      <Spacer size="1rem" />
 
-      <TextField
-        id="contact_phone"
-        name="contact_phone"
-        label="Téléphone*"
-        onChange={handleChange}
-        value={formData.contact_phone}
-        error={errors?.phone}
-        style={{ maxWidth: "370px" }}
-        helpText={(!isDesktop && helpPhone) || ""}
-      />
-      <Hide under as={StyledDescription}>
-        {helpPhone}
-      </Hide>
-      <Spacer size="1rem" />
+        <TextField
+          id="contact_phone"
+          name="contact_phone"
+          label="Téléphone*"
+          onChange={handleChange}
+          value={formData.contact_phone}
+          error={errors?.contact_phone}
+          style={{ maxWidth: "370px" }}
+          helpText={(!isDesktop && helpPhone) || ""}
+        />
+        <Hide under as={StyledDescription}>
+          {helpPhone}
+        </Hide>
+        <Spacer size="1rem" />
+      </BlockFields>
 
       <CheckboxField
         name="consent_certification"
@@ -234,7 +257,11 @@ export const InformationsStep = ({
       </p>
       <Spacer size="1rem" />
 
-      <StepButton type="submit" disabled={isLoading}>
+      <StepButton
+        type="submit"
+        disabled={isLoading}
+        onClick={(e) => handleSubmit(e, "system_pay")}
+      >
         <span>
           <strong>Suivant</strong>
           <br />
@@ -255,7 +282,13 @@ export const InformationsStep = ({
       >
         ou
         <Spacer size="1rem" />
-        <Button>Envoyer un chèque</Button>
+        {/* <Button onClick={handleSubmit} disabled={isLoading}>Envoyer un chèque</Button> */}
+        <Button
+          onClick={(e) => handleSubmit(e, "check_donation")}
+          disabled={isLoading}
+        >
+          Envoyer un chèque
+        </Button>
       </div>
       <Spacer size="1rem" />
       <hr />

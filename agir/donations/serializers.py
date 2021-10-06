@@ -5,6 +5,7 @@ from rest_framework import serializers
 from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url_lazy
+from agir.lib.serializers import PhoneField
 
 TO_LFI = "LFI"
 TO_JLM2022 = "melenchon2022"
@@ -59,4 +60,29 @@ class CreateDonationSerializer(serializers.Serializer):
                     for allocation in validated_data.get("allocations", [])
                 ]
             )
+        return validated_data
+
+
+class SendDonationSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+    first_name = serializers.CharField(max_length=255)
+    last_name = serializers.CharField(max_length=255)
+    contact_phone = PhoneField(
+        label="Numéro de téléphone du contact", required=True, max_length=30,
+    )
+    nationality = serializers.CharField(max_length=100)
+    location_address1 = serializers.CharField(max_length=100)
+    location_city = serializers.CharField(max_length=100)
+    location_zip = serializers.CharField(max_length=20)
+    location_country = serializers.CharField(max_length=100)
+
+    subscribed_lfi = serializers.BooleanField(required=False)
+
+    payment_mode = serializers.CharField(max_length=20)
+
+    def create(self, validated_data):
+        # Get allocations, amount, to, type
+        # session = self.context["request"].session
+        # session[DONATION_SESSION_NAMESPACE]
         return validated_data

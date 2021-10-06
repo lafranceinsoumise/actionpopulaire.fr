@@ -70,6 +70,10 @@ const StyledAmountInformations = styled.div`
   }
 `;
 
+// Return string from @amount in cents in string format. Example : 3050 => 30,5€
+const displayAmount = (amount) =>
+  parseInt(amount / 100) + "," + (amount % 100) + "€";
+
 const DonationPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -108,8 +112,8 @@ const DonationPage = () => {
     type: "S",
     allocations: [],
     // informations
-    email: "",
-    first_name: "",
+    email: session.user?.email || "",
+    first_name: session.user?.firstName || "",
     last_name: "",
     contact_phone: "",
     nationality: "FR",
@@ -120,23 +124,23 @@ const DonationPage = () => {
     // checkboxes
     subscribed_lfi: false,
     consent_certification: false,
+    // mode
+    payment_mode: "system_pay",
   });
 
   const amount = formData.amount;
   const groupAmount =
     Array.isArray(formData?.allocations) && formData.allocations[0]?.amount;
   const nationalAmount = amount - groupAmount;
-  const amountString = parseInt(amount / 100) + "," + (amount % 100);
-  const groupAmountString =
-    parseInt(groupAmount / 100) + "," + (groupAmount % 100);
-  const nationalAmountString =
-    parseInt(nationalAmount / 100) + "," + (nationalAmount % 100);
+  const amountString = displayAmount(amount);
+  const groupAmountString = displayAmount(groupAmount);
+  const nationalAmountString = displayAmount(nationalAmount);
 
   const handleAmountSubmit = useCallback(async (data) => {
     setIsLoading(true);
     setErrors({});
 
-    const { data: result, errors: apiErrors } = await api.createDonation(data);
+    const { data: result, error } = await api.createDonation(data);
 
     setFormData({
       ...formData,
@@ -145,9 +149,9 @@ const DonationPage = () => {
     setShowModal(true);
     setIsLoading(false);
 
-    if (apiErrors) {
+    if (error) {
       setErrors({
-        amount: apiErrors || "Une erreur est survenue. Veuillez ressayer.",
+        amount: error?.amount || "Une erreur est survenue. Veuillez ressayer.",
       });
       return;
     }
@@ -168,13 +172,13 @@ const DonationPage = () => {
       return;
     }
 
-    const { data: result, errors: apiErrors } = await api.sendDonation(
-      formData
-    );
+    const { data, error } = await api.sendDonation(formData);
+
+    console.log("Send donations result", data);
 
     setIsLoading(false);
-    if (apiErrors) {
-      setErrors(apiErrors);
+    if (error) {
+      setErrors(error);
       return;
     }
   };
@@ -196,7 +200,7 @@ const DonationPage = () => {
 
         <Modal shouldShow={showModal} onClose={closeModal}>
           <ModalContainer>
-            <Title>Je donne {amountString}€ euros</Title>
+            <Title>Je donne {amountString}</Title>
             <Breadcrumb>
               <div onClick={closeModal}>1. Montant</div>
               <RawFeatherIcon name="chevron-right" width="1rem" height="1rem" />
@@ -210,14 +214,14 @@ const DonationPage = () => {
             {groupPk && (
               <>
                 <StyledAmountInformations>
-                  Je fais un don de <b>{amountString}€</b> qui sera réparti :
+                  Je fais un don de <b>{amountString}</b> qui sera réparti :
                   <br />
                   <ul>
                     <li>
-                      <b>{groupAmountString}€</b> pour le groupe {group?.name}
+                      <b>{groupAmountString}</b> pour le groupe {group?.name}
                     </li>
                     <li>
-                      <b>{nationalAmountString}€</b> pour les activités
+                      <b>{nationalAmountString}</b> pour les activités
                       nationales
                     </li>
                   </ul>
