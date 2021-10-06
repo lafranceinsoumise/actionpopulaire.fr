@@ -38,7 +38,7 @@ const AnonymousActions = () => {
         link
         color="success"
         route="login"
-        params={{
+        state={{
           from: "group",
           next: location.pathname,
         }}
@@ -51,7 +51,7 @@ const AnonymousActions = () => {
         $block
         link
         route="login"
-        params={{
+        state={{
           from: "group",
           next: location.pathname,
         }}

@@ -64,6 +64,9 @@ const MessagePage = lazy(() => import("@agir/msgs/MessagePage/MessagePage"));
 const CreateContactPage = lazy(() =>
   import("@agir/people/contacts/CreateContactPage")
 );
+const DonationPage = lazy(() =>
+  import("@agir/donations/donationPage/DonationPage")
+);
 
 export const BASE_PATH = "/";
 
@@ -414,6 +417,19 @@ export const routeConfig = {
     Component: CreateContactPage,
     hasLayout: false,
     hideFooter: true,
+  }),
+  donations: new RouteConfig({
+    id: "donations",
+    path: "/:type?/dons/",
+    params: { type: null },
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Dons",
+    Component: DonationPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    hideTopBar: true,
   }),
 };
 

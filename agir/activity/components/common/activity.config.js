@@ -153,10 +153,10 @@ const ACTIVITY_CONFIG = {
   "waiting-location-event": {
     icon: "alert-circle",
     action: ({ event }) =>
-      event?.routes?.manage
+      event?.id
         ? {
-            href: event.routes.manage,
-            label: "Mettre à jour",
+            to: routeConfig.eventSettings.getLink({ eventPk: event.id }),
+            label: "Voir",
           }
         : null,
   },
