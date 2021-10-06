@@ -8,7 +8,6 @@ import SecondaryActions from "./SecondaryActions";
 import QuitGroupDialog from "./QuitGroupDialog";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 
 import * as api from "@agir/groups/groupPage/api";
@@ -54,7 +53,7 @@ const ConnectedUserActions = (props) => {
   const history = useHistory();
   const sendToast = useToast();
 
-  const modalJoinDismiss = !!contact?.email ? "Non merci" : "Ok !";
+  const modalJoinDismiss = contact?.email ? "Non merci" : "Ok !";
 
   const joinGroup = useCallback(async () => {
     setIsLoading(true);
@@ -72,7 +71,7 @@ const ConnectedUserActions = (props) => {
       isActiveMember: true,
     }));
     setIsOpenModalJoin(true);
-  }, [history, sendToast, id, name]);
+  }, [history, id]);
 
   const followGroup = useCallback(async () => {
     setIsLoading(true);
@@ -87,7 +86,7 @@ const ConnectedUserActions = (props) => {
       isActiveMember: false,
     }));
     setIsOpenModalFollow(true);
-  }, [id, name, sendToast]);
+  }, [id]);
 
   const quitGroup = useCallback(async () => {
     setIsLoading(true);
@@ -202,6 +201,7 @@ const ConnectedUserActions = (props) => {
 ConnectedUserActions.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  contact: PropTypes.object,
   isMember: PropTypes.bool,
   isActiveMember: PropTypes.bool,
   routes: PropTypes.shape({

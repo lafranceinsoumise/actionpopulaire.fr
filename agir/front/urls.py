@@ -16,7 +16,7 @@ supportgroup_settings_patterns = [
     path(
         "gestion/contacts/",
         views.BaseAppHardAuthView.as_view(),
-        name="view_group_settings_contacts",
+        name="view_group_settings_followers",
     ),
     path(
         "gestion/animation/",

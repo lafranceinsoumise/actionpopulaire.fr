@@ -94,13 +94,20 @@ const StyledWrapper = styled.div`
 `;
 
 const ManagerActions = (props) => {
-  const { groupSettingsLinks, routes } = props;
+  const { id, groupSettingsLinks, routes } = props;
 
   return (
     <StyledWrapper>
       <StyledPanel>
         <h6>Gestion du groupe</h6>
-        <Button link route="createEvent" color="primary" icon="plus" small>
+        <Button
+          link
+          route="createEvent"
+          params={{ group: id }}
+          color="primary"
+          icon="plus"
+          small
+        >
           Créer un événement du groupe
         </Button>
         <ul>
@@ -113,6 +120,17 @@ const ManagerActions = (props) => {
                 name="users"
               />
               <Link to={groupSettingsLinks.members}>Membres</Link>
+            </li>
+          )}
+          {groupSettingsLinks?.contacts && (
+            <li>
+              <RawFeatherIcon
+                small
+                inline
+                color={style.primary500}
+                name="rss"
+              />
+              <Link to={groupSettingsLinks.contacts}>Contacts</Link>
             </li>
           )}
           {groupSettingsLinks?.general && (
@@ -176,6 +194,7 @@ const ManagerActions = (props) => {
 };
 
 ManagerActions.propTypes = {
+  id: PropTypes.string.isRequired,
   routes: PropTypes.object,
   groupSettingsLinks: PropTypes.object,
 };

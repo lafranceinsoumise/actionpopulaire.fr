@@ -272,6 +272,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             routes["members"] = front_url(
                 "view_group_settings_members", kwargs={"pk": obj.pk}
             )
+            routes["followers"] = front_url(
+                "view_group_settings_followers", kwargs={"pk": obj.pk}
+            )
             routes["membershipTransfer"] = front_url(
                 "transfer_group_members", kwargs={"pk": obj.pk}
             )
