@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
-import styled from "styled-components";
+import React from "react";
+import styled, { keyframes } from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -7,14 +8,82 @@ import Link from "@agir/front/app/Link";
 
 import { ICONS, getIconDataUrl } from "./utils";
 
+const spinner = keyframes`
+  0% {
+    transform: rotate(0turn);
+    stroke-dashoffset: 0.662em;
+  }
+  50% {
+    transform: rotate(2turn);
+    stroke-dashoffset: 3.138em;
+  }
+  100% {
+    transform: rotate(3turn);
+    stroke-dashoffset: 0.662em;
+  }
+`;
+
+export const ButtonLoader = styled.i
+  .withConfig({
+    shouldForwardProp: (prop) => ["loading", "theme"].includes(prop) === false,
+  })
+  .attrs((attrs) => ({
+    ...attrs,
+    children: (
+      <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="8" r="7" />
+      </svg>
+    ),
+  }))`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  background-color: inherit;
+  z-index: ${({ loading }) => (loading ? 1 : -1)};
+
+  & > svg {
+    opacity: ${({ loading }) => (loading ? 1 : 0)};
+    transition: opacity, width, height 150ms ease-in-out;
+    width: ${({ loading }) => (loading ? 1 : 0)}em;
+    height: ${({ loading }) => (loading ? 1 : 0)}em;
+
+    circle {
+        fill: transparent;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-dasharray: 3.138em;
+        transform-origin: center center;
+        animation-name: ${({ loading }) => (loading ? spinner : "none")};
+        animation-iteration-count: infinite;
+        animation-easing-function: linear;
+        animation-direction: forwards;
+        animation-duration: 3s;
+    }
+  }
+
+  & + span {
+    transition: opacity 250ms ease-in-out;
+    opacity: ${({ loading }) => (loading ? 0 : 1)};
+  }
+`;
+
 export const BaseButton = styled.button
   .withConfig({
     shouldForwardProp: (prop) =>
-      ["link", "small", "block", "wrap"].includes(prop) === false,
+      ["loading", "link", "small", "block", "wrap"].includes(prop) === false,
   })
-  .attrs(({ link, as, ...rest }) => ({
+  .attrs(({ link, as, loading, children, ...rest }) => ({
     ...rest,
     as: link ? Link : as,
+    children: (
+      <>
+        <ButtonLoader loading={loading} />
+        <span>{children}</span>
+      </>
+    ),
   }))`
   margin: 0;
   justify-content: center;
@@ -23,6 +92,7 @@ export const BaseButton = styled.button
   font-weight: 500;
   border: 1px solid;
   cursor: pointer;
+  position: relative;
 
   white-space: ${({ wrap }) => (wrap ? "normal" : "nowrap")};
   text-overflow: ${({ wrap }) => (wrap ? "inherit" : "ellipsis")};
@@ -68,7 +138,13 @@ export const BaseButton = styled.button
   }
 
   & > * {
-    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    & > * {
+      flex: 0 0 auto;
+    }
   }
 }}
 `;
@@ -79,6 +155,7 @@ BaseButton.propTypes = {
   small: PropTypes.bool,
   block: PropTypes.bool,
   wrap: PropTypes.bool,
+  loading: PropTypes.bool,
   icon: PropTypes.string,
 };
 BaseButton.defaultProps = {
@@ -87,6 +164,7 @@ BaseButton.defaultProps = {
   small: false,
   block: false,
   wrap: false,
+  loading: false,
 };
 
 export default BaseButton;

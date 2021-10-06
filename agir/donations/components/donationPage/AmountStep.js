@@ -150,13 +150,8 @@ const StyledMain = styled.main`
   form {
     ${StepButton} {
       margin: 0 auto;
-      width: 100%;
       max-width: 400px;
       height: 80px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: 0 4.5rem;
 
       & > span {
@@ -311,7 +306,12 @@ const AmountStep = (props) => {
               {!isLoading && error ? (
                 <StyledErrorMessage>{error}</StyledErrorMessage>
               ) : null}
-              <StepButton type="submit" disabled={!amount || isLoading}>
+              <StepButton
+                block
+                type="submit"
+                disabled={!amount || isLoading}
+                loading={isLoading}
+              >
                 <span>
                   <strong>Suivant</strong>
                   <br />
