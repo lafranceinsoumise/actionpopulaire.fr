@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import useSWR from "swr";
 
@@ -12,7 +11,7 @@ import ContactSuccess from "./ContactSuccess";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
-const CreateContactPage = (props) => {
+const CreateContactPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const [data, setData] = useState({});
