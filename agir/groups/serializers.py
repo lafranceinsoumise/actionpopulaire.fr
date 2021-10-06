@@ -413,7 +413,7 @@ class SupportGroupUpdateSerializer(serializers.ModelSerializer):
 
 class MembershipSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    displayName = serializers.CharField(source="person.display_name", read_only=True)
+    displayName = serializers.SerializerMethodField(read_only=True)
     email = serializers.EmailField(source="person.email", read_only=True)
     image = serializers.ImageField(source="person.image", read_only=True)
     gender = serializers.CharField(source="person.gender", read_only=True)
@@ -424,6 +424,12 @@ class MembershipSerializer(serializers.ModelSerializer):
         source="personal_information_sharing_consent", read_only=True
     )
     hasGroupNotifications = serializers.SerializerMethodField(read_only=True)
+
+    def get_displayName(self, membership):
+        if membership.personal_information_sharing_consent:
+            return membership.person.get_full_name()
+
+        return membership.person.display_name
 
     def get_hasGroupNotifications(self, membership):
         return membership.subscription_set.exists()
