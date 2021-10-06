@@ -66,6 +66,9 @@ const MapFooter = styled.div`
   align-items: center;
   justify-content: space-around;
   height: 82px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 `;
 
 const StyledActionButtons = styled.div`
