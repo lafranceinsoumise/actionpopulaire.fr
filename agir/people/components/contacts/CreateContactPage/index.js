@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useParams, useHistory } from "react-router-dom";
 import useSWR from "swr";
 
+import { routeConfig } from "@agir/front/app/routes.config";
 import { validateContact, createContact } from "./api";
 
 import { Banner, BackButton, PageContent } from "./StyledComponents";
@@ -11,11 +13,16 @@ import ContactSuccess from "./ContactSuccess";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
+const STEPS = [null, "valider", "succes"];
+
 const CreateContactPage = () => {
+  const history = useHistory();
+  const params = useParams();
+
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const [data, setData] = useState({});
-  const [step, setStep] = useState(0);
+  const step = Math.max(STEPS.indexOf(params?.step), 0);
 
   const { data: session } = useSWR("/api/session/");
   const { data: userGroups } = useSWR("/api/groupes/");
@@ -31,18 +38,21 @@ const CreateContactPage = () => {
    * success and display field errors upon failure.
    * @type {object}   The form field data object
    */
-  const submitForm = useCallback(async (formData) => {
-    setIsLoading(true);
-    setErrors({});
-    const result = await validateContact(formData);
-    setIsLoading(false);
-    if (result.errors || !result.valid) {
-      setErrors(result.errors);
-      return;
-    }
-    setData(formData);
-    setStep(1);
-  }, []);
+  const submitForm = useCallback(
+    async (formData) => {
+      setIsLoading(true);
+      setErrors({});
+      const result = await validateContact(formData);
+      setIsLoading(false);
+      if (result.errors || !result.valid) {
+        setErrors(result.errors);
+        return;
+      }
+      setData(formData);
+      history.push(routeConfig.createContact.getLink({ step: STEPS[1] }));
+    },
+    [history]
+  );
 
   /**
    * Handles submission of the contact form data for actually creating the
@@ -55,26 +65,19 @@ const CreateContactPage = () => {
     setIsLoading(false);
     if (result.errors) {
       setErrors(result.errors);
-      setStep(1);
+      history.push(routeConfig.createContact.getLink({ step: STEPS[0] }));
       return;
     }
-    setStep(2);
-  }, [data]);
-
-  const goBack = useCallback(() => {
-    setStep((step) => Math.max(0, step - 1));
-  }, []);
-
-  /**
-   * Resets form data and renders the 1st step
-   */
-  const resetForm = useCallback(() => {
+    history.replace(routeConfig.createContact.getLink({ step: STEPS[2] }));
+    // Reset everything, except the selected group
     setData((data) => ({
-      // Reset everything, except the selected group
       group: data.group,
     }));
-    setStep(0);
-  }, []);
+  }, [data, history]);
+
+  const goToFirstStep = useCallback(() => {
+    history.push(routeConfig.createContact.getLink({ step: STEPS[0] }));
+  }, [history]);
 
   useEffect(() => {
     typeof window !== "undefined" && window.scrollTo({ top: 0 });
@@ -112,19 +115,19 @@ const CreateContactPage = () => {
           )}
           {step === 1 && (
             <>
-              <BackButton disabled={isLoading} onClick={goBack} />
+              <BackButton disabled={isLoading} onClick={goToFirstStep} />
               <ConfirmContact
                 isLoading={isLoading}
                 data={data}
                 onConfirm={confirmData}
-                onBack={goBack}
+                onBack={goToFirstStep}
               />
             </>
           )}
           {step === 2 && (
             <>
-              <BackButton onClick={resetForm} />
-              <ContactSuccess data={data} user={user} onReset={resetForm} />
+              <BackButton onClick={goToFirstStep} />
+              <ContactSuccess data={data} user={user} onReset={goToFirstStep} />
             </>
           )}
         </PageFadeIn>
@@ -132,5 +135,4 @@ const CreateContactPage = () => {
     </div>
   );
 };
-
 export default CreateContactPage;

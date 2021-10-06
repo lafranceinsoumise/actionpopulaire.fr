@@ -221,6 +221,16 @@ urlpatterns = [
         name="user_message_details.notification_settings",
     ),
     path("contacts/creer/", views.BaseAppSoftAuthView.as_view(), name="create_contact"),
+    path(
+        "contacts/creer/valider/",
+        RedirectView.as_view(pattern_name="create_contact", permanent=True),
+        name="create_contact_validation",
+    ),
+    path(
+        "contacts/creer/succes/",
+        RedirectView.as_view(pattern_name="create_contact", permanent=True),
+        name="create_contact_success",
+    ),
     # old urls
     re_path("^old(.*)$", views.NBUrlsView.as_view(), name="old_urls"),
 ]

@@ -407,7 +407,8 @@ export const routeConfig = {
   }),
   createContact: new RouteConfig({
     id: "createContact",
-    path: "/contacts/creer/",
+    path: "/contacts/creer/:step?/",
+    params: { step: null },
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Nouveau contact",
