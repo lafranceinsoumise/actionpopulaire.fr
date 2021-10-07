@@ -151,7 +151,7 @@ const ConfirmPanel = (props) => {
       <>
         <BackButton disabled={isLoading} onClick={onBack} />
         <StyledTitle>
-          Passer {selectedMember.displayName} en gestionnaire&nbsp;?
+          Retirer à {selectedMember.displayName} le droit de gestionnaire&nbsp;?
         </StyledTitle>
         <Spacer size="0.5rem" />
         <StyledContent>

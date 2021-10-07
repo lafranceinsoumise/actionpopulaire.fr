@@ -189,7 +189,7 @@ const GroupMember = (props) => {
       {typeof onClick === "function" ? (
         <RawFeatherIcon name="arrow-right" />
       ) : (
-        <Spacer size={`2rem`} />
+        <Spacer size="2rem" />
       )}
     </Member>
   );

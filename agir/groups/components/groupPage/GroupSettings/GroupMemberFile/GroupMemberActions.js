@@ -84,22 +84,7 @@ const GroupMemberFacts = (props) => {
     );
   }
 
-  switch (currentMembershipType) {
-    case MEMBERSHIP_TYPES.MEMBER:
-      return (
-        <StyledWrapper>
-          <h4>Modifier les droits</h4>
-        </StyledWrapper>
-      );
-    case MEMBERSHIP_TYPES.MANAGER:
-      return (
-        <StyledWrapper>
-          <h4>Modifier les droits</h4>
-        </StyledWrapper>
-      );
-    default:
-      return null;
-  }
+  return null;
 };
 
 GroupMemberFacts.propTypes = {
