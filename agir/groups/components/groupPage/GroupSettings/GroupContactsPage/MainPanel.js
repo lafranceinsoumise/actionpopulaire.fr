@@ -3,6 +3,7 @@ import React, { Fragment, useMemo } from "react";
 
 import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 
+import Button from "@agir/front/genericComponents/Button";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
@@ -35,8 +36,15 @@ const GroupContactsMainPanel = (props) => {
 
   return (
     <>
-      <StyledTitle>
-        {followers.length}&nbsp; Contact{followers.length > 1 ? "s" : ""}
+      <StyledTitle
+        css={`
+          display: flex;
+          align-items: center;
+        `}
+      >
+        {`${followers.length || ""} Contact${
+          followers.length === 1 ? "" : "s"
+        }`.trim()}
       </StyledTitle>
       <p
         css={`
@@ -46,15 +54,36 @@ const GroupContactsMainPanel = (props) => {
       >
         Toutes les personnes intéressées par votre groupe.
       </p>
-      <Spacer size="1rem" />
-      <ShareLink
-        label="Copier les e-mails"
-        color="primary"
-        url={emails}
-        $wrap
-      />
-      <Spacer size="1.5rem" />
-      <GroupMemberList members={followers} onClickMember={onClickMember} />
+      {emails ? (
+        <>
+          <Spacer size="1rem" />
+          <ShareLink
+            label="Copier les e-mails"
+            color="primary"
+            url={emails}
+            $wrap
+          />
+        </>
+      ) : null}
+      {followers.length > 0 ? (
+        <>
+          <Spacer size="1.5rem" />
+          <GroupMemberList members={followers} onClickMember={onClickMember} />
+        </>
+      ) : (
+        <>
+          <Spacer size="1.5rem" />
+          <p>
+            Vous n’avez pas encore de contact !
+            <Spacer size="0.5rem" />
+            Obtenez des contacts pour la campagne et pour votre groupe d’action.
+          </p>
+          <Spacer size=".5rem" />
+          <Button link icon="user-plus" route="createContact" color="secondary">
+            Ajouter un contact
+          </Button>
+        </>
+      )}
       <Spacer size="2rem" />
       <footer
         css={`

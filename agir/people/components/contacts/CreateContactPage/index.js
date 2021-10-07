@@ -3,6 +3,8 @@ import { useParams, useHistory } from "react-router-dom";
 import useSWR from "swr";
 
 import { routeConfig } from "@agir/front/app/routes.config";
+import { useDispatch } from "@agir/front/globalContext/GlobalContext";
+import { setBackLink } from "@agir/front/globalContext/actions";
 import { validateContact, createContact } from "./api";
 
 import { Banner, BackButton, PageContent } from "./StyledComponents";
@@ -16,6 +18,7 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 const STEPS = [null, "valider", "succes"];
 
 const CreateContactPage = () => {
+  const dispatch = useDispatch();
   const history = useHistory();
   const params = useParams();
 
@@ -82,6 +85,16 @@ const CreateContactPage = () => {
   useEffect(() => {
     typeof window !== "undefined" && window.scrollTo({ top: 0 });
   }, [step]);
+
+  useEffect(() => {
+    step > 0
+      ? dispatch(
+          setBackLink({
+            to: routeConfig.createContact.getLink({ step: STEPS[0] }),
+          })
+        )
+      : null;
+  }, [dispatch, step]);
 
   return (
     <div>
