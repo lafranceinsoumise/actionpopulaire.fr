@@ -397,6 +397,9 @@ EMAIL_SECRETARIAT = os.environ.get("EMAIL_SECRETARIAT", "nospam@lafranceinsoumis
 EMAIL_EQUIPE_FINANCE = os.environ.get(
     "EMAIL_EQUIPE_FINANCE", "nospam@lafranceinsoumise.fr"
 )
+EMAIL_FROM_MELENCHON_2022 = os.environ.get(
+    "EMAIL_FROM_MELENCHON_2022", "Mélenchon 2022 <nepasrepondre@noussommespour.fr>"
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

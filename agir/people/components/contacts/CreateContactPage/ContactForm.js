@@ -13,7 +13,6 @@ import TextField from "@agir/front/formComponents/TextField";
 
 import HowTo from "./HowTo";
 import NoGroupCard from "./NoGroupCard";
-import { StepTitle } from "./StyledComponents";
 
 const NEWSLETTER_2022_LIAISON = "2022_liaison";
 
@@ -56,7 +55,7 @@ const scrollToError = (errors) => {
     return;
   }
   const keys = Object.entries(errors)
-    .filter(([key, value]) => Boolean(value))
+    .filter(([_, value]) => Boolean(value))
     .map(([key]) => key);
   let scrollTarget = null;
   for (let i = 0; keys[0] && !scrollTarget; i += 1) {
@@ -104,6 +103,20 @@ export const ContactForm = (props) => {
     setData((state) => ({
       ...state,
       [name]: checked,
+    }));
+  }, []);
+
+  const handleCheckIs2022 = useCallback((e) => {
+    const { checked } = e.target;
+    setData((state) => ({
+      ...state,
+      is2022: checked,
+      newsletters: checked
+        ? state.newsletters
+        : state.newsletters.filter((nl) => nl !== NEWSLETTER_2022_LIAISON),
+      address: checked ? state.address : undefined,
+      city: checked ? state.city : undefined,
+      country: checked ? state.country : undefined,
     }));
   }, []);
 
@@ -261,7 +274,7 @@ export const ContactForm = (props) => {
       </h4>
       <CheckboxField
         label="Je veux compter dans les soutiens"
-        onChange={handleCheck}
+        onChange={handleCheckIs2022}
         value={data.is2022}
         id="is2022"
         name="is2022"
@@ -334,27 +347,31 @@ export const ContactForm = (props) => {
           />
         </>
       )}
-      <Spacer size="1.5rem" />
-      <h4>
-        Souhaitez-vous devenir correspondant·e pour votre immeuble ou votre
-        rue&nbsp;?
-      </h4>
-      <p>
-        <em>
-          &laquo;&nbsp;Nous vous enverrons des informations et du matériel pour
-          diffuser nos propositions et inciter vos voisins à aller voter pour
-          tout changer en 2022&nbsp;&raquo;
-        </em>
-      </p>
-      <Spacer size=".5rem" />
-      <CheckboxField
-        label="Devenir correspondant·e de l'immeuble ou de la rue"
-        onChange={handleCheckNewsletter}
-        value={data.newsletters.includes(NEWSLETTER_2022_LIAISON)}
-        id={NEWSLETTER_2022_LIAISON}
-        name={NEWSLETTER_2022_LIAISON}
-        disabled={isLoading}
-      />
+      {data.is2022 ? (
+        <>
+          <Spacer size="1.5rem" />
+          <h4>
+            Souhaitez-vous devenir correspondant·e pour votre immeuble ou votre
+            rue&nbsp;?
+          </h4>
+          <p>
+            <em>
+              &laquo;&nbsp;Nous vous enverrons des informations et du matériel
+              pour diffuser nos propositions et inciter vos voisins à aller
+              voter pour tout changer en 2022&nbsp;&raquo;
+            </em>
+          </p>
+          <Spacer size=".5rem" />
+          <CheckboxField
+            label="Devenir correspondant·e de l'immeuble ou de la rue"
+            onChange={handleCheckNewsletter}
+            value={data.newsletters.includes(NEWSLETTER_2022_LIAISON)}
+            id={NEWSLETTER_2022_LIAISON}
+            name={NEWSLETTER_2022_LIAISON}
+            disabled={isLoading}
+          />
+        </>
+      ) : null}
       {data.newsletters.includes(NEWSLETTER_2022_LIAISON) && (
         <>
           <Spacer data-scroll="address" size="1rem" />
