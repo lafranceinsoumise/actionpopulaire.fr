@@ -30,16 +30,19 @@ const ModalContainer = styled.div`
     height: 100%;
     overflow-y: scroll;
     margin: 0;
+    padding: 24px;
   }
 `;
 
 const Title = styled.h1`
   font-size: 28px;
+  margin: 0;
 `;
 
 const Breadcrumb = styled.div`
   display: flex;
   align-items: center;
+  margin-top: 1rem;
 
   @media (max-width: ${style.collapse}px) {
     font-size: 11px;

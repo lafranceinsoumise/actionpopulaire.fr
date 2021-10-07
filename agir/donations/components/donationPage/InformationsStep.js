@@ -115,7 +115,6 @@ export const InformationsStep = ({
   setFormData,
   isLoading,
 }) => {
-  const isDesktop = useIsDesktop();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -295,6 +294,14 @@ export const InformationsStep = ({
         déduire cette somme de mes impôts dans les limites fixées par la loi.
       </p>
       <Spacer size="1rem" />
+
+      {!!Object.values(errors).filter(v => !!v).length && ( <>
+        <Toast style={{ marginTop: "0.5rem" }}>
+          Des erreurs sont présentes dans le formulaire, veuillez les résoudre avant de l'envoyer
+        </Toast>
+        <Spacer size="1rem" />
+        </>
+      )}
 
       <StepButton
         type="submit"
