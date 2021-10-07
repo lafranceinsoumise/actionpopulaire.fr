@@ -115,7 +115,6 @@ export const InformationsStep = ({
   setFormData,
   isLoading,
 }) => {
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setErrors((error) => ({ ...error, [name]: null }));
@@ -295,11 +294,13 @@ export const InformationsStep = ({
       </p>
       <Spacer size="1rem" />
 
-      {!!Object.values(errors).filter(v => !!v).length && ( <>
-        <Toast style={{ marginTop: "0.5rem" }}>
-          Des erreurs sont présentes dans le formulaire, veuillez les résoudre avant de l'envoyer
-        </Toast>
-        <Spacer size="1rem" />
+      {!!Object.values(errors).filter((v) => !!v).length && (
+        <>
+          <Toast style={{ marginTop: "0.5rem" }}>
+            Des erreurs sont présentes dans le formulaire, veuillez les résoudre
+            avant de l'envoyer
+          </Toast>
+          <Spacer size="1rem" />
         </>
       )}
 
