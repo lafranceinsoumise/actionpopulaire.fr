@@ -24,5 +24,6 @@
   "charteEquipes": "https://infos.actionpopulaire.fr/charte-des-groupes-action-populaire/",
   "facebookLogin": "/connexion/social/login/facebook/",
   "campaignEventDocumentHelp": "https://infos.actionpopulaire.fr/documents-comptes-de-campagne/",
-  "materiel": "https://materiel.lafranceinsoumise.fr/"
+  "materiel": "https://materiel.lafranceinsoumise.fr/",
+  "publicMeetingRequestForm": "https://actionpopulaire.fr/formulaires/demande-de-reunion-publique-2022/"
 }
