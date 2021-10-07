@@ -144,6 +144,11 @@ const EventForm = () => {
     }));
   }, []);
 
+  const updateCampaignFunding = useCallback((value) => {
+    setCampaignFunding(value);
+    !!value && setErrors((state) => ({ ...state, campaignFunding: undefined }));
+  }, []);
+
   useEffect(() => {
     if (formData.contact.isDefault && formData.organizerGroup) {
       const contact = formData.organizerGroup.contact
@@ -239,7 +244,12 @@ const EventForm = () => {
     async (e) => {
       e.preventDefault();
       setErrors({});
-      const errors = validateData(formData);
+      let errors = validateData(formData);
+      if (!campaignFunding) {
+        errors = errors || {};
+        errors.campaignFunding =
+          "Confirmez ces informations pour créer l'événement";
+      }
       if (errors) {
         setErrors(errors);
         scrollToError(errors);
@@ -260,7 +270,7 @@ const EventForm = () => {
       }
       setNewEventPk(result.data.id);
     },
-    [formData, scrollToError]
+    [campaignFunding, formData, scrollToError]
   );
 
   useEffect(() => {
@@ -407,24 +417,20 @@ const EventForm = () => {
       </fieldset>
       <Spacer size="2rem" />
       <CampaignFundingField
-        onChange={setCampaignFunding}
+        onChange={updateCampaignFunding}
         disabled={isLoading}
         groupPk={formData?.organizerGroup?.id}
         isCertified={!!formData?.organizerGroup?.isCertified}
         isPrivate={formData?.subtype?.type === "G"}
         needsDocuments={!!formData?.subtype?.needsDocuments}
         endTime={formData?.endTime}
+        error={errors?.campaignFunding}
       />
       <Spacer size="1rem" />
       {errors && errors.global && (
         <StyledGlobalError>{errors.global}</StyledGlobalError>
       )}
-      <Button
-        disabled={!campaignFunding || isLoading}
-        type="submit"
-        color="secondary"
-        block
-      >
+      <Button disabled={isLoading} type="submit" color="secondary" block>
         Créer l'événement
       </Button>
       <p
