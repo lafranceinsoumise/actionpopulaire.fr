@@ -155,9 +155,13 @@ const GroupMemberCard = (props) => {
             <FeatherIcon small name="clock" />
             &ensp;
             {membershipType === MEMBERSHIP_TYPES.FOLLOWER
-              ? `Contact ajouté ${timeAgo(created, "day").split(" à ")[0]}
+              ? `Contact ${subscriber ? "ajouté" : "depuis"} ${
+                  timeAgo(created, "day").split(" à ")[0]
+                }
             ${subscriber ? ` par ${subscriber}` : ""}`
-              : `Membre depuis ${timeAgo(created, "day").split(" à ")[0]}`}
+              : `Membre du groupe depuis ${
+                  timeAgo(created, "day").split(" à ")[0]
+                }`}
           </span>
         </p>
       </div>
