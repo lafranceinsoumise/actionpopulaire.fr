@@ -34,11 +34,12 @@ const StyledCard = styled.div`
 
     h4 {
       display: flex;
+      flex-flow: row wrap;
+      gap: 0.5rem 1rem;
       align-items: center;
       margin: 0;
 
       small {
-        margin-left: 1rem;
         font-weight: 400;
         font-size: 0.875rem;
         line-height: 0;
@@ -64,12 +65,13 @@ const StyledCard = styled.div`
       line-height: 1.5;
       margin: 0;
       display: flex;
-      gap: 1rem;
+      flex-flow: row wrap;
+      gap: 0.5rem 1rem;
       align-items: center;
 
       & > span {
         display: inline-flex;
-        align-items: center;
+        align-items: baseline;
 
         svg {
           color: ${(props) => props.theme.black500};
