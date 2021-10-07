@@ -111,7 +111,7 @@ const MobilePanel = (props) => {
         <StyledSubPanel style={shouldAnimate.current > 1 ? style : undefined}>
           <Switch location={item}>
             {routes.map((route) => (
-              <Route key={route.id} path={route.getLink()} exact>
+              <Route key={route.id} path={route.path} exact={route.exact}>
                 <ManagementPanel>
                   <Suspense fallback={null}>
                     <route.Component
