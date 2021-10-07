@@ -188,7 +188,7 @@ class DonationPersonalInformationView(
         return redirect_to_payment(payment)
 
 
-class Donation2022PersonalInformationView(BasePersonalInformationView):
+class Donation2022PersonalInformationView(DonationPersonalInformationView):
     form_class = forms.AllocationDonorForm
     template_name = "donations/personal_information_2022.html"
     payment_modes = [AFCP2022SystemPayPaymentMode, AFCPJLMCheckPaymentMode]

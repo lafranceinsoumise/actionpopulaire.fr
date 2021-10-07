@@ -35,6 +35,16 @@ class MailLinkMiddleware:
             link_url=link_url,
         )
 
+    @staticmethod
+    def get_already_connected_extra_tags(current_user, link_user, link_url):
+        name = (
+            link_user.person.first_name
+            if link_user.person.first_name
+            else link_user.person.display_name
+        )
+        email = link_user.person.email
+        return ",".join(["LOGGED_IN_TO_SOFT_LOGIN_CONNECTION", name, email, link_url])
+
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -48,6 +58,8 @@ class MailLinkMiddleware:
         del other_params["code"]
         if "force_login" in other_params:
             del other_params["force_login"]
+        if "from_message" in other_params:
+            del other_params["from_message"]
 
         url = (
             "{}?{}".format(request.path, other_params.urlencode(safe="/"))
@@ -61,6 +73,7 @@ class MailLinkMiddleware:
 
         force_login = request.GET.get("force_login")
         no_session = request.GET.get("no_session")
+        from_message = request.GET.get("from_message")
 
         if no_session:
             if link_user:
@@ -77,18 +90,26 @@ class MailLinkMiddleware:
             # session var used for external members joining a group or an event
             request.session["login_action"] = datetime.utcnow().timestamp()
 
-            messages.add_message(
-                request=request,
-                level=messages.WARNING,
-                message=self.get_just_connected_message(link_user),
-                extra_tags="ANONYMOUS_TO_SOFT_LOGIN_CONNECTION",
-            )
+            if not from_message:
+                messages.add_message(
+                    request=request,
+                    level=messages.WARNING,
+                    message=self.get_just_connected_message(link_user),
+                    extra_tags="ANONYMOUS_TO_SOFT_LOGIN_CONNECTION",
+                )
         elif request.user != link_user:
             # we have a link_user, but current user is already logged in: we show a warning offering to connect with
             # link_user anyway
             params = request.GET.copy()
+
             params["force_login"] = "yes"
             link_url = "{}?{}".format(request.path, params.urlencode(safe="/"))
+
+            # Add a `from_message` parameter to avoid falling in the previous condition
+            params["from_message"] = "yes"
+            extra_tags_link_url = "{}?{}".format(
+                request.path, params.urlencode(safe="/")
+            )
 
             messages.add_message(
                 request=request,
@@ -96,7 +117,9 @@ class MailLinkMiddleware:
                 message=self.get_already_connected_message(
                     request.user, link_user, link_url
                 ),
-                extra_tags="LOGGED_IN_TO_SOFT_LOGIN_CONNECTION",
+                extra_tags=self.get_already_connected_extra_tags(
+                    request.user, link_user, extra_tags_link_url
+                ),
             )
 
         return HttpResponseRedirect(url)

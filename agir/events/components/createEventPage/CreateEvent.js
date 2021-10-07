@@ -127,13 +127,13 @@ const InfoBlock = (props) => (
         Besoin d'idées d'événements&nbsp;?
       </Link>
       <Spacer size="0.5rem" />
-      <a
-        href="https://infos.actionpopulaire.fr/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <Link route="help" target="_blank" rel="noopener noreferrer">
         Consulter le centre d'aide
-      </a>
+      </Link>
+      <Spacer size="0.5rem" />
+      <Link route="publicMeetingRequestForm">
+        Organiser une réunion publique
+      </Link>
     </p>
   </StyledInfoBlock>
 );

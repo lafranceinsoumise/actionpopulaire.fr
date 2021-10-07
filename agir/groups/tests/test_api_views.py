@@ -982,7 +982,6 @@ class MemberPersonalInformationAPITestCase(APITestCase):
             "firstName",
             "lastName",
             "gender",
-            "image",
             "phone",
             "address",
             "is2022",

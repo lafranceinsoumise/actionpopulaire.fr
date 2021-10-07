@@ -51,7 +51,7 @@ export const Default = Template.bind({});
 Default.args = {
   id: "12345",
   displayName: "JJJ",
-  firstName: "Jane",
+  firstName: "Jane Alice",
   lastName: "Doe",
   gender: "O",
   image: "https://www.fillmurray.com/200/200",

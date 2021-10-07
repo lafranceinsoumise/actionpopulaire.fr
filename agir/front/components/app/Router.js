@@ -17,7 +17,11 @@ import { useAuthentication } from "@agir/front/authentication/hooks";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { useAppLoader, useDownloadBanner } from "@agir/front/app/hooks";
+import {
+  useAppLoader,
+  useMobileApp,
+  useDownloadBanner,
+} from "@agir/front/app/hooks";
 
 import TopBar from "@agir/front/allPages/TopBar/TopBar";
 import Footer from "@agir/front/app/Footer";
@@ -75,32 +79,38 @@ ProtectedComponent.propTypes = {
 };
 
 const Router = ({ children }) => {
+  const { isMobileApp } = useMobileApp();
   const [isBannerDownload] = useDownloadBanner();
 
   return (
     <BrowserRouter basename={BASE_PATH}>
       <ScrollMemory />
       <Switch>
-        {routes.map((route) => (
-          <Route key={route.id} path={route.path} exact={!!route.exact}>
-            {!route.hideTopBar && <TopBar />}
-            {!route.hideTopBar && isBannerDownload && <Spacer size="80px" />}
-            {!route.hideConnectivityWarning && (
-              <ConnectivityWarning hasTopBar={!route.hideTopBar} />
-            )}
-            <ProtectedComponent
-              Component={route.Component}
-              AnonymousComponent={route.AnonymousComponent}
-              route={route}
-            />
-            {!route.hideFooter && (
-              <Footer
-                hideBanner={route.hideFooterBanner}
-                displayOnMobileApp={route.displayFooterOnMobileApp}
+        {routes.map((route) => {
+          const hasTopBar =
+            !route.hideTopBar && (!route.appOnlyTopBar || isMobileApp);
+          return (
+            <Route key={route.id} path={route.path} exact={!!route.exact}>
+              {hasTopBar && <TopBar />}
+              {hasTopBar && isBannerDownload && <Spacer size="80px" />}
+              {!route.hideConnectivityWarning && (
+                <ConnectivityWarning hasTopBar={hasTopBar} />
+              )}
+              <ProtectedComponent
+                Component={route.Component}
+                AnonymousComponent={route.AnonymousComponent}
+                route={route}
+                hasTopBar={hasTopBar}
               />
-            )}
-          </Route>
-        ))}
+              {!route.hideFooter && (
+                <Footer
+                  hideBanner={route.hideFooterBanner}
+                  displayOnMobileApp={route.displayFooterOnMobileApp}
+                />
+              )}
+            </Route>
+          );
+        })}
         <Route key="not-found">
           <NotFoundPage />
         </Route>

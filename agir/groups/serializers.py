@@ -557,7 +557,6 @@ class MemberPersonalInformationSerializer(serializers.ModelSerializer):
             "firstName",
             "lastName",
             "gender",
-            "image",
             "phone",
             "address",
             "is2022",

@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import React from "react";
 
 import { GlobalContextProvider } from "@agir/front/globalContext/GlobalContext";
@@ -13,9 +12,6 @@ export default function App() {
     <SWRContext>
       <GlobalContextProvider hasRouter hasToasts>
         <Router>
-          <Helmet>
-            <title>Action Populaire</title>
-          </Helmet>
           <PushModal isActive />
         </Router>
       </GlobalContextProvider>

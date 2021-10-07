@@ -430,7 +430,7 @@ export const routeConfig = {
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
-    hideTopBar: true,
+    appOnlyTopBar: true,
   }),
 };
 
