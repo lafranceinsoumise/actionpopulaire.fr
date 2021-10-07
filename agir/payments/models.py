@@ -91,7 +91,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
 
     def get_mode_display(self):
         return (
-            PAYMENT_MODES[self.mode].label if self.mode in PAYMENT_MODES else self.mode
+            PAYMENT_MODES[self.mode].title if self.mode in PAYMENT_MODES else self.mode
         )
 
     get_mode_display.short_description = "Mode de paiement"

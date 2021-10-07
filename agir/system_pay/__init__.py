@@ -20,7 +20,7 @@ class AbstractSystemPayPaymentMode(AbstractPaymentMode):
 
     id = None
     url_fragment = None
-    label = None
+    label = "Par carte"
     category = "payment_card"
 
     sp_config = {
@@ -112,6 +112,7 @@ class SystemPayPaymentMode(AbstractSystemPayPaymentMode):
     id = "system_pay"
     url_fragment = "carte"
     label = _("Par carte bleue")
+    title = "Paiement par carte bleue à l'AF LFI"
 
     sp_config = {
         "site_id": settings.SYSTEMPAY_SITE_ID,
