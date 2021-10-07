@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
+import Helmet from "react-helmet";
 import useSWR from "swr";
 
 import Skeleton from "@agir/front/genericComponents/Skeleton";
@@ -8,6 +9,7 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import AmountStep from "./AmountStep";
 
 import { createDonation } from "./api";
+import CONFIG from "./config";
 
 const DonationPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -50,19 +52,31 @@ const DonationPage = () => {
   }, []);
 
   return (
-    <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
-      <AmountStep
-        type={type}
-        group={group && group.isCertified ? group : null}
-        hasGroups={
-          Array.isArray(userGroups?.groups) &&
-          userGroups.groups.some((group) => group.isCertified)
-        }
-        isLoading={isLoading}
-        error={error}
-        onSubmit={handleSubmit}
-      />
-    </PageFadeIn>
+    <>
+      <Helmet>
+        <title>{CONFIG[type]?.title || CONFIG.default.title}</title>
+      </Helmet>
+      <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
+        <AmountStep
+          type={type}
+          maxAmount={CONFIG[type]?.maxAmount || CONFIG.default.maxAmount}
+          maxAmountWarning={
+            CONFIG[type]?.maxAmountWarning || CONFIG.default.maxAmountWarning
+          }
+          externalLinkRoute={
+            CONFIG[type]?.externalLinkRoute || CONFIG.default.externalLinkRoute
+          }
+          group={group && group.isCertified ? group : null}
+          hasGroups={
+            Array.isArray(userGroups?.groups) &&
+            userGroups.groups.some((group) => group.isCertified)
+          }
+          isLoading={isLoading}
+          error={error}
+          onSubmit={handleSubmit}
+        />
+      </PageFadeIn>
+    </>
   );
 };
 

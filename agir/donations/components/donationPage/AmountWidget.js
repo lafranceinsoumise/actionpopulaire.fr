@@ -26,7 +26,8 @@ const StyledTaxReduction = styled.p`
   padding: 1rem;
   margin: 1rem 0 2rem;
   border-radius: ${(props) => props.theme.borderRadius};
-  border: 1px solid ${(props) => props.theme.black200};
+  border: 1px solid
+    ${(props) => (props.error ? props.theme.redNSP : props.theme.black200)};
   font-weight: 500;
 
   span {
@@ -39,12 +40,13 @@ const StyledTaxReduction = styled.p`
   }
 
   ${RawFeatherIcon}, strong {
-    color: ${(props) => props.theme.green500};
+    color: ${(props) =>
+      props.error ? props.theme.redNSP : props.theme.green500};
   }
 
   strong {
     font-weight: 600;
-    box-shadow: inset 0 -2px ${(props) => props.theme.green500};
+    box-shadow: inset 0 -2px ${(props) => (props.error ? props.theme.redNSP : props.theme.green500)};
   }
 `;
 
@@ -59,6 +61,8 @@ const StyledAmountWidget = styled.div`
 const AmountWidget = (props) => {
   const {
     amount,
+    maxAmount,
+    maxAmountWarning,
     groupPercentage,
     byMonth,
     onChangeAmount,
@@ -125,12 +129,18 @@ const AmountWidget = (props) => {
             min="0"
             step="1"
             value={customAmount ? customAmount / 100 : ""}
+            max={maxAmount ? maxAmount / 100 : undefined}
             onChange={updateCustomAmount}
             disabled={disabled}
           />
         </StyledButtonLabel>
       </StyledAmountGrid>
-      {amount ? (
+      {amount && amount > maxAmount ? (
+        <StyledTaxReduction error>
+          <RawFeatherIcon name="alert-triangle" />
+          {maxAmountWarning}
+        </StyledTaxReduction>
+      ) : amount ? (
         <StyledTaxReduction>
           <RawFeatherIcon name="arrow-right" />
           <span>
@@ -157,6 +167,8 @@ const AmountWidget = (props) => {
 
 AmountWidget.propTypes = {
   amount: PropTypes.number,
+  maxAmount: PropTypes.number,
+  maxAmountWarning: PropTypes.node,
   groupPercentage: PropTypes.number,
   byMonth: PropTypes.bool,
   onChangeAmount: PropTypes.func.isRequired,

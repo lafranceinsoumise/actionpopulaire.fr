@@ -47,6 +47,7 @@ Default.args = {
   block: false,
   wrap: false,
   disabled: false,
+  loading: false,
   children: "Click me!",
 };
 
@@ -84,4 +85,10 @@ export const BlockButton = Template.bind({});
 BlockButton.args = {
   ...Default.args,
   block: true,
+};
+
+export const Loading = Template.bind({});
+Loading.args = {
+  ...Default.args,
+  loading: true,
 };
