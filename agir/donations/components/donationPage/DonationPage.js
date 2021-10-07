@@ -59,6 +59,9 @@ const DonationPage = () => {
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <AmountStep
           type={type}
+          externalLinkRoute={
+            CONFIG[type]?.externalLinkRoute || CONFIG.default.externalLinkRoute
+          }
           group={group && group.isCertified ? group : null}
           hasGroups={
             Array.isArray(userGroups?.groups) &&

@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import CONFIG from "./config";
 
+import AppLink from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
@@ -12,13 +13,14 @@ import { Link, StepButton, Theme } from "./StyledComponents";
 
 import acceptedPaymentMethods from "./images/accepted-payment-methods.svg";
 
-const StyledLogo = styled.div`
-  margin: 0 -1.5rem;
+const StyledLogo = styled(Link)`
+  display: block;
   width: calc(100% + 3rem);
-  padding: 0 1.5rem;
-  margin-bottom: 1rem;
+  padding: 1rem 1.5rem;
+  margin: -1rem -1.5rem 0;
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
+    margin: 0 -1.5rem 1rem;
     padding: 1rem;
     border-bottom: 1px solid ${(props) => props.theme.black100};
   }
@@ -208,7 +210,15 @@ const StyledPage = styled.div`
 `;
 
 const AmountStep = (props) => {
-  const { isLoading, type, hasGroups, group, onSubmit, error } = props;
+  const {
+    isLoading,
+    type,
+    externalLinkRoute,
+    hasGroups,
+    group,
+    onSubmit,
+    error,
+  } = props;
 
   const [amount, setAmount] = useState(0);
   const [byMonth, setByMonth] = useState(false);
@@ -240,7 +250,14 @@ const AmountStep = (props) => {
         <StyledIllustration aria-hidden="true" />
         <StyledBody>
           <StyledMain>
-            <StyledLogo aria-hidden="true" />
+            <StyledLogo
+              alt={`Logo ${
+                type === "2022" ? "Mélenchon 2022" : "la France insoumise"
+              }`}
+              route={externalLinkRoute}
+              rel="noopener noreferrer"
+              target="_blank"
+            />
             {!hasGroup && hasGroups ? (
               <StyledGroupLink>
                 <RawFeatherIcon name="share" />
@@ -351,6 +368,7 @@ AmountStep.propTypes = {
   hasGroups: PropTypes.bool,
   group: PropTypes.object,
   type: PropTypes.oneOf(Object.keys(CONFIG)),
+  externalLinkRoute: PropTypes.string,
   isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
   error: PropTypes.string,
