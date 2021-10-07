@@ -9,6 +9,7 @@ import donLFIBGD from "./images/Don_FI_BG_D.jpg";
 import donLFIBGM from "./images/Don_FI_BG_M.jpg";
 
 const melenchon2022 = {
+  title: "Faire un don - Mélenchon 2022",
   theme: {
     default: style,
     logo: logoJLM2022,
@@ -30,6 +31,7 @@ const melenchon2022 = {
 };
 
 const LFI = {
+  title: "Faire un don - La France insoumise",
   theme: {
     default: style,
     logo: logoLFI,
