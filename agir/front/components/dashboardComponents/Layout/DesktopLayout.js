@@ -64,7 +64,7 @@ const Layout = (props) => {
             <h4 style={{ margin: "0 0 .5rem" }}>Mes actions</h4>
             <ActionButtons />
           </div>
-          {events ? (
+          {Array.isArray(events) && events.length > 0 ? (
             <div style={{ margin: "0 0 2rem" }}>
               <h4 style={{ lineHeight: 1.5, margin: "0 0 .5rem" }}>
                 Mes événements prévus
