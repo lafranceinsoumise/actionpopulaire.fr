@@ -40,7 +40,7 @@ const StyledErrorMessage = styled.p`
   text-align: center;
   font-weight: 500;
   color: ${(props) => props.theme.redNSP};
-  padding-bottom: 1rem;
+  padding-bottom: 2rem;
 `;
 
 const LegalParagraph = styled.p`
@@ -218,6 +218,8 @@ const AmountStep = (props) => {
     group,
     onSubmit,
     error,
+    maxAmount,
+    maxAmountWarning,
   } = props;
 
   const [amount, setAmount] = useState(0);
@@ -225,6 +227,7 @@ const AmountStep = (props) => {
   const [groupPercentage, setGroupPercentage] = useState();
 
   const hasGroup = !!group?.id;
+  const hasSubmit = !isLoading && amount && amount <= maxAmount;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -262,7 +265,7 @@ const AmountStep = (props) => {
               <StyledGroupLink>
                 <RawFeatherIcon name="share" />
                 <span>
-                  <strong>Pour faire un don fléché</strong> vers votre groupe
+                  <strong>Pour faire un don alloué</strong> vers votre groupe
                   d'action certifié, utilisez le bouton "financer" dans{" "}
                   <Link route="groups">la page de votre groupe</Link>
                 </span>
@@ -271,7 +274,7 @@ const AmountStep = (props) => {
             <h2>Faire un don</h2>
             {type !== "2022" ? (
               <h4>
-                À la France insoumise (faire un don à{" "}
+                à la France insoumise (faire un don à{" "}
                 <Link route="donations" routeParams={{ type: "2022" }}>
                   Mélenchon 2022
                 </Link>
@@ -285,7 +288,7 @@ const AmountStep = (props) => {
                 <StyledGroup>
                   <RawFeatherIcon name="arrow-right-circle" />
                   <span>
-                    Financement des actions du groupe
+                    Dons alloués vers le groupe
                     <strong>{group.name}</strong>
                   </span>
                 </StyledGroup>
@@ -312,6 +315,8 @@ const AmountStep = (props) => {
               <AmountWidget
                 disabled={isLoading}
                 amount={amount}
+                maxAmount={maxAmount}
+                maxAmountWarning={maxAmountWarning}
                 byMonth={byMonth}
                 groupPercentage={hasGroup ? groupPercentage : undefined}
                 onChangeAmount={setAmount}
@@ -326,7 +331,7 @@ const AmountStep = (props) => {
               <StepButton
                 block
                 type="submit"
-                disabled={!amount || isLoading}
+                disabled={!hasSubmit}
                 loading={isLoading}
               >
                 <span>
@@ -372,6 +377,8 @@ AmountStep.propTypes = {
   isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
   error: PropTypes.string,
+  maxAmount: PropTypes.number,
+  maxAmountWarning: PropTypes.node,
 };
 
 export default AmountStep;

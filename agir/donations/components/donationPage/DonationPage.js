@@ -59,6 +59,10 @@ const DonationPage = () => {
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <AmountStep
           type={type}
+          maxAmount={CONFIG[type]?.maxAmount || CONFIG.default.maxAmount}
+          maxAmountWarning={
+            CONFIG[type]?.maxAmountWarning || CONFIG.default.maxAmountWarning
+          }
           externalLinkRoute={
             CONFIG[type]?.externalLinkRoute || CONFIG.default.externalLinkRoute
           }
