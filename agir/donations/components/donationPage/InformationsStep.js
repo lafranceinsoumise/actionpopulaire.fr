@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 import { StepButton } from "./StyledComponents";
 import styled from "styled-components";
@@ -15,8 +16,6 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import CountryField from "@agir/front/formComponents/CountryField";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
-const BlockFields = styled.div``;
-
 const StyledPostalCodeTextField = styled(TextField)`
   max-width: 160px;
   width: 160px;
@@ -25,41 +24,10 @@ const StyledPostalCodeTextField = styled(TextField)`
   }
 `;
 
-const StyledForm = styled.form`
-  ${BlockFields} {
-    @media (min-width: ${style.collapse}px) {
-      label {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        > span:nth-of-type(1) {
-          width: 160px;
-        }
-        input {
-          flex-grow: 1;
-          flex-basis: 300px;
-          width: 100%;
-        }
-
-        > span:nth-of-type(2) {
-          flex-basis: 196px;
-          padding: 0;
-        }
-        > span:nth-of-type(3) {
-          flex-grow: 1;
-          flex-basis: 40px;
-        }
-      }
-    }
-  }
-`;
-
 const StyledDescription = styled.div`
-  margin-left: 174px;
+  margin-left: 168px;
   font-size: 13px;
-  margin-top: 4px;
   @media (max-width: ${style.collapse}px) {
-    margin-top: 0;
     margin-bottom: 4px;
     margin-left: 0;
   }
@@ -77,12 +45,67 @@ const GroupedFields = styled.div`
   }
 `;
 
+const StyledCustomField = styled.div`
+  @media (min-width: ${style.collapse}px) {
+    display: flex;
+    align-items: center;
+    > label:first-of-type {
+      width: 160px;
+      margin: 0;
+      margin-right: 4px;
+    }
+    > label:nth-of-type(2) {
+      flex-grow: 1;
+    }
+  }
+`;
+
 const helpEmail =
   "Si vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou melenchon2022.fr, utilisez l'adresse avec laquelle vous êtes inscrit·e";
 const helpNationality =
   "Si double nationalité dont française : indiquez France";
 const helpPhone =
   "Nous sommes dans l'obligation de pouvoir vous contacter en cas de demande de vérification par la CNCCFP.";
+
+const CustomField = ({
+  Component,
+  noSpacer = false,
+  id,
+  label,
+  helpText,
+  ...rest
+}) => {
+  const isDesktop = useIsDesktop();
+
+  return (
+    <>
+      <StyledCustomField htmlFor={id}>
+        <Hide under as="label">
+          {label}
+        </Hide>
+        <Component
+          {...rest}
+          label={(!isDesktop && label) || ""}
+          helpText={(!isDesktop && helpText) || ""}
+        />
+      </StyledCustomField>
+      {!!helpText && (
+        <Hide under as={StyledDescription}>
+          {helpText}
+        </Hide>
+      )}
+      {!noSpacer && <Spacer size="0.5rem" />}
+    </>
+  );
+};
+
+CustomField.propTypes = {
+  Component: PropTypes.elementType.isRequired,
+  id: PropTypes.oneOf(["number", "string"]),
+  label: PropTypes.string,
+  helpText: PropTypes.string,
+  noSpacer: PropTypes.bool,
+};
 
 export const InformationsStep = ({
   onSubmit,
@@ -128,128 +151,123 @@ export const InformationsStep = ({
   };
 
   return (
-    <StyledForm onSubmit={onSubmit}>
-      <BlockFields>
-        <TextField
-          id="email"
-          name="email"
-          label="Adresse e-mail*"
+    <form onSubmit={onSubmit}>
+      <CustomField
+        Component={TextField}
+        id="email"
+        name="email"
+        label="Adresse e-mail*"
+        onChange={handleChange}
+        value={formData.email}
+        error={errors?.email}
+        helpText={helpEmail}
+      />
+
+      <GroupedFields>
+        <CustomField
+          Component={TextField}
+          id="first_name"
+          name="first_name"
+          label="Prénom*"
           onChange={handleChange}
-          value={formData.email}
-          error={errors?.email}
-          helpText={(!isDesktop && helpEmail) || ""}
+          value={formData.first_name}
+          error={errors?.first_name}
         />
-        <Hide under as={StyledDescription}>
-          {helpEmail}
-        </Hide>
-
-        <Spacer size="1rem" />
-
-        <GroupedFields>
-          <TextField
-            id="first_name"
-            name="first_name"
-            label="Prénom*"
-            onChange={handleChange}
-            value={formData.first_name}
-            error={errors?.first_name}
-          />
-          <Spacer size="1rem" />
-          <TextField
-            id="last_name"
-            name="last_name"
-            label="Nom de famille*"
-            onChange={handleChange}
-            value={formData.last_name}
-            error={errors?.last_name}
-          />
-        </GroupedFields>
-        <Spacer size="1rem" />
-
-        <CountryField
-          label="Nationalité*"
-          name="nationality"
-          placeholder=""
-          value={formData.nationality}
-          onChange={handleChangeNationality}
-          error={errors?.nationality}
-          helpText={(!isDesktop && helpNationality) || ""}
-        />
-        <Hide under as={StyledDescription}>
-          {helpNationality}
-        </Hide>
-        <Spacer size="1rem" />
-
-        {formData.nationality !== "FR" && (
-          <>
-            <CheckboxField
-              name="french_resident"
-              label="Je certifie être domicilié⋅e fiscalement en France*"
-              value={formData.french_resident}
-              onChange={handleCheckboxChange}
-            />
-            {errors?.french_resident && (
-              <Toast style={{ marginTop: "0.5rem" }}>
-                {errors?.french_resident}
-              </Toast>
-            )}
-            <Spacer size="1rem" />
-          </>
-        )}
-
-        <TextField
-          label="Adresse*"
-          name="location_address1"
-          value={formData.location_address1}
+        <CustomField
+          Component={TextField}
+          id="last_name"
+          name="last_name"
+          label="Nom de famille*"
           onChange={handleChange}
-          error={errors?.location_address1}
+          value={formData.last_name}
+          error={errors?.last_name}
+          noSpacer
         />
-        <Spacer size="1rem" />
+      </GroupedFields>
+      <Spacer size="0.5rem" />
 
-        <GroupedFields>
-          <StyledPostalCodeTextField
-            label="Code postal*"
-            name="location_zip"
-            value={formData.location_zip}
-            onChange={handleChange}
-            error={errors?.location_zip}
-          />
-          <Spacer size="1rem" />
-          <TextField
-            label="Ville*"
-            name="location_city"
-            value={formData.location_city}
-            onChange={handleChange}
-            error={errors?.location_city}
-            style={{ width: "100%" }}
-          />
-        </GroupedFields>
-        <Spacer size="1rem" />
-        <CountryField
-          label="Pays*"
-          name="location_country"
-          placeholder=""
-          value={formData.location_country}
-          onChange={handleChangeCountry}
-          error={errors?.location_country}
-        />
-        <Spacer size="1rem" />
+      <CustomField
+        Component={CountryField}
+        label="Nationalité*"
+        name="nationality"
+        placeholder=""
+        value={formData.nationality}
+        onChange={handleChangeNationality}
+        error={errors?.nationality}
+        helpText={helpNationality}
+      />
 
-        <TextField
-          id="contact_phone"
-          name="contact_phone"
-          label="Téléphone*"
+      {formData.nationality !== "FR" && (
+        <>
+          <CheckboxField
+            name="french_resident"
+            label="Je certifie être domicilié⋅e fiscalement en France*"
+            value={formData.french_resident}
+            onChange={handleCheckboxChange}
+          />
+          {errors?.french_resident && (
+            <Toast style={{ marginTop: "0.5rem" }}>
+              {errors?.french_resident}
+            </Toast>
+          )}
+          <Spacer size="0.5rem" />
+        </>
+      )}
+
+      <CustomField
+        Component={TextField}
+        label="Adresse*"
+        name="location_address1"
+        value={formData.location_address1}
+        onChange={handleChange}
+        error={errors?.location_address1}
+      />
+
+      <GroupedFields>
+        <CustomField
+          Component={StyledPostalCodeTextField}
+          label="Code postal*"
+          name="location_zip"
+          value={formData.location_zip}
           onChange={handleChange}
-          value={formData.contact_phone}
-          error={errors?.contact_phone}
-          style={{ maxWidth: "370px" }}
-          helpText={(!isDesktop && helpPhone) || ""}
+          error={errors?.location_zip}
+          noSpacer
         />
-        <Hide under as={StyledDescription}>
-          {helpPhone}
-        </Hide>
-        <Spacer size="1rem" />
-      </BlockFields>
+        <Spacer size="0.5rem" />
+        <CustomField
+          Component={TextField}
+          label="Ville*"
+          name="location_city"
+          value={formData.location_city}
+          onChange={handleChange}
+          error={errors?.location_city}
+          noSpacer
+          style={{ width: "100%" }}
+        />
+      </GroupedFields>
+      <Spacer size="0.5rem" />
+
+      <CustomField
+        Component={CountryField}
+        label="Pays*"
+        name="location_country"
+        placeholder=""
+        value={formData.location_country}
+        onChange={handleChangeCountry}
+        error={errors?.location_country}
+      />
+
+      <CustomField
+        Component={TextField}
+        id="contact_phone"
+        name="contact_phone"
+        label="Téléphone*"
+        onChange={handleChange}
+        value={formData.contact_phone}
+        error={errors?.contact_phone}
+        style={{ maxWidth: "370px" }}
+        helpText={helpPhone}
+      />
 
       <CheckboxField
         name="consent_certification"
@@ -342,6 +360,15 @@ export const InformationsStep = ({
         violation des articles 11-3-1 et 11-4 sont punies de trois ans
         d’emprisonnement et de 45 000 € d’amende.
       </p>
-    </StyledForm>
+    </form>
   );
+};
+
+InformationsStep.propTypes = {
+  onSubmit: PropTypes.func,
+  errors: PropTypes.object,
+  setErrors: PropTypes.func,
+  formData: PropTypes.object,
+  setFormData: PropTypes.func,
+  isLoading: PropTypes.bool,
 };
