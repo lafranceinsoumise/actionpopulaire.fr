@@ -105,7 +105,11 @@ export const InformationsStep = ({
   };
 
   const handleChangeNationality = (country) => {
-    setFormData((formData) => ({ ...formData, nationality: country }));
+    setFormData((formData) => ({
+      ...formData,
+      nationality: country,
+      french_resident: country === "FR",
+    }));
   };
 
   const handleCheckboxChange = (e) => {
@@ -175,6 +179,23 @@ export const InformationsStep = ({
           {helpNationality}
         </Hide>
         <Spacer size="1rem" />
+
+        {formData.nationality !== "FR" && (
+          <>
+            <CheckboxField
+              name="french_resident"
+              label="Je certifie être domicilié⋅e fiscalement en France*"
+              value={formData.french_resident}
+              onChange={handleCheckboxChange}
+            />
+            {errors?.french_resident && (
+              <Toast style={{ marginTop: "0.5rem" }}>
+                {errors?.french_resident}
+              </Toast>
+            )}
+            <Spacer size="1rem" />
+          </>
+        )}
 
         <TextField
           label="Adresse*"
@@ -282,7 +303,6 @@ export const InformationsStep = ({
       >
         ou
         <Spacer size="1rem" />
-        {/* <Button onClick={handleSubmit} disabled={isLoading}>Envoyer un chèque</Button> */}
         <Button
           onClick={(e) => handleSubmit(e, "check_donation")}
           disabled={isLoading}

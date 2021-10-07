@@ -80,9 +80,3 @@ class SendDonationSerializer(serializers.Serializer):
     subscribed_lfi = serializers.BooleanField(required=False)
 
     payment_mode = serializers.CharField(max_length=20)
-
-    def create(self, validated_data):
-        # Get allocations, amount, to, type
-        # session = self.context["request"].session
-        # session[DONATION_SESSION_NAMESPACE]
-        return validated_data

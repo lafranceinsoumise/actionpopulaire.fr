@@ -124,6 +124,7 @@ const DonationPage = () => {
     // checkboxes
     subscribed_lfi: false,
     consent_certification: false,
+    french_resident: true,
     // mode
     payment_mode: "system_pay",
   });
@@ -163,11 +164,16 @@ const DonationPage = () => {
     setIsLoading(true);
     setErrors({});
 
-    if (!formData.consent_certification) {
-      setErrors({
+    if (!formData.consent_certification || !formData.french_resident) {
+      const frontErrors = {
         consent_certification:
+          !formData.consent_certification &&
           "Vous devez cocher la case précédente pour continuer",
-      });
+        french_resident:
+          !formData.french_resident &&
+          "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation",
+      };
+      setErrors(frontErrors);
       setIsLoading(false);
       return;
     }
