@@ -775,6 +775,7 @@ PAYMENT_MODES = [
     "agir.pos.TPEPaymentMode",
     "agir.payments.imported.ImportedPaymentMode",
     "agir.events.PayLaterPaymentMode",
+    "agir.donations.AFCP2022SystemPayPaymentMode",
 ]
 
 # OVH Settings
