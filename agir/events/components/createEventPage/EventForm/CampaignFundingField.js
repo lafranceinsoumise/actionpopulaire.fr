@@ -9,6 +9,13 @@ import { routeConfig } from "@agir/front/app/routes.config";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Link from "@agir/front/app/Link";
 
+const StyledError = styled.p`
+  padding: 0;
+  margin: 0;
+  font-size: 1rem;
+  color: ${(props) => props.theme.redNSP};
+`;
+
 const StyledCampaignFundingField = styled.div`
   padding: 1rem;
   background-color: ${(props) => props.theme.black50};
@@ -30,6 +37,7 @@ const CampaignFundingField = (props) => {
     groupPk,
     disabled,
     endTime,
+    error,
   } = props;
 
   const [noSpending, setNoSpending] = useState(false);
@@ -109,6 +117,7 @@ const CampaignFundingField = (props) => {
           disabled={disabled}
         />
       )}
+      {error ? <StyledError>{error}</StyledError> : null}
     </StyledCampaignFundingField>
   );
 };
@@ -120,5 +129,6 @@ CampaignFundingField.propTypes = {
   needsDocuments: PropTypes.bool,
   disabled: PropTypes.bool,
   endTime: PropTypes.string,
+  error: PropTypes.string,
 };
 export default CampaignFundingField;
