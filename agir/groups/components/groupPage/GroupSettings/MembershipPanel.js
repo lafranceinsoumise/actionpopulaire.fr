@@ -7,8 +7,8 @@ import useSWR from "swr";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
 
-import MainPanel from "./MainPanel";
-import ConfirmPanel from "./ConfirmPanel";
+import ConfirmMembershipTypeChange from "@agir/groups/groupPage/GroupSettings/ConfirmMembershipTypeChange";
+import GroupMemberFile from "@agir/groups/groupPage/GroupSettings/GroupMemberFile";
 
 import { useToast } from "@agir/front/globalContext/hooks";
 import { useGroup } from "@agir/groups/groupPage/hooks/group";
@@ -42,7 +42,7 @@ const StyledSkeleton = styled.div`
   }
 `;
 
-const ConfirmPanelWrapper = styled(animated.div)`
+const SecondaryPanel = styled(animated.div)`
   position: absolute;
   top: 0;
   left: 0;
@@ -62,17 +62,33 @@ const MembersSkeleton = (
   </StyledSkeleton>
 );
 
-const GroupMemberPage = (props) => {
-  const { onBack, illustration, groupPk } = props;
+const MembershipPanel = (props) => {
+  const {
+    onBack,
+    illustration,
+    groupPk,
+    MainPanel,
+    unselectMemberAfterUpdate = false,
+  } = props;
   const sendToast = useToast();
 
   const group = useGroup(groupPk);
-  const { data: members, mutate } = useSWR(
+  const { data: members, mutate: mutateMembers } = useSWR(
     getGroupPageEndpoint("getMembers", { groupPk })
   );
   const [selectedMembershipType, setSelectedMembershipType] = useState(null);
   const [selectedMember, setSelectedMember] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    data: selectedMemberPersonalInformation,
+    mutate: mutateSelectedMember,
+  } = useSWR(
+    selectedMember?.id &&
+      getGroupPageEndpoint("getMemberPersonalInformation", {
+        memberPk: selectedMember?.id,
+      })
+  );
 
   const updateMembershipType = useCallback(
     async (memberId, membershipType) => {
@@ -82,7 +98,7 @@ const GroupMemberPage = (props) => {
       });
       setIsLoading(false);
       setSelectedMembershipType(null);
-      setSelectedMember(null);
+      unselectMemberAfterUpdate && setSelectedMember(null);
       if (res.error) {
         sendToast(
           res.error?.membershipType ||
@@ -95,63 +111,96 @@ const GroupMemberPage = (props) => {
       sendToast("Informations mises à jour", "SUCCESS", {
         autoClose: true,
       });
-      mutate((members) =>
+      !unselectMemberAfterUpdate && mutateSelectedMember();
+      mutateMembers((members) =>
         members.map((member) => (member.id === res.data.id ? res.data : member))
       );
     },
-    [mutate, sendToast]
+    [unselectMemberAfterUpdate, mutateMembers, mutateSelectedMember, sendToast]
   );
 
   const updateMembership = useCallback(() => {
     updateMembershipType(selectedMember.id, selectedMembershipType);
   }, [selectedMember, selectedMembershipType, updateMembershipType]);
 
-  const selectMembership = useCallback(
-    (memberId, membershipType) => {
-      setSelectedMember(members.find((member) => member.id === memberId));
-      setSelectedMembershipType(membershipType);
+  const selectMember = useCallback(
+    (memberId) => {
+      const member = members.find((member) => member.id === memberId);
+      setSelectedMember(member);
     },
     [members]
   );
 
-  const handleBack = useCallback(() => {
+  const selectMembershipType = useCallback((membershipType) => {
+    setSelectedMembershipType(membershipType);
+  }, []);
+
+  const unselectMember = useCallback(() => {
     setSelectedMember(null);
+  }, []);
+
+  const unselectMembershipType = useCallback(() => {
     setSelectedMembershipType(null);
   }, []);
 
-  const transition = useTransition(selectedMembershipType, slideInTransition);
+  const memberFileTransition = useTransition(
+    !!selectedMemberPersonalInformation,
+    slideInTransition
+  );
+  const confirmTransition = useTransition(
+    selectedMembershipType,
+    slideInTransition
+  );
 
   return (
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
       <PageFadeIn ready={Array.isArray(members)} wait={MembersSkeleton}>
         <MainPanel
+          group={group}
           members={members}
           routes={group?.routes}
-          onChangeMembershipType={selectMembership}
+          onClickMember={selectMember}
+          isLoading={isLoading}
+          updateMembershipType={updateMembershipType}
         />
       </PageFadeIn>
-      {transition(
+      {memberFileTransition(
         (style, item) =>
           item && (
-            <ConfirmPanelWrapper style={style}>
-              <ConfirmPanel
+            <SecondaryPanel style={style}>
+              <GroupMemberFile
+                isReferent={group.isReferent}
+                member={selectedMemberPersonalInformation}
+                onBack={unselectMember}
+                onChangeMembershipType={selectMembershipType}
+              />
+            </SecondaryPanel>
+          )
+      )}
+      {confirmTransition(
+        (style, item) =>
+          item && (
+            <SecondaryPanel style={style}>
+              <ConfirmMembershipTypeChange
                 members={members}
-                onBack={handleBack}
+                onBack={unselectMembershipType}
                 onConfirm={updateMembership}
                 selectedMember={selectedMember}
                 selectedMembershipType={item}
                 isLoading={isLoading}
               />
-            </ConfirmPanelWrapper>
+            </SecondaryPanel>
           )
       )}
     </>
   );
 };
-GroupMemberPage.propTypes = {
+MembershipPanel.propTypes = {
   onBack: PropTypes.func,
   illustration: PropTypes.string,
   groupPk: PropTypes.string,
+  MainPanel: PropTypes.elementType,
+  unselectMemberAfterUpdate: PropTypes.bool,
 };
-export default GroupMemberPage;
+export default MembershipPanel;

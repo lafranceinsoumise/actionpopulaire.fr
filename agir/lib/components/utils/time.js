@@ -213,12 +213,28 @@ export function displayIntervalEnd(interval, relativeTo) {
 
 const units = ["year", "month", "week", "day", "hour", "minute", "second"];
 
-export const timeAgo = (date) => {
+export const simpleDate = (datetimeString, hideCurrentYear = true) => {
+  let dateTime = new Date(datetimeString);
+  dateTime = DateTime.fromJSDate(dateTime).setLocale("fr");
+  return dateTime.toLocaleString({
+    year:
+      hideCurrentYear && new Date().getFullYear() === dateTime.get("year")
+        ? undefined
+        : "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+export const timeAgo = (date, maxUnit = units[0]) => {
   try {
     let dateTime = new Date(date);
-    dateTime = DateTime.fromJSDate(dateTime);
+    dateTime = DateTime.fromJSDate(dateTime).setLocale("fr");
     const diff = dateTime.diffNow().shiftTo(...units);
     const unit = units.find((unit) => diff.get(unit) !== 0) || "second";
+    if (maxUnit && units.indexOf(maxUnit) > units.indexOf(unit)) {
+      return "le " + simpleDate(date);
+    }
     const relativeFormatter = new Intl.RelativeTimeFormat("fr", {
       numeric: "auto",
     });

@@ -1,0 +1,17 @@
+{
+  "id": 1,
+  "displayName": "JJJ",
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "gender": "O",
+  "image": "https://www.fillmurray.com/200/200",
+  "email": "janedoe@agir.local",
+  "phone": "+33600000000",
+  "address": "25 passage dubail, 75010 Paris",
+  "created": "2020-01-01 00:00:00Z",
+  "membershipType": 5,
+  "subscriber": "John Doe",
+  "is2022": true,
+  "isLiaison": true,
+  "hasGroupNotifications": true
+}
