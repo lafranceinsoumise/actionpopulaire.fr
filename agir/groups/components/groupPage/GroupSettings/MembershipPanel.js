@@ -186,7 +186,7 @@ const MembershipPanel = (props) => {
                 members={members}
                 onBack={unselectMembershipType}
                 onConfirm={updateMembership}
-                selectedMember={selectedMember}
+                selectedMember={selectedMemberPersonalInformation}
                 selectedMembershipType={item}
                 isLoading={isLoading}
               />
