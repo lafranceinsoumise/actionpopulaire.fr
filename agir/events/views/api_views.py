@@ -47,7 +47,12 @@ __all__ = [
     "EventDetailAPIView",
     "EventDetailAdvancedAPIView",
     "EventRsvpedAPIView",
+    "PastRsvpedEventAPIView",
+    "OngoingRsvpedEventsAPIView",
     "EventSuggestionsAPIView",
+    "NearEventSuggestionsAPIView",
+    "UserGroupEventAPIView",
+    "OrganizedEventAPIView",
     "EventCreateOptionsAPIView",
     "CreateEventAPIView",
     "UpdateEventAPIView",
@@ -70,15 +75,18 @@ from agir.lib.tasks import geocode_person
 from ..tasks import send_cancellation_notification
 
 
-class EventRsvpedAPIView(ListAPIView):
+class EventListAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = EventListSerializer
+    queryset = Event.objects.public()
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
             *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
         )
 
+
+class EventRsvpedAPIView(EventListAPIView):
     def get(self, request, *args, **kwargs):
         person = request.user.person
 
@@ -102,15 +110,38 @@ class EventRsvpedAPIView(ListAPIView):
         )
 
 
-class EventSuggestionsAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = EventListSerializer
-
-    def get_serializer(self, *args, **kwargs):
-        return super().get_serializer(
-            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+class PastRsvpedEventAPIView(EventListAPIView):
+    def get_queryset(self):
+        person = self.request.user.person
+        person_groups = person.supportgroups.all()
+        return (
+            Event.objects.with_serializer_prefetch(person)
+            .select_related("subtype")
+            .past()
+            .filter(Q(rsvps__person=person) | Q(organizers_groups__in=person_groups))
+            .distinct()
+            .order_by("-start_time")[:10]
         )
 
+
+class OngoingRsvpedEventsAPIView(EventListAPIView):
+    def get_queryset(self):
+        now = timezone.now()
+        person = self.request.user.person
+
+        return (
+            Event.objects.public()
+            .with_serializer_prefetch(person)
+            .select_related("subtype")
+            .upcoming()
+            .filter(Q(attendees=person) | Q(organizers=person))
+            .filter(start_time__lte=now, end_time__gte=now)
+            .distinct()
+            .order_by("start_time")
+        )
+
+
+class EventSuggestionsAPIView(EventListAPIView):
     def get_queryset(self):
         person = self.request.user.person
         person_groups = person.supportgroups.all()
@@ -153,6 +184,55 @@ class EventSuggestionsAPIView(ListAPIView):
         result = result.distinct().order_by("start_time")
 
         return result
+
+
+class NearEventSuggestionsAPIView(EventListAPIView):
+    def get_queryset(self):
+        person = self.request.user.person
+
+        if person.coordinates is not None:
+            return sorted(
+                Event.objects.with_serializer_prefetch(person)
+                .select_related("subtype")
+                .upcoming()
+                .filter(
+                    start_time__lt=timezone.now() + timedelta(days=30),
+                    do_not_list=False,
+                )
+                .annotate(distance=Distance("coordinates", person.coordinates))
+                .distinct()
+                .order_by("distance")[:10],
+                key=lambda event: event.start_time,
+            )
+
+        return Event.objects.none()
+
+
+class UserGroupEventAPIView(EventListAPIView):
+    def get_queryset(self):
+        person = self.request.user.person
+        person_groups = person.supportgroups.all()
+
+        return (
+            Event.objects.with_serializer_prefetch(person)
+            .select_related("subtype")
+            .upcoming()
+            .filter(organizers_groups__in=person_groups)
+            .distinct()
+            .order_by("start_time")
+        )
+
+
+class OrganizedEventAPIView(EventListAPIView):
+    def get_queryset(self):
+        person = self.request.user.person
+        return reversed(
+            Event.objects.with_serializer_prefetch(person)
+            .select_related("subtype")
+            .past()
+            .filter(organizers=person)
+            .order_by("-start_time")[:10]
+        )
 
 
 class EventCreateOptionsAPIView(RetrieveAPIView):
