@@ -23,7 +23,7 @@ const ModalContainer = styled.div`
   margin: 40px auto;
   margin-bottom: 40px;
   background-color: ${(props) => props.theme.white};
-  padding: 20px 40px;
+  padding: 40px;
 
   @media (max-width: ${style.collapse}px) {
     width: 100%;
@@ -73,7 +73,7 @@ const StyledAmountInformations = styled.div`
   }
 `;
 
-// Return string from @amount in cents in string format. Example : 3050 => 30,5€
+// Return string from @amount given in centimes. Example : 3050 => 30,5€
 const displayAmount = (amount) =>
   parseInt(amount / 100) + "," + (amount % 100) + "€";
 
@@ -115,8 +115,8 @@ const DonationPage = () => {
     type: "S",
     allocations: [],
     // informations
-    email: session.user?.email || "",
-    first_name: session.user?.firstName || "",
+    email: session?.user?.email || "",
+    first_name: session?.user?.firstName || "",
     last_name: "",
     contact_phone: "",
     nationality: "FR",
@@ -159,7 +159,6 @@ const DonationPage = () => {
       });
       return;
     }
-    // window.location.href = result.data.next;
   }, []);
 
   const handleInformationsSubmit = async (e) => {
@@ -183,13 +182,13 @@ const DonationPage = () => {
 
     const { data, error } = await api.sendDonation(formData);
 
-    console.log("Send donations result", data);
-
     setIsLoading(false);
     if (error) {
       setErrors(error);
       return;
     }
+
+    window.location.href = data.next;
   };
 
   return (

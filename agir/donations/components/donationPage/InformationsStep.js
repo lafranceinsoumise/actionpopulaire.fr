@@ -6,30 +6,19 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import Toast from "@agir/front/genericComponents/Toast";
 
-import { Hide } from "@agir/front/genericComponents/grid";
-
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import TextField from "@agir/front/formComponents/TextField";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import CountryField from "@agir/front/formComponents/CountryField";
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
+import CustomField from "./CustomField";
 
 const StyledPostalCodeTextField = styled(TextField)`
   max-width: 160px;
   width: 160px;
   @media (min-width: ${style.collapse}px) {
     margin-right: 130px;
-  }
-`;
-
-const StyledDescription = styled.div`
-  margin-left: 168px;
-  font-size: 13px;
-  @media (max-width: ${style.collapse}px) {
-    margin-bottom: 4px;
-    margin-left: 0;
   }
 `;
 
@@ -45,67 +34,14 @@ const GroupedFields = styled.div`
   }
 `;
 
-const StyledCustomField = styled.div`
-  @media (min-width: ${style.collapse}px) {
-    display: flex;
-    align-items: center;
-    > label:first-of-type {
-      width: 160px;
-      margin: 0;
-      margin-right: 4px;
-    }
-    > label:nth-of-type(2) {
-      flex-grow: 1;
-    }
-  }
-`;
-
 const helpEmail =
   "Si vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou melenchon2022.fr, utilisez l'adresse avec laquelle vous êtes inscrit·e";
 const helpNationality =
   "Si double nationalité dont française : indiquez France";
 const helpPhone =
   "Nous sommes dans l'obligation de pouvoir vous contacter en cas de demande de vérification par la CNCCFP.";
-
-const CustomField = ({
-  Component,
-  noSpacer = false,
-  id,
-  label,
-  helpText,
-  ...rest
-}) => {
-  const isDesktop = useIsDesktop();
-
-  return (
-    <>
-      <StyledCustomField htmlFor={id}>
-        <Hide under as="label">
-          {label}
-        </Hide>
-        <Component
-          {...rest}
-          label={(!isDesktop && label) || ""}
-          helpText={(!isDesktop && helpText) || ""}
-        />
-      </StyledCustomField>
-      {!!helpText && (
-        <Hide under as={StyledDescription}>
-          {helpText}
-        </Hide>
-      )}
-      {!noSpacer && <Spacer size="0.5rem" />}
-    </>
-  );
-};
-
-CustomField.propTypes = {
-  Component: PropTypes.elementType.isRequired,
-  id: PropTypes.oneOf(["number", "string"]),
-  label: PropTypes.string,
-  helpText: PropTypes.string,
-  noSpacer: PropTypes.bool,
-};
+const consentText =
+  "Je certifie sur l'honneur être une personne physique et que le réglement de mon don ne provient pas d'une personne morale (association, société, société civile...) mais de mon compte bancaire personnel.*";
 
 export const InformationsStep = ({
   onSubmit,
@@ -269,7 +205,7 @@ export const InformationsStep = ({
 
       <CheckboxField
         name="consent_certification"
-        label="Je certifie sur l'honneur être une personne physique et que le réglement de mon don ne provient pas d'une personne morale (association, société, société civile...) mais de mon compte bancaire personnel.*"
+        label={consentText}
         value={formData.consent_certification}
         onChange={handleCheckboxChange}
       />

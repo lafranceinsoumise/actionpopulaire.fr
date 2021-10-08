@@ -68,15 +68,30 @@ class SendDonationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     first_name = serializers.CharField(max_length=255)
     last_name = serializers.CharField(max_length=255)
-    contact_phone = PhoneField(
-        label="Numéro de téléphone du contact", required=True, max_length=30,
-    )
-    nationality = serializers.CharField(max_length=100)
     location_address1 = serializers.CharField(max_length=100)
     location_city = serializers.CharField(max_length=100)
     location_zip = serializers.CharField(max_length=20)
     location_country = serializers.CharField(max_length=100)
 
+    contact_phone = PhoneField(max_length=30, required=True)
+    nationality = serializers.CharField(max_length=100)
+
     subscribed_lfi = serializers.BooleanField(required=False)
 
     payment_mode = serializers.CharField(max_length=20)
+
+    amount = serializers.IntegerField(min_value=1, required=True)
+    to = serializers.ChoiceField(
+        choices=((TO_LFI, "la France insoumise"), (TO_JLM2022, "Mélenchon 2022")),
+        default=TO_LFI,
+    )
+    type = serializers.ChoiceField(
+        choices=((TYPE_SINGLE_TIME, "une seule fois"), (TYPE_MONTHLY, "tous les mois")),
+        required=True,
+    )
+    allocations = serializers.ListField(
+        child=DonationAllocationSerializer(),
+        allow_empty=True,
+        allow_null=True,
+        required=False,
+    )
