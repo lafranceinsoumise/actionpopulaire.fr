@@ -1,13 +1,16 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, Suspense } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { displayShortDate } from "@agir/lib/utils/time";
+import { lazy } from "@agir/front/app/utils";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import TextField from "@agir/front/formComponents/TextField";
-import EmojiPicker from "@agir/front/formComponents/EmojiPicker";
+const EmojiPicker = lazy(() =>
+  import("@agir/front/formComponents/EmojiPicker")
+);
 
 const StyledLabel = styled.div``;
 const StyledMessage = styled.div``;
@@ -239,7 +242,12 @@ const MessageStep = (props) => {
           hasCounter={false}
         />
         <footer>
-          <EmojiPicker onOpen={handleEmojiOpen} onSelect={handleEmojiSelect} />
+          <Suspense fallback={null}>
+            <EmojiPicker
+              onOpen={handleEmojiOpen}
+              onSelect={handleEmojiSelect}
+            />
+          </Suspense>
           {typeof maxLength === "number" && text.length >= maxLength / 2 ? (
             <StyledCounter $invalid={text.length > maxLength}>
               {text.length}/{maxLength}
