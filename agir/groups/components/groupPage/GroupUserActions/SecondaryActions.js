@@ -24,11 +24,13 @@ const StyledContainer = styled.div`
 
   ${Button} {
     background-color: white;
-    font-size: 14px;
     border: none;
-    display: inline-flex;
-    flex-direction: column;
-    width: inherit;
+    font-size: 0.875rem;
+
+    & > span {
+      flex-direction: column;
+      width: inherit;
+    }
   }
 `;
 
