@@ -238,6 +238,7 @@ urlpatterns = [
     ),
     path("dons/", views.DonationView.as_view(), name="donation_amount",),
     path("2022/dons/", views.Donation2022View.as_view(), name="donations_2022_amount",),
+    path("404/", views.NotFoundView.as_view()),
     # old urls
     re_path("^old(.*)$", views.NBUrlsView.as_view(), name="old_urls"),
 ]

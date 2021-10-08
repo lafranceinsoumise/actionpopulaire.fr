@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter,
   Redirect,
@@ -17,7 +17,11 @@ import { useAuthentication } from "@agir/front/authentication/hooks";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import { useMobileApp, useDownloadBanner } from "@agir/front/app/hooks";
+import {
+  useAppLoader,
+  useMobileApp,
+  useDownloadBanner,
+} from "@agir/front/app/hooks";
 
 import TopBar from "@agir/front/allPages/TopBar/TopBar";
 import Footer from "@agir/front/app/Footer";
@@ -35,7 +39,6 @@ export const ProtectedComponent = ({
 }) => {
   const location = useLocation();
   const isAuthorized = useAuthentication(route);
-
   useEffect(() => {
     const PreloadedComponent = AnonymousComponent || Component;
     if (typeof PreloadedComponent.preload === "function") {
@@ -44,26 +47,7 @@ export const ProtectedComponent = ({
     }
   }, [AnonymousComponent, Component]);
 
-  const [loader, setLoader] = useState();
-
-  useEffect(() => {
-    if (!loader) {
-      return;
-    }
-
-    loader.addEventListener("transitionend", () => {
-      const loader = document.getElementById("app_loader");
-      loader && loader.remove();
-    });
-    loader.style.opacity = "0";
-    loader.style.zIndex = -1;
-
-    setLoader(null);
-  }, [loader]);
-
-  useEffect(() => {
-    isAuthorized !== null && setLoader(document.getElementById("app_loader"));
-  }, [isAuthorized]);
+  useAppLoader(isAuthorized !== null);
 
   if (isAuthorized === null) {
     return null;

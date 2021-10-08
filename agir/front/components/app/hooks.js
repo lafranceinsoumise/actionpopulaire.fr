@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { createGlobalState } from "react-use";
 
@@ -89,4 +89,33 @@ export const useDownloadBanner = () => {
   }, [setBannerCount, visitCount, setHasBanner]);
 
   return [!!hasBanner, hide];
+};
+
+/**
+ * Custom React hook to hide the application loader
+ * @param  {Boolean} [isReady=true]               whether the loader can be hidden or not
+ */
+export const useAppLoader = (isReady = true) => {
+  const [loader, setLoader] = useState(
+    isReady ? document.getElementById("app_loader") : null
+  );
+
+  useEffect(() => {
+    isReady !== null && setLoader(document.getElementById("app_loader"));
+  }, [isReady]);
+
+  useEffect(() => {
+    if (!loader) {
+      return;
+    }
+
+    loader.addEventListener("transitionend", () => {
+      const loader = document.getElementById("app_loader");
+      loader && loader.remove();
+    });
+    loader.style.opacity = "0";
+    loader.style.zIndex = -1;
+
+    setLoader(null);
+  }, [loader]);
 };

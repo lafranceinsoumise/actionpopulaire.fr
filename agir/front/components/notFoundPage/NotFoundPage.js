@@ -8,6 +8,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import background from "@agir/front/genericComponents/images/illustration-404.svg";
 import { useIsOffline } from "@agir/front/offline/hooks";
+import { useAppLoader } from "@agir/front/app/hooks";
 
 import TopBar from "@agir/front/allPages/TopBar/TopBar";
 import Button from "@agir/front/genericComponents/Button";
@@ -68,6 +69,8 @@ export const NotFoundPage = ({
 }) => {
   const isOffline = useIsOffline();
   const wasOffline = usePrevious(isOffline);
+
+  useAppLoader();
 
   useEffect(() => {
     reloadOnReconnection &&
