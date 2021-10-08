@@ -19,6 +19,7 @@ class PayLaterPaymentMode(AbstractPaymentMode):
 
     id = "pay_later"
     label = "Poser une option et payer avant le 5 juillet"
+    title = "Poser une option et payer avant le 5 juillet"
 
     def __init__(self):
         self.view = EventPayLaterView.as_view()
