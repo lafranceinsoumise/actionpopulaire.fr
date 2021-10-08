@@ -106,9 +106,34 @@ urlpatterns = [
         name="api_event_rsvped",
     ),
     path(
+        "api/evenements/rsvped/passes/",
+        views.PastRsvpedEventAPIView.as_view(),
+        name="api_past_rsvped_events",
+    ),
+    path(
+        "api/evenements/rsvped/en-cours/",
+        views.OngoingRsvpedEventsAPIView.as_view(),
+        name="api_ongoing_rsvped_events",
+    ),
+    path(
         "api/evenements/suggestions/",
         views.EventSuggestionsAPIView.as_view(),
         name="api_event_suggestions",
+    ),
+    path(
+        "api/evenements/suggestions/a-proximite/",
+        views.NearEventSuggestionsAPIView.as_view(),
+        name="api_near_events",
+    ),
+    path(
+        "api/evenements/mes-groupes/",
+        views.UserGroupEventAPIView.as_view(),
+        name="api_user_group_events",
+    ),
+    path(
+        "api/evenements/organises/",
+        views.OrganizedEventAPIView.as_view(),
+        name="api_organized_events",
     ),
     path(
         "api/evenements/projets/",
