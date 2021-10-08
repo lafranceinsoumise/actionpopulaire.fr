@@ -1,6 +1,6 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
@@ -97,7 +97,7 @@ const Agenda = () => {
   });
   log.debug("Rsvped events ", rsvped);
 
-  const rsvpedEvents = React.useMemo(
+  const rsvpedEvents = useMemo(
     () =>
       Array.isArray(rsvped)
         ? rsvped.map((event) => ({
@@ -110,6 +110,8 @@ const Agenda = () => {
         : [],
     [rsvped]
   );
+
+  const isReady = isSessionLoaded && (isDesktop || !!rsvped);
 
   return (
     <StyledAgenda>
@@ -139,12 +141,12 @@ const Agenda = () => {
           </Hide>
         </TopBar>
       </header>
-      <MissingDocumentsWidget />
       <PageFadeIn
         style={{ marginBottom: "4rem" }}
-        ready={rsvpedEvents}
+        ready={isReady}
         wait={<Skeleton />}
       >
+        <MissingDocumentsWidget />
         {rsvpedEvents && rsvpedEvents.length > 0 ? (
           <Hide over style={{ padding: "0 0 2rem" }}>
             <h2
@@ -182,14 +184,12 @@ const Agenda = () => {
             Carte
           </Button>
         </Hide>
-        <PageFadeIn ready={isSessionLoaded} wait={<Skeleton />}>
-          {isSessionLoaded && <EventSuggestions isPaused={isPaused} />}
-          <Spacer size="4rem" />
-          <Onboarding type="group__action" routes={routes} />
-          <Spacer size="4rem" />
-          <Onboarding type="event" routes={routes} />
-          <Spacer size="4rem" />
-        </PageFadeIn>
+        <EventSuggestions isPaused={isPaused} />
+        <Spacer size="4rem" />
+        <Onboarding type="group__action" routes={routes} />
+        <Spacer size="4rem" />
+        <Onboarding type="event" routes={routes} />
+        <Spacer size="4rem" />
       </PageFadeIn>
       <FeedbackButton />
     </StyledAgenda>
