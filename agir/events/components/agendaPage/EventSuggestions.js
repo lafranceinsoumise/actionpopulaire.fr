@@ -103,7 +103,7 @@ const EventSuggestions = ({ isPaused }) => {
               </p>
             ) : (
               <p>
-                Pas d'événement {EVENT_TYPES[activeTab]} ?{" "}
+                Pas d'événement {tabs[activeTab]} ?{" "}
                 <Link route="createEvent">Commencez par en créer un</Link>.
               </p>
             )}
