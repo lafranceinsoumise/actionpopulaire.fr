@@ -384,7 +384,7 @@ export const WEBSITES = [
   {
     title: "Mélenchon 2022",
     img: img_JLM_2022,
-    href: nonReactRoutes.jlm2022,
+    href: nonReactRoutes.melenchon2022,
   },
   {
     title: (

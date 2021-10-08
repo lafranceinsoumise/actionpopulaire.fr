@@ -131,7 +131,7 @@ const InfoBlock = (props) => (
         Consulter le centre d'aide
       </Link>
       <Spacer size="0.5rem" />
-      <Link route="publicMeetingRequestForm">
+      <Link route="publicMeetingHelp" target="_blank" rel="noopener noreferrer">
         Organiser une réunion publique
       </Link>
     </p>
