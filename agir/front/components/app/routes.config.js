@@ -425,7 +425,7 @@ export const routeConfig = {
     params: { type: null },
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Dons",
+    label: "Faire un don",
     Component: DonationPage,
     hasLayout: false,
     hideFeedbackButton: true,
