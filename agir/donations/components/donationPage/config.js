@@ -18,7 +18,7 @@ const melenchon2022 = {
       <strong>4600 €</strong>
     </span>
   ),
-  externalLinkRoute: "jlm2022",
+  externalLinkRoute: "melenchon2022",
   title: "Faire un don - Mélenchon 2022",
   theme: {
     default: style,

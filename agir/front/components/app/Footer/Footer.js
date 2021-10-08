@@ -123,7 +123,7 @@ export const Footer = (props) => {
           <div>
             <h3>La campagne présidentielle</h3>
             <p>
-              <Link route="jlm2022" target="_blank">
+              <Link route="melenchon2022" target="_blank">
                 Mélenchon2022.fr
               </Link>
               <Link route="programme" target="_blank">
