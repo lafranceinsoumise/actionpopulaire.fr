@@ -69,6 +69,7 @@ const MapFooter = styled.div`
   position: fixed;
   bottom: 0;
   width: 100%;
+  background-color : #fff;
 `;
 
 const StyledActionButtons = styled.div`
