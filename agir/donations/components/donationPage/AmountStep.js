@@ -4,7 +4,6 @@ import styled from "styled-components";
 
 import CONFIG from "./config";
 
-import AppLink from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
@@ -344,11 +343,9 @@ const AmountStep = (props) => {
             </form>
             <hr />
             <LegalParagraph>
-              Les dons seront versés à La France insoumise. Premier alinéa de
-              l’article 11-4 de la loi 88-227 du 11 mars 1988 modifiée : une
-              personne physique peut verser un don à un parti ou groupement
-              politique si elle est de nationalité française ou si elle réside
-              en France.
+              {type === "2022"
+                ? "Les dons sont destinés à l'AFCP JLM 2022, déclarée à la préfecture de Paris le 15 juin 2021, seule habilitée à recevoir les dons en faveur du candidat Jean-Luc Mélenchon, dans le cadre de la campagne pour l'élection présidentielle de 2022."
+                : "Les dons seront versés à La France insoumise. Premier alinéa de l’article 11-4 de la loi 88-227 du 11 mars 1988 modifiée : une personne physique peut verser un don à un parti ou groupement politique si elle est de nationalité française ou si elle réside en France."}
             </LegalParagraph>
             <PaymentParagraph>
               <span>
