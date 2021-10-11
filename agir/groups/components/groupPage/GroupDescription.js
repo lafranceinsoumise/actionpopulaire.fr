@@ -6,6 +6,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import Card from "./GroupPageCard";
 import Collapsible from "@agir/front/genericComponents/Collapsible";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledCard = styled(Card)`
   p {
@@ -25,6 +26,10 @@ const StyledCard = styled(Card)`
     &:hover {
       text-decoration: underline;
     }
+  }
+
+  && ${RawFeatherIcon} {
+    color: ${style.black1000};
   }
 `;
 

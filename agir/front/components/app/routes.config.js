@@ -145,6 +145,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Documents justificatifs",
+    hideFeedbackButton: true,
     isPartial: true,
   }),
   missingEventDocuments: new RouteConfig({
@@ -154,6 +155,7 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.HARD,
     label: "Documents justificatifs",
     Component: MissingDocumentsPage,
+    hideFeedbackButton: true,
     hasLayout: false,
     backLink: {
       route: "events",
@@ -177,6 +179,7 @@ export const routeConfig = {
     exact: false,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Nouvel événement",
+    hideFeedbackButton: true,
     Component: CreateEvent,
     backLink: {
       route: "events",
@@ -417,6 +420,7 @@ export const routeConfig = {
     label: "Nouveau contact",
     Component: CreateContactPage,
     hasLayout: false,
+    hideFeedbackButton: true,
     hideFooter: true,
   }),
   donations: new RouteConfig({
