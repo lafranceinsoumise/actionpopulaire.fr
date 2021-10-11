@@ -23,6 +23,7 @@ const FixedColumn = styled(Column)`
 
 const SidebarColumn = styled(Column)`
   padding-top: 4.5rem;
+  width: 320px;
 `;
 
 const MainColumn = styled(Column)`
