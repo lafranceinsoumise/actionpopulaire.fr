@@ -14,7 +14,7 @@ const renderLegacyPageComponents = () => {
   document.body.appendChild(root);
   const hideFeedbackButton =
     !!window?.Agir?.hideFeedbackButton ||
-    document.querySelectorAll("[method='post']")?.length > 0;
+    document.querySelectorAll("form[method='post']")?.length > 0;
 
   renderReactComponent(
     <SWRContext>
