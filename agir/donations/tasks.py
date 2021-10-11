@@ -29,7 +29,7 @@ def send_donation_email(person_pk, payment_mode):
     if payment_mode in PAYMENT_MODES and hasattr(
         PAYMENT_MODES[payment_mode], "email_from"
     ):
-        template_code = PAYMENT_MODES[payment_mode].email_from
+        email_from = PAYMENT_MODES[payment_mode].email_from
 
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
     send_mosaico_email(
