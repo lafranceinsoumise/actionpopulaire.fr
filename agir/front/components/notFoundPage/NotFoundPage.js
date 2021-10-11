@@ -2,12 +2,13 @@ import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 import { usePrevious } from "react-use";
 import styled from "styled-components";
-import { captureMessage } from "@sentry/react";
+import * as Sentry from "@sentry/react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import background from "@agir/front/genericComponents/images/illustration-404.svg";
 import { useIsOffline } from "@agir/front/offline/hooks";
+import { useAppLoader } from "@agir/front/app/hooks";
 
 import TopBar from "@agir/front/allPages/TopBar/TopBar";
 import Button from "@agir/front/genericComponents/Button";
@@ -69,6 +70,8 @@ export const NotFoundPage = ({
   const isOffline = useIsOffline();
   const wasOffline = usePrevious(isOffline);
 
+  useAppLoader();
+
   useEffect(() => {
     reloadOnReconnection &&
       wasOffline &&
@@ -79,10 +82,11 @@ export const NotFoundPage = ({
   if (isOffline === null) return null;
 
   if (!isOffline) {
-    captureMessage(
-      `React shows a 'Not found page' : ${window.location.pathname}`,
-      "debug"
-    );
+    Sentry.addBreadcrumb({
+      category: "logging",
+      message: `React shows a 'Not found page' : ${window.location.pathname}`,
+      level: Sentry.Severity.Debug,
+    });
   }
 
   return (

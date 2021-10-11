@@ -317,12 +317,12 @@ class UserMessageView(
 
 
 class DonationView(BaseAppCachedView):
-    meta_title = "Je donne à la France insoumise"
+    meta_title = "Faire un don - La France insoumise"
     meta_description = (
         "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
         "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
     )
 
 
-class DonationViewJLM2022(DonationView):
-    meta_title = "Je donne à Mélenchon 2022"
+class Donation2022View(DonationView):
+    meta_title = "Faire un don - Mélenchon 2022"

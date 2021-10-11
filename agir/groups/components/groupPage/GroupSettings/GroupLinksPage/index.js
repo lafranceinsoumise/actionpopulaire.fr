@@ -36,7 +36,6 @@ const FormPanelWrapper = styled(animated.div)`
   width: 100%;
   height: 100%;
   box-shadow: ${(props) => props.theme.elaborateShadow};
-  will-change: transform;
 `;
 
 const GroupLinksPage = (props) => {

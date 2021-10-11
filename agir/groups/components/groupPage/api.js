@@ -24,10 +24,11 @@ export const ENDPOINT = {
   createComment: "/api/groupes/messages/:messagePk/comments/",
   deleteComment: "/api/groupes/messages/comments/:commentPk/",
 
-  getMembers: "/api/groupes/:groupPk/members/",
+  getMembers: "/api/groupes/:groupPk/membres/",
   updateGroup: "/api/groupes/:groupPk/update/",
   inviteToGroup: "/api/groupes/:groupPk/invitation/",
-  updateMember: "/api/groupes/members/:memberPk/",
+  getMemberPersonalInformation: "/api/groupes/membres/:memberPk/informations/",
+  updateMember: "/api/groupes/membres/:memberPk/",
   getFinance: "/api/groupes/:groupPk/finance/",
 
   report: "/api/report/",
@@ -224,22 +225,6 @@ export const quitGroup = async (groupPk) => {
   return result;
 };
 
-export const getMembers = async (groupPk) => {
-  const result = {
-    data: null,
-    error: null,
-  };
-  const url = getGroupPageEndpoint("getMembers", { groupPk });
-  try {
-    const response = await axios.get(url);
-    result.data = response.data;
-  } catch (e) {
-    result.error = (e.response && e.response.data) || e.message;
-  }
-
-  return result;
-};
-
 export const updateGroup = async (groupPk, data) => {
   const result = {
     data: null,
@@ -285,6 +270,40 @@ export const inviteToGroup = async (groupPk, data) => {
 
   try {
     const response = await axios.post(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const getMembers = async (groupPk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("getMembers", { groupPk });
+  try {
+    const response = await axios.get(url);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const getMemberPersonalInformation = async (memberPk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupPageEndpoint("getMemberPersonalInformation", {
+    memberPk,
+  });
+  try {
+    const response = await axios.get(url);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

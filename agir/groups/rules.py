@@ -168,7 +168,8 @@ rules.add_perm(
     "msgs.change_supportgroupmessage", is_authenticated_person & is_msg_author
 )
 rules.add_perm(
-    "msgs.delete_supportgroupmessage", is_authenticated_person & is_msg_author
+    "msgs.delete_supportgroupmessage",
+    is_authenticated_person & (is_msg_author | is_at_least_manager_for_group),
 )
 rules.add_perm(
     "msgs.add_supportgroupmessagecomment", is_authenticated_person & is_group_member

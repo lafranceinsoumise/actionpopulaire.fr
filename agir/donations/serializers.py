@@ -7,8 +7,11 @@ from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url_lazy
 from agir.lib.serializers import PhoneField
 
+MAX_AMOUNT_LFI = 750000
+MAX_AMOUNT_2022 = 460000
+
 TO_LFI = "LFI"
-TO_JLM2022 = "melenchon2022"
+TO_2022 = "2022"
 
 TYPE_SINGLE_TIME = "S"
 TYPE_MONTHLY = "M"
@@ -24,7 +27,7 @@ class DonationAllocationSerializer(serializers.Serializer):
 class CreateDonationSerializer(serializers.Serializer):
     amount = serializers.IntegerField(min_value=1, required=True)
     to = serializers.ChoiceField(
-        choices=((TO_LFI, "la France insoumise"), (TO_JLM2022, "Mélenchon 2022")),
+        choices=((TO_LFI, "la France insoumise"), (TO_2022, "Mélenchon 2022")),
         default=TO_LFI,
     )
     type = serializers.ChoiceField(
@@ -41,13 +44,34 @@ class CreateDonationSerializer(serializers.Serializer):
     )
     next = serializers.SerializerMethodField(read_only=True)
 
+    def validate(self, attrs):
+        if attrs["to"] == TO_2022 and attrs["amount"] > MAX_AMOUNT_2022:
+            raise serializers.ValidationError(
+                detail={
+                    "amount": f"Les dons versés par une personne physique ne peuvent excéder {int(MAX_AMOUNT_LFI / 100)} € par an pour un  ou des partis ou groupements politiques "
+                }
+            )
+
+        if attrs["to"] == TO_LFI and attrs["amount"] > MAX_AMOUNT_LFI:
+            raise serializers.ValidationError(
+                detail={
+                    "amount": f"Le maximum du montant total de donation pour une personne aux candidats à l'élection présidentielle ne peut pas excéder {int(MAX_AMOUNT_2022 / 100)} €"
+                }
+            )
+
+        return attrs
+
     def get_next(self, data):
         """
         Returns the redirection URL for the next donation step if validation succeeds
         """
-        if data and data["type"] == TYPE_MONTHLY:
+        if data["to"] == TO_2022 and data["type"] == TYPE_MONTHLY:
+            return front_url_lazy("monthly_donation_2022_information", absolute=True)
+        if data["to"] == TO_2022:
+            return front_url_lazy("donation_2022_information", absolute=True)
+        if data["type"] == TYPE_MONTHLY:
             return front_url_lazy("monthly_donation_information", absolute=True)
-        if data and data["type"] == TYPE_SINGLE_TIME:
+        if data["type"] == TYPE_SINGLE_TIME:
             return front_url_lazy("donation_information", absolute=True)
 
     def create(self, validated_data):
@@ -82,7 +106,7 @@ class SendDonationSerializer(serializers.Serializer):
 
     amount = serializers.IntegerField(min_value=1, required=True)
     to = serializers.ChoiceField(
-        choices=((TO_LFI, "la France insoumise"), (TO_JLM2022, "Mélenchon 2022")),
+        choices=((TO_LFI, "la France insoumise"), (TO_2022, "Mélenchon 2022")),
         default=TO_LFI,
     )
     type = serializers.ChoiceField(

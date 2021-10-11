@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
+import Helmet from "react-helmet";
 import useSWR from "swr";
 
 import Skeleton from "@agir/front/genericComponents/Skeleton";
@@ -10,6 +11,8 @@ import { Theme } from "./StyledComponents";
 import Modal from "@agir/front/genericComponents/Modal";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
+
+import CONFIG from "./config";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -88,7 +91,7 @@ const DonationPage = () => {
   const urlParams = new URLSearchParams(search);
 
   const type = params?.type || "LFI";
-  const groupPk = type !== "melenchon2022" && urlParams.get("group");
+  const groupPk = type !== "2022" && urlParams.get("group");
 
   const { data: group } = useSWR(groupPk && `/api/groupes/${groupPk}/`, {
     revalidateIfStale: false,
@@ -97,7 +100,7 @@ const DonationPage = () => {
   });
 
   const { data: userGroups } = useSWR(
-    session?.user && type !== "melenchon2022" && "/api/groupes/",
+    session?.user && type !== "2022" && "/api/groupes/",
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,
@@ -193,9 +196,20 @@ const DonationPage = () => {
 
   return (
     <Theme type={formData.to}>
+      <Helmet>
+        <title>{CONFIG[type]?.title || CONFIG.default.title}</title>
+      </Helmet>
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <AmountStep
           type={type}
+          maxAmount={CONFIG[type]?.maxAmount || CONFIG.default.maxAmount}
+          maxAmountWarning={
+            CONFIG[type]?.maxAmountWarning || CONFIG.default.maxAmountWarning
+          }
+          externalLinkRoute={
+            CONFIG[type]?.externalLinkRoute || CONFIG.default.externalLinkRoute
+          }
+
           group={group && group.isCertified ? group : null}
           hasGroups={
             Array.isArray(userGroups?.groups) &&

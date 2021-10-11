@@ -44,6 +44,7 @@ export const StepButton = styled(BaseButton).attrs(() => ({
   background-color: ${(props) => props.theme.secondary500};
   border-color: ${(props) => props.theme.secondary500};
   color: ${(props) => props.theme.white};
+  font-size: 1.5rem;
 
   &:hover,
   &:focus,

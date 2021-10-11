@@ -63,12 +63,6 @@ export const DesktopNavBar = (props) => {
     adminLink,
   } = props;
 
-  const createEventLabel = useResponsiveMemo(
-    "Créer",
-    "Créer un événement",
-    1060
-  );
-
   return (
     <>
       <AdminLink link={adminLink} />
@@ -76,20 +70,6 @@ export const DesktopNavBar = (props) => {
         <LogoLink route="events">
           <LogoAP height={56} width={149} />
         </LogoLink>
-        {!isLoading && !!user && (
-          <>
-            <Button
-              small
-              link
-              color="secondary"
-              route="createEvent"
-              icon="plus"
-            >
-              {createEventLabel}
-            </Button>
-            <Spacer size="1rem" />
-          </>
-        )}
         <div style={{ flex: "1 1 auto", maxWidth: 412 }}>
           <SearchBar isConnected={!!user} />
         </div>

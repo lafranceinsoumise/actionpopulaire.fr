@@ -14,6 +14,11 @@ supportgroup_settings_patterns = [
         name="view_group_settings_members",
     ),
     path(
+        "gestion/contacts/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_group_settings_followers",
+    ),
+    path(
         "gestion/animation/",
         views.BaseAppHardAuthView.as_view(),
         name="view_group_settings_management",
@@ -220,12 +225,20 @@ urlpatterns = [
         views.UserMessageView.as_view(),
         name="user_message_details.notification_settings",
     ),
-    path("donner/", views.DonationView.as_view(), name="donations",),
+    path("contacts/creer/", views.BaseAppSoftAuthView.as_view(), name="create_contact"),
     path(
-        "donner/melenchon2022/",
-        views.DonationViewJLM2022.as_view(),
-        name="donations_jlm2022",
+        "contacts/creer/valider/",
+        RedirectView.as_view(pattern_name="create_contact", permanent=True),
+        name="create_contact_validation",
     ),
+    path(
+        "contacts/creer/succes/",
+        RedirectView.as_view(pattern_name="create_contact", permanent=True),
+        name="create_contact_success",
+    ),
+    path("dons/", views.DonationView.as_view(), name="donation_amount",),
+    path("2022/dons/", views.Donation2022View.as_view(), name="donations_2022_amount",),
+    path("404/", views.NotFoundView.as_view()),
     # old urls
     re_path("^old(.*)$", views.NBUrlsView.as_view(), name="old_urls"),
 ]

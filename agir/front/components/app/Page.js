@@ -40,7 +40,7 @@ const StyledPage = styled.div`
 `;
 
 const Page = (props) => {
-  const { Component, routeConfig, ...rest } = props;
+  const { Component, routeConfig, hasTopBar, ...rest } = props;
 
   const dispatch = useDispatch();
   const isSessionLoaded = useSelector(getIsSessionLoaded);
@@ -103,7 +103,7 @@ const Page = (props) => {
   if (!routeConfig.hasLayout) {
     return (
       <ErrorBoundary>
-        <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
+        <StyledPage $hasTopBar={hasTopBar}>
           <Suspense fallback={<div />}>
             <Component route={routeConfig} {...routeParams} {...rest} />
             {!routeConfig.hideFeedbackButton && (
@@ -117,7 +117,7 @@ const Page = (props) => {
 
   return (
     <ErrorBoundary>
-      <StyledPage $hasTopBar={!routeConfig.hideTopBar}>
+      <StyledPage $hasTopBar={hasTopBar}>
         <Layout active={routeConfig.id}>
           <Suspense fallback={<div />}>
             <Component route={routeConfig} {...routeParams} {...rest} />
@@ -131,6 +131,7 @@ const Page = (props) => {
 Page.propTypes = {
   Component: PropTypes.elementType.isRequired,
   routeConfig: PropTypes.object.isRequired,
+  hasTopBar: PropTypes.bool,
 };
 
 export default Page;

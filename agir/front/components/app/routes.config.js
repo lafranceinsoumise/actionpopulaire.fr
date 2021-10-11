@@ -61,6 +61,9 @@ const LogoutPage = lazy(() =>
   import("@agir/front/authentication/Connexion/Logout")
 );
 const MessagePage = lazy(() => import("@agir/msgs/MessagePage/MessagePage"));
+const CreateContactPage = lazy(() =>
+  import("@agir/people/contacts/CreateContactPage")
+);
 const DonationPage = lazy(() =>
   import("@agir/donations/donationPage/DonationPage")
 );
@@ -166,6 +169,7 @@ export const routeConfig = {
     label: "Carte des événements",
     Component: EventMap,
     hideFooter: true,
+    hideFeedbackButton: true,
   }),
   createEvent: new RouteConfig({
     id: "createEvent",
@@ -179,6 +183,7 @@ export const routeConfig = {
       label: "Liste des événements",
       isProtected: true,
     },
+    hideFooter: true,
   }),
   eventDetails: new RouteConfig({
     id: "eventDetails",
@@ -237,6 +242,7 @@ export const routeConfig = {
     label: "Carte des groupes",
     Component: GroupMap,
     hideFooter: true,
+    hideFeedbackButton: true,
   }),
   fullGroup: new RouteConfig({
     id: "fullGroup",
@@ -402,18 +408,29 @@ export const routeConfig = {
     hideFeedbackButton: true,
     hideFooter: true,
   }),
+  createContact: new RouteConfig({
+    id: "createContact",
+    path: "/contacts/creer/:step?/",
+    params: { step: null },
+    exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Nouveau contact",
+    Component: CreateContactPage,
+    hasLayout: false,
+    hideFooter: true,
+  }),
   donations: new RouteConfig({
     id: "donations",
-    path: "/donner/:type?/",
+    path: "/:type?/dons/",
     params: { type: null },
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Dons",
+    label: "Faire un don",
     Component: DonationPage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
-    hideTopBar: true,
+    appOnlyTopBar: true,
   }),
 };
 

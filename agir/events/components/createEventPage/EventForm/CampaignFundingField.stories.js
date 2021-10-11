@@ -42,3 +42,10 @@ UncertifiedWithoutDocs.args = {
   needsDocuments: false,
   groupPk: "755e460f-9cf1-499e-952a-522fa8629852",
 };
+export const WithError = Template.bind({});
+WithError.args = {
+  isCertified: true,
+  needsDocuments: true,
+  groupPk: "755e460f-9cf1-499e-952a-522fa8629852",
+  error: "Aïe aïe aïe",
+};

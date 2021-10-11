@@ -1,3 +1,4 @@
+import React from "react";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import logoJLM2022 from "@agir/front/genericComponents/logos/melenchon2022.svg";
@@ -9,6 +10,16 @@ import donLFIBGD from "./images/Don_FI_BG_D.jpg";
 import donLFIBGM from "./images/Don_FI_BG_M.jpg";
 
 const melenchon2022 = {
+  maxAmount: 460000,
+  maxAmountWarning: (
+    <span>
+      Erreur de montant&nbsp;: le maximum du montant total de donation pour une
+      personne aux candidats à l'élection présidentielle ne peut pas excéder{" "}
+      <strong>4600 €</strong>
+    </span>
+  ),
+  externalLinkRoute: "melenchon2022",
+  title: "Faire un don - Mélenchon 2022",
   theme: {
     default: style,
     logo: logoJLM2022,
@@ -30,6 +41,16 @@ const melenchon2022 = {
 };
 
 const LFI = {
+  maxAmount: 750000,
+  maxAmountWarning: (
+    <span>
+      Erreur de montant&nbsp;: les dons versés par une personne physique ne
+      peuvent excéder <strong>7500 €</strong> par an pour un ou des partis ou
+      groupements politiques
+    </span>
+  ),
+  externalLinkRoute: "lafranceinsoumise",
+  title: "Faire un don - La France insoumise",
   theme: {
     default: style,
     logo: logoLFI,
@@ -51,7 +72,7 @@ const LFI = {
 };
 
 const CONFIG = {
-  melenchon2022,
+  2022: melenchon2022,
   LFI,
   default: LFI,
 };

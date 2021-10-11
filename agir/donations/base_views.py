@@ -28,8 +28,7 @@ class BaseAskAmountView(FormToSessionMixin, FormView):
 class BasePersonalInformationView(UpdateView):
     form_class = None
     template_name = "donations/personal_information.html"
-    payment_mode = None
-    payment_type = None
+    payment_modes = None
     session_namespace = "_donation_"
     first_step_url = None
     persisted_data = ["amount"]
@@ -72,7 +71,8 @@ class BasePersonalInformationView(UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         initial = kwargs.pop("initial", {})
-
+        if self.payment_modes:
+            kwargs.update({"payment_modes": self.payment_modes})
         return {**kwargs, "initial": {**initial, **self.persistent_data}}
 
     def get_context_data(self, **kwargs):
