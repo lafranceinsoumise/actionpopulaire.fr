@@ -495,7 +495,9 @@ class ReturnView(TemplateView):
 def subscription_notification_listener(subscription):
     if subscription.status == Subscription.STATUS_ACTIVE:
         transaction.on_commit(
-            partial(send_donation_email.delay, subscription.person.pk)
+            partial(
+                send_donation_email.delay, subscription.person.pk, subscription.mode
+            )
         )
 
 
@@ -505,7 +507,7 @@ def notification_listener(payment):
             find_or_create_person_from_payment(payment)
             if payment.subscription is None:
                 transaction.on_commit(
-                    partial(send_donation_email.delay, payment.person.pk)
+                    partial(send_donation_email.delay, payment.person.pk, payment.mode)
                 )
 
                 allocations = {}

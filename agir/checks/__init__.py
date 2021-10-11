@@ -1,3 +1,4 @@
+from agir.api import settings
 from agir.checks.payment_mode import AbstractCheckPaymentMode
 
 
@@ -40,3 +41,6 @@ class AFCPJLMCheckPaymentMode(AbstractCheckPaymentMode):
         "Votre versement ne sera confirmé qu'à réception du chèque. Vous recevrez un message de confirmation quand ce "
         " sera fait."
     )
+
+    email_template_code = "DONATION_MESSAGE_2022"
+    email_from = settings.EMAIL_FROM_MELENCHON_2022
