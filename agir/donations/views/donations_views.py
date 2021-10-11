@@ -233,7 +233,9 @@ class MonthlyDonationPersonalInformationView(
 
             if (
                 Subscription.objects.filter(
-                    person=self.object, status=Subscription.STATUS_ACTIVE
+                    person=self.object,
+                    status=Subscription.STATUS_ACTIVE,
+                    mode=self.payment_mode,
                 )
                 and not previous_subscription
             ):
