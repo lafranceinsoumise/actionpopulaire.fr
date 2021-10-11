@@ -133,26 +133,6 @@ const StyledMain = styled.main`
   p + p {
     margin-top: 0.5rem;
   }
-  // form {
-  //   ${StepButton} {
-  //     margin: 0 auto;
-  //     max-width: 400px;
-  //     height: 80px;
-  //     padding: 0 4.5rem;
-  //     & > span {
-  //       font-weight: 400;
-  //       font-size: 0.875rem;
-  //       strong {
-  //         font-weight: 600;
-  //         font-size: 1.25rem;
-  //       }
-  //     }
-  //     ${RawFeatherIcon} {
-  //       position: absolute;
-  //       right: 1.5rem;
-  //     }
-  //   }
-  // }
 `;
 
 const StyledIllustration = styled.div``;
@@ -227,120 +207,119 @@ const AmountStep = (props) => {
 
   return (
     // <Theme type={type}>
-      <StyledPage>
-        <StyledIllustration aria-hidden="true" />
-        <StyledBody>
-          <StyledMain>
-            <StyledLogo
-              alt={`Logo ${
-                type === "2022" ? "Mélenchon 2022" : "la France insoumise"
-              }`}
-              route={externalLinkRoute}
-              rel="noopener noreferrer"
-              target="_blank"
-            />
-            {!hasGroup && hasGroups ? (
-              <StyledGroupLink>
-                <RawFeatherIcon name="share" />
-                <span>
-                  <strong>Pour faire un don alloué</strong> vers votre groupe
-                  d'action certifié, utilisez le bouton "financer" dans{" "}
-                  <Link route="groups">la page de votre groupe</Link>
-                </span>
-              </StyledGroupLink>
-            ) : null}
-            <h2>Faire un don</h2>
-            {type !== "2022" ? (
-              <h4>
-                à la France insoumise (faire un don à{" "}
-                <Link route="donations" routeParams={{ type: "2022" }}>
-                  Mélenchon 2022
-                </Link>
-                &nbsp;?)
-              </h4>
-            ) : (
-              <Spacer size="1rem" />
-            )}
-            {hasGroup ? (
-              <>
-                <StyledGroup>
-                  <RawFeatherIcon name="arrow-right-circle" />
-                  <span>
-                    Dons alloués vers le groupe
-                    <strong>{group.name}</strong>
-                  </span>
-                </StyledGroup>
-                <p>
-                  Pour financer ses actions, le groupe d’action certifié a la
-                  possibilité de se constituer une enveloppe par l’intermédiaire
-                  de dons alloués.{" "}
-                  <Link route="donationHelp">En savoir plus</Link>
-                </p>
-              </>
-            ) : (
-              <>
-                <p>
-                  Chaque don nous aide à l’organisation d’événements, à l’achat
-                  de matériel, au fonctionnement de ce site, etc.
-                </p>
-                <p>
-                  Nous avons besoin du soutien financier de chacun·e d’entre
-                  vous.
-                </p>
-              </>
-            )}
-            <form onSubmit={handleSubmit}>
-              <AmountWidget
-                disabled={isLoading}
-                amount={amount}
-                maxAmount={maxAmount}
-                maxAmountWarning={maxAmountWarning}
-                byMonth={byMonth}
-                groupPercentage={hasGroup ? groupPercentage : undefined}
-                onChangeAmount={setAmount}
-                onChangeByMonth={setByMonth}
-                onChangeGroupPercentage={
-                  hasGroup ? setGroupPercentage : undefined
-                }
-              />
-              {!isLoading && error ? (
-                <StyledErrorMessage>{error}</StyledErrorMessage>
-              ) : null}
-              <StepButton
-                block
-                type="submit"
-                disabled={!hasSubmit}
-                loading={isLoading}
-              >
-                <span>
-                  <strong>Suivant</strong>
-                  <br />
-                  1/3 étapes
-                </span>
-                <RawFeatherIcon name="arrow-right" />
-              </StepButton>
-            </form>
-            <hr />
-            <LegalParagraph>
-              {type === "2022"
-                ? "Les dons sont destinés à l'AFCP JLM 2022, déclarée à la préfecture de Paris le 15 juin 2021, seule habilitée à recevoir les dons en faveur du candidat Jean-Luc Mélenchon, dans le cadre de la campagne pour l'élection présidentielle de 2022."
-                : "Les dons seront versés à La France insoumise. Premier alinéa de l’article 11-4 de la loi 88-227 du 11 mars 1988 modifiée : une personne physique peut verser un don à un parti ou groupement politique si elle est de nationalité française ou si elle réside en France."}
-            </LegalParagraph>
-            <PaymentParagraph>
+    <StyledPage>
+      <StyledIllustration aria-hidden="true" />
+      <StyledBody>
+        <StyledMain>
+          <StyledLogo
+            alt={`Logo ${
+              type === "2022" ? "Mélenchon 2022" : "la France insoumise"
+            }`}
+            route={externalLinkRoute}
+            rel="noopener noreferrer"
+            target="_blank"
+          />
+          {!hasGroup && hasGroups ? (
+            <StyledGroupLink>
+              <RawFeatherIcon name="share" />
               <span>
-                <RawFeatherIcon width="1rem" height="1rem" name="lock" />
-                &ensp;SÉCURISÉ ET ANONYME
+                <strong>Pour faire un don alloué</strong> vers votre groupe
+                d'action certifié, utilisez le bouton "financer" dans{" "}
+                <Link route="groups">la page de votre groupe</Link>
               </span>
-              <img
-                width="366"
-                height="26"
-                src={acceptedPaymentMethods}
-                alt="Moyens de paiement acceptés : Visa, Visa Electron, Mastercard, Maestro, Carte Bleue, E-Carte Bleue"
-              />
-            </PaymentParagraph>
-          </StyledMain>
-        </StyledBody>
-      </StyledPage>
+            </StyledGroupLink>
+          ) : null}
+          <h2>Faire un don</h2>
+          {type !== "2022" ? (
+            <h4>
+              à la France insoumise (faire un don à{" "}
+              <Link route="donations" routeParams={{ type: "2022" }}>
+                Mélenchon 2022
+              </Link>
+              &nbsp;?)
+            </h4>
+          ) : (
+            <Spacer size="1rem" />
+          )}
+          {hasGroup ? (
+            <>
+              <StyledGroup>
+                <RawFeatherIcon name="arrow-right-circle" />
+                <span>
+                  Dons alloués vers le groupe
+                  <strong>{group.name}</strong>
+                </span>
+              </StyledGroup>
+              <p>
+                Pour financer ses actions, le groupe d’action certifié a la
+                possibilité de se constituer une enveloppe par l’intermédiaire
+                de dons alloués.{" "}
+                <Link route="donationHelp">En savoir plus</Link>
+              </p>
+            </>
+          ) : (
+            <>
+              <p>
+                Chaque don nous aide à l’organisation d’événements, à l’achat de
+                matériel, au fonctionnement de ce site, etc.
+              </p>
+              <p>
+                Nous avons besoin du soutien financier de chacun·e d’entre vous.
+              </p>
+            </>
+          )}
+          <form onSubmit={handleSubmit}>
+            <AmountWidget
+              disabled={isLoading}
+              amount={amount}
+              maxAmount={maxAmount}
+              maxAmountWarning={maxAmountWarning}
+              byMonth={byMonth}
+              groupPercentage={hasGroup ? groupPercentage : undefined}
+              onChangeAmount={setAmount}
+              onChangeByMonth={setByMonth}
+              onChangeGroupPercentage={
+                hasGroup ? setGroupPercentage : undefined
+              }
+            />
+            {!isLoading && error ? (
+              <StyledErrorMessage>{error}</StyledErrorMessage>
+            ) : null}
+            <StepButton
+              block
+              type="submit"
+              disabled={!hasSubmit}
+              loading={isLoading}
+            >
+              <span>
+                <strong>Suivant</strong>
+                <br />
+                1/3 étapes
+              </span>
+              <RawFeatherIcon name="arrow-right" />
+            </StepButton>
+          </form>
+          <hr />
+          <LegalParagraph>
+            {type === "2022"
+              ? "Les dons sont destinés à l'AFCP JLM 2022, déclarée à la préfecture de Paris le 15 juin 2021, seule habilitée à recevoir les dons en faveur du candidat Jean-Luc Mélenchon, dans le cadre de la campagne pour l'élection présidentielle de 2022."
+              : "Les dons seront versés à La France insoumise. Premier alinéa de l’article 11-4 de la loi 88-227 du 11 mars 1988 modifiée : une personne physique peut verser un don à un parti ou groupement politique si elle est de nationalité française ou si elle réside en France."}
+          </LegalParagraph>
+          <PaymentParagraph>
+            <span>
+              <RawFeatherIcon width="1rem" height="1rem" name="lock" />
+              &ensp;SÉCURISÉ ET ANONYME
+            </span>
+            <img
+              width="366"
+              height="26"
+              src={acceptedPaymentMethods}
+              alt="Moyens de paiement acceptés : Visa, Visa Electron, Mastercard, Maestro, Carte Bleue, E-Carte Bleue"
+            />
+          </PaymentParagraph>
+        </StyledMain>
+      </StyledBody>
+    </StyledPage>
     // </Theme>
   );
 };

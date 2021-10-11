@@ -209,7 +209,6 @@ const DonationPage = () => {
           externalLinkRoute={
             CONFIG[type]?.externalLinkRoute || CONFIG.default.externalLinkRoute
           }
-
           group={group && group.isCertified ? group : null}
           hasGroups={
             Array.isArray(userGroups?.groups) &&
