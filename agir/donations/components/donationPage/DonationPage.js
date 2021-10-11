@@ -108,7 +108,7 @@ const DonationPage = () => {
     }
   );
 
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const closeModal = () => setShowModal(false);
 
   const [formData, setFormData] = useState({

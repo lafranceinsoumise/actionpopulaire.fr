@@ -8,7 +8,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import AmountWidget from "./AmountWidget";
-import { Link, StepButton, Theme } from "./StyledComponents";
+import { Link, StepButton } from "./StyledComponents";
 
 import acceptedPaymentMethods from "./images/accepted-payment-methods.svg";
 
@@ -206,7 +206,6 @@ const AmountStep = (props) => {
   };
 
   return (
-    // <Theme type={type}>
     <StyledPage>
       <StyledIllustration aria-hidden="true" />
       <StyledBody>
@@ -320,7 +319,6 @@ const AmountStep = (props) => {
         </StyledMain>
       </StyledBody>
     </StyledPage>
-    // </Theme>
   );
 };
 
