@@ -301,7 +301,7 @@ class Membership(ExportModelOperationsMixin("membership"), TimeStampedModel):
         _(
             "Consentement au partage des informations personnelles avec les animateur·ices et gestionnaires du groupe"
         ),
-        default=False,
+        null=True,
         help_text=_(
             "J'accepte de partager mes informations personnelles avec les animateur·ices et gestionnaires de ce groupe"
         ),
