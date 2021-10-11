@@ -35,11 +35,12 @@ const StyledFooter = styled.div`
     }
 
     & > div {
-      flex: 0 0 auto;
+      flex: 0 1 auto;
       padding: 20px 0;
       color: inherit;
 
       @media (max-width: ${style.collapse}px) {
+        flex: 0 0 auto;
         padding: 20px 0;
 
         &:first-child {
@@ -48,8 +49,13 @@ const StyledFooter = styled.div`
       }
 
       img {
-        width: 125px;
-        height: 62px;
+        width: 100%;
+        height: auto;
+
+        @media (max-width: ${style.collapse}px) {
+          width: 125px;
+          height: 62px;
+        }
         background-color: ${style.white};
       }
 

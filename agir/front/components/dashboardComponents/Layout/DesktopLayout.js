@@ -3,37 +3,53 @@ import React from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
+import ActionButtons from "@agir/front/app/ActionButtons";
 import Announcements from "@agir/front/dashboardComponents/Announcements";
 import FacebookLoginAd from "@agir/front/dashboardComponents/FacebookLoginAd";
+import { LayoutTitle, LayoutSubtitle } from "./StyledComponents";
 import Navigation, {
   SecondaryNavigation,
 } from "@agir/front/dashboardComponents/Navigation";
-
-import { Column, Container, Row } from "@agir/front/genericComponents/grid";
-import ActionButtons from "@agir/front/app/ActionButtons";
-import { LayoutTitle, LayoutSubtitle } from "./StyledComponents";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import UpcomingEvents from "@agir/events/common/UpcomingEvents";
 
-const FixedColumn = styled(Column)`
+const LeftColumn = styled.aside`
   position: sticky;
-  top: 4.5rem;
-  padding-top: 4.5rem;
+  top: 3rem;
   z-index: ${(props) => props.theme.zindexMainContent};
 `;
+const MainColumn = styled.div``;
+const RightColumn = styled.aside``;
 
-const SidebarColumn = styled(Column)`
-  padding-top: 4.5rem;
-`;
+const MainContainer = styled.div`
+  width: 100%;
+  max-width: 1442px;
+  margin: 0 auto;
+  padding: 0 50px 3rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
 
-const MainColumn = styled(Column)`
-  padding-top: 4.5rem;
-`;
+  ${LeftColumn} {
+    padding: 3rem 0 0;
+    flex: 0 0 180px;
+  }
 
-const MainContainer = styled(Container)`
-  padding-bottom: 4.5rem;
+  ${RightColumn} {
+    padding: 3rem 0 0;
+    flex: 0 0 255px;
 
-  & > ${Row} {
-    flex-wrap: nowrap;
+    h4 {
+      margin: 0 0 0.5rem;
+      line-height: 1.5;
+    }
+  }
+
+  ${MainColumn} {
+    padding: 3rem 2rem 0;
+    flex: 1 1 800px;
+    max-width: 800px;
+    margin: 0 auto;
   }
 `;
 
@@ -44,39 +60,39 @@ const Layout = (props) => {
 
   return (
     <MainContainer {...props}>
-      <Row gutter={50} align="flex-start">
-        <FixedColumn width="320px">
-          <Navigation {...props} />
-        </FixedColumn>
-        <MainColumn grow>
-          <section>
-            {props.title ? (
-              <header>
-                <LayoutTitle>{title}</LayoutTitle>
-                <LayoutSubtitle>{subtitle}</LayoutSubtitle>
-              </header>
-            ) : null}
-            {children}
-          </section>
-        </MainColumn>
-        <SidebarColumn>
-          <div style={{ margin: "0 0 2rem" }}>
-            <h4 style={{ margin: "0 0 .5rem" }}>Mes actions</h4>
-            <ActionButtons />
-          </div>
-          {Array.isArray(events) && events.length > 0 ? (
-            <div style={{ margin: "0 0 2rem" }}>
-              <h4 style={{ lineHeight: 1.5, margin: "0 0 .5rem" }}>
-                Mes événements prévus
-              </h4>
+      <LeftColumn>
+        <Navigation {...props} />
+      </LeftColumn>
+      <MainColumn>
+        <section>
+          {props.title ? (
+            <header>
+              <LayoutTitle>{title}</LayoutTitle>
+              <LayoutSubtitle>{subtitle}</LayoutSubtitle>
+            </header>
+          ) : null}
+          {children}
+        </section>
+      </MainColumn>
+      <RightColumn>
+        <div>
+          <h4>Mes actions</h4>
+          <ActionButtons />
+        </div>
+        <Spacer size="2rem" />
+        {Array.isArray(events) && events.length > 0 ? (
+          <>
+            <div>
+              <h4>Mes événements prévus</h4>
               <UpcomingEvents orientation="vertical" events={events} />
             </div>
-          ) : null}
-          <FacebookLoginAd />
-          <Announcements />
-          <SecondaryNavigation />
-        </SidebarColumn>
-      </Row>
+            <Spacer size="2rem" />
+          </>
+        ) : null}
+        <FacebookLoginAd />
+        <Announcements />
+        <SecondaryNavigation />
+      </RightColumn>
     </MainContainer>
   );
 };
