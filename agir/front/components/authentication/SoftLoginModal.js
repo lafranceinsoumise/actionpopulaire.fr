@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
