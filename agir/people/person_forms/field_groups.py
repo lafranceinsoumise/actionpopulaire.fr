@@ -38,6 +38,16 @@ class FieldSet(FieldGroup):
     def set_up_fields(self, form, is_edition):
         for field_descriptor in self.fields:
             if is_actual_model_field(field_descriptor):
+                # Allow overriding of default form field by setting type on the field config
+                if field_descriptor.get("type"):
+                    if not field_descriptor.get("label"):
+                        field_descriptor["label"] = str(
+                            form.fields[field_descriptor["id"]].label
+                        )
+                    form.fields[field_descriptor["id"]] = get_form_field(
+                        field_descriptor, is_edition, form.instance
+                    )
+
                 # by default person fields are required
                 form.fields[field_descriptor["id"]].required = field_descriptor.get(
                     "required", True
@@ -51,6 +61,12 @@ class FieldSet(FieldGroup):
                     form.fields[field_descriptor["id"]].help_text = _(
                         "Format JJ/MM/AAAA"
                     )
+
+                if field_descriptor["id"] == "newsletters":
+                    form.fields[
+                        field_descriptor["id"]
+                    ].initial = form.instance.newsletters
+
             else:
                 form.fields[field_descriptor["id"]] = get_form_field(
                     field_descriptor, is_edition, form.instance

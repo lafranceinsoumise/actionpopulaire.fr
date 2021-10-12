@@ -323,6 +323,44 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         submissions = PersonFormSubmission.objects.all()
         self.assertEqual(len(submissions), 2)
 
+    def test_person_newsletters_field_add_without_overriding(self):
+        self.person.newsletters = [Person.NEWSLETTER_2022]
+        self.person.save()
+        PersonForm.objects.create(
+            title="Newsletters",
+            slug="newsletters",
+            description="Accepter les newsletters",
+            confirmation_note="Acceptées !",
+            main_question="Alors ?",
+            custom_fields=[
+                {
+                    "title": "Newsletters",
+                    "fields": [
+                        {
+                            "id": "newsletters",
+                            "type": "newsletters",
+                            "label": "Acceptez-vous ?",
+                            "person_field": True,
+                        }
+                    ],
+                }
+            ],
+        )
+        res = self.client.get("/formulaires/newsletters/")
+        self.assertContains(res, "newsletters")
+        self.assertNotIn(Person.NEWSLETTER_2022_LIAISON, self.person.newsletters)
+        self.assertIn(Person.NEWSLETTER_2022, self.person.newsletters)
+        res = self.client.post("/formulaires/newsletters/", data={},)
+        self.assertContains(res, "has-error")
+        res = self.client.post(
+            "/formulaires/newsletters/",
+            data={"newsletters": [Person.NEWSLETTER_2022_LIAISON]},
+        )
+        self.assertRedirects(res, "/formulaires/newsletters/confirmation/")
+        self.person.refresh_from_db()
+        self.assertIn(Person.NEWSLETTER_2022_LIAISON, self.person.newsletters)
+        self.assertIn(Person.NEWSLETTER_2022, self.person.newsletters)
+
 
 class AccessControlTestCase(SetUpPersonFormsMixin, TestCase):
     def test_cannot_access_not_anonymous_form(self):
