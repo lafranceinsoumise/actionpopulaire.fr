@@ -89,7 +89,7 @@ export const setCurrentActivitiesAsRead = async (ids = []) => {
   }));
 };
 
-// Set all actovities of user as read
+// Set all activities of user as read
 export const setAllActivitiesAsRead = async () => {
   let result = false;
 
