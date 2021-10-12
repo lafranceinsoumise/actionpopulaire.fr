@@ -319,7 +319,7 @@ const AmountStep = (props) => {
                 byMonth={byMonth}
                 groupPercentage={hasGroup ? groupPercentage : undefined}
                 onChangeAmount={setAmount}
-                onChangeByMonth={setByMonth}
+                onChangeByMonth={type !== "2022" ? setByMonth : undefined}
                 onChangeGroupPercentage={
                   hasGroup ? setGroupPercentage : undefined
                 }
