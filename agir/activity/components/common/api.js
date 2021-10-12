@@ -11,6 +11,7 @@ export const ENDPOINT = {
   activities: "/api/user/activities/?page=:page&page_size=:pageSize",
   activity: "/api/activity/:activityId/",
   bulkUpdateActivityStatus: "/api/activity/bulk/update-status/",
+  setAllActivitiesRead: "/api/activity/bulk/mark-all-read/",
   announcements: "/api/announcements/",
   customAnnouncement: "/api/user/announcements/custom/:slug/",
   unreadActivityCount: "/api/user/activities/unread-count/",
@@ -77,7 +78,8 @@ export const setActivitiesAsDisplayed = async (ids = []) => {
   return result;
 };
 
-export const setAllActivitiesAsRead = async (ids = []) => {
+// Set all activities @ids as read
+export const setCurrentActivitiesAsRead = async (ids = []) => {
   const success = await setActivitiesAsDisplayed(ids);
   if (!success) return;
 
@@ -85,4 +87,28 @@ export const setAllActivitiesAsRead = async (ids = []) => {
     ...session,
     hasUnreadActivities: false,
   }));
+};
+
+// Set all actovities of user as read
+export const setAllActivitiesAsRead = async () => {
+  let result = false;
+
+  const url = getActivityEndpoint("setAllActivitiesRead");
+
+  try {
+    let res = await axios.get(url);
+    result = !!res && res.status === 204;
+  } catch (e) {
+    log.debug(e);
+    result = false;
+  }
+
+  if (!result) return;
+
+  mutate("/api/session/", (session) => ({
+    ...session,
+    hasUnreadActivities: false,
+  }));
+
+  return result;
 };

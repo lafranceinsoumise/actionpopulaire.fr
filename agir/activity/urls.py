@@ -11,6 +11,11 @@ urlpatterns = [
         name="api_activity_update_status",
     ),
     path(
+        "api/activity/bulk/mark-all-read/",
+        views.ActivityStatusUpdateAllReadView.as_view(),
+        name="api_activity_update_status_all_read",
+    ),
+    path(
         "api/activity/<int:pk>/", views.ActivityAPIView.as_view(), name="api_activity"
     ),
     path(
