@@ -8,11 +8,13 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import CountryField from "@agir/front/formComponents/CountryField";
 import PhoneField from "@agir/front/formComponents/PhoneField";
-import SelectField from "@agir/front/formComponents/SelectField";
+import SearchAndSelectField from "@agir/front/formComponents/SearchAndSelectField";
 import TextField from "@agir/front/formComponents/TextField";
 
 import HowTo from "./HowTo";
 import NoGroupCard from "./NoGroupCard";
+
+import { searchGroups } from "@agir/groups/api";
 
 const NEWSLETTER_2022_LIAISON = "2022_liaison";
 
@@ -76,9 +78,25 @@ const scrollToError = (errors) => {
     });
 };
 
+const formatGroupOptions = (groups) =>
+  Array.isArray(groups) && groups.length > 0
+    ? [
+        ...groups.map((group) => ({
+          ...group,
+          icon: "users",
+          value: group.id,
+          label: group.name,
+        })),
+        {
+          id: null,
+          value: "",
+          label: "Ne pas ajouter à un groupe",
+        },
+      ]
+    : null;
+
 export const ContactForm = (props) => {
   const { initialData, errors, isLoading, onSubmit, groups } = props;
-
   const [data, setData] = useState({
     firstName: "",
     lastName: "",
@@ -89,6 +107,7 @@ export const ContactForm = (props) => {
     newsletters: ["2022_exceptionnel"],
     ...(initialData || {}),
   });
+  const [groupOptions, setGroupOptions] = useState(formatGroupOptions(groups));
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -144,7 +163,28 @@ export const ContactForm = (props) => {
         : undefined,
       group,
     }));
+    setGroupOptions(formatGroupOptions(groups));
   }, []);
+
+  const handleSearchGroup = useCallback(
+    async (searchTerms) => {
+      let results = formatGroupOptions(groups);
+      if (!searchTerms) {
+        setGroupOptions(results);
+        return results;
+      }
+      if (searchTerms.length < 3) {
+        setGroupOptions(null);
+        return results;
+      }
+      setGroupOptions(undefined);
+      const response = await searchGroups(searchTerms);
+      results = formatGroupOptions(response.data?.results);
+      setGroupOptions(results);
+      return results;
+    },
+    [groupOptions]
+  );
 
   const handleSubmit = useCallback(
     (e) => {
@@ -152,25 +192,6 @@ export const ContactForm = (props) => {
       onSubmit(data);
     },
     [onSubmit, data]
-  );
-
-  const groupOptions = useMemo(
-    () =>
-      Array.isArray(groups) && groups.length > 0
-        ? [
-            ...groups.map((group) => ({
-              ...group,
-              value: group.id,
-              label: group.name,
-            })),
-            {
-              id: null,
-              value: "",
-              label: "Ne pas ajouter à un groupe",
-            },
-          ]
-        : null,
-    [groups]
   );
 
   useEffect(() => {
@@ -317,23 +338,21 @@ export const ContactForm = (props) => {
         name="2022"
         disabled={isLoading}
       />
-      {groupOptions && (
-        <>
-          <Spacer data-scroll="group" size="1.5rem" />
-          <SelectField
-            label="Groupe auquel ajouter le contact"
-            placeholder="Choisissez un groupe d'action"
-            onChange={handleSelectGroup}
-            value={data.group}
-            id="group"
-            name="group"
-            options={groupOptions}
-            error={errors?.group}
-            disabled={isLoading}
-            required={false}
-          />
-        </>
-      )}
+      <Spacer data-scroll="group" size="1.5rem" />
+      <SearchAndSelectField
+        label="Groupe auquel ajouter le contact"
+        placeholder="Choisissez un groupe d'action"
+        onChange={handleSelectGroup}
+        onSearch={handleSearchGroup}
+        isLoading={typeof groupOptions === "undefined"}
+        value={data.group}
+        id="group"
+        name="group"
+        defaultOptions={groupOptions}
+        error={errors?.group}
+        disabled={isLoading}
+        required={false}
+      />
       {data.group?.id && (
         <>
           <Spacer size=".5rem" />

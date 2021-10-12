@@ -12,7 +12,7 @@ import GroupMemberFile from "@agir/groups/groupPage/GroupSettings/GroupMemberFil
 
 import { useToast } from "@agir/front/globalContext/hooks";
 import { useGroup } from "@agir/groups/groupPage/hooks/group";
-import { getGroupPageEndpoint, updateMember } from "@agir/groups/groupPage/api";
+import { getGroupEndpoint, updateMember } from "@agir/groups/api";
 
 const slideInTransition = {
   from: { transform: "translateX(66%)" },
@@ -74,7 +74,7 @@ const MembershipPanel = (props) => {
 
   const group = useGroup(groupPk);
   const { data: members, mutate: mutateMembers } = useSWR(
-    getGroupPageEndpoint("getMembers", { groupPk })
+    getGroupEndpoint("getMembers", { groupPk })
   );
   const [selectedMembershipType, setSelectedMembershipType] = useState(null);
   const [selectedMember, setSelectedMember] = useState(null);
@@ -85,7 +85,7 @@ const MembershipPanel = (props) => {
     mutate: mutateSelectedMember,
   } = useSWR(
     selectedMember?.id &&
-      getGroupPageEndpoint("getMemberPersonalInformation", {
+      getGroupEndpoint("getMemberPersonalInformation", {
         memberPk: selectedMember?.id,
       })
   );

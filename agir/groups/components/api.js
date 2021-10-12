@@ -35,9 +35,11 @@ export const ENDPOINT = {
 
   createGroupExternalLink: "/api/groupes/:groupPk/link/",
   groupExternalLink: "/api/groupes/:groupPk/link/:linkPk/",
+
+  searchGroups: "/api/groupes/recherche/",
 };
 
-export const getGroupPageEndpoint = (key, params) => {
+export const getGroupEndpoint = (key, params) => {
   let endpoint = ENDPOINT[key] || "";
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -57,7 +59,7 @@ export const createMessage = async (groupPk, message) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("createMessage", { groupPk });
+  const url = getGroupEndpoint("createMessage", { groupPk });
   const body = formatMessage(message);
   try {
     const response = await axios.post(url, body);
@@ -74,7 +76,7 @@ export const updateMessage = async (message) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("updateMessage", { messagePk: message.id });
+  const url = getGroupEndpoint("updateMessage", { messagePk: message.id });
   const body = formatMessage(message);
   try {
     const response = await axios.put(url, body);
@@ -91,7 +93,7 @@ export const deleteMessage = async (message) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("deleteMessage", { messagePk: message.id });
+  const url = getGroupEndpoint("deleteMessage", { messagePk: message.id });
   try {
     const response = await axios.delete(url);
     result.data = response.data;
@@ -107,7 +109,7 @@ export const reportMessage = async (message) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("report");
+  const url = getGroupEndpoint("report");
   const body = {
     object_id: message.id,
     content_type: "msgs.supportgroupmessage",
@@ -127,7 +129,7 @@ export const createComment = async (messagePk, comment) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("createComment", { messagePk });
+  const url = getGroupEndpoint("createComment", { messagePk });
   const body = {
     text: comment,
   };
@@ -146,7 +148,7 @@ export const deleteComment = async (comment) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("deleteComment", { commentPk: comment.id });
+  const url = getGroupEndpoint("deleteComment", { commentPk: comment.id });
   try {
     const response = await axios.delete(url);
     result.data = response.data;
@@ -162,7 +164,7 @@ export const reportComment = async (comment) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("report");
+  const url = getGroupEndpoint("report");
   const body = {
     object_id: comment.id,
     content_type: "msgs.supportgroupmessagecomment",
@@ -182,7 +184,7 @@ export const joinGroup = async (groupPk) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("joinGroup", { groupPk });
+  const url = getGroupEndpoint("joinGroup", { groupPk });
   try {
     const response = await axios.post(url, {});
     result.data = response.data;
@@ -198,7 +200,7 @@ export const followGroup = async (groupPk) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("followGroup", { groupPk });
+  const url = getGroupEndpoint("followGroup", { groupPk });
   try {
     const response = await axios.post(url, {});
     result.data = response.data;
@@ -214,7 +216,7 @@ export const quitGroup = async (groupPk) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("quitGroup", { groupPk });
+  const url = getGroupEndpoint("quitGroup", { groupPk });
   try {
     const response = await axios.delete(url, {});
     result.data = response.data;
@@ -230,7 +232,7 @@ export const updateGroup = async (groupPk, data) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("updateGroup", { groupPk });
+  const url = getGroupEndpoint("updateGroup", { groupPk });
   let headers = undefined;
   let body = data;
 
@@ -266,7 +268,7 @@ export const inviteToGroup = async (groupPk, data) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("inviteToGroup", { groupPk });
+  const url = getGroupEndpoint("inviteToGroup", { groupPk });
 
   try {
     const response = await axios.post(url, data);
@@ -283,7 +285,7 @@ export const getMembers = async (groupPk) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("getMembers", { groupPk });
+  const url = getGroupEndpoint("getMembers", { groupPk });
   try {
     const response = await axios.get(url);
     result.data = response.data;
@@ -299,7 +301,7 @@ export const getMemberPersonalInformation = async (memberPk) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("getMemberPersonalInformation", {
+  const url = getGroupEndpoint("getMemberPersonalInformation", {
     memberPk,
   });
   try {
@@ -317,7 +319,7 @@ export const updateMember = async (memberPk, data) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("updateMember", { memberPk });
+  const url = getGroupEndpoint("updateMember", { memberPk });
 
   try {
     const response = await axios.patch(url, data);
@@ -334,7 +336,7 @@ export const getFinance = async (groupPk) => {
     data: null,
     error: null,
   };
-  const url = getGroupPageEndpoint("getFinance", { groupPk });
+  const url = getGroupEndpoint("getFinance", { groupPk });
 
   try {
     const response = await axios.get(url);
@@ -352,7 +354,7 @@ export const createGroupLink = async (groupPk, body) => {
     error: null,
   };
 
-  const url = getGroupPageEndpoint("createGroupExternalLink", { groupPk });
+  const url = getGroupEndpoint("createGroupExternalLink", { groupPk });
 
   try {
     const response = await axios.post(url, body);
@@ -370,7 +372,7 @@ export const updateGroupLink = async (groupPk, linkPk, body) => {
     error: null,
   };
 
-  const url = getGroupPageEndpoint("groupExternalLink", {
+  const url = getGroupEndpoint("groupExternalLink", {
     groupPk,
     linkPk,
   });
@@ -403,11 +405,29 @@ export const deleteGroupLink = async (groupPk, linkPk) => {
     error: null,
   };
 
-  const url = getGroupPageEndpoint("groupExternalLink", { groupPk, linkPk });
+  const url = getGroupEndpoint("groupExternalLink", { groupPk, linkPk });
 
   try {
     await axios.delete(url);
     result.success = true;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const searchGroups = async (searchTerms, params = {}) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupEndpoint("searchGroups");
+  try {
+    const response = await axios.get(url, {
+      params: { ...params, q: searchTerms },
+    });
+    result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
   }
