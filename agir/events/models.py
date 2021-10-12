@@ -109,14 +109,24 @@ class EventQuerySet(models.QuerySet):
     def with_participants(self):
         confirmed_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CONFIRMED)
         confirmed_rsvps = Q(rsvps__status=RSVP.STATUS_CONFIRMED)
+        canceled_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CANCELED)
+        canceled_rsvps = Q(rsvps__status=RSVP.STATUS_CANCELED)
 
         return self.annotate(
             all_attendee_count=Case(
                 When(
                     subscription_form=None,
-                    then=Coalesce(Sum("rsvps__guests") + Count("rsvps"), 0),
+                    then=Coalesce(
+                        Sum("rsvps__guests", filter=~canceled_rsvps)
+                        + Count("rsvps", filter=~canceled_rsvps),
+                        0,
+                    ),
                 ),
-                default=Coalesce(Count("rsvps__identified_guests") + Count("rsvps"), 0),
+                default=Coalesce(
+                    Count("rsvps__identified_guests", filter=~canceled_guests)
+                    + Count("rsvps", filter=~canceled_rsvps),
+                    0,
+                ),
                 output_field=CharField(),
             ),
             confirmed_attendee_count=Case(
