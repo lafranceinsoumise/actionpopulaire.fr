@@ -78,9 +78,9 @@ const SoftLoginModalContent = (props) => {
   }
 
   const username =
-    user?.displayName.length > 2
-      ? user?.displayName
-      : user?.firstName || user?.displayName;
+    user.displayName?.length > 2
+      ? user.displayName
+      : user.firstName || user.displayName;
 
   const [type, softLoginUserName, softLoginUserEmail, softLoginURL] =
     data.tags.split(",");
