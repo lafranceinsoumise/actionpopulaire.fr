@@ -42,6 +42,7 @@ from agir.people.admin.views import (
     FormSubmissionViewsMixin,
     AddPersonEmailView,
     MergePersonsView,
+    PersonFormSandboxView,
 )
 from agir.people.models import Person, PersonTag
 from agir.people.person_forms.display import default_person_form_display
@@ -558,6 +559,13 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
                 "<int:pk>/clear_result_url/",
                 self.admin_site.admin_view(partial(self.create_result_url, clear=True)),
                 name="people_personform_clear_result_url",
+            ),
+            path(
+                "sandbox/",
+                self.admin_site.admin_view(
+                    PersonFormSandboxView.as_view(model_admin=self)
+                ),
+                name="people_personform_sandbox",
             ),
         ] + super().get_urls()
 

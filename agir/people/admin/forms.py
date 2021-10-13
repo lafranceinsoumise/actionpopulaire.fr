@@ -1,7 +1,7 @@
 import traceback
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Submit, Layout
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.html import format_html
@@ -13,6 +13,7 @@ from agir.people.person_forms.actions import (
     validate_custom_fields,
     get_people_form_class,
 )
+from agir.people.person_forms.models import PersonForm
 from agir.people.person_forms.schema import schema
 
 
@@ -88,6 +89,52 @@ def strip_all_keys(value):
     if isinstance(value, dict):
         return {k.strip(): strip_all_keys(v) for k, v in value.items()}
     return value
+
+
+class PersonFormSandboxForm(forms.ModelForm):
+    class Meta:
+        model = PersonForm
+        fields = ["custom_fields"]
+        widgets = {
+            "custom_fields": AdminJsonWidget(schema=schema),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit("top-preview", "Mettre à jour l'aperçu", css_class="btn-sm",),
+            "custom_fields",
+            Submit("bottom-preview", "Mettre à jour l'aperçu"),
+        )
+
+    def save(self, commit=True):
+        # Just return the instance without saving it
+        return self.instance
+
+    def clean_custom_fields(self):
+        value = self.cleaned_data["custom_fields"]
+        # Strip toutes les clés de tous les dictionnaires !
+        value = strip_all_keys(value)
+        validate_custom_fields(value)
+        return value
+
+    def _post_clean(self):
+        super()._post_clean()
+        try:
+            klass = get_people_form_class(self.instance)
+            klass()
+        except Exception:
+            self.add_error(
+                None,
+                ValidationError(
+                    format_html(
+                        "<p>{message}</p><pre>{stacktrace}</pre>",
+                        message="Problème de création du formulaire. L'exception suivante a été rencontrée :",
+                        stacktrace=traceback.format_exc(),
+                    )
+                ),
+            )
 
 
 class PersonFormForm(forms.ModelForm):

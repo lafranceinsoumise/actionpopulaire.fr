@@ -8,13 +8,18 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.views.generic import FormView
+from django.views.generic import FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 
 from agir.lib.admin import AdminViewMixin
 from agir.people.actions.management import merge_persons
-from agir.people.admin.forms import AddPersonEmailForm, ChoosePrimaryAccount
+from agir.people.admin.forms import (
+    AddPersonEmailForm,
+    ChoosePrimaryAccount,
+    PersonFormSandboxForm,
+)
 from agir.people.models import Person
+from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
 from agir.people.person_forms.models import PersonForm
 
@@ -186,3 +191,49 @@ class MergePersonsView(AdminViewMixin, FormView):
         return HttpResponseRedirect(
             reverse("admin:people_person_change", args=[primary_account.pk])
         )
+
+
+class PersonFormSandboxView(AdminViewMixin, UpdateView):
+    template_name = "admin/personforms/sandbox.html"
+
+    def setup(self, *args, **kwargs):
+        super().setup(*args, **kwargs)
+        self.person_form_instance = self.get_person_form_instance()
+
+    def get_object(self, queryset=None):
+        return self.person_form_instance
+
+    def get_person(self):
+        if self.request.user.is_authenticated:
+            return self.request.user.person
+
+    def get_form_class(self):
+        return PersonFormSandboxForm
+
+    def get_person_form_class(self):
+        return get_people_form_class(self.person_form_instance)(
+            instance=self.get_person()
+        )
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            hide_feedback_button=True,
+            person_form=self.person_form_instance,
+            is_authorized=self.person_form_instance.is_authorized(self.get_person()),
+            person_form_form=self.get_person_form_class(),
+            **kwargs,
+        )
+
+    def get_person_form_instance(self):
+        return PersonForm(
+            id=0,
+            title="[Titre du formulaire]",
+            slug="slug",
+            description="[Description du formulaire]",
+            confirmation_note="...",
+            main_question="...",
+            config={"disabled": True},
+        )
+
+    def form_valid(self, form):
+        return self.render_to_response(self.get_context_data())

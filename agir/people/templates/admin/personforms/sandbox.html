@@ -1,0 +1,52 @@
+{% extends "front/iframe_layout.html" %}
+{% load i18n static crispy_forms_tags %}
+{% block title %}Bac à sable des formulaires{% endblock %}
+{% block body %}
+<style>
+  body.home.archive {
+    padding: 0;
+  }
+  #person_form_config,
+  #person_form_preview {
+    padding: 4rem;
+  }
+  #person_form_config form {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-end;
+    padding: 1rem 0;
+  }
+  #div_id_custom_fields {
+    margin: 1rem 0;
+    align-self: stretch;
+  }
+  #person_form_config .jsoneditordiv {
+    margin-left: 0 !important;
+    height: 500px;
+    height: calc(100vh - 220px);
+  }
+</style>
+<div class="wrap container-fluid" role="document">
+  <main class="main marginbottommore">
+    <div class="row">
+      <div id="person_form_config" class="col-xs-12 col-md-6">
+        {% crispy form %}
+      </div>
+      <div id="person_form_preview" class="col-xs-12 col-md-6">
+        <h2 class="headline center">
+          {{ person_form.title }}
+        </h2>
+        {{ person_form.html_description }}
+        {% crispy person_form_form %}
+        <script>
+          document.getElementById("submit-id-submit").disabled = "disabled";
+          document.addEventListener("DOMContentLoaded", function () {
+            window.AgirAdminJsonWidgetEditor.setMode("code")
+            window.AgirAdminJsonWidgetEditor.resize()
+          });
+        </script>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

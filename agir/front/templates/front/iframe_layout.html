@@ -7,7 +7,11 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>{{ calendar.name }}</title>
+  <title>
+    {% block title %}
+    {{ calendar.name }}
+    {% endblock %}
+  </title>
 
   {% include 'theme.bundle.html' %}
 
