@@ -27,6 +27,7 @@ const StyledError = styled.span``;
 
 const BackgroundOpacity = styled.div`
   @media (max-width: ${style.collapse}px) {
+    z-index: -1;
     height: 100vh;
     width: 100vw;
     position: fixed;
@@ -84,17 +85,6 @@ const StyledField = styled.label`
     max-width: 100%;
     height: 40px;
     font-size: 1rem;
-
-    ${BackgroundOpacity} {
-      @media (max-width: ${style.collapse}px) {
-        height: 100vh;
-        width: 100vw;
-        position: fixed;
-        top: 0;
-        left: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-      }
-    }
 
     &,
     &:hover,
