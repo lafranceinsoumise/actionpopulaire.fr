@@ -20,7 +20,9 @@ const ModalContainer = styled.div`
   @media (max-width: ${style.collapse}px) {
     width: 100%;
     max-width: unset;
-    display: block;
+    display: flex;
+    justify-content: center;
+    margin: 0;
   }
 `;
 
