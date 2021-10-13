@@ -12,7 +12,10 @@ import SWRContext from "@agir/front/allPages/SWRContext";
 const renderLegacyPageComponents = () => {
   const root = document.createElement("div");
   document.body.appendChild(root);
-  const hideFeedbackButton = !!window?.Agir?.hideFeedbackButton;
+  const hideFeedbackButton =
+    !!window?.Agir?.hideFeedbackButton ||
+    document.querySelectorAll("form[method='post']")?.length > 0;
+
   renderReactComponent(
     <SWRContext>
       <GlobalContextProvider>
