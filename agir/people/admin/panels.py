@@ -53,6 +53,7 @@ __all__ = [
     "PersonTagAdmin",
     "PersonFormAdmin",
     "PersonFormSubmissionAdmin",
+    "ContactAdmin",
 ]
 
 
@@ -714,3 +715,81 @@ class PersonFormSubmissionAdmin(admin.ModelAdmin):
                 name="people_personformsubmission_detail",
             )
         ] + super().get_urls()
+
+
+class Contact(Person):
+    class Meta:
+        proxy = True
+
+
+@admin.register(Contact)
+class ContactAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "short_address",
+        "is_liaison",
+        "is_2022",
+        "created",
+        "subscriber",
+    )
+    list_filter = (
+        SegmentFilter,
+        "is_2022",
+        ("created", DateRangeFilter),
+    )
+
+    # doit être non vide pour afficher le formulaire de recherche,
+    # mais n'est en réalité pas utilisé pour déterminer les champs
+    # de recherche
+    search_fields = ["search", "contact_phone"]
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def name(self, obj):
+        return format_html(
+            '<a href="{link}">{person}</a>',
+            person=str(obj),
+            link=reverse("admin:people_person_change", args=[obj.id]),
+        )
+
+    name.short_description = "Nom du contact"
+
+    def short_address(self, obj):
+        return obj.short_address
+
+    short_address.short_description = "Adresse"
+
+    def is_liaison(self, obj):
+        return obj.NEWSLETTER_2022_LIAISON in obj.newsletters
+
+    is_liaison.short_description = "Correspondant·e d'immeuble"
+    is_liaison.boolean = True
+
+    def subscriber(self, obj):
+        subscriber_id = obj.meta["subscriptions"]["AP"]["subscriber"]
+        subscriber = Person.objects.filter(pk=subscriber_id).first()
+        if subscriber:
+            return format_html(
+                '<a href="{link}">{person}</a>',
+                person=str(subscriber),
+                link=reverse("admin:people_person_change", args=[subscriber.id]),
+            )
+
+    subscriber.short_description = "Personne à l'origine de l'ajout"
+
+    def get_queryset(self, *args, **kwargs):
+        return (
+            super(ContactAdmin, self)
+            .get_queryset(*args, **kwargs)
+            .filter(meta__subscriptions__AP__subscriber__isnull=False)
+        )
+
+    class Media:
+        pass
