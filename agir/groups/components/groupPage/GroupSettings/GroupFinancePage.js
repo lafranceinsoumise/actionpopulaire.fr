@@ -14,7 +14,7 @@ import SpendingRequests from "./SpendingRequests";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
-import { getGroupPageEndpoint } from "@agir/groups/groupPage/api.js";
+import { getGroupEndpoint } from "@agir/groups/api";
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 
 const DonationSkeleton = styled.p`
@@ -28,7 +28,7 @@ const GroupFinancePage = (props) => {
   const { onBack, illustration, groupPk } = props;
 
   const group = useGroup(groupPk);
-  const { data } = useSWR(getGroupPageEndpoint("getFinance", { groupPk }));
+  const { data } = useSWR(getGroupEndpoint("getFinance", { groupPk }));
 
   return (
     <>

@@ -90,13 +90,14 @@ const StyledField = styled.label`
   align-items: stretch;
   font-size: 1rem;
   font-weight: 400;
-  line-height: 1;
+  line-height: 1.5;
 
   ${StyledLabel} {
     grid-row: 1;
     grid-column: 1/3;
     font-weight: 600;
   }
+
   ${StyledHelpText} {
     grid-row: 2;
     grid-column: 1/3;
@@ -120,7 +121,6 @@ const StyledField = styled.label`
     max-width: 100%;
     height: 40px;
     font-size: 1rem;
-    line-height: 1.5rem;
 
     &,
     &:hover,
@@ -190,7 +190,7 @@ const Option = ({ innerRef, ...innerProps }) => {
     <StyledOption ref={innerRef} {...innerProps}>
       {icon && <RawFeatherIcon name={icon} widht="1rem" height="1rem" />}
       <p>
-        <strong>Choisir: {label}</strong>
+        <strong>{label}</strong>
         {sublabel ? <span>{sublabel}</span> : null}
       </p>
       {buttonLabel && (

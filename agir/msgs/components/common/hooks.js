@@ -4,7 +4,7 @@ import useSWR, { mutate } from "swr";
 import { validate as uuidValidate } from "uuid";
 
 import axios from "@agir/lib/utils/axios";
-import * as groupAPI from "@agir/groups/groupPage/api";
+import * as groupAPI from "@agir/groups/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { setBackLink } from "@agir/front/globalContext/actions";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";

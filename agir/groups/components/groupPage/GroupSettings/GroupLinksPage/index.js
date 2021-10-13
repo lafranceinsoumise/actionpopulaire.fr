@@ -15,10 +15,10 @@ import GroupLinkForm from "./GroupLinkForm";
 
 import { useGroup } from "@agir/groups/groupPage/hooks/group";
 import {
-  getGroupPageEndpoint,
+  getGroupEndpoint,
   saveGroupLink,
   deleteGroupLink,
-} from "@agir/groups/groupPage/api";
+} from "@agir/groups/api";
 import { useToast } from "@agir/front/globalContext/hooks";
 
 const slideInTransition = {
@@ -62,7 +62,7 @@ const GroupLinksPage = (props) => {
 
       sendToast("Le lien a été enregistré", "SUCCESS", { autoClose: true });
       setSelectedLink(null);
-      mutate(getGroupPageEndpoint("getGroup", { groupPk }));
+      mutate(getGroupEndpoint("getGroup", { groupPk }));
     },
     [sendToast, groupPk]
   );
@@ -84,7 +84,7 @@ const GroupLinksPage = (props) => {
 
       sendToast("Le lien a été supprimé", "SUCCESS", { autoClose: true });
       setSelectedLink(null);
-      mutate(getGroupPageEndpoint("getGroup", { groupPk }));
+      mutate(getGroupEndpoint("getGroup", { groupPk }));
     },
     [sendToast, groupPk]
   );

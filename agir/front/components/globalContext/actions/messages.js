@@ -1,6 +1,6 @@
 import ACTION_TYPE from "@agir/front/globalContext/actionTypes";
 
-import * as api from "@agir/groups/groupPage/api";
+import * as api from "@agir/groups/api";
 
 export const loadMessages = () => ({
   type: ACTION_TYPE.LOADING_MESSAGES_ACTION,

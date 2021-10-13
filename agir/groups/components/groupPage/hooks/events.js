@@ -4,7 +4,7 @@ import useSWRInfinite from "swr/infinite";
 
 import logger from "@agir/lib/utils/logger";
 
-import * as api from "@agir/groups/groupPage/api";
+import * as api from "@agir/groups/api";
 
 const log = logger(__filename);
 
@@ -12,7 +12,7 @@ export const useUpcomingEvents = (group) => {
   const hasUpcomingEvents = group && group.id && group.hasUpcomingEvents;
   const { data, error } = useSWR(
     hasUpcomingEvents
-      ? api.getGroupPageEndpoint("getUpcomingEvents", {
+      ? api.getGroupEndpoint("getUpcomingEvents", {
           groupPk: group.id,
         })
       : null
@@ -26,7 +26,7 @@ export const usePastEvents = (group) => {
   const { data, error, size, setSize, isValidating } = useSWRInfinite(
     (pageIndex) =>
       hasPastEvents
-        ? api.getGroupPageEndpoint("getPastEvents", {
+        ? api.getGroupEndpoint("getPastEvents", {
             groupPk: group.id,
             page: pageIndex + 1,
             pageSize: 3,
@@ -78,7 +78,7 @@ export const usePastEventReports = (group) => {
   const hasPastEventReports = group && group.hasPastEventReports;
   const { data, error } = useSWR(
     hasPastEventReports
-      ? api.getGroupPageEndpoint("getPastEventReports", {
+      ? api.getGroupEndpoint("getPastEventReports", {
           groupPk: group.id,
         })
       : null
