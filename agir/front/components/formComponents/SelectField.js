@@ -21,10 +21,29 @@ const StyledHelpText = styled.span``;
 
 const StyledSelectContainer = styled(components.SelectContainer)``;
 const StyledControl = styled(components.Control)``;
-const StyledMenu = styled(components.Menu)``;
 const StyledMenuList = styled.div``;
 const StyledOption = styled(components.Option)``;
 const StyledError = styled.span``;
+
+const BackgroundOpacity = styled.div`
+  @media (max-width: ${style.collapse}px) {
+    z-index: -1;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+`;
+
+const CustomMenu = (props) => (
+  <components.Menu {...props}>
+    {props.children}
+    <BackgroundOpacity />
+  </components.Menu>
+);
+const StyledMenu = styled(CustomMenu)``;
 
 const StyledField = styled.label`
   display: grid;
@@ -108,7 +127,6 @@ const StyledField = styled.label`
       width: 100%;
       margin: 0;
       border-radius: ${style.borderRadius} ${style.borderRadius} 0 0;
-      padding-top: 0.875rem;
       max-height: 388px;
       overflow-x: hidden;
       overflow-y: auto;
@@ -120,6 +138,11 @@ const StyledField = styled.label`
     @media (max-width: ${style.collapse}px) {
       padding-bottom: 60px;
       max-height: 100%;
+    }
+
+    @media (max-width: ${style.collapse}px) {
+      padding-top: 10px;
+      background-color: white;
     }
 
     footer {
