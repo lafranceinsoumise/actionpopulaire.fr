@@ -1,3 +1,6 @@
+import React from "react";
+import Spacer from "@agir/front/genericComponents/Spacer";
+
 import attConImg from "./images/ATT-CON.jpg";
 import attRegImg from "./images/ATT-REG.jpg";
 import attGraImg from "./images/ATT-GRA.jpg";
@@ -30,8 +33,24 @@ export const EVENT_DOCUMENT_TYPES = {
     image: attGraImg,
     name: "Attestation de mise à disposition gratuite de salle municipale",
     templateLink: attGraTemplate,
-    description:
-      "Cette attestation est nécessaire pour certifier que la mise à disposition de la salle municipale est gratuite et s'adresse à toutes les autres forces politiques et leurs candidats. Elle doit vous être délivrée par la mairie.",
+    description: (
+      <>
+        Cette attestation est nécessaire pour certifier que la mise à
+        disposition de la salle municipale est gratuite et s'adresse à toutes
+        les autres forces politiques et leurs candidats. Elle doit vous être
+        délivrée par la mairie.
+        <Spacer size=".5rem" />
+        <strong>À noter&nbsp;:</strong> pour réserver une salle, il vous sera
+        demandé de l’assurer ! Durant la campagne présidentielle, vous pourrez
+        utiliser notre{" "}
+        <a
+          href="https://infos.actionpopulaire.fr/wp-content/uploads/2021/02/Attestation-2021-assurance-locative-LFI.pdf"
+          download="Attestation-2021-assurance-locative-LFI.pdf"
+        >
+          attestation d’assurance convergence responsabilité civile.
+        </a>
+      </>
+    ),
   },
   "ATT-ESP": {
     type: "ATT-ESP",

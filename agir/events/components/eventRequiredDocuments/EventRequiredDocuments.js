@@ -68,9 +68,19 @@ const StyledDocumentList = styled.div`
   }
 `;
 
-const ContactFormLink = styled.p`
+const ContactFormLink = styled.div`
   color: ${(props) => props.theme.black700};
   text-align: center;
+
+  & > div {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      flex-direction: column;
+    }
+  }
 `;
 const StyledWrapper = styled.main`
   text-align: center;
@@ -257,11 +267,26 @@ const EventRequiredDocuments = (props) => {
       )}
       <Spacer size="2rem" />
       <ContactFormLink>
-        Besoin d'aide&nbsp;? Vous pouvez nous contacter par e-mail&nbsp;:
+        Besoin d'aide&nbsp;?
         <Spacer size="1rem" />
-        <Button link href="https://infos.actionpopulaire.fr/contact/">
-          Formulaire de contact
-        </Button>
+        <div>
+          <Button
+            link
+            rel="noopener noreferrer"
+            target="_blank"
+            route="contact"
+          >
+            Formulaire de contact
+          </Button>
+          <Button
+            link
+            rel="noopener noreferrer"
+            target="_blank"
+            route="campaignFundingHelp"
+          >
+            Centre d'aide
+          </Button>
+        </div>
       </ContactFormLink>
       <RequiredDocumentModal
         type={selectedType}
