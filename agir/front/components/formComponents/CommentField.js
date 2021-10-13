@@ -1,16 +1,26 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  Suspense,
+} from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
+import { lazy } from "@agir/front/app/utils";
 
 import AnimatedMoreHorizontal from "@agir/front/genericComponents/AnimatedMoreHorizontal";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import TextField from "@agir/front/formComponents/TextField";
-import EmojiPicker from "@agir/front/formComponents/EmojiPicker";
+
+const EmojiPicker = lazy(() =>
+  import("@agir/front/formComponents/EmojiPicker")
+);
 
 const StyledCommentButton = styled.button`
   @media (max-width: ${style.collapse}px) {
@@ -396,7 +406,7 @@ const CommentField = (props) => {
           onClick={!disabled ? handleFocus : undefined}
         >
           {isFocused ? (
-            <>
+            <Suspense fallback={null}>
               <TextField
                 ref={textFieldRef}
                 textArea
@@ -417,7 +427,7 @@ const CommentField = (props) => {
                 onSelect={handleEmojiSelect}
                 small
               />
-            </>
+            </Suspense>
           ) : (
             <>
               <StyledCommentButton
