@@ -145,8 +145,10 @@ class EventSuggestionsAPIView(EventListAPIView):
     def get_queryset(self):
         person = self.request.user.person
         person_groups = person.supportgroups.all()
-        base_queryset = Event.objects.with_serializer_prefetch(person).select_related(
-            "subtype"
+        base_queryset = (
+            Event.objects.public()
+            .with_serializer_prefetch(person)
+            .select_related("subtype")
         )
 
         groups_events = base_queryset.upcoming().filter(
@@ -192,7 +194,8 @@ class NearEventSuggestionsAPIView(EventListAPIView):
 
         if person.coordinates is not None:
             return sorted(
-                Event.objects.with_serializer_prefetch(person)
+                Event.objects.public()
+                .with_serializer_prefetch(person)
                 .select_related("subtype")
                 .upcoming()
                 .filter(
@@ -214,7 +217,8 @@ class UserGroupEventAPIView(EventListAPIView):
         person_groups = person.supportgroups.all()
 
         return (
-            Event.objects.with_serializer_prefetch(person)
+            Event.objects.public()
+            .with_serializer_prefetch(person)
             .select_related("subtype")
             .upcoming()
             .filter(organizers_groups__in=person_groups)
@@ -227,9 +231,9 @@ class OrganizedEventAPIView(EventListAPIView):
     def get_queryset(self):
         person = self.request.user.person
         return reversed(
-            Event.objects.with_serializer_prefetch(person)
+            Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
+            .with_serializer_prefetch(person)
             .select_related("subtype")
-            .past()
             .filter(organizers=person)
             .order_by("-start_time")[:10]
         )
@@ -281,18 +285,18 @@ class EventViewPermissions(GlobalOrObjectPermissions):
 class EventDetailAPIView(RetrieveAPIView):
     permission_classes = (EventViewPermissions,)
     serializer_class = EventSerializer
-    queryset = Event.objects.all()
+    queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
 
 
 class EventDetailAdvancedAPIView(RetrieveAPIView):
     permission_classes = (EventManagementPermissions,)
     serializer_class = EventAdvancedSerializer
-    queryset = Event.objects.all()
+    queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
 
 
 class UpdateEventAPIView(UpdateAPIView):
     permission_classes = (EventManagementPermissions,)
-    queryset = Event.objects.all()
+    queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
     serializer_class = UpdateEventSerializer
 
 
@@ -316,7 +320,9 @@ class CreateOrganizerConfigAPIView(APIView):
 
 class CancelEventAPIView(GenericAPIView):
     permission_classes = (EventManagementPermissions,)
-    queryset = Event.objects.upcoming(as_of=timezone.now(), published_only=False)
+    queryset = Event.objects.public().upcoming(
+        as_of=timezone.now(), published_only=False
+    )
 
     def post(self, request, pk):
         event = self.get_object()
@@ -415,9 +421,10 @@ class EventProjectsAPIView(ListAPIView):
     queryset = Projet.objects.filter(event__isnull=False)
 
     def get_queryset(self):
-        organized_events = self.request.user.person.organizer_configs.values_list(
-            "event_id", flat=True
-        )
+        organized_events = self.request.user.person.organizer_configs.exclude(
+            event__visibility=Event.VISIBILITY_ADMIN
+        ).values_list("event_id", flat=True)
+
         if len(organized_events) == 0:
             return self.queryset.none()
 
@@ -431,8 +438,10 @@ class EventProjectsAPIView(ListAPIView):
 class EventProjectAPIView(RetrieveUpdateAPIView):
     permission_classes = (EventProjectPermission,)
     serializer_class = EventProjectSerializer
-    queryset = Projet.objects.filter(event__isnull=False).select_related(
-        "event", "event__subtype"
+    queryset = (
+        Projet.objects.filter(event__isnull=False)
+        .exclude(event__visibility=Event.VISIBILITY_ADMIN)
+        .select_related("event", "event__subtype")
     )
     lookup_field = "event_id"
 
