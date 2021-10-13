@@ -430,7 +430,13 @@ const EventForm = () => {
       {errors && errors.global && (
         <StyledGlobalError>{errors.global}</StyledGlobalError>
       )}
-      <Button disabled={isLoading} type="submit" color="secondary" block>
+      <Button
+        loading={isLoading}
+        disabled={isLoading}
+        type="submit"
+        color="secondary"
+        block
+      >
         Créer l'événement
       </Button>
       <p
