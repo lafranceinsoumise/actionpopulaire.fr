@@ -128,6 +128,7 @@ const RSVPButton = (props) => {
       <Button
         type="submit"
         color="primary"
+        loading={isLoading}
         disabled={isLoading}
         onClick={handleRSVP}
       >
