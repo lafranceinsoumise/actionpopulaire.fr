@@ -1,49 +1,100 @@
-{% extends 'front/layout.html' %}{% load display_lib %}
+{% extends 'front/layout.html' %}
+{% load display_lib %}
+
+{% block css %}
+{{ block.super }}
+<style>
+  h2,
+  h3 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  #card-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    flex-flow: row wrap;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  #card-wrapper .card {
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5), 0px 3px 3px rgba(0, 35, 44, 0.1);
+    border-radius: 5px;
+    padding: 1.5rem;
+    display: flex;
+    flex: 1 0;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+  }
+
+  #card-wrapper .card h4 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.5;
+    flex: 1 1 auto;
+  }
+
+  #card-wrapper .card article {
+    margin: 1rem 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  #card-wrapper .card ul {
+    margin-top: .5rem;
+    padding-left: 1.5rem;
+  }
+
+  #card-wrapper .card strong {
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
 
 {% block main %}
-  <div>
-    <h2>Vous faites déjà un don mensuel ! Souhaitez-vous :</h2>
-    <form method="post">
-      {% csrf_token %}
-      <div style="display: flex; justify-content: space-around; align-items: stretch;">
-        <div style="border: 1px solid black; border-radius: 5px; background-color: #f6f6f6; flex: 1 0;
-         margin: 2rem; padding: 3rem;">
-          <h4>Remplacer mon don mensuel par celui-ci</h4>
-          <div>
-            Je donnerais {{ replace_amount|display_price_in_cent }} répartis ainsi :
-            <ul>
-              <li><strong>{{ replace_national | display_price_in_cent }}</strong> seront alloués aux activités et campagnes
-                nationales
-              </li>
-              {% for group, amount in replace_allocations %}
-                <li><strong>{{ amount | display_price_in_cent }}</strong> seront alloués au financement des activités du groupe
-                  d'action « <em>{{ group }}</em> »
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-          <button class="btn btn-primary" type="submit" name="choice" value="R">Je remplace le don précédent</button>
-        </div>
-        <div style="border: 1px solid black; border-radius: 5px; background-color: #f6f6f6; flex: 1 0;
-         margin: 2rem; padding: 3rem;">
-          <h4>Je souhaite ajouter augmenter mon don existant du montant correspondant.</h4>
-          <div>
-            Je donnerais {{ add_amount|display_price_in_cent }} répartis ainsi :
-            <ul>
-              <li><strong>{{ add_national | display_price_in_cent }}</strong> seront alloués aux activités et campagnes
-                nationales
-              </li>
-              {% for group, amount in add_allocations %}
-                <li><strong>{{ amount | display_price_in_cent }}</strong> seront alloués au financement des activités du groupe
-                  d'action « <em>{{ group }}</em> »
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-          <button class="btn btn-primary" type="submit" name="choice" value="A">J'ajoute au don précédent</button>
-
-        </div>
-      </div>
-    </form>
-  </div>
+<div>
+  <h2>Vous faites déjà un don mensuel&nbsp;!</h2>
+  <h3>Souhaitez-vous&nbsp;:</h3>
+  <form method="post" id="card-wrapper">
+    {% csrf_token %}
+    <div class="card">
+      <h4><strong>Remplacer</strong> le don mensuel existant</h4>
+      <article>
+        Je donnerais <strong>{{ replace_amount|display_price_in_cent }}</strong> répartis ainsi&nbsp;:
+        <ul>
+          <li><strong>{{ replace_national | display_price_in_cent }}</strong> seront alloués aux activités et campagnes
+            nationales
+          </li>
+          {% for group, amount in replace_allocations %}
+          <li><strong>{{ amount | display_price_in_cent }}</strong> seront alloués au financement des activités du groupe
+            d'action &laquo;&nbsp;<em>{{ group }}</em>&nbsp;&raquo;
+          </li>
+          {% endfor %}
+        </ul>
+      </article>
+      <button class="btn btn-primary" type="submit" name="choice" value="R">Je remplace le don précédent</button>
+    </div>
+    <div class="card">
+      <h4><strong>Augmenter</strong> le don existant du montant correspondant</h4>
+      <article>
+        Je donnerais <strong>{{ add_amount|display_price_in_cent }}</strong> répartis ainsi&nbsp;:
+        <ul>
+          <li><strong>{{ add_national | display_price_in_cent }}</strong> seront alloués aux activités et campagnes
+            nationales
+          </li>
+          {% for group, amount in add_allocations %}
+          <li><strong>{{ amount | display_price_in_cent }}</strong> seront alloués au financement des activités du groupe
+            d'action &laquo;&nbsp;<em>{{ group }}</em>&nbsp;&raquo;
+          </li>
+          {% endfor %}
+        </ul>
+      </article>
+      <button class="btn btn-primary" type="submit" name="choice" value="A">J'ajoute au don précédent</button>
+    </div>
+  </form>
+</div>
 {% endblock %}
