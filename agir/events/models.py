@@ -17,6 +17,7 @@ from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
 from django.utils.http import urlencode
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 from dynamic_filenames import FilePattern
@@ -281,6 +282,23 @@ class EventManager(models.Manager.from_queryset(EventQuerySet)):
             return event
 
 
+EVENT_PAYMENT_PARAMETERS_DOCUMENTATION = mark_safe(
+    """
+<p>Doit être un objet JSON qui peut contenir les clés suivantes :</p>
+<ul>
+<li><strong>pricing</strong> : un prix fixe en centimes</li>
+<li><strong>free_pricing</strong> : l'id d'un champ numérique du formulaire associé à l'événement qui sera utilisé 
+comme prix pour l'événement</li>
+<li><strong>mappings</strong> : Une liste de mappings entre réponses au formulaire et prix correspondant. Chaque 
+mapping est un objet JSON avec un champ <em>fields</em> qui liste les champs à utiliser, et le champ <em>mapping</em>
+lui-même.</li>
+<li><strong>payment_modes</strong> : indique la liste des modes de paiement admissibles pour cet événement.</li>
+<li><strong>admin_payment_modes</strong> : Idem, mais à utiliser pour les modes de paiement côté admin.</li>
+</ul>
+"""
+)
+
+
 class Event(
     ExportModelOperationsMixin("event"),
     BaseAPIResource,
@@ -385,7 +403,10 @@ class Event(
         "people.PersonForm", null=True, blank=True, on_delete=models.PROTECT
     )
     payment_parameters = JSONField(
-        verbose_name=_("Paramètres de paiement"), null=True, blank=True
+        verbose_name=_("Paramètres de paiement"),
+        null=True,
+        blank=True,
+        help_text=EVENT_PAYMENT_PARAMETERS_DOCUMENTATION,
     )
 
     scanner_event = models.IntegerField(
