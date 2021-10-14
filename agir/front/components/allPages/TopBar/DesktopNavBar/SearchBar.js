@@ -25,7 +25,7 @@ const SearchBarWrapper = styled.form`
 
   ${SearchBarIndicator} {
     padding: 0;
-    padding-left: 18px;
+    padding-left: 0.75rem;
     padding-right: 0.5rem;
     align-self: center;
     display: flex;
@@ -34,20 +34,6 @@ const SearchBarWrapper = styled.form`
       stroke: ${({ $focused, $empty }) =>
         $focused || !$empty ? style.black1000 : style.black500};
     }
-  }
-
-  ${SearchBarButton} {
-    margin: 4px;
-    padding: revert;
-    width: 2rem;
-    height: 2rem;
-    opacity: ${({ $focused, $empty }) => ($focused || !$empty ? 1 : 0)};
-    transition: 0.1s ease;
-  }
-
-  ${SearchBarIndicator} {
-    align-self: center;
-    display: flex;
   }
 
   ${SearchBarInput} {
@@ -59,15 +45,24 @@ const SearchBarWrapper = styled.form`
     border: none;
     background-color: transparent;
     outline: none;
-    border-radius: ${style.softBorderRadius}
+    border-radius: ${style.softBorderRadius};
+  }
 
-    &::placeholder {
-      color: ${style.black500};
-      font-weight: 500;
-      opacity: 1;
-      max-width: 100%;
-      text-overflow: ellipsis;
-    }
+  ${SearchBarInput}::placeholder {
+    color: ${style.black500};
+    font-weight: 400;
+    text-overflow: ellipsis;
+    font-size: 0.875rem;
+    opacity: 1;
+  }
+
+  ${SearchBarButton} {
+    padding: 0;
+    margin: 0.25rem;
+    width: 2rem;
+    height: 2rem;
+    display: ${({ $focused, $empty }) =>
+      $focused || !$empty ? "flex" : "none"};
   }
 `;
 
@@ -108,11 +103,7 @@ const SearchBar = ({ isConnected }) => {
       <SearchBarInput
         ref={inputRef}
         required
-        placeholder={
-          isConnected
-            ? "Rechercher sur Action Populaire"
-            : "Rechercher un groupe ou une action"
-        }
+        placeholder="Rechercher un groupe ou une action"
         type="text"
         name="q"
         onFocus={handleFocus}

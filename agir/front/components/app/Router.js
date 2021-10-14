@@ -91,7 +91,7 @@ const Router = ({ children }) => {
             !route.hideTopBar && (!route.appOnlyTopBar || isMobileApp);
           return (
             <Route key={route.id} path={route.path} exact={!!route.exact}>
-              {hasTopBar && <TopBar />}
+              {hasTopBar && <TopBar hasLayout={!!route.hasLayout} />}
               {hasTopBar && isBannerDownload && <Spacer size="80px" />}
               {!route.hideConnectivityWarning && (
                 <ConnectivityWarning hasTopBar={hasTopBar} />

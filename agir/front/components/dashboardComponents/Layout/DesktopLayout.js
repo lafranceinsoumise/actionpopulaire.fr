@@ -31,12 +31,17 @@ const MainContainer = styled.div`
   justify-content: space-between;
 
   ${LeftColumn} {
-    padding: 3rem 0 0;
-    flex: 0 0 180px;
+    padding: 3rem 2rem 0 0;
+    flex: 0 0 255px;
+    min-width: 1px;
+
+    @media (max-width: ${(props) => props.theme.collapseTablet}px) {
+      display: none;
+    }
   }
 
   ${RightColumn} {
-    padding: 3rem 0 0;
+    padding: 3rem 0 0 2rem;
     flex: 0 0 255px;
 
     h4 {
@@ -46,10 +51,13 @@ const MainContainer = styled.div`
   }
 
   ${MainColumn} {
-    padding: 3rem 2rem 0;
-    flex: 1 1 800px;
-    max-width: 800px;
+    padding: 3rem 0 0;
+    flex: 0 1 725px;
     margin: 0 auto;
+
+    @media (max-width: ${(props) => props.theme.collapseTablet}px) {
+      flex-grow: 1;
+    }
   }
 `;
 

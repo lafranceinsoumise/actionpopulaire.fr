@@ -94,6 +94,13 @@ const IconLink = styled(Link)`
     }
   }
 `;
+
+const TabletIconLink = styled(IconLink)`
+  @media (min-width: ${(props) => props.theme.collapseTablet}px) {
+    display: none;
+  }
+`;
+
 const StyledWrapper = styled(PageFadeIn)`
   height: 100%;
   display: flex;
@@ -102,8 +109,14 @@ const StyledWrapper = styled(PageFadeIn)`
 `;
 
 const RightLinks = (props) => {
-  const { isLoading, user, path, unreadActivityCount, unreadMessageCount } =
-    props;
+  const {
+    isLoading,
+    hasLayout,
+    user,
+    path,
+    unreadActivityCount,
+    unreadMessageCount,
+  } = props;
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -135,6 +148,15 @@ const RightLinks = (props) => {
             <FeatherIcon name="home" />
             <span>Accueil</span>
           </IconLink>
+          {hasLayout && (
+            <TabletIconLink
+              route="groups"
+              $active={routeConfig.groups.match(path)}
+            >
+              <FeatherIcon name="users" />
+              <span>Groupes</span>
+            </TabletIconLink>
+          )}
           <IconLink
             route="activities"
             $active={routeConfig.activities.match(path)}
@@ -184,5 +206,6 @@ RightLinks.propTypes = {
   path: PropTypes.string,
   unreadMessageCount: PropTypes.number,
   unreadActivityCount: PropTypes.number,
+  hasLayout: PropTypes.bool,
 };
 export default RightLinks;

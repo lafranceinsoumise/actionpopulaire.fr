@@ -33,9 +33,16 @@ const Template = (args, { globals }) => (
 export const Default = Template.bind({});
 Default.args = {
   isLoading: false,
+  hasLayout: false,
   path: "/",
   unreadMessageCount: 3,
   unreadActivityCount: 10,
+};
+
+export const OnLayoutPage = Template.bind({});
+OnLayoutPage.args = {
+  ...Default.args,
+  hasLayout: true,
 };
 
 export const WithAdminLink = Template.bind({});

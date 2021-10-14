@@ -1,6 +1,7 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
+import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import useSWR from "swr";
 
@@ -68,8 +69,9 @@ const TopBar = styled.div`
 
 const StyledAgenda = styled.div`
   @media (max-width: ${(props) => props.theme.collapse}px) {
+    background-color: ${(props) => props.theme.black25};
     box-sizing: border-box;
-    padding: 0 1rem;
+    padding: 1rem;
   }
 
   & h2 {
@@ -115,6 +117,9 @@ const Agenda = () => {
 
   return (
     <StyledAgenda>
+      <Helmet>
+        <title>Événements - Action populaire</title>
+      </Helmet>
       <header>
         <Hide over>
           <h2
