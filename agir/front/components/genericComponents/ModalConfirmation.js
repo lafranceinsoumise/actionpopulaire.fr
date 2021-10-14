@@ -16,12 +16,12 @@ const ModalContainer = styled.div`
   max-width: 500px;
   margin: 5% auto;
   border-radius: ${style.borderRadius};
+  display: flex;
+  justify-content: center;
 
   @media (max-width: ${style.collapse}px) {
     width: 100%;
     max-width: unset;
-    display: flex;
-    justify-content: center;
     margin: 0;
   }
 `;
