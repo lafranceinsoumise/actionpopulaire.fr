@@ -13,10 +13,7 @@ import ImageField from "@agir/front/formComponents/ImageField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
-import {
-  updateGroup,
-  getGroupEndpoint,
-} from "@agir/groups/api";
+import { updateGroup, getGroupEndpoint } from "@agir/groups/api";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
