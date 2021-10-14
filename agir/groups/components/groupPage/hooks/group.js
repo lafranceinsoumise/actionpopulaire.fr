@@ -9,9 +9,7 @@ const log = logger(__filename);
 
 export const useGroup = (groupPk) => {
   const isOffline = useIsOffline();
-  const { data, error } = useSWR(
-    api.getGroupEndpoint("getGroup", { groupPk })
-  );
+  const { data, error } = useSWR(api.getGroupEndpoint("getGroup", { groupPk }));
   log.debug("Group data", data);
 
   if (
