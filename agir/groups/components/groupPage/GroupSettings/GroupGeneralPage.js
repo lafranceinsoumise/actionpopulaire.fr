@@ -13,10 +13,7 @@ import ImageField from "@agir/front/formComponents/ImageField";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
-import {
-  updateGroup,
-  getGroupPageEndpoint,
-} from "@agir/groups/groupPage/api.js";
+import { updateGroup, getGroupEndpoint } from "@agir/groups/api";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
@@ -25,7 +22,7 @@ const GroupGeneralPage = (props) => {
   const sendToast = useToast();
 
   const { data: group, mutate } = useSWR(
-    getGroupPageEndpoint("getGroup", { groupPk })
+    getGroupEndpoint("getGroup", { groupPk })
   );
 
   const [imageHasChanged, setImageHasChanged] = useState(false);

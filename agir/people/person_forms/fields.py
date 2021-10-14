@@ -277,6 +277,35 @@ class MultipleGroupField(forms.ModelMultipleChoiceField):
         return [str(g.pk) for g in qs]
 
 
+class PersonNewslettersField(forms.MultipleChoiceField):
+    widget = forms.CheckboxSelectMultiple
+
+    def __init__(self, *args, choices=Person.NEWSLETTERS_CHOICES, **kwargs):
+        valid_choices = Person.NEWSLETTERS_CHOICES
+        # Allow setting only a subset of available newsletter choices in the field config
+        if choices and isinstance(choices, list) and len(choices) > 0:
+            valid_choices = tuple(
+                (value, label)
+                for value, label in choices
+                if value in dict(Person.NEWSLETTERS_CHOICES)
+            )
+        # Default to all available newsletter choices
+        if not choices or len(valid_choices) == 0:
+            valid_choices = Person.NEWSLETTERS_CHOICES
+
+        super().__init__(*args, choices=valid_choices, **kwargs)
+        self.choices = valid_choices
+
+    def clean(self, value):
+        value = super().clean(value)
+
+        # Avoid removing/overriding of initial value: only adding is allowed to the person newsletters field
+        if value and self.initial and isinstance(self.initial, list):
+            value = list(set(self.initial + value))
+
+        return value
+
+
 FIELDS = {
     "short_text": ShortTextField,
     "long_text": LongTextField,
@@ -298,7 +327,9 @@ FIELDS = {
     "commune": CommuneField,
     "group": GroupField,
     "multiple_groups": MultipleGroupField,
+    "newsletters": PersonNewslettersField,
 }
+
 
 PREDEFINED_CHOICES = {
     "departements": departements_choices,
@@ -318,6 +349,7 @@ PREDEFINED_CHOICES = {
             else Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
         )
     ),
+    "newsletters": Person.NEWSLETTERS_CHOICES,
 }
 
 

@@ -66,7 +66,7 @@ const ActivityList = () => {
 
   useEffect(() => {
     if (unreadActivities.length > 0) {
-      setAllActivitiesAsRead(unreadActivities.map(({ id }) => id));
+      setAllActivitiesAsRead();
     }
   }, [unreadActivities]);
 

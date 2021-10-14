@@ -8,7 +8,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import AmountWidget from "./AmountWidget";
-import { Link, StepButton, Theme } from "./StyledComponents";
+import { Link, StepButton } from "./StyledComponents";
 
 import acceptedPaymentMethods from "./images/accepted-payment-methods.svg";
 
@@ -132,6 +132,26 @@ const StyledMain = styled.main`
   }
   p + p {
     margin-top: 0.5rem;
+  }
+  form {
+    ${StepButton} {
+      margin: 0 auto;
+      max-width: 400px;
+      height: 80px;
+      padding: 0 4.5rem;
+      & > span {
+        font-weight: 400;
+        font-size: 0.875rem;
+        strong {
+          font-weight: 600;
+          font-size: 1.25rem;
+        }
+      }
+      ${RawFeatherIcon} {
+        position: absolute;
+        right: 1.5rem;
+      }
+    }
   }
 `;
 
@@ -276,7 +296,7 @@ const AmountStep = (props) => {
               byMonth={byMonth}
               groupPercentage={hasGroup ? groupPercentage : undefined}
               onChangeAmount={setAmount}
-              onChangeByMonth={setByMonth}
+              onChangeByMonth={type !== "2022" ? setByMonth : undefined}
               onChangeGroupPercentage={
                 hasGroup ? setGroupPercentage : undefined
               }

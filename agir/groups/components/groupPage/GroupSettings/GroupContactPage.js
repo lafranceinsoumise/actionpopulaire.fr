@@ -14,10 +14,7 @@ import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPa
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
-import {
-  updateGroup,
-  getGroupPageEndpoint,
-} from "@agir/groups/groupPage/api.js";
+import { updateGroup, getGroupEndpoint } from "@agir/groups/api";
 
 const GroupContactPage = (props) => {
   const { onBack, illustration, groupPk } = props;
@@ -27,7 +24,7 @@ const GroupContactPage = (props) => {
   const [isLoading, setIsloading] = useState(true);
 
   const { data: group, mutate } = useSWR(
-    getGroupPageEndpoint("getGroup", { groupPk })
+    getGroupEndpoint("getGroup", { groupPk })
   );
 
   const handleCheckboxChange = useCallback(

@@ -47,8 +47,8 @@ def get_project_missing_document_count(project):
 
 
 def get_is_blocking_project(project):
-    # Avoid blocking event creations before October the 1st 2021
-    if datetime.date.today() < datetime.date(2021, 10, 1):
+    # Avoid blocking event creations before November the 1st 2021
+    if datetime.date.today() < datetime.date(2021, 11, 1):
         return False
 
     deadline = get_project_document_deadline(project)

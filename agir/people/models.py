@@ -50,7 +50,7 @@ __all__ = [
 
 
 person_image_path = FilePattern(
-    filename_pattern="{app_label}/{model_name}/{instance.id}{ext}"
+    filename_pattern="{app_label}/{model_name}/{instance.id}/{uuid:s}{ext}"
 )
 
 

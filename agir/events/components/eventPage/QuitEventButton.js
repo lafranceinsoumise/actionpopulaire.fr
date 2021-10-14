@@ -128,7 +128,12 @@ const QuitEventButton = ({ id }) => {
             </p>
           </main>
           <footer>
-            <Button color="danger" onClick={handleQuit} disabled={isLoading}>
+            <Button
+              color="danger"
+              onClick={handleQuit}
+              isLoading={isLoading}
+              disabled={isLoading}
+            >
               Quitter l'événement
             </Button>
             <Button color="default" onClick={closeDialog} disabled={isLoading}>

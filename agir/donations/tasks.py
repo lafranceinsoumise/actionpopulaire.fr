@@ -10,18 +10,32 @@ from agir.lib.mailing import send_mosaico_email, add_params_to_urls
 from agir.lib.phone_numbers import is_french_number, is_mobile_number
 from agir.lib.sms import send_sms
 from agir.lib.utils import front_url, generate_token_params, shorten_url
+from agir.payments.payment_modes import PAYMENT_MODES
 from agir.people.models import Person
 from agir.system_pay.models import SystemPaySubscription
 
 
 @emailing_task
 @post_save_task
-def send_donation_email(person_pk, template_code="DONATION_MESSAGE"):
+def send_donation_email(person_pk, payment_mode):
+    template_code = "DONATION_MESSAGE"
+    email_from = settings.EMAIL_FROM
+
+    if payment_mode in PAYMENT_MODES and hasattr(
+        PAYMENT_MODES[payment_mode], "email_template_code"
+    ):
+        template_code = PAYMENT_MODES[payment_mode].email_template_code
+
+    if payment_mode in PAYMENT_MODES and hasattr(
+        PAYMENT_MODES[payment_mode], "email_from"
+    ):
+        email_from = PAYMENT_MODES[payment_mode].email_from
+
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
     send_mosaico_email(
         code=template_code,
         subject="Merci d'avoir donné !",
-        from_email=settings.EMAIL_FROM,
+        from_email=email_from,
         bindings={"PROFILE_LINK": front_url("personal_information")},
         recipients=[person],
     )

@@ -10,7 +10,7 @@ import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 
-import * as api from "@agir/groups/groupPage/api";
+import * as api from "@agir/groups/api";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -65,7 +65,7 @@ const ConnectedUserActions = (props) => {
       return window.location.reload();
     }
     setIsLoading(false);
-    mutate(api.getGroupPageEndpoint("getGroup", { groupPk: id }), (group) => ({
+    mutate(api.getGroupEndpoint("getGroup", { groupPk: id }), (group) => ({
       ...group,
       isMember: true,
       isActiveMember: true,
@@ -80,7 +80,7 @@ const ConnectedUserActions = (props) => {
       return window.location.reload();
     }
     setIsLoading(false);
-    mutate(api.getGroupPageEndpoint("getGroup", { groupPk: id }), (group) => ({
+    mutate(api.getGroupEndpoint("getGroup", { groupPk: id }), (group) => ({
       ...group,
       isMember: true,
       isActiveMember: false,
@@ -109,7 +109,7 @@ const ConnectedUserActions = (props) => {
     }
     setIsLoading(false);
     setIsQuitting(false);
-    mutate(api.getGroupPageEndpoint("getGroup", { groupPk: id }), (group) => ({
+    mutate(api.getGroupEndpoint("getGroup", { groupPk: id }), (group) => ({
       ...group,
       isMember: false,
       isActiveMember: false,

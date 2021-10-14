@@ -59,9 +59,9 @@ def is_free_event(role, event=None):
 @rules.predicate
 def has_event_with_missing_documents(role):
     organized_event_projects = Projet.objects.filter(
-        event__in=role.person.organized_events.select_related("subtype").filter(
-            subtype__related_project_type__isnull=False
-        )
+        event__in=role.person.organized_events.select_related("subtype")
+        .filter(subtype__related_project_type__isnull=False,)
+        .exclude(visibility=Event.VISIBILITY_PUBLIC)
     )
     return any(get_is_blocking_project(project) for project in organized_event_projects)
 

@@ -8,7 +8,7 @@ import React, {
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
 
-import * as api from "@agir/groups/groupPage/api";
+import * as api from "@agir/groups/api";
 
 import {
   useDispatch,
@@ -38,7 +38,7 @@ export const useMessages = (group) => {
   const getMessagesEndpoint = useCallback(
     (pageIndex) =>
       hasMessages
-        ? api.getGroupPageEndpoint("getMessages", {
+        ? api.getGroupEndpoint("getMessages", {
             groupPk: group.id,
             page: pageIndex + 1,
             pageSize: MESSAGES_PAGE_SIZE,
@@ -115,7 +115,7 @@ export const useMessages = (group) => {
 export const useMessage = (group, messagePk) => {
   const hasMessage = group && group.isMember && messagePk;
   const getMessageEndpoint = useCallback(
-    () => hasMessage && api.getGroupPageEndpoint("getMessage", { messagePk }),
+    () => hasMessage && api.getGroupEndpoint("getMessage", { messagePk }),
     [hasMessage, messagePk]
   );
 

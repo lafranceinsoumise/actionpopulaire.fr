@@ -9,7 +9,7 @@ import TextField from "@agir/front/formComponents/TextField";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
-import { inviteToGroup } from "@agir/groups/groupPage/api.js";
+import { inviteToGroup } from "@agir/groups/api";
 
 const StyledContainer = styled.div`
   display: flex;

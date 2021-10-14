@@ -1,4 +1,6 @@
-import { Emoji, Picker } from "emoji-mart";
+import twitterEmojis from "emoji-mart/data/twitter";
+import NimblePicker from "emoji-mart/dist-es/components/picker/nimble-picker";
+import NimbleEmoji from "emoji-mart/dist-es/components/emoji/nimble-emoji";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { animated, useTransition } from "@react-spring/web";
@@ -210,14 +212,20 @@ const EmojiPicker = (props) => {
               width={small ? "1rem" : "1.5rem"}
               color={style.black1000}
             />
-            <Emoji emoji="smile" size={small ? 16 : 24} set="twitter" />
+            <NimbleEmoji
+              data={twitterEmojis}
+              emoji="smile"
+              size={small ? 16 : 24}
+              set="twitter"
+            />
           </StyledTriggerIcon>
         </StyledTrigger>
         {transition(
           (style, item) =>
             item && (
               <StyledPickerWrapper style={style} $position={position}>
-                <Picker
+                <NimblePicker
+                  data={twitterEmojis}
                   autoFocus
                   showPreview={false}
                   showSkinTones={false}

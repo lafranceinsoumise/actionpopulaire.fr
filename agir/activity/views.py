@@ -157,6 +157,18 @@ class ActivityStatusUpdateView(GenericAPIView):
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
+# Mark as displayed all undisplayed activities of current user
+class ActivityStatusUpdateAllReadView(RetrieveAPIView):
+    serializer_class = ActivityStatusUpdateRequest
+    permission_classes = (IsPersonPermission,)
+
+    def get(self, request, *args, **kwargs):
+        Activity.objects.filter(
+            recipient=request.user.person, status=Activity.STATUS_UNDISPLAYED
+        ).update(status=Activity.STATUS_DISPLAYED)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
 @api_view(["GET"])
 @permission_classes(())
 def get_unread_activity_count(request):

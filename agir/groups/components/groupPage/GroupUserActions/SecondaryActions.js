@@ -7,8 +7,8 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
-import ModalShare from "@agir/front/genericComponents/ModalShare";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
+import ShareContentUrl from "@agir/front/genericComponents/ShareContentUrl";
 
 const StyledWrapper = styled.div`
   display: flex;
@@ -62,11 +62,15 @@ const SecondaryActions = ({ id, isCertified, routes, contact }) => {
           <RawFeatherIcon name="share-2" width="1.5rem" height="1.5rem" />
           Partager
         </Button>
-        <ModalShare
+
+        <ModalConfirmation
           shouldShow={isShareOpen}
           onClose={handleShareClose}
-          url={routes.details}
-        />
+          title="Partager le groupe"
+        >
+          <ShareContentUrl url={routes.details} />
+        </ModalConfirmation>
+
         <ModalConfirmation
           shouldShow={isContactOpen}
           onClose={handleContactClose}

@@ -50,6 +50,7 @@ const initAdminJsonWidget = () => {
     );
     editor.expandAll();
     loaded.push(e.dataset.fieldname);
+    window.AgirAdminJsonWidgetEditor = editor;
   });
 
   window.AgirAdminJsonWidget = 1;

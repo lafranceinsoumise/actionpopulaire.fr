@@ -16,10 +16,7 @@ import LocationField from "@agir/front/formComponents/LocationField";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
-import {
-  updateGroup,
-  getGroupPageEndpoint,
-} from "@agir/groups/groupPage/api.js";
+import { updateGroup, getGroupEndpoint } from "@agir/groups/api";
 
 const StyledMap = styled(Map)`
   height: 208px;
@@ -42,7 +39,7 @@ const GroupLocalizationPage = (props) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const { data: group, mutate } = useSWR(
-    getGroupPageEndpoint("getGroup", { groupPk })
+    getGroupEndpoint("getGroup", { groupPk })
   );
 
   const handleInputChange = useCallback((_, name, value) => {
