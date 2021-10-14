@@ -73,7 +73,7 @@ const StyledModalContent = styled.div`
 const SoftLoginModalContent = (props) => {
   const { user, data, onClose } = props;
 
-  if (!user || !data) {
+  if (!user?.displayName || !data) {
     return null;
   }
 
