@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import Button from "@agir/front/genericComponents/Button";
 import arrowRight from "@agir/front/genericComponents/images/arrow-right.svg";
 import chevronDown from "@agir/front/genericComponents/images/chevron-down.svg";
-import Toast from "@agir/front/genericComponents/Toast";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import LoginMailEmpty from "./LoginMailEmpty";
@@ -43,7 +43,11 @@ const InlineBlock = styled.span`
 `;
 
 const ToastNotConnected = () => {
-  return <Toast>Vous devez vous connecter pour accéder à cette page</Toast>;
+  return (
+    <StaticToast>
+      Vous devez vous connecter pour accéder à cette page
+    </StaticToast>
+  );
 };
 
 const Login = () => {
@@ -136,12 +140,12 @@ const Login = () => {
           </div>
 
           {error && !!error.detail && (
-            <Toast>
+            <StaticToast>
               {error.detail} <br />
               <Link route="codeLogin">
                 Accéder à la page pour demander son code
               </Link>
-            </Toast>
+            </StaticToast>
           )}
           {!isMobileApp && (
             <>
