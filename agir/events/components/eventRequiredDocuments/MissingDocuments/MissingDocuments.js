@@ -7,7 +7,7 @@ import hrefs from "@agir/front/globalContext/nonReactRoutes.config";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import Toast from "@agir/front/genericComponents/Toast";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 import MissingDocumentList from "./MissingDocumentList";
 
@@ -31,7 +31,7 @@ const StyledContent = styled.div`
     }
   }
 
-  ${Toast} {
+  ${StaticToast} {
     width: 100%;
   }
 `;
@@ -44,7 +44,7 @@ export const MissingDocumentModal = (props) => {
       <header>
         <h3>Mes documents justificatifs</h3>
         {isBlocked && (
-          <Toast style={{ display: "block", margin: " 0 0 1.5rem" }}>
+          <StaticToast style={{ display: "block", margin: " 0 0 1.5rem" }}>
             <strong>
               Action requise : vous avez des documents en attente.
             </strong>
@@ -52,7 +52,7 @@ export const MissingDocumentModal = (props) => {
             Tant que vous n’aurez pas envoyé ces documents (ou indiqué qu’ils ne
             sont pas nécessaires), vous ne pourrez plus créer d’événement
             public.
-          </Toast>
+          </StaticToast>
         )}
         <p>
           <strong>
@@ -74,10 +74,10 @@ export const MissingDocumentModal = (props) => {
         {projects && projects.length > 0 ? (
           <MissingDocumentList projects={projects} />
         ) : (
-          <Toast $color="#16A460" style={{ margin: 0, fontWeight: 500 }}>
+          <StaticToast $color="#16A460" style={{ margin: 0, fontWeight: 500 }}>
             <RawFeatherIcon name="check" strokeWidth={2} />
             &ensp;Vous êtes à jour de vos documents à envoyer&nbsp;!
-          </Toast>
+          </StaticToast>
         )}
       </PageFadeIn>
     </StyledContent>
