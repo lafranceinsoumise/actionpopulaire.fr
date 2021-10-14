@@ -13,6 +13,7 @@ import Card from "@agir/front/genericComponents/Card";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 import { Hide, useIsDesktop } from "@agir/front/genericComponents/grid";
 import { LayoutTitle } from "@agir/front/dashboardComponents/Layout/StyledComponents";
+import RenderIfVisibile from "@agir/front/genericComponents/RenderIfVisible";
 
 import MissingDocumentsWidget from "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsWidget";
 import Onboarding from "@agir/front/genericComponents/Onboarding";
@@ -191,30 +192,15 @@ const Agenda = () => {
         </Hide>
         <EventSuggestions isPaused={isPaused} />
         <Spacer size="4rem" />
-        <Onboarding type="group__action" routes={routes} />
-        <Spacer size="4rem" />
-        <Onboarding type="event" routes={routes} />
-        <Spacer size="4rem" />
+        <RenderIfVisibile once>
+          <Onboarding type="group__action" routes={routes} />
+          <Spacer size="4rem" />
+          <Onboarding type="event" routes={routes} />
+          <Spacer size="4rem" />
+        </RenderIfVisibile>
       </PageFadeIn>
       <FeedbackButton />
     </StyledAgenda>
   );
 };
 export default Agenda;
-
-Agenda.propTypes = {
-  rsvped: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      startTime: PropTypes.string,
-      endTime: PropTypes.string,
-    })
-  ),
-  suggestions: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      startTime: PropTypes.string,
-      endTime: PropTypes.string,
-    })
-  ),
-};
