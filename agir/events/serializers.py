@@ -70,7 +70,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
     needsDocuments = serializers.SerializerMethodField(read_only=True)
 
     def get_needsDocuments(self, obj):
-        return obj.related_project_type is not None
+        return bool(obj.related_project_type)
 
     def get_iconName(self, obj):
         return obj.icon_name or obj.TYPES_PARAMETERS[obj.type]["icon_name"]
@@ -490,7 +490,7 @@ class CreateEventSerializer(serializers.Serializer):
         with transaction.atomic():
             event = Event.objects.create(**validated_data)
             # Create a gestion project if needed for the event's subtype
-            if event.subtype.related_project_type is not None:
+            if event.subtype.related_project_type:
                 Projet.objects.from_event(event, event.organizers.first().role)
             self.schedule_tasks(event, validated_data)
             return event

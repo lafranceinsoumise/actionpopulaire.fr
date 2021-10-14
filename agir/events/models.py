@@ -706,8 +706,8 @@ class EventSubtype(BaseSubtype):
         verbose_name="Type de projet de gestion associé",
         choices=TypeProjet.choices,
         max_length=10,
-        null=True,
         blank=True,
+        default="",
     )
 
     required_documents = ArrayField(
