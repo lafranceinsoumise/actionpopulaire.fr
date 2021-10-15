@@ -6,9 +6,14 @@ from django.utils.html import mark_safe, strip_tags
 
 
 def sanitize_html(text, tags=None):
+    attributes = bleach.ALLOWED_ATTRIBUTES
     if tags is None:
         tags = settings.USER_ALLOWED_TAGS
-    return mark_safe(bleach.clean(str(text), tags=tags, strip=True))
+    if "img" in tags:
+        attributes = {**attributes, "img": ["src", "alt", "width", "height"]}
+    return mark_safe(
+        bleach.clean(str(text), tags=tags, attributes=attributes, strip=True)
+    )
 
 
 def textify(html):
