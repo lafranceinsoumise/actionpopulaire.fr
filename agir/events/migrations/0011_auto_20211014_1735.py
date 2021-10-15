@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 
 def related_project_type_null_en_chaine_vide(apps, schema):
-    EventSubtype = apps.get_model("event", "EventSubtype")
+    EventSubtype = apps.get_model("events", "EventSubtype")
 
     EventSubtype.objects.filter(related_project_type__isnull=True).update(
         related_project_type=""
