@@ -1,7 +1,6 @@
 from django.urls import path
-from django.views.generic import RedirectView
-from . import views
 
+from . import views
 
 urlpatterns = [
     path(
@@ -21,9 +20,7 @@ urlpatterns = [
     ),
     path(
         "2022/dons-mensuels/informations/",
-        # Temporarily disable 2022 monthly donations
-        # views.MonthlyDonation2022PersonalInformationView.as_view(),
-        RedirectView.as_view(pattern_name="donations_2022_amount"),
+        views.MonthlyDonation2022PersonalInformationView.as_view(),
         name="monthly_donation_2022_information",
     ),
     path(
