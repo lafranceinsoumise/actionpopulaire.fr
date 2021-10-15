@@ -715,7 +715,7 @@ USER_ALLOWED_TAGS = [
     "u",
     "s",
 ]
-ADMIN_ALLOWED_TAGS = USER_ALLOWED_TAGS + ["table", "tr", "td", "th"]
+ADMIN_ALLOWED_TAGS = USER_ALLOWED_TAGS + ["table", "tr", "td", "th", "img"]
 
 SITE_ID = 1
 
