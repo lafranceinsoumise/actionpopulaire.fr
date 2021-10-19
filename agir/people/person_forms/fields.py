@@ -25,6 +25,7 @@ from agir.lib.form_fields import (
     IBANField,
     CommuneField as GenericCommuneField,
     SelectizeMultipleWidget,
+    DatePickerWidget,
 )
 from ..models import Person
 from ...groups.models import SupportGroup, Membership
@@ -67,6 +68,8 @@ class DateTimeField(forms.DateTimeField):
 
 
 class DateField(forms.DateField):
+    widget = DatePickerWidget
+
     def __init__(self, *, min_value=None, max_value=None, validators=(), **kwargs):
         if min_value is not None:
             min_value = timezone.datetime.strptime(min_value, "%Y-%m-%d").date()
