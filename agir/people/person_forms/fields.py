@@ -4,9 +4,14 @@ from uuid import UUID
 import iso8601
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.validators import FileExtensionValidator
+from django.core.validators import (
+    FileExtensionValidator,
+    MinValueValidator,
+    MaxValueValidator,
+)
 from django.forms.models import ModelChoiceIterator
 from django.template.defaultfilters import filesizeformat
+from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 from django.utils.formats import localize_input
 from django.utils.translation import ugettext as _
@@ -59,6 +64,18 @@ class LongTextField(forms.CharField):
 
 class DateTimeField(forms.DateTimeField):
     widget = DateTimePickerWidget
+
+
+class DateField(forms.DateField):
+    def __init__(self, *, min_value=None, max_value=None, validators=(), **kwargs):
+        if min_value is not None:
+            min_value = timezone.datetime.strptime(min_value, "%Y-%m-%d").date()
+            validators = (*validators, MinValueValidator(min_value))
+        if max_value is not None:
+            max_value = timezone.datetime.strptime(max_value, "%Y-%m-%d").date()
+            validators = (*validators, MaxValueValidator(max_value))
+
+        super().__init__(validators=validators, **kwargs)
 
 
 class SimpleChoiceListMixin:
@@ -322,6 +339,7 @@ FIELDS = {
     "integer": forms.IntegerField,
     "decimal": forms.DecimalField,
     "datetime": DateTimeField,
+    "date": DateField,
     "person": PersonChoiceField,
     "iban": IBANField,
     "commune": CommuneField,
