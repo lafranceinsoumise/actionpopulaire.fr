@@ -8,30 +8,17 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 import AmountWidget from "./AmountWidget";
-import { Link, StepButton } from "./StyledComponents";
+import {
+  Link,
+  StepButton,
+  StyledIllustration,
+  StyledBody,
+  StyledPage,
+  StyledLogo,
+  StyledMain,
+} from "./StyledComponents";
 
 import acceptedPaymentMethods from "./images/accepted-payment-methods.svg";
-
-const StyledLogo = styled(Link)`
-  display: block;
-  width: calc(100% + 3rem);
-  padding: 1rem 1.5rem;
-  margin: -1rem -1.5rem 0;
-  @media (max-width: ${(props) => props.theme.collapse}px) {
-    margin: 0 -1.5rem 1rem;
-    padding: 1rem;
-    border-bottom: 1px solid ${(props) => props.theme.black100};
-  }
-  &::after {
-    content: "";
-    display: block;
-    height: ${(props) => props.theme.logoHeight};
-    background-image: url(${(props) => props.theme.logo});
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
-  }
-`;
 
 const StyledErrorMessage = styled.p`
   text-align: center;
@@ -100,90 +87,6 @@ const StyledGroup = styled.div`
   }
   ${RawFeatherIcon} {
     flex: 0 0 auto;
-  }
-`;
-
-const StyledMain = styled.main`
-  margin: 0 auto;
-  padding: 0 1.5rem;
-  @media (min-width: ${(props) => props.theme.collapse}px) {
-    max-width: 630px;
-  }
-  h2 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1.5;
-  }
-  h4 {
-    font-weight: 500;
-    font-size: 1rem;
-    margin: 0 0 1rem;
-    line-height: 1.4;
-  }
-  hr {
-    display: block;
-    max-width: 582px;
-    margin: 1.5rem auto;
-    color: ${(props) => props.theme.black50};
-  }
-  p {
-    margin-bottom: 0;
-  }
-  p + p {
-    margin-top: 0.5rem;
-  }
-  form {
-    ${StepButton} {
-      margin: 0 auto;
-      max-width: 400px;
-      height: 80px;
-      padding: 0 4.5rem;
-      & > span {
-        font-weight: 400;
-        font-size: 0.875rem;
-        strong {
-          font-weight: 600;
-          font-size: 1.25rem;
-        }
-      }
-      ${RawFeatherIcon} {
-        position: absolute;
-        right: 1.5rem;
-      }
-    }
-  }
-`;
-
-const StyledIllustration = styled.div``;
-const StyledBody = styled.div``;
-const StyledPage = styled.div`
-  @media (min-width: ${(props) => props.theme.collapse}px) {
-    display: flex;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-  }
-  ${StyledIllustration} {
-    flex: 0 0 524px;
-    height: 100%;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center center;
-    background-image: url(${(props) => props.theme.illustration.large});
-    @media (max-width: ${(props) => props.theme.collapse}px) {
-      content: url(${(props) => props.theme.illustration.small});
-      width: 100%;
-      height: auto;
-    }
-  }
-  ${StyledBody} {
-    @media (min-width: ${(props) => props.theme.collapse}px) {
-      flex: 1 1 auto;
-      min-height: 100%;
-      overflow: auto;
-      padding: 80px 0 0;
-    }
   }
 `;
 
