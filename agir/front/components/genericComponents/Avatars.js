@@ -18,6 +18,7 @@ const StyledWrapper = styled.span`
     width: 40px;
     height: 40px;
     border: 3px solid white;
+    background-color: white;
 
     :first-child {
       grid-column: 1/3;
