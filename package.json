@@ -83,7 +83,7 @@
     "sass": "~1.32.13",
     "sass-loader": "12.2.0",
     "short-uuid": "^4.2.0",
-    "styled-components": "^5.3.1",
+    "styled-components": "^5.3.3",
     "swiper": "^7.0.9",
     "swr": "^1.0.1",
     "tinymce": "^5.10.0",
