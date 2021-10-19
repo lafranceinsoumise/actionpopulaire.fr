@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 const Counter = ({ value, ...rest }) =>
-  !isNaN(parseInt(value)) && value > 0 ? (
+  !isNaN(value) && parseInt(value) > 0 ? (
     <svg
       {...rest}
       width="16"
