@@ -1,18 +1,18 @@
 import React from "react";
-import DesktopNavigation, { SecondaryNavigation } from "./DesktopNavigation";
+import SideBar, { SecondaryNavigation } from "./SideBar";
 
 import routes from "@agir/front/mockData/routes";
 
 export default {
-  component: DesktopNavigation,
-  title: "Navigation/Desktop",
+  component: SideBar,
+  title: "Navigation/SideBar",
   parameters: {
     layout: "padded",
   },
 };
 
 export const Main = () => (
-  <DesktopNavigation
+  <SideBar
     active="events"
     routes={routes}
     unreadMessageCount={2}

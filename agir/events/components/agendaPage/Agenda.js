@@ -12,7 +12,7 @@ import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 import { Hide, useIsDesktop } from "@agir/front/genericComponents/grid";
-import { LayoutTitle } from "@agir/front/dashboardComponents/Layout/StyledComponents";
+import { LayoutTitle } from "@agir/front/app/Layout/StyledComponents";
 import RenderIfVisibile from "@agir/front/genericComponents/RenderIfVisible";
 
 import MissingDocumentsWidget from "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsWidget";

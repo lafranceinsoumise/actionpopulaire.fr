@@ -2,13 +2,13 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import CONFIG from "./navigation.config";
+import CONFIG from "@agir/front/app/Navigation/navigation.config";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useUnreadMessageCount } from "@agir/msgs/common/hooks";
 import { useUnreadActivityCount } from "@agir/activity/common/hooks";
 
-import CounterBadge from "./CounterBadge";
+import CounterBadge from "@agir/front/app/Navigation/CounterBadge";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
@@ -59,7 +59,7 @@ const MenuLink = styled(Link)`
   }
 `;
 
-const BottomBar = styled.nav`
+const StyledBottomBar = styled.nav`
   background-color: ${(props) => props.theme.white};
   position: fixed;
   bottom: 0;
@@ -88,8 +88,8 @@ const BottomBar = styled.nav`
 
 const LINKS = CONFIG.menuLinks.filter(({ mobile }) => !!mobile);
 
-const Navigation = ({ active, unreadMessageCount, unreadActivityCount }) => (
-  <BottomBar>
+const BottomBar = ({ active, unreadMessageCount, unreadActivityCount }) => (
+  <StyledBottomBar>
     <ul>
       {LINKS.map((link) => (
         <li key={link.id}>
@@ -106,12 +106,12 @@ const Navigation = ({ active, unreadMessageCount, unreadActivityCount }) => (
         </li>
       ))}
     </ul>
-  </BottomBar>
+  </StyledBottomBar>
 );
 
-Navigation.propTypes = {
+BottomBar.propTypes = {
   active: PropTypes.string,
   unreadActivityCount: PropTypes.number,
   unreadMessageCount: PropTypes.number,
 };
-export default Navigation;
+export default BottomBar;

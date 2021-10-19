@@ -2,11 +2,12 @@ import React from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import user from "@agir/front/mockData/user";
-import DashboardPageBar from "./DashboardPageBar";
+
+import SecondaryPageBar from "./SecondaryPageBar";
 
 export default {
-  component: DashboardPageBar,
-  title: "TopBar/Mobile/Dashboard page",
+  component: SecondaryPageBar,
+  title: "Navigation/TopBar/Mobile/Secondary page",
   parameters: {
     backgrounds: { default: "black50" },
   },
@@ -23,7 +24,7 @@ const Template = (args, { globals }) => {
         boxShadow: style.elaborateShadow,
       }}
     >
-      <DashboardPageBar
+      <SecondaryPageBar
         user={globals.auth === "authenticated" && user}
         {...args}
       />
@@ -34,12 +35,20 @@ const Template = (args, { globals }) => {
 export const Default = Template.bind({});
 Default.args = {
   isLoading: false,
-  settingsLink: null,
+  title: "Page title !",
+  backLink: {
+    to: "/",
+    label: "Home",
+  },
 };
 
 export const WithSettingsLink = Template.bind({});
 WithSettingsLink.args = {
-  ...Default.args,
+  title: "Page title !",
+  backLink: {
+    to: "/",
+    label: "Home",
+  },
   settingsLink: {
     to: "/",
     label: "Settings",

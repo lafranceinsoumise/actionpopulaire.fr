@@ -4,12 +4,10 @@ import styled from "styled-components";
 import useSWR from "swr";
 
 import ActionButtons from "@agir/front/app/ActionButtons";
-import Announcements from "@agir/front/dashboardComponents/Announcements";
-import FacebookLoginAd from "@agir/front/dashboardComponents/FacebookLoginAd";
+import Announcements from "@agir/front/app/Announcements";
+import FacebookLoginAd from "@agir/front/app/FacebookLoginAd";
 import { LayoutTitle, LayoutSubtitle } from "./StyledComponents";
-import Navigation, {
-  SecondaryNavigation,
-} from "@agir/front/dashboardComponents/Navigation";
+import SideBar, { SecondarySideBar } from "@agir/front/app/Navigation/SideBar";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import UpcomingEvents from "@agir/events/common/UpcomingEvents";
 
@@ -69,7 +67,7 @@ const Layout = (props) => {
   return (
     <MainContainer {...props}>
       <LeftColumn>
-        <Navigation {...props} />
+        <SideBar {...props} />
       </LeftColumn>
       <MainColumn>
         <section>
@@ -99,7 +97,7 @@ const Layout = (props) => {
         ) : null}
         <FacebookLoginAd />
         <Announcements />
-        <SecondaryNavigation />
+        <SecondarySideBar />
       </RightColumn>
     </MainContainer>
   );

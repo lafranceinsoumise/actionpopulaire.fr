@@ -27,10 +27,6 @@ const Counter = ({ value, ...rest }) =>
     </svg>
   ) : null;
 
-Counter.propTypes = {
-  value: PropTypes.number,
-};
-
 const CounterBadge = styled(Counter)`
   fill: ${(props) => props.theme.redNSP};
   z-index: ${(props) => props.theme.zindexNavigationCounter};
@@ -39,5 +35,7 @@ const CounterBadge = styled(Counter)`
     fill: ${(props) => props.theme.white};
   }
 `;
-
+CounterBadge.propTypes = Counter.propTypes = {
+  value: PropTypes.number,
+};
 export default CounterBadge;

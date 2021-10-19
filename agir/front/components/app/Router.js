@@ -23,7 +23,7 @@ import {
   useDownloadBanner,
 } from "@agir/front/app/hooks";
 
-import TopBar from "@agir/front/allPages/TopBar/TopBar";
+import TopBar from "@agir/front/app/Navigation/TopBar";
 import Footer from "@agir/front/app/Footer";
 import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 

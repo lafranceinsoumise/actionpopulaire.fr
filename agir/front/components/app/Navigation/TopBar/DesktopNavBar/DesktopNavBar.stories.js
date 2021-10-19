@@ -8,7 +8,7 @@ import { DesktopNavBar } from "./DesktopNavBar";
 
 export default {
   component: DesktopNavBar,
-  title: "TopBar/Desktop/NavBar",
+  title: "Navigation/TopBar/Desktop/NavBar",
   parameters: {
     backgrounds: { default: "black50" },
   },

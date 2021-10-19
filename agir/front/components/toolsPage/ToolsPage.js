@@ -17,7 +17,7 @@ import img_Linsoumission from "./images/Linsoumission.jpg";
 import img_Comparateur from "./images/Comparateur.jpg";
 import bricksNSP from "./images/bricksNSP.svg";
 
-import Navigation from "@agir/front/dashboardComponents/Navigation";
+import BottomBar from "@agir/front/app/Navigation/BottomBar";
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
@@ -712,7 +712,7 @@ const ToolsPage = () => {
 
         <Spacer size="30px" />
 
-        {!isDesktop && <Navigation active={routeConfig.tools.id} />}
+        {!isDesktop && <BottomBar active={routeConfig.tools.id} />}
       </div>
     </StyledPage>
   );

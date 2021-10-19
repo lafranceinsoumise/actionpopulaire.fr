@@ -2,10 +2,10 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import CONFIG from "./navigation.config";
+import CONFIG from "@agir/front/app/Navigation/navigation.config";
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import CounterBadge from "./CounterBadge";
+import CounterBadge from "@agir/front/app/Navigation/CounterBadge";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import SecondaryMenu from "./SecondaryMenu";
@@ -48,14 +48,6 @@ const MenuLink = styled(Link)`
   }
 `;
 
-export const SecondaryNavigation = () => (
-  <SecondaryMenu
-    title="LIENS"
-    links={CONFIG.secondaryLinks}
-    style={{ padding: 0 }}
-  />
-);
-
 const LINKS = CONFIG.menuLinks.filter(({ desktop }) => !!desktop);
 
 const Navigation = ({
@@ -80,7 +72,7 @@ const Navigation = ({
             <RawFeatherIcon
               name="external-link"
               inline
-              strokeWidth="1.33"
+              strokeWidth={1.33}
               width="1rem"
               height="1rem"
             />

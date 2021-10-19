@@ -1,17 +1,17 @@
 import React from "react";
-import MobileNavigation from "./MobileNavigation";
+import BottomBar from "./BottomBar";
 
 import routes from "@agir/front/mockData/routes";
 
 export default {
-  component: MobileNavigation,
-  title: "Navigation/Mobile",
+  component: BottomBar,
+  title: "Navigation/BottomBar",
   parameters: {
     layout: "padded",
   },
 };
 
-const Template = (args) => <MobileNavigation {...args} />;
+const Template = (args) => <BottomBar {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

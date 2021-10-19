@@ -16,7 +16,7 @@ import {
   setPageTitle,
 } from "@agir/front/globalContext/actions";
 
-import Layout from "@agir/front/dashboardComponents/Layout";
+import Layout from "@agir/front/app/Layout";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 
 import ErrorBoundary from "./ErrorBoundary";

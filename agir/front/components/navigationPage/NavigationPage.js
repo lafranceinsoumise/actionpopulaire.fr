@@ -14,7 +14,7 @@ import { getRoutes } from "@agir/front/globalContext/reducers";
 import Link from "@agir/front/app/Link";
 
 import { routeConfig } from "@agir/front/app/routes.config";
-import CONFIG from "@agir/front/dashboardComponents/Navigation/navigation.config";
+import CONFIG from "@agir/front/app/Navigation/navigation.config";
 
 const MAIN_LINKS = CONFIG.menuLinks.filter(({ mobile }) => mobile === false);
 
