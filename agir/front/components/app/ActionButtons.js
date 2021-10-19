@@ -11,6 +11,7 @@ const StyledButton = styled(Link)`
   align-items: center;
   text-align: center;
   color: ${(props) => props.theme.black1000};
+  overflow-wrap: normal;
 
   @media (min-width: ${(props) => props.theme.collapse}px) {
     flex-flow: row nowrap;
@@ -92,7 +93,7 @@ const ActionButtons = () => {
             viewBox="0 0 16 16"
             fill="none"
             stroke="#000A2C"
-            strokeWidth="1.33"
+            strokeWidth={1.33}
             strokeLinecap="round"
             strokeLinejoin="round"
             xmlns="http://www.w3.org/2000/svg"

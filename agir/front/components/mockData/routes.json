@@ -1,0 +1,131 @@
+{
+  "contactConfiguration": "/profil/contact/",
+  "createGroup": "/groupes/creer/",
+  "eventsMap": "/carte/evenements/",
+  "facebookLogin": "/connexion/social/login/facebook/",
+  "groupsMap": "/carte/groupes/",
+  "nspReferral": "http://agir.local:8000/nsp/referral/",
+  "personalInformation": "/profil/identite/",
+  "search": "/recherche/",
+  "campaignEventDocumentHelp": "https://infos.actionpopulaire.fr/documents-comptes-de-campagne/",
+  "campaignFundingHelp": "https://infos.actionpopulaire.fr/compte-de-la-campagne-presidentielle/documents-comptes-de-campagne/",
+  "charteEquipes": "https://infos.actionpopulaire.fr/charte-des-groupes-action-populaire/",
+  "contact": "https://infos.actionpopulaire.fr/contact/",
+  "donationHelp": "https://infos.actionpopulaire.fr/dons/",
+  "groupTransferHelp": "https://infos.actionpopulaire.fr/nombre-ideal-division/",
+  "help": "https://infos.actionpopulaire.fr",
+  "legal": "https://infos.actionpopulaire.fr/mentions-legales/",
+  "newGroupHelp": "https://infos.actionpopulaire.fr/groupes/nouveau-groupe/",
+  "publicMeetingHelp": "https://infos.actionpopulaire.fr/fiches/organiser-une-reunion-publique/",
+  "melenchon2022": "https://melenchon2022.fr",
+  "programme": "https://melenchon2022.fr/programme/",
+  "comparateur": "https://melenchon2022.fr/comparateur/",
+  "agenda": "https://melenchon2022.fr/agenda/",
+  "lafranceinsoumise": "https://lafranceinsoumise.fr",
+  "materiel": "https://materiel.lafranceinsoumise.fr/",
+  "jlmBlog": "https://melenchon.fr",
+  "linsoumission": "https://linsoumission.fr",
+  "feedbackForm": "https://actionpopulaire.fr/formulaires/votre-avis/",
+  "noussommespour": {
+    "home": "https://noussommespour.fr"
+  },
+  "signup": "/inscription/",
+  "login": "/connexion/",
+  "resources": "https://infos.actionpopulaire.fr",
+  "logout": "/deconnexion/",
+  "notificationSettings": "/activite/parametres/",
+  "news": "https://lafranceinsoumise.fr/actualites/",
+  "thematicTeams": "http://agir.local:8000/equipes-thematiques/",
+  "groups__personGroups": [
+    {
+      "id": "64ed1c08-6329-4bee-aaae-c3d6a1ca0ec7",
+      "label": "G.R.O.U.P.E.",
+      "to": "/groupes/64ed1c08-6329-4bee-aaae-c3d6a1ca0ec7/"
+    },
+    {
+      "id": "39c8887a-9b69-442a-a77e-cb06b02ded8e",
+      "label": "Groupe à rejoindre",
+      "to": "/groupes/39c8887a-9b69-442a-a77e-cb06b02ded8e/"
+    },
+    {
+      "id": "c358f300-d19d-4242-8c6a-5b718321a5a4",
+      "label": "Groupe d'action",
+      "to": "/groupes/c358f300-d19d-4242-8c6a-5b718321a5a4/"
+    },
+    {
+      "id": "3a32fc55-7507-4d5f-bb57-a66daad63461",
+      "label": "JG",
+      "to": "/groupes/3a32fc55-7507-4d5f-bb57-a66daad63461/"
+    },
+    {
+      "id": "8b548f5d-2ba6-4ac1-9a72-f4062d037386",
+      "label": "Les rendez-vous de la marine",
+      "to": "/groupes/8b548f5d-2ba6-4ac1-9a72-f4062d037386/"
+    },
+    {
+      "id": "d5e7fece-3415-4dd1-b6b9-7483b7418ba2",
+      "label": "Mon groupe tout beau...",
+      "to": "/groupes/d5e7fece-3415-4dd1-b6b9-7483b7418ba2/"
+    },
+    {
+      "id": "fe6a3b18-67ab-4c1c-a273-b2ea4ac302db",
+      "label": "Reynaud SA",
+      "to": "/groupes/fe6a3b18-67ab-4c1c-a273-b2ea4ac302db/"
+    },
+    {
+      "id": "4adfcf21-096a-43d9-a91e-09c6ff79c1bb",
+      "label": "Chartier Chevallier S.A.",
+      "to": "/groupes/4adfcf21-096a-43d9-a91e-09c6ff79c1bb/"
+    },
+    {
+      "id": "e5bbf6a4-4819-443b-99df-9cdee3df7f9e",
+      "label": "Lebon",
+      "to": "/groupes/e5bbf6a4-4819-443b-99df-9cdee3df7f9e/"
+    },
+    {
+      "id": "ccd567c8-56f1-4104-927f-2454aff4980a",
+      "label": "Leroux et Fils",
+      "to": "/groupes/ccd567c8-56f1-4104-927f-2454aff4980a/"
+    },
+    {
+      "id": "77d055f5-dce7-4ffd-9151-8a1a9fa5a9d5",
+      "label": "Potier",
+      "to": "/groupes/77d055f5-dce7-4ffd-9151-8a1a9fa5a9d5/"
+    },
+    {
+      "id": "277620eb-4462-45b0-bc09-fa759ec6bf06",
+      "label": "Bourdon et Fils",
+      "to": "/groupes/277620eb-4462-45b0-bc09-fa759ec6bf06/"
+    },
+    {
+      "id": "344a99e1-c47a-4361-a50e-da63c8dbab76",
+      "label": "Gilbert",
+      "to": "/groupes/344a99e1-c47a-4361-a50e-da63c8dbab76/"
+    },
+    {
+      "id": "4cdaceee-c625-4f72-bf49-5797bcf297d0",
+      "label": "Groupe A",
+      "to": "/groupes/4cdaceee-c625-4f72-bf49-5797bcf297d0/"
+    },
+    {
+      "id": "8e42818c-012d-4ffb-bced-f5b392f84863",
+      "label": "Hardy",
+      "to": "/groupes/8e42818c-012d-4ffb-bced-f5b392f84863/"
+    },
+    {
+      "id": "71143856-f8b1-4eec-a9f2-fd4b3c2d4983",
+      "label": "Maillard",
+      "to": "/groupes/71143856-f8b1-4eec-a9f2-fd4b3c2d4983/"
+    },
+    {
+      "id": "c1500b19-5391-48b5-8f5c-e9c59230b1ab",
+      "label": "Roy",
+      "to": "/groupes/c1500b19-5391-48b5-8f5c-e9c59230b1ab/"
+    },
+    {
+      "id": "3e5ba0d3-f935-4cf1-8ce7-126c1cb4970f",
+      "label": "Picard",
+      "to": "/groupes/3e5ba0d3-f935-4cf1-8ce7-126c1cb4970f/"
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import useSWR from "swr";
 import Card from "@agir/front/genericComponents/Card";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import Onboarding from "@agir/front/genericComponents/Onboarding";
-import CenteredLayout from "@agir/front/dashboardComponents/CenteredLayout";
+import CenteredLayout from "@agir/front/app/Layout/CenteredLayout";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 

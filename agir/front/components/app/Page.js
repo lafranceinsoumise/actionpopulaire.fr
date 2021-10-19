@@ -16,7 +16,7 @@ import {
   setPageTitle,
 } from "@agir/front/globalContext/actions";
 
-import Layout from "@agir/front/dashboardComponents/Layout";
+import Layout from "@agir/front/app/Layout";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 
 import ErrorBoundary from "./ErrorBoundary";
@@ -118,7 +118,7 @@ const Page = (props) => {
   return (
     <ErrorBoundary>
       <StyledPage $hasTopBar={hasTopBar}>
-        <Layout active={routeConfig.id}>
+        <Layout {...(routeConfig?.layoutProps || {})} active={routeConfig.id}>
           <Suspense fallback={<div />}>
             <Component route={routeConfig} {...routeParams} {...rest} />
             {!routeConfig.hideFeedbackButton && <FeedbackButton />}

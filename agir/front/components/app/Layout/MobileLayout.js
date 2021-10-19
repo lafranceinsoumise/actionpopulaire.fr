@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import Navigation from "@agir/front/dashboardComponents/Navigation";
+import BottomBar from "@agir/front/app/Navigation/BottomBar";
 
 const StyledContainer = styled.div`
   padding-top: 24px;
@@ -17,7 +17,7 @@ const MobileLayout = (props) => {
   return (
     <StyledContainer {...props}>
       <section>{children}</section>
-      <Navigation {...props} />
+      <BottomBar {...props} />
     </StyledContainer>
   );
 };

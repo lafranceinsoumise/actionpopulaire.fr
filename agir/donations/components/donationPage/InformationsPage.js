@@ -16,8 +16,6 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { InformationsStep } from "./InformationsStep";
 import {
-  Link,
-  StepButton,
   StyledIllustration,
   StyledBody,
   StyledPage,
@@ -26,23 +24,6 @@ import {
 } from "./StyledComponents";
 
 import * as api from "./api";
-
-const ModalContainer = styled.div`
-  width: 70%;
-  max-width: 740px;
-  margin: 40px auto;
-  margin-bottom: 40px;
-  background-color: ${(props) => props.theme.white};
-  padding: 40px;
-
-  @media (max-width: ${style.collapse}px) {
-    width: 100%;
-    height: 100%;
-    overflow-y: scroll;
-    margin: 0;
-    padding: 24px;
-  }
-`;
 
 const Title = styled.h1`
   font-size: 28px;
@@ -177,75 +158,74 @@ const InformationsPage = () => {
         <title>{CONFIG[type]?.title || CONFIG.default.title}</title>
       </Helmet>
 
-      {/* <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}> */}
-
-      <StyledPage>
-        <StyledIllustration aria-hidden="true" />
-        <StyledBody>
-          <StyledMain>
-            <StyledLogo
-              alt={`Logo ${
-                type === "2022" ? "Mélenchon 2022" : "la France insoumise"
-              }`}
-              route={externalLinkRoute}
-              rel="noopener noreferrer"
-              target="_blank"
-            />
-
-            <div>
-              <Title>Je donne {amountString}</Title>
-              <Breadcrumb>
-                <div onClick={() => {}}>1. Montant</div>
-                <RawFeatherIcon
-                  name="chevron-right"
-                  width="1rem"
-                  height="1rem"
-                />
-                <div>2. Mes informations</div>
-                <RawFeatherIcon
-                  name="chevron-right"
-                  width="1rem"
-                  height="1rem"
-                />
-                <div>3. Paiement</div>
-              </Breadcrumb>
-
-              <Spacer size="1rem" />
-
-              {groupPk && (
-                <>
-                  <StyledAmountInformations>
-                    Je fais un don de <b>{amountString}</b> qui sera réparti :
-                    <br />
-                    <ul>
-                      <li>
-                        <b>{groupAmountString}</b> pour le groupe {group?.name}
-                      </li>
-                      <li>
-                        <b>{nationalAmountString}</b> pour les activités
-                        nationales
-                      </li>
-                    </ul>
-                  </StyledAmountInformations>
-                  <Spacer size="1rem" />
-                </>
-              )}
-
-              <InformationsStep
-                formData={formData}
-                setFormData={setFormData}
-                errors={errors}
-                setErrors={setErrors}
-                isLoading={isLoading}
-                onSubmit={handleInformationsSubmit}
+      <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
+        <StyledPage>
+          <StyledIllustration aria-hidden="true" />
+          <StyledBody>
+            <StyledMain>
+              <StyledLogo
+                alt={`Logo ${
+                  type === "2022" ? "Mélenchon 2022" : "la France insoumise"
+                }`}
+                route={externalLinkRoute}
+                rel="noopener noreferrer"
+                target="_blank"
               />
-              <Spacer size="2rem" />
-            </div>
-          </StyledMain>
-        </StyledBody>
-      </StyledPage>
 
-      {/* </PageFadeIn> */}
+              <div>
+                <Title>Je donne {amountString}</Title>
+                <Breadcrumb>
+                  <div onClick={() => {}}>1. Montant</div>
+                  <RawFeatherIcon
+                    name="chevron-right"
+                    width="1rem"
+                    height="1rem"
+                  />
+                  <div>2. Mes informations</div>
+                  <RawFeatherIcon
+                    name="chevron-right"
+                    width="1rem"
+                    height="1rem"
+                  />
+                  <div>3. Paiement</div>
+                </Breadcrumb>
+
+                <Spacer size="1rem" />
+
+                {groupPk && (
+                  <>
+                    <StyledAmountInformations>
+                      Je fais un don de <b>{amountString}</b> qui sera réparti :
+                      <br />
+                      <ul>
+                        <li>
+                          <b>{groupAmountString}</b> pour le groupe{" "}
+                          {group?.name}
+                        </li>
+                        <li>
+                          <b>{nationalAmountString}</b> pour les activités
+                          nationales
+                        </li>
+                      </ul>
+                    </StyledAmountInformations>
+                    <Spacer size="1rem" />
+                  </>
+                )}
+
+                <InformationsStep
+                  formData={formData}
+                  setFormData={setFormData}
+                  errors={errors}
+                  setErrors={setErrors}
+                  isLoading={isLoading}
+                  onSubmit={handleInformationsSubmit}
+                />
+                <Spacer size="2rem" />
+              </div>
+            </StyledMain>
+          </StyledBody>
+        </StyledPage>
+      </PageFadeIn>
     </Theme>
   );
 };

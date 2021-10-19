@@ -4,17 +4,16 @@ import validate from "@agir/lib/utils/validate";
 
 import { COUNTRIES } from "@agir/front/formComponents/CountryField";
 
-let startDate = new Date();
-startDate = DateTime.fromJSDate(startDate).plus({ days: 1 });
+let startDate = DateTime.now()
+  .setZone(Intl.DateTimeFormat().resolvedOptions().timeZone)
+  .plus({ days: 1 });
 let endDate = startDate.plus({ hours: 1 });
-startDate = new Date(startDate.ts);
-endDate = new Date(endDate.ts);
 
 export const DEFAULT_FORM_DATA = {
   name: "",
   organizerGroup: null,
-  startTime: startDate.toISOString(),
-  endTime: endDate.toISOString(),
+  startTime: startDate.toISO(),
+  endTime: endDate.toISO(),
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   subtype: null,
   onlineUrl: "",

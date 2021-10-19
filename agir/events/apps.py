@@ -3,6 +3,26 @@ from django.apps import AppConfig
 from ..payments.types import register_payment_type, PaymentType
 
 
+DEFAULT_ADMIN_MODES = ["system_pay", "check_events", "money", "tpe"]
+
+
+def admin_payment_modes(payment):
+    from .models import RSVP
+
+    try:
+        event = payment.rsvp.event
+    except RSVP.DoesNotExist:
+        pass
+    else:
+        if (
+            event.payment_parameters is not None
+            and "admin_payment_modes" in event.payment_parameters
+        ):
+            return event.payment_parameters["admin_payment_modes"]
+
+    return DEFAULT_ADMIN_MODES
+
+
 class EventsConfig(AppConfig):
     name = "agir.events"
 
@@ -22,7 +42,7 @@ class EventsConfig(AppConfig):
             status_listener=notification_listener,
             description_template="events/payment_description.html",
             description_context_generator=payment_description_context_generator,
-            admin_modes=["system_pay", "check_events", "money", "tpe"],
+            admin_modes=admin_payment_modes,
         )
 
         register_payment_type(payment_type)

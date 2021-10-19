@@ -10,7 +10,7 @@ import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import CountryField from "@agir/front/formComponents/CountryField";
 import Link from "@agir/front/app/Link";
 import TextField from "@agir/front/formComponents/TextField";
-import Toast from "@agir/front/genericComponents/Toast";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 import { signUp } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -210,8 +210,8 @@ const SignUp = () => {
         />
       </div>
 
-      {error && !!error.rgpd && <Toast>{error.rgpd}</Toast>}
-      {error && !!error.global && <Toast>{error.global}</Toast>}
+      {error && !!error.rgpd && <StaticToast>{error.rgpd}</StaticToast>}
+      {error && !!error.global && <StaticToast>{error.global}</StaticToast>}
 
       <Button type="submit" color="primary" style={{ marginTop: "2rem" }} block>
         {location.state?.from === "event"

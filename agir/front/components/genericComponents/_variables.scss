@@ -40,7 +40,8 @@ $link-color: $primary500;
 $link-hover-color: $primary600;
 $link-hover-decoration: underline;
 
-$collapse: 992;
+$collapse-mobile: 992;
+$collapse-tablet: 1280;
 
 $elaborate-shadow: 0px 0px 3px rgba(0, 35, 44, 0.1),
   0px 2px 0px rgba(0, 35, 44, 0.08);
@@ -101,7 +102,9 @@ $zindex__panel: 20;
   linkHoverColor: $link-hover-color;
   linkHoverDecoration: $link-hover-decoration;
 
-  collapse: $collapse;
+  collapse: $collapse-mobile;
+  collapseMobile: $collapse-mobile;
+  collapseTablet: $collapse-tablet;
 
   elaborateShadow: $elaborate-shadow;
   cardShadow: $card-shadow;

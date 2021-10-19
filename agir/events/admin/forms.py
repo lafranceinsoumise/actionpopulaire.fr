@@ -19,6 +19,7 @@ from agir.payments.payment_modes import PaymentModeField, PAYMENT_MODES
 from agir.people.models import Person
 from agir.people.person_forms.forms import BasePersonForm
 from .. import models
+from ..apps import DEFAULT_ADMIN_MODES
 from ..tasks import send_organizer_validation_notification
 from ...gestion.typologies import TypeDocument
 from ...lib.form_fields import AdminRichEditorWidget
@@ -237,9 +238,7 @@ class NewParticipantForm(BasePersonForm):
         help_text="Ce champ ne s'applique que s'il s'agit de la création d'une nouvelle personne.",
     )
 
-    payment_mode = PaymentModeField(
-        required=True, payment_modes=["system_pay", "check_events", "money", "tpe"]
-    )
+    payment_mode = PaymentModeField(required=True, payment_modes=DEFAULT_ADMIN_MODES)
 
     def __init__(self, *args, model_admin, event, **kwargs):
         super().__init__(*args, **kwargs)
@@ -251,6 +250,11 @@ class NewParticipantForm(BasePersonForm):
             admin_site=model_admin.admin_site,
             choices=self.fields["existing_person"].choices,
         )
+
+        if event.payment_parameters.get("admin_payment_modes"):
+            self.fields["payment_mode"].payment_modes = event.event_parameters[
+                "admin_payment_modes"
+            ]
 
         if "location_address2" in self.fields:
             self.fields["location_address2"].required = False

@@ -9,7 +9,7 @@ import Spacer from "@agir/front/genericComponents/Spacer.js";
 import SelectField from "@agir/front/formComponents/SelectField";
 import Button from "@agir/front/genericComponents/Button";
 import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButton";
-import Toast from "@agir/front/genericComponents/Toast";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
@@ -114,7 +114,7 @@ const EditionPanel = (props) => {
             </StyledList>
           </div>
           {errors?.membershipType && (
-            <Toast>Erreur : {errors.membershipType}</Toast>
+            <StaticToast>Erreur : {errors.membershipType}</StaticToast>
           )}
           <Spacer size="1rem" />
           <Button color="secondary" onClick={onSubmit} disabled={isLoading}>

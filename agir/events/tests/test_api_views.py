@@ -319,7 +319,7 @@ class CreateEventAPITestCase(APITestCase):
 
         subtype_without_related_project_type = EventSubtype.objects.create(
             label="2017!",
-            related_project_type=None,
+            related_project_type="",
             visibility=EventSubtype.VISIBILITY_ALL,
         )
         res = self.client.post(

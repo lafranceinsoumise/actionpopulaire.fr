@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-const StyledToast = styled.div`
+const StaticToast = styled.div`
   display: flex;
   padding: 1rem;
   border: 1px solid #000a2c;
@@ -14,7 +14,7 @@ const StyledToast = styled.div`
     transparent
   );
 `;
-StyledToast.propTypes = {
+StaticToast.propTypes = {
   $color: PropTypes.string,
 };
-export default StyledToast;
+export default StaticToast;

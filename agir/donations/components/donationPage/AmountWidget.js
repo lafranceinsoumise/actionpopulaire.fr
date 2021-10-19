@@ -156,13 +156,11 @@ const AmountWidget = (props) => {
           disabled={disabled}
         />
       )}
-      {onChangeByMonth && (
-        <ByMonthWidget
-          value={byMonth}
-          onChange={onChangeByMonth}
-          disabled={disabled}
-        />
-      )}
+      <ByMonthWidget
+        value={byMonth}
+        onChange={onChangeByMonth}
+        disabled={disabled}
+      />
     </StyledAmountWidget>
   );
 };

@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { StepButton } from "./StyledComponents";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
-import Toast from "@agir/front/genericComponents/Toast";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
@@ -140,9 +140,9 @@ export const InformationsStep = ({
             onChange={handleCheckboxChange}
           />
           {errors?.french_resident && (
-            <Toast style={{ marginTop: "0.5rem" }}>
+            <StaticToast style={{ marginTop: "0.5rem" }}>
               {errors?.french_resident}
-            </Toast>
+            </StaticToast>
           )}
           <Spacer size="0.5rem" />
         </>
@@ -210,9 +210,9 @@ export const InformationsStep = ({
         onChange={handleCheckboxChange}
       />
       {errors?.consent_certification && (
-        <Toast style={{ marginTop: "0.5rem" }}>
+        <StaticToast style={{ marginTop: "0.5rem" }}>
           {errors?.consent_certification}
-        </Toast>
+        </StaticToast>
       )}
       <Spacer size="1rem" />
 
@@ -232,10 +232,10 @@ export const InformationsStep = ({
 
       {!!Object.values(errors).filter((v) => !!v).length && (
         <>
-          <Toast style={{ marginTop: "0.5rem" }}>
+          <StaticToast style={{ marginTop: "0.5rem" }}>
             Des erreurs sont présentes dans le formulaire, veuillez les résoudre
             avant de l'envoyer
-          </Toast>
+          </StaticToast>
           <Spacer size="1rem" />
         </>
       )}

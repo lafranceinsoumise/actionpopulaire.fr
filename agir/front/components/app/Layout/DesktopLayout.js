@@ -4,12 +4,10 @@ import styled from "styled-components";
 import useSWR from "swr";
 
 import ActionButtons from "@agir/front/app/ActionButtons";
-import Announcements from "@agir/front/dashboardComponents/Announcements";
-import FacebookLoginAd from "@agir/front/dashboardComponents/FacebookLoginAd";
+import Announcements from "@agir/front/app/Announcements";
+import FacebookLoginAd from "@agir/front/app/FacebookLoginAd";
 import { LayoutTitle, LayoutSubtitle } from "./StyledComponents";
-import Navigation, {
-  SecondaryNavigation,
-} from "@agir/front/dashboardComponents/Navigation";
+import SideBar, { SecondarySideBar } from "@agir/front/app/Navigation/SideBar";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import UpcomingEvents from "@agir/events/common/UpcomingEvents";
 
@@ -31,12 +29,17 @@ const MainContainer = styled.div`
   justify-content: space-between;
 
   ${LeftColumn} {
-    padding: 3rem 0 0;
-    flex: 0 0 180px;
+    padding: 3rem 2rem 0 0;
+    flex: 0 0 255px;
+    min-width: 1px;
+
+    @media (max-width: ${(props) => props.theme.collapseTablet}px) {
+      display: none;
+    }
   }
 
   ${RightColumn} {
-    padding: 3rem 0 0;
+    padding: 3rem 0 0 2rem;
     flex: 0 0 255px;
 
     h4 {
@@ -46,10 +49,13 @@ const MainContainer = styled.div`
   }
 
   ${MainColumn} {
-    padding: 3rem 2rem 0;
-    flex: 1 1 800px;
-    max-width: 800px;
+    padding: 3rem 0 0;
+    flex: 0 1 725px;
     margin: 0 auto;
+
+    @media (max-width: ${(props) => props.theme.collapseTablet}px) {
+      flex-grow: 1;
+    }
   }
 `;
 
@@ -61,7 +67,7 @@ const Layout = (props) => {
   return (
     <MainContainer {...props}>
       <LeftColumn>
-        <Navigation {...props} />
+        <SideBar {...props} />
       </LeftColumn>
       <MainColumn>
         <section>
@@ -91,7 +97,7 @@ const Layout = (props) => {
         ) : null}
         <FacebookLoginAd />
         <Announcements />
-        <SecondaryNavigation />
+        <SecondarySideBar />
       </RightColumn>
     </MainContainer>
   );

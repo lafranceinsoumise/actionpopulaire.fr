@@ -16,11 +16,11 @@ const StyledPageHead = styled.div`
   isolation: isolate;
 `;
 
-export const TopBar = ({ path, hideBannerDownload }) => {
+export const TopBar = ({ path, hideBannerDownload, ...rest }) => {
   return (
     <StyledPageHead>
       {!hideBannerDownload && <DownloadApp />}
-      <NavBar path={path} />
+      <NavBar {...rest} path={path} />
     </StyledPageHead>
   );
 };

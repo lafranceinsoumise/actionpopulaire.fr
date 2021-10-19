@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useMemo, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -73,14 +73,14 @@ const StyledModalContent = styled.div`
 const SoftLoginModalContent = (props) => {
   const { user, data, onClose } = props;
 
-  if (!user || !data) {
+  if (!user?.displayName || !data) {
     return null;
   }
 
   const username =
-    user?.displayName.length > 2
-      ? user?.displayName
-      : user?.firstName || user?.displayName;
+    user.displayName?.length > 2
+      ? user.displayName
+      : user.firstName || user.displayName;
 
   const [type, softLoginUserName, softLoginUserEmail, softLoginURL] =
     data.tags.split(",");
