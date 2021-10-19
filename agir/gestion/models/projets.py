@@ -31,7 +31,7 @@ class ProjetManager(NumeroManager):
                     event=event,
                     etat=Projet.Etat.CREE_PLATEFORME,
                     titre=titre,
-                    type=event.subtype.related_project_type,
+                    type=event.subtype.related_project_type or TypeProjet.ACTIONS,
                     description="Ce projet a été généré automatiquement à partir d'un événement créé par un "
                     "utilisateur d'Action Populaire.",
                 )
@@ -43,9 +43,7 @@ class ProjetManager(NumeroManager):
                     )
                     reversion.set_user(user)
                     projet.type = (
-                        event.subtype.related_project_type
-                        if event.subtype.related_project_type is not None
-                        else TypeProjet.ACTIONS
+                        event.subtype.related_project_type or TypeProjet.ACTIONS
                     )
                     projet.save(update_fields=["type"])
 
