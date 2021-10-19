@@ -76,10 +76,6 @@ export const DesktopNavBar = (props) => {
           css={`
             flex: 1 1 auto;
             max-width: 412px;
-            //
-            // @media (max-width: ${({ theme }) => theme.collapseTablet}px) {
-            //   display: ${hasLayout ? "none" : "block"};
-            // }
           `}
         >
           <SearchBar isConnected={!!user} />

@@ -1,5 +1,6 @@
 import React from "react";
-import SideBar, { SecondaryNavigation } from "./SideBar";
+import SideBar from "./SideBar";
+import { SecondarySideBar } from "./index";
 
 import routes from "@agir/front/mockData/routes";
 
@@ -20,4 +21,4 @@ export const Main = () => (
   />
 );
 
-export const Secondary = () => <SecondaryNavigation />;
+export const Secondary = () => <SecondarySideBar />;
