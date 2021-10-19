@@ -87,15 +87,26 @@ const InformationsPage = () => {
     revalidateOnReconnect: false,
   });
 
+  let amountStepUrl = type !== "2022" ? "/dons/" : "/2022/dons/";
+  // Keep params in url
+  if (!!groupPk) {
+    amountStepUrl += `?group=${groupPk}`;
+  }
+
+  // Redirect to Amount Step if session not filled with an amount
+  if (!session?.donations?.amount) {
+    window.location.href = amountStepUrl;
+  }
+
   const externalLinkRoute =
     CONFIG[type]?.externalLinkRoute || CONFIG.default.externalLinkRoute;
 
   const [formData, setFormData] = useState({
     // amounts
-    amount: 500,
     to: type,
-    type: "S",
-    allocations: [],
+    amount: session?.donations?.amount,
+    type: session?.donations?.type,
+    allocations: JSON.parse(session?.donations?.allocations),
     // informations
     email: session?.user?.email || "",
     first_name: session?.user?.firstName || "",
@@ -175,7 +186,9 @@ const InformationsPage = () => {
               <div>
                 <Title>Je donne {amountString}</Title>
                 <Breadcrumb>
-                  <div onClick={() => {}}>1. Montant</div>
+                  <div onClick={() => (window.location.href = amountStepUrl)}>
+                    1. Montant
+                  </div>
                   <RawFeatherIcon
                     name="chevron-right"
                     width="1rem"

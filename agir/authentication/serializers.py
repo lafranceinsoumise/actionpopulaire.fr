@@ -5,7 +5,6 @@ from django.db.models import F
 from django.urls import reverse
 from rest_framework import serializers
 
-from agir.activity.models import Activity
 from agir.authentication.utils import (
     is_hard_logged,
     is_soft_logged,
@@ -13,7 +12,7 @@ from agir.authentication.utils import (
 )
 from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url
-from agir.msgs.actions import get_unread_message_count
+from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 
 
 class UserContextSerializer(serializers.Serializer):
@@ -51,6 +50,7 @@ class SessionSerializer(serializers.Serializer):
     bookmarkedEmails = serializers.SerializerMethodField(
         method_name="get_bookmarked_emails", read_only=True
     )
+    donations = serializers.SerializerMethodField(read_only=True)
 
     def get_authentication(self, request):
         if is_hard_logged(request):
@@ -133,3 +133,6 @@ class SessionSerializer(serializers.Serializer):
 
     def get_bookmarked_emails(self, request):
         return get_bookmarked_emails(request)
+
+    def get_donations(self, request):
+        return request.session[DONATION_SESSION_NAMESPACE]

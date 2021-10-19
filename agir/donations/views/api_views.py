@@ -43,9 +43,9 @@ class SendDonationAPIView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
+        email = validated_data["email"]
         amount = validated_data["amount"]
         type = validated_data["type"]
-        email = validated_data["email"]
 
         connected_user = False
         person = None

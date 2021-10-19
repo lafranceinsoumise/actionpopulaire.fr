@@ -82,7 +82,8 @@ const DonationPage = () => {
       return;
     }
 
-    window.location.href = result.next;
+    // Keep group param in url
+    window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
   }, []);
 
   return (

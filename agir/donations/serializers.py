@@ -104,11 +104,11 @@ class SendDonationSerializer(serializers.Serializer):
 
     payment_mode = serializers.CharField(max_length=20)
 
-    amount = serializers.IntegerField(min_value=1, required=True)
     to = serializers.ChoiceField(
         choices=((TO_LFI, "la France insoumise"), (TO_2022, "Mélenchon 2022")),
         default=TO_LFI,
     )
+    amount = serializers.IntegerField(min_value=1, required=True)
     type = serializers.ChoiceField(
         choices=((TYPE_SINGLE_TIME, "une seule fois"), (TYPE_MONTHLY, "tous les mois")),
         required=True,
