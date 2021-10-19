@@ -20,8 +20,8 @@ class BaseDocumentInline(admin.TabularInline):
     fields = ("document", "type_document", "fichier_document")
 
     def type_document(self, obj):
-        if obj:
-            return obj.get_type_display()
+        if obj and obj.document:
+            return obj.document.get_type_display()
         return "-"
 
     type_document.short_description = "Type de document"
