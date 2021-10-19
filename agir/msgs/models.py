@@ -1,3 +1,4 @@
+from django.db.models.deletion import PROTECT
 import reversion
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -67,6 +68,24 @@ class SupportGroupMessage(AbstractMessage):
         verbose_name = "Message de groupe"
         verbose_name_plural = "Messages de groupe"
 
+
+class SupportGroupOrganizationMessage(AbstractMessage):
+    supportgroup = models.ForeignKey(
+        "groups.SupportGroup",
+        editable=False,
+        on_delete=models.PROTECT,
+        verbose_name="Groupe / équipe",
+        related_name="message_organisation",
+    )
+    person = models.ForeignKey(
+        "people.Person",
+        verbose_name="Personne",
+        related_name="message_organisation",
+        on_delete=models.PROTECT
+    )
+
+    class Meta:
+        verbose_name="Message privé avec les organisateurs de groupe"
 
 @reversion.register()
 class SupportGroupMessageComment(AbstractMessage):

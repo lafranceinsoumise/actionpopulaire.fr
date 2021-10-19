@@ -275,6 +275,15 @@ export const routeConfig = {
     Component: GroupMessagePage,
     hideFeedbackButton: true,
   }),
+  groupOrganizationMessage: new RouteConfig({
+    id: "groupOrganizationMessage",
+    path: "/groupes-organisation/:groupOrgaPk/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Message à l'organisation du groupe",
+    Component: MessagePage,
+    hideFeedbackButton: true,
+  }),
   groupDetails: new RouteConfig({
     id: "groupDetails",
     path: "/groupes/:groupPk/:activeTab?/",
