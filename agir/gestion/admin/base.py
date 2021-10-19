@@ -16,9 +16,10 @@ class BaseMixin(BaseModelAdmin):
     search_fields = ("numero",)
 
     def get_search_results(self, request, queryset, search_term):
+        use_distinct = False
         if search_term:
-            return queryset.search(search_term)
-        return queryset, False
+            return queryset.search(search_term), use_distinct
+        return queryset, use_distinct
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj=obj) + ("numero_",)
