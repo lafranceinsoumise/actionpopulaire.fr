@@ -126,6 +126,11 @@ event_settings_patterns = [
         views.BaseAppHardAuthView.as_view(),
         name="view_event_settings_cancel",
     ),
+    path(
+        "gestion/documents/",
+        views.BaseAppHardAuthView.as_view(),
+        name="view_event_settings_required_documents",
+    ),
 ]
 
 urlpatterns = [

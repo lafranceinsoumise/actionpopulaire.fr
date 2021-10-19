@@ -172,6 +172,10 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         read_only=True, method_name="get_is_past"
     )
 
+    hasProject = serializers.SerializerMethodField(
+        read_only=True, method_name="get_has_project"
+    )
+
     def to_representation(self, instance):
         user = self.context["request"].user
 
@@ -296,6 +300,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_is_past(self, obj):
         return obj.is_past()
+
+    def get_has_project(self, obj):
+        return Projet.objects.filter(event=obj).exists()
 
 
 class EventAdvancedSerializer(EventSerializer):

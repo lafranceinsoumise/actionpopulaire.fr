@@ -56,7 +56,6 @@ const StyledDocumentList = styled.div`
     line-height: 1.5;
     color: ${(props) =>
       props.$required ? props.theme.redNSP : props.theme.black1000};
-    text-align: center;
 
     small {
       display: block;
@@ -70,27 +69,29 @@ const StyledDocumentList = styled.div`
 
 const ContactFormLink = styled.div`
   color: ${(props) => props.theme.black700};
-  text-align: center;
 
   & > div {
     display: flex;
     gap: 1rem;
-    justify-content: center;
 
     @media (max-width: ${(props) => props.theme.collapse}px) {
       flex-direction: column;
     }
   }
 `;
+
 const StyledWrapper = styled.main`
-  text-align: center;
-  padding: 1.5rem 1.5rem 5rem;
+  padding: ${({ $embedded }) => ($embedded ? "1rem 0" : "1.5rem 1.5rem 5rem")};
 
   @media (min-width: ${(props) => props.theme.collapse}px) {
     text-align: left;
-    padding: 2rem 0;
+    padding: ${({ $embedded }) => ($embedded ? "1rem 0" : "2rem 0")};
     max-width: 680px;
     margin: 0 auto;
+  }
+
+  & > section:empty + ${Spacer} {
+    display: none;
   }
 
   & > header {
@@ -127,6 +128,15 @@ const StyledWrapper = styled.main`
     grid-template-columns: 100%;
     grid-gap: 1.5rem;
   }
+
+  ${StyledDocumentList} {
+    text-align: ${({ $embedded }) => ($embedded ? "left" : "center")};
+  }
+
+  ${ContactFormLink} > div {
+    justify-content: ${({ $embedded }) =>
+      $embedded ? "flex-start" : "center"};
+  }
 `;
 
 const EventRequiredDocuments = (props) => {
@@ -143,9 +153,10 @@ const EventRequiredDocuments = (props) => {
     onDismissDocument,
     isLoading,
     errors,
+    embedded,
   } = props;
 
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(!embedded);
   const [selectedType, setSelectedType] = useState(null);
 
   const [required, unrequired] = useMemo(() => {
@@ -182,22 +193,28 @@ const EventRequiredDocuments = (props) => {
   };
 
   return (
-    <StyledWrapper>
-      <IndexLinkAnchor route="events">
-        <FeatherIcon name="arrow-left" /> &nbsp; Liste des événements
-      </IndexLinkAnchor>
-      <header>
-        <h3>Documents de l'événement public</h3>
-        <h2>{event.name}</h2>
-        <h5>
-          {dateFromISOString(event.endTime).toLocaleString({
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </h5>
-      </header>
-      <Spacer size="1.5rem" />
+    <StyledWrapper $embedded={embedded}>
+      {!embedded && (
+        <IndexLinkAnchor route="events">
+          <FeatherIcon name="arrow-left" /> &nbsp; Liste des événements
+        </IndexLinkAnchor>
+      )}
+      {!embedded && (
+        <>
+          <header>
+            <h3>Documents de l'événement public</h3>
+            <h2>{event.name}</h2>
+            <h5>
+              {dateFromISOString(event.endTime).toLocaleString({
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </h5>
+          </header>
+          <Spacer size="1.5rem" />
+        </>
+      )}
       <section>
         <ProjectStatusCard
           status={status}
@@ -208,11 +225,13 @@ const EventRequiredDocuments = (props) => {
           }
         />
         <SentDocumentsCard documents={documents} />
-        <EventSubtypePicker
-          value={event.subtype}
-          options={subtypes}
-          onChange={onChangeSubtype}
-        />
+        {!embedded && (
+          <EventSubtypePicker
+            value={event.subtype}
+            options={subtypes}
+            onChange={onChangeSubtype}
+          />
+        )}
       </section>
       <Spacer size="2rem" />
       {required.length > 0 && (
@@ -225,7 +244,7 @@ const EventRequiredDocuments = (props) => {
             <small>À compléter avant le {displayShortDate(limitDate)}</small>
           </h4>
           <Spacer size="1rem" />
-          <p style={{ textAlign: "center", lineHeight: 1.6 }}>
+          <p style={{ textAlign: "inherit", lineHeight: 1.6 }}>
             Si votre événement n’a pas eu recours a un élément demandé, vous
             pouvez cliquer sur le bouton “non applicable”.
           </p>
@@ -237,6 +256,7 @@ const EventRequiredDocuments = (props) => {
               onUpload={selectType}
               onDismiss={onDismissDocument}
               style={{ marginTop: i && "1rem" }}
+              embedded={embedded}
             />
           ))}
         </StyledDocumentList>
@@ -260,6 +280,7 @@ const EventRequiredDocuments = (props) => {
                 type={type}
                 onUpload={selectType}
                 style={{ marginTop: i && "1rem" }}
+                embedded={embedded}
               />
             ))
           )}
@@ -324,6 +345,7 @@ EventRequiredDocuments.propTypes = {
   onChangeSubtype: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
   errors: PropTypes.object,
+  embedded: PropTypes.bool,
 };
 
 export default EventRequiredDocuments;
