@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
+import CounterBadge from "@agir/front/app/Navigation/CounterBadge";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import Link from "@agir/front/app/Link";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
@@ -41,7 +42,6 @@ const IconLink = styled(Link)`
   align-items: center;
   padding: 0 11px;
   font-size: 0.75rem;
-  position: relative;
   color: ${(props) =>
     props.$active ? (props) => props.theme.primary500 : props.theme.black1000};
   box-shadow: ${(props) =>
@@ -59,41 +59,46 @@ const IconLink = styled(Link)`
     padding-right: 0;
   }
 
-  span {
-    margin: 0;
-    margin-top: 5px;
+  & > * {
+    margin: 5px 0 0 0;
     max-width: 75px;
     text-overflow: ellipsis;
     overflow: hidden;
     word-wrap: initial;
     white-space: nowrap;
-  }
 
-  small {
-    display: flex;
-    color: ${(props) => props.theme.white};
-    position: absolute;
-    background-color: ${(props) => props.theme.redNSP};
-    font-weight: 700;
-    font-size: 11px;
-    border-radius: 100%;
-    align-items: center;
-    justify-content: center;
-    top: 10px;
-    right: 20px;
-    width: 18px;
-    height: 18px;
-    overflow: hidden;
-    white-space: nowrap;
-
-    &:empty {
-      top: 12px;
-      right: 30px;
-      width: 0.5rem;
-      height: 0.5rem;
+    &:first-child {
+      height: 28px;
     }
   }
 `;
+
+const CounterIconLink = styled(IconLink)`
+  & > i {
+    font-style: normal;
+    display: inline-grid;
+    grid-template-columns: 9px 15px 9px 9px;
+    grid-template-rows: 100%;
+
+    & > * {
+      grid-column: 2/4;
+      grid-row: 1/2;
+    }
+
+    ${CounterBadge} {
+      grid-column: 3/5;
+      height: 1.125rem;
+      width: 1.125rem;
+    }
+  }
+`;
+
+const TabletIconLink = styled(IconLink)`
+  @media (min-width: ${(props) => props.theme.collapseTablet}px) {
+    display: none;
+  }
+`;
+
 const StyledWrapper = styled(PageFadeIn)`
   height: 100%;
   display: flex;
@@ -102,8 +107,14 @@ const StyledWrapper = styled(PageFadeIn)`
 `;
 
 const RightLinks = (props) => {
-  const { isLoading, user, path, unreadActivityCount, unreadMessageCount } =
-    props;
+  const {
+    isLoading,
+    hasLayout,
+    user,
+    path,
+    unreadActivityCount,
+    unreadMessageCount,
+  } = props;
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -122,7 +133,6 @@ const RightLinks = (props) => {
         </>
       ) : (
         <>
-          {" "}
           <Popin
             isOpen={isUserMenuOpen}
             onDismiss={closeUserMenu}
@@ -135,25 +145,35 @@ const RightLinks = (props) => {
             <FeatherIcon name="home" />
             <span>Accueil</span>
           </IconLink>
-          <IconLink
+          {hasLayout && (
+            <TabletIconLink
+              route="groups"
+              $active={routeConfig.groups.match(path)}
+            >
+              <FeatherIcon name="users" />
+              <span>Groupes</span>
+            </TabletIconLink>
+          )}
+          <CounterIconLink
             route="activities"
             $active={routeConfig.activities.match(path)}
           >
-            <FeatherIcon name="bell" />
+            <i>
+              <FeatherIcon name="bell" />
+              <CounterBadge value={unreadActivityCount} />
+            </i>
             <span>Notifications</span>
-            {unreadActivityCount > 0 && (
-              <small style={{ right: 30 }}>
-                {Math.min(unreadActivityCount, 99)}
-              </small>
-            )}
-          </IconLink>
-          <IconLink route="messages" $active={routeConfig.messages.match(path)}>
-            <FeatherIcon name="mail" />
+          </CounterIconLink>
+          <CounterIconLink
+            route="messages"
+            $active={routeConfig.messages.match(path)}
+          >
+            <i>
+              <FeatherIcon name="mail" />
+              <CounterBadge value={unreadMessageCount} />
+            </i>
             <span>Messages</span>
-            {unreadMessageCount > 0 && (
-              <small>{Math.min(unreadMessageCount, 99)}</small>
-            )}
-          </IconLink>
+          </CounterIconLink>
           <IconLink route="tools" $active={routeConfig.tools.match(path)}>
             <FeatherIcon name="flag" />
             <span>Outils</span>
@@ -162,7 +182,7 @@ const RightLinks = (props) => {
             <Avatar
               displayName={user.displayName}
               image={user.image}
-              style={{ width: "28px", height: "28px", marginTop: 0 }}
+              style={{ width: "28px", height: "28px" }}
             />
             <span>{user.displayName}</span>
           </IconLink>
@@ -184,5 +204,6 @@ RightLinks.propTypes = {
   path: PropTypes.string,
   unreadMessageCount: PropTypes.number,
   unreadActivityCount: PropTypes.number,
+  hasLayout: PropTypes.bool,
 };
 export default RightLinks;

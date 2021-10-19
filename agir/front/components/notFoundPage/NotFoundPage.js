@@ -10,7 +10,7 @@ import background from "@agir/front/genericComponents/images/illustration-404.sv
 import { useIsOffline } from "@agir/front/offline/hooks";
 import { useAppLoader } from "@agir/front/app/hooks";
 
-import TopBar from "@agir/front/allPages/TopBar/TopBar";
+import TopBar from "@agir/front/app/Navigation/TopBar";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 

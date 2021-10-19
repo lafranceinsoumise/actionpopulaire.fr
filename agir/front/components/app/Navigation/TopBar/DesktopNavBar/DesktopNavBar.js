@@ -29,6 +29,7 @@ const LogoLink = styled(Link)`
     transform: translateX(-15px);
   }
 `;
+
 const StyledBar = styled.div`
   width: 1432px;
   max-width: 100%;
@@ -56,6 +57,7 @@ const StyledBar = styled.div`
 export const DesktopNavBar = (props) => {
   const {
     isLoading,
+    hasLayout,
     user,
     path,
     unreadMessageCount,
@@ -70,12 +72,18 @@ export const DesktopNavBar = (props) => {
         <LogoLink route="events">
           <LogoAP height={56} width={149} />
         </LogoLink>
-        <div style={{ flex: "1 1 auto", maxWidth: 412 }}>
+        <div
+          css={`
+            flex: 1 1 auto;
+            max-width: 412px;
+          `}
+        >
           <SearchBar isConnected={!!user} />
         </div>
         <Spacer size="1rem" />
         <RightLinks
           isLoading={isLoading}
+          hasLayout={hasLayout}
           user={user}
           path={path}
           unreadMessageCount={unreadMessageCount}
@@ -92,6 +100,7 @@ DesktopNavBar.propTypes = {
   unreadMessageCount: PropTypes.number,
   unreadActivityCount: PropTypes.number,
   adminLink: PropTypes.object,
+  hasLayout: PropTypes.bool,
 };
 
 const ConnectedDesktopNavBar = (props) => {
@@ -115,6 +124,7 @@ const ConnectedDesktopNavBar = (props) => {
 
 ConnectedDesktopNavBar.propTypes = {
   path: PropTypes.string,
+  hasLayout: PropTypes.bool,
 };
 
 export default ConnectedDesktopNavBar;

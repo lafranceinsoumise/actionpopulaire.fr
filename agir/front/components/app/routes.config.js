@@ -6,7 +6,7 @@ import { lazy } from "./utils";
 
 import { AUTHENTICATION } from "@agir/front/authentication/common";
 
-const AgendaPage = lazy(() => import("@agir/events/agendaPage/AgendaPage"));
+const AgendaPage = lazy(() => import("@agir/events/agendaPage/Agenda"));
 const HomePage = lazy(() => import("@agir/front/app/Homepage/Home"));
 const EventMap = lazy(() => import("@agir/carte/page__eventMap/EventMap"));
 const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
@@ -134,7 +134,10 @@ export const routeConfig = {
     label: "Événements",
     Component: AgendaPage,
     AnonymousComponent: HomePage,
-    hasLayout: false,
+    hasLayout: true,
+    layoutProps: {
+      smallBackgroundColor: style.black25,
+    },
     hideFeedbackButton: true,
     keepScroll: true,
     hideFooterBanner: true,

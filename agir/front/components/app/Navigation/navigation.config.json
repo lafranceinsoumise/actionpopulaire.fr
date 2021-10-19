@@ -4,7 +4,7 @@
       "id": "events",
       "icon": "calendar",
       "title": "Événements",
-      "to": "events",
+      "route": "events",
       "desktop": true,
       "mobile": true
     },
@@ -12,7 +12,7 @@
       "id": "groups",
       "icon": "users",
       "title": "Groupes",
-      "to": "groups",
+      "route": "groups",
       "desktop": true,
       "mobile": true,
       "secondaryLinks": "groups__personGroups"
@@ -21,8 +21,8 @@
       "id": "messages",
       "icon": "mail",
       "title": "Messages",
-      "to": "messages",
-      "unreadMessageCounter": true,
+      "route": "messages",
+      "unreadMessageBadge": true,
       "desktop": true,
       "mobile": true
     },
@@ -30,7 +30,7 @@
       "id": "activities",
       "icon": "bell",
       "title": "Notifications",
-      "to": "activities",
+      "route": "activities",
       "unreadActivityBadge": true,
       "desktop": true,
       "mobile": true
@@ -40,7 +40,6 @@
       "icon": "flag",
       "title": "Outils",
       "route": "tools",
-      "to": "tools",
       "desktop": true,
       "mobile": true,
       "external": false
@@ -72,12 +71,12 @@
     {
       "id": "eventMap",
       "title": "Carte des événements",
-      "to": "eventMap"
+      "route": "eventMap"
     },
     {
       "id": "groupMap",
       "title": "Carte des groupes",
-      "to": "groupMap"
+      "route": "groupMap"
     },
     {
       "id": "donations",
@@ -97,7 +96,7 @@
     {
       "id": "logout",
       "title": "Déconnexion",
-      "to": "logout"
+      "route": "logout"
     }
   ]
 }
