@@ -12,10 +12,7 @@ from .common import ModeleGestionMixin, NumeroManager
 from ..actions import Todo, NiveauTodo, Transition, no_todos
 from ..typologies import TypeProjet, NiveauAcces, TypeDepense, TypeDocument
 
-__all__ = (
-    "Projet",
-    "Participation",
-)
+__all__ = ("Projet", "Participation", "ProjetMilitant")
 
 
 class ProjetManager(NumeroManager):
@@ -34,6 +31,7 @@ class ProjetManager(NumeroManager):
                     type=event.subtype.related_project_type or TypeProjet.ACTIONS,
                     description="Ce projet a été généré automatiquement à partir d'un événement créé par un "
                     "utilisateur d'Action Populaire.",
+                    origine=Projet.Origin.UTILISATEUR,
                 )
         else:
             if projet.type != event.subtype.related_project_type:
@@ -62,7 +60,7 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
     objects = ProjetManager()
 
     class Etat(models.TextChoices):
-        CREE_PLATEFORME = "DFI", "Créé sur la plateforme"
+        CREE_PLATEFORME = "DFI", "Créé par un·e militant·e"
         REFUSE = "REF", "Refusé"
         EN_CONSTITUTION = "ECO", "En cours de constitution"
         FINALISE = "FIN", "Finalisé par le secrétariat"
@@ -110,10 +108,22 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
         ],
     }
 
+    class Origin(models.TextChoices):
+        ADMINISTRATION = "A", "Créé sur l'admin"
+        UTILISATEUR = "U", "Créé par un·e militant·e sur Action Populaire"
+
     titre = models.CharField(verbose_name="Titre du projet", max_length=40)
     type = models.CharField(
         verbose_name="Type de projet", choices=TypeProjet.choices, max_length=10
     )
+    origine = models.CharField(
+        verbose_name="Origine du projet",
+        max_length=1,
+        choices=Origin.choices,
+        editable=False,
+        default=Origin.ADMINISTRATION,
+    )
+
     etat = models.CharField(
         verbose_name="Statut",
         max_length=3,
@@ -281,6 +291,18 @@ TYPE_TODOS = {
         )
     ],
 }
+
+
+class ProjetMilitantManager(ProjetManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(origine=Projet.Origin.UTILISATEUR)
+
+
+class ProjetMilitant(Projet):
+    objects = ProjetMilitantManager()
+
+    class Meta:
+        proxy = True
 
 
 def todos(projet: Projet):

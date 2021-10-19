@@ -12,7 +12,11 @@ from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
 from agir.gestion.admin.base import BaseAdminMixin
-from agir.gestion.admin.filters import DepenseResponsableFilter, ProjetResponsableFilter
+from agir.gestion.admin.filters import (
+    DepenseResponsableFilter,
+    ProjetResponsableFilter,
+    InclureProjetsMilitantsFilter,
+)
 from agir.gestion.admin.forms import (
     DocumentForm,
     DepenseForm,
@@ -37,10 +41,12 @@ from agir.gestion.models import (
     InstanceCherchable,
 )
 from agir.gestion.models.depenses import etat_initial
+from agir.gestion.models.projets import ProjetMilitant
 from agir.gestion.models.virements import OrdreVirement
 from agir.gestion.typologies import TypeDepense
 from agir.gestion.utils import lien
 from agir.lib.display import display_price
+from agir.lib.geo import FRENCH_COUNTRY_CODES
 from agir.people.models import Person
 
 
@@ -308,6 +314,7 @@ class ProjetAdmin(BaseAdminMixin, VersionAdmin):
 
     list_filter = (
         ProjetResponsableFilter,
+        InclureProjetsMilitantsFilter,
         "type",
         "etat",
     )
@@ -326,6 +333,26 @@ class ProjetAdmin(BaseAdminMixin, VersionAdmin):
             ] = f'{reverse("admin:gestion_depense_add")}?{qp.urlencode()}'
 
         return super().render_change_form(request, context, add, change, form_url, obj)
+
+
+@admin.register(ProjetMilitant)
+class ProjetUtilisateurAdmin(BaseAdminMixin, VersionAdmin):
+    list_display = ("numero", "titre", "type", "etat", "event", "location")
+
+    readonly_fields = ["location"]
+
+    def location(self, obj=None):
+        if obj and obj.event:
+            location = f"{obj.event.location_zip} {obj.event.location_city}".strip()
+            if (
+                obj.event.location_country
+                and obj.event.location_country not in FRENCH_COUNTRY_CODES
+            ):
+                location = f"{location}, {obj.event.location_country}"
+            return location
+        return "-"
+
+    location.short_description = "Lieu"
 
 
 @admin.register(OrdreVirement)

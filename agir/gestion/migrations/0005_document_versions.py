@@ -7,7 +7,7 @@ import dynamic_filenames
 
 creer_version_initiale = """
 INSERT INTO gestion_versiondocument (date, titre, fichier, document_id)
-SELECT DATE(modified) as date, 'Version initiale' AS titre, fichier AS fichier, id AS document_id
+SELECT modified as date, 'Version initiale' AS titre, fichier AS fichier, id AS document_id
 FROM gestion_document
 WHERE fichier != '';
 """

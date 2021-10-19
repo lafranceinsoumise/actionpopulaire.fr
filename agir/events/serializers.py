@@ -43,7 +43,7 @@ from .tasks import (
     send_event_changed_notification,
     notify_on_event_report,
 )
-from ..gestion.models import Projet, Document
+from ..gestion.models import Projet, Document, VersionDocument
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
@@ -734,6 +734,21 @@ class EventProjectDocumentSerializer(serializers.ModelSerializer):
                 code="formulaire_format_incorrect",
             )
         return value
+
+    def create(self, validated_data):
+        document = Document.objects.create(titre=self.validated_data["titre"])
+        VersionDocument.objects.create(
+            titre="Version initiale",
+            document=document,
+            fichier=self.validated_data["fichier"],
+        )
+        return document
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError(
+            "Pas implémenté : il faut vérifier pouvoir vérifier si le fichier est différent de l'actuel, et seulement "
+            "si c'est le cas, créer une nouvelle version du fichier."
+        )
 
     class Meta:
         model = Document
