@@ -56,29 +56,10 @@
             {% endfor %}
           </div>
         {% else %}
-          <h3>Dons mensuels</h3>
+          <div class="padtopmore padbottommore">
+          <h3>Faire un don mensuel</h3>
           <p>Vous pouvez aider régulièrement la France insoumise en faisant un don mensuel automatique.</p>
-          <div class="row">
-            <div class="well col-md-6">
-              {% crispy form %}
-            </div>
-            <div class="col-md-6">
-              <div class="panel">
-                <div class="panel-body">
-                  <h6>Comment ça marche&nbsp;?</h6>
-                  <ol>
-                    <li>Vous choisissez votre montant mensuel.</li>
-                    <li>Vous renseignez les informations de votre carte bleue sur le site de notre banque (seule
-                      celle-ci y a donc accès).
-                    </li>
-                    <li>Vous êtes débité⋅e chaque 8 du mois du montant choisi. Vous avez une trace de chaque paiement.
-                    </li>
-                    <li>Chaque année, vous recevrez un reçu fiscal de l'ensemble des sommes données.</li>
-                  </ol>
-                  <p>À tout moment, vous pouvez interrompre votre don d'un simple clic.</p>
-                </div>
-              </div>
-            </div>
+          <p><a class="btn btn-primary" href="{% url "donation_amount" %}">Je fais un don à la France insoumise</a></p>
           </div>
         {% endif %}
 
