@@ -459,7 +459,7 @@ class SubmissionFormatTestCase(TestCase):
                     "title": "Une partie",
                     "fields": [
                         {"id": "first_name", "person_field": True},
-                        {"id": "date", "type": "date", "label": "Date"},
+                        {"id": "date", "type": "datetime", "label": "Date"},
                         {"id": "phone_number", "type": "phone_number", "label": "Tel."},
                         {"id": "file", "type": "file", "label": "Fichier"},
                     ],
