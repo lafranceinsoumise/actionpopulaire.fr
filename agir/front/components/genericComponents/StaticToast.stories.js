@@ -1,10 +1,10 @@
 import React from "react";
 
-import Toast from "./Toast";
+import StaticToast from "./StaticToast";
 
 export default {
-  component: Toast,
-  title: "Generic/Toast",
+  component: StaticToast,
+  title: "Generic/StaticToast",
   argTypes: {
     $color: {
       control: "color",
@@ -12,10 +12,10 @@ export default {
   },
 };
 
-const Template = (args) => <Toast {...args} />;
+const Template = (args) => <StaticToast {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
-  children: "Ceci est un toast",
+  children: "Ceci est un toast statique",
   $color: undefined,
 };
