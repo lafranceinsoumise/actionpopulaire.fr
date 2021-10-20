@@ -390,6 +390,10 @@ EMAIL_TEMPLATES = {
     "NEW_CONTACT_PERSON_UPDATE": "https://mosaico.lafranceinsoumise.fr/emails/3d07ad59-3959-4344-a671-5337f39568ea.html",
     # NEW_CONTACT_PERSON_SUBSCRIPTION: FORENAME, CREATION_DATE, ACCOUNT_LINK
     "NEW_CONTACT_PERSON_SUBSCRIPTION": "https://mosaico.lafranceinsoumise.fr/emails/a5ef9a03-be54-4209-9678-72f2c3ae2547.html",
+    # EVENT_GROUP_COORGANIZATION_INVITE variables: TITLE, EVENT_NAME, GROUP_NAME, MEMBER, ACCEPT_LINK, DATE
+    "EVENT_GROUP_COORGANIZATION_INVITE": "https://mosaico.lafranceinsoumise.fr/emails/83173a92-0069-4cba-882c-9e524aeff67f.html",
+    # EVENT_GROUP_COORGANIZATION_ACCEPTED variables: TITLE, EVENT_NAME, GROUP_NAME, DATE
+    "EVENT_GROUP_COORGANIZATION_ACCEPTED": "https://mosaico.lafranceinsoumise.fr/emails/4433bd2c-2dfb-4646-97ee-7be8f9315637.html",
 }
 
 EMAIL_FROM = os.environ.get(
