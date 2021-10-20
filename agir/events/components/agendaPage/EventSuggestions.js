@@ -1,6 +1,7 @@
 import { Interval } from "luxon";
 import PropTypes from "prop-types";
 import React from "react";
+import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import styled from "styled-components";
 
 import EventCard from "@agir/front/genericComponents/EventCard";
@@ -112,8 +113,13 @@ const EventSuggestions = ({ isPaused }) => {
           Object.entries(byDay).map(([date, events]) => (
             <div key={`${activeTab}__${date}`}>
               <Day>{date}</Day>
-              {events.map((event) => (
-                <EventCard key={`${activeTab}__${event.id}`} {...event} />
+              {events.map((event, i) => (
+                <RenderIfVisible
+                  key={`${activeTab}__${event.id}`}
+                  style={{ marginTop: i && "1rem" }}
+                >
+                  <EventCard {...event} />
+                </RenderIfVisible>
               ))}
             </div>
           ))

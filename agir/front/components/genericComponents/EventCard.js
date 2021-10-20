@@ -11,7 +11,6 @@ import { displayIntervalStart, displayIntervalEnd } from "@agir/lib/utils/time";
 import Card from "@agir/front/genericComponents/Card";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import Map from "@agir/carte/common/Map";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
@@ -226,7 +225,7 @@ const EventCard = (props) => {
   );
 
   return (
-    <StyledCard as={RenderIfVisible} onClick={handleClick} $isPast={isPast}>
+    <StyledCard onClick={handleClick} $isPast={isPast}>
       <EventCardIllustration
         image={illustration?.thumbnail}
         subtype={subtype}
