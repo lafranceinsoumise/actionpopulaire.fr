@@ -4,11 +4,13 @@ from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
 from django.db.models import Q
 from django.http.response import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext as _
 from django.utils.functional import cached_property
-from rest_framework import status
+from django.utils.timezone import now
+from django.utils.translation import ugettext as _
+from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
     ListAPIView,
@@ -22,15 +24,13 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import exceptions, status
 
 from agir.events.actions.rsvps import (
     rsvp_to_free_event,
     is_participant,
 )
-from agir.events.models import Event, OrganizerConfig
+from agir.events.models import Event, OrganizerConfig, Invitation
 from agir.events.models import RSVP
-from agir.people.models import Person
 from agir.events.serializers import (
     EventSerializer,
     EventAdvancedSerializer,
@@ -42,6 +42,8 @@ from agir.events.serializers import (
     EventProjectDocumentSerializer,
     EventProjectListItemSerializer,
 )
+from agir.groups.models import SupportGroup
+from agir.people.models import Person
 
 __all__ = [
     "EventDetailAPIView",
@@ -61,6 +63,7 @@ __all__ = [
     "CreateEventProjectDocumentAPIView",
     "EventProjectsAPIView",
     "CreateOrganizerConfigAPIView",
+    "EventGroupsOrganizersAPIView",
     "CancelEventAPIView",
 ]
 
@@ -72,7 +75,10 @@ from agir.lib.rest_framework_permissions import (
 )
 
 from agir.lib.tasks import geocode_person
-from ..tasks import send_cancellation_notification
+from ..tasks import (
+    send_cancellation_notification,
+    send_group_coorganization_invitation_notification,
+)
 
 
 class EventListAPIView(ListAPIView):
@@ -170,10 +176,7 @@ class EventSuggestionsAPIView(EventListAPIView):
         if person.coordinates is not None:
             near_events = (
                 base_queryset.upcoming()
-                .filter(
-                    start_time__lt=timezone.now() + timedelta(days=30),
-                    do_not_list=False,
-                )
+                .filter(start_time__lt=now() + timedelta(days=30), do_not_list=False,)
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")[:10]
             )
@@ -318,6 +321,54 @@ class CreateOrganizerConfigAPIView(APIView):
         return JsonResponse({"data": True})
 
 
+# Send group invitations to organize an event
+class EventGroupsOrganizersAPIView(CreateAPIView):
+    permission_classes = (EventManagementPermissions,)
+    # Restrict to public and upcoming events
+    queryset = Event.objects.public().upcoming()
+
+    def create(self, request, *args, **kwargs):
+        # Use pk in URL to retrieve the event, returns 404 if not found,
+        # check the permissions if found
+        event = self.get_object()
+        # Retrieve group by id or return a 404 response
+        group = get_object_or_404(
+            SupportGroup.objects.active(), pk=request.data.get("groupPk")
+        )
+        member = self.request.user.person
+        # Check if group is already organizing the event
+        if OrganizerConfig.objects.filter(event=event, as_group=group).exists():
+            raise exceptions.ValidationError(
+                detail={"detail": "Ce groupe coorganise déjà l'événement"},
+                code="invalid_format",
+            )
+
+        # Create or update invitation
+        try:
+            invitation = Invitation.objects.get(event=event, group=group)
+            # The invitation exist yet : update date and last member asking
+            # pending
+            if invitation.status == Invitation.STATUS_PENDING:
+                invitation.person_sender = member
+            # refused : set to pending
+            elif invitation.status == Invitation.STATUS_REFUSED:
+                invitation.person_sender = (member,)
+                invitation.status = Invitation.STATUS_PENDING
+        except Invitation.DoesNotExist:
+            # Add invitations to group referents
+            invitation = Invitation.objects.create(
+                person_sender=member,
+                event=event,
+                group=group,
+                status=Invitation.STATUS_PENDING,
+            )
+
+        invitation.save()
+
+        send_group_coorganization_invitation_notification.delay(invitation.pk)
+        return Response({"data": True}, status=status.HTTP_201_CREATED)
+
+
 class CancelEventAPIView(GenericAPIView):
     permission_classes = (EventManagementPermissions,)
     queryset = Event.objects.public().upcoming(
@@ -394,7 +445,7 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
     def destroy(self, request, *args, **kwargs):
         try:
             rsvp = (
-                RSVP.objects.filter(event__end_time__gte=timezone.now())
+                RSVP.objects.filter(event__end_time__gte=now())
                 .select_related("event")
                 .get(event=self.object, person=self.request.user.person)
             )

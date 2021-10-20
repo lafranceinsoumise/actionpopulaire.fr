@@ -429,7 +429,7 @@ export const searchGroups = async (searchTerms, params = {}) => {
     });
     result.data = response.data;
   } catch (e) {
-    result.error = (e.response && e.response.data) || e.message;
+    result.error = (e.response && e.response.data) || { global: e.message };
   }
 
   return result;

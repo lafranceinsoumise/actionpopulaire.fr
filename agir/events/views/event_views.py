@@ -1,3 +1,5 @@
+from agir.groups.models import SupportGroup
+from agir.activity.models import Activity
 import locale
 import os
 
@@ -49,13 +51,17 @@ from ..forms import (
     UploadEventImageForm,
     AuthorForm,
 )
-from ..models import Event, RSVP
+from ..models import Event, RSVP, Invitation, OrganizerConfig
+
 from ..tasks import (
     send_event_report,
     send_secretariat_notification,
+    send_validated_group_coorganization_invitation_notification,
 )
 from ...api import settings
 from ...carte.models import StaticMapImage
+from django.utils.http import urlencode
+
 
 __all__ = [
     "ManageEventView",
@@ -71,6 +77,7 @@ __all__ = [
     "EventSearchView",
     "EventDetailMixin",
     "EventThumbnailView",
+    "ConfirmEventGroupCoorganization",
 ]
 
 
@@ -547,6 +554,83 @@ class ChangeEventLocationView(
 
     def get_queryset(self):
         return Event.objects.upcoming(as_of=timezone.now(), published_only=False)
+
+
+@method_decorator(never_cache, name="get")
+class ConfirmEventGroupCoorganization(View):
+    def get(self, request, pk, *args, **kwargs):
+
+        if not self.request.user.is_authenticated or self.request.user.person is None:
+            return HttpResponseRedirect(reverse("dashboard"))
+
+        # Get event, group, person
+        try:
+            event = Event.objects.get(pk=pk)
+        except Event.DoesNotExist:
+            raise Http404()
+
+        group_id = request.GET.get("group")
+        try:
+            group = SupportGroup.objects.get(pk=group_id)
+        except SupportGroup.DoesNotExist:
+            raise Http404()
+        person = self.request.user.person
+
+        # Check person is organizer of group
+        if not person in group.referents:
+            return HttpResponseRedirect(reverse("dashboard"))
+
+        organizers_groups = OrganizerConfig.objects.filter(event=event, as_group=group)
+
+        # Check group is already coorganizer
+        if len(organizers_groups) > 0:
+            messages.add_message(
+                self.request, messages.INFO, "Votre groupe est déjà coorganisateur",
+            )
+            return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
+
+        # Get pending group invitation
+        try:
+            invitation = Invitation.objects.get(
+                event=event,
+                group=group,
+                status__in=(Invitation.STATUS_PENDING, Invitation.STATUS_REFUSED),
+            )
+        except Invitation.DoesNotExist:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                "Votre groupe n'est pas ou plus invité à cet événement.",
+            )
+            return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
+
+        # Get current organizers of event to send them notification
+        event_organizers_id = list(event.organizers.all().values_list("id", flat=True))
+
+        # Add group as organizer of event, with its referent accepting invitation
+        organizer_config = OrganizerConfig.objects.create(
+            event=event, as_group=group, person=person
+        )
+        organizer_config.save()
+
+        # Update invitation to accepted
+        invitation.person_recipient = person
+        invitation.status = Invitation.STATUS_ACCEPTED
+        invitation.save()
+
+        # Delete activities TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED ones in task
+        activity_groups_invited = Activity.objects.filter(
+            event=event, type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
+        )
+        activity_groups_invited.filter(supportgroup=group).delete()
+
+        send_validated_group_coorganization_invitation_notification.delay(
+            invitation.id, event_organizers_id
+        )
+        messages.add_message(
+            self.request, messages.SUCCESS, "Vous avez accepté l'invitation",
+        )
+        return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
 
 
 class SendEventReportView(
