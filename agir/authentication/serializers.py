@@ -135,4 +135,7 @@ class SessionSerializer(serializers.Serializer):
         return get_bookmarked_emails(request)
 
     def get_donations(self, request):
-        return request.session[DONATION_SESSION_NAMESPACE]
+        if DONATION_SESSION_NAMESPACE in request.session:
+            return request.session[DONATION_SESSION_NAMESPACE]
+        else:
+            return None

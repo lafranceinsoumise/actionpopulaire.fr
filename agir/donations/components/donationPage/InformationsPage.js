@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import Helmet from "react-helmet";
 import useSWR from "swr";
@@ -93,11 +93,6 @@ const InformationsPage = () => {
     amountStepUrl += `?group=${groupPk}`;
   }
 
-  // Redirect to Amount Step if session not filled with an amount
-  if (!session?.donations?.amount) {
-    window.location.href = amountStepUrl;
-  }
-
   const externalLinkRoute =
     CONFIG[type]?.externalLinkRoute || CONFIG.default.externalLinkRoute;
 
@@ -106,7 +101,7 @@ const InformationsPage = () => {
     to: type,
     amount: session?.donations?.amount,
     type: session?.donations?.type,
-    allocations: JSON.parse(session?.donations?.allocations),
+    allocations: JSON.parse(session?.donations?.allocations || "[]"),
     // informations
     email: session?.user?.email || "",
     first_name: session?.user?.firstName || "",
@@ -124,6 +119,22 @@ const InformationsPage = () => {
     // mode
     payment_mode: "system_pay",
   });
+
+  useEffect(() => {
+    if (!session) return;
+
+    // Redirect to Amount Step if session not filled with an amount
+    if (!session?.donations?.amount) {
+      window.location.href = amountStepUrl;
+    }
+
+    setFormData({
+      ...formData,
+      amount: session?.donations?.amount,
+      type: session?.donations?.type,
+      allocations: JSON.parse(session?.donations?.allocations),
+    });
+  }, [session]);
 
   const amount = formData.amount;
   const groupAmount =
