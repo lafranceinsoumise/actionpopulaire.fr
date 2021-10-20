@@ -6,6 +6,10 @@ from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url_lazy
 from agir.lib.serializers import PhoneField
+from agir.payments.payment_modes import PAYMENT_MODES
+from agir.donations import AFCP2022SystemPayPaymentMode
+from agir.checks import AFCPJLMCheckPaymentMode
+from agir.payments import payment_modes
 
 MAX_AMOUNT_LFI = 750000
 MAX_AMOUNT_2022 = 460000
@@ -43,6 +47,7 @@ class CreateDonationSerializer(serializers.Serializer):
         required=False,
     )
     next = serializers.SerializerMethodField(read_only=True)
+    allowed_payment_modes = serializers.SerializerMethodField(read_only=True)
 
     def validate(self, attrs):
         if attrs["to"] == TO_2022 and attrs["amount"] > MAX_AMOUNT_2022:
@@ -74,6 +79,25 @@ class CreateDonationSerializer(serializers.Serializer):
         if data["type"] == TYPE_SINGLE_TIME:
             return front_url_lazy("donation_information", absolute=True)
 
+    def get_allowed_payment_modes(self, data):
+        """
+        Returns the payment modes allowed switch type given 2022 | LFI | MONTHLY | ..
+        """
+
+        print("==== PAYMENT_MODES", flush=True)
+        print(PAYMENT_MODES, flush=True)
+
+        # Forbid monthly payment for 2022 for now
+        # if data["to"] == TO_2022 and data["type"] == TYPE_MONTHLY:
+        #     return AFCP2022SystemPayPaymentMode.id
+
+        if data["to"] == TO_2022:
+            return [AFCP2022SystemPayPaymentMode, AFCPJLMCheckPaymentMode]
+        if data["type"] == TYPE_MONTHLY:
+            return [payment_modes.DEFAULT_MODE]
+        if data["type"] == TYPE_SINGLE_TIME:
+            return [payment_modes.DEFAULT_MODE]
+
     def create(self, validated_data):
         session = self.context["request"].session
         session[DONATION_SESSION_NAMESPACE] = {**validated_data}
@@ -84,6 +108,9 @@ class CreateDonationSerializer(serializers.Serializer):
                     for allocation in validated_data.get("allocations", [])
                 ]
             )
+
+        # Add payment_modes in session
+        # session[DONATION_SESSION_NAMESPACE]["allowed_payment_modes"] = self.get_allowed_payment_modes(validated_data)
         return validated_data
 
 

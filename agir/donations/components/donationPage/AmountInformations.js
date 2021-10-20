@@ -1,6 +1,7 @@
 import React from "react";
 
 import styled from "styled-components";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 const StyledAmountInformations = styled.div`
   padding: 1rem;
@@ -12,10 +13,12 @@ const StyledAmountInformations = styled.div`
   }
 `;
 
-const AmountInformations = ({ group, total, amountGroup, amountNational }) =>
-  !group?.pk ? (
-    <></>
-  ) : (
+const AmountInformations = ({ group, total, amountGroup, amountNational }) => {
+  if (!group?.id) {
+    return <></>;
+  }
+
+  return (
     <>
       <StyledAmountInformations>
         Je fais un don de <b>{total}</b> qui sera réparti :
@@ -32,5 +35,6 @@ const AmountInformations = ({ group, total, amountGroup, amountNational }) =>
       <Spacer size="1rem" />
     </>
   );
+};
 
 export default AmountInformations;

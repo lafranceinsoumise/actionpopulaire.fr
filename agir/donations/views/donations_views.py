@@ -13,7 +13,6 @@ from functools import partial
 from agir.authentication.tokens import monthly_donation_confirmation_token_generator
 from agir.authentication.utils import soft_login
 from agir.authentication.view_mixins import VerifyLinkSignatureMixin
-from agir.checks import AFCPJLMCheckPaymentMode
 from agir.donations.allocations import create_monthly_donation
 from agir.donations.apps import DonsConfig
 from agir.donations.base_views import BaseAskAmountView, BasePersonalInformationView
@@ -32,6 +31,7 @@ from agir.payments.actions.subscriptions import (
 )
 from agir.payments.models import Payment, Subscription
 from agir.people.models import Person
+from agir.checks import AFCPJLMCheckPaymentMode
 from agir.donations import forms, AFCP2022SystemPayPaymentMode
 from agir.donations.form_fields import (
     serialize_allocations,

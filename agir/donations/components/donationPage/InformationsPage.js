@@ -21,13 +21,14 @@ import {
   StyledMain,
   Title,
 } from "./StyledComponents";
-import { displayAmount } from "./utils";
+import { displayPrice } from "@agir/lib/utils/display";
 
 const InformationsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const { data: session } = useSWR("/api/session/");
+  const { data: sessionDonation } = useSWR("/api/session-donation/");
 
   const params = useParams();
   const { search } = useLocation();
@@ -54,50 +55,59 @@ const InformationsPage = () => {
   const [formData, setFormData] = useState({
     // amounts
     to: type,
-    amount: session?.donations?.amount,
-    type: session?.donations?.type,
-    allocations: JSON.parse(session?.donations?.allocations || "[]"),
+    amount: sessionDonation?.donations?.amount,
+    type: sessionDonation?.donations?.type,
+    allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
+    // mode
+    payment_mode: sessionDonation?.donations?.payment_mode || "system_pay",
+    allowed_payment_modes: JSON.parse(
+      sessionDonation?.donations?.allowed_payment_modes || "[]"
+    ),
     // informations
     email: session?.user?.email || "",
     first_name: session?.user?.firstName || "",
-    last_name: "",
-    contact_phone: "",
+    last_name: session?.user?.lastName || "",
+    contact_phone: session?.user?.contactPhone || "",
     nationality: "FR",
     location_address1: "",
     location_zip: "",
     location_city: "",
     location_country: "FR",
     // checkboxes
+    french_resident: true,
     subscribed_lfi: false,
     consent_certification: false,
-    french_resident: true,
-    // mode
-    payment_mode: "system_pay",
   });
 
   useEffect(() => {
-    if (!session) return;
+    if (!sessionDonation) return;
 
     // Redirect to Amount Step if session not filled with an amount
-    if (!session?.donations?.amount) {
+    if (
+      !sessionDonation?.donations?.amount ||
+      !sessionDonation?.donations?.allowed_payment_modes
+    ) {
       window.location.href = amountStepUrl;
     }
 
     setFormData({
       ...formData,
-      amount: session?.donations?.amount,
-      type: session?.donations?.type,
-      allocations: JSON.parse(session?.donations?.allocations),
+      amount: sessionDonation?.donations?.amount,
+      type: sessionDonation?.donations?.type,
+      allocations: JSON.parse(sessionDonation?.donations?.allocations),
+      allowed_payment_modes: JSON.parse(
+        sessionDonation?.donations?.allowed_payment_modes || "[]"
+      ),
     });
-  }, [session]);
+  }, [sessionDonation]);
 
   const amount = formData.amount;
   const groupAmount =
     Array.isArray(formData?.allocations) && formData.allocations[0]?.amount;
   const nationalAmount = amount - groupAmount;
-  const amountString = displayAmount(amount);
-  const groupAmountString = displayAmount(groupAmount);
-  const nationalAmountString = displayAmount(nationalAmount);
+  const amountString = displayPrice(amount);
+  const groupAmountString = displayPrice(groupAmount);
+  const nationalAmountString = displayPrice(nationalAmount);
 
   const handleInformationsSubmit = async (e) => {
     e.preventDefault();

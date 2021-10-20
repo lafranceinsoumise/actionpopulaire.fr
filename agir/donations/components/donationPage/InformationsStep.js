@@ -84,6 +84,13 @@ const InformationsStep = ({
     });
   };
 
+  const checkPaymentMode = formData.allowed_payment_modes?.filter((value) =>
+    value.includes("check")
+  )[0];
+  const cardPaymentMode = formData.allowed_payment_modes?.filter(
+    (value) => !value.includes("check")
+  )[0];
+
   return (
     <form onSubmit={onSubmit}>
       <CustomField
@@ -211,7 +218,7 @@ const InformationsStep = ({
       />
       {errors?.consent_certification && (
         <StaticToast style={{ marginTop: "0.5rem" }}>
-          {errors?.consent_certification}
+          {errors.consent_certification}
         </StaticToast>
       )}
       <Spacer size="1rem" />
@@ -230,7 +237,7 @@ const InformationsStep = ({
       </p>
       <Spacer size="1rem" />
 
-      {!!Object.values(errors).filter((v) => !!v).length && (
+      {!!Object.values(errors).filter((error) => !!error).length && (
         <>
           <StaticToast style={{ marginTop: "0.5rem" }}>
             Des erreurs sont présentes dans le formulaire, veuillez les résoudre
@@ -243,7 +250,7 @@ const InformationsStep = ({
       <StepButton
         type="submit"
         disabled={isLoading}
-        onClick={(e) => handleSubmit(e, "system_pay")}
+        onClick={(e) => handleSubmit(e, cardPaymentMode)}
       >
         <span>
           <strong>Suivant</strong>
@@ -253,25 +260,29 @@ const InformationsStep = ({
         <RawFeatherIcon name="arrow-right" />
       </StepButton>
 
-      <Spacer size="1rem" />
+      {!!checkPaymentMode && (
+        <>
+          <Spacer size="1rem" />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
+            }}
+          >
+            ou
+            <Spacer size="1rem" />
+            <Button
+              onClick={(e) => handleSubmit(e, checkPaymentMode)}
+              disabled={isLoading}
+            >
+              Envoyer un chèque
+            </Button>
+          </div>
+        </>
+      )}
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-        }}
-      >
-        ou
-        <Spacer size="1rem" />
-        <Button
-          onClick={(e) => handleSubmit(e, "check_donation")}
-          disabled={isLoading}
-        >
-          Envoyer un chèque
-        </Button>
-      </div>
       <Spacer size="1rem" />
       <hr />
       <p style={{ fontSize: "13px", color: "#777777" }}>

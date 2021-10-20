@@ -16,7 +16,7 @@ import AmountStep from "./AmountStep";
 import InformationsStep from "./InformationsStep";
 
 import { Theme, Title } from "./StyledComponents";
-import { displayAmount } from "./utils";
+import { displayPrice } from "@agir/lib/utils/display";
 import CONFIG from "./config";
 import * as api from "./api";
 
@@ -31,7 +31,7 @@ const ModalContainer = styled.div`
   @media (max-width: ${style.collapse}px) {
     width: 100%;
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
     margin: 0;
     padding: 24px;
   }
@@ -44,6 +44,7 @@ const DonationPage = () => {
   const closeModal = () => setShowModal(false);
 
   const { data: session } = useSWR("/api/session/");
+  const { data: sessionDonation } = useSWR("/api/session-donation/");
 
   const params = useParams();
   const { search } = useLocation();
@@ -69,35 +70,38 @@ const DonationPage = () => {
 
   const [formData, setFormData] = useState({
     // amounts
-    amount: 500,
     to: type,
-    type: "S",
-    allocations: [],
+    amount: sessionDonation?.donations?.amount,
+    type: sessionDonation?.donations?.type,
+    allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
+    // mode
+    payment_mode: sessionDonation?.donations?.payment_mode || "system_pay",
+    allowed_payment_modes: JSON.parse(
+      sessionDonation?.donations?.allowed_payment_modes || "[]"
+    ),
     // informations
     email: session?.user?.email || "",
     first_name: session?.user?.firstName || "",
-    last_name: "",
-    contact_phone: "",
+    last_name: session?.user?.lastName || "",
+    contact_phone: session?.user?.contactPhone || "",
     nationality: "FR",
     location_address1: "",
     location_zip: "",
     location_city: "",
     location_country: "FR",
     // checkboxes
+    french_resident: true,
     subscribed_lfi: false,
     consent_certification: false,
-    french_resident: true,
-    // mode
-    payment_mode: "system_pay",
   });
 
   const amount = formData.amount;
   const groupAmount =
     Array.isArray(formData?.allocations) && formData.allocations[0]?.amount;
   const nationalAmount = amount - groupAmount;
-  const amountString = displayAmount(amount);
-  const groupAmountString = displayAmount(groupAmount);
-  const nationalAmountString = displayAmount(nationalAmount);
+  const amountString = displayPrice(amount);
+  const groupAmountString = displayPrice(groupAmount);
+  const nationalAmountString = displayPrice(nationalAmount);
 
   const handleAmountSubmit = useCallback(async (data) => {
     setIsLoading(true);

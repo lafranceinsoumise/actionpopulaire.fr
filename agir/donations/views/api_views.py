@@ -5,9 +5,9 @@ from rest_framework.generics import CreateAPIView
 from agir.donations.serializers import CreateDonationSerializer, SendDonationSerializer
 from agir.people.models import Person, PersonEmail
 from django.db import transaction
-from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 from agir.payments.actions.payments import create_payment
 import json
+from agir.donations.apps import DonsConfig
 
 
 class CreateDonationAPIView(CreateAPIView):
@@ -45,7 +45,8 @@ class SendDonationAPIView(CreateAPIView):
         validated_data = serializer.validated_data
         email = validated_data["email"]
         amount = validated_data["amount"]
-        type = validated_data["type"]
+        # type = validated_data["type"]
+        payment_mode = validated_data["payment_mode"]
 
         connected_user = False
         person = None
@@ -80,7 +81,12 @@ class SendDonationAPIView(CreateAPIView):
 
         with transaction.atomic():
             payment = create_payment(
-                person=person, type=type, price=amount, meta=validated_data, **kwargs,
+                person=person,
+                type=DonsConfig.PAYMENT_TYPE,
+                mode=payment_mode,
+                price=amount,
+                meta=validated_data,
+                **kwargs,
             )
 
         return JsonResponse({"next": payment.get_payment_url()})

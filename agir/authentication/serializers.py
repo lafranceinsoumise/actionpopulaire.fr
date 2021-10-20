@@ -18,8 +18,10 @@ from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
 class UserContextSerializer(serializers.Serializer):
     id = serializers.UUIDField(source="pk")
     firstName = serializers.CharField(source="first_name")
+    lastName = serializers.CharField(source="last_name")
     displayName = serializers.CharField(source="display_name")
     email = serializers.CharField()
+    contactPhone = serializers.CharField(source="contact_phone")
     image = serializers.SerializerMethodField()
     fullName = serializers.SerializerMethodField(method_name="get_full_name")
     isInsoumise = serializers.BooleanField(source="is_insoumise")
@@ -50,7 +52,6 @@ class SessionSerializer(serializers.Serializer):
     bookmarkedEmails = serializers.SerializerMethodField(
         method_name="get_bookmarked_emails", read_only=True
     )
-    donations = serializers.SerializerMethodField(read_only=True)
 
     def get_authentication(self, request):
         if is_hard_logged(request):
@@ -133,6 +134,11 @@ class SessionSerializer(serializers.Serializer):
 
     def get_bookmarked_emails(self, request):
         return get_bookmarked_emails(request)
+
+
+class SessionDonationSerializer(serializers.Serializer):
+
+    donations = serializers.SerializerMethodField(read_only=True)
 
     def get_donations(self, request):
         if DONATION_SESSION_NAMESPACE in request.session:
