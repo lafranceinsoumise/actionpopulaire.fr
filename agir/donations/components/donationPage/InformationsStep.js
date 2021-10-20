@@ -43,7 +43,7 @@ const helpPhone =
 const consentText =
   "Je certifie sur l'honneur être une personne physique et que le réglement de mon don ne provient pas d'une personne morale (association, société, société civile...) mais de mon compte bancaire personnel.*";
 
-export const InformationsStep = ({
+const InformationsStep = ({
   onSubmit,
   errors,
   setErrors,
@@ -316,3 +316,5 @@ InformationsStep.propTypes = {
   setFormData: PropTypes.func,
   isLoading: PropTypes.bool,
 };
+
+export default InformationsStep;
