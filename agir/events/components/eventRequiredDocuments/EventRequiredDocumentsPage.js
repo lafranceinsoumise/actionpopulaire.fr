@@ -18,7 +18,7 @@ import { useEventFormOptions } from "@agir/events/common/hooks";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const EventRequiredDocumentsPage = (props) => {
-  const { eventPk } = props;
+  const { eventPk, onBack, embedded } = props;
   const { data, mutate, error } = useSWR(
     getEventEndpoint("eventProject", { eventPk })
   );
@@ -87,9 +87,11 @@ const EventRequiredDocumentsPage = (props) => {
     <PageFadeIn ready={!!data}>
       {data && (
         <>
-          <Helmet>
-            <title>{event.name} — Action Populaire</title>
-          </Helmet>
+          {!embedded && (
+            <Helmet>
+              <title>{event.name} — Action Populaire</title>
+            </Helmet>
+          )}
           <EventRequiredDocuments
             projectId={projectId}
             event={event}
@@ -104,6 +106,7 @@ const EventRequiredDocumentsPage = (props) => {
             onSaveDocument={saveDocument}
             onDismissDocument={dismissDocumentType}
             onChangeSubtype={changeSubtype}
+            embedded={embedded}
           />
         </>
       )}
@@ -113,8 +116,7 @@ const EventRequiredDocumentsPage = (props) => {
 
 EventRequiredDocumentsPage.propTypes = {
   eventPk: PropTypes.string.isRequired,
-  route: PropTypes.shape({
-    backLink: PropTypes.object,
-  }),
+  onBack: PropTypes.string,
+  embedded: PropTypes.bool,
 };
 export default EventRequiredDocumentsPage;
