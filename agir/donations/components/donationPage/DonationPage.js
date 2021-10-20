@@ -121,7 +121,7 @@ const DonationPage = () => {
     setShowModal(true);
 
     // Redirect to informations step (keep group param in url)
-    window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
+    // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
   }, []);
 
   const handleInformationsSubmit = async (e) => {
@@ -183,7 +183,7 @@ const DonationPage = () => {
           <ModalContainer>
             <Title>Je donne {amountString}</Title>
 
-            <Breadcrumb onClick={() => closeModal} />
+            <Breadcrumb onClick={closeModal} />
             <Spacer size="1rem" />
 
             <AmountInformations
