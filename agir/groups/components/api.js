@@ -6,6 +6,7 @@ export const ENDPOINT = {
 
   joinGroup: "/api/groupes/:groupPk/rejoindre/",
   followGroup: "/api/groupes/:groupPk/suivre/",
+  updateOwnMembership: "/api/groupes/:groupPk/membre/",
   quitGroup: "/api/groupes/:groupPk/quitter/",
 
   getUpcomingEvents: "/api/groupes/:groupPk/evenements/a-venir/",
@@ -430,6 +431,23 @@ export const searchGroups = async (searchTerms, params = {}) => {
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};
+
+export const updateOwnMembership = async (groupPk, data) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupEndpoint("updateOwnMembership", { groupPk });
+
+  try {
+    const response = await axios.patch(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
   }
 
   return result;
