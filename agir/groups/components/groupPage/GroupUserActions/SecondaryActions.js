@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React, { useState, useCallback } from "react";
 import styled from "styled-components";
 
+import Link from "@agir/front/app/Link";
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
@@ -53,10 +54,12 @@ const SecondaryActions = ({ id, isCertified, routes, contact }) => {
           </Button>
         )}
         {isCertified && (
-          <Button type="button" link route="donations" params={{ group: id }}>
-            <RawFeatherIcon name="upload" width="1.5rem" height="1.5rem" />
-            Financer
-          </Button>
+          <Link route="donations" params={{ group: id }}>
+            <Button type="button">
+              <RawFeatherIcon name="upload" width="1.5rem" height="1.5rem" />
+              Financer
+            </Button>
+          </Link>
         )}
         <Button type="button" onClick={handleShareOpen}>
           <RawFeatherIcon name="share-2" width="1.5rem" height="1.5rem" />
