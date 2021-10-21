@@ -112,7 +112,7 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
         ADMINISTRATION = "A", "Créé sur l'admin"
         UTILISATEUR = "U", "Créé par un·e militant·e sur Action Populaire"
 
-    titre = models.CharField(verbose_name="Titre du projet", max_length=40)
+    titre = models.CharField(verbose_name="Titre du projet", max_length=200)
     type = models.CharField(
         verbose_name="Type de projet", choices=TypeProjet.choices, max_length=10
     )
