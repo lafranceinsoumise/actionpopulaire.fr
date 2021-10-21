@@ -3,7 +3,7 @@ from rest_framework import permissions
 from rest_framework.generics import CreateAPIView
 
 from agir.donations.serializers import CreateDonationSerializer, SendDonationSerializer
-from agir.people.models import Person, PersonEmail
+from agir.people.models import Person
 from django.db import transaction
 from agir.payments.actions.payments import create_payment
 import json
@@ -43,9 +43,7 @@ class SendDonationAPIView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
-        email = validated_data["email"]
         amount = validated_data["amount"]
-        # type = validated_data["type"]
         payment_mode = validated_data["payment_mode"]
 
         connected_user = False
@@ -65,11 +63,6 @@ class SendDonationAPIView(CreateAPIView):
                 del validated_data["subscribed_lfi"]
 
             self.update_person(person, validated_data)
-        # Add anonymous person in payment
-        else:
-            # Check email exist
-            if not PersonEmail.objects.filter(address__iexact=email).exists():
-                person = self.create_person(validated_data)
 
         if "allocations" in validated_data:
             validated_data["allocations"] = json.dumps(

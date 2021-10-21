@@ -58,14 +58,14 @@ const InformationsStep = ({
   };
 
   const handleChangeCountry = (country) => {
-    setFormData((formData) => ({ ...formData, location_country: country }));
+    setFormData((formData) => ({ ...formData, locationCountry: country }));
   };
 
   const handleChangeNationality = (country) => {
     setFormData((formData) => ({
       ...formData,
       nationality: country,
-      french_resident: country === "FR",
+      frenchResident: country === "FR",
     }));
   };
 
@@ -84,10 +84,10 @@ const InformationsStep = ({
     });
   };
 
-  const checkPaymentMode = formData.allowed_payment_modes?.filter((value) =>
+  const checkPaymentMode = formData.allowedPaymentModes?.filter((value) =>
     value.includes("check")
   )[0];
-  const cardPaymentMode = formData.allowed_payment_modes?.filter(
+  const cardPaymentMode = formData.allowedPaymentModes?.filter(
     (value) => !value.includes("check")
   )[0];
 
@@ -107,21 +107,21 @@ const InformationsStep = ({
       <GroupedFields>
         <CustomField
           Component={TextField}
-          id="first_name"
-          name="first_name"
+          id="firstName"
+          name="firstName"
           label="Prénom*"
           onChange={handleChange}
-          value={formData.first_name}
-          error={errors?.first_name}
+          value={formData.firstName}
+          error={errors?.firstName}
         />
         <CustomField
           Component={TextField}
-          id="last_name"
-          name="last_name"
+          id="lastName"
+          name="lastName"
           label="Nom de famille*"
           onChange={handleChange}
-          value={formData.last_name}
-          error={errors?.last_name}
+          value={formData.lastName}
+          error={errors?.lastName}
           noSpacer
         />
       </GroupedFields>
@@ -141,14 +141,14 @@ const InformationsStep = ({
       {formData.nationality !== "FR" && (
         <>
           <CheckboxField
-            name="french_resident"
+            name="frenchResident"
             label="Je certifie être domicilié⋅e fiscalement en France*"
-            value={formData.french_resident}
+            value={formData.frenchResident}
             onChange={handleCheckboxChange}
           />
-          {errors?.french_resident && (
+          {errors?.frenchResident && (
             <StaticToast style={{ marginTop: "0.5rem" }}>
-              {errors?.french_resident}
+              {errors?.frenchResident}
             </StaticToast>
           )}
           <Spacer size="0.5rem" />
@@ -158,30 +158,30 @@ const InformationsStep = ({
       <CustomField
         Component={TextField}
         label="Adresse*"
-        name="location_address1"
-        value={formData.location_address1}
+        name="locationAddress1"
+        value={formData.locationAddress1}
         onChange={handleChange}
-        error={errors?.location_address1}
+        error={errors?.locationAddress1}
       />
 
       <GroupedFields>
         <CustomField
           Component={StyledPostalCodeTextField}
           label="Code postal*"
-          name="location_zip"
-          value={formData.location_zip}
+          name="locationZip"
+          value={formData.locationZip}
           onChange={handleChange}
-          error={errors?.location_zip}
+          error={errors?.locationZip}
           noSpacer
         />
         <Spacer size="0.5rem" />
         <CustomField
           Component={TextField}
           label="Ville*"
-          name="location_city"
-          value={formData.location_city}
+          name="locationCity"
+          value={formData.locationCity}
           onChange={handleChange}
-          error={errors?.location_city}
+          error={errors?.locationCity}
           noSpacer
           style={{ width: "100%" }}
         />
@@ -191,42 +191,42 @@ const InformationsStep = ({
       <CustomField
         Component={CountryField}
         label="Pays*"
-        name="location_country"
+        name="locationCountry"
         placeholder=""
-        value={formData.location_country}
+        value={formData.locationCountry}
         onChange={handleChangeCountry}
-        error={errors?.location_country}
+        error={errors?.locationCountry}
       />
 
       <CustomField
         Component={TextField}
-        id="contact_phone"
-        name="contact_phone"
+        id="contactPhone"
+        name="contactPhone"
         label="Téléphone*"
         onChange={handleChange}
-        value={formData.contact_phone}
-        error={errors?.contact_phone}
+        value={formData.contactPhone}
+        error={errors?.contactPhone}
         style={{ maxWidth: "370px" }}
         helpText={helpPhone}
       />
 
       <CheckboxField
-        name="consent_certification"
+        name="consentCertification"
         label={consentText}
-        value={formData.consent_certification}
+        value={formData.consentCertification}
         onChange={handleCheckboxChange}
       />
-      {errors?.consent_certification && (
+      {errors?.consentCertification && (
         <StaticToast style={{ marginTop: "0.5rem" }}>
-          {errors.consent_certification}
+          {errors.consentCertification}
         </StaticToast>
       )}
       <Spacer size="1rem" />
 
       <CheckboxField
-        name="subscribed_lfi"
+        name="subscribedLfi"
         label="Recevoir les lettres d'information de la France insoumise"
-        value={formData?.subscribed_lfi}
+        value={formData?.subscribedLfi}
         onChange={handleCheckboxChange}
       />
       <Spacer size="1rem" />

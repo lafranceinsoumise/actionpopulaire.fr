@@ -47,7 +47,7 @@ class CreateDonationSerializer(serializers.Serializer):
         required=False,
     )
     next = serializers.SerializerMethodField(read_only=True)
-    allowed_payment_modes = serializers.SerializerMethodField(read_only=True)
+    allowedPaymentModes = serializers.SerializerMethodField(read_only=True)
 
     def validate(self, attrs):
         if attrs["to"] == TO_2022 and attrs["amount"] > MAX_AMOUNT_2022:
@@ -79,13 +79,10 @@ class CreateDonationSerializer(serializers.Serializer):
         if data["type"] == TYPE_SINGLE_TIME:
             return front_url_lazy("donation_information", absolute=True)
 
-    def get_allowed_payment_modes(self, data):
+    def get_allowedPaymentModes(self, data):
         """
         Returns the payment modes allowed switch type given 2022 | LFI | MONTHLY | ..
         """
-
-        print("==== PAYMENT_MODES", flush=True)
-        print(PAYMENT_MODES, flush=True)
 
         # Forbid monthly payment for 2022 for now
         # if data["to"] == TO_2022 and data["type"] == TYPE_MONTHLY:
@@ -110,26 +107,26 @@ class CreateDonationSerializer(serializers.Serializer):
             )
 
         # Add payment_modes in session
-        # session[DONATION_SESSION_NAMESPACE]["allowed_payment_modes"] = self.get_allowed_payment_modes(validated_data)
+        # session[DONATION_SESSION_NAMESPACE]["allowedPaymentModes"] = self.get_allowedPaymentModes(validated_data)
         return validated_data
 
 
 class SendDonationSerializer(serializers.Serializer):
 
     email = serializers.EmailField()
-    first_name = serializers.CharField(max_length=255)
-    last_name = serializers.CharField(max_length=255)
-    location_address1 = serializers.CharField(max_length=100)
-    location_city = serializers.CharField(max_length=100)
-    location_zip = serializers.CharField(max_length=20)
-    location_country = serializers.CharField(max_length=100)
+    firstName = serializers.CharField(max_length=255, source="first_name")
+    lastName = serializers.CharField(max_length=255, source="last_name")
+    locationAddress1 = serializers.CharField(max_length=100, source="location_address1")
+    locationCity = serializers.CharField(max_length=100, source="location_city")
+    locationZip = serializers.CharField(max_length=20, source="location_zip")
+    locationCountry = serializers.CharField(max_length=100, source="location_country")
 
-    contact_phone = PhoneField(max_length=30, required=True)
+    contactPhone = PhoneField(max_length=30, required=True, source="contact_phone")
     nationality = serializers.CharField(max_length=100)
 
-    subscribed_lfi = serializers.BooleanField(required=False)
+    subscribedLfi = serializers.BooleanField(required=False, source="subscribed_lfi")
 
-    payment_mode = serializers.CharField(max_length=20)
+    paymentMode = serializers.CharField(max_length=20, source="payment_mode")
 
     to = serializers.ChoiceField(
         choices=((TO_LFI, "la France insoumise"), (TO_2022, "Mélenchon 2022")),

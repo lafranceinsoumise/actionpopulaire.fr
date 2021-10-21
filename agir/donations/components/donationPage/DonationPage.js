@@ -75,24 +75,24 @@ const DonationPage = () => {
     type: sessionDonation?.donations?.type,
     allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
     // mode
-    payment_mode: sessionDonation?.donations?.payment_mode || "system_pay",
-    allowed_payment_modes: JSON.parse(
-      sessionDonation?.donations?.allowed_payment_modes || "[]"
+    paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
+    allowedPaymentModes: JSON.parse(
+      sessionDonation?.donations?.allowedPaymentModes || "[]"
     ),
     // informations
     email: session?.user?.email || "",
-    first_name: session?.user?.firstName || "",
-    last_name: session?.user?.lastName || "",
-    contact_phone: session?.user?.contactPhone || "",
+    firstName: session?.user?.firstName || "",
+    lastName: session?.user?.lastName || "",
+    contactPhone: session?.user?.contactPhone || "",
     nationality: "FR",
-    location_address1: "",
-    location_zip: "",
-    location_city: "",
-    location_country: "FR",
+    locationAddress1: "",
+    locationZip: "",
+    locationCity: "",
+    locationCountry: "FR",
     // checkboxes
-    french_resident: true,
-    subscribed_lfi: false,
-    consent_certification: false,
+    subscribedLfi: false,
+    frenchResident: true,
+    consentCertification: false,
   });
 
   const amount = formData.amount;
@@ -133,13 +133,13 @@ const DonationPage = () => {
     setIsLoading(true);
     setErrors({});
 
-    if (!formData.consent_certification || !formData.french_resident) {
+    if (!formData.consentCertification || !formData.frenchResident) {
       const frontErrors = {
-        consent_certification:
-          !formData.consent_certification &&
+        consentCertification:
+          !formData.consentCertification &&
           "Vous devez cocher la case précédente pour continuer",
-        french_resident:
-          !formData.french_resident &&
+        frenchResident:
+          !formData.frenchResident &&
           "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation",
       };
       setErrors(frontErrors);
