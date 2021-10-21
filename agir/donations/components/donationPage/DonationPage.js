@@ -44,7 +44,7 @@ const DonationPage = () => {
   const closeModal = () => setShowModal(false);
 
   const { data: session } = useSWR("/api/session/");
-  const { data: sessionDonation } = useSWR("/api/session-donation/");
+  const { data: sessionDonation } = useSWR("/api/session/donation/");
 
   const params = useParams();
   const { search } = useLocation();

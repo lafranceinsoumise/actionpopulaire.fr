@@ -31,7 +31,7 @@ const InformationsPage = () => {
   const [errors, setErrors] = useState({});
 
   const { data: session } = useSWR("/api/session/");
-  const { data: sessionDonation } = useSWR("/api/session-donation/");
+  const { data: sessionDonation } = useSWR("/api/session/donation/");
 
   const history = useHistory();
   const params = useParams();
