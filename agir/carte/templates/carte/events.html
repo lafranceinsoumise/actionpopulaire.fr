@@ -4,6 +4,10 @@
   Carte des événements
 {% endblock %}
 
+{% block additional_headers %}
+  <link rel="preload" href="/carte/liste_evenements/" as="fetch" type="application/json"></link>
+{% endblock %}
+
 {% block map_script %}
   {{ type_config|json_script:"typeConfig" }}
   {{ subtype_config|json_script:"subtypeConfig" }}
