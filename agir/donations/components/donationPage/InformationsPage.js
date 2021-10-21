@@ -24,6 +24,8 @@ import {
 } from "./StyledComponents";
 import { displayPrice } from "@agir/lib/utils/display";
 
+import { routeConfig } from "@agir/front/app/routes.config";
+
 const InformationsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -45,7 +47,7 @@ const InformationsPage = () => {
     revalidateOnReconnect: false,
   });
 
-  let amountStepUrl = type !== "2022" ? "/dons/" : "/2022/dons/";
+  let amountStepUrl = routeConfig.donations.getLink(params);
   // Keep params in url
   if (!!groupPk) {
     amountStepUrl += `?group=${groupPk}`;
