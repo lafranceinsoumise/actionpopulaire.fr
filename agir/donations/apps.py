@@ -21,8 +21,8 @@ class DonsConfig(AppConfig):
     SUBSCRIPTION_TYPE = "don_mensuel"
 
     def ready(self):
+        from django.views.generic import RedirectView
         from .views import (
-            ReturnView,
             notification_listener,
             subscription_notification_listener,
         )
@@ -30,7 +30,7 @@ class DonsConfig(AppConfig):
         payment_type = PaymentType(
             self.PAYMENT_TYPE,
             "Don",
-            ReturnView.as_view(),
+            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
             status_listener=notification_listener,
             description_template="donations/description.html",
             matomo_goal=settings.DONATION_MATOMO_GOAL,
@@ -39,7 +39,7 @@ class DonsConfig(AppConfig):
         monthly_payment_type = PaymentType(
             self.SUBSCRIPTION_TYPE,
             "Don automatique",
-            ReturnView.as_view(),
+            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
             status_listener=notification_listener,
             description_template="donations/description.html",
             matomo_goal=settings.MONTHLY_DONATION_MATOMO_GOAL,
@@ -71,7 +71,7 @@ class DonsConfig(AppConfig):
         subscription_type = SubscriptionType(
             self.SUBSCRIPTION_TYPE,
             "Don mensuel",
-            ReturnView.as_view(),
+            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
             status_listener=subscription_notification_listener,
             description_template="donations/subscription_description.html",
             description_context_generator=monthly_donation_description_context_generator,

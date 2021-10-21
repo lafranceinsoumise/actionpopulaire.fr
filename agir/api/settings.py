@@ -143,6 +143,7 @@ INSTALLED_APPS = [
     "agir.telegram",
     "agir.elus.apps.ElusConfig",
     "agir.gestion.apps.GestionConfig",
+    "agir.presidentielle2022",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",
     "django.contrib.auth",
@@ -776,12 +777,13 @@ PAYMENT_MODES = [
     "agir.system_pay.SystemPayPaymentMode",
     "agir.checks.DonationCheckPaymentMode",
     "agir.checks.EventCheckPaymentMode",
-    "agir.checks.AFCPJLMCheckPaymentMode",
+    "agir.presidentielle2022.AFCPJLMCheckEventPaymentMode",
+    "agir.presidentielle2022.AFCPJLMCheckDonationPaymentMode",
+    "agir.presidentielle2022.AFCP2022SystemPayPaymentMode",
     "agir.pos.MoneyPaymentMode",
     "agir.pos.TPEPaymentMode",
     "agir.payments.imported.ImportedPaymentMode",
     "agir.events.PayLaterPaymentMode",
-    "agir.donations.AFCP2022SystemPayPaymentMode",
 ]
 
 # OVH Settings
