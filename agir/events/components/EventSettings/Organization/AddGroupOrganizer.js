@@ -150,12 +150,12 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
           <div>
             <StyledListBlock>
               <div />
-              <b>Si ses gestionnaires acceptent la co-organisation</b>, ce
+              <b>Si ses animateur·ices acceptent la co-organisation</b>, ce
               groupe s’affichera sur la page publique de l’événement
             </StyledListBlock>
             <StyledListBlock>
               <div />
-              Ces derniers <b>pourront accéder aux paramètres</b> de
+              Ces dernier·es <b>pourront accéder aux paramètres</b> de
               l’événement.
             </StyledListBlock>
           </div>

@@ -142,9 +142,7 @@ const ACTIVITY_CONFIG = {
     action: ({ event, supportGroup }) =>
       event?.id && supportGroup?.id
         ? {
-            href: addQueryStringParams(event.routes.inviteGroupCoorganize, {
-              group: supportGroup.id,
-            }),
+            href: `/evenements/${event.id}/confirmer-groupe-coorganisateur/?group=${supportGroup.id}`,
             label: "Accepter",
           }
         : null,
