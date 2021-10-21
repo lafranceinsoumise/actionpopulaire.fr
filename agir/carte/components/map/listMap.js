@@ -190,9 +190,18 @@ export default async function listMap(
   fitBounds(map, bounds);
   setUpPopup(map);
 
-  // Data request
-  const res = await axios.get(endpoint);
-  if (res.status !== 200) {
+  let data;
+  try {
+    const res = await fetch(endpoint, {
+      method: "GET",
+      credentials: "include",
+      mode: "no-cors",
+    });
+    if (res.status !== 200) {
+      return;
+    }
+    data = await res.json();
+  } catch (e) {
     return;
   }
 
@@ -202,12 +211,12 @@ export default async function listMap(
     log.debug("Error loading fonts."); // eslint-disable-line no-console
   }
 
-  disambiguate(res.data);
-  display.updateFeatures(res.data, showActiveControl && listType === "groups");
+  disambiguate(data);
+  display.updateFeatures(data, showActiveControl && listType === "groups");
 
   // Controls
   const [hideInactiveButton, layerControlButton, layerControl] =
-    display.getControls(res.data);
+    display.getControls(data);
 
   if (showLayerControl && types.length > 1) {
     layerControlButton.setMap(map);

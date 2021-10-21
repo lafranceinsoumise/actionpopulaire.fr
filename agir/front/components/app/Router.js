@@ -37,7 +37,7 @@ export const ProtectedComponent = (props) => {
 
   useEffect(() => {
     const PreloadedComponent = AnonymousComponent || Component;
-    if ( typeof PreloadedComponent?.preload === "function" ) {
+    if (typeof PreloadedComponent?.preload === "function") {
       log.debug("Preloading", PreloadedComponent);
       PreloadedComponent.preload();
     }
