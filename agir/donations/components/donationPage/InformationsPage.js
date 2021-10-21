@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import Helmet from "react-helmet";
 import useSWR from "swr";
+import { useHistory } from "react-router-dom";
 
 import { Theme } from "./StyledComponents";
 import CONFIG from "./config";
@@ -30,6 +31,7 @@ const InformationsPage = () => {
   const { data: session } = useSWR("/api/session/");
   const { data: sessionDonation } = useSWR("/api/session-donation/");
 
+  const history = useHistory();
   const params = useParams();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
@@ -83,11 +85,8 @@ const InformationsPage = () => {
     if (!sessionDonation) return;
 
     // Redirect to Amount Step if session not filled with an amount
-    if (
-      !sessionDonation?.donations?.amount ||
-      !sessionDonation?.donations?.allowedPaymentModes
-    ) {
-      window.location.href = amountStepUrl;
+    if (!sessionDonation?.donations?.amount) {
+      history.push(amountStepUrl);
     }
 
     setFormData({
@@ -162,9 +161,7 @@ const InformationsPage = () => {
               <div>
                 <Title>Je donne {amountString}</Title>
 
-                <Breadcrumb
-                  onClick={() => (window.location.href = amountStepUrl)}
-                />
+                <Breadcrumb onClick={() => history.push(amountStepUrl)} />
                 <Spacer size="1rem" />
 
                 <AmountInformations
