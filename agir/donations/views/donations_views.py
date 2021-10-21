@@ -7,7 +7,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView, FormView, RedirectView
 from functools import partial
 
 from agir.authentication.tokens import monthly_donation_confirmation_token_generator
@@ -491,8 +491,26 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
             return redirect_to_subscribe(subscription)
 
 
-class ReturnView(TemplateView):
-    template_name = "donations/thanks.html"
+class ReturnView(RedirectView):
+    PAYMENT_MODES_2022 = ["system_pay_afcp2022", "check_jlm2022_evenements"]
+    REDIRECT_URL_2022 = "https://melenchon2022.fr/don/merci/"
+    REDIRECT_URL_DEFAULT = "https://lafranceinsoumise.fr/remerciement-don/"
+
+    def get_payment_mode(self, *args, **kwargs):
+        if "payment" in kwargs:
+            payment_mode = kwargs["payment"].mode
+        elif "subscription" in kwargs:
+            payment_mode = kwargs["subscription"].mode
+        else:
+            payment_mode = None
+        return payment_mode
+
+    def get_redirect_url(self, *args, **kwargs):
+        payment_mode = self.get_payment_mode(*args, **kwargs)
+        if payment_mode in self.PAYMENT_MODES_2022:
+            return self.REDIRECT_URL_2022
+
+        return self.REDIRECT_URL_DEFAULT
 
 
 def subscription_notification_listener(subscription):
