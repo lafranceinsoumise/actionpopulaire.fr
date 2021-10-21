@@ -31,7 +31,11 @@ urlpatterns = [
         name="social_login_error",
     ),
     path("api/session/", SessionContextAPIView.as_view(), name="api_session"),
-    path("api/session/donation/", SessionDonationAPIView.as_view(), name="api_session_donation"),
+    path(
+        "api/session/donation/",
+        SessionDonationAPIView.as_view(),
+        name="api_session_donation",
+    ),
     path("api/ping/", ping, name="api_ping"),
     path("api/connexion/", LoginAPIView.as_view(), name="api_login"),
     path("api/connexion/code/", CheckCodeAPIView.as_view(), name="api_check_code"),
