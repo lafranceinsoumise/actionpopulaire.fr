@@ -8,15 +8,13 @@ from django.contrib.gis.db.models.functions import (
 )
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance as DistanceMeasure
-from django.core.paginator import Paginator
 from django.db.models import Value, FloatField
 from django.shortcuts import reverse
+from django.templatetags.static import static
 from django.views.generic import UpdateView, ListView
 from django.views.generic.base import ContextMixin, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
-from django.views.generic.list import MultipleObjectMixin
-from django.templatetags.static import static
 
 
 class SimpleOpengraphMixin(ContextMixin):
@@ -171,13 +169,18 @@ class FilterView(FormMixin, ListView):
 
 
 class ReactBaseView(TemplateView):
-    bundle_name = None
+    bundle_name = "front/app"
     app_mount_id = "mainApp"
     template_name = "front/react_view.html"
+    api_preloads = []
+
+    def get_api_preloads(self):
+        return self.api_preloads
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("bundle_name", self.bundle_name)
         kwargs.setdefault("app_mount_id", self.app_mount_id)
+        kwargs.setdefault("api_preloads", self.get_api_preloads())
         return super().get_context_data(**kwargs)
 
 

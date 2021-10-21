@@ -1,7 +1,6 @@
-from agir.groups.models import SupportGroup
-from agir.activity.models import Activity
 import locale
 import os
+from urllib.parse import urljoin
 
 import ics
 import pytz
@@ -34,6 +33,7 @@ from django.views.generic import (
 from django.views.generic.detail import SingleObjectMixin
 from rest_framework import status
 
+from agir.activity.models import Activity
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
     GlobalOrObjectPermissionRequiredMixin,
@@ -43,7 +43,9 @@ from agir.events.actions.rsvps import assign_jitsi_meeting
 from agir.front.view_mixins import (
     ChangeLocationBaseView,
     FilterView,
+    ObjectOpengraphMixin,
 )
+from agir.groups.models import SupportGroup
 from ..filters import EventFilter
 from ..forms import (
     EventGeocodingForm,
@@ -52,7 +54,6 @@ from ..forms import (
     AuthorForm,
 )
 from ..models import Event, RSVP, Invitation, OrganizerConfig
-
 from ..tasks import (
     send_event_report,
     send_secretariat_notification,
@@ -60,8 +61,6 @@ from ..tasks import (
 )
 from ...api import settings
 from ...carte.models import StaticMapImage
-from django.utils.http import urlencode
-
 
 __all__ = [
     "ManageEventView",
@@ -83,6 +82,7 @@ __all__ = [
 
 # PUBLIC VIEWS
 # ============
+from ...lib.utils import front_url
 
 
 class EventThumbnailView(DetailView):
@@ -309,10 +309,7 @@ class EventContextMixin:
 
 class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("events.view_event",)
-    meta_description = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
     queryset = Event.objects.all()
-    bundle_name = "front/app"
-    data_script_id = "exportedEvent"
 
     def handle_no_permission(self):
         if self.get_object().visibility == Event.VISIBILITY_ADMIN:
