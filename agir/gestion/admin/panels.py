@@ -339,7 +339,7 @@ class ProjetAdmin(BaseAdminMixin, VersionAdmin):
 class ProjetUtilisateurAdmin(BaseAdminMixin, VersionAdmin):
     list_display = ("numero", "titre", "type", "etat", "event", "location")
 
-    readonly_fields = ["location"]
+    readonly_fields = ("location",)
 
     def location(self, obj=None):
         if obj and obj.event:
