@@ -164,7 +164,7 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
 
     @property
     def transitions(self):
-        return self.TRANSITIONS[self.etat]
+        return self.TRANSITIONS.get(self.etat, [])
 
     search_config = (
         ("numero", "B"),

@@ -63,22 +63,19 @@ class DepenseForm(forms.ModelForm):
 
         if self.instance.type == TypeDepense.REFACTURATION and "montant" in self.fields:
             montant = self.get_initial_for_field(self.fields["montant"], "montant")
-            total_factures = (
-                self.instance.depenses_refacturees.aggregate(Sum("montant"))[
-                    "montant__sum"
-                ]
-                or 0.0
-            )
+            total_factures = self.instance.depenses_refacturees.aggregate(
+                Sum("montant")
+            )["montant__sum"]
 
-            if montant > total_factures:
-                self.fields[
-                    "montant"
-                ].help_text = "Le montant de cette refacturation est pour le moment supérieur à la somme des dépenses à refacturer"
-            else:
-                pct = montant / total_factures * 100
-                self.fields[
-                    "montant"
-                ].help_text = f"Cela représente {montant / total_factures:0.1%} % du total des dépenses refacturées."
+            if total_factures:
+                if montant > total_factures:
+                    self.fields[
+                        "montant"
+                    ].help_text = "Le montant de cette refacturation est pour le moment supérieur à la somme des dépenses à refacturer"
+                else:
+                    self.fields[
+                        "montant"
+                    ].help_text = f"Cela représente {montant / total_factures:0.1%} % du total des dépenses refacturées."
 
         if "depenses_refacturees" in self.fields:
             depenses = self.get_initial_for_field(
