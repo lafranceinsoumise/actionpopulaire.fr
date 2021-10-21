@@ -47,42 +47,31 @@ const EventOrganization = (props) => {
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
 
-      {!!event?.groups?.length && (
-        <>
-          <StyledTitle>Groupes</StyledTitle>
-          <span style={{ color: style.black700 }}>
-            Les groupes organisateurs de l'événement.
-          </span>
-          <Spacer size=".5rem" />
-          <span style={{ color: style.black700 }}>
-            Tous les animateur·ices de ces groupes peuvent accéder à la gestion
-            de l'événement et la liste des participant·es.
-          </span>
-          <Spacer size="1rem" />
+      <StyledTitle>Groupes</StyledTitle>
+      <span style={{ color: style.black700 }}>
+        Les groupes organisateurs de l'événement.
+      </span>
+      <Spacer size=".5rem" />
+      <span style={{ color: style.black700 }}>
+        Tous les animateur·ices de ces groupes peuvent accéder à la gestion de
+        l'événement et la liste des participant·es.
+      </span>
+      <Spacer size="1rem" />
 
-          <GroupList
-            groups={groups}
-            addButtonLabel={
-              event && !event.isPast ? "Ajouter un groupe co-organisateur" : ""
-            }
-            onAdd={
-              event && !event.isPast
-                ? () => setSubmenuOpen(MENU_GROUP)
-                : undefined
-            }
-          >
-            {groupsInvited?.map((g) => (
-              <GroupItem
-                key={g.id}
-                {...g}
-                label="Invitation en attente"
-                disabled
-              />
-            ))}
-          </GroupList>
-          <Spacer size="1.5rem" />
-        </>
-      )}
+      <GroupList
+        groups={groups}
+        addButtonLabel={
+          event && !event.isPast ? "Ajouter un groupe co-organisateur" : ""
+        }
+        onAdd={
+          event && !event.isPast ? () => setSubmenuOpen(MENU_GROUP) : undefined
+        }
+      >
+        {groupsInvited?.map((g) => (
+          <GroupItem key={g.id} {...g} label="Invitation en attente" disabled />
+        ))}
+      </GroupList>
+      <Spacer size="1.5rem" />
 
       <StyledTitle>Participant·es organisateur·ices</StyledTitle>
       <span style={{ color: style.black700 }}>
