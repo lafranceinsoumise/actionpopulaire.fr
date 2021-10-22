@@ -26,7 +26,7 @@ def send_donation_email(person_pk, payment_type):
         payment_type in PAYMENT_TYPES
         and PAYMENT_TYPES[payment_type].email_template_code is not None
     ):
-        template_code = PAYMENT_MODES[payment_type].email_template_code
+        template_code = PAYMENT_TYPES[payment_type].email_template_code
 
     if (
         payment_type in PAYMENT_TYPES
