@@ -49,29 +49,12 @@ class Presidentielle2022Config(AppConfig):
             )
         )
 
-        def monthly_donation_description_context_generator(subscription):
-            subscription_type = SUBSCRIPTION_TYPES[subscription.type]
-            context = {
-                "subscription": subscription,
-                "subscription_type": subscription_type,
-                "national_amount": subscription.price,
-            }
-            if isinstance(
-                PAYMENT_MODES[subscription.mode], AbstractSystemPayPaymentMode
-            ):
-                context["expiry_date"] = subscription.system_pay_subscriptions.get(
-                    active=True
-                ).alias.expiry_date
-
-            return context
-
         subscription_type = SubscriptionType(
             self.DONATION_SUBSCRIPTION_TYPE,
             "Don mensuel",
             RedirectView.as_view(url="https://melenchon2022.fr/don/merci/"),
             status_listener=subscription_notification_listener,
-            description_template="presidentielle2022/donations/description.html",
-            description_context_generator=monthly_donation_description_context_generator,
+            description_template="presidentielle2022/donations/subscription_description.html",
         )
 
         register_subscription_type(subscription_type)

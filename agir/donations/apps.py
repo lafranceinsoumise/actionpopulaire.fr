@@ -5,6 +5,7 @@ from django.db.models.functions import Coalesce
 
 from agir.payments.payment_modes import PAYMENT_MODES
 from agir.system_pay import AbstractSystemPayPaymentMode
+from ..payments.actions.subscriptions import default_description_context_generator
 from ..payments.types import (
     register_payment_type,
     PaymentType,
@@ -50,21 +51,13 @@ class DonsConfig(AppConfig):
         register_payment_type(payment_type)
 
         def monthly_donation_description_context_generator(subscription):
-            subscription_type = SUBSCRIPTION_TYPES[subscription.type]
-            context = {
-                "subscription": subscription,
-                "subscription_type": subscription_type,
-                "national_amount": subscription.price
+            context = default_description_context_generator(subscription)
+            context["national_amount"] = (
+                subscription.price
                 - subscription.allocations.all().aggregate(
                     total=Coalesce(Sum("amount"), 0)
                 )["total"],
-            }
-            if isinstance(
-                PAYMENT_MODES[subscription.mode], AbstractSystemPayPaymentMode
-            ):
-                context["expiry_date"] = subscription.system_pay_subscriptions.get(
-                    active=True
-                ).alias.expiry_date
+            )
 
             return context
 
