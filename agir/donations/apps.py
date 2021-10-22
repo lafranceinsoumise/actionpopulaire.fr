@@ -3,15 +3,11 @@ from django.conf import settings
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 
-from agir.payments.payment_modes import PAYMENT_MODES
-from agir.system_pay import AbstractSystemPayPaymentMode
-from ..payments.actions.subscriptions import default_description_context_generator
 from ..payments.types import (
     register_payment_type,
     PaymentType,
     SubscriptionType,
     register_subscription_type,
-    SUBSCRIPTION_TYPES,
 )
 
 
@@ -26,6 +22,9 @@ class DonsConfig(AppConfig):
         from .views import (
             notification_listener,
             subscription_notification_listener,
+        )
+        from ..payments.actions.subscriptions import (
+            default_description_context_generator,
         )
 
         payment_type = PaymentType(
