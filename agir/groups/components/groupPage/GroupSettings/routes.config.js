@@ -124,7 +124,7 @@ export const routeConfig = {
     id: "contact",
     path: "contact/",
     exact: true,
-    label: "Contact",
+    label: "Moyens de contact",
     icon: "mail",
     Component: GroupSettingsContact,
     illustration: illustrationContact,

@@ -101,7 +101,7 @@ const GroupContactCard = (props) => {
         <StyledContactSection>
           {contact.name && (
             <strong>
-              Contact&ensp;
+              Moyens de contact&ensp;
               {editLinkTo && (
                 <Link to={editLinkTo}>
                   <RawFeatherIcon
