@@ -736,7 +736,11 @@ class EventProjectDocumentSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        document = Document.objects.create(titre=self.validated_data["titre"])
+        document = Document.objects.create(
+            titre=self.validated_data["titre"],
+            type=self.validated_data["type"],
+            description=self.validated_data["description"],
+        )
         VersionDocument.objects.create(
             titre="Version initiale",
             document=document,
