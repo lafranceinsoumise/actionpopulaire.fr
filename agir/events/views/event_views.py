@@ -1,6 +1,5 @@
 import locale
 import os
-from urllib.parse import urljoin
 
 import ics
 import pytz
@@ -43,7 +42,6 @@ from agir.events.actions.rsvps import assign_jitsi_meeting
 from agir.front.view_mixins import (
     ChangeLocationBaseView,
     FilterView,
-    ObjectOpengraphMixin,
 )
 from agir.groups.models import SupportGroup
 from ..filters import EventFilter
@@ -82,7 +80,6 @@ __all__ = [
 
 # PUBLIC VIEWS
 # ============
-from ...lib.utils import front_url
 
 
 class EventThumbnailView(DetailView):
