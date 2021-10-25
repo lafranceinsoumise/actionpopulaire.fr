@@ -6,6 +6,4 @@ Ce groupe apparaît désormais publiquement sur la page de l'événement dans la
 
 
 ------------------------------------------------------------------
-Vous souhaitez recevoir moins de mails de notre part : [modifier ses préférences ou se désinscrire]({{ preferences_link }}).
-
 Ce mail a été adressé à {{ email }}.

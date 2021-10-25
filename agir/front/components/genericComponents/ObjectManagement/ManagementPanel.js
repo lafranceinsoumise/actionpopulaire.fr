@@ -18,17 +18,17 @@ const StyledContainer = styled.div`
 const StyledPanel = styled.div`
   background-color: ${style.white};
   width: 100%;
+  height: 100vh;
   padding: 2rem;
+  overflow: auto;
 
   @media (min-width: ${style.collapse}px) {
     width: 600px;
-    height: 100%;
     overflow: auto;
   }
 
   @media (max-width: ${style.collapse}px) {
     padding: 1.5rem;
-    height: auto;
   }
 
   header,

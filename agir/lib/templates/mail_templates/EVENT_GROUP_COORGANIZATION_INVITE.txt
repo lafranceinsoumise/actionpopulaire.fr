@@ -8,6 +8,4 @@ Vous ne voulez pas co-organiser cet événement ? Ignorez simplement ce message.
 
 
 ------------------------------------------------------------------
-Vous souhaitez recevoir moins de mails de notre part : [modifier ses préférences ou se désinscrire]({{ preferences_link }}).
-
 Ce mail a été adressé à {{ email }}.
