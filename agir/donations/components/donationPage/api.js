@@ -2,6 +2,7 @@ import axios from "@agir/lib/utils/axios";
 
 export const ENDPOINT = {
   createDonation: "/api/dons/",
+  sendDonation: "/api/envoyer-dons/",
 };
 
 export const getDonationEndpoint = (key, params) => {
@@ -29,6 +30,23 @@ export const createDonation = async (body) => {
     } else {
       result.error = (e.response && e.response.data) || e.message;
     }
+  }
+
+  return result;
+};
+
+export const sendDonation = async (data) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getDonationEndpoint("sendDonation");
+
+  try {
+    const response = await axios.post(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
   }
 
   return result;

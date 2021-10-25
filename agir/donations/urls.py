@@ -4,6 +4,9 @@ from . import views
 
 urlpatterns = [
     path(
+        # "2022/dons-mensuels/informations/",
+        # views.MonthlyDonation2022PersonalInformationView.as_view(),
+        # name="monthly_donation_2022_information",
         "dons/informations/",
         views.DonationPersonalInformationView.as_view(),
         name="donation_information",
@@ -61,5 +64,10 @@ urlpatterns = [
     # API views
     path(
         "api/dons/", views.CreateDonationAPIView.as_view(), name="api_create_donation",
+    ),
+    path(
+        "api/envoyer-dons/",
+        views.SendDonationAPIView.as_view(),
+        name="api_send_donation",
     ),
 ]
