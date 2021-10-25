@@ -36,7 +36,6 @@ const StyledGroup = styled.div`
     grid-row: span 2;
     width: 2rem;
     height: 2rem;
-    margin-right: 0.5rem;
 
     @media (max-width: ${style.collapse}px) {
       grid-row: span 3;
