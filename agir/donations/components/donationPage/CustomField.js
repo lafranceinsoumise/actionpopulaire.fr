@@ -13,10 +13,10 @@ const StyledCustomField = styled.div`
     display: flex;
     align-items: center;
     > label:first-of-type {
+      margin-top: 4px;
       width: 160px;
       margin: 0;
       margin-right: 4px;
-      margin-top: 4px;
     }
     > label:nth-of-type(2) {
       flex-grow: 1;
@@ -60,7 +60,7 @@ const CustomField = ({
           {helpText}
         </Hide>
       )}
-      {!noSpacer && <Spacer size="0.5rem" />}
+      {!noSpacer && <Spacer size="1rem" />}
     </>
   );
 };

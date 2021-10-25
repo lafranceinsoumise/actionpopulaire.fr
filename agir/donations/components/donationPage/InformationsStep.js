@@ -125,7 +125,7 @@ const InformationsStep = ({
           noSpacer
         />
       </GroupedFields>
-      <Spacer size="0.5rem" />
+      <Spacer size="1rem" />
 
       <CustomField
         Component={CountryField}
@@ -174,7 +174,7 @@ const InformationsStep = ({
           error={errors?.locationZip}
           noSpacer
         />
-        <Spacer size="0.5rem" />
+        <Spacer size="1rem" />
         <CustomField
           Component={TextField}
           label="Ville*"
@@ -186,7 +186,7 @@ const InformationsStep = ({
           style={{ width: "100%" }}
         />
       </GroupedFields>
-      <Spacer size="0.5rem" />
+      <Spacer size="1rem" />
 
       <CustomField
         Component={CountryField}
@@ -221,7 +221,7 @@ const InformationsStep = ({
           {errors.consentCertification}
         </StaticToast>
       )}
-      <Spacer size="1rem" />
+      <Spacer size="0.5rem" />
 
       <CheckboxField
         name="subscribedLfi"
@@ -229,7 +229,7 @@ const InformationsStep = ({
         value={formData?.subscribedLfi}
         onChange={handleCheckboxChange}
       />
-      <Spacer size="1rem" />
+      <Spacer size="0.5rem" />
 
       <p>
         Un reçu, édité par la CNCCFP, me sera adressé, et me permettra de
