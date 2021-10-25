@@ -27,6 +27,13 @@ const slideInTransition = {
 const MENU_ORGANIZER = "menu-organizer";
 const MENU_GROUP = "menu-group";
 
+// Returns string without html
+const stripHtml = (html) => {
+  const tmpDiv = document.createElement("div");
+  tmpDiv.innerHTML = html;
+  return tmpDiv.textContent || tmpDiv.innerText || "";
+};
+
 const EventOrganization = (props) => {
   const { onBack, illustration, eventPk } = props;
 
@@ -47,7 +54,7 @@ const EventOrganization = (props) => {
     <>
       <HeaderPanel onBack={onBack} illustration={illustration} />
 
-      <StyledTitle>Groupes</StyledTitle>
+      <StyledTitle>Groupes organisateurs</StyledTitle>
       <span style={{ color: style.black700 }}>
         Les groupes organisateurs de l'événement.
       </span>
@@ -68,7 +75,13 @@ const EventOrganization = (props) => {
         }
       >
         {groupsInvited?.map((g) => (
-          <GroupItem key={g.id} {...g} label="Invitation en attente" disabled />
+          <GroupItem
+            key={g.id}
+            {...g}
+            description={stripHtml(g.description)}
+            label="Invitation en attente"
+            disabled
+          />
         ))}
       </GroupList>
       <Spacer size="1.5rem" />
