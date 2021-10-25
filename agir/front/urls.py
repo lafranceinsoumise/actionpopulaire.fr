@@ -243,22 +243,6 @@ urlpatterns = [
         RedirectView.as_view(pattern_name="create_contact", permanent=True),
         name="create_contact_success",
     ),
-    path("dons/", views.DonationView.as_view(), name="donation_amount",),
-    path(
-        "dons/informations/", views.DonationView.as_view(), name="donation_information",
-    ),
-    path("2022/dons/", views.Donation2022View.as_view(), name="donations_2022_amount",),
-    path(
-        "2022/dons/informations/",
-        views.Donation2022View.as_view(),
-        name="donation_2022_information",
-    ),
-    path(
-        "dons-mensuels/informations/",
-        views.DonationView.as_view(),
-        name="monthly_donation_information",
-    ),
-    path("404/", views.NotFoundView.as_view()),
     ## REDIRECT / EXTERNAL VIEWS
     path("nsp/", views.NSPView.as_view(), name="nsp"),
     path("nsp/referral/", views.NSPReferralView.as_view(), name="nsp_referral"),
