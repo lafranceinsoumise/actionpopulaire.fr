@@ -5,8 +5,8 @@ import styled from "styled-components";
 import RadioField from "@agir/front/formComponents/RadioField";
 
 const DEFAULT_OPTIONS = [
-  { value: 60, label: "60% au groupe d’action, 40% aux activités nationales" },
-  { value: 85, label: "85% au groupe d’action, 15% aux activités nationales" },
+  { value: 60, label: "60% au groupe d’action, 40% aux activités national" },
+  { value: 85, label: "85% au groupe d’action, 15% aux activités national" },
   { value: 100, label: "100% au groupe d’action" },
   { value: "...", label: "Personnaliser" },
 ];
