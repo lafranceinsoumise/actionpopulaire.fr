@@ -1,8 +1,14 @@
+from django.db.models import Sum
+from rest_framework import permissions
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+
 from agir.donations.views import (
     DonationPersonalInformationView,
     MonthlyDonationPersonalInformationView,
     MonthlyDonationEmailConfirmationView,
 )
+from agir.payments.models import Payment
 from agir.presidentielle2022 import (
     AFCP2022SystemPayPaymentMode,
     AFCPJLMCheckDonationPaymentMode,
@@ -30,3 +36,16 @@ class MonthlyDonation2022PersonalInformationView(
 class MonthlyDonation2022EmailConfirmationView(MonthlyDonationEmailConfirmationView):
     payment_mode = AFCP2022SystemPayPaymentMode.id
     payment_type = Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE
+
+
+class Donation2022AggregatesAPIView(ListAPIView):
+    permission_classes = (permissions.AllowAny,)
+    queryset = Payment.objects.completed().filter(
+        type__in=[
+            Presidentielle2022Config.DONATION_PAYMENT_TYPE,
+            Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE,
+        ]
+    )
+
+    def list(self, request, *args, **kwargs):
+        return Response(self.queryset.aggregate(totalAmount=Sum("price")))
