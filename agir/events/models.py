@@ -1,6 +1,8 @@
+import hashlib
 import random
 import re
 from secrets import token_urlsafe
+from urllib.parse import urljoin
 
 import ics
 import pytz
@@ -661,6 +663,28 @@ class Event(
 
     def can_rsvp(self, person):
         return True
+
+    def get_meta_image(self):
+        if hasattr(self, "image") and self.image:
+            return urljoin(settings.FRONT_DOMAIN, self.image.url)
+
+        # Use content hash as cache key for the auto-generated meta image
+        content = ":".join(
+            (
+                self.name,
+                self.location_zip,
+                self.location_city,
+                str(self.coordinates),
+                str(self.start_time),
+            )
+        )
+        content_hash = hashlib.sha1(content.encode("utf-8")).hexdigest()[:8]
+
+        return front_url(
+            "view_og_image_event",
+            kwargs={"pk": self.pk, "cache_key": content_hash},
+            absolute=True,
+        )
 
 
 class EventSubtype(BaseSubtype):

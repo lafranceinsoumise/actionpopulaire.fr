@@ -1,5 +1,4 @@
 import os
-from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.auth import logout
@@ -29,7 +28,7 @@ from .view_mixins import (
 )
 from ..events.views.event_views import EventDetailMixin
 from ..groups.views.public_views import SupportGroupDetailMixin
-from ..lib.utils import generate_token_params, front_url
+from ..lib.utils import generate_token_params
 from ..msgs.models import SupportGroupMessage
 
 cache_decorators = [cache.cache_page(30), cache.cache_control(public=True)]
@@ -179,10 +178,7 @@ class EventDetailView(
         return [reverse_lazy("api_event_view", kwargs=self.kwargs)]
 
     def get_meta_image(self):
-        event = self.object
-        if hasattr(event, "image") and event.image:
-            return urljoin(settings.FRONT_DOMAIN, event.image.url)
-        return front_url("view_og_image_event", kwargs={"pk": event.pk,}, absolute=True)
+        return self.object.get_meta_image()
 
 
 class EventSettingsView(HardLoginRequiredMixin, EventDetailView):
