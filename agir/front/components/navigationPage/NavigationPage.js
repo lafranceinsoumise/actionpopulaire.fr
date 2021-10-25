@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
@@ -110,9 +109,6 @@ const NavigationPage = ({ active }) => {
   const routes = useSelector(getRoutes);
   return (
     <Navigation>
-      <Helmet>
-        <title>Menu - Action populaire</title>
-      </Helmet>
       <Menu>
         {MAIN_LINKS.map(
           (link) =>

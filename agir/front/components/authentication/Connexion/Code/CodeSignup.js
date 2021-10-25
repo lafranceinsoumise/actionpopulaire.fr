@@ -1,4 +1,3 @@
-import Helmet from "react-helmet";
 import React from "react";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import styled from "styled-components";
@@ -37,10 +36,6 @@ const CodeSignup = () => {
   const location = useLocation();
   return (
     <Container>
-      <Helmet>
-        <meta name="title" content="Inscription" />
-        <meta name="description" content="Rejoignez Action Populaire" />
-      </Helmet>
       <RawFeatherIcon name="mail" width="41px" height="41px" />
       <h1>
         Plus qu’une étape pour <br />

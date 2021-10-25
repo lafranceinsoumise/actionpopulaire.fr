@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import React, { useEffect } from "react";
-import Helmet from "react-helmet";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -20,6 +19,7 @@ import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import BottomBar from "@agir/front/app/Navigation/BottomBar";
 import NotificationSettings from "@agir/notifications/NotificationSettings/NotificationSettings";
+import OpenGraphTags from "@agir/front/app/OpenGraphTags";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
@@ -100,9 +100,7 @@ const MessagePage = ({ messagePk }) => {
 
   return (
     <>
-      <Helmet>
-        <title>{pageTitle} - Action Populaire</title>
-      </Helmet>
+      <OpenGraphTags title={pageTitle} />
       <NotificationSettings />
       <StyledPage>
         {!isOffline || !messages ? (

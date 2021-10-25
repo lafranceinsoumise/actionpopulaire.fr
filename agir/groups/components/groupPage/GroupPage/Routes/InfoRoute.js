@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
@@ -139,21 +138,11 @@ MobileInfoRoute.propTypes = DesktopInfoRoute.propTypes = {
 };
 
 const InfoRoute = (props) => (
-  <>
-    <Helmet>
-      <title>{props.group && props.group.name} - Action populaire</title>
-    </Helmet>
-    <ResponsiveLayout
-      {...props}
-      MobileLayout={MobileInfoRoute}
-      DesktopLayout={DesktopInfoRoute}
-    />
-  </>
+  <ResponsiveLayout
+    {...props}
+    MobileLayout={MobileInfoRoute}
+    DesktopLayout={DesktopInfoRoute}
+  />
 );
 
-InfoRoute.propTypes = {
-  group: PropTypes.shape({
-    name: PropTypes.string,
-  }),
-};
 export default InfoRoute;

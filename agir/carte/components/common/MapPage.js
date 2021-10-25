@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
@@ -10,12 +9,10 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const CONFIG = {
   events: {
-    title: "Carte des événements",
     backLabel: "Liste des événements",
     backRoute: "events",
   },
   groups: {
-    title: "Carte des groupes",
     backLabel: "Liste des groupes",
     backRoute: "groups",
   },
@@ -93,13 +90,10 @@ const ActionButtons = ({ searchUrl, createLinkProps }) => (
 
 const MapPage = (props) => {
   const { user, type, mapURL, createLinkProps, searchUrl } = props;
-  const { title, backRoute, backLabel } = CONFIG[type];
+  const { backRoute, backLabel } = CONFIG[type];
 
   return (
     <main>
-      <Helmet>
-        <title>{title} - Action populaire</title>
-      </Helmet>
       <Hide under as={Header}>
         {user && (
           <Button link route={backRoute} icon="arrow-left">

@@ -24,6 +24,7 @@ from .actions import get_promo_codes
 from .actions.notifications import member_to_follower_notification
 from .models import Membership, SupportGroup, SupportGroupExternalLink
 from ..front.serializer_utils import RoutesField
+from ..lib.html import textify
 from ..lib.utils import front_url, admin_url
 from ..people.models import Person
 
@@ -148,6 +149,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     type = serializers.SerializerMethodField(read_only=True,)
     subtypes = serializers.SerializerMethodField(read_only=True)
     description = serializers.CharField(read_only=True, source="html_description")
+    textDescription = serializers.SerializerMethodField(read_only=True)
     isFull = serializers.SerializerMethodField(read_only=True,)
     isCertified = serializers.BooleanField(read_only=True, source="is_certified")
     is2022Certified = serializers.BooleanField(
@@ -375,6 +377,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_links(self, obj):
         return obj.links.values("id", "label", "url")
+
+    def get_textDescription(self, obj):
+        if isinstance(obj.description, str):
+            return textify(obj.description)
+        return ""
 
 
 class SupportGroupUpdateSerializer(serializers.ModelSerializer):

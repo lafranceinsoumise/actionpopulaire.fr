@@ -1,7 +1,6 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
-import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import useSWR from "swr";
 
@@ -118,9 +117,6 @@ const Agenda = () => {
 
   return (
     <StyledAgenda>
-      <Helmet>
-        <title>Événements - Action populaire</title>
-      </Helmet>
       <header>
         <Hide over>
           <h2

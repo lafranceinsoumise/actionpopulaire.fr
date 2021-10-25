@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import Helmet from "react-helmet";
 import styled from "styled-components";
 
 import Link from "@agir/front/app/Link";
@@ -60,18 +59,13 @@ const MissingDocumentsPage = () => {
   }, [projects]);
 
   return (
-    <>
-      <Helmet>
-        <title>Documents justificatifs — Action Populaire</title>
-      </Helmet>
-      <StyledPage>
-        <IndexLinkAnchor route="events">
-          <span>&#10140;</span>
-          &ensp; Liste des événements
-        </IndexLinkAnchor>
-        <MissingDocuments projects={projects} isBlocked={isBlocked} />
-      </StyledPage>
-    </>
+    <StyledPage>
+      <IndexLinkAnchor route="events">
+        <span>&#10140;</span>
+        &ensp; Liste des événements
+      </IndexLinkAnchor>
+      <MissingDocuments projects={projects} isBlocked={isBlocked} />
+    </StyledPage>
   );
 };
 

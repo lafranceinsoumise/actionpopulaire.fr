@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import React from "react";
 
 import NotificationSettings from "@agir/notifications/NotificationSettings/NotificationSettings";
@@ -6,9 +5,6 @@ import ActivityList from "./ActivityList";
 
 const ActivityPage = (props) => (
   <>
-    <Helmet>
-      <title>Notifications - Action populaire</title>
-    </Helmet>
     <ActivityList {...props} />
     <NotificationSettings />
   </>
