@@ -9,19 +9,9 @@ urlpatterns = [
         name="donation_information",
     ),
     path(
-        "2022/dons/informations/",
-        views.Donation2022PersonalInformationView.as_view(),
-        name="donation_2022_information",
-    ),
-    path(
         "dons-mensuels/informations/",
         views.MonthlyDonationPersonalInformationView.as_view(),
         name="monthly_donation_information",
-    ),
-    path(
-        "2022/dons-mensuels/informations/",
-        views.MonthlyDonation2022PersonalInformationView.as_view(),
-        name="monthly_donation_2022_information",
     ),
     path(
         "dons-mensuels/deja-donateur/",

@@ -7,6 +7,7 @@ from django.utils import timezone
 from agir.payments.models import Subscription
 from agir.payments.payment_modes import DEFAULT_MODE, PAYMENT_MODES
 from agir.payments.types import SUBSCRIPTION_TYPES
+from agir.system_pay import AbstractSystemPayPaymentMode
 
 
 class SubscriptionException(Exception):
@@ -57,7 +58,14 @@ def terminate_subscription(subscription):
 
 def default_description_context_generator(subscription):
     subscription_type = SUBSCRIPTION_TYPES[subscription.type]
-    return {"subscription": subscription, "subscription_type": subscription_type}
+    context = {"subscription": subscription, "subscription_type": subscription_type}
+
+    if isinstance(PAYMENT_MODES[subscription.mode], AbstractSystemPayPaymentMode):
+        context["expiry_date"] = subscription.system_pay_subscriptions.get(
+            active=True
+        ).alias.expiry_date
+
+    return context
 
 
 def description_for_subscription(subscription):

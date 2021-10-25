@@ -23,6 +23,8 @@ class PaymentType:
     description_context_generator: Callable[["Payment"], Mapping[str, Any]] = None
     matomo_goal: Optional[int] = None
     admin_modes: Optional[Union[list, Callable]] = None
+    email_template_code: Optional[str] = None
+    email_from: Optional[str] = None
 
 
 def register_payment_type(payment_type: PaymentType):
