@@ -41,8 +41,8 @@ const StyledFooter = styled.div`
       color: inherit;
 
       @media (min-width: ${style.collapse}px) {
-        flex: 0 1 15%;
-        min-width: 120px;
+        flex: 0 1 auto;
+        min-width: 110px;
 
         &:first-child {
           min-width: 0;
@@ -141,7 +141,7 @@ export const Footer = (props) => {
               ) : (
                 <Link route="login">Se connecter</Link>
               )}
-              <Link route="help">Besoin d'aide ?</Link>
+              <Link route="help">Besoin d'aide&nbsp;?</Link>
               <Link route="legal">Mentions légales</Link>
               <Link route="contact">Contact</Link>
             </p>
