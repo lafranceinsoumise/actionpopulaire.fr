@@ -26,7 +26,7 @@ const StyledContainer = styled.div`
   flex-direction: row;
   justify-content: center;
   width: 100%;
-  justify-content: space-around;
+  justify-content: space-evenly;
 
   button,
   ${StyledLink} {
