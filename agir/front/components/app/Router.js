@@ -31,21 +31,20 @@ import logger from "@agir/lib/utils/logger";
 
 const log = logger(__filename);
 
-export const ProtectedComponent = ({
-  Component,
-  AnonymousComponent = null,
-  route,
-  ...rest
-}) => {
-  const location = useLocation();
-  const isAuthorized = useAuthentication(route);
+export const ProtectedComponent = (props) => {
+  const { route, ...rest } = props;
+  const { Component, AnonymousComponent = null } = route;
+
   useEffect(() => {
     const PreloadedComponent = AnonymousComponent || Component;
-    if (typeof PreloadedComponent.preload === "function") {
+    if (typeof PreloadedComponent?.preload === "function") {
       log.debug("Preloading", PreloadedComponent);
       PreloadedComponent.preload();
     }
   }, [AnonymousComponent, Component]);
+
+  const location = useLocation();
+  const isAuthorized = useAuthentication(route);
 
   useAppLoader(isAuthorized !== null);
 
@@ -58,8 +57,18 @@ export const ProtectedComponent = ({
   }
 
   if (AnonymousComponent) {
+    const routeConfig = route.anonymousConfig
+      ? {
+          ...route,
+          ...route.anonymousConfig,
+        }
+      : route;
     return (
-      <Page Component={AnonymousComponent} routeConfig={route} {...rest} />
+      <Page
+        Component={AnonymousComponent}
+        routeConfig={routeConfig}
+        {...rest}
+      />
     );
   }
 
@@ -73,8 +82,6 @@ export const ProtectedComponent = ({
   );
 };
 ProtectedComponent.propTypes = {
-  Component: PropTypes.elementType.isRequired,
-  AnonymousComponent: PropTypes.elementType,
   route: PropTypes.object.isRequired,
 };
 
@@ -96,12 +103,7 @@ const Router = ({ children }) => {
               {!route.hideConnectivityWarning && (
                 <ConnectivityWarning hasTopBar={hasTopBar} />
               )}
-              <ProtectedComponent
-                Component={route.Component}
-                AnonymousComponent={route.AnonymousComponent}
-                route={route}
-                hasTopBar={hasTopBar}
-              />
+              <ProtectedComponent route={route} hasTopBar={hasTopBar} />
               {!route.hideFooter && (
                 <Footer
                   hideBanner={route.hideFooterBanner}

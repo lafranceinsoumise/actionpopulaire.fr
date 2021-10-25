@@ -11,6 +11,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import FooterBanner from "./FooterBanner";
 
+const StyledAppStore = styled(AppStore)``;
 const StyledFooter = styled.div`
   width: 100%;
   background-color: ${style.white};
@@ -26,7 +27,8 @@ const StyledFooter = styled.div`
     flex-flow: row nowrap;
     justify-content: space-around;
     align-items: stretch;
-    padding: 60px 0;
+    padding: 60px 1.5rem;
+    gap: 1rem;
 
     @media (max-width: ${style.collapse}px) {
       flex-flow: column nowrap;
@@ -35,13 +37,32 @@ const StyledFooter = styled.div`
     }
 
     & > div {
-      flex: 0 1 auto;
       padding: 20px 0;
       color: inherit;
 
+      @media (min-width: ${style.collapse}px) {
+        flex: 0 1 15%;
+        min-width: 120px;
+
+        &:first-child {
+          min-width: 0;
+          flex: 0 0 auto;
+        }
+
+        &:last-child {
+          min-width: 0;
+          flex-basis: 170px;
+
+          ${StyledAppStore} {
+            width: 100%;
+            background-size: contain;
+            background-position: top center;
+          }
+        }
+      }
+
       @media (max-width: ${style.collapse}px) {
         flex: 0 0 auto;
-        padding: 20px 0;
 
         &:first-child {
           display: none;
@@ -152,9 +173,9 @@ export const Footer = (props) => {
 
           {!isMobileApp && (
             <div>
-              <AppStore type="apple" />
+              <StyledAppStore type="apple" />
               <Spacer size="10px" />
-              <AppStore type="google" />
+              <StyledAppStore type="google" />
             </div>
           )}
         </article>

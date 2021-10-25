@@ -136,7 +136,6 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Événements",
     Component: AgendaPage,
-    AnonymousComponent: HomePage,
     hasLayout: true,
     layoutProps: {
       smallBackgroundColor: style.black25,
@@ -144,6 +143,10 @@ export const routeConfig = {
     hideFeedbackButton: true,
     keepScroll: true,
     hideFooterBanner: true,
+    AnonymousComponent: HomePage,
+    anonymousConfig: {
+      hasLayout: false,
+    },
   }),
   missingEventDocumentsModal: new RouteConfig({
     id: "missingEventDocuments",

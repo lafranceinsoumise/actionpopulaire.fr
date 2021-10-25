@@ -399,9 +399,9 @@ class ContactSerializer(serializers.ModelSerializer):
                     for key, value in validated_data.items()
                     if key in self.Meta.updatable_fields and not getattr(person, key)
                 }
-                if "newsletters" in person_patch and person.newsletters:
+                if "newsletters" in validated_data and person.newsletters:
                     person_patch["newsletters"] = list(
-                        set(person_patch["newsletters"] + person.newsletters)
+                        set(validated_data["newsletters"] + person.newsletters)
                     )
                 for key, value in person_patch.items():
                     setattr(person, key, value)

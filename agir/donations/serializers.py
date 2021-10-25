@@ -6,9 +6,10 @@ from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url_lazy
 from agir.lib.serializers import PhoneField
-from agir.payments.payment_modes import PAYMENT_MODES
-from agir.donations import AFCP2022SystemPayPaymentMode
-from agir.checks import AFCPJLMCheckPaymentMode
+from agir.presidentielle2022 import (
+    AFCP2022SystemPayPaymentMode,
+    AFCPJLMCheckDonationPaymentMode,
+)
 from agir.payments import payment_modes
 
 MAX_AMOUNT_LFI = 750000
@@ -89,7 +90,7 @@ class CreateDonationSerializer(serializers.Serializer):
         #     return AFCP2022SystemPayPaymentMode.id
 
         if data["to"] == TO_2022:
-            return [AFCP2022SystemPayPaymentMode, AFCPJLMCheckPaymentMode]
+            return [AFCP2022SystemPayPaymentMode.id, AFCPJLMCheckDonationPaymentMode.id]
         if data["type"] == TYPE_MONTHLY:
             return [payment_modes.DEFAULT_MODE]
         if data["type"] == TYPE_SINGLE_TIME:

@@ -31,8 +31,7 @@ from agir.payments.actions.subscriptions import (
 )
 from agir.payments.models import Payment, Subscription
 from agir.people.models import Person
-from agir.checks import AFCPJLMCheckPaymentMode
-from agir.donations import forms, AFCP2022SystemPayPaymentMode
+from agir.donations import forms
 from agir.donations.form_fields import (
     serialize_allocations,
     deserialize_allocations,
@@ -47,9 +46,7 @@ from agir.donations.tasks import (
 __all__ = (
     "AskAmountView",
     "DonationPersonalInformationView",
-    "Donation2022PersonalInformationView",
     "MonthlyDonationPersonalInformationView",
-    "MonthlyDonation2022PersonalInformationView",
     "MonthlyDonationEmailSentView",
     "MonthlyDonationEmailConfirmationView",
     "AlreadyHasSubscriptionView",
@@ -188,14 +185,6 @@ class DonationPersonalInformationView(
         return redirect_to_payment(payment)
 
 
-class Donation2022PersonalInformationView(DonationPersonalInformationView):
-    form_class = forms.AllocationDonorForm
-    template_name = "donations/personal_information_2022.html"
-    payment_modes = [AFCP2022SystemPayPaymentMode, AFCPJLMCheckPaymentMode]
-    session_namespace = DONATION_SESSION_NAMESPACE
-    first_step_url = "donations_2022_amount"
-
-
 class MonthlyDonationPersonalInformationView(
     AllocationPersonalInformationMixin, BasePersonalInformationView
 ):
@@ -206,6 +195,7 @@ class MonthlyDonationPersonalInformationView(
     session_namespace = DONATION_SESSION_NAMESPACE
     first_step_url = "view_payments"
     persisted_data = ["amount", "allocations", "previous_subscription"]
+    confirmation_view_name = "monthly_donation_confirm"
 
     def get_context_data(self, **context_data):
         return super().get_context_data(monthly=True, **context_data)
@@ -245,6 +235,7 @@ class MonthlyDonationPersonalInformationView(
                 # et cela ne serait donc pas persisté
                 self.request.session[self.session_namespace] = {
                     "new_subscription": {
+                        "type": self.payment_type,
                         "mode": self.payment_mode,
                         "subscription_total": amount,
                         "meta": self.get_metas(form),
@@ -260,6 +251,7 @@ class MonthlyDonationPersonalInformationView(
                     subscription_total=amount,
                     allocations=allocations,
                     meta=self.get_metas(form),
+                    type=self.payment_type,
                 )
 
             self.clear_session()
@@ -275,6 +267,7 @@ class MonthlyDonationPersonalInformationView(
                 return redirect_to_subscribe(subscription)
         else:
             send_monthly_donation_confirmation_email.delay(
+                confirmation_view_name=self.confirmation_view_name,
                 email=form.cleaned_data["email"],
                 subscription_total=amount,
                 **self.get_metas(form),
@@ -282,16 +275,6 @@ class MonthlyDonationPersonalInformationView(
             return HttpResponseRedirect(
                 reverse("monthly_donation_confirmation_email_sent")
             )
-
-
-class MonthlyDonation2022PersonalInformationView(
-    MonthlyDonationPersonalInformationView
-):
-    form_class = forms.AllocationMonthlyDonorForm
-    template_name = "donations/personal_information_2022.html"
-    payment_mode = AFCP2022SystemPayPaymentMode.id
-    session_namespace = DONATION_SESSION_NAMESPACE
-    first_step_url = "donations_2022_amount"
 
 
 class MonthlyDonationEmailSentView(TemplateView):
@@ -328,6 +311,7 @@ class AlreadyHasSubscriptionView(FormView):
             person=request.user.person,
             status=Subscription.STATUS_ACTIVE,
             mode=self.new_subscription_info["mode"],
+            type=self.new_subscription_info["type"],
         ).first()
 
         if self.old_subscription is None:
@@ -387,6 +371,7 @@ class AlreadyHasSubscriptionView(FormView):
 class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
     session_namespace = DONATION_SESSION_NAMESPACE
     payment_mode = payment_modes.DEFAULT_MODE
+    payment_type = DonsConfig.SUBSCRIPTION_TYPE
 
     def get(self, request, *args, **kwargs):
         params = request.GET.dict()
@@ -478,6 +463,7 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
             subscription_total=subscription_total,
             allocations=allocations,
             meta=params,
+            type=self.payment_type,
         )
 
         if known_previous_subscription:
@@ -510,7 +496,7 @@ def notification_listener(payment):
             find_or_create_person_from_payment(payment)
             if payment.subscription is None:
                 transaction.on_commit(
-                    partial(send_donation_email.delay, payment.person.pk, payment.mode)
+                    partial(send_donation_email.delay, payment.person.pk, payment.type)
                 )
 
                 allocations = {}

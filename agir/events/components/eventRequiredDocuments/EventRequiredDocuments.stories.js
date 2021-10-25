@@ -42,4 +42,11 @@ Default.args = {
   ],
   limitDate: "2022-01-01 00:00:00",
   isLoading: false,
+  embedded: false,
+};
+
+export const Embedded = Template.bind({});
+Embedded.args = {
+  ...Default.args,
+  embedded: true,
 };

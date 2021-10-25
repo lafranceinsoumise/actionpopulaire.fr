@@ -14,7 +14,6 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import DateField from "@agir/events/createEventPage/EventForm/DateField";
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel";
-import OrganizerGroupField from "@agir/events/common/OrganizerGroupField";
 import EventSubtypeField from "@agir/events/EventSettings/EventSubtypeField";
 
 import { DEFAULT_FORM_DATA } from "@agir/events/common/eventForm.config";
@@ -40,7 +39,6 @@ const EventGeneral = (props) => {
 
   const [formData, setFormData] = useState({
     name: DEFAULT_FORM_DATA.name,
-    organizerGroup: DEFAULT_FORM_DATA.organizerGroup,
     startTime: "",
     endTime: "",
     timezone: DEFAULT_FORM_DATA.timezone,
@@ -72,35 +70,6 @@ const EventGeneral = (props) => {
       timezone: event.timezone,
     }));
   }, [event]);
-
-  useEffect(() => {
-    if (
-      formData.organizerGroup !== null ||
-      !event ||
-      !options?.organizerGroup
-    ) {
-      return;
-    }
-
-    if (event?.groups[0]) {
-      setFormData((state) => ({
-        ...state,
-        organizerGroup: options.organizerGroup.find(
-          ({ id }) => id === event.groups[0].id
-        ) || {
-          id: event.groups[0].id,
-          value: event.groups[0].id,
-          label: event.groups[0].name,
-        },
-      }));
-      return;
-    }
-
-    setFormData((state) => ({
-      ...state,
-      organizerGroup: options.organizerGroup.find(({ id }) => id === null),
-    }));
-  }, [formData.organizerGroup, event, options]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -158,7 +127,6 @@ const EventGeneral = (props) => {
     const res = await api.updateEvent(eventPk, {
       ...formData,
       image: imageHasChanged ? formData.image : undefined,
-      organizerGroup: formData?.organizerGroup?.id,
     });
 
     setIsLoading(false);
@@ -195,16 +163,6 @@ const EventGeneral = (props) => {
           value={formData.name}
           error={errors?.name}
           disabled={isDisabled}
-        />
-        <Spacer size="1rem" />
-        <OrganizerGroupField
-          name="organizerGroup"
-          value={formData.organizerGroup}
-          onChange={handleChangeValue}
-          error={errors?.organizerGroup}
-          disabled={isDisabled}
-          options={options.organizerGroup}
-          required
         />
         <Spacer size="1rem" />
         <div>
