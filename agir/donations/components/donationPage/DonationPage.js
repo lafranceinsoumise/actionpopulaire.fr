@@ -20,6 +20,15 @@ import { displayPrice } from "@agir/lib/utils/display";
 import CONFIG from "./config";
 import * as api from "./api";
 
+const StyledModal = styled(Modal)`
+  @media (min-width: ${style.collapse}px) {
+    > div:first-of-type {
+      margin-right: 14px;
+      width: auto;
+    }
+  }
+`;
+
 const ModalContainer = styled.div`
   width: 70%;
   max-width: 740px;
@@ -27,6 +36,10 @@ const ModalContainer = styled.div`
   margin-bottom: 40px;
   background-color: ${(props) => props.theme.white};
   padding: 40px;
+
+  @media (min-width: ${style.collapse}px) {
+    border-radius: ${style.borderRadius};
+  }
 
   @media (max-width: ${style.collapse}px) {
     width: 100%;
@@ -183,7 +196,7 @@ const DonationPage = () => {
           onSubmit={handleAmountSubmit}
         />
 
-        <Modal shouldShow={showModal} onClose={closeModal}>
+        <StyledModal shouldShow={showModal} onClose={closeModal}>
           <ModalContainer>
             <Title>Je donne {amountString}</Title>
 
@@ -206,7 +219,7 @@ const DonationPage = () => {
               onSubmit={handleInformationsSubmit}
             />
           </ModalContainer>
-        </Modal>
+        </StyledModal>
       </PageFadeIn>
     </Theme>
   );

@@ -30,6 +30,7 @@ const StyledDescription = styled.div`
   @media (max-width: ${style.collapse}px) {
     margin-bottom: 4px;
     margin-left: 0;
+    font-size: 14px;
   }
 `;
 

@@ -215,6 +215,7 @@ const InformationsStep = ({
         label={consentText}
         value={formData.consentCertification}
         onChange={handleCheckboxChange}
+        style={{ fontSize: "14px" }}
       />
       {errors?.consentCertification && (
         <StaticToast style={{ marginTop: "0.5rem" }}>
@@ -228,10 +229,11 @@ const InformationsStep = ({
         label="Recevoir les lettres d'information de la France insoumise"
         value={formData?.subscribedLfi}
         onChange={handleCheckboxChange}
+        style={{ fontSize: "14px" }}
       />
       <Spacer size="0.5rem" />
 
-      <p>
+      <p style={{ fontSize: "14px" }}>
         Un reçu, édité par la CNCCFP, me sera adressé, et me permettra de
         déduire cette somme de mes impôts dans les limites fixées par la loi.
       </p>
@@ -253,9 +255,9 @@ const InformationsStep = ({
         onClick={(e) => handleSubmit(e, cardPaymentMode)}
       >
         <span>
-          <strong>Suivant</strong>
+          <strong>Continuer</strong>
           <br />
-          2/3 étapes
+          Paiement en ligne sécurisé
         </span>
         <RawFeatherIcon name="arrow-right" />
       </StepButton>
