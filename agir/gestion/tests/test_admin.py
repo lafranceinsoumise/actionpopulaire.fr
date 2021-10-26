@@ -2,10 +2,14 @@ from django.urls import reverse
 from hypothesis import given, strategies as st, settings
 from hypothesis.extra.django import from_model, TestCase
 
-from agir.gestion.tests.strategies import depense, projet
+from agir.gestion.tests.strategies import depense, projet, compte
 from agir.lib.tests.strategies import person_with_role
 
 admin_user = person_with_role(role__is_superuser=True, role__is_staff=True)
+
+liste_depense_meme_compte = compte().flatmap(
+    lambda c: st.lists(depense(compte=c), max_size=5)
+)
 
 
 class BaseAdminTestCase(TestCase):
@@ -15,7 +19,7 @@ class BaseAdminTestCase(TestCase):
 
 class DepenseAdminTestCase(BaseAdminTestCase):
     @settings(deadline=600)
-    @given(admin_user, st.lists(depense(), max_size=5))
+    @given(admin_user, liste_depense_meme_compte)
     def test_peut_voir_la_liste(self, p, depenses):
         self.admin_login(p)
         res = self.client.get(
