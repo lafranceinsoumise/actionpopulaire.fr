@@ -5,7 +5,10 @@ import { SWRConfig } from "swr";
 import axios from "@agir/lib/utils/axios";
 
 const fetcher = async (url) => {
-  if (url === "/api/session/") {
+  if (
+    // Check if a preload link exists for the requested URL
+    document.querySelector(`link[rel="preload"][as="fetch"][href="${url}"]`)
+  ) {
     const res = await fetch(url, {
       method: "GET",
       credentials: "include",

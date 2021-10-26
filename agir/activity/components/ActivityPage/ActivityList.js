@@ -18,7 +18,7 @@ import { useInfiniteScroll } from "@agir/lib/utils/hooks";
 import {
   LayoutSubtitle,
   LayoutTitle,
-} from "@agir/front/dashboardComponents/Layout/StyledComponents";
+} from "@agir/front/app/Layout/StyledComponents";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 

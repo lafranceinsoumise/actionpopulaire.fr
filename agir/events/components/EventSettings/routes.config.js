@@ -30,6 +30,9 @@ const EventFeedback = lazy(() =>
 const EventCancelation = lazy(() =>
   import("@agir/events/EventSettings/EventCancelation")
 );
+const EventDocuments = lazy(() =>
+  import("@agir/events/EventSettings/EventDocuments")
+);
 
 export const menuRoute = {
   id: "menu",
@@ -69,6 +72,16 @@ export const routeConfig = {
     illustration: illustrationManage,
     Component: EventOrganization,
     isActive: true,
+    menuGroup: 1,
+  },
+  documents: {
+    id: "documents",
+    path: "documents/",
+    exact: true,
+    label: "Documents",
+    icon: "file-text",
+    Component: EventDocuments,
+    isActive: (event) => event.hasProject,
     menuGroup: 1,
   },
   videoConference: {

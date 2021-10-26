@@ -22,7 +22,8 @@ const AppStoreLink = styled.a`
   display: block;
   width: 170px;
   height: 50px;
-  background: url(${({ $image }) => $image});
+  background-image: url(${({ $image }) => $image});
+  background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
   border-radius: 0.5px;

@@ -18,7 +18,7 @@ import {
   getBackLink,
 } from "@agir/front/globalContext/reducers";
 
-import CenteredLayout from "@agir/front/dashboardComponents/CenteredLayout";
+import CenteredLayout from "@agir/front/app/Layout/CenteredLayout";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";

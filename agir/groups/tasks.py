@@ -324,7 +324,6 @@ def send_new_group_event_email(group_pk, event_pk):
     if len(recipients) == 0:
         return
 
-    tz = timezone.get_current_timezone()
     now = timezone.now()
     start_time = event.local_start_time
     simple_date = _date(start_time, "l j F").capitalize()

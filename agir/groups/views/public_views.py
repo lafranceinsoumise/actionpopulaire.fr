@@ -20,7 +20,7 @@ from agir.authentication.view_mixins import (
     GlobalOrObjectPermissionRequiredMixin,
     HardLoginRequiredMixin,
 )
-from agir.front.view_mixins import FilterView
+from agir.front.view_mixins import FilterView, ObjectOpengraphMixin
 from agir.groups.actions.notifications import someone_joined_notification
 from agir.groups.filters import GroupFilterSet
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
@@ -131,10 +131,7 @@ class ThematicTeamsViews(ListView):
 
 class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("groups.view_supportgroup",)
-    meta_description = "Rejoignez les groupes d'action de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
     queryset = SupportGroup.objects.all()
-    bundle_name = "front/app"
-    data_script_id = "exportedGroup"
 
     def handle_no_permission(self):
         return HttpResponseGone()

@@ -16,7 +16,7 @@ import {
   setPageTitle,
 } from "@agir/front/globalContext/actions";
 
-import Layout from "@agir/front/dashboardComponents/Layout";
+import Layout from "@agir/front/app/Layout";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";
 
 import ErrorBoundary from "./ErrorBoundary";
@@ -27,16 +27,11 @@ const log = logger(__filename);
 
 const StyledPage = styled.div`
   isolation: isolate;
-  ${({ $hasTopBar }) =>
-    $hasTopBar
-      ? `
-        padding-top: 72px;
+  padding-top: ${({ $hasTopBar }) => ($hasTopBar ? "72px" : "0")};
 
-        @media (max-width: ${style.collapse}px) {
-          padding-top: 56px;
-        }
-      `
-      : ""}
+  @media (max-width: ${style.collapse}px) {
+    padding-top: ${({ $hasTopBar }) => ($hasTopBar ? "56px" : "0")};
+  }
 `;
 
 const Page = (props) => {
@@ -104,7 +99,7 @@ const Page = (props) => {
     return (
       <ErrorBoundary>
         <StyledPage $hasTopBar={hasTopBar}>
-          <Suspense fallback={<div />}>
+          <Suspense fallback={<div style={{ minHeight: "100vh" }} />}>
             <Component route={routeConfig} {...routeParams} {...rest} />
             {!routeConfig.hideFeedbackButton && (
               <FeedbackButton style={{ bottom: "1rem" }} />
@@ -118,8 +113,8 @@ const Page = (props) => {
   return (
     <ErrorBoundary>
       <StyledPage $hasTopBar={hasTopBar}>
-        <Layout active={routeConfig.id}>
-          <Suspense fallback={<div />}>
+        <Layout {...(routeConfig?.layoutProps || {})} active={routeConfig.id}>
+          <Suspense fallback={<div style={{ minHeight: "100vh" }} />}>
             <Component route={routeConfig} {...routeParams} {...rest} />
             {!routeConfig.hideFeedbackButton && <FeedbackButton />}
           </Suspense>
