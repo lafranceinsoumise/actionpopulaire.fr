@@ -86,12 +86,13 @@ class CalendarField(forms.Field):
             WITH RECURSIVE calendars AS (
                 SELECT id, name, 0 AS depth, slug::text AS path
                 FROM events_calendar
-                WHERE parent_id IS NULL
+                WHERE parent_id IS NULL AND archived = FALSE
               UNION ALL
                 SELECT c.id, c.name, p.depth + 1 AS depth, CONCAT(p.path, ':', c.slug) AS path
                 FROM events_calendar AS c
                 JOIN calendars AS p
                 ON parent_id = p.id
+                WHERE c.archived = FALSE
             )
             SELECT id, name, depth
             FROM calendars
