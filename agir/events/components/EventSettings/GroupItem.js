@@ -91,6 +91,7 @@ const StyledGroup = styled.div`
     opacity: ${({ disabled }) => (disabled ? 0.7 : 1)};
     display: flex;
     align-items: center;
+    overflow: hidden;
 
     @media (min-width: ${style.collapse}px) {
       display: inline-flex;
@@ -100,7 +101,9 @@ const StyledGroup = styled.div`
     align-items: center;
     display: block;
     text-align: right;
-    width: 100%;
+    @media (max-width: ${style.collapse}px) {
+      width: 100%;
+    }
 
     @media (min-width: ${style.collapse}px) {
       display: inline-flex;
