@@ -30,6 +30,9 @@ class UserContextSerializer(serializers.Serializer):
     groups = serializers.PrimaryKeyRelatedField(
         many=True, source="supportgroups", read_only=True
     )
+    address1 = serializers.CharField(source="location_address1")
+    city = serializers.CharField(source="location_city")
+    zip = serializers.CharField(source="location_zip")
 
     def get_full_name(self, obj):
         return obj.get_full_name()

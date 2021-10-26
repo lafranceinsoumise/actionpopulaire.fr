@@ -85,9 +85,9 @@ const DonationPage = () => {
     lastName: session?.user?.lastName || "",
     contactPhone: session?.user?.contactPhone || "",
     nationality: "FR",
-    locationAddress1: "",
-    locationZip: "",
-    locationCity: "",
+    locationAddress1: session?.user?.address1 || "",
+    locationZip: session?.user?.zip || "",
+    locationCity: session?.user?.city || "",
     locationCountry: "FR",
     // checkboxes
     subscribedLfi: false,
