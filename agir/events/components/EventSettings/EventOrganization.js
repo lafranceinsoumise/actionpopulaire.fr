@@ -27,13 +27,6 @@ const slideInTransition = {
 const MENU_ORGANIZER = "menu-organizer";
 const MENU_GROUP = "menu-group";
 
-// Returns string without html
-const stripHtml = (html) => {
-  const tmpDiv = document.createElement("div");
-  tmpDiv.innerHTML = html;
-  return tmpDiv.textContent || tmpDiv.innerText || "";
-};
-
 const EventOrganization = (props) => {
   const { onBack, illustration, eventPk } = props;
 
@@ -78,7 +71,7 @@ const EventOrganization = (props) => {
           <GroupItem
             key={g.id}
             {...g}
-            description={stripHtml(g.description)}
+            description={g.description}
             label="Invitation en attente"
             disabled
           />

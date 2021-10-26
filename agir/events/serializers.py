@@ -2,6 +2,7 @@ from datetime import timedelta
 from functools import partial
 from pathlib import PurePath
 
+from agir.lib.html import textify
 from django.db import transaction
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
@@ -18,7 +19,6 @@ from agir.lib.serializers import (
     FlexibleFieldsMixin,
     CurrentPersonField,
 )
-from agir.people.serializers import PersonSerializer
 
 from agir.lib.utils import (
     validate_facebook_event_url,
@@ -357,7 +357,11 @@ class EventAdvancedSerializer(EventSerializer):
             invitations__status=Invitation.STATUS_PENDING, invitations__event=obj
         )
         return [
-            {"id": group.id, "name": group.name, "description": group.description,}
+            {
+                "id": group.id,
+                "name": group.name,
+                "description": textify(group.description),
+            }
             for group in groups_invited
         ]
 
