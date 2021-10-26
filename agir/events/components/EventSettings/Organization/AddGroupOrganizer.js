@@ -153,6 +153,7 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
               <b>Si ses animateur·ices acceptent la co-organisation</b>, ce
               groupe s’affichera sur la page publique de l’événement
             </StyledListBlock>
+            <Spacer size="0.5rem" />
             <StyledListBlock>
               <div />
               Ces dernier·es <b>pourront accéder aux paramètres</b> de

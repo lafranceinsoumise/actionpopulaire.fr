@@ -574,10 +574,8 @@ class ConfirmEventGroupCoorganization(View):
         if not person in group.referents:
             return HttpResponseRedirect(reverse("dashboard"))
 
-        organizers_groups = OrganizerConfig.objects.filter(event=event, as_group=group)
-
-        # Check group is already coorganizer
-        if len(organizers_groups) > 0:
+        # Check if the group is already coorganizer
+        if OrganizerConfig.objects.filter(event=event, as_group=group).exists:
             messages.add_message(
                 self.request, messages.INFO, "Votre groupe est déjà coorganisateur",
             )
