@@ -91,7 +91,10 @@ class Command(BaseCommand):
         print_stock("Membres de GA", "membres_ga")
         print(f"dont de GA certifiés : {instant_stats['membres_ga_certifies']}")
 
-        print("**\nV) Progression possible**")
+        print("**\nV) Correspondant·es d'immeuble**")
+        print_stock("Correspondant·es d'immeuble", "liaisons")
+
+        print("**\nVI) Progression possible**")
         print(f"Insoumis non 2022 : {instant_stats['insoumis_non_2022']}")
         print(
             f"dont mails ouvert 3 derniers mois : {instant_stats['insoumis_non_2022_newsletter']}"
