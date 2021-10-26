@@ -1,13 +1,11 @@
 import json
 
+from django.conf import settings
 from rest_framework import serializers
 
 from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url_lazy
-
-MAX_AMOUNT_LFI = 750000
-MAX_AMOUNT_2022 = 460000
 
 TO_LFI = "LFI"
 TO_2022 = "2022"
@@ -24,7 +22,9 @@ class DonationAllocationSerializer(serializers.Serializer):
 
 
 class CreateDonationSerializer(serializers.Serializer):
-    amount = serializers.IntegerField(min_value=1, required=True)
+    amount = serializers.IntegerField(
+        min_value=settings.DONATION_MINIMUM, required=True
+    )
     to = serializers.ChoiceField(
         choices=((TO_LFI, "la France insoumise"), (TO_2022, "Mélenchon 2022")),
         default=TO_LFI,
@@ -44,17 +44,23 @@ class CreateDonationSerializer(serializers.Serializer):
     next = serializers.SerializerMethodField(read_only=True)
 
     def validate(self, attrs):
-        if attrs["to"] == TO_2022 and attrs["amount"] > MAX_AMOUNT_2022:
+        max_amount = settings.DONATION_MAXIMUM
+
+        if attrs["type"] == TYPE_MONTHLY:
+            max_amount = settings.MONTHLY_DONATION_MAXIMUM
+
+        if attrs["amount"] > max_amount and attrs["to"] == TO_2022:
             raise serializers.ValidationError(
                 detail={
-                    "amount": f"Les dons versés par une personne physique ne peuvent excéder {int(MAX_AMOUNT_LFI / 100)} € par an pour un  ou des partis ou groupements politiques "
+                    "amount": "Le maximum du montant total de donation pour une personne aux candidats à l'élection "
+                    f"présidentielle ne peut pas excéder {int(max_amount / 100)} €"
                 }
             )
 
-        if attrs["to"] == TO_LFI and attrs["amount"] > MAX_AMOUNT_LFI:
+        if attrs["amount"] > max_amount and attrs["to"] == TO_LFI:
             raise serializers.ValidationError(
                 detail={
-                    "amount": f"Le maximum du montant total de donation pour une personne aux candidats à l'élection présidentielle ne peut pas excéder {int(MAX_AMOUNT_2022 / 100)} €"
+                    "amount": f"Les dons versés par une personne physique ne peuvent excéder {int(max_amount / 100)} €"
                 }
             )
 
