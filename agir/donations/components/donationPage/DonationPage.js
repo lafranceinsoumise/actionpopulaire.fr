@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useRef } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import Helmet from "react-helmet";
 import useSWR from "swr";
@@ -55,6 +55,7 @@ const DonationPage = () => {
   const [errors, setErrors] = useState({});
   const [showModal, setShowModal] = useState(false);
   const closeModal = () => setShowModal(false);
+  const scrollerRef = useRef(null);
 
   const { data: session } = useSWR("/api/session/");
   const { data: sessionDonation } = useSWR("/api/session/donation/");
@@ -116,6 +117,18 @@ const DonationPage = () => {
   const groupAmountString = displayPrice(groupAmount);
   const nationalAmountString = displayPrice(nationalAmount);
 
+  const scrollToError = (errors) => {
+    let scrollTarget = document.querySelector(
+      `[name=${Object.keys(errors)[0]}]`
+    );
+    const top = scrollTarget.getBoundingClientRect().top;
+    if (scrollTarget) {
+      scrollerRef.current.parentElement.parentElement.scrollTo({
+        top: top - 30,
+      });
+    }
+  };
+
   const handleAmountSubmit = useCallback(async (data) => {
     setIsLoading(true);
     setErrors({});
@@ -156,6 +169,7 @@ const DonationPage = () => {
           "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation",
       };
       setErrors(frontErrors);
+      scrollToError(frontErrors);
       setIsLoading(false);
       return;
     }
@@ -165,6 +179,7 @@ const DonationPage = () => {
     setIsLoading(false);
     if (error) {
       setErrors(error);
+      scrollToError(error);
       return;
     }
 
@@ -197,7 +212,7 @@ const DonationPage = () => {
         />
 
         <StyledModal shouldShow={showModal} onClose={closeModal}>
-          <ModalContainer>
+          <ModalContainer ref={scrollerRef}>
             <Title>Je donne {amountString}</Title>
 
             <Breadcrumb onClick={closeModal} />

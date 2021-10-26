@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import Helmet from "react-helmet";
 import useSWR from "swr";
@@ -29,6 +29,8 @@ import { routeConfig } from "@agir/front/app/routes.config";
 const InformationsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const scrollerRef = useRef(null);
 
   const { data: session } = useSWR("/api/session/");
   const { data: sessionDonation } = useSWR("/api/session/donation/");
@@ -110,6 +112,17 @@ const InformationsPage = () => {
   const groupAmountString = displayPrice(groupAmount);
   const nationalAmountString = displayPrice(nationalAmount);
 
+  const scrollToError = (errors) => {
+    let scrollTarget = document.querySelector(
+      `[name=${Object.keys(errors)[0]}]`
+    );
+    if (scrollTarget) {
+      scrollerRef.current.scrollTo({
+        top: scrollTarget.offsetTop - 30,
+      });
+    }
+  };
+
   const handleInformationsSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -125,6 +138,7 @@ const InformationsPage = () => {
           "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation",
       };
       setErrors(frontErrors);
+      scrollToError(frontErrors);
       setIsLoading(false);
       return;
     }
@@ -134,6 +148,7 @@ const InformationsPage = () => {
     setIsLoading(false);
     if (error) {
       setErrors(error);
+      scrollToError(error);
       return;
     }
 
@@ -149,7 +164,7 @@ const InformationsPage = () => {
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <StyledPage>
           <StyledIllustration aria-hidden="true" />
-          <StyledBody>
+          <StyledBody ref={scrollerRef}>
             <StyledMain>
               <StyledLogo
                 alt={`Logo ${
