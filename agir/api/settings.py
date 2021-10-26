@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 import json
+import locale
 import os
 import re
 import warnings
@@ -422,6 +423,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
+
+# applique la locale par défaut
+# https://docs.python.org/fr/3.6/library/locale.html#locale.setlocale
+locale.setlocale(locale.LC_ALL, "")
 
 LANGUAGE_CODE = "fr-fr"
 
