@@ -67,6 +67,9 @@ const CreateContactPage = lazy(() =>
 const DonationPage = lazy(() =>
   import("@agir/donations/donationPage/DonationPage")
 );
+const DonationInformationsPage = lazy(() =>
+  import("@agir/donations/donationPage/InformationsPage")
+);
 
 export const BASE_PATH = "/";
 
@@ -437,6 +440,19 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Faire un don",
     Component: DonationPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  donationsInformations: new RouteConfig({
+    id: "donationsInformations",
+    params: { type: null },
+    path: ["/:type?/dons/informations/", "/:type?/dons-mensuels/informations/"],
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Faire un don",
+    Component: DonationInformationsPage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,

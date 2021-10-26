@@ -52,6 +52,10 @@ const StyledField = styled.label`
       return "transparent";
     }};
     transition: all 200ms ease-in;
+
+    span {
+      justify-content: center;
+    }
   }
 
   input:focus + ${StyledBox} {

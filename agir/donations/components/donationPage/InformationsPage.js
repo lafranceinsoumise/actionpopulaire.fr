@@ -1,51 +1,39 @@
-import React, { useCallback, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import Helmet from "react-helmet";
 import useSWR from "swr";
+import { useHistory } from "react-router-dom";
 
-import styled from "styled-components";
-import style from "@agir/front/genericComponents/_variables.scss";
-
-import Skeleton from "@agir/front/genericComponents/Skeleton";
-import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
-import Modal from "@agir/front/genericComponents/Modal";
-import Spacer from "@agir/front/genericComponents/Spacer";
-import AmountInformations from "./AmountInformations";
-import Breadcrumb from "./Breadcrumb";
-import AmountStep from "./AmountStep";
-import InformationsStep from "./InformationsStep";
-
-import { Theme, Title } from "./StyledComponents";
-import { displayPrice } from "@agir/lib/utils/display";
+import { Theme } from "./StyledComponents";
 import CONFIG from "./config";
 import * as api from "./api";
 
-const ModalContainer = styled.div`
-  width: 70%;
-  max-width: 740px;
-  margin: 40px auto;
-  margin-bottom: 40px;
-  background-color: ${(props) => props.theme.white};
-  padding: 40px;
+import Skeleton from "@agir/front/genericComponents/Skeleton";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import InformationsStep from "./InformationsStep";
+import Breadcrumb from "./Breadcrumb";
+import AmountInformations from "./AmountInformations";
+import {
+  StyledIllustration,
+  StyledBody,
+  StyledPage,
+  StyledLogo,
+  StyledMain,
+  Title,
+} from "./StyledComponents";
+import { displayPrice } from "@agir/lib/utils/display";
 
-  @media (max-width: ${style.collapse}px) {
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    margin: 0;
-    padding: 24px;
-  }
-`;
+import { routeConfig } from "@agir/front/app/routes.config";
 
-const DonationPage = () => {
+const InformationsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showModal, setShowModal] = useState(false);
-  const closeModal = () => setShowModal(false);
 
   const { data: session } = useSWR("/api/session/");
   const { data: sessionDonation } = useSWR("/api/session/donation/");
 
+  const history = useHistory();
   const params = useParams();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
@@ -59,14 +47,14 @@ const DonationPage = () => {
     revalidateOnReconnect: false,
   });
 
-  const { data: userGroups } = useSWR(
-    session?.user && type !== "2022" && "/api/groupes/",
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
+  let amountStepUrl = routeConfig.donations.getLink(params);
+  // Keep params in url
+  if (!!groupPk) {
+    amountStepUrl += `?group=${groupPk}`;
+  }
+
+  const externalLinkRoute =
+    CONFIG[type]?.externalLinkRoute || CONFIG.default.externalLinkRoute;
 
   const [formData, setFormData] = useState({
     // amounts
@@ -95,6 +83,25 @@ const DonationPage = () => {
     consentCertification: false,
   });
 
+  useEffect(() => {
+    if (!sessionDonation) return;
+
+    // Redirect to Amount Step if session not filled with an amount
+    if (!sessionDonation?.donations?.amount) {
+      history.push(amountStepUrl);
+    }
+
+    setFormData({
+      ...formData,
+      amount: sessionDonation?.donations?.amount,
+      type: sessionDonation?.donations?.type,
+      allocations: JSON.parse(sessionDonation?.donations?.allocations),
+      allowedPaymentModes: JSON.parse(
+        sessionDonation?.donations?.allowedPaymentModes || "[]"
+      ),
+    });
+  }, [sessionDonation]);
+
   const amount = formData.amount;
   const groupAmount =
     Array.isArray(formData?.allocations) && formData.allocations[0]?.amount;
@@ -102,31 +109,6 @@ const DonationPage = () => {
   const amountString = displayPrice(amount);
   const groupAmountString = displayPrice(groupAmount);
   const nationalAmountString = displayPrice(nationalAmount);
-
-  const handleAmountSubmit = useCallback(async (data) => {
-    setIsLoading(true);
-    setErrors({});
-
-    const { data: result, error } = await api.createDonation(data);
-
-    setFormData({
-      ...formData,
-      ...result,
-    });
-    setIsLoading(false);
-
-    if (error) {
-      setErrors({
-        amount: error?.amount || "Une erreur est survenue. Veuillez ressayer.",
-      });
-      return;
-    }
-
-    setShowModal(true);
-
-    // Redirect to informations step (keep group param in url)
-    // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
-  }, []);
 
   const handleInformationsSubmit = async (e) => {
     e.preventDefault();
@@ -163,53 +145,50 @@ const DonationPage = () => {
       <Helmet>
         <title>{CONFIG[type]?.title || CONFIG.default.title}</title>
       </Helmet>
+
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
-        <AmountStep
-          type={type}
-          maxAmount={CONFIG[type]?.maxAmount || CONFIG.default.maxAmount}
-          maxAmountWarning={
-            CONFIG[type]?.maxAmountWarning || CONFIG.default.maxAmountWarning
-          }
-          externalLinkRoute={
-            CONFIG[type]?.externalLinkRoute || CONFIG.default.externalLinkRoute
-          }
-          group={group && group.isCertified ? group : null}
-          hasGroups={
-            Array.isArray(userGroups?.groups) &&
-            userGroups.groups.some((group) => group.isCertified)
-          }
-          isLoading={isLoading}
-          error={errors?.amount}
-          onSubmit={handleAmountSubmit}
-        />
+        <StyledPage>
+          <StyledIllustration aria-hidden="true" />
+          <StyledBody>
+            <StyledMain>
+              <StyledLogo
+                alt={`Logo ${
+                  type === "2022" ? "Mélenchon 2022" : "la France insoumise"
+                }`}
+                route={externalLinkRoute}
+                rel="noopener noreferrer"
+                target="_blank"
+              />
 
-        <Modal shouldShow={showModal} onClose={closeModal}>
-          <ModalContainer>
-            <Title>Je donne {amountString}</Title>
+              <div>
+                <Title>Je donne {amountString}</Title>
 
-            <Breadcrumb onClick={closeModal} />
-            <Spacer size="1rem" />
+                <Breadcrumb onClick={() => history.push(amountStepUrl)} />
+                <Spacer size="1rem" />
 
-            <AmountInformations
-              group={group}
-              total={amountString}
-              amountGroup={groupAmountString}
-              amountNational={nationalAmountString}
-            />
+                <AmountInformations
+                  group={group}
+                  total={amountString}
+                  amountGroup={groupAmountString}
+                  amountNational={nationalAmountString}
+                />
 
-            <InformationsStep
-              formData={formData}
-              setFormData={setFormData}
-              errors={errors}
-              setErrors={setErrors}
-              isLoading={isLoading}
-              onSubmit={handleInformationsSubmit}
-            />
-          </ModalContainer>
-        </Modal>
+                <InformationsStep
+                  formData={formData}
+                  setFormData={setFormData}
+                  errors={errors}
+                  setErrors={setErrors}
+                  isLoading={isLoading}
+                  onSubmit={handleInformationsSubmit}
+                />
+                <Spacer size="2rem" />
+              </div>
+            </StyledMain>
+          </StyledBody>
+        </StyledPage>
       </PageFadeIn>
     </Theme>
   );
 };
 
-export default DonationPage;
+export default InformationsPage;
