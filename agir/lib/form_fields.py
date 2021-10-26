@@ -20,12 +20,7 @@ from agir.donations.validators import validate_iban
 from agir.lib.iban import IBAN, to_iban
 
 
-class DateTimePickerWidget(DateTimeBaseInput):
-    template_name = "custom_fields/date_time_picker.html"
-
-    def format_value(self, value):
-        return formats.localize_input(value, "%d/%m/%Y %H:%M")
-
+class BootstrapDateTimePickerBaseWidget(DateTimeBaseInput):
     class Media:
         css = {
             "all": (
@@ -37,6 +32,20 @@ class DateTimePickerWidget(DateTimeBaseInput):
             "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/locale/fr.js",
             "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js",
         )
+
+
+class DateTimePickerWidget(BootstrapDateTimePickerBaseWidget):
+    template_name = "custom_fields/date_time_picker.html"
+
+    def format_value(self, value):
+        return formats.localize_input(value, "%d/%m/%Y %H:%M")
+
+
+class DatePickerWidget(BootstrapDateTimePickerBaseWidget):
+    template_name = "custom_fields/date_picker.html"
+
+    def format_value(self, value):
+        return formats.localize_input(value, "%d/%m/%Y")
 
 
 class RichEditorWidget(Textarea):

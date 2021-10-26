@@ -120,7 +120,7 @@ class PersonFormDisplay:
                 return Person.objects.filter(id=value).first() or value
             except ValueError:
                 return value
-        elif field_type == "date":
+        elif field_type == "datetime":
             date = iso8601.parse_date(value)
             return localize(date.astimezone(get_current_timezone()))
         elif field_type == "phone_number":

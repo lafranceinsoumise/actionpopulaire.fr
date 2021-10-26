@@ -252,7 +252,7 @@ class NewParticipantForm(BasePersonForm):
         )
 
         if event.payment_parameters.get("admin_payment_modes"):
-            self.fields["payment_mode"].payment_modes = event.event_parameters[
+            self.fields["payment_mode"].payment_modes = event.payment_parameters[
                 "admin_payment_modes"
             ]
 

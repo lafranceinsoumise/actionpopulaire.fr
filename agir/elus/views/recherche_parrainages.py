@@ -40,7 +40,9 @@ from agir.lib.rest_framework_permissions import (
 )
 
 ID_RECHERCHE_PARRAINAGE_SUBQUERY = Subquery(
-    RechercheParrainage.objects.filter(maire_id=OuterRef("id")).values("id")[:1]
+    RechercheParrainage.objects.filter(
+        maire_id=OuterRef("id"), statut=RechercheParrainage.Statut.EN_COURS
+    ).values("id")[:1]
 )
 
 
