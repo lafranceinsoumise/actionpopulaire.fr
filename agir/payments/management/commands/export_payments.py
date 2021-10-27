@@ -1,4 +1,4 @@
-from argparse import FileType
+from argparse import FileType, ArgumentTypeError
 from decimal import Decimal
 from io import BytesIO
 
@@ -11,6 +11,8 @@ from xlsxwriter import Workbook
 
 from agir.lib.management_utils import datetime_argument, email_argument
 from agir.payments.models import Payment
+from agir.payments.payment_modes import PAYMENT_MODES
+from agir.payments.types import PAYMENT_TYPES
 
 
 def date_locale(d):
@@ -38,6 +40,38 @@ PAYMENT_SPEC = {
 }
 
 
+STATUS_MAPPING = {
+    f[len("STATUS_") :]: getattr(Payment, f)
+    for f in dir(Payment)
+    if f.startswith("STATUS_") and f != "STATUS_CHOICES"
+}
+
+
+def statut_type(s):
+    if s not in STATUS_MAPPING:
+        tous_statuts = ", ".join(f"'{s}'" for s in STATUS_MAPPING)
+        raise ArgumentTypeError(f"statut '{s}' inconnu (doit être un de {tous_statuts}")
+    return STATUS_MAPPING[s]
+
+
+def payment_type_type(s):
+    if s not in PAYMENT_TYPES:
+        tous_types = ", ".join(f"'{s}" for s in PAYMENT_TYPES)
+        raise ArgumentTypeError(
+            f"type de paiement '{s}' inconnu (doit être un de {tous_types})"
+        )
+    return s
+
+
+def payment_mode_type(s):
+    if s not in PAYMENT_MODES:
+        tous_modes = ", ".join(f"'{s}" for s in PAYMENT_MODES)
+        raise ArgumentTypeError(
+            f"mode de paiement '{s}' inconnu (doit être un de {tous_modes})"
+        )
+    return s
+
+
 MESSAGE_BODY = """
 Bonjour,
 
@@ -53,14 +87,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "-b",
-            "--before",
+            "--avant",
             type=datetime_argument,
             help="Limite l'extraction aux événements créés avant cette date",
         )
         parser.add_argument(
-            "-a",
-            "--after",
+            "--apres",
             type=datetime_argument,
             help="Limite l'extraction aux événements créés après cette date",
         )
@@ -69,6 +101,7 @@ class Command(BaseCommand):
             "-t",
             "--type",
             dest="types",
+            type=payment_type_type,
             action="append",
             metavar="TYPE",
             help="Limiter l'extraction à ce type de paiement. Répéter cette option permet d'inclure plusieurs types.",
@@ -77,6 +110,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "-m",
             "--mode",
+            type=payment_mode_type,
             dest="modes",
             action="append",
             metavar="MODE",
@@ -90,8 +124,16 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "-s",
-            "--send-to",
+            "--statut",
+            type=statut_type,
+            dest="statuts",
+            action="append",
+            help="Limiter aux paiements avec ce statut",
+        )
+
+        parser.add_argument(
+            "-e",
+            "--email",
             dest="emails",
             action="append",
             type=email_argument,
@@ -107,21 +149,23 @@ class Command(BaseCommand):
             help="Le chemin où sauvegarder l'extraction.",
         )
 
-    def handle(self, before, after, minimum, modes, types, emails, output, **kwargs):
+    def handle(
+        self, avant, apres, minimum, modes, types, statuts, emails, output, **kwargs
+    ):
         condition = Q()
 
-        if before:
-            condition &= Q(created__lte=before)
-        if after:
-            condition &= Q(created__gte=after)
-
+        if avant:
+            condition &= Q(created__lte=avant)
+        if apres:
+            condition &= Q(created__gte=apres)
         if modes:
             condition &= Q(mode__in=modes)
         if types:
             condition &= Q(type__in=types)
-
         if minimum:
             condition &= Q(price__gte=minimum)
+        if statuts:
+            condition &= Q(status__in=statuts)
 
         payments = glom(
             Payment.objects.filter(condition).order_by("created"), [PAYMENT_SPEC]

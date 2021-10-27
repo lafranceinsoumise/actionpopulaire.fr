@@ -32,7 +32,7 @@ def register_payment_type(payment_type: PaymentType):
 
 
 def get_payment_choices():
-    return [(p.id, p.label) for p in PAYMENT_TYPES.values()]
+    return sorted((p.id, p.label) for p in PAYMENT_TYPES.values())
 
 
 # TODO ==> le type de paiement correspondant à la transaction devrait être un attribut du type de souscription

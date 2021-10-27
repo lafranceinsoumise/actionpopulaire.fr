@@ -42,7 +42,7 @@ def date_argument(d: str) -> date:
         m = date_regex_be.match(d)
 
     if m is None:
-        raise ValueError(f"'{d}'' doit être de la forme 'AAAA-MM-DD'.")
+        raise ArgumentTypeError(f"'{d}'' doit être de la forme 'AAAA-MM-DD'.")
 
     return date(int(m.group("year")), int(m.group("month")), int(m.group("day")))
 
@@ -56,7 +56,7 @@ def datetime_argument(d):
     m = datetime_regex.match(d)
 
     if m is None:
-        raise ValueError(f"'{d}' doit être de la form 'AAAA-MM-DD hh:mm'")
+        raise ArgumentTypeError(f"'{d}' doit être de la form 'AAAA-MM-DD hh:mm'")
 
     return timezone.make_aware(
         timezone.datetime(
@@ -143,9 +143,11 @@ def phone_argument(phone_number):
     try:
         number = phonenumbers.parse(phone_number, None)
     except NumberParseException:
-        raise ValueError("Numéro invalide.")
+        raise ArgumentTypeError(f" '{phone_number}' n'est pas un numéro de téléphone.")
 
     if not phonenumbers.is_valid_number(number):
-        raise ValueError("Numéro invalide.")
+        raise ArgumentTypeError(
+            f"'{phone_number}' n'est pas un numéro de téléphone attribuable."
+        )
 
     return number
