@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
+from agir.events.models import Event
 from agir.gestion.admin.widgets import HierarchicalSelect
 from agir.gestion.models import (
     Commentaire,
@@ -140,6 +141,15 @@ class ProjetForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance._state.adding:
             self.instance.etat = Projet.Etat.EN_CONSTITUTION
+
+        if "event" in self.fields and (
+            event := self.get_initial_for_field(self.fields["event"], "event")
+        ):
+            id = event.id if isinstance(event, Event) else event
+            self.fields["event"].help_text = format_html(
+                '<a href="{}">Accéder à la page de l\'événement</a>',
+                reverse("admin:events_event_change", args=(id,)),
+            )
 
     class Meta:
         model = Projet

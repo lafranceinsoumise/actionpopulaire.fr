@@ -7,11 +7,11 @@ from django.db.models import Count, Sum
 from django.http import QueryDict, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.urls import reverse, path
-from django.utils.html import format_html_join
+from django.utils.html import format_html_join, format_html
 from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
-from agir.gestion.admin.base import BaseAdminMixin
+from agir.gestion.admin.base import BaseGestionModelAdmin
 from agir.gestion.admin.filters import (
     DepenseResponsableFilter,
     ProjetResponsableFilter,
@@ -45,6 +45,7 @@ from agir.gestion.models.projets import ProjetMilitant
 from agir.gestion.models.virements import OrdreVirement
 from agir.gestion.typologies import TypeDepense
 from agir.gestion.utils import lien
+from agir.lib.admin import display_list_of_links, AddRelatedLinkMixin
 from agir.lib.display import display_price
 from agir.lib.geo import FRENCH_COUNTRY_CODES
 from agir.people.models import Person
@@ -81,7 +82,7 @@ class FournisseurAdmin(VersionAdmin):
 
 
 @admin.register(Document)
-class DocumentAdmin(BaseAdminMixin, VersionAdmin):
+class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
     form = DocumentForm
     list_display = (
         "numero",
@@ -141,7 +142,7 @@ class DocumentAdmin(BaseAdminMixin, VersionAdmin):
 
 
 @admin.register(Depense)
-class DepenseAdmin(BaseAdminMixin, VersionAdmin):
+class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
     form = DepenseForm
 
     list_filter = (
@@ -290,19 +291,164 @@ class DepenseAdmin(BaseAdminMixin, VersionAdmin):
         return additional_urls + urls
 
 
+class BaseProjetAdmin(BaseGestionModelAdmin, AddRelatedLinkMixin, VersionAdmin):
+    def event_city(self, obj):
+        if obj and obj.event:
+            if obj.event.location_country in FRENCH_COUNTRY_CODES:
+                return f"{obj.event.location_city} ({obj.event.location_zip})"
+            return f"{obj.event.location_city}, {obj.event.location_country and obj.event.location_country.name}"
+
+        return "-"
+
+    event_city.short_description = "Lieu"
+    event_city.admin_order_field = "event__location_zip"
+
+    def event_location(self, obj):
+        if obj and obj.event:
+            e = obj.event
+            lines = [
+                e.location_address1,
+                e.location_address2,
+                f"{e.location_zip} {e.location_city}",
+            ]
+
+            if (
+                e.location_country
+                and e.location_country.code not in FRENCH_COUNTRY_CODES
+            ):
+                lines.append(e.location_country.name)
+
+            return format_html_join(
+                mark_safe("<br>"), "{}", ((l.strip(),) for l in lines if l.strip())
+            )
+
+        return "-"
+
+    event_location.short_description = "Lieu"
+    event_location.admin_order_field = "event__location_zip"
+
+    def event_start_time(self, obj):
+        if obj and obj.event:
+            return obj.event.start_time
+        return "-"
+
+    event_start_time.short_description = "Où"
+    event_start_time.admin_order_field = "event__start_time"
+
+    def event_schedule(self, obj):
+        if obj and obj.event:
+            return obj.event.get_display_date()
+        return "-"
+
+    event_schedule.short_description = "Quand"
+    event_schedule.admin_order_field = "event__start_time"
+
+    def event_organizer_persons(self, obj):
+        if obj and obj.event:
+            persons = obj.event.organizers.all()
+            return display_list_of_links((p, str(p)) for p in persons)
+        return "-"
+
+    event_organizer_persons.short_description = "Organisateurs"
+
+    def event_organizer_groups(self, obj):
+        if obj and obj.event:
+            groups = obj.event.organizers_groups.all()
+            return display_list_of_links((g, str(g)) for g in groups)
+        return "-"
+
+    event_organizer_groups.short_description = "Groupes organisateurs"
+
+    def event_contact(self, obj):
+        if obj and (e := obj.event):
+            lines = []
+            if e.contact_name:
+                lines.append(e.contact_name)
+            if e.contact_email:
+                lines.append(
+                    format_html('<a href="{}">{}</a>', e.contact_email, e.contact_email)
+                )
+            if e.contact_phone:
+                lines.append(e.contact_phone)
+
+            return format_html_join(mark_safe("<br>"), "{}", ((l,) for l in lines))
+
+        return "-"
+
+    event_contact.short_description = "Informations de contact"
+
+    def nb_depenses(self, obj):
+        return getattr(obj, "nb_depenses", "-")
+
+    nb_depenses.short_description = "Nombre de dépenses"
+    nb_depenses.admin_order_field = "nb_depenses"
+
+    def get_readonly_fields(self, request, obj=None):
+        return super().get_readonly_fields(request, obj=obj) + (
+            "event_city",
+            "event_location",
+            "event_start_time",
+            "event_schedule",
+            "event_organizer_persons",
+            "event_organizer_groups",
+            "event_contact",
+            "nb_depenses",
+        )
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("event")
+            .annotate(nb_depenses=Count("depense"))
+        )
+
+
 @admin.register(Projet)
-class ProjetAdmin(BaseAdminMixin, VersionAdmin):
+class ProjetAdmin(BaseProjetAdmin):
     form = ProjetForm
-    list_display = ("numero", "titre", "type", "etat", "event")
+    list_display = (
+        "numero",
+        "titre",
+        "type",
+        "etat",
+        "event",
+        "event_start_time",
+        "event_city",
+        "nb_depenses",
+    )
 
     fieldsets = (
         (
             None,
-            {"fields": ("numero_", "titre", "type", "etat", "event", "description")},
+            {
+                "fields": (
+                    "numero_",
+                    "titre",
+                    "type",
+                    "etat",
+                    "origine",
+                    "event",
+                    "description",
+                )
+            },
+        ),
+        (
+            "Détails de l'événement lié",
+            {
+                "fields": (
+                    "event_link",
+                    "event_location",
+                    "event_schedule",
+                    "event_organizer_persons",
+                    "event_organizer_groups",
+                    "event_contact",
+                )
+            },
         ),
     )
 
-    readonly_fields = ("numero", "etat")
+    readonly_fields = ("numero", "etat", "origine", "event_city", "event_start_time")
     autocomplete_fields = ("event",)
 
     inlines = [
@@ -336,27 +482,44 @@ class ProjetAdmin(BaseAdminMixin, VersionAdmin):
 
 
 @admin.register(ProjetMilitant)
-class ProjetUtilisateurAdmin(BaseAdminMixin, VersionAdmin):
-    list_display = ("numero", "titre", "type", "etat", "event", "location")
+class ProjetUtilisateurAdmin(BaseProjetAdmin):
+    list_display = (
+        "numero",
+        "titre",
+        "type",
+        "etat",
+        "event",
+        "event_city",
+        "event_start_time",
+    )
 
-    readonly_fields = ("location",)
+    fieldsets = (
+        (
+            None,
+            {"fields": ("numero_", "titre", "type", "etat", "event", "description",)},
+        ),
+        (
+            "Détails de l'événement lié",
+            {
+                "fields": (
+                    "event_link",
+                    "event_location",
+                    "event_schedule",
+                    "event_organizer_persons",
+                    "event_organizer_groups",
+                    "event_contact",
+                )
+            },
+        ),
+    )
 
-    def location(self, obj=None):
-        if obj and obj.event:
-            location = f"{obj.event.location_zip} {obj.event.location_city}".strip()
-            if (
-                obj.event.location_country
-                and obj.event.location_country not in FRENCH_COUNTRY_CODES
-            ):
-                location = f"{location}, {obj.event.location_country}"
-            return location
-        return "-"
-
-    location.short_description = "Lieu"
+    inlines = [
+        ProjetDocumentInline,
+    ]
 
 
 @admin.register(OrdreVirement)
-class OrdreVirementAdmin(BaseAdminMixin, VersionAdmin):
+class OrdreVirementAdmin(BaseGestionModelAdmin, VersionAdmin):
     form = OrdreVirementForm
     list_display = ("numero", "statut", "created", "date", "nb_reglements", "montant")
 

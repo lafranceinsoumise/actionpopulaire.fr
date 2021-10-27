@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html_join, format_html
 
-from agir.gestion.admin.base import BaseMixin
+from agir.gestion.admin.base import SearchableModelMixin
 from agir.gestion.admin.forms import DepenseDevisForm
 from agir.gestion.models import Depense, Projet, Participation
 from agir.gestion.models.documents import VersionDocument
@@ -44,7 +44,7 @@ class DepenseDocumentInline(BaseDocumentInline):
     model = Depense.documents.through
 
 
-class DepenseInline(BaseMixin, admin.TabularInline):
+class DepenseInline(SearchableModelMixin, admin.TabularInline):
     verbose_name = "Dépense"
     verbose_name_plural = "Dépenses du projet"
 

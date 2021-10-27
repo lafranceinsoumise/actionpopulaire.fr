@@ -5,16 +5,16 @@ import django_countries
 from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.admin.options import IS_POPUP_VAR, ModelAdmin
-from django.db.models import (
-    Model,
-    OneToOneRel,
-    ManyToOneRel,
-    ManyToManyField,
-    ManyToManyRel,
+from django.db.models import Model
+from django.db.models.fields.related import (
+    RelatedField,
     ForeignObject,
+    ManyToManyField,
     ForeignObjectRel,
+    ManyToOneRel,
+    OneToOneRel,
+    ManyToManyRel,
 )
-from django.db.models.fields.related import RelatedField
 from django.urls import reverse
 from django.utils.html import escape, format_html_join, format_html
 from django.utils.safestring import mark_safe
