@@ -65,7 +65,7 @@ class Payment(ExportModelOperationsMixin("payment"), TimeStampedModel, LocationM
     last_name = models.CharField("nom de famille", max_length=255)
     phone_number = PhoneNumberField("numéro de téléphone", null=True)
 
-    type = models.CharField("type", choices=get_payment_choices(), max_length=255)
+    type = models.CharField("type", max_length=255)
     mode = models.CharField(
         _("Mode de paiement"), max_length=70, null=False, blank=False
     )
