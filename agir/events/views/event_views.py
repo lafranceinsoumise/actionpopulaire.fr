@@ -575,7 +575,7 @@ class ConfirmEventGroupCoorganization(View):
             return HttpResponseRedirect(reverse("dashboard"))
 
         # Check if the group is already coorganizer
-        if OrganizerConfig.objects.filter(event=event, as_group=group).exists:
+        if OrganizerConfig.objects.filter(event=event, as_group=group).exists():
             messages.add_message(
                 self.request, messages.INFO, "Votre groupe est déjà coorganisateur",
             )
