@@ -68,13 +68,7 @@ const EventOrganization = (props) => {
         }
       >
         {groupsInvited?.map((g) => (
-          <GroupItem
-            key={g.id}
-            {...g}
-            description={g.description}
-            label="Invitation en attente"
-            disabled
-          />
+          <GroupItem key={g.id} {...g} label="Invitation en attente" disabled />
         ))}
       </GroupList>
       <Spacer size="1.5rem" />
