@@ -12,9 +12,14 @@ from xlsxwriter import Workbook
 from agir.lib.management_utils import datetime_argument, email_argument
 from agir.payments.models import Payment
 
+
+def date_locale(d):
+    return d.astimezone(timezone.get_current_timezone())
+
+
 PAYMENT_SPEC = {
-    "créé": "created",
-    "dernier événement": "modified",
+    "créé": ("created", date_locale),
+    "dernier événement": ("modified", date_locale),
     "id": "id",
     "email": "email",
     "nom": "last_name",
