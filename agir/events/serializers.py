@@ -329,27 +329,39 @@ class EventAdvancedSerializer(EventSerializer):
     # Return organizers and referents from organizers_groups
     def get_organizers(self, obj):
         current_organizers = obj.organizers.all()
-        return [
-            {
-                "id": person.id,
-                "email": person.email,
-                "displayName": person.display_name,
-                "gender": person.gender,
-                "isOrganizer": True,
-            }
-            for person in current_organizers
-        ] + [
-            {
-                "id": person.id,
-                "email": person.email,
-                "displayName": person.display_name,
-                "gender": person.gender,
-                "isOrganizer": True,
-            }
-            for group in obj.organizers_groups.distinct()
-            for person in group.referents
-            if person not in current_organizers
-        ]
+        all_organizers = []
+        person_ids = []
+
+        # Add initial organizers
+        for person in current_organizers:
+            person_ids += [person.id]
+            all_organizers += [
+                {
+                    "id": person.id,
+                    "email": person.email,
+                    "displayName": person.display_name,
+                    "gender": person.gender,
+                    "isOrganizer": True,
+                }
+            ]
+
+        # Add distinct organizers from groups coorganizing the event
+        for group in obj.organizers_groups.distinct():
+            for person in group.referents:
+                if person.id in person_ids:
+                    continue
+                person_ids += [person.id]
+                all_organizers += [
+                    {
+                        "id": person.id,
+                        "email": person.email,
+                        "displayName": person.display_name,
+                        "gender": person.gender,
+                        "isOrganizer": True,
+                    }
+                ]
+
+        return all_organizers
 
     def get_groups_invited(self, obj):
 
