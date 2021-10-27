@@ -67,11 +67,12 @@ const EventOrganization = (props) => {
           event && !event.isPast ? () => setSubmenuOpen(MENU_GROUP) : undefined
         }
       >
-        {groupsInvited?.map((g) => (
+        {groupsInvited?.map((group) => (
           <GroupItem
-            key={g.id}
-            {...g}
-            description={g.description}
+            key={group.id}
+            id={group.id}
+            name={group.name}
+            image={group.image}
             label="Invitation en attente"
             disabled
           />
