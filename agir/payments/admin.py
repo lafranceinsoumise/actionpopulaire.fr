@@ -14,7 +14,7 @@ from rangefilter.filter import DateRangeFilter
 
 from agir.checks.models import CheckPayment
 from agir.donations.form_fields import MoneyField
-from agir.lib.admin import PersonLinkMixin
+from agir.lib.admin import PersonLinkMixin, AddRelatedLinkMixin
 from agir.lib.utils import front_url
 from agir.payments.actions.payments import (
     notify_status_change,
@@ -25,7 +25,7 @@ from agir.payments.actions.subscriptions import terminate_subscription
 from agir.payments.models import Subscription, Payment
 from agir.payments.payment_modes import PAYMENT_MODES
 from . import models
-from .types import PAYMENT_TYPES
+from .types import PAYMENT_TYPES, get_payment_choices
 
 
 def notify_status_action(model_admin, request, queryset):
@@ -77,11 +77,12 @@ class PaymentManagementAdminMixin:
             Payment.STATUS_REFUSED,
             Payment.STATUS_ABANDONED,
         ]:
-            return "-"
+            return payment.get_status_display()
 
         if not PAYMENT_MODES[payment.mode].can_admin:
             return format_html(
-                '<a href="{}" target="_blank" class="button">Effectuer le paiement en ligne</a>',
+                '{}<br/><a href="{}" target="_blank" class="button">Effectuer le paiement en ligne</a>',
+                payment.get_status_display(),
                 front_url("payment_retry", args=[payment.pk]),
             )
 
@@ -91,13 +92,17 @@ class PaymentManagementAdminMixin:
             (Payment.STATUS_REFUSED, "Refuser"),
         ]
 
-        return format_html_join(
-            " ",
-            '<button type="submit" class="button" name="_changestatus" value="{}">{}</button>',
-            ((status, label) for status, label in statuses),
+        return format_html(
+            "{}<p>{}</p>",
+            payment.get_status_display(),
+            format_html_join(
+                " ",
+                '<button type="submit" class="button" name="_changestatus" value="{}">{}</button>',
+                ((status, label) for status, label in statuses),
+            ),
         )
 
-    status_buttons.short_description = "Actions"
+    status_buttons.short_description = "Statut du paiement"
 
     def change_mode_buttons(self, payment):
         if (
@@ -193,6 +198,13 @@ class PaymentAdminForm(forms.ModelForm):
         help_text="La modification arbitraire du montant sera enregistrée si vous validez le paiement.",
     )
 
+    type = forms.ChoiceField(
+        required=True,
+        label="Type de paiement",
+        help_text="Ne modifiez cette valeur que si vous savez exactement ce que vous faites.",
+        choices=get_payment_choices,
+    )
+
 
 class PaymentChangeList(ChangeList):
     def get_results(self, *args, **kwargs):
@@ -201,7 +213,7 @@ class PaymentChangeList(ChangeList):
 
 
 @admin.register(models.Payment)
-class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
+class PaymentAdmin(PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.ModelAdmin):
     form = PaymentAdminForm
     list_display = (
         "id",
@@ -216,7 +228,10 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
         "get_mode_display",
     )
     readonly_fields = (
-        "get_type_display",
+        "id",
+        "created",
+        "modified",
+        "status",
         "person",
         "email",
         "first_name",
@@ -231,33 +246,46 @@ class PaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
         "events",
         "status",
         "change_mode_buttons",
+        "status_buttons",
         "get_price_display",
     )
-    fields = readonly_fields
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "id",
+                    "created",
+                    "modified",
+                    "person_link",
+                    "status",
+                    "price",
+                    "type",
+                    "change_mode_buttons",
+                    "status_buttons",
+                )
+            },
+        ),
+        (
+            "Informations de facturation",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "phone_number",
+                    "location_address1",
+                    "location_address2",
+                    "location_zip",
+                    "location_city",
+                    "location_country",
+                )
+            },
+        ),
+        ("Informations supplémentaires", {"fields": ("meta", "events",)}),
+    )
 
     def get_changelist(self, request, **kwargs):
         return PaymentChangeList
-
-    def get_fields(self, request, payment=None):
-        if payment is not None and payment.status in [
-            Payment.STATUS_WAITING,
-            Payment.STATUS_ABANDONED,
-            Payment.STATUS_REFUSED,
-        ]:
-            fields = list(super().get_fields(request, payment))
-            fields.insert(-2, "price")
-            fields[-1] = "status_buttons"
-            return fields
-        return super().get_fields(request, payment)
-
-    def get_readonly_fields(self, request, payment=None):
-        if payment is not None and payment.status in [
-            Payment.STATUS_WAITING,
-            Payment.STATUS_ABANDONED,
-            Payment.STATUS_REFUSED,
-        ]:
-            return super().get_readonly_fields(request, payment) + ("status_buttons",)
-        return super().get_readonly_fields(request, payment)
 
     list_filter = ("status", "type", "mode", ("created", DateRangeFilter))
     search_fields = ("email", "first_name", "last_name", "=id")
