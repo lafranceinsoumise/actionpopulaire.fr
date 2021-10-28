@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { mutate } from "swr";
 
 import styled from "styled-components";
@@ -17,6 +17,7 @@ import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButto
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { useToast } from "@agir/front/globalContext/hooks.js";
+import funcDebounce from "lodash/debounce";
 
 const StyledListBlock = styled.div`
   div {
@@ -46,6 +47,9 @@ const StyledSearch = styled.div`
     padding-right: 1rem;
   }
 `;
+
+const START_SEARCH = 3;
+const MAX_RESULTS = 20;
 
 export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -80,15 +84,19 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
         (result) => !groups.some((group) => group.id === result.id)
       )
     );
+    setIsLoading(false);
   };
+
+  const debouncedSearch = useCallback(funcDebounce(handleSearch, 1000), []);
 
   const handleChange = (e) => {
     setSearch(e.target.value);
-    if (e.target.value.length >= 3) {
-      handleSearch(e.target.value);
-      return;
-    }
+    setIsLoading(true);
     setGroupSearched([]);
+
+    if (e.target.value.length >= START_SEARCH) {
+      debouncedSearch(e.target.value);
+    }
   };
 
   return (
@@ -123,29 +131,31 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
           {!!groupSearched?.length && (
             <>
               <Spacer size="2rem" />
-              {groupSearched.slice(0, 20).length > 20 && (
-                <p>20 des {groupSearched.length} résultats</p>
+              {groupSearched.slice(0, MAX_RESULTS).length > MAX_RESULTS && (
+                <p>
+                  {MAX_RESULTS} des {groupSearched.length} résultats
+                </p>
               )}
               <GroupList
-                groups={groupSearched.slice(0, 20)}
+                groups={groupSearched.slice(0, MAX_RESULTS)}
                 selectGroup={setSelectedGroup}
               />
               <Spacer size="1rem" />
             </>
           )}
 
-          {search.length < 3 && (
+          {search.length < START_SEARCH && (
             <p>
               <Spacer size="1rem" />
-              Ecrivez au moins 3 caractères
+              Ecrivez au moins {START_SEARCH} caractères
             </p>
           )}
 
-          {search.length >= 3 && !groupSearched?.length && (
+          {search.length >= START_SEARCH && !groupSearched?.length && (
             <p>
               <Spacer size="1rem" />
               {isLoading
-                ? "Recherche en cours"
+                ? "Recherche en cours ..."
                 : "Aucun groupe ne correspond à cette recherche"}
             </p>
           )}
