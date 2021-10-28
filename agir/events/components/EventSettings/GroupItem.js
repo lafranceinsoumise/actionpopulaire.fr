@@ -111,7 +111,7 @@ const GroupItem = ({ id, name, image = "", selectGroup, label, disabled }) => {
           <Button
             color="choose"
             small
-            onClick={() => selectGroup({ id, name, description })}
+            onClick={() => selectGroup({ id, name })}
           >
             Inviter
           </Button>

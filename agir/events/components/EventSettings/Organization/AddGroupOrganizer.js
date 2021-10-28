@@ -123,22 +123,31 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
           {!!groupSearched?.length && (
             <>
               <Spacer size="2rem" />
-              {groupSearched.slice(0, 4).length > 4 && (
-                <p>4 des {groupSearched.length} résultats</p>
+              {groupSearched.slice(0, 20).length > 20 && (
+                <p>20 des {groupSearched.length} résultats</p>
               )}
               <GroupList
-                groups={groupSearched.slice(0, 4)}
+                groups={groupSearched.slice(0, 20)}
                 selectGroup={setSelectedGroup}
               />
               <Spacer size="1rem" />
             </>
           )}
 
+          {search.length < 3 && (
+            <p>
+              <Spacer size="1rem" />
+              Ecrivez au moins 3 caractères
+            </p>
+          )}
+
           {search.length >= 3 && !groupSearched?.length && (
-            <>
-              <Spacer size="2rem" />
-              <p>Aucun groupe ne correspond à cette recherche</p>
-            </>
+            <p>
+              <Spacer size="1rem" />
+              {isLoading
+                ? "Recherche en cours"
+                : "Aucun groupe ne correspond à cette recherche"}
+            </p>
           )}
         </>
       ) : (
