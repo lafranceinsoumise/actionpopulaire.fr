@@ -292,6 +292,8 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
 
 
 class BaseProjetAdmin(BaseGestionModelAdmin, AddRelatedLinkMixin, VersionAdmin):
+    date_hierarchy = "event__start_time"
+
     def event_name(self, obj):
         if obj and obj.event:
             return obj.event.name
