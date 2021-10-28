@@ -292,6 +292,13 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
 
 
 class BaseProjetAdmin(BaseGestionModelAdmin, AddRelatedLinkMixin, VersionAdmin):
+    def event_name(self, obj):
+        if obj and obj.event:
+            return obj.event.name
+
+    event_name.short_description = "Événement associé"
+    event_name.admin_order_field = "event__name"
+
     def event_city(self, obj):
         if obj and obj.event:
             if obj.event.location_country in FRENCH_COUNTRY_CODES:
@@ -385,6 +392,7 @@ class BaseProjetAdmin(BaseGestionModelAdmin, AddRelatedLinkMixin, VersionAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj=obj) + (
+            "event_name",
             "event_city",
             "event_location",
             "event_start_time",
@@ -412,7 +420,7 @@ class ProjetAdmin(BaseProjetAdmin):
         "titre",
         "type",
         "etat",
-        "event",
+        "event_name",
         "event_start_time",
         "event_city",
         "nb_depenses",
@@ -488,7 +496,7 @@ class ProjetUtilisateurAdmin(BaseProjetAdmin):
         "titre",
         "type",
         "etat",
-        "event",
+        "event_name",
         "event_city",
         "event_start_time",
     )
