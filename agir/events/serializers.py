@@ -334,6 +334,8 @@ class EventAdvancedSerializer(EventSerializer):
 
         # Add initial organizers
         for person in current_organizers:
+            if person.id in person_ids:
+                continue
             person_ids += [person.id]
             all_organizers += [
                 {
