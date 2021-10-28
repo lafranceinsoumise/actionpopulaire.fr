@@ -491,6 +491,8 @@ class ProjetAdmin(BaseProjetAdmin):
 
 @admin.register(ProjetMilitant)
 class ProjetUtilisateurAdmin(BaseProjetAdmin):
+    autocomplete_fields = ("event",)
+
     list_display = (
         "numero",
         "titre",
