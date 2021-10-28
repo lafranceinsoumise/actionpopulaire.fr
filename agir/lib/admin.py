@@ -232,8 +232,9 @@ class AddRelatedLinkMixin(ModelAdmin):
                     get_link.admin_order_field = f.name
 
                     link_attr_name = f"{attr_name}_link"
-                    setattr(self, link_attr_name, get_link)
-                    self._additional_related_fields.append(link_attr_name)
+                    if not hasattr(self, link_attr_name):
+                        setattr(self, link_attr_name, get_link)
+                        self._additional_related_fields.append(link_attr_name)
 
                 # ManyToManyField est le seul champ lié direct à destination multiple
                 # ManyToOneRel et ManyToManyRel sont les deux champs inverses à destination multiple
@@ -245,9 +246,9 @@ class AddRelatedLinkMixin(ModelAdmin):
                     get_list.short_description = verbose_name
 
                     link_attr_name = f"{attr_name}_list"
-
-                    setattr(self, link_attr_name, get_list)
-                    self._additional_related_fields.append(link_attr_name)
+                    if not hasattr(self, link_attr_name):
+                        setattr(self, link_attr_name, get_list)
+                        self._additional_related_fields.append(link_attr_name)
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj) + tuple(
