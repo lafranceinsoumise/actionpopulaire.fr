@@ -6,6 +6,7 @@ from agir.gestion.models import Compte
 from agir.gestion.models.common import Autorisation
 from agir.gestion.rules import permission_sur_compte
 from agir.lib.tests.strategies import person_with_role, printable_text
+from .strategies import compte
 
 
 class RuleTestCase(TestCase):
@@ -44,14 +45,14 @@ class RuleTestCase(TestCase):
 
 
 class PermissionsTestCase(TestCase):
-    @given(person_with_role(), from_model(Compte))
+    @given(person_with_role(), compte())
     def test_pas_de_permissions_par_defaut(self, person, compte):
         for perm, _ in Compte._meta.permissions:
             self.assertFalse(person.role.has_perm(f"gestion.{perm}", obj=compte))
 
     @given(
         person_with_role(),
-        from_model(Compte),
+        compte(),
         from_model(Group),
         st.lists(
             st.sampled_from([p for p, _ in Compte._meta.permissions]), unique=True
