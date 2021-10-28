@@ -1,6 +1,8 @@
 from django.db.models import Sum
-from rest_framework import permissions
-from rest_framework.generics import ListAPIView
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from agir.donations.views import (
@@ -8,7 +10,9 @@ from agir.donations.views import (
     MonthlyDonationPersonalInformationView,
     MonthlyDonationEmailConfirmationView,
 )
+from agir.lib.rest_framework_permissions import GlobalOnlyPermissions
 from agir.payments.models import Payment
+from agir.people.models import Person
 from agir.presidentielle2022 import (
     AFCP2022SystemPayPaymentMode,
     AFCPJLMCheckDonationPaymentMode,
@@ -38,14 +42,23 @@ class MonthlyDonation2022EmailConfirmationView(MonthlyDonationEmailConfirmationV
     payment_type = Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE
 
 
-class Donation2022AggregatesAPIView(ListAPIView):
-    permission_classes = (permissions.AllowAny,)
-    queryset = Payment.objects.completed().filter(
-        type__in=[
-            Presidentielle2022Config.DONATION_PAYMENT_TYPE,
-            Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE,
-        ]
-    )
+class Donation2022AggregatesAPIView(GenericAPIView):
+    queryset = Person.objects.all()  # pour les permissions
+    permission_classes = (GlobalOnlyPermissions,)
 
-    def list(self, request, *args, **kwargs):
-        return Response(self.queryset.aggregate(totalAmount=Sum("price")))
+    def get_aggregates(self):
+        return (
+            Payment.objects.completed()
+            .filter(
+                type__in=[
+                    Presidentielle2022Config.DONATION_PAYMENT_TYPE,
+                    Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE,
+                ]
+            )
+            .aggregate(totalAmount=Sum("price"))
+        )
+
+    @method_decorator(vary_on_headers("Authorization"))
+    @method_decorator(cache_page(60))
+    def get(self, request, *args, **kwargs):
+        return Response(self.get_aggregates())

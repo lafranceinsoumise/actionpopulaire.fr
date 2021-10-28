@@ -85,6 +85,4 @@ class APIAdminSite(OTPAdminSite):
         for app in app_list:
             app["models"].sort(key=lambda x: locale.strxfrm(str(x["name"])))
 
-        print(app_list)
-
         return app_list

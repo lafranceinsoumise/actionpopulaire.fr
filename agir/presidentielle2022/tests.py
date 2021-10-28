@@ -1,3 +1,5 @@
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from rest_framework.test import APITestCase
 
 from agir.payments.models import Payment, Subscription
@@ -11,8 +13,14 @@ from agir.presidentielle2022.apps import Presidentielle2022Config
 
 class DonationAggregatesAPITestCase(APITestCase):
     def setUp(self):
-        self.person = Person.objects.create_person(
-            "person@email.com", create_role=True, display_name="Person"
+        self.person = Person.objects.create_insoumise(
+            "person@email.com", create_role=True
+        )
+        self.person.role.user_permissions.add(
+            Permission.objects.get(
+                content_type=ContentType.objects.get_for_model(Person),
+                codename="view_person",
+            )
         )
         self.pending_payment = Payment.objects.create(
             person=self.person,
@@ -45,12 +53,13 @@ class DonationAggregatesAPITestCase(APITestCase):
         )
         self.expected_total_amount = 200
 
-    def test_anonymous_can_get_donation_aggregates(self):
+    def test_anonymous_cannot_get_donation_aggregates(self):
         self.client.logout()
         res = self.client.get("/api/2022/dons/")
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 401)
 
-    def test_can_get_right_donation_amount(self):
+    def test_authenticated_user_can_get_right_donation_amount(self):
+        self.client.force_login(self.person.role)
         res = self.client.get("/api/2022/dons/")
         self.assertIn("totalAmount", res.data)
         self.assertEqual(res.data["totalAmount"], self.expected_total_amount)
