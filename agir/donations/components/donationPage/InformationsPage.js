@@ -23,6 +23,7 @@ import {
   Title,
 } from "./StyledComponents";
 import { displayPrice } from "@agir/lib/utils/display";
+import { scrollToError } from "@agir/front/app/utils";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 
@@ -112,17 +113,6 @@ const InformationsPage = () => {
   const groupAmountString = displayPrice(groupAmount);
   const nationalAmountString = displayPrice(nationalAmount);
 
-  const scrollToError = (errors) => {
-    let scrollTarget = document.querySelector(
-      `[name=${Object.keys(errors)[0]}]`
-    );
-    if (scrollTarget) {
-      scrollerRef.current.scrollTo({
-        top: scrollTarget.offsetTop - 30,
-      });
-    }
-  };
-
   const handleInformationsSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -138,7 +128,7 @@ const InformationsPage = () => {
           "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation",
       };
       setErrors(frontErrors);
-      scrollToError(frontErrors);
+      scrollToError(frontErrors, scrollerRef.current);
       setIsLoading(false);
       return;
     }
@@ -148,7 +138,7 @@ const InformationsPage = () => {
     setIsLoading(false);
     if (error) {
       setErrors(error);
-      scrollToError(error);
+      scrollToError(error, scrollerRef.current);
       return;
     }
 

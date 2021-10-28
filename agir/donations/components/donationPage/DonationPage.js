@@ -16,6 +16,7 @@ import AmountStep from "./AmountStep";
 import InformationsStep from "./InformationsStep";
 
 import { Theme, Title } from "./StyledComponents";
+import { scrollToError } from "@agir/front/app/utils";
 import { displayPrice } from "@agir/lib/utils/display";
 import CONFIG from "./config";
 import * as api from "./api";
@@ -117,18 +118,6 @@ const DonationPage = () => {
   const groupAmountString = displayPrice(groupAmount);
   const nationalAmountString = displayPrice(nationalAmount);
 
-  const scrollToError = (errors) => {
-    let scrollTarget = document.querySelector(
-      `[name=${Object.keys(errors)[0]}]`
-    );
-    const top = scrollTarget.getBoundingClientRect().top;
-    if (scrollTarget) {
-      scrollerRef.current.parentElement.parentElement.scrollTo({
-        top: top - 30,
-      });
-    }
-  };
-
   const handleAmountSubmit = useCallback(async (data) => {
     setIsLoading(true);
     setErrors({});
@@ -169,7 +158,10 @@ const DonationPage = () => {
           "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation",
       };
       setErrors(frontErrors);
-      scrollToError(frontErrors);
+      scrollToError(
+        frontErrors,
+        scrollerRef.current.parentElement.parentElement
+      );
       setIsLoading(false);
       return;
     }
@@ -179,7 +171,7 @@ const DonationPage = () => {
     setIsLoading(false);
     if (error) {
       setErrors(error);
-      scrollToError(error);
+      scrollToError(error, scrollerRef.current.parentElement.parentElement);
       return;
     }
 

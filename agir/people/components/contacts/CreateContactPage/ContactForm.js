@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -15,6 +15,7 @@ import HowTo from "./HowTo";
 import NoGroupCard from "./NoGroupCard";
 
 import { searchGroups } from "@agir/groups/api";
+import { scrollToError } from "@agir/front/app/utils";
 
 const NEWSLETTER_2022_LIAISON = "2022_liaison";
 
@@ -47,36 +48,6 @@ const StyledForm = styled.form`
     font-size: 0.875rem;
   }
 `;
-
-const scrollToError = (errors) => {
-  if (
-    typeof window === "undefined" ||
-    !errors ||
-    Object.values(errors).filter(Boolean).length === 0
-  ) {
-    return;
-  }
-  const keys = Object.entries(errors)
-    .filter(([_, value]) => Boolean(value))
-    .map(([key]) => key);
-  let scrollTarget = null;
-  for (let i = 0; keys[0] && !scrollTarget; i += 1) {
-    scrollTarget = document.querySelector(`[data-scroll="${keys[0]}"]`);
-  }
-  if (!scrollTarget) {
-    return;
-  }
-  const rect = scrollTarget.getBoundingClientRect();
-  const isVisible =
-    rect.top - 100 >= 0 &&
-    rect.bottom + 100 <=
-      (window.innerHeight || document.documentElement.clientHeight);
-
-  !isVisible &&
-    window.scrollTo({
-      top: scrollTarget.offsetTop - 100,
-    });
-};
 
 const formatGroupOptions = (groups) =>
   Array.isArray(groups) && groups.length > 0
@@ -195,7 +166,7 @@ export const ContactForm = (props) => {
   );
 
   useEffect(() => {
-    scrollToError(errors);
+    scrollToError(errors, window, 100);
   }, [errors]);
 
   useEffect(() => {
