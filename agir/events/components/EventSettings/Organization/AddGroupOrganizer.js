@@ -87,7 +87,7 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
     setIsLoading(false);
   };
 
-  const debouncedSearch = useCallback(funcDebounce(handleSearch, 1000), []);
+  const debouncedSearch = useCallback(funcDebounce(handleSearch, 300), []);
 
   const handleChange = (e) => {
     setSearch(e.target.value);
