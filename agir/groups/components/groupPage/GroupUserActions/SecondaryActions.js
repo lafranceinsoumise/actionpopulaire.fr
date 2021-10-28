@@ -24,12 +24,8 @@ const StyledLink = styled(Link)``;
 
 const StyledContainer = styled.div`
   display: flex;
-  flex-align: row;
-  flex-direction: row;
   justify-content: center;
   width: 100%;
-  max-width: 300px;
-  justify-content: space-evenly;
 
   button,
   ${StyledLink} {
@@ -43,6 +39,7 @@ const StyledContainer = styled.div`
     align-items: center;
     color: ${style.black1000};
     font-weight: 500;
+    padding: 12px 24px;
   }
   button:hover,
   ${StyledLink}:hover {
