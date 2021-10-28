@@ -16,6 +16,8 @@ const StyledWrapper = styled.div`
   width: 100%;
   flex-flow: column nowrap;
   margin-top: 1rem;
+  flex-direction: row;
+  justify-content: center;
 `;
 
 const StyledLink = styled(Link)``;
@@ -26,6 +28,7 @@ const StyledContainer = styled.div`
   flex-direction: row;
   justify-content: center;
   width: 100%;
+  max-width: 300px;
   justify-content: space-evenly;
 
   button,
