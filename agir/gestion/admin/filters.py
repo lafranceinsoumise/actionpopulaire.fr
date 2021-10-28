@@ -35,7 +35,7 @@ class InclureProjetsMilitantsFilter(ListFilter):
     def queryset(self, request, queryset):
         if self.value == "O":
             return queryset
-        return queryset.filter(origine=Projet.Origin.ADMINISTRATION)
+        return queryset.exclude(origine=Projet.Origin.UTILISATEUR)
 
 
 class ProjetResponsableFilter(SimpleListFilter):
