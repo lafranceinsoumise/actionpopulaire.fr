@@ -7,7 +7,7 @@ import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import StyledDialog from "./StyledDialog";
 
-const JoinGroupDialog = (props) => {
+const QuitGroupDialog = (props) => {
   const { shouldShow, isLoading, isActiveMember, groupName, onQuit, onClose } =
     props;
 
@@ -59,7 +59,7 @@ const JoinGroupDialog = (props) => {
   );
 };
 
-JoinGroupDialog.propTypes = {
+QuitGroupDialog.propTypes = {
   shouldShow: PropTypes.bool,
   isLoading: PropTypes.bool,
   isActiveMember: PropTypes.bool,
@@ -68,4 +68,4 @@ JoinGroupDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-export default JoinGroupDialog;
+export default QuitGroupDialog;
