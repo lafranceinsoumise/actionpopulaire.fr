@@ -5,9 +5,6 @@ import styled from "styled-components";
 import CONFIG from "@agir/front/app/Navigation/navigation.config";
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { useUnreadMessageCount } from "@agir/msgs/common/hooks";
-import { useUnreadActivityCount } from "@agir/activity/common/hooks";
-
 import CounterBadge from "@agir/front/app/Navigation/CounterBadge";
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -20,11 +17,9 @@ const MenuLink = styled(Link)`
   justify-content: center;
   text-align: center;
   height: 70px;
-
   font-size: 11px;
   font-weight: 500;
   color: ${({ $active }) => ($active ? style.primary500 : "inherit")};
-
   border-top: 2px solid
     ${({ $active }) => ($active ? style.primary500 : "transparent")};
 
@@ -37,7 +32,6 @@ const MenuLink = styled(Link)`
 
   ${RawFeatherIcon} {
     display: block;
-    margin-bottom: 5px;
   }
 
   ${Title} {
