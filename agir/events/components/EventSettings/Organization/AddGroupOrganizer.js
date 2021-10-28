@@ -17,7 +17,7 @@ import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButto
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { useToast } from "@agir/front/globalContext/hooks.js";
-import funcDebounce from "lodash/debounce";
+import _debounce from "lodash/debounce";
 
 const StyledListBlock = styled.div`
   div {
@@ -87,7 +87,7 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
     setIsLoading(false);
   };
 
-  const debouncedSearch = useCallback(funcDebounce(handleSearch, 300), []);
+  const debouncedSearch = useCallback(_debounce(handleSearch, 300), []);
 
   const handleChange = (e) => {
     setSearch(e.target.value);
