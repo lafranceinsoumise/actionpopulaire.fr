@@ -139,7 +139,7 @@ const InformationsStep = ({
       />
 
       {formData.nationality !== "FR" && (
-        <>
+        <div data-scroll="frenchResident">
           <CheckboxField
             name="frenchResident"
             label="Je certifie être domicilié⋅e fiscalement en France*"
@@ -152,7 +152,7 @@ const InformationsStep = ({
             </StaticToast>
           )}
           <Spacer size="0.5rem" />
-        </>
+        </div>
       )}
 
       <CustomField
@@ -210,6 +210,7 @@ const InformationsStep = ({
         helpText={helpPhone}
       />
 
+      <div data-scroll="consentCertification" />
       <CheckboxField
         name="consentCertification"
         label={consentText}

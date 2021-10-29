@@ -82,9 +82,5 @@ export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
     return;
   }
 
-  if (scrollTarget.type === "checkbox") {
-    scrollTarget = scrollTarget.offsetParent;
-  }
-
   scrollerElement.scrollTo({ top: scrollTarget.offsetTop - marginTop });
 };
