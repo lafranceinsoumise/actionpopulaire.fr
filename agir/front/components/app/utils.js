@@ -73,14 +73,20 @@ export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
     return;
   }
 
-  const firstError = Object.keys(errors)[0];
-  let scrollTarget = document.querySelector(
-    `[data-scroll=${firstError}], [name=${firstError}]`
-  );
-
-  if (!scrollTarget) {
-    return;
+  // Get first error in Html position
+  const keys = Object.keys(errors);
+  let minOffsetTop = Infinity;
+  for (let i = 0; i < keys.length; i += 1) {
+    let elt = document.querySelector(
+      `[data-scroll="${keys[i]}"], [name="${keys[i]}"]`
+    );
+    if (!elt) {
+      continue;
+    }
+    if (elt.offsetTop < minOffsetTop) {
+      minOffsetTop = elt.offsetTop;
+    }
   }
 
-  scrollerElement.scrollTo({ top: scrollTarget.offsetTop - marginTop });
+  scrollerElement.scrollTo({ top: minOffsetTop - marginTop });
 };

@@ -337,7 +337,7 @@ export const ContactForm = (props) => {
           />
         </>
       )}
-      {data.is2022 ? (
+      {data.is2022 && (
         <>
           <Spacer size="1.5rem" />
           <h4>
@@ -361,7 +361,7 @@ export const ContactForm = (props) => {
             disabled={isLoading}
           />
         </>
-      ) : null}
+      )}
       {data.newsletters.includes(NEWSLETTER_2022_LIAISON) && (
         <>
           <Spacer data-scroll="address" size="1rem" />
