@@ -111,6 +111,7 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
     class Origin(models.TextChoices):
         ADMINISTRATION = "A", "Créé sur l'admin"
         UTILISATEUR = "U", "Créé par un·e militant·e sur Action Populaire"
+        REUNION_PUBLIQUE = "R", "Réunion publique suite à demande"
 
     titre = models.CharField(verbose_name="Titre du projet", max_length=200)
     type = models.CharField(

@@ -341,7 +341,7 @@ class BaseProjetAdmin(BaseGestionModelAdmin, AddRelatedLinkMixin, VersionAdmin):
             return obj.event.start_time
         return "-"
 
-    event_start_time.short_description = "Où"
+    event_start_time.short_description = "Quand"
     event_start_time.admin_order_field = "event__start_time"
 
     def event_schedule(self, obj):
