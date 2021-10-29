@@ -66,3 +66,27 @@ export const lazy = (lazyImport, fallback) => {
 
   return LazyComponent;
 };
+
+// Scrolls to the first key in errors into the scrollerElement
+export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
+  if (!scrollerElement || !Object.entries(errors).length) {
+    return;
+  }
+
+  // Get first error in Html position
+  const keys = Object.keys(errors);
+  let minOffsetTop = Infinity;
+  for (let i = 0; i < keys.length; i += 1) {
+    let elt = document.querySelector(
+      `[data-scroll="${keys[i]}"], [name="${keys[i]}"]`
+    );
+    if (!elt) {
+      continue;
+    }
+    if (elt.offsetTop < minOffsetTop) {
+      minOffsetTop = elt.offsetTop;
+    }
+  }
+
+  scrollerElement.scrollTo({ top: minOffsetTop - marginTop });
+};

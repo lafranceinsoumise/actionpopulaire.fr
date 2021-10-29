@@ -7,11 +7,11 @@ from django.views.decorators.cache import never_cache
 
 from rest_framework import exceptions, permissions, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from agir.authentication.serializers import SessionSerializer
+from agir.authentication.serializers import SessionSerializer, SessionDonationSerializer
 from agir.authentication.tasks import send_login_email, send_no_account_email
 from agir.authentication.tokens import short_code_generator
 from agir.lib.token_bucket import TokenBucket
@@ -21,6 +21,7 @@ from agir.people.models import Person, PersonEmail
 __all__ = [
     "CSRFAPIView",
     "SessionContextAPIView",
+    "SessionDonationAPIView",
     "LoginAPIView",
     "CheckCodeAPIView",
     "LogoutAPIView",
@@ -42,6 +43,21 @@ class CSRFAPIView(APIView):
 class SessionContextAPIView(RetrieveAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = SessionSerializer
+    queryset = None
+
+    def initial(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            request.session.modified = True  # force updating of cookie expiration
+        return super().initial(request, *args, **kwargs)
+
+    def get_object(self):
+        return self.request
+
+
+# Retrieve specific session filled with Donation informations
+class SessionDonationAPIView(RetrieveAPIView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = SessionDonationSerializer
     queryset = None
 
     def initial(self, request, *args, **kwargs):
