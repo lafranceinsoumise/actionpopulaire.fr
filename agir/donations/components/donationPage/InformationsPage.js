@@ -43,6 +43,7 @@ const InformationsPage = () => {
 
   const type = params?.type || "LFI";
   const groupPk = type !== "2022" && urlParams.get("group");
+  const amountParam = urlParams.get("amount") || 0;
 
   const { data: group } = useSWR(groupPk && `/api/groupes/${groupPk}/`, {
     revalidateIfStale: false,
@@ -62,7 +63,7 @@ const InformationsPage = () => {
   const [formData, setFormData] = useState({
     // amounts
     to: type,
-    amount: sessionDonation?.donations?.amount,
+    amount: amountParam || sessionDonation?.donations?.amount,
     type: sessionDonation?.donations?.type,
     allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
     // mode
@@ -90,15 +91,15 @@ const InformationsPage = () => {
     if (!sessionDonation) return;
 
     // Redirect to Amount Step if session not filled with an amount
-    if (!sessionDonation?.donations?.amount) {
+    if (!sessionDonation?.donations?.amount && !amountParam) {
       history.push(amountStepUrl);
     }
 
     setFormData({
       ...formData,
-      amount: sessionDonation?.donations?.amount,
+      amount: amountParam || sessionDonation?.donations?.amount,
       type: sessionDonation?.donations?.type,
-      allocations: JSON.parse(sessionDonation?.donations?.allocations),
+      allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
       allowedPaymentModes: JSON.parse(
         sessionDonation?.donations?.allowedPaymentModes || "[]"
       ),
