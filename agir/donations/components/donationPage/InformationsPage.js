@@ -119,14 +119,13 @@ const InformationsPage = () => {
     setErrors({});
 
     if (!formData.consentCertification || !formData.frenchResident) {
-      const frontErrors = {
-        consentCertification:
-          !formData.consentCertification &&
-          "Vous devez cocher la case précédente pour continuer",
-        frenchResident:
-          !formData.frenchResident &&
-          "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation",
-      };
+      const frontErrors = {};
+      !formData.consentCertification &&
+        (frontErrors.consentCertification =
+          "Vous devez cocher la case précédente pour continuer");
+      !formData.frenchResident &&
+        (frontErrors.frenchResident =
+          "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation");
       setErrors(frontErrors);
       scrollToError(frontErrors, scrollerRef.current);
       setIsLoading(false);

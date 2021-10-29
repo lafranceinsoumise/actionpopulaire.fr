@@ -69,19 +69,22 @@ export const lazy = (lazyImport, fallback) => {
 
 // Scrolls to the first key in errors into the scrollerElement
 export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
-  if (!scrollerElement || !errors) {
+  if (!scrollerElement || !Object.entries(errors).length) {
     return;
   }
-  const scrollTarget = document.querySelector(
-    `[name=${Object.keys(errors)[0]}]`
+
+  const firstError = Object.keys(errors)[0];
+  let scrollTarget = document.querySelector(
+    `[data-scroll=${firstError}], [name=${firstError}]`
   );
+
   if (!scrollTarget) {
     return;
   }
-  console.log("scroll target ", scrollTarget);
-  if (scrollTarget) {
-    scrollerElement.scrollTo({
-      top: scrollTarget.offsetTop - marginTop,
-    });
+
+  if (scrollTarget.type === "checkbox") {
+    scrollTarget = scrollTarget.offsetParent;
   }
+
+  scrollerElement.scrollTo({ top: scrollTarget.offsetTop - marginTop });
 };
