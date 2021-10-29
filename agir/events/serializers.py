@@ -50,6 +50,7 @@ from ..gestion.models import Projet, Document, VersionDocument
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
+from ..lib.html import textify
 from ..lib.utils import admin_url, replace_datetime_timezone
 
 
@@ -141,11 +142,13 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     hasSubscriptionForm = serializers.SerializerMethodField()
 
     description = serializers.CharField(source="html_description")
+    textDescription = serializers.SerializerMethodField()
     compteRendu = serializers.CharField(source="report_content")
     compteRenduMainPhoto = serializers.SerializerMethodField(source="report_image")
     compteRenduPhotos = serializers.SerializerMethodField()
 
     illustration = serializers.SerializerMethodField()
+    metaImage = serializers.SerializerMethodField()
 
     startTime = serializers.SerializerMethodField()
     endTime = serializers.SerializerMethodField()
@@ -307,6 +310,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_has_project(self, obj):
         return Projet.objects.filter(event=obj).exists()
+
+    def get_textDescription(self, obj):
+        if isinstance(obj.description, str):
+            return textify(obj.description)
+        return ""
+
+    def get_metaImage(self, obj):
+        return obj.get_meta_image()
 
 
 class EventAdvancedSerializer(EventSerializer):

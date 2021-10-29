@@ -1,4 +1,3 @@
-import Helmet from "react-helmet";
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useEffect } from "react";
@@ -23,6 +22,7 @@ import {
 } from "@agir/front/globalContext/reducers";
 import { useIsOffline } from "@agir/front/offline/hooks";
 import { routeConfig } from "@agir/front/app/routes.config";
+import OpenGraphTags from "@agir/front/app/OpenGraphTags";
 
 import Link from "@agir/front/app/Link";
 import EventHeader from "./EventHeader";
@@ -448,9 +448,12 @@ export const ConnectedEventPage = (props) => {
   return (
     <>
       {eventData && (
-        <Helmet>
-          <title>{eventData.name} — Action Populaire</title>
-        </Helmet>
+        <OpenGraphTags
+          type="article"
+          title={eventData.name}
+          description={eventData.textDescription}
+          image={eventData.metaImage}
+        />
       )}
       {isSessionLoaded && eventData ? (
         <EventPage {...eventData} logged={isConnected} />

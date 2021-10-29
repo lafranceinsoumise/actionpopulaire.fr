@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -18,9 +17,6 @@ const AgendaRoute = ({
   hasTabs,
 }) => (
   <>
-    <Helmet>
-      <title>Agenda du groupe : {group.name} - Action populaire</title>
-    </Helmet>
     {Array.isArray(upcomingEvents) && upcomingEvents.length > 0 ? (
       <GroupEventList title="Événements à venir" events={upcomingEvents} />
     ) : null}

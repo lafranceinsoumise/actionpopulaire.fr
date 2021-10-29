@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import Helmet from "react-helmet";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
@@ -646,9 +645,6 @@ const ToolsPage = () => {
 
   return (
     <StyledPage>
-      <Helmet>
-        <title>Outils - Action Populaire</title>
-      </Helmet>
       <div>
         {isConnected && (
           <Hide under>

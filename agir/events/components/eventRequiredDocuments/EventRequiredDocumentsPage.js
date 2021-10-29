@@ -1,11 +1,11 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
-import Helmet from "react-helmet";
 import { Redirect } from "react-router-dom";
 import useSWR from "swr";
 
 import EventRequiredDocuments from "./EventRequiredDocuments";
 
+import OpenGraphTags from "@agir/front/app/OpenGraphTags";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
 import {
@@ -87,11 +87,7 @@ const EventRequiredDocumentsPage = (props) => {
     <PageFadeIn ready={!!data}>
       {data && (
         <>
-          {!embedded && (
-            <Helmet>
-              <title>{event.name} — Action Populaire</title>
-            </Helmet>
-          )}
+          {!embedded && <OpenGraphTags title={event.name} />}
           <EventRequiredDocuments
             projectId={projectId}
             event={event}

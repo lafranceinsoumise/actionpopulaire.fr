@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import Helmet from "react-helmet";
 import useSWR from "swr";
 
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import OpenGraphTags from "@agir/front/app/OpenGraphTags";
 
 import AmountStep from "./AmountStep";
 
@@ -53,9 +53,7 @@ const DonationPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{CONFIG[type]?.title || CONFIG.default.title}</title>
-      </Helmet>
+      <OpenGraphTags title={CONFIG[type]?.title || CONFIG.default.title} />
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <AmountStep
           type={type}

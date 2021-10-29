@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import React, { useMemo } from "react";
 import { Redirect } from "react-router-dom";
 import styled from "styled-components";
@@ -152,43 +151,38 @@ const CreateEvent = () => {
   }, [projects]);
 
   return (
-    <>
-      <Helmet>
-        <title>Nouvel événement - Action populaire</title>
-      </Helmet>
-      <PageFadeIn
-        wait={<CreateEventSkeleton />}
-        ready={isSessionLoaded && typeof projects !== "undefined"}
-      >
-        {isBlocked ? (
-          <Redirect to={routeConfig.missingEventDocuments.getLink()} />
-        ) : (
-          <StyledContainer>
-            <div>
-              {!!backLink && (
-                <IndexLinkAnchor
-                  to={backLink.to}
-                  href={backLink.href}
-                  route={backLink.route}
-                  aria-label={backLink.label || "Retour à l'accueil"}
-                  title={backLink.label || "Retour à l'accueil"}
-                >
-                  <RawFeatherIcon name="arrow-left" color={style.black1000} />
-                </IndexLinkAnchor>
-              )}
-              <Spacer size="1.5rem" />
-              <h2>Nouvel événement</h2>
-              <InfoBlock over />
-              <Spacer size="1.5rem" />
-              <EventForm />
-            </div>
-            <div>
-              <InfoBlock under />
-            </div>
-          </StyledContainer>
-        )}
-      </PageFadeIn>
-    </>
+    <PageFadeIn
+      wait={<CreateEventSkeleton />}
+      ready={isSessionLoaded && typeof projects !== "undefined"}
+    >
+      {isBlocked ? (
+        <Redirect to={routeConfig.missingEventDocuments.getLink()} />
+      ) : (
+        <StyledContainer>
+          <div>
+            {!!backLink && (
+              <IndexLinkAnchor
+                to={backLink.to}
+                href={backLink.href}
+                route={backLink.route}
+                aria-label={backLink.label || "Retour à l'accueil"}
+                title={backLink.label || "Retour à l'accueil"}
+              >
+                <RawFeatherIcon name="arrow-left" color={style.black1000} />
+              </IndexLinkAnchor>
+            )}
+            <Spacer size="1.5rem" />
+            <h2>Nouvel événement</h2>
+            <InfoBlock over />
+            <Spacer size="1.5rem" />
+            <EventForm />
+          </div>
+          <div>
+            <InfoBlock under />
+          </div>
+        </StyledContainer>
+      )}
+    </PageFadeIn>
   );
 };
 

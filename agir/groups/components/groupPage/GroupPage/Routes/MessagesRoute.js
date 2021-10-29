@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -12,24 +11,17 @@ const MessagesRoute = ({
   onClickMessage,
   ...rest
 }) => (
-  <>
-    <Helmet>
-      <title>Messages du groupe : {group.name} - Action populaire</title>
-    </Helmet>
-    <GroupMessages
-      {...rest}
-      group={group}
-      events={allEvents}
-      isLoading={isLoadingMessages}
-      onClick={onClickMessage}
-      loadMoreEvents={loadMorePastEvents}
-    />
-  </>
+  <GroupMessages
+    {...rest}
+    group={group}
+    events={allEvents}
+    isLoading={isLoadingMessages}
+    onClick={onClickMessage}
+    loadMoreEvents={loadMorePastEvents}
+  />
 );
 MessagesRoute.propTypes = {
-  group: PropTypes.shape({
-    name: PropTypes.string,
-  }),
+  group: PropTypes.object,
   allEvents: PropTypes.arrayOf(PropTypes.object),
   isLoadingMessages: PropTypes.bool,
   loadMorePastEvents: PropTypes.func,
