@@ -117,12 +117,7 @@ const RequiredDocumentCard = (props) => {
         {templateLink && (
           <>
             <Spacer size="1rem" />
-            <a
-              href={templateLink}
-              download={templateLink}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href={templateLink} target="_blank" rel="noopener noreferrer">
               Télécharger le modèle vierge
             </a>
           </>
