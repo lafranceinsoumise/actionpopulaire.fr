@@ -7,20 +7,51 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
+from agir.events.models import Event
 from agir.gestion.admin.widgets import HierarchicalSelect
 from agir.gestion.models import (
     Commentaire,
     Depense,
-    Document,
     Fournisseur,
     Projet,
     Reglement,
 )
+from agir.gestion.models.documents import Document, VersionDocument
 from agir.gestion.models.commentaires import ajouter_commentaire
 from agir.gestion.typologies import TypeDocument, TypeDepense
 
 
 class DocumentForm(forms.ModelForm):
+    titre_version = forms.CharField(label="Nom de la version", required=False,)
+    fichier = forms.FileField(label="Fichier de la version", required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data.get("titre_version") and not cleaned_data.get("fichier"):
+            self.add_error(
+                "fichier",
+                ValidationError(
+                    "Choisissez le fichier à télécharger pour cette nouvelle version.",
+                    code="fichier_manquant",
+                ),
+            )
+        elif cleaned_data.get("fichier") and not cleaned_data.get("titre_version"):
+            self.add_error(
+                "titre_version",
+                ValidationError("Indiquez le titre de la nouvelle version du fichier"),
+            )
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        if self.cleaned_data.get("fichier"):
+            VersionDocument.objects.create(
+                document=self.instance,
+                titre=self.cleaned_data["titre_version"],
+                fichier=self.cleaned_data["fichier"],
+            )
+
     class Meta:
         model = Document
         fields = ()
@@ -33,22 +64,19 @@ class DepenseForm(forms.ModelForm):
 
         if self.instance.type == TypeDepense.REFACTURATION and "montant" in self.fields:
             montant = self.get_initial_for_field(self.fields["montant"], "montant")
-            total_factures = (
-                self.instance.depenses_refacturees.aggregate(Sum("montant"))[
-                    "montant__sum"
-                ]
-                or 0.0
-            )
+            total_factures = self.instance.depenses_refacturees.aggregate(
+                Sum("montant")
+            )["montant__sum"]
 
-            if montant > total_factures:
-                self.fields[
-                    "montant"
-                ].help_text = "Le montant de cette refacturation est pour le moment supérieur à la somme des dépenses à refacturer"
-            else:
-                pct = montant / total_factures * 100
-                self.fields[
-                    "montant"
-                ].help_text = f"Cela représente {montant / total_factures:0.1%} % du total des dépenses refacturées."
+            if total_factures:
+                if montant > total_factures:
+                    self.fields[
+                        "montant"
+                    ].help_text = "Le montant de cette refacturation est pour le moment supérieur à la somme des dépenses à refacturer"
+                else:
+                    self.fields[
+                        "montant"
+                    ].help_text = f"Cela représente {montant / total_factures:0.1%} % du total des dépenses refacturées."
 
         if "depenses_refacturees" in self.fields:
             depenses = self.get_initial_for_field(
@@ -113,6 +141,15 @@ class ProjetForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance._state.adding:
             self.instance.etat = Projet.Etat.EN_CONSTITUTION
+
+        if "event" in self.fields and (
+            event := self.get_initial_for_field(self.fields["event"], "event")
+        ):
+            id = event.id if isinstance(event, Event) else event
+            self.fields["event"].help_text = format_html(
+                '<a href="{}">Accéder à la page de l\'événement</a>',
+                reverse("admin:events_event_change", args=(id,)),
+            )
 
     class Meta:
         model = Projet

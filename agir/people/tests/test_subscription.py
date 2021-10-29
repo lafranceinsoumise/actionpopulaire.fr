@@ -139,6 +139,7 @@ class SubscriptionConfirmationTestCase(TestCase):
         self.assertRegex(mail.outbox[0].body, r"vous êtes déjà avec nous !")
 
     def test_can_subscribe_with_nsp(self):
+
         data = {
             "email": "personne@organisation.pays",
             "location_zip": "20322",
@@ -155,9 +156,12 @@ class SubscriptionConfirmationTestCase(TestCase):
         self.assertIsNotNone(match)
         url_with_params = match.group(0)
 
+        avant = timezone.now()
         response = self.client.get(
             url_with_params + "&android=1"
         )  # we add &android=1 cause it should work also in app
+        apres = timezone.now()
+
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
         # check that the person has been created
@@ -166,11 +170,12 @@ class SubscriptionConfirmationTestCase(TestCase):
 
         self.assertTrue(p.is_2022)
         self.assertEqual(p.location_country, "VE")
-        self.assertAlmostEqual(
-            datetime.fromisoformat(p.meta["subscriptions"]["NSP"]["date"]),
-            timezone.now(),
-            delta=timedelta(seconds=3),
+
+        subscription_time = datetime.fromisoformat(
+            p.meta["subscriptions"]["NSP"]["date"]
         )
+
+        self.assertTrue(avant <= subscription_time <= apres)
 
 
 class ManageNewslettersAPIViewTestCase(WordpressClientMixin, TestCase):

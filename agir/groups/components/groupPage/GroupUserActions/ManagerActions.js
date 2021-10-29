@@ -80,7 +80,6 @@ const StyledPanel = styled.div`
 
 const StyledWrapper = styled.div`
   display: flex;
-  width: 100%;
   flex-flow: column nowrap;
   gap: 0.5rem;
   position: relative;

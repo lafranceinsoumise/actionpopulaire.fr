@@ -264,10 +264,13 @@ class NewEventMyGroupsActivityNotificationSerializer(ActivityNotificationSeriali
 
     def get_title(self, activity):
         start_time = activity.event.local_start_time
-        return f"📆 {activity.event.name}, {start_time.strftime('%d/%m')} à {start_time.strftime('%H:%M')}"
+        date = start_time.strftime("%A %d/%m").capitalize()
+        time = start_time.strftime("%H:%M")
+
+        return f"📆 {date} à {time} : {activity.event.name}"
 
     def get_body(self, activity):
-        return f"Nouvel événement de {activity.supportgroup.name} — Confirmez votre participation pour recevoir les mises à jour"
+        return f"Nouvel événement de {activity.supportgroup.name}. Prévenez de votre présence !"
 
     def get_url(self, activity):
         return activity_notification_url(
@@ -368,9 +371,7 @@ class GroupCoorganizationInviteActivityNotificationSerializer(
         return f"Votre groupe {activity.supportgroup.name} est invité à co-organiser {activity.event.name}"
 
     def get_url(self, activity):
-        return activity_notification_url(
-            "view_event", activity=activity, kwargs={"pk": activity.event_id},
-        )
+        return activity_notification_url("list_activities", activity=activity,)
 
 
 class GroupCoorganizationInfoActivityNotificationSerializer(
@@ -440,9 +441,14 @@ class EventSuggestionNotificationSerializer(ActivityNotificationSerializer):
 
     def get_title(self, activity):
         start_time = activity.event.local_start_time
-        return f"📆 Ce {_date(start_time, 'l')} : passez à l'action !"
+        date = start_time.strftime("%A %d/%m").capitalize()
+        time = start_time.strftime("%H:%M")
+
+        return f"📆 {date} à {time} : {activity.event.name}"
 
     def get_body(self, activity):
+        if activity.supportgroup is not None:
+            return f"Nouvel événement de {activity.supportgroup.name}. Prévenez de votre présence !"
         return f"{activity.event.name}"
 
     def get_url(self, activity):

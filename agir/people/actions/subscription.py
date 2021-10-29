@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.elus.models import types_elus, StatutMandat, MandatMunicipal
+from agir.groups.models import Membership
 from agir.lib.http import add_query_params_to_url
 from agir.people.models import Person
 
@@ -151,3 +152,83 @@ def subscription_success_redirect_url(type, id, data):
         url = data.pop("next")
     params.update({f"agir_{k}": v for k, v in data.items()})
     return add_query_params_to_url(url, params, as_fragment=True)
+
+
+CONTACT_PERSON_UPDATABLE_FIELDS = (
+    "contact_phone",
+    "location_address1",
+    "location_zip",
+    "location_city",
+    "location_country",
+    "newsletters",
+)
+DATE_2022_LIAISON_META_PROPERTY = "2022_liaison_since"
+
+
+def save_contact_information(data):
+    group = None
+    has_group_notifications = data.pop("hasGroupNotifications")
+
+    if "group" in data:
+        group = data.pop("group")
+
+    with transaction.atomic():
+        try:
+            # If a person exists for this email, update some of the person's fields if empty
+            person = Person.objects.get_by_natural_key(data["email"])
+            is_new = False
+            person_patch = {
+                key: value
+                for key, value in data.items()
+                if key in CONTACT_PERSON_UPDATABLE_FIELDS and not getattr(person, key)
+            }
+            if "newsletters" in data and person.newsletters:
+                person_patch["newsletters"] = list(
+                    set(data["newsletters"] + person.newsletters)
+                )
+            for key, value in person_patch.items():
+                setattr(person, key, value)
+
+            person.save()
+        except Person.DoesNotExist:
+            # Create a new person if none exists for the email
+            data["meta"] = {
+                "subscriptions": {
+                    SUBSCRIPTION_TYPE_AP: {
+                        "date": timezone.now().isoformat(),
+                        "subscriber": str(data.pop("subscriber").id),
+                    }
+                }
+            }
+            person = Person.objects.create_person(data.pop("email"), **data)
+            is_new = True
+
+        if (
+            Person.NEWSLETTER_2022_LIAISON in person.newsletters
+            and not person.meta.get(DATE_2022_LIAISON_META_PROPERTY, None)
+        ):
+            person.meta[DATE_2022_LIAISON_META_PROPERTY] = timezone.now().isoformat(
+                timespec="seconds"
+            )
+            person.save()
+
+        from agir.people.tasks import notify_contact
+
+        transaction.on_commit(
+            partial(notify_contact.delay, str(person.id), is_new=is_new)
+        )
+
+    if group:
+        # Create a follower type membership for the person if none exists already and
+        # a group id has been sent
+        Membership.objects.get_or_create(
+            supportgroup=group,
+            person=person,
+            defaults={
+                "membership_type": Membership.MEMBERSHIP_TYPE_FOLLOWER,
+                "personal_information_sharing_consent": True,
+                "default_subscriptions_enabled": has_group_notifications,
+            },
+        )
+
+    return person

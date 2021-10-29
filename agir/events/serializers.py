@@ -2,6 +2,7 @@ from datetime import timedelta
 from functools import partial
 from pathlib import PurePath
 
+from agir.lib.html import textify
 from django.db import transaction
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
@@ -18,7 +19,6 @@ from agir.lib.serializers import (
     FlexibleFieldsMixin,
     CurrentPersonField,
 )
-from agir.people.serializers import PersonSerializer
 
 from agir.lib.utils import (
     validate_facebook_event_url,
@@ -46,10 +46,11 @@ from .tasks import (
     send_event_changed_notification,
     notify_on_event_report,
 )
-from ..gestion.models import Projet, Document
+from ..gestion.models import Projet, Document, VersionDocument
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
+from ..lib.html import textify
 from ..lib.utils import admin_url, replace_datetime_timezone
 
 
@@ -141,11 +142,13 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     hasSubscriptionForm = serializers.SerializerMethodField()
 
     description = serializers.CharField(source="html_description")
+    textDescription = serializers.SerializerMethodField()
     compteRendu = serializers.CharField(source="report_content")
     compteRenduMainPhoto = serializers.SerializerMethodField(source="report_image")
     compteRenduPhotos = serializers.SerializerMethodField()
 
     illustration = serializers.SerializerMethodField()
+    metaImage = serializers.SerializerMethodField()
 
     startTime = serializers.SerializerMethodField()
     endTime = serializers.SerializerMethodField()
@@ -308,6 +311,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_has_project(self, obj):
         return Projet.objects.filter(event=obj).exists()
 
+    def get_textDescription(self, obj):
+        if isinstance(obj.description, str):
+            return textify(obj.description)
+        return ""
+
+    def get_metaImage(self, obj):
+        return obj.get_meta_image()
+
 
 class EventAdvancedSerializer(EventSerializer):
 
@@ -329,27 +340,41 @@ class EventAdvancedSerializer(EventSerializer):
     # Return organizers and referents from organizers_groups
     def get_organizers(self, obj):
         current_organizers = obj.organizers.all()
-        return [
-            {
-                "id": person.id,
-                "email": person.email,
-                "displayName": person.display_name,
-                "gender": person.gender,
-                "isOrganizer": True,
-            }
-            for person in current_organizers
-        ] + [
-            {
-                "id": person.id,
-                "email": person.email,
-                "displayName": person.display_name,
-                "gender": person.gender,
-                "isOrganizer": True,
-            }
-            for group in obj.organizers_groups.distinct()
-            for person in group.referents
-            if person not in current_organizers
-        ]
+        all_organizers = []
+        person_ids = []
+
+        # Add initial organizers
+        for person in current_organizers:
+            if person.id in person_ids:
+                continue
+            person_ids += [person.id]
+            all_organizers += [
+                {
+                    "id": person.id,
+                    "email": person.email,
+                    "displayName": person.display_name,
+                    "gender": person.gender,
+                    "isOrganizer": True,
+                }
+            ]
+
+        # Add distinct organizers from groups coorganizing the event
+        for group in obj.organizers_groups.distinct():
+            for person in group.referents:
+                if person.id in person_ids:
+                    continue
+                person_ids += [person.id]
+                all_organizers += [
+                    {
+                        "id": person.id,
+                        "email": person.email,
+                        "displayName": person.display_name,
+                        "gender": person.gender,
+                        "isOrganizer": True,
+                    }
+                ]
+
+        return all_organizers
 
     def get_groups_invited(self, obj):
 
@@ -357,7 +382,11 @@ class EventAdvancedSerializer(EventSerializer):
             invitations__status=Invitation.STATUS_PENDING, invitations__event=obj
         )
         return [
-            {"id": group.id, "name": group.name, "description": group.description,}
+            {
+                "id": group.id,
+                "name": group.name,
+                "description": textify(group.description),
+            }
             for group in groups_invited
         ]
 
@@ -770,6 +799,25 @@ class EventProjectDocumentSerializer(serializers.ModelSerializer):
                 code="formulaire_format_incorrect",
             )
         return value
+
+    def create(self, validated_data):
+        document = Document.objects.create(
+            titre=self.validated_data["titre"],
+            type=self.validated_data["type"],
+            description=self.validated_data["description"],
+        )
+        VersionDocument.objects.create(
+            titre="Version initiale",
+            document=document,
+            fichier=self.validated_data["fichier"],
+        )
+        return document
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError(
+            "Pas implémenté : il faut vérifier pouvoir vérifier si le fichier est différent de l'actuel, et seulement "
+            "si c'est le cas, créer une nouvelle version du fichier."
+        )
 
     class Meta:
         model = Document

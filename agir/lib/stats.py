@@ -62,6 +62,7 @@ def get_general_stats(start, end):
         .filter(memberships__created__range=(start, end))
         .distinct()
         .count(),
+        "liaisons": Person.objects.liaisons(from_date=start, to_date=end).count(),
     }
 
 
@@ -122,4 +123,5 @@ def get_instant_stats():
         )
         .exclude(contact_phone="")
         .count(),
+        "liaisons": Person.objects.liaisons().count(),
     }

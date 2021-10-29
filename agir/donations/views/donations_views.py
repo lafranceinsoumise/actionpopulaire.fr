@@ -191,7 +191,7 @@ class MonthlyDonationPersonalInformationView(
     form_class = forms.AllocationMonthlyDonorForm
     template_name = "donations/personal_information.html"
     payment_mode = payment_modes.DEFAULT_MODE
-    payment_type = DonsConfig.PAYMENT_TYPE
+    payment_type = DonsConfig.SUBSCRIPTION_TYPE
     session_namespace = DONATION_SESSION_NAMESPACE
     first_step_url = "view_payments"
     persisted_data = ["amount", "allocations", "previous_subscription"]

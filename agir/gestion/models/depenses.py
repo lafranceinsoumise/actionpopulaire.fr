@@ -1,5 +1,4 @@
 import re
-from decimal import Decimal
 from typing import List
 
 import reversion
@@ -37,7 +36,8 @@ def engagement_autorise(depense: "Depense", role):
 
 
 def engager_depense(depense: "Depense"):
-    depense.date_depense = timezone.now()
+    if depense.date_depense is None:
+        depense.date_depense = timezone.now()
 
 
 class DepenseQuerySet(models.QuerySet):
@@ -449,6 +449,7 @@ def etat_initial(depense: Depense, createur: Role):
     if createur.has_perm("gestion.engager_depense") or createur.has_perm(
         "gestion.engager_depense", obj=compte
     ):
+        engager_depense(depense)
         return Depense.Etat.CONSTITUTION
 
     if createur.has_perm("gestion.gerer_depense") or createur.has_perm(

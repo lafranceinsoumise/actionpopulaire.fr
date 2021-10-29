@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import PropTypes from "prop-types";
 import React, { useEffect, useMemo } from "react";
 import { Redirect } from "react-router-dom";
@@ -20,6 +19,7 @@ import {
 
 import CenteredLayout from "@agir/front/app/Layout/CenteredLayout";
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
+import OpenGraphTags from "@agir/front/app/OpenGraphTags";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
@@ -108,11 +108,13 @@ const Page = ({ groupPk, messagePk }) => {
 
   return (
     <>
-      <Helmet>
-        {group && group.name && group.isMember && (
-          <title>Message du groupe : {group.name} - Action populaire</title>
-        )}
-      </Helmet>
+      <OpenGraphTags
+        title={
+          group && group.name && group.isMember
+            ? `Message du groupe : ${group.name}`
+            : "Message du groupe"
+        }
+      />
       <PageFadeIn wait={PageSkeleton} ready={isSessionLoaded && group}>
         {isSessionLoaded && group ? (
           <CenteredLayout

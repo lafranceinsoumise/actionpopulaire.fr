@@ -16,17 +16,16 @@ const StyledWrapper = styled.div`
   width: 100%;
   flex-flow: column nowrap;
   margin-top: 1rem;
+  flex-direction: row;
+  justify-content: center;
 `;
 
 const StyledLink = styled(Link)``;
 
 const StyledContainer = styled.div`
   display: flex;
-  flex-align: row;
-  flex-direction: row;
   justify-content: center;
   width: 100%;
-  justify-content: space-evenly;
 
   button,
   ${StyledLink} {
@@ -40,6 +39,7 @@ const StyledContainer = styled.div`
     align-items: center;
     color: ${style.black1000};
     font-weight: 500;
+    padding: 12px 24px;
   }
   button:hover,
   ${StyledLink}:hover {

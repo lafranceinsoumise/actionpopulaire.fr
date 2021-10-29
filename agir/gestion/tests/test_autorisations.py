@@ -6,16 +6,17 @@ from agir.gestion.models import Compte
 from agir.gestion.models.common import Autorisation
 from agir.gestion.rules import permission_sur_compte
 from agir.lib.tests.strategies import person_with_role, printable_text
+from .strategies import compte
 
 
 class RuleTestCase(TestCase):
-    @given(person_with_role(), from_model(Compte), printable_text)
+    @given(person_with_role(), from_model(Compte), printable_text())
     def test_aucune_autorisation_par_defaut(self, person, compte, perm):
         perm_checker = permission_sur_compte(perm)
         self.assertFalse(perm_checker(person.role))
         self.assertFalse(perm_checker(person.role, obj=compte))
 
-    @given(person_with_role(), from_model(Group), from_model(Compte), printable_text)
+    @given(person_with_role(), from_model(Group), from_model(Compte), printable_text())
     def test_possible_ajouter_permission(self, person, group, compte, perm):
         group.user_set.add(person.role)
         Autorisation.objects.create(compte=compte, group=group, autorisations=[perm])
@@ -28,8 +29,8 @@ class RuleTestCase(TestCase):
         person_with_role(),
         from_model(Group),
         from_model(Compte),
-        st.lists(printable_text),
-        printable_text,
+        st.lists(printable_text()),
+        printable_text(),
     )
     def test_autorisation_limitee_aux_roles_listes(
         self, person, group, compte, perms, other_perm
@@ -44,14 +45,14 @@ class RuleTestCase(TestCase):
 
 
 class PermissionsTestCase(TestCase):
-    @given(person_with_role(), from_model(Compte))
+    @given(person_with_role(), compte())
     def test_pas_de_permissions_par_defaut(self, person, compte):
         for perm, _ in Compte._meta.permissions:
             self.assertFalse(person.role.has_perm(f"gestion.{perm}", obj=compte))
 
     @given(
         person_with_role(),
-        from_model(Compte),
+        compte(),
         from_model(Group),
         st.lists(
             st.sampled_from([p for p, _ in Compte._meta.permissions]), unique=True

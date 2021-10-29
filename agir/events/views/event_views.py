@@ -574,10 +574,8 @@ class ConfirmEventGroupCoorganization(View):
         if not person in group.referents:
             return HttpResponseRedirect(reverse("dashboard"))
 
-        organizers_groups = OrganizerConfig.objects.filter(event=event, as_group=group)
-
-        # Check group is already coorganizer
-        if len(organizers_groups) > 0:
+        # Check if the group is already coorganizer
+        if OrganizerConfig.objects.filter(event=event, as_group=group).exists():
             messages.add_message(
                 self.request, messages.INFO, "Votre groupe est déjà coorganisateur",
             )
@@ -598,12 +596,9 @@ class ConfirmEventGroupCoorganization(View):
             )
             return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
 
-        # Get current organizers of event to send them notification
-        event_organizers_id = list(event.organizers.all().values_list("id", flat=True))
-
         # Add group as organizer of event, with its referent accepting invitation
         organizer_config = OrganizerConfig.objects.create(
-            event=event, as_group=group, person=person
+            event=event, as_group=group, person=person, is_creator=False
         )
         organizer_config.save()
 
@@ -617,6 +612,9 @@ class ConfirmEventGroupCoorganization(View):
             event=event, type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
         )
         activity_groups_invited.filter(supportgroup=group).delete()
+
+        # Get current organizers of event to send them notification
+        event_organizers_id = list(event.organizers.all().values_list("id", flat=True))
 
         send_validated_group_coorganization_invitation_notification.delay(
             invitation.id, event_organizers_id

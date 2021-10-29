@@ -1,6 +1,5 @@
 import React, { useCallback, useState, useRef } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import Helmet from "react-helmet";
 import useSWR from "swr";
 
 import styled from "styled-components";
@@ -12,6 +11,8 @@ import Modal from "@agir/front/genericComponents/Modal";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import AmountInformations from "./AmountInformations";
 import Breadcrumb from "./Breadcrumb";
+import OpenGraphTags from "@agir/front/app/OpenGraphTags";
+
 import AmountStep from "./AmountStep";
 import InformationsStep from "./InformationsStep";
 
@@ -179,9 +180,7 @@ const DonationPage = () => {
 
   return (
     <Theme type={formData.to}>
-      <Helmet>
-        <title>{CONFIG[type]?.title || CONFIG.default.title}</title>
-      </Helmet>
+      <OpenGraphTags title={CONFIG[type]?.title || CONFIG.default.title} />
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <AmountStep
           type={type}

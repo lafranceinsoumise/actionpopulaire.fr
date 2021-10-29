@@ -1,11 +1,9 @@
-import decimal
 import re
 import secrets
 from functools import reduce
 from operator import add
 from string import ascii_uppercase, digits
 
-import dynamic_filenames
 import reversion
 from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -17,11 +15,10 @@ from django.db import models
 from django.urls import reverse
 
 from agir.gestion.models.configuration import EngagementAutomatique
-from agir.gestion.typologies import TypeDocument, TypeDepense
 from agir.lib.models import TimeStampedModel
 from agir.lib.search import PrefixSearchQuery
 
-__all__ = ("Document", "Compte", "InstanceCherchable", "Autorisation")
+__all__ = ("Compte", "InstanceCherchable", "Autorisation")
 
 
 ALPHABET = ascii_uppercase + digits
@@ -108,67 +105,6 @@ class ModeleGestionMixin(models.Model):
 
     class Meta:
         abstract = True
-
-
-@reversion.register()
-class Document(ModeleGestionMixin, TimeStampedModel):
-    """Modèle représentant un élément justificatif, à associer à une instance d'un autre modèle de gestion
-    """
-
-    class Besoin(models.TextChoices):
-        NECESSAIRE = "NEC", "Strictement nécessaire"
-        PREFERABLE = "PRE", "Préférable"
-        IGNORER = "IGN", "Peut être ignoré"
-
-    titre = models.CharField(
-        verbose_name="Titre du document",
-        help_text="Titre permettant d'identifier le document",
-        max_length=200,
-    )
-
-    identifiant = models.CharField(
-        verbose_name="Identifiant ou numéro externe",
-        max_length=100,
-        blank=True,
-        help_text="Indiquez ici si ce document a un identifiant ou un numéro (numéro de facture ou de devis, identifiant de transaction, etc.)",
-    )
-
-    type = models.CharField(
-        verbose_name="Type de document", max_length=10, choices=TypeDocument.choices
-    )
-
-    requis = models.CharField(
-        verbose_name="Obligatoire ?",
-        max_length=3,
-        choices=Besoin.choices,
-        default=Besoin.NECESSAIRE,
-    )
-
-    description = models.TextField(
-        "Description du document",
-        help_text="Toute description complémentaire nécessaire pour identifier clairement le document (et le rechercher)",
-        blank=True,
-    )
-
-    fichier = models.FileField(
-        verbose_name="Fichier du document",
-        null=True,
-        blank=True,
-        upload_to=dynamic_filenames.FilePattern(
-            filename_pattern="gestion/documents/{uuid:.2base32}/{uuid}{ext}"
-        ),
-    )
-
-    search_config = (
-        ("numero", "B"),
-        ("titre", "A"),
-        ("identifiant", "B"),
-        ("description", "C"),
-    )
-
-    class Meta:
-        verbose_name = "Document justificatif"
-        verbose_name_plural = "Documents justificatifs"
 
 
 @reversion.register()

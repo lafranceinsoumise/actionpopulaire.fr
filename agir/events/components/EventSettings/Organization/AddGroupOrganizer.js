@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { mutate } from "swr";
 
 import styled from "styled-components";
@@ -17,6 +17,7 @@ import BackButton from "@agir/front/genericComponents/ObjectManagement/BackButto
 import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { useToast } from "@agir/front/globalContext/hooks.js";
+import _debounce from "lodash/debounce";
 
 const StyledListBlock = styled.div`
   div {
@@ -46,6 +47,9 @@ const StyledSearch = styled.div`
     padding-right: 1rem;
   }
 `;
+
+const START_SEARCH = 3;
+const MAX_RESULTS = 20;
 
 export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -80,15 +84,19 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
         (result) => !groups.some((group) => group.id === result.id)
       )
     );
+    setIsLoading(false);
   };
+
+  const debouncedSearch = useCallback(_debounce(handleSearch, 300), []);
 
   const handleChange = (e) => {
     setSearch(e.target.value);
-    if (e.target.value.length >= 3) {
-      handleSearch(e.target.value);
-      return;
-    }
+    setIsLoading(true);
     setGroupSearched([]);
+
+    if (e.target.value.length >= START_SEARCH) {
+      debouncedSearch(e.target.value);
+    }
   };
 
   return (
@@ -123,22 +131,33 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
           {!!groupSearched?.length && (
             <>
               <Spacer size="2rem" />
-              {groupSearched.slice(0, 4).length > 4 && (
-                <p>4 des {groupSearched.length} résultats</p>
+              {groupSearched.slice(0, MAX_RESULTS).length > MAX_RESULTS && (
+                <p>
+                  {MAX_RESULTS} des {groupSearched.length} résultats
+                </p>
               )}
               <GroupList
-                groups={groupSearched.slice(0, 4)}
+                groups={groupSearched.slice(0, MAX_RESULTS)}
                 selectGroup={setSelectedGroup}
               />
               <Spacer size="1rem" />
             </>
           )}
 
-          {search.length >= 3 && !groupSearched?.length && (
-            <>
-              <Spacer size="2rem" />
-              <p>Aucun groupe ne correspond à cette recherche</p>
-            </>
+          {search.length < START_SEARCH && (
+            <p>
+              <Spacer size="1rem" />
+              Ecrivez au moins {START_SEARCH} caractères
+            </p>
+          )}
+
+          {search.length >= START_SEARCH && !groupSearched?.length && (
+            <p>
+              <Spacer size="1rem" />
+              {isLoading
+                ? "Recherche en cours ..."
+                : "Aucun groupe ne correspond à cette recherche"}
+            </p>
           )}
         </>
       ) : (
@@ -153,6 +172,7 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
               <b>Si ses animateur·ices acceptent la co-organisation</b>, ce
               groupe s’affichera sur la page publique de l’événement
             </StyledListBlock>
+            <Spacer size="0.5rem" />
             <StyledListBlock>
               <div />
               Ces dernier·es <b>pourront accéder aux paramètres</b> de

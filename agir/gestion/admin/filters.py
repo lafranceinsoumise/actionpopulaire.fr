@@ -1,5 +1,41 @@
 from agir.gestion.models import Projet, Depense
-from django.contrib.admin import SimpleListFilter
+from django.contrib.admin import SimpleListFilter, ListFilter
+
+
+class InclureProjetsMilitantsFilter(ListFilter):
+    parameter_name = "militant"
+    title = "origine du projet"
+
+    def __init__(self, request, params, model, model_admin):
+        super().__init__(request, params, model, model_admin)
+        if self.parameter_name in params:
+            self.value = params.pop(self.parameter_name)
+            self.used_parameters[self.parameter_name] = self.value
+        else:
+            self.value = None
+
+    def expected_parameters(self):
+        return [self.parameter_name]
+
+    def has_output(self):
+        return True
+
+    def choices(self, changelist):
+        yield {
+            "selected": self.value is None,
+            "query_string": changelist.get_query_string(remove=[self.parameter_name]),
+            "display": "n'inclure que les projets créés dans l'administration",
+        }
+        yield {
+            "selected": self.value == "O",
+            "query_string": changelist.get_query_string({self.parameter_name: "O"}),
+            "display": "inclure aussi les projets militants",
+        }
+
+    def queryset(self, request, queryset):
+        if self.value == "O":
+            return queryset
+        return queryset.exclude(origine=Projet.Origin.UTILISATEUR)
 
 
 class ProjetResponsableFilter(SimpleListFilter):

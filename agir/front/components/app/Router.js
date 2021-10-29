@@ -23,6 +23,7 @@ import {
   useDownloadBanner,
 } from "@agir/front/app/hooks";
 
+import OpenGraphTags from "@agir/front/app/OpenGraphTags";
 import TopBar from "@agir/front/app/Navigation/TopBar";
 import Footer from "@agir/front/app/Footer";
 import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
@@ -98,6 +99,10 @@ const Router = ({ children }) => {
             !route.hideTopBar && (!route.appOnlyTopBar || isMobileApp);
           return (
             <Route key={route.id} path={route.path} exact={!!route.exact}>
+              <OpenGraphTags
+                title={route.label}
+                description={route.description}
+              />
               {hasTopBar && <TopBar hasLayout={!!route.hasLayout} />}
               {hasTopBar && isBannerDownload && <Spacer size="80px" />}
               {!route.hideConnectivityWarning && (

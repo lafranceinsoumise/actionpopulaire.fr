@@ -8,25 +8,41 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Button from "@agir/front/genericComponents/Button";
 
 const Name = styled.span``;
-const Description = styled.span``;
 const Label = styled.span``;
 const StyledGroup = styled.div`
+  cursor: ${({ isSelectGroup }) => (isSelectGroup ? "pointer" : "default")};
   background-color: ${style.white};
   padding: 0.75rem 1rem;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  grid-template-rows: auto auto;
-  align-items: center;
-  grid-gap: 0 1rem;
-  opacity: ${({ disabled }) => (disabled ? 0.7 : 1)};
-
-  @media (max-width: ${style.collapse}px) {
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto auto;
-  }
+  display: flex;
+  flex-direction: column;
 
   & > * {
     margin: 0;
+  }
+
+  > div:first-child {
+    opacity: ${({ disabled }) => (disabled ? 0.7 : 1)};
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    width: 100%;
+
+    @media (min-width: ${style.collapse}px) {
+      display: inline-flex;
+    }
+  }
+
+  > div:last-child {
+    display: block;
+
+    @media (min-width: ${style.collapse}px) {
+      display: inline-flex;
+      align-items: center;
+    }
+  }
+
+  ${Avatar}, ${RawFeatherIcon} {
+    margin-right: 0.5rem;
   }
 
   ${Avatar} {
@@ -64,52 +80,44 @@ const StyledGroup = styled.div`
     overflow: hidden;
   }
 
-  ${Description} {
+  ${Label} {
     display: block;
-    color: ${style.black500};
-    font-weight: 400;
-    font-size: 0.875rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+    padding-left: 40px;
+    font-size: 13px;
   }
 
-  ${Label} {
-    font-size: 13px;
+  ${Button} {
+    @media (max-width: ${style.collapse}px) {
+      display: none;
+    }
   }
 `;
 
-const GroupItem = ({
-  id,
-  name,
-  image = "",
-  description = "",
-  selectGroup,
-  label,
-  disabled,
-}) => {
+const GroupItem = ({ id, name, image = "", selectGroup, label, disabled }) => {
   return (
-    <StyledGroup disabled={disabled}>
-      {image ? (
-        <Avatar image={image} name={name} />
-      ) : (
-        <RawFeatherIcon width="1rem" height="1rem" name="users" />
-      )}
-      <Name>
-        {name}
-        <Description>{description}</Description>
-      </Name>
-
-      {selectGroup && (
-        <Button
-          color="choose"
-          small
-          onClick={() => selectGroup({ id, name, description })}
-        >
-          Inviter
-        </Button>
-      )}
-      {!!label && <Label>{label}</Label>}
+    <StyledGroup
+      disabled={disabled}
+      isSelectGroup={!!selectGroup}
+      onClick={() => selectGroup && selectGroup({ id, name })}
+    >
+      <div>
+        {image ? (
+          <Avatar image={image} name={name} />
+        ) : (
+          <RawFeatherIcon width="1rem" height="1rem" name="users" />
+        )}
+        <Name>{name}</Name>
+        {selectGroup && (
+          <Button
+            color="choose"
+            small
+            onClick={() => selectGroup({ id, name })}
+          >
+            Inviter
+          </Button>
+        )}
+      </div>
+      <div>{!!label && <Label>{label}</Label>}</div>
     </StyledGroup>
   );
 };
@@ -118,7 +126,6 @@ GroupItem.propTypes = {
   id: PropTypes.string,
   name: PropTypes.string,
   image: PropTypes.string,
-  description: PropTypes.string,
   selectGroup: PropTypes.func,
 };
 

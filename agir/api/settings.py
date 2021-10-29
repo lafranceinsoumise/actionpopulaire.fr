@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 import json
+import locale
 import os
 import re
 import warnings
@@ -423,6 +424,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
+# applique la locale par défaut
+# https://docs.python.org/fr/3.6/library/locale.html#locale.setlocale
+locale.setlocale(locale.LC_ALL, "")
+
 LANGUAGE_CODE = "fr-fr"
 
 TIME_ZONE = "Europe/Paris"
@@ -746,7 +751,7 @@ SYSTEMPAY_AFCP2022_CERTIFICATE = os.environ.get(
 
 
 DONATION_MINIMUM = 1 * 100  # 1 €
-DONATION_MAXIMUM = 1000 * 100  # 1000 €
+DONATION_MAXIMUM = 4600 * 100  # 4600 €
 DONATION_MATOMO_GOAL = os.environ.get("DONATION_MATOMO_GOAL")
 MONTHLY_DONATION_MINIMUM = 1 * 100  # 1 €
 MONTHLY_DONATION_MAXIMUM = 400 * 100  # 400 €
