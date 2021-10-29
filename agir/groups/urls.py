@@ -203,4 +203,9 @@ urlpatterns = [
         views.InvitationAbuseReportingView.as_view(),
         name="report_invitation_abuse",
     ),
+    path(
+        "groupes/<uuid:pk>/og-image/<str:cache_key>/",
+        views.SuppportGroupOGImageView.as_view(),
+        name="view_og_image_supportgroup",
+    ),
 ]
