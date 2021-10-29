@@ -213,6 +213,9 @@ class SupportGroupDetailView(
             reverse_lazy("api_near_groups_view", kwargs=self.kwargs),
         ]
 
+    def get_meta_image(self):
+        return self.object.get_meta_image()
+
 
 class SupportGroupSettingsView(HardLoginRequiredMixin, SupportGroupDetailView):
     permission_required = "groups.change_supportgroup"

@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     path(
         "evenements/<uuid:pk>/og-image/<str:cache_key>/",
-        views.EventThumbnailView.as_view(),
+        views.EventOGImageView.as_view(),
         name="view_og_image_event",
     ),
     path("evenements/liste/", views.EventSearchView.as_view(), name="search_event"),
