@@ -370,10 +370,8 @@ class GroupCoorganizationInviteActivityNotificationSerializer(
     def get_body(self, activity):
         return f"Votre groupe {activity.supportgroup.name} est invité à co-organiser {activity.event.name}"
 
-    def get_url(self, activity):
-        return activity_notification_url(
-            "view_event", activity=activity, kwargs={"pk": activity.event_id},
-        )
+    def get_url(self):
+        return front_url("list_activities")
 
 
 class GroupCoorganizationInfoActivityNotificationSerializer(
