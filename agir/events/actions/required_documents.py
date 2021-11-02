@@ -2,6 +2,7 @@ import datetime
 from datetime import timedelta
 
 from django.utils import timezone
+from agir.events.models import Event
 
 
 def get_project_document_deadline(project):
@@ -49,6 +50,9 @@ def get_project_missing_document_count(project):
 def get_is_blocking_project(project):
     # Avoid blocking event creations before November the 1st 2021
     if datetime.date.today() < datetime.date(2021, 11, 1):
+        return False
+
+    if project.event.visibility == Event.VISIBILITY_ADMIN:
         return False
 
     deadline = get_project_document_deadline(project)
