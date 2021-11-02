@@ -344,6 +344,14 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
                 code="invalid_format",
             )
 
+        # Create organizer config if current person is the group referent
+        if member in group.referents:
+            OrganizerConfig.objects.create(
+                event=event, person=member, as_group=group,
+            )
+            return Response(status=status.HTTP_201_CREATED)
+
+        # Send a coorganization invitation otherwise
         with transaction.atomic():
             (invitation, created) = Invitation.objects.get_or_create(
                 event=event,
@@ -359,7 +367,7 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
 
             send_group_coorganization_invitation_notification.delay(invitation.pk)
 
-            return Response({"data": True}, status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_202_ACCEPTED)
 
 
 class CancelEventAPIView(GenericAPIView):
