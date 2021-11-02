@@ -130,6 +130,11 @@ api_urlpatterns = [
         views.RetrieveUpdateDestroySupportGroupExternalLinkAPIView.as_view(),
         name="api_group_link_retrieve_update_destroy",
     ),
+    path(
+        "<uuid:group_pk>/membre/",
+        views.GroupUpdateOwnMembershipAPIView.as_view(),
+        name="api_group_update_own_membership",
+    ),
 ]
 
 urlpatterns = [
@@ -202,5 +207,10 @@ urlpatterns = [
         "groupes/invitation/abus/",
         views.InvitationAbuseReportingView.as_view(),
         name="report_invitation_abuse",
+    ),
+    path(
+        "groupes/<uuid:pk>/og-image/<str:cache_key>/",
+        views.SuppportGroupOGImageView.as_view(),
+        name="view_og_image_supportgroup",
     ),
 ]

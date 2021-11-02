@@ -1005,3 +1005,43 @@ class MemberPersonalInformationAPITestCase(APITestCase):
         self.assertIn("id", res.data)
         for field in restricted_fields:
             self.assertIn(field, res.data)
+
+
+class UpdateOwnMembershipAPITestCase(APITestCase):
+    def setUp(self):
+        self.group = SupportGroup.objects.create(name="Group")
+        self.non_member = Person.objects.create(
+            email="non_member@agir.local", create_role=True
+        )
+        self.member = create_membership(
+            supportgroup=self.group, membership_type=Membership.MEMBERSHIP_TYPE_MEMBER
+        )
+
+    def test_anonymous_cannot_update_membership(self):
+        self.client.logout()
+        data = {"personalInfoConsent": True}
+        res = self.client.patch(f"/api/groupes/{self.group.id}/membre/", data=data)
+        self.assertEqual(res.status_code, 404)
+
+    def test_non_member_cannot_update_membership(self):
+        self.client.force_login(self.non_member.role)
+        data = {"personalInfoConsent": True}
+        res = self.client.patch(f"/api/groupes/{self.group.id}/membre/", data=data)
+        self.assertEqual(res.status_code, 404)
+
+    def test_member_cannot_update_own_membership(self):
+        self.member.personal_info_sharing_consent = None
+        self.member.save()
+        self.member.refresh_from_db()
+        self.assertIsNone(self.member.personal_information_sharing_consent)
+        self.client.force_login(self.member.person.role)
+        data = {"personalInfoConsent": True}
+        res = self.client.patch(f"/api/groupes/{self.group.id}/membre/", data=data)
+        self.assertEqual(res.status_code, 200)
+        self.member.refresh_from_db()
+        self.assertTrue(self.member.personal_information_sharing_consent)
+        data = {"personalInfoConsent": False}
+        res = self.client.patch(f"/api/groupes/{self.group.id}/membre/", data=data)
+        self.assertEqual(res.status_code, 200)
+        self.member.refresh_from_db()
+        self.assertFalse(self.member.personal_information_sharing_consent)

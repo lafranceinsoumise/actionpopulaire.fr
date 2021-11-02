@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html_join, format_html
 
-from agir.gestion.admin.base import BaseMixin
+from agir.gestion.admin.base import SearchableModelMixin
 from agir.gestion.admin.forms import DepenseDevisForm
 from agir.gestion.models import Depense, Projet, Participation
+from agir.gestion.models.documents import VersionDocument
 
 
 class BaseDocumentInline(admin.TabularInline):
@@ -19,8 +20,8 @@ class BaseDocumentInline(admin.TabularInline):
     fields = ("document", "type_document", "fichier_document")
 
     def type_document(self, obj):
-        if obj:
-            return obj.get_type_display()
+        if obj and obj.document:
+            return obj.document.get_type_display()
         return "-"
 
     type_document.short_description = "Type de document"
@@ -43,7 +44,7 @@ class DepenseDocumentInline(BaseDocumentInline):
     model = Depense.documents.through
 
 
-class DepenseInline(BaseMixin, admin.TabularInline):
+class DepenseInline(SearchableModelMixin, admin.TabularInline):
     verbose_name = "Dépense"
     verbose_name_plural = "Dépenses du projet"
 
@@ -139,3 +140,17 @@ class ProjetParticipationInline(admin.TabularInline):
 
     depense_transport = depense_type("TRA", "Dépenses de transport")
     depense_hebergement = depense_type("FRH", "Dépenses d'hébergement")
+
+
+class VersionDocumentInline(admin.TabularInline):
+    model = VersionDocument
+
+    extra = 0
+    show_change_link = True
+    can_delete = True
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    fields = ("titre", "date", "fichier")
+    readonly_fields = ("titre", "date", "fichier")

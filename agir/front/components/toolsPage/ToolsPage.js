@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import Helmet from "react-helmet";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
@@ -17,7 +16,7 @@ import img_Linsoumission from "./images/Linsoumission.jpg";
 import img_Comparateur from "./images/Comparateur.jpg";
 import bricksNSP from "./images/bricksNSP.svg";
 
-import Navigation from "@agir/front/dashboardComponents/Navigation";
+import BottomBar from "@agir/front/app/Navigation/BottomBar";
 import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
@@ -646,9 +645,6 @@ const ToolsPage = () => {
 
   return (
     <StyledPage>
-      <Helmet>
-        <title>Outils - Action Populaire</title>
-      </Helmet>
       <div>
         {isConnected && (
           <Hide under>
@@ -712,7 +708,7 @@ const ToolsPage = () => {
 
         <Spacer size="30px" />
 
-        {!isDesktop && <Navigation active={routeConfig.tools.id} />}
+        {!isDesktop && <BottomBar active={routeConfig.tools.id} />}
       </div>
     </StyledPage>
   );

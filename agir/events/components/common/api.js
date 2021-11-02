@@ -13,7 +13,8 @@ export const ENDPOINT = {
   eventProject: "/api/evenements/:eventPk/projet/",
   addEventProjectDocument: "/api/evenements/:eventPk/projet/document/",
   getDetailAdvanced: "/api/evenements/:eventPk/details-avances/",
-  addOrganizer: "/api/evenements/:eventPk/organizers/",
+  addOrganizer: "/api/evenements/:eventPk/organisateurs/",
+  inviteGroupOrganizer: "/api/evenements/:eventPk/groupes-organisateurs/",
   cancelEvent: "/api/evenements/:eventPk/annuler/",
   updateLocation: "/evenements/:eventPk/localisation/",
 };
@@ -241,6 +242,24 @@ export const cancelEvent = async (eventPk) => {
 
   try {
     const response = await axios.post(url);
+    result.data = response.data;
+  } catch (e) {
+    result.errors = (e.response && e.response.data) || { global: e.message };
+  }
+
+  return result;
+};
+
+export const inviteGroupOrganizer = async (eventPk, data) => {
+  const result = {
+    data: null,
+    errors: null,
+  };
+
+  const url = getEventEndpoint("inviteGroupOrganizer", { eventPk });
+
+  try {
+    const response = await axios.post(url, data);
     result.data = response.data;
   } catch (e) {
     result.errors = (e.response && e.response.data) || { global: e.message };

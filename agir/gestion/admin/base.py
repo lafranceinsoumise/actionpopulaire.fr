@@ -9,16 +9,17 @@ from agir.gestion.admin.views import (
     TransitionView,
 )
 from agir.gestion.models import Commentaire
-from agir.lib.admin import get_admin_link
+from agir.lib.admin import get_admin_link, AddRelatedLinkMixin
 
 
-class BaseMixin(BaseModelAdmin):
+class SearchableModelMixin(BaseModelAdmin):
     search_fields = ("numero",)
 
     def get_search_results(self, request, queryset, search_term):
+        use_distinct = False
         if search_term:
-            return queryset.search(search_term)
-        return queryset, False
+            return queryset.search(search_term), use_distinct
+        return queryset, use_distinct
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj=obj) + ("numero_",)
@@ -32,7 +33,7 @@ class BaseMixin(BaseModelAdmin):
     numero_.short_description = "Numéro automatique"
 
 
-class BaseAdminMixin(BaseMixin, ModelAdmin):
+class BaseGestionModelAdmin(SearchableModelMixin, AddRelatedLinkMixin, ModelAdmin):
     def render_change_form(
         self, request, context, add=False, change=False, form_url="", obj=None
     ):

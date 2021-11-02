@@ -1,6 +1,8 @@
+import hashlib
 import random
 import re
 from secrets import token_urlsafe
+from urllib.parse import urljoin
 
 import ics
 import pytz
@@ -662,6 +664,28 @@ class Event(
     def can_rsvp(self, person):
         return True
 
+    def get_meta_image(self):
+        if hasattr(self, "image") and self.image:
+            return urljoin(settings.FRONT_DOMAIN, self.image.url)
+
+        # Use content hash as cache key for the auto-generated meta image
+        content = ":".join(
+            (
+                self.name,
+                self.location_zip,
+                self.location_city,
+                str(self.coordinates),
+                str(self.start_time),
+            )
+        )
+        content_hash = hashlib.sha1(content.encode("utf-8")).hexdigest()[:8]
+
+        return front_url(
+            "view_og_image_event",
+            kwargs={"pk": self.pk, "cache_key": content_hash},
+            absolute=True,
+        )
+
 
 class EventSubtype(BaseSubtype):
     TYPE_GROUP_MEETING = "G"
@@ -974,12 +998,9 @@ class IdentifiedGuest(ExportModelOperationsMixin("identified_guest"), models.Mod
 
 
 class OrganizerConfig(ExportModelOperationsMixin("organizer_config"), models.Model):
-    person = models.ForeignKey(
-        "people.Person",
-        related_name="organizer_configs",
-        on_delete=models.CASCADE,
-        editable=False,
-    )
+
+    is_creator = models.BooleanField(_("Créateur de l'événement"), default=False)
+
     event = models.ForeignKey(
         "Event",
         related_name="organizer_configs",
@@ -987,7 +1008,13 @@ class OrganizerConfig(ExportModelOperationsMixin("organizer_config"), models.Mod
         editable=False,
     )
 
-    is_creator = models.BooleanField(_("Créateur de l'événement"), default=False)
+    person = models.ForeignKey(
+        "people.Person",
+        related_name="organizer_configs",
+        on_delete=models.CASCADE,
+        editable=False,
+    )
+
     as_group = models.ForeignKey(
         "groups.SupportGroup",
         related_name="organizer_configs",
@@ -1081,3 +1108,55 @@ class JitsiMeeting(models.Model):
 
     class Meta:
         verbose_name = "Visio-conférence"
+
+
+class Invitation(TimeStampedModel):
+
+    STATUS_PENDING = "pending"
+    STATUS_ACCEPTED = "accepted"
+    STATUS_REFUSED = "refused"
+
+    STATUSES = (
+        (STATUS_PENDING, "En attente"),
+        (STATUS_ACCEPTED, "Acceptée"),
+        (STATUS_REFUSED, "Refusée"),
+    )
+
+    person_sender = models.ForeignKey(
+        "people.Person",
+        on_delete=models.CASCADE,
+        verbose_name="Personne qui émet l'invitation",
+    )
+    person_recipient = models.ForeignKey(
+        "people.Person",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="invitation_response",
+        verbose_name="Personne qui répond à l'invitation",
+    )
+    event = models.ForeignKey(
+        "events.Event",
+        on_delete=models.CASCADE,
+        related_name="invitations",
+        verbose_name="Evenement de l'invitation",
+    )
+    group = models.ForeignKey(
+        "groups.SupportGroup",
+        on_delete=models.CASCADE,
+        related_name="invitations",
+        verbose_name="Groupe invité à l'événement",
+    )
+    status = models.CharField(
+        "status",
+        max_length=20,
+        choices=STATUSES,
+        default=STATUS_PENDING,
+        null=False,
+        blank=False,
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["event", "group"], name="unique",),
+        ]

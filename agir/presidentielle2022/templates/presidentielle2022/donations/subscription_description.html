@@ -1,0 +1,6 @@
+{% load display_lib %}
+<h4>Don mensuel à l'AFCP Mélenchon 2022</h4>
+<p>Vous donnez <strong>{{ subscription.price | display_price_in_cent }}</strong> chaque {{ subscription.day_of_month }} du
+  mois à l'association de financement de la campagne présidentielle Mélenchon 2022</p>
+
+{% if expiry_date %}<p>Votre carte expire le {{ expiry_date }}.</p>{% endif %}

@@ -24,6 +24,7 @@ from .actions import get_promo_codes
 from .actions.notifications import member_to_follower_notification
 from .models import Membership, SupportGroup, SupportGroupExternalLink
 from ..front.serializer_utils import RoutesField
+from ..lib.html import textify
 from ..lib.utils import front_url, admin_url
 from ..people.models import Person
 
@@ -143,11 +144,13 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isActiveMember = serializers.SerializerMethodField(read_only=True,)
     isManager = serializers.SerializerMethodField(read_only=True,)
     isReferent = serializers.SerializerMethodField(read_only=True,)
+    personalInfoConsent = serializers.SerializerMethodField(read_only=True)
 
     name = serializers.CharField(read_only=True,)
     type = serializers.SerializerMethodField(read_only=True,)
     subtypes = serializers.SerializerMethodField(read_only=True)
     description = serializers.CharField(read_only=True, source="html_description")
+    textDescription = serializers.SerializerMethodField(read_only=True)
     isFull = serializers.SerializerMethodField(read_only=True,)
     isCertified = serializers.BooleanField(read_only=True, source="is_certified")
     is2022Certified = serializers.BooleanField(
@@ -198,6 +201,12 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return (
             self.membership is not None
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+        )
+
+    def get_personalInfoConsent(self, obj):
+        return (
+            self.membership is not None
+            and self.membership.personal_information_sharing_consent
         )
 
     def get_contact(self, instance):
@@ -376,6 +385,11 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     def get_links(self, obj):
         return obj.links.values("id", "label", "url")
 
+    def get_textDescription(self, obj):
+        if isinstance(obj.description, str):
+            return textify(obj.description)
+        return ""
+
 
 class SupportGroupUpdateSerializer(serializers.ModelSerializer):
     contact = NestedContactSerializer(source="*")
@@ -425,7 +439,7 @@ class MembershipSerializer(serializers.ModelSerializer):
         source="membership_type", choices=Membership.MEMBERSHIP_TYPE_CHOICES
     )
     personalInfoConsent = serializers.BooleanField(
-        source="personal_information_sharing_consent", read_only=True
+        source="personal_information_sharing_consent"
     )
     hasGroupNotifications = serializers.SerializerMethodField(read_only=True)
 

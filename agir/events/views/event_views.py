@@ -1,9 +1,10 @@
 import locale
 import os
+import textwrap
 
 import ics
 import pytz
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
@@ -32,6 +33,7 @@ from django.views.generic import (
 from django.views.generic.detail import SingleObjectMixin
 from rest_framework import status
 
+from agir.activity.models import Activity
 from agir.authentication.view_mixins import (
     HardLoginRequiredMixin,
     GlobalOrObjectPermissionRequiredMixin,
@@ -42,6 +44,8 @@ from agir.front.view_mixins import (
     ChangeLocationBaseView,
     FilterView,
 )
+from agir.groups.models import SupportGroup
+from agir.lib.tasks import create_static_map_image_from_coordinates
 from ..filters import EventFilter
 from ..forms import (
     EventGeocodingForm,
@@ -49,10 +53,11 @@ from ..forms import (
     UploadEventImageForm,
     AuthorForm,
 )
-from ..models import Event, RSVP
+from ..models import Event, RSVP, Invitation, OrganizerConfig
 from ..tasks import (
     send_event_report,
     send_secretariat_notification,
+    send_validated_group_coorganization_invitation_notification,
 )
 from ...api import settings
 from ...carte.models import StaticMapImage
@@ -70,7 +75,8 @@ __all__ = [
     "UploadEventImageView",
     "EventSearchView",
     "EventDetailMixin",
-    "EventThumbnailView",
+    "EventOGImageView",
+    "ConfirmEventGroupCoorganization",
 ]
 
 
@@ -78,12 +84,112 @@ __all__ = [
 # ============
 
 
-class EventThumbnailView(DetailView):
+class EventOGImageView(DetailView):
     model = Event
     event = None
     static_root = os.path.join(
         settings.BASE_DIR, "front", "static", "front", "og-image"
     )
+
+    def get_date_string(self):
+        # set locale for displaying day name in french
+        locale.setlocale(locale.LC_ALL, "fr_FR.utf8")
+
+        if settings.TIME_ZONE == self.event.timezone:
+            return self.event.start_time.strftime(f"%A %d %B À %-H:%M").capitalize()
+
+        return (
+            self.event.start_time.astimezone(pytz.timezone(self.event.timezone))
+            .strftime(f"%A %d %B À %-H:%M %Z")
+            .capitalize()
+        )
+
+    def get_location_string(self):
+        if self.event.location_city and self.event.location_zip:
+            return f"{self.event.location_city} ({self.event.location_zip})"
+        if self.event.location_city:
+            return self.event.location_city
+        if self.event.location_zip:
+            return self.event.location_zip
+
+        return ""
+
+    def get_illustration(self):
+        if self.event.coordinates is None:
+            return self.get_image_from_file("Frame-193.png")
+
+        static_map_image = StaticMapImage.objects.filter(
+            center__distance_lt=(
+                self.event.coordinates,
+                StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
+            ),
+        ).first()
+
+        if static_map_image is None:
+            create_static_map_image_from_coordinates.delay(
+                [self.event.coordinates[0], self.event.coordinates[1]]
+            )
+            return self.get_image_from_file("Frame-193.png")
+
+        static_map_image.image.open()
+        map = ImageOps.fit(Image.open(static_map_image.image), (1200, 278))
+
+        # Add marker to static map image
+        icon = self.get_image_from_file("map-marker.png")
+        icon = icon.resize((116, 139), Image.ANTIALIAS)
+        map.paste(icon, (542, 49), icon)
+
+        return map
+
+    def get_font(self, size, bold=False):
+        filename = (
+            os.path.join(self.static_root, "poppins-bold.ttf")
+            if bold
+            else os.path.join(self.static_root, "Poppins-Medium.ttf")
+        )
+        return ImageFont.truetype(
+            filename, size=size, encoding="utf-8", layout_engine=ImageFont.LAYOUT_BASIC,
+        )
+
+    def get_image_from_file(self, filename):
+        return Image.open(os.path.join(self.static_root, filename))
+
+    def generate_thumbnail(self):
+        image = Image.new("RGB", (1200, 630), "#FFFFFF")
+        draw = ImageDraw.Draw(image)
+
+        # Draw illustration image
+        illustration = self.get_illustration()
+        image.paste(illustration, (0, 0), illustration)
+
+        # Draw event location and date
+        # ex: Paris (75010) - Mercredi 7 Juillet à 19:00
+        draw.text(
+            (108, 315),
+            f"{self.get_location_string()} – {self.get_date_string()}",
+            fill=(63, 38, 130, 0),
+            align="left",
+            font=self.get_font(32, bold=True),
+        )
+
+        # Draw event name
+        lines = textwrap.wrap(
+            self.event.name.capitalize(), width=36, max_lines=2, placeholder="…"
+        )
+        font = self.get_font(45 if len(lines) > 1 else 56)
+        y = 369
+        for line in lines:
+            draw.text((108, y), line, font=font, fill=(0, 0, 0, 0), align="left")
+            y += 63
+
+        # Draw Action Populaire logo
+        image.paste(self.get_image_from_file("bande-ap.png"), (0, 535))
+
+        # Draw Union Populaire logo
+        logo_up = self.get_image_from_file("UP+JLM.png")
+        image.paste(logo_up, (1200 - 453 - 100, 630 - 186), logo_up)
+
+        return image
 
     def get(self, request, *args, **kwargs):
         self.event = self.get_object()
@@ -91,186 +197,6 @@ class EventThumbnailView(DetailView):
         response = HttpResponse(content_type="image/png")
         image.save(response, "PNG")
         return response
-
-    def clean_location(self):
-        event_details = ""
-        location_city = ""
-        location_zip = ""
-
-        if self.event.location_city and self.event.location_city != "":
-            location_city = self.event.location_city.upper()
-
-        if self.event.location_zip and self.event.location_zip != "":
-            location_zip = self.event.location_zip
-
-        if len(location_city) > 0:
-            event_details = location_city
-
-        if len(location_zip) > 0:
-            if len(location_city) > 0:
-                event_details += " (" + location_zip + ") - "
-            else:
-                event_details = location_zip
-        return event_details
-
-    def get_image_font(self, size):
-        return ImageFont.truetype(
-            os.path.join(self.static_root, "Poppins-Medium.ttf"),
-            size=size,
-            encoding="utf-8",
-            layout_engine=ImageFont.LAYOUT_BASIC,
-        )
-
-    def generate_thumbnail(self):
-        image = Image.new("RGB", (int(1200), int(630)), "#FFFFFF")
-        draw = ImageDraw.Draw(image)
-
-        if self.event.coordinates is None:
-            illustration = Image.open(os.path.join(self.static_root, "Frame-193.png"))
-            image.paste(illustration, (0, 0), illustration)
-        else:
-            static_map_image = StaticMapImage.objects.filter(
-                center__distance_lt=(
-                    self.event.coordinates,
-                    StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
-                ),
-            ).first()
-
-            if static_map_image is not None:
-                static_map_image.image.open()
-                illustration = Image.open(static_map_image.image)
-                illustration = illustration.resize(
-                    (1200, round(illustration.height * (1200 / illustration.width))),
-                    Image.ANTIALIAS,
-                )
-                crop_w = (illustration.width - 1200) / 2
-                crop_h = (illustration.height - 278) / 2
-                illustration = illustration.crop(
-                    (crop_w, crop_h, crop_w + 1200, crop_h + 278)
-                )
-                image.paste(illustration, (0, 0), illustration)
-                icon = Image.open(os.path.join(self.static_root, "map-marker.png"))
-                icon = icon.resize((50, 65), Image.ANTIALIAS)
-                image.paste(icon, (575, 75), icon)
-            else:
-                illustration = Image.open(
-                    os.path.join(self.static_root, "Frame-193.png")
-                )
-
-        font_bold = ImageFont.truetype(
-            os.path.join(self.static_root, "poppins-bold.ttf"),
-            size=27,
-            encoding="utf-8",
-            layout_engine=ImageFont.LAYOUT_BASIC,
-        )
-
-        # set locale for displaying day name in french
-        locale.setlocale(locale.LC_ALL, "fr_FR.utf8")
-        date = (
-            self.event.start_time.astimezone(pytz.timezone(self.event.timezone))
-            .strftime(
-                f"%A %d %B À %-H:%M{' %Z' if self.event.timezone != settings.TIME_ZONE else ''}"
-            )
-            .capitalize()
-        )
-
-        # Get details of events like "Ville (75000) - Date"
-        event_details = self.clean_location()
-        event_details += date.upper()
-
-        # For a long event name : display it on 2 lines. Split on the space index to avoid cutting words
-        if len(self.event.name) >= 36:
-            event_name1 = self.event.name[0:36]
-            event_name2 = self.event.name[36:73]
-            end = event_name1.rfind(" ")
-            if end:
-                event_name1 = self.event.name[0:end]
-                event_name2 = self.event.name[end + 1 : 73]
-
-        if len(self.event.name) < 30:
-            draw.text(
-                (108, 350),
-                event_details,
-                fill=(87, 26, 255, 0),
-                align="left",
-                font=font_bold,
-            )
-
-            draw.text(
-                (108, 400),
-                self.event.name.capitalize(),
-                fill=(0, 0, 0, 0),
-                align="left",
-                font=self.get_image_font(56),
-            )
-        elif len(self.event.name) < 36:
-            draw.text(
-                (108, 319),
-                event_details,
-                fill=(87, 26, 255, 0),
-                align="left",
-                font=font_bold,
-            )
-
-            draw.text(
-                (108, 369),
-                self.event.name.capitalize(),
-                fill=(0, 0, 0, 0),
-                align="left",
-                font=self.get_image_font(45),
-            )
-        elif len(self.event.name) < 74:
-            draw.text(
-                (108, 319),
-                event_details,
-                fill=(87, 26, 255, 0),
-                align="left",
-                font=font_bold,
-            )
-
-            draw.text(
-                (108, 369),
-                event_name1.capitalize(),
-                fill=(0, 0, 0, 0),
-                align="left",
-                font=self.get_image_font(45),
-            )
-            draw.text(
-                (108, 430),
-                event_name2,
-                fill=(0, 0, 0, 0),
-                align="left",
-                font=self.get_image_font(45),
-            )
-        else:
-            draw.text(
-                (108, 319),
-                event_details,
-                fill=(87, 26, 255, 0),
-                align="left",
-                font=font_bold,
-            )
-
-            draw.text(
-                (108, 369),
-                event_name1.capitalize(),
-                fill=(0, 0, 0, 0),
-                align="left",
-                font=self.get_image_font(45),
-            )
-            draw.text(
-                (108, 430),
-                event_name2 + "...",
-                fill=(0, 0, 0, 0),
-                align="left",
-                font=self.get_image_font(45),
-            )
-
-        logo_ap = Image.open(os.path.join(self.static_root, "bande-ap.png"))
-        logo_ap = logo_ap.resize((1200, 95), Image.ANTIALIAS)
-        image.paste(logo_ap, (0, 535), logo_ap)
-
-        return image
 
 
 class EventSearchView(FilterView):
@@ -302,10 +228,7 @@ class EventContextMixin:
 
 class EventDetailMixin(GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("events.view_event",)
-    meta_description = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
     queryset = Event.objects.all()
-    bundle_name = "front/app"
-    data_script_id = "exportedEvent"
 
     def handle_no_permission(self):
         if self.get_object().visibility == Event.VISIBILITY_ADMIN:
@@ -547,6 +470,81 @@ class ChangeEventLocationView(
 
     def get_queryset(self):
         return Event.objects.upcoming(as_of=timezone.now(), published_only=False)
+
+
+@method_decorator(never_cache, name="get")
+class ConfirmEventGroupCoorganization(View):
+    def get(self, request, pk, *args, **kwargs):
+
+        if not self.request.user.is_authenticated or self.request.user.person is None:
+            return HttpResponseRedirect(reverse("dashboard"))
+
+        # Get event, group, person
+        try:
+            event = Event.objects.get(pk=pk)
+        except Event.DoesNotExist:
+            raise Http404()
+
+        group_id = request.GET.get("group")
+        try:
+            group = SupportGroup.objects.get(pk=group_id)
+        except SupportGroup.DoesNotExist:
+            raise Http404()
+        person = self.request.user.person
+
+        # Check person is organizer of group
+        if not person in group.referents:
+            return HttpResponseRedirect(reverse("dashboard"))
+
+        # Check if the group is already coorganizer
+        if OrganizerConfig.objects.filter(event=event, as_group=group).exists():
+            messages.add_message(
+                self.request, messages.INFO, "Votre groupe est déjà coorganisateur",
+            )
+            return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
+
+        # Get pending group invitation
+        try:
+            invitation = Invitation.objects.get(
+                event=event,
+                group=group,
+                status__in=(Invitation.STATUS_PENDING, Invitation.STATUS_REFUSED),
+            )
+        except Invitation.DoesNotExist:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                "Votre groupe n'est pas ou plus invité à cet événement.",
+            )
+            return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
+
+        # Add group as organizer of event, with its referent accepting invitation
+        organizer_config = OrganizerConfig.objects.create(
+            event=event, as_group=group, person=person, is_creator=False
+        )
+        organizer_config.save()
+
+        # Update invitation to accepted
+        invitation.person_recipient = person
+        invitation.status = Invitation.STATUS_ACCEPTED
+        invitation.save()
+
+        # Delete activities TYPE_GROUP_COORGANIZATION_INVITE, replaced by ACCEPTED ones in task
+        activity_groups_invited = Activity.objects.filter(
+            event=event, type=Activity.TYPE_GROUP_COORGANIZATION_INVITE,
+        )
+        activity_groups_invited.filter(supportgroup=group).delete()
+
+        # Get current organizers of event to send them notification
+        event_organizers_id = list(event.organizers.all().values_list("id", flat=True))
+
+        send_validated_group_coorganization_invitation_notification.delay(
+            invitation.id, event_organizers_id
+        )
+        messages.add_message(
+            self.request, messages.SUCCESS, "Vous avez accepté l'invitation",
+        )
+        return HttpResponseRedirect(reverse("view_event", kwargs={"pk": pk}))
 
 
 class SendEventReportView(

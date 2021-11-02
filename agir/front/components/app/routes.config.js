@@ -6,7 +6,7 @@ import { lazy } from "./utils";
 
 import { AUTHENTICATION } from "@agir/front/authentication/common";
 
-const AgendaPage = lazy(() => import("@agir/events/agendaPage/AgendaPage"));
+const AgendaPage = lazy(() => import("@agir/events/agendaPage/Agenda"));
 const HomePage = lazy(() => import("@agir/front/app/Homepage/Home"));
 const EventMap = lazy(() => import("@agir/carte/page__eventMap/EventMap"));
 const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
@@ -66,6 +66,9 @@ const CreateContactPage = lazy(() =>
 );
 const DonationPage = lazy(() =>
   import("@agir/donations/donationPage/DonationPage")
+);
+const DonationInformationsPage = lazy(() =>
+  import("@agir/donations/donationPage/InformationsPage")
 );
 
 export const BASE_PATH = "/";
@@ -133,11 +136,17 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Événements",
     Component: AgendaPage,
-    AnonymousComponent: HomePage,
-    hasLayout: false,
+    hasLayout: true,
+    layoutProps: {
+      smallBackgroundColor: style.black25,
+    },
     hideFeedbackButton: true,
     keepScroll: true,
     hideFooterBanner: true,
+    AnonymousComponent: HomePage,
+    anonymousConfig: {
+      hasLayout: false,
+    },
   }),
   missingEventDocumentsModal: new RouteConfig({
     id: "missingEventDocuments",
@@ -193,7 +202,6 @@ export const routeConfig = {
     path: "/evenements/:eventPk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Détails de l'événement",
     Component: EventPage,
     backLink: {
       route: "events",
@@ -207,7 +215,6 @@ export const routeConfig = {
     params: { activePanel: null },
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,
-    label: "Paramètres de l'événement",
     Component: EventPage,
     hideFeedbackButton: true,
   }),
@@ -229,7 +236,7 @@ export const routeConfig = {
     path: "/mes-groupes/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Groupes",
+    label: "Mes groupes",
     Component: GroupsPage,
     hasLayout: true,
     layoutProps: {
@@ -262,7 +269,6 @@ export const routeConfig = {
     params: { activeTab: null, activePanel: null },
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,
-    label: "Gestion du groupe",
     Component: GroupPage,
     isPartial: true,
   }),
@@ -271,7 +277,6 @@ export const routeConfig = {
     path: "/groupes/:groupPk/message/:messagePk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Message du groupe",
     Component: GroupMessagePage,
     hideFeedbackButton: true,
   }),
@@ -289,7 +294,6 @@ export const routeConfig = {
     path: "/groupes/:groupPk/:activeTab?/",
     exact: false,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Détails du groupe",
     Component: GroupPage,
     backLink: {
       route: "groups",
@@ -350,6 +354,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Connexion",
+    description: "Connectez-vous à Action Populaire",
     Component: LoginPage,
     hideTopBar: true,
     hideFeedbackButton: true,
@@ -361,6 +366,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Inscription",
+    description: "Rejoignez Action Populaire",
     Component: SignupPage,
     hideTopBar: true,
     hideFeedbackButton: true,
@@ -371,7 +377,8 @@ export const routeConfig = {
     path: "/connexion/code/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Code de connexion",
+    label: "Connexion",
+    description: "Connectez-vous à Action Populaire",
     Component: CodeLoginPage,
     hideTopBar: true,
     hideFeedbackButton: true,
@@ -382,7 +389,8 @@ export const routeConfig = {
     path: "/inscription/code/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
-    label: "Code d'inscription'",
+    label: "Inscription",
+    description: "Rejoignez Action Populaire",
     Component: CodeSignupPage,
     hideTopBar: true,
     hideFeedbackButton: true,
@@ -440,6 +448,19 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Faire un don",
     Component: DonationPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  donationsInformations: new RouteConfig({
+    id: "donationsInformations",
+    params: { type: null },
+    path: ["/:type?/dons/informations/", "/:type?/dons-mensuels/informations/"],
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Faire un don",
+    Component: DonationInformationsPage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,

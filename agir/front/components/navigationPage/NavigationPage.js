@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
@@ -14,7 +13,7 @@ import { getRoutes } from "@agir/front/globalContext/reducers";
 import Link from "@agir/front/app/Link";
 
 import { routeConfig } from "@agir/front/app/routes.config";
-import CONFIG from "@agir/front/dashboardComponents/navigation.config";
+import CONFIG from "@agir/front/app/Navigation/navigation.config";
 
 const MAIN_LINKS = CONFIG.menuLinks.filter(({ mobile }) => mobile === false);
 
@@ -110,9 +109,6 @@ const NavigationPage = ({ active }) => {
   const routes = useSelector(getRoutes);
   return (
     <Navigation>
-      <Helmet>
-        <title>Menu - Action populaire</title>
-      </Helmet>
       <Menu>
         {MAIN_LINKS.map(
           (link) =>

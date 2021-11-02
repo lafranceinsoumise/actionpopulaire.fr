@@ -45,7 +45,8 @@ export const EVENT_DOCUMENT_TYPES = {
         utiliser notre{" "}
         <a
           href="https://infos.actionpopulaire.fr/wp-content/uploads/2021/02/Attestation-2021-assurance-locative-LFI.pdf"
-          download="Attestation-2021-assurance-locative-LFI.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           attestation d’assurance convergence responsabilité civile.
         </a>

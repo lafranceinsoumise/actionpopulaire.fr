@@ -1,5 +1,4 @@
 import os
-from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.auth import logout
@@ -27,10 +26,9 @@ from .view_mixins import (
     SimpleOpengraphMixin,
     ObjectOpengraphMixin,
 )
-from ..events.models import Event
 from ..events.views.event_views import EventDetailMixin
 from ..groups.views.public_views import SupportGroupDetailMixin
-from ..lib.utils import generate_token_params, front_url
+from ..lib.utils import generate_token_params
 from ..msgs.models import SupportGroupMessage
 
 cache_decorators = [cache.cache_page(30), cache.cache_control(public=True)]
@@ -50,7 +48,7 @@ class BasicOpenGraphMixin(SimpleOpengraphMixin):
 
 
 class BaseAppView(BasicOpenGraphMixin, ReactBaseView):
-    bundle_name = "front/app"
+    pass
 
 
 @method_decorator(cache_decorators, name="get")
@@ -66,7 +64,29 @@ class BaseAppHardAuthView(HardLoginRequiredMixin, BaseAppView):
     pass
 
 
-## CUSTOM VIEWS
+class NotFoundView(BaseAppView):
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        response.status_code = 404
+        return response
+
+
+class ServiceWorker(View):
+    def get(self, *args, **kwargs):
+        return FileResponse(
+            open(
+                os.path.join(
+                    os.path.dirname(settings.BASE_DIR),
+                    "assets",
+                    "components",
+                    "service-worker.js",
+                ),
+                "rb",
+            )
+        )
+
+
+## AUTH VIEWS
 
 
 class SignupView(BaseAppCachedView):
@@ -95,59 +115,113 @@ class LogoutView(BaseAppView):
         return super().get(request, *args, **kwargs)
 
 
-class EventDetailView(
-    ObjectOpengraphMixin, EventDetailMixin, BaseDetailView, ReactBaseView
+## DASHBOARD VIEWS
+
+
+class HomepageView(BaseAppCachedView):
+    def get_api_preloads(self):
+        if self.request.user.is_authenticated and self.request.user.person:
+            return [
+                reverse_lazy("api_event_rsvped"),
+                reverse_lazy("api_near_events"),
+            ]
+        return []
+
+
+class UserSupportGroupsView(BaseAppSoftAuthView):
+    api_preloads = [reverse_lazy("api_user_groups")]
+
+
+class UserMessagesView(BaseAppHardAuthView):
+    api_preloads = [reverse_lazy("api_user_messages")]
+
+
+class UserMessageView(
+    GlobalOrObjectPermissionRequiredMixin, UserMessagesView,
 ):
-    meta_description = (
-        "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon "
-        "pour 2022 "
-    )
-
-
-class EventProjectView(HardLoginRequiredMixin, EventDetailView):
-    permission_required = "event.change_event"
-
-
-class SupportGroupDetailView(
-    ObjectOpengraphMixin, SupportGroupDetailMixin, BaseDetailView, ReactBaseView
-):
-    meta_description = (
-        "Rejoignez les groupes d'action de votre quartier pour la candidature de Jean-Luc Mélenchon "
-        "pour 2022 "
-    )
-
-
-class ServiceWorker(View):
-    def get(self, *args, **kwargs):
-        return FileResponse(
-            open(
-                os.path.join(
-                    os.path.dirname(settings.BASE_DIR),
-                    "assets",
-                    "components",
-                    "service-worker.js",
-                ),
-                "rb",
-            )
-        )
-
-
-class NotFoundView(BaseAppView):
-    def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
-        response.status_code = 404
-        return response
-
-
-class UserMessageView(BaseAppHardAuthView, GlobalOrObjectPermissionRequiredMixin):
     permission_required = ("msgs.view_message",)
     queryset = SupportGroupMessage.objects.all()
 
     def get_object(self):
         return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))
 
+    def get_api_preloads(self):
+        return super().get_api_preloads() + [
+            reverse_lazy("api_group_message_detail", kwargs=self.kwargs)
+        ]
 
-## REDIRECT VIEWS
+
+## DONATION VIEWS
+
+
+class DonationView(BaseAppCachedView):
+    meta_title = "Faire un don - La France insoumise"
+    meta_description = (
+        "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
+        "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
+    )
+
+
+class Donation2022View(DonationView):
+    meta_title = "Faire un don - Mélenchon 2022"
+
+
+## EVENT VIEWS
+
+
+class EventDetailView(
+    EventDetailMixin, BaseDetailView, ObjectOpengraphMixin, ReactBaseView
+):
+    meta_description = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
+
+    def get_api_preloads(self):
+        return [reverse_lazy("api_event_view", kwargs=self.kwargs)]
+
+    def get_meta_image(self):
+        return self.object.get_meta_image()
+
+
+class EventSettingsView(HardLoginRequiredMixin, EventDetailView):
+    permission_required = "event.change_event"
+
+
+class EventProjectView(HardLoginRequiredMixin, EventDetailView):
+    permission_required = "event.change_event"
+
+    def get_api_preloads(self):
+        return [
+            reverse_lazy("api_event_view", kwargs=self.kwargs),
+            reverse_lazy("api_event_project", kwargs={"event_id": self.kwargs["pk"]}),
+        ]
+
+
+class CreateEventView(BaseAppSoftAuthView):
+    api_preloads = [reverse_lazy("api_event_create_options")]
+
+
+## SUPPORTGROUP VIEWS
+
+
+class SupportGroupDetailView(
+    SupportGroupDetailMixin, BaseDetailView, ObjectOpengraphMixin, ReactBaseView
+):
+    meta_description = "Rejoignez les groupes d'action de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
+
+    def get_api_preloads(self):
+        return [
+            reverse_lazy("api_group_view", kwargs=self.kwargs),
+            reverse_lazy("api_near_groups_view", kwargs=self.kwargs),
+        ]
+
+    def get_meta_image(self):
+        return self.object.get_meta_image()
+
+
+class SupportGroupSettingsView(HardLoginRequiredMixin, SupportGroupDetailView):
+    permission_required = "groups.change_supportgroup"
+
+
+## REDIRECT / EXTERNAL VIEWS
 
 
 class NBUrlsView(View):
@@ -240,89 +314,3 @@ class NSPReferralView(SoftLoginRequiredMixin, RedirectView):
 
         url = add_query_params_to_url(url, params)
         return url
-
-
-class EventDetailView(
-    ObjectOpengraphMixin, EventDetailMixin, BaseDetailView, ReactBaseView
-):
-    meta_description = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
-    bundle_name = "front/app"
-
-    def get_meta_image(self):
-        if hasattr(self.object, "image") and self.object.image:
-            return urljoin(settings.FRONT_DOMAIN, self.object.image.url)
-
-        return front_url(
-            "view_og_image_event", kwargs={"pk": self.object.pk,}, absolute=True
-        )
-
-
-class SupportGroupDetailView(
-    ObjectOpengraphMixin, SupportGroupDetailMixin, BaseDetailView, ReactBaseView
-):
-    meta_description = "Rejoignez les groupes d'action de votre quartier pour la candidature de Jean-Luc Mélenchon pour 2022"
-    bundle_name = "front/app"
-
-
-class SupportGroupMessageDetailView(SoftLoginRequiredMixin, ReactBaseView):
-    bundle_name = "front/app"
-
-
-class ServiceWorker(View):
-    def get(self, *args, **kwargs):
-        return FileResponse(
-            open(
-                os.path.join(
-                    os.path.dirname(settings.BASE_DIR),
-                    "assets",
-                    "components",
-                    "service-worker.js",
-                ),
-                "rb",
-            )
-        )
-
-
-@method_decorator(cache_decorators, name="get")
-class OfflineApp(ReactBaseView):
-    bundle_name = "front/app"
-
-
-class CreateEventView(SoftLoginRequiredMixin, ReactBaseView):
-    bundle_name = "front/app"
-
-
-class NotFoundView(ReactBaseView):
-    bundle_name = "front/app"
-
-    def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
-        response.status_code = 404
-        return response
-
-
-class UserMessagesView(HardLoginRequiredMixin, ReactBaseView):
-    bundle_name = "front/app"
-
-
-class UserMessageView(
-    GlobalOrObjectPermissionRequiredMixin, HardLoginRequiredMixin, ReactBaseView,
-):
-    permission_required = ("msgs.view_message",)
-    queryset = SupportGroupMessage.objects.all()
-    bundle_name = "front/app"
-
-    def get_object(self):
-        return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))
-
-
-class DonationView(BaseAppCachedView):
-    meta_title = "Faire un don - La France insoumise"
-    meta_description = (
-        "Pour financer les dépenses liées à l’organisation d’événements, à l’achat de matériel, au"
-        "fonctionnement du site, etc., nous avons besoin du soutien financier de chacun.e d’entre vous !"
-    )
-
-
-class Donation2022View(DonationView):
-    meta_title = "Faire un don - Mélenchon 2022"

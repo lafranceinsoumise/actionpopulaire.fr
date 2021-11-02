@@ -1,0 +1,102 @@
+{
+  "menuLinks": [
+    {
+      "id": "events",
+      "icon": "calendar",
+      "title": "Événements",
+      "route": "events",
+      "desktop": true,
+      "mobile": true
+    },
+    {
+      "id": "groups",
+      "icon": "users",
+      "title": "Groupes",
+      "route": "groups",
+      "desktop": true,
+      "mobile": true,
+      "secondaryLinks": "groups__personGroups"
+    },
+    {
+      "id": "messages",
+      "icon": "mail",
+      "title": "Messages",
+      "route": "messages",
+      "unreadMessageBadge": true,
+      "desktop": true,
+      "mobile": true
+    },
+    {
+      "id": "activities",
+      "icon": "bell",
+      "title": "Notifications",
+      "route": "activities",
+      "unreadActivityBadge": true,
+      "desktop": true,
+      "mobile": true
+    },
+    {
+      "id": "tools",
+      "icon": "flag",
+      "title": "Outils",
+      "route": "tools",
+      "desktop": true,
+      "mobile": true,
+      "external": false
+    },
+    {
+      "id": "materiel",
+      "icon": "shopping-bag",
+      "title": "Matériel",
+      "route": "materiel",
+      "desktop": true,
+      "mobile": false,
+      "external": true
+    },
+    {
+      "id": "settings",
+      "icon": "settings",
+      "title": "Paramètres",
+      "route": "personalInformation",
+      "desktop": true,
+      "mobile": false
+    }
+  ],
+  "secondaryLinks": [
+    {
+      "id": "news",
+      "title": "Actualité de la France insoumise",
+      "route": "news"
+    },
+    {
+      "id": "eventMap",
+      "title": "Carte des événements",
+      "route": "eventMap"
+    },
+    {
+      "id": "groupMap",
+      "title": "Carte des groupes",
+      "route": "groupMap"
+    },
+    {
+      "id": "donations",
+      "title": "Faire un don",
+      "route": "donations"
+    },
+    {
+      "id": "help",
+      "title": "Besoin d'aide ?",
+      "route": "help"
+    },
+    {
+      "id": "contact",
+      "title": "Contact",
+      "route": "contact"
+    },
+    {
+      "id": "logout",
+      "title": "Déconnexion",
+      "route": "logout"
+    }
+  ]
+}

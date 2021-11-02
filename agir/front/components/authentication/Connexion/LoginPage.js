@@ -1,4 +1,3 @@
-import Helmet from "react-helmet";
 import React, { useMemo } from "react";
 
 import { Hide } from "@agir/front/genericComponents/grid";
@@ -32,42 +31,36 @@ const LoginPage = () => {
   );
 
   return (
-    <>
-      <Helmet>
-        <meta name="title" content="Connexion" />
-        <meta name="description" content="Connectez-vous à Action Populaire" />
-      </Helmet>
-      <PageFadeIn ready={isSessionLoaded}>
-        {user && authentication === AUTHENTICATION.HARD ? (
-          <AuthenticatedLogin user={user} />
-        ) : autoLogin ? (
-          <AutoLogin email={autoLogin} />
-        ) : (
-          <div style={{ display: "flex", minHeight: "100vh" }}>
-            <LeftBlockDesktop />
-            <MainBlock>
-              <Container>
-                <Hide over style={{ textAlign: "center", marginTop: "3rem" }}>
-                  <img
-                    src={logoMobile}
-                    alt="logo"
-                    width="70"
-                    height="67"
-                    style={{ width: "69px", marginBottom: "1.5rem" }}
-                  />
-                </Hide>
-
-                <Login />
-              </Container>
-
-              <Hide over>
-                <BackgroundMobile />
+    <PageFadeIn ready={isSessionLoaded}>
+      {user && authentication === AUTHENTICATION.HARD ? (
+        <AuthenticatedLogin user={user} />
+      ) : autoLogin ? (
+        <AutoLogin email={autoLogin} />
+      ) : (
+        <div style={{ display: "flex", minHeight: "100vh" }}>
+          <LeftBlockDesktop />
+          <MainBlock>
+            <Container>
+              <Hide over style={{ textAlign: "center", marginTop: "3rem" }}>
+                <img
+                  src={logoMobile}
+                  alt="logo"
+                  width="70"
+                  height="67"
+                  style={{ width: "69px", marginBottom: "1.5rem" }}
+                />
               </Hide>
-            </MainBlock>
-          </div>
-        )}
-      </PageFadeIn>
-    </>
+
+              <Login />
+            </Container>
+
+            <Hide over>
+              <BackgroundMobile />
+            </Hide>
+          </MainBlock>
+        </div>
+      )}
+    </PageFadeIn>
   );
 };
 

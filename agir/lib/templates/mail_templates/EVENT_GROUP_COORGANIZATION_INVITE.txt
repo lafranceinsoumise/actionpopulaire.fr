@@ -1,0 +1,11 @@
+{{ MEMBER }} a invité votre groupe {{ GROUP_NAME }} a co-organiser l’événement {{ EVENT_NAME }} ({{ DATE }}).
+
+Acceptez l’invitation pour faire apparaître votre groupe sur la page publique de l’événement.
+
+[Accepter de co-organiser({{ ACCEPT_LINK }})
+
+Vous ne voulez pas co-organiser cet événement ? Ignorez simplement ce message.
+
+
+------------------------------------------------------------------
+Ce mail a été adressé à {{ email }}.

@@ -72,7 +72,6 @@ const SentDocumentsCard = (props) => {
               small
               link
               href={doc.file}
-              download={doc.name}
               target="_blank"
               rel="noopener noreferrer"
               color="primary"

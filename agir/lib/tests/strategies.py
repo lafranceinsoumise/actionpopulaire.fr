@@ -6,7 +6,9 @@ from hypothesis.extra.django import from_model, TestCase as HypothesisTestCase
 from agir.authentication.models import Role
 from agir.people.models import Person
 
-printable_text = st.text(st.characters(whitelist_categories=["L", "P", "Zs"]))
+
+def printable_text(**kwargs):
+    return st.text(st.characters(whitelist_categories=["L", "P", "Zs"]), **kwargs)
 
 
 def no_whitespace_re(s):

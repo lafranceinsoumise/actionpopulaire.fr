@@ -1,3 +1,6 @@
+import hashlib
+from urllib.parse import urljoin
+
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
@@ -25,6 +28,8 @@ __all__ = [
     "TransferOperation",
     "SupportGroupExternalLink",
 ]
+
+from agir.lib.utils import front_url
 
 
 class SupportGroupQuerySet(models.QuerySet):
@@ -205,6 +210,28 @@ class SupportGroup(
     def external_help_text(self):
         subtype = self.subtypes.filter(allow_external=True).first()
         return subtype.external_help_text or ""
+
+    def get_meta_image(self):
+        if hasattr(self, "image") and self.image:
+            return urljoin(settings.FRONT_DOMAIN, self.image.url)
+
+        # Use content hash as cache key for the auto-generated meta image
+        content = ":".join(
+            (
+                self.name,
+                self.location_zip,
+                self.location_city,
+                str(self.coordinates),
+                self.get_type_display(),
+            )
+        )
+        content_hash = hashlib.sha1(content.encode("utf-8")).hexdigest()[:8]
+
+        return front_url(
+            "view_og_image_supportgroup",
+            kwargs={"pk": self.pk, "cache_key": content_hash},
+            absolute=True,
+        )
 
     class Meta:
         verbose_name = _("groupe d'action")

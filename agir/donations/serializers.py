@@ -1,13 +1,17 @@
 import json
 
+from django.conf import settings
 from rest_framework import serializers
 
 from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url_lazy
-
-MAX_AMOUNT_LFI = 750000
-MAX_AMOUNT_2022 = 460000
+from agir.lib.serializers import PhoneField
+from agir.presidentielle2022 import (
+    AFCP2022SystemPayPaymentMode,
+    AFCPJLMCheckDonationPaymentMode,
+)
+from agir.payments import payment_modes
 
 TO_LFI = "LFI"
 TO_2022 = "2022"
@@ -24,7 +28,9 @@ class DonationAllocationSerializer(serializers.Serializer):
 
 
 class CreateDonationSerializer(serializers.Serializer):
-    amount = serializers.IntegerField(min_value=1, required=True)
+    amount = serializers.IntegerField(
+        min_value=settings.DONATION_MINIMUM, required=True
+    )
     to = serializers.ChoiceField(
         choices=((TO_LFI, "la France insoumise"), (TO_2022, "Mélenchon 2022")),
         default=TO_LFI,
@@ -42,19 +48,26 @@ class CreateDonationSerializer(serializers.Serializer):
         required=False,
     )
     next = serializers.SerializerMethodField(read_only=True)
+    allowedPaymentModes = serializers.SerializerMethodField(read_only=True)
 
     def validate(self, attrs):
-        if attrs["to"] == TO_2022 and attrs["amount"] > MAX_AMOUNT_2022:
+        max_amount = settings.DONATION_MAXIMUM
+
+        if attrs["type"] == TYPE_MONTHLY:
+            max_amount = settings.MONTHLY_DONATION_MAXIMUM
+
+        if attrs["amount"] > max_amount and attrs["to"] == TO_2022:
             raise serializers.ValidationError(
                 detail={
-                    "amount": f"Les dons versés par une personne physique ne peuvent excéder {int(MAX_AMOUNT_LFI / 100)} € par an pour un  ou des partis ou groupements politiques "
+                    "amount": "Le maximum du montant total de donation pour une personne aux candidats à l'élection "
+                    f"présidentielle ne peut pas excéder {int(max_amount / 100)} €"
                 }
             )
 
-        if attrs["to"] == TO_LFI and attrs["amount"] > MAX_AMOUNT_LFI:
+        if attrs["amount"] > max_amount and attrs["to"] == TO_LFI:
             raise serializers.ValidationError(
                 detail={
-                    "amount": f"Le maximum du montant total de donation pour une personne aux candidats à l'élection présidentielle ne peut pas excéder {int(MAX_AMOUNT_2022 / 100)} €"
+                    "amount": f"Les dons versés par une personne physique ne peuvent excéder {int(max_amount / 100)} €"
                 }
             )
 
@@ -73,6 +86,22 @@ class CreateDonationSerializer(serializers.Serializer):
         if data["type"] == TYPE_SINGLE_TIME:
             return front_url_lazy("donation_information", absolute=True)
 
+    def get_allowedPaymentModes(self, data):
+        """
+        Returns the payment modes allowed switch type given 2022 | LFI | MONTHLY | ..
+        """
+
+        # Forbid monthly payment for 2022 for now
+        # if data["to"] == TO_2022 and data["type"] == TYPE_MONTHLY:
+        #     return AFCP2022SystemPayPaymentMode.id
+
+        if data["to"] == TO_2022:
+            return [AFCP2022SystemPayPaymentMode.id, AFCPJLMCheckDonationPaymentMode.id]
+        if data["type"] == TYPE_MONTHLY:
+            return [payment_modes.DEFAULT_MODE]
+        if data["type"] == TYPE_SINGLE_TIME:
+            return [payment_modes.DEFAULT_MODE]
+
     def create(self, validated_data):
         session = self.context["request"].session
         session[DONATION_SESSION_NAMESPACE] = {**validated_data}
@@ -83,4 +112,41 @@ class CreateDonationSerializer(serializers.Serializer):
                     for allocation in validated_data.get("allocations", [])
                 ]
             )
+
+        # Add payment_modes in session
+        # session[DONATION_SESSION_NAMESPACE]["allowedPaymentModes"] = self.get_allowedPaymentModes(validated_data)
         return validated_data
+
+
+class SendDonationSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+    firstName = serializers.CharField(max_length=255, source="first_name")
+    lastName = serializers.CharField(max_length=255, source="last_name")
+    locationAddress1 = serializers.CharField(max_length=100, source="location_address1")
+    locationCity = serializers.CharField(max_length=100, source="location_city")
+    locationZip = serializers.CharField(max_length=20, source="location_zip")
+    locationCountry = serializers.CharField(max_length=100, source="location_country")
+
+    contactPhone = PhoneField(max_length=30, required=True, source="contact_phone")
+    nationality = serializers.CharField(max_length=100)
+
+    subscribedLfi = serializers.BooleanField(required=False, source="subscribed_lfi")
+
+    paymentMode = serializers.CharField(max_length=20, source="payment_mode")
+
+    to = serializers.ChoiceField(
+        choices=((TO_LFI, "la France insoumise"), (TO_2022, "Mélenchon 2022")),
+        default=TO_LFI,
+    )
+    amount = serializers.IntegerField(min_value=1, required=True)
+    type = serializers.ChoiceField(
+        choices=((TYPE_SINGLE_TIME, "une seule fois"), (TYPE_MONTHLY, "tous les mois")),
+        required=True,
+    )
+    allocations = serializers.ListField(
+        child=DonationAllocationSerializer(),
+        allow_empty=True,
+        allow_null=True,
+        required=False,
+    )

@@ -1,0 +1,9 @@
+{{ GROUP_NAME }} a rejoint les co-organisateurs de l'événement {{ EVENT_NAME }}
+
+Le groupe {{ GROUP_NAME }} a accepté de co-organiser l’événement {{ EVENT_NAME }} ({{ DATE }}).
+
+Ce groupe apparaît désormais publiquement sur la page de l'événement dans la liste des groupes co-organisateurs.
+
+
+------------------------------------------------------------------
+Ce mail a été adressé à {{ email }}.

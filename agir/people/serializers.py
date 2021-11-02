@@ -1,9 +1,4 @@
-from functools import partial
-from uuid import UUID
-
-from django.db import transaction
 from django.http import Http404
-from django.utils import timezone
 from django_countries.serializer_fields import CountryField
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
@@ -21,10 +16,11 @@ from .actions.subscription import (
     subscription_success_redirect_url,
     save_subscription_information,
     SUBSCRIPTION_EMAIL_SENT_REDIRECT,
+    save_contact_information,
 )
 from .models import Person
-from .tasks import send_confirmation_email, notify_contact
-from ..groups.models import SupportGroup, Membership
+from .tasks import send_confirmation_email
+from ..groups.models import SupportGroup
 from ..lib.token_bucket import TokenBucket
 
 person_fields = {f.name: f for f in models.Person._meta.get_fields()}
@@ -384,61 +380,7 @@ class ContactSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        group = None
-        has_group_notifications = validated_data.pop("hasGroupNotifications")
-        if "group" in validated_data:
-            group = validated_data.pop("group")
-
-        with transaction.atomic():
-            try:
-                # If a person exists for this email, update some of the person's fields if empty
-                person = Person.objects.get_by_natural_key(validated_data["email"])
-                is_new = False
-                person_patch = {
-                    key: value
-                    for key, value in validated_data.items()
-                    if key in self.Meta.updatable_fields and not getattr(person, key)
-                }
-                if "newsletters" in person_patch and person.newsletters:
-                    person_patch["newsletters"] = list(
-                        set(person_patch["newsletters"] + person.newsletters)
-                    )
-                for key, value in person_patch.items():
-                    setattr(person, key, value)
-                person.save()
-            except Person.DoesNotExist:
-                # Create a new person if none exists for the email
-                validated_data["meta"] = {
-                    "subscriptions": {
-                        "AP": {
-                            "date": timezone.now().isoformat(),
-                            "subscriber": str(validated_data.pop("subscriber").id),
-                        }
-                    }
-                }
-                person = Person.objects.create_person(
-                    validated_data.pop("email"), **validated_data
-                )
-                is_new = True
-
-            transaction.on_commit(
-                partial(notify_contact.delay, str(person.id), is_new=is_new)
-            )
-
-        if group:
-            # Create a follower type membership for the person if none exists already and
-            # a group id has been sent
-            Membership.objects.get_or_create(
-                supportgroup=group,
-                person=person,
-                defaults={
-                    "membership_type": Membership.MEMBERSHIP_TYPE_FOLLOWER,
-                    "personal_information_sharing_consent": True,
-                    "default_subscriptions_enabled": has_group_notifications,
-                },
-            )
-
-        return person
+        return save_contact_information(validated_data)
 
     class Meta:
         model = models.Person
@@ -457,12 +399,5 @@ class ContactSerializer(serializers.ModelSerializer):
             "group",
             "hasGroupNotifications",
             "subscriber",
-        )
-        updatable_fields = (
-            "contact_phone",
-            "location_address1",
-            "location_zip",
-            "location_city",
-            "location_country",
-            "newsletters",
+            "meta",
         )

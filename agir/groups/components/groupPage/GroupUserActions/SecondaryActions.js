@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
 import React, { useState, useCallback } from "react";
 import styled from "styled-components";
+import style from "@agir/front/genericComponents/_variables.scss";
 
-import Button from "@agir/front/genericComponents/Button";
+import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -15,22 +16,34 @@ const StyledWrapper = styled.div`
   width: 100%;
   flex-flow: column nowrap;
   margin-top: 1rem;
+  flex-direction: row;
+  justify-content: center;
 `;
+
+const StyledLink = styled(Link)``;
 
 const StyledContainer = styled.div`
   display: flex;
-  flex-align: row;
   justify-content: center;
+  width: 100%;
 
-  ${Button} {
+  button,
+  ${StyledLink} {
     background-color: white;
     border: none;
     font-size: 0.875rem;
-
-    & > span {
-      flex-direction: column;
-      width: inherit;
-    }
+    cursor: pointer;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: ${style.black1000};
+    font-weight: 500;
+    padding: 12px 24px;
+  }
+  button:hover,
+  ${StyledLink}:hover {
+    text-decoration: underline;
   }
 `;
 
@@ -47,22 +60,21 @@ const SecondaryActions = ({ id, isCertified, routes, contact }) => {
     <StyledWrapper>
       <StyledContainer>
         {contact?.email && (
-          <Button type="button" onClick={handleContactOpen}>
+          <button type="button" onClick={handleContactOpen}>
             <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
             Contacter
-          </Button>
+          </button>
         )}
         {isCertified && (
-          <Button type="button" link route="donations" params={{ group: id }}>
+          <StyledLink route="donations" params={{ group: id }}>
             <RawFeatherIcon name="upload" width="1.5rem" height="1.5rem" />
             Financer
-          </Button>
+          </StyledLink>
         )}
-        <Button type="button" onClick={handleShareOpen}>
+        <button type="button" onClick={handleShareOpen}>
           <RawFeatherIcon name="share-2" width="1.5rem" height="1.5rem" />
           Partager
-        </Button>
-
+        </button>
         <ModalConfirmation
           shouldShow={isShareOpen}
           onClose={handleShareClose}

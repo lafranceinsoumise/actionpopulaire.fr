@@ -3,14 +3,11 @@ from django.conf import settings
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 
-from agir.payments.payment_modes import PAYMENT_MODES
-from agir.system_pay import AbstractSystemPayPaymentMode
 from ..payments.types import (
     register_payment_type,
     PaymentType,
     SubscriptionType,
     register_subscription_type,
-    SUBSCRIPTION_TYPES,
 )
 
 
@@ -21,16 +18,19 @@ class DonsConfig(AppConfig):
     SUBSCRIPTION_TYPE = "don_mensuel"
 
     def ready(self):
+        from django.views.generic import RedirectView
         from .views import (
-            ReturnView,
             notification_listener,
             subscription_notification_listener,
+        )
+        from ..payments.actions.subscriptions import (
+            default_description_context_generator,
         )
 
         payment_type = PaymentType(
             self.PAYMENT_TYPE,
             "Don",
-            ReturnView.as_view(),
+            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
             status_listener=notification_listener,
             description_template="donations/description.html",
             matomo_goal=settings.DONATION_MATOMO_GOAL,
@@ -39,7 +39,7 @@ class DonsConfig(AppConfig):
         monthly_payment_type = PaymentType(
             self.SUBSCRIPTION_TYPE,
             "Don automatique",
-            ReturnView.as_view(),
+            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
             status_listener=notification_listener,
             description_template="donations/description.html",
             matomo_goal=settings.MONTHLY_DONATION_MATOMO_GOAL,
@@ -50,28 +50,20 @@ class DonsConfig(AppConfig):
         register_payment_type(payment_type)
 
         def monthly_donation_description_context_generator(subscription):
-            subscription_type = SUBSCRIPTION_TYPES[subscription.type]
-            context = {
-                "subscription": subscription,
-                "subscription_type": subscription_type,
-                "national_amount": subscription.price
+            context = default_description_context_generator(subscription)
+            context["national_amount"] = (
+                subscription.price
                 - subscription.allocations.all().aggregate(
                     total=Coalesce(Sum("amount"), 0)
                 )["total"],
-            }
-            if isinstance(
-                PAYMENT_MODES[subscription.mode], AbstractSystemPayPaymentMode
-            ):
-                context["expiry_date"] = subscription.system_pay_subscriptions.get(
-                    active=True
-                ).alias.expiry_date
+            )
 
             return context
 
         subscription_type = SubscriptionType(
             self.SUBSCRIPTION_TYPE,
             "Don mensuel",
-            ReturnView.as_view(),
+            RedirectView.as_view(url="https://lafranceinsoumise.fr/remerciement-don/"),
             status_listener=subscription_notification_listener,
             description_template="donations/subscription_description.html",
             description_context_generator=monthly_donation_description_context_generator,

@@ -36,7 +36,7 @@ class EventFilter(django_filters.rest_framework.FilterSet):
         queryset=EventSubtype.objects.all(),
     )
 
-    past = django_filters.BooleanFilter(
+    include_past = django_filters.BooleanFilter(
         label="Inclure les événements passés",
         method="filter_include_past",
         widget=forms.CheckboxInput(),

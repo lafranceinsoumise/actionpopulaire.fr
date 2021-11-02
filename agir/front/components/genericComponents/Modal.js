@@ -136,7 +136,7 @@ const useFocusTrap = (shouldShow) => {
 };
 
 const Modal = (props) => {
-  const { shouldShow = false, children, onClose, noScroll } = props;
+  const { shouldShow = false, children, onClose, noScroll, className } = props;
 
   const modalRef = useDisableBodyScroll(noScroll, shouldShow);
   const modalContentRef = useFocusTrap(shouldShow);
@@ -161,7 +161,7 @@ const Modal = (props) => {
   return createPortal(
     transitions((style, item) =>
       item ? (
-        <ModalFrame ref={modalRef}>
+        <ModalFrame ref={modalRef} className={className}>
           <AnimatedOverlay onClick={onClose} shouldShow={shouldShow} />
           <ModalContent
             ref={modalContentRef}

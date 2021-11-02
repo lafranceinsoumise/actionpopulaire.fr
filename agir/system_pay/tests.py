@@ -9,6 +9,8 @@ from django.urls import reverse
 from django.utils import timezone
 from random import choices
 
+from rest_framework import status
+
 from agir.donations.apps import DonsConfig
 from agir.lib.tests.mixins import FakeDataMixin
 from agir.payments.models import Payment, Subscription
@@ -99,7 +101,7 @@ class PaymentUXTestCase(FakeDataMixin, TestCase):
         self.assertEqual(error_url.query, "status=error")
 
         res = self.client.get(f"/paiement/{payment.id}/retour/")
-        self.assertContains(res, "<h1>Merci !</h1>")
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
         res = self.client.get(f"/paiement/carte/retour/{transaction_id}/?status=error")
         self.assertContains(res, "<h1>Paiement échoué</h1>")

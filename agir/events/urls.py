@@ -4,8 +4,8 @@ from . import views
 
 urlpatterns = [
     path(
-        "evenements/<uuid:pk>/og-image/",
-        views.EventThumbnailView.as_view(),
+        "evenements/<uuid:pk>/og-image/<str:cache_key>/",
+        views.EventOGImageView.as_view(),
         name="view_og_image_event",
     ),
     path("evenements/liste/", views.EventSearchView.as_view(), name="search_event"),
@@ -74,6 +74,11 @@ urlpatterns = [
         "evenements/<uuid:pk>/envoyer-compte-rendu/",
         views.SendEventReportView.as_view(),
         name="send_event_report",
+    ),
+    path(
+        "evenements/<uuid:pk>/confirmer-groupe-coorganisateur/",
+        views.ConfirmEventGroupCoorganization.as_view(),
+        name="event_group_coorganization",
     ),
     path("agenda/<slug:slug>/", views.CalendarView.as_view(), name="view_calendar"),
     path(
@@ -166,9 +171,14 @@ urlpatterns = [
         name="api_event_details",
     ),
     path(
-        "api/evenements/<uuid:pk>/organizers/",
+        "api/evenements/<uuid:pk>/organisateurs/",
         views.CreateOrganizerConfigAPIView.as_view(),
         name="api_event_organizers",
+    ),
+    path(
+        "api/evenements/<uuid:pk>/groupes-organisateurs/",
+        views.EventGroupsOrganizersAPIView.as_view(),
+        name="api_event_group_organizers",
     ),
     path(
         "api/evenements/<uuid:pk>/annuler/",

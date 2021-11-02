@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
 
@@ -23,6 +23,7 @@ import SubtypeField from "./SubtypeField";
 import ContactField from "./ContactField";
 import OnlineUrlField from "./OnlineUrlField";
 import CampaignFundingField from "./CampaignFundingField";
+import { scrollToError } from "@agir/front/app/utils";
 
 const StyledGlobalError = styled.p`
   padding: 0 0 1rem;
@@ -87,14 +88,6 @@ const EventForm = () => {
   const history = useHistory();
   const { search } = useLocation();
   const options = useEventFormOptions();
-
-  const nameRef = useRef(null);
-  const organizerGroupRef = useRef(null);
-  const dateRef = useRef(null);
-  const subtypeRef = useRef(null);
-  const onlineUrlRef = useRef(null);
-  const locationRef = useRef(null);
-  const contactRef = useRef(null);
 
   const updateValue = useCallback((name, value) => {
     setErrors((state) => ({
@@ -198,47 +191,6 @@ const EventForm = () => {
     formData.contact.isDefault,
     formData.organizerGroup,
   ]);
-  const scrollToError = useCallback((errors) => {
-    if (
-      typeof window === "undefined" ||
-      !errors ||
-      Object.values(errors).filter(Boolean).length === 0
-    ) {
-      return;
-    }
-    let scrollTarget = null;
-    switch (true) {
-      case !!(errors["name"] && nameRef.current):
-        scrollTarget = nameRef.current;
-        break;
-      case !!(errors["organizerGroup"] && organizerGroupRef.current):
-        scrollTarget = organizerGroupRef.current;
-        break;
-      case !!(
-        (errors["startTime"] || errors["endTime"] || errors["timezone"]) &&
-        dateRef.current
-      ):
-        scrollTarget = dateRef.current;
-        break;
-      case !!(errors["subtype"] && subtypeRef.current):
-        scrollTarget = subtypeRef.current;
-        break;
-      case !!(errors["onlineUrl"] && onlineUrlRef.current):
-        scrollTarget = onlineUrlRef.current;
-        break;
-      case !!(errors["location"] && locationRef.current):
-        scrollTarget = locationRef.current;
-        break;
-      case !!(errors["contact"] && contactRef.current):
-        scrollTarget = contactRef.current;
-        break;
-    }
-    if (scrollTarget) {
-      window.scrollTo({
-        top: scrollTarget.offsetTop - 100,
-      });
-    }
-  }, []);
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -252,7 +204,7 @@ const EventForm = () => {
       }
       if (errors) {
         setErrors(errors);
-        scrollToError(errors);
+        scrollToError(errors, window, 100);
         return;
       }
       setIsLoading(true);
@@ -261,7 +213,7 @@ const EventForm = () => {
       if (result.errors) {
         const errors = formatErrors(result.errors);
         setErrors(errors);
-        scrollToError(errors);
+        scrollToError(errors, window, 100);
         return;
       }
       if (!result.data || !result.data.id) {
@@ -270,7 +222,7 @@ const EventForm = () => {
       }
       setNewEventPk(result.data.id);
     },
-    [campaignFunding, formData, scrollToError]
+    [campaignFunding, formData]
   );
 
   useEffect(() => {
@@ -327,7 +279,6 @@ const EventForm = () => {
 
   return (
     <StyledForm onSubmit={handleSubmit} disabled={isLoading} noValidate>
-      <Spacer size="0" ref={nameRef} />
       <NameField
         name="name"
         value={formData.name}
@@ -336,7 +287,7 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
-      <Spacer size="1rem" ref={organizerGroupRef} />
+      <Spacer size="1rem" data-scroll="organizerGroup" />
       <OrganizerGroupField
         name="organizerGroup"
         value={formData.organizerGroup}
@@ -346,7 +297,9 @@ const EventForm = () => {
         required
         options={options.organizerGroup}
       />
-      <Spacer size="1rem" ref={dateRef} />
+      <div data-scroll="endTime" />
+      <div data-scroll="timezone" />
+      <Spacer size="1rem" data-scroll="startTime" />
       <DateField
         startTime={formData.startTime}
         endTime={formData.endTime}
@@ -359,7 +312,7 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
-      <Spacer size="1rem" ref={subtypeRef} />
+      <Spacer size="1rem" data-scroll="subtype" />
       <SubtypeField
         name="subtype"
         value={formData.subtype}
@@ -377,7 +330,7 @@ const EventForm = () => {
           l’événement aux personnes à proximité, une mairie ou un café pour ne
           pas rendre votre adresse publique.
         </legend>
-        <Spacer size="1.5rem" ref={onlineUrlRef} />
+        <Spacer size="1.5rem" data-scroll="onlineUrl" />
         <OnlineUrlField
           label="Visio-conférence"
           name="onlineUrl"
@@ -386,7 +339,7 @@ const EventForm = () => {
           value={formData.onlineUrl}
           placeholder="URL de la visio-conférence (facultatif)"
         />
-        <Spacer size="1.5rem" ref={locationRef} />
+        <Spacer size="1.5rem" data-scroll="location" />
         <LocationField
           name="location"
           location={formData.location}
@@ -399,7 +352,7 @@ const EventForm = () => {
           required
         />
       </fieldset>
-      <Spacer size="1.5rem" ref={contactRef} />
+      <Spacer size="1.5rem" data-scroll="contact" />
       <fieldset>
         <legend>
           <strong>Contact</strong>
@@ -415,7 +368,7 @@ const EventForm = () => {
           required
         />
       </fieldset>
-      <Spacer size="2rem" />
+      <Spacer size="2rem" data-scroll="campaignFunding" />
       <CampaignFundingField
         onChange={updateCampaignFunding}
         disabled={isLoading}
@@ -426,7 +379,7 @@ const EventForm = () => {
         endTime={formData?.endTime}
         error={errors?.campaignFunding}
       />
-      <Spacer size="1rem" />
+      <Spacer size="1rem" data-scroll="global" />
       {errors && errors.global && (
         <StyledGlobalError>{errors.global}</StyledGlobalError>
       )}

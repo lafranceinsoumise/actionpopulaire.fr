@@ -1,7 +1,10 @@
 {% extends "front/base_layout.html" %}
 
 {% block additional_headers %}
-<link rel="preload" href="{% url "api_session" %}" as="fetch" type="application/json"></link>
+  <link rel="preload" href="{% url "api_session" %}" as="fetch" type="application/json"></link>
+  {% for href in api_preloads %}
+    <link rel="preload" href="{{ href }}" as="fetch" type="application/json"></link>
+  {% endfor %}
 {% endblock %}
 
 {% block whole_page %}

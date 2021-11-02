@@ -1,9 +1,6 @@
 import secrets
 import warnings
 from datetime import datetime
-
-from django.utils.safestring import mark_safe
-from dynamic_filenames import FilePattern
 from functools import reduce
 from operator import or_
 
@@ -13,13 +10,17 @@ from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models, transaction, IntegrityError
-from django.db.models import JSONField, Subquery, OuterRef
+from django.db.models import JSONField, Subquery, OuterRef, TextField, DateTimeField
 from django.db.models import Q
+from django.db.models.fields.json import KeyTextTransform
+from django.db.models.functions import Cast, Coalesce
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.http import urlencode
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
+from dynamic_filenames import FilePattern
 from nuntius.models import AbstractSubscriber
 from phonenumber_field.modelfields import PhoneNumberField
 from stdimage.models import StdImageField
@@ -113,6 +114,30 @@ class PersonQueryset(models.QuerySet):
         if installed:
             return self.exclude(Q(role__apnsdevice=None) & Q(role__gcmdevice=None))
         return self.filter(Q(role__apnsdevice=None) & Q(role__gcmdevice=None))
+
+    def liaisons(self, from_date=None, to_date=timezone.now()):
+        liaison_form_submissions = (
+            PersonFormSubmission.objects.filter(
+                person=OuterRef("pk"), form__slug="correspondant-es-2022"
+            )
+            .order_by("created")
+            .values("created")
+        )
+        liaisons = self.filter(
+            newsletters__contains=[Person.NEWSLETTER_2022_LIAISON]
+        ).annotate(
+            liaison_date=Coalesce(
+                Subquery(liaison_form_submissions[:1]),
+                Cast(KeyTextTransform("liaison_since", "meta"), DateTimeField()),
+                "created",
+            )
+        )
+        if from_date:
+            liaisons = liaisons.filter(
+                liaison_date__date__gte=from_date, liaison_date__date__lte=to_date
+            )
+
+        return liaisons.order_by("liaison_date")
 
 
 def get_default_display_name(

@@ -24,10 +24,17 @@ const Template = (args) => (
 export const Default = Template.bind({});
 Default.args = {
   type: Object.keys(EVENT_DOCUMENT_TYPES)[0],
+  embedded: false,
 };
 
 export const Optional = Template.bind({});
 Optional.args = {
   ...Default.args,
   onDismiss: null,
+};
+
+export const Embedded = Template.bind({});
+Embedded.args = {
+  ...Default.args,
+  embedded: true,
 };

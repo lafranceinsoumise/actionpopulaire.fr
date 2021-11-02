@@ -1,4 +1,5 @@
 import { routeConfig } from "@agir/front/app/routes.config";
+import { addQueryStringParams } from "@agir/lib/utils/url";
 
 const ACTIVITY_CONFIG = {
   announcement: {
@@ -12,10 +13,6 @@ const ACTIVITY_CONFIG = {
           }
         : null;
     },
-  },
-  "group-coorganization-accepted": {
-    icon: "calendar",
-    hasEvent: true,
   },
   "group-info-update": {
     icon: "info",
@@ -142,6 +139,39 @@ const ACTIVITY_CONFIG = {
   },
   "group-coorganization-invite": {
     icon: "mail",
+    action: ({ event, supportGroup }) =>
+      event?.id && supportGroup?.id
+        ? {
+            href: `/evenements/${event.id}/confirmer-groupe-coorganisateur/?group=${supportGroup.id}`,
+            label: "Accepter",
+          }
+        : null,
+  },
+  "group-coorganization-accepted": {
+    icon: "calendar",
+    hasEvent: true,
+    action: ({ event }) =>
+      event?.id
+        ? {
+            to: routeConfig.eventDetails.getLink({ eventPk: event.id }),
+            label: "Voir",
+          }
+        : null,
+  },
+  "group-coorganization-accepted-from": {
+    icon: "calendar",
+    hasEvent: true,
+    action: ({ event }) =>
+      event?.id
+        ? {
+            to: routeConfig.eventDetails.getLink({ eventPk: event.id }),
+            label: "Voir",
+          }
+        : null,
+  },
+  "group-coorganization-accepted-to": {
+    icon: "calendar",
+    hasEvent: true,
     action: ({ event }) =>
       event?.id
         ? {

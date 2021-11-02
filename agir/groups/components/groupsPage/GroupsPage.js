@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import React, { Suspense } from "react";
-import { Helmet } from "react-helmet";
 import useSWR from "swr";
 
 import { lazy } from "@agir/front/app/utils";
@@ -22,9 +21,6 @@ const GroupsPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Mes groupes - Action populaire</title>
-      </Helmet>
       <GroupsPageHeader />
       <PageFadeIn
         ready={isSessionLoaded && !!data}

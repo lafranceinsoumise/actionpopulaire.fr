@@ -23,7 +23,8 @@ import {
   useDownloadBanner,
 } from "@agir/front/app/hooks";
 
-import TopBar from "@agir/front/allPages/TopBar/TopBar";
+import OpenGraphTags from "@agir/front/app/OpenGraphTags";
+import TopBar from "@agir/front/app/Navigation/TopBar";
 import Footer from "@agir/front/app/Footer";
 import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
 
@@ -31,21 +32,20 @@ import logger from "@agir/lib/utils/logger";
 
 const log = logger(__filename);
 
-export const ProtectedComponent = ({
-  Component,
-  AnonymousComponent = null,
-  route,
-  ...rest
-}) => {
-  const location = useLocation();
-  const isAuthorized = useAuthentication(route);
+export const ProtectedComponent = (props) => {
+  const { route, ...rest } = props;
+  const { Component, AnonymousComponent = null } = route;
+
   useEffect(() => {
     const PreloadedComponent = AnonymousComponent || Component;
-    if (typeof PreloadedComponent.preload === "function") {
+    if (typeof PreloadedComponent?.preload === "function") {
       log.debug("Preloading", PreloadedComponent);
       PreloadedComponent.preload();
     }
   }, [AnonymousComponent, Component]);
+
+  const location = useLocation();
+  const isAuthorized = useAuthentication(route);
 
   useAppLoader(isAuthorized !== null);
 
@@ -58,8 +58,18 @@ export const ProtectedComponent = ({
   }
 
   if (AnonymousComponent) {
+    const routeConfig = route.anonymousConfig
+      ? {
+          ...route,
+          ...route.anonymousConfig,
+        }
+      : route;
     return (
-      <Page Component={AnonymousComponent} routeConfig={route} {...rest} />
+      <Page
+        Component={AnonymousComponent}
+        routeConfig={routeConfig}
+        {...rest}
+      />
     );
   }
 
@@ -73,8 +83,6 @@ export const ProtectedComponent = ({
   );
 };
 ProtectedComponent.propTypes = {
-  Component: PropTypes.elementType.isRequired,
-  AnonymousComponent: PropTypes.elementType,
   route: PropTypes.object.isRequired,
 };
 
@@ -91,17 +99,16 @@ const Router = ({ children }) => {
             !route.hideTopBar && (!route.appOnlyTopBar || isMobileApp);
           return (
             <Route key={route.id} path={route.path} exact={!!route.exact}>
-              {hasTopBar && <TopBar />}
+              <OpenGraphTags
+                title={route.label}
+                description={route.description}
+              />
+              {hasTopBar && <TopBar hasLayout={!!route.hasLayout} />}
               {hasTopBar && isBannerDownload && <Spacer size="80px" />}
               {!route.hideConnectivityWarning && (
                 <ConnectivityWarning hasTopBar={hasTopBar} />
               )}
-              <ProtectedComponent
-                Component={route.Component}
-                AnonymousComponent={route.AnonymousComponent}
-                route={route}
-                hasTopBar={hasTopBar}
-              />
+              <ProtectedComponent route={route} hasTopBar={hasTopBar} />
               {!route.hideFooter && (
                 <Footer
                   hideBanner={route.hideFooterBanner}

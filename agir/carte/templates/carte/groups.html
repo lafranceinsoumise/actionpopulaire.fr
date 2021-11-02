@@ -4,6 +4,10 @@
   Carte des groupes d'appui
 {% endblock %}
 
+{% block additional_headers %}
+  <link rel="preload" href="/carte/liste_groupes/" as="fetch" type="application/json"></link>
+{% endblock %}
+
 {% block map_script %}
   {{ type_config|json_script:"typesConfig" }}
   {{ subtype_config|json_script:"subtypesConfig" }}

@@ -17,7 +17,12 @@ def group_can_handle_allocation(group):
 
 
 def create_monthly_donation(
-    person, mode, subscription_total, allocations=None, **kwargs
+    person,
+    mode,
+    subscription_total,
+    allocations=None,
+    type=DonsConfig.SUBSCRIPTION_TYPE,
+    **kwargs
 ):
     if allocations is None:
         allocations = {}
@@ -25,7 +30,7 @@ def create_monthly_donation(
         person=person,
         price=subscription_total,
         mode=mode,
-        type=DonsConfig.SUBSCRIPTION_TYPE,
+        type=type,
         day_of_month=settings.MONTHLY_DONATION_DAY,
         **kwargs
     )
