@@ -81,6 +81,7 @@ __all__ = [
     "GroupFinanceAPIView",
     "CreateSupportGroupExternalLinkAPIView",
     "RetrieveUpdateDestroySupportGroupExternalLinkAPIView",
+    "GroupUpdateOwnMembershipAPIView",
 ]
 
 from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
@@ -736,3 +737,25 @@ class RetrieveUpdateDestroySupportGroupExternalLinkAPIView(
 
     def check_object_permissions(self, request, obj):
         return super().check_object_permissions(request, obj.supportgroup)
+
+
+class GroupUpdateOwnMembershipPermission(GlobalOrObjectPermissions):
+    perms_map = {
+        "PATCH": [],
+    }
+    object_perms_map = {
+        "PATCH": ["groups.update_own_membership"],
+    }
+
+
+class GroupUpdateOwnMembershipAPIView(UpdateAPIView):
+    queryset = Membership.objects.all()
+    permission_classes = (GroupUpdateOwnMembershipPermission,)
+    serializer_class = MembershipSerializer
+    lookup_url_kwarg = "group_pk"
+    lookup_field = "supportgroup_id"
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated and self.request.user.person is not None:
+            return Membership.objects.filter(person=self.request.user.person)
+        return Membership.objects.none()

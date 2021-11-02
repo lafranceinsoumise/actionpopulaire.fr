@@ -144,6 +144,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isActiveMember = serializers.SerializerMethodField(read_only=True,)
     isManager = serializers.SerializerMethodField(read_only=True,)
     isReferent = serializers.SerializerMethodField(read_only=True,)
+    personalInfoConsent = serializers.SerializerMethodField(read_only=True)
 
     name = serializers.CharField(read_only=True,)
     type = serializers.SerializerMethodField(read_only=True,)
@@ -200,6 +201,12 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         return (
             self.membership is not None
             and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_REFERENT
+        )
+
+    def get_personalInfoConsent(self, obj):
+        return (
+            self.membership is not None
+            and self.membership.personal_information_sharing_consent
         )
 
     def get_contact(self, instance):
@@ -432,7 +439,7 @@ class MembershipSerializer(serializers.ModelSerializer):
         source="membership_type", choices=Membership.MEMBERSHIP_TYPE_CHOICES
     )
     personalInfoConsent = serializers.BooleanField(
-        source="personal_information_sharing_consent", read_only=True
+        source="personal_information_sharing_consent"
     )
     hasGroupNotifications = serializers.SerializerMethodField(read_only=True)
 

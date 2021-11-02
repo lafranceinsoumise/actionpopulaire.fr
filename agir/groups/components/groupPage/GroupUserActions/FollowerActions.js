@@ -24,7 +24,7 @@ const StyledWrapper = styled.div`
   }
 `;
 
-const FollowerActions = ({ onJoin, onQuit }) => {
+const FollowerActions = ({ isLoading, onJoin, onEdit, onQuit }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const openMenu = useCallback(() => setIsMenuOpen(true), []);
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
@@ -32,7 +32,7 @@ const FollowerActions = ({ onJoin, onQuit }) => {
   return (
     <StyledWrapper>
       <div style={{ position: "relative" }}>
-        <Button $block onClick={openMenu} color="confirmed">
+        <Button block onClick={openMenu} color="confirmed">
           <RawFeatherIcon name="rss" width="1.5rem" height="1.5rem" />
           <Spacer size="10px" />
           Vous êtes abonné·e
@@ -49,6 +49,13 @@ const FollowerActions = ({ onJoin, onQuit }) => {
         >
           <StyledMenuList>
             <li>
+              <button type="button" onClick={onEdit}>
+                <RawFeatherIcon name="lock" width="1rem" height="1rem" />
+                <Spacer size=".5rem" />
+                Préférences de confidentialité
+              </button>
+            </li>
+            <li>
               <button type="button" onClick={onQuit}>
                 <RawFeatherIcon name="x" width="1rem" height="1rem" />
                 <Spacer size=".5rem" />
@@ -58,7 +65,7 @@ const FollowerActions = ({ onJoin, onQuit }) => {
           </StyledMenuList>
         </ResponsiveLayout>
       </div>
-      <Button $block onClick={onJoin}>
+      <Button block onClick={onJoin} loading={isLoading} disabled={isLoading}>
         <RawFeatherIcon name="plus" width="1.5rem" height="1.5rem" />
         <Spacer size="10px" />
         Rejoindre
@@ -69,7 +76,9 @@ const FollowerActions = ({ onJoin, onQuit }) => {
 
 FollowerActions.propTypes = {
   onJoin: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
   onQuit: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool,
 };
 
 export default FollowerActions;

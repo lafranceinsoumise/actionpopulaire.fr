@@ -16,16 +16,9 @@ const StyledWrapper = styled.div`
   flex-flow: column nowrap;
   gap: 0.5rem;
   position: relative;
-
-  ${Button} {
-    ${"" /* TODO: remove after Button refactoring merge */}
-    width: 100%;
-    margin: 0;
-    justify-content: center;
-  }
 `;
 
-const MemberActions = ({ onQuit }) => {
+const MemberActions = ({ onQuit, onEdit }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const openMenu = useCallback(() => setIsMenuOpen(true), []);
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
@@ -49,6 +42,13 @@ const MemberActions = ({ onQuit }) => {
       >
         <StyledMenuList>
           <li>
+            <button type="button" onClick={onEdit}>
+              <RawFeatherIcon name="lock" width="1rem" height="1rem" />
+              <Spacer size=".5rem" />
+              Préférences de confidentialité
+            </button>
+          </li>
+          <li>
             <button type="button" onClick={onQuit}>
               <RawFeatherIcon name="x" width="1rem" height="1rem" />
               <Spacer size=".5rem" />
@@ -62,6 +62,7 @@ const MemberActions = ({ onQuit }) => {
 };
 
 MemberActions.propTypes = {
+  onEdit: PropTypes.func.isRequired,
   onQuit: PropTypes.func.isRequired,
 };
 

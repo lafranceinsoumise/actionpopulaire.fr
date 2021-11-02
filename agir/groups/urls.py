@@ -130,6 +130,11 @@ api_urlpatterns = [
         views.RetrieveUpdateDestroySupportGroupExternalLinkAPIView.as_view(),
         name="api_group_link_retrieve_update_destroy",
     ),
+    path(
+        "<uuid:group_pk>/membre/",
+        views.GroupUpdateOwnMembershipAPIView.as_view(),
+        name="api_group_update_own_membership",
+    ),
 ]
 
 urlpatterns = [
