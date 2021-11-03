@@ -9,6 +9,8 @@ from agir.people.models import Person
 from agir.groups.models import SupportGroup, Membership
 from agir.events.models import Event, EventSubtype
 
+EVENT_SUBTYPES = {"porte-a-porte": 9, "caravane": 4, "inscription-listes": 5}
+
 
 def get_general_stats(start, end):
     nouveaux_soutiens = Person.objects.filter(
@@ -52,6 +54,13 @@ def get_general_stats(start, end):
         "ap_events": Event.objects.filter(
             visibility=Event.VISIBILITY_PUBLIC, start_time__range=(start, end)
         ).count(),
+        # Event count by subtype
+        **{
+            f"ap_events__{key}": Event.objects.public()
+            .filter(subtype_id=subtype_id, start_time__range=(start, end))
+            .count()
+            for key, subtype_id in EVENT_SUBTYPES.items()
+        },
         "ga": SupportGroup.objects.active()
         .filter(type=SupportGroup.TYPE_LOCAL_GROUP, created__range=(start, end))
         .count(),
@@ -63,6 +72,17 @@ def get_general_stats(start, end):
         .distinct()
         .count(),
         "liaisons": Person.objects.liaisons(from_date=start, to_date=end).count(),
+        "liaisons_contacts": Person.objects.liaisons(from_date=start, to_date=end)
+        .filter(meta__subscriptions__AP__subscriber__isnull=False)
+        .count(),
+        "liaisons_auto": Person.objects.liaisons(from_date=start, to_date=end)
+        .exclude(meta__subscriptions__AP__subscriber__isnull=False)
+        .count(),
+        "contacts": Person.objects.filter(
+            meta__subscriptions__AP__subscriber__isnull=False,
+            meta__subscriptions__AP__date__gt=start.isoformat(),
+            meta__subscriptions__AP__date__lt=end.isoformat(),
+        ).count(),
     }
 
 
@@ -123,5 +143,22 @@ def get_instant_stats():
         )
         .exclude(contact_phone="")
         .count(),
+        # Event count by subtype
+        **{
+            f"ap_events__{key}": Event.objects.public()
+            .past()
+            .filter(subtype_id=subtype_id)
+            .count()
+            for key, subtype_id in EVENT_SUBTYPES.items()
+        },
         "liaisons": Person.objects.liaisons().count(),
+        "liaisons_contacts": Person.objects.liaisons()
+        .filter(meta__subscriptions__AP__subscriber__isnull=False)
+        .count(),
+        "liaisons_auto": Person.objects.liaisons()
+        .exclude(meta__subscriptions__AP__subscriber__isnull=False)
+        .count(),
+        "contacts": Person.objects.filter(
+            meta__subscriptions__AP__subscriber__isnull=False
+        ).count(),
     }
