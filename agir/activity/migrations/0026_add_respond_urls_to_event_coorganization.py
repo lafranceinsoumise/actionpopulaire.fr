@@ -5,11 +5,16 @@ from django.db import migrations
 from agir.lib.utils import front_url
 
 
+TYPE_GROUP_COORGANIZATION_INVITE = "group-coorganization-invite"
+ACCEPT_URL_KEY = "acceptUrl"
+REFUSE_URL_KEY = "refuseUrl"
+
+
 def add_respond_urls_to_event_coorganization_activities(apps, schema_editor):
     Activity = apps.get_model("activity", "Activity")
     Invitation = apps.get_model("events", "Invitation")
-    activities = Activity.objects.filter(type="group-coorganization-invite").exclude(
-        meta__has_keys=["acceptUrl", "refuseUrl"]
+    activities = Activity.objects.filter(type=TYPE_GROUP_COORGANIZATION_INVITE).exclude(
+        meta__has_keys=[ACCEPT_URL_KEY, REFUSE_URL_KEY]
     )
     for activity in activities:
         invitation = Invitation.objects.filter(
@@ -19,12 +24,12 @@ def add_respond_urls_to_event_coorganization_activities(apps, schema_editor):
             continue
         activity.meta = {
             **activity.meta,
-            "acceptUrl": front_url(
+            ACCEPT_URL_KEY: front_url(
                 "accept_event_group_coorganization",
                 absolute=False,
                 kwargs={"pk": invitation.pk},
             ),
-            "refuseUrl": front_url(
+            REFUSE_URL_KEY: front_url(
                 "refuse_event_group_coorganization",
                 absolute=False,
                 kwargs={"pk": invitation.pk},
@@ -36,13 +41,14 @@ def add_respond_urls_to_event_coorganization_activities(apps, schema_editor):
 def reverse_add_respond_urls_to_event_coorganization_activities(apps, schema_editor):
     Activity = apps.get_model("activity", "Activity")
     activities = Activity.objects.filter(
-        type="group-coorganization-invite", meta__has_keys=["acceptUrl", "refuseUrl"]
+        type=TYPE_GROUP_COORGANIZATION_INVITE,
+        meta__has_keys=[ACCEPT_URL_KEY, REFUSE_URL_KEY],
     )
     for activity in activities:
         activity.meta = {
             key: value
             for key, value in activity.meta.items()
-            if key not in ["acceptUrl", "refuseUrl"]
+            if key not in [ACCEPT_URL_KEY, REFUSE_URL_KEY]
         }
         activity.save()
 
