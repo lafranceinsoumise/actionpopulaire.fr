@@ -139,10 +139,10 @@ const ACTIVITY_CONFIG = {
   },
   "group-coorganization-invite": {
     icon: "mail",
-    action: ({ event, supportGroup }) =>
-      event?.id && supportGroup?.id
+    action: ({ meta }) =>
+      meta?.acceptUrl
         ? {
-            href: `/evenements/${event.id}/confirmer-groupe-coorganisateur/?group=${supportGroup.id}`,
+            href: meta?.acceptUrl,
             label: "Accepter",
           }
         : null,

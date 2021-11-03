@@ -260,7 +260,10 @@ export const inviteGroupOrganizer = async (eventPk, data) => {
 
   try {
     const response = await axios.post(url, data);
-    result.data = response.data;
+    result.data = {
+      created: response.status === 201,
+      accepted: response.status === 202,
+    };
   } catch (e) {
     result.errors = (e.response && e.response.data) || { global: e.message };
   }

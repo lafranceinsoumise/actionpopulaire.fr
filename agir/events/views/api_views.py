@@ -336,6 +336,7 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
             SupportGroup.objects.active(), pk=request.data.get("groupPk")
         )
         member = self.request.user.person
+
         # Check if group is already organizing the event
         if OrganizerConfig.objects.filter(event=event, as_group=group).exists():
             raise exceptions.ValidationError(
@@ -343,30 +344,30 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
                 code="invalid_format",
             )
 
-        # Create or update invitation
-        try:
-            invitation = Invitation.objects.get(event=event, group=group)
-            # The invitation exist yet : update date and last member asking
-            # pending
-            if invitation.status == Invitation.STATUS_PENDING:
-                invitation.person_sender = member
-            # refused : set to pending
-            elif invitation.status == Invitation.STATUS_REFUSED:
-                invitation.person_sender = (member,)
-                invitation.status = Invitation.STATUS_PENDING
-        except Invitation.DoesNotExist:
-            # Add invitations to group referents
-            invitation = Invitation.objects.create(
-                person_sender=member,
+        # Create organizer config if current person is the group referent
+        if member in group.referents:
+            OrganizerConfig.objects.create(
+                event=event, person=member, as_group=group,
+            )
+            return Response(status=status.HTTP_201_CREATED)
+
+        # Send a coorganization invitation otherwise
+        with transaction.atomic():
+            (invitation, created) = Invitation.objects.get_or_create(
                 event=event,
                 group=group,
-                status=Invitation.STATUS_PENDING,
+                defaults={"person_sender": member, "status": Invitation.STATUS_PENDING},
             )
 
-        invitation.save()
+            if not created:
+                invitation.person_sender = member
+                invitation.person_recipient = None
+                invitation.status = Invitation.STATUS_PENDING
+                invitation.save()
 
-        send_group_coorganization_invitation_notification.delay(invitation.pk)
-        return Response({"data": True}, status=status.HTTP_201_CREATED)
+            send_group_coorganization_invitation_notification.delay(invitation.pk)
+
+            return Response(status=status.HTTP_202_ACCEPTED)
 
 
 class CancelEventAPIView(GenericAPIView):

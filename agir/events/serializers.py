@@ -64,7 +64,6 @@ EVENT_ROUTES = {
     "compteRendu": "edit_event_report",
     "addPhoto": "upload_event_image",
     "edit": "edit_event",
-    "inviteGroupCoorganize": "event_group_coorganization",
 }
 
 
@@ -328,7 +327,7 @@ class EventAdvancedSerializer(EventSerializer):
 
     contact = NestedContactSerializer(source="*")
 
-    groups_invited = serializers.SerializerMethodField()
+    groupsInvited = serializers.SerializerMethodField(method_name="get_groups_invited")
 
     def get_participants(self, obj):
         return [
@@ -377,10 +376,10 @@ class EventAdvancedSerializer(EventSerializer):
         return all_organizers
 
     def get_groups_invited(self, obj):
-
         groups_invited = SupportGroup.objects.filter(
             invitations__status=Invitation.STATUS_PENDING, invitations__event=obj
         )
+
         return [
             {
                 "id": group.id,
