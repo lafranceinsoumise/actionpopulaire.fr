@@ -51,7 +51,6 @@ __all__ = [
     "EventRsvpedAPIView",
     "PastRsvpedEventAPIView",
     "OngoingRsvpedEventsAPIView",
-    "EventSuggestionsAPIView",
     "NearEventSuggestionsAPIView",
     "UserGroupEventAPIView",
     "OrganizedEventAPIView",
@@ -147,71 +146,42 @@ class OngoingRsvpedEventsAPIView(EventListAPIView):
         )
 
 
-class EventSuggestionsAPIView(EventListAPIView):
-    def get_queryset(self):
-        person = self.request.user.person
-        person_groups = person.supportgroups.all()
-        base_queryset = (
-            Event.objects.public()
-            .with_serializer_prefetch(person)
-            .select_related("subtype")
-        )
-
-        groups_events = base_queryset.upcoming().filter(
-            organizers_groups__in=person_groups
-        )
-
-        organized_events = (
-            base_queryset.past().filter(organizers=person).order_by("-start_time")[:10]
-        )
-
-        past_events = (
-            base_queryset.past()
-            .filter(Q(rsvps__person=person) | Q(organizers_groups__in=person_groups))
-            .order_by("-start_time")[:10]
-        )
-
-        result = groups_events | organized_events | past_events
-
-        if person.coordinates is not None:
-            near_events = (
-                base_queryset.upcoming()
-                .filter(start_time__lt=now() + timedelta(days=30), do_not_list=False,)
-                .annotate(distance=Distance("coordinates", person.coordinates))
-                .order_by("distance")[:10]
-            )
-
-            result = result | near_events
-            result = result.annotate(
-                distance=Distance("coordinates", person.coordinates)
-            )
-
-        result = result.distinct().order_by("start_time")
-
-        return result
-
-
 class NearEventSuggestionsAPIView(EventListAPIView):
     def get_queryset(self):
         person = self.request.user.person
 
+        national_events = (
+            Event.objects.with_serializer_prefetch(person)
+            .select_related("subtype")
+            .listed()
+            .upcoming()
+            .filter(calendars__slug="national")
+        )
+
         if person.coordinates is not None:
-            return sorted(
-                Event.objects.public()
-                .with_serializer_prefetch(person)
+            near_events = list(
+                Event.objects.with_serializer_prefetch(person)
                 .select_related("subtype")
+                .listed()
                 .upcoming()
-                .filter(
-                    start_time__lt=timezone.now() + timedelta(days=30),
-                    do_not_list=False,
-                )
+                .filter(start_time__lt=timezone.now() + timedelta(days=30))
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .distinct()
-                .order_by("distance")[:10],
-                key=lambda event: event.start_time,
+                .order_by("distance")[:10]
+            )
+            national_events = list(
+                national_events.annotate(
+                    distance=Distance("coordinates", person.coordinates),
+                )
+                .filter(distance__lte=100000)
+                .order_by("start_time")[:10]
             )
 
-        return Event.objects.none()
+            return sorted(
+                set(national_events + near_events), key=lambda event: event.start_time
+            )
+
+        return national_events.order_by("start_time")[:10]
 
 
 class UserGroupEventAPIView(EventListAPIView):
