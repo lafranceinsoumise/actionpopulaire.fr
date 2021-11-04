@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 import { StepButton } from "./StyledComponents";
@@ -34,6 +34,10 @@ const GroupedFields = styled.div`
   }
 `;
 
+const StyledCustomField = styled(CustomField)`
+  ${({ connected }) => (connected ? "display: none" : "")};
+`;
+
 const helpEmail =
   "Si vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou melenchon2022.fr, utilisez l'adresse avec laquelle vous êtes inscrit·e";
 const helpNationality =
@@ -50,6 +54,7 @@ const InformationsStep = ({
   formData,
   setFormData,
   isLoading,
+  connected = false,
 }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -93,7 +98,7 @@ const InformationsStep = ({
 
   return (
     <form onSubmit={onSubmit}>
-      <CustomField
+      <StyledCustomField
         Component={TextField}
         id="email"
         name="email"
@@ -102,6 +107,7 @@ const InformationsStep = ({
         value={formData.email}
         error={errors?.email}
         helpText={helpEmail}
+        connected={connected}
       />
 
       <GroupedFields>
