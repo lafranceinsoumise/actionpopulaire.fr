@@ -187,7 +187,7 @@ const DonationPage = () => {
 
     // Redirect to informations step (keep group param in url)
     // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
-  }, []);
+  }, [type]);
 
   const handleInformationsSubmit = async (e) => {
     e.preventDefault();
