@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import useSWR from "swr";
 
@@ -81,7 +81,7 @@ const CodeConnexion = () => {
   const dispatch = useDispatch();
   const authentication = useSelector(getAuthentication);
   const user = useSelector(getUser);
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const [code, setCode] = useState("");
   const [error, setError] = useState({});
@@ -130,7 +130,7 @@ const CodeConnexion = () => {
 
       if (location.state.next) {
         if (getRouteByPathname(location.state.next)) {
-          history.push(location.state.next);
+          navigate(location.state.next);
         } else {
           window.location = location.state.next;
         }
@@ -139,8 +139,8 @@ const CodeConnexion = () => {
     }
 
     const route = routeConfig.tellMore.getLink();
-    history.push(route);
-  }, [authentication, user, bookmarkEmail, location, history]);
+    navigate(route);
+  }, [authentication, user, bookmarkEmail, location, navigate]);
 
   return (
     <Container onSubmit={handleSubmit}>

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -156,7 +156,7 @@ const CreateEvent = () => {
       ready={isSessionLoaded && typeof projects !== "undefined"}
     >
       {isBlocked ? (
-        <Redirect to={routeConfig.missingEventDocuments.getLink()} />
+        <Navigate to={routeConfig.missingEventDocuments.getLink()} />
       ) : (
         <StyledContainer>
           <div>

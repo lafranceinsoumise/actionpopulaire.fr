@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { RouteConfig } from "@agir/front/app/routes.config";
 
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
@@ -49,7 +49,7 @@ const routeConfig = {
 
 export const useTabs = (props, isMobile = true) => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const { group } = props;
@@ -104,12 +104,10 @@ export const useTabs = (props, isMobile = true) => {
   const handleTabChange = useCallback(
     (route, params, shouldReplace) => {
       if (route && route.getLink) {
-        shouldReplace
-          ? history.replace(route.getLink(params))
-          : history.push(route.getLink(params));
+        navigate(route.getLink(params), { replace: shouldReplace });
       }
     },
-    [history]
+    [navigate]
   );
 
   const handleNextTab = useCallback(() => {

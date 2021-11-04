@@ -1,12 +1,12 @@
 import PropTypes from "prop-types";
 import React, { Suspense, useCallback, useEffect, useRef } from "react";
 import {
-  Switch,
-  Redirect,
+  Routes,
+  Navigate,
   Route,
-  useHistory,
+  useNavigate,
   useLocation,
-  useRouteMatch,
+  useMatch,
 } from "react-router-dom";
 import { animated, useTransition } from "@react-spring/web";
 import styled from "styled-components";
@@ -109,7 +109,7 @@ const MobilePanel = (props) => {
       />
       {transition((style, item) => (
         <StyledSubPanel style={shouldAnimate.current > 1 ? style : undefined}>
-          <Switch location={item}>
+          <Routes location={item}>
             {routes.map((route) => (
               <Route key={route.id} path={route.path} exact={route.exact}>
                 <ManagementPanel>
@@ -124,9 +124,9 @@ const MobilePanel = (props) => {
               </Route>
             ))}
             <Route key="unhandled-route" path={menuLink + "*"} exact>
-              <Redirect to={menuLink} />
+              <Navigate to={menuLink} />
             </Route>
-          </Switch>
+          </Routes>
         </StyledSubPanel>
       ))}
     </StyledPanel>
@@ -171,7 +171,7 @@ const DesktopPanel = (props) => {
       >
         {transition((style, item) => (
           <StyledSubPanel style={style}>
-            <Switch location={item}>
+            <Routes location={item}>
               {routes.map((route) => (
                 <Route key={route.id} path={route.path} exact={route.exact}>
                   <ManagementPanel>
@@ -186,9 +186,9 @@ const DesktopPanel = (props) => {
                 </Route>
               ))}
               <Route key="unhandled-route" path={menuLink + "*"} exact>
-                <Redirect to={menuLink} />
+                <Navigate to={menuLink} />
               </Route>
-            </Switch>
+            </Routes>
           </StyledSubPanel>
         ))}
       </div>
@@ -210,20 +210,20 @@ MobilePanel.propTypes = DesktopPanel.propTypes = {
 export const ObjectManagement = (props) => {
   const { basePath, menuLink, redirectTo, ...rest } = props;
 
-  const hasRoute = useRouteMatch(menuLink);
+  const hasRoute = useMatch(menuLink);
 
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   const goToMenu = useCallback(() => {
-    menuLink && push(menuLink);
-  }, [menuLink, push]);
+    menuLink && navigate(menuLink);
+  }, [menuLink, navigate]);
 
   const closePanel = useCallback(() => {
-    basePath && push(basePath);
-  }, [basePath, push]);
+    basePath && navigate(basePath);
+  }, [basePath, navigate]);
 
   if (!!hasRoute && redirectTo) {
-    return <Redirect to={redirectTo} />;
+    return <Navigate to={redirectTo} />;
   }
 
   return (

@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -70,12 +70,12 @@ const GroupSuggestionCard = (props) => {
     iconConfiguration,
   } = props;
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const handleClick = React.useCallback(() => {
     id &&
       routeConfig.groupDetails &&
-      history.push(routeConfig.groupDetails.getLink({ groupPk: id }));
-  }, [history, id]);
+      navigate(routeConfig.groupDetails.getLink({ groupPk: id }));
+  }, [navigate, id]);
 
   return (
     <StyledCard onClick={handleClick}>

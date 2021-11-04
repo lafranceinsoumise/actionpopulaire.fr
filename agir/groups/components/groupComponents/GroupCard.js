@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -106,7 +106,7 @@ const GroupCard = ({
   displayMembership,
   isEmbedded = false,
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClick = useCallback(
     (e) => {
@@ -115,9 +115,9 @@ const GroupCard = ({
       }
       id &&
         routeConfig.groupDetails &&
-        history.push(routeConfig.groupDetails.getLink({ groupPk: id }));
+        navigate(routeConfig.groupDetails.getLink({ groupPk: id }));
     },
-    [history, id]
+    [navigate, id]
   );
   const parsedDiscountCodes = useMemo(
     () => parseDiscountCodes(discountCodes),

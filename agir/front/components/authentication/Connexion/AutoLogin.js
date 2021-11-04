@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo } from "react";
 
 import { login } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const AutoLogin = ({ email }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const next = useMemo(() => {
@@ -23,15 +23,17 @@ const AutoLogin = ({ email }) => {
         ? routeConfig.logout.getLink()
         : routeConfig.codeLogin.getLink();
 
-      history.push(redirectTo, {
-        ...(location.state || {}),
-        next,
-        email: email,
-        code: result.data && result.data.code,
-        auto: true,
+      navigate(redirectTo, {
+        state: {
+          ...(location.state || {}),
+          next,
+          email: email,
+          code: result.data && result.data.code,
+          auto: true,
+        },
       });
     },
-    [next, history, location.state]
+    [next, navigate, location.state]
   );
 
   useEffect(() => {

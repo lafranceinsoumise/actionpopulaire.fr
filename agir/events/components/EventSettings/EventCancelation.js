@@ -11,12 +11,12 @@ import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styl
 import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPanel.js";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 import { routeConfig } from "@agir/front/app/routes.config";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const EventCancelation = (props) => {
   const { onBack, illustration, eventPk } = props;
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const sendToast = useToast();
   const { data: event } = useSWR(api.getEventEndpoint("getEvent", { eventPk }));
 
@@ -33,7 +33,7 @@ const EventCancelation = (props) => {
     }
     sendToast(data.data, "SUCCESS", { autoClose: true });
     const route = routeConfig.events.getLink();
-    history.push(route);
+    navigate(route);
   };
 
   return (

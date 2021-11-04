@@ -1,25 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { createGlobalState } from "react-use";
 
 import { parseQueryStringParams } from "@agir/lib/utils/url";
 import { useLocalStorage } from "@agir/lib/utils/hooks";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
-
-export const useCustomBackNavigation = (callback) => {
-  const history = useHistory();
-
-  useEffect(() => {
-    let unblock = undefined;
-    if (history && typeof callback === "function") {
-      unblock = history.block(() => {
-        callback();
-        return false;
-      });
-    }
-    return unblock;
-  }, [callback, history]);
-};
 
 /**
  * Custom hook to check if current page is inside a iOS or Android app webview

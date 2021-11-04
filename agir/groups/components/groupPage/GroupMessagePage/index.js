@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useMemo } from "react";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useGroupMessage } from "@agir/groups/groupPage/hooks";
@@ -103,7 +103,7 @@ const Page = ({ groupPk, messagePk }) => {
       group.id && routeConfig.groupDetails
         ? routeConfig.groupDetails.getLink({ groupPk: group.id })
         : routeConfig.groups.getLink();
-    return <Redirect to={redirectTo} />;
+    return <Navigate to={redirectTo} />;
   }
 
   return (

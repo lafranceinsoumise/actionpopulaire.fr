@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Redirect, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import useSWR from "swr";
 
 import { logout } from "@agir/front/authentication/api";
@@ -31,14 +31,7 @@ const Logout = () => {
   }, [isValidating, doLogout]);
 
   if (session && !session.user) {
-    return (
-      <Redirect
-        to={{
-          pathname: routeConfig.login.getLink(),
-          state: { ...(location.state || {}) },
-        }}
-      />
-    );
+    return <Navigate to={routeConfig.login.getLink()} state={location.state} />;
   }
 
   return null;

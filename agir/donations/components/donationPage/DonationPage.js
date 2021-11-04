@@ -140,7 +140,7 @@ const DonationPage = () => {
 
     setShowModal(true);
 
-    // Redirect to informations step (keep group param in url)
+    // Navigate to informations step (keep group param in url)
     // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
   }, []);
 

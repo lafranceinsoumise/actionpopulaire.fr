@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -73,7 +73,7 @@ const defaultData = {
 };
 
 const SignUp = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const [hasCountryField, setHasCountryField] = useState(false);
@@ -118,9 +118,9 @@ const SignUp = () => {
         return;
       }
       const route = routeConfig.codeSignup.getLink();
-      history.push(route, { ...(location.state || {}), email: formData.email });
+      navigate(route, { ...(location.state || {}), email: formData.email });
     },
-    [formData, history, location, rgpdChecked]
+    [formData, navigate, location, rgpdChecked]
   );
 
   return (
