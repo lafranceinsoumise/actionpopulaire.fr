@@ -1,8 +1,6 @@
+import logging
 from datetime import timedelta
 
-from django.db.models.functions import Cast
-from iso8601 import parse_date
-from django.core.management import BaseCommand
 from django.db import transaction
 from django.db.models import (
     DateTimeField,
@@ -13,14 +11,20 @@ from django.db.models import (
     Value,
     IntegerField,
 )
+from django.db.models.functions import Cast
 from django.utils import timezone
+from iso8601 import parse_date
 
 from agir.events.models import Event, EventSubtype, OrganizerConfig
 from agir.gestion.models import Projet
 from agir.gestion.typologies import TypeProjet
 from agir.groups.models import SupportGroup
+from agir.lib.management_utils import LoggingCommand
 from agir.people.person_forms.display import default_person_form_display
 from agir.people.person_forms.models import PersonForm
+
+
+logger = logging.getLogger(__name__)
 
 
 DESCRIPTION_TEMPLATE = """
@@ -50,7 +54,7 @@ def description_from_submission(s):
     return DESCRIPTION_TEMPLATE.format(data=sections)
 
 
-class Command(BaseCommand):
+class Command(LoggingCommand):
     def add_arguments(self, parser):
         parser.add_argument("form_slug")
 
@@ -81,7 +85,7 @@ class Command(BaseCommand):
             ),
         ).filter(projet_cree=False, possible_date__gt=now)
 
-        self.stdout.write(f"Création de projets pour {submissions.count()}\n")
+        logger.info(f"Création de {submissions.count()} nouveaux projets")
         # créer les projets correspondants
         for s in submissions.filter(projet_cree=False):
             name = f'Réunion publique à {s.data["location_city"]}'
@@ -94,6 +98,8 @@ class Command(BaseCommand):
                     group = None
             else:
                 group = None
+
+            logger.debug(f"Création projet et événement « {name} »")
 
             with transaction.atomic():
                 event = Event.objects.create(
