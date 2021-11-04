@@ -119,7 +119,9 @@ const InformationsStep = ({
           onChange={handleChange}
           value={formData.firstName}
           error={errors?.firstName}
+          noSpacer
         />
+        <Spacer size="1rem" />
         <CustomField
           Component={TextField}
           id="lastName"
