@@ -11,7 +11,7 @@ import Link from "@agir/front/app/Link";
 import { BlockSwitchLink } from "@agir/front/authentication/Connexion/styledComponents";
 import { login } from "@agir/front/authentication/api";
 import { routeConfig } from "@agir/front/app/routes.config";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useBookmarkedEmails } from "@agir/front/authentication/hooks";
 import { useMobileApp } from "@agir/front/app/hooks";
 
@@ -51,7 +51,7 @@ const ToastNotConnected = () => {
 };
 
 const Login = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const { isMobileApp } = useMobileApp();
@@ -82,14 +82,16 @@ const Login = () => {
       }
 
       const route = routeConfig.codeLogin.getLink();
-      history.push(route, {
-        ...(location.state || {}),
-        next,
-        email: email,
-        code: result.data && result.data.code,
+      navigate(route, {
+        state: {
+          ...(location.state || {}),
+          next,
+          email: email,
+          code: result.data && result.data.code,
+        },
       });
     },
-    [next, history, location.state]
+    [next, navigate, location.state]
   );
 
   return (

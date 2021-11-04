@@ -1,5 +1,5 @@
 import React, { Suspense, useMemo } from "react";
-import { useHistory, useRouteMatch } from "react-router-dom";
+import { useNavigate, useMatch } from "react-router-dom";
 
 import { lazy } from "@agir/front/app/utils";
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -10,8 +10,8 @@ import MissingDocumentWarning from "./MissingDocumentWarning";
 const MissingDocumentModal = lazy(() => import("./MissingDocumentModal"));
 
 const MissingDocuments = () => {
-  const history = useHistory();
-  const routeMatch = useRouteMatch(routeConfig.missingEventDocumentsModal.path);
+  const navigate = useNavigate();
+  const routeMatch = useMatch(routeConfig.missingEventDocumentsModal.path);
 
   const { projects } = useMissingRequiredEventDocuments();
 
@@ -40,8 +40,8 @@ const MissingDocuments = () => {
   }, [projects]);
 
   const openModal = () =>
-    history.push(routeConfig.missingEventDocumentsModal.getLink());
-  const closeModal = () => history.push(routeConfig.events.getLink());
+    navigate(routeConfig.missingEventDocumentsModal.getLink());
+  const closeModal = () => navigate(routeConfig.events.getLink());
 
   if (!missingDocumentCount) {
     return null;

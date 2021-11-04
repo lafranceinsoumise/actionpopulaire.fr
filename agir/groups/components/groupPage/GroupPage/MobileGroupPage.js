@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -79,7 +79,7 @@ const MobileGroupPage = (props) => {
     }
   }, [tabs, onTabChange]);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const getMessageURL = useCallback(
     (messagePk) =>
@@ -94,9 +94,9 @@ const MobileGroupPage = (props) => {
   const handleClickMessage = useCallback(
     (message) => {
       const link = getMessageURL(message.id);
-      history && history.push(link);
+      navigate(link);
     },
-    [history, getMessageURL]
+    [navigate, getMessageURL]
   );
 
   const groupSettingsLinks = useMemo(

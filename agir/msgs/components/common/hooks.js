@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import { validate as uuidValidate } from "uuid";
 
@@ -92,16 +92,14 @@ export const useMessageSWR = (messagePk, selectMessage) => {
 };
 
 export const useSelectMessage = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const handleSelect = useCallback(
     (messagePk, doNotPush = false) => {
-      if (doNotPush) {
-        history.replace(routeConfig.messages.getLink({ messagePk }));
-      } else {
-        history.push(routeConfig.messages.getLink({ messagePk }));
-      }
+      navigate(routeConfig.messages.getLink({ messagePk }), {
+        replace: doNotPush,
+      });
     },
-    [history]
+    [navigate]
   );
 
   return handleSelect;

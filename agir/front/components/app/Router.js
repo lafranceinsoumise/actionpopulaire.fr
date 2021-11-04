@@ -2,12 +2,11 @@ import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 import {
   BrowserRouter,
-  Redirect,
+  Navigate,
   Route,
-  Switch,
+  Routes,
   useLocation,
 } from "react-router-dom";
-import ScrollMemory from "react-router-scroll-memory";
 
 import routes, { BASE_PATH, routeConfig } from "./routes.config";
 import Page from "./Page";
@@ -74,11 +73,9 @@ export const ProtectedComponent = (props) => {
   }
 
   return (
-    <Redirect
-      to={{
-        pathname: routeConfig.login.getLink(),
-        state: { next: location.pathname },
-      }}
+    <Navigate
+      to={routeConfig.login.getLink()}
+      state={{ next: location.pathname }}
     />
   );
 };
@@ -92,8 +89,7 @@ const Router = ({ children }) => {
 
   return (
     <BrowserRouter basename={BASE_PATH}>
-      <ScrollMemory />
-      <Switch>
+      <Routes>
         {routes.map((route) => {
           const hasTopBar =
             !route.hideTopBar && (!route.appOnlyTopBar || isMobileApp);
@@ -121,7 +117,7 @@ const Router = ({ children }) => {
         <Route key="not-found">
           <NotFoundPage />
         </Route>
-      </Switch>
+      </Routes>
       {children}
     </BrowserRouter>
   );

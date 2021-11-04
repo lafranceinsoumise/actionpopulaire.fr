@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import useSWR from "swr";
 
 import EventRequiredDocuments from "./EventRequiredDocuments";
@@ -80,7 +80,7 @@ const EventRequiredDocumentsPage = (props) => {
   );
 
   if (error?.response?.status === 403 || error?.response?.status === 404) {
-    return <Redirect to={routeConfig.eventDetails.getLink({ eventPk })} />;
+    return <Navigate to={routeConfig.eventDetails.getLink({ eventPk })} />;
   }
 
   return (

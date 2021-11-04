@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import useSWR from "swr";
 
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -19,7 +19,7 @@ const STEPS = [null, "valider", "succes"];
 
 const CreateContactPage = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const params = useParams();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -52,9 +52,9 @@ const CreateContactPage = () => {
         return;
       }
       setData(formData);
-      history.push(routeConfig.createContact.getLink({ step: STEPS[1] }));
+      navigate(routeConfig.createContact.getLink({ step: STEPS[1] }));
     },
-    [history]
+    [navigate]
   );
 
   /**
@@ -68,19 +68,21 @@ const CreateContactPage = () => {
     setIsLoading(false);
     if (result.errors) {
       setErrors(result.errors);
-      history.push(routeConfig.createContact.getLink({ step: STEPS[0] }));
+      navigate(routeConfig.createContact.getLink({ step: STEPS[0] }));
       return;
     }
-    history.replace(routeConfig.createContact.getLink({ step: STEPS[2] }));
+    navigate(routeConfig.createContact.getLink({ step: STEPS[2] }), {
+      replace: true,
+    });
     // Reset everything, except the selected group
     setData((data) => ({
       group: data.group,
     }));
-  }, [data, history]);
+  }, [data, navigate]);
 
   const goToFirstStep = useCallback(() => {
-    history.push(routeConfig.createContact.getLink({ step: STEPS[0] }));
-  }, [history]);
+    navigate(routeConfig.createContact.getLink({ step: STEPS[0] }));
+  }, [navigate]);
 
   useEffect(() => {
     typeof window !== "undefined" && window.scrollTo({ top: 0 });

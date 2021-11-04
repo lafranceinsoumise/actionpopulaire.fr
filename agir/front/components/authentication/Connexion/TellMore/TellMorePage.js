@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Redirect, useRouteMatch, useLocation } from "react-router-dom";
+import { Navigate, useMatch, useLocation } from "react-router-dom";
 
 import { useCustomAnnouncement } from "@agir/activity/common/hooks";
 import { usePush } from "@agir/notifications/push/subscriptions";
@@ -14,7 +14,7 @@ import DeviceNotificationSubscription from "./DeviceNotificationSubscription";
 const TellMorePage = () => {
   const location = useLocation();
 
-  const isTellMorePage = useRouteMatch(routeConfig.tellMore.getLink());
+  const isTellMorePage = useMatch(routeConfig.tellMore.getLink());
 
   const { available, isSubscribed, subscribe, ready, errorMessage } = usePush();
 
@@ -52,7 +52,7 @@ const TellMorePage = () => {
   }, [hasDeviceNotificationSubscription, isMobileApp, ready]);
 
   if (!isTellMorePage && (hasCampaign || hasNewsletters || hasTellMore)) {
-    return <Redirect to={routeConfig.tellMore.getLink()} />;
+    return <Navigate to={routeConfig.tellMore.getLink()} />;
   }
 
   if (
@@ -100,7 +100,7 @@ const TellMorePage = () => {
     );
   }
 
-  return <Redirect to={routeConfig.events.getLink()} />;
+  return <Navigate to={routeConfig.events.getLink()} />;
 };
 
 export default TellMorePage;

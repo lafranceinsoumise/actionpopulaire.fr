@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { mutate } from "swr";
 
 import GroupUserActions from "./GroupUserActions";
@@ -53,7 +53,7 @@ const ConnectedUserActions = (props) => {
   const [joiningStep, setJoiningStep] = useState(0);
 
   const user = useSelector(getUser);
-  const history = useHistory();
+  const navigate = useNavigate();
   const sendToast = useToast();
 
   const closeDialog = useCallback(() => {
@@ -81,7 +81,7 @@ const ConnectedUserActions = (props) => {
     setIsLoading(true);
     const response = await api.joinGroup(id);
     if (response?.error?.error_code === "full_group") {
-      return history.push(routeConfig.fullGroup.getLink({ groupPk: id }));
+      return navigate(routeConfig.fullGroup.getLink({ groupPk: id }));
     }
     if (response.error) {
       return window.location.reload();
@@ -93,7 +93,7 @@ const ConnectedUserActions = (props) => {
       isActiveMember: true,
     }));
     joiningStep > 0 && setJoiningStep(2);
-  }, [joiningStep, history, id]);
+  }, [joiningStep, navigate, id]);
 
   const followGroup = useCallback(async () => {
     setIsLoading(true);
@@ -160,7 +160,7 @@ const ConnectedUserActions = (props) => {
       setIsLoading(false);
       joiningStep > 0 ? setJoiningStep(3) : setOpenDialog(null);
     },
-    [joiningStep, history, id]
+    [joiningStep, navigate, id]
   );
 
   return (

@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { Suspense, useEffect, useMemo } from "react";
-import { useHistory, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -40,7 +40,7 @@ const Page = (props) => {
   const dispatch = useDispatch();
   const isSessionLoaded = useSelector(getIsSessionLoaded);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const routeParams = useParams();
   const { pathname } = useLocation();
 
@@ -65,17 +65,6 @@ const Page = (props) => {
       dispatch(setTopBarRightLink(routeConfig.topBarRightLink));
     //eslint-disable-next-line
   }, [pathname, isSessionLoaded, dispatch, routeConfig]);
-
-  useEffect(() => {
-    let unlisten = history.listen((location, action) => {
-      log.debug(
-        `Navigate ${action} ${location.pathname}${location.search}${location.hash}`,
-        JSON.stringify(history, null, 2)
-      );
-    });
-
-    return () => unlisten();
-  }, [history]);
 
   useMemo(() => {
     if (!routeConfig.keepScroll) {

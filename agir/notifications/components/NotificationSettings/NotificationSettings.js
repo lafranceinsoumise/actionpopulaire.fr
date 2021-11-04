@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useHistory, useRouteMatch } from "react-router-dom";
+import { useNavigate, useMatch } from "react-router-dom";
 import useSWR from "swr";
 
 import {
@@ -98,14 +98,14 @@ const NotificationSettings = (props) => {
 };
 
 const NotificationSettingRoute = () => {
-  const history = useHistory();
-  const routeMatch = useRouteMatch(routeConfig.notificationSettings.path);
+  const navigate = useNavigate();
+  const routeMatch = useMatch(routeConfig.notificationSettings.path);
 
   const close = useCallback(() => {
     if (routeMatch && routeMatch.params && routeMatch.params.root) {
-      history.push(`/${routeMatch.params.root}/`);
+      navigate(`/${routeMatch.params.root}/`);
     }
-  }, [history, routeMatch]);
+  }, [navigate, routeMatch]);
 
   return (
     <ProtectedComponent

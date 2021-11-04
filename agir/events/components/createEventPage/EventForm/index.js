@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -85,7 +85,7 @@ const EventForm = () => {
   const [newEventPk, setNewEventPk] = useState(null);
   const [campaignFunding, setCampaignFunding] = useState(false);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const { search } = useLocation();
   const options = useEventFormOptions();
 
@@ -228,9 +228,9 @@ const EventForm = () => {
   useEffect(() => {
     if (newEventPk) {
       const route = routeConfig.eventDetails.getLink({ eventPk: newEventPk });
-      history.push(route);
+      navigate(route);
     }
-  }, [history, newEventPk]);
+  }, [navigate, newEventPk]);
 
   useEffect(() => {
     if (!search) {

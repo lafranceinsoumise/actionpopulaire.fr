@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
-import { useHistory, useRouteMatch } from "react-router-dom";
+import { useNavigate, useMatch } from "react-router-dom";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -119,16 +119,16 @@ const PANEL_ROUTE = BASE_ROUTE + "type/";
 const SubtypeField = (props) => {
   const { onChange, value, name, error, disabled } = props;
 
-  const isPanelOpen = useRouteMatch(PANEL_ROUTE);
-  const history = useHistory();
+  const isPanelOpen = useMatch(PANEL_ROUTE);
+  const navigate = useNavigate();
 
   const openPanel = useCallback(() => {
-    history.push(PANEL_ROUTE);
-  }, [history]);
+    navigate(PANEL_ROUTE);
+  }, [navigate]);
 
   const closePanel = useCallback(() => {
-    history.replace(BASE_ROUTE);
-  }, [history]);
+    navigate(BASE_ROUTE, { replace: true });
+  }, [navigate]);
 
   const handleChange = useCallback(
     (subtype) => {

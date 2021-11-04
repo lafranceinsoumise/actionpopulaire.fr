@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
-import { useLocation, Redirect, useRouteMatch } from "react-router-dom";
+import { useLocation, Navigate, useMatch } from "react-router-dom";
 
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import { routeConfig as globalRouteConfig } from "@agir/front/app/routes.config";
@@ -14,7 +14,7 @@ export const EventSettings = (props) => {
   const routes = useMemo(() => getRoutes(basePath, event), [basePath, event]);
   const menuRoute = useMemo(() => getMenuRoute(basePath), [basePath]);
   const isAuthorized = useAuthentication(globalRouteConfig.eventSettings);
-  const routeMenuMatch = useRouteMatch(menuRoute.path);
+  const routeMenuMatch = useMatch(menuRoute.path);
   const { pathname } = useLocation();
   const isDesktop = useIsDesktop();
 
@@ -37,7 +37,7 @@ export const EventSettings = (props) => {
 
   // Open first panel on Desktop
   if (isDesktop && routeMenuMatch?.isExact) {
-    return <Redirect to="general/" />;
+    return <Navigate to="general/" />;
   }
 
   return (
