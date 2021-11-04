@@ -775,6 +775,14 @@ class EventSubtype(BaseSubtype):
         default=list,
     )
 
+    custom_form = models.ForeignKey(
+        "people.PersonForm",
+        verbose_name="Formulaire personnalisé",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+    )
+
     class Meta:
         verbose_name = _("Sous-type d'événement")
         verbose_name_plural = _("Sous-types d'événement")
