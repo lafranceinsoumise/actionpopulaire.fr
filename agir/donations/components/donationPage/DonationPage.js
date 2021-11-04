@@ -164,30 +164,34 @@ const DonationPage = () => {
     }));
   }, [sessionDonation]);
 
-  const handleAmountSubmit = useCallback(async (data) => {
-    setIsLoading(true);
-    setErrors({});
+  const handleAmountSubmit = useCallback(
+    async (data) => {
+      setIsLoading(true);
+      setErrors({});
 
-    const { data: result, error } = await api.createDonation(data);
+      const { data: result, error } = await api.createDonation(data);
 
-    setFormData({
-      ...formData,
-      ...result,
-    });
-    setIsLoading(false);
-
-    if (error) {
-      setErrors({
-        amount: error?.amount || "Une erreur est survenue. Veuillez ressayer.",
+      setFormData({
+        ...formData,
+        ...result,
       });
-      return;
-    }
+      setIsLoading(false);
 
-    history.push(MODAL_ROUTE + (groupPk ? `?group=${groupPk}` : ""));
+      if (error) {
+        setErrors({
+          amount:
+            error?.amount || "Une erreur est survenue. Veuillez ressayer.",
+        });
+        return;
+      }
 
-    // Redirect to informations step (keep group param in url)
-    // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
-  }, [type]);
+      history.push(MODAL_ROUTE + (groupPk ? `?group=${groupPk}` : ""));
+
+      // Redirect to informations step (keep group param in url)
+      // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
+    },
+    [type]
+  );
 
   const handleInformationsSubmit = async (e) => {
     e.preventDefault();
