@@ -1,5 +1,16 @@
-import React, { useCallback, useState, useRef } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import React, {
+  useCallback,
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+} from "react";
+import {
+  useLocation,
+  useParams,
+  useHistory,
+  useRouteMatch,
+} from "react-router-dom";
 import useSWR from "swr";
 
 import styled from "styled-components";
@@ -21,6 +32,7 @@ import { scrollToError } from "@agir/front/app/utils";
 import { displayPrice } from "@agir/lib/utils/display";
 import CONFIG from "./config";
 import * as api from "./api";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledModal = styled(Modal)`
   @media (min-width: ${style.collapse}px) {
@@ -55,9 +67,9 @@ const ModalContainer = styled.div`
 const DonationPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showModal, setShowModal] = useState(false);
-  const closeModal = () => setShowModal(false);
+
   const scrollerRef = useRef(null);
+  const history = useHistory();
 
   const { data: session } = useSWR("/api/session/");
   const { data: sessionDonation } = useSWR("/api/session/donation/");
@@ -68,6 +80,12 @@ const DonationPage = () => {
 
   const type = params?.type || "LFI";
   const groupPk = type !== "2022" && urlParams.get("group");
+
+  const MODAL_ROUTE = routeConfig.donationsInformationsModal.getLink({
+    type: type === "2022" ? type : undefined,
+  });
+
+  const isModalOpen = useMemo(() => useRouteMatch(MODAL_ROUTE), []);
 
   const { data: group } = useSWR(groupPk && `/api/groupes/${groupPk}/`, {
     revalidateIfStale: false,
@@ -119,6 +137,33 @@ const DonationPage = () => {
   const groupAmountString = displayPrice(groupAmount);
   const nationalAmountString = displayPrice(nationalAmount);
 
+  const closeModal = () => {
+    history.push(
+      routeConfig.donations.getLink({
+        type: type === "2022" ? type : undefined,
+      }) + (groupPk ? `?group=${groupPk}` : "")
+    );
+  };
+
+  useEffect(() => {
+    if (isModalOpen && !amount) {
+      closeModal();
+    }
+  }, []);
+
+  useEffect(() => {
+    setFormData((formData) => ({
+      ...formData,
+      amount: sessionDonation?.donations?.amount,
+      type: sessionDonation?.donations?.type,
+      allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
+      paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
+      allowedPaymentModes: JSON.parse(
+        sessionDonation?.donations?.allowedPaymentModes || "[]"
+      ),
+    }));
+  }, [sessionDonation]);
+
   const handleAmountSubmit = useCallback(async (data) => {
     setIsLoading(true);
     setErrors({});
@@ -138,7 +183,7 @@ const DonationPage = () => {
       return;
     }
 
-    setShowModal(true);
+    history.push(MODAL_ROUTE + (groupPk ? `?group=${groupPk}` : ""));
 
     // Redirect to informations step (keep group param in url)
     // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
@@ -179,7 +224,10 @@ const DonationPage = () => {
   };
 
   return (
-    <Theme type={formData.to}>
+    <Theme
+      type={formData.to}
+      theme={CONFIG[type]?.theme || CONFIG.default.theme}
+    >
       <OpenGraphTags title={CONFIG[type]?.title || CONFIG.default.title} />
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <AmountStep
@@ -201,7 +249,7 @@ const DonationPage = () => {
           onSubmit={handleAmountSubmit}
         />
 
-        <StyledModal shouldShow={showModal} onClose={closeModal}>
+        <StyledModal shouldShow={isModalOpen} onClose={closeModal}>
           <ModalContainer ref={scrollerRef}>
             <Title>Je donne {amountString}</Title>
 
@@ -218,6 +266,7 @@ const DonationPage = () => {
             <InformationsStep
               formData={formData}
               setFormData={setFormData}
+              hidden={!!session?.user?.email}
               errors={errors}
               setErrors={setErrors}
               isLoading={isLoading}
