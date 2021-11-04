@@ -35,7 +35,7 @@ const GroupedFields = styled.div`
 `;
 
 const StyledCustomField = styled(CustomField)`
-  ${({ connected }) => (connected ? "display: none" : "")};
+  ${({ hidden }) => (hidden ? "display: none" : "")};
 `;
 
 const helpEmail =
@@ -54,7 +54,7 @@ const InformationsStep = ({
   formData,
   setFormData,
   isLoading,
-  connected = false,
+  hidden = false,
 }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -107,7 +107,7 @@ const InformationsStep = ({
         value={formData.email}
         error={errors?.email}
         helpText={helpEmail}
-        connected={connected}
+        hidden={hidden}
       />
 
       <GroupedFields>

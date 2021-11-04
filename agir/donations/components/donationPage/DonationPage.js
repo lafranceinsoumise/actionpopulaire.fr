@@ -72,7 +72,7 @@ const DonationPage = () => {
   const history = useHistory();
 
   const { data: session } = useSWR("/api/session/");
-  let { data: sessionDonation } = useSWR("/api/session/donation/");
+  const { data: sessionDonation } = useSWR("/api/session/donation/");
 
   const params = useParams();
   const { search } = useLocation();
@@ -266,7 +266,7 @@ const DonationPage = () => {
             <InformationsStep
               formData={formData}
               setFormData={setFormData}
-              connected={!!session?.user?.email}
+              hidden={!!session?.user?.email}
               errors={errors}
               setErrors={setErrors}
               isLoading={isLoading}
