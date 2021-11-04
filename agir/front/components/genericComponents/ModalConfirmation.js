@@ -31,7 +31,7 @@ const ModalContent = styled.div`
   flex-direction: column;
   padding: 1rem;
 
-  h1 {
+  h3 {
     font-size: 1rem;
   }
 
@@ -50,6 +50,7 @@ const ModalConfirmation = (props) => {
     dismissLabel,
     confirmationLabel = "",
     confirmationUrl = "",
+    shouldDismissOnClick = true,
   } = props;
 
   return (
@@ -60,12 +61,12 @@ const ModalConfirmation = (props) => {
       isOpen={shouldShow}
       onClose={onClose}
       onDismiss={onClose}
-      shouldDismissOnClick
+      shouldDismissOnClick={shouldDismissOnClick}
       noScroll
     >
       <ModalContainer>
         <ModalContent>
-          <h1>{title}</h1>
+          <h3>{title}</h3>
           {children}
           <Spacer size="1rem" />
           {!!confirmationUrl && (
@@ -101,6 +102,7 @@ ModalConfirmation.propTypes = {
   dismissLabel: PropTypes.node,
   confirmationLabel: PropTypes.node,
   confirmationUrl: PropTypes.string,
+  shouldDismissOnClick: PropTypes.bool,
 };
 
 export default ModalConfirmation;

@@ -17,6 +17,10 @@ const StyledList = styled.ul`
     padding: 1.5rem;
   }
 
+  li + li {
+    margin-top: 0.5rem;
+  }
+
   button {
     display: flex;
     align-items: center;

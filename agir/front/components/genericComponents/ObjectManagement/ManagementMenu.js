@@ -192,7 +192,7 @@ const ManagementMenu = (props) => {
   );
 
   return (
-    <StyledMenu>
+    <StyledMenu id="managementMenu">
       <Hide over>
         <BackButton onClick={onBack} />
       </Hide>

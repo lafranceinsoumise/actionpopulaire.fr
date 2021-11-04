@@ -96,8 +96,8 @@ export const BottomSheet = (props) => {
 };
 
 BottomSheet.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onDismiss: PropTypes.func.isRequired,
+  isOpen: PropTypes.bool,
+  onDismiss: PropTypes.func,
   shouldDismissOnClick: PropTypes.bool,
   children: PropTypes.node,
 };

@@ -5,10 +5,10 @@ import { mutate } from "swr";
 
 import GroupUserActions from "./GroupUserActions";
 import SecondaryActions from "./SecondaryActions";
+import FollowGroupDialog from "./FollowGroupDialog";
+import JoinGroupDialog from "./JoinGroupDialog";
+import EditMembershipDialog from "./EditMembershipDialog";
 import QuitGroupDialog from "./QuitGroupDialog";
-import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
-import Spacer from "@agir/front/genericComponents/Spacer";
-import ShareLink from "@agir/front/genericComponents/ShareLink";
 
 import * as api from "@agir/groups/api";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
@@ -38,22 +38,44 @@ const StyledContent = styled.div`
 `;
 
 const ConnectedUserActions = (props) => {
-  const { id, name, isMember, isActiveMember, contact } = props;
+  const {
+    id,
+    name,
+    isMember,
+    isActiveMember,
+    personalInfoConsent,
+    contact,
+    referents,
+  } = props;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isQuitting, setIsQuitting] = useState(false);
-
-  const [isOpenModalJoin, setIsOpenModalJoin] = useState(false);
-  const [isOpenModalFollow, setIsOpenModalFollow] = useState(false);
-
-  const modalJoinTitle = <>Bienvenue dans le groupe {name} ! 👋</>;
-  const modalFollowTitle = <>Vous suivez {name} ! 👋</>;
+  const [openDialog, setOpenDialog] = useState(null);
+  const [joiningStep, setJoiningStep] = useState(0);
 
   const user = useSelector(getUser);
   const history = useHistory();
   const sendToast = useToast();
 
-  const modalJoinDismiss = contact?.email ? "Non merci" : "Ok !";
+  const closeDialog = useCallback(() => {
+    setOpenDialog(null);
+  }, []);
+
+  const openJoinDialog = useCallback(() => {
+    setOpenDialog("join");
+    setJoiningStep(1);
+  }, []);
+  const closeJoinDialog = useCallback(() => {
+    setOpenDialog(null);
+    setJoiningStep(0);
+  }, []);
+
+  const openEditDialog = useCallback(() => {
+    setOpenDialog("edit");
+  }, []);
+
+  const openQuitDialog = useCallback(() => {
+    setOpenDialog("quit");
+  }, []);
 
   const joinGroup = useCallback(async () => {
     setIsLoading(true);
@@ -70,8 +92,8 @@ const ConnectedUserActions = (props) => {
       isMember: true,
       isActiveMember: true,
     }));
-    setIsOpenModalJoin(true);
-  }, [history, id]);
+    joiningStep > 0 && setJoiningStep(2);
+  }, [joiningStep, history, id]);
 
   const followGroup = useCallback(async () => {
     setIsLoading(true);
@@ -85,7 +107,7 @@ const ConnectedUserActions = (props) => {
       isMember: true,
       isActiveMember: false,
     }));
-    setIsOpenModalFollow(true);
+    setOpenDialog("follow");
   }, [id]);
 
   const quitGroup = useCallback(async () => {
@@ -108,7 +130,7 @@ const ConnectedUserActions = (props) => {
       return window.location.reload();
     }
     setIsLoading(false);
-    setIsQuitting(false);
+    setOpenDialog(null);
     mutate(api.getGroupEndpoint("getGroup", { groupPk: id }), (group) => ({
       ...group,
       isMember: false,
@@ -125,13 +147,21 @@ const ConnectedUserActions = (props) => {
     );
   }, [id, name, sendToast]);
 
-  const openQuitDialog = useCallback(() => {
-    setIsQuitting(true);
-  }, []);
-
-  const closeQuitDialog = useCallback(() => {
-    setIsQuitting(false);
-  }, []);
+  const updateOwnMembership = useCallback(
+    async (data) => {
+      setIsLoading(true);
+      const response = await api.updateOwnMembership(id, data);
+      if (typeof response.personalInfoConsent !== "undefined") {
+        mutate(api.getGroupEndpoint("getGroup", { groupPk: id }), (group) => ({
+          ...group,
+          personalInfoConsent: response.personalInfoConsent,
+        }));
+      }
+      setIsLoading(false);
+      joiningStep > 0 ? setJoiningStep(3) : setOpenDialog(null);
+    },
+    [joiningStep, history, id]
+  );
 
   return (
     <>
@@ -140,60 +170,48 @@ const ConnectedUserActions = (props) => {
           {...props}
           isAuthenticated={!!user}
           isLoading={isLoading}
-          onJoin={joinGroup}
+          onJoin={isMember ? joinGroup : openJoinDialog}
           onFollow={followGroup}
+          onEdit={openEditDialog}
           onQuit={openQuitDialog}
         />
         <SecondaryActions {...props} />
       </StyledContent>
+      <FollowGroupDialog
+        shouldShow={openDialog === "follow"}
+        onClose={closeDialog}
+        groupName={name}
+      />
+      <JoinGroupDialog
+        step={joiningStep}
+        isLoading={isLoading}
+        groupName={name}
+        groupContact={contact}
+        groupReferents={referents}
+        personName={user.firstName || user.displayName}
+        onJoin={joinGroup}
+        onUpdate={updateOwnMembership}
+        onClose={closeJoinDialog}
+      />
       {isMember && (
-        <QuitGroupDialog
-          groupName={name}
-          shouldShow={isQuitting}
-          isActiveMember={isActiveMember}
-          isLoading={isLoading}
-          onDismiss={isLoading ? undefined : closeQuitDialog}
-          onConfirm={quitGroup}
-        />
+        <>
+          <EditMembershipDialog
+            personalInfoConsent={personalInfoConsent}
+            shouldShow={openDialog === "edit"}
+            isLoading={isLoading}
+            onUpdate={updateOwnMembership}
+            onClose={closeDialog}
+          />
+          <QuitGroupDialog
+            groupName={name}
+            shouldShow={openDialog === "quit"}
+            isActiveMember={isActiveMember}
+            isLoading={isLoading}
+            onClose={closeDialog}
+            onQuit={quitGroup}
+          />
+        </>
       )}
-
-      <ModalConfirmation
-        key={1}
-        shouldShow={isOpenModalJoin}
-        onClose={() => setIsOpenModalJoin(false)}
-        title={modalJoinTitle}
-        dismissLabel={modalJoinDismiss}
-      >
-        Vous venez de rejoindre le groupe en tant que membre. Les animateur·ices
-        du groupe ont été informé·es de votre arrivée.
-        <Spacer size="0.5rem" />
-        {!!contact?.email && (
-          <>
-            C’est maintenant que tout se joue : faites la rencontre avec les
-            animateur·ices.
-            <Spacer size="0.5rem" />
-            Envoyez-leur un message pour vous présenter&nbsp;!
-            <Spacer size="0.5rem" />
-            <ShareLink
-              label="Copier"
-              color="primary"
-              url={contact.email}
-              $wrap
-            />
-          </>
-        )}
-      </ModalConfirmation>
-      <ModalConfirmation
-        key={2}
-        shouldShow={isOpenModalFollow}
-        onClose={() => setIsOpenModalFollow(false)}
-        title={modalFollowTitle}
-      >
-        Vous recevrez l’actualité de ce groupe.
-        <Spacer size="0.5rem" />
-        Vous pouvez le rejoindre en tant que membre pour recevoir les messages
-        destinés aux membres actifs à tout moment.
-      </ModalConfirmation>
     </>
   );
 };
@@ -204,9 +222,8 @@ ConnectedUserActions.propTypes = {
   contact: PropTypes.object,
   isMember: PropTypes.bool,
   isActiveMember: PropTypes.bool,
-  routes: PropTypes.shape({
-    quit: PropTypes.string,
-  }),
+  referents: PropTypes.array,
+  personalInfoConsent: PropTypes.bool,
 };
 
 export default ConnectedUserActions;

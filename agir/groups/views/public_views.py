@@ -1,4 +1,10 @@
+import os
+import re
+import textwrap
+
 import ics
+from PIL import Image, ImageDraw, ImageFont, ImageOps
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError, transaction
@@ -20,10 +26,13 @@ from agir.authentication.view_mixins import (
     GlobalOrObjectPermissionRequiredMixin,
     HardLoginRequiredMixin,
 )
-from agir.front.view_mixins import FilterView, ObjectOpengraphMixin
+from agir.carte.models import StaticMapImage
+from agir.front.view_mixins import FilterView
 from agir.groups.actions.notifications import someone_joined_notification
 from agir.groups.filters import GroupFilterSet
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
+from agir.lib.geo import get_commune
+from agir.lib.tasks import create_static_map_image_from_coordinates
 from agir.lib.utils import front_url
 
 __all__ = [
@@ -32,6 +41,7 @@ __all__ = [
     "QuitSupportGroupView",
     "ThematicTeamsViews",
     "SupportGroupDetailMixin",
+    "SuppportGroupOGImageView",
 ]
 
 
@@ -168,3 +178,127 @@ class SupportGroupDetailMixin(GlobalOrObjectPermissionRequiredMixin):
             )
 
         return HttpResponseBadRequest()
+
+
+class SuppportGroupOGImageView(DetailView):
+    model = SupportGroup
+    static_root = os.path.join(
+        settings.BASE_DIR, "front", "static", "front", "og-image"
+    )
+    charnieres = {
+        "de ": "à ",
+        "d'": "à ",
+        "du ": "au ",
+        "de la ": "à la ",
+        "des ": "aux ",
+        "de l'": "à l'",
+        "de las ": "à las ",
+        "de los ": "à los ",
+    }
+
+    def get_location_string(self):
+        type = self.object.get_type_display()
+        city = self.object.location_city
+        zip = self.object.location_zip
+
+        if not zip:
+            return type
+
+        commune = get_commune(self.object)
+        if commune:
+            commune = commune.nom_avec_charniere
+
+        if not city and not commune:
+            return f"{type} ({zip})"
+
+        if not commune:
+            return f"{type} à {city} ({zip})"
+
+        for key, value in self.charnieres.items():
+            commune = re.sub("^" + key, value, commune)
+
+        return f"{type} {commune} ({zip})"
+
+    def get_illustration(self):
+        if self.object.coordinates is None:
+            return self.get_image_from_file("Frame-193.png")
+
+        static_map_image = StaticMapImage.objects.filter(
+            center__distance_lt=(
+                self.object.coordinates,
+                StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
+            ),
+        ).first()
+
+        if static_map_image is None:
+            create_static_map_image_from_coordinates.delay(
+                [self.object.coordinates[0], self.object.coordinates[1]]
+            )
+            return self.get_image_from_file("Frame-193.png")
+
+        static_map_image.image.open()
+        map = ImageOps.fit(Image.open(static_map_image.image), (1200, 278))
+
+        # Add marker to static map image
+        icon = self.get_image_from_file("map-marker.png")
+        icon = icon.resize((116, 139), Image.ANTIALIAS)
+        map.paste(icon, (542, 49), icon)
+
+        return map
+
+    def get_font(self, size, bold=False):
+        filename = (
+            os.path.join(self.static_root, "poppins-bold.ttf")
+            if bold
+            else os.path.join(self.static_root, "Poppins-Medium.ttf")
+        )
+        return ImageFont.truetype(
+            filename, size=size, encoding="utf-8", layout_engine=ImageFont.LAYOUT_BASIC,
+        )
+
+    def get_image_from_file(self, filename):
+        return Image.open(os.path.join(self.static_root, filename))
+
+    def generate_thumbnail(self):
+        image = Image.new("RGB", (1200, 630), "#FFFFFF")
+        draw = ImageDraw.Draw(image)
+
+        # Draw illustration image
+        illustration = self.get_illustration()
+        image.paste(illustration, (0, 0), illustration)
+
+        # Draw object subtype and location
+        # ex: Groupe local à Paris (75010)
+        draw.text(
+            (108, 315),
+            self.get_location_string(),
+            fill=(63, 38, 130, 0),
+            align="left",
+            font=self.get_font(32, bold=True),
+        )
+
+        # Draw object name
+        lines = textwrap.wrap(
+            self.object.name.capitalize(), width=36, max_lines=2, placeholder="…"
+        )
+        font = self.get_font(45 if len(lines) > 1 else 56)
+        y = 369
+        for line in lines:
+            draw.text((108, y), line, font=font, fill=(0, 0, 0, 0), align="left")
+            y += 63
+
+        # Draw Action Populaire logo
+        image.paste(self.get_image_from_file("bande-ap.png"), (0, 535))
+
+        # Draw Union Populaire logo
+        logo_up = self.get_image_from_file("UP+JLM.png")
+        image.paste(logo_up, (1200 - 453 - 100, 630 - 186), logo_up)
+
+        return image
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        image = self.generate_thumbnail()
+        response = HttpResponse(content_type="image/png")
+        image.save(response, "PNG")
+        return response

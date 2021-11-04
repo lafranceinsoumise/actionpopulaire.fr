@@ -61,7 +61,7 @@ def has_event_with_missing_documents(role):
     organized_event_projects = Projet.objects.filter(
         event__in=role.person.organized_events.select_related("subtype")
         .exclude(subtype__related_project_type="")
-        .exclude(visibility=Event.VISIBILITY_PUBLIC)
+        .exclude(visibility=Event.VISIBILITY_ADMIN)
     )
     return any(get_is_blocking_project(project) for project in organized_event_projects)
 
