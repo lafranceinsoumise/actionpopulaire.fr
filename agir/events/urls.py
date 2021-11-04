@@ -126,11 +126,6 @@ urlpatterns = [
         name="api_ongoing_rsvped_events",
     ),
     path(
-        "api/evenements/suggestions/",
-        views.EventSuggestionsAPIView.as_view(),
-        name="api_event_suggestions",
-    ),
-    path(
         "api/evenements/suggestions/a-proximite/",
         views.NearEventSuggestionsAPIView.as_view(),
         name="api_near_events",
