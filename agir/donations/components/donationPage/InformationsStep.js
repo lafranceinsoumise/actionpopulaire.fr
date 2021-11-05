@@ -90,12 +90,13 @@ const InformationsStep = ({
     });
   };
 
-  const checkPaymentMode = formData.allowedPaymentModes?.filter((value) =>
-    value.includes("check")
-  )[0];
-  const cardPaymentMode = formData.allowedPaymentModes?.filter(
-    (value) => !value.includes("check")
-  )[0];
+  const checkPaymentMode =
+    Array.isArray(formData.allowedPaymentModes) &&
+    formData.allowedPaymentModes.filter((value) => value.includes("check"))[0];
+
+  const cardPaymentMode =
+    Array.isArray(formData.allowedPaymentModes) &&
+    formData.allowedPaymentModes.filter((value) => !value.includes("check"))[0];
 
   return (
     <form onSubmit={onSubmit}>
