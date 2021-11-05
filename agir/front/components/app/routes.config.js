@@ -460,10 +460,7 @@ export const routeConfig = {
   donationsInformationsModal: new RouteConfig({
     id: "donationsInformationsModal",
     params: { type: null },
-    path: [
-      "/:type?/dons/informations-modal/",
-      "/:type?/dons-mensuels/informations-modal/",
-    ],
+    path: ["/:type?/dons/informations-modal/"],
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Faire un don",

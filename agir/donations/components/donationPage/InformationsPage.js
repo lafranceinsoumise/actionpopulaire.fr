@@ -166,7 +166,9 @@ const InformationsPage = () => {
               />
 
               <div>
-                <Title>Je donne {amountString}</Title>
+                <Title>
+                  Je donne {amountString} {formData.type === "M" && "par mois"}
+                </Title>
 
                 <Breadcrumb onClick={() => history.push(amountStepUrl)} />
                 <Spacer size="1rem" />
@@ -185,6 +187,7 @@ const InformationsPage = () => {
                   setErrors={setErrors}
                   isLoading={isLoading}
                   onSubmit={handleInformationsSubmit}
+                  type={type}
                 />
                 <Spacer size="2rem" />
               </div>

@@ -2,12 +2,17 @@ from django.http.response import JsonResponse
 from rest_framework import permissions
 from rest_framework.generics import CreateAPIView
 
-from agir.donations.serializers import CreateDonationSerializer, SendDonationSerializer
+from agir.donations.serializers import (
+    CreateDonationSerializer,
+    SendDonationSerializer,
+    TYPE_MONTHLY,
+)
 from agir.people.models import Person
 from django.db import transaction
 from agir.payments.actions.payments import create_payment
 import json
 from agir.donations.apps import DonsConfig
+from agir.payments import payment_modes
 
 
 class CreateDonationAPIView(CreateAPIView):
@@ -72,10 +77,17 @@ class SendDonationAPIView(CreateAPIView):
                 }
             )
 
+        payment_type = DonsConfig.PAYMENT_TYPE
+
+        # Allow monthly payment
+        if validated_data["type"] == TYPE_MONTHLY:
+            payment_mode = payment_modes.DEFAULT_MODE
+            payment_type = DonsConfig.SUBSCRIPTION_TYPE
+
         with transaction.atomic():
             payment = create_payment(
                 person=person,
-                type=DonsConfig.PAYMENT_TYPE,
+                type=payment_type,
                 mode=payment_mode,
                 price=amount,
                 meta=validated_data,
