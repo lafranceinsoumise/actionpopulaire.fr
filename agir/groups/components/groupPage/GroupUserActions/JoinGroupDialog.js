@@ -28,8 +28,8 @@ export const JoinGroup = (props) => {
             <h3>Rejoindre {groupName}</h3>
           </header>
           <article>
-            Les animateur·ices du groupe seront informé·es de votre arrivée et
-            vous pourrez préparer votre venue à votre première action !
+            Les animateur·ices seront informé·es de votre arrivée et vous
+            pourrez rencontrer les membres du groupe&nbsp;!
           </article>
           <footer>
             <Button
@@ -61,7 +61,10 @@ export const JoinGroup = (props) => {
         })
         .join("");
 
-      const handleUpdate = () => onUpdate({ personalInfoConsent: true });
+      const givePersonalInfoConsent = () =>
+        onUpdate({ personalInfoConsent: true });
+      const denyPersonalInfoConsent = () =>
+        onUpdate({ personalInfoConsent: false });
 
       return (
         <StyledDialog>
@@ -70,26 +73,31 @@ export const JoinGroup = (props) => {
           </header>
           <article>
             <strong>
-              C’est maintenant que tout se joue : faites la rencontre avec{" "}
-              {referentNames} qui animent ce groupe.
+              Faites la rencontre avec {referentNames} qui animent ce groupe.
             </strong>
             <Spacer size=".5rem" />
-            Pour faciliter le contact, partagez vos coordonnées avec eux (nom
-            complet, téléphone et adresse).
+            Partagez vos coordonnées (nom complet, téléphone et adresse) avec
+            eux pour qu'ils puissent prendre contact avec vous.
             <Spacer size=".5rem" />
-            Vous pourrez retirer cette autorisation à tout moment.
+            Vous pourrez retirer cette autorisation à tout moment. C'est
+            maintenant que tout se joue&nbsp;!
           </article>
           <footer>
             <Button
               disabled={isLoading}
               loading={isLoading}
-              onClick={handleUpdate}
+              onClick={givePersonalInfoConsent}
               block
               wrap
             >
               Partager mes coordonnées avec {referentNames}
             </Button>
-            <Button disabled={isLoading} onClick={onClose} block wrap>
+            <Button
+              disabled={isLoading}
+              onClick={denyPersonalInfoConsent}
+              block
+              wrap
+            >
               Passer cette étape
             </Button>
           </footer>
@@ -105,7 +113,7 @@ export const JoinGroup = (props) => {
           <article>
             <strong>
               C’est noté, les gestionnaires du groupe pourront vous contacter
-              sur la messagerie d’Action Populaire, par e-mail et par téléphone.
+              sur la messagerie d’Action Populaire, par e-mail.
             </strong>
             <Spacer size=".5rem" />
             Envoyez-leur un message pour vous présenter&nbsp;!
@@ -118,11 +126,6 @@ export const JoinGroup = (props) => {
             />
             <Spacer size=".5rem" />
           </article>
-          <footer>
-            <Button onClick={onClose} block wrap>
-              Non merci
-            </Button>
-          </footer>
         </StyledDialog>
       );
     }
