@@ -6,10 +6,12 @@ import attRegImg from "./images/ATT-REG.jpg";
 import attGraImg from "./images/ATT-GRA.jpg";
 import attEspImg from "./images/ATT-ESP.jpg";
 
-const staticPath = "/static/front/modeles/";
-const attConTemplate = `${staticPath}Attestation_concours_en_nature.pdf`;
-const attRegTemplate = `${staticPath}Attestation_mise_a_disposition_etablissement.pdf`;
-const attGraTemplate = `${staticPath}Attestation_salle_municipale.pdf`;
+const attConTemplate =
+  "https://melenchon2022.fr/wp-content/uploads/2021/11/Attestation_concours_en_nature.pdf";
+const attRegTemplate =
+  "https://melenchon2022.fr/wp-content/uploads/2021/11/Attestation_mise_a_disposition_etablissement.pdf";
+const attGraTemplate =
+  "https://melenchon2022.fr/wp-content/uploads/2021/11/Attestation_salle_municipale.pdf";
 
 export const EVENT_DOCUMENT_TYPES = {
   "ATT-CON": {
@@ -44,7 +46,7 @@ export const EVENT_DOCUMENT_TYPES = {
         demandé de l’assurer ! Durant la campagne présidentielle, vous pourrez
         utiliser notre{" "}
         <a
-          href="https://infos.actionpopulaire.fr/wp-content/uploads/2021/02/Attestation-2021-assurance-locative-LFI.pdf"
+          href="https://melenchon2022.fr/wp-content/uploads/2021/11/Attestation-2021-assurance-locative-LFI.pdf"
           target="_blank"
           rel="noopener noreferrer"
         >
