@@ -8,7 +8,7 @@ import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import StyledDialog from "./StyledDialog";
 
-const JoinGroupDialog = (props) => {
+const EditMembershipDialog = (props) => {
   const { shouldShow, isLoading, onUpdate, onClose } = props;
 
   const [personalInfoConsent, setPersonalInfoConsent] = useState(
@@ -64,11 +64,11 @@ const JoinGroupDialog = (props) => {
   );
 };
 
-JoinGroupDialog.propTypes = {
+EditMembershipDialog.propTypes = {
   shouldShow: PropTypes.bool,
   isLoading: PropTypes.bool,
   onUpdate: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
 };
 
-export default JoinGroupDialog;
+export default EditMembershipDialog;
