@@ -171,10 +171,7 @@ const DonationPage = () => {
 
       const { data: result, error } = await api.createDonation(data);
 
-      setFormData({
-        ...formData,
-        ...result,
-      });
+      setFormData((formData) => ({ ...formData, ...result }));
       setIsLoading(false);
 
       if (error) {
@@ -190,7 +187,7 @@ const DonationPage = () => {
       // Redirect to informations step (keep group param in url)
       // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
     },
-    [type]
+    [type, history]
   );
 
   const handleInformationsSubmit = async (e) => {
