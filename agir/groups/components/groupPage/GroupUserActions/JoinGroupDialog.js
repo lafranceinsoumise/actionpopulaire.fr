@@ -113,7 +113,7 @@ export const JoinGroup = (props) => {
           <article>
             <strong>
               C’est noté, les gestionnaires du groupe pourront vous contacter
-              sur la messagerie d’Action Populaire, par e-mail.
+              sur la messagerie d’Action Populaire et par e-mail.
             </strong>
             <Spacer size=".5rem" />
             Envoyez-leur un message pour vous présenter&nbsp;!
