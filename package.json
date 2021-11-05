@@ -141,7 +141,7 @@
     "webpack-dev-server": "^4.4.0",
     "webpack-merge": "^5.8.0",
     "webpack-stats-plugin": "^1.0.3",
-    "webpackbar": "5.0.0-3",
+    "webpackbar": "5.0.2",
     "workbox-webpack-plugin": "^6.3.0"
   }
 }
