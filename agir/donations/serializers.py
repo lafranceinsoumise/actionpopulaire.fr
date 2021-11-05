@@ -48,7 +48,7 @@ class CreateDonationSerializer(serializers.Serializer):
         required=False,
     )
     next = serializers.SerializerMethodField(read_only=True)
-    allowedPaymentModes = serializers.SerializerMethodField(read_only=True)
+    allowedPaymentModes = serializers.SerializerMethodField()
 
     def validate(self, attrs):
         max_amount = settings.DONATION_MAXIMUM
@@ -115,7 +115,9 @@ class CreateDonationSerializer(serializers.Serializer):
             )
 
         # Add payment_modes in session
-        # session[DONATION_SESSION_NAMESPACE]["allowedPaymentModes"] = self.get_allowedPaymentModes(validated_data)
+        session[DONATION_SESSION_NAMESPACE][
+            "allowedPaymentModes"
+        ] = self.get_allowedPaymentModes(validated_data)
         return validated_data
 
 
