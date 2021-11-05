@@ -55,6 +55,7 @@ const InformationsStep = ({
   setFormData,
   isLoading,
   hidden = false,
+  type = "",
 }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,9 +83,9 @@ const InformationsStep = ({
     }));
   };
 
-  // Submit with payment_mode
+  // Submit with paymentMode
   const handleSubmit = (e, value) => {
-    setFormData({ ...formData, payment_mode: value }, () => {
+    setFormData({ ...formData, paymentMode: value }, () => {
       onSubmit(e);
     });
   };
@@ -297,6 +298,23 @@ const InformationsStep = ({
       <Spacer size="1rem" />
       <hr />
       <p style={{ fontSize: "13px", color: "#777777" }}>
+        {type === "2022" && (
+          <>
+            Les dons sont destinés à l'AFCP JLM 2022, déclarée à la préfecture
+            de Paris le 15 juin 2021, seule habilitée à recevoir les dons en
+            faveur du candidat Jean-Luc Mélenchon, dans le cadre de la campagne
+            pour l'élection présidentielle de 2022.
+            <Spacer size="0.5rem" />
+            Un reçu détaché d'une formule numérotée éditée par la Commission
+            nationale des comptes de campagne vous sera directement adressé en
+            mai de l’année suivant l’année de versement de votre don.
+            <Spacer size="0.5rem" />
+            Tout don de personne morale (entreprise, association, SCI, compte
+            professionnel de professions libérales ou de commerçants…) est
+            interdit.
+            <Spacer size="0.5rem" />
+          </>
+        )}
         Premier alinéa de l’article 11-4 de la loi 88-227 du 11 mars 1988
         modifiée : une personne physique peut verser un don à un parti ou
         groupement politique si elle est de nationalité française ou si elle

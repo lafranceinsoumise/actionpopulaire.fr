@@ -252,7 +252,9 @@ const DonationPage = () => {
 
         <StyledModal shouldShow={isModalOpen} onClose={closeModal}>
           <ModalContainer ref={scrollerRef}>
-            <Title>Je donne {amountString}</Title>
+            <Title>
+              Je donne {amountString} {formData.type === "M" && "par mois"}
+            </Title>
 
             <Breadcrumb onClick={closeModal} />
             <Spacer size="1rem" />
@@ -272,6 +274,7 @@ const DonationPage = () => {
               setErrors={setErrors}
               isLoading={isLoading}
               onSubmit={handleInformationsSubmit}
+              type={type}
             />
           </ModalContainer>
         </StyledModal>
