@@ -101,6 +101,7 @@ class CreateDonationSerializer(serializers.Serializer):
             return [payment_modes.DEFAULT_MODE]
         if data["type"] == TYPE_SINGLE_TIME:
             return [payment_modes.DEFAULT_MODE]
+        return [payment_modes.DEFAULT_MODE]
 
     def create(self, validated_data):
         session = self.context["request"].session

@@ -66,8 +66,10 @@ class SendDonationAPIView(CreateAPIView):
 
         if "allocations" in validated_data:
             validated_data["allocations"] = json.dumps(
-                {str(allocation["group"].id): allocation["amount"]}
-                for allocation in validated_data.get("allocations", [])
+                {
+                    str(allocation["group"].id): allocation["amount"]
+                    for allocation in validated_data.get("allocations", [])
+                }
             )
 
         with transaction.atomic():
