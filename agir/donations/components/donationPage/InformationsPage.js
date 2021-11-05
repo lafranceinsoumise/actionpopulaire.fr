@@ -68,9 +68,8 @@ const InformationsPage = () => {
     allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
     // mode
     paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
-    allowedPaymentModes: JSON.parse(
-      sessionDonation?.donations?.allowedPaymentModes || "[]"
-    ),
+    allowedPaymentModes:
+      sessionDonation?.donations?.allowedPaymentModes || "[]",
     // informations
     email: session?.user?.email || "",
     firstName: session?.user?.firstName || "",
@@ -100,9 +99,8 @@ const InformationsPage = () => {
       amount: amountParam || sessionDonation?.donations?.amount,
       type: sessionDonation?.donations?.type,
       allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
-      allowedPaymentModes: JSON.parse(
-        sessionDonation?.donations?.allowedPaymentModes || "[]"
-      ),
+      allowedPaymentModes:
+        sessionDonation?.donations?.allowedPaymentModes || "[]",
     });
   }, [sessionDonation]);
 
