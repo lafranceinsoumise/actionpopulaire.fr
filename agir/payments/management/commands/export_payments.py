@@ -1,18 +1,20 @@
+import logging
 from argparse import FileType, ArgumentTypeError
 from decimal import Decimal
 from io import BytesIO
 
 from django.core.mail import get_connection, EmailMessage
-from django.core.management import BaseCommand
 from django.db.models import Q
 from django.utils import timezone
 from glom import glom, Coalesce, T
 from xlsxwriter import Workbook
 
-from agir.lib.management_utils import datetime_argument, email_argument
+from agir.lib.management_utils import datetime_argument, email_argument, LoggingCommand
 from agir.payments.models import Payment
 from agir.payments.payment_modes import PAYMENT_MODES
 from agir.payments.types import PAYMENT_TYPES
+
+logger = logging.getLogger(__name__)
 
 
 def date_locale(d):
@@ -82,7 +84,7 @@ Action Populaire elle-même
 """
 
 
-class Command(BaseCommand):
+class Command(LoggingCommand):
     help = "Exporte les informations supplémentaires nécessaires pour l'audit des paiements"
 
     def add_arguments(self, parser):
@@ -171,6 +173,9 @@ class Command(BaseCommand):
             Payment.objects.filter(condition).order_by("created"), [PAYMENT_SPEC]
         )
 
+        logger.info(f"{len(payments)} correspondent aux critères demandés")
+
+        logger.debug("Génération du fichier excel")
         xlsx_content = BytesIO()
         wb = Workbook(xlsx_content, options={"remove_timezone": True})
 
@@ -203,6 +208,7 @@ class Command(BaseCommand):
         wb.close()
 
         if output:
+            logger.debug("Écriture du fichier excel")
             output.write(xlsx_content.getvalue())
 
         if emails:
@@ -221,4 +227,6 @@ class Command(BaseCommand):
                     xlsx_content.getvalue(),
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 )
+
+                logger.debug(f"Envoi de l'email à {e}")
                 message.send()
