@@ -68,9 +68,8 @@ const InformationsPage = () => {
     allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
     // mode
     paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
-    allowedPaymentModes: JSON.parse(
-      sessionDonation?.donations?.allowedPaymentModes || "[]"
-    ),
+    allowedPaymentModes:
+      sessionDonation?.donations?.allowedPaymentModes || "[]",
     // informations
     email: session?.user?.email || "",
     firstName: session?.user?.firstName || "",
@@ -100,9 +99,8 @@ const InformationsPage = () => {
       amount: amountParam || sessionDonation?.donations?.amount,
       type: sessionDonation?.donations?.type,
       allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
-      allowedPaymentModes: JSON.parse(
-        sessionDonation?.donations?.allowedPaymentModes || "[]"
-      ),
+      allowedPaymentModes:
+        sessionDonation?.donations?.allowedPaymentModes || "[]",
     });
   }, [sessionDonation]);
 
@@ -166,7 +164,9 @@ const InformationsPage = () => {
               />
 
               <div>
-                <Title>Je donne {amountString}</Title>
+                <Title>
+                  Je donne {amountString} {formData.type === "M" && "par mois"}
+                </Title>
 
                 <Breadcrumb onClick={() => history.push(amountStepUrl)} />
                 <Spacer size="1rem" />
@@ -185,6 +185,7 @@ const InformationsPage = () => {
                   setErrors={setErrors}
                   isLoading={isLoading}
                   onSubmit={handleInformationsSubmit}
+                  type={type}
                 />
                 <Spacer size="2rem" />
               </div>

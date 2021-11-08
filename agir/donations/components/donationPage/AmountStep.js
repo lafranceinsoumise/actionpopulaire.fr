@@ -101,10 +101,12 @@ const AmountStep = (props) => {
     error,
     maxAmount,
     maxAmountWarning,
+    amountInit = 0,
+    byMonthInit = false,
   } = props;
 
-  const [amount, setAmount] = useState(0);
-  const [byMonth, setByMonth] = useState(false);
+  const [amount, setAmount] = useState(amountInit);
+  const [byMonth, setByMonth] = useState(byMonthInit);
   const [groupPercentage, setGroupPercentage] = useState();
 
   const hasGroup = !!group?.id;

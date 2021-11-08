@@ -247,6 +247,11 @@ urlpatterns = [
     path(
         "dons/informations/", views.DonationView.as_view(), name="donation_information",
     ),
+    path(
+        "dons/informations-modal/",
+        views.DonationView.as_view(),
+        name="donation_information_modal",
+    ),
     path("2022/dons/", views.Donation2022View.as_view(), name="donations_2022_amount",),
     path(
         "2022/dons/informations/",
@@ -254,9 +259,19 @@ urlpatterns = [
         name="donation_2022_information",
     ),
     path(
+        "2022/dons/informations-modal/",
+        views.Donation2022View.as_view(),
+        name="donation_2022_information_modal",
+    ),
+    path(
         "dons-mensuels/informations/",
         views.DonationView.as_view(),
         name="monthly_donation_information",
+    ),
+    path(
+        "dons-mensuels/informations-modal/",
+        views.DonationView.as_view(),
+        name="monthly_donation_information_modal",
     ),
     path("404/", views.NotFoundView.as_view()),
     ## REDIRECT / EXTERNAL VIEWS

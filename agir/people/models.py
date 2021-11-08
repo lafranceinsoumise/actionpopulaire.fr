@@ -10,7 +10,7 @@ from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models, transaction, IntegrityError
-from django.db.models import JSONField, Subquery, OuterRef, TextField, DateTimeField
+from django.db.models import JSONField, Subquery, OuterRef, DateTimeField
 from django.db.models import Q
 from django.db.models.fields.json import KeyTextTransform
 from django.db.models.functions import Cast, Coalesce
@@ -116,6 +116,8 @@ class PersonQueryset(models.QuerySet):
         return self.filter(Q(role__apnsdevice=None) & Q(role__gcmdevice=None))
 
     def liaisons(self, from_date=None, to_date=timezone.now()):
+        from agir.people.actions.subscription import DATE_2022_LIAISON_META_PROPERTY
+
         liaison_form_submissions = (
             PersonFormSubmission.objects.filter(
                 person=OuterRef("pk"), form__slug="correspondant-es-2022"
@@ -128,7 +130,10 @@ class PersonQueryset(models.QuerySet):
         ).annotate(
             liaison_date=Coalesce(
                 Subquery(liaison_form_submissions[:1]),
-                Cast(KeyTextTransform("liaison_since", "meta"), DateTimeField()),
+                Cast(
+                    KeyTextTransform(DATE_2022_LIAISON_META_PROPERTY, "meta"),
+                    DateTimeField(),
+                ),
                 "created",
             )
         )

@@ -466,6 +466,19 @@ export const routeConfig = {
     hideFooter: true,
     appOnlyTopBar: true,
   }),
+  donationsInformationsModal: new RouteConfig({
+    id: "donationsInformationsModal",
+    params: { type: null },
+    path: ["/:type?/dons/informations-modal/"],
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Faire un don",
+    Component: DonationPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
 };
 
 export const getRouteByPathname = (pathname) => {

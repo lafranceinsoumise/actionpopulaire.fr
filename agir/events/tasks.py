@@ -6,10 +6,10 @@ import requests
 from celery import shared_task
 from django.conf import settings
 from django.template.defaultfilters import date as _date
-from django.utils.timezone import now
 from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.http import urlencode
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
@@ -21,7 +21,6 @@ from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url
 from agir.people.models import Person
 from .models import Event, RSVP, Invitation, OrganizerConfig
-from ..groups.models import SupportGroup
 from ..activity.models import Activity
 from ..notifications.models import Subscription
 
@@ -583,7 +582,6 @@ def send_event_suggestion_email(event_pk, recipient_pk):
 @emailing_task
 @post_save_task
 def send_group_coorganization_invitation_notification(invitation_pk):
-
     invitation = Invitation.objects.get(pk=invitation_pk)
     event = invitation.event
     group = invitation.group
@@ -592,17 +590,18 @@ def send_group_coorganization_invitation_notification(invitation_pk):
     subject = f"Votre groupe {group.name} est invité à co-organiser {event.name}"
     recipients = group.referents
 
-    accept_group_coorganization_url = front_url(
-        "event_group_coorganization", query={"group": group.pk}, kwargs={"pk": event.pk}
-    )
-
     bindings = {
         "TITLE": subject,
         "EVENT_NAME": event.name,
         "GROUP_NAME": group.name,
         "MEMBER": member.display_name,
         "DATE": now(),
-        "ACCEPT_LINK": accept_group_coorganization_url,
+        "ACCEPT_LINK": front_url(
+            "accept_event_group_coorganization", kwargs={"pk": invitation_pk},
+        ),
+        "REFUSE_LINK": front_url(
+            "refuse_event_group_coorganization", kwargs={"pk": invitation_pk},
+        ),
     }
 
     send_mosaico_email(
@@ -621,6 +620,18 @@ def send_group_coorganization_invitation_notification(invitation_pk):
                 recipient=r,
                 event=event,
                 supportgroup=group,
+                meta={
+                    "acceptUrl": front_url(
+                        "accept_event_group_coorganization",
+                        absolute=False,
+                        kwargs={"pk": invitation_pk},
+                    ),
+                    "refuseUrl": front_url(
+                        "refuse_event_group_coorganization",
+                        absolute=False,
+                        kwargs={"pk": invitation_pk},
+                    ),
+                },
             )
             for r in recipients
         ],
@@ -630,16 +641,15 @@ def send_group_coorganization_invitation_notification(invitation_pk):
 
 @emailing_task
 @post_save_task
-def send_validated_group_coorganization_invitation_notification(
-    invitation_id, organizers_id
+def send_accepted_group_coorganization_invitation_notification(
+    invitation_id, recipient_ids
 ):
-
     invitation = Invitation.objects.get(pk=invitation_id)
     event = invitation.event
     group = invitation.group
 
     # Notify current event referents
-    recipients = Person.objects.filter(pk__in=organizers_id)
+    recipients = event.organizers.filter(pk__in=recipient_ids)
 
     # Add activity to current organizers
     Activity.objects.bulk_create(
@@ -680,6 +690,36 @@ def send_validated_group_coorganization_invitation_notification(
 
     send_mosaico_email(
         code="EVENT_GROUP_COORGANIZATION_ACCEPTED",
+        subject=subject,
+        from_email=settings.EMAIL_FROM,
+        recipients=recipients,
+        bindings=bindings,
+    )
+
+
+@emailing_task
+@post_save_task
+def send_refused_group_coorganization_invitation_notification(
+    invitation_id, recipient_ids
+):
+    invitation = Invitation.objects.get(pk=invitation_id)
+    event = invitation.event
+    group = invitation.group
+
+    # Notify current event referents
+    recipients = event.organizers.filter(pk__in=recipient_ids)
+
+    subject = f"{group.name} a refusé de co-organiser {event.name}"
+
+    bindings = {
+        "TITLE": subject,
+        "EVENT_NAME": event.name,
+        "GROUP_NAME": group.name,
+        "DATE": now(),
+    }
+
+    send_mosaico_email(
+        code="EVENT_GROUP_COORGANIZATION_REFUSED",
         subject=subject,
         from_email=settings.EMAIL_FROM,
         recipients=recipients,

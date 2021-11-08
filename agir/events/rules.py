@@ -61,9 +61,18 @@ def has_event_with_missing_documents(role):
     organized_event_projects = Projet.objects.filter(
         event__in=role.person.organized_events.select_related("subtype")
         .exclude(subtype__related_project_type="")
-        .exclude(visibility=Event.VISIBILITY_PUBLIC)
+        .exclude(visibility=Event.VISIBILITY_ADMIN)
     )
     return any(get_is_blocking_project(project) for project in organized_event_projects)
+
+
+@rules.predicate
+def can_respond_to_coorganization_invitation(role, invitation):
+    if invitation and invitation.person_recipient == role.person:
+        return True
+    if invitation and invitation.group and role.person in invitation.group.referents:
+        return True
+    return False
 
 
 rules.add_perm(
@@ -93,3 +102,8 @@ rules.add_perm(
 rules.add_perm("events.change_rsvp", is_authenticated_person & is_own_rsvp)
 
 rules.add_perm("events.participate_online", has_rsvp_for_event)
+
+rules.add_perm(
+    "events.respond_to_coorganization_invitation",
+    is_authenticated_person & can_respond_to_coorganization_invitation,
+)

@@ -12,6 +12,7 @@ from agir.presidentielle2022 import (
     AFCPJLMCheckDonationPaymentMode,
 )
 from agir.payments import payment_modes
+from agir.checks import DonationCheckPaymentMode
 
 TO_LFI = "LFI"
 TO_2022 = "2022"
@@ -48,7 +49,7 @@ class CreateDonationSerializer(serializers.Serializer):
         required=False,
     )
     next = serializers.SerializerMethodField(read_only=True)
-    allowedPaymentModes = serializers.SerializerMethodField(read_only=True)
+    allowedPaymentModes = serializers.SerializerMethodField()
 
     def validate(self, attrs):
         max_amount = settings.DONATION_MAXIMUM
@@ -91,16 +92,17 @@ class CreateDonationSerializer(serializers.Serializer):
         Returns the payment modes allowed switch type given 2022 | LFI | MONTHLY | ..
         """
 
-        # Forbid monthly payment for 2022 for now
-        # if data["to"] == TO_2022 and data["type"] == TYPE_MONTHLY:
-        #     return AFCP2022SystemPayPaymentMode.id
-
         if data["to"] == TO_2022:
+            if data["type"] == TYPE_MONTHLY:
+                return [AFCP2022SystemPayPaymentMode.id]
             return [AFCP2022SystemPayPaymentMode.id, AFCPJLMCheckDonationPaymentMode.id]
+
         if data["type"] == TYPE_MONTHLY:
             return [payment_modes.DEFAULT_MODE]
         if data["type"] == TYPE_SINGLE_TIME:
-            return [payment_modes.DEFAULT_MODE]
+            return [payment_modes.DEFAULT_MODE, DonationCheckPaymentMode.id]
+
+        return [payment_modes.DEFAULT_MODE]
 
     def create(self, validated_data):
         session = self.context["request"].session
@@ -114,7 +116,9 @@ class CreateDonationSerializer(serializers.Serializer):
             )
 
         # Add payment_modes in session
-        # session[DONATION_SESSION_NAMESPACE]["allowedPaymentModes"] = self.get_allowedPaymentModes(validated_data)
+        session[DONATION_SESSION_NAMESPACE][
+            "allowedPaymentModes"
+        ] = self.get_allowedPaymentModes(validated_data)
         return validated_data
 
 

@@ -1,5 +1,16 @@
-import React, { useCallback, useState, useRef } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import React, {
+  useCallback,
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+} from "react";
+import {
+  useLocation,
+  useParams,
+  useHistory,
+  useRouteMatch,
+} from "react-router-dom";
 import useSWR from "swr";
 
 import styled from "styled-components";
@@ -21,6 +32,7 @@ import { scrollToError } from "@agir/front/app/utils";
 import { displayPrice } from "@agir/lib/utils/display";
 import CONFIG from "./config";
 import * as api from "./api";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledModal = styled(Modal)`
   @media (min-width: ${style.collapse}px) {
@@ -55,9 +67,9 @@ const ModalContainer = styled.div`
 const DonationPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showModal, setShowModal] = useState(false);
-  const closeModal = () => setShowModal(false);
+
   const scrollerRef = useRef(null);
+  const history = useHistory();
 
   const { data: session } = useSWR("/api/session/");
   const { data: sessionDonation } = useSWR("/api/session/donation/");
@@ -68,6 +80,12 @@ const DonationPage = () => {
 
   const type = params?.type || "LFI";
   const groupPk = type !== "2022" && urlParams.get("group");
+
+  const MODAL_ROUTE = routeConfig.donationsInformationsModal.getLink({
+    type: type === "2022" ? type : undefined,
+  });
+
+  const isModalOpen = useMemo(() => useRouteMatch(MODAL_ROUTE), []);
 
   const { data: group } = useSWR(groupPk && `/api/groupes/${groupPk}/`, {
     revalidateIfStale: false,
@@ -92,9 +110,8 @@ const DonationPage = () => {
     allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
     // mode
     paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
-    allowedPaymentModes: JSON.parse(
-      sessionDonation?.donations?.allowedPaymentModes || "[]"
-    ),
+    allowedPaymentModes:
+      sessionDonation?.donations?.allowedPaymentModes || "[]",
     // informations
     email: session?.user?.email || "",
     firstName: session?.user?.firstName || "",
@@ -119,30 +136,57 @@ const DonationPage = () => {
   const groupAmountString = displayPrice(groupAmount);
   const nationalAmountString = displayPrice(nationalAmount);
 
-  const handleAmountSubmit = useCallback(async (data) => {
-    setIsLoading(true);
-    setErrors({});
+  const closeModal = () => {
+    history.push(
+      routeConfig.donations.getLink({
+        type: type === "2022" ? type : undefined,
+      }) + (groupPk ? `?group=${groupPk}` : "")
+    );
+  };
 
-    const { data: result, error } = await api.createDonation(data);
-
-    setFormData({
-      ...formData,
-      ...result,
-    });
-    setIsLoading(false);
-
-    if (error) {
-      setErrors({
-        amount: error?.amount || "Une erreur est survenue. Veuillez ressayer.",
-      });
-      return;
+  useEffect(() => {
+    if (isModalOpen && !amount) {
+      closeModal();
     }
-
-    setShowModal(true);
-
-    // Redirect to informations step (keep group param in url)
-    // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
   }, []);
+
+  useEffect(() => {
+    setFormData((formData) => ({
+      ...formData,
+      amount: sessionDonation?.donations?.amount,
+      type: sessionDonation?.donations?.type,
+      allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
+      paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
+      allowedPaymentModes:
+        sessionDonation?.donations?.allowedPaymentModes || "[]",
+    }));
+  }, [sessionDonation]);
+
+  const handleAmountSubmit = useCallback(
+    async (data) => {
+      setIsLoading(true);
+      setErrors({});
+
+      const { data: result, error } = await api.createDonation(data);
+
+      setFormData((formData) => ({ ...formData, ...result }));
+      setIsLoading(false);
+
+      if (error) {
+        setErrors({
+          amount:
+            error?.amount || "Une erreur est survenue. Veuillez ressayer.",
+        });
+        return;
+      }
+
+      history.push(MODAL_ROUTE + (groupPk ? `?group=${groupPk}` : ""));
+
+      // Redirect to informations step (keep group param in url)
+      // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
+    },
+    [type, history]
+  );
 
   const handleInformationsSubmit = async (e) => {
     e.preventDefault();
@@ -169,6 +213,7 @@ const DonationPage = () => {
     const { data, error } = await api.sendDonation(formData);
 
     setIsLoading(false);
+
     if (error) {
       setErrors(error);
       scrollToError(error, scrollerRef.current.parentElement.parentElement);
@@ -179,10 +224,14 @@ const DonationPage = () => {
   };
 
   return (
-    <Theme type={formData.to}>
+    <Theme
+      type={formData.to}
+      theme={CONFIG[type]?.theme || CONFIG.default.theme}
+    >
       <OpenGraphTags title={CONFIG[type]?.title || CONFIG.default.title} />
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <AmountStep
+          key={formData.amount + formData.type}
           type={type}
           maxAmount={CONFIG[type]?.maxAmount || CONFIG.default.maxAmount}
           maxAmountWarning={
@@ -198,12 +247,16 @@ const DonationPage = () => {
           }
           isLoading={isLoading}
           error={errors?.amount}
+          amountInit={formData.amount}
+          byMonthInit={formData.type === "M"}
           onSubmit={handleAmountSubmit}
         />
 
-        <StyledModal shouldShow={showModal} onClose={closeModal}>
+        <StyledModal shouldShow={isModalOpen} onClose={closeModal}>
           <ModalContainer ref={scrollerRef}>
-            <Title>Je donne {amountString}</Title>
+            <Title>
+              Je donne {amountString} {formData.type === "M" && "par mois"}
+            </Title>
 
             <Breadcrumb onClick={closeModal} />
             <Spacer size="1rem" />
@@ -218,10 +271,12 @@ const DonationPage = () => {
             <InformationsStep
               formData={formData}
               setFormData={setFormData}
+              hidden={!!session?.user?.email}
               errors={errors}
               setErrors={setErrors}
               isLoading={isLoading}
               onSubmit={handleInformationsSubmit}
+              type={type}
             />
           </ModalContainer>
         </StyledModal>

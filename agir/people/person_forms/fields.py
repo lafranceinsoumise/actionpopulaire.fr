@@ -231,20 +231,25 @@ class ModelDefaultChoiceIterator(ModelChoiceIterator):
 def get_group_queryset_from_choices(choices, instance):
     base_qs = SupportGroup.objects.active()
 
-    if choices in ["animateur", "animator", "referent"]:
+    if choices in ["animateur", "animatrice", "animator", "referent"]:
         return base_qs.filter(
             memberships__person_id=instance.id,
             memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
-    elif choices in ["manager", "gestionnaire"]:
+
+    if choices in ["manager", "gestionnaire"]:
         return base_qs.filter(
             memberships__person_id=instance.id,
             memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
-    elif choices in ["membre", "member"]:
+
+    if choices in ["membre", "member"]:
         return base_qs.filter(memberships__person_id=instance.id)
-    elif choices:
+
+    if choices:
         return base_qs.filter(pk__in=choices)
+
+    return base_qs.filter(memberships__person_id=instance.id)
 
 
 class GroupField(forms.ModelChoiceField):
@@ -253,20 +258,21 @@ class GroupField(forms.ModelChoiceField):
     iterator = ModelDefaultChoiceIterator
 
     def __init__(
-        self, *, instance, choices=None, default_options_label="Mes groupes", **kwargs
+        self,
+        *,
+        instance,
+        choices="member",
+        default_options_label="Mes groupes",
+        **kwargs,
     ):
-        self.default_queryset = SupportGroup.objects.active().filter(
-            memberships__person_id=instance.id
-        )
-        queryset = get_group_queryset_from_choices(choices, instance)
-
+        self.default_queryset = get_group_queryset_from_choices(choices, instance)
         self.choice_constraint = choices
         self.default_options_label = default_options_label
 
         # Attention : exécuter à la fin, parce que super().__init__ initialise le widget, et lui assigne les
         # choix (donc besoin de default_queryset), et appelle widget_attrs (donc besoin de choice_constraint et
         # default_options_label
-        super().__init__(queryset, **kwargs)
+        super().__init__(self.default_queryset, **kwargs)
 
     def widget_attrs(self, widget):
         attrs = super().widget_attrs(widget)

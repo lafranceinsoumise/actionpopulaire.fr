@@ -40,12 +40,13 @@ const CustomField = ({
   id,
   label,
   helpText,
+  className,
   ...rest
 }) => {
   const isDesktop = useIsDesktop();
 
   return (
-    <>
+    <div className={className}>
       <StyledCustomField htmlFor={id}>
         <Hide under as="label">
           {label}
@@ -62,7 +63,7 @@ const CustomField = ({
         </Hide>
       )}
       {!noSpacer && <Spacer size="1rem" />}
-    </>
+    </div>
   );
 };
 

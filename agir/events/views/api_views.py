@@ -51,7 +51,6 @@ __all__ = [
     "EventRsvpedAPIView",
     "PastRsvpedEventAPIView",
     "OngoingRsvpedEventsAPIView",
-    "EventSuggestionsAPIView",
     "NearEventSuggestionsAPIView",
     "UserGroupEventAPIView",
     "OrganizedEventAPIView",
@@ -147,71 +146,42 @@ class OngoingRsvpedEventsAPIView(EventListAPIView):
         )
 
 
-class EventSuggestionsAPIView(EventListAPIView):
-    def get_queryset(self):
-        person = self.request.user.person
-        person_groups = person.supportgroups.all()
-        base_queryset = (
-            Event.objects.public()
-            .with_serializer_prefetch(person)
-            .select_related("subtype")
-        )
-
-        groups_events = base_queryset.upcoming().filter(
-            organizers_groups__in=person_groups
-        )
-
-        organized_events = (
-            base_queryset.past().filter(organizers=person).order_by("-start_time")[:10]
-        )
-
-        past_events = (
-            base_queryset.past()
-            .filter(Q(rsvps__person=person) | Q(organizers_groups__in=person_groups))
-            .order_by("-start_time")[:10]
-        )
-
-        result = groups_events | organized_events | past_events
-
-        if person.coordinates is not None:
-            near_events = (
-                base_queryset.upcoming()
-                .filter(start_time__lt=now() + timedelta(days=30), do_not_list=False,)
-                .annotate(distance=Distance("coordinates", person.coordinates))
-                .order_by("distance")[:10]
-            )
-
-            result = result | near_events
-            result = result.annotate(
-                distance=Distance("coordinates", person.coordinates)
-            )
-
-        result = result.distinct().order_by("start_time")
-
-        return result
-
-
 class NearEventSuggestionsAPIView(EventListAPIView):
     def get_queryset(self):
         person = self.request.user.person
 
+        national_events = (
+            Event.objects.with_serializer_prefetch(person)
+            .select_related("subtype")
+            .listed()
+            .upcoming()
+            .filter(calendars__slug="national")
+        )
+
         if person.coordinates is not None:
-            return sorted(
-                Event.objects.public()
-                .with_serializer_prefetch(person)
+            near_events = list(
+                Event.objects.with_serializer_prefetch(person)
                 .select_related("subtype")
+                .listed()
                 .upcoming()
-                .filter(
-                    start_time__lt=timezone.now() + timedelta(days=30),
-                    do_not_list=False,
-                )
+                .filter(start_time__lt=timezone.now() + timedelta(days=30))
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .distinct()
-                .order_by("distance")[:10],
-                key=lambda event: event.start_time,
+                .order_by("distance")[:10]
+            )
+            national_events = list(
+                national_events.annotate(
+                    distance=Distance("coordinates", person.coordinates),
+                )
+                .filter(distance__lte=100000)
+                .order_by("start_time")[:10]
             )
 
-        return Event.objects.none()
+            return sorted(
+                set(national_events + near_events), key=lambda event: event.start_time
+            )
+
+        return national_events.order_by("start_time")[:10]
 
 
 class UserGroupEventAPIView(EventListAPIView):
@@ -336,6 +306,7 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
             SupportGroup.objects.active(), pk=request.data.get("groupPk")
         )
         member = self.request.user.person
+
         # Check if group is already organizing the event
         if OrganizerConfig.objects.filter(event=event, as_group=group).exists():
             raise exceptions.ValidationError(
@@ -343,30 +314,30 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
                 code="invalid_format",
             )
 
-        # Create or update invitation
-        try:
-            invitation = Invitation.objects.get(event=event, group=group)
-            # The invitation exist yet : update date and last member asking
-            # pending
-            if invitation.status == Invitation.STATUS_PENDING:
-                invitation.person_sender = member
-            # refused : set to pending
-            elif invitation.status == Invitation.STATUS_REFUSED:
-                invitation.person_sender = (member,)
-                invitation.status = Invitation.STATUS_PENDING
-        except Invitation.DoesNotExist:
-            # Add invitations to group referents
-            invitation = Invitation.objects.create(
-                person_sender=member,
+        # Create organizer config if current person is the group referent
+        if member in group.referents:
+            OrganizerConfig.objects.create(
+                event=event, person=member, as_group=group,
+            )
+            return Response(status=status.HTTP_201_CREATED)
+
+        # Send a coorganization invitation otherwise
+        with transaction.atomic():
+            (invitation, created) = Invitation.objects.get_or_create(
                 event=event,
                 group=group,
-                status=Invitation.STATUS_PENDING,
+                defaults={"person_sender": member, "status": Invitation.STATUS_PENDING},
             )
 
-        invitation.save()
+            if not created:
+                invitation.person_sender = member
+                invitation.person_recipient = None
+                invitation.status = Invitation.STATUS_PENDING
+                invitation.save()
 
-        send_group_coorganization_invitation_notification.delay(invitation.pk)
-        return Response({"data": True}, status=status.HTTP_201_CREATED)
+            send_group_coorganization_invitation_notification.delay(invitation.pk)
+
+            return Response(status=status.HTTP_202_ACCEPTED)
 
 
 class CancelEventAPIView(GenericAPIView):

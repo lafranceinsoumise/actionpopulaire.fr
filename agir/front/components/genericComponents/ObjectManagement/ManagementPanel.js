@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 const StyledContainer = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
@@ -48,13 +49,26 @@ const StyledPanel = styled.div`
   }
 `;
 
-const ManagementPanel = ({ children }) => (
-  <StyledContainer>
-    <StyledPanel>
-      <main>{children}</main>
-    </StyledPanel>
-  </StyledContainer>
-);
+const ManagementPanel = ({ children }) => {
+  const isDesktop = useIsDesktop();
+
+  // Remove mutliple scroll overlay on mobile
+  useEffect(() => {
+    const managementMenu = document.querySelector("#managementMenu");
+    if (!isDesktop) {
+      managementMenu.style.overflow = "hidden";
+    }
+    return () => (managementMenu.style.overflow = "auto");
+  }, []);
+
+  return (
+    <StyledContainer>
+      <StyledPanel>
+        <main>{children}</main>
+      </StyledPanel>
+    </StyledContainer>
+  );
+};
 
 ManagementPanel.propTypes = {
   children: PropTypes.node,
