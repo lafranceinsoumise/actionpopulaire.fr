@@ -231,6 +231,7 @@ const DonationPage = () => {
       <OpenGraphTags title={CONFIG[type]?.title || CONFIG.default.title} />
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <AmountStep
+          key={formData.amount + formData.type}
           type={type}
           maxAmount={CONFIG[type]?.maxAmount || CONFIG.default.maxAmount}
           maxAmountWarning={
@@ -246,6 +247,8 @@ const DonationPage = () => {
           }
           isLoading={isLoading}
           error={errors?.amount}
+          amountInit={formData.amount}
+          byMonthInit={formData.type === "M"}
           onSubmit={handleAmountSubmit}
         />
 
