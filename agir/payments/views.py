@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.http import Http404, HttpResponseServerError
+from django.http import HttpResponseServerError
 from django.shortcuts import redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
