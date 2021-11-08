@@ -201,12 +201,13 @@ const DonationPage = () => {
       !formData.frenchResident &&
         (frontErrors.frenchResident =
           "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation");
+
+      setIsLoading(false);
       setErrors(frontErrors);
       scrollToError(
         frontErrors,
         scrollerRef.current.parentElement.parentElement
       );
-      setIsLoading(false);
       return;
     }
 

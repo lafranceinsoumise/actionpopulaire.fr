@@ -10,9 +10,12 @@ from agir.donations.serializers import (
 from agir.people.models import Person
 from django.db import transaction
 from agir.payments.actions.payments import create_payment
+from agir.donations.allocations import create_monthly_donation
 import json
 from agir.donations.apps import DonsConfig
 from agir.payments import payment_modes
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 
 class CreateDonationAPIView(CreateAPIView):
@@ -69,20 +72,33 @@ class SendDonationAPIView(CreateAPIView):
 
             self.update_person(person, validated_data)
 
+        allocations = {
+            str(allocation["group"].id): allocation["amount"]
+            for allocation in validated_data.get("allocations", [])
+        }
+
         if "allocations" in validated_data:
-            validated_data["allocations"] = json.dumps(
-                {
-                    str(allocation["group"].id): allocation["amount"]
-                    for allocation in validated_data.get("allocations", [])
-                }
-            )
+            validated_data["allocations"] = json.dumps(allocations)
 
         payment_type = DonsConfig.PAYMENT_TYPE
 
-        # Allow monthly payment
+        # Monthly payments
         if validated_data["type"] == TYPE_MONTHLY:
             payment_mode = payment_modes.DEFAULT_MODE
             payment_type = DonsConfig.SUBSCRIPTION_TYPE
+
+            with transaction.atomic():
+                subscription = create_monthly_donation(
+                    person=person,
+                    mode=payment_mode,
+                    subscription_total=amount,
+                    allocations=allocations,
+                    meta=validated_data,
+                    type=payment_type,
+                )
+            return JsonResponse(
+                {"next": reverse("subscription_page", args=[subscription.pk])}
+            )
 
         with transaction.atomic():
             payment = create_payment(
