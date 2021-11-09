@@ -14,8 +14,10 @@ from agir.donations.allocations import create_monthly_donation
 import json
 from agir.donations.apps import DonsConfig
 from agir.payments import payment_modes
-from django.http import HttpResponseRedirect
+from agir.payments.models import Subscription
 from django.urls import reverse
+from agir.donations.views import DONATION_SESSION_NAMESPACE
+from agir.donations.tasks import send_monthly_donation_confirmation_email
 
 
 class CreateDonationAPIView(CreateAPIView):
@@ -28,6 +30,9 @@ class SendDonationAPIView(CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = SendDonationSerializer
     queryset = Person.objects.none()
+
+    def clear_session(self):
+        del self.request.session[DONATION_SESSION_NAMESPACE]
 
     # Create person with only its model fields in validated_data
     def create_person(self, validated_data):
@@ -63,7 +68,7 @@ class SendDonationAPIView(CreateAPIView):
                 connected_user = True
                 del validated_data["email"]
 
-        # User exist : update user informations
+        # User exist and connected : update user informations
         if connected_user:
             person = Person.objects.get(pk=request.user.person.id)
             # Update subscribed_lfi only if its true
@@ -87,6 +92,40 @@ class SendDonationAPIView(CreateAPIView):
             payment_mode = payment_modes.DEFAULT_MODE
             payment_type = DonsConfig.SUBSCRIPTION_TYPE
 
+            # Confirm email if the user is unknowed
+            if not connected_user:
+                email = validated_data["email"]
+                del validated_data["email"]
+                send_monthly_donation_confirmation_email.delay(
+                    confirmation_view_name="monthly_donation_confirm",
+                    email=email,
+                    subscription_total=amount,
+                    **validated_data,
+                )
+                self.clear_session()
+                return JsonResponse(
+                    {"next": reverse("monthly_donation_confirmation_email_sent")}
+                )
+
+            # Check user already monthly donator
+            if Subscription.objects.filter(
+                person=person, status=Subscription.STATUS_ACTIVE, mode=payment_mode,
+            ):
+                # stocker toutes les infos en session
+                # attention à ne pas juste modifier le dictionnaire existant,
+                # parce que la session ne se "rendrait pas compte" qu'elle a changé
+                # et cela ne serait donc pas persisté
+                self.request.session[DONATION_SESSION_NAMESPACE] = {
+                    "new_subscription": {
+                        "type": payment_type,
+                        "mode": payment_mode,
+                        "subscription_total": amount,
+                        "meta": validated_data,
+                    },
+                    **self.request.session.get(DONATION_SESSION_NAMESPACE, {}),
+                }
+                return JsonResponse({"next": reverse("already_has_subscription")})
+
             with transaction.atomic():
                 subscription = create_monthly_donation(
                     person=person,
@@ -96,10 +135,13 @@ class SendDonationAPIView(CreateAPIView):
                     meta=validated_data,
                     type=payment_type,
                 )
+
+            self.clear_session()
             return JsonResponse(
                 {"next": reverse("subscription_page", args=[subscription.pk])}
             )
 
+        # Direct payments
         with transaction.atomic():
             payment = create_payment(
                 person=person,
@@ -110,4 +152,5 @@ class SendDonationAPIView(CreateAPIView):
                 **kwargs,
             )
 
+        self.clear_session()
         return JsonResponse({"next": payment.get_payment_url()})
