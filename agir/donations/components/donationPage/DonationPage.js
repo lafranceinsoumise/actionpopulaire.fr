@@ -11,7 +11,7 @@ import {
   useHistory,
   useRouteMatch,
 } from "react-router-dom";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -180,7 +180,19 @@ const DonationPage = () => {
         return;
       }
 
-      history.push(MODAL_ROUTE + (groupPk ? `?group=${groupPk}` : ""));
+      mutate("/api/session/donation/", (session) => ({
+        ...session,
+        amount: result.amount,
+        type: result.type,
+        allocations: JSON.parse(result.allocations || "[]"),
+        paymentMode: result.paymentMode || "system_pay",
+        allowedPaymentModes: result.allowedPaymentModes || "[]",
+      }));
+
+      // Laps time to update session before modal queries it
+      setTimeout(() => {
+        history.push(MODAL_ROUTE + (groupPk ? `?group=${groupPk}` : ""));
+      }, 500);
 
       // Redirect to informations step (keep group param in url)
       // window.location.href = result.next + (!!groupPk ? `?group=${groupPk}` : "");
