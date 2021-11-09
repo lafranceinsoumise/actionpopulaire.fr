@@ -139,7 +139,7 @@ const StyledContent = styled.div`
     line-height: 1.6;
   }
 `;
-const StyledHeader = styled.div`
+export const StyledHeader = styled.div`
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
@@ -255,14 +255,14 @@ const StyledComments = styled.div`
     }
   }
 `;
-const StyledSubject = styled.h2`
+export const StyledSubject = styled.h2`
   font-size: 1.125rem;
   line-height: 1.5;
   font-weight: 600;
   margin: 0 0 1.25rem;
 `;
-const StyledMessage = styled.div``;
-const StyledWrapper = styled.div`
+export const StyledMessage = styled.div``;
+export const StyledWrapper = styled.div`
   width: 100%;
   padding: 1.5rem;
   margin: 0;

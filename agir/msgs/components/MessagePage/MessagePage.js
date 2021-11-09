@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -27,6 +27,11 @@ import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import MessageThreadList from "./MessageThreadList";
 import EmptyMessagePage from "./EmptyMessagePage";
 
+import { routeConfig } from "@agir/front/app/routes.config";
+import { useRouteMatch } from "react-router-dom";
+import { getGroupEndpoint } from "@agir/groups/api";
+import useSWR from "swr";
+
 const StyledPageFadeIn = styled(PageFadeIn)``;
 const StyledPage = styled.div`
   margin: 0 auto;
@@ -47,7 +52,7 @@ const StyledPage = styled.div`
   }
 `;
 
-const MessagePage = ({ messagePk }) => {
+const MessagePage = ({ messagePk, groupPk }) => {
   const isOffline = useIsOffline();
   const dispatch = useDispatch();
   const onSelectMessage = useSelectMessage();
@@ -58,6 +63,8 @@ const MessagePage = ({ messagePk }) => {
     currentMessage,
     isAutoRefreshPausedRef,
   } = useMessageSWR(messagePk, onSelectMessage);
+
+  const { data: group } = useSWR(getGroupEndpoint("getGroup", { groupPk }));
 
   const {
     isLoading,
@@ -80,6 +87,13 @@ const MessagePage = ({ messagePk }) => {
     messageRecipients,
     currentMessage,
     onSelectMessage
+  );
+
+  const MESSAGE_ORGANIZATION_LINK =
+    routeConfig.groupOrganizationMessage.getLink();
+  const isOrganizationMessage = useMemo(
+    () => useRouteMatch(MESSAGE_ORGANIZATION_LINK),
+    []
   );
 
   // Pause messages' autorefresh while an action is ongoing
@@ -148,6 +162,8 @@ const MessagePage = ({ messagePk }) => {
                 user={user}
                 writeNewMessage={writeNewMessage}
                 onComment={writeNewComment}
+                isOrganizationMessage={isOrganizationMessage}
+                group={group}
               />
             ) : (
               <EmptyMessagePage />

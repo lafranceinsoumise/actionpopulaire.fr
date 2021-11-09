@@ -81,11 +81,12 @@ class SupportGroupOrganizationMessage(AbstractMessage):
         "people.Person",
         verbose_name="Personne",
         related_name="message_organisation",
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT,
     )
 
     class Meta:
-        verbose_name="Message privé avec les organisateurs de groupe"
+        verbose_name = "Message privé avec les organisateurs de groupe"
+
 
 @reversion.register()
 class SupportGroupMessageComment(AbstractMessage):

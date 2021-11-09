@@ -5,14 +5,21 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { routeConfig } from "@agir/front/app/routes.config";
-
-import MessageCard from "@agir/front/genericComponents/MessageCard";
+import MessageCard, {
+  StyledHeader,
+  StyledSubject,
+  StyledMessage,
+  StyledWrapper,
+} from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Panel from "@agir/front/genericComponents/Panel";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import MessageThreadMenu from "./MessageThreadMenu";
+import { routeConfig } from "@agir/front/app/routes.config";
+import CommentField from "@agir/front/formComponents/CommentField";
+import Avatar from "@agir/front/genericComponents/Avatar";
+import Link from "@agir/front/app/Link";
 
 const StyledContent = styled.article`
   height: 100%;
@@ -118,6 +125,8 @@ const DesktopThreadList = (props) => {
     onDeleteComment,
     writeNewMessage,
     notificationSettingLink,
+    isOrganizationMessage,
+    group,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
@@ -126,16 +135,23 @@ const DesktopThreadList = (props) => {
   );
 
   useEffect(() => {
+    if (isOrganizationMessage) {
+      console.log("Dont auto select message !");
+      return;
+    }
+
     // Autoselect first message on desktop
     !selectedMessagePk &&
       Array.isArray(messages) &&
       messages[0] &&
       onSelect(messages[0].id, true);
-  }, [messages, selectedMessagePk, onSelect]);
+  }, [messages, selectedMessagePk, onSelect, isOrganizationMessage]);
 
   return (
     <StyledList>
       <MessageThreadMenu
+        isOrganizationMessage={isOrganizationMessage}
+        group={group}
         isLoading={isLoading}
         messages={messages}
         selectedMessageId={selectedMessage?.id}
@@ -144,8 +160,63 @@ const DesktopThreadList = (props) => {
         writeNewMessage={writeNewMessage}
       />
       <StyledContent ref={scrollableRef}>
-        <PageFadeIn ready={selectedMessagePk && selectedMessage}>
-          {selectedMessage ? (
+        <PageFadeIn
+          ready={
+            (selectedMessagePk && selectedMessage) || isOrganizationMessage
+          }
+        >
+          {isOrganizationMessage && group && (
+            <StyledWrapper>
+              <StyledMessage>
+                <StyledSubject style={{ textAlign: "center" }}>
+                  <Avatar {...group.referents[0]} />
+                  {group.referents.length > 1 && (
+                    <Avatar {...group.referents[1]} />
+                  )}
+                  <br />
+                  Entrez en contact avec {group.referents[0].displayName}
+                  {group.referents.length > 1 && (
+                    <>&nbsp;et {group.referents[1].displayName}</>
+                  )}
+                  &nbsp;!
+                </StyledSubject>
+
+                <StyledHeader
+                  style={{ justifyContent: "center", marginTop: 0 }}
+                >
+                  Animateur·ices du groupe&nbsp;
+                  <Link route="fullGroup" routeParams={{ groupPk: group.id }}>
+                    {group.name}
+                  </Link>
+                </StyledHeader>
+
+                <div
+                  style={{
+                    padding: "20px",
+                    backgroundColor: style.primary50,
+                    marginBottom: "1rem",
+                    borderRadius: style.borderRadius,
+                  }}
+                >
+                  Vous souhaitez rejoindre ce groupe ou bien recevoir des
+                  informations ? Entamez votre discussion ici ! Vous recevrez
+                  leur réponse{" "}
+                  <strong>par notification et sur votre e-mail</strong> (
+                  <span style={{ color: style.primary500 }}>{user.email}</span>)
+                </div>
+
+                <CommentField
+                  isLoading={isLoading}
+                  user={user}
+                  placeholder="Ecrire un message"
+                  // onSend={handleComment}
+                  // autoScroll={autoScrollOnComment}
+                />
+              </StyledMessage>
+            </StyledWrapper>
+          )}
+
+          {selectedMessage && (
             <MessageCard
               autoScrollOnComment
               isLoading={isLoading}
@@ -163,7 +234,7 @@ const DesktopThreadList = (props) => {
                 groupPk: selectedMessage.group.id,
               })}
             />
-          ) : null}
+          )}
           <span
             style={{ width: 1, height: 0 }}
             aria-hidden={true}
