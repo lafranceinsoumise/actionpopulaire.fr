@@ -51,12 +51,10 @@ class DonsConfig(AppConfig):
 
         def monthly_donation_description_context_generator(subscription):
             context = default_description_context_generator(subscription)
-            context["national_amount"] = (
-                subscription.price
-                - subscription.allocations.all().aggregate(
-                    total=Coalesce(Sum("amount"), 0)
-                )["total"],
-            )
+            allocation_amount = subscription.allocations.all().aggregate(
+                total=Coalesce(Sum("amount"), 0)
+            )["total"]
+            context["national_amount"] = subscription.price - allocation_amount
 
             return context
 
