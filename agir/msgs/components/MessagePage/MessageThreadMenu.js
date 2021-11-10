@@ -64,13 +64,13 @@ const StyledMenu = styled.menu`
 
 const MessageThreadMenu = (props) => {
   const {
-    isOrganizationMessage,
-    group,
     isLoading,
     messages,
     selectedMessageId,
     onSelect,
     writeNewMessage,
+    isOrganizationMessage,
+    group,
     ...rest
   } = props;
 

@@ -39,4 +39,12 @@ const MessageThreadCardOrganization = ({ group }) => {
   );
 };
 
+MessageThreadCardOrganization.propTypes = {
+  group: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    referents: PropTypes.array,
+  }),
+};
+
 export default MessageThreadCardOrganization;

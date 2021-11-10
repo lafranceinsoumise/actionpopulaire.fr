@@ -5,21 +5,13 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import MessageCard, {
-  StyledHeader,
-  StyledSubject,
-  StyledMessage,
-  StyledWrapper,
-} from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Panel from "@agir/front/genericComponents/Panel";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
+import MessageOrganizationCard from "./MessageOrganizationCard";
 import MessageThreadMenu from "./MessageThreadMenu";
 import { routeConfig } from "@agir/front/app/routes.config";
-import CommentField from "@agir/front/formComponents/CommentField";
-import Avatar from "@agir/front/genericComponents/Avatar";
-import Link from "@agir/front/app/Link";
 
 const StyledContent = styled.article`
   height: 100%;
@@ -135,12 +127,12 @@ const DesktopThreadList = (props) => {
   );
 
   useEffect(() => {
+    // Dont auto-select message for organization message
     if (isOrganizationMessage) {
-      console.log("Dont auto select message !");
       return;
     }
 
-    // Autoselect first message on desktop
+    // Auto-select first message on desktop
     !selectedMessagePk &&
       Array.isArray(messages) &&
       messages[0] &&
@@ -150,14 +142,14 @@ const DesktopThreadList = (props) => {
   return (
     <StyledList>
       <MessageThreadMenu
-        isOrganizationMessage={isOrganizationMessage}
-        group={group}
         isLoading={isLoading}
         messages={messages}
         selectedMessageId={selectedMessage?.id}
         notificationSettingLink={notificationSettingLink}
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
+        isOrganizationMessage={isOrganizationMessage}
+        group={group}
       />
       <StyledContent ref={scrollableRef}>
         <PageFadeIn
@@ -166,54 +158,11 @@ const DesktopThreadList = (props) => {
           }
         >
           {isOrganizationMessage && group && (
-            <StyledWrapper>
-              <StyledMessage>
-                <StyledSubject style={{ textAlign: "center" }}>
-                  <Avatar {...group.referents[0]} />
-                  {group.referents.length > 1 && (
-                    <Avatar {...group.referents[1]} />
-                  )}
-                  <br />
-                  Entrez en contact avec {group.referents[0].displayName}
-                  {group.referents.length > 1 && (
-                    <>&nbsp;et {group.referents[1].displayName}</>
-                  )}
-                  &nbsp;!
-                </StyledSubject>
-
-                <StyledHeader
-                  style={{ justifyContent: "center", marginTop: 0 }}
-                >
-                  Animateur·ices du groupe&nbsp;
-                  <Link route="fullGroup" routeParams={{ groupPk: group.id }}>
-                    {group.name}
-                  </Link>
-                </StyledHeader>
-
-                <div
-                  style={{
-                    padding: "20px",
-                    backgroundColor: style.primary50,
-                    marginBottom: "1rem",
-                    borderRadius: style.borderRadius,
-                  }}
-                >
-                  Vous souhaitez rejoindre ce groupe ou bien recevoir des
-                  informations ? Entamez votre discussion ici ! Vous recevrez
-                  leur réponse{" "}
-                  <strong>par notification et sur votre e-mail</strong> (
-                  <span style={{ color: style.primary500 }}>{user.email}</span>)
-                </div>
-
-                <CommentField
-                  isLoading={isLoading}
-                  user={user}
-                  placeholder="Ecrire un message"
-                  // onSend={handleComment}
-                  // autoScroll={autoScrollOnComment}
-                />
-              </StyledMessage>
-            </StyledWrapper>
+            <MessageOrganizationCard
+              group={group}
+              user={user}
+              isLoading={isLoading}
+            />
           )}
 
           {selectedMessage && (
@@ -262,6 +211,8 @@ const MobileThreadList = (props) => {
     onDeleteComment,
     writeNewMessage,
     notificationSettingLink,
+    isOrganizationMessage,
+    group,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
@@ -278,6 +229,8 @@ const MobileThreadList = (props) => {
         notificationSettingLink={notificationSettingLink}
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
+        isOrganizationMessage={isOrganizationMessage}
+        group={group}
       />
       <Panel
         style={{
@@ -286,11 +239,19 @@ const MobileThreadList = (props) => {
           paddingBottom: "0",
           background: "white",
         }}
-        shouldShow={!!selectedMessage}
+        shouldShow={!!selectedMessage || isOrganizationMessage}
         noScroll
         isBehindTopBar
       >
         <StyledContent ref={scrollableRef}>
+          {isOrganizationMessage && group && (
+            <MessageOrganizationCard
+              group={group}
+              user={user}
+              isLoading={isLoading}
+            />
+          )}
+
           {selectedMessage && (
             <MessageCard
               autoScrollOnComment
@@ -354,6 +315,12 @@ DesktopThreadList.propTypes =
       onReportComment: PropTypes.func,
       onDeleteComment: PropTypes.func,
       writeNewMessage: PropTypes.func,
+      isOrganizationMessage: PropTypes.bool,
+      group: PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        referents: PropTypes.array,
+      }),
     };
 
 export default MessageThreadList;
