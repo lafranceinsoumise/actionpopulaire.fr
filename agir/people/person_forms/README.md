@@ -1175,7 +1175,7 @@ Un champs qui permet de sélectionner une ou plusieurs newsletters parmi une lis
     "fields": [
       {
         "id": "new-manager",
-        "label": "Nouvelle animatrice",
+        "label": "Nouvel·le animateur·ice",
         "type": "person",
         "allow_self": true,
         "allow_inactive": false
