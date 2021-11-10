@@ -103,7 +103,6 @@ class SendDonationAPIView(CreateAPIView):
 
         # Monthly payments
         if validated_data["type"] == TYPE_MONTHLY:
-            payment_mode = payment_modes.DEFAULT_MODE
             payment_type = DonsConfig.SUBSCRIPTION_TYPE
 
             # Confirm email if the user is unknowed
