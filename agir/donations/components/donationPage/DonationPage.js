@@ -11,7 +11,7 @@ import {
   useHistory,
   useRouteMatch,
 } from "react-router-dom";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import axios from "@agir/lib/utils/axios";
 
 import styled from "styled-components";
@@ -125,6 +125,7 @@ const DonationPage = () => {
     locationCountry: "FR",
     // checkboxes
     subscribedLfi: false,
+    subscribed2022: false,
     frenchResident: true,
     consentCertification: false,
   });

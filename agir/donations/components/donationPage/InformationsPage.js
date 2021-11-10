@@ -82,6 +82,7 @@ const InformationsPage = () => {
     locationCountry: "FR",
     // checkboxes
     subscribedLfi: false,
+    subscribed2022: false,
     frenchResident: true,
     consentCertification: false,
   });

@@ -47,6 +47,18 @@ class SendDonationAPIView(CreateAPIView):
 
     def update_person(self, instance, validated_data):
         for attr, value in validated_data.items():
+            # Add newsletters
+            print("==== ATTR is ", attr, flush=True)
+            if attr == "subscribed_lfi":
+                if Person.NEWSLETTER_LFI not in instance.newsletters:
+                    instance.newsletters.append(Person.NEWSLETTER_LFI)
+                continue
+            if attr == "subscribed_2022":
+                if Person.NEWSLETTER_2022 not in instance.newsletters:
+                    instance.newsletters.append(Person.NEWSLETTER_2022)
+                if Person.NEWSLETTER_2022_EXCEPTIONNEL not in instance.newsletters:
+                    instance.newsletters.append(Person.NEWSLETTER_2022_EXCEPTIONNEL)
+                continue
             setattr(instance, attr, value)
         instance.save()
         return instance
@@ -71,9 +83,12 @@ class SendDonationAPIView(CreateAPIView):
         # User exist and connected : update user informations
         if connected_user:
             person = Person.objects.get(pk=request.user.person.id)
-            # Update subscribed_lfi only if its true
+            # Update newsletters only if checked
             if not validated_data["subscribed_lfi"]:
                 del validated_data["subscribed_lfi"]
+
+            if not validated_data["subscribed_2022"]:
+                del validated_data["subscribed_2022"]
 
             self.update_person(person, validated_data)
 
