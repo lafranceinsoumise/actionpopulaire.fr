@@ -69,7 +69,6 @@ class SendDonationAPIView(CreateAPIView):
         validated_data = serializer.validated_data
         amount = validated_data["amount"]
         payment_mode = validated_data["payment_mode"]
-
         connected_user = False
         person = None
 
@@ -105,7 +104,7 @@ class SendDonationAPIView(CreateAPIView):
         if validated_data["type"] == TYPE_MONTHLY:
             payment_type = DonsConfig.SUBSCRIPTION_TYPE
 
-            # Confirm email if the user is unknowed
+            # Confirm email if the user is unknown
             if not connected_user:
                 email = validated_data["email"]
                 del validated_data["email"]
