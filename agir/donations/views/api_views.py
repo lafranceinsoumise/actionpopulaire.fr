@@ -48,7 +48,6 @@ class SendDonationAPIView(CreateAPIView):
     def update_person(self, instance, validated_data):
         for attr, value in validated_data.items():
             # Add newsletters
-            print("==== ATTR is ", attr, flush=True)
             if attr == "subscribed_lfi":
                 if Person.NEWSLETTER_LFI not in instance.newsletters:
                     instance.newsletters.append(Person.NEWSLETTER_LFI)

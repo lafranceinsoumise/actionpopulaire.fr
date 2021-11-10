@@ -257,7 +257,7 @@ const InformationsStep = ({
             <>
               <CheckboxField
                 name="subscribed2022"
-                label="Recevoir les lettres d'information de la campagne présidentielle 2022"
+                label="Recevoir les lettres d'information de la campagne Mélenchon 2022"
                 value={formData?.subscribed2022}
                 onChange={handleCheckboxChange}
                 style={{ fontSize: "14px" }}
