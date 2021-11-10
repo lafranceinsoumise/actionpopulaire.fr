@@ -13,7 +13,6 @@ from agir.payments.actions.payments import create_payment
 from agir.donations.allocations import create_monthly_donation
 import json
 from agir.donations.apps import DonsConfig
-from agir.payments import payment_modes
 from agir.payments.models import Subscription
 from django.urls import reverse
 from agir.donations.views import DONATION_SESSION_NAMESPACE

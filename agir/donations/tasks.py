@@ -83,10 +83,19 @@ def send_monthly_donation_confirmation_email(
 
     confirmation_link = front_url(confirmation_view_name, query=query_params)
 
+    from_email = "La France Insoumise"
+    template_email = "CONFIRM_SUBSCRIPTION_LFI"
+    if (
+        query_params["payment_mode"] is not None
+        and "2022" in query_params["payment_mode"]
+    ):
+        from_email = "Mélenchon 2022"
+        template_email = "CONFIRM_SUBSCRIPTION_2022"
+
     send_mosaico_email(
-        code="CONFIRM_SUBSCRIPTION",
+        code=template_email,
         subject="Finalisez votre don mensuel",
-        from_email=settings.EMAIL_FROM,
+        from_email=from_email,
         bindings={"CONFIRM_SUBSCRIPTION_LINK": confirmation_link},
         recipients=[email],
     )
