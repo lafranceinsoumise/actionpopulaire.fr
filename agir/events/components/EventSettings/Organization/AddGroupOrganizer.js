@@ -71,7 +71,19 @@ export const AddGroupOrganizer = ({ eventPk, groups, onBack }) => {
       onBack();
       return;
     }
-    sendToast("Invitation envoyée", "SUCCESS", { autoClose: true });
+    if (res.data.created) {
+      sendToast(
+        "Le groupe, dont vous êtes animateur·ice, a été ajouté à l'organisation de l'événement",
+        "SUCCESS",
+        { autoClose: true }
+      );
+    } else {
+      sendToast(
+        "Une invitation a été envoyée aux animateur·ices du groupe",
+        "SUCCESS",
+        { autoClose: true }
+      );
+    }
     mutate(api.getEventEndpoint("getDetailAdvanced", { eventPk }));
     onBack();
   };

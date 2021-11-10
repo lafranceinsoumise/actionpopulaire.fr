@@ -1,3 +1,4 @@
+import logging
 from argparse import ArgumentTypeError
 from datetime import date, time
 
@@ -6,6 +7,7 @@ import re
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance as DistanceMeasure
 from django.core.exceptions import ValidationError
+from django.core.management import BaseCommand
 from django.core.validators import validate_email
 from django.utils import timezone
 from phonenumbers import NumberParseException
@@ -151,3 +153,37 @@ def phone_argument(phone_number):
         )
 
     return number
+
+
+class LoggingCommand(BaseCommand):
+    def create_parser(self, prog_name, subcommand, **kwargs):
+        parser = super().create_parser(prog_name, subcommand, **kwargs)
+        parser.add_argument("--log-file")
+        return parser
+
+    def execute(self, *args, **options):
+        self.configure_logger(options["verbosity"], options.get("log_file"))
+        return super().execute(*args, **options)
+
+    def configure_logger(self, verbosity, log_file):
+        logger = logging.getLogger("agir")
+
+        if verbosity:
+            console_handler = logging.StreamHandler()
+            console_formatter = logging.Formatter(
+                "{name}/{levelname} - {message}", style="{"
+            )
+            console_handler.setFormatter(console_formatter)
+            console_handler.setLevel(
+                {1: logging.WARNING, 2: logging.INFO, 3: logging.DEBUG}[verbosity]
+            )
+            logger.addHandler(console_handler)
+
+        if log_file:
+            log_file_formatter = logging.Formatter(
+                "{asctime} - {name}/{levelname} - {message}", style="{"
+            )
+            log_file_handler = logging.StreamHandler(log_file)
+            log_file_handler.setFormatter(log_file_formatter)
+            log_file_handler.setLevel(logging.DEBUG)
+            logger.addHandler(log_file_handler)

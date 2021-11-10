@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from django.utils import timezone, formats
+from django.utils import timezone
 from django.utils.http import urlencode
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -15,7 +15,6 @@ from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.carte.views import EventMapView
 from agir.events.actions import legal
 from agir.events.tasks import (
-    notify_on_event_report,
     send_guest_confirmation,
     send_rsvp_notification,
 )
@@ -33,6 +32,7 @@ from ..models import (
     CalendarItem,
     EventSubtype,
     JitsiMeeting,
+    Invitation,
 )
 from ..views import notification_listener as event_notification_listener
 
@@ -1383,3 +1383,197 @@ class SearchEventTestCase(TestCase):
         self.event.save()
         response = self.client.get(get_search_url("pays vieil homme"))
         self.assertNotContains(response, "Le meilleur endroit")
+
+
+class AcceptCoorganizationInvitationTestCase(TestCase):
+    def setUp(self):
+        self.organizer = Person.objects.create_person(
+            "organizer@agir.test", create_role=True
+        )
+        self.event = Event.objects.create(
+            name="Événement multi-groupe",
+            start_time=timezone.now(),
+            end_time=timezone.now(),
+            visibility=Event.VISIBILITY_PUBLIC,
+        )
+        OrganizerConfig.objects.create(
+            person=self.organizer, event=self.event, is_creator=True
+        )
+
+        self.invited_group = SupportGroup.objects.create(name="Invitee")
+        self.person = Person.objects.create_person("person@agir.test", create_role=True)
+        Membership.objects.create(
+            person=self.person,
+            supportgroup=self.invited_group,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        self.invitation = Invitation.objects.create(
+            event=self.event,
+            person_sender=self.event.organizers.first(),
+            group=self.invited_group,
+        )
+
+        self.url = reverse(
+            "accept_event_group_coorganization", kwargs={"pk": self.invitation.id}
+        )
+
+    def test_anonymous_cannot_accept_invitation(self):
+        self.invitation.status = Invitation.STATUS_PENDING
+        self.invitation.save()
+        self.client.logout()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.invitation.refresh_from_db()
+        self.assertEqual(self.invitation.status, Invitation.STATUS_PENDING)
+        self.assertFalse(
+            OrganizerConfig.objects.filter(
+                event=self.event, as_group=self.invited_group
+            ).exists()
+        )
+
+    def test_non_group_referent_cannot_accept_invitation(self):
+        self.invitation.status = Invitation.STATUS_PENDING
+        self.invitation.save()
+        person = Person.objects.create_person("manager@agir.test", create_role=True)
+        Membership.objects.create(
+            person=person,
+            supportgroup=self.invited_group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        self.client.force_login(person.role)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.invitation.refresh_from_db()
+        self.assertEqual(self.invitation.status, Invitation.STATUS_PENDING)
+        self.assertFalse(
+            OrganizerConfig.objects.filter(
+                event=self.event, as_group=self.invited_group
+            ).exists()
+        )
+
+    def test_cannot_accept_invitation_unexisting_invitation(self):
+        self.invitation.status = Invitation.STATUS_PENDING
+        self.invitation.save()
+        self.client.force_login(self.person.role)
+        response = self.client.get(
+            reverse(
+                "accept_event_group_coorganization",
+                kwargs={"pk": 100 + self.invitation.id},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+        self.invitation.refresh_from_db()
+        self.assertEqual(self.invitation.status, Invitation.STATUS_PENDING)
+        self.assertFalse(
+            OrganizerConfig.objects.filter(
+                event=self.event, as_group=self.invited_group
+            ).exists()
+        )
+
+    def test_group_manager_can_accept_invitation(self):
+        self.invitation.status = Invitation.STATUS_PENDING
+        self.invitation.save()
+        self.client.force_login(self.person.role)
+        self.assertFalse(
+            OrganizerConfig.objects.filter(
+                event=self.event, as_group=self.invited_group
+            ).exists()
+        )
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.invitation.refresh_from_db()
+        self.assertEqual(self.invitation.status, Invitation.STATUS_ACCEPTED)
+        self.assertTrue(
+            OrganizerConfig.objects.filter(
+                event=self.event, as_group=self.invited_group
+            ).exists()
+        )
+
+
+class RefuseCoorganizationInvitationTestCase(TestCase):
+    def setUp(self):
+        self.organizer = Person.objects.create_person(
+            "organizer@agir.test", create_role=True
+        )
+        self.event = Event.objects.create(
+            name="Événement multi-groupe",
+            start_time=timezone.now(),
+            end_time=timezone.now(),
+            visibility=Event.VISIBILITY_PUBLIC,
+        )
+        OrganizerConfig.objects.create(
+            person=self.organizer, event=self.event, is_creator=True
+        )
+
+        self.invited_group = SupportGroup.objects.create(name="Invitee")
+        self.person = Person.objects.create_person("person@agir.test", create_role=True)
+        Membership.objects.create(
+            person=self.person,
+            supportgroup=self.invited_group,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        self.invitation = Invitation.objects.create(
+            event=self.event,
+            person_sender=self.event.organizers.first(),
+            group=self.invited_group,
+        )
+
+        self.url = reverse(
+            "refuse_event_group_coorganization", kwargs={"pk": self.invitation.id}
+        )
+
+    def test_anonymous_cannot_refuse_invitation(self):
+        self.invitation.status = Invitation.STATUS_PENDING
+        self.invitation.save()
+        self.client.logout()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.invitation.refresh_from_db()
+        self.assertEqual(self.invitation.status, Invitation.STATUS_PENDING)
+
+    def test_non_group_referent_cannot_refuse_invitation(self):
+        self.invitation.status = Invitation.STATUS_PENDING
+        self.invitation.save()
+        person = Person.objects.create_person("manager@agir.test", create_role=True)
+        Membership.objects.create(
+            person=person,
+            supportgroup=self.invited_group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        self.client.force_login(person.role)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.invitation.refresh_from_db()
+        self.assertEqual(self.invitation.status, Invitation.STATUS_PENDING)
+
+    def test_cannot_refuse_invitation_unexisting_invitation(self):
+        self.invitation.status = Invitation.STATUS_PENDING
+        self.invitation.save()
+        self.client.force_login(self.person.role)
+        response = self.client.get(
+            reverse(
+                "refuse_event_group_coorganization",
+                kwargs={"pk": 100 + self.invitation.id},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+        self.invitation.refresh_from_db()
+        self.assertEqual(self.invitation.status, Invitation.STATUS_PENDING)
+
+    def test_group_manager_cannot_refuse_accepted_invitation(self):
+        self.invitation.status = Invitation.STATUS_ACCEPTED
+        self.invitation.save()
+        self.client.force_login(self.person.role)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 404)
+        self.invitation.refresh_from_db()
+        self.assertEqual(self.invitation.status, Invitation.STATUS_ACCEPTED)
+
+    def test_group_manager_can_refuse_invitation(self):
+        self.invitation.status = Invitation.STATUS_PENDING
+        self.invitation.save()
+        self.client.force_login(self.person.role)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.invitation.refresh_from_db()
+        self.assertEqual(self.invitation.status, Invitation.STATUS_REFUSED)

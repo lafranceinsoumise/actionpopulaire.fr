@@ -37,7 +37,7 @@ const EventOrganization = (props) => {
   const participants = useMemo(() => event?.participants || [], [event]);
   const organizers = useMemo(() => event?.organizers || [], [event]);
   const groups = useMemo(() => event?.groups || [], [event]);
-  const groupsInvited = useMemo(() => event?.groups_invited || [], [event]);
+  const groupsInvited = useMemo(() => event?.groupsInvited || [], [event]);
 
   const [submenuOpen, setSubmenuOpen] = useState(null);
 

@@ -90,7 +90,7 @@ const ActionButtons = ({ searchUrl, createLinkProps }) => (
 
 const MapPage = (props) => {
   const { user, type, mapURL, createLinkProps, searchUrl } = props;
-  const { backRoute, backLabel } = CONFIG[type];
+  const { title, backRoute, backLabel } = CONFIG[type];
 
   return (
     <main>

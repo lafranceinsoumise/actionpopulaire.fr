@@ -10,7 +10,7 @@ class FrontTaskSet(TaskSet):
     def dashboard(self):
         self.client.get("/")
         self.client.get("/api/evenements/rsvped/")
-        self.client.get("/api/evenements/suggestions/")
+        self.client.get("/api/evenements/suggestions/a-proximite/")
         self.client.get("/api/session")
 
     @task(2)

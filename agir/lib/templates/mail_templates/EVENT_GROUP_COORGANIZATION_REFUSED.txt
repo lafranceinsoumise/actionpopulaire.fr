@@ -1,0 +1,11 @@
+Bonjour,
+
+Le groupe {{ GROUP_NAME }} vient de refuser de co-organiser {{ EVENT_NAME }} ({{ DATE }}).
+
+Ce groupe n'apparaît plus dans liste des groupes co-organisateurs en attente de réponse.
+Vous pouvez leur renvoyer une demande (tout abus sera sanctionné).
+
+Voir l'événement :
+{{ EVENT_LINK }}
+
+Action Populaire
