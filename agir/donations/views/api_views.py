@@ -84,8 +84,8 @@ class SendDonationAPIView(CreateAPIView):
             if not validated_data["subscribed_lfi"]:
                 del validated_data["subscribed_lfi"]
 
-            if not validated_data["subscribed_2022"]:
-                del validated_data["subscribed_2022"]
+            # if not validated_data["subscribed_2022"]:
+            #     del validated_data["subscribed_2022"]
 
             self.update_person(person, validated_data)
 
