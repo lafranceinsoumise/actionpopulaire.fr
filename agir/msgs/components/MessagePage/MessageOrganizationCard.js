@@ -15,6 +15,10 @@ import style from "@agir/front/genericComponents/_variables.scss";
 const MessageOrganizationCard = (props) => {
   const { isLoading, user, group } = props;
 
+  const handleCreateOrganizationMessage = (message) => {
+    console.log("message create orga : ", message);
+  };
+
   return (
     <StyledWrapper>
       <StyledMessage>
@@ -53,7 +57,7 @@ const MessageOrganizationCard = (props) => {
           isLoading={isLoading}
           user={user}
           placeholder="Ecrire un message"
-          // onSend={handleComment}
+          onSend={handleCreateOrganizationMessage}
         />
       </StyledMessage>
     </StyledWrapper>

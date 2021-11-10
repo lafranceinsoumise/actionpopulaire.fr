@@ -9,6 +9,8 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Panel from "@agir/front/genericComponents/Panel";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
+import MessageCard from "@agir/front/genericComponents/MessageCard";
+
 import MessageOrganizationCard from "./MessageOrganizationCard";
 import MessageThreadMenu from "./MessageThreadMenu";
 import { routeConfig } from "@agir/front/app/routes.config";

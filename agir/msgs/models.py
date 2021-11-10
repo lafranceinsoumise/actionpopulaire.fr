@@ -85,8 +85,14 @@ class SupportGroupOrganizationMessage(AbstractMessage):
     )
 
     class Meta:
-        verbose_name = "Message privé avec les organisateurs de groupe"
+        verbose_name = "Message privé avec les animateur·ices de groupe"
 
+        constraints = [
+                models.UniqueConstraint(
+                    fields=["supportgroup", "person"],
+                    name="unique_message_for_group_and_person",
+                ),
+            ]
 
 @reversion.register()
 class SupportGroupMessageComment(AbstractMessage):

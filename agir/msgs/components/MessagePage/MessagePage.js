@@ -90,9 +90,10 @@ const MessagePage = ({ messagePk, groupPk }) => {
   );
 
   const MESSAGE_ORGANIZATION_LINK =
-    routeConfig.groupOrganizationMessage.getLink();
+    routeConfig.groupOrganizationMessage.getLink({ groupPk });
+  const TITLE_ORGANIZATION = routeConfig.groupOrganizationMessage.label;
   const isOrganizationMessage = useMemo(
-    () => useRouteMatch(MESSAGE_ORGANIZATION_LINK),
+    () => !!useRouteMatch(MESSAGE_ORGANIZATION_LINK),
     []
   );
 
@@ -106,6 +107,8 @@ const MessagePage = ({ messagePk, groupPk }) => {
 
   const pageTitle = currentMessage
     ? getMessageSubject(currentMessage)
+    : isOrganizationMessage
+    ? TITLE_ORGANIZATION
     : "Messages";
 
   useEffect(() => {
@@ -182,6 +185,7 @@ const MessagePage = ({ messagePk, groupPk }) => {
 
 MessagePage.propTypes = {
   messagePk: PropTypes.string,
+  groupPk: PropTypes.string,
 };
 
 export default MessagePage;
