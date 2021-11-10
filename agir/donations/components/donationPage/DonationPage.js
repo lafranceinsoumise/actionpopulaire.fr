@@ -11,7 +11,8 @@ import {
   useHistory,
   useRouteMatch,
 } from "react-router-dom";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
+import axios from "@agir/lib/utils/axios";
 
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -144,9 +145,22 @@ const DonationPage = () => {
     );
   };
 
-  useEffect(() => {
+  // Redirect to first step if no amount is set in session donation
+  useEffect(async () => {
     if (isModalOpen && !amount) {
-      closeModal();
+      const { data: result, error } = await axios.get("/api/session/donation/");
+      if (error || !result.donations?.amount) {
+        closeModal();
+      }
+
+      setFormData((formData) => ({
+        ...formData,
+        amount: result.donations?.amount,
+        type: result.donations?.type,
+        allocations: JSON.parse(result.donations?.allocations || "[]"),
+        paymentMode: result.donations?.paymentMode || "system_pay",
+        allowedPaymentModes: result.donations?.allowedPaymentModes || "[]",
+      }));
     }
   }, []);
 
@@ -201,12 +215,13 @@ const DonationPage = () => {
       !formData.frenchResident &&
         (frontErrors.frenchResident =
           "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation");
+
+      setIsLoading(false);
       setErrors(frontErrors);
       scrollToError(
         frontErrors,
         scrollerRef.current.parentElement.parentElement
       );
-      setIsLoading(false);
       return;
     }
 
