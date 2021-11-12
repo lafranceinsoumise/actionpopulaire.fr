@@ -6,6 +6,10 @@ schema = {
         "type": "object",
         "properties": {
             "title": {"description": "Le titre du groupe de champs", "type": "string"},
+            "intro_html": {
+                "description": "Texte introductif au format HTML à afficher sous le titre",
+                "type": "string",
+            },
             "fields": {
                 "description": "La liste des champs",
                 "type": "array",
