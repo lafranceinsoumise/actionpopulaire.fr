@@ -14,7 +14,7 @@ __all__ = ["events_to_csv", "events_to_csv_lines"]
 
 COMMON_FIELDS = [
     "name",
-    "published",
+    "visibility",
     "contact_email",
     "contact_phone",
     "description",
