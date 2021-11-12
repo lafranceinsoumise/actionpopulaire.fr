@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { StepButton } from "./StyledComponents";
@@ -13,6 +13,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import CountryField from "@agir/front/formComponents/CountryField";
 import CustomField from "./CustomField";
+import { getProfile } from "@agir/front/authentication/api";
 
 const StyledPostalCodeTextField = styled(TextField)`
   max-width: 160px;
@@ -57,6 +58,21 @@ const InformationsStep = ({
   hidden = false,
   type = "",
 }) => {
+  const [hasNewsletter, setHasNewsletter] = useState(false);
+
+  useEffect(async () => {
+    // Dont show newsletter checkboxes if already subscribed
+    const { data } = await getProfile();
+    if (data && Array.isArray(data.newsletters)) {
+      if (type === "2022" && data.newsletters.length === 2) {
+        setHasNewsletter(true);
+      }
+      if (type !== "2022" && data.newsletters.length > 0) {
+        setHasNewsletter(true);
+      }
+    }
+  }, [type]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setErrors((error) => ({ ...error, [name]: null }));
@@ -235,14 +251,33 @@ const InformationsStep = ({
       )}
       <Spacer size="0.5rem" />
 
-      <CheckboxField
-        name="subscribedLfi"
-        label="Recevoir les lettres d'information de la France insoumise"
-        value={formData?.subscribedLfi}
-        onChange={handleCheckboxChange}
-        style={{ fontSize: "14px" }}
-      />
-      <Spacer size="0.5rem" />
+      {!hasNewsletter && (
+        <>
+          {type === "2022" ? (
+            <>
+              <CheckboxField
+                name="subscribed2022"
+                label="Recevoir les lettres d'information de la campagne Mélenchon 2022"
+                value={formData?.subscribed2022}
+                onChange={handleCheckboxChange}
+                style={{ fontSize: "14px" }}
+              />
+              <Spacer size="0.5rem" />
+            </>
+          ) : (
+            <>
+              <CheckboxField
+                name="subscribedLfi"
+                label="Recevoir les lettres d'information de la France insoumise"
+                value={formData?.subscribedLfi}
+                onChange={handleCheckboxChange}
+                style={{ fontSize: "14px" }}
+              />
+              <Spacer size="0.5rem" />
+            </>
+          )}
+        </>
+      )}
 
       <p style={{ fontSize: "14px" }}>
         Un reçu, édité par la CNCCFP, me sera adressé, et me permettra de
