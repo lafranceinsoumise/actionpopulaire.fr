@@ -83,13 +83,13 @@ def send_monthly_donation_confirmation_email(
 
     confirmation_link = front_url(confirmation_view_name, query=query_params)
 
-    from_email = "La France Insoumise"
+    from_email = "La France insoumise <nepasrepondre@lafranceinsoumise.fr>"
     template_email = "CONFIRM_SUBSCRIPTION_LFI"
     if (
         query_params["payment_mode"] is not None
         and "2022" in query_params["payment_mode"]
     ):
-        from_email = "Mélenchon 2022"
+        from_email = "Mélenchon 2022 <nepasrepondre@melenchon2022.fr>"
         template_email = "CONFIRM_SUBSCRIPTION_2022"
 
     send_mosaico_email(
