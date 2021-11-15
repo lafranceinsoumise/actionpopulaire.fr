@@ -64,7 +64,7 @@ const InformationsPage = () => {
     // amounts
     to: type,
     amount: amountParam || sessionDonation?.donations?.amount,
-    type: sessionDonation?.donations?.type,
+    paymentTimes: sessionDonation?.donations?.paymentTimes,
     allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
     // mode
     paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
@@ -81,7 +81,6 @@ const InformationsPage = () => {
     locationCity: session?.user?.city || "",
     locationCountry: "FR",
     // checkboxes
-    subscribedLfi: false,
     subscribed2022: false,
     frenchResident: true,
     consentCertification: false,
@@ -98,7 +97,7 @@ const InformationsPage = () => {
     setFormData({
       ...formData,
       amount: amountParam || sessionDonation?.donations?.amount,
-      type: sessionDonation?.donations?.type,
+      paymentTimes: sessionDonation?.donations?.type,
       allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
       allowedPaymentModes:
         sessionDonation?.donations?.allowedPaymentModes || "[]",
@@ -120,19 +119,24 @@ const InformationsPage = () => {
 
     if (!formData.consentCertification || !formData.frenchResident) {
       const frontErrors = {};
-      !formData.consentCertification &&
-        (frontErrors.consentCertification =
-          "Vous devez cocher la case précédente pour continuer");
-      !formData.frenchResident &&
-        (frontErrors.frenchResident =
-          "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation");
+      if (!formData.consentCertification) {
+        frontErrors.consentCertification =
+          "Vous devez cocher la case précédente pour continuer";
+      }
+      if (formData.frenchResident) {
+        frontErrors.frenchResident =
+          "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation";
+      }
       setErrors(frontErrors);
       scrollToError(frontErrors, scrollerRef.current);
       setIsLoading(false);
       return;
     }
 
-    const { data, error } = await api.sendDonation(formData);
+    const { data, error } = await api.sendDonation({
+      ...formData,
+      allowedPaymentModes: undefined,
+    });
 
     setIsLoading(false);
     if (error) {
@@ -166,7 +170,8 @@ const InformationsPage = () => {
 
               <div>
                 <Title>
-                  Je donne {amountString} {formData.type === "M" && "par mois"}
+                  Je donne {amountString}{" "}
+                  {formData.paymentTimes === "M" && "par mois"}
                 </Title>
 
                 <Breadcrumb onClick={() => history.push(amountStepUrl)} />

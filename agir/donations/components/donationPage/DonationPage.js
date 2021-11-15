@@ -107,7 +107,7 @@ const DonationPage = () => {
     // amounts
     to: type,
     amount: sessionDonation?.donations?.amount,
-    type: sessionDonation?.donations?.type,
+    paymentTimes: sessionDonation?.donations?.paymentTimes,
     allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
     // mode
     paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
@@ -124,7 +124,6 @@ const DonationPage = () => {
     locationCity: session?.user?.city || "",
     locationCountry: "FR",
     // checkboxes
-    subscribedLfi: false,
     subscribed2022: false,
     frenchResident: true,
     consentCertification: false,
@@ -157,7 +156,7 @@ const DonationPage = () => {
       setFormData((formData) => ({
         ...formData,
         amount: result.donations?.amount,
-        type: result.donations?.type,
+        paymentTimes: result.donations?.paymentTimes,
         allocations: JSON.parse(result.donations?.allocations || "[]"),
         paymentMode: result.donations?.paymentMode || "system_pay",
         allowedPaymentModes: result.donations?.allowedPaymentModes || "[]",
@@ -169,7 +168,7 @@ const DonationPage = () => {
     setFormData((formData) => ({
       ...formData,
       amount: sessionDonation?.donations?.amount,
-      type: sessionDonation?.donations?.type,
+      paymentTimes: sessionDonation?.donations?.paymentTimes,
       allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
       paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
       allowedPaymentModes:
@@ -210,13 +209,14 @@ const DonationPage = () => {
 
     if (!formData.consentCertification || !formData.frenchResident) {
       const frontErrors = {};
-      !formData.consentCertification &&
-        (frontErrors.consentCertification =
-          "Vous devez cocher la case précédente pour continuer");
-      !formData.frenchResident &&
-        (frontErrors.frenchResident =
-          "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation");
-
+      if (!formData.consentCertification) {
+        frontErrors.consentCertification =
+          "Vous devez cocher la case précédente pour continuer";
+      }
+      if (formData.frenchResident) {
+        frontErrors.frenchResident =
+          "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation";
+      }
       setIsLoading(false);
       setErrors(frontErrors);
       scrollToError(
@@ -226,7 +226,10 @@ const DonationPage = () => {
       return;
     }
 
-    const { data, error } = await api.sendDonation(formData);
+    const { data, error } = await api.sendDonation({
+      ...formData,
+      allowedPaymentModes: undefined,
+    });
 
     setIsLoading(false);
 
@@ -247,7 +250,7 @@ const DonationPage = () => {
       <OpenGraphTags title={CONFIG[type]?.title || CONFIG.default.title} />
       <PageFadeIn ready={typeof session !== "undefined"} wait={<Skeleton />}>
         <AmountStep
-          key={formData.amount + formData.type}
+          key={formData.amount + formData.paymentTimes}
           type={type}
           maxAmount={CONFIG[type]?.maxAmount || CONFIG.default.maxAmount}
           maxAmountWarning={
@@ -264,14 +267,15 @@ const DonationPage = () => {
           isLoading={isLoading}
           error={errors?.amount}
           amountInit={formData.amount}
-          byMonthInit={formData.type === "M"}
+          byMonthInit={formData.paymentTimes === "M"}
           onSubmit={handleAmountSubmit}
         />
 
         <StyledModal shouldShow={isModalOpen} onClose={closeModal}>
           <ModalContainer ref={scrollerRef}>
             <Title>
-              Je donne {amountString} {formData.type === "M" && "par mois"}
+              Je donne {amountString}{" "}
+              {formData.paymentTimes === "M" && "par mois"}
             </Title>
 
             <Breadcrumb onClick={closeModal} />

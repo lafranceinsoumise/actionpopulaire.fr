@@ -3,7 +3,7 @@ from rest_framework import permissions
 from rest_framework.generics import CreateAPIView
 
 from agir.donations.serializers import (
-    CreateDonationSerializer,
+    CreateSessionDonationSerializer,
     SendDonationSerializer,
     TO_2022,
     TYPE_MONTHLY,
@@ -19,15 +19,15 @@ from django.urls import reverse
 from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.donations.tasks import send_monthly_donation_confirmation_email
 from agir.presidentielle2022.apps import Presidentielle2022Config
-from agir.people.actions.subscription import SUBSCRIPTIONS_EMAILS
 
-
-class CreateDonationAPIView(CreateAPIView):
+# 1st step : Fill session with donation infos
+class CreateSessionDonationAPIView(CreateAPIView):
     permission_classes = (permissions.AllowAny,)
-    serializer_class = CreateDonationSerializer
+    serializer_class = CreateSessionDonationSerializer
     queryset = Person.objects.none()
 
 
+# 2nd step : Create and send donation with personal infos
 class SendDonationAPIView(CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = SendDonationSerializer
@@ -36,20 +36,10 @@ class SendDonationAPIView(CreateAPIView):
     def clear_session(self):
         del self.request.session[DONATION_SESSION_NAMESPACE]
 
-    # Create person with only its model fields in validated_data
-    def create_person(self, validated_data):
-        clean_data = {}
-        for attr, value in validated_data.items():
-            if getattr(Person, attr, False):
-                clean_data[attr] = value
-
-        person = Person.objects.create(**clean_data)
-        person.save()
-        return person
-
+    # Update person and add newsletters in validated_data
     def update_person(self, instance, validated_data):
         for attr, value in validated_data.items():
-            # # Add newsletters
+            # Add newsletters
             if attr == "subscribed_lfi":
                 if Person.NEWSLETTER_LFI not in instance.newsletters:
                     instance.newsletters.append(Person.NEWSLETTER_LFI)

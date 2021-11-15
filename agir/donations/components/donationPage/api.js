@@ -1,7 +1,7 @@
 import axios from "@agir/lib/utils/axios";
 
 export const ENDPOINT = {
-  createDonation: "/api/dons/",
+  createDonation: "/api/creer-session-dons/",
   sendDonation: "/api/envoyer-dons/",
 };
 
