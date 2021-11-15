@@ -77,6 +77,7 @@ const InformationsPage = () => {
     contactPhone: session?.user?.contactPhone || "",
     nationality: "FR",
     locationAddress1: session?.user?.address1 || "",
+    locationAddress2: session?.user?.address2 || "",
     locationZip: session?.user?.zip || "",
     locationCity: session?.user?.city || "",
     locationCountry: "FR",

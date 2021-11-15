@@ -136,6 +136,9 @@ class SendDonationSerializer(serializers.Serializer):
     firstName = serializers.CharField(max_length=255, source="first_name")
     lastName = serializers.CharField(max_length=255, source="last_name")
     locationAddress1 = serializers.CharField(max_length=100, source="location_address1")
+    locationAddress2 = serializers.CharField(
+        max_length=100, source="location_address2", required=False, allow_blank=True
+    )
     locationCity = serializers.CharField(max_length=100, source="location_city")
     locationZip = serializers.CharField(max_length=20, source="location_zip")
     locationCountry = serializers.CharField(max_length=100, source="location_country")

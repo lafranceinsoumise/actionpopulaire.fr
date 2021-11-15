@@ -73,10 +73,16 @@ class SendDonationAPIView(CreateAPIView):
         if connected_user:
             person = Person.objects.get(pk=request.user.person.id)
             # Update newsletters only if checked
-            if not validated_data["subscribed_lfi"]:
+            if (
+                "subscribed_lfi" in validated_data
+                and not validated_data["subscribed_lfi"]
+            ):
                 del validated_data["subscribed_lfi"]
 
-            if not validated_data["subscribed_2022"]:
+            if (
+                "subscribed_2022" in validated_data
+                and not validated_data["subscribed_2022"]
+            ):
                 del validated_data["subscribed_2022"]
 
             self.update_person(person, validated_data)
@@ -94,7 +100,7 @@ class SendDonationAPIView(CreateAPIView):
             payment_type = Presidentielle2022Config.DONATION_PAYMENT_TYPE
 
         # Monthly payments
-        if validated_data["type"] == TYPE_MONTHLY:
+        if validated_data["payment_times"] == TYPE_MONTHLY:
             payment_type = DonsConfig.SUBSCRIPTION_TYPE
             if validated_data["to"] == TO_2022:
                 payment_type = Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE

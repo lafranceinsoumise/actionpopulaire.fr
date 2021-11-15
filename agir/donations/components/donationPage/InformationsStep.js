@@ -39,6 +39,20 @@ const StyledCustomField = styled(CustomField)`
   ${({ hidden }) => (hidden ? "display: none" : "")};
 `;
 
+const StyledButton = styled.button`
+  display: inline-block;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  font-size: 1rem;
+  text-align: left;
+  font-weight: 400;
+  width: auto;
+`;
+
 const helpEmail =
   "Si vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou melenchon2022.fr, utilisez l'adresse avec laquelle vous êtes inscrit·e";
 const helpNationality =
@@ -59,6 +73,7 @@ const InformationsStep = ({
   type = "",
 }) => {
   const [hasNewsletter, setHasNewsletter] = useState(false);
+  const [hasAddress2, setHasAddress2] = useState(false);
 
   const { data: profile } = useSWR("/api/user/profile/");
 
@@ -72,6 +87,10 @@ const InformationsStep = ({
       }
     }
   }, [profile]);
+
+  const displayAddress2 = () => {
+    setHasAddress2(true);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -189,6 +208,23 @@ const InformationsStep = ({
         onChange={handleChange}
         error={errors?.locationAddress1}
       />
+
+      {hasAddress2 || formData.locationAddress2 || errors.locationAddress2 ? (
+        <CustomField
+          Component={TextField}
+          label=""
+          name="locationAddress2"
+          value={formData.locationAddress2}
+          onChange={handleChange}
+          error={errors?.locationAddress2}
+        />
+      ) : (
+        <div style={{ paddingBottom: "1rem" }}>
+          <StyledButton type="button" onClick={displayAddress2}>
+            + Ajouter une deuxième ligne pour l'adresse
+          </StyledButton>
+        </div>
+      )}
 
       <GroupedFields>
         <CustomField
