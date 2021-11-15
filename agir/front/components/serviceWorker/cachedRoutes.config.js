@@ -10,7 +10,7 @@ const config = [
   "/api/evenements/rsvped/",
   "/api/evenements/rsvped/passes/",
   "/api/evenements/rsvped/en-cours/",
-  "/api/evenements/suggestions/a-proximite/",
+  "/api/evenements/suggestions/",
   "/api/evenements/mes-groupes/",
   "/api/evenements/organises/",
   new RegExp(".+/api/evenements/[0-9a-f-]+/$"),
