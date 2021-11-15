@@ -5,6 +5,7 @@ from rest_framework.generics import CreateAPIView
 from agir.donations.serializers import (
     CreateDonationSerializer,
     SendDonationSerializer,
+    TO_2022,
     TYPE_MONTHLY,
 )
 from agir.people.models import Person
@@ -17,6 +18,8 @@ from agir.payments.models import Subscription
 from django.urls import reverse
 from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.donations.tasks import send_monthly_donation_confirmation_email
+from agir.presidentielle2022.apps import Presidentielle2022Config
+from agir.people.actions.subscription import SUBSCRIPTIONS_EMAILS
 
 
 class CreateDonationAPIView(CreateAPIView):
@@ -97,10 +100,14 @@ class SendDonationAPIView(CreateAPIView):
             validated_data["allocations"] = json.dumps(allocations)
 
         payment_type = DonsConfig.PAYMENT_TYPE
+        if validated_data["to"] == TO_2022:
+            payment_type = Presidentielle2022Config.DONATION_PAYMENT_TYPE
 
         # Monthly payments
         if validated_data["type"] == TYPE_MONTHLY:
             payment_type = DonsConfig.SUBSCRIPTION_TYPE
+            if validated_data["to"] == TO_2022:
+                payment_type = Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE
 
             # Confirm email if the user is unknown
             if not connected_user:

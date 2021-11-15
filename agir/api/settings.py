@@ -362,8 +362,6 @@ EMAIL_TEMPLATES = {
     "CONTRACT_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/c63e76d7-d8a1-434c-bdd6-75337312ca28.html",
     # CHECK INFORMATION
     "CHECK_INFORMATION": "https://mosaico.lafranceinsoumise.fr/emails/b0850152-bf53-4979-b5d3-86f231fd98a8.html",
-    # CONFIRM SUBSCRIPTION AP
-    "CONFIRM_SUBSCRIPTION": "https://mosaico.lafranceinsoumise.fr/emails/eb8e6712-32d5-40bb-a69c-cdc1207e12dc.html",
     # CONFIRM SUBSCRIPTION LFI
     "CONFIRM_SUBSCRIPTION_LFI": "https://mosaico.lafranceinsoumise.fr/emails/eb8e6712-32d5-40bb-a69c-cdc1207e12dc.html",
     # CONFIRM SUBSCRIPTION 2022
