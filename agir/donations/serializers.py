@@ -36,7 +36,7 @@ class DonationAllocationSerializer(serializers.Serializer):
     amount = serializers.IntegerField(min_value=1, required=True)
 
 
-class CreateSessionDonationSerializer(serializers.Serializer):
+class CreateDonationSessionSerializer(serializers.Serializer):
     amount = serializers.IntegerField(
         min_value=settings.DONATION_MINIMUM, required=True
     )

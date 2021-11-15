@@ -3,7 +3,7 @@ from rest_framework import permissions
 from rest_framework.generics import CreateAPIView
 
 from agir.donations.serializers import (
-    CreateSessionDonationSerializer,
+    CreateDonationSessionSerializer,
     SendDonationSerializer,
     TO_2022,
     TYPE_MONTHLY,
@@ -23,7 +23,7 @@ from agir.presidentielle2022.apps import Presidentielle2022Config
 # 1st step : Fill session with donation infos
 class CreateSessionDonationAPIView(CreateAPIView):
     permission_classes = (permissions.AllowAny,)
-    serializer_class = CreateSessionDonationSerializer
+    serializer_class = CreateDonationSessionSerializer
     queryset = Person.objects.none()
 
 
