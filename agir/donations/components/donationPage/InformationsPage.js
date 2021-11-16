@@ -125,7 +125,7 @@ const InformationsPage = () => {
         frontErrors.consentCertification =
           "Vous devez cocher la case précédente pour continuer";
       }
-      if (formData.frenchResident) {
+      if (!formData.frenchResident) {
         frontErrors.frenchResident =
           "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation";
       }
