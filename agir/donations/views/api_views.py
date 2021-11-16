@@ -33,6 +33,19 @@ class SendDonationAPIView(CreateAPIView):
     serializer_class = SendDonationSerializer
     queryset = Person.objects.none()
 
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.validated_data = serializer.validated_data
+        self.connected_user = False
+
+        # Check user connected
+        if request.user.is_authenticated and request.user.person is not None:
+            if self.validated_data["email"] == request.user.person.email:
+                self.connected_user = True
+                del self.validated_data["email"]
+
     def clear_session(self):
         del self.request.session[DONATION_SESSION_NAMESPACE]
 
@@ -50,20 +63,71 @@ class SendDonationAPIView(CreateAPIView):
         instance.save()
         return instance
 
+    def monthly_payment(self, person, allocations):
+        connected_user = self.connected_user
+        validated_data = self.validated_data
+        payment_mode = validated_data["payment_mode"]
+        amount = validated_data["amount"]
+
+        payment_type = DonsConfig.SUBSCRIPTION_TYPE
+        if validated_data["to"] == TO_2022:
+            payment_type = Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE
+
+        # Confirm email if the user is unknown
+        if not connected_user:
+            email = validated_data["email"]
+            del validated_data["email"]
+            send_monthly_donation_confirmation_email.delay(
+                confirmation_view_name="monthly_donation_confirm",
+                email=email,
+                subscription_total=amount,
+                **validated_data,
+            )
+            self.clear_session()
+            return JsonResponse(
+                {"next": reverse("monthly_donation_confirmation_email_sent")}
+            )
+
+        # Check user already monthly donator
+        if Subscription.objects.filter(
+            person=person, status=Subscription.STATUS_ACTIVE, mode=payment_mode,
+        ):
+            # stocker toutes les infos en session
+            # attention à ne pas juste modifier le dictionnaire existant,
+            # parce que la session ne se "rendrait pas compte" qu'elle a changé
+            # et cela ne serait donc pas persisté
+            self.request.session[DONATION_SESSION_NAMESPACE] = {
+                "new_subscription": {
+                    "type": payment_type,
+                    "mode": payment_mode,
+                    "subscription_total": amount,
+                    "meta": validated_data,
+                },
+                **self.request.session.get(DONATION_SESSION_NAMESPACE, {}),
+            }
+            return JsonResponse({"next": reverse("already_has_subscription")})
+
+        with transaction.atomic():
+            subscription = create_monthly_donation(
+                person=person,
+                mode=payment_mode,
+                subscription_total=amount,
+                allocations=allocations,
+                meta=validated_data,
+                type=payment_type,
+            )
+
+        self.clear_session()
+        return JsonResponse(
+            {"next": reverse("subscription_page", args=[subscription.pk])}
+        )
+
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
+        validated_data = self.validated_data
         amount = validated_data["amount"]
         payment_mode = validated_data["payment_mode"]
-        connected_user = False
         person = None
-
-        # Check user connected
-        if request.user.is_authenticated and request.user.person is not None:
-            if validated_data["email"] == request.user.person.email:
-                connected_user = True
-                del validated_data["email"]
+        connected_user = self.connected_user
 
         # User exist and connected : update user informations
         if connected_user:
@@ -87,66 +151,15 @@ class SendDonationAPIView(CreateAPIView):
         if "allocations" in validated_data:
             validated_data["allocations"] = json.dumps(allocations)
 
+        # Monthly payments
+        if validated_data["payment_times"] == TYPE_MONTHLY:
+            return self.monthly_payment(person, allocations)
+
+        # Direct payments
         payment_type = DonsConfig.PAYMENT_TYPE
         if validated_data["to"] == TO_2022:
             payment_type = Presidentielle2022Config.DONATION_PAYMENT_TYPE
 
-        # Monthly payments
-        if validated_data["payment_times"] == TYPE_MONTHLY:
-            payment_type = DonsConfig.SUBSCRIPTION_TYPE
-            if validated_data["to"] == TO_2022:
-                payment_type = Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE
-
-            # Confirm email if the user is unknown
-            if not connected_user:
-                email = validated_data["email"]
-                del validated_data["email"]
-                send_monthly_donation_confirmation_email.delay(
-                    confirmation_view_name="monthly_donation_confirm",
-                    email=email,
-                    subscription_total=amount,
-                    **validated_data,
-                )
-                self.clear_session()
-                return JsonResponse(
-                    {"next": reverse("monthly_donation_confirmation_email_sent")}
-                )
-
-            # Check user already monthly donator
-            if Subscription.objects.filter(
-                person=person, status=Subscription.STATUS_ACTIVE, mode=payment_mode,
-            ):
-                # stocker toutes les infos en session
-                # attention à ne pas juste modifier le dictionnaire existant,
-                # parce que la session ne se "rendrait pas compte" qu'elle a changé
-                # et cela ne serait donc pas persisté
-                self.request.session[DONATION_SESSION_NAMESPACE] = {
-                    "new_subscription": {
-                        "type": payment_type,
-                        "mode": payment_mode,
-                        "subscription_total": amount,
-                        "meta": validated_data,
-                    },
-                    **self.request.session.get(DONATION_SESSION_NAMESPACE, {}),
-                }
-                return JsonResponse({"next": reverse("already_has_subscription")})
-
-            with transaction.atomic():
-                subscription = create_monthly_donation(
-                    person=person,
-                    mode=payment_mode,
-                    subscription_total=amount,
-                    allocations=allocations,
-                    meta=validated_data,
-                    type=payment_type,
-                )
-
-            self.clear_session()
-            return JsonResponse(
-                {"next": reverse("subscription_page", args=[subscription.pk])}
-            )
-
-        # Direct payments
         with transaction.atomic():
             payment = create_payment(
                 person=person,
