@@ -1,3 +1,9 @@
+"""Contient des définitions obsolètes utilisées pendant la campagne des
+européennes 2019.
+
+Ces définitions ne sont gardées que pour des raisons documentaires.
+"""
+
 from agir.events.models import EventSubtype
 
 QUESTION_SALLE = "salle"
@@ -68,17 +74,3 @@ ASKED_QUESTIONS = [
 QUESTIONS_DICT = {
     question.get("id"): question for question in LEGACY_QUESTIONS + ASKED_QUESTIONS
 }
-
-
-def needs_approval(legal):
-    return any(
-        legal.get(key) for key in (QUESTION_CANDIDAT, QUESTION_MATERIEL_CAMPAGNE)
-    ) and any(
-        legal.get(key)
-        for key in (
-            QUESTION_FRAIS,
-            QUESTION_IMPRESSION,
-            QUESTION_SALLE,
-            QUESTION_INSTALLATION_TECHNIQUE,
-        )
-    )
