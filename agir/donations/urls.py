@@ -4,11 +4,6 @@ from . import views
 
 urlpatterns = [
     path(
-        "dons/informations/",
-        views.DonationPersonalInformationView.as_view(),
-        name="donation_information",
-    ),
-    path(
         "dons-mensuels/informations/",
         views.MonthlyDonationPersonalInformationView.as_view(),
         name="monthly_donation_information",
