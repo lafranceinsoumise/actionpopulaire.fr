@@ -5,6 +5,7 @@ from rest_framework.generics import CreateAPIView
 from agir.donations.serializers import (
     CreateDonationSerializer,
     SendDonationSerializer,
+    TO_2022,
     TYPE_MONTHLY,
 )
 from agir.people.models import Person
@@ -13,11 +14,12 @@ from agir.payments.actions.payments import create_payment
 from agir.donations.allocations import create_monthly_donation
 import json
 from agir.donations.apps import DonsConfig
-from agir.payments import payment_modes
 from agir.payments.models import Subscription
 from django.urls import reverse
 from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.donations.tasks import send_monthly_donation_confirmation_email
+from agir.presidentielle2022.apps import Presidentielle2022Config
+from agir.people.actions.subscription import SUBSCRIPTIONS_EMAILS
 
 
 class CreateDonationAPIView(CreateAPIView):
@@ -47,18 +49,27 @@ class SendDonationAPIView(CreateAPIView):
 
     def update_person(self, instance, validated_data):
         for attr, value in validated_data.items():
+            # # Add newsletters
+            if attr == "subscribed_lfi":
+                if Person.NEWSLETTER_LFI not in instance.newsletters:
+                    instance.newsletters.append(Person.NEWSLETTER_LFI)
+                continue
+            if attr == "subscribed_2022":
+                if Person.NEWSLETTER_2022 not in instance.newsletters:
+                    instance.newsletters.append(Person.NEWSLETTER_2022)
+                if Person.NEWSLETTER_2022_EXCEPTIONNEL not in instance.newsletters:
+                    instance.newsletters.append(Person.NEWSLETTER_2022_EXCEPTIONNEL)
+                continue
             setattr(instance, attr, value)
         instance.save()
         return instance
 
     def post(self, request, *args, **kwargs):
-
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
         amount = validated_data["amount"]
         payment_mode = validated_data["payment_mode"]
-
         connected_user = False
         person = None
 
@@ -71,9 +82,12 @@ class SendDonationAPIView(CreateAPIView):
         # User exist and connected : update user informations
         if connected_user:
             person = Person.objects.get(pk=request.user.person.id)
-            # Update subscribed_lfi only if its true
+            # Update newsletters only if checked
             if not validated_data["subscribed_lfi"]:
                 del validated_data["subscribed_lfi"]
+
+            if not validated_data["subscribed_2022"]:
+                del validated_data["subscribed_2022"]
 
             self.update_person(person, validated_data)
 
@@ -86,13 +100,16 @@ class SendDonationAPIView(CreateAPIView):
             validated_data["allocations"] = json.dumps(allocations)
 
         payment_type = DonsConfig.PAYMENT_TYPE
+        if validated_data["to"] == TO_2022:
+            payment_type = Presidentielle2022Config.DONATION_PAYMENT_TYPE
 
         # Monthly payments
         if validated_data["type"] == TYPE_MONTHLY:
-            payment_mode = payment_modes.DEFAULT_MODE
             payment_type = DonsConfig.SUBSCRIPTION_TYPE
+            if validated_data["to"] == TO_2022:
+                payment_type = Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE
 
-            # Confirm email if the user is unknowed
+            # Confirm email if the user is unknown
             if not connected_user:
                 email = validated_data["email"]
                 del validated_data["email"]

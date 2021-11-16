@@ -362,8 +362,10 @@ EMAIL_TEMPLATES = {
     "CONTRACT_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/c63e76d7-d8a1-434c-bdd6-75337312ca28.html",
     # CHECK INFORMATION
     "CHECK_INFORMATION": "https://mosaico.lafranceinsoumise.fr/emails/b0850152-bf53-4979-b5d3-86f231fd98a8.html",
-    # CONFIRM SUBSCRIPTION
-    "CONFIRM_SUBSCRIPTION": "https://mosaico.lafranceinsoumise.fr/emails/eb8e6712-32d5-40bb-a69c-cdc1207e12dc.html",
+    # CONFIRM SUBSCRIPTION LFI
+    "CONFIRM_SUBSCRIPTION_LFI": "https://mosaico.lafranceinsoumise.fr/emails/eb8e6712-32d5-40bb-a69c-cdc1207e12dc.html",
+    # CONFIRM SUBSCRIPTION 2022
+    "CONFIRM_SUBSCRIPTION_2022": "https://mosaico.lafranceinsoumise.fr/emails/eb8e6712-32d5-40bb-a69c-cdc1207e12dc.html",
     # TRANSFER_SENDER variables : TRANSFERER_NAME, GROUP_DESTINATION, MEMBER_LIST, MEMBER_COUNT
     "TRANSFER_SENDER": "https://mosaico.lafranceinsoumise.fr/emails/13cecf70-acd6-46a8-9bd8-63cf1bbb79ec.html",
     # TRANSFER_RECEIVER variables : GREETINGS, GROUP_SENDER, GROUP_SENDER_URL, MEMBERS_COUNT, GROUP_DESTINATION, MEMBER_LIST, MANAGE_GROUP_LINK

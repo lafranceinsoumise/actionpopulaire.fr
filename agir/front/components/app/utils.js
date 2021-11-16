@@ -69,6 +69,10 @@ export const lazy = (lazyImport, fallback) => {
 
 // Scrolls to the first key in errors into the scrollerElement
 export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
+  if (!errors) {
+    return;
+  }
+
   if (!scrollerElement || !Object.entries(errors).length) {
     return;
   }

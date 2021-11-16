@@ -135,7 +135,18 @@ def find_or_create_person_from_payment(payment):
         try:
             payment.person = Person.objects.get_by_natural_key(payment.email)
             if payment.meta.get("subscribed_lfi"):
-                payment.person.subscribed = True
+                payment.person.subscribed(True)
+                payment.person.save()
+            if payment.meta.get("subscribed_2022"):
+                if Person.NEWSLETTER_2022 not in payment.person.newsletters:
+                    payment.person.newsletters.append(Person.NEWSLETTER_2022)
+                if (
+                    Person.NEWSLETTER_2022_EXCEPTIONNEL
+                    not in payment.person.newsletters
+                ):
+                    payment.person.newsletters.append(
+                        Person.NEWSLETTER_2022_EXCEPTIONNEL
+                    )
                 payment.person.save()
         except Person.DoesNotExist:
             person_fields = [f.name for f in Person._meta.get_fields()]
@@ -145,6 +156,12 @@ def find_or_create_person_from_payment(payment):
                 if payment.meta.get("subscribed_lfi", False)
                 else []
             )
+            if payment.meta.get("subscribed_2022"):
+                newsletters = (
+                    [Person.NEWSLETTER_2022, Person.NEWSLETTER_2022_EXCEPTIONNEL]
+                    if payment.meta.get("subscribed_2022", False)
+                    else []
+                )
 
             if "date_of_birth" in person_meta:
                 person_meta["date_of_birth"] = datetime.strptime(
