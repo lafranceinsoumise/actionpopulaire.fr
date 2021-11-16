@@ -74,10 +74,7 @@ class SendDonationAPIView(CreateAPIView):
                 and not validated_data["subscribed_2022"]
             ):
                 del validated_data["subscribed_2022"]
-            if (
-                "is_2022" in validated_data
-                and not validated_data["is_2022"]
-            ):
+            if "is_2022" in validated_data and not validated_data["is_2022"]:
                 del validated_data["is_2022"]
 
             self.update_person(person, validated_data)
