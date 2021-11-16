@@ -104,7 +104,7 @@ class Command(LoggingCommand):
             with transaction.atomic():
                 event = Event.objects.create(
                     name=name,
-                    visibility=Event.VISIBILITY_ADMIN,
+                    visibility=Event.VISIBILITY_ORGANIZER,
                     subtype=reunion_publique,
                     start_time=date,
                     end_time=date + timedelta(hours=2),
