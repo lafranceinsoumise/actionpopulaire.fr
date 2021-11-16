@@ -301,7 +301,7 @@ const InformationsStep = ({
         <>
           <CheckboxField
             name="is2022"
-            label="Je soutiens la candidature de Jean-Luc Mélenchon pour 2022"
+            label="Je soutiens Jean-Luc Mélenchon pour 2022"
             value={formData?.is2022}
             onChange={handleCheckboxChange}
             style={{ fontSize: "14px" }}
