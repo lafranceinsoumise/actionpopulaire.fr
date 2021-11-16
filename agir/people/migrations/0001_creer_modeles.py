@@ -45,7 +45,7 @@ REMOVE_CASELESS_EMAIL_INDEX = """
 DROP INDEX uppercase_email;
 """
 
-ADD_SEARCH_TRIGGER = """
+ADD_SEARCH_TRIGGERS_AND_FUNCTIONS = """
 CREATE FUNCTION email_to_tsvector(email people_personemail.address%TYPE) RETURNS tsvector AS $$
 DECLARE
   email_parts text[];
@@ -148,7 +148,7 @@ AFTER INSERT OR UPDATE OR DELETE ON people_personemail
 UPDATE people_person SET search = get_people_tsvector(id, first_name, last_name, location_zip);
 """
 
-remove_search_trigger = """
+REMOVE_SEARCH_TRIGGERS_AND_FUNCTIONS = """
 DROP TRIGGER update_search_field_when_email_modified ON people_personemail;
 DROP FUNCTION process_update_email();
 DROP FUNCTION update_people_search_field_from_id(people_person.id%TYPE);
@@ -842,5 +842,9 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             sql=CREATE_CASELESS_EMAIL_INDEX, reverse_sql=REMOVE_CASELESS_EMAIL_INDEX
+        ),
+        migrations.RunSQL(
+            sql=ADD_SEARCH_TRIGGERS_AND_FUNCTIONS,
+            reverse_sql=REMOVE_SEARCH_TRIGGERS_AND_FUNCTIONS,
         ),
     ]
