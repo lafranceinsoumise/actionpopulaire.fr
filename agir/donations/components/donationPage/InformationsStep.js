@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
+import useSWR from "swr";
 
 import { StepButton } from "./StyledComponents";
 import styled from "styled-components";
@@ -13,7 +14,6 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import CountryField from "@agir/front/formComponents/CountryField";
 import CustomField from "./CustomField";
-import { getProfile } from "@agir/front/authentication/api";
 
 const StyledPostalCodeTextField = styled(TextField)`
   max-width: 160px;
@@ -39,6 +39,20 @@ const StyledCustomField = styled(CustomField)`
   ${({ hidden }) => (hidden ? "display: none" : "")};
 `;
 
+const StyledButton = styled.button`
+  display: inline-block;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  font-size: 1rem;
+  text-align: left;
+  font-weight: 400;
+  width: auto;
+`;
+
 const helpEmail =
   "Si vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou melenchon2022.fr, utilisez l'adresse avec laquelle vous êtes inscrit·e";
 const helpNationality =
@@ -58,20 +72,22 @@ const InformationsStep = ({
   hidden = false,
   type = "",
 }) => {
-  const [hasNewsletter, setHasNewsletter] = useState(false);
+  const [hasAddress2, setHasAddress2] = useState(false);
 
-  useEffect(async () => {
-    // Dont show newsletter checkboxes if already subscribed
-    const { data } = await getProfile();
-    if (data && Array.isArray(data.newsletters)) {
-      if (type === "2022" && data.newsletters.length === 2) {
-        setHasNewsletter(true);
-      }
-      if (type !== "2022" && data.newsletters.length > 0) {
-        setHasNewsletter(true);
-      }
+  const { data: profile } = useSWR("/api/user/profile/");
+  let hasNewsletter = false;
+  if (profile?.newsletters && Array.isArray(profile.newsletters)) {
+    if (
+      profile.newsletters.includes("2022") &&
+      profile.newsletters.includes("2022_exceptionnel")
+    ) {
+      hasNewsletter = true;
     }
-  }, [type]);
+  }
+
+  const displayAddress2 = () => {
+    setHasAddress2(true);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -190,6 +206,23 @@ const InformationsStep = ({
         error={errors?.locationAddress1}
       />
 
+      {hasAddress2 || formData.locationAddress2 || errors.locationAddress2 ? (
+        <CustomField
+          Component={TextField}
+          label=""
+          name="locationAddress2"
+          value={formData.locationAddress2}
+          onChange={handleChange}
+          error={errors?.locationAddress2}
+        />
+      ) : (
+        <div style={{ paddingBottom: "1rem" }}>
+          <StyledButton type="button" onClick={displayAddress2}>
+            + Ajouter une deuxième ligne pour l'adresse
+          </StyledButton>
+        </div>
+      )}
+
       <GroupedFields>
         <CustomField
           Component={StyledPostalCodeTextField}
@@ -253,29 +286,27 @@ const InformationsStep = ({
 
       {!hasNewsletter && (
         <>
-          {type === "2022" ? (
-            <>
-              <CheckboxField
-                name="subscribed2022"
-                label="Recevoir les lettres d'information de la campagne Mélenchon 2022"
-                value={formData?.subscribed2022}
-                onChange={handleCheckboxChange}
-                style={{ fontSize: "14px" }}
-              />
-              <Spacer size="0.5rem" />
-            </>
-          ) : (
-            <>
-              <CheckboxField
-                name="subscribedLfi"
-                label="Recevoir les lettres d'information de la France insoumise"
-                value={formData?.subscribedLfi}
-                onChange={handleCheckboxChange}
-                style={{ fontSize: "14px" }}
-              />
-              <Spacer size="0.5rem" />
-            </>
-          )}
+          <CheckboxField
+            name="subscribed2022"
+            label="Recevoir les lettres d'information de la campagne Mélenchon 2022"
+            value={formData?.subscribed2022}
+            onChange={handleCheckboxChange}
+            style={{ fontSize: "14px" }}
+          />
+          <Spacer size="0.5rem" />
+        </>
+      )}
+
+      {!profile?.is2022 && (
+        <>
+          <CheckboxField
+            name="is2022"
+            label="Je soutiens Jean-Luc Mélenchon pour 2022"
+            value={formData?.is2022}
+            onChange={handleCheckboxChange}
+            style={{ fontSize: "14px" }}
+          />
+          <Spacer size="0.5rem" />
         </>
       )}
 

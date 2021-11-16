@@ -60,11 +60,6 @@ class SessionDonationAPIView(RetrieveAPIView):
     serializer_class = SessionDonationSerializer
     queryset = None
 
-    def initial(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            request.session.modified = True  # force updating of cookie expiration
-        return super().initial(request, *args, **kwargs)
-
     def get_object(self):
         return self.request
 
