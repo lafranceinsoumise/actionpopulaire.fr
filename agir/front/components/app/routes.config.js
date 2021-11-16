@@ -447,7 +447,7 @@ export const routeConfig = {
   donationsInformations: new RouteConfig({
     id: "donationsInformations",
     params: { type: null },
-    path: ["/:type?/dons/informations/", "/:type?/dons-mensuels/informations/"],
+    path: "/:type?/dons/informations/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Faire un don",

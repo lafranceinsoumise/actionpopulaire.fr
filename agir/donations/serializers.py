@@ -86,14 +86,9 @@ class CreateDonationSessionSerializer(serializers.Serializer):
         """
         Returns the redirection URL for the next donation step if validation succeeds
         """
-        if data["to"] == TO_2022 and data["paymentTimes"] == TYPE_MONTHLY:
-            return front_url_lazy("monthly_donation_2022_information", absolute=True)
         if data["to"] == TO_2022:
-            return front_url_lazy("donation_2022_information", absolute=True)
-        if data["paymentTimes"] == TYPE_MONTHLY:
-            return front_url_lazy("monthly_donation_information", absolute=True)
-        if data["paymentTimes"] == TYPE_SINGLE_TIME:
-            return front_url_lazy("donation_information", absolute=True)
+            return front_url_lazy("donation_2022_information_modal", absolute=True)
+        return front_url_lazy("donation_information_modal", absolute=True)
 
     def get_allowedPaymentModes(self, data):
         """

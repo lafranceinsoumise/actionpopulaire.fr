@@ -263,16 +263,6 @@ urlpatterns = [
         views.Donation2022View.as_view(),
         name="donation_2022_information_modal",
     ),
-    path(
-        "dons-mensuels/informations/",
-        views.DonationView.as_view(),
-        name="monthly_donation_information",
-    ),
-    path(
-        "dons-mensuels/informations-modal/",
-        views.DonationView.as_view(),
-        name="monthly_donation_information_modal",
-    ),
     path("404/", views.NotFoundView.as_view()),
     ## REDIRECT / EXTERNAL VIEWS
     path("nsp/", views.NSPView.as_view(), name="nsp"),
