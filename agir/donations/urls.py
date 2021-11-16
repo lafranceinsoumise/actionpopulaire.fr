@@ -4,11 +4,6 @@ from . import views
 
 urlpatterns = [
     path(
-        "dons-mensuels/informations/",
-        views.MonthlyDonationPersonalInformationView.as_view(),
-        name="monthly_donation_information",
-    ),
-    path(
         "dons-mensuels/deja-donateur/",
         views.AlreadyHasSubscriptionView.as_view(),
         name="already_has_subscription",
