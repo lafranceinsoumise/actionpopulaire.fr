@@ -297,6 +297,19 @@ const InformationsStep = ({
         </>
       )}
 
+      {!profile?.is2022 && (
+        <>
+          <CheckboxField
+            name="is2022"
+            label="Je soutiens la candidature de Jean-Luc Mélenchon pour 2022"
+            value={formData?.is2022}
+            onChange={handleCheckboxChange}
+            style={{ fontSize: "14px" }}
+          />
+          <Spacer size="0.5rem" />
+        </>
+      )}
+
       <p style={{ fontSize: "14px" }}>
         Un reçu, édité par la CNCCFP, me sera adressé, et me permettra de
         déduire cette somme de mes impôts dans les limites fixées par la loi.

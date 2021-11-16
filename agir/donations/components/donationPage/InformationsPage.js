@@ -82,6 +82,7 @@ const InformationsPage = () => {
     locationCity: session?.user?.city || "",
     locationCountry: "FR",
     // checkboxes
+    is2022: false,
     subscribed2022: false,
     frenchResident: true,
     consentCertification: false,

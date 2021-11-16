@@ -146,6 +146,7 @@ class SendDonationSerializer(serializers.Serializer):
     nationality = serializers.CharField(max_length=100)
 
     subscribed2022 = serializers.BooleanField(required=False, source="subscribed_2022")
+    is2022 = serializers.BooleanField(required=False, source="is_2022")
 
     paymentMode = serializers.CharField(max_length=20, source="payment_mode")
     to = serializers.ChoiceField(

@@ -68,12 +68,17 @@ class SendDonationAPIView(CreateAPIView):
         # User exist and connected : update user informations
         if connected_user:
             person = Person.objects.get(pk=request.user.person.id)
-            # Update newsletters only if checked
+            # Update newsletters and support only if checked
             if (
                 "subscribed_2022" in validated_data
                 and not validated_data["subscribed_2022"]
             ):
                 del validated_data["subscribed_2022"]
+            if (
+                "is_2022" in validated_data
+                and not validated_data["is_2022"]
+            ):
+                del validated_data["is_2022"]
 
             self.update_person(person, validated_data)
 
