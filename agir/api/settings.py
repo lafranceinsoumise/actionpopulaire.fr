@@ -145,6 +145,7 @@ INSTALLED_APPS = [
     "agir.elus.apps.ElusConfig",
     "agir.gestion.apps.GestionConfig",
     "agir.presidentielle2022",
+    "agir.legislatives2022.apps.Legislatives2022Config",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",
     "django.contrib.auth",
