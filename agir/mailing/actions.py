@@ -40,6 +40,9 @@ def create_campaign_from_submission(data, person, campaign: Campaign):
         campaign.message_reply_to_name = data.get(
             "campaign_reply_to_name", campaign.message_reply_to_name
         )
+        campaign.message_subject = data.get(
+            "campaign_message_subject", campaign.message_subject
+        )
 
         for field in data:
             substitute = escape(str(data[field]).replace("{", ""))
