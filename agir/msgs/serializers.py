@@ -8,9 +8,9 @@ from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
 from agir.msgs.actions import get_message_unread_comment_count
 from agir.msgs.models import (
     SupportGroupMessage,
+    SupportGroupMessageOrganization,
     SupportGroupMessageComment,
     UserReport,
-    SupportGroupMessageRecipient,
 )
 from agir.people.serializers import PersonSerializer
 
@@ -147,6 +147,14 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "commentCount",
             "lastUpdate",
         )
+
+
+class SupportGroupMessageOrganizationSerializer(BaseMessageSerializer):
+    person = PersonSerializer()
+
+    class Meta:
+        model = SupportGroupMessageOrganization
+        fields = ("id", "author", "text", "image", "created")
 
 
 class ContentTypeChoiceField(serializers.ChoiceField):

@@ -190,7 +190,7 @@ const EventStep = (props) => {
       {hasEmailWarning && (
         <StyledWarning>
           <span>
-            Les membres et abonné·es de votre groupe
+            Les membres et abonné·es de votre groupe&nbsp;
             <strong>recevront un e-mail</strong> avec le contenu de votre
             message et <strong>pourront y répondre&nbsp;!</strong>
           </span>

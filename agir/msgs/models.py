@@ -69,7 +69,7 @@ class SupportGroupMessage(AbstractMessage):
         verbose_name_plural = "Messages de groupe"
 
 
-class SupportGroupOrganizationMessage(AbstractMessage):
+class SupportGroupMessageOrganization(AbstractMessage):
     supportgroup = models.ForeignKey(
         "groups.SupportGroup",
         editable=False,
@@ -88,11 +88,12 @@ class SupportGroupOrganizationMessage(AbstractMessage):
         verbose_name = "Message privé avec les animateur·ices de groupe"
 
         constraints = [
-                models.UniqueConstraint(
-                    fields=["supportgroup", "person"],
-                    name="unique_message_for_group_and_person",
-                ),
-            ]
+            models.UniqueConstraint(
+                fields=["supportgroup", "person"],
+                name="unique_message_for_group_and_person",
+            ),
+        ]
+
 
 @reversion.register()
 class SupportGroupMessageComment(AbstractMessage):
@@ -106,6 +107,21 @@ class SupportGroupMessageComment(AbstractMessage):
     class Meta:
         verbose_name = "Commentaire de messages de groupe"
         verbose_name_plural = "Commentaires de messages de groupe"
+
+
+@reversion.register()
+class SupportGroupMessageOrganizationComment(AbstractMessage):
+    message = models.ForeignKey(
+        "SupportGroupMessageOrganization",
+        on_delete=models.PROTECT,
+        verbose_name="Message initial",
+        related_name="comments",
+    )
+
+    class Meta:
+        verbose_name = (
+            "Commentaires de messages privés avec les animateur·ices de groupe"
+        )
 
 
 class SupportGroupMessageRecipient(TimeStampedModel):

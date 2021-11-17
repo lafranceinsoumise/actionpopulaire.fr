@@ -30,6 +30,7 @@ from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
 from agir.groups.actions.notifications import (
     new_message_notifications,
+    new_message_organization_notifications,
     new_comment_notifications,
     someone_joined_notification,
 )
@@ -68,6 +69,7 @@ __all__ = [
     "GroupPastEventReportsAPIView",
     "GroupMessagesAPIView",
     "GroupSingleMessageAPIView",
+    "GroupMessagesOrganizationAPIView",
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
     "JoinGroupAPIView",
@@ -90,6 +92,7 @@ from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from agir.msgs.serializers import (
     SupportGroupMessageSerializer,
     MessageCommentSerializer,
+    SupportGroupMessageOrganizationSerializer,
 )
 
 from agir.groups.tasks import invite_to_group
@@ -371,6 +374,32 @@ class GroupMessagesAPIView(ListCreateAPIView):
             )
             new_message_notifications(message)
             update_recipient_message(message, self.request.user.person)
+
+
+# Create new message with referents of a group
+class GroupMessagesOrganizationAPIView(ListCreateAPIView):
+
+    serializer_class = SupportGroupMessageOrganizationSerializer
+    # No specific permissions needed to initiate a discussion with group referents
+    permission_classes = (IsAuthenticated,)
+
+    def initial(self, request, *args, **kwargs):
+        try:
+            self.supportgroup = SupportGroup.objects.get(pk=kwargs["pk"])
+        except SupportGroup.DoesNotExist:
+            raise NotFound()
+
+        super().initial(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        with transaction.atomic():
+            message = serializer.save(
+                author=self.request.user.person,
+                supportgroup=self.supportgroup,
+                person=self.request.user.person,
+            )
+            new_message_organization_notifications(message)
+            # update_recipient_message(message, self.request.user.person)
 
 
 @method_decorator(never_cache, name="get")

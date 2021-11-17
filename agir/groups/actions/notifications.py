@@ -111,6 +111,28 @@ def new_message_notifications(message):
 
 
 @transaction.atomic()
+def new_message_organization_notifications(message):
+    recipients = message.supportgroup.referents.all() + [message.person]
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                individual=message.author,
+                supportgroup=message.supportgroup,
+                type=Activity.TYPE_NEW_MESSAGE,
+                recipient=r,
+                status=Activity.STATUS_UNDISPLAYED,
+                meta={"message": str(message.pk),},
+            )
+            for r in recipients
+            if r.pk != message.author.pk
+        ],
+        send_post_save_signal=True,
+    )
+
+    # send_message_notification_email.delay(message.pk)
+
+
+@transaction.atomic()
 def new_comment_notifications(comment):
     comment_authors = list(comment.message.comments.values_list("author_id", flat=True))
     comment_authors = set(comment_authors + [comment.message.author_id])

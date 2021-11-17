@@ -64,7 +64,11 @@ const MessagePage = ({ messagePk, groupPk }) => {
     isAutoRefreshPausedRef,
   } = useMessageSWR(messagePk, onSelectMessage);
 
-  const { data: group } = useSWR(getGroupEndpoint("getGroup", { groupPk }));
+  let group = null;
+  if (groupPk) {
+    const { data } = useSWR(getGroupEndpoint("getGroup", { groupPk }));
+    group = data;
+  }
 
   const {
     isLoading,
