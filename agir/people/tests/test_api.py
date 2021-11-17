@@ -143,13 +143,14 @@ class CreateContactAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("lastName", res.data)
 
-    def test_cannot_create_a_contact_without_email(self):
+    def test_cannot_create_a_contact_without_email_and_phone(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data}
         data.pop("email")
+        data.pop("phone")
         res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 422)
-        self.assertIn("email", res.data)
+        self.assertIn("global", res.data)
 
     def test_cannot_create_a_contact_with_invalid_email(self):
         self.client.force_login(user=self.subscriber.role)
@@ -218,6 +219,16 @@ class CreateContactAPITestCase(APITestCase):
     def test_can_create_a_new_contact_with_valid_data(self):
         self.client.force_login(user=self.subscriber.role)
         data = {**self.valid_data}
+        res = self.client.post("/api/contacts/creer/", data=data)
+        self.assertEqual(res.status_code, 201)
+        person_pk = res.data.get("id")
+        self.assertTrue(Person.objects.get(pk=person_pk).is_2022)
+
+    def test_can_create_a_new_contact_withouth_email_if_phone_is_given(self):
+        self.client.force_login(user=self.subscriber.role)
+        data = {**self.valid_data}
+        data.pop("email")
+        data["phone"] = "06 12 34 56 78"
         res = self.client.post("/api/contacts/creer/", data=data)
         self.assertEqual(res.status_code, 201)
         person_pk = res.data.get("id")

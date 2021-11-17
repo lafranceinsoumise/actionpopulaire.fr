@@ -139,10 +139,12 @@ const GroupMemberCard = (props) => {
               &ensp;<strong>{phone}</strong>
             </span>
           ) : null}
-          <span>
-            <FeatherIcon small name="mail" />
-            &ensp;<strong>{email}</strong>
-          </span>
+          {email ? (
+            <span>
+              <FeatherIcon small name="mail" />
+              &ensp;<strong>{email}</strong>
+            </span>
+          ) : null}
         </p>
         {address ? (
           <p>

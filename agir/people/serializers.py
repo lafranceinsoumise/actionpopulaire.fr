@@ -340,7 +340,7 @@ class ContactSerializer(serializers.ModelSerializer):
     zip = serializers.CharField(
         required=True, source="location_zip", label="Code postal"
     )
-    email = serializers.EmailField(required=True)
+    email = serializers.EmailField(required=False, allow_blank=True)
     phone = PhoneField(
         source="contact_phone",
         required=False,
@@ -369,6 +369,13 @@ class ContactSerializer(serializers.ModelSerializer):
     subscriber = CurrentPersonField()
 
     def validate(self, data):
+        if not data.get("email") and not data.get("contact_phone"):
+            raise ValidationError(
+                detail={
+                    "global": "Veuillez indiquer obligatoirement une adresse email ou un numéro de téléphone mobile"
+                }
+            )
+
         if (
             not data.get("location_country")
             or data.get("location_country") in FRANCE_COUNTRY_CODES
