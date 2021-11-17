@@ -572,9 +572,9 @@ REST_FRAMEWORK = {
 
 # Access tokens
 
-AUTH_REDIS_URL = os.environ.get("AUTH_REDIS_URL", "redis://localhost?db=0")
-AUTH_REDIS_MAX_CONNECTIONS = 5
-AUTH_REDIS_PREFIX = os.environ.get("AUTH_REDIS_PREFIX", "AccessToken:")
+REDIS_AUTH_URL = os.environ.get("REDIS_AUTH_URL", "redis://localhost?db=0")
+REDIS_AUTH_MAX_CONNECTIONS = 5
+REDIS_AUTH_PREFIX = os.environ.get("REDIS_AUTH_PREFIX", "AccessToken:")
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
 LOG_FILE = os.environ.get("LOG_FILE", "./errors.log")
@@ -639,7 +639,7 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache"
         if not DEBUG
         else "django.core.cache.backends.dummy.DummyCache",
-        "LOCATION": os.environ.get("CACHING_REDIS_URL", "redis://localhost?db=0"),
+        "LOCATION": os.environ.get("REDIS_CACHING_URL", "redis://localhost?db=0"),
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
         "KEY_PREFIX": "caching_",
     }
@@ -666,7 +666,7 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 6  # 3 mois
 CRISPY_TEMPLATE_PACK = "bootstrap3"
 
 # CELERY
-CELERY_BROKER_URL = os.environ.get("BROKER_URL", "redis://")
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://")
 # make sure there is a max_retries option
 CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 4}
 # make sure celery does not mess with the root logger
@@ -676,7 +676,7 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 # enable task events to allow monitoring
 CELERY_TASK_SEND_SENT_EVENT = True
 
-CELERY_RESULT_BACKEND = os.environ.get("BROKER_URL", "redis://")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER_URL", "redis://")
 
 DEFAULT_EVENT_IMAGE = "front/images/default_event_pic.jpg"
 
