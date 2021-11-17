@@ -3,6 +3,7 @@ import csv
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import Http404
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -86,6 +87,15 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
             return self.get(request, *args, **kwargs)
         return super().post(request, *args, **kwargs)
 
+    def make_data_url_from_image_file(self, file: InMemoryUploadedFile):
+        prefix = f"data:{file.content_type};base64,"
+        fin = file.open("rb")
+        contents = fin.read()
+        import base64
+
+        data_url = prefix + base64.b64encode(contents).decode("utf-8")
+        return data_url
+
     def form_valid(self, form):
         if (
             self.person_form_instance.campaign_template is not None
@@ -93,9 +103,15 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
         ):
             preview = self.person_form_instance.campaign_template.message_content_html
             for field in form.cleaned_data:
-                preview = preview.replace(
-                    f"[{field}]", escape(form.cleaned_data[field])
-                )
+                value = form.cleaned_data[field]
+
+                if (
+                    isinstance(value, InMemoryUploadedFile)
+                    and "image" in value.content_type
+                ):
+                    value = self.make_data_url_from_image_file(value)
+
+                preview = preview.replace(f"[{field}]", escape(value))
 
             return HttpResponse(preview)
 
