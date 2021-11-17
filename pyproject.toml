@@ -87,7 +87,7 @@ xlsxwriter = "*"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
-black = "==19.10b0"
+black = "==21.11b0"
 coverage = "*"
 django-debug-toolbar = "*"
 redislite = "*"  # used for testing
