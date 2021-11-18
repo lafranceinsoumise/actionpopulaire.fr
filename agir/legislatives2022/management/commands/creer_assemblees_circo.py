@@ -16,6 +16,7 @@ from django.utils import timezone
 from iso8601 import parse_date
 
 from agir.events.models import Event, EventSubtype, OrganizerConfig
+from agir.events.tasks import geocode_event
 from agir.groups.models import SupportGroup
 from agir.lib.management_utils import LoggingCommand
 from agir.people.person_forms.display import default_person_form_display
@@ -116,3 +117,5 @@ class Command(LoggingCommand):
                 OrganizerConfig.objects.create(
                     event=event, person=s.person, as_group=group
                 )
+
+            geocode_event.delay(event.pk)
