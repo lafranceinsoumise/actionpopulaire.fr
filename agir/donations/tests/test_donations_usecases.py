@@ -5,11 +5,17 @@ from unittest import mock, skip
 
 import re
 import uuid
+
+from agir.donations.serializers import (
+    SendDonationSerializer,
+    CreateDonationSessionSerializer,
+)
 from django.conf import settings
 from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+from rest_framework.test import APITestCase
 
 from agir.api.redis import using_separate_redis_server
 from agir.donations.apps import DonsConfig
@@ -34,28 +40,29 @@ from ..views import (
     notification_listener as donation_notification_listener,
     subscription_notification_listener as monthly_donation_subscription_listener,
 )
+from ... import donations
 from ...authentication.tokens import monthly_donation_confirmation_token_generator
 from ...system_pay.models import SystemPayAlias, SystemPaySubscription
 
 
 class DonationTestMixin:
     def setUp(self):
-        self.p1 = Person.objects.create_insoumise("test@test.com", create_role=True)
+        self.p1 = Person.objects.create_2022("test@test.com", create_role=True)
 
         self.donation_information_payload = {
             "amount": "20000",
-            "allocations": "{}",
             "declaration": "Y",
             "nationality": "FR",
-            "first_name": "Marc",
-            "last_name": "Frank",
-            "location_address1": "4 rue de Chaume",
-            "location_address2": "",
-            "location_zip": "33000",
-            "location_city": "Bordeaux",
-            "location_country": "FR",
-            "contact_phone": "+33645789845",
-            "mode": "check_donations",
+            "firstName": "Marc",
+            "lastName": "Frank",
+            "locationAddress1": "4 rue de Chaume",
+            "locationAddress2": "",
+            "locationZip": "33000",
+            "locationCity": "Bordeaux",
+            "locationCountry": "FR",
+            "contactPhone": "+33645789845",
+            "paymentMode": "check_donations",
+            "paymentTimes": "S",
         }
 
         certified_subtype = SupportGroupSubtype.objects.create(
@@ -84,50 +91,68 @@ class DonationTestMixin:
         )
 
 
-@unittest.skip("Skip while refactoring donation pages")
-class DonationTestCase(DonationTestMixin, TestCase):
+class DonationTestCase(DonationTestMixin, APITestCase):
     @mock.patch("django.db.transaction.on_commit")
     def test_can_donate_while_logged_in(self, on_commit):
         self.client.force_login(self.p1.role)
         amount_url = reverse("donation_amount")
-        information_url = reverse("donation_information")
+        information_modal = reverse("donation_information_modal")
 
         res = self.client.get(amount_url)
         self.assertEqual(res.status_code, 200)
 
         res = self.client.post(
-            amount_url,
-            {"type": AllocationDonationForm.TYPE_SINGLE_TIME, "amount": "200"},
+            reverse("api_create_donation_session"),
+            {"paymentTimes": donations.serializers.TYPE_SINGLE_TIME, "amount": "200",},
         )
-        self.assertRedirects(res, information_url)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn(information_modal, res.data["next"])
 
-        res = self.client.get(information_url)
+        res = self.client.get(information_modal)
         self.assertEqual(res.status_code, 200)
 
-        res = self.client.post(information_url, self.donation_information_payload)
+        res = self.client.post(
+            reverse("api_send_donation"), self.donation_information_payload
+        )
         # no other payment
         payment = Payment.objects.get()
-        self.assertRedirects(res, front_url("payment_page", args=(payment.pk,)))
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(front_url("payment_page", args=(payment.pk,)), res.data["next"])
 
         res = self.client.get(reverse("payment_return", args=(payment.pk,)))
-        self.assertEqual(res.status_code, 200)
+        self.assertRedirects(
+            res,
+            "https://lafranceinsoumise.fr/remerciement-don/",
+            fetch_redirect_response=False,
+        )
 
         self.p1.refresh_from_db()
 
         # assert fields have been saved on model
-        for f in [
-            "first_name",
-            "last_name",
-            "location_address1",
-            "location_address2",
-            "location_zip",
-            "location_city",
-            "location_country",
-        ]:
-            self.assertEqual(getattr(self.p1, f), self.donation_information_payload[f])
+        self.assertEqual(
+            self.p1.first_name, self.donation_information_payload["firstName"]
+        )
+        self.assertEqual(
+            self.p1.last_name, self.donation_information_payload["lastName"]
+        )
+        self.assertEqual(
+            self.p1.location_address1,
+            self.donation_information_payload["locationAddress1"],
+        )
+        self.assertEqual(
+            self.p1.location_address2,
+            self.donation_information_payload["locationAddress2"],
+        )
+        self.assertEqual(
+            self.p1.location_city, self.donation_information_payload["locationCity"]
+        )
+        self.assertEqual(
+            self.p1.location_country,
+            self.donation_information_payload["locationCountry"],
+        )
 
         # check person is not unsubscribed
-        self.assertIn(Person.NEWSLETTER_LFI, self.p1.newsletters)
+        self.assertIn(Person.NEWSLETTER_2022, self.p1.newsletters)
 
         # fake systempay webhook
         complete_payment(payment)
@@ -135,36 +160,33 @@ class DonationTestCase(DonationTestMixin, TestCase):
         on_commit.assert_called_once()
 
     def test_cannot_donate_without_required_fields(self):
-        information_url = reverse("donation_information")
+        information_modal = reverse("donation_information_modal")
 
         res = self.client.post(
-            reverse("donation_amount"),
-            {"type": AllocationDonationForm.TYPE_SINGLE_TIME, "amount": "200"},
+            reverse("api_create_donation_session"),
+            {"paymentTimes": donations.serializers.TYPE_SINGLE_TIME, "amount": "200"},
         )
-        self.assertRedirects(res, information_url)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn(information_modal, res.data["next"])
 
         required_fields = [
-            "declaration",
             "nationality",
-            "first_name",
-            "last_name",
-            "location_address1",
-            "location_zip",
-            "location_city",
-            "location_country",
+            "firstName",
+            "lastName",
+            "locationAddress1",
+            "locationZip",
+            "locationCity",
+            "locationCountry",
         ]
 
         for f in required_fields:
             d = self.donation_information_payload.copy()
             del d[f]
 
-            res = self.client.post(information_url, d)
+            res = self.client.post(reverse("api_send_donation"), d)
             self.assertEqual(
-                res.status_code,
-                200,
-                msg="Should not redirect when field '%s' missing" % f,
+                res.status_code, 422,
             )
-            self.assertFormError(res, "form", f, "Ce champ est obligatoire.")
 
     def test_cannot_donate_without_asserting_fiscal_residency_when_foreigner(self):
         self.client.force_login(self.p1.role)
