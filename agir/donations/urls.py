@@ -52,7 +52,7 @@ urlpatterns = [
     path(
         "api/creer-session-dons/",
         views.CreateSessionDonationAPIView.as_view(),
-        name="api_create_session_donation",
+        name="api_create_donation_session",
     ),
     path(
         "api/envoyer-dons/",

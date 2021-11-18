@@ -240,6 +240,26 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         extra_fields.setdefault("password", None)
         return self._create_person(email, **extra_fields)
 
+    def create_2022(self, email, password=None, *, subscribed=None, **extra_fields):
+        """
+        Create a user
+        :param email: the user's email
+        :param password: optional password that may be used to connect to the admin website
+        :param extra_fields: any other field
+        :return:
+        """
+        extra_fields.setdefault("is_2022", True)
+
+        if subscribed is False:
+            extra_fields.setdefault("newsletters", [])
+        else:
+            extra_fields.setdefault(
+                "newsletters",
+                [Person.NEWSLETTER_2022, Person.NEWSLETTER_2022_EXCEPTIONNEL],
+            )
+
+        return self.create_person(email, password=password, **extra_fields)
+
     def create_insoumise(
         self, email, password=None, *, subscribed=None, **extra_fields
     ):
