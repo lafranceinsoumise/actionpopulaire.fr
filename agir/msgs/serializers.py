@@ -8,11 +8,11 @@ from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
 from agir.msgs.actions import get_message_unread_comment_count
 from agir.msgs.models import (
     SupportGroupMessage,
-    SupportGroupMessageOrganization,
     SupportGroupMessageComment,
     UserReport,
 )
 from agir.people.serializers import PersonSerializer
+from agir.groups.models import Membership
 
 
 class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
@@ -77,6 +77,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "linkedEvent",
         "recentComments",
         "commentCount",
+        "messageType",
     )
     DETAIL_FIELDS = (
         "id",
@@ -98,6 +99,21 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     recentComments = serializers.SerializerMethodField(read_only=True)
     commentCount = serializers.SerializerMethodField(read_only=True)
     comments = serializers.SerializerMethodField(read_only=True)
+
+    requiredMembershipType = serializers.ChoiceField(
+        source="required_membership_type",
+        required=False,
+        allow_null=True,
+        choices=Membership.MEMBERSHIP_TYPE_CHOICES,
+        default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+    )
+    messageType = serializers.ChoiceField(
+        source="message_type",
+        required=False,
+        allow_null=True,
+        choices=SupportGroupMessage.MESSAGE_TYPE_CHOICES,
+        default=SupportGroupMessage.MESSAGE_TYPE_DEFAULT,
+    )
 
     def get_group(self, obj):
         return {
@@ -146,15 +162,9 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "comments",
             "commentCount",
             "lastUpdate",
+            "messageType",
+            "requiredMembershipType",
         )
-
-
-class SupportGroupMessageOrganizationSerializer(BaseMessageSerializer):
-    person = PersonSerializer()
-
-    class Meta:
-        model = SupportGroupMessageOrganization
-        fields = ("id", "author", "text", "image", "created")
 
 
 class ContentTypeChoiceField(serializers.ChoiceField):
@@ -211,6 +221,11 @@ class UserMessagesSerializer(BaseMessageSerializer):
     lastComment = serializers.SerializerMethodField(
         method_name="get_last_comment", read_only=True
     )
+    messageType = serializers.CharField(
+        source="message_type",
+        default=SupportGroupMessage.MESSAGE_TYPE_DEFAULT,
+        read_only=True,
+    )
 
     def get_group(self, message):
         return {
@@ -247,4 +262,5 @@ class UserMessagesSerializer(BaseMessageSerializer):
             "lastUpdate",
             "lastComment",
             "isUnread",
+            "messageType",
         )

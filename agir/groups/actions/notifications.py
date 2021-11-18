@@ -112,7 +112,7 @@ def new_message_notifications(message):
 
 @transaction.atomic()
 def new_message_organization_notifications(message):
-    recipients = message.supportgroup.referents.all() + [message.person]
+    recipients = message.supportgroup.referents + [message.person]
     Activity.objects.bulk_create(
         [
             Activity(

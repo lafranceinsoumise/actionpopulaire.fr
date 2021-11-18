@@ -55,6 +55,7 @@ from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
 from agir.people.models import Person
+from agir.groups.models import Membership
 
 __all__ = [
     "LegacyGroupSearchAPIView",
@@ -69,7 +70,6 @@ __all__ = [
     "GroupPastEventReportsAPIView",
     "GroupMessagesAPIView",
     "GroupSingleMessageAPIView",
-    "GroupMessagesOrganizationAPIView",
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
     "JoinGroupAPIView",
@@ -92,7 +92,6 @@ from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from agir.msgs.serializers import (
     SupportGroupMessageSerializer,
     MessageCommentSerializer,
-    SupportGroupMessageOrganizationSerializer,
 )
 
 from agir.groups.tasks import invite_to_group
@@ -352,6 +351,12 @@ class GroupMessagesAPIView(ListCreateAPIView):
 
         self.check_object_permissions(request, self.supportgroup)
 
+        # Update permissions switch the message type
+        self.messageType = request.data.get("messageType", "")
+        self.membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
+        if self.messageType == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
+            self.membershipType = Membership.MEMBERSHIP_TYPE_REFERENT
+
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -370,36 +375,17 @@ class GroupMessagesAPIView(ListCreateAPIView):
     def perform_create(self, serializer):
         with transaction.atomic():
             message = serializer.save(
-                author=self.request.user.person, supportgroup=self.supportgroup
-            )
-            new_message_notifications(message)
-            update_recipient_message(message, self.request.user.person)
-
-
-# Create new message with referents of a group
-class GroupMessagesOrganizationAPIView(ListCreateAPIView):
-
-    serializer_class = SupportGroupMessageOrganizationSerializer
-    # No specific permissions needed to initiate a discussion with group referents
-    permission_classes = (IsAuthenticated,)
-
-    def initial(self, request, *args, **kwargs):
-        try:
-            self.supportgroup = SupportGroup.objects.get(pk=kwargs["pk"])
-        except SupportGroup.DoesNotExist:
-            raise NotFound()
-
-        super().initial(request, *args, **kwargs)
-
-    def perform_create(self, serializer):
-        with transaction.atomic():
-            message = serializer.save(
                 author=self.request.user.person,
                 supportgroup=self.supportgroup,
-                person=self.request.user.person,
+                message_type=self.messageType,
+                required_membership_type=self.membershipType,
             )
-            new_message_organization_notifications(message)
-            # update_recipient_message(message, self.request.user.person)
+            if self.messageType == "organization":
+                new_message_organization_notifications(message)
+                # update_recipient_message(message, self.request.user.person)
+            else:
+                new_message_notifications(message)
+                update_recipient_message(message, self.request.user.person)
 
 
 @method_decorator(never_cache, name="get")

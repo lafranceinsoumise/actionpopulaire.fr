@@ -64,6 +64,9 @@ const MessagePage = ({ messagePk, groupPk }) => {
     isAutoRefreshPausedRef,
   } = useMessageSWR(messagePk, onSelectMessage);
 
+  console.log("message page, messages : ");
+  console.log(messages);
+
   let group = null;
   if (groupPk) {
     const { data } = useSWR(getGroupEndpoint("getGroup", { groupPk }));
@@ -166,6 +169,7 @@ const MessagePage = ({ messagePk, groupPk }) => {
                 onReport={confirmReport}
                 onDeleteComment={confirmDeleteComment}
                 onReportComment={confirmReportComment}
+                onSend={saveMessage}
                 user={user}
                 writeNewMessage={writeNewMessage}
                 onComment={writeNewComment}

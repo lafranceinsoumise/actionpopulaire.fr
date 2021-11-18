@@ -13,10 +13,15 @@ import Link from "@agir/front/app/Link";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 const MessageOrganizationCard = (props) => {
-  const { isLoading, user, group } = props;
+  const { isLoading, user, group, onSend } = props;
 
-  const handleCreateOrganizationMessage = (message) => {
-    console.log("message create orga : ", message);
+  const handleCreateOrganizationMessage = async (text) => {
+    onSend({
+      subject: "",
+      text: text,
+      group: group,
+      messageType: "ORGANIZATION",
+    });
   };
 
   return (

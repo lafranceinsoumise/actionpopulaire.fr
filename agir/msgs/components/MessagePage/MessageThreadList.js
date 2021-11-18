@@ -121,6 +121,7 @@ const DesktopThreadList = (props) => {
     notificationSettingLink,
     isOrganizationMessage,
     group,
+    onSend,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
@@ -164,6 +165,7 @@ const DesktopThreadList = (props) => {
               group={group}
               user={user}
               isLoading={isLoading}
+              onSend={onSend}
             />
           )}
 
@@ -215,6 +217,7 @@ const MobileThreadList = (props) => {
     notificationSettingLink,
     isOrganizationMessage,
     group,
+    onSend,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
@@ -251,6 +254,7 @@ const MobileThreadList = (props) => {
               group={group}
               user={user}
               isLoading={isLoading}
+              onSend={onSend}
             />
           )}
 

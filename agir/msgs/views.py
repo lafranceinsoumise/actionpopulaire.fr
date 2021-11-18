@@ -29,6 +29,8 @@ from agir.msgs.serializers import (
     UserMessagesSerializer,
     UserMessageRecipientSerializer,
 )
+from itertools import chain
+from operator import attrgetter
 
 
 class UserReportAPIView(CreateAPIView):
@@ -70,9 +72,45 @@ class UserMessagesAPIView(ListAPIView):
             recipient=person, message_id=OuterRef("id")
         )
 
-        return (
-            self.queryset.filter(supportgroup_id__in=person_groups)
+        # Get groups where person is referent
+        person_referent_groups = (
+            SupportGroup.objects.filter(
+                id__in=person_groups,
+                memberships__person=person,
+                memberships__membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+            )
+            .values("id")
+            .distinct()
+        )
+
+        # Private messages from type organization = is_author + is_group_referent
+        private_group_messages = list(
+            SupportGroupMessage.objects.filter(
+                author=person,
+                message_type=SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION,
+            ).annotate(
+                last_update=Greatest(
+                    Max("comments__created"), "created", output_field=DateTimeField()
+                )
+            )
+        ) + list(
+            SupportGroupMessage.objects.filter(
+                supportgroup__in=person_referent_groups,
+                message_type=SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION,
+            ).annotate(
+                last_update=Greatest(
+                    Max("comments__created"), "created", output_field=DateTimeField()
+                )
+            )
+        )
+
+        public_group_messages = (
+            self.queryset.filter(
+                supportgroup_id__in=person_groups,
+                message_type=SupportGroupMessage.MESSAGE_TYPE_DEFAULT,
+            )
             .select_related("supportgroup", "author")
+            # .exclude(message_type=SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION)
             .prefetch_related("comments")
             .annotate(
                 is_unread=Case(
@@ -93,8 +131,14 @@ class UserMessagesAPIView(ListAPIView):
                     Max("comments__created"), "created", output_field=DateTimeField()
                 )
             )
+            # .order_by("-last_update", "-created")
             .distinct()
-            .order_by("-last_update", "-created")
+        )
+
+        return sorted(
+            chain(private_group_messages, public_group_messages),
+            key=attrgetter("created", "last_update"),
+            reverse=True,
         )
 
 

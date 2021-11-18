@@ -6,6 +6,7 @@ from django.db import models
 from stdimage import StdImageField
 
 from agir.lib.models import TimeStampedModel, BaseAPIResource
+from agir.groups.models import Membership
 
 
 class UserReport(TimeStampedModel):
@@ -46,6 +47,15 @@ class AbstractMessage(BaseAPIResource):
 
 @reversion.register()
 class SupportGroupMessage(AbstractMessage):
+
+    MESSAGE_TYPE_DEFAULT = "ALL"
+    MESSAGE_TYPE_ORGANIZATION = "ORGANIZATION"
+
+    MESSAGE_TYPE_CHOICES = (
+        (MESSAGE_TYPE_DEFAULT, "Message de groupe"),
+        (MESSAGE_TYPE_ORGANIZATION, "Message privé aux animateur·ices"),
+    )
+
     subject = models.CharField(
         "Objet", max_length=150, null=False, blank=True, default=""
     )
@@ -63,36 +73,24 @@ class SupportGroupMessage(AbstractMessage):
         on_delete=models.PROTECT,
         verbose_name="Événement lié",
     )
+    required_membership_type = models.CharField(
+        "required_membershiptype",
+        max_length=64,
+        choices=Membership.MEMBERSHIP_TYPE_CHOICES,
+        default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+    )
+    message_type = models.CharField(
+        "message_type",
+        max_length=64,
+        null=False,
+        blank=True,
+        choices=MESSAGE_TYPE_CHOICES,
+        default=MESSAGE_TYPE_DEFAULT,
+    )
 
     class Meta:
         verbose_name = "Message de groupe"
         verbose_name_plural = "Messages de groupe"
-
-
-class SupportGroupMessageOrganization(AbstractMessage):
-    supportgroup = models.ForeignKey(
-        "groups.SupportGroup",
-        editable=False,
-        on_delete=models.PROTECT,
-        verbose_name="Groupe / équipe",
-        related_name="message_organisation",
-    )
-    person = models.ForeignKey(
-        "people.Person",
-        verbose_name="Personne",
-        related_name="message_organisation",
-        on_delete=models.PROTECT,
-    )
-
-    class Meta:
-        verbose_name = "Message privé avec les animateur·ices de groupe"
-
-        constraints = [
-            models.UniqueConstraint(
-                fields=["supportgroup", "person"],
-                name="unique_message_for_group_and_person",
-            ),
-        ]
 
 
 @reversion.register()
@@ -107,21 +105,6 @@ class SupportGroupMessageComment(AbstractMessage):
     class Meta:
         verbose_name = "Commentaire de messages de groupe"
         verbose_name_plural = "Commentaires de messages de groupe"
-
-
-@reversion.register()
-class SupportGroupMessageOrganizationComment(AbstractMessage):
-    message = models.ForeignKey(
-        "SupportGroupMessageOrganization",
-        on_delete=models.PROTECT,
-        verbose_name="Message initial",
-        related_name="comments",
-    )
-
-    class Meta:
-        verbose_name = (
-            "Commentaires de messages privés avec les animateur·ices de groupe"
-        )
 
 
 class SupportGroupMessageRecipient(TimeStampedModel):
