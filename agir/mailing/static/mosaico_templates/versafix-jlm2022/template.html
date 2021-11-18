@@ -72,7 +72,7 @@
         }
 
         src {
-          label: Image;
+          label: Image source;
           widget: src
         }
 
@@ -180,17 +180,16 @@
 
         link {
           label: Link;
-          properties: text url
+          properties: text url;
         }
 
         image {
           label: Image;
-          properties: src url alt
+          properties: src url alt srcURL;
         }
 
-        imageURL {
-          label: Image from URL;
-          properties: srcURL url alt
+        image srcURL {
+          help: Leave this field empty to upload a new image;
         }
 
         backgroundColor {
@@ -595,18 +594,6 @@
         }
 
         imageBlock {
-          label: Image;
-          properties: gutterVisible=false;
-          variant: gutterVisible;
-          theme: contentTheme;
-        }
-
-        imageURLBlock longTextStyle {
-          label: Alternative Text;
-          help: Some Email Clients will show this text if automatical download of images is disabled;
-        }
-
-        imageURLBlock {
           label: Image;
           properties: gutterVisible=false;
           variant: gutterVisible;
@@ -1776,16 +1763,17 @@
         <!-- /buttonBlock -->
         <!-- imageBlock  -->
         <table class="vb-outer" width="100%" cellpadding="0" border="0" cellspacing="0" bgcolor="#ffffff" style="background-color: #ffffff;
-    -ko-background-color: @externalBackgroundColor; -ko-attr-bgcolor: @externalBackgroundColor" data-ko-block="imageBlock">
+        -ko-background-color: @externalBackgroundColor; -ko-attr-bgcolor: @externalBackgroundColor" data-ko-block="imageBlock">
           <tr>
             <td class="vb-outer" valign="top" align="center">
               <!--[if (gte mso 9)|(lte ie 8)]>
-							<table align="center" border="0" cellspacing="0" cellpadding="0" width="570">
-								<tr>
-									<td align="center" valign="top">
-										<![endif]-->
-              <div class="oldwebkit">
-                <table data-ko-display="gutterVisible eq false" width="570" class="vb-container fullwidth" cellpadding="0" border="0" bgcolor="#ffffff" align="center" cellspacing="0" style="width: 100%; max-width: 570px; background-color: #ffffff; -ko-background-color: @backgroundColor; -ko-attr-bgcolor: @backgroundColor;">
+              <table align="center" border="0" cellspacing="0" cellpadding="0" width="570">
+                <tr>
+                  <td align="center" valign="top">
+                    <![endif]-->
+              <div class="oldwebkit"  data-ko-display="!image.srcURL">
+                <table data-ko-display="gutterVisible eq false" width="570" class="vb-container fullwidth" cellpadding="0" border="0" bgcolor="#ffffff" align="center" cellspacing="0"
+                  style="width: 100%; max-width: 570px; background-color: #ffffff; -ko-background-color: @backgroundColor; -ko-attr-bgcolor: @backgroundColor;">
                   <tr>
                     <td valign="top" align="center">
                       <a data-ko-link="image.url" href="" style="text-decoration: none;">
@@ -1796,7 +1784,8 @@
                     </td>
                   </tr>
                 </table>
-                <table data-ko-display="gutterVisible" width="570" class="vb-container fullpad" cellpadding="0" border="0" bgcolor="#ffffff" align="center" cellspacing="18" style="width: 100%; max-width: 570px; background-color: #ffffff; -ko-background-color: @backgroundColor; -ko-attr-bgcolor: @backgroundColor; display: none;">
+                <table data-ko-display="gutterVisible" width="570" class="vb-container fullpad" cellpadding="0" border="0" bgcolor="#ffffff" align="center" cellspacing="18"
+                  style="width: 100%; max-width: 570px; background-color: #ffffff; -ko-background-color: @backgroundColor; -ko-attr-bgcolor: @backgroundColor; display: none;">
                   <tr>
                     <td valign="top" align="center">
                       <a data-ko-link="image.url" href="" style="text-decoration: none;">
@@ -1808,58 +1797,41 @@
                   </tr>
                 </table>
               </div>
-              <!--[if (gte mso 9)|(lte ie 8)]>
-									</td>
-								</tr>
-							</table>
-							<![endif]-->
-            </td>
-          </tr>
-        </table>
-        <!-- imageBlock -->
-        <!-- imageURLBlock  -->
-        <table class="vb-outer" width="100%" cellpadding="0" border="0" cellspacing="0" bgcolor="#ffffff" style="background-color: #ffffff;
-  -ko-background-color: @externalBackgroundColor; -ko-attr-bgcolor: @externalBackgroundColor" data-ko-block="imageURLBlock">
-          <tr>
-            <td class="vb-outer" valign="top" align="center">
-              <!--[if (gte mso 9)|(lte ie 8)]>
-							<table align="center" border="0" cellspacing="0" cellpadding="0" width="570">
-								<tr>
-									<td align="center" valign="top">
-										<![endif]-->
-              <div class="oldwebkit">
-                <table data-ko-display="gutterVisible eq false" width="570" class="vb-container fullwidth" cellpadding="0" border="0" bgcolor="#ffffff" align="center" cellspacing="0" style="width: 100%; max-width: 570px; background-color: #ffffff; -ko-background-color: @backgroundColor; -ko-attr-bgcolor: @backgroundColor;">
+              <div class="oldwebkit" data-ko-display="image.srcURL">
+                <table data-ko-display="gutterVisible eq false" width="570" class="vb-container fullwidth" cellpadding="0" border="0" bgcolor="#ffffff" align="center" cellspacing="0"
+                  style="width: 100%; max-width: 570px; background-color: #ffffff; -ko-background-color: @backgroundColor; -ko-attr-bgcolor: @backgroundColor;">
                   <tr>
                     <td valign="top" align="center">
-                      <a data-ko-link="imageURL.url" href="" style="text-decoration: none;">
-                        <img data-ko-link="imageURL.srcURL" hspace="0" border="0" vspace="0" width="570" data-ko-placeholder-height="200" src="http://mosaico.io/srv/f-default/img?method=placeholder&amp;params=534%2C280" class="mobile-full" alt="" style="max-width: 570px; display: block; border-radius: 0px; width: 100%; height: auto; font-size: 16px;
-                font-family: Arial, Helvetica, sans-serif; color: #3f3f3f; -ko-font-size: @[longTextStyle.size]px;
-                -ko-font-family: @longTextStyle.face; -ko-color: @longTextStyle.color; -ko-attr-alt: @imageURL.alt; -ko-attr-src: @imageURL.srcURL;" />
+                      <a data-ko-link="image.url" href="" style="text-decoration: none;">
+                        <img src="" hspace="0" border="0" vspace="0" width="570" height="200" class="mobile-full" alt="" style="max-width: 570px; display: block; border-radius: 0px; width: 100%; height: auto; font-size: 16px; background: url('http://mosaico.io/srv/f-default/img?method=placeholder&amp;params=570%2C200') no-repeat;
+                  font-family: Arial, Helvetica, sans-serif; color: #3f3f3f; -ko-font-size: @[longTextStyle.size]px;
+                  -ko-font-family: @longTextStyle.face; -ko-color: @longTextStyle.color; -ko-attr-alt: @image.alt; -ko-attr-src: @image.srcURL;" />
                       </a>
                     </td>
                   </tr>
                 </table>
-                <table data-ko-display="gutterVisible" width="570" class="vb-container fullpad" cellpadding="0" border="0" bgcolor="#ffffff" align="center" cellspacing="18" style="width: 100%; max-width: 570px; background-color: #ffffff; -ko-background-color: @backgroundColor; -ko-attr-bgcolor: @backgroundColor; display: none;">
+                <table data-ko-display="gutterVisible" width="570" class="vb-container fullpad" cellpadding="0" border="0" bgcolor="#ffffff" align="center" cellspacing="18"
+                  style="width: 100%; max-width: 570px; background-color: #ffffff; -ko-background-color: @backgroundColor; -ko-attr-bgcolor: @backgroundColor; display: none;">
                   <tr>
                     <td valign="top" align="center">
-                      <a data-ko-link="imageURL.url" href="" style="text-decoration: none;">
-                        <img data-ko-link="imageURL.srcURL" hspace="0" border="0" vspace="0" width="534" data-ko-placeholder-height="280" src="http://mosaico.io/srv/f-default/img?method=placeholder&amp;params=534%2C280" class="mobile-full" alt="" style="max-width: 534px; display: block; border-radius: 0px; width: 100%; height: auto; font-size: 16px;
-                font-family: Arial, Helvetica, sans-serif; color: #3f3f3f; -ko-font-size: @[longTextStyle.size]px;
-                -ko-font-family: @longTextStyle.face; -ko-color: @longTextStyle.color; -ko-attr-alt: @imageURL.alt; -ko-attr-src: @imageURL.srcURL;" />
+                      <a data-ko-link="image.url" href="" style="text-decoration: none;">
+                        <img src="" hspace="0" border="0" vspace="0" width="534" height="280" class="mobile-full" alt="" style="max-width: 534px; display: block; border-radius: 0px; width: 100%; height: auto; font-size: 16px; background: url('http://mosaico.io/srv/f-default/img?method=placeholder&amp;params=534%2C280') no-repeat;
+                  font-family: Arial, Helvetica, sans-serif; color: #3f3f3f; -ko-font-size: @[longTextStyle.size]px;
+                  -ko-font-family: @longTextStyle.face; -ko-color: @longTextStyle.color; -ko-attr-alt: @image.alt; -ko-attr-src: @image.srcURL;" />
                       </a>
                     </td>
                   </tr>
                 </table>
               </div>
               <!--[if (gte mso 9)|(lte ie 8)]>
-									</td>
-								</tr>
-							</table>
-							<![endif]-->
+                  </td>
+                </tr>
+              </table>
+              <![endif]-->
             </td>
           </tr>
         </table>
-        <!-- imageURLBlock -->
+        <!-- imageBlock -->
         <!-- doubleImageBlock -->
         <table class="vb-outer" width="100%" cellpadding="0" border="0" cellspacing="0" bgcolor="#ffffff" style="background-color: #ffffff;
     -ko-background-color: @externalBackgroundColor; -ko-attr-bgcolor: @externalBackgroundColor" data-ko-block="doubleImageBlock">
