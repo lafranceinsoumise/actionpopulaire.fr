@@ -1,24 +1,28 @@
-from django.http.response import JsonResponse
-from rest_framework import permissions
-from rest_framework.generics import CreateAPIView
+import json
 
+from django.db import transaction
+from django.http.response import JsonResponse
+from django.urls import reverse
+from rest_framework import permissions
+from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework.mixins import UpdateModelMixin
+from rest_framework.response import Response
+
+from agir.donations.allocations import create_monthly_donation
+from agir.donations.apps import DonsConfig
 from agir.donations.serializers import (
     CreateDonationSessionSerializer,
     SendDonationSerializer,
     TO_2022,
     TYPE_MONTHLY,
 )
-from agir.people.models import Person
-from django.db import transaction
-from agir.payments.actions.payments import create_payment
-from agir.donations.allocations import create_monthly_donation
-import json
-from agir.donations.apps import DonsConfig
-from agir.payments.models import Subscription
-from django.urls import reverse
-from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.donations.tasks import send_monthly_donation_confirmation_email
+from agir.donations.views import DONATION_SESSION_NAMESPACE
+from agir.payments.actions.payments import create_payment
+from agir.payments.models import Subscription
+from agir.people.models import Person
 from agir.presidentielle2022.apps import Presidentielle2022Config
+
 
 # 1st step : Fill session with donation infos
 class CreateSessionDonationAPIView(CreateAPIView):
@@ -28,53 +32,29 @@ class CreateSessionDonationAPIView(CreateAPIView):
 
 
 # 2nd step : Create and send donation with personal infos
-class SendDonationAPIView(CreateAPIView):
+class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = SendDonationSerializer
-    queryset = Person.objects.none()
 
-    def initial(self, request, *args, **kwargs):
-        super().initial(request, *args, **kwargs)
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.validated_data = serializer.validated_data
-        self.connected_user = False
-
-        # Check user connected
-        if request.user.is_authenticated and request.user.person is not None:
-            if self.validated_data["email"] == request.user.person.email:
-                self.connected_user = True
-                del self.validated_data["email"]
+    def get_object(self):
+        if self.request.user.is_authenticated:
+            return self.request.user.person
 
     def clear_session(self):
         del self.request.session[DONATION_SESSION_NAMESPACE]
 
-    # Update person and add newsletters in validated_data
-    def update_person(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            # Add newsletters
-            if attr == "subscribed_2022":
-                if Person.NEWSLETTER_2022 not in instance.newsletters:
-                    instance.newsletters.append(Person.NEWSLETTER_2022)
-                if Person.NEWSLETTER_2022_EXCEPTIONNEL not in instance.newsletters:
-                    instance.newsletters.append(Person.NEWSLETTER_2022_EXCEPTIONNEL)
-                continue
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
-
-    def monthly_payment(self, person, allocations):
-        connected_user = self.connected_user
+    def monthly_payment(self, allocations):
         validated_data = self.validated_data
         payment_mode = validated_data["payment_mode"]
         amount = validated_data["amount"]
 
-        payment_type = DonsConfig.SUBSCRIPTION_TYPE
         if validated_data["to"] == TO_2022:
             payment_type = Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE
+        else:
+            payment_type = DonsConfig.SUBSCRIPTION_TYPE
 
         # Confirm email if the user is unknown
-        if not connected_user:
+        if self.person is None:
             email = validated_data["email"]
             del validated_data["email"]
             send_monthly_donation_confirmation_email.delay(
@@ -88,9 +68,9 @@ class SendDonationAPIView(CreateAPIView):
                 {"next": reverse("monthly_donation_confirmation_email_sent")}
             )
 
-        # Check user already monthly donator
+        # Redirect if user already monthly donator
         if Subscription.objects.filter(
-            person=person, status=Subscription.STATUS_ACTIVE, mode=payment_mode,
+            person=self.person, status=Subscription.STATUS_ACTIVE, mode=payment_mode,
         ):
             # stocker toutes les infos en session
             # attention à ne pas juste modifier le dictionnaire existant,
@@ -123,25 +103,17 @@ class SendDonationAPIView(CreateAPIView):
         )
 
     def post(self, request, *args, **kwargs):
-        validated_data = self.validated_data
+        self.person = self.get_object()
+        serializer = self.get_serializer(self.person, data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        validated_data = serializer.validated_data
         amount = validated_data["amount"]
         payment_mode = validated_data["payment_mode"]
-        person = None
-        connected_user = self.connected_user
 
         # User exist and connected : update user informations
-        if connected_user:
-            person = Person.objects.get(pk=request.user.person.id)
-            # Update newsletters and support only if checked
-            if (
-                "subscribed_2022" in validated_data
-                and not validated_data["subscribed_2022"]
-            ):
-                del validated_data["subscribed_2022"]
-            if "is_2022" in validated_data and not validated_data["is_2022"]:
-                del validated_data["is_2022"]
-
-            self.update_person(person, validated_data)
+        if self.person is not None:
+            self.perform_update(serializer)
 
         allocations = {
             str(allocation["group"].id): allocation["amount"]
@@ -153,7 +125,7 @@ class SendDonationAPIView(CreateAPIView):
 
         # Monthly payments
         if validated_data["payment_times"] == TYPE_MONTHLY:
-            return self.monthly_payment(person, allocations)
+            return self.monthly_payment(allocations)
 
         # Direct payments
         payment_type = DonsConfig.PAYMENT_TYPE
@@ -162,7 +134,7 @@ class SendDonationAPIView(CreateAPIView):
 
         with transaction.atomic():
             payment = create_payment(
-                person=person,
+                person=self.person,
                 type=payment_type,
                 mode=payment_mode,
                 price=amount,
@@ -171,4 +143,4 @@ class SendDonationAPIView(CreateAPIView):
             )
 
         self.clear_session()
-        return JsonResponse({"next": payment.get_payment_url()})
+        return Response({"next": payment.get_payment_url()})
