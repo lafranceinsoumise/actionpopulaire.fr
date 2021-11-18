@@ -133,6 +133,12 @@ class EventPagesTestCase(TestCase):
             person=self.person,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
+        self.own_group = SupportGroup.objects.create(name="Own group name")
+        Membership.objects.create(
+            supportgroup=self.own_group,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
 
         self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
         day = timezone.timedelta(days=1)
@@ -150,8 +156,8 @@ class EventPagesTestCase(TestCase):
         self.organized_event = Event.objects.create(
             name="Organized event",
             subtype=self.subtype,
-            start_time=now + day,
-            end_time=now + day + 4 * hour,
+            start_time=now - day,
+            end_time=now - day + 4 * hour,
             legal={legal.QUESTION_SALLE: True, legal.QUESTION_MATERIEL_CAMPAGNE: True},
         )
 
@@ -160,11 +166,20 @@ class EventPagesTestCase(TestCase):
             event=self.organized_event, person=self.person, is_creator=True
         )
 
+        self.organized_by_group_and_unrsvped_event = Event.objects.create_event(
+            name="Organized by group and unrsvped event",
+            subtype=self.subtype,
+            organizer_person=self.other_person,
+            organizer_group=self.own_group,
+            start_time=now - day,
+            end_time=now - day + 4 * hour,
+        )
+
         self.rsvped_event = Event.objects.create(
             name="RSVPed event",
             subtype=self.subtype,
-            start_time=now + 2 * day,
-            end_time=now + 2 * day + 2 * hour,
+            start_time=now - 2 * day,
+            end_time=now - 2 * day + 2 * hour,
             allow_guests=True,
         )
 
@@ -173,8 +188,8 @@ class EventPagesTestCase(TestCase):
         self.other_event = Event.objects.create(
             name="Other event",
             subtype=self.subtype,
-            start_time=now + 3 * day,
-            end_time=now + 3 * day + 4 * hour,
+            start_time=now - 3 * day,
+            end_time=now - 3 * day + 4 * hour,
         )
 
         self.other_rsvp1 = RSVP.objects.create(
@@ -254,6 +269,16 @@ class EventPagesTestCase(TestCase):
         self.client.force_login(self.person.role)
         response = self.client.get(
             reverse("upload_event_image", kwargs={"pk": self.organized_event.pk})
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_can_access_upload_image_page_if_manager_of_organizer_group(self):
+        self.client.force_login(self.person.role)
+        response = self.client.get(
+            reverse(
+                "upload_event_image",
+                kwargs={"pk": self.organized_by_group_and_unrsvped_event.pk},
+            )
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

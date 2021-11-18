@@ -340,11 +340,11 @@ class UploadEventImageView(
 ):
     template_name = "events/upload_event_image.html"
     form_class = UploadEventImageForm
-    permission_required = ("events.view_event",)
+    permission_required = ("events.upload_image",)
     permission_denied_to_not_found = True
 
     def get_queryset(self):
-        return Event.objects.past(as_of=timezone.now())
+        return Event.objects.public().past(as_of=timezone.now())
 
     def get_success_url(self):
         return reverse("view_event", args=(self.event.pk,))
@@ -372,28 +372,18 @@ class UploadEventImageView(
 
     def dispatch(self, request, pk, *args, **kwargs):
         try:
-            self.event = Event.objects.get(pk=pk)
+            self.event = self.get_object()
         except Event.DoesNotExist:
             return HttpResponse(status=status.HTTP_404_NOT_FOUND)
 
+        if not self.has_permission():
+            raise PermissionDenied(
+                _("Seuls les participants à l'événement peuvent poster des images")
+            )
+
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        self.object = None
-        if not self.event.rsvps.filter(person=request.user.person).exists():
-            raise PermissionDenied(
-                _("Seuls les participants à l'événement peuvent poster des images")
-            )
-
-        return super().get(request, *args, **kwargs)
-
     def post(self, request, *args, **kwargs):
-        self.object = None
-        if not self.event.rsvps.filter(person=request.user.person).exists():
-            raise PermissionDenied(
-                _("Seuls les participants à l'événement peuvent poster des images")
-            )
-
         form = self.get_form()
         author_form = self.get_author_form()
 
