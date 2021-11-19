@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
@@ -92,8 +91,9 @@ export const ActionTools = () => {
           <strong>Organiser une action</strong>
           <span>
             Porte-à-porte, tractage, caravane, réunion avec un·e orateur·ice de
-            la campagne... Vous pouvez vous aider des fiches pratiques pour vous
-            aider
+            la campagne... Vous pouvez vous aider des{" "}
+            <Link route="helpIndex">fiches pratiques</Link> pour organiser vos
+            actions.
           </span>
           <span
             css={`
@@ -106,15 +106,13 @@ export const ActionTools = () => {
             <Button small link route="createEvent">
               Créer un événement
             </Button>
-            <Button small route="publicMeeting">
+            <Button small link route="publicMeeting">
               Organiser une réunion publique
             </Button>
           </span>
         </span>
       </StyledCardItem>
-
-      {/* The following block will appear once a route is defined */}
-      <StyledCardItem route="">
+      <StyledCardItem route="coupDeFil">
         <i
           aria-hidden="true"
           css={`
@@ -127,14 +125,12 @@ export const ActionTools = () => {
         <span>
           <strong>Coup de fil pour convaincre</strong>
           <span>
-            Vous avez 2mn ? Appelez un·e citoyen·ne proche de chez vous pour le
-            convaincre d’aller voter. On vous explique tout
+            Vous avez deux minutes&nbsp;? Appelez un·e citoyen·ne proche de chez
+            vous pour le·a convaincre d’aller voter. On vous explique tout.
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
-      {/*  */}
-
       <StyledCardItem route="createContact">
         <i
           aria-hidden="true"
@@ -149,7 +145,7 @@ export const ActionTools = () => {
           <strong>Ajouter un contact</strong>
           <span>
             Ajoutez un nouveau soutien à Mélenchon 2022 et à votre groupe
-            d’action en quelques clics
+            d’action en quelques clics.
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
@@ -167,8 +163,7 @@ export const ActionTools = () => {
         <span>
           <strong>Objectif : 500 parrainages</strong>
           <span>
-            Soyez volontaire pour rencontrer des élus pour obtenir leur
-            signature
+            Soyez volontaire pour rencontrer des élus et obtenir leur signature.
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
@@ -186,8 +181,8 @@ export const ActionTools = () => {
         <span>
           <strong>Commander du matériel</strong>
           <span>
-            Recevez chez vous des tracts et des affiches et des objets de la
-            campagne
+            Recevez chez vous des tracts, des affiches et des objets de la
+            campagne.
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
@@ -195,5 +190,5 @@ export const ActionTools = () => {
     </StyledCard>
   );
 };
-ActionTools.propTypes = {};
+
 export default ActionTools;

@@ -31,6 +31,7 @@ const StyledCard = styled.div`
 
   ${Button} {
     align-self: flex-start;
+    width: auto;
   }
 `;
 

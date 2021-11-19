@@ -55,7 +55,7 @@ export const DonateCard = (props) => {
     from: { progress: 0, animatedAmount: 1 },
     progress: Math.round((amount / target) * 325),
     animatedAmount: amount,
-    delay: 150,
+    delay: 250,
   });
 
   return (

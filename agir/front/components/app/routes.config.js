@@ -36,8 +36,6 @@ const ActivityPage = lazy(() =>
   import("@agir/activity/ActivityPage/ActivityPage")
 );
 
-const ToolsPage = lazy(() => import("@agir/front/toolsPage/ToolsPage"));
-
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
 );
@@ -70,6 +68,7 @@ const DonationPage = lazy(() =>
 const DonationInformationsPage = lazy(() =>
   import("@agir/donations/donationPage/InformationsPage")
 );
+const ActionToolsPage = lazy(() => import("@agir/front/ActionToolsPage"));
 
 export const BASE_PATH = "/";
 
@@ -310,20 +309,14 @@ export const routeConfig = {
     },
     keepScroll: true,
   }),
-  tools: new RouteConfig({
-    id: "tools",
-    path: "/outils/",
+  actionTools: new RouteConfig({
+    id: "actionTools",
+    path: "/agir/",
     exact: true,
-    neededAuthentication: AUTHENTICATION.NONE,
-    label: "Outils",
-    Component: ToolsPage,
-    hideFeedbackButton: true,
-    displayFooterOnMobileApp: true,
-    backLink: {
-      route: "events",
-      label: "Liste des événements",
-      isProtected: true,
-    },
+    neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Agir",
+    Component: ActionToolsPage,
+    hasLayout: false,
   }),
   notificationSettings: notificationSettingRoute,
   menu: new RouteConfig({

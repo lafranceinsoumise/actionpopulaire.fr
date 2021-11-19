@@ -180,7 +180,6 @@ legacy_urls = [
         views.RedirectView.as_view(url=reverse_lazy("delete_account")),
         name="delete_account_old",
     ),
-    path("agir/", views.RedirectView.as_view(pattern_name="volunteer")),
 ]
 
 urlpatterns = (

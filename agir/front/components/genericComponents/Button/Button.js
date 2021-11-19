@@ -94,7 +94,10 @@ const WhiteRedButton = styled(BaseButton)`
     color: #d81836;
 
     &:before {
-      background-image: ${getIconDataUrl({ color: "#d81836" })};
+      background-image: ${getIconDataUrl({
+        color: "#d81836",
+        fill: true,
+      })};
     }
   }
 `;
