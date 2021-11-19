@@ -5,7 +5,7 @@ import Link from "./Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const StyledButton = styled(Link)`
-  width: 5.063rem;
+  max-width: 81px;
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
@@ -14,6 +14,7 @@ const StyledButton = styled(Link)`
   overflow-wrap: normal;
 
   @media (min-width: ${(props) => props.theme.collapse}px) {
+    width: 5.063rem;
     flex-flow: row nowrap;
     width: 100%;
     text-align: left;
@@ -31,16 +32,17 @@ const StyledButton = styled(Link)`
   }
 
   & > span {
-    width: 3.125rem;
-    height: 3.125rem;
+    width: 50px;
+    height: 50px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: ${(props) => props.theme[props.color]};
     color: ${(props) => props.theme.white};
     border-radius: 100%;
 
     @media (min-width: ${(props) => props.theme.collapse}px) {
+      width: 3.125rem;
+      height: 3.125rem;
       transform: scale(0.75);
       transform-origin: center left;
     }
@@ -55,7 +57,8 @@ const StyledButton = styled(Link)`
     font-size: 0.875rem;
 
     @media (max-width: ${(props) => props.theme.collapse}px) {
-      margin-top: 0.688rem;
+      margin-top: 11px;
+      font-size: 14px;
     }
   }
 
@@ -68,13 +71,20 @@ const StyledButton = styled(Link)`
 `;
 
 const StyledButtons = styled.nav`
+  width: 100%;
+  overflow-x: hidden;
   padding: 0;
   margin: 0;
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
     display: flex;
     justify-content: center;
-    gap: 2rem;
+    gap: 32px;
+  }
+
+  @media (max-width: 340px) {
+    gap: 0;
+    justify-content: space-between;
   }
 
   ${StyledButton} {
@@ -85,8 +95,8 @@ const StyledButtons = styled.nav`
 const ActionButtons = () => {
   return (
     <StyledButtons>
-      <StyledButton route="createEvent" color="secondary500">
-        <span>
+      <StyledButton route="createEvent">
+        <span css={`background-color: ${(props) => props.theme.secondary500};`}>
           <svg
             width="24"
             height="24"
@@ -108,12 +118,12 @@ const ActionButtons = () => {
         </span>
         <strong>Créer un événement</strong>
       </StyledButton>
-      <StyledButton route="createContact" color="primary500">
-        <RawFeatherIcon name="user-plus" />
+      <StyledButton route="createContact">
+        <RawFeatherIcon css={`background-color: ${(props) => props.theme.primary500};`} name="user-plus" />
         <strong>Ajouter un contact</strong>
       </StyledButton>
-      <StyledButton route="donations" color="redNSP">
-        <RawFeatherIcon name="heart" />
+      <StyledButton route="donations">
+        <RawFeatherIcon css={`background-color: ${(props) => props.theme.redNSP};`} name="heart" />
         <strong>Faire un don</strong>
       </StyledButton>
     </StyledButtons>
