@@ -77,7 +77,9 @@ class PersonForm(TimeStampedModel):
     )
 
     send_confirmation = models.BooleanField(
-        _("Envoyer une confirmation par email"), default=False
+        _("Envoyer une confirmation par email"),
+        default=False,
+        help_text="Envoyer le contenu de la note après complétion par email, en plus de le montrer à l'utilisateur.",
     )
 
     confirmation_note = DescriptionField(
