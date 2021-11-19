@@ -1,7 +1,6 @@
 import json
 
 from django.db import transaction
-from django.http.response import JsonResponse
 from django.urls import reverse
 from rest_framework import permissions
 from rest_framework.generics import CreateAPIView, GenericAPIView
@@ -64,7 +63,7 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
                 **validated_data,
             )
             self.clear_session()
-            return JsonResponse(
+            return Response(
                 {"next": reverse("monthly_donation_confirmation_email_sent")}
             )
 
@@ -85,11 +84,11 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
                 },
                 **self.request.session.get(DONATION_SESSION_NAMESPACE, {}),
             }
-            return JsonResponse({"next": reverse("already_has_subscription")})
+            return Response({"next": reverse("already_has_subscription")})
 
         with transaction.atomic():
             subscription = create_monthly_donation(
-                person=person,
+                person=self.person,
                 mode=payment_mode,
                 subscription_total=amount,
                 allocations=allocations,
@@ -98,9 +97,7 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
             )
 
         self.clear_session()
-        return JsonResponse(
-            {"next": reverse("subscription_page", args=[subscription.pk])}
-        )
+        return Response({"next": reverse("subscription_page", args=[subscription.pk])})
 
     def post(self, request, *args, **kwargs):
         self.person = self.get_object()

@@ -90,29 +90,32 @@ class DonationTestMixin:
             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
+        self.amount_url = reverse("donation_amount")
+        self.information_modal_url = reverse("donation_information_modal")
+        self.create_donation_session_url = reverse("api_create_donation_session")
+        self.send_donation_url = reverse("api_send_donation")
+
 
 class DonationTestCase(DonationTestMixin, APITestCase):
     @mock.patch("django.db.transaction.on_commit")
     def test_can_donate_while_logged_in(self, on_commit):
         self.client.force_login(self.p1.role)
-        amount_url = reverse("donation_amount")
-        information_modal = reverse("donation_information_modal")
 
-        res = self.client.get(amount_url)
+        res = self.client.get(self.amount_url)
         self.assertEqual(res.status_code, 200)
 
         res = self.client.post(
-            reverse("api_create_donation_session"),
+            self.create_donation_session_url,
             {"paymentTimes": donations.serializers.TYPE_SINGLE_TIME, "amount": "200",},
         )
         self.assertEqual(res.status_code, 201)
-        self.assertIn(information_modal, res.data["next"])
+        self.assertIn(self.information_modal_url, res.data["next"])
 
-        res = self.client.get(information_modal)
+        res = self.client.get(self.information_modal_url)
         self.assertEqual(res.status_code, 200)
 
         res = self.client.post(
-            reverse("api_send_donation"), self.donation_information_payload
+            self.send_donation_url, self.donation_information_payload
         )
         # no other payment
         payment = Payment.objects.get()
@@ -160,14 +163,13 @@ class DonationTestCase(DonationTestMixin, APITestCase):
         on_commit.assert_called_once()
 
     def test_cannot_donate_without_required_fields(self):
-        information_modal = reverse("donation_information_modal")
 
         res = self.client.post(
-            reverse("api_create_donation_session"),
+            self.create_donation_session_url,
             {"paymentTimes": donations.serializers.TYPE_SINGLE_TIME, "amount": "200"},
         )
         self.assertEqual(res.status_code, 201)
-        self.assertIn(information_modal, res.data["next"])
+        self.assertIn(self.information_modal_url, res.data["next"])
 
         required_fields = [
             "nationality",
@@ -183,50 +185,28 @@ class DonationTestCase(DonationTestMixin, APITestCase):
             d = self.donation_information_payload.copy()
             del d[f]
 
-            res = self.client.post(reverse("api_send_donation"), d)
+            res = self.client.post(self.send_donation_url, d)
             self.assertEqual(
                 res.status_code, 422,
             )
 
-    def test_cannot_donate_without_asserting_fiscal_residency_when_foreigner(self):
-        self.client.force_login(self.p1.role)
-
-        information_url = reverse("donation_information")
-
-        res = self.client.post(
-            reverse("donation_amount"),
-            {"type": AllocationDonationForm.TYPE_SINGLE_TIME, "amount": "200"},
-        )
-        self.assertRedirects(res, information_url)
-
-        self.donation_information_payload["nationality"] = "ES"
-
-        res = self.client.post(information_url, self.donation_information_payload)
-        self.assertEqual(res.status_code, 200)
-
-        self.donation_information_payload["fiscal_resident"] = "Y"
-        self.donation_information_payload["location_country"] = "ES"
-        res = self.client.post(information_url, self.donation_information_payload)
-        self.assertEqual(res.status_code, 200)
-
-        self.donation_information_payload["location_country"] = "FR"
-        res = self.client.post(information_url, self.donation_information_payload)
-        payment = Payment.objects.get()
-        self.assertRedirects(res, front_url("payment_page", args=[payment.pk]))
-
     def test_create_person_when_using_new_address(self):
-        information_url = reverse("donation_information")
 
         res = self.client.post(
-            reverse("donation_amount"),
-            {"type": AllocationDonationForm.TYPE_SINGLE_TIME, "amount": "200"},
+            self.create_donation_session_url,
+            {"paymentTimes": donations.serializers.TYPE_SINGLE_TIME, "amount": "200"},
         )
-        self.assertRedirects(res, information_url)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn(self.information_modal_url, res.data["next"])
 
         self.donation_information_payload["email"] = "test2@test.com"
-        res = self.client.post(information_url, self.donation_information_payload)
+        res = self.client.post(
+            self.send_donation_url, self.donation_information_payload
+        )
+
         payment = Payment.objects.get()
-        self.assertRedirects(res, front_url("payment_page", args=[payment.pk]))
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(front_url("payment_page", args=(payment.pk,)), res.data["next"])
 
         # simulate correct payment
         complete_payment(payment)
@@ -234,65 +214,67 @@ class DonationTestCase(DonationTestMixin, APITestCase):
 
         p2 = Person.objects.exclude(pk=self.p1.pk).get()
         # assert fields have been saved on model
-        for f in [
-            "first_name",
-            "last_name",
-            "location_address1",
-            "location_address2",
-            "location_zip",
-            "location_city",
-            "location_country",
-            "email",
-        ]:
-            self.assertEqual(getattr(p2, f), self.donation_information_payload[f])
+        self.assertEqual(p2.first_name, self.donation_information_payload["firstName"])
+        self.assertEqual(p2.last_name, self.donation_information_payload["lastName"])
+        self.assertEqual(
+            p2.location_address1, self.donation_information_payload["locationAddress1"],
+        )
+        self.assertEqual(
+            p2.location_address2, self.donation_information_payload["locationAddress2"],
+        )
+        self.assertEqual(
+            p2.location_city, self.donation_information_payload["locationCity"]
+        )
+        self.assertEqual(
+            p2.location_country, self.donation_information_payload["locationCountry"],
+        )
 
-        self.assertNotIn(Person.NEWSLETTER_LFI, p2.newsletters)
+        self.assertNotIn(Person.NEWSLETTER_2022, p2.newsletters)
 
     def test_create_and_subscribe_with_new_address(self):
-        information_url = reverse("donation_information")
 
         res = self.client.post(
-            reverse("donation_amount"),
-            {"type": AllocationDonationForm.TYPE_SINGLE_TIME, "amount": "200"},
+            self.create_donation_session_url,
+            {"paymentTimes": donations.serializers.TYPE_SINGLE_TIME, "amount": "200"},
         )
-        self.assertRedirects(res, information_url)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn(self.information_modal_url, res.data["next"])
 
         self.donation_information_payload["email"] = "test2@test.com"
         res = self.client.post(
-            information_url,
-            {**self.donation_information_payload, "subscribed_lfi": "Y"},
+            self.send_donation_url,
+            {**self.donation_information_payload, "subscribed2022": True},
         )
         payment = Payment.objects.get()
-        self.assertRedirects(res, front_url("payment_page", args=[payment.pk]))
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(front_url("payment_page", args=(payment.pk,)), res.data["next"])
 
-        self.assertTrue(payment.meta.get("subscribed_lfi"))
+        self.assertTrue(payment.meta.get("subscribed_2022"))
 
         # simulate correct payment
         complete_payment(payment)
         donation_notification_listener(payment)
 
         p2 = Person.objects.exclude(pk=self.p1.pk).get()
-        self.assertIn(Person.NEWSLETTER_LFI, p2.newsletters)
+        self.assertIn(Person.NEWSLETTER_2022, p2.newsletters)
 
     def test_cannot_donate_to_uncertified_group(self):
         self.group.subtypes.all().delete()
         self.client.force_login(self.p1.role)
         session = self.client.session
 
-        amount_url = reverse("donation_amount")
-
-        res = self.client.get(amount_url)
+        res = self.client.get(self.amount_url)
         self.assertEqual(res.status_code, 200)
 
         res = self.client.post(
-            amount_url,
+            self.create_donation_session_url,
             {
-                "type": AllocationDonationForm.TYPE_SINGLE_TIME,
+                "paymentTimes": donations.serializers.TYPE_SINGLE_TIME,
                 "amount": "200",
                 "allocations": f'{{"group": "{str(self.group.pk)}", "amount": 10000}}',
             },
         )
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 422)
         self.assertNotIn("_donation_", session)
 
     @using_separate_redis_server
@@ -300,26 +282,23 @@ class DonationTestCase(DonationTestMixin, APITestCase):
         self.client.force_login(self.p1.role)
         session = self.client.session
 
-        amount_url = reverse("donation_amount")
-        information_url = reverse("donation_information")
-
-        res = self.client.get(amount_url)
+        res = self.client.get(self.amount_url)
         self.assertEqual(res.status_code, 200)
 
         res = self.client.post(
-            amount_url,
+            self.create_donation_session_url,
             {
-                "type": AllocationDonationForm.TYPE_SINGLE_TIME,
+                "paymentTimes": donations.serializers.TYPE_SINGLE_TIME,
                 "amount": "20000",
-                "allocations": json.dumps(
-                    [
-                        {"group": str(self.group.pk), "amount": 10000},
-                        {"group": str(self.other_group.pk), "amount": 5000},
-                    ]
-                ),
+                "allocations": [
+                    {"group": str(self.group.pk), "amount": 10000},
+                    {"group": str(self.other_group.pk), "amount": 5000},
+                ],
             },
         )
-        self.assertRedirects(res, information_url)
+
+        self.assertEqual(res.status_code, 201)
+        self.assertIn(self.information_modal_url, res.data["next"])
 
         self.assertEqual(
             session["_donation_"]["allocations"],
@@ -331,25 +310,23 @@ class DonationTestCase(DonationTestMixin, APITestCase):
             ),
         )
 
-        res = self.client.get(information_url)
+        res = self.client.get(self.information_modal_url)
         self.assertEqual(res.status_code, 200)
-        self.assertContains(res, self.group.pk)
 
         res = self.client.post(
-            information_url,
+            self.send_donation_url,
             {
                 **self.donation_information_payload,
-                "allocations": json.dumps(
-                    [
-                        {"group": str(self.group.pk), "amount": 10000},
-                        {"group": str(self.other_group.pk), "amount": 5000},
-                    ]
-                ),
+                "allocations": [
+                    {"group": str(self.group.pk), "amount": 10000},
+                    {"group": str(self.other_group.pk), "amount": 5000},
+                ],
             },
         )
         # no other payment
         payment = Payment.objects.get()
-        self.assertRedirects(res, front_url("payment_page", args=(payment.pk,)))
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(front_url("payment_page", args=(payment.pk,)), res.data["next"])
 
         self.assertIn("allocations", payment.meta)
         self.assertEqual(
