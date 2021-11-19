@@ -87,3 +87,20 @@ export const getGenderedWord = (
     ? `${root.slice(0, commonRootLength)}${suffix}${commonPlural}`
     : `${root}${commonPlural}`;
 };
+
+const COMMUNE_ARTICLES = {
+  "de ": "à ",
+  "d'": "à ",
+  "du ": "au ",
+  "de la ": "à la ",
+  "des ": "aux ",
+  "de l'": "à l'",
+  "de las ": "à las ",
+  "de los ": "à los ",
+};
+
+export const communeNameOfToIn = (nameOf) =>
+  Object.entries(COMMUNE_ARTICLES).reduce(
+    (string, [key, value]) => string.replace(new RegExp("^" + key, "i"), value),
+    nameOf
+  );
