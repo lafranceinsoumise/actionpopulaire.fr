@@ -251,11 +251,7 @@ const Modal = (props) => {
   }, [events]);
 
   return (
-    <ModalWrapper
-      shouldShow={shouldShow}
-      onClose={isLoading ? undefined : onClose}
-      noScroll
-    >
+    <ModalWrapper shouldShow={shouldShow} noScroll>
       <StyledModalContent $isLoading={isLoading}>
         <StyledModalHeader>
           <h4>Nouveau message</h4>
