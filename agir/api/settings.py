@@ -31,28 +31,20 @@ from psycopg2._range import DateRange
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
-
-def env_separated_value(env_var, sep=","):
-    raw_value = os.environ.get(env_var)
-    if not raw_value:
-        return []
-    return raw_value.split(sep)
-
+from .settings_utils import BOOLEAN, STRING_ARRAY, STRING, INTEGER
 
 ADMIN_RE = re.compile("^([\w -]+) <([^>]+)>$")
 YES_VALUES = ["y", "yes", "true", "t"]
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-ADMIN_PRODUCTION = os.environ.get("ADMIN_PRODUCTION", "false").lower() == "true"
-DEBUG = os.environ.get("DEBUG", "true").lower() == "true"
-ENABLE_DEBUG_TOOLBAR = os.environ.get("ENABLE_DEBUG_TOOLBAR", "false").lower() == "true"
-ENABLE_SILK = os.environ.get("ENABLE_SILK", "false").lower() == "true"
+ADMIN_PRODUCTION = BOOLEAN("ADMIN_PRODUCTION", False)
+DEBUG = BOOLEAN("DEBUG", True)
+ENABLE_DEBUG_TOOLBAR = BOOLEAN("ENABLE_DEBUG_TOOLBAR", False)
+ENABLE_SILK = BOOLEAN("ENABLE_SILK", False)
 
 # Risque de sécurité important ! Principalement utilisé pour le load testing
-TRUST_X_FORWARDED_FOR = (
-    os.environ.get("TRUST_X_FORWARDED_FOR", "false").lower() == "true"
-)
+TRUST_X_FORWARDED_FOR = BOOLEAN("TRUST_X_FORWARDED_FOR", False)
 
 # Rendre certains warnings silencieux
 SILENCED_SYSTEM_CHECKS = [
@@ -69,61 +61,49 @@ SILENCED_SYSTEM_CHECKS = [
 # de migrations.
 MigrationWriter.register_serializer(DateRange, RangeSerializer)
 
-# Django < 3.1 not compatible with GDAL 3
-if os.environ.get("GDAL_LIBRARY_PATH"):
-    GDAL_LIBRARY_PATH = os.environ.get("GDAL_LIBRARY_PATH")
-
-ENABLE_API = os.environ.get("ENABLE_API", "n").lower() in YES_VALUES or DEBUG
-ENABLE_ADMIN = os.environ.get("ENABLE_ADMIN", "n").lower() in YES_VALUES or DEBUG
-ENABLE_FRONT = os.environ.get("ENABLE_FRONT", "n").lower() in YES_VALUES or DEBUG
+ENABLE_API = BOOLEAN("ENABLE_API", False) or DEBUG
+ENABLE_ADMIN = BOOLEAN("ENABLE_ADMIN", False) or DEBUG
+ENABLE_FRONT = BOOLEAN("ENABLE_FRONT", False) or DEBUG
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 TEST_RUNNER = "agir.api.test_runner.TestRunner"
 
-admins = os.environ.get("ADMINS")
-if admins:
-    admins = [ADMIN_RE.match(s.strip()) for s in admins.split(";")]
-    if any(m is None for m in admins):
-        raise ImproperlyConfigured(
-            "ADMINS should be of the form 'Name 1 <address1@domain.fr>; Name 2 <address2@domain.fr>"
-        )
-
-    ADMINS = [m.groups() for m in admins]
+ADMINS = STRING_ARRAY("ADMINS", separator=";", regex=ADMIN_RE)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    "SECRET", "1d5a5&y9(220)phk0o9cqjwdpm$3+**d&+kru(2y)!5h-_qn4b"
-)
-SENDGRID_SES_WEBHOOK_USER = os.environ.get("SENDGRID_SES_WEBHOOK_USER", "fi")
-SENDGRID_SES_WEBHOOK_PASSWORD = os.environ.get("SENDGRID_SES_WEBHOOK_PASSWORD", "prout")
-SCANNER_API = os.environ.get("SCANNER_API", "http://agir.local:8000")
-SCANNER_API_KEY = os.environ.get("SCANNER_API_KEY", "prout")
-SCANNER_API_SECRET = os.environ.get("SCANNER_API_SECRET", "prout")
+SECRET_KEY = STRING("SECRET", "1d5a5&y9(220)phk0o9cqjwdpm$3+**d&+kru(2y)!5h-_qn4b")
+SENDGRID_SES_WEBHOOK_USER = STRING("SENDGRID_SES_WEBHOOK_USER", "fi")
+SENDGRID_SES_WEBHOOK_PASSWORD = STRING("SENDGRID_SES_WEBHOOK_PASSWORD", "prout")
+SCANNER_API = STRING("SCANNER_API", "http://agir.local:8000")
+SCANNER_API_KEY = STRING("SCANNER_API_KEY", "prout")
+SCANNER_API_SECRET = STRING("SCANNER_API_SECRET", "prout")
 
 # these domain names are used when absolute URLs should be generated (e.g. to include in emails)
-MAIN_DOMAIN = os.environ.get("MAIN_DOMAIN", "https://lafranceinsoumise.fr")
-API_DOMAIN = os.environ.get(
+MAIN_DOMAIN = STRING("MAIN_DOMAIN", "https://lafranceinsoumise.fr")
+API_DOMAIN = STRING(
     "API_DOMAIN",
     "http://agir.local:8000" if DEBUG else "https://api.lafranceinsoumise.fr",
 )
-FRONT_DOMAIN = os.environ.get(
+FRONT_DOMAIN = STRING(
     "FRONT_DOMAIN",
     "http://agir.local:8000" if DEBUG else "https://agir.lafranceinsoumise.fr",
 )
-MAP_DOMAIN = os.environ.get(
+MAP_DOMAIN = STRING(
     "MAP_DOMAIN",
     "http://agir.local:8000" if DEBUG else "https://agir.lafranceinsoumise.fr",
 )
-NSP_DOMAIN = os.environ.get("NSP_DOMAIN", "http://localhost")
-NSP_AGIR_DOMAIN = os.environ.get("NSP_AGIR_DOMAIN", "http://localhost")
+NSP_DOMAIN = STRING("NSP_DOMAIN", "http://localhost")
+NSP_AGIR_DOMAIN = STRING("NSP_AGIR_DOMAIN", "http://localhost")
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,agir.local").split(",")
+ALLOWED_HOSTS = STRING_ARRAY(
+    "ALLOWED_HOSTS", separator=",", default=["localhost", "agir.local"]
+)
 
 # Application definition
 
@@ -270,7 +250,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = int(
 
 MESSAGE_TAGS = {ERROR: "danger"}
 MESSAGE_LEVEL = messages.DEFAULT_LEVELS[
-    os.environ.get("MESSAGE_LEVEL", "DEBUG" if DEBUG else "INFO")
+    STRING("MESSAGE_LEVEL", "DEBUG" if DEBUG else "INFO")
 ]
 
 WSGI_APPLICATION = "agir.api.wsgi.application"
@@ -289,7 +269,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # Mails
 
 # by default configured for mailhog sending
-email_config = dj_email_url.parse(os.environ.get("SMTP_URL", "smtp://localhost:1025/"))
+email_config = dj_email_url.parse(STRING("SMTP_URL", "smtp://localhost:1025/"))
 
 EMAIL_FILE_PATH = email_config["EMAIL_FILE_PATH"]
 EMAIL_HOST_USER = email_config["EMAIL_HOST_USER"]
@@ -432,19 +412,14 @@ EMAIL_TEMPLATES = {
     "DONATION_CAGNOTTE": "https://mosaico.lafranceinsoumise.fr/emails/373c404b-902d-4cc4-8edc-845c4c889b85.html",
 }
 
-EMAIL_FROM = os.environ.get(
-    "EMAIL_FROM", "Action populaire <noreply@actionpopulaire.fr>"
+EMAIL_FROM = STRING("EMAIL_FROM", "Action populaire <noreply@actionpopulaire.fr>")
+EMAIL_FROM_LFI = STRING(
+    "EMAIL_FROM_LFI", "La France insoumise <nepasrepondre@lafranceinsoumise.fr>"
 )
-EMAIL_FROM_LFI = os.environ.get(
-    "EMAIL_FROM_LFI",
-    "La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
-)
-EMAIL_FROM_MELENCHON_2022 = os.environ.get(
-    "EMAIL_FROM_MELENCHON_2022", "Mélenchon 2022 <nepasrepondre@melenchon2022.fr>"
-)
-EMAIL_SECRETARIAT = os.environ.get("EMAIL_SECRETARIAT", "nospam@lafranceinsoumise.fr")
-EMAIL_EQUIPE_FINANCE = os.environ.get(
-    "EMAIL_EQUIPE_FINANCE", "nospam@lafranceinsoumise.fr"
+EMAIL_SECRETARIAT = STRING("EMAIL_SECRETARIAT", "nospam@lafranceinsoumise.fr")
+EMAIL_EQUIPE_FINANCE = STRING("EMAIL_EQUIPE_FINANCE", "nospam@lafranceinsoumise.fr")
+EMAIL_FROM_MELENCHON_2022 = STRING(
+    "EMAIL_FROM_MELENCHON_2022", "Mélenchon 2022 <nepasrepondre@noussommespour.fr>"
 )
 
 # Password validation
@@ -481,7 +456,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = os.environ.get("STATIC_ROOT")
+STATIC_ROOT = STRING("STATIC_ROOT")
 
 STATICFILES_DIRS = [os.path.join(os.path.dirname(BASE_DIR), "assets")]
 if not DEBUG:
@@ -491,18 +466,18 @@ if not DEBUG:
 
 MEDIA_URL = "/media/"
 
-MEDIA_ROOT = os.environ.get("MEDIA_ROOT", "media")
+MEDIA_ROOT = STRING("MEDIA_ROOT", "media")
 
 if not DEBUG:
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
     AWS_DEFAULT_ACL = "public-read"
-    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-    AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "agir")
-    AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME")
-    AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")
+    AWS_ACCESS_KEY_ID = STRING("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = STRING("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = STRING("AWS_STORAGE_BUCKET_NAME", "agir")
+    AWS_S3_REGION_NAME = STRING("AWS_S3_REGION_NAME")
+    AWS_S3_ENDPOINT_URL = STRING("AWS_S3_ENDPOINT_URL")
     AWS_QUERYSTRING_AUTH = False
-    AWS_S3_CUSTOM_DOMAIN = os.environ.get("AWS_S3_CUSTOM_DOMAIN")
+    AWS_S3_CUSTOM_DOMAIN = STRING("AWS_S3_CUSTOM_DOMAIN")
 
 # Authentication
 
@@ -558,8 +533,8 @@ SOCIAL_AUTH_PIPELINE = (
     "agir.authentication.social.pipeline.add_message",
 )
 
-SOCIAL_AUTH_FACEBOOK_KEY = os.environ.get("SOCIAL_AUTH_FACEBOOK_KEY")
-SOCIAL_AUTH_FACEBOOK_SECRET = os.environ.get("SOCIAL_AUTH_FACEBOOK_SECRET")
+SOCIAL_AUTH_FACEBOOK_KEY = STRING("SOCIAL_AUTH_FACEBOOK_KEY")
+SOCIAL_AUTH_FACEBOOK_SECRET = STRING("SOCIAL_AUTH_FACEBOOK_SECRET")
 SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {"locale": "fr_FR", "fields": "id, email"}
 SOCIAL_AUTH_FACEBOOK_API_VERSION = "3.3"
@@ -606,17 +581,13 @@ REST_FRAMEWORK = {
 
 # Access tokens
 
-REDIS_AUTH_URL = os.environ.get("REDIS_AUTH_URL", "redis://localhost?db=0")
+REDIS_AUTH_URL = STRING("REDIS_AUTH_URL", "redis://localhost?db=0")
 REDIS_AUTH_MAX_CONNECTIONS = 5
-REDIS_AUTH_PREFIX = os.environ.get("REDIS_AUTH_PREFIX", "AccessToken:")
+REDIS_AUTH_PREFIX = STRING("REDIS_AUTH_PREFIX", "AccessToken:")
 
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
-LOG_FILE = os.environ.get("LOG_FILE", "./errors.log")
-LOG_DISABLE_JOURNALD = os.environ.get("LOG_DISABLE_JOURNALD", "").lower() in [
-    "y",
-    "yes",
-    "true",
-]
+LOG_LEVEL = STRING("LOG_LEVEL", "WARNING")
+LOG_FILE = STRING("LOG_FILE", "./errors.log")
+LOG_DISABLE_JOURNALD = BOOLEAN("LOG_DISABLE_JOURNALD", False)
 
 if not DEBUG:
     LOGGING = {
@@ -694,7 +665,7 @@ if not DEBUG:
     sentry_sdk.init(
         integrations=[DjangoIntegration(), RedisIntegration()],
         traces_sampler=sentry_traces_sampler,
-        environment=os.environ.get("SENTRY_ENV", "production"),
+        environment=STRING("SENTRY_ENV", "production"),
     )
 
 # CACHING
@@ -703,7 +674,7 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache"
         if not DEBUG
         else "django.core.cache.backends.dummy.DummyCache",
-        "LOCATION": os.environ.get("REDIS_CACHING_URL", "redis://localhost?db=0"),
+        "LOCATION": STRING("REDIS_CACHING_URL", "redis://localhost?db=0"),
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
         "KEY_PREFIX": "caching_",
     }
@@ -732,7 +703,7 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 6  # 3 mois
 CRISPY_TEMPLATE_PACK = "bootstrap3"
 
 # CELERY
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://")
+CELERY_BROKER_URL = STRING("CELERY_BROKER_URL", "redis://")
 # make sure there is a max_retries option
 CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 4}
 # make sure celery does not mess with the root logger
@@ -742,7 +713,7 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 # enable task events to allow monitoring
 CELERY_TASK_SEND_SENT_EVENT = True
 
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER_URL", "redis://")
+CELERY_RESULT_BACKEND = STRING("CELERY_BROKER_URL", "redis://")
 
 DEFAULT_EVENT_IMAGE = "front/images/default_event_pic.jpg"
 
@@ -756,20 +727,29 @@ if DEBUG:
 
 # Get the promo
 PROMO_CODE_KEY = os.environb.get(b"PROMO_CODE_KEY", b"prout")
-PROMO_CODE_TAG = os.environ.get("PROMO_CODE_TAG", "Code promo matériel")
-CERTIFIED_GROUP_SUBTYPES = os.environ.get(
-    "CERTIFIED_GROUP_SUBTYPES", "certifié,thématique certifié"
-).split(",")
-CERTIFIED_2022_GROUP_SUBTYPES = os.environ.get(
-    "CERTIFIED_GROUP_SUBTYPES", "certifié 2022,thématique certifié 2022"
-).split(",")
-if os.environ.get("PROMO_CODE_DELAY") is not None:
-    year, month, day = (
-        int(value) for value in os.environ.get("PROMO_CODE_DELAY").split("-")
-    )
-    PROMO_CODE_DELAY = make_aware(datetime(year, month, day))
+PROMO_CODE_TAG = STRING("PROMO_CODE_TAG", "Code promo matériel")
+CERTIFIED_GROUP_SUBTYPES = STRING_ARRAY(
+    "CERTIFIED_GROUP_SUBTYPES",
+    separator=",",
+    default=["certifié", "thématique certifié"],
+)
+CERTIFIED_2022_GROUP_SUBTYPES = STRING_ARRAY(
+    "CERTIFIED_GROUP_SUBTYPES",
+    separator=",",
+    default=["certifié 2022", "thématique certifié 2022"],
+)
+
+promo_code_delay = STRING_ARRAY("PROMO_CODE_DELAY", separator="-")
+
+if promo_code_delay is not None:
+    try:
+        year, month, day = promo_code_delay
+        PROMO_CODE_DELAY = make_aware(datetime(int(year), int(month), int(day)))
+    except ValueError:
+        raise ImproperlyConfigured("Valeur incorrecte pour la date 'PROMO_CODE_DELAY'")
 else:
     PROMO_CODE_DELAY = None
+
 CERTIFIABLE_GROUP_TYPES = ["L", "B"]  # groupes locaux  # groupes thématiques
 CERTIFIABLE_GROUP_SUBTYPES = ["comité d'appui"]
 
@@ -804,34 +784,30 @@ SITE_ID = 1
 
 FILE_UPLOAD_PERMISSIONS = 0o644
 
-PROMETHEUS_USER = os.environ.get("PROMETHEUS_USER", "prometheus")
-PROMETHEUS_PASSWORD = os.environ.get("PROMETHEUS_PASSWORD", "password")
+PROMETHEUS_USER = STRING("PROMETHEUS_USER", "prometheus")
+PROMETHEUS_PASSWORD = STRING("PROMETHEUS_PASSWORD", "password")
 
 # Systempay
-SYSTEMPAY_SITE_ID = os.environ.get("SYSTEMPAY_SITE_ID", "0")
-SYSTEMPAY_PRODUCTION = os.environ.get("SYSTEMPAY_PRODUCTION", "false").lower() == "true"
-SYSTEMPAY_CURRENCY = os.environ.get("SYSTEMPAY_CURRENCY", 978)
-SYSTEMPAY_CERTIFICATE = os.environ.get("SYSTEMPAY_CERTIFICATE", "arbitrarystring")
-SYSTEMPAY_API_PASSWORD = os.environ.get("SYSTEMPAY_API_PASSWORD", "arbitrarystring")
+SYSTEMPAY_SITE_ID = STRING("SYSTEMPAY_SITE_ID", "0")
+SYSTEMPAY_PRODUCTION = BOOLEAN("SYSTEMPAY_PRODUCTION", False)
+SYSTEMPAY_CURRENCY = INTEGER("SYSTEMPAY_CURRENCY", 978)
+SYSTEMPAY_CERTIFICATE = STRING("SYSTEMPAY_CERTIFICATE", "arbitrarystring")
 
 # Systempay 2022
-SYSTEMPAY_AFCP2022_SITE_ID = os.environ.get("SYSTEMPAY_AFCP2022_SITE_ID", 0)
-SYSTEMPAY_AFCP2022_PRODUCTION = (
-    os.environ.get("SYSTEMPAY_AFCP2022_PRODUCTION", "false").lower() == "true"
-)
-SYSTEMPAY_AFCP2022_CERTIFICATE = os.environ.get(
+SYSTEMPAY_AFCP2022_SITE_ID = STRING("SYSTEMPAY_AFCP2022_SITE_ID", "0")
+SYSTEMPAY_AFCP2022_PRODUCTION = BOOLEAN("SYSTEMPAY_AFCP2022_PRODUCTION", False)
+SYSTEMPAY_AFCP2022_CERTIFICATE = STRING(
     "SYSTEMPAY_AFCP2022_CERTIFICATE", "arbitrarystring"
 )
 
 
 DONATION_MINIMUM = 1 * 100  # 1 €
 DONATION_MAXIMUM = 4600 * 100  # 4600 €
-DONATION_MATOMO_GOAL = os.environ.get("DONATION_MATOMO_GOAL")
-
+DONATION_MATOMO_GOAL = INTEGER("DONATION_MATOMO_GOAL")
 MONTHLY_DONATION_MINIMUM = 1 * 100  # 1 €
 MONTHLY_DONATION_MAXIMUM = 400 * 100  # 400 €
 MONTHLY_DONATION_DAY = 8
-MONTHLY_DONATION_MATOMO_GOAL = os.environ.get("MONTHLY_DONATION_MATOMO_GOAL")
+MONTHLY_DONATION_MATOMO_GOAL = INTEGER("MONTHLY_DONATION_MATOMO_GOAL")
 
 CONTRIBUTION_DONATION_DAY = 2
 CONTRIBUTION_MATOMO_GOAL = os.environ.get("CONTRIBUTION_MATOMO_GOAL")
@@ -848,12 +824,7 @@ COUNTRIES_FIRST = ["FR", "PT", "DZ", "MA", "TR", "IT", "GB", "ES"]
 COUNTRIES_FIRST_REPEAT = True
 
 # allows the administrator to temporarily disable sending to specific domains
-EMAIL_DISABLED_DOMAINS = (
-    [d.lower() for d in os.environ.get("EMAIL_DISABLED_DOMAINS").split(",")]
-    if "EMAIL_DISABLED_DOMAINS" in os.environ
-    else []
-)
-
+EMAIL_DISABLED_DOMAINS = STRING_ARRAY("EMAIL_DISABLED_DOMAINS", separator=",")
 
 # The first one will be the default one
 PAYMENT_MODES = [
@@ -870,12 +841,14 @@ PAYMENT_MODES = [
 ]
 
 # OVH Settings
-OVH_SMS_DISABLE = os.environ.get("OVH_SMS_DISABLE", "true").lower() == "true"
-OVH_SMS_SERVICE = os.environ.get("OVH_SMS_SERVICE")
-OVH_APPLICATION_KEY = os.environ.get("OVH_APPLICATION_KEY")
-OVH_APPLICATION_SECRET = os.environ.get("OVH_APPLICATION_SECRET")
-OVH_CONSUMER_KEY = os.environ.get("OVH_CONSUMER_KEY")
-OVH_DEFAULT_SENDER = os.environ.get("OVH_DEFAULT_SENDER", "FI")
+
+OVH_SMS_DISABLE = BOOLEAN("OVH_SMS_DISABLE", True)
+OVH_SMS_SERVICE = STRING("OVH_SMS_SERVICE")
+OVH_APPLICATION_KEY = STRING("OVH_APPLICATION_KEY")
+OVH_APPLICATION_SECRET = STRING("OVH_APPLICATION_SECRET")
+OVH_CONSUMER_KEY = STRING("OVH_CONSUMER_KEY")
+OVH_DEFAULT_SENDER = STRING("OVH_DEFAULT_SENDER", "FI")
+
 SMS_BUCKET_MAX = 3
 SMS_BUCKET_INTERVAL = 600
 SMS_BUCKET_IP_MAX = 10
@@ -889,29 +862,27 @@ MAX_CONCURRENT_SHORT_CODES = 3
 CALENDAR_MAXIMAL_DEPTH = 3
 
 # configuration PRESSERO
-PRESSERO_API_URL = os.environ.get("PRESSERO_API_URL", "").rstrip("/")
-PRESSERO_USER_NAME = os.environ.get("PRESSERO_USER_NAME")
-PRESSERO_SUBSCRIBER_ID = os.environ.get("PRESSERO_SUBSCRIBER_ID")
-PRESSERO_CONSUMER_ID = os.environ.get("PRESSERO_CONSUMER_ID")
-PRESSERO_PASSWORD = os.environ.get("PRESSERO_PASSWORD")
-PRESSERO_SITE = os.environ.get("PRESSERO_SITE", "").rstrip("/")
-PRESSERO_APPROBATOR_ID = os.environ.get("PRESSERO_APPROBATOR_ID")
-PRESSERO_GROUP_ID = os.environ.get("PRESSERO_GROUP_ID")
+PRESSERO_API_URL = STRING("PRESSERO_API_URL", "").rstrip("/")
+PRESSERO_USER_NAME = STRING("PRESSERO_USER_NAME")
+PRESSERO_SUBSCRIBER_ID = STRING("PRESSERO_SUBSCRIBER_ID")
+PRESSERO_CONSUMER_ID = STRING("PRESSERO_CONSUMER_ID")
+PRESSERO_PASSWORD = STRING("PRESSERO_PASSWORD")
+PRESSERO_SITE = STRING("PRESSERO_SITE", "").rstrip("/")
+PRESSERO_APPROBATOR_ID = STRING("PRESSERO_APPROBATOR_ID")
+PRESSERO_GROUP_ID = STRING("PRESSERO_GROUP_ID")
 
 # djan
 DJAN_URL = {
     "LFI": "https://la-fi.fr",
     "M2022": "https://m2022.fr",
 }
-DJAN_API_KEY = os.environ.get("DJAN_API_KEY")
+DJAN_API_KEY = STRING("DJAN_API_KEY")
 
 # nuntius
 NUNTIUS_REDIS_CONNECTION_GETTER = "agir.api.redis.get_auth_redis_client"
 NUNTIUS_PUBLIC_URL = FRONT_DOMAIN
 NUNTIUS_IMAGES_URL = None
-NUNTIUS_LINKS_URL = os.environ.get(
-    "NUNTIUS_LINKS_URL", "https://www.actionpopulaire.fr"
-)
+NUNTIUS_LINKS_URL = STRING("NUNTIUS_LINKS_URL", "https://www.actionpopulaire.fr")
 NUNTIUS_SUBSCRIBER_MODEL = "people.Person"
 NUNTIUS_SEGMENT_MODEL = "mailing.segment"
 if not DEBUG:
@@ -926,49 +897,49 @@ NUNTIUS_MOSAICO_TEMPLATES = [
     ("/static/mosaico_templates/versafix-jlm2022/template.html", "Template JLM2022"),
 ]
 
-NUNTIUS_MAX_SENDING_RATE = int(os.environ.get("NUNTIUS_MAX_SENDING_RATE", 80))
-NUNTIUS_MAX_CONCURRENT_SENDERS = int(
-    os.environ.get("NUNTIUS_MAX_CONCURRENT_SENDERS", 6)
-)
-NUNTIUS_MAX_MESSAGES_PER_CONNECTION = int(
-    os.environ.get("NUNTIUS_MAX_MESSAGES_PER_CONNECTION", 0)
-)
-NUNTIUS_POLLING_INTERVAL = int(os.environ.get("NUNTIUS_POLLING_INTERVAL", 2))
+
+NUNTIUS_MAX_SENDING_RATE = INTEGER("NUNTIUS_MAX_SENDING_RATE", 80)
+NUNTIUS_MAX_CONCURRENT_SENDERS = INTEGER("NUNTIUS_MAX_CONCURRENT_SENDERS", 6)
+NUNTIUS_MAX_MESSAGES_PER_CONNECTION = INTEGER("NUNTIUS_MAX_MESSAGES_PER_CONNECTION", 0)
+NUNTIUS_POLLING_INTERVAL = INTEGER("NUNTIUS_POLLING_INTERVAL", 2)
 NUNTIUS_DISABLE_DEFAULT_ADMIN = True
-NUNTIUS_ENABLED_CAMPAIGN_TYPES = os.environ.get(
-    "NUNTIUS_ENABLED_CAMPAIGN_TYPES", "email,push"
-).split(",")
+NUNTIUS_ENABLED_CAMPAIGN_TYPES = STRING_ARRAY(
+    "NUNTIUS_ENABLED_CAMPAIGN_TYPES", ",", default=["email", "push"]
+)
+
 
 BLOCKED_EMAIL_DOMAINS = set(
-    d.upper() for d in env_separated_value("BLOCKED_EMAIL_DOMAINS", sep=",")
+    d.upper() for d in STRING_ARRAY("BLOCKED_EMAIL_DOMAINS", ",")
 )
 
 
 ANYMAIL = {
     "AMAZON_SES_CLIENT_PARAMS": {
-        "aws_access_key_id": os.environ.get("AWS_ACCESS_KEY_FOR_ANYMAIL_SES"),
-        "aws_secret_access_key": os.environ.get("AWS_SECRET_KEY_FOR_ANYMAIL_SES"),
+        "aws_access_key_id": STRING("AWS_ACCESS_KEY_FOR_ANYMAIL_SES"),
+        "aws_secret_access_key": STRING("AWS_SECRET_KEY_FOR_ANYMAIL_SES"),
         "region_name": "eu-west-1",
         "config": {"connect_timeout": 30, "read_timeout": 30},
     },
-    "WEBHOOK_SECRET": os.environ.get("SENDGRID_SES_WEBHOOK_USER", "fi")
+    "WEBHOOK_SECRET": STRING("SENDGRID_SES_WEBHOOK_USER", "fi")
     + ":"
-    + os.environ.get("SENDGRID_SES_WEBHOOK_PASSWORD", "fi"),
+    + STRING("SENDGRID_SES_WEBHOOK_PASSWORD", "fi"),
 }
 
 BANNER_CONFIG = {"thumbnail": (400, 250), "banner": (1200, 400)}
 
 JITSI_GROUP_SIZE = 5
-JITSI_SERVERS = os.environ.get("JITSI_SERVERS", "visio.lafranceinsoumise.fr").split(",")
+JITSI_SERVERS = STRING_ARRAY(
+    "JITSI_SERVERS", separator=",", default=["visio.lafranceinsoumise.fr"]
+)
 
 # telegram
-TELEGRAM_API_ID = os.environ.get("TELEGRAM_API_ID")
-TELEGRAM_API_HASH = os.environ.get("TELEGRAM_API_HASH")
+TELEGRAM_API_ID = STRING("TELEGRAM_API_ID")
+TELEGRAM_API_HASH = STRING("TELEGRAM_API_HASH")
 
 
 # Municipales
-SIGNATURES_DIR = os.environ.get("SIGNATURES_DIR")
-municipales_campagnes_filename = os.environ.get("MUNICIPALES_CAMPAGNES")
+SIGNATURES_DIR = STRING("SIGNATURES_DIR")
+municipales_campagnes_filename = STRING("MUNICIPALES_CAMPAGNES")
 if municipales_campagnes_filename:
     municipales_campagnes_filename = Path(municipales_campagnes_filename)
     if not municipales_campagnes_filename.is_absolute():
@@ -984,23 +955,23 @@ else:
 PUSH_NOTIFICATIONS_SETTINGS = {
     "UPDATE_ON_DUPLICATE_REG_ID": True,
     "UNIQUE_REG_ID": True,
-    "WP_PRIVATE_KEY": os.environ.get("WEBPUSH_PRIVATE_KEY"),
+    "WP_PRIVATE_KEY": STRING("WEBPUSH_PRIVATE_KEY"),
     "WP_CLAIMS": {"sub": "mailto: site@lafranceinsoumise.fr"},
-    "APNS_AUTH_KEY_PATH": os.environ.get(
+    "APNS_AUTH_KEY_PATH": STRING(
         "APNS_AUTH_KEY_PATH", os.path.join(os.path.dirname(BASE_DIR), "..", "apns.p8")
     ),
-    "APNS_AUTH_KEY_ID": os.environ.get("APNS_AUTH_KEY_ID"),
-    "APNS_TEAM_ID": os.environ.get("APNS_TEAM_ID"),
-    "APNS_TOPIC": os.environ.get("APNS_TOPIC", "fr.actionpopulaire.ios"),
-    "APNS_USE_SANDBOX": os.environ.get("APNS_USE_SANDBOX", "true").lower() == "true",
-    "FCM_API_KEY": os.environ.get("FCM_API_KEY"),
+    "APNS_AUTH_KEY_ID": STRING("APNS_AUTH_KEY_ID"),
+    "APNS_TEAM_ID": STRING("APNS_TEAM_ID"),
+    "APNS_TOPIC": STRING("APNS_TOPIC", "fr.actionpopulaire.ios"),
+    "APNS_USE_SANDBOX": BOOLEAN("APNS_USE_SANDBOX", True),
+    "FCM_API_KEY": STRING("FCM_API_KEY"),
 }
 NUNTIUS_PUSH_NOTIFICATION_SETTINGS = PUSH_NOTIFICATIONS_SETTINGS
 
-JAWG_API_ACCES_TOKEN = os.environ.get(
+JAWG_API_ACCES_TOKEN = STRING(
     "JAWG_API_ACCESS_TOKEN",
     "mGYrqYC5XjG6lXEoz0e5ejl1wSS0GovRMqBw8LEuhFfz2PYILpp8YFzx6TnKxAHe",
 )
 
-CALLHUB_API_DOMAIN = os.environ.get("CALLHUB_API_DOMAIN")
-CALLHUB_API_KEY = os.environ.get("CALLHUB_API_KEY")
+CALLHUB_API_DOMAIN = STRING("CALLHUB_API_DOMAIN")
+CALLHUB_API_KEY = STRING("CALLHUB_API_KEY")
