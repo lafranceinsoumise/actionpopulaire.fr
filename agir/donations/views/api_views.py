@@ -104,7 +104,8 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
         serializer = self.get_serializer(self.person, data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        validated_data = serializer.validated_data
+        self.validated_data = serializer.validated_data
+        validated_data = self.validated_data
         amount = validated_data["amount"]
         payment_mode = validated_data["payment_mode"]
 

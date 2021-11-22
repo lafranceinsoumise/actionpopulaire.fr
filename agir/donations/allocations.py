@@ -4,6 +4,7 @@ from django.db.models import Sum
 from agir.donations.apps import DonsConfig
 from agir.donations.models import Operation, MonthlyAllocation
 from agir.payments.actions.subscriptions import create_subscription
+from agir.groups.models import SupportGroup
 
 
 def get_balance(group):
@@ -35,7 +36,11 @@ def create_monthly_donation(
         **kwargs
     )
 
-    for group, amount in allocations.items():
+    for group_id, amount in allocations.items():
+        try:
+            group = SupportGroup.objects.get(pk=group_id)
+        except SupportGroup.DoesNotExist:
+            continue
         MonthlyAllocation.objects.create(
             subscription=subscription, group=group, amount=amount
         )
