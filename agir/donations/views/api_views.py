@@ -58,7 +58,7 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
             del validated_data["email"]
 
             if not "allocations" in validated_data:
-                validated_data["allocations"] = "{}"
+                validated_data["allocations"] = "[]"
 
             send_monthly_donation_confirmation_email.delay(
                 confirmation_view_name="monthly_donation_confirm",
@@ -104,6 +104,7 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
         return Response({"next": reverse("subscription_page", args=[subscription.pk])})
 
     def post(self, request, *args, **kwargs):
+
         self.person = self.get_object()
         serializer = self.get_serializer(self.person, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -115,6 +116,7 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
 
         # User exist and connected : update user informations
         if self.person is not None:
+            del validated_data["email"]
             self.perform_update(serializer)
 
         allocations = {
