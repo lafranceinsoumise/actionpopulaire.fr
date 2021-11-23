@@ -1,32 +1,27 @@
 import json
-import unittest
-from functools import partial
-from unittest import mock, skip
-
 import re
 import uuid
+from functools import partial
+from unittest import mock
+from urllib.parse import urlencode
 
-from agir.donations.serializers import (
-    SendDonationSerializer,
-    CreateDonationSessionSerializer,
-)
 from django.conf import settings
 from django.core import mail
-from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from agir.api.redis import using_separate_redis_server
 from agir.donations.apps import DonsConfig
-from agir.donations.forms import AllocationDonationForm
 from agir.donations.models import Operation, MonthlyAllocation
+from agir.donations.serializers import SendDonationSerializer
 from agir.donations.tasks import (
     send_monthly_donation_confirmation_email,
     send_donation_email,
 )
 from agir.groups.models import SupportGroup, Membership, SupportGroupSubtype
 from agir.lib.utils import front_url
+from agir.payments import payment_modes
 from agir.payments.actions.payments import (
     complete_payment,
     create_payment,
@@ -43,7 +38,6 @@ from ..views import (
 from ... import donations
 from ...authentication.tokens import monthly_donation_confirmation_token_generator
 from ...system_pay.models import SystemPayAlias, SystemPaySubscription
-from agir.payments import payment_modes
 
 
 class DonationTestMixin:
@@ -492,18 +486,19 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
     def test_can_also_create_monthly_donation_from_profile(self):
         self.client.force_login(self.p1.role)
         profile_payments_page = reverse("view_payments")
-
         res = self.client.get(profile_payments_page)
         self.assertEqual(res.status_code, 200)
-
         res = self.client.post(
             profile_payments_page,
-            {
-                "type": donations.serializers.TYPE_MONTHLY,
-                "amount": "200",
-                "group": str(self.group.pk),
-                "allocation": "100",
-            },
+            urlencode(
+                {
+                    "type": donations.serializers.TYPE_MONTHLY,
+                    "amount": "200",
+                    "group": str(self.group.pk),
+                    "allocation": "100",
+                }
+            ),
+            content_type="application/x-www-form-urlencoded",
         )
         self.assertRedirects(res, self.information_modal_url)
 
@@ -521,7 +516,8 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         self.assertContains(res, "Vous donnez <strong>10,00\u00A0€</strong>")
         self.assertContains(
             res,
-            "<li>4,00\u00A0€ sont alloués aux actions, aux campagnes nationales, et aux outils mis à la disposition des insoumis⋅es (comme cette plateforme internet).</li>",
+            "<li>4,00\u00A0€ sont alloués aux actions, aux campagnes nationales, et aux outils mis à la disposition "
+            "des insoumis⋅es (comme cette plateforme internet).</li>",
             html=True,
         )
         self.assertContains(
@@ -536,7 +532,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         )
 
     # @mock.patch(
-    #     "agir.donations.views.donations_views.send_monthly_donation_confirmation_email"
+    #     "agir.donations.views.donations_views.send_monthly_donation_confirmation_e-mail"
     # )
     # def test_create_person_when_using_new_address(
     #     self, mock_send_monthly_donation_confirmation_email
@@ -719,15 +715,16 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             ((), {"previous_subscription": s, "new_subscription": new_sub}),
         )
 
-    # @mock.patch(
-    #     "agir.donations.views.donations_views.send_monthly_donation_confirmation_email"
-    # )
-    # def test_mail_sent_when_person_not_loggedin(self, send_email):
-    def test_mail_sent_when_person_not_loggedin(self):
-
+    @mock.patch(
+        "agir.donations.views.api_views.send_monthly_donation_confirmation_email"
+    )
+    def test_mail_sent_when_person_not_loggedin(self, send_email):
+        existing_person = Person.objects.create_2022(
+            "existing@person.test", create_role=True
+        )
         res = self.client.post(
             self.create_donation_session_url,
-            {
+            data={
                 "paymentTimes": donations.serializers.TYPE_MONTHLY,
                 "amount": "500",
                 "allocations": [
@@ -738,14 +735,12 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         )
         self.assertEqual(res.status_code, 201)
         self.assertIn(self.information_modal_url, res.data["next"])
-
         res = self.client.get(self.information_modal_url)
         self.assertEqual(res.status_code, 200)
-
         res = self.client.post(
             self.send_donation_url,
-            {
-                "email": "test@test.com",  # existing user email
+            data={
+                "email": existing_person.email,
                 "subscribed2022": True,
                 **self.donation_information_payload,
                 "paymentTimes": donations.serializers.TYPE_MONTHLY,
@@ -756,35 +751,33 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
                 ],
             },
         )
-
         self.assertEqual(res.status_code, 200)
         self.assertIn(
             reverse("monthly_donation_confirmation_email_sent"), res.data["next"]
         )
-
-        # send_monthly_donation_confirmation_email.delay.assert_called_once()
-
-        self.assertDictEqual(
-            send_monthly_donation_confirmation_email.delay.call_args[1],
-            {
-                "email": "test@test.com",
-                "subscription_total": 500,
-                "allocations": json.dumps(
-                    {str(self.group.pk): 100, str(self.other_group.pk): 300}
-                ),
-                "payment_mode": payment_modes.DEFAULT_MODE,
-                "nationality": "FR",
-                "first_name": "Marc",
-                "last_name": "Frank",
-                "location_address1": "4 rue de Chaume",
-                "location_address2": "",
-                "location_zip": "33000",
-                "location_city": "Bordeaux",
-                "location_country": "FR",
-                "contact_phone": "+33645789845",
-                "subscribed_2022": True,
-            },
-        )
+        send_email.delay.assert_called_once()
+        expected = {
+            "confirmation_view_name": "monthly_donation_confirm",
+            "email": existing_person.email,
+            "subscription_total": 500,
+            "allocations": json.dumps(
+                {str(self.group.pk): 100, str(self.other_group.pk): 300}
+            ),
+            "payment_mode": payment_modes.DEFAULT_MODE,
+            "nationality": "FR",
+            "first_name": "Marc",
+            "last_name": "Frank",
+            "location_address1": "4 rue de Chaume",
+            "location_address2": "",
+            "location_zip": "33000",
+            "location_city": "Bordeaux",
+            "location_country": "FR",
+            "contact_phone": "+33645789845",
+            "subscribed_2022": True,
+        }
+        for key, value in expected.items():
+            self.assertIn(key, send_email.delay.call_args[1])
+            self.assertEqual(send_email.delay.call_args[1][key], value)
 
     def test_correct_email_content_when_not_logged_in(self):
         params = {
@@ -850,20 +843,19 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         self.assertRedirects(res, reverse("already_has_subscription"))
 
         res = self.client.post(
-            reverse("already_has_subscription"), data={"choice": "A"}
+            reverse("already_has_subscription"),
+            urlencode({"choice": "A"}),
+            content_type="application/x-www-form-urlencoded",
         )
-
+        self.assertRedirects(res, reverse("view_payments"))
         new_sub = Subscription.objects.exclude(pk=s.id).get()
-
+        replace_subscription.assert_called_once()
+        self.assertEqual(
+            tuple(replace_subscription.call_args),
+            ((), {"previous_subscription": s, "new_subscription": new_sub}),
+        )
         self.assertEqual(new_sub.price, 1500)
         self.assertDictEqual(
             {a.group: a.amount for a in new_sub.allocations.all()},
             {self.group: 700, self.other_group: 300},
-        )
-
-        self.assertRedirects(res, reverse("view_payments"))
-        # replace_subscription.assert_called_once()
-        self.assertEqual(
-            tuple(replace_subscription.call_args),
-            ((), {"previous_subscription": s, "new_subscription": new_sub}),
         )

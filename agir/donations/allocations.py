@@ -25,8 +25,6 @@ def create_monthly_donation(
     type=DonsConfig.SUBSCRIPTION_TYPE,
     **kwargs
 ):
-    if allocations is None:
-        allocations = {}
     subscription = create_subscription(
         person=person,
         price=subscription_total,
@@ -36,13 +34,21 @@ def create_monthly_donation(
         **kwargs
     )
 
-    for group_id, amount in allocations.items():
-        try:
-            group = SupportGroup.objects.get(pk=group_id)
-        except SupportGroup.DoesNotExist:
+    if allocations is None:
+        return subscription
+
+    for group, amount in allocations.items():
+        if isinstance(group, SupportGroup):
+            MonthlyAllocation.objects.create(
+                subscription=subscription, group=group, amount=amount
+            )
             continue
-        MonthlyAllocation.objects.create(
-            subscription=subscription, group=group, amount=amount
-        )
+        try:
+            group = SupportGroup.objects.get(pk=group)
+            MonthlyAllocation.objects.create(
+                subscription=subscription, group=group, amount=amount
+            )
+        except SupportGroup.DoesNotExist:
+            pass
 
     return subscription
