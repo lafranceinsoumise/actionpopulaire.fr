@@ -360,8 +360,6 @@ class DonationTestCase(DonationTestMixin, APITestCase):
         self.assertEqual(operation.group, self.group)
 
 
-# @skip("Skipping during donation pages refactoring")
-# class MonthlyDonationTestCase(DonationTestMixin, TestCase):
 class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
     def create_subscription(self, person, amount, allocations=None):
         s = Subscription.objects.create(
@@ -531,13 +529,10 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             html=True,
         )
 
-    # @mock.patch(
-    #     "agir.donations.views.donations_views.send_monthly_donation_confirmation_e-mail"
-    # )
-    # def test_create_person_when_using_new_address(
-    #     self, mock_send_monthly_donation_confirmation_email
-    # ):
-    def test_create_person_when_using_new_address(self):
+    @mock.patch(
+        "agir.donations.views.api_views.send_monthly_donation_confirmation_email"
+    )
+    def test_create_person_when_using_new_address(self, send_email):
 
         res = self.client.post(
             self.create_donation_session_url,
@@ -555,23 +550,37 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             {
                 **self.donation_information_payload,
                 "paymentTimes": donations.serializers.TYPE_MONTHLY,
+                "allocations": [],
             },
         )
+
         self.assertEqual(res.status_code, 200)
         self.assertIn(
             reverse("monthly_donation_confirmation_email_sent"), res.data["next"]
         )
 
-        # mock_send_monthly_donation_confirmation_email.delay.assert_called_once()
-        # send_monthly_donation_confirmation_email.delay.assert_called_once()
+        send_email.delay.assert_called_once()
+        expected = {
+            "email": "test2@test.com",
+            "confirmation_view_name": "monthly_donation_confirm",
+            "subscription_total": 20000,
+            "allocations": "{}",
+            "payment_mode": payment_modes.DEFAULT_MODE,
+            "nationality": "FR",
+            "first_name": "Marc",
+            "last_name": "Frank",
+            "location_address1": "4 rue de Chaume",
+            "location_address2": "",
+            "location_zip": "33000",
+            "location_city": "Bordeaux",
+            "location_country": "FR",
+            "contact_phone": "+33645789845",
+        }
+        for key, value in expected.items():
+            self.assertIn(key, send_email.delay.call_args[1])
+            self.assertEqual(send_email.delay.call_args[1][key], value)
 
-        (
-            task_args,
-            task_kwargs,
-            # ) = mock_send_monthly_donation_confirmation_email.delay.call_args
-        ) = send_monthly_donation_confirmation_email.delay.call_args
-
-        send_monthly_donation_confirmation_email(*task_args, **task_kwargs)
+        send_monthly_donation_confirmation_email(**expected)
 
         self.assertEqual(len(mail.outbox), 1)
         email = mail.outbox[0]
@@ -612,7 +621,6 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         )
 
         self.client.force_login(self.p1.role)
-        session = self.client.session
 
         res = self.client.post(
             reverse("view_payments"),
@@ -625,9 +633,6 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             },
         )
 
-        # self.assertRedirects(res, self.information_modal_url)
-        # self.assertEqual(session["_donation_"]["previous_subscription"], str(s.id))
-
         res = self.client.post(
             self.send_donation_url,
             {
@@ -635,7 +640,6 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
                 "amount": 700,
                 "allocations": [{"group": str(self.group.pk), "amount": 700}],
                 "paymentTimes": donations.serializers.TYPE_MONTHLY,
-                # "previous_subscription": s.id,
             },
         )
 
@@ -643,7 +647,9 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         self.assertIn(reverse("already_has_subscription"), res.data["next"])
 
         res = self.client.post(
-            reverse("already_has_subscription"), data={"choice": "A"}
+            reverse("already_has_subscription"),
+            urlencode({"choice": "A"}),
+            content_type="application/x-www-form-urlencoded",
         )
 
         new_sub = Subscription.objects.exclude(pk=s.id).get()
@@ -661,10 +667,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             person=self.p1, amount=1000, allocations={self.group: 600}
         )
 
-        # breakpoint()
-
         self.client.force_login(self.p1.role)
-        session = self.client.session
 
         res = self.client.post(
             self.create_donation_session_url,
@@ -698,7 +701,11 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
 
         self.assertIn(reverse("already_has_subscription"), res.data["next"])
 
-        res = self.client.post(reverse("already_has_subscription"), {"choice": "A"})
+        res = self.client.post(
+            reverse("already_has_subscription"),
+            urlencode({"choice": "A"}),
+            content_type="application/x-www-form-urlencoded",
+        )
 
         new_sub = Subscription.objects.exclude(pk=s.id).get()
 

@@ -56,6 +56,10 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
         if self.person is None:
             email = validated_data["email"]
             del validated_data["email"]
+
+            if not "allocations" in validated_data:
+                validated_data["allocations"] = "{}"
+
             send_monthly_donation_confirmation_email.delay(
                 confirmation_view_name="monthly_donation_confirm",
                 email=email,
