@@ -47,7 +47,7 @@ const StyledButton = styled.button`
   cursor: pointer;
   padding: 0;
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.813rem;
   text-align: left;
   font-weight: 400;
   width: auto;
@@ -204,23 +204,29 @@ const InformationsStep = ({
         value={formData.locationAddress1}
         onChange={handleChange}
         error={errors?.locationAddress1}
+        noSpacer
       />
 
       {hasAddress2 || formData.locationAddress2 || errors.locationAddress2 ? (
-        <CustomField
-          Component={TextField}
-          label=""
-          name="locationAddress2"
-          value={formData.locationAddress2}
-          onChange={handleChange}
-          error={errors?.locationAddress2}
-        />
+        <>
+          <Spacer size="0.5rem" />
+          <CustomField
+            Component={TextField}
+            label=""
+            name="locationAddress2"
+            value={formData.locationAddress2}
+            onChange={handleChange}
+            error={errors?.locationAddress2}
+          />
+        </>
       ) : (
-        <div style={{ paddingBottom: "1rem" }}>
-          <StyledButton type="button" onClick={displayAddress2}>
-            + Ajouter une deuxième ligne pour l'adresse
-          </StyledButton>
-        </div>
+        <CustomField
+          Component={StyledButton}
+          onClick={displayAddress2}
+          type="button"
+        >
+          + Ajouter une deuxième ligne pour l'adresse
+        </CustomField>
       )}
 
       <GroupedFields>

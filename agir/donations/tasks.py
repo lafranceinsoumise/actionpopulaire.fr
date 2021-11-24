@@ -85,8 +85,10 @@ def send_monthly_donation_confirmation_email(
 
     from_email = "La France insoumise <nepasrepondre@lafranceinsoumise.fr>"
     template_email = "CONFIRM_SUBSCRIPTION_LFI"
+
     if (
-        query_params["payment_mode"] is not None
+        "payment_mode" in query_params
+        and query_params["payment_mode"] is not None
         and "2022" in query_params["payment_mode"]
     ):
         from_email = "Mélenchon 2022 <nepasrepondre@melenchon2022.fr>"
