@@ -45,7 +45,6 @@ class DonationTestMixin:
         self.p1 = Person.objects.create_2022("test@test.com", create_role=True)
 
         self.donation_information_payload = {
-            "declaration": "Y",
             "nationality": "FR",
             "firstName": "Marc",
             "lastName": "Frank",
@@ -562,7 +561,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         send_email.delay.assert_called_once()
         expected = {
             "email": "test2@test.com",
-            "confirmation_view_name": "monthly_donation_confirm",
+            "confirmation_view_name": "monthly_donation_2022_confirm",
             "subscription_total": 20000,
             "allocations": "{}",
             "payment_mode": payment_modes.DEFAULT_MODE,
@@ -585,7 +584,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         self.assertEqual(len(mail.outbox), 1)
         email = mail.outbox[0]
 
-        confirm_subscription_url = reverse("monthly_donation_confirm")
+        confirm_subscription_url = reverse("monthly_donation_2022_confirm")
         m = re.search(rf"{confirm_subscription_url}\?[^\s]+", email.body)
         url_with_params = m.group(0)
 
@@ -764,7 +763,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         )
         send_email.delay.assert_called_once()
         expected = {
-            "confirmation_view_name": "monthly_donation_confirm",
+            "confirmation_view_name": "monthly_donation_2022_confirm",
             "email": existing_person.email,
             "subscription_total": 500,
             "allocations": json.dumps(
@@ -805,14 +804,16 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
             "contact_phone": "+33645789845",
         }
 
-        send_monthly_donation_confirmation_email(**params)
+        send_monthly_donation_confirmation_email(
+            **params, confirmation_view_name="monthly_donation_2022_confirm"
+        )
 
         self.assertEqual(len(mail.outbox), 1)
 
         params["token"] = monthly_donation_confirmation_token_generator.make_token(
             **params
         )
-        expected_link = front_url("monthly_donation_confirm", query=params)
+        expected_link = front_url("monthly_donation_2022_confirm", query=params)
         email_text = mail.outbox[0].body
 
         self.assertIn(expected_link, email_text)
