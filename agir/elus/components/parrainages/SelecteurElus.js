@@ -8,7 +8,9 @@ import defaultAxios from "axios";
 import { useDebounce } from "@agir/lib/utils/hooks";
 import AnimatedMoreHorizontal from "@agir/front/genericComponents/AnimatedMoreHorizontal";
 import ScrollableBlock from "./ScrollableBlock";
-import { chercherElus } from "./queries";
+import { chercherElus, chercherCodePostal } from "./queries";
+
+const CODE_POSTAL_REGEX = /^\d{5}$/;
 
 const SearchInputLayout = styled.div`
   flex-grow: 0;
@@ -31,7 +33,7 @@ export const SearchInput = ({ onInput }) => (
     <input
       type="text"
       name="recherche"
-      placeholder="Rechercher un⋅e élu, une commune..."
+      placeholder="Rechercher un code postal, un⋅e élu, une commune..."
       onInput={onInput}
     />
   </SearchInputLayout>
@@ -93,9 +95,11 @@ export const SelecteurElus = ({
     lastRequestCancelSource.current = cancelSource;
     setState(SELECTEUR_STATES.ATTENTE_REQUETE);
     try {
-      const results = await chercherElus(q, cancelSource.token);
+      const results = q.match(CODE_POSTAL_REGEX)
+        ? await chercherCodePostal(q, cancelSource.token)
+        : await chercherElus(q, cancelSource.token);
       // ce test permet de gérer la situation (normalement rare) où la requête a été annulée
-      // après que la requête se soit terminée mais avant qu'on ai mis à jour les résultats
+      // après que la requête se soit terminée mais avant qu'on ait mis à jour les résultats
       if (cancelSource === lastRequestCancelSource.current) {
         onSearchResults(results);
         setState(SELECTEUR_STATES.MONTRER_RESULTATS);
@@ -158,6 +162,13 @@ export const SelecteurElus = ({
               </Message>
             ) : (
               <>
+                <Message>
+                  Voici les élus les plus proches de votre adresse personnelle.{" "}
+                  <strong>
+                    Utilisez la barre de recherche ci-dessus pour rechercher un
+                    code postal, une ville, un maire...
+                  </strong>
+                </Message>
                 <ResultBox
                   elus={elusAContacter}
                   selected={selection}

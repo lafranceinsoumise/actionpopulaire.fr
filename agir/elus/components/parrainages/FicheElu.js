@@ -394,7 +394,11 @@ const FicheElu = ({ elu, onStatusChange }) => {
         <div className="subtitle">
           {elu.titre} — {elu.commune}{" "}
           {distance ? (
-            elu.distance > 0.1 && `(à ${distance} km)`
+            elu.distance > 0.1 ? (
+              `(à ${distance} km)`
+            ) : (
+              "(à moins de 100m)"
+            )
           ) : (
             <em>
               (<a href="/profil/identite/">indiquez où vous êtes</a> pour voir
