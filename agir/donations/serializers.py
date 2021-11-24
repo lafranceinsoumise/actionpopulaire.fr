@@ -209,6 +209,9 @@ class SendDonationSerializer(serializers.ModelSerializer):
         if "is_2022" in kwargs and not kwargs["is_2022"]:
             del kwargs["is_2022"]
 
+        if self.instance is not None and "email" in kwargs:
+            del kwargs["email"]
+
         super().save(**kwargs)
 
     class Meta:

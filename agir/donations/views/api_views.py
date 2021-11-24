@@ -116,8 +116,6 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
 
         # User exist and connected : update user informations
         if self.person is not None:
-            if "email" in validated_data:
-                del validated_data["email"]
             self.perform_update(serializer)
 
         allocations = {
