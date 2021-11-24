@@ -45,7 +45,6 @@ class DonationTestMixin:
         self.p1 = Person.objects.create_2022("test@test.com", create_role=True)
 
         self.donation_information_payload = {
-            "declaration": "Y",
             "nationality": "FR",
             "firstName": "Marc",
             "lastName": "Frank",

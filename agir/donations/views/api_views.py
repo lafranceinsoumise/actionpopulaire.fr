@@ -60,7 +60,7 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
                 validated_data["allocations"] = "[]"
 
             send_monthly_donation_confirmation_email.delay(
-                confirmation_view_name="monthly_donation_confirm",
+                confirmation_view_name="monthly_donation_2022_confirm",
                 email=email,
                 subscription_total=amount,
                 **validated_data,

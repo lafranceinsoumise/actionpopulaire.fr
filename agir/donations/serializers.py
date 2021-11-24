@@ -214,7 +214,7 @@ class SendDonationSerializer(serializers.ModelSerializer):
         if self.instance is not None and "email" in validated_data:
             del validated_data["email"]
 
-        super().save(**kwargs)
+        super().save(**validated_data)
 
     class Meta:
         model = Person
