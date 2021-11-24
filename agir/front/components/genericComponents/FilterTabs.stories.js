@@ -5,6 +5,9 @@ import FilterTabs from "./FilterTabs";
 export default {
   component: FilterTabs,
   title: "Generic/FilterTabs",
+  parameters: {
+    layout: "padded",
+  },
 };
 
 const Template = (args) => <FilterTabs {...args} />;
@@ -19,5 +22,5 @@ Default.args = {
     "Toujours plus",
     "C'est sans fin",
   ],
-  onTabChange: () => true,
+  activeTab: 0,
 };
