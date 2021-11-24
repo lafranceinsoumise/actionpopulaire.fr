@@ -199,18 +199,20 @@ class SendDonationSerializer(serializers.ModelSerializer):
         return attrs
 
     def save(self, **kwargs):
+        validated_data = self.validated_data
+
         # Update newsletters and support only if checked
-        if "subscribed_2022" in kwargs and kwargs["subscribed_2022"]:
+        if "subscribed_2022" in validated_data and validated_data["subscribed_2022"]:
             if Person.NEWSLETTER_2022 not in self.instance.newsletters:
                 self.instance.newsletters.append(Person.NEWSLETTER_2022)
             if Person.NEWSLETTER_2022_EXCEPTIONNEL not in self.instance.newsletters:
                 self.instance.newsletters.append(Person.NEWSLETTER_2022_EXCEPTIONNEL)
 
-        if "is_2022" in kwargs and not kwargs["is_2022"]:
-            del kwargs["is_2022"]
+        if "is_2022" in validated_data and not validated_data["is_2022"]:
+            del validated_data["is_2022"]
 
-        if self.instance is not None and "email" in kwargs:
-            del kwargs["email"]
+        if self.instance is not None and "email" in validated_data:
+            del validated_data["email"]
 
         super().save(**kwargs)
 

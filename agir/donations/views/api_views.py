@@ -54,8 +54,7 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
 
         # Confirm email if the user is unknown
         if self.person is None:
-            email = validated_data["email"]
-            del validated_data["email"]
+            email = validated_data.pop("email", None)
 
             if not "allocations" in validated_data:
                 validated_data["allocations"] = "[]"
