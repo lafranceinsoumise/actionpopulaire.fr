@@ -37,6 +37,7 @@ from agir.lib.utils import generate_token_params, resize_and_autorotate
 from . import metrics
 from .model_fields import MandatesField, ValidatedPhoneNumberField
 from .person_forms.models import *
+from ..elus.models import StatutMandat
 from ..lib.display import genrer
 from ..lib.model_fields import ChoiceArrayField
 
@@ -88,7 +89,9 @@ class PersonQueryset(models.QuerySet):
         from agir.elus.models import types_elus
 
         annotations = {
-            f"elu_{label}": klass.objects.filter(person_id=models.OuterRef("id"))
+            f"elu_{label}": klass.objects.filter(
+                person_id=models.OuterRef("id")
+            ).exclude(statut=StatutMandat.FAUX)
             for label, klass in types_elus.items()
         }
 
