@@ -8,7 +8,7 @@ import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
 
-const HeaderLink = styled.a`
+const Lien = styled.a`
   border: none;
   background: none;
   cursor: pointer;
@@ -46,7 +46,7 @@ const HeaderLink = styled.a`
   flex-grow: ${({ grow }) => (grow ? 1 : 0)};
 `;
 
-const HeaderContainer = styled.div`
+const Container = styled.div`
   width: 100%;
   flex-grow: 0;
   border-bottom: 2px solid ${({ theme }) => theme.black100};
@@ -54,7 +54,7 @@ const HeaderContainer = styled.div`
   padding: 0;
 `;
 
-const HeaderContent = styled.nav`
+const Contenu = styled.nav`
   max-width: 1320px;
 
   background-color: #fff;
@@ -69,51 +69,46 @@ const HeaderContent = styled.nav`
   align:items: center;
 `;
 
-const BackButton = ({ onClick }) => {
+const BoutonRetour = ({ onClick }) => {
   const isDesktop = useIsDesktop();
 
   return (
     <>
       {!isDesktop &&
         (onClick ? (
-          <HeaderLink
-            as="button"
-            href="/"
-            aria-label="Retour"
-            onClick={onClick}
-          >
+          <Lien as="button" href="/" aria-label="Retour" onClick={onClick}>
             <FeatherIcon name="arrow-left" />
-          </HeaderLink>
+          </Lien>
         ) : (
           <div style={{ height: "3.5rem", width: "40px" }} />
         ))}
     </>
   );
 };
-BackButton.propTypes = {
+BoutonRetour.propTypes = {
   onClick: PropTypes.func,
 };
 
-const Header = ({ onClose }) => {
+const BarreSuperieure = ({ onClose }) => {
   const small = useResponsiveMemo(true, false);
   return (
-    <HeaderContainer>
-      <HeaderContent>
-        <BackButton onClick={onClose} />
-        <HeaderLink href="/" aria-label="Action populaire" grow>
+    <Container>
+      <Contenu>
+        <BoutonRetour onClick={onClose} />
+        <Lien href="/" aria-label="Action populaire" grow>
           <LogoAP
             small={small}
             style={{ height: small ? "2.188rem" : "3.5rem", width: "auto" }}
           />
-        </HeaderLink>
-        <HeaderLink href="https://melenchon2022.fr/le-guide-de-la-recherche-des-parrainages/">
+        </Lien>
+        <Lien href="https://melenchon2022.fr/le-guide-de-la-recherche-des-parrainages/">
           <FeatherIcon name="help-circle" />
           <span>Aide</span>
-        </HeaderLink>
-      </HeaderContent>
-    </HeaderContainer>
+        </Lien>
+      </Contenu>
+    </Container>
   );
 };
-Header.propTypes = { onClose: PropTypes.func };
+BarreSuperieure.propTypes = { onClose: PropTypes.func };
 
-export default Header;
+export default BarreSuperieure;

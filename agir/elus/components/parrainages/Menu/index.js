@@ -2,18 +2,18 @@ import styled from "styled-components";
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import ResultBox from "./ResultBox";
-import { InfosElu } from "./types";
+import SelecteurElus from "./SelecteurElus";
+import { InfosElu } from "../types";
 import defaultAxios from "axios";
 import { useDebounce } from "@agir/lib/utils/hooks";
 import AnimatedMoreHorizontal from "@agir/front/genericComponents/AnimatedMoreHorizontal";
-import ScrollableBlock from "./ScrollableBlock";
-import { chercherElus, chercherCodePostal } from "./queries";
+import ScrollableBlock from "../ScrollableBlock";
+import { chercherElus, chercherCodePostal } from "../queries";
 import Onglets from "./Onglets";
 
 const CODE_POSTAL_REGEX = /^\d{5}$/;
 
-const SearchInputLayout = styled.div`
+const BoiteRechercheLayout = styled.div`
   flex-grow: 0;
   background-color: white;
   margin: 0;
@@ -29,18 +29,18 @@ const SearchInputLayout = styled.div`
     border: none;
   }
 `;
-export const SearchInput = ({ onInput }) => (
-  <SearchInputLayout>
+export const BoiteRecherche = ({ onInput }) => (
+  <BoiteRechercheLayout>
     <input
       type="text"
       name="recherche"
       placeholder="Rechercher un code postal, un⋅e élu, une commune..."
       onInput={onInput}
     />
-  </SearchInputLayout>
+  </BoiteRechercheLayout>
 );
-SearchInput.propTypes = { onInput: PropTypes.func };
-SearchInput.defaultTypes = { onInput: () => {} };
+BoiteRecherche.propTypes = { onInput: PropTypes.func };
+BoiteRecherche.defaultTypes = { onInput: () => {} };
 
 const SELECTEUR_STATES = {
   MONTRER_ONGLETS: "montrer-onglets",
@@ -54,7 +54,7 @@ const ONGLETS = {
   TERMINES: "Terminées",
 };
 
-const VIDE = {
+const MESSAGE_VIDE = {
   PROCHES: (
     <>
       <a href="/profil/identite/">Indiquez où vous êtes</a> pour voir les élus
@@ -77,7 +77,7 @@ const VIDE = {
   ),
 };
 
-const INTRO = {
+const MESSAGE_INTRO = {
   PROCHES: (
     <>
       Voici les élus les plus proches de votre adresse personnelle.{" "}
@@ -105,7 +105,7 @@ const Message = styled.div`
   margin: 2em 2em;
 `;
 
-const SelecteurElusLayout = styled.section`
+const MenuLayout = styled.section`
   display: flex;
   flex-direction: column;
 
@@ -115,7 +115,7 @@ const SelecteurElusLayout = styled.section`
     flex-grow: 1;
   }
 
-  ${ResultBox.Layout} {
+  ${SelecteurElus.Layout} {
     border-top: 10px solid ${(props) => props.theme.black50};
   }
 
@@ -127,7 +127,7 @@ const SelecteurElusLayout = styled.section`
     margin: 2em auto;
   }
 `;
-export const SelecteurElus = ({
+export const Menu = ({
   elusAContacter,
   elusTermines,
   elusProches,
@@ -202,8 +202,8 @@ export const SelecteurElus = ({
   }, [recherche]);
 
   return (
-    <SelecteurElusLayout>
-      <SearchInput onInput={inputCallback} />
+    <MenuLayout>
+      <BoiteRecherche onInput={inputCallback} />
       {state === SELECTEUR_STATES.ATTENTE_REQUETE ? (
         <div className="loader">
           <AnimatedMoreHorizontal />
@@ -221,12 +221,12 @@ export const SelecteurElus = ({
           />
           {elusAccesRapide[ongletActif].length === 0 ? (
             <ScrollableBlock>
-              <Message>{VIDE[ongletActif]}</Message>
+              <Message>{MESSAGE_VIDE[ongletActif]}</Message>
             </ScrollableBlock>
           ) : (
             <ScrollableBlock>
-              <Message>{INTRO[ongletActif]}</Message>
-              <ResultBox
+              <Message>{MESSAGE_INTRO[ongletActif]}</Message>
+              <SelecteurElus
                 elus={elusAccesRapide[ongletActif]}
                 selected={selection}
                 onSelect={onSelect}
@@ -238,18 +238,18 @@ export const SelecteurElus = ({
         <Message>Aucun résultat pour votre recherche.</Message>
       ) : (
         <ScrollableBlock>
-          <ResultBox
+          <SelecteurElus
             elus={elusRecherche}
             selected={selection}
             onSelect={onSelect}
           />
         </ScrollableBlock>
       )}
-    </SelecteurElusLayout>
+    </MenuLayout>
   );
 };
 
-SelecteurElus.propTypes = {
+Menu.propTypes = {
   elusAContacter: PropTypes.arrayOf(InfosElu),
   elusTermines: PropTypes.arrayOf(InfosElu),
   elusProches: PropTypes.arrayOf(InfosElu),
@@ -259,4 +259,6 @@ SelecteurElus.propTypes = {
   onSearchResults: PropTypes.func,
 };
 
-SelecteurElus.Layout = SelecteurElusLayout;
+Menu.Layout = MenuLayout;
+
+export default Menu;

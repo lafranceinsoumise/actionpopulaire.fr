@@ -2,9 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { InfosElu } from "@agir/elus/parrainages/types";
-import { StatutPill } from "./types";
+import { StatutPill } from "../types";
 
-const ResultBoxLayout = styled.ul`
+const SelecteurElusLayout = styled.ul`
   display: block;
   margin: 0;
   padding: 0;
@@ -42,9 +42,9 @@ const Button = styled.button`
   align-items: center;
 `;
 
-const ResultBox = ({ elus, onSelect, selected }) => {
+const SelecteurElus = ({ elus, onSelect, selected }) => {
   return (
-    <ResultBoxLayout>
+    <SelecteurElusLayout>
       {elus.map((elu) => (
         <li key={elu.id}>
           <Button selected={elu === selected} onClick={() => onSelect(elu)}>
@@ -57,19 +57,19 @@ const ResultBox = ({ elus, onSelect, selected }) => {
           </Button>
         </li>
       ))}
-    </ResultBoxLayout>
+    </SelecteurElusLayout>
   );
 };
 
-ResultBox.propTypes = {
+SelecteurElus.propTypes = {
   elus: PropTypes.arrayOf(InfosElu),
   onSelect: PropTypes.func,
   selected: InfosElu,
 };
-ResultBox.defaultProps = {
+SelecteurElus.defaultProps = {
   elus: [],
   onSelect: () => {},
 };
-ResultBox.Layout = ResultBoxLayout;
+SelecteurElus.Layout = SelecteurElusLayout;
 
-export default ResultBox;
+export default SelecteurElus;
