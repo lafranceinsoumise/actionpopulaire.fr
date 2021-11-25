@@ -202,6 +202,7 @@ export const routeConfig = {
     path: "/evenements/:eventPk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
+    label: "Détails de l'événement",
     Component: EventPage,
     backLink: {
       route: "events",
@@ -277,6 +278,7 @@ export const routeConfig = {
     path: "/groupes/:groupPk/message/:messagePk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Message du groupe",
     Component: GroupMessagePage,
     hideFeedbackButton: true,
   }),
@@ -285,6 +287,7 @@ export const routeConfig = {
     path: "/groupes/:groupPk/:activeTab?/",
     exact: false,
     neededAuthentication: AUTHENTICATION.NONE,
+    label: "Détails du groupe",
     Component: GroupPage,
     backLink: {
       route: "groups",
