@@ -231,6 +231,15 @@ class UserMessagesSerializer(BaseMessageSerializer):
         return {
             "id": message.supportgroup.id,
             "name": message.supportgroup.name,
+            "referents": [
+                {
+                    "id": referent.id,
+                    "email": referent.email,
+                    "displayName": referent.display_name,
+                    "gender": referent.gender,
+                }
+                for referent in message.supportgroup.referents
+            ]
         }
 
     def get_unread_comment_count(self, message):

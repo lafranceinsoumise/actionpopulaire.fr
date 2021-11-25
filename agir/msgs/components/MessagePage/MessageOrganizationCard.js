@@ -10,6 +10,7 @@ import {
 import CommentField from "@agir/front/formComponents/CommentField";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import Link from "@agir/front/app/Link";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 const MessageOrganizationCard = (props) => {
@@ -23,6 +24,8 @@ const MessageOrganizationCard = (props) => {
       messageType: "ORGANIZATION",
     });
   };
+
+  const isUserGroup = user.groups.includes(group.id);
 
   return (
     <StyledWrapper>
@@ -52,8 +55,19 @@ const MessageOrganizationCard = (props) => {
             borderRadius: style.borderRadius,
           }}
         >
-          Vous souhaitez rejoindre ce groupe ou bien recevoir des informations ?
-          Entamez votre discussion ici ! Vous recevrez leur réponse{" "}
+          {isUserGroup ? (
+            <>
+              Les animateur·ices du groupe ont été informé·es de votre arrivée
+              dans le groupe. Envoyez-leur un message pour vous présenter&nbsp;!
+              <Spacer size="0.5rem" />
+            </>
+          ) : (
+            <>
+              Vous souhaitez rejoindre ce groupe ou bien recevoir des
+              informations&nbsp;? Entamez votre discussion ici&nbsp;!&nbsp;
+            </>
+          )}
+          Vous recevrez leur réponse{" "}
           <strong>par notification et sur votre e-mail</strong> (
           <span style={{ color: style.primary500 }}>{user.email}</span>)
         </div>

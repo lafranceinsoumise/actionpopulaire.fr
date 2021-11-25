@@ -157,7 +157,8 @@ const MessagePage = ({ messagePk, groupPk }) => {
                 isLoading={isLoading}
               />
             )}
-            {Array.isArray(messages) && messages.length > 0 ? (
+            {isOrganizationMessage ||
+            (Array.isArray(messages) && messages.length > 0) ? (
               <MessageThreadList
                 isLoading={isLoading}
                 messages={messages}

@@ -41,14 +41,39 @@ const MessageThreadCard = (props) => {
     unreadCommentCount,
     lastComment,
     lastUpdate,
+    messageType,
   } = message;
+
+  const isOrganizationMessage = messageType === "ORGANIZATION";
 
   const handleClick = useCallback(() => {
     onClick && onClick(id);
   }, [onClick, id]);
 
   const unreadItemCount = (isUnread ? 1 : 0) + (unreadCommentCount || 0);
-  const subject = getMessageSubject(message);
+  let subject;
+  if (!isOrganizationMessage) {
+    subject = getMessageSubject(message);
+  } else {
+    subject = message.author.displayName;
+    if (group.referents.length > 1) {
+      subject += ", ";
+    } else {
+      subject += " et ";
+    }
+    subject += group.referents[0].displayName;
+    if (group.referents.length === 2) {
+      subject += " et " + group.referents[1].displayName;
+    }
+    if (group.referents.length > 2) {
+      subject +=
+        ", " +
+        group.referents[1].displayName +
+        " et " +
+        (group.referents.length - 2) +
+        " autres personnes";
+    }
+  }
   const time = timeAgo(lastUpdate).replace("il y a", "");
   const text = lastComment
     ? `${lastComment.author.displayName} : ${lastComment.text}`
@@ -63,16 +88,19 @@ const MessageThreadCard = (props) => {
       type="button"
       onClick={handleClick}
       $selected={isSelected}
+      isOrganizationMessage={isOrganizationMessage}
       disabled={isLoading}
     >
       <Avatars people={authors} />
       <article>
         <h6 title={group.name}>{group.name}</h6>
         <h5 title={subject}>{subject}</h5>
-        <p title={text}>
-          <span>{text}</span>
-          <span>&nbsp;•&nbsp;{time}</span>
-        </p>
+        {!isOrganizationMessage && (
+          <p title={text}>
+            <span>{text}</span>
+            <span>&nbsp;•&nbsp;{time}</span>
+          </p>
+        )}
       </article>
       <StyledUnreadItemBadge
         aria-label="Nombre de commentaires non lus"

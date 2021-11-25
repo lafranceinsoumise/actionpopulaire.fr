@@ -64,6 +64,17 @@ export const StyledCard = styled.button`
       color: ${style.black1000};
     }
 
+    ${({ isOrganizationMessage }) =>
+      isOrganizationMessage &&
+      `h5 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        max-height: 42px;
+        overflow: hidden;
+        white-space: normal;
+      }`}
+
     p {
       display: flex;
       justify-content: flex-start;
