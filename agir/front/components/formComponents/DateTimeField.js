@@ -15,6 +15,10 @@ const StyledLabel = styled.span``;
 const StyledHelpText = styled.span``;
 const StyledInputs = styled.span``;
 const StyledInput = styled(Datetime)`
+  && {
+    position: static;
+  }
+
   .rdtPicker {
     width: calc(100% + 2px);
     margin-top: 4px;
@@ -25,8 +29,14 @@ const StyledInput = styled(Datetime)`
     box-shadow: 0px 3px 2px rgba(0, 35, 44, 0.05);
 
     @media (max-width: ${style.collapse}px) {
-      width: ${({ $type }) =>
-        $type === "date" ? "250px" : "calc(100% + 2px)"};
+      width: 100%;
+      max-width: 320px;
+    }
+  }
+
+  & + & .rdtPicker {
+    @media (max-width: ${style.collapse}px) {
+      right: 0;
     }
   }
 `;
@@ -60,6 +70,7 @@ const StyledField = styled.div`
     max-width: 100%;
     display: flex;
     flex-flow: row nowrap;
+    position: relative;
   }
   ${StyledInput} {
     flex: 1 1 200px;
