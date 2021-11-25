@@ -223,6 +223,17 @@ class DonationTestCase(DonationTestMixin, APITestCase):
             p2.location_country, self.donation_information_payload["locationCountry"],
         )
 
+        # assert user fields have been saved on payment
+        self.assertEqual(
+            payment.first_name, self.donation_information_payload["firstName"]
+        )
+        self.assertEqual(
+            payment.last_name, self.donation_information_payload["lastName"]
+        )
+        self.assertEqual(
+            payment.phone_number, self.donation_information_payload["contactPhone"]
+        )
+
         self.assertNotIn(Person.NEWSLETTER_2022, p2.newsletters)
 
     def test_create_and_subscribe_with_new_address(self):
@@ -561,7 +572,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         send_email.delay.assert_called_once()
         expected = {
             "email": "test2@test.com",
-            "confirmation_view_name": "monthly_donation_2022_confirm",
+            "confirmation_view_name": "monthly_donation_confirm",
             "subscription_total": 20000,
             "allocations": "{}",
             "payment_mode": payment_modes.DEFAULT_MODE,
@@ -584,7 +595,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         self.assertEqual(len(mail.outbox), 1)
         email = mail.outbox[0]
 
-        confirm_subscription_url = reverse("monthly_donation_2022_confirm")
+        confirm_subscription_url = reverse("monthly_donation_confirm")
         m = re.search(rf"{confirm_subscription_url}\?[^\s]+", email.body)
         url_with_params = m.group(0)
 
@@ -763,7 +774,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         )
         send_email.delay.assert_called_once()
         expected = {
-            "confirmation_view_name": "monthly_donation_2022_confirm",
+            "confirmation_view_name": "monthly_donation_confirm",
             "email": existing_person.email,
             "subscription_total": 500,
             "allocations": json.dumps(
@@ -805,7 +816,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         }
 
         send_monthly_donation_confirmation_email(
-            **params, confirmation_view_name="monthly_donation_2022_confirm"
+            **params, confirmation_view_name="monthly_donation_confirm"
         )
 
         self.assertEqual(len(mail.outbox), 1)
@@ -813,7 +824,7 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         params["token"] = monthly_donation_confirmation_token_generator.make_token(
             **params
         )
-        expected_link = front_url("monthly_donation_2022_confirm", query=params)
+        expected_link = front_url("monthly_donation_confirm", query=params)
         email_text = mail.outbox[0].body
 
         self.assertIn(expected_link, email_text)

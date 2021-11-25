@@ -59,8 +59,12 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
             if not "allocations" in validated_data:
                 validated_data["allocations"] = "[]"
 
+            confirmation_view_name = "monthly_donation_confirm"
+            if validated_data["to"] == TO_2022:
+                confirmation_view_name = "monthly_donation_2022_confirm"
+
             send_monthly_donation_confirmation_email.delay(
-                confirmation_view_name="monthly_donation_2022_confirm",
+                confirmation_view_name=confirmation_view_name,
                 email=email,
                 subscription_total=amount,
                 **validated_data,
@@ -133,6 +137,8 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
         payment_type = DonsConfig.PAYMENT_TYPE
         if validated_data["to"] == TO_2022:
             payment_type = Presidentielle2022Config.DONATION_PAYMENT_TYPE
+
+        validated_data["location_state"] = validated_data["location_country"]
 
         with transaction.atomic():
             payment = create_payment(

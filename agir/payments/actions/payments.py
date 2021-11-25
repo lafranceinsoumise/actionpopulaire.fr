@@ -39,9 +39,13 @@ def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **
     ]
 
     if person is not None:
-        for f in person_fields:
-            kwargs.setdefault(f, getattr(person, f))
+        for field in person_fields:
+            kwargs.setdefault(field, getattr(person, field))
         kwargs.setdefault("phone_number", person.contact_phone)
+    else:
+        for field in person_fields:
+            kwargs.setdefault(field, meta.get(field))
+        kwargs.setdefault("phone_number", meta.get("contact_phone"))
 
     return Payment.objects.create(
         person=person, type=type, mode=mode, price=price, meta=meta, **kwargs
@@ -144,9 +148,7 @@ def find_or_create_person_from_payment(payment):
                     payment.person.newsletters.append(
                         Person.NEWSLETTER_2022_EXCEPTIONNEL
                     )
-            payment.person.save()
         except Person.DoesNotExist:
-
             person_fields = [f.name for f in Person._meta.get_fields()]
             person_meta = {k: v for k, v in payment.meta.items() if k in person_fields}
             newsletters = (
@@ -166,4 +168,5 @@ def find_or_create_person_from_payment(payment):
             payment.person = Person.objects.create_person(
                 email=payment.email, newsletters=newsletters, **person_meta
             )
+        payment.person.save()
         payment.save()
