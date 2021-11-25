@@ -144,9 +144,7 @@ def find_or_create_person_from_payment(payment):
                     payment.person.newsletters.append(
                         Person.NEWSLETTER_2022_EXCEPTIONNEL
                     )
-            payment.person.save()
         except Person.DoesNotExist:
-
             person_fields = [f.name for f in Person._meta.get_fields()]
             person_meta = {k: v for k, v in payment.meta.items() if k in person_fields}
             newsletters = (
@@ -166,5 +164,5 @@ def find_or_create_person_from_payment(payment):
             payment.person = Person.objects.create_person(
                 email=payment.email, newsletters=newsletters, **person_meta
             )
-            payment.person.save()
+        payment.person.save()
         payment.save()
