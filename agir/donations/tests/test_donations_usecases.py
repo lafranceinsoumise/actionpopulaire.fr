@@ -223,6 +223,17 @@ class DonationTestCase(DonationTestMixin, APITestCase):
             p2.location_country, self.donation_information_payload["locationCountry"],
         )
 
+        # assert user fields have been saved on payment
+        self.assertEqual(
+            payment.first_name, self.donation_information_payload["firstName"]
+        )
+        self.assertEqual(
+            payment.last_name, self.donation_information_payload["lastName"]
+        )
+        self.assertEqual(
+            payment.phone_number, self.donation_information_payload["contactPhone"]
+        )
+
         self.assertNotIn(Person.NEWSLETTER_2022, p2.newsletters)
 
     def test_create_and_subscribe_with_new_address(self):

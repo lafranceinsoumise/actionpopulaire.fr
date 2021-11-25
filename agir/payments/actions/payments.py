@@ -166,4 +166,5 @@ def find_or_create_person_from_payment(payment):
             payment.person = Person.objects.create_person(
                 email=payment.email, newsletters=newsletters, **person_meta
             )
+            payment.person.save()
         payment.save()
