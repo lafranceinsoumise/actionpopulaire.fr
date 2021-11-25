@@ -49,6 +49,12 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
             if getattr(Person, attr, False):
                 clean_data[attr] = value
         person = Person.objects.create(**clean_data)
+
+        # Update newsletters and support only if checked
+        if "subscribed_2022" in validated_data and validated_data["subscribed_2022"]:
+            person.newsletters.append(Person.NEWSLETTER_2022)
+            person.newsletters.append(Person.NEWSLETTER_2022_EXCEPTIONNEL)
+
         person.save()
         return person
 
