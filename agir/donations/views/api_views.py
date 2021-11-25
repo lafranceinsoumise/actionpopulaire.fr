@@ -42,22 +42,6 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
     def clear_session(self):
         del self.request.session[DONATION_SESSION_NAMESPACE]
 
-    # Create person with only its model fields in validated_data
-    def create_person(self, validated_data):
-        clean_data = {}
-        for attr, value in validated_data.items():
-            if getattr(Person, attr, False):
-                clean_data[attr] = value
-        person = Person.objects.create(**clean_data)
-
-        # Update newsletters and support only if checked
-        if "subscribed_2022" in validated_data and validated_data["subscribed_2022"]:
-            person.newsletters.append(Person.NEWSLETTER_2022)
-            person.newsletters.append(Person.NEWSLETTER_2022_EXCEPTIONNEL)
-
-        person.save()
-        return person
-
     def monthly_payment(self, allocations):
         validated_data = self.validated_data
         payment_mode = validated_data["payment_mode"]
@@ -154,8 +138,7 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
         if validated_data["to"] == TO_2022:
             payment_type = Presidentielle2022Config.DONATION_PAYMENT_TYPE
 
-        if self.person is None:
-            self.person = self.create_person(validated_data)
+        validated_data["location_state"] = validated_data["location_country"]
 
         with transaction.atomic():
             payment = create_payment(
