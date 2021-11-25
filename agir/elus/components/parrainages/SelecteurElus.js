@@ -9,6 +9,7 @@ import { useDebounce } from "@agir/lib/utils/hooks";
 import AnimatedMoreHorizontal from "@agir/front/genericComponents/AnimatedMoreHorizontal";
 import ScrollableBlock from "./ScrollableBlock";
 import { chercherElus, chercherCodePostal } from "./queries";
+import Onglets from "./Onglets";
 
 const CODE_POSTAL_REGEX = /^\d{5}$/;
 
@@ -42,10 +43,62 @@ SearchInput.propTypes = { onInput: PropTypes.func };
 SearchInput.defaultTypes = { onInput: () => {} };
 
 const SELECTEUR_STATES = {
-  MONTRER_ELUS_PROCHES: "montrer-elus-proches",
+  MONTRER_ONGLETS: "montrer-onglets",
   ATTENTE_REQUETE: "attente-requete",
   MONTRER_RESULTATS: "montrer-resultats-recherche",
   ERREUR_REQUETE: "erreur-requete",
+};
+const ONGLETS = {
+  PROCHES: "Proches",
+  EN_COURS: "En cours",
+  TERMINES: "Terminées",
+};
+
+const VIDE = {
+  PROCHES: (
+    <>
+      <a href="/profil/identite/">Indiquez où vous êtes</a> pour voir les élus
+      les plus proches de chez vous ou utilisez la recherche ci-dessus.
+    </>
+  ),
+  EN_COURS: (
+    <>
+      Vous n'avez pas encore sélectionné de maires à rencontrer. Utilisez la
+      barre de recherche ou regardez qui sont les maires les plus proches de
+      chez vous !
+    </>
+  ),
+  TERMINES: (
+    <>
+      Les maires que vous avez rencontré et pour lesquels vous avez renseigné le
+      résultat de votre démarche s'afficheront ici, pour vous permettre de
+      mettre à jour les informations en cas de démarche supplémentaire.
+    </>
+  ),
+};
+
+const INTRO = {
+  PROCHES: (
+    <>
+      Voici les élus les plus proches de votre adresse personnelle.{" "}
+      <strong>
+        Utilisez la barre de recherche ci-dessus pour rechercher un code postal,
+        une ville, un maire...
+      </strong>
+    </>
+  ),
+  EN_COURS: (
+    <>
+      Voici les élus que vous avez prévu de rencontrer. N'oubliez pas de revenir
+      indiquer le résultat de vos efforts !
+    </>
+  ),
+  TERMINES: (
+    <>
+      Voici les élus que vous avez précédemment rencontrés. Si la situation a
+      par la suite évolué, n'oubliez pas de le signaler ici !
+    </>
+  ),
 };
 
 const Message = styled.div`
@@ -76,13 +129,21 @@ const SelecteurElusLayout = styled.section`
 `;
 export const SelecteurElus = ({
   elusAContacter,
+  elusTermines,
   elusProches,
   elusRecherche,
   selection,
   onSelect,
   onSearchResults,
 }) => {
-  const [state, setState] = useState(SELECTEUR_STATES.MONTRER_ELUS_PROCHES);
+  const elusAccesRapide = {
+    PROCHES: elusProches,
+    EN_COURS: elusAContacter,
+    TERMINES: elusTermines,
+  };
+
+  const [state, setState] = useState(SELECTEUR_STATES.MONTRER_ONGLETS);
+  const [ongletActif, setOngletActif] = useState("PROCHES");
 
   // sentinelle utilisée pour identifier la dernière requête réalisée
   const lastRequestCancelSource = useRef(null);
@@ -120,7 +181,7 @@ export const SelecteurElus = ({
       }
       if (e.target.value === "") {
         recherche.cancel();
-        setState(SELECTEUR_STATES.MONTRER_ELUS_PROCHES);
+        setState(SELECTEUR_STATES.MONTRER_ONGLETS);
       } else {
         recherche(e.target.value);
       }
@@ -151,45 +212,37 @@ export const SelecteurElus = ({
         <Message>
           Une erreur inattendue a été rencontrée. Retentez votre recherche.
         </Message>
+      ) : state === SELECTEUR_STATES.MONTRER_ONGLETS ? (
+        <>
+          <Onglets
+            onglets={ONGLETS}
+            actif={ongletActif}
+            onChange={setOngletActif}
+          />
+          {elusAccesRapide[ongletActif].length === 0 ? (
+            <ScrollableBlock>
+              <Message>{VIDE[ongletActif]}</Message>
+            </ScrollableBlock>
+          ) : (
+            <ScrollableBlock>
+              <Message>{INTRO[ongletActif]}</Message>
+              <ResultBox
+                elus={elusAccesRapide[ongletActif]}
+                selected={selection}
+                onSelect={onSelect}
+              />
+            </ScrollableBlock>
+          )}
+        </>
+      ) : elusRecherche.length === 0 ? (
+        <Message>Aucun résultat pour votre recherche.</Message>
       ) : (
         <ScrollableBlock>
-          {state === SELECTEUR_STATES.MONTRER_ELUS_PROCHES ? (
-            elusAContacter.length === 0 && elusProches.length === 0 ? (
-              <Message>
-                <a href="/profil/identite/">Indiquez où vous êtes</a> pour voir
-                les élus les plus proches de chez vous ou utilisez la recherche
-                ci-dessus.
-              </Message>
-            ) : (
-              <>
-                <Message>
-                  Voici les élus les plus proches de votre adresse personnelle.{" "}
-                  <strong>
-                    Utilisez la barre de recherche ci-dessus pour rechercher un
-                    code postal, une ville, un maire...
-                  </strong>
-                </Message>
-                <ResultBox
-                  elus={elusAContacter}
-                  selected={selection}
-                  onSelect={onSelect}
-                />
-                <ResultBox
-                  elus={elusProches}
-                  selected={selection}
-                  onSelect={onSelect}
-                />
-              </>
-            )
-          ) : elusRecherche.length === 0 ? (
-            <Message>Aucun résultat pour votre recherche.</Message>
-          ) : (
-            <ResultBox
-              elus={elusRecherche}
-              selected={selection}
-              onSelect={onSelect}
-            />
-          )}
+          <ResultBox
+            elus={elusRecherche}
+            selected={selection}
+            onSelect={onSelect}
+          />
         </ScrollableBlock>
       )}
     </SelecteurElusLayout>
@@ -198,6 +251,7 @@ export const SelecteurElus = ({
 
 SelecteurElus.propTypes = {
   elusAContacter: PropTypes.arrayOf(InfosElu),
+  elusTermines: PropTypes.arrayOf(InfosElu),
   elusProches: PropTypes.arrayOf(InfosElu),
   elusRecherche: PropTypes.arrayOf(InfosElu),
   selection: InfosElu,

@@ -211,9 +211,18 @@ const FormulaireTerminerParrainage = ({ elu, onStatusChange }) => {
           <a href="https://melenchon2022.fr/le-guide-de-la-recherche-des-parrainages/">
             la documentation
           </a>{" "}
-          pour vous aider dans votre discours . Prenez rendez-vous par
-          téléphone, et <strong>déplacez-vous en mairie</strong> pour de
-          meilleurs résultats !
+          pour vous aider dans votre discours. Il faut{" "}
+          <strong>rencontrer physiquement le maire</strong> pour une entrevue
+          républicaine. Vous devrez souvent aller à sa rencontre quand il est en
+          mairie ou dans son village.
+        </p>
+        <p>
+          <em>
+            Il est souvent inutile de chercher à prendre rendez-vous par
+            téléphone
+          </em>{" "}
+          car c'est souvent utilisé par les mairies pour décliner la
+          proposition. Déplacez-vous en mairie pour de meilleurs résultats !
         </p>
       </CadreAvertissement>
       <form onSubmit={soumettreFormulaire}>

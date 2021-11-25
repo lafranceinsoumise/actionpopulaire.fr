@@ -25,7 +25,7 @@ export const InfosElu = PropTypes.shape({
   sexe: PropTypes.oneOf(["M", "F"]),
   commune: PropTypes.string,
   distance: PropTypes.number,
-  statut: PropTypes.oneOf(["D", "A", "E", "T"]),
+  statut: PropTypes.oneOf(["D", "A", "E", "T", "P"]),
   idRechercheParrainage: PropTypes.number,
   marie: PropTypes.shape({
     adresse: PropTypes.string,
