@@ -94,8 +94,10 @@ const CounterIconLink = styled(IconLink)`
 `;
 
 const TabletIconLink = styled(IconLink)`
-  @media (min-width: ${(props) => props.theme.collapseTablet}px) {
-    display: none;
+  display: none;
+
+  @media (max-width: ${(props) => props.theme.collapseTablet}px) {
+    display: inline-flex;
   }
 `;
 
