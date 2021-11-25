@@ -7,7 +7,6 @@ import {
   getNotificationStatus,
 } from "@agir/notifications/common/notifications.config";
 import * as api from "@agir/notifications/common/api";
-import { usePush } from "@agir/notifications/push/subscriptions";
 
 import NotificationSettingPanel from "./NotificationSettingPanel";
 
@@ -15,15 +14,6 @@ import { ProtectedComponent } from "@agir/front/app/Router";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const NotificationSettings = (props) => {
-  const {
-    ready: pushIsReady,
-    available,
-    isSubscribed,
-    subscribe,
-    unsubscribe,
-    errorMessage,
-  } = usePush();
-
   const { data: groupData } = useSWR("/api/groupes/");
   const {
     data: userNotifications,
@@ -76,10 +66,6 @@ const NotificationSettings = (props) => {
     [mutate]
   );
 
-  useEffect(() => {
-    mutate();
-  }, [mutate, isSubscribed]);
-
   return (
     <NotificationSettingPanel
       {...props}
@@ -88,11 +74,6 @@ const NotificationSettings = (props) => {
       onChange={handleChange}
       disabled={isLoading || isValidating}
       ready={!!userNotifications && !!groupData}
-      subscribeDevice={available && !isSubscribed ? subscribe : undefined}
-      unsubscribeDevice={available && isSubscribed ? unsubscribe : undefined}
-      isPushAvailable={available}
-      subscriptionError={errorMessage}
-      pushIsReady={pushIsReady}
     />
   );
 };
