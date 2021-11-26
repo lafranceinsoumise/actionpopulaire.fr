@@ -5,7 +5,13 @@ import PropTypes from "prop-types";
 import Button from "@agir/front/genericComponents/Button";
 import AnimatedMoreHorizontal from "@agir/front/genericComponents/AnimatedMoreHorizontal";
 
-import { ELU_STATUTS, InfosElu, RequestStatus, StatutPill } from "../types";
+import {
+  ELU_STATUTS,
+  InfosElu,
+  ISSUE,
+  RequestStatus,
+  StatutPill,
+} from "../types";
 import { creerRechercheParrainage } from "../queries";
 import Formulaire from "./Formulaire";
 import { MarginBlock, Error } from "../utils";
@@ -58,11 +64,11 @@ const BoutonCreerParrainage = ({ elu, onStatusChange }) => {
 
   return (
     <div>
-      <Button color="primary" onClick={callback} disabled={state.isLoading}>
+      <Button color="primary" onClick={callback} disabled={state.loading}>
         Je m'en occupe !
       </Button>
-      {state.isLoading && <AnimatedMoreHorizontal />}
-      {state.isError && <Error>{state.message}</Error>}
+      {state.loading && <AnimatedMoreHorizontal />}
+      {state.hasError && <Error>{state.message}</Error>}
     </div>
   );
 };
@@ -109,7 +115,23 @@ const InteractionBox = ({ elu, onStatusChange }) => {
     case "P":
       return (
         <InteractionBoxLayout>
-          Merci de vous être occupé⋅e de contacter cette personne &#x1F680;
+          <p>
+            Merci de vous être occupé⋅e de contacter cette personne &#x1F680;
+          </p>
+          {elu.rechercheParrainage?.statut === ISSUE.VALIDE ? (
+            <p>
+              Son parrainage a été correctement reçu et confirmé. Bravo
+              &#x1F44F;👏👏👏
+            </p>
+          ) : (
+            <>
+              <p>
+                Vous pourrez revenir sur cette page mettre à jour les
+                informations en cas de changement de situation.
+              </p>
+              <Formulaire elu={elu} onStatusChange={onStatusChange} />
+            </>
+          )}
         </InteractionBoxLayout>
       );
   }

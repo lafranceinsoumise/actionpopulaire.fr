@@ -13,16 +13,14 @@ import style from "@agir/front/genericComponents/_variables.scss";
  * automatiquement dès la requête suivante).
  */
 export const RequestStatus = {
-  IDLE: () => ({ isIdle: true, isLoading: false, isError: false }),
+  IDLE: () => ({ loading: false, hasError: false }),
   LOADING: () => ({
-    isIdle: false,
-    isLoading: true,
-    isError: false,
+    loading: true,
+    hasError: false,
   }),
   ERROR: (message) => ({
-    isIdle: false,
-    isLoading: false,
-    isError: true,
+    loading: false,
+    hasError: true,
     message,
   }),
 };
@@ -42,13 +40,13 @@ export const InfosElu = PropTypes.shape({
   RechercheParrainages: PropTypes.shape({
     statut: PropTypes.oneOf([2, 3, 4, 5, 6, 7]),
     commentaires: PropTypes.string,
-    lien_formulaire: PropTypes.string,
+    lienFormulaire: PropTypes.string,
   }),
   mairie: PropTypes.shape({
     adresse: PropTypes.string,
     accessibilite: PropTypes.string,
     detailsAccessibilite: PropTypes.string,
-    horaires: PropTypes.object,
+    horaires: PropTypes.array,
     email: PropTypes.string,
     telephone: PropTypes.string,
     site: PropTypes.string,
@@ -144,6 +142,10 @@ export const DECISIONS = [
     value: ISSUE.REFUSE,
   },
 ];
+
+export const REVERSE_DECISIONS = DECISIONS.filter(
+  (d) => d.value !== ISSUE.ENGAGEMENT
+).reduce((acc, d) => Object.assign(acc, { [d.value]: d }), {});
 
 const StatutPillLayout = styled.span`
   display: inline-block;

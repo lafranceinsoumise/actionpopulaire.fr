@@ -234,10 +234,15 @@ class ModifierRechercheParrainageView(UpdateAPIView):
     serializer_class = ModifierRechercheSerializer
 
     def get_queryset(self):
+        # peuvent être modifiés toutes les recherches de parrainages qui n'ont pas été annulées ou validées
+        # (pas de sens à modifier une demande de parrainge si on a déjà confirmé avoir reçu la promesse !)
         return RechercheParrainage.objects.filter(
-            person=self.request.user.person,
-            statut=StatutRechercheParrainage.EN_COURS,
-            maire__isnull=False,
+            person=self.request.user.person, maire__isnull=False,
+        ).exclude(
+            statut__in=[
+                StatutRechercheParrainage.ANNULEE,
+                StatutRechercheParrainage.VALIDEE,
+            ]
         )
 
 

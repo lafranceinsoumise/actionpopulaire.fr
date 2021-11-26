@@ -63,7 +63,7 @@ class ModifierRechercheSerializer(serializers.Serializer):
 
     commentaires = serializers.CharField(required=False)
     formulaire = serializers.FileField(required=False, write_only=True)
-    lien_formulaire = serializers.URLField(read_only=True, source="formulaire")
+    lienFormulaire = serializers.SerializerMethodField(method_name="lien_formulaire")
 
     def validate_formulaire(self, value):
         name = value.name
@@ -88,6 +88,9 @@ class ModifierRechercheSerializer(serializers.Serializer):
             )
 
         return attrs
+
+    def lien_formulaire(self, obj):
+        return obj.formulaire.url if obj.formulaire else None
 
     def save(self):
         self.instance.statut = self.validated_data["statut"]
