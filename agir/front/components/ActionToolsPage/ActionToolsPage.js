@@ -11,12 +11,13 @@ import DesktopActionToolsPage from "./DesktopActionToolsPage";
 const ActionToolsPage = (props) => {
   const { data: session } = useSWR("/api/session/");
   const { data: donations } = useSWR("/api/2022/dons/");
+
   return (
     <ResponsiveLayout
       MobileLayout={MobileActionToolsPage}
       DesktopLayout={DesktopActionToolsPage}
       firstName={session?.user?.firstName}
-      hasGroups={!session?.user?.groups?.length > 0}
+      hasGroups={session?.user?.groups?.length > 0}
       city={session?.user?.city}
       commune={session?.user?.commune}
       donationAmount={donations?.totalAmount}
