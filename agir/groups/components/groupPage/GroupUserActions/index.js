@@ -151,10 +151,7 @@ const ConnectedUserActions = (props) => {
     async (data) => {
       setIsLoading(true);
       const response = await api.updateOwnMembership(id, data);
-      if (
-        response.data &&
-        typeof response.data.personalInfoConsent !== "undefined"
-      ) {
+      if (typeof response.data?.personalInfoConsent !== "undefined") {
         mutate(api.getGroupEndpoint("getGroup", { groupPk: id }), (group) => ({
           ...group,
           personalInfoConsent: response.data.personalInfoConsent,
