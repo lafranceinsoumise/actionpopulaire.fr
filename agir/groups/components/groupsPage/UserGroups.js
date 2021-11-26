@@ -4,19 +4,6 @@ import React, { useMemo } from "react";
 import GroupList from "./GroupList";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-import styled from "styled-components";
-
-
-const StyledContainer = styled.div`
-  padding-bottom: 64px;
-
-  @media(max-width: ${style.collapse}px) {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-`;
-
 const GroupsPage = ({ groups }) => {
   const [joined, followed] = useMemo(() => {
     if (!Array.isArray(groups)) {
@@ -35,7 +22,7 @@ const GroupsPage = ({ groups }) => {
   }
 
   return (
-    <StyledContainer>
+    <>
       {joined.length > 0 && (
         <GroupList>
           {joined.map((group) => (
@@ -65,7 +52,7 @@ const GroupsPage = ({ groups }) => {
           ))}
         </GroupList>
       )}
-    </StyledContainer>
+    </>
   );
 };
 
