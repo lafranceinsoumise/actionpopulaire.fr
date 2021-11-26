@@ -199,7 +199,7 @@ export const usePush = () => {
       currentState = androidPushState;
     }
 
-    log.warn("Push notifications' current state", currentState);
+    log.debug("Push notifications' current state", currentState);
 
     return currentState;
   }, [iosPushState, androidPushState]);

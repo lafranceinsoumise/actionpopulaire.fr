@@ -25,7 +25,7 @@ export const getSubscription = async (deviceType, token) => {
       `${deviceType}: Error while retrieving push subscription for token ${token}`,
       err
     );
-    return e.response?.status === 404 ? undefined : false;
+    return err.response?.status === 404 ? undefined : false;
   }
 };
 
@@ -62,6 +62,6 @@ export const unsubscribe = async (deviceType, token) => {
       `${deviceType}: Error while disabling push subscription for token ${token}`,
       err
     );
-    return e.response?.status === 404;
+    return err.response?.status === 404;
   }
 };
