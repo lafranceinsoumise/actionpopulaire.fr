@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
+import BottomBar from "@agir/front/app/Navigation/BottomBar";
 import Button from "@agir/front/genericComponents/Button";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
@@ -34,34 +35,37 @@ const MobileActionToolsPage = (props) => {
   const { firstName, donationAmount, hasGroups, city, commune } = props;
 
   return (
-    <StyledPage>
-      <StyledButtons>
-        <Button link route="help">
-          Centre d'aide
-        </Button>
-        <Button link route="contact">
-          Nous contacter
-        </Button>
-      </StyledButtons>
-      <PageFadeIn ready={typeof hasGroups !== "undefined"}>
-        {!hasGroups && (
-          <>
-            <h2>Conseillé pour {firstName || "vous"}</h2>
-            <JoinAGroupCard city={city} commune={commune} />
-          </>
-        )}
-      </PageFadeIn>
-      <h2>Méthodes d'action</h2>
-      <ActionTools />
-      <PageFadeIn ready={typeof donationAmount !== "undefined"}>
-        {donationAmount && (
-          <RenderIfVisible offset={0}>
-            <h2>Financer la campagne</h2>
-            <DonateCard amount={donationAmount} />
-          </RenderIfVisible>
-        )}
-      </PageFadeIn>
-    </StyledPage>
+    <>
+      <StyledPage>
+        <StyledButtons>
+          <Button link route="help">
+            Centre d'aide
+          </Button>
+          <Button link route="contact">
+            Nous contacter
+          </Button>
+        </StyledButtons>
+        <PageFadeIn ready={typeof hasGroups !== "undefined"}>
+          {!hasGroups && (
+            <>
+              <h2>Conseillé pour {firstName || "vous"}</h2>
+              <JoinAGroupCard city={city} commune={commune} />
+            </>
+          )}
+        </PageFadeIn>
+        <h2>Méthodes d'action</h2>
+        <ActionTools />
+        <PageFadeIn ready={typeof donationAmount !== "undefined"}>
+          {donationAmount && (
+            <RenderIfVisible offset={0}>
+              <h2>Financer la campagne</h2>
+              <DonateCard amount={donationAmount} />
+            </RenderIfVisible>
+          )}
+        </PageFadeIn>
+      </StyledPage>
+      <BottomBar active="actionTools" />
+    </>
   );
 };
 MobileActionToolsPage.propTypes = {
