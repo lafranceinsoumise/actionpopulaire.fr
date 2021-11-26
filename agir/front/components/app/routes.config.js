@@ -274,7 +274,10 @@ export const routeConfig = {
   }),
   groupOrganizationMessage: new RouteConfig({
     id: "groupOrganizationMessage",
-    path: "/groupes/:groupPk/message/organisation/",
+    path: [
+      "/groupes/:groupPk/message/organisation/",
+      "/groupes/:groupPk/message/organisation/parametres/",
+    ],
     params: { groupPk: null },
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,

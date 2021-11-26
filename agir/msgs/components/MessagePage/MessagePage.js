@@ -67,11 +67,7 @@ const MessagePage = ({ messagePk, groupPk }) => {
   console.log("message page, messages : ");
   console.log(messages);
 
-  let group = null;
-  if (groupPk) {
-    const { data } = useSWR(getGroupEndpoint("getGroup", { groupPk }));
-    group = data;
-  }
+  const { data: group } = useSWR(getGroupEndpoint("getGroup", { groupPk }));
 
   const {
     isLoading,

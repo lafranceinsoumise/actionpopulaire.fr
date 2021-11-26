@@ -111,7 +111,6 @@ class UserMessagesAPIView(ListAPIView):
                 message_type=SupportGroupMessage.MESSAGE_TYPE_DEFAULT,
             )
             .select_related("supportgroup", "author")
-            # .exclude(message_type=SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION)
             .prefetch_related("comments")
             .annotate(
                 is_unread=Case(
@@ -132,7 +131,6 @@ class UserMessagesAPIView(ListAPIView):
                     Max("comments__created"), "created", output_field=DateTimeField()
                 )
             )
-            # .order_by("-last_update", "-created")
             .distinct()
         )
 

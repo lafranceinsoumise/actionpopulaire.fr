@@ -62,16 +62,8 @@ const MessageThreadCard = (props) => {
       subject += " et ";
     }
     subject += group.referents[0].displayName;
-    if (group.referents.length === 2) {
-      subject += " et " + group.referents[1].displayName;
-    }
-    if (group.referents.length > 2) {
-      subject +=
-        ", " +
-        group.referents[1].displayName +
-        " et " +
-        (group.referents.length - 2) +
-        " autres personnes";
+    if (group.referents.length > 1) {
+      subject += ` et ${group.referents[1].displayName}`;
     }
   }
   const time = timeAgo(lastUpdate).replace("il y a", "");

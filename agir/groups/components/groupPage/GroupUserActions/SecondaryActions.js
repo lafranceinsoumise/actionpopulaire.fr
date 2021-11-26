@@ -46,23 +46,21 @@ const StyledContainer = styled.div`
   }
 `;
 
-const SecondaryActions = ({ id, isCertified, routes, contact }) => {
+const SecondaryActions = ({ id, isCertified, routes }) => {
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isContactOpen, setIsContactOpen] = useState(false);
 
   const handleShareClose = useCallback(() => setIsShareOpen(false), []);
   const handleShareOpen = useCallback(() => setIsShareOpen(true), []);
-  const handleContactClose = useCallback(() => setIsContactOpen(false), []);
-  const handleContactOpen = useCallback(() => setIsContactOpen(true), []);
 
   return (
     <StyledContainer>
-      {contact?.email && (
-        <button type="button" onClick={handleContactOpen}>
-          <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
-          <span>Contacter</span>
-        </button>
-      )}
+      <StyledLink
+        route="groupOrganizationMessage"
+        routeParams={{ groupPk: id }}
+      >
+        <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
+        <span>Contacter</span>
+      </StyledLink>
       {isCertified && (
         <StyledLink route="donations" params={{ group: id }}>
           <RawFeatherIcon name="upload" width="1.5rem" height="1.5rem" />
@@ -80,25 +78,6 @@ const SecondaryActions = ({ id, isCertified, routes, contact }) => {
       >
         <ShareContentUrl url={routes.details} />
       </ModalConfirmation>
-
-      <ModalConfirmation
-        shouldShow={isContactOpen}
-        onClose={handleContactClose}
-        title="Contacter le groupe"
-      >
-        <p style={{ margin: "1rem 0" }}>
-          Vous souhaitez rejoindre ce groupe ou bien recevoir des informations ?
-          Envoyez un message aux animateur·ices de ce groupe d'action via leur
-          e-mail&nbsp;:
-          <Spacer size="1rem" />
-          <ShareLink
-            label="Copier"
-            color="primary"
-            url={contact?.email}
-            $wrap
-          />
-        </p>
-      </ModalConfirmation>
     </StyledContainer>
   );
 };
@@ -107,9 +86,6 @@ SecondaryActions.propTypes = {
   id: PropTypes.string.isRequired,
   isCertified: PropTypes.bool,
   routes: PropTypes.object,
-  contact: PropTypes.shape({
-    email: PropTypes.string,
-  }),
 };
 
 export default SecondaryActions;
