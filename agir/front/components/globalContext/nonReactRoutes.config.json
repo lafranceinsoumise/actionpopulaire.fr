@@ -15,6 +15,7 @@
   "donationHelp": "https://infos.actionpopulaire.fr/dons/",
   "groupTransferHelp": "https://infos.actionpopulaire.fr/nombre-ideal-division/",
   "help": "https://infos.actionpopulaire.fr",
+  "helpIndex": "https://infos.actionpopulaire.fr/fiches/",
   "legal": "https://infos.actionpopulaire.fr/mentions-legales/",
   "newGroupHelp": "https://infos.actionpopulaire.fr/groupes/nouveau-groupe/",
   "publicMeetingHelp": "https://infos.actionpopulaire.fr/fiches/organiser-une-reunion-publique/",
@@ -23,9 +24,12 @@
   "programme": "https://melenchon2022.fr/programme/",
   "comparateur": "https://melenchon2022.fr/comparateur/",
   "agenda": "https://melenchon2022.fr/agenda/",
+  "publicMeeting": "https://melenchon2022.fr/reunions-publiques/",
+  "referralSearch": "https://melenchon2022.fr/le-guide-de-la-recherche-des-parrainages/",
 
   "lafranceinsoumise": "https://lafranceinsoumise.fr",
-  "materiel": "https://materiel.lafranceinsoumise.fr/",
+  "materiel": "https://materiel.actionpopulaire.fr/",
+  "coupDeFil": "https://actionpopulaire.fr/groupes/1ae465ce-15d2-4162-b77a-47112b2cf76e/",
 
   "jlmBlog": "https://melenchon.fr",
   "linsoumission": "https://linsoumission.fr",

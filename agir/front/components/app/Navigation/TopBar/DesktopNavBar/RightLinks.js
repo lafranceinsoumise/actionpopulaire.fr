@@ -37,6 +37,7 @@ const IconLink = styled(Link)`
   border: none;
   display: inline-flex;
   height: 100%;
+  min-width: 60px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -147,6 +148,13 @@ const RightLinks = (props) => {
             <FeatherIcon name="home" />
             <span>Accueil</span>
           </IconLink>
+          <IconLink
+            route="actionTools"
+            $active={routeConfig.actionTools.match(path)}
+          >
+            <FeatherIcon name="flag" />
+            <span>Agir</span>
+          </IconLink>
           {hasLayout && (
             <TabletIconLink
               route="groups"
@@ -176,10 +184,6 @@ const RightLinks = (props) => {
             </i>
             <span>Messages</span>
           </CounterIconLink>
-          <IconLink route="tools" $active={routeConfig.tools.match(path)}>
-            <FeatherIcon name="flag" />
-            <span>Outils</span>
-          </IconLink>
           <IconLink as="button" onClick={openUserMenu}>
             <Avatar
               displayName={user.displayName}

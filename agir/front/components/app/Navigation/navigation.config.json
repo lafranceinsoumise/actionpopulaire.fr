@@ -38,20 +38,11 @@
     {
       "id": "tools",
       "icon": "flag",
-      "title": "Outils",
-      "route": "tools",
-      "desktop": true,
+      "title": "Agir",
+      "route": "actionTools",
+      "desktop": false,
       "mobile": true,
       "external": false
-    },
-    {
-      "id": "materiel",
-      "icon": "shopping-bag",
-      "title": "Matériel",
-      "route": "materiel",
-      "desktop": true,
-      "mobile": false,
-      "external": true
     },
     {
       "id": "settings",
