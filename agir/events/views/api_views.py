@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Value, CharField
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -41,9 +41,11 @@ from agir.events.serializers import (
     EventProjectSerializer,
     EventProjectDocumentSerializer,
     EventProjectListItemSerializer,
+    EventReportPersonFormSerializer,
 )
 from agir.groups.models import SupportGroup
 from agir.people.models import Person
+from agir.people.person_forms.models import PersonForm
 
 __all__ = [
     "EventDetailAPIView",
@@ -64,6 +66,7 @@ __all__ = [
     "CreateOrganizerConfigAPIView",
     "EventGroupsOrganizersAPIView",
     "CancelEventAPIView",
+    "EventReportPersonFormAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -494,3 +497,27 @@ class CreateEventProjectDocumentAPIView(CreateAPIView):
         with transaction.atomic():
             document = serializer.save()
             project.documents.add(document)
+
+
+class EventReportPersonFormPermission(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "PUT": [], "PATCH": []}
+    object_perms_map = {
+        "GET": ["events.change_event"],
+        "PUT": ["events.change_event"],
+        "PATCH": ["events.change_event"],
+    }
+
+
+class EventReportPersonFormAPIView(RetrieveAPIView):
+    permission_classes = (EventReportPersonFormPermission,)
+    serializer_class = EventReportPersonFormSerializer
+
+    def get_queryset(self):
+        return Event.objects.public().past()
+
+    def get_object(self):
+        event = super().get_object()
+        queryset = PersonForm.objects.published().annotate(
+            event_pk=Value(event.pk, output_field=CharField())
+        )
+        return get_object_or_404(queryset, event_subtype=event.subtype)
