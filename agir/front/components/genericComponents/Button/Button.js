@@ -69,6 +69,39 @@ const WhiteButton = styled(BaseButton)`
   }
 `;
 
+const WhiteRedButton = styled(BaseButton)`
+  &,
+  &[disabled],
+  &[disabled]:hover,
+  &[disabled]:focus,
+  &[disabled]:active {
+    color: ${style.redNSP};
+    background-color: ${style.white};
+    border-color: ${style.white};
+  }
+
+  &[disabled] {
+    opacity: 0.75;
+  }
+
+  &:before {
+    background-image: ${getIconDataUrl({ color: style.redNSP })};
+  }
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: #d81836;
+
+    &:before {
+      background-image: ${getIconDataUrl({
+        color: "#d81836",
+        fill: true,
+      })};
+    }
+  }
+`;
+
 const PrimaryButton = styled(BaseButton)`
   background-color: ${style.primary500};
   border-color: ${style.primary500};
@@ -357,6 +390,7 @@ const LinkButton = styled(BaseButton)`
 const variants = {
   default: DefaultButton,
   white: WhiteButton,
+  whiteRed: WhiteRedButton,
   primary: PrimaryButton,
   secondary: SecondaryButton,
   tertiary: TertiaryButton,
