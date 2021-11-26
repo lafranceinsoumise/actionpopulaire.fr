@@ -97,7 +97,8 @@ class UserMessagesAPIView(ListAPIView):
             SupportGroupMessage.objects.filter(
                 supportgroup__in=person_referent_groups,
                 message_type=SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION,
-            ).exclude(author=person)
+            )
+            .exclude(author=person)
             .annotate(
                 last_update=Greatest(
                     Max("comments__created"), "created", output_field=DateTimeField()

@@ -239,7 +239,7 @@ class UserMessagesSerializer(BaseMessageSerializer):
                     "gender": referent.gender,
                 }
                 for referent in message.supportgroup.referents
-            ]
+            ],
         }
 
     def get_unread_comment_count(self, message):

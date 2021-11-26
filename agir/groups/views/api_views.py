@@ -361,7 +361,9 @@ class GroupMessagesAPIView(ListCreateAPIView):
 
     def get_queryset(self):
         return (
-            self.supportgroup.messages.filter(deleted=False)
+            self.supportgroup.messages.filter(
+                deleted=False, message_type=SupportGroupMessage.MESSAGE_TYPE_DEFAULT
+            )
             .select_related("author", "linked_event", "linked_event__subtype")
             .prefetch_related("comments")
             .order_by("-created")
