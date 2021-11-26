@@ -249,6 +249,9 @@ urlpatterns = [
         "dons/informations/", views.DonationView.as_view(), name="donation_information",
     ),
     path(
+        "dons-mensuels/informations/", views.DonationView.as_view(), name="monthly_donation_information",
+    ),
+    path(
         "dons/informations-modal/",
         views.DonationView.as_view(),
         name="donation_information_modal",
@@ -258,6 +261,11 @@ urlpatterns = [
         "2022/dons/informations/",
         views.Donation2022View.as_view(),
         name="donation_2022_information",
+    ),
+    path(
+        "2022/dons-mensuels/informations/",
+        views.Donation2022View.as_view(),
+        name="monthly_donation_2022_information",
     ),
     path(
         "2022/dons/informations-modal/",
