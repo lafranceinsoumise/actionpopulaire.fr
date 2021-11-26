@@ -76,6 +76,17 @@ class PersonForm(TimeStampedModel):
         ),
     )
 
+    short_description = models.CharField(
+        _("Description courte"),
+        default=str(),
+        null=False,
+        blank=True,
+        max_length=255,
+        help_text=_(
+            "Description visible lors du partage sur les réseaux sociaux et lors des envois de rappels par notification"
+        ),
+    )
+
     send_confirmation = models.BooleanField(
         _("Envoyer une confirmation par email"),
         default=False,

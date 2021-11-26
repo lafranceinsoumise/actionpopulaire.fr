@@ -37,6 +37,8 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
         return self.title_suffix
 
     def get_meta_description(self):
+        if self.person_form_instance.short_description:
+            return self.person_form_instance.short_description
         if self.person_form_instance.description:
             return html2text(self.person_form_instance.description)
         return ""
