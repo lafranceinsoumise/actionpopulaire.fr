@@ -15,7 +15,8 @@ from django.db.models import (
     Value,
 )
 from django.db.models.functions import Coalesce, Cast
-from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from rest_framework.generics import (
     ListAPIView,
@@ -121,6 +122,14 @@ class RechercheParrainagesView(
 
     permission_required = "elus.acces_parrainages"
 
+    def handle_no_permission(self):
+        messages.add_message(
+            self.request,
+            messages.WARNING,
+            "Vous n'avez pas encore l'accès à l'application de parrainages : il vous faut d'abord remplir le formulaire ci-dessous.",
+        )
+        return HttpResponseRedirect(reverse("elus:demande_acces_parrainages"))
+
     def get_context_data(self, **kwargs):
         person = self.request.user.person
 
@@ -203,6 +212,11 @@ class DemandeAccesParrainagesView(SoftLoginRequiredMixin, FormView):
     form_class = DemandeAccesApplicationParrainagesForm
     template_name = "elus/parrainages/demande-acces.html"
     success_url = reverse_lazy("dashboard")
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.has_perm("elus.acces_parrainages"):
+            return HttpResponseRedirect(reverse("elus:parrainages"))
+        return super().get(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
