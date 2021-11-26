@@ -2,6 +2,7 @@ from datetime import timedelta
 from functools import partial
 from pathlib import PurePath
 
+from agir.lib import html
 from django.db import transaction
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
@@ -932,8 +933,15 @@ class EventProjectListItemSerializer(serializers.ModelSerializer):
 
 
 class EventReportPersonFormSerializer(serializers.ModelSerializer):
+    description = serializers.SerializerMethodField(read_only=True)
     url = serializers.SerializerMethodField(read_only=True)
     submitted = serializers.SerializerMethodField(read_only=True)
+
+    def get_description(self, obj):
+        if obj.short_description:
+            return obj.short_description
+
+        return html.textify(obj.description)
 
     def get_url(self, obj):
         return front_url(
@@ -945,4 +953,4 @@ class EventReportPersonFormSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PersonForm
-        fields = ["title", "description", "short_description", "url", "submitted"]
+        fields = ["title", "description", "url", "submitted"]
