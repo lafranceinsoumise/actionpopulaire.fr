@@ -134,5 +134,11 @@ const NavigationPage = ({ active }) => {
 export default NavigationPage;
 
 NavigationPage.propTypes = {
-  active: PropTypes.oneOf(["events", "groups", "activity", "menu", "tools"]),
+  active: PropTypes.oneOf([
+    "events",
+    "groups",
+    "activity",
+    "menu",
+    "actionTools",
+  ]),
 };

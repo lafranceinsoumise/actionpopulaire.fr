@@ -1,15 +1,6 @@
 import { DateTime } from "luxon";
 
-const ARTICLES = {
-  "de ": "à ",
-  "d'": "à ",
-  "du ": "au ",
-  "de la ": "à la ",
-  "des ": "aux ",
-  "de l'": "à l'",
-  "de las ": "à las ",
-  "de los ": "à los ",
-};
+import { communeNameOfToIn } from "@agir/lib/utils/display";
 
 export const getGroupTypeWithLocation = (type, location, commune) => {
   const { city, zip } = location || {};
@@ -23,11 +14,7 @@ export const getGroupTypeWithLocation = (type, location, commune) => {
   if (!nameOf) {
     return `${type} à ${city} (${zip})`;
   }
-  const city_part = Object.entries(ARTICLES).reduce(
-    (string, [key, value]) => string.replace(new RegExp("^" + key, "i"), value),
-    nameOf
-  );
-  return `${type} ${city_part} (${zip})`;
+  return `${type} ${communeNameOfToIn(nameOf)} (${zip})`;
 };
 
 export const parseDiscountCodes = (discountCodes) => {

@@ -38,8 +38,8 @@
     {
       "id": "tools",
       "icon": "flag",
-      "title": "Outils",
-      "route": "tools",
+      "title": "Agir",
+      "route": "actionTools",
       "desktop": false,
       "mobile": true,
       "external": false
