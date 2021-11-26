@@ -96,7 +96,11 @@ const ActionButtons = () => {
   return (
     <StyledButtons>
       <StyledButton route="createEvent">
-        <span css={`background-color: ${(props) => props.theme.secondary500};`}>
+        <span
+          css={`
+            background-color: ${(props) => props.theme.secondary500};
+          `}
+        >
           <svg
             width="24"
             height="24"
@@ -119,11 +123,21 @@ const ActionButtons = () => {
         <strong>Créer un événement</strong>
       </StyledButton>
       <StyledButton route="createContact">
-        <RawFeatherIcon css={`background-color: ${(props) => props.theme.primary500};`} name="user-plus" />
+        <RawFeatherIcon
+          css={`
+            background-color: ${(props) => props.theme.primary500};
+          `}
+          name="user-plus"
+        />
         <strong>Ajouter un contact</strong>
       </StyledButton>
       <StyledButton route="donations">
-        <RawFeatherIcon css={`background-color: ${(props) => props.theme.redNSP};`} name="heart" />
+        <RawFeatherIcon
+          css={`
+            background-color: ${(props) => props.theme.redNSP};
+          `}
+          name="heart"
+        />
         <strong>Faire un don</strong>
       </StyledButton>
     </StyledButtons>
