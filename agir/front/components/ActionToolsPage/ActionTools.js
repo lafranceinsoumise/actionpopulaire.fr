@@ -163,7 +163,8 @@ export const ActionTools = () => {
         <span>
           <strong>Objectif : 500 parrainages</strong>
           <span>
-            Soyez volontaire pour rencontrer des élu·es et obtenir leur signature.
+            Soyez volontaire pour rencontrer des élu·es et obtenir leur
+            signature.
           </span>
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
