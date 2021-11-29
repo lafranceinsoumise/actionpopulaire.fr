@@ -62,12 +62,20 @@ BoutonAnnuler.propTypes = {
 };
 
 const Formulaire = ({ elu, onStatusChange }) => {
-  const [state, setState] = useState(RequestStatus.IDLE());
+  // indique si une requête est en cours ou a échoué.
+  const [requestState, setRequestState] = useState(RequestStatus.IDLE());
+
+  // la valeur actuelle du champ décision
   const [decision, setDecision] = useState();
+
+  // retient si la saisie actuelle a été enregistrée
   const [sauvegarde, setSauvegarde] = useState(false);
+
+  // les références aux deux champs non contrôlés
   const formulaireInput = useRef();
   const commentairesInput = useRef();
 
+  // il faut réinitialiser le formulaire quand l'élu change
   useEffect(() => {
     const initialDecision =
       elu.rechercheParrainage &&
@@ -78,6 +86,7 @@ const Formulaire = ({ elu, onStatusChange }) => {
         : DECISIONS[1]);
 
     setDecision(initialDecision);
+    setSauvegarde(false);
     commentairesInput.current.value =
       elu.rechercheParrainage?.commentaires || "";
   }, [elu]);
@@ -85,7 +94,7 @@ const Formulaire = ({ elu, onStatusChange }) => {
   const soumettreFormulaire = useCallback(
     async (e) => {
       e.preventDefault();
-      setState(RequestStatus.LOADING());
+      setRequestState(RequestStatus.LOADING());
 
       const formulaire =
         decision &&
@@ -102,7 +111,7 @@ const Formulaire = ({ elu, onStatusChange }) => {
           commentaires,
           formulaire,
         });
-        setState(RequestStatus.IDLE());
+        setRequestState(RequestStatus.IDLE());
         setSauvegarde(true);
         onStatusChange({
           ...elu,
@@ -110,7 +119,7 @@ const Formulaire = ({ elu, onStatusChange }) => {
           rechercheParrainage: res,
         });
       } catch (e) {
-        setState(RequestStatus.ERROR(e.message));
+        setRequestState(RequestStatus.ERROR(e.message));
       }
     },
     [elu, decision, onStatusChange]
@@ -200,7 +209,7 @@ const Formulaire = ({ elu, onStatusChange }) => {
         )}
         <Button
           color="primary"
-          disabled={sauvegarde || state.loading || decision === null}
+          disabled={sauvegarde || requestState.loading || decision === null}
           block
         >
           {sauvegarde
@@ -209,8 +218,8 @@ const Formulaire = ({ elu, onStatusChange }) => {
             ? "Envoyer les informations"
             : "Mettre à jour les informations"}
         </Button>
-        {state.loading && <AnimatedMoreHorizontal />}
-        {state.hasError && <Error>{state.message}</Error>}
+        {requestState.loading && <AnimatedMoreHorizontal />}
+        {requestState.hasError && <Error>{requestState.message}</Error>}
       </form>
     </div>
   );
