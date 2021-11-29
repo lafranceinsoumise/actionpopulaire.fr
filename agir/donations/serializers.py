@@ -7,6 +7,7 @@ from agir.donations.views import DONATION_SESSION_NAMESPACE
 from agir.groups.models import SupportGroup
 from agir.lib.utils import front_url_lazy
 from agir.lib.serializers import PhoneField
+from agir.people.models import Person
 from agir.presidentielle2022 import (
     AFCP2022SystemPayPaymentMode,
     AFCPJLMCheckDonationPaymentMode,
@@ -125,9 +126,8 @@ class CreateDonationSessionSerializer(serializers.Serializer):
         return validated_data
 
 
-class SendDonationSerializer(serializers.Serializer):
-
-    email = serializers.EmailField()
+class SendDonationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=False)
     firstName = serializers.CharField(max_length=255, source="first_name")
     lastName = serializers.CharField(max_length=255, source="last_name")
     locationAddress1 = serializers.CharField(max_length=100, source="location_address1")
@@ -161,6 +161,11 @@ class SendDonationSerializer(serializers.Serializer):
         required=False,
     )
 
+    def validate_email(self, value):
+        if self.instance is None and value is None:
+            raise serializers.ValidationError("L'email est obligatoire.")
+        return value
+
     # Check payment_mode is allowed for the type of donation
     def validate(self, attrs):
         payment_mode = attrs["payment_mode"]
@@ -192,3 +197,43 @@ class SendDonationSerializer(serializers.Serializer):
             )
 
         return attrs
+
+    def save(self, **kwargs):
+        validated_data = self.validated_data
+
+        # Update newsletters and support only if checked
+        if "subscribed_2022" in validated_data and validated_data["subscribed_2022"]:
+            if Person.NEWSLETTER_2022 not in self.instance.newsletters:
+                self.instance.newsletters.append(Person.NEWSLETTER_2022)
+            if Person.NEWSLETTER_2022_EXCEPTIONNEL not in self.instance.newsletters:
+                self.instance.newsletters.append(Person.NEWSLETTER_2022_EXCEPTIONNEL)
+
+        if "is_2022" in validated_data and not validated_data["is_2022"]:
+            del validated_data["is_2022"]
+
+        if self.instance is not None and "email" in validated_data:
+            del validated_data["email"]
+
+        super().save(**validated_data)
+
+    class Meta:
+        model = Person
+        fields = (
+            "email",
+            "firstName",
+            "lastName",
+            "locationAddress1",
+            "locationAddress2",
+            "locationCity",
+            "locationZip",
+            "locationCountry",
+            "contactPhone",
+            "nationality",
+            "subscribed2022",
+            "is2022",
+            "paymentMode",
+            "to",
+            "amount",
+            "paymentTimes",
+            "allocations",
+        )

@@ -2,6 +2,7 @@ import axios from "@agir/lib/utils/axios";
 import defaultAxios from "axios";
 
 const SEARCH_URL = "/api/parrainages/chercher/";
+const CODE_POSTAL_URL = "/api/parrainages/code-postal/";
 const CREATE_URL = "/api/parrainages/";
 const UPDATE_URL = "/api/parrainages/";
 
@@ -15,6 +16,24 @@ export const chercherElus = async (query, cancelToken = null) => {
     const res = await axios.get(SEARCH_URL, {
       params,
       cancelToken: cancelToken,
+      headers: { Accept: "application/json" },
+    });
+
+    return res.data;
+  } catch (e) {
+    if (defaultAxios.isCancel(e)) {
+      return null;
+    }
+    throw new Error("Problème de connexion.");
+  }
+};
+
+export const chercherCodePostal = async (query, cancelToken = null) => {
+  const url = `${CODE_POSTAL_URL}${query}/`;
+
+  try {
+    const res = await axios.get(url, {
+      cancelToken,
       headers: { Accept: "application/json" },
     });
 
@@ -53,7 +72,7 @@ export const creerRechercheParrainage = async (idElu) => {
   }
 };
 
-export const terminerParrainage = async (id, data) => {
+export const modifierParrainage = async (id, data) => {
   const url = `${UPDATE_URL}${id}/`;
 
   const formData = new FormData();

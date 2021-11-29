@@ -3,41 +3,59 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
+/**
+ * Énumération à utiliser comme état interne pour les composants chargés de faire des requêtes HTTP
+ *
+ * L'état IDLE correspond à l'état « normal » du composant, dans lequel il est possible de démarrer une nouvelle
+ * requête.
+ * L'état LOADING permet d'éviter de dupliquer les requêtes, en désactivant par exemple la validation du formulaire.
+ * L'état ERROR permet d'afficher une erreur lié à la requête précédente (et donc de la faire disparaître
+ * automatiquement dès la requête suivante).
+ */
 export const RequestStatus = {
-  IDLE: () => ({ isIdle: true, isLoading: false, isError: false }),
+  IDLE: () => ({ loading: false, hasError: false }),
   LOADING: () => ({
-    isIdle: false,
-    isLoading: true,
-    isError: false,
+    loading: true,
+    hasError: false,
   }),
   ERROR: (message) => ({
-    isIdle: false,
-    isLoading: false,
-    isError: true,
+    loading: false,
+    hasError: true,
     message,
   }),
 };
 
+/**
+ * Les infos d'élus telles que transmises par le backend.
+ */
 export const InfosElu = PropTypes.shape({
-  id: PropTypes.number,
-  nomComplet: PropTypes.string,
-  titre: PropTypes.string,
-  sexe: PropTypes.oneOf(["M", "F"]),
-  commune: PropTypes.string,
+  id: PropTypes.number.isRequired,
+  nomComplet: PropTypes.string.isRequired,
+  titre: PropTypes.string.isRequired,
+  sexe: PropTypes.oneOf(["M", "F"]).isRequired,
+  commune: PropTypes.string.isRequired,
   distance: PropTypes.number,
-  statut: PropTypes.oneOf(["D", "A", "E", "T"]),
+  statut: PropTypes.oneOf(["D", "A", "E", "T", "P"]).isRequired,
   idRechercheParrainage: PropTypes.number,
-  marie: PropTypes.shape({
+  RechercheParrainages: PropTypes.shape({
+    statut: PropTypes.oneOf([2, 3, 4, 5, 6, 7]),
+    commentaires: PropTypes.string,
+    lienFormulaire: PropTypes.string,
+  }),
+  mairie: PropTypes.shape({
     adresse: PropTypes.string,
     accessibilite: PropTypes.string,
     detailsAccessibilite: PropTypes.string,
-    horaires: PropTypes.object,
+    horaires: PropTypes.array,
     email: PropTypes.string,
     telephone: PropTypes.string,
     site: PropTypes.string,
   }),
 });
 
+/**
+ * Les statuts d'élus, tels que rapportés par le backend
+ */
 export const ELU_STATUTS = {
   DISPONIBLE: "D",
   A_CONTACTER: "A",
@@ -77,6 +95,7 @@ const statutsConfig = {
 export const ISSUE = {
   ANNULE: 5,
   ENGAGEMENT: 2,
+  VALIDE: 3,
   REFUSE: 4,
   NE_SAIT_PAS: 6,
   AUTRE_ENGAGEMENT: 7,
@@ -123,6 +142,10 @@ export const DECISIONS = [
     value: ISSUE.REFUSE,
   },
 ];
+
+export const REVERSE_DECISIONS = DECISIONS.filter(
+  (d) => d.value !== ISSUE.ENGAGEMENT
+).reduce((acc, d) => Object.assign(acc, { [d.value]: d }), {});
 
 const StatutPillLayout = styled.span`
   display: inline-block;

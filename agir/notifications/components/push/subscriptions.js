@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import axios from "@agir/lib/utils/axios";
 import logger from "@agir/lib/utils/logger";
 import { useIOSMessages } from "@agir/front/allPages/ios";
 import { useMobileApp } from "@agir/front/app/hooks";
@@ -8,135 +7,90 @@ import { useLocalStorage } from "@agir/lib/utils/hooks";
 
 const log = logger(__filename);
 
-const SUBSCRIPTION_TYPES = {
-  ANDROID: "android",
-  APPLE: "apple",
-  WEBPUSH: "webpush",
-};
+import * as API from "./api";
 
-const useServerSubscription = (endpoint, token) => {
+const useServerSubscription = (deviceType, token) => {
   const [ready, setReady] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [registration_id, extraData] = useMemo(
-    () =>
-      !token || typeof token === "string"
-        ? [token, {}]
-        : [token.registration_id, token],
-    [token]
-  );
 
   const subscribe = useCallback(async () => {
-    try {
-      await axios.post(`/api/device/${endpoint}/`, {
-        name: "Action populaire",
-        registration_id: registration_id,
-        active: true,
-        ...extraData,
-      });
-      setReady(true);
-      setIsSubscribed(true);
-    } catch (e) {
-      log.error(`Error saving ${endpoint} push subscription : `, e);
-      setReady(true);
-      setIsSubscribed(false);
-    }
-  }, [endpoint, extraData, registration_id]);
+    const isSubscribed = await API.subscribe(deviceType, token);
+    setReady(true);
+    setIsSubscribed(isSubscribed);
+  }, [deviceType, token]);
 
   const unsubscribe = useCallback(async () => {
-    if (!registration_id) {
+    if (!token) {
       return;
     }
-    let isUnsubscribed = false;
-    try {
-      log.debug(`${endpoint} : error disabling device`, registration_id);
-      await axios.put(`/api/device/${endpoint}/${registration_id}/`, {
-        registration_id: registration_id,
-        active: false,
-      });
-      isUnsubscribed = true;
-    } catch (e) {
-      log.error("iOS: Error disabling push subscription : ", e);
-      isUnsubscribed = e.response?.status === 404;
-    }
-    if (isUnsubscribed) {
-      log.debug("iOS : device unsubscribed", registration_id);
-      setIsSubscribed(false);
-    }
-  }, [endpoint, registration_id]);
+    const isUnsubscribed = await API.unsubscribe(deviceType, token);
+    setIsSubscribed(isUnsubscribed);
+  }, [deviceType, token]);
 
-  // When receive a new token, if it does not exist, we subscribe by default
   useEffect(() => {
     (async () => {
-      if (!registration_id) {
+      if (!token) {
         return;
       }
-
-      log.debug("Notifications : got token ", registration_id);
-
-      let deviceSubscription = null;
-      try {
-        deviceSubscription = await axios(
-          `/api/device/${endpoint}/${registration_id}/`
-        );
-      } catch (e) {
-        if (e.response?.status === 404) {
-          await subscribe();
-        }
-
-        log.error("Error retrieving subscription", registration_id, e);
-
-        setReady(true);
+      const isSubscribed = await API.getSubscription(deviceType, token);
+      if (typeof isSubscribed !== "boolean") {
+        subscribe();
         return;
       }
-
-      // Check if subscription for the current token exists and is active
       setReady(true);
-      setIsSubscribed(deviceSubscription.data.active);
+      setIsSubscribed(isSubscribed);
     })();
-  }, [endpoint, registration_id, subscribe]);
+  }, [deviceType, token, subscribe]);
 
-  return {
-    ready,
-    isSubscribed,
-    subscribe,
-    unsubscribe,
-  };
+  const state = useMemo(
+    () => ({
+      ready,
+      isSubscribed,
+      subscribe,
+      unsubscribe,
+    }),
+    [ready, isSubscribed, subscribe, unsubscribe]
+  );
+
+  return state;
 };
 
 const useAndroidPush = () => {
   const { isAndroid } = useMobileApp();
-  const [token] = useLocalStorage("AP_FCMToken", null, { raw: true });
+  const [token] = useLocalStorage("AP_FCMToken", null);
 
   const { ready, isSubscribed, subscribe, unsubscribe } = useServerSubscription(
-    SUBSCRIPTION_TYPES.ANDROID,
-    token && {
-      registration_id: token,
-      cloud_message_type: "FCM",
-    }
+    API.DEVICE_TYPE.ANDROID,
+    token
   );
 
-  if (!isAndroid) {
-    log.debug("Android : not on Android device.");
-    return {
-      ready: true,
-      available: false,
-    };
-  }
+  const state = useMemo(() => {
+    if (!isAndroid) {
+      log.debug(`${API.DEVICE_TYPE.ANDROID}: Not an Android device`);
+      return {
+        ready: true,
+        available: false,
+      };
+    }
 
-  if (!token) {
-    log.debug("Android : not ready.");
-    return {
-      ready: false,
-    };
-  }
+    if (!token) {
+      log.debug(`${API.DEVICE_TYPE.ANDROID}: Missing token for Android device`);
+      return {
+        ready: false,
+      };
+    }
 
-  return {
-    ready,
-    available: true,
-    isSubscribed,
-    subscribe,
-    unsubscribe: isSubscribed ? unsubscribe : undefined,
-  };
+    log.debug(`${API.DEVICE_TYPE.ANDROID}: Subscription active?`, isSubscribed);
+    return {
+      ready,
+      available: true,
+      isSubscribed,
+      subscribe,
+      unsubscribe: isSubscribed ? unsubscribe : undefined,
+    };
+  }, [isAndroid, ready, isSubscribed, subscribe, unsubscribe]);
+
+  return state;
 };
 
 const useIOSPush = () => {
@@ -148,23 +102,18 @@ const useIOSPush = () => {
     isSubscribed,
     subscribe: serverSubscribe,
     unsubscribe,
-  } = useServerSubscription("apple", subscriptionToken);
+  } = useServerSubscription(API.DEVICE_TYPE.IOS, subscriptionToken);
 
   // We change state when iOS app send information
   const messageHandler = useCallback(async (data) => {
-    log.debug("iOS : got message", data);
-
+    log.debug(`${API.DEVICE_TYPE.IOS}: Received message`, data);
     if (data.action !== "setNotificationState") {
       return;
     }
-
     setPhoneReady(true);
-
     if (data.noPermission) {
-      log.debug("iOS : no notification permission");
       return;
     }
-
     if (data.token) {
       setSubscriptionToken(data.token);
     }
@@ -172,69 +121,88 @@ const useIOSPush = () => {
 
   const postMessage = useIOSMessages(messageHandler);
 
-  useEffect(() => {
-    postMessage && postMessage({ action: "getNotificationState" });
-  }, [postMessage]);
-
   const subscribe = useCallback(async () => {
     if (subscriptionToken) {
       return await serverSubscribe(subscriptionToken);
     }
-
     postMessage && postMessage({ action: "enableNotifications" });
   }, [postMessage, serverSubscribe, subscriptionToken]);
 
-  // Not on iOSDevice
-  if (!postMessage) {
-    log.debug("iOS : not on iOS device.");
-    return {
-      ready: true,
-      available: false,
-    };
-  }
+  useEffect(() => {
+    postMessage && postMessage({ action: "getNotificationState" });
+  }, [postMessage]);
 
-  // iOS device but no info yet about subscription
-  if (!phoneReady) {
-    log.debug("iOS : waiting for iOS informations");
-    return {
-      ready: false,
-    };
-  }
+  const state = useMemo(() => {
+    // Not on iOSDevice
+    if (!postMessage) {
+      log.debug(`${API.DEVICE_TYPE.IOS}: Not an IOS device`);
+      return {
+        ready: true,
+        available: false,
+      };
+    }
 
-  // iOS device but no permission
-  if (!subscriptionToken) {
-    log.debug("iOS : no permisson");
-    return {
-      ready: true,
-      available: false,
-      errorMessage: "Veuillez activer la permisson pour les notifications.",
-    };
-  }
+    // iOS device but no info yet about subscription
+    if (!phoneReady) {
+      log.debug(
+        `${API.DEVICE_TYPE.IOS}: Waiting for IOS device subscription status`
+      );
+      return {
+        ready: false,
+      };
+    }
 
-  log.debug("iOS : isSubscribed ", isSubscribed);
-  return {
-    ready: serverReady,
-    available: true,
+    // iOS device but no permission
+    if (!subscriptionToken) {
+      log.debug(`${API.DEVICE_TYPE.IOS}: Missing permissions`);
+      return {
+        ready: true,
+        available: false,
+        errorMessage: "Veuillez activer la permisson pour les notifications.",
+      };
+    }
+
+    log.debug(`${API.DEVICE_TYPE.IOS}: Subscription active?`, isSubscribed);
+    return {
+      ready: serverReady,
+      available: true,
+      isSubscribed,
+      subscribe,
+      unsubscribe: isSubscribed ? unsubscribe : undefined,
+    };
+  }, [
+    postMessage,
+    phoneReady,
+    subscriptionToken,
+    serverReady,
     isSubscribed,
     subscribe,
-    unsubscribe: isSubscribed ? unsubscribe : undefined,
-  };
+    unsubscribe,
+  ]);
+
+  return state;
 };
 
 export const usePush = () => {
-  const iosPush = useIOSPush();
-  const androidPush = useAndroidPush();
+  const iosPushState = useIOSPush();
+  const androidPushState = useAndroidPush();
 
-  if (iosPush.ready && iosPush.available) {
-    return iosPush;
-  }
+  const state = useMemo(() => {
+    let currentState = {
+      ready: iosPushState.ready && androidPushState.ready,
+      available: false,
+    };
+    if (iosPushState.ready && iosPushState.available) {
+      currentState = iosPushState;
+    }
+    if (androidPushState.ready && androidPushState.available) {
+      currentState = androidPushState;
+    }
 
-  if (androidPush.ready && androidPush.available) {
-    return androidPush;
-  }
+    log.debug("Push notifications' current state", currentState);
 
-  return {
-    ready: iosPush.ready && androidPush.ready,
-    available: false,
-  };
+    return currentState;
+  }, [iosPushState, androidPushState]);
+
+  return state;
 };

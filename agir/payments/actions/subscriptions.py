@@ -83,6 +83,7 @@ def description_for_subscription(subscription):
 
 
 def replace_subscription(previous_subscription, new_subscription):
+    assert previous_subscription.type == new_subscription.type
     assert previous_subscription.mode == new_subscription.mode
     assert previous_subscription.status == Subscription.STATUS_ACTIVE
     assert new_subscription.status == Subscription.STATUS_WAITING

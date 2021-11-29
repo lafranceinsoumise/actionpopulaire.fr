@@ -151,9 +151,9 @@ class AlreadyHasSubscriptionView(FormView):
         self.new_subscription_info = self.request.session[self.session_namespace][
             "new_subscription"
         ]
-        self.new_subscription_info["allocations"] = self.new_subscription_info[
-            "allocations"
-        ] = deserialize_allocations(self.new_subscription_info["meta"]["allocations"])
+        self.new_subscription_info["allocations"] = deserialize_allocations(
+            self.new_subscription_info["meta"]["allocations"]
+        )
 
         self.old_subscription = Subscription.objects.filter(
             person=request.user.person,
@@ -297,6 +297,7 @@ class MonthlyDonationEmailConfirmationView(VerifyLinkSignatureMixin, View):
         ):
             self.request.session[self.session_namespace] = {
                 "new_subscription": {
+                    "type": self.payment_type,
                     "mode": self.payment_mode,
                     "subscription_total": subscription_total,
                     "meta": params,

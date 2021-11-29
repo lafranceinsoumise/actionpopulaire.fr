@@ -14,13 +14,13 @@ export const RightLink = (props) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   if (isLoading) {
-    return <IconLink as={Spacer} size="2rem" />;
+    return <IconLink as={Spacer} size="32px" />;
   }
 
   if (!user) {
     return (
       <IconLink route="login">
-        <RawFeatherIcon name="user" width="1.5rem" height="1.5rem" />
+        <RawFeatherIcon name="user" width="24px" height="24px" />
       </IconLink>
     );
   }
@@ -34,7 +34,7 @@ export const RightLink = (props) => {
         title={settingsLink.label}
         aria-label={settingsLink.label}
       >
-        <RawFeatherIcon name="settings" width="1.5rem" height="1.5rem" />
+        <RawFeatherIcon name="settings" width="24px" height="24px" />
       </IconLink>
     );
   }
@@ -52,8 +52,8 @@ export const RightLink = (props) => {
         image={user.image}
         style={{
           border: "none",
-          width: "2rem",
-          height: "2rem",
+          width: "32px",
+          height: "32px",
         }}
       />
       <BottomSheet

@@ -125,7 +125,7 @@ class AccesParrainagesTestCase(TestCase):
         self.client.force_login(p.role)
 
         res = self.client.get(reverse("elus:parrainages"))
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertRedirects(res, reverse("elus:demande_acces_parrainages"))
 
     def test_acces_elus_signataires_appel(self):
         p = Person.objects.create_person(
@@ -155,6 +155,19 @@ class AccesParrainagesTestCase(TestCase):
 
         res = self.client.get(reverse("elus:parrainages"))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_formulaire_redigire_app_si_deja_autorise(self):
+        p = Person.objects.create_person(
+            email="volontaire@groupe.fr", create_role=True, is_2022=True,
+        )
+        self.client.force_login(p.role)
+
+        AccesApplicationParrainages.objects.create(
+            person=p, etat=AccesApplicationParrainages.Etat.VALIDE
+        )
+
+        res = self.client.get(reverse("elus:demande_acces_parrainages"))
+        self.assertRedirects(res, reverse("elus:parrainages"))
 
 
 class DemandeAccesParrainagesTestCase(TestCase):

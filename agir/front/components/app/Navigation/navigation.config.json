@@ -9,6 +9,15 @@
       "mobile": true
     },
     {
+      "id": "actionTools",
+      "icon": "flag",
+      "title": "Agir",
+      "route": "actionTools",
+      "desktop": false,
+      "mobile": true,
+      "external": false
+    },
+    {
       "id": "groups",
       "icon": "users",
       "title": "Groupes",
@@ -34,24 +43,6 @@
       "unreadActivityBadge": true,
       "desktop": true,
       "mobile": true
-    },
-    {
-      "id": "tools",
-      "icon": "flag",
-      "title": "Outils",
-      "route": "tools",
-      "desktop": true,
-      "mobile": true,
-      "external": false
-    },
-    {
-      "id": "materiel",
-      "icon": "shopping-bag",
-      "title": "Matériel",
-      "route": "materiel",
-      "desktop": true,
-      "mobile": false,
-      "external": true
     },
     {
       "id": "settings",

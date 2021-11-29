@@ -280,7 +280,7 @@ class PaymentsView(AskAmountView, ProfileViewMixin, TemplateView):
     tab_code = "PAYMENTS"
     form_class = AllocationSubscriptionForm
     session_namespace = DONATION_SESSION_NAMESPACE
-    success_url = reverse_lazy("monthly_donation_information")
+    success_url = reverse_lazy("donation_information_modal")
 
     @never_cache
     def get(self, request, *args, **kwargs):

@@ -293,7 +293,7 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             routes["invitation"] = front_url(
                 "view_group_settings_contact", kwargs={"pk": obj.pk},
             )
-            routes["orders"] = "https://materiel.lafranceinsoumise.fr/"
+            routes["orders"] = "https://materiel.actionpopulaire.fr/"
             if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
                 routes["materiel"] = front_url(
                     "view_group_settings_materiel", kwargs={"pk": obj.pk}
