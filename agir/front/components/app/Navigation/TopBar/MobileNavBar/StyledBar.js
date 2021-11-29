@@ -12,7 +12,7 @@ const StyledBar = styled.div`
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.5rem;
+  padding: 0 24px;
 
   & > * {
     flex: 0 0 auto;
@@ -21,7 +21,7 @@ const StyledBar = styled.div`
   & > h1,
   & > h2 {
     margin: 0;
-    padding: 0 1rem;
+    padding: 0 16px;
     flex: 1 1 auto;
     text-align: center;
   }
@@ -35,7 +35,7 @@ const StyledBar = styled.div`
   }
 
   & > h2 {
-    font-size: 1rem;
+    font-size: 16px;
     line-height: 1.5;
     font-weight: 500;
     white-space: nowrap;
@@ -46,8 +46,8 @@ const StyledBar = styled.div`
 
   ${IconLink} {
     display: flex;
-    height: 2rem;
-    width: 2rem;
+    height: 32px;
+    width: 32px;
     align-items: center;
     color: ${(props) => props.theme.black1000};
     line-height: 0;

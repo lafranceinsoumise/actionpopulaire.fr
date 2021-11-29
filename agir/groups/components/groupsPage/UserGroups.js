@@ -22,7 +22,7 @@ const GroupsPage = ({ groups }) => {
   }
 
   return (
-    <div style={{ paddingBottom: 64 }}>
+    <>
       {joined.length > 0 && (
         <GroupList>
           {joined.map((group) => (
@@ -52,7 +52,7 @@ const GroupsPage = ({ groups }) => {
           ))}
         </GroupList>
       )}
-    </div>
+    </>
   );
 };
 

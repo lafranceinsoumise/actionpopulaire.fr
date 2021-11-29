@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import useSWR from "swr";
@@ -19,6 +25,8 @@ import {
 import { getUser, getAuthentication } from "@agir/front/globalContext/reducers";
 import { setSessionContext } from "@agir/front/globalContext/actions";
 import { AUTHENTICATION } from "@agir/front/authentication/common";
+
+const DEFAULT_NEXT_PAGE = routeConfig.tellMore.getLink();
 
 const Container = styled.form`
   display: flex;
@@ -71,6 +79,7 @@ const Form = styled.div`
 `;
 
 const LocalCode = styled.h2`
+  cursor: pointer;
   padding: 1rem 2rem;
   margin: 0;
   margin-top: 1rem;
@@ -87,6 +96,8 @@ const CodeConnexion = () => {
   const [error, setError] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [, bookmarkEmail] = useBookmarkedEmails();
+
+  const shouldBeConnected = useRef(false);
 
   let { data: session, mutate: mutate } = useSWR("/api/session/");
 
@@ -113,7 +124,14 @@ const CodeConnexion = () => {
         return;
       }
 
-      mutate("/api/session/");
+      if (shouldBeConnected.current === false) {
+        mutate();
+        shouldBeConnected.current = true;
+      } else {
+        // Force refresh if first submit session call has not been fired
+        // (ex. first time opening on iPad)
+        window.location = DEFAULT_NEXT_PAGE;
+      }
     },
     [code, mutate]
   );
@@ -138,8 +156,7 @@ const CodeConnexion = () => {
       }
     }
 
-    const route = routeConfig.tellMore.getLink();
-    history.push(route);
+    history.push(DEFAULT_NEXT_PAGE);
   }, [authentication, user, bookmarkEmail, location, history]);
 
   return (
@@ -149,7 +166,9 @@ const CodeConnexion = () => {
       <h1>Un code de connexion vous a été envoyé par e-mail</h1>
 
       {location.state && location.state.code && (
-        <LocalCode>{location.state.code}</LocalCode>
+        <LocalCode onDoubleClick={() => setCode(location.state.code)}>
+          {location.state.code}
+        </LocalCode>
       )}
 
       {isAuto ? (

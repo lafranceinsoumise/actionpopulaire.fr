@@ -117,7 +117,7 @@ const AmountStep = (props) => {
     onSubmit({
       amount,
       to: type,
-      type: byMonth ? "M" : "S",
+      paymentTimes: byMonth ? "M" : "S",
       allocations:
         hasGroup && groupPercentage
           ? [

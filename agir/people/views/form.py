@@ -144,6 +144,11 @@ class PeopleFormNewSubmissionView(BasePeopleFormView):
 
 @method_decorator(never_cache, name="get")
 class PeopleFormEditSubmissionView(BasePeopleFormView):
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated or self.request.user.person is None:
+            return redirect_to_login(request.get_full_path())
+        return super().dispatch(request, *args, **kwargs)
+
     def get_form_kwargs(self):
         if not self.person_form_instance.editable:
             raise Http404()
@@ -152,6 +157,9 @@ class PeopleFormEditSubmissionView(BasePeopleFormView):
         kwargs["submission"] = get_object_or_404(
             PersonFormSubmission, pk=self.kwargs["pk"]
         )
+
+        if kwargs["submission"].person is None:
+            raise PermissionDenied("Ce formulaire ne peut plus être modifié")
 
         if kwargs["submission"].person != self.request.user.person:
             raise PermissionDenied(
@@ -169,6 +177,15 @@ class PeopleFormEditSubmissionView(BasePeopleFormView):
             return reverse("rsvp_event", kwargs={"pk": event.pk})
 
         return super().get_success_url()
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super(PeopleFormEditSubmissionView, self).get(
+                request, *args, **kwargs
+            )
+        except PermissionDenied as e:
+            messages.add_message(self.request, messages.ERROR, e)
+            return HttpResponseRedirect(reverse("dashboard"))
 
 
 class PeopleFormConfirmationView(DetailView):

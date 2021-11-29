@@ -22,7 +22,7 @@ class RedisPool:
         return self._pool
 
 
-auth_pool = RedisPool(settings.AUTH_REDIS_URL, settings.AUTH_REDIS_MAX_CONNECTIONS)
+auth_pool = RedisPool(settings.REDIS_AUTH_URL, settings.REDIS_AUTH_MAX_CONNECTIONS)
 
 
 # utilisé pour patcher facilement Redis en mode test

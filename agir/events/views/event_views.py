@@ -49,7 +49,6 @@ from agir.lib.tasks import create_static_map_image_from_coordinates
 from ..filters import EventFilter
 from ..forms import (
     EventGeocodingForm,
-    EventLegalForm,
     UploadEventImageForm,
     AuthorForm,
 )
@@ -72,7 +71,6 @@ __all__ = [
     "ChangeEventLocationView",
     "EditEventReportView",
     "SendEventReportView",
-    "EditEventLegalView",
     "UploadEventImageView",
     "EventSearchView",
     "EventDetailMixin",
@@ -597,30 +595,3 @@ class SendEventReportView(
             )
             request.session["report_sent"] = str(event.pk)
         return HttpResponseRedirect(reverse("manage_event", kwargs={"pk": pk}))
-
-
-@method_decorator(never_cache, name="get")
-class EditEventLegalView(BaseEventAdminView, UpdateView):
-    template_name = "events/edit_legal.html"
-    form_class = EventLegalForm
-    model = Event
-
-    def form_valid(self, form):
-        result = super().form_valid(form)
-
-        if len(list(form.incomplete_sections)) == 0:
-            message = (
-                "Les informations légales sont complètes. Le secrétariat général de la campagne en a été "
-                "averti, votre demande sera examinée dans les plus brefs délais."
-            )
-            send_secretariat_notification.delay(
-                self.object.pk, self.request.user.person.pk
-            )
-        else:
-            message = "Les informations légales ont bien été mises à jour."
-        messages.add_message(self.request, messages.SUCCESS, message)
-
-        return result
-
-    def get_success_url(self):
-        return reverse("manage_event", args=(self.object.pk,))

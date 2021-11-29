@@ -16,6 +16,7 @@ from django.utils import timezone
 from iso8601 import parse_date
 
 from agir.events.models import Event, EventSubtype, OrganizerConfig
+from agir.events.tasks import geocode_event
 from agir.gestion.models import Projet
 from agir.gestion.typologies import TypeProjet
 from agir.groups.models import SupportGroup
@@ -104,7 +105,7 @@ class Command(LoggingCommand):
             with transaction.atomic():
                 event = Event.objects.create(
                     name=name,
-                    visibility=Event.VISIBILITY_ADMIN,
+                    visibility=Event.VISIBILITY_ORGANIZER,
                     subtype=reunion_publique,
                     start_time=date,
                     end_time=date + timedelta(hours=2),
@@ -134,3 +135,5 @@ class Command(LoggingCommand):
                     description=description_from_submission(s),
                     details={"submission_id": s.id},
                 )
+
+            geocode_event.delay(event.pk)

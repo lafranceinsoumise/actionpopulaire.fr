@@ -28,8 +28,6 @@ from . import actions
 from . import views
 from .forms import EventAdminForm, EventSubtypeAdminForm
 from .. import models
-from ..actions import legal
-from ..forms import EventLegalForm
 
 
 class EventStatusFilter(admin.SimpleListFilter):
@@ -69,28 +67,6 @@ class EventHasReportFilter(admin.SimpleListFilter):
             return queryset.exclude(report_content="")
         if self.value() == "no":
             return queryset.filter(report_content="")
-        return queryset
-
-
-class LegalFileFilter(admin.SimpleListFilter):
-    title = _("Document légal téléversé")
-    parameter_name = "has_legal_file"
-
-    def lookups(self, request, model_admin):
-        return (("yes", _("Présent")), ("no", _("Absent")))
-
-    def queryset(self, request, queryset):
-        if self.value() == "yes":
-            return queryset.filter(
-                legal__has_any_keys=["documents_salle_file", "documents_bill_file"]
-            ).exclude(
-                legal__documents_salle_file__isnull=True,
-                legal__documents_bill_file__isnull=True,
-            )
-        elif self.value() == "no":
-            return queryset.exclude(legal__documents_salle_file__isnull=False).exclude(
-                legal__documents_bill_file__isnull=False
-            )
         return queryset
 
 
@@ -274,8 +250,8 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "visibility",
                     "do_not_list",
                     "send_visibility_notification",
-                    "legal_informations",
                     "facebook",
+                    "meta",
                 )
             },
         ),
@@ -340,7 +316,6 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "modified",
         "coordinates_type",
         "rsvps_buttons",
-        "legal_informations",
         "participants_display",
     )
     date_hierarchy = "start_time"
@@ -357,7 +332,6 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         EventStatusFilter,
         "visibility",
         EventHasReportFilter,
-        LegalFileFilter,
         CountryListFilter,
         DepartementListFilter,
         RegionListFilter,
@@ -437,40 +411,6 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             return "-"
 
     link.short_description = _("Page sur le site")
-
-    @staticmethod
-    def legal_informations(object):
-        if not isinstance(object.legal, dict):
-            return mark_safe("-")
-
-        form = EventLegalForm(object)
-        return mark_safe(
-            render_to_string(
-                "admin/events/legal.html",
-                {
-                    "questions": {
-                        legal.QUESTIONS_DICT[question_id]["question"]: object.legal[
-                            question_id
-                        ]
-                        for question_id in legal.QUESTIONS_DICT
-                        if question_id in object.legal
-                    },
-                    "form": {
-                        section[0]: {
-                            form.fields[field].label: form.get_formatted_value(
-                                field,
-                                object.legal.get(EventLegalForm.meta_prefix + field),
-                                html=True,
-                            )
-                            for field in section[1]
-                        }
-                        for section in form.included_sections
-                    },
-                },
-            )
-        )
-
-    legal_informations.short_description = "Questions légales"
 
     def rsvps_buttons(self, object):
         if object.subscription_form is None or object.pk is None:

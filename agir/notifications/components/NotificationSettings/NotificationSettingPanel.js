@@ -5,15 +5,18 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Accordion from "@agir/front/genericComponents/Accordion";
+import Button from "@agir/front/genericComponents/Button";
 import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import Panel, { StyledBackButton } from "@agir/front/genericComponents/Panel";
 import Link from "@agir/front/app/Link";
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import NotificationSettingItem from "./NotificationSettingItem";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
+
+import { useMobileApp } from "@agir/front/app/hooks";
+import { usePush } from "@agir/notifications/push/subscriptions";
 
 const StyledGroupName = styled.div`
   display: grid;
@@ -55,16 +58,18 @@ const AccordionContent = styled.div`
   padding: 1.5rem;
 `;
 
-const StyledUnsupportedSubscription = styled.div`
+const StyledPushNotificationControls = styled.div`
   padding: 1rem;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto auto;
-  background: ${style.black50};
+  display: flex;
+  align-items: center;
+  border-radius: ${style.borderRadius};
+  background-color: ${style.black50};
   width: calc(100% - 3rem);
   margin: 0 auto 1.5rem;
+  gap: 1rem;
 
   p {
+    flex: 1 1 auto;
     font-size: 0.875rem;
     line-height: 1.5;
     margin: 0;
@@ -82,7 +87,7 @@ const StyledPanel = styled(Panel)`
     padding-bottom: 0;
   }
 
-  > p {
+  & > p {
     padding: 0 1.5rem 0.5rem;
     display: inline-block;
   }
@@ -91,6 +96,48 @@ const StyledPanel = styled(Panel)`
 const InlineBlock = styled.span`
   display: inline-block;
 `;
+
+const PushNotificationControls = (props) => {
+  const { isMobileApp } = useMobileApp();
+
+  const {
+    ready,
+    available,
+    isSubscribed,
+    subscribe,
+    unsubscribe,
+    errorMessage,
+  } = usePush();
+
+  if (isMobileApp && ready && !available) {
+    return (
+      <StyledPushNotificationControls>
+        <p>Installez l'application pour recevoir des notifications</p>
+      </StyledPushNotificationControls>
+    );
+  }
+
+  if (isMobileApp && ready && available && !isSubscribed && subscribe) {
+    return (
+      <StyledPushNotificationControls
+        css={`
+          background-color: ${(props) => props.theme.primary100};
+        `}
+      >
+        <p>
+          <strong>Notifications désactivées</strong>
+          <br />
+          Autorisez les notifications sur cet appareil
+        </p>
+        <Button onClick={subscribe} color="primary">
+          Activer
+        </Button>
+      </StyledPushNotificationControls>
+    );
+  }
+
+  return null;
+};
 
 const NotificationSettingPanel = (props) => {
   const {
@@ -101,12 +148,9 @@ const NotificationSettingPanel = (props) => {
     onChange,
     disabled,
     ready,
-    isPushAvailable,
-    pushIsReady,
   } = props;
 
   const user = useSelector(getUser);
-  const isDesktop = useIsDesktop();
 
   const [byType, icons] = useMemo(() => {
     const result = {};
@@ -153,12 +197,8 @@ const NotificationSettingPanel = (props) => {
         Vous recevez les e-mails sur votre adresse <u>{user.email}</u>&nbsp;
         <Link route="personalInformation">(modifier)</Link>
       </p>
-      {pushIsReady && !isPushAvailable && !isDesktop && (
-        <StyledUnsupportedSubscription>
-          <p>Installez l'application pour recevoir des notifications</p>
-        </StyledUnsupportedSubscription>
-      )}
       <PageFadeIn ready={ready}>
+        <PushNotificationControls />
         {Object.keys(byType).map((type) => (
           <Accordion key={type} name={type} icon={icons[type] || "settings"}>
             <AccordionContent>
@@ -206,11 +246,7 @@ NotificationSettingPanel.propTypes = {
   ),
   activeNotifications: PropTypes.object,
   onChange: PropTypes.func.isRequired,
-  subscribeDevice: PropTypes.func,
   disabled: PropTypes.bool,
   ready: PropTypes.bool,
-  isPushAvailable: PropTypes.bool,
-  pushIsReady: PropTypes.bool,
-  subscriptionError: PropTypes.string,
 };
 export default NotificationSettingPanel;

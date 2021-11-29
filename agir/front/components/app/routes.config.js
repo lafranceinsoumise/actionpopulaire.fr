@@ -36,8 +36,6 @@ const ActivityPage = lazy(() =>
   import("@agir/activity/ActivityPage/ActivityPage")
 );
 
-const ToolsPage = lazy(() => import("@agir/front/toolsPage/ToolsPage"));
-
 const NavigationPage = lazy(() =>
   import("@agir/front/navigationPage/NavigationPage")
 );
@@ -70,6 +68,7 @@ const DonationPage = lazy(() =>
 const DonationInformationsPage = lazy(() =>
   import("@agir/donations/donationPage/InformationsPage")
 );
+const ActionToolsPage = lazy(() => import("@agir/front/ActionToolsPage"));
 
 export const BASE_PATH = "/";
 
@@ -202,6 +201,7 @@ export const routeConfig = {
     path: "/evenements/:eventPk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
+    label: "Détails de l'événement",
     Component: EventPage,
     backLink: {
       route: "events",
@@ -290,6 +290,7 @@ export const routeConfig = {
     path: "/groupes/:groupPk/message/:messagePk/",
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Message du groupe",
     Component: GroupMessagePage,
     hideFeedbackButton: true,
   }),
@@ -298,6 +299,7 @@ export const routeConfig = {
     path: "/groupes/:groupPk/:activeTab?/",
     exact: false,
     neededAuthentication: AUTHENTICATION.NONE,
+    label: "Détails du groupe",
     Component: GroupPage,
     backLink: {
       route: "groups",
@@ -323,20 +325,15 @@ export const routeConfig = {
     },
     keepScroll: true,
   }),
-  tools: new RouteConfig({
-    id: "tools",
-    path: "/outils/",
+  actionTools: new RouteConfig({
+    id: "actionTools",
+    path: "/agir/",
     exact: true,
-    neededAuthentication: AUTHENTICATION.NONE,
-    label: "Outils",
-    Component: ToolsPage,
+    neededAuthentication: AUTHENTICATION.SOFT,
+    label: "Agir",
+    Component: ActionToolsPage,
+    hasLayout: false,
     hideFeedbackButton: true,
-    displayFooterOnMobileApp: true,
-    backLink: {
-      route: "events",
-      label: "Liste des événements",
-      isProtected: true,
-    },
   }),
   notificationSettings: notificationSettingRoute,
   menu: new RouteConfig({
@@ -460,7 +457,7 @@ export const routeConfig = {
   donationsInformations: new RouteConfig({
     id: "donationsInformations",
     params: { type: null },
-    path: ["/:type?/dons/informations/", "/:type?/dons-mensuels/informations/"],
+    path: "/:type?/dons/informations/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Faire un don",

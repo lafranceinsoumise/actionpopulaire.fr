@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
+import useSWR from "swr";
 
 import { StepButton } from "./StyledComponents";
 import styled from "styled-components";
@@ -38,6 +39,20 @@ const StyledCustomField = styled(CustomField)`
   ${({ hidden }) => (hidden ? "display: none" : "")};
 `;
 
+const StyledButton = styled.button`
+  display: inline-block;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  font-size: 0.813rem;
+  text-align: left;
+  font-weight: 400;
+  width: auto;
+`;
+
 const helpEmail =
   "Si vous êtes déjà inscrit·e sur lafranceinsoumise.fr ou melenchon2022.fr, utilisez l'adresse avec laquelle vous êtes inscrit·e";
 const helpNationality =
@@ -57,6 +72,23 @@ const InformationsStep = ({
   hidden = false,
   type = "",
 }) => {
+  const [hasAddress2, setHasAddress2] = useState(false);
+
+  const { data: profile } = useSWR("/api/user/profile/");
+  let hasNewsletter = false;
+  if (profile?.newsletters && Array.isArray(profile.newsletters)) {
+    if (
+      profile.newsletters.includes("2022") &&
+      profile.newsletters.includes("2022_exceptionnel")
+    ) {
+      hasNewsletter = true;
+    }
+  }
+
+  const displayAddress2 = () => {
+    setHasAddress2(true);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setErrors((error) => ({ ...error, [name]: null }));
@@ -172,7 +204,30 @@ const InformationsStep = ({
         value={formData.locationAddress1}
         onChange={handleChange}
         error={errors?.locationAddress1}
+        noSpacer
       />
+
+      {hasAddress2 || formData.locationAddress2 || errors.locationAddress2 ? (
+        <>
+          <Spacer size="0.5rem" />
+          <CustomField
+            Component={TextField}
+            label=""
+            name="locationAddress2"
+            value={formData.locationAddress2}
+            onChange={handleChange}
+            error={errors?.locationAddress2}
+          />
+        </>
+      ) : (
+        <CustomField
+          Component={StyledButton}
+          onClick={displayAddress2}
+          type="button"
+        >
+          + Ajouter une deuxième ligne pour l'adresse
+        </CustomField>
+      )}
 
       <GroupedFields>
         <CustomField
@@ -235,14 +290,31 @@ const InformationsStep = ({
       )}
       <Spacer size="0.5rem" />
 
-      <CheckboxField
-        name="subscribedLfi"
-        label="Recevoir les lettres d'information de la France insoumise"
-        value={formData?.subscribedLfi}
-        onChange={handleCheckboxChange}
-        style={{ fontSize: "14px" }}
-      />
-      <Spacer size="0.5rem" />
+      {!hasNewsletter && (
+        <>
+          <CheckboxField
+            name="subscribed2022"
+            label="Recevoir les lettres d'information de la campagne Mélenchon 2022"
+            value={formData?.subscribed2022}
+            onChange={handleCheckboxChange}
+            style={{ fontSize: "14px" }}
+          />
+          <Spacer size="0.5rem" />
+        </>
+      )}
+
+      {!profile?.is2022 && (
+        <>
+          <CheckboxField
+            name="is2022"
+            label="Je soutiens Jean-Luc Mélenchon pour 2022"
+            value={formData?.is2022}
+            onChange={handleCheckboxChange}
+            style={{ fontSize: "14px" }}
+          />
+          <Spacer size="0.5rem" />
+        </>
+      )}
 
       <p style={{ fontSize: "14px" }}>
         Un reçu, édité par la CNCCFP, me sera adressé, et me permettra de

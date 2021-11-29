@@ -37,6 +37,7 @@ from agir.lib.utils import generate_token_params, resize_and_autorotate
 from . import metrics
 from .model_fields import MandatesField, ValidatedPhoneNumberField
 from .person_forms.models import *
+from ..elus.models import StatutMandat
 from ..lib.display import genrer
 from ..lib.model_fields import ChoiceArrayField
 
@@ -88,7 +89,9 @@ class PersonQueryset(models.QuerySet):
         from agir.elus.models import types_elus
 
         annotations = {
-            f"elu_{label}": klass.objects.filter(person_id=models.OuterRef("id"))
+            f"elu_{label}": klass.objects.filter(
+                person_id=models.OuterRef("id")
+            ).exclude(statut=StatutMandat.FAUX)
             for label, klass in types_elus.items()
         }
 
@@ -239,6 +242,26 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
         extra_fields.setdefault("is_superuser", False)
         extra_fields.setdefault("password", None)
         return self._create_person(email, **extra_fields)
+
+    def create_2022(self, email, password=None, *, subscribed=None, **extra_fields):
+        """
+        Create a user
+        :param email: the user's email
+        :param password: optional password that may be used to connect to the admin website
+        :param extra_fields: any other field
+        :return:
+        """
+        extra_fields.setdefault("is_2022", True)
+
+        if subscribed is False:
+            extra_fields.setdefault("newsletters", [])
+        else:
+            extra_fields.setdefault(
+                "newsletters",
+                [Person.NEWSLETTER_2022, Person.NEWSLETTER_2022_EXCEPTIONNEL],
+            )
+
+        return self.create_person(email, password=password, **extra_fields)
 
     def create_insoumise(
         self, email, password=None, *, subscribed=None, **extra_fields

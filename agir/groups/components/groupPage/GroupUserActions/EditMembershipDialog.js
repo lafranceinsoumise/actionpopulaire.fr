@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -22,6 +22,10 @@ const EditMembershipDialog = (props) => {
   const handleUpdate = () => {
     onUpdate({ personalInfoConsent });
   };
+
+  useEffect(() => {
+    setPersonalInfoConsent(props.personalInfoConsent || false);
+  }, [props.personalInfoConsent]);
 
   return (
     <ModalConfirmation

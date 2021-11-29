@@ -145,6 +145,7 @@ INSTALLED_APPS = [
     "agir.elus.apps.ElusConfig",
     "agir.gestion.apps.GestionConfig",
     "agir.presidentielle2022",
+    "agir.legislatives2022.apps.Legislatives2022Config",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",
     "django.contrib.auth",
@@ -362,8 +363,10 @@ EMAIL_TEMPLATES = {
     "CONTRACT_CONFIRMATION": "https://mosaico.lafranceinsoumise.fr/emails/c63e76d7-d8a1-434c-bdd6-75337312ca28.html",
     # CHECK INFORMATION
     "CHECK_INFORMATION": "https://mosaico.lafranceinsoumise.fr/emails/b0850152-bf53-4979-b5d3-86f231fd98a8.html",
-    # CONFIRM SUBSCRIPTION
-    "CONFIRM_SUBSCRIPTION": "https://mosaico.lafranceinsoumise.fr/emails/eb8e6712-32d5-40bb-a69c-cdc1207e12dc.html",
+    # CONFIRM SUBSCRIPTION LFI
+    "CONFIRM_SUBSCRIPTION_LFI": "https://mosaico.lafranceinsoumise.fr/emails/eb8e6712-32d5-40bb-a69c-cdc1207e12dc.html",
+    # CONFIRM SUBSCRIPTION 2022
+    "CONFIRM_SUBSCRIPTION_2022": "https://mosaico.lafranceinsoumise.fr/emails/eb8e6712-32d5-40bb-a69c-cdc1207e12dc.html",
     # TRANSFER_SENDER variables : TRANSFERER_NAME, GROUP_DESTINATION, MEMBER_LIST, MEMBER_COUNT
     "TRANSFER_SENDER": "https://mosaico.lafranceinsoumise.fr/emails/13cecf70-acd6-46a8-9bd8-63cf1bbb79ec.html",
     # TRANSFER_RECEIVER variables : GREETINGS, GROUP_SENDER, GROUP_SENDER_URL, MEMBERS_COUNT, GROUP_DESTINATION, MEMBER_LIST, MANAGE_GROUP_LINK
@@ -570,9 +573,9 @@ REST_FRAMEWORK = {
 
 # Access tokens
 
-AUTH_REDIS_URL = os.environ.get("AUTH_REDIS_URL", "redis://localhost?db=0")
-AUTH_REDIS_MAX_CONNECTIONS = 5
-AUTH_REDIS_PREFIX = os.environ.get("AUTH_REDIS_PREFIX", "AccessToken:")
+REDIS_AUTH_URL = os.environ.get("REDIS_AUTH_URL", "redis://localhost?db=0")
+REDIS_AUTH_MAX_CONNECTIONS = 5
+REDIS_AUTH_PREFIX = os.environ.get("REDIS_AUTH_PREFIX", "AccessToken:")
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
 LOG_FILE = os.environ.get("LOG_FILE", "./errors.log")
@@ -637,7 +640,7 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache"
         if not DEBUG
         else "django.core.cache.backends.dummy.DummyCache",
-        "LOCATION": os.environ.get("CACHING_REDIS_URL", "redis://localhost?db=0"),
+        "LOCATION": os.environ.get("REDIS_CACHING_URL", "redis://localhost?db=0"),
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
         "KEY_PREFIX": "caching_",
     }
@@ -664,7 +667,7 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 6  # 3 mois
 CRISPY_TEMPLATE_PACK = "bootstrap3"
 
 # CELERY
-CELERY_BROKER_URL = os.environ.get("BROKER_URL", "redis://")
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://")
 # make sure there is a max_retries option
 CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 4}
 # make sure celery does not mess with the root logger
@@ -674,7 +677,7 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 # enable task events to allow monitoring
 CELERY_TASK_SEND_SENT_EVENT = True
 
-CELERY_RESULT_BACKEND = os.environ.get("BROKER_URL", "redis://")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER_URL", "redis://")
 
 DEFAULT_EVENT_IMAGE = "front/images/default_event_pic.jpg"
 
@@ -911,3 +914,6 @@ JAWG_API_ACCES_TOKEN = os.environ.get(
     "JAWG_API_ACCESS_TOKEN",
     "mGYrqYC5XjG6lXEoz0e5ejl1wSS0GovRMqBw8LEuhFfz2PYILpp8YFzx6TnKxAHe",
 )
+
+CALLHUB_API_DOMAIN = os.environ.get("CALLHUB_API_DOMAIN")
+CALLHUB_API_KEY = os.environ.get("CALLHUB_API_KEY")
