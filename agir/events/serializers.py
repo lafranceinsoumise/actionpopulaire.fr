@@ -945,11 +945,13 @@ class EventReportPersonFormSerializer(serializers.ModelSerializer):
 
     def get_url(self, obj):
         return front_url(
-            "view_person_form", kwargs={"slug": obj.slug}, query={"event": obj.event_pk}
+            "view_person_form",
+            kwargs={"slug": obj.slug},
+            query={"reported_event_id": obj.event_pk},
         )
 
     def get_submitted(self, obj):
-        return obj.submissions.filter(data__event=obj.event_pk).exists()
+        return obj.submissions.filter(data__reported_event_id=obj.event_pk).exists()
 
     class Meta:
         model = PersonForm

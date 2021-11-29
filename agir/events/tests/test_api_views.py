@@ -1006,7 +1006,8 @@ class EventReportPersonFormAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn("url", res.data)
         self.assertIn(
-            f"/formulaires/formulaire/?event={self.past_event.pk}", res.data["url"]
+            f"/formulaires/formulaire/?reported_event_id={self.past_event.pk}",
+            res.data["url"],
         )
 
     def test_organizer_can_retrieve_form_submission_state_for_event(self):
