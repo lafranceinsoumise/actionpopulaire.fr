@@ -25,7 +25,6 @@ from django.utils.translation import ugettext as _, ngettext
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import (
-    UpdateView,
     DeleteView,
     DetailView,
     RedirectView,
@@ -55,7 +54,6 @@ from ..forms import (
 from ..models import Event, RSVP, Invitation, OrganizerConfig
 from ..tasks import (
     send_event_report,
-    send_secretariat_notification,
     send_accepted_group_coorganization_invitation_notification,
     send_refused_group_coorganization_invitation_notification,
 )
@@ -94,15 +92,10 @@ class EventOGImageView(DetailView):
     def get_date_string(self):
         # set locale for displaying day name in french
         locale.setlocale(locale.LC_ALL, "fr_FR.utf8")
-
-        if settings.TIME_ZONE == self.event.timezone:
-            return self.event.start_time.strftime(f"%A %d %B À %-H:%M").capitalize()
-
-        return (
-            self.event.start_time.astimezone(pytz.timezone(self.event.timezone))
-            .strftime(f"%A %d %B À %-H:%M %Z")
-            .capitalize()
-        )
+        format = "%A %d %B À %-H:%M"
+        if self.event.timezone != timezone.get_default_timezone_name():
+            format += "%Z"
+        return self.event.local_start_time.strftime(format).capitalize()
 
     def get_location_string(self):
         if self.event.location_city and self.event.location_zip:
