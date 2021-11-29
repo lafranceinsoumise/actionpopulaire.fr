@@ -485,6 +485,22 @@ class ReminderDocsEventNextdayActivityNotificationSerializer(
         )
 
 
+class ReminderReportFormForEventNotificationSerializer(ActivityNotificationSerializer):
+    def get_title(self, activity):
+        return activity.meta.get("title")
+
+    def get_body(self, activity):
+        return activity.meta.get("description")
+
+    def get_url(self, activity):
+        return activity_notification_url(
+            "view_person_form",
+            activity=activity,
+            kwargs={"slug": activity.meta.get("slug")},
+            query={"reported_event_id": activity.event_id},
+        )
+
+
 ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_GROUP_INVITATION: GroupInvitationActivityNotificationSerializer,
     Activity.TYPE_NEW_FOLLOWER: NewFollowerActivityNotificationSerializer,
@@ -512,4 +528,5 @@ ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_EVENT_SUGGESTION: EventSuggestionNotificationSerializer,
     Activity.TYPE_REMINDER_DOCS_EVENT_EVE: ReminderDocsEventPreActivityNotificationSerializer,
     Activity.TYPE_REMINDER_DOCS_EVENT_NEXTDAY: ReminderDocsEventNextdayActivityNotificationSerializer,
+    Activity.TYPE_REMINDER_REPORT_FORM_FOR_EVENT: ReminderReportFormForEventNotificationSerializer,
 }

@@ -1020,7 +1020,7 @@ class EventReportPersonFormAPITestCase(APITestCase):
         PersonFormSubmission.objects.create(
             form=self.report_person_form,
             person=self.organizer,
-            data={"event": str(self.upcomint_event.pk)},
+            data={"reported_event_id": str(self.upcomint_event.pk)},
         )
         res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
         self.assertEqual(res.status_code, 200)
@@ -1030,7 +1030,7 @@ class EventReportPersonFormAPITestCase(APITestCase):
         PersonFormSubmission.objects.create(
             form=self.report_person_form,
             person=self.organizer,
-            data={"event": str(self.past_event.pk)},
+            data={"reported_event_id": str(self.past_event.pk)},
         )
         res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
         self.assertEqual(res.status_code, 200)

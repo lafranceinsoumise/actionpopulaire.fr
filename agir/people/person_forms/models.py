@@ -2,12 +2,13 @@ from collections import OrderedDict
 from itertools import chain
 
 from django.conf import settings
-from django.db.models import JSONField
 from django.db import models
+from django.db.models import JSONField
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
+from agir.lib import html
 from agir.lib.form_fields import CustomJSONEncoder
 from agir.lib.models import DescriptionField, TimeStampedModel
 
@@ -212,6 +213,14 @@ class PersonForm(TimeStampedModel):
                 return self.html_after_message()
             else:
                 return "Ce formulaire est maintenant fermé."
+
+    @property
+    def meta_description(self):
+        if self.short_description:
+            return self.short_description
+        if self.description:
+            return html.textify(self.description)
+        return ""
 
     def __str__(self):
         return "« {} »".format(self.title)

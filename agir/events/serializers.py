@@ -938,10 +938,7 @@ class EventReportPersonFormSerializer(serializers.ModelSerializer):
     submitted = serializers.SerializerMethodField(read_only=True)
 
     def get_description(self, obj):
-        if obj.short_description:
-            return obj.short_description
-
-        return html.textify(obj.description)
+        return obj.meta_description
 
     def get_url(self, obj):
         return front_url(
