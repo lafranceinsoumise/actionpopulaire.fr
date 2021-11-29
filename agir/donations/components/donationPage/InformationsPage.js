@@ -38,12 +38,13 @@ const InformationsPage = () => {
 
   const history = useHistory();
   const params = useParams();
-  const { search } = useLocation();
+  const { search, pathname } = useLocation();
   const urlParams = new URLSearchParams(search);
 
   const type = params?.type || "LFI";
   const groupPk = type !== "2022" && urlParams.get("group");
   const amountParam = urlParams.get("amount") || 0;
+  const monthlyParam = pathname.includes("mensuels") ? "M" : undefined;
 
   const { data: group } = useSWR(groupPk && `/api/groupes/${groupPk}/`, {
     revalidateIfStale: false,
@@ -64,7 +65,7 @@ const InformationsPage = () => {
     // amounts
     to: type,
     amount: amountParam || sessionDonation?.donations?.amount,
-    paymentTimes: sessionDonation?.donations?.paymentTimes,
+    paymentTimes: monthlyParam || sessionDonation?.donations?.paymentTimes,
     allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
     // mode
     paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
@@ -99,7 +100,7 @@ const InformationsPage = () => {
     setFormData({
       ...formData,
       amount: amountParam || sessionDonation?.donations?.amount,
-      paymentTimes: sessionDonation?.donations?.type,
+      paymentTimes: monthlyParam || sessionDonation?.donations?.type,
       allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
       allowedPaymentModes:
         sessionDonation?.donations?.allowedPaymentModes || "[]",
