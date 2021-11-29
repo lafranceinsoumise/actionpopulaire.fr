@@ -1,60 +1,53 @@
-import React from "react";
-import { useState } from "react";
 import PropTypes from "prop-types";
+import React, { useState } from "react";
+import { useScrollbarWidth } from "react-use";
 import styled from "styled-components";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 
-const Tab = styled.li`
-  text-transform: uppercase;
-  display: block;
-  padding: 0;
-  margin: 0 0 -1px 16px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  height: 100%;
-
-  color: ${({ active }) => (active ? style.primary500 : style.black500)};
-  border-bottom: ${({ active }) =>
-    active ? `3px solid ${style.primary500}` : "3px solid transparent"};
-
-  &:first-child {
-    margin-left: 0;
-  }
-
-  @media (max-width: ${style.collapse}px) {
-    text-align: center;
-  }
+const Tab = styled.button`
+  background-color: transparent;
+  border: none;
+  color: ${({ $active }) => ($active ? style.primary500 : style.black500)};
+  box-shadow: ${({ $active }) =>
+    $active ? `inset 0 -3px 0 ${style.primary500}` : "inset 0 0 0 transparent"};
+  transition: all 200ms ease-in-out;
 `;
 
-const TabList = styled.ul`
-  padding: 0;
-  display: flex;
-  width: 100%;
-  height: 100%;
-  flex-direction: row;
-  align-items: center;
-  overflow-x: auto;
-  overflow-y: hidden;
-
-  &:after {
-    content: "";
-    display: block;
-    padding-right: 1.5rem;
-    height: 100%;
-  }
-`;
+const TabList = styled.div``;
 
 const TabListWrapper = styled.div`
-  position: relative;
   width: 100%;
-  height: 24px;
   padding: 0;
-  border-bottom: 1px solid ${style.black100};
+  overflow-x: auto;
+  overflow-y: visible;
 
   @media (max-width: ${style.collapse}px) {
     margin: 0 auto;
+    padding: 0 0 ${(props) => props.$sbw || 16}px;
+  }
+
+  ${TabList} {
+    padding: 1px 1px 0 1px;
+    white-space: nowrap;
+    border-bottom: 1px solid ${style.black200};
+    display: flex;
+    gap: 16px;
+
+    ${Tab} {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: auto;
+      height: 24px;
+      text-transform: uppercase;
+      padding: 0 2px;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      white-space: nowrap;
+    }
   }
 
   :before {
@@ -80,21 +73,23 @@ const TabListWrapper = styled.div`
   }
 `;
 
-const FilterTabs = ({ tabs, onTabChange, style }) => {
-  const [tab, setTab] = useState(0);
+const FilterTabs = (props) => {
+  const { tabs, activeTab = 0, onTabChange } = props;
+
+  const sbw = useScrollbarWidth();
 
   if (tabs.length === 0) {
     return null;
   }
 
   return (
-    <TabListWrapper style={style}>
+    <TabListWrapper $sbw={sbw}>
       <TabList>
         {tabs.map((label, index) => (
           <Tab
-            active={index === tab}
             key={index}
-            onClick={() => setTab(index) + onTabChange(index)}
+            $active={index === activeTab}
+            onClick={(e) => onTabChange(index)}
           >
             {label}
           </Tab>
@@ -108,6 +103,6 @@ export default FilterTabs;
 
 FilterTabs.propTypes = {
   tabs: PropTypes.arrayOf(PropTypes.string).isRequired,
+  activeTab: PropTypes.number,
   onTabChange: PropTypes.func.isRequired,
-  style: PropTypes.object,
 };

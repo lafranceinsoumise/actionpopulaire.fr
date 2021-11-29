@@ -81,7 +81,11 @@ const EventSuggestions = ({ isPaused }) => {
 
   return (
     <>
-      <FilterTabs tabs={tabs} onTabChange={setActiveTab} />
+      <FilterTabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
       <PageFadeIn
         ready={Array.isArray(events)}
         wait={

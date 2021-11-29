@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
@@ -119,10 +119,14 @@ const RightLinks = (props) => {
     unreadMessageCount,
   } = props;
 
+  const userMenuLink = useRef();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const openUserMenu = () => setIsUserMenuOpen(true);
-  const closeUserMenu = () => setIsUserMenuOpen(false);
+  const closeUserMenu = () => {
+    setIsUserMenuOpen(false);
+    userMenuLink.current.focus();
+  };
 
   return (
     <StyledWrapper ready={!isLoading} style={{ position: "relative" }}>
@@ -184,7 +188,7 @@ const RightLinks = (props) => {
             </i>
             <span>Messages</span>
           </CounterIconLink>
-          <IconLink as="button" onClick={openUserMenu}>
+          <IconLink as="button" onClick={openUserMenu} ref={userMenuLink}>
             <Avatar
               displayName={user.displayName}
               image={user.image}
