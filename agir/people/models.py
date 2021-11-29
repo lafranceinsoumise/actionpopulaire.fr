@@ -529,7 +529,8 @@ class Person(
             (
                 "select_person",
                 "Peut lister pour sélectionner (dans un Select 2 par exemple)",
-            )
+            ),
+            ("export_people", "Peut faire un export des informations des personnes",),
         ]
         indexes = (
             GinIndex(fields=["search"], name="search_index"),
