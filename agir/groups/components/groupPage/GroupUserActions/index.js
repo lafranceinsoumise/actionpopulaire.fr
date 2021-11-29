@@ -151,10 +151,10 @@ const ConnectedUserActions = (props) => {
     async (data) => {
       setIsLoading(true);
       const response = await api.updateOwnMembership(id, data);
-      if (typeof response.personalInfoConsent !== "undefined") {
+      if (typeof response.data?.personalInfoConsent !== "undefined") {
         mutate(api.getGroupEndpoint("getGroup", { groupPk: id }), (group) => ({
           ...group,
-          personalInfoConsent: response.personalInfoConsent,
+          personalInfoConsent: response.data.personalInfoConsent,
         }));
       }
       setIsLoading(false);
@@ -189,6 +189,7 @@ const ConnectedUserActions = (props) => {
         groupContact={contact}
         groupReferents={referents}
         personName={user.firstName || user.displayName}
+        personalInfoConsent={personalInfoConsent}
         onJoin={joinGroup}
         onUpdate={updateOwnMembership}
         onClose={closeJoinDialog}

@@ -5,6 +5,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const ACTIONS = {
+  /*
   groups: {
     key: "groups",
     route: "groups",
@@ -12,6 +13,7 @@ const ACTIONS = {
     icon: "map",
     color: style.black700,
   },
+  */
   donations: {
     key: "donations",
     route: "donations",
@@ -120,7 +122,7 @@ export const getActionsForUser = (user) => {
     actions = GROUP_MANAGER_ACTION_ORDER;
   }
 
-  return actions.map((key) => ACTIONS[key]);
+  return actions.map((key) => ACTIONS[key]).filter(Boolean);
 };
 
 export default ACTIONS;

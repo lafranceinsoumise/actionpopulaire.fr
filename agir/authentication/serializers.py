@@ -11,7 +11,7 @@ from agir.authentication.utils import (
     get_bookmarked_emails,
 )
 from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
-from agir.groups.models import SupportGroup
+from agir.groups.models import SupportGroup, Membership
 from agir.lib.geo import get_commune
 from agir.lib.utils import front_url
 
@@ -31,6 +31,7 @@ class UserContextSerializer(serializers.Serializer):
     groups = serializers.PrimaryKeyRelatedField(
         many=True, source="supportgroups", read_only=True
     )
+    isGroupManager = serializers.SerializerMethodField(method_name="is_group_manager")
     address1 = serializers.CharField(source="location_address1")
     city = serializers.CharField(source="location_city")
     commune = serializers.SerializerMethodField()
@@ -51,6 +52,11 @@ class UserContextSerializer(serializers.Serializer):
                 "nameOf": commune.nom_avec_charniere,
             }
         return commune
+
+    def is_group_manager(self, obj):
+        return obj.memberships.filter(
+            membership_type__lte=Membership.MEMBERSHIP_TYPE_MANAGER
+        ).exists()
 
 
 class SessionSerializer(serializers.Serializer):

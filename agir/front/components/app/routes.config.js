@@ -320,6 +320,7 @@ export const routeConfig = {
     label: "Agir",
     Component: ActionToolsPage,
     hasLayout: false,
+    hideFeedbackButton: true,
   }),
   notificationSettings: notificationSettingRoute,
   menu: new RouteConfig({

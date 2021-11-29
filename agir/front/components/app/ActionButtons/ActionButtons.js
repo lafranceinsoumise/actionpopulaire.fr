@@ -4,6 +4,7 @@ import { animated, useSpring } from "@react-spring/web";
 import styled from "styled-components";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { A11y } from "swiper";
+import useSWR from "swr";
 
 import "swiper/scss";
 import "swiper/scss/a11y";
@@ -18,9 +19,23 @@ import ActionButton from "./ActionButton";
 const Carousel = styled(animated.div)`
   position: relative;
   isolation: isolate;
+  margin: 0 -1rem;
+  width: calc(100% + 2rem);
 
   & > * {
     z-index: 0;
+  }
+
+  .swiper-slide {
+    padding: 0 8px;
+
+    &:first-child {
+      padding-left: 16px;
+    }
+
+    &:last-child {
+      padding-left: 16px;
+    }
   }
 
   &::before,
@@ -38,12 +53,12 @@ const Carousel = styled(animated.div)`
 
   &::before {
     left: 0;
-    background: linear-gradient(90deg, white, transparent);
+    background: linear-gradient(90deg, ${style.black25}, transparent);
   }
 
   &::after {
     right: 0;
-    background: linear-gradient(90deg, transparent, white);
+    background: linear-gradient(90deg, transparent, ${style.black25});
   }
 `;
 
@@ -64,7 +79,7 @@ const getSwiperBreakpoints = (slides = [], slideWidth) => {
     breakpoint > 0 && slidesPerView >= 3;
     breakpoint -= slideWidth
   ) {
-    slidesPerView = Math.floor(breakpoint / slideWidth) - 0.5;
+    slidesPerView = Math.ceil(breakpoint / slideWidth) - 0.5;
     breakpoints[breakpoint] = {
       slidesPerView,
     };
@@ -75,7 +90,7 @@ const getSwiperBreakpoints = (slides = [], slideWidth) => {
 export const ActionButtonCarousel = (props) => {
   const { actions } = props;
   const breakpoints = useMemo(
-    () => getSwiperBreakpoints(actions, 75),
+    () => getSwiperBreakpoints(actions, 107),
     [actions]
   );
 
@@ -123,8 +138,8 @@ ActionButtonList.propTypes = {
 };
 
 const ActionButtons = (props) => {
-  const { user } = props;
-  const actions = getActionsForUser(user);
+  const { data: session } = useSWR("/api/session/");
+  const actions = getActionsForUser(session.user);
 
   return (
     <ResponsiveLayout
