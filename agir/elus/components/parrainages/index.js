@@ -28,3 +28,5 @@ const displayInterface = () => {
   }
 };
 onDOMReady(displayInterface);
+export { Error } from "@agir/elus/parrainages/utils";
+export { MarginBlock } from "@agir/elus/parrainages/utils";
