@@ -40,7 +40,8 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
             return self.request.user.person
 
     def clear_session(self):
-        del self.request.session[DONATION_SESSION_NAMESPACE]
+        if DONATION_SESSION_NAMESPACE in self.request.session:
+            del self.request.session[DONATION_SESSION_NAMESPACE]
 
     def monthly_payment(self, allocations):
         validated_data = self.validated_data
