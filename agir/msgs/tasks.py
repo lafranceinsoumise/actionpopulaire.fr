@@ -1,10 +1,8 @@
-from django.urls import reverse
-from django.utils.html import format_html
-
-from agir.msgs.models import UserReport
 from django.core.mail import get_connection, EmailMultiAlternatives
 
 from agir.lib.celery import emailing_task, post_save_task
+from agir.lib.utils import admin_url
+from agir.msgs.models import UserReport
 
 
 @emailing_task
@@ -23,6 +21,7 @@ de la part de {str(report.reporter)}.
  {report.reported_object._meta.model._meta.verbose_name.title().upper()}
  de {str(report.reported_object.author)}
  ID : {report.reported_object.pk} 
+ Lien : {admin_url(f"{report.content_type.app_label}_{report.content_type.model}_change", args=[report.object_id])}
 =============================================================
 
 Cordialement.
