@@ -15,6 +15,7 @@ export const JoinGroup = (props) => {
     groupContact,
     groupReferents,
     personName,
+    personalInfoConsent,
     onJoin,
     onUpdate,
     onClose,
@@ -63,6 +64,7 @@ export const JoinGroup = (props) => {
 
       const givePersonalInfoConsent = () =>
         onUpdate({ personalInfoConsent: true });
+
       const denyPersonalInfoConsent = () =>
         onUpdate({ personalInfoConsent: false });
 
@@ -112,8 +114,9 @@ export const JoinGroup = (props) => {
           </header>
           <article>
             <strong>
-              C’est noté, les gestionnaires du groupe pourront vous contacter
-              sur la messagerie d’Action Populaire et par e-mail.
+              {personalInfoConsent
+                ? "C’est noté, les gestionnaires du groupe pourront vous contacter sur la messagerie d’Action Populaire, par e-mail et par téléphone."
+                : "C’est noté, les gestionnaires du groupe pourront vous contacter sur la messagerie d’Action Populaire et par e-mail."}
             </strong>
             <Spacer size=".5rem" />
             Envoyez-leur un message pour vous présenter&nbsp;!
@@ -147,6 +150,7 @@ JoinGroup.propTypes = {
       displayName: PropTypes.string.isRequired,
     })
   ).isRequired,
+  personalInfoConsent: PropTypes.bool,
   onJoin: PropTypes.func.isRequired,
   onUpdate: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,

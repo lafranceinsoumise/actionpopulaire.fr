@@ -36,6 +36,7 @@ from agir.lib.admin import (
 from agir.lib.autocomplete_filter import AutocompleteFilter
 from agir.lib.utils import generate_token_params, front_url
 from agir.mailing.models import Segment
+from agir.people.admin.actions import export_people_to_csv
 from agir.people.admin.forms import PersonAdminForm, PersonFormForm
 from agir.people.admin.inlines import RSVPInline, MembershipInline, EmailInline
 from agir.people.admin.views import (
@@ -228,6 +229,8 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     # de recherche
     search_fields = ["search", "contact_phone"]
     date_hierarchy = "created"
+
+    actions = (export_people_to_csv,)
 
     def get_search_results(self, request, queryset, search_term):
         if search_term:
@@ -441,6 +444,9 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             request.resolver_match.url_name == "people_person_autocomplete"
             and request.user.has_perm("people.select_person")
         )
+
+    def has_export_permission(self, request):
+        return request.user.has_perm("people.export_people")
 
     class Media:
         pass

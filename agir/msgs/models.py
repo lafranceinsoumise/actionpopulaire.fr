@@ -38,7 +38,7 @@ class AbstractMessage(BaseAPIResource):
     text = models.TextField("Contenu", max_length=2000)
     image = StdImageField()
     reports = GenericRelation(UserReport)
-    deleted = models.BooleanField(default=False)
+    deleted = models.BooleanField("Supprimé", default=False)
 
     class Meta:
         abstract = True
@@ -100,9 +100,7 @@ class SupportGroupMessageRecipient(TimeStampedModel):
     )
 
     def __str__(self):
-        return _("{recipient} --> {message}").format(
-            recipient=self.recipient, message=self.message,
-        )
+        return f"{self.recipient} --> {self.message}"
 
     @property
     def unread_comments(self):

@@ -15,7 +15,8 @@ from django.db.models import (
     Value,
 )
 from django.db.models.functions import Coalesce, Cast
-from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView
 from rest_framework.generics import (
     ListAPIView,
@@ -45,7 +46,7 @@ from agir.lib.rest_framework_permissions import (
 
 ID_RECHERCHE_PARRAINAGE_SUBQUERY = Subquery(
     RechercheParrainage.objects.filter(
-        maire_id=OuterRef("id"), statut=RechercheParrainage.Statut.EN_COURS
+        ~Q(statut=RechercheParrainage.Statut.ANNULEE), maire_id=OuterRef("id")
     ).values("id")[:1]
 )
 
@@ -84,9 +85,14 @@ def queryset_elus(person, distance_geom=None):
                 ),
                 Value(EluMunicipalSerializer.Statut.DISPONIBLE),
             ),
-            recherche_parrainage_maire_id=Case(
+            recherche_parrainage_id=Case(
                 When(
-                    Q(statut=EluMunicipalSerializer.Statut.A_CONTACTER),
+                    Q(
+                        statut__in=[
+                            EluMunicipalSerializer.Statut.A_CONTACTER,
+                            EluMunicipalSerializer.Statut.PERSONNELLEMENT_VU,
+                        ]
+                    ),
                     ID_RECHERCHE_PARRAINAGE_SUBQUERY,
                 ),
                 default=None,
@@ -121,6 +127,14 @@ class RechercheParrainagesView(
 
     permission_required = "elus.acces_parrainages"
 
+    def handle_no_permission(self):
+        messages.add_message(
+            self.request,
+            messages.WARNING,
+            "Vous n'avez pas encore l'accès à l'application de parrainages : il vous faut d'abord remplir le formulaire ci-dessous.",
+        )
+        return HttpResponseRedirect(reverse("elus:demande_acces_parrainages"))
+
     def get_context_data(self, **kwargs):
         person = self.request.user.person
 
@@ -133,16 +147,44 @@ class RechercheParrainagesView(
             parrainage__person_id=person.id,
         )
 
+        # idem
+        termines_qs = list(
+            queryset_elus(person, person.coordinates).filter(
+                ~Q(
+                    parrainage__statut__in=[
+                        StatutRechercheParrainage.EN_COURS,
+                        StatutRechercheParrainage.ANNULEE,
+                    ]
+                ),
+                parrainage__person_id=person.id,
+            )
+        )
+        recherches_parrainages_termines = {
+            r.id: r
+            for r in RechercheParrainage.objects.filter(
+                id__in=[e.recherche_parrainage_id for e in termines_qs]
+            )
+        }
+        for e in termines_qs:
+            e.recherche_parrainage = recherches_parrainages_termines.get(
+                e.recherche_parrainage_id
+            )
+
         elus_proches_qs = queryset_elus_proches(person, person.coordinates).filter(
             statut=EluMunicipalSerializer.Statut.DISPONIBLE
         )[:20]
 
         elus_a_contacter = EluMunicipalSerializer(a_contacter_qs, many=True).data
+        elus_termines = EluMunicipalSerializer(termines_qs, many=True).data
         elus_proches = EluMunicipalSerializer(elus_proches_qs, many=True).data
 
         return super().get_context_data(
             **kwargs,
-            export_data={"aContacter": elus_a_contacter, "proches": elus_proches},
+            export_data={
+                "aContacter": elus_a_contacter,
+                "termines": elus_termines,
+                "proches": elus_proches,
+            },
             data_script_id="elusInitiaux",
         )
 
@@ -192,10 +234,15 @@ class ModifierRechercheParrainageView(UpdateAPIView):
     serializer_class = ModifierRechercheSerializer
 
     def get_queryset(self):
+        # peuvent être modifiés toutes les recherches de parrainages qui n'ont pas été annulées ou validées
+        # (pas de sens à modifier une demande de parrainge si on a déjà confirmé avoir reçu la promesse !)
         return RechercheParrainage.objects.filter(
-            person=self.request.user.person,
-            statut=StatutRechercheParrainage.EN_COURS,
-            maire__isnull=False,
+            person=self.request.user.person, maire__isnull=False,
+        ).exclude(
+            statut__in=[
+                StatutRechercheParrainage.ANNULEE,
+                StatutRechercheParrainage.VALIDEE,
+            ]
         )
 
 
@@ -203,6 +250,11 @@ class DemandeAccesParrainagesView(SoftLoginRequiredMixin, FormView):
     form_class = DemandeAccesApplicationParrainagesForm
     template_name = "elus/parrainages/demande-acces.html"
     success_url = reverse_lazy("dashboard")
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.has_perm("elus.acces_parrainages"):
+            return HttpResponseRedirect(reverse("elus:parrainages"))
+        return super().get(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

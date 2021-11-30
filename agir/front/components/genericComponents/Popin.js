@@ -1,7 +1,10 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTransition, animated } from "@react-spring/web";
+import { useKeyPressEvent } from "react-use";
 import styled from "styled-components";
+
+import { useFocusTrap } from "@agir/lib/utils/hooks";
 
 const fadeInTransition = {
   from: { opacity: 0 },
@@ -56,7 +59,7 @@ export const PopinContainer = (props) => {
     children,
   } = props;
 
-  const popinRef = useRef();
+  const popinRef = useFocusTrap(isOpen);
   const popinTransition = useTransition(isOpen, fadeInTransition);
   const Popin = useMemo(() => Popins[position], [position]);
 
@@ -69,6 +72,9 @@ export const PopinContainer = (props) => {
     },
     [onDismiss]
   );
+
+  useKeyPressEvent("Escape", onDismiss);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       isOpen && document.addEventListener("click", closeOnClickOutside);

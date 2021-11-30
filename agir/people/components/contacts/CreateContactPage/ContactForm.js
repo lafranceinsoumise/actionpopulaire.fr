@@ -198,29 +198,27 @@ export const ContactForm = (props) => {
       </em>
       <Spacer data-scroll="firstName" size="1.5rem" />
       <TextField
-        label="Prénom"
+        label="Prénom*"
         name="firstName"
         placeholder=""
         onChange={handleChange}
         value={data.firstName}
         disabled={isLoading}
-        required={false}
         error={errors?.firstName}
       />
       <Spacer data-scroll="lastName" size="1rem" />
       <TextField
-        label="Nom"
+        label="Nom*"
         name="lastName"
         placeholder=""
         onChange={handleChange}
         value={data.lastName}
         disabled={isLoading}
-        required={false}
         error={errors?.lastName}
       />
       <Spacer data-scroll="zip" size="1rem" />
       <TextField
-        label="Code postal"
+        label="Code postal*"
         id="zip"
         error={errors?.zip}
         name="zip"
@@ -228,7 +226,6 @@ export const ContactForm = (props) => {
         onChange={handleChange}
         value={data.zip}
         disabled={isLoading}
-        required={false}
       />
       <Spacer data-scroll="email" size="1rem" />
       <TextField
@@ -240,7 +237,6 @@ export const ContactForm = (props) => {
         onChange={handleChange}
         value={data.email}
         disabled={isLoading}
-        required={false}
         type="email"
       />
       <Spacer data-scroll="phone" size="1rem" />
@@ -254,8 +250,8 @@ export const ContactForm = (props) => {
         disabled={isLoading}
         helpText={
           <em>
-            Facultatif mais utile pour vous rappeler d’aller voter avant le 1er
-            tour&nbsp;!
+            Facultatif si une adresse e-mail a été renseignée, mais utile pour
+            vous rappeler d’aller voter avant le 1er tour&nbsp;!
           </em>
         }
       />
@@ -322,7 +318,6 @@ export const ContactForm = (props) => {
         defaultOptions={groupOptions}
         error={errors?.group}
         disabled={isLoading}
-        required={false}
       />
       {data.group?.id && (
         <>
@@ -380,7 +375,6 @@ export const ContactForm = (props) => {
             onChange={handleChange}
             value={data.address}
             disabled={isLoading}
-            required={false}
           />
           <Spacer data-scroll="city" size="1rem" />
           <TextField
@@ -392,7 +386,6 @@ export const ContactForm = (props) => {
             onChange={handleChange}
             value={data.city}
             disabled={isLoading}
-            required={false}
           />
           <Spacer data-scroll="country" size="1rem" />
           <CountryField
@@ -404,12 +397,24 @@ export const ContactForm = (props) => {
             onChange={handleChange}
             value={data.country}
             disabled={isLoading}
-            required={false}
           />
           <Spacer size="1rem" />
         </>
       )}
-      <Spacer size="1.5rem" />
+      <Spacer data-scroll="global" size="1.5rem" />
+      {errors && errors.global && (
+        <p
+          css={`
+            padding: 0 0 1rem;
+            margin: 0;
+            font-size: 1rem;
+            text-align: center;
+            color: ${({ theme }) => theme.redNSP};
+          `}
+        >
+          {errors.global}
+        </p>
+      )}
       <Button block type="submit" color="primary" disabled={isLoading}>
         Suivant
       </Button>

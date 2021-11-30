@@ -9,7 +9,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import onboardingEventImage from "./images/onboarding__event.jpg";
 import onboardingActionImage from "./images/onboarding__action.jpg";
-import onboardingThematicImage from "./images/onboarding__thematic.jpg";
 
 const ONBOARDING_TYPE = {
   event: {
@@ -115,22 +114,6 @@ const ONBOARDING_TYPE = {
     createLabel: "Créer un groupe",
     mapLabel: "Voir les groupes dans ma ville",
     mapRoute: "groupMap",
-    createRouteId: "createGroup",
-  },
-  group__thematic: {
-    img: onboardingThematicImage,
-    title: "Rejoignez un groupe thématique local",
-    body: (
-      <>
-        Les groupes thématiques locaux font vivre des thèmes du programme{" "}
-        <strong>l’Avenir en Commun</strong> dans un quartier ou une ville.
-        Rejoignez un groupe proche de chez vous sur un thème qui vous tient à
-        coeur&nbsp;!
-      </>
-    ),
-    createLabel: "Créer un groupe",
-    mapLabel: "Voir les groupes dans ma ville",
-    mapRoute: "thematicTeams",
     createRouteId: "createGroup",
   },
 };

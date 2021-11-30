@@ -174,8 +174,13 @@ def save_contact_information(data):
 
     with transaction.atomic():
         try:
-            # If a person exists for this email, update some of the person's fields if empty
-            person = Person.objects.get_by_natural_key(data["email"])
+            if data.get("email"):
+                person = Person.objects.get_by_natural_key(data["email"])
+            else:
+                # If no email address has been sent, check if the given phone number
+                # relates to a unique Person instance (create a new person otherwise)
+                person = Person.objects.get(contact_phone=data.get("contact_phone"))
+            # If a person exists for this email or phone number, update some of the person's fields
             is_new = False
             person_patch = {
                 key: value
@@ -190,7 +195,7 @@ def save_contact_information(data):
                 setattr(person, key, value)
 
             person.save()
-        except Person.DoesNotExist:
+        except (Person.DoesNotExist, Person.MultipleObjectsReturned):
             # Create a new person if none exists for the email
             data["meta"] = {
                 "subscriptions": {
@@ -200,7 +205,7 @@ def save_contact_information(data):
                     }
                 }
             }
-            person = Person.objects.create_person(data.pop("email"), **data)
+            person = Person.objects.create_person(data.pop("email", ""), **data)
             is_new = True
 
         if (
