@@ -201,6 +201,20 @@ class EventQuerySet(models.QuerySet):
             .order_by("-rank")
         )
 
+    def national(self):
+        return self.filter(calendars__slug="national")
+
+    def for_segment_subscriber(self, person):
+        segmented_events = self.exclude(suggestion_segment__isnull=True)
+
+        return segmented_events.filter(
+            pk__in=[
+                event.pk
+                for event in segmented_events
+                if event.suggestion_segment.is_subscriber(person)
+            ]
+        )
+
 
 class RSVPQuerySet(models.QuerySet):
     def upcoming(self, as_of=None, published_only=True):
@@ -461,6 +475,17 @@ class Event(
         "Url de visio-conférence",
         default="",
         blank=True,
+    )
+
+    suggestion_segment = models.ForeignKey(
+        to="mailing.Segment",
+        verbose_name="Segment de suggestion",
+        on_delete=models.SET_NULL,
+        related_name="suggested_events",
+        related_query_name="suggested_event",
+        null=True,
+        blank=True,
+        help_text=("Segment des personnes auquel cet événement sera suggéré."),
     )
 
     class Meta:

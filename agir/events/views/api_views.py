@@ -51,7 +51,7 @@ __all__ = [
     "EventRsvpedAPIView",
     "PastRsvpedEventAPIView",
     "OngoingRsvpedEventsAPIView",
-    "NearEventSuggestionsAPIView",
+    "EventSuggestionsAPIView",
     "UserGroupEventAPIView",
     "OrganizedEventAPIView",
     "EventCreateOptionsAPIView",
@@ -148,42 +148,35 @@ class OngoingRsvpedEventsAPIView(EventListAPIView):
         )
 
 
-class NearEventSuggestionsAPIView(EventListAPIView):
+class EventSuggestionsAPIView(EventListAPIView):
     def get_queryset(self):
         person = self.request.user.person
 
-        national_events = (
+        events = (
             Event.objects.with_serializer_prefetch(person)
-            .select_related("subtype")
+            .select_related("subtype", "suggestion_segment")
             .listed()
             .upcoming()
-            .filter(calendars__slug="national")
         )
+        segmented = events.for_segment_subscriber(self.request.user.person)
+        national = events.national()
+        near = events.none()
 
         if person.coordinates is not None:
-            near_events = list(
-                Event.objects.with_serializer_prefetch(person)
-                .select_related("subtype")
-                .listed()
-                .upcoming()
-                .filter(start_time__lt=timezone.now() + timedelta(days=30))
+            national = national.annotate(
+                distance=Distance("coordinates", person.coordinates),
+            ).filter(distance__lte=100000)
+
+            near = (
+                events.filter(start_time__lt=timezone.now() + timedelta(days=30))
                 .annotate(distance=Distance("coordinates", person.coordinates))
-                .distinct()
-                .order_by("distance")[:10]
-            )
-            national_events = list(
-                national_events.annotate(
-                    distance=Distance("coordinates", person.coordinates),
-                )
-                .filter(distance__lte=100000)
-                .order_by("start_time")[:10]
+                .order_by("distance")
             )
 
-            return sorted(
-                set(national_events + near_events), key=lambda event: event.start_time
-            )
-
-        return national_events.order_by("start_time")[:10]
+        return sorted(
+            set(list(segmented) + list(national[:10]) + list(near[:10])),
+            key=lambda event: event.start_time,
+        )
 
 
 class UserGroupEventAPIView(EventListAPIView):

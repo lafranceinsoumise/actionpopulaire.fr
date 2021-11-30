@@ -123,7 +123,7 @@ class HomepageView(BaseAppCachedView):
         if self.request.user.is_authenticated and self.request.user.person:
             return [
                 reverse_lazy("api_event_rsvped"),
-                reverse_lazy("api_near_events"),
+                reverse_lazy("api_event_suggestions"),
             ]
         return []
 
