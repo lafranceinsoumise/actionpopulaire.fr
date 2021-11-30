@@ -43,5 +43,9 @@ urlpatterns = [
         views.AnnouncementLinkView.as_view(),
         name="announcement_link",
     ),
-    path("activite/<int:pk>/lien/", views.follow_activity_link, name="activity_link",),
+    path(
+        "activite/<int:pk>/lien/",
+        views.follow_activity_link,
+        name="activity_link",
+    ),
 ]

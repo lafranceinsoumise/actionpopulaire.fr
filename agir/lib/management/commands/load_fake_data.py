@@ -23,22 +23,34 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--seed_people", type=int, help="Create n person objects",
+            "--seed_people",
+            type=int,
+            help="Create n person objects",
         )
         parser.add_argument(
-            "--seed_person_forms", type=int, help="Create n person form objects",
+            "--seed_person_forms",
+            type=int,
+            help="Create n person form objects",
         )
         parser.add_argument(
-            "--seed_groups", type=int, help="Create n group objects",
+            "--seed_groups",
+            type=int,
+            help="Create n group objects",
         )
         parser.add_argument(
-            "--seed_events", type=int, help="Create n event objects",
+            "--seed_events",
+            type=int,
+            help="Create n event objects",
         )
         parser.add_argument(
-            "--seed_activities", type=int, help="Create n activity objects",
+            "--seed_activities",
+            type=int,
+            help="Create n activity objects",
         )
         parser.add_argument(
-            "--email", type=str, help="The email of the activity related person",
+            "--email",
+            type=str,
+            help="The email of the activity related person",
         )
 
     def handle(self, *args, **options):

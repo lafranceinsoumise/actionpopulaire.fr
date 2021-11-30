@@ -25,7 +25,8 @@ class TransferOperationAdmin(TestCase):
 
         self.transfer_operations = [
             TransferOperation.objects.create(
-                former_group=self.groups[i], new_group=self.groups[j],
+                former_group=self.groups[i],
+                new_group=self.groups[j],
             )
             for i, j, _ in transfers
         ]

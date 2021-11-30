@@ -207,7 +207,9 @@ def follow_activity_link(request, pk):
         ]
     }
     url_is_safe = is_safe_url(
-        url=next, allowed_hosts=allowed_hosts, require_https=True,
+        url=next,
+        allowed_hosts=allowed_hosts,
+        require_https=True,
     )
     if not url_is_safe:
         next = front_url("list_activities")

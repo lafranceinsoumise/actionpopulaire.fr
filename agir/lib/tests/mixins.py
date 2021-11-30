@@ -77,7 +77,11 @@ def create_person():
         "email": fake.email(),
         "contact_phone": "+33600000000",
         "gender": random.choice(
-            [Person.GENDER_FEMALE, Person.GENDER_MALE, Person.GENDER_OTHER,]
+            [
+                Person.GENDER_FEMALE,
+                Person.GENDER_MALE,
+                Person.GENDER_OTHER,
+            ]
         ),
         "date_of_birth": fake.date_between(start_date="-100y"),
         "is_2022": fake.boolean(),

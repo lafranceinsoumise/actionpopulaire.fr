@@ -461,7 +461,9 @@ class EventOrganizerGroupField(serializers.RelatedField):
         if obj is None:
             return None
         return SupportGroupSerializer(
-            obj, context=self.context, fields=["id", "name", "contact", "location"],
+            obj,
+            context=self.context,
+            fields=["id", "name", "contact", "location"],
         ).data
 
     def to_internal_value(self, pk):
@@ -543,7 +545,9 @@ class CreateEventSerializer(serializers.Serializer):
         geocode_event.delay(event.pk)
         if event.visibility == Event.VISIBILITY_ORGANIZER:
             send_secretariat_notification.delay(
-                organizer_config.event.pk, organizer_config.person.pk, complete=False,
+                organizer_config.event.pk,
+                organizer_config.person.pk,
+                complete=False,
             )
         # Also notify members if it is organized by a group
         if data["organizer_group"]:
@@ -745,7 +749,9 @@ class UpdateEventSerializer(serializers.ModelSerializer):
                 OrganizerConfig.objects.update_or_create(
                     person=validated_data["organizerPerson"],
                     event=instance,
-                    defaults={"as_group": validated_data["organizerGroup"],},
+                    defaults={
+                        "as_group": validated_data["organizerGroup"],
+                    },
                 )
                 # Add group to changed data if one has been specified
                 if validated_data["organizerGroup"] is not None:
@@ -837,7 +843,8 @@ class EventProjectSerializer(serializers.ModelSerializer):
     event = ProjectEventSerializer(read_only=True)
     status = serializers.CharField(source="etat", read_only=True)
     dismissedDocumentTypes = serializers.JSONField(
-        source="details.documents.absent", default=list,
+        source="details.documents.absent",
+        default=list,
     )
     requiredDocumentTypes = serializers.JSONField(
         source="event.subtype.required_documents", read_only=True
@@ -876,7 +883,9 @@ class EventProjectSerializer(serializers.ModelSerializer):
             type__in=self.Meta.valid_document_types
         )
         return EventProjectDocumentSerializer(
-            uploaded_documents, many=True, context=self.context,
+            uploaded_documents,
+            many=True,
+            context=self.context,
         ).data
 
     def get_limitDate(self, obj):

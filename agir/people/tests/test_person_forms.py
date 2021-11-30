@@ -350,7 +350,10 @@ class ViewPersonFormTestCase(SetUpPersonFormsMixin, TestCase):
         self.assertContains(res, "newsletters")
         self.assertNotIn(Person.NEWSLETTER_2022_LIAISON, self.person.newsletters)
         self.assertIn(Person.NEWSLETTER_2022, self.person.newsletters)
-        res = self.client.post("/formulaires/newsletters/", data={},)
+        res = self.client.post(
+            "/formulaires/newsletters/",
+            data={},
+        )
         self.assertContains(res, "has-error")
         res = self.client.post(
             "/formulaires/newsletters/",

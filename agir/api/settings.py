@@ -251,7 +251,9 @@ FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 if ENABLE_FRONT:
     TEMPLATES[0]["OPTIONS"]["context_processors"].extend(
-        ["agir.api.context_processors.basic_information",]
+        [
+            "agir.api.context_processors.basic_information",
+        ]
     )
 
 MESSAGE_TAGS = {ERROR: "danger"}

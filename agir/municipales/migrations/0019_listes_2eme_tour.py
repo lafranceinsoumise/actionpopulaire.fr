@@ -11,7 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveConstraint(
-            model_name="liste", name="commune_soutenue_unique",
+            model_name="liste",
+            name="commune_soutenue_unique",
         ),
         migrations.AddField(
             model_name="liste",

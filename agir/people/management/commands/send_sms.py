@@ -65,7 +65,10 @@ class Command(BaseCommand):
             isinstance(phone, PhoneNumber)
             and phone.is_valid()
             and number_type(phone)
-            in [PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE,]
+            in [
+                PhoneNumberType.MOBILE,
+                PhoneNumberType.FIXED_LINE_OR_MOBILE,
+            ]
         )
 
     def write_numbers(self, path, numbers):

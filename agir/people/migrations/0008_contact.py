@@ -13,7 +13,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Contact",
             fields=[],
-            options={"proxy": True, "indexes": [], "constraints": [],},
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
             bases=("people.person",),
         ),
     ]

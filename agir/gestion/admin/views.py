@@ -128,7 +128,9 @@ class CacherCommentaireView(AdminViewMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            commentaire=self.commentaire, object=self.object, **kwargs,
+            commentaire=self.commentaire,
+            object=self.object,
+            **kwargs,
         )
 
 
@@ -140,7 +142,9 @@ class FormHandlerView(View):
             message = "Le lien que vous avez suivi était incorrect."
 
         messages.add_message(
-            request=self.request, level=messages.WARNING, message=message,
+            request=self.request,
+            level=messages.WARNING,
+            message=message,
         )
 
         return self.retour_page_modification()

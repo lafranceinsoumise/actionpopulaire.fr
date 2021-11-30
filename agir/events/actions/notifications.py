@@ -16,7 +16,8 @@ def new_event_suggestion_notification(event, recipient):
         activity_config["individual"] = event.organizers.first()
 
     Activity.objects.create(
-        **activity_config, recipient=recipient,
+        **activity_config,
+        recipient=recipient,
     )
 
 
@@ -37,7 +38,11 @@ def event_required_document_reminder_notification(event_pk, post=False, pre=Fals
 
     Activity.objects.bulk_create(
         [
-            Activity(type=activity_type, recipient=organizer, event=event,)
+            Activity(
+                type=activity_type,
+                recipient=organizer,
+                event=event,
+            )
             for organizer in event.organizers.all()
         ],
         send_post_save_signal=True,

@@ -115,5 +115,8 @@ class Migration(migrations.Migration):
             sql=creer_version_initiale,
             reverse_sql=sauvegarder_derniere_version_sur_document,
         ),
-        migrations.RemoveField(model_name="document", name="fichier",),
+        migrations.RemoveField(
+            model_name="document",
+            name="fichier",
+        ),
     ]

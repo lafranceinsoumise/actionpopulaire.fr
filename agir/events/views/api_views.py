@@ -87,7 +87,9 @@ class EventListAPIView(ListAPIView):
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
-            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+            *args,
+            fields=EventListSerializer.EVENT_CARD_FIELDS,
+            **kwargs,
         )
 
 
@@ -317,7 +319,9 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
         # Create organizer config if current person is the group referent
         if member in group.referents:
             OrganizerConfig.objects.create(
-                event=event, person=member, as_group=group,
+                event=event,
+                person=member,
+                as_group=group,
             )
             return Response(status=status.HTTP_201_CREATED)
 
@@ -408,7 +412,8 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
             request.session["rsvp_event"] = str(self.object.pk)
             request.session["is_guest"] = False
             raise MethodNotAllowed(
-                "POST", detail={"redirectTo": reverse("pay_event")},
+                "POST",
+                detail={"redirectTo": reverse("pay_event")},
             )
 
         return super().post(request, *args, **kwargs)

@@ -38,15 +38,22 @@ def get_general_stats(start, end):
         ).count(),
         "news_LFI": ouvert_news.filter(is_insoumise=True).distinct().count(),
         "taux_news_LFI": sent_events.filter(
-            subscriber__is_insoumise=True, open_count__gt=0,
+            subscriber__is_insoumise=True,
+            open_count__gt=0,
         ).count()
         / (sent_events.filter(subscriber__is_insoumise=True).count() or 1)
         * 100,
         "news_2022": ouvert_news.filter(is_insoumise=False).distinct().count(),
         "taux_news_2022": sent_events.filter(
-            subscriber__is_insoumise=False, open_count__gt=0,
+            subscriber__is_insoumise=False,
+            open_count__gt=0,
         ).count()
-        / (sent_events.filter(subscriber__is_insoumise=False,).count() or 1)
+        / (
+            sent_events.filter(
+                subscriber__is_insoumise=False,
+            ).count()
+            or 1
+        )
         * 100,
         "ap_users": ap_users.count(),
         "ap_users_LFI": ap_users.filter(is_insoumise=True).count(),

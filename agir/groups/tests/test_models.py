@@ -70,7 +70,8 @@ class MessageTestCase(TestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
         self.member = Person.objects.create(
-            email="member@example.com", create_role=True,
+            email="member@example.com",
+            create_role=True,
         )
         Membership.objects.create(
             supportgroup=self.group,

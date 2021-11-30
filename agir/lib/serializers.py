@@ -155,11 +155,13 @@ class PhoneField(serializers.CharField):
 
 
 class NestedContactSerializer(serializers.Serializer):
-    """A nested serializer for the fields defined by :py:class:`lib.models.ContactMixin`
-    """
+    """A nested serializer for the fields defined by :py:class:`lib.models.ContactMixin`"""
 
     name = serializers.CharField(
-        label="Nom du contact", required=True, max_length=255, source="contact_name",
+        label="Nom du contact",
+        required=True,
+        max_length=255,
+        source="contact_name",
     )
 
     email = serializers.EmailField(
@@ -195,7 +197,10 @@ class NestedLocationSerializer(serializers.Serializer):
     """
 
     name = NullableCharField(
-        label="nom du lieu", max_length=255, required=True, source="location_name",
+        label="nom du lieu",
+        max_length=255,
+        required=True,
+        source="location_name",
     )
     address = NullableCharField(
         label="adresse complète",

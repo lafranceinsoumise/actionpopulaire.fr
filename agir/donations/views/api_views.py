@@ -77,7 +77,9 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
 
         # Redirect if user already monthly donator
         if Subscription.objects.filter(
-            person=self.person, status=Subscription.STATUS_ACTIVE, mode=payment_mode,
+            person=self.person,
+            status=Subscription.STATUS_ACTIVE,
+            mode=payment_mode,
         ):
             # stocker toutes les infos en session
             # attention à ne pas juste modifier le dictionnaire existant,

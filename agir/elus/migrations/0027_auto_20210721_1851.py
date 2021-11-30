@@ -13,7 +13,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameModel(
-            old_name="RechercheParrainageMaire", new_name="RechercheParrainage",
+            old_name="RechercheParrainageMaire",
+            new_name="RechercheParrainage",
         ),
         migrations.AlterModelOptions(
             name="rechercheparrainage",
@@ -26,10 +27,13 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.RenameField(
-            model_name="rechercheparrainage", old_name="elu", new_name="maire",
+            model_name="rechercheparrainage",
+            old_name="elu",
+            new_name="maire",
         ),
         migrations.RemoveConstraint(
-            model_name="rechercheparrainage", name="recherche_parrainage_un_seul_actif",
+            model_name="rechercheparrainage",
+            name="recherche_parrainage_un_seul_actif",
         ),
         migrations.AddField(
             model_name="rechercheparrainage",

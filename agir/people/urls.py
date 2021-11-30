@@ -15,7 +15,11 @@ api_urls = [
         api.SubscriptionAPIView.as_view(),
         name="api_people_subscription",
     ),
-    path("api/inscription/", api.SignupAPIView.as_view(), name="api_people_signup",),
+    path(
+        "api/inscription/",
+        api.SignupAPIView.as_view(),
+        name="api_people_signup",
+    ),
     path(
         "api/user/profile/",
         api.PersonProfileAPIView.as_view(),
@@ -26,7 +30,11 @@ api_urls = [
         api.ManageNewslettersAPIView.as_view(),
         name="api_people_newsletters",
     ),
-    path("api/people/counter/", api.CounterAPIView.as_view(), name="api_counter",),
+    path(
+        "api/people/counter/",
+        api.CounterAPIView.as_view(),
+        name="api_counter",
+    ),
     path(
         "api/people/referrer/<str:referrer_id>/",
         api.ReferrerInformationView.as_view(),

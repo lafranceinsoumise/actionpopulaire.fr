@@ -141,7 +141,10 @@ class EventOGImageView(DetailView):
             else os.path.join(self.static_root, "Poppins-Medium.ttf")
         )
         return ImageFont.truetype(
-            filename, size=size, encoding="utf-8", layout_engine=ImageFont.LAYOUT_BASIC,
+            filename,
+            size=size,
+            encoding="utf-8",
+            layout_engine=ImageFont.LAYOUT_BASIC,
         )
 
     def get_image_from_file(self, filename):
@@ -193,8 +196,7 @@ class EventOGImageView(DetailView):
 
 
 class EventSearchView(FilterView):
-    """Vue pour lister les événements et les rechercher
-    """
+    """Vue pour lister les événements et les rechercher"""
 
     template_name = "events/event_search.html"
     context_object_name = "events"
@@ -447,7 +449,9 @@ class ModifyEventView(RedirectView):
 
 
 @method_decorator(never_cache, name="get")
-class EditEventReportView(RedirectView,):
+class EditEventReportView(
+    RedirectView,
+):
     permanent = True
     pattern_name = "view_event_settings_feedback"
     query_string = True
@@ -455,7 +459,8 @@ class EditEventReportView(RedirectView,):
 
 @method_decorator(never_cache, name="get")
 class ChangeEventLocationView(
-    BaseEventAdminView, ChangeLocationBaseView,
+    BaseEventAdminView,
+    ChangeLocationBaseView,
 ):
     template_name = "events/change_location.html"
     form_class = EventGeocodingForm
@@ -568,7 +573,9 @@ class RefuseEventCoorganizationInvitationView(AcceptEventCoorganizationInvitatio
 
 
 class SendEventReportView(
-    BaseEventAdminView, SingleObjectMixin, View,
+    BaseEventAdminView,
+    SingleObjectMixin,
+    View,
 ):
     model = Event
 

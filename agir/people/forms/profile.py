@@ -91,7 +91,10 @@ class PersonalInformationsForm(ImageFormMixin, forms.ModelForm):
             Row(
                 FullCol(description),
                 HalfCol(
-                    Row(HalfCol("first_name"), HalfCol("last_name"),),
+                    Row(
+                        HalfCol("first_name"),
+                        HalfCol("last_name"),
+                    ),
                     Row(
                         FullCol(
                             Field("display_name"),
@@ -127,7 +130,10 @@ class PersonalInformationsForm(ImageFormMixin, forms.ModelForm):
                         ),
                     ),
                 ),
-                HalfCol(Row(FullCol("image")), Row(FullCol("image_accept_license")),),
+                HalfCol(
+                    Row(FullCol("image")),
+                    Row(FullCol("image_accept_license")),
+                ),
             )
         )
 
@@ -351,7 +357,9 @@ class ContactForm(LegacySubscribedMixin, ContactPhoneNumberMixin, forms.ModelFor
         )
 
         btn_submit = Submit(
-            "submit", "Sauvegarder", css_class="btn-danger btn-block marginbottom",
+            "submit",
+            "Sauvegarder",
+            css_class="btn-danger btn-block marginbottom",
         )
 
         newsletter_fieldset = []

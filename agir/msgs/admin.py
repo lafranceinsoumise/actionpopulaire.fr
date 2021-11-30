@@ -23,7 +23,8 @@ class SupportGroupMessageCommentAdmin(VersionAdmin):
 
     def msg(self, object):
         href = reverse(
-            "admin:msgs_supportgroupmessage_change", args=[object.message.pk],
+            "admin:msgs_supportgroupmessage_change",
+            args=[object.message.pk],
         )
         return format_html(f'<a href="{href}">{object.message.pk}</a>')
 

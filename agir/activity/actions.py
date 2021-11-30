@@ -134,9 +134,9 @@ def get_custom_announcements(person, custom_display):
             .first()
         )
         if activity:
-            return Announcement.objects.filter(pk=activity.announcement_id,).annotate(
-                activity_id=Value(activity.id, IntegerField())
-            )
+            return Announcement.objects.filter(
+                pk=activity.announcement_id,
+            ).annotate(activity_id=Value(activity.id, IntegerField()))
 
     return (
         get_announcements(person)

@@ -18,7 +18,8 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.RemoveIndex(
-            model_name="announcement", name="announcement_date_index",
+            model_name="announcement",
+            name="announcement_date_index",
         ),
         migrations.AddIndex(
             model_name="announcement",

@@ -133,7 +133,15 @@ class BaseMandatAdmin(admin.ModelAdmin):
                 ]
 
                 return (
-                    ("Compte", {"fields": ("person", "create_new_person",),},),
+                    (
+                        "Compte",
+                        {
+                            "fields": (
+                                "person",
+                                "create_new_person",
+                            ),
+                        },
+                    ),
                     ("Détails", {"fields": additional_fields}),
                 )
 
@@ -318,7 +326,12 @@ class BaseMandatAdmin(admin.ModelAdmin):
         mandats = MandatMunicipal.objects.filter(person=person)
 
         return display_list_of_links(
-            (m, m.titre_complet(conseil_avant=True),) for m in mandats if m != obj
+            (
+                m,
+                m.titre_complet(conseil_avant=True),
+            )
+            for m in mandats
+            if m != obj
         )
 
     mandats_municipaux.short_description = "Mandats municipaux"
@@ -328,7 +341,12 @@ class BaseMandatAdmin(admin.ModelAdmin):
 
         mandats = MandatDepartemental.objects.filter(person=person)
         return display_list_of_links(
-            (m, m.titre_complet(conseil_avant=True),) for m in mandats if m != obj
+            (
+                m,
+                m.titre_complet(conseil_avant=True),
+            )
+            for m in mandats
+            if m != obj
         )
 
     mandats_departementaux.short_description = "Mandats départementaux"
@@ -338,7 +356,12 @@ class BaseMandatAdmin(admin.ModelAdmin):
 
         mandats = MandatRegional.objects.filter(person=person)
         return display_list_of_links(
-            (m, m.titre_complet(conseil_avant=True),) for m in mandats if m != obj
+            (
+                m,
+                m.titre_complet(conseil_avant=True),
+            )
+            for m in mandats
+            if m != obj
         )
 
     mandats_regionaux.short_description = "Mandats régionaux"
@@ -451,7 +474,10 @@ class MandatMunicipalAdmin(BaseMandatAdmin):
                 )
             },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates", "delegations")},),
+        (
+            "Précisions sur le mandat",
+            {"fields": ("dates", "delegations")},
+        ),
     )
 
     def get_conseil_queryset(self, request):
@@ -549,7 +575,10 @@ class MandatDepartementAdmin(BaseMandatAdmin):
                 )
             },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates", "delegations")},),
+        (
+            "Précisions sur le mandat",
+            {"fields": ("dates", "delegations")},
+        ),
     )
 
     def get_conseil_queryset(self, request):
@@ -629,7 +658,10 @@ class MandatRegionalAdmin(BaseMandatAdmin):
                 )
             },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates", "delegations")},),
+        (
+            "Précisions sur le mandat",
+            {"fields": ("dates", "delegations")},
+        ),
     )
 
     def get_conseil_queryset(self, request):
@@ -689,7 +721,10 @@ class MandatConsulaireAdmin(BaseMandatAdmin):
                 )
             },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates",)},),
+        (
+            "Précisions sur le mandat",
+            {"fields": ("dates",)},
+        ),
     )
 
     def get_conseil_queryset(self, request):
@@ -764,7 +799,10 @@ class MandatDeputeAdmin(BaseMandatAdmin):
                 )
             },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates",)},),
+        (
+            "Précisions sur le mandat",
+            {"fields": ("dates",)},
+        ),
     )
 
     def get_conseil_queryset(self, request):
@@ -829,7 +867,10 @@ class MandatDeputeEuropeenAdmin(BaseMandatAdmin):
                 )
             },
         ),
-        ("Précisions sur le mandat", {"fields": ("dates",)},),
+        (
+            "Précisions sur le mandat",
+            {"fields": ("dates",)},
+        ),
     )
 
 
@@ -865,7 +906,10 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
             )
 
         return (
-            ("Élu·e sollicité·e", {"fields": ("nom_elu", "type_elu_label")},),
+            (
+                "Élu·e sollicité·e",
+                {"fields": ("nom_elu", "type_elu_label")},
+            ),
             ("Détails", {"fields": self.get_fields(request, obj=obj)}),
         )
 

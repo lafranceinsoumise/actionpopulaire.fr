@@ -275,7 +275,9 @@ class EventManager(models.Manager.from_queryset(EventQuerySet)):
 
             if organizer_person is not None:
                 organizer_config = OrganizerConfig.objects.create(
-                    person=organizer_person, event=event, as_group=organizer_group,
+                    person=organizer_person,
+                    event=event,
+                    as_group=organizer_group,
                 )
                 organizer_config.save()
                 rsvp = RSVP.objects.create(person=organizer_person, event=event)
@@ -455,7 +457,11 @@ class Event(
         choices=FOR_USERS_CHOICES,
     )
 
-    online_url = models.URLField("Url de visio-conférence", default="", blank=True,)
+    online_url = models.URLField(
+        "Url de visio-conférence",
+        default="",
+        blank=True,
+    )
 
     class Meta:
         verbose_name = _("événement")
@@ -768,7 +774,8 @@ class EventSubtype(BaseSubtype):
     required_documents = ArrayField(
         verbose_name="Attestations requises",
         base_field=models.CharField(
-            choices=EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES, max_length=10,
+            choices=EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES,
+            max_length=10,
         ),
         null=False,
         blank=False,
@@ -1033,7 +1040,8 @@ class OrganizerConfig(ExportModelOperationsMixin("organizer_config"), models.Mod
             return
 
         if not self.as_group.memberships.filter(
-            person=self.person, membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+            person=self.person,
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
         ).exists():
             raise ValidationError(
                 {"as_group": "Le groupe doit être un groupe que vous gérez."}
@@ -1158,5 +1166,8 @@ class Invitation(TimeStampedModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["event", "group"], name="unique",),
+            models.UniqueConstraint(
+                fields=["event", "group"],
+                name="unique",
+            ),
         ]

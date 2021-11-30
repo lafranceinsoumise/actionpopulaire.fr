@@ -10,7 +10,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="segment", name="force_non_insoumis",),
+        migrations.RemoveField(
+            model_name="segment",
+            name="force_non_insoumis",
+        ),
         migrations.AddField(
             model_name="segment",
             name="is_2022",

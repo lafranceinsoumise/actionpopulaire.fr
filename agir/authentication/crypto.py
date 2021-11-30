@@ -71,7 +71,7 @@ class SignatureGenerator(PasswordResetTokenGenerator):
         return False
 
     def check_token(self, token, **params):
-        """copied from """
+        """copied from"""
         self._check_params(params)
         if not token:
             return False

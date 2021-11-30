@@ -27,8 +27,7 @@ def reverse_update_foreignkeys(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    """ Change model with integer pk to UUID pk.
-    """
+    """Change model with integer pk to UUID pk."""
 
     dependencies = [
         ("activity", "0011_auto_20201217_1625"),
@@ -36,7 +35,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name="announcement", name="uuid", field=models.UUIDField(null=True),
+            model_name="announcement",
+            name="uuid",
+            field=models.UUIDField(null=True),
         ),
         migrations.RunPython(fill_uuids, migrations.RunPython.noop),
         migrations.AlterField(

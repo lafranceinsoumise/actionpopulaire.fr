@@ -31,11 +31,25 @@ legacy_urlpatterns = [
 
 api_urlpatterns = [
     path("", views.UserGroupsView.as_view(), name="api_user_groups"),
-    path("recherche/", views.GroupSearchAPIView.as_view(), name="api_group_search",),
-    path("sous-types/", views.GroupSubtypesView.as_view(), name="api_group_subtypes",),
-    path("<uuid:pk>/", views.GroupDetailAPIView.as_view(), name="api_group_view",),
     path(
-        "<uuid:pk>/rejoindre/", views.JoinGroupAPIView.as_view(), name="api_group_join",
+        "recherche/",
+        views.GroupSearchAPIView.as_view(),
+        name="api_group_search",
+    ),
+    path(
+        "sous-types/",
+        views.GroupSubtypesView.as_view(),
+        name="api_group_subtypes",
+    ),
+    path(
+        "<uuid:pk>/",
+        views.GroupDetailAPIView.as_view(),
+        name="api_group_view",
+    ),
+    path(
+        "<uuid:pk>/rejoindre/",
+        views.JoinGroupAPIView.as_view(),
+        name="api_group_join",
     ),
     path(
         "<uuid:pk>/suivre/",
@@ -43,7 +57,9 @@ api_urlpatterns = [
         name="api_group_follow",
     ),
     path(
-        "<uuid:pk>/quitter/", views.QuitGroupAPIView.as_view(), name="api_group_quit",
+        "<uuid:pk>/quitter/",
+        views.QuitGroupAPIView.as_view(),
+        name="api_group_quit",
     ),
     path(
         "<uuid:pk>/suggestions/",

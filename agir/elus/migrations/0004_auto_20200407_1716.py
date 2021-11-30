@@ -37,6 +37,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="mandatmunicipal", unique_together={("commune", "person")},
+            name="mandatmunicipal",
+            unique_together={("commune", "person")},
         ),
     ]

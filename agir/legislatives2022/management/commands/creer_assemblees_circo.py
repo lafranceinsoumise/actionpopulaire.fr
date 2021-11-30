@@ -74,7 +74,11 @@ class Command(LoggingCommand):
                 ).filter(submission_id=OuterRef("id"))
             ),
             possible_date=Cast(
-                Func(F("data"), Value("date"), function="jsonb_extract_path_text",),
+                Func(
+                    F("data"),
+                    Value("date"),
+                    function="jsonb_extract_path_text",
+                ),
                 output_field=DateTimeField(),
             ),
         ).filter(evenement_cree=False, possible_date__gt=now)

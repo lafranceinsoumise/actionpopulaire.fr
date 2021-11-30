@@ -49,7 +49,8 @@ class Command(BaseCommand):
 
         self.stdout.write("\n")
         self.stdout.write(
-            f"** Plateforme — statistiques hébdomadaires **", self.style.WARNING,
+            f"** Plateforme — statistiques hébdomadaires **",
+            self.style.WARNING,
         )
         self.stdout.write(
             f"du {date_format(start)} au {date_format(end - timezone.timedelta(days=1))}",

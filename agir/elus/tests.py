@@ -137,7 +137,8 @@ class AccesParrainagesTestCase(TestCase):
         self.client.force_login(p.role)
 
         MandatMunicipal.objects.create(
-            person=p, statut=StatutMandat.CONFIRME,
+            person=p,
+            statut=StatutMandat.CONFIRME,
         )
 
         res = self.client.get(reverse("elus:parrainages"))
@@ -145,7 +146,9 @@ class AccesParrainagesTestCase(TestCase):
 
     def test_acces_avec_acces_explicite(self):
         p = Person.objects.create_person(
-            email="volontaire@groupe.fr", create_role=True, is_2022=True,
+            email="volontaire@groupe.fr",
+            create_role=True,
+            is_2022=True,
         )
         self.client.force_login(p.role)
 
@@ -158,7 +161,9 @@ class AccesParrainagesTestCase(TestCase):
 
     def test_formulaire_redigire_app_si_deja_autorise(self):
         p = Person.objects.create_person(
-            email="volontaire@groupe.fr", create_role=True, is_2022=True,
+            email="volontaire@groupe.fr",
+            create_role=True,
+            is_2022=True,
         )
         self.client.force_login(p.role)
 

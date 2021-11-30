@@ -94,7 +94,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name_plural": "mandats consulaires",},
+            options={
+                "verbose_name_plural": "mandats consulaires",
+            },
             bases=(
                 agir.elus.models.UniqueWithinDates,
                 agir.elus.models.MandatHistoryMixin,

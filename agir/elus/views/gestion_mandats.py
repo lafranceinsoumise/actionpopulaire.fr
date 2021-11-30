@@ -20,7 +20,8 @@ class BaseMandatView(SoftLoginRequiredMixin):
     def get_context_data(self, **kwargs):
         if getattr(self, "object"):
             kwargs.setdefault(
-                "conseil_avec_charniere", self.get_conseil_avec_charniere(),
+                "conseil_avec_charniere",
+                self.get_conseil_avec_charniere(),
             )
 
         return super().get_context_data(

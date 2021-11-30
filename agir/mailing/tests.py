@@ -11,7 +11,8 @@ from agir.people.models import Person
 class SegmentTestCase(TestCase):
     def setUp(self) -> None:
         self.person_with_account = Person.objects.create_insoumise(
-            email="a@a.a", create_role=True,
+            email="a@a.a",
+            create_role=True,
         )
 
         self.person_without_account = Person.objects.create_person(email="b@b.b")
