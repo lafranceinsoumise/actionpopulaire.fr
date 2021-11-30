@@ -101,16 +101,10 @@ class Command(BaseCommand):
         if email_count == 0:
             self.print_line("__Aucun e-mail envoyé cette semaine__")
 
-        # ACTION POPULAIRE
-        self.print_section_title("Action populaire")
-        print_flux("Connexions", "ap_users")
-        print_flux(" ├── dont insoumis", "ap_users_LFI")
-        print_flux(" └── dont 2022 (non LFI)", "ap_users_2022")
-        print_flux("Événements", "ap_events")
-
         self.print_section_title("Événements")
+        print_flux("Événements", "ap_events")
         for subtype in EVENT_SUBTYPES.keys():
-            print_stock(f"{subtype.capitalize()}", f"ap_events__{subtype}")
+            print_flux(f"├── dont {subtype.capitalize()}", f"ap_events__{subtype}")
 
         # GROUPES
         self.print_section_title("Groupes")
