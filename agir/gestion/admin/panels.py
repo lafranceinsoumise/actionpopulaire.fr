@@ -95,7 +95,18 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
     inlines = (VersionDocumentInline,)
 
     fieldsets = (
-        (None, {"fields": ("numero_", "titre", "identifiant", "type", "requis",)},),
+        (
+            None,
+            {
+                "fields": (
+                    "numero_",
+                    "titre",
+                    "identifiant",
+                    "type",
+                    "requis",
+                )
+            },
+        ),
         ("Lié à", {"fields": ["depenses", "projets"]}),
         (
             "Ajouter une version de ce document",
@@ -231,7 +242,10 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
             return "-"
 
         return render_to_string(
-            "admin/gestion/table_reglements.html", {"depense": obj,}
+            "admin/gestion/table_reglements.html",
+            {
+                "depense": obj,
+            },
         )
 
     reglements.short_description = "règlements effectués"
@@ -508,7 +522,16 @@ class ProjetUtilisateurAdmin(BaseProjetAdmin):
     fieldsets = (
         (
             None,
-            {"fields": ("numero_", "titre", "type", "etat", "event", "description",)},
+            {
+                "fields": (
+                    "numero_",
+                    "titre",
+                    "type",
+                    "etat",
+                    "event",
+                    "description",
+                )
+            },
         ),
         (
             "Détails de l'événement lié",

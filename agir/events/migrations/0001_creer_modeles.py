@@ -70,7 +70,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Agenda",},
+            options={
+                "verbose_name": "Agenda",
+            },
         ),
         migrations.CreateModel(
             name="CalendarItem",
@@ -99,7 +101,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Élément de calendrier",},
+            options={
+                "verbose_name": "Élément de calendrier",
+            },
         ),
         migrations.CreateModel(
             name="Event",
@@ -462,7 +466,9 @@ class Migration(migrations.Migration):
                 ),
                 ("legend", models.CharField(max_length=280, verbose_name="légende")),
             ],
-            options={"abstract": False,},
+            options={
+                "abstract": False,
+            },
         ),
         migrations.CreateModel(
             name="EventSubtype",
@@ -649,7 +655,9 @@ class Migration(migrations.Migration):
                     models.TextField(blank=True, verbose_name="description"),
                 ),
             ],
-            options={"verbose_name": "tag",},
+            options={
+                "verbose_name": "tag",
+            },
         ),
         migrations.CreateModel(
             name="IdentifiedGuest",
@@ -677,7 +685,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"db_table": "events_rsvp_guests_form_submissions",},
+            options={
+                "db_table": "events_rsvp_guests_form_submissions",
+            },
         ),
         migrations.CreateModel(
             name="JitsiMeeting",
@@ -725,7 +735,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Visio-conférence",},
+            options={
+                "verbose_name": "Visio-conférence",
+            },
         ),
         migrations.CreateModel(
             name="OrganizerConfig",
@@ -814,7 +826,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "RSVP", "verbose_name_plural": "RSVP",},
+            options={
+                "verbose_name": "RSVP",
+                "verbose_name_plural": "RSVP",
+            },
         ),
         # relations et autres
         migrations.AddField(
@@ -1054,10 +1069,12 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="rsvp", unique_together={("event", "person")},
+            name="rsvp",
+            unique_together={("event", "person")},
         ),
         migrations.AlterUniqueTogether(
-            name="identifiedguest", unique_together={("rsvp", "submission")},
+            name="identifiedguest",
+            unique_together={("rsvp", "submission")},
         ),
         migrations.AddIndex(
             model_name="event",

@@ -71,7 +71,9 @@ class ChangeEventPermissionsTestCase(TestCase):
         end_time = start_time + timezone.timedelta(hours=2)
 
         self.group_event = Event.objects.create(
-            name="Group event", start_time=start_time, end_time=end_time,
+            name="Group event",
+            start_time=start_time,
+            end_time=end_time,
         )
         OrganizerConfig.objects.create(
             as_group=self.event_organizer_group,
@@ -85,7 +87,9 @@ class ChangeEventPermissionsTestCase(TestCase):
         )
 
         self.personal_event = Event.objects.create(
-            name="Personal event", start_time=start_time, end_time=end_time,
+            name="Personal event",
+            start_time=start_time,
+            end_time=end_time,
         )
         OrganizerConfig.objects.create(
             person=self.event_creator, event=self.personal_event

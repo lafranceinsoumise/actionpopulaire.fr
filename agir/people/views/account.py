@@ -252,7 +252,11 @@ class MandatsView(SoftLoginRequiredMixin, UpdateView):
         if not mandats or person.membre_reseau_elus == Person.MEMBRE_RESEAU_EXCLUS:
             kwargs["form"] = None
 
-        return super().get_context_data(**kwargs, mandats=mandats, person=person,)
+        return super().get_context_data(
+            **kwargs,
+            mandats=mandats,
+            person=person,
+        )
 
     def form_invalid(self, form):
         return super().form_invalid(form)

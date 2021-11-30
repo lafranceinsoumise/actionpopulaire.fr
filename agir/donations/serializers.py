@@ -32,7 +32,8 @@ PAYMENTS_2022_MONTHLY = [AFCP2022SystemPayPaymentMode.id]
 
 class DonationAllocationSerializer(serializers.Serializer):
     group = serializers.PrimaryKeyRelatedField(
-        queryset=SupportGroup.objects.active().certified(), required=True,
+        queryset=SupportGroup.objects.active().certified(),
+        required=True,
     )
     amount = serializers.IntegerField(min_value=1, required=True)
 

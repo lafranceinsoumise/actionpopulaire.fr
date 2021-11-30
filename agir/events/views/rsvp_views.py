@@ -39,9 +39,7 @@ from ...people.actions.subscription import SUBSCRIPTION_TYPE_EXTERNAL
 
 
 class RSVPEventView(SoftLoginRequiredMixin, DetailView):
-    """RSVP to an event, check one's RSVP, or add guests to your RSVP
-
-    """
+    """RSVP to an event, check one's RSVP, or add guests to your RSVP"""
 
     model = Event
     template_name = "events/rsvp_event.html"
@@ -296,9 +294,7 @@ class ChangeRSVPPaymentView(SoftLoginRequiredMixin, DetailView):
 
 @method_decorator(never_cache, name="get")
 class PayEventView(SoftLoginRequiredMixin, UpdateView):
-    """View for the billing form for paid events
-
-    """
+    """View for the billing form for paid events"""
 
     form_class = BillingForm
     template_name = "events/pay_event.html"
@@ -401,9 +397,7 @@ class PayEventView(SoftLoginRequiredMixin, UpdateView):
 
 
 class EventPaidView(RedirectView):
-    """View shown when the event has been paid
-
-    """
+    """View shown when the event has been paid"""
 
     def get_redirect_url(self, *args, **kwargs):
         payment = self.kwargs["payment"]

@@ -13,7 +13,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveConstraint(
-            model_name="rechercheparrainage", name="parrainage_un_seul_elu",
+            model_name="rechercheparrainage",
+            name="parrainage_un_seul_elu",
         ),
         migrations.AddField(
             model_name="rechercheparrainage",

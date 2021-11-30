@@ -197,10 +197,12 @@ class GroupFollowAPITestCase(APITestCase):
 class QuitGroupAPITestCase(APITestCase):
     def setUp(self):
         self.member = Person.objects.create(
-            email="member@example.com", create_role=True,
+            email="member@example.com",
+            create_role=True,
         )
         self.first_ref = Person.objects.create(
-            email="referent@example.com", create_role=True,
+            email="referent@example.com",
+            create_role=True,
         )
         self.group = SupportGroup.objects.create()
         self.membership = Membership.objects.create(
@@ -221,7 +223,8 @@ class QuitGroupAPITestCase(APITestCase):
 
     def test_non_member_cannot_quit_group(self):
         non_member = Person.objects.create(
-            email="non_member@example.com", create_role=True,
+            email="non_member@example.com",
+            create_role=True,
         )
         self.client.force_login(non_member.role)
         res = self.client.delete(f"/api/groupes/{self.group.pk}/quitter/")
@@ -250,7 +253,8 @@ class QuitGroupAPITestCase(APITestCase):
 
     def test_non_last_referent_can_quit_group(self):
         second_ref = Person.objects.create(
-            email="second_ref@example.com", create_role=True,
+            email="second_ref@example.com",
+            create_role=True,
         )
         Membership.objects.create(
             person=second_ref,
@@ -278,7 +282,8 @@ class QuitGroupAPITestCase(APITestCase):
     def test_member_can_quit_group(self):
         self.assertEqual(
             Membership.objects.filter(
-                supportgroup=self.group, person=self.member,
+                supportgroup=self.group,
+                person=self.member,
             ).count(),
             1,
         )
@@ -287,7 +292,8 @@ class QuitGroupAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 204)
         self.assertEqual(
             Membership.objects.filter(
-                supportgroup=self.group, person=self.member,
+                supportgroup=self.group,
+                person=self.member,
             ).count(),
             0,
         )
@@ -465,7 +471,8 @@ class GroupInvitationAPIViewTestCase(APITestCase):
     def test_invitation_empty_email(self):
         self.client.force_login(self.referent_member.role)
         res = self.client.post(
-            f"/api/groupes/{self.group.pk}/invitation/", data={"email": ""},
+            f"/api/groupes/{self.group.pk}/invitation/",
+            data={"email": ""},
         )
         self.assertEqual(res.status_code, 422)
 
@@ -532,29 +539,39 @@ class GroupFinanceAPITestCase(APITestCase):
 
     def test_anonymous_person_cannot_view_group_finance(self):
         self.client.logout()
-        res = self.client.get(f"/api/groupes/{self.group.pk}/finance/",)
+        res = self.client.get(
+            f"/api/groupes/{self.group.pk}/finance/",
+        )
         self.assertEqual(res.status_code, 401)
 
     def test_group_member_cannot_view_group_finance(self):
         self.client.force_login(self.simple_member.role)
-        res = self.client.get(f"/api/groupes/{self.group.pk}/finance/",)
+        res = self.client.get(
+            f"/api/groupes/{self.group.pk}/finance/",
+        )
         self.assertEqual(res.status_code, 403)
 
     def test_group_manager_can_view_group_finance(self):
         self.client.force_login(self.manager_member.role)
-        res = self.client.get(f"/api/groupes/{self.group.pk}/finance/",)
+        res = self.client.get(
+            f"/api/groupes/{self.group.pk}/finance/",
+        )
         self.assertEqual(res.status_code, 200)
 
     def test_api_response_contains_a_donation_property(self):
         self.client.force_login(self.manager_member.role)
-        res = self.client.get(f"/api/groupes/{self.group.pk}/finance/",)
+        res = self.client.get(
+            f"/api/groupes/{self.group.pk}/finance/",
+        )
         self.assertEqual(res.status_code, 200)
         self.assertIn("donation", res.data)
         self.assertEqual(res.data["donation"], 10)
 
     def test_api_response_contains_the_list_of_the_group_spending_requests(self):
         self.client.force_login(self.manager_member.role)
-        res = self.client.get(f"/api/groupes/{self.group.pk}/finance/",)
+        res = self.client.get(
+            f"/api/groupes/{self.group.pk}/finance/",
+        )
         self.assertEqual(res.status_code, 200)
         self.assertIn("spendingRequests", res.data)
         self.assertEqual(len(res.data["spendingRequests"]), 1)
@@ -634,28 +651,32 @@ class GroupExternalLinkAPITestCase(APITestCase):
     def test_anonymous_cannot_add_a_link(self):
         self.client.logout()
         res = self.client.post(
-            f"/api/groupes/{self.group.pk}/link/", data=self.valid_data,
+            f"/api/groupes/{self.group.pk}/link/",
+            data=self.valid_data,
         )
         self.assertEqual(res.status_code, 401)
 
     def test_non_group_member_cannot_add_a_link(self):
         self.client.force_login(self.non_member.role)
         res = self.client.post(
-            f"/api/groupes/{self.group.pk}/link/", data=self.valid_data,
+            f"/api/groupes/{self.group.pk}/link/",
+            data=self.valid_data,
         )
         self.assertEqual(res.status_code, 403)
 
     def test_group_member_cannot_add_a_link(self):
         self.client.force_login(self.simple_member.role)
         res = self.client.post(
-            f"/api/groupes/{self.group.pk}/link/", data=self.valid_data,
+            f"/api/groupes/{self.group.pk}/link/",
+            data=self.valid_data,
         )
         self.assertEqual(res.status_code, 403)
 
     def test_group_manager_can_add_a_link(self):
         self.client.force_login(self.manager_member.role)
         res = self.client.post(
-            f"/api/groupes/{self.group.pk}/link/", data=self.valid_data,
+            f"/api/groupes/{self.group.pk}/link/",
+            data=self.valid_data,
         )
         self.assertEqual(res.status_code, 201)
         self.assertIn("url", res.data)

@@ -9,13 +9,17 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameField(
-            model_name="communepage", old_name="strategy", new_name="liste_tour_1",
+            model_name="communepage",
+            old_name="strategy",
+            new_name="liste_tour_1",
         ),
         migrations.AlterField(
             model_name="communepage",
             name="liste_tour_1",
             field=models.CharField(
-                blank=True, max_length=255, verbose_name="Nom de la liste du 1er tour",
+                blank=True,
+                max_length=255,
+                verbose_name="Nom de la liste du 1er tour",
             ),
         ),
         migrations.RenameField(
@@ -37,7 +41,9 @@ class Migration(migrations.Migration):
             model_name="communepage",
             name="liste_tour_2",
             field=models.CharField(
-                blank=True, max_length=255, verbose_name="Nom de la liste du 2e tour",
+                blank=True,
+                max_length=255,
+                verbose_name="Nom de la liste du 2e tour",
             ),
         ),
         migrations.AddField(

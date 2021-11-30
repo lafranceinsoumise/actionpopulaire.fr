@@ -80,7 +80,8 @@ class MailLinkTestCase(TestCase):
         response = self.client.get(reverse("create_group"), follow=True)
 
         self.assertRedirects(
-            response, reverse("short_code_login") + "?next=" + reverse("create_group"),
+            response,
+            reverse("short_code_login") + "?next=" + reverse("create_group"),
         )
 
     def test_unsubscribe_use_hidden_email_field_when_logged_in(self):

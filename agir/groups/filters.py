@@ -64,7 +64,8 @@ class GroupFilterSet(django_filters.FilterSet):
 
 class GroupAPIFilterSet(GroupFilterSet, django_filters.rest_framework.FilterSet):
     exclude = django_filters.CharFilter(
-        method="filter_exclude", label="Sauf l'id de groupe",
+        method="filter_exclude",
+        label="Sauf l'id de groupe",
     )
 
     def filter_exclude(self, qs, name, value):

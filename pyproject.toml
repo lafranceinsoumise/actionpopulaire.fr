@@ -89,7 +89,7 @@ asks = "^2.4.12"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
-black = "==19.10b0"
+black = "==21.11b1"
 coverage = "*"
 django-debug-toolbar = "*"
 redislite = "*"  # used for testing

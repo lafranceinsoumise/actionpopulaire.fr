@@ -137,7 +137,8 @@ class UserMessagesView(BaseAppHardAuthView):
 
 
 class UserMessageView(
-    GlobalOrObjectPermissionRequiredMixin, UserMessagesView,
+    GlobalOrObjectPermissionRequiredMixin,
+    UserMessagesView,
 ):
     permission_required = ("msgs.view_message",)
     queryset = SupportGroupMessage.objects.all()

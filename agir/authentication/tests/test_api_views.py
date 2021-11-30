@@ -9,7 +9,10 @@ class LoginAPITestCase(APITestCase):
     def setUp(self):
         self.valid_email = "valid@email.com"
         self.person = Person.objects.create(
-            email=self.valid_email, create_role=True, is_insoumise=True, is_2022=True,
+            email=self.valid_email,
+            create_role=True,
+            is_insoumise=True,
+            is_2022=True,
         )
 
     def test_person_cannot_login_with_empty_email(self):
@@ -97,7 +100,10 @@ class CheckCodeTestCase(APITestCase):
     def setUp(self):
         self.primary_email = "person@email.com"
         self.person = Person.objects.create(
-            email=self.primary_email, create_role=True, is_insoumise=True, is_2022=True,
+            email=self.primary_email,
+            create_role=True,
+            is_insoumise=True,
+            is_2022=True,
         )
 
     def test_person_cannot_login_without_a_session_email(self):
@@ -148,7 +154,8 @@ class CheckCodeTestCase(APITestCase):
         return_value=True,
     )
     @patch(
-        "agir.authentication.views.api_views.authenticate", return_value=False,
+        "agir.authentication.views.api_views.authenticate",
+        return_value=False,
     )
     def test_person_cannot_login_if_short_code_is_not_valid(
         self, short_code_bucket, authenticate
@@ -197,7 +204,10 @@ class LogoutTestCase(APITestCase):
     def setUp(self):
         self.primary_email = "person@email.com"
         self.person = Person.objects.create(
-            email=self.primary_email, create_role=True, is_insoumise=True, is_2022=True,
+            email=self.primary_email,
+            create_role=True,
+            is_insoumise=True,
+            is_2022=True,
         )
 
     def test_person_can_logout(self):

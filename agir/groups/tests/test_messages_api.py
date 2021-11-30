@@ -22,7 +22,8 @@ class GroupMessagesTestAPICase(APITestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
         self.member = Person.objects.create(
-            email="member@example.com", create_role=True,
+            email="member@example.com",
+            create_role=True,
         )
         Membership.objects.create(
             supportgroup=self.group,
@@ -142,7 +143,8 @@ class GroupMessagesTestAPICase(APITestCase):
         )
         self.client.force_login(self.member.role)
         res = self.client.get(
-            f"/api/groupes/messages/{message.pk}/", data={"text": "Ipsum"},
+            f"/api/groupes/messages/{message.pk}/",
+            data={"text": "Ipsum"},
         )
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data["id"], str(message.id))
@@ -157,7 +159,11 @@ class GroupMessagesTestAPICase(APITestCase):
         self.assertEqual(res.data["text"], "Lorem")
         # self.assertEqual(res.data["image"], None)
         self.assertEqual(
-            res.data["group"], {"id": self.group.id, "name": self.group.name,}
+            res.data["group"],
+            {
+                "id": self.group.id,
+                "name": self.group.name,
+            },
         )
         self.assertIn("comments", res.data)
         self.assertNotIn("recentComments", res.data)
@@ -169,7 +175,8 @@ class GroupMessagesTestAPICase(APITestCase):
         )
         self.client.force_login(self.member.role)
         res = self.client.get(
-            f"/api/groupes/messages/{message.pk}/", data={"text": "Ipsum"},
+            f"/api/groupes/messages/{message.pk}/",
+            data={"text": "Ipsum"},
         )
         self.assertEqual(res.status_code, 404)
 
@@ -187,7 +194,8 @@ class GroupMessagesTestAPICase(APITestCase):
         )
         self.client.force_login(self.manager.role)
         res = self.client.patch(
-            f"/api/groupes/messages/{message.pk}/", data={"text": "Ipsum"},
+            f"/api/groupes/messages/{message.pk}/",
+            data={"text": "Ipsum"},
         )
         self.assertEqual(res.status_code, 200)
         self.assertEqual(self.group.messages.first().text, "Ipsum")
@@ -199,7 +207,8 @@ class GroupMessagesTestAPICase(APITestCase):
         self.create_other_manager()
         self.client.force_login(self.other_manager.role)
         res = self.client.put(
-            f"/api/groupes/messages/{message.pk}/", data={"text": "Ipsum"},
+            f"/api/groupes/messages/{message.pk}/",
+            data={"text": "Ipsum"},
         )
         self.assertEqual(res.status_code, 403)
 
@@ -258,7 +267,8 @@ class GroupMessageCommentAPITestCase(APITestCase):
 
     def create_other_member(self):
         self.other_member = Person.objects.create(
-            email="other_member@example.com", create_role=True,
+            email="other_member@example.com",
+            create_role=True,
         )
         Membership.objects.create(
             supportgroup=self.group,
@@ -325,7 +335,8 @@ class GroupMessageCommentAPITestCase(APITestCase):
         )
         self.client.force_login(self.member.role)
         res = self.client.patch(
-            f"/api/groupes/messages/comments/{comment.pk}/", data={"text": "Ipsum"},
+            f"/api/groupes/messages/comments/{comment.pk}/",
+            data={"text": "Ipsum"},
         )
         self.assertEqual(res.status_code, 200)
         self.assertEqual(self.message.comments.first().text, "Ipsum")
@@ -337,7 +348,8 @@ class GroupMessageCommentAPITestCase(APITestCase):
         self.create_other_member()
         self.client.force_login(self.other_member.role)
         res = self.client.patch(
-            f"/api/groupes/messages/comments/{comment.pk}/", data={"text": "Ipsum"},
+            f"/api/groupes/messages/comments/{comment.pk}/",
+            data={"text": "Ipsum"},
         )
         self.assertEqual(res.status_code, 403)
 

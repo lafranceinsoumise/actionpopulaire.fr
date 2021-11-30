@@ -147,8 +147,7 @@ class ProfileTestCase(TestCase):
 
     @mock.patch("agir.people.forms.profile.send_confirmation_merge_account")
     def test_merge_account_send_mail(self, patched_send_confirmation_merge_account):
-        """On test que l'envoie de mail fonction lors d'une demande de fusion de compte
-        """
+        """On test que l'envoie de mail fonction lors d'une demande de fusion de compte"""
         response = self.client.post(
             reverse("manage_account"),
             data={"email_add_merge": self.person_to_merge.email},
@@ -198,9 +197,9 @@ class ProfileTestCase(TestCase):
 
     def test_cannot_change_mail_if_wrong_link(self):
         """
-           Teste differente maniere de produire un liens de changement d'adresse email erroné.
+        Teste differente maniere de produire un liens de changement d'adresse email erroné.
 
-           Pour que le liens les varbiable : (new_email, user, token) soient manquantes ou invalide
+        Pour que le liens les varbiable : (new_email, user, token) soient manquantes ou invalide
         """
         regex_token = r"token=(([0-9a-z]*)-([0-9a-f]*))"
         new_mail = "hello@iam.new"
@@ -477,7 +476,8 @@ class InformationContactFormTestCases(TestCase):
         self.assertTrue(self.person.subscribed_sms)
 
         self.assertContains(
-            response, "Nous envoyons parfois des SMS plutôt que des",
+            response,
+            "Nous envoyons parfois des SMS plutôt que des",
         )
 
         person = Person.objects.get(pk=self.person.pk)

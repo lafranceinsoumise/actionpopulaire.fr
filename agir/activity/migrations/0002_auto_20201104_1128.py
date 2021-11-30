@@ -19,7 +19,8 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.RemoveIndex(
-            model_name="activity", name="notifications_by_recipient",
+            model_name="activity",
+            name="notifications_by_recipient",
         ),
         migrations.AddIndex(
             model_name="activity",

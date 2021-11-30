@@ -15,7 +15,10 @@ def import_communes_test_data():
 
     with transaction.atomic():
         reg = Region.objects.create(
-            code="01", nom="Région", type_nom=TypeNom.ARTICLE_LA, chef_lieu_id=1,
+            code="01",
+            nom="Région",
+            type_nom=TypeNom.ARTICLE_LA,
+            chef_lieu_id=1,
         )
         col_reg = CollectiviteRegionale.objects.create(
             code="01R",

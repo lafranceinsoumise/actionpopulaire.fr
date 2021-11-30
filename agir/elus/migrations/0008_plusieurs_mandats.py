@@ -93,17 +93,42 @@ class Migration(migrations.Migration):
             )
             for table in TABLES
         ],
-        migrations.RemoveField(model_name="mandatdepartemental", name="debut",),
-        migrations.RemoveField(model_name="mandatdepartemental", name="fin",),
-        migrations.RemoveField(model_name="mandatmunicipal", name="debut",),
-        migrations.RemoveField(model_name="mandatmunicipal", name="fin",),
-        migrations.RemoveField(model_name="mandatregional", name="debut",),
-        migrations.RemoveField(model_name="mandatregional", name="fin",),
-        migrations.AlterUniqueTogether(
-            name="mandatdepartemental", unique_together=set(),
+        migrations.RemoveField(
+            model_name="mandatdepartemental",
+            name="debut",
         ),
-        migrations.AlterUniqueTogether(name="mandatmunicipal", unique_together=set(),),
-        migrations.AlterUniqueTogether(name="mandatregional", unique_together=set(),),
+        migrations.RemoveField(
+            model_name="mandatdepartemental",
+            name="fin",
+        ),
+        migrations.RemoveField(
+            model_name="mandatmunicipal",
+            name="debut",
+        ),
+        migrations.RemoveField(
+            model_name="mandatmunicipal",
+            name="fin",
+        ),
+        migrations.RemoveField(
+            model_name="mandatregional",
+            name="debut",
+        ),
+        migrations.RemoveField(
+            model_name="mandatregional",
+            name="fin",
+        ),
+        migrations.AlterUniqueTogether(
+            name="mandatdepartemental",
+            unique_together=set(),
+        ),
+        migrations.AlterUniqueTogether(
+            name="mandatmunicipal",
+            unique_together=set(),
+        ),
+        migrations.AlterUniqueTogether(
+            name="mandatregional",
+            unique_together=set(),
+        ),
         *[
             migrations.RunSQL(
                 sql=AJOUTER_EXCLUSION.format(table=table),

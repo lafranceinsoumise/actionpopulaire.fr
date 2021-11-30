@@ -14,8 +14,7 @@ class FormToSessionMixin:
     session_namespace = None
 
     def form_valid(self, form):
-        """Enregistre le contenu du formulaire dans la session avant de rediriger vers le formulaire suivant.
-        """
+        """Enregistre le contenu du formulaire dans la session avant de rediriger vers le formulaire suivant."""
         self.request.session[self.session_namespace] = serialize_form(form)
         return super().form_valid(form)
 

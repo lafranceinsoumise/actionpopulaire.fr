@@ -108,7 +108,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"ordering": ("-created",),},
+            options={
+                "ordering": ("-created",),
+            },
         ),
         migrations.AddIndex(
             model_name="activity",

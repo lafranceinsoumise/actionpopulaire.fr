@@ -30,7 +30,15 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
     fieldsets = (
         (
             None,
-            {"fields": ("name", "newsletters", "tags", "is_2022", "is_insoumise",)},
+            {
+                "fields": (
+                    "name",
+                    "newsletters",
+                    "tags",
+                    "is_2022",
+                    "is_insoumise",
+                )
+            },
         ),
         (
             "GA, événements, tirage au sort et formulaires",

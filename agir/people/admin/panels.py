@@ -63,10 +63,15 @@ class SegmentFilter(AutocompleteFilter):
     def get_rendered_widget(self):
         rel = models.ForeignKey(to=Segment, on_delete=models.CASCADE)
         rel.model = Segment
-        widget = AutocompleteSelect(rel, self.model_admin.admin_site,)
+        widget = AutocompleteSelect(
+            rel,
+            self.model_admin.admin_site,
+        )
         FieldClass = self.get_form_field()
         field = FieldClass(
-            queryset=self.get_queryset_for_field(), widget=widget, required=False,
+            queryset=self.get_queryset_for_field(),
+            widget=widget,
+            required=False,
         )
 
         self._add_media(self.model_admin, widget)
@@ -160,7 +165,13 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         (_("Dates"), {"fields": ("created", "modified", "last_login")}),
         (
             _("Paramètres mails"),
-            {"fields": ("newsletters", "subscribed_sms", "campaigns_link",)},
+            {
+                "fields": (
+                    "newsletters",
+                    "subscribed_sms",
+                    "campaigns_link",
+                )
+            },
         ),
         (
             _("Paramètres de participation"),
@@ -372,7 +383,9 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 name="people_person_merge",
             ),
             path(
-                "statistiques/", self.statistics_view, name="people_person_statistics",
+                "statistiques/",
+                self.statistics_view,
+                name="people_person_statistics",
             ),
         ] + super().get_urls()
 
@@ -396,7 +409,10 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         except IncorrectLookupParameters:
             if ERROR_FLAG in request.GET:
                 return SimpleTemplateResponse(
-                    "admin/invalid_setup.html", {"title": _("Database error"),}
+                    "admin/invalid_setup.html",
+                    {
+                        "title": _("Database error"),
+                    },
                 )
             return HttpResponseRedirect(request.path + "?" + ERROR_FLAG + "=1")
 
@@ -433,7 +449,9 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         }
 
         return TemplateResponse(
-            request, "admin/people/person/statistics.html", context,
+            request,
+            "admin/people/person/statistics.html",
+            context,
         )
 
     def has_view_permission(self, request, obj=None):

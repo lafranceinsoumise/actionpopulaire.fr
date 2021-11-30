@@ -25,7 +25,9 @@ __all__ = ["PollParticipationView", "PollFinishedView"]
 
 @method_decorator(never_cache, name="get")
 class PollParticipationView(
-    SoftLoginRequiredMixin, SingleObjectMixin, FormView,
+    SoftLoginRequiredMixin,
+    SingleObjectMixin,
+    FormView,
 ):
     template_name = "polls/detail.html"
     context_object_name = "poll"

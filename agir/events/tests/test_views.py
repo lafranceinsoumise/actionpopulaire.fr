@@ -298,7 +298,7 @@ class EventPagesTestCase(TestCase):
 
     @mock.patch("agir.events.views.event_views.send_event_report")
     def test_can_not_send_event_report_when_nocondition(self, send_event_report):
-        """ Si une des conditions manque, l'envoi du mail ne se fait pas.
+        """Si une des conditions manque, l'envoi du mail ne se fait pas.
 
         Les conditions sont : le mail n'a jamais été envoyé, l'événement est passé,
         le compte-rendu n'est pas vide."""
@@ -895,8 +895,8 @@ class RSVPTestCase(TestCase):
 
     def test_cannot_rsvp_if_form_is_closed(self):
         self.client.force_login(self.person.role)
-        self.form_event.subscription_form.end_time = timezone.now() - timezone.timedelta(
-            days=1
+        self.form_event.subscription_form.end_time = (
+            timezone.now() - timezone.timedelta(days=1)
         )
         self.form_event.subscription_form.save()
 
@@ -911,8 +911,8 @@ class RSVPTestCase(TestCase):
 
     def test_cannot_rsvp_if_form_is_yet_to_open(self):
         self.client.force_login(self.person.role)
-        self.form_event.subscription_form.start_time = timezone.now() + timezone.timedelta(
-            days=1
+        self.form_event.subscription_form.start_time = (
+            timezone.now() + timezone.timedelta(days=1)
         )
         self.form_event.subscription_form.save()
 

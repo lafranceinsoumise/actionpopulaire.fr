@@ -38,10 +38,16 @@ def download_static_map_image_from_jawg(
         raise exceptions.ValidationError("Missing required property 'center'")
     # https://www.jawg.io/docs/apidocs/maps/static-maps/
     data = {
-        "center": {"latitude": center[1], "longitude": center[0],},
+        "center": {
+            "latitude": center[1],
+            "longitude": center[0],
+        },
         "zoom": zoom,
         "scale": scale,
-        "size": {"width": width, "height": height,},
+        "size": {
+            "width": width,
+            "height": height,
+        },
         "layer": "jawg-streets",
         "format": "png",
     }
@@ -58,7 +64,11 @@ def download_static_map_image_from_jawg(
 class StaticMapImageManager(models.Manager):
     def create_from_jawg(self, *args, **kwargs):
         image = download_static_map_image_from_jawg(**kwargs)
-        static_map_image = super().create(*args, **kwargs, image=image,)
+        static_map_image = super().create(
+            *args,
+            **kwargs,
+            image=image,
+        )
         return static_map_image
 
     def create(self, *args, **kwargs):
@@ -84,14 +94,20 @@ class StaticMapImage(models.Model):
         blank=False,
         null=False,
         default=DEFAULT_ZOOM,
-        validators=[MinValueValidator(0), MaxValueValidator(20),],
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(20),
+        ],
     )
     scale = models.IntegerField(
         _("résolution de l'image"),
         blank=False,
         null=False,
         default=DEFAULT_SCALE,
-        validators=[MinValueValidator(1), MaxValueValidator(2),],
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(2),
+        ],
     )
     image = StdImageField(
         _("image"),
@@ -100,14 +116,21 @@ class StaticMapImage(models.Model):
         blank=False,
         null=False,
         delete_orphans=True,
-        validators=[FileExtensionValidator(allowed_extensions=["jpg", "png"]),],
+        validators=[
+            FileExtensionValidator(allowed_extensions=["jpg", "png"]),
+        ],
     )
 
     class Meta:
         indexes = [models.Index(fields=["center"])]
         constraints = [
             models.UniqueConstraint(
-                fields=["center", "zoom", "scale",], name="unique_for_position_options",
+                fields=[
+                    "center",
+                    "zoom",
+                    "scale",
+                ],
+                name="unique_for_position_options",
             ),
         ]
 

@@ -281,7 +281,15 @@ class PaymentAdmin(PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.Model
                 )
             },
         ),
-        ("Informations supplémentaires", {"fields": ("meta", "events",)}),
+        (
+            "Informations supplémentaires",
+            {
+                "fields": (
+                    "meta",
+                    "events",
+                )
+            },
+        ),
     )
 
     def get_changelist(self, request, **kwargs):

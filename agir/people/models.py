@@ -279,7 +279,8 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
             extra_fields.setdefault("newsletters", [])
         else:
             extra_fields.setdefault(
-                "newsletters", [Person.NEWSLETTER_LFI],
+                "newsletters",
+                [Person.NEWSLETTER_LFI],
             )
 
         return self.create_person(email, password=password, **extra_fields)

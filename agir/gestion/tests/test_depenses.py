@@ -54,7 +54,8 @@ def decimaux_croissants(draw, min_value="0.00", max_value=MONTANT_MAX, equal=Tru
 class EngagementDepenseTestCase(TestCase):
     def setUp(self) -> None:
         self.compte = Compte.objects.create(
-            designation="LFI", nom="La France insoumise",
+            designation="LFI",
+            nom="La France insoumise",
         )
 
         self.person = Person.objects.create_person("a@b.c", create_role=True)
@@ -89,7 +90,8 @@ class EngagementDepenseTestCase(TestCase):
         self.assertEqual(etat_initial(d, self.person.role), Depense.Etat.CONSTITUTION)
 
     @given(
-        types_depense_compatibles, decimaux_croissants(),
+        types_depense_compatibles,
+        decimaux_croissants(),
     )
     def test_creation_sous_plafond_engagement(self, types_depense, montants):
         type_parent, type_enfant = types_depense
@@ -110,7 +112,8 @@ class EngagementDepenseTestCase(TestCase):
         self.assertEqual(etat_initial(d, self.person.role), Depense.Etat.CONSTITUTION)
 
     @given(
-        types_depense_compatibles, decimaux_croissants(equal=False),
+        types_depense_compatibles,
+        decimaux_croissants(equal=False),
     )
     def test_creation_au_dessus_plafond_sans_engagement(self, types_depense, montants):
         type_parent, type_enfant = types_depense

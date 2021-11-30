@@ -39,5 +39,7 @@ class HierarchicalSelect(forms.Select):
             )
             + i18n_file
             + ("admin/js/jquery.init.js", "admin/gestion/hierarchical-select.js"),
-            css={"screen": ("admin/css/vendor/select2/select2%s.css" % extra,),},
+            css={
+                "screen": ("admin/css/vendor/select2/select2%s.css" % extra,),
+            },
         )

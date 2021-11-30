@@ -58,7 +58,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         if membership is not None and membership["supportgroup_id"] is not None:
             try:
                 data["membership"] = Membership.objects.get(
-                    supportgroup=membership["supportgroup_id"], person=data["person"],
+                    supportgroup=membership["supportgroup_id"],
+                    person=data["person"],
                 )
             except Membership.DoesNotExist:
                 raise serializers.ValidationError({"group": "Invalid group"})

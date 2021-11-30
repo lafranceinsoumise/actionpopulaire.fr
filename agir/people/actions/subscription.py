@@ -30,8 +30,14 @@ SUBSCRIPTION_TYPE_ADMIN = "ADM"
 SUBSCRIPTION_TYPE_AP = "AP"
 
 SUBSCRIPTION_TYPE_CHOICES = (
-    (SUBSCRIPTION_TYPE_LFI, "LFI",),
-    (SUBSCRIPTION_TYPE_NSP, "NSP",),
+    (
+        SUBSCRIPTION_TYPE_LFI,
+        "LFI",
+    ),
+    (
+        SUBSCRIPTION_TYPE_NSP,
+        "NSP",
+    ),
     (SUBSCRIPTION_TYPE_EXTERNAL, "Externe"),
     (SUBSCRIPTION_TYPE_AP, "Action Populaire"),
 )
@@ -48,7 +54,8 @@ SUBSCRIPTIONS_EMAILS = {
             from_email="La France insoumise <nepasrepondre@lafranceinsoumise.fr>",
         ),
         "already_subscribed": SubscriptionMessageInfo(
-            "ALREADY_SUBSCRIBED_LFI_MESSAGE", "Vous êtes déjà inscrit·e !",
+            "ALREADY_SUBSCRIBED_LFI_MESSAGE",
+            "Vous êtes déjà inscrit·e !",
         ),
         "welcome": SubscriptionMessageInfo(
             "WELCOME_LFI_MESSAGE", "Bienvenue sur la plateforme de la France insoumise"
@@ -64,7 +71,8 @@ SUBSCRIPTIONS_EMAILS = {
     SUBSCRIPTION_TYPE_EXTERNAL: {},
     SUBSCRIPTION_TYPE_AP: {
         "already_subscribed": SubscriptionMessageInfo(
-            code="EXISTING_EMAIL_SUBSCRIPTION", subject="Vous êtes déjà inscrit·e !",
+            code="EXISTING_EMAIL_SUBSCRIPTION",
+            subject="Vous êtes déjà inscrit·e !",
         ),
         "confirmation": SubscriptionMessageInfo(
             code="SUBSCRIPTION_CONFIRMATION_MESSAGE",

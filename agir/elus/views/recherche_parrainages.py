@@ -101,7 +101,9 @@ def queryset_elus(person, distance_geom=None):
     )
 
     if distance_geom is not None:
-        qs = qs.annotate(distance=Distance("commune__geometry", distance_geom),)
+        qs = qs.annotate(
+            distance=Distance("commune__geometry", distance_geom),
+        )
 
     return qs
 
@@ -139,7 +141,10 @@ class RechercheParrainagesView(
         person = self.request.user.person
 
         if person.coordinates is None:
-            return super().get_context_data(**kwargs, elus=[],)
+            return super().get_context_data(
+                **kwargs,
+                elus=[],
+            )
 
         # il est nécessaire de rajouter la condition à la main pour espérer des requêtes sans seq scan
         a_contacter_qs = queryset_elus(person, person.coordinates).filter(
@@ -219,7 +224,10 @@ class ChercherCodePostalView(ListAPIView):
 
         if geom:
             return queryset_elus_proches(self.request.user.person, geom).filter(
-                commune__geometry__dwithin=(geom, D(km=5),)
+                commune__geometry__dwithin=(
+                    geom,
+                    D(km=5),
+                )
             )
         return EluMunicipal.objects.none()
 
@@ -237,7 +245,8 @@ class ModifierRechercheParrainageView(UpdateAPIView):
         # peuvent être modifiés toutes les recherches de parrainages qui n'ont pas été annulées ou validées
         # (pas de sens à modifier une demande de parrainge si on a déjà confirmé avoir reçu la promesse !)
         return RechercheParrainage.objects.filter(
-            person=self.request.user.person, maire__isnull=False,
+            person=self.request.user.person,
+            maire__isnull=False,
         ).exclude(
             statut__in=[
                 StatutRechercheParrainage.ANNULEE,

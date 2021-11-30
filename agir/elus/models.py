@@ -350,12 +350,14 @@ class MandatMunicipal(MandatAbstrait):
 
     def get_absolute_url(self):
         return reverse(
-            viewname="elus:modifier_mandat_municipal", kwargs={"pk": self.id},
+            viewname="elus:modifier_mandat_municipal",
+            kwargs={"pk": self.id},
         )
 
     def get_delete_url(self):
         return reverse(
-            viewname="elus:supprimer_mandat_municipal", kwargs={"pk": self.id},
+            viewname="elus:supprimer_mandat_municipal",
+            kwargs={"pk": self.id},
         )
 
 
@@ -452,12 +454,14 @@ class MandatDepartemental(MandatAbstrait):
 
     def get_absolute_url(self):
         return reverse(
-            viewname="elus:modifier_mandat_departemental", kwargs={"pk": self.id},
+            viewname="elus:modifier_mandat_departemental",
+            kwargs={"pk": self.id},
         )
 
     def get_delete_url(self):
         return reverse(
-            viewname="elus:supprimer_mandat_departemental", kwargs={"pk": self.id},
+            viewname="elus:supprimer_mandat_departemental",
+            kwargs={"pk": self.id},
         )
 
 
@@ -558,7 +562,10 @@ class MandatRegional(MandatAbstrait):
                 titre = genrer(self.person.gender, "Conseiller⋅ère régional⋅e")
         else:
             qualif = "" if ctu else " du conseil régional"
-            titre = genrer(self.person.gender, f"{self.get_mandat_display()}{qualif}",)
+            titre = genrer(
+                self.person.gender,
+                f"{self.get_mandat_display()}{qualif}",
+            )
 
         if self.conseil is None:
             return titre
@@ -575,12 +582,14 @@ class MandatRegional(MandatAbstrait):
 
     def get_absolute_url(self):
         return reverse(
-            viewname="elus:modifier_mandat_regional", kwargs={"pk": self.id},
+            viewname="elus:modifier_mandat_regional",
+            kwargs={"pk": self.id},
         )
 
     def get_delete_url(self):
         return reverse(
-            viewname="elus:supprimer_mandat_regional", kwargs={"pk": self.id},
+            viewname="elus:supprimer_mandat_regional",
+            kwargs={"pk": self.id},
         )
 
 
@@ -639,12 +648,14 @@ class MandatConsulaire(MandatAbstrait):
 
     def get_absolute_url(self):
         return reverse(
-            viewname="elus:modifier_mandat_consulaire", kwargs={"pk": self.id},
+            viewname="elus:modifier_mandat_consulaire",
+            kwargs={"pk": self.id},
         )
 
     def get_delete_url(self):
         return reverse(
-            viewname="elus:supprimer_mandat_consulaire", kwargs={"pk": self.id},
+            viewname="elus:supprimer_mandat_consulaire",
+            kwargs={"pk": self.id},
         )
 
     class Meta:

@@ -22,7 +22,10 @@ from agir.gestion.typologies import TypeDocument, TypeDepense
 
 
 class DocumentForm(forms.ModelForm):
-    titre_version = forms.CharField(label="Nom de la version", required=False,)
+    titre_version = forms.CharField(
+        label="Nom de la version",
+        required=False,
+    )
     fichier = forms.FileField(label="Fichier de la version", required=False)
 
     def clean(self):
@@ -159,7 +162,9 @@ class ProjetForm(forms.ModelForm):
 
 class CommentaireForm(forms.Form):
     type = forms.ChoiceField(
-        label="Type", initial=Commentaire.Type.REM, choices=Commentaire.Type.choices,
+        label="Type",
+        initial=Commentaire.Type.REM,
+        choices=Commentaire.Type.choices,
     )
 
     texte = forms.CharField(label="Texte", required=True, widget=forms.Textarea)
