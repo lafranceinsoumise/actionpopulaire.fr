@@ -1,3 +1,6 @@
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.http import StreamingHttpResponse
 from django.test import TestCase
 from django.urls import reverse
 
@@ -85,6 +88,23 @@ class PeopleAdminTestCase(TestCase):
             self.admin.role, backend="agir.people.backend.PersonBackend"
         )
 
+        person_content_type = ContentType.objects.get_for_model(Person)
+        self.view_permission = Permission.objects.get(
+            content_type=person_content_type, codename="view_person"
+        )
+        self.add_permission = Permission.objects.get(
+            content_type=person_content_type, codename="add_person"
+        )
+        self.change_permission = Permission.objects.get(
+            content_type=person_content_type, codename="change_person"
+        )
+        self.select_person_permission = Permission.objects.get(
+            content_type=person_content_type, codename="select_person"
+        )
+        self.export_people_permission = Permission.objects.get(
+            content_type=person_content_type, codename="export_people"
+        )
+
     def test_can_display_pages(self):
         views = [
             ("admin:people_person_changelist", ()),
@@ -100,6 +120,52 @@ class PeopleAdminTestCase(TestCase):
             self.assertEqual(
                 res.status_code, 200, msg=f"La vue '{view}' devrait renvoyer 200."
             )
+
+    def test_cannot_export_to_csv_without_right_permission(self):
+        unauthorized = Person.objects.create_insoumise(
+            "unauthorized@agir.local",
+            password="secret",
+            is_staff=True,
+            create_role=True,
+        )
+        unauthorized.role.user_permissions.add(
+            self.view_permission, self.add_permission, self.change_permission
+        )
+        self.client.force_login(
+            unauthorized.role, backend="agir.people.backend.PersonBackend"
+        )
+        res = self.client.get(reverse("admin:people_person_changelist"))
+        self.assertEqual(res.status_code, 200)
+        self.assertNotContains(res, text='<option value="export_people_to_csv">')
+        res = self.client.post(
+            reverse("admin:people_person_changelist"),
+            {"action": "export_people_to_csv", "_selected_action": self.user1.pk},
+            follow=True,
+        )
+        self.assertNotIsInstance(res, StreamingHttpResponse)
+
+    def test_can_export_to_csv_with_right_permission(self):
+        authorized = Person.objects.create_insoumise(
+            "authorized@agir.local", password="secret", is_staff=True, create_role=True
+        )
+        authorized.role.user_permissions.add(
+            self.view_permission,
+            self.add_permission,
+            self.change_permission,
+            self.export_people_permission,
+        )
+        self.client.force_login(
+            authorized.role, backend="agir.people.backend.PersonBackend"
+        )
+        res = self.client.get(reverse("admin:people_person_changelist"))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, text='<option value="export_people_to_csv">')
+        res = self.client.post(
+            reverse("admin:people_person_changelist"),
+            {"action": "export_people_to_csv", "_selected_action": self.user1.pk},
+            follow=True,
+        )
+        self.assertIsInstance(res, StreamingHttpResponse)
 
 
 class PersonFormAdminTestCase(TestCase):
