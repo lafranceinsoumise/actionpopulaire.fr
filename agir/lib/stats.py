@@ -143,14 +143,6 @@ def get_instant_stats():
         )
         .exclude(contact_phone="")
         .count(),
-        # Event count by subtype
-        **{
-            f"ap_events__{key}": Event.objects.public()
-            .past()
-            .filter(subtype_id=subtype_id)
-            .count()
-            for key, subtype_id in EVENT_SUBTYPES.items()
-        },
         "liaisons": Person.objects.liaisons().count(),
         "liaisons_contacts": Person.objects.liaisons()
         .filter(meta__subscriptions__AP__subscriber__isnull=False)
