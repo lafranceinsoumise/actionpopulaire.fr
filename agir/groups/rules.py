@@ -61,16 +61,6 @@ def is_at_least_referent_for_group(role, object=None):
 
 
 @rules.predicate
-def is_organization_message(role, object=None):
-    if object is None:
-        return False
-
-    if not isinstance(object, SupportGroupMessage):
-        return False
-    return object.message_type == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION
-
-
-@rules.predicate
 def is_group_only_referent(role, object=None):
     if object is None:
         return False
@@ -131,11 +121,6 @@ def is_group_member(role, object=None):
     )
 
 
-@rules.predicate
-def is_msg_author(role, msg=None):
-    return msg is not None and msg.author == role.person
-
-
 rules.add_perm(
     "groups.change_supportgroup",
     is_authenticated_person & is_at_least_manager_for_group,
@@ -169,30 +154,6 @@ rules.add_perm(
 )
 rules.add_perm(
     "groups.transfer_members", is_authenticated_person & is_at_least_manager_for_group
-)
-rules.add_perm(
-    "msgs.view_supportgroupmessage", is_authenticated_person & is_group_member
-)
-rules.add_perm(
-    "msgs.add_supportgroupmessage",
-    is_authenticated_person & (is_organization_message | is_at_least_manager_for_group),
-)
-rules.add_perm(
-    "msgs.change_supportgroupmessage", is_authenticated_person & is_msg_author
-)
-rules.add_perm(
-    "msgs.delete_supportgroupmessage",
-    is_authenticated_person & (is_msg_author | is_at_least_manager_for_group),
-)
-rules.add_perm(
-    "msgs.add_supportgroupmessagecomment", is_authenticated_person & is_group_member
-)
-rules.add_perm(
-    "msgs.change_supportgroupmessagecomment", is_authenticated_person & is_msg_author
-)
-rules.add_perm(
-    "msgs.delete_supportgroupmessagecomment",
-    is_authenticated_person & (is_msg_author | is_at_least_manager_for_group),
 )
 rules.add_perm(
     "groups.change_membership_type",
