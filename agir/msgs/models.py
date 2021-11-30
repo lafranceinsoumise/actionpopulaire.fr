@@ -83,10 +83,12 @@ class SupportGroupMessage(AbstractMessage):
         "message_type",
         max_length=64,
         null=False,
-        blank=True,
         choices=MESSAGE_TYPE_CHOICES,
         default=MESSAGE_TYPE_DEFAULT,
     )
+
+    def __str__(self):
+        return f"id: {self.pk} | {self.author} --> '{self.text}' | message_type: {self.message_type} | supportgroup: {self.supportgroup}"
 
     class Meta:
         verbose_name = "Message de groupe"

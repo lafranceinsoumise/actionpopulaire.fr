@@ -11,6 +11,7 @@ from agir.groups.tasks import (
     send_message_notification_email,
     send_comment_notification_email,
 )
+from agir.msgs.models import SupportGroupMessage
 from agir.notifications.models import Subscription
 
 
@@ -90,7 +91,13 @@ def someone_joined_notification(membership, membership_count=1):
 
 @transaction.atomic()
 def new_message_notifications(message):
-    recipients = message.supportgroup.members.all()
+
+    # Organization message : notify only referents
+    if message.message_type == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
+        recipients = message.supportgroup.referents
+    # Notify all members
+    else:
+        recipients = message.supportgroup.members.all()
     Activity.objects.bulk_create(
         [
             Activity(
@@ -108,28 +115,6 @@ def new_message_notifications(message):
     )
 
     send_message_notification_email.delay(message.pk)
-
-
-@transaction.atomic()
-def new_message_organization_notifications(message):
-    recipients = message.supportgroup.referents + [message.person]
-    Activity.objects.bulk_create(
-        [
-            Activity(
-                individual=message.author,
-                supportgroup=message.supportgroup,
-                type=Activity.TYPE_NEW_MESSAGE,
-                recipient=r,
-                status=Activity.STATUS_UNDISPLAYED,
-                meta={"message": str(message.pk),},
-            )
-            for r in recipients
-            if r.pk != message.author.pk
-        ],
-        send_post_save_signal=True,
-    )
-
-    # send_message_notification_email.delay(message.pk)
 
 
 @transaction.atomic()

@@ -183,10 +183,10 @@ const ConnectedUserActions = (props) => {
         groupName={name}
       />
       <JoinGroupDialog
+        id={id}
         step={joiningStep}
         isLoading={isLoading}
         groupName={name}
-        groupContact={contact}
         groupReferents={referents}
         personName={user.firstName || user.displayName}
         personalInfoConsent={personalInfoConsent}

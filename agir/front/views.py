@@ -140,7 +140,8 @@ class UserMessageView(
     GlobalOrObjectPermissionRequiredMixin, UserMessagesView,
 ):
     permission_required = ("msgs.view_message",)
-    queryset = SupportGroupMessage.objects.all()
+
+    queryset = SupportGroupMessage.objects.filter(deleted=False)
 
     def get_object(self):
         return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))

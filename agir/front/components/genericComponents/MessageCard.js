@@ -426,13 +426,21 @@ const MessageCard = (props) => {
       messageCardRef.current.scrollIntoView();
   }, [scrollIn]);
 
+  const isOrganizationMessage = message.messageType === "ORGANIZATION";
+  let subject;
+  if (!isOrganizationMessage) {
+    subject = getMessageSubject(message);
+  } else {
+    subject = `Message privé avec les organisateurs de '${group.name}'`;
+  }
+
   return (
     <StyledWrapper
       ref={messageCardRef}
       $withMobileCommentField={withMobileCommentField}
     >
       <StyledMessage>
-        <StyledSubject>{getMessageSubject(message)}</StyledSubject>
+        <StyledSubject>{subject}</StyledSubject>
         <StyledHeader>
           <Avatar {...author} />
           <h4>
@@ -451,7 +459,7 @@ const MessageCard = (props) => {
             ) : null}
           </h4>
           <StyledAction>
-            {encodedMessageURL ? (
+            {!!encodedMessageURL && (
               <InlineMenu triggerIconName="share-2" triggerSize="1rem">
                 <StyledInlineMenuItems>
                   <span>Partager avec d’autres membres du groupe&nbsp;:</span>
@@ -472,8 +480,8 @@ const MessageCard = (props) => {
                   </button>
                 </StyledInlineMenuItems>
               </InlineMenu>
-            ) : null}
-            {hasActions ? (
+            )}
+            {hasActions && (
               <InlineMenu
                 triggerIconName="more-horizontal"
                 triggerSize="1rem"
@@ -500,19 +508,19 @@ const MessageCard = (props) => {
                   )}
                 </StyledInlineMenuItems>
               </InlineMenu>
-            ) : null}
+            )}
           </StyledAction>
         </StyledHeader>
         <StyledContent onClick={handleClick}>
           <ParsedString>{text}</ParsedString>
         </StyledContent>
-        {event ? <EventCard {...event} /> : null}
-        {commentCount ? (
+        {!!event && <EventCard {...event} />}
+        {!!commentCount && (
           <StyledCommentCount onClick={handleClick}>
             <RawFeatherIcon name="message-circle" color={style.primary500} />
             &ensp;Voir les {commentCount} commentaires
           </StyledCommentCount>
-        ) : null}
+        )}
         <StyledComments
           $empty={!Array.isArray(comments) || comments.length === 0}
         >
@@ -531,8 +539,8 @@ const MessageCard = (props) => {
               : null}
           </PageFadeIn>
           <StyledNewComment>
-            {onComment ? (
-              withMobileCommentField ? (
+            {!!onComment &&
+              (withMobileCommentField ? (
                 <CommentField
                   isLoading={isLoading}
                   user={user}
@@ -549,8 +557,7 @@ const MessageCard = (props) => {
                   onClick={onClick && handleClick}
                   autoScroll={autoScrollOnComment}
                 />
-              )
-            ) : null}
+              ))}
           </StyledNewComment>
         </StyledComments>
         {withBottomButton && (

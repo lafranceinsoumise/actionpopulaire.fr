@@ -457,11 +457,22 @@ def send_message_notification_email(message_pk):
 
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
-    recipients = Person.objects.exclude(id=message.author.id).filter(
-        notification_subscriptions__membership__supportgroup=message.supportgroup,
-        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-        notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
-    )
+    # Organization message : send only to referents of the group
+    if message.message_type == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
+        referents_id = [referent.id for referent in message.supportgroup.referents]
+        recipients = Person.objects.filter(
+            id__in=referents_id,
+            notification_subscriptions__membership__supportgroup=message.supportgroup,
+            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
+        )
+    # Send to all members of the group
+    else:
+        recipients = Person.objects.exclude(id=message.author.id).filter(
+            notification_subscriptions__membership__supportgroup=message.supportgroup,
+            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
+        )
 
     if len(recipients) == 0:
         return

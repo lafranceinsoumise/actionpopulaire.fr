@@ -30,7 +30,6 @@ from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
 from agir.groups.actions.notifications import (
     new_message_notifications,
-    new_message_organization_notifications,
     new_comment_notifications,
     someone_joined_notification,
 )
@@ -352,7 +351,9 @@ class GroupMessagesAPIView(ListCreateAPIView):
         self.check_object_permissions(request, self.supportgroup)
 
         # Update permissions switch the message type
-        self.messageType = request.data.get("messageType", "")
+        self.messageType = request.data.get(
+            "messageType", SupportGroupMessage.MESSAGE_TYPE_DEFAULT
+        )
         self.membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
         if self.messageType == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
             self.membershipType = Membership.MEMBERSHIP_TYPE_REFERENT
@@ -382,12 +383,9 @@ class GroupMessagesAPIView(ListCreateAPIView):
                 message_type=self.messageType,
                 required_membership_type=self.membershipType,
             )
-            if self.messageType == "organization":
-                new_message_organization_notifications(message)
-                # update_recipient_message(message, self.request.user.person)
-            else:
-                new_message_notifications(message)
-                update_recipient_message(message, self.request.user.person)
+
+            new_message_notifications(message)
+            update_recipient_message(message, self.request.user.person)
 
 
 @method_decorator(never_cache, name="get")
@@ -405,7 +403,7 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
         )
     )
     serializer_class = SupportGroupMessageSerializer
-    permission_classes = (GlobalOrObjectPermissions,)
+    permission_classes = (GroupMessagesPermissions,)
 
     def get_object(self):
         message = super().get_object()

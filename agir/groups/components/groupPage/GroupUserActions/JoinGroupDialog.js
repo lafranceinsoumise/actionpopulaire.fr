@@ -3,16 +3,16 @@ import React from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
-import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import StyledDialog from "./StyledDialog";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 export const JoinGroup = (props) => {
   const {
+    id,
     step,
     isLoading,
     groupName,
-    groupContact,
     groupReferents,
     personName,
     personalInfoConsent,
@@ -119,15 +119,24 @@ export const JoinGroup = (props) => {
                 : "C’est noté, les gestionnaires du groupe pourront vous contacter sur la messagerie d’Action Populaire et par e-mail."}
             </strong>
             <Spacer size=".5rem" />
-            Envoyez-leur un message pour vous présenter&nbsp;!
+            Envoyez-leur un message pour vous présenter&nbsp;?
             <Spacer size="1rem" />
-            <ShareLink
-              label="Copier"
-              color="primary"
-              url={groupContact.email}
-              $wrap
-            />
-            <Spacer size=".5rem" />
+            <footer>
+              <Button
+                color="primary"
+                block
+                wrap
+                link
+                route="groupOrganizationMessage"
+                routeParams={{ groupPk: id }}
+              >
+                Je me présente&nbsp;! &nbsp;
+                <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
+              </Button>
+              <Button disabled={isLoading} onClick={onClose} block wrap>
+                Plus tard
+              </Button>
+            </footer>
           </article>
         </StyledDialog>
       );
@@ -142,9 +151,6 @@ JoinGroup.propTypes = {
   isLoading: PropTypes.bool,
   personName: PropTypes.string.isRequired,
   groupName: PropTypes.string.isRequired,
-  groupContact: PropTypes.shape({
-    email: PropTypes.string.isRequired,
-  }).isRequired,
   groupReferents: PropTypes.arrayOf(
     PropTypes.shape({
       displayName: PropTypes.string.isRequired,

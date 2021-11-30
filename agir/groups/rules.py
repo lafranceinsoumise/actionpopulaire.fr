@@ -61,6 +61,16 @@ def is_at_least_referent_for_group(role, object=None):
 
 
 @rules.predicate
+def is_organization_message(role, object=None):
+    if object is None:
+        return False
+
+    if not isinstance(object, SupportGroupMessage):
+        return False
+    return object.message_type == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION
+
+
+@rules.predicate
 def is_group_only_referent(role, object=None):
     if object is None:
         return False
@@ -165,7 +175,7 @@ rules.add_perm(
 )
 rules.add_perm(
     "msgs.add_supportgroupmessage",
-    is_authenticated_person & is_at_least_manager_for_group,
+    is_authenticated_person & (is_organization_message | is_at_least_manager_for_group),
 )
 rules.add_perm(
     "msgs.change_supportgroupmessage", is_authenticated_person & is_msg_author

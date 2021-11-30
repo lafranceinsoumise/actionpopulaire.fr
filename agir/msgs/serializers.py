@@ -89,6 +89,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "linkedEvent",
         "lastUpdate",
         "comments",
+        "messageType",
     )
 
     lastUpdate = serializers.DateTimeField(read_only=True, source="last_update")

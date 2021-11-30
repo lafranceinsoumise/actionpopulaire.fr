@@ -69,7 +69,6 @@ class UserMessageRecipientsAPITestCase(APITestCase):
             supportgroup=user_non_managed_group,
             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
-        user_extraneous_group = SupportGroup.objects.create()
         self.client.force_login(self.user.role)
         response = self.client.get("/api/user/messages/recipients/")
         self.assertEqual(response.status_code, 200)
