@@ -1,10 +1,11 @@
-from itertools import zip_longest, chain, islice
+import re
+from io import BytesIO
+from itertools import chain, islice
 from urllib.parse import urljoin, urlparse
 
-import re
 import pytz
 import requests
-from PIL import Image
+from PIL import Image, ImageOps
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -12,8 +13,6 @@ from django.http import QueryDict
 from django.urls import reverse
 from django.utils.datetime_safe import datetime
 from django.utils.functional import lazy
-from io import BytesIO
-from stdimage.utils import render_variations
 
 from agir.authentication.tokens import connection_token_generator
 from agir.lib.http import add_query_params_to_url
@@ -76,41 +75,23 @@ def generate_token_params(person):
     return {"p": person.pk, "code": connection_token_generator.make_token(user=person)}
 
 
-def resize_and_autorotate(
-    file_name, variations, replace=False, storage=default_storage
-):
+def resize_and_autorotate(file_name, variations, storage=default_storage):
+    """
+    Function to be used as value for StdImageField render_variations argument.
+    Fix uploaded image file exif orientation after saving and before creating variations.
+    """
     with storage.open(file_name) as f:
         with Image.open(f) as image:
-            file_format = image.format
-            try:
-                exif = image._getexif()
-            except AttributeError:
-                exif = None
-
-            # if image has exif data about orientation, let's rotate it
-            orientation_key = 274  # cf ExifTags
-            if exif and orientation_key in exif:
-                orientation = exif[orientation_key]
-
-                rotate_values = {
-                    3: Image.ROTATE_180,
-                    6: Image.ROTATE_270,
-                    8: Image.ROTATE_90,
-                }
-
-                if orientation in rotate_values:
-                    image = image.transpose(rotate_values[orientation])
-
-            with BytesIO() as file_buffer:
-                image.save(file_buffer, file_format)
-                f = ContentFile(file_buffer.getvalue())
+            transposed_image = ImageOps.exif_transpose(image)
+            if not getattr(storage, "file_overwrite", False):
                 storage.delete(file_name)
+            with BytesIO() as file_buffer:
+                transposed_image.save(file_buffer, format=image.format)
+                f = ContentFile(file_buffer.getvalue())
                 storage.save(file_name, f)
 
-    # render stdimage variations
-    render_variations(file_name, variations, replace=replace, storage=storage)
-
-    return False
+    # Allow default render variations
+    return True
 
 
 def shorten_url(url, secret=False):

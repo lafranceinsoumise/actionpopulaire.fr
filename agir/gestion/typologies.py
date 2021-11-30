@@ -22,6 +22,10 @@ class TypeDocument(TextChoices):
     PAIEMENT_TICKET = "PAY-TKT", "Ticket de caisse"
 
     EXEMPLAIRE = "EXA", "Exemplaire fourni"
+    BAT = "EXA-BAT", "BAT"
+    TRACT = "EXA-TRA", "Tract"
+    AFFICHE = "EXA-AFF", "Affiche"
+
     PHOTOGRAPHIE = "PHO", "Photographie de l'objet ou de l'événement"
     AUTRE = "AUT", "Autre (à détailler dans les commentaires)"
 

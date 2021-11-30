@@ -1,7 +1,7 @@
 import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
 import throttle from "lodash/throttle";
 import debounce from "lodash/debounce";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useIntersection } from "react-use";
 import ResizeObserver from "resize-observer-polyfill";
 
@@ -229,4 +229,63 @@ export const useImageLoad = (src) => {
   }, [src]);
 
   return isLoaded;
+};
+
+const getFocusableElements = (parent) => {
+  if (!parent) {
+    return [];
+  }
+  return [
+    ...parent.querySelectorAll(
+      'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+    ),
+  ].filter(
+    (elem) =>
+      !elem.disabled &&
+      !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
+  );
+};
+
+export const useFocusTrap = (isTrapped) => {
+  const targetElementRef = useRef(null);
+  const handleTabKey = useCallback((e) => {
+    if (!targetElementRef.current) {
+      return;
+    }
+    const focusableModalElements = getFocusableElements(
+      targetElementRef.current
+    );
+    const firstElement = focusableModalElements[0];
+    const lastElement =
+      focusableModalElements[focusableModalElements.length - 1];
+    if (!e.shiftKey && document.activeElement === lastElement) {
+      firstElement.focus();
+      e.preventDefault();
+    }
+    if (e.shiftKey && document.activeElement === firstElement) {
+      lastElement.focus();
+      e.preventDefault();
+    }
+  }, []);
+
+  const keyListenersMap = useMemo(
+    () => new Map([[9, handleTabKey]]),
+    [handleTabKey]
+  );
+
+  useEffect(() => {
+    const keyListener = (e) => {
+      const listener = keyListenersMap.get(e.keyCode);
+      return listener && listener(e);
+    };
+    if (isTrapped && targetElementRef.current) {
+      document.addEventListener("keydown", keyListener);
+      const firstElement = getFocusableElements(targetElementRef.current)[0];
+      firstElement ? firstElement.focus() : targetElementRef.current.focus();
+    }
+
+    return () => document.removeEventListener("keydown", keyListener);
+  }, [isTrapped, keyListenersMap]);
+
+  return targetElementRef;
 };

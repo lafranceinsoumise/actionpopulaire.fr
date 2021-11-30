@@ -80,6 +80,11 @@ urlpatterns = [
         name="rechercher_parrainage",
     ),
     path(
+        "api/parrainages/code-postal/<int:code>/",
+        recherche_parrainages.ChercherCodePostalView.as_view(),
+        name="rechercher_code_postal",
+    ),
+    path(
         "api/parrainages/",
         recherche_parrainages.CreerRechercheParrainageView.as_view(),
         name="creer_parrainage",

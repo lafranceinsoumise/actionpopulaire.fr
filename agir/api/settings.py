@@ -145,6 +145,7 @@ INSTALLED_APPS = [
     "agir.elus.apps.ElusConfig",
     "agir.gestion.apps.GestionConfig",
     "agir.presidentielle2022",
+    "agir.legislatives2022.apps.Legislatives2022Config",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",
     "django.contrib.auth",
@@ -913,3 +914,6 @@ JAWG_API_ACCES_TOKEN = os.environ.get(
     "JAWG_API_ACCESS_TOKEN",
     "mGYrqYC5XjG6lXEoz0e5ejl1wSS0GovRMqBw8LEuhFfz2PYILpp8YFzx6TnKxAHe",
 )
+
+CALLHUB_API_DOMAIN = os.environ.get("CALLHUB_API_DOMAIN")
+CALLHUB_API_KEY = os.environ.get("CALLHUB_API_KEY")

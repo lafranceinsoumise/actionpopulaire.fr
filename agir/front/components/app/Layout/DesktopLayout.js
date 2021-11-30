@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import ActionButtons from "@agir/front/app/ActionButtons";
+import ActionButtons from "@agir/front/app/ActionButtons/ActionButtons";
 import Announcements from "@agir/front/app/Announcements";
 import FacebookLoginAd from "@agir/front/app/FacebookLoginAd";
 import { LayoutTitle, LayoutSubtitle } from "./StyledComponents";
@@ -82,7 +82,7 @@ const Layout = (props) => {
       </MainColumn>
       <RightColumn>
         <div>
-          <h4>Mes actions</h4>
+          <h4>Moyens d'action</h4>
           <ActionButtons />
         </div>
         <Spacer size="2rem" />

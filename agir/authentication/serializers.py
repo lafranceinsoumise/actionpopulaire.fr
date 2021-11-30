@@ -10,9 +10,10 @@ from agir.authentication.utils import (
     is_soft_logged,
     get_bookmarked_emails,
 )
-from agir.groups.models import SupportGroup
-from agir.lib.utils import front_url
 from agir.donations.views.donations_views import DONATION_SESSION_NAMESPACE
+from agir.groups.models import SupportGroup, Membership
+from agir.lib.geo import get_commune
+from agir.lib.utils import front_url
 
 
 class UserContextSerializer(serializers.Serializer):
@@ -30,8 +31,10 @@ class UserContextSerializer(serializers.Serializer):
     groups = serializers.PrimaryKeyRelatedField(
         many=True, source="supportgroups", read_only=True
     )
+    isGroupManager = serializers.SerializerMethodField(method_name="is_group_manager")
     address1 = serializers.CharField(source="location_address1")
     city = serializers.CharField(source="location_city")
+    commune = serializers.SerializerMethodField()
     zip = serializers.CharField(source="location_zip")
 
     def get_full_name(self, obj):
@@ -40,6 +43,20 @@ class UserContextSerializer(serializers.Serializer):
     def get_image(self, obj):
         if obj.image and obj.image.thumbnail:
             return obj.image.thumbnail.url
+
+    def get_commune(self, obj):
+        commune = get_commune(obj)
+        if commune is not None:
+            commune = {
+                "name": commune.nom_complet,
+                "nameOf": commune.nom_avec_charniere,
+            }
+        return commune
+
+    def is_group_manager(self, obj):
+        return obj.memberships.filter(
+            membership_type__lte=Membership.MEMBERSHIP_TYPE_MANAGER
+        ).exists()
 
 
 class SessionSerializer(serializers.Serializer):
@@ -73,7 +90,7 @@ class SessionSerializer(serializers.Serializer):
             "logout": reverse("disconnect"),
             "personalInformation": reverse("personal_information"),
             "nspReferral": front_url("nsp_referral"),
-            "materiel": "https://materiel.lafranceinsoumise.fr/",
+            "materiel": "https://materiel.actionpopulaire.fr/",
         }
 
         if request.user.is_authenticated and request.user.person is not None:

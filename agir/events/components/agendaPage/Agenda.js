@@ -6,7 +6,7 @@ import useSWR from "swr";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import ActionButtons from "@agir/front/app/ActionButtons";
+import ActionButtons from "@agir/front/app/ActionButtons/ActionButtons";
 import Button from "@agir/front/genericComponents/Button";
 import Card from "@agir/front/genericComponents/Card";
 import FeedbackButton from "@agir/front/allPages/FeedbackButton";

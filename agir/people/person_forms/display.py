@@ -146,7 +146,8 @@ class PersonFormDisplay:
 
         for s in submissions:
             # copier l'email de façon à éviter une requête pour l'email PAR submission
-            s.person._email = s.email
+            if s.person:
+                s.person._email = s.email
 
         if html:
             id_field_template = (

@@ -14,6 +14,7 @@ from agir.payments.payment_modes import PAYMENT_MODES
 from agir.payments.types import PAYMENT_TYPES
 from agir.people.models import Person
 from agir.system_pay.models import SystemPaySubscription
+from agir.presidentielle2022.apps import Presidentielle2022Config
 
 
 @emailing_task
@@ -22,11 +23,11 @@ def send_donation_email(person_pk, payment_type):
     template_code = "DONATION_MESSAGE"
     email_from = settings.EMAIL_FROM
 
-    if (
-        payment_type in PAYMENT_TYPES
-        and PAYMENT_TYPES[payment_type].email_template_code is not None
-    ):
-        template_code = PAYMENT_TYPES[payment_type].email_template_code
+    if payment_type in [
+        Presidentielle2022Config.DONATION_PAYMENT_TYPE,
+        Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE,
+    ]:
+        template_code = "DONATION_MESSAGE_2022"
 
     if (
         payment_type in PAYMENT_TYPES
@@ -85,8 +86,10 @@ def send_monthly_donation_confirmation_email(
 
     from_email = "La France insoumise <nepasrepondre@lafranceinsoumise.fr>"
     template_email = "CONFIRM_SUBSCRIPTION_LFI"
+
     if (
-        query_params["payment_mode"] is not None
+        "payment_mode" in query_params
+        and query_params["payment_mode"] is not None
         and "2022" in query_params["payment_mode"]
     ):
         from_email = "Mélenchon 2022 <nepasrepondre@melenchon2022.fr>"

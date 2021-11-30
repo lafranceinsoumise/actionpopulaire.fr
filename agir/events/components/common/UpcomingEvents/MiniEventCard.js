@@ -10,7 +10,7 @@ import { displayHumanDateString } from "@agir/lib/utils/time";
 const StyledCard = styled(Link)`
   display: block;
   width: 254px;
-  height: 74px;
+  min-height: 74px;
   padding: 1rem;
   border-radius: ${(props) => props.theme.borderRadius};
   box-shadow: ${(props) => props.theme.cardShadow};

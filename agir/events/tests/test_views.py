@@ -13,7 +13,6 @@ from rest_framework.reverse import reverse
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.carte.views import EventMapView
-from agir.events.actions import legal
 from agir.events.tasks import (
     send_guest_confirmation,
     send_rsvp_notification,
@@ -158,7 +157,6 @@ class EventPagesTestCase(TestCase):
             subtype=self.subtype,
             start_time=now - day,
             end_time=now - day + 4 * hour,
-            legal={legal.QUESTION_SALLE: True, legal.QUESTION_MATERIEL_CAMPAGNE: True},
         )
 
         RSVP.objects.create(person=self.person, event=self.organized_event)
@@ -321,29 +319,6 @@ class EventPagesTestCase(TestCase):
         self.assertNotContains(
             res, self.organized_event.name, status_code=status.HTTP_410_GONE
         )
-
-    def test_can_edit_legal_fields(self):
-        self.client.force_login(self.person.role)
-        res = self.client.get(
-            reverse("event_legal_form", args=[self.organized_event.pk])
-        )
-
-        self.assertContains(res, "Salle")
-        self.assertNotContains(res, "Hébergement militant")
-
-        self.client.post(
-            reverse("event_legal_form", args=[self.organized_event.pk]),
-            data={"salle": "gratuite", "salle_name": "Nom de la salle"},
-        )
-        self.organized_event.refresh_from_db()
-        self.assertEqual(self.organized_event.legal["documents_salle"], "gratuite")
-        self.assertEqual(
-            self.organized_event.legal["documents_salle_name"], "Nom de la salle"
-        )
-        res = self.client.get(
-            reverse("event_legal_form", args=[self.organized_event.pk])
-        )
-        self.assertContains(res, "Nom de la salle")
 
     @mock.patch("agir.events.views.event_views.send_event_report")
     def test_can_not_send_event_report_when_nocondition(self, send_event_report):
