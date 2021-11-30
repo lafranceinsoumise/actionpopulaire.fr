@@ -39,9 +39,13 @@ def create_payment(*, person=None, type, price, mode=DEFAULT_MODE, meta=None, **
     ]
 
     if person is not None:
-        for f in person_fields:
-            kwargs.setdefault(f, getattr(person, f))
+        for field in person_fields:
+            kwargs.setdefault(field, getattr(person, field))
         kwargs.setdefault("phone_number", person.contact_phone)
+    else:
+        for field in person_fields:
+            kwargs.setdefault(field, meta.get(field))
+        kwargs.setdefault("phone_number", meta.get("contact_phone"))
 
     return Payment.objects.create(
         person=person, type=type, mode=mode, price=price, meta=meta, **kwargs
@@ -134,9 +138,6 @@ def find_or_create_person_from_payment(payment):
     if payment.person is None and payment.email is not None:
         try:
             payment.person = Person.objects.get_by_natural_key(payment.email)
-            if payment.meta.get("subscribed_lfi"):
-                payment.person.subscribed(True)
-                payment.person.save()
             if payment.meta.get("subscribed_2022"):
                 if Person.NEWSLETTER_2022 not in payment.person.newsletters:
                     payment.person.newsletters.append(Person.NEWSLETTER_2022)
@@ -147,28 +148,25 @@ def find_or_create_person_from_payment(payment):
                     payment.person.newsletters.append(
                         Person.NEWSLETTER_2022_EXCEPTIONNEL
                     )
-                payment.person.save()
         except Person.DoesNotExist:
             person_fields = [f.name for f in Person._meta.get_fields()]
             person_meta = {k: v for k, v in payment.meta.items() if k in person_fields}
             newsletters = (
-                [Person.NEWSLETTER_LFI]
-                if payment.meta.get("subscribed_lfi", False)
+                [Person.NEWSLETTER_2022, Person.NEWSLETTER_2022_EXCEPTIONNEL]
+                if payment.meta.get("subscribed_2022", False)
                 else []
             )
-            if payment.meta.get("subscribed_2022"):
-                newsletters = (
-                    [Person.NEWSLETTER_2022, Person.NEWSLETTER_2022_EXCEPTIONNEL]
-                    if payment.meta.get("subscribed_2022", False)
-                    else []
-                )
 
             if "date_of_birth" in person_meta:
                 person_meta["date_of_birth"] = datetime.strptime(
                     person_meta["date_of_birth"], "%d/%m/%Y"
                 ).date()
 
+            if not payment.email:
+                payment.email = payment.meta.get("email")
+
             payment.person = Person.objects.create_person(
                 email=payment.email, newsletters=newsletters, **person_meta
             )
+        payment.person.save()
         payment.save()

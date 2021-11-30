@@ -38,12 +38,26 @@ const InformationsPage = () => {
 
   const history = useHistory();
   const params = useParams();
-  const { search } = useLocation();
+  const { search, pathname } = useLocation();
   const urlParams = new URLSearchParams(search);
 
   const type = params?.type || "LFI";
   const groupPk = type !== "2022" && urlParams.get("group");
   const amountParam = urlParams.get("amount") || 0;
+  const paymentTimes = pathname.includes("mensuels") ? "M" : "S";
+
+  let ALLOWED_PAYMENT_MODES;
+  if (type === "2022") {
+    ALLOWED_PAYMENT_MODES = ["system_pay_afcp2022", "check_jlm2022_dons"];
+    if (paymentTimes === "M") {
+      ALLOWED_PAYMENT_MODES = ["system_pay_afcp2022"];
+    }
+  } else {
+    ALLOWED_PAYMENT_MODES = ["system_pay", "check_donations"];
+    if (paymentTimes === "M") {
+      ALLOWED_PAYMENT_MODES = ["system_pay"];
+    }
+  }
 
   const { data: group } = useSWR(groupPk && `/api/groupes/${groupPk}/`, {
     revalidateIfStale: false,
@@ -64,12 +78,11 @@ const InformationsPage = () => {
     // amounts
     to: type,
     amount: amountParam || sessionDonation?.donations?.amount,
-    type: sessionDonation?.donations?.type,
+    paymentTimes: paymentTimes,
     allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
     // mode
     paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
-    allowedPaymentModes:
-      sessionDonation?.donations?.allowedPaymentModes || "[]",
+    allowedPaymentModes: ALLOWED_PAYMENT_MODES,
     // informations
     email: session?.user?.email || "",
     firstName: session?.user?.firstName || "",
@@ -77,11 +90,12 @@ const InformationsPage = () => {
     contactPhone: session?.user?.contactPhone || "",
     nationality: "FR",
     locationAddress1: session?.user?.address1 || "",
+    locationAddress2: session?.user?.address2 || "",
     locationZip: session?.user?.zip || "",
     locationCity: session?.user?.city || "",
     locationCountry: "FR",
     // checkboxes
-    subscribedLfi: false,
+    is2022: false,
     subscribed2022: false,
     frenchResident: true,
     consentCertification: false,
@@ -98,10 +112,9 @@ const InformationsPage = () => {
     setFormData({
       ...formData,
       amount: amountParam || sessionDonation?.donations?.amount,
-      type: sessionDonation?.donations?.type,
+      paymentTimes: paymentTimes,
       allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
-      allowedPaymentModes:
-        sessionDonation?.donations?.allowedPaymentModes || "[]",
+      allowedPaymentModes: ALLOWED_PAYMENT_MODES,
     });
   }, [sessionDonation]);
 
@@ -120,19 +133,24 @@ const InformationsPage = () => {
 
     if (!formData.consentCertification || !formData.frenchResident) {
       const frontErrors = {};
-      !formData.consentCertification &&
-        (frontErrors.consentCertification =
-          "Vous devez cocher la case précédente pour continuer");
-      !formData.frenchResident &&
-        (frontErrors.frenchResident =
-          "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation");
+      if (!formData.consentCertification) {
+        frontErrors.consentCertification =
+          "Vous devez cocher la case précédente pour continuer";
+      }
+      if (!formData.frenchResident) {
+        frontErrors.frenchResident =
+          "Si vous n'êtes pas de nationalité française, vous devez légalement être résident fiscalement pour faire cette donation";
+      }
       setErrors(frontErrors);
       scrollToError(frontErrors, scrollerRef.current);
       setIsLoading(false);
       return;
     }
 
-    const { data, error } = await api.sendDonation(formData);
+    const { data, error } = await api.sendDonation({
+      ...formData,
+      allowedPaymentModes: undefined,
+    });
 
     setIsLoading(false);
     if (error) {
@@ -166,7 +184,8 @@ const InformationsPage = () => {
 
               <div>
                 <Title>
-                  Je donne {amountString} {formData.type === "M" && "par mois"}
+                  Je donne {amountString}{" "}
+                  {formData.paymentTimes === "M" && "par mois"}
                 </Title>
 
                 <Breadcrumb onClick={() => history.push(amountStepUrl)} />

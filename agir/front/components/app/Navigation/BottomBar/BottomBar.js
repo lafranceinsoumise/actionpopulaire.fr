@@ -35,10 +35,13 @@ const MenuLink = styled(Link)`
   }
 
   ${Title} {
-    font-size: 0.625rem;
+    font-size: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 
     @media (max-width: 340px) {
-      display: none;
+      font-size: 8px;
     }
   }
 
@@ -48,7 +51,7 @@ const MenuLink = styled(Link)`
     right: 14px;
 
     @media (max-width: 340px) {
-      top: 16px;
+      top: 9px;
     }
   }
 `;
@@ -64,6 +67,7 @@ const StyledBottomBar = styled.nav`
   padding: 0 0.5rem;
   z-index: ${(props) => props.theme.zindexBottomBar};
   isolation: isolate;
+  overflow: hidden;
 
   ul {
     padding: 0;
@@ -76,6 +80,7 @@ const StyledBottomBar = styled.nav`
     li {
       flex: 1 1 auto;
       max-width: 70px;
+      min-width: 1px;
     }
   }
 `;

@@ -1,3 +1,4 @@
+from django.db import transaction, connection
 from django.test import TestCase
 
 from agir.lib.tests.mixins import FakeDataMixin
@@ -118,3 +119,43 @@ class MergePeopleTestCase(FakeDataMixin, TestCase):
             merge_persons(user, user)
 
         self.assertTrue(Person.objects.filter(pk=user.pk).exists())
+
+    def test_merging_people_correctly_update_search_value(self):
+        u1 = Person.objects.create(
+            email="userno1@agir.test",
+            first_name="Foo",
+            last_name="Bar",
+            location_zip="75001",
+            create_role=True,
+        )
+        u2 = Person.objects.create(
+            email="userno2@agir.test",
+            first_name="Jane",
+            last_name="Doe",
+            location_zip="75002",
+            create_role=True,
+        )
+
+        merge_persons(u1, u2)
+
+        self.assertTrue(Person.objects.filter(pk=u1.pk).exists())
+        self.assertFalse(Person.objects.filter(pk=u2.pk).exists())
+
+        u1.refresh_from_db(fields=["search"])
+
+        self.assertIsNotNone(u1.search)
+
+        self.assertIn("userno1@agir.test", u1.search)
+        self.assertIn(u1.first_name.lower(), u1.search)
+        self.assertIn(u1.last_name.lower(), u1.search)
+        self.assertIn(u1.location_zip, u1.search)
+
+        self.assertIn("userno2@agir.test", u1.search)
+        self.assertNotIn(u2.first_name.lower(), u1.search)
+        self.assertNotIn(u2.last_name.lower(), u1.search)
+        self.assertNotIn(u2.location_zip, u1.search)
+
+        self.assertSequenceEqual(
+            u1.emails.values_list("address", flat=True),
+            ["userno1@agir.test", "userno2@agir.test"],
+        )

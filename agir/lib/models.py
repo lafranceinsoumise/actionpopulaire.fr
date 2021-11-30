@@ -1,25 +1,24 @@
+import re
 import uuid
 
-import re
+from django.conf import settings
 from django.contrib.admin.widgets import AdminTextareaWidget
 from django.contrib.gis.db import models
 from django.core.validators import RegexValidator, FileExtensionValidator
-from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
-from django.utils.html import mark_safe, format_html, format_html_join
-from django_countries.fields import CountryField
-from django.conf import settings
 from django.db.models import JSONField
+from django.utils import timezone
+from django.utils.html import mark_safe, format_html, format_html_join
+from django.utils.translation import ugettext_lazy as _
+from django_countries.fields import CountryField
 from dynamic_filenames import FilePattern
-
 from stdimage.models import StdImageField
 
 from agir.lib import data
 from agir.lib.data import departement_from_zipcode, FRANCE_COUNTRY_CODES
+from agir.lib.utils import resize_and_autorotate
+from .display import display_address
 from .form_fields import RichEditorWidget, AdminRichEditorWidget
 from .html import sanitize_html
-from .display import display_address
-
 
 RE_FRENCH_ZIPCODE = re.compile("^[0-9]{5}$")
 
@@ -407,6 +406,7 @@ class ImageMixin(models.Model):
                 allowed_extensions=["jpg", "jpeg", "gif", "png", "svg"]
             )
         ],
+        render_variations=resize_and_autorotate,
     )
 
     class Meta:

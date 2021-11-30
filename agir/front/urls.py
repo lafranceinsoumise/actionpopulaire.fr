@@ -199,7 +199,8 @@ urlpatterns = [
         views.UserMessageView.as_view(),
         name="user_message_details.notification_settings",
     ),
-    path("outils/", views.BaseAppSoftAuthView.as_view(), name="tools",),
+    path("agir/", views.BaseAppSoftAuthView.as_view(), name="tools",),
+    path("outils/", views.RedirectView.as_view(pattern_name="tools", permanent=True)),
     path("navigation/", views.BaseAppSoftAuthView.as_view(), name="navigation_menu"),
     ## DONATION VIEWS
     path("dons/", views.DonationView.as_view(), name="donation_amount",),
@@ -248,6 +249,11 @@ urlpatterns = [
         "dons/informations/", views.DonationView.as_view(), name="donation_information",
     ),
     path(
+        "dons-mensuels/informations/",
+        views.DonationView.as_view(),
+        name="monthly_donation_information",
+    ),
+    path(
         "dons/informations-modal/",
         views.DonationView.as_view(),
         name="donation_information_modal",
@@ -259,19 +265,14 @@ urlpatterns = [
         name="donation_2022_information",
     ),
     path(
+        "2022/dons-mensuels/informations/",
+        views.Donation2022View.as_view(),
+        name="monthly_donation_2022_information",
+    ),
+    path(
         "2022/dons/informations-modal/",
         views.Donation2022View.as_view(),
         name="donation_2022_information_modal",
-    ),
-    path(
-        "dons-mensuels/informations/",
-        views.DonationView.as_view(),
-        name="monthly_donation_information",
-    ),
-    path(
-        "dons-mensuels/informations-modal/",
-        views.DonationView.as_view(),
-        name="monthly_donation_information_modal",
     ),
     path("404/", views.NotFoundView.as_view()),
     ## REDIRECT / EXTERNAL VIEWS

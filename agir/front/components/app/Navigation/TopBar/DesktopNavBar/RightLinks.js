@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
@@ -37,6 +37,7 @@ const IconLink = styled(Link)`
   border: none;
   display: inline-flex;
   height: 100%;
+  min-width: 60px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -94,8 +95,10 @@ const CounterIconLink = styled(IconLink)`
 `;
 
 const TabletIconLink = styled(IconLink)`
-  @media (min-width: ${(props) => props.theme.collapseTablet}px) {
-    display: none;
+  display: none;
+
+  @media (max-width: ${(props) => props.theme.collapseTablet}px) {
+    display: inline-flex;
   }
 `;
 
@@ -116,10 +119,14 @@ const RightLinks = (props) => {
     unreadMessageCount,
   } = props;
 
+  const userMenuLink = useRef();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const openUserMenu = () => setIsUserMenuOpen(true);
-  const closeUserMenu = () => setIsUserMenuOpen(false);
+  const closeUserMenu = () => {
+    setIsUserMenuOpen(false);
+    userMenuLink.current.focus();
+  };
 
   return (
     <StyledWrapper ready={!isLoading} style={{ position: "relative" }}>
@@ -144,6 +151,13 @@ const RightLinks = (props) => {
           <IconLink route="events" $active={routeConfig.events.match(path)}>
             <FeatherIcon name="home" />
             <span>Accueil</span>
+          </IconLink>
+          <IconLink
+            route="actionTools"
+            $active={routeConfig.actionTools.match(path)}
+          >
+            <FeatherIcon name="flag" />
+            <span>Agir</span>
           </IconLink>
           {hasLayout && (
             <TabletIconLink
@@ -174,11 +188,7 @@ const RightLinks = (props) => {
             </i>
             <span>Messages</span>
           </CounterIconLink>
-          <IconLink route="tools" $active={routeConfig.tools.match(path)}>
-            <FeatherIcon name="flag" />
-            <span>Outils</span>
-          </IconLink>
-          <IconLink as="button" onClick={openUserMenu}>
+          <IconLink as="button" onClick={openUserMenu} ref={userMenuLink}>
             <Avatar
               displayName={user.displayName}
               image={user.image}

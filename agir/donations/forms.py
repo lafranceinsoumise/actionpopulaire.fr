@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
-from agir.donations.base_forms import SimpleDonationForm, BaseDonorForm
+from agir.donations.base_forms import SimpleDonationForm
 from agir.donations.form_fields import AskAmountField, AllocationsField
 from agir.groups.models import SupportGroup
 from agir.lib.display import display_price
@@ -22,15 +22,12 @@ from .models import SpendingRequest, Document
 
 __all__ = (
     "AllocationDonationForm",
-    "AllocationDonorForm",
     "AlreadyHasSubscriptionForm",
     "SpendingRequestCreationForm",
     "SpendingRequestEditForm",
     "DocumentForm",
     "DocumentOnCreationFormset",
 )
-
-from ..payments.payment_modes import PaymentModeField
 
 logger = logging.getLogger(__name__)
 
@@ -170,79 +167,6 @@ class AllocationSubscriptionForm(AllocationMixin, SimpleDonationForm):
         ):
             return "Modifier ce don mensuel"
         return "Mettre en place le don mensuel"
-
-
-class PaymentModeFormMixin(forms.ModelForm):
-    mode = PaymentModeField(
-        payment_modes=["system_pay", "check_donations"], label="Mode de versement"
-    )
-
-    def __init__(self, *args, payment_modes=None, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper.layout.fields.insert(
-            self.helper.layout.fields.index("declaration"), "mode"
-        )
-        # Allow overriding of default payment mode choices
-        if payment_modes:
-            self.fields["mode"] = PaymentModeField(
-                payment_modes=payment_modes, label="Mode de versement"
-            )
-
-
-class AllocationDonorFormMixin(forms.Form):
-    allocations = AllocationsField(
-        required=False,
-        queryset=SupportGroup.objects.active().certified().order_by("name").distinct(),
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper.layout.fields.extend(["allocations"])
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        amount = self.cleaned_data.get("amount")
-        allocations = self.cleaned_data.get("allocations", {})
-
-        if amount and sum(allocations.values()) > amount:
-            self.add_error(
-                None,
-                ValidationError(
-                    "Il y a une erreur inattendue sur le formulaire. Réessayez la procédure depuis le tout début",
-                    "allocation",
-                ),
-            )
-
-        return cleaned_data
-
-
-class AllocationDonorForm(
-    PaymentModeFormMixin, AllocationDonorFormMixin, BaseDonorForm
-):
-    pass
-
-
-class AllocationMonthlyDonorForm(AllocationDonorFormMixin, BaseDonorForm):
-    button_label = "Je donne {amount} par mois."
-
-    previous_subscription = forms.ModelChoiceField(
-        queryset=Subscription.objects.filter(status=Subscription.STATUS_ACTIVE),
-        required=False,
-        widget=forms.HiddenInput,
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if not self.instance._state.adding:
-            self.fields["previous_subscription"].queryset = self.fields[
-                "previous_subscription"
-            ].queryset.filter(person=self.instance)
-
-        self.helper.layout.fields.extend(["previous_subscription"])
 
 
 class SpendingRequestFormMixin(forms.Form):

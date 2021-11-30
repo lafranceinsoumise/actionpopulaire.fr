@@ -61,11 +61,6 @@ urlpatterns = [
         name="edit_event_report",
     ),
     path(
-        "evenements/<uuid:pk>/legal/",
-        views.EditEventLegalView.as_view(),
-        name="event_legal_form",
-    ),
-    path(
         "evenements/<uuid:pk>/importer-image/",
         views.UploadEventImageView.as_view(),
         name="upload_event_image",

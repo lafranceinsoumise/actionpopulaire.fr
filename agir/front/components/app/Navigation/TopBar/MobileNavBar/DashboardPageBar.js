@@ -20,7 +20,7 @@ export const DashboardPageBar = (props) => {
         </IconLink>
       ) : (
         <IconLink href={routeConfig.events.getLink()}>
-          <RawFeatherIcon name="arrow-left" width="1.5rem" height="1.5rem" />
+          <RawFeatherIcon name="arrow-left" width="24px" height="24px" />
         </IconLink>
       )}
       <h1>

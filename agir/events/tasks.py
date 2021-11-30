@@ -620,6 +620,7 @@ def send_group_coorganization_invitation_notification(invitation_pk):
                 recipient=r,
                 event=event,
                 supportgroup=group,
+                individual=invitation.person_sender,
                 meta={
                     "acceptUrl": front_url(
                         "accept_event_group_coorganization",

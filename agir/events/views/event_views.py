@@ -25,7 +25,6 @@ from django.utils.translation import ugettext as _, ngettext
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import (
-    UpdateView,
     DeleteView,
     DetailView,
     RedirectView,
@@ -49,14 +48,12 @@ from agir.lib.tasks import create_static_map_image_from_coordinates
 from ..filters import EventFilter
 from ..forms import (
     EventGeocodingForm,
-    EventLegalForm,
     UploadEventImageForm,
     AuthorForm,
 )
 from ..models import Event, RSVP, Invitation, OrganizerConfig
 from ..tasks import (
     send_event_report,
-    send_secretariat_notification,
     send_accepted_group_coorganization_invitation_notification,
     send_refused_group_coorganization_invitation_notification,
 )
@@ -72,7 +69,6 @@ __all__ = [
     "ChangeEventLocationView",
     "EditEventReportView",
     "SendEventReportView",
-    "EditEventLegalView",
     "UploadEventImageView",
     "EventSearchView",
     "EventDetailMixin",
@@ -96,15 +92,10 @@ class EventOGImageView(DetailView):
     def get_date_string(self):
         # set locale for displaying day name in french
         locale.setlocale(locale.LC_ALL, "fr_FR.utf8")
-
-        if settings.TIME_ZONE == self.event.timezone:
-            return self.event.start_time.strftime(f"%A %d %B À %-H:%M").capitalize()
-
-        return (
-            self.event.start_time.astimezone(pytz.timezone(self.event.timezone))
-            .strftime(f"%A %d %B À %-H:%M %Z")
-            .capitalize()
-        )
+        format = "%A %d %B À %-H:%M"
+        if self.event.timezone != timezone.get_default_timezone_name():
+            format += "%Z"
+        return self.event.local_start_time.strftime(format).capitalize()
 
     def get_location_string(self):
         if self.event.location_city and self.event.location_zip:
@@ -597,30 +588,3 @@ class SendEventReportView(
             )
             request.session["report_sent"] = str(event.pk)
         return HttpResponseRedirect(reverse("manage_event", kwargs={"pk": pk}))
-
-
-@method_decorator(never_cache, name="get")
-class EditEventLegalView(BaseEventAdminView, UpdateView):
-    template_name = "events/edit_legal.html"
-    form_class = EventLegalForm
-    model = Event
-
-    def form_valid(self, form):
-        result = super().form_valid(form)
-
-        if len(list(form.incomplete_sections)) == 0:
-            message = (
-                "Les informations légales sont complètes. Le secrétariat général de la campagne en a été "
-                "averti, votre demande sera examinée dans les plus brefs délais."
-            )
-            send_secretariat_notification.delay(
-                self.object.pk, self.request.user.person.pk
-            )
-        else:
-            message = "Les informations légales ont bien été mises à jour."
-        messages.add_message(self.request, messages.SUCCESS, message)
-
-        return result
-
-    def get_success_url(self):
-        return reverse("manage_event", args=(self.object.pk,))

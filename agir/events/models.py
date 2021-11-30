@@ -445,8 +445,8 @@ class Event(
         "et ne sera pas cherchable via la recherche interne ou les moteurs de recherche.",
     )
 
-    legal = JSONField(
-        _("Informations juridiques"),
+    meta = JSONField(
+        _("Informations supplémentaires."),
         default=dict,
         blank=True,
         encoder=CustomJSONEncoder,

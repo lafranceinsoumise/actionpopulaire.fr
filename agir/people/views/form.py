@@ -1,8 +1,10 @@
 import csv
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.core.files import File
 from django.http import Http404
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -86,6 +88,18 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
             return self.get(request, *args, **kwargs)
         return super().post(request, *args, **kwargs)
 
+    def make_data_url_from_image_file(self, file: File):
+        if "image" not in file.content_type:
+            return file.name
+
+        prefix = f"data:{file.content_type};base64,"
+        fin = file.open("rb")
+        contents = fin.read()
+        import base64
+
+        data_url = prefix + base64.b64encode(contents).decode("utf-8")
+        return data_url
+
     def form_valid(self, form):
         if (
             self.person_form_instance.campaign_template is not None
@@ -93,21 +107,32 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
         ):
             preview = self.person_form_instance.campaign_template.message_content_html
             for field in form.cleaned_data:
-                preview = preview.replace(
-                    f"[{field}]", escape(form.cleaned_data[field])
-                )
+                value = form.cleaned_data[field]
+                # Generate a data URL image for the email preview
+                if isinstance(value, File):
+                    value = self.make_data_url_from_image_file(value)
+                preview = preview.replace(f"[{field}]", escape(value))
 
             return HttpResponse(preview)
 
         r = super().form_valid(form)
+
         if self.person_form_instance.send_confirmation:
             tasks.send_person_form_confirmation.delay(form.submission.pk)
         if self.person_form_instance.send_answers_to:
             tasks.send_person_form_notification.delay(form.submission.pk)
 
         if self.person_form_instance.campaign_template:
+            data = {}
+            for key, value in form.submission.data.items():
+                data[key] = value
+                # Use absolute URLs for uploaded files
+                if isinstance(form.submission_data[key], File):
+                    data[key] = settings.FRONT_DOMAIN + settings.MEDIA_URL + value
             create_campaign_from_submission(
-                form.submission, self.person_form_instance.campaign_template
+                data,
+                form.submission.person,
+                self.person_form_instance.campaign_template,
             )
 
         return r
@@ -144,6 +169,11 @@ class PeopleFormNewSubmissionView(BasePeopleFormView):
 
 @method_decorator(never_cache, name="get")
 class PeopleFormEditSubmissionView(BasePeopleFormView):
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated or self.request.user.person is None:
+            return redirect_to_login(request.get_full_path())
+        return super().dispatch(request, *args, **kwargs)
+
     def get_form_kwargs(self):
         if not self.person_form_instance.editable:
             raise Http404()
@@ -152,6 +182,9 @@ class PeopleFormEditSubmissionView(BasePeopleFormView):
         kwargs["submission"] = get_object_or_404(
             PersonFormSubmission, pk=self.kwargs["pk"]
         )
+
+        if kwargs["submission"].person is None:
+            raise PermissionDenied("Ce formulaire ne peut plus être modifié")
 
         if kwargs["submission"].person != self.request.user.person:
             raise PermissionDenied(
@@ -169,6 +202,15 @@ class PeopleFormEditSubmissionView(BasePeopleFormView):
             return reverse("rsvp_event", kwargs={"pk": event.pk})
 
         return super().get_success_url()
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super(PeopleFormEditSubmissionView, self).get(
+                request, *args, **kwargs
+            )
+        except PermissionDenied as e:
+            messages.add_message(self.request, messages.ERROR, e)
+            return HttpResponseRedirect(reverse("dashboard"))
 
 
 class PeopleFormConfirmationView(DetailView):
