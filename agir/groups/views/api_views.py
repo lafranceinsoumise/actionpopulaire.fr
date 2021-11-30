@@ -31,6 +31,7 @@ from agir.events.serializers import EventListSerializer
 from agir.groups.actions.notifications import (
     new_message_notifications,
     new_comment_notifications,
+    new_comment_organization_notifications,
     someone_joined_notification,
 )
 from agir.groups.filters import GroupAPIFilterSet
@@ -454,7 +455,13 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
             comment = serializer.save(
                 author=self.request.user.person, message=self.message
             )
-            new_comment_notifications(comment)
+            if (
+                comment.message.message_type
+                == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION
+            ):
+                new_comment_organization_notifications(comment)
+            else:
+                new_comment_notifications(comment)
             update_recipient_message(self.message, self.request.user.person)
 
 

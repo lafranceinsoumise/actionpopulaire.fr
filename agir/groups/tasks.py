@@ -457,7 +457,7 @@ def send_message_notification_email(message_pk):
 
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
-    # Organization message : send only to referents of the group
+    # Private message: send only to referents of the group
     if message.message_type == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
         referents_id = [referent.id for referent in message.supportgroup.referents]
         recipients = Person.objects.filter(
@@ -466,7 +466,7 @@ def send_message_notification_email(message_pk):
             notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
             notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
         )
-    # Send to all members of the group
+    # Public message: send to all members of the group
     else:
         recipients = Person.objects.exclude(id=message.author.id).filter(
             notification_subscriptions__membership__supportgroup=message.supportgroup,
@@ -512,14 +512,28 @@ def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
     message_initial = comment.message
 
-    recipients = Person.objects.exclude(id=comment.author.id).filter(
-        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
-        notification_subscriptions__person__in=message_initial.comments.values_list(
-            "author_id", flat=True
-        ),
-        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
-    )
+    # Organization comment: send only to referents and initial author
+    if message_initial.message_type == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
+        referents_id = [
+            referent.id for referent in message_initial.supportgroup.referents
+        ]
+        recipients_id = set(referents_id + [message_initial.author.id])
+        recipients = Person.objects.exclude(id=comment.author.id).filter(
+            id__in=recipients_id,
+            notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
+            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+        )
+    # Public comment: send to all group members who ever commented
+    else:
+        recipients = Person.objects.exclude(id=comment.author.id).filter(
+            notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
+            notification_subscriptions__person__in=message_initial.comments.values_list(
+                "author_id", flat=True
+            ),
+            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+        )
 
     recipients = recipients.distinct()
 

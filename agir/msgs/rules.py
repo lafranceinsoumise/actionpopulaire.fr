@@ -75,7 +75,9 @@ rules.add_perm(
     is_authenticated_person & (is_own_organization_message | is_own_group_message),
 )
 rules.add_perm(
-    "msgs.view_supportgroupmessage", is_authenticated_person & is_group_member
+    "msgs.view_supportgroupmessage",
+    is_authenticated_person
+    & (is_own_organization_message | (~is_own_organization_message & is_group_member)),
 )
 rules.add_perm(
     "msgs.add_supportgroupmessage",

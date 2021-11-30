@@ -72,7 +72,7 @@ class UserMessagesAPIView(ListAPIView):
             recipient=person, message_id=OuterRef("id")
         )
 
-        # Get groups where person is referent
+        # For private messages: get groups where person is referent
         person_referent_groups = (
             SupportGroup.objects.filter(
                 id__in=person_groups,
@@ -83,7 +83,7 @@ class UserMessagesAPIView(ListAPIView):
             .distinct()
         )
 
-        # Private messages from type organization = is_author + is_group_referent
+        # Private messages from type organization = is_author + is allowed in group messages
         private_group_messages = list(
             SupportGroupMessage.objects.filter(
                 author=person,

@@ -92,13 +92,13 @@ const MessagePage = ({ messagePk, groupPk }) => {
     onSelectMessage
   );
 
-  const MESSAGE_ORGANIZATION_LINK =
-    routeConfig.groupOrganizationMessage.getLink({ groupPk });
   const TITLE_ORGANIZATION = routeConfig.groupOrganizationMessage.label;
-  const isOrganizationMessage = useMemo(
-    () => !!useRouteMatch(MESSAGE_ORGANIZATION_LINK),
-    []
-  );
+
+  const isOrganizationMessage = useMemo(() => {
+    const MESSAGE_ORGANIZATION_LINK =
+      routeConfig.groupOrganizationMessage.getLink({ groupPk });
+    return !!useRouteMatch(MESSAGE_ORGANIZATION_LINK);
+  }, [groupPk]);
 
   // Pause messages' autorefresh while an action is ongoing
   isAutoRefreshPausedRef.current = isLoading || !!messageAction;
