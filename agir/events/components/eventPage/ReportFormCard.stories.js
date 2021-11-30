@@ -16,7 +16,7 @@ export const Default = Template.bind({});
 Default.args = {
   title: "Comptabiliser nos efforts !",
   description:
-    "Après avoir terminé votre porte-à-porte indiquez combien de portes vous avez toqué et de contacts avez-vous obtenu",
+    "Après avoir terminé votre porte-à-porte indiquez à combien de portes vous avez toqué et de contacts avez-vous obtenus",
   url: "#formURL",
   submitted: false,
 };
