@@ -27,14 +27,14 @@ const Carousel = styled(animated.div)`
   }
 
   .swiper-slide {
-    padding: 0 8px;
+    padding: 0 4px;
 
     &:first-child {
       padding-left: 16px;
     }
 
     &:last-child {
-      padding-left: 16px;
+      padding-right: 16px;
     }
   }
 
@@ -90,7 +90,7 @@ const getSwiperBreakpoints = (slides = [], slideWidth) => {
 export const ActionButtonCarousel = (props) => {
   const { actions } = props;
   const breakpoints = useMemo(
-    () => getSwiperBreakpoints(actions, 107),
+    () => getSwiperBreakpoints(actions, 75 + 8),
     [actions]
   );
 

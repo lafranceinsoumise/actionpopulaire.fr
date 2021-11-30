@@ -36,6 +36,8 @@ const StyledCard = styled.div`
     font-weight: 500;
     font-size: 1rem;
     line-height: 1.5;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
   }
 `;
 
