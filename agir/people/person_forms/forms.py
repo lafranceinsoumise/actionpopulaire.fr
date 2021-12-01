@@ -58,6 +58,13 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
                 for desc in self.person_form_instance.config["hidden_fields"]
             }
 
+        # Automatically add an event id hidden field if the form is linked to an event subtype
+        if self.person_form_instance.event_subtype.exists():
+            self.hidden_fields["reported_event_id"] = {
+                "id": "reported_event_id",
+                "type": "uuid",
+            }
+
         # s'assurer que les informations des champs hidden fields viennent forcément de GET
         if data is not None and query_params is not None:
             data = copy(data)  # to make it mutable

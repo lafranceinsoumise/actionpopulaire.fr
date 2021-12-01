@@ -1,3 +1,4 @@
+from agir.lib.utils import front_url
 from django.db import transaction
 
 from agir.activity.models import Activity
@@ -42,6 +43,41 @@ def event_required_document_reminder_notification(event_pk, post=False, pre=Fals
                 type=activity_type,
                 recipient=organizer,
                 event=event,
+            )
+            for organizer in event.organizers.all()
+        ],
+        send_post_save_signal=True,
+    )
+
+
+@transaction.atomic()
+def event_report_form_reminder_notification(event_pk):
+    try:
+        event = Event.objects.get(pk=event_pk)
+        form = event.subtype.report_person_form
+    except Event.DoesNotExist:
+        return
+
+    if (
+        form is None
+        or not form.published
+        or form.submissions.filter(data__reported_event_id=event_pk).exists()
+    ):
+        return
+
+    meta = {
+        "title": form.title,
+        "description": form.meta_description,
+        "slug": form.slug,
+    }
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_REMINDER_REPORT_FORM_FOR_EVENT,
+                recipient=organizer,
+                event=event,
+                meta=meta,
             )
             for organizer in event.organizers.all()
         ],

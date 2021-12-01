@@ -40,6 +40,9 @@ class ActivityNotificationSerializersTestCase(APITestCase):
             "changed_data": ["location", "start_time"],
             "transferredMemberships": 3,
             "oldGroup": supportgroup.name,
+            "title": "Form title",
+            "description": "...",
+            "slug": "form-slug",
         }
         self.activity = Activity.objects.create(
             type=Activity.TYPE_NEW_MESSAGE,
@@ -294,6 +297,16 @@ class ActivityNotificationSerializersTestCase(APITestCase):
 
     def test_reminder_docs_event_nextday_activity_type(self):
         self.activity.type = Activity.TYPE_REMINDER_DOCS_EVENT_NEXTDAY
+        serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
+        result = serializer(instance=self.activity)
+        self.assertEqual(result.data.get("tag"), self.activity.type)
+        self.assertIn("title", result.data)
+        self.assertIn("body", result.data)
+        self.assertIn("url", result.data)
+        self.assertIn("icon", result.data)
+
+    def test_reminder_report_form_for_event_activity_type(self):
+        self.activity.type = Activity.TYPE_REMINDER_REPORT_FORM_FOR_EVENT
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
         self.assertEqual(result.data.get("tag"), self.activity.type)

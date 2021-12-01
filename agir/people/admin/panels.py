@@ -526,6 +526,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
             _("Textes"),
             {
                 "fields": (
+                    "short_description",
                     "description",
                     "confirmation_note",
                     "send_confirmation",

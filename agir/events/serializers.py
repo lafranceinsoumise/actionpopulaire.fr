@@ -2,7 +2,7 @@ from datetime import timedelta
 from functools import partial
 from pathlib import PurePath
 
-from agir.lib.html import textify
+from agir.lib import html
 from django.db import transaction
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
@@ -19,11 +19,12 @@ from agir.lib.serializers import (
     FlexibleFieldsMixin,
     CurrentPersonField,
 )
-
 from agir.lib.utils import (
     validate_facebook_event_url,
     INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
+    front_url,
 )
+from agir.people.person_forms.models import PersonForm
 from . import models
 from .actions.required_documents import (
     get_project_document_deadline,
@@ -52,7 +53,6 @@ from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSeria
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
 from ..lib.html import textify
 from ..lib.utils import admin_url, replace_datetime_timezone
-
 
 EVENT_ROUTES = {
     "details": "view_event",
@@ -320,13 +320,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 
 class EventAdvancedSerializer(EventSerializer):
-
     participants = serializers.SerializerMethodField()
-
     organizers = serializers.SerializerMethodField()
-
     contact = NestedContactSerializer(source="*")
-
     groupsInvited = serializers.SerializerMethodField(method_name="get_groups_invited")
 
     def get_participants(self, obj):
@@ -943,3 +939,26 @@ class EventProjectListItemSerializer(serializers.ModelSerializer):
             choice[0]
             for choice in EventSubtype.EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES
         ]
+
+
+class EventReportPersonFormSerializer(serializers.ModelSerializer):
+    description = serializers.SerializerMethodField(read_only=True)
+    url = serializers.SerializerMethodField(read_only=True)
+    submitted = serializers.SerializerMethodField(read_only=True)
+
+    def get_description(self, obj):
+        return obj.meta_description
+
+    def get_url(self, obj):
+        return front_url(
+            "view_person_form",
+            kwargs={"slug": obj.slug},
+            query={"reported_event_id": obj.event_pk},
+        )
+
+    def get_submitted(self, obj):
+        return obj.submissions.filter(data__reported_event_id=obj.event_pk).exists()
+
+    class Meta:
+        model = PersonForm
+        fields = ["title", "description", "url", "submitted"]

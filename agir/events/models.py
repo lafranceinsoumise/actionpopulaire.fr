@@ -807,6 +807,18 @@ class EventSubtype(BaseSubtype):
         default=list,
     )
 
+    report_person_form = models.ForeignKey(
+        "people.PersonForm",
+        verbose_name="Formulaire de bilan",
+        help_text="Les organisateur·ices des événements de ce type seront invité·es à remplir ce formulaire une fois "
+        "l'événement terminé",
+        related_name="event_subtype",
+        related_query_name="event_subtype",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+    )
+
     class Meta:
         verbose_name = _("Sous-type d'événement")
         verbose_name_plural = _("Sous-types d'événement")

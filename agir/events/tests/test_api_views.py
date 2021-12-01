@@ -1,6 +1,6 @@
-from unittest.mock import patch
-
 import tempfile
+import uuid
+from unittest.mock import patch
 
 from PIL import Image
 from django.utils import timezone
@@ -12,7 +12,7 @@ from agir.gestion.models import Projet
 from agir.gestion.typologies import TypeProjet
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import create_location, get_random_object
-from agir.people.models import Person, PersonForm
+from agir.people.models import Person, PersonForm, PersonFormSubmission
 
 
 class CreateEventAPITestCase(APITestCase):
@@ -978,3 +978,120 @@ class EventProjectsAPITestCase(APITestCase):
         res = self.client.get(f"/api/evenements/projets/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(res.data), 1)
+
+
+class EventReportPersonFormAPITestCase(APITestCase):
+    def setUp(self):
+        self.unrelated_person = Person.objects.create(
+            email="unrelated_person@example.com", create_role=True,
+        )
+        self.organizer = Person.objects.create(
+            email="organizer@example.com", create_role=True,
+        )
+        self.report_person_form = PersonForm.objects.create(
+            title="Form", description="Form", slug="formulaire"
+        )
+        self.subtype_with_form = EventSubtype.objects.create(
+            label="Subtype with form",
+            report_person_form=self.report_person_form,
+            visibility=EventSubtype.VISIBILITY_ALL,
+        )
+        self.subtype_without_form = EventSubtype.objects.create(
+            label="Subtype without form",
+            report_person_form=None,
+            visibility=EventSubtype.VISIBILITY_ALL,
+        )
+        self.event_without_form = Event.objects.create(
+            name="Event",
+            start_time=timezone.now() + timezone.timedelta(days=3),
+            end_time=timezone.now() + timezone.timedelta(days=3, hours=4),
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.subtype_without_form,
+            organizer_person=self.organizer,
+        )
+        self.upcomint_event = Event.objects.create(
+            name="Upcoming",
+            start_time=timezone.now() + timezone.timedelta(days=3),
+            end_time=timezone.now() + timezone.timedelta(days=3, hours=4),
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.subtype_with_form,
+            organizer_person=self.organizer,
+        )
+        self.past_event = Event.objects.create(
+            name="Past",
+            start_time=timezone.now() - timezone.timedelta(days=3),
+            end_time=timezone.now() - timezone.timedelta(days=2),
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.subtype_with_form,
+            organizer_person=self.organizer,
+        )
+
+    def test_anonymous_person_cannot_retrieve_form(self):
+        self.client.logout()
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_organizer_cannot_retrieve_form(self):
+        self.client.force_login(self.unrelated_person.role)
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 403)
+
+    def test_cannot_retrieve_form_for_unexisting_event(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{uuid.uuid4()}/bilan/")
+        self.assertEqual(res.status_code, 404)
+
+    def test_cannot_retrieve_form_for_event_with_formless_subtype(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.event_without_form.pk}/bilan/")
+        self.assertEqual(res.status_code, 404)
+
+    def test_cannot_retrieve_form_for_upcoming_event(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.upcomint_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 404)
+
+    def test_organizer_can_retrieve_form_for_past_event(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+
+    def test_organizer_can_retrieve_form_url_with_event_query_param(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("url", res.data)
+        self.assertIn(
+            f"/formulaires/formulaire/?reported_event_id={self.past_event.pk}",
+            res.data["url"],
+        )
+
+    def test_organizer_can_retrieve_form_submission_state_for_event(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("submitted", res.data)
+        self.assertFalse(res.data["submitted"])
+
+        PersonFormSubmission.objects.create(
+            form=self.report_person_form,
+            person=self.organizer,
+            data={"reported_event_id": str(self.upcomint_event.pk)},
+        )
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("submitted", res.data)
+        self.assertFalse(res.data["submitted"])
+
+        PersonFormSubmission.objects.create(
+            form=self.report_person_form,
+            person=self.organizer,
+            data={"reported_event_id": str(self.past_event.pk)},
+        )
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("submitted", res.data)
+        self.assertTrue(res.data["submitted"])
