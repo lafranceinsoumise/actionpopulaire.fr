@@ -1,6 +1,6 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useRef } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
@@ -9,13 +9,15 @@ import { routeConfig } from "@agir/front/app/routes.config";
 import { displayIntervalStart, displayIntervalEnd } from "@agir/lib/utils/time";
 
 import Card from "@agir/front/genericComponents/Card";
-import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Link from "@agir/front/app/Link";
 import Map from "@agir/carte/common/Map";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
 import eventCardDefaultBackground from "@agir/front/genericComponents/images/event-card-default-bg.svg";
 
+const StyledLink = styled(Link)``;
 const Illustration = styled.div`
   background-color: ${({ $img }) => ($img ? "#e5e5e5" : "#fafafa")};
   display: grid;
@@ -77,9 +79,7 @@ const StyledCard = styled(Card)`
   padding: 0;
 
   @media (min-width: ${(props) => props.theme.collapse}px) {
-    display: grid;
-    grid-template-columns: 225px 1fr;
-    grid-template-rows: auto auto;
+    display: flex;
     padding: 0;
     box-shadow: none;
     border: 1px solid ${(props) => props.theme.black100};
@@ -87,12 +87,9 @@ const StyledCard = styled(Card)`
   }
 
   ${Illustration} {
+    flex: 0 0 225px;
     margin: 0;
     padding: 0;
-
-    @media (min-width: ${(props) => props.theme.collapse}px) {
-      grid-row: span 2;
-    }
   }
 
   main {
@@ -100,6 +97,7 @@ const StyledCard = styled(Card)`
     padding: 1.25rem;
 
     @media (min-width: ${(props) => props.theme.collapse}px) {
+      flex: 1 1 auto;
       padding: 1.5rem;
       align-self: stretch;
     }
@@ -113,7 +111,10 @@ const StyledCard = styled(Card)`
         props.$isPast ? props.theme.black500 : props.theme.primary500};
     }
 
-    h3 {
+    ${StyledLink} {
+      display: inline-block;
+      width: auto;
+      color: inherit;
       font-weight: 600;
       font-size: 1rem;
       margin: 0.5rem 0;
@@ -122,6 +123,14 @@ const StyledCard = styled(Card)`
       @media (min-width: ${(props) => props.theme.collapse}px) {
         font-weight: 700;
         margin-top: 0;
+      }
+
+      &:hover {
+        text-decoration: none;
+      }
+
+      &:focus {
+        outline: none;
       }
     }
 
@@ -207,22 +216,14 @@ const EventCard = (props) => {
   const now = DateTime.local();
   const pending = now >= schedule.start && now <= schedule.end;
   const isPast = schedule.isBefore(DateTime.local());
-
+  const linkRef = useRef();
   const eventDate = pending
     ? displayIntervalEnd(schedule)
     : displayIntervalStart(schedule);
 
-  const handleClick = React.useCallback(
-    (e) => {
-      if (["A", "BUTTON"].includes(e.target.tagName.toUpperCase())) {
-        return;
-      }
-      id &&
-        routeConfig.eventDetails &&
-        history.push(routeConfig.eventDetails.getLink({ eventPk: id }));
-    },
-    [history, id]
-  );
+  const handleClick = React.useCallback((e) => {
+    linkRef.current && linkRef.current.click();
+  }, []);
 
   return (
     <StyledCard onClick={handleClick} $isPast={isPast}>
@@ -241,7 +242,13 @@ const EventCard = (props) => {
                 : ""
             }`.trim()}
         </h4>
-        <h3>{name}</h3>
+        <StyledLink
+          ref={linkRef}
+          route="eventDetails"
+          routeParams={{ eventPk: id }}
+        >
+          {name}
+        </StyledLink>
         {Array.isArray(groups) && groups.length > 0 ? (
           <p>
             <RawFeatherIcon widht="1rem" height="1rem" name="users" />
