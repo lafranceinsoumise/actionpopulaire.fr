@@ -490,7 +490,6 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
 class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
     queryset = SupportGroupMessageComment.objects.filter(deleted=False)
     serializer_class = MessageCommentSerializer
-    # permission_classes = (GlobalOrObjectPermissions,)
     permission_classes = (GroupMessageCommentsPermissions,)
 
     def perform_update(self, serializer):
