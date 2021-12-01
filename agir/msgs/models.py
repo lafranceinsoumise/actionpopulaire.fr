@@ -49,12 +49,12 @@ class AbstractMessage(BaseAPIResource):
 @reversion.register()
 class SupportGroupMessage(AbstractMessage):
 
-    MESSAGE_TYPE_DEFAULT = "ALL"
-    MESSAGE_TYPE_ORGANIZATION = "ORGANIZATION"
+    MESSAGE_TYPE_DEFAULT = "Public"
+    MESSAGE_TYPE_ORGANIZATION = "Private"
 
     MESSAGE_TYPE_CHOICES = (
         (MESSAGE_TYPE_DEFAULT, "Message de groupe"),
-        (MESSAGE_TYPE_ORGANIZATION, "Message privé aux animateur·ices"),
+        (MESSAGE_TYPE_ORGANIZATION, "Message privé à certains rôles"),
     )
 
     subject = models.CharField(

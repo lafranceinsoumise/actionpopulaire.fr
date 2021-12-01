@@ -21,7 +21,7 @@ const MessageOrganizationCard = (props) => {
       subject: "",
       text: text,
       group: group,
-      messageType: "ORGANIZATION",
+      messageType: "Private",
     });
   };
 
