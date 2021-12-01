@@ -231,8 +231,8 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
         form_slug = self.person_form_instance.slug
         extension = os.path.splitext(file.name)[1].lower()
         path = str(PurePath("person_forms") / form_slug / (str(uuid4()) + extension))
-        default_storage.save(path, file)
-        return path
+        stored_file = default_storage.save(path, file)
+        return default_storage.url(stored_file)
 
     class Meta:
         model = Person

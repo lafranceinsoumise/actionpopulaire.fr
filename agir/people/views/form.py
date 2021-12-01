@@ -126,9 +126,6 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
             data = {}
             for key, value in form.submission.data.items():
                 data[key] = value
-                # Use absolute URLs for uploaded files
-                if isinstance(form.submission_data[key], File):
-                    data[key] = settings.FRONT_DOMAIN + settings.MEDIA_URL + value
             create_campaign_from_submission(
                 data,
                 form.submission.person,
