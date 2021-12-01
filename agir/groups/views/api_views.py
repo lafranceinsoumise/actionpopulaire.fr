@@ -347,10 +347,13 @@ class GroupPastEventReportsAPIView(ListAPIView):
 
 
 class GroupMessagesPermissions(GlobalOrObjectPermissions):
-    perms_map = {"GET": [], "POST": []}
+    perms_map = {"GET": [], "POST": [], "PATCH": [], "PUT": [], "DELETE": []}
     object_perms_map = {
         "GET": ["msgs.view_supportgroupmessage"],
         "POST": ["msgs.add_supportgroupmessage"],
+        "PATCH": ["msgs.change_supportgroupmessage"],
+        "PUT": ["msgs.change_supportgroupmessage"],
+        "DELETE": ["msgs.delete_supportgroupmessage"],
     }
 
 
@@ -442,10 +445,13 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
-    perms_map = {"GET": [], "POST": []}
+    perms_map = {"GET": [], "POST": [], "PATCH": [], "PUT": [], "DELETE": []}
     object_perms_map = {
         "GET": ["msgs.view_supportgroupmessage"],
         "POST": ["msgs.add_supportgroupmessagecomment"],
+        "PATCH": ["msgs.change_supportgroupmessagecomment"],
+        "PUT": ["msgs.change_supportgroupmessagecomment"],
+        "DELETE": ["msgs.delete_supportgroupmessagecomment"],
     }
 
 
@@ -484,7 +490,8 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
 class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
     queryset = SupportGroupMessageComment.objects.filter(deleted=False)
     serializer_class = MessageCommentSerializer
-    permission_classes = (GlobalOrObjectPermissions,)
+    # permission_classes = (GlobalOrObjectPermissions,)
+    permission_classes = (GroupMessageCommentsPermissions,)
 
     def perform_update(self, serializer):
         with reversion.create_revision():
