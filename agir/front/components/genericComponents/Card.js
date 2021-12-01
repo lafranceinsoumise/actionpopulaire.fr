@@ -39,6 +39,7 @@ const Card = styled.div`
   border: 1px solid;
   border-color: ${style.black100};
   transition: border-color, background-color 300ms;
+  border-radius: ${style.borderRadius};
 
   &:hover {
     ${({ onClick }) =>

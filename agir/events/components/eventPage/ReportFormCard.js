@@ -8,35 +8,18 @@ import { getEventEndpoint } from "@agir/events/common/api";
 import Button from "@agir/front/genericComponents/Button";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import StyledCard from "./StyledCard";
 
-const StyledCard = styled.div`
-  border-radius: ${(props) => props.theme.borderRadius};
+const StyledReportCard = styled(StyledCard)`
   background-color: ${(props) => props.theme.primary100};
-  padding: 1.5rem;
-  margin: 2rem 0;
-
-  @media (max-width: ${(props) => props.theme.collapse}px) {
-    margin: 1rem 0 0;
-  }
-
-  h5,
-  p {
-    margin: 0;
-    padding: 0;
-  }
 
   h5 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    line-height: 1.5;
     color: ${(props) =>
       props.$submitted ? props.theme.black1000 : props.theme.primary500};
   }
 
-  p {
-    font-size: 1rem;
-    line-height: 1.6;
-    padding: 0.25rem 0 1rem;
+  p + ${Button} {
+    margin-top: 1rem;
   }
 `;
 
@@ -44,21 +27,21 @@ export const ReportFormCard = (props) => {
   const { title, description, url, submitted } = props;
 
   return (
-    <StyledCard $submitted={submitted}>
+    <StyledReportCard $submitted={submitted}>
       <h5>{title}</h5>
       {submitted ? (
         <p>
           <FeatherIcon inline name="check" /> Vous avez répondu à ce formulaire
         </p>
       ) : (
-        <p>{description}</p>
+        <p dangerouslySetInnerHTML={{ __html: description }} />
       )}
       {!submitted && (
         <Button link small color="primary" href={url}>
           Je complète
         </Button>
       )}
-    </StyledCard>
+    </StyledReportCard>
   );
 };
 

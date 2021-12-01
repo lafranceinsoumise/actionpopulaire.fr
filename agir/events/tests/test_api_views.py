@@ -1030,6 +1030,15 @@ class EventReportPersonFormAPITestCase(APITestCase):
             subtype=self.subtype_with_form,
             organizer_person=self.organizer,
         )
+        self.too_old_event = Event.objects.create(
+            name="Too old",
+            start_time=timezone.now() - timezone.timedelta(days=9),
+            end_time=timezone.now() - timezone.timedelta(days=8),
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.subtype_with_form,
+            organizer_person=self.organizer,
+        )
 
     def test_anonymous_person_cannot_retrieve_form(self):
         self.client.logout()
@@ -1051,12 +1060,17 @@ class EventReportPersonFormAPITestCase(APITestCase):
         res = self.client.get(f"/api/evenements/{self.event_without_form.pk}/bilan/")
         self.assertEqual(res.status_code, 404)
 
-    def test_cannot_retrieve_form_for_upcoming_event(self):
+    def test_can_retrieve_form_for_more_than_a_week_old_event(self):
         self.client.force_login(self.organizer.role)
-        res = self.client.get(f"/api/evenements/{self.upcomint_event.pk}/bilan/")
+        res = self.client.get(f"/api/evenements/{self.too_old_event.pk}/bilan/")
         self.assertEqual(res.status_code, 404)
 
-    def test_organizer_can_retrieve_form_for_past_event(self):
+    def test_can_retrieve_form_for_upcoming_event(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.upcomint_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+
+    def test_organizer_can_retrieve_form_for_less_than_a_week_old_event(self):
         self.client.force_login(self.organizer.role)
         res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
         self.assertEqual(res.status_code, 200)

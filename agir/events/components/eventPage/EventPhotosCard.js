@@ -2,10 +2,11 @@ import React from "react";
 import styled from "styled-components";
 import { DateTime } from "luxon";
 
-import Card from "@agir/front/genericComponents/Card";
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import style from "@agir/front/genericComponents/_variables.scss";
+
+import StyledCard from "./StyledCard";
 
 const Thumbnails = styled.div`
   display: grid;
@@ -37,15 +38,6 @@ const Thumbnails = styled.div`
   }
 `;
 
-const StyledCard = styled(Card)`
-  p {
-    margin: 0;
-  }
-  margin-bottom: 24px;
-  overflow: hidden;
-  border-bottom: 1px solid ${style.black50};
-`;
-
 const EventPhotosCard = (props) => {
   const { compteRenduMainPhoto, compteRenduPhotos, endTime, rsvp, routes } =
     props;
@@ -65,7 +57,7 @@ const EventPhotosCard = (props) => {
 
   return (
     <StyledCard>
-      <b>Photos</b>
+      <h5>Photos</h5>
       <Spacer size="0.5rem" />
 
       {photos.length > 0 ? (

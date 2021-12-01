@@ -47,12 +47,13 @@ const MapContainer = styled.div`
 `;
 
 const StyledCard = styled(Card)`
+  margin-bottom: 24px;
+  border-bottom: 1px solid ${style.black50};
+
   @media (max-width: ${style.collapse}px) {
     display: flex;
     flex-flow: column-reverse;
   }
-  margin-bottom: 24px;
-  border-bottom: 1px solid ${style.black50};
 `;
 
 const EventLocationCard = (props) => {

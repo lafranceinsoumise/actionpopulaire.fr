@@ -511,7 +511,8 @@ class EventReportPersonFormAPIView(RetrieveAPIView):
     serializer_class = EventReportPersonFormSerializer
 
     def get_queryset(self):
-        return Event.objects.public().past()
+        limit_date = timezone.now() - timezone.timedelta(days=7)
+        return Event.objects.public().filter(end_time__gte=limit_date)
 
     def get_object(self):
         event = super().get_object()
