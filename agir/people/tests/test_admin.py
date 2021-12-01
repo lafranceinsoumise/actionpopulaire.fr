@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.http import StreamingHttpResponse
@@ -139,7 +141,10 @@ class PeopleAdminTestCase(TestCase):
         self.assertNotContains(res, text='<option value="export_people_to_csv">')
         res = self.client.post(
             reverse("admin:people_person_changelist"),
-            {"action": "export_people_to_csv", "_selected_action": self.user1.pk},
+            {
+                "action": "export_people_to_csv",
+                "_selected_action": self.user1.pk,
+            },
             follow=True,
         )
         self.assertNotIsInstance(res, StreamingHttpResponse)
@@ -162,10 +167,59 @@ class PeopleAdminTestCase(TestCase):
         self.assertContains(res, text='<option value="export_people_to_csv">')
         res = self.client.post(
             reverse("admin:people_person_changelist"),
-            {"action": "export_people_to_csv", "_selected_action": self.user1.pk},
+            {
+                "action": "export_people_to_csv",
+                "_selected_action": self.user1.pk,
+            },
             follow=True,
         )
         self.assertIsInstance(res, StreamingHttpResponse)
+
+    @patch("agir.people.admin.actions.people_to_csv_response")
+    def test_can_export_selection_to_csv(self, people_to_csv_response):
+        people_to_csv_response.assert_not_called()
+        self.client.force_login(
+            self.admin.role, backend="agir.people.backend.PersonBackend"
+        )
+        res = self.client.get(reverse("admin:people_person_changelist"))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, text='<option value="export_people_to_csv">')
+        selected = [self.user1.pk]
+        self.client.post(
+            reverse("admin:people_person_changelist"),
+            {
+                "action": "export_people_to_csv",
+                "_selected_action": selected,
+            },
+            follow=True,
+        )
+        people_to_csv_response.assert_called_once()
+        items = people_to_csv_response.call_args[0][0]
+        self.assertEqual(selected, list(items.values_list("id", flat=True)))
+
+    @patch("agir.people.admin.actions.people_to_csv_response")
+    def test_can_export_all_items_to_csv(self, people_to_csv_response):
+        Person.objects.create_person("test_person@agir.local", location_zip="67000")
+        people_to_csv_response.assert_not_called()
+        self.client.force_login(
+            self.admin.role, backend="agir.people.backend.PersonBackend"
+        )
+        res = self.client.get(reverse("admin:people_person_changelist"))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, text='<option value="export_people_to_csv">')
+        self.client.post(
+            reverse("admin:people_person_changelist") + "?location_zip__exact=67000",
+            {"action": "export_people_to_csv"},
+            follow=True,
+        )
+        people_to_csv_response.assert_called_once()
+        items = people_to_csv_response.call_args[0][0]
+        self.assertEqual(
+            list(
+                Person.objects.filter(location_zip=67000).values_list("id", flat=True)
+            ),
+            list(items.values_list("id", flat=True)),
+        )
 
 
 class PersonFormAdminTestCase(TestCase):

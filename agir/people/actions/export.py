@@ -1,6 +1,8 @@
 from operator import attrgetter
 
+from django.http import StreamingHttpResponse
 from django.urls import reverse
+from django.utils import timezone
 
 from agir.api import settings
 from agir.lib.export import dicts_to_csv_lines
@@ -50,3 +52,17 @@ def people_to_dicts(queryset):
         )
 
         yield person_dict
+
+
+def people_to_csv_response(people):
+    streaming_content = people_to_csv_lines(people)
+    response = StreamingHttpResponse(
+        streaming_content=streaming_content, content_type="text/csv"
+    )
+    response["Content-Disposition"] = "inline; filename=export_personnes_{}.csv".format(
+        timezone.now()
+        .astimezone(timezone.get_default_timezone())
+        .strftime("%Y%m%d_%H%M")
+    )
+
+    return response
