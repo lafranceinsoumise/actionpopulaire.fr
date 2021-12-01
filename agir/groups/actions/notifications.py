@@ -149,7 +149,10 @@ def new_comment_organization_notifications(comment):
                 type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
                 recipient=r,
                 status=Activity.STATUS_UNDISPLAYED,
-                meta={"message": str(message_initial.pk), "comment": str(comment.pk),},
+                meta={
+                    "message": str(message_initial.pk),
+                    "comment": str(comment.pk),
+                },
             )
             for r in recipients_allowed_notif
             if r.pk != comment.author.pk
@@ -209,7 +212,10 @@ def new_comment_notifications(comment):
                 type=Activity.TYPE_NEW_COMMENT,
                 recipient=r,
                 status=Activity.STATUS_UNDISPLAYED,
-                meta={"message": str(message_initial.pk), "comment": str(comment.pk),},
+                meta={
+                    "message": str(message_initial.pk),
+                    "comment": str(comment.pk),
+                },
             )
             for r in other_recipients
             if r.pk != comment.author.pk
