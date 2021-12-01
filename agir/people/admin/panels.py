@@ -466,6 +466,41 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     def has_export_permission(self, request):
         return request.user.has_perm("people.export_people")
 
+    def changelist_view(self, request, extra_context=None):
+        if (
+            hasattr(request, "POST")
+            and request.POST.get("action", None)
+            and not request.POST.getlist(admin.helpers.ACTION_CHECKBOX_NAME)
+        ):
+            # If no item is selected and action select_across is set to True
+            # allow applying the action to all items that match the current view
+            # filters (optionally limiting the number of items to a maximum value)
+            select_across = False
+            try:
+                action = self.get_actions(request)[request.POST["action"]][0]
+                select_across = action.select_across
+            except (KeyError, AttributeError):
+                pass
+
+            if select_across:
+                items = (
+                    self.get_changelist_instance(request)
+                    .get_queryset(request)
+                    .values_list("id", flat=True)
+                )
+
+                if hasattr(action, "max_items"):
+                    items[: action.max_items]
+
+                post = request.POST.copy()
+                post.setlist(
+                    admin.helpers.ACTION_CHECKBOX_NAME,
+                    items,
+                )
+                request.POST = post
+
+        return super().changelist_view(request, extra_context)
+
     class Media:
         pass
 
