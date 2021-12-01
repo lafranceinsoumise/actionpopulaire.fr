@@ -38,15 +38,22 @@ def get_general_stats(start, end):
         ).count(),
         "news_LFI": ouvert_news.filter(is_insoumise=True).distinct().count(),
         "taux_news_LFI": sent_events.filter(
-            subscriber__is_insoumise=True, open_count__gt=0,
+            subscriber__is_insoumise=True,
+            open_count__gt=0,
         ).count()
         / (sent_events.filter(subscriber__is_insoumise=True).count() or 1)
         * 100,
         "news_2022": ouvert_news.filter(is_insoumise=False).distinct().count(),
         "taux_news_2022": sent_events.filter(
-            subscriber__is_insoumise=False, open_count__gt=0,
+            subscriber__is_insoumise=False,
+            open_count__gt=0,
         ).count()
-        / (sent_events.filter(subscriber__is_insoumise=False,).count() or 1)
+        / (
+            sent_events.filter(
+                subscriber__is_insoumise=False,
+            ).count()
+            or 1
+        )
         * 100,
         "ap_users": ap_users.count(),
         "ap_users_LFI": ap_users.filter(is_insoumise=True).count(),
@@ -143,14 +150,6 @@ def get_instant_stats():
         )
         .exclude(contact_phone="")
         .count(),
-        # Event count by subtype
-        **{
-            f"ap_events__{key}": Event.objects.public()
-            .past()
-            .filter(subtype_id=subtype_id)
-            .count()
-            for key, subtype_id in EVENT_SUBTYPES.items()
-        },
         "liaisons": Person.objects.liaisons().count(),
         "liaisons_contacts": Person.objects.liaisons()
         .filter(meta__subscriptions__AP__subscriber__isnull=False)

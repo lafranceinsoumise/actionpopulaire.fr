@@ -43,6 +43,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            delete_event_subscriptions_disabled, reverse_deletion, atomic=True,
+            delete_event_subscriptions_disabled,
+            reverse_deletion,
+            atomic=True,
         ),
     ]

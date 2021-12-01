@@ -19,6 +19,7 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         Activity.TYPE_CANCELLED_EVENT,
         Activity.TYPE_REMINDER_DOCS_EVENT_EVE,
         Activity.TYPE_REMINDER_DOCS_EVENT_NEXTDAY,
+        Activity.TYPE_REMINDER_REPORT_FORM_FOR_EVENT,
         # GROUP
         Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
         Activity.TYPE_GROUP_INVITATION,
@@ -28,6 +29,7 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         Activity.TYPE_WAITING_PAYMENT,
         # EVENT
         Activity.TYPE_CANCELLED_EVENT,
+        Activity.TYPE_REMINDER_REPORT_FORM_FOR_EVENT,
         # GROUP
         Activity.TYPE_TRANSFERRED_GROUP_MEMBER,
         Activity.TYPE_GROUP_INVITATION,

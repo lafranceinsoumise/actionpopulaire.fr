@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Value, CharField
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -41,9 +41,11 @@ from agir.events.serializers import (
     EventProjectSerializer,
     EventProjectDocumentSerializer,
     EventProjectListItemSerializer,
+    EventReportPersonFormSerializer,
 )
 from agir.groups.models import SupportGroup
 from agir.people.models import Person
+from agir.people.person_forms.models import PersonForm
 
 __all__ = [
     "EventDetailAPIView",
@@ -51,7 +53,7 @@ __all__ = [
     "EventRsvpedAPIView",
     "PastRsvpedEventAPIView",
     "OngoingRsvpedEventsAPIView",
-    "NearEventSuggestionsAPIView",
+    "EventSuggestionsAPIView",
     "UserGroupEventAPIView",
     "OrganizedEventAPIView",
     "EventCreateOptionsAPIView",
@@ -64,6 +66,7 @@ __all__ = [
     "CreateOrganizerConfigAPIView",
     "EventGroupsOrganizersAPIView",
     "CancelEventAPIView",
+    "EventReportPersonFormAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -87,7 +90,9 @@ class EventListAPIView(ListAPIView):
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
-            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+            *args,
+            fields=EventListSerializer.EVENT_CARD_FIELDS,
+            **kwargs,
         )
 
 
@@ -146,42 +151,35 @@ class OngoingRsvpedEventsAPIView(EventListAPIView):
         )
 
 
-class NearEventSuggestionsAPIView(EventListAPIView):
+class EventSuggestionsAPIView(EventListAPIView):
     def get_queryset(self):
         person = self.request.user.person
 
-        national_events = (
+        events = (
             Event.objects.with_serializer_prefetch(person)
-            .select_related("subtype")
+            .select_related("subtype", "suggestion_segment")
             .listed()
             .upcoming()
-            .filter(calendars__slug="national")
         )
+        segmented = events.for_segment_subscriber(self.request.user.person)
+        national = events.national()
+        near = events.none()
 
         if person.coordinates is not None:
-            near_events = list(
-                Event.objects.with_serializer_prefetch(person)
-                .select_related("subtype")
-                .listed()
-                .upcoming()
-                .filter(start_time__lt=timezone.now() + timedelta(days=30))
+            national = national.annotate(
+                distance=Distance("coordinates", person.coordinates),
+            ).filter(distance__lte=100000)
+
+            near = (
+                events.filter(start_time__lt=timezone.now() + timedelta(days=30))
                 .annotate(distance=Distance("coordinates", person.coordinates))
-                .distinct()
-                .order_by("distance")[:10]
-            )
-            national_events = list(
-                national_events.annotate(
-                    distance=Distance("coordinates", person.coordinates),
-                )
-                .filter(distance__lte=100000)
-                .order_by("start_time")[:10]
+                .order_by("distance")
             )
 
-            return sorted(
-                set(national_events + near_events), key=lambda event: event.start_time
-            )
-
-        return national_events.order_by("start_time")[:10]
+        return sorted(
+            set(list(segmented) + list(national[:10]) + list(near[:10])),
+            key=lambda event: event.start_time,
+        )
 
 
 class UserGroupEventAPIView(EventListAPIView):
@@ -317,7 +315,9 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
         # Create organizer config if current person is the group referent
         if member in group.referents:
             OrganizerConfig.objects.create(
-                event=event, person=member, as_group=group,
+                event=event,
+                person=member,
+                as_group=group,
             )
             return Response(status=status.HTTP_201_CREATED)
 
@@ -408,7 +408,8 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
             request.session["rsvp_event"] = str(self.object.pk)
             request.session["is_guest"] = False
             raise MethodNotAllowed(
-                "POST", detail={"redirectTo": reverse("pay_event")},
+                "POST",
+                detail={"redirectTo": reverse("pay_event")},
             )
 
         return super().post(request, *args, **kwargs)
@@ -494,3 +495,27 @@ class CreateEventProjectDocumentAPIView(CreateAPIView):
         with transaction.atomic():
             document = serializer.save()
             project.documents.add(document)
+
+
+class EventReportPersonFormPermission(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "PUT": [], "PATCH": []}
+    object_perms_map = {
+        "GET": ["events.change_event"],
+        "PUT": ["events.change_event"],
+        "PATCH": ["events.change_event"],
+    }
+
+
+class EventReportPersonFormAPIView(RetrieveAPIView):
+    permission_classes = (EventReportPersonFormPermission,)
+    serializer_class = EventReportPersonFormSerializer
+
+    def get_queryset(self):
+        return Event.objects.public().past()
+
+    def get_object(self):
+        event = super().get_object()
+        queryset = PersonForm.objects.published().annotate(
+            event_pk=Value(event.pk, output_field=CharField())
+        )
+        return get_object_or_404(queryset, event_subtype=event.subtype)

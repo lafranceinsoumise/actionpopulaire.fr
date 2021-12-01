@@ -20,7 +20,9 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.RenameField(
-            model_name="mandatmunicipal", old_name="commune", new_name="conseil",
+            model_name="mandatmunicipal",
+            old_name="commune",
+            new_name="conseil",
         ),
         migrations.RenameField(
             model_name="mandatmunicipal", old_name="reseau", new_name="statut"

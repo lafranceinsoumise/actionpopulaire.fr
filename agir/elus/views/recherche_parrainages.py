@@ -46,7 +46,7 @@ from agir.lib.rest_framework_permissions import (
 
 ID_RECHERCHE_PARRAINAGE_SUBQUERY = Subquery(
     RechercheParrainage.objects.filter(
-        maire_id=OuterRef("id"), statut=RechercheParrainage.Statut.EN_COURS
+        ~Q(statut=RechercheParrainage.Statut.ANNULEE), maire_id=OuterRef("id")
     ).values("id")[:1]
 )
 
@@ -85,9 +85,14 @@ def queryset_elus(person, distance_geom=None):
                 ),
                 Value(EluMunicipalSerializer.Statut.DISPONIBLE),
             ),
-            recherche_parrainage_maire_id=Case(
+            recherche_parrainage_id=Case(
                 When(
-                    Q(statut=EluMunicipalSerializer.Statut.A_CONTACTER),
+                    Q(
+                        statut__in=[
+                            EluMunicipalSerializer.Statut.A_CONTACTER,
+                            EluMunicipalSerializer.Statut.PERSONNELLEMENT_VU,
+                        ]
+                    ),
                     ID_RECHERCHE_PARRAINAGE_SUBQUERY,
                 ),
                 default=None,
@@ -96,7 +101,9 @@ def queryset_elus(person, distance_geom=None):
     )
 
     if distance_geom is not None:
-        qs = qs.annotate(distance=Distance("commune__geometry", distance_geom),)
+        qs = qs.annotate(
+            distance=Distance("commune__geometry", distance_geom),
+        )
 
     return qs
 
@@ -134,7 +141,10 @@ class RechercheParrainagesView(
         person = self.request.user.person
 
         if person.coordinates is None:
-            return super().get_context_data(**kwargs, elus=[],)
+            return super().get_context_data(
+                **kwargs,
+                elus=[],
+            )
 
         # il est nécessaire de rajouter la condition à la main pour espérer des requêtes sans seq scan
         a_contacter_qs = queryset_elus(person, person.coordinates).filter(
@@ -142,16 +152,44 @@ class RechercheParrainagesView(
             parrainage__person_id=person.id,
         )
 
+        # idem
+        termines_qs = list(
+            queryset_elus(person, person.coordinates).filter(
+                ~Q(
+                    parrainage__statut__in=[
+                        StatutRechercheParrainage.EN_COURS,
+                        StatutRechercheParrainage.ANNULEE,
+                    ]
+                ),
+                parrainage__person_id=person.id,
+            )
+        )
+        recherches_parrainages_termines = {
+            r.id: r
+            for r in RechercheParrainage.objects.filter(
+                id__in=[e.recherche_parrainage_id for e in termines_qs]
+            )
+        }
+        for e in termines_qs:
+            e.recherche_parrainage = recherches_parrainages_termines.get(
+                e.recherche_parrainage_id
+            )
+
         elus_proches_qs = queryset_elus_proches(person, person.coordinates).filter(
             statut=EluMunicipalSerializer.Statut.DISPONIBLE
         )[:20]
 
         elus_a_contacter = EluMunicipalSerializer(a_contacter_qs, many=True).data
+        elus_termines = EluMunicipalSerializer(termines_qs, many=True).data
         elus_proches = EluMunicipalSerializer(elus_proches_qs, many=True).data
 
         return super().get_context_data(
             **kwargs,
-            export_data={"aContacter": elus_a_contacter, "proches": elus_proches},
+            export_data={
+                "aContacter": elus_a_contacter,
+                "termines": elus_termines,
+                "proches": elus_proches,
+            },
             data_script_id="elusInitiaux",
         )
 
@@ -186,7 +224,10 @@ class ChercherCodePostalView(ListAPIView):
 
         if geom:
             return queryset_elus_proches(self.request.user.person, geom).filter(
-                commune__geometry__dwithin=(geom, D(km=5),)
+                commune__geometry__dwithin=(
+                    geom,
+                    D(km=5),
+                )
             )
         return EluMunicipal.objects.none()
 
@@ -201,10 +242,16 @@ class ModifierRechercheParrainageView(UpdateAPIView):
     serializer_class = ModifierRechercheSerializer
 
     def get_queryset(self):
+        # peuvent être modifiés toutes les recherches de parrainages qui n'ont pas été annulées ou validées
+        # (pas de sens à modifier une demande de parrainge si on a déjà confirmé avoir reçu la promesse !)
         return RechercheParrainage.objects.filter(
             person=self.request.user.person,
-            statut=StatutRechercheParrainage.EN_COURS,
             maire__isnull=False,
+        ).exclude(
+            statut__in=[
+                StatutRechercheParrainage.ANNULEE,
+                StatutRechercheParrainage.VALIDEE,
+            ]
         )
 
 

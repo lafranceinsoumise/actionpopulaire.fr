@@ -206,7 +206,10 @@ class CommunePageAdmin(admin.ModelAdmin):
             "Informations pour les dons par chèque",
             {"fields": ("ordre_don", "adresse_don")},
         ),
-        ("Permission", {"fields": ("chefs_file", "toutes_les_listes")},),
+        (
+            "Permission",
+            {"fields": ("chefs_file", "toutes_les_listes")},
+        ),
     )
 
     list_display = (

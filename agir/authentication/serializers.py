@@ -90,7 +90,7 @@ class SessionSerializer(serializers.Serializer):
             "logout": reverse("disconnect"),
             "personalInformation": reverse("personal_information"),
             "nspReferral": front_url("nsp_referral"),
-            "materiel": "https://materiel.lafranceinsoumise.fr/",
+            "materiel": "https://materiel.actionpopulaire.fr/",
         }
 
         if request.user.is_authenticated and request.user.person is not None:

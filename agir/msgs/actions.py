@@ -1,16 +1,11 @@
 from django.db.models import (
-    Exists,
     OuterRef,
     Case,
     When,
     Count,
     Subquery,
     IntegerField,
-    DateTimeField,
-    Max,
     F,
-    Q,
-    Value,
 )
 from django.db.models.functions import Greatest, Coalesce
 
@@ -24,7 +19,8 @@ from agir.msgs.models import (
 
 def update_recipient_message(message, recipient):
     obj, created = SupportGroupMessageRecipient.objects.update_or_create(
-        message=message, recipient=recipient,
+        message=message,
+        recipient=recipient,
     )
     return obj, created
 
@@ -41,7 +37,9 @@ def get_unread_message_count(person_pk):
                     OuterRef("created"),
                 ),
             )
-            .exclude(author_id=person_pk,)
+            .exclude(
+                author_id=person_pk,
+            )
             .values("message_id")
             .annotate(count=Count("pk"))
             .values("count"),
@@ -60,7 +58,8 @@ def get_unread_message_count(person_pk):
         .annotate(
             membership_created=Subquery(
                 Membership.objects.filter(
-                    supportgroup_id=OuterRef("supportgroup_id"), person_id=person_pk,
+                    supportgroup_id=OuterRef("supportgroup_id"),
+                    person_id=person_pk,
                 ).values("created")[:1]
             )
         )
@@ -120,7 +119,9 @@ def get_message_unread_comment_count(person_pk, message_pk):
         )
         .filter(
             created__gt=Greatest(
-                "last_reading_date", "membership_created", "message__created",
+                "last_reading_date",
+                "membership_created",
+                "message__created",
             ),
         )
     ).count()

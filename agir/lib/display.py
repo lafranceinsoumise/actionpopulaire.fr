@@ -47,7 +47,7 @@ def display_price(price, price_in_cents=True):
 
 
 def pretty_time_since(d, relative_to=None):
-    """ Convert datetime.date to datetime.datetime for comparison."""
+    """Convert datetime.date to datetime.datetime for comparison."""
     if not isinstance(d, datetime.datetime):
         d = datetime.datetime(d.year, d.month, d.day)
     if relative_to and not isinstance(relative_to, datetime.datetime):
@@ -84,7 +84,7 @@ def pretty_time_since(d, relative_to=None):
 
 
 def str_summary(text, length_max=500, last_word_limit=100):
-    """ limite un message en taille.
+    """limite un message en taille.
 
     Le message n'est pas coupé en plein milieu d'un mot, sauf si ce mot est plus long que `last_word_limit`
     '...' est ajouté à la fin de la chaîne."""

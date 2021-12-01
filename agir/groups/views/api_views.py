@@ -118,7 +118,15 @@ class GroupSearchAPIView(ListAPIView):
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
-            *args, fields=["id", "name", "type", "location", "commune",], **kwargs
+            *args,
+            fields=[
+                "id",
+                "name",
+                "type",
+                "location",
+                "commune",
+            ],
+            **kwargs,
         )
 
 
@@ -236,7 +244,9 @@ class GroupEventsAPIView(ListAPIView):
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
-            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+            *args,
+            fields=EventListSerializer.EVENT_CARD_FIELDS,
+            **kwargs,
         )
 
 
@@ -264,7 +274,9 @@ class GroupUpcomingEventsAPIView(ListAPIView):
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
-            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+            *args,
+            fields=EventListSerializer.EVENT_CARD_FIELDS,
+            **kwargs,
         )
 
 
@@ -285,7 +297,9 @@ class GroupPastEventsAPIView(ListAPIView):
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
-            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+            *args,
+            fields=EventListSerializer.EVENT_CARD_FIELDS,
+            **kwargs,
         )
 
     def get_queryset(self):
@@ -326,7 +340,9 @@ class GroupPastEventReportsAPIView(ListAPIView):
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
-            *args, fields=EventListSerializer.EVENT_CARD_FIELDS, **kwargs,
+            *args,
+            fields=EventListSerializer.EVENT_CARD_FIELDS,
+            **kwargs,
         )
 
 
@@ -492,7 +508,8 @@ class JoinGroupAPIView(CreateAPIView, DestroyAPIView):
         supportgroup = self.get_object()
         try:
             membership = Membership.objects.get(
-                supportgroup=supportgroup, person=request.user.person,
+                supportgroup=supportgroup,
+                person=request.user.person,
             )
             if membership.membership_type == self.target_membership_type:
                 return Response(status=status.HTTP_204_NO_CONTENT)

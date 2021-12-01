@@ -86,7 +86,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"ordering": ("created",),},
+            options={
+                "ordering": ("created",),
+            },
         ),
         migrations.CreateModel(
             name="Compte",
@@ -329,7 +331,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Dépense", "verbose_name_plural": "Dépenses",},
+            options={
+                "verbose_name": "Dépense",
+                "verbose_name_plural": "Dépenses",
+            },
         ),
         migrations.CreateModel(
             name="Document",
@@ -591,7 +596,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"abstract": False,},
+            options={
+                "abstract": False,
+            },
         ),
         migrations.CreateModel(
             name="Reglement",
@@ -746,7 +753,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "règlement", "ordering": ("date",),},
+            options={
+                "verbose_name": "règlement",
+                "ordering": ("date",),
+            },
         ),
         migrations.CreateModel(
             name="Projet",
@@ -876,7 +886,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Projet", "verbose_name_plural": "Projets",},
+            options={
+                "verbose_name": "Projet",
+                "verbose_name_plural": "Projets",
+            },
         ),
         migrations.CreateModel(
             name="OrdreVirement",
@@ -961,7 +974,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"abstract": False,},
+            options={
+                "abstract": False,
+            },
         ),
         migrations.CreateModel(
             name="InstanceCherchable",
@@ -990,7 +1005,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Recherche", "verbose_name_plural": "Recherche",},
+            options={
+                "verbose_name": "Recherche",
+                "verbose_name_plural": "Recherche",
+            },
         ),
         migrations.AddField(
             model_name="depense",
@@ -1076,7 +1094,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"abstract": False,},
+            options={
+                "abstract": False,
+            },
         ),
         migrations.CreateModel(
             name="Participation",

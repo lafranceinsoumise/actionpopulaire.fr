@@ -40,7 +40,8 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
             return self.request.user.person
 
     def clear_session(self):
-        del self.request.session[DONATION_SESSION_NAMESPACE]
+        if DONATION_SESSION_NAMESPACE in self.request.session:
+            del self.request.session[DONATION_SESSION_NAMESPACE]
 
     def monthly_payment(self, allocations):
         validated_data = self.validated_data
@@ -76,7 +77,9 @@ class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
 
         # Redirect if user already monthly donator
         if Subscription.objects.filter(
-            person=self.person, status=Subscription.STATUS_ACTIVE, mode=payment_mode,
+            person=self.person,
+            status=Subscription.STATUS_ACTIVE,
+            mode=payment_mode,
         ):
             # stocker toutes les infos en session
             # attention à ne pas juste modifier le dictionnaire existant,

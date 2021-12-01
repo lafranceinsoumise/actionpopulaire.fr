@@ -22,44 +22,6 @@ class MairieSerializer(serializers.Serializer):
     site = serializers.CharField(source="mairie_site")
 
 
-class EluMunicipalSerializer(serializers.Serializer):
-    class Statut(TextChoices):
-        DISPONIBLE = "D", "Disponible"
-        A_CONTACTER = "A", "À contacter"
-        EN_COURS = "E", "En cours"
-        TERMINE = "T", "Déjà rencontré"
-        PERSONNELLEMENT_VU = "P", "Je l'ai vu"
-
-    id = serializers.IntegerField()
-    nomComplet = serializers.SerializerMethodField()
-    sexe = serializers.CharField()
-    titre = serializers.SerializerMethodField()
-    commune = serializers.SerializerMethodField()
-    distance = serializers.SerializerMethodField()
-
-    statut = serializers.CharField()
-    idRechercheParrainage = serializers.IntegerField(
-        source="recherche_parrainage_maire_id"
-    )
-
-    mairie = MairieSerializer(source="commune")
-
-    def get_nomComplet(self, obj):
-        return f"{obj.prenom} {obj.nom}"
-
-    def get_titre(self, obj):
-        return obj.libelle_fonction
-
-    def get_commune(self, obj):
-        return obj.commune.nom_complet
-
-    def get_distance(self, obj):
-        # si la personne n'a pas de coordonnées, aucun des élus n'a de distance
-        if getattr(obj, "distance", None) is not None:
-            return obj.distance.km
-        return None
-
-
 class CreerRechercheSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     elu = serializers.PrimaryKeyRelatedField(
@@ -70,7 +32,9 @@ class CreerRechercheSerializer(serializers.Serializer):
 
     def validate_elu(self, value):
         if (
-            RechercheParrainage.objects.filter(maire=value,)
+            RechercheParrainage.objects.filter(
+                maire=value,
+            )
             .exclude(statut=RechercheParrainage.Statut.ANNULEE)
             .exists()
         ):
@@ -96,11 +60,12 @@ class ModifierRechercheSerializer(serializers.Serializer):
             RechercheParrainage.Statut.NE_SAIT_PAS,
             RechercheParrainage.Statut.AUTRE_ENGAGEMENT,
             RechercheParrainage.Statut.ANNULEE,
-        ]
+        ],
     )
 
     commentaires = serializers.CharField(required=False)
-    formulaire = serializers.FileField(required=False)
+    formulaire = serializers.FileField(required=False, write_only=True)
+    lienFormulaire = serializers.SerializerMethodField(method_name="lien_formulaire")
 
     def validate_formulaire(self, value):
         name = value.name
@@ -115,10 +80,14 @@ class ModifierRechercheSerializer(serializers.Serializer):
         return value
 
     def validate(self, attrs):
-        if attrs["statut"] in [
-            RechercheParrainage.Statut.NE_SAIT_PAS,
-            RechercheParrainage.Statut.AUTRE_ENGAGEMENT,
-        ] and not attrs.get("commentaires"):
+        if (
+            attrs["statut"]
+            in [
+                RechercheParrainage.Statut.NE_SAIT_PAS,
+                RechercheParrainage.Statut.AUTRE_ENGAGEMENT,
+            ]
+            and not attrs.get("commentaires")
+        ):
             raise serializers.ValidationError(
                 detail={"commentaires": "Ce champ est requis avec ce statut."},
                 code="commentaires_requis",
@@ -126,8 +95,51 @@ class ModifierRechercheSerializer(serializers.Serializer):
 
         return attrs
 
+    def lien_formulaire(self, obj):
+        return obj.formulaire.url if obj.formulaire else None
+
     def save(self):
         self.instance.statut = self.validated_data["statut"]
         self.instance.commentaires = self.validated_data.get("commentaires", "")
         self.instance.formulaire = self.validated_data.get("formulaire")
         self.instance.save()
+
+
+class EluMunicipalSerializer(serializers.Serializer):
+    class Statut(TextChoices):
+        DISPONIBLE = "D", "Disponible"
+        A_CONTACTER = "A", "À contacter"
+        EN_COURS = "E", "En cours"
+        TERMINE = "T", "Déjà rencontré"
+        PERSONNELLEMENT_VU = "P", "Je l'ai vu"
+
+    id = serializers.IntegerField()
+    nomComplet = serializers.SerializerMethodField()
+    sexe = serializers.CharField()
+    titre = serializers.SerializerMethodField()
+    commune = serializers.SerializerMethodField()
+    distance = serializers.SerializerMethodField()
+
+    statut = serializers.CharField()
+    idRechercheParrainage = serializers.IntegerField(source="recherche_parrainage_id")
+
+    rechercheParrainage = ModifierRechercheSerializer(
+        source="recherche_parrainage", required=False
+    )
+
+    mairie = MairieSerializer(source="commune")
+
+    def get_nomComplet(self, obj):
+        return f"{obj.prenom} {obj.nom}"
+
+    def get_titre(self, obj):
+        return obj.libelle_fonction
+
+    def get_commune(self, obj):
+        return obj.commune.nom_complet
+
+    def get_distance(self, obj):
+        # si la personne n'a pas de coordonnées, aucun des élus n'a de distance
+        if getattr(obj, "distance", None) is not None:
+            return obj.distance.km
+        return None

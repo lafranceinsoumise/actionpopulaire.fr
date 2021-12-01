@@ -39,5 +39,8 @@ class Migration(migrations.Migration):
             activity_push_status_to_pushed_field,
             atomic=True,
         ),
-        migrations.RemoveField(model_name="activity", name="pushed",),
+        migrations.RemoveField(
+            model_name="activity",
+            name="pushed",
+        ),
     ]

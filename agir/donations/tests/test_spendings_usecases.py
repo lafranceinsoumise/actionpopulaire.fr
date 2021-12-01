@@ -85,8 +85,7 @@ class SpendingRequestTestCase(TestCase):
         }
 
     def test_can_create_spending_request(self):
-        """Peut créer une demande de paiement
-        """
+        """Peut créer une demande de paiement"""
         self.client.force_login(self.p1.role)
 
         res = self.client.get(
@@ -120,8 +119,7 @@ class SpendingRequestTestCase(TestCase):
         )
 
     def test_can_manage_spending_request(self):
-        """Peut accéder à la page de gestion d'une demande
-        """
+        """Peut accéder à la page de gestion d'une demande"""
         self.client.force_login(self.p1.role)
 
         spending_request = SpendingRequest.objects.create(
@@ -134,8 +132,7 @@ class SpendingRequestTestCase(TestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_can_edit_spending_request(self):
-        """Peut modifier une demande de paiment
-        """
+        """Peut modifier une demande de paiment"""
         self.client.force_login(self.p1.role)
         spending_request = SpendingRequest.objects.create(
             group=self.group1, **self.spending_request_data
@@ -160,8 +157,7 @@ class SpendingRequestTestCase(TestCase):
         self.assertEqual(spending_request.amount, 7700)
 
     def test_can_add_document(self):
-        """Un gestionnaire du groupe peut ajouter un document justificatif à une demande
-        """
+        """Un gestionnaire du groupe peut ajouter un document justificatif à une demande"""
         self.client.force_login(self.p1.role)
         spending_request = SpendingRequest.objects.create(
             group=self.group1, **self.spending_request_data
@@ -192,8 +188,7 @@ class SpendingRequestTestCase(TestCase):
         self.assertEqual(spending_request.documents.first().title, "Mon super fichier")
 
     def test_can_modify_document(self):
-        """Un gestionnaire du groupe peut modifier un des documents justificatifs
-        """
+        """Un gestionnaire du groupe peut modifier un des documents justificatifs"""
         self.client.force_login(self.p1.role)
         spending_request = SpendingRequest.objects.create(
             group=self.group1, **self.spending_request_data
@@ -303,8 +298,7 @@ class SpendingRequestTestCase(TestCase):
         self.assertEqual(operation.amount, -8500)
 
     def test_history_is_correct(self):
-        """L'historique d'une demande de dépense est correctement généré
-        """
+        """L'historique d'une demande de dépense est correctement généré"""
         self.maxDiff = None
 
         self.client.force_login(self.p1.role)

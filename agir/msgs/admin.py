@@ -10,24 +10,25 @@ from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment, Us
 
 @admin.register(SupportGroupMessageComment)
 class SupportGroupMessageCommentAdmin(VersionAdmin):
-    fields = (
-        "created",
-        "modified",
-        "author",
-        "text",
-        "image",
-    )
-    readonly_fields = (
-        "created",
-        "modified",
-        "author",
-        "text",
-        "image",
-    )
+    fields = ("created", "modified", "author", "text", "image", "msg", "deleted")
+    readonly_fields = ("created", "modified", "author", "text", "image", "msg")
+    list_display = ("text_excerpt", "author", "msg", "created", "deleted")
+    list_filter = ("deleted",)
     model = SupportGroupMessageComment
 
-    def has_change_permission(self, request, obj=None):
-        return False
+    def text_excerpt(self, object):
+        return truncatechars(object.text, 20)
+
+    text_excerpt.short_description = "Texte"
+
+    def msg(self, object):
+        href = reverse(
+            "admin:msgs_supportgroupmessage_change",
+            args=[object.message.pk],
+        )
+        return format_html(f'<a href="{href}">{object.message.pk}</a>')
+
+    msg.short_description = "Message initial"
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -37,7 +38,7 @@ class SupportGroupMessageCommentAdmin(VersionAdmin):
 
 
 class InlineSupportGroupMessageCommentAdmin(TabularInline):
-    fields = ("created", "modified", "author", "text", "image", "history")
+    fields = ("created", "modified", "author", "text", "image", "history", "deleted")
     readonly_fields = ("created", "modified", "author", "text", "image", "history")
     model = SupportGroupMessageComment
 
@@ -65,6 +66,7 @@ class SupportGroupMessageAdmin(VersionAdmin):
         "text",
         "image",
         "linked_event",
+        "deleted",
     )
     readonly_fields = (
         "created",
@@ -83,7 +85,9 @@ class SupportGroupMessageAdmin(VersionAdmin):
         "supportgroup",
         "linked_event",
         "comment_count",
+        "deleted",
     )
+    list_filter = ("deleted",)
     inlines = [
         InlineSupportGroupMessageCommentAdmin,
     ]

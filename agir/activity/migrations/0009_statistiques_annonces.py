@@ -62,6 +62,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="activity", unique_together={("recipient", "announcement")},
+            name="activity",
+            unique_together={("recipient", "announcement")},
         ),
     ]

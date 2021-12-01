@@ -163,7 +163,9 @@ class CreateSubscriptionsAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("group", res.data[0])
 
-    def test_authenticated_person_cannot_create_subscriptions_that_already_exist(self,):
+    def test_authenticated_person_cannot_create_subscriptions_that_already_exist(
+        self,
+    ):
         self.client.force_login(self.person.role)
         existing_subscription_data = {
             "type": self.person_subscription.type,
@@ -171,12 +173,15 @@ class CreateSubscriptionsAPITestCase(APITestCase):
             "group": str(self.person_subscription.membership.supportgroup.pk),
         }
         res = self.client.post(
-            "/api/notifications/subscriptions/", data=[existing_subscription_data],
+            "/api/notifications/subscriptions/",
+            data=[existing_subscription_data],
         )
         self.assertEqual(res.status_code, 422)
         self.assertIn("global", res.data)
 
-    def test_authenticated_person_can_create_subscriptions_with_valid_data(self,):
+    def test_authenticated_person_can_create_subscriptions_with_valid_data(
+        self,
+    ):
         self.client.force_login(self.person.role)
         subscription_without_group = {**self.valid_data, "group": None}
         subscription_with_group = {

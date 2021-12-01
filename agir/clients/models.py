@@ -55,11 +55,11 @@ class ClientManager(models.Manager):
 
     def create_client(self, client_id, password=None, **extra_fields):
         """
-        Create a client 
+        Create a client
         :param client_id:
         :param password: optional password that may be used to connect to the API
         :param extra_fields: any other field
-        :return: 
+        :return:
         """
         extra_fields.setdefault("is_superuser", False)
         return self._create_client(client_id, password, **extra_fields)
@@ -67,10 +67,10 @@ class ClientManager(models.Manager):
     def create_superclient(self, client_id, password, **extra_fields):
         """
         Create a super client
-        :param label: 
-        :param password: 
-        :param extra_fields: 
-        :return: 
+        :param label:
+        :param password:
+        :param extra_fields:
+        :return:
         """
         extra_fields.setdefault("is_superuser", True)
 

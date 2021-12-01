@@ -194,7 +194,10 @@ class EditSpendingRequestView(
         return super().render_to_response(self.get_context_data(), **response_kwargs)
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(supportgroup=self.object.group, **kwargs,)
+        return super().get_context_data(
+            supportgroup=self.object.group,
+            **kwargs,
+        )
 
 
 @method_decorator(never_cache, name="get")
@@ -232,7 +235,8 @@ class CreateDocumentView(
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            supportgroup=self.spending_request.group, **kwargs,
+            supportgroup=self.spending_request.group,
+            **kwargs,
         )
 
 
@@ -277,7 +281,8 @@ class EditDocumentView(AccessDocumentMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
-            supportgroup=self.spending_request.group, **kwargs,
+            supportgroup=self.spending_request.group,
+            **kwargs,
         )
 
 

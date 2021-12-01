@@ -10,7 +10,7 @@ import DesktopActionToolsPage from "./DesktopActionToolsPage";
 
 const ActionToolsPage = (props) => {
   const { data: session } = useSWR("/api/session/");
-  const { data: donations } = useSWR("/api/2022/dons/");
+  const { data: donations } = useSWR("/api/2022/dons/aggregats/");
 
   return (
     <ResponsiveLayout

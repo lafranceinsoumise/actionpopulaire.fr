@@ -13,7 +13,8 @@ def add_doc_reminder_subscriptions(apps, schema_editor):
     Subscription = apps.get_model("notifications", "Subscription")
 
     waiting_location_subscriptions = Subscription.objects.filter(
-        type=SUBSCRIPTION_PUSH, activity_type=TYPE_WAITING_LOCATION_EVENT,
+        type=SUBSCRIPTION_PUSH,
+        activity_type=TYPE_WAITING_LOCATION_EVENT,
     ).values("membership_id", "person_id")
 
     subscriptions = [

@@ -71,8 +71,7 @@ class PaginationNode(template.Node):
 
 @register.tag(name="pagination")
 def do_pagination(parser, token):
-    """Affiche des liens de pagination
-    """
+    """Affiche des liens de pagination"""
     bits = token.split_contents()
 
     if len(bits) < 2:

@@ -97,7 +97,9 @@ def resize_and_autorotate(file_name, variations, storage=default_storage):
 def shorten_url(url, secret=False):
     return requests.post(
         settings.DJAN_URL + "/api/shorten",
-        params={"token": settings.DJAN_API_KEY,},
+        params={
+            "token": settings.DJAN_API_KEY,
+        },
         data={"url": url, "length": 10 if secret else 5},
     ).text
 
@@ -119,7 +121,13 @@ def replace_datetime_timezone(dt, timezone_name):
     timezone = pytz.timezone(timezone_name)
     return timezone.localize(
         datetime(
-            dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond,
+            dt.year,
+            dt.month,
+            dt.day,
+            dt.hour,
+            dt.minute,
+            dt.second,
+            dt.microsecond,
         ),
     )
 

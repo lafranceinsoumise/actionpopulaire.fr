@@ -498,7 +498,11 @@ class DescriptionMixin(models.Model):
 class ExternalLinkMixin(models.Model):
     url = models.URLField("URL", max_length=255, blank=False, null=False)
     label = models.CharField(
-        "titre", help_text="Titre à afficher", max_length=255, blank=False, null=False,
+        "titre",
+        help_text="Titre à afficher",
+        max_length=255,
+        blank=False,
+        null=False,
     )
 
     class Meta:

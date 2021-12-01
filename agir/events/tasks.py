@@ -293,7 +293,11 @@ def send_cancellation_notification(event_pk):
 
     Activity.objects.bulk_create(
         [
-            Activity(type=Activity.TYPE_CANCELLED_EVENT, recipient=r, event=event,)
+            Activity(
+                type=Activity.TYPE_CANCELLED_EVENT,
+                recipient=r,
+                event=event,
+            )
             for r in recipients
         ],
         send_post_save_signal=True,
@@ -478,7 +482,9 @@ def geocode_event(event_pk):
         Activity.objects.bulk_create(
             (
                 Activity(
-                    type=Activity.TYPE_WAITING_LOCATION_EVENT, recipient=r, event=event,
+                    type=Activity.TYPE_WAITING_LOCATION_EVENT,
+                    recipient=r,
+                    event=event,
                 )
                 for r in event.organizers.all()
             ),
@@ -597,10 +603,12 @@ def send_group_coorganization_invitation_notification(invitation_pk):
         "MEMBER": member.display_name,
         "DATE": now(),
         "ACCEPT_LINK": front_url(
-            "accept_event_group_coorganization", kwargs={"pk": invitation_pk},
+            "accept_event_group_coorganization",
+            kwargs={"pk": invitation_pk},
         ),
         "REFUSE_LINK": front_url(
-            "refuse_event_group_coorganization", kwargs={"pk": invitation_pk},
+            "refuse_event_group_coorganization",
+            kwargs={"pk": invitation_pk},
         ),
     }
 

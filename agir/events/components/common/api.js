@@ -17,6 +17,8 @@ export const ENDPOINT = {
   inviteGroupOrganizer: "/api/evenements/:eventPk/groupes-organisateurs/",
   cancelEvent: "/api/evenements/:eventPk/annuler/",
   updateLocation: "/evenements/:eventPk/localisation/",
+
+  getEventReportForm: "/api/evenements/:eventPk/bilan/",
 };
 
 export const getEventEndpoint = (key, params) => {

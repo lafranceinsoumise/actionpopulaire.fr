@@ -5,7 +5,7 @@ import { useTransition, animated } from "@react-spring/web";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
-import { useDisableBodyScroll } from "@agir/lib/utils/hooks";
+import { useDisableBodyScroll, useFocusTrap } from "@agir/lib/utils/hooks";
 
 const slideInTransition = {
   from: { opacity: 0, paddingTop: "2%" },
@@ -77,63 +77,6 @@ const ModalFrame = styled.div`
   overflow-y: auto;
   z-index: ${style.zindexModal};
 `;
-
-const getFocusableElements = (parent) => {
-  if (!parent) {
-    return [];
-  }
-  return [
-    ...parent.querySelectorAll(
-      'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
-    ),
-  ].filter(
-    (elem) =>
-      !elem.disabled &&
-      !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
-  );
-};
-
-const useFocusTrap = (shouldShow) => {
-  const modalRef = useRef(null);
-  const handleTabKey = useCallback((e) => {
-    if (!modalRef.current) {
-      return;
-    }
-    const focusableModalElements = getFocusableElements(modalRef.current);
-    const firstElement = focusableModalElements[0];
-    const lastElement =
-      focusableModalElements[focusableModalElements.length - 1];
-    if (!e.shiftKey && document.activeElement === lastElement) {
-      firstElement.focus();
-      e.preventDefault();
-    }
-    if (e.shiftKey && document.activeElement === firstElement) {
-      lastElement.focus();
-      e.preventDefault();
-    }
-  }, []);
-
-  const keyListenersMap = useMemo(
-    () => new Map([[9, handleTabKey]]),
-    [handleTabKey]
-  );
-
-  useEffect(() => {
-    const keyListener = (e) => {
-      const listener = keyListenersMap.get(e.keyCode);
-      return listener && listener(e);
-    };
-    if (shouldShow && modalRef.current) {
-      document.addEventListener("keydown", keyListener);
-      const firstElement = getFocusableElements(modalRef.current)[0];
-      firstElement ? firstElement.focus() : modalRef.current.focus();
-    }
-
-    return () => document.removeEventListener("keydown", keyListener);
-  }, [shouldShow, keyListenersMap]);
-
-  return modalRef;
-};
 
 const Modal = (props) => {
   const { shouldShow = false, children, onClose, noScroll, className } = props;

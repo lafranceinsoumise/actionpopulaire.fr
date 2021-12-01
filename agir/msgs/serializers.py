@@ -25,7 +25,9 @@ class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     def get_author(self, obj):
         if obj.author is not None:
             return PersonSerializer(
-                obj.author, context=self.context, fields=["id", "displayName", "image"],
+                obj.author,
+                context=self.context,
+                fields=["id", "displayName", "image"],
             ).data
         return {"id": None, "displayName": "Utilisateur·ice supprimé·e", "image": None}
 
@@ -95,7 +97,9 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     lastUpdate = serializers.DateTimeField(read_only=True, source="last_update")
     group = serializers.SerializerMethodField(read_only=True)
     linkedEvent = LinkedEventField(
-        source="linked_event", required=False, allow_null=True,
+        source="linked_event",
+        required=False,
+        allow_null=True,
     )
     recentComments = serializers.SerializerMethodField(read_only=True)
     commentCount = serializers.SerializerMethodField(read_only=True)
@@ -180,7 +184,10 @@ class ContentTypeChoiceField(serializers.ChoiceField):
 class UserReportSerializer(serializers.ModelSerializer):
     reporter = CurrentPersonField()
     content_type = ContentTypeChoiceField(
-        choices=("msgs.supportgroupmessage", "msgs.supportgroupmessagecomment",)
+        choices=(
+            "msgs.supportgroupmessage",
+            "msgs.supportgroupmessagecomment",
+        )
     )
 
     def validate(self, data):

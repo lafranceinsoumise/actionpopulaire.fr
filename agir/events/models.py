@@ -201,6 +201,20 @@ class EventQuerySet(models.QuerySet):
             .order_by("-rank")
         )
 
+    def national(self):
+        return self.filter(calendars__slug="national")
+
+    def for_segment_subscriber(self, person):
+        segmented_events = self.exclude(suggestion_segment__isnull=True)
+
+        return segmented_events.filter(
+            pk__in=[
+                event.pk
+                for event in segmented_events
+                if event.suggestion_segment.is_subscriber(person)
+            ]
+        )
+
 
 class RSVPQuerySet(models.QuerySet):
     def upcoming(self, as_of=None, published_only=True):
@@ -275,7 +289,9 @@ class EventManager(models.Manager.from_queryset(EventQuerySet)):
 
             if organizer_person is not None:
                 organizer_config = OrganizerConfig.objects.create(
-                    person=organizer_person, event=event, as_group=organizer_group,
+                    person=organizer_person,
+                    event=event,
+                    as_group=organizer_group,
                 )
                 organizer_config.save()
                 rsvp = RSVP.objects.create(person=organizer_person, event=event)
@@ -455,7 +471,22 @@ class Event(
         choices=FOR_USERS_CHOICES,
     )
 
-    online_url = models.URLField("Url de visio-conférence", default="", blank=True,)
+    online_url = models.URLField(
+        "Url de visio-conférence",
+        default="",
+        blank=True,
+    )
+
+    suggestion_segment = models.ForeignKey(
+        to="mailing.Segment",
+        verbose_name="Segment de suggestion",
+        on_delete=models.SET_NULL,
+        related_name="suggested_events",
+        related_query_name="suggested_event",
+        null=True,
+        blank=True,
+        help_text=("Segment des personnes auquel cet événement sera suggéré."),
+    )
 
     class Meta:
         verbose_name = _("événement")
@@ -768,11 +799,24 @@ class EventSubtype(BaseSubtype):
     required_documents = ArrayField(
         verbose_name="Attestations requises",
         base_field=models.CharField(
-            choices=EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES, max_length=10,
+            choices=EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES,
+            max_length=10,
         ),
         null=False,
         blank=False,
         default=list,
+    )
+
+    report_person_form = models.ForeignKey(
+        "people.PersonForm",
+        verbose_name="Formulaire de bilan",
+        help_text="Les organisateur·ices des événements de ce type seront invité·es à remplir ce formulaire une fois "
+        "l'événement terminé",
+        related_name="event_subtype",
+        related_query_name="event_subtype",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
     )
 
     class Meta:
@@ -1033,7 +1077,8 @@ class OrganizerConfig(ExportModelOperationsMixin("organizer_config"), models.Mod
             return
 
         if not self.as_group.memberships.filter(
-            person=self.person, membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+            person=self.person,
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
         ).exists():
             raise ValidationError(
                 {"as_group": "Le groupe doit être un groupe que vous gérez."}
@@ -1158,5 +1203,8 @@ class Invitation(TimeStampedModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["event", "group"], name="unique",),
+            models.UniqueConstraint(
+                fields=["event", "group"],
+                name="unique",
+            ),
         ]

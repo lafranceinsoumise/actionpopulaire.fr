@@ -131,7 +131,10 @@ class MandatMunicipalForm(AvecDelegationMixin, BaseMandatForm):
 
     class Meta(BaseMandatForm.Meta):
         model = MandatMunicipal
-        fields = BaseMandatForm.Meta.fields + ("communautaire", "delegations",)
+        fields = BaseMandatForm.Meta.fields + (
+            "communautaire",
+            "delegations",
+        )
 
 
 class MandatDepartementalForm(AvecDelegationMixin, BaseMandatForm):

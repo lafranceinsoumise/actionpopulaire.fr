@@ -24,25 +24,28 @@ def _deep_replace(dictionary: dict, search, replace):
     return new_dict
 
 
-def create_campaign_from_submission(submission, campaign: Campaign):
+def create_campaign_from_submission(data, person, campaign: Campaign):
     with transaction.atomic():
         campaign.pk = None
-        campaign.name = campaign.name + f" (copie par {str(submission.person)})"
-        campaign.message_from_email = submission.data.get(
+        campaign.name = campaign.name + f" (copie par {str(person)})"
+        campaign.message_from_email = data.get(
             "campaign_from_email", campaign.message_from_email
         )
-        campaign.message_from_name = submission.data.get(
+        campaign.message_from_name = data.get(
             "campaign_from_name", campaign.message_from_name
         )
-        campaign.message_reply_to_email = submission.data.get(
+        campaign.message_reply_to_email = data.get(
             "campaign_reply_to_email", campaign.message_reply_to_email
         )
-        campaign.message_reply_to_name = submission.data.get(
+        campaign.message_reply_to_name = data.get(
             "campaign_reply_to_name", campaign.message_reply_to_name
         )
+        campaign.message_subject = data.get(
+            "campaign_message_subject", campaign.message_subject
+        )
 
-        for field in submission.data:
-            substitute = escape(str(submission.data[field]).replace("{", ""))
+        for field in data:
+            substitute = escape(str(data[field]).replace("{", ""))
 
             campaign.message_mosaico_data = json.dumps(
                 _deep_replace(

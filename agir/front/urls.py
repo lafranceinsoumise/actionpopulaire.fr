@@ -61,15 +61,25 @@ supportgroup_settings_patterns = [
 
 supportgroup_patterns = [
     path("", views.SupportGroupDetailView.as_view(), name="view_group"),
-    path("complet/", views.BaseAppSoftAuthView.as_view(), name="full_group",),
-    path("agenda/", views.SupportGroupDetailView.as_view(), name="view_group_events",),
+    path(
+        "complet/",
+        views.BaseAppSoftAuthView.as_view(),
+        name="full_group",
+    ),
+    path(
+        "agenda/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_events",
+    ),
     path(
         "comptes-rendus/",
         views.SupportGroupDetailView.as_view(),
         name="view_group_reports",
     ),
     path(
-        "messages/", views.SupportGroupDetailView.as_view(), name="view_group_messages",
+        "messages/",
+        views.SupportGroupDetailView.as_view(),
+        name="view_group_messages",
     ),
     path(
         "message/organisation/",
@@ -89,7 +99,11 @@ supportgroup_patterns = [
 
 event_settings_patterns = [
     path("", views.EventDetailView.as_view(), name="view_event"),
-    path("gestion/", views.EventSettingsView.as_view(), name="view_event_settings",),
+    path(
+        "gestion/",
+        views.EventSettingsView.as_view(),
+        name="view_event_settings",
+    ),
     path(
         "gestion/general/",
         views.EventSettingsView.as_view(),
@@ -140,7 +154,11 @@ event_settings_patterns = [
         views.EventSettingsView.as_view(),
         name="view_event_settings_required_documents",
     ),
-    path("documents/", views.EventProjectView.as_view(), name="event_project",),
+    path(
+        "documents/",
+        views.EventProjectView.as_view(),
+        name="event_project",
+    ),
 ]
 
 urlpatterns = [
@@ -148,7 +166,11 @@ urlpatterns = [
     path("connexion/", views.LoginView.as_view(), name="short_code_login"),
     path("inscription/", views.SignupView.as_view(), name="signup"),
     path("rejoindre/", RedirectView.as_view(pattern_name="signup"), name="join"),
-    path("connexion/code/", views.CodeLoginView.as_view(), name="check_short_code",),
+    path(
+        "connexion/code/",
+        views.CodeLoginView.as_view(),
+        name="check_short_code",
+    ),
     path("inscription/code/", views.CodeSignupView.as_view(), name="check_code_signup"),
     path("deconnexion/", views.LogoutView.as_view(), name="disconnect"),
     path("bienvenue/", views.BaseAppCachedView.as_view(), name="tell_more"),
@@ -163,14 +185,22 @@ urlpatterns = [
         name="django.contrib.sitemaps.views.sitemap",
     ),
     ## DASHBOARD VIEWS
-    path("", views.HomepageView.as_view(), name="dashboard",),
+    path(
+        "",
+        views.HomepageView.as_view(),
+        name="dashboard",
+    ),
     path(
         "evenements/",
         RedirectView.as_view(pattern_name="dashboard"),
         name="list_events",
     ),
     path("mes-groupes/", views.UserSupportGroupsView.as_view(), name="list_my_groups"),
-    path("activite/", views.BaseAppSoftAuthView.as_view(), name="list_activities",),
+    path(
+        "activite/",
+        views.BaseAppSoftAuthView.as_view(),
+        name="list_activities",
+    ),
     path(
         "activite/parametres/",
         views.BaseAppHardAuthView.as_view(),
@@ -204,12 +234,24 @@ urlpatterns = [
         views.UserMessageView.as_view(),
         name="user_message_details.notification_settings",
     ),
-    path("agir/", views.BaseAppSoftAuthView.as_view(), name="tools",),
+    path(
+        "agir/",
+        views.BaseAppSoftAuthView.as_view(),
+        name="tools",
+    ),
     path("outils/", views.RedirectView.as_view(pattern_name="tools", permanent=True)),
     path("navigation/", views.BaseAppSoftAuthView.as_view(), name="navigation_menu"),
     ## DONATION VIEWS
-    path("dons/", views.DonationView.as_view(), name="donation_amount",),
-    path("2022/dons/", views.Donation2022View.as_view(), name="donations_2022_amount",),
+    path(
+        "dons/",
+        views.DonationView.as_view(),
+        name="donation_amount",
+    ),
+    path(
+        "2022/dons/",
+        views.Donation2022View.as_view(),
+        name="donations_2022_amount",
+    ),
     ## EVENT VIEWS
     path("evenements/carte/", views.BaseAppCachedView.as_view(), name="event_map_page"),
     path("evenements/creer/", views.CreateEventView.as_view(), name="create_event"),
@@ -249,20 +291,40 @@ urlpatterns = [
         RedirectView.as_view(pattern_name="create_contact", permanent=True),
         name="create_contact_success",
     ),
-    path("dons/", views.DonationView.as_view(), name="donation_amount",),
     path(
-        "dons/informations/", views.DonationView.as_view(), name="donation_information",
+        "dons/",
+        views.DonationView.as_view(),
+        name="donation_amount",
+    ),
+    path(
+        "dons/informations/",
+        views.DonationView.as_view(),
+        name="donation_information",
+    ),
+    path(
+        "dons-mensuels/informations/",
+        views.DonationView.as_view(),
+        name="monthly_donation_information",
     ),
     path(
         "dons/informations-modal/",
         views.DonationView.as_view(),
         name="donation_information_modal",
     ),
-    path("2022/dons/", views.Donation2022View.as_view(), name="donations_2022_amount",),
+    path(
+        "2022/dons/",
+        views.Donation2022View.as_view(),
+        name="donations_2022_amount",
+    ),
     path(
         "2022/dons/informations/",
         views.Donation2022View.as_view(),
         name="donation_2022_information",
+    ),
+    path(
+        "2022/dons-mensuels/informations/",
+        views.Donation2022View.as_view(),
+        name="monthly_donation_2022_information",
     ),
     path(
         "2022/dons/informations-modal/",

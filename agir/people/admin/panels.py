@@ -36,6 +36,7 @@ from agir.lib.admin import (
 from agir.lib.autocomplete_filter import AutocompleteFilter
 from agir.lib.utils import generate_token_params, front_url
 from agir.mailing.models import Segment
+from agir.people.admin.actions import export_people_to_csv
 from agir.people.admin.forms import PersonAdminForm, PersonFormForm
 from agir.people.admin.inlines import RSVPInline, MembershipInline, EmailInline
 from agir.people.admin.views import (
@@ -63,10 +64,15 @@ class SegmentFilter(AutocompleteFilter):
     def get_rendered_widget(self):
         rel = models.ForeignKey(to=Segment, on_delete=models.CASCADE)
         rel.model = Segment
-        widget = AutocompleteSelect(rel, self.model_admin.admin_site,)
+        widget = AutocompleteSelect(
+            rel,
+            self.model_admin.admin_site,
+        )
         FieldClass = self.get_form_field()
         field = FieldClass(
-            queryset=self.get_queryset_for_field(), widget=widget, required=False,
+            queryset=self.get_queryset_for_field(),
+            widget=widget,
+            required=False,
         )
 
         self._add_media(self.model_admin, widget)
@@ -160,7 +166,13 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         (_("Dates"), {"fields": ("created", "modified", "last_login")}),
         (
             _("Paramètres mails"),
-            {"fields": ("newsletters", "subscribed_sms", "campaigns_link",)},
+            {
+                "fields": (
+                    "newsletters",
+                    "subscribed_sms",
+                    "campaigns_link",
+                )
+            },
         ),
         (
             _("Paramètres de participation"),
@@ -228,6 +240,8 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     # de recherche
     search_fields = ["search", "contact_phone"]
     date_hierarchy = "created"
+
+    actions = (export_people_to_csv,)
 
     def get_search_results(self, request, queryset, search_term):
         if search_term:
@@ -372,7 +386,9 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 name="people_person_merge",
             ),
             path(
-                "statistiques/", self.statistics_view, name="people_person_statistics",
+                "statistiques/",
+                self.statistics_view,
+                name="people_person_statistics",
             ),
         ] + super().get_urls()
 
@@ -396,7 +412,10 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         except IncorrectLookupParameters:
             if ERROR_FLAG in request.GET:
                 return SimpleTemplateResponse(
-                    "admin/invalid_setup.html", {"title": _("Database error"),}
+                    "admin/invalid_setup.html",
+                    {
+                        "title": _("Database error"),
+                    },
                 )
             return HttpResponseRedirect(request.path + "?" + ERROR_FLAG + "=1")
 
@@ -433,7 +452,9 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         }
 
         return TemplateResponse(
-            request, "admin/people/person/statistics.html", context,
+            request,
+            "admin/people/person/statistics.html",
+            context,
         )
 
     def has_view_permission(self, request, obj=None):
@@ -441,6 +462,9 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             request.resolver_match.url_name == "people_person_autocomplete"
             and request.user.has_perm("people.select_person")
         )
+
+    def has_export_permission(self, request):
+        return request.user.has_perm("people.export_people")
 
     class Media:
         pass
@@ -502,6 +526,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
             _("Textes"),
             {
                 "fields": (
+                    "short_description",
                     "description",
                     "confirmation_note",
                     "send_confirmation",

@@ -18,7 +18,8 @@ from agir.people.models import Person
 class GroupMessagesTestAPICase(APITestCase):
     def setUp(self):
         self.manager = Person.objects.create(
-            email="member@example.com", create_role=True,
+            email="member@example.com",
+            create_role=True,
         )
         self.group = SupportGroup.objects.create()
         Membership.objects.create(
@@ -49,7 +50,10 @@ class GroupMessagesTestAPICase(APITestCase):
 class UserMessageRecipientsAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.user = Person.objects.create(email="user@example.com", create_role=True,)
+        self.user = Person.objects.create(
+            email="user@example.com",
+            create_role=True,
+        )
         Membership.objects.create(
             person=self.user,
             supportgroup=self.group,
@@ -79,18 +83,32 @@ class UserMessageRecipientsAPITestCase(APITestCase):
 class UserMessagesAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.user = Person.objects.create(email="user@example.com", create_role=True,)
-        self.user_follower = Person.objects.create(email="member@example.com", create_role=True,)
-        self.user_referent = Person.objects.create(email="referent@example.com", create_role=True,)
-        self.user_no_group = Person.objects.create(email="user_no_group@example.com", create_role=True,)
+        self.user = Person.objects.create(
+            email="user@example.com",
+            create_role=True,
+        )
+        self.user_follower = Person.objects.create(
+            email="member@example.com",
+            create_role=True,
+        )
+        self.user_referent = Person.objects.create(
+            email="referent@example.com",
+            create_role=True,
+        )
+        self.user_no_group = Person.objects.create(
+            email="user_no_group@example.com",
+            create_role=True,
+        )
 
         self.first_message = SupportGroupMessage.objects.create(
             author=self.user, supportgroup=self.group, text="First message"
         )
         self.private_message = SupportGroupMessage.objects.create(
-            author=self.user_no_group, supportgroup=self.group, text="Private message",
+            author=self.user_no_group,
+            supportgroup=self.group,
+            text="Private message",
             message_type=SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION,
-            required_membership_type=Membership.MEMBERSHIP_TYPE_REFERENT
+            required_membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
         Membership.objects.create(
             person=self.user_follower,
@@ -260,7 +278,10 @@ class UpdateRecipientMessageActionTestCase(APITestCase):
 class UserUnreadMessageCountAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.user = Person.objects.create(email="user@example.com", create_role=True,)
+        self.user = Person.objects.create(
+            email="user@example.com",
+            create_role=True,
+        )
         Membership.objects.create(
             person=self.user,
             supportgroup=self.group,

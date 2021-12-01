@@ -182,8 +182,7 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
 
 @reversion.register()
 class Participation(TimeStampedModel):
-    """Ce modèle associe des personnes à des projets, et indique leur rôle sur le projet
-    """
+    """Ce modèle associe des personnes à des projets, et indique leur rôle sur le projet"""
 
     class Role(models.TextChoices):
         CANDIDAT = "CAN", "Candidat"
@@ -213,7 +212,9 @@ class Participation(TimeStampedModel):
         related_query_name="participation",
     )
     role = models.CharField(
-        verbose_name="Rôle sur ce projet", max_length=3, choices=Role.choices,
+        verbose_name="Rôle sur ce projet",
+        max_length=3,
+        choices=Role.choices,
     )
 
     precisions = models.TextField(verbose_name="Précisions", blank=True)

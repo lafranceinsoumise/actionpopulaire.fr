@@ -2,14 +2,10 @@ from django.db.models import (
     Case,
     DateTimeField,
     Exists,
-    IntegerField,
     Max,
     OuterRef,
     When,
-    Prefetch,
-    Count,
     Subquery,
-    Q,
 )
 from django.db.models.functions import Greatest
 from rest_framework.decorators import api_view, permission_classes
@@ -22,7 +18,6 @@ from agir.msgs.actions import get_unread_message_count
 from agir.msgs.models import (
     SupportGroupMessage,
     SupportGroupMessageRecipient,
-    SupportGroupMessageComment,
 )
 from agir.msgs.serializers import (
     UserReportSerializer,
@@ -31,11 +26,16 @@ from agir.msgs.serializers import (
 )
 from itertools import chain
 from operator import attrgetter
+from agir.msgs.tasks import send_message_report_email
 
 
 class UserReportAPIView(CreateAPIView):
     serializer_class = UserReportSerializer
     permission_classes = (IsAuthenticated,)
+
+    def perform_create(self, serializer):
+        super(UserReportAPIView, self).perform_create(serializer)
+        send_message_report_email.delay(serializer.instance.pk)
 
 
 class UserMessageRecipientsView(ListAPIView):

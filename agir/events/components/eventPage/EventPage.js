@@ -30,6 +30,8 @@ import EventLocationCard from "./EventLocationCard";
 import EventFacebookLinkCard from "./EventFacebookLinkCard";
 import EventDescriptionCard from "./EventDescriptionCard";
 import EventPhotosCard from "./EventPhotosCard";
+import ReportFormCard from "./ReportFormCard";
+
 import {
   Column,
   Container,
@@ -201,6 +203,7 @@ const MobileLayout = (props) => {
           <StyledColumn stack>
             <Card>
               <EventHeader {...props} />
+              {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
             </Card>
             <EventLocationCard
               name={name}
@@ -263,6 +266,7 @@ const DesktopLayout = (props) => {
           <Column grow>
             <div>
               <EventHeader {...props} />
+              {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
               <EventPhotosCard {...props} />
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />

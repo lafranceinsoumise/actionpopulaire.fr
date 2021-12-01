@@ -5,7 +5,8 @@ from agir.payments.models import Payment
 
 
 def convert_to_donation(
-    payment, fiscal_resident,
+    payment,
+    fiscal_resident,
 ):
     today = timezone.now().date()
     person = payment.person

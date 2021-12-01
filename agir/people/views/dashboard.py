@@ -28,8 +28,7 @@ from agir.payments.models import Payment
 
 
 class SearchView(TemplateView):
-    """Vue pour rechercher et lister des groupes et des événéments
-    """
+    """Vue pour rechercher et lister des groupes et des événéments"""
 
     template_name = "people/dashboard_search.html"
     querysets = {

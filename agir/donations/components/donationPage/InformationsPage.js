@@ -38,12 +38,26 @@ const InformationsPage = () => {
 
   const history = useHistory();
   const params = useParams();
-  const { search } = useLocation();
+  const { search, pathname } = useLocation();
   const urlParams = new URLSearchParams(search);
 
   const type = params?.type || "LFI";
   const groupPk = type !== "2022" && urlParams.get("group");
   const amountParam = urlParams.get("amount") || 0;
+  const paymentTimes = pathname.includes("mensuels") ? "M" : "S";
+
+  let ALLOWED_PAYMENT_MODES;
+  if (type === "2022") {
+    ALLOWED_PAYMENT_MODES = ["system_pay_afcp2022", "check_jlm2022_dons"];
+    if (paymentTimes === "M") {
+      ALLOWED_PAYMENT_MODES = ["system_pay_afcp2022"];
+    }
+  } else {
+    ALLOWED_PAYMENT_MODES = ["system_pay", "check_donations"];
+    if (paymentTimes === "M") {
+      ALLOWED_PAYMENT_MODES = ["system_pay"];
+    }
+  }
 
   const { data: group } = useSWR(groupPk && `/api/groupes/${groupPk}/`, {
     revalidateIfStale: false,
@@ -64,12 +78,11 @@ const InformationsPage = () => {
     // amounts
     to: type,
     amount: amountParam || sessionDonation?.donations?.amount,
-    paymentTimes: sessionDonation?.donations?.paymentTimes,
+    paymentTimes: paymentTimes,
     allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
     // mode
     paymentMode: sessionDonation?.donations?.paymentMode || "system_pay",
-    allowedPaymentModes:
-      sessionDonation?.donations?.allowedPaymentModes || "[]",
+    allowedPaymentModes: ALLOWED_PAYMENT_MODES,
     // informations
     email: session?.user?.email || "",
     firstName: session?.user?.firstName || "",
@@ -99,10 +112,9 @@ const InformationsPage = () => {
     setFormData({
       ...formData,
       amount: amountParam || sessionDonation?.donations?.amount,
-      paymentTimes: sessionDonation?.donations?.type,
+      paymentTimes: paymentTimes,
       allocations: JSON.parse(sessionDonation?.donations?.allocations || "[]"),
-      allowedPaymentModes:
-        sessionDonation?.donations?.allowedPaymentModes || "[]",
+      allowedPaymentModes: ALLOWED_PAYMENT_MODES,
     });
   }, [sessionDonation]);
 

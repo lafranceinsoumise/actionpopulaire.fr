@@ -17,7 +17,9 @@ def add_message(backend, user, details, new_association, *args, **kwargs):
                 else:
                     message = f"Votre compte Facebook a bien été relié à votre compte la France insoumise via votre adresse email {email}"
                 messages.add_message(
-                    request=request, level=messages.SUCCESS, message=message,
+                    request=request,
+                    level=messages.SUCCESS,
+                    message=message,
                 )
         else:
             messages.add_message(

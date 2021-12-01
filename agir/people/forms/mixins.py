@@ -13,7 +13,9 @@ class LegacySubscribedMixin(ModelForm):
 
     def __init__(self, *args, instance=None, **kwargs):
         super().__init__(
-            *args, instance=instance, **kwargs,
+            *args,
+            instance=instance,
+            **kwargs,
         )
 
         self.fields["subscribed_lfi"].initial = (

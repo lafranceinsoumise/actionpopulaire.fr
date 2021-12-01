@@ -1,8 +1,10 @@
 import csv
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.core.files import File
 from django.http import Http404
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -37,9 +39,7 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
         return self.title_suffix
 
     def get_meta_description(self):
-        if self.person_form_instance.description:
-            return html2text(self.person_form_instance.description)
-        return ""
+        return self.person_form_instance.meta_description
 
     def get_success_url(self):
         return reverse(
@@ -86,6 +86,18 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
             return self.get(request, *args, **kwargs)
         return super().post(request, *args, **kwargs)
 
+    def make_data_url_from_image_file(self, file: File):
+        if "image" not in file.content_type:
+            return file.name
+
+        prefix = f"data:{file.content_type};base64,"
+        fin = file.open("rb")
+        contents = fin.read()
+        import base64
+
+        data_url = prefix + base64.b64encode(contents).decode("utf-8")
+        return data_url
+
     def form_valid(self, form):
         if (
             self.person_form_instance.campaign_template is not None
@@ -93,21 +105,29 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
         ):
             preview = self.person_form_instance.campaign_template.message_content_html
             for field in form.cleaned_data:
-                preview = preview.replace(
-                    f"[{field}]", escape(form.cleaned_data[field])
-                )
+                value = form.cleaned_data[field]
+                # Generate a data URL image for the email preview
+                if isinstance(value, File):
+                    value = self.make_data_url_from_image_file(value)
+                preview = preview.replace(f"[{field}]", escape(value))
 
             return HttpResponse(preview)
 
         r = super().form_valid(form)
+
         if self.person_form_instance.send_confirmation:
             tasks.send_person_form_confirmation.delay(form.submission.pk)
         if self.person_form_instance.send_answers_to:
             tasks.send_person_form_notification.delay(form.submission.pk)
 
         if self.person_form_instance.campaign_template:
+            data = {}
+            for key, value in form.submission.data.items():
+                data[key] = value
             create_campaign_from_submission(
-                form.submission, self.person_form_instance.campaign_template
+                data,
+                form.submission.person,
+                self.person_form_instance.campaign_template,
             )
 
         return r

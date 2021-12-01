@@ -72,7 +72,7 @@ export const creerRechercheParrainage = async (idElu) => {
   }
 };
 
-export const terminerParrainage = async (id, data) => {
+export const modifierParrainage = async (id, data) => {
   const url = `${UPDATE_URL}${id}/`;
 
   const formData = new FormData();

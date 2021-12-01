@@ -1,6 +1,6 @@
-from unittest.mock import patch
-
 import tempfile
+import uuid
+from unittest.mock import patch
 
 from PIL import Image
 from django.utils import timezone
@@ -12,7 +12,7 @@ from agir.gestion.models import Projet
 from agir.gestion.typologies import TypeProjet
 from agir.groups.models import SupportGroup, Membership
 from agir.lib.tests.mixins import create_location, get_random_object
-from agir.people.models import Person, PersonForm
+from agir.people.models import Person, PersonForm, PersonFormSubmission
 
 
 class CreateEventAPITestCase(APITestCase):
@@ -20,7 +20,8 @@ class CreateEventAPITestCase(APITestCase):
         self.managed_group = SupportGroup.objects.create()
         self.unmanaged_group = SupportGroup.objects.create()
         self.person = Person.objects.create(
-            email="person@example.com", create_role=True,
+            email="person@example.com",
+            create_role=True,
         )
         Membership.objects.create(
             supportgroup=self.managed_group,
@@ -97,7 +98,9 @@ class CreateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 201)
         self.assertIn("id", res.data)
         organizer_config = OrganizerConfig.objects.filter(
-            event_id=res.data["id"], as_group=None, person=self.person,
+            event_id=res.data["id"],
+            as_group=None,
+            person=self.person,
         )
         self.assertEqual(organizer_config.count(), 1)
 
@@ -107,7 +110,8 @@ class CreateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 201)
         self.assertIn("id", res.data)
         rsvp = OrganizerConfig.objects.filter(
-            event_id=res.data["id"], person=self.person,
+            event_id=res.data["id"],
+            person=self.person,
         )
         self.assertEqual(rsvp.count(), 1)
 
@@ -340,7 +344,10 @@ class CreateEventAPITestCase(APITestCase):
         )
         res = self.client.post(
             "/api/evenements/creer/",
-            data={**self.valid_data, "subtype": subtype_with_related_project_type.id,},
+            data={
+                **self.valid_data,
+                "subtype": subtype_with_related_project_type.id,
+            },
         )
         self.assertEqual(res.status_code, 201)
         new_event_id = res.data["id"]
@@ -415,10 +422,14 @@ class RSVPEventAPITestCase(APITestCase):
 
     def test_person_cannot_rsvp_if_already_participant(self):
         event = Event.objects.create(
-            name="Event", start_time=self.start_time, end_time=self.end_time,
+            name="Event",
+            start_time=self.start_time,
+            end_time=self.end_time,
         )
         RSVP.objects.create(
-            event=event, person=self.person, status=RSVP.STATUS_CONFIRMED,
+            event=event,
+            person=self.person,
+            status=RSVP.STATUS_CONFIRMED,
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
@@ -433,7 +444,9 @@ class RSVPEventAPITestCase(APITestCase):
             payment_parameters='{"price":10}',
         )
         RSVP.objects.create(
-            event=event, person=self.person, status=RSVP.STATUS_CONFIRMED,
+            event=event,
+            person=self.person,
+            status=RSVP.STATUS_CONFIRMED,
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
@@ -442,7 +455,9 @@ class RSVPEventAPITestCase(APITestCase):
 
     def test_authenticated_person_can_rsvp_available_event(self):
         event = Event.objects.create(
-            name="Event", start_time=self.start_time, end_time=self.end_time,
+            name="Event",
+            start_time=self.start_time,
+            end_time=self.end_time,
         )
         self.client.force_login(self.person.role)
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
@@ -451,7 +466,9 @@ class RSVPEventAPITestCase(APITestCase):
     @patch("agir.events.views.api_views.rsvp_to_free_event")
     def test_rsvp_to_free_event_is_called_upon_joining(self, rsvp_to_free_event):
         event = Event.objects.create(
-            name="Event", start_time=self.start_time, end_time=self.end_time,
+            name="Event",
+            start_time=self.start_time,
+            end_time=self.end_time,
         )
         self.client.force_login(self.person.role)
         rsvp_to_free_event.assert_not_called()
@@ -461,19 +478,32 @@ class RSVPEventAPITestCase(APITestCase):
 
     def test_rsvp_is_created_upon_rsvping(self):
         event = Event.objects.create(
-            name="Event", start_time=self.start_time, end_time=self.end_time,
+            name="Event",
+            start_time=self.start_time,
+            end_time=self.end_time,
         )
         self.client.force_login(self.person.role)
-        self.assertFalse(RSVP.objects.filter(event=event, person=self.person,).exists())
+        self.assertFalse(
+            RSVP.objects.filter(
+                event=event,
+                person=self.person,
+            ).exists()
+        )
         res = self.client.post(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 201)
-        self.assertTrue(RSVP.objects.filter(event=event, person=self.person,).exists())
+        self.assertTrue(
+            RSVP.objects.filter(
+                event=event,
+                person=self.person,
+            ).exists()
+        )
 
 
 class QuitEventAPITestCase(APITestCase):
     def setUp(self):
         self.person = Person.objects.create(
-            email="person@example.com", create_role=True,
+            email="person@example.com",
+            create_role=True,
         )
         self.start_time = timezone.now() + timezone.timedelta(hours=2)
         self.end_time = self.start_time + timezone.timedelta(hours=2)
@@ -499,10 +529,13 @@ class QuitEventAPITestCase(APITestCase):
 
     def test_person_cannot_quit_if_not_participant(self):
         event = Event.objects.create(
-            name="Event", start_time=self.start_time, end_time=self.end_time,
+            name="Event",
+            start_time=self.start_time,
+            end_time=self.end_time,
         )
         other_person = Person.objects.create(
-            email="other_person@example.com", create_role=True,
+            email="other_person@example.com",
+            create_role=True,
         )
         rsvp = RSVP.objects.create(event=event, person=other_person)
         self.client.force_login(self.person.role)
@@ -511,23 +544,37 @@ class QuitEventAPITestCase(APITestCase):
 
     def test_person_can_quit_future_rsvped_event(self):
         event = Event.objects.create(
-            name="Event", start_time=self.start_time, end_time=self.end_time,
+            name="Event",
+            start_time=self.start_time,
+            end_time=self.end_time,
         )
         rsvp = RSVP.objects.create(event=event, person=self.person)
-        self.assertTrue(RSVP.objects.filter(event=event, person=self.person,).exists())
+        self.assertTrue(
+            RSVP.objects.filter(
+                event=event,
+                person=self.person,
+            ).exists()
+        )
         self.client.force_login(self.person.role)
         res = self.client.delete(f"/api/evenements/{event.pk}/inscription/")
         self.assertEqual(res.status_code, 204)
-        self.assertFalse(RSVP.objects.filter(event=event, person=self.person,).exists())
+        self.assertFalse(
+            RSVP.objects.filter(
+                event=event,
+                person=self.person,
+            ).exists()
+        )
 
 
 class UpdateEventAPITestCase(APITestCase):
     def setUp(self):
         self.unrelated_person = Person.objects.create(
-            email="unrelated_person@example.com", create_role=True,
+            email="unrelated_person@example.com",
+            create_role=True,
         )
         self.organizer = Person.objects.create(
-            email="organizer@example.com", create_role=True,
+            email="organizer@example.com",
+            create_role=True,
         )
         start_time = timezone.now() + timezone.timedelta(days=3)
         end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
@@ -620,10 +667,12 @@ class UpdateEventAPITestCase(APITestCase):
 class EventProjectAPITestCase(APITestCase):
     def setUp(self):
         self.unrelated_person = Person.objects.create(
-            email="unrelated_person@example.com", create_role=True,
+            email="unrelated_person@example.com",
+            create_role=True,
         )
         self.organizer = Person.objects.create(
-            email="organizer@example.com", create_role=True,
+            email="organizer@example.com",
+            create_role=True,
         )
         start_time = timezone.now() + timezone.timedelta(days=3)
         end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
@@ -707,7 +756,10 @@ class EventProjectAPITestCase(APITestCase):
     def test_organizer_person_cannot_update_with_invalid_data(self):
         self.client.force_login(self.organizer.role)
         data = {"dismissedDocumentTypes": None}
-        res = self.client.patch(f"/api/evenements/{self.event.pk}/projet/", data=data,)
+        res = self.client.patch(
+            f"/api/evenements/{self.event.pk}/projet/",
+            data=data,
+        )
         self.assertEqual(res.status_code, 422)
 
         data = {
@@ -715,7 +767,10 @@ class EventProjectAPITestCase(APITestCase):
                 "NOT-" + EventProjectSerializer.Meta.valid_document_types[0]
             ]
         }
-        res = self.client.patch(f"/api/evenements/{self.event.pk}/projet/", data=data,)
+        res = self.client.patch(
+            f"/api/evenements/{self.event.pk}/projet/",
+            data=data,
+        )
         self.assertEqual(res.status_code, 422)
 
     def test_organizer_person_can_update_project_if_one_exists(self):
@@ -754,10 +809,12 @@ class EventProjectAPITestCase(APITestCase):
 class CreateEventProjectDocumentAPITestCase(APITestCase):
     def setUp(self):
         self.unrelated_person = Person.objects.create(
-            email="unrelated_person@example.com", create_role=True,
+            email="unrelated_person@example.com",
+            create_role=True,
         )
         self.organizer = Person.objects.create(
-            email="organizer@example.com", create_role=True,
+            email="organizer@example.com",
+            create_role=True,
         )
         start_time = timezone.now() + timezone.timedelta(days=3)
         end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
@@ -878,10 +935,12 @@ class CreateEventProjectDocumentAPITestCase(APITestCase):
 class EventProjectsAPITestCase(APITestCase):
     def setUp(self):
         self.unrelated_person = Person.objects.create(
-            email="unrelated_person@example.com", create_role=True,
+            email="unrelated_person@example.com",
+            create_role=True,
         )
         self.organizer = Person.objects.create(
-            email="organizer@example.com", create_role=True,
+            email="organizer@example.com",
+            create_role=True,
         )
         start_time = timezone.now() + timezone.timedelta(days=3)
         end_time = timezone.now() + timezone.timedelta(days=3, hours=4)
@@ -919,3 +978,122 @@ class EventProjectsAPITestCase(APITestCase):
         res = self.client.get(f"/api/evenements/projets/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(res.data), 1)
+
+
+class EventReportPersonFormAPITestCase(APITestCase):
+    def setUp(self):
+        self.unrelated_person = Person.objects.create(
+            email="unrelated_person@example.com",
+            create_role=True,
+        )
+        self.organizer = Person.objects.create(
+            email="organizer@example.com",
+            create_role=True,
+        )
+        self.report_person_form = PersonForm.objects.create(
+            title="Form", description="Form", slug="formulaire"
+        )
+        self.subtype_with_form = EventSubtype.objects.create(
+            label="Subtype with form",
+            report_person_form=self.report_person_form,
+            visibility=EventSubtype.VISIBILITY_ALL,
+        )
+        self.subtype_without_form = EventSubtype.objects.create(
+            label="Subtype without form",
+            report_person_form=None,
+            visibility=EventSubtype.VISIBILITY_ALL,
+        )
+        self.event_without_form = Event.objects.create(
+            name="Event",
+            start_time=timezone.now() + timezone.timedelta(days=3),
+            end_time=timezone.now() + timezone.timedelta(days=3, hours=4),
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.subtype_without_form,
+            organizer_person=self.organizer,
+        )
+        self.upcomint_event = Event.objects.create(
+            name="Upcoming",
+            start_time=timezone.now() + timezone.timedelta(days=3),
+            end_time=timezone.now() + timezone.timedelta(days=3, hours=4),
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.subtype_with_form,
+            organizer_person=self.organizer,
+        )
+        self.past_event = Event.objects.create(
+            name="Past",
+            start_time=timezone.now() - timezone.timedelta(days=3),
+            end_time=timezone.now() - timezone.timedelta(days=2),
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.subtype_with_form,
+            organizer_person=self.organizer,
+        )
+
+    def test_anonymous_person_cannot_retrieve_form(self):
+        self.client.logout()
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 401)
+
+    def test_non_organizer_cannot_retrieve_form(self):
+        self.client.force_login(self.unrelated_person.role)
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 403)
+
+    def test_cannot_retrieve_form_for_unexisting_event(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{uuid.uuid4()}/bilan/")
+        self.assertEqual(res.status_code, 404)
+
+    def test_cannot_retrieve_form_for_event_with_formless_subtype(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.event_without_form.pk}/bilan/")
+        self.assertEqual(res.status_code, 404)
+
+    def test_cannot_retrieve_form_for_upcoming_event(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.upcomint_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 404)
+
+    def test_organizer_can_retrieve_form_for_past_event(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+
+    def test_organizer_can_retrieve_form_url_with_event_query_param(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("url", res.data)
+        self.assertIn(
+            f"/formulaires/formulaire/?reported_event_id={self.past_event.pk}",
+            res.data["url"],
+        )
+
+    def test_organizer_can_retrieve_form_submission_state_for_event(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("submitted", res.data)
+        self.assertFalse(res.data["submitted"])
+
+        PersonFormSubmission.objects.create(
+            form=self.report_person_form,
+            person=self.organizer,
+            data={"reported_event_id": str(self.upcomint_event.pk)},
+        )
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("submitted", res.data)
+        self.assertFalse(res.data["submitted"])
+
+        PersonFormSubmission.objects.create(
+            form=self.report_person_form,
+            person=self.organizer,
+            data={"reported_event_id": str(self.past_event.pk)},
+        )
+        res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("submitted", res.data)
+        self.assertTrue(res.data["submitted"])

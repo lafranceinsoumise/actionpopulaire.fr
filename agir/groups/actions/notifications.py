@@ -50,8 +50,8 @@ def someone_joined_notification(membership, membership_count=1):
         membership.supportgroup.type == SupportGroup.TYPE_LOCAL_GROUP
         and membership_count in membership_limit_notication_steps
     ):
-        current_membership_limit_notification_step = membership_limit_notication_steps.index(
-            membership_count
+        current_membership_limit_notification_step = (
+            membership_limit_notication_steps.index(membership_count)
         )
         Activity.objects.bulk_create(
             [
@@ -109,7 +109,9 @@ def new_message_notifications(message):
                 type=Activity.TYPE_NEW_MESSAGE,
                 recipient=r,
                 status=Activity.STATUS_UNDISPLAYED,
-                meta={"message": str(message.pk),},
+                meta={
+                    "message": str(message.pk),
+                },
             )
             for r in recipients
             if r.pk != message.author.pk
@@ -180,7 +182,10 @@ def new_comment_notifications(comment):
                 type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
                 recipient=r,
                 status=Activity.STATUS_UNDISPLAYED,
-                meta={"message": str(message_initial.pk), "comment": str(comment.pk),},
+                meta={
+                    "message": str(message_initial.pk),
+                    "comment": str(comment.pk),
+                },
             )
             for r in participant_recipients
             if r.pk != comment.author.pk

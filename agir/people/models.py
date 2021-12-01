@@ -279,7 +279,8 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
             extra_fields.setdefault("newsletters", [])
         else:
             extra_fields.setdefault(
-                "newsletters", [Person.NEWSLETTER_LFI],
+                "newsletters",
+                [Person.NEWSLETTER_LFI],
             )
 
         return self.create_person(email, password=password, **extra_fields)
@@ -529,7 +530,11 @@ class Person(
             (
                 "select_person",
                 "Peut lister pour sélectionner (dans un Select 2 par exemple)",
-            )
+            ),
+            (
+                "export_people",
+                "Peut faire un export des informations des personnes",
+            ),
         ]
         indexes = (
             GinIndex(fields=["search"], name="search_index"),

@@ -18,7 +18,8 @@ def add_new_comment_restricted_subscriptions(apps, schema_editor):
             person_id=s["person_id"],
         )
         for s in Subscription.objects.filter(
-            type=SUBSCRIPTION_PUSH, activity_type=TYPE_NEW_COMMENT,
+            type=SUBSCRIPTION_PUSH,
+            activity_type=TYPE_NEW_COMMENT,
         ).values("membership_id", "person_id")
     ]
     email_subscriptions = [
@@ -29,7 +30,8 @@ def add_new_comment_restricted_subscriptions(apps, schema_editor):
             person_id=s["person_id"],
         )
         for s in Subscription.objects.filter(
-            type=SUBSCRIPTION_EMAIL, activity_type=TYPE_NEW_COMMENT,
+            type=SUBSCRIPTION_EMAIL,
+            activity_type=TYPE_NEW_COMMENT,
         ).values("membership_id", "person_id")
     ]
     Subscription.objects.bulk_create(

@@ -55,8 +55,7 @@ def add_params_to_urls(url, params):
 
 
 def get_context_from_bindings(code, recipient, bindings):
-    """Finalizes the bindings and create a Context for templating
-    """
+    """Finalizes the bindings and create a Context for templating"""
     if code not in settings.EMAIL_TEMPLATES:
         raise ImproperlyConfigured("Mail '%s' cannot be found")
 

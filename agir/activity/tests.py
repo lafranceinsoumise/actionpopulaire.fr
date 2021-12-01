@@ -97,13 +97,17 @@ class ActivityAPIViewTestCase(TestCase):
 
 class AnnouncementTestCase(TestCase):
     def setUp(self) -> None:
-        self.insoumise = Person.objects.create_insoumise("a@a.a",)
+        self.insoumise = Person.objects.create_insoumise(
+            "a@a.a",
+        )
 
         self.nsp = Person.objects.create_person("b@b.b", is_2022=True)
 
     def test_can_get_all_announcements(self):
         a1 = Announcement.objects.create(
-            title="1ère annonce", link="https://lafranceinsoumise.fr", content="SUPER",
+            title="1ère annonce",
+            link="https://lafranceinsoumise.fr",
+            content="SUPER",
         )
 
         a2 = Announcement.objects.create(
@@ -130,7 +134,9 @@ class AnnouncementTestCase(TestCase):
 
     def test_activity_is_created_if_none_exists_for_authenticated_person(self):
         announcement = Announcement.objects.create(
-            title="1ère annonce", link="https://lafranceinsoumise.fr", content="SUPER",
+            title="1ère annonce",
+            link="https://lafranceinsoumise.fr",
+            content="SUPER",
         )
         self.assertFalse(
             Activity.objects.filter(
@@ -146,7 +152,9 @@ class AnnouncementTestCase(TestCase):
 
     def test_activity_is_not_created_if_one_exists_for_the_authenticated_person(self):
         announcement = Announcement.objects.create(
-            title="1ère annonce", link="https://lafranceinsoumise.fr", content="SUPER",
+            title="1ère annonce",
+            link="https://lafranceinsoumise.fr",
+            content="SUPER",
         )
         Activity.objects.create(
             announcement=announcement,
@@ -202,7 +210,8 @@ class ActivityStatusUpdateViewTestCase(TestCase):
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
 
         self.assertCountEqual(
-            self.p1.activities.filter(status=Activity.STATUS_DISPLAYED), [self.a1],
+            self.p1.activities.filter(status=Activity.STATUS_DISPLAYED),
+            [self.a1],
         )
 
     def test_can_update_multiple_activities(self):
@@ -226,7 +235,10 @@ class ActivityStatusUpdateViewTestCase(TestCase):
         self.client.force_login(self.p1.role)
         res = self.client.post(
             "/api/activity/bulk/update-status/",
-            data={"status": Activity.STATUS_INTERACTED, "ids": [self.a3.id],},
+            data={
+                "status": Activity.STATUS_INTERACTED,
+                "ids": [self.a3.id],
+            },
         )
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -239,7 +251,10 @@ class ActivityStatusUpdateViewTestCase(TestCase):
         self.a1.save()
         res = self.client.post(
             "/api/activity/bulk/update-status/",
-            data={"status": Activity.STATUS_DISPLAYED, "ids": [self.a1.id],},
+            data={
+                "status": Activity.STATUS_DISPLAYED,
+                "ids": [self.a1.id],
+            },
         )
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
 

@@ -18,7 +18,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ProjetMilitant",
             fields=[],
-            options={"proxy": True, "indexes": [], "constraints": [],},
+            options={
+                "proxy": True,
+                "indexes": [],
+                "constraints": [],
+            },
             bases=("gestion.projet",),
         ),
         migrations.AddField(

@@ -13,7 +13,6 @@ from rest_framework.reverse import reverse
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.carte.views import EventMapView
-from agir.events.actions import legal
 from agir.events.tasks import (
     send_guest_confirmation,
     send_rsvp_notification,
@@ -133,6 +132,12 @@ class EventPagesTestCase(TestCase):
             person=self.person,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
+        self.own_group = SupportGroup.objects.create(name="Own group name")
+        Membership.objects.create(
+            supportgroup=self.own_group,
+            person=self.person,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
 
         self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
         day = timezone.timedelta(days=1)
@@ -150,8 +155,8 @@ class EventPagesTestCase(TestCase):
         self.organized_event = Event.objects.create(
             name="Organized event",
             subtype=self.subtype,
-            start_time=now + day,
-            end_time=now + day + 4 * hour,
+            start_time=now - day,
+            end_time=now - day + 4 * hour,
         )
 
         RSVP.objects.create(person=self.person, event=self.organized_event)
@@ -159,11 +164,20 @@ class EventPagesTestCase(TestCase):
             event=self.organized_event, person=self.person, is_creator=True
         )
 
+        self.organized_by_group_and_unrsvped_event = Event.objects.create_event(
+            name="Organized by group and unrsvped event",
+            subtype=self.subtype,
+            organizer_person=self.other_person,
+            organizer_group=self.own_group,
+            start_time=now - day,
+            end_time=now - day + 4 * hour,
+        )
+
         self.rsvped_event = Event.objects.create(
             name="RSVPed event",
             subtype=self.subtype,
-            start_time=now + 2 * day,
-            end_time=now + 2 * day + 2 * hour,
+            start_time=now - 2 * day,
+            end_time=now - 2 * day + 2 * hour,
             allow_guests=True,
         )
 
@@ -172,8 +186,8 @@ class EventPagesTestCase(TestCase):
         self.other_event = Event.objects.create(
             name="Other event",
             subtype=self.subtype,
-            start_time=now + 3 * day,
-            end_time=now + 3 * day + 4 * hour,
+            start_time=now - 3 * day,
+            end_time=now - 3 * day + 4 * hour,
         )
 
         self.other_rsvp1 = RSVP.objects.create(
@@ -256,6 +270,16 @@ class EventPagesTestCase(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_can_access_upload_image_page_if_manager_of_organizer_group(self):
+        self.client.force_login(self.person.role)
+        response = self.client.get(
+            reverse(
+                "upload_event_image",
+                kwargs={"pk": self.organized_by_group_and_unrsvped_event.pk},
+            )
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_can_see_public_event(self):
         res = self.client.get(
             reverse("view_event", kwargs={"pk": self.organized_event.pk})
@@ -298,7 +322,7 @@ class EventPagesTestCase(TestCase):
 
     @mock.patch("agir.events.views.event_views.send_event_report")
     def test_can_not_send_event_report_when_nocondition(self, send_event_report):
-        """ Si une des conditions manque, l'envoi du mail ne se fait pas.
+        """Si une des conditions manque, l'envoi du mail ne se fait pas.
 
         Les conditions sont : le mail n'a jamais été envoyé, l'événement est passé,
         le compte-rendu n'est pas vide."""
@@ -895,8 +919,8 @@ class RSVPTestCase(TestCase):
 
     def test_cannot_rsvp_if_form_is_closed(self):
         self.client.force_login(self.person.role)
-        self.form_event.subscription_form.end_time = timezone.now() - timezone.timedelta(
-            days=1
+        self.form_event.subscription_form.end_time = (
+            timezone.now() - timezone.timedelta(days=1)
         )
         self.form_event.subscription_form.save()
 
@@ -911,8 +935,8 @@ class RSVPTestCase(TestCase):
 
     def test_cannot_rsvp_if_form_is_yet_to_open(self):
         self.client.force_login(self.person.role)
-        self.form_event.subscription_form.start_time = timezone.now() + timezone.timedelta(
-            days=1
+        self.form_event.subscription_form.start_time = (
+            timezone.now() + timezone.timedelta(days=1)
         )
         self.form_event.subscription_form.save()
 

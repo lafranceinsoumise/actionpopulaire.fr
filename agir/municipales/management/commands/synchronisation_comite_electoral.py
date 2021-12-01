@@ -33,7 +33,11 @@ class Command(BaseCommand):
                 commune.published = published
 
                 commune.save(
-                    update_fields=["liste_tour_2", "tete_liste_tour_2", "published",]
+                    update_fields=[
+                        "liste_tour_2",
+                        "tete_liste_tour_2",
+                        "published",
+                    ]
                 )
 
         CommunePage.objects.exclude(code__in=df.index).update(

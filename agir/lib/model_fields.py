@@ -128,7 +128,8 @@ class FacebookPageField(models.CharField):
             return value.group(1)
         else:
             raise exceptions.ValidationError(
-                INVALID_FACEBOOK_EVENT_LINK_MESSAGE, params={"value": value},
+                INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
+                params={"value": value},
             )
 
 
@@ -144,7 +145,8 @@ class FacebookEventField(models.CharField):
         facebook_value = validate_facebook_event_url(value)
         if not facebook_value:
             raise exceptions.ValidationError(
-                INVALID_FACEBOOK_EVENT_LINK_MESSAGE, params={"value": value},
+                INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
+                params={"value": value},
             )
         return facebook_value
 

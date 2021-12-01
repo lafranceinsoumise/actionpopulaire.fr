@@ -55,8 +55,7 @@ class DepenseQuerySet(models.QuerySet):
 
 @reversion.register()
 class Depense(ModeleGestionMixin, TimeStampedModel):
-    """Une dépense correspond à un paiement réalisé en lien avec une facture
-    """
+    """Une dépense correspond à un paiement réalisé en lien avec une facture"""
 
     objects = DepenseQuerySet.as_manager()
 
@@ -183,7 +182,9 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
     )
 
     documents = models.ManyToManyField(
-        to="Document", related_name="depenses", related_query_name="depense",
+        to="Document",
+        related_name="depenses",
+        related_query_name="depense",
     )
 
     fournisseur = models.ForeignKey(
@@ -307,7 +308,10 @@ class Reglement(TimeStampedModel):
         max_digits=10,
     )
     date = models.DateField(
-        verbose_name="Date du règlement", blank=False, null=False, default=timezone.now,
+        verbose_name="Date du règlement",
+        blank=False,
+        null=False,
+        default=timezone.now,
     )
 
     preuve = models.ForeignKey(
@@ -324,7 +328,10 @@ class Reglement(TimeStampedModel):
 
     # lien vers le fournisseur
     fournisseur = models.ForeignKey(
-        to="Fournisseur", null=True, blank=True, on_delete=models.SET_NULL,
+        to="Fournisseur",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
     )
 
     # informations fournisseurs

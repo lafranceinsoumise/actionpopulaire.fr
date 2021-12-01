@@ -77,7 +77,9 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     eventCount = serializers.ReadOnlyField(source="events_count", read_only=True)
     membersCount = serializers.SerializerMethodField(read_only=True)
     isMember = serializers.SerializerMethodField(read_only=True)
-    isActiveMember = serializers.SerializerMethodField(read_only=True,)
+    isActiveMember = serializers.SerializerMethodField(
+        read_only=True,
+    )
     isManager = serializers.SerializerMethodField(read_only=True)
     labels = serializers.SerializerMethodField(read_only=True)
 
@@ -138,42 +140,82 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 
 class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
-    id = serializers.UUIDField(read_only=True,)
+    id = serializers.UUIDField(
+        read_only=True,
+    )
 
-    isMember = serializers.SerializerMethodField(read_only=True,)
-    isActiveMember = serializers.SerializerMethodField(read_only=True,)
-    isManager = serializers.SerializerMethodField(read_only=True,)
-    isReferent = serializers.SerializerMethodField(read_only=True,)
+    isMember = serializers.SerializerMethodField(
+        read_only=True,
+    )
+    isActiveMember = serializers.SerializerMethodField(
+        read_only=True,
+    )
+    isManager = serializers.SerializerMethodField(
+        read_only=True,
+    )
+    isReferent = serializers.SerializerMethodField(
+        read_only=True,
+    )
     personalInfoConsent = serializers.SerializerMethodField(read_only=True)
 
-    name = serializers.CharField(read_only=True,)
-    type = serializers.SerializerMethodField(read_only=True,)
+    name = serializers.CharField(
+        read_only=True,
+    )
+    type = serializers.SerializerMethodField(
+        read_only=True,
+    )
     subtypes = serializers.SerializerMethodField(read_only=True)
     description = serializers.CharField(read_only=True, source="html_description")
     textDescription = serializers.SerializerMethodField(read_only=True)
-    isFull = serializers.SerializerMethodField(read_only=True,)
+    isFull = serializers.SerializerMethodField(
+        read_only=True,
+    )
     isCertified = serializers.BooleanField(read_only=True, source="is_certified")
     is2022Certified = serializers.BooleanField(
         read_only=True, source="is_2022_certified"
     )
     location = LocationSerializer(read_only=True, source="*")
-    contact = serializers.SerializerMethodField(read_only=True,)
+    contact = serializers.SerializerMethodField(
+        read_only=True,
+    )
     image = serializers.ImageField(read_only=True)
 
-    referents = serializers.SerializerMethodField(read_only=True,)
-    links = serializers.SerializerMethodField(read_only=True,)
+    referents = serializers.SerializerMethodField(
+        read_only=True,
+    )
+    links = serializers.SerializerMethodField(
+        read_only=True,
+    )
 
-    facts = serializers.SerializerMethodField(read_only=True,)
-    iconConfiguration = serializers.SerializerMethodField(read_only=True,)
+    facts = serializers.SerializerMethodField(
+        read_only=True,
+    )
+    iconConfiguration = serializers.SerializerMethodField(
+        read_only=True,
+    )
 
-    routes = serializers.SerializerMethodField(read_only=True,)
-    discountCodes = serializers.SerializerMethodField(read_only=True,)
-    commune = serializers.SerializerMethodField(read_only=True,)
+    routes = serializers.SerializerMethodField(
+        read_only=True,
+    )
+    discountCodes = serializers.SerializerMethodField(
+        read_only=True,
+    )
+    commune = serializers.SerializerMethodField(
+        read_only=True,
+    )
 
-    hasUpcomingEvents = serializers.SerializerMethodField(read_only=True,)
-    hasPastEvents = serializers.SerializerMethodField(read_only=True,)
-    hasPastEventReports = serializers.SerializerMethodField(read_only=True,)
-    hasMessages = serializers.SerializerMethodField(read_only=True,)
+    hasUpcomingEvents = serializers.SerializerMethodField(
+        read_only=True,
+    )
+    hasPastEvents = serializers.SerializerMethodField(
+        read_only=True,
+    )
+    hasPastEventReports = serializers.SerializerMethodField(
+        read_only=True,
+    )
+    hasMessages = serializers.SerializerMethodField(
+        read_only=True,
+    )
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -236,7 +278,12 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
             obj.referents,
             context=self.context,
             many=True,
-            fields=["id", "displayName", "image", "gender",],
+            fields=[
+                "id",
+                "displayName",
+                "image",
+                "gender",
+            ],
         ).data
 
     def get_facts(self, obj):
@@ -291,16 +338,18 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 "change_group_location", kwargs={"pk": obj.pk}
             )
             routes["invitation"] = front_url(
-                "view_group_settings_contact", kwargs={"pk": obj.pk},
+                "view_group_settings_contact",
+                kwargs={"pk": obj.pk},
             )
-            routes["orders"] = "https://materiel.lafranceinsoumise.fr/"
+            routes["orders"] = "https://materiel.actionpopulaire.fr/"
             if obj.tags.filter(label=settings.PROMO_CODE_TAG).exists():
                 routes["materiel"] = front_url(
                     "view_group_settings_materiel", kwargs={"pk": obj.pk}
                 )
             if obj.is_certified:
                 routes["financement"] = front_url(
-                    "view_group_settings_finance", kwargs={"pk": obj.pk},
+                    "view_group_settings_finance",
+                    kwargs={"pk": obj.pk},
                 )
         if (
             self.membership is not None
