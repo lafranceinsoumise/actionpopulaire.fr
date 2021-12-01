@@ -23,6 +23,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 from dynamic_filenames import FilePattern
+from ics import Organizer
 from slugify import slugify
 from stdimage.models import StdImageField
 
@@ -514,10 +515,12 @@ class Event(
 
     def to_ics(self, text_only_description=False):
         event_url = front_url("view_event", args=[self.pk], auto_login=False)
+        organizer = Organizer(email=self.contact_email, common_name=self.contact_name)
         if text_only_description:
             description = textify(self.description) + " " + event_url
         else:
             description = self.description + f"<p>{event_url}</p>"
+
         return ics.Event(
             name=self.name,
             begin=self.start_time,
@@ -526,6 +529,9 @@ class Event(
             description=description,
             location=self.short_address,
             url=event_url,
+            categories=[self.subtype.get_type_display()],
+            geo=self.coordinates,
+            organizer=organizer,
         )
 
     def _get_participants_counts(self):
