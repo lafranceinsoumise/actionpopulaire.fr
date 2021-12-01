@@ -182,11 +182,15 @@ class EventReportFormReminderNotificationActionTestCase(TestCase):
         unexisting_event_pk = uuid.uuid4()
         self.assertFalse(Event.objects.filter(id=unexisting_event_pk).exists())
         initial_count = len(
-            Activity.objects.filter(type=Activity.TYPE_REMINDER_REPORT_FORM_FOR_EVENT,)
+            Activity.objects.filter(
+                type=Activity.TYPE_REMINDER_REPORT_FORM_FOR_EVENT,
+            )
         )
         event_report_form_reminder_notification(unexisting_event_pk)
         final_count = len(
-            Activity.objects.filter(type=Activity.TYPE_REMINDER_REPORT_FORM_FOR_EVENT,)
+            Activity.objects.filter(
+                type=Activity.TYPE_REMINDER_REPORT_FORM_FOR_EVENT,
+            )
         )
         self.assertEqual(initial_count, final_count)
 

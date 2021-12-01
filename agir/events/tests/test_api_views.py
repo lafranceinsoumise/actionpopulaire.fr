@@ -983,10 +983,12 @@ class EventProjectsAPITestCase(APITestCase):
 class EventReportPersonFormAPITestCase(APITestCase):
     def setUp(self):
         self.unrelated_person = Person.objects.create(
-            email="unrelated_person@example.com", create_role=True,
+            email="unrelated_person@example.com",
+            create_role=True,
         )
         self.organizer = Person.objects.create(
-            email="organizer@example.com", create_role=True,
+            email="organizer@example.com",
+            create_role=True,
         )
         self.report_person_form = PersonForm.objects.create(
             title="Form", description="Form", slug="formulaire"
