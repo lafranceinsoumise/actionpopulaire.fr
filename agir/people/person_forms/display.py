@@ -130,11 +130,10 @@ class PersonFormDisplay:
             except NumberParseException:
                 return value
         elif field_type == "file":
-            url = settings.FRONT_DOMAIN + settings.MEDIA_URL + value
             if html:
-                return format_html('<a href="{}">Accéder au fichier</a>', url)
+                return format_html('<a href="{}">Accéder au fichier</a>', value)
             else:
-                return url
+                return value
 
         return value
 

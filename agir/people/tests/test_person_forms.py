@@ -501,7 +501,7 @@ class SubmissionFormatTestCase(TestCase):
                         {"label": "Tel.", "value": "+33 6 12 34 56 78"},
                         {
                             "label": "Fichier",
-                            "value": f'<a href="{settings.FRONT_DOMAIN}/media/test/truc.pdf">Accéder au fichier</a>',
+                            "value": f'<a href="test/truc.pdf">Accéder au fichier</a>',
                         },
                     ],
                 },
