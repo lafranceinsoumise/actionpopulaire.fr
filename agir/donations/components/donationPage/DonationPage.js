@@ -178,6 +178,20 @@ const DonationPage = () => {
     }));
   }, [sessionDonation]);
 
+  useEffect(() => {
+    setFormData({
+      ...formData,
+      email: session?.user?.email || "",
+      firstName: session?.user?.firstName || "",
+      lastName: session?.user?.lastName || "",
+      contactPhone: session?.user?.contactPhone || "",
+      locationAddress1: session?.user?.address1 || "",
+      locationAddress2: session?.user?.address2 || "",
+      locationZip: session?.user?.zip || "",
+      locationCity: session?.user?.city || "",
+    });
+  }, [session]);
+
   const handleAmountSubmit = useCallback(
     async (data) => {
       setIsLoading(true);
