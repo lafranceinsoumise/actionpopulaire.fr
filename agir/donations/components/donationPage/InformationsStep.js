@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import useSWR from "swr";
 
@@ -75,18 +75,10 @@ const InformationsStep = ({
   const [hasAddress2, setHasAddress2] = useState(false);
 
   const { data: profile } = useSWR("/api/user/profile/");
-  const [hasNewsletter, setHasNewsletter] = useState(false);
-
-  useEffect(() => {
-    if (profile?.newsletters && Array.isArray(profile.newsletters)) {
-      if (
-        profile.newsletters.includes("2022") &&
-        profile.newsletters.includes("2022_exceptionnel")
-      ) {
-        setHasNewsletter(true);
-      }
-    }
-  }, [profile]);
+  const hasNewsletter =
+    Array.isArray(profile?.newsletters) &&
+    profile.newsletters.includes("2022") &&
+    profile.newsletters.includes("2022_exceptionnel");
 
   const displayAddress2 = () => {
     setHasAddress2(true);
