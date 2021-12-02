@@ -44,7 +44,7 @@ const MessageThreadCard = (props) => {
     messageType,
   } = message;
 
-  const isOrganizationMessage = messageType === "ORGANIZATION";
+  const isOrganizationMessage = messageType === "Private";
 
   const handleClick = useCallback(() => {
     onClick && onClick(id);
