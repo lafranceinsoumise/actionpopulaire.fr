@@ -3,10 +3,6 @@
 
 {% block title %}Créer un groupe{% endblock %}
 
-{% block extra_scripts %}
-  {% include "lib/creationForms.bundle.html" %}
-{% endblock %}
-
 {% block main %}
   <div class="row">
     <div class="col-xs-12 margintopmore">
@@ -26,4 +22,5 @@
       {{ props | json_script:"react-json-script" }}
     </div>
   </div>
+  {% include "lib/creationForms.bundle.html" %}
 {% endblock %}
