@@ -10,7 +10,6 @@ from agir.lib.mailing import send_mosaico_email, add_params_to_urls
 from agir.lib.phone_numbers import is_french_number, is_mobile_number
 from agir.lib.sms import send_sms
 from agir.lib.utils import front_url, generate_token_params, shorten_url
-from agir.payments.payment_modes import PAYMENT_MODES
 from agir.payments.types import PAYMENT_TYPES
 from agir.people.models import Person
 from agir.system_pay.models import SystemPaySubscription
@@ -23,12 +22,6 @@ def send_donation_email(person_pk, payment_type):
     template_code = "DONATION_MESSAGE"
     email_from = settings.EMAIL_FROM
 
-    if payment_type in [
-        Presidentielle2022Config.DONATION_PAYMENT_TYPE,
-        Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE,
-    ]:
-        template_code = "DONATION_MESSAGE_2022"
-
     if (
         payment_type in PAYMENT_TYPES
         and PAYMENT_TYPES[payment_type].email_from is not None
@@ -36,6 +29,14 @@ def send_donation_email(person_pk, payment_type):
         email_from = PAYMENT_TYPES[payment_type].email_from
 
     person = Person.objects.prefetch_related("emails").get(pk=person_pk)
+
+    if payment_type in [
+        Presidentielle2022Config.DONATION_PAYMENT_TYPE,
+        Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE,
+    ]:
+        email_from = settings.EMAIL_FROM_MELENCHON_2022
+        template_code = "DONATION_MESSAGE_2022"
+
     send_mosaico_email(
         code=template_code,
         subject="Merci d'avoir donné !",
