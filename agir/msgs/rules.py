@@ -34,25 +34,14 @@ def is_own_group_message(role, message=None):
 
 
 @rules.predicate
-def is_organization_message(role, object=None):
-    if object is None:
-        return False
-
-    if not isinstance(object, SupportGroupMessage):
-        return False
-    return object.message_type == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION
-
-
-@rules.predicate
 def is_own_organization_message(role, message=None):
     if message is None:
         return False
 
-    if isinstance(message, SupportGroupMessage):
-        supportgroup = message.supportgroup
-    else:
+    if not isinstance(message, SupportGroupMessage):
         return False
 
+    supportgroup = message.supportgroup
     if supportgroup is None:
         return False
 
@@ -81,7 +70,7 @@ rules.add_perm(
 )
 rules.add_perm(
     "msgs.add_supportgroupmessage",
-    is_authenticated_person & (is_organization_message | is_at_least_manager_for_group),
+    is_authenticated_person & is_at_least_manager_for_group,
 )
 rules.add_perm(
     "msgs.change_supportgroupmessage", is_authenticated_person & is_msg_author

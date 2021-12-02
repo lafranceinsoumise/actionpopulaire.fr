@@ -13,16 +13,25 @@ import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import style from "@agir/front/genericComponents/_variables.scss";
 
+import { useSelectMessage } from "@agir/msgs/common/hooks";
+import * as groupAPI from "@agir/groups/api";
+
 const MessageOrganizationCard = (props) => {
-  const { isLoading, user, group, onSend } = props;
+  const { isLoading, user, group } = props;
+
+  const onSelectMessage = useSelectMessage();
 
   const handleCreateOrganizationMessage = async (text) => {
-    onSend({
+    const message = {
       subject: "",
       text: text,
       group: group,
-      messageType: "Private",
-    });
+    };
+    const result = await groupAPI.createPrivateMessage(
+      message.group.id,
+      message
+    );
+    onSelectMessage(result.data.id);
   };
 
   const isUserGroup = user.groups.includes(group.id);

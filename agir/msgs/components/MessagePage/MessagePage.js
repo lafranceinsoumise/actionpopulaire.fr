@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -91,11 +91,9 @@ const MessagePage = ({ messagePk, groupPk }) => {
 
   const TITLE_ORGANIZATION = routeConfig.groupOrganizationMessage.label;
 
-  const isOrganizationMessage = useMemo(() => {
-    const MESSAGE_ORGANIZATION_LINK =
-      routeConfig.groupOrganizationMessage.getLink({ groupPk });
-    return !!useRouteMatch(MESSAGE_ORGANIZATION_LINK);
-  }, [groupPk]);
+  const isOrganizationMessage = useRouteMatch(
+    routeConfig.groupOrganizationMessage.getLink({ groupPk: groupPk || "/" })
+  );
 
   // Pause messages' autorefresh while an action is ongoing
   isAutoRefreshPausedRef.current = isLoading || !!messageAction;

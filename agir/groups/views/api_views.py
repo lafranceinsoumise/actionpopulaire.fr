@@ -69,6 +69,7 @@ __all__ = [
     "GroupUpcomingEventsAPIView",
     "GroupPastEventReportsAPIView",
     "GroupMessagesAPIView",
+    "GroupMessagesPrivateAPIView",
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
@@ -353,7 +354,7 @@ class GroupMessagesPermissions(GlobalOrObjectPermissions):
         "POST": ["msgs.add_supportgroupmessage"],
         "PATCH": ["msgs.change_supportgroupmessage"],
         "PUT": ["msgs.change_supportgroupmessage"],
-        "DELETE": ["msgs.delete_supportgroupmessage"],
+        "DELETE": ["msgs.change_supportgroupmessage"],
     }
 
 
@@ -361,6 +362,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (GroupMessagesPermissions,)
     pagination_class = APIPaginator
+    messageType = SupportGroupMessage.MESSAGE_TYPE_DEFAULT
 
     def initial(self, request, *args, **kwargs):
         try:
@@ -368,12 +370,6 @@ class GroupMessagesAPIView(ListCreateAPIView):
         except SupportGroup.DoesNotExist:
             raise NotFound()
 
-        self.check_object_permissions(request, self.supportgroup)
-
-        # Update permissions switch the message type
-        self.messageType = request.data.get(
-            "messageType", SupportGroupMessage.MESSAGE_TYPE_DEFAULT
-        )
         self.membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
         if self.messageType == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
             self.membershipType = Membership.MEMBERSHIP_TYPE_REFERENT
@@ -406,6 +402,15 @@ class GroupMessagesAPIView(ListCreateAPIView):
 
             new_message_notifications(message)
             update_recipient_message(message, self.request.user.person)
+
+
+# Allow anyone to send private message
+class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
+    permission_classes = (IsAuthenticated,)
+    messageType = SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION
+
+    def get(self):
+        pass
 
 
 @method_decorator(never_cache, name="get")
@@ -451,7 +456,7 @@ class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
         "POST": ["msgs.add_supportgroupmessagecomment"],
         "PATCH": ["msgs.change_supportgroupmessagecomment"],
         "PUT": ["msgs.change_supportgroupmessagecomment"],
-        "DELETE": ["msgs.delete_supportgroupmessagecomment"],
+        "DELETE": ["msgs.change_supportgroupmessagecomment"],
     }
 
 

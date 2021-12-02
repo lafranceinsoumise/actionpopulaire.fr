@@ -12,6 +12,7 @@ from agir.groups.tasks import (
     send_comment_notification_email,
 )
 from agir.msgs.models import SupportGroupMessage
+from agir.people.models import Person
 from agir.notifications.models import Subscription
 
 
@@ -94,9 +95,10 @@ def new_message_notifications(message):
 
     # Private message: notify only required memberships
     if message.message_type == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
-        recipients = message.supportgroup.memberships.filter(
+        memberships = message.supportgroup.memberships.filter(
             membership_type__gte=message.required_membership_type
         )
+        recipients = Person.objects.filter(memberships__in=memberships)
     # Public message: notify all members
     else:
         recipients = message.supportgroup.members.all()
@@ -127,10 +129,10 @@ def new_message_notifications(message):
 def new_comment_organization_notifications(comment):
 
     message_initial = comment.message
-    allowed_recipients = message_initial.supportgroup.memberships.filter(
+    allowed_memberships = message_initial.supportgroup.memberships.filter(
         membership_type__gte=message_initial.required_membership_type
     )
-    recipients_id = [recipient.id for recipient in allowed_recipients]
+    recipients_id = [membership.person.id for membership in allowed_memberships]
     recipients_id = set(recipients_id + [message_initial.author_id])
 
     # Get only recipients with notification allowed

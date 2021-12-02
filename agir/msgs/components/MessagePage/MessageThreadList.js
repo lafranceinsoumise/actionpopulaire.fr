@@ -165,7 +165,6 @@ const DesktopThreadList = (props) => {
               group={group}
               user={user}
               isLoading={isLoading}
-              onSend={onSend}
             />
           )}
 
@@ -254,7 +253,6 @@ const MobileThreadList = (props) => {
               group={group}
               user={user}
               isLoading={isLoading}
-              onSend={onSend}
             />
           )}
 
