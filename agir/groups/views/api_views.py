@@ -354,7 +354,7 @@ class GroupMessagesPermissions(GlobalOrObjectPermissions):
         "POST": ["msgs.add_supportgroupmessage"],
         "PATCH": ["msgs.change_supportgroupmessage"],
         "PUT": ["msgs.change_supportgroupmessage"],
-        "DELETE": ["msgs.change_supportgroupmessage"],
+        "DELETE": ["msgs.delete_supportgroupmessage"],
     }
 
 
@@ -369,6 +369,8 @@ class GroupMessagesAPIView(ListCreateAPIView):
             self.supportgroup = SupportGroup.objects.get(pk=kwargs["pk"])
         except SupportGroup.DoesNotExist:
             raise NotFound()
+
+        self.check_object_permissions(request, self.supportgroup)
 
         self.membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
         if self.messageType == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
@@ -456,7 +458,7 @@ class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
         "POST": ["msgs.add_supportgroupmessagecomment"],
         "PATCH": ["msgs.change_supportgroupmessagecomment"],
         "PUT": ["msgs.change_supportgroupmessagecomment"],
-        "DELETE": ["msgs.change_supportgroupmessagecomment"],
+        "DELETE": ["msgs.delete_supportgroupmessagecomment"],
     }
 
 
