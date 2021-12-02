@@ -28,6 +28,24 @@ departements_par_code = {d["id"]: d for d in departements}
 departements_choices = tuple((d["id"], f'{d["id"]} - {d["nom"]}') for d in departements)
 departements_par_nom = {_normalize_entity_name(d["nom"]): d for d in departements}
 
+zones_fe_choices = (
+    "Afrique centrale, australe et orientale",
+    "Afrique du Nord",
+    "Afrique occidentale",
+    "Allemagne, Autriche, Slovaquie, Slovénie, Suisse",
+    "Amérique latine et Caraïbes",
+    "Asie centrale et Moyen-Orient",
+    "Asie et Océanie",
+    "Bénélux",
+    "Canada",
+    "Etats-Unis d'Amérique",
+    "Europe centrale et orientale (y compris Russie)",
+    "Europe du Nord",
+    "Europe du Sud",
+    "Israël et Territoires palestiniens",
+    "Péninsule ibérique",
+)
+
 regions_par_code = {r["id"]: r for r in regions}
 
 regions_par_nom = {_normalize_entity_name(r["nom"]): r for r in regions}
