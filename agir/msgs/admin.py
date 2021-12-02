@@ -8,34 +8,12 @@ from reversion.admin import VersionAdmin
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment, UserReport
 
 
-class ReportListFilter(admin.SimpleListFilter):
-    title = "signalements reçus"
-    parameter_name = "reports"
-
-    def lookups(self, request, model_admin):
-        return ("1", "Au moins un signalement"), ("0", "Aucun signalement")
-
-    def queryset(self, request, queryset):
-        if self.value():
-            value = self.value() == "0"
-            return queryset.filter(reports__isnull=value)
-        return queryset
-
-
 @admin.register(SupportGroupMessageComment)
 class SupportGroupMessageCommentAdmin(VersionAdmin):
     fields = ("created", "modified", "author", "text", "image", "msg", "deleted")
     readonly_fields = ("created", "modified", "author", "text", "image", "msg")
-    list_display = (
-        "text_excerpt",
-        "author",
-        "msg",
-        "report_count",
-        "created",
-        "deleted",
-    )
-    list_filter = ("deleted", ReportListFilter)
-    search_fields = ("=id", "=message__id", "message__subject", "author__search")
+    list_display = ("text_excerpt", "author", "msg", "created", "deleted")
+    list_filter = ("deleted",)
     model = SupportGroupMessageComment
 
     def text_excerpt(self, object):
@@ -48,16 +26,9 @@ class SupportGroupMessageCommentAdmin(VersionAdmin):
             "admin:msgs_supportgroupmessage_change",
             args=[object.message.pk],
         )
-        return format_html(
-            f'<a href="{href}"><strong>{truncatechars(object.message.subject, 40)}</strong><br />({object.message.pk})</a>'
-        )
+        return format_html(f'<a href="{href}">{object.message.pk}</a>')
 
     msg.short_description = "Message initial"
-
-    def report_count(self, object):
-        return object.reports.count()
-
-    report_count.short_description = "Signalements"
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -67,23 +38,8 @@ class SupportGroupMessageCommentAdmin(VersionAdmin):
 
 
 class InlineSupportGroupMessageCommentAdmin(TabularInline):
-    fields = (
-        "created",
-        "modified",
-        "author",
-        "text",
-        "history",
-        "report_count",
-        "deleted",
-    )
-    readonly_fields = (
-        "created",
-        "modified",
-        "author",
-        "text",
-        "history",
-        "report_count",
-    )
+    fields = ("created", "modified", "author", "text", "image", "history", "deleted")
+    readonly_fields = ("created", "modified", "author", "text", "image", "history")
     model = SupportGroupMessageComment
 
     def history(self, object):
@@ -91,11 +47,6 @@ class InlineSupportGroupMessageCommentAdmin(TabularInline):
             '<a href="{}">Historique</a>',
             reverse("admin:msgs_supportgroupmessagecomment_history", args=[object.pk]),
         )
-
-    def report_count(self, object):
-        return object.reports.count()
-
-    report_count.short_description = "Signalements"
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -130,16 +81,13 @@ class SupportGroupMessageAdmin(VersionAdmin):
     list_display = (
         "subject",
         "text_excerpt",
-        "author",
-        "group",
-        "event",
         "created",
+        "supportgroup",
+        "linked_event",
         "comment_count",
-        "report_count",
         "deleted",
     )
-    search_fields = ("=id", "subject", "supportgroup__name", "author__search")
-    list_filter = ("deleted", ReportListFilter)
+    list_filter = ("deleted",)
     inlines = [
         InlineSupportGroupMessageCommentAdmin,
     ]
@@ -154,37 +102,6 @@ class SupportGroupMessageAdmin(VersionAdmin):
 
     comment_count.short_description = "Nombre de commentaires"
 
-    def report_count(self, object):
-        return object.reports.count()
-
-    report_count.short_description = "Signalements"
-
-    def event(self, object):
-        if object.linked_event_id is None:
-            return "-"
-        href = reverse(
-            "admin:events_event_change",
-            args=[object.linked_event.pk],
-        )
-        return format_html(
-            f'<a href="{href}"><strong>{truncatechars(object.linked_event.name, 40)}</strong><br />({object.linked_event.pk})</a>'
-        )
-
-    event.short_description = "Événement"
-
-    def group(self, object):
-        if object.supportgroup is None:
-            return "-"
-        href = reverse(
-            "admin:groups_supportgroup_change",
-            args=[object.supportgroup.pk],
-        )
-        return format_html(
-            f'<a href="{href}"><strong>{truncatechars(object.supportgroup.name, 40)}</strong><br />({object.supportgroup.pk})</a>'
-        )
-
-    group.short_description = "Groupe"
-
     def has_add_permission(self, request, obj=None):
         return False
 
@@ -194,14 +111,7 @@ class SupportGroupMessageAdmin(VersionAdmin):
 
 @admin.register(UserReport)
 class UserReportAdmin(admin.ModelAdmin):
-    fields = ("reporter", "reported_object_link", "reported_object_author", "created")
-    list_fields = (
-        "reporter",
-        "reported_object_link",
-        "reported_object_author",
-        "created",
-    )
-    search_fields = ("reporter__search", "=object_id")
+    fields = ("reporter", "reported_object_link", "created")
     readonly_fields = fields
     list_display = fields
 
@@ -214,21 +124,6 @@ class UserReportAdmin(admin.ModelAdmin):
             ),
             str(obj.reported_object),
         )
-
-    reported_object_link.short_description = "Message signalé"
-
-    def reported_object_author(self, obj):
-        if obj.reported_object and obj.reported_object.author:
-            return format_html(
-                '<a href="{}">{}</a>',
-                reverse(
-                    f"admin:people_person_change",
-                    args=[obj.reported_object.author.id],
-                ),
-                str(obj.reported_object.author),
-            )
-
-    reported_object_author.short_description = "Auteur du message signalé"
 
     def has_add_permission(self, request):
         return False
