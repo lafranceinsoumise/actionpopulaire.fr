@@ -18,7 +18,7 @@ class ChangeEventPermissionsTestCase(TestCase):
 
         self.anonymous = AnonymousUser()
 
-        self.event_creator = Person.objects.create(
+        self.event_creator = Person.objects.create_person(
             email="event_creator@agir.local", create_role=True
         )
         Membership.objects.create(
@@ -27,11 +27,11 @@ class ChangeEventPermissionsTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
 
-        self.event_organizer = Person.objects.create(
+        self.event_organizer = Person.objects.create_person(
             email="event_organizer@agir.local", create_role=True
         )
 
-        self.event_organizer_group_member = Person.objects.create(
+        self.event_organizer_group_member = Person.objects.create_person(
             email="event_organizer_group_member@agir.local", create_role=True
         )
         Membership.objects.create(
@@ -40,7 +40,7 @@ class ChangeEventPermissionsTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
-        self.event_organizer_group_manager = Person.objects.create(
+        self.event_organizer_group_manager = Person.objects.create_person(
             email="event_organizer_group_manager@agir.local", create_role=True
         )
         Membership.objects.create(
@@ -49,7 +49,7 @@ class ChangeEventPermissionsTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
 
-        self.event_organizer_group_referent = Person.objects.create(
+        self.event_organizer_group_referent = Person.objects.create_person(
             email="event_organizer_group_referent@agir.local", create_role=True
         )
         Membership.objects.create(
@@ -58,7 +58,7 @@ class ChangeEventPermissionsTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
-        self.other_group_referent = Person.objects.create(
+        self.other_group_referent = Person.objects.create_person(
             email="other_group_referent@agir.local", create_role=True
         )
         Membership.objects.create(

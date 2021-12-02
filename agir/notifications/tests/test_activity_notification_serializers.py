@@ -13,10 +13,10 @@ from agir.notifications.serializers import ACTIVITY_NOTIFICATION_SERIALIZERS
 
 class ActivityNotificationSerializersTestCase(APITestCase):
     def setUp(self):
-        individual = Person.objects.create(
+        individual = Person.objects.create_person(
             email="individual@agir.test", display_name="individual"
         )
-        recipient = Person.objects.create(
+        recipient = Person.objects.create_person(
             email="recipient@agir.test", display_name="recipient"
         )
         supportgroup = SupportGroup.objects.create(name="Group")

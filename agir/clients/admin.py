@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.forms import CheckboxSelectMultiple
 from django.shortcuts import reverse
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from . import models
 from .scopes import scopes

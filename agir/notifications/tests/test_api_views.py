@@ -13,10 +13,10 @@ class ListSubscriptionsAPITestCase(APITestCase):
         signals.post_save.disconnect(
             sender=Membership, dispatch_uid="create_default_membership_subscriptions"
         )
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="person@example.com", create_role=True
         )
-        self.other_person = Person.objects.create(
+        self.other_person = Person.objects.create_person(
             email="other_person@example.com", create_role=True
         )
         self.person_group = SupportGroup.objects.create()
@@ -55,10 +55,10 @@ class CreateSubscriptionsAPITestCase(APITestCase):
         signals.post_save.disconnect(
             sender=Membership, dispatch_uid="create_default_membership_subscriptions"
         )
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="person@example.com", create_role=True
         )
-        self.other_person = Person.objects.create(
+        self.other_person = Person.objects.create_person(
             email="other_person@example.com", create_role=True
         )
 
@@ -201,10 +201,10 @@ class DeleteSubscriptionsAPITestCase(APITestCase):
         signals.post_save.disconnect(
             sender=Membership, dispatch_uid="create_default_membership_subscriptions"
         )
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="person@example.com", create_role=True
         )
-        self.other_person = Person.objects.create(
+        self.other_person = Person.objects.create_person(
             email="other_person@example.com", create_role=True
         )
 

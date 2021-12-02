@@ -102,7 +102,7 @@ def create_person():
         "draw_participation": fake.boolean(),
         **create_location(),
     }
-    person = Person.objects.create(**person)
+    person = Person.objects.create_person(**person)
     return person
 
 
@@ -211,7 +211,7 @@ def create_membership(
     if supportgroup is None:
         supportgroup = create_group()
     if person is None:
-        person = Person.objects.create(email=fake.email(), create_role=True)
+        person = Person.objects.create_person(email=fake.email(), create_role=True)
     return Membership.objects.create(
         supportgroup=supportgroup, person=person, membership_type=membership_type
     )

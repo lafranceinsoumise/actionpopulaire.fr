@@ -18,7 +18,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 from dynamic_filenames import FilePattern
 from nuntius.models import AbstractSubscriber
@@ -177,7 +177,7 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
 
     def create(self, *args, **kwargs):
         warnings.warn(
-            "You shoud use create_person_with_account or create_person_without_account.",
+            "You shoud use create_person.",
             DeprecationWarning,
         )
         return self.create_person(*args, **kwargs)

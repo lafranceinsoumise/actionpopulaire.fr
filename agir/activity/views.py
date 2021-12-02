@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import DetailView
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -206,7 +206,7 @@ def follow_activity_link(request, pk):
             "https://infos.actionpopulaire.fr",
         ]
     }
-    url_is_safe = is_safe_url(
+    url_is_safe = url_has_allowed_host_and_scheme(
         url=next,
         allowed_hosts=allowed_hosts,
         require_https=True,

@@ -4,7 +4,7 @@ from functools import partial
 from django.conf import settings
 from django.db.models import F, Count
 from django.db import transaction, IntegrityError
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from agir.payments.actions.payments import create_payment, cancel_payment
 

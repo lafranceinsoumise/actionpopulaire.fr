@@ -8,7 +8,7 @@ from django.core.validators import RegexValidator, FileExtensionValidator
 from django.db.models import JSONField
 from django.utils import timezone
 from django.utils.html import mark_safe, format_html, format_html_join
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 from dynamic_filenames import FilePattern
 from stdimage.models import StdImageField

@@ -3,7 +3,7 @@ from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 from oauth2_provider.models import AccessToken
 
 from rules.permissions import ObjectPermissionBackend as RulesObjectPermissionBackend
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.core.exceptions import PermissionDenied
 from rest_framework import exceptions
 from rest_framework.authentication import BasicAuthentication

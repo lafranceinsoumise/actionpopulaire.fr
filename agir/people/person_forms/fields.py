@@ -14,7 +14,7 @@ from django.template.defaultfilters import filesizeformat
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 from django.utils.formats import localize_input
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from phonenumber_field.formfields import PhoneNumberField
 
 from agir.events.models import Event

@@ -6,7 +6,7 @@ from django.db.models import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models, transaction
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
 from agir.lib.models import BaseAPIResource, DescriptionField

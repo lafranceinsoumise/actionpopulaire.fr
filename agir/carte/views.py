@@ -8,7 +8,7 @@ from django.http import QueryDict, Http404
 from django.utils.decorators import method_decorator
 from django.utils.html import mark_safe
 from django.utils.timezone import now
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views.decorators import cache
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import TemplateView, DetailView

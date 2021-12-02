@@ -10,7 +10,7 @@ from agir.people.models import Person
 class GroupMessagesTestAPICase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.manager = Person.objects.create(
+        self.manager = Person.objects.create_person(
             first_name="Jean-Luc",
             last_name="Mélenchon",
             email="manager@example.com",
@@ -21,7 +21,7 @@ class GroupMessagesTestAPICase(APITestCase):
             person=self.manager,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
-        self.member = Person.objects.create(
+        self.member = Person.objects.create_person(
             email="member@example.com",
             create_role=True,
         )
@@ -30,7 +30,7 @@ class GroupMessagesTestAPICase(APITestCase):
             person=self.member,
             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
-        self.non_member = Person.objects.create(
+        self.non_member = Person.objects.create_person(
             email="non_member@example.com", create_role=True
         )
         now = timezone.now()
@@ -74,7 +74,7 @@ class GroupMessagesTestAPICase(APITestCase):
         self.assertEqual(res.data["results"], [])
 
     def create_other_manager(self):
-        self.other_manager = Person.objects.create(
+        self.other_manager = Person.objects.create_person(
             first_name="Mathilde",
             last_name="Panot",
             email="manager2@example.com",
@@ -234,7 +234,7 @@ class GroupMessagesTestAPICase(APITestCase):
 class GroupMessageCommentAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.manager = Person.objects.create(
+        self.manager = Person.objects.create_person(
             first_name="Jean-Luc",
             last_name="Mélenchon",
             display_name="JLM",
@@ -246,7 +246,7 @@ class GroupMessageCommentAPITestCase(APITestCase):
             person=self.manager,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
-        self.member = Person.objects.create(
+        self.member = Person.objects.create_person(
             first_name="Jill Maud",
             last_name="Royer",
             display_name="Jill",
@@ -258,7 +258,7 @@ class GroupMessageCommentAPITestCase(APITestCase):
             person=self.member,
             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
-        self.non_member = Person.objects.create(
+        self.non_member = Person.objects.create_person(
             email="non_member@example.com", create_role=True
         )
         self.message = SupportGroupMessage.objects.create(
@@ -266,7 +266,7 @@ class GroupMessageCommentAPITestCase(APITestCase):
         )
 
     def create_other_member(self):
-        self.other_member = Person.objects.create(
+        self.other_member = Person.objects.create_person(
             email="other_member@example.com",
             create_role=True,
         )
