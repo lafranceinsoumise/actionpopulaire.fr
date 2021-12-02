@@ -39,9 +39,7 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
         return self.title_suffix
 
     def get_meta_description(self):
-        if self.person_form_instance.description:
-            return html2text(self.person_form_instance.description)
-        return ""
+        return self.person_form_instance.meta_description
 
     def get_success_url(self):
         return reverse(
@@ -126,9 +124,6 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
             data = {}
             for key, value in form.submission.data.items():
                 data[key] = value
-                # Use absolute URLs for uploaded files
-                if isinstance(form.submission_data[key], File):
-                    data[key] = settings.FRONT_DOMAIN + settings.MEDIA_URL + value
             create_campaign_from_submission(
                 data,
                 form.submission.person,

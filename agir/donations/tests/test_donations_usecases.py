@@ -100,7 +100,10 @@ class DonationTestCase(DonationTestMixin, APITestCase):
 
         res = self.client.post(
             self.create_donation_session_url,
-            {"paymentTimes": donations.serializers.TYPE_SINGLE_TIME, "amount": "200",},
+            {
+                "paymentTimes": donations.serializers.TYPE_SINGLE_TIME,
+                "amount": "200",
+            },
         )
         self.assertEqual(res.status_code, 201)
         self.assertIn(self.information_modal_url, res.data["next"])
@@ -181,7 +184,8 @@ class DonationTestCase(DonationTestMixin, APITestCase):
 
             res = self.client.post(self.send_donation_url, d)
             self.assertEqual(
-                res.status_code, 422,
+                res.status_code,
+                422,
             )
 
     def test_create_person_when_using_new_address(self):
@@ -211,16 +215,19 @@ class DonationTestCase(DonationTestMixin, APITestCase):
         self.assertEqual(p2.first_name, self.donation_information_payload["firstName"])
         self.assertEqual(p2.last_name, self.donation_information_payload["lastName"])
         self.assertEqual(
-            p2.location_address1, self.donation_information_payload["locationAddress1"],
+            p2.location_address1,
+            self.donation_information_payload["locationAddress1"],
         )
         self.assertEqual(
-            p2.location_address2, self.donation_information_payload["locationAddress2"],
+            p2.location_address2,
+            self.donation_information_payload["locationAddress2"],
         )
         self.assertEqual(
             p2.location_city, self.donation_information_payload["locationCity"]
         )
         self.assertEqual(
-            p2.location_country, self.donation_information_payload["locationCountry"],
+            p2.location_country,
+            self.donation_information_payload["locationCountry"],
         )
 
         # assert user fields have been saved on payment
@@ -612,16 +619,19 @@ class MonthlyDonationTestCase(DonationTestMixin, APITestCase):
         self.assertEqual(p2.first_name, self.donation_information_payload["firstName"])
         self.assertEqual(p2.last_name, self.donation_information_payload["lastName"])
         self.assertEqual(
-            p2.location_address1, self.donation_information_payload["locationAddress1"],
+            p2.location_address1,
+            self.donation_information_payload["locationAddress1"],
         )
         self.assertEqual(
-            p2.location_address2, self.donation_information_payload["locationAddress2"],
+            p2.location_address2,
+            self.donation_information_payload["locationAddress2"],
         )
         self.assertEqual(
             p2.location_city, self.donation_information_payload["locationCity"]
         )
         self.assertEqual(
-            p2.location_country, self.donation_information_payload["locationCountry"],
+            p2.location_country,
+            self.donation_information_payload["locationCountry"],
         )
 
     @mock.patch("agir.donations.views.donations_views.replace_subscription")

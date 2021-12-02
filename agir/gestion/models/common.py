@@ -97,7 +97,9 @@ class ModeleGestionMixin(models.Model):
             add,
             (
                 SearchVector(
-                    models.F(field), config="french_unaccented", weight=weight,
+                    models.F(field),
+                    config="french_unaccented",
+                    weight=weight,
                 )
                 for field, weight in search_config
             ),
@@ -153,8 +155,7 @@ class Compte(TimeStampedModel):
 
 
 class Autorisation(TimeStampedModel):
-    """Une autorisation permet d'attribuer à un groupe des permissions sur un compte en particulier
-    """
+    """Une autorisation permet d'attribuer à un groupe des permissions sur un compte en particulier"""
 
     compte = models.ForeignKey(
         to="Compte",
@@ -164,7 +165,9 @@ class Autorisation(TimeStampedModel):
     )
 
     group = models.ForeignKey(
-        to="auth.Group", on_delete=models.CASCADE, related_name="+",
+        to="auth.Group",
+        on_delete=models.CASCADE,
+        related_name="+",
     )
 
     autorisations = ArrayField(models.CharField(max_length=100), default=list)

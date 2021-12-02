@@ -111,7 +111,12 @@ class LoginAPIView(APIView):
         else:
             short_code, expiration = short_code_generator.generate_short_code(email)
             send_login_email.apply_async(
-                args=(email, short_code, expiration.timestamp(),), expires=10 * 60,
+                args=(
+                    email,
+                    short_code,
+                    expiration.timestamp(),
+                ),
+                expires=10 * 60,
             )
         return short_code, expiration
 
@@ -185,7 +190,12 @@ class CheckCodeAPIView(APIView):
         role = self.validate(email, code)
         last_login = role.last_login
         self.do_login(email, role)
-        return Response(status=status.HTTP_200_OK, data={"lastLogin": last_login,})
+        return Response(
+            status=status.HTTP_200_OK,
+            data={
+                "lastLogin": last_login,
+            },
+        )
 
 
 class LogoutAPIView(APIView):

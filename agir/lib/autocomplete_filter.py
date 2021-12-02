@@ -26,7 +26,9 @@ class SelectModelFilter(admin.SimpleListFilter):
         widget = forms.Select()
         FieldClass = self.get_form_field()
         field = FieldClass(
-            queryset=self.get_queryset_for_field(), widget=widget, required=False,
+            queryset=self.get_queryset_for_field(),
+            widget=widget,
+            required=False,
         )
 
         attrs = self.widget_attrs.copy()
@@ -78,10 +80,15 @@ class AutocompleteFilter(SelectModelFilter):
 
     def get_rendered_widget(self):
         rel = get_fields_from_path(self.model, self.field_name)[-1].remote_field
-        widget = AutocompleteSelect(rel, self.model_admin.admin_site,)
+        widget = AutocompleteSelect(
+            rel,
+            self.model_admin.admin_site,
+        )
         FieldClass = self.get_form_field()
         field = FieldClass(
-            queryset=self.get_queryset_for_field(), widget=widget, required=False,
+            queryset=self.get_queryset_for_field(),
+            widget=widget,
+            required=False,
         )
 
         self._add_media(self.model_admin, widget)

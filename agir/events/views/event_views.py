@@ -141,7 +141,10 @@ class EventOGImageView(DetailView):
             else os.path.join(self.static_root, "Poppins-Medium.ttf")
         )
         return ImageFont.truetype(
-            filename, size=size, encoding="utf-8", layout_engine=ImageFont.LAYOUT_BASIC,
+            filename,
+            size=size,
+            encoding="utf-8",
+            layout_engine=ImageFont.LAYOUT_BASIC,
         )
 
     def get_image_from_file(self, filename):
@@ -193,8 +196,7 @@ class EventOGImageView(DetailView):
 
 
 class EventSearchView(FilterView):
-    """Vue pour lister les événements et les rechercher
-    """
+    """Vue pour lister les événements et les rechercher"""
 
     template_name = "events/event_search.html"
     context_object_name = "events"
@@ -331,11 +333,11 @@ class UploadEventImageView(
 ):
     template_name = "events/upload_event_image.html"
     form_class = UploadEventImageForm
-    permission_required = ("events.view_event",)
+    permission_required = ("events.upload_image",)
     permission_denied_to_not_found = True
 
     def get_queryset(self):
-        return Event.objects.past(as_of=timezone.now())
+        return Event.objects.public().past(as_of=timezone.now())
 
     def get_success_url(self):
         return reverse("view_event", args=(self.event.pk,))
@@ -363,28 +365,18 @@ class UploadEventImageView(
 
     def dispatch(self, request, pk, *args, **kwargs):
         try:
-            self.event = Event.objects.get(pk=pk)
+            self.event = self.get_object()
         except Event.DoesNotExist:
             return HttpResponse(status=status.HTTP_404_NOT_FOUND)
 
+        if not self.has_permission():
+            raise PermissionDenied(
+                _("Seuls les participants à l'événement peuvent poster des images")
+            )
+
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        self.object = None
-        if not self.event.rsvps.filter(person=request.user.person).exists():
-            raise PermissionDenied(
-                _("Seuls les participants à l'événement peuvent poster des images")
-            )
-
-        return super().get(request, *args, **kwargs)
-
     def post(self, request, *args, **kwargs):
-        self.object = None
-        if not self.event.rsvps.filter(person=request.user.person).exists():
-            raise PermissionDenied(
-                _("Seuls les participants à l'événement peuvent poster des images")
-            )
-
         form = self.get_form()
         author_form = self.get_author_form()
 
@@ -447,7 +439,9 @@ class ModifyEventView(RedirectView):
 
 
 @method_decorator(never_cache, name="get")
-class EditEventReportView(RedirectView,):
+class EditEventReportView(
+    RedirectView,
+):
     permanent = True
     pattern_name = "view_event_settings_feedback"
     query_string = True
@@ -455,7 +449,8 @@ class EditEventReportView(RedirectView,):
 
 @method_decorator(never_cache, name="get")
 class ChangeEventLocationView(
-    BaseEventAdminView, ChangeLocationBaseView,
+    BaseEventAdminView,
+    ChangeLocationBaseView,
 ):
     template_name = "events/change_location.html"
     form_class = EventGeocodingForm
@@ -568,7 +563,9 @@ class RefuseEventCoorganizationInvitationView(AcceptEventCoorganizationInvitatio
 
 
 class SendEventReportView(
-    BaseEventAdminView, SingleObjectMixin, View,
+    BaseEventAdminView,
+    SingleObjectMixin,
+    View,
 ):
     model = Event
 

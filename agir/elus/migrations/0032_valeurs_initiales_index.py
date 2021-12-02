@@ -42,7 +42,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="rechercheparrainage",
             name="search",
-            field=SearchVectorField(verbose_name="Champ de recherche", null=True,),
+            field=SearchVectorField(
+                verbose_name="Champ de recherche",
+                null=True,
+            ),
         ),
         migrations.RunSQL(sql=SQL, reverse_sql=migrations.RunSQL.noop),
     ]

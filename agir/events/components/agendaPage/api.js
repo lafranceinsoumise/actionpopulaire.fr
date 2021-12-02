@@ -10,7 +10,7 @@ export const EVENT_TYPES = {
 };
 
 const ENDPOINT = {
-  nearEvents: "/api/evenements/suggestions/a-proximite/",
+  nearEvents: "/api/evenements/suggestions/",
   groupEvents: "/api/evenements/mes-groupes/",
   ongoingEvents: "/api/evenements/rsvped/en-cours/",
   pastEvents: "/api/evenements/rsvped/passes/",

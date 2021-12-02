@@ -88,7 +88,9 @@ class NotificationTasksTestCase(TestCase):
         Subscription.objects.bulk_create(
             [
                 Subscription(
-                    person=p, type=Subscription.SUBSCRIPTION_EMAIL, activity_type=t,
+                    person=p,
+                    type=Subscription.SUBSCRIPTION_EMAIL,
+                    activity_type=t,
                 )
                 for p in [self.creator, self.member1, self.member2]
                 for t in Subscription.DEFAULT_GROUP_EMAIL_TYPES

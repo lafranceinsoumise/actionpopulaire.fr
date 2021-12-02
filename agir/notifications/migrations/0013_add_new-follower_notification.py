@@ -17,7 +17,8 @@ def add_new_follower_subscription(apps, schema_editor):
             person_id=s["person_id"],
         )
         for s in Subscription.objects.filter(
-            type=SUBSCRIPTION_PUSH, activity_type=TYPE_NEW_MEMBER,
+            type=SUBSCRIPTION_PUSH,
+            activity_type=TYPE_NEW_MEMBER,
         ).values("membership_id", "person_id")
     ]
     Subscription.objects.bulk_create(subscriptions, ignore_conflicts=True)
@@ -26,7 +27,8 @@ def add_new_follower_subscription(apps, schema_editor):
 def remove_new_follower_subscriptions(apps, schema_editor):
     Subscription = apps.get_model("notifications", "Subscription")
     Subscription.objects.filter(
-        type=SUBSCRIPTION_PUSH, activity_type=TYPE_NEW_FOLLOWER,
+        type=SUBSCRIPTION_PUSH,
+        activity_type=TYPE_NEW_FOLLOWER,
     ).delete()
 
 

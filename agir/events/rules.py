@@ -107,3 +107,9 @@ rules.add_perm(
     "events.respond_to_coorganization_invitation",
     is_authenticated_person & can_respond_to_coorganization_invitation,
 )
+rules.add_perm(
+    "events.upload_image",
+    is_public_event
+    & is_authenticated_person
+    & (has_rsvp_for_event | is_organizer_of_event),
+)

@@ -121,7 +121,9 @@ class SubscriptionConfirmationTestCase(TestCase):
         response = self.client.get(url_with_params)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertTrue(
-            response.url.startswith("https://lafranceinsoumise.fr/bienvenue/",)
+            response.url.startswith(
+                "https://lafranceinsoumise.fr/bienvenue/",
+            )
         )
 
         # check that the person has been created

@@ -177,8 +177,7 @@ class LenderForm(BaseDonorForm):
 
 
 class ContractForm(forms.Form):
-    """
-    """
+    """ """
 
     acceptance = forms.BooleanField(
         required=True,

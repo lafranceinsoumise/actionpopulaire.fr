@@ -606,7 +606,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Formulaire",},
+            options={
+                "verbose_name": "Formulaire",
+            },
         ),
         migrations.CreateModel(
             name="PersonTag",
@@ -635,7 +637,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "tag",},
+            options={
+                "verbose_name": "tag",
+            },
         ),
         migrations.CreateModel(
             name="PersonValidationSMS",
@@ -748,7 +752,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"abstract": False,},
+            options={
+                "abstract": False,
+            },
         ),
         migrations.AddField(
             model_name="personform",
@@ -824,7 +830,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Email", "order_with_respect_to": "person",},
+            options={
+                "verbose_name": "Email",
+                "order_with_respect_to": "person",
+            },
         ),
         migrations.AddIndex(
             model_name="person",
@@ -838,7 +847,8 @@ class Migration(migrations.Migration):
         ),
         UnaccentExtension(),
         migrations.RunSQL(
-            sql=CREATE_TEXT_CONFIGURATIONS, reverse_sql=DROP_TEXT_CONFIGURATIONS,
+            sql=CREATE_TEXT_CONFIGURATIONS,
+            reverse_sql=DROP_TEXT_CONFIGURATIONS,
         ),
         migrations.RunSQL(
             sql=CREATE_CASELESS_EMAIL_INDEX, reverse_sql=REMOVE_CASELESS_EMAIL_INDEX

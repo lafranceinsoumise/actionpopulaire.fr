@@ -355,6 +355,7 @@ FIELDS = {
     "group": GroupField,
     "multiple_groups": MultipleGroupField,
     "newsletters": PersonNewslettersField,
+    "uuid": forms.UUIDField,
 }
 
 

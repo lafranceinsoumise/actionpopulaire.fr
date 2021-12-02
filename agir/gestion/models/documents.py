@@ -17,7 +17,9 @@ class DocumentManager(models.Manager):
 
             if fichier is not None:
                 VersionDocument.objects.create(
-                    document=document, titre="Version initiale", fichier=fichier,
+                    document=document,
+                    titre="Version initiale",
+                    fichier=fichier,
                 )
 
         return document
@@ -25,8 +27,7 @@ class DocumentManager(models.Manager):
 
 @reversion.register()
 class Document(ModeleGestionMixin, TimeStampedModel):
-    """Modèle représentant un élément justificatif, à associer à une instance d'un autre modèle de gestion
-    """
+    """Modèle représentant un élément justificatif, à associer à une instance d'un autre modèle de gestion"""
 
     objects = DocumentManager()
 

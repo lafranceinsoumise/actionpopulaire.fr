@@ -41,6 +41,7 @@ class Activity(TimeStampedModel):
     TYPE_ANNOUNCEMENT = "announcement"
     TYPE_REMINDER_DOCS_EVENT_EVE = "reminder-docs-event-eve"
     TYPE_REMINDER_DOCS_EVENT_NEXTDAY = "reminder-docs-event-nextday"
+    TYPE_REMINDER_REPORT_FORM_FOR_EVENT = "reminder-report-form-for-event"
 
     # GROUP TYPES
     TYPE_NEW_REPORT = "new-report"
@@ -167,6 +168,10 @@ class Activity(TimeStampedModel):
         (
             TYPE_REMINDER_DOCS_EVENT_NEXTDAY,
             "Rappel au lendemain d'un événement des documents à envoyer",
+        ),
+        (
+            TYPE_REMINDER_REPORT_FORM_FOR_EVENT,
+            "Rappel au lendemain d'un événement de l'éventuel formulaire de bilan à remplir",
         ),
     )
 

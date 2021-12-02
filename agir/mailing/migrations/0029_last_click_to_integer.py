@@ -11,7 +11,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(model_name="segment", name="last_click"),
-        migrations.RemoveField(model_name="segment", name="last_open",),
+        migrations.RemoveField(
+            model_name="segment",
+            name="last_open",
+        ),
         migrations.AddField(
             model_name="segment",
             name="last_click",

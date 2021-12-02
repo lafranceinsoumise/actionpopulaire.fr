@@ -65,7 +65,9 @@ class SubscriptionRequestSerializer(serializers.Serializer):
         choices=SUBSCRIPTION_TYPE_CHOICES, default=SUBSCRIPTION_TYPE_LFI, required=False
     )
 
-    email = serializers.EmailField(required=True,)
+    email = serializers.EmailField(
+        required=True,
+    )
     location_zip = serializers.CharField(required=True)
     first_name = serializers.CharField(
         max_length=person_fields["first_name"].max_length,

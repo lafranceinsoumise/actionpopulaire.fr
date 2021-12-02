@@ -49,7 +49,7 @@ def normalize_overseas_numbers(phone_number):
 
 
 def is_mobile_number(phone_number):
-    """"Check if `phone_number` is a French phone number
+    """ "Check if `phone_number` is a French phone number
 
     :param phone_number:
     :return: a boolean

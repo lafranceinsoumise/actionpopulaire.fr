@@ -68,7 +68,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "adhésion", "verbose_name_plural": "adhésions",},
+            options={
+                "verbose_name": "adhésion",
+                "verbose_name_plural": "adhésions",
+            },
         ),
         migrations.CreateModel(
             name="SupportGroup",
@@ -419,7 +422,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "sous-type",},
+            options={
+                "verbose_name": "sous-type",
+            },
         ),
         migrations.CreateModel(
             name="SupportGroupTag",
@@ -442,7 +447,9 @@ class Migration(migrations.Migration):
                     models.TextField(blank=True, verbose_name="description"),
                 ),
             ],
-            options={"verbose_name": "tag",},
+            options={
+                "verbose_name": "tag",
+            },
         ),
         migrations.CreateModel(
             name="TransferOperation",
@@ -568,6 +575,7 @@ class Migration(migrations.Migration):
             bases=("groups.supportgroup",),
         ),
         migrations.AlterUniqueTogether(
-            name="membership", unique_together={("supportgroup", "person")},
+            name="membership",
+            unique_together={("supportgroup", "person")},
         ),
     ]

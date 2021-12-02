@@ -252,6 +252,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "send_visibility_notification",
                     "facebook",
                     "meta",
+                    "suggestion_segment",
                 )
             },
         ),

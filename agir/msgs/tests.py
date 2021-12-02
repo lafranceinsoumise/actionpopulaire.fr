@@ -18,7 +18,8 @@ from agir.people.models import Person
 class GroupMessagesTestAPICase(APITestCase):
     def setUp(self):
         self.manager = Person.objects.create(
-            email="member@example.com", create_role=True,
+            email="member@example.com",
+            create_role=True,
         )
         self.group = SupportGroup.objects.create()
         Membership.objects.create(
@@ -49,7 +50,10 @@ class GroupMessagesTestAPICase(APITestCase):
 class UserMessageRecipientsAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.user = Person.objects.create(email="user@example.com", create_role=True,)
+        self.user = Person.objects.create(
+            email="user@example.com",
+            create_role=True,
+        )
         Membership.objects.create(
             person=self.user,
             supportgroup=self.group,
@@ -80,7 +84,10 @@ class UserMessageRecipientsAPITestCase(APITestCase):
 class UserMessagesAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.user = Person.objects.create(email="user@example.com", create_role=True,)
+        self.user = Person.objects.create(
+            email="user@example.com",
+            create_role=True,
+        )
         self.first_message = SupportGroupMessage.objects.create(
             author=self.user, supportgroup=self.group, text="First message"
         )
@@ -214,7 +221,10 @@ class UpdateRecipientMessageActionTestCase(APITestCase):
 class UserUnreadMessageCountAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.user = Person.objects.create(email="user@example.com", create_role=True,)
+        self.user = Person.objects.create(
+            email="user@example.com",
+            create_role=True,
+        )
         Membership.objects.create(
             person=self.user,
             supportgroup=self.group,

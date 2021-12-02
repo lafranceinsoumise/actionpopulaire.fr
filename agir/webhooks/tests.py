@@ -37,7 +37,8 @@ class WebhookTestCase(APITestCase):
         self.assertEqual(response.status_code, 202)
         self.person.refresh_from_db()
         self.assertEqual(
-            "secondary@bounce.com", self.person.email,
+            "secondary@bounce.com",
+            self.person.email,
         )
         self.assertTrue(PersonEmail.objects.get(address="primary@bounce.com").bounced)
 
@@ -66,7 +67,8 @@ class WebhookTestCase(APITestCase):
         self.assertEqual(response.status_code, 202)
         self.person.refresh_from_db()
         self.assertEqual(
-            "secondary@bounce.com", self.person.email,
+            "secondary@bounce.com",
+            self.person.email,
         )
         self.assertTrue(PersonEmail.objects.get(address="primary@bounce.com").bounced)
 

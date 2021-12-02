@@ -75,15 +75,10 @@ const InformationsStep = ({
   const [hasAddress2, setHasAddress2] = useState(false);
 
   const { data: profile } = useSWR("/api/user/profile/");
-  let hasNewsletter = false;
-  if (profile?.newsletters && Array.isArray(profile.newsletters)) {
-    if (
-      profile.newsletters.includes("2022") &&
-      profile.newsletters.includes("2022_exceptionnel")
-    ) {
-      hasNewsletter = true;
-    }
-  }
+  const hasNewsletter =
+    Array.isArray(profile?.newsletters) &&
+    profile.newsletters.includes("2022") &&
+    profile.newsletters.includes("2022_exceptionnel");
 
   const displayAddress2 = () => {
     setHasAddress2(true);

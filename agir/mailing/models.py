@@ -494,6 +494,9 @@ class Segment(BaseSegment, models.Model):
             - sum(s.get_subscribers_count() for s in self.exclude_segments.all())
         )
 
+    def is_subscriber(self, person):
+        return self.get_subscribers_queryset().filter(pk=person.pk).exists()
+
     get_subscribers_count.short_description = "Personnes"
     get_subscribers_count.help_text = "Estimation du nombre d'inscrits"
 

@@ -4,8 +4,8 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
-import Card from "@agir/front/genericComponents/Card";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import StyledCard from "./StyledCard";
 
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -38,7 +38,7 @@ const StyledActionButtons = styled.div`
   }
 `;
 
-const StyledCard = styled(Card)`
+const StyleDescriptionCard = styled(StyledCard)`
   margin-bottom: 24px;
   overflow: hidden;
   border-bottom: 1px solid ${(props) => props.theme.black50};
@@ -59,9 +59,9 @@ const EventDescriptionCard = ({
   }
 
   return (
-    <StyledCard>
+    <StyleDescriptionCard>
       <DescriptionSection>
-        <strong>L'événement</strong>
+        <h5>L'événement</h5>
 
         <Spacer size="1rem" />
 
@@ -103,7 +103,7 @@ const EventDescriptionCard = ({
           </StyledActionButtons>
         )}
       </DescriptionSection>
-    </StyledCard>
+    </StyleDescriptionCard>
   );
 };
 

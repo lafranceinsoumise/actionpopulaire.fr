@@ -64,10 +64,15 @@ class SegmentFilter(AutocompleteFilter):
     def get_rendered_widget(self):
         rel = models.ForeignKey(to=Segment, on_delete=models.CASCADE)
         rel.model = Segment
-        widget = AutocompleteSelect(rel, self.model_admin.admin_site,)
+        widget = AutocompleteSelect(
+            rel,
+            self.model_admin.admin_site,
+        )
         FieldClass = self.get_form_field()
         field = FieldClass(
-            queryset=self.get_queryset_for_field(), widget=widget, required=False,
+            queryset=self.get_queryset_for_field(),
+            widget=widget,
+            required=False,
         )
 
         self._add_media(self.model_admin, widget)
@@ -161,7 +166,13 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         (_("Dates"), {"fields": ("created", "modified", "last_login")}),
         (
             _("Paramètres mails"),
-            {"fields": ("newsletters", "subscribed_sms", "campaigns_link",)},
+            {
+                "fields": (
+                    "newsletters",
+                    "subscribed_sms",
+                    "campaigns_link",
+                )
+            },
         ),
         (
             _("Paramètres de participation"),
@@ -375,7 +386,9 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 name="people_person_merge",
             ),
             path(
-                "statistiques/", self.statistics_view, name="people_person_statistics",
+                "statistiques/",
+                self.statistics_view,
+                name="people_person_statistics",
             ),
         ] + super().get_urls()
 
@@ -399,7 +412,10 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         except IncorrectLookupParameters:
             if ERROR_FLAG in request.GET:
                 return SimpleTemplateResponse(
-                    "admin/invalid_setup.html", {"title": _("Database error"),}
+                    "admin/invalid_setup.html",
+                    {
+                        "title": _("Database error"),
+                    },
                 )
             return HttpResponseRedirect(request.path + "?" + ERROR_FLAG + "=1")
 
@@ -436,7 +452,9 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         }
 
         return TemplateResponse(
-            request, "admin/people/person/statistics.html", context,
+            request,
+            "admin/people/person/statistics.html",
+            context,
         )
 
     def has_view_permission(self, request, obj=None):
@@ -447,6 +465,41 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def has_export_permission(self, request):
         return request.user.has_perm("people.export_people")
+
+    def changelist_view(self, request, extra_context=None):
+        if (
+            hasattr(request, "POST")
+            and request.POST.get("action", None)
+            and not request.POST.getlist(admin.helpers.ACTION_CHECKBOX_NAME)
+        ):
+            # If no item is selected and action select_across is set to True
+            # allow applying the action to all items that match the current view
+            # filters (optionally limiting the number of items to a maximum value)
+            select_across = False
+            try:
+                action = self.get_actions(request)[request.POST["action"]][0]
+                select_across = action.select_across
+            except (KeyError, AttributeError):
+                pass
+
+            if select_across:
+                items = (
+                    self.get_changelist_instance(request)
+                    .get_queryset(request)
+                    .values_list("id", flat=True)
+                )
+
+                if hasattr(action, "max_items"):
+                    items[: action.max_items]
+
+                post = request.POST.copy()
+                post.setlist(
+                    admin.helpers.ACTION_CHECKBOX_NAME,
+                    items,
+                )
+                request.POST = post
+
+        return super().changelist_view(request, extra_context)
 
     class Media:
         pass
@@ -508,6 +561,7 @@ class PersonFormAdmin(FormSubmissionViewsMixin, admin.ModelAdmin):
             _("Textes"),
             {
                 "fields": (
+                    "short_description",
                     "description",
                     "confirmation_note",
                     "send_confirmation",

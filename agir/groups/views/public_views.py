@@ -46,8 +46,7 @@ __all__ = [
 
 
 class SupportGroupListView(FilterView):
-    """List of groups, filter by zipcode
-    """
+    """List of groups, filter by zipcode"""
 
     min_items = 20
     template_name = "groups/group_list.html"
@@ -253,7 +252,10 @@ class SuppportGroupOGImageView(DetailView):
             else os.path.join(self.static_root, "Poppins-Medium.ttf")
         )
         return ImageFont.truetype(
-            filename, size=size, encoding="utf-8", layout_engine=ImageFont.LAYOUT_BASIC,
+            filename,
+            size=size,
+            encoding="utf-8",
+            layout_engine=ImageFont.LAYOUT_BASIC,
         )
 
     def get_image_from_file(self, filename):

@@ -31,7 +31,9 @@ class PollParticipationForm(Form):
             )
         else:
             self.fields["choice"] = ModelMultipleChoiceField(
-                label="Choix", queryset=options, widget=CheckboxSelectMultiple(),
+                label="Choix",
+                queryset=options,
+                widget=CheckboxSelectMultiple(),
             )
 
         self.helper.add_input(Submit("submit", "Confirmer"))

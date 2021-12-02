@@ -2,7 +2,7 @@ from datetime import timedelta
 from functools import partial
 from pathlib import PurePath
 
-from agir.lib.html import textify
+from agir.lib import html
 from django.db import transaction
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
@@ -19,11 +19,12 @@ from agir.lib.serializers import (
     FlexibleFieldsMixin,
     CurrentPersonField,
 )
-
 from agir.lib.utils import (
     validate_facebook_event_url,
     INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
+    front_url,
 )
+from agir.people.person_forms.models import PersonForm
 from . import models
 from .actions.required_documents import (
     get_project_document_deadline,
@@ -52,7 +53,6 @@ from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSeria
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
 from ..lib.html import textify
 from ..lib.utils import admin_url, replace_datetime_timezone
-
 
 EVENT_ROUTES = {
     "details": "view_event",
@@ -320,13 +320,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 
 class EventAdvancedSerializer(EventSerializer):
-
     participants = serializers.SerializerMethodField()
-
     organizers = serializers.SerializerMethodField()
-
     contact = NestedContactSerializer(source="*")
-
     groupsInvited = serializers.SerializerMethodField(method_name="get_groups_invited")
 
     def get_participants(self, obj):
@@ -461,7 +457,9 @@ class EventOrganizerGroupField(serializers.RelatedField):
         if obj is None:
             return None
         return SupportGroupSerializer(
-            obj, context=self.context, fields=["id", "name", "contact", "location"],
+            obj,
+            context=self.context,
+            fields=["id", "name", "contact", "location"],
         ).data
 
     def to_internal_value(self, pk):
@@ -543,7 +541,9 @@ class CreateEventSerializer(serializers.Serializer):
         geocode_event.delay(event.pk)
         if event.visibility == Event.VISIBILITY_ORGANIZER:
             send_secretariat_notification.delay(
-                organizer_config.event.pk, organizer_config.person.pk, complete=False,
+                organizer_config.event.pk,
+                organizer_config.person.pk,
+                complete=False,
             )
         # Also notify members if it is organized by a group
         if data["organizer_group"]:
@@ -745,7 +745,9 @@ class UpdateEventSerializer(serializers.ModelSerializer):
                 OrganizerConfig.objects.update_or_create(
                     person=validated_data["organizerPerson"],
                     event=instance,
-                    defaults={"as_group": validated_data["organizerGroup"],},
+                    defaults={
+                        "as_group": validated_data["organizerGroup"],
+                    },
                 )
                 # Add group to changed data if one has been specified
                 if validated_data["organizerGroup"] is not None:
@@ -837,7 +839,8 @@ class EventProjectSerializer(serializers.ModelSerializer):
     event = ProjectEventSerializer(read_only=True)
     status = serializers.CharField(source="etat", read_only=True)
     dismissedDocumentTypes = serializers.JSONField(
-        source="details.documents.absent", default=list,
+        source="details.documents.absent",
+        default=list,
     )
     requiredDocumentTypes = serializers.JSONField(
         source="event.subtype.required_documents", read_only=True
@@ -876,7 +879,9 @@ class EventProjectSerializer(serializers.ModelSerializer):
             type__in=self.Meta.valid_document_types
         )
         return EventProjectDocumentSerializer(
-            uploaded_documents, many=True, context=self.context,
+            uploaded_documents,
+            many=True,
+            context=self.context,
         ).data
 
     def get_limitDate(self, obj):
@@ -934,3 +939,26 @@ class EventProjectListItemSerializer(serializers.ModelSerializer):
             choice[0]
             for choice in EventSubtype.EVENT_SUBTYPE_REQUIRED_DOCUMENT_TYPE_CHOICES
         ]
+
+
+class EventReportPersonFormSerializer(serializers.ModelSerializer):
+    description = serializers.SerializerMethodField(read_only=True)
+    url = serializers.SerializerMethodField(read_only=True)
+    submitted = serializers.SerializerMethodField(read_only=True)
+
+    def get_description(self, obj):
+        return obj.meta_description
+
+    def get_url(self, obj):
+        return front_url(
+            "view_person_form",
+            kwargs={"slug": obj.slug},
+            query={"reported_event_id": obj.event_pk},
+        )
+
+    def get_submitted(self, obj):
+        return obj.submissions.filter(data__reported_event_id=obj.event_pk).exists()
+
+    class Meta:
+        model = PersonForm
+        fields = ["title", "description", "url", "submitted"]

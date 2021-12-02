@@ -25,5 +25,6 @@ def is_own_group_message(role, message=None):
 
 
 rules.add_perm(
-    "msgs.view_message", is_authenticated_person & is_own_group_message,
+    "msgs.view_message",
+    is_authenticated_person & is_own_group_message,
 )

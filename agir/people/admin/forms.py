@@ -103,7 +103,11 @@ class PersonFormSandboxForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Submit("top-preview", "Mettre à jour l'aperçu", css_class="btn-sm",),
+            Submit(
+                "top-preview",
+                "Mettre à jour l'aperçu",
+                css_class="btn-sm",
+            ),
             "custom_fields",
             Submit("bottom-preview", "Mettre à jour l'aperçu"),
         )

@@ -121,9 +121,9 @@ urlpatterns = [
         name="api_ongoing_rsvped_events",
     ),
     path(
-        "api/evenements/suggestions/a-proximite/",
-        views.NearEventSuggestionsAPIView.as_view(),
-        name="api_near_events",
+        "api/evenements/suggestions/",
+        views.EventSuggestionsAPIView.as_view(),
+        name="api_event_suggestions",
     ),
     path(
         "api/evenements/mes-groupes/",
@@ -179,5 +179,10 @@ urlpatterns = [
         "api/evenements/<uuid:pk>/annuler/",
         views.CancelEventAPIView.as_view(),
         name="cancel_event",
+    ),
+    path(
+        "api/evenements/<uuid:pk>/bilan/",
+        views.EventReportPersonFormAPIView.as_view(),
+        name="api_event_report_personform",
     ),
 ]

@@ -30,6 +30,8 @@ import EventLocationCard from "./EventLocationCard";
 import EventFacebookLinkCard from "./EventFacebookLinkCard";
 import EventDescriptionCard from "./EventDescriptionCard";
 import EventPhotosCard from "./EventPhotosCard";
+import ReportFormCard from "./ReportFormCard";
+
 import {
   Column,
   Container,
@@ -49,6 +51,7 @@ import defaultEventImage from "@agir/front/genericComponents/images/banner-map-b
 import EventReportCard from "./EventReportCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import ClickableMap from "@agir/carte/common/Map/ClickableMap";
+import { StyledSideCard } from "./StyledCard";
 
 import EventSettings from "@agir/events/EventSettings/EventSettings";
 
@@ -201,6 +204,7 @@ const MobileLayout = (props) => {
           <StyledColumn stack>
             <Card>
               <EventHeader {...props} />
+              {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
             </Card>
             <EventLocationCard
               name={name}
@@ -263,6 +267,7 @@ const DesktopLayout = (props) => {
           <Column grow>
             <div>
               <EventHeader {...props} />
+              {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
               <EventPhotosCard {...props} />
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />

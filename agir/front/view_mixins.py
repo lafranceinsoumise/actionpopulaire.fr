@@ -98,8 +98,7 @@ class FixedDistance(DistanceResultMixin, Value):
 
 
 class SearchByZipcodeBaseView(ListView):
-    """List of events, filter by zipcode
-    """
+    """List of events, filter by zipcode"""
 
     paginate_by = 20
     form_class = None
