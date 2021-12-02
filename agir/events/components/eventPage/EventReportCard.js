@@ -13,12 +13,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const EventReportCard = ({ id, compteRendu, isOrganizer, endTime }) => {
-  const isPast = endTime < DateTime.local();
-
-  if (!isPast) {
-    return null;
-  }
-
   if (!compteRendu && !isOrganizer) {
     return null;
   }

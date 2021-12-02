@@ -123,9 +123,6 @@ export const routeConfig = {
     icon: "image",
     Component: EventFeedback,
     isActive: true,
-    forPastEventsOnly: true,
-    disabled: (event) => !event.isPast,
-    disabledLabel: "A remplir à la fin de l'événement",
     menuGroup: 2,
   },
   cancelation: {
