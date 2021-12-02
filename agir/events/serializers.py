@@ -561,7 +561,7 @@ class CreateEventSerializer(serializers.Serializer):
 
 
 class UpdateEventSerializer(serializers.ModelSerializer):
-    PAST_ONLY_FIELDS = ["compteRendu", "compteRenduPhoto"]
+    PAST_ONLY_FIELDS = []
 
     id = serializers.UUIDField(read_only=True)
     subtype = serializers.PrimaryKeyRelatedField(
@@ -574,7 +574,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     contact = NestedContactSerializer(source="*")
     image = serializers.ImageField(allow_empty_file=True, allow_null=True)
     location = LocationSerializer(source="*")
-    compteRendu = serializers.CharField(source="report_content")
+    compteRendu = serializers.CharField(source="report_content", allow_blank=True)
     compteRenduPhoto = serializers.ImageField(
         source="report_image", allow_empty_file=True, allow_null=True
     )

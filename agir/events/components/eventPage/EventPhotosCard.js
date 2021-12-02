@@ -39,11 +39,17 @@ const Thumbnails = styled.div`
 `;
 
 const EventPhotosCard = (props) => {
-  const { compteRenduMainPhoto, compteRenduPhotos, endTime, rsvp, routes } =
-    props;
+  const {
+    compteRenduMainPhoto,
+    compteRenduPhotos,
+    endTime,
+    rsvp,
+    routes,
+    isOrganizer,
+  } = props;
   const isPast = endTime < DateTime.local();
 
-  if (!isPast) {
+  if (!isPast && !isOrganizer) {
     return null;
   }
 
@@ -51,7 +57,7 @@ const EventPhotosCard = (props) => {
   const morePhotos = compteRenduPhotos?.length ? compteRenduPhotos : [];
   const photos = mainPhoto.concat(morePhotos);
 
-  if (photos.length === 0 && rsvp !== "CO") {
+  if (photos.length === 0 && rsvp !== "CO" && !isOrganizer) {
     return null;
   }
 
