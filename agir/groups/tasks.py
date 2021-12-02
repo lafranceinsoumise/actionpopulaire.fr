@@ -1,6 +1,7 @@
 import re
 from collections import OrderedDict
 
+import ics
 from celery import shared_task
 from django.conf import settings
 from django.db.models import Q
@@ -346,6 +347,15 @@ def send_new_group_event_email(group_pk, event_pk):
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
+        attachments=(
+            {
+                "filename": "event.ics",
+                "content": str(
+                    ics.Calendar(events=[event.to_ics(text_only_description=True)])
+                ),
+                "mimetype": "text/calendar",
+            },
+        ),
     )
 
 

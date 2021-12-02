@@ -582,6 +582,15 @@ def send_event_suggestion_email(event_pk, recipient_pk):
         from_email=settings.EMAIL_FROM,
         recipients=[subscription.first().person],
         bindings=bindings,
+        attachments=(
+            {
+                "filename": "event.ics",
+                "content": str(
+                    ics.Calendar(events=[event.to_ics(text_only_description=True)])
+                ),
+                "mimetype": "text/calendar",
+            },
+        ),
     )
 
 
@@ -618,6 +627,15 @@ def send_group_coorganization_invitation_notification(invitation_pk):
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
+        attachments=(
+            {
+                "filename": "event.ics",
+                "content": str(
+                    ics.Calendar(events=[event.to_ics(text_only_description=True)])
+                ),
+                "mimetype": "text/calendar",
+            },
+        ),
     )
 
     # Add activity for all group referents that hasnt been notified yet
