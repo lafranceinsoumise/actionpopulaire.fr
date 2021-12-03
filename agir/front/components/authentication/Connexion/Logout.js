@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Redirect, useLocation } from "react-router-dom";
 import useSWR from "swr";
 
@@ -7,41 +7,33 @@ import { routeConfig } from "@agir/front/app/routes.config";
 
 const Logout = () => {
   const location = useLocation();
-
-  const {
-    data: session,
-    mutate: mutate,
-    isValidating,
-  } = useSWR("/api/session/");
-
-  const doLogout = useCallback(async () => {
-    await logout();
-    mutate(
-      (session) => ({
-        ...session,
-        user: false,
-        authentication: 0,
-      }),
-      false
-    );
-  }, [mutate]);
-
-  useMemo(() => {
-    !isValidating && doLogout();
-  }, [isValidating, doLogout]);
-
-  if (session && !session.user) {
-    return (
-      <Redirect
-        to={{
-          pathname: routeConfig.login.getLink(),
-          state: { ...(location.state || {}) },
-        }}
-      />
-    );
-  }
-
-  return null;
+  const { data: session, mutate: mutate } = useSWR("/api/session/", {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
+  const isAuthenticated = !!session?.user?.id;
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+    const doLogout = async () => {
+      await logout();
+      mutate(
+        (session) => ({ ...session, user: false, authentication: 0 }),
+        false
+      );
+    };
+    doLogout();
+  }, [isAuthenticated]);
+  return session?.user === false ? (
+    <Redirect
+      to={{
+        pathname: routeConfig.login.getLink(),
+        state: { ...(location.state || {}) },
+      }}
+    />
+  ) : null;
 };
 
 export default Logout;
