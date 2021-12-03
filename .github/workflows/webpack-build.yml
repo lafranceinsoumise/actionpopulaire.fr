@@ -1,6 +1,6 @@
 name: Build front bundles
 concurrency:
-  group: ${{ github.ref }}
+  group: '${{ github.ref }}'
   cancel-in-progress: true
 on: [push]
 
