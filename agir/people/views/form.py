@@ -1,4 +1,5 @@
 import csv
+import logging
 
 from django.conf import settings
 from django.contrib import messages
@@ -23,6 +24,9 @@ from agir.people import tasks
 from agir.people.models import PersonForm, PersonFormSubmission
 from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.display import default_person_form_display
+
+
+logger = logging.getLogger(__name__)
 
 
 class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
@@ -83,6 +87,7 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
             not self.person_form_instance.is_open
             or not self.person_form_instance.is_authorized(self.get_object())
         ):
+            logging.debug(f"Accès non autorisé {self.person_form_instance!r}")
             return self.get(request, *args, **kwargs)
         return super().post(request, *args, **kwargs)
 
@@ -132,6 +137,9 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
 
         return r
 
+    def form_invalid(self, form):
+        logger.debug(f"Erreur de validation du formulaire {form!r} {form.errors!r}")
+        return super().form_invalid(form)
 
 @method_decorator(never_cache, name="get")
 class PeopleFormNewSubmissionView(BasePeopleFormView):
