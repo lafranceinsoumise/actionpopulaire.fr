@@ -73,13 +73,7 @@ const ShareLink = (props) => {
     <StyledDiv {...rest}>
       <h4>{title}</h4>
       <div>
-        <StyledInput
-          type="text"
-          value={url}
-          readOnly
-          onClick={handleCopy}
-          onFocus={handleCopy}
-        />
+        <StyledInput type="text" value={url} readOnly />
         <Button
           small
           color={color}
