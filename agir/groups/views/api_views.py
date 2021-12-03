@@ -374,10 +374,16 @@ class GroupMessagesAPIView(ListCreateAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
+        if not (
+            self.request.user.is_authenticated and self.request.user.person is not None
+        ):
+            raise exceptions.AuthenticationFailed("Not connected")
+
         person = self.request.user.person
-        user_permission = self.supportgroup.memberships.get(
-            person=person
-        ).membership_type
+        memberships = self.supportgroup.memberships.filter(person=person)
+        user_permission = 0
+        if memberships.exists():
+            user_permission = memberships.first().membership_type
 
         # Messages where user is author or allowed
         return (

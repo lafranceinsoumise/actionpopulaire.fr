@@ -89,8 +89,6 @@ const MessagePage = ({ messagePk, groupPk }) => {
     onSelectMessage
   );
 
-  console.log("== MESSAGE PAGES, messages : ", messages);
-
   const TITLE_ORGANIZATION = routeConfig.groupOrganizationMessage.label;
 
   const isOrganizationMessage = useRouteMatch(
