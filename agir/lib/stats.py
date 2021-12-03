@@ -1,21 +1,49 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.db.models import Count
+from django.db.models import Count, Case, When
 from django.utils.timezone import now
 from nuntius.models import CampaignSentEvent
 
-from agir.people.models import Person
-from agir.groups.models import SupportGroup, Membership
 from agir.events.models import Event, EventSubtype
+from agir.groups.models import SupportGroup
+from agir.people.actions.subscription import (
+    SUBSCRIPTION_TYPE_NSP,
+    SUBSCRIPTION_TYPE_AP,
+    SUBSCRIPTION_TYPE_LFI,
+)
+from agir.people.model_fields import NestableKeyTextTransform
+from agir.people.models import Person
 
 EVENT_SUBTYPES = {"porte-a-porte": 9, "caravane": 4, "inscription-listes": 5}
+SORTED_SUBSCRIPTION_TYPES = (
+    SUBSCRIPTION_TYPE_NSP,
+    SUBSCRIPTION_TYPE_AP,
+    SUBSCRIPTION_TYPE_LFI,
+)
 
 
 def get_general_stats(start, end):
-    nouveaux_soutiens = Person.objects.filter(
-        meta__subscriptions__NSP__date__gt=start.isoformat(),
-        meta__subscriptions__NSP__date__lt=end.isoformat(),
+    nouveaux_soutiens = (
+        Person.objects.filter(is_2022=True, meta__subscriptions__isnull=False)
+        .annotate(
+            datetime=Case(
+                *(
+                    When(
+                        **{
+                            f"meta__subscriptions__{subscription_type}__date__isnull": False,
+                            "then": NestableKeyTextTransform(
+                                "meta", "subscriptions", subscription_type, "date"
+                            ),
+                        }
+                    )
+                    for subscription_type in SORTED_SUBSCRIPTION_TYPES
+                ),
+                default=None,
+            )
+        )
+        .exclude(datetime__isnull=True)
+        .filter(datetime__range=(start.isoformat(), end.isoformat()))
     )
 
     ouvert_news = Person.objects.filter(
