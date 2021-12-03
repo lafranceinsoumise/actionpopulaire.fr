@@ -14,6 +14,13 @@ const fetcher = async (url) => {
       credentials: "include",
       mode: "no-cors",
     });
+
+    if (!res.ok) {
+      const error = new Error("Error: " + res.statusText);
+      error.response = res;
+      throw error;
+    }
+
     return res.json();
   }
   const res = await axios.get(url);
