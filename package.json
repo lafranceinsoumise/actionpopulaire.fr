@@ -91,7 +91,7 @@
     "url": "^0.11.0",
     "validate.js": "^0.13.1",
     "workbox-cacheable-response": "^6.4.1",
-    "workbox-expiration": "^6.4.1",
+    "workbox-expiration": "^6.4.2",
     "workbox-precaching": "^6.4.1",
     "workbox-routing": "^6.4.1",
     "workbox-strategies": "^6.4.1"
