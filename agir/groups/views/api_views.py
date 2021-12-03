@@ -2,7 +2,7 @@ import reversion
 from django.contrib.gis.db.models.functions import Distance
 from django.core.validators import validate_email
 from django.db import transaction
-from django.db.models import F, Max, DateTimeField
+from django.db.models import F, Max, DateTimeField, Q
 from django.db.models.functions import Greatest
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
@@ -362,7 +362,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (GroupMessagesPermissions,)
     pagination_class = APIPaginator
-    messageType = SupportGroupMessage.MESSAGE_TYPE_DEFAULT
+    membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
 
     def initial(self, request, *args, **kwargs):
         try:
@@ -371,17 +371,19 @@ class GroupMessagesAPIView(ListCreateAPIView):
             raise NotFound()
 
         self.check_object_permissions(request, self.supportgroup)
-
-        self.membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
-        if self.messageType == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
-            self.membershipType = Membership.MEMBERSHIP_TYPE_REFERENT
-
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
+        person = self.request.user.person
+        user_permission = self.supportgroup.memberships.get(
+            person=person
+        ).membership_type
+
+        # Messages where user is author or allowed
         return (
             self.supportgroup.messages.filter(
-                deleted=False, message_type=SupportGroupMessage.MESSAGE_TYPE_DEFAULT
+                Q(deleted=False)
+                & (Q(required_membership_type__lte=user_permission) | Q(author=person))
             )
             .select_related("author", "linked_event", "linked_event__subtype")
             .prefetch_related("comments")
@@ -398,7 +400,6 @@ class GroupMessagesAPIView(ListCreateAPIView):
             message = serializer.save(
                 author=self.request.user.person,
                 supportgroup=self.supportgroup,
-                message_type=self.messageType,
                 required_membership_type=self.membershipType,
             )
 
@@ -409,7 +410,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
 # Allow anyone to send private message
 class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
     permission_classes = (IsAuthenticated,)
-    messageType = SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION
+    membershipType = Membership.MEMBERSHIP_TYPE_REFERENT
 
     def get(self):
         pass
@@ -485,8 +486,8 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
                 author=self.request.user.person, message=self.message
             )
             if (
-                comment.message.message_type
-                == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION
+                comment.message.required_membership_type
+                > Membership.MEMBERSHIP_TYPE_FOLLOWER
             ):
                 new_comment_organization_notifications(comment)
             else:

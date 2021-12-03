@@ -8,7 +8,7 @@ import { getMessageSubject } from "@agir/msgs/common/utils";
 import { timeAgo } from "@agir/lib/utils/time";
 
 import Avatars from "@agir/front/genericComponents/Avatars";
-
+import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 import { StyledCard } from "./styledComponents";
 
 const StyledUnreadItemBadge = styled.span`
@@ -41,10 +41,11 @@ const MessageThreadCard = (props) => {
     unreadCommentCount,
     lastComment,
     lastUpdate,
-    messageType,
+    requiredMembershipType,
   } = message;
 
-  const isOrganizationMessage = messageType === "Private";
+  const isOrganizationMessage =
+    requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
 
   const handleClick = useCallback(() => {
     onClick && onClick(id);

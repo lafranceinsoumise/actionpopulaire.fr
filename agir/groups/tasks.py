@@ -457,22 +457,20 @@ def send_message_notification_email(message_pk):
 
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
-    # Private message: send only to referents of the group
-    if message.message_type == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
-        referents_id = [referent.id for referent in message.supportgroup.referents]
-        recipients = Person.objects.filter(
-            id__in=referents_id,
-            notification_subscriptions__membership__supportgroup=message.supportgroup,
-            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-            notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
-        )
-    # Public message: send to all members of the group
-    else:
-        recipients = Person.objects.exclude(id=message.author.id).filter(
-            notification_subscriptions__membership__supportgroup=message.supportgroup,
-            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-            notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
-        )
+    memberships = message.supportgroup.memberships.filter(
+        membership_type__gte=message.required_membership_type
+    )
+    recipients = Person.objects.filter(
+        id__in=memberships.values_list("person_id", flat=True)
+    )
+    recipients_id = ([recipient.id] for recipient in recipients)
+
+    recipients = Person.objects.exclude(id=message.author.id).filter(
+        id__in=recipients_id,
+        notification_subscriptions__membership__supportgroup=message.supportgroup,
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
+    )
 
     if len(recipients) == 0:
         return
@@ -512,14 +510,19 @@ def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
     message_initial = comment.message
 
-    # Organization comment: send only to referents and initial author
-    if message_initial.message_type == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
-        referents_id = [
-            referent.id for referent in message_initial.supportgroup.referents
-        ]
-        recipients_id = set(referents_id + [message_initial.author.id])
+    # Private comment: send only to allowed membership and initial author
+    if message_initial.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
+        memberships = message_initial.supportgroup.memberships.filter(
+            membership_type__gte=message_initial.required_membership_type
+        )
+        persons_allowed = Person.objects.filter(
+            id__in=memberships.values_list("person_id", flat=True)
+        )
+        persons_allowed_id = ([person.id] for person in persons_allowed)
+        persons_allowed_id += [message_initial.author.id]
+
         recipients = Person.objects.exclude(id=comment.author.id).filter(
-            id__in=recipients_id,
+            id__in=persons_allowed_id,
             notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
             notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
             notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,

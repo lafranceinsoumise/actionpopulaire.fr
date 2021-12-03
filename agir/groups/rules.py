@@ -107,14 +107,12 @@ def own_membership_has_higher_rights(role, membership=None):
 def is_group_member(role, object=None):
     if object is None:
         return False
-
     if isinstance(object, SupportGroup):
         supportgroup = object
     elif isinstance(object, SupportGroupMessage):
         supportgroup = object.supportgroup
     else:
         return False
-
     return (
         supportgroup is not None
         and supportgroup.members.filter(pk=role.person.pk).exists()

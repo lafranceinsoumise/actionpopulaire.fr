@@ -107,7 +107,6 @@ class UserMessagesAPITestCase(APITestCase):
             author=self.user_no_group,
             supportgroup=self.group,
             text="Private message",
-            message_type=SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION,
             required_membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
         Membership.objects.create(
@@ -174,7 +173,7 @@ class UserMessagesAPITestCase(APITestCase):
         SupportGroupMessage.objects.create(
             author=other_user, supportgroup=other_group, text="Other text"
         )
-        self.client.force_login(self.user.role)
+        self.client.force_login(self.user_follower.role)
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)

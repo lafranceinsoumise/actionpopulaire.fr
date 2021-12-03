@@ -79,7 +79,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "linkedEvent",
         "recentComments",
         "commentCount",
-        "messageType",
+        "requiredMembershipType",
     )
     DETAIL_FIELDS = (
         "id",
@@ -91,7 +91,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "linkedEvent",
         "lastUpdate",
         "comments",
-        "messageType",
+        "requiredMembershipType",
     )
 
     lastUpdate = serializers.DateTimeField(read_only=True, source="last_update")
@@ -111,13 +111,6 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         allow_null=True,
         choices=Membership.MEMBERSHIP_TYPE_CHOICES,
         default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
-    )
-    messageType = serializers.ChoiceField(
-        source="message_type",
-        required=False,
-        allow_null=True,
-        choices=SupportGroupMessage.MESSAGE_TYPE_CHOICES,
-        default=SupportGroupMessage.MESSAGE_TYPE_DEFAULT,
     )
 
     def get_group(self, obj):
@@ -167,7 +160,6 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "comments",
             "commentCount",
             "lastUpdate",
-            "messageType",
             "requiredMembershipType",
         )
 
@@ -229,10 +221,14 @@ class UserMessagesSerializer(BaseMessageSerializer):
     lastComment = serializers.SerializerMethodField(
         method_name="get_last_comment", read_only=True
     )
-    messageType = serializers.CharField(
-        source="message_type",
-        default=SupportGroupMessage.MESSAGE_TYPE_DEFAULT,
+
+    requiredMembershipType = serializers.ChoiceField(
+        source="required_membership_type",
+        required=False,
+        allow_null=True,
         read_only=True,
+        choices=Membership.MEMBERSHIP_TYPE_CHOICES,
+        default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
     )
 
     def get_group(self, message):
@@ -279,5 +275,5 @@ class UserMessagesSerializer(BaseMessageSerializer):
             "lastUpdate",
             "lastComment",
             "isUnread",
-            "messageType",
+            "requiredMembershipType",
         )

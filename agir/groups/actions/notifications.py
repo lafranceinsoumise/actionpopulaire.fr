@@ -93,15 +93,12 @@ def someone_joined_notification(membership, membership_count=1):
 @transaction.atomic()
 def new_message_notifications(message):
 
-    # Private message: notify only required memberships
-    if message.message_type == SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION:
-        memberships = message.supportgroup.memberships.filter(
-            membership_type__gte=message.required_membership_type
-        )
-        recipients = Person.objects.filter(memberships__in=memberships)
-    # Public message: notify all members
-    else:
-        recipients = message.supportgroup.members.all()
+    memberships = message.supportgroup.memberships.filter(
+        membership_type__gte=message.required_membership_type
+    )
+    recipients = Person.objects.filter(
+        id__in=memberships.values_list("person_id", flat=True)
+    )
 
     Activity.objects.bulk_create(
         [

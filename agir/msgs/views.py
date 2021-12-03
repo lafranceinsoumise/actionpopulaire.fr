@@ -6,6 +6,7 @@ from django.db.models import (
     OuterRef,
     When,
     Subquery,
+    Q,
 )
 from django.db.models.functions import Greatest
 from rest_framework.decorators import api_view, permission_classes
@@ -24,8 +25,6 @@ from agir.msgs.serializers import (
     UserMessagesSerializer,
     UserMessageRecipientSerializer,
 )
-from itertools import chain
-from operator import attrgetter
 from agir.msgs.tasks import send_message_report_email
 
 
@@ -72,44 +71,10 @@ class UserMessagesAPIView(ListAPIView):
             recipient=person, message_id=OuterRef("id")
         )
 
-        # For private messages: get groups where person is referent
-        person_referent_groups = (
-            SupportGroup.objects.filter(
-                id__in=person_groups,
-                memberships__person=person,
-                memberships__membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
-            )
-            .values("id")
-            .distinct()
-        )
-
-        # Private messages from type organization = is_author + is allowed in group messages
-        private_group_messages = list(
-            SupportGroupMessage.objects.filter(
-                author=person,
-                message_type=SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION,
-            ).annotate(
-                last_update=Greatest(
-                    Max("comments__created"), "created", output_field=DateTimeField()
-                )
-            )
-        ) + list(
-            SupportGroupMessage.objects.filter(
-                supportgroup__in=person_referent_groups,
-                message_type=SupportGroupMessage.MESSAGE_TYPE_ORGANIZATION,
-            )
-            .exclude(author=person)
-            .annotate(
-                last_update=Greatest(
-                    Max("comments__created"), "created", output_field=DateTimeField()
-                )
-            )
-        )
-
-        public_group_messages = (
+        # Get messages where person is author or is in group
+        group_messages = (
             self.queryset.filter(
-                supportgroup_id__in=person_groups,
-                message_type=SupportGroupMessage.MESSAGE_TYPE_DEFAULT,
+                Q(supportgroup_id__in=person_groups) | Q(author=person)
             )
             .select_related("supportgroup", "author")
             .prefetch_related("comments")
@@ -133,13 +98,21 @@ class UserMessagesAPIView(ListAPIView):
                 )
             )
             .distinct()
+            .order_by("-last_update", "-created")
         )
 
-        return sorted(
-            chain(private_group_messages, public_group_messages),
-            key=attrgetter("created", "last_update"),
-            reverse=True,
-        )
+        list_group_messages = list(group_messages)
+        # Remove messages where person is not in allowed membership types
+        for msg in list_group_messages:
+            if msg.author.id == person.id:
+                continue
+            user_permission = Membership.objects.get(
+                person_id=person.id, supportgroup_id=msg.supportgroup.id
+            ).membership_type
+            if msg.required_membership_type > user_permission:
+                list_group_messages.remove(msg)
+
+        return list_group_messages
 
 
 @api_view(["GET"])

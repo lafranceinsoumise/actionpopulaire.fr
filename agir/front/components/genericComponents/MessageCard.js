@@ -25,6 +25,7 @@ import CommentField, {
   CommentButton,
 } from "@agir/front/formComponents/CommentField";
 import Comment from "@agir/front/formComponents/Comment";
+import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
 const StyledInlineMenuItems = styled.div`
   cursor: pointer;
@@ -426,7 +427,9 @@ const MessageCard = (props) => {
       messageCardRef.current.scrollIntoView();
   }, [scrollIn]);
 
-  const isOrganizationMessage = message.messageType === "ORGANIZATION";
+  const isOrganizationMessage =
+    message.requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
+
   let subject;
   if (!isOrganizationMessage) {
     subject = getMessageSubject(message);

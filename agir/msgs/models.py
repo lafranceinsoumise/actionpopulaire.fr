@@ -49,14 +49,6 @@ class AbstractMessage(BaseAPIResource):
 @reversion.register()
 class SupportGroupMessage(AbstractMessage):
 
-    MESSAGE_TYPE_DEFAULT = "Public"
-    MESSAGE_TYPE_ORGANIZATION = "Private"
-
-    MESSAGE_TYPE_CHOICES = (
-        (MESSAGE_TYPE_DEFAULT, "Message de groupe"),
-        (MESSAGE_TYPE_ORGANIZATION, "Message privé à certains rôles"),
-    )
-
     subject = models.CharField(
         "Objet", max_length=150, null=False, blank=True, default=""
     )
@@ -74,22 +66,14 @@ class SupportGroupMessage(AbstractMessage):
         on_delete=models.PROTECT,
         verbose_name="Événement lié",
     )
-    required_membership_type = models.CharField(
+    required_membership_type = models.IntegerField(
         "required_membershiptype",
-        max_length=64,
         choices=Membership.MEMBERSHIP_TYPE_CHOICES,
         default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
     )
-    message_type = models.CharField(
-        "message_type",
-        max_length=64,
-        null=False,
-        choices=MESSAGE_TYPE_CHOICES,
-        default=MESSAGE_TYPE_DEFAULT,
-    )
 
     def __str__(self):
-        return f"id: {self.pk} | {self.author} --> '{self.text}' | message_type: {self.message_type} | supportgroup: {self.supportgroup}"
+        return f"id: {self.pk} | {self.author} --> '{self.text}' | required_membership_type: {str(self.required_membership_type)} | supportgroup: {self.supportgroup}"
 
     class Meta:
         verbose_name = "Message de groupe"
