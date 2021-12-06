@@ -32,6 +32,7 @@ from agir.lib.admin import (
     CenterOnFranceMixin,
     DepartementListFilter,
     RegionListFilter,
+    CirconscriptionLegislativeFilter,
 )
 from agir.lib.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.utils import generate_token_params, front_url
@@ -219,6 +220,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     list_filter = (
         SegmentFilter,
+        CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,
         "is_insoumise",
