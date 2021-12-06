@@ -10,7 +10,6 @@ import { Hide } from "@agir/front/genericComponents/grid";
 import NotificationSettingLink from "@agir/notifications/NotificationSettings/NotificationSettingLink";
 
 import MessageThreadCard from "./MessageThreadCard";
-import MessageThreadCardOrganization from "./MessageThreadCardOrganization";
 
 const StyledNewMessageButton = styled.div`
   padding: 0.5rem 1.5rem 1.5rem;
@@ -69,7 +68,6 @@ const MessageThreadMenu = (props) => {
     selectedMessageId,
     onSelect,
     writeNewMessage,
-    isOrganizationMessage,
     group,
     ...rest
   } = props;
@@ -101,14 +99,6 @@ const MessageThreadMenu = (props) => {
         </StyledNewMessageButton>
       ) : null}
       <ul>
-        {isOrganizationMessage && group && (
-          <MessageThreadCardOrganization
-            isSelected={true}
-            disabled={isLoading}
-            group={group}
-          />
-        )}
-
         {messages.map((message) => (
           <MessageThreadCard
             key={message.id}

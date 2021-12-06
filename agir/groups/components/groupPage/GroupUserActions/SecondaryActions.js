@@ -5,11 +5,15 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import ShareLink from "@agir/front/genericComponents/ShareLink";
-import Spacer from "@agir/front/genericComponents/Spacer";
 
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import ShareContentUrl from "@agir/front/genericComponents/ShareContentUrl";
+
+import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
+import { useSelectMessage } from "@agir/msgs/common/hooks";
+import * as groupAPI from "@agir/groups/api";
 
 const StyledLink = styled(Link)``;
 const StyledContainer = styled.div`
@@ -47,20 +51,33 @@ const StyledContainer = styled.div`
 `;
 
 const SecondaryActions = ({ id, isCertified, routes }) => {
+  const user = useSelector(getUser);
+  const onSelectMessage = useSelectMessage();
+
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
 
   const handleShareClose = useCallback(() => setIsShareOpen(false), []);
   const handleShareOpen = useCallback(() => setIsShareOpen(true), []);
 
+  const handleMessageClose = useCallback(() => setMessageModalOpen(false), []);
+  const handleMessageOpen = useCallback(() => setMessageModalOpen(true), []);
+
+  const sendPrivateMessage = async (msg) => {
+    const message = {
+      subject: msg.subject,
+      text: msg.text,
+    };
+    const result = await groupAPI.createPrivateMessage(id, message);
+    onSelectMessage(result.data.id);
+  };
+
   return (
     <StyledContainer>
-      <StyledLink
-        route="groupOrganizationMessage"
-        routeParams={{ groupPk: id }}
-      >
+      <button type="button" onClick={handleMessageOpen}>
         <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
         <span>Contacter</span>
-      </StyledLink>
+      </button>
       {isCertified && (
         <StyledLink route="donations" params={{ group: id }}>
           <RawFeatherIcon name="upload" width="1.5rem" height="1.5rem" />
@@ -78,6 +95,13 @@ const SecondaryActions = ({ id, isCertified, routes }) => {
       >
         <ShareContentUrl url={routes.details} />
       </ModalConfirmation>
+      <MessageModal
+        shouldShow={messageModalOpen}
+        onClose={handleMessageClose}
+        privateGroupId={id}
+        onSend={sendPrivateMessage}
+        user={user}
+      />
     </StyledContainer>
   );
 };

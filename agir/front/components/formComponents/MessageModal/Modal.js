@@ -144,6 +144,7 @@ const Modal = (props) => {
     loadMoreEvents,
     message,
     onSelectGroup,
+    privateGroupId,
   } = props;
 
   const initialMessage = useMemo(() => {
@@ -166,6 +167,9 @@ const Modal = (props) => {
   const [selectedGroup, setSelectedGroup] = useState(message?.group || null);
 
   const maySend = useMemo(() => {
+    if (privateGroupId) {
+      return true;
+    }
     let maySend =
       !isLoading &&
       selectedEvent &&
@@ -177,7 +181,15 @@ const Modal = (props) => {
       return maySend && selectedGroup;
     }
     return maySend;
-  }, [groups, isLoading, selectedEvent, subject, text, selectedGroup]);
+  }, [
+    groups,
+    isLoading,
+    selectedEvent,
+    subject,
+    text,
+    selectedGroup,
+    privateGroupId,
+  ]);
 
   const handleChangeMessage = useCallback((prop, text) => {
     if (prop === "subject") {
@@ -266,7 +278,7 @@ const Modal = (props) => {
           >
             <RawFeatherIcon name={hasBackButton ? "arrow-left" : "x"} />
           </StyledIconButton>
-          {selectedEvent ? (
+          {(selectedEvent || !!privateGroupId) && (
             <Button
               color="secondary"
               small
@@ -275,12 +287,12 @@ const Modal = (props) => {
             >
               Publier
             </Button>
-          ) : null}
+          )}
         </StyledModalHeader>
         <StyledModalBody onKeyDown={handleSendOnCtrlEnter}>
           {Array.isArray(groups) && !selectedGroup ? (
             <GroupStep groups={groups} onSelectGroup={handleSelectGroup} />
-          ) : !selectedEvent ? (
+          ) : !selectedEvent && !privateGroupId ? (
             <EventStep
               events={eventOptions}
               onSelectEvent={handleSelectEvent}
@@ -298,16 +310,18 @@ const Modal = (props) => {
               disabled={isLoading}
               maxLength={TEXT_MAX_LENGTH}
               subjectMaxLength={SUBJECT_MAX_LENGTH}
+              privateGroupId={privateGroupId}
+              group={message?.group}
             />
           )}
         </StyledModalBody>
-        {selectedEvent ? (
+        {(selectedEvent || !!privateGroupId) && (
           <StyledModalFooter>
             <Button color="secondary" disabled={!maySend} onClick={handleSend}>
               Publier le message
             </Button>
           </StyledModalFooter>
-        ) : null}
+        )}
       </StyledModalContent>
     </ModalWrapper>
   );

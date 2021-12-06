@@ -82,11 +82,6 @@ supportgroup_patterns = [
         name="view_group_messages",
     ),
     path(
-        "message/organisation/",
-        views.BaseAppSoftAuthView.as_view(),
-        name="view_group_message_organisation",
-    ),
-    path(
         "message/<uuid:message_pk>/",
         views.BaseAppSoftAuthView.as_view(),
         name="view_group_message",

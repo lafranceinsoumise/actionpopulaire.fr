@@ -27,8 +27,6 @@ import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import MessageThreadList from "./MessageThreadList";
 import EmptyMessagePage from "./EmptyMessagePage";
 
-import { routeConfig } from "@agir/front/app/routes.config";
-import { useRouteMatch } from "react-router-dom";
 import { getGroupEndpoint } from "@agir/groups/api";
 import useSWR from "swr";
 
@@ -89,12 +87,6 @@ const MessagePage = ({ messagePk, groupPk }) => {
     onSelectMessage
   );
 
-  const TITLE_ORGANIZATION = routeConfig.groupOrganizationMessage.label;
-
-  const isOrganizationMessage = useRouteMatch(
-    routeConfig.groupOrganizationMessage.getLink({ groupPk: groupPk || "/" })
-  );
-
   // Pause messages' autorefresh while an action is ongoing
   isAutoRefreshPausedRef.current = isLoading || !!messageAction;
 
@@ -105,8 +97,6 @@ const MessagePage = ({ messagePk, groupPk }) => {
 
   const pageTitle = currentMessage
     ? getMessageSubject(currentMessage)
-    : isOrganizationMessage
-    ? TITLE_ORGANIZATION
     : "Messages";
 
   useEffect(() => {
@@ -148,8 +138,7 @@ const MessagePage = ({ messagePk, groupPk }) => {
                 isLoading={isLoading}
               />
             )}
-            {isOrganizationMessage ||
-            (Array.isArray(messages) && messages.length > 0) ? (
+            {Array.isArray(messages) && messages.length > 0 ? (
               <MessageThreadList
                 isLoading={isLoading}
                 messages={messages}
@@ -165,7 +154,6 @@ const MessagePage = ({ messagePk, groupPk }) => {
                 user={user}
                 writeNewMessage={writeNewMessage}
                 onComment={writeNewComment}
-                isOrganizationMessage={isOrganizationMessage}
                 group={group}
               />
             ) : (

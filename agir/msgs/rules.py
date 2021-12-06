@@ -12,6 +12,7 @@ def is_authenticated_person(role):
 
 @rules.predicate
 def is_own_organization_message(role, message=None):
+
     if message is None:
         return False
 
@@ -31,7 +32,7 @@ def is_own_organization_message(role, message=None):
 
     # Is in required roles
     return supportgroup.memberships.filter(
-        pk=role.person.pk, membership_type__gte=message.required_membership_type
+        person_id=role.person.pk, membership_type__gte=message.required_membership_type
     ).exists()
 
 

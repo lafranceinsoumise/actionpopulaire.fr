@@ -11,7 +11,6 @@ import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import MessageCard from "@agir/front/genericComponents/MessageCard";
 
-import MessageOrganizationCard from "./MessageOrganizationCard";
 import MessageThreadMenu from "./MessageThreadMenu";
 import { routeConfig } from "@agir/front/app/routes.config";
 
@@ -119,7 +118,6 @@ const DesktopThreadList = (props) => {
     onDeleteComment,
     writeNewMessage,
     notificationSettingLink,
-    isOrganizationMessage,
     group,
     onSend,
   } = props;
@@ -130,17 +128,12 @@ const DesktopThreadList = (props) => {
   );
 
   useEffect(() => {
-    // Dont auto-select message for organization message
-    if (isOrganizationMessage) {
-      return;
-    }
-
     // Auto-select first message on desktop
     !selectedMessagePk &&
       Array.isArray(messages) &&
       messages[0] &&
       onSelect(messages[0].id, true);
-  }, [messages, selectedMessagePk, onSelect, isOrganizationMessage]);
+  }, [messages, selectedMessagePk, onSelect]);
 
   return (
     <StyledList>
@@ -151,23 +144,10 @@ const DesktopThreadList = (props) => {
         notificationSettingLink={notificationSettingLink}
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
-        isOrganizationMessage={isOrganizationMessage}
         group={group}
       />
       <StyledContent ref={scrollableRef}>
-        <PageFadeIn
-          ready={
-            (selectedMessagePk && selectedMessage) || isOrganizationMessage
-          }
-        >
-          {isOrganizationMessage && group && (
-            <MessageOrganizationCard
-              group={group}
-              user={user}
-              isLoading={isLoading}
-            />
-          )}
-
+        <PageFadeIn ready={selectedMessagePk && selectedMessage}>
           {selectedMessage && (
             <MessageCard
               autoScrollOnComment
@@ -214,7 +194,6 @@ const MobileThreadList = (props) => {
     onDeleteComment,
     writeNewMessage,
     notificationSettingLink,
-    isOrganizationMessage,
     group,
     onSend,
   } = props;
@@ -233,7 +212,6 @@ const MobileThreadList = (props) => {
         notificationSettingLink={notificationSettingLink}
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
-        isOrganizationMessage={isOrganizationMessage}
         group={group}
       />
       <Panel
@@ -243,19 +221,11 @@ const MobileThreadList = (props) => {
           paddingBottom: "0",
           background: "white",
         }}
-        shouldShow={!!selectedMessage || isOrganizationMessage}
+        shouldShow={!!selectedMessage}
         noScroll
         isBehindTopBar
       >
         <StyledContent ref={scrollableRef}>
-          {isOrganizationMessage && group && (
-            <MessageOrganizationCard
-              group={group}
-              user={user}
-              isLoading={isLoading}
-            />
-          )}
-
           {selectedMessage && (
             <MessageCard
               autoScrollOnComment
@@ -319,7 +289,6 @@ DesktopThreadList.propTypes =
       onReportComment: PropTypes.func,
       onDeleteComment: PropTypes.func,
       writeNewMessage: PropTypes.func,
-      isOrganizationMessage: PropTypes.bool,
       group: PropTypes.shape({
         id: PropTypes.string,
         name: PropTypes.string,

@@ -272,19 +272,6 @@ export const routeConfig = {
     Component: GroupPage,
     isPartial: true,
   }),
-  groupOrganizationMessage: new RouteConfig({
-    id: "groupOrganizationMessage",
-    path: [
-      "/groupes/:groupPk/message/organisation/",
-      "/groupes/:groupPk/message/organisation/parametres/",
-    ],
-    params: { groupPk: null },
-    exact: true,
-    neededAuthentication: AUTHENTICATION.SOFT,
-    label: "Discussion avec les animateurs",
-    Component: MessagePage,
-    hideFeedbackButton: true,
-  }),
   groupMessage: new RouteConfig({
     id: "groupMessage",
     path: "/groupes/:groupPk/message/:messagePk/",
