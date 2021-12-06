@@ -20,6 +20,7 @@ from agir.lib.admin import (
     DepartementListFilter,
     RegionListFilter,
     CountryListFilter,
+    CirconscriptionLegislativeFilter,
 )
 from agir.lib.display import display_price
 from agir.lib.utils import front_url
@@ -217,6 +218,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "published",
         GroupHasEventsFilter,
         CountryListFilter,
+        CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",
@@ -365,6 +367,10 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     partial(self.allocation, show_add_button=True), self.allocation
                 )
         return cl
+
+    class Media:
+        # classe vide obligatoire pour faire marcher certains autocomplete fields
+        pass
 
 
 @admin.register(proxys.ThematicGroup)
