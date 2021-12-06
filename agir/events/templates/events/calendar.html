@@ -4,6 +4,7 @@
 {% block title %}{{ calendar.name }}{% endblock %}
 
 {% block main %}
+{% url 'ics_calendar' calendar.slug as calendar_url %}
 {% include 'events/calendar_subscribe_modal.html' with url=calendar_url no_trigger=True %}
 <div class="row">
   <div class="col-xs-12 margintopmore text-right" style="line-height: 45px; margin-bottom: 0;">
@@ -24,8 +25,6 @@
     <hr />
   </div>
   <div class="col-xs-12">
-    {% url 'ics_calendar' calendar.slug as calendar_url %}
-
     {% if calendar.image %}
       <img src="{{ calendar.image.url }}" class="img-responsive center-block">
     {% endif %}
