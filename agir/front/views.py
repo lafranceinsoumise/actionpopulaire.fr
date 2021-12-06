@@ -140,7 +140,7 @@ class UserMessageView(
     GlobalOrObjectPermissionRequiredMixin,
     UserMessagesView,
 ):
-    permission_required = ("msgs.view_message",)
+    permission_required = ("msgs.view_supportgroupmessage",)
 
     queryset = SupportGroupMessage.objects.filter(deleted=False)
 

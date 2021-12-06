@@ -463,7 +463,7 @@ def send_message_notification_email(message_pk):
     recipients = Person.objects.filter(
         id__in=memberships.values_list("person_id", flat=True)
     )
-    recipients_id = ([recipient.id] for recipient in recipients)
+    recipients_id = [recipient.id for recipient in recipients]
 
     recipients = Person.objects.exclude(id=message.author.id).filter(
         id__in=recipients_id,
@@ -518,7 +518,7 @@ def send_comment_notification_email(comment_pk):
         persons_allowed = Person.objects.filter(
             id__in=memberships.values_list("person_id", flat=True)
         )
-        persons_allowed_id = ([person.id] for person in persons_allowed)
+        persons_allowed_id = [person.id for person in persons_allowed]
         persons_allowed_id += [message_initial.author.id]
 
         recipients = Person.objects.exclude(id=comment.author.id).filter(

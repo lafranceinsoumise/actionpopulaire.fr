@@ -57,6 +57,7 @@ from agir.msgs.actions import update_recipient_message
 from agir.people.models import Person
 from agir.groups.models import Membership
 
+
 __all__ = [
     "LegacyGroupSearchAPIView",
     "GroupSearchAPIView",
@@ -87,7 +88,10 @@ __all__ = [
     "GroupUpdateOwnMembershipAPIView",
 ]
 
-from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
+from agir.lib.rest_framework_permissions import (
+    GlobalOrObjectPermissions,
+    IsPersonPermission,
+)
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 
 from agir.msgs.serializers import (
@@ -360,7 +364,10 @@ class GroupMessagesPermissions(GlobalOrObjectPermissions):
 
 class GroupMessagesAPIView(ListCreateAPIView):
     serializer_class = SupportGroupMessageSerializer
-    permission_classes = (GroupMessagesPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupMessagesPermissions,
+    )
     pagination_class = APIPaginator
     membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
 
@@ -370,15 +377,10 @@ class GroupMessagesAPIView(ListCreateAPIView):
         except SupportGroup.DoesNotExist:
             raise NotFound()
 
-        self.check_object_permissions(request, self.supportgroup)
         super().initial(request, *args, **kwargs)
+        self.check_object_permissions(request, self.supportgroup)
 
     def get_queryset(self):
-        if not (
-            self.request.user.is_authenticated and self.request.user.person is not None
-        ):
-            raise exceptions.AuthenticationFailed("Not connected")
-
         person = self.request.user.person
         memberships = self.supportgroup.memberships.filter(person=person)
         user_permission = 0

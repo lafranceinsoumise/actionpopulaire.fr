@@ -30,10 +30,24 @@ def is_own_organization_message(role, message=None):
         return True
 
     # Is in required roles
-    is_valid_membership = supportgroup.memberships.filter(
+    return supportgroup.memberships.filter(
         pk=role.person.pk, membership_type__gte=message.required_membership_type
     ).exists()
-    return is_valid_membership
+
+
+@rules.predicate
+def is_organization_message(role, message=None):
+    if message is None:
+        return False
+
+    if not isinstance(message, SupportGroupMessage):
+        return False
+
+    supportgroup = message.supportgroup
+    if supportgroup is None:
+        return False
+
+    return message.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER
 
 
 @rules.predicate
@@ -42,14 +56,9 @@ def is_msg_author(role, msg=None):
 
 
 rules.add_perm(
-    "msgs.view_message",
-    is_authenticated_person
-    & (is_own_organization_message | (~is_own_organization_message & is_group_member)),
-)
-rules.add_perm(
     "msgs.view_supportgroupmessage",
     is_authenticated_person
-    & (is_own_organization_message | (~is_own_organization_message & is_group_member)),
+    & (is_own_organization_message | (~is_organization_message & is_group_member)),
 )
 rules.add_perm(
     "msgs.add_supportgroupmessage",
@@ -65,7 +74,7 @@ rules.add_perm(
 rules.add_perm(
     "msgs.add_supportgroupmessagecomment",
     is_authenticated_person
-    & (is_own_organization_message | (~is_own_organization_message & is_group_member)),
+    & (is_own_organization_message | (~is_organization_message & is_group_member)),
 )
 rules.add_perm(
     "msgs.change_supportgroupmessagecomment", is_authenticated_person & is_msg_author

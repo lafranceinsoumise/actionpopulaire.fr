@@ -101,18 +101,12 @@ class UserMessagesAPIView(ListAPIView):
             .order_by("-last_update", "-created")
         )
 
-        list_group_messages = list(group_messages)
-        # Remove messages where person is not in allowed membership types
-        for msg in list_group_messages:
-            if msg.author.id == person.id:
-                continue
-            user_permission = Membership.objects.get(
-                person_id=person.id, supportgroup_id=msg.supportgroup.id
-            ).membership_type
-            if msg.required_membership_type > user_permission:
-                list_group_messages.remove(msg)
-
-        return list_group_messages
+        # Filter messages where person is not in allowed membership types
+        return [
+            msg
+            for msg in group_messages
+            if person.role.has_perm("msgs.view_supportgroupmessage", msg)
+        ]
 
 
 @api_view(["GET"])
