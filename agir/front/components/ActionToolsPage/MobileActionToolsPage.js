@@ -21,7 +21,7 @@ const StyledButtons = styled.div`
 `;
 
 const StyledPage = styled.main`
-  padding: 1rem 1rem 4rem;
+  padding: 1rem 1rem 5.5rem;
 
   h2 {
     font-size: 18px;

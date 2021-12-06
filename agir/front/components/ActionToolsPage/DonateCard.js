@@ -63,7 +63,7 @@ export const DonateCard = (props) => {
 
   return (
     <StyledCard>
-      <h4>Je fais un dons pour la campagne</h4>
+      <h4>Je fais un don pour la campagne</h4>
       <animated.p>
         <animated.span>
           {animatedAmount.to((x) => formatCurrency(x.toFixed(0)))}
