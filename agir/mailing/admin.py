@@ -1,7 +1,13 @@
+from django.template.response import TemplateResponse
+from django.urls import reverse
+
+from agir.api import admin_site
 from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.forms import ModelForm, CheckboxSelectMultiple
+from nuntius.admin import CampaignAdmin, CampaignSentEventAdmin
+from nuntius.models import Campaign, CampaignSentEvent
 
 from agir.lib.admin import CenterOnFranceMixin
 from agir.mailing.models import Segment
@@ -131,3 +137,45 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
 
     def tags_list(self, instance):
         return ", ".join(str(t) for t in instance.tags.all())
+
+
+@admin.register(Campaign)
+class NuntiusCampaignAdmin(CampaignAdmin):
+    list_display = (
+        "name",
+        "message_subject",
+        "segment",
+        "status",
+        "send_button",
+    )
+
+    def send_view(self, request, pk):
+        if request.POST.get("confirmation"):
+            return super().send_view(request, pk)
+
+        campaign = Campaign.objects.get(pk=pk)
+        # Ask for the user to confirm before actually sending the campaign
+        # if the campaign's segment contains one or more subscribers
+        # with no newsletter subscription
+        should_confirm = (
+            campaign.segment.get_subscribers_queryset()
+            .filter(newsletters__len=0)
+            .exists()
+        )
+
+        if not should_confirm:
+            return super().send_view(request, pk)
+
+        request.current_app = self.admin_site.name
+        context = {
+            "pk": pk,
+            "edit_campaign_link": reverse("admin:nuntius_campaign_change", args=[pk]),
+        }
+        return TemplateResponse(
+            request, "admin/send_campaign_action_confirmation.html", context
+        )
+
+
+@admin.register(CampaignSentEvent)
+class NuntiusCampaignSentEventAdmin(CampaignSentEventAdmin):
+    pass
