@@ -369,7 +369,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         return cl
 
     class Media:
-        # classe vide obligatoire pour faire marcher certains autocomplete fields
+        # classe Media requise par le CirconscriptionLegislativeFilter, quand bien même elle est vide
         pass
 
 

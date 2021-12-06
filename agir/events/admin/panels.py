@@ -19,6 +19,7 @@ from agir.lib.admin import (
     DepartementListFilter,
     RegionListFilter,
     CountryListFilter,
+    CirconscriptionLegislativeFilter,
 )
 from agir.lib.utils import front_url
 from agir.people.admin.views import FormSubmissionViewsMixin
@@ -334,6 +335,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "visibility",
         EventHasReportFilter,
         CountryListFilter,
+        CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",
@@ -504,6 +506,10 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 name="events_event_export_summary",
             ),
         ] + super().get_urls()
+
+    class Media:
+        # classe Media requise par le CirconscriptionLegislativeFilter, quand bien même elle est vide
+        pass
 
 
 @admin.register(models.Calendar)
