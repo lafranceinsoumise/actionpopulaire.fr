@@ -53,12 +53,12 @@ const Carousel = styled(animated.div)`
 
   &::before {
     left: 0;
-    background: linear-gradient(90deg, ${style.black25}, transparent);
+    background: linear-gradient(90deg, ${style.black25}, ${style.black25}00);
   }
 
   &::after {
     right: 0;
-    background: linear-gradient(90deg, transparent, ${style.black25});
+    background: linear-gradient(-90deg, ${style.black25}, ${style.black25}00);
   }
 `;
 
