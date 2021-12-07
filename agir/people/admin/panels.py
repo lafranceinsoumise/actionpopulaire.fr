@@ -451,6 +451,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             "media": self.media,
             "preserved_filters": self.get_preserved_filters(request),
             "chart_data": json.dumps(list(chart_data), cls=DjangoJSONEncoder),
+            "changelist_link": f'{reverse("admin:people_person_changelist")}?{request.GET.urlencode()}',
         }
 
         return TemplateResponse(
