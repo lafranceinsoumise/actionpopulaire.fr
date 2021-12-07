@@ -154,7 +154,6 @@ const MessagePage = ({ messagePk, groupPk }) => {
                 user={user}
                 writeNewMessage={writeNewMessage}
                 onComment={writeNewComment}
-                group={group}
               />
             ) : (
               <EmptyMessagePage />

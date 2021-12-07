@@ -118,7 +118,6 @@ const DesktopThreadList = (props) => {
     onDeleteComment,
     writeNewMessage,
     notificationSettingLink,
-    group,
     onSend,
   } = props;
 
@@ -144,7 +143,6 @@ const DesktopThreadList = (props) => {
         notificationSettingLink={notificationSettingLink}
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
-        group={group}
       />
       <StyledContent ref={scrollableRef}>
         <PageFadeIn ready={selectedMessagePk && selectedMessage}>
@@ -194,7 +192,6 @@ const MobileThreadList = (props) => {
     onDeleteComment,
     writeNewMessage,
     notificationSettingLink,
-    group,
     onSend,
   } = props;
 
@@ -212,7 +209,6 @@ const MobileThreadList = (props) => {
         notificationSettingLink={notificationSettingLink}
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
-        group={group}
       />
       <Panel
         style={{
@@ -289,11 +285,6 @@ DesktopThreadList.propTypes =
       onReportComment: PropTypes.func,
       onDeleteComment: PropTypes.func,
       writeNewMessage: PropTypes.func,
-      group: PropTypes.shape({
-        id: PropTypes.string,
-        name: PropTypes.string,
-        referents: PropTypes.array,
-      }),
     };
 
 export default MessageThreadList;

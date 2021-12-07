@@ -68,7 +68,6 @@ const MessageThreadMenu = (props) => {
     selectedMessageId,
     onSelect,
     writeNewMessage,
-    group,
     ...rest
   } = props;
 

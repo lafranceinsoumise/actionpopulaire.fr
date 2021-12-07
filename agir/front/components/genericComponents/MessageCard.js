@@ -441,7 +441,7 @@ const MessageCard = (props) => {
 
   let subject = getMessageSubject(message);
   if (isOrganizationMessage && !subject) {
-    subject = `Message privé avec les organisateurs de '${group.name}'`;
+    subject = `Message privé avec les animateur⋅ices de '${group.name}'`;
   }
 
   return (
