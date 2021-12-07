@@ -112,3 +112,22 @@ class Subscription(UUIDIdentified, TimeStampedModel):
                 name="unique_without_membership",
             ),
         ]
+
+class MuteMessage(UUIDIdentified):
+    person = models.ForeignKey(
+        "people.Person",
+        on_delete=models.CASCADE,
+        related_name="muted_person",
+    )
+    message = models.ForeignKey(
+        "msgs.SupportGroupMessage",
+        on_delete=models.CASCADE,
+        related_name="muted_message",
+    )
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["person", "message"],
+                name="unique_person_message",
+            ),
+        ]
