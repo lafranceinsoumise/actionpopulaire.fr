@@ -26,7 +26,7 @@ from rangefilter.filters import DateRangeFilter
 
 from agir.authentication.models import Role
 from agir.elus.models import types_elus
-from agir.groups.models import SupportGroup, Membership
+from agir.groups.models import Membership
 from agir.lib.admin import (
     DisplayContactPhoneMixin,
     CenterOnFranceMixin,
@@ -469,6 +469,13 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return request.user.has_perm("people.export_people")
 
     def changelist_view(self, request, extra_context=None):
+        if extra_context is None:
+            extra_context = {}
+
+        extra_context[
+            "statistics_link"
+        ] = f'{reverse("admin:people_person_statistics")}?{request.GET.urlencode()}'
+
         if (
             hasattr(request, "POST")
             and request.POST.get("action", None)
