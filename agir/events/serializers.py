@@ -562,6 +562,20 @@ class CreateEventSerializer(serializers.Serializer):
 
 class UpdateEventSerializer(serializers.ModelSerializer):
     PAST_ONLY_FIELDS = []
+    UPCOMING_ONLY_FIELDS = [
+        "name",
+        "subtype",
+        "description",
+        "image",
+        "startTime",
+        "endTime",
+        "timezone",
+        "facebook",
+        "onlineUrl",
+        "contact",
+        "location",
+        "organizerGroup",
+    ]
 
     id = serializers.UUIDField(read_only=True)
     subtype = serializers.PrimaryKeyRelatedField(
@@ -589,7 +603,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
             forbidden_fields = [
                 field
                 for field, value in data.items()
-                if field not in self.PAST_ONLY_FIELDS
+                if field in self.UPCOMING_ONLY_FIELDS
             ]
         else:
             error_message = "Ce champs ne peut être modifié avant la fin de l'événement"
