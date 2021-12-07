@@ -14,7 +14,7 @@ from django.db import IntegrityError
 from django.forms import fields_for_model
 from django.utils.formats import localize
 from django.utils.timezone import get_current_timezone
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 from django.utils.html import format_html
 from django.contrib.gis.forms.widgets import OSMWidget
 from crispy_forms.helper import FormHelper
@@ -26,7 +26,7 @@ from agir.lib.form_components import *
 from agir.lib.form_fields import AcceptCreativeCommonsLicenceField
 from agir.lib.models import LocationMixin
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django_countries import countries
 
 __all__ = ["TagMixin", "LocationFormMixin", "ContactFormMixin", "MetaFieldsMixin"]
@@ -192,7 +192,7 @@ class GeocodingBaseForm(forms.ModelForm):
                 FullCol(
                     HTML(
                         format_html(
-                            ugettext(
+                            gettext(
                                 "<strong>Type de coordonnées actuelles</strong> : {}"
                             ),
                             self.instance.get_coordinates_type_display(),

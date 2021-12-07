@@ -9,7 +9,7 @@ from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import format_html_join, format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from agir.events.models import Event, OrganizerConfig
 from agir.lib.celery import emailing_task, http_task, post_save_task

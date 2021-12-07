@@ -2,12 +2,11 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.urls import reverse_lazy
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import RedirectView
 from oauth2_provider.views import AuthorizationView
 
 from agir.authentication.view_mixins import HardLoginRequiredMixin
-
 
 __all__ = [
     "RedirectToMixin",
@@ -40,7 +39,7 @@ class RedirectToMixin:
             s.strip("/").rsplit("/", 1)[-1]
             for s in [settings.MAIN_DOMAIN, settings.API_DOMAIN, settings.FRONT_DOMAIN]
         }
-        url_is_safe = is_safe_url(
+        url_is_safe = url_has_allowed_host_and_scheme(
             url=redirect_to,
             allowed_hosts=allowed_hosts,
             require_https=self.request.is_secure(),

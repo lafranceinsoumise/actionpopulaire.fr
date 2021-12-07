@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
 from agir.lib.models import (

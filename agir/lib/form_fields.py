@@ -12,7 +12,7 @@ from django.forms.widgets import (
     SelectMultiple,
 )
 from django.utils import formats
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_countries import countries
 from phonenumber_field.phonenumber import PhoneNumber
 

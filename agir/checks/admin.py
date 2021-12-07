@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _, ugettext, ngettext
+from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
 from agir.donations.form_fields import MoneyField
 from agir.payments.actions.payments import notify_status_change
@@ -50,11 +50,11 @@ class CheckPaymentSearchForm(forms.Form):
 
         if len(missing_checks) == 1:
             raise forms.ValidationError(
-                ugettext("Le chèque n°{n} n'existe pas.").format(n=missing_checks[0])
+                gettext("Le chèque n°{n} n'existe pas.").format(n=missing_checks[0])
             )
         elif missing_checks:
             raise forms.ValidationError(
-                ugettext("Les paiements de numéros {numeros} n'existent pas.").format(
+                gettext("Les paiements de numéros {numeros} n'existent pas.").format(
                     numeros=", ".join([str(i) for i in missing_checks])
                 )
             )

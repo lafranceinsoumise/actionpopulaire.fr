@@ -17,7 +17,7 @@ from agir.people.models import Person
 
 class GroupMessagesTestAPICase(APITestCase):
     def setUp(self):
-        self.manager = Person.objects.create(
+        self.manager = Person.objects.create_person(
             email="member@example.com",
             create_role=True,
         )
@@ -30,7 +30,7 @@ class GroupMessagesTestAPICase(APITestCase):
         self.message = SupportGroupMessage.objects.create(
             supportgroup=self.group, author=self.manager, text="Lorem"
         )
-        self.reporter = Person.objects.create(
+        self.reporter = Person.objects.create_person(
             email="reporter@example.com", create_role=True
         )
         self.client.force_login(self.reporter.role)
@@ -50,7 +50,7 @@ class GroupMessagesTestAPICase(APITestCase):
 class UserMessageRecipientsAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.user = Person.objects.create(
+        self.user = Person.objects.create_person(
             email="user@example.com",
             create_role=True,
         )
@@ -84,7 +84,7 @@ class UserMessageRecipientsAPITestCase(APITestCase):
 class UserMessagesAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.user = Person.objects.create(
+        self.user = Person.objects.create_person(
             email="user@example.com",
             create_role=True,
         )
@@ -111,7 +111,7 @@ class UserMessagesAPITestCase(APITestCase):
 
     def test_authenticated_user_can_get_only_messages_from_his_her_groups(self):
         other_group = SupportGroup.objects.create()
-        other_user = Person.objects.create(
+        other_user = Person.objects.create_person(
             email="other_user@example.com", create_role=True
         )
         other_group_message = SupportGroupMessage.objects.create(
@@ -153,7 +153,7 @@ class UserMessagesAPITestCase(APITestCase):
 
     def test_authenticated_user_can_get_messages_unread_comment_counts(self):
         SupportGroupMessage.objects.all().delete()
-        commenter = Person.objects.create(
+        commenter = Person.objects.create_person(
             email="commenter@example.com", create_role=True
         )
         read_message = SupportGroupMessage.objects.create(
@@ -202,7 +202,9 @@ class UserMessagesAPITestCase(APITestCase):
 class UpdateRecipientMessageActionTestCase(APITestCase):
     def test_recipient_message_modified_field_is_updated(self):
         supportgroup = SupportGroup.objects.create()
-        recipient = Person.objects.create(email="recipient@agis.msgs", create_role=True)
+        recipient = Person.objects.create_person(
+            email="recipient@agis.msgs", create_role=True
+        )
         message = SupportGroupMessage.objects.create(
             author=recipient, supportgroup=supportgroup
         )
@@ -221,7 +223,7 @@ class UpdateRecipientMessageActionTestCase(APITestCase):
 class UserUnreadMessageCountAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.user = Person.objects.create(
+        self.user = Person.objects.create_person(
             email="user@example.com",
             create_role=True,
         )
@@ -246,15 +248,21 @@ class UserUnreadMessageCountAPITestCase(APITestCase):
 class GetUnreadMessageCountActionTestCase(APITestCase):
     def setUp(self):
         self.supportgroup = SupportGroup.objects.create()
-        self.reader = Person.objects.create(email="reader@agis.msgs", create_role=True)
-        self.writer = Person.objects.create(email="writer@agir.msgs", create_role=True)
+        self.reader = Person.objects.create_person(
+            email="reader@agis.msgs", create_role=True
+        )
+        self.writer = Person.objects.create_person(
+            email="writer@agir.msgs", create_role=True
+        )
         Membership.objects.create(supportgroup=self.supportgroup, person=self.reader)
         Membership.objects.create(supportgroup=self.supportgroup, person=self.writer)
 
     def test_group_messages_before_membership_creation_are_not_counted(self):
         supportgroup = SupportGroup.objects.create()
-        writer = Person.objects.create(email="writer@group.com", create_role=True)
-        new_member = Person.objects.create(
+        writer = Person.objects.create_person(
+            email="writer@group.com", create_role=True
+        )
+        new_member = Person.objects.create_person(
             email="new_member@group.com", create_role=True
         )
 
@@ -367,8 +375,12 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
 class GetUnreadMessageCommentCountActionTestCase(APITestCase):
     def setUp(self):
         self.supportgroup = SupportGroup.objects.create()
-        self.reader = Person.objects.create(email="reader@agis.msgs", create_role=True)
-        self.writer = Person.objects.create(email="writer@agir.msgs", create_role=True)
+        self.reader = Person.objects.create_person(
+            email="reader@agis.msgs", create_role=True
+        )
+        self.writer = Person.objects.create_person(
+            email="writer@agir.msgs", create_role=True
+        )
         Membership.objects.create(supportgroup=self.supportgroup, person=self.writer)
         self.message = SupportGroupMessage.objects.create(
             author=self.writer, supportgroup=self.supportgroup, text="1"

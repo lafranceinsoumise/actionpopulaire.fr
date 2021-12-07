@@ -14,7 +14,7 @@ class TransferOperationAdmin(TestCase):
         )
 
         self.people = [
-            Person.objects.create(email=f"{i:02d}@exemple.fr", is_insoumise=True)
+            Person.objects.create_person(email=f"{i:02d}@exemple.fr", is_insoumise=True)
             for i in range(20)
         ]
         self.groups = [

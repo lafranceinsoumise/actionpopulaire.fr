@@ -121,14 +121,14 @@ class MergePeopleTestCase(FakeDataMixin, TestCase):
         self.assertTrue(Person.objects.filter(pk=user.pk).exists())
 
     def test_merging_people_correctly_update_search_value(self):
-        u1 = Person.objects.create(
+        u1 = Person.objects.create_person(
             email="userno1@agir.test",
             first_name="Foo",
             last_name="Bar",
             location_zip="75001",
             create_role=True,
         )
-        u2 = Person.objects.create(
+        u2 = Person.objects.create_person(
             email="userno2@agir.test",
             first_name="Jane",
             last_name="Doe",

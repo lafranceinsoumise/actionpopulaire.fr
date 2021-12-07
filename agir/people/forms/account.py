@@ -8,7 +8,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import Form, CharField
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from agir.lib.form_components import HalfCol
 from agir.lib.phone_numbers import (

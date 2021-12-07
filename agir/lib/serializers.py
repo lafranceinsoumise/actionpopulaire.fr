@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_countries.serializer_fields import CountryField
 from phonenumber_field.phonenumber import to_python
 from rest_framework import serializers, exceptions

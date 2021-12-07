@@ -9,7 +9,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.storage import default_storage
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from agir.lib.form_components import *
 from agir.lib.form_mixins import MetaFieldsMixin

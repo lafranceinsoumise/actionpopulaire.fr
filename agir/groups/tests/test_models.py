@@ -69,7 +69,7 @@ class GroupSubtypesTestCase(FakeDataMixin, TestCase):
 class MessageTestCase(TestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create()
-        self.member = Person.objects.create(
+        self.member = Person.objects.create_person(
             email="member@example.com",
             create_role=True,
         )

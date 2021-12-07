@@ -21,7 +21,7 @@ from django.template.response import TemplateResponse, SimpleTemplateResponse
 from django.urls import reverse, path
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rangefilter.filters import DateRangeFilter
 
 from agir.authentication.models import Role

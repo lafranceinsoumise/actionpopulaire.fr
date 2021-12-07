@@ -131,7 +131,7 @@ class EventTasksTestCase(TestCase):
             "location_name",
             "short_address",
         ]:
-            self.assert_(
+            self.assertTrue(
                 getattr(self.event, item) in text, "{} missing in message".format(item)
             )
 
@@ -150,7 +150,7 @@ class EventTasksTestCase(TestCase):
         }
 
         for name, value in mail_content.items():
-            self.assert_(value in text, "{} missing from mail".format(name))
+            self.assertTrue(value in text, "{} missing from mail".format(name))
 
         org_message = mail.outbox[1]
         self.assertEqual(org_message.recipients(), ["moi@moi.fr"])
@@ -166,7 +166,7 @@ class EventTasksTestCase(TestCase):
         }
 
         for name, value in mail_content.items():
-            self.assert_(value in text, "{} missing from mail".format(name))
+            self.assertTrue(value in text, "{} missing from mail".format(name))
 
     def test_changed_event_notification_mail(self):
         tasks.send_event_changed_notification(self.event.pk, ["name", "start_time"])
@@ -185,15 +185,15 @@ class EventTasksTestCase(TestCase):
         for recipient, message in messages.items():
             text = message.body.replace("\n", "")
 
-            self.assert_(self.event.name in text, "event name not in message")
-            self.assert_(
+            self.assertTrue(self.event.name in text, "event name not in message")
+            self.assertTrue(
                 front_url("quit_event", kwargs={"pk": self.event.pk}) in text,
                 "quit event link not in message",
             )
 
-            self.assert_(str(tasks.CHANGE_DESCRIPTION["information"]) in text)
-            self.assert_(str(tasks.CHANGE_DESCRIPTION["timing"]) in text)
-            self.assert_(str(tasks.CHANGE_DESCRIPTION["contact"]) not in text)
+            self.assertTrue(str(tasks.CHANGE_DESCRIPTION["information"]) in text)
+            self.assertTrue(str(tasks.CHANGE_DESCRIPTION["timing"]) in text)
+            self.assertTrue(str(tasks.CHANGE_DESCRIPTION["contact"]) not in text)
 
     def test_changed_event_notification_mail_no_subscriptions(self):
         tasks.send_event_changed_notification(
@@ -214,8 +214,8 @@ class EventTasksTestCase(TestCase):
         self.assertEqual(len(mail.outbox), 2)
 
         text = mail.outbox[0].body
-        self.assert_(self.event.name in text)
-        self.assert_(self.event.report_content[:100] in text)
+        self.assertTrue(self.event.name in text)
+        self.assertTrue(self.event.report_content[:100] in text)
         tasks.send_event_report(self.event.pk)
         # on verifie qu'il n'y a pas de mail suplémentaire
         self.assertEqual(len(mail.outbox), 2)

@@ -150,7 +150,7 @@ class NotificationTasksTestCase(TestCase):
         }
 
         for name, value in mail_content.items():
-            self.assert_(value in text, "{} missing from mail".format(name))
+            self.assertTrue(value in text, "{} missing from mail".format(name))
 
     def test_someone_joined_membership_limit_activity(self):
         supportgroup = SupportGroup.objects.create(
@@ -231,7 +231,7 @@ class NotificationTasksTestCase(TestCase):
         for recipient, message in messages.items():
             text = message.body.replace("\n", "")
 
-            self.assert_(self.group.name in text, "group name not in message")
+            self.assertTrue(self.group.name in text, "group name not in message")
             self.assertIn(
                 "/groupes/{}".format(self.group.pk), text, "group link not in message"
             )

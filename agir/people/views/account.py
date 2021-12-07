@@ -1,4 +1,6 @@
+from urllib.parse import quote
 from uuid import UUID
+
 
 from django.contrib import messages
 from django.db import IntegrityError
@@ -7,8 +9,7 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
-from django.utils.http import urlquote
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import UpdateView, DeleteView, FormView
@@ -158,7 +159,7 @@ class SendValidationSMSView(
         success_url = reverse_lazy("sms_code_validation")
         redirect_to = self.get_redirect_url()
         if redirect_to:
-            success_url += f"?{self.redirect_field_name}={urlquote(redirect_to)}"
+            success_url += f"?{self.redirect_field_name}={quote(redirect_to)}"
 
         return success_url
 
