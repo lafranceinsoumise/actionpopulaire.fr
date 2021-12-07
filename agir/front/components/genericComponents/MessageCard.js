@@ -456,8 +456,8 @@ const MessageCard = (props) => {
             <RawFeatherIcon name={"eye"} style={{ paddingRight: "6px" }} />
             <div>
               Cette discussion privée se déroule entre{" "}
-              {message.author.displayName} et les animateur·ices
-              du groupe <StyledGroupLink to={groupURL}>{group.name}</StyledGroupLink>
+              {message.author.displayName} et les animateur·ices du groupe{" "}
+              <StyledGroupLink to={groupURL}>{group.name}</StyledGroupLink>
             </div>
           </StyledPrivateVisibility>
         )}

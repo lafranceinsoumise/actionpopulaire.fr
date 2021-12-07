@@ -15,6 +15,7 @@ from agir.msgs.models import (
     SupportGroupMessage,
     SupportGroupMessageComment,
 )
+from agir.people.models import Person
 
 
 def update_recipient_message(message, recipient):
@@ -55,6 +56,8 @@ def get_unread_message_count(person_pk):
         .filter(memberships__person_id=person_pk)
         .values("id"),
     )
+    if not isinstance(person_pk, Person):
+        person_pk = Person.objects.get(pk=person_pk)
     messages_allowed_id = [
         msg.id
         for msg in messages

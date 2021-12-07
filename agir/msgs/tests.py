@@ -302,10 +302,24 @@ class UserUnreadMessageCountAPITestCase(APITestCase):
 class GetUnreadMessageCountActionTestCase(APITestCase):
     def setUp(self):
         self.supportgroup = SupportGroup.objects.create()
-        self.reader = Person.objects.create(email="reader@agis.msgs", create_role=True)
+        self.reader = Person.objects.create(email="reader@agir.msgs", create_role=True)
         self.writer = Person.objects.create(email="writer@agir.msgs", create_role=True)
         Membership.objects.create(supportgroup=self.supportgroup, person=self.reader)
         Membership.objects.create(supportgroup=self.supportgroup, person=self.writer)
+
+        self.user_referent = Person.objects.create(
+            email="referent@example.com",
+            create_role=True,
+        )
+        self.user_no_group = Person.objects.create(
+            email="user_no_group@example.com",
+            create_role=True,
+        )
+        Membership.objects.create(
+            person=self.user_referent,
+            supportgroup=self.supportgroup,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
 
     def test_group_messages_before_membership_creation_are_not_counted(self):
         supportgroup = SupportGroup.objects.create()
@@ -356,6 +370,19 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
         )
         unread_message_count = get_unread_message_count(self.reader.pk)
         self.assertEqual(unread_message_count, 1)
+
+        # One private message
+        SupportGroupMessage.objects.create(
+            author=self.user_no_group,
+            supportgroup=self.supportgroup,
+            text="Private message",
+            required_membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 1)
+
+        unread_message_count = get_unread_message_count(self.user_referent.pk)
+        self.assertEqual(unread_message_count, 2)
 
         # One unread message with one unread comment
         SupportGroupMessageComment.objects.create(
