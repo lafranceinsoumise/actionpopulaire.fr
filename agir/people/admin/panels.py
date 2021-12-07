@@ -37,6 +37,7 @@ from agir.lib.admin import (
 from agir.lib.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.utils import generate_token_params, front_url
 from agir.mailing.models import Segment
+from agir.people.actions.stats import get_statistics_for_queryset
 from agir.people.admin.actions import export_people_to_csv
 from agir.people.admin.forms import PersonAdminForm, PersonFormForm
 from agir.people.admin.inlines import RSVPInline, MembershipInline, EmailInline
@@ -421,9 +422,10 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 )
             return HttpResponseRedirect(request.path + "?" + ERROR_FLAG + "=1")
 
+        queryset = cl.get_queryset(request)
+        statistics = get_statistics_for_queryset(queryset)
         chart_data = (
-            cl.get_queryset(request)
-            .exclude(meta__subscriptions__NSP__date__isnull=True)
+            queryset.exclude(meta__subscriptions__NSP__date__isnull=True)
             .annotate(
                 subscription_datetime=Func(
                     "meta",
@@ -452,6 +454,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             "preserved_filters": self.get_preserved_filters(request),
             "chart_data": json.dumps(list(chart_data), cls=DjangoJSONEncoder),
             "changelist_link": f'{reverse("admin:people_person_changelist")}?{request.GET.urlencode()}',
+            "statistics": statistics,
         }
 
         return TemplateResponse(
