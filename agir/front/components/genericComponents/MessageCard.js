@@ -337,6 +337,15 @@ export const StyledWrapper = styled.div`
   }
 `;
 
+const StyledPrivateVisibility = styled.div`
+  padding: 20px;
+  background-color: ${style.primary50};
+  margin-bottom: 1rem;
+  border-radius: ${style.borderRadius};
+  display: flex;
+  align-items: start;
+`;
+
 const MessageCard = (props) => {
   const {
     user,
@@ -430,10 +439,8 @@ const MessageCard = (props) => {
   const isOrganizationMessage =
     message.requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
 
-  let subject;
-  if (!isOrganizationMessage) {
-    subject = getMessageSubject(message);
-  } else {
+  let subject = getMessageSubject(message);
+  if (isOrganizationMessage && !subject) {
     subject = `Message privé avec les organisateurs de '${group.name}'`;
   }
 
@@ -444,6 +451,16 @@ const MessageCard = (props) => {
     >
       <StyledMessage>
         <StyledSubject>{subject}</StyledSubject>
+        {isOrganizationMessage && (
+          <StyledPrivateVisibility>
+            <RawFeatherIcon name={"eye"} style={{ paddingRight: "6px" }} />
+            <div>
+              Cette discussion privée se déroule entre{" "}
+              {message.author.displayName} et les animateur·ices
+              du groupe <StyledGroupLink to={groupURL}>{group.name}</StyledGroupLink>
+            </div>
+          </StyledPrivateVisibility>
+        )}
         <StyledHeader>
           <Avatar {...author} />
           <h4>

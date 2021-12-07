@@ -52,10 +52,8 @@ const MessageThreadCard = (props) => {
   }, [onClick, id]);
 
   const unreadItemCount = (isUnread ? 1 : 0) + (unreadCommentCount || 0);
-  let subject;
-  if (!isOrganizationMessage) {
-    subject = getMessageSubject(message);
-  } else {
+  let subject = getMessageSubject(message);
+  if (isOrganizationMessage && !subject) {
     subject = message.author.displayName;
     if (group.referents.length > 1) {
       subject += ", ";
