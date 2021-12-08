@@ -113,6 +113,7 @@ class Subscription(UUIDIdentified, TimeStampedModel):
             ),
         ]
 
+
 class MuteMessage(UUIDIdentified):
     person = models.ForeignKey(
         "people.Person",
@@ -124,6 +125,7 @@ class MuteMessage(UUIDIdentified):
         on_delete=models.CASCADE,
         related_name="muted_message",
     )
+
     class Meta:
         constraints = [
             models.UniqueConstraint(

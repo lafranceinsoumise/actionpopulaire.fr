@@ -54,6 +54,7 @@ from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
 from agir.people.models import Person
+from agir.notifications.models import MuteMessage
 
 __all__ = [
     "LegacyGroupSearchAPIView",
@@ -67,6 +68,8 @@ __all__ = [
     "GroupUpcomingEventsAPIView",
     "GroupPastEventReportsAPIView",
     "GroupMessagesAPIView",
+    "GroupMessageNotificationAPIView",
+    "GroupMessageSwitchNotificationAPIView",
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
@@ -387,6 +390,41 @@ class GroupMessagesAPIView(ListCreateAPIView):
             )
             new_message_notifications(message)
             update_recipient_message(message, self.request.user.person)
+
+
+# Create or delete MuteMessage
+class GroupMessageSwitchNotificationAPIView(UpdateAPIView):
+    permission_classes = (GroupMessagesPermissions,)
+    queryset = MuteMessage.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        person = self.request.user.person
+        result = False
+        try:
+            muted = MuteMessage.objects.get(person=person, message_id=kwargs["pk"])
+            muted.delete()
+            result = "on"
+
+        except MuteMessage.DoesNotExist:
+            MuteMessage.objects.create(person=person, message_id=kwargs["pk"])
+            result = "off"
+
+        return Response({"data": result})
+
+
+# Get MuteMessage info on message_pk
+class GroupMessageNotificationAPIView(ListAPIView):
+    permission_classes = (GroupMessagesPermissions,)
+    queryset = MuteMessage.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        person = self.request.user.person
+        result = False
+        if MuteMessage.objects.filter(person=person, message_id=kwargs["pk"]).exists():
+            result = "off"
+        else:
+            result = "on"
+        return Response({"data": result})
 
 
 @method_decorator(never_cache, name="get")

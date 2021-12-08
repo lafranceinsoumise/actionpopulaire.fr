@@ -13,6 +13,8 @@ import Panel from "@agir/front/genericComponents/Panel";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import MessageThreadMenu from "./MessageThreadMenu";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import { switchMessageMuted, getMessageMuted } from "@agir/groups/api.js";
 
 const StyledContent = styled.article`
   height: 100%;
@@ -62,6 +64,20 @@ const StyledList = styled.main`
         flex: 0 0 400px;
       }
     }
+  }
+`;
+
+const BlockMuteMessage = styled.div`
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: center;
+  padding-right: 10px;
+
+  ${RawFeatherIcon}:hover {
+    cursor: pointer;
+    color: ${style.primary500};
   }
 `;
 
@@ -125,6 +141,15 @@ const DesktopThreadList = (props) => {
     selectedMessagePk
   );
 
+  // TODO : set on/off muteMessageInfo
+  // mutate value on switch
+
+  const switchNotificationMessage = async () => {
+    // const res = await getMessageMuted(selectedMessage);
+    const res = await switchMessageMuted(selectedMessage);
+    console.log("Res switch : ", res);
+  };
+
   useEffect(() => {
     // Autoselect first message on desktop
     !selectedMessagePk &&
@@ -143,34 +168,41 @@ const DesktopThreadList = (props) => {
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
       />
-      <StyledContent ref={scrollableRef}>
-        <PageFadeIn ready={selectedMessagePk && selectedMessage}>
-          {selectedMessage ? (
-            <MessageCard
-              autoScrollOnComment
-              isLoading={isLoading}
-              user={user}
-              message={selectedMessage}
-              comments={selectedMessage.comments}
-              onEdit={onEdit}
-              onComment={onComment}
-              onReport={onReport}
-              onDelete={onDelete}
-              onReportComment={onReportComment}
-              onDeleteComment={onDeleteComment}
-              isManager={selectedMessage.group.isManager}
-              groupURL={routeConfig.groupDetails.getLink({
-                groupPk: selectedMessage.group.id,
-              })}
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {!!selectedMessage && (
+          <BlockMuteMessage>
+            <RawFeatherIcon name="bell" onClick={switchNotificationMessage} />
+          </BlockMuteMessage>
+        )}
+        <StyledContent ref={scrollableRef}>
+          <PageFadeIn ready={selectedMessagePk && selectedMessage}>
+            {!!selectedMessage && (
+              <MessageCard
+                autoScrollOnComment
+                isLoading={isLoading}
+                user={user}
+                message={selectedMessage}
+                comments={selectedMessage.comments}
+                onEdit={onEdit}
+                onComment={onComment}
+                onReport={onReport}
+                onDelete={onDelete}
+                onReportComment={onReportComment}
+                onDeleteComment={onDeleteComment}
+                isManager={selectedMessage.group.isManager}
+                groupURL={routeConfig.groupDetails.getLink({
+                  groupPk: selectedMessage.group.id,
+                })}
+              />
+            )}
+            <span
+              style={{ width: 1, height: 0 }}
+              aria-hidden={true}
+              ref={bottomRef}
             />
-          ) : null}
-          <span
-            style={{ width: 1, height: 0 }}
-            aria-hidden={true}
-            ref={bottomRef}
-          />
-        </PageFadeIn>
-      </StyledContent>
+          </PageFadeIn>
+        </StyledContent>
+      </div>
     </StyledList>
   );
 };

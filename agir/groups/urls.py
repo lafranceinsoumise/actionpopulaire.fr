@@ -107,6 +107,16 @@ api_urlpatterns = [
         name="api_group_message_comment_detail",
     ),
     path(
+        "messages/modifier-notification/<uuid:pk>/",
+        views.GroupMessageSwitchNotificationAPIView.as_view(),
+        name="api_group_message_switch_notification",
+    ),
+    path(
+        "messages/info-notification/<uuid:pk>/",
+        views.GroupMessageNotificationAPIView.as_view(),
+        name="api_group_message_info_notification",
+    ),
+    path(
         "<uuid:pk>/membres/",
         views.GroupMembersAPIView.as_view(),
         name="api_group_members",

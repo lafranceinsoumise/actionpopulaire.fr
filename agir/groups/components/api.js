@@ -20,6 +20,8 @@ export const ENDPOINT = {
   createMessage: "/api/groupes/:groupPk/messages/",
   updateMessage: "/api/groupes/messages/:messagePk/",
   deleteMessage: "/api/groupes/messages/:messagePk/",
+  getMessageMuted: "/api/groupes/messages/info-notification/:messagePk/",
+  switchMessageMuted: "/api/groupes/messages/modifier-notification/:messagePk/",
 
   getComments: "/api/groupes/messages/:messagePk/comments/",
   createComment: "/api/groupes/messages/:messagePk/comments/",
@@ -81,6 +83,38 @@ export const updateMessage = async (message) => {
   const body = formatMessage(message);
   try {
     const response = await axios.put(url, body);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const getMessageMuted = async (message) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupEndpoint("getMessageMuted", { messagePk: message.id });
+  try {
+    const response = await axios.get(url);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const switchMessageMuted = async (message) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupEndpoint("switchMessageMuted", { messagePk: message.id });
+  try {
+    const response = await axios.get(url);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

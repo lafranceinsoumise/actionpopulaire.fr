@@ -8,22 +8,48 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('people', '0012_personform_short_description'),
-        ('msgs', '0005_auto_20211116_1659'),
-        ('notifications', '0016_add-activity-TYPE_REMINDER_REPORT_FORM_FOR_EVENT'),
+        ("people", "0012_personform_short_description"),
+        ("msgs", "0005_auto_20211116_1659"),
+        ("notifications", "0016_add-activity-TYPE_REMINDER_REPORT_FORM_FOR_EVENT"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='MuteMessage',
+            name="MuteMessage",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, help_text="UUID interne à l'API pour identifier la ressource", primary_key=True, serialize=False, verbose_name='UUID')),
-                ('message', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='muted_message', to='msgs.supportgroupmessage')),
-                ('person', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='muted_person', to='people.person')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        help_text="UUID interne à l'API pour identifier la ressource",
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="UUID",
+                    ),
+                ),
+                (
+                    "message",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="muted_message",
+                        to="msgs.supportgroupmessage",
+                    ),
+                ),
+                (
+                    "person",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="muted_person",
+                        to="people.person",
+                    ),
+                ),
             ],
         ),
         migrations.AddConstraint(
-            model_name='mutemessage',
-            constraint=models.UniqueConstraint(fields=('person', 'message'), name='unique_person_message'),
+            model_name="mutemessage",
+            constraint=models.UniqueConstraint(
+                fields=("person", "message"), name="unique_person_message"
+            ),
         ),
     ]
