@@ -122,8 +122,8 @@ def new_message_notifications(message):
 
 
 @transaction.atomic()
-# Private group comment
-def new_comment_organization_notifications(comment):
+# Group comment with required membership type
+def new_comment_restricted_notifications(comment):
 
     message_initial = comment.message
     allowed_memberships = message_initial.supportgroup.memberships.filter(
@@ -163,8 +163,12 @@ def new_comment_organization_notifications(comment):
 
 
 @transaction.atomic()
-# Public group comment
 def new_comment_notifications(comment):
+
+    if comment.message.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
+        new_comment_restricted_notifications(comment)
+        return
+
     message_initial = comment.message
     comment_authors = list(message_initial.comments.values_list("author_id", flat=True))
     comment_authors = set(comment_authors + [message_initial.author_id])

@@ -436,11 +436,11 @@ const MessageCard = (props) => {
       messageCardRef.current.scrollIntoView();
   }, [scrollIn]);
 
-  const isOrganizationMessage =
+  const isOrganizerMessage =
     message.requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
 
   let subject = getMessageSubject(message);
-  if (isOrganizationMessage && !subject) {
+  if (isOrganizerMessage && !subject) {
     subject = `Message privé avec les animateur⋅ices de '${group.name}'`;
   }
 
@@ -451,7 +451,7 @@ const MessageCard = (props) => {
     >
       <StyledMessage>
         <StyledSubject>{subject}</StyledSubject>
-        {isOrganizationMessage && (
+        {isOrganizerMessage && (
           <StyledPrivateVisibility>
             <RawFeatherIcon name={"eye"} style={{ paddingRight: "6px" }} />
             <div>
