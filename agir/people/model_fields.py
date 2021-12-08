@@ -1,6 +1,7 @@
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db.models import JSONField
+from django.db.models.fields.json import KeyTextTransform
 from phonenumber_field import formfields
 from phonenumber_field.modelfields import PhoneNumberDescriptor, PhoneNumberField
 from phonenumber_field.phonenumber import to_python
@@ -75,3 +76,18 @@ class ValidatedPhoneNumberField(PhoneNumberField):
 
     def formfield(self, **kwargs):
         return super().formfield(form_class=PhoneNumberFormField, **kwargs)
+
+
+class NestableKeyTextTransform:
+    """
+    Chainable version of django.db.models.fields.KeyTextTransform
+    """
+
+    def __new__(cls, field, *path):
+        if not path:
+            raise ValueError("Path must contain at least one key.")
+        head, *tail = path
+        field = KeyTextTransform(head, field)
+        for head in tail:
+            field = KeyTextTransform(head, field)
+        return field

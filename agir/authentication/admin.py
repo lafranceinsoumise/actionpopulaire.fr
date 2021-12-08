@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.shortcuts import reverse
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
 
 from agir.lib.search import PrefixSearchQuery

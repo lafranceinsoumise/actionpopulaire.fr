@@ -12,7 +12,7 @@ from agir.people.models import Person
 
 class GroupJoinAPITestCase(APITestCase):
     def setUp(self):
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="person@example.com",
             create_role=True,
             is_insoumise=True,
@@ -26,7 +26,7 @@ class GroupJoinAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 401)
 
     def test_2022_person_can_join_group(self):
-        person_2022 = Person.objects.create(
+        person_2022 = Person.objects.create_person(
             email="2022@example.com",
             create_role=True,
             is_insoumise=False,
@@ -44,7 +44,7 @@ class GroupJoinAPITestCase(APITestCase):
     #     self.client.force_login(self.person.role)
     #     full_group = SupportGroup.objects.create(type=SupportGroup.TYPE_LOCAL_GROUP)
     #     for i in range(SupportGroup.MEMBERSHIP_LIMIT + 1):
-    #         member = Person.objects.create(email=f"member_{i}@example.com")
+    #         member = Person.objects.create_person(email=f"member_{i}@example.com")
     #         Membership.objects.create(
     #             supportgroup=full_group,
     #             person=member,
@@ -111,7 +111,7 @@ class GroupJoinAPITestCase(APITestCase):
 
 class GroupFollowAPITestCase(APITestCase):
     def setUp(self):
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="person@example.com",
             create_role=True,
             is_insoumise=True,
@@ -129,7 +129,7 @@ class GroupFollowAPITestCase(APITestCase):
     #     self.client.force_login(self.person.role)
     #     full_group = SupportGroup.objects.create(type=SupportGroup.TYPE_LOCAL_GROUP)
     #     for i in range(SupportGroup.MEMBERSHIP_LIMIT + 1):
-    #         member = Person.objects.create(email=f"member_{i}@example.com")
+    #         member = Person.objects.create_person(email=f"member_{i}@example.com")
     #         Membership.objects.create(
     #             supportgroup=full_group,
     #             person=member,
@@ -196,11 +196,11 @@ class GroupFollowAPITestCase(APITestCase):
 
 class QuitGroupAPITestCase(APITestCase):
     def setUp(self):
-        self.member = Person.objects.create(
+        self.member = Person.objects.create_person(
             email="member@example.com",
             create_role=True,
         )
-        self.first_ref = Person.objects.create(
+        self.first_ref = Person.objects.create_person(
             email="referent@example.com",
             create_role=True,
         )
@@ -222,7 +222,7 @@ class QuitGroupAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 401)
 
     def test_non_member_cannot_quit_group(self):
-        non_member = Person.objects.create(
+        non_member = Person.objects.create_person(
             email="non_member@example.com",
             create_role=True,
         )
@@ -252,7 +252,7 @@ class QuitGroupAPITestCase(APITestCase):
         )
 
     def test_non_last_referent_can_quit_group(self):
-        second_ref = Person.objects.create(
+        second_ref = Person.objects.create_person(
             email="second_ref@example.com",
             create_role=True,
         )
@@ -302,10 +302,10 @@ class QuitGroupAPITestCase(APITestCase):
 class GroupUpdateAPIViewTestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create(name="group Test")
-        self.simple_member = Person.objects.create(
+        self.simple_member = Person.objects.create_person(
             email="simple_member@agir.local", create_role=True
         )
-        self.referent_member = Person.objects.create(
+        self.referent_member = Person.objects.create_person(
             email="referent@agir.local", create_role=True
         )
         Membership.objects.create(
@@ -420,10 +420,10 @@ class GroupInvitationAPIViewTestCase(APITestCase):
         self.valid_email = "moi@france.fr"
         self.wrong_email = "faux@france"
         self.group = SupportGroup.objects.create(name="group Test")
-        self.simple_member = Person.objects.create(
+        self.simple_member = Person.objects.create_person(
             email="simple_member@agir.local", create_role=True
         )
-        self.referent_member = Person.objects.create(
+        self.referent_member = Person.objects.create_person(
             email="referent@agir.local", create_role=True
         )
         Membership.objects.create(
@@ -507,10 +507,10 @@ class GroupInvitationAPIViewTestCase(APITestCase):
 class GroupFinanceAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create(name="group Test")
-        self.simple_member = Person.objects.create(
+        self.simple_member = Person.objects.create_person(
             email="simple_member@agir.local", create_role=True
         )
-        self.manager_member = Person.objects.create(
+        self.manager_member = Person.objects.create_person(
             email="manager@agir.local", create_role=True
         )
         Membership.objects.create(
@@ -581,13 +581,13 @@ class GroupExternalLinkAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create(name="group Test")
 
-        self.non_member = Person.objects.create(
+        self.non_member = Person.objects.create_person(
             email="non_member@agir.local", create_role=True
         )
-        self.simple_member = Person.objects.create(
+        self.simple_member = Person.objects.create_person(
             email="simple_member@agir.local", create_role=True
         )
-        self.manager_member = Person.objects.create(
+        self.manager_member = Person.objects.create_person(
             email="manager@agir.local", create_role=True
         )
 
@@ -749,7 +749,7 @@ class GroupExternalLinkAPITestCase(APITestCase):
 class GroupMembershipUpdateAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create(name="Group")
-        self.non_member = Person.objects.create(
+        self.non_member = Person.objects.create_person(
             email="non_member@agir.local", create_role=True
         )
         self.follower = create_membership(
@@ -953,7 +953,7 @@ class GroupMembershipUpdateAPITestCase(APITestCase):
 class MemberPersonalInformationAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create(name="Group")
-        self.non_member = Person.objects.create(
+        self.non_member = Person.objects.create_person(
             email="non_member@agir.local", create_role=True
         )
         self.follower = create_membership(
@@ -1031,7 +1031,7 @@ class MemberPersonalInformationAPITestCase(APITestCase):
 class UpdateOwnMembershipAPITestCase(APITestCase):
     def setUp(self):
         self.group = SupportGroup.objects.create(name="Group")
-        self.non_member = Person.objects.create(
+        self.non_member = Person.objects.create_person(
             email="non_member@agir.local", create_role=True
         )
         self.member = create_membership(

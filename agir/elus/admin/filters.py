@@ -7,25 +7,28 @@ from agir.elus.models import (
     CHAMPS_ELUS_PARRAINAGES,
     RechercheParrainage,
 )
-from agir.lib.autocomplete_filter import AutocompleteFilter, SelectModelFilter
+from agir.lib.autocomplete_filter import (
+    AutocompleteRelatedModelFilter,
+    SelectRelatedModelFilter,
+)
 
 
-class ConseilFilter(AutocompleteFilter):
+class ConseilFilter(AutocompleteRelatedModelFilter):
     field_name = "conseil"
     title = "Commune d'élection"
 
 
-class DepartementFilter(SelectModelFilter):
+class DepartementFilter(SelectRelatedModelFilter):
     field_name = "conseil__departement"
     title = "Département"
 
 
-class DepartementRegionFilter(SelectModelFilter):
+class DepartementRegionFilter(SelectRelatedModelFilter):
     field_name = "conseil__departement__region"
     title = "Région"
 
 
-class RegionFilter(SelectModelFilter):
+class RegionFilter(SelectRelatedModelFilter):
     field_name = "conseil__region"
     title = "Région"
 

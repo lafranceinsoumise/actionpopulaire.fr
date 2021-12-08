@@ -10,7 +10,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse, path
 from django.utils import timezone
 from django.utils.html import escape, format_html, format_html_join
-from rangefilter.filter import DateRangeFilter
+from rangefilter.filters import DateRangeFilter
 
 from agir.checks.models import CheckPayment
 from agir.donations.form_fields import MoneyField

@@ -9,7 +9,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.storage import default_storage
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from agir.lib.form_components import *
 from agir.lib.form_mixins import MetaFieldsMixin
@@ -56,13 +56,6 @@ class BasePersonForm(MetaFieldsMixin, forms.ModelForm):
             self.hidden_fields = {
                 desc["id"]: desc
                 for desc in self.person_form_instance.config["hidden_fields"]
-            }
-
-        # Automatically add an event id hidden field if the form is linked to an event subtype
-        if self.person_form_instance.event_subtype.exists():
-            self.hidden_fields["reported_event_id"] = {
-                "id": "reported_event_id",
-                "type": "uuid",
             }
 
         # s'assurer que les informations des champs hidden fields viennent forcément de GET

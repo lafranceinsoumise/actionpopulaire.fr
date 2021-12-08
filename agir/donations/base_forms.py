@@ -7,7 +7,7 @@ from django.utils.formats import number_format
 from django.utils.functional import keep_lazy_text
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 
 from agir.donations.form_fields import AskAmountField

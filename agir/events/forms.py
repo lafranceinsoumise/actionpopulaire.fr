@@ -4,7 +4,7 @@ from crispy_forms.layout import Submit, Row
 from django import forms
 from django.template.defaultfilters import floatformat
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from phonenumber_field.formfields import PhoneNumberField
 
 from agir.events.actions import legal

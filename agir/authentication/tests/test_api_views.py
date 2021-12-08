@@ -1,14 +1,15 @@
-from rest_framework.test import APITestCase
 from unittest.mock import patch
 
+from rest_framework.test import APITestCase
+
 from agir.authentication.tokens import short_code_generator
-from agir.people.models import Person, PersonEmail
+from agir.people.models import Person
 
 
 class LoginAPITestCase(APITestCase):
     def setUp(self):
         self.valid_email = "valid@email.com"
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email=self.valid_email,
             create_role=True,
             is_insoumise=True,
@@ -99,7 +100,7 @@ class LoginAPITestCase(APITestCase):
 class CheckCodeTestCase(APITestCase):
     def setUp(self):
         self.primary_email = "person@email.com"
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email=self.primary_email,
             create_role=True,
             is_insoumise=True,
@@ -203,7 +204,7 @@ class CheckCodeTestCase(APITestCase):
 class LogoutTestCase(APITestCase):
     def setUp(self):
         self.primary_email = "person@email.com"
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email=self.primary_email,
             create_role=True,
             is_insoumise=True,

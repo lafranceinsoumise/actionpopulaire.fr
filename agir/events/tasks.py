@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.lib.celery import emailing_task, http_task, post_save_task
@@ -582,6 +582,15 @@ def send_event_suggestion_email(event_pk, recipient_pk):
         from_email=settings.EMAIL_FROM,
         recipients=[subscription.first().person],
         bindings=bindings,
+        attachments=(
+            {
+                "filename": "event.ics",
+                "content": str(
+                    ics.Calendar(events=[event.to_ics(text_only_description=True)])
+                ),
+                "mimetype": "text/calendar",
+            },
+        ),
     )
 
 
@@ -618,6 +627,15 @@ def send_group_coorganization_invitation_notification(invitation_pk):
         from_email=settings.EMAIL_FROM,
         recipients=recipients,
         bindings=bindings,
+        attachments=(
+            {
+                "filename": "event.ics",
+                "content": str(
+                    ics.Calendar(events=[event.to_ics(text_only_description=True)])
+                ),
+                "mimetype": "text/calendar",
+            },
+        ),
     )
 
     # Add activity for all group referents that hasnt been notified yet

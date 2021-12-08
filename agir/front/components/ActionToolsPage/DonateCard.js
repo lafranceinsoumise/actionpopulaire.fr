@@ -45,6 +45,7 @@ const currency = new Intl.NumberFormat("fr-FR", {
   style: "currency",
   currency: "EUR",
   maximumFractionDigits: 0,
+  minimumFractionDigits: 0,
 });
 const formatCurrency = (amount) => currency.format(Math.floor(amount / 100));
 
@@ -62,7 +63,7 @@ export const DonateCard = (props) => {
 
   return (
     <StyledCard>
-      <h4>Je fais un dons pour la campagne</h4>
+      <h4>Je fais un don pour la campagne</h4>
       <animated.p>
         <animated.span>
           {animatedAmount.to((x) => formatCurrency(x.toFixed(0)))}

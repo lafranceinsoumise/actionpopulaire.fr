@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, escape, format_html_join
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from agir.events.models import Event
 from agir.groups import proxys
@@ -20,6 +20,7 @@ from agir.lib.admin import (
     DepartementListFilter,
     RegionListFilter,
     CountryListFilter,
+    CirconscriptionLegislativeFilter,
 )
 from agir.lib.display import display_price
 from agir.lib.utils import front_url
@@ -217,6 +218,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
         "published",
         GroupHasEventsFilter,
         CountryListFilter,
+        CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",
@@ -365,6 +367,10 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     partial(self.allocation, show_add_button=True), self.allocation
                 )
         return cl
+
+    class Media:
+        # classe Media requise par le CirconscriptionLegislativeFilter, quand bien même elle est vide
+        pass
 
 
 @admin.register(proxys.ThematicGroup)

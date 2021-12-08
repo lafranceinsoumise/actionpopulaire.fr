@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} delete-confirmation
+  delete-selected-confirmation{% endblock %}
+
+{% block content %}
+  <form action="" method="post">{% csrf_token %}
+    <fieldset class="module aligned">
+      <strong>⚞&nbsp;ATTENTION&nbsp;⚟</strong>
+      <br><br>
+      Le segment choisi pour cette campagne contient des destinataires qui ont indiqué ne vouloir recevoir aucun message.
+      <br><br>
+      <strong>Êtes-vous sûrs de vouloir envoyer cette campagne&nbsp;?</strong>
+    </fieldset>
+    <div class="submit-row">
+      <input type="hidden" name="action" value="{{ action }}"/>
+      <input type="hidden" name="pk" value="{{ pk }}"/>
+      <input type="submit" name="confirmation" value="Envoyer tout de même"/>
+      <a href="{{ edit_campaign_link }}" class="button cancel-link">Annuler et modifier la campagne</a>
+    </div>
+  </form>
+{% endblock %}

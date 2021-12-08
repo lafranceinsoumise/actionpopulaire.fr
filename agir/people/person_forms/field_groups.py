@@ -6,7 +6,7 @@ from django import forms
 from django.utils.functional import lazy
 from django.utils.html import format_html_join, format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from agir.lib.form_components import *
 from agir.people.person_forms.fields import is_actual_model_field, get_form_field

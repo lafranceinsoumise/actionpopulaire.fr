@@ -9,17 +9,17 @@ import { routeConfig, getRouteByPathname } from "@agir/front/app/routes.config";
 import { addQueryStringParams } from "@agir/lib/utils/url";
 
 const ExternalLink = (props) => {
-  const { component, params, ...rest } = props;
+  const { component, params, forwardedRef, ...rest } = props;
   let href = props.href;
   if (params) {
     href = addQueryStringParams(href, params);
   }
   if (component) {
     const Component = component;
-    return <Component {...rest} href={href} />;
+    return <Component ref={forwardedRef} {...rest} href={href} />;
   }
 
-  return <a {...rest} href={href} />;
+  return <a ref={forwardedRef} {...rest} href={href} />;
 };
 ExternalLink.propTypes = {
   href: PropTypes.string.isRequired,
@@ -28,7 +28,7 @@ ExternalLink.propTypes = {
 };
 
 const InternalLink = (props) => {
-  const { to, params, state, ...rest } = props;
+  const { to, params, state, forwardedRef, ...rest } = props;
 
   let pathname = to;
 
@@ -38,7 +38,7 @@ const InternalLink = (props) => {
 
   const next = state ? { pathname, state } : pathname;
 
-  return <RouterLink {...rest} to={next} />;
+  return <RouterLink ref={forwardedRef} {...rest} to={next} />;
 };
 InternalLink.propTypes = {
   to: PropTypes.string.isRequired,
@@ -82,23 +82,34 @@ RouteLink.propTypes = {
   routeParams: PropTypes.object,
 };
 
-const Link = (props) => {
-  const { route, href, to } = props;
-  if (route) {
-    return <RouteLink {...props} />;
-  }
-  if (to) {
-    return <RouterLink to={to} {...props} />;
-  }
-  if (href) {
-    return <ExternalLink {...props} />;
-  }
+const Link = (() => {
+  const LinkComponent = (props, ref) => {
+    const { route, href, to } = props;
+    if (route) {
+      return <RouteLink forwardedRef={ref} {...props} />;
+    }
+    if (to) {
+      return <InternalLink forwardedRef={ref} to={to} {...props} />;
+    }
+    if (href) {
+      return <ExternalLink forwardedRef={ref} {...props} />;
+    }
 
-  return null;
-};
-Link.propTypes = {
-  route: PropTypes.string,
-  href: PropTypes.string,
-  to: PropTypes.oneOfType([PropTypes.string, PropTypes.func, PropTypes.object]),
-};
+    return null;
+  };
+
+  LinkComponent.displayName = "Link";
+  LinkComponent.propTypes = {
+    route: PropTypes.string,
+    href: PropTypes.string,
+    to: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.func,
+      PropTypes.object,
+    ]),
+  };
+
+  return React.forwardRef(LinkComponent);
+})();
+
 export default Link;

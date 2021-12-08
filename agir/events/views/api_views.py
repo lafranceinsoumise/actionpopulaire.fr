@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
@@ -511,7 +511,8 @@ class EventReportPersonFormAPIView(RetrieveAPIView):
     serializer_class = EventReportPersonFormSerializer
 
     def get_queryset(self):
-        return Event.objects.public().past()
+        limit_date = timezone.now() - timezone.timedelta(days=7)
+        return Event.objects.public().filter(end_time__gte=limit_date)
 
     def get_object(self):
         event = super().get_object()

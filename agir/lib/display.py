@@ -5,7 +5,7 @@ from django.template.defaultfilters import floatformat
 from django.utils.html import format_html, format_html_join, mark_safe
 from django.utils.formats import date_format
 from django.utils.timezone import utc, is_aware
-from django.utils.translation import ugettext as _, ngettext
+from django.utils.translation import gettext as _, ngettext
 
 
 def display_address(object):

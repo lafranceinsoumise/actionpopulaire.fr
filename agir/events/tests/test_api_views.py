@@ -19,7 +19,7 @@ class CreateEventAPITestCase(APITestCase):
     def setUp(self):
         self.managed_group = SupportGroup.objects.create()
         self.unmanaged_group = SupportGroup.objects.create()
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="person@example.com",
             create_role=True,
         )
@@ -356,7 +356,7 @@ class CreateEventAPITestCase(APITestCase):
 
 class RSVPEventAPITestCase(APITestCase):
     def setUp(self):
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="person@example.com",
             create_role=True,
             is_insoumise=True,
@@ -374,7 +374,7 @@ class RSVPEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 401)
 
     def test_2022_person_can_rsvp_insoumise_event(self):
-        person_2022 = Person.objects.create(
+        person_2022 = Person.objects.create_person(
             email="2022@example.com",
             create_role=True,
             is_insoumise=False,
@@ -391,7 +391,7 @@ class RSVPEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 201)
 
     def test_insoumise_person_can_rsvp_2022_event(self):
-        person_insoumise = Person.objects.create(
+        person_insoumise = Person.objects.create_person(
             email="insoumise@example.com",
             create_role=True,
             is_insoumise=True,
@@ -501,7 +501,7 @@ class RSVPEventAPITestCase(APITestCase):
 
 class QuitEventAPITestCase(APITestCase):
     def setUp(self):
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="person@example.com",
             create_role=True,
         )
@@ -533,7 +533,7 @@ class QuitEventAPITestCase(APITestCase):
             start_time=self.start_time,
             end_time=self.end_time,
         )
-        other_person = Person.objects.create(
+        other_person = Person.objects.create_person(
             email="other_person@example.com",
             create_role=True,
         )
@@ -568,11 +568,11 @@ class QuitEventAPITestCase(APITestCase):
 
 class UpdateEventAPITestCase(APITestCase):
     def setUp(self):
-        self.unrelated_person = Person.objects.create(
+        self.unrelated_person = Person.objects.create_person(
             email="unrelated_person@example.com",
             create_role=True,
         )
-        self.organizer = Person.objects.create(
+        self.organizer = Person.objects.create_person(
             email="organizer@example.com",
             create_role=True,
         )
@@ -633,21 +633,6 @@ class UpdateEventAPITestCase(APITestCase):
         self.assertIn("subtype", res.data)
         self.assertEqual(res.data["subtype"], data["subtype"])
 
-    def test_can_update_event_report_only_for_past_events(self):
-        self.client.force_login(self.organizer.role)
-        data = {"compteRendu": "ABC"}
-
-        res = self.client.patch(f"/api/evenements/{self.event.pk}/modifier/", data=data)
-        self.assertEqual(res.status_code, 422)
-        self.assertIn("compteRendu", res.data)
-
-        res = self.client.patch(
-            f"/api/evenements/{self.past_event.pk}/modifier/", data=data
-        )
-        self.assertEqual(res.status_code, 200)
-        self.assertIn("compteRendu", res.data)
-        self.assertEqual(res.data["compteRendu"], data["compteRendu"])
-
     def test_can_update_event_only_for_upcoming_events(self):
         self.client.force_login(self.organizer.role)
         data = {"name": "ABC"}
@@ -666,11 +651,11 @@ class UpdateEventAPITestCase(APITestCase):
 
 class EventProjectAPITestCase(APITestCase):
     def setUp(self):
-        self.unrelated_person = Person.objects.create(
+        self.unrelated_person = Person.objects.create_person(
             email="unrelated_person@example.com",
             create_role=True,
         )
-        self.organizer = Person.objects.create(
+        self.organizer = Person.objects.create_person(
             email="organizer@example.com",
             create_role=True,
         )
@@ -808,11 +793,11 @@ class EventProjectAPITestCase(APITestCase):
 
 class CreateEventProjectDocumentAPITestCase(APITestCase):
     def setUp(self):
-        self.unrelated_person = Person.objects.create(
+        self.unrelated_person = Person.objects.create_person(
             email="unrelated_person@example.com",
             create_role=True,
         )
-        self.organizer = Person.objects.create(
+        self.organizer = Person.objects.create_person(
             email="organizer@example.com",
             create_role=True,
         )
@@ -934,11 +919,11 @@ class CreateEventProjectDocumentAPITestCase(APITestCase):
 
 class EventProjectsAPITestCase(APITestCase):
     def setUp(self):
-        self.unrelated_person = Person.objects.create(
+        self.unrelated_person = Person.objects.create_person(
             email="unrelated_person@example.com",
             create_role=True,
         )
-        self.organizer = Person.objects.create(
+        self.organizer = Person.objects.create_person(
             email="organizer@example.com",
             create_role=True,
         )
@@ -1030,6 +1015,15 @@ class EventReportPersonFormAPITestCase(APITestCase):
             subtype=self.subtype_with_form,
             organizer_person=self.organizer,
         )
+        self.too_old_event = Event.objects.create(
+            name="Too old",
+            start_time=timezone.now() - timezone.timedelta(days=9),
+            end_time=timezone.now() - timezone.timedelta(days=8),
+            timezone=timezone.get_default_timezone_name(),
+            for_users=Event.FOR_USERS_ALL,
+            subtype=self.subtype_with_form,
+            organizer_person=self.organizer,
+        )
 
     def test_anonymous_person_cannot_retrieve_form(self):
         self.client.logout()
@@ -1051,12 +1045,17 @@ class EventReportPersonFormAPITestCase(APITestCase):
         res = self.client.get(f"/api/evenements/{self.event_without_form.pk}/bilan/")
         self.assertEqual(res.status_code, 404)
 
-    def test_cannot_retrieve_form_for_upcoming_event(self):
+    def test_can_retrieve_form_for_more_than_a_week_old_event(self):
         self.client.force_login(self.organizer.role)
-        res = self.client.get(f"/api/evenements/{self.upcomint_event.pk}/bilan/")
+        res = self.client.get(f"/api/evenements/{self.too_old_event.pk}/bilan/")
         self.assertEqual(res.status_code, 404)
 
-    def test_organizer_can_retrieve_form_for_past_event(self):
+    def test_can_retrieve_form_for_upcoming_event(self):
+        self.client.force_login(self.organizer.role)
+        res = self.client.get(f"/api/evenements/{self.upcomint_event.pk}/bilan/")
+        self.assertEqual(res.status_code, 200)
+
+    def test_organizer_can_retrieve_form_for_less_than_a_week_old_event(self):
         self.client.force_login(self.organizer.role)
         res = self.client.get(f"/api/evenements/{self.past_event.pk}/bilan/")
         self.assertEqual(res.status_code, 200)
