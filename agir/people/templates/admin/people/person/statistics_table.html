@@ -1,9 +1,25 @@
 {% load i18n humanize %}
 
 <style>
+  @keyframes load {
+      from { background-size: 0%; }
+      to { background-size: 100%; }
+  }
+
+  :root{
+    --r: 0;
+  }
+
   table.stats {
     table-layout: fixed;
     width: 100%;
+  }
+
+  table.stats tr {
+    background: rgba(255,255,255,0);
+    background: linear-gradient(90deg, #b4ffdb 0% , #d9ffed var(--r) ,  rgba(255,255,255,0) var(--r)) no-repeat;
+    background-blend-mode: difference;
+    animation: load 2s ease-out;
   }
 
   table.stats th,
@@ -14,19 +30,27 @@
   }
 
   table.stats th {
-    width: 30%;
+    width: 40%;
+    font-weight: 500;
+    vertical-align: middle;
+  }
+
+  table.stats th em {
+    font-style: normal;
+    font-weight: 700;
   }
 
   table.stats th[colspan="2"] {
     font-size: 12px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    background-color: #16a460;
     color: white;
-    background-color: #ed8989;
   }
 
   table.stats td {
-    width: 70%;
+    width: 60%;
+    font-weight: 600;
   }
 
   table.stats meter {
@@ -34,7 +58,6 @@
   }
 
   @media (max-width: 992px) {
-
     table.stats th,
     table.stats td {
       width: auto;
@@ -54,7 +77,7 @@
   <tr>
     <th colspan="2">Types</th>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.is_2022 statistics.total 100 %}%">
     <th>Signataires <em>Mélenchon 2022</em></th>
     <td>{{ statistics.is_2022 }}
       <meter value="{{ statistics.is_2022 }}" title="{{ statistics.is_2022 }}" min="0" max="{{ statistics.total }}">
@@ -62,7 +85,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.is_insoumise statistics.total 100 %}%">
     <th>Signataires <em>La France insoumise</em></th>
     <td>{{ statistics.is_insoumise }}
       <meter value="{{ statistics.is_insoumise }}" title="{{ statistics.is_insoumise }}" title="{{ statistics.is_insoumise }}" title="{{ statistics.is_insoumise }}" min="0" max="{{ statistics.total }}">
@@ -70,7 +93,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.liaisons statistics.total 100 %}%">
     <th>Correspondants d'immeuble</th>
     <td>{{ statistics.liaisons }}
       <meter value="{{ statistics.liaisons }}" title="{{ statistics.liaisons }}" title="{{ statistics.liaisons }}" title="{{ statistics.liaisons }}" min="0" max="{{ statistics.total }}">
@@ -78,7 +101,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.contacts statistics.total 100 %}%">
     <th>Contacts</th>
     <td>{{ statistics.contacts }}
       <meter value="{{ statistics.contacts }}" title="{{ statistics.contacts }}" title="{{ statistics.contacts }}" title="{{ statistics.contacts }}" min="0" max="{{ statistics.total }}">
@@ -86,7 +109,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.elected_representatives statistics.total 100 %}%">
     <th>Élu·es</th>
     <td>{{ statistics.elected_representatives }}
       <meter value="{{ statistics.elected_representatives }}" title="{{ statistics.elected_representatives }}" title="{{ statistics.elected_representatives }}" title="{{ statistics.elected_representatives }}" min="0"
@@ -97,7 +120,7 @@
   <tr>
     <th colspan="2">Groupes d'action</th>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.group_members statistics.total 100 %}%">
     <th>Membres de groupe d'action</th>
     <td>
       {{ statistics.group_members }}
@@ -106,7 +129,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.certified_group_members statistics.total 100 %}%">
     <th>Membres de groupe d'action certifié</th>
     <td>
       {{ statistics.certified_group_members }}
@@ -115,7 +138,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.group_referents statistics.total 100 %}%">
     <th>Animateur·ices de groupe d'action</th>
     <td>
       {{ statistics.group_referents }}
@@ -126,7 +149,7 @@
   <tr>
     <th colspan="2">Dons</th>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.is_2022_donors statistics.total 100 %}%">
     <th>Donateur·ices à <em>Mélenchon 2022</em></th>
     <td>
       {{ statistics.is_2022_donors }}
@@ -135,7 +158,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.is_insoumise_donors statistics.total 100 %}%">
     <th>Donateur·ices à <em>La France insoumise</em></th>
     <td>
       {{ statistics.is_insoumise_donors }}
@@ -147,7 +170,7 @@
   <tr>
     <th colspan="2">Âge</th>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.known_birthdates statistics.total 100 %}%">
     <th>Dates de naissance renseignées</th>
     <td>
       {{ statistics.known_birthdates }}
@@ -157,21 +180,21 @@
     </td>
   </tr>
   {% if statistics.mean_age %}
-  <tr>
+  <tr style="--r: {% widthratio statistics.mean_age 100 100 %}%">
     <th>Âge moyen</th>
-    <td>{{ statistics.mean_age|floatformat:"-3" }}&nbsp;ans</td>
+    <td>{{ statistics.mean_age|floatformat:"-1" }}&nbsp;ans</td>
   </tr>
   {% endif %}
   {% if statistics.median_age %}
-  <tr>
+  <tr style="--r: {% widthratio statistics.median_age 100 100 %}%">
     <th>Âge médian</th>
-    <td>{{ statistics.median_age|floatformat:"-3" }}&nbsp;ans</td>
+    <td>{{ statistics.median_age|floatformat:"-1" }}&nbsp;ans</td>
   </tr>
   {% endif %}
   <tr>
     <th colspan="2">Communication</th>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.newsletter_subscribers statistics.total 100 %}%">
     <th>Inscrit·es à au moins une newsletter</th>
     <td>
       {{ statistics.newsletter_subscribers }}
@@ -180,7 +203,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.sms_subscribers statistics.total 100 %}%">
     <th>Inscrit·es aux informations par SMS</th>
     <td>
       {{ statistics.sms_subscribers }}
@@ -189,7 +212,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.known_phone_numbers statistics.total 100 %}%">
     <th>Numéros de téléphone renseignés</th>
     <td>
       {{ statistics.known_phone_numbers }}
@@ -198,7 +221,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.last_week_connections statistics.total 100 %}%">
     <th>Connecté·es pendant les derniers sept jours </th>
     <td>
       {{ statistics.last_week_connections }}
@@ -207,7 +230,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.android_users statistics.total 100 %}%">
     <th>Utilisateurs·ices de l'application Android</th>
     <td>
       {{ statistics.android_users }}
@@ -216,7 +239,7 @@
       </meter>
     </td>
   </tr>
-  <tr>
+  <tr style="--r: {% widthratio statistics.ios_users statistics.total 100 %}%">
     <th>Utilisateurs·ices de l'application iOS</th>
     <td>
       {{ statistics.ios_users }}
@@ -229,7 +252,7 @@
     <th colspan="2">Codes postaux le plus représentés</th>
   </tr>
   {% for zip, count in statistics.zip_codes %}
-  <tr>
+  <tr style="--r: {% widthratio count statistics.total 100 %}%">
     <th>{{ zip }}</th>
     <td>
       {{ count }}
