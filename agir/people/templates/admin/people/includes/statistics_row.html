@@ -1,0 +1,9 @@
+<tr style="--r: {% widthratio value total 100 %}%">
+  <th>{{ label }}</th>
+  <td>
+    {{ value }}
+    <meter title="{% widthratio value total 100 %}%" min="0" max="{{ total }}" value="{{ value }}">
+      {{ value }}
+    </meter>
+  </td>
+</tr>
