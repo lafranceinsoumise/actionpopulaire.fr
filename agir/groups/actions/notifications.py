@@ -92,15 +92,13 @@ def someone_joined_notification(membership, membership_count=1):
 
 @transaction.atomic()
 def new_message_notifications(message):
-    # members = message.supportgroup.members.all()
-    # recipients = MuteMessage.objects.exclude(person__in=members, message=message).values("person")
-
+    muted_recipients = MuteMessage.objects.filter(message=message).values("person_id")
     memberships = message.supportgroup.memberships.filter(
         membership_type__gte=message.required_membership_type
     )
     recipients = Person.objects.filter(
         id__in=memberships.values_list("person_id", flat=True)
-    )
+    ).exclude(id__in=muted_recipients)
 
     Activity.objects.bulk_create(
         [
@@ -128,10 +126,18 @@ def new_message_notifications(message):
 def new_comment_restricted_notifications(comment):
 
     message_initial = comment.message
+    muted_recipients = MuteMessage.objects.filter(message=message_initial).values(
+        "person_id"
+    )
     allowed_memberships = message_initial.supportgroup.memberships.filter(
         membership_type__gte=message_initial.required_membership_type
     )
-    recipients_id = [membership.person.id for membership in allowed_memberships]
+    recipients_id = [
+        membership.person.id
+        for membership in allowed_memberships
+        if membership.person.id not in muted_recipients
+    ]
+    recipients_id = set(recipients_id + [message_initial.author_id])
     recipients_id = set(recipients_id + [message_initial.author_id])
 
     # Get only recipients with notification allowed
@@ -172,10 +178,15 @@ def new_comment_notifications(comment):
         return
 
     message_initial = comment.message
+    muted_recipients = MuteMessage.objects.filter(message=message_initial).values(
+        "person_id"
+    )
     comment_authors = list(message_initial.comments.values_list("author_id", flat=True))
     comment_authors = set(comment_authors + [message_initial.author_id])
 
-    participant_recipients = message_initial.supportgroup.members.filter(
+    participant_recipients = message_initial.supportgroup.members.exclude(
+        id__in=muted_recipients
+    ).filter(
         notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
         notification_subscriptions__person__in=comment_authors,
         notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,

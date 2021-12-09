@@ -23,7 +23,7 @@ from .models import SupportGroup, Membership
 from ..activity.models import Activity
 from ..lib.display import genrer
 from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
-from ..notifications.models import Subscription
+from ..notifications.models import MuteMessage, Subscription
 
 NOTIFIED_CHANGES = {
     "name": "information",
@@ -466,13 +466,14 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 def send_message_notification_email(message_pk):
 
     message = SupportGroupMessage.objects.get(pk=message_pk)
+    muted_recipients = MuteMessage.objects.filter(message=message).values("person_id")
 
     memberships = message.supportgroup.memberships.filter(
         membership_type__gte=message.required_membership_type
     )
     recipients = Person.objects.filter(
         id__in=memberships.values_list("person_id", flat=True)
-    )
+    ).exclude(id__in=muted_recipients)
     recipients_id = [recipient.id for recipient in recipients]
 
     recipients = Person.objects.exclude(id=message.author.id).filter(
@@ -519,6 +520,9 @@ def send_message_notification_email(message_pk):
 def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
     message_initial = comment.message
+    muted_recipients = MuteMessage.objects.filter(message=message_initial).values(
+        "person_id"
+    )
 
     # Private comment: send only to allowed membership and initial author
     if message_initial.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
@@ -531,7 +535,9 @@ def send_comment_notification_email(comment_pk):
         persons_allowed_id = [person.id for person in persons_allowed]
         persons_allowed_id += [message_initial.author.id]
 
-        recipients = Person.objects.exclude(id=comment.author.id).filter(
+        recipients = Person.objects.exclude(
+            id=comment.author.id, id__in=muted_recipients
+        ).filter(
             id__in=persons_allowed_id,
             notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
             notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
@@ -539,7 +545,9 @@ def send_comment_notification_email(comment_pk):
         )
     # Public comment: send to all group members who ever commented
     else:
-        recipients = Person.objects.exclude(id=comment.author.id).filter(
+        recipients = Person.objects.exclude(
+            id=comment.author.id, id__in=muted_recipients
+        ).filter(
             notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
             notification_subscriptions__person__in=message_initial.comments.values_list(
                 "author_id", flat=True
