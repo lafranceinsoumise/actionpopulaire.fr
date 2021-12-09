@@ -11,7 +11,7 @@ from agir.groups.tasks import (
     send_message_notification_email,
     send_comment_notification_email,
 )
-from agir.notifications.models import Subscription
+from agir.notifications.models import MuteMessage, Subscription
 
 
 @transaction.atomic()
@@ -90,7 +90,8 @@ def someone_joined_notification(membership, membership_count=1):
 
 @transaction.atomic()
 def new_message_notifications(message):
-    recipients = message.supportgroup.members.all()
+    members = message.supportgroup.members.all()
+    recipients = MuteMessage.objects.exclude(person__in=members, message=message).values("person")
     Activity.objects.bulk_create(
         [
             Activity(
