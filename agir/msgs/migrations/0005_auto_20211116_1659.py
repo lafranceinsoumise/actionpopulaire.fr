@@ -10,6 +10,20 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AddField(
+            model_name="supportgroupmessage",
+            name="required_membership_type",
+            field=models.IntegerField(
+                choices=[
+                    (5, "Abonné⋅e du groupe"),
+                    (10, "Membre actif du groupe"),
+                    (50, "Membre gestionnaire"),
+                    (100, "Animateur⋅rice"),
+                ],
+                default=5,
+                verbose_name="required_membershiptype",
+            ),
+        ),
         migrations.AlterField(
             model_name="supportgroupmessage",
             name="deleted",
