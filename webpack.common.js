@@ -145,12 +145,13 @@ const es5Browsers = [
   "not dead",
   "not IE 11",
 ];
+
 const es2015Browsers = [
-  "Chrome > 91",
-  "Firefox > 91",
-  "Safari > 14",
-  "Opera > 78",
-  "Edge > 93",
+  "Chrome >= 60",
+  "Safari >= 10.1",
+  "iOS >= 10.3",
+  "Firefox >= 54",
+  "Edge >= 15",
 ];
 
 const configureBabelLoader = (type) => ({
