@@ -9,7 +9,7 @@ from django.template.defaultfilters import date as _date
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import format_html_join, format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from agir.events.models import Event, OrganizerConfig
 from agir.lib.celery import emailing_task, http_task, post_save_task
@@ -467,7 +467,16 @@ def send_message_notification_email(message_pk):
 
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
+    memberships = message.supportgroup.memberships.filter(
+        membership_type__gte=message.required_membership_type
+    )
+    recipients = Person.objects.filter(
+        id__in=memberships.values_list("person_id", flat=True)
+    )
+    recipients_id = [recipient.id for recipient in recipients]
+
     recipients = Person.objects.exclude(id=message.author.id).filter(
+        id__in=recipients_id,
         notification_subscriptions__membership__supportgroup=message.supportgroup,
         notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
         notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
@@ -511,14 +520,33 @@ def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
     message_initial = comment.message
 
-    recipients = Person.objects.exclude(id=comment.author.id).filter(
-        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
-        notification_subscriptions__person__in=message_initial.comments.values_list(
-            "author_id", flat=True
-        ),
-        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
-    )
+    # Private comment: send only to allowed membership and initial author
+    if message_initial.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
+        memberships = message_initial.supportgroup.memberships.filter(
+            membership_type__gte=message_initial.required_membership_type
+        )
+        persons_allowed = Person.objects.filter(
+            id__in=memberships.values_list("person_id", flat=True)
+        )
+        persons_allowed_id = [person.id for person in persons_allowed]
+        persons_allowed_id += [message_initial.author.id]
+
+        recipients = Person.objects.exclude(id=comment.author.id).filter(
+            id__in=persons_allowed_id,
+            notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
+            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+        )
+    # Public comment: send to all group members who ever commented
+    else:
+        recipients = Person.objects.exclude(id=comment.author.id).filter(
+            notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
+            notification_subscriptions__person__in=message_initial.comments.values_list(
+                "author_id", flat=True
+            ),
+            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+        )
 
     recipients = recipients.distinct()
 

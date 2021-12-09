@@ -18,6 +18,7 @@ export const ENDPOINT = {
   getMessage: "/api/groupes/messages/:messagePk/",
 
   createMessage: "/api/groupes/:groupPk/messages/",
+  createPrivateMessage: "/api/groupes/:groupPk/envoi-message-prive/",
   updateMessage: "/api/groupes/messages/:messagePk/",
   deleteMessage: "/api/groupes/messages/:messagePk/",
   getMessageMuted: "/api/groupes/messages/info-notification/:messagePk/",
@@ -63,6 +64,23 @@ export const createMessage = async (groupPk, message) => {
     error: null,
   };
   const url = getGroupEndpoint("createMessage", { groupPk });
+  const body = formatMessage(message);
+  try {
+    const response = await axios.post(url, body);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const createPrivateMessage = async (groupPk, message) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupEndpoint("createPrivateMessage", { groupPk });
   const body = formatMessage(message);
   try {
     const response = await axios.post(url, body);

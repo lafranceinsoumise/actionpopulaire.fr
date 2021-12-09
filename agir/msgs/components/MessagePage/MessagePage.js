@@ -145,6 +145,7 @@ const MessagePage = ({ messagePk }) => {
                 onReport={confirmReport}
                 onDeleteComment={confirmDeleteComment}
                 onReportComment={confirmReportComment}
+                onSend={saveMessage}
                 user={user}
                 writeNewMessage={writeNewMessage}
                 onComment={writeNewComment}
@@ -166,6 +167,7 @@ const MessagePage = ({ messagePk }) => {
 
 MessagePage.propTypes = {
   messagePk: PropTypes.string,
+  groupPk: PropTypes.string,
 };
 
 export default MessagePage;

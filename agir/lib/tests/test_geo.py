@@ -96,9 +96,9 @@ class FranceGeocodingTestCase(TestCase):
         self.person.save()
 
         geocode_france(self.person)
-        self.assert_(self.person.location_citycode, "00001")
+        self.assertTrue(self.person.location_citycode, "00001")
         self.assertIsNotNone(self.person.coordinates)
-        self.assert_(self.person.coordinates_type, LocationMixin.COORDINATES_CITY)
+        self.assertTrue(self.person.coordinates_type, LocationMixin.COORDINATES_CITY)
 
     @with_no_request
     def test_geocode_ban_district_post_code(self):

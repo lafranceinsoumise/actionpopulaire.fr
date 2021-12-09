@@ -1,11 +1,13 @@
+from django.db.models.deletion import PROTECT
 import reversion
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from stdimage import StdImageField
 
 from agir.lib.models import TimeStampedModel, BaseAPIResource
+from agir.groups.models import Membership
 
 
 class UserReport(TimeStampedModel):
@@ -46,6 +48,7 @@ class AbstractMessage(BaseAPIResource):
 
 @reversion.register()
 class SupportGroupMessage(AbstractMessage):
+
     subject = models.CharField(
         "Objet", max_length=150, null=False, blank=True, default=""
     )
@@ -63,6 +66,14 @@ class SupportGroupMessage(AbstractMessage):
         on_delete=models.PROTECT,
         verbose_name="Événement lié",
     )
+    required_membership_type = models.IntegerField(
+        "required_membershiptype",
+        choices=Membership.MEMBERSHIP_TYPE_CHOICES,
+        default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+    )
+
+    def __str__(self):
+        return f"id: {self.pk} | {self.author} --> '{self.text}' | required_membership_type: {str(self.required_membership_type)} | supportgroup: {self.supportgroup}"
 
     class Meta:
         verbose_name = "Message de groupe"

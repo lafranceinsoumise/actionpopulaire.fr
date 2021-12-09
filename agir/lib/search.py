@@ -1,7 +1,7 @@
 import re
 
 from django.contrib.postgres.search import SearchQuery
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 # taken from django-watson: https://github.com/etianen/django-watson/blob/2226de139b6e177bfbe2824b1749478dbcce3318/watson/backends.py#L26
 RE_POSTGRES_ESCAPE_CHARS = re.compile(r"[&:(|)!><$]", re.UNICODE)
@@ -17,7 +17,7 @@ def escape_query(text, re_escape_chars):
     normalizes the query text to a format that can be consumed
     by the backend database
     """
-    text = force_text(text)
+    text = force_str(text)
     text = re_escape_chars.sub(" ", text)  # Replace harmful characters with space.
     words = text.split()
     query = " & ".join("$${0}$$".format(word) for word in words)

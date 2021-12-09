@@ -92,6 +92,11 @@ api_urlpatterns = [
         name="api_group_message_list",
     ),
     path(
+        "<uuid:pk>/envoi-message-prive/",
+        views.GroupMessagesPrivateAPIView.as_view(),
+        name="api_send_private_group_message",
+    ),
+    path(
         "messages/<uuid:pk>/",
         views.GroupSingleMessageAPIView.as_view(),
         name="api_group_message_detail",

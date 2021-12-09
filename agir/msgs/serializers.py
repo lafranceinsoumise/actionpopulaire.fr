@@ -10,9 +10,9 @@ from agir.msgs.models import (
     SupportGroupMessage,
     SupportGroupMessageComment,
     UserReport,
-    SupportGroupMessageRecipient,
 )
 from agir.people.serializers import PersonSerializer
+from agir.groups.models import Membership
 
 
 class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
@@ -79,6 +79,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "linkedEvent",
         "recentComments",
         "commentCount",
+        "requiredMembershipType",
     )
     DETAIL_FIELDS = (
         "id",
@@ -90,6 +91,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "linkedEvent",
         "lastUpdate",
         "comments",
+        "requiredMembershipType",
     )
 
     lastUpdate = serializers.DateTimeField(read_only=True, source="last_update")
@@ -102,6 +104,14 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     recentComments = serializers.SerializerMethodField(read_only=True)
     commentCount = serializers.SerializerMethodField(read_only=True)
     comments = serializers.SerializerMethodField(read_only=True)
+
+    requiredMembershipType = serializers.ChoiceField(
+        source="required_membership_type",
+        required=False,
+        allow_null=True,
+        choices=Membership.MEMBERSHIP_TYPE_CHOICES,
+        default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+    )
 
     def get_group(self, obj):
         return {
@@ -150,6 +160,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "comments",
             "commentCount",
             "lastUpdate",
+            "requiredMembershipType",
         )
 
 
@@ -211,10 +222,28 @@ class UserMessagesSerializer(BaseMessageSerializer):
         method_name="get_last_comment", read_only=True
     )
 
+    requiredMembershipType = serializers.ChoiceField(
+        source="required_membership_type",
+        required=False,
+        allow_null=True,
+        read_only=True,
+        choices=Membership.MEMBERSHIP_TYPE_CHOICES,
+        default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+    )
+
     def get_group(self, message):
         return {
             "id": message.supportgroup.id,
             "name": message.supportgroup.name,
+            "referents": [
+                {
+                    "id": referent.id,
+                    "email": referent.email,
+                    "displayName": referent.display_name,
+                    "gender": referent.gender,
+                }
+                for referent in message.supportgroup.referents
+            ],
         }
 
     def get_unread_comment_count(self, message):
@@ -246,4 +275,5 @@ class UserMessagesSerializer(BaseMessageSerializer):
             "lastUpdate",
             "lastComment",
             "isUnread",
+            "requiredMembershipType",
         )

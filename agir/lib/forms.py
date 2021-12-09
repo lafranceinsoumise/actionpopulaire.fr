@@ -5,7 +5,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.template import loader
 from django.utils.html import _json_script_escapes
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .geo import geocode_element
 from .models import LocationMixin

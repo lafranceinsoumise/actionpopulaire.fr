@@ -1,7 +1,7 @@
 from django.db.models import JSONField
 from django.db import models
 from django.template.defaultfilters import floatformat
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 from phonenumber_field.modelfields import PhoneNumberField
 

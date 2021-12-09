@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Row, HTML, Fieldset
 from django import forms
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from agir.lib.form_components import HalfCol, FullCol
 from agir.lib.form_mixins import TagMixin

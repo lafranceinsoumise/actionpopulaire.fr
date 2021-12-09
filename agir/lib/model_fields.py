@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core import checks, exceptions
 from django.db import models
 from django.utils.itercompat import is_iterable
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from agir.donations.validators import validate_iban
 from agir.lib.form_fields import IBANField as FormIBANField

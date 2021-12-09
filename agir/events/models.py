@@ -20,7 +20,7 @@ from django.template.defaultfilters import floatformat
 from django.utils import formats, timezone
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 from dynamic_filenames import FilePattern
 from ics import Organizer

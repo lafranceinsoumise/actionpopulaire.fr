@@ -15,6 +15,7 @@ from agir.msgs.models import (
     SupportGroupMessage,
     SupportGroupMessageComment,
 )
+from agir.people.models import Person
 
 
 def update_recipient_message(message, recipient):
@@ -48,13 +49,23 @@ def get_unread_message_count(person_pk):
         0,
     )
 
+    # Filter messages where person is not allowed (not author, not in required membership)
+    messages = SupportGroupMessage.objects.filter(
+        deleted=False,
+        supportgroup_id__in=SupportGroup.objects.active()
+        .filter(memberships__person_id=person_pk)
+        .values("id"),
+    )
+    if not isinstance(person_pk, Person):
+        person_pk = Person.objects.get(pk=person_pk)
+    messages_allowed_id = [
+        msg.id
+        for msg in messages
+        if person_pk.role.has_perm("msgs.view_supportgroupmessage", msg)
+    ]
+
     unread_message_count = (
-        SupportGroupMessage.objects.filter(
-            deleted=False,
-            supportgroup_id__in=SupportGroup.objects.active()
-            .filter(memberships__person_id=person_pk)
-            .values("id"),
-        )
+        SupportGroupMessage.objects.filter(pk__in=messages_allowed_id)
         .annotate(
             membership_created=Subquery(
                 Membership.objects.filter(

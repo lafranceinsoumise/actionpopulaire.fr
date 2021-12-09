@@ -19,7 +19,7 @@ class CreateEventAPITestCase(APITestCase):
     def setUp(self):
         self.managed_group = SupportGroup.objects.create()
         self.unmanaged_group = SupportGroup.objects.create()
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="person@example.com",
             create_role=True,
         )
@@ -356,7 +356,7 @@ class CreateEventAPITestCase(APITestCase):
 
 class RSVPEventAPITestCase(APITestCase):
     def setUp(self):
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="person@example.com",
             create_role=True,
             is_insoumise=True,
@@ -374,7 +374,7 @@ class RSVPEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 401)
 
     def test_2022_person_can_rsvp_insoumise_event(self):
-        person_2022 = Person.objects.create(
+        person_2022 = Person.objects.create_person(
             email="2022@example.com",
             create_role=True,
             is_insoumise=False,
@@ -391,7 +391,7 @@ class RSVPEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 201)
 
     def test_insoumise_person_can_rsvp_2022_event(self):
-        person_insoumise = Person.objects.create(
+        person_insoumise = Person.objects.create_person(
             email="insoumise@example.com",
             create_role=True,
             is_insoumise=True,
@@ -501,7 +501,7 @@ class RSVPEventAPITestCase(APITestCase):
 
 class QuitEventAPITestCase(APITestCase):
     def setUp(self):
-        self.person = Person.objects.create(
+        self.person = Person.objects.create_person(
             email="person@example.com",
             create_role=True,
         )
@@ -533,7 +533,7 @@ class QuitEventAPITestCase(APITestCase):
             start_time=self.start_time,
             end_time=self.end_time,
         )
-        other_person = Person.objects.create(
+        other_person = Person.objects.create_person(
             email="other_person@example.com",
             create_role=True,
         )
@@ -568,11 +568,11 @@ class QuitEventAPITestCase(APITestCase):
 
 class UpdateEventAPITestCase(APITestCase):
     def setUp(self):
-        self.unrelated_person = Person.objects.create(
+        self.unrelated_person = Person.objects.create_person(
             email="unrelated_person@example.com",
             create_role=True,
         )
-        self.organizer = Person.objects.create(
+        self.organizer = Person.objects.create_person(
             email="organizer@example.com",
             create_role=True,
         )
@@ -651,11 +651,11 @@ class UpdateEventAPITestCase(APITestCase):
 
 class EventProjectAPITestCase(APITestCase):
     def setUp(self):
-        self.unrelated_person = Person.objects.create(
+        self.unrelated_person = Person.objects.create_person(
             email="unrelated_person@example.com",
             create_role=True,
         )
-        self.organizer = Person.objects.create(
+        self.organizer = Person.objects.create_person(
             email="organizer@example.com",
             create_role=True,
         )
@@ -793,11 +793,11 @@ class EventProjectAPITestCase(APITestCase):
 
 class CreateEventProjectDocumentAPITestCase(APITestCase):
     def setUp(self):
-        self.unrelated_person = Person.objects.create(
+        self.unrelated_person = Person.objects.create_person(
             email="unrelated_person@example.com",
             create_role=True,
         )
-        self.organizer = Person.objects.create(
+        self.organizer = Person.objects.create_person(
             email="organizer@example.com",
             create_role=True,
         )
@@ -919,11 +919,11 @@ class CreateEventProjectDocumentAPITestCase(APITestCase):
 
 class EventProjectsAPITestCase(APITestCase):
     def setUp(self):
-        self.unrelated_person = Person.objects.create(
+        self.unrelated_person = Person.objects.create_person(
             email="unrelated_person@example.com",
             create_role=True,
         )
-        self.organizer = Person.objects.create(
+        self.organizer = Person.objects.create_person(
             email="organizer@example.com",
             create_role=True,
         )

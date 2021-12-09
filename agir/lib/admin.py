@@ -2,10 +2,16 @@ from functools import partial
 from typing import Iterable
 
 import django_countries
+from data_france.models import CirconscriptionLegislative
+
+from agir.lib.autocomplete_filter import (
+    AutocompleteRelatedModelFilter,
+    AutocompleteSelectModelBaseFilter,
+)
 from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.admin.options import IS_POPUP_VAR, ModelAdmin
-from django.db.models import Model
+from django.db.models import Model, Subquery
 from django.db.models.fields.related import (
     RelatedField,
     ForeignObject,
@@ -18,7 +24,7 @@ from django.db.models.fields.related import (
 from django.urls import reverse
 from django.utils.html import escape, format_html_join, format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic.base import ContextMixin
 
@@ -274,3 +280,23 @@ class AddRelatedLinkMixin(ModelAdmin):
             '<a href="{}">{}</a>',
             ((reverse(view_name, args=(obj.pk,)), str(obj)) for obj in qs),
         )
+
+
+class CirconscriptionLegislativeFilter(AutocompleteSelectModelBaseFilter):
+    title = "circonscription législative"
+    filter_model = CirconscriptionLegislative
+
+    def get_queryset_for_field(self):
+        return CirconscriptionLegislative.objects.exclude(geometry__isnull=True)
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(
+                coordinates__intersects=Subquery(
+                    CirconscriptionLegislative.objects.filter(pk=self.value()).values(
+                        "geometry"
+                    )[:1]
+                )
+            )
+        else:
+            return queryset

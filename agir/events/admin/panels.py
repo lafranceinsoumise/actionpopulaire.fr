@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from agir.events.models import Calendar, RSVP
 from agir.groups.models import SupportGroup, Membership
@@ -19,6 +19,7 @@ from agir.lib.admin import (
     DepartementListFilter,
     RegionListFilter,
     CountryListFilter,
+    CirconscriptionLegislativeFilter,
 )
 from agir.lib.utils import front_url
 from agir.people.admin.views import FormSubmissionViewsMixin
@@ -334,6 +335,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "visibility",
         EventHasReportFilter,
         CountryListFilter,
+        CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,
         "coordinates_type",
@@ -504,6 +506,10 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 name="events_event_export_summary",
             ),
         ] + super().get_urls()
+
+    class Media:
+        # classe Media requise par le CirconscriptionLegislativeFilter, quand bien même elle est vide
+        pass
 
 
 @admin.register(models.Calendar)

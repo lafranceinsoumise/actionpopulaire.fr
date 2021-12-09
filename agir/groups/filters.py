@@ -1,6 +1,5 @@
 import django_filters
 from crispy_forms.helper import FormHelper
-from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Div, Submit
 from django import forms
 from django.conf import settings

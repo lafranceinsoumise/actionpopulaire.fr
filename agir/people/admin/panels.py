@@ -21,7 +21,7 @@ from django.template.response import TemplateResponse, SimpleTemplateResponse
 from django.urls import reverse, path
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rangefilter.filters import DateRangeFilter
 
 from agir.authentication.models import Role
@@ -32,8 +32,9 @@ from agir.lib.admin import (
     CenterOnFranceMixin,
     DepartementListFilter,
     RegionListFilter,
+    CirconscriptionLegislativeFilter,
 )
-from agir.lib.autocomplete_filter import AutocompleteFilter
+from agir.lib.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.utils import generate_token_params, front_url
 from agir.mailing.models import Segment
 from agir.people.admin.actions import export_people_to_csv
@@ -58,7 +59,7 @@ __all__ = [
 ]
 
 
-class SegmentFilter(AutocompleteFilter):
+class SegmentFilter(AutocompleteRelatedModelFilter):
     title = "segment"
 
     def get_rendered_widget(self):
@@ -104,7 +105,7 @@ class SegmentFilter(AutocompleteFilter):
             return queryset
 
 
-class TagListFilter(AutocompleteFilter):
+class TagListFilter(AutocompleteRelatedModelFilter):
     field_name = "tags"
     title = "Tags"
 
@@ -219,6 +220,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     list_filter = (
         SegmentFilter,
+        CirconscriptionLegislativeFilter,
         DepartementListFilter,
         RegionListFilter,
         "is_insoumise",

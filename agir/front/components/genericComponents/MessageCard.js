@@ -25,6 +25,7 @@ import CommentField, {
   CommentButton,
 } from "@agir/front/formComponents/CommentField";
 import Comment from "@agir/front/formComponents/Comment";
+import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
 const StyledInlineMenuItems = styled.div`
   cursor: pointer;
@@ -139,7 +140,7 @@ const StyledContent = styled.div`
     line-height: 1.6;
   }
 `;
-const StyledHeader = styled.div`
+export const StyledHeader = styled.div`
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-start;
@@ -255,14 +256,14 @@ const StyledComments = styled.div`
     }
   }
 `;
-const StyledSubject = styled.h2`
+export const StyledSubject = styled.h2`
   font-size: 1.125rem;
   line-height: 1.5;
   font-weight: 600;
   margin: 0 0 1.25rem;
 `;
-const StyledMessage = styled.div``;
-const StyledWrapper = styled.div`
+export const StyledMessage = styled.div``;
+export const StyledWrapper = styled.div`
   width: 100%;
   padding: 1.5rem;
   margin: 0;
@@ -334,6 +335,15 @@ const StyledWrapper = styled.div`
       }
     }
   }
+`;
+
+const StyledPrivateVisibility = styled.div`
+  padding: 20px;
+  background-color: ${style.primary50};
+  margin-bottom: 1rem;
+  border-radius: ${style.borderRadius};
+  display: flex;
+  align-items: start;
 `;
 
 const MessageCard = (props) => {
@@ -426,13 +436,31 @@ const MessageCard = (props) => {
       messageCardRef.current.scrollIntoView();
   }, [scrollIn]);
 
+  const isOrganizerMessage =
+    message.requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
+
+  let subject = getMessageSubject(message);
+  if (isOrganizerMessage && !subject) {
+    subject = `Message privé avec les animateur⋅ices de '${group.name}'`;
+  }
+
   return (
     <StyledWrapper
       ref={messageCardRef}
       $withMobileCommentField={withMobileCommentField}
     >
       <StyledMessage>
-        <StyledSubject>{getMessageSubject(message)}</StyledSubject>
+        <StyledSubject>{subject}</StyledSubject>
+        {isOrganizerMessage && (
+          <StyledPrivateVisibility>
+            <RawFeatherIcon name={"eye"} style={{ paddingRight: "6px" }} />
+            <div>
+              Cette discussion privée se déroule entre{" "}
+              {message.author.displayName} et les animateur·ices du groupe{" "}
+              <StyledGroupLink to={groupURL}>{group.name}</StyledGroupLink>
+            </div>
+          </StyledPrivateVisibility>
+        )}
         <StyledHeader>
           <Avatar {...author} />
           <h4>
@@ -451,7 +479,7 @@ const MessageCard = (props) => {
             ) : null}
           </h4>
           <StyledAction>
-            {encodedMessageURL ? (
+            {!!encodedMessageURL && (
               <InlineMenu triggerIconName="share-2" triggerSize="1rem">
                 <StyledInlineMenuItems>
                   <span>Partager avec d’autres membres du groupe&nbsp;:</span>
@@ -472,8 +500,8 @@ const MessageCard = (props) => {
                   </button>
                 </StyledInlineMenuItems>
               </InlineMenu>
-            ) : null}
-            {hasActions ? (
+            )}
+            {hasActions && (
               <InlineMenu
                 triggerIconName="more-horizontal"
                 triggerSize="1rem"
@@ -500,19 +528,19 @@ const MessageCard = (props) => {
                   )}
                 </StyledInlineMenuItems>
               </InlineMenu>
-            ) : null}
+            )}
           </StyledAction>
         </StyledHeader>
         <StyledContent onClick={handleClick}>
           <ParsedString>{text}</ParsedString>
         </StyledContent>
-        {event ? <EventCard {...event} /> : null}
-        {commentCount ? (
+        {!!event && <EventCard {...event} />}
+        {!!commentCount && (
           <StyledCommentCount onClick={handleClick}>
             <RawFeatherIcon name="message-circle" color={style.primary500} />
             &ensp;Voir les {commentCount} commentaires
           </StyledCommentCount>
-        ) : null}
+        )}
         <StyledComments
           $empty={!Array.isArray(comments) || comments.length === 0}
         >
@@ -531,8 +559,8 @@ const MessageCard = (props) => {
               : null}
           </PageFadeIn>
           <StyledNewComment>
-            {onComment ? (
-              withMobileCommentField ? (
+            {!!onComment &&
+              (withMobileCommentField ? (
                 <CommentField
                   isLoading={isLoading}
                   user={user}
@@ -549,8 +577,7 @@ const MessageCard = (props) => {
                   onClick={onClick && handleClick}
                   autoScroll={autoScrollOnComment}
                 />
-              )
-            ) : null}
+              ))}
           </StyledNewComment>
         </StyledComments>
         {withBottomButton && (

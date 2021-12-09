@@ -227,11 +227,13 @@ const StyledWrapper = styled.form`
   }
 `;
 
+const PLACEHOLDER_MESSAGE = "Écrire une réponse";
+
 export const CommentButton = (props) => {
   const { onClick } = props;
   return onClick ? (
     <StyledCommentButton onClick={onClick}>
-      Écrire une réponse
+      {PLACEHOLDER_MESSAGE}
     </StyledCommentButton>
   ) : null;
 };
@@ -248,8 +250,16 @@ const updateScroll = (rootElement, messageElement) => {
 };
 
 const CommentField = (props) => {
-  const { user, initialValue, id, onSend, isLoading, disabled, autoScroll } =
-    props;
+  const {
+    user,
+    initialValue,
+    id,
+    onSend,
+    isLoading,
+    disabled,
+    autoScroll,
+    placeholder,
+  } = props;
 
   const hasSubmitted = useRef(false);
 
@@ -418,7 +428,7 @@ const CommentField = (props) => {
                 autoFocus={isFocused}
                 label={user.displayName}
                 disabled={disabled || isLoading}
-                placeholder="Écrire une réponse"
+                placeholder={placeholder || PLACEHOLDER_MESSAGE}
                 maxLength={1000}
                 hasCounter={false}
               />
@@ -435,7 +445,7 @@ const CommentField = (props) => {
                 onClick={handleFocus}
                 onTouchStart={handleFocus}
               >
-                Écrire une réponse
+                {placeholder || PLACEHOLDER_MESSAGE}
               </StyledCommentButton>
               <RawFeatherIcon name="send" color={style.primary500} small />
             </>

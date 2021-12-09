@@ -2,7 +2,7 @@ import reversion
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from glom import glom, T
 from reversion.models import Version
 
