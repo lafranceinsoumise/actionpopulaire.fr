@@ -230,17 +230,24 @@ class CreateEventAPIView(CreateAPIView):
 
 
 class EventManagementPermissions(GlobalOrObjectPermissions):
+    message = (
+        "Vous n'avez pas la permission d'effectuer cette action."
+        "Veuillez contacter nos équipes à groupes@actionpopulaire.fr"
+    )
+
     perms_map = {
         "GET": [],
         "POST": [],
         "PUT": [],
         "PATCH": [],
+        "DELETE": [],
     }
     object_perms_map = {
-        "GET": ["events.change_event"],
+        "GET": ["events.view_event_settings"],
         "POST": ["events.change_event"],
         "PUT": ["events.change_event"],
         "PATCH": ["events.change_event"],
+        "DELETE": ["events.delete_event"],
     }
 
 
@@ -340,22 +347,16 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
             return Response(status=status.HTTP_202_ACCEPTED)
 
 
-class CancelEventAPIView(GenericAPIView):
+class CancelEventAPIView(DestroyAPIView):
     permission_classes = (EventManagementPermissions,)
     queryset = Event.objects.public().upcoming(
         as_of=timezone.now(), published_only=False
     )
 
-    def post(self, request, pk):
-        event = self.get_object()
+    def perform_destroy(self, event):
         event.visibility = Event.VISIBILITY_ADMIN
         event.save()
-
-        send_cancellation_notification.delay(pk)
-
-        return JsonResponse(
-            {"data": _("L'événement « {} » a bien été annulé.").format(event.name)}
-        )
+        send_cancellation_notification.delay(event.pk)
 
 
 class RSVPEventPermissions(GlobalOrObjectPermissions):
@@ -432,9 +433,9 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
 class EventProjectPermission(GlobalOrObjectPermissions):
     perms_map = {"GET": [], "PUT": [], "PATCH": []}
     object_perms_map = {
-        "GET": ["events.change_event"],
-        "PUT": ["events.change_event"],
-        "PATCH": ["events.change_event"],
+        "GET": ["events.view_event_settings"],
+        "PUT": ["events.upload_event_documents"],
+        "PATCH": ["events.upload_event_documents"],
     }
 
 
@@ -477,7 +478,7 @@ class CreateEventProjectDocumentPermission(GlobalOrObjectPermissions):
         "POST": [],
     }
     object_perms_map = {
-        "POST": ["events.change_event"],
+        "POST": ["events.upload_event_documents"],
     }
 
 
@@ -498,11 +499,9 @@ class CreateEventProjectDocumentAPIView(CreateAPIView):
 
 
 class EventReportPersonFormPermission(GlobalOrObjectPermissions):
-    perms_map = {"GET": [], "PUT": [], "PATCH": []}
+    perms_map = {"GET": []}
     object_perms_map = {
-        "GET": ["events.change_event"],
-        "PUT": ["events.change_event"],
-        "PATCH": ["events.change_event"],
+        "GET": ["events.view_event_settings"],
     }
 
 

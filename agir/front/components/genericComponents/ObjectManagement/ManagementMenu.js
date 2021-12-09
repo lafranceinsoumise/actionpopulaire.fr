@@ -11,6 +11,22 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import BackButton from "./BackButton";
 
+const StyledWarning = styled.p`
+  font-size: 0.875rem;
+  color: ${style.black700};
+  background-color: ${style.black100};
+  border-radius: 0.5rem;
+  padding: 1rem;
+
+  &:empty {
+    display: none;
+  }
+
+  strong {
+    font-weight: 600;
+  }
+`;
+
 const StyledMenuItem = styled(NavLink)`
   display: flex;
   width: 100%;
@@ -175,7 +191,7 @@ ManagementMenuItem.propTypes = {
 };
 
 const ManagementMenu = (props) => {
-  const { items, title, subtitle, onBack } = props;
+  const { items, title, subtitle, warning, onBack } = props;
 
   const groupedItems = useMemo(
     () =>
@@ -199,7 +215,9 @@ const ManagementMenu = (props) => {
       <Spacer size="1rem" />
       <h6>{subtitle}</h6>
       <h4>{title}</h4>
-      <Spacer size="1rem" />
+      <Spacer size="0.5rem" />
+      <StyledWarning>{warning}</StyledWarning>
+      <Spacer size="0.5rem" />
       <ul>
         {groupedItems[0].map((item) => (
           <li key={item.id}>
@@ -235,6 +253,7 @@ const ManagementMenu = (props) => {
 ManagementMenu.propTypes = {
   title: PropTypes.string.isRequired,
   subtitle: PropTypes.string,
+  warning: PropTypes.node,
   items: PropTypes.arrayOf(PropTypes.shape(ManagementMenuItem.propTypes))
     .isRequired,
   onBack: PropTypes.func.isRequired,

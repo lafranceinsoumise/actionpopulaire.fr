@@ -243,10 +243,11 @@ export const cancelEvent = async (eventPk) => {
   const url = getEventEndpoint("cancelEvent", { eventPk });
 
   try {
-    const response = await axios.post(url);
+    const response = await axios.delete(url);
+    console.log(response);
     result.data = response.data;
   } catch (e) {
-    result.errors = (e.response && e.response.data) || { global: e.message };
+    result.error = (e.response && e.response.data) || { global: e.message };
   }
 
   return result;

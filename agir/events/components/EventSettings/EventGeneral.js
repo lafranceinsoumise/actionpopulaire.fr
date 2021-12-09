@@ -134,7 +134,8 @@ const EventGeneral = (props) => {
     if (res.error) {
       setErrors(res.error);
       sendToast(
-        "Une erreur est survenue, veuillez réessayer plus tard",
+        res.error.detail ||
+          "Une erreur est survenue, veuillez réessayer plus tard",
         "ERROR",
         { autoClose: true }
       );
@@ -144,7 +145,7 @@ const EventGeneral = (props) => {
     mutate((event) => ({ ...event, ...res.data }));
   };
 
-  const isDisabled = !event || event.isPast || isLoading;
+  const isDisabled = !event || !event.isEditable || event.isPast || isLoading;
 
   return (
     <>
@@ -235,15 +236,18 @@ const EventGeneral = (props) => {
             />
           </>
         )}
-        <Spacer size="1rem" />
-        <EventSubtypeField
-          name="subtype"
-          value={formData.subtype}
-          options={options?.subtype}
-          onChange={handleChangeValue}
-          disabled={isDisabled}
-        />
-
+        {event.subtype.isVisible && (
+          <>
+            <Spacer size="1rem" />
+            <EventSubtypeField
+              name="subtype"
+              value={formData.subtype}
+              options={options?.subtype}
+              onChange={handleChangeValue}
+              disabled={isDisabled}
+            />
+          </>
+        )}
         <Spacer size="2rem" />
         <Button color="secondary" wrap disabled={isDisabled} type="submit">
           Enregistrer

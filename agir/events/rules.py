@@ -57,6 +57,11 @@ def is_free_event(role, event=None):
 
 
 @rules.predicate
+def is_editable_event(role, event=None):
+    return event is not None and event.subtype.is_editable
+
+
+@rules.predicate
 def has_event_with_missing_documents(role):
     organized_event_projects = Projet.objects.filter(
         event__in=role.person.organized_events.select_related("subtype")
@@ -84,8 +89,26 @@ rules.add_perm(
     | (~is_hidden_event & is_authenticated_person & is_organizer_of_event),
 )
 rules.add_perm(
-    "events.change_event",
+    "events.view_event_settings",
     ~is_hidden_event & is_authenticated_person & is_organizer_of_event,
+)
+rules.add_perm(
+    "events.upload_event_documents",
+    ~is_hidden_event & is_authenticated_person & is_organizer_of_event,
+)
+rules.add_perm(
+    "events.change_event",
+    ~is_hidden_event
+    & is_editable_event
+    & is_authenticated_person
+    & is_organizer_of_event,
+)
+rules.add_perm(
+    "events.delete_event",
+    ~is_hidden_event
+    & is_editable_event
+    & is_authenticated_person
+    & is_organizer_of_event,
 )
 
 # for RSVP API

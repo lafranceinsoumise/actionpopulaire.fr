@@ -132,7 +132,7 @@ export const routeConfig = {
     label: "Annuler l'événement",
     icon: "",
     Component: EventCancelation,
-    isActive: (event) => !event.isPast,
+    isActive: (event) => event.isEditable && !event.isPast,
     menuGroup: 3,
     isCancel: true,
   },

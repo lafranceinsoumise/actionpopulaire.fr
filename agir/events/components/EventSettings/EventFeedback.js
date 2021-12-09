@@ -96,7 +96,7 @@ const EventFeedback = (props) => {
     });
   }, [event]);
 
-  const isDisabled = !event || isLoading;
+  const isDisabled = !event || !event.isEditable || isLoading;
 
   return (
     <form onSubmit={handleSubmit}>

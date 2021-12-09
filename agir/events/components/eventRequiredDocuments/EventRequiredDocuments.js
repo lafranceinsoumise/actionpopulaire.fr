@@ -225,7 +225,7 @@ const EventRequiredDocuments = (props) => {
           }
         />
         <SentDocumentsCard documents={documents} />
-        {!embedded && (
+        {!embedded && event.subtype.isVisible && (
           <EventSubtypePicker
             value={event.subtype}
             options={subtypes}
