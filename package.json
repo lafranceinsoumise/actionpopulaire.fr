@@ -110,7 +110,7 @@
     "@storybook/builder-webpack5": "^6.4.8",
     "@storybook/cli": "^6.4.8",
     "@storybook/react": "^6.4.8",
-    "@testing-library/jest-dom": "^5.16.0",
+    "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^7.0.2",
     "babel-jest": "^27.4.2",
