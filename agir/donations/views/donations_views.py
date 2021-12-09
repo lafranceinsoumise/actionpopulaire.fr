@@ -334,7 +334,7 @@ def subscription_notification_listener(subscription):
     if subscription.status == Subscription.STATUS_ACTIVE:
         transaction.on_commit(
             partial(
-                send_donation_email.delay, subscription.person.pk, subscription.mode
+                send_donation_email.delay, subscription.person.pk, subscription.type
             )
         )
 
