@@ -157,7 +157,7 @@ export const JoinGroup = (props) => {
           <MessageModal
             shouldShow={messageModalOpen}
             user={user}
-            privateGroupId={id}
+            groupPk={id}
             onSend={sendPrivateMessage}
             onClose={() => setMessageModalOpen(false)}
           />

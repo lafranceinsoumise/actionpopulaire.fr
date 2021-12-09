@@ -144,7 +144,7 @@ const Modal = (props) => {
     loadMoreEvents,
     message,
     onSelectGroup,
-    privateGroupId,
+    groupPk,
   } = props;
 
   const initialMessage = useMemo(() => {
@@ -272,7 +272,7 @@ const Modal = (props) => {
           >
             <RawFeatherIcon name={hasBackButton ? "arrow-left" : "x"} />
           </StyledIconButton>
-          {(selectedEvent || !!privateGroupId) && (
+          {(selectedEvent || !!groupPk) && (
             <Button
               color="secondary"
               small
@@ -286,7 +286,7 @@ const Modal = (props) => {
         <StyledModalBody onKeyDown={handleSendOnCtrlEnter}>
           {Array.isArray(groups) && !selectedGroup ? (
             <GroupStep groups={groups} onSelectGroup={handleSelectGroup} />
-          ) : !selectedEvent && !privateGroupId ? (
+          ) : !selectedEvent && !groupPk ? (
             <EventStep
               events={eventOptions}
               onSelectEvent={handleSelectEvent}
@@ -304,12 +304,11 @@ const Modal = (props) => {
               disabled={isLoading}
               maxLength={TEXT_MAX_LENGTH}
               subjectMaxLength={SUBJECT_MAX_LENGTH}
-              privateGroupId={privateGroupId}
-              group={message?.group}
+              groupPk={groupPk}
             />
           )}
         </StyledModalBody>
-        {(selectedEvent || !!privateGroupId) && (
+        {(selectedEvent || !!groupPk) && (
           <StyledModalFooter>
             <Button color="secondary" disabled={!maySend} onClick={handleSend}>
               Publier le message

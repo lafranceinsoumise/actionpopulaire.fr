@@ -98,7 +98,7 @@ const SecondaryActions = ({ id, isCertified, routes }) => {
       <MessageModal
         shouldShow={messageModalOpen}
         user={user}
-        privateGroupId={id}
+        groupPk={id}
         onSend={sendPrivateMessage}
         onClose={handleMessageClose}
       />

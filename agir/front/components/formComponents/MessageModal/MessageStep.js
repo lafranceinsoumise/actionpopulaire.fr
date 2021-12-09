@@ -164,13 +164,13 @@ const MessageStep = (props) => {
     onClearEvent,
     maxLength,
     subjectMaxLength,
-    privateGroupId,
+    groupPk,
   } = props;
 
   const textFieldRef = useRef();
   const textFieldCursorPosition = useRef();
 
-  const isUserGroup = user.groups.includes(privateGroupId);
+  const isUserGroup = user.groups.includes(groupPk);
 
   const handleEmojiSelect = useCallback(
     (emoji) => {
@@ -204,7 +204,7 @@ const MessageStep = (props) => {
 
   return (
     <StyledWrapper>
-      {!!privateGroupId && (
+      {!!groupPk && (
         <div
           style={{
             padding: "20px",
