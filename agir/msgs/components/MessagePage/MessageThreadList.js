@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import React, { useEffect, useRef } from "react";
 import { useIntersection, usePrevious } from "react-use";
 import styled from "styled-components";
+import useSWR from "swr";
+import { useToast } from "@agir/front/globalContext/hooks";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -14,7 +16,7 @@ import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import MessageThreadMenu from "./MessageThreadMenu";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { switchMessageMuted, getMessageMuted } from "@agir/groups/api.js";
+import { switchMessageMuted, getGroupEndpoint } from "@agir/groups/api.js";
 
 const StyledContent = styled.article`
   height: 100%;
@@ -74,6 +76,7 @@ const BlockMuteMessage = styled.div`
   align-items: end;
   justify-content: center;
   padding-right: 10px;
+  ${({ isActive }) => !isActive && `color: red;`}
 
   ${RawFeatherIcon}:hover {
     cursor: pointer;
@@ -118,6 +121,8 @@ const useAutoScrollToBottom = (commentLength = 0, messageId) => {
   return [scrollableRef, bottomRef];
 };
 
+const ON = "on";
+
 const DesktopThreadList = (props) => {
   const {
     isLoading,
@@ -141,13 +146,24 @@ const DesktopThreadList = (props) => {
     selectedMessagePk
   );
 
-  // TODO : set on/off muteMessageInfo
-  // mutate value on switch
+  const sendToast = useToast();
+
+  const { data, mutate } = useSWR(
+    getGroupEndpoint("getMessageMuted", { messagePk: selectedMessage?.id })
+  );
+  const isActive = data && data.data === ON;
 
   const switchNotificationMessage = async () => {
-    // const res = await getMessageMuted(selectedMessage);
-    const res = await switchMessageMuted(selectedMessage);
-    console.log("Res switch : ", res);
+    const { data } = await switchMessageMuted(selectedMessage);
+    mutate(() => data);
+    let text =
+      "Vous ne recevrez plus de notifications reliées à ce fil de messages";
+    let type = "INFO";
+    if (data.data === ON) {
+      text = "Les notifications reliées à ce fil de message sont réactivées";
+      type = "SUCCESS";
+    }
+    sendToast(text, type, { autoClose: true });
   };
 
   useEffect(() => {
@@ -170,8 +186,11 @@ const DesktopThreadList = (props) => {
       />
       <div style={{ display: "flex", flexDirection: "column" }}>
         {!!selectedMessage && (
-          <BlockMuteMessage>
-            <RawFeatherIcon name="bell" onClick={switchNotificationMessage} />
+          <BlockMuteMessage isActive={isActive}>
+            <RawFeatherIcon
+              name={`bell${!isActive ? "-off" : ""}`}
+              onClick={switchNotificationMessage}
+            />
           </BlockMuteMessage>
         )}
         <StyledContent ref={scrollableRef}>
