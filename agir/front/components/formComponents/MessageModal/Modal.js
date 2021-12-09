@@ -167,11 +167,13 @@ const Modal = (props) => {
   const [selectedGroup, setSelectedGroup] = useState(message?.group || null);
 
   const maySend = useMemo(() => {
-    if (privateGroupId) {
+    if (isLoading) {
+      return false;
+    }
+    if (!selectedEvent) {
       return true;
     }
-    let maySend =
-      !isLoading &&
+    const maySend =
       selectedEvent &&
       subject.trim() &&
       subject.trim().length <= SUBJECT_MAX_LENGTH &&
@@ -181,15 +183,7 @@ const Modal = (props) => {
       return maySend && selectedGroup;
     }
     return maySend;
-  }, [
-    groups,
-    isLoading,
-    selectedEvent,
-    subject,
-    text,
-    selectedGroup,
-    privateGroupId,
-  ]);
+  }, [isLoading, subject, text, groups, selectedEvent, selectedGroup]);
 
   const handleChangeMessage = useCallback((prop, text) => {
     if (prop === "subject") {

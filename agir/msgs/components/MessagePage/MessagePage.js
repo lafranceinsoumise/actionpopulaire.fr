@@ -27,9 +27,6 @@ import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 import MessageThreadList from "./MessageThreadList";
 import EmptyMessagePage from "./EmptyMessagePage";
 
-import { getGroupEndpoint } from "@agir/groups/api";
-import useSWR from "swr";
-
 const StyledPageFadeIn = styled(PageFadeIn)``;
 const StyledPage = styled.div`
   margin: 0 auto;
@@ -50,7 +47,7 @@ const StyledPage = styled.div`
   }
 `;
 
-const MessagePage = ({ messagePk, groupPk }) => {
+const MessagePage = ({ messagePk }) => {
   const isOffline = useIsOffline();
   const dispatch = useDispatch();
   const onSelectMessage = useSelectMessage();
@@ -61,8 +58,6 @@ const MessagePage = ({ messagePk, groupPk }) => {
     currentMessage,
     isAutoRefreshPausedRef,
   } = useMessageSWR(messagePk, onSelectMessage);
-
-  const { data: group } = useSWR(getGroupEndpoint("getGroup", { groupPk }));
 
   const {
     isLoading,
