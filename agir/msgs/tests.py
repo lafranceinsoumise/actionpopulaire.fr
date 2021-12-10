@@ -91,6 +91,10 @@ class UserMessagesAPITestCase(APITestCase):
             email="member@example.com",
             create_role=True,
         )
+        self.user_manager = Person.objects.create(
+            email="manager@example.com",
+            create_role=True,
+        )
         self.user_referent = Person.objects.create(
             email="referent@example.com",
             create_role=True,
@@ -120,6 +124,11 @@ class UserMessagesAPITestCase(APITestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
         Membership.objects.create(
+            person=self.user_manager,
+            supportgroup=self.group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        Membership.objects.create(
             person=self.user_referent,
             supportgroup=self.group,
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
@@ -136,6 +145,28 @@ class UserMessagesAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["id"], str(self.first_message.id))
+
+    def test_authenticated_user_without_group_can_post_organization_message(self):
+        self.client.force_login(self.user_no_group.role)
+        res = self.client.post(
+            "/api/groupes/" + str(self.group.id) + "/envoi-message-prive/",
+            data={
+                "subject": "Objet du message",
+                "text": "Message privé à la haute administration !",
+            },
+        )
+        self.assertEqual(res.status_code, 201)
+
+    def test_authenticated_user_without_group_cannot_post_public_message(self):
+        self.client.force_login(self.user_no_group.role)
+        res = self.client.post(
+            "/api/groupes/" + str(self.group.id) + "/messages/",
+            data={
+                "subject": "Objet du message",
+                "text": "Message privé à la haute administration !",
+            },
+        )
+        self.assertEqual(res.status_code, 403)
 
     def test_authenticated_user_can_get_only_messages_from_own_groups(self):
         other_group = SupportGroup.objects.create()
@@ -164,6 +195,22 @@ class UserMessagesAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response.data[0]["id"], str(self.private_message.id))
+
+    def test_manager_can_get_messages_from_own_groups_membership(self):
+        other_user = Person.objects.create(
+            email="other_user@example.com", create_role=True
+        )
+        message = SupportGroupMessage.objects.create(
+            author=other_user,
+            supportgroup=self.group,
+            text="Message to managers",
+            required_membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        self.client.force_login(self.user_manager.role)
+        response = self.client.get("/api/user/messages/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]["id"], str(message.id))
 
     def test_member_cannot_get_messages_from_own_groups_organization(self):
         other_group = SupportGroup.objects.create()
