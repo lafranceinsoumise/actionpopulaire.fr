@@ -414,6 +414,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
             new_message_notifications(message)
             update_recipient_message(message, self.request.user.person)
 
+
 # Allow anyone to send private message
 class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
     permission_classes = (IsAuthenticated,)
@@ -422,7 +423,7 @@ class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
     def get(self):
         pass
 
-    
+
 # Create or delete MuteMessage
 class GroupMessageSwitchNotificationAPIView(UpdateAPIView):
     permission_classes = (GroupMessagesPermissions,)
@@ -440,7 +441,7 @@ class GroupMessageSwitchNotificationAPIView(UpdateAPIView):
             MuteMessage.objects.create(person=person, message_id=kwargs["pk"])
             result = "off"
 
-        return Response({"data": result})
+        return Response(result)
 
 
 # Get MuteMessage info on message_pk
@@ -455,7 +456,7 @@ class GroupMessageNotificationAPIView(ListAPIView):
             result = "off"
         else:
             result = "on"
-        return Response({"data": result})
+        return Response(result)
 
 
 @method_decorator(never_cache, name="get")

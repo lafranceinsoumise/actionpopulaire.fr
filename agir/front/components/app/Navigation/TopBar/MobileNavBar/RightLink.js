@@ -38,7 +38,7 @@ export const RightLink = (props) => {
     let text =
       "Vous ne recevrez plus de notifications reliées à ce fil de messages";
     let type = "INFO";
-    if (data.data === "on") {
+    if (data === "on") {
       text = "Les notifications reliées à ce fil de message sont réactivées";
       type = "SUCCESS";
     }
@@ -61,7 +61,7 @@ export const RightLink = (props) => {
     const isMessagePage = !!matchMessagePage;
     // Show muted message settings
     if (isMessagePage) {
-      const isActive = data && data.data === "on";
+      const isActive = data === "on";
       return (
         <BlockMuteMessage isActive={isActive}>
           <RawFeatherIcon

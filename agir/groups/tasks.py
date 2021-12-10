@@ -466,14 +466,13 @@ def create_accepted_invitation_member_activity(new_membership_pk):
 def send_message_notification_email(message_pk):
 
     message = SupportGroupMessage.objects.get(pk=message_pk)
-    muted_recipients = MuteMessage.objects.filter(message=message).values("person_id")
 
     memberships = message.supportgroup.memberships.filter(
         membership_type__gte=message.required_membership_type
     )
     recipients = Person.objects.filter(
         id__in=memberships.values_list("person_id", flat=True)
-    ).exclude(id__in=muted_recipients)
+    )
     recipients_id = [recipient.id for recipient in recipients]
 
     recipients = Person.objects.exclude(id=message.author.id).filter(

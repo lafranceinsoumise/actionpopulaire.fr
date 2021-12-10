@@ -151,7 +151,8 @@ const DesktopThreadList = (props) => {
   const { data, mutate } = useSWR(
     getGroupEndpoint("getMessageMuted", { messagePk: selectedMessage?.id })
   );
-  const isActive = data && data.data === ON;
+
+  const isActive = data === ON;
 
   const switchNotificationMessage = async () => {
     const { data } = await switchMessageMuted(selectedMessage);
@@ -159,7 +160,7 @@ const DesktopThreadList = (props) => {
     let text =
       "Vous ne recevrez plus de notifications reliées à ce fil de messages";
     let type = "INFO";
-    if (data.data === ON) {
+    if (data === ON) {
       text = "Les notifications reliées à ce fil de message sont réactivées";
       type = "SUCCESS";
     }

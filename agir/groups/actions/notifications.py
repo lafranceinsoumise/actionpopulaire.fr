@@ -92,13 +92,12 @@ def someone_joined_notification(membership, membership_count=1):
 
 @transaction.atomic()
 def new_message_notifications(message):
-    muted_recipients = MuteMessage.objects.filter(message=message).values("person_id")
     memberships = message.supportgroup.memberships.filter(
         membership_type__gte=message.required_membership_type
     )
     recipients = Person.objects.filter(
         id__in=memberships.values_list("person_id", flat=True)
-    ).exclude(id__in=muted_recipients)
+    )
 
     Activity.objects.bulk_create(
         [
@@ -212,12 +211,16 @@ def new_comment_notifications(comment):
         send_post_save_signal=True,
     )
 
-    other_recipients = message_initial.supportgroup.members.exclude(
-        id__in=participant_recipients.values_list("id", flat=True)
-    ).filter(
-        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
-        notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
-        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
+    other_recipients = (
+        message_initial.supportgroup.members.exclude(
+            id__in=participant_recipients.values_list("id", flat=True)
+        )
+        .filter(
+            notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
+            notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
+            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
+        )
+        .exclude(id__in=muted_recipients)
     )
 
     Activity.objects.bulk_create(
