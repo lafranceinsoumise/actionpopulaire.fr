@@ -2,7 +2,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase
 from django.utils import timezone
 
-from agir.events.models import Event, OrganizerConfig
+from agir.events.models import Event, OrganizerConfig, EventSubtype
 from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person
 
@@ -99,6 +99,19 @@ class ChangeEventPermissionsTestCase(TestCase):
             person=self.event_organizer, event=self.personal_event, is_creator=False
         )
 
+        self.uneditable_event_subtype = EventSubtype.objects.create(
+            label="Uneditable", is_editable=False
+        )
+        self.uneditable_event = Event.objects.create(
+            name="Uneditable event",
+            start_time=start_time,
+            end_time=end_time,
+            subtype=self.uneditable_event_subtype,
+        )
+        OrganizerConfig.objects.create(
+            person=self.event_creator, event=self.uneditable_event
+        )
+
     def test_anonymous_cannot_change_any_event(self):
         self.assertFalse(
             self.anonymous.has_perm("events.change_event", self.personal_event)
@@ -160,4 +173,14 @@ class ChangeEventPermissionsTestCase(TestCase):
             self.event_organizer_group_member.has_perm(
                 "events.change_event", self.group_event
             )
+        )
+
+    def test_event_organizer_cannot_change_event_with_uneditable_subtype(self):
+        self.assertFalse(
+            self.event_organizer.has_perm("events.change_event", self.uneditable_event)
+        )
+
+    def test_event_organizer_cannot_delete_event_with_uneditable_subtype(self):
+        self.assertFalse(
+            self.event_organizer.has_perm("events.delete_event", self.uneditable_event)
         )

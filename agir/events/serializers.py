@@ -2,7 +2,6 @@ from datetime import timedelta
 from functools import partial
 from pathlib import PurePath
 
-from agir.lib import html
 from django.db import transaction
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
@@ -73,6 +72,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
     icon = serializers.SerializerMethodField(read_only=True)
     color = serializers.SerializerMethodField(read_only=True)
     needsDocuments = serializers.SerializerMethodField(read_only=True)
+    isVisible = serializers.SerializerMethodField(read_only=True)
 
     def get_needsDocuments(self, obj):
         return bool(obj.related_project_type)
@@ -91,6 +91,9 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
                 "popupAnchor": obj.popup_anchor_y,
             }
 
+    def get_isVisible(self, obj):
+        return obj.visibility == EventSubtype.VISIBILITY_ALL
+
     class Meta:
         model = models.EventSubtype
         fields = (
@@ -102,6 +105,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
             "iconName",
             "type",
             "needsDocuments",
+            "isVisible",
         )
 
 
@@ -157,6 +161,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     location = LocationSerializer(source="*")
 
     isOrganizer = serializers.SerializerMethodField()
+    isEditable = serializers.BooleanField(source="subtype.is_editable", read_only=True)
+
     rsvp = serializers.SerializerMethodField()
 
     options = EventOptionsSerializer(source="*")

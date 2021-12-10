@@ -825,6 +825,13 @@ class EventSubtype(BaseSubtype):
         on_delete=models.PROTECT,
     )
 
+    is_editable = models.BooleanField(
+        "Les événements de ce sous-types seront modifiables",
+        default=True,
+        help_text="Les événements de ce sous-type pourront être modifiés par les organisateur·ices, "
+        "et non seulement par les administrateur·ices",
+    )
+
     class Meta:
         verbose_name = _("Sous-type d'événement")
         verbose_name_plural = _("Sous-types d'événement")

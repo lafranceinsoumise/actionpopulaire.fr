@@ -43,7 +43,8 @@ const EventVisio = (props) => {
     if (res.error) {
       setErrors(res.error);
       sendToast(
-        "Une erreur est survenue, veuillez réessayer plus tard",
+        res.error.detail ||
+          "Une erreur est survenue, veuillez réessayer plus tard",
         "ERROR",
         { autoClose: true }
       );
@@ -55,7 +56,7 @@ const EventVisio = (props) => {
     });
   };
 
-  const isDisabled = !event || event.isPast || isLoading;
+  const isDisabled = !event || !event.isEditable || event.isPast || isLoading;
 
   return (
     <form onSubmit={handleSubmit}>
