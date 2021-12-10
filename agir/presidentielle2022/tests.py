@@ -53,11 +53,6 @@ class PublicDonationAggregatesAPITestCase(APITestCase):
         )
         self.expected_total_amount = 200
 
-    def test_anonymous_cannot_get_donation_aggregates(self):
-        self.client.logout()
-        res = self.client.get("/api/2022/dons/")
-        self.assertEqual(res.status_code, 401)
-
     def test_authenticated_user_can_get_right_donation_amount(self):
         self.client.force_login(self.person.role)
         res = self.client.get("/api/2022/dons/")
@@ -106,11 +101,6 @@ class DonationAggregatesAPITestCase(APITestCase):
             subscription=self.subscription,
         )
         self.expected_total_amount = 200
-
-    def test_anonymous_cannot_get_donation_aggregates(self):
-        self.client.logout()
-        res = self.client.get("/api/2022/dons/")
-        self.assertEqual(res.status_code, 401)
 
     def test_authenticated_user_can_get_right_donation_amount(self):
         self.client.force_login(self.person.role)
