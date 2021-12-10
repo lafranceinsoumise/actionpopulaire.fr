@@ -23,6 +23,7 @@ from agir.lib.utils import (
     validate_facebook_event_url,
     INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
     front_url,
+    get_youtube_video_id,
 )
 from agir.people.person_forms.models import PersonForm
 from . import models
@@ -173,6 +174,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     allowGuests = serializers.BooleanField(source="allow_guests")
 
     onlineUrl = serializers.URLField(source="online_url")
+    youtubeVideoID = serializers.SerializerMethodField(
+        method_name="youtube_video_id", read_only=True
+    )
 
     isPast = serializers.SerializerMethodField(
         read_only=True, method_name="get_is_past"
@@ -317,6 +321,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_metaImage(self, obj):
         return obj.get_meta_image()
+
+    def youtube_video_id(self, obj):
+        if obj.online_url:
+            try:
+                return get_youtube_video_id(obj.online_url)
+            except ValueError:
+                pass
+        return ""
 
 
 class EventAdvancedSerializer(EventSerializer):
