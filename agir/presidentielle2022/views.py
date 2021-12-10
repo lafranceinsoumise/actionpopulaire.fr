@@ -19,7 +19,6 @@ class MonthlyDonation2022EmailConfirmationView(MonthlyDonationEmailConfirmationV
 class PublicDonation2022AggregatesAPIView(APIView):
     permission_classes = (AllowAny,)
 
-    @method_decorator(vary_on_headers("Authorization"))
     @method_decorator(cache_page(60))
     def get(self, request, *args, **kwargs):
         return Response(get_aggregates())
