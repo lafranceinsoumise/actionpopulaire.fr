@@ -28,15 +28,16 @@
 
   table.stats th,
   table.stats td {
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: 0.875rem;
+    line-height: 1.2;
     font-variant-numeric: tabular-nums;
+    vertical-align: middle;
+    border-color: white;
   }
 
   table.stats th {
     width: 40%;
     font-weight: 500;
-    vertical-align: middle;
   }
 
   table.stats th em {
@@ -50,11 +51,26 @@
     text-transform: uppercase;
     background-color: #16a460;
     color: white;
+    font-weight: 700;
   }
 
   table.stats td {
     width: 60%;
     font-weight: 600;
+    text-align: right;
+  }
+
+  table.stats td > span {
+    display: flex;
+    gap: 1rem;
+  }
+
+  table.stats td > span > span {
+    flex: 0 0 50px;
+  }
+
+  table.stats td > span > meter {
+    flex: 1 1 auto;
   }
 
   table.stats meter {
@@ -67,8 +83,12 @@
       width: auto;
     }
 
-    table.stats td {
-      text-align: right;
+    table.stats td > span {
+      display: inline;
+    }
+
+    table.stats td > span > meter {
+      display: none;
     }
   }
 </style>
@@ -78,6 +98,7 @@
     <th>Total</th>
     <td>{{ statistics.total }}</td>
   </tr>
+  {% if statistics.total > 0 %}
   {% with total=statistics.total %}
     <tr>
       <th colspan="2">Types</th>
@@ -86,13 +107,13 @@
     {% include "./statistics_row.html" with value=statistics.is_insoumise label="Signataires <em>La France insoumise</em>" %}
     {% include "./statistics_row.html" with value=statistics.liaisons label="Correspondants d'immeuble" %}
     {% include "./statistics_row.html" with value=statistics.contacts label="Contacts" %}
-    {% include "./statistics_row.html" with value=statistics.elected_representatives label="Élu·es" %}
     <tr>
       <th colspan="2">Groupes d'action</th>
     </tr>
     {% include "./statistics_row.html" with value=statistics.group_members label="Membres de groupe d'action" %}
     {% include "./statistics_row.html" with value=statistics.certified_group_members label="Membres de groupe d'action certifié" %}
     {% include "./statistics_row.html" with value=statistics.group_referents label="Animateur·ices de groupe d'action" %}
+    {% include "./statistics_row.html" with value=statistics.person_groups total=statistics.groups label="Nombre de groupes d'actions" %}
     <tr>
       <th colspan="2">Dons</th>
     </tr>
@@ -101,19 +122,24 @@
     <tr>
       <th colspan="2">Âge</th>
     </tr>
-    {% include "./statistics_row.html" with value=statistics.known_birthdates label="Dates de naissance renseignées" %}
+    {% include "./statistics_row.html" with value=statistics.ages|length label="Dates de naissance renseignées" %}
     {% if statistics.mean_age %}
-      <tr style="--r: {% widthratio statistics.mean_age 100 100 %}%">
-        <th>Âge moyen</th>
-        <td>{{ statistics.mean_age|floatformat:"-1" }}&nbsp;ans</td>
-      </tr>
+      {% include "./statistics_row.html" with value=statistics.mean_age label="Âge moyen" total=100 no_meter=True unit="ans" %}
     {% endif %}
     {% if statistics.median_age %}
-      <tr style="--r: {% widthratio statistics.median_age 100 100 %}%">
-        <th>Âge médian</th>
-        <td>{{ statistics.median_age|floatformat:"-1" }}&nbsp;ans</td>
-      </tr>
+      {% include "./statistics_row.html" with value=statistics.median_age label="Âge médian" total=100 no_meter=True unit="ans" %}
     {% endif %}
+    {% if statistics.age_pyramid %}
+      {% for label, value in statistics.age_pyramid %}
+        {% include "./statistics_row.html" with total=statistics.ages|length %}
+      {% endfor %}
+    {% endif %}
+    <tr>
+      <th colspan="2">Genre</th>
+    </tr>
+    {% for label, value in statistics.genders|dictsortreversed:1 %}
+      {% include "./statistics_row.html" %}
+    {% endfor %}
     <tr>
       <th colspan="2">Communication</th>
     </tr>
@@ -123,11 +149,22 @@
     {% include "./statistics_row.html" with value=statistics.last_week_connections label="Connecté·es pendant les derniers sept jours" %}
     {% include "./statistics_row.html" with value=statistics.android_users label="Utilisateurs·ices de l'application Android" %}
     {% include "./statistics_row.html" with value=statistics.ios_users label="Utilisateurs·ices de l'application iOS" %}
-    <tr>
-      <th colspan="2">Codes postaux les plus représentés</th>
-    </tr>
-    {% for label, value in statistics.zip_codes %}
-      {% include "./statistics_row.html" %}
-    {% endfor %}
+    {% if statistics.departements|length > 0 %}
+      <tr>
+        <th colspan="2">Départements les plus représentés</th>
+      </tr>
+      {% for label, value in statistics.departements.items|dictsortreversed:1|slice:":10" %}
+        {% include "./statistics_row.html" %}
+      {% endfor %}
+    {% endif %}
+    {% if statistics.zip_codes|length > 0 %}
+      <tr>
+        <th colspan="2">Codes postaux les plus représentés</th>
+      </tr>
+      {% for label, value in statistics.zip_codes.items|dictsortreversed:1|slice:":10" %}
+        {% include "./statistics_row.html" %}
+      {% endfor %}
+    {% endif %}
   {% endwith %}
+  {% endif %}
 </table>

@@ -62,6 +62,7 @@ __all__ = [
 
 class SegmentFilter(AutocompleteRelatedModelFilter):
     title = "segment"
+    parameter_name = "segment"
 
     def get_rendered_widget(self):
         rel = models.ForeignKey(to=Segment, on_delete=models.CASCADE)
