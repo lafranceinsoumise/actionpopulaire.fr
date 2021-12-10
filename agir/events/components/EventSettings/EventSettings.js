@@ -40,19 +40,19 @@ export const EventSettings = (props) => {
     return <Redirect to="general/" />;
   }
 
+  const warning = !event.isEditable ? (
+    <>
+      Cet événement n'est pas modifiable directement via Action Populaire.
+      <br />
+      Pour toute question, veuillez contacter nos équipes à l'adresse e-mail{" "}
+      <strong>groupes@actionpopulaire.fr</strong>
+    </>
+  ) : undefined;
+
   return (
     <ObjectManagement
       title={event?.name}
-      warning={
-        !event.isEditable ? (
-          <>
-            Cet événement n'est pas modifiable directement via Action Populaire.
-            <br />
-            Pour toute question, veuillez contacter nos équipes à l'adresse
-            e-mail <strong>groupes@actionpopulaire.fr</strong>
-          </>
-        ) : null
-      }
+      warning={warning}
       eventPk={event?.id}
       basePath={basePath}
       routes={routes}

@@ -31,7 +31,7 @@ const EventCancelation = (props) => {
       );
       return;
     }
-    sendToast(data.data, "SUCCESS", { autoClose: true });
+    sendToast("L'événement a bien été annulé.", "SUCCESS", { autoClose: true });
     const route = routeConfig.events.getLink();
     history.push(route);
   };
