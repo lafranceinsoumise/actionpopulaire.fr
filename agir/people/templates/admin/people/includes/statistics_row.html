@@ -1,9 +1,13 @@
 <tr style="--r: {% widthratio value total 100 %}%">
   <th>{{ label }}</th>
   <td>
-    {{ value }}
-    <meter title="{% widthratio value total 100 %}%" min="0" max="{{ total }}" value="{{ value }}">
-      {{ value }}
-    </meter>
+    <span>
+      <span>{{ value|floatformat:"-1" }}{% if unit %}&nbsp;{{ unit }}{% endif %}</span>
+      {% if not no_meter %}
+        <meter title="{% widthratio value total 100 %}%" min="0" max="{{ total }}" value="{{ value }}">
+          {{ value }}{% if unit %}&nbsp;{{ unit }}{{ value|pluralize }}{% endif %}
+        </meter>
+      {% endif %}
+    </span>
   </td>
 </tr>

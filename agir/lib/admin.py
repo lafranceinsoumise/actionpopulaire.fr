@@ -3,11 +3,6 @@ from typing import Iterable
 
 import django_countries
 from data_france.models import CirconscriptionLegislative
-
-from agir.lib.autocomplete_filter import (
-    AutocompleteRelatedModelFilter,
-    AutocompleteSelectModelBaseFilter,
-)
 from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.admin.options import IS_POPUP_VAR, ModelAdmin
@@ -29,6 +24,9 @@ from django.views import View
 from django.views.generic.base import ContextMixin
 
 from agir.lib import data
+from agir.lib.autocomplete_filter import (
+    AutocompleteSelectModelBaseFilter,
+)
 from agir.lib.data import FRANCE_COUNTRY_CODES
 
 
@@ -285,6 +283,7 @@ class AddRelatedLinkMixin(ModelAdmin):
 class CirconscriptionLegislativeFilter(AutocompleteSelectModelBaseFilter):
     title = "circonscription législative"
     filter_model = CirconscriptionLegislative
+    parameter_name = "circo"
 
     def get_queryset_for_field(self):
         return CirconscriptionLegislative.objects.exclude(geometry__isnull=True)
