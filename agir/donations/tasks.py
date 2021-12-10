@@ -23,11 +23,14 @@ def send_donation_email(person_pk, payment_type):
     template_code = "DONATION_MESSAGE"
     email_from = settings.EMAIL_FROM
 
-    if (
-        payment_type in PAYMENT_TYPES
-        and PAYMENT_TYPES[payment_type].email_from is not None
+    if payment_type in PAYMENT_TYPES and hasattr(
+        PAYMENT_TYPES[payment_type], "email_from"
     ):
         email_from = PAYMENT_TYPES[payment_type].email_from
+
+    if payment_type in PAYMENT_TYPES and hasattr(
+        PAYMENT_TYPES[payment_type], "email_template_code"
+    ):
         template_code = PAYMENT_TYPES[payment_type].email_template_code
 
     send_mosaico_email(
