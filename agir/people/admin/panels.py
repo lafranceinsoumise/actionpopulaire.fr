@@ -256,21 +256,10 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return queryset, use_distinct
 
     def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .select_related("role")
-            .annotate(
-                _email=Subquery(
-                    PersonEmail.objects.filter(
-                        _bounced=False, person_id=OuterRef("id")
-                    ).values("address")[:1]
-                )
-            )
-        )
+        return super().get_queryset(request)
 
     def role_link(self, obj):
-        if obj.role is not None:
+        if obj.role_id is not None:
             return format_html(
                 '<a href="{link}">{text}</a>',
                 link=reverse("admin:authentication_role_change", args=[obj.role_id]),

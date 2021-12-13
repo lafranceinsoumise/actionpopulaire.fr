@@ -79,7 +79,7 @@ class BasicPersonTestCase(TestCase):
 
     def test_person_represented_by_email(self):
         person = Person.objects.create_insoumise("test1@domain.com")
-
+        person.refresh_from_db()
         self.assertEqual(str(person), "(TE) <test1@domain.com>")
 
     def test_default_display_name_is_not_set_upon_creation_if_present(self):

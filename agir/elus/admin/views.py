@@ -63,7 +63,6 @@ class ExporterAccesApplication(AdminViewMixin):
 
         ps = (
             Person.objects.annotate_elus()
-            .preload_email()
             .filter(avec_acces | (est_elu & signataire_appel))
             .annotate(
                 volontaire=Exists(

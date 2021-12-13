@@ -249,6 +249,7 @@ MERGE_STRATEGIES = {
     "acces_application_parrainages": merge_acces_application_parrainages,
     "invitation_response": merge_reassign_related,
     "invitation": merge_reassign_related,
+    "_email": None,
 }
 
 
