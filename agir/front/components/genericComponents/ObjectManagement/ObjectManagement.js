@@ -80,7 +80,6 @@ const MobilePanel = (props) => {
   const {
     title,
     subtitle,
-    warning,
     routes,
     menuLink,
     shouldShow,
