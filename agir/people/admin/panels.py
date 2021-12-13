@@ -13,7 +13,7 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from django.core.exceptions import PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django.db.models import Count, Max, Func, Value, Q
+from django.db.models import Count, Max, Func, Value, Q, Subquery, OuterRef
 from django.db.models.functions import Concat, Substr
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
@@ -47,7 +47,7 @@ from agir.people.admin.views import (
     MergePersonsView,
     PersonFormSandboxView,
 )
-from agir.people.models import Person, PersonTag
+from agir.people.models import Person, PersonTag, PersonEmail
 from agir.people.person_forms.display import default_person_form_display
 from agir.people.person_forms.models import PersonForm, PersonFormSubmission
 
@@ -256,7 +256,18 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return queryset, use_distinct
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related("emails")
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("role")
+            .annotate(
+                _email=Subquery(
+                    PersonEmail.objects.filter(
+                        _bounced=False, person_id=OuterRef("id")
+                    ).values("address")[:1]
+                )
+            )
+        )
 
     def role_link(self, obj):
         if obj.role is not None:
