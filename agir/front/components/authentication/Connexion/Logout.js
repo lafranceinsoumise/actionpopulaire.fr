@@ -7,12 +7,16 @@ import { routeConfig } from "@agir/front/app/routes.config";
 
 const Logout = () => {
   const location = useLocation();
-  const { data: session, mutate: mutate } = useSWR("/api/session/", {
+  const {
+    data: session,
+    mutate: mutate,
+    isValidating,
+  } = useSWR("/api/session/", {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
-  const isAuthenticated = !!session?.user?.id;
+  const isAuthenticated = !isValidating && !!session?.user?.id;
   useEffect(() => {
     if (!isAuthenticated) {
       return;
