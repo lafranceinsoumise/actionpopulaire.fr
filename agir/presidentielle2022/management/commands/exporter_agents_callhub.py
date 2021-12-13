@@ -203,7 +203,9 @@ class Command(LoggingCommand):
         equipes = await self.recuperer_equipes()
         for a in agents:
             if a["team"] not in equipes:
-                raise ValueError(f"Équipe {a['team']} inexistante.")
+                logger.info(f"Équipe {a['team']} inexistante.")
+
+        agents = [a for a in agents if a["team"] in equipes]
 
         existants = await self.recuperer_agents_existants()
         a_ajouter = [a for a in agents if a["email"] not in existants]

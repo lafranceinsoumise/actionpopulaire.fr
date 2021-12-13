@@ -269,6 +269,8 @@ WSGI_APPLICATION = "agir.api.wsgi.application"
 DATABASES = {
     "default": dj_database_url.config(default="postgis://api:password@localhost/api")
 }
+if not DEBUG:
+    CONN_MAX_AGE = 600
 
 # Mails
 
