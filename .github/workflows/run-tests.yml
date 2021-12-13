@@ -73,10 +73,19 @@ jobs:
         run: python -m poetry install
 
       - name: Run tests
-        run: python -m poetry run ./manage.py test -v 2
+        run: python -m poetry run coverage run ./manage.py test -v 2
         env:
           DATABASE_URL: "postgis://postgres:postgres@postgres:5432/postgres"
           LOG_DISABLE_JOURNALD: true
+
+      - name: Report coverage
+        run: python -m poetry run coverage report
+
+      - name: Generate coverage.json
+        run: python -m poetry run coverage json
+
+      - name: Display coverage
+        run: echo "::notice title=Coverage::Coverage $(jq .totals.percent_covered < coverage.json) %"
 
   python-linting:
     name: Black
