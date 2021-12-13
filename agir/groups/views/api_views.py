@@ -391,10 +391,12 @@ class GroupMessagesAPIView(ListCreateAPIView):
         return (
             self.supportgroup.messages.filter(
                 Q(deleted=False)
+                & Q(author__role__is_active=True)
                 & (Q(required_membership_type__lte=user_permission) | Q(author=person))
             )
             .select_related("author", "linked_event", "linked_event__subtype")
             .prefetch_related("comments")
+            .filter(author__role__is_active=True)
             .order_by("-created")
         )
 
@@ -462,7 +464,7 @@ class GroupMessageNotificationAPIView(ListAPIView):
 @method_decorator(never_cache, name="get")
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
     queryset = (
-        SupportGroupMessage.objects.filter(deleted=False)
+        SupportGroupMessage.objects.filter(deleted=False, author__role__is_active=True)
         .select_related(
             "supportgroup", "linked_event", "linked_event__subtype", "author"
         )
@@ -516,12 +518,17 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
         except SupportGroupMessage.DoesNotExist:
             raise NotFound()
 
+        # Hide messages from disabled persons
+        if self.message.author.role.is_active == False:
+            raise NotFound()
+
         self.check_object_permissions(request, self.message)
 
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.message.comments.filter(deleted=False)
+        # return self.message.comments.all()
+        return self.message.comments.filter(deleted=False, author__role__is_active=True)
 
     def perform_create(self, serializer):
         with transaction.atomic():
@@ -533,7 +540,9 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
 
 
 class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
-    queryset = SupportGroupMessageComment.objects.filter(deleted=False)
+    queryset = SupportGroupMessageComment.objects.filter(
+        deleted=False, author__role__is_active=True
+    )
     serializer_class = MessageCommentSerializer
     permission_classes = (GroupMessageCommentsPermissions,)
 

@@ -31,6 +31,7 @@ def get_unread_message_count(person_pk):
         Subquery(
             SupportGroupMessageComment.objects.filter(
                 deleted=False,
+                author__role__is_active=True,
                 message_id=OuterRef("id"),
                 created__gt=Greatest(
                     OuterRef("last_reading_date"),
@@ -52,6 +53,7 @@ def get_unread_message_count(person_pk):
     # Filter messages where person is not allowed (not author, not in required membership)
     messages = SupportGroupMessage.objects.filter(
         deleted=False,
+        author__role__is_active=True,
         supportgroup_id__in=SupportGroup.objects.active()
         .filter(memberships__person_id=person_pk)
         .values("id"),
@@ -107,6 +109,7 @@ def get_message_unread_comment_count(person_pk, message_pk):
     return (
         SupportGroupMessageComment.objects.filter(
             deleted=False,
+            author__role__is_active=True,
             message_id=message_pk,
             message__supportgroup_id__in=SupportGroup.objects.active()
             .filter(memberships__person_id=person_pk)
