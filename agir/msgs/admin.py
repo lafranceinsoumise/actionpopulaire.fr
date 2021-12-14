@@ -6,6 +6,7 @@ from django.utils.html import format_html
 from reversion.admin import VersionAdmin
 
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment, UserReport
+from agir.groups.models import Membership
 
 
 class ReportListFilter(admin.SimpleListFilter):
@@ -19,6 +20,24 @@ class ReportListFilter(admin.SimpleListFilter):
         if self.value():
             value = self.value() == "0"
             return queryset.filter(reports__isnull=value)
+        return queryset
+
+
+class RequiredMembershipListFilter(admin.SimpleListFilter):
+    title = "visibilité de groupe"
+    parameter_name = "required_membership_type"
+
+    def lookups(self, request, model_admin):
+        return (
+            (Membership.MEMBERSHIP_TYPE_FOLLOWER, "Abonné·e"),
+            (Membership.MEMBERSHIP_TYPE_MEMBER, "Membre actif·ve"),
+            (Membership.MEMBERSHIP_TYPE_MANAGER, "Gestionnaire"),
+            (Membership.MEMBERSHIP_TYPE_REFERENT, "Animateur·ice"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(required_membership_type=self.value())
         return queryset
 
 
@@ -116,6 +135,7 @@ class SupportGroupMessageAdmin(VersionAdmin):
         "image",
         "linked_event",
         "deleted",
+        "required_membership_type",
     )
     readonly_fields = (
         "created",
@@ -137,9 +157,11 @@ class SupportGroupMessageAdmin(VersionAdmin):
         "comment_count",
         "report_count",
         "deleted",
+        "required_membership_type",
     )
     search_fields = ("=id", "subject", "supportgroup__name", "author__search")
-    list_filter = ("deleted", ReportListFilter)
+    list_filter = ("deleted", ReportListFilter, RequiredMembershipListFilter)
+
     inlines = [
         InlineSupportGroupMessageCommentAdmin,
     ]
