@@ -66,7 +66,10 @@ export const useActivities = () => {
 
 export const useUnreadActivityCount = () => {
   const { data: session } = useSWR("/api/session/");
-  const { data, mutate } = useSWR(getActivityEndpoint("unreadActivityCount"));
+  const { data, mutate } = useSWR(getActivityEndpoint("unreadActivityCount"), {
+    dedupingInterval: 10000,
+    focusThrottleInterval: 10000,
+  });
 
   const user = session?.user;
 

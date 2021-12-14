@@ -15,6 +15,10 @@ export const useUnreadMessageCount = () => {
     session?.user ? "/api/user/messages/unread_count/" : null,
     {
       refreshInterval: 10000,
+      dedupingInterval: 10000,
+      focusThrottleInterval: 10000,
+      shouldRetryOnError: false,
+      revalidateIfStale: false,
     }
   );
 
