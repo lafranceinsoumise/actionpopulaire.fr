@@ -73,7 +73,7 @@ const ShareLink = (props) => {
     <StyledDiv {...rest}>
       <h4>{title}</h4>
       <div>
-        <StyledInput type="text" value={url} readOnly />
+        <StyledInput aria-label={title} type="text" value={url} readOnly />
         <Button
           small
           color={color}
