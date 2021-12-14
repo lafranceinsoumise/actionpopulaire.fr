@@ -146,13 +146,7 @@ const es5Browsers = [
   "not IE 11",
 ];
 
-const es2015Browsers = [
-  "Chrome >= 60",
-  "Safari >= 10.1",
-  "iOS >= 10.3",
-  "Firefox >= 54",
-  "Edge >= 15",
-];
+const es2015Browsers = { esmodules: true };
 
 const configureBabelLoader = (type) => ({
   test: /\.m?js$/,
@@ -177,7 +171,7 @@ const configureBabelLoader = (type) => ({
           "@babel/preset-env",
           {
             modules: false,
-            corejs: 3,
+            corejs: "3.19",
             useBuiltIns: "usage",
             targets: type === CONFIG_TYPES.ES5 ? es5Browsers : es2015Browsers,
           },
@@ -200,18 +194,17 @@ const configureBabelLoader = (type) => ({
             ssr: false,
           },
         ],
-        [
-          "@babel/plugin-transform-runtime",
-          {
-            corejs: 3,
-            useESModules: true,
-          },
-        ],
+        ["@babel/plugin-transform-runtime", { useESModules: true }],
         type === CONFIG_TYPES.DEV
           ? require.resolve("react-refresh/babel")
           : undefined,
         type !== CONFIG_TYPES.DEV
-          ? require.resolve("babel-plugin-transform-react-remove-prop-types")
+          ? [
+              "transform-react-remove-prop-types",
+              {
+                removeImport: true,
+              },
+            ]
           : undefined,
       ].filter(Boolean),
     },
