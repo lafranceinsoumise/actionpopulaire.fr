@@ -18,8 +18,8 @@ BEGIN
   --
   RETURN COALESCE((
     SELECT address FROM people_personemail 
-    WHERE person_id = person_pk AND bounced = FALSE  
-    ORDER BY "_order" 
+    WHERE person_id = person_pk   
+    ORDER BY "bounced", "_order" 
     LIMIT 1
   ), '');
 END
