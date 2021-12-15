@@ -165,6 +165,7 @@ export const JoinGroup = (props) => {
             groupPk={id}
             onSend={sendPrivateMessage}
             onClose={() => setMessageModalOpen(false)}
+            onBoarding
           />
         </>
       );

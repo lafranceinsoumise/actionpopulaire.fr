@@ -98,6 +98,7 @@ const TextField = forwardRef((props, ref) => {
     textArea,
     rows,
     hasCounter,
+    autoComplete = "on",
     ...rest
   } = props;
 
@@ -142,6 +143,7 @@ const TextField = forwardRef((props, ref) => {
           type={type}
           onChange={onChange}
           value={value}
+          autoComplete={autoComplete}
         />
       )}
       <StyledIcon>

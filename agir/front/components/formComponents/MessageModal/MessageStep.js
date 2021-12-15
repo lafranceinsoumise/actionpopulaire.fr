@@ -165,6 +165,7 @@ const MessageStep = (props) => {
     maxLength,
     subjectMaxLength,
     groupPk,
+    onBoarding,
   } = props;
 
   const textFieldRef = useRef();
@@ -215,8 +216,15 @@ const MessageStep = (props) => {
         >
           {isUserGroup ? (
             <>
-              Les animateur·ices du groupe ont été informé·es de votre arrivée
-              dans le groupe. Envoyez-leur un message pour vous présenter&nbsp;!
+              {onBoarding ? (
+                <>
+                  Les animateur·ices du groupe ont été informé·es de votre
+                  arrivée dans le groupe. Envoyez-leur un message pour vous
+                  présenter&nbsp;!
+                </>
+              ) : (
+                <>Contactez les animateur·ices du groupe&nbsp;!</>
+              )}
               <Spacer size="0.5rem" />
             </>
           ) : (
@@ -262,6 +270,7 @@ const MessageStep = (props) => {
             placeholder="Objet du message"
             maxLength={subjectMaxLength}
             hasCounter={false}
+            autoComplete="off"
           />
         </header>
         <TextField
