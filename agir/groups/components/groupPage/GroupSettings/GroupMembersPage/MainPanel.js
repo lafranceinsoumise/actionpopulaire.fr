@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { Fragment, useMemo } from "react";
+import React, { useMemo } from "react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 

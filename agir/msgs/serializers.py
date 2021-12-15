@@ -80,6 +80,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "recentComments",
         "commentCount",
         "requiredMembershipType",
+        "participants",
     )
     DETAIL_FIELDS = (
         "id",
@@ -92,6 +93,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "lastUpdate",
         "comments",
         "requiredMembershipType",
+        "participants",
     )
 
     lastUpdate = serializers.DateTimeField(read_only=True, source="last_update")
@@ -112,6 +114,8 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         choices=Membership.MEMBERSHIP_TYPE_CHOICES,
         default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
     )
+
+    participants = serializers.SerializerMethodField(read_only=True)
 
     def get_group(self, obj):
         return {
@@ -145,6 +149,38 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             many=True,
         ).data
 
+    def get_participants(self, obj):
+        """Returns list of active participants and total of persons included in discussion"""
+
+        author = obj.author
+        comment_authors = list(obj.comments.values_list("author_id", flat=True))
+        comment_authors = set([author.id] + comment_authors)
+
+        allowed_memberships = obj.supportgroup.memberships.filter(
+            membership_type__gte=obj.required_membership_type
+        )
+        persons = [membership.person for membership in allowed_memberships]
+        if author not in persons:
+            persons = [author] + persons
+
+        return {
+            "actives": [
+                {
+                    "id": p.id,
+                    "displayName": p.display_name,
+                    "membershipType": allowed_memberships.get(person=p).membership_type,
+                    # "membershipType_text": allowed_memberships.get(person=p).membership_type,
+                    "isAuthor": author.id == p.id,
+                    "isInComments": p.id in comment_authors,
+                    "image": p.image or "",
+                    "gender": p.gender,
+                }
+                for p in persons
+                if p.id in comment_authors or p in obj.supportgroup.referents
+            ],
+            "total": len(persons),
+        }
+
     class Meta:
         model = SupportGroupMessage
         fields = (
@@ -161,6 +197,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "commentCount",
             "lastUpdate",
             "requiredMembershipType",
+            "participants",
         )
 
 

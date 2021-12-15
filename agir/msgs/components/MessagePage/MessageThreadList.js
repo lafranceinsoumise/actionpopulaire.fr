@@ -10,10 +10,12 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Panel from "@agir/front/genericComponents/Panel";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
+import Avatar from "@agir/front/genericComponents/Avatar";
 import MessageCard from "@agir/front/genericComponents/MessageCard";
-
 import MessageThreadMenu from "./MessageThreadMenu";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { switchMessageMuted, getGroupEndpoint } from "@agir/groups/api.js";
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -38,7 +40,7 @@ const StyledContent = styled.article`
   }
 `;
 const StyledList = styled.main`
-  width: 100%;
+  // width: 100%;
   height: 100%;
   display: flex;
   align-items: stretch;
@@ -81,6 +83,25 @@ const BlockMuteMessage = styled.div`
   ${RawFeatherIcon}:hover {
     cursor: pointer;
     color: ${style.primary500};
+  }
+`;
+
+const MessageDetails = styled.div`
+  max-width: 400px;
+  width: 400px;
+  border-left: 1px solid #c4c4c4;
+  padding: 1.5rem;
+`;
+
+const StyledPerson = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+
+  ${Avatar} {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.5rem;
   }
 `;
 
@@ -152,6 +173,13 @@ const DesktopThreadList = (props) => {
     getGroupEndpoint("getMessageMuted", { messagePk: selectedMessage?.id })
   );
 
+  console.log("selected message", selectedMessage);
+  const isOrganizerMessage =
+    selectedMessage?.requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
+  const totalAnonymous =
+    selectedMessage?.participants?.total -
+    selectedMessage?.participants?.actives.length;
+
   const isActive = data === ON;
 
   const switchNotificationMessage = async () => {
@@ -185,7 +213,9 @@ const DesktopThreadList = (props) => {
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
       />
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <div
+        style={{ display: "flex", flexDirection: "column", minWidth: "870px" }}
+      >
         {!!selectedMessage && (
           <BlockMuteMessage isActive={isActive}>
             <RawFeatherIcon
@@ -223,6 +253,36 @@ const DesktopThreadList = (props) => {
           </PageFadeIn>
         </StyledContent>
       </div>
+      {!!selectedMessage?.id && (
+        <MessageDetails>
+          {isOrganizerMessage
+            ? "Discussion privée avec les animateur·ices du groupe"
+            : "Discussion avec les membres du groupe"}
+          <Spacer size="1rem" />
+          {selectedMessage.participants.total} personnes
+          <Spacer size="1rem" />
+          <div>
+            {selectedMessage?.participants.actives.map((p) => (
+              <StyledPerson>
+                <Avatar image={p.image} name={p.displayName} />
+                {p.displayName} - {p.membershipType}
+              </StyledPerson>
+            ))}
+          </div>
+          {/* <Member>
+          <Avatar image={image} name={displayName} />
+          <Name>
+            {displayName}
+            <Email>{email}</Email>
+          </Name>
+          <MembershipType
+            gender={gender}
+            membershipType={membershipType}
+          />
+        </Member> */}
+          {!!totalAnonymous && <div>+ {totalAnonymous} autres</div>}
+        </MessageDetails>
+      )}
     </StyledList>
   );
 };
