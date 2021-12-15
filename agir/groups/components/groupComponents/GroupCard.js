@@ -129,7 +129,10 @@ const GroupCard = ({
       <Row gutter={6}>
         {displayGroupLogo && (
           <Column collapse={0}>
-            <Link to={routeConfig.groupDetails.getLink({ groupPk: id })}>
+            <Link
+              aria-label={name}
+              to={routeConfig.groupDetails.getLink({ groupPk: id })}
+            >
               <GroupIcon>
                 <FeatherIcon name="users" />
               </GroupIcon>
