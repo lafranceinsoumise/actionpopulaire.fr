@@ -163,21 +163,32 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         if author not in persons:
             persons = [author] + persons
 
-        return {
-            "actives": [
+        active_persons = []
+        for p in persons:
+            if not (p.id in comment_authors or p in obj.supportgroup.referents):
+                continue
+            image = ""
+            if p.image and p.image.thumbnail:
+                image = p.image.thumbnail.url
+            membershipType = 0
+            allowed = allowed_memberships.filter(person=p)
+            if allowed.exists():
+                membershipType = allowed.first().membership_type
+
+            active_persons += (
                 {
                     "id": p.id,
                     "displayName": p.display_name,
-                    "membershipType": allowed_memberships.get(person=p).membership_type,
-                    # "membershipType_text": allowed_memberships.get(person=p).membership_type,
+                    "membershipType": membershipType,
                     "isAuthor": author.id == p.id,
                     "isInComments": p.id in comment_authors,
-                    "image": p.image or "",
+                    "image": image,
                     "gender": p.gender,
-                }
-                for p in persons
-                if p.id in comment_authors or p in obj.supportgroup.referents
-            ],
+                },
+            )
+
+        return {
+            "actives": active_persons,
             "total": len(persons),
         }
 

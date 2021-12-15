@@ -19,6 +19,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { switchMessageMuted, getGroupEndpoint } from "@agir/groups/api.js";
 import { routeConfig } from "@agir/front/app/routes.config";
+import { Link } from "react-router-dom";
 
 const StyledContent = styled.article`
   height: 100%;
@@ -105,6 +106,13 @@ const StyledPerson = styled.div`
   }
 `;
 
+const StyledBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-width: 870px;
+  width: 870px;
+`;
+
 const useAutoScrollToBottom = (commentLength = 0, messageId) => {
   const scrollableRef = useRef(null);
   const bottomRef = useRef(null);
@@ -181,6 +189,9 @@ const DesktopThreadList = (props) => {
     selectedMessage?.participants?.actives.length;
 
   const isActive = data === ON;
+  const groupURL = routeConfig.groupDetails.getLink({
+    groupPk: selectedMessage?.group.id,
+  });
 
   const switchNotificationMessage = async () => {
     const { data } = await switchMessageMuted(selectedMessage);
@@ -213,9 +224,7 @@ const DesktopThreadList = (props) => {
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
       />
-      <div
-        style={{ display: "flex", flexDirection: "column", minWidth: "870px" }}
-      >
+      <StyledBlock>
         {!!selectedMessage && (
           <BlockMuteMessage isActive={isActive}>
             <RawFeatherIcon
@@ -240,9 +249,7 @@ const DesktopThreadList = (props) => {
                 onReportComment={onReportComment}
                 onDeleteComment={onDeleteComment}
                 isManager={selectedMessage.group.isManager}
-                groupURL={routeConfig.groupDetails.getLink({
-                  groupPk: selectedMessage.group.id,
-                })}
+                groupURL={groupURL}
               />
             )}
             <span
@@ -252,37 +259,32 @@ const DesktopThreadList = (props) => {
             />
           </PageFadeIn>
         </StyledContent>
-      </div>
-      {!!selectedMessage?.id && (
-        <MessageDetails>
-          {isOrganizerMessage
-            ? "Discussion privée avec les animateur·ices du groupe"
-            : "Discussion avec les membres du groupe"}
-          <Spacer size="1rem" />
-          {selectedMessage.participants.total} personnes
-          <Spacer size="1rem" />
-          <div>
-            {selectedMessage?.participants.actives.map((p) => (
-              <StyledPerson>
-                <Avatar image={p.image} name={p.displayName} />
-                {p.displayName} - {p.membershipType}
-              </StyledPerson>
-            ))}
+      </StyledBlock>
+      <MessageDetails>
+        {isOrganizerMessage
+          ? "Discussion privée avec les animateur·ices du groupe"
+          : "Discussion avec les membres du groupe"}
+        &nbsp;
+        <Link to={groupURL}>{selectedMessage?.group.name}</Link>
+        <Spacer size="1rem" />
+        <span style={{ fontSize: "14px" }}>
+          {selectedMessage?.participants.total} personnes :
+        </span>
+        <Spacer size="0.5rem" />
+        <div>
+          {selectedMessage?.participants.actives.map((p) => (
+            <StyledPerson>
+              <Avatar image={p.image} name={p.displayName} />
+              {p.displayName}
+            </StyledPerson>
+          ))}
+        </div>
+        {!!totalAnonymous && (
+          <div style={{ paddingLeft: ".5rem", fontSize: "14px" }}>
+            + {totalAnonymous} autres
           </div>
-          {/* <Member>
-          <Avatar image={image} name={displayName} />
-          <Name>
-            {displayName}
-            <Email>{email}</Email>
-          </Name>
-          <MembershipType
-            gender={gender}
-            membershipType={membershipType}
-          />
-        </Member> */}
-          {!!totalAnonymous && <div>+ {totalAnonymous} autres</div>}
-        </MessageDetails>
-      )}
+        )}
+      </MessageDetails>
     </StyledList>
   );
 };
