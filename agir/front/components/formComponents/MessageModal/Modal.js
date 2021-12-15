@@ -145,6 +145,7 @@ const Modal = (props) => {
     message,
     onSelectGroup,
     groupPk,
+    onBoarding,
   } = props;
 
   const initialMessage = useMemo(() => {
@@ -279,7 +280,7 @@ const Modal = (props) => {
               disabled={!maySend}
               onClick={handleSend}
             >
-              Publier
+              Envoyer
             </Button>
           )}
         </StyledModalHeader>
@@ -305,13 +306,14 @@ const Modal = (props) => {
               maxLength={TEXT_MAX_LENGTH}
               subjectMaxLength={SUBJECT_MAX_LENGTH}
               groupPk={groupPk}
+              onBoarding={onBoarding}
             />
           )}
         </StyledModalBody>
         {(selectedEvent || !!groupPk) && (
           <StyledModalFooter>
             <Button color="secondary" disabled={!maySend} onClick={handleSend}>
-              Publier le message
+              Envoyer le message
             </Button>
           </StyledModalFooter>
         )}
