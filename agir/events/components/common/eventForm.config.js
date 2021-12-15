@@ -16,6 +16,7 @@ export const DEFAULT_FORM_DATA = {
   endTime: endDate.toISO(),
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   subtype: null,
+  image: null,
   onlineUrl: "",
   location: {
     name: "",

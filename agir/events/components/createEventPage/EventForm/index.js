@@ -19,6 +19,7 @@ import LocationField from "@agir/front/formComponents/LocationField.js";
 import NameField from "./NameField";
 import OrganizerGroupField from "@agir/events/common/OrganizerGroupField";
 import DateField from "./DateField";
+import EventImageField from "./EventImageField";
 import SubtypeField from "./SubtypeField";
 import ContactField from "./ContactField";
 import OnlineUrlField from "./OnlineUrlField";
@@ -202,6 +203,11 @@ const EventForm = () => {
         errors.campaignFunding =
           "Confirmez ces informations pour créer l'événement";
       }
+      if (formData.image && !formData.image.hasLicense) {
+        errors = errors || {};
+        errors.image =
+          "Vous devez acceptez la licence pour envoyer votre image en conformité";
+      }
       if (errors) {
         setErrors(errors);
         scrollToError(errors, window, 100);
@@ -321,6 +327,14 @@ const EventForm = () => {
         error={errors && errors.subtype}
         disabled={isLoading}
         required
+      />
+      <Spacer size="1.25rem" data-scroll="image" />
+      <EventImageField
+        name="image"
+        value={formData.image}
+        onChange={updateValue}
+        error={errors?.image}
+        disabled={isLoading}
       />
       <Spacer size="2rem" />
       <fieldset>

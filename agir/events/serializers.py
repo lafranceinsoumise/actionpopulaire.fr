@@ -522,6 +522,9 @@ class CreateEventSerializer(serializers.Serializer):
     onlineUrl = serializers.URLField(
         source="online_url", required=False, allow_blank=True
     )
+    image = serializers.ImageField(
+        required=False, allow_empty_file=True, allow_null=True
+    )
 
     class Meta:
         model = Event
