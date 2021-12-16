@@ -542,6 +542,7 @@ class Person(
             GinIndex(fields=["search"], name="search_index"),
             models.Index(fields=["contact_phone"], name="contact_phone_index"),
             models.Index(fields=["created"], name="created_index"),
+            models.Index(fields=["created", "id"], name="created_id_index"),
         )
 
     def save(self, *args, **kwargs):

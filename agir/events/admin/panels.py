@@ -356,6 +356,9 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     autocomplete_fields = ("tags", "subscription_form")
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("calendars")
+
     def get_search_results(self, request, queryset, search_term):
         if search_term:
             queryset = queryset.search(search_term)
