@@ -224,7 +224,7 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
             person.save(using=self._db)
 
             if email:
-                person.add_email(email)
+                person.add_email(email, primary=True)
 
         return person
 
@@ -676,6 +676,7 @@ class Person(
 
         if primary and email.person == self:
             self.set_primary_email(email)
+            self._email = email.address
 
         return email
 

@@ -41,7 +41,7 @@ class AddEmailTestCase(TestCase):
     def test_can_add_email(self):
         res = self.client.post(self.add_email_url, data={"email": "user1@example.com"})
         self.assertRedirects(res, self.change_url)
-
+        self.user1.refresh_from_db()
         self.assertEqual(self.user1.email, "user1@example.com")
 
     def test_can_merge_people(self):
