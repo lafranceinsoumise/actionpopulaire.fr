@@ -152,12 +152,18 @@ const Layout = styled.div`
     font-size: 16px;
   }
 
+  .entete {
+    margin-bottom: 30px;
+  }
   h2 {
     margin-bottom: 0.5rem;
   }
   .subtitle {
     font-size: 16px;
-    margin-bottom: 30px;
+  }
+  .explication {
+    text-decoration: underline dashed;
+    cursor: help;
   }
 
   h3 {
@@ -196,20 +202,26 @@ const FicheElu = ({ elu, onStatusChange }) => {
   return (
     <Layout>
       <ColonneCentree>
-        <h2>{elu.nomComplet}</h2>
-        <div className="subtitle">
-          {elu.titre} — {elu.commune}{" "}
-          {distance ? (
-            elu.distance > 0.1 ? (
-              `(à ${distance} km)`
-            ) : (
-              "(à moins de 100m)"
-            )
-          ) : (
-            <em>
-              (<a href="/profil/identite/">indiquez où vous êtes</a> pour voir
-              la distance)
-            </em>
+        <div className="entete">
+          <h2>{elu.nomComplet}</h2>
+          <div className="subtitle">
+            {elu.titre} — {elu.commune}
+            {distance &&
+              (elu.distance > 0.1
+                ? ` (à ${distance} km)`
+                : " (à moins de 100m)")}
+          </div>
+          {elu.pcsLabel && (
+            <div>
+              {elu.pcsLabel} (
+              <span
+                className="explication"
+                title="Nomenclature des professions et catégories socioprofessionnelles de l'INSEE."
+              >
+                cat. {elu.pcs}
+              </span>
+              )
+            </div>
           )}
         </div>
         <MarginBlock>

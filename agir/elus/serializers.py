@@ -117,6 +117,8 @@ class EluMunicipalSerializer(serializers.Serializer):
     nomComplet = serializers.SerializerMethodField()
     sexe = serializers.CharField()
     titre = serializers.SerializerMethodField()
+    pcs = serializers.IntegerField(source="profession")
+    pcsLabel = serializers.SerializerMethodField()
     commune = serializers.SerializerMethodField()
     distance = serializers.SerializerMethodField()
 
@@ -142,4 +144,9 @@ class EluMunicipalSerializer(serializers.Serializer):
         # si la personne n'a pas de coordonnées, aucun des élus n'a de distance
         if getattr(obj, "distance", None) is not None:
             return obj.distance.km
+        return None
+
+    def get_pcsLabel(self, obj):
+        if obj.profession is not None:
+            return obj.get_profession_display()
         return None
