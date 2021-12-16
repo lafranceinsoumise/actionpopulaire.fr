@@ -14,7 +14,8 @@ import { createEvent } from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import LocationField from "@agir/front/formComponents/LocationField.js";
+import LocationField from "@agir/front/formComponents/LocationField";
+import UnloadPrompt from "@agir/front/app/UnloadPrompt";
 
 import NameField from "./NameField";
 import OrganizerGroupField from "@agir/events/common/OrganizerGroupField";
@@ -411,6 +412,7 @@ const EventForm = () => {
       >
         Vous pourrez modifier ces informations après la création de l’événement.
       </p>
+      <UnloadPrompt enabled={!newEventPk} allowedRoutes="createEvent" />
     </StyledForm>
   );
 };

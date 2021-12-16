@@ -13,7 +13,6 @@ import { useMissingRequiredEventDocuments } from "@agir/events/common/hooks";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 import Link from "@agir/front/app/Link";
-import UnloadPrompt from "@agir/front/app/UnloadPrompt";
 import { Container, Hide } from "@agir/front/genericComponents/grid";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -183,7 +182,6 @@ const CreateEvent = () => {
           </div>
         </StyledContainer>
       )}
-      <UnloadPrompt enabled={isSessionLoaded && !isBlocked} />
     </PageFadeIn>
   );
 };
