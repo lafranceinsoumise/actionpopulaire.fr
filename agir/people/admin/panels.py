@@ -243,7 +243,6 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     # mais n'est en réalité pas utilisé pour déterminer les champs
     # de recherche
     search_fields = ["search", "contact_phone"]
-    date_hierarchy = "created"
 
     actions = (export_people_to_csv,)
 
