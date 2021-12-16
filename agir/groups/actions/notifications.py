@@ -11,6 +11,8 @@ from agir.groups.tasks import (
     send_message_notification_email,
     send_comment_notification_email,
 )
+from agir.msgs.models import SupportGroupMessage
+from agir.people.models import Person
 from agir.notifications.models import Subscription
 
 
@@ -90,7 +92,14 @@ def someone_joined_notification(membership, membership_count=1):
 
 @transaction.atomic()
 def new_message_notifications(message):
-    recipients = message.supportgroup.members.all()
+
+    memberships = message.supportgroup.memberships.filter(
+        membership_type__gte=message.required_membership_type
+    )
+    recipients = Person.objects.filter(
+        id__in=memberships.values_list("person_id", flat=True)
+    )
+
     Activity.objects.bulk_create(
         [
             Activity(
@@ -113,14 +122,59 @@ def new_message_notifications(message):
 
 
 @transaction.atomic()
-def new_comment_notifications(comment):
-    comment_authors = list(comment.message.comments.values_list("author_id", flat=True))
-    comment_authors = set(comment_authors + [comment.message.author_id])
+# Group comment with required membership type
+def new_comment_restricted_notifications(comment):
 
-    participant_recipients = comment.message.supportgroup.members.exclude(
-        id=comment.author.id
-    ).filter(
-        notification_subscriptions__membership__supportgroup=comment.message.supportgroup,
+    message_initial = comment.message
+    allowed_memberships = message_initial.supportgroup.memberships.filter(
+        membership_type__gte=message_initial.required_membership_type
+    )
+    recipients_id = [membership.person.id for membership in allowed_memberships]
+    recipients_id = set(recipients_id + [message_initial.author_id])
+
+    # Get only recipients with notification allowed
+    recipients_allowed_notif = message_initial.supportgroup.members.filter(
+        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
+        notification_subscriptions__person__in=recipients_id,
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+    )
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                individual=comment.author,
+                supportgroup=message_initial.supportgroup,
+                type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+                recipient=r,
+                status=Activity.STATUS_UNDISPLAYED,
+                meta={
+                    "message": str(message_initial.pk),
+                    "comment": str(comment.pk),
+                },
+            )
+            for r in recipients_allowed_notif
+            if r.pk != comment.author.pk
+        ],
+        send_post_save_signal=True,
+    )
+
+    send_comment_notification_email.delay(comment.pk)
+
+
+@transaction.atomic()
+def new_comment_notifications(comment):
+
+    if comment.message.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
+        new_comment_restricted_notifications(comment)
+        return
+
+    message_initial = comment.message
+    comment_authors = list(message_initial.comments.values_list("author_id", flat=True))
+    comment_authors = set(comment_authors + [message_initial.author_id])
+
+    participant_recipients = message_initial.supportgroup.members.filter(
+        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
         notification_subscriptions__person__in=comment_authors,
         notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
         notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
@@ -130,44 +184,44 @@ def new_comment_notifications(comment):
         [
             Activity(
                 individual=comment.author,
-                supportgroup=comment.message.supportgroup,
+                supportgroup=message_initial.supportgroup,
                 type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
                 recipient=r,
                 status=Activity.STATUS_UNDISPLAYED,
                 meta={
-                    "message": str(comment.message.pk),
+                    "message": str(message_initial.pk),
                     "comment": str(comment.pk),
                 },
             )
             for r in participant_recipients
+            if r.pk != comment.author.pk
         ],
         send_post_save_signal=True,
     )
 
-    other_recipients = (
-        comment.message.supportgroup.members.exclude(id=comment.author.id)
-        .exclude(id__in=participant_recipients.values_list("id", flat=True))
-        .filter(
-            notification_subscriptions__membership__supportgroup=comment.message.supportgroup,
-            notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
-            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
-        )
+    other_recipients = message_initial.supportgroup.members.exclude(
+        id__in=participant_recipients.values_list("id", flat=True)
+    ).filter(
+        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
     )
 
     Activity.objects.bulk_create(
         [
             Activity(
                 individual=comment.author,
-                supportgroup=comment.message.supportgroup,
+                supportgroup=message_initial.supportgroup,
                 type=Activity.TYPE_NEW_COMMENT,
                 recipient=r,
                 status=Activity.STATUS_UNDISPLAYED,
                 meta={
-                    "message": str(comment.message.pk),
+                    "message": str(message_initial.pk),
                     "comment": str(comment.pk),
                 },
             )
             for r in other_recipients
+            if r.pk != comment.author.pk
         ],
         send_post_save_signal=True,
     )

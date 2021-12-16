@@ -2,7 +2,7 @@ import reversion
 from django.contrib.gis.db.models.functions import Distance
 from django.core.validators import validate_email
 from django.db import transaction
-from django.db.models import F, Max, DateTimeField
+from django.db.models import F, Max, DateTimeField, Q
 from django.db.models.functions import Greatest
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
@@ -54,6 +54,8 @@ from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
 from agir.people.models import Person
+from agir.groups.models import Membership
+
 
 __all__ = [
     "LegacyGroupSearchAPIView",
@@ -67,6 +69,7 @@ __all__ = [
     "GroupUpcomingEventsAPIView",
     "GroupPastEventReportsAPIView",
     "GroupMessagesAPIView",
+    "GroupMessagesPrivateAPIView",
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
@@ -84,7 +87,10 @@ __all__ = [
     "GroupUpdateOwnMembershipAPIView",
 ]
 
-from agir.lib.rest_framework_permissions import GlobalOrObjectPermissions
+from agir.lib.rest_framework_permissions import (
+    GlobalOrObjectPermissions,
+    IsPersonPermission,
+)
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 
 from agir.msgs.serializers import (
@@ -345,17 +351,24 @@ class GroupPastEventReportsAPIView(ListAPIView):
 
 
 class GroupMessagesPermissions(GlobalOrObjectPermissions):
-    perms_map = {"GET": [], "POST": []}
+    perms_map = {"GET": [], "POST": [], "PATCH": [], "PUT": [], "DELETE": []}
     object_perms_map = {
         "GET": ["msgs.view_supportgroupmessage"],
         "POST": ["msgs.add_supportgroupmessage"],
+        "PATCH": ["msgs.change_supportgroupmessage"],
+        "PUT": ["msgs.change_supportgroupmessage"],
+        "DELETE": ["msgs.delete_supportgroupmessage"],
     }
 
 
 class GroupMessagesAPIView(ListCreateAPIView):
     serializer_class = SupportGroupMessageSerializer
-    permission_classes = (GroupMessagesPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupMessagesPermissions,
+    )
     pagination_class = APIPaginator
+    membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
 
     def initial(self, request, *args, **kwargs):
         try:
@@ -363,13 +376,22 @@ class GroupMessagesAPIView(ListCreateAPIView):
         except SupportGroup.DoesNotExist:
             raise NotFound()
 
+        super().initial(request, *args, **kwargs)
         self.check_object_permissions(request, self.supportgroup)
 
-        super().initial(request, *args, **kwargs)
-
     def get_queryset(self):
+        person = self.request.user.person
+        memberships = self.supportgroup.memberships.filter(person=person)
+        user_permission = 0
+        if memberships.exists():
+            user_permission = memberships.first().membership_type
+
+        # Messages where user is author or allowed
         return (
-            self.supportgroup.messages.filter(deleted=False)
+            self.supportgroup.messages.filter(
+                Q(deleted=False)
+                & (Q(required_membership_type__lte=user_permission) | Q(author=person))
+            )
             .select_related("author", "linked_event", "linked_event__subtype")
             .prefetch_related("comments")
             .order_by("-created")
@@ -383,10 +405,22 @@ class GroupMessagesAPIView(ListCreateAPIView):
     def perform_create(self, serializer):
         with transaction.atomic():
             message = serializer.save(
-                author=self.request.user.person, supportgroup=self.supportgroup
+                author=self.request.user.person,
+                supportgroup=self.supportgroup,
+                required_membership_type=self.membershipType,
             )
+
             new_message_notifications(message)
             update_recipient_message(message, self.request.user.person)
+
+
+# Allow anyone to send private message
+class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
+    permission_classes = (IsAuthenticated,)
+    membershipType = Membership.MEMBERSHIP_TYPE_REFERENT
+
+    def get(self):
+        pass
 
 
 @method_decorator(never_cache, name="get")
@@ -404,7 +438,7 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
         )
     )
     serializer_class = SupportGroupMessageSerializer
-    permission_classes = (GlobalOrObjectPermissions,)
+    permission_classes = (GroupMessagesPermissions,)
 
     def get_object(self):
         message = super().get_object()
@@ -426,10 +460,13 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
-    perms_map = {"GET": [], "POST": []}
+    perms_map = {"GET": [], "POST": [], "PATCH": [], "PUT": [], "DELETE": []}
     object_perms_map = {
         "GET": ["msgs.view_supportgroupmessage"],
         "POST": ["msgs.add_supportgroupmessagecomment"],
+        "PATCH": ["msgs.change_supportgroupmessagecomment"],
+        "PUT": ["msgs.change_supportgroupmessagecomment"],
+        "DELETE": ["msgs.delete_supportgroupmessagecomment"],
     }
 
 
@@ -462,7 +499,7 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
 class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
     queryset = SupportGroupMessageComment.objects.filter(deleted=False)
     serializer_class = MessageCommentSerializer
-    permission_classes = (GlobalOrObjectPermissions,)
+    permission_classes = (GroupMessageCommentsPermissions,)
 
     def perform_update(self, serializer):
         with reversion.create_revision():

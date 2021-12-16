@@ -6,6 +6,7 @@ from django.db.models import (
     OuterRef,
     When,
     Subquery,
+    Q,
 )
 from django.db.models.functions import Greatest
 from rest_framework.decorators import api_view, permission_classes
@@ -70,8 +71,11 @@ class UserMessagesAPIView(ListAPIView):
             recipient=person, message_id=OuterRef("id")
         )
 
-        return (
-            self.queryset.filter(supportgroup_id__in=person_groups)
+        # Get messages where person is author or is in group
+        group_messages = (
+            self.queryset.filter(
+                Q(supportgroup_id__in=person_groups) | Q(author=person)
+            )
             .select_related("supportgroup", "author")
             .prefetch_related("comments")
             .annotate(
@@ -96,6 +100,13 @@ class UserMessagesAPIView(ListAPIView):
             .distinct()
             .order_by("-last_update", "-created")
         )
+
+        # Filter messages where person is not in allowed membership types
+        return [
+            msg
+            for msg in group_messages
+            if person.role.has_perm("msgs.view_supportgroupmessage", msg)
+        ]
 
 
 @api_view(["GET"])

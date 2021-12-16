@@ -144,6 +144,8 @@ const Modal = (props) => {
     loadMoreEvents,
     message,
     onSelectGroup,
+    groupPk,
+    onBoarding,
   } = props;
 
   const initialMessage = useMemo(() => {
@@ -166,8 +168,13 @@ const Modal = (props) => {
   const [selectedGroup, setSelectedGroup] = useState(message?.group || null);
 
   const maySend = useMemo(() => {
-    let maySend =
-      !isLoading &&
+    if (isLoading) {
+      return false;
+    }
+    if (!selectedEvent) {
+      return true;
+    }
+    const maySend =
       selectedEvent &&
       subject.trim() &&
       subject.trim().length <= SUBJECT_MAX_LENGTH &&
@@ -177,7 +184,7 @@ const Modal = (props) => {
       return maySend && selectedGroup;
     }
     return maySend;
-  }, [groups, isLoading, selectedEvent, subject, text, selectedGroup]);
+  }, [isLoading, subject, text, groups, selectedEvent, selectedGroup]);
 
   const handleChangeMessage = useCallback((prop, text) => {
     if (prop === "subject") {
@@ -266,21 +273,21 @@ const Modal = (props) => {
           >
             <RawFeatherIcon name={hasBackButton ? "arrow-left" : "x"} />
           </StyledIconButton>
-          {selectedEvent ? (
+          {(selectedEvent || !!groupPk) && (
             <Button
               color="secondary"
               small
               disabled={!maySend}
               onClick={handleSend}
             >
-              Publier
+              Envoyer
             </Button>
-          ) : null}
+          )}
         </StyledModalHeader>
         <StyledModalBody onKeyDown={handleSendOnCtrlEnter}>
           {Array.isArray(groups) && !selectedGroup ? (
             <GroupStep groups={groups} onSelectGroup={handleSelectGroup} />
-          ) : !selectedEvent ? (
+          ) : !selectedEvent && !groupPk ? (
             <EventStep
               events={eventOptions}
               onSelectEvent={handleSelectEvent}
@@ -298,16 +305,18 @@ const Modal = (props) => {
               disabled={isLoading}
               maxLength={TEXT_MAX_LENGTH}
               subjectMaxLength={SUBJECT_MAX_LENGTH}
+              groupPk={groupPk}
+              onBoarding={onBoarding}
             />
           )}
         </StyledModalBody>
-        {selectedEvent ? (
+        {(selectedEvent || !!groupPk) && (
           <StyledModalFooter>
             <Button color="secondary" disabled={!maySend} onClick={handleSend}>
-              Publier le message
+              Envoyer le message
             </Button>
           </StyledModalFooter>
-        ) : null}
+        )}
       </StyledModalContent>
     </ModalWrapper>
   );

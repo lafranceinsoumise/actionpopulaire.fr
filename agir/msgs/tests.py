@@ -73,7 +73,6 @@ class UserMessageRecipientsAPITestCase(APITestCase):
             supportgroup=user_non_managed_group,
             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
-        user_extraneous_group = SupportGroup.objects.create()
         self.client.force_login(self.user.role)
         response = self.client.get("/api/user/messages/recipients/")
         self.assertEqual(response.status_code, 200)
@@ -88,13 +87,51 @@ class UserMessagesAPITestCase(APITestCase):
             email="user@example.com",
             create_role=True,
         )
+        self.user_follower = Person.objects.create(
+            email="member@example.com",
+            create_role=True,
+        )
+        self.user_manager = Person.objects.create(
+            email="manager@example.com",
+            create_role=True,
+        )
+        self.user_referent = Person.objects.create(
+            email="referent@example.com",
+            create_role=True,
+        )
+        self.user_no_group = Person.objects.create(
+            email="user_no_group@example.com",
+            create_role=True,
+        )
+
         self.first_message = SupportGroupMessage.objects.create(
             author=self.user, supportgroup=self.group, text="First message"
+        )
+        self.private_message = SupportGroupMessage.objects.create(
+            author=self.user_no_group,
+            supportgroup=self.group,
+            text="Private message",
+            required_membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        Membership.objects.create(
+            person=self.user_follower,
+            supportgroup=self.group,
+            membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER,
         )
         Membership.objects.create(
             person=self.user,
             supportgroup=self.group,
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        Membership.objects.create(
+            person=self.user_manager,
+            supportgroup=self.group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        Membership.objects.create(
+            person=self.user_referent,
+            supportgroup=self.group,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
 
     def test_unauthenticated_user_cannot_get_messages(self):
@@ -109,15 +146,81 @@ class UserMessagesAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["id"], str(self.first_message.id))
 
-    def test_authenticated_user_can_get_only_messages_from_his_her_groups(self):
+    def test_authenticated_user_without_group_can_post_organization_message(self):
+        self.client.force_login(self.user_no_group.role)
+        res = self.client.post(
+            "/api/groupes/" + str(self.group.id) + "/envoi-message-prive/",
+            data={
+                "subject": "Objet du message",
+                "text": "Message privé à la haute administration !",
+            },
+        )
+        self.assertEqual(res.status_code, 201)
+
+    def test_authenticated_user_without_group_cannot_post_public_message(self):
+        self.client.force_login(self.user_no_group.role)
+        res = self.client.post(
+            "/api/groupes/" + str(self.group.id) + "/messages/",
+            data={
+                "subject": "Objet du message",
+                "text": "Message privé à la haute administration !",
+            },
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_authenticated_user_can_get_only_messages_from_own_groups(self):
         other_group = SupportGroup.objects.create()
         other_user = Person.objects.create_person(
             email="other_user@example.com", create_role=True
         )
-        other_group_message = SupportGroupMessage.objects.create(
+        SupportGroupMessage.objects.create(
             author=other_user, supportgroup=other_group, text="Other text"
         )
         self.client.force_login(self.user.role)
+        response = self.client.get("/api/user/messages/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], str(self.first_message.id))
+
+    def test_referent_can_get_messages_from_own_groups_and_organization(self):
+        other_group = SupportGroup.objects.create()
+        other_user = Person.objects.create(
+            email="other_user@example.com", create_role=True
+        )
+        SupportGroupMessage.objects.create(
+            author=other_user, supportgroup=other_group, text="Other text"
+        )
+        self.client.force_login(self.user_referent.role)
+        response = self.client.get("/api/user/messages/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]["id"], str(self.private_message.id))
+
+    def test_manager_can_get_messages_from_own_groups_membership(self):
+        other_user = Person.objects.create(
+            email="other_user@example.com", create_role=True
+        )
+        message = SupportGroupMessage.objects.create(
+            author=other_user,
+            supportgroup=self.group,
+            text="Message to managers",
+            required_membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        self.client.force_login(self.user_manager.role)
+        response = self.client.get("/api/user/messages/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]["id"], str(message.id))
+
+    def test_member_cannot_get_messages_from_own_groups_organization(self):
+        other_group = SupportGroup.objects.create()
+        other_user = Person.objects.create(
+            email="other_user@example.com", create_role=True
+        )
+        SupportGroupMessage.objects.create(
+            author=other_user, supportgroup=other_group, text="Other text"
+        )
+        self.client.force_login(self.user_follower.role)
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
@@ -248,14 +351,24 @@ class UserUnreadMessageCountAPITestCase(APITestCase):
 class GetUnreadMessageCountActionTestCase(APITestCase):
     def setUp(self):
         self.supportgroup = SupportGroup.objects.create()
-        self.reader = Person.objects.create_person(
-            email="reader@agis.msgs", create_role=True
-        )
-        self.writer = Person.objects.create_person(
-            email="writer@agir.msgs", create_role=True
-        )
+        self.reader = Person.objects.create(email="reader@agir.msgs", create_role=True)
+        self.writer = Person.objects.create(email="writer@agir.msgs", create_role=True)
         Membership.objects.create(supportgroup=self.supportgroup, person=self.reader)
         Membership.objects.create(supportgroup=self.supportgroup, person=self.writer)
+
+        self.user_referent = Person.objects.create(
+            email="referent@example.com",
+            create_role=True,
+        )
+        self.user_no_group = Person.objects.create(
+            email="user_no_group@example.com",
+            create_role=True,
+        )
+        Membership.objects.create(
+            person=self.user_referent,
+            supportgroup=self.supportgroup,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
 
     def test_group_messages_before_membership_creation_are_not_counted(self):
         supportgroup = SupportGroup.objects.create()
@@ -308,6 +421,19 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
         )
         unread_message_count = get_unread_message_count(self.reader.pk)
         self.assertEqual(unread_message_count, 1)
+
+        # One private message
+        SupportGroupMessage.objects.create(
+            author=self.user_no_group,
+            supportgroup=self.supportgroup,
+            text="Private message",
+            required_membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 1)
+
+        unread_message_count = get_unread_message_count(self.user_referent.pk)
+        self.assertEqual(unread_message_count, 2)
 
         # One unread message with one unread comment
         SupportGroupMessageComment.objects.create(

@@ -5,14 +5,14 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { routeConfig } from "@agir/front/app/routes.config";
-
-import MessageCard from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Panel from "@agir/front/genericComponents/Panel";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
+import MessageCard from "@agir/front/genericComponents/MessageCard";
+
 import MessageThreadMenu from "./MessageThreadMenu";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledContent = styled.article`
   height: 100%;
@@ -118,6 +118,7 @@ const DesktopThreadList = (props) => {
     onDeleteComment,
     writeNewMessage,
     notificationSettingLink,
+    onSend,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
@@ -126,7 +127,7 @@ const DesktopThreadList = (props) => {
   );
 
   useEffect(() => {
-    // Autoselect first message on desktop
+    // Auto-select first message on desktop
     !selectedMessagePk &&
       Array.isArray(messages) &&
       messages[0] &&
@@ -145,7 +146,7 @@ const DesktopThreadList = (props) => {
       />
       <StyledContent ref={scrollableRef}>
         <PageFadeIn ready={selectedMessagePk && selectedMessage}>
-          {selectedMessage ? (
+          {selectedMessage && (
             <MessageCard
               autoScrollOnComment
               isLoading={isLoading}
@@ -163,7 +164,7 @@ const DesktopThreadList = (props) => {
                 groupPk: selectedMessage.group.id,
               })}
             />
-          ) : null}
+          )}
           <span
             style={{ width: 1, height: 0 }}
             aria-hidden={true}
@@ -191,6 +192,7 @@ const MobileThreadList = (props) => {
     onDeleteComment,
     writeNewMessage,
     notificationSettingLink,
+    onSend,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(

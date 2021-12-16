@@ -107,23 +107,16 @@ def own_membership_has_higher_rights(role, membership=None):
 def is_group_member(role, object=None):
     if object is None:
         return False
-
     if isinstance(object, SupportGroup):
         supportgroup = object
     elif isinstance(object, SupportGroupMessage):
         supportgroup = object.supportgroup
     else:
         return False
-
     return (
         supportgroup is not None
         and supportgroup.members.filter(pk=role.person.pk).exists()
     )
-
-
-@rules.predicate
-def is_msg_author(role, msg=None):
-    return msg is not None and msg.author == role.person
 
 
 rules.add_perm(
@@ -160,30 +153,6 @@ rules.add_perm(
 )
 rules.add_perm(
     "groups.transfer_members", is_authenticated_person & is_at_least_manager_for_group
-)
-rules.add_perm(
-    "msgs.view_supportgroupmessage", is_authenticated_person & is_group_member
-)
-rules.add_perm(
-    "msgs.add_supportgroupmessage",
-    is_authenticated_person & is_at_least_manager_for_group,
-)
-rules.add_perm(
-    "msgs.change_supportgroupmessage", is_authenticated_person & is_msg_author
-)
-rules.add_perm(
-    "msgs.delete_supportgroupmessage",
-    is_authenticated_person & (is_msg_author | is_at_least_manager_for_group),
-)
-rules.add_perm(
-    "msgs.add_supportgroupmessagecomment", is_authenticated_person & is_group_member
-)
-rules.add_perm(
-    "msgs.change_supportgroupmessagecomment", is_authenticated_person & is_msg_author
-)
-rules.add_perm(
-    "msgs.delete_supportgroupmessagecomment",
-    is_authenticated_person & (is_msg_author | is_at_least_manager_for_group),
 )
 rules.add_perm(
     "groups.change_membership_type",

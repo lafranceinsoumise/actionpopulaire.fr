@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 
-import MessageModal from "./index";
+import MessageModal from "./MessageModal";
 
 export default {
   component: MessageModal,
@@ -55,14 +55,14 @@ const events = [
 ];
 
 export const Default = () => {
-  const [messages, setMessages] = React.useState([]);
-  const [visibleEvents, setVisibleEvents] = React.useState(events.slice(0, 3));
-  const [editedMessage, setEditedMessage] = React.useState(null);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const loadMoreEvents = React.useCallback(() => {
+  const [messages, setMessages] = useState([]);
+  const [visibleEvents, setVisibleEvents] = useState(events.slice(0, 3));
+  const [editedMessage, setEditedMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const loadMoreEvents = useCallback(() => {
     setVisibleEvents(events);
   }, []);
-  const handleSave = React.useCallback(async (message) => {
+  const handleSave = useCallback(async (message) => {
     setIsLoading(true);
     await new Promise((resolve) => {
       setTimeout(() => {
@@ -78,7 +78,7 @@ export const Default = () => {
     });
   }, []);
 
-  const handleDismiss = React.useCallback(() => {
+  const handleDismiss = useCallback(() => {
     setVisibleEvents(events.slice(0, 3));
     setEditedMessage(null);
   }, []);

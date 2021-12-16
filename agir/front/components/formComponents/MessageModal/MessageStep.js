@@ -5,6 +5,7 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import { displayShortDate } from "@agir/lib/utils/time";
 import { lazy } from "@agir/front/app/utils";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import TextField from "@agir/front/formComponents/TextField";
@@ -43,6 +44,10 @@ const StyledWrapper = styled.div`
     }
 
     span {
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: center;
+
       strong,
       em {
         display: block;
@@ -159,10 +164,14 @@ const MessageStep = (props) => {
     onClearEvent,
     maxLength,
     subjectMaxLength,
+    groupPk,
+    onBoarding,
   } = props;
 
   const textFieldRef = useRef();
   const textFieldCursorPosition = useRef();
+
+  const isUserGroup = user.groups.includes(groupPk);
 
   const handleEmojiSelect = useCallback(
     (emoji) => {
@@ -196,11 +205,44 @@ const MessageStep = (props) => {
 
   return (
     <StyledWrapper>
+      {!!groupPk && (
+        <div
+          style={{
+            padding: "20px",
+            backgroundColor: style.primary50,
+            marginBottom: "1rem",
+            borderRadius: style.borderRadius,
+          }}
+        >
+          {isUserGroup ? (
+            <>
+              {onBoarding ? (
+                <>
+                  Les animateur·ices du groupe ont été informé·es de votre
+                  arrivée dans le groupe. Envoyez-leur un message pour vous
+                  présenter&nbsp;!
+                </>
+              ) : (
+                <>Contactez les animateur·ices du groupe&nbsp;!</>
+              )}
+              <Spacer size="0.5rem" />
+            </>
+          ) : (
+            <>
+              Vous souhaitez rejoindre ce groupe ou bien recevoir des
+              informations&nbsp;? Entamez votre discussion ici&nbsp;!&nbsp;
+            </>
+          )}
+          Vous recevrez leur réponse{" "}
+          <strong>par notification et sur votre e-mail</strong> (
+          <span style={{ color: style.primary500 }}>{user.email}</span>)
+        </div>
+      )}
       <StyledLabel>
         <Avatar name={user.displayName} image={user.image} />
         <span>
           <strong>{user.displayName}</strong>
-          {event && event.name ? (
+          {event && !!event.name && (
             <em>
               {event.id
                 ? `À propos de ${event.name}${
@@ -214,7 +256,7 @@ const MessageStep = (props) => {
                 Changer
               </button>
             </em>
-          ) : null}
+          )}
         </span>
       </StyledLabel>
       <StyledMessage>
@@ -228,6 +270,7 @@ const MessageStep = (props) => {
             placeholder="Objet du message"
             maxLength={subjectMaxLength}
             hasCounter={false}
+            autoComplete="off"
           />
         </header>
         <TextField
@@ -248,11 +291,11 @@ const MessageStep = (props) => {
               onSelect={handleEmojiSelect}
             />
           </Suspense>
-          {typeof maxLength === "number" && text.length >= maxLength / 2 ? (
+          {typeof maxLength === "number" && text.length >= maxLength / 2 && (
             <StyledCounter $invalid={text.length > maxLength}>
               {text.length}/{maxLength}
             </StyledCounter>
-          ) : null}
+          )}
         </footer>
       </StyledMessage>
     </StyledWrapper>

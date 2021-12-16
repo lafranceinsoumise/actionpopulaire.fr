@@ -21,7 +21,7 @@ from agir.people.models import Person
 from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
 from ..activity.models import Activity
-from ..lib.display import genrer
+from agir.groups.display import genrer_membership
 from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from ..notifications.models import Subscription
 
@@ -467,7 +467,16 @@ def send_message_notification_email(message_pk):
 
     message = SupportGroupMessage.objects.get(pk=message_pk)
 
+    memberships = message.supportgroup.memberships.filter(
+        membership_type__gte=message.required_membership_type
+    )
+    recipients = Person.objects.filter(
+        id__in=memberships.values_list("person_id", flat=True)
+    )
+    recipients_id = [recipient.id for recipient in recipients]
+
     recipients = Person.objects.exclude(id=message.author.id).filter(
+        id__in=recipients_id,
         notification_subscriptions__membership__supportgroup=message.supportgroup,
         notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
         notification_subscriptions__activity_type=Activity.TYPE_NEW_MESSAGE,
@@ -475,6 +484,11 @@ def send_message_notification_email(message_pk):
 
     if len(recipients) == 0:
         return
+
+    membership_type = Membership.objects.get(
+        person=message.author, supportgroup=message.supportgroup
+    ).membership_type
+    author_status = genrer_membership(message.author.gender, membership_type)
 
     bindings = {
         "MESSAGE_HTML": format_html_join(
@@ -484,7 +498,7 @@ def send_message_notification_email(message_pk):
         "MESSAGE_LINK": front_url("user_message_details", kwargs={"pk": message_pk}),
         "AUTHOR_STATUS": format_html(
             '{} de <a href="{}">{}</a>',
-            genrer(message.author.gender, "Animateur", "Animatrice", "Animateur·ice"),
+            author_status,
             front_url("view_group", args=[message.supportgroup.pk]),
             message.supportgroup.name,
         ),
@@ -511,19 +525,43 @@ def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
     message_initial = comment.message
 
-    recipients = Person.objects.exclude(id=comment.author.id).filter(
-        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
-        notification_subscriptions__person__in=message_initial.comments.values_list(
-            "author_id", flat=True
-        ),
-        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
-    )
+    # Private comment: send only to allowed membership and initial author
+    if message_initial.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
+        memberships = message_initial.supportgroup.memberships.filter(
+            membership_type__gte=message_initial.required_membership_type
+        )
+        persons_allowed = Person.objects.filter(
+            id__in=memberships.values_list("person_id", flat=True)
+        )
+        persons_allowed_id = [person.id for person in persons_allowed]
+        persons_allowed_id += [message_initial.author.id]
+
+        recipients = Person.objects.exclude(id=comment.author.id).filter(
+            id__in=persons_allowed_id,
+            notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
+            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+        )
+    # Public comment: send to all group members who ever commented
+    else:
+        recipients = Person.objects.exclude(id=comment.author.id).filter(
+            notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
+            notification_subscriptions__person__in=message_initial.comments.values_list(
+                "author_id", flat=True
+            ),
+            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+        )
 
     recipients = recipients.distinct()
 
     if len(recipients) == 0:
         return
+
+    membership_type = Membership.objects.get(
+        person=comment.author, supportgroup=message_initial.supportgroup
+    ).membership_type
+    author_status = genrer_membership(comment.author.gender, membership_type)
 
     bindings = {
         "MESSAGE_HTML": format_html_join(
@@ -535,7 +573,7 @@ def send_comment_notification_email(comment_pk):
         ),
         "AUTHOR_STATUS": format_html(
             '{} de <a href="{}">{}</a>',
-            genrer(comment.author.gender, "Animateur", "Animatrice", "Animateur·ice"),
+            author_status,
             front_url("view_group", args=[message_initial.supportgroup.pk]),
             message_initial.supportgroup.name,
         ),
