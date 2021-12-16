@@ -41,13 +41,7 @@ const StyledCard = styled.div`
   }
 `;
 
-const currency = new Intl.NumberFormat("fr-FR", {
-  style: "currency",
-  currency: "EUR",
-  maximumFractionDigits: 0,
-  minimumFractionDigits: 0,
-});
-const formatCurrency = (amount) => currency.format(Math.floor(amount / 100));
+const formatCurrency = (amount) => Math.floor(amount / 100);
 
 export const DonateCard = (props) => {
   const { amount } = props;
