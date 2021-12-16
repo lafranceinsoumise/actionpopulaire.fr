@@ -52,7 +52,7 @@ class BasicPersonTestCase(TestCase):
         user.add_email("test2@domain.com")
         user.save()
         user.set_primary_email("test2@domain.com")
-
+        user.refresh_from_db()
         self.assertEqual(user.email, "test2@domain.com")
         self.assertEqual(user.emails.all()[1].address, "test@domain.com")
 
