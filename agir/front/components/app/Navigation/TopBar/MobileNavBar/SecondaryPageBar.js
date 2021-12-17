@@ -66,7 +66,7 @@ const SecondaryPageBar = (props) => {
         <h2>{title}</h2>
         {!!matchMessagePage && (
           <Description onClick={() => setOpenParticipants(true)}>
-            {currentMessage.participants.total} participant·es &gt;
+            {currentMessage?.participants.total} participant·es &gt;
           </Description>
         )}
       </StyledBlock>

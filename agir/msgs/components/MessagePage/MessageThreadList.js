@@ -158,8 +158,6 @@ const DesktopThreadList = (props) => {
     getGroupEndpoint("getMessageMuted", { messagePk: selectedMessage?.id })
   );
 
-  console.log("selected message", selectedMessage);
-
   const isActive = data === ON;
   const groupURL = routeConfig.groupDetails.getLink({
     groupPk: selectedMessage?.group.id,

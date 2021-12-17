@@ -31,14 +31,38 @@ const StyledContainer = styled.div`
   }
 `;
 
-const UsersRole = ({ users, role }) => {
+const StyledBlock = styled.div`
+  display: flex;
+  padding-left: 0.25rem;
+  align-items: center;
+`;
+
+const HiddenUsers = ({ total }) => {
+  if (!total) {
+    return null;
+  }
+  return (
+    <StyledBlock>
+      <RawFeatherIcon name="users" style={{ paddingRight: "0.5rem" }} />
+      {total} autre{total > 1 ? "s" : ""}
+    </StyledBlock>
+  );
+};
+
+const UsersRole = ({ users, role, authors }) => {
   if (!users.length) {
     return null;
   }
 
+  // Show anonymous for each role
+  // let totalAnonymous = 0;
+  // if (Array.isArray(authors)) {
+  //   totalAnonymous = users.reduce((total, user) => total + (authors.includes(user.id)) , 0);
+  // }
+
   return (
     <>
-      <span style={{ fontWeight: "500" }}>{role}</span>
+      <span style={{ fontWeight: 500 }}>{role}</span>
       <Spacer size="0.5rem" />
       {users.map((user) => (
         <StyledPerson>
@@ -46,23 +70,24 @@ const UsersRole = ({ users, role }) => {
           {user.displayName}
         </StyledPerson>
       ))}
+      {/* <HiddenUsers total={totalAnonymous} /> */}
       <Spacer size="1rem" />
     </>
   );
 };
 
-export const ListUser = (props) => {
-  const { message } = props;
-
+export const ListUser = ({ message }) => {
   if (!message) {
     return null;
   }
 
-  const isOrganizerMessage =
-    message.requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
-  const totalAnonymous =
-    message.participants.total - message.participants.actives.length;
+  const participants = message.participants;
+  const author = participants.actives.filter((p) => !!p.isAuthor);
+  const commentAuthors = participants.commentAuthors;
+  const totalAnonymous = participants.total - participants.actives.length;
 
+  const isOrganizerMessage =
+    message.requiredMembershipType > MEMBERSHIP_TYPES.FOLLOWER;
   const referents = message.participants.actives.filter(
     (p) => p.membershipType === MEMBERSHIP_TYPES.REFERENT
   );
@@ -75,8 +100,6 @@ export const ListUser = (props) => {
   const followers = message.participants.actives.filter(
     (p) => p.membershipType === MEMBERSHIP_TYPES.FOLLOWER
   );
-
-  const author = message.participants.actives.filter((p) => !!p.isAuthor);
 
   return (
     <StyledContainer>
@@ -98,23 +121,25 @@ export const ListUser = (props) => {
           <UsersRole role="Non membre" users={author} />
         )}
         <UsersRole role="Animateurs" users={referents} />
-        <UsersRole role="Gestionnaires" users={managers} />
-        <UsersRole role="Membres actifs" users={members} />
-        <UsersRole role="Contacts" users={followers} />
-      </div>
+        <UsersRole
+          role="Gestionnaires"
+          users={managers}
+          authors={commentAuthors}
+        />
+        <UsersRole
+          role="Membres actifs"
+          users={members}
+          authors={commentAuthors}
+        />
+        <UsersRole role="Contacts" users={followers} authors={commentAuthors} />
 
-      {!!totalAnonymous && (
-        <div
-          style={{
-            display: "flex",
-            paddingLeft: "0.25rem",
-            alignItems: "center",
-          }}
-        >
-          <RawFeatherIcon name="users" style={{ paddingRight: "0.5rem" }} />
-          {totalAnonymous} autres
-        </div>
-      )}
+        {!!totalAnonymous && (
+          <>
+            <hr style={{ marginTop: 0 }} />
+            <HiddenUsers total={totalAnonymous} />
+          </>
+        )}
+      </div>
     </StyledContainer>
   );
 };
