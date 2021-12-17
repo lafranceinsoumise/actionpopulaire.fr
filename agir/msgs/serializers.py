@@ -189,6 +189,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
 
         return {
             "actives": active_persons,
+            "commentAuthors": comment_authors,
             "total": len(persons),
         }
 

@@ -10,16 +10,13 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Panel from "@agir/front/genericComponents/Panel";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
-import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
-import Avatar from "@agir/front/genericComponents/Avatar";
 import MessageCard from "@agir/front/genericComponents/MessageCard";
 import MessageThreadMenu from "./MessageThreadMenu";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { switchMessageMuted, getGroupEndpoint } from "@agir/groups/api.js";
 import { routeConfig } from "@agir/front/app/routes.config";
-import { Link } from "react-router-dom";
+import ListUsers from "./ListUsers";
 
 const StyledContent = styled.article`
   height: 100%;
@@ -41,7 +38,6 @@ const StyledContent = styled.article`
   }
 `;
 const StyledList = styled.main`
-  // width: 100%;
   height: 100%;
   display: flex;
   align-items: stretch;
@@ -84,25 +80,6 @@ const BlockMuteMessage = styled.div`
   ${RawFeatherIcon}:hover {
     cursor: pointer;
     color: ${style.primary500};
-  }
-`;
-
-const MessageDetails = styled.div`
-  max-width: 400px;
-  width: 400px;
-  border-left: 1px solid #c4c4c4;
-  padding: 1.5rem;
-`;
-
-const StyledPerson = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-
-  ${Avatar} {
-    width: 2rem;
-    height: 2rem;
-    margin-right: 0.5rem;
   }
 `;
 
@@ -182,11 +159,6 @@ const DesktopThreadList = (props) => {
   );
 
   console.log("selected message", selectedMessage);
-  const isOrganizerMessage =
-    selectedMessage?.requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
-  const totalAnonymous =
-    selectedMessage?.participants?.total -
-    selectedMessage?.participants?.actives.length;
 
   const isActive = data === ON;
   const groupURL = routeConfig.groupDetails.getLink({
@@ -260,31 +232,8 @@ const DesktopThreadList = (props) => {
           </PageFadeIn>
         </StyledContent>
       </StyledBlock>
-      <MessageDetails>
-        {isOrganizerMessage
-          ? "Discussion privée avec les animateur·ices du groupe"
-          : "Discussion avec les membres du groupe"}
-        &nbsp;
-        <Link to={groupURL}>{selectedMessage?.group.name}</Link>
-        <Spacer size="1rem" />
-        <span style={{ fontSize: "14px" }}>
-          {selectedMessage?.participants.total} personnes :
-        </span>
-        <Spacer size="0.5rem" />
-        <div>
-          {selectedMessage?.participants.actives.map((p) => (
-            <StyledPerson>
-              <Avatar image={p.image} name={p.displayName} />
-              {p.displayName}
-            </StyledPerson>
-          ))}
-        </div>
-        {!!totalAnonymous && (
-          <div style={{ paddingLeft: ".5rem", fontSize: "14px" }}>
-            + {totalAnonymous} autres
-          </div>
-        )}
-      </MessageDetails>
+
+      <ListUsers message={selectedMessage} />
     </StyledList>
   );
 };
