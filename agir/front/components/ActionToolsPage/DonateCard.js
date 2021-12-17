@@ -46,7 +46,7 @@ const formatCurrency = (amount) => Math.floor(amount / 100);
 export const DonateCard = (props) => {
   const { amount } = props;
 
-  const target = Math.ceil(amount / 10000000) * 10000000;
+  const target = Math.ceil(amount / 100000000) * 100000000;
 
   const { progress, animatedAmount } = useSpring({
     from: { progress: 0, animatedAmount: 1 },
