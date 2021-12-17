@@ -505,6 +505,9 @@ class Event(
                 fields=["start_time", "end_time"], name="events_datetime_index"
             ),
             models.Index(fields=["end_time"], name="events_end_time_index"),
+            models.Index(
+                fields=["start_time", "end_time", "id"], name="events_datetime_id_index"
+            ),
         )
 
     def __str__(self):
@@ -823,6 +826,13 @@ class EventSubtype(BaseSubtype):
         null=True,
         blank=True,
         on_delete=models.PROTECT,
+    )
+
+    is_editable = models.BooleanField(
+        "Les événements de ce sous-types seront modifiables",
+        default=True,
+        help_text="Les événements de ce sous-type pourront être modifiés par les organisateur·ices, "
+        "et non seulement par les administrateur·ices",
     )
 
     class Meta:

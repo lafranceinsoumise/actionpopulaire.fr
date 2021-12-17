@@ -31,7 +31,6 @@ class Command(BaseCommand):
         today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
         yesterday = today - timedelta(days=1)
         tomorrow = today + timedelta(days=1)
-        day_after_tomorrow = tomorrow + timedelta(days=1)
 
         if event is not None:
             try:
@@ -62,12 +61,12 @@ class Command(BaseCommand):
             yesterday_event_pks = [
                 project.event_id
                 for project in Projet.objects.filter(
-                    event__end_time__gte=yesterday, event__end_time__lt=today
+                    event__end_time__date=yesterday.date()
                 )
                 if get_project_missing_document_count(project) > 0
             ]
             self.stdout.write(
-                f"Sending reminder for {len(yesterday_event_pks)} event(s) ended yesterday ({yesterday})."
+                f"Sending reminder for {len(yesterday_event_pks)} event(s) ended yesterday ({yesterday.date()})."
             )
             for event_pk in yesterday_event_pks:
                 send_post_event_required_documents_reminder_email.delay(event_pk)
@@ -76,13 +75,12 @@ class Command(BaseCommand):
             tomorrow_event_pks = [
                 project.event_id
                 for project in Projet.objects.filter(
-                    event__start_time__gte=tomorrow,
-                    event__start_time__lt=day_after_tomorrow,
+                    event__start_time__date=tomorrow.date()
                 )
                 if get_project_missing_document_count(project) > 0
             ]
             self.stdout.write(
-                f"Sending reminder for {len(tomorrow_event_pks)} event(s) starting tomorrow ({tomorrow})."
+                f"Sending reminder for {len(tomorrow_event_pks)} event(s) starting tomorrow ({tomorrow.date()})."
             )
             for event_pk in tomorrow_event_pks:
                 send_pre_event_required_documents_reminder_email.delay(event_pk)

@@ -21,7 +21,7 @@ from agir.people.models import Person
 from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
 from ..activity.models import Activity
-from ..lib.display import genrer
+from agir.groups.display import genrer_membership
 from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from ..notifications.models import MuteMessage, Subscription
 
@@ -485,6 +485,11 @@ def send_message_notification_email(message_pk):
     if len(recipients) == 0:
         return
 
+    membership_type = Membership.objects.get(
+        person=message.author, supportgroup=message.supportgroup
+    ).membership_type
+    author_status = genrer_membership(message.author.gender, membership_type)
+
     bindings = {
         "MESSAGE_HTML": format_html_join(
             "", "<p>{}</p>", ((p,) for p in message.text.split("\n"))
@@ -493,7 +498,7 @@ def send_message_notification_email(message_pk):
         "MESSAGE_LINK": front_url("user_message_details", kwargs={"pk": message_pk}),
         "AUTHOR_STATUS": format_html(
             '{} de <a href="{}">{}</a>',
-            genrer(message.author.gender, "Animateur", "Animatrice", "Animateur·ice"),
+            author_status,
             front_url("view_group", args=[message.supportgroup.pk]),
             message.supportgroup.name,
         ),
@@ -560,6 +565,11 @@ def send_comment_notification_email(comment_pk):
     if len(recipients) == 0:
         return
 
+    membership_type = Membership.objects.get(
+        person=comment.author, supportgroup=message_initial.supportgroup
+    ).membership_type
+    author_status = genrer_membership(comment.author.gender, membership_type)
+
     bindings = {
         "MESSAGE_HTML": format_html_join(
             "", "<p>{}</p>", ((p,) for p in comment.text.split("\n"))
@@ -570,7 +580,7 @@ def send_comment_notification_email(comment_pk):
         ),
         "AUTHOR_STATUS": format_html(
             '{} de <a href="{}">{}</a>',
-            genrer(comment.author.gender, "Animateur", "Animatrice", "Animateur·ice"),
+            author_status,
             front_url("view_group", args=[message_initial.supportgroup.pk]),
             message_initial.supportgroup.name,
         ),

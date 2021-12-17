@@ -14,11 +14,13 @@ import { createEvent } from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import LocationField from "@agir/front/formComponents/LocationField.js";
+import LocationField from "@agir/front/formComponents/LocationField";
+import UnloadPrompt from "@agir/front/app/UnloadPrompt";
 
 import NameField from "./NameField";
 import OrganizerGroupField from "@agir/events/common/OrganizerGroupField";
 import DateField from "./DateField";
+import EventImageField from "./EventImageField";
 import SubtypeField from "./SubtypeField";
 import ContactField from "./ContactField";
 import OnlineUrlField from "./OnlineUrlField";
@@ -202,6 +204,11 @@ const EventForm = () => {
         errors.campaignFunding =
           "Confirmez ces informations pour créer l'événement";
       }
+      if (formData.image && !formData.image.hasLicense) {
+        errors = errors || {};
+        errors.image =
+          "Vous devez acceptez la licence pour envoyer votre image en conformité";
+      }
       if (errors) {
         setErrors(errors);
         scrollToError(errors, window, 100);
@@ -322,6 +329,14 @@ const EventForm = () => {
         disabled={isLoading}
         required
       />
+      <Spacer size="1.25rem" data-scroll="image" />
+      <EventImageField
+        name="image"
+        value={formData.image}
+        onChange={updateValue}
+        error={errors?.image}
+        disabled={isLoading}
+      />
       <Spacer size="2rem" />
       <fieldset>
         <legend style={{ paddingBottom: "0" }}>
@@ -397,6 +412,7 @@ const EventForm = () => {
       >
         Vous pourrez modifier ces informations après la création de l’événement.
       </p>
+      <UnloadPrompt enabled={!newEventPk} allowedRoutes="createEvent" />
     </StyledForm>
   );
 };

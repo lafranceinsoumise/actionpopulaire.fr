@@ -33,6 +33,8 @@ export const InfosElu = PropTypes.shape({
   nomComplet: PropTypes.string.isRequired,
   titre: PropTypes.string.isRequired,
   sexe: PropTypes.oneOf(["M", "F"]).isRequired,
+  pcs: PropTypes.number,
+  pcsLabel: PropTypes.string,
   commune: PropTypes.string.isRequired,
   distance: PropTypes.number,
   statut: PropTypes.oneOf(["D", "A", "E", "T", "P"]).isRequired,

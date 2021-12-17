@@ -16,8 +16,9 @@ from agir.people.person_forms.models import PersonForm
 logger = logging.getLogger(__name__)
 
 RATE_LIMIT = 13
-CONCURRENT_REQUESTS = 20
-HTTP_TIMEOUT = 5
+CONCURRENT_REQUESTS = 15
+HTTP_TIMEOUT = 15
+MAX_RETRIES = 10
 
 OUTREMER = {
     "971": "ZA",
@@ -87,7 +88,7 @@ class Command(LoggingCommand):
     @tenacity.retry(
         sleep=trio.sleep,
         wait=tenacity.wait_random_exponential(),
-        stop=tenacity.stop_after_attempt(3),
+        stop=tenacity.stop_after_attempt(MAX_RETRIES),
         retry=tenacity.retry_if_exception_type((trio.TooSlowError, AsksException)),
     )
     async def request(self, method, path, raise_for_status=True, **kwargs):
@@ -203,7 +204,9 @@ class Command(LoggingCommand):
         equipes = await self.recuperer_equipes()
         for a in agents:
             if a["team"] not in equipes:
-                raise ValueError(f"Équipe {a['team']} inexistante.")
+                logger.info(f"Équipe {a['team']} inexistante.")
+
+        agents = [a for a in agents if a["team"] in equipes]
 
         existants = await self.recuperer_agents_existants()
         a_ajouter = [a for a in agents if a["email"] not in existants]

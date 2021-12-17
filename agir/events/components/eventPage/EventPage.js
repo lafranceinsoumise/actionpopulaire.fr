@@ -52,6 +52,7 @@ import EventReportCard from "./EventReportCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import ClickableMap from "@agir/carte/common/Map/ClickableMap";
 import { StyledSideCard } from "./StyledCard";
+import YoutubeEmbed from "./YoutubeEmbed";
 
 import EventSettings from "@agir/events/EventSettings/EventSettings";
 
@@ -206,6 +207,11 @@ const MobileLayout = (props) => {
               <EventHeader {...props} />
               {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
             </Card>
+            {props.youtubeVideoID && (
+              <Card>
+                <YoutubeEmbed id={props.youtubeVideoID} />
+              </Card>
+            )}
             <EventLocationCard
               name={name}
               timezone={props.timezone}
@@ -268,6 +274,9 @@ const DesktopLayout = (props) => {
             <div>
               <EventHeader {...props} />
               {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
+              {props.youtubeVideoID && (
+                <YoutubeEmbed id={props.youtubeVideoID} />
+              )}
               <EventPhotosCard {...props} />
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />

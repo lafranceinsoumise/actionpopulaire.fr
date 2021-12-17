@@ -1,5 +1,11 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useRef, Suspense } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  Suspense,
+} from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -47,7 +53,7 @@ const StyledBottomSheet = styled(RSBS)`
 
 export const BottomSheet = (props) => {
   const { isOpen, onDismiss, shouldDismissOnClick, children } = props;
-
+  const [isReady, setIsReady] = useState(false);
   const contentRef = useRef();
 
   const handleSpringStart = useCallback(
@@ -71,26 +77,32 @@ export const BottomSheet = (props) => {
     [onDismiss, shouldDismissOnClick]
   );
 
+  useEffect(() => {
+    isOpen && !isReady && setIsReady(true);
+  }, [isOpen, isReady]);
+
   return (
     <Suspense fallback={null}>
-      <StyledBottomSheet
-        open={isOpen}
-        onDismiss={onDismiss}
-        onSpringStart={handleSpringStart}
-        defaultSnap={({ minHeight }) => minHeight}
-        snapPoints={({ maxHeight }) => [
-          2 * (maxHeight / 3),
-          maxHeight - maxHeight / 10,
-          maxHeight / 3,
-        ]}
-        footer={
-          <StyledBottomSheetFooter>
-            <button onClick={onDismiss}>Fermer</button>
-          </StyledBottomSheetFooter>
-        }
-      >
-        <div ref={contentRef}>{children}</div>
-      </StyledBottomSheet>
+      {isReady && (
+        <StyledBottomSheet
+          open={isOpen}
+          onDismiss={onDismiss}
+          onSpringStart={handleSpringStart}
+          defaultSnap={({ minHeight }) => minHeight}
+          snapPoints={({ maxHeight }) => [
+            2 * (maxHeight / 3),
+            maxHeight - maxHeight / 10,
+            maxHeight / 3,
+          ]}
+          footer={
+            <StyledBottomSheetFooter>
+              <button onClick={onDismiss}>Fermer</button>
+            </StyledBottomSheetFooter>
+          }
+        >
+          <div ref={contentRef}>{children}</div>
+        </StyledBottomSheet>
+      )}
     </Suspense>
   );
 };

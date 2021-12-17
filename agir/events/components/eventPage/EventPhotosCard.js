@@ -47,17 +47,14 @@ const EventPhotosCard = (props) => {
     routes,
     isOrganizer,
   } = props;
+
   const isPast = endTime < DateTime.local();
-
-  if (!isPast && !isOrganizer) {
-    return null;
-  }
-
+  const isRSVP = rsvp === "CO" || isOrganizer;
   const mainPhoto = compteRenduMainPhoto ? [compteRenduMainPhoto] : [];
   const morePhotos = compteRenduPhotos?.length ? compteRenduPhotos : [];
   const photos = mainPhoto.concat(morePhotos);
 
-  if (photos.length === 0 && rsvp !== "CO" && !isOrganizer) {
+  if (photos.length === 0 && (!isRSVP || !isPast)) {
     return null;
   }
 
@@ -92,7 +89,7 @@ const EventPhotosCard = (props) => {
       ) : (
         <p>Il n'y a pas encore de photo de cet événement.</p>
       )}
-      {rsvp === "CO" && (
+      {isPast && isRSVP && (
         <div style={{ paddingTop: "1rem" }}>
           <Button link href={routes.addPhoto}>
             Ajouter une photo

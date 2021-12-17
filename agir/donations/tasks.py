@@ -19,23 +19,23 @@ from agir.presidentielle2022.apps import Presidentielle2022Config
 @emailing_task
 @post_save_task
 def send_donation_email(person_pk, payment_type):
+    person = Person.objects.prefetch_related("emails").get(pk=person_pk)
     template_code = "DONATION_MESSAGE"
     email_from = settings.EMAIL_FROM
 
     if (
         payment_type in PAYMENT_TYPES
-        and PAYMENT_TYPES[payment_type].email_from is not None
+        and hasattr(PAYMENT_TYPES[payment_type], "email_from")
+        and PAYMENT_TYPES[payment_type].email_from
     ):
         email_from = PAYMENT_TYPES[payment_type].email_from
 
-    person = Person.objects.prefetch_related("emails").get(pk=person_pk)
-
-    if payment_type in [
-        Presidentielle2022Config.DONATION_PAYMENT_TYPE,
-        Presidentielle2022Config.DONATION_SUBSCRIPTION_TYPE,
-    ]:
-        email_from = settings.EMAIL_FROM_MELENCHON_2022
-        template_code = "DONATION_MESSAGE_2022"
+    if (
+        payment_type in PAYMENT_TYPES
+        and hasattr(PAYMENT_TYPES[payment_type], "email_template_code")
+        and PAYMENT_TYPES[payment_type].email_template_code
+    ):
+        template_code = PAYMENT_TYPES[payment_type].email_template_code
 
     send_mosaico_email(
         code=template_code,

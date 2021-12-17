@@ -68,7 +68,9 @@ const DonationPage = lazy(() =>
 const DonationInformationsPage = lazy(() =>
   import("@agir/donations/donationPage/InformationsPage")
 );
-const ActionToolsPage = lazy(() => import("@agir/front/ActionToolsPage"));
+const ActionToolsPage = lazy(() =>
+  import("@agir/front/ActionToolsPage/ActionToolsPage")
+);
 
 export const BASE_PATH = "/";
 

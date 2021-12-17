@@ -1,6 +1,6 @@
 const config = [
   "/api/session/",
-  "/api/2022/dons/aggregats/",
+  "/api/2022/dons/",
 
   "/api/user/activities/",
   "/api/user/messages/",

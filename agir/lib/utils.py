@@ -1,7 +1,7 @@
 import re
 from io import BytesIO
 from itertools import chain, islice
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, parse_qs
 
 import pytz
 import requests
@@ -174,3 +174,26 @@ def grouper(it, n):
         except StopIteration:
             return
         yield chain((f,), islice(it, n - 1))
+
+
+def get_youtube_video_id(url):
+    """Returns Video_ID extracting from the given url of Youtube
+    inspired by https://gist.github.com/kmonsoor/2a1afba4ee127cce50a0
+    """
+    if url.startswith(("youtu", "www")):
+        url = "http://" + url
+
+    query = urlparse(url)
+    if query.hostname in ("www.youtube.com", "youtu.be", "youtube.com"):
+        if parse_qs(query.query).get("v"):
+            return parse_qs(query.query)["v"][0]
+
+        if "youtube" in query.hostname and query.path.startswith(
+            ("/embed/", "/e/", "/v/")
+        ):
+            return query.path.split("/")[2]
+
+        if "youtu.be" in query.hostname:
+            return query.path[1:]
+
+    raise ValueError

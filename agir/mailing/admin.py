@@ -56,6 +56,7 @@ class SegmentAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "events",
                     "events_start_date",
                     "events_end_date",
+                    "events_subtypes",
                     "events_organizer",
                     "forms",
                     "polls",

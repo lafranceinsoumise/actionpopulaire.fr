@@ -26,9 +26,9 @@ def new_event_suggestion_notification(event, recipient):
 def event_required_document_reminder_notification(event_pk, post=False, pre=False):
     activity_type = None
     if post:
-        activity_type = Activity.TYPE_REMINDER_DOCS_EVENT_EVE
-    elif pre:
         activity_type = Activity.TYPE_REMINDER_DOCS_EVENT_NEXTDAY
+    elif pre:
+        activity_type = Activity.TYPE_REMINDER_DOCS_EVENT_EVE
     if activity_type is None:
         return
 

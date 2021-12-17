@@ -14,7 +14,11 @@ export const useUnreadMessageCount = () => {
   const { data } = useSWR(
     session?.user ? "/api/user/messages/unread_count/" : null,
     {
-      refreshInterval: 1000,
+      refreshInterval: 10000,
+      dedupingInterval: 10000,
+      focusThrottleInterval: 10000,
+      shouldRetryOnError: false,
+      revalidateIfStale: false,
     }
   );
 

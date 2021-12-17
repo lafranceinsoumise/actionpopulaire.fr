@@ -53,10 +53,15 @@ const components = applications
   }, {});
 
 // create import aliases with the django app names leading to their `components` folders
-const aliases = applications.reduce((obj, app) => {
-  obj["@agir/" + path.basename(app)] = path.resolve(app, "components/");
-  return obj;
-}, {});
+const aliases = applications.reduce(
+  (obj, app) => {
+    obj["@agir/" + path.basename(app)] = path.resolve(app, "components/");
+    return obj;
+  },
+  {
+    luxon: "luxon/src/luxon",
+  }
+);
 
 // Generate an HTML fragment with all chunks tag for each entry
 const htmlPlugins = (type) =>
@@ -145,18 +150,8 @@ const es5Browsers = [
   "not dead",
   "not IE 11",
 ];
-const es2015Browsers = [
-  "last 2 Chrome versions",
-  "not Chrome < 60",
-  "last 2 Safari versions",
-  "not Safari < 10.1",
-  "last 2 iOS versions",
-  "not iOS < 10.3",
-  "last 2 Firefox versions",
-  "not Firefox < 54",
-  "last 2 Edge versions",
-  "not Edge < 15",
-];
+
+const es2015Browsers = { esmodules: true };
 
 const configureBabelLoader = (type) => ({
   test: /\.m?js$/,
@@ -181,7 +176,7 @@ const configureBabelLoader = (type) => ({
           "@babel/preset-env",
           {
             modules: false,
-            corejs: 3,
+            corejs: "3.19",
             useBuiltIns: "usage",
             targets: type === CONFIG_TYPES.ES5 ? es5Browsers : es2015Browsers,
           },
@@ -204,18 +199,17 @@ const configureBabelLoader = (type) => ({
             ssr: false,
           },
         ],
-        [
-          "@babel/plugin-transform-runtime",
-          {
-            corejs: 3,
-            useESModules: true,
-          },
-        ],
+        ["@babel/plugin-transform-runtime", { useESModules: true }],
         type === CONFIG_TYPES.DEV
           ? require.resolve("react-refresh/babel")
           : undefined,
         type !== CONFIG_TYPES.DEV
-          ? require.resolve("babel-plugin-transform-react-remove-prop-types")
+          ? [
+              "transform-react-remove-prop-types",
+              {
+                removeImport: true,
+              },
+            ]
           : undefined,
       ].filter(Boolean),
     },
@@ -290,7 +284,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
     library: ["Agir", "[name]"],
     filename: `[name]-[chunkhash].${
       type === CONFIG_TYPES.ES2015 ? "mjs" : "js"
-    }?cv=1`,
+    }?cv=2`,
     path: DISTPATH,
   },
   module: {

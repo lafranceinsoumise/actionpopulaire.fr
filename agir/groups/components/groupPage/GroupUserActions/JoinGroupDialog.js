@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
@@ -7,8 +7,12 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import StyledDialog from "./StyledDialog";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
+
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { useSelectMessage } from "@agir/msgs/common/hooks";
 import { getUser } from "@agir/front/globalContext/reducers";
+
+import * as groupAPI from "@agir/groups/api";
 
 export const JoinGroup = (props) => {
   const {
@@ -25,6 +29,7 @@ export const JoinGroup = (props) => {
   } = props;
 
   const user = useSelector(getUser);
+  const onSelectMessage = useSelectMessage();
   const [messageModalOpen, setMessageModalOpen] = useState(false);
 
   const sendPrivateMessage = async (msg) => {
@@ -160,6 +165,7 @@ export const JoinGroup = (props) => {
             groupPk={id}
             onSend={sendPrivateMessage}
             onClose={() => setMessageModalOpen(false)}
+            onBoarding
           />
         </>
       );

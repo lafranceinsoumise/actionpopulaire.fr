@@ -8,7 +8,11 @@ const log = logger(__filename);
 export const useIsOffline = () => {
   const { data, error, isValidating } = useSWR("/api/ping/", {
     refreshInterval: 10000,
+    dedupingInterval: 10000,
+    focusThrottleInterval: 10000,
     refreshWhenOffline: true,
+    shouldRetryOnError: false,
+    revalidateIfStale: false,
   });
   const [unloading, setUnloading] = useState(false);
 

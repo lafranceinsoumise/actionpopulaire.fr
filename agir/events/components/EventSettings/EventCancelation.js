@@ -25,13 +25,13 @@ const EventCancelation = (props) => {
 
     if (error) {
       sendToast(
-        "Une erreur est survenue, veuillez réessayer plus tard",
+        error.detail || "Une erreur est survenue, veuillez réessayer plus tard",
         "ERROR",
         { autoClose: true }
       );
       return;
     }
-    sendToast(data.data, "SUCCESS", { autoClose: true });
+    sendToast("L'événement a bien été annulé.", "SUCCESS", { autoClose: true });
     const route = routeConfig.events.getLink();
     history.push(route);
   };

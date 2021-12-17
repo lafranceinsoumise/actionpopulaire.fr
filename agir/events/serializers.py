@@ -2,7 +2,6 @@ from datetime import timedelta
 from functools import partial
 from pathlib import PurePath
 
-from agir.lib import html
 from django.db import transaction
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
@@ -23,6 +22,7 @@ from agir.lib.utils import (
     validate_facebook_event_url,
     INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
     front_url,
+    get_youtube_video_id,
 )
 from agir.people.person_forms.models import PersonForm
 from . import models
@@ -72,6 +72,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
     icon = serializers.SerializerMethodField(read_only=True)
     color = serializers.SerializerMethodField(read_only=True)
     needsDocuments = serializers.SerializerMethodField(read_only=True)
+    isVisible = serializers.SerializerMethodField(read_only=True)
 
     def get_needsDocuments(self, obj):
         return bool(obj.related_project_type)
@@ -90,6 +91,9 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
                 "popupAnchor": obj.popup_anchor_y,
             }
 
+    def get_isVisible(self, obj):
+        return obj.visibility == EventSubtype.VISIBILITY_ALL
+
     class Meta:
         model = models.EventSubtype
         fields = (
@@ -101,6 +105,7 @@ class EventSubtypeSerializer(serializers.ModelSerializer):
             "iconName",
             "type",
             "needsDocuments",
+            "isVisible",
         )
 
 
@@ -156,6 +161,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     location = LocationSerializer(source="*")
 
     isOrganizer = serializers.SerializerMethodField()
+    isEditable = serializers.BooleanField(source="subtype.is_editable", read_only=True)
+
     rsvp = serializers.SerializerMethodField()
 
     options = EventOptionsSerializer(source="*")
@@ -173,6 +180,9 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
     allowGuests = serializers.BooleanField(source="allow_guests")
 
     onlineUrl = serializers.URLField(source="online_url")
+    youtubeVideoID = serializers.SerializerMethodField(
+        method_name="youtube_video_id", read_only=True
+    )
 
     isPast = serializers.SerializerMethodField(
         read_only=True, method_name="get_is_past"
@@ -317,6 +327,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_metaImage(self, obj):
         return obj.get_meta_image()
+
+    def youtube_video_id(self, obj):
+        if obj.online_url:
+            try:
+                return get_youtube_video_id(obj.online_url)
+            except ValueError:
+                pass
+        return ""
 
 
 class EventAdvancedSerializer(EventSerializer):
@@ -504,12 +522,15 @@ class CreateEventSerializer(serializers.Serializer):
     onlineUrl = serializers.URLField(
         source="online_url", required=False, allow_blank=True
     )
+    image = serializers.ImageField(
+        required=False, allow_empty_file=True, allow_null=True
+    )
 
     class Meta:
         model = Event
 
     def validate(self, data):
-        if data.get("organizerGroup") and data["organizerGroup"] is not None:
+        if data.get("organizerGroup", None) is not None:
             if (
                 not data["organizerPerson"] in data["organizerGroup"].referents
                 and not data["organizerPerson"] in data["organizerGroup"].managers
@@ -529,8 +550,8 @@ class CreateEventSerializer(serializers.Serializer):
                 {"endTime": "L'événement ne peut pas durer plus de 7 jours."}
             )
 
-        data["organizer_person"] = data.pop("organizerPerson")
-        data["organizer_group"] = data.pop("organizerGroup")
+        data["organizer_person"] = data.pop("organizerPerson", None)
+        data["organizer_group"] = data.pop("organizerGroup", None)
 
         return data
 

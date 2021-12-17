@@ -76,15 +76,6 @@ class PersonQueryset(models.QuerySet):
         else:
             return self.filter(q | Q(contact_phone__icontains=query[1:]))
 
-    def preload_email(self):
-        return self.annotate(
-            _email=Subquery(
-                PersonEmail.objects.filter(person_id=OuterRef("id"))
-                .order_by("_bounced", "_order")
-                .values("address")[:1]
-            )
-        )
-
     def annotate_elus(self, current=True):
         from agir.elus.models import types_elus
 
@@ -233,7 +224,7 @@ class PersonManager(models.Manager.from_queryset(PersonQueryset)):
             person.save(using=self._db)
 
             if email:
-                person.add_email(email)
+                person.add_email(email, primary=True)
 
         return person
 
@@ -520,6 +511,17 @@ class Person(
         unique=True,
     )
 
+    # Read-only cache value for the primary_email.address value
+    # This value will be automatically generated / updated through
+    # a SQL trigger (cf. agir.people.migrations.0013_person__email
+    _email = models.EmailField(
+        _("adresse email"),
+        editable=False,
+        null=False,
+        default="",
+        help_text=_("L'adresse email principale de la personne"),
+    )
+
     class Meta:
         verbose_name = _("personne")
         verbose_name_plural = _("personnes")
@@ -539,6 +541,8 @@ class Person(
         indexes = (
             GinIndex(fields=["search"], name="search_index"),
             models.Index(fields=["contact_phone"], name="contact_phone_index"),
+            models.Index(fields=["created"], name="created_index"),
+            models.Index(fields=["created", "id"], name="created_id_index"),
         )
 
     def save(self, *args, **kwargs):
@@ -555,9 +559,8 @@ class Person(
             parts.append(self.last_name)
         if self.display_name:
             parts.append(f"({self.display_name})")
-
-        if self.email:
-            parts.append(f"<{self.email}>")
+        if self._email:
+            parts.append(f"<{self._email}>")
 
         if parts:
             return " ".join(parts)
@@ -565,7 +568,7 @@ class Person(
             return "<aucune nom ou email>"
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(pk={self.pk!r}, email={self.email})"
+        return f"{self.__class__.__name__}(pk={self.pk!r}, email={self._email})"
 
     @property
     def is_agir(self):
@@ -575,9 +578,11 @@ class Person(
 
     @property
     def email(self):
-        if hasattr(self, "_email"):
+        if self._email:
             return self._email
-        return self.primary_email.address if self.primary_email else ""
+        if self.primary_email:
+            return self.primary_email.address
+        return ""
 
     @property
     def is_2022_only(self):
@@ -589,8 +594,6 @@ class Person(
 
     @cached_property
     def primary_email(self):
-        if hasattr(self, "_email"):
-            del self._email
         return self.emails.filter(_bounced=False).first() or self.emails.first()
 
     @property
@@ -675,6 +678,7 @@ class Person(
 
         if primary and email.person == self:
             self.set_primary_email(email)
+            self._email = email.address
 
         return email
 

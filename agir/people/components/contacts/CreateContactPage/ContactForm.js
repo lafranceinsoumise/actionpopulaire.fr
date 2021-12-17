@@ -137,6 +137,13 @@ export const ContactForm = (props) => {
     setGroupOptions(formatGroupOptions(groups));
   }, []);
 
+  const handleSelectCountry = useCallback((country) => {
+    setData((state) => ({
+      ...state,
+      country,
+    }));
+  }, []);
+
   const handleSearchGroup = useCallback(
     async (searchTerms) => {
       let results = formatGroupOptions(groups);
@@ -394,7 +401,7 @@ export const ContactForm = (props) => {
             name="country"
             error={errors?.country}
             placeholder=""
-            onChange={handleChange}
+            onChange={handleSelectCountry}
             value={data.country}
             disabled={isLoading}
           />

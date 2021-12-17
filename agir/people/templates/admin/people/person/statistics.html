@@ -1,6 +1,16 @@
 {% extends "admin/change_list.html" %}
 {% load i18n crispy_forms_tags %}
 
+{% block object-tools-items %}
+  <li>
+    <a href="{{ changelist_link }}">
+      Liste
+    </a>
+  </li>
+  {{ block.super }}
+{% endblock %}
+
+
 {% if not is_popup %}
   {% block breadcrumbs %}
     <div class="breadcrumbs">
@@ -93,5 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
 <div>
   <canvas style="margin-bottom: 30px; width: 60%; height: 50%;" id="myChart"></canvas>
 </div>
+
+{% include "admin/people/includes/statistics_table.html" %}
+
 {% endblock %}
 {% block pagination %}{% endblock %}

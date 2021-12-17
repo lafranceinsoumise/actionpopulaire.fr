@@ -46,6 +46,8 @@ class Presidentielle2022Config(AppConfig):
                 status_listener=notification_listener,
                 description_template="presidentielle2022/donations/description.html",
                 matomo_goal=settings.MONTHLY_DONATION_MATOMO_GOAL,
+                email_template_code="DONATION_MESSAGE_2022",
+                email_from=settings.EMAIL_FROM_MELENCHON_2022,
             )
         )
 

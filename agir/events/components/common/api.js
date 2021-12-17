@@ -1,5 +1,7 @@
-import axios from "@agir/lib/utils/axios";
 import { DateTime } from "luxon";
+
+import axios from "@agir/lib/utils/axios";
+import { objectToFormData } from "@agir/lib/utils/forms";
 
 export const ENDPOINT = {
   getEvent: "/api/evenements/:eventPk/",
@@ -70,6 +72,7 @@ export const createEvent = async (data) => {
     errors: null,
   };
 
+  let headers = undefined;
   const url = getEventEndpoint("createEvent");
 
   try {
@@ -81,15 +84,23 @@ export const createEvent = async (data) => {
       .setZone(data.timezone, { keepLocalTime: true })
       .toISO();
 
-    const body = {
+    let body = {
       ...data,
       startTime,
       endTime,
       subtype: data.subtype && data.subtype.id,
       organizerGroup: data.organizerGroup && data.organizerGroup.id,
+      image: data?.image?.file,
     };
 
-    const response = await axios.post(url, body);
+    if (body.image) {
+      body = objectToFormData(body);
+      headers = {
+        "content-type": "multipart/form-data",
+      };
+    }
+
+    const response = await axios.post(url, body, { headers });
     result.data = response.data;
   } catch (e) {
     result.errors = (e.response && e.response.data) || { global: e.message };
@@ -243,10 +254,11 @@ export const cancelEvent = async (eventPk) => {
   const url = getEventEndpoint("cancelEvent", { eventPk });
 
   try {
-    const response = await axios.post(url);
+    const response = await axios.delete(url);
+    console.log(response);
     result.data = response.data;
   } catch (e) {
-    result.errors = (e.response && e.response.data) || { global: e.message };
+    result.error = (e.response && e.response.data) || { global: e.message };
   }
 
   return result;
