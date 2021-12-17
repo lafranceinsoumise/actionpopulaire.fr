@@ -7,7 +7,7 @@ def genrer_membership(genre, membership_type):
     Returns membership_type french word from the gender given
     """
 
-    if not membership_type:
+    if membership_type is None:
         return genrer(genre, "Visiteur", "Visiteuse", "Visiteur⋅se")
 
     author_status = "Statut inconnu"
