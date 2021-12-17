@@ -41,7 +41,10 @@ const StyledCard = styled.div`
   }
 `;
 
-const formatCurrency = (amount) => Math.floor(amount / 100);
+const formatCurrency = (amount) =>
+  `${Math.floor(amount / 100)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, " ")} €`;
 
 export const DonateCard = (props) => {
   const { amount } = props;
