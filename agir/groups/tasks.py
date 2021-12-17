@@ -486,7 +486,7 @@ def send_message_notification_email(message_pk):
         return
 
     # Get membership to display author status
-    membership_type = 0
+    membership_type = None
     membership = Membership.objects.filter(
         person=message.author, supportgroup=message.supportgroup
     )
@@ -563,7 +563,7 @@ def send_comment_notification_email(comment_pk):
         return
 
     # Get membership to display author status
-    membership_type = 0
+    membership_type = None
     membership = Membership.objects.filter(
         person=comment.author, supportgroup=comment.supportgroup
     )
