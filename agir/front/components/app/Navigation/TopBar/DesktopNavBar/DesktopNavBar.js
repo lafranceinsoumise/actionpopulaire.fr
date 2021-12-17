@@ -10,11 +10,9 @@ import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
 import RightLinks from "./RightLinks";
 import SearchBar from "./SearchBar";
-import AdminLink from "./AdminLink";
 
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import {
-  getAdminLink,
   getUser,
   getIsSessionLoaded,
 } from "@agir/front/globalContext/reducers";
@@ -62,35 +60,31 @@ export const DesktopNavBar = (props) => {
     path,
     unreadMessageCount,
     unreadActivityCount,
-    adminLink,
   } = props;
 
   return (
-    <>
-      <AdminLink link={adminLink} />
-      <StyledBar>
-        <LogoLink route="events">
-          <LogoAP height={56} width={149} />
-        </LogoLink>
-        <div
-          css={`
-            flex: 1 1 auto;
-            max-width: 412px;
-          `}
-        >
-          <SearchBar isConnected={!!user} />
-        </div>
-        <Spacer size="1rem" />
-        <RightLinks
-          isLoading={isLoading}
-          hasLayout={hasLayout}
-          user={user}
-          path={path}
-          unreadMessageCount={unreadMessageCount}
-          unreadActivityCount={unreadActivityCount}
-        />
-      </StyledBar>
-    </>
+    <StyledBar>
+      <LogoLink route="events">
+        <LogoAP height={56} width={149} />
+      </LogoLink>
+      <div
+        css={`
+          flex: 1 1 auto;
+          max-width: 412px;
+        `}
+      >
+        <SearchBar isConnected={!!user} />
+      </div>
+      <Spacer size="1rem" />
+      <RightLinks
+        isLoading={isLoading}
+        hasLayout={hasLayout}
+        user={user}
+        path={path}
+        unreadMessageCount={unreadMessageCount}
+        unreadActivityCount={unreadActivityCount}
+      />
+    </StyledBar>
   );
 };
 DesktopNavBar.propTypes = {
@@ -99,12 +93,10 @@ DesktopNavBar.propTypes = {
   path: PropTypes.string,
   unreadMessageCount: PropTypes.number,
   unreadActivityCount: PropTypes.number,
-  adminLink: PropTypes.object,
   hasLayout: PropTypes.bool,
 };
 
 const ConnectedDesktopNavBar = (props) => {
-  const adminLink = useSelector(getAdminLink);
   const user = useSelector(getUser);
   const isSessionLoaded = useSelector(getIsSessionLoaded);
   const unreadMessageCount = useUnreadMessageCount();
@@ -117,7 +109,6 @@ const ConnectedDesktopNavBar = (props) => {
       user={user}
       unreadMessageCount={unreadMessageCount}
       unreadActivityCount={unreadActivityCount}
-      adminLink={adminLink}
     />
   );
 };
