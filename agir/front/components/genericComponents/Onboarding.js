@@ -22,8 +22,10 @@ const ONBOARDING_TYPE = {
         pour soutenir la campagne&nbsp;!
       </>
     ),
-    createLabel: "Créer un événement",
-    createRoute: "createEvent",
+    primaryLink: {
+      label: "Créer un événement",
+      route: "createEvent",
+    },
   },
   group__suggestions: {
     title: "Rejoignez un groupe proche de chez vous",
@@ -40,9 +42,10 @@ const ONBOARDING_TYPE = {
       </>
     ),
     mapIframe: "groupsMap",
-    mapLabel: "Voir les groupes dans ma ville",
-    mapRoute: "groupMap",
-    color: "secondary",
+    primaryLink: {
+      label: "Voir les groupes dans ma ville",
+      route: "groupMap",
+    },
   },
   group__creation: {
     title: <>Ou bien créez votre groupe&nbsp;!</>,
@@ -65,8 +68,10 @@ const ONBOARDING_TYPE = {
         </p>
       </>
     ),
-    createLabel: "Créer un groupe",
-    createRouteId: "createGroup",
+    primaryLink: {
+      label: "Créer un groupe",
+      route: "createGroup",
+    },
   },
   fullGroup__creation: {
     title: <>Ou bien animez votre propre groupe et invitez-y vos amis&nbsp;!</>,
@@ -82,23 +87,10 @@ const ONBOARDING_TYPE = {
         </a>
       ),
     ],
-    createLabel: "Créer un groupe d'action",
-    createRouteId: "createGroup",
-  },
-  group__nsp: {
-    img: onboardingActionImage,
-    title: "Rejoignez ou organisez un groupe d'action",
-    body: (
-      <>
-        Les groupes d'actions permettent aux militants de s’organiser dans leur
-        quartier ou dans leur ville. Rejoignez un groupe, agissez sur le terrain
-        et organisez des moments de réflexions politiques&nbsp;!
-      </>
-    ),
-    createLabel: "Créer un groupe",
-    mapLabel: "Voir les groupes dans ma ville",
-    mapRoute: "groupMap",
-    createRouteId: "createGroup",
+    primaryLink: {
+      label: "Créer un groupe d'action",
+      route: "createGroup",
+    },
   },
   group__action: {
     img: onboardingActionImage,
@@ -111,10 +103,14 @@ const ONBOARDING_TYPE = {
         et organisez des moments de réflexions politiques&nbsp;!
       </>
     ),
-    createLabel: "Créer un groupe",
-    mapLabel: "Voir les groupes dans ma ville",
-    mapRoute: "groupMap",
-    createRouteId: "createGroup",
+    primaryLink: {
+      label: "Rejoindre un groupe",
+      route: "groupMap",
+    },
+    secondaryLink: {
+      route: "createGroup",
+      label: "Créer un groupe",
+    },
   },
 };
 
@@ -202,17 +198,8 @@ const Onboarding = (props) => {
     return null;
   }
 
-  const {
-    img,
-    title,
-    body,
-    mapLabel,
-    mapRoute,
-    createLabel,
-    createRoute,
-    createRouteId,
-    color,
-  } = ONBOARDING_TYPE[type];
+  const { img, title, body, primaryLink, secondaryLink } =
+    ONBOARDING_TYPE[type];
 
   return (
     <StyledBlock>
@@ -225,19 +212,14 @@ const Onboarding = (props) => {
         <p>{typeof body === "function" ? body(props) : body}</p>
       </article>
       <footer>
-        {createRoute && (
-          <Button link color="secondary" route={createRoute}>
-            {createLabel || "Créer"}
+        {primaryLink && (
+          <Button link color="secondary" route={primaryLink.route}>
+            {primaryLink.label || "Créer"}
           </Button>
         )}
-        {createRouteId && routes[createRouteId] && (
-          <Button link color="secondary" href={routes[createRouteId]}>
-            {createLabel || "Créer"}
-          </Button>
-        )}
-        {routes[mapRoute] && (
-          <Button link route={mapRoute} color={color}>
-            {mapLabel || "Voir la carte"}
+        {secondaryLink && (
+          <Button link route={secondaryLink.route}>
+            {secondaryLink.label || "Voir la carte"}
           </Button>
         )}
       </footer>
