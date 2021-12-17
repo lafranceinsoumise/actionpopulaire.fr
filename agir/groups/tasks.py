@@ -1,4 +1,3 @@
-import re
 from collections import OrderedDict
 
 import ics
@@ -485,9 +484,13 @@ def send_message_notification_email(message_pk):
     if len(recipients) == 0:
         return
 
-    membership_type = Membership.objects.get(
+    # Get membership to display author status
+    membership_type = None
+    membership = Membership.objects.filter(
         person=message.author, supportgroup=message.supportgroup
-    ).membership_type
+    )
+    if membership.exists():
+        membership_type = membership.first().membership_type
     author_status = genrer_membership(message.author.gender, membership_type)
 
     bindings = {
@@ -558,9 +561,13 @@ def send_comment_notification_email(comment_pk):
     if len(recipients) == 0:
         return
 
-    membership_type = Membership.objects.get(
-        person=comment.author, supportgroup=message_initial.supportgroup
-    ).membership_type
+    # Get membership to display author status
+    membership_type = None
+    membership = Membership.objects.filter(
+        person=comment.author, supportgroup=comment.supportgroup
+    )
+    if membership.exists():
+        membership_type = membership.first().membership_type
     author_status = genrer_membership(comment.author.gender, membership_type)
 
     bindings = {
