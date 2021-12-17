@@ -530,7 +530,7 @@ class CreateEventSerializer(serializers.Serializer):
         model = Event
 
     def validate(self, data):
-        if data.get("organizerGroup") and data["organizerGroup"] is not None:
+        if data.get("organizerGroup", None) is not None:
             if (
                 not data["organizerPerson"] in data["organizerGroup"].referents
                 and not data["organizerPerson"] in data["organizerGroup"].managers
@@ -550,8 +550,8 @@ class CreateEventSerializer(serializers.Serializer):
                 {"endTime": "L'événement ne peut pas durer plus de 7 jours."}
             )
 
-        data["organizer_person"] = data.pop("organizerPerson")
-        data["organizer_group"] = data.pop("organizerGroup")
+        data["organizer_person"] = data.pop("organizerPerson", None)
+        data["organizer_group"] = data.pop("organizerGroup", None)
 
         return data
 
