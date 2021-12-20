@@ -2,7 +2,7 @@ from functools import partial
 from typing import Iterable
 
 import django_countries
-from data_france.models import CirconscriptionLegislative
+from data_france.models import CirconscriptionLegislative, CirconscriptionConsulaire
 from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.admin.options import IS_POPUP_VAR, ModelAdmin
