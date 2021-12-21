@@ -5,7 +5,12 @@ from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from agir.voting_proxies.models import VotingProxyRequest
+from agir.people.serializers import PersonNewsletterListField
+from agir.voting_proxies.actions import (
+    create_or_update_voting_proxy,
+    create_or_update_voting_proxy_request,
+)
+from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 
 
 class CommuneOrConsulateSerializer(serializers.Serializer):
@@ -20,7 +25,7 @@ class CommuneOrConsulateSerializer(serializers.Serializer):
             return "consulate"
 
 
-class VotingProxyRequestSerializer(serializers.ModelSerializer):
+class VoterSerializerMixin(serializers.ModelSerializer):
     firstName = serializers.CharField(
         required=True, source="first_name", label="Prénom"
     )
@@ -45,12 +50,6 @@ class VotingProxyRequestSerializer(serializers.ModelSerializer):
     )
     pollingStationNumber = serializers.CharField(
         required=True, source="polling_station_number", label="Numéro du bureau de vote"
-    )
-    votingDates = serializers.MultipleChoiceField(
-        required=True,
-        allow_empty=False,
-        choices=(VotingProxyRequest.VOTING_DATE_CHOICES),
-        label="Scrutins",
     )
     updated = serializers.BooleanField(
         default=False,
@@ -83,6 +82,20 @@ class VotingProxyRequestSerializer(serializers.ModelSerializer):
                 code="invalid_commune_and_consulate",
             )
 
+        return attrs
+
+
+class VotingProxyRequestSerializer(VoterSerializerMixin):
+    votingDates = serializers.MultipleChoiceField(
+        required=True,
+        allow_empty=False,
+        choices=(VotingProxyRequest.VOTING_DATE_CHOICES),
+        label="Scrutins",
+    )
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+
         # Prevent updates for requests that have a non-null `proxy` field
         if VotingProxyRequest.objects.filter(
             voting_date__in=attrs.get("votingDates"),
@@ -100,19 +113,7 @@ class VotingProxyRequestSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        data = deepcopy(validated_data)
-        email = data.pop("email")
-
-        for voting_date in data.pop("votingDates"):
-            (request, created) = VotingProxyRequest.objects.update_or_create(
-                voting_date=voting_date,
-                email=email,
-                defaults={**data},
-            )
-            if not created:
-                validated_data["updated"] = True
-
-        return validated_data
+        return create_or_update_voting_proxy_request(validated_data)
 
     class Meta:
         model = VotingProxyRequest
@@ -125,5 +126,40 @@ class VotingProxyRequestSerializer(serializers.ModelSerializer):
             "consulate",
             "pollingStationNumber",
             "votingDates",
+            "updated",
+        )
+
+
+class VotingProxySerializer(VoterSerializerMixin):
+    votingDates = serializers.MultipleChoiceField(
+        source="voting_dates",
+        required=True,
+        allow_empty=False,
+        choices=[(str(date), label) for date, label in VotingProxy.VOTING_DATE_CHOICES],
+        label="Scrutins",
+    )
+    person = serializers.UUIDField(read_only=True, source="person_id")
+    newsletters = PersonNewsletterListField(
+        required=False, allow_empty=True, write_only=True
+    )
+
+    def create(self, validated_data):
+        return create_or_update_voting_proxy(validated_data)
+
+    class Meta:
+        model = VotingProxy
+        fields = (
+            "firstName",
+            "lastName",
+            "email",
+            "phone",
+            "commune",
+            "consulate",
+            "pollingStationNumber",
+            "votingDates",
+            "remarks",
+            "status",
+            "person",
+            "newsletters",
             "updated",
         )

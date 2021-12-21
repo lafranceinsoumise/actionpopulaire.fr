@@ -85,6 +85,7 @@ class VotingProxyAdmin(VoterModelAdmin):
     list_display = (
         *VoterModelAdmin.list_display,
         "voting_dates",
+        "confirmed_dates",
         "person_link",
     )
     list_filter = (
@@ -94,7 +95,12 @@ class VotingProxyAdmin(VoterModelAdmin):
     )
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("person")
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("person")
+            .prefetch_related("voting_proxy_requests")
+        )
 
     def person_link(self, instance):
         if instance.person is None:
@@ -103,6 +109,16 @@ class VotingProxyAdmin(VoterModelAdmin):
         return mark_safe(format_html(f'<a href="{href}">{instance.person}</a>'))
 
     person_link.short_description = "personne"
+
+    def confirmed_dates(self, instance):
+        return [
+            request.voting_date
+            for request in instance.voting_proxy_requests.exclude(
+                status=VotingProxyRequest.STATUS_CANCELLED
+            ).only("voting_date")
+        ]
+
+    confirmed_dates.short_description = "dates acceptées"
 
 
 @admin.register(VotingProxyRequest)

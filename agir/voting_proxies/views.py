@@ -5,10 +5,11 @@ from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from agir.voting_proxies.models import VotingProxyRequest
+from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 from agir.voting_proxies.serializers import (
     VotingProxyRequestSerializer,
     CommuneOrConsulateSerializer,
+    VotingProxySerializer,
 )
 
 
@@ -38,3 +39,9 @@ class VotingProxyRequestCreateAPIView(CreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = VotingProxyRequest.objects.all()
     serializer_class = VotingProxyRequestSerializer
+
+
+class VotingProxyCreateAPIView(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = VotingProxy.objects.all()
+    serializer_class = VotingProxySerializer
