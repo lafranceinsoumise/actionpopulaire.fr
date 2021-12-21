@@ -157,7 +157,6 @@ const Actions = (props) => {
     logged,
     isOrganizer,
     routes,
-    onlineUrl,
     hasPrice,
     allowGuests,
     hasSubscriptionForm,
@@ -197,17 +196,6 @@ const Actions = (props) => {
     return (
       <>
         <StyledActions>
-          {!!onlineUrl && (
-            <Button
-              icon="video"
-              link
-              href={onlineUrl}
-              target="_blank"
-              color="primary"
-            >
-              Rejoindre en ligne
-            </Button>
-          )}
           {isOrganizer && (
             <Button
               icon="settings"
@@ -241,7 +229,6 @@ const Actions = (props) => {
 RSVPButton.propTypes = Actions.propTypes = {
   id: PropTypes.string,
   name: PropTypes.string,
-  onlineUrl: PropTypes.string,
   hasSubscriptionForm: PropTypes.bool,
   hasPrice: PropTypes.bool,
   past: PropTypes.bool,
@@ -316,7 +303,6 @@ const EventHeader = ({
   schedule,
   routes,
   isOrganizer,
-  onlineUrl,
   allowGuests,
   hasSubscriptionForm,
 }) => {
@@ -346,7 +332,6 @@ const EventHeader = ({
         routes={routes}
         isOrganizer={isOrganizer}
         hasPrice={!!options && !!options.price}
-        onlineUrl={onlineUrl}
         allowGuests={allowGuests}
         hasSubscriptionForm={hasSubscriptionForm}
       />
@@ -369,7 +354,6 @@ const EventHeader = ({
 EventHeader.propTypes = {
   id: PropTypes.string,
   name: PropTypes.string,
-  onlineUrl: PropTypes.string,
   startTime: PropTypes.instanceOf(DateTime),
   endTime: PropTypes.instanceOf(DateTime),
   schedule: PropTypes.instanceOf(Interval),
