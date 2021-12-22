@@ -69,7 +69,7 @@ const SecondaryActions = ({ id, isCertified, routes }) => {
       text: msg.text,
     };
     const result = await groupAPI.createPrivateMessage(id, message);
-    onSelectMessage(result.data.id);
+    onSelectMessage(result.data?.id);
   };
 
   return (
