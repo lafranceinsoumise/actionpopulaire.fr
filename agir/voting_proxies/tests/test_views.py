@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from data_france.models import Commune, CirconscriptionConsulaire, Departement, Region
 from data_france.utils import TypeNom
 from rest_framework.reverse import reverse
@@ -227,7 +225,7 @@ class VotingProxyCreateAPITestCase(APITestCase):
             "commune": self.commune.id,
             "consulate": None,
             "pollingStationNumber": "123",
-            "votingDates": [VotingProxyRequest.VOTING_DATE_CHOICES[0][0]],
+            "votingDates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
             "remarks": "R.A.S.",
             "newsletters": [],
         }
@@ -337,3 +335,118 @@ class VotingProxyCreateAPITestCase(APITestCase):
             Person.objects.filter(_email=data["email"]).count(),
             1,
         )
+
+
+class VotingProxyRetrieveUpdateAPITestCase(APITestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person(
+            "person@email.com", create_role=True, display_name="Person"
+        )
+        reg = Region.objects.create(
+            code="01",
+            nom="Région",
+            type_nom=TypeNom.ARTICLE_LA,
+            chef_lieu_id=1,
+        )
+        dep = Departement.objects.create(
+            code="01",
+            nom="Département",
+            type_nom=TypeNom.ARTICLE_LE,
+            chef_lieu_id=1,
+            region=reg,
+        )
+        self.commune = Commune.objects.create(
+            id=1,
+            code="00001",
+            type=Commune.TYPE_COMMUNE,
+            nom="Commune ABC",
+            type_nom=TypeNom.ARTICLE_LA,
+            departement=dep,
+        )
+        self.consulate = CirconscriptionConsulaire.objects.create(
+            nom="Circonscription Consulaire ABC",
+            consulats=["Consulat"],
+            nombre_conseillers=1,
+        )
+        self.voting_proxy = VotingProxy.objects.create(
+            **{
+                "first_name": "Diane",
+                "last_name": "di Prima",
+                "email": "diane@dianediprima.org",
+                "contact_phone": "+33600000000",
+                "commune": self.commune,
+                "consulate": None,
+                "polling_station_number": "123",
+                "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
+                "remarks": "R.A.S.",
+                "person": self.person,
+            }
+        )
+        self.endpoint = reverse(
+            "api_retrieve_update_voting_proxy", kwargs={"pk": self.voting_proxy.pk}
+        )
+        self.client.force_login(self.person.role)
+
+    def test_can_retrieve_voting_proxy(self):
+        res = self.client.get(self.endpoint)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("email", res.data)
+
+    def test_can_retrieve_update_options(self):
+        res = self.client.options(self.endpoint)
+        self.assertEqual(res.status_code, 200)
+
+    def test_cannot_create_with_null_commune_and_consulate(self):
+        self.assertIsNone(self.voting_proxy.consulate)
+        data = {
+            "commune": None,
+        }
+        res = self.client.patch(self.endpoint, data=data)
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("commune", res.data)
+        self.assertIn("consulate", res.data)
+
+    def test_cannot_create_with_both_a_commune_and_a_consulate(self):
+        self.assertIsNotNone(self.voting_proxy.commune)
+        data = {
+            "consulate": self.consulate.id,
+        }
+        res = self.client.patch(self.endpoint, data=data)
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("commune", res.data)
+        self.assertIn("consulate", res.data)
+
+    def test_cannot_update_the_email_address(self):
+        email = self.voting_proxy.email
+        data = {"email": "not-" + email}
+        self.client.patch(self.endpoint, data=data)
+        self.voting_proxy.refresh_from_db(fields=["email"])
+        self.assertNotEqual(data["email"], self.voting_proxy.email)
+        self.assertEqual(email, self.voting_proxy.email)
+
+    def test_can_update_voting_proxy(self):
+        data = {
+            "firstName": "Boo",
+            "lastName": "Radley",
+            "phone": "+33612345678",
+            "commune": None,
+            "consulate": self.consulate.id,
+            "pollingStationNumber": "Polling Office N°25",
+            "status": VotingProxy.STATUS_AVAILABLE,
+            "votingDates": [str(VotingProxy.VOTING_DATE_CHOICES[0][0])],
+            "remarks": "I am vegetarian",
+        }
+        res = self.client.patch(self.endpoint, data=data)
+        self.assertEqual(res.status_code, 200, res.data)
+        self.voting_proxy.refresh_from_db()
+        self.assertEqual(self.voting_proxy.first_name, data["firstName"])
+        self.assertEqual(self.voting_proxy.last_name, data["lastName"])
+        self.assertEqual(self.voting_proxy.contact_phone, data["phone"])
+        self.assertEqual(self.voting_proxy.commune_id, data["commune"])
+        self.assertEqual(self.voting_proxy.consulate_id, data["consulate"])
+        self.assertEqual(
+            self.voting_proxy.polling_station_number, data["pollingStationNumber"]
+        )
+        self.assertEqual(self.voting_proxy.status, data["status"])
+        self.assertEqual(self.voting_proxy.voting_dates, data["votingDates"])
+        self.assertEqual(self.voting_proxy.remarks, data["remarks"])

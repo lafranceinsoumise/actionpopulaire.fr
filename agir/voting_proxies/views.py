@@ -1,7 +1,7 @@
 from itertools import chain
 
 from data_france.models import CirconscriptionConsulaire, Commune
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -10,6 +10,7 @@ from agir.voting_proxies.serializers import (
     VotingProxyRequestSerializer,
     CommuneOrConsulateSerializer,
     VotingProxySerializer,
+    CreateVotingProxySerializer,
 )
 
 
@@ -42,6 +43,12 @@ class VotingProxyRequestCreateAPIView(CreateAPIView):
 
 
 class VotingProxyCreateAPIView(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = VotingProxy.objects.all()
+    serializer_class = CreateVotingProxySerializer
+
+
+class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = VotingProxy.objects.all()
     serializer_class = VotingProxySerializer
