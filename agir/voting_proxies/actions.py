@@ -10,6 +10,7 @@ from agir.people.actions.subscription import (
 )
 from agir.people.models import Person
 from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
+from agir.voting_proxies.tasks import send_voting_proxy_request_confirmation
 
 
 def create_or_update_voting_proxy_request(data):
@@ -17,17 +18,20 @@ def create_or_update_voting_proxy_request(data):
     email = data.pop("email")
     voting_dates = data.pop("votingDates")
     updated = False
+    voting_proxy_request_pks = []
 
     for voting_date in voting_dates:
-        (request, created) = VotingProxyRequest.objects.update_or_create(
+        (voting_proxy_request, created) = VotingProxyRequest.objects.update_or_create(
             voting_date=voting_date,
             email=email,
             defaults={**data},
         )
+        voting_proxy_request_pks.append(voting_proxy_request.id)
         if not created:
             updated = True
 
     data.update({"email": email, "votingDates": voting_dates, "updated": updated})
+    send_voting_proxy_request_confirmation.delay(voting_proxy_request_pks)
 
     return data
 
