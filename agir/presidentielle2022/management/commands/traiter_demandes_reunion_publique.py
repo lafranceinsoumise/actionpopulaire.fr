@@ -127,7 +127,7 @@ class Command(LoggingCommand):
                 )
 
                 Projet.objects.create(
-                    titre=name[: Projet._meta.get_field("titre").max_lenght],
+                    titre=name[: Projet._meta.get_field("titre").max_length],
                     event=event,
                     type=TypeProjet.REUNION_PUBLIQUE_ORATEUR,
                     origine=Projet.Origin.REUNION_PUBLIQUE,
