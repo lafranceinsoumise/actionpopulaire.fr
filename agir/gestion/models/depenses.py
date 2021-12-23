@@ -174,6 +174,20 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         null=False,
     )
 
+    quantite = models.IntegerField(
+        verbose_name="Quantité",
+        null=True,
+        blank=True,
+        help_text="Lorsque la dépense correspond à l'achat de matériel, indiquez ici la quantité achetée.",
+    )
+
+    nature = models.CharField(
+        verbose_name="Nature",
+        max_length=200,
+        blank=True,
+        help_text="La nature du bien acheté, à remplir simultanément avec le champ quantité si applicable.",
+    )
+
     date_depense = models.DateField(
         "Date d'engagement de la dépense",
         blank=True,

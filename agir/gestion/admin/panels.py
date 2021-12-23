@@ -192,6 +192,7 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
             "etat",
             "date_depense",
             "type",
+            ("quantite", "nature"),
             "description",
         ]
 
