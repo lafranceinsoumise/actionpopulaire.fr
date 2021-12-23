@@ -148,6 +148,7 @@ class Compte(TimeStampedModel):
             ),
             ("engager_depense", "Engager une dépense pour ce compte"),
             ("gerer_depense", "Gérer les dépenses"),
+            ("voir_montant_depense", "Voir le montant des dépenses finalisées"),
             ("controler_depense", "Contrôler les dépenses"),
             ("gerer_projet", "Gérer les projets"),
             ("controler_projet", "Contrôler les projets"),

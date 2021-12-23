@@ -250,6 +250,10 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
             == self.montant
         )
 
+    @property
+    def finalise(self):
+        return self.etat in [self.Etat.COMPLET, self.Etat.CLOTURE]
+
     def todos(self):
         return todos(self)
 

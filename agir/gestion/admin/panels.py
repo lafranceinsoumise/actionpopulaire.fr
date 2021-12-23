@@ -49,6 +49,7 @@ from agir.lib.admin import display_list_of_links, AddRelatedLinkMixin
 from agir.lib.display import display_price
 from agir.lib.geo import FRENCH_COUNTRY_CODES
 from agir.people.models import Person
+from agir.gestion.permissions import peut_voir_montant_depense
 
 
 @admin.register(Compte)
@@ -168,12 +169,12 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
         "titre",
         "type",
         "etat",
-        "montant_",
+        "montant",
         "compte",
         "reglement",
     )
 
-    readonly_fields = ("montant_", "reglement", "reglements", "etat")
+    readonly_fields = ("reglement", "reglements", "etat", "montant_interdit")
 
     autocomplete_fields = (
         "projet",
@@ -199,20 +200,37 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
             "projet",
         ]
 
+        paiement_fields = ["fournisseur", "reglements"]
+
+        if not peut_voir_montant_depense(request.user, obj):
+            # on remplace le champ montant par un champ masqué
+            common_fields[common_fields.index("montant")] = "montant_interdit"
+            # on ne montre pas les règlements
+            paiement_fields.remove("reglements")
+
         if request.GET.get("type") == TypeDepense.REFACTURATION or (
             obj is not None and obj.type == TypeDepense.REFACTURATION
         ):
+            paiement_fields.remove("fournisseur")
             return (
                 (None, {"fields": common_fields}),
                 ("Gestion", {"fields": [*rel_fields, "depenses_refacturees"]}),
-                ("Paiement", {"fields": ["reglements"]}),
+                ("Paiement", {"fields": paiement_fields}),
             )
 
         return (
             (None, {"fields": [*common_fields, "beneficiaires"]}),
             ("Gestion", {"fields": rel_fields}),
-            ("Paiement", {"fields": ["fournisseur", "reglements"]}),
+            ("Paiement", {"fields": paiement_fields}),
         )
+
+    def get_list_display(self, request):
+        list_display = super().get_list_display(request)
+        list_display = tuple(
+            v if v != "montant" else self.montant_display(request.user)
+            for v in list_display
+        )
+        return list_display
 
     def montant_(self, obj):
         if obj:
@@ -221,6 +239,29 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
 
     montant_.short_description = "Montant"
     montant_.admin_order_field = "montant"
+
+    def montant_interdit(self, obj):
+        return mark_safe("<em>montant masqué</em>")
+
+    montant_interdit.short_description = montant_.short_description
+
+    def montant_display(self, role):
+        if role.has_perm("gestion.voir_montant_depense"):
+            return self.montant_
+        comptes = list(
+            Compte.objects.filter(
+                autorisation__autorisations__contains=["voir_montant_depense"]
+            )
+        )
+
+        def montant(obj):
+            if obj.finalise and obj.compte not in comptes:
+                return self.montant_interdit(obj)
+            return self.montant_(obj)
+
+        montant.short_description = self.montant_.short_description
+
+        return montant
 
     def reglement(self, obj):
         if obj is None or obj.prevu is None:
