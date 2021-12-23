@@ -177,7 +177,6 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
     readonly_fields = ("reglement", "reglements", "etat", "montant_interdit")
 
     autocomplete_fields = (
-        "projet",
         "beneficiaires",
         "fournisseur",
         "depenses_refacturees",
@@ -188,6 +187,7 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
         common_fields = [
             "numero_",
             "titre",
+            "projet_link",
             "montant",
             "etat",
             "date_depense",
@@ -202,7 +202,7 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
 
         paiement_fields = ["fournisseur", "reglements"]
 
-        if not peut_voir_montant_depense(request.user, obj):
+        if obj and not peut_voir_montant_depense(request.user, obj):
             # on remplace le champ montant par un champ masqué
             common_fields[common_fields.index("montant")] = "montant_interdit"
             # on ne montre pas les règlements
