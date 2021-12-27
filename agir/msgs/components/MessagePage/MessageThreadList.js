@@ -149,7 +149,8 @@ const DesktopThreadList = (props) => {
   const sendToast = useToast();
 
   const { data, mutate } = useSWR(
-    getGroupEndpoint("getMessageMuted", { messagePk: selectedMessage?.id })
+    selectedMessage?.id &&
+      getGroupEndpoint("getMessageMuted", { messagePk: selectedMessage?.id })
   );
 
   const isActive = data === ON;
@@ -157,13 +158,11 @@ const DesktopThreadList = (props) => {
   const switchNotificationMessage = async () => {
     const { data } = await switchMessageMuted(selectedMessage);
     mutate(() => data);
-    let text =
-      "Vous ne recevrez plus de notifications reliées à ce fil de messages";
-    let type = "INFO";
-    if (data === ON) {
-      text = "Les notifications reliées à ce fil de message sont réactivées";
-      type = "SUCCESS";
-    }
+    const text =
+      data === ON
+        ? "Les notifications reliées à ce fil de message sont réactivées"
+        : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
+    const type = data === ON ? "SUCCESS" : "INFO";
     sendToast(text, type, { autoClose: true });
   };
 

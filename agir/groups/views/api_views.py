@@ -424,38 +424,34 @@ class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
         pass
 
 
-# Create or delete MuteMessage
-class GroupMessageSwitchNotificationAPIView(UpdateAPIView):
+# Switch message notification to on / off with create / delete MuteMessage
+class GroupMessageSwitchNotificationAPIView(RetrieveAPIView):
     permission_classes = (GroupMessagesPermissions,)
     queryset = MuteMessage.objects.all()
 
     def get(self, request, *args, **kwargs):
         person = self.request.user.person
-        result = False
+        result = "off"
         try:
             muted = MuteMessage.objects.get(person=person, message_id=kwargs["pk"])
             muted.delete()
             result = "on"
-
         except MuteMessage.DoesNotExist:
             MuteMessage.objects.create(person=person, message_id=kwargs["pk"])
-            result = "off"
 
         return Response(result)
 
 
 # Get MuteMessage info on message_pk
-class GroupMessageNotificationAPIView(ListAPIView):
+class GroupMessageNotificationAPIView(RetrieveAPIView):
     permission_classes = (GroupMessagesPermissions,)
     queryset = MuteMessage.objects.all()
 
     def get(self, request, *args, **kwargs):
         person = self.request.user.person
-        result = False
+        result = "on"
         if MuteMessage.objects.filter(person=person, message_id=kwargs["pk"]).exists():
             result = "off"
-        else:
-            result = "on"
         return Response(result)
 
 
