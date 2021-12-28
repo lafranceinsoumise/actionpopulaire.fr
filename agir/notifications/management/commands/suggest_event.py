@@ -5,10 +5,9 @@ from tqdm import tqdm
 
 from agir.activity.models import Activity
 from agir.events.actions.notifications import new_event_suggestion_notification
-from agir.events.tasks import send_event_suggestion_email
+from agir.events.models import Event
 from agir.lib.management_utils import segment_argument
 from agir.people.models import Person
-from agir.events.models import Event
 
 
 class Command(BaseCommand):

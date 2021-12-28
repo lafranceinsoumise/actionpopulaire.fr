@@ -173,6 +173,7 @@ class EventSuggestionsAPIView(EventListAPIView):
             near = (
                 events.filter(start_time__lt=timezone.now() + timedelta(days=30))
                 .annotate(distance=Distance("coordinates", person.coordinates))
+                .filter(distance__lte=100000)
                 .order_by("distance")
             )
 
