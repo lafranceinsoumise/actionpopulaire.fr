@@ -169,19 +169,11 @@ const StyledBlock = styled.section`
     display: flex;
     flex-direction: row;
     margin-bottom: 1rem;
+    gap: 11px;
 
     @media (max-width: ${style.collapse}px) {
       flex-direction: column;
-      align-items: flex-start;
-    }
-
-    ${Button} {
-      @media (min-width: ${style.collapse}px) {
-        margin-right: 11px;
-      }
-      @media (max-width: ${style.collapse}px) {
-        margin-bottom: 11px;
-      }
+      align-items: stretch;
     }
   }
 `;

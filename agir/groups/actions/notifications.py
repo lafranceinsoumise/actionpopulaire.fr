@@ -134,7 +134,7 @@ def new_comment_restricted_notifications(comment):
     recipients_id = allowed_memberships.exclude(
         person_id__in=muted_recipients
     ).values_list("person_id", flat=True)
-    recipients_id = set(recipients_id + [message_initial.author_id])
+    recipients_id = set(list(recipients_id) + [message_initial.author_id])
 
     # Get only recipients with notification allowed
     recipients_allowed_notif = message_initial.supportgroup.members.filter(

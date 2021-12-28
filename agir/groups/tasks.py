@@ -1,4 +1,3 @@
-import re
 from collections import OrderedDict
 
 import ics
@@ -485,9 +484,13 @@ def send_message_notification_email(message_pk):
     if len(recipients) == 0:
         return
 
-    membership_type = Membership.objects.get(
+    # Get membership to display author status
+    membership_type = None
+    membership = Membership.objects.filter(
         person=message.author, supportgroup=message.supportgroup
-    ).membership_type
+    )
+    if membership.exists():
+        membership_type = membership.first().membership_type
     author_status = genrer_membership(message.author.gender, membership_type)
 
     bindings = {
@@ -523,52 +526,50 @@ def send_message_notification_email(message_pk):
 @post_save_task
 def send_comment_notification_email(comment_pk):
     comment = SupportGroupMessageComment.objects.get(pk=comment_pk)
-    message_initial = comment.message
-    muted_recipients = MuteMessage.objects.filter(message=message_initial).values(
-        "person_id"
-    )
+    message = comment.message
+    supportgroup = message.supportgroup
+    author_membership = Membership.objects.filter(
+        person=comment.author, supportgroup=supportgroup
+    ).first()
+    muted_recipients = MuteMessage.objects.filter(message=message).values("person_id")
 
     # Private comment: send only to allowed membership and initial author
-    if message_initial.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
-        memberships = message_initial.supportgroup.memberships.filter(
-            membership_type__gte=message_initial.required_membership_type
-        )
-        persons_allowed = Person.objects.filter(
-            id__in=memberships.values_list("person_id", flat=True)
-        )
-        persons_allowed_id = [person.id for person in persons_allowed]
-        persons_allowed_id += [message_initial.author.id]
-
-        recipients = Person.objects.exclude(
-            id=comment.author.id, id__in=muted_recipients
-        ).filter(
-            id__in=persons_allowed_id,
-            notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
-            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+    if message.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
+        recipient_ids = (
+            supportgroup.memberships.filter(
+                membership_type__gte=message.required_membership_type
+            )
+            .exclude(person_id__in=muted_recipients)
+            .values_list("person_id", flat=True)
         )
     # Public comment: send to all group members who ever commented
     else:
-        recipients = Person.objects.exclude(
-            id=comment.author.id, id__in=muted_recipients
-        ).filter(
-            notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
-            notification_subscriptions__person__in=message_initial.comments.values_list(
-                "author_id", flat=True
-            ),
-            notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
-            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
-        )
+        recipient_ids = message.comments.exclude(
+            author_id__in=muted_recipients
+        ).values_list("author_id", flat=True)
 
-    recipients = recipients.distinct()
+    recipients = Person.objects.filter(
+        id__in=recipient_ids,
+        notification_subscriptions__membership__supportgroup=supportgroup,
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
+    )
+    recipients = recipients | Person.objects.filter(id=message.author.id)
+    recipients = recipients.exclude(id=comment.author_id).distinct()
 
     if len(recipients) == 0:
         return
 
-    membership_type = Membership.objects.get(
-        person=comment.author, supportgroup=message_initial.supportgroup
-    ).membership_type
-    author_status = genrer_membership(comment.author.gender, membership_type)
+    subject = clean_subject_email(
+        message.subject
+        if message.subject
+        else f"Nouveau message de {message.author.display_name}"
+    )
+
+    author_membership_type = genrer_membership(
+        comment.author.gender,
+        author_membership.membership_type if author_membership is not None else None,
+    )
 
     bindings = {
         "MESSAGE_HTML": format_html_join(
@@ -576,21 +577,15 @@ def send_comment_notification_email(comment_pk):
         ),
         "DISPLAY_NAME": comment.author.display_name,
         "MESSAGE_LINK": front_url(
-            "view_group_message", args=[message_initial.supportgroup.pk, comment_pk]
+            "view_group_message", args=[supportgroup.pk, comment_pk]
         ),
         "AUTHOR_STATUS": format_html(
             '{} de <a href="{}">{}</a>',
-            author_status,
-            front_url("view_group", args=[message_initial.supportgroup.pk]),
-            message_initial.supportgroup.name,
+            author_membership_type,
+            front_url("view_group", args=[supportgroup.pk]),
+            supportgroup.name,
         ),
     }
-
-    if message_initial.subject:
-        subject = message_initial.subject
-    else:
-        subject = f"Nouveau message de {message_initial.author.display_name}"
-    subject = clean_subject_email(subject)
 
     send_mosaico_email(
         code="NEW_MESSAGE",
