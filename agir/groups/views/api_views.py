@@ -464,7 +464,7 @@ class GroupMessageNotificationAPIView(ListAPIView):
 @method_decorator(never_cache, name="get")
 class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
     queryset = (
-        SupportGroupMessage.objects.filter(deleted=False, author__role__is_active=True)
+        SupportGroupMessage.objects.actives()
         .select_related(
             "supportgroup", "linked_event", "linked_event__subtype", "author"
         )
@@ -527,8 +527,7 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        # return self.message.comments.all()
-        return self.message.comments.filter(deleted=False, author__role__is_active=True)
+        return self.message.comments.actives()
 
     def perform_create(self, serializer):
         with transaction.atomic():

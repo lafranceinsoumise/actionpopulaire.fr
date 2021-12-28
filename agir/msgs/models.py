@@ -46,8 +46,30 @@ class AbstractMessage(BaseAPIResource):
         abstract = True
 
 
+class SupportGroupMessageQuerySet(models.QuerySet):
+    def actives(self):
+        return self.filter(deleted=False, author__role__is_active=True)
+
+
+SupportGroupMessageManager = models.Manager.from_queryset(
+    SupportGroupMessageQuerySet, class_name="SupportGroupMessageManager"
+)
+
+
+class SupportGroupMessageCommentQuerySet(models.QuerySet):
+    def actives(self):
+        return self.filter(deleted=False, author__role__is_active=True)
+
+
+SupportGroupMessageCommentManager = models.Manager.from_queryset(
+    SupportGroupMessageCommentQuerySet, class_name="SupportGroupMessageCommentManager"
+)
+
+
 @reversion.register()
 class SupportGroupMessage(AbstractMessage):
+
+    objects = SupportGroupMessageManager()
 
     subject = models.CharField(
         "Objet", max_length=150, null=False, blank=True, default=""
@@ -82,6 +104,9 @@ class SupportGroupMessage(AbstractMessage):
 
 @reversion.register()
 class SupportGroupMessageComment(AbstractMessage):
+
+    objects = SupportGroupMessageCommentManager()
+
     message = models.ForeignKey(
         "SupportGroupMessage",
         on_delete=models.PROTECT,

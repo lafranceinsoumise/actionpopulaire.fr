@@ -51,9 +51,7 @@ def get_unread_message_count(person_pk):
     )
 
     # Filter messages where person is not allowed (not author, not in required membership)
-    messages = SupportGroupMessage.objects.filter(
-        deleted=False,
-        author__role__is_active=True,
+    messages = SupportGroupMessage.objects.actives().filter(
         supportgroup_id__in=SupportGroup.objects.active()
         .filter(memberships__person_id=person_pk)
         .values("id"),
