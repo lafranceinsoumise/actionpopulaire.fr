@@ -255,11 +255,10 @@ class UserMessagesSerializer(BaseMessageSerializer):
         return user.is_authenticated and user.person and message.author == user.person
 
     def get_last_comment(self, message):
-        if message.comments.filter(
-            deleted=False, author__role__is_active=True
-        ).exists():
-            comment = message.comments.actives().order_by("-created").first()
-            return MessageCommentSerializer(comment, context=self.context).data
+        comment = message.comments.actives().order_by("-created").first()
+        if comment is None:
+            return
+        return MessageCommentSerializer(comment, context=self.context).data
 
     class Meta:
         model = SupportGroupMessage
