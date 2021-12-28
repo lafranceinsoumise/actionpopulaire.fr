@@ -176,7 +176,7 @@ const configureBabelLoader = (type) => ({
           "@babel/preset-env",
           {
             modules: false,
-            corejs: "3.19",
+            corejs: "3.20",
             useBuiltIns: "usage",
             targets: type === CONFIG_TYPES.ES5 ? es5Browsers : es2015Browsers,
           },
