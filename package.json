@@ -46,7 +46,7 @@
     "fontawesome": "^4.7.2",
     "fontfaceonload": "^1.0.2",
     "js-cookie": "^3.0.1",
-    "jsoneditor": "^9.5.8",
+    "jsoneditor": "^9.5.11",
     "leaflet-geosearch": "^3.6.0",
     "libphonenumber-js": "^1.9.44",
     "localized-countries": "^2.0.0",
