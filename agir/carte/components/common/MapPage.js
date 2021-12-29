@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import { useRouteMatch } from "react-router-dom";
-
 import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
@@ -106,7 +104,7 @@ const StyledBlockLinks = styled.div`
   }
 `;
 
-const StyledLink = styled.div`
+const StyledContent = styled.div`
   height: 100%;
   display: flex;
   align-items: center;
@@ -146,10 +144,10 @@ const SwitchTypeButtons = ({ type }) => {
   return (
     <StyledBlockLinks>
       <CustomLink to={routeConfig.eventMap.getLink()}>
-        <StyledLink active={!isGroupMap}>Événements</StyledLink>
+        <StyledContent active={!isGroupMap}>Événements</StyledContent>
       </CustomLink>
       <CustomLink to={routeConfig.groupMap.getLink()}>
-        <StyledLink active={isGroupMap}>Groupes d'action</StyledLink>
+        <StyledContent active={isGroupMap}>Groupes d'action</StyledContent>
       </CustomLink>
     </StyledBlockLinks>
   );
