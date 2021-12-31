@@ -31,7 +31,7 @@ const StyledPageFadeIn = styled(PageFadeIn)``;
 const StyledPage = styled.div`
   margin: 0 auto;
   width: 100%;
-  // max-width: 1320px;
+  max-width: 1320px;
   height: calc(100vh - 84px);
   padding: 2.625rem 1.5rem 1.5rem;
 
@@ -43,7 +43,7 @@ const StyledPage = styled.div`
 
   & > ${StyledPageFadeIn} {
     height: 100%;
-    // width: 100%;
+    width: 100%;
     display: flex;
     justify-content: center;
   }

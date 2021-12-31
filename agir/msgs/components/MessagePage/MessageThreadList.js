@@ -30,7 +30,6 @@ const StyledContent = styled.article`
   & > * {
     box-shadow: none;
     border: none;
-    min-height: 100%;
 
     & > * {
       border: none;
@@ -39,6 +38,7 @@ const StyledContent = styled.article`
 `;
 const StyledList = styled.main`
   height: 100%;
+  width: 100%;
   display: flex;
   align-items: stretch;
   flex-flow: row nowrap;
@@ -57,8 +57,6 @@ const StyledList = styled.main`
   & > * {
     flex: 1 1 auto;
     height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
 
     &:first-child {
       @media (min-width: ${style.collapse}px) {
@@ -66,28 +64,6 @@ const StyledList = styled.main`
       }
     }
   }
-`;
-
-const BlockMuteMessage = styled.div`
-  height: 56px;
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-  justify-content: center;
-  padding-right: 10px;
-  ${({ isActive }) => !isActive && `color: red;`}
-
-  ${RawFeatherIcon}:hover {
-    cursor: pointer;
-    color: ${style.primary500};
-  }
-`;
-
-const StyledBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-width: 870px;
-  width: 870px;
 `;
 
 const useAutoScrollToBottom = (commentLength = 0, messageId) => {
@@ -127,8 +103,6 @@ const useAutoScrollToBottom = (commentLength = 0, messageId) => {
   return [scrollableRef, bottomRef];
 };
 
-const ON = "on";
-
 const DesktopThreadList = (props) => {
   const {
     isLoading,
@@ -152,29 +126,9 @@ const DesktopThreadList = (props) => {
     selectedMessagePk
   );
 
-  const sendToast = useToast();
-
-  const { data, mutate } = useSWR(
-    getGroupEndpoint("getMessageMuted", { messagePk: selectedMessage?.id })
-  );
-
-  const isActive = data === ON;
   const groupURL = routeConfig.groupDetails.getLink({
     groupPk: selectedMessage?.group.id,
   });
-
-  const switchNotificationMessage = async () => {
-    const { data } = await switchMessageMuted(selectedMessage);
-    mutate(() => data);
-    let text =
-      "Vous ne recevrez plus de notifications reliées à ce fil de messages";
-    let type = "INFO";
-    if (data === ON) {
-      text = "Les notifications reliées à ce fil de message sont réactivées";
-      type = "SUCCESS";
-    }
-    sendToast(text, type, { autoClose: true });
-  };
 
   useEffect(() => {
     // Auto-select first message on desktop
@@ -194,44 +148,30 @@ const DesktopThreadList = (props) => {
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
       />
-      <StyledBlock>
+      <PageFadeIn ready={selectedMessagePk && selectedMessage}>
         {!!selectedMessage && (
-          <BlockMuteMessage isActive={isActive}>
-            <RawFeatherIcon
-              name={`bell${!isActive ? "-off" : ""}`}
-              onClick={switchNotificationMessage}
-            />
-          </BlockMuteMessage>
+          <MessageCard
+            autoScrollOnComment
+            isLoading={isLoading}
+            user={user}
+            message={selectedMessage}
+            comments={selectedMessage.comments}
+            onEdit={onEdit}
+            onComment={onComment}
+            onReport={onReport}
+            onDelete={onDelete}
+            onReportComment={onReportComment}
+            onDeleteComment={onDeleteComment}
+            isManager={selectedMessage.group.isManager}
+            groupURL={groupURL}
+          />
         )}
-        <StyledContent ref={scrollableRef}>
-          <PageFadeIn ready={selectedMessagePk && selectedMessage}>
-            {selectedMessage && (
-              <MessageCard
-                autoScrollOnComment
-                isLoading={isLoading}
-                user={user}
-                message={selectedMessage}
-                comments={selectedMessage.comments}
-                onEdit={onEdit}
-                onComment={onComment}
-                onReport={onReport}
-                onDelete={onDelete}
-                onReportComment={onReportComment}
-                onDeleteComment={onDeleteComment}
-                isManager={selectedMessage.group.isManager}
-                groupURL={groupURL}
-              />
-            )}
-            <span
-              style={{ width: 1, height: 0 }}
-              aria-hidden={true}
-              ref={bottomRef}
-            />
-          </PageFadeIn>
-        </StyledContent>
-      </StyledBlock>
-
-      <ListUsers message={selectedMessage} />
+        <span
+          style={{ width: 1, height: 0 }}
+          aria-hidden={true}
+          ref={bottomRef}
+        />
+      </PageFadeIn>
     </StyledList>
   );
 };

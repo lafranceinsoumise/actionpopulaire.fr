@@ -33,6 +33,8 @@ const StyledMenu = styled.menu`
   text-align: center;
   max-width: 400px;
   border-right: 1px solid ${style.black200};
+  overflow-x: hidden;
+  overflow-y: auto;
 
   @media (max-width: ${style.collapse}px) {
     max-width: 100%;

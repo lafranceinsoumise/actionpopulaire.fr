@@ -1,5 +1,8 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import useSWR from "swr";
+import { switchMessageMuted, getGroupEndpoint } from "@agir/groups/api.js";
+
 import styled from "styled-components";
 
 import { FaWhatsapp, FaTelegram } from "react-icons/fa";
@@ -9,6 +12,7 @@ import { timeAgo } from "@agir/lib/utils/time";
 import { formatEvent } from "@agir/events/common/utils";
 import { getMessageSubject } from "@agir/msgs/common/utils";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
+import MessageDetails from "@agir/front/genericComponents/MessageDetails";
 
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
@@ -26,6 +30,8 @@ import CommentField, {
 } from "@agir/front/formComponents/CommentField";
 import Comment from "@agir/front/formComponents/Comment";
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
+import { useToast } from "@agir/front/globalContext/hooks";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 const StyledInlineMenuItems = styled.div`
   cursor: pointer;
@@ -260,7 +266,16 @@ export const StyledSubject = styled.h2`
   font-size: 1.125rem;
   line-height: 1.5;
   font-weight: 600;
-  margin: 0 0 1.25rem;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+
+  ${RawFeatherIcon} {
+    background-color: #eeeeee;
+    border-radius: 2rem;
+    padding: 8px;
+    margin-right: 0.5rem;
+  }
 `;
 export const StyledMessage = styled.div``;
 export const StyledWrapper = styled.div`
@@ -270,10 +285,12 @@ export const StyledWrapper = styled.div`
   background-color: white;
   scroll-margin-top: 160px;
   border: 1px solid ${style.black100};
+  overflow-x: hidden;
+  height: calc(100% - 80px);
 
   @media (max-width: ${style.collapse}px) {
+    height: calc(100% - 56px);
     scroll-margin-top: 120px;
-    border: none;
     padding: 1.5rem 1rem;
     box-shadow: ${style.elaborateShadow};
   }
@@ -292,7 +309,6 @@ export const StyledWrapper = styled.div`
     display: flex;
     flex-flow: column nowrap;
     justify-content: flex-start;
-    min-height: 100%;
 
     & > * {
       margin-top: 1rem;
@@ -345,6 +361,104 @@ const StyledPrivateVisibility = styled.div`
   display: flex;
   align-items: start;
 `;
+
+const StyledMessageHeader = styled.div`
+  height: 80px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #dfdfdf;
+  border-bottom: none;
+
+  @media (max-width: ${style.collapse}px) {
+    padding: 0.5rem;
+    height: 56px;
+  }
+`;
+
+const StyledMuteButton = styled.div`
+  cursor: pointer;
+
+  ${RawFeatherIcon} {
+    ${({ isMuted }) => (!isMuted ? `color: black;` : `color: red;`)}
+  }
+  ${RawFeatherIcon}:hover {
+    color: ${style.primary500};
+  }
+`;
+
+const ON = "on";
+
+const ButtonMuteMessage = ({ message }) => {
+  const sendToast = useToast();
+  const isDesktop = useIsDesktop();
+
+  const { data, mutate } = useSWR(
+    getGroupEndpoint("getMessageMuted", { messagePk: message?.id })
+  );
+  const isMuted = data !== ON;
+
+  const switchNotificationMessage = async () => {
+    const { data } = await switchMessageMuted(message);
+    mutate(() => data);
+    let text =
+      "Vous ne recevrez plus de notifications reliées à ce fil de messages";
+    let type = "INFO";
+    if (data === ON) {
+      text = "Les notifications reliées à ce fil de message sont réactivées";
+      type = "SUCCESS";
+    }
+    sendToast(text, type, { autoClose: true });
+  };
+
+  if (!isDesktop) {
+    return (
+      <StyledMuteButton isMuted={isMuted}>
+        <RawFeatherIcon
+          name={`bell${isMuted ? "-off" : ""}`}
+          onClick={switchNotificationMessage}
+        />
+      </StyledMuteButton>
+    );
+  }
+
+  return (
+    <Button small color="choose" onClick={switchNotificationMessage}>
+      <RawFeatherIcon
+        width="1rem"
+        height="1rem"
+        name={`bell${isMuted ? "-off" : ""}`}
+      />
+      &nbsp;{isMuted ? "Réactiver" : "Rendre muet"}
+    </Button>
+  );
+};
+
+const MessageHeader = ({ message, subject }) => {
+  const isDesktop = useIsDesktop();
+
+  return (
+    <StyledMessageHeader>
+      <div style={{ display: "flex" }}>
+        <RawFeatherIcon name="mail" />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            marginLeft: "1rem",
+          }}
+        >
+          <StyledSubject>{subject}</StyledSubject>
+          <MessageDetails message={message} />
+        </div>
+      </div>
+      {isDesktop && <ButtonMuteMessage message={message} />}
+    </StyledMessageHeader>
+  );
+};
 
 const MessageCard = (props) => {
   const {
@@ -445,152 +559,162 @@ const MessageCard = (props) => {
   }
 
   return (
-    <StyledWrapper
-      ref={messageCardRef}
-      $withMobileCommentField={withMobileCommentField}
-    >
-      <StyledMessage>
-        <StyledSubject>{subject}</StyledSubject>
-        {isOrganizerMessage && (
-          <StyledPrivateVisibility>
-            <RawFeatherIcon name={"eye"} style={{ paddingRight: "6px" }} />
-            <div>
-              Cette discussion privée se déroule entre{" "}
-              {message.author.displayName} et les animateur·ices du groupe{" "}
-              <StyledGroupLink to={groupURL}>{group.name}</StyledGroupLink>
-            </div>
-          </StyledPrivateVisibility>
-        )}
-        <StyledHeader>
-          <Avatar {...author} />
-          <h4>
-            <strong>
-              {author.displayName || (isAuthor && "Moi") || "Quelqu'un"}
-              &nbsp;
-              {!author.displayName && isAuthor && (
-                <Link route="personalInformation">Ajouter mon nom</Link>
+    <>
+      <MessageHeader subject={subject} message={message} />
+      <StyledWrapper
+        ref={messageCardRef}
+        $withMobileCommentField={withMobileCommentField}
+      >
+        <StyledMessage>
+          {isOrganizerMessage && (
+            <StyledPrivateVisibility>
+              <RawFeatherIcon name={"eye"} style={{ paddingRight: "6px" }} />
+              <div>
+                Cette discussion privée se déroule entre{" "}
+                {message.author.displayName} et les animateur·ices du groupe{" "}
+                <StyledGroupLink to={groupURL}>{group.name}</StyledGroupLink>
+              </div>
+            </StyledPrivateVisibility>
+          )}
+          <StyledHeader>
+            <Avatar {...author} />
+            <h4>
+              <strong>
+                {author.displayName || (isAuthor && "Moi") || "Quelqu'un"}
+                &nbsp;
+                {!author.displayName && isAuthor && (
+                  <Link route="personalInformation">Ajouter mon nom</Link>
+                )}
+              </strong>
+              <em onClick={handleClick} style={{ cursor: "pointer" }}>
+                {created ? timeAgo(created) : null}
+              </em>
+              {groupURL && group && group.name ? (
+                <StyledGroupLink to={groupURL}>{group.name}</StyledGroupLink>
+              ) : null}
+            </h4>
+            <StyledAction>
+              {!!encodedMessageURL && (
+                <InlineMenu triggerIconName="share-2" triggerSize="1rem">
+                  <StyledInlineMenuItems>
+                    <span>Partager avec d’autres membres du groupe&nbsp;:</span>
+                    <a href={`https://t.me/share/url?url=${encodedMessageURL}`}>
+                      <FaTelegram color={style.primary500} />
+                      Telegram
+                    </a>
+                    <a href={`https://wa.me/?text=${encodedMessageURL}`}>
+                      <FaWhatsapp color={style.primary500} />
+                      Whatsapp
+                    </a>
+                    <button onClick={copyURL}>
+                      <RawFeatherIcon
+                        name={isURLCopied ? "check" : "copy"}
+                        color={style.primary500}
+                      />
+                      {isURLCopied ? "Lien copié" : "Copier le lien"}
+                    </button>
+                  </StyledInlineMenuItems>
+                </InlineMenu>
               )}
-            </strong>
-            <em onClick={handleClick} style={{ cursor: "pointer" }}>
-              {created ? timeAgo(created) : null}
-            </em>
-            {groupURL && group && group.name ? (
-              <StyledGroupLink to={groupURL}>{group.name}</StyledGroupLink>
-            ) : null}
-          </h4>
-          <StyledAction>
-            {!!encodedMessageURL && (
-              <InlineMenu triggerIconName="share-2" triggerSize="1rem">
-                <StyledInlineMenuItems>
-                  <span>Partager avec d’autres membres du groupe&nbsp;:</span>
-                  <a href={`https://t.me/share/url?url=${encodedMessageURL}`}>
-                    <FaTelegram color={style.primary500} />
-                    Telegram
-                  </a>
-                  <a href={`https://wa.me/?text=${encodedMessageURL}`}>
-                    <FaWhatsapp color={style.primary500} />
-                    Whatsapp
-                  </a>
-                  <button onClick={copyURL}>
-                    <RawFeatherIcon
-                      name={isURLCopied ? "check" : "copy"}
-                      color={style.primary500}
+              {hasActions && (
+                <InlineMenu
+                  triggerIconName="more-horizontal"
+                  triggerSize="1rem"
+                  shouldDismissOnClick
+                >
+                  <StyledInlineMenuItems>
+                    {canEdit && (
+                      <button onClick={handleEdit} disabled={isLoading}>
+                        <RawFeatherIcon
+                          name="edit-2"
+                          color={style.primary500}
+                        />
+                        Modifier
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button onClick={handleDelete} disabled={isLoading}>
+                        <RawFeatherIcon name="x" color={style.primary500} />
+                        Supprimer
+                      </button>
+                    )}
+                    {canReport && (
+                      <button onClick={handleReport} disabled={isLoading}>
+                        <RawFeatherIcon name="flag" color={style.primary500} />
+                        Signaler
+                      </button>
+                    )}
+                  </StyledInlineMenuItems>
+                </InlineMenu>
+              )}
+            </StyledAction>
+          </StyledHeader>
+          <StyledContent onClick={handleClick}>
+            <ParsedString>{text}</ParsedString>
+          </StyledContent>
+          {!!event && <EventCard {...event} />}
+          {!!commentCount && (
+            <StyledCommentCount onClick={handleClick}>
+              <RawFeatherIcon name="message-circle" color={style.primary500} />
+              &ensp;Voir les {commentCount} commentaires
+            </StyledCommentCount>
+          )}
+          <StyledComments
+            $empty={!Array.isArray(comments) || comments.length === 0}
+          >
+            <PageFadeIn ready={Array.isArray(comments) && comments.length > 0}>
+              {Array.isArray(comments) && comments.length > 0
+                ? comments.map((comment) => (
+                    <Comment
+                      key={comment.id}
+                      comment={comment}
+                      onDelete={
+                        onDeleteComment ? handleDeleteComment : undefined
+                      }
+                      onReport={
+                        onReportComment ? handleReportComment : undefined
+                      }
+                      isAuthor={comment.author.id === user.id}
+                      isManager={isManager}
                     />
-                    {isURLCopied ? "Lien copié" : "Copier le lien"}
-                  </button>
-                </StyledInlineMenuItems>
-              </InlineMenu>
-            )}
-            {hasActions && (
-              <InlineMenu
-                triggerIconName="more-horizontal"
-                triggerSize="1rem"
-                shouldDismissOnClick
-              >
-                <StyledInlineMenuItems>
-                  {canEdit && (
-                    <button onClick={handleEdit} disabled={isLoading}>
-                      <RawFeatherIcon name="edit-2" color={style.primary500} />
-                      Modifier
-                    </button>
-                  )}
-                  {canDelete && (
-                    <button onClick={handleDelete} disabled={isLoading}>
-                      <RawFeatherIcon name="x" color={style.primary500} />
-                      Supprimer
-                    </button>
-                  )}
-                  {canReport && (
-                    <button onClick={handleReport} disabled={isLoading}>
-                      <RawFeatherIcon name="flag" color={style.primary500} />
-                      Signaler
-                    </button>
-                  )}
-                </StyledInlineMenuItems>
-              </InlineMenu>
-            )}
-          </StyledAction>
-        </StyledHeader>
-        <StyledContent onClick={handleClick}>
-          <ParsedString>{text}</ParsedString>
-        </StyledContent>
-        {!!event && <EventCard {...event} />}
-        {!!commentCount && (
-          <StyledCommentCount onClick={handleClick}>
-            <RawFeatherIcon name="message-circle" color={style.primary500} />
-            &ensp;Voir les {commentCount} commentaires
-          </StyledCommentCount>
-        )}
-        <StyledComments
-          $empty={!Array.isArray(comments) || comments.length === 0}
-        >
-          <PageFadeIn ready={Array.isArray(comments) && comments.length > 0}>
-            {Array.isArray(comments) && comments.length > 0
-              ? comments.map((comment) => (
-                  <Comment
-                    key={comment.id}
-                    comment={comment}
-                    onDelete={onDeleteComment ? handleDeleteComment : undefined}
-                    onReport={onReportComment ? handleReportComment : undefined}
-                    isAuthor={comment.author.id === user.id}
-                    isManager={isManager}
+                  ))
+                : null}
+            </PageFadeIn>
+            <StyledNewComment>
+              {!!onComment &&
+                (withMobileCommentField ? (
+                  <CommentField
+                    isLoading={isLoading}
+                    user={user}
+                    onSend={handleComment}
+                    autoScroll={autoScrollOnComment}
                   />
-                ))
-              : null}
-          </PageFadeIn>
-          <StyledNewComment>
-            {!!onComment &&
-              (withMobileCommentField ? (
-                <CommentField
-                  isLoading={isLoading}
-                  user={user}
-                  onSend={handleComment}
-                  autoScroll={autoScrollOnComment}
-                />
-              ) : (
-                <ResponsiveLayout
-                  MobileLayout={CommentButton}
-                  DesktopLayout={CommentField}
-                  isLoading={isLoading}
-                  user={user}
-                  onSend={handleComment}
-                  onClick={onClick && handleClick}
-                  autoScroll={autoScrollOnComment}
-                />
-              ))}
-          </StyledNewComment>
-        </StyledComments>
-        {withBottomButton && (
-          <div style={{ textAlign: "center" }}>
-            <Button small onClick={handleClick}>
-              Rejoindre la conversation
-            </Button>
-          </div>
-        )}
-      </StyledMessage>
-    </StyledWrapper>
+                ) : (
+                  <ResponsiveLayout
+                    MobileLayout={CommentButton}
+                    DesktopLayout={CommentField}
+                    isLoading={isLoading}
+                    user={user}
+                    onSend={handleComment}
+                    onClick={onClick && handleClick}
+                    autoScroll={autoScrollOnComment}
+                  />
+                ))}
+            </StyledNewComment>
+          </StyledComments>
+          {withBottomButton && (
+            <div style={{ textAlign: "center" }}>
+              <Button small onClick={handleClick}>
+                Rejoindre la conversation
+              </Button>
+            </div>
+          )}
+        </StyledMessage>
+      </StyledWrapper>
+    </>
   );
 };
+
 MessageCard.propTypes = {
   user: PropTypes.shape({
     id: PropTypes.string.isRequired,
