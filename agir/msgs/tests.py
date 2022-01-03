@@ -1,5 +1,4 @@
 from agir.activity.models import Activity
-from agir.notifications.models import MuteMessage
 from rest_framework.test import APITestCase
 
 from agir.groups.models import SupportGroup, Membership
@@ -441,7 +440,7 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
             type__in=(Activity.TYPE_NEW_COMMENT, Activity.TYPE_NEW_COMMENT_RESTRICTED),
         )
         self.assertEqual(len(activities), 1)
-        MuteMessage.objects.create(person=self.user_referent, message=message)
+        message.mutedlist.add(self.user_referent)
 
         comment = SupportGroupMessageComment.objects.create(
             author=self.user_member, message=message, text="commentaire"

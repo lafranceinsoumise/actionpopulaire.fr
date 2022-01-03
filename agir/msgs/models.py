@@ -1,4 +1,3 @@
-from django.db.models.deletion import PROTECT
 import reversion
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -70,6 +69,12 @@ class SupportGroupMessage(AbstractMessage):
         "required_membershiptype",
         choices=Membership.MEMBERSHIP_TYPE_CHOICES,
         default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+    )
+    mutedlist = models.ManyToManyField(
+        "people.Person",
+        related_name="messages",
+        verbose_name="Liste de personnes en sourdine",
+        blank=True,
     )
 
     def __str__(self):

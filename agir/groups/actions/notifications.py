@@ -11,7 +11,7 @@ from agir.groups.tasks import (
     send_message_notification_email,
     send_comment_notification_email,
 )
-from agir.notifications.models import MuteMessage, Subscription
+from agir.notifications.models import Subscription
 from agir.people.models import Person
 from agir.notifications.models import Subscription
 
@@ -125,9 +125,7 @@ def new_message_notifications(message):
 def new_comment_restricted_notifications(comment):
 
     message_initial = comment.message
-    muted_recipients = MuteMessage.objects.filter(message=message_initial).values(
-        "person_id"
-    )
+    muted_recipients = message_initial.muted_list.values("id")
     allowed_memberships = message_initial.supportgroup.memberships.filter(
         membership_type__gte=message_initial.required_membership_type
     )
@@ -174,9 +172,7 @@ def new_comment_notifications(comment):
         return
 
     message_initial = comment.message
-    muted_recipients = MuteMessage.objects.filter(message=message_initial).values(
-        "person_id"
-    )
+    muted_recipients = message_initial.values("id")
     comment_authors = list(message_initial.comments.values_list("author_id", flat=True))
     comment_authors = set(comment_authors + [message_initial.author_id])
 

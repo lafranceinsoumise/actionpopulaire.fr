@@ -54,7 +54,6 @@ from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
 from agir.people.models import Person
-from agir.notifications.models import MuteMessage
 
 __all__ = [
     "LegacyGroupSearchAPIView",
@@ -424,34 +423,44 @@ class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
         pass
 
 
-# Switch message notification to on / off with create / delete MuteMessage
+# Switch message notification to on / off with the person into mutedlist
 class GroupMessageSwitchNotificationAPIView(RetrieveAPIView):
     permission_classes = (GroupMessagesPermissions,)
-    queryset = MuteMessage.objects.all()
+    queryset = SupportGroupMessage.objects.all()
 
     def get(self, request, *args, **kwargs):
         person = self.request.user.person
         result = "off"
+
         try:
-            muted = MuteMessage.objects.get(person=person, message_id=kwargs["pk"])
-            muted.delete()
-            result = "on"
-        except MuteMessage.DoesNotExist:
-            MuteMessage.objects.create(person=person, message_id=kwargs["pk"])
+            message = SupportGroupMessage.objects.get(pk=kwargs["pk"])
+            if message.mutedlist.filter(pk=person.pk).exists():
+                message.mutedlist.remove(person)
+                result = "on"
+            else:
+                message.mutedlist.add(person)
+        except SupportGroupMessage.DoesNotExist:
+            raise NotFound()
 
         return Response(result)
 
 
-# Get MuteMessage info on message_pk
+# Get muted info on message_pk
 class GroupMessageNotificationAPIView(RetrieveAPIView):
     permission_classes = (GroupMessagesPermissions,)
-    queryset = MuteMessage.objects.all()
+    queryset = SupportGroupMessage.objects.all()
 
     def get(self, request, *args, **kwargs):
         person = self.request.user.person
         result = "on"
-        if MuteMessage.objects.filter(person=person, message_id=kwargs["pk"]).exists():
-            result = "off"
+
+        try:
+            message = SupportGroupMessage.objects.get(pk=kwargs["pk"])
+            if message.mutedlist.filter(pk=person.pk).exists():
+                result = "off"
+        except SupportGroupMessage.DoesNotExist:
+            raise NotFound()
+
         return Response(result)
 
 
