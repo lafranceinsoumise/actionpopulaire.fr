@@ -69,13 +69,13 @@ class CheckPaymentAdmin(
 ):
     list_display = (
         "id",
+        "person",
         "get_type_display",
         "status",
-        "price",
-        "person",
+        "created",
+        "get_price_display",
         "email",
-        "first_name",
-        "last_name",
+        "nom_facturation",
     )
 
     fieldsets = (
@@ -83,6 +83,7 @@ class CheckPaymentAdmin(
             None,
             {
                 "fields": (
+                    "id",
                     "person_link",
                     "get_type_display",
                     "get_price_display",
@@ -114,20 +115,8 @@ class CheckPaymentAdmin(
         "person_link",
         "get_type_display",
         "get_price_display",
-        "created",
-        "status",
-        "first_name",
-        "last_name",
-        "email",
-        "phone_number",
-        "location_address1",
-        "location_address2",
-        "location_zip",
-        "location_city",
-        "location_country",
-        "meta",
-        "events",
         "status_buttons",
+        "nom_facturation",
     )
 
     list_filter = ("price", "status")
@@ -136,6 +125,14 @@ class CheckPaymentAdmin(
     def has_add_permission(self, request):
         """Forbidden to add checkpayment through this model admin"""
         return False
+
+    def has_change_permission(self, request, obj=None):
+        """Cette admin ne permet pas la modification"""
+        return False
+
+    def nom_facturation(self, obj):
+        if obj:
+            return f"{obj.first_name} {obj.last_name}"
 
     def get_urls(self):
         return [
