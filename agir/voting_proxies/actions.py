@@ -88,3 +88,12 @@ def create_or_update_voting_proxy(data):
     )
 
     return data
+
+
+def update_voting_proxy(instance, data):
+    if "voting_dates" in data:
+        data["voting_dates"] = list(data.get("voting_dates"))
+    for field, value in data.items():
+        setattr(instance, field, value)
+    instance.save()
+    return instance

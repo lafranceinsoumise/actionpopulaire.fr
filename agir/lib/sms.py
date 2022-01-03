@@ -1,10 +1,10 @@
 import logging
+from collections import namedtuple
+from math import ceil
 
 import ovh
-from collections import namedtuple
 from django.conf import settings
 from django.utils import timezone
-from math import ceil
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import number_type, PhoneNumberType
 
@@ -163,6 +163,37 @@ GSM7_CODEPOINTS = {
 }
 
 
+def _send_sms_as_email(message, recipients, params):
+    """
+    Sends an email with the message parameters to allow locally debugging
+    through Mailhog
+
+    :param message:
+    :param recipients:
+    :param params:
+    :return:
+    """
+    import json
+    import textwrap
+    from django.core.mail import get_connection, EmailMultiAlternatives
+
+    connection = get_connection()
+    with connection:
+        for recipient in recipients:
+            msg = "\n".join(textwrap.wrap(message, width=70))
+            email = EmailMultiAlternatives(
+                connection=connection,
+                from_email="SMS message",
+                subject=message,
+                to=[recipient],
+                body=f"\nSMS message sent to {recipient}"
+                f"\n\n{'=' * 80}\n{msg}\n{'=' * 80}"
+                f"\n\n{len(message)} characters"
+                f"\n\nParameters:\n{json.dumps(params, indent=2)}",
+            )
+            email.send()
+
+
 def _send_sms(message, recipients, at=None):
     params = dict(
         charset="UTF-8",
@@ -182,6 +213,9 @@ def _send_sms(message, recipients, at=None):
 
         minutes = ceil((at - now).total_seconds() / 60)
         params["differedPeriod"] = minutes
+
+    if settings.DEBUG:
+        _send_sms_as_email(message, recipients, params)
 
     return client.post("/sms/" + settings.OVH_SMS_SERVICE + "/jobs", **params)
 
