@@ -12,9 +12,7 @@ export const StyledCard = styled.button`
   border: none;
   cursor: pointer;
   background-color: ${({ $selected }) =>
-    $selected ? style.black50 : style.white};
-  box-shadow: inset ${({ $selected }) => ($selected ? "2px" : "0px")} 0px 0px
-    ${style.primary500};
+    $selected ? style.primary500 : style.white};
 
   &[disabled] {
     cursor: default;
@@ -54,26 +52,16 @@ export const StyledCard = styled.button`
       text-overflow: ellipsis;
     }
 
-    h6 {
-      color: ${(props) => props.theme.primary500};
-    }
-
     h5 {
       font-size: 1rem;
       font-weight: 500;
-      color: ${style.black1000};
     }
 
-    ${({ isOrganizationMessage }) =>
-      isOrganizationMessage &&
-      `h5 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        max-height: 42px;
-        overflow: hidden;
-        white-space: normal;
-      }`}
+    h5,
+    h6,
+    p {
+      color: ${({ $selected }) => ($selected ? style.white : style.black1000)};
+    }
 
     p {
       display: flex;
