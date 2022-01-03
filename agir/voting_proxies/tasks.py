@@ -8,8 +8,6 @@ from agir.voting_proxies.models import VotingProxyRequest
 @shared_task
 @post_save_task
 def send_voting_proxy_request_confirmation(voting_proxy_request_pks):
-    if len(voting_proxy_request_pks) == 0:
-        return
     voting_proxy_requests = VotingProxyRequest.objects.filter(
         pk__in=voting_proxy_request_pks
     )

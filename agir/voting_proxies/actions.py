@@ -51,10 +51,10 @@ def create_or_update_voting_proxy(data):
         person_data["location_zip"] = data["commune"].codes_postaux.first().code
 
     with transaction.atomic():
+        is_new_person = False
         try:
             with transaction.atomic():
                 person = Person.objects.get_by_natural_key(email)
-                is_new_person = False
         except Person.DoesNotExist:
             person = Person.objects.create_person(**person_data)
             is_new_person = True
