@@ -13,6 +13,7 @@ from agir.donations.form_fields import MoneyField
 from agir.payments.actions.payments import notify_status_change
 from agir.payments.admin import PaymentManagementAdminMixin
 from .models import CheckPayment
+from ..lib.admin import AddRelatedLinkMixin
 
 
 class CheckPaymentSearchForm(forms.Form):
@@ -63,7 +64,9 @@ class CheckPaymentSearchForm(forms.Form):
 
 
 @admin.register(CheckPayment)
-class CheckPaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
+class CheckPaymentAdmin(
+    PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.ModelAdmin
+):
     list_display = (
         "id",
         "get_type_display",
@@ -74,14 +77,48 @@ class CheckPaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
         "first_name",
         "last_name",
     )
-    fields = readonly_fields = (
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "person_link",
+                    "get_type_display",
+                    "get_price_display",
+                    "created",
+                    "status",
+                )
+            },
+        ),
+        (
+            "Facturation",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "phone_number",
+                    "location_address1",
+                    "location_address2",
+                    "location_zip",
+                    "location_city",
+                    "location_country",
+                )
+            },
+        ),
+        ("Informations techniques", {"fields": ("meta", "events", "status_buttons")}),
+    )
+
+    readonly_fields = (
+        "person_link",
         "get_type_display",
-        "person",
-        "email",
+        "get_price_display",
+        "created",
+        "status",
         "first_name",
         "last_name",
-        "get_price_display",
-        "status",
+        "email",
         "phone_number",
         "location_address1",
         "location_address2",
