@@ -72,7 +72,7 @@ class SupportGroupMessage(AbstractMessage):
     )
     mutedlist = models.ManyToManyField(
         "people.Person",
-        related_name="messages",
+        related_name="messages_muted",
         verbose_name="Liste de personnes en sourdine",
         blank=True,
     )
