@@ -4,6 +4,7 @@ import pytz
 from data_france.models import Commune
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.functional import cached_property
 
 from agir.lib.model_fields import ChoiceArrayField
 from agir.lib.models import BaseAPIResource
@@ -160,6 +161,14 @@ class VotingProxy(AbstractVoter):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} <{self.email}>"
+
+    @cached_property
+    def available_voting_dates(self):
+        accepted_dates = [
+            str(date)
+            for date in self.voting_proxy_requests.values_list("voting_date", flat=True)
+        ]
+        return [date for date in self.voting_dates if date not in accepted_dates]
 
 
 class VotingProxyRequest(AbstractVoter):
