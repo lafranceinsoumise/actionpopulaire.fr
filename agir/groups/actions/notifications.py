@@ -172,7 +172,7 @@ def new_comment_notifications(comment):
         return
 
     message_initial = comment.message
-    muted_recipients = message_initial.values("id")
+    muted_recipients = message_initial.mutedlist.values("id")
     comment_authors = list(message_initial.comments.values_list("author_id", flat=True))
     comment_authors = set(comment_authors + [message_initial.author_id])
 

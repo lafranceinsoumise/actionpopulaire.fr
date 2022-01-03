@@ -176,7 +176,6 @@ MERGE_STRATEGIES = {
     "memberships": merge_memberships,
     "supportgroupmessage": merge_reassign_related,
     "supportgroupmessagecomment": merge_reassign_related,
-    "muted_person": merge_reassign_related,
     "userreport": merge_reassign_related,
     "poll_choices": merge_reassign_related,
     "payments": merge_reassign_related,
