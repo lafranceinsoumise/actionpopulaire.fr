@@ -202,7 +202,7 @@ const MobileLayout = (props) => {
       </StyledMap>
       <Container>
         <Row>
-          <StyledColumn stack>
+          <StyledColumn stack style={{ overflow: "hidden" }}>
             <Card>
               <EventHeader {...props} />
               {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
