@@ -142,7 +142,7 @@ class UserMessageView(
 ):
     permission_required = ("msgs.view_supportgroupmessage",)
 
-    queryset = SupportGroupMessage.objects.actives()
+    queryset = SupportGroupMessage.objects.active()
 
     def get_object(self):
         return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))
