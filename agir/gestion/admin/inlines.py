@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html_join, format_html
 
+from agir.gestion.admin.depenses import DepenseListMixin
 from agir.gestion.admin.base import SearchableModelMixin
 from agir.gestion.admin.forms import DepenseDevisForm
 from agir.gestion.models import Depense, Projet, Participation
@@ -44,7 +45,7 @@ class DepenseDocumentInline(BaseDocumentInline):
     model = Depense.documents.through
 
 
-class DepenseInline(SearchableModelMixin, admin.TabularInline):
+class DepenseInline(DepenseListMixin, SearchableModelMixin, admin.TabularInline):
     verbose_name = "Dépense"
     verbose_name_plural = "Dépenses du projet"
 
@@ -57,7 +58,13 @@ class DepenseInline(SearchableModelMixin, admin.TabularInline):
         return False
 
     fields = ("numero_", "titre", "type", "montant", "date_depense", "compte")
-    readonly_fields = ("montant", "type", "date_depense", "compte")
+    readonly_fields = ("titre", "montant", "type", "date_depense", "compte")
+
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj=obj)
+        if not request.user.has_perm("gestion.voir_montant_depense"):
+            return tuple(f for f in fields if f != "montant")
+        return fields
 
 
 class AjouterDepenseInline(admin.TabularInline):
