@@ -188,7 +188,7 @@ class DepenseDevisForm(forms.ModelForm):
     def _save_m2m(self):
         super()._save_m2m()
 
-        if "devis" in self.cleaned_data:
+        if "devis" in self.cleaned_data and self.cleaned_data["devis"]:
             document = Document.objects.create(
                 titre=f"Devis pour {self.instance.titre}",
                 fichier=self.cleaned_data["devis"],
