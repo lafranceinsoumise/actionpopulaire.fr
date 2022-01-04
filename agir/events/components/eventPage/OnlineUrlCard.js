@@ -12,6 +12,7 @@ import YoutubeEmbed from "./YoutubeEmbed";
 
 const StyledFigure = styled(StyledCard)`
   width: 100%;
+  overflow: hidden;
   display: flex;
   gap: 1.5rem 2.5rem;
   padding: 0 1rem 0 2rem;
@@ -19,8 +20,10 @@ const StyledFigure = styled(StyledCard)`
   justify-content: space-between;
 
   @media (max-width: ${(props) => props.theme.collapse}px) {
+    max-width: calc(100% - 2rem);
+    margin: 1rem auto;
     box-shadow: ${(props) => props.theme.cardShadow};
-    padding: 2rem 1.5rem 0;
+    padding: 2rem 1rem 0;
     flex-flow: column nowrap;
     text-align: center;
   }

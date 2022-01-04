@@ -207,7 +207,7 @@ const MobileLayout = (props) => {
               <EventHeader {...props} />
               {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
             </Card>
-            <Card>
+            <Card style={{ padding: 0 }}>
               <OnlineUrlCard
                 onlineUrl={props.onlineUrl}
                 youtubeVideoID={props.youtubeVideoID}
