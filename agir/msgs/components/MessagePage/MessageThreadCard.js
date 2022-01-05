@@ -84,14 +84,12 @@ const MessageThreadCard = (props) => {
     >
       <Avatars people={authors} />
       <article>
-        <h6 title={group.name}>{group.name}</h6>
         <h5 title={subject}>{subject}</h5>
-        {!isOrganizationMessage && (
-          <p title={text}>
-            <span>{text}</span>
-            <span>&nbsp;•&nbsp;{time}</span>
-          </p>
-        )}
+        <h6 title={group.name}>{group.name}</h6>
+        <p title={text}>
+          <span>{text}</span>
+          <span>&nbsp;•&nbsp;{time}</span>
+        </p>
       </article>
       <StyledUnreadItemBadge
         aria-label="Nombre de commentaires non lus"
