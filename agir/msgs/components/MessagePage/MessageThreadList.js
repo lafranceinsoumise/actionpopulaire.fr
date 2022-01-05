@@ -124,8 +124,6 @@ const useAutoScrollToBottom = (commentLength = 0, messageId) => {
   return [scrollableRef, bottomRef];
 };
 
-const ON = "on";
-
 const DesktopThreadList = (props) => {
   const {
     isLoading,
@@ -151,25 +149,23 @@ const DesktopThreadList = (props) => {
 
   const sendToast = useToast();
 
-  const { data, mutate } = useSWR(
+  const { data: isMuted, mutate } = useSWR(
     selectedMessage?.id &&
       getGroupEndpoint("messageNotification", {
         messagePk: selectedMessage?.id,
       })
   );
 
-  const isMuted = data === ON;
-
   const switchNotificationMessage = async () => {
-    const { data } = await updateMessageNotification(selectedMessage, {
-      isMuted: !isMuted,
-    });
+    const { data } = await updateMessageNotification(
+      selectedMessage?.id,
+      !isMuted
+    );
     mutate(() => data);
-    const text =
-      data === ON
-        ? "Les notifications reliées à ce fil de message sont réactivées"
-        : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
-    const type = data === ON ? "SUCCESS" : "INFO";
+    const text = data
+      ? "Les notifications reliées à ce fil de message sont réactivées"
+      : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
+    const type = data ? "SUCCESS" : "INFO";
     sendToast(text, type, { autoClose: true });
   };
 

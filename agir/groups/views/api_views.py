@@ -435,16 +435,11 @@ class GroupMessageNotificationStatusAPIView(RetrieveUpdateAPIView):
     permission_classes = (GroupMessagesNotificationPermissions,)
     queryset = SupportGroupMessage.objects.all()
 
-    def serialize_response(self, is_muted):
-        if is_muted == False:
-            return "off"
-        return "on"
-
     def get(self, request, *args, **kwargs):
         message = self.get_object()
         person = self.request.user.person
         is_muted = message.recipient_mutedlist.filter(pk=person.pk).exists()
-        return Response(self.serialize_response(is_muted))
+        return Response(is_muted)
 
     def update(self, request, *args, **kwargs):
         message = self.get_object()
@@ -457,11 +452,10 @@ class GroupMessageNotificationStatusAPIView(RetrieveUpdateAPIView):
 
         if is_muted:
             message.recipient_mutedlist.add(person)
-        else:
-            if message.recipient_mutedlist.filter(pk=person.pk).exists():
-                message.recipient_mutedlist.remove(person)
+        elif message.recipient_mutedlist.filter(pk=person.pk).exists():
+            message.recipient_mutedlist.remove(person)
 
-        return Response(self.serialize_response(is_muted))
+        return Response(is_muted)
 
 
 @method_decorator(never_cache, name="get")

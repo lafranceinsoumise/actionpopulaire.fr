@@ -25,31 +25,24 @@ const BlockMuteMessage = styled.div`
   }
 `;
 
-const ON = "on";
-
 export const RightLink = (props) => {
   const { isLoading, user, settingsLink } = props;
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const sendToast = useToast();
   const matchMessagePage = useRouteMatch("/messages/:messagePk/");
   const messagePk = matchMessagePage?.params.messagePk;
-  const { data, mutate } = useSWR(
+  const { data: isMuted, mutate } = useSWR(
     messagePk && getGroupEndpoint("messageNotification", { messagePk })
   );
-  const isMuted = data === "on";
 
   const switchNotificationMessage = async () => {
-    const { data } = await updateMessageNotification(
-      { id: messagePk },
-      { isMuted: !isMuted }
-    );
+    const { data } = await updateMessageNotification(messagePk, !isMuted);
 
     mutate(() => data);
-    const text =
-      data === ON
-        ? "Les notifications reliées à ce fil de message sont réactivées"
-        : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
-    const type = data === ON ? "SUCCESS" : "INFO";
+    const text = data
+      ? "Les notifications reliées à ce fil de message sont réactivées"
+      : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
+    const type = data ? "SUCCESS" : "INFO";
     sendToast(text, type, { autoClose: true });
   };
 
