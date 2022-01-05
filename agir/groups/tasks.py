@@ -531,7 +531,7 @@ def send_comment_notification_email(comment_pk):
     author_membership = Membership.objects.filter(
         person=comment.author, supportgroup=supportgroup
     ).first()
-    muted_recipients = message.mutedlist.values("id")
+    muted_recipients = message.recipient_mutedlist.values("id")
 
     # Private comment: send only to allowed membership and initial author
     if message.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:

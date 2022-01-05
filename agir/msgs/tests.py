@@ -440,7 +440,7 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
             type__in=(Activity.TYPE_NEW_COMMENT, Activity.TYPE_NEW_COMMENT_RESTRICTED),
         )
         self.assertEqual(len(activities), 1)
-        message.mutedlist.add(self.user_referent)
+        message.recipient_mutedlist.add(self.user_referent)
 
         comment = SupportGroupMessageComment.objects.create(
             author=self.user_member, message=message, text="commentaire"

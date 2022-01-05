@@ -15,7 +15,10 @@ import MessageCard from "@agir/front/genericComponents/MessageCard";
 
 import MessageThreadMenu from "./MessageThreadMenu";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { switchMessageMuted, getGroupEndpoint } from "@agir/groups/api.js";
+import {
+  updateMessageNotification,
+  getGroupEndpoint,
+} from "@agir/groups/api.js";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledContent = styled.article`
@@ -76,7 +79,7 @@ const BlockMuteMessage = styled.div`
   align-items: end;
   justify-content: center;
   padding-right: 10px;
-  ${({ isActive }) => !isActive && `color: red;`}
+  ${({ isMuted }) => !isMuted && `color: red;`}
 
   ${RawFeatherIcon}:hover {
     cursor: pointer;
@@ -150,13 +153,17 @@ const DesktopThreadList = (props) => {
 
   const { data, mutate } = useSWR(
     selectedMessage?.id &&
-      getGroupEndpoint("getMessageMuted", { messagePk: selectedMessage?.id })
+      getGroupEndpoint("messageNotification", {
+        messagePk: selectedMessage?.id,
+      })
   );
 
-  const isActive = data === ON;
+  const isMuted = data === ON;
 
   const switchNotificationMessage = async () => {
-    const { data } = await switchMessageMuted(selectedMessage);
+    const { data } = await updateMessageNotification(selectedMessage, {
+      isMuted: !isMuted,
+    });
     mutate(() => data);
     const text =
       data === ON
@@ -186,9 +193,9 @@ const DesktopThreadList = (props) => {
       />
       <div style={{ display: "flex", flexDirection: "column" }}>
         {!!selectedMessage && (
-          <BlockMuteMessage isActive={isActive}>
+          <BlockMuteMessage isMuted={isMuted}>
             <RawFeatherIcon
-              name={`bell${!isActive ? "-off" : ""}`}
+              name={`bell${!isMuted ? "-off" : ""}`}
               onClick={switchNotificationMessage}
             />
           </BlockMuteMessage>

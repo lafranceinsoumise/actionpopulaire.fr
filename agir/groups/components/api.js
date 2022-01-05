@@ -21,8 +21,10 @@ export const ENDPOINT = {
   createPrivateMessage: "/api/groupes/:groupPk/envoi-message-prive/",
   updateMessage: "/api/groupes/messages/:messagePk/",
   deleteMessage: "/api/groupes/messages/:messagePk/",
-  getMessageMuted: "/api/groupes/messages/info-notification/:messagePk/",
-  switchMessageMuted: "/api/groupes/messages/modifier-notification/:messagePk/",
+  getMessageNotification: "/api/groupes/messages/info-notification/:messagePk/",
+  updateMessageNotification:
+    "/api/groupes/messages/modifier-notification/:messagePk/",
+  messageNotification: "/api/groupes/messages/notification/:messagePk/",
 
   getComments: "/api/groupes/messages/:messagePk/comments/",
   createComment: "/api/groupes/messages/:messagePk/comments/",
@@ -109,12 +111,14 @@ export const updateMessage = async (message) => {
   return result;
 };
 
-export const getMessageMuted = async (message) => {
+export const getMessageNotification = async (message) => {
   const result = {
     data: null,
     error: null,
   };
-  const url = getGroupEndpoint("getMessageMuted", { messagePk: message.id });
+  const url = getGroupEndpoint("messageNotification", {
+    messagePk: message.id,
+  });
   try {
     const response = await axios.get(url);
     result.data = response.data;
@@ -125,14 +129,16 @@ export const getMessageMuted = async (message) => {
   return result;
 };
 
-export const switchMessageMuted = async (message) => {
+export const updateMessageNotification = async (message, isMuted) => {
   const result = {
     data: null,
     error: null,
   };
-  const url = getGroupEndpoint("switchMessageMuted", { messagePk: message.id });
+  const url = getGroupEndpoint("messageNotification", {
+    messagePk: message.id,
+  });
   try {
-    const response = await axios.get(url);
+    const response = await axios.put(url, isMuted);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

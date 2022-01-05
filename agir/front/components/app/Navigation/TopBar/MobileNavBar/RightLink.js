@@ -13,10 +13,13 @@ import UserMenu from "../UserMenu";
 import { useRouteMatch } from "react-router-dom";
 import useSWR from "swr";
 import { useToast } from "@agir/front/globalContext/hooks";
-import { switchMessageMuted, getGroupEndpoint } from "@agir/groups/api.js";
+import {
+  updateMessageNotification,
+  getGroupEndpoint,
+} from "@agir/groups/api.js";
 
 const BlockMuteMessage = styled.div`
-  ${({ isActive }) => !isActive && `color: red;`}
+  ${({ isMuted }) => !isMuted && `color: red;`}
   ${RawFeatherIcon}:hover {
     color: ${style.primary500};
   }
@@ -31,11 +34,16 @@ export const RightLink = (props) => {
   const matchMessagePage = useRouteMatch("/messages/:messagePk/");
   const messagePk = matchMessagePage?.params.messagePk;
   const { data, mutate } = useSWR(
-    messagePk && getGroupEndpoint("getMessageMuted", { messagePk })
+    messagePk && getGroupEndpoint("messageNotification", { messagePk })
   );
+  const isMuted = data === "on";
 
   const switchNotificationMessage = async () => {
-    const { data } = await switchMessageMuted({ id: messagePk });
+    const { data } = await updateMessageNotification(
+      { id: messagePk },
+      { isMuted: !isMuted }
+    );
+
     mutate(() => data);
     const text =
       data === ON
@@ -61,11 +69,10 @@ export const RightLink = (props) => {
     const isMessagePage = !!matchMessagePage;
     // Show muted message settings
     if (isMessagePage) {
-      const isActive = data === "on";
       return (
-        <BlockMuteMessage isActive={isActive}>
+        <BlockMuteMessage isMuted={isMuted}>
           <RawFeatherIcon
-            name={`bell${!isActive ? "-off" : ""}`}
+            name={`bell${!isMuted ? "-off" : ""}`}
             onClick={switchNotificationMessage}
           />
         </BlockMuteMessage>

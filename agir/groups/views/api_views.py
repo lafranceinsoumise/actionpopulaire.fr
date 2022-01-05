@@ -7,13 +7,13 @@ from django.db.models.functions import Greatest
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import exceptions
-from rest_framework import status
-from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework import status, exceptions
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.generics import (
     GenericAPIView,
     ListAPIView,
     RetrieveAPIView,
+    RetrieveUpdateAPIView,
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
     UpdateAPIView,
@@ -67,8 +67,7 @@ __all__ = [
     "GroupUpcomingEventsAPIView",
     "GroupPastEventReportsAPIView",
     "GroupMessagesAPIView",
-    "GroupMessageNotificationAPIView",
-    "GroupMessageSwitchNotificationAPIView",
+    "GroupMessageNotificationStatusAPIView",
     "GroupMessagesPrivateAPIView",
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
@@ -361,6 +360,14 @@ class GroupMessagesPermissions(GlobalOrObjectPermissions):
     }
 
 
+class GroupMessagesNotificationPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "PUT": []}
+    object_perms_map = {
+        "GET": ["msgs.view_supportgroupmessage"],
+        "PUT": ["msgs.view_supportgroupmessage"],
+    }
+
+
 class GroupMessagesAPIView(ListCreateAPIView):
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (
@@ -423,45 +430,38 @@ class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
         pass
 
 
-# Switch message notification to on / off with the person into mutedlist
-class GroupMessageSwitchNotificationAPIView(RetrieveAPIView):
-    permission_classes = (GroupMessagesPermissions,)
+# Get or set muted notification in recipient_mutedlist
+class GroupMessageNotificationStatusAPIView(RetrieveUpdateAPIView):
+    permission_classes = (GroupMessagesNotificationPermissions,)
     queryset = SupportGroupMessage.objects.all()
 
-    def get(self, request, *args, **kwargs):
-        person = self.request.user.person
-        result = "off"
-
-        try:
-            message = SupportGroupMessage.objects.get(pk=kwargs["pk"])
-            if message.mutedlist.filter(pk=person.pk).exists():
-                message.mutedlist.remove(person)
-                result = "on"
-            else:
-                message.mutedlist.add(person)
-        except SupportGroupMessage.DoesNotExist:
-            raise NotFound()
-
-        return Response(result)
-
-
-# Get muted info on message_pk
-class GroupMessageNotificationAPIView(RetrieveAPIView):
-    permission_classes = (GroupMessagesPermissions,)
-    queryset = SupportGroupMessage.objects.all()
+    def serialize_response(self, is_muted):
+        if is_muted == False:
+            return "off"
+        return "on"
 
     def get(self, request, *args, **kwargs):
+        message = self.get_object()
         person = self.request.user.person
-        result = "on"
+        is_muted = message.recipient_mutedlist.filter(pk=person.pk).exists()
+        return Response(self.serialize_response(is_muted))
 
-        try:
-            message = SupportGroupMessage.objects.get(pk=kwargs["pk"])
-            if message.mutedlist.filter(pk=person.pk).exists():
-                result = "off"
-        except SupportGroupMessage.DoesNotExist:
-            raise NotFound()
+    def update(self, request, *args, **kwargs):
+        message = self.get_object()
+        is_muted = request.data.get("isMuted", None)
 
-        return Response(result)
+        if not isinstance(is_muted, bool):
+            raise ValidationError({"isMuted": "Ce champ est obligatoire"})
+
+        person = self.request.user.person
+
+        if is_muted:
+            message.recipient_mutedlist.add(person)
+        else:
+            if message.recipient_mutedlist.filter(pk=person.pk).exists():
+                message.recipient_mutedlist.remove(person)
+
+        return Response(self.serialize_response(is_muted))
 
 
 @method_decorator(never_cache, name="get")

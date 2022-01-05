@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="supportgroupmessage",
-            name="mutedlist",
+            name="recipient_mutedlist",
             field=models.ManyToManyField(
                 blank=True,
                 related_name="messages_muted",

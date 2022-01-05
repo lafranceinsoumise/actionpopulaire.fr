@@ -70,7 +70,7 @@ class SupportGroupMessage(AbstractMessage):
         choices=Membership.MEMBERSHIP_TYPE_CHOICES,
         default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
     )
-    mutedlist = models.ManyToManyField(
+    recipient_mutedlist = models.ManyToManyField(
         "people.Person",
         related_name="messages_muted",
         verbose_name="Liste de personnes en sourdine",
