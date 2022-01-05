@@ -31,6 +31,8 @@ from agir.gestion.admin.inlines import (
     AjouterDepenseInline,
     ProjetDocumentInline,
     DepenseDocumentInline,
+    AjouterDocumentDepenseInline,
+    AjouterDocumentProjetInline,
 )
 from agir.gestion.admin.views import AjouterReglementView
 from agir.gestion.models import (
@@ -182,7 +184,7 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         "fournisseur",
         "depenses_refacturees",
     )
-    inlines = [DepenseDocumentInline]
+    inlines = [DepenseDocumentInline, AjouterDocumentDepenseInline]
 
     def get_fieldsets(self, request, obj=None):
         common_fields = [
@@ -482,8 +484,9 @@ class ProjetAdmin(BaseProjetAdmin):
     inlines = [
         ProjetParticipationInline,
         DepenseInline,
-        AjouterDepenseInline,
         ProjetDocumentInline,
+        AjouterDepenseInline,
+        AjouterDocumentProjetInline,
     ]
 
     list_filter = (

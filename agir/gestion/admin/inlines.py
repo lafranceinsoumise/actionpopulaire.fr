@@ -4,21 +4,22 @@ from django.utils.html import format_html_join, format_html
 
 from agir.gestion.admin.depenses import DepenseListMixin
 from agir.gestion.admin.base import SearchableModelMixin
-from agir.gestion.admin.forms import DepenseDevisForm
+from agir.gestion.admin.forms import DepenseDevisForm, DocumentAjoutRapideForm
 from agir.gestion.models import Depense, Projet, Participation
 from agir.gestion.models.documents import VersionDocument
 
 
 class BaseDocumentInline(admin.TabularInline):
-    verbose_name = "Document associé"
-    verbose_name_plural = "Documents associés"
+    verbose_name = "Document justificatif"
+    verbose_name_plural = "Documents justificatifs"
     extra = 0
-    show_change_link = True
+    classes = ("retirer-original",)
+    can_delete = False
 
-    autocomplete_fields = ("document",)
-    readonly_fields = ("type_document", "fichier_document")
+    fields = readonly_fields = ("numero", "titre", "type_document", "fichier_document")
 
-    fields = ("document", "type_document", "fichier_document")
+    def has_add_permission(self, request, obj):
+        return False
 
     def type_document(self, obj):
         if obj and obj.document:
@@ -39,6 +40,22 @@ class BaseDocumentInline(admin.TabularInline):
         return "-"
 
     fichier_document.short_description = "Voir le fichier"
+
+    def numero(self, obj):
+        if obj and obj.document:
+            return format_html(
+                '<a href="{}">{}</a>',
+                reverse("admin:gestion_document_change", args=(obj.document.id,)),
+                obj.document.numero,
+            )
+        return "-"
+
+    numero.short_description = "Numéro unique"
+
+    def titre(self, obj):
+        if obj and obj.document:
+            return obj.document.titre
+        return "-"
 
 
 class DepenseDocumentInline(BaseDocumentInline):
@@ -65,22 +82,6 @@ class DepenseInline(DepenseListMixin, SearchableModelMixin, admin.TabularInline)
         if not request.user.has_perm("gestion.voir_montant_depense"):
             return tuple(f for f in fields if f != "montant")
         return fields
-
-
-class AjouterDepenseInline(admin.TabularInline):
-    verbose_name_plural = "Ajout rapide de dépenses"
-    model = Depense
-    form = DepenseDevisForm
-    extra = 1
-    can_delete = False
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_view_permission(self, request, obj=None):
-        return False
-
-    fields = ("titre", "type", "montant", "compte", "devis")
 
 
 class ProjetDocumentInline(BaseDocumentInline):
@@ -161,3 +162,37 @@ class VersionDocumentInline(admin.TabularInline):
 
     fields = ("titre", "date", "fichier")
     readonly_fields = ("titre", "date", "fichier")
+
+
+class AjoutRapideMixin:
+    extra = 1
+    can_delete = False
+    classes = ("ajout-rapide",)
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        return False
+
+
+class AjouterDepenseInline(AjoutRapideMixin, admin.TabularInline):
+    verbose_name_plural = "Ajout rapide de dépenses"
+    model = Depense
+    form = DepenseDevisForm
+
+    fields = ("titre", "type", "montant", "compte", "devis")
+
+
+class BaseAjouterDocumentInline(AjouterDepenseInline, admin.TabularInline):
+    verbose_name_plural = "Ajout rapide de documents justificatifs"
+    form = DocumentAjoutRapideForm
+    fields = ("titre", "type", "fichier")
+
+
+class AjouterDocumentProjetInline(BaseAjouterDocumentInline):
+    model = Projet.documents.through
+
+
+class AjouterDocumentDepenseInline(BaseAjouterDocumentInline):
+    model = Depense.documents.through

@@ -26,7 +26,7 @@ class DocumentForm(forms.ModelForm):
         label="Nom de la version",
         required=False,
     )
-    fichier = forms.FileField(label="Fichier de la version", required=False)
+    fichier = forms.FileField(label="Fichier de la version", required=True)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -59,6 +59,40 @@ class DocumentForm(forms.ModelForm):
         model = Document
         fields = ()
         widgets = {"type": HierarchicalSelect}
+
+
+class DocumentAjoutRapideForm(forms.ModelForm):
+    titre = forms.CharField(
+        label="Titre",
+        max_length=200,
+        required=True,
+    )
+    type = forms.ChoiceField(
+        label="Type",
+        choices=[("", "---")] + TypeDocument.choices,
+        widget=HierarchicalSelect,
+        required=True,
+    )
+    fichier = forms.FileField(label="Fichier")
+
+    def save(self, commit=False):
+        self.document = Document.objects.create(
+            titre=self.cleaned_data["titre"],
+            type=self.cleaned_data["type"],
+        )
+
+        self.instance.document = self.document
+
+        return super().save(commit=commit)
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        VersionDocument.objects.create(
+            document=self.document,
+            titre="Version initiale",
+            fichier=self.cleaned_data["fichier"],
+        )
 
 
 class DepenseForm(forms.ModelForm):
