@@ -82,6 +82,14 @@ class Command(BaseCommand):
             help="Le mois pour lequel extraire les abonnements",
         )
         parser.add_argument(
+            "-t",
+            "--type",
+            dest="types",
+            action="append",
+            metavar="TYPE",
+            help="Type de souscription à exporter (utiliser plusieurs fois si plusieurs types)",
+        )
+        parser.add_argument(
             "-s",
             "--send-to",
             dest="emails",
@@ -98,7 +106,7 @@ class Command(BaseCommand):
             help="Le chemin où sauvegarder l'extraction.",
         )
 
-    def handle(self, *args, month, emails, output, **options):
+    def handle(self, *args, month, types, emails, output, **options):
         if month is None:
             now = timezone.now()
             month = month_range(now.year, now.month)
@@ -106,12 +114,16 @@ class Command(BaseCommand):
         payments = (
             Payment.objects.filter(
                 status=Payment.STATUS_COMPLETED,
-                subscription__isnull=False,
                 created__range=month,
             )
             .select_related("subscription", "person")
             .prefetch_related("systempaytransaction_set")
         )
+
+        if types:
+            payments = payments.filter(subscription__type__in=types)
+        else:
+            payments = payments.filter(subscription__isnull=False)
 
         results = glom(payments, [FILE_DESC])
 

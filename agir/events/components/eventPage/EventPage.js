@@ -202,12 +202,12 @@ const MobileLayout = (props) => {
       </StyledMap>
       <Container>
         <Row>
-          <StyledColumn stack>
+          <StyledColumn stack style={{ overflow: "hidden" }}>
             <Card>
               <EventHeader {...props} />
               {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
             </Card>
-            <Card>
+            <Card style={{ padding: 0 }}>
               <OnlineUrlCard
                 onlineUrl={props.onlineUrl}
                 youtubeVideoID={props.youtubeVideoID}

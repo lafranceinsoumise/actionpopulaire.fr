@@ -155,13 +155,13 @@ class RechercheParrainagesView(
         # idem
         termines_qs = list(
             queryset_elus(person, person.coordinates).filter(
-                ~Q(
+                Q(parrainage__person_id=person.id)
+                & ~Q(
                     parrainage__statut__in=[
                         StatutRechercheParrainage.EN_COURS,
                         StatutRechercheParrainage.ANNULEE,
                     ]
                 ),
-                parrainage__person_id=person.id,
             )
         )
         recherches_parrainages_termines = {

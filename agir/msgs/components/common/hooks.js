@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
+import { useTimeout } from "react-use";
 import useSWR, { mutate } from "swr";
 import { validate as uuidValidate } from "uuid";
 
@@ -10,17 +11,16 @@ import { setBackLink } from "@agir/front/globalContext/actions";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 
 export const useUnreadMessageCount = () => {
+  const [isReady] = useTimeout(3000);
   const { data: session } = useSWR("/api/session/");
-  const { data } = useSWR(
-    session?.user ? "/api/user/messages/unread_count/" : null,
-    {
-      refreshInterval: 10000,
-      dedupingInterval: 10000,
-      focusThrottleInterval: 10000,
-      shouldRetryOnError: false,
-      revalidateIfStale: false,
-    }
-  );
+  const ready = isReady() && session?.user;
+  const { data } = useSWR(ready && "/api/user/messages/unread_count/", {
+    refreshInterval: 10000,
+    dedupingInterval: 10000,
+    focusThrottleInterval: 10000,
+    shouldRetryOnError: false,
+    revalidateIfStale: false,
+  });
 
   return data?.unreadMessageCount && !isNaN(parseInt(data.unreadMessageCount))
     ? parseInt(data.unreadMessageCount)
