@@ -98,13 +98,13 @@ class Command(LoggingCommand):
 
             with transaction.atomic():
                 event = Event.objects.create(
-                    name=name,
+                    name=name[: Event._meta.get_field("name").max_length],
                     visibility=Event.VISIBILITY_ORGANIZER,
                     subtype=assemblee_circo,
                     start_time=date,
                     end_time=date + timedelta(hours=3),
                     **{
-                        k: v
+                        k: v[: Event._meta.get_field(k).max_length]
                         for k, v in s.data.items()
                         if k
                         in [
