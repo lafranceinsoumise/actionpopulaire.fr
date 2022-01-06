@@ -1,3 +1,4 @@
+from agir.activity.models import Activity
 from rest_framework.test import APITestCase
 
 from agir.groups.models import SupportGroup, Membership
@@ -13,6 +14,9 @@ from agir.msgs.models import (
     SupportGroupMessageComment,
 )
 from agir.people.models import Person
+
+# from . import tasks
+from agir.groups.actions.notifications import new_comment_notifications
 
 
 class GroupMessagesTestAPICase(APITestCase):
@@ -360,6 +364,10 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
             email="referent@example.com",
             create_role=True,
         )
+        self.user_member = Person.objects.create(
+            email="member@example.com",
+            create_role=True,
+        )
         self.user_no_group = Person.objects.create(
             email="user_no_group@example.com",
             create_role=True,
@@ -368,6 +376,11 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
             person=self.user_referent,
             supportgroup=self.supportgroup,
             membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        Membership.objects.create(
+            person=self.user_member,
+            supportgroup=self.supportgroup,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
     def test_group_messages_before_membership_creation_are_not_counted(self):
@@ -409,6 +422,37 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
         )
         unread_message_count = get_unread_message_count(new_member.pk)
         self.assertEqual(unread_message_count, 2)
+
+    def test_user_muted_message_dont_get_notification_neither_email(self):
+        message = SupportGroupMessage.objects.create(
+            author=self.user_referent,
+            supportgroup=self.supportgroup,
+            text="message",
+            subject="sujet",
+        )
+        comment = SupportGroupMessageComment.objects.create(
+            author=self.user_member, message=message, text="commentaire"
+        )
+        new_comment_notifications(comment)
+        activities = Activity.objects.filter(
+            supportgroup=self.supportgroup,
+            recipient=self.user_referent,
+            type__in=(Activity.TYPE_NEW_COMMENT, Activity.TYPE_NEW_COMMENT_RESTRICTED),
+        )
+        self.assertEqual(len(activities), 1)
+        message.recipient_mutedlist.add(self.user_referent)
+
+        comment = SupportGroupMessageComment.objects.create(
+            author=self.user_member, message=message, text="commentaire"
+        )
+        new_comment_notifications(comment)
+        activities = Activity.objects.filter(
+            supportgroup=self.supportgroup,
+            recipient=self.user_referent,
+            type__in=(Activity.TYPE_NEW_COMMENT, Activity.TYPE_NEW_COMMENT_RESTRICTED),
+        )
+
+        self.assertEqual(len(activities), 1)
 
     def test_get_unread_message_count(self):
         # No messages

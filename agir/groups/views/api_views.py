@@ -7,13 +7,13 @@ from django.db.models.functions import Greatest
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import exceptions
-from rest_framework import status
-from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework import status, exceptions
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.generics import (
     GenericAPIView,
     ListAPIView,
     RetrieveAPIView,
+    RetrieveUpdateAPIView,
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
     UpdateAPIView,
@@ -54,8 +54,6 @@ from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
 from agir.people.models import Person
-from agir.groups.models import Membership
-
 
 __all__ = [
     "LegacyGroupSearchAPIView",
@@ -69,6 +67,7 @@ __all__ = [
     "GroupUpcomingEventsAPIView",
     "GroupPastEventReportsAPIView",
     "GroupMessagesAPIView",
+    "GroupMessageNotificationStatusAPIView",
     "GroupMessagesPrivateAPIView",
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
@@ -361,6 +360,14 @@ class GroupMessagesPermissions(GlobalOrObjectPermissions):
     }
 
 
+class GroupMessagesNotificationPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "PUT": []}
+    object_perms_map = {
+        "GET": ["msgs.view_supportgroupmessage"],
+        "PUT": ["msgs.view_supportgroupmessage"],
+    }
+
+
 class GroupMessagesAPIView(ListCreateAPIView):
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (
@@ -421,6 +428,34 @@ class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
 
     def get(self):
         pass
+
+
+# Get or set muted notification in recipient_mutedlist
+class GroupMessageNotificationStatusAPIView(RetrieveUpdateAPIView):
+    permission_classes = (GroupMessagesNotificationPermissions,)
+    queryset = SupportGroupMessage.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        message = self.get_object()
+        person = self.request.user.person
+        is_muted = message.recipient_mutedlist.filter(pk=person.pk).exists()
+        return Response(is_muted)
+
+    def update(self, request, *args, **kwargs):
+        message = self.get_object()
+        is_muted = request.data.get("isMuted", None)
+
+        if not isinstance(is_muted, bool):
+            raise ValidationError({"isMuted": "Ce champ est obligatoire"})
+
+        person = self.request.user.person
+
+        if is_muted:
+            message.recipient_mutedlist.add(person)
+        elif message.recipient_mutedlist.filter(pk=person.pk).exists():
+            message.recipient_mutedlist.remove(person)
+
+        return Response(is_muted)
 
 
 @method_decorator(never_cache, name="get")
