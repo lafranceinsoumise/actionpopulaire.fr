@@ -2,6 +2,7 @@ import re
 from typing import List
 
 import reversion
+from django.contrib.postgres.fields import DateRangeField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
@@ -11,7 +12,6 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.authentication.models import Role
 from agir.gestion.actions import Todo, NiveauTodo, Transition, no_todos
-
 from agir.gestion.models.common import ModeleGestionMixin
 from agir.gestion.typologies import TypeDepense, NiveauAcces, TypeDocument
 from agir.lib.model_fields import IBANField
@@ -186,6 +186,20 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         max_length=200,
         blank=True,
         help_text="La nature du bien acheté, à remplir simultanément avec le champ quantité si applicable.",
+    )
+
+    date_debut = models.DateField(
+        "Date de début",
+        blank=True,
+        null=True,
+        help_text="Premier jour d'utilisation du matériel, premier jour de l'opération correspondante.",
+    )
+
+    date_fin = models.DateField(
+        "Date de fin",
+        blank=True,
+        null=True,
+        help_text="Dernier jour d'utilisation du matériel, dernier jour de l'opération correspondante.",
     )
 
     date_depense = models.DateField(

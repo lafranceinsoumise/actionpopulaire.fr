@@ -158,6 +158,10 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
 
 @admin.register(Depense)
 class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
+    NATURE_DESCRIPTION = """
+    Ces champs doivent être remplies pour les dépenses d'impression et d'achat de matériel. 
+    """
+
     form = DepenseForm
 
     list_filter = (
@@ -195,9 +199,10 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
             "etat",
             "date_depense",
             "type",
-            ("quantite", "nature"),
             "description",
         ]
+
+        nature_fields = ["quantite", "nature", "date_debut", "date_fin"]
 
         rel_fields = [
             "compte",
@@ -225,6 +230,10 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         return (
             (None, {"fields": [*common_fields, "beneficiaires"]}),
             ("Gestion", {"fields": rel_fields}),
+            (
+                "Nature de la dépense",
+                {"fields": nature_fields, "description": self.NATURE_DESCRIPTION},
+            ),
             ("Paiement", {"fields": paiement_fields}),
         )
 
