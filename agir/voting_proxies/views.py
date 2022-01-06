@@ -1,19 +1,23 @@
 from itertools import chain
 
 from data_france.models import CirconscriptionConsulaire, Commune
+from django.conf import settings
 from django.core import exceptions
-from django.db import transaction
 from django.http.response import Http404
-from rest_framework.exceptions import ValidationError
+from rest_framework import status
+from rest_framework.exceptions import ValidationError, Throttled
 from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,
     RetrieveUpdateAPIView,
+    RetrieveAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from agir.lib.export import dict_to_camelcase
+from agir.lib.token_bucket import TokenBucket
+from agir.lib.utils import get_client_ip
 from agir.voting_proxies.actions import (
     get_voting_proxy_requests_for_proxy,
     accept_voting_proxy_requests,
@@ -26,6 +30,7 @@ from agir.voting_proxies.serializers import (
     VotingProxySerializer,
     CreateVotingProxySerializer,
 )
+from agir.voting_proxies.tasks import send_voting_proxy_information_for_request
 
 
 class CommuneOrConsulateSearchAPIView(ListAPIView):
@@ -68,14 +73,18 @@ class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = VotingProxySerializer
 
 
-class ReplyToVotingProxyRequestsAPIViex(RetrieveUpdateAPIView):
+class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = VotingProxy.objects.filter(status=VotingProxy.STATUS_AVAILABLE)
     serializer_class = None
 
     def retrieve(self, request, *args, **kwargs):
         voting_proxy = self.get_object()
-        voting_proxy_request_pks = request.GET.getlist("vpr", [])
+        voting_proxy_request_pks = []
+
+        if request.GET.get("vpr", None):
+            voting_proxy_request_pks = request.GET.get("vpr").split(",")
+
         try:
             voting_proxy_requests = get_voting_proxy_requests_for_proxy(
                 voting_proxy, voting_proxy_request_pks
@@ -141,3 +150,34 @@ class ReplyToVotingProxyRequestsAPIViex(RetrieveUpdateAPIView):
                 "status": validated_data["voting_proxy"].status,
             }
         )
+
+
+class VotingProxyForRequestRetrieveAPIView(RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = VotingProxyRequest.objects.filter(
+        status=VotingProxyRequest.STATUS_ACCEPTED, proxy__isnull=False
+    )
+    sms_id_bucket = TokenBucket("SendSMSID", 2, 600)
+    sms_ip_bucket = TokenBucket("SendSMSIP", 2, 120)
+
+    def throttle_requests(self, request, *args, **kwargs):
+        if settings.DEBUG:
+            return
+
+        voting_proxy_request_id = kwargs.get("pk")
+        client_ip = get_client_ip(request)
+
+        if not self.sms_id_bucket.has_tokens(
+            voting_proxy_request_id
+        ) or not self.sms_ip_bucket.has_tokens(client_ip):
+            raise Throttled(
+                detail="Vous avez déjà demandé plusieurs fois l'envoi du message. "
+                "Veuillez laisser quelques minutes pour vérifier la bonne réception avant d'en demander d'autres",
+                code="throttled",
+            )
+
+    def retrieve(self, request, *args, **kwargs):
+        self.throttle_requests(request, *args, **kwargs)
+        voting_proxy_request = self.get_object()
+        send_voting_proxy_information_for_request.delay(voting_proxy_request.pk)
+        return Response(status=status.HTTP_202_ACCEPTED)

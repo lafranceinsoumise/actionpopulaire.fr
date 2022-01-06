@@ -46,7 +46,7 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
     try:
         link = add_query_params_to_url(
             VotingProxyLink.ACCEPTED_VOTING_PROXY_REQUEST_DETAIL,
-            {"vpr": voting_proxy_request_pks},
+            {"vpr": ",".join([str(pk) for pk in voting_proxy_request_pks])},
         )
         link = shorten_url(link, secret=True)
         request_owner_message = (
@@ -65,3 +65,11 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         send_sms(voting_proxy_message, voting_proxy_request.proxy.contact_phone)
     except SMSSendException:
         pass
+
+
+@shared_task
+@post_save_task
+def send_voting_proxy_information_for_request(voting_proxy_request_pk):
+    voting_proxy_request = VotingProxyRequest.objects.get(pk=voting_proxy_request_pk)
+    message = voting_proxy_request.get_voting_proxy_information()
+    send_sms(message, voting_proxy_request.contact_phone)

@@ -461,7 +461,7 @@ class VotingProxyRetrieveUpdateAPITestCase(APITestCase):
         self.assertEqual(self.voting_proxy.remarks, data["remarks"])
 
 
-class ReplyToVotingProxyRequestsAPIView(APITestCase):
+class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
     def setUp(self):
         self.person = Person.objects.create_person(
             "person@email.com", create_role=True, display_name="Person"
@@ -591,14 +591,14 @@ class ReplyToVotingProxyRequestsAPIView(APITestCase):
 
     def test_cannot_retrieve_unmatching_requests(self):
         endpoint = add_query_params_to_url(
-            self.endpoint, {"vpr": self.unmatching_request.pk}
+            self.endpoint, {"vpr": str(self.unmatching_request.pk)}
         )
         res = self.client.get(endpoint)
         self.assertEqual(res.status_code, 404)
 
     def test_cannot_retrieve_accepted_requests(self):
         endpoint = add_query_params_to_url(
-            self.endpoint, {"vpr": self.accepted_request.pk}
+            self.endpoint, {"vpr": str(self.accepted_request.pk)}
         )
         res = self.client.get(endpoint)
         self.assertEqual(res.status_code, 404)
@@ -613,7 +613,7 @@ class ReplyToVotingProxyRequestsAPIView(APITestCase):
 
     def test_can_retrieve_available_matching_requests_filtered_by_pk(self):
         endpoint = add_query_params_to_url(
-            self.endpoint, {"vpr": self.matching_request.pk}
+            self.endpoint, {"vpr": str(self.matching_request.pk)}
         )
         res = self.client.get(endpoint)
         self.assertEqual(res.status_code, 200)
@@ -731,3 +731,81 @@ class ReplyToVotingProxyRequestsAPIView(APITestCase):
             self.matching_request.status, VotingProxyRequest.STATUS_ACCEPTED
         )
         send_voting_proxy_request_accepted_text_messages.assert_called_once()
+
+
+class VotingProxyForRequestRetrieveAPITestCase(APITestCase):
+    def setUp(self):
+        self.person = Person.objects.create_person(
+            "person@email.com", create_role=True, display_name="Person"
+        )
+        self.consulate = CirconscriptionConsulaire.objects.create(
+            nom="Circonscription Consulaire ABC",
+            consulats=["Consulat"],
+            nombre_conseillers=1,
+        )
+        self.voting_proxy = VotingProxy.objects.create(
+            **{
+                "first_name": "Voting",
+                "last_name": "Proxy",
+                "email": "voting@proxy.com",
+                "contact_phone": "+33600000000",
+                "consulate": self.consulate,
+                "polling_station_number": "123",
+                "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
+                "remarks": "R.A.S.",
+                "person": self.person,
+                "status": VotingProxy.STATUS_AVAILABLE,
+                "date_of_birth": "1970-01-01",
+            }
+        )
+        self.unaccepted_request = VotingProxyRequest.objects.create(
+            **{
+                "first_name": "A",
+                "last_name": "Voter",
+                "email": "a_voter@agir.local",
+                "contact_phone": "+33600000000",
+                "consulate": self.consulate,
+                "polling_station_number": "123",
+                "voting_date": VotingProxy.VOTING_DATE_CHOICES[0][0],
+            }
+        )
+        self.accepted_request = VotingProxyRequest.objects.create(
+            **{
+                "first_name": "A third",
+                "last_name": "Voter",
+                "email": "a_third_voter@agir.local",
+                "contact_phone": "+33600000000",
+                "consulate": self.consulate,
+                "polling_station_number": "123",
+                "voting_date": VotingProxy.VOTING_DATE_CHOICES[0][0],
+                "status": VotingProxyRequest.STATUS_ACCEPTED,
+                "proxy": self.voting_proxy,
+            }
+        )
+
+        self.client.force_login(self.person.role)
+
+    def get_endpoint(self, pk):
+        return reverse("api_retrieve_voting_proxy_for_request", kwargs={"pk": pk})
+
+    @patch("agir.voting_proxies.views.send_voting_proxy_information_for_request.delay")
+    def test_cannot_receive_information_for_unaccepted_request(
+        self, send_voting_proxy_information_for_request
+    ):
+        send_voting_proxy_information_for_request.assert_not_called()
+        endpoint = self.get_endpoint(self.unaccepted_request.pk)
+        res = self.client.get(endpoint)
+        self.assertEqual(res.status_code, 404)
+        send_voting_proxy_information_for_request.assert_not_called()
+
+    @patch("agir.voting_proxies.views.send_voting_proxy_information_for_request.delay")
+    def test_can_receive_information_for_accepted_request(
+        self, send_voting_proxy_information_for_request
+    ):
+        send_voting_proxy_information_for_request.assert_not_called()
+        endpoint = self.get_endpoint(self.accepted_request.pk)
+        res = self.client.get(endpoint)
+        self.assertEqual(res.status_code, 202)
+        send_voting_proxy_information_for_request.assert_called_once_with(
+            self.accepted_request.pk
+        )

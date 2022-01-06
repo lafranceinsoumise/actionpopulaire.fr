@@ -238,12 +238,12 @@ class VotingProxyRequest(AbstractVoter):
             [voting_date.strftime("%d/%m/%Y") for voting_date in voting_dates]
         )
         text = (
-            f"Procuration de vote ({voting_date_string}) : "
-            f"{self.proxy.first_name} {self.proxy.last_name.upper()} "
-            f"- né·e le {self.proxy.date_of_birth.strftime('%d/%m/%Y')}"
-            f"- tél. {self.proxy.contact_phone} "
+            f"Procuration de vote ({voting_date_string}) :"
+            f" {self.proxy.first_name} {self.proxy.last_name.upper()}"
+            f" - né·e le {self.proxy.date_of_birth.strftime('%d/%m/%Y')}"
+            f" - tél. {self.proxy.contact_phone}"
         )
         if self.proxy.remarks:
-            text += f"- {self.proxy.remarks}"
+            text += f" - {self.proxy.remarks}"
         text += "."
         return text

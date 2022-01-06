@@ -5,7 +5,8 @@ from agir.voting_proxies.views import (
     CommuneOrConsulateSearchAPIView,
     VotingProxyCreateAPIView,
     VotingProxyRetrieveUpdateAPIView,
-    ReplyToVotingProxyRequestsAPIViex,
+    ReplyToVotingProxyRequestsAPIView,
+    VotingProxyForRequestRetrieveAPIView,
 )
 
 urlpatterns = [
@@ -20,6 +21,11 @@ urlpatterns = [
         name="api_create_voting_proxy_request",
     ),
     path(
+        "api/procurations/demande/<uuid:pk>/volontaire/",
+        VotingProxyForRequestRetrieveAPIView.as_view(),
+        name="api_retrieve_voting_proxy_for_request",
+    ),
+    path(
         "api/procurations/volontaire/",
         VotingProxyCreateAPIView.as_view(),
         name="api_create_voting_proxy",
@@ -31,7 +37,7 @@ urlpatterns = [
     ),
     path(
         "api/procurations/volontaire/<uuid:pk>/demandes/",
-        ReplyToVotingProxyRequestsAPIViex.as_view(),
+        ReplyToVotingProxyRequestsAPIView.as_view(),
         name="api_reply_to_voting_proxy_requests",
     ),
 ]
