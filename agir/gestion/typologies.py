@@ -119,3 +119,12 @@ class NiveauAcces(TextChoices):
     SANS_RESTRICTION = "N", "Sans restriction"
     RESTREINT = "R", "Restreint"
     SECRET = "S", "Secret"
+
+
+NATURE = (
+    "Tracts",
+    "Affiches",
+    "Flyers",
+    "Billets de train",
+    "Billets d'avion",
+)

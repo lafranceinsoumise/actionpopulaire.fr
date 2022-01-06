@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
 from agir.events.models import Event
-from agir.gestion.admin.widgets import HierarchicalSelect
+from agir.gestion.admin.widgets import HierarchicalSelect, SuggestingTextInput
 from agir.gestion.models import (
     Commentaire,
     Depense,
@@ -18,7 +18,7 @@ from agir.gestion.models import (
 )
 from agir.gestion.models.documents import Document, VersionDocument
 from agir.gestion.models.commentaires import ajouter_commentaire
-from agir.gestion.typologies import TypeDocument, TypeDepense
+from agir.gestion.typologies import TypeDocument, TypeDepense, NATURE
 
 
 class DocumentForm(forms.ModelForm):
@@ -170,7 +170,10 @@ class DepenseForm(forms.ModelForm):
     class Meta:
         model = Depense
         fields = ()
-        widgets = {"type": HierarchicalSelect}
+        widgets = {
+            "type": HierarchicalSelect,
+            "nature": SuggestingTextInput(suggestions=NATURE),
+        }
 
 
 class ProjetForm(forms.ModelForm):
