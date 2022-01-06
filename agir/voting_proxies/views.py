@@ -11,6 +11,7 @@ from rest_framework.generics import (
     ListAPIView,
     RetrieveUpdateAPIView,
     RetrieveAPIView,
+    UpdateAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -22,6 +23,7 @@ from agir.voting_proxies.actions import (
     get_voting_proxy_requests_for_proxy,
     accept_voting_proxy_requests,
     decline_voting_proxy_requests,
+    confirm_voting_proxy_requests,
 )
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 from agir.voting_proxies.serializers import (
@@ -181,3 +183,33 @@ class VotingProxyForRequestRetrieveAPIView(RetrieveAPIView):
         voting_proxy_request = self.get_object()
         send_voting_proxy_information_for_request.delay(voting_proxy_request.pk)
         return Response(status=status.HTTP_202_ACCEPTED)
+
+
+class VotingProxyRequestConfirmAPIView(UpdateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = VotingProxyRequest.objects.filter(
+        status=VotingProxyRequest.STATUS_ACCEPTED, proxy__isnull=False
+    )
+
+    def get_voting_proxy_requests(self, data):
+        voting_proxy_request_pks = data.get("votingProxyRequests", None)
+        try:
+            if (
+                voting_proxy_request_pks
+                and self.queryset.filter(pk__in=voting_proxy_request_pks).exists()
+            ):
+                return self.queryset.filter(pk__in=voting_proxy_request_pks)
+
+        except exceptions.ValidationError:
+            pass
+
+        raise ValidationError(
+            {
+                "votingProxyRequests": "La valeur de ce champ est obligatoire et devrait être une liste de uuids"
+            }
+        )
+
+    def update(self, request, *args, **kwargs):
+        voting_proxy_requests = self.get_voting_proxy_requests(request.data)
+        confirm_voting_proxy_requests(voting_proxy_requests)
+        return Response(status=status.HTTP_200_OK)

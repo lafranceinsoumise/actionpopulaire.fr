@@ -15,6 +15,7 @@ from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
 from agir.voting_proxies.tasks import (
     send_voting_proxy_request_confirmation,
     send_voting_proxy_request_accepted_text_messages,
+    send_voting_proxy_request_confirmed_text_messages,
 )
 
 
@@ -143,13 +144,19 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
 
 
 def accept_voting_proxy_requests(voting_proxy, voting_proxy_requests):
+    voting_proxy_request_pks = list(voting_proxy_requests.values_list("pk", flat=True))
     voting_proxy_requests.update(
         status=VotingProxyRequest.STATUS_ACCEPTED, proxy=voting_proxy
     )
-    voting_proxy_request_pks = list(voting_proxy_requests.values_list("pk", flat=True))
     send_voting_proxy_request_accepted_text_messages.delay(voting_proxy_request_pks)
 
 
 def decline_voting_proxy_requests(voting_proxy, voting_proxy_requests):
     voting_proxy.status = VotingProxy.STATUS_UNAVAILABLE
     voting_proxy.save()
+
+
+def confirm_voting_proxy_requests(voting_proxy_requests):
+    voting_proxy_request_pks = list(voting_proxy_requests.values_list("pk", flat=True))
+    voting_proxy_requests.update(status=VotingProxyRequest.STATUS_CONFIRMED)
+    send_voting_proxy_request_confirmed_text_messages.delay(voting_proxy_request_pks)

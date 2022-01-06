@@ -73,3 +73,26 @@ def send_voting_proxy_information_for_request(voting_proxy_request_pk):
     voting_proxy_request = VotingProxyRequest.objects.get(pk=voting_proxy_request_pk)
     message = voting_proxy_request.get_voting_proxy_information()
     send_sms(message, voting_proxy_request.contact_phone)
+
+
+@shared_task
+@post_save_task
+def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
+    voting_proxy_requests = VotingProxyRequest.objects.filter(
+        pk__in=voting_proxy_request_pks
+    )
+
+    if not voting_proxy_requests.exists():
+        raise VotingProxyRequest.DoesNotExist()
+
+    voting_date_string = ", ".join(
+        [vpr.voting_date.strftime("%d/%m/%Y") for vpr in voting_proxy_requests]
+    )
+    voting_proxy_request = voting_proxy_requests.first()
+    message = (
+        f"Procuration de vote établie ({voting_date_string}) :"
+        f" {voting_proxy_request.first_name} {voting_proxy_request.last_name.upper()}"
+        f" - bureau de vote {voting_proxy_request.polling_station_number}"
+        f" - tél. {voting_proxy_request.contact_phone}."
+    )
+    send_sms(message, voting_proxy_request.proxy.contact_phone)
