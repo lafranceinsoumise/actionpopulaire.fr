@@ -116,6 +116,7 @@ class VotingProxy(AbstractVoter):
         (STATUS_UNAVAILABLE, "indisponible"),
     )
 
+    date_of_birth = models.DateField("Date de naissance", null=True, blank=False)
     person = models.OneToOneField(
         "people.Person",
         verbose_name="Personne",
@@ -226,3 +227,23 @@ class VotingProxyRequest(AbstractVoter):
         return (
             f"{self.first_name} {self.last_name} <{self.email}> --> {self.voting_date}"
         )
+
+    def get_voting_proxy_information(self):
+        if self.proxy is None:
+            return ""
+        voting_dates = self.proxy.voting_proxy_requests.filter(
+            email=self.email
+        ).values_list("voting_date", flat=True)
+        voting_date_string = ", ".join(
+            [voting_date.strftime("%d/%m/%Y") for voting_date in voting_dates]
+        )
+        text = (
+            f"Procuration de vote ({voting_date_string}) : "
+            f"{self.proxy.first_name} {self.proxy.last_name.upper()} "
+            f"- né·e le {self.proxy.date_of_birth.strftime('%d/%m/%Y')}"
+            f"- tél. {self.proxy.contact_phone} "
+        )
+        if self.proxy.remarks:
+            text += f"- {self.proxy.remarks}"
+        text += "."
+        return text

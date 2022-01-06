@@ -47,6 +47,7 @@ def create_or_update_voting_proxy(data):
     person_data = {
         "first_name": data.get("first_name", ""),
         "last_name": data.get("last_name", ""),
+        "date_of_birth": data.get("date_of_birth", ""),
         "email": email,
         "contact_phone": data.get("contact_phone", ""),
         "is_2022": True,

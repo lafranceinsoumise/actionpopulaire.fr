@@ -231,6 +231,7 @@ class VotingProxyCreateAPITestCase(APITestCase):
             "votingDates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
             "remarks": "R.A.S.",
             "newsletters": [],
+            "dateOfBirth": "1970-01-01",
         }
 
         self.client.force_login(self.person.role)
@@ -259,6 +260,7 @@ class VotingProxyCreateAPITestCase(APITestCase):
             "consulate": None,
             "pollingStationNumber": "",
             "votingDates": [],
+            "dateOfBirth": "",
         }
         res = self.client.post(self.create_endpoint, data=data)
         self.assertEqual(res.status_code, 422)
@@ -268,6 +270,7 @@ class VotingProxyCreateAPITestCase(APITestCase):
         self.assertIn("phone", res.data)
         self.assertIn("pollingStationNumber", res.data)
         self.assertIn("votingDates", res.data)
+        self.assertIn("dateOfBirth", res.data)
 
     def test_cannot_create_without_commune_and_consulate(self):
         data = {
@@ -324,6 +327,7 @@ class VotingProxyCreateAPITestCase(APITestCase):
                 "polling_station_number": self.valid_data["pollingStationNumber"],
                 "voting_dates": self.valid_data["votingDates"],
                 "person": self.existing_person,
+                "date_of_birth": "1970-01-01",
             }
         )
         data = {**self.valid_data, "email": self.existing_person.email}
@@ -383,6 +387,7 @@ class VotingProxyRetrieveUpdateAPITestCase(APITestCase):
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
                 "person": self.person,
+                "date_of_birth": "1970-01-01",
             }
         )
         self.endpoint = reverse(
@@ -438,6 +443,7 @@ class VotingProxyRetrieveUpdateAPITestCase(APITestCase):
             "status": VotingProxy.STATUS_AVAILABLE,
             "votingDates": [str(VotingProxy.VOTING_DATE_CHOICES[0][0])],
             "remarks": "I am vegetarian",
+            "dateOfBirth": "1970-01-01",
         }
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 200, res.data)
@@ -499,6 +505,7 @@ class ReplyToVotingProxyRequestsAPIView(APITestCase):
                 "remarks": "R.A.S.",
                 "person": self.person,
                 "status": VotingProxy.STATUS_AVAILABLE,
+                "date_of_birth": "1970-01-01",
             }
         )
         self.another_voting_proxy = VotingProxy.objects.create(
@@ -513,6 +520,7 @@ class ReplyToVotingProxyRequestsAPIView(APITestCase):
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
                 "status": VotingProxy.STATUS_AVAILABLE,
+                "date_of_birth": "1970-01-01",
             }
         )
         self.unavailable_voting_proxy = VotingProxy.objects.create(
@@ -527,6 +535,7 @@ class ReplyToVotingProxyRequestsAPIView(APITestCase):
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
                 "status": VotingProxy.STATUS_UNAVAILABLE,
+                "date_of_birth": "1970-01-01",
             }
         )
         self.endpoint = reverse(

@@ -53,6 +53,7 @@ class GetVotingProxyRequestsForProxyTestCase(TestCase):
                     self.accepted_date,
                 ],
                 "remarks": "R.A.S.",
+                "date_of_birth": "1970-01-01",
             }
         )
 

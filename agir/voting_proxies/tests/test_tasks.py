@@ -77,6 +77,7 @@ class SendVotingProxyRequestAcceptedTextMessagesTestCase(TestCase):
                 "polling_station_number": "123",
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
+                "date_of_birth": "1970-01-01",
             }
         )
 
