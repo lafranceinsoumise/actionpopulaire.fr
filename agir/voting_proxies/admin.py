@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin import TabularInline
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -80,6 +81,37 @@ class VoterModelAdmin(admin.ModelAdmin):
         pass
 
 
+class InlineVotingProxyRequestAdmin(TabularInline):
+    verbose_name = "Procuration acceptée"
+    verbose_name_plural = "Procurations acceptées"
+    extra = 0
+    show_change_link = True
+    model = VotingProxyRequest
+    fields = (
+        "full_name",
+        "voting_date",
+        "status",
+        "created",
+    )
+    readonly_fields = (
+        "full_name",
+        "voting_date",
+        "status",
+        "created",
+    )
+
+    def full_name(self, instance):
+        return f"{instance.first_name} {instance.last_name.upper()}"
+
+    full_name.short_description = "mandataire"
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(VotingProxy)
 class VotingProxyAdmin(VoterModelAdmin):
     list_display = (
@@ -93,6 +125,8 @@ class VotingProxyAdmin(VoterModelAdmin):
         HasVotingProxyRequestsListFilter,
         IsAvailableForVotingDateListFilter,
     )
+
+    inlines = [InlineVotingProxyRequestAdmin]
 
     def get_queryset(self, request):
         return (
