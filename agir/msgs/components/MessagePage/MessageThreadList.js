@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useEffect, useRef } from "react";
 import { useIntersection, usePrevious } from "react-use";
 import styled from "styled-components";
-import useSWR from "swr";
-import { useToast } from "@agir/front/globalContext/hooks";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -13,10 +11,6 @@ import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import MessageCard from "@agir/front/genericComponents/MessageCard";
 import MessageThreadMenu from "./MessageThreadMenu";
-import {
-  updateMessageNotification,
-  getGroupEndpoint,
-} from "@agir/groups/api.js";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledContent = styled.article`
@@ -126,28 +120,6 @@ const DesktopThreadList = (props) => {
     selectedMessage?.comments?.length,
     selectedMessagePk
   );
-
-  const sendToast = useToast();
-
-  const { data: isMuted, mutate } = useSWR(
-    selectedMessage?.id &&
-      getGroupEndpoint("messageNotification", {
-        messagePk: selectedMessage?.id,
-      })
-  );
-
-  const switchNotificationMessage = async () => {
-    const { data } = await updateMessageNotification(
-      selectedMessage?.id,
-      !isMuted
-    );
-    mutate(() => data);
-    const text = data
-      ? "Les notifications reliées à ce fil de message sont réactivées"
-      : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
-    const type = data ? "SUCCESS" : "INFO";
-    sendToast(text, type, { autoClose: true });
-  };
   const groupURL = routeConfig.groupDetails.getLink({
     groupPk: selectedMessage?.group.id,
   });
@@ -220,6 +192,9 @@ const MobileThreadList = (props) => {
     selectedMessage?.comments?.length,
     selectedMessagePk
   );
+  const groupURL = routeConfig.groupDetails.getLink({
+    groupPk: selectedMessage?.group.id,
+  });
 
   return (
     <StyledList>
@@ -258,9 +233,7 @@ const MobileThreadList = (props) => {
               onReportComment={onReportComment}
               onDeleteComment={onDeleteComment}
               isManager={selectedMessage?.group.isManager}
-              groupURL={routeConfig.groupDetails.getLink({
-                groupPk: selectedMessage?.group.id,
-              })}
+              groupURL={groupURL}
             />
           )}
           <span

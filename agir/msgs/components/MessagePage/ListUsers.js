@@ -53,16 +53,12 @@ const HiddenUsers = ({ total }) => {
   );
 };
 
-export const ListUser = ({ message }) => {
-  if (!message) {
+export const ListUser = ({ message, participants }) => {
+  if (!message || !participants) {
     return null;
   }
 
-  const participants = message.participants;
-  // const author = participants.actives.filter((p) => !!p.isAuthor);
-  // const commentAuthors = participants.commentAuthors;
   const totalAnonymous = participants.total - participants.actives.length;
-
   const isOrganizerMessage =
     message.requiredMembershipType > MEMBERSHIP_TYPES.FOLLOWER;
 

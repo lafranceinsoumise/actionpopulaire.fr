@@ -34,11 +34,12 @@ export const RightLink = (props) => {
   const { data: isMuted, mutate } = useSWR(
     messagePk && getGroupEndpoint("messageNotification", { messagePk })
   );
+  const isMutedLoading = isMuted === undefined;
 
   const switchNotificationMessage = async () => {
     const { data } = await updateMessageNotification(messagePk, !isMuted);
 
-    mutate(() => data);
+    mutate(() => data, false);
     const text = data
       ? "Les notifications reliées à ce fil de message sont réactivées"
       : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
@@ -62,6 +63,9 @@ export const RightLink = (props) => {
     const isMessagePage = !!matchMessagePage;
     // Show muted message settings
     if (isMessagePage) {
+      if (isMutedLoading) {
+        return null;
+      }
       return (
         <BlockMuteMessage isMuted={isMuted}>
           <RawFeatherIcon

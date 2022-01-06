@@ -401,11 +401,12 @@ const ButtonMuteMessage = ({ message }) => {
   const { data: isMuted, mutate } = useSWR(
     getGroupEndpoint("messageNotification", { messagePk: message?.id })
   );
+  const isLoading = isMuted === undefined;
 
   const switchNotificationMessage = async () => {
     const { data } = await updateMessageNotification(message?.id, !isMuted);
 
-    mutate(() => data);
+    mutate(() => data, false);
     const text = data
       ? "Les notifications reliées à ce fil de message sont réactivées"
       : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
@@ -413,13 +414,14 @@ const ButtonMuteMessage = ({ message }) => {
     sendToast(text, type, { autoClose: true });
   };
 
+  if (isLoading) {
+    return null;
+  }
+
   if (!isDesktop) {
     return (
-      <StyledMuteButton isMuted={isMuted}>
-        <RawFeatherIcon
-          name={`bell${isMuted ? "-off" : ""}`}
-          onClick={switchNotificationMessage}
-        />
+      <StyledMuteButton isMuted={isMuted} onClick={switchNotificationMessage}>
+        <RawFeatherIcon name={`bell${isMuted ? "-off" : ""}`} />
       </StyledMuteButton>
     );
   }

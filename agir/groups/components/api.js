@@ -22,6 +22,7 @@ export const ENDPOINT = {
   updateMessage: "/api/groupes/messages/:messagePk/",
   deleteMessage: "/api/groupes/messages/:messagePk/",
   messageNotification: "/api/groupes/messages/notification/:messagePk/",
+  messageParticipants: "/api/groupes/messages/:messagePk/participants/",
 
   getComments: "/api/groupes/messages/:messagePk/comments/",
   createComment: "/api/groupes/messages/:messagePk/comments/",
@@ -152,6 +153,22 @@ export const deleteMessage = async (message) => {
   const url = getGroupEndpoint("deleteMessage", { messagePk: message.id });
   try {
     const response = await axios.delete(url);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const getMessageParticipants = async (messagePk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupEndpoint("messageParticipants", { messagePk });
+  try {
+    const response = await axios.get(url);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

@@ -9,6 +9,9 @@ import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
+import useSWR from "swr";
+import { getGroupEndpoint } from "@agir/groups/api.js";
+
 const Description = styled.span`
   font-size: 14px;
   cursor: pointer;
@@ -25,15 +28,23 @@ const PrimarySpan = styled.span`
 const MessageDetails = ({ message }) => {
   const [openParticipants, setOpenParticipants] = useState(false);
 
+  const { data: participants } = useSWR(
+    getGroupEndpoint("messageParticipants", { messagePk: message?.id })
+  );
+
   const closeParticipants = useCallback(() => {
     setOpenParticipants(false);
   }, []);
 
+  if (!participants) {
+    return null;
+  }
+
   return (
     <>
       <Description onClick={() => setOpenParticipants(true)}>
-        <PrimarySpan>{message?.participants.total} participant·es</PrimarySpan>{" "}
-        - Membres de <PrimarySpan>{message?.group?.name}</PrimarySpan>
+        <PrimarySpan>{participants.total} participant·es</PrimarySpan> - Membres
+        de <PrimarySpan>{message?.group?.name}</PrimarySpan>
       </Description>
 
       <ResponsiveLayout
@@ -45,7 +56,7 @@ const MessageDetails = ({ message }) => {
         onClose={closeParticipants}
         shouldDismissOnClick
       >
-        <ListUsers message={message} />
+        <ListUsers message={message} participants={participants} />
       </ResponsiveLayout>
     </>
   );
