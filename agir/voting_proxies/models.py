@@ -4,6 +4,7 @@ import pytz
 from data_france.models import Commune
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.functional import cached_property
 
 from agir.lib.model_fields import ChoiceArrayField
 from agir.lib.models import BaseAPIResource
@@ -115,6 +116,7 @@ class VotingProxy(AbstractVoter):
         (STATUS_UNAVAILABLE, "indisponible"),
     )
 
+    date_of_birth = models.DateField("Date de naissance", null=True, blank=False)
     person = models.OneToOneField(
         "people.Person",
         verbose_name="Personne",
@@ -160,6 +162,14 @@ class VotingProxy(AbstractVoter):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} <{self.email}>"
+
+    @cached_property
+    def available_voting_dates(self):
+        accepted_dates = [
+            str(date)
+            for date in self.voting_proxy_requests.values_list("voting_date", flat=True)
+        ]
+        return [date for date in self.voting_dates if date not in accepted_dates]
 
 
 class VotingProxyRequest(AbstractVoter):
@@ -217,3 +227,23 @@ class VotingProxyRequest(AbstractVoter):
         return (
             f"{self.first_name} {self.last_name} <{self.email}> --> {self.voting_date}"
         )
+
+    def get_voting_proxy_information(self):
+        if self.proxy is None:
+            return ""
+        voting_dates = self.proxy.voting_proxy_requests.filter(
+            email=self.email
+        ).values_list("voting_date", flat=True)
+        voting_date_string = ", ".join(
+            [voting_date.strftime("%d/%m/%Y") for voting_date in voting_dates]
+        )
+        text = (
+            f"Procuration de vote ({voting_date_string}) :"
+            f" {self.proxy.first_name} {self.proxy.last_name.upper()}"
+            f" - né·e le {self.proxy.date_of_birth.strftime('%d/%m/%Y')}"
+            f" - tél. {self.proxy.contact_phone}"
+        )
+        if self.proxy.remarks:
+            text += f" - {self.proxy.remarks}"
+        text += "."
+        return text
