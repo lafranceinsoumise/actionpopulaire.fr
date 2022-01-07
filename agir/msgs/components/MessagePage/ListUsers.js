@@ -58,7 +58,7 @@ export const ListUser = ({ message, participants }) => {
     return null;
   }
 
-  const totalAnonymous = participants.total - participants.actives.length;
+  const totalAnonymous = participants.total - participants.active.length;
   const isOrganizerMessage =
     message.requiredMembershipType > MEMBERSHIP_TYPES.FOLLOWER;
 
@@ -73,7 +73,7 @@ export const ListUser = ({ message, participants }) => {
 
       <hr />
       <Spacer size="0.5rem" />
-      {participants.actives.map((user) => (
+      {participants.active.map((user) => (
         <StyledPerson>
           <Avatar image={user.image} name={user.displayName} />
           {user.displayName}

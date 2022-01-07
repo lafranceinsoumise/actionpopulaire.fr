@@ -1,5 +1,11 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import useSWR from "swr";
 import {
   updateMessageNotification,
@@ -385,6 +391,7 @@ const StyledMessageHeader = styled.div`
 
 const StyledMuteButton = styled.div`
   cursor: pointer;
+  ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
 
   ${RawFeatherIcon} {
     ${({ isMuted }) => (!isMuted ? `color: black;` : `color: red;`)}
@@ -397,14 +404,16 @@ const StyledMuteButton = styled.div`
 const ButtonMuteMessage = ({ message }) => {
   const sendToast = useToast();
   const isDesktop = useIsDesktop();
+  const [isMutedLoading, setIsMutedLoading] = useState(false);
 
   const { data: isMuted, mutate } = useSWR(
     getGroupEndpoint("messageNotification", { messagePk: message?.id })
   );
-  const isLoading = isMuted === undefined;
 
   const switchNotificationMessage = async () => {
+    setIsMutedLoading(true);
     const { data } = await updateMessageNotification(message?.id, !isMuted);
+    setIsMutedLoading(false);
 
     mutate(() => data, false);
     const text = data
@@ -414,20 +423,25 @@ const ButtonMuteMessage = ({ message }) => {
     sendToast(text, type, { autoClose: true });
   };
 
-  if (isLoading) {
-    return null;
-  }
-
   if (!isDesktop) {
     return (
-      <StyledMuteButton isMuted={isMuted} onClick={switchNotificationMessage}>
+      <StyledMuteButton
+        isMuted={isMuted}
+        disabled={typeof isMuted === "undefined" || isMutedLoading}
+        onClick={!isMutedLoading && switchNotificationMessage}
+      >
         <RawFeatherIcon name={`bell${isMuted ? "-off" : ""}`} />
       </StyledMuteButton>
     );
   }
 
   return (
-    <Button small color="choose" onClick={switchNotificationMessage}>
+    <Button
+      small
+      color="choose"
+      disabled={typeof isMuted === "undefined" || isMutedLoading}
+      onClick={!isMutedLoading && switchNotificationMessage}
+    >
       <RawFeatherIcon
         width="1rem"
         height="1rem"

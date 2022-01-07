@@ -14,6 +14,8 @@ from agir.msgs.models import (
 from agir.people.serializers import PersonSerializer
 from agir.groups.models import Membership
 
+from django.db.models import Exists, OuterRef, Q
+
 
 class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
@@ -162,6 +164,66 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "lastUpdate",
             "requiredMembershipType",
         )
+
+
+class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
+    active = serializers.SerializerMethodField(read_only=True)
+    commentAuthors = serializers.SerializerMethodField(
+        read_only=True, method_name="get_comment_authors"
+    )
+    total = serializers.SerializerMethodField(read_only=True)
+
+    def get_comment_authors(self, message):
+        comment_authors = list(message.comments.values_list("author_id", flat=True))
+        comment_authors = set([message.author.id] + comment_authors)
+        return list(comment_authors)
+
+    def get_total(self, message):
+        return (
+            message.supportgroup.memberships.filter(
+                Q(membership_type__gte=message.required_membership_type)
+                | Q(person_id=message.author_id)
+            )
+            .distinct()
+            .count()
+        )
+
+    def get_active(self, message):
+        active_memberships = (
+            message.supportgroup.memberships.filter(
+                Q(membership_type__gte=message.required_membership_type)
+            )
+            .filter(
+                Q(membership_type=Membership.MEMBERSHIP_TYPE_REFERENT)
+                | Q(person_id__in=message.comments.values_list("author_id", flat=True))
+                | Q(person_id=message.author_id)
+            )
+            .annotate(
+                has_commented=Exists(
+                    message.comments.filter(author_id=OuterRef("person_id"))
+                )
+            )
+            .distinct()
+        )
+
+        return [
+            {
+                "id": membership.person_id,
+                "displayName": membership.person.display_name,
+                "membershipType": membership.membership_type,
+                "isAuthor": message.author_id == membership.person_id,
+                "isInComments": membership.has_commented,
+                "image": membership.person.image.thumbnail.url
+                if (membership.person.image and membership.person.image.thumbnail)
+                else None,
+                "gender": membership.person.gender,
+            }
+            for membership in active_memberships
+        ]
+
+    class Meta:
+        model = SupportGroupMessage
+        fields = ("active", "commentAuthors", "total")
 
 
 class ContentTypeChoiceField(serializers.ChoiceField):

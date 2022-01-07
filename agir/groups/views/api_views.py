@@ -50,6 +50,7 @@ from agir.groups.serializers import (
     SupportGroupExternalLinkSerializer,
     MemberPersonalInformationSerializer,
 )
+from agir.msgs.serializers import SupportGroupMessageParticipantSerializer
 from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
@@ -496,56 +497,9 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class GroupMessageParticipantsAPIView(RetrieveAPIView):
-    serializer_class = SupportGroupMessageSerializer
+    serializer_class = SupportGroupMessageParticipantSerializer
     permission_classes = (GroupMessagesPermissions,)
-    queryset = SupportGroupMessage.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        """Returns list of active participants and total of persons included in discussion"""
-        obj = SupportGroupMessage.objects.get(pk=kwargs["pk"])
-
-        author = obj.author
-        comment_authors = list(obj.comments.values_list("author_id", flat=True))
-        comment_authors = set([author.id] + comment_authors)
-
-        allowed_memberships = obj.supportgroup.memberships.filter(
-            membership_type__gte=obj.required_membership_type
-        )
-        persons = [membership.person for membership in allowed_memberships]
-        if author not in persons:
-            persons = [author] + persons
-
-        active_persons = []
-        for p in persons:
-            if not (p.id in comment_authors or p in obj.supportgroup.referents):
-                continue
-            image = ""
-            if p.image and p.image.thumbnail:
-                image = p.image.thumbnail.url
-            membershipType = 0
-            allowed = allowed_memberships.filter(person=p)
-            if allowed.exists():
-                membershipType = allowed.first().membership_type
-
-            active_persons += (
-                {
-                    "id": p.id,
-                    "displayName": p.display_name,
-                    "membershipType": membershipType,
-                    "isAuthor": author.id == p.id,
-                    "isInComments": p.id in comment_authors,
-                    "image": image,
-                    "gender": p.gender,
-                },
-            )
-
-        return Response(
-            {
-                "actives": active_persons,
-                "commentAuthors": comment_authors,
-                "total": len(persons),
-            }
-        )
+    queryset = SupportGroupMessage.objects.all().select_related("supportgroup")
 
 
 class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
