@@ -16,19 +16,19 @@ class AbstractVoter(BaseAPIResource):
     VOTING_DATE_CHOICES = (
         (
             datetime(2022, 4, 10, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
-            "premier tour de l'élection présidentielle, dimanche 10 avril 2022",
+            "10 avril 2022 — 1er tour de la présidentielle",
         ),
         (
             datetime(2022, 4, 24, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
-            "second tour de l'élection présidentielle, dimanche 24 avril 2022",
+            "24 avril 2022 — 2nd tour de la présidentielle",
         ),
         (
             datetime(2022, 6, 12, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
-            "premier tour des élections législatives, dimanche 12 juin 2022",
+            "12 juin 2022 — 1er tour des législatives",
         ),
         (
             datetime(2022, 6, 19, 0, 0, 0, tzinfo=pytz.timezone("Europe/Paris")).date(),
-            "second tour des élections législatives, dimanche 19 juin 2022",
+            "19 juin 2022 — 2nd tour des législatives",
         ),
     )
 
