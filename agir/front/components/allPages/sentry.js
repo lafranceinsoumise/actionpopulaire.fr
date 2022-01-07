@@ -37,9 +37,37 @@ if (process.env.NODE_ENV === "production") {
     tracesSampleRate: 0.1,
 
     ignoreErrors: [
+      // CUSTOM IGNORE RULES
+
       // Email link Microsoft Outlook crawler compatibility error
       // cf. https://forum.sentry.io/t/unhandledrejection-non-error-promise-rejection-captured-with-value/14062
       "Non-Error promise rejection captured with value: Object Not Found Matching Id:",
+
+      // COMMON IGNORE RULES
+      // cf. https://docs.sentry.io/clients/javascript/tips/
+
+      // Random plugins/extensions
+      "top.GLOBALS",
+      // See: http://blog.errorception.com/2012/03/tale-of-unfindable-js-error.html
+      "originalCreateNotification",
+      "canvas.contentDocument",
+      "MyApp_RemoveAllHighlights",
+      "http://tt.epicplay.com",
+      "Can't find variable: ZiteReader",
+      "jigsaw is not defined",
+      "ComboSearch is not defined",
+      "http://loading.retry.widdit.com/",
+      "atomicFindClose",
+      "/change_ua/",
+      // Facebook borked
+      "fb_xd_fragment",
+      // ISP "optimizing" proxy - `Cache-Control: no-transform` seems to
+      // reduce this. (thanks @acdha)
+      // See http://stackoverflow.com/questions/4113268
+      "bmi_SafeAddOnload",
+      "EBCallBackMessageReceived",
+      // See http://toolbar.conduit.com/Developer/HtmlAndGadget/Methods/JSInjection.aspx
+      "conduitPage",
     ],
   });
 }
