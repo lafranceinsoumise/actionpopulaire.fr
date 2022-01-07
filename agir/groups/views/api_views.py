@@ -50,6 +50,7 @@ from agir.groups.serializers import (
     SupportGroupExternalLinkSerializer,
     MemberPersonalInformationSerializer,
 )
+from agir.msgs.serializers import SupportGroupMessageParticipantSerializer
 from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
@@ -72,6 +73,7 @@ __all__ = [
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
+    "GroupMessageParticipantsAPIView",
     "JoinGroupAPIView",
     "FollowGroupAPIView",
     "QuitGroupAPIView",
@@ -490,6 +492,12 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance):
         instance.deleted = True
         instance.save()
+
+
+class GroupMessageParticipantsAPIView(RetrieveAPIView):
+    serializer_class = SupportGroupMessageParticipantSerializer
+    permission_classes = (GroupMessagesPermissions,)
+    queryset = SupportGroupMessage.objects.all().select_related("supportgroup")
 
 
 class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):

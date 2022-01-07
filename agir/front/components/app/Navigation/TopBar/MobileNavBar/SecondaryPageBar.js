@@ -2,9 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import { routeConfig } from "@agir/front/app/routes.config";
-
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-
 import RightLink from "./RightLink";
 import StyledBar, { IconLink } from "./StyledBar";
 
@@ -17,6 +15,7 @@ const defaultBackLink = {
 const SecondaryPageBar = (props) => {
   const { isLoading, title, user, settingsLink } = props;
   const backLink = props.backLink || defaultBackLink;
+
   return (
     <StyledBar>
       <IconLink
@@ -28,7 +27,6 @@ const SecondaryPageBar = (props) => {
       >
         <RawFeatherIcon name="arrow-left" width="24px" height="24px" />
       </IconLink>
-      <h2>{title}</h2>
       <RightLink
         isLoading={isLoading}
         user={user}

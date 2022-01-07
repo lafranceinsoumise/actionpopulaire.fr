@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import React, { useEffect, useRef } from "react";
 import { useIntersection, usePrevious } from "react-use";
 import styled from "styled-components";
-import useSWR from "swr";
-import { useToast } from "@agir/front/globalContext/hooks";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -12,13 +10,7 @@ import Panel from "@agir/front/genericComponents/Panel";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import MessageCard from "@agir/front/genericComponents/MessageCard";
-
 import MessageThreadMenu from "./MessageThreadMenu";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import {
-  updateMessageNotification,
-  getGroupEndpoint,
-} from "@agir/groups/api.js";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledContent = styled.article`
@@ -33,7 +25,6 @@ const StyledContent = styled.article`
   & > * {
     box-shadow: none;
     border: none;
-    min-height: 100%;
 
     & > * {
       border: none;
@@ -41,8 +32,8 @@ const StyledContent = styled.article`
   }
 `;
 const StyledList = styled.main`
-  width: 100%;
   height: 100%;
+  width: 100%;
   display: flex;
   align-items: stretch;
   flex-flow: row nowrap;
@@ -61,29 +52,12 @@ const StyledList = styled.main`
   & > * {
     flex: 1 1 auto;
     height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
 
     &:first-child {
       @media (min-width: ${style.collapse}px) {
         flex: 0 0 400px;
       }
     }
-  }
-`;
-
-const BlockMuteMessage = styled.div`
-  height: 56px;
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-  justify-content: center;
-  padding-right: 10px;
-  ${({ isMuted }) => !isMuted && `color: red;`}
-
-  ${RawFeatherIcon}:hover {
-    cursor: pointer;
-    color: ${style.primary500};
   }
 `;
 
@@ -146,28 +120,9 @@ const DesktopThreadList = (props) => {
     selectedMessage?.comments?.length,
     selectedMessagePk
   );
-
-  const sendToast = useToast();
-
-  const { data: isMuted, mutate } = useSWR(
-    selectedMessage?.id &&
-      getGroupEndpoint("messageNotification", {
-        messagePk: selectedMessage?.id,
-      })
-  );
-
-  const switchNotificationMessage = async () => {
-    const { data } = await updateMessageNotification(
-      selectedMessage?.id,
-      !isMuted
-    );
-    mutate(() => data);
-    const text = data
-      ? "Les notifications reliées à ce fil de message sont réactivées"
-      : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
-    const type = data ? "SUCCESS" : "INFO";
-    sendToast(text, type, { autoClose: true });
-  };
+  const groupURL = routeConfig.groupDetails.getLink({
+    groupPk: selectedMessage?.group.id,
+  });
 
   useEffect(() => {
     // Auto-select first message on desktop
@@ -187,44 +142,30 @@ const DesktopThreadList = (props) => {
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
       />
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <PageFadeIn ready={selectedMessagePk && selectedMessage}>
         {!!selectedMessage && (
-          <BlockMuteMessage isMuted={isMuted}>
-            <RawFeatherIcon
-              name={`bell${!isMuted ? "-off" : ""}`}
-              onClick={switchNotificationMessage}
-            />
-          </BlockMuteMessage>
+          <MessageCard
+            autoScrollOnComment
+            isLoading={isLoading}
+            user={user}
+            message={selectedMessage}
+            comments={selectedMessage.comments}
+            onEdit={onEdit}
+            onComment={onComment}
+            onReport={onReport}
+            onDelete={onDelete}
+            onReportComment={onReportComment}
+            onDeleteComment={onDeleteComment}
+            isManager={selectedMessage.group.isManager}
+            groupURL={groupURL}
+          />
         )}
-        <StyledContent ref={scrollableRef}>
-          <PageFadeIn ready={selectedMessagePk && selectedMessage}>
-            {selectedMessage && (
-              <MessageCard
-                autoScrollOnComment
-                isLoading={isLoading}
-                user={user}
-                message={selectedMessage}
-                comments={selectedMessage.comments}
-                onEdit={onEdit}
-                onComment={onComment}
-                onReport={onReport}
-                onDelete={onDelete}
-                onReportComment={onReportComment}
-                onDeleteComment={onDeleteComment}
-                isManager={selectedMessage.group.isManager}
-                groupURL={routeConfig.groupDetails.getLink({
-                  groupPk: selectedMessage.group.id,
-                })}
-              />
-            )}
-            <span
-              style={{ width: 1, height: 0 }}
-              aria-hidden={true}
-              ref={bottomRef}
-            />
-          </PageFadeIn>
-        </StyledContent>
-      </div>
+        <span
+          style={{ width: 1, height: 0 }}
+          aria-hidden={true}
+          ref={bottomRef}
+        />
+      </PageFadeIn>
     </StyledList>
   );
 };
@@ -251,6 +192,9 @@ const MobileThreadList = (props) => {
     selectedMessage?.comments?.length,
     selectedMessagePk
   );
+  const groupURL = routeConfig.groupDetails.getLink({
+    groupPk: selectedMessage?.group.id,
+  });
 
   return (
     <StyledList>
@@ -289,9 +233,7 @@ const MobileThreadList = (props) => {
               onReportComment={onReportComment}
               onDeleteComment={onDeleteComment}
               isManager={selectedMessage?.group.isManager}
-              groupURL={routeConfig.groupDetails.getLink({
-                groupPk: selectedMessage?.group.id,
-              })}
+              groupURL={groupURL}
             />
           )}
           <span
