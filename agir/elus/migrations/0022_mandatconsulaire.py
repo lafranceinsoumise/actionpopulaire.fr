@@ -98,8 +98,8 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "mandats consulaires",
             },
             bases=(
-                agir.elus.models.UniqueWithinDates,
-                agir.elus.models.MandatHistoryMixin,
+                agir.elus.models.mandats.UniqueWithinDates,
+                agir.elus.models.mandats.MandatHistoryMixin,
                 models.Model,
             ),
         ),
