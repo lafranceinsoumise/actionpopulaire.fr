@@ -14,8 +14,6 @@ from agir.msgs.models import (
     SupportGroupMessageComment,
 )
 from agir.people.models import Person
-
-# from . import tasks
 from agir.groups.actions.notifications import new_comment_notifications
 
 
@@ -305,12 +303,55 @@ class UserMessagesAPITestCase(APITestCase):
         self.assertEqual(response.data[0]["unreadCommentCount"], 1)
         self.assertFalse(response.data[0]["isUnread"])
 
+    def test_cannot_get_messages_and_comments_from_inactive_people(self):
+
+        message = SupportGroupMessage.objects.create(
+            author=self.user_referent, supportgroup=self.group, text="Referent message"
+        )
+
+        self.client.force_login(self.user.role)
+        response = self.client.get("/api/user/messages/")
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]["id"], str(message.id))
+        self.assertEqual(response.data[0]["unreadCommentCount"], 0)
+        self.assertTrue(response.data[0]["isUnread"])
+
+        SupportGroupMessageComment.objects.create(
+            author=self.user_follower, message=message, text="Comment"
+        )
+        response = self.client.get("/api/user/messages/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]["id"], str(message.id))
+        self.assertEqual(response.data[0]["unreadCommentCount"], 1)
+        self.assertTrue(response.data[0]["isUnread"])
+
+        self.user_follower.role.is_active = False
+        self.user_follower.role.save()
+
+        # Should not see follower comment
+        response = self.client.get("/api/user/messages/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]["id"], str(message.id))
+        self.assertEqual(response.data[0]["unreadCommentCount"], 0)
+
+        self.user_referent.role.is_active = False
+        self.user_referent.role.save()
+
+        # Should not see referent message
+        response = self.client.get("/api/user/messages/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+
 
 class UpdateRecipientMessageActionTestCase(APITestCase):
     def test_recipient_message_modified_field_is_updated(self):
         supportgroup = SupportGroup.objects.create()
         recipient = Person.objects.create_person(
-            email="recipient@agis.msgs", create_role=True
+            email="recipient@agir.msgs", create_role=True
         )
         message = SupportGroupMessage.objects.create(
             author=recipient, supportgroup=supportgroup
@@ -541,12 +582,18 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
         unread_message_count = get_unread_message_count(self.reader.pk)
         self.assertEqual(unread_message_count, 2)
 
+        # Author of message goes inactive
+        self.writer.role.is_active = False
+        self.writer.role.save()
+        unread_message_count = get_unread_message_count(self.reader.pk)
+        self.assertEqual(unread_message_count, 0)
+
 
 class GetUnreadMessageCommentCountActionTestCase(APITestCase):
     def setUp(self):
         self.supportgroup = SupportGroup.objects.create()
         self.reader = Person.objects.create_person(
-            email="reader@agis.msgs", create_role=True
+            email="reader@agir.msgs", create_role=True
         )
         self.writer = Person.objects.create_person(
             email="writer@agir.msgs", create_role=True
@@ -602,3 +649,24 @@ class GetUnreadMessageCommentCountActionTestCase(APITestCase):
             self.reader.pk, self.message.pk
         )
         self.assertEqual(unread_comment_count, 2)
+
+        # Add a comment from reader
+        SupportGroupMessageComment.objects.create(
+            author=self.reader, message=self.message, text="Comment from reader 1"
+        )
+        unread_comment_count = get_message_unread_comment_count(
+            self.writer.pk, self.message.pk
+        )
+        self.assertEqual(unread_comment_count, 1)
+
+        # Add second comment from reader and deactivate author
+        SupportGroupMessageComment.objects.create(
+            author=self.reader, message=self.message, text="Comment from reader 2"
+        )
+        # Author of comment goes inactive
+        self.reader.role.is_active = False
+        self.reader.role.save()
+        unread_comment_count = get_message_unread_comment_count(
+            self.writer.pk, self.message.pk
+        )
+        self.assertEqual(unread_comment_count, 0)

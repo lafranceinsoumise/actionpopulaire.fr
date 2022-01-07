@@ -73,6 +73,31 @@ class GroupMessagesTestAPICase(APITestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data["results"], [])
 
+    def test_message_from_inactive_people_are_hidden(self):
+        message = SupportGroupMessage.objects.create(
+            supportgroup=self.group, author=self.manager, text="Lorem"
+        )
+
+        self.member2 = Person.objects.create_person(
+            email="member2@example.com",
+            create_role=True,
+        )
+        Membership.objects.create(
+            supportgroup=self.group,
+            person=self.member2,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        SupportGroupMessageComment.objects.create(
+            author=self.member2, message=message, text="Comment"
+        )
+        self.member2.role.is_active = False
+        self.member2.role.save()
+
+        self.client.force_login(self.member.role)
+        res = self.client.get(f"/api/groupes/{self.group.pk}/messages/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(res.data["results"]), 1)
+
     def create_other_manager(self):
         self.other_manager = Person.objects.create_person(
             first_name="Mathilde",

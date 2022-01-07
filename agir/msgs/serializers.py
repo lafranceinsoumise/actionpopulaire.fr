@@ -121,7 +121,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
 
     def get_recentComments(self, obj):
         recent_comments = (
-            obj.comments.filter(deleted=False)
+            obj.comments.active()
             .select_related("author")
             .order_by("-created")[: self.RECENT_COMMENT_LIMIT]
         )
@@ -132,15 +132,13 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         return recent_comments
 
     def get_commentCount(self, obj):
-        count = obj.comments.filter(deleted=False).count()
+        count = obj.comments.active().count()
         if count > self.RECENT_COMMENT_LIMIT:
             return count
 
     def get_comments(self, obj):
         return MessageCommentSerializer(
-            obj.comments.filter(deleted=False)
-            .select_related("author")
-            .order_by("created"),
+            obj.comments.active().select_related("author").order_by("created"),
             context=self.context,
             many=True,
         ).data
@@ -257,9 +255,10 @@ class UserMessagesSerializer(BaseMessageSerializer):
         return user.is_authenticated and user.person and message.author == user.person
 
     def get_last_comment(self, message):
-        if message.comments.exists():
-            comment = message.comments.order_by("-created").first()
-            return MessageCommentSerializer(comment, context=self.context).data
+        comment = message.comments.active().order_by("-created").first()
+        if comment is None:
+            return
+        return MessageCommentSerializer(comment, context=self.context).data
 
     class Meta:
         model = SupportGroupMessage
