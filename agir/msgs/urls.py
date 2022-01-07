@@ -23,4 +23,9 @@ urlpatterns = [
         views.UserMessageRecipientsView.as_view(),
         name="api_user_message_recipients",
     ),
+
+    path("api/messages/all-read/",
+        views.UserMessagesAllReadAPIView.as_view(),
+        name="view_messages_all_read",
+    ),
 ]

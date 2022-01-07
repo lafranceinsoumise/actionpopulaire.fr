@@ -27,7 +27,7 @@ import CommentField, {
 import Comment from "@agir/front/formComponents/Comment";
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
-const StyledInlineMenuItems = styled.div`
+export const StyledInlineMenuItems = styled.div`
   cursor: pointer;
   display: flex;
   flex-flow: column nowrap;

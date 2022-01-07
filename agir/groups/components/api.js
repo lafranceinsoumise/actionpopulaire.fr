@@ -25,6 +25,7 @@ export const ENDPOINT = {
   getComments: "/api/groupes/messages/:messagePk/comments/",
   createComment: "/api/groupes/messages/:messagePk/comments/",
   deleteComment: "/api/groupes/messages/comments/:commentPk/",
+  setAllMessagesRead: "/api/messages/all-read/",
 
   getMembers: "/api/groupes/:groupPk/membres/",
   updateGroup: "/api/groupes/:groupPk/update/",
@@ -291,6 +292,22 @@ export const inviteToGroup = async (groupPk, data) => {
 
   try {
     const response = await axios.post(url, data);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+
+export const setAllMessagesRead = async () => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  try {
+    const response = await axios.get(ENDPOINT.setAllMessagesRead);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

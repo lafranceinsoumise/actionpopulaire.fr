@@ -6,10 +6,15 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
+import Link from "@agir/front/app/Link";
 import { Hide } from "@agir/front/genericComponents/grid";
-import NotificationSettingLink from "@agir/notifications/NotificationSettings/NotificationSettingLink";
+import { useNotificationSettingLink } from "@agir/notifications/NotificationSettings/NotificationSettingLink";
 
 import MessageThreadCard from "./MessageThreadCard";
+import InlineMenu from "@agir/front/genericComponents/InlineMenu";
+import { StyledInlineMenuItems } from "@agir/front/genericComponents/MessageCard";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import { setAllMessagesRead } from "@agir/groups/api.js";
 
 const StyledNewMessageButton = styled.div`
   padding: 0.5rem 1.5rem 1.5rem;
@@ -73,6 +78,11 @@ const MessageThreadMenu = (props) => {
 
   const { pathname } = useLocation();
   const settingsRoot = pathname ? pathname.slice(1, -1) : "messages";
+  const route = useNotificationSettingLink(settingsRoot);
+
+  const markAllRead = () => {
+    setAllMessagesRead();
+  }
 
   return (
     <StyledMenu {...rest}>
@@ -81,7 +91,26 @@ const MessageThreadMenu = (props) => {
           <h2>
             Messages{typeof writeNewMessage !== "function" ? " reçus" : ""}
           </h2>
-          <NotificationSettingLink root={settingsRoot} iconLink />
+          <InlineMenu
+            triggerIconName="more-horizontal"
+            triggerSize="1.5rem"
+            shouldDismissOnClick
+            style={{ display: "flex" }}
+          >
+            <StyledInlineMenuItems>
+              <button onClick={markAllRead}>
+                <RawFeatherIcon name="check-circle" color={style.primary500} />
+                Tout marquer comme lu
+              </button>
+              <Link link to={route} icon="settings" small>
+                <RawFeatherIcon
+                  name="settings"
+                  color={style.primary500}
+                />
+                Paramètres de notifications
+              </Link>
+            </StyledInlineMenuItems>
+          </InlineMenu>
         </header>
       </Hide>
       {typeof writeNewMessage === "function" ? (

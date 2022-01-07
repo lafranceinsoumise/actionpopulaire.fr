@@ -73,6 +73,7 @@ __all__ = [
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
     "GroupSingleCommentAPIView",
+    # "GroupMessageAllReadAPIView",
     "JoinGroupAPIView",
     "FollowGroupAPIView",
     "QuitGroupAPIView",
