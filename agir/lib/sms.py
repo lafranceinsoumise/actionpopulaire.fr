@@ -163,7 +163,7 @@ GSM7_CODEPOINTS = {
 }
 
 
-def _send_sms(message, recipients, at=None):
+def _send_sms(message, recipients, at=None, sender=settings.OVH_DEFAULT_SENDER):
     params = dict(
         charset="UTF-8",
         coding="7bit",
@@ -171,7 +171,7 @@ def _send_sms(message, recipients, at=None):
         message=message,
         noStopClause=True,
         priority="high",
-        sender="Fi",
+        sender=sender,
         validityPeriod=2880,
     )
 
@@ -228,7 +228,9 @@ class SMSSendException(Exception):
         self.invalid = invalid
 
 
-def send_sms(message, phone_number, force=False, at=None):
+def send_sms(
+    message, phone_number, force=False, at=None, sender=settings.OVH_DEFAULT_SENDER
+):
     phone_number = to_phone_number(phone_number)
 
     if not force and not phone_number.is_valid():
@@ -245,7 +247,7 @@ def send_sms(message, phone_number, force=False, at=None):
         )
 
     try:
-        result = _send_sms(message, [phone_number], at=at)
+        result = _send_sms(message, [phone_number], at=at, sender=sender)
     except Exception:
         logger.exception("Le message n'a pas été envoyé.")
         raise SMSSendException("Le message n'a pas été envoyé.", invalid=[phone_number])
@@ -260,13 +262,15 @@ def send_sms(message, phone_number, force=False, at=None):
         raise SMSSendException("Le message n'a pas été envoyé.", invalid=[phone_number])
 
 
-def send_bulk_sms(message, phone_numbers, at=None):
+def send_bulk_sms(message, phone_numbers, at=None, sender=settings.OVH_DEFAULT_SENDER):
     sent = set()
     invalid = set()
 
     for numbers in grouper(phone_numbers, BULK_GROUP_SIZE):
         try:
-            result = _send_sms(message, [to_phone_number(n) for n in numbers], at=at)
+            result = _send_sms(
+                message, [to_phone_number(n) for n in numbers], at=at, sender=sender
+            )
         except ovh.exceptions.APIError:
             raise SMSSendException(
                 "L'API OVH a rencontré une erreur", sent=sent, invalid=invalid
