@@ -55,7 +55,7 @@
     "moment": "^2.29.1",
     "normalize.css": "^8.0.1",
     "object-hash": "^2.2.0",
-    "ol": "^6.10.0",
+    "ol": "^6.11.0",
     "path-to-regexp-es": "^3.0.0",
     "promise": "^8.1.0",
     "prop-types": "^15.8.1",
