@@ -42,7 +42,7 @@ import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 import { useToast } from "@agir/front/globalContext/hooks";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
-const StyledInlineMenuItems = styled.div`
+export const StyledInlineMenuItems = styled.div`
   cursor: pointer;
   display: flex;
   flex-flow: column nowrap;
