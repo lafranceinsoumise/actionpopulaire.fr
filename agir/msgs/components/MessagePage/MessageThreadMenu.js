@@ -68,6 +68,36 @@ const StyledMenu = styled.menu`
   }
 `;
 
+export const MessageOptions = () => {
+  const { pathname } = useLocation();
+  const settingsRoot = pathname ? pathname.slice(1, -1) : "messages";
+  const route = useNotificationSettingLink(settingsRoot);
+
+  const markAllRead = () => {
+    setAllMessagesRead();
+  };
+
+  return (
+    <InlineMenu
+      triggerIconName="more-horizontal"
+      triggerSize="1.5rem"
+      shouldDismissOnClick
+      style={{ display: "flex" }}
+    >
+      <StyledInlineMenuItems>
+        <button onClick={markAllRead}>
+          <RawFeatherIcon name="check-circle" color={style.primary500} />
+          Tout marquer comme lu
+        </button>
+        <Link link to={route} icon="settings" small>
+          <RawFeatherIcon name="settings" color={style.primary500} />
+          Paramètres de notifications
+        </Link>
+      </StyledInlineMenuItems>
+    </InlineMenu>
+  );
+};
+
 const MessageThreadMenu = (props) => {
   const {
     isLoading,
@@ -78,14 +108,6 @@ const MessageThreadMenu = (props) => {
     ...rest
   } = props;
 
-  const { pathname } = useLocation();
-  const settingsRoot = pathname ? pathname.slice(1, -1) : "messages";
-  const route = useNotificationSettingLink(settingsRoot);
-
-  const markAllRead = () => {
-    setAllMessagesRead();
-  }
-
   return (
     <StyledMenu {...rest}>
       <Hide under>
@@ -93,26 +115,7 @@ const MessageThreadMenu = (props) => {
           <h2>
             Messages{typeof writeNewMessage !== "function" ? " reçus" : ""}
           </h2>
-          <InlineMenu
-            triggerIconName="more-horizontal"
-            triggerSize="1.5rem"
-            shouldDismissOnClick
-            style={{ display: "flex" }}
-          >
-            <StyledInlineMenuItems>
-              <button onClick={markAllRead}>
-                <RawFeatherIcon name="check-circle" color={style.primary500} />
-                Tout marquer comme lu
-              </button>
-              <Link link to={route} icon="settings" small>
-                <RawFeatherIcon
-                  name="settings"
-                  color={style.primary500}
-                />
-                Paramètres de notifications
-              </Link>
-            </StyledInlineMenuItems>
-          </InlineMenu>
+          <MessageOptions />
         </header>
       </Hide>
       {typeof writeNewMessage === "function" ? (

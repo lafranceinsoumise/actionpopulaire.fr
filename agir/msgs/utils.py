@@ -29,7 +29,8 @@ def get_user_messages(person):
 
     # Get messages where person is author or is in group
     group_messages = (
-        SupportGroupMessage.queryset.filter(
+        SupportGroupMessage.objects.active()
+        .filter(
             (Q(supportgroup_id__in=person_groups) | Q(author=person))
             & Q(author__role__is_active=True)
         )

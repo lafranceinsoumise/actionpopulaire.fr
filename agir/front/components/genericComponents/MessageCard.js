@@ -394,14 +394,14 @@ const StyledMuteButton = styled.div`
   ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
 
   ${RawFeatherIcon} {
-    ${({ isMuted }) => (!isMuted ? `color: black;` : `color: red;`)}
+    ${({ isMuted }) => (!isMuted ? `color: black;` : `color: ${style.redNSP};`)}
   }
   ${RawFeatherIcon}:hover {
     color: ${style.primary500};
   }
 `;
 
-const ButtonMuteMessage = ({ message }) => {
+export const ButtonMuteMessage = ({ message }) => {
   const sendToast = useToast();
   const isDesktop = useIsDesktop();
   const [isMutedLoading, setIsMutedLoading] = useState(false);

@@ -354,7 +354,6 @@ export const inviteToGroup = async (groupPk, data) => {
   return result;
 };
 
-
 export const setAllMessagesRead = async () => {
   const result = {
     data: null,

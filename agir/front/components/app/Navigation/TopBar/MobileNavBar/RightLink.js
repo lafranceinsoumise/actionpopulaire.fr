@@ -1,54 +1,24 @@
 import PropTypes from "prop-types";
 import React, { useState } from "react";
-import styled from "styled-components";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import style from "@agir/front/genericComponents/_variables.scss";
 
+import { MessageOptions } from "@agir/msgs/MessagePage/MessageThreadMenu.js";
 import { IconLink } from "./StyledBar";
 import UserMenu from "../UserMenu";
 import { useRouteMatch } from "react-router-dom";
-import useSWR from "swr";
-import { useToast } from "@agir/front/globalContext/hooks";
-import {
-  updateMessageNotification,
-  getGroupEndpoint,
-} from "@agir/groups/api.js";
 
-const BlockMuteMessage = styled.div`
-  ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
-  ${({ isMuted }) => !isMuted && `color: red;`}
-  ${RawFeatherIcon}:hover {
-    color: ${style.primary500};
-  }
-`;
+import { ButtonMuteMessage } from "@agir/front/genericComponents/MessageCard";
 
 export const RightLink = (props) => {
   const { isLoading, user, settingsLink } = props;
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isMutedLoading, setIsMutedLoading] = useState(false);
-  const sendToast = useToast();
+  const matchMessagesPage = useRouteMatch("/messages/");
   const matchMessagePage = useRouteMatch("/messages/:messagePk/");
   const messagePk = matchMessagePage?.params.messagePk;
-  const { data: isMuted, mutate } = useSWR(
-    messagePk && getGroupEndpoint("messageNotification", { messagePk })
-  );
-
-  const switchNotificationMessage = async () => {
-    setIsMutedLoading(true);
-    const { data } = await updateMessageNotification(messagePk, !isMuted);
-    setIsMutedLoading(false);
-
-    mutate(() => data, false);
-    const text = data
-      ? "Les notifications reliées à ce fil de message sont réactivées"
-      : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
-    const type = data ? "SUCCESS" : "INFO";
-    sendToast(text, type, { autoClose: true });
-  };
 
   if (isLoading) {
     return <IconLink as={Spacer} size="32px" />;
@@ -62,21 +32,16 @@ export const RightLink = (props) => {
     );
   }
 
-  if (settingsLink) {
-    const isMessagePage = !!matchMessagePage;
-    // Show muted message settings
-    if (isMessagePage) {
-      return (
-        <BlockMuteMessage
-          isMuted={isMuted}
-          disabled={typeof isMuted === "undefined" || isMutedLoading}
-          onClick={!isMutedLoading && switchNotificationMessage}
-        >
-          <RawFeatherIcon name={`bell${!isMuted ? "-off" : ""}`} />
-        </BlockMuteMessage>
-      );
-    }
+  if (!!matchMessagesPage?.isExact) {
+    return <MessageOptions />;
+  }
 
+  // Show muted message settings
+  if (!!matchMessagePage) {
+    return <ButtonMuteMessage message={{ id: messagePk }} />;
+  }
+
+  if (settingsLink) {
     return (
       <IconLink
         to={settingsLink.to}
