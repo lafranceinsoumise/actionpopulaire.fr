@@ -5,13 +5,12 @@ import Avatar from "@agir/front/genericComponents/Avatar";
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import ButtonMuteMessage from "@agir/front/genericComponents/ButtonMuteMessage";
 
 import { MessageOptions } from "@agir/msgs/MessagePage/MessageThreadMenu.js";
 import { IconLink } from "./StyledBar";
 import UserMenu from "../UserMenu";
 import { useRouteMatch } from "react-router-dom";
-
-import { ButtonMuteMessage } from "@agir/front/genericComponents/MessageCard";
 
 export const RightLink = (props) => {
   const { isLoading, user, settingsLink } = props;
