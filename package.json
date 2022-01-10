@@ -109,7 +109,7 @@
     "@storybook/addon-links": "^6.4.9",
     "@storybook/builder-webpack5": "^6.4.9",
     "@storybook/cli": "^6.4.9",
-    "@storybook/react": "^6.4.9",
+    "@storybook/react": "^6.4.10",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^7.0.2",
