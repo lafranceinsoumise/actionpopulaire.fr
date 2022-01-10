@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import useSWR from "swr";
 import {
   updateMessageNotification,
@@ -19,12 +19,14 @@ import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 const StyledMuteButton = styled.div`
   cursor: pointer;
   ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
-
   ${RawFeatherIcon} {
-    ${({ isMuted }) => (!isMuted ? `color: black;` : `color: ${style.redNSP};`)}
+    ${({ isMuted }) => isMuted && `color: ${style.redNSP};`}
   }
-  ${RawFeatherIcon}:hover {
-    color: ${style.primary500};
+
+  @media (min-width: ${style.collapse}px) {
+    ${RawFeatherIcon}:hover {
+      color: ${style.primary500};
+    }
   }
 `;
 
@@ -64,22 +66,28 @@ const ButtonMuteMessage = ({ message }) => {
     setIsModalOpen(true);
   };
 
-  const CustomModal = () => (
-    <ModalConfirmation
-      shouldShow={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
-      shouldDismissOnClick={false}
-      confirmationFunc={switchNotificationMessage}
-      title="Rendre muet cette conversation ?"
-      confirmationLabel="Rendre muet"
-      dismissLabel="Annuler"
-    >
-      <Spacer size="1rem" />
-      Vous ne recevrez plus de notifications et e-mails concernant cette
-      conversation.
-      <Spacer size="0.5rem" />
-      Vous pourrez réactiver les notifications et e-mails à tout moment
-    </ModalConfirmation>
+  const disabled = typeof isMuted === "undefined" || isMutedLoading;
+
+  const CustomModal = useMemo(
+    () => () =>
+      (
+        <ModalConfirmation
+          shouldShow={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          shouldDismissOnClick={false}
+          confirmationFunc={switchNotificationMessage}
+          title="Rendre muet cette conversation ?"
+          confirmationLabel="Rendre muet"
+          dismissLabel="Annuler"
+        >
+          <Spacer size="1rem" />
+          Vous ne recevrez plus de notifications et e-mails concernant cette
+          conversation.
+          <Spacer size="0.5rem" />
+          Vous pourrez réactiver les notifications et e-mails à tout moment
+        </ModalConfirmation>
+      ),
+    [isModalOpen]
   );
 
   if (!isDesktop) {
@@ -87,7 +95,7 @@ const ButtonMuteMessage = ({ message }) => {
       <>
         <StyledMuteButton
           isMuted={isMuted}
-          disabled={typeof isMuted === "undefined" || isMutedLoading}
+          disabled={disabled}
           onClick={handleSwitchNotification}
         >
           <RawFeatherIcon name={`bell${isMuted ? "-off" : ""}`} />
@@ -102,7 +110,7 @@ const ButtonMuteMessage = ({ message }) => {
       <Button
         small
         color="choose"
-        disabled={typeof isMuted === "undefined" || isMutedLoading}
+        disabled={disabled}
         onClick={handleSwitchNotification}
       >
         <RawFeatherIcon

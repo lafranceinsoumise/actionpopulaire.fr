@@ -371,6 +371,7 @@ const StyledMessageHeader = styled.div`
   width: 100%;
   border: 1px solid #dfdfdf;
   border-bottom: none;
+  background-color: white;
 
   @media (max-width: ${style.collapse}px) {
     padding: 0.5rem;
