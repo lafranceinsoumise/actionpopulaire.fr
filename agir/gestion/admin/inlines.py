@@ -2,10 +2,10 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html_join, format_html
 
-from agir.gestion.admin.depenses import DepenseListMixin
 from agir.gestion.admin.base import SearchableModelMixin
+from agir.gestion.admin.depenses import DepenseListMixin
 from agir.gestion.admin.forms import DepenseDevisForm, DocumentAjoutRapideForm
-from agir.gestion.models import Depense, Projet, Participation
+from agir.gestion.models import Depense, Projet, Participation, Reglement
 from agir.gestion.models.documents import VersionDocument
 
 
@@ -196,3 +196,63 @@ class AjouterDocumentProjetInline(BaseAjouterDocumentInline):
 
 class AjouterDocumentDepenseInline(BaseAjouterDocumentInline):
     model = Depense.documents.through
+
+
+class ReglementInline(admin.TabularInline):
+    classes = ("retirer-original",)
+    model = Reglement
+
+    fields = (
+        "intitule",
+        "statut",
+        "mode",
+        "montant",
+        "date",
+        "date_releve",
+        "preuve_link",
+        "fournisseur_link",
+    )
+
+    readonly_fields = (
+        "intitule",
+        "statut",
+        "mode",
+        "montant",
+        "date",
+        "preuve_link",
+        "fournisseur_link",
+    )
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def preuve_link(self, obj):
+        if obj and obj.preuve:
+            change_url = reverse("admin:gestion_document_change", args=(obj.preuve_id,))
+
+            if obj.preuve.fichier:
+                return format_html(
+                    '<a href="{}">{}</a> <a href="{}">\U0001F4C4</a>',
+                    change_url,
+                    obj.preuve.titre,
+                    obj.preuve.fichier.url,
+                )
+
+            return format_html(
+                '<a href="{}">{}</a>',
+                change_url,
+                obj.preuve.titre,
+            )
+        return "-"
+
+    preuve_link.short_description = "Preuve de paiement"
+
+    def fournisseur_link(self, obj):
+        if obj and obj.fournisseur:
+            return format_html(
+                '<a href="{}">{}</a>',
+                reverse("admin:gestion_fournisseur_change", args=(obj.fournisseur_id,)),
+                obj.fournisseur.nom,
+            )
+
+        return "-"

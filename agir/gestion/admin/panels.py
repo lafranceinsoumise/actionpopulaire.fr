@@ -34,6 +34,7 @@ from agir.gestion.admin.inlines import (
     DepenseDocumentInline,
     AjouterDocumentDepenseInline,
     AjouterDocumentProjetInline,
+    ReglementInline,
 )
 from agir.gestion.admin.views import AjouterReglementView
 from agir.gestion.models import (
@@ -197,7 +198,7 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         "fournisseur",
         "depenses_refacturees",
     )
-    inlines = [DepenseDocumentInline, AjouterDocumentDepenseInline]
+    inlines = [ReglementInline, DepenseDocumentInline, AjouterDocumentDepenseInline]
 
     def get_fieldsets(self, request, obj=None):
         common_fields = [
@@ -273,14 +274,15 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         if obj is None or obj.id is None:
             return "-"
 
-        return render_to_string(
-            "admin/gestion/table_reglements.html",
-            {
-                "depense": obj,
-            },
-        )
+        if obj.montant_restant > 0:
+            return format_html(
+                '{}<br><a href="">Ajouter un réglement</a>',
+                self.reglement(obj),
+                reverse("admin:gestion_depense_reglement", args=(obj.id,)),
+            )
+        return self.reglement(obj)
 
-    reglements.short_description = "règlements effectués"
+    reglements.short_description = "Statut du réglement"
 
     def save_model(self, request, obj, form, change):
         """

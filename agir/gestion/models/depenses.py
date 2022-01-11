@@ -346,6 +346,12 @@ class Reglement(TimeStampedModel):
         default=timezone.now,
     )
 
+    date_releve = models.DateField(
+        verbose_name="Date dans le relevé bancaire",
+        blank=True,
+        null=True,
+    )
+
     preuve = models.ForeignKey(
         to="Document",
         verbose_name="Preuve de paiement",
