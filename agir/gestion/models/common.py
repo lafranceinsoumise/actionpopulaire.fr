@@ -132,7 +132,7 @@ class Compte(TimeStampedModel):
     engagement_automatique = EngagementAutomatique()
 
     def __str__(self):
-        return f"{self.nom} ({self.designation})"
+        return f"{self.designation}"
 
     class Meta:
         verbose_name = "Compte"
