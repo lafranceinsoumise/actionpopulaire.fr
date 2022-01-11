@@ -1,9 +1,10 @@
 import re
 
+from agir.events.models import Event
 from django.contrib import admin
 from django.contrib.postgres.search import SearchQuery
 from django.core.exceptions import ValidationError
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Subquery, OuterRef
 from django.http import QueryDict, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.urls import reverse, path
@@ -172,6 +173,7 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
 
     list_display = (
         "numero_",
+        "date_evenement",
         "date_depense",
         "titre",
         "type",
@@ -181,7 +183,13 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         "reglement",
     )
 
-    readonly_fields = ("reglement", "reglements", "etat", "montant_interdit")
+    readonly_fields = (
+        "reglement",
+        "reglements",
+        "etat",
+        "montant_interdit",
+        "date_evenement",
+    )
 
     autocomplete_fields = (
         "projet",
@@ -205,10 +213,7 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
 
         nature_fields = ["quantite", "nature", "date_debut", "date_fin"]
 
-        rel_fields = [
-            "compte",
-            "projet",
-        ]
+        rel_fields = ["compte", "projet", "date_evenement"]
 
         paiement_fields = ["fournisseur", "reglements"]
 
@@ -237,6 +242,17 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
             ),
             ("Paiement", {"fields": paiement_fields}),
         )
+
+    def date_evenement(self, obj):
+        d = getattr(obj, "_date_evenement", None)
+
+        if d:
+            return d.strftime("%d/%m/%Y")
+
+        return "-"
+
+    date_evenement.short_description = "Date de l'événement"
+    date_evenement.admin_order_field = "_date_evenement"
 
     def reglement(self, obj):
         if obj is None or obj.prevu is None:
@@ -275,7 +291,15 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).annoter_reglement()
+        qs = super().get_queryset(request)
+
+        return qs.annoter_reglement().annotate(
+            _date_evenement=Subquery(
+                Event.objects.filter(projet__depense=OuterRef("id")).values(
+                    "start_time"
+                )[:1]
+            )
+        )
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
