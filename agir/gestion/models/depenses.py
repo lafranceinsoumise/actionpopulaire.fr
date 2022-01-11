@@ -109,14 +109,14 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
             Transition(
                 nom="Renvoyer le dossier pour précisions",
                 vers=Etat.CONSTITUTION,
-                permissions=["gestion.responsable_compte"],
+                permissions=["gestion.controler_depense"],
                 class_name="failure",
             ),
             Transition(
                 nom="Clôturer le dossier",
                 vers=Etat.CLOTURE,
                 condition=no_todos,
-                permissions=["gestion.responsable_compte"],
+                permissions=["gestion.controler_depense"],
                 class_name="success",
             ),
         ],
