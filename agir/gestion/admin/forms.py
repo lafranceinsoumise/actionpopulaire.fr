@@ -109,11 +109,13 @@ class DepenseForm(forms.ModelForm):
                 if montant > total_factures:
                     self.fields[
                         "montant"
-                    ].help_text = "Le montant de cette refacturation est pour le moment supérieur à la somme des dépenses à refacturer"
+                    ].help_text = (
+                        "Supérieur à la somme des dépenses à refacturer ({montant} €)x"
+                    )
                 else:
                     self.fields[
                         "montant"
-                    ].help_text = f"Cela représente {montant / total_factures:0.1%} % du total des dépenses refacturées."
+                    ].help_text = f"Sur un total de {montant} € ({montant / total_factures:0.1%} %)."
 
         if "depenses_refacturees" in self.fields:
             depenses = self.get_initial_for_field(
