@@ -184,6 +184,7 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
     readonly_fields = ("reglement", "reglements", "etat", "montant_interdit")
 
     autocomplete_fields = (
+        "projet",
         "beneficiaires",
         "fournisseur",
         "depenses_refacturees",
