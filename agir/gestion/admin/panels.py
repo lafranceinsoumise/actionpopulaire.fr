@@ -276,7 +276,7 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
 
         if obj.montant_restant > 0:
             return format_html(
-                '{}<br><a href="">Ajouter un réglement</a>',
+                '{}<br><a href="{}">Ajouter un réglement</a>',
                 self.reglement(obj),
                 reverse("admin:gestion_depense_reglement", args=(obj.id,)),
             )
