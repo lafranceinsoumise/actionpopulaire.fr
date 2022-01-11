@@ -26,6 +26,7 @@ class TypeDocument(TextChoices):
     BAT = "EXA-BAT", "BAT"
     TRACT = "EXA-TRA", "Tract"
     AFFICHE = "EXA-AFF", "Affiche"
+    CAPTURE = "EXA-CAP", "Capture d'écran"
 
     PHOTOGRAPHIE = "PHO", "Photographie de l'objet ou de l'événement"
     AUTRE = "AUT", "Autre (à détailler dans les commentaires)"

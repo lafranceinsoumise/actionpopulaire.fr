@@ -172,7 +172,11 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
         ("titre", "A"),
         ("description", "C"),
         ("event__name", "B"),
-        ("event__description", "B"),
+        ("event__description", "C"),
+        ("event__location__name", "C"),
+        ("event__location__city", "C"),
+        ("event__contact_name", "D"),
+        ("event__contact_phone", "D"),
     )
 
     class Meta:

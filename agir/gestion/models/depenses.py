@@ -2,7 +2,6 @@ import re
 from typing import List
 
 import reversion
-from django.contrib.postgres.fields import DateRangeField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
@@ -12,7 +11,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.authentication.models import Role
 from agir.gestion.actions import Todo, NiveauTodo, Transition, no_todos
-from agir.gestion.models.common import ModeleGestionMixin
+from agir.gestion.models.common import ModeleGestionMixin, NumeroQueryset
 from agir.gestion.typologies import TypeDepense, NiveauAcces, TypeDocument
 from agir.lib.model_fields import IBANField
 from agir.lib.models import TimeStampedModel, LocationMixin
@@ -40,7 +39,7 @@ def engager_depense(depense: "Depense"):
         depense.date_depense = timezone.now()
 
 
-class DepenseQuerySet(models.QuerySet):
+class DepenseQuerySet(NumeroQueryset):
     def annoter_reglement(self):
         return self.annotate(
             prevu=models.Sum("reglement__montant"),
@@ -293,6 +292,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         ("numero", "B"),
         ("titre", "A"),
         ("description", "B"),
+        ("nature", "C"),
     )
 
     class Meta:
