@@ -26,7 +26,7 @@ class DocumentForm(forms.ModelForm):
         label="Nom de la version",
         required=False,
     )
-    fichier = forms.FileField(label="Fichier de la version", required=True)
+    fichier = forms.FileField(label="Fichier de la version", required=False)
 
     def clean(self):
         cleaned_data = super().clean()
