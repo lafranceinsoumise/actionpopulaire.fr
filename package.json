@@ -38,7 +38,7 @@
     "core-js": "^3.20.2",
     "cross-env": "^7.0.3",
     "debug": "^4.3.3",
-    "dotenv": "^10.0.0",
+    "dotenv": "^11.0.0",
     "emoji-mart": "^3.0.1",
     "eonasdan-bootstrap-datetimepicker": "^4.17.49",
     "es6-symbol": "^3.1.3",
