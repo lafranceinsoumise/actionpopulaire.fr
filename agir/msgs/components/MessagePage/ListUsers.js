@@ -1,11 +1,13 @@
 import React from "react";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
+import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import style from "@agir/front/genericComponents/_variables.scss";
 import styled from "styled-components";
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledPerson = styled.div`
   display: flex;
@@ -61,14 +63,18 @@ export const ListUser = ({ message, participants }) => {
   const totalAnonymous = participants.total - participants.active.length;
   const isOrganizerMessage =
     message.requiredMembershipType > MEMBERSHIP_TYPES.FOLLOWER;
+  const groupURL = routeConfig.groupDetails.getLink({
+    groupPk: message?.group.id,
+  });
 
   return (
     <StyledContainer>
-      <div style={{ color: style.primary500 }}>
+      <div>
         {isOrganizerMessage
           ? "Discussion privée avec les animateur·ices du groupe"
           : "Conversation du groupe"}
-        &nbsp;<span style={{ color: "black" }}>{message.group.name}</span>
+        &nbsp;
+        <Link to={groupURL}>{message.group.name}</Link>
       </div>
 
       <hr />
