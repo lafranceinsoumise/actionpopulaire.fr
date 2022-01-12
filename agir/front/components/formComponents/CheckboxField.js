@@ -67,6 +67,9 @@ const StyledField = styled.label`
     flex: 1 1 auto;
     font-weight: inherit;
     color: ${({ $disabled }) => ($disabled ? style.black500 : style.black1000)};
+    &::first-letter {
+      text-transform: uppercase;
+    }
   }
 `;
 
@@ -75,6 +78,7 @@ const CheckboxField = (props) => {
     id,
     onChange,
     value = false,
+    inputValue,
     label,
     className,
     style,
@@ -95,6 +99,7 @@ const CheckboxField = (props) => {
         id={id}
         onChange={onChange}
         checked={!!value}
+        value={inputValue}
       />
       <StyledBox>
         {!!value && (
@@ -120,6 +125,7 @@ CheckboxField.propTypes = {
   disabled: PropTypes.bool,
   style: PropTypes.object,
   className: PropTypes.string,
+  inputValue: PropTypes.string,
 };
 
 export default CheckboxField;

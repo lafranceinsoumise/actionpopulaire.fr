@@ -4,7 +4,7 @@ from data_france.models import CirconscriptionConsulaire, Commune
 from django.conf import settings
 from django.core import exceptions
 from django.http.response import Http404
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.exceptions import ValidationError, Throttled
 from rest_framework.generics import (
     CreateAPIView,
@@ -13,7 +13,6 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from agir.lib.export import dict_to_camelcase
@@ -36,7 +35,7 @@ from agir.voting_proxies.tasks import send_voting_proxy_information_for_request
 
 
 class CommuneOrConsulateSearchAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     serializer_class = CommuneOrConsulateSerializer
     search_term_param = "q"
 
@@ -58,25 +57,25 @@ class CommuneOrConsulateSearchAPIView(ListAPIView):
 
 
 class VotingProxyRequestCreateAPIView(CreateAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     queryset = VotingProxyRequest.objects.all()
     serializer_class = VotingProxyRequestSerializer
 
 
 class VotingProxyCreateAPIView(CreateAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     queryset = VotingProxy.objects.all()
     serializer_class = CreateVotingProxySerializer
 
 
 class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     queryset = VotingProxy.objects.all()
     serializer_class = VotingProxySerializer
 
 
 class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     queryset = VotingProxy.objects.filter(status=VotingProxy.STATUS_AVAILABLE)
     serializer_class = None
 
@@ -155,7 +154,7 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
 
 
 class VotingProxyForRequestRetrieveAPIView(RetrieveAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     queryset = VotingProxyRequest.objects.filter(
         status=VotingProxyRequest.STATUS_ACCEPTED, proxy__isnull=False
     )
@@ -186,7 +185,7 @@ class VotingProxyForRequestRetrieveAPIView(RetrieveAPIView):
 
 
 class VotingProxyRequestConfirmAPIView(UpdateAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     queryset = VotingProxyRequest.objects.filter(
         status=VotingProxyRequest.STATUS_ACCEPTED, proxy__isnull=False
     )
