@@ -204,7 +204,24 @@ class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
             .distinct()
         )
 
-        return [
+        author = []
+        # Author not in memberships
+        if not active_memberships.filter(person_id=message.author.id).exists():
+            author = [
+                {
+                    "id": message.author.id,
+                    "displayName": message.author.display_name,
+                    "membershipType": 0,
+                    "isAuthor": message.author_id == message.author.id,
+                    "isInComments": True,
+                    "image": message.author.image.thumbnail.url
+                    if (message.author.image and message.author.image.thumbnail)
+                    else None,
+                    "gender": message.author.gender,
+                }
+            ]
+
+        return author + [
             {
                 "id": membership.person_id,
                 "displayName": membership.person.display_name,
