@@ -13,6 +13,7 @@ import {
   MEMBERSHIP_TYPE_ICON,
   getGenderedMembershipType,
 } from "@agir/groups/utils/group";
+import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
 const StyledCard = styled.div`
   padding: 1rem;
@@ -69,9 +70,18 @@ const StyledCard = styled.div`
       gap: 0.5rem 1rem;
       align-items: center;
 
-      & > span {
+      & > button {
+        cursor: pointer;
+        padding: 0;
+        text-align: left;
+        background-color: transparent;
+        border: none;
+      }
+
+      & > span,
+      & > button {
         display: inline-flex;
-        align-items: baseline;
+        align-items: center;
 
         svg {
           color: ${(props) => props.theme.black500};
@@ -106,6 +116,11 @@ const GroupMemberCard = (props) => {
     subscriber,
   } = props;
 
+  const [_, handleCopy] = useCopyToClipboard(
+    email,
+    2000,
+    "L'adresse e-mail a été copié."
+  );
   const role = useMemo(
     () => getGenderedMembershipType(membershipType, gender),
     [membershipType, gender]
@@ -140,10 +155,10 @@ const GroupMemberCard = (props) => {
             </span>
           ) : null}
           {email ? (
-            <span>
+            <button type="button" title="Copier l'adresse" onClick={handleCopy}>
               <FeatherIcon small name="mail" />
               &ensp;<strong>{email}</strong>
-            </span>
+            </button>
           ) : null}
         </p>
         {address ? (
