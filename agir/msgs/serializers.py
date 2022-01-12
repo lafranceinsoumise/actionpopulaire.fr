@@ -13,6 +13,7 @@ from agir.msgs.models import (
 )
 from agir.people.serializers import PersonSerializer
 from agir.groups.models import Membership
+from agir.people.models import Person
 
 from django.db.models import Exists, OuterRef, Q
 
@@ -188,52 +189,36 @@ class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
 
     # Persons in author + has commented
     def get_active(self, message):
-        active_memberships = (
-            message.supportgroup.memberships.filter(
-                Q(membership_type__gte=message.required_membership_type)
-            )
-            .filter(
-                Q(person_id__in=message.comments.values_list("author_id", flat=True))
-                | Q(person_id=message.author_id)
+        active_persons = (
+            Person.objects.filter(
+                (
+                    Q(
+                        id__in=message.supportgroup.memberships.filter(
+                            membership_type__gte=message.required_membership_type
+                        ).values_list("person_id")
+                    )
+                    & Q(id__in=message.comments.values_list("author_id", flat=True))
+                )
+                | Q(id=message.author.id)
             )
             .annotate(
-                has_commented=Exists(
-                    message.comments.filter(author_id=OuterRef("person_id"))
-                )
+                has_commented=Exists(message.comments.filter(author_id=OuterRef("id")))
             )
             .distinct()
         )
 
-        author = []
-        # Author not in memberships
-        if not active_memberships.filter(person_id=message.author.id).exists():
-            author = [
-                {
-                    "id": message.author.id,
-                    "displayName": message.author.display_name,
-                    "membershipType": 0,
-                    "isAuthor": True,
-                    "isInComments": True,
-                    "image": message.author.image.thumbnail.url
-                    if (message.author.image and message.author.image.thumbnail)
-                    else None,
-                    "gender": message.author.gender,
-                }
-            ]
-
-        return author + [
+        return [
             {
-                "id": membership.person_id,
-                "displayName": membership.person.display_name,
-                "membershipType": membership.membership_type,
-                "isAuthor": message.author_id == membership.person_id,
-                "isInComments": membership.has_commented,
-                "image": membership.person.image.thumbnail.url
-                if (membership.person.image and membership.person.image.thumbnail)
+                "id": person.id,
+                "displayName": person.display_name,
+                "isAuthor": message.author_id == person.id,
+                "isInComments": person.has_commented,
+                "image": person.image.thumbnail.url
+                if (person.image and person.image.thumbnail)
                 else None,
-                "gender": membership.person.gender,
+                "gender": person.gender,
             }
-            for membership in active_memberships
+            for person in active_persons
         ]
 
     class Meta:
