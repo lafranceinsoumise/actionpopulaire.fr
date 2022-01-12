@@ -212,7 +212,7 @@ class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
                     "id": message.author.id,
                     "displayName": message.author.display_name,
                     "membershipType": 0,
-                    "isAuthor": message.author_id == message.author.id,
+                    "isAuthor": True,
                     "isInComments": True,
                     "image": message.author.image.thumbnail.url
                     if (message.author.image and message.author.image.thumbnail)
