@@ -186,14 +186,14 @@ class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
             .count()
         )
 
+    # Persons in author + has commented
     def get_active(self, message):
         active_memberships = (
             message.supportgroup.memberships.filter(
                 Q(membership_type__gte=message.required_membership_type)
             )
             .filter(
-                Q(membership_type=Membership.MEMBERSHIP_TYPE_REFERENT)
-                | Q(person_id__in=message.comments.values_list("author_id", flat=True))
+                Q(person_id__in=message.comments.values_list("author_id", flat=True))
                 | Q(person_id=message.author_id)
             )
             .annotate(
