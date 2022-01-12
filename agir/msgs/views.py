@@ -47,6 +47,7 @@ class UserMessageRecipientsView(ListAPIView):
         return (
             self.queryset.filter(
                 memberships__person=person,
+                memberships__person__role__is_active=True,
                 memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
             )
             .values("id", "name")
@@ -74,7 +75,8 @@ class UserMessagesAPIView(ListAPIView):
         # Get messages where person is author or is in group
         group_messages = (
             self.queryset.filter(
-                Q(supportgroup_id__in=person_groups) | Q(author=person)
+                (Q(supportgroup_id__in=person_groups) | Q(author=person))
+                & Q(author__role__is_active=True)
             )
             .select_related("supportgroup", "author")
             .prefetch_related("comments")

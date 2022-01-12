@@ -11,7 +11,7 @@ from agir.groups.tasks import (
     send_message_notification_email,
     send_comment_notification_email,
 )
-from agir.msgs.models import SupportGroupMessage
+from agir.notifications.models import Subscription
 from agir.people.models import Person
 from agir.notifications.models import Subscription
 
@@ -92,7 +92,6 @@ def someone_joined_notification(membership, membership_count=1):
 
 @transaction.atomic()
 def new_message_notifications(message):
-
     memberships = message.supportgroup.memberships.filter(
         membership_type__gte=message.required_membership_type
     )
@@ -126,11 +125,14 @@ def new_message_notifications(message):
 def new_comment_restricted_notifications(comment):
 
     message_initial = comment.message
+    muted_recipients = message_initial.recipient_mutedlist.values("id")
     allowed_memberships = message_initial.supportgroup.memberships.filter(
         membership_type__gte=message_initial.required_membership_type
     )
-    recipients_id = [membership.person.id for membership in allowed_memberships]
-    recipients_id = set(recipients_id + [message_initial.author_id])
+    recipients_id = allowed_memberships.exclude(
+        person_id__in=muted_recipients
+    ).values_list("person_id", flat=True)
+    recipients_id = set(list(recipients_id) + [message_initial.author_id])
 
     # Get only recipients with notification allowed
     recipients_allowed_notif = message_initial.supportgroup.members.filter(
@@ -170,10 +172,13 @@ def new_comment_notifications(comment):
         return
 
     message_initial = comment.message
+    muted_recipients = message_initial.recipient_mutedlist.values("id")
     comment_authors = list(message_initial.comments.values_list("author_id", flat=True))
     comment_authors = set(comment_authors + [message_initial.author_id])
 
-    participant_recipients = message_initial.supportgroup.members.filter(
+    participant_recipients = message_initial.supportgroup.members.exclude(
+        id__in=muted_recipients
+    ).filter(
         notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
         notification_subscriptions__person__in=comment_authors,
         notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
@@ -199,12 +204,16 @@ def new_comment_notifications(comment):
         send_post_save_signal=True,
     )
 
-    other_recipients = message_initial.supportgroup.members.exclude(
-        id__in=participant_recipients.values_list("id", flat=True)
-    ).filter(
-        notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
-        notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
-        notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
+    other_recipients = (
+        message_initial.supportgroup.members.exclude(
+            id__in=participant_recipients.values_list("id", flat=True)
+        )
+        .filter(
+            notification_subscriptions__membership__supportgroup=message_initial.supportgroup,
+            notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
+            notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT,
+        )
+        .exclude(id__in=muted_recipients)
     )
 
     Activity.objects.bulk_create(

@@ -531,6 +531,7 @@ def send_comment_notification_email(comment_pk):
     author_membership = Membership.objects.filter(
         person=comment.author, supportgroup=supportgroup
     ).first()
+    muted_recipients = message.recipient_mutedlist.values("id")
 
     # Private comment: send only to allowed membership and initial author
     if message.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER:
@@ -547,8 +548,11 @@ def send_comment_notification_email(comment_pk):
         notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
         notification_subscriptions__activity_type=Activity.TYPE_NEW_COMMENT_RESTRICTED,
     )
+
     recipients = recipients | Person.objects.filter(id=message.author.id)
-    recipients = recipients.exclude(id=comment.author_id).distinct()
+    recipients = recipients.exclude(
+        Q(id=comment.author_id) | Q(id__in=muted_recipients)
+    ).distinct()
 
     if len(recipients) == 0:
         return

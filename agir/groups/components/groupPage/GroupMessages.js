@@ -7,6 +7,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { withMessageActions } from "@agir/groups/groupPage/hooks/messages";
 
 import Button from "@agir/front/genericComponents/Button";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import MessageCard from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -153,22 +154,25 @@ export const GroupMessages = (props) => {
         <StyledMessages>
           {Array.isArray(messages) && messages.length > 0
             ? messages.map((message) => (
-                <MessageCard
-                  key={message.id}
-                  message={message}
-                  user={user}
-                  comments={message.comments || message.recentComments}
-                  onClick={onClick}
-                  onEdit={editMessage}
-                  onComment={writeNewComment}
-                  onReport={confirmReport}
-                  onDelete={confirmDelete}
-                  onDeleteComment={confirmDeleteComment}
-                  onReportComment={confirmReportComment}
-                  messageURL={getMessageURL && getMessageURL(message.id)}
-                  isManager={isManager}
-                  isLoading={isUpdating}
-                />
+                <>
+                  <MessageCard
+                    key={message.id}
+                    message={message}
+                    user={user}
+                    comments={message.comments || message.recentComments}
+                    onClick={onClick}
+                    onEdit={editMessage}
+                    onComment={writeNewComment}
+                    onReport={confirmReport}
+                    onDelete={confirmDelete}
+                    onDeleteComment={confirmDeleteComment}
+                    onReportComment={confirmReportComment}
+                    messageURL={getMessageURL && getMessageURL(message.id)}
+                    isManager={isManager}
+                    isLoading={isUpdating}
+                  />
+                  <Spacer size="1rem" />
+                </>
               ))
             : null}
 

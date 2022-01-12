@@ -1,4 +1,3 @@
-from django.db.models.deletion import PROTECT
 import reversion
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -29,7 +28,20 @@ class UserReport(TimeStampedModel):
         verbose_name_plural = "Signalements"
 
 
+class AbstractMessageQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(deleted=False, author__role__is_active=True)
+
+
+AbstractMessageManager = models.Manager.from_queryset(
+    AbstractMessageQuerySet, class_name="AbstractMessageManager"
+)
+
+
 class AbstractMessage(BaseAPIResource):
+
+    objects = AbstractMessageManager()
+
     author = models.ForeignKey(
         "people.Person",
         editable=False,
@@ -71,6 +83,12 @@ class SupportGroupMessage(AbstractMessage):
         choices=Membership.MEMBERSHIP_TYPE_CHOICES,
         default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
     )
+    recipient_mutedlist = models.ManyToManyField(
+        "people.Person",
+        related_name="messages_muted",
+        verbose_name="Liste de personnes en sourdine",
+        blank=True,
+    )
 
     def __str__(self):
         return f"id: {self.pk} | {self.author} --> '{self.text}' | required_membership_type: {str(self.required_membership_type)} | supportgroup: {self.supportgroup}"
@@ -82,6 +100,7 @@ class SupportGroupMessage(AbstractMessage):
 
 @reversion.register()
 class SupportGroupMessageComment(AbstractMessage):
+
     message = models.ForeignKey(
         "SupportGroupMessage",
         on_delete=models.PROTECT,

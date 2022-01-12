@@ -29,8 +29,8 @@ def update_recipient_message(message, recipient):
 def get_unread_message_count(person_pk):
     unread_comment_count_subquery = Coalesce(
         Subquery(
-            SupportGroupMessageComment.objects.filter(
-                deleted=False,
+            SupportGroupMessageComment.objects.active()
+            .filter(
                 message_id=OuterRef("id"),
                 created__gt=Greatest(
                     OuterRef("last_reading_date"),
@@ -50,8 +50,7 @@ def get_unread_message_count(person_pk):
     )
 
     # Filter messages where person is not allowed (not author, not in required membership)
-    messages = SupportGroupMessage.objects.filter(
-        deleted=False,
+    messages = SupportGroupMessage.objects.active().filter(
         supportgroup_id__in=SupportGroup.objects.active()
         .filter(memberships__person_id=person_pk)
         .values("id"),
@@ -105,8 +104,8 @@ def get_unread_message_count(person_pk):
 
 def get_message_unread_comment_count(person_pk, message_pk):
     return (
-        SupportGroupMessageComment.objects.filter(
-            deleted=False,
+        SupportGroupMessageComment.objects.active()
+        .filter(
             message_id=message_pk,
             message__supportgroup_id__in=SupportGroup.objects.active()
             .filter(memberships__person_id=person_pk)
