@@ -13,7 +13,6 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { useToast } from "@agir/front/globalContext/hooks";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
-
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
 const StyledMuteButton = styled.div`
@@ -42,15 +41,18 @@ const ButtonMuteMessage = ({ message }) => {
 
   const switchNotificationMessage = async () => {
     setIsMutedLoading(true);
-    const { data } = await updateMessageNotification(message?.id, !isMuted);
+    const { data: muted } = await updateMessageNotification(
+      message?.id,
+      !isMuted
+    );
     setIsMutedLoading(false);
     setIsModalOpen(false);
 
-    mutate(() => data, false);
-    const text = data
-      ? "Les notifications reliées à ce fil de message sont réactivées"
-      : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
-    const type = data ? "SUCCESS" : "INFO";
+    mutate(() => muted, false);
+    const text = muted
+      ? "Vous ne recevrez plus de notifications reliées à ce fil de messages"
+      : "Les notifications reliées à ce fil de message sont réactivées";
+    const type = muted ? "INFO" : "SUCCESS";
     sendToast(text, type, { autoClose: true });
   };
 
@@ -116,7 +118,7 @@ const ButtonMuteMessage = ({ message }) => {
         <RawFeatherIcon
           width="1rem"
           height="1rem"
-          name={`bell${isMuted ? "-off" : ""}`}
+          name={`bell${!isMuted ? "-off" : ""}`}
         />
         &nbsp;{isMuted ? "Réactiver" : "Rendre muet"}
       </Button>
@@ -124,6 +126,7 @@ const ButtonMuteMessage = ({ message }) => {
     </>
   );
 };
+
 ButtonMuteMessage.propTypes = {
   message: PropTypes.shape({
     id: PropTypes.string.isRequired,

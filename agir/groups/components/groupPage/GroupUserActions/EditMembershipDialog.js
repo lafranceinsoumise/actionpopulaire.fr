@@ -1,11 +1,9 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
 import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import StyledDialog from "./StyledDialog";
 
 const EditMembershipDialog = (props) => {

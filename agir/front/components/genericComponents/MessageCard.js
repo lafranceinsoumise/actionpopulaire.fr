@@ -1,5 +1,11 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 
 import styled from "styled-components";
 
@@ -30,6 +36,7 @@ import Comment from "@agir/front/formComponents/Comment";
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import ButtonMuteMessage from "./ButtonMuteMessage";
+import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
 export const StyledInlineMenuItems = styled.div`
   cursor: pointer;
@@ -268,6 +275,24 @@ export const StyledSubject = styled.h2`
   display: inline-flex;
   align-items: center;
 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  cursor: pointer;
+
+  @media (max-width: ${style.collapse}px) {
+    white-space: normal;
+    cursor: default;
+  }
+
+  @media (min-width: ${style.collapse}px) {
+    max-width: 360px;
+  }
+  @media (min-width: 1300px) {
+    max-width: 660px;
+  }
+
   ${RawFeatherIcon} {
     background-color: #eeeeee;
     border-radius: 2rem;
@@ -280,15 +305,13 @@ export const StyledWrapper = styled.div`
   width: 100%;
   padding: 1.5rem;
   margin: 0;
-  margin-bottom: 10px;
   background-color: white;
   scroll-margin-top: 160px;
   border: 1px solid ${style.black100};
   overflow-x: hidden;
-  height: calc(100% - 90px);
+  height: calc(100% - 80px);
 
   @media (max-width: ${style.collapse}px) {
-    height: calc(100% - 66px);
     scroll-margin-top: 120px;
     padding: 1.5rem 1rem;
     box-shadow: ${style.elaborateShadow};
@@ -374,31 +397,52 @@ const StyledMessageHeader = styled.div`
   background-color: white;
 
   @media (max-width: ${style.collapse}px) {
-    padding: 0.5rem;
-    height: 56px;
+    padding: 0;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    height: unset;
+    border: none;
   }
 `;
 
 const MessageHeader = ({ message, subject }) => {
   const isDesktop = useIsDesktop();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    if (!isDesktop) {
+      return;
+    }
+    setIsModalOpen(true);
+  };
 
   return (
-    <StyledMessageHeader>
-      <div style={{ display: "flex" }}>
-        <RawFeatherIcon name="mail" />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            marginLeft: "1rem",
-          }}
-        >
-          <StyledSubject>{subject}</StyledSubject>
-          <MessageDetails message={message} />
+    <>
+      <StyledMessageHeader>
+        <div style={{ display: "flex" }}>
+          {isDesktop && (
+            <RawFeatherIcon name="mail" style={{ marginRight: "1rem" }} />
+          )}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <StyledSubject onClick={showModal}>{subject}</StyledSubject>
+            <MessageDetails message={message} />
+          </div>
         </div>
-      </div>
-      {isDesktop && <ButtonMuteMessage message={message} />}
-    </StyledMessageHeader>
+        {isDesktop && <ButtonMuteMessage message={message} />}
+      </StyledMessageHeader>
+      <ModalConfirmation
+        shouldShow={isModalOpen}
+        shouldDismissOnClick={false}
+        onClose={() => setIsModalOpen(false)}
+      >
+        <h3>{subject}</h3>
+      </ModalConfirmation>
+    </>
   );
 };
 
@@ -426,6 +470,7 @@ const MessageCard = (props) => {
   const { group, author, text, created, linkedEvent, commentCount } = message;
 
   const messageCardRef = useRef();
+  const isDesktop = useIsDesktop();
 
   const event = useMemo(() => formatEvent(linkedEvent), [linkedEvent]);
 
@@ -502,11 +547,13 @@ const MessageCard = (props) => {
 
   return (
     <>
-      <MessageHeader subject={subject} message={message} />
+      {isDesktop && <MessageHeader subject={subject} message={message} />}
       <StyledWrapper
         ref={messageCardRef}
         $withMobileCommentField={withMobileCommentField}
       >
+        {!isDesktop && <MessageHeader subject={subject} message={message} />}
+
         <StyledMessage>
           {isOrganizerMessage && (
             <StyledPrivateVisibility>

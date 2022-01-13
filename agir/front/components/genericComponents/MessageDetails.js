@@ -43,8 +43,8 @@ const MessageDetails = ({ message }) => {
   return (
     <>
       <Description onClick={() => setOpenParticipants(true)}>
-        <PrimarySpan>{participants.total} participant·es</PrimarySpan> - Membres
-        de <PrimarySpan>{message?.group?.name}</PrimarySpan>
+        <PrimarySpan>{participants.total} personnes</PrimarySpan> - Membres de{" "}
+        <PrimarySpan>{message?.group?.name}</PrimarySpan>
       </Description>
 
       <ResponsiveLayout
