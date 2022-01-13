@@ -10,7 +10,7 @@ const StyledSteps = styled.div`
 
   header {
     text-transform: uppercase;
-    color: #0c0de8;
+    color: ${(props) => props.theme.primary500};
     padding: 0 0 1rem;
 
     h5 {
@@ -18,29 +18,24 @@ const StyledSteps = styled.div`
       font-size: 0.875rem;
     }
 
-    & > svg {
-      width: 100%;
-      height: 20px;
-      fill: #f2f3fc;
-    }
-
     & > div {
       width: 100%;
-      height: 20px;
+      height: 8px;
       background-color: #f2f3fc;
       border-radius: 10px;
       overflow: hidden;
 
       & > div {
-        background-color: #0c0de8;
+        background-color: currentcolor;
         height: inherit;
+        border-radius: inherit;
         width: 0;
       }
     }
   }
 
   article {
-    padding: 1rem 0 2rem;
+    padding: 0.5rem 0 2rem;
   }
 
   footer {
