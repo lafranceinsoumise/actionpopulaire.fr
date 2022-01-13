@@ -50,7 +50,7 @@ const ModalConfirmation = (props) => {
     dismissLabel,
     confirmationLabel = "",
     confirmationUrl = "",
-    confirmationFunc = null,
+    onConfirm = null,
     shouldDismissOnClick = true,
   } = props;
 
@@ -80,11 +80,11 @@ const ModalConfirmation = (props) => {
               {confirmationLabel}
             </Button>
           )}
-          {!!confirmationFunc && (
+          {!!onConfirm && (
             <Button
               style={{ backgroundColor: style.primary500 }}
               type="button"
-              onClick={confirmationFunc}
+              onClick={onConfirm}
             >
               {confirmationLabel}
             </Button>

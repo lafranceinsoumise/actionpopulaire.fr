@@ -77,7 +77,7 @@ const ButtonMuteMessage = ({ message }) => {
           shouldShow={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           shouldDismissOnClick={false}
-          confirmationFunc={switchNotificationMessage}
+          onConfirm={switchNotificationMessage}
           title="Rendre muet cette conversation ?"
           confirmationLabel="Rendre muet"
           dismissLabel="Annuler"
