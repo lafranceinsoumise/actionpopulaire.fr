@@ -1,6 +1,5 @@
 import csv
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
@@ -8,13 +7,13 @@ from django.core.files import File
 from django.http import Http404
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
 from django.views.decorators.cache import never_cache
 from django.views.generic import UpdateView, DetailView
 from django.views.generic.list import ListView
-from html2text import html2text
 
 from agir.events.models import Event
 from agir.front.view_mixins import ObjectOpengraphMixin
@@ -40,6 +39,9 @@ class BasePeopleFormView(UpdateView, ObjectOpengraphMixin):
 
     def get_meta_description(self):
         return self.person_form_instance.meta_description
+
+    def get_meta_image(self):
+        return static("front/assets/og_image_NSP.jpg")
 
     def get_success_url(self):
         return reverse(
