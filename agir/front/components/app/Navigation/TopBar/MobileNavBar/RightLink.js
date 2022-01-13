@@ -18,10 +18,11 @@ export const RightLink = (props) => {
 
   let pathname = window.location.pathname;
   const matchMessagesPage = pathname === "/messages/";
-  const matchMessagePage = routeConfig.messages.match(pathname);
-  pathname = pathname.substr(0, pathname.length - 1);
+  const matchMessagePage =
+    routeConfig.messages.match(pathname) && !matchMessagesPage;
+  pathname = pathname.slice(0, pathname.length - 1);
   const messagePk = matchMessagePage
-    ? pathname.substr(pathname.lastIndexOf("/") + 1)
+    ? pathname.slice(pathname.lastIndexOf("/") + 1)
     : undefined;
 
   if (isLoading) {

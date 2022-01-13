@@ -164,3 +164,16 @@ ul.gestion--liste {
 .gestion--liste li {
     font-weight: bold;
 }
+
+.retirer-original td.original > p {
+    display: none;
+}
+
+.inline-group .tabular .retirer-original tr.has_original td {
+    padding-top: 8px;
+}
+
+.ajout-rapide h2 {
+    text-transform: none;
+    background-color: #7cad74;
+}

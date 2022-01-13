@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
 from agir.events.models import Event
-from agir.gestion.admin.widgets import HierarchicalSelect
+from agir.gestion.admin.widgets import HierarchicalSelect, SuggestingTextInput
 from agir.gestion.models import (
     Commentaire,
     Depense,
@@ -18,7 +18,7 @@ from agir.gestion.models import (
 )
 from agir.gestion.models.documents import Document, VersionDocument
 from agir.gestion.models.commentaires import ajouter_commentaire
-from agir.gestion.typologies import TypeDocument, TypeDepense
+from agir.gestion.typologies import TypeDocument, TypeDepense, NATURE
 
 
 class DocumentForm(forms.ModelForm):
@@ -61,6 +61,40 @@ class DocumentForm(forms.ModelForm):
         widgets = {"type": HierarchicalSelect}
 
 
+class DocumentAjoutRapideForm(forms.ModelForm):
+    titre = forms.CharField(
+        label="Titre",
+        max_length=200,
+        required=True,
+    )
+    type = forms.ChoiceField(
+        label="Type",
+        choices=[("", "---")] + TypeDocument.choices,
+        widget=HierarchicalSelect,
+        required=True,
+    )
+    fichier = forms.FileField(label="Fichier")
+
+    def save(self, commit=False):
+        self.document = Document.objects.create(
+            titre=self.cleaned_data["titre"],
+            type=self.cleaned_data["type"],
+        )
+
+        self.instance.document = self.document
+
+        return super().save(commit=commit)
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        VersionDocument.objects.create(
+            document=self.document,
+            titre="Version initiale",
+            fichier=self.cleaned_data["fichier"],
+        )
+
+
 class DepenseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -75,11 +109,13 @@ class DepenseForm(forms.ModelForm):
                 if montant > total_factures:
                     self.fields[
                         "montant"
-                    ].help_text = "Le montant de cette refacturation est pour le moment supérieur à la somme des dépenses à refacturer"
+                    ].help_text = (
+                        "Supérieur à la somme des dépenses à refacturer ({montant} €)x"
+                    )
                 else:
                     self.fields[
                         "montant"
-                    ].help_text = f"Cela représente {montant / total_factures:0.1%} % du total des dépenses refacturées."
+                    ].help_text = f"Sur un total de {montant} € ({montant / total_factures:0.1%} %)."
 
         if "depenses_refacturees" in self.fields:
             depenses = self.get_initial_for_field(
@@ -136,7 +172,10 @@ class DepenseForm(forms.ModelForm):
     class Meta:
         model = Depense
         fields = ()
-        widgets = {"type": HierarchicalSelect}
+        widgets = {
+            "type": HierarchicalSelect,
+            "nature": SuggestingTextInput(suggestions=NATURE),
+        }
 
 
 class ProjetForm(forms.ModelForm):
@@ -188,7 +227,7 @@ class DepenseDevisForm(forms.ModelForm):
     def _save_m2m(self):
         super()._save_m2m()
 
-        if "devis" in self.cleaned_data:
+        if "devis" in self.cleaned_data and self.cleaned_data["devis"]:
             document = Document.objects.create(
                 titre=f"Devis pour {self.instance.titre}",
                 fichier=self.cleaned_data["devis"],

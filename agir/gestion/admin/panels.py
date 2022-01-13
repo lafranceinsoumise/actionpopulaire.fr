@@ -1,9 +1,10 @@
 import re
 
+from agir.events.models import Event
 from django.contrib import admin
 from django.contrib.postgres.search import SearchQuery
 from django.core.exceptions import ValidationError
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Subquery, OuterRef
 from django.http import QueryDict, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.urls import reverse, path
@@ -12,6 +13,7 @@ from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
 from agir.gestion.admin.base import BaseGestionModelAdmin
+from agir.gestion.admin.depenses import DepenseListMixin
 from agir.gestion.admin.filters import (
     DepenseResponsableFilter,
     ProjetResponsableFilter,
@@ -30,6 +32,9 @@ from agir.gestion.admin.inlines import (
     AjouterDepenseInline,
     ProjetDocumentInline,
     DepenseDocumentInline,
+    AjouterDocumentDepenseInline,
+    AjouterDocumentProjetInline,
+    ReglementInline,
 )
 from agir.gestion.admin.views import AjouterReglementView
 from agir.gestion.models import (
@@ -49,6 +54,7 @@ from agir.lib.admin import display_list_of_links, AddRelatedLinkMixin
 from agir.lib.display import display_price
 from agir.lib.geo import FRENCH_COUNTRY_CODES
 from agir.people.models import Person
+from agir.gestion.permissions import peut_voir_montant_depense
 
 
 @admin.register(Compte)
@@ -153,7 +159,11 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
 
 
 @admin.register(Depense)
-class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
+class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
+    NATURE_DESCRIPTION = """
+    Ces champs doivent être remplies pour les dépenses d'impression et d'achat de matériel. 
+    """
+
     form = DepenseForm
 
     list_filter = (
@@ -164,16 +174,23 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
 
     list_display = (
         "numero_",
+        "date_evenement",
         "date_depense",
         "titre",
         "type",
         "etat",
-        "montant_",
+        "montant",
         "compte",
         "reglement",
     )
 
-    readonly_fields = ("montant_", "reglement", "reglements", "etat")
+    readonly_fields = (
+        "reglement",
+        "reglements",
+        "etat",
+        "montant_interdit",
+        "date_evenement",
+    )
 
     autocomplete_fields = (
         "projet",
@@ -181,12 +198,13 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
         "fournisseur",
         "depenses_refacturees",
     )
-    inlines = [DepenseDocumentInline]
+    inlines = [ReglementInline, DepenseDocumentInline, AjouterDocumentDepenseInline]
 
     def get_fieldsets(self, request, obj=None):
         common_fields = [
             "numero_",
             "titre",
+            "projet_link",
             "montant",
             "etat",
             "date_depense",
@@ -194,33 +212,48 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
             "description",
         ]
 
-        rel_fields = [
-            "compte",
-            "projet",
-        ]
+        nature_fields = ["quantite", "nature", "date_debut", "date_fin"]
+
+        rel_fields = ["compte", "projet", "date_evenement"]
+
+        paiement_fields = ["fournisseur", "reglements"]
+
+        if obj and not peut_voir_montant_depense(request.user, obj):
+            # on remplace le champ montant par un champ masqué
+            common_fields[common_fields.index("montant")] = "montant_interdit"
+            # on ne montre pas les règlements
+            paiement_fields.remove("reglements")
 
         if request.GET.get("type") == TypeDepense.REFACTURATION or (
             obj is not None and obj.type == TypeDepense.REFACTURATION
         ):
+            paiement_fields.remove("fournisseur")
             return (
                 (None, {"fields": common_fields}),
                 ("Gestion", {"fields": [*rel_fields, "depenses_refacturees"]}),
-                ("Paiement", {"fields": ["reglements"]}),
+                ("Paiement", {"fields": paiement_fields}),
             )
 
         return (
             (None, {"fields": [*common_fields, "beneficiaires"]}),
             ("Gestion", {"fields": rel_fields}),
-            ("Paiement", {"fields": ["fournisseur", "reglements"]}),
+            (
+                "Nature de la dépense",
+                {"fields": nature_fields, "description": self.NATURE_DESCRIPTION},
+            ),
+            ("Paiement", {"fields": paiement_fields}),
         )
 
-    def montant_(self, obj):
-        if obj:
-            return display_price(obj.montant, price_in_cents=False)
+    def date_evenement(self, obj):
+        d = getattr(obj, "_date_evenement", None)
+
+        if d:
+            return d.strftime("%d/%m/%Y")
+
         return "-"
 
-    montant_.short_description = "Montant"
-    montant_.admin_order_field = "montant"
+    date_evenement.short_description = "Date de l'événement"
+    date_evenement.admin_order_field = "_date_evenement"
 
     def reglement(self, obj):
         if obj is None or obj.prevu is None:
@@ -241,14 +274,15 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
         if obj is None or obj.id is None:
             return "-"
 
-        return render_to_string(
-            "admin/gestion/table_reglements.html",
-            {
-                "depense": obj,
-            },
-        )
+        if obj.montant_restant > 0:
+            return format_html(
+                '{}<br><a href="{}">Ajouter un réglement</a>',
+                self.reglement(obj),
+                reverse("admin:gestion_depense_reglement", args=(obj.id,)),
+            )
+        return self.reglement(obj)
 
-    reglements.short_description = "règlements effectués"
+    reglements.short_description = "Statut du réglement"
 
     def save_model(self, request, obj, form, change):
         """
@@ -259,7 +293,15 @@ class DepenseAdmin(BaseGestionModelAdmin, VersionAdmin):
         super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).annoter_reglement()
+        qs = super().get_queryset(request)
+
+        return qs.annoter_reglement().annotate(
+            _date_evenement=Subquery(
+                Event.objects.filter(projet__depense=OuterRef("id")).values(
+                    "start_time"
+                )[:1]
+            )
+        )
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
@@ -478,8 +520,9 @@ class ProjetAdmin(BaseProjetAdmin):
     inlines = [
         ProjetParticipationInline,
         DepenseInline,
-        AjouterDepenseInline,
         ProjetDocumentInline,
+        AjouterDepenseInline,
+        AjouterDocumentProjetInline,
     ]
 
     list_filter = (

@@ -9,6 +9,7 @@ from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import number_type, PhoneNumberType
 
 from agir.lib.utils import grouper
+from agir.people.models import PersonQueryset
 
 logger = logging.getLogger(__name__)
 
@@ -163,7 +164,7 @@ GSM7_CODEPOINTS = {
 }
 
 
-def _send_sms(message, recipients, at=None):
+def _send_sms(message, recipients, at=None, sender=settings.OVH_DEFAULT_SENDER):
     params = dict(
         charset="UTF-8",
         coding="7bit",
@@ -171,7 +172,7 @@ def _send_sms(message, recipients, at=None):
         message=message,
         noStopClause=True,
         priority="high",
-        sender="Fi",
+        sender=sender,
         validityPeriod=2880,
     )
 
@@ -228,7 +229,9 @@ class SMSSendException(Exception):
         self.invalid = invalid
 
 
-def send_sms(message, phone_number, force=False, at=None):
+def send_sms(
+    message, phone_number, force=False, at=None, sender=settings.OVH_DEFAULT_SENDER
+):
     phone_number = to_phone_number(phone_number)
 
     if not force and not phone_number.is_valid():
@@ -245,7 +248,7 @@ def send_sms(message, phone_number, force=False, at=None):
         )
 
     try:
-        result = _send_sms(message, [phone_number], at=at)
+        result = _send_sms(message, [phone_number], at=at, sender=sender)
     except Exception:
         logger.exception("Le message n'a pas été envoyé.")
         raise SMSSendException("Le message n'a pas été envoyé.", invalid=[phone_number])
@@ -260,13 +263,15 @@ def send_sms(message, phone_number, force=False, at=None):
         raise SMSSendException("Le message n'a pas été envoyé.", invalid=[phone_number])
 
 
-def send_bulk_sms(message, phone_numbers, at=None):
+def send_bulk_sms(message, phone_numbers, at=None, sender=settings.OVH_DEFAULT_SENDER):
     sent = set()
     invalid = set()
 
     for numbers in grouper(phone_numbers, BULK_GROUP_SIZE):
         try:
-            result = _send_sms(message, [to_phone_number(n) for n in numbers], at=at)
+            result = _send_sms(
+                message, [to_phone_number(n) for n in numbers], at=at, sender=sender
+            )
         except ovh.exceptions.APIError:
             raise SMSSendException(
                 "L'API OVH a rencontré une erreur", sent=sent, invalid=invalid
@@ -275,3 +280,28 @@ def send_bulk_sms(message, phone_numbers, at=None):
         invalid.update(result["invalidReceivers"])
 
     return sent, invalid
+
+
+def numeros_mobiles(qs: PersonQueryset):
+    """Renvoie les numéros de mobile des personnes du queryset.
+
+    Déduplique les numéros (tout en gardant l'ordre) et élimine les numéros invalides
+    et les numéros fixes.
+    """
+    numeros = [
+        PhoneNumber.from_string(n)
+        for n in qs.exclude(contact_phone="").values_list("contact_phone", flat=True)
+    ]
+
+    # caster en set ferait perdre l'ordre initial. Cette astuce permet de le garder.
+    # (NB. seen.add renvoie toujours None)
+    seen = set()
+    numeros_uniques = [n for n in numeros if n not in seen and not seen.add(n)]
+
+    return [
+        n
+        for n in numeros_uniques
+        if n.is_valid()
+        and number_type(n)
+        in (PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE)
+    ]

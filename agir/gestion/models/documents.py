@@ -2,7 +2,7 @@ import dynamic_filenames
 import reversion
 from django.db import models, transaction
 
-from agir.gestion.models.common import ModeleGestionMixin
+from agir.gestion.models.common import ModeleGestionMixin, NumeroManager
 from agir.gestion.typologies import TypeDocument
 from agir.lib.models import TimeStampedModel
 
@@ -10,7 +10,7 @@ from agir.lib.models import TimeStampedModel
 __all__ = ["Document", "VersionDocument"]
 
 
-class DocumentManager(models.Manager):
+class DocumentManager(NumeroManager):
     def create(self, fichier=None, **kwargs):
         with transaction.atomic():
             document = super().create(**kwargs)

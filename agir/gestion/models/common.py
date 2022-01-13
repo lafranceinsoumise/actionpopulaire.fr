@@ -132,7 +132,7 @@ class Compte(TimeStampedModel):
     engagement_automatique = EngagementAutomatique()
 
     def __str__(self):
-        return f"{self.nom} ({self.designation})"
+        return f"{self.designation}"
 
     class Meta:
         verbose_name = "Compte"
@@ -148,6 +148,7 @@ class Compte(TimeStampedModel):
             ),
             ("engager_depense", "Engager une dépense pour ce compte"),
             ("gerer_depense", "Gérer les dépenses"),
+            ("voir_montant_depense", "Voir le montant des dépenses finalisées"),
             ("controler_depense", "Contrôler les dépenses"),
             ("gerer_projet", "Gérer les projets"),
             ("controler_projet", "Contrôler les projets"),

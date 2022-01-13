@@ -30,7 +30,7 @@ class SearchableModelMixin(BaseModelAdmin):
         else:
             return "Attribué à la création"
 
-    numero_.short_description = "Numéro automatique"
+    numero_.short_description = "Numéro unique"
 
 
 class BaseGestionModelAdmin(SearchableModelMixin, AddRelatedLinkMixin, ModelAdmin):
