@@ -74,13 +74,13 @@ const ButtonMuteMessage = ({ message }) => {
     () => () =>
       (
         <ModalConfirmation
-          shouldShow={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          shouldDismissOnClick={false}
-          onConfirm={switchNotificationMessage}
           title="Rendre muet cette conversation ?"
           confirmationLabel="Rendre muet"
           dismissLabel="Annuler"
+          shouldShow={isModalOpen}
+          onConfirm={switchNotificationMessage}
+          onClose={() => setIsModalOpen(false)}
+          shouldDismissOnClick={false}
         >
           <Spacer size="1rem" />
           Vous ne recevrez plus de notifications et e-mails concernant cette

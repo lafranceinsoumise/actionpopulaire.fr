@@ -10,14 +10,19 @@ import ButtonMuteMessage from "@agir/front/genericComponents/ButtonMuteMessage";
 import { MessageOptions } from "@agir/msgs/MessagePage/MessageThreadMenu.js";
 import { IconLink } from "./StyledBar";
 import UserMenu from "../UserMenu";
-import { useRouteMatch } from "react-router-dom";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 export const RightLink = (props) => {
   const { isLoading, user, settingsLink } = props;
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const matchMessagesPage = useRouteMatch("/messages/");
-  const matchMessagePage = useRouteMatch("/messages/:messagePk/");
-  const messagePk = matchMessagePage?.params.messagePk;
+
+  let pathname = window.location.pathname;
+  const matchMessagesPage = pathname === "/messages/";
+  const matchMessagePage = routeConfig.messages.match(pathname);
+  pathname = pathname.substr(0, pathname.length - 1);
+  const messagePk = matchMessagePage
+    ? pathname.substr(pathname.lastIndexOf("/") + 1)
+    : undefined;
 
   if (isLoading) {
     return <IconLink as={Spacer} size="32px" />;
@@ -31,12 +36,12 @@ export const RightLink = (props) => {
     );
   }
 
-  if (!!matchMessagesPage?.isExact) {
+  if (matchMessagesPage) {
     return <MessageOptions />;
   }
 
   // Show muted message settings
-  if (!!matchMessagePage) {
+  if (matchMessagePage) {
     return <ButtonMuteMessage message={{ id: messagePk }} />;
   }
 
