@@ -438,14 +438,23 @@ class NewCommentActivityNotificationSerializer(ActivityNotificationSerializer):
     icon = serializers.ImageField(source="individual.image")
 
     def get_title(self, activity):
+        try:
+            comment = SupportGroupMessageComment.objects.get(
+                pk=activity.meta["comment"]
+            )
+            if comment.message.subject:
+                return comment.message.subject
+        except:
+            pass
+
         return f"{activity.individual.display_name} a commenté"
 
     def get_body(self, activity):
         try:
-            message = SupportGroupMessageComment.objects.get(
+            comment = SupportGroupMessageComment.objects.get(
                 pk=activity.meta["comment"]
             )
-            return message.text
+            return f"{comment.author.display_name} : {comment.text}"
         except:
             return f"Un nouveau commentaire a été publié dans le groupe {activity.supportgroup.name}"
 
