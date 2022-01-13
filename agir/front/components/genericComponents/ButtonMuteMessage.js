@@ -118,7 +118,7 @@ const ButtonMuteMessage = ({ message }) => {
         <RawFeatherIcon
           width="1rem"
           height="1rem"
-          name={`bell${!isMuted ? "-off" : ""}`}
+          name={`bell${isMuted ? "-off" : ""}`}
         />
         &nbsp;{isMuted ? "Réactiver" : "Rendre muet"}
       </Button>
