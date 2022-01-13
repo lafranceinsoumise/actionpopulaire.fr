@@ -26,7 +26,6 @@ const BlockMuteMessage = styled.div`
   }
 `;
 
-
 export const RightLink = (props) => {
   const { isLoading, user, settingsLink } = props;
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -34,7 +33,9 @@ export const RightLink = (props) => {
   const sendToast = useToast();
 
   let pathname = window.location.pathname;
-  const matchMessagePage = routeConfig.messages.match(pathname);
+  const matchMessagesPage = pathname === "/messages/";
+  const matchMessagePage =
+    routeConfig.messages.match(pathname) && !matchMessagesPage;
   pathname = pathname.substr(0, pathname.length - 1);
   const messagePk = matchMessagePage
     ? pathname.substr(pathname.lastIndexOf("/") + 1)
