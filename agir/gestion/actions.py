@@ -61,7 +61,9 @@ toujours.explication = ""
 
 
 def no_todos(instance: T) -> bool:
-    return not instance.todos() and not instance.commentaires.filter()
+    return (
+        not instance.todos() and not instance.commentaires.filter(cache=False).exists()
+    )
 
 
 no_todos.explication = "Vous devez d'abord terminer la liste de tâches"

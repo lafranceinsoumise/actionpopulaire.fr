@@ -9,7 +9,7 @@ from agir.lib.sms import (
 )
 
 
-def _mock_send_sms(message, recipients, at=None):
+def _mock_send_sms(message, recipients, at=None, sender=None):
     """Mock send_sms function that pretends that +33 7 numbers are invalid"""
     if _mock_send_sms.counter is not None:
         _mock_send_sms.counter -= 1
