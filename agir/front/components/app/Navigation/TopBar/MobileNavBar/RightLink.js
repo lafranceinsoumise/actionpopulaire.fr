@@ -10,13 +10,13 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { IconLink } from "./StyledBar";
 import UserMenu from "../UserMenu";
-import { useRouteMatch } from "react-router-dom";
 import useSWR from "swr";
 import { useToast } from "@agir/front/globalContext/hooks";
 import {
   updateMessageNotification,
   getGroupEndpoint,
 } from "@agir/groups/api.js";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const BlockMuteMessage = styled.div`
   ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
@@ -31,8 +31,15 @@ export const RightLink = (props) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMutedLoading, setIsMutedLoading] = useState(false);
   const sendToast = useToast();
-  const matchMessagePage = useRouteMatch("/messages/:messagePk/");
-  const messagePk = matchMessagePage?.params.messagePk;
+
+  let pathname = window.location.pathname;
+  const matchMessagesPage = pathname === "/messages/";
+  const matchMessagePage =
+    routeConfig.messages.match(pathname) && !matchMessagesPage;
+  pathname = pathname.substr(0, pathname.length - 1);
+  const messagePk = matchMessagePage
+    ? pathname.substr(pathname.lastIndexOf("/") + 1)
+    : undefined;
   const { data: isMuted, mutate } = useSWR(
     messagePk && getGroupEndpoint("messageNotification", { messagePk })
   );

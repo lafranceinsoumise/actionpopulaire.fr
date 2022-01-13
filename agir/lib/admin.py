@@ -5,7 +5,7 @@ import django_countries
 from data_france.models import CirconscriptionLegislative, CirconscriptionConsulaire
 from django.contrib import admin
 from django.contrib.admin import helpers
-from django.contrib.admin.options import IS_POPUP_VAR, ModelAdmin
+from django.contrib.admin.options import IS_POPUP_VAR, ModelAdmin, BaseModelAdmin
 from django.db.models import Model, Subquery
 from django.db.models.fields.related import (
     RelatedField,
@@ -195,7 +195,7 @@ def display_list_of_links(links):
     return format_html_join(mark_safe("<br>"), '<a href="{}">{}</a>', links)
 
 
-class AddRelatedLinkMixin(ModelAdmin):
+class AddRelatedLinkMixin(BaseModelAdmin):
     """Mixin pour les interfaces d'administration qui ajoute automatiquement des champs de liens et de liste vers les
     objets liés
 
@@ -229,6 +229,7 @@ class AddRelatedLinkMixin(ModelAdmin):
                 # ForeignObject est l'ancêtre de tous les champs liés directs à destination unique
                 # OneToOneRel est l'unique champ lié inverse à destination unique
                 if isinstance(f, (ForeignObject, OneToOneRel)):
+                    print(f)
                     get_link = partial(
                         self._get_link, attr_name=attr_name, view_name=view_name
                     )
