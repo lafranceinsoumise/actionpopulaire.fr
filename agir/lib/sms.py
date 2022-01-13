@@ -9,6 +9,7 @@ from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import number_type, PhoneNumberType
 
 from agir.lib.utils import grouper
+from agir.people.models import PersonQueryset
 
 logger = logging.getLogger(__name__)
 
@@ -279,3 +280,28 @@ def send_bulk_sms(message, phone_numbers, at=None, sender=settings.OVH_DEFAULT_S
         invalid.update(result["invalidReceivers"])
 
     return sent, invalid
+
+
+def numeros_mobiles(qs: PersonQueryset):
+    """Renvoie les numéros de mobile des personnes du queryset.
+
+    Déduplique les numéros (tout en gardant l'ordre) et élimine les numéros invalides
+    et les numéros fixes.
+    """
+    numeros = [
+        PhoneNumber.from_string(n)
+        for n in qs.exclude(contact_phone="").values_list("contact_phone", flat=True)
+    ]
+
+    # caster en set ferait perdre l'ordre initial. Cette astuce permet de le garder.
+    # (NB. seen.add renvoie toujours None)
+    seen = set()
+    numeros_uniques = [n for n in numeros if n not in seen and not seen.add(n)]
+
+    return [
+        n
+        for n in numeros_uniques
+        if n.is_valid()
+        and number_type(n)
+        in (PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE)
+    ]
