@@ -1,16 +1,11 @@
 import PropTypes from "prop-types";
 import React, {
-  useState,
   useCallback,
+  useState,
   useEffect,
   useMemo,
   useRef,
 } from "react";
-import useSWR from "swr";
-import {
-  updateMessageNotification,
-  getGroupEndpoint,
-} from "@agir/groups/api.js";
 
 import styled from "styled-components";
 
@@ -39,11 +34,11 @@ import CommentField, {
 } from "@agir/front/formComponents/CommentField";
 import Comment from "@agir/front/formComponents/Comment";
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
-import { useToast } from "@agir/front/globalContext/hooks";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
+import ButtonMuteMessage from "./ButtonMuteMessage";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
-const StyledInlineMenuItems = styled.div`
+export const StyledInlineMenuItems = styled.div`
   cursor: pointer;
   display: flex;
   flex-flow: column nowrap;
@@ -399,6 +394,7 @@ const StyledMessageHeader = styled.div`
   width: 100%;
   border: 1px solid #dfdfdf;
   border-bottom: none;
+  background-color: white;
 
   @media (max-width: ${style.collapse}px) {
     padding: 0;
@@ -408,69 +404,6 @@ const StyledMessageHeader = styled.div`
     border: none;
   }
 `;
-
-const StyledMuteButton = styled.div`
-  cursor: pointer;
-  ${({ disabled }) => (!disabled ? `opacity: 1;` : `opacity: 0.5;`)}
-
-  ${RawFeatherIcon} {
-    ${({ isMuted }) => (!isMuted ? `color: black;` : `color: red;`)}
-  }
-  ${RawFeatherIcon}:hover {
-    color: ${style.primary500};
-  }
-`;
-
-const ButtonMuteMessage = ({ message }) => {
-  const sendToast = useToast();
-  const isDesktop = useIsDesktop();
-  const [isMutedLoading, setIsMutedLoading] = useState(false);
-
-  const { data: isMuted, mutate } = useSWR(
-    getGroupEndpoint("messageNotification", { messagePk: message?.id })
-  );
-
-  const switchNotificationMessage = async () => {
-    setIsMutedLoading(true);
-    const { data } = await updateMessageNotification(message?.id, !isMuted);
-    setIsMutedLoading(false);
-
-    mutate(() => data, false);
-    const text = data
-      ? "Les notifications reliées à ce fil de message sont réactivées"
-      : "Vous ne recevrez plus de notifications reliées à ce fil de messages";
-    const type = data ? "SUCCESS" : "INFO";
-    sendToast(text, type, { autoClose: true });
-  };
-
-  if (!isDesktop) {
-    return (
-      <StyledMuteButton
-        isMuted={isMuted}
-        disabled={typeof isMuted === "undefined" || isMutedLoading}
-        onClick={!isMutedLoading && switchNotificationMessage}
-      >
-        <RawFeatherIcon name={`bell${isMuted ? "-off" : ""}`} />
-      </StyledMuteButton>
-    );
-  }
-
-  return (
-    <Button
-      small
-      color="choose"
-      disabled={typeof isMuted === "undefined" || isMutedLoading}
-      onClick={!isMutedLoading && switchNotificationMessage}
-    >
-      <RawFeatherIcon
-        width="1rem"
-        height="1rem"
-        name={`bell${!isMuted ? "-off" : ""}`}
-      />
-      &nbsp;{!isMuted ? "Réactiver" : "Rendre muet"}
-    </Button>
-  );
-};
 
 const MessageHeader = ({ message, subject }) => {
   const isDesktop = useIsDesktop();
