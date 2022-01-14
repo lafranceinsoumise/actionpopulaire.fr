@@ -10,7 +10,7 @@ const NewVotingProxySuccess = () => (
     <p>Vos disponibilités ont bien été enregistrées.</p>
     <p>
       Nous vous recontacterons dès qu'un·e demande de procuration sera créée
-      dans votre commune&nbsp;/&nbsp;circonscription consulaire.
+      près de chez vous.
     </p>
     <Spacer size="0.875rem" />
     <p>Merci de votre engagement&nbsp;!</p>

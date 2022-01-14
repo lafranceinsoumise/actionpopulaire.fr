@@ -67,7 +67,8 @@ const ControlledSteps = (props) => {
   } = props;
 
   const topRef = useRef();
-  const lastStep = React.Children.count(children) - 1;
+  const steps = children.filter(Boolean);
+  const lastStep = React.Children.count(steps) - 1;
   const currentStep = Math.min(Math.max(step, 0), lastStep);
 
   const { progress, animatedAmount } = useSpring({
@@ -76,7 +77,7 @@ const ControlledSteps = (props) => {
     delay: 100,
   });
 
-  const childrenArray = React.Children.toArray(children);
+  const stepsArray = React.Children.toArray(steps);
 
   useEffect(() => {
     topRef.current && topRef.current.scrollIntoView(true);
@@ -90,14 +91,14 @@ const ControlledSteps = (props) => {
           <animated.div style={{ width: progress }} />
         </div>
       </header>
-      <article>{childrenArray[currentStep]}</article>
+      <article>{stepsArray[currentStep]}</article>
       <footer>
-        {typeof childrenArray[currentStep - 1] !== "undefined" && (
+        {typeof stepsArray[currentStep - 1] !== "undefined" && (
           <Button type="button" onClick={goToPrevious}>
             Précédent
           </Button>
         )}
-        {typeof childrenArray[currentStep + 1] !== "undefined" && (
+        {typeof stepsArray[currentStep + 1] !== "undefined" && (
           <Button type="button" color="danger" onClick={goToNext}>
             Suivant
           </Button>

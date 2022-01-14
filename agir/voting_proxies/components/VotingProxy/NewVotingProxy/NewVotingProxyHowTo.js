@@ -26,7 +26,7 @@ const NewVotingProxyHowTo = () => (
       <Spacer size="0.5rem" />
       <li>
         <strong>Vous recevrez un SMS</strong> à valider dès lors qu'un·e
-        électeur·ice de votre ville souhaitera porter une procuration
+        électeur·ice proche de chez vous souhaitera porter une procuration
       </li>
       <Spacer size="0.5rem" />
       <li>

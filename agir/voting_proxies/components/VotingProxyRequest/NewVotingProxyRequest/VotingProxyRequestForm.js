@@ -254,10 +254,9 @@ const VotingProxyRequestForm = (props) => {
         {errors?.global && (
           <p
             css={`
-              padding: 0 0 1rem;
+              padding: 1rem 0 0;
               margin: 0;
               font-size: 1rem;
-              text-align: center;
               color: ${({ theme }) => theme.redNSP};
             `}
           >

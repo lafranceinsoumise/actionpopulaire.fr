@@ -43,6 +43,7 @@ def create_or_update_voting_proxy_request(data):
 
 
 def create_or_update_voting_proxy(data):
+    data["voting_dates"] = list(data.get("voting_dates"))
     email = data.pop("email")
 
     person_data = {
@@ -53,9 +54,6 @@ def create_or_update_voting_proxy(data):
         "contact_phone": data.get("contact_phone", ""),
         "is_2022": True,
     }
-
-    if data.get("commune", None) and data["commune"].codes_postaux.exists():
-        person_data["location_zip"] = data["commune"].codes_postaux.first().code
 
     with transaction.atomic():
         is_new_person = False
@@ -71,7 +69,20 @@ def create_or_update_voting_proxy(data):
             person, SUBSCRIPTION_TYPE_AP, person_data, new=is_new_person
         )
 
-        data["voting_dates"] = list(data.get("voting_dates"))
+        # Update person address if needed
+        address = data.pop("address", None)
+        city = data.pop("city", None)
+        zip = data.pop("zip", None)
+        if address:
+            person.location_address1 = address
+        if city:
+            person.location_city = city
+        if zip:
+            person.location_zip = zip
+        elif data.get("commune", None) and data["commune"].codes_postaux.exists():
+            person.location_zip = data["commune"].codes_postaux.first().code
+        person.save()
+
         voting_proxy, created = VotingProxy.objects.update_or_create(
             email=email, defaults={**data, "person_id": person.pk}
         )
@@ -81,8 +92,7 @@ def create_or_update_voting_proxy(data):
 
         send_welcome_mail.delay(person.pk, type=SUBSCRIPTION_TYPE_AP)
 
-    if person.coordinates_type is None:
-        geocode_person.delay(person.pk)
+    geocode_person.delay(person.pk)
 
     data.update(
         {

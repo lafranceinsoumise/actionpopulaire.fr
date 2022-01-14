@@ -171,10 +171,39 @@ class CreateVotingProxySerializer(VotingProxySerializer):
     newsletters = PersonNewsletterListField(
         required=False, allow_empty=True, write_only=True
     )
+    address = serializers.CharField(
+        write_only=True,
+        required=False,
+    )
+    zip = serializers.CharField(
+        write_only=True,
+        required=False,
+    )
+    city = serializers.CharField(
+        write_only=True,
+        required=False,
+    )
+
+    def validate_required_address_for_commune(self, attrs):
+        if attrs.get("commune", None) is None:
+            return attrs
+
+        errors = {}
+        if not attrs.get("address", None):
+            errors["address"] = "Veuillez indiquer une adresse"
+        if not attrs.get("zip", None):
+            errors["zip"] = "Veuillez indiquer un code postal"
+        if not attrs.get("city", None):
+            errors["city"] = "Veuillez indiquer une ville"
+        if len(errors.keys()) > 0:
+            raise ValidationError(errors)
+
+        return attrs
 
     def validate(self, attrs):
         super().validate(attrs)
         self.validate_required_commune_or_consulate(attrs)
+        self.validate_required_address_for_commune(attrs)
 
         return attrs
 
@@ -197,4 +226,7 @@ class CreateVotingProxySerializer(VotingProxySerializer):
             "newsletters",
             "updated",
             "dateOfBirth",
+            "address",
+            "zip",
+            "city",
         )

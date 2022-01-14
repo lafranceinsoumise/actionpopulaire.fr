@@ -10,6 +10,9 @@ const INITIAL_DATA = {
   phone: "",
   email: "",
   remarks: "",
+  address: "",
+  zip: "",
+  city: "",
 };
 
 export const getInitialData = (user) =>
@@ -19,6 +22,9 @@ export const getInitialData = (user) =>
         email: user.email || "",
         phone: user.contactPhone || "",
         dateOfBirth: user.dateOfBirth || "",
+        address: user.address1 || "",
+        zip: user.zip || "",
+        city: user.city || "",
       }
     : { ...INITIAL_DATA };
 
@@ -46,7 +52,6 @@ export const VOTING_PROXY_CONSTRAINTS = {
       message: "Cette sélection ne peut être vide.",
     },
   },
-
   firstName: {
     presence: {
       allowEmpty: false,
@@ -78,7 +83,6 @@ export const VOTING_PROXY_CONSTRAINTS = {
       message: "Indiquez une date valide",
     },
   },
-
   phone: {
     presence: {
       allowEmpty: false,
@@ -99,8 +103,50 @@ export const VOTING_PROXY_CONSTRAINTS = {
   },
 };
 
-export const validateVotingProxy = (data) =>
-  validate(data, VOTING_PROXY_CONSTRAINTS, {
-    format: "cleanMessage",
-    fullMessages: false,
-  });
+const FRANCE_VOTING_PROXY_CONSTRAINTS = {
+  ...VOTING_PROXY_CONSTRAINTS,
+  address: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ ne peut être vide.",
+    },
+    length: {
+      maximum: 255,
+      tooLong:
+        "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
+    },
+  },
+  zip: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ ne peut être vide.",
+    },
+    length: {
+      maximum: 20,
+      tooLong:
+        "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
+    },
+  },
+  city: {
+    presence: {
+      allowEmpty: false,
+      message: "Ce champ ne peut être vide.",
+    },
+    length: {
+      maximum: 255,
+      tooLong:
+        "La valeur de ce champ ne peut pas dépasser les %{count} caractères",
+    },
+  },
+};
+
+export const validateVotingProxy = (data, isAbroad = false) => {
+  return validate(
+    data,
+    isAbroad ? VOTING_PROXY_CONSTRAINTS : FRANCE_VOTING_PROXY_CONSTRAINTS,
+    {
+      format: "cleanMessage",
+      fullMessages: false,
+    }
+  );
+};
