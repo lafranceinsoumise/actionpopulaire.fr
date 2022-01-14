@@ -6,13 +6,14 @@ import { FaLock } from "react-icons/fa";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import { GENDER, getGenderedWord } from "@agir/lib/utils/display";
 import Avatar from "@agir/front/genericComponents/Avatar";
+import { GENDER, getGenderedWord } from "@agir/lib/utils/display";
+import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
 const Name = styled.span``;
 const Role = styled.span``;
 const ResetMembershipType = styled.button``;
-const Email = styled.span``;
+const Email = styled.button``;
 const Member = styled.div`
   background-color: ${style.white};
   padding: 0.75rem 1rem;
@@ -94,9 +95,14 @@ const Member = styled.div`
     }
   }
   ${Email} {
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    text-align: left;
     color: ${style.black500};
     font-weight: 400;
     font-size: 0.875rem;
+    cursor: pointer;
 
     @media (min-width: ${style.collapse}px) {
       grid-column: 2/3;
@@ -117,6 +123,12 @@ const MEMBER_ROLE_ICON = {
 
 const EventMember = (props) => {
   const { displayName, image = "", isOrganizer, email, gender } = props;
+
+  const [_, handleCopy] = useCopyToClipboard(
+    email,
+    2000,
+    "L'adresse e-mail a été copié"
+  );
 
   const role = useMemo(() => {
     const label = MEMBER_ROLE_LABEL[isOrganizer ? 1 : 0];
@@ -140,7 +152,9 @@ const EventMember = (props) => {
         )}
       </Role>
       <Name>{displayName}</Name>
-      <Email>{email}</Email>
+      <Email title="Copier l'adresse" type="button" onClick={handleCopy}>
+        {email}
+      </Email>
     </Member>
   );
 };
