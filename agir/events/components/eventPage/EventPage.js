@@ -51,7 +51,6 @@ import defaultEventImage from "@agir/front/genericComponents/images/banner-map-b
 import EventReportCard from "./EventReportCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import ClickableMap from "@agir/carte/common/Map/ClickableMap";
-import { StyledSideCard } from "./StyledCard";
 import OnlineUrlCard from "./OnlineUrlCard";
 
 import EventSettings from "@agir/events/EventSettings/EventSettings";

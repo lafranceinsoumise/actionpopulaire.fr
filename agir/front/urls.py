@@ -4,6 +4,7 @@ from django.urls import reverse_lazy, path, re_path, include
 from django.views.generic import RedirectView
 
 from . import views
+from . import api_views
 from ..front.sitemaps import sitemaps
 
 supportgroup_settings_patterns = [
@@ -189,6 +190,26 @@ urlpatterns = [
         "evenements/",
         RedirectView.as_view(pattern_name="dashboard"),
         name="list_events",
+    ),
+    # path(
+    #     "recherche/",
+    #     views.SearchView.as_view(),
+    #     name="search",
+    # ),
+    path(
+        "recherche/evenements/",
+        views.SearchView.as_view(),
+        name="search_events",
+    ),
+    path(
+        "recherche/groupes/",
+        views.SearchView.as_view(),
+        name="search_groups",
+    ),
+    path(
+        "api/recherche/",
+        api_views.SearchAPIView.as_view(),
+        name="search",
     ),
     path("mes-groupes/", views.UserSupportGroupsView.as_view(), name="list_my_groups"),
     path(

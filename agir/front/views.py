@@ -201,6 +201,14 @@ class CreateEventView(BaseAppSoftAuthView):
     api_preloads = [reverse_lazy("api_event_create_options")]
 
 
+## SEARCH VIEW
+
+
+class SearchView(BaseAppCachedView):
+    meta_title = "Rechercher"
+    meta_description = "Rechercher un groupe, un événement"
+
+
 ## SUPPORTGROUP VIEWS
 
 

@@ -54,13 +54,10 @@ class LocationSerializer(serializers.Serializer):
     zip = serializers.CharField(source="location_zip")
     city = serializers.CharField(source="location_city")
     country = CountryField(source="location_country")
-
     address = serializers.SerializerMethodField()
 
     shortAddress = serializers.CharField(source="short_address", required=False)
-
     shortLocation = serializers.CharField(source="short_location", required=False)
-
     coordinates = GeometryField(required=False)
     staticMapUrl = serializers.SerializerMethodField(read_only=True)
 

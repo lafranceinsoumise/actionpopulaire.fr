@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import useSWR from "swr";
 
 export const EVENT_TYPES = {
@@ -33,6 +33,7 @@ export const useEventSuggestions = (isPaused = false) => {
   const { data: events } = useSWR(activeKey && getAgendaEndpoint(activeKey), {
     isPaused,
   });
+  console.log("events suggested ", events);
 
   return [Object.values(EVENT_TYPES), activeType, setActiveType, events];
 };

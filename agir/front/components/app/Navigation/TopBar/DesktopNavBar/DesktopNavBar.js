@@ -6,7 +6,6 @@ import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import LogoAP from "@agir/front/genericComponents/LogoAP";
 import Spacer from "@agir/front/genericComponents/Spacer";
-import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
 import RightLinks from "./RightLinks";
 import SearchBar from "./SearchBar";

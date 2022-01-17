@@ -1,13 +1,20 @@
-from django.views.generic import TemplateView
+from rest_framework.generics import (
+    RetrieveAPIView,
+)
+from rest_framework import permissions
 
 from agir.events.models import Event
 from agir.groups.models import SupportGroup
 
+from rest_framework.response import Response
+from agir.groups.serializers import SupportGroupSerializer
+from agir.events.serializers import EventSerializer
 
-class SearchView(TemplateView):
-    """Vue pour rechercher et lister des groupes et des événéments"""
 
-    template_name = "people/dashboard_search.html"
+class SearchAPIView(RetrieveAPIView):
+    """Rechercher et lister des groupes et des événéments"""
+
+    permission_classes = (permissions.AllowAny,)
     querysets = {
         "upcoming_events": Event.objects.upcoming().filter(
             visibility=Event.VISIBILITY_PUBLIC, do_not_list=False
@@ -18,11 +25,11 @@ class SearchView(TemplateView):
         "support_groups": SupportGroup.objects.filter(published=True),
     }
 
-    def get_context_data(self, **kwargs):
-        q = self.request.GET.get("q")
+    def get(self, request, *args, **kwargs):
 
-        if q is None:
-            q = ""
+        q = request.GET.get("q", "")
+        # print("======= SEARCH EVENTS AND GROUPS", flush=True)
+        # print(q, flush=True)
 
         support_groups = self.querysets["support_groups"]
         upcoming_events = self.querysets["upcoming_events"]
@@ -44,15 +51,24 @@ class SearchView(TemplateView):
 
         event_count = int(upcoming_events.count()) + int(past_events.count())
 
-        kwargs.update(
+        group_serializer = SupportGroupSerializer(
+            data=support_groups, context={"request": self.request}, many=True
+        )
+        group_serializer.is_valid()
+
+        event_serializer = EventSerializer(
+            data=past_events, context={"request": self.request}, many=True
+        )
+        event_serializer.is_valid()
+
+        return Response(
             {
                 "query": q,
                 "result_count": result_count,
                 "event_count": event_count,
-                "support_groups": support_groups,
-                "upcoming_events": upcoming_events,
-                "past_events": past_events,
+                "groups": group_serializer.data,
+                "events": event_serializer.data,
+                # "upcoming_events": upcoming_events,
+                # "past_events": past_events,
             }
         )
-
-        return super().get_context_data(**kwargs)

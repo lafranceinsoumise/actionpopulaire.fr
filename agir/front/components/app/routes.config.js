@@ -71,6 +71,7 @@ const DonationInformationsPage = lazy(() =>
 const ActionToolsPage = lazy(() =>
   import("@agir/front/ActionToolsPage/ActionToolsPage")
 );
+const SearchPage = lazy(() => import("@agir/front/SearchPage/SearchPage"));
 
 export const BASE_PATH = "/";
 
@@ -468,6 +469,17 @@ export const routeConfig = {
     hideFeedbackButton: true,
     hideFooter: true,
     appOnlyTopBar: true,
+  }),
+  search: new RouteConfig({
+    id: "search",
+    path: ["/recherche/", "/recherche/groupes/", "/recherche/evenements/"],
+    neededAuthentication: AUTHENTICATION.NONE,
+    params: { type: null },
+    Component: SearchPage,
+    label: "Rechercher",
+    hasLayout: true,
+    hideFeedbackButton: true,
+    hideFooter: true,
   }),
 };
 
