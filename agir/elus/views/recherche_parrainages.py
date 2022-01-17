@@ -207,7 +207,26 @@ class ChercherEluView(ListAPIView):
         if not search_terms or len(search_terms) < 3:
             return EluMunicipal.objects.none()
 
-        return queryset_elus(self.request.user.person).search(search_terms)[:20]
+        resultats = list(
+            queryset_elus(self.request.user.person).search(search_terms)[:20]
+        )
+        recherches_parrainages = {
+            r.id: r
+            for r in RechercheParrainage.objects.filter(
+                id__in=[
+                    r.recherche_parrainage_id
+                    for r in resultats
+                    if r.statut == EluMunicipalSerializer.Statut.PERSONNELLEMENT_VU
+                ]
+            )
+        }
+
+        for r in resultats:
+            r.recherche_parrainage = recherches_parrainages.get(
+                r.recherche_parrainage_id
+            )
+
+        return resultats
 
 
 class ChercherCodePostalView(ListAPIView):
