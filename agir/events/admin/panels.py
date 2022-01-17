@@ -354,7 +354,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         actions.unpublish,
     )
 
-    autocomplete_fields = ("tags", "subscription_form")
+    autocomplete_fields = ("tags", "subscription_form", "suggestion_segment")
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("calendars")
@@ -563,6 +563,7 @@ class EventSubtypeAdmin(admin.ModelAdmin):
     list_filter = ("type", "visibility", "has_priority", "related_project_type")
 
     search_fields = ("label", "description")
+    autocomplete_fields = ("report_person_form",)
 
 
 @admin.register(models.JitsiMeeting)
