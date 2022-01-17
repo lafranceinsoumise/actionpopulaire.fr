@@ -102,7 +102,8 @@ const EventLocationCard = (props) => {
                   zoom={14}
                   center={location.coordinates.coordinates}
                   iconConfiguration={subtype}
-                  isStatic={isStatic}
+                  width={313}
+                  height={215}
                 />
               )}
             </>
