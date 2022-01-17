@@ -107,7 +107,7 @@
     "@storybook/addon-actions": "^6.4.12",
     "@storybook/addon-essentials": "^6.4.12",
     "@storybook/addon-links": "^6.4.12",
-    "@storybook/builder-webpack5": "^6.4.12",
+    "@storybook/builder-webpack5": "^6.4.13",
     "@storybook/cli": "^6.4.12",
     "@storybook/react": "^6.4.12",
     "@testing-library/jest-dom": "^5.16.1",
