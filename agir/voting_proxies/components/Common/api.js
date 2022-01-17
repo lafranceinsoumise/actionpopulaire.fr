@@ -28,7 +28,7 @@ export const searchVotingLocation = async (searchTerm) => {
     });
     result.data = response.data;
   } catch (e) {
-    result.error = (e.response && e.response.data) || { global: e.message };
+    result.error = e.response?.data || { global: e.message };
   }
 
   return result;
@@ -47,7 +47,11 @@ export const createVotingProxyRequestOptions = async () => {
     if (e.response && e.response.data && Object.keys(e.response.data)[0]) {
       result.error = e.response.data[Object.keys(e.response.data)[0]];
     } else {
-      result.error = (e.response && e.response.data) || e.message;
+      if (e.response?.data && typeof e.response.data === "object") {
+        result.error = e.response.data;
+      } else {
+        result.error = { global: e.message || "Une erreur est survenue" };
+      }
     }
   }
 
@@ -68,7 +72,11 @@ export const createVotingProxyRequest = async (data) => {
     const response = await axios.post(url, body);
     result.data = response.data;
   } catch (e) {
-    result.error = (e.response && e.response.data) || e.message;
+    if (e.response?.data && typeof e.response.data === "object") {
+      result.error = e.response.data;
+    } else {
+      result.error = { global: e.message || "Une erreur est survenue" };
+    }
   }
 
   return result;
@@ -87,7 +95,11 @@ export const createVotingProxyOptions = async () => {
     if (e.response && e.response.data && Object.keys(e.response.data)[0]) {
       result.error = e.response.data[Object.keys(e.response.data)[0]];
     } else {
-      result.error = (e.response && e.response.data) || e.message;
+      if (e.response?.data && typeof e.response.data === "object") {
+        result.error = e.response.data;
+      } else {
+        result.error = { global: e.message || "Une erreur est survenue" };
+      }
     }
   }
 
@@ -108,7 +120,11 @@ export const createVotingProxy = async (data) => {
     const response = await axios.post(url, body);
     result.data = response.data;
   } catch (e) {
-    result.error = (e.response && e.response.data) || e.message;
+    if (e.response?.data && typeof e.response.data === "object") {
+      result.error = e.response.data;
+    } else {
+      result.error = { global: e.message || "Une erreur est survenue" };
+    }
   }
 
   return result;

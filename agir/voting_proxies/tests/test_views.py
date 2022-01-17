@@ -232,6 +232,9 @@ class VotingProxyCreateAPITestCase(APITestCase):
             "remarks": "R.A.S.",
             "newsletters": [],
             "dateOfBirth": "1970-01-01",
+            "address": "25 passage dubail",
+            "zip": "75010",
+            "city": "Paris",
         }
 
         self.client.force_login(self.person.role)
@@ -293,6 +296,21 @@ class VotingProxyCreateAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("commune", res.data)
         self.assertIn("consulate", res.data)
+
+    def test_cannot_create_with_a_commune_and_with_empty_address_fields(self):
+        data = {
+            **self.valid_data,
+            "commune": self.commune.id,
+            "consulate": None,
+            "address": "",
+            "zip": "",
+            "city": "",
+        }
+        res = self.client.post(self.create_endpoint, data=data)
+        self.assertEqual(res.status_code, 422)
+        self.assertIn("address", res.data)
+        self.assertIn("zip", res.data)
+        self.assertIn("city", res.data)
 
     def test_can_create_with_valid_data(self):
         data = {**self.valid_data}

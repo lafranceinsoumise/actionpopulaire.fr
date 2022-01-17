@@ -21,15 +21,17 @@ import {
 } from "@agir/voting_proxies/Common/api";
 import { getInitialData, validateVotingProxy } from "./form.config";
 
-const FORM_STEPS = [
-  [], // How-to
-  ["votingLocation", "pollingStationNumber", "votingDates"],
-  ["firstName", "lastName", "dateOfBirth"],
-  ["phone", "email", "remarks"],
-];
+const FORM_STEPS = (isAbroad) =>
+  [
+    [], // How-to
+    ["votingLocation", "pollingStationNumber", "votingDates"],
+    !isAbroad && ["address", "zip", "city"],
+    ["firstName", "lastName", "dateOfBirth"],
+    ["phone", "email", "remarks"],
+  ].filter(Boolean);
 
-export const getFieldStepFromErrors = (errors) =>
-  FORM_STEPS.findIndex(
+export const getFieldStepFromErrors = (errors, isAbroad) =>
+  FORM_STEPS(isAbroad).findIndex(
     (stepFields) =>
       stepFields.length > 0 &&
       stepFields.some((field) => typeof errors[field] !== "undefined")
@@ -45,6 +47,7 @@ const VotingProxyForm = (props) => {
   const [data, setData] = useState(getInitialData(user));
   const [hasDataAgreement, setHasDataAgreement] = useState(false);
   const [errors, setErrors] = useState(null);
+  const isAbroad = data.votingLocation?.type === "consulate";
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -69,16 +72,22 @@ const VotingProxyForm = (props) => {
     }));
   }, []);
 
-  const handleSelectPollingLocation = useCallback((votingLocation) => {
-    setErrors((state) => ({
-      ...state,
-      votingLocation: undefined,
-    }));
-    setData((state) => ({
-      ...state,
-      votingLocation,
-    }));
-  }, []);
+  const handleSelectVotingLocation = useCallback(
+    (votingLocation) => {
+      setErrors((state) => ({
+        ...state,
+        votingLocation: undefined,
+      }));
+      setData((state) => ({
+        ...state,
+        votingLocation,
+        address: getInitialData(user)?.address,
+        zip: getInitialData(user)?.zip,
+        city: getInitialData(user)?.city,
+      }));
+    },
+    [user]
+  );
 
   const handleChangeVotingDates = useCallback((votingDates) => {
     setErrors((state) => ({
@@ -97,15 +106,19 @@ const VotingProxyForm = (props) => {
 
   const handleErrors = (errors) => {
     setErrors(errors);
-    const fieldStep = getFieldStepFromErrors(errors);
-    if (typeof fieldStep === "number" && fieldStep !== formStep) {
+    const fieldStep = getFieldStepFromErrors(errors, isAbroad);
+    if (
+      typeof fieldStep === "number" &&
+      fieldStep >= 0 &&
+      fieldStep !== formStep
+    ) {
       setFormStep(fieldStep);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationErrors = validateVotingProxy(data);
+    const validationErrors = validateVotingProxy(data, isAbroad);
     if (validationErrors) {
       return handleErrors(validationErrors);
     }
@@ -158,7 +171,7 @@ const VotingProxyForm = (props) => {
           id="votingLocation"
           name="votingLocation"
           value={data.votingLocation}
-          onChange={handleSelectPollingLocation}
+          onChange={handleSelectVotingLocation}
           error={errors?.votingLocation || errors?.commune || errors?.consulate}
           label="Commune ou ambassade d'inscription aux listes électorales"
         />
@@ -198,6 +211,45 @@ const VotingProxyForm = (props) => {
           options={votingDateOptions}
         />
       </fieldset>
+      {!isAbroad && (
+        <fieldset>
+          <TextField
+            required
+            disabled={isLoading}
+            id="address"
+            name="address"
+            value={data.address}
+            onChange={handleChange}
+            error={errors?.address}
+            label="Adresse"
+            autoComplete="address-line1"
+          />
+          <Spacer size="1rem" />
+          <TextField
+            required
+            disabled={isLoading}
+            id="zip"
+            name="zip"
+            value={data.zip}
+            onChange={handleChange}
+            error={errors?.zip}
+            label="Code postal"
+            autoComplete="postal-code"
+          />
+          <Spacer size="1rem" />
+          <TextField
+            required
+            disabled={isLoading}
+            id="city"
+            name="city"
+            value={data.city}
+            onChange={handleChange}
+            error={errors?.city}
+            label="Ville"
+            autoComplete="locality"
+          />
+        </fieldset>
+      )}
       <fieldset>
         <TextField
           required
@@ -289,10 +341,9 @@ const VotingProxyForm = (props) => {
         {errors?.global && (
           <p
             css={`
-              padding: 0 0 1rem;
+              padding: 1rem 0 0;
               margin: 0;
               font-size: 1rem;
-              text-align: center;
               color: ${({ theme }) => theme.redNSP};
             `}
           >
