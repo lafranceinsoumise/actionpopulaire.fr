@@ -6,12 +6,18 @@ import { dateFromISOString } from "@agir/lib/utils/time";
 
 import { getGenderedWord } from "@agir/lib/utils/display";
 import { routeConfig } from "@agir/front/app/routes.config";
+import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 
 import Link from "@agir/front/app/Link";
 import GenericCardContainer from "./GenericCardContainer";
 
 const GenericCard = (props) => {
   const { type, meta, event, supportGroup, individual } = props;
+  const [_, copyEmail] = useCopyToClipboard(
+    meta?.email,
+    2000,
+    "L'adresse e-mail a été copié."
+  );
 
   const { Event, SupportGroup, Individual } = useMemo(
     () => ({
@@ -83,16 +89,22 @@ const GenericCard = (props) => {
     case "new-follower": {
       return (
         <GenericCardContainer {...props}>
-          {Individual || "Quelqu'un"} suit désormais votre groupe {SupportGroup}
-          .
+          {Individual || "Quelqu'un"}{" "}
+          {meta?.email && (
+            <button onClick={copyEmail}>&lt;{meta.email}&gt;</button>
+          )}{" "}
+          suit désormais votre groupe {SupportGroup}.
         </GenericCardContainer>
       );
     }
     case "new-member": {
       return (
         <GenericCardContainer {...props}>
-          {Individual || "Quelqu'un"} a rejoint {SupportGroup}. Prenez le temps
-          de l’accueillir&nbsp;!
+          {Individual || "Quelqu'un"}{" "}
+          {meta?.email && (
+            <button onClick={copyEmail}>&lt;{meta.email}&gt;</button>
+          )}{" "}
+          a rejoint {SupportGroup}. Prenez le temps de l’accueillir&nbsp;!
         </GenericCardContainer>
       );
     }

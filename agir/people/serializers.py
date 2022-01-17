@@ -68,7 +68,9 @@ class SubscriptionRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(
         required=True,
     )
-    location_zip = serializers.CharField(required=True)
+    location_zip = serializers.CharField(
+        required=True,
+    )
     first_name = serializers.CharField(
         max_length=person_fields["first_name"].max_length,
         required=False,
@@ -104,6 +106,13 @@ class SubscriptionRequestSerializer(serializers.Serializer):
     def validate_next(self, value):
         if not value or is_absolute_url(value):
             return ""
+        return value
+
+    def validate_location_zip(self, value):
+        # Remove extra words and trucate
+        # as people tend to add their city name to the location zip field
+        max_length = person_fields["location_zip"].max_length
+        value = value.split(" ")[0][:max_length]
         return value
 
     def validate(self, data):

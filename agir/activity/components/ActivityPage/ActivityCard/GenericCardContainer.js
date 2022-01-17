@@ -24,6 +24,22 @@ const StyledChildrenWrapper = styled.div`
     text-decoration: none;
     color: inherit;
   }
+
+  button {
+    font-weight: 600;
+    padding: 0;
+    text-align: left;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px dotted transparent;
+    cursor: pointer;
+    color: inherit;
+
+    &:hover,
+    &:focus {
+      border-bottom: 1px dotted ${style.black500};
+    }
+  }
 `;
 
 const LowMarginCard = styled(Card)`
