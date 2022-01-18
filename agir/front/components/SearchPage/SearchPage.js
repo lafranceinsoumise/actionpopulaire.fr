@@ -210,7 +210,6 @@ export const SearchPage = () => {
       return;
     }
     const { data, error } = await getSearch(inputSearch);
-    console.log("results : ", data);
     setResults(data);
     setQuerySearch(inputSearch);
   };

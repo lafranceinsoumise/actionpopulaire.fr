@@ -33,7 +33,6 @@ export const useEventSuggestions = (isPaused = false) => {
   const { data: events } = useSWR(activeKey && getAgendaEndpoint(activeKey), {
     isPaused,
   });
-  console.log("events suggested ", events);
 
   return [Object.values(EVENT_TYPES), activeType, setActiveType, events];
 };
