@@ -293,6 +293,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         ("titre", "A"),
         ("description", "B"),
         ("nature", "C"),
+        ("montant", "B"),
     )
 
     class Meta:
