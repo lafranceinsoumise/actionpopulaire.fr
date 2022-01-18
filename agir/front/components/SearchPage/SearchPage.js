@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 
 import { useLocation } from "react-router-dom";
-
 import { Interval } from "luxon";
 
 import styled from "styled-components";
@@ -14,7 +13,6 @@ import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import SelectField from "@agir/front/formComponents/SelectField";
 
-import { routeConfig } from "@agir/front/app/routes.config";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
 // import GroupSuggestionCard from "@agir/groups/groupPage/GroupSuggestionCard";
@@ -74,11 +72,8 @@ const StyledContainer = styled.div`
   }
 `;
 
-const StyledSelectField = styled(SelectField)``;
-
 const StyledFilters = styled.div`
   display: flex;
-  // ${StyledSelectField} {
   > label {
     flex: 1;
     margin-right: 10px;
@@ -95,37 +90,33 @@ const INIT_RESULTS = {
 };
 
 const optionsEventSort = [
-  { label: "Date", value: "0" },
-  { label: "Date desc", value: "1" },
-  { label: "Alphabétique", value: "2" },
-  { label: "Alphabétique desc", value: "3" },
+  { label: "Date", value: 0 },
+  { label: "Date desc", value: 1 },
+  { label: "Alphabétique", value: 2 },
+  { label: "Alphabétique desc", value: 3 },
 ];
 const optionsEventCategory = [
-  { label: "Tous les événements", value: "0" },
-  { label: "Passés", value: "1" },
-  { label: "A venir", value: "2" },
+  { label: "Tous les événements", value: 0 },
+  { label: "Passés", value: 1 },
+  { label: "A venir", value: 2 },
 ];
 const optionsEventType = [
-  { label: "Tous les types", value: "0" },
-  { label: "type 1", value: "1" },
-  { label: "type 2", value: "2" },
+  { label: "Tous les types", value: 0 },
+  { label: "type 1", value: 1 },
+  { label: "type 2", value: 2 },
 ];
 
 const optionsGroupSort = [
-  { label: "Date", value: "0" },
-  { label: "Alphabétique", value: "1" },
+  { label: "Date", value: 0 },
+  { label: "Alphabétique", value: 1 },
 ];
 const optionsGroupType = [
-  { label: "Tous les groupes", value: "0" },
-  { label: "Certifiés", value: "1" },
-  { label: "Non certifiés", value: "2" },
+  { label: "Tous les groupes", value: 0 },
+  { label: "Certifiés", value: 1 },
+  { label: "Non certifiés", value: 2 },
 ];
 
 export const SearchPage = () => {
-  // const groupURL = routeConfig.search.getLink();
-  // const isRouteMatch = useRouteMatch(groupURL);
-  // console.log("is route match : ", isRouteMatch)
-
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const query = urlParams.get("q") || "";
@@ -135,6 +126,8 @@ export const SearchPage = () => {
   const [results, setResults] = useState(INIT_RESULTS);
   const [activeTab, setActiveTab] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
+  const [groups, setGroups] = useState([]);
+  const [events, setEvents] = useState([]);
 
   const [eventSort, setEventSort] = useState(optionsEventSort[0]);
   const [eventType, setEventType] = useState(optionsEventType[0]);
@@ -149,6 +142,36 @@ export const SearchPage = () => {
       setResults(data);
     }
   }, []);
+
+  // Filters groups
+  useEffect(() => {
+    setGroups(
+      results.groups?.filter((group) => {
+        if (groupType.value === 1) {
+          return group.isCertified;
+        }
+        if (groupType.value === 2) {
+          return !group.isCertified;
+        }
+        return true;
+      }) || []
+    );
+  }, [results, groupType, groupSort]);
+
+  // Filters events
+  useEffect(() => {
+    setEvents(
+      results.events?.filter((event) => {
+        if (eventCategory.value === 1) {
+          return event.isPast;
+        }
+        if (eventCategory.value === 2) {
+          return !event.isPast;
+        }
+        return true;
+      }) || []
+    );
+  }, [results, eventType, eventSort, eventCategory]);
 
   const updateSearch = (e) => {
     setInputSearch(e.target.value);
@@ -245,7 +268,7 @@ export const SearchPage = () => {
             <StyledFilters>
               {activeTab === EVENTS && (
                 <>
-                  <StyledSelectField
+                  <SelectField
                     key={1}
                     label="Trier par"
                     placeholder="Date"
@@ -254,7 +277,7 @@ export const SearchPage = () => {
                     onChange={handleChangeEventSort}
                     options={optionsEventSort}
                   />
-                  <StyledSelectField
+                  <SelectField
                     key={2}
                     label="Catégorie d'événement"
                     placeholder="Categories"
@@ -263,7 +286,7 @@ export const SearchPage = () => {
                     onChange={handleChangeEventCategory}
                     options={optionsEventCategory}
                   />
-                  <StyledSelectField
+                  <SelectField
                     key={3}
                     label="Type"
                     placeholder="Types"
@@ -277,7 +300,7 @@ export const SearchPage = () => {
 
               {activeTab === GROUPS && (
                 <>
-                  <StyledSelectField
+                  <SelectField
                     key={1}
                     label="Trier par"
                     placeholder="Date"
@@ -286,7 +309,7 @@ export const SearchPage = () => {
                     onChange={handleChangeGroupSort}
                     options={optionsGroupSort}
                   />
-                  <StyledSelectField
+                  <SelectField
                     key={2}
                     label="Type"
                     placeholder="Types"
@@ -305,10 +328,10 @@ export const SearchPage = () => {
 
       {[ALL, GROUPS].includes(activeTab) && (
         <>
-          {!!results.groups?.length && (
+          {!!groups?.length && (
             <h2>
               <div>
-                Groupes <span>{results.groups?.length}</span>
+                Groupes <span>{groups.length}</span>
               </div>
               {activeTab === ALL && (
                 <Button color="primary" small onClick={() => setActiveTab(1)}>
@@ -317,7 +340,7 @@ export const SearchPage = () => {
               )}
             </h2>
           )}
-          {results.groups?.map((group) => (
+          {groups.map((group) => (
             <>
               <GroupCard key={group.id} {...group} />
               {/* <GroupSuggestionCard key={group.id} {...group} /> */}
@@ -332,10 +355,10 @@ export const SearchPage = () => {
 
       {[ALL, EVENTS].includes(activeTab) && (
         <>
-          {!!results.events?.length && (
+          {!!events.length && (
             <h2>
               <div>
-                Evénements <span>{results.events?.length}</span>
+                Evénements <span>{events.length}</span>
               </div>
               {activeTab === ALL && (
                 <Button color="primary" small onClick={() => setActiveTab(2)}>
@@ -344,18 +367,20 @@ export const SearchPage = () => {
               )}
             </h2>
           )}
-          {results.events?.map((event) => (
-            <>
-              <EventCard
-                key={event.id}
-                {...event}
-                schedule={Interval.fromISO(
-                  `${event.startTime}/${event.endTime}`
-                )}
-              />
-              <Spacer size="1rem" />
-            </>
-          ))}
+          {events.map((event) => {
+            return (
+              <>
+                <EventCard
+                  key={event.id}
+                  {...event}
+                  schedule={Interval.fromISO(
+                    `${event.startTime}/${event.endTime}`
+                  )}
+                />
+                <Spacer size="1rem" />
+              </>
+            );
+          })}
           {activeTab === EVENTS && !results.events?.length && (
             <>Aucun événement lié à cette recherche</>
           )}
