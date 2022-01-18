@@ -477,7 +477,7 @@ export const routeConfig = {
     params: { type: null },
     Component: SearchPage,
     label: "Rechercher",
-    hasLayout: true,
+    hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
   }),

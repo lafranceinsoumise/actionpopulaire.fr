@@ -191,20 +191,10 @@ urlpatterns = [
         RedirectView.as_view(pattern_name="dashboard"),
         name="list_events",
     ),
-    # path(
-    #     "recherche/",
-    #     views.SearchView.as_view(),
-    #     name="search",
-    # ),
     path(
-        "recherche/evenements/",
+        "recherche/",
         views.SearchView.as_view(),
-        name="search_events",
-    ),
-    path(
-        "recherche/groupes/",
-        views.SearchView.as_view(),
-        name="search_groups",
+        name="search",
     ),
     path(
         "api/recherche/",
