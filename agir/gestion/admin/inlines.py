@@ -217,8 +217,6 @@ class ReglementInline(admin.TabularInline):
         "intitule",
         "statut",
         "mode",
-        "montant",
-        "date",
         "preuve_link",
         "fournisseur_link",
     )
