@@ -76,7 +76,7 @@ class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
     permission_classes = (permissions.AllowAny,)
-    queryset = VotingProxy.objects.filter(status=VotingProxy.STATUS_AVAILABLE)
+    queryset = VotingProxy.objects.filter(status=VotingProxy.STATUS_CREATED)
     serializer_class = None
 
     def retrieve(self, request, *args, **kwargs):
@@ -91,14 +91,25 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
                 voting_proxy, voting_proxy_request_pks
             )
         except VotingProxyRequest.DoesNotExist:
-            raise Http404
+            voting_proxy_requests = []
 
         return Response(
             {
                 "firstName": voting_proxy.first_name,
                 "requests": [
-                    dict_to_camelcase(voting_proxy_request)
-                    for voting_proxy_request in voting_proxy_requests
+                    {
+                        "id": request.id,
+                        "firstName": request.first_name,
+                        "pollingStationNumber": request.polling_station_number,
+                        "votingDate": dict(VotingProxyRequest.VOTING_DATE_CHOICES)[
+                            request.voting_date
+                        ],
+                        "commune": request.commune.nom if request.commune else None,
+                        "consulate": request.consulate.nom
+                        if request.consulate
+                        else None,
+                    }
+                    for request in voting_proxy_requests
                 ],
             }
         )

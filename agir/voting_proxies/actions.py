@@ -1,4 +1,5 @@
 from copy import deepcopy
+from functools import partial
 
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import transaction
@@ -143,22 +144,24 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
 
     return VotingProxyRequest.objects.filter(
         id__in=voting_proxy_requests.first()["ids"]
-    ).values(
-        "id",
-        "first_name",
-        "polling_station_number",
-        "commune",
-        "consulate",
-        "voting_date",
-    )
+    ).order_by("voting_date")
 
 
 def accept_voting_proxy_requests(voting_proxy, voting_proxy_requests):
     voting_proxy_request_pks = list(voting_proxy_requests.values_list("pk", flat=True))
-    voting_proxy_requests.update(
-        status=VotingProxyRequest.STATUS_ACCEPTED, proxy=voting_proxy
+    with transaction.atomic():
+        voting_proxy.status = VotingProxy.STATUS_AVAILABLE
+        voting_proxy.save()
+        voting_proxy_requests.update(
+            status=VotingProxyRequest.STATUS_ACCEPTED, proxy=voting_proxy
+        )
+
+    transaction.on_commit(
+        partial(
+            send_voting_proxy_request_accepted_text_messages.delay,
+            voting_proxy_request_pks,
+        )
     )
-    send_voting_proxy_request_accepted_text_messages.delay(voting_proxy_request_pks)
 
 
 def decline_voting_proxy_requests(voting_proxy, voting_proxy_requests):

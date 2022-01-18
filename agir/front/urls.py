@@ -167,6 +167,11 @@ voting_proxy_patterns = [
         views.BaseAppCachedView.as_view(),
         name="new_voting_proxy",
     ),
+    path(
+        "prendre-une-procuration/<uuid:pk>/",
+        views.BaseAppCachedView.as_view(),
+        name="reply_to_voting_proxy_requests",
+    ),
 ]
 
 urlpatterns = [

@@ -1,17 +1,24 @@
 import axios from "@agir/lib/utils/axios";
+import { addQueryStringParams } from "@agir/lib/utils/url";
 
 export const ENDPOINT = {
   searchVotingLocation: "/api/procurations/communes-consulats/",
   createVotingProxyRequest: "/api/procurations/demande/",
   createVotingProxy: "/api/procurations/volontaire/",
+  retrieveUpdateVotingProxy: "/api/procurations/volontaire/:votingProxyPk/",
+  replyToVotingProxyRequests:
+    "/api/procurations/volontaire/:votingProxyPk/demandes/",
 };
 
-export const getVotingProxyEndpoint = (key, params) => {
+export const getVotingProxyEndpoint = (key, params, searchParams) => {
   let endpoint = ENDPOINT[key] || "";
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       endpoint = endpoint.replace(`:${key}`, value);
     });
+  }
+  if (searchParams) {
+    endpoint = addQueryStringParams(endpoint, searchParams, true);
   }
   return endpoint;
 };
@@ -118,6 +125,28 @@ export const createVotingProxy = async (data) => {
   }
   try {
     const response = await axios.post(url, body);
+    result.data = response.data;
+  } catch (e) {
+    if (e.response?.data && typeof e.response.data === "object") {
+      result.error = e.response.data;
+    } else {
+      result.error = { global: e.message || "Une erreur est survenue" };
+    }
+  }
+
+  return result;
+};
+
+export const replyToVotingProxyRequests = async (votingProxyPk, body) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getVotingProxyEndpoint("replyToVotingProxyRequests", {
+    votingProxyPk,
+  });
+  try {
+    const response = await axios.patch(url, body);
     result.data = response.data;
   } catch (e) {
     if (e.response?.data && typeof e.response.data === "object") {
