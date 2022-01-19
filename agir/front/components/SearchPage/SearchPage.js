@@ -77,6 +77,18 @@ const StyledFilters = styled.div`
   > label {
     flex: 1;
     margin-right: 10px;
+
+    &&:last-child {
+      margin-right: 0;
+    }
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    flex-direction: column;
+    > label {
+      margin-right: 0;
+      margin-bottom: 1rem;
+    }
   }
 `;
 
@@ -89,31 +101,54 @@ const INIT_RESULTS = {
   events: [],
 };
 
+const [DATE_ASC, DATE_DESC, ALPHA_ASC, ALPHA_DESC] = [0, 1, 2, 3];
+const [EVENT_CAT_ALL, EVENT_CAT_PAST, EVENT_CAT_FUTURE] = [0, 1, 2];
+const [
+  EVENT_TYPE_ALL,
+  EVENT_TYPE_GROUP_MEETING,
+  EVENT_TYPE_PUBLIC_MEETING,
+  EVENT_TYPE_PUBLIC_ACTION,
+  EVENT_TYPE_OTHER,
+] = [0, "G", "M", "A", "O"];
+const [
+  GROUP_TYPE_ALL,
+  GROUP_TYPE_CERTIFIED,
+  GROUP_TYPE_NOT_CERTIFIED,
+  GROUP_LOCAL,
+  GROUP_THEMATIC,
+  GROUP_FONCTIONAL,
+] = [0, 1, 2, "L", "B", "F"];
+
 const optionsEventSort = [
-  { label: "Date", value: 0 },
-  { label: "Date desc", value: 1 },
-  { label: "Alphabétique", value: 2 },
-  { label: "Alphabétique desc", value: 3 },
+  { label: <>Date &uarr;</>, value: DATE_ASC },
+  { label: <>Date &darr;</>, value: DATE_DESC },
+  { label: <>Alphabétique &uarr;</>, value: ALPHA_ASC },
+  { label: <>Alphabétique &darr;</>, value: ALPHA_DESC },
 ];
 const optionsEventCategory = [
-  { label: "Tous les événements", value: 0 },
-  { label: "Passés", value: 1 },
-  { label: "A venir", value: 2 },
+  { label: "Tous les événements", value: EVENT_CAT_ALL },
+  { label: "Passés", value: EVENT_CAT_PAST },
+  { label: "A venir", value: EVENT_CAT_FUTURE },
 ];
 const optionsEventType = [
-  { label: "Tous les types", value: 0 },
-  { label: "type 1", value: 1 },
-  { label: "type 2", value: 2 },
+  { label: "Tous les types", value: EVENT_TYPE_ALL },
+  { label: "Réunion privée de groupe", value: EVENT_TYPE_GROUP_MEETING },
+  { label: "Événement public", value: EVENT_TYPE_PUBLIC_MEETING },
+  { label: "Action publique", value: EVENT_TYPE_PUBLIC_ACTION },
+  { label: "Autre", value: EVENT_TYPE_OTHER },
 ];
 
 const optionsGroupSort = [
-  { label: "Date", value: 0 },
-  { label: "Alphabétique", value: 1 },
+  { label: <>Alphabétique &uarr;</>, value: ALPHA_ASC },
+  { label: <>Alphabétique &darr;</>, value: ALPHA_DESC },
 ];
 const optionsGroupType = [
-  { label: "Tous les groupes", value: 0 },
-  { label: "Certifiés", value: 1 },
-  { label: "Non certifiés", value: 2 },
+  { label: "Tous les groupes", value: GROUP_TYPE_ALL },
+  { label: "Certifiés", value: GROUP_TYPE_CERTIFIED },
+  { label: "Non certifiés", value: GROUP_TYPE_NOT_CERTIFIED },
+  { label: "Groupe local", value: GROUP_LOCAL },
+  { label: "Groupe thématique", value: GROUP_THEMATIC },
+  { label: "Groupe fonctionnel", value: GROUP_FONCTIONAL },
 ];
 
 export const SearchPage = () => {
@@ -143,34 +178,97 @@ export const SearchPage = () => {
     }
   }, []);
 
-  // Filters groups
+  // Filter & sort groups
   useEffect(() => {
-    setGroups(
+    // Filters
+    let filteredGroups =
       results.groups?.filter((group) => {
-        if (groupType.value === 1) {
-          return group.isCertified;
+        switch (groupType.value) {
+          case GROUP_TYPE_CERTIFIED:
+            return group.isCertified;
+          case GROUP_TYPE_NOT_CERTIFIED:
+            return !group.isCertified;
+          case GROUP_LOCAL:
+            return group.type === GROUP_LOCAL;
+          case GROUP_THEMATIC:
+            return group.type === GROUP_THEMATIC;
+          case GROUP_FONCTIONAL:
+            return group.type === GROUP_FONCTIONAL;
+          default:
+            return true;
         }
-        if (groupType.value === 2) {
-          return !group.isCertified;
-        }
-        return true;
-      }) || []
-    );
+      }) || [];
+
+    // Sort by
+    if (groupSort.value === ALPHA_ASC) {
+      filteredGroups = filteredGroups.sort((g1, g2) =>
+        g1.name.toLowerCase().localeCompare(g2.name.toLowerCase())
+      );
+    }
+    if (groupSort.value === ALPHA_DESC) {
+      filteredGroups = filteredGroups.sort((g1, g2) =>
+        g2.name.toLowerCase().localeCompare(g1.name.toLowerCase())
+      );
+    }
+
+    setGroups(filteredGroups);
   }, [results, groupType, groupSort]);
 
-  // Filters events
+  // Filter & sort events
   useEffect(() => {
-    setEvents(
+    // Filters
+    let filteredEvents =
       results.events?.filter((event) => {
-        if (eventCategory.value === 1) {
-          return event.isPast;
+        // Categories
+        if (
+          (eventCategory.value === EVENT_CAT_PAST && !event.isPast) ||
+          (eventCategory.value === EVENT_CAT_FUTURE && event.isPast)
+        ) {
+          return false;
         }
-        if (eventCategory.value === 2) {
-          return !event.isPast;
+
+        // Types
+        switch (eventType.value) {
+          case EVENT_TYPE_PUBLIC_MEETING:
+            return event.subtype.type === EVENT_TYPE_PUBLIC_MEETING;
+          case EVENT_TYPE_GROUP_MEETING:
+            return event.subtype.type === EVENT_TYPE_GROUP_MEETING;
+          case EVENT_TYPE_PUBLIC_ACTION:
+            return event.subtype.type === EVENT_TYPE_PUBLIC_ACTION;
+          case EVENT_TYPE_OTHER:
+            return event.subtype.type === EVENT_TYPE_OTHER;
+          default:
+            return true;
         }
-        return true;
-      }) || []
-    );
+      }) || [];
+
+    // Sort by
+    switch (eventSort.value) {
+      case ALPHA_ASC:
+        filteredEvents = filteredEvents.sort((e1, e2) =>
+          e1.name.toLowerCase().localeCompare(e2.name.toLowerCase())
+        );
+        break;
+      case ALPHA_DESC:
+        filteredEvents = filteredEvents.sort((e1, e2) =>
+          e2.name.toLowerCase().localeCompare(e1.name.toLowerCase())
+        );
+        break;
+      case DATE_ASC:
+        filteredEvents = filteredEvents.sort(
+          (e1, e2) => new Date(e1.startTime) - new Date(e2.startTime)
+        );
+        break;
+      case DATE_DESC:
+        filteredEvents = filteredEvents.sort(
+          (e1, e2) => new Date(e2.startTime) - new Date(e1.startTime)
+        );
+        break;
+      default:
+        break;
+    }
+
+    setEvents(filteredEvents);
   }, [results, eventType, eventSort, eventCategory]);
 
   const updateSearch = (e) => {
@@ -386,9 +484,12 @@ export const SearchPage = () => {
         </>
       )}
 
-      {activeTab === ALL &&
-        !results.events?.length &&
-        !results.groups?.length && <>Aucun résultat lié à cette recherche</>}
+      {activeTab === ALL && !results.events?.length && !results.groups?.length && (
+        <>
+          <Spacer size="1rem" />
+          Aucun résultat lié à cette recherche
+        </>
+      )}
     </StyledContainer>
   );
 };
