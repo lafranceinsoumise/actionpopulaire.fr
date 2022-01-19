@@ -1,8 +1,5 @@
-import re
-import secrets
 from functools import reduce
 from operator import add
-from string import ascii_uppercase, digits
 
 import reversion
 from django.contrib.admin.options import get_content_type_for_model
@@ -20,14 +17,7 @@ from agir.lib.search import PrefixSearchQuery
 
 __all__ = ("Compte", "InstanceCherchable", "Autorisation")
 
-
-ALPHABET = ascii_uppercase + digits
-NUMERO_RE = re.compile("^[A-Z0-9]{3}-[A-Z0-9]{1,3}$")
-
-
-def numero_unique():
-    chars = [secrets.choice(ALPHABET) for _ in range(6)]
-    return f"{''.join(chars[:3])}-{''.join(chars[3:])}"
+from agir.lib.utils import NUMERO_RE, numero_unique
 
 
 class NumeroQueryset(models.QuerySet):
