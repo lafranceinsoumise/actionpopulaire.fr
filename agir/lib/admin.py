@@ -229,7 +229,6 @@ class AddRelatedLinkMixin(BaseModelAdmin):
                 # ForeignObject est l'ancêtre de tous les champs liés directs à destination unique
                 # OneToOneRel est l'unique champ lié inverse à destination unique
                 if isinstance(f, (ForeignObject, OneToOneRel)):
-                    print(f)
                     get_link = partial(
                         self._get_link, attr_name=attr_name, view_name=view_name
                     )

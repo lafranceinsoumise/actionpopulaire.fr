@@ -221,17 +221,40 @@ class CommentaireForm(forms.Form):
         )
 
 
-class DepenseDevisForm(forms.ModelForm):
-    devis = forms.FileField(label="Devis", max_length=30e6, required=False)  # 30 Mo
+class AjoutRapideDepenseForm(forms.ModelForm):
+    type_document = forms.ChoiceField(
+        label="Type de Document",
+        choices=[("", "")] + TypeDocument.choices,
+        widget=HierarchicalSelect,
+        required=False,
+    )
+    fichier = forms.FileField(label="Fichier", required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data.get("type_document") and not cleaned_data.get("fichier"):
+            self.add_error(
+                "fichier",
+                ValidationError(
+                    "Sélectionnez le fichier correspondant au type de document choisi."
+                ),
+            )
+        elif cleaned_data.get("fichier") and not cleaned_data.get("type_document"):
+            self.add_error(
+                "type_document",
+                ValidationError("Indiquez de quel type de document il s'agit."),
+            )
 
     def _save_m2m(self):
         super()._save_m2m()
 
-        if "devis" in self.cleaned_data and self.cleaned_data["devis"]:
+        if self.cleaned_data.get("type_document") and self.cleaned_data.get("fichier"):
+            type_document_label = TypeDocument(self.cleaned_data["type_document"]).label
             document = Document.objects.create(
-                titre=f"Devis pour {self.instance.titre}",
-                fichier=self.cleaned_data["devis"],
-                type=TypeDocument.DEVIS,
+                titre=f"{type_document_label} pour {self.instance.titre}",
+                fichier=self.cleaned_data["fichier"],
+                type=self.cleaned_data["type_document"],
             )
             self.instance.documents.add(document)
 
