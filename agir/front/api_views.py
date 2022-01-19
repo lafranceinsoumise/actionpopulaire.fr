@@ -7,7 +7,7 @@ from agir.events.models import Event
 from agir.groups.models import SupportGroup
 
 from rest_framework.response import Response
-from agir.groups.serializers import SupportGroupSerializer
+from agir.groups.serializers import SupportGroupDetailSerializer
 from agir.events.serializers import EventSerializer
 
 
@@ -28,8 +28,6 @@ class SearchAPIView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
 
         q = request.GET.get("q", "")
-        # print("======= SEARCH EVENTS AND GROUPS", flush=True)
-        # print(q, flush=True)
 
         support_groups = self.querysets["support_groups"]
         upcoming_events = self.querysets["upcoming_events"]
@@ -51,9 +49,10 @@ class SearchAPIView(RetrieveAPIView):
 
         event_count = int(upcoming_events.count()) + int(past_events.count())
 
-        group_serializer = SupportGroupSerializer(
+        group_serializer = SupportGroupDetailSerializer(
             data=support_groups, context={"request": self.request}, many=True
         )
+
         group_serializer.is_valid()
 
         event_serializer = EventSerializer(
@@ -68,7 +67,5 @@ class SearchAPIView(RetrieveAPIView):
                 "event_count": event_count,
                 "groups": group_serializer.data,
                 "events": event_serializer.data,
-                # "upcoming_events": upcoming_events,
-                # "past_events": past_events,
             }
         )

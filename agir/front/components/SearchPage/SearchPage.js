@@ -14,8 +14,9 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import SelectField from "@agir/front/formComponents/SelectField";
 
 import EventCard from "@agir/front/genericComponents/EventCard";
-import GroupCard from "@agir/groups/groupComponents/GroupCard";
-// import GroupSuggestionCard from "@agir/groups/groupPage/GroupSuggestionCard";
+import GroupSuggestionCard from "@agir/groups/groupPage/GroupSuggestionCard";
+import { GroupSuggestionCarousel } from "@agir/groups/groupPage/GroupSuggestions";
+import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import { getSearch } from "./api.js";
 
@@ -27,15 +28,21 @@ const SearchBarWrapper = styled.div`
   align-items: center;
   flex: 1;
   height: 50px;
+
+  @media (max-width: ${style.collapse}px) {
+    height: 40px;
+  }
 `;
 
 const SearchBarInput = styled.input`
   border: none;
   max-width: 100%;
   width: 90%;
-  height: 2.5rem;
+  height: 100%;
   margin-left: 2.5rem;
   padding-left: 0.5rem;
+  display: inline-flex;
+  flex: 1;
 
   ::placeholder {
     color: ${style.black500};
@@ -151,6 +158,23 @@ const optionsGroupType = [
   { label: "Groupe fonctionnel", value: GROUP_FONCTIONAL },
 ];
 
+const GroupSuggestionDesktop = ({ groups }) => {
+  return (
+    <div style={{ display: "flex" }}>
+      {groups.map((group, i) => {
+        return (
+          <>
+            {i + (1 % 3) === 0 && <Spacer size={"1rem"} />}
+            <div style={{ flex: 1, marginRight: "10px" }}>
+              <GroupSuggestionCard key={group.id} {...group} />
+            </div>
+          </>
+        );
+      })}
+    </div>
+  );
+};
+
 export const SearchPage = () => {
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
@@ -199,13 +223,16 @@ export const SearchPage = () => {
         }
       }) || [];
 
+    if (activeTab === ALL) {
+      filteredGroups = filteredGroups.slice(0, 3);
+    }
+
     // Sort by
     if (groupSort.value === ALPHA_ASC) {
       filteredGroups = filteredGroups.sort((g1, g2) =>
         g1.name.toLowerCase().localeCompare(g2.name.toLowerCase())
       );
-    }
-    if (groupSort.value === ALPHA_DESC) {
+    } else if (groupSort.value === ALPHA_DESC) {
       filteredGroups = filteredGroups.sort((g1, g2) =>
         g2.name.toLowerCase().localeCompare(g1.name.toLowerCase())
       );
@@ -241,6 +268,10 @@ export const SearchPage = () => {
             return true;
         }
       }) || [];
+
+    if (activeTab === ALL) {
+      filteredEvents = filteredEvents.slice(0, 10);
+    }
 
     // Sort by
     switch (eventSort.value) {
@@ -295,10 +326,20 @@ export const SearchPage = () => {
   const onTabChange = (tab) => {
     setActiveTab(tab);
     setShowFilters(false);
+    resetFilters();
   };
 
   const switchFilters = () => {
     setShowFilters(!showFilters);
+    resetFilters();
+  };
+  const resetFilters = () => {
+    setEventSort(optionsEventSort[0]);
+    setEventType(optionsEventType[0]);
+    setEventCategory(optionsEventCategory[0]);
+
+    setGroupSort(optionsGroupSort[0]);
+    setGroupType(optionsGroupType[0]);
   };
 
   const handleSubmit = async (e) => {
@@ -310,6 +351,7 @@ export const SearchPage = () => {
     const { data, error } = await getSearch(inputSearch);
     setResults(data);
     setQuerySearch(inputSearch);
+    resetFilters();
   };
 
   return (
@@ -356,9 +398,11 @@ export const SearchPage = () => {
       {[EVENTS, GROUPS].includes(activeTab) && (
         <div>
           <Spacer size="1rem" />
-          <Button small icon="filter" onClick={switchFilters}>
-            Filtrer
-          </Button>
+          <div style={{ textAlign: "right" }}>
+            <Button small icon="filter" onClick={switchFilters}>
+              Filtrer
+            </Button>
+          </div>
           <Spacer size="1rem" />
 
           {showFilters && (
@@ -437,13 +481,13 @@ export const SearchPage = () => {
               )}
             </h2>
           )}
-          {groups.map((group) => (
-            <>
-              <GroupCard key={group.id} {...group} />
-              {/* <GroupSuggestionCard key={group.id} {...group} /> */}
-              <Spacer size="1rem" />
-            </>
-          ))}
+          <div>
+            <ResponsiveLayout
+              MobileLayout={GroupSuggestionCarousel}
+              DesktopLayout={GroupSuggestionDesktop}
+              groups={groups}
+            />
+          </div>
           {activeTab === GROUPS && !results.groups?.length && (
             <>Aucun groupe lié à cette recherche</>
           )}

@@ -472,9 +472,8 @@ export const routeConfig = {
   }),
   search: new RouteConfig({
     id: "search",
-    path: ["/recherche/", "/recherche/groupes/", "/recherche/evenements/"],
+    path: ["/recherche/"],
     neededAuthentication: AUTHENTICATION.NONE,
-    params: { type: null },
     Component: SearchPage,
     label: "Rechercher",
     hasLayout: false,

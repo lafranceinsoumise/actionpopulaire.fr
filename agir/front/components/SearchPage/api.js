@@ -12,8 +12,6 @@ export const getSearch = async (data) => {
     error: null,
   };
 
-  console.log("data to search ", data);
-
   try {
     const response = await axios.get(`${ENDPOINT.search}?q=${data}`);
     result.data = response.data;
