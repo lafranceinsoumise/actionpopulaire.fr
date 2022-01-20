@@ -30,6 +30,7 @@ from agir.voting_proxies.serializers import (
     CommuneOrConsulateSerializer,
     VotingProxySerializer,
     CreateVotingProxySerializer,
+    AcceptedVotingProxyRequestSerializer,
 )
 from agir.voting_proxies.tasks import send_voting_proxy_information_for_request
 
@@ -76,7 +77,9 @@ class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
     permission_classes = (permissions.AllowAny,)
-    queryset = VotingProxy.objects.filter(status=VotingProxy.STATUS_CREATED)
+    queryset = VotingProxy.objects.filter(
+        status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE)
+    )
     serializer_class = None
 
     def retrieve(self, request, *args, **kwargs):
@@ -223,3 +226,25 @@ class VotingProxyRequestConfirmAPIView(UpdateAPIView):
         voting_proxy_requests = self.get_voting_proxy_requests(request.data)
         confirm_voting_proxy_requests(voting_proxy_requests)
         return Response(status=status.HTTP_200_OK)
+
+
+class AcceptedVotingProxyRequestListAPIView(ListAPIView):
+    permission_classes = (permissions.AllowAny,)
+    queryset = VotingProxyRequest.objects.filter(
+        status__in=(
+            VotingProxyRequest.STATUS_ACCEPTED,
+            VotingProxyRequest.STATUS_CONFIRMED,
+        ),
+        proxy__isnull=False,
+    )
+    serializer_class = AcceptedVotingProxyRequestSerializer
+
+    def get_queryset(self):
+        pks = self.request.GET.get("vpr", None)
+        if not pks:
+            raise Http404
+        pks = pks.split(",")
+        queryset = self.queryset.filter(pk__in=pks)
+        if not queryset.exists():
+            raise Http404
+        return queryset.order_by("voting_date")

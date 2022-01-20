@@ -8,6 +8,10 @@ export const ENDPOINT = {
   retrieveUpdateVotingProxy: "/api/procurations/volontaire/:votingProxyPk/",
   replyToVotingProxyRequests:
     "/api/procurations/volontaire/:votingProxyPk/demandes/",
+  acceptedVotingProxyRequests: "/api/procurations/demande/reponse/",
+  sendVotingProxyInformation:
+    "/api/procurations/demande/:votingProxyRequestPk/volontaire/",
+  confirmVotingProxyRequests: "/api/procurations/demande/confirmer/",
 };
 
 export const getVotingProxyEndpoint = (key, params, searchParams) => {
@@ -151,6 +155,55 @@ export const replyToVotingProxyRequests = async (votingProxyPk, body) => {
   } catch (e) {
     if (e.response?.data && typeof e.response.data === "object") {
       result.error = e.response.data;
+    } else {
+      result.error = { global: e.message || "Une erreur est survenue" };
+    }
+  }
+
+  return result;
+};
+
+export const sendVotingProxyInformation = async (votingProxyRequests) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  let votingProxyRequestPk = votingProxyRequests.find(
+    (request) => request.status === "accepted"
+  );
+  votingProxyRequestPk = votingProxyRequestPk?.id || votingProxyRequests[0].id;
+  const url = getVotingProxyEndpoint("sendVotingProxyInformation", {
+    votingProxyRequestPk,
+  });
+  try {
+    const response = await axios.get(url);
+    result.data = response.data;
+  } catch (e) {
+    if (e.response?.data && typeof e.response.data === "object") {
+      result.error = Object.values(e.response.data)[0];
+    } else {
+      result.error = { global: e.message || "Une erreur est survenue" };
+    }
+  }
+
+  return result;
+};
+
+export const confirmVotingProxyRequests = async (votingProxyRequests) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getVotingProxyEndpoint("confirmVotingProxyRequests");
+  const body = {
+    votingProxyRequests: votingProxyRequests.map((request) => request.id),
+  };
+  try {
+    const response = await axios.patch(url, body);
+    result.data = response.data;
+  } catch (e) {
+    if (e.response?.data && typeof e.response.data === "object") {
+      result.error = Object.values(e.response.data)[0];
     } else {
       result.error = { global: e.message || "Une erreur est survenue" };
     }

@@ -172,6 +172,11 @@ voting_proxy_patterns = [
         views.BaseAppCachedView.as_view(),
         name="reply_to_voting_proxy_requests",
     ),
+    path(
+        "reponse/",
+        views.BaseAppCachedView.as_view(),
+        name="voting_proxy_request_details",
+    ),
 ]
 
 urlpatterns = [

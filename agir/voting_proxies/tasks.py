@@ -3,9 +3,8 @@ from celery import shared_task
 from agir.lib.celery import post_save_task
 from agir.lib.http import add_query_params_to_url
 from agir.lib.sms import send_sms, SMSSendException
-from agir.lib.utils import shorten_url
+from agir.lib.utils import shorten_url, front_url
 from agir.voting_proxies.models import VotingProxyRequest
-from agir.voting_proxies.links import VotingProxyLink
 
 
 @shared_task
@@ -44,9 +43,9 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         voting_dates = "le " + voting_dates
 
     try:
-        link = add_query_params_to_url(
-            VotingProxyLink.ACCEPTED_VOTING_PROXY_REQUEST_DETAIL,
-            {"vpr": ",".join([str(pk) for pk in voting_proxy_request_pks])},
+        link = front_url(
+            "voting_proxy_request_details",
+            query={"vpr": ",".join([str(pk) for pk in voting_proxy_request_pks])},
         )
         link = shorten_url(link, secret=True)
         request_owner_message = (
@@ -92,6 +91,7 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
     message = (
         f"Procuration de vote établie ({voting_date_string}) :"
         f" {voting_proxy_request.first_name} {voting_proxy_request.last_name.upper()}"
+        f" - {voting_proxy_request.commune.nom if voting_proxy_request.commune else voting_proxy_request.consulate.nom}"
         f" - bureau de vote {voting_proxy_request.polling_station_number}"
         f" - tél. {voting_proxy_request.contact_phone}."
     )
