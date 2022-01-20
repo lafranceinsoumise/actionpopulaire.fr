@@ -130,12 +130,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "rsvp",
         "routes",
         "groups",
-        "participants",
         "organizers",
         "distance",
-        "compteRendu",
-        "compteRenduMainPhoto",
-        "compteRenduPhotos",
         "subtype",
         "onlineUrl",
     ]

@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useCopyToClipboard as useCTC } from "react-use";
+import { useToast } from "@agir/front/globalContext/hooks";
 
-const useCopyToClipboard = (text = "", resetInterval = 5000) => {
+const useCopyToClipboard = (
+  text = "",
+  resetInterval = 5000,
+  successToast = null
+) => {
+  const sendToast = useToast();
   const [isCopied, setIsCopied] = useState(false);
   const [state, copyToClipboard] = useCTC();
   const { error } = state;
@@ -20,6 +26,12 @@ const useCopyToClipboard = (text = "", resetInterval = 5000) => {
   useEffect(() => {
     error && console.error(error?.message);
   }, [error]);
+
+  useEffect(() => {
+    if (isCopied && successToast) {
+      sendToast(successToast, "SUCCESS", { autoClose: true });
+    }
+  }, [isCopied, successToast]);
 
   useEffect(() => {
     let timeout;

@@ -97,11 +97,19 @@ class GroupTypeStep extends FormStep {
   constructor(props) {
     super(props);
     this.groupRefs = props.types.map(() => React.createRef());
+    this.state = {
+      hasError: false,
+    };
   }
 
   isValidated() {
     const { subtypes } = this.props.fields;
-    return !!subtypes && subtypes.length !== 0;
+    if (!!subtypes && subtypes.length !== 0) {
+      return true;
+    } else {
+      this.setState({ hasError: true });
+      return false;
+    }
   }
 
   subtypesFor(type) {
@@ -110,6 +118,8 @@ class GroupTypeStep extends FormStep {
 
   setType(type) {
     return () => {
+      this.setState({ hasError: false });
+
       if (type !== this.state.type) {
         this.props.setFields({ type, subtypes: [] });
       }
@@ -237,6 +247,11 @@ class GroupTypeStep extends FormStep {
               }}
             </Transition>
           ))}
+          {this.state.hasError && (
+            <div className="alert alert-warning margintopless marginbottomless">
+              Veuillez choisir un type de groupe avant de continuer.
+            </div>
+          )}
         </div>
       </div>
     );

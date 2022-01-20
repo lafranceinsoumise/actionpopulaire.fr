@@ -37,10 +37,10 @@ const StyledList = styled.main`
   display: flex;
   align-items: stretch;
   flex-flow: row nowrap;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.15), 0px 3px 3px rgba(0, 35, 44, 0.1);
-  border-radius: 4px;
-  border: 1px solid ${style.black200};
   overflow: hidden;
+  border: 1px solid ${style.black200};
+  border-top: 0;
+  border-bottom: 0;
 
   @media (max-width: ${style.collapse}px) {
     display: block;

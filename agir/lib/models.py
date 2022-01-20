@@ -177,7 +177,7 @@ class LocationMixin(models.Model):
         )
 
     def should_relocate_when_address_changed(self):
-        return not self.has_location() or self.has_automatic_location()
+        return not self.has_location() or not self.has_manual_location()
 
     @property
     def departement(self):

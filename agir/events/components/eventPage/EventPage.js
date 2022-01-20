@@ -214,13 +214,13 @@ const MobileLayout = (props) => {
               />
             </Card>
             <EventLocationCard
+              isStatic
               name={name}
               timezone={props.timezone}
               schedule={props.schedule}
               location={location}
               routes={routes}
               subtype={subtype}
-              isStatic={true}
               hideMap={illustration === null}
             />
             <EventInfoCard {...props} />

@@ -1,3 +1,4 @@
+from functools import partial
 from urllib.parse import urlencode
 
 from crispy_forms.helper import FormHelper
@@ -5,7 +6,8 @@ from crispy_forms.layout import Field, Div
 from crispy_forms.layout import Fieldset
 from crispy_forms.layout import HTML, Row, Submit, Layout
 from django import forms
-from django.forms import Form, BooleanField
+from django.db import transaction
+from django.forms import Form
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -17,7 +19,6 @@ from agir.lib.models import RE_FRENCH_ZIPCODE
 from agir.lib.tasks import geocode_person
 from agir.lib.utils import generate_token_params
 from agir.people.form_mixins import ContactPhoneNumberMixin
-from agir.people.forms import FormActions
 from agir.people.forms.mixins import LegacySubscribedMixin
 from agir.people.models import PersonTag, Person
 from agir.people.tags import skills_tags
@@ -161,15 +162,10 @@ class PersonalInformationsForm(ImageFormMixin, forms.ModelForm):
 
     def _save_m2m(self):
         super()._save_m2m()
-
-        address_has_changed = any(
-            f in self.changed_data for f in self.instance.GEOCODING_FIELDS
-        )
-
-        if address_has_changed and self.instance.should_relocate_when_address_changed():
-            self.instance.location_citycode = ""
-            self.instance.save()
-            geocode_person.delay(self.instance.pk)
+        if not self.instance.should_relocate_when_address_changed():
+            return
+        if any(field in self.changed_data for field in self.instance.GEOCODING_FIELDS):
+            transaction.on_commit(partial(geocode_person.delay, self.instance.pk))
 
     class Meta:
         model = Person
