@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 
 import { useLocation } from "react-router-dom";
-import { Interval } from "luxon";
 
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -11,13 +10,10 @@ import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { Hide } from "@agir/front/genericComponents/grid";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import SelectField from "@agir/front/formComponents/SelectField";
 
-import EventCard from "@agir/front/genericComponents/EventCard";
-import GroupSuggestionCard from "@agir/groups/groupPage/GroupSuggestionCard";
-import { GroupSuggestionCarousel } from "@agir/groups/groupPage/GroupSuggestions";
+import { GroupList, EventList } from "./resultsComponents";
 
 import mapImg from "./images/Bloc_map.jpg";
 
@@ -127,18 +123,6 @@ const StyledMapButton = styled.div`
   }
 `;
 
-const StyledGroupsDesktop = styled.div`
-  display: flex;
-  flex-flow: wrap;
-  justify-content: space-between;
-
-  > div {
-    width: 100%;
-    max-width: 310px;
-    margin-bottom: 10px;
-  }
-`;
-
 const StyledHeaderSearch = styled.div`
   display: flex;
   justify-content: space-between;
@@ -159,7 +143,7 @@ const StyledHeaderSearch = styled.div`
   }
 `;
 
-const [ALL, GROUPS, EVENTS] = [0, 1, 2];
+export const [TAB_ALL, TAB_GROUPS, TAB_EVENTS] = [0, 1, 2];
 const FILTER_TABS = ["Tout", "Groupes", "Événements"];
 
 const INIT_RESULTS = {
@@ -218,16 +202,6 @@ const optionsGroupType = [
   { label: "Groupe fonctionnel", value: GROUP_FONCTIONAL },
 ];
 
-const GroupsDesktop = ({ groups }) => (
-  <StyledGroupsDesktop>
-    {groups.map((group) => (
-      <div>
-        <GroupSuggestionCard key={group.id} {...group} />
-      </div>
-    ))}
-  </StyledGroupsDesktop>
-);
-
 const MapButton = () => (
   <StyledMapButton>
     <StyledLink route="eventMap">
@@ -246,7 +220,7 @@ const HeaderSearch = ({ querySearch, activeTab }) => (
         postal...
       </Hide>
     </div>
-    {activeTab === ALL && <MapButton />}
+    {activeTab === TAB_ALL && <MapButton />}
   </StyledHeaderSearch>
 );
 
@@ -301,7 +275,7 @@ export const SearchPage = () => {
         }
       }) || [];
 
-    if (activeTab === ALL) {
+    if (activeTab === TAB_ALL) {
       filteredGroups = filteredGroups.slice(0, 3);
     }
 
@@ -347,7 +321,7 @@ export const SearchPage = () => {
         }
       }) || [];
 
-    if (activeTab === ALL) {
+    if (activeTab === TAB_ALL) {
       filteredEvents = filteredEvents.slice(0, 10);
     }
 
@@ -475,25 +449,25 @@ export const SearchPage = () => {
         onTabChange={onTabChange}
       />
 
-      {[EVENTS, GROUPS].includes(activeTab) && (
+      {[TAB_EVENTS, TAB_GROUPS].includes(activeTab) && (
         <div>
-          {(activeTab === EVENTS && !!results.events?.length) ||
-            (activeTab === GROUPS && !!results.groups?.length && (
-              <>
-                <Spacer size="1rem" />
-                <div style={{ textAlign: "right" }}>
-                  <Button small icon="filter" onClick={switchFilters}>
-                    Filtrer
-                  </Button>
-                </div>
-              </>
-            ))}
+          {((activeTab === TAB_EVENTS && !!results.events?.length) ||
+            (activeTab === TAB_GROUPS && !!results.groups?.length)) && (
+            <>
+              <Spacer size="1rem" />
+              <div style={{ textAlign: "right" }}>
+                <Button small icon="filter" onClick={switchFilters}>
+                  Filtrer
+                </Button>
+              </div>
+            </>
+          )}
 
           <Spacer size="1rem" />
 
           {showFilters && (
             <StyledFilters>
-              {activeTab === EVENTS && (
+              {activeTab === TAB_EVENTS && (
                 <>
                   <SelectField
                     key={1}
@@ -525,7 +499,7 @@ export const SearchPage = () => {
                 </>
               )}
 
-              {activeTab === GROUPS && (
+              {activeTab === TAB_GROUPS && (
                 <>
                   <SelectField
                     key={1}
@@ -553,81 +527,27 @@ export const SearchPage = () => {
         </div>
       )}
 
-      {[ALL, GROUPS].includes(activeTab) && (
-        <>
-          {!!groups?.length && (
-            <h2>
-              <div>
-                Groupes <span>{groups.length}</span>
-              </div>
-              {activeTab === ALL && (
-                <Button
-                  color="primary"
-                  small
-                  onClick={() => setActiveTab(GROUPS)}
-                >
-                  Voir tout
-                </Button>
-              )}
-            </h2>
-          )}
-          <div>
-            <ResponsiveLayout
-              MobileLayout={GroupSuggestionCarousel}
-              DesktopLayout={GroupsDesktop}
-              groups={groups}
-            />
-          </div>
-          {activeTab === GROUPS && !results.groups?.length && (
-            <>Aucun groupe lié à cette recherche</>
-          )}
-        </>
-      )}
+      <GroupList
+        results={results}
+        groups={groups}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
+      <EventList
+        results={results}
+        events={events}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
 
-      {[ALL, EVENTS].includes(activeTab) && (
-        <>
-          {!!events.length && (
-            <h2>
-              <div>
-                Evénements <span>{events.length}</span>
-              </div>
-              {activeTab === ALL && (
-                <Button
-                  color="primary"
-                  small
-                  onClick={() => setActiveTab(EVENTS)}
-                >
-                  Voir tout
-                </Button>
-              )}
-            </h2>
-          )}
-          {events.map((event) => {
-            return (
-              <>
-                <EventCard
-                  key={event.id}
-                  {...event}
-                  schedule={Interval.fromISO(
-                    `${event.startTime}/${event.endTime}`
-                  )}
-                />
-                <Spacer size="1rem" />
-              </>
-            );
-          })}
-          {activeTab === EVENTS && !results.events?.length && (
-            <>Aucun événement lié à cette recherche</>
-          )}
-        </>
-      )}
-
-      {activeTab === ALL && !results.events?.length && !results.groups?.length && (
-        <>
-          <Spacer size="1rem" />
-          Aucun résultat lié à cette recherche
-        </>
-      )}
+      {activeTab === TAB_ALL &&
+        !results.events?.length &&
+        !results.groups?.length && (
+          <>
+            <Spacer size="1rem" />
+            Aucun résultat lié à cette recherche
+          </>
+        )}
     </StyledContainer>
   );
 };
