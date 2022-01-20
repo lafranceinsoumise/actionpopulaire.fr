@@ -254,6 +254,7 @@ export const SearchPage = () => {
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const query = urlParams.get("q") || "";
+  const [disabled, setDisabled] = useState(false);
 
   const [querySearch, setQuerySearch] = useState(query);
   const [inputSearch, setInputSearch] = useState("");
@@ -272,7 +273,9 @@ export const SearchPage = () => {
 
   useEffect(async () => {
     if (!!querySearch) {
+      setDisabled(true);
       const { data, error } = await getSearch(querySearch);
+      setDisabled(false);
       setResults(data);
     }
   }, []);
@@ -423,7 +426,9 @@ export const SearchPage = () => {
     if (!inputSearch) {
       return;
     }
+    setDisabled(true);
     const { data, error } = await getSearch(inputSearch);
+    setDisabled(false);
     setResults(data);
     setQuerySearch(inputSearch);
     resetFilters();
@@ -456,6 +461,7 @@ export const SearchPage = () => {
             color="primary"
             onClick={handleSubmit}
             style={{ marginLeft: "1rem" }}
+            disabled={disabled}
           >
             Rechercher
           </Button>

@@ -2,8 +2,6 @@ import axios from "@agir/lib/utils/axios";
 
 const ENDPOINT = {
   search: "/api/recherche/",
-  searchGroups: "/api/recherche/groupes/",
-  searchEvents: "/api/recherche/evenements/",
 };
 
 export const getSearch = async (data) => {
