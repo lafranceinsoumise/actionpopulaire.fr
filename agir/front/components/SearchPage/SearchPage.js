@@ -7,6 +7,8 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
+import Link from "@agir/front/app/Link";
+
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { Hide } from "@agir/front/genericComponents/grid";
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
@@ -17,6 +19,8 @@ import EventCard from "@agir/front/genericComponents/EventCard";
 import GroupSuggestionCard from "@agir/groups/groupPage/GroupSuggestionCard";
 import { GroupSuggestionCarousel } from "@agir/groups/groupPage/GroupSuggestions";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+
+import mapImg from "./images/Bloc_map.jpg";
 
 import { getSearch } from "./api.js";
 
@@ -99,6 +103,63 @@ const StyledFilters = styled.div`
   }
 `;
 
+const StyledLink = styled(Link)``;
+
+const StyledMapButton = styled.div`
+  max-width: 370px;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: ${style.borderRadius};
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+
+  ${StyledLink} > div:first-child {
+    height: 80px;
+    background-image: url("${mapImg}");
+    background-size: cover;
+  }
+  ${StyledLink} > div:nth-child(2) {
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: ${style.black1000};
+  }
+`;
+
+const StyledGroupsDesktop = styled.div`
+  display: flex;
+  flex-flow: wrap;
+  justify-content: space-between;
+
+  > div {
+    width: 100%;
+    max-width: 310px;
+    margin-bottom: 10px;
+  }
+`;
+
+const StyledHeaderSearch = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+
+  > div:first-child {
+    max-width: 480px;
+  }
+  h1 {
+    margin: 0;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    flex-direction: column-reverse;
+    h1 {
+      font-size: 20px;
+    }
+  }
+`;
+
 const [ALL, GROUPS, EVENTS] = [0, 1, 2];
 const FILTER_TABS = ["Tout", "Groupes", "Événements"];
 
@@ -158,22 +219,40 @@ const optionsGroupType = [
   { label: "Groupe fonctionnel", value: GROUP_FONCTIONAL },
 ];
 
-const GroupSuggestionDesktop = ({ groups }) => {
-  return (
-    <div style={{ display: "flex" }}>
-      {groups.map((group, i) => {
-        return (
-          <>
-            {i + (1 % 3) === 0 && <Spacer size={"1rem"} />}
-            <div style={{ flex: 1, marginRight: "10px" }}>
-              <GroupSuggestionCard key={group.id} {...group} />
-            </div>
-          </>
-        );
-      })}
-    </div>
-  );
-};
+const GroupsDesktop = ({ groups }) => (
+  <StyledGroupsDesktop>
+    {groups.map((group) => (
+      <div>
+        <GroupSuggestionCard key={group.id} {...group} />
+      </div>
+    ))}
+  </StyledGroupsDesktop>
+);
+
+const MapButton = () => (
+  <StyledMapButton>
+    <StyledLink route="eventMap">
+      <div />
+      <div>Voir la carte</div>
+    </StyledLink>
+  </StyledMapButton>
+);
+
+const HeaderSearch = ({ querySearch, activeTab }) => (
+  <>
+    <StyledHeaderSearch>
+      <div>
+        <h1>{!querySearch ? "Rechercher" : `Recherche : "${querySearch}"`}</h1>
+        <Hide under as="span">
+          Recherchez des événements et des groupes d'actions par nom, ville,
+          code postal...
+        </Hide>
+      </div>
+      {activeTab === ALL && <MapButton />}
+    </StyledHeaderSearch>
+    <Spacer size="1rem" />
+  </>
+);
 
 export const SearchPage = () => {
   const { search } = useLocation();
@@ -356,9 +435,8 @@ export const SearchPage = () => {
 
   return (
     <StyledContainer>
-      <h1 style={{ marginTop: 0 }}>
-        {!querySearch ? "Rechercher" : `Recherche : "${querySearch}"`}
-      </h1>
+      <HeaderSearch querySearch={querySearch} activeTab={activeTab} />
+
       <form onSubmit={handleSubmit} style={{ display: "flex" }}>
         <SearchBarWrapper>
           <RawFeatherIcon
@@ -484,7 +562,7 @@ export const SearchPage = () => {
           <div>
             <ResponsiveLayout
               MobileLayout={GroupSuggestionCarousel}
-              DesktopLayout={GroupSuggestionDesktop}
+              DesktopLayout={GroupsDesktop}
               groups={groups}
             />
           </div>

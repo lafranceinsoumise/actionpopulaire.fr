@@ -19,6 +19,7 @@ const StyledCard = styled(Card)`
   border: 1px solid ${style.black100};
   box-shadow: none;
   cursor: pointer;
+  overflow: hidden;
 
   @media (max-width: ${style.collapse}px) {
     width: calc(100vw - 4rem);
