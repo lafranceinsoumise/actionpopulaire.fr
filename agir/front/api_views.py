@@ -23,7 +23,7 @@ class SearchAPIView(RetrieveAPIView):
         support_groups = SupportGroup.objects.active().search(q).order_by("name")[:20]
         events = Event.objects.filter(
             visibility=Event.VISIBILITY_PUBLIC, do_not_list=False
-        )[:30]
+        ).search(q)[:30]
         result_count = int(support_groups.count()) + int(events.count())
 
         group_serializer = SupportGroupDetailSerializer(

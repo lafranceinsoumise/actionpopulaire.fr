@@ -66,7 +66,10 @@ export const GroupList = ({ results, groups, activeTab, setActiveTab }) => {
         />
       </div>
       {activeTab === TAB_GROUPS && !results.groups?.length && (
-        <>Aucun groupe lié à cette recherche</>
+        <>
+          <Spacer size="1rem" />
+          Aucun groupe lié à cette recherche
+        </>
       )}
     </>
   );
@@ -117,7 +120,10 @@ export const EventList = ({ results, events, activeTab, setActiveTab }) => {
         );
       })}
       {activeTab === TAB_EVENTS && !results.events?.length && (
-        <>Aucun événement lié à cette recherche</>
+        <>
+          <Spacer size="1rem" />
+          Aucun événement lié à cette recherche
+        </>
       )}
     </>
   );
