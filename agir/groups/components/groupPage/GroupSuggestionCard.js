@@ -20,6 +20,7 @@ const StyledCard = styled(Card)`
   box-shadow: none;
   cursor: pointer;
   overflow: hidden;
+  border-radius: ${style.borderRadius};
 
   @media (max-width: ${style.collapse}px) {
     width: calc(100vw - 4rem);

@@ -239,19 +239,16 @@ const MapButton = () => (
 );
 
 const HeaderSearch = ({ querySearch, activeTab }) => (
-  <>
-    <StyledHeaderSearch>
-      <div>
-        <h1>{!querySearch ? "Rechercher" : `Recherche : "${querySearch}"`}</h1>
-        <Hide under as="span">
-          Recherchez des événements et des groupes d'actions par nom, ville,
-          code postal...
-        </Hide>
-      </div>
-      {activeTab === ALL && <MapButton />}
-    </StyledHeaderSearch>
-    <Spacer size="1rem" />
-  </>
+  <StyledHeaderSearch>
+    <div>
+      <h1>{!querySearch ? "Rechercher" : `Recherche : "${querySearch}"`}</h1>
+      <Hide under as="div" style={{ marginTop: "0.5rem" }}>
+        Recherchez des événements et des groupes d'actions par nom, ville, code
+        postal...
+      </Hide>
+    </div>
+    {activeTab === ALL && <MapButton />}
+  </StyledHeaderSearch>
 );
 
 export const SearchPage = () => {
