@@ -9,6 +9,7 @@ from django.utils.http import base36_to_int, int_to_base36, urlencode
 from phonenumber_field.phonenumber import to_python as to_phone_number
 from rest_framework import status
 from rest_framework.reverse import reverse
+from rest_framework.test import APITestCase
 
 from agir.api.redis import using_separate_redis_server
 from agir.people.actions.validation_codes import _initialize_buckets
@@ -18,10 +19,9 @@ from agir.people.tasks import (
     send_confirmation_merge_account,
 )
 from agir.events.models import Event, EventSubtype
-from agir.groups.models import SupportGroup
 
 
-class DashboardSearchTestCase(TestCase):
+class DashboardSearchTestCase(APITestCase):
     def setUp(self):
         self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
         day = timezone.timedelta(days=1)
@@ -54,17 +54,17 @@ class DashboardSearchTestCase(TestCase):
             for_users=Event.FOR_USERS_2022,
         )
 
-    # def test_insoumise_persone_can_search_through_all_events(self):
-    #     self.client.force_login(self.person_insoumise.role)
-    #     res = self.client.get(reverse("dashboard_search") + "?q=e")
-    #     self.assertContains(res, self.event_insoumis.name)
-    #     self.assertContains(res, self.event_2022.name)
+    def test_insoumise_persone_can_search_through_all_events(self):
+        self.client.force_login(self.person_insoumise.role)
+        res = self.client.get(reverse("api_search") + "?q=e")
+        self.assertContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_2022.name)
 
-    # def test_2022_only_person_can_search_through_all_events(self):
-    #     self.client.force_login(self.person_2022.role)
-    #     res = self.client.get(reverse("dashboard_search") + "?q=e")
-    #     self.assertContains(res, self.event_insoumis.name)
-    #     self.assertContains(res, self.event_2022.name)
+    def test_2022_only_person_can_search_through_all_events(self):
+        self.client.force_login(self.person_2022.role)
+        res = self.client.get(reverse("api_search") + "?q=e")
+        self.assertContains(res, self.event_insoumis.name)
+        self.assertContains(res, self.event_2022.name)
 
 
 class ProfileTestCase(TestCase):

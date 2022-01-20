@@ -8,17 +8,16 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
-
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { Hide } from "@agir/front/genericComponents/grid";
-import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import SelectField from "@agir/front/formComponents/SelectField";
 
 import EventCard from "@agir/front/genericComponents/EventCard";
 import GroupSuggestionCard from "@agir/groups/groupPage/GroupSuggestionCard";
 import { GroupSuggestionCarousel } from "@agir/groups/groupPage/GroupSuggestions";
-import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import mapImg from "./images/Bloc_map.jpg";
 
@@ -472,12 +471,18 @@ export const SearchPage = () => {
 
       {[EVENTS, GROUPS].includes(activeTab) && (
         <div>
-          <Spacer size="1rem" />
-          <div style={{ textAlign: "right" }}>
-            <Button small icon="filter" onClick={switchFilters}>
-              Filtrer
-            </Button>
-          </div>
+          {(activeTab === EVENTS && !!results.events?.length) ||
+            (activeTab === GROUPS && !!results.groups?.length && (
+              <>
+                <Spacer size="1rem" />
+                <div style={{ textAlign: "right" }}>
+                  <Button small icon="filter" onClick={switchFilters}>
+                    Filtrer
+                  </Button>
+                </div>
+              </>
+            ))}
+
           <Spacer size="1rem" />
 
           {showFilters && (
@@ -550,7 +555,11 @@ export const SearchPage = () => {
                 Groupes <span>{groups.length}</span>
               </div>
               {activeTab === ALL && (
-                <Button color="primary" small onClick={() => setActiveTab(1)}>
+                <Button
+                  color="primary"
+                  small
+                  onClick={() => setActiveTab(GROUPS)}
+                >
                   Voir tout
                 </Button>
               )}
@@ -577,7 +586,11 @@ export const SearchPage = () => {
                 Evénements <span>{events.length}</span>
               </div>
               {activeTab === ALL && (
-                <Button color="primary" small onClick={() => setActiveTab(2)}>
+                <Button
+                  color="primary"
+                  small
+                  onClick={() => setActiveTab(EVENTS)}
+                >
                   Voir tout
                 </Button>
               )}

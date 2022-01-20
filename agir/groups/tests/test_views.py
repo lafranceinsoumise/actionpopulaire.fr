@@ -173,27 +173,27 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
         self.assertEqual(group.name, "New name")
         self.assertEqual(group.subtypes.all().count(), 1)
 
-    # @mock.patch("agir.people.views.dashboard.geocode_person")
-    # def test_cannot_view_unpublished_group(self, geocode_person):
-    #     self.client.force_login(self.person.role)
+    @mock.patch("agir.lib.tasks.geocode_person")
+    def test_cannot_view_unpublished_group(self, geocode_person):
+        self.client.force_login(self.person.role)
 
-    #     self.referent_group.published = False
-    #     self.referent_group.save()
+        self.referent_group.published = False
+        self.referent_group.save()
 
-    #     res = self.client.get("/groupes/{}/".format(self.referent_group.pk))
-    #     self.assertEqual(res.status_code, status.HTTP_410_GONE)
+        res = self.client.get("/groupes/{}/".format(self.referent_group.pk))
+        self.assertEqual(res.status_code, status.HTTP_410_GONE)
 
-    #     group_pages = [
-    #         "change_group_location",
-    #         "quit_group",
-    #     ]
-    #     for page in group_pages:
-    #         res = self.client.get(reverse(page, args=(self.referent_group.pk,)))
-    #         self.assertEqual(
-    #             res.status_code,
-    #             status.HTTP_404_NOT_FOUND,
-    #             '"{}" did not return 404'.format(page),
-    #         )
+        group_pages = [
+            "change_group_location",
+            "quit_group",
+        ]
+        for page in group_pages:
+            res = self.client.get(reverse(page, args=(self.referent_group.pk,)))
+            self.assertEqual(
+                res.status_code,
+                status.HTTP_404_NOT_FOUND,
+                '"{}" did not return 404'.format(page),
+            )
 
     def test_transfer_allowed_for_managers(self):
         res = self.client.post(

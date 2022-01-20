@@ -199,7 +199,7 @@ urlpatterns = [
     path(
         "api/recherche/",
         api_views.SearchAPIView.as_view(),
-        name="search",
+        name="api_search",
     ),
     path("mes-groupes/", views.UserSupportGroupsView.as_view(), name="list_my_groups"),
     path(
