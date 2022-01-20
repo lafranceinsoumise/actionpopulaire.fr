@@ -14,10 +14,9 @@ import FilterTabs from "@agir/front/genericComponents/FilterTabs";
 import SelectField from "@agir/front/formComponents/SelectField";
 
 import { GroupList, EventList } from "./resultsComponents";
+import { getSearch } from "./api.js";
 
 import mapImg from "./images/Bloc_map.jpg";
-
-import { getSearch } from "./api.js";
 
 const SearchBarWrapper = styled.div`
   border-radius: 4px;
@@ -449,19 +448,15 @@ export const SearchPage = () => {
         onTabChange={onTabChange}
       />
 
-      {[TAB_EVENTS, TAB_GROUPS].includes(activeTab) && (
+      {((activeTab === TAB_EVENTS && !!results.events?.length) ||
+        (activeTab === TAB_GROUPS && !!results.groups?.length)) && (
         <div>
-          {((activeTab === TAB_EVENTS && !!results.events?.length) ||
-            (activeTab === TAB_GROUPS && !!results.groups?.length)) && (
-            <>
-              <Spacer size="1rem" />
-              <div style={{ textAlign: "right" }}>
-                <Button small icon="filter" onClick={switchFilters}>
-                  Filtrer
-                </Button>
-              </div>
-            </>
-          )}
+          <Spacer size="1rem" />
+          <div style={{ textAlign: "right" }}>
+            <Button small icon="filter" onClick={switchFilters}>
+              Filtrer
+            </Button>
+          </div>
 
           <Spacer size="1rem" />
 
