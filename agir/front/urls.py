@@ -198,8 +198,8 @@ urlpatterns = [
     ),
     path(
         "api/recherche/",
-        api_views.SearchAPIView.as_view(),
-        name="api_search",
+        api_views.SearchSupportGroupsAndEventsAPIView.as_view(),
+        name="api_search_supportgroup_and_events",
     ),
     path("mes-groupes/", views.UserSupportGroupsView.as_view(), name="list_my_groups"),
     path(

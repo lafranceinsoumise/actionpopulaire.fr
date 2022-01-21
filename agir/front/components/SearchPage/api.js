@@ -11,7 +11,7 @@ export const getSearch = async (data) => {
   };
 
   try {
-    const response = await axios.get(`${ENDPOINT.search}?q=${data}`);
+    const response = await axios.get(ENDPOINT.search, { params: { q: data } });
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

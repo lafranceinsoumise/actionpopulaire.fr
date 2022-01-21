@@ -11,8 +11,6 @@ import EventCard from "@agir/front/genericComponents/EventCard";
 import GroupSuggestionCard from "@agir/groups/groupPage/GroupSuggestionCard";
 import { GroupSuggestionCarousel } from "@agir/groups/groupPage/GroupSuggestions";
 
-import { TAB_ALL, TAB_GROUPS, TAB_EVENTS } from "./SearchPage";
-
 const StyledGroupsDesktop = styled.div`
   display: flex;
   flex-flow: wrap;
@@ -28,112 +26,67 @@ const StyledGroupsDesktop = styled.div`
 const GroupsDesktop = ({ groups }) => (
   <StyledGroupsDesktop>
     {groups.map((group) => (
-      <div>
-        <GroupSuggestionCard key={group.id} {...group} />
+      <div key={group.id}>
+        <GroupSuggestionCard {...group} />
       </div>
     ))}
   </StyledGroupsDesktop>
 );
 
-export const GroupList = ({ results, groups, activeTab, setActiveTab }) => {
-  if (![TAB_ALL, TAB_GROUPS].includes(activeTab)) {
-    return null;
-  }
-
-  return (
-    <>
-      {!!groups?.length && (
-        <h2>
-          <div>
-            Groupes <span>{groups.length}</span>
-          </div>
-          {activeTab === TAB_ALL && (
-            <Button
-              color="primary"
-              small
-              onClick={() => setActiveTab(TAB_GROUPS)}
-            >
-              Voir tout
-            </Button>
-          )}
-        </h2>
-      )}
-      <div>
-        <ResponsiveLayout
-          MobileLayout={GroupSuggestionCarousel}
-          DesktopLayout={GroupsDesktop}
-          groups={groups}
-        />
-      </div>
-      {activeTab === TAB_GROUPS && !results.groups?.length && (
-        <>
-          <Spacer size="1rem" />
-          Aucun groupe lié à cette recherche
-        </>
-      )}
-    </>
-  );
-};
+export const GroupList = ({ groups }) => (
+  <div>
+    <ResponsiveLayout
+      MobileLayout={GroupSuggestionCarousel}
+      DesktopLayout={GroupsDesktop}
+      groups={groups}
+    />
+  </div>
+);
 GroupList.PropTypes = {
   groups: PropTypes.array,
-  results: PropTypes.shape({
-    groups: PropTypes.array,
-    events: PropTypes.array,
-  }),
-  activeTab: PropTypes.number,
-  setActiveTab: PropTypes.func,
 };
 
-export const EventList = ({ results, events, activeTab, setActiveTab }) => {
-  if (![TAB_ALL, TAB_EVENTS].includes(activeTab)) {
+export const EventList = ({ events }) => (
+  <>
+    {events.map((event) => {
+      return (
+        <>
+          <EventCard
+            key={event.id}
+            {...event}
+            schedule={Interval.fromISO(`${event.startTime}/${event.endTime}`)}
+          />
+          <Spacer size="1rem" />
+        </>
+      );
+    })}
+  </>
+);
+EventList.PropTypes = {
+  events: PropTypes.array,
+};
+
+export const ListTitle = ({ name, list, isShowMore, onShowMore }) => {
+  if (!list.length) {
     return null;
   }
 
   return (
-    <>
-      {!!events.length && (
-        <h2>
-          <div>
-            Evénements <span>{events.length}</span>
-          </div>
-          {activeTab === TAB_ALL && (
-            <Button
-              color="primary"
-              small
-              onClick={() => setActiveTab(TAB_EVENTS)}
-            >
-              Voir tout
-            </Button>
-          )}
-        </h2>
+    <h2>
+      <div>
+        {name} <span>{list.length}</span>
+      </div>
+      {isShowMore && (
+        <Button color="primary" small onClick={onShowMore}>
+          Voir tout
+        </Button>
       )}
-      {events.map((event) => {
-        return (
-          <>
-            <EventCard
-              key={event.id}
-              {...event}
-              schedule={Interval.fromISO(`${event.startTime}/${event.endTime}`)}
-            />
-            <Spacer size="1rem" />
-          </>
-        );
-      })}
-      {activeTab === TAB_EVENTS && !results.events?.length && (
-        <>
-          <Spacer size="1rem" />
-          Aucun événement lié à cette recherche
-        </>
-      )}
-    </>
+    </h2>
   );
 };
-EventList.PropTypes = {
-  events: PropTypes.array,
-  results: PropTypes.shape({
-    groups: PropTypes.array,
-    events: PropTypes.array,
-  }),
-  activeTab: PropTypes.number,
-  setActiveTab: PropTypes.func,
+ListTitle.PropTypes = {
+  list: PropTypes.array,
+  name: PropTypes.string,
+  onShowMore: PropTypes.func,
+  isShowMore: PropTypes.bool,
 };

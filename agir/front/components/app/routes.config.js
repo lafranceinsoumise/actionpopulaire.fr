@@ -472,7 +472,7 @@ export const routeConfig = {
   }),
   search: new RouteConfig({
     id: "search",
-    path: ["/recherche/"],
+    path: "/recherche/",
     neededAuthentication: AUTHENTICATION.NONE,
     Component: SearchPage,
     label: "Rechercher",
