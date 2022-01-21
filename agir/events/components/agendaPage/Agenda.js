@@ -1,5 +1,4 @@
 import { DateTime, Interval } from "luxon";
-import PropTypes from "prop-types";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import useSWR from "swr";

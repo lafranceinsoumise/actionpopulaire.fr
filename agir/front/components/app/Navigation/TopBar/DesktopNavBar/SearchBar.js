@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 
@@ -66,7 +65,7 @@ const SearchBarWrapper = styled.form`
   }
 `;
 
-const SearchBar = ({ isConnected }) => {
+const SearchBar = () => {
   const inputRef = useRef();
   const [value, setValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -124,7 +123,4 @@ const SearchBar = ({ isConnected }) => {
   );
 };
 
-SearchBar.propTypes = {
-  isConnected: PropTypes.bool,
-};
 export default SearchBar;

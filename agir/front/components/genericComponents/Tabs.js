@@ -23,6 +23,13 @@ const StyledMenu = styled.nav`
   overflow-x: overlay;
   overflow-y: hidden;
 
+  ${({ isBorder }) =>
+    isBorder &&
+    `
+    box-shadow: 0px 0px 0px rgba(0, 35, 44, 0.1), 0px 2px 1px rgba(0, 35, 44, 0.08);
+    border-top: 0;
+  `};
+
   button {
     flex: 1 1 auto;
     background-color: white;
@@ -107,7 +114,7 @@ const useTabs = (props) => {
 };
 
 export const Tabs = (props) => {
-  const { children, tabs, stickyOffset } = props;
+  const { children, tabs, stickyOffset, isBorder } = props;
 
   const { active, activeIndex, handleClick, handleNext, handlePrev } =
     useTabs(props);
@@ -137,7 +144,7 @@ export const Tabs = (props) => {
 
   return (
     <>
-      <StyledMenu $stickyOffset={stickyOffset}>
+      <StyledMenu $stickyOffset={stickyOffset} isBorder={isBorder}>
         {tabs.map((tab, i) => (
           <button
             key={tab.id}

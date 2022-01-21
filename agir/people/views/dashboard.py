@@ -1,30 +1,7 @@
-from datetime import timedelta
-
-from django.conf import settings
-from django.contrib.gis.db.models.functions import Distance
-from django.core.paginator import Paginator
-from django.db.models import (
-    Value,
-    TextField,
-    Q,
-    Case,
-    When,
-    BooleanField,
-    Sum,
-    Exists,
-    OuterRef,
-)
-from django.utils import timezone
 from django.views.generic import TemplateView
 
-from agir.authentication.view_mixins import SoftLoginRequiredMixin
 from agir.events.models import Event
-from agir.groups.actions import get_promo_codes
-from agir.groups.actions.promo_codes import is_promo_code_delayed, next_promo_code_date
-from agir.groups.models import SupportGroup, Membership
-from agir.lib.tasks import geocode_person
-from agir.municipales.models import CommunePage
-from agir.payments.models import Payment
+from agir.groups.models import SupportGroup
 
 
 class SearchView(TemplateView):

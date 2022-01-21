@@ -140,6 +140,13 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 
 class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
+    GROUP_CARD_FIELDS = [
+        "id",
+        "name",
+        "location",
+        "iconConfiguration",
+    ]
+
     id = serializers.UUIDField(
         read_only=True,
     )
