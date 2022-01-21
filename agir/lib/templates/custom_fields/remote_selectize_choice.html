@@ -1,5 +1,95 @@
 {% include "django/forms/widgets/select.html" %}
 
+<style>
+  .selectize-dropdown [data-selectable],
+  .selectize-dropdown .optgroup-header,
+  .selectize-dropdown .no-results {
+    padding: 5px 8px;
+  }
+  .selectize-dropdown .active.create,
+  .selectize-dropdown .active.no-results {
+    color: #495c68;
+  }
+  .selectize-dropdown .create,
+  .selectize-dropdown .no-results {
+    color: rgba(48, 48, 48, 0.5);
+  }
+</style>
+<script>
+  $(document).ready(function () {
+    /*
+      Selectize doesn't display anything to let the user know there are no results.
+      This plugin allows us to render a no results message when there are no
+      results are found to select for.
+      Inspired by https://gist.github.com/dwickwire/3b5c9485467b0d01ef24f7fdfa140d92
+      cf. https://github.com/brianreavis/selectize.js/issues/470
+    */
+
+    Selectize.define("no_results", function (options) {
+      var self = this;
+
+      options = $.extend(
+        {
+          message: "Aucun résultat n'a été trouvé pour cette recherche",
+          html: function (data) {
+            return (
+              '<div class="selectize-dropdown ' +
+              data.classNames +
+              '">' +
+              '<div class="selectize-dropdown-content">' +
+              '<div class="no-results">' +
+              data.message +
+              "</div>" +
+              "</div>" +
+              "</div>"
+            );
+          },
+        },
+        options
+      );
+
+      self.displayEmptyResultsMessage = function () {
+        this.$empty_results_container.css("top", this.$control.outerHeight());
+        this.$empty_results_container.css("width", this.$control.outerWidth());
+        this.$empty_results_container.show();
+        this.$control.addClass("dropdown-active");
+      };
+
+      self.hideEmptyResultsMessage = function () {
+        this.$empty_results_container.hide();
+        this.$control.removeClass("dropdown-active");
+      };
+
+      self.onBlur = (function () {
+        var original = self.onBlur;
+        return function () {
+          original.apply(self, arguments);
+          this.hideEmptyResultsMessage();
+        };
+      })();
+
+      self.setup = (function () {
+        var original = self.setup;
+        return function () {
+          original.apply(self, arguments);
+          self.$empty_results_container = $(
+            options.html(
+              $.extend(
+                {
+                  classNames: self.$input.attr("class"),
+                },
+                options
+              )
+            )
+          );
+          self.$empty_results_container.insertBefore(self.$dropdown);
+          self.$empty_results_container.hide();
+        };
+      })();
+    });
+  });
+</script>
+
 <script>
   $(function () {
     var valueField = '{{ widget.value_field|default:"value" }}';
@@ -11,6 +101,7 @@
     var url = "{{ widget.api_url|default:"" }}"
 
     $("#{{ widget.attrs.id }}").selectize({
+      plugins: ["no_results"],
       valueField: valueField,
       labelField: labelField,
       searchField: searchField || labelField,
@@ -18,6 +109,7 @@
       create: create,
       maxItems: maxItems,
       preload: true,
+      loadThrottle: 400,
       // Avoid filtering results client-side
       score: function() {
         return function() {
@@ -31,14 +123,21 @@
             type: 'GET',
             dataType: 'json',
             data: {
-              q: encodeURIComponent(query),
+              q: query && encodeURIComponent(query),
+            },
+            beforeSend: function() {
+              self.clearOptions();
+              self.hideEmptyResultsMessage();
             },
             error: function() {
                 callback();
             },
             success: function(res) {
-              self.clearOptions();
-              callback(res.results.slice(0, 10));
+              var results = res.results.slice(0,10);
+              if (self.lastValue && results.length === 0) {
+                self.displayEmptyResultsMessage();
+              }
+              callback(results);
             }
         });
       },
