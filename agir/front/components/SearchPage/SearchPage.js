@@ -440,9 +440,7 @@ export const SearchPage = () => {
                     placeholder="Date"
                     name="eventSort"
                     value={eventSort}
-                    onChange={(e) => {
-                      setEventSort(e);
-                    }}
+                    onChange={setEventSort}
                     options={optionsEventSort}
                   />
                   <SelectField
@@ -451,9 +449,7 @@ export const SearchPage = () => {
                     placeholder="Categories"
                     name="eventCategory"
                     value={eventCategory}
-                    onChange={(e) => {
-                      setEventCategory(e);
-                    }}
+                    onChange={setEventCategory}
                     options={optionsEventCategory}
                   />
                   <SelectField
@@ -462,9 +458,7 @@ export const SearchPage = () => {
                     placeholder="Types"
                     name="eventType"
                     value={eventType}
-                    onChange={(e) => {
-                      setEventType(e);
-                    }}
+                    onChange={setEventType}
                     options={optionsEventType}
                   />
                 </>
@@ -478,9 +472,7 @@ export const SearchPage = () => {
                     placeholder="Date"
                     name="groupSort"
                     value={groupSort}
-                    onChange={(e) => {
-                      setGroupSort(e);
-                    }}
+                    onChange={setGroupSort}
                     options={optionsGroupSort}
                   />
                   <SelectField
@@ -489,9 +481,7 @@ export const SearchPage = () => {
                     placeholder="Types"
                     name="groupType"
                     value={groupType}
-                    onChange={(e) => {
-                      setGroupType(e);
-                    }}
+                    onChange={setGroupType}
                     options={optionsGroupType}
                   />
                 </>
