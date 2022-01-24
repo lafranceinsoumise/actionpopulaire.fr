@@ -78,10 +78,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
     (data && data[data.length - 1]?.results?.length < MESSAGES_LIST_SIZE);
   const isRefreshing = isValidatingMessages && data && data.length === size;
 
-  const loadMore = useCallback(() => {
-    console.log("INFINITE SCROLL ! ");
-    setSize(size + 1);
-  }, [setSize, size]);
+  const loadMore = useCallback(() => setSize(size + 1), [setSize, size]);
 
   const { data: messageRecipients } = useSWR("/api/user/messages/recipients/");
   const {
@@ -137,14 +134,12 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   return {
     user: session?.user,
     messages,
-    //
     errorMessages,
     isLoadingInitialData,
     isLoadingMore,
     isRefreshing,
     loadMore: isEmpty || isReachingEnd ? undefined : loadMore,
     mutateMessages,
-    //
     messageRecipients,
     currentMessage,
     isAutoRefreshPausedRef,
