@@ -145,8 +145,9 @@ class UserMessagesAPITestCase(APITestCase):
         self.client.force_login(self.user.role)
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], str(self.first_message.id))
+        results = response.data["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["id"], str(self.first_message.id))
 
     def test_authenticated_user_without_group_can_post_organization_message(self):
         self.client.force_login(self.user_no_group.role)
@@ -181,8 +182,9 @@ class UserMessagesAPITestCase(APITestCase):
         self.client.force_login(self.user.role)
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], str(self.first_message.id))
+        results = response.data["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["id"], str(self.first_message.id))
 
     def test_referent_can_get_messages_from_own_groups_and_organization(self):
         other_group = SupportGroup.objects.create()
@@ -194,9 +196,10 @@ class UserMessagesAPITestCase(APITestCase):
         )
         self.client.force_login(self.user_referent.role)
         response = self.client.get("/api/user/messages/")
+        results = response.data["results"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
-        self.assertEqual(response.data[0]["id"], str(self.private_message.id))
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["id"], str(self.private_message.id))
 
     def test_manager_can_get_messages_from_own_groups_membership(self):
         other_user = Person.objects.create(
@@ -211,8 +214,9 @@ class UserMessagesAPITestCase(APITestCase):
         self.client.force_login(self.user_manager.role)
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
-        self.assertEqual(response.data[0]["id"], str(message.id))
+        results = response.data["results"]
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["id"], str(message.id))
 
     def test_member_cannot_get_messages_from_own_groups_organization(self):
         other_group = SupportGroup.objects.create()
@@ -225,8 +229,9 @@ class UserMessagesAPITestCase(APITestCase):
         self.client.force_login(self.user_follower.role)
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], str(self.first_message.id))
+        results = response.data["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["id"], str(self.first_message.id))
 
     def test_authenticated_user_cannot_get_deleted_messages(self):
         self.first_message.deleted = True
@@ -234,7 +239,7 @@ class UserMessagesAPITestCase(APITestCase):
         self.client.force_login(self.user.role)
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(len(response.data["results"]), 0)
 
     def test_authenticated_user_can_get_messages_reading_state(self):
         SupportGroupMessage.objects.all().delete()
@@ -250,11 +255,12 @@ class UserMessagesAPITestCase(APITestCase):
         self.client.force_login(self.user.role)
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
-        self.assertEqual(response.data[0]["id"], str(unread_message.id))
-        self.assertTrue(response.data[0]["isUnread"])
-        self.assertEqual(response.data[1]["id"], str(read_message.id))
-        self.assertFalse(response.data[1]["isUnread"])
+        results = response.data["results"]
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["id"], str(unread_message.id))
+        self.assertTrue(results[0]["isUnread"])
+        self.assertEqual(results[1]["id"], str(read_message.id))
+        self.assertFalse(results[1]["isUnread"])
 
     def test_authenticated_user_can_get_messages_unread_comment_counts(self):
         SupportGroupMessage.objects.all().delete()
@@ -268,40 +274,44 @@ class UserMessagesAPITestCase(APITestCase):
         self.client.force_login(self.user.role)
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], str(read_message.id))
-        self.assertEqual(response.data[0]["unreadCommentCount"], 0)
-        self.assertTrue(response.data[0]["isUnread"])
+        results = response.data["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["id"], str(read_message.id))
+        self.assertEqual(results[0]["unreadCommentCount"], 0)
+        self.assertTrue(results[0]["isUnread"])
 
         SupportGroupMessageComment.objects.create(
             author=commenter, message=read_message, text="Comment"
         )
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], str(read_message.id))
-        self.assertEqual(response.data[0]["unreadCommentCount"], 1)
-        self.assertTrue(response.data[0]["isUnread"])
+        results = response.data["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["id"], str(read_message.id))
+        self.assertEqual(results[0]["unreadCommentCount"], 1)
+        self.assertTrue(results[0]["isUnread"])
 
         SupportGroupMessageRecipient.objects.create(
             message=read_message, recipient=self.user
         )
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], str(read_message.id))
-        self.assertEqual(response.data[0]["unreadCommentCount"], 0)
-        self.assertFalse(response.data[0]["isUnread"])
+        results = response.data["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["id"], str(read_message.id))
+        self.assertEqual(results[0]["unreadCommentCount"], 0)
+        self.assertFalse(results[0]["isUnread"])
 
         SupportGroupMessageComment.objects.create(
             author=commenter, message=read_message, text="Comment"
         )
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["id"], str(read_message.id))
-        self.assertEqual(response.data[0]["unreadCommentCount"], 1)
-        self.assertFalse(response.data[0]["isUnread"])
+        results = response.data["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["id"], str(read_message.id))
+        self.assertEqual(results[0]["unreadCommentCount"], 1)
+        self.assertFalse(results[0]["isUnread"])
 
     def test_cannot_get_messages_and_comments_from_inactive_people(self):
 
@@ -312,21 +322,22 @@ class UserMessagesAPITestCase(APITestCase):
         self.client.force_login(self.user.role)
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(len(response.data), 2)
-        self.assertEqual(response.data[0]["id"], str(message.id))
-        self.assertEqual(response.data[0]["unreadCommentCount"], 0)
-        self.assertTrue(response.data[0]["isUnread"])
+        results = response.data["results"]
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["id"], str(message.id))
+        self.assertEqual(results[0]["unreadCommentCount"], 0)
+        self.assertTrue(results[0]["isUnread"])
 
         SupportGroupMessageComment.objects.create(
             author=self.user_follower, message=message, text="Comment"
         )
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
-        self.assertEqual(response.data[0]["id"], str(message.id))
-        self.assertEqual(response.data[0]["unreadCommentCount"], 1)
-        self.assertTrue(response.data[0]["isUnread"])
+        results = response.data["results"]
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["id"], str(message.id))
+        self.assertEqual(results[0]["unreadCommentCount"], 1)
+        self.assertTrue(results[0]["isUnread"])
 
         self.user_follower.role.is_active = False
         self.user_follower.role.save()
@@ -334,9 +345,10 @@ class UserMessagesAPITestCase(APITestCase):
         # Should not see follower comment
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
-        self.assertEqual(response.data[0]["id"], str(message.id))
-        self.assertEqual(response.data[0]["unreadCommentCount"], 0)
+        results = response.data["results"]
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["id"], str(message.id))
+        self.assertEqual(results[0]["unreadCommentCount"], 0)
 
         self.user_referent.role.is_active = False
         self.user_referent.role.save()
@@ -344,7 +356,7 @@ class UserMessagesAPITestCase(APITestCase):
         # Should not see referent message
         response = self.client.get("/api/user/messages/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data["results"]), 1)
 
 
 class UpdateRecipientMessageActionTestCase(APITestCase):
