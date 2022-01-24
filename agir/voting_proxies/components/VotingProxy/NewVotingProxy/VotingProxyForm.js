@@ -177,14 +177,13 @@ const VotingProxyForm = (props) => {
         />
         <Spacer size="1rem" />
         <TextField
-          required
           disabled={isLoading}
           id="pollingStationNumber"
           name="pollingStationNumber"
           value={data.pollingStationNumber}
           onChange={handleChange}
           error={errors?.pollingStationNumber}
-          label="Numéro du bureau de vote"
+          label="Numéro du bureau de vote (facultatif)"
           helpText={
             <span>
               Vous pouvez vérifier le numéro de votre bureau de vote sur{" "}
@@ -214,6 +213,7 @@ const VotingProxyForm = (props) => {
       {!isAbroad && (
         <fieldset>
           <TextField
+            autoFocus
             required
             disabled={isLoading}
             id="address"
@@ -252,6 +252,7 @@ const VotingProxyForm = (props) => {
       )}
       <fieldset>
         <TextField
+          autoFocus
           required
           disabled={isLoading}
           id="firstName"
@@ -292,6 +293,7 @@ const VotingProxyForm = (props) => {
       </fieldset>
       <fieldset>
         <PhoneField
+          autoFocus
           required
           disabled={isLoading}
           id="phone"
@@ -327,7 +329,8 @@ const VotingProxyForm = (props) => {
           value={data.remarks}
           onChange={handleChange}
           error={errors?.remarks}
-          label="Moments de disponibilité en semaine (facultatif)"
+          label="Moment de disponibilité (facultatif)"
+          helpText="Quand êtes-vous disponible pour être contacté·e, en semaine et le week-end ?"
         />
         <Spacer size="1rem" />
         <CheckboxField

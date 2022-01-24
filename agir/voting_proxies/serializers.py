@@ -14,8 +14,15 @@ from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 
 class CommuneOrConsulateSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(read_only=True, source="__str__")
     type = serializers.SerializerMethodField()
+    value = serializers.IntegerField(read_only=True, source="id")
+    label = serializers.SerializerMethodField(read_only=True)
+
+    def get_label(self, instance):
+        if isinstance(instance, Commune):
+            return f"{instance.code_departement} - {instance.nom}"
+        if isinstance(instance, CirconscriptionConsulaire):
+            return str(instance)
 
     def get_type(self, instance):
         if isinstance(instance, Commune):
@@ -48,7 +55,11 @@ class VoterSerializerMixin(serializers.ModelSerializer):
         queryset=CirconscriptionConsulaire.objects.all(),
     )
     pollingStationNumber = serializers.CharField(
-        required=True, source="polling_station_number", label="Numéro du bureau de vote"
+        required=False,
+        allow_blank=True,
+        default="",
+        source="polling_station_number",
+        label="Numéro du bureau de vote",
     )
     updated = serializers.BooleanField(
         default=False,

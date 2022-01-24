@@ -65,7 +65,6 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
         self.assertIn("lastName", res.data)
         self.assertIn("email", res.data)
         self.assertIn("phone", res.data)
-        self.assertIn("pollingStationNumber", res.data)
         self.assertIn("votingDates", res.data)
 
     def test_cannot_create_with_empty_required_fields(self):
@@ -76,7 +75,6 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
             "phone": "",
             "commune": None,
             "consulate": None,
-            "pollingStationNumber": "",
             "votingDates": [],
         }
         res = self.client.post(self.create_endpoint, data=data)
@@ -85,7 +83,6 @@ class VotingProxyRequestCreateAPITestCase(APITestCase):
         self.assertIn("lastName", res.data)
         self.assertIn("email", res.data)
         self.assertIn("phone", res.data)
-        self.assertIn("pollingStationNumber", res.data)
         self.assertIn("votingDates", res.data)
 
     def test_cannot_create_without_commune_and_consulate(self):
@@ -250,7 +247,6 @@ class VotingProxyCreateAPITestCase(APITestCase):
         self.assertIn("lastName", res.data)
         self.assertIn("email", res.data)
         self.assertIn("phone", res.data)
-        self.assertIn("pollingStationNumber", res.data)
         self.assertIn("votingDates", res.data)
 
     def test_cannot_create_with_empty_required_fields(self):
@@ -261,7 +257,6 @@ class VotingProxyCreateAPITestCase(APITestCase):
             "phone": "",
             "commune": None,
             "consulate": None,
-            "pollingStationNumber": "",
             "votingDates": [],
             "dateOfBirth": "",
         }
@@ -271,7 +266,6 @@ class VotingProxyCreateAPITestCase(APITestCase):
         self.assertIn("lastName", res.data)
         self.assertIn("email", res.data)
         self.assertIn("phone", res.data)
-        self.assertIn("pollingStationNumber", res.data)
         self.assertIn("votingDates", res.data)
         self.assertIn("dateOfBirth", res.data)
 
