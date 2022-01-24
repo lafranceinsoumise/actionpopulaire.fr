@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useTimeout } from "react-use";
 import useSWR, { mutate } from "swr";
+import useSWRInfinite from "swr/infinite";
 import { validate as uuidValidate } from "uuid";
 
 import axios from "@agir/lib/utils/axios";
@@ -27,14 +28,61 @@ export const useUnreadMessageCount = () => {
     : 0;
 };
 
+const MESSAGES_LIST_SIZE = 10;
+
 export const useMessageSWR = (messagePk, selectMessage) => {
   const dispatch = useDispatch();
   const isAutoRefreshPausedRef = useRef(false);
   const { data: session } = useSWR("/api/session/");
-  const { data: messages } = useSWR("/api/user/messages/", {
-    refreshInterval: 1000,
-    isPaused: () => isAutoRefreshPausedRef.current,
-  });
+
+  const {
+    data,
+    error: errorMessages,
+    isValidating: isValidatingMessages,
+    mutate: mutateMessages,
+    size,
+    setSize,
+  } = useSWRInfinite(
+    (index) =>
+      `/api/user/messages/?page=${index + 1}&page_size=${MESSAGES_LIST_SIZE}`
+  );
+
+  const messages = useMemo(() => {
+    const messages = {};
+    const messageIds = [];
+    if (Array.isArray(data)) {
+      data.forEach(({ results }) => {
+        if (Array.isArray(results)) {
+          results.forEach((message) => {
+            if (!messages[message.id]) {
+              messages[message.id] = message;
+              messageIds.push(message.id);
+            }
+          });
+        }
+      });
+    }
+    return messageIds.map((id) => messages[id]);
+  }, [data]);
+
+  const isLoadingInitialData = !data && !errorMessages;
+  const isLoadingMore =
+    isLoadingInitialData ||
+    (size > 0 && data && typeof data[size - 1] === "undefined");
+
+  const messageCount = (data && data[data.length - 1]?.count) || 0;
+  const isEmpty = messageCount === 0;
+  const isReachingEnd =
+    isEmpty ||
+    messages.length === messageCount ||
+    (data && data[data.length - 1]?.results?.length < MESSAGES_LIST_SIZE);
+  const isRefreshing = isValidatingMessages && data && data.length === size;
+
+  const loadMore = useCallback(() => {
+    console.log("INFINITE SCROLL ! ");
+    setSize(size + 1);
+  }, [setSize, size]);
+
   const { data: messageRecipients } = useSWR("/api/user/messages/recipients/");
   const {
     data: currentMessage,
@@ -89,6 +137,14 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   return {
     user: session?.user,
     messages,
+    //
+    errorMessages,
+    isLoadingInitialData,
+    isLoadingMore,
+    isRefreshing,
+    loadMore: isEmpty || isReachingEnd ? undefined : loadMore,
+    mutateMessages,
+    //
     messageRecipients,
     currentMessage,
     isAutoRefreshPausedRef,
