@@ -92,7 +92,8 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
     message = (
         f"Procuration de vote établie ({voting_date_string}) :"
         f" {voting_proxy_request.first_name} {voting_proxy_request.last_name.upper()}"
-        f" - bureau de vote {voting_proxy_request.polling_station_number}"
-        f" - tél. {voting_proxy_request.contact_phone}."
+        f" - tél. {voting_proxy_request.contact_phone}"
     )
+    if voting_proxy_request.polling_station_number:
+        message += f" - bureau de vote {voting_proxy_request.polling_station_number}"
     send_sms(message, voting_proxy_request.proxy.contact_phone)
