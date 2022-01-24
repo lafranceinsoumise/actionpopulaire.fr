@@ -96,28 +96,34 @@ export function setUpPopup(map) {
   });
 }
 
+const MARKER_ICONS = [
+  new Style({
+    image: new Icon({
+      opacity: 1,
+      src: markerIcon,
+      imgSize: [40, 44],
+      color: style.primary500,
+      scale: 0.75,
+      anchor: [0.5, 1],
+    }),
+  }),
+  new Style({
+    image: new Icon({
+      opacity: 1,
+      src: markerIconBg,
+      imgSize: [40, 44],
+      scale: 0.75,
+      anchor: [0.5, 1],
+    }),
+  }),
+];
+
 export function makeStyle(config, options = {}) {
   options = Object.assign({ color: true }, options);
 
   if (config.color && config.iconName) {
     return [
-      new Style({
-        image: new Icon({
-          opacity: 1,
-          src: markerIcon,
-          color: options.color ? config.color : style.primary500,
-          scale: 0.75,
-          anchor: [0.5, 1],
-        }),
-      }),
-      new Style({
-        image: new Icon({
-          opacity: 1,
-          src: markerIconBg,
-          scale: 0.75,
-          anchor: [0.5, 1],
-        }),
-      }),
+      ...MARKER_ICONS,
       new Style({
         text: new Text({
           offsetY: -21,
@@ -148,25 +154,7 @@ export function makeStyle(config, options = {}) {
 export function createMap(center, zoom, target, iconConfiguration, isStatic) {
   const styles = iconConfiguration
     ? makeStyle(iconConfiguration)
-    : [
-        new Style({
-          image: new Icon({
-            opacity: 1,
-            src: markerIcon,
-            color: style.primary500,
-            scale: 0.75,
-            anchor: [0.5, 1],
-          }),
-        }),
-        new Style({
-          image: new Icon({
-            opacity: 1,
-            src: markerIconBg,
-            scale: 0.75,
-            anchor: [0.5, 1],
-          }),
-        }),
-      ];
+    : MARKER_ICONS;
   const feature = new Feature({
     geometry: new Point(fromLonLat(center)),
   });
