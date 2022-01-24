@@ -75,7 +75,7 @@ class AbstractVoter(BaseAPIResource):
         "numéro du bureau de vote",
         max_length=255,
         null=False,
-        blank=False,
+        blank=True,
     )
 
     def clean(self):

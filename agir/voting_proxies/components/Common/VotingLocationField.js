@@ -13,19 +13,13 @@ const VotingLocationField = (props) => {
   const [options, setOptions] = useState([]);
 
   const handleSearch = debounce(async (searchTerm) => {
-    if (searchTerm.length < 3) {
-      setOptions(null);
-      return null;
-    }
     setIsLoading(true);
     setOptions(undefined);
     const { data, error } = await searchVotingLocation(searchTerm);
     setIsLoading(false);
     const results = data.map((choice) => ({
       ...choice,
-      value: choice.id,
-      label: choice.name,
-      icon: choice.type === "commune" ? "flag" : "globe",
+      icon: choice.type === "commune" ? "map-pin" : "globe",
     }));
     setOptions(results);
     return results;
@@ -34,12 +28,13 @@ const VotingLocationField = (props) => {
   return (
     <SearchAndSelectField
       {...rest}
+      minSearchTermLength={1}
       isLoading={isLoading}
       value={value}
       onChange={onChange}
       onSearch={handleSearch}
       defaultOptions={options}
-      placeholder="Chercher par nom, code ou code postal"
+      placeholder="Chercher par nom, code postal…"
     />
   );
 };

@@ -68,8 +68,7 @@ export const VOTING_PROXY_REQUEST_CONSTRAINTS = {
   },
   pollingStationNumber: {
     presence: {
-      allowEmpty: false,
-      message: "Ce champ ne peut être vide.",
+      allowEmpty: true,
     },
     length: {
       maximum: 255,

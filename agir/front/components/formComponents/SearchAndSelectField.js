@@ -129,6 +129,13 @@ const StyledField = styled.label`
         $invalid ? style.redNSP : style.black1000};
     }
 
+    .select-search__placeholder {
+      white-space: nowrap;
+      max-width: 100%;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
     ${RawFeatherIcon} {
       color: ${style.black700};
       width: 1.5rem;
@@ -211,16 +218,19 @@ const SearchAndSelectField = (props) => {
     error,
     label,
     helpText,
+    minSearchTermLength = 3,
     ...rest
   } = props;
 
   const loadingMessage = useCallback(() => "Recherche...", []);
   const noOptionsMessage = useCallback(
     ({ inputValue }) =>
-      inputValue.length < 3
-        ? "Entrez au moins 3 lettres pour chercher"
+      inputValue.length < minSearchTermLength
+        ? `Entrez au moins ${minSearchTermLength} lettre${
+            minSearchTermLength > 1 ? "s" : ""
+          } pour chercher`
         : "Pas de résultats",
-    []
+    [minSearchTermLength]
   );
 
   return (

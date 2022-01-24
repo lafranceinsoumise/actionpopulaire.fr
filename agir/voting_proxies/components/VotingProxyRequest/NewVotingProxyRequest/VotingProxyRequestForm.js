@@ -87,7 +87,11 @@ const VotingProxyRequestForm = (props) => {
   const handleErrors = (errors) => {
     setErrors(errors);
     const fieldStep = getFieldStepFromErrors(errors);
-    if (typeof fieldStep === "number" && fieldStep !== formStep) {
+    if (
+      typeof fieldStep === "number" &&
+      fieldStep >= 0 &&
+      fieldStep !== formStep
+    ) {
       setFormStep(fieldStep);
     }
   };
@@ -166,14 +170,13 @@ const VotingProxyRequestForm = (props) => {
         />
         <Spacer size="1rem" />
         <TextField
-          required
           disabled={isLoading}
           id="pollingStationNumber"
           name="pollingStationNumber"
           value={data.pollingStationNumber}
           onChange={handleChange}
           error={errors?.pollingStationNumber}
-          label="Numéro du bureau de vote"
+          label="Numéro du bureau de vote (facultatif)"
           helpText={
             <span>
               Vous pouvez vérifier le numéro de votre bureau de vote sur{" "}
@@ -190,6 +193,7 @@ const VotingProxyRequestForm = (props) => {
       </fieldset>
       <fieldset>
         <TextField
+          autoFocus
           required
           disabled={isLoading}
           id="firstName"
