@@ -1070,7 +1070,7 @@ class ScrutinAdmin(admin.ModelAdmin):
 
 @admin.register(Candidature)
 class CandidatureAdmin(AddRelatedLinkMixin, admin.ModelAdmin):
-    list_display = ("nom", "prenom", "sexe", "code_circonscription", "date", "etat")
+    list_display = ("candidat", "sexe", "code_circonscription", "date", "etat")
     list_filter = (ScrutinFilter,)
     fieldsets = (
         (
@@ -1112,7 +1112,9 @@ class CandidatureAdmin(AddRelatedLinkMixin, admin.ModelAdmin):
     )
 
     readonly_fields = (
+        "candidat",
         "code",
+        "date",
         "nom",
         "prenom",
         "sexe",
@@ -1124,6 +1126,12 @@ class CandidatureAdmin(AddRelatedLinkMixin, admin.ModelAdmin):
         "reponses_questionnaire",
         "presence_en_ligne",
     )
+
+    def candidat(self, obj):
+        return f"{obj.nom} {obj.prenom}"
+
+    candidat.short_description = "Candidat·e"
+    candidat.sortable_by = ("nom", "prenom")
 
     def reponses_questionnaire(self, obj):
         reponses = obj.meta.get("questionnaire", [])
