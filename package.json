@@ -27,7 +27,7 @@
     "@react-spring/core": "^9.4.2",
     "@react-spring/shared": "^9.4.2",
     "@react-spring/web": "^9.4.2",
-    "@sentry/react": "^6.17.0",
+    "@sentry/react": "^6.17.1",
     "@sentry/tracing": "^6.17.0",
     "@storybook/manager-webpack5": "^6.4.14",
     "axios": "^0.25.0",
