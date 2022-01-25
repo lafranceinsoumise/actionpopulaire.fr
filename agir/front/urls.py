@@ -197,9 +197,29 @@ urlpatterns = [
         name="search",
     ),
     path(
+        "recherche/evenements/",
+        views.SearchView.as_view(),
+        name="search_events",
+    ),
+    path(
+        "recherche/groupes/",
+        views.SearchView.as_view(),
+        name="search_groups",
+    ),
+    path(
         "api/recherche/",
         api_views.SearchSupportGroupsAndEventsAPIView.as_view(),
         name="api_search_supportgroup_and_events",
+    ),
+    path(
+        "api/recherche/groupes/",
+        api_views.SearchSupportGroupsAPIView.as_view(),
+        name="api_search_supportgroup",
+    ),
+    path(
+        "api/recherche/evenements/",
+        api_views.SearchSupportEventsAPIView.as_view(),
+        name="api_search_events",
     ),
     path("mes-groupes/", views.UserSupportGroupsView.as_view(), name="list_my_groups"),
     path(

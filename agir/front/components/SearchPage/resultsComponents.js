@@ -50,14 +50,13 @@ export const EventList = ({ events }) => (
   <>
     {events.map((event) => {
       return (
-        <>
+        <React.Fragment key={event.id}>
           <EventCard
-            key={event.id}
             {...event}
             schedule={Interval.fromISO(`${event.startTime}/${event.endTime}`)}
           />
           <Spacer size="1rem" />
-        </>
+        </React.Fragment>
       );
     })}
   </>
@@ -89,4 +88,27 @@ ListTitle.PropTypes = {
   name: PropTypes.string,
   onShowMore: PropTypes.func,
   isShowMore: PropTypes.bool,
+};
+
+export const NoResults = ({ name, list, filteredList }) => {
+  if (!Array.isArray(list) || !Array.isArray(filteredList)) {
+    return null;
+  }
+  if (!!filteredList.length) {
+    return null;
+  }
+  return (
+    <>
+      <Spacer size="1rem" />
+      Aucun {name}{" "}
+      {!list.length
+        ? "n'est lié à cette recherche"
+        : "ne correspond à ces filtres"}
+    </>
+  );
+};
+NoResults.PropTypes = {
+  list: PropTypes.array,
+  filteredList: PropTypes.array,
+  name: PropTypes.string,
 };

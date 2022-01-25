@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -10,11 +10,17 @@ import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import { Hide } from "@agir/front/genericComponents/grid";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import FilterTabs from "@agir/front/genericComponents/FilterTabs";
+import Tabs from "@agir/front/genericComponents/Tabs";
 import SelectField from "@agir/front/formComponents/SelectField";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
 
-import { GroupList, EventList, ListTitle } from "./resultsComponents";
-import { getSearch } from "./api.js";
+import {
+  GroupList,
+  EventList,
+  ListTitle,
+  NoResults,
+} from "./resultsComponents";
+import { getSearch, getSearchGroup, getSearchEvent } from "./api.js";
 
 import mapImg from "./images/Bloc_map.jpg";
 
@@ -27,7 +33,7 @@ import {
   TAB_ALL,
   TAB_GROUPS,
   TAB_EVENTS,
-  FILTER_TABS,
+  TABS_INDEX,
   DATE_ASC,
   DATE_DESC,
   ALPHA_ASC,
@@ -187,7 +193,13 @@ const MapButton = () => (
 const HeaderSearch = ({ querySearch, activeTab }) => (
   <StyledHeaderSearch>
     <div>
-      <h1>{!querySearch ? "Rechercher" : `Recherche : "${querySearch}"`}</h1>
+      <h1>
+        {!querySearch ? (
+          "Rechercher"
+        ) : (
+          <Hide under>Recherche : "{querySearch}"</Hide>
+        )}
+      </h1>
       <Hide under as="div" style={{ marginTop: "0.5rem" }}>
         Recherchez des événements et des groupes d'actions par nom, ville, code
         postal...
@@ -200,14 +212,24 @@ const HeaderSearch = ({ querySearch, activeTab }) => (
 export const SearchPage = () => {
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
+
+  const params = useParams();
+  const type = params?.type;
+
   const query = urlParams.get("q") || "";
-  const [disabled, setDisabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [querySearch, setQuerySearch] = useState(query);
   const [inputSearch, setInputSearch] = useState("");
   const [results, setResults] = useState(INIT_RESULTS);
   const [errors, setErrors] = useState({});
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(
+    type === "evenements"
+      ? TAB_EVENTS
+      : type === "groupes"
+      ? TAB_GROUPS
+      : TAB_ALL
+  );
   const [showFilters, setShowFilters] = useState(false);
   const [groups, setGroups] = useState([]);
   const [events, setEvents] = useState([]);
@@ -219,11 +241,23 @@ export const SearchPage = () => {
   const [groupSort, setGroupSort] = useState(optionsGroupSort[0]);
   const [groupType, setGroupType] = useState(optionsGroupType[0]);
 
+  const isShowMore = activeTab === TAB_ALL;
+
+  const customSearch = async (query) => {
+    if (type === "evenements") {
+      return await getSearchEvent(query);
+    }
+    if (type === "groupes") {
+      return await getSearchGroup(query);
+    }
+    return await getSearch(query);
+  };
+
   useEffect(async () => {
     if (!!querySearch) {
-      setDisabled(true);
-      const { data, error } = await getSearch(querySearch);
-      setDisabled(false);
+      setIsLoading(true);
+      const { data, error } = await customSearch(querySearch);
+      setIsLoading(false);
       if (error) {
         setErrors(error);
         setResults(INIT_RESULTS);
@@ -254,7 +288,7 @@ export const SearchPage = () => {
         }
       }) || [];
 
-    if (activeTab === TAB_ALL) {
+    if (isShowMore) {
       filteredGroups = filteredGroups.slice(0, 3);
     }
 
@@ -279,8 +313,8 @@ export const SearchPage = () => {
       results.events?.filter((event) => {
         // Categories
         if (
-          (eventCategory.value === EVENT_CAT_PAST && !event.isPast) ||
-          (eventCategory.value === EVENT_CAT_FUTURE && event.isPast)
+          (eventCategory.value === EVENT_CAT_PAST && event.isPast) ||
+          (eventCategory.value === EVENT_CAT_FUTURE && !event.isPast)
         ) {
           return false;
         }
@@ -300,7 +334,7 @@ export const SearchPage = () => {
         }
       }) || [];
 
-    if (activeTab === TAB_ALL) {
+    if (isShowMore) {
       filteredEvents = filteredEvents.slice(0, 10);
     }
 
@@ -364,9 +398,9 @@ export const SearchPage = () => {
       return;
     }
     setErrors({});
-    setDisabled(true);
-    const { data, error } = await getSearch(inputSearch);
-    setDisabled(false);
+    setIsLoading(true);
+    const { data, error } = await customSearch(inputSearch);
+    setIsLoading(false);
     resetFilters();
     setQuerySearch(inputSearch);
     if (error) {
@@ -381,7 +415,13 @@ export const SearchPage = () => {
     <StyledContainer>
       <HeaderSearch querySearch={querySearch} activeTab={activeTab} />
 
-      <form onSubmit={handleSubmit} style={{ display: "flex" }}>
+      <Hide
+        over
+        as="form"
+        onSubmit={handleSubmit}
+        style={{ display: "flex" }}
+        autoComplete="off"
+      >
         <SearchBarWrapper>
           <RawFeatherIcon
             name="search"
@@ -392,157 +432,171 @@ export const SearchPage = () => {
           />
           <SearchBarInput
             required
-            placeholder="Rechercher sur Action Populaire"
+            placeholder={
+              "Rechercher " +
+              (activeTab === TAB_EVENTS
+                ? "un événément"
+                : activeTab === TAB_GROUPS
+                ? "un groupe"
+                : "sur Action Populaire")
+            }
             type="text"
             name="q"
             value={inputSearch}
             onChange={updateSearch}
+            autoComplete="off"
           />
         </SearchBarWrapper>
-        <Hide under>
-          <Button
-            color="primary"
-            onClick={handleSubmit}
-            style={{ marginLeft: "1rem" }}
-            disabled={disabled}
-          >
-            Rechercher
-          </Button>
-        </Hide>
-      </form>
+      </Hide>
 
-      <Spacer size="1rem" />
-      <FilterTabs
-        tabs={FILTER_TABS}
-        activeTab={activeTab}
-        onTabChange={onTabChange}
-      />
+      {isLoading && (
+        <>
+          <Spacer size="1.5rem" />
+          <Skeleton />
+        </>
+      )}
 
-      {((activeTab === TAB_EVENTS && !!results.events?.length) ||
-        (activeTab === TAB_GROUPS && !!results.groups?.length)) && (
-        <div>
-          <Spacer size="1rem" />
-          <div style={{ textAlign: "right" }}>
-            <Button small icon="filter" onClick={switchFilters}>
-              Filtrer
-            </Button>
-          </div>
-
+      {!!querySearch && !isLoading && (
+        <>
           <Spacer size="1rem" />
 
-          {showFilters && (
-            <StyledFilters>
-              {activeTab === TAB_EVENTS && (
-                <>
-                  <SelectField
-                    key={1}
-                    label="Trier par"
-                    placeholder="Date"
-                    name="eventSort"
-                    value={eventSort}
-                    onChange={setEventSort}
-                    options={optionsEventSort}
-                  />
-                  <SelectField
-                    key={2}
-                    label="Catégorie d'événement"
-                    placeholder="Categories"
-                    name="eventCategory"
-                    value={eventCategory}
-                    onChange={setEventCategory}
-                    options={optionsEventCategory}
-                  />
-                  <SelectField
-                    key={3}
-                    label="Type"
-                    placeholder="Types"
-                    name="eventType"
-                    value={eventType}
-                    onChange={setEventType}
-                    options={optionsEventType}
-                  />
-                </>
+          {!type && (
+            <Tabs
+              tabs={TABS_INDEX}
+              activeIndex={activeTab}
+              // activeTabIndex={activeTab}
+              onTabChange={onTabChange}
+              noBorder
+            />
+          )}
+
+          {((activeTab === TAB_EVENTS && !!results.events?.length) ||
+            (activeTab === TAB_GROUPS && !!results.groups?.length)) && (
+            <div>
+              <Spacer size="1rem" />
+              <div style={{ textAlign: "right" }}>
+                <Button small icon="filter" onClick={switchFilters}>
+                  Filtrer
+                </Button>
+              </div>
+
+              <Spacer size="1rem" />
+
+              {showFilters && (
+                <StyledFilters>
+                  {activeTab === TAB_EVENTS && (
+                    <>
+                      <SelectField
+                        key={1}
+                        label="Trier par"
+                        placeholder="Date"
+                        name="eventSort"
+                        value={eventSort}
+                        onChange={setEventSort}
+                        options={optionsEventSort}
+                      />
+                      <SelectField
+                        key={2}
+                        label="Catégorie d'événement"
+                        placeholder="Categories"
+                        name="eventCategory"
+                        value={eventCategory}
+                        onChange={setEventCategory}
+                        options={optionsEventCategory}
+                      />
+                      <SelectField
+                        key={3}
+                        label="Type"
+                        placeholder="Types"
+                        name="eventType"
+                        value={eventType}
+                        onChange={setEventType}
+                        options={optionsEventType}
+                      />
+                    </>
+                  )}
+
+                  {activeTab === TAB_GROUPS && (
+                    <>
+                      <SelectField
+                        key={1}
+                        label="Trier par"
+                        placeholder="Date"
+                        name="groupSort"
+                        value={groupSort}
+                        onChange={setGroupSort}
+                        options={optionsGroupSort}
+                      />
+                      <SelectField
+                        key={2}
+                        label="Type"
+                        placeholder="Types"
+                        name="groupType"
+                        value={groupType}
+                        onChange={setGroupType}
+                        options={optionsGroupType}
+                      />
+                    </>
+                  )}
+                  <Spacer size="1rem" />
+                </StyledFilters>
               )}
+            </div>
+          )}
 
+          {!!errors.length && (
+            <>
+              <Spacer size="1rem" />
+              {errors?.name || "Une erreur est apparue ! :("}
+            </>
+          )}
+
+          {[TAB_ALL, TAB_GROUPS].includes(activeTab) && (
+            <>
+              <ListTitle
+                name="Groupes"
+                list={groups}
+                isShowMore={isShowMore}
+                onShowMore={() => onTabChange(TAB_GROUPS)}
+              />
+              <GroupList groups={groups} />
               {activeTab === TAB_GROUPS && (
-                <>
-                  <SelectField
-                    key={1}
-                    label="Trier par"
-                    placeholder="Date"
-                    name="groupSort"
-                    value={groupSort}
-                    onChange={setGroupSort}
-                    options={optionsGroupSort}
-                  />
-                  <SelectField
-                    key={2}
-                    label="Type"
-                    placeholder="Types"
-                    name="groupType"
-                    value={groupType}
-                    onChange={setGroupType}
-                    options={optionsGroupType}
-                  />
-                </>
+                <NoResults
+                  name="groupe"
+                  list={results.groups}
+                  filteredList={groups}
+                />
               )}
-              <Spacer size="1rem" />
-            </StyledFilters>
+            </>
           )}
-        </div>
-      )}
 
-      {!!errors.length && (
-        <>
-          <Spacer size="1rem" />
-          {errors?.name || "Une erreur est apparue ! :("}
-        </>
-      )}
+          {[TAB_ALL, TAB_EVENTS].includes(activeTab) && (
+            <>
+              <ListTitle
+                name="Evénements"
+                list={events}
+                isShowMore={isShowMore}
+                onShowMore={() => onTabChange(TAB_EVENTS)}
+              />
+              <EventList events={events} />
+              {activeTab === TAB_EVENTS && (
+                <NoResults
+                  name="événement"
+                  list={results.events}
+                  filteredList={events}
+                />
+              )}
+            </>
+          )}
 
-      {[TAB_ALL, TAB_GROUPS].includes(activeTab) && (
-        <>
-          <ListTitle
-            name="Groupes"
-            list={groups}
-            isShowMore={activeTab === TAB_ALL}
-            onShowMore={() => setActiveTab(TAB_GROUPS)}
-          />
-          <GroupList groups={groups} />
-          {activeTab === TAB_GROUPS && !results.groups?.length && (
+          {isShowMore && !results.events?.length && !results.groups?.length && (
             <>
               <Spacer size="1rem" />
-              Aucun groupe lié à cette recherche
+              Aucun résultat lié à cette recherche
             </>
           )}
         </>
       )}
-
-      {[TAB_ALL, TAB_EVENTS].includes(activeTab) && (
-        <>
-          <ListTitle
-            name="Evénements"
-            list={events}
-            isShowMore={activeTab === TAB_ALL}
-            onShowMore={() => setActiveTab(TAB_EVENTS)}
-          />
-          <EventList events={events} />
-          {activeTab === TAB_EVENTS && !results.events?.length && (
-            <>
-              <Spacer size="1rem" />
-              Aucun événement lié à cette recherche
-            </>
-          )}
-        </>
-      )}
-
-      {activeTab === TAB_ALL &&
-        !results.events?.length &&
-        !results.groups?.length && (
-          <>
-            <Spacer size="1rem" />
-            Aucun résultat lié à cette recherche
-          </>
-        )}
     </StyledContainer>
   );
 };

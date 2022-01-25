@@ -20,7 +20,7 @@ const GroupMap = () => {
         route: routes.createGroup,
         children: "Créer un groupe dans mon quartier",
       }}
-      searchUrl="/groupes/liste/"
+      searchUrl="/recherche/groupes/"
       mapURL={routes.groupsMap}
       user={user}
     />

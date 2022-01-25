@@ -1,7 +1,20 @@
 import React from "react";
 
 export const [TAB_ALL, TAB_GROUPS, TAB_EVENTS] = [0, 1, 2];
-export const FILTER_TABS = ["Tout", "Groupes", "Événements"];
+export const TABS_INDEX = [
+  {
+    id: TAB_ALL,
+    label: "Tout",
+  },
+  {
+    id: TAB_GROUPS,
+    label: "Groupes",
+  },
+  {
+    id: TAB_EVENTS,
+    label: "Événements",
+  },
+];
 
 export const [DATE_ASC, DATE_DESC, ALPHA_ASC, ALPHA_DESC] = [0, 1, 2, 3];
 export const [EVENT_CAT_ALL, EVENT_CAT_PAST, EVENT_CAT_FUTURE] = [0, 1, 2];
