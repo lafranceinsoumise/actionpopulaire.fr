@@ -3,7 +3,18 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DeleteView
 
 from agir.authentication.view_mixins import SoftLoginRequiredMixin
-from agir.elus import models, forms
+from agir.elus.forms import (
+    MandatMunicipalForm,
+    MandatDepartementalForm,
+    MandatRegionalForm,
+    MandatConsulaireForm,
+)
+from agir.elus.models import (
+    MandatMunicipal,
+    MandatDepartemental,
+    MandatRegional,
+    MandatConsulaire,
+)
 
 
 class BaseMandatView(SoftLoginRequiredMixin):
@@ -38,8 +49,8 @@ class BaseMandatView(SoftLoginRequiredMixin):
 
 
 class BaseMandatMunicipal(BaseMandatView):
-    model = models.MandatMunicipal
-    form_class = forms.MandatMunicipalForm
+    model = MandatMunicipal
+    form_class = MandatMunicipalForm
     mandat_adjectif = "municipal⋅e"
 
     def get_conseil_avec_charniere(self):
@@ -61,7 +72,7 @@ class SupprimerMandatMunicipalView(BaseMandatMunicipal, DeleteView):
 
 
 class BaseMandatDepartemental(BaseMandatView):
-    model = models.MandatDepartemental
+    model = MandatDepartemental
 
     def get_mandat_adjectif(self):
         if getattr(self, "object"):
@@ -80,12 +91,12 @@ class BaseMandatDepartemental(BaseMandatView):
 
 
 class CreerMandatDepartementalView(BaseMandatDepartemental, CreateView):
-    form_class = forms.MandatDepartementalForm
+    form_class = MandatDepartementalForm
     template_name = "elus/creer_mandat_conseil.html"
 
 
 class ModifierMandatDepartementalView(BaseMandatDepartemental, UpdateView):
-    form_class = forms.MandatDepartementalForm
+    form_class = MandatDepartementalForm
     template_name = "elus/modifier_mandat_conseil.html"
 
 
@@ -94,7 +105,7 @@ class SupprimerMandatDepartementalView(BaseMandatDepartemental, DeleteView):
 
 
 class BaseMandatRegional(BaseMandatView):
-    model = models.MandatRegional
+    model = MandatRegional
 
     def get_mandat_adjectif(self):
         if getattr(self, "object") and self.object.conseil:
@@ -110,12 +121,12 @@ class BaseMandatRegional(BaseMandatView):
 
 
 class CreerMandatRegionalView(BaseMandatRegional, CreateView):
-    form_class = forms.MandatRegionalForm
+    form_class = MandatRegionalForm
     template_name = "elus/creer_mandat_conseil.html"
 
 
 class ModifierMandatRegionalView(BaseMandatRegional, UpdateView):
-    form_class = forms.MandatRegionalForm
+    form_class = MandatRegionalForm
     template_name = "elus/modifier_mandat_conseil.html"
 
 
@@ -124,7 +135,7 @@ class SupprimerMandatRegionalView(BaseMandatRegional, DeleteView):
 
 
 class BaseMandatConsulaire(BaseMandatView):
-    model = models.MandatConsulaire
+    model = MandatConsulaire
 
     def get_mandat_adjectif(self):
         return "consulaire"
@@ -136,12 +147,12 @@ class BaseMandatConsulaire(BaseMandatView):
 
 
 class CreerMandatConsulaireView(BaseMandatConsulaire, CreateView):
-    form_class = forms.MandatConsulaireForm
+    form_class = MandatConsulaireForm
     template_name = "elus/creer_mandat_conseil.html"
 
 
 class ModifierMandatConsulaireView(BaseMandatConsulaire, UpdateView):
-    form_class = forms.MandatConsulaireForm
+    form_class = MandatConsulaireForm
     template_name = "elus/modifier_mandat_conseil.html"
 
 

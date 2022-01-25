@@ -1,6 +1,8 @@
 import re
+import secrets
 from io import BytesIO
 from itertools import chain, islice
+from string import ascii_uppercase, digits
 from urllib.parse import urljoin, urlparse, parse_qs
 
 import pytz
@@ -197,3 +199,12 @@ def get_youtube_video_id(url):
             return query.path[1:]
 
     raise ValueError
+
+
+ALPHABET = ascii_uppercase + digits
+NUMERO_RE = re.compile("^[A-Z0-9]{3}-[A-Z0-9]{1,3}$")
+
+
+def numero_unique():
+    chars = [secrets.choice(ALPHABET) for _ in range(6)]
+    return f"{''.join(chars[:3])}-{''.join(chars[3:])}"

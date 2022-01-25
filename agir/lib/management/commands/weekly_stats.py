@@ -2,7 +2,7 @@ import datetime
 
 from django.core.management import BaseCommand
 from django.utils import timezone
-from django.utils.formats import date_format
+from django.utils.formats import date_format, time_format
 from nuntius.models import Campaign
 
 from ...stats import *
@@ -20,15 +20,19 @@ class Command(BaseCommand):
         self.stdout.write(f"   {line}")
 
     def handle(self, *args, **options):
-        today = (
-            timezone.now()
-            .astimezone(timezone.get_current_timezone())
-            .replace(hour=0, minute=0, second=0, microsecond=0)
-        )
-        last_monday = today - datetime.timedelta(days=today.weekday())
+        today = timezone.now().astimezone(timezone.get_current_timezone())
 
-        end = last_monday
-        start = last_monday - timezone.timedelta(days=7)
+        if today.isoweekday() != 7 or today.hour < 20:
+            last_sunday = today - datetime.timedelta(days=today.isoweekday())
+        else:
+            last_sunday = today
+
+        last_sunday_8pm = last_sunday.replace(
+            hour=20, minute=0, second=0, microsecond=0
+        )
+
+        end = last_sunday_8pm
+        start = last_sunday_8pm - timezone.timedelta(days=7)
         last_week_start = start - timezone.timedelta(days=7)
         twelveweeksago = start - timezone.timedelta(days=7 * 12)
 
@@ -53,7 +57,7 @@ class Command(BaseCommand):
             self.style.WARNING,
         )
         self.stdout.write(
-            f"du {date_format(start)} au {date_format(end - timezone.timedelta(days=1))}",
+            f"du {date_format(start)} {time_format(start)} au {date_format(end)} {time_format(end)}",
             self.style.SQL_KEYWORD,
         )
         self.stdout.write(

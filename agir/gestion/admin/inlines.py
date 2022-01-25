@@ -4,7 +4,7 @@ from django.utils.html import format_html_join, format_html
 
 from agir.gestion.admin.base import SearchableModelMixin
 from agir.gestion.admin.depenses import DepenseListMixin
-from agir.gestion.admin.forms import DepenseDevisForm, DocumentAjoutRapideForm
+from agir.gestion.admin.forms import AjoutRapideDepenseForm, DocumentAjoutRapideForm
 from agir.gestion.models import Depense, Projet, Participation, Reglement
 from agir.gestion.models.documents import VersionDocument
 
@@ -179,9 +179,9 @@ class AjoutRapideMixin:
 class AjouterDepenseInline(AjoutRapideMixin, admin.TabularInline):
     verbose_name_plural = "Ajout rapide de dépenses"
     model = Depense
-    form = DepenseDevisForm
+    form = AjoutRapideDepenseForm
 
-    fields = ("titre", "type", "montant", "compte", "devis")
+    fields = ("titre", "type", "montant", "compte", "type_document", "fichier")
 
 
 class BaseAjouterDocumentInline(AjouterDepenseInline, admin.TabularInline):
@@ -217,8 +217,6 @@ class ReglementInline(admin.TabularInline):
         "intitule",
         "statut",
         "mode",
-        "montant",
-        "date",
         "preuve_link",
         "fournisseur_link",
     )
