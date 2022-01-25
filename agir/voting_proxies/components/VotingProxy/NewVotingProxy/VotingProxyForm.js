@@ -158,7 +158,7 @@ const VotingProxyForm = (props) => {
       onSubmit={handleSubmit}
       isLoading={isLoading}
       disabled={!hasDataAgreement || isLoading}
-      title="voter au nom d'un·ne citoyen·ne"
+      title="voter au nom d'un·e citoyen·ne"
       step={formStep}
       goToPrevious={goToPreviousFormStep}
       goToNext={goToNextFormStep}
