@@ -56,13 +56,40 @@ class CommuneOrConsulateSearchAPIView(ListAPIView):
         return Response(serializer.data)
 
 
-class VotingProxyRequestCreateAPIView(CreateAPIView):
+create_voter_ip_bucket = TokenBucket("CreateVoterIP", 2, 600)
+create_voter_email_bucket = TokenBucket("CreateVoterEMAIL", 2, 600)
+
+
+class CreateVoterAPIView(CreateAPIView):
+    messages = {
+        "throttled": "Vous avez déjà fais plusieurs demandes. Veuillez laisser quelques minutes "
+        "avant d'en faire d'autres."
+    }
+
+    def throttle_requests(self, data):
+        if settings.DEBUG:
+            return
+
+        client_ip = get_client_ip(self.request)
+        if not create_voter_ip_bucket.has_tokens(client_ip):
+            raise Throttled(detail=self.messages["throttled"], code="throttled")
+
+        email = data.get("email", None)
+        if email and not create_voter_email_bucket.has_tokens(email):
+            raise Throttled(detail=self.messages["throttled"], code="throttled")
+
+    def perform_create(self, serializer):
+        self.throttle_requests(serializer.validated_data)
+        super().perform_create(serializer)
+
+
+class VotingProxyRequestCreateAPIView(CreateVoterAPIView):
     permission_classes = (permissions.AllowAny,)
     queryset = VotingProxyRequest.objects.all()
     serializer_class = VotingProxyRequestSerializer
 
 
-class VotingProxyCreateAPIView(CreateAPIView):
+class VotingProxyCreateAPIView(CreateVoterAPIView):
     permission_classes = (permissions.AllowAny,)
     queryset = VotingProxy.objects.all()
     serializer_class = CreateVotingProxySerializer
