@@ -14,7 +14,7 @@ const NewVotingProxyRequestIntro = () => (
     </h2>
     <Spacer size="1rem" />
     <p>
-      Vous souhaitez voter pour Jean-Luc Mélenchon et nos candidat·es aux
+      Vous souhaitez voter pour Jean-Luc Mélenchon et/ou nos candidat·es aux
       législatives en 2022{" "}
       <strong>
         mais vous ne pourrez pas vous déplacer à votre bureau de vote&nbsp;?
@@ -27,8 +27,8 @@ const NewVotingProxyRequestIntro = () => (
     </p>
     <Spacer size="0.5rem" />
     <p>
-      Sinon, remplissez ce formulaire et nous mettrons en relation avec un·e
-      volontaire disponible pour porter votre procuration et voter à votre
+      Sinon, remplissez ce formulaire et nous vous mettrons en relation avec
+      un·e volontaire disponible pour porter votre procuration et voter à votre
       place.
     </p>
     <Spacer size="1rem" />

@@ -24,7 +24,7 @@ const NewVotingProxyRequestHowTo = () => (
       </li>
       <Spacer size="0.5rem" />
       <li>
-        <strong>Vous recevrez un SMS</strong> dès qu'un·e citoyen·ne acceptera
+        <strong>Vous recevrez un SMS</strong> dès qu'un·e volontaire acceptera
         de prendre votre procuration
       </li>
       <Spacer size="0.5rem" />
