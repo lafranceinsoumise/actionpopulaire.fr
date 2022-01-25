@@ -7,7 +7,7 @@ from agir.lib.utils import shorten_url
 from agir.voting_proxies.models import VotingProxyRequest
 from agir.voting_proxies.links import VotingProxyLink
 
-SMS_SENDER = "Mélénchon 2022"
+SMS_SENDER = "Melenchon22"
 
 
 @shared_task
