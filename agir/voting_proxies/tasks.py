@@ -7,6 +7,8 @@ from agir.lib.utils import shorten_url
 from agir.voting_proxies.models import VotingProxyRequest
 from agir.voting_proxies.links import VotingProxyLink
 
+SMS_SENDER = "Melenchon22"
+
 
 @shared_task
 @post_save_task
@@ -21,7 +23,7 @@ def send_voting_proxy_request_confirmation(voting_proxy_request_pks):
         "Votre demande est enregistrée. Nous vous recontacterons dès qu'un·e volontaire sera disponible pour prendre "
         "votre procuration."
     )
-    send_sms(message, voting_proxy_request.contact_phone)
+    send_sms(message, voting_proxy_request.contact_phone, sender=SMS_SENDER)
 
 
 @shared_task
@@ -53,7 +55,9 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
             f"{voting_proxy_request.proxy.first_name} s’est porté·e volontaire pour voter en votre nom "
             f"{voting_dates} ! {link}"
         )
-        send_sms(request_owner_message, voting_proxy_request.contact_phone)
+        send_sms(
+            request_owner_message, voting_proxy_request.contact_phone, sender=SMS_SENDER
+        )
     except SMSSendException:
         pass
 
@@ -62,7 +66,11 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
             f"Vous avez accepté de voter pour {voting_proxy_request.first_name} {voting_dates}. "
             f"Nous vous préviendrons lorsque {voting_proxy_request.first_name} aura établi la procuration de vote."
         )
-        send_sms(voting_proxy_message, voting_proxy_request.proxy.contact_phone)
+        send_sms(
+            voting_proxy_message,
+            voting_proxy_request.proxy.contact_phone,
+            sender=SMS_SENDER,
+        )
     except SMSSendException:
         pass
 
@@ -72,7 +80,7 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
 def send_voting_proxy_information_for_request(voting_proxy_request_pk):
     voting_proxy_request = VotingProxyRequest.objects.get(pk=voting_proxy_request_pk)
     message = voting_proxy_request.get_voting_proxy_information()
-    send_sms(message, voting_proxy_request.contact_phone)
+    send_sms(message, voting_proxy_request.contact_phone, sender=SMS_SENDER)
 
 
 @shared_task
@@ -96,4 +104,4 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
     )
     if voting_proxy_request.polling_station_number:
         message += f" - bureau de vote {voting_proxy_request.polling_station_number}"
-    send_sms(message, voting_proxy_request.proxy.contact_phone)
+    send_sms(message, voting_proxy_request.proxy.contact_phone, sender=SMS_SENDER)
