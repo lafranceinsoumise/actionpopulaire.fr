@@ -464,7 +464,6 @@ export const SearchPage = () => {
             <Tabs
               tabs={TABS_INDEX}
               activeIndex={activeTab}
-              // activeTabIndex={activeTab}
               onTabChange={onTabChange}
               noBorder
             />

@@ -13,6 +13,7 @@ TYPE_ALL = "all"
 TYPE_EVENTS = "evenements"
 TYPE_GROUPS = "groups"
 
+
 class SearchSupportGroupsAndEventsAPIView(RetrieveAPIView):
     """Rechercher et lister des groupes et des événéments"""
 
