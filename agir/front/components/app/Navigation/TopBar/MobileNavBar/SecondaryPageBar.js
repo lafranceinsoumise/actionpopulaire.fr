@@ -27,6 +27,7 @@ const SecondaryPageBar = (props) => {
       >
         <RawFeatherIcon name="arrow-left" width="24px" height="24px" />
       </IconLink>
+      <h2>{title}</h2>
       <RightLink
         isLoading={isLoading}
         user={user}
