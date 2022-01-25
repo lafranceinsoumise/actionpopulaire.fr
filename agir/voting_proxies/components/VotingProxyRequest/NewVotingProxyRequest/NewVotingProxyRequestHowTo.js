@@ -24,9 +24,8 @@ const NewVotingProxyRequestHowTo = () => (
       </li>
       <Spacer size="0.5rem" />
       <li>
-        <strong>Vous recevrez un SMS</strong> dès qu'un·e citoyen·ne de votre
-        commune ou circonscription consulaire acceptera de prendre votre
-        procuration
+        <strong>Vous recevrez un SMS</strong> dès qu'un·e citoyen·ne acceptera
+        de prendre votre procuration
       </li>
       <Spacer size="0.5rem" />
       <li>
