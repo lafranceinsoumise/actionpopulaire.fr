@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.contrib.admin.views.autocomplete import AutocompleteJsonView
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import Q
-from django.template.loader import render_to_string
 from django.urls import path
 from django.urls import reverse
 from django.utils import timezone
@@ -27,6 +26,7 @@ from agir.people.models import PersonFormSubmission
 from agir.people.person_forms.display import PersonFormDisplay
 from . import actions
 from . import views
+from .filters import RelatedEventFilter
 from .forms import EventAdminForm, EventSubtypeAdminForm
 from .. import models
 
@@ -510,6 +510,20 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             ),
         ] + super().get_urls()
 
+    def event_rsvp_changelist_link(self, obj):
+        return format_html(
+            '<a class="button" style="color: white;" href="{link}?event={event_id}">Voir les participants</a>',
+            link=reverse("admin:events_rsvp_changelist"),
+            event_id=str(obj.id),
+        )
+
+    event_rsvp_changelist_link.short_description = ""
+
+    def get_list_display(self, request):
+        if request.user.has_perm("events.view_rsvp"):
+            return self.list_display + ("event_rsvp_changelist_link",)
+        return self.list_display
+
     class Media:
         # classe Media requise par le CirconscriptionLegislativeFilter, quand bien même elle est vide
         pass
@@ -577,3 +591,78 @@ class JitsiMeetingAdmin(admin.ModelAdmin):
 
     def display_link(self, object):
         return format_html('<a target="_blank" href="{0}">{0}</a>', object.link)
+
+
+@admin.register(RSVP)
+class RSVPAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "person_link",
+        "event_link",
+        "status",
+        "guest_count",
+    )
+    search_fields = ("person__search", "event__name")
+    list_filter = (RelatedEventFilter, "status")
+    list_display_links = None
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.has_perm("events.view_rsvp")
+
+    def get_list_display(self, request):
+        if not request.user.has_perm("events.view_event"):
+            return self.list_display
+
+        return self.list_display + ("filter_by_event_button",)
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("event", "person")
+            .prefetch_related("identified_guests")
+        )
+
+    def person_link(self, obj):
+        return format_html(
+            '<a href="{link}">{person}</a>',
+            person=str(obj.person),
+            link=reverse("admin:people_person_change", args=[obj.id]),
+        )
+
+    person_link.short_description = "Personne"
+
+    def event_link(self, obj):
+        return format_html(
+            '<a href="{link}">{event}</a>',
+            event=str(obj.event),
+            link=reverse("admin:events_event_change", args=[obj.id]),
+        )
+
+    event_link.short_description = "Événement"
+
+    def filter_by_event_button(self, obj):
+        return format_html(
+            '<a class="button default" style="color: white;" href="{link}?event={event_id}">Voir uniquement cet événement</a>',
+            link=reverse("admin:events_rsvp_changelist"),
+            event_id=str(obj.event_id),
+        )
+
+    filter_by_event_button.short_description = ""
+
+    def guest_count(self, obj):
+        return obj.guests
+
+    guest_count.short_description = "Invités"
+
+    class Media:
+        pass
