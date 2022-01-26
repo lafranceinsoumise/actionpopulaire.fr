@@ -99,6 +99,14 @@ class EventQuerySet(models.QuerySet):
             )
         )
 
+    def with_organizer_groups(self):
+        return self.prefetch_related(
+            Prefetch(
+                "organizers_groups",
+                to_attr="_pf_organizer_groups",
+            )
+        )
+
     def with_person_rsvps(self, person):
         return self.prefetch_related(
             Prefetch(
@@ -126,6 +134,7 @@ class EventQuerySet(models.QuerySet):
             .prefetch_related("organizer_configs")
             .with_person_rsvps(person)
             .with_person_organizer_configs(person)
+            .with_organizer_groups()
             .with_static_map_image()
         )
 
