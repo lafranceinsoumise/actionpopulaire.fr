@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import styled from "styled-components";
+import useSWR from "swr";
 
 import EventCard from "@agir/front/genericComponents/EventCard";
 import FilterTabs from "@agir/front/genericComponents/FilterTabs";
@@ -11,9 +12,9 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
 import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
 
-import { useEventSuggestions } from "./api";
+import { getAgendaEndpoint, useEventSuggestions } from "./api";
 
-const Box = styled.div`
+const Bone = styled.div`
   border-radius: ${(props) => props.theme.borderRadius};
   background-color: ${(props) => props.theme.black50};
   margin-top: 1.5rem;
@@ -58,7 +59,21 @@ const EmptyAgenda = styled.div`
   }
 `;
 
+const Skeleton = () => (
+  <>
+    <Bone />
+    <Bone />
+    <Bone />
+  </>
+);
+
 const EventSuggestions = ({ isPaused }) => {
+  const { data: grandEvents } = useSWR(getAgendaEndpoint("grandEvents"), {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
+
   const [tabs, activeTab, setActiveTab, events] = useEventSuggestions(isPaused);
 
   const byDay = React.useMemo(
@@ -75,7 +90,7 @@ const EventSuggestions = ({ isPaused }) => {
             });
             return days;
           }, {})
-        : events,
+        : undefined,
     [events]
   );
 
@@ -86,16 +101,34 @@ const EventSuggestions = ({ isPaused }) => {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-      <PageFadeIn
-        ready={Array.isArray(events)}
-        wait={
-          <>
-            <Box />
-            <Box />
-            <Box />
-          </>
-        }
-      >
+
+      {/* GRAND EVENTS */}
+      {activeTab === 0 && (
+        <PageFadeIn ready={Array.isArray(grandEvents)} wait={<Skeleton />}>
+          {Array.isArray(grandEvents) && grandEvents.length > 0 && (
+            <div key={`${activeTab}__grand`}>
+              <Day>Grands événements</Day>
+              {grandEvents.map((event, i) => (
+                <RenderIfVisible
+                  key={`${activeTab}__${event.id}`}
+                  style={{ marginTop: i && "1rem" }}
+                >
+                  <EventCard
+                    {...event}
+                    schedule={Interval.fromDateTimes(
+                      dateFromISOString(event.startTime),
+                      dateFromISOString(event.endTime)
+                    )}
+                  />
+                </RenderIfVisible>
+              ))}
+            </div>
+          )}
+        </PageFadeIn>
+      )}
+
+      {/* ACTIVE TAB EVENTS */}
+      <PageFadeIn ready={Array.isArray(events)} wait={<Skeleton />}>
         {Array.isArray(events) && events.length === 0 ? (
           <EmptyAgenda>
             {activeTab === 0 ? (

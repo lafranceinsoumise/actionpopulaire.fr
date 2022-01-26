@@ -122,6 +122,7 @@ class HomepageView(BaseAppCachedView):
     def get_api_preloads(self):
         if self.request.user.is_authenticated and self.request.user.person:
             return [
+                reverse_lazy("api_grand_events"),
                 reverse_lazy("api_event_rsvped"),
                 reverse_lazy("api_event_suggestions"),
             ]
