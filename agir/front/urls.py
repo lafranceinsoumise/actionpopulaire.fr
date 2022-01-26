@@ -159,12 +159,12 @@ event_settings_patterns = [
 voting_proxy_patterns = [
     path(
         "donner-ma-procuration/",
-        views.BaseAppCachedView.as_view(),
+        views.VotingProxyRequestView.as_view(),
         name="new_voting_proxy_request",
     ),
     path(
         "prendre-une-procuration/",
-        views.BaseAppCachedView.as_view(),
+        views.VotingProxyView.as_view(),
         name="new_voting_proxy",
     ),
 ]
