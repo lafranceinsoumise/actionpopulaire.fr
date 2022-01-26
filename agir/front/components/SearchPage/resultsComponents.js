@@ -14,13 +14,18 @@ import { GroupSuggestionCarousel } from "@agir/groups/groupPage/GroupSuggestions
 const StyledGroupsDesktop = styled.div`
   display: flex;
   flex-flow: wrap;
-  justify-content: space-between;
 
   > div {
     width: 100%;
     max-width: 310px;
     margin-bottom: 10px;
+    margin-right: 20px;
   }
+`;
+
+const CarrouselContainer = styled.div`
+  margin-left: -12px;
+  margin-right: -12px;
 `;
 
 const GroupsDesktop = ({ groups }) => (
@@ -32,11 +37,23 @@ const GroupsDesktop = ({ groups }) => (
     ))}
   </StyledGroupsDesktop>
 );
+GroupsDesktop.PropTypes = {
+  groups: PropTypes.array,
+};
+
+const GroupsMobile = ({ groups }) => (
+  <CarrouselContainer>
+    <GroupSuggestionCarousel groups={groups} />
+  </CarrouselContainer>
+);
+GroupsMobile.PropTypes = {
+  groups: PropTypes.array,
+};
 
 export const GroupList = ({ groups }) => (
   <div>
     <ResponsiveLayout
-      MobileLayout={GroupSuggestionCarousel}
+      MobileLayout={GroupsMobile}
       DesktopLayout={GroupsDesktop}
       groups={groups}
     />

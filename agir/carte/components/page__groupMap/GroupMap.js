@@ -3,6 +3,7 @@ import React from "react";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes, getUser } from "@agir/front/globalContext/reducers";
 import MapPage from "@agir/carte/common/MapPage";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const GroupMap = () => {
   const routes = useSelector(getRoutes);
@@ -20,7 +21,7 @@ const GroupMap = () => {
         route: routes.createGroup,
         children: "Créer un groupe dans mon quartier",
       }}
-      searchUrl="/recherche/groupes/"
+      searchUrl={routeConfig.search.getLink({ type: "groupes" })}
       mapURL={routes.groupsMap}
       user={user}
     />

@@ -1,5 +1,5 @@
 from rest_framework.generics import (
-    RetrieveAPIView,
+    ListAPIView,
 )
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -9,60 +9,50 @@ from agir.groups.models import SupportGroup
 from agir.groups.serializers import SupportGroupDetailSerializer
 from agir.events.serializers import EventSerializer, EventListSerializer
 
-TYPE_ALL = "all"
-TYPE_EVENTS = "evenements"
-TYPE_GROUPS = "groups"
 
-
-class SearchSupportGroupsAndEventsAPIView(RetrieveAPIView):
+class SearchSupportGroupsAndEventsAPIView(ListAPIView):
     """Rechercher et lister des groupes et des événéments"""
 
+    RESULT_TYPE_GROUPS = "groups"
+    RESULT_TYPE_EVENTS = "events"
     permission_classes = (permissions.AllowAny,)
-    type = TYPE_ALL
 
-    def get(self, request, *args, **kwargs):
+    def get_serializer(self, serializer_class, *args, **kwargs):
+        kwargs.setdefault("many", True)
+        kwargs.setdefault("context", self.get_serializer_context())
+        return serializer_class(*args, **kwargs)
 
-        q = request.GET.get("q", "")
-        context = {"request": self.request}
-        group_results = []
-        event_results = []
-
-        if self.type in [TYPE_GROUPS, TYPE_ALL]:
-            support_groups = SupportGroup.objects.active().search(q)[:20]
-            group_serializer = SupportGroupDetailSerializer(
-                data=support_groups,
-                context=context,
-                many=True,
-                fields=SupportGroupDetailSerializer.GROUP_CARD_FIELDS,
-            )
-            group_serializer.is_valid()
-            group_results = group_serializer.data
-
-        if self.type in [TYPE_EVENTS, TYPE_ALL]:
-            events = Event.objects.filter(
-                visibility=Event.VISIBILITY_PUBLIC, do_not_list=False
-            ).search(q)[:30]
-            event_serializer = EventSerializer(
-                data=events,
-                context=context,
-                many=True,
-                fields=EventListSerializer.EVENT_CARD_FIELDS,
-            )
-            event_serializer.is_valid()
-            event_results = event_serializer.data
-
-        return Response(
-            {
-                "query": q,
-                "groups": group_results,
-                "events": event_results,
-            }
+    def get_groups(self, search_term):
+        groups = SupportGroup.objects.active().search(search_term)[:20]
+        groups_serializer = self.get_serializer(
+            data=groups,
+            serializer_class=SupportGroupDetailSerializer,
+            fields=SupportGroupDetailSerializer.GROUP_CARD_FIELDS,
         )
+        groups_serializer.is_valid()
+        return groups_serializer.data
 
+    def get_events(self, search_term):
+        events = Event.objects.filter(
+            visibility=Event.VISIBILITY_PUBLIC, do_not_list=False
+        ).search(search_term)[:30]
+        events_serializer = self.get_serializer(
+            data=events,
+            serializer_class=EventSerializer,
+            fields=EventListSerializer.EVENT_CARD_FIELDS,
+        )
+        events_serializer.is_valid()
+        return events_serializer.data
 
-class SearchSupportGroupsAPIView(SearchSupportGroupsAndEventsAPIView):
-    type = TYPE_GROUPS
+    def list(self, request, *args, **kwargs):
+        search_term = request.GET.get("q", "")
+        type = request.GET.get("type")
+        results = {"query": search_term}
 
+        if type is None or type == self.RESULT_TYPE_GROUPS:
+            results[self.RESULT_TYPE_GROUPS] = self.get_groups(search_term)
 
-class SearchSupportEventsAPIView(SearchSupportGroupsAndEventsAPIView):
-    type = TYPE_EVENTS
+        if type is None or type == self.RESULT_TYPE_EVENTS:
+            results[self.RESULT_TYPE_EVENTS] = self.get_events(search_term)
+
+        return Response(results)

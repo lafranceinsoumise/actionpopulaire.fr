@@ -13,6 +13,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Tabs from "@agir/front/genericComponents/Tabs";
 import SelectField from "@agir/front/formComponents/SelectField";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
 import {
   GroupList,
@@ -20,35 +21,18 @@ import {
   ListTitle,
   NoResults,
 } from "./resultsComponents";
-import { getSearch, getSearchGroup, getSearchEvent } from "./api.js";
+import { getSearch } from "./api.js";
 
 import mapImg from "./images/Bloc_map.jpg";
 
 import {
-  optionsEventSort,
-  optionsEventCategory,
-  optionsEventType,
-  optionsGroupSort,
-  optionsGroupType,
-  TAB_ALL,
-  TAB_GROUPS,
-  TAB_EVENTS,
-  TABS_INDEX,
-  DATE_ASC,
-  DATE_DESC,
-  ALPHA_ASC,
-  ALPHA_DESC,
-  EVENT_CAT_PAST,
-  EVENT_CAT_FUTURE,
-  EVENT_TYPE_GROUP_MEETING,
-  EVENT_TYPE_PUBLIC_MEETING,
-  EVENT_TYPE_PUBLIC_ACTION,
-  EVENT_TYPE_OTHER,
-  GROUP_TYPE_CERTIFIED,
-  GROUP_TYPE_NOT_CERTIFIED,
-  GROUP_LOCAL,
-  GROUP_THEMATIC,
-  GROUP_FONCTIONAL,
+  TABS,
+  TABS_OPTIONS,
+  OPTIONS,
+  SORTERS,
+  EVENT_TIMES,
+  EVENT_TYPES,
+  GROUP_TYPES,
 } from "./config.js";
 
 const SearchBarWrapper = styled.div`
@@ -205,16 +189,22 @@ const HeaderSearch = ({ querySearch, activeTab }) => (
         postal...
       </Hide>
     </div>
-    {activeTab === TAB_ALL && <MapButton />}
+    {activeTab === TABS.ALL && <MapButton />}
   </StyledHeaderSearch>
 );
 
 export const SearchPage = () => {
+  const isDesktop = useIsDesktop();
+
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
-
   const params = useParams();
-  const type = params?.type;
+  const type =
+    params?.type === "evenements"
+      ? "events"
+      : params?.type === "groupes"
+      ? "groups"
+      : undefined;
 
   const query = urlParams.get("q") || "";
   const [isLoading, setIsLoading] = useState(false);
@@ -224,39 +214,25 @@ export const SearchPage = () => {
   const [results, setResults] = useState(INIT_RESULTS);
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState(
-    type === "evenements"
-      ? TAB_EVENTS
-      : type === "groupes"
-      ? TAB_GROUPS
-      : TAB_ALL
+    type === "events" ? TABS.EVENTS : type === "groups" ? TABS.GROUPS : TABS.ALL
   );
   const [showFilters, setShowFilters] = useState(false);
   const [groups, setGroups] = useState([]);
   const [events, setEvents] = useState([]);
 
-  const [eventSort, setEventSort] = useState(optionsEventSort[0]);
-  const [eventType, setEventType] = useState(optionsEventType[0]);
-  const [eventCategory, setEventCategory] = useState(optionsEventCategory[0]);
+  const [eventSort, setEventSort] = useState(OPTIONS.EventSort[0]);
+  const [eventType, setEventType] = useState(OPTIONS.EventType[0]);
+  const [eventCategory, setEventCategory] = useState(OPTIONS.EventCategory[0]);
 
-  const [groupSort, setGroupSort] = useState(optionsGroupSort[0]);
-  const [groupType, setGroupType] = useState(optionsGroupType[0]);
+  const [groupSort, setGroupSort] = useState(OPTIONS.GroupSort[0]);
+  const [groupType, setGroupType] = useState(OPTIONS.GroupType[0]);
 
-  const isShowMore = activeTab === TAB_ALL;
-
-  const customSearch = async (query) => {
-    if (type === "evenements") {
-      return await getSearchEvent(query);
-    }
-    if (type === "groupes") {
-      return await getSearchGroup(query);
-    }
-    return await getSearch(query);
-  };
+  const isShowMore = activeTab === TABS.ALL;
 
   useEffect(async () => {
     if (!!querySearch) {
       setIsLoading(true);
-      const { data, error } = await customSearch(querySearch);
+      const { data, error } = await getSearch({ search: querySearch, type });
       setIsLoading(false);
       if (error) {
         setErrors(error);
@@ -273,16 +249,16 @@ export const SearchPage = () => {
     let filteredGroups =
       results.groups?.filter((group) => {
         switch (groupType.value) {
-          case GROUP_TYPE_CERTIFIED:
+          case GROUP_TYPES.CERTIFIED:
             return group.isCertified;
-          case GROUP_TYPE_NOT_CERTIFIED:
+          case GROUP_TYPES.NOT_CERTIFIED:
             return !group.isCertified;
-          case GROUP_LOCAL:
-            return group.type === GROUP_LOCAL;
-          case GROUP_THEMATIC:
-            return group.type === GROUP_THEMATIC;
-          case GROUP_FONCTIONAL:
-            return group.type === GROUP_FONCTIONAL;
+          case GROUP_TYPES.LOCAL:
+            return group.type === GROUP_TYPES.LOCAL;
+          case GROUP_TYPES.THEMATIC:
+            return group.type === GROUP_TYPES.THEMATIC;
+          case GROUP_TYPES.FONCTIONAL:
+            return group.type === GROUP_TYPES.FONCTIONAL;
           default:
             return true;
         }
@@ -293,11 +269,11 @@ export const SearchPage = () => {
     }
 
     // Sort by
-    if (groupSort.value === ALPHA_ASC) {
+    if (groupSort.value === SORTERS.ALPHA_ASC) {
       filteredGroups = filteredGroups.sort((g1, g2) =>
         g1.name.toLowerCase().localeCompare(g2.name.toLowerCase())
       );
-    } else if (groupSort.value === ALPHA_DESC) {
+    } else if (groupSort.value === SORTERS.ALPHA_DESC) {
       filteredGroups = filteredGroups.sort((g1, g2) =>
         g2.name.toLowerCase().localeCompare(g1.name.toLowerCase())
       );
@@ -313,22 +289,22 @@ export const SearchPage = () => {
       results.events?.filter((event) => {
         // Categories
         if (
-          (eventCategory.value === EVENT_CAT_PAST && event.isPast) ||
-          (eventCategory.value === EVENT_CAT_FUTURE && !event.isPast)
+          (eventCategory.value === EVENT_TIMES.PAST && event.isPast) ||
+          (eventCategory.value === EVENT_TIMES.FUTURE && !event.isPast)
         ) {
           return false;
         }
 
         // Types
         switch (eventType.value) {
-          case EVENT_TYPE_PUBLIC_MEETING:
-            return event.subtype.type === EVENT_TYPE_PUBLIC_MEETING;
-          case EVENT_TYPE_GROUP_MEETING:
-            return event.subtype.type === EVENT_TYPE_GROUP_MEETING;
-          case EVENT_TYPE_PUBLIC_ACTION:
-            return event.subtype.type === EVENT_TYPE_PUBLIC_ACTION;
-          case EVENT_TYPE_OTHER:
-            return event.subtype.type === EVENT_TYPE_OTHER;
+          case EVENT_TYPES.PUBLIC_MEETING:
+            return event.subtype.type === EVENT_TYPES.PUBLIC_MEETING;
+          case EVENT_TYPES.GROUP_MEETING:
+            return event.subtype.type === EVENT_TYPES.GROUP_MEETING;
+          case EVENT_TYPES.PUBLIC_ACTION:
+            return event.subtype.type === EVENT_TYPES.PUBLIC_ACTION;
+          case EVENT_TYPES.OTHER:
+            return event.subtype.type === EVENT_TYPES.OTHER;
           default:
             return true;
         }
@@ -340,22 +316,22 @@ export const SearchPage = () => {
 
     // Sort by
     switch (eventSort.value) {
-      case ALPHA_ASC:
+      case SORTERS.ALPHA_ASC:
         filteredEvents = filteredEvents.sort((e1, e2) =>
           e1.name.toLowerCase().localeCompare(e2.name.toLowerCase())
         );
         break;
-      case ALPHA_DESC:
+      case SORTERS.ALPHA_DESC:
         filteredEvents = filteredEvents.sort((e1, e2) =>
           e2.name.toLowerCase().localeCompare(e1.name.toLowerCase())
         );
         break;
-      case DATE_ASC:
+      case SORTERS.DATE_ASC:
         filteredEvents = filteredEvents.sort(
           (e1, e2) => new Date(e1.startTime) - new Date(e2.startTime)
         );
         break;
-      case DATE_DESC:
+      case SORTERS.DATE_DESC:
         filteredEvents = filteredEvents.sort(
           (e1, e2) => new Date(e2.startTime) - new Date(e1.startTime)
         );
@@ -378,12 +354,12 @@ export const SearchPage = () => {
   };
 
   const resetFilters = () => {
-    setEventSort(optionsEventSort[0]);
-    setEventType(optionsEventType[0]);
-    setEventCategory(optionsEventCategory[0]);
+    setEventSort(OPTIONS.EventSort[0]);
+    setEventType(OPTIONS.EventType[0]);
+    setEventCategory(OPTIONS.EventCategory[0]);
 
-    setGroupSort(optionsGroupSort[0]);
-    setGroupType(optionsGroupType[0]);
+    setGroupSort(OPTIONS.GroupSort[0]);
+    setGroupType(OPTIONS.GroupType[0]);
   };
 
   const switchFilters = () => {
@@ -399,7 +375,7 @@ export const SearchPage = () => {
     }
     setErrors({});
     setIsLoading(true);
-    const { data, error } = await customSearch(inputSearch);
+    const { data, error } = await getSearch({ search: inputSearch, type });
     setIsLoading(false);
     resetFilters();
     setQuerySearch(inputSearch);
@@ -415,39 +391,49 @@ export const SearchPage = () => {
     <StyledContainer>
       <HeaderSearch querySearch={querySearch} activeTab={activeTab} />
 
-      <Hide
-        over
-        as="form"
-        onSubmit={handleSubmit}
-        style={{ display: "flex" }}
-        autoComplete="off"
-      >
-        <SearchBarWrapper>
-          <RawFeatherIcon
-            name="search"
-            width="1rem"
-            height="1rem"
-            stroke-width={1.33}
-            style={{ position: "absolute", left: "1rem" }}
-          />
-          <SearchBarInput
-            required
-            placeholder={
-              "Rechercher " +
-              (activeTab === TAB_EVENTS
-                ? "un événément"
-                : activeTab === TAB_GROUPS
-                ? "un groupe"
-                : "sur Action Populaire")
-            }
-            type="text"
-            name="q"
-            value={inputSearch}
-            onChange={updateSearch}
-            autoComplete="off"
-          />
-        </SearchBarWrapper>
-      </Hide>
+      {(!isDesktop || !!type) && (
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: "flex" }}
+          autoComplete="off"
+        >
+          <SearchBarWrapper>
+            <RawFeatherIcon
+              name="search"
+              width="1rem"
+              height="1rem"
+              stroke-width={1.33}
+              style={{ position: "absolute", left: "1rem" }}
+            />
+            <SearchBarInput
+              required
+              placeholder={
+                "Rechercher " +
+                (activeTab === TABS.EVENTS
+                  ? "un événément"
+                  : activeTab === TABS.GROUPS
+                  ? "un groupe"
+                  : "sur Action Populaire")
+              }
+              type="text"
+              name="q"
+              value={inputSearch}
+              onChange={updateSearch}
+              autoComplete="off"
+            />
+          </SearchBarWrapper>
+          <Hide under>
+            <Button
+              color="primary"
+              onClick={handleSubmit}
+              style={{ marginLeft: "1rem" }}
+              disabled={isLoading}
+            >
+              Rechercher
+            </Button>
+          </Hide>
+        </form>
+      )}
 
       {isLoading && (
         <>
@@ -459,18 +445,17 @@ export const SearchPage = () => {
       {!!querySearch && !isLoading && (
         <>
           <Spacer size="1rem" />
-
           {!type && (
             <Tabs
-              tabs={TABS_INDEX}
+              tabs={TABS_OPTIONS}
               activeIndex={activeTab}
               onTabChange={onTabChange}
               noBorder
             />
           )}
 
-          {((activeTab === TAB_EVENTS && !!results.events?.length) ||
-            (activeTab === TAB_GROUPS && !!results.groups?.length)) && (
+          {((activeTab === TABS.EVENTS && !!results.events?.length) ||
+            (activeTab === TABS.GROUPS && !!results.groups?.length)) && (
             <div>
               <Spacer size="1rem" />
               <div style={{ textAlign: "right" }}>
@@ -483,7 +468,7 @@ export const SearchPage = () => {
 
               {showFilters && (
                 <StyledFilters>
-                  {activeTab === TAB_EVENTS && (
+                  {activeTab === TABS.EVENTS && (
                     <>
                       <SelectField
                         key={1}
@@ -492,7 +477,7 @@ export const SearchPage = () => {
                         name="eventSort"
                         value={eventSort}
                         onChange={setEventSort}
-                        options={optionsEventSort}
+                        options={OPTIONS.EventSort}
                       />
                       <SelectField
                         key={2}
@@ -501,7 +486,7 @@ export const SearchPage = () => {
                         name="eventCategory"
                         value={eventCategory}
                         onChange={setEventCategory}
-                        options={optionsEventCategory}
+                        options={OPTIONS.EventCategory}
                       />
                       <SelectField
                         key={3}
@@ -510,12 +495,12 @@ export const SearchPage = () => {
                         name="eventType"
                         value={eventType}
                         onChange={setEventType}
-                        options={optionsEventType}
+                        options={OPTIONS.EventType}
                       />
                     </>
                   )}
 
-                  {activeTab === TAB_GROUPS && (
+                  {activeTab === TABS.GROUPS && (
                     <>
                       <SelectField
                         key={1}
@@ -524,7 +509,7 @@ export const SearchPage = () => {
                         name="groupSort"
                         value={groupSort}
                         onChange={setGroupSort}
-                        options={optionsGroupSort}
+                        options={OPTIONS.GroupSort}
                       />
                       <SelectField
                         key={2}
@@ -533,7 +518,7 @@ export const SearchPage = () => {
                         name="groupType"
                         value={groupType}
                         onChange={setGroupType}
-                        options={optionsGroupType}
+                        options={OPTIONS.GroupType}
                       />
                     </>
                   )}
@@ -550,16 +535,16 @@ export const SearchPage = () => {
             </>
           )}
 
-          {[TAB_ALL, TAB_GROUPS].includes(activeTab) && (
+          {[TABS.ALL, TABS.GROUPS].includes(activeTab) && (
             <>
               <ListTitle
                 name="Groupes"
                 list={groups}
                 isShowMore={isShowMore}
-                onShowMore={() => onTabChange(TAB_GROUPS)}
+                onShowMore={() => onTabChange(TABS.GROUPS)}
               />
               <GroupList groups={groups} />
-              {activeTab === TAB_GROUPS && (
+              {activeTab === TABS.GROUPS && (
                 <NoResults
                   name="groupe"
                   list={results.groups}
@@ -569,16 +554,16 @@ export const SearchPage = () => {
             </>
           )}
 
-          {[TAB_ALL, TAB_EVENTS].includes(activeTab) && (
+          {[TABS.ALL, TABS.EVENTS].includes(activeTab) && (
             <>
               <ListTitle
                 name="Evénements"
                 list={events}
                 isShowMore={isShowMore}
-                onShowMore={() => onTabChange(TAB_EVENTS)}
+                onShowMore={() => onTabChange(TABS.EVENTS)}
               />
               <EventList events={events} />
-              {activeTab === TAB_EVENTS && (
+              {activeTab === TABS.EVENTS && (
                 <NoResults
                   name="événement"
                   list={results.events}
@@ -589,10 +574,7 @@ export const SearchPage = () => {
           )}
 
           {isShowMore && !results.events?.length && !results.groups?.length && (
-            <>
-              <Spacer size="1rem" />
-              Aucun résultat lié à cette recherche
-            </>
+            <NoResults name="résultat" list={[]} filteredList={[]} />
           )}
         </>
       )}
