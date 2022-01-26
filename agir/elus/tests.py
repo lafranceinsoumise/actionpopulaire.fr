@@ -5,11 +5,11 @@ from django.urls import reverse
 from rest_framework import status
 
 from agir.elus.models import (
+    AccesApplicationParrainages,
+    StatutMandat,
     MandatMunicipal,
     MandatDepartemental,
     MandatRegional,
-    StatutMandat,
-    AccesApplicationParrainages,
 )
 from agir.lib.tests.utils import import_communes_test_data
 from agir.people.models import Person

@@ -34,6 +34,27 @@ const NewVotingProxyHowTo = () => (
         bureau de vote
       </li>
     </ol>
+    <Spacer size="1rem" />
+    <p
+      css={`
+        font-size: 0.875rem;
+        background-color: ${({ theme }) => theme.primary50};
+        padding: 1rem;
+        border-radius: ${({ theme }) => theme.borderRadius};
+      `}
+    >
+      Depuis le 1er janvier 2022, il est possible de voter pour une personne
+      inscrite sur les listes électorales d'une autre commune.
+      <br />
+      Ainsi, si vous votez dans la commune A, vous pourrez voter pour un·e
+      électeur·ice qui vote dans la commune B - en revanche, vous devrez
+      toujours vous rendre dans son bureau de vote le jour du scrutin.
+      <br />
+      <br />
+      Ainsi, pour vous mettre en contact avec des électeur·ices, nous
+      privilégierons votre adresse actuelle, si celle-ci est différente de votre
+      commune d'inscription.
+    </p>
   </div>
 );
 

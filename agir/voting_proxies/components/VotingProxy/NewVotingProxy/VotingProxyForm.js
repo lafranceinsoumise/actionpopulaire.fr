@@ -137,7 +137,7 @@ const VotingProxyForm = (props) => {
     const options = await createVotingProxyOptions();
     setIsLoading(false);
     if (options.error || !options.data?.votingDates) {
-      setErrors({ global: options.error || "Une erreur est survenue." });
+      setErrors({ detail: options.error || "Une erreur est survenue." });
     } else {
       setVotingDateOptions(
         options.data.votingDates.choices.map((choice) => ({
@@ -158,7 +158,7 @@ const VotingProxyForm = (props) => {
       onSubmit={handleSubmit}
       isLoading={isLoading}
       disabled={!hasDataAgreement || isLoading}
-      title="voter au nom d'un·ne citoyen·ne"
+      title="voter au nom d'un·e citoyen·ne"
       step={formStep}
       goToPrevious={goToPreviousFormStep}
       goToNext={goToNextFormStep}
@@ -341,7 +341,7 @@ const VotingProxyForm = (props) => {
           onChange={handleChangeDataAgreement}
           label="J'autorise Mélenchon 2022 à partager mes coordonnées pour être mis·e en contact dans le cadre d'une procuration"
         />
-        {errors?.global && (
+        {errors?.detail && (
           <p
             css={`
               padding: 1rem 0 0;
@@ -350,7 +350,7 @@ const VotingProxyForm = (props) => {
               color: ${({ theme }) => theme.redNSP};
             `}
           >
-            {errors.global}
+            {errors.detail}
           </p>
         )}
       </fieldset>

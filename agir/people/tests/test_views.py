@@ -1,7 +1,7 @@
 import datetime
+import re
 from unittest import mock
 
-import re
 from django.core import mail
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -11,14 +11,14 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 
 from agir.api.redis import using_separate_redis_server
+from agir.events.models import Event, EventSubtype
+from agir.lib.tasks import geocode_person
 from agir.people.actions.validation_codes import _initialize_buckets
 from agir.people.models import Person, PersonValidationSMS, generate_code
 from agir.people.tasks import (
     send_confirmation_change_email,
     send_confirmation_merge_account,
 )
-from agir.events.models import Event, EventSubtype
-from agir.groups.models import SupportGroup
 
 
 class DashboardSearchTestCase(TestCase):
@@ -282,8 +282,8 @@ class ProfileFormTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn("info blogueur", [tag.label for tag in self.person.tags.all()])
 
-    @mock.patch("agir.people.forms.profile.geocode_person")
-    def test_can_change_address(self, geocode_person):
+    @mock.patch("django.db.transaction.on_commit")
+    def test_can_change_address(self, on_commit):
         address_fields = {
             "location_address1": "73 boulevard Arago",
             "location_zip": "75013",
@@ -296,10 +296,8 @@ class ProfileFormTestCase(TestCase):
         )
         self.assertRedirects(response, reverse("personal_information"))
 
-        geocode_person.delay.assert_called_once()
-        self.assertEqual(geocode_person.delay.call_args[0], (self.person.pk,))
-
-        geocode_person.reset_mock()
+        on_commit.assert_called_once()
+        on_commit.reset_mock()
         response = self.client.post(
             reverse("personal_information"),
             {
@@ -310,7 +308,7 @@ class ProfileFormTestCase(TestCase):
             },
         )
         self.assertRedirects(response, reverse("personal_information"))
-        geocode_person.delay.assert_not_called()
+        on_commit.assert_not_called()
 
     def test_cannot_validate_form_without_country(self):
         del self.sample_data["location_country"]

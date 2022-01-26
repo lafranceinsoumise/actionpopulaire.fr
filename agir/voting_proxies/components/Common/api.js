@@ -39,7 +39,7 @@ export const searchVotingLocation = async (searchTerm) => {
     });
     result.data = response.data;
   } catch (e) {
-    result.error = e.response?.data || { global: e.message };
+    result.error = e.response?.data || { detail: e.message };
   }
 
   return result;
@@ -61,11 +61,10 @@ export const createVotingProxyRequestOptions = async () => {
       if (e.response?.data && typeof e.response.data === "object") {
         result.error = e.response.data;
       } else {
-        result.error = { global: e.message || "Une erreur est survenue" };
+        result.error = { detail: e.message || "Une erreur est survenue" };
       }
     }
   }
-
   return result;
 };
 
@@ -86,10 +85,10 @@ export const createVotingProxyRequest = async (data) => {
     if (e.response?.data && typeof e.response.data === "object") {
       result.error = e.response.data;
     } else {
-      result.error = { global: e.message || "Une erreur est survenue" };
+      result.error = { detail: e.message || "Une erreur est survenue" };
     }
   }
-
+  console.log(result);
   return result;
 };
 
@@ -109,7 +108,7 @@ export const createVotingProxyOptions = async () => {
       if (e.response?.data && typeof e.response.data === "object") {
         result.error = e.response.data;
       } else {
-        result.error = { global: e.message || "Une erreur est survenue" };
+        result.error = { detail: e.message || "Une erreur est survenue" };
       }
     }
   }
@@ -134,7 +133,7 @@ export const createVotingProxy = async (data) => {
     if (e.response?.data && typeof e.response.data === "object") {
       result.error = e.response.data;
     } else {
-      result.error = { global: e.message || "Une erreur est survenue" };
+      result.error = { detail: e.message || "Une erreur est survenue" };
     }
   }
 

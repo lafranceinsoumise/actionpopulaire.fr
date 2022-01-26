@@ -20,7 +20,7 @@ class CommuneOrConsulateSerializer(serializers.Serializer):
 
     def get_label(self, instance):
         if isinstance(instance, Commune):
-            return f"{instance.code_departement} - {instance.nom}"
+            return f"{instance.code_departement} - {instance.nom_complet}"
         if isinstance(instance, CirconscriptionConsulaire):
             return str(instance)
 
