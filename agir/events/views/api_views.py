@@ -55,6 +55,7 @@ __all__ = [
     "EventSuggestionsAPIView",
     "UserGroupEventAPIView",
     "OrganizedEventAPIView",
+    "GrandEventAPIView",
     "EventCreateOptionsAPIView",
     "CreateEventAPIView",
     "UpdateEventAPIView",
@@ -109,14 +110,10 @@ class EventRsvpedAPIView(EventListAPIView):
         queryset = Event.objects.public().with_serializer_prefetch(person)
 
         return (
-            (
-                queryset.upcoming()
-                .filter(Q(attendees=person) | Q(organizers=person))
-                .order_by("start_time", "end_time")
-            )
-            .distinct()
-            .select_related("subtype")
-        )
+            queryset.upcoming()
+            .filter(Q(attendees=person) | Q(organizers=person))
+            .order_by("start_time", "end_time")
+        ).distinct()
 
 
 class PastRsvpedEventAPIView(EventListAPIView):
@@ -125,7 +122,6 @@ class PastRsvpedEventAPIView(EventListAPIView):
         person_groups = person.supportgroups.all()
         return (
             Event.objects.with_serializer_prefetch(person)
-            .select_related("subtype")
             .past()
             .filter(Q(rsvps__person=person) | Q(organizers_groups__in=person_groups))
             .distinct()
@@ -141,7 +137,6 @@ class OngoingRsvpedEventsAPIView(EventListAPIView):
         return (
             Event.objects.public()
             .with_serializer_prefetch(person)
-            .select_related("subtype")
             .upcoming()
             .filter(Q(attendees=person) | Q(organizers=person))
             .filter(start_time__lte=now, end_time__gte=now)
@@ -190,7 +185,6 @@ class UserGroupEventAPIView(EventListAPIView):
         return (
             Event.objects.public()
             .with_serializer_prefetch(person)
-            .select_related("subtype")
             .upcoming()
             .filter(organizers_groups__in=person_groups)
             .distinct()
@@ -204,9 +198,19 @@ class OrganizedEventAPIView(EventListAPIView):
         return reversed(
             Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
             .with_serializer_prefetch(person)
-            .select_related("subtype")
             .filter(organizers=person)
             .order_by("-start_time")[:10]
+        )
+
+
+class GrandEventAPIView(EventListAPIView):
+    def get_queryset(self):
+        return (
+            Event.objects.with_serializer_prefetch(self.request.user.person)
+            .listed()
+            .upcoming()
+            .grand()
+            .order_by("start_time")
         )
 
 
