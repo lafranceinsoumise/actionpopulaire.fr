@@ -112,7 +112,7 @@ class EventQuerySet(models.QuerySet):
         return self.annotate(
             static_map_image=Subquery(
                 StaticMapImage.objects.filter(
-                    center__distance_lt=(
+                    center__dwithin=(
                         OuterRef("coordinates"),
                         StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
                     ),

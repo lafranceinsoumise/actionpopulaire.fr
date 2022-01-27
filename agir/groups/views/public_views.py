@@ -223,7 +223,7 @@ class SuppportGroupOGImageView(DetailView):
             return self.get_image_from_file("Frame-193.png")
 
         static_map_image = StaticMapImage.objects.filter(
-            center__distance_lt=(
+            center__dwithin=(
                 self.object.coordinates,
                 StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
             ),
