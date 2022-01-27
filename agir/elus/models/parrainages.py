@@ -7,6 +7,7 @@ from django.contrib.postgres.search import SearchVectorField
 from django.core.exceptions import ValidationError
 from django.db import models
 from dynamic_filenames import FilePattern
+from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.lib.models import TimeStampedModel
 from agir.lib.search import PrefixSearchQuery
@@ -116,7 +117,15 @@ class RechercheParrainage(TimeStampedModel):
     commentaires = models.TextField(
         verbose_name="Commentaires",
         blank=True,
-        help_text="Indiquez-ici tout détail supplémentaire pertinent.",
+        help_text="Commentaires saisis par la personne à l'origine de la démarche. Si vous les modifiez, "
+        "ils seront visibles par la personne qui a effectué la démarche.",
+    )
+
+    commentaires_admin = models.TextField(
+        verbose_name="Commentaires supplémentaires",
+        blank=True,
+        help_text="Tout commentaire additionnel sur le parrainage. "
+        "Ces  commentaires ne sont pas visibles par la personne qui a effectué la démarche.",
     )
 
     formulaire = models.FileField(
@@ -124,6 +133,25 @@ class RechercheParrainage(TimeStampedModel):
         upload_to=formulaire_parrainage_pattern,
         null=True,
         blank=True,
+    )
+
+    email = models.EmailField(
+        verbose_name="Adresse email",
+        blank=True,
+        help_text="Adresse email à utiliser pour contacter cet élu en lien avec ce parrainage.",
+    )
+
+    telephone = PhoneNumberField(
+        verbose_name="Numéro de téléphone",
+        blank=True,
+        help_text="Numéro à utiliser pour contacter cet élu en lien avec ce parrainage.",
+    )
+
+    adresse_postale = models.TextField(
+        verbose_name="Adresse postale complète",
+        blank=True,
+        help_text="Indiquez l'adresse postale complète (à l'exception du nom de la personne), exactement comme vous "
+        "l'indiqueriez sur une enveloppe.",
     )
 
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)
