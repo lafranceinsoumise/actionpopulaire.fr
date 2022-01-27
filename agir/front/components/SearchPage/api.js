@@ -4,7 +4,7 @@ const ENDPOINT = {
   search: "/api/recherche/",
 };
 
-export const getSearch = async ({ search, type }) => {
+export const getSearch = async ({ search, type, filters }) => {
   const result = {
     data: null,
     error: null,
@@ -12,7 +12,7 @@ export const getSearch = async ({ search, type }) => {
 
   try {
     const response = await axios.get(ENDPOINT.search, {
-      params: { q: search, type },
+      params: { q: search, type, filters },
     });
     result.data = response.data;
   } catch (e) {

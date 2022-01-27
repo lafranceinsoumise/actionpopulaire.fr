@@ -21,32 +21,10 @@ export const TABS_OPTIONS = [
 ];
 
 export const SORTERS = {
-  DATE_ASC: 0,
-  DATE_DESC: 1,
-  ALPHA_ASC: 2,
-  ALPHA_DESC: 3,
-};
-
-export const EVENT_TIMES = {
-  ALL: 0,
-  PAST: 1,
-  FUTURE: 2,
-};
-
-export const EVENT_TYPES = {
-  ALL: 0,
-  GROUP_MEETING: "G",
-  PUBLIC_MEETING: "M",
-  PUBLIC_ACTION: "A",
-  OTHER: "O",
-};
-export const GROUP_TYPES = {
-  ALL: 0,
-  CERTIFIED: 1,
-  NOT_CERTIFIED: 2,
-  LOCAL: "L",
-  THEMATIC: "B",
-  FONCTIONAL: "F",
+  DATE_ASC: "DATE_ASC",
+  DATE_DESC: "DATE_DESC",
+  ALPHA_ASC: "ALPHA_ASC",
+  ALPHA_DESC: "ALPHA_DESC",
 };
 
 export const EventSort = [
@@ -56,16 +34,16 @@ export const EventSort = [
   { label: <>Alphabétique &darr;</>, value: SORTERS.ALPHA_DESC },
 ];
 export const EventCategory = [
-  { label: "Tous les événements", value: EVENT_TIMES.ALL },
-  { label: "Passés", value: EVENT_TIMES.PAST },
-  { label: "A venir", value: EVENT_TIMES.FUTURE },
+  { label: "Tous les événements", value: 0 },
+  { label: "Passés", value: "PAST" },
+  { label: "A venir", value: "FUTURE" },
 ];
 export const EventType = [
-  { label: "Tous les types", value: EVENT_TYPES.ALL },
-  { label: "Réunion privée de groupe", value: EVENT_TYPES.GROUP_MEETING },
-  { label: "Événement public", value: EVENT_TYPES.PUBLIC_MEETING },
-  { label: "Action publique", value: EVENT_TYPES.PUBLIC_ACTION },
-  { label: "Autre", value: EVENT_TYPES.OTHER },
+  { label: "Tous les types", value: 0 },
+  { label: "Réunion privée de groupe", value: "G" },
+  { label: "Événement public", value: "M" },
+  { label: "Action publique", value: "A" },
+  { label: "Autre", value: "O" },
 ];
 
 export const GroupSort = [
@@ -73,12 +51,12 @@ export const GroupSort = [
   { label: <>Alphabétique &darr;</>, value: SORTERS.ALPHA_DESC },
 ];
 export const GroupType = [
-  { label: "Tous les groupes", value: GROUP_TYPES.ALL },
-  { label: "Certifiés", value: GROUP_TYPES.CERTIFIED },
-  { label: "Non certifiés", value: GROUP_TYPES.NOT_CERTIFIED },
-  { label: "Groupe local", value: GROUP_TYPES.LOCAL },
-  { label: "Groupe thématique", value: GROUP_TYPES.THEMATIC },
-  { label: "Groupe fonctionnel", value: GROUP_TYPES.FONCTIONAL },
+  { label: "Tous les groupes", value: 0 },
+  { label: "Certifiés", value: "CERTIFIED" },
+  { label: "Non certifiés", value: "NOT_CERTIFIED" },
+  { label: "Groupe local", value: "L" },
+  { label: "Groupe thématique", value: "B" },
+  { label: "Groupe fonctionnel", value: "F" },
 ];
 
 export const OPTIONS = {
