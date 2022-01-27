@@ -1,3 +1,5 @@
+import urllib.parse
+
 import django_filters
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Div, Submit
@@ -39,6 +41,7 @@ class GroupFilterSet(django_filters.FilterSet):
 
     def filter_search(self, qs, name, terms):
         if terms:
+            terms = urllib.parse.unquote(terms)
             return qs.search(terms)
         return qs
 

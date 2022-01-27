@@ -892,11 +892,22 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
     )
 
     list_filter = ("statut", TypeEluFilter)
-    fields = ("person", "statut_display", "commentaires", "formulaire")
+    fields = (
+        "person",
+        "statut_display",
+        "commentaires",
+        "commentaires_admin",
+        "formulaire",
+    )
 
     search_fields = ("search",)
 
     def get_fieldsets(self, request, obj=None):
+        contact_fieldset = (
+            "Contact",
+            {"fields": ("email", "telephone", "adresse_postale")},
+        )
+
         if obj is None:
             return (
                 (
@@ -906,7 +917,8 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
                         "description": "Choisissez un élu à partir des sélecteurs suivants, en fonction de son type de mandat.",
                     },
                 ),
-                ("Détails", {"fields": ("choix", "commentaires", "formulaire")}),
+                ("Détails", {"fields": ("choix", "commentaires_admin", "formulaire")}),
+                contact_fieldset,
             )
 
         return (
@@ -915,6 +927,7 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
                 {"fields": ("nom_elu", "type_elu_label")},
             ),
             ("Détails", {"fields": self.get_fields(request, obj=obj)}),
+            contact_fieldset,
         )
 
     def get_search_results(self, request, queryset, search_term):

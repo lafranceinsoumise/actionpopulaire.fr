@@ -13,7 +13,7 @@ from django.contrib.postgres.search import SearchVector, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models, transaction
-from django.db.models import Case, Sum, Count, When, CharField, F, Q
+from django.db.models import Case, Sum, Count, When, CharField, F, Q, OuterRef, Subquery
 from django.db.models import JSONField, Prefetch
 from django.db.models.functions import Coalesce
 from django.template.defaultfilters import floatformat
@@ -27,6 +27,7 @@ from ics import Organizer
 from slugify import slugify
 from stdimage.models import StdImageField
 
+from agir.carte.models import StaticMapImage
 from agir.gestion.typologies import TypeProjet, TypeDocument
 from agir.groups.models import Membership
 from agir.lib.form_fields import CustomJSONEncoder, DateTimePickerWidget
@@ -107,8 +108,24 @@ class EventQuerySet(models.QuerySet):
             )
         )
 
+    def with_static_map_image(self):
+        return self.annotate(
+            static_map_image=Subquery(
+                StaticMapImage.objects.filter(
+                    center__distance_lt=(
+                        OuterRef("coordinates"),
+                        StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
+                    ),
+                ).values("image")[:1],
+            )
+        )
+
     def with_serializer_prefetch(self, person):
-        return self.with_person_rsvps(person).with_person_organizer_configs(person)
+        return (
+            self.with_person_rsvps(person)
+            .with_person_organizer_configs(person)
+            .with_static_map_image()
+        )
 
     def with_participants(self):
         confirmed_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CONFIRMED)

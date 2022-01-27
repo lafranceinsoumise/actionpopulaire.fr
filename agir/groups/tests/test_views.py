@@ -173,7 +173,7 @@ class ManageSupportGroupTestCase(SupportGroupMixin, TestCase):
         self.assertEqual(group.name, "New name")
         self.assertEqual(group.subtypes.all().count(), 1)
 
-    @mock.patch("agir.people.views.dashboard.geocode_person")
+    @mock.patch("agir.lib.tasks.geocode_person")
     def test_cannot_view_unpublished_group(self, geocode_person):
         self.client.force_login(self.person.role)
 

@@ -11,7 +11,7 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 
 import { dateFromISOString, displayHumanDay } from "@agir/lib/utils/time";
 
-import { EVENT_TYPES, useEventSuggestions } from "./api";
+import { useEventSuggestions } from "./api";
 
 const Box = styled.div`
   border-radius: ${(props) => props.theme.borderRadius};

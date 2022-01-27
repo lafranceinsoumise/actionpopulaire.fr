@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import useSWR from "swr";
 
 export const EVENT_TYPES = {

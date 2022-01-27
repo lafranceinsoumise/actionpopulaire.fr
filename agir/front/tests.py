@@ -5,6 +5,7 @@ from django.shortcuts import reverse
 from django.test import TestCase
 from django.utils import timezone
 from rest_framework import status
+from rest_framework.test import APITestCase
 
 from ..events.models import Event, OrganizerConfig, EventSubtype
 from ..groups.models import SupportGroup, Membership
@@ -210,7 +211,7 @@ class PollTestCase(TestCase):
         self.assertEqual(res.status_code, 403)
 
 
-class AgendaViewTestCase(TestCase):
+class AgendaViewTestCase(APITestCase):
     def setUp(self):
         self.now = now = timezone.now().astimezone(timezone.get_default_timezone())
         day = timezone.timedelta(days=1)
@@ -258,12 +259,12 @@ class AgendaViewTestCase(TestCase):
 
     def test_insoumise_persone_can_search_through_all_events(self):
         self.client.force_login(self.person_insoumise.role)
-        res = self.client.get(reverse("dashboard_search") + "?q=e")
+        res = self.client.get(reverse("api_search_supportgroup_and_events") + "?q=e")
         self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)
 
     def test_2022_only_person_can_search_through_all_events(self):
         self.client.force_login(self.person_2022.role)
-        res = self.client.get(reverse("dashboard_search") + "?q=e")
+        res = self.client.get(reverse("api_search_supportgroup_and_events") + "?q=e")
         self.assertContains(res, self.event_insoumis.name)
         self.assertContains(res, self.event_2022.name)

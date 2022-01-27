@@ -4,6 +4,7 @@ from django.urls import reverse_lazy, path, re_path, include
 from django.views.generic import RedirectView
 
 from . import views
+from . import api_views
 from ..front.sitemaps import sitemaps
 
 supportgroup_settings_patterns = [
@@ -159,23 +160,23 @@ event_settings_patterns = [
 voting_proxy_patterns = [
     path(
         "donner-ma-procuration/",
-        views.BaseAppCachedView.as_view(),
+        views.VotingProxyRequestView.as_view(),
         name="new_voting_proxy_request",
     ),
     path(
+        "reponse/",
+        views.VotingProxyRequestView.as_view(),
+        name="voting_proxy_request_details",
+    ),
+    path(
         "prendre-une-procuration/",
-        views.BaseAppCachedView.as_view(),
+        views.VotingProxyView.as_view(),
         name="new_voting_proxy",
     ),
     path(
         "prendre-une-procuration/<uuid:pk>/",
-        views.BaseAppCachedView.as_view(),
+        views.VotingProxyView.as_view(),
         name="reply_to_voting_proxy_requests",
-    ),
-    path(
-        "reponse/",
-        views.BaseAppCachedView.as_view(),
-        name="voting_proxy_request_details",
     ),
 ]
 
@@ -212,6 +213,16 @@ urlpatterns = [
         "evenements/",
         RedirectView.as_view(pattern_name="dashboard"),
         name="list_events",
+    ),
+    path(
+        "recherche/",
+        views.SearchView.as_view(),
+        name="search",
+    ),
+    path(
+        "api/recherche/",
+        api_views.SearchSupportGroupsAndEventsAPIView.as_view(),
+        name="api_search_supportgroup_and_events",
     ),
     path("mes-groupes/", views.UserSupportGroupsView.as_view(), name="list_my_groups"),
     path(

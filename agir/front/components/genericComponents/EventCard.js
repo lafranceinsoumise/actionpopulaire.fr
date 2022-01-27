@@ -1,10 +1,7 @@
 import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useRef } from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-
-import { routeConfig } from "@agir/front/app/routes.config";
 
 import { displayIntervalStart, displayIntervalEnd } from "@agir/lib/utils/time";
 
@@ -12,7 +9,6 @@ import Card from "@agir/front/genericComponents/Card";
 import Link from "@agir/front/app/Link";
 import Map from "@agir/carte/common/Map";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import Spacer from "@agir/front/genericComponents/Spacer";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
 import eventCardDefaultBackground from "@agir/front/genericComponents/images/event-card-default-bg.svg";
@@ -211,7 +207,6 @@ const EventCard = (props) => {
     groups,
     compteRendu,
   } = props;
-  const history = useHistory();
 
   const now = DateTime.local();
   const pending = now >= schedule.start && now <= schedule.end;

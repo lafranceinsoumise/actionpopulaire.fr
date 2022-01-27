@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from django_countries.serializer_fields import CountryField
@@ -6,7 +7,6 @@ from rest_framework import serializers, exceptions
 from rest_framework.fields import empty
 from rest_framework.serializers import BaseSerializer
 from rest_framework_gis.fields import GeometryField
-from phonenumber_field.serializerfields import PhoneNumberField
 
 from agir.carte.models import StaticMapImage
 from .geo import FRENCH_COUNTRY_CODES
@@ -54,13 +54,10 @@ class LocationSerializer(serializers.Serializer):
     zip = serializers.CharField(source="location_zip")
     city = serializers.CharField(source="location_city")
     country = CountryField(source="location_country")
-
     address = serializers.SerializerMethodField()
 
     shortAddress = serializers.CharField(source="short_address", required=False)
-
     shortLocation = serializers.CharField(source="short_location", required=False)
-
     coordinates = GeometryField(required=False)
     staticMapUrl = serializers.SerializerMethodField(read_only=True)
 
@@ -83,6 +80,9 @@ class LocationSerializer(serializers.Serializer):
         return "\n".join(p for p in parts if p)
 
     def get_staticMapUrl(self, obj):
+        if hasattr(obj, "static_map_image") and obj.static_map_image:
+            return StaticMapImage(image=obj.static_map_image).image.url
+
         if obj.coordinates is None:
             return ""
 

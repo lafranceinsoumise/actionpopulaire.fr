@@ -105,6 +105,7 @@ const MessageThreadMenu = (props) => {
     selectedMessageId,
     onSelect,
     writeNewMessage,
+    lastItemRef,
     ...rest
   } = props;
 
@@ -132,14 +133,18 @@ const MessageThreadMenu = (props) => {
         </StyledNewMessageButton>
       ) : null}
       <ul>
-        {messages.map((message) => (
-          <MessageThreadCard
+        {messages.map((message, i) => (
+          <li
             key={message.id}
-            message={message}
-            isSelected={message.id === selectedMessageId}
-            onClick={onSelect}
-            disabled={isLoading}
-          />
+            ref={i + 1 === messages.length ? lastItemRef : null}
+          >
+            <MessageThreadCard
+              message={message}
+              isSelected={message.id === selectedMessageId}
+              onClick={onSelect}
+              disabled={isLoading}
+            />
+          </li>
         ))}
       </ul>
     </StyledMenu>
