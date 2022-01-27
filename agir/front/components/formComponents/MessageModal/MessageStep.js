@@ -171,7 +171,7 @@ const MessageStep = (props) => {
   const textFieldRef = useRef();
   const textFieldCursorPosition = useRef();
 
-  const isUserGroup = user.groups?.includes(groupPk);
+  const isUserGroup = !!user?.groups?.some((group) => group.id === groupPk);
 
   const handleEmojiSelect = useCallback(
     (emoji) => {

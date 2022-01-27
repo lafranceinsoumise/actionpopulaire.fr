@@ -20,6 +20,10 @@ export const GroupManager = Template.bind({});
 GroupManager.args = {
   ...Default.args,
   user: {
-    isGroupManager: true,
+    groups: [
+      {
+        isManager: true,
+      },
+    ],
   },
 };
