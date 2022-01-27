@@ -13,6 +13,8 @@ import django_countries.fields
 import dynamic_filenames
 import phonenumber_field.modelfields
 
+import agir.lib.utils
+
 
 class Migration(migrations.Migration):
 
@@ -188,7 +190,7 @@ class Migration(migrations.Migration):
                 (
                     "numero",
                     models.CharField(
-                        default=agir.gestion.models.common.numero_unique,
+                        default=agir.lib.utils.numero_unique,
                         editable=False,
                         help_text="Numéro unique pour identifier chaque objet sur la plateforme.",
                         max_length=7,
@@ -365,7 +367,7 @@ class Migration(migrations.Migration):
                 (
                     "numero",
                     models.CharField(
-                        default=agir.gestion.models.common.numero_unique,
+                        default=agir.lib.utils.numero_unique,
                         editable=False,
                         help_text="Numéro unique pour identifier chaque objet sur la plateforme.",
                         max_length=7,
@@ -787,7 +789,7 @@ class Migration(migrations.Migration):
                 (
                     "numero",
                     models.CharField(
-                        default=agir.gestion.models.common.numero_unique,
+                        default=agir.lib.utils.numero_unique,
                         editable=False,
                         help_text="Numéro unique pour identifier chaque objet sur la plateforme.",
                         max_length=7,
@@ -920,7 +922,7 @@ class Migration(migrations.Migration):
                 (
                     "numero",
                     models.CharField(
-                        default=agir.gestion.models.common.numero_unique,
+                        default=agir.lib.utils.numero_unique,
                         editable=False,
                         help_text="Numéro unique pour identifier chaque objet sur la plateforme.",
                         max_length=7,

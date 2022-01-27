@@ -167,7 +167,7 @@ class EventSuggestionsAPIView(EventListAPIView):
         if person.coordinates is not None:
             national = national.annotate(
                 distance=Distance("coordinates", person.coordinates),
-            ).filter(distance__lte=500000)
+            ).filter(distance__lte=100000)
 
             near = (
                 events.filter(start_time__lt=timezone.now() + timedelta(days=30))

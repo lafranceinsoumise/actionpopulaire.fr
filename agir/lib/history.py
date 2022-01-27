@@ -1,6 +1,7 @@
 from itertools import chain
-from typing import Optional
 
+from django.urls import reverse
+from django.utils.html import format_html
 from reversion.models import Version
 
 
@@ -8,8 +9,33 @@ class HistoryMixin:
     DIFFED_FIELDS = []
 
     @classmethod
-    def get_history_step(cls, old: Optional[Version], new: Version, **kwargs):
-        raise NotImplementedError("Cette méthode doit être implémentée")
+    def get_history_step(cls, old, new, **kwargs):
+        old_fields = old.field_dict if old else {}
+        new_fields = new.field_dict
+        revision = new.revision
+        person = revision.user.person if revision.user else None
+
+        res = {
+            "modified": revision.date_created,
+            "comment": revision.get_comment(),
+            "diff": cls.get_diff(old_fields, new_fields) if old_fields else [],
+        }
+
+        if person:
+            res["user"] = format_html(
+                '<a href="{url}">{text}</a>',
+                url=reverse("admin:people_person_change", args=[person.pk]),
+                text=person.get_short_name(),
+            )
+        else:
+            res["user"] = "Utilisateur inconnu"
+
+        if old is None:
+            res["title"] = "Création"
+        else:
+            res["title"] = "Modification"
+
+        return res
 
     @classmethod
     def get_diff(cls, before, after):

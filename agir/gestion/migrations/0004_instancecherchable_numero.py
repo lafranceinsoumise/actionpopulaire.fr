@@ -3,6 +3,8 @@
 import agir.gestion.models.common
 from django.db import migrations, models
 
+import agir.lib.utils
+
 
 class Migration(migrations.Migration):
 
@@ -16,7 +18,7 @@ class Migration(migrations.Migration):
             name="numero",
             field=models.CharField(
                 blank=True,
-                default=agir.gestion.models.common.numero_unique,
+                default=agir.lib.utils.numero_unique,
                 editable=False,
                 help_text="Numéro unique pour identifier chaque objet sur la plateforme.",
                 max_length=7,

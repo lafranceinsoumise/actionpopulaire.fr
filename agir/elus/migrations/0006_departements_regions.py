@@ -200,7 +200,7 @@ class Migration(migrations.Migration):
                 "ordering": ("conseil", "person"),
                 "unique_together": {("conseil", "person")},
             },
-            bases=(agir.elus.models.MandatHistoryMixin, models.Model),
+            bases=(agir.elus.models.mandats.MandatHistoryMixin, models.Model),
         ),
         migrations.CreateModel(
             name="MandatDepartemental",
@@ -343,6 +343,6 @@ class Migration(migrations.Migration):
                 "ordering": ("conseil", "person"),
                 "unique_together": {("conseil", "person")},
             },
-            bases=(agir.elus.models.MandatHistoryMixin, models.Model),
+            bases=(agir.elus.models.mandats.MandatHistoryMixin, models.Model),
         ),
     ]
