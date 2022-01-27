@@ -257,6 +257,7 @@ MERGE_STRATEGIES = {
     "invitation": merge_reassign_related,
     "candidature": merge_reassign_related,
     "_email": None,
+    "voting_proxy": None,
 }
 
 

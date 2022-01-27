@@ -72,6 +72,13 @@ const ActionToolsPage = lazy(() =>
   import("@agir/front/ActionToolsPage/ActionToolsPage")
 );
 
+const NewVotingProxyRequest = lazy(() =>
+  import("@agir/voting_proxies/VotingProxyRequest/NewVotingProxyRequest")
+);
+const NewVotingProxy = lazy(() =>
+  import("@agir/voting_proxies/VotingProxy/NewVotingProxy")
+);
+
 export const BASE_PATH = "/";
 
 const log = logger(__filename);
@@ -464,6 +471,30 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Faire un don",
     Component: DonationPage,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  newVotingProxyRequest: new RouteConfig({
+    id: "newVotingProxyRequest",
+    path: "/procuration/donner-ma-procuration/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Donner ma procuration de vote",
+    Component: NewVotingProxyRequest,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  newVotingProxy: new RouteConfig({
+    id: "newVotingProxy",
+    path: "/procuration/prendre-une-procuration/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Prendre une procuration de vote",
+    Component: NewVotingProxy,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
