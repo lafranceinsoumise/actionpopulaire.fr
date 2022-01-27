@@ -13,21 +13,19 @@ import json
 from django.conf import settings
 
 
-CERTIFIED = "CERTIFIED"
-NOT_CERTIFIED = "NOT_CERTIFIED"
-ALPHA_ASC = "ALPHA_ASC"
-ALPHA_DESC = "ALPHA_DESC"
-DATE_ASC = "DATE_ASC"
-DATE_DESC = "DATE_DESC"
-PAST = "PAST"
-
-
 class SearchSupportGroupsAndEventsAPIView(ListAPIView):
     """Rechercher et lister des groupes et des événéments"""
 
+    permission_classes = (permissions.AllowAny,)
     RESULT_TYPE_GROUPS = "groups"
     RESULT_TYPE_EVENTS = "events"
-    permission_classes = (permissions.AllowAny,)
+    GROUP_FILTER_CERTIFIED = "CERTIFIED"
+    GROUP_FILTER_NOT_CERTIFIED = "NOT_CERTIFIED"
+    SORT_ALPHA_ASC = "ALPHA_ASC"
+    SORT_ALPHA_DESC = "ALPHA_DESC"
+    SORT_DATE_ASC = "DATE_ASC"
+    SORT_DATE_DESC = "DATE_DESC"
+    EVENT_FILTER_PAST = "PAST"
 
     def get_serializer(self, serializer_class, *args, **kwargs):
         kwargs.setdefault("many", True)
@@ -43,11 +41,11 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
 
         # Filter
         if groupType:
-            if groupType == CERTIFIED:
+            if groupType == self.GROUP_FILTER_CERTIFIED:
                 groups = groups.filter(
                     subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES
                 )
-            elif groupType == NOT_CERTIFIED:
+            elif groupType == self.GROUP_FILTER_NOT_CERTIFIED:
                 groups = groups.exclude(
                     subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES
                 )
@@ -59,9 +57,9 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
 
         # Sort
         if groupSort:
-            if groupSort == ALPHA_ASC:
+            if groupSort == self.SORT_ALPHA_ASC:
                 groups = groups.order_by("name")
-            if groupSort == ALPHA_DESC:
+            if groupSort == self.SORT_ALPHA_DESC:
                 groups = groups.order_by("-name")
 
         groups = groups[:20]
@@ -88,7 +86,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         if eventType:
             events = events.filter(subtype__type=eventType)
         if eventCategory:
-            if eventCategory == PAST:
+            if eventCategory == self.EVENT_FILTER_PAST:
                 events = events.filter(end_time__lte=timezone.now())
             else:
                 events = events.filter(end_time__gte=timezone.now())
@@ -98,13 +96,13 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
 
         # Sort
         if eventSort:
-            if eventSort == DATE_ASC:
+            if eventSort == self.SORT_DATE_ASC:
                 events = events.order_by("start_time")
-            if eventSort == DATE_DESC:
+            if eventSort == self.SORT_DATE_DESC:
                 events = events.order_by("-start_time")
-            if eventSort == ALPHA_ASC:
+            if eventSort == self.SORT_ALPHA_ASC:
                 events = events.order_by("name")
-            if eventSort == ALPHA_DESC:
+            if eventSort == self.SORT_ALPHA_DESC:
                 events = events.order_by("-name")
 
         events = events[:20]
