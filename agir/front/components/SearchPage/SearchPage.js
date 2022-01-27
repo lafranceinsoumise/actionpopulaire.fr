@@ -75,7 +75,6 @@ const INIT_RESULTS = {
 
 export const SearchPage = () => {
   const isDesktop = useIsDesktop();
-
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const params = useParams();
@@ -88,22 +87,20 @@ export const SearchPage = () => {
 
   const query = urlParams.get("q") || "";
   const [isLoading, setIsLoading] = useState(false);
-
   const [querySearch, setQuerySearch] = useState(query);
   const [inputSearch, setInputSearch] = useState("");
   const [results, setResults] = useState(INIT_RESULTS);
+  const [showFilters, setShowFilters] = useState(false);
+  const [groups, setGroups] = useState([]);
+  const [events, setEvents] = useState([]);
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState(
     type === "events" ? TABS.EVENTS : type === "groups" ? TABS.GROUPS : TABS.ALL
   );
-  const [showFilters, setShowFilters] = useState(false);
-  const [groups, setGroups] = useState([]);
-  const [events, setEvents] = useState([]);
 
   const [eventSort, setEventSort] = useState(OPTIONS.EventSort[0]);
   const [eventType, setEventType] = useState(OPTIONS.EventType[0]);
   const [eventCategory, setEventCategory] = useState(OPTIONS.EventCategory[0]);
-
   const [groupSort, setGroupSort] = useState(OPTIONS.GroupSort[0]);
   const [groupType, setGroupType] = useState(OPTIONS.GroupType[0]);
 
@@ -117,17 +114,22 @@ export const SearchPage = () => {
       : isTabGroups
       ? "un groupe"
       : "sur Action Populaire");
-  const isNoEvents = !results.events?.length;
-  const isNoGroups = !results.groups?.length;
-  const isNoResults = isNoEvents && isNoGroups;
+  const isNoResults = !events.length && !groups.length;
+
+  const handleSearch = async ({ search, type, filters }) => {
+    setIsLoading(true);
+    const { data, error } = await getSearch({ search, type, filters });
+    setIsLoading(false);
+    if (error) {
+      setErrors(error);
+    }
+    return { data, error };
+  };
 
   useEffect(async () => {
     if (!!querySearch) {
-      setIsLoading(true);
-      const { data, error } = await getSearch({ search: querySearch, type });
-      setIsLoading(false);
+      const { data, error } = await handleSearch({ search, type });
       if (error) {
-        setErrors(error);
         setResults(INIT_RESULTS);
         return;
       }
@@ -142,19 +144,16 @@ export const SearchPage = () => {
       groupSort: groupSort.value,
     };
 
-    setIsLoading(true);
-    const { data, error } = await getSearch({
+    const { data, error } = await handleSearch({
       search: querySearch,
       type,
       filters,
     });
-    setIsLoading(false);
-
     if (error) {
-      setErrors(error);
       setGroups([]);
       return;
     }
+
     if (isTabAll) {
       setGroups(data.groups.slice(0, 10));
       return;
@@ -170,19 +169,16 @@ export const SearchPage = () => {
       eventSort: eventSort.value,
     };
 
-    setIsLoading(true);
-    const { data, error } = await getSearch({
+    const { data, error } = await handleSearch({
       search: querySearch,
       type,
       filters,
     });
-    setIsLoading(false);
-
     if (error) {
-      setErrors(error);
       setEvents([]);
       return;
     }
+
     if (isTabAll) {
       setEvents(data.events.slice(0, 10));
       return;
@@ -204,7 +200,6 @@ export const SearchPage = () => {
     setEventSort(OPTIONS.EventSort[0]);
     setEventType(OPTIONS.EventType[0]);
     setEventCategory(OPTIONS.EventCategory[0]);
-
     setGroupSort(OPTIONS.GroupSort[0]);
     setGroupType(OPTIONS.GroupType[0]);
   };
@@ -229,19 +224,15 @@ export const SearchPage = () => {
       eventSort: eventSort.value,
     };
 
-    setErrors({});
-    setIsLoading(true);
-    const { data, error } = await getSearch({
+    const { data, error } = await handleSearch({
       search: inputSearch,
       type,
       filters,
     });
-    setIsLoading(false);
 
     resetFilters();
     setQuerySearch(inputSearch);
     if (error) {
-      setErrors(error);
       setResults(INIT_RESULTS);
       return;
     }
@@ -280,7 +271,7 @@ export const SearchPage = () => {
             />
           )}
 
-          {((isTabEvents && isNoEvents) || (isTabGroups && isNoGroups)) && (
+          {(isTabEvents || isTabGroups) && (
             <div>
               <Spacer size="1rem" />
               <div style={{ textAlign: "right" }}>
@@ -369,13 +360,7 @@ export const SearchPage = () => {
                 onShowMore={() => onTabChange(TABS.GROUPS)}
               />
               <GroupList groups={groups} />
-              {isTabGroups && (
-                <NoResults
-                  name="groupe"
-                  list={results.groups}
-                  filteredList={groups}
-                />
-              )}
+              {isTabGroups && <NoResults name="groupe" list={groups} />}
             </>
           )}
 
@@ -388,19 +373,11 @@ export const SearchPage = () => {
                 onShowMore={() => onTabChange(TABS.EVENTS)}
               />
               <EventList events={events} />
-              {isTabEvents && (
-                <NoResults
-                  name="événement"
-                  list={results.events}
-                  filteredList={events}
-                />
-              )}
+              {isTabEvents && <NoResults name="événement" list={events} />}
             </>
           )}
 
-          {isTabAll && isNoResults && (
-            <NoResults name="résultat" list={[]} filteredList={[]} />
-          )}
+          {isTabAll && isNoResults && <NoResults name="résultat" list={[]} />}
         </>
       )}
     </StyledContainer>

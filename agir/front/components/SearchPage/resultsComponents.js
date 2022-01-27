@@ -107,25 +107,18 @@ ListTitle.PropTypes = {
   isShowMore: PropTypes.bool,
 };
 
-export const NoResults = ({ name, list, filteredList }) => {
-  if (!Array.isArray(list) || !Array.isArray(filteredList)) {
-    return null;
-  }
-  if (!!filteredList.length) {
+export const NoResults = ({ name, list }) => {
+  if (!Array.isArray(list) || !!list.length) {
     return null;
   }
   return (
     <>
       <Spacer size="1rem" />
-      Aucun {name}{" "}
-      {!list.length
-        ? "n'est lié à cette recherche"
-        : "ne correspond à ces filtres"}
+      Aucun {name} n'est lié à cette recherche
     </>
   );
 };
 NoResults.PropTypes = {
   list: PropTypes.array,
-  filteredList: PropTypes.array,
   name: PropTypes.string,
 };
