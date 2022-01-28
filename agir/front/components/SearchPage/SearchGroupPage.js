@@ -41,9 +41,6 @@ export const SearchGroupPage = () => {
         placeholder="Rechercher un groupe"
       />
 
-      <Spacer size="1rem" />
-      {isLoading && <Skeleton />}
-
       {!!search && search.length < 3 && (
         <>Rentrez au moins 3 caractères pour rechercher</>
       )}
@@ -71,6 +68,9 @@ export const SearchGroupPage = () => {
               </StyledFilters>
             )}
           </div>
+
+          <Spacer size="1rem" />
+          {isLoading && <Skeleton />}
 
           {!!errors?.length && (
             <>
