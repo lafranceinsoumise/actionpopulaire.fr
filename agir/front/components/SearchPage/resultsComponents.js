@@ -14,29 +14,46 @@ import { GroupSuggestionCarousel } from "@agir/groups/groupPage/GroupSuggestions
 const StyledGroupsDesktop = styled.div`
   display: flex;
   flex-flow: wrap;
-  justify-content: space-between;
 
   > div {
     width: 100%;
     max-width: 310px;
     margin-bottom: 10px;
+    margin-right: 20px;
   }
+`;
+
+const CarrouselContainer = styled.div`
+  margin-left: -12px;
+  margin-right: -12px;
 `;
 
 const GroupsDesktop = ({ groups }) => (
   <StyledGroupsDesktop>
-    {groups.map((group) => (
+    {groups?.map((group) => (
       <div key={group.id}>
         <GroupSuggestionCard {...group} />
       </div>
     ))}
   </StyledGroupsDesktop>
 );
+GroupsDesktop.PropTypes = {
+  groups: PropTypes.array,
+};
+
+const GroupsMobile = ({ groups }) => (
+  <CarrouselContainer>
+    <GroupSuggestionCarousel groups={groups} />
+  </CarrouselContainer>
+);
+GroupsMobile.PropTypes = {
+  groups: PropTypes.array,
+};
 
 export const GroupList = ({ groups }) => (
   <div>
     <ResponsiveLayout
-      MobileLayout={GroupSuggestionCarousel}
+      MobileLayout={GroupsMobile}
       DesktopLayout={GroupsDesktop}
       groups={groups}
     />
@@ -48,16 +65,15 @@ GroupList.PropTypes = {
 
 export const EventList = ({ events }) => (
   <>
-    {events.map((event) => {
+    {events?.map((event) => {
       return (
-        <>
+        <React.Fragment key={event.id}>
           <EventCard
-            key={event.id}
             {...event}
             schedule={Interval.fromISO(`${event.startTime}/${event.endTime}`)}
           />
           <Spacer size="1rem" />
-        </>
+        </React.Fragment>
       );
     })}
   </>
@@ -67,7 +83,7 @@ EventList.PropTypes = {
 };
 
 export const ListTitle = ({ name, list, isShowMore, onShowMore }) => {
-  if (!list.length) {
+  if (!list?.length) {
     return null;
   }
 
@@ -89,4 +105,20 @@ ListTitle.PropTypes = {
   name: PropTypes.string,
   onShowMore: PropTypes.func,
   isShowMore: PropTypes.bool,
+};
+
+export const NoResults = ({ name, list }) => {
+  if (!Array.isArray(list) || !!list.length) {
+    return null;
+  }
+  return (
+    <>
+      <Spacer size="1rem" />
+      Aucun {name} n'est lié à cette recherche
+    </>
+  );
+};
+NoResults.PropTypes = {
+  list: PropTypes.array,
+  name: PropTypes.string,
 };
