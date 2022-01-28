@@ -13,6 +13,7 @@ from agir.donations.form_fields import MoneyField
 from agir.payments.actions.payments import notify_status_change
 from agir.payments.admin import PaymentManagementAdminMixin
 from .models import CheckPayment
+from ..lib.admin import AddRelatedLinkMixin
 
 
 class CheckPaymentSearchForm(forms.Form):
@@ -63,34 +64,59 @@ class CheckPaymentSearchForm(forms.Form):
 
 
 @admin.register(CheckPayment)
-class CheckPaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
+class CheckPaymentAdmin(
+    PaymentManagementAdminMixin, AddRelatedLinkMixin, admin.ModelAdmin
+):
     list_display = (
         "id",
+        "person",
         "get_type_display",
         "status",
-        "price",
-        "person",
-        "email",
-        "first_name",
-        "last_name",
-    )
-    fields = readonly_fields = (
-        "get_type_display",
-        "person",
-        "email",
-        "first_name",
-        "last_name",
+        "created",
         "get_price_display",
-        "status",
-        "phone_number",
-        "location_address1",
-        "location_address2",
-        "location_zip",
-        "location_city",
-        "location_country",
-        "meta",
-        "events",
+        "email",
+        "nom_facturation",
+    )
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "id",
+                    "person_link",
+                    "get_type_display",
+                    "get_price_display",
+                    "created",
+                    "status",
+                )
+            },
+        ),
+        (
+            "Facturation",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "phone_number",
+                    "location_address1",
+                    "location_address2",
+                    "location_zip",
+                    "location_city",
+                    "location_country",
+                )
+            },
+        ),
+        ("Informations techniques", {"fields": ("meta", "events", "status_buttons")}),
+    )
+
+    readonly_fields = (
+        "person_link",
+        "get_type_display",
+        "get_price_display",
         "status_buttons",
+        "nom_facturation",
     )
 
     list_filter = ("price", "status")
@@ -99,6 +125,14 @@ class CheckPaymentAdmin(PaymentManagementAdminMixin, admin.ModelAdmin):
     def has_add_permission(self, request):
         """Forbidden to add checkpayment through this model admin"""
         return False
+
+    def has_change_permission(self, request, obj=None):
+        """Cette admin ne permet pas la modification"""
+        return False
+
+    def nom_facturation(self, obj):
+        if obj:
+            return f"{obj.first_name} {obj.last_name}"
 
     def get_urls(self):
         return [

@@ -1,5 +1,5 @@
 zones = {
-    "Centre-Val-de-Loire / Auvergne": [
+    "Auvergne/Centre": [
         "18",
         "28",
         "36",
@@ -11,7 +11,7 @@ zones = {
         "43",
         "63",
     ],
-    "Bourgogne-Franche-Comté": [
+    "Bourgogne/Franche-Comté/Aube/Haute-Marne": [
         "21",
         "25",
         "39",
@@ -24,10 +24,10 @@ zones = {
         "52",
         "88",
     ],
-    "Aquitaine / Limousin": ["24", "33", "40", "47", "64", "19", "23", "87"],
+    "Aquitaine/Limousin": ["24", "33", "40", "47", "64", "19", "23", "87"],
     "Rhône-Alpes": ["01", "07", "26", "38", "42", "69", "73", "74"],
-    "Est sans l'Aisne": ["08", "51", "54", "55", "57", "67", "68"],
-    "Pays de la Loire / Poitou-Charentes": [
+    "Est": ["08", "51", "54", "55", "57", "67", "68"],
+    "Poitou-Charentes/Pays de la Loire": [
         "44",
         "49",
         "53",
@@ -38,13 +38,13 @@ zones = {
         "79",
         "86",
     ],
-    "Nord-Pas-de-Calais / Aisne": ["02", "59", "62"],
+    "Nord/Pas-de-Calais/Aisne": ["02", "59", "62"],
     "Bretagne": ["22", "29", "35", "56"],
-    "IDF (77/78/92/93)": ["77", "78", "92", "93"],
-    "Normandie / Oise / Somme": ["14", "27", "50", "61", "76", "60", "80"],
-    "IDF (75/91/94/95)": ["75", "91", "94", "95"],
-    "PACA / Corse": ["04", "05", "06", "13", "83", "84", "2A", "2B"],
-    "FE": ["99"],
+    "IDF2": ["77", "78", "92", "93"],
+    "Normandie/Oise/Somme": ["14", "27", "50", "61", "76", "60", "80"],
+    "IDF1": ["75", "91", "94", "95"],
+    "PACA/Corse": ["04", "05", "06", "13", "83", "84", "2A", "2B"],
+    "Étranger": ["99"],
     "Occitanie": [
         "09",
         "11",

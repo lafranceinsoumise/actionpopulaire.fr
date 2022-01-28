@@ -13,6 +13,9 @@ from agir.msgs.models import (
 )
 from agir.people.serializers import PersonSerializer
 from agir.groups.models import Membership
+from agir.people.models import Person
+
+from django.db.models import Exists, OuterRef, Q
 
 
 class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
@@ -121,7 +124,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
 
     def get_recentComments(self, obj):
         recent_comments = (
-            obj.comments.filter(deleted=False)
+            obj.comments.active()
             .select_related("author")
             .order_by("-created")[: self.RECENT_COMMENT_LIMIT]
         )
@@ -132,15 +135,13 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         return recent_comments
 
     def get_commentCount(self, obj):
-        count = obj.comments.filter(deleted=False).count()
+        count = obj.comments.active().count()
         if count > self.RECENT_COMMENT_LIMIT:
             return count
 
     def get_comments(self, obj):
         return MessageCommentSerializer(
-            obj.comments.filter(deleted=False)
-            .select_related("author")
-            .order_by("created"),
+            obj.comments.active().select_related("author").order_by("created"),
             context=self.context,
             many=True,
         ).data
@@ -162,6 +163,67 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "lastUpdate",
             "requiredMembershipType",
         )
+
+
+class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
+    active = serializers.SerializerMethodField(read_only=True)
+    commentAuthors = serializers.SerializerMethodField(
+        read_only=True, method_name="get_comment_authors"
+    )
+    total = serializers.SerializerMethodField(read_only=True)
+
+    def get_comment_authors(self, message):
+        comment_authors = list(message.comments.values_list("author_id", flat=True))
+        comment_authors = set([message.author.id] + comment_authors)
+        return list(comment_authors)
+
+    def get_total(self, message):
+        return (
+            message.supportgroup.memberships.filter(
+                Q(membership_type__gte=message.required_membership_type)
+                | Q(person_id=message.author_id)
+            )
+            .distinct()
+            .count()
+        )
+
+    # Persons in author + has commented
+    def get_active(self, message):
+        active_persons = (
+            Person.objects.filter(
+                (
+                    Q(
+                        id__in=message.supportgroup.memberships.filter(
+                            membership_type__gte=message.required_membership_type
+                        ).values_list("person_id")
+                    )
+                    & Q(id__in=message.comments.values_list("author_id", flat=True))
+                )
+                | Q(id=message.author.id)
+            )
+            .annotate(
+                has_commented=Exists(message.comments.filter(author_id=OuterRef("id")))
+            )
+            .distinct()
+        )
+
+        return [
+            {
+                "id": person.id,
+                "displayName": person.display_name,
+                "isAuthor": message.author_id == person.id,
+                "isInComments": person.has_commented,
+                "image": person.image.thumbnail.url
+                if (person.image and person.image.thumbnail)
+                else None,
+                "gender": person.gender,
+            }
+            for person in active_persons
+        ]
+
+    class Meta:
+        model = SupportGroupMessage
+        fields = ("active", "commentAuthors", "total")
 
 
 class ContentTypeChoiceField(serializers.ChoiceField):
@@ -257,9 +319,10 @@ class UserMessagesSerializer(BaseMessageSerializer):
         return user.is_authenticated and user.person and message.author == user.person
 
     def get_last_comment(self, message):
-        if message.comments.exists():
-            comment = message.comments.order_by("-created").first()
-            return MessageCommentSerializer(comment, context=self.context).data
+        comment = message.comments.active().order_by("-created").first()
+        if comment is None:
+            return
+        return MessageCommentSerializer(comment, context=self.context).data
 
     class Meta:
         model = SupportGroupMessage

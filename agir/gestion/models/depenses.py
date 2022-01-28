@@ -11,8 +11,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from agir.authentication.models import Role
 from agir.gestion.actions import Todo, NiveauTodo, Transition, no_todos
-
-from agir.gestion.models.common import ModeleGestionMixin
+from agir.gestion.models.common import ModeleGestionMixin, NumeroQueryset
 from agir.gestion.typologies import TypeDepense, NiveauAcces, TypeDocument
 from agir.lib.model_fields import IBANField
 from agir.lib.models import TimeStampedModel, LocationMixin
@@ -40,7 +39,7 @@ def engager_depense(depense: "Depense"):
         depense.date_depense = timezone.now()
 
 
-class DepenseQuerySet(models.QuerySet):
+class DepenseQuerySet(NumeroQueryset):
     def annoter_reglement(self):
         return self.annotate(
             prevu=models.Sum("reglement__montant"),
@@ -110,14 +109,14 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
             Transition(
                 nom="Renvoyer le dossier pour précisions",
                 vers=Etat.CONSTITUTION,
-                permissions=["gestion.responsable_compte"],
+                permissions=["gestion.controler_depense"],
                 class_name="failure",
             ),
             Transition(
                 nom="Clôturer le dossier",
                 vers=Etat.CLOTURE,
                 condition=no_todos,
-                permissions=["gestion.responsable_compte"],
+                permissions=["gestion.controler_depense"],
                 class_name="success",
             ),
         ],
@@ -172,6 +171,34 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         choices=Etat.choices,
         default=Etat.ATTENTE_VALIDATION,
         null=False,
+    )
+
+    quantite = models.IntegerField(
+        verbose_name="Quantité",
+        null=True,
+        blank=True,
+        help_text="Lorsque la dépense correspond à l'achat de matériel, indiquez ici la quantité achetée.",
+    )
+
+    nature = models.CharField(
+        verbose_name="Nature",
+        max_length=200,
+        blank=True,
+        help_text="La nature du bien acheté, à remplir simultanément avec le champ quantité si applicable.",
+    )
+
+    date_debut = models.DateField(
+        "Date de début",
+        blank=True,
+        null=True,
+        help_text="Premier jour d'utilisation du matériel, premier jour de l'opération correspondante.",
+    )
+
+    date_fin = models.DateField(
+        "Date de fin",
+        blank=True,
+        null=True,
+        help_text="Dernier jour d'utilisation du matériel, dernier jour de l'opération correspondante.",
     )
 
     date_depense = models.DateField(
@@ -250,6 +277,10 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
             == self.montant
         )
 
+    @property
+    def finalise(self):
+        return self.etat in [self.Etat.COMPLET, self.Etat.CLOTURE]
+
     def todos(self):
         return todos(self)
 
@@ -261,6 +292,8 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         ("numero", "B"),
         ("titre", "A"),
         ("description", "B"),
+        ("nature", "C"),
+        ("montant", "B"),
     )
 
     class Meta:
@@ -312,6 +345,12 @@ class Reglement(TimeStampedModel):
         blank=False,
         null=False,
         default=timezone.now,
+    )
+
+    date_releve = models.DateField(
+        verbose_name="Date dans le relevé bancaire",
+        blank=True,
+        null=True,
     )
 
     preuve = models.ForeignKey(

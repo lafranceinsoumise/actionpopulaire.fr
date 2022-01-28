@@ -1,6 +1,6 @@
 import React from "react";
 
-import ActionButtons from "./ActionButtons";
+import { ActionButtons } from "./ActionButtons";
 
 export default {
   component: ActionButtons,

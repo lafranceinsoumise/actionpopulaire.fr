@@ -1,31 +1,27 @@
-import style from "@agir/front/genericComponents/_variables.scss";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
+import styled from "styled-components";
 
-const Skeleton = ({ boxes, ...props }) => (
-  <>
-    {[...Array(boxes).keys()].map((key) => (
-      <div
-        key={key}
-        {...props}
-        style={{
-          backgroundColor: style.black50,
-          height: "177px",
-          marginBottom: "32px",
-          ...(props.style || {}),
-        }}
-      />
-    ))}
-  </>
-);
+const Bone = styled.div`
+  background-color: ${(props) => props.theme.black50};
+  height: 177px;
+  margin-bottom: 32px;
+`;
+
+const Skeleton = ({ boxes = 3, ...props }) => {
+  const Bones = useMemo(() => {
+    let result = [];
+    for (let key = boxes; key > 0; key -= 1) {
+      result.push(Bone);
+    }
+    return result;
+  }, [boxes]);
+
+  return Bones.map((Bone, key) => <Bone key={key} {...props} />);
+};
 
 Skeleton.propTypes = {
   boxes: PropTypes.number,
-  style: PropTypes.object,
-};
-
-Skeleton.defaultProps = {
-  boxes: 3,
 };
 
 export default Skeleton;

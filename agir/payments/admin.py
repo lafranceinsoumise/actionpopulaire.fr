@@ -123,7 +123,11 @@ class PaymentManagementAdminMixin:
             " ",
             '<button type="submit" class="button" name="_changemode" {} value="{}">{}</button>',
             (
-                ("disabled" if payment.mode == id else "", id, mode.label)
+                (
+                    "disabled" if payment.mode == id else "",
+                    id,
+                    f"{mode.label} ({id})",
+                )
                 for id, mode in payment_modes.items()
             ),
         )

@@ -2,10 +2,10 @@ from functools import partial
 from typing import Iterable
 
 import django_countries
-from data_france.models import CirconscriptionLegislative
+from data_france.models import CirconscriptionLegislative, CirconscriptionConsulaire
 from django.contrib import admin
 from django.contrib.admin import helpers
-from django.contrib.admin.options import IS_POPUP_VAR, ModelAdmin
+from django.contrib.admin.options import IS_POPUP_VAR, ModelAdmin, BaseModelAdmin
 from django.db.models import Model, Subquery
 from django.db.models.fields.related import (
     RelatedField,
@@ -195,7 +195,7 @@ def display_list_of_links(links):
     return format_html_join(mark_safe("<br>"), '<a href="{}">{}</a>', links)
 
 
-class AddRelatedLinkMixin(ModelAdmin):
+class AddRelatedLinkMixin(BaseModelAdmin):
     """Mixin pour les interfaces d'administration qui ajoute automatiquement des champs de liens et de liste vers les
     objets liés
 

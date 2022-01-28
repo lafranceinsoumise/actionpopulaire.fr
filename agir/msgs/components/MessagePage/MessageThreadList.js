@@ -10,7 +10,6 @@ import Panel from "@agir/front/genericComponents/Panel";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
 import MessageCard from "@agir/front/genericComponents/MessageCard";
-
 import MessageThreadMenu from "./MessageThreadMenu";
 import { routeConfig } from "@agir/front/app/routes.config";
 
@@ -26,7 +25,6 @@ const StyledContent = styled.article`
   & > * {
     box-shadow: none;
     border: none;
-    min-height: 100%;
 
     & > * {
       border: none;
@@ -34,15 +32,15 @@ const StyledContent = styled.article`
   }
 `;
 const StyledList = styled.main`
-  width: 100%;
   height: 100%;
+  width: 100%;
   display: flex;
   align-items: stretch;
   flex-flow: row nowrap;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.15), 0px 3px 3px rgba(0, 35, 44, 0.1);
-  border-radius: 4px;
-  border: 1px solid ${style.black200};
   overflow: hidden;
+  border: 1px solid ${style.black200};
+  border-top: 0;
+  border-bottom: 0;
 
   @media (max-width: ${style.collapse}px) {
     display: block;
@@ -54,8 +52,6 @@ const StyledList = styled.main`
   & > * {
     flex: 1 1 auto;
     height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
 
     &:first-child {
       @media (min-width: ${style.collapse}px) {
@@ -118,13 +114,16 @@ const DesktopThreadList = (props) => {
     onDeleteComment,
     writeNewMessage,
     notificationSettingLink,
-    onSend,
+    lastItemRef,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
     selectedMessage?.comments?.length,
     selectedMessagePk
   );
+  const groupURL = routeConfig.groupDetails.getLink({
+    groupPk: selectedMessage?.group.id,
+  });
 
   useEffect(() => {
     // Auto-select first message on desktop
@@ -143,35 +142,32 @@ const DesktopThreadList = (props) => {
         notificationSettingLink={notificationSettingLink}
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
+        lastItemRef={lastItemRef}
       />
-      <StyledContent ref={scrollableRef}>
-        <PageFadeIn ready={selectedMessagePk && selectedMessage}>
-          {selectedMessage && (
-            <MessageCard
-              autoScrollOnComment
-              isLoading={isLoading}
-              user={user}
-              message={selectedMessage}
-              comments={selectedMessage.comments}
-              onEdit={onEdit}
-              onComment={onComment}
-              onReport={onReport}
-              onDelete={onDelete}
-              onReportComment={onReportComment}
-              onDeleteComment={onDeleteComment}
-              isManager={selectedMessage.group.isManager}
-              groupURL={routeConfig.groupDetails.getLink({
-                groupPk: selectedMessage.group.id,
-              })}
-            />
-          )}
-          <span
-            style={{ width: 1, height: 0 }}
-            aria-hidden={true}
-            ref={bottomRef}
+      <PageFadeIn ready={selectedMessagePk && selectedMessage}>
+        {!!selectedMessage && (
+          <MessageCard
+            autoScrollOnComment
+            isLoading={isLoading}
+            user={user}
+            message={selectedMessage}
+            comments={selectedMessage.comments}
+            onEdit={onEdit}
+            onComment={onComment}
+            onReport={onReport}
+            onDelete={onDelete}
+            onReportComment={onReportComment}
+            onDeleteComment={onDeleteComment}
+            isManager={selectedMessage.group.isManager}
+            groupURL={groupURL}
           />
-        </PageFadeIn>
-      </StyledContent>
+        )}
+        <span
+          style={{ width: 1, height: 0 }}
+          aria-hidden={true}
+          ref={bottomRef}
+        />
+      </PageFadeIn>
     </StyledList>
   );
 };
@@ -192,13 +188,16 @@ const MobileThreadList = (props) => {
     onDeleteComment,
     writeNewMessage,
     notificationSettingLink,
-    onSend,
+    lastItemRef,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
     selectedMessage?.comments?.length,
     selectedMessagePk
   );
+  const groupURL = routeConfig.groupDetails.getLink({
+    groupPk: selectedMessage?.group.id,
+  });
 
   return (
     <StyledList>
@@ -209,6 +208,7 @@ const MobileThreadList = (props) => {
         notificationSettingLink={notificationSettingLink}
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
+        lastItemRef={lastItemRef}
       />
       <Panel
         style={{
@@ -237,9 +237,7 @@ const MobileThreadList = (props) => {
               onReportComment={onReportComment}
               onDeleteComment={onDeleteComment}
               isManager={selectedMessage?.group.isManager}
-              groupURL={routeConfig.groupDetails.getLink({
-                groupPk: selectedMessage?.group.id,
-              })}
+              groupURL={groupURL}
             />
           )}
           <span

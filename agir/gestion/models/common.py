@@ -1,8 +1,5 @@
-import re
-import secrets
 from functools import reduce
 from operator import add
-from string import ascii_uppercase, digits
 
 import reversion
 from django.contrib.admin.options import get_content_type_for_model
@@ -20,14 +17,7 @@ from agir.lib.search import PrefixSearchQuery
 
 __all__ = ("Compte", "InstanceCherchable", "Autorisation")
 
-
-ALPHABET = ascii_uppercase + digits
-NUMERO_RE = re.compile("^[A-Z0-9]{3}-[A-Z0-9]{1,3}$")
-
-
-def numero_unique():
-    chars = [secrets.choice(ALPHABET) for _ in range(6)]
-    return f"{''.join(chars[:3])}-{''.join(chars[3:])}"
+from agir.lib.utils import NUMERO_RE, numero_unique
 
 
 class NumeroQueryset(models.QuerySet):
@@ -132,7 +122,7 @@ class Compte(TimeStampedModel):
     engagement_automatique = EngagementAutomatique()
 
     def __str__(self):
-        return f"{self.nom} ({self.designation})"
+        return f"{self.designation}"
 
     class Meta:
         verbose_name = "Compte"
@@ -148,6 +138,7 @@ class Compte(TimeStampedModel):
             ),
             ("engager_depense", "Engager une dépense pour ce compte"),
             ("gerer_depense", "Gérer les dépenses"),
+            ("voir_montant_depense", "Voir le montant des dépenses finalisées"),
             ("controler_depense", "Contrôler les dépenses"),
             ("gerer_projet", "Gérer les projets"),
             ("controler_projet", "Contrôler les projets"),

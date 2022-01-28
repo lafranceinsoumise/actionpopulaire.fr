@@ -5,13 +5,25 @@ import Avatar from "@agir/front/genericComponents/Avatar";
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
+import ButtonMuteMessage from "@agir/front/genericComponents/ButtonMuteMessage";
 
+import { MessageOptions } from "@agir/msgs/MessagePage/MessageThreadMenu.js";
 import { IconLink } from "./StyledBar";
 import UserMenu from "../UserMenu";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 export const RightLink = (props) => {
   const { isLoading, user, settingsLink } = props;
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  let pathname = window.location.pathname;
+  const matchMessagesPage = pathname === "/messages/";
+  const matchMessagePage =
+    routeConfig.messages.match(pathname) && !matchMessagesPage;
+  pathname = pathname.slice(0, pathname.length - 1);
+  const messagePk = matchMessagePage
+    ? pathname.slice(pathname.lastIndexOf("/") + 1)
+    : undefined;
 
   if (isLoading) {
     return <IconLink as={Spacer} size="32px" />;
@@ -23,6 +35,15 @@ export const RightLink = (props) => {
         <RawFeatherIcon name="user" width="24px" height="24px" />
       </IconLink>
     );
+  }
+
+  if (matchMessagesPage) {
+    return <MessageOptions />;
+  }
+
+  // Show muted message settings
+  if (matchMessagePage) {
+    return <ButtonMuteMessage message={{ id: messagePk }} />;
   }
 
   if (settingsLink) {

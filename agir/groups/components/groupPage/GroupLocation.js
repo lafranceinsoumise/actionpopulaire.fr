@@ -87,6 +87,8 @@ const GroupLocation = (props) => {
           <Map
             center={coordinates.coordinates}
             iconConfiguration={iconConfiguration}
+            width={552}
+            height={308}
           />
         </StyledMap>
       ) : null}

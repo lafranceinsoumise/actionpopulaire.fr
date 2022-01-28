@@ -142,7 +142,7 @@ class UserMessageView(
 ):
     permission_required = ("msgs.view_supportgroupmessage",)
 
-    queryset = SupportGroupMessage.objects.filter(deleted=False)
+    queryset = SupportGroupMessage.objects.active()
 
     def get_object(self):
         return get_object_or_404(self.queryset, pk=self.kwargs.get("pk"))
@@ -199,6 +199,14 @@ class EventProjectView(HardLoginRequiredMixin, EventDetailView):
 
 class CreateEventView(BaseAppSoftAuthView):
     api_preloads = [reverse_lazy("api_event_create_options")]
+
+
+## SEARCH VIEW
+
+
+class SearchView(BaseAppCachedView):
+    meta_title = "Rechercher"
+    meta_description = "Rechercher un groupe, un événement"
 
 
 ## SUPPORTGROUP VIEWS
@@ -316,3 +324,23 @@ class NSPReferralView(SoftLoginRequiredMixin, RedirectView):
 
         url = add_query_params_to_url(url, params)
         return url
+
+
+class VotingProxyView(BaseAppCachedView):
+    meta_title = "Se porter volontaire - Procurations Mélenchon 2022 - Action Populaire"
+    meta_description = (
+        "Prenez la procuration d'un·e soutien de Jean-Luc Mélenchon dans votre ville, pour voter pour "
+        "l'élection présidentielle le 10 et/ou 24 avril 2022."
+    )
+    meta_type = "website"
+    meta_image = static("front/assets/og_image_vp.jpg")
+
+
+class VotingProxyRequestView(BaseAppCachedView):
+    meta_title = "Voter par procuration pour Jean-Luc Mélenchon — Action Populaire"
+    meta_description = (
+        "Faites la demande qu'un·e volontaire de votre ville vote à votre place pour Jean-Luc "
+        "Mélenchon pour l'élection présidentielle du 10 et/ou 24 avril 2022."
+    )
+    meta_type = "website"
+    meta_image = static("front/assets/og_image_vpr.jpg")

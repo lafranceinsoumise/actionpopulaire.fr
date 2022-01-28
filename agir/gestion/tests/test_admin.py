@@ -18,7 +18,7 @@ class BaseAdminTestCase(TestCase):
 
 
 class DepenseAdminTestCase(BaseAdminTestCase):
-    @settings(deadline=600)
+    @settings(deadline=1000)
     @given(admin_user, liste_depense_meme_compte)
     def test_peut_voir_la_liste(self, p, depenses):
         self.admin_login(p)

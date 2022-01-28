@@ -19,7 +19,6 @@ from rest_framework.generics import (
     DestroyAPIView,
     UpdateAPIView,
     RetrieveUpdateAPIView,
-    GenericAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -173,6 +172,7 @@ class EventSuggestionsAPIView(EventListAPIView):
             near = (
                 events.filter(start_time__lt=timezone.now() + timedelta(days=30))
                 .annotate(distance=Distance("coordinates", person.coordinates))
+                .filter(distance__lte=100000)
                 .order_by("distance")
             )
 

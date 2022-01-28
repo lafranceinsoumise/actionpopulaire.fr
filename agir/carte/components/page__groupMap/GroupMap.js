@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getRoutes, getUser } from "@agir/front/globalContext/reducers";
 import MapPage from "@agir/carte/common/MapPage";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const transmittedArgs = [
   "subtype",
@@ -40,7 +41,7 @@ const GroupMap = () => {
         route: routes.createGroup,
         children: "Créer un groupe dans mon quartier",
       }}
-      searchUrl="/groupes/liste/"
+      searchUrl={routeConfig.searchGroup.path}
       mapURL={`${routes.groupsMap}?${newParams.toString()}`}
       user={user}
     />

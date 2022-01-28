@@ -87,8 +87,10 @@ const StyledUserMenu = styled.div`
 
   footer {
     margin: 0;
-    padding: 1rem 0;
+    padding: 0.5rem 0;
     border-top: 1px solid ${style.black100};
+    font-size: 10px;
+    color: ${style.black500};
   }
 
   ${Button} {
@@ -132,11 +134,16 @@ export const UserMenu = (props) => {
         >
           Notifications et e-mails
         </Button>
-      </article>
-      <footer>
+        <br />
         <Button link route="logout" icon="power" color="choose" small>
           Me déconnecter
         </Button>
+      </article>
+      <footer>
+        Version :{" "}
+        {process.env.NODE_ENV === "production"
+          ? process.env.SENTRY_RELEASE.slice(0, 7)
+          : "development"}
       </footer>
     </StyledUserMenu>
   );

@@ -11,6 +11,7 @@ class TypeDocument(TextChoices):
     DEVIS = "DEV", "Devis"
     CONTRAT = "CON", "Contrat"
     FACTURE = "FAC", "Facture"
+    BDL = "BDL", "Bon de livraison"
 
     JUSTIFICATIF = "JUS", "Justificatif de dépense"
     JUSTIFICATIF_BILLET = "JUS-BIL", "Billet de train"
@@ -25,6 +26,7 @@ class TypeDocument(TextChoices):
     BAT = "EXA-BAT", "BAT"
     TRACT = "EXA-TRA", "Tract"
     AFFICHE = "EXA-AFF", "Affiche"
+    CAPTURE = "EXA-CAP", "Capture d'écran"
 
     PHOTOGRAPHIE = "PHO", "Photographie de l'objet ou de l'événement"
     AUTRE = "AUT", "Autre (à détailler dans les commentaires)"
@@ -80,6 +82,8 @@ class TypeDepense(TextChoices):
     LOCATION_VEHICULE = "TRA-L", "Location d'un véhicule"
     FRAIS_KILOMETRIQUES = "TRA-K", "Frais kilométriques"
 
+    SALAIRES = "SAL"
+
     REFACTURATION = "REF", "Refacturation"
 
 
@@ -119,3 +123,12 @@ class NiveauAcces(TextChoices):
     SANS_RESTRICTION = "N", "Sans restriction"
     RESTREINT = "R", "Restreint"
     SECRET = "S", "Secret"
+
+
+NATURE = (
+    "Tracts",
+    "Affiches",
+    "Flyers",
+    "Billets de train",
+    "Billets d'avion",
+)

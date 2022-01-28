@@ -104,13 +104,13 @@ class Command(LoggingCommand):
 
             with transaction.atomic():
                 event = Event.objects.create(
-                    name=name,
+                    name=name[: Event._meta.get_field("name").max_length],
                     visibility=Event.VISIBILITY_ORGANIZER,
                     subtype=reunion_publique,
                     start_time=date,
                     end_time=date + timedelta(hours=2),
                     **{
-                        k: v
+                        k: v[: Event._meta.get_field(k).max_length]
                         for k, v in s.data.items()
                         if k
                         in [
@@ -127,7 +127,7 @@ class Command(LoggingCommand):
                 )
 
                 Projet.objects.create(
-                    titre=name,
+                    titre=name[: Projet._meta.get_field("titre").max_length],
                     event=event,
                     type=TypeProjet.REUNION_PUBLIQUE_ORATEUR,
                     origine=Projet.Origin.REUNION_PUBLIQUE,

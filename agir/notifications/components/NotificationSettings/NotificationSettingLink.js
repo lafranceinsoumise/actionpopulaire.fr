@@ -9,9 +9,7 @@ import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 import { routeConfig } from "@agir/front/app/routes.config";
-
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
-
 import { setTopBarRightLink } from "@agir/front/globalContext/actions";
 
 const StyledLink = styled(Button)`

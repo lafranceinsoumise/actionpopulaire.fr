@@ -97,6 +97,11 @@ api_urlpatterns = [
         name="api_send_private_group_message",
     ),
     path(
+        "messages/<uuid:pk>/participants/",
+        views.GroupMessageParticipantsAPIView.as_view(),
+        name="api_group_message_participants",
+    ),
+    path(
         "messages/<uuid:pk>/",
         views.GroupSingleMessageAPIView.as_view(),
         name="api_group_message_detail",
@@ -110,6 +115,11 @@ api_urlpatterns = [
         "messages/comments/<uuid:pk>/",
         views.GroupSingleCommentAPIView.as_view(),
         name="api_group_message_comment_detail",
+    ),
+    path(
+        "messages/notification/<uuid:pk>/",
+        views.GroupMessageNotificationStatusAPIView.as_view(),
+        name="api_group_message_notification",
     ),
     path(
         "<uuid:pk>/membres/",

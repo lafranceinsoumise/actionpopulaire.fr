@@ -51,8 +51,7 @@ import defaultEventImage from "@agir/front/genericComponents/images/banner-map-b
 import EventReportCard from "./EventReportCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import ClickableMap from "@agir/carte/common/Map/ClickableMap";
-import { StyledSideCard } from "./StyledCard";
-import YoutubeEmbed from "./YoutubeEmbed";
+import OnlineUrlCard from "./OnlineUrlCard";
 
 import EventSettings from "@agir/events/EventSettings/EventSettings";
 
@@ -202,24 +201,26 @@ const MobileLayout = (props) => {
       </StyledMap>
       <Container>
         <Row>
-          <StyledColumn stack>
+          <StyledColumn stack style={{ overflow: "hidden" }}>
             <Card>
               <EventHeader {...props} />
               {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
             </Card>
-            {props.youtubeVideoID && (
-              <Card>
-                <YoutubeEmbed id={props.youtubeVideoID} />
-              </Card>
-            )}
+            <Card style={{ padding: 0 }}>
+              <OnlineUrlCard
+                onlineUrl={props.onlineUrl}
+                youtubeVideoID={props.youtubeVideoID}
+                isPast={props.isPast}
+              />
+            </Card>
             <EventLocationCard
+              isStatic
               name={name}
               timezone={props.timezone}
               schedule={props.schedule}
               location={location}
               routes={routes}
               subtype={subtype}
-              isStatic={true}
               hideMap={illustration === null}
             />
             <EventInfoCard {...props} />
@@ -274,9 +275,11 @@ const DesktopLayout = (props) => {
             <div>
               <EventHeader {...props} />
               {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
-              {props.youtubeVideoID && (
-                <YoutubeEmbed id={props.youtubeVideoID} />
-              )}
+              <OnlineUrlCard
+                youtubeVideoID={props.youtubeVideoID}
+                onlineUrl={props.onlineUrl}
+                isPast={props.isPast}
+              />
               <EventPhotosCard {...props} />
               <EventReportCard {...props} />
               <EventDescriptionCard {...props} />
@@ -321,11 +324,14 @@ export const EventPage = (props) => {
       ? DateTime.fromMillis(endTime).setLocale("fr")
       : null;
   const schedule = Interval.fromDateTimes(start, end);
+  const isPast = end < DateTime.local();
+
   return (
     <ResponsiveLayout
       {...rest}
       startTime={start}
       endTime={end}
+      isPast={isPast}
       schedule={schedule}
       DesktopLayout={DesktopLayout}
       MobileLayout={MobileLayout}
@@ -383,6 +389,7 @@ MobileLayout.propTypes = DesktopLayout.propTypes = {
   startTime: PropTypes.instanceOf(DateTime),
   endTime: PropTypes.instanceOf(DateTime),
   schedule: PropTypes.instanceOf(Interval),
+  isPast: PropTypes.bool,
 };
 
 const DesktopSkeleton = () => (

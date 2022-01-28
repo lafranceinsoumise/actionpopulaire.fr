@@ -13,6 +13,7 @@ import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 import { setPageTitle } from "@agir/front/globalContext/actions";
 import { getMessageSubject } from "@agir/msgs/common/utils";
 import { useIsOffline } from "@agir/front/offline/hooks";
+import { useInfiniteScroll } from "@agir/lib/utils/hooks";
 
 import { Hide } from "@agir/front/genericComponents/grid";
 import MessageActionModal from "@agir/front/formComponents/MessageActionModal";
@@ -32,8 +33,7 @@ const StyledPage = styled.div`
   margin: 0 auto;
   width: 100%;
   max-width: 1320px;
-  height: calc(100vh - 84px);
-  padding: 2.625rem 1.5rem 1.5rem;
+  height: calc(100vh - 72px);
 
   @media (max-width: ${style.collapse}px) {
     padding: 0;
@@ -44,6 +44,8 @@ const StyledPage = styled.div`
   & > ${StyledPageFadeIn} {
     height: 100%;
     width: 100%;
+    display: flex;
+    justify-content: center;
   }
 `;
 
@@ -54,10 +56,14 @@ const MessagePage = ({ messagePk }) => {
   const {
     user,
     messages,
+    loadMore,
+    isLoadingMore,
     messageRecipients,
     currentMessage,
     isAutoRefreshPausedRef,
   } = useMessageSWR(messagePk, onSelectMessage);
+
+  const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
   const {
     isLoading,
@@ -149,6 +155,7 @@ const MessagePage = ({ messagePk }) => {
                 user={user}
                 writeNewMessage={writeNewMessage}
                 onComment={writeNewComment}
+                lastItemRef={lastItemRef}
               />
             ) : (
               <EmptyMessagePage />

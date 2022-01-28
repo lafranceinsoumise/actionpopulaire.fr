@@ -23,6 +23,13 @@ const StyledMenu = styled.nav`
   overflow-x: overlay;
   overflow-y: hidden;
 
+  ${({ noBorder }) =>
+    noBorder &&
+    `
+    box-shadow: 0px 0px 0px rgba(0, 35, 44, 0.1), 0px 2px 1px rgba(0, 35, 44, 0.08);
+    border-top: 0;
+  `};
+
   button {
     flex: 1 1 auto;
     background-color: white;
@@ -67,11 +74,8 @@ const useTabs = (props) => {
   const handleClick = useCallback(
     (e) => {
       const index = e.target.dataset.index;
-      if (isControlled) {
-        onTabChange && onTabChange(tabs[index]);
-      } else {
-        setActiveIndex(index);
-      }
+      onTabChange && onTabChange(tabs[index]);
+      setActiveIndex(index);
     },
     [tabs, onTabChange, isControlled]
   );
@@ -107,10 +111,10 @@ const useTabs = (props) => {
 };
 
 export const Tabs = (props) => {
-  const { children, tabs, stickyOffset } = props;
+  const { children, tabs, stickyOffset, activeIndex, onTabChange, noBorder } =
+    props;
 
-  const { active, activeIndex, handleClick, handleNext, handlePrev } =
-    useTabs(props);
+  const active = tabs[activeIndex];
 
   const ActiveStep = useMemo(() => {
     return (Array.isArray(children) && children[activeIndex]) || null;
@@ -137,14 +141,14 @@ export const Tabs = (props) => {
 
   return (
     <>
-      <StyledMenu $stickyOffset={stickyOffset}>
+      <StyledMenu $stickyOffset={stickyOffset} noBorder={noBorder}>
         {tabs.map((tab, i) => (
           <button
             key={tab.id}
             disabled={active.id === tab.id}
             data-index={i}
             data-active={active.id === tab.id || undefined}
-            onClick={handleClick}
+            onClick={() => onTabChange(tab.id)}
           >
             {tab.label}
           </button>

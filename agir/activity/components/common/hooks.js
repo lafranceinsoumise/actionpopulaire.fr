@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import { useTimeout } from "react-use";
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
 
@@ -65,17 +66,16 @@ export const useActivities = () => {
 };
 
 export const useUnreadActivityCount = () => {
+  const [isReady] = useTimeout(3000);
   const { data: session } = useSWR("/api/session/");
-  const { data, mutate } = useSWR(getActivityEndpoint("unreadActivityCount"), {
-    dedupingInterval: 10000,
-    focusThrottleInterval: 10000,
-  });
-
-  const user = session?.user;
-
-  useEffect(() => {
-    typeof user !== "undefined" && mutate();
-  }, [user, mutate]);
+  const ready = isReady() && session?.user;
+  const { data, mutate } = useSWR(
+    ready && getActivityEndpoint("unreadActivityCount"),
+    {
+      dedupingInterval: 10000,
+      focusThrottleInterval: 10000,
+    }
+  );
 
   return data?.unreadActivityCount || 0;
 };

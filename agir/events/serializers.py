@@ -130,12 +130,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "rsvp",
         "routes",
         "groups",
-        "participants",
         "organizers",
         "distance",
-        "compteRendu",
-        "compteRenduMainPhoto",
-        "compteRenduPhotos",
         "subtype",
         "onlineUrl",
     ]
@@ -604,7 +600,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
     )
     startTime = DateTimeWithTimezoneField(source="start_time")
     endTime = DateTimeWithTimezoneField(source="end_time")
-    onlineUrl = serializers.URLField(source="online_url")
+    onlineUrl = serializers.URLField(source="online_url", allow_blank=True)
     facebook = serializers.CharField(allow_blank=True)
     contact = NestedContactSerializer(source="*")
     image = serializers.ImageField(allow_empty_file=True, allow_null=True)

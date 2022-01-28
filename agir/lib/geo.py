@@ -191,46 +191,47 @@ def geocode_france(item):
     Dans le cas où on a une adresse plus précise, on peut aller interroger la BAN.
     """
 
-    has_precise_address = item.location_address1 or item.location_address2
-
-    if not has_precise_address:
-        geocode_data_france(item)
-        return
-
-    q = " ".join(
-        l
-        for l in [
-            item.location_address1,
-            item.location_address2,
-            item.location_zip,
-            item.location_city,
-        ]
-        if l
-    )
-
-    query = {"q": q, "postcode": item.location_zip, "limit": 5}
-    results = get_results_from_ban(query)
-    if results is None:
-        # there has been a network error
-        return
-
-    types = {
-        "housenumber": LocationMixin.COORDINATES_EXACT,
-        "street": LocationMixin.COORDINATES_STREET,
-        "city": LocationMixin.COORDINATES_CITY,
-    }
-
-    for feature in results["features"]:
-        if feature["geometry"]["type"] != "Point":
-            continue
-        if feature["properties"]["type"] in types:
-            item.coordinates = Point(*feature["geometry"]["coordinates"])
-            item.coordinates_type = types[feature["properties"]["type"]]
-            item.location_citycode = feature["properties"]["citycode"]
-            return
-
+    # First reset coordinates and geolocation-depending fields to avoid
+    # address / coordinates asynchronisation
     item.coordinates = None
     item.coordinates_type = LocationMixin.COORDINATES_NOT_FOUND
+
+    # Try to geolocate with BAN if the full address is given
+    if item.location_address1 or item.location_address2:
+        item.location_citycode = ""
+
+        q = " ".join(
+            l
+            for l in [
+                item.location_address1,
+                item.location_address2,
+                item.location_zip,
+                item.location_city,
+            ]
+            if l
+        )
+
+        query = {"q": q, "postcode": item.location_zip, "limit": 5}
+        results = get_results_from_ban(query)
+
+        if results is not None:
+            types = {
+                "housenumber": LocationMixin.COORDINATES_EXACT,
+                "street": LocationMixin.COORDINATES_STREET,
+                "city": LocationMixin.COORDINATES_CITY,
+            }
+
+            for feature in results["features"]:
+                if feature["geometry"]["type"] != "Point":
+                    continue
+                if feature["properties"]["type"] in types:
+                    item.coordinates = Point(*feature["geometry"]["coordinates"])
+                    item.coordinates_type = types[feature["properties"]["type"]]
+                    item.location_citycode = feature["properties"]["citycode"]
+                    return
+
+    # Fallback to data france if address is incomplete or no BAN result has been found
+    geocode_data_france(item)
 
 
 def geocode_internationally(item):

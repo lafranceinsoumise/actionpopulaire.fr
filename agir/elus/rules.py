@@ -1,9 +1,8 @@
 import rules
 
-from .models import StatutMandat, types_elus, AccesApplicationParrainages
+from .models.mandats import StatutMandat, types_elus
+from .models.parrainages import AccesApplicationParrainages
 from ..lib.rules import is_authenticated_person
-
-# TODO: ajouter une règle pour donner la permission acces_parrainages
 from ..people.models import Person
 
 

@@ -137,9 +137,8 @@ ActionButtonList.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.object),
 };
 
-const ActionButtons = (props) => {
-  const { data: session } = useSWR("/api/session/");
-  const actions = getActionsForUser(session.user);
+export const ActionButtons = ({ user }) => {
+  const actions = getActionsForUser(user);
 
   return (
     <ResponsiveLayout
@@ -153,4 +152,9 @@ ActionButtons.propTypes = {
   user: PropTypes.object,
 };
 
-export default ActionButtons;
+const ConnectedActionButtons = () => {
+  const { data: session } = useSWR("/api/session/");
+  return <ActionButtons user={session?.user} />;
+};
+
+export default ConnectedActionButtons;

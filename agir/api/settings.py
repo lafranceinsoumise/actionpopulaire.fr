@@ -145,6 +145,7 @@ INSTALLED_APPS = [
     "agir.elus.apps.ElusConfig",
     "agir.gestion.apps.GestionConfig",
     "agir.presidentielle2022",
+    "agir.voting_proxies",
     "agir.legislatives2022.apps.Legislatives2022Config",
     # default contrib apps
     "agir.api.apps.AdminAppConfig",
@@ -806,6 +807,7 @@ OVH_SMS_SERVICE = os.environ.get("OVH_SMS_SERVICE")
 OVH_APPLICATION_KEY = os.environ.get("OVH_APPLICATION_KEY")
 OVH_APPLICATION_SECRET = os.environ.get("OVH_APPLICATION_SECRET")
 OVH_CONSUMER_KEY = os.environ.get("OVH_CONSUMER_KEY")
+OVH_DEFAULT_SENDER = os.environ.get("OVH_DEFAULT_SENDER", "Melenchon22")
 SMS_BUCKET_MAX = 3
 SMS_BUCKET_INTERVAL = 600
 SMS_BUCKET_IP_MAX = 10

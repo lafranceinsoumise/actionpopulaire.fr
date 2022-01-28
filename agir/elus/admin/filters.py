@@ -1,11 +1,12 @@
 from django.contrib.admin import SimpleListFilter
-from django.db.models import Count, Exists, OuterRef
+from django.db.models import Count, Exists, OuterRef, Prefetch
 from django.utils import timezone
 
 from agir.elus.models import (
     MandatMunicipal,
     CHAMPS_ELUS_PARRAINAGES,
     RechercheParrainage,
+    Scrutin,
 )
 from agir.lib.autocomplete_filter import (
     AutocompleteRelatedModelFilter,
@@ -179,3 +180,46 @@ class TypeEluFilter(SimpleListFilter):
         if value in CHAMPS_ELUS_PARRAINAGES:
             return queryset.filter(**{f"{value}__isnull": False})
         return queryset
+
+
+class ScrutinFilter(SimpleListFilter):
+    parameter_name = "scrutin"
+    title = "Scrutin"
+
+    def lookups(self, request, model_admin):
+        scrutins = list(Scrutin.objects.select_related("circonscription_content_type"))
+
+        if not scrutins:
+            self.default_id = None
+            return ()
+
+        self.content_types = {s.id: s.circonscription_content_type for s in scrutins}
+        self.default_id = scrutins[0].id
+
+        return (
+            ("", scrutins[0].nom),
+            *((str(s.id), s.nom) for s in scrutins[1:]),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+
+        try:
+            id = int(value)
+        except (ValueError, TypeError):
+            if self.default_id is None:
+                return queryset.none()
+            id = self.default_id
+
+        if id not in self.content_types:
+            return queryset.none()
+
+        content_type = self.content_types[id]
+        return queryset.filter(scrutin_id=id).prefetch_related("circonscription")
+
+    def choices(self, changelist):
+        it = super().choices(changelist)
+
+        # ne pas renvoyer le premier choix "vide" renvoyé
+        next(it)
+        yield from it
