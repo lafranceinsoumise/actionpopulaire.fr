@@ -85,53 +85,50 @@ export const SearchPage = () => {
         <>Rentrez au moins 3 caractères pour rechercher</>
       )}
 
+      <Spacer size="1rem" />
+      <Tabs
+        tabs={TABS_OPTIONS}
+        activeIndex={activeTab}
+        onTabChange={onTabChange}
+        noBorder
+      />
+
+      {!isTabAll && (
+        <div>
+          <Spacer size="1rem" />
+          <div style={{ textAlign: "right" }}>
+            <Button small icon="filter" onClick={switchFilters}>
+              Filtrer
+            </Button>
+          </div>
+          <Spacer size="1rem" />
+
+          {showFilters && (
+            <StyledFilters>
+              {isTabEvents && (
+                <EventFilters
+                  filters={filters}
+                  setFilter={(key, value) => {
+                    setFilters((filters) => ({ ...filters, [key]: value }));
+                  }}
+                />
+              )}
+              {isTabGroups && (
+                <GroupFilters
+                  filters={filters}
+                  setFilter={(key, value) => {
+                    setFilters((filters) => ({ ...filters, [key]: value }));
+                  }}
+                />
+              )}
+              <Spacer size="1rem" />
+            </StyledFilters>
+          )}
+        </div>
+      )}
+
       {!!search && search.length >= 3 && !isLoading && (
         <>
-          <Spacer size="1rem" />
-          {!type && (
-            <Tabs
-              tabs={TABS_OPTIONS}
-              activeIndex={activeTab}
-              onTabChange={onTabChange}
-              noBorder
-            />
-          )}
-
-          {(isTabEvents || isTabGroups) && (
-            <div>
-              <Spacer size="1rem" />
-              <div style={{ textAlign: "right" }}>
-                <Button small icon="filter" onClick={switchFilters}>
-                  Filtrer
-                </Button>
-              </div>
-
-              <Spacer size="1rem" />
-
-              {showFilters && (
-                <StyledFilters>
-                  {isTabEvents && (
-                    <EventFilters
-                      filters={filters}
-                      setFilter={(key, value) => {
-                        setFilters((filters) => ({ ...filters, [key]: value }));
-                      }}
-                    />
-                  )}
-                  {isTabGroups && (
-                    <GroupFilters
-                      filters={filters}
-                      setFilter={(key, value) => {
-                        setFilters((filters) => ({ ...filters, [key]: value }));
-                      }}
-                    />
-                  )}
-                  <Spacer size="1rem" />
-                </StyledFilters>
-              )}
-            </div>
-          )}
-
           {!!errors?.length && (
             <>
               <Spacer size="1rem" />
