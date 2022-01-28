@@ -41,9 +41,6 @@ export const SearchEventPage = () => {
         placeholder="Rechercher un événement"
       />
 
-      <Spacer size="1rem" />
-      {isLoading && <Skeleton />}
-
       {!!search && search.length < 3 && (
         <>Rentrez au moins 3 caractères pour rechercher</>
       )}
@@ -71,6 +68,9 @@ export const SearchEventPage = () => {
               </StyledFilters>
             )}
           </div>
+
+          <Spacer size="1rem" />
+          {isLoading && <Skeleton />}
 
           {!!errors?.length && (
             <>
