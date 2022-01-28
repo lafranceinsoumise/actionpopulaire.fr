@@ -9,7 +9,7 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { EventList, ListTitle, NoResults } from "./resultsComponents";
 import { HeaderSearch, InputSearch, EventFilters } from "./searchComponents";
 import { StyledContainer, StyledFilters } from "./styledComponents";
-import { useSearchResults } from "./SearchPage";
+import { useSearchResults } from "./useSearch";
 
 export const SearchEventPage = () => {
   const location = useLocation();

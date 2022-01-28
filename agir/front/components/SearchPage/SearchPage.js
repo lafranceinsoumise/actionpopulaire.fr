@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import { useLocation } from "react-router-dom";
 
@@ -22,40 +22,8 @@ import {
 } from "./searchComponents";
 import { StyledContainer, StyledFilters } from "./styledComponents";
 
-import { getSearch } from "./api.js";
 import { TABS, TABS_OPTIONS } from "./config.js";
-
-export const useSearchResults = (search, type, filters) => {
-  const [groups, setGroups] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [errors, setErrors] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  let filtersValue = {};
-  Object.entries(filters).map(([key, value]) => {
-    filtersValue = { ...filtersValue, [key]: value?.value };
-  });
-
-  useEffect(async () => {
-    setIsLoading(true);
-    setErrors(null);
-    const { data, error } = await getSearch({
-      search,
-      type,
-      filters: filtersValue,
-    });
-    setIsLoading(false);
-    if (error) {
-      setErrors(error);
-      return;
-    }
-
-    setGroups(data.groups);
-    setEvents(data.events);
-  }, [search, type, filters]);
-
-  return [groups, events, errors, isLoading];
-};
+import { useSearchResults } from "./useSearch";
 
 export const SearchPage = () => {
   const isDesktop = useIsDesktop();
@@ -68,7 +36,7 @@ export const SearchPage = () => {
   const [filters, setFilters] = useState({});
   const [groups, events, errors, isLoading] = useSearchResults(
     search,
-    type,
+    isTabEvents ? "events" : isTabGroups ? "groups" : undefined,
     filters
   );
 
