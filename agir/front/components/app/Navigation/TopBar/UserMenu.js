@@ -142,7 +142,7 @@ export const UserMenu = (props) => {
       <footer>
         Version :{" "}
         {process.env.NODE_ENV === "production"
-          ? process.env.SENTRY_RELEASE
+          ? process.env.SENTRY_RELEASE.slice(0, 7)
           : "development"}
       </footer>
     </StyledUserMenu>
