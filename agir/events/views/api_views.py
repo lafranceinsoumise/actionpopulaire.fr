@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
-from django.utils.translation import gettext as _
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
@@ -20,7 +19,6 @@ from rest_framework.generics import (
     UpdateAPIView,
     RetrieveUpdateAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -73,6 +71,7 @@ from agir.gestion.models import Projet
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     HasSpecificPermissions,
+    IsPersonPermission,
 )
 
 from agir.lib.tasks import geocode_person
@@ -83,7 +82,7 @@ from ..tasks import (
 
 
 class EventListAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     serializer_class = EventListSerializer
     queryset = Event.objects.public()
 
@@ -211,7 +210,7 @@ class OrganizedEventAPIView(EventListAPIView):
 
 
 class EventCreateOptionsAPIView(RetrieveAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     serializer_class = EventPropertyOptionsSerializer
     queryset = Event.objects.all()
 
@@ -440,7 +439,7 @@ class EventProjectPermission(GlobalOrObjectPermissions):
 
 
 class EventProjectsAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     serializer_class = EventProjectListItemSerializer
     queryset = Projet.objects.filter(event__isnull=False)
 
