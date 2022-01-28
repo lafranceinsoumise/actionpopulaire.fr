@@ -96,25 +96,18 @@ const ActivityList = () => {
             {activities.length > 0 ? (
               <StyledList type="activities">
                 <ActivityMergerAnnouncement />
-                {activities.map((activity, i) =>
-                  i + 1 === activities.length ? (
-                    <li key={activity.id} ref={lastItemRef}>
-                      <ActivityCard
-                        routes={routes}
-                        {...activity}
-                        onClick={onClickActivity}
-                      />
-                    </li>
-                  ) : (
-                    <li key={activity.id}>
-                      <ActivityCard
-                        routes={routes}
-                        {...activity}
-                        onClick={onClickActivity}
-                      />
-                    </li>
-                  )
-                )}
+                {activities.map((activity, i) => (
+                  <li
+                    key={activity.id}
+                    ref={i + 1 === activities.length ? lastItemRef : null}
+                  >
+                    <ActivityCard
+                      routes={routes}
+                      {...activity}
+                      onClick={onClickActivity}
+                    />
+                  </li>
+                ))}
                 {isLoadingMore && <Skeleton />}
               </StyledList>
             ) : isOffline ? (

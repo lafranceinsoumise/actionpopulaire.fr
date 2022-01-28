@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useTimeout } from "react-use";
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";

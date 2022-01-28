@@ -125,8 +125,8 @@ class Migration(migrations.Migration):
                 "ordering": ("person", "conseil"),
             },
             bases=(
-                agir.elus.models.UniqueWithinDates,
-                agir.elus.models.MandatHistoryMixin,
+                agir.elus.models.mandats.UniqueWithinDates,
+                agir.elus.models.mandats.MandatHistoryMixin,
                 models.Model,
             ),
         ),

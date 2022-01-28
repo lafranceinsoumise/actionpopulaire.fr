@@ -157,6 +157,19 @@ event_settings_patterns = [
     ),
 ]
 
+voting_proxy_patterns = [
+    path(
+        "donner-ma-procuration/",
+        views.VotingProxyRequestView.as_view(),
+        name="new_voting_proxy_request",
+    ),
+    path(
+        "prendre-une-procuration/",
+        views.VotingProxyView.as_view(),
+        name="new_voting_proxy",
+    ),
+]
+
 urlpatterns = [
     ## APP & AUTH VIEWS
     path("connexion/", views.LoginView.as_view(), name="short_code_login"),
@@ -257,17 +270,6 @@ urlpatterns = [
     ),
     path("outils/", views.RedirectView.as_view(pattern_name="tools", permanent=True)),
     path("navigation/", views.BaseAppSoftAuthView.as_view(), name="navigation_menu"),
-    ## DONATION VIEWS
-    path(
-        "dons/",
-        views.DonationView.as_view(),
-        name="donation_amount",
-    ),
-    path(
-        "2022/dons/",
-        views.Donation2022View.as_view(),
-        name="donations_2022_amount",
-    ),
     ## EVENT VIEWS
     path("evenements/carte/", views.BaseAppCachedView.as_view(), name="event_map_page"),
     path("evenements/creer/", views.CreateEventView.as_view(), name="create_event"),
@@ -307,6 +309,7 @@ urlpatterns = [
         RedirectView.as_view(pattern_name="create_contact", permanent=True),
         name="create_contact_success",
     ),
+    # DONATION VIEWS
     path(
         "dons/",
         views.DonationView.as_view(),
@@ -347,6 +350,8 @@ urlpatterns = [
         views.Donation2022View.as_view(),
         name="donation_2022_information_modal",
     ),
+    # VOTING PROXIES
+    path("procuration/", include(voting_proxy_patterns)),
     path("404/", views.NotFoundView.as_view()),
     ## REDIRECT / EXTERNAL VIEWS
     path("nsp/", views.NSPView.as_view(), name="nsp"),

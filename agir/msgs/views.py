@@ -14,6 +14,7 @@ from agir.msgs.serializers import (
     UserMessagesSerializer,
     UserMessageRecipientSerializer,
 )
+from agir.lib.pagination import APIPaginator
 from agir.msgs.tasks import send_message_report_email
 from .utils import get_user_messages
 
@@ -66,6 +67,7 @@ class UserMessagesAPIView(ListAPIView):
     serializer_class = UserMessagesSerializer
     queryset = SupportGroupMessage.objects.exclude(deleted=True)
     permission_classes = (IsAuthenticated,)
+    pagination_class = APIPaginator
 
     def get_queryset(self):
         person = self.request.user.person

@@ -1,7 +1,22 @@
+import csv
 import re
 import string
+from importlib.resources import open_text
 
 from django.core import validators
+
+
+CIB_TO_BIC = None
+
+
+def bic_from_cib(cib):
+    global CIB_TO_BIC
+    if CIB_TO_BIC is None:
+        with open_text("agir.lib.data", "conversion_cib_bic.csv") as f:
+            r = csv.DictReader(f)
+            CIB_TO_BIC = {b["CIB"]: b["BIC"] for b in r}
+
+    return CIB_TO_BIC[cib]
 
 
 class IBAN:
@@ -24,6 +39,16 @@ class IBAN:
     @property
     def country(self):
         return self.value[:2]
+
+    @property
+    def bic(self):
+        if self.country != "FR":
+            raise AttributeError("Pas de BIC automatique pour les IBAN non-français")
+
+        try:
+            return bic_from_cib(self.value[4:9])
+        except KeyError:
+            raise AttributeError("BIC inconnu pour cette banque")
 
     def __init__(self, value):
         self.value = value.translate(str.maketrans("", "", string.whitespace)).upper()

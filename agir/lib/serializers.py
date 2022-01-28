@@ -80,11 +80,11 @@ class LocationSerializer(serializers.Serializer):
         return "\n".join(p for p in parts if p)
 
     def get_staticMapUrl(self, obj):
+        if hasattr(obj, "static_map_image") and obj.static_map_image:
+            return StaticMapImage(image=obj.static_map_image).image.url
+
         if obj.coordinates is None:
             return ""
-
-        if hasattr(obj, "static_map_image") and obj.static_map_image:
-            return f"{settings.MEDIA_ROOT}/{obj.static_map_image}"
 
         static_map_image = StaticMapImage.objects.filter(
             center__distance_lt=(
