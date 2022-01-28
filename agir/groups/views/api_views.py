@@ -50,10 +50,10 @@ from agir.groups.serializers import (
     SupportGroupExternalLinkSerializer,
     MemberPersonalInformationSerializer,
 )
-from agir.msgs.serializers import SupportGroupMessageParticipantSerializer
 from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
+from agir.msgs.serializers import SupportGroupMessageParticipantSerializer
 from agir.people.models import Person
 
 __all__ = [
@@ -497,7 +497,7 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
 class GroupMessageParticipantsAPIView(RetrieveAPIView):
     serializer_class = SupportGroupMessageParticipantSerializer
     permission_classes = (GroupMessagesPermissions,)
-    queryset = SupportGroupMessage.objects.all().select_related("supportgroup")
+    queryset = SupportGroupMessage.objects.active()
 
 
 class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
