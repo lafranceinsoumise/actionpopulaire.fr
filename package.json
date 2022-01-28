@@ -106,7 +106,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.4",
     "@storybook/addon-actions": "^6.4.14",
     "@storybook/addon-essentials": "^6.4.14",
-    "@storybook/addon-links": "^6.4.14",
+    "@storybook/addon-links": "^6.4.15",
     "@storybook/builder-webpack5": "^6.4.14",
     "@storybook/cli": "^6.4.14",
     "@storybook/react": "^6.4.14",
