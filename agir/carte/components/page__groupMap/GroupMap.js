@@ -21,7 +21,7 @@ const GroupMap = () => {
         route: routes.createGroup,
         children: "Créer un groupe dans mon quartier",
       }}
-      searchUrl={routeConfig.search.getLink({ type: "groupes" })}
+      searchUrl={routeConfig.searchGroup.path}
       mapURL={routes.groupsMap}
       user={user}
     />

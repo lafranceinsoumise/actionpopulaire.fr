@@ -8,7 +8,8 @@ import Link from "@agir/front/app/Link";
 import { Hide } from "@agir/front/genericComponents/grid";
 import mapImg from "./images/Bloc_map.jpg";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import Button from "@agir/front/genericComponents/Button";
+import SelectField from "@agir/front/formComponents/SelectField";
+import { OPTIONS } from "./config.js";
 
 const StyledLink = styled(Link)``;
 
@@ -120,14 +121,8 @@ HeaderSearch.PropTypes = {
   showMap: PropTypes.bool,
 };
 
-export const InputSearch = ({
-  inputSearch,
-  updateSearch,
-  placeholder,
-  onSubmit,
-  isLoading,
-}) => (
-  <form onSubmit={onSubmit} style={{ display: "flex" }} autoComplete="off">
+export const InputSearch = ({ inputSearch, updateSearch, placeholder }) => (
+  <div style={{ display: "flex" }}>
     <SearchBarWrapper>
       <RawFeatherIcon
         name="search"
@@ -146,22 +141,74 @@ export const InputSearch = ({
         autoComplete="off"
       />
     </SearchBarWrapper>
-    <Hide under>
-      <Button
-        color="primary"
-        onClick={onSubmit}
-        style={{ marginLeft: "1rem" }}
-        disabled={isLoading}
-      >
-        Rechercher
-      </Button>
-    </Hide>
-  </form>
+  </div>
 );
 InputSearch.PropTypes = {
   inputSearch: PropTypes.string,
   updateSearch: PropTypes.func,
-  onSubmit: PropTypes.func,
-  isLoading: PropTypes.bool,
   placeholder: PropTypes.string,
 };
+
+export const EventFilters = ({ filters, setFilter }) => {
+  return (
+    <>
+      <SelectField
+        key={1}
+        label="Trier par"
+        placeholder="Date"
+        name="eventSort"
+        value={filters?.eventSort}
+        onChange={(value) => setFilter("eventSort", value)}
+        options={OPTIONS.EventSort}
+      />
+      <SelectField
+        key={2}
+        label="Catégorie d'événement"
+        placeholder="Categories"
+        name="eventCategory"
+        value={filters?.eventCategory}
+        onChange={(value) => setFilter("eventCategory", value)}
+        options={OPTIONS.EventCategory}
+      />
+      <SelectField
+        key={3}
+        label="Type"
+        placeholder="Types"
+        name="eventType"
+        value={filters?.eventType}
+        onChange={(value) => setFilter("eventType", value)}
+        options={OPTIONS.EventType}
+      />
+    </>
+  );
+};
+EventFilters.PropTypes = {
+  filters: PropTypes.object,
+  setFilter: PropTypes.func,
+};
+
+export const GroupFilters = ({ filters, setFilter }) => {
+  return (
+    <>
+      <SelectField
+        key={1}
+        label="Trier par"
+        placeholder="Date"
+        name="groupSort"
+        value={filters?.groupSort}
+        onChange={(value) => setFilter("groupSort", value)}
+        options={OPTIONS.GroupSort}
+      />
+      <SelectField
+        key={2}
+        label="Type"
+        placeholder="Types"
+        name="groupType"
+        value={filters?.groupType}
+        onChange={(value) => setFilter("groupType", value)}
+        options={OPTIONS.GroupType}
+      />
+    </>
+  );
+};
+GroupFilters.PropTypes = EventFilters.PropTypes;

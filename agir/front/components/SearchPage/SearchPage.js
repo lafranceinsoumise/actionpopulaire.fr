@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from "react";
 
-import { useLocation, useParams } from "react-router-dom";
-
-import styled from "styled-components";
-import style from "@agir/front/genericComponents/_variables.scss";
+import { useLocation } from "react-router-dom";
 
 import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Tabs from "@agir/front/genericComponents/Tabs";
-import SelectField from "@agir/front/formComponents/SelectField";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 
@@ -18,91 +14,66 @@ import {
   ListTitle,
   NoResults,
 } from "./resultsComponents";
-import { HeaderSearch, InputSearch } from "./searchComponents";
+import {
+  HeaderSearch,
+  InputSearch,
+  GroupFilters,
+  EventFilters,
+} from "./searchComponents";
+import { StyledContainer, StyledFilters } from "./styledComponents";
+
 import { getSearch } from "./api.js";
-import { TABS, TABS_OPTIONS, OPTIONS } from "./config.js";
+import { TABS, TABS_OPTIONS } from "./config.js";
 
-const StyledContainer = styled.div`
-  width: 100%;
-  max-width: 1100px;
-  display: flex;
-  flex-direction: column;
-  margin: 0 auto;
-  padding: 20px 50px 3rem;
+export const useSearchResults = (search, type, filters) => {
+  const [groups, setGroups] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [errors, setErrors] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  @media (max-width: ${style.collapse}px) {
-    padding: 20px 12px 3rem;
-  }
+  let filtersValue = {};
+  Object.entries(filters).map(([key, value]) => {
+    filtersValue = { ...filtersValue, [key]: value?.value };
+  });
 
-  h1 {
-    font-size: 22px;
-  }
-  h2 {
-    font-size: 18px;
-    span {
-      font-weight: normal;
+  useEffect(async () => {
+    setIsLoading(true);
+    setErrors(null);
+    const { data, error } = await getSearch({
+      search,
+      type,
+      filters: filtersValue,
+    });
+    setIsLoading(false);
+    if (error) {
+      setErrors(error);
+      return;
     }
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-`;
 
-const StyledFilters = styled.div`
-  display: flex;
-  > label {
-    flex: 1;
-    margin-right: 10px;
+    setGroups(data.groups);
+    setEvents(data.events);
+  }, [search, type, filters]);
 
-    &&:last-child {
-      margin-right: 0;
-    }
-  }
-
-  @media (max-width: ${style.collapse}px) {
-    flex-direction: column;
-    > label {
-      margin-right: 0;
-      margin-bottom: 1rem;
-    }
-  }
-`;
-
-const INIT_RESULTS = {
-  groups: [],
-  events: [],
+  return [groups, events, errors, isLoading];
 };
 
 export const SearchPage = () => {
   const isDesktop = useIsDesktop();
-  const { search } = useLocation();
-  const urlParams = new URLSearchParams(search);
-  const params = useParams();
-  const type =
-    params?.type === "evenements"
-      ? "events"
-      : params?.type === "groupes"
-      ? "groups"
-      : undefined;
+  const location = useLocation();
+  const urlParams = new URLSearchParams(location.search);
+  const type = undefined;
 
-  const query = urlParams.get("q") || "";
-  const [isLoading, setIsLoading] = useState(false);
-  const [querySearch, setQuerySearch] = useState(query);
-  const [inputSearch, setInputSearch] = useState("");
-  const [results, setResults] = useState(INIT_RESULTS);
-  const [showFilters, setShowFilters] = useState(false);
-  const [groups, setGroups] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [errors, setErrors] = useState({});
-  const [activeTab, setActiveTab] = useState(
-    type === "events" ? TABS.EVENTS : type === "groups" ? TABS.GROUPS : TABS.ALL
+  const [search, setSearch] = useState(urlParams.get("q") || "");
+
+  const [filters, setFilters] = useState({});
+  const [groups, events, errors, isLoading] = useSearchResults(
+    search,
+    type,
+    filters
   );
 
-  const [eventSort, setEventSort] = useState(OPTIONS.EventSort[0]);
-  const [eventType, setEventType] = useState(OPTIONS.EventType[0]);
-  const [eventCategory, setEventCategory] = useState(OPTIONS.EventCategory[0]);
-  const [groupSort, setGroupSort] = useState(OPTIONS.GroupSort[0]);
-  const [groupType, setGroupType] = useState(OPTIONS.GroupType[0]);
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeTab, setActiveTab] = useState(TABS.ALL);
 
   const isTabAll = activeTab === TABS.ALL;
   const isTabGroups = activeTab === TABS.GROUPS;
@@ -114,152 +85,39 @@ export const SearchPage = () => {
       : isTabGroups
       ? "un groupe"
       : "sur Action Populaire");
-  const isNoResults = !events.length && !groups.length;
-
-  const handleSearch = async ({ search, type, filters }) => {
-    setIsLoading(true);
-    const { data, error } = await getSearch({ search, type, filters });
-    setIsLoading(false);
-    if (error) {
-      setErrors(error);
-    }
-    return { data, error };
-  };
-
-  useEffect(async () => {
-    if (!!querySearch) {
-      const { data, error } = await handleSearch({ search, type });
-      if (error) {
-        setResults(INIT_RESULTS);
-        return;
-      }
-      setResults(data);
-    }
-  }, []);
-
-  // Filter & sort groups
-  useEffect(async () => {
-    const filters = {
-      groupType: groupType.value,
-      groupSort: groupSort.value,
-    };
-
-    const { data, error } = await handleSearch({
-      search: querySearch,
-      type,
-      filters,
-    });
-    if (error) {
-      setGroups([]);
-      return;
-    }
-
-    if (isTabAll) {
-      setGroups(data.groups.slice(0, 10));
-      return;
-    }
-    setGroups(data.groups);
-  }, [results, groupType, groupSort]);
-
-  // Filter & sort events
-  useEffect(async () => {
-    const filters = {
-      eventType: eventType.value,
-      eventCategory: eventCategory.value,
-      eventSort: eventSort.value,
-    };
-
-    const { data, error } = await handleSearch({
-      search: querySearch,
-      type,
-      filters,
-    });
-    if (error) {
-      setEvents([]);
-      return;
-    }
-
-    if (isTabAll) {
-      setEvents(data.events.slice(0, 10));
-      return;
-    }
-    setEvents(data.events);
-  }, [results, eventType, eventSort, eventCategory]);
-
-  const updateSearch = (e) => {
-    setInputSearch(e.target.value);
-  };
+  const isNoResults = !events?.length && !groups?.length;
 
   const onTabChange = (tab) => {
     setActiveTab(tab);
     setShowFilters(false);
-    resetFilters();
-  };
-
-  const resetFilters = () => {
-    setEventSort(OPTIONS.EventSort[0]);
-    setEventType(OPTIONS.EventType[0]);
-    setEventCategory(OPTIONS.EventCategory[0]);
-    setGroupSort(OPTIONS.GroupSort[0]);
-    setGroupType(OPTIONS.GroupType[0]);
+    setFilters({});
   };
 
   const switchFilters = () => {
     setShowFilters(!showFilters);
-    resetFilters();
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!inputSearch) {
-      return;
-    }
-
-    const filters = {
-      groupType: groupType.value,
-      groupSort: groupSort.value,
-      eventType: eventType.value,
-      eventCategory: eventCategory.value,
-      eventSort: eventSort.value,
-    };
-
-    const { data, error } = await handleSearch({
-      search: inputSearch,
-      type,
-      filters,
-    });
-
-    resetFilters();
-    setQuerySearch(inputSearch);
-    if (error) {
-      setResults(INIT_RESULTS);
-      return;
-    }
-    setResults(data);
+    setFilters({});
   };
 
   return (
     <StyledContainer>
-      <HeaderSearch querySearch={querySearch} showMap={isTabAll} />
+      <HeaderSearch querySearch={search} showMap={isTabAll} />
 
       {(!isDesktop || !!type) && (
         <InputSearch
-          inputSearch={inputSearch}
-          updateSearch={updateSearch}
-          onSubmit={handleSubmit}
+          inputSearch={search}
+          updateSearch={(e) => setSearch(e.target.value)}
           placeholder={placeholder}
         />
       )}
 
-      {isLoading && (
-        <>
-          <Spacer size="1.5rem" />
-          <Skeleton />
-        </>
+      <Spacer size="1rem" />
+      {isLoading && <Skeleton />}
+
+      {!!search && search.length < 3 && (
+        <>Rentrez au moins 3 caractères pour rechercher</>
       )}
 
-      {!!querySearch && !isLoading && (
+      {!!search && search.length >= 3 && !isLoading && (
         <>
           <Spacer size="1rem" />
           {!type && (
@@ -285,58 +143,20 @@ export const SearchPage = () => {
               {showFilters && (
                 <StyledFilters>
                   {isTabEvents && (
-                    <>
-                      <SelectField
-                        key={1}
-                        label="Trier par"
-                        placeholder="Date"
-                        name="eventSort"
-                        value={eventSort}
-                        onChange={setEventSort}
-                        options={OPTIONS.EventSort}
-                      />
-                      <SelectField
-                        key={2}
-                        label="Catégorie d'événement"
-                        placeholder="Categories"
-                        name="eventCategory"
-                        value={eventCategory}
-                        onChange={setEventCategory}
-                        options={OPTIONS.EventCategory}
-                      />
-                      <SelectField
-                        key={3}
-                        label="Type"
-                        placeholder="Types"
-                        name="eventType"
-                        value={eventType}
-                        onChange={setEventType}
-                        options={OPTIONS.EventType}
-                      />
-                    </>
+                    <EventFilters
+                      filters={filters}
+                      setFilter={(key, value) => {
+                        setFilters((filters) => ({ ...filters, [key]: value }));
+                      }}
+                    />
                   )}
-
                   {isTabGroups && (
-                    <>
-                      <SelectField
-                        key={1}
-                        label="Trier par"
-                        placeholder="Date"
-                        name="groupSort"
-                        value={groupSort}
-                        onChange={setGroupSort}
-                        options={OPTIONS.GroupSort}
-                      />
-                      <SelectField
-                        key={2}
-                        label="Type"
-                        placeholder="Types"
-                        name="groupType"
-                        value={groupType}
-                        onChange={setGroupType}
-                        options={OPTIONS.GroupType}
-                      />
-                    </>
+                    <GroupFilters
+                      filters={filters}
+                      setFilter={(key, value) => {
+                        setFilters((filters) => ({ ...filters, [key]: value }));
+                      }}
+                    />
                   )}
                   <Spacer size="1rem" />
                 </StyledFilters>
@@ -344,7 +164,7 @@ export const SearchPage = () => {
             </div>
           )}
 
-          {!!errors.length && (
+          {!!errors?.length && (
             <>
               <Spacer size="1rem" />
               {errors?.name || "Une erreur est apparue ! :("}

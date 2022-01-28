@@ -119,7 +119,11 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         search_term = request.GET.get("q", "")
         type = request.GET.get("type")
         filters = json.loads(request.GET.get("filters", "{}"))
-        results = {"query": search_term}
+        results = {
+            "query": search_term,
+            self.RESULT_TYPE_GROUPS: [],
+            self.RESULT_TYPE_EVENTS: [],
+        }
 
         if type is None or type == self.RESULT_TYPE_GROUPS:
             results[self.RESULT_TYPE_GROUPS] = self.get_groups(search_term, filters)

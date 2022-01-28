@@ -30,7 +30,7 @@ const CarrouselContainer = styled.div`
 
 const GroupsDesktop = ({ groups }) => (
   <StyledGroupsDesktop>
-    {groups.map((group) => (
+    {groups?.map((group) => (
       <div key={group.id}>
         <GroupSuggestionCard {...group} />
       </div>
@@ -65,7 +65,7 @@ GroupList.PropTypes = {
 
 export const EventList = ({ events }) => (
   <>
-    {events.map((event) => {
+    {events?.map((event) => {
       return (
         <React.Fragment key={event.id}>
           <EventCard
@@ -83,7 +83,7 @@ EventList.PropTypes = {
 };
 
 export const ListTitle = ({ name, list, isShowMore, onShowMore }) => {
-  if (!list.length) {
+  if (!list?.length) {
     return null;
   }
 
