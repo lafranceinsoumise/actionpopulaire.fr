@@ -180,6 +180,7 @@ def send_rsvp_notification(rsvp_pk):
         "LOCATION_ADDRESS": rsvp.event.short_address,
         "EVENT_LINK": front_url("view_event", auto_login=False, args=[rsvp.event.pk]),
         "ADDITIONAL_INFORMATION": additional_message,
+        "ATTENDANT_NOTICE": rsvp.event.attendant_notice,
     }
 
     send_mosaico_email(
