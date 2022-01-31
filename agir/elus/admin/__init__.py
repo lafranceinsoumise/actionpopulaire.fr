@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import reversion
+from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 from data_france.admin import (
     EluMunicipalAdmin as OriginalEluMunicipalAdmin,
@@ -32,6 +33,8 @@ from agir.elus.models import (
     MandatDepute,
     CHAMPS_ELUS_PARRAINAGES,
     MandatDeputeEuropeen,
+    Candidature,
+    Scrutin,
 )
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
@@ -46,6 +49,7 @@ from .filters import (
     MandatsFilter,
     TypeEluFilter,
     ParrainagesFilter,
+    ScrutinFilter,
 )
 from .forms import (
     PERSON_FIELDS,
@@ -62,7 +66,7 @@ from .views import (
     AnnulerParrainageView,
     ExporterAccesApplication,
 )
-from ...lib.admin import display_list_of_links, get_admin_link
+from ...lib.admin import display_list_of_links, get_admin_link, AddRelatedLinkMixin
 
 
 class BaseMandatAdmin(admin.ModelAdmin):
@@ -888,11 +892,22 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
     )
 
     list_filter = ("statut", TypeEluFilter)
-    fields = ("person", "statut_display", "commentaires", "formulaire")
+    fields = (
+        "person",
+        "statut_display",
+        "commentaires",
+        "commentaires_admin",
+        "formulaire",
+    )
 
     search_fields = ("search",)
 
     def get_fieldsets(self, request, obj=None):
+        contact_fieldset = (
+            "Contact",
+            {"fields": ("email", "telephone", "adresse_postale")},
+        )
+
         if obj is None:
             return (
                 (
@@ -902,7 +917,8 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
                         "description": "Choisissez un élu à partir des sélecteurs suivants, en fonction de son type de mandat.",
                     },
                 ),
-                ("Détails", {"fields": ("choix", "commentaires", "formulaire")}),
+                ("Détails", {"fields": ("choix", "commentaires_admin", "formulaire")}),
+                contact_fieldset,
             )
 
         return (
@@ -911,6 +927,7 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
                 {"fields": ("nom_elu", "type_elu_label")},
             ),
             ("Détails", {"fields": self.get_fields(request, obj=obj)}),
+            contact_fieldset,
         )
 
     def get_search_results(self, request, queryset, search_term):
@@ -1057,3 +1074,102 @@ admin.site.unregister(Depute)
 @admin.register(Depute)
 class DeputeAdmin(OriginalDeputeAdmin):
     list_filter = OriginalDeputeAdmin.list_filter + (MandatsFilter,)
+
+
+@admin.register(Scrutin)
+class ScrutinAdmin(admin.ModelAdmin):
+    list_display = ("nom", "date", "type_scrutin", "circonscription_content_type")
+
+
+@admin.register(Candidature)
+class CandidatureAdmin(AddRelatedLinkMixin, admin.ModelAdmin):
+    list_display = ("candidat", "sexe", "code_circonscription", "date", "etat")
+    list_filter = (ScrutinFilter,)
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "code",
+                    "person_link",
+                    "scrutin_link",
+                    "circonscription_link",
+                )
+            },
+        ),
+        ("État de la candidature", {"fields": ("date", "etat", "informations")}),
+        (
+            "État civil",
+            {
+                "fields": (
+                    "nom",
+                    "prenom",
+                    "sexe",
+                    "date_naissance",
+                    "code_postal",
+                    "ville",
+                )
+            },
+        ),
+        (
+            "Informations supplémentaires",
+            {
+                "fields": (
+                    "profession_foi",
+                    "presence_en_ligne",
+                    "reponses_questionnaire",
+                    "meta",
+                )
+            },
+        ),
+    )
+
+    readonly_fields = (
+        "candidat",
+        "code",
+        "date",
+        "nom",
+        "prenom",
+        "sexe",
+        "date_naissance",
+        "profession_foi",
+        "meta",
+        "code_circonscription",
+        "circonscription_link",
+        "reponses_questionnaire",
+        "presence_en_ligne",
+    )
+
+    def candidat(self, obj):
+        return f"{obj.nom} {obj.prenom}"
+
+    candidat.short_description = "Candidat·e"
+    candidat.sortable_by = ("nom", "prenom")
+
+    def reponses_questionnaire(self, obj):
+        reponses = obj.meta.get("questionnaire", [])
+
+        return format_html(
+            "<dl>{}</dl>",
+            format_html_join("", "<dt>{}</dt><dd>{}</dd>", reponses),
+        )
+
+    reponses_questionnaire.short_description = "Autres réponses au questionnaire"
+
+    def code_circonscription(self, obj):
+        if hasattr(obj, "circonscription"):
+            return obj.circonscription.code
+        return "-"
+
+    code_circonscription.short_description = "Code circonscription"
+
+    def circonscription_link(self, obj):
+        circo = obj.circonscription
+
+        return format_html('<a href="{}">{}</a>', get_admin_link(circo), str(circo))
+
+    circonscription_link.short_description = "Circonscription de candidature"
+
+    def presence_en_ligne(self, obj):
+        liens = obj.meta.get("liens", [])
+        return format_html_join(mark_safe("<br>"), '<a href="{}">{}</a>', liens)

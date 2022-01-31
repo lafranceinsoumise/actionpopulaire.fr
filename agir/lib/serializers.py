@@ -87,7 +87,7 @@ class LocationSerializer(serializers.Serializer):
             return ""
 
         static_map_image = StaticMapImage.objects.filter(
-            center__distance_lt=(
+            center__dwithin=(
                 obj.coordinates,
                 StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
             ),

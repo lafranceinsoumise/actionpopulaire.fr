@@ -72,6 +72,18 @@ const ActionToolsPage = lazy(() =>
   import("@agir/front/ActionToolsPage/ActionToolsPage")
 );
 const SearchPage = lazy(() => import("@agir/front/SearchPage/SearchPage"));
+const SearchGroupPage = lazy(() =>
+  import("@agir/front/SearchPage/SearchGroupPage")
+);
+const SearchEventPage = lazy(() =>
+  import("@agir/front/SearchPage/SearchEventPage")
+);
+const NewVotingProxyRequest = lazy(() =>
+  import("@agir/voting_proxies/VotingProxyRequest/NewVotingProxyRequest")
+);
+const NewVotingProxy = lazy(() =>
+  import("@agir/voting_proxies/VotingProxy/NewVotingProxy")
+);
 
 export const BASE_PATH = "/";
 
@@ -470,12 +482,57 @@ export const routeConfig = {
     hideFooter: true,
     appOnlyTopBar: true,
   }),
+  newVotingProxyRequest: new RouteConfig({
+    id: "newVotingProxyRequest",
+    path: "/procuration/donner-ma-procuration/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Donner ma procuration de vote",
+    Component: NewVotingProxyRequest,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  newVotingProxy: new RouteConfig({
+    id: "newVotingProxy",
+    path: "/procuration/prendre-une-procuration/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Prendre une procuration de vote",
+    Component: NewVotingProxy,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
   search: new RouteConfig({
     id: "search",
     path: "/recherche/",
+    exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     Component: SearchPage,
     label: "Rechercher",
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+  }),
+  searchGroup: new RouteConfig({
+    id: "searchGroup",
+    path: "/recherche/groupes/",
+    neededAuthentication: AUTHENTICATION.NONE,
+    Component: SearchGroupPage,
+    label: "Rechercher un groupe",
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+  }),
+  searchEvent: new RouteConfig({
+    id: "searchEvent",
+    path: "/recherche/evenements/",
+    neededAuthentication: AUTHENTICATION.NONE,
+    Component: SearchEventPage,
+    label: "Rechercher un événement",
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,

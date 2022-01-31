@@ -1,54 +1,68 @@
 import React from "react";
 
-export const [TAB_ALL, TAB_GROUPS, TAB_EVENTS] = [0, 1, 2];
-export const FILTER_TABS = ["Tout", "Groupes", "Événements"];
-
-export const [DATE_ASC, DATE_DESC, ALPHA_ASC, ALPHA_DESC] = [0, 1, 2, 3];
-export const [EVENT_CAT_ALL, EVENT_CAT_PAST, EVENT_CAT_FUTURE] = [0, 1, 2];
-export const [
-  EVENT_TYPE_ALL,
-  EVENT_TYPE_GROUP_MEETING,
-  EVENT_TYPE_PUBLIC_MEETING,
-  EVENT_TYPE_PUBLIC_ACTION,
-  EVENT_TYPE_OTHER,
-] = [0, "G", "M", "A", "O"];
-export const [
-  GROUP_TYPE_ALL,
-  GROUP_TYPE_CERTIFIED,
-  GROUP_TYPE_NOT_CERTIFIED,
-  GROUP_LOCAL,
-  GROUP_THEMATIC,
-  GROUP_FONCTIONAL,
-] = [0, 1, 2, "L", "B", "F"];
-
-export const optionsEventSort = [
-  { label: <>Date &uarr;</>, value: DATE_ASC },
-  { label: <>Date &darr;</>, value: DATE_DESC },
-  { label: <>Alphabétique &uarr;</>, value: ALPHA_ASC },
-  { label: <>Alphabétique &darr;</>, value: ALPHA_DESC },
-];
-export const optionsEventCategory = [
-  { label: "Tous les événements", value: EVENT_CAT_ALL },
-  { label: "Passés", value: EVENT_CAT_PAST },
-  { label: "A venir", value: EVENT_CAT_FUTURE },
-];
-export const optionsEventType = [
-  { label: "Tous les types", value: EVENT_TYPE_ALL },
-  { label: "Réunion privée de groupe", value: EVENT_TYPE_GROUP_MEETING },
-  { label: "Événement public", value: EVENT_TYPE_PUBLIC_MEETING },
-  { label: "Action publique", value: EVENT_TYPE_PUBLIC_ACTION },
-  { label: "Autre", value: EVENT_TYPE_OTHER },
+export const TABS = {
+  ALL: 0,
+  GROUPS: 1,
+  EVENTS: 2,
+};
+export const TABS_OPTIONS = [
+  {
+    id: TABS.ALL,
+    label: "Tout",
+  },
+  {
+    id: TABS.GROUPS,
+    label: "Groupes",
+  },
+  {
+    id: TABS.EVENTS,
+    label: "Événements",
+  },
 ];
 
-export const optionsGroupSort = [
-  { label: <>Alphabétique &uarr;</>, value: ALPHA_ASC },
-  { label: <>Alphabétique &darr;</>, value: ALPHA_DESC },
+export const SORTERS = {
+  DATE_ASC: "DATE_ASC",
+  DATE_DESC: "DATE_DESC",
+  ALPHA_ASC: "ALPHA_ASC",
+  ALPHA_DESC: "ALPHA_DESC",
+};
+
+export const EventSort = [
+  { label: <>Date &uarr;</>, value: SORTERS.DATE_ASC },
+  { label: <>Date &darr;</>, value: SORTERS.DATE_DESC },
+  { label: <>Alphabétique &uarr;</>, value: SORTERS.ALPHA_ASC },
+  { label: <>Alphabétique &darr;</>, value: SORTERS.ALPHA_DESC },
 ];
-export const optionsGroupType = [
-  { label: "Tous les groupes", value: GROUP_TYPE_ALL },
-  { label: "Certifiés", value: GROUP_TYPE_CERTIFIED },
-  { label: "Non certifiés", value: GROUP_TYPE_NOT_CERTIFIED },
-  { label: "Groupe local", value: GROUP_LOCAL },
-  { label: "Groupe thématique", value: GROUP_THEMATIC },
-  { label: "Groupe fonctionnel", value: GROUP_FONCTIONAL },
+export const EventCategory = [
+  { label: "Tous les événements", value: 0 },
+  { label: "Passés", value: "PAST" },
+  { label: "A venir", value: "FUTURE" },
 ];
+export const EventType = [
+  { label: "Tous les types", value: 0 },
+  { label: "Réunion privée de groupe", value: "G" },
+  { label: "Événement public", value: "M" },
+  { label: "Action publique", value: "A" },
+  { label: "Autre", value: "O" },
+];
+
+export const GroupSort = [
+  { label: <>Alphabétique &uarr;</>, value: SORTERS.ALPHA_ASC },
+  { label: <>Alphabétique &darr;</>, value: SORTERS.ALPHA_DESC },
+];
+export const GroupType = [
+  { label: "Tous les groupes", value: 0 },
+  { label: "Certifiés", value: "CERTIFIED" },
+  { label: "Non certifiés", value: "NOT_CERTIFIED" },
+  { label: "Groupe local", value: "L" },
+  { label: "Groupe thématique", value: "B" },
+  { label: "Groupe fonctionnel", value: "F" },
+];
+
+export const OPTIONS = {
+  EventSort,
+  EventCategory,
+  EventType,
+  GroupSort,
+  GroupType,
+};
