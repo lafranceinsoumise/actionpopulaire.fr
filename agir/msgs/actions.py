@@ -6,6 +6,8 @@ from django.db.models import (
     Subquery,
     IntegerField,
     F,
+    Exists,
+    Q,
 )
 from django.db.models.functions import Greatest, Coalesce
 
@@ -26,7 +28,33 @@ def update_recipient_message(message, recipient):
     return obj, created
 
 
-def get_unread_message_count(person_pk):
+def get_viewable_messages_ids(person):
+    message_ids = (
+        SupportGroupMessage.objects.active()
+        .annotate(
+            has_required_membership_type=Exists(
+                person.memberships.filter(
+                    supportgroup_id=OuterRef("supportgroup_id"),
+                    membership_type__gte=OuterRef("required_membership_type"),
+                )
+            )
+        )
+        .filter(Q(author_id=person.id) | Q(has_required_membership_type=True))
+        .values_list("id", flat=True)
+    )
+
+    return list(set(message_ids))
+
+
+def get_unread_message_count(person):
+    if not isinstance(person, Person):
+        return 0
+
+    allowed_message_ids = get_viewable_messages_ids(person)
+
+    if len(allowed_message_ids) == 0:
+        return 0
+
     unread_comment_count_subquery = Coalesce(
         Subquery(
             SupportGroupMessageComment.objects.active()
@@ -39,7 +67,7 @@ def get_unread_message_count(person_pk):
                 ),
             )
             .exclude(
-                author_id=person_pk,
+                author_id=person.id,
             )
             .values("message_id")
             .annotate(count=Count("pk"))
@@ -49,34 +77,20 @@ def get_unread_message_count(person_pk):
         0,
     )
 
-    # Filter messages where person is not allowed (not author, not in required membership)
-    messages = SupportGroupMessage.objects.active().filter(
-        supportgroup_id__in=SupportGroup.objects.active()
-        .filter(memberships__person_id=person_pk)
-        .values("id"),
-    )
-    if not isinstance(person_pk, Person):
-        person_pk = Person.objects.get(pk=person_pk)
-    messages_allowed_id = [
-        msg.id
-        for msg in messages
-        if person_pk.role.has_perm("msgs.view_supportgroupmessage", msg)
-    ]
-
     unread_message_count = (
-        SupportGroupMessage.objects.filter(pk__in=messages_allowed_id)
+        SupportGroupMessage.objects.filter(pk__in=allowed_message_ids)
         .annotate(
             membership_created=Subquery(
                 Membership.objects.filter(
                     supportgroup_id=OuterRef("supportgroup_id"),
-                    person_id=person_pk,
+                    person_id=person.id,
                 ).values("created")[:1]
             )
         )
         .annotate(
             last_reading_date=Subquery(
                 SupportGroupMessageRecipient.objects.filter(
-                    recipient_id=person_pk, message_id=OuterRef("id")
+                    recipient_id=person.id, message_id=OuterRef("id")
                 ).values("modified")[:1]
             )
         )

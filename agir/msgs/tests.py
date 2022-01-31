@@ -466,14 +466,14 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
         SupportGroupMessageComment.objects.create(
             author=writer, message=message, text="1.2"
         )
-        unread_message_count = get_unread_message_count(new_member.pk)
+        unread_message_count = get_unread_message_count(new_member)
         self.assertEqual(unread_message_count, 1)
 
         # A second message is created after the person has joined the group
         SupportGroupMessage.objects.create(
             author=writer, supportgroup=supportgroup, text="2"
         )
-        unread_message_count = get_unread_message_count(new_member.pk)
+        unread_message_count = get_unread_message_count(new_member)
         self.assertEqual(unread_message_count, 2)
 
     def test_user_muted_message_dont_get_notification_neither_email(self):
@@ -509,15 +509,15 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
 
     def test_get_unread_message_count(self):
         # No messages
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 0)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(unread_message_count, 0, msg="No messages")
 
         # One unread message
         message = SupportGroupMessage.objects.create(
             author=self.writer, supportgroup=self.supportgroup, text="1"
         )
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 1)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(unread_message_count, 1, msg="One unread message")
 
         # One private message
         SupportGroupMessage.objects.create(
@@ -526,54 +526,72 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
             text="Private message",
             required_membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
         )
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 1)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(unread_message_count, 1, msg="One private message")
 
-        unread_message_count = get_unread_message_count(self.user_referent.pk)
-        self.assertEqual(unread_message_count, 2)
+        unread_message_count = get_unread_message_count(self.user_referent)
+        self.assertEqual(unread_message_count, 2, msg="One private message")
 
         # One unread message with one unread comment
         SupportGroupMessageComment.objects.create(
             author=self.writer, message=message, text="1.1"
         )
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 2)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(
+            unread_message_count, 2, msg="One unread message with one unread comment"
+        )
 
         # One unread message with two unread comments (one written by the recipient)
         SupportGroupMessageComment.objects.create(
             author=self.reader, message=message, text="1.2"
         )
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 2)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(
+            unread_message_count,
+            2,
+            msg="One unread message with two unread comments (one written by the recipient)",
+        )
 
         # One unread message with two unread comments
         # (one written by the recipient and one deleted)
         SupportGroupMessageComment.objects.update(
             author=self.writer, message=message, text="1.1", deleted=True
         )
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 1)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(
+            unread_message_count,
+            1,
+            msg="One unread message with two unread comments (one written by the recipient and one deleted)",
+        )
 
         # One read message with no unread comments
         SupportGroupMessageRecipient.objects.create(
             recipient=self.reader, message=message
         )
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 0)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(
+            unread_message_count, 0, msg="One read message with no unread comments"
+        )
 
         # One read message with one unread comment
         SupportGroupMessageComment.objects.create(
             author=self.writer, message=message, text="1.3"
         )
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 1)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(
+            unread_message_count, 1, msg="One read message with one unread comment"
+        )
 
         # One read message with one unread comment and one unread message with no comments
         SupportGroupMessage.objects.create(
             author=self.writer, supportgroup=self.supportgroup, text="2"
         )
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 2)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(
+            unread_message_count,
+            2,
+            msg="One read message with one unread comment and one unread message with no comments",
+        )
 
         # One read message with one unread comment,
         # one unread message with no comments,
@@ -581,8 +599,13 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
         SupportGroupMessage.objects.create(
             author=self.writer, supportgroup=self.supportgroup, text="3", deleted=True
         )
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 2)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(
+            unread_message_count,
+            2,
+            msg="One read message with one unread comment, one unread message with no comments, and one unread "
+            "deleted message",
+        )
 
         # One read message with one unread comment,
         # one unread message with no comments,
@@ -591,14 +614,19 @@ class GetUnreadMessageCountActionTestCase(APITestCase):
         SupportGroupMessage.objects.create(
             author=self.reader, supportgroup=self.supportgroup, text="3", deleted=True
         )
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 2)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(
+            unread_message_count,
+            2,
+            msg="One read message with one unread comment, one unread message with no comments, one unread deleted "
+            "message, one unread message written by the recipient",
+        )
 
         # Author of message goes inactive
         self.writer.role.is_active = False
         self.writer.role.save()
-        unread_message_count = get_unread_message_count(self.reader.pk)
-        self.assertEqual(unread_message_count, 0)
+        unread_message_count = get_unread_message_count(self.reader)
+        self.assertEqual(unread_message_count, 0, msg="Author of message goes inactive")
 
 
 class GetUnreadMessageCommentCountActionTestCase(APITestCase):
