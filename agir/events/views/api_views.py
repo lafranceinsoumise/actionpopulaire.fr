@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
-from django.utils.translation import gettext as _
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
@@ -47,6 +46,7 @@ from agir.people.models import Person
 from agir.people.person_forms.models import PersonForm
 
 __all__ = [
+    "EventAPIView",
     "EventDetailAPIView",
     "EventDetailAdvancedAPIView",
     "EventRsvpedAPIView",
@@ -73,6 +73,7 @@ from agir.gestion.models import Projet
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     HasSpecificPermissions,
+    IsPersonPermission,
 )
 
 from agir.lib.tasks import geocode_person
@@ -82,10 +83,33 @@ from ..tasks import (
 )
 
 
+class EventAPIView(RetrieveAPIView):
+    permission_classes = (IsPersonPermission,)
+    serializer_class = EventListSerializer
+    queryset = Event.objects.public()
+
+    def get_queryset(self):
+        return self.queryset.with_serializer_prefetch(
+            self.request.user.person
+        ).select_related("subtype")
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args,
+            fields=EventListSerializer.EVENT_CARD_FIELDS,
+            **kwargs,
+        )
+
+
 class EventListAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = EventListSerializer
     queryset = Event.objects.public()
+
+    def get_queryset(self):
+        return Event.objects.with_serializer_prefetch(
+            self.request.user.person
+        ).select_related("subtype")
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(

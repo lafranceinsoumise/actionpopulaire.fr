@@ -57,13 +57,13 @@ const ACTIVITY_CONFIG = {
   },
   "group-membership-limit-reminder": {
     icon: "info",
-    action: ({ meta, supportGroup, routes }) => {
+    action: ({ meta, group, routes }) => {
       const { membershipLimitNotificationStep } = meta;
 
       if (membershipLimitNotificationStep <= 2) {
-        return supportGroup?.routes?.membershipTransfer
+        return group?.routes?.membershipTransfer
           ? {
-              href: supportGroup.routes.membershipTransfer,
+              href: group.routes.membershipTransfer,
               label: "Diviser mon groupe",
             }
           : null;
@@ -89,11 +89,11 @@ const ACTIVITY_CONFIG = {
   },
   "group-invitation": {
     icon: "mail",
-    action: ({ supportGroup }) =>
-      supportGroup?.id
+    action: ({ group }) =>
+      group?.id
         ? {
             to: routeConfig.groupDetails.getLink({
-              groupPk: supportGroup.id,
+              groupPk: group.id,
             }),
             label: "Rejoindre",
           }
@@ -104,11 +104,11 @@ const ACTIVITY_CONFIG = {
   },
   "new-member": {
     icon: "user-plus",
-    action: ({ supportGroup }) =>
-      supportGroup?.id
+    action: ({ group }) =>
+      group?.id
         ? {
             to: routeConfig.groupSettings.getLink({
-              groupPk: supportGroup.id,
+              groupPk: group.id,
               activePanel: "membres",
             }),
             label: "Voir les membres",
@@ -117,11 +117,11 @@ const ACTIVITY_CONFIG = {
   },
   "member-status-changed": {
     icon: "info",
-    action: ({ supportGroup }) =>
-      supportGroup?.id
+    action: ({ group }) =>
+      group?.id
         ? {
             to: routeConfig.groupDetails.getLink({
-              groupPk: supportGroup.id,
+              groupPk: group.id,
             }),
             label: "Voir le groupe",
           }
@@ -129,10 +129,10 @@ const ACTIVITY_CONFIG = {
   },
   "waiting-location-group": {
     icon: "alert-circle",
-    action: ({ supportGroup }) =>
-      supportGroup.id
+    action: ({ group }) =>
+      group.id
         ? {
-            to: routeConfig.groupDetails.getLink({ groupPk: supportGroup.id }),
+            to: routeConfig.groupDetails.getLink({ groupPk: group.id }),
             label: "Mettre à jour",
           }
         : null,

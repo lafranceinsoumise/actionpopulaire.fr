@@ -499,7 +499,7 @@ class DateTimeWithTimezoneField(serializers.DateTimeField):
 class CreateEventSerializer(serializers.Serializer):
     id = serializers.UUIDField(read_only=True)
     url = serializers.HyperlinkedIdentityField(
-        read_only=True, view_name="api_event_view"
+        read_only=True, view_name="api_event_details"
     )
 
     name = serializers.CharField(max_length=100, min_length=3)

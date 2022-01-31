@@ -6,7 +6,7 @@ import { ACTIVITY_STATUS } from "@agir/activity/common/helpers";
 import group from "@agir/front/mockData/group";
 import events from "@agir/front/mockData/events";
 
-import ActivityCard from "./index";
+import { ActivityCard } from "./index";
 
 import { decorateArgs, reorganize } from "@agir/lib/utils/storyUtils";
 
@@ -29,7 +29,7 @@ export default {
     event: {
       control: { type: "object" },
     },
-    supportGroup: {
+    group: {
       control: { type: "object" },
     },
     meta: {
@@ -37,6 +37,9 @@ export default {
     },
     announcement: {
       control: { type: "object" },
+    },
+    isLoadingEventCard: {
+      control: { type: "boolean" },
     },
   },
 };
@@ -83,7 +86,7 @@ Default.args = {
   id: 1,
   type: "announcement",
   event,
-  supportGroup: group,
+  group: group,
   status: ACTIVITY_STATUS.STATUS_DISPLAYED,
   individual: {
     displayName: "Clara",
@@ -121,6 +124,7 @@ Default.args = {
     customDisplay: "",
     status: ACTIVITY_STATUS.STATUS_DISPLAYED,
   },
+  isLoadingEventCard: false,
 };
 
 export const Interacted = Template.bind({});

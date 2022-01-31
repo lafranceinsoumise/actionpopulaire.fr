@@ -13,6 +13,8 @@ import Card from "@agir/front/genericComponents/Card";
 import { Column, Row } from "@agir/front/genericComponents/grid";
 import EventCard from "@agir/front/genericComponents/EventCard";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 const StyledChildrenWrapper = styled.div`
   margin-bottom: 0;
@@ -62,7 +64,7 @@ const LowMarginCard = styled(Card)`
   }
 `;
 
-const EventCardContainer = styled.div`
+const EventCardContainer = styled(PageFadeIn)`
   margin-top: 1rem;
 
   @media only screen and (min-width: ${style.collapse}px) {
@@ -123,7 +125,16 @@ ActivityCardAction.propTypes = {
 };
 
 export const GenericCardContainer = (props) => {
-  const { id, status, timestamp, event, children, config, onClick } = props;
+  const {
+    id,
+    status,
+    timestamp,
+    event,
+    children,
+    config,
+    onClick,
+    isLoadingEventCard,
+  } = props;
 
   const [isUnread, setIsUnread] = useState(
     status !== ACTIVITY_STATUS.STATUS_INTERACTED
@@ -185,11 +196,23 @@ export const GenericCardContainer = (props) => {
           <ActivityCardAction {...props} />
         </Column>
       </Row>
-      {config.hasEvent && (
-        <EventCardContainer>
-          <EventCard {...event} schedule={eventSchedule} />
+      {config.hasEvent ? (
+        <EventCardContainer
+          ready={!isLoadingEventCard}
+          wait={
+            <Skeleton
+              style={{
+                borderRadius: style.borderRadius,
+                margin: "1rem 0 0",
+                height: 124,
+              }}
+              boxes={1}
+            />
+          }
+        >
+          {event && <EventCard {...event} schedule={eventSchedule} />}
         </EventCardContainer>
-      )}
+      ) : null}
     </LowMarginCard>
   );
 };

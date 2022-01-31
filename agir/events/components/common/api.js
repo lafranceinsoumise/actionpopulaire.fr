@@ -4,7 +4,8 @@ import axios from "@agir/lib/utils/axios";
 import { objectToFormData } from "@agir/lib/utils/forms";
 
 export const ENDPOINT = {
-  getEvent: "/api/evenements/:eventPk/",
+  getEventCard: "/api/evenements/:eventPk/",
+  getEvent: "/api/evenements/:eventPk/details/",
   rsvpEvent: "/api/evenements/:eventPk/inscription/",
   quitEvent: "/api/evenements/:eventPk/inscription/",
 

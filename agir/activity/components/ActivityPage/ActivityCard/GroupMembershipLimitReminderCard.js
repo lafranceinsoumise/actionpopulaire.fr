@@ -6,12 +6,12 @@ import Link from "@agir/front/app/Link";
 import GenericCardContainer from "./GenericCardContainer";
 
 const GroupMembershipLimitReminderCard = (props) => {
-  const { id, supportGroup, meta = {}, routes } = props;
+  const { id, group, meta = {}, routes } = props;
   const { membershipCount, membershipLimitNotificationStep } = meta;
 
-  const SupportGroup = supportGroup ? (
-    <Link to={routeConfig.groupDetails.getLink({ groupPk: supportGroup.id })}>
-      {supportGroup.name}
+  const SupportGroup = group ? (
+    <Link to={routeConfig.groupDetails.getLink({ groupPk: group.id })}>
+      {group.name}
     </Link>
   ) : null;
 
@@ -88,7 +88,7 @@ const GroupMembershipLimitReminderCard = (props) => {
 };
 GroupMembershipLimitReminderCard.propTypes = {
   id: PropTypes.number.isRequired,
-  supportGroup: PropTypes.shape({
+  group: PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     url: PropTypes.string,

@@ -446,7 +446,7 @@ class RSVPTestCase(TestCase):
     def test_can_view_rsvp(self):
         self.client.force_login(self.already_rsvped.role)
 
-        url = reverse("api_event_view", kwargs={"pk": self.simple_event.pk})
+        url = reverse("api_event_details", kwargs={"pk": self.simple_event.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual("CO", response.json()["rsvp"])
