@@ -1,6 +1,7 @@
 import requests
 from django.conf import settings
 from django.contrib.gis.db import models
+from django.contrib.gis.measure import D
 from django.core import exceptions, files
 from django.core.validators import (
     FileExtensionValidator,
@@ -78,7 +79,7 @@ class StaticMapImageManager(models.Manager):
 
 
 class StaticMapImage(models.Model):
-    UNIQUE_CENTER_MAX_DISTANCE = 1
+    UNIQUE_CENTER_MAX_DISTANCE = D(m=1)
     DEFAULT_WIDTH = DEFAULT_MAP_WIDTH
     DEFAULT_HEIGHT = DEFAULT_MAP_HEIGHT
     DEFAULT_ZOOM = DEFAULT_MAP_ZOOM

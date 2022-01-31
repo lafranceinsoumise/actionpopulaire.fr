@@ -32,7 +32,7 @@ def create_static_map_image_from_coordinates(coordinates):
     try:
         # Do not create image if one exists for a close enough point
         StaticMapImage.objects.get(
-            center__distance_lt=(center, StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE)
+            center__dwithin=(center, StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE)
         )
         return
     except StaticMapImage.MultipleObjectsReturned:
