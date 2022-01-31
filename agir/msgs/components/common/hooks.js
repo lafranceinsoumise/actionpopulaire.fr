@@ -121,11 +121,8 @@ export const useMessageSWR = (messagePk, selectMessage) => {
     if (isValidating || !messages || !currentMessage) {
       return;
     }
-    const updatedMessage = messages.find((m) => m.id === currentMessage.id);
-    if (
-      updatedMessage &&
-      updatedMessage.lastUpdate === currentMessage.lastUpdate
-    ) {
+    const updatedMessage = messages?.find((m) => m.id === currentMessage.id);
+    if (updatedMessage?.lastUpdate === currentMessage.lastUpdate) {
       return;
     }
     mutateMessage();
