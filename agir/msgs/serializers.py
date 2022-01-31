@@ -1,9 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Exists, OuterRef, Q
 from rest_framework import serializers
 
-from agir.groups.models import SupportGroup
 from agir.events.models import Event
 from agir.events.serializers import EventListSerializer
+from agir.groups.models import Membership
+from agir.groups.models import SupportGroup
 from agir.lib.serializers import FlexibleFieldsMixin, CurrentPersonField
 from agir.msgs.actions import get_message_unread_comment_count
 from agir.msgs.models import (
@@ -11,11 +13,8 @@ from agir.msgs.models import (
     SupportGroupMessageComment,
     UserReport,
 )
-from agir.people.serializers import PersonSerializer
-from agir.groups.models import Membership
 from agir.people.models import Person
-
-from django.db.models import Exists, OuterRef, Q
+from agir.people.serializers import PersonSerializer
 
 
 class BaseMessageSerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
@@ -172,54 +171,46 @@ class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
     )
     total = serializers.SerializerMethodField(read_only=True)
 
-    def get_comment_authors(self, message):
-        comment_authors = list(message.comments.values_list("author_id", flat=True))
-        comment_authors = set([message.author.id] + comment_authors)
-        return list(comment_authors)
-
-    def get_total(self, message):
-        return (
-            message.supportgroup.memberships.filter(
-                Q(membership_type__gte=message.required_membership_type)
-                | Q(person_id=message.author_id)
+    def to_representation(self, message):
+        participants = Person.objects.filter(
+            Q(
+                id__in=Membership.objects.filter(
+                    supportgroup_id=message.supportgroup_id,
+                    membership_type=message.required_membership_type,
+                ).values_list("person_id", flat=True)
             )
-            .distinct()
-            .count()
+            | Q(id=message.author_id)
+        ).annotate(
+            has_commented=Exists(message.comments.filter(author_id=OuterRef("id")))
         )
-
-    # Persons in author + has commented
-    def get_active(self, message):
-        active_persons = (
-            Person.objects.filter(
-                (
-                    Q(
-                        id__in=message.supportgroup.memberships.filter(
-                            membership_type__gte=message.required_membership_type
-                        ).values_list("person_id")
-                    )
-                    & Q(id__in=message.comments.values_list("author_id", flat=True))
-                )
-                | Q(id=message.author.id)
-            )
-            .annotate(
-                has_commented=Exists(message.comments.filter(author_id=OuterRef("id")))
-            )
-            .distinct()
-        )
-
-        return [
+        self._participants = [
             {
                 "id": person.id,
                 "displayName": person.display_name,
+                "gender": person.gender,
                 "isAuthor": message.author_id == person.id,
-                "isInComments": person.has_commented,
+                "isCommentAuthor": person.has_commented,
                 "image": person.image.thumbnail.url
                 if (person.image and person.image.thumbnail)
                 else None,
-                "gender": person.gender,
             }
-            for person in active_persons
+            for person in participants
         ]
+
+        return super().to_representation(message)
+
+    def get_comment_authors(self, _):
+        return [
+            participant["id"]
+            for participant in self._participants
+            if participant["isCommentAuthor"] or participant["isAuthor"]
+        ]
+
+    def get_total(self, _):
+        return len(self._participants)
+
+    def get_active(self, _):
+        return self._participants
 
     class Meta:
         model = SupportGroupMessage
