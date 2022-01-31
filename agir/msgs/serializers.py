@@ -104,7 +104,6 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     )
     recentComments = serializers.SerializerMethodField(read_only=True)
     commentCount = serializers.SerializerMethodField(read_only=True)
-    # comments = serializers.SerializerMethodField(read_only=True)
 
     requiredMembershipType = serializers.ChoiceField(
         source="required_membership_type",
@@ -136,13 +135,6 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         count = obj.comments.active().count()
         if count > self.RECENT_COMMENT_LIMIT:
             return count
-
-    # def get_comments(self, obj):
-    #     return MessageCommentSerializer(
-    #         obj.comments.active().select_related("author").order_by("created"),
-    #         context=self.context,
-    #         many=True,
-    #     ).data
 
     class Meta:
         model = SupportGroupMessage

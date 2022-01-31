@@ -226,25 +226,6 @@ export const StyledHeader = styled.div`
     }
   }
 `;
-const StyledCommentCount = styled.p`
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  justify-content: center;
-  color: ${style.primary500};
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-
-  @media (max-width: ${style.collapse}px) {
-    justify-content: flex-start;
-  }
-
-  ${RawFeatherIcon} {
-    width: 1rem;
-    height: 1rem;
-  }
-`;
 const StyledNewComment = styled.div``;
 const StyledComments = styled.div`
   display: flex;
@@ -415,6 +396,10 @@ const StyledLoadComments = styled.div`
   padding: 10px;
   cursor: pointer;
   color: ${style.primary500};
+
+  ${RawFeatherIcon} {
+    margin-right: 0.5rem;
+  }
 `;
 
 const MessageHeader = ({ message, subject }) => {
@@ -478,11 +463,14 @@ const MessageCard = (props) => {
     autoScrollOnComment,
   } = props;
 
-  const { group, author, text, created, linkedEvent, commentCount } = message;
+  const { group, author, text, created, linkedEvent } = message;
 
-  const { comments, commentsCount, loadMore, isLoadingMore } = useCommentsSWR(
-    message.id
-  );
+  const {
+    comments,
+    commentsCount,
+    loadMore: loadMoreComments,
+    isLoadingMore: isLoadingComments,
+  } = useCommentsSWR(message.id);
 
   const messageCardRef = useRef();
   const isDesktop = useIsDesktop();
@@ -657,22 +645,15 @@ const MessageCard = (props) => {
             <ParsedString>{text}</ParsedString>
           </StyledContent>
           {!!event && <EventCard {...event} />}
-          {!!commentCount && (
-            <StyledCommentCount onClick={handleClick}>
-              <RawFeatherIcon name="message-circle" color={style.primary500} />
-              &ensp;Voir les {commentCount} commentaires
-            </StyledCommentCount>
-          )}
           <StyledComments $empty={!comments?.length}>
             <PageFadeIn ready={comments.length > 0}>
-              {isLoadingMore && <StyledLoader loading block />}
-              {commentsCount !== comments.length && (
-                <StyledLoadComments onClick={loadMore}>
+              {isLoadingComments && <StyledLoader loading block />}
+              {!isLoadingComments && commentsCount !== comments.length && (
+                <StyledLoadComments onClick={loadMoreComments}>
                   <RawFeatherIcon
                     name="chevron-up"
                     width="1rem"
                     height="1rem"
-                    style={{ marginRight: "0.5rem" }}
                   />
                   {commentsCount - comments.length} commentaires précédents
                 </StyledLoadComments>
@@ -741,7 +722,6 @@ MessageCard.propTypes = {
     created: PropTypes.string.isRequired,
     text: PropTypes.string.isRequired,
     linkedEvent: PropTypes.object,
-    commentCount: PropTypes.number,
   }).isRequired,
   messageURL: PropTypes.string,
   groupURL: PropTypes.string,
