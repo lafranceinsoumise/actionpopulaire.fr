@@ -11,8 +11,8 @@ import { routeConfig } from "@agir/front/app/routes.config";
 import { setBackLink } from "@agir/front/globalContext/actions";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 
-const MESSAGES_LIST_SIZE = 5;
-const COMMENTS_LIST_SIZE = 5;
+const MESSAGES_LIST_SIZE = 10;
+const COMMENTS_LIST_SIZE = 15;
 
 export const useUnreadMessageCount = () => {
   const [isReady] = useTimeout(3000);
