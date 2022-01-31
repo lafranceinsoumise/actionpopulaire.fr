@@ -85,7 +85,12 @@ export const useCustomAnnouncement = (slug) => {
   const { data, mutate, error } = useSWR(
     session?.user && slug
       ? getActivityEndpoint("customAnnouncement", { slug })
-      : null
+      : null,
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
   );
 
   const announcement =

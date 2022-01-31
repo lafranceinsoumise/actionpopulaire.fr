@@ -22,6 +22,8 @@ const config = [
   new RegExp("/api/groupes/[0-9a-f-]+/evenements/a-venir/$"),
   new RegExp("/api/groupes/[0-9a-f-]+/evenements/passes/$"),
   new RegExp("/api/groupes/[0-9a-f-]+/messages/$"),
+
+  new RegExp("/api/announcement/custom/.+/$"),
 ];
 
 export default config;
