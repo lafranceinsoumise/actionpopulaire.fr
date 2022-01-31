@@ -506,6 +506,16 @@ class Event(
         help_text=("Segment des personnes auquel cet événement sera suggéré."),
     )
 
+    attendant_notice = models.TextField(
+        "Note pour les participants",
+        null=False,
+        blank=True,
+        default="",
+        help_text=(
+            "Note montrée aux participants à un événements et est envoyé dans l'e-mail de confirmation de participation"
+        ),
+    )
+
     class Meta:
         verbose_name = _("événement")
         verbose_name_plural = _("événements")
