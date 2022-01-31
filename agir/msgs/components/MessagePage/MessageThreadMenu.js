@@ -106,6 +106,7 @@ const MessageThreadMenu = (props) => {
     onSelect,
     writeNewMessage,
     lastItemRef,
+    isLoadingMore,
     ...rest
   } = props;
 
@@ -147,6 +148,7 @@ const MessageThreadMenu = (props) => {
           </li>
         ))}
       </ul>
+      {isLoadingMore && <Button loading block style={{ height: "60px" }} />}
     </StyledMenu>
   );
 };
