@@ -514,6 +514,7 @@ class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
 class GroupMessageCommentsAPIView(ListCreateAPIView):
     serializer_class = MessageCommentSerializer
     permission_classes = (GroupMessageCommentsPermissions,)
+    pagination_class = APIPaginator
 
     def initial(self, request, *args, **kwargs):
         try:
@@ -524,7 +525,6 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
             raise NotFound()
 
         self.check_object_permissions(request, self.message)
-
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):

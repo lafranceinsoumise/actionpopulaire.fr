@@ -151,7 +151,6 @@ const DesktopThreadList = (props) => {
             isLoading={isLoading}
             user={user}
             message={selectedMessage}
-            comments={selectedMessage.comments}
             onEdit={onEdit}
             onComment={onComment}
             onReport={onReport}
@@ -229,7 +228,6 @@ const MobileThreadList = (props) => {
               isLoading={isLoading}
               user={user}
               message={selectedMessage}
-              comments={selectedMessage?.comments}
               onEdit={onEdit}
               onComment={selectedMessage && onComment ? onComment : undefined}
               onReport={onReport}

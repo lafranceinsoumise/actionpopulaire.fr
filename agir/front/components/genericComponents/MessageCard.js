@@ -38,6 +38,9 @@ import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import ButtonMuteMessage from "./ButtonMuteMessage";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
+import { useCommentsSWR } from "@agir/msgs/common/hooks";
+import { useInfiniteScroll } from "@agir/lib/utils/hooks";
+
 export const StyledInlineMenuItems = styled.div`
   cursor: pointer;
   display: flex;
@@ -266,6 +269,12 @@ const StyledComments = styled.div`
       padding-top: 0;
     }
   }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
 `;
 export const StyledSubject = styled.h2`
   font-size: 1.125rem;
@@ -405,6 +414,15 @@ const StyledMessageHeader = styled.div`
   }
 `;
 
+const StyledLoadComments = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding: 10px;
+  cursor: pointer;
+  color: ${style.primary500};
+`;
+
 const MessageHeader = ({ message, subject }) => {
   const isDesktop = useIsDesktop();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -451,7 +469,6 @@ const MessageCard = (props) => {
     user,
     message,
     groupURL,
-    comments,
     isManager,
     isLoading,
     onClick,
@@ -468,6 +485,11 @@ const MessageCard = (props) => {
   } = props;
 
   const { group, author, text, created, linkedEvent, commentCount } = message;
+
+  const { comments, isLoadingInitialData, loadMore, isLoadingMore } =
+    useCommentsSWR(message.id);
+  console.log("comments SWR : ", comments);
+  const scrollItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
   const messageCardRef = useRef();
   const isDesktop = useIsDesktop();
@@ -652,22 +674,36 @@ const MessageCard = (props) => {
             $empty={!Array.isArray(comments) || comments.length === 0}
           >
             <PageFadeIn ready={Array.isArray(comments) && comments.length > 0}>
-              {Array.isArray(comments) && comments.length > 0
-                ? comments.map((comment) => (
-                    <Comment
-                      key={comment.id}
-                      comment={comment}
-                      onDelete={
-                        onDeleteComment ? handleDeleteComment : undefined
-                      }
-                      onReport={
-                        onReportComment ? handleReportComment : undefined
-                      }
-                      isAuthor={comment.author.id === user.id}
-                      isManager={isManager}
-                    />
-                  ))
-                : null}
+              {isLoadingMore && <StyledLoader loading block />}
+              <StyledLoadComments onClick={loadMore}>
+                {comments.length} commentaires précédents
+              </StyledLoadComments>
+              <ul>
+                {Array.isArray(comments) && comments.length > 0
+                  ? comments.map((comment, i) => (
+                      <li
+                        key={comment.id}
+                        ref={
+                          !isLoadingInitialData && !isLoading && i === 0
+                            ? scrollItemRef
+                            : null
+                        }
+                      >
+                        <Comment
+                          comment={comment}
+                          onDelete={
+                            onDeleteComment ? handleDeleteComment : undefined
+                          }
+                          onReport={
+                            onReportComment ? handleReportComment : undefined
+                          }
+                          isAuthor={comment.author.id === user.id}
+                          isManager={isManager}
+                        />
+                      </li>
+                    ))
+                  : null}
+              </ul>
             </PageFadeIn>
             <StyledNewComment>
               {!!onComment &&
@@ -726,7 +762,6 @@ MessageCard.propTypes = {
   }).isRequired,
   messageURL: PropTypes.string,
   groupURL: PropTypes.string,
-  comments: PropTypes.arrayOf(PropTypes.object),
   onClick: PropTypes.func,
   onComment: PropTypes.func,
   onDelete: PropTypes.func,
