@@ -528,7 +528,7 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.message.comments.active()
+        return self.message.comments.active().order_by("-created")
 
     def perform_create(self, serializer):
         with transaction.atomic():

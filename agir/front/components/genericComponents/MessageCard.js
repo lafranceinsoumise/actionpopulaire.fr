@@ -39,7 +39,7 @@ import ButtonMuteMessage from "./ButtonMuteMessage";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
 import { useCommentsSWR } from "@agir/msgs/common/hooks";
-import { useInfiniteScroll } from "@agir/lib/utils/hooks";
+import { StyledLoader } from "@agir/msgs/MessagePage/MessageThreadMenu";
 
 export const StyledInlineMenuItems = styled.div`
   cursor: pointer;
@@ -269,12 +269,6 @@ const StyledComments = styled.div`
       padding-top: 0;
     }
   }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
 `;
 export const StyledSubject = styled.h2`
   font-size: 1.125rem;
@@ -486,10 +480,9 @@ const MessageCard = (props) => {
 
   const { group, author, text, created, linkedEvent, commentCount } = message;
 
-  const { comments, isLoadingInitialData, loadMore, isLoadingMore } =
-    useCommentsSWR(message.id);
-  console.log("comments SWR : ", comments);
-  const scrollItemRef = useInfiniteScroll(loadMore, isLoadingMore);
+  const { comments, commentsCount, loadMore, isLoadingMore } = useCommentsSWR(
+    message.id
+  );
 
   const messageCardRef = useRef();
   const isDesktop = useIsDesktop();
@@ -670,40 +663,30 @@ const MessageCard = (props) => {
               &ensp;Voir les {commentCount} commentaires
             </StyledCommentCount>
           )}
-          <StyledComments
-            $empty={!Array.isArray(comments) || comments.length === 0}
-          >
-            <PageFadeIn ready={Array.isArray(comments) && comments.length > 0}>
+          <StyledComments $empty={!comments?.length}>
+            <PageFadeIn ready={comments.length > 0}>
               {isLoadingMore && <StyledLoader loading block />}
-              <StyledLoadComments onClick={loadMore}>
-                {comments.length} commentaires précédents
-              </StyledLoadComments>
-              <ul>
-                {Array.isArray(comments) && comments.length > 0
-                  ? comments.map((comment, i) => (
-                      <li
-                        key={comment.id}
-                        ref={
-                          !isLoadingInitialData && !isLoading && i === 0
-                            ? scrollItemRef
-                            : null
-                        }
-                      >
-                        <Comment
-                          comment={comment}
-                          onDelete={
-                            onDeleteComment ? handleDeleteComment : undefined
-                          }
-                          onReport={
-                            onReportComment ? handleReportComment : undefined
-                          }
-                          isAuthor={comment.author.id === user.id}
-                          isManager={isManager}
-                        />
-                      </li>
-                    ))
-                  : null}
-              </ul>
+              {commentsCount !== comments.length && (
+                <StyledLoadComments onClick={loadMore}>
+                  <RawFeatherIcon
+                    name="chevron-up"
+                    width="1rem"
+                    height="1rem"
+                    style={{ marginRight: "0.5rem" }}
+                  />
+                  {commentsCount - comments.length} commentaires précédents
+                </StyledLoadComments>
+              )}
+              {comments.map((comment) => (
+                <Comment
+                  key={comment.id}
+                  comment={comment}
+                  onDelete={onDeleteComment ? handleDeleteComment : undefined}
+                  onReport={onReportComment ? handleReportComment : undefined}
+                  isAuthor={comment.author.id === user.id}
+                  isManager={isManager}
+                />
+              ))}
             </PageFadeIn>
             <StyledNewComment>
               {!!onComment &&

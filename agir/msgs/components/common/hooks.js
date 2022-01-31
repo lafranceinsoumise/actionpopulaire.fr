@@ -54,7 +54,7 @@ export const useCommentsSWR = (messagePk) => {
         }
       });
     }
-    return commentsIds.map((id) => comments[id]);
+    return commentsIds.reverse().map((id) => comments[id]);
   }, [data]);
 
   const isLoadingInitialData = !data && !error;
@@ -62,11 +62,11 @@ export const useCommentsSWR = (messagePk) => {
     isLoadingInitialData ||
     (size > 0 && data && typeof data[size - 1] === "undefined");
 
-  const commentCount = (data && data[data.length - 1]?.count) || 0;
-  const isEmpty = commentCount === 0;
+  const commentsCount = (data && data[data.length - 1]?.count) || 0;
+  const isEmpty = commentsCount === 0;
   const isReachingEnd =
     isEmpty ||
-    comments.length === commentCount ||
+    comments.length === commentsCount ||
     (data && data[data.length - 1]?.results?.length < COMMENTS_LIST_SIZE);
   const isRefreshing = isValidating && data && data.length === size;
 
@@ -75,6 +75,7 @@ export const useCommentsSWR = (messagePk) => {
 
   return {
     comments,
+    commentsCount,
     error,
     isLoadingInitialData,
     isLoadingMore,
