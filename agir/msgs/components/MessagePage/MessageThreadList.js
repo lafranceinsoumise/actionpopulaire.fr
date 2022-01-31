@@ -115,6 +115,7 @@ const DesktopThreadList = (props) => {
     writeNewMessage,
     notificationSettingLink,
     lastItemRef,
+    isLoadingMore,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
@@ -143,6 +144,7 @@ const DesktopThreadList = (props) => {
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
         lastItemRef={lastItemRef}
+        isLoadingMore={isLoadingMore}
       />
       <PageFadeIn ready={selectedMessagePk && selectedMessage}>
         {!!selectedMessage && (
@@ -189,6 +191,7 @@ const MobileThreadList = (props) => {
     writeNewMessage,
     notificationSettingLink,
     lastItemRef,
+    isLoadingMore,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
@@ -209,6 +212,7 @@ const MobileThreadList = (props) => {
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
         lastItemRef={lastItemRef}
+        isLoadingMore={isLoadingMore}
       />
       <Panel
         style={{

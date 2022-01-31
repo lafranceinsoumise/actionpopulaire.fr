@@ -57,6 +57,7 @@ const MessagePage = ({ messagePk }) => {
     user,
     messages,
     loadMore,
+    isLoadingInitialData,
     isLoadingMore,
     messageRecipients,
     currentMessage,
@@ -100,6 +101,9 @@ const MessagePage = ({ messagePk }) => {
     ? getMessageSubject(currentMessage)
     : "Messages";
 
+  const isReady =
+    !isLoadingInitialData && user && typeof messages !== "undefined";
+
   useEffect(() => {
     dispatch(setPageTitle(pageTitle));
   }, [dispatch, pageTitle]);
@@ -110,10 +114,7 @@ const MessagePage = ({ messagePk }) => {
       <NotificationSettings />
       <StyledPage>
         {!isOffline || !messages ? (
-          <StyledPageFadeIn
-            ready={user && typeof messages !== "undefined"}
-            wait={<Skeleton />}
-          >
+          <StyledPageFadeIn ready={isReady} wait={<Skeleton />}>
             {!!writeNewMessage && (
               <MessageModal
                 shouldShow={shouldShowMessageModal}
@@ -156,6 +157,7 @@ const MessagePage = ({ messagePk }) => {
                 writeNewMessage={writeNewMessage}
                 onComment={writeNewComment}
                 lastItemRef={lastItemRef}
+                isLoadingMore={isLoadingMore}
               />
             ) : (
               <EmptyMessagePage />
