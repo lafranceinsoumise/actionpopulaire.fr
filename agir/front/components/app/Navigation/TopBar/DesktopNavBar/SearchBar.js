@@ -7,6 +7,7 @@ import nonReactRoutes from "@agir/front/globalContext/nonReactRoutes.config";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Button from "@agir/front/genericComponents/Button";
+import { routeConfig } from "@agir/front/app/routes.config";
 
 const searchRoute = nonReactRoutes.search;
 
@@ -67,7 +68,14 @@ const SearchBarWrapper = styled.form`
 
 const SearchBar = () => {
   const inputRef = useRef();
-  const [value, setValue] = useState("");
+  const location = window.location;
+  let currentSearch = "";
+  if (location.pathname.includes(routeConfig.search.path)) {
+    const urlParams = new URLSearchParams(location.search);
+    currentSearch = urlParams.get("q");
+  }
+
+  const [value, setValue] = useState(currentSearch);
   const [isFocused, setIsFocused] = useState(false);
   const handleFocus = useCallback(() => {
     setIsFocused(true);

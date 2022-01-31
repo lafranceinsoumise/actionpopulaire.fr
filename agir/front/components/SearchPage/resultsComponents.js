@@ -14,12 +14,12 @@ import { GroupSuggestionCarousel } from "@agir/groups/groupPage/GroupSuggestions
 const StyledGroupsDesktop = styled.div`
   display: flex;
   flex-flow: wrap;
+  justify-content: space-between;
 
   > div {
     width: 100%;
-    max-width: 310px;
+    flex-basis: 310px;
     margin-bottom: 10px;
-    margin-right: 20px;
   }
 `;
 
@@ -63,21 +63,49 @@ GroupList.PropTypes = {
   groups: PropTypes.array,
 };
 
-export const EventList = ({ events }) => (
+const EventItem = ({ event }) => (
   <>
-    {events?.map((event) => {
-      return (
-        <React.Fragment key={event.id}>
-          <EventCard
-            {...event}
-            schedule={Interval.fromISO(`${event.startTime}/${event.endTime}`)}
-          />
-          <Spacer size="1rem" />
-        </React.Fragment>
-      );
-    })}
+    <EventCard {...event} />
+    <Spacer size="1rem" />
   </>
 );
+EventItem.PropTypes = {
+  event: PropTypes.object,
+};
+
+export const EventList = ({ events }) => {
+  const pastEvents = [];
+  const futureEvents = [];
+  events.map((event) => {
+    event = {
+      ...event,
+      schedule: Interval.fromISO(`${event.startTime}/${event.endTime}`),
+    };
+    if (new Date() > new Date(event.endTime)) {
+      pastEvents.push(event);
+    } else {
+      futureEvents.push(event);
+    }
+  });
+
+  return (
+    <>
+      {!!futureEvents?.length && (
+        <h3 style={{ textAlign: "right" }}>Evénements à venir</h3>
+      )}
+      {futureEvents.map((event) => (
+        <EventItem key={event.id} event={event} />
+      ))}
+
+      {!!pastEvents?.length && (
+        <h3 style={{ textAlign: "right" }}>Evénements passés</h3>
+      )}
+      {pastEvents.map((event) => (
+        <EventItem key={event.id} event={event} />
+      ))}
+    </>
+  );
+};
 EventList.PropTypes = {
   events: PropTypes.array,
 };
