@@ -118,7 +118,7 @@ const GROUP_MANAGER_ACTION_ORDER = [
 export const getActionsForUser = (user) => {
   let actions = DEFAULT_ACTION_ORDER;
 
-  if (user && user.isGroupManager) {
+  if (!!user?.groups?.some((group) => group.isManager)) {
     actions = GROUP_MANAGER_ACTION_ORDER;
   }
 

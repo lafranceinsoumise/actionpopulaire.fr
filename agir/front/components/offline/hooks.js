@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 
-import logger from "@agir/lib/utils/logger";
-
-const log = logger(__filename);
+const pinger = async (url) => {
+  try {
+    const res = await fetch(url, { method: "HEAD", credentials: "omit" });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+};
 
 export const useIsOffline = () => {
-  const { data, error, isValidating } = useSWR("/api/ping/", {
+  const { data: isOnline, isValidating } = useSWR("/api/ping/", pinger, {
     refreshInterval: 10000,
     dedupingInterval: 10000,
     focusThrottleInterval: 10000,
@@ -14,21 +19,15 @@ export const useIsOffline = () => {
     shouldRetryOnError: false,
     revalidateIfStale: false,
   });
-  const [unloading, setUnloading] = useState(false);
 
-  log.debug(`Unloading : ${unloading}`, unloading);
-  if (error) {
-    log.debug(`Error : ${error}`, error);
-  }
-
+  const [isUnloading, setIsUnloading] = useState(false);
   useEffect(() => {
-    let cb = () => setUnloading(true);
-    window.addEventListener("beforeunload", cb);
-
+    let handleBeforeUnload = () => setIsUnloading(true);
+    window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
-      window.removeEventListener("beforeunload", cb);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   });
 
-  return unloading || (!data && !error && isValidating) ? null : !!error;
+  return !isUnloading && typeof isOnline === "boolean" ? !isOnline : null;
 };

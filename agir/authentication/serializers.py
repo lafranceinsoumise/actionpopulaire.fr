@@ -29,13 +29,9 @@ class UserContextSerializer(serializers.Serializer):
     isInsoumise = serializers.BooleanField(source="is_insoumise")
     is2022 = serializers.BooleanField(source="is_2022")
     isAgir = serializers.BooleanField(source="is_agir")
-    groups = serializers.PrimaryKeyRelatedField(
-        many=True, source="supportgroups", read_only=True
-    )
-    isGroupManager = serializers.SerializerMethodField(method_name="is_group_manager")
+    groups = serializers.SerializerMethodField()
     address1 = serializers.CharField(source="location_address1")
     city = serializers.CharField(source="location_city")
-    commune = serializers.SerializerMethodField()
     zip = serializers.CharField(source="location_zip")
 
     def get_full_name(self, obj):
@@ -45,19 +41,25 @@ class UserContextSerializer(serializers.Serializer):
         if obj.image and obj.image.thumbnail:
             return obj.image.thumbnail.url
 
-    def get_commune(self, obj):
-        commune = get_commune(obj)
-        if commune is not None:
-            commune = {
-                "name": commune.nom_complet,
-                "nameOf": commune.nom_avec_charniere,
-            }
-        return commune
+    def get_groups(self, obj):
+        person_groups = (
+            SupportGroup.objects.filter(memberships__person=obj)
+            .active()
+            .annotate(membership_type=F("memberships__membership_type"))
+            .order_by("-membership_type", "name")
+        )
 
-    def is_group_manager(self, obj):
-        return obj.memberships.filter(
-            membership_type__lte=Membership.MEMBERSHIP_TYPE_MANAGER
-        ).exists()
+        return [
+            {
+                "id": group.id,
+                "name": group.name,
+                "link": reverse("view_group", kwargs={"pk": group.pk}),
+                "isManager": (
+                    group.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
+                ),
+            }
+            for group in person_groups
+        ]
 
 
 class SessionSerializer(serializers.Serializer):
@@ -110,23 +112,6 @@ class SessionSerializer(serializers.Serializer):
                         "thematicTeams": front_url("thematic_teams_list"),
                     }
                 )
-
-            person_groups = (
-                SupportGroup.objects.filter(memberships__person=person)
-                .active()
-                .annotate(membership_type=F("memberships__membership_type"))
-                .order_by("-membership_type", "name")
-            )
-
-            if person_groups.count() > 0:
-                routes["groups__personGroups"] = []
-                for group in person_groups:
-                    link = {
-                        "id": group.id,
-                        "label": group.name,
-                        "to": reverse("view_group", kwargs={"pk": group.pk}),
-                    }
-                    routes["groups__personGroups"].append(link)
 
             return routes
 

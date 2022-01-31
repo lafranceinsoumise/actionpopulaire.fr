@@ -65,10 +65,10 @@ class SessionDonationAPIView(RetrieveAPIView):
 
 
 @never_cache
-@api_view(["GET"])
+@api_view(["HEAD"])
 @permission_classes((permissions.AllowAny,))
 def ping(request):
-    return Response("pong")
+    return Response()
 
 
 class LoginAPIView(APIView):
