@@ -113,25 +113,27 @@ class TagListFilter(AutocompleteRelatedModelFilter):
 
 
 class AnimateMoreThanOneGroup(admin.SimpleListFilter):
-    title = "Cette personne anime plus d'un groupe d'action"
-    parameter_name = "Person who animate more than one group"
+    title = "cette personne anime plus d'un groupe d'action"
+    parameter_name = "two_or_more_groups"
 
     def lookups(self, request, model_admin):
         return (
-            ("animate_more_than_one_group", "Anime plus d'un groupe"),
+            (Membership.MEMBERSHIP_TYPE_MANAGER, "Gère ou anime plus d'un groupe"),
+            (Membership.MEMBERSHIP_TYPE_REFERENT, "Anime plus d'un groupe"),
             ("", ""),
         )
 
     def queryset(self, request, queryset):
-        if self.value() == "animate_more_than_one_group":
+        if self.value():
             return queryset.annotate(
-                animated_groups=Count(
+                group_count=Count(
                     "memberships",
                     filter=Q(
-                        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
+                        memberships__supportgroup__published=True,
+                        memberships__membership_type__gte=self.value(),
                     ),
                 )
-            ).filter(animated_groups__gt=1)
+            ).filter(group_count__gt=1)
 
 
 @admin.register(Person)
