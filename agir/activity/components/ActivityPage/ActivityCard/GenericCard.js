@@ -12,7 +12,7 @@ import Link from "@agir/front/app/Link";
 import GenericCardContainer from "./GenericCardContainer";
 
 const GenericCard = (props) => {
-  const { type, meta, event, supportGroup, individual } = props;
+  const { type, meta, event, group, individual } = props;
   const [_, copyEmail] = useCopyToClipboard(
     meta?.email,
     2000,
@@ -22,26 +22,18 @@ const GenericCard = (props) => {
   const { Event, SupportGroup, Individual } = useMemo(
     () => ({
       Event: event && (
-        <Link
-          to={
-            routeConfig.eventDetails
-              ? routeConfig.eventDetails.getLink({ eventPk: event.id })
-              : event.routes.details
-          }
-        >
+        <Link route="eventDetails" routeParams={{ eventPk: event.id }}>
           {event.name}
         </Link>
       ),
-      SupportGroup: supportGroup && (
-        <Link
-          to={routeConfig.groupDetails.getLink({ groupPk: supportGroup.id })}
-        >
-          {supportGroup.name}
+      SupportGroup: group && (
+        <Link route="groupDetails" routeParams={{ groupPk: group.id }}>
+          {group.name}
         </Link>
       ),
       Individual: individual && <strong>{individual.displayName}</strong>,
     }),
-    [event, supportGroup, individual]
+    [event, group, individual]
   );
 
   const changedDataLabel = useMemo(() => {
@@ -246,10 +238,8 @@ const GenericCard = (props) => {
         <GenericCardContainer {...props}>
           {meta && meta.transferredMemberships} membre
           {meta && meta.transferredMemberships > 0 ? "s" : ""} ont rejoint{" "}
-          <Link
-            to={routeConfig.groupSettings.getLink({ groupPk: supportGroup.id })}
-          >
-            {supportGroup.name}
+          <Link to={routeConfig.groupSettings.getLink({ groupPk: group.id })}>
+            {group.name}
           </Link>{" "}
           suite à un transfert depuis &laquo;&nbsp;
           {meta && meta.oldGroup}&nbsp;&raquo;.
@@ -262,9 +252,7 @@ const GenericCard = (props) => {
           En tant qu'animateur·ice, vous pouvez gérer {SupportGroup} à tout
           moment depuis le bouton &laquo;&nbsp;Gestion&nbsp;&raquo; ou bien en
           cliquant sur{" "}
-          <Link
-            to={routeConfig.groupSettings.getLink({ groupPk: supportGroup.id })}
-          >
+          <Link to={routeConfig.groupSettings.getLink({ groupPk: group.id })}>
             ce lien
           </Link>
           .<br />
@@ -280,7 +268,7 @@ const GenericCard = (props) => {
 GenericCard.propTypes = {
   type: PropTypes.string,
   event: PropTypes.object,
-  supportGroup: PropTypes.object,
+  group: PropTypes.object,
   individual: PropTypes.object,
   routes: PropTypes.object,
   meta: PropTypes.object,

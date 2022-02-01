@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
+import useSWR from "swr";
 
 import AnnouncementCard from "./AnnouncementCard";
 import GenericCard from "./GenericCard";
@@ -7,18 +8,18 @@ import GroupMembershipLimitReminderCard from "./GroupMembershipLimitReminderCard
 import ReferralUpdateCard from "./ReferralUpdateCard";
 
 import CONFIG from "@agir/activity/common/activity.config";
+import { getEventEndpoint } from "@agir/events/common/api";
 
-const ActivityCard = (props) => {
-  const { type } = props;
+export const ActivityCard = (props) => {
+  const { type, announcement } = props;
+  const config = type && CONFIG[type];
 
-  if (!type || !CONFIG[type]) {
+  if (!config) {
     return null;
   }
 
-  const config = CONFIG[type];
-
-  if (type === "announcement" && props?.announcement) {
-    return <AnnouncementCard {...props.announcement} config={config} />;
+  if (type === "announcement" && announcement) {
+    return <AnnouncementCard {...announcement} config={config} />;
   }
 
   if (type === "referral-accepted") {
@@ -36,4 +37,28 @@ ActivityCard.propTypes = {
   announcement: PropTypes.object,
 };
 
-export default ActivityCard;
+const ConnectedActivityCard = (props) => {
+  const { type } = props;
+  const config = type && CONFIG[type];
+  const hasEventCard = config?.hasEvent && props.event;
+  const { data: eventDetails } = useSWR(
+    hasEventCard &&
+      getEventEndpoint("getEventCard", { eventPk: props.event.id }),
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+
+  return config ? (
+    <ActivityCard
+      {...props}
+      config={config}
+      event={eventDetails || props.event}
+      isLoadingEventCard={hasEventCard && typeof eventDetails === "undefined"}
+    />
+  ) : null;
+};
+
+export default ConnectedActivityCard;

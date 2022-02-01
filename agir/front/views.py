@@ -178,7 +178,7 @@ class EventDetailView(
     meta_description = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
 
     def get_api_preloads(self):
-        return [reverse_lazy("api_event_view", kwargs=self.kwargs)]
+        return [reverse_lazy("api_event_details", kwargs=self.kwargs)]
 
     def get_meta_image(self):
         return self.object.get_meta_image()
@@ -193,7 +193,7 @@ class EventProjectView(HardLoginRequiredMixin, EventDetailView):
 
     def get_api_preloads(self):
         return [
-            reverse_lazy("api_event_view", kwargs=self.kwargs),
+            reverse_lazy("api_event_details", kwargs=self.kwargs),
             reverse_lazy("api_event_project", kwargs={"event_id": self.kwargs["pk"]}),
         ]
 

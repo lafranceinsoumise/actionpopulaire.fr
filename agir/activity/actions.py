@@ -18,15 +18,7 @@ from ..events.models import Event
 def get_activities(person):
     activities = (
         Activity.objects.displayed()
-        .select_related("supportgroup", "individual", "announcement")
-        .prefetch_related(
-            Prefetch(
-                "event",
-                Event.objects.with_serializer_prefetch(person).select_related(
-                    "subtype"
-                ),
-            )
-        )
+        .select_related("supportgroup", "individual", "announcement", "event")
         .filter(recipient=person)
         .exclude(supportgroup__isnull=False, supportgroup__published=False)
         .exclude(~Q(event__visibility=Event.VISIBILITY_PUBLIC), event__isnull=False)
