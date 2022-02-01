@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
 from django.db import transaction
 from django.db.models import Q, Value, CharField
 from django.http.response import JsonResponse
@@ -9,7 +10,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
-from django.utils.translation import gettext as _
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
@@ -160,14 +160,14 @@ class EventSuggestionsAPIView(EventListAPIView):
         near = events.none()
 
         if person.coordinates is not None:
-            national = national.annotate(
-                distance=Distance("coordinates", person.coordinates),
-            ).filter(distance__lte=100000)
+            national = national.filter(
+                coordinates__dwithin=(person.coordinates, D(km=100))
+            )
 
             near = (
                 events.filter(start_time__lt=timezone.now() + timedelta(days=30))
+                .filter(coordinates__dwithin=(person.coordinates, D(km=100)))
                 .annotate(distance=Distance("coordinates", person.coordinates))
-                .filter(distance__lte=100000)
                 .order_by("distance")
             )
 
