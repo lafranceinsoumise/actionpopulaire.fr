@@ -123,7 +123,7 @@ export function makeStyle(config, options = {}) {
 
   if (config.color && config.iconName) {
     return [
-      ...getMarkerIcons(options.color && config.color),
+      ...getMarkerIcons(options.color ? config.color : style.primary500),
       new Style({
         text: new Text({
           offsetY: -21,
