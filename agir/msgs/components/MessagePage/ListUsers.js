@@ -80,7 +80,7 @@ export const ListUser = ({ message, participants }) => {
       <hr />
       <Spacer size="0.5rem" />
       {participants.active.map((user) => (
-        <StyledPerson>
+        <StyledPerson key={user.id}>
           <Avatar image={user.image} name={user.displayName} />
           {user.displayName}
         </StyledPerson>

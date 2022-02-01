@@ -134,6 +134,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   return {
     user: session?.user,
     messages,
+    messageCount,
     errorMessages,
     isLoadingInitialData,
     isLoadingMore,
