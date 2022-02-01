@@ -118,7 +118,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   }, [error, isValidating, selectMessage]);
 
   useEffect(() => {
-    if (isValidating || !messages || !currentMessage) {
+    if (isValidating || !Array.isArray(messages) || !currentMessage) {
       return;
     }
     const updatedMessage = messages.find((m) => m.id === currentMessage.id);
