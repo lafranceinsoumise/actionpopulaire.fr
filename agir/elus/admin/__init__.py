@@ -35,6 +35,7 @@ from agir.elus.models import (
     MandatDeputeEuropeen,
     Candidature,
     Scrutin,
+    Autorisation,
 )
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
@@ -1144,7 +1145,7 @@ class CandidatureAdmin(AddRelatedLinkMixin, admin.ModelAdmin):
         return f"{obj.nom} {obj.prenom}"
 
     candidat.short_description = "Candidat·e"
-    candidat.sortable_by = ("nom", "prenom")
+    candidat.admin_order_field = "nom"
 
     def reponses_questionnaire(self, obj):
         reponses = obj.meta.get("questionnaire", [])
@@ -1157,11 +1158,10 @@ class CandidatureAdmin(AddRelatedLinkMixin, admin.ModelAdmin):
     reponses_questionnaire.short_description = "Autres réponses au questionnaire"
 
     def code_circonscription(self, obj):
-        if hasattr(obj, "circonscription"):
-            return obj.circonscription.code
-        return "-"
+        return obj.code_circonscription
 
     code_circonscription.short_description = "Code circonscription"
+    code_circonscription.admin_order_field = "code_circonscription"
 
     def circonscription_link(self, obj):
         circo = obj.circonscription
@@ -1173,3 +1173,28 @@ class CandidatureAdmin(AddRelatedLinkMixin, admin.ModelAdmin):
     def presence_en_ligne(self, obj):
         liens = obj.meta.get("liens", [])
         return format_html_join(mark_safe("<br>"), '<a href="{}">{}</a>', liens)
+
+    def has_module_permission(self, request):
+        return (
+            super().has_module_permission(request)
+            or Autorisation.objects.filter(groupe__user=request.user).exists()
+        )
+
+    def has_view_permission(self, request, obj=None):
+        if obj is None:
+            return (
+                request.user.has_perm("elus.view_candidature")
+                or Autorisation.objects.filter(groupe__user=request.user).exists()
+            )
+
+        return request.user.has_perm("elus.view_candidature") or request.user.has_perm(
+            "elus.view_candidature", obj=obj
+        )
+
+    def has_change_permission(self, request, obj=None):
+        if obj is None:
+            return request.user.has_perm("elus.change_candidature")
+
+        return request.user.has_perm(
+            "elus.change_candidature"
+        ) or request.user.has_perm("elus.change_candidature", obj=obj)
