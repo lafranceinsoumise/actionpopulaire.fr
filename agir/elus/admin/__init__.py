@@ -884,12 +884,20 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
     form = RechercheParrainageForm
 
     autocomplete_fields = (*CHAMPS_ELUS_PARRAINAGES, "person")
-    list_display = ("nom_elu", "type_elu_label", "person", "statut", "formulaire")
+    list_display = (
+        "nom_elu",
+        "type_elu_label",
+        "person",
+        "statut",
+        "formulaire",
+        "parrainage",
+    )
     readonly_fields = (
         "nom_elu",
         "type_elu_label",
         "statut_display",
         "person",
+        "parrainage",
     )
 
     list_filter = ("statut", TypeEluFilter)
@@ -899,6 +907,7 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
         "commentaires",
         "commentaires_admin",
         "formulaire",
+        "parrainage",
     )
 
     search_fields = ("search",)
