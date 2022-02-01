@@ -19,11 +19,14 @@ import {
   InputSearch,
   GroupFilters,
   EventFilters,
+  SearchTooShort,
+  FilterButton,
 } from "./searchComponents";
 import { StyledContainer, StyledFilters } from "./styledComponents";
 
 import { TABS, TABS_OPTIONS } from "./config.js";
 import { useSearchResults } from "./useSearch";
+import { useFilters } from "./useFilters";
 
 export const SearchPage = () => {
   const isDesktop = useIsDesktop();
@@ -33,14 +36,14 @@ export const SearchPage = () => {
 
   const [search, setSearch] = useState(urlParams.get("q") || "");
 
-  const [filters, setFilters] = useState({});
+  const [showFilters, setShowFilters, filters, setFilters, switchFilters] =
+    useFilters();
   const [groups, events, errors, isLoading] = useSearchResults(
     search,
     isTabEvents ? "events" : isTabGroups ? "groups" : undefined,
     filters
   );
 
-  const [showFilters, setShowFilters] = useState(false);
   const [activeTab, setActiveTab] = useState(TABS.ALL);
 
   const isTabAll = activeTab === TABS.ALL;
@@ -61,10 +64,21 @@ export const SearchPage = () => {
     setFilters({});
   };
 
-  const switchFilters = () => {
-    setShowFilters(!showFilters);
-    setFilters({});
-  };
+  if (search?.length <= 3) {
+    return (
+      <StyledContainer>
+        <HeaderSearch querySearch={search} showMap={isTabAll} />
+        {!isDesktop && (
+          <InputSearch
+            inputSearch={search}
+            updateSearch={(e) => setSearch(e.target.value)}
+            placeholder={placeholder}
+          />
+        )}
+        <SearchTooShort search={search} />
+      </StyledContainer>
+    );
+  }
 
   return (
     <StyledContainer>
@@ -78,10 +92,6 @@ export const SearchPage = () => {
         />
       )}
 
-      {!!search && search.length < 3 && (
-        <>Rentrez au moins 3 caractères pour rechercher</>
-      )}
-
       <Spacer size="1rem" />
       <Tabs
         tabs={TABS_OPTIONS}
@@ -92,12 +102,10 @@ export const SearchPage = () => {
 
       {!isTabAll && (
         <div>
-          <Spacer size="1rem" />
-          <div style={{ textAlign: "right" }}>
-            <Button small icon="filter" onClick={switchFilters}>
-              Filtrer
-            </Button>
-          </div>
+          <FilterButton
+            showFilters={showFilters}
+            switchFilters={switchFilters}
+          />
           <Spacer size="1rem" />
 
           {showFilters && (
@@ -127,7 +135,7 @@ export const SearchPage = () => {
       <Spacer size="1rem" />
       {isLoading && <Skeleton />}
 
-      {!!search && search.length >= 3 && !isLoading && (
+      {search?.length >= 3 && !isLoading && (
         <>
           {!!errors?.length && (
             <>

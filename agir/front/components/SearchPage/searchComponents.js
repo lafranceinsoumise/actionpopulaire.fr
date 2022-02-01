@@ -5,6 +5,8 @@ import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 import Link from "@agir/front/app/Link";
+import Button from "@agir/front/genericComponents/Button";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import { Hide } from "@agir/front/genericComponents/grid";
 import mapImg from "./images/Bloc_map.jpg";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -88,6 +90,21 @@ const SearchBarInput = styled.input`
     opacity: 1;
   }
 `;
+
+export const SearchTooShort = ({ search }) => {
+  if (!search || search?.length >= 3) {
+    return null;
+  }
+  return (
+    <>
+      <Spacer size="1rem" />
+      Rentrez au moins 3 caractères pour effectuer une recherche
+    </>
+  );
+};
+SearchTooShort.PropTypes = {
+  search: PropTypes.string,
+};
 
 export const MapButton = () => (
   <StyledMapButton>
@@ -212,3 +229,22 @@ export const GroupFilters = ({ filters, setFilter }) => {
   );
 };
 GroupFilters.PropTypes = EventFilters.PropTypes;
+
+export const FilterButton = ({ showFilters, switchFilters }) => (
+  <>
+    <Spacer size="1rem" />
+    <div style={{ textAlign: "right" }}>
+      <Button
+        small
+        icon={!showFilters ? "filter" : "x-circle"}
+        onClick={switchFilters}
+      >
+        {!showFilters ? "Filtrer" : "Supprimer les filtres"}
+      </Button>
+    </div>
+  </>
+);
+FilterButton.PropTypes = {
+  showFilters: PropTypes.bool,
+  switchFilters: PropTypes.func,
+};
