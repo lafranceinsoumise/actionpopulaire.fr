@@ -442,9 +442,12 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def participants_display(self, obj):
         if obj:
+            label = str(obj.participants)
+
             if obj.participants != obj.participants_confirmes:
-                return f"{obj.participants} participants (dont {obj.participants_confirmes} confirmes)"
-            return str(obj.participants)
+                label = f"{obj.participants} participants (dont {obj.participants_confirmes} confirmés)"
+
+            return mark_safe(f"{label}&emsp;{self.event_rsvp_changelist_link(obj)}")
         return "-"
 
     participants_display.short_description = "Nombre de participants"
