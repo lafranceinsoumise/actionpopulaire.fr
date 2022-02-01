@@ -68,7 +68,7 @@ const StyledMenu = styled.menu`
   }
 `;
 
-const StyledLoader = styled(Button)`
+export const StyledLoader = styled(Button)`
   height: 60px;
   cursor: default;
   border-radius: 0;

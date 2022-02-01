@@ -11,6 +11,9 @@ import { routeConfig } from "@agir/front/app/routes.config";
 import { setBackLink } from "@agir/front/globalContext/actions";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 
+const MESSAGES_LIST_SIZE = 10;
+const COMMENTS_LIST_SIZE = 15;
+
 export const useUnreadMessageCount = () => {
   const [isReady] = useTimeout(3000);
   const { data: session } = useSWR("/api/session/");
@@ -28,7 +31,60 @@ export const useUnreadMessageCount = () => {
     : 0;
 };
 
-const MESSAGES_LIST_SIZE = 10;
+export const useCommentsSWR = (messagePk) => {
+  const { data, error, isValidating, mutate, size, setSize } = useSWRInfinite(
+    (index) =>
+      `/api/groupes/messages/${messagePk}/comments/?page=${
+        index + 1
+      }&page_size=${COMMENTS_LIST_SIZE}`
+  );
+
+  const comments = useMemo(() => {
+    const comments = {};
+    const commentsIds = [];
+    if (Array.isArray(data)) {
+      data.forEach(({ results }) => {
+        if (Array.isArray(results)) {
+          results.forEach((comment) => {
+            if (!comments[comment.id]) {
+              comments[comment.id] = comment;
+              commentsIds.push(comment.id);
+            }
+          });
+        }
+      });
+    }
+    return commentsIds.reverse().map((id) => comments[id]);
+  }, [data]);
+
+  const isLoadingInitialData = !data && !error;
+  const isLoadingMore =
+    isLoadingInitialData ||
+    (size > 0 && data && typeof data[size - 1] === "undefined");
+
+  const commentsCount = (data && data[data.length - 1]?.count) || 0;
+  const isEmpty = commentsCount === 0;
+  const isReachingEnd =
+    isEmpty ||
+    comments.length === commentsCount ||
+    (data && data[data.length - 1]?.results?.length < COMMENTS_LIST_SIZE);
+  const isRefreshing = isValidating && data && data.length === size;
+
+  const loadMore = useCallback(() => setSize(size + 1), [setSize, size]);
+  const isAutoRefreshPausedRef = useRef(false);
+
+  return {
+    comments,
+    commentsCount,
+    error,
+    isLoadingInitialData,
+    isLoadingMore,
+    isRefreshing,
+    loadMore: isEmpty || isReachingEnd ? undefined : loadMore,
+    mutate,
+    isAutoRefreshPausedRef,
+  };
+};
 
 export const useMessageSWR = (messagePk, selectMessage) => {
   const dispatch = useDispatch();
@@ -81,6 +137,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   const loadMore = useCallback(() => setSize(size + 1), [setSize, size]);
 
   const { data: messageRecipients } = useSWR("/api/user/messages/recipients/");
+
   const {
     data: currentMessage,
     error,
@@ -91,6 +148,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
       ? `/api/groupes/messages/${messagePk}/`
       : null
   );
+
   const { pathname } = useLocation();
 
   const currentMessageId = currentMessage?.id;
