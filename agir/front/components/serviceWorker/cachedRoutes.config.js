@@ -14,6 +14,8 @@ const config = [
   "/api/evenements/suggestions/",
   "/api/evenements/mes-groupes/",
   "/api/evenements/organises/",
+  "/api/evenements/grands-evenements/",
+
   new RegExp(".+/api/evenements/[0-9a-f-]+/$"),
 
   "/api/groupes/",
