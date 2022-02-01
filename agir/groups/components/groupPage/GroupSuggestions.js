@@ -16,6 +16,7 @@ import { PageFadeIn } from "@agir/front/genericComponents/PageFadeIn";
 import GroupSuggestionCard from "./GroupSuggestionCard";
 
 export const Carousel = styled(animated.div)`
+  isolation: isolate;
   @media (max-width: ${style.collapse}px) {
     margin-left: 0;
   }
