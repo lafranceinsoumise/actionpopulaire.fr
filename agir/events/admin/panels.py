@@ -445,7 +445,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
             label = str(obj.participants)
 
             if obj.participants != obj.participants_confirmes:
-                label = f"{obj.participants} participants (dont {obj.participants_confirmes} confirmes)"
+                label = f"{obj.participants} participants (dont {obj.participants_confirmes} confirmés)"
 
             return mark_safe(f"{label}&emsp;{self.event_rsvp_changelist_link(obj)}")
         return "-"
