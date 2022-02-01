@@ -38,7 +38,10 @@ from agir.lib.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.utils import generate_token_params, front_url
 from agir.mailing.models import Segment
 from agir.people.actions.stats import get_statistics_for_queryset
-from agir.people.admin.actions import export_people_to_csv
+from agir.people.admin.actions import (
+    export_people_to_csv,
+    unsubscribe_from_all_newsletters,
+)
 from agir.people.admin.forms import PersonAdminForm, PersonFormForm
 from agir.people.admin.inlines import RSVPInline, MembershipInline, EmailInline
 from agir.people.admin.views import (
@@ -174,6 +177,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             {
                 "fields": (
                     "newsletters",
+                    "unsubscribe_from_all_newsletters",
                     "subscribed_sms",
                     "campaigns_link",
                 )
@@ -214,6 +218,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "last_login",
         "role_link",
         "role_totp_link",
+        "unsubscribe_from_all_newsletters",
         "campaigns_link",
         "supportgroups",
         "events",
@@ -288,6 +293,17 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     role_totp_link.short_description = _(
         "Lien vers les téléphones Authenticator enregistrés"
     )
+
+    def unsubscribe_from_all_newsletters(self, obj):
+        return format_html(
+            '<a href="{}" class="button">Désinscrire de tous les envois d\'e-mails et de notifications push</a>',
+            reverse(
+                "admin:people_person_unsubscribe_from_all_newsletters",
+                kwargs={"pk": str(obj.pk)},
+            ),
+        )
+
+    unsubscribe_from_all_newsletters.short_description = "Désinscription"
 
     def campaigns_link(self, obj):
         return format_html(
@@ -395,6 +411,11 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 self.statistics_view,
                 name="people_person_statistics",
             ),
+            path(
+                "<uuid:pk>/unsubscribe-from-all-newsletters/",
+                self.unsubscribe_from_all_newsletter_view,
+                name="people_person_unsubscribe_from_all_newsletters",
+            ),
         ] + super().get_urls()
 
     def invalidate_link_view(self, request, pk):
@@ -464,6 +485,19 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             "admin/people/person/statistics.html",
             context,
         )
+
+    def unsubscribe_from_all_newsletter_view(self, request, pk):
+        person = get_object_or_404(Person, pk=pk)
+
+        unsubscribe_from_all_newsletters(person)
+
+        messages.add_message(
+            request=request,
+            level=messages.SUCCESS,
+            message="Cette personne a été désinscrite de tous les envois d'emails et de notifications push",
+        )
+
+        return HttpResponseRedirect(reverse("admin:people_person_change", args=(pk,)))
 
     def has_view_permission(self, request, obj=None):
         return super().has_view_permission(request, obj) or (
