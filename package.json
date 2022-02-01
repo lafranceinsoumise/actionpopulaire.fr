@@ -35,7 +35,7 @@
     "bootstrap-sass": "^3.4.1",
     "classnames": "^2.3.1",
     "cleave.js": "^1.6.0",
-    "core-js": "^3.20.3",
+    "core-js": "^3.21.0",
     "cross-env": "^7.0.3",
     "debug": "^4.3.3",
     "dotenv": "^15.0.0",
