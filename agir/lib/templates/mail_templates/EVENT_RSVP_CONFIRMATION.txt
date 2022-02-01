@@ -7,6 +7,8 @@ Horaires : {{ EVENT_SCHEDULE }}
 Lieu : {{ LOCATION_NAME }}
 Adresse : {{ LOCATION_ADDRESS }}
 
+{{ ATTENDANT_NOTICE }}
+
 {{ ADDITIONAL_INFORMATION }}
 
 >> Partager l'événement
