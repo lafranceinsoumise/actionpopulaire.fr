@@ -38,6 +38,9 @@ import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import ButtonMuteMessage from "./ButtonMuteMessage";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
+import { useCommentsSWR } from "@agir/msgs/common/hooks";
+import { StyledLoader } from "@agir/msgs/MessagePage/MessageThreadMenu";
+
 export const StyledInlineMenuItems = styled.div`
   cursor: pointer;
   display: flex;
@@ -223,25 +226,6 @@ export const StyledHeader = styled.div`
     }
   }
 `;
-const StyledCommentCount = styled.p`
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  justify-content: center;
-  color: ${style.primary500};
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-
-  @media (max-width: ${style.collapse}px) {
-    justify-content: flex-start;
-  }
-
-  ${RawFeatherIcon} {
-    width: 1rem;
-    height: 1rem;
-  }
-`;
 const StyledNewComment = styled.div``;
 const StyledComments = styled.div`
   display: flex;
@@ -405,6 +389,19 @@ const StyledMessageHeader = styled.div`
   }
 `;
 
+const StyledLoadComments = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding: 10px;
+  cursor: pointer;
+  color: ${style.primary500};
+
+  ${RawFeatherIcon} {
+    margin-right: 0.5rem;
+  }
+`;
+
 const MessageHeader = ({ message, subject }) => {
   const isDesktop = useIsDesktop();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -451,7 +448,6 @@ const MessageCard = (props) => {
     user,
     message,
     groupURL,
-    comments,
     isManager,
     isLoading,
     onClick,
@@ -467,7 +463,14 @@ const MessageCard = (props) => {
     autoScrollOnComment,
   } = props;
 
-  const { group, author, text, created, linkedEvent, commentCount } = message;
+  const { group, author, text, created, linkedEvent } = message;
+
+  const {
+    comments,
+    commentsCount,
+    loadMore: loadMoreComments,
+    isLoadingMore: isLoadingComments,
+  } = useCommentsSWR(message.id);
 
   const messageCardRef = useRef();
   const isDesktop = useIsDesktop();
@@ -642,32 +645,29 @@ const MessageCard = (props) => {
             <ParsedString>{text}</ParsedString>
           </StyledContent>
           {!!event && <EventCard {...event} />}
-          {!!commentCount && (
-            <StyledCommentCount onClick={handleClick}>
-              <RawFeatherIcon name="message-circle" color={style.primary500} />
-              &ensp;Voir les {commentCount} commentaires
-            </StyledCommentCount>
-          )}
-          <StyledComments
-            $empty={!Array.isArray(comments) || comments.length === 0}
-          >
-            <PageFadeIn ready={Array.isArray(comments) && comments.length > 0}>
-              {Array.isArray(comments) && comments.length > 0
-                ? comments.map((comment) => (
-                    <Comment
-                      key={comment.id}
-                      comment={comment}
-                      onDelete={
-                        onDeleteComment ? handleDeleteComment : undefined
-                      }
-                      onReport={
-                        onReportComment ? handleReportComment : undefined
-                      }
-                      isAuthor={comment.author.id === user.id}
-                      isManager={isManager}
-                    />
-                  ))
-                : null}
+          <StyledComments $empty={!comments?.length}>
+            <PageFadeIn ready={comments.length > 0}>
+              {isLoadingComments && <StyledLoader loading block />}
+              {!isLoadingComments && commentsCount !== comments.length && (
+                <StyledLoadComments onClick={loadMoreComments}>
+                  <RawFeatherIcon
+                    name="chevron-up"
+                    width="1rem"
+                    height="1rem"
+                  />
+                  {commentsCount - comments.length} commentaires précédents
+                </StyledLoadComments>
+              )}
+              {comments.map((comment) => (
+                <Comment
+                  key={comment.id}
+                  comment={comment}
+                  onDelete={onDeleteComment ? handleDeleteComment : undefined}
+                  onReport={onReportComment ? handleReportComment : undefined}
+                  isAuthor={comment.author.id === user.id}
+                  isManager={isManager}
+                />
+              ))}
             </PageFadeIn>
             <StyledNewComment>
               {!!onComment &&
@@ -722,11 +722,9 @@ MessageCard.propTypes = {
     created: PropTypes.string.isRequired,
     text: PropTypes.string.isRequired,
     linkedEvent: PropTypes.object,
-    commentCount: PropTypes.number,
   }).isRequired,
   messageURL: PropTypes.string,
   groupURL: PropTypes.string,
-  comments: PropTypes.arrayOf(PropTypes.object),
   onClick: PropTypes.func,
   onComment: PropTypes.func,
   onDelete: PropTypes.func,

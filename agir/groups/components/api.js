@@ -198,6 +198,22 @@ export const reportMessage = async (message) => {
   return result;
 };
 
+export const getComments = async (messagePk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupEndpoint("getComments", { messagePk });
+  try {
+    const response = await axios.post(url);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
 export const createComment = async (messagePk, comment) => {
   const result = {
     data: null,
