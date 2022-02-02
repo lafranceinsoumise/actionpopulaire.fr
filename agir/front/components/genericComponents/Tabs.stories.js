@@ -54,7 +54,7 @@ const Template = (args) => {
 
   return (
     <div style={{ paddingTop: 0 }}>
-      <Tabs tabs={ts}>
+      <Tabs {...args} tabs={ts}>
         {tabs.map((tab) => (
           <div key={tab.id} id={tab.id} style={{ padding: "1rem" }}>
             {paragraphs
@@ -76,5 +76,6 @@ const Template = (args) => {
 
 export const Default = Template.bind({});
 Default.args = {
+  activeIndex: 0,
   howManyTabs: 30,
 };

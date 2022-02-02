@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo, useState } from "react";
 import { useSpring, animated } from "@react-spring/web";
-import { useDrag } from "react-use-gesture";
+import { useDrag } from "@use-gesture/react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -111,8 +111,14 @@ const useTabs = (props) => {
 };
 
 export const Tabs = (props) => {
-  const { children, tabs, stickyOffset, activeIndex, onTabChange, noBorder } =
-    props;
+  const {
+    children,
+    tabs,
+    stickyOffset,
+    activeIndex = 0,
+    onTabChange,
+    noBorder,
+  } = props;
 
   const active = tabs[activeIndex];
 
@@ -136,7 +142,7 @@ export const Tabs = (props) => {
         x <= 0 ? handleNext() : handlePrev();
       }
     },
-    { axis: "x", lockDirection: true }
+    { axis: "lock" }
   );
 
   return (
