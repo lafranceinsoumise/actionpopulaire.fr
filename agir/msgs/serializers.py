@@ -166,24 +166,27 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
 
 class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
     active = serializers.SerializerMethodField(read_only=True)
-    commentAuthors = serializers.SerializerMethodField(
-        read_only=True, method_name="get_comment_authors"
-    )
     total = serializers.SerializerMethodField(read_only=True)
 
     def to_representation(self, message):
-        participants = Person.objects.filter(
-            Q(
-                id__in=Membership.objects.filter(
-                    supportgroup_id=message.supportgroup_id,
-                    membership_type=message.required_membership_type,
-                ).values_list("person_id", flat=True)
+        self.participants = (
+            Person.objects.filter(
+                Q(
+                    id__in=message.supportgroup.memberships.filter(
+                        membership_type__gte=message.required_membership_type
+                    ).values_list("person_id")
+                )
+                | Q(id=message.author.id)
             )
-            | Q(id=message.author_id)
-        ).annotate(
-            has_commented=Exists(message.comments.filter(author_id=OuterRef("id")))
+            .annotate(
+                has_commented=Exists(message.comments.filter(author_id=OuterRef("id")))
+            )
+            .distinct()
         )
-        self._participants = [
+        return super().to_representation(message)
+
+    def get_active(self, message):
+        return [
             {
                 "id": person.id,
                 "displayName": person.display_name,
@@ -194,27 +197,16 @@ class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
                 if (person.image and person.image.thumbnail)
                 else None,
             }
-            for person in participants
-        ]
-
-        return super().to_representation(message)
-
-    def get_comment_authors(self, _):
-        return [
-            participant["id"]
-            for participant in self._participants
-            if participant["isCommentAuthor"] or participant["isAuthor"]
+            for person in self.participants
+            if person.has_commented or message.author_id == person.id
         ]
 
     def get_total(self, _):
-        return len(self._participants)
-
-    def get_active(self, _):
-        return self._participants
+        return len(self.participants)
 
     class Meta:
         model = SupportGroupMessage
-        fields = ("active", "commentAuthors", "total")
+        fields = ("active", "total")
 
 
 class ContentTypeChoiceField(serializers.ChoiceField):
