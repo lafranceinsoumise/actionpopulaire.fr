@@ -79,6 +79,12 @@ const NewVotingProxyRequest = lazy(() =>
 const NewVotingProxy = lazy(() =>
   import("@agir/voting_proxies/VotingProxy/NewVotingProxy")
 );
+const ReplyToVotingProxyRequests = lazy(() =>
+  import("@agir/voting_proxies/VotingProxy/ReplyToVotingProxyRequests")
+);
+const VotingProxyRequestDetails = lazy(() =>
+  import("@agir/voting_proxies/VotingProxyRequest/VotingProxyRequestDetails")
+);
 
 export const BASE_PATH = "/";
 
@@ -496,6 +502,31 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Prendre une procuration de vote",
     Component: NewVotingProxy,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  replyToVotingProxyRequests: new RouteConfig({
+    id: "replyToVotingProxyRequests",
+    path: "/procuration/prendre-une-procuration/:votingProxyPk/",
+    params: { votingProxyPk: null },
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Prendre une procuration de vote",
+    Component: ReplyToVotingProxyRequests,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  votingProxyRequestDetails: new RouteConfig({
+    id: "votingProxyRequestDetails",
+    path: "/procuration/reponse/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Procuration de vote",
+    Component: VotingProxyRequestDetails,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,

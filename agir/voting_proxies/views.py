@@ -30,6 +30,7 @@ from agir.voting_proxies.serializers import (
     CommuneOrConsulateSerializer,
     VotingProxySerializer,
     CreateVotingProxySerializer,
+    AcceptedVotingProxyRequestSerializer,
 )
 from agir.voting_proxies.tasks import send_voting_proxy_information_for_request
 
@@ -103,7 +104,9 @@ class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
     permission_classes = (permissions.AllowAny,)
-    queryset = VotingProxy.objects.filter(status=VotingProxy.STATUS_AVAILABLE)
+    queryset = VotingProxy.objects.filter(
+        status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE)
+    )
     serializer_class = None
 
     def retrieve(self, request, *args, **kwargs):
@@ -118,14 +121,25 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
                 voting_proxy, voting_proxy_request_pks
             )
         except VotingProxyRequest.DoesNotExist:
-            raise Http404
+            voting_proxy_requests = []
 
         return Response(
             {
                 "firstName": voting_proxy.first_name,
                 "requests": [
-                    dict_to_camelcase(voting_proxy_request)
-                    for voting_proxy_request in voting_proxy_requests
+                    {
+                        "id": request.id,
+                        "firstName": request.first_name,
+                        "pollingStationNumber": request.polling_station_number,
+                        "votingDate": dict(VotingProxyRequest.VOTING_DATE_CHOICES)[
+                            request.voting_date
+                        ],
+                        "commune": request.commune.nom if request.commune else None,
+                        "consulate": request.consulate.nom
+                        if request.consulate
+                        else None,
+                    }
+                    for request in voting_proxy_requests
                 ],
             }
         )
@@ -239,3 +253,25 @@ class VotingProxyRequestConfirmAPIView(UpdateAPIView):
         voting_proxy_requests = self.get_voting_proxy_requests(request.data)
         confirm_voting_proxy_requests(voting_proxy_requests)
         return Response(status=status.HTTP_200_OK)
+
+
+class AcceptedVotingProxyRequestListAPIView(ListAPIView):
+    permission_classes = (permissions.AllowAny,)
+    queryset = VotingProxyRequest.objects.filter(
+        status__in=(
+            VotingProxyRequest.STATUS_ACCEPTED,
+            VotingProxyRequest.STATUS_CONFIRMED,
+        ),
+        proxy__isnull=False,
+    )
+    serializer_class = AcceptedVotingProxyRequestSerializer
+
+    def get_queryset(self):
+        pks = self.request.GET.get("vpr", None)
+        if not pks:
+            raise Http404
+        pks = pks.split(",")
+        queryset = self.queryset.filter(pk__in=pks)
+        if not queryset.exists():
+            raise Http404
+        return queryset.order_by("voting_date")

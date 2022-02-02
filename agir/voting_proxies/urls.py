@@ -8,6 +8,7 @@ from agir.voting_proxies.views import (
     ReplyToVotingProxyRequestsAPIView,
     VotingProxyForRequestRetrieveAPIView,
     VotingProxyRequestConfirmAPIView,
+    AcceptedVotingProxyRequestListAPIView,
 )
 
 urlpatterns = [
@@ -20,6 +21,11 @@ urlpatterns = [
         "api/procurations/demande/",
         VotingProxyRequestCreateAPIView.as_view(),
         name="api_create_voting_proxy_request",
+    ),
+    path(
+        "api/procurations/demande/reponse/",
+        AcceptedVotingProxyRequestListAPIView.as_view(),
+        name="api_list_accepted_voting_proxy_requests",
     ),
     path(
         "api/procurations/demande/<uuid:pk>/volontaire/",
