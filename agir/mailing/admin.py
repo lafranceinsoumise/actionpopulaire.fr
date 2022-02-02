@@ -1,15 +1,13 @@
-from django.template.response import TemplateResponse
-from django.urls import reverse
-
-from agir.api import admin_site
 from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.forms import ModelForm, CheckboxSelectMultiple
+from django.template.response import TemplateResponse
+from django.urls import reverse
 from nuntius.admin import CampaignAdmin, CampaignSentEventAdmin
 from nuntius.models import Campaign, CampaignSentEvent
 
-from agir.lib.admin import CenterOnFranceMixin
+from agir.lib.admin.panels import CenterOnFranceMixin
 from agir.mailing.models import Segment
 
 

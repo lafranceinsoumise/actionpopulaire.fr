@@ -13,13 +13,13 @@ from django.utils.translation import gettext_lazy as _
 
 from agir.events.models import Calendar, RSVP
 from agir.groups.models import SupportGroup, Membership
-from agir.lib.admin import (
-    CenterOnFranceMixin,
+from agir.lib.admin.filters import (
+    CountryListFilter,
     DepartementListFilter,
     RegionListFilter,
-    CountryListFilter,
     CirconscriptionLegislativeFilter,
 )
+from agir.lib.admin.panels import CenterOnFranceMixin
 from agir.lib.utils import front_url
 from agir.people.admin.views import FormSubmissionViewsMixin
 from agir.people.models import PersonFormSubmission

@@ -1,33 +1,23 @@
 from functools import partial
 from typing import Iterable
 
-import django_countries
-from data_france.models import CirconscriptionLegislative, CirconscriptionConsulaire
-from django.contrib import admin
 from django.contrib.admin import helpers
-from django.contrib.admin.options import IS_POPUP_VAR, ModelAdmin, BaseModelAdmin
-from django.db.models import Model, Subquery
-from django.db.models.fields.related import (
-    RelatedField,
-    ForeignObject,
-    ManyToManyField,
+from django.contrib.admin.options import IS_POPUP_VAR, BaseModelAdmin
+from django.db.models import (
     ForeignObjectRel,
-    ManyToOneRel,
+    ForeignObject,
     OneToOneRel,
+    ManyToOneRel,
     ManyToManyRel,
+    ManyToManyField,
 )
+from django.db.models.fields.related import RelatedField
 from django.urls import reverse
-from django.utils.html import escape, format_html_join, format_html
+from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic.base import ContextMixin
-
-from agir.lib import data
-from agir.lib.autocomplete_filter import (
-    AutocompleteSelectModelBaseFilter,
-)
-from agir.lib.data import FRANCE_COUNTRY_CODES
 
 
 class CenterOnFranceMixin:
@@ -45,56 +35,6 @@ class DisplayContactPhoneMixin:
 
     display_contact_phone.short_description = _("Numéro de contact")
     display_contact_phone.admin_order_field = "contact_phone"
-
-
-class CountryListFilter(admin.SimpleListFilter):
-    title = "Pays"
-    parameter_name = "location_country"
-    template = "admin/dropdown_filter.html"
-
-    def lookups(self, request, model_admin):
-        return [
-            ("FR_all", "France (outremer compris)"),
-            ("not_FR_all", "Hors France (outremer compris)"),
-        ] + list(django_countries.countries)
-
-    def queryset(self, request, queryset):
-        if self.value() is None:
-            return queryset
-        if self.value() == "FR_all":
-            return queryset.filter(location_country__in=FRANCE_COUNTRY_CODES)
-        if self.value() == "not_FR_all":
-            return queryset.exclude(location_country__in=FRANCE_COUNTRY_CODES)
-        else:
-            return queryset.filter(location_country=self.value())
-
-
-class DepartementListFilter(admin.SimpleListFilter):
-    title = "Département"
-    parameter_name = "departement"
-    template = "admin/dropdown_filter.html"
-
-    def lookups(self, request, model_admin):
-        return data.departements_choices
-
-    def queryset(self, request, queryset):
-        if self.value() is None:
-            return queryset
-        return queryset.filter(data.filtre_departement(self.value()))
-
-
-class RegionListFilter(admin.SimpleListFilter):
-    title = "Région"
-    parameter_name = "region"
-    template = "admin/dropdown_filter.html"
-
-    def lookups(self, request, model_admin):
-        return data.regions_choices
-
-    def queryset(self, request, queryset):
-        if self.value() is None:
-            return queryset
-        return queryset.filter(data.filtre_region(self.value()))
 
 
 class AdminViewMixin(ContextMixin, View):
@@ -168,31 +108,6 @@ class PersonLinkMixin:
         return "Aucune"
 
     person_link.short_description = "Personne"
-
-
-def get_admin_link(instance):
-    return reverse(
-        f"admin:{instance._meta.app_label}_{instance._meta.model_name}_change",
-        args=(instance.pk,),
-    )
-
-
-def display_list_of_links(links):
-    """Retourne une liste de liens à afficher dans l'admin Django
-
-    :param links: un itérateur de tuples (link_target, link_text) ou (model_instance, link_text)
-    :return: le code html de la liste de liens
-    """
-    links = (
-        (
-            get_admin_link(link_or_instance)
-            if isinstance(link_or_instance, Model)
-            else link_or_instance,
-            text,
-        )
-        for link_or_instance, text in links
-    )
-    return format_html_join(mark_safe("<br>"), '<a href="{}">{}</a>', links)
 
 
 class AddRelatedLinkMixin(BaseModelAdmin):
@@ -278,24 +193,3 @@ class AddRelatedLinkMixin(BaseModelAdmin):
             '<a href="{}">{}</a>',
             ((reverse(view_name, args=(obj.pk,)), str(obj)) for obj in qs),
         )
-
-
-class CirconscriptionLegislativeFilter(AutocompleteSelectModelBaseFilter):
-    title = "circonscription législative"
-    filter_model = CirconscriptionLegislative
-    parameter_name = "circo"
-
-    def get_queryset_for_field(self):
-        return CirconscriptionLegislative.objects.exclude(geometry__isnull=True)
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(
-                coordinates__intersects=Subquery(
-                    CirconscriptionLegislative.objects.filter(pk=self.value()).values(
-                        "geometry"
-                    )[:1]
-                )
-            )
-        else:
-            return queryset

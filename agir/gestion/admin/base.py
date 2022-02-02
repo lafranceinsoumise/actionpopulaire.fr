@@ -9,7 +9,8 @@ from agir.gestion.admin.views import (
     TransitionView,
 )
 from agir.gestion.models import Commentaire
-from agir.lib.admin import get_admin_link, AddRelatedLinkMixin
+from agir.lib.admin.panels import AddRelatedLinkMixin
+from agir.lib.admin.utils import get_admin_link
 
 
 class SearchableModelMixin(BaseModelAdmin):
