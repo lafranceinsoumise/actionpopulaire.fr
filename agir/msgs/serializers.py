@@ -169,7 +169,7 @@ class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField(read_only=True)
 
     def to_representation(self, message):
-        self.participants = (
+        self.participants = list(
             Person.objects.filter(
                 Q(
                     id__in=message.supportgroup.memberships.filter(
@@ -177,11 +177,9 @@ class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
                     ).values_list("person_id")
                 )
                 | Q(id=message.author.id)
-            )
-            .annotate(
+            ).annotate(
                 has_commented=Exists(message.comments.filter(author_id=OuterRef("id")))
             )
-            .distinct()
         )
         return super().to_representation(message)
 
