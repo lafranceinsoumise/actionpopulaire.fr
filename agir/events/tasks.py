@@ -753,3 +753,29 @@ def send_refused_group_coorganization_invitation_notification(
         recipients=recipients,
         bindings=bindings,
     )
+
+
+@emailing_task
+def send_event_report_form_reminder_email(event_pk):
+    event = Event.objects.select_related("subtype", "subtype__report_person_form").get(
+        pk=event_pk
+    )
+    bindings = {
+        "EVENT_SUBTYPE": event.subtype.description,
+        "EVENT_DATE": event.local_end_time.strftime("%d %B %Y"),
+        "FORM_NAME": event.subtype.report_person_form.title,
+        "FORM_DESCRIPTION": event.subtype.report_person_form.short_description,
+        "FORM_LINK": front_url(
+            "view_person_form",
+            kwargs={"slug": event.subtype.report_person_form.slug},
+            query={"reported_event_id": str(event_pk)},
+        ),
+    }
+
+    send_mosaico_email(
+        code="EVENT_REPORT_FORM_REMINDER",
+        subject=_(f"Bilan de votre événement {event.name}"),
+        from_email=settings.EMAIL_FROM,
+        recipients=event.organizers.all(),
+        bindings=bindings,
+    )

@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from agir.events.actions.notifications import event_report_form_reminder_notification
 from agir.events.models import Event
+from agir.events.tasks import send_event_report_form_reminder_email
 
 
 class Command(BaseCommand):
@@ -30,6 +31,7 @@ class Command(BaseCommand):
             )
             for event_pk in yesterday_event_pks:
                 event_report_form_reminder_notification(event_pk)
+                send_event_report_form_reminder_email.delay(event_pk)
         else:
             self.stdout.write(
                 f"No form report found for events that ended yesterday ({yesterday})."
