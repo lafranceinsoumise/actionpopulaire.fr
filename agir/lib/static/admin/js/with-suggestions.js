@@ -21,7 +21,6 @@
     const settings = $.extend({}, options);
     return this.pushStack(
       $.map(this, function (element) {
-        console.log(element);
         const $element = $(element);
         const suggestions = $element.data("suggestions");
 

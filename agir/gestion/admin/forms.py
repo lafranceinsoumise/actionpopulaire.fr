@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
 from agir.events.models import Event
-from agir.lib.admin.form_fields import SuggestingTextInput
+from agir.lib.admin.form_fields import SuggestingTextInput, CleavedDateInput
 
 from ..admin.widgets import HierarchicalSelect
 from ..models import (
@@ -177,6 +177,9 @@ class DepenseForm(forms.ModelForm):
         widgets = {
             "type": HierarchicalSelect,
             "nature": SuggestingTextInput(suggestions=NATURE),
+            "date_depense": CleavedDateInput,
+            "date_debut": CleavedDateInput,
+            "date_fin": CleavedDateInput,
         }
 
 
@@ -449,6 +452,7 @@ class ReglementForm(forms.ModelForm):
             "location_zip_fournisseur",
             "location_country_fournisseur",
         )
+        widgets = {"date": CleavedDateInput, "date_releve": CleavedDateInput}
 
 
 class OrdreVirementForm(forms.ModelForm):

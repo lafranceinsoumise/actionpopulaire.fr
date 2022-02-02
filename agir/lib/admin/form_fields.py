@@ -3,7 +3,6 @@ import json
 from django import forms
 from django.conf import settings
 from django.contrib.admin.widgets import SELECT2_TRANSLATIONS
-from django.forms import Textarea
 from django.utils.translation import get_language
 
 
@@ -19,8 +18,10 @@ class SuggestingTextInput(forms.TextInput):
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
-        css_class = (" " + context["widget"]["attrs"].get("class", "")).strip()
-        context["widget"]["attrs"]["class"] = f"with-suggestions{css_class}"
+        css_class = (
+            f'with-suggestions {context["widget"]["attrs"].get("class", "")}'.strip()
+        )
+        context["widget"]["attrs"]["class"] = css_class
 
         return context
 
@@ -44,7 +45,7 @@ class SuggestingTextInput(forms.TextInput):
         )
 
 
-class AdminJsonWidget(Textarea):
+class AdminJsonWidget(forms.Textarea):
     admin = True
     template_name = "custom_fields/admin_json.html"
     schema = None
@@ -60,3 +61,25 @@ class AdminJsonWidget(Textarea):
         context = super().get_context(*args, **kwargs)
         context["widget"]["schema"] = self.schema
         return context
+
+
+class CleavedDateInput(forms.DateInput):
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        css_class = (
+            f'cleaved-date-input {context["widget"]["attrs"].get("class", "")}'.strip()
+        )
+        context["widget"]["attrs"]["class"] = css_class
+        return context
+
+    @property
+    def media(self):
+        extra = "" if settings.DEBUG else ".min"
+
+        return forms.Media(
+            js=(
+                "admin/js/vendor/jquery/jquery%s.js" % extra,
+                "admin/js/vendor/cleave.min.js",
+                "admin/js/cleaved-date-input.js",
+            ),
+        )
