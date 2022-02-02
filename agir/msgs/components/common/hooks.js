@@ -239,7 +239,8 @@ export const useMessageActions = (
   user,
   messageRecipients,
   selectedMessage,
-  onSelectMessage
+  onSelectMessage,
+  mutateComments,
 ) => {
   const shouldDismissAction = useRef(false);
 
@@ -329,16 +330,7 @@ export const useMessageActions = (
           comment
         );
         setIsLoading(false);
-        mutate(
-          `/api/groupes/messages/${selectedMessage.id}/`,
-          (message) => ({
-            ...message,
-            comments: Array.isArray(message.comments)
-              ? [...message.comments, response.data]
-              : [response.data],
-          }),
-          false
-        );
+        mutateComments();
         onSelectMessage(selectedMessage.id);
       } catch (e) {
         setIsLoading(false);
