@@ -1,12 +1,14 @@
 from django.contrib.admin import SimpleListFilter
-from django.db.models import Count, Exists, OuterRef, Prefetch
+from django.db.models import Count, Exists, OuterRef, Subquery, Func
 from django.utils import timezone
 
+from agir.authentication.models import Role
 from agir.elus.models import (
     MandatMunicipal,
     CHAMPS_ELUS_PARRAINAGES,
     RechercheParrainage,
     Scrutin,
+    Autorisation,
 )
 from agir.lib.autocomplete_filter import (
     AutocompleteRelatedModelFilter,
@@ -183,11 +185,36 @@ class TypeEluFilter(SimpleListFilter):
 
 
 class ScrutinFilter(SimpleListFilter):
+    """Filtre les résultats aussi bien pour n'afficher qu'un scrutin et limiter les candidats affichés.
+
+    Ce filtre a un rôle particulièrement important parce qu'il applique aussi les permissions de l'utilisateur
+    pour limiter les scrutins accessibles, et pour chaque scrutin, les candidatures visibles.
+
+    Ce n'est pas l'endroit idéal pour le faire, mais c'est le seul endroit où il est possible de le faire sans
+    multiplier les requêtes. En effet, je ne voyais pas trop d'autre solution pour écrire la requête pour filtrer
+    les circonscriptions visibles sans avoir accès au scrutin sélectionné dans ce filtre, à cause de la clé étrangère
+    générique.
+    """
+
     parameter_name = "scrutin"
     title = "Scrutin"
 
     def lookups(self, request, model_admin):
-        scrutins = list(Scrutin.objects.select_related("circonscription_content_type"))
+        role: Role = request.user
+
+        scrutins = Scrutin.objects.select_related("circonscription_content_type")
+        if role.has_perm("elus.view_candidature"):
+            scrutins = list(scrutins)
+        else:
+            scrutins = list(
+                scrutins.filter(
+                    id__in=Subquery(
+                        Autorisation.objects.filter(groupe__user=role).values(
+                            "scrutin_id"
+                        )
+                    )
+                )
+            )
 
         if not scrutins:
             self.default_id = None
@@ -215,7 +242,33 @@ class ScrutinFilter(SimpleListFilter):
             return queryset.none()
 
         content_type = self.content_types[id]
-        return queryset.filter(scrutin_id=id).prefetch_related("circonscription")
+        circonscription_qs = content_type.model_class()._default_manager.all()
+        role: Role = request.user
+
+        qs = queryset.filter(scrutin_id=id).annotate(
+            code_circonscription=Subquery(
+                circonscription_qs.filter(
+                    id=OuterRef("circonscription_object_id")
+                ).values("code")[:1]
+            ),
+        )
+
+        # dans le cas où l'utilisateur n'a pas de permission générique pour voir les candidatures, on trie le queryset
+        # pour n'inclure que celles dans des circonscriptions qui le concernent, désignées via des autorisations.
+        if not role.has_perm("elus.view_candidatures"):
+            qs = qs.annotate(
+                autorisation=Exists(
+                    Autorisation.objects.filter(
+                        groupe__user=role,
+                        scrutin_id=id,
+                        prefixes__overlap=Func(
+                            OuterRef("code_circonscription"), function="prefixes_array"
+                        ),
+                    )
+                ),
+            ).filter(autorisation=True)
+
+        return qs
 
     def choices(self, changelist):
         it = super().choices(changelist)

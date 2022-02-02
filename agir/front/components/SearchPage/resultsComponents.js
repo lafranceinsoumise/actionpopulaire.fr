@@ -18,25 +18,42 @@ const StyledGroupsDesktop = styled.div`
 
   > div {
     width: 100%;
-    max-width: 310px;
+    flex-basis: 310px;
     margin-bottom: 10px;
   }
 `;
 
+const CarrouselContainer = styled.div`
+  margin-left: -12px;
+  margin-right: -12px;
+`;
+
 const GroupsDesktop = ({ groups }) => (
   <StyledGroupsDesktop>
-    {groups.map((group) => (
+    {groups?.map((group) => (
       <div key={group.id}>
         <GroupSuggestionCard {...group} />
       </div>
     ))}
   </StyledGroupsDesktop>
 );
+GroupsDesktop.PropTypes = {
+  groups: PropTypes.array,
+};
+
+const GroupsMobile = ({ groups }) => (
+  <CarrouselContainer>
+    <GroupSuggestionCarousel groups={groups} />
+  </CarrouselContainer>
+);
+GroupsMobile.PropTypes = {
+  groups: PropTypes.array,
+};
 
 export const GroupList = ({ groups }) => (
   <div>
     <ResponsiveLayout
-      MobileLayout={GroupSuggestionCarousel}
+      MobileLayout={GroupsMobile}
       DesktopLayout={GroupsDesktop}
       groups={groups}
     />
@@ -46,28 +63,55 @@ GroupList.PropTypes = {
   groups: PropTypes.array,
 };
 
-export const EventList = ({ events }) => (
+const EventItem = ({ event }) => (
   <>
-    {events.map((event) => {
-      return (
-        <>
-          <EventCard
-            key={event.id}
-            {...event}
-            schedule={Interval.fromISO(`${event.startTime}/${event.endTime}`)}
-          />
-          <Spacer size="1rem" />
-        </>
-      );
-    })}
+    <EventCard {...event} />
+    <Spacer size="1rem" />
   </>
 );
+EventItem.PropTypes = {
+  event: PropTypes.object,
+};
+
+export const EventList = ({ events }) => {
+  const pastEvents = [];
+  const futureEvents = [];
+  events.map((event) => {
+    event = {
+      ...event,
+      schedule: Interval.fromISO(`${event.startTime}/${event.endTime}`),
+    };
+    if (new Date() > new Date(event.endTime)) {
+      pastEvents.push(event);
+    } else {
+      futureEvents.push(event);
+    }
+  });
+
+  return (
+    <>
+      {!!futureEvents?.length && (
+        <h3 style={{ textAlign: "right" }}>Evénements à venir</h3>
+      )}
+      {futureEvents.map((event) => (
+        <EventItem key={event.id} event={event} />
+      ))}
+
+      {!!pastEvents?.length && (
+        <h3 style={{ textAlign: "right" }}>Evénements passés</h3>
+      )}
+      {pastEvents.map((event) => (
+        <EventItem key={event.id} event={event} />
+      ))}
+    </>
+  );
+};
 EventList.PropTypes = {
   events: PropTypes.array,
 };
 
 export const ListTitle = ({ name, list, isShowMore, onShowMore }) => {
-  if (!list.length) {
+  if (!list?.length) {
     return null;
   }
 
@@ -89,4 +133,20 @@ ListTitle.PropTypes = {
   name: PropTypes.string,
   onShowMore: PropTypes.func,
   isShowMore: PropTypes.bool,
+};
+
+export const NoResults = ({ name, list }) => {
+  if (!Array.isArray(list) || !!list.length) {
+    return null;
+  }
+  return (
+    <>
+      <Spacer size="1rem" />
+      Aucun {name} n'est lié à cette recherche
+    </>
+  );
+};
+NoResults.PropTypes = {
+  list: PropTypes.array,
+  name: PropTypes.string,
 };

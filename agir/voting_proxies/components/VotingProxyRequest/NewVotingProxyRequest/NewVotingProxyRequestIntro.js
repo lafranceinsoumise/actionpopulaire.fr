@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 const NewVotingProxyRequestIntro = () => (
@@ -10,7 +11,7 @@ const NewVotingProxyRequestIntro = () => (
         color: ${(props) => props.theme.primary500};
       `}
     >
-      Donner ma procuration
+      Permettre à une personne de voter à ma place
     </h2>
     <Spacer size="1rem" />
     <p>
@@ -30,6 +31,16 @@ const NewVotingProxyRequestIntro = () => (
       Sinon, remplissez ce formulaire et nous vous mettrons en relation avec
       un·e volontaire disponible pour porter votre procuration et voter à votre
       place.
+    </p>
+    <Spacer size="1rem" />
+    <p>
+      <em>
+        Disponible un jour de vote&nbsp;?{" "}
+        <Link route="newVotingProxy">
+          Je suis volontaire pour prendre une procuration
+        </Link>
+        .
+      </em>
     </p>
     <Spacer size="1rem" />
     <p

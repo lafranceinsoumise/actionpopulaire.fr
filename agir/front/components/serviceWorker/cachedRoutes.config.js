@@ -14,7 +14,10 @@ const config = [
   "/api/evenements/suggestions/",
   "/api/evenements/mes-groupes/",
   "/api/evenements/organises/",
+  "/api/evenements/grands-evenements/",
+
   new RegExp(".+/api/evenements/[0-9a-f-]+/$"),
+  new RegExp(".+/api/evenements/[0-9a-f-]+/details/$"),
 
   "/api/groupes/",
   new RegExp("/api/groupes/[0-9a-f-]+/$"),
@@ -22,6 +25,8 @@ const config = [
   new RegExp("/api/groupes/[0-9a-f-]+/evenements/a-venir/$"),
   new RegExp("/api/groupes/[0-9a-f-]+/evenements/passes/$"),
   new RegExp("/api/groupes/[0-9a-f-]+/messages/$"),
+
+  new RegExp("/api/announcement/custom/.+/$"),
 ];
 
 export default config;

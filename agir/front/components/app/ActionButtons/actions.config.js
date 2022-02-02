@@ -77,6 +77,13 @@ const ACTIONS = {
     icon: "pen-tool",
     color: style.referralPink,
   },
+  votingProxy: {
+    key: "votingProxy",
+    route: "newVotingProxy",
+    label: ["Procuration", "Prendre une procuration"],
+    icon: "edit-3",
+    color: style.votingProxyOrange,
+  },
   actionTools: {
     key: "actionTools",
     route: "actionTools",
@@ -102,6 +109,7 @@ const DEFAULT_ACTION_ORDER = [
   "materiel",
   "createContact",
   "referralSearch",
+  "votingProxy",
   "actionTools",
 ];
 const GROUP_MANAGER_ACTION_ORDER = [
@@ -112,13 +120,14 @@ const GROUP_MANAGER_ACTION_ORDER = [
   "donations",
   "referralSearch",
   "groups",
+  "votingProxy",
   "actionTools",
 ];
 
 export const getActionsForUser = (user) => {
   let actions = DEFAULT_ACTION_ORDER;
 
-  if (user && user.isGroupManager) {
+  if (!!user?.groups?.some((group) => group.isManager)) {
     actions = GROUP_MANAGER_ACTION_ORDER;
   }
 

@@ -99,6 +99,14 @@ class EventQuerySet(models.QuerySet):
             )
         )
 
+    def with_organizer_groups(self):
+        return self.prefetch_related(
+            Prefetch(
+                "organizers_groups",
+                to_attr="_pf_organizer_groups",
+            )
+        )
+
     def with_person_rsvps(self, person):
         return self.prefetch_related(
             Prefetch(
@@ -112,7 +120,7 @@ class EventQuerySet(models.QuerySet):
         return self.annotate(
             static_map_image=Subquery(
                 StaticMapImage.objects.filter(
-                    center__distance_lt=(
+                    center__dwithin=(
                         OuterRef("coordinates"),
                         StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
                     ),
@@ -122,8 +130,11 @@ class EventQuerySet(models.QuerySet):
 
     def with_serializer_prefetch(self, person):
         return (
-            self.with_person_rsvps(person)
+            self.select_related("subtype")
+            .prefetch_related("organizer_configs")
+            .with_person_rsvps(person)
             .with_person_organizer_configs(person)
+            .with_organizer_groups()
             .with_static_map_image()
         )
 
@@ -221,6 +232,9 @@ class EventQuerySet(models.QuerySet):
 
     def national(self):
         return self.filter(calendars__slug="national")
+
+    def grand(self):
+        return self.filter(calendars__slug="grands-evenements")
 
     def for_segment_subscriber(self, person):
         segmented_events = self.exclude(suggestion_segment__isnull=True)
@@ -504,6 +518,16 @@ class Event(
         null=True,
         blank=True,
         help_text=("Segment des personnes auquel cet événement sera suggéré."),
+    )
+
+    attendant_notice = models.TextField(
+        "Note pour les participants",
+        null=False,
+        blank=True,
+        default="",
+        help_text=(
+            "Note montrée aux participants à un événements et est envoyé dans l'e-mail de confirmation de participation"
+        ),
     )
 
     class Meta:

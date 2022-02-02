@@ -138,7 +138,7 @@ const VotingProxyRequestForm = (props) => {
       onSubmit={handleSubmit}
       isLoading={isLoading}
       disabled={!hasDataAgreement || isLoading}
-      title="donner ma procuration"
+      title="Voter par procuration"
       step={formStep}
       goToPrevious={goToPreviousFormStep}
       goToNext={goToNextFormStep}

@@ -10,11 +10,13 @@ export const EVENT_TYPES = {
 };
 
 const ENDPOINT = {
+  rsvpedEvents: "/api/evenements/rsvped/",
   nearEvents: "/api/evenements/suggestions/",
   groupEvents: "/api/evenements/mes-groupes/",
   ongoingEvents: "/api/evenements/rsvped/en-cours/",
   pastEvents: "/api/evenements/rsvped/passes/",
   organizedEvents: "/api/evenements/organises/",
+  grandEvents: "/api/evenements/grands-evenements/",
 };
 
 export const getAgendaEndpoint = (key, params) => {

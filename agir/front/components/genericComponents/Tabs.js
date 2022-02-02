@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useMemo, useState } from "react";
 import { useSpring, animated } from "@react-spring/web";
-import { useDrag } from "react-use-gesture";
+import { useDrag } from "@use-gesture/react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -23,8 +23,8 @@ const StyledMenu = styled.nav`
   overflow-x: overlay;
   overflow-y: hidden;
 
-  ${({ isBorder }) =>
-    isBorder &&
+  ${({ noBorder }) =>
+    noBorder &&
     `
     box-shadow: 0px 0px 0px rgba(0, 35, 44, 0.1), 0px 2px 1px rgba(0, 35, 44, 0.08);
     border-top: 0;
@@ -74,11 +74,8 @@ const useTabs = (props) => {
   const handleClick = useCallback(
     (e) => {
       const index = e.target.dataset.index;
-      if (isControlled) {
-        onTabChange && onTabChange(tabs[index]);
-      } else {
-        setActiveIndex(index);
-      }
+      onTabChange && onTabChange(tabs[index]);
+      setActiveIndex(index);
     },
     [tabs, onTabChange, isControlled]
   );
@@ -114,10 +111,16 @@ const useTabs = (props) => {
 };
 
 export const Tabs = (props) => {
-  const { children, tabs, stickyOffset, isBorder } = props;
+  const {
+    children,
+    tabs,
+    stickyOffset,
+    activeIndex = 0,
+    onTabChange,
+    noBorder,
+  } = props;
 
-  const { active, activeIndex, handleClick, handleNext, handlePrev } =
-    useTabs(props);
+  const active = tabs[activeIndex];
 
   const ActiveStep = useMemo(() => {
     return (Array.isArray(children) && children[activeIndex]) || null;
@@ -139,19 +142,19 @@ export const Tabs = (props) => {
         x <= 0 ? handleNext() : handlePrev();
       }
     },
-    { axis: "x", lockDirection: true }
+    { axis: "lock" }
   );
 
   return (
     <>
-      <StyledMenu $stickyOffset={stickyOffset} isBorder={isBorder}>
+      <StyledMenu $stickyOffset={stickyOffset} noBorder={noBorder}>
         {tabs.map((tab, i) => (
           <button
             key={tab.id}
             disabled={active.id === tab.id}
             data-index={i}
             data-active={active.id === tab.id || undefined}
-            onClick={handleClick}
+            onClick={() => onTabChange(tab.id)}
           >
             {tab.label}
           </button>

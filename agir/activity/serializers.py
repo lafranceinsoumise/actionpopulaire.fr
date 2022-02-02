@@ -63,24 +63,8 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
 
     timestamp = serializers.DateTimeField(read_only=True)
 
-    event = EventListSerializer(
-        fields=[
-            "id",
-            "name",
-            "startTime",
-            "endTime",
-            "illustration",
-            "schedule",
-            "location",
-            "rsvp",
-            "routes",
-            "subtype",
-        ],
-        read_only=True,
-    )
-    supportGroup = ActivitySupportGroupSerializer(
-        source="supportgroup", fields=["id", "name", "url", "routes"], read_only=True
-    )
+    event = serializers.SerializerMethodField(read_only=True)
+    group = serializers.SerializerMethodField(read_only=True)
     individual = PersonSerializer(fields=["displayName", "gender"], read_only=True)
 
     status = serializers.CharField(required=False)
@@ -88,6 +72,18 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
         source="push_status", write_only=True, required=False
     )
     announcement = AnnouncementSerializer(read_only=True)
+
+    def get_group(self, instance):
+        if instance.supportgroup is not None:
+            return {"id": instance.supportgroup.id, "name": instance.supportgroup.name}
+
+    def get_event(self, instance):
+        if instance.event is not None:
+            return {
+                "id": instance.event.id,
+                "name": instance.event.name,
+                "startTime": instance.event.start_time,
+            }
 
     class Meta:
         model = Activity
@@ -97,7 +93,7 @@ class ActivitySerializer(FlexibleFieldsMixin, serializers.ModelSerializer):
             "type",
             "timestamp",
             "event",
-            "supportGroup",
+            "group",
             "individual",
             "status",
             "pushStatus",

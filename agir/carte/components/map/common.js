@@ -96,13 +96,13 @@ export function setUpPopup(map) {
   });
 }
 
-const MARKER_ICONS = [
+const getMarkerIcons = (color = style.primary500) => [
   new Style({
     image: new Icon({
       opacity: 1,
       src: markerIcon,
       imgSize: [40, 44],
-      color: style.primary500,
+      color,
       scale: 0.75,
       anchor: [0.5, 1],
     }),
@@ -123,7 +123,7 @@ export function makeStyle(config, options = {}) {
 
   if (config.color && config.iconName) {
     return [
-      ...MARKER_ICONS,
+      ...getMarkerIcons(options.color ? config.color : style.primary500),
       new Style({
         text: new Text({
           offsetY: -21,
@@ -154,7 +154,7 @@ export function makeStyle(config, options = {}) {
 export function createMap(center, zoom, target, iconConfiguration, isStatic) {
   const styles = iconConfiguration
     ? makeStyle(iconConfiguration)
-    : MARKER_ICONS;
+    : getMarkerIcons();
   const feature = new Feature({
     geometry: new Point(fromLonLat(center)),
   });

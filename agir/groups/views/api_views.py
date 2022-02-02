@@ -50,10 +50,10 @@ from agir.groups.serializers import (
     SupportGroupExternalLinkSerializer,
     MemberPersonalInformationSerializer,
 )
-from agir.msgs.serializers import SupportGroupMessageParticipantSerializer
 from agir.lib.pagination import APIPaginator
 from agir.lib.utils import front_url
 from agir.msgs.actions import update_recipient_message
+from agir.msgs.serializers import SupportGroupMessageParticipantSerializer
 from agir.people.models import Person
 
 __all__ = [
@@ -239,11 +239,13 @@ class GroupEventsAPIView(ListAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
+        person = None
+        if self.request.user.is_authenticated and self.request.user.person is not None:
+            person = self.request.user.person
         events = (
-            self.supportgroup.organized_events.listed()
-            .distinct()
+            self.supportgroup.organized_events.with_serializer_prefetch(person)
+            .listed()
             .order_by("-start_time")
-            .select_related("subtype")
         )
         return events
 
@@ -268,13 +270,16 @@ class GroupUpcomingEventsAPIView(ListAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
+        person = None
+        if self.request.user.is_authenticated and self.request.user.person is not None:
+            person = self.request.user.person
         events = (
-            self.supportgroup.organized_events.listed()
+            self.supportgroup.organized_events.with_serializer_prefetch(person)
+            .listed()
             .upcoming()
-            .distinct()
             .order_by("start_time")
-            .select_related("subtype")
         )
+
         return events
 
     def get_serializer(self, *args, **kwargs):
@@ -308,12 +313,14 @@ class GroupPastEventsAPIView(ListAPIView):
         )
 
     def get_queryset(self):
+        person = None
+        if self.request.user.is_authenticated and self.request.user.person is not None:
+            person = self.request.user.person
         events = (
-            self.supportgroup.organized_events.listed()
+            self.supportgroup.organized_events.with_serializer_prefetch(person)
+            .listed()
             .past()
-            .distinct()
             .order_by("-start_time")
-            .select_related("subtype")
         )
         return events
 
@@ -333,13 +340,15 @@ class GroupPastEventReportsAPIView(ListAPIView):
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
+        person = None
+        if self.request.user.is_authenticated and self.request.user.person is not None:
+            person = self.request.user.person
         events = (
-            self.supportgroup.organized_events.listed()
+            self.supportgroup.organized_events.with_serializer_prefetch(person)
+            .listed()
             .past()
             .exclude(report_content="")
-            .distinct()
             .order_by("-start_time")
-            .select_related("subtype")
         )
         return events
 
@@ -497,7 +506,7 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
 class GroupMessageParticipantsAPIView(RetrieveAPIView):
     serializer_class = SupportGroupMessageParticipantSerializer
     permission_classes = (GroupMessagesPermissions,)
-    queryset = SupportGroupMessage.objects.all().select_related("supportgroup")
+    queryset = SupportGroupMessage.objects.active()
 
 
 class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):

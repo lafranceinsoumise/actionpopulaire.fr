@@ -16,7 +16,6 @@ from agir.payments.model_fields import AmountField
 from agir.payments.models import Subscription, Payment
 from agir.people.models import Person
 
-
 __all__ = ["Segment"]
 
 
@@ -495,7 +494,26 @@ class Segment(BaseSegment, models.Model):
         )
 
     def is_subscriber(self, person):
-        return self.get_subscribers_queryset().filter(pk=person.pk).exists()
+        qs = Person.objects.filter(pk=person.pk)
+        if self.elu:
+            qs = qs.annotate_elus()
+
+        qs = qs.filter(self.get_subscribers_q())
+        is_subscriber = qs.exists()
+
+        if not is_subscriber:
+            for segment in self.add_segments.all():
+                if segment.is_subscriber(person):
+                    is_subscriber = True
+                    break
+
+        if is_subscriber:
+            for segment in self.exclude_segments.all():
+                if segment.is_subscriber(person):
+                    is_subscriber = False
+                    break
+
+        return is_subscriber
 
     get_subscribers_count.short_description = "Personnes"
     get_subscribers_count.help_text = "Estimation du nombre d'inscrits"

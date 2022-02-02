@@ -154,6 +154,14 @@ class RechercheParrainage(TimeStampedModel):
         "l'indiqueriez sur une enveloppe.",
     )
 
+    parrainage = models.CharField(
+        verbose_name="Parrainage effectif en 2022",
+        blank=True,
+        editable=False,
+        max_length=250,
+        help_text="Si l'élu a déjà envoyé son parrainage au Conseil Constitutionnel, pour qui l'a-t-il fait ?",
+    )
+
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)
 
     def validate_unique(self, exclude=None):

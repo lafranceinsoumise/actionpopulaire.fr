@@ -28,6 +28,7 @@ import {
 } from "@agir/front/globalContext/reducers";
 import logger from "@agir/lib/utils/logger";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getAgendaEndpoint } from "./api.js";
 
 const log = logger(__filename);
 
@@ -93,9 +94,12 @@ const Agenda = () => {
     return !user;
   }, [user]);
 
-  const { data: rsvped } = useSWR(!isDesktop && "/api/evenements/rsvped/", {
-    isPaused,
-  });
+  const { data: rsvped } = useSWR(
+    !isDesktop && getAgendaEndpoint("rsvpedEvents"),
+    {
+      isPaused,
+    }
+  );
   log.debug("Rsvped events ", rsvped);
 
   const rsvpedEvents = useMemo(

@@ -38,7 +38,10 @@ from agir.lib.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.utils import generate_token_params, front_url
 from agir.mailing.models import Segment
 from agir.people.actions.stats import get_statistics_for_queryset
-from agir.people.admin.actions import export_people_to_csv
+from agir.people.admin.actions import (
+    export_people_to_csv,
+    unsubscribe_from_all_newsletters,
+)
 from agir.people.admin.forms import PersonAdminForm, PersonFormForm
 from agir.people.admin.inlines import RSVPInline, MembershipInline, EmailInline
 from agir.people.admin.views import (
@@ -113,25 +116,27 @@ class TagListFilter(AutocompleteRelatedModelFilter):
 
 
 class AnimateMoreThanOneGroup(admin.SimpleListFilter):
-    title = "Cette personne anime plus d'un groupe d'action"
-    parameter_name = "Person who animate more than one group"
+    title = "cette personne anime plus d'un groupe d'action"
+    parameter_name = "two_or_more_groups"
 
     def lookups(self, request, model_admin):
         return (
-            ("animate_more_than_one_group", "Anime plus d'un groupe"),
+            (Membership.MEMBERSHIP_TYPE_MANAGER, "Gère ou anime plus d'un groupe"),
+            (Membership.MEMBERSHIP_TYPE_REFERENT, "Anime plus d'un groupe"),
             ("", ""),
         )
 
     def queryset(self, request, queryset):
-        if self.value() == "animate_more_than_one_group":
+        if self.value():
             return queryset.annotate(
-                animated_groups=Count(
+                group_count=Count(
                     "memberships",
                     filter=Q(
-                        memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
+                        memberships__supportgroup__published=True,
+                        memberships__membership_type__gte=self.value(),
                     ),
                 )
-            ).filter(animated_groups__gt=1)
+            ).filter(group_count__gt=1)
 
 
 @admin.register(Person)
@@ -172,6 +177,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             {
                 "fields": (
                     "newsletters",
+                    "unsubscribe_from_all_newsletters",
                     "subscribed_sms",
                     "campaigns_link",
                 )
@@ -212,6 +218,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "last_login",
         "role_link",
         "role_totp_link",
+        "unsubscribe_from_all_newsletters",
         "campaigns_link",
         "supportgroups",
         "events",
@@ -286,6 +293,17 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
     role_totp_link.short_description = _(
         "Lien vers les téléphones Authenticator enregistrés"
     )
+
+    def unsubscribe_from_all_newsletters(self, obj):
+        return format_html(
+            '<a href="{}" class="button">Désinscrire de tous les envois d\'e-mails et de notifications push</a>',
+            reverse(
+                "admin:people_person_unsubscribe_from_all_newsletters",
+                kwargs={"pk": str(obj.pk)},
+            ),
+        )
+
+    unsubscribe_from_all_newsletters.short_description = "Désinscription"
 
     def campaigns_link(self, obj):
         return format_html(
@@ -393,6 +411,11 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
                 self.statistics_view,
                 name="people_person_statistics",
             ),
+            path(
+                "<uuid:pk>/unsubscribe-from-all-newsletters/",
+                self.unsubscribe_from_all_newsletter_view,
+                name="people_person_unsubscribe_from_all_newsletters",
+            ),
         ] + super().get_urls()
 
     def invalidate_link_view(self, request, pk):
@@ -462,6 +485,19 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
             "admin/people/person/statistics.html",
             context,
         )
+
+    def unsubscribe_from_all_newsletter_view(self, request, pk):
+        person = get_object_or_404(Person, pk=pk)
+
+        unsubscribe_from_all_newsletters(person)
+
+        messages.add_message(
+            request=request,
+            level=messages.SUCCESS,
+            message="Cette personne a été désinscrite de tous les envois d'emails et de notifications push",
+        )
+
+        return HttpResponseRedirect(reverse("admin:people_person_change", args=(pk,)))
 
     def has_view_permission(self, request, obj=None):
         return super().has_view_permission(request, obj) or (

@@ -26,7 +26,6 @@ import NotificationSettingLink from "@agir/notifications/NotificationSettings/No
 import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
 
 import ActivityCard from "./ActivityCard";
-import ActivityMergerAnnouncement from "./ActivityMergerAnnouncement";
 import EmptyActivityList from "./EmptyActivityList";
 
 export const StyledList = styled.ul``;
@@ -95,7 +94,6 @@ const ActivityList = () => {
           <div>
             {activities.length > 0 ? (
               <StyledList type="activities">
-                <ActivityMergerAnnouncement />
                 {activities.map((activity, i) => (
                   <li
                     key={activity.id}

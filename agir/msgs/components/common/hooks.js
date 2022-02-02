@@ -11,29 +11,42 @@ import { routeConfig } from "@agir/front/app/routes.config";
 import { setBackLink } from "@agir/front/globalContext/actions";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 
+import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
+
+const MESSAGES_PAGE_SIZE = 10;
+
 export const useUnreadMessageCount = () => {
   const [isReady] = useTimeout(3000);
-  const { data: session } = useSWR("/api/session/");
-  const ready = isReady() && session?.user;
-  const { data } = useSWR(ready && "/api/user/messages/unread_count/", {
-    refreshInterval: 10000,
-    dedupingInterval: 10000,
-    focusThrottleInterval: 10000,
-    shouldRetryOnError: false,
-    revalidateIfStale: false,
-  });
+  const { data: session } = useSWR(
+    "/api/session/",
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
+  const { data } = useSWR(
+    isReady() && session?.user && "/api/user/messages/unread_count/",
+    {
+      refreshInterval: 10000,
+      dedupingInterval: 10000,
+      focusThrottleInterval: 10000,
+      shouldRetryOnError: false,
+      revalidateIfStale: false,
+    }
+  );
 
   return data?.unreadMessageCount && !isNaN(parseInt(data.unreadMessageCount))
     ? parseInt(data.unreadMessageCount)
     : 0;
 };
 
-const MESSAGES_LIST_SIZE = 10;
-
 export const useMessageSWR = (messagePk, selectMessage) => {
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
   const isAutoRefreshPausedRef = useRef(false);
-  const { data: session } = useSWR("/api/session/");
+
+  const { data: session } = useSWR(
+    "/api/session/",
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
+  const user = session?.user;
 
   const {
     data,
@@ -44,7 +57,24 @@ export const useMessageSWR = (messagePk, selectMessage) => {
     setSize,
   } = useSWRInfinite(
     (index) =>
-      `/api/user/messages/?page=${index + 1}&page_size=${MESSAGES_LIST_SIZE}`
+      user &&
+      `/api/user/messages/?page=${index + 1}&page_size=${MESSAGES_PAGE_SIZE}`,
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
+  const { data: messageRecipients } = useSWR(
+    data && "/api/user/messages/recipients/",
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
+  const {
+    data: currentMessage,
+    error,
+    isValidating,
+    mutate: mutateMessage,
+  } = useSWR(
+    data && messagePk && uuidValidate(messagePk)
+      ? `/api/groupes/messages/${messagePk}/`
+      : null,
+    MANUAL_REVALIDATION_SWR_CONFIG
   );
 
   const messages = useMemo(() => {
@@ -75,25 +105,12 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   const isReachingEnd =
     isEmpty ||
     messages.length === messageCount ||
-    (data && data[data.length - 1]?.results?.length < MESSAGES_LIST_SIZE);
+    (data && data[data.length - 1]?.results?.length < MESSAGES_PAGE_SIZE);
   const isRefreshing = isValidatingMessages && data && data.length === size;
+  const currentMessageId = currentMessage?.id;
 
   const loadMore = useCallback(() => setSize(size + 1), [setSize, size]);
 
-  const { data: messageRecipients } = useSWR("/api/user/messages/recipients/");
-  const {
-    data: currentMessage,
-    error,
-    isValidating,
-    mutate: mutateMessage,
-  } = useSWR(
-    messagePk && uuidValidate(messagePk)
-      ? `/api/groupes/messages/${messagePk}/`
-      : null
-  );
-  const { pathname } = useLocation();
-
-  const currentMessageId = currentMessage?.id;
   useEffect(() => {
     dispatch(
       setBackLink(
@@ -118,7 +135,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   }, [error, isValidating, selectMessage]);
 
   useEffect(() => {
-    if (isValidating || !messages || !currentMessage) {
+    if (isValidating || !Array.isArray(messages) || !currentMessage) {
       return;
     }
     const updatedMessage = messages.find((m) => m.id === currentMessage.id);
@@ -132,7 +149,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   }, [isValidating, messages, currentMessage, mutateMessage]);
 
   return {
-    user: session?.user,
+    user,
     messages,
     errorMessages,
     isLoadingInitialData,

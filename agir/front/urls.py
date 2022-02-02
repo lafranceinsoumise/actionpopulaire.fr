@@ -220,6 +220,16 @@ urlpatterns = [
         name="search",
     ),
     path(
+        "recherche/evenements/",
+        views.SearchView.as_view(),
+        name="search_events",
+    ),
+    path(
+        "recherche/groupes/",
+        views.SearchView.as_view(),
+        name="search_groups",
+    ),
+    path(
         "api/recherche/",
         api_views.SearchSupportGroupsAndEventsAPIView.as_view(),
         name="api_search_supportgroup_and_events",

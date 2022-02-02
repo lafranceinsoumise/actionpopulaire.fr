@@ -1,5 +1,6 @@
 import React from "react";
 
+import Link from "@agir/front/app/Link";
 import Spacer from "@agir/front/genericComponents/Spacer";
 
 const NewVotingProxyHowTo = () => (
@@ -34,6 +35,16 @@ const NewVotingProxyHowTo = () => (
         bureau de vote
       </li>
     </ol>
+    <Spacer size="1rem" />
+    <p>
+      <em>
+        Vous ne vous pouvez pas vous déplacer le 10 et/ou 24 avril&nbsp;?{" "}
+        <Link route="newVotingProxyRequest">
+          Permettez à quelqu'un de voter à votre place
+        </Link>
+        .
+      </em>
+    </p>
     <Spacer size="1rem" />
     <p
       css={`

@@ -122,6 +122,7 @@ class HomepageView(BaseAppCachedView):
     def get_api_preloads(self):
         if self.request.user.is_authenticated and self.request.user.person:
             return [
+                reverse_lazy("api_grand_events"),
                 reverse_lazy("api_event_rsvped"),
                 reverse_lazy("api_event_suggestions"),
             ]
@@ -133,7 +134,8 @@ class UserSupportGroupsView(BaseAppSoftAuthView):
 
 
 class UserMessagesView(BaseAppHardAuthView):
-    api_preloads = [reverse_lazy("api_user_messages")]
+    def get_api_preloads(self):
+        return [f"{reverse_lazy('api_user_messages')}?page=1&page_size=10"]
 
 
 class UserMessageView(
@@ -177,7 +179,7 @@ class EventDetailView(
     meta_description = "Participez et organisez des événements pour soutenir la candidature de Jean-Luc Mélenchon pour 2022"
 
     def get_api_preloads(self):
-        return [reverse_lazy("api_event_view", kwargs=self.kwargs)]
+        return [reverse_lazy("api_event_details", kwargs=self.kwargs)]
 
     def get_meta_image(self):
         return self.object.get_meta_image()
@@ -192,7 +194,7 @@ class EventProjectView(HardLoginRequiredMixin, EventDetailView):
 
     def get_api_preloads(self):
         return [
-            reverse_lazy("api_event_view", kwargs=self.kwargs),
+            reverse_lazy("api_event_details", kwargs=self.kwargs),
             reverse_lazy("api_event_project", kwargs={"event_id": self.kwargs["pk"]}),
         ]
 

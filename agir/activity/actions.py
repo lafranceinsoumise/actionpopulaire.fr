@@ -10,24 +10,15 @@ from django.db.models import (
 )
 from django.utils import timezone
 
-from .models import Activity, Announcement
-from ..events.models import Event
-
 from agir.activity.models import Activity
+from .models import Announcement
+from ..events.models import Event
 
 
 def get_activities(person):
     activities = (
         Activity.objects.displayed()
-        .select_related("supportgroup", "individual", "announcement")
-        .prefetch_related(
-            Prefetch(
-                "event",
-                Event.objects.with_serializer_prefetch(person).select_related(
-                    "subtype"
-                ),
-            )
-        )
+        .select_related("supportgroup", "individual", "announcement", "event")
         .filter(recipient=person)
         .exclude(supportgroup__isnull=False, supportgroup__published=False)
         .exclude(~Q(event__visibility=Event.VISIBILITY_PUBLIC), event__isnull=False)
@@ -54,54 +45,52 @@ def get_activities(person):
     return activities
 
 
-def get_announcements(person=None):
+def get_announcements(person=None, custom_display=None):
     today = timezone.now()
     cond = Q(start_date__lt=today) & (Q(end_date__isnull=True) | Q(end_date__gt=today))
+
+    if custom_display is not None:
+        cond = Q(custom_display__exact=custom_display) & cond
 
     # Les annonces sont affichés :
     # - avec les plus grandes priorités d'abord
     # - à priorité égale, les plus récentes d'abord
     # - à priorité et date de début égales, celles qui disparaitront les premières d'abord
-    announcements = (
-        Announcement.objects.filter(cond)
-        .select_related("segment")
-        .order_by("-priority", "-start_date", "end_date")
+    announcements = Announcement.objects.filter(cond).order_by(
+        "-priority", "-start_date", "end_date"
     )
 
     if person:
-        announcements = (
-            announcements.filter(
-                pk__in=[
-                    a.pk
-                    for a in announcements
-                    if a.segment is None
-                    or a.segment.get_subscribers_queryset()
-                    .filter(pk=person.id)
-                    .exists()
-                ]
-            )
-            .annotate(
-                activity_id=Subquery(
-                    Activity.objects.filter(
-                        recipient=person, announcement_id=OuterRef("id")
-                    ).values("id")[:1]
-                ),
-            )
-            .distinct()
-        )
         # Automatically create an activity for the person if none exists for the announcement
-        Activity.objects.bulk_create(
-            [
-                Activity(
-                    type=Activity.TYPE_ANNOUNCEMENT,
-                    recipient=person,
-                    announcement=announcement,
-                )
-                for announcement in announcements
-                if announcement.activity_id is None
-            ],
-            ignore_conflicts=True,
+        announcements_pks = [
+            announcement.pk
+            for announcement in announcements.select_related(
+                "segment"
+            ).prefetch_related("segment__add_segments", "segment__exclude_segments")
+            if announcement.segment is None
+            or announcement.segment.is_subscriber(person)
+        ]
+
+        announcements = announcements.filter(pk__in=announcements_pks).annotate(
+            activity_id=Subquery(
+                Activity.objects.filter(
+                    recipient_id=person.id, announcement_id=OuterRef("id")
+                ).values("id")[:1]
+            ),
         )
+
+        activities = [
+            Activity(
+                type=Activity.TYPE_ANNOUNCEMENT,
+                recipient_id=person.id,
+                announcement_id=announcement_pk,
+            )
+            for announcement_pk in announcements.filter(
+                activity_id__isnull=True
+            ).values_list("pk", flat=True)
+        ]
+
+        Activity.objects.bulk_create(activities, ignore_conflicts=True)
 
         return announcements
     else:
@@ -109,7 +98,7 @@ def get_announcements(person=None):
 
 
 def get_non_custom_announcements(person=None):
-    return get_announcements(person).filter(custom_display__exact="")
+    return get_announcements(person, custom_display="")
 
 
 def get_custom_announcements(person, custom_display):
@@ -139,7 +128,7 @@ def get_custom_announcements(person, custom_display):
             ).annotate(activity_id=Value(activity.id, IntegerField()))
 
     return (
-        get_announcements(person)
+        get_announcements(person, custom_display)
         .exclude(custom_display__exact="")
         .order_by("custom_display", "-priority", "-start_date", "end_date")
         .distinct("custom_display")

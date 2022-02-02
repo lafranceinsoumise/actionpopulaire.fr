@@ -187,3 +187,6 @@ class Autorisation(models.Model):
     )
 
     ecriture = models.BooleanField(verbose_name="Droits de modification", default=False)
+
+    def __repr__(self):
+        return f"<Autorisation: scrutin={self.scrutin!r} groupe={self.groupe!r} prefixes={self.prefixes!r}>"

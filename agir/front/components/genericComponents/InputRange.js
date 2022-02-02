@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { animated, useSpring } from "@react-spring/web";
-import { useDrag } from "react-use-gesture";
+import { useDrag } from "@use-gesture/react";
 import { useThrottle } from "@agir/lib/utils/hooks";
 
 const Container = styled.div`

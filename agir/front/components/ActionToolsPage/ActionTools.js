@@ -188,6 +188,25 @@ export const ActionTools = () => {
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
+      <StyledCardItem route="newVotingProxy">
+        <i
+          aria-hidden="true"
+          css={`
+            background-color: ${(props) => props.theme.votingProxyOrange};
+            color: ${(props) => props.theme.white};
+          `}
+        >
+          <RawFeatherIcon name="edit-3" />
+        </i>
+        <span>
+          <strong>Se porter volontaire pour prendre une procuration</strong>
+          <span>
+            Inscrivez-vous comme volontaire et prenez une procuration de vote
+            d’un·e citoyen·ne pour le 10 et 24 avril
+          </span>
+        </span>
+        <RawFeatherIcon aria-hidden="true" name="chevron-right" />
+      </StyledCardItem>
     </StyledCard>
   );
 };

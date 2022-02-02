@@ -3,6 +3,7 @@ from functools import partial
 from pathlib import PurePath
 
 from django.db import transaction
+from django.db.models import Exists, OuterRef
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
 from rest_framework import serializers
@@ -402,17 +403,12 @@ class EventAdvancedSerializer(EventSerializer):
 
 class EventListSerializer(EventSerializer):
     def get_groups(self, obj):
-        user = self.context["request"].user
-        return [
-            {
-                "id": group.id,
-                "name": group.name,
-                "isMember": user.is_authenticated
-                and user.person is not None
-                and group.memberships.filter(person=user.person).exists(),
-            }
-            for group in obj.organizers_groups.distinct()
-        ]
+        if hasattr(obj, "_pf_organizer_groups"):
+            return [
+                {"id": group.id, "name": group.name}
+                for group in obj._pf_organizer_groups
+            ]
+        return obj.organizers_groups.distinct().values("id", "name")
 
 
 class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer):
@@ -499,7 +495,7 @@ class DateTimeWithTimezoneField(serializers.DateTimeField):
 class CreateEventSerializer(serializers.Serializer):
     id = serializers.UUIDField(read_only=True)
     url = serializers.HyperlinkedIdentityField(
-        read_only=True, view_name="api_event_view"
+        read_only=True, view_name="api_event_details"
     )
 
     name = serializers.CharField(max_length=100, min_length=3)

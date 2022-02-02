@@ -24,7 +24,7 @@
       "route": "groups",
       "desktop": true,
       "mobile": true,
-      "secondaryLinks": "groups__personGroups"
+      "secondaryLinks": "userGroups"
     },
     {
       "id": "messages",

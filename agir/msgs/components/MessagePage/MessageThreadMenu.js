@@ -68,6 +68,16 @@ const StyledMenu = styled.menu`
   }
 `;
 
+const StyledLoader = styled(Button)`
+  height: 60px;
+  cursor: default;
+  border-radius: 0;
+  &:hover,
+  &:focus {
+    background-color: #eeeeeeb7;
+  }
+`;
+
 export const MessageOptions = () => {
   const { pathname } = useLocation();
   const settingsRoot = pathname ? pathname.slice(1, -1) : "messages";
@@ -106,6 +116,7 @@ const MessageThreadMenu = (props) => {
     onSelect,
     writeNewMessage,
     lastItemRef,
+    isLoadingMore,
     ...rest
   } = props;
 
@@ -147,6 +158,7 @@ const MessageThreadMenu = (props) => {
           </li>
         ))}
       </ul>
+      {isLoadingMore && <StyledLoader aria-hidden="true" loading block />}
     </StyledMenu>
   );
 };

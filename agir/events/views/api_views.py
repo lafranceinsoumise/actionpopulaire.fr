@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
 from django.db import transaction
 from django.db.models import Q, Value, CharField
 from django.http.response import JsonResponse
@@ -9,7 +10,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
-from django.utils.translation import gettext as _
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
@@ -47,6 +47,7 @@ from agir.people.models import Person
 from agir.people.person_forms.models import PersonForm
 
 __all__ = [
+    "EventAPIView",
     "EventDetailAPIView",
     "EventDetailAdvancedAPIView",
     "EventRsvpedAPIView",
@@ -55,6 +56,7 @@ __all__ = [
     "EventSuggestionsAPIView",
     "UserGroupEventAPIView",
     "OrganizedEventAPIView",
+    "GrandEventAPIView",
     "EventCreateOptionsAPIView",
     "CreateEventAPIView",
     "UpdateEventAPIView",
@@ -73,6 +75,7 @@ from agir.gestion.models import Projet
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     HasSpecificPermissions,
+    IsPersonPermission,
 )
 
 from agir.lib.tasks import geocode_person
@@ -82,10 +85,33 @@ from ..tasks import (
 )
 
 
+class EventAPIView(RetrieveAPIView):
+    permission_classes = (IsPersonPermission,)
+    serializer_class = EventListSerializer
+    queryset = Event.objects.public()
+
+    def get_queryset(self):
+        return self.queryset.with_serializer_prefetch(
+            self.request.user.person
+        ).select_related("subtype")
+
+    def get_serializer(self, *args, **kwargs):
+        return super().get_serializer(
+            *args,
+            fields=EventListSerializer.EVENT_CARD_FIELDS,
+            **kwargs,
+        )
+
+
 class EventListAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = EventListSerializer
     queryset = Event.objects.public()
+
+    def get_queryset(self):
+        return Event.objects.with_serializer_prefetch(
+            self.request.user.person
+        ).select_related("subtype")
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -109,14 +135,10 @@ class EventRsvpedAPIView(EventListAPIView):
         queryset = Event.objects.public().with_serializer_prefetch(person)
 
         return (
-            (
-                queryset.upcoming()
-                .filter(Q(attendees=person) | Q(organizers=person))
-                .order_by("start_time", "end_time")
-            )
-            .distinct()
-            .select_related("subtype")
-        )
+            queryset.upcoming()
+            .filter(Q(attendees=person) | Q(organizers=person))
+            .order_by("start_time", "end_time")
+        ).distinct()
 
 
 class PastRsvpedEventAPIView(EventListAPIView):
@@ -125,7 +147,6 @@ class PastRsvpedEventAPIView(EventListAPIView):
         person_groups = person.supportgroups.all()
         return (
             Event.objects.with_serializer_prefetch(person)
-            .select_related("subtype")
             .past()
             .filter(Q(rsvps__person=person) | Q(organizers_groups__in=person_groups))
             .distinct()
@@ -141,7 +162,6 @@ class OngoingRsvpedEventsAPIView(EventListAPIView):
         return (
             Event.objects.public()
             .with_serializer_prefetch(person)
-            .select_related("subtype")
             .upcoming()
             .filter(Q(attendees=person) | Q(organizers=person))
             .filter(start_time__lte=now, end_time__gte=now)
@@ -165,14 +185,14 @@ class EventSuggestionsAPIView(EventListAPIView):
         near = events.none()
 
         if person.coordinates is not None:
-            national = national.annotate(
-                distance=Distance("coordinates", person.coordinates),
-            ).filter(distance__lte=100000)
+            national = national.filter(
+                coordinates__dwithin=(person.coordinates, D(km=100))
+            )
 
             near = (
                 events.filter(start_time__lt=timezone.now() + timedelta(days=30))
+                .filter(coordinates__dwithin=(person.coordinates, D(km=100)))
                 .annotate(distance=Distance("coordinates", person.coordinates))
-                .filter(distance__lte=100000)
                 .order_by("distance")
             )
 
@@ -190,7 +210,6 @@ class UserGroupEventAPIView(EventListAPIView):
         return (
             Event.objects.public()
             .with_serializer_prefetch(person)
-            .select_related("subtype")
             .upcoming()
             .filter(organizers_groups__in=person_groups)
             .distinct()
@@ -204,9 +223,19 @@ class OrganizedEventAPIView(EventListAPIView):
         return reversed(
             Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
             .with_serializer_prefetch(person)
-            .select_related("subtype")
             .filter(organizers=person)
             .order_by("-start_time")[:10]
+        )
+
+
+class GrandEventAPIView(EventListAPIView):
+    def get_queryset(self):
+        return (
+            Event.objects.with_serializer_prefetch(self.request.user.person)
+            .listed()
+            .upcoming()
+            .grand()
+            .order_by("start_time")
         )
 
 
