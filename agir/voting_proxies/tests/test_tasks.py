@@ -49,7 +49,7 @@ class SendVotingProxyRequestConfirmationTestCase(TestCase):
         with self.assertRaises(VotingProxyRequest.DoesNotExist):
             send_voting_proxy_request_confirmation([unexisting_request_id])
 
-    @patch("agir.voting_proxies.tasks.send_sms")
+    @patch("agir.voting_proxies.tasks.send_sms", autospec=True)
     def test_should_send_a_text_message(self, send_sms):
         send_sms.assert_not_called()
         send_voting_proxy_request_confirmation(
