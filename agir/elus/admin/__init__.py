@@ -1184,9 +1184,9 @@ class CandidatureAdmin(AddRelatedLinkMixin, admin.ModelAdmin):
         return format_html_join(mark_safe("<br>"), '<a href="{}">{}</a>', liens)
 
     def has_module_permission(self, request):
-        return (
-            super().has_module_permission(request)
-            or Autorisation.objects.filter(groupe__user=request.user).exists()
+        return super().has_module_permission(request) or (
+            request.user.is_authenticated
+            and Autorisation.objects.filter(groupe__user=request.user).exists()
         )
 
     def has_view_permission(self, request, obj=None):
