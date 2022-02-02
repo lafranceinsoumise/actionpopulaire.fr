@@ -52,7 +52,6 @@ const StyledPage = styled.div`
 const MessagePage = ({ messagePk }) => {
   const isOffline = useIsOffline();
   const dispatch = useDispatch();
-  const onSelectMessage = useSelectMessage();
   const {
     user,
     messages,
@@ -61,8 +60,11 @@ const MessagePage = ({ messagePk }) => {
     isLoadingMore,
     messageRecipients,
     currentMessage,
+    mutateMessages,
     isAutoRefreshPausedRef,
   } = useMessageSWR(messagePk, onSelectMessage);
+
+  const onSelectMessage = useSelectMessage(mutateMessages);
 
   const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
@@ -86,7 +88,8 @@ const MessagePage = ({ messagePk }) => {
     user,
     messageRecipients,
     currentMessage,
-    onSelectMessage
+    onSelectMessage,
+    mutateMessages
   );
 
   // Pause messages' autorefresh while an action is ongoing
