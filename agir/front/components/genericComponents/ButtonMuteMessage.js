@@ -1,19 +1,20 @@
 import PropTypes from "prop-types";
 import React, { useState, useMemo } from "react";
-import useSWR from "swr";
-import {
-  updateMessageNotification,
-  getGroupEndpoint,
-} from "@agir/groups/api.js";
-
 import styled from "styled-components";
+import useSWR from "swr";
+
 import style from "@agir/front/genericComponents/_variables.scss";
+
 import Button from "@agir/front/genericComponents/Button";
-import Spacer from "@agir/front/genericComponents/Spacer";
-import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { useToast } from "@agir/front/globalContext/hooks";
-import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
+import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import Spacer from "@agir/front/genericComponents/Spacer";
+
+import { useIsDesktop } from "@agir/front/genericComponents/grid";
+import { useToast } from "@agir/front/globalContext/hooks";
+
+import { updateMessageNotification, getGroupEndpoint } from "@agir/groups/api";
+import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 const StyledMuteButton = styled.div`
   cursor: pointer;
@@ -36,7 +37,8 @@ const ButtonMuteMessage = ({ message }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: isMuted, mutate } = useSWR(
-    getGroupEndpoint("messageNotification", { messagePk: message?.id })
+    getGroupEndpoint("messageNotification", { messagePk: message?.id }),
+    MANUAL_REVALIDATION_SWR_CONFIG
   );
 
   const switchNotificationMessage = async () => {

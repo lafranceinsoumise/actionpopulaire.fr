@@ -134,7 +134,8 @@ class UserSupportGroupsView(BaseAppSoftAuthView):
 
 
 class UserMessagesView(BaseAppHardAuthView):
-    api_preloads = [reverse_lazy("api_user_messages")]
+    def get_api_preloads(self):
+        return [f"{reverse_lazy('api_user_messages')}?page=1&page_size=10"]
 
 
 class UserMessageView(
