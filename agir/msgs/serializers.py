@@ -192,7 +192,6 @@ class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
                 "displayName": person.display_name,
                 "gender": person.gender,
                 "isAuthor": message.author_id == person.id,
-                "isCommentAuthor": person.has_commented,
                 "image": person.image.thumbnail.url
                 if (person.image and person.image.thumbnail)
                 else None,
