@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import clamp from "lodash/clamp";
 import { useSprings, animated } from "@react-spring/web";
-import { useDrag } from "react-use-gesture";
+import { useDrag } from "@use-gesture/react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -264,12 +264,13 @@ const IntroApp2 = () => {
   }, []);
 
   const handleSet = useCallback(
-    (active = false, mx = 0) => {
+    (active = false, xMovement = 0) => {
       set((i) => {
         if (i < index.current - 1 || i > index.current + 1) {
           return { visibility: "hidden" };
         }
-        const x = (i - index.current) * window.innerWidth + (active ? mx : 0);
+        const x =
+          (i - index.current) * window.innerWidth + (active ? xMovement : 0);
         return { x, visibility: "visible" };
       });
     },
@@ -277,10 +278,16 @@ const IntroApp2 = () => {
   );
 
   const bind = useDrag(
-    ({ active, movement: [mx], direction: [xDir], distance, cancel }) => {
-      if (active && distance > window.innerWidth / 5) {
+    ({
+      active,
+      movement: [xMovement],
+      direction: [xDirection],
+      distance: [xDistance],
+      cancel,
+    }) => {
+      if (active && xDistance > window.innerWidth / 5) {
         const newIndex = clamp(
-          index.current + (xDir > 0 ? -1 : 1),
+          index.current + (xDirection > 0 ? -1 : 1),
           0,
           items.length - 1
         );
@@ -288,7 +295,7 @@ const IntroApp2 = () => {
         setItemIndex(newIndex);
         cancel(newIndex);
       }
-      handleSet(active, mx);
+      handleSet(active, xMovement);
     }
   );
 

@@ -125,14 +125,9 @@ class GroupsView(AnonymousAPIView, ListAPIView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        qs = (
+        return (
             SupportGroup.objects.active()
             .filter(coordinates__isnull=False)
-            .prefetch_related("subtypes")
-        )
-
-        return (
-            qs.filter(coordinates__isnull=False)
             .prefetch_related("subtypes")
             .annotate(is_active=Count("id", filter=is_active_group()))
         )
@@ -183,7 +178,6 @@ class AbstractListMapView(MapViewMixin, TemplateView):
 
         subtype_label = self.request.GET.getlist("subtype")
         if subtype_label:
-            subtypes = subtypes.filter(label__in=subtype_label)
             params.setlist("subtype", subtype_label)
 
         if self.request.GET.get("include_past"):
