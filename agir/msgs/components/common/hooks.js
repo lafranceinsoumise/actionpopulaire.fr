@@ -163,24 +163,8 @@ export const useMessageSWR = (messagePk, selectMessage) => {
     messages.length === messageCount ||
     (data && data[data.length - 1]?.results?.length < MESSAGES_PAGE_SIZE);
   const isRefreshing = isValidatingMessages && data && data.length === size;
-  const currentMessageId = currentMessage?.id;
 
   const loadMore = useCallback(() => setSize(size + 1), [setSize, size]);
-
-  const { data: messageRecipients } = useSWR("/api/user/messages/recipients/");
-
-  const {
-    data: currentMessage,
-    error,
-    isValidating,
-    mutate: mutateMessage,
-  } = useSWR(
-    messagePk && uuidValidate(messagePk)
-      ? `/api/groupes/messages/${messagePk}/`
-      : null
-  );
-
-  const { pathname } = useLocation();
 
   const currentMessageId = currentMessage?.id;
   useEffect(() => {
