@@ -2,14 +2,20 @@ import React, { useState } from "react";
 
 import { useLocation } from "react-router-dom";
 
-import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 import { EventList, ListTitle, NoResults } from "./resultsComponents";
-import { HeaderSearch, InputSearch, EventFilters } from "./searchComponents";
+import {
+  HeaderSearch,
+  InputSearch,
+  EventFilters,
+  SearchTooShort,
+  FilterButton,
+} from "./searchComponents";
 import { StyledContainer, StyledFilters } from "./styledComponents";
 import { useSearchResults } from "./useSearch";
+import { useFilters } from "./useFilters";
 
 export const SearchEventPage = () => {
   const location = useLocation();
@@ -17,19 +23,13 @@ export const SearchEventPage = () => {
   const type = "events";
   const [search, setSearch] = useState(urlParams.get("q") || "");
 
-  const [filters, setFilters] = useState({});
-  const [_, events, errors, isLoading] = useSearchResults(
+  const [showFilters, _, filters, setFilters, switchFilters] = useFilters();
+
+  const [__, events, errors, isLoading] = useSearchResults(
     search,
     type,
     filters
   );
-
-  const [showFilters, setShowFilters] = useState(false);
-
-  const switchFilters = () => {
-    setShowFilters(!showFilters);
-    setFilters({});
-  };
 
   return (
     <StyledContainer>
@@ -41,19 +41,18 @@ export const SearchEventPage = () => {
         placeholder="Rechercher un événement"
       />
 
-      {!!search && search.length < 3 && (
-        <>Rentrez au moins 3 caractères pour rechercher</>
-      )}
+      <SearchTooShort search={search} />
 
-      {!!search && search.length >= 3 && !isLoading && (
+      <Spacer size="1rem" />
+      {isLoading && <Skeleton />}
+
+      {search?.length >= 3 && !isLoading && (
         <>
           <div>
-            <Spacer size="1rem" />
-            <div style={{ textAlign: "right" }}>
-              <Button small icon="filter" onClick={switchFilters}>
-                Filtrer
-              </Button>
-            </div>
+            <FilterButton
+              showFilters={showFilters}
+              switchFilters={switchFilters}
+            />
             <Spacer size="1rem" />
 
             {showFilters && (
@@ -68,9 +67,6 @@ export const SearchEventPage = () => {
               </StyledFilters>
             )}
           </div>
-
-          <Spacer size="1rem" />
-          {isLoading && <Skeleton />}
 
           {!!errors?.length && (
             <>
