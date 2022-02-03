@@ -160,6 +160,7 @@ const Modal = (props) => {
 
   const [subject, setSubject] = useState(message?.subject || "");
   const [text, setText] = useState(message?.text || "");
+  const [errors, setErrors] = useState({});
 
   const [hasBackButton, setHasBackButton] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(
@@ -174,6 +175,7 @@ const Modal = (props) => {
     if (!selectedEvent) {
       return true;
     }
+
     const maySend =
       selectedEvent &&
       subject.trim() &&
@@ -213,6 +215,14 @@ const Modal = (props) => {
   }, []);
 
   const handleSend = useCallback(() => {
+    if (!subject || !text) {
+      setErrors({
+        subject: !subject && "L'objet du message est obligatoire",
+        text: !text && "Un corps message est obligatoire",
+      });
+      return false;
+    }
+
     maySend &&
       onSend({
         ...(initialMessage || {}),
@@ -240,6 +250,13 @@ const Modal = (props) => {
       setHasBackButton(false);
     }
   }, [shouldShow, initialMessage]);
+
+  useEffect(() => {
+    setErrors({ ...errors, subject: null });
+  }, [subject]);
+  useEffect(() => {
+    setErrors({ ...errors, text: null });
+  }, [text]);
 
   const handleSendOnCtrlEnter = useCallback(
     (e) => {
@@ -303,6 +320,7 @@ const Modal = (props) => {
               onChange={handleChangeMessage}
               onClearEvent={handleClearEvent}
               disabled={isLoading}
+              errors={errors}
               maxLength={TEXT_MAX_LENGTH}
               subjectMaxLength={SUBJECT_MAX_LENGTH}
               groupPk={groupPk}
