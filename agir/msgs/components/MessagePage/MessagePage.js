@@ -64,13 +64,12 @@ const MessagePage = ({ messagePk }) => {
     currentMessage,
     mutateMessages,
     isAutoRefreshPausedRef,
+    onSelectMessage,
   } = useMessageSWR(messagePk, onSelectMessage);
-
-  const onSelectMessage = useSelectMessage(mutateMessages);
 
   const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
-  const {  mutate: mutateComments } = useCommentsSWR(messagePk);
+  const { mutate: mutateComments } = useCommentsSWR(messagePk);
 
   const {
     isLoading,
@@ -94,7 +93,7 @@ const MessagePage = ({ messagePk }) => {
     currentMessage,
     onSelectMessage,
     mutateMessages,
-    mutateComments,
+    mutateComments
   );
 
   // Pause messages' autorefresh while an action is ongoing
