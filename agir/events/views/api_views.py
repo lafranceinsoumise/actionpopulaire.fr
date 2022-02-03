@@ -20,7 +20,6 @@ from rest_framework.generics import (
     UpdateAPIView,
     RetrieveUpdateAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -104,7 +103,7 @@ class EventAPIView(RetrieveAPIView):
 
 
 class EventListAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     serializer_class = EventListSerializer
     queryset = Event.objects.public()
 
@@ -240,7 +239,7 @@ class GrandEventAPIView(EventListAPIView):
 
 
 class EventCreateOptionsAPIView(RetrieveAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     serializer_class = EventPropertyOptionsSerializer
     queryset = Event.objects.all()
 
@@ -469,7 +468,7 @@ class EventProjectPermission(GlobalOrObjectPermissions):
 
 
 class EventProjectsAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     serializer_class = EventProjectListItemSerializer
     queryset = Projet.objects.filter(event__isnull=False)
 

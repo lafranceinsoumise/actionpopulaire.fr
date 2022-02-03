@@ -9,7 +9,6 @@ from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from agir.activity.actions import (
@@ -37,13 +36,13 @@ class ActivityAPIView(RetrieveUpdateAPIView):
     queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
     permission_classes = (
-        IsAuthenticated,
+        IsPersonPermission,
         GlobalOrObjectPermissions,
     )
 
 
 class UserActivitiesAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     serializer_class = ActivitySerializer
     pagination_class = APIPaginator
 
@@ -89,7 +88,7 @@ class AnnouncementsAPIView(ListAPIView):
 
 
 class UserCustomAnnouncementAPIView(RetrieveAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     serializer_class = CustomAnnouncementSerializer
     lookup_field = "custom_display"
 
