@@ -37,7 +37,7 @@ const GroupsDesktop = ({ groups }) => (
     ))}
   </StyledGroupsDesktop>
 );
-GroupsDesktop.PropTypes = {
+GroupsDesktop.propTypes = {
   groups: PropTypes.array,
 };
 
@@ -46,7 +46,7 @@ const GroupsMobile = ({ groups }) => (
     <GroupSuggestionCarousel groups={groups} />
   </CarrouselContainer>
 );
-GroupsMobile.PropTypes = {
+GroupsMobile.propTypes = {
   groups: PropTypes.array,
 };
 
@@ -59,7 +59,7 @@ export const GroupList = ({ groups }) => (
     />
   </div>
 );
-GroupList.PropTypes = {
+GroupList.propTypes = {
   groups: PropTypes.array,
 };
 
@@ -69,7 +69,7 @@ const EventItem = ({ event }) => (
     <Spacer size="1rem" />
   </>
 );
-EventItem.PropTypes = {
+EventItem.propTypes = {
   event: PropTypes.object,
 };
 
@@ -106,7 +106,7 @@ export const EventList = ({ events }) => {
     </>
   );
 };
-EventList.PropTypes = {
+EventList.propTypes = {
   events: PropTypes.array,
 };
 
@@ -128,7 +128,7 @@ export const ListTitle = ({ name, list, isShowMore, onShowMore }) => {
     </h2>
   );
 };
-ListTitle.PropTypes = {
+ListTitle.propTypes = {
   list: PropTypes.array,
   name: PropTypes.string,
   onShowMore: PropTypes.func,
@@ -146,7 +146,7 @@ export const NoResults = ({ name, list }) => {
     </>
   );
 };
-NoResults.PropTypes = {
+NoResults.propTypes = {
   list: PropTypes.array,
   name: PropTypes.string,
 };

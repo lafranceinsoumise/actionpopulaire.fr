@@ -22,22 +22,9 @@ from . import serializers
 from ..events.filters import EventFilter
 from ..events.models import Event, EventSubtype
 from ..groups.models import SupportGroup, SupportGroupSubtype
+from ..groups.utils import is_active_group_filter
 from ..lib.filters import FixedModelMultipleChoiceFilter
 from ..lib.views import AnonymousAPIView
-
-
-def is_active_group():
-    n = now()
-    return (
-        Q(
-            organized_events__start_time__range=(
-                n - timedelta(days=62),
-                n + timedelta(days=31),
-            ),
-            organized_events__visibility=Event.VISIBILITY_PUBLIC,
-        )
-        | Q(created__gt=n - timedelta(days=31))
-    )
 
 
 def parse_bounds(bounds):
@@ -129,7 +116,7 @@ class GroupsView(AnonymousAPIView, ListAPIView):
             SupportGroup.objects.active()
             .filter(coordinates__isnull=False)
             .prefetch_related("subtypes")
-            .annotate(is_active=Count("id", filter=is_active_group()))
+            .annotate(is_active=Count("id", filter=is_active_group_filter()))
         )
 
 
@@ -156,7 +143,7 @@ class CommuneMixin:
 
     def active_group_in_commune_exists(self):
         return SupportGroup.objects.filter(
-            is_active_group(), coordinates__intersects=self.commune.coordinates
+            is_active_group_filter(), coordinates__intersects=self.commune.coordinates
         ).exists()
 
     def get_context_data(self, **kwargs):
