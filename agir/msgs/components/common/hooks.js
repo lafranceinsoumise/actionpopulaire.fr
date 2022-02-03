@@ -41,6 +41,7 @@ export const useUnreadMessageCount = () => {
 export const useCommentsSWR = (messagePk) => {
   const { data, error, isValidating, mutate, size, setSize } = useSWRInfinite(
     (index) =>
+      messagePk &&
       `/api/groupes/messages/${messagePk}/comments/?page=${
         index + 1
       }&page_size=${COMMENTS_PAGE_SIZE}`
@@ -93,7 +94,7 @@ export const useCommentsSWR = (messagePk) => {
   };
 };
 
-export const useMessageSWR = (messagePk, selectMessage) => {
+export const useMessageSWR = (messagePk) => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const isAutoRefreshPausedRef = useRef(false);
@@ -167,6 +168,9 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   const loadMore = useCallback(() => setSize(size + 1), [setSize, size]);
 
   const currentMessageId = currentMessage?.id;
+
+  const onSelectMessage = useSelectMessage(mutateMessages);
+
   useEffect(() => {
     dispatch(
       setBackLink(
@@ -186,9 +190,8 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   useEffect(() => {
     !isValidating &&
       error?.response?.status === 404 &&
-      selectMessage &&
-      selectMessage(null, true);
-  }, [error, isValidating, selectMessage]);
+      onSelectMessage(null, true);
+  }, [error, isValidating, onSelectMessage]);
 
   useEffect(() => {
     if (isValidating || !Array.isArray(messages) || !currentMessage) {
@@ -217,6 +220,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
     messageRecipients,
     currentMessage,
     isAutoRefreshPausedRef,
+    onSelectMessage,
   };
 };
 
@@ -244,7 +248,7 @@ export const useMessageActions = (
   selectedMessage,
   onSelectMessage,
   mutateMessages,
-  mutateComments,
+  mutateComments
 ) => {
   const shouldDismissAction = useRef(false);
 
