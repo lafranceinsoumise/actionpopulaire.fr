@@ -1,0 +1,115 @@
+import PropTypes from "prop-types";
+import React, { useState } from "react";
+
+import Button from "@agir/front/genericComponents/Button";
+import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
+import Spacer from "@agir/front/genericComponents/Spacer";
+
+import {
+  GroupList,
+  EventList,
+  ListTitle,
+  NoResults,
+} from "./resultsComponents";
+import { GroupFilters, EventFilters } from "./searchComponents";
+import { StyledFilters } from "./styledComponents";
+
+const SearchPageTab = (props) => {
+  const {
+    tab,
+    groups,
+    events,
+    filters,
+    applyFilter,
+    resetFilters,
+    onTabChange,
+    isLoading,
+    hasSearch,
+    isDesktop,
+    hasError,
+  } = props;
+
+  const [showFilters, setShowFilters] = useState(false);
+
+  if (!tab) {
+    return null;
+  }
+
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
+    resetFilters();
+  };
+
+  return (
+    <div>
+      <div style={{ padding: "1rem 0" }}>
+        {tab.hasFilters && (
+          <>
+            <div style={{ textAlign: "right" }}>
+              <Button small icon="filter" onClick={toggleFilters}>
+                Filtrer
+              </Button>
+            </div>
+            <Spacer size="1rem" />
+            {showFilters && (
+              <StyledFilters>
+                {tab.hasFilters === "events" && (
+                  <EventFilters filters={filters} setFilter={applyFilter} />
+                )}
+                {tab.hasFilters === "groups" && (
+                  <GroupFilters filters={filters} setFilter={applyFilter} />
+                )}
+                <Spacer size="1rem" />
+              </StyledFilters>
+            )}
+          </>
+        )}
+      </div>
+      <PageFadeIn ready={!isLoading} wait={<Skeleton />}>
+        {hasError && <p>Une erreur est apparue&nbsp;</p>}
+        {tab.hasGroups && (
+          <>
+            <ListTitle
+              name="Groupes"
+              list={groups}
+              onShowMore={
+                tab.id !== "groups" ? () => onTabChange("groups") : undefined
+              }
+            />
+            {hasSearch && <NoResults name="groupe" list={groups} />}
+            <GroupList groups={groups} inline={tab.hasEvents && !isDesktop} />
+          </>
+        )}
+        {tab.hasGroups && tab.hasEvents && <Spacer size="1.5rem" />}
+        {tab.hasEvents && (
+          <>
+            <ListTitle
+              name="Événements"
+              list={events}
+              onShowMore={
+                tab.id !== "events" ? () => onTabChange("events") : undefined
+              }
+            />
+            {hasSearch && <NoResults name="événement" list={events} />}
+            <EventList events={events} />
+          </>
+        )}
+      </PageFadeIn>
+    </div>
+  );
+};
+SearchPageTab.propTypes = {
+  tab: PropTypes.object,
+  groups: PropTypes.array,
+  events: PropTypes.array,
+  filters: PropTypes.object,
+  applyFilter: PropTypes.func,
+  resetFilters: PropTypes.func,
+  onTabChange: PropTypes.func,
+  isLoading: PropTypes.bool,
+  hasSearch: PropTypes.bool,
+  isDesktop: PropTypes.bool,
+  hasError: PropTypes.bool,
+};
+export default SearchPageTab;

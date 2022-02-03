@@ -109,36 +109,31 @@ SearchTooShort.propTypes = {
   search: PropTypes.string,
 };
 
-export const MapButton = () => (
-  <StyledMapButton>
-    <StyledLink route="eventMap">
-      <div />
-      <div>Voir la carte</div>
-    </StyledLink>
-  </StyledMapButton>
-);
-
-export const HeaderSearch = ({ querySearch, showMap }) => (
+export const HeaderSearch = ({ querySearch, mapRoute }) => (
   <StyledHeaderSearch>
     <div>
       <h1>
-        {!querySearch ? (
-          "Rechercher"
-        ) : (
-          <Hide under>Recherche : "{querySearch}"</Hide>
-        )}
+        <Hide over>Rechercher</Hide>
+        {!querySearch && <Hide under>Recherche : "{querySearch}"</Hide>}
       </h1>
       <Hide under as="div" style={{ marginTop: "0.5rem" }}>
         Recherchez des événements et des groupes d'actions par nom, ville, code
         postal...
       </Hide>
     </div>
-    {showMap && <MapButton />}
+    {!!mapRoute && (
+      <StyledMapButton>
+        <StyledLink route={mapRoute}>
+          <div />
+          <div>Voir la carte</div>
+        </StyledLink>
+      </StyledMapButton>
+    )}
   </StyledHeaderSearch>
 );
 HeaderSearch.propTypes = {
   querySearch: PropTypes.string,
-  showMap: PropTypes.bool,
+  mapRoute: PropTypes.oneOf(["eventMap", "groupMap"]),
 };
 
 export const InputSearch = ({ inputSearch, updateSearch, placeholder }) => (
