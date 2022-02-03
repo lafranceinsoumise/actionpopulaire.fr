@@ -190,9 +190,7 @@ class GroupMessagesTestAPICase(APITestCase):
                 "name": self.group.name,
             },
         )
-        self.assertIn("comments", res.data)
         self.assertNotIn("recentComments", res.data)
-        self.assertNotIn("commentCount", res.data)
 
     def test_member_cannot_get_single_deleted_message(self):
         message = SupportGroupMessage.objects.create(
@@ -308,17 +306,18 @@ class GroupMessageCommentAPITestCase(APITestCase):
         self.client.force_login(self.member.role)
         res = self.client.get(f"/api/groupes/messages/{self.message.pk}/comments/")
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.data[0]["id"], str(comment.pk))
+        results = res.data["results"]
+        self.assertEqual(results[0]["id"], str(comment.pk))
         self.assertEqual(
-            res.data[0]["author"],
+            results[0]["author"],
             {
                 "id": str(self.member.id),
                 "displayName": self.member.display_name,
                 "image": None,
             },
         )
-        self.assertEqual(res.data[0]["text"], "Lorem")
-        self.assertEqual(res.data[0]["image"], None)
+        self.assertEqual(results[0]["text"], "Lorem")
+        self.assertEqual(results[0]["image"], None)
 
     def test_deleted_comments_are_hidden(self):
         SupportGroupMessageComment.objects.create(
@@ -327,7 +326,7 @@ class GroupMessageCommentAPITestCase(APITestCase):
         self.client.force_login(self.member.role)
         res = self.client.get(f"/api/groupes/messages/{self.message.pk}/comments/")
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.data, [])
+        self.assertEqual(res.data["results"], [])
 
     def test_non_member_cannot_get_message_comments(self):
         SupportGroupMessageComment.objects.create(

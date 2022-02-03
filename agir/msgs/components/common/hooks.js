@@ -14,6 +14,7 @@ import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 const MESSAGES_PAGE_SIZE = 10;
+const COMMENTS_PAGE_SIZE = 15;
 
 export const useUnreadMessageCount = () => {
   const [isReady] = useTimeout(3000);
@@ -35,6 +36,61 @@ export const useUnreadMessageCount = () => {
   return data?.unreadMessageCount && !isNaN(parseInt(data.unreadMessageCount))
     ? parseInt(data.unreadMessageCount)
     : 0;
+};
+
+export const useCommentsSWR = (messagePk) => {
+  const { data, error, isValidating, mutate, size, setSize } = useSWRInfinite(
+    (index) =>
+      `/api/groupes/messages/${messagePk}/comments/?page=${
+        index + 1
+      }&page_size=${COMMENTS_PAGE_SIZE}`
+  );
+
+  const comments = useMemo(() => {
+    const comments = {};
+    const commentsIds = [];
+    if (Array.isArray(data)) {
+      data.forEach(({ results }) => {
+        if (Array.isArray(results)) {
+          results.forEach((comment) => {
+            if (!comments[comment.id]) {
+              comments[comment.id] = comment;
+              commentsIds.push(comment.id);
+            }
+          });
+        }
+      });
+    }
+    return commentsIds.reverse().map((id) => comments[id]);
+  }, [data]);
+
+  const isLoadingInitialData = !data && !error;
+  const isLoadingMore =
+    isLoadingInitialData ||
+    (size > 0 && data && typeof data[size - 1] === "undefined");
+
+  const commentsCount = (data && data[data.length - 1]?.count) || 0;
+  const isEmpty = commentsCount === 0;
+  const isReachingEnd =
+    isEmpty ||
+    comments.length === commentsCount ||
+    (data && data[data.length - 1]?.results?.length < COMMENTS_PAGE_SIZE);
+  const isRefreshing = isValidating && data && data.length === size;
+
+  const loadMore = useCallback(() => setSize(size + 1), [setSize, size]);
+  const isAutoRefreshPausedRef = useRef(false);
+
+  return {
+    comments,
+    commentsCount,
+    error,
+    isLoadingInitialData,
+    isLoadingMore,
+    isRefreshing,
+    loadMore: isEmpty || isReachingEnd ? undefined : loadMore,
+    mutate,
+    isAutoRefreshPausedRef,
+  };
 };
 
 export const useMessageSWR = (messagePk, selectMessage) => {
@@ -107,10 +163,10 @@ export const useMessageSWR = (messagePk, selectMessage) => {
     messages.length === messageCount ||
     (data && data[data.length - 1]?.results?.length < MESSAGES_PAGE_SIZE);
   const isRefreshing = isValidatingMessages && data && data.length === size;
-  const currentMessageId = currentMessage?.id;
 
   const loadMore = useCallback(() => setSize(size + 1), [setSize, size]);
 
+  const currentMessageId = currentMessage?.id;
   useEffect(() => {
     dispatch(
       setBackLink(
@@ -187,7 +243,8 @@ export const useMessageActions = (
   messageRecipients,
   selectedMessage,
   onSelectMessage,
-  mutateMessages
+  mutateMessages,
+  mutateComments,
 ) => {
   const shouldDismissAction = useRef(false);
 
@@ -277,16 +334,7 @@ export const useMessageActions = (
           comment
         );
         setIsLoading(false);
-        mutate(
-          `/api/groupes/messages/${selectedMessage.id}/`,
-          (message) => ({
-            ...message,
-            comments: Array.isArray(message.comments)
-              ? [...message.comments, response.data]
-              : [response.data],
-          }),
-          false
-        );
+        mutateComments();
         onSelectMessage(selectedMessage.id);
       } catch (e) {
         setIsLoading(false);
