@@ -18,7 +18,7 @@ from unidecode import unidecode
 from agir.events.admin.filters import EventFilterSet
 from agir.events.admin.forms import NewParticipantForm
 from agir.events.models import Event, EventSubtype, Calendar
-from agir.lib.admin import AdminViewMixin
+from agir.lib.admin.panels import AdminViewMixin
 from agir.people.person_forms.actions import get_people_form_class
 from agir.people.person_forms.fields import is_actual_model_field
 from .forms import AddOrganizerForm

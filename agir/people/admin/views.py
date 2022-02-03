@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.views.generic import FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 
-from agir.lib.admin import AdminViewMixin
+from agir.lib.admin.panels import AdminViewMixin
 from agir.people.actions.management import merge_persons
 from agir.people.admin.forms import (
     AddPersonEmailForm,

@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from agir.lib.autocomplete_filter import AutocompleteRelatedModelFilter
+from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
 
 

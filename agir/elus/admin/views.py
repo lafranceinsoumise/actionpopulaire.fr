@@ -16,7 +16,7 @@ from agir.elus.models import (
     AccesApplicationParrainages,
     types_elus,
 )
-from agir.lib.admin import AdminViewMixin
+from agir.lib.admin.panels import AdminViewMixin
 from agir.people.models import Person
 
 

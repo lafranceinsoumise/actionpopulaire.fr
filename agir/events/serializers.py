@@ -3,7 +3,6 @@ from functools import partial
 from pathlib import PurePath
 
 from django.db import transaction
-from django.db.models import Exists, OuterRef
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
 from rest_framework import serializers
@@ -11,6 +10,8 @@ from rest_framework import serializers
 from agir.activity.models import Activity
 from agir.events.tasks import NOTIFIED_CHANGES
 from agir.front.serializer_utils import RoutesField
+from agir.lib.admin.utils import admin_url
+from agir.lib.html import textify
 from agir.lib.serializers import (
     LocationSerializer,
     NestedLocationSerializer,
@@ -19,6 +20,7 @@ from agir.lib.serializers import (
     FlexibleFieldsMixin,
     CurrentPersonField,
 )
+from agir.lib.utils import replace_datetime_timezone
 from agir.lib.utils import (
     validate_facebook_event_url,
     INVALID_FACEBOOK_EVENT_LINK_MESSAGE,
@@ -52,8 +54,6 @@ from ..gestion.models import Projet, Document, VersionDocument
 from ..groups.models import Membership, SupportGroup
 from ..groups.serializers import SupportGroupSerializer, SupportGroupDetailSerializer
 from ..groups.tasks import notify_new_group_event, send_new_group_event_email
-from ..lib.html import textify
-from ..lib.utils import admin_url, replace_datetime_timezone
 
 EVENT_ROUTES = {
     "details": "view_event",

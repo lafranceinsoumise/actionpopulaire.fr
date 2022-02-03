@@ -10,10 +10,10 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _, gettext, ngettext
 
 from agir.donations.form_fields import MoneyField
+from agir.lib.admin.panels import AddRelatedLinkMixin
 from agir.payments.actions.payments import notify_status_change
 from agir.payments.admin import PaymentManagementAdminMixin
 from .models import CheckPayment
-from ..lib.admin import AddRelatedLinkMixin
 
 
 class CheckPaymentSearchForm(forms.Form):

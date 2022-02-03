@@ -7,6 +7,7 @@ from agir.gestion.admin.depenses import DepenseListMixin
 from agir.gestion.admin.forms import AjoutRapideDepenseForm, DocumentAjoutRapideForm
 from agir.gestion.models import Depense, Projet, Participation, Reglement
 from agir.gestion.models.documents import VersionDocument
+from agir.lib.admin.form_fields import CleavedDateInput
 
 
 class BaseDocumentInline(admin.TabularInline):
@@ -242,6 +243,10 @@ class ReglementInline(admin.TabularInline):
                 obj.preuve.titre,
             )
         return "-"
+
+    def get_formset(self, request, obj=None, **kwargs):
+        kwargs.setdefault("widgets", {}).setdefault("date_releve", CleavedDateInput)
+        return super().get_formset(request, obj=obj, **kwargs)
 
     preuve_link.short_description = "Preuve de paiement"
 

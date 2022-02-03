@@ -6,7 +6,7 @@ from django.utils.html import format_html
 from django_filters import filters
 
 from agir.events.models import Calendar, EventSubtype, Event
-from agir.lib.autocomplete_filter import AutocompleteRelatedModelFilter
+from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
 
 
 class EventFilterSet(django_filters.FilterSet):

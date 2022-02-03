@@ -6,7 +6,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 
-from agir.lib.form_fields import AdminRichEditorWidget, AdminJsonWidget
+from agir.lib.admin.form_fields import AdminJsonWidget
+from agir.lib.form_fields import AdminRichEditorWidget
 from agir.lib.forms import CoordinatesFormMixin
 from agir.people.models import Person, PersonEmail
 from agir.people.person_forms.actions import (

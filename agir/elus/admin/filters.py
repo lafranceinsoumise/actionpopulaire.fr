@@ -10,7 +10,7 @@ from agir.elus.models import (
     Scrutin,
     Autorisation,
 )
-from agir.lib.autocomplete_filter import (
+from agir.lib.admin.autocomplete_filter import (
     AutocompleteRelatedModelFilter,
     SelectRelatedModelFilter,
 )
