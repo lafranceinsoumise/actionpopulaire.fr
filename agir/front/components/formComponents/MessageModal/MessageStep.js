@@ -301,18 +301,12 @@ const MessageStep = (props) => {
           )}
         </footer>
         {errors?.subject && (
-          <>
-            <StaticToast style={{ marginTop: "1rem" }}>
-              {errors.subject}
-            </StaticToast>
-          </>
+          <StaticToast style={{ marginTop: "1rem" }}>
+            {errors.subject}
+          </StaticToast>
         )}
         {errors?.text && (
-          <>
-            <StaticToast style={{ marginTop: "1rem" }}>
-              {errors.text}
-            </StaticToast>
-          </>
+          <StaticToast style={{ marginTop: "1rem" }}>{errors.text}</StaticToast>
         )}
       </StyledMessage>
     </StyledWrapper>
