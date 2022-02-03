@@ -41,7 +41,7 @@ from agir.events.serializers import (
     EventProjectListItemSerializer,
     EventReportPersonFormSerializer,
 )
-from agir.groups.models import SupportGroup
+from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person
 from agir.people.person_forms.models import PersonForm
 
@@ -131,11 +131,19 @@ class EventRsvpedAPIView(EventListAPIView):
 
     def get_queryset(self):
         person = self.request.user.person
-        queryset = Event.objects.public().with_serializer_prefetch(person)
+        managed_groups = person.memberships.filter(
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
+        ).values_list("supportgroup_id", flat=True)
 
         return (
-            queryset.upcoming()
-            .filter(Q(attendees=person) | Q(organizers=person))
+            Event.objects.with_serializer_prefetch(person)
+            .listed()
+            .upcoming()
+            .filter(
+                Q(attendees=person)
+                | Q(organizers=person)
+                | Q(organizers_groups__id__in=managed_groups)
+            )
             .order_by("start_time", "end_time")
         ).distinct()
 
