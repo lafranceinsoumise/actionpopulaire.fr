@@ -9,6 +9,8 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import Avatar from "@agir/front/genericComponents/Avatar";
 import TextField from "@agir/front/formComponents/TextField";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
+
 const EmojiPicker = lazy(() =>
   import("@agir/front/formComponents/EmojiPicker")
 );
@@ -156,6 +158,7 @@ const StyledWrapper = styled.div`
 const MessageStep = (props) => {
   const {
     disabled,
+    errors,
     subject,
     text,
     event,
@@ -297,6 +300,20 @@ const MessageStep = (props) => {
             </StyledCounter>
           )}
         </footer>
+        {errors?.subject && (
+          <>
+            <StaticToast style={{ marginTop: "1rem" }}>
+              {errors.subject}
+            </StaticToast>
+          </>
+        )}
+        {errors?.text && (
+          <>
+            <StaticToast style={{ marginTop: "1rem" }}>
+              {errors.text}
+            </StaticToast>
+          </>
+        )}
       </StyledMessage>
     </StyledWrapper>
   );
