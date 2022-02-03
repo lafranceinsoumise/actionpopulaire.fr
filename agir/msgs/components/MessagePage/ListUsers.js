@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -90,6 +91,20 @@ export const ListUser = ({ message, participants }) => {
       <Spacer size="1rem" />
     </StyledContainer>
   );
+};
+ListUser.propTypes = {
+  message: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    group: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    author: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      displayName: PropTypes.string.isRequired,
+      image: PropTypes.string,
+    }).isRequired,
+  }).isRequired,
+  participants: PropTypes.array,
 };
 
 export default ListUser;
