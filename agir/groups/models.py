@@ -4,9 +4,11 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
+from django.db.models import Subquery, OuterRef
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
+from agir.carte.models import StaticMapImage
 from agir.lib.models import (
     BaseAPIResource,
     AbstractLabel,
@@ -60,6 +62,21 @@ class SupportGroupQuerySet(models.QuerySet):
             .annotate(rank=SearchRank(vector, query))
             .order_by("-rank")
         )
+
+    def with_static_map_image(self):
+        return self.annotate(
+            static_map_image=Subquery(
+                StaticMapImage.objects.filter(
+                    center__dwithin=(
+                        OuterRef("coordinates"),
+                        StaticMapImage.UNIQUE_CENTER_MAX_DISTANCE,
+                    ),
+                ).values("image")[:1],
+            )
+        )
+
+    def with_serializer_prefetch(self, person):
+        return self.prefetch_related("memberships").with_static_map_image()
 
 
 class MembershipQuerySet(models.QuerySet):

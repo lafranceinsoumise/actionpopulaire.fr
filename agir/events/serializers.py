@@ -3,7 +3,6 @@ from functools import partial
 from pathlib import PurePath
 
 from django.db import transaction
-from django.db.models import Exists, OuterRef
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
 from rest_framework import serializers
@@ -122,19 +121,12 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "id",
         "name",
         "illustration",
-        "hasSubscriptionForm",
         "startTime",
         "endTime",
         "timezone",
         "location",
-        "isOrganizer",
-        "rsvp",
-        "routes",
         "groups",
-        "organizers",
-        "distance",
         "subtype",
-        "onlineUrl",
     ]
 
     id = serializers.UUIDField()

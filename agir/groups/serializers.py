@@ -93,8 +93,8 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
         user = self.context["request"].user
         self.membership = None
         if not user.is_anonymous and user.person:
-            self.membership = Membership.objects.filter(
-                person=user.person, supportgroup=instance
+            self.membership = instance.memberships.filter(
+                person_id=user.person.id
             ).first()
         return super().to_representation(instance)
 
@@ -140,13 +140,6 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
 
 class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
-    GROUP_CARD_FIELDS = [
-        "id",
-        "name",
-        "location",
-        "iconConfiguration",
-    ]
-
     id = serializers.UUIDField(
         read_only=True,
     )
@@ -445,6 +438,30 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
         if isinstance(obj.description, str):
             return textify(obj.description)
         return ""
+
+
+class SupportGroupSearchResultSerializer(serializers.ModelSerializer):
+    location = LocationSerializer(read_only=True, source="*")
+    iconConfiguration = serializers.SerializerMethodField(
+        read_only=True, method_name="get_icon_configuration"
+    )
+
+    def get_icon_configuration(self, obj):
+        if obj.type in models.SupportGroup.TYPE_PARAMETERS:
+            configuration = models.SupportGroup.TYPE_PARAMETERS[obj.type]
+            return {
+                "color": configuration["color"],
+                "iconName": configuration["icon_name"],
+            }
+
+    class Meta:
+        model = SupportGroup
+        fields = (
+            "id",
+            "name",
+            "location",
+            "iconConfiguration",
+        )
 
 
 class SupportGroupUpdateSerializer(serializers.ModelSerializer):
