@@ -93,7 +93,7 @@ const MessageThreadCard = (props) => {
       </article>
       <StyledUnreadItemBadge
         aria-label="Nombre de commentaires non lus"
-        $empty={unreadItemCount === 0}
+        $empty={unreadItemCount === 0 || isSelected}
       >
         {unreadItemCount}
       </StyledUnreadItemBadge>

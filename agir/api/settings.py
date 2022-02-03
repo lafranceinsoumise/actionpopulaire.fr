@@ -406,6 +406,8 @@ EMAIL_TEMPLATES = {
     "EVENT_GROUP_COORGANIZATION_ACCEPTED": "https://mosaico.lafranceinsoumise.fr/emails/4433bd2c-2dfb-4646-97ee-7be8f9315637.html",
     # EVENT_GROUP_COORGANIZATION_REFUSED variables: TITLE, EVENT_NAME, GROUP_NAME, DATE
     "EVENT_GROUP_COORGANIZATION_REFUSED": "https://mosaico.lafranceinsoumise.fr/emails/3af104fe-d230-4d40-be78-c49fc5b13da4.html",
+    # EVENT_REPORT_FORM_REMINDER variables: EVENT_SUBTYPE, EVENT_DATE, FORM_NAME, FORM_DESCRIPTION, FORM_LINK
+    "EVENT_REPORT_FORM_REMINDER": "https://mosaico.lafranceinsoumise.fr/emails/e091a810-1a74-4417-ac49-e1f3fce82267.html",
 }
 
 EMAIL_FROM = os.environ.get(
@@ -831,7 +833,7 @@ PRESSERO_APPROBATOR_ID = os.environ.get("PRESSERO_APPROBATOR_ID")
 PRESSERO_GROUP_ID = os.environ.get("PRESSERO_GROUP_ID")
 
 # djan
-DJAN_URL = "https://la-fi.fr/"
+DJAN_URL = "https://la-fi.fr"
 DJAN_API_KEY = os.environ.get("DJAN_API_KEY")
 
 # nuntius

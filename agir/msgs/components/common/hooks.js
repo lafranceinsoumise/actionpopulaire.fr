@@ -207,6 +207,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   return {
     user,
     messages,
+    messageCount,
     errorMessages,
     isLoadingInitialData,
     isLoadingMore,
@@ -219,7 +220,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   };
 };
 
-export const useSelectMessage = () => {
+export const useSelectMessage = (mutateMessages) => {
   const history = useHistory();
   const handleSelect = useCallback(
     (messagePk, doNotPush = false) => {
@@ -228,6 +229,8 @@ export const useSelectMessage = () => {
       } else {
         history.push(routeConfig.messages.getLink({ messagePk }));
       }
+      mutateMessages();
+      mutate("/api/user/messages/unread_count/");
     },
     [history]
   );
@@ -240,6 +243,7 @@ export const useMessageActions = (
   messageRecipients,
   selectedMessage,
   onSelectMessage,
+  mutateMessages,
   mutateComments,
 ) => {
   const shouldDismissAction = useRef(false);
@@ -304,7 +308,7 @@ export const useMessageActions = (
           ? await groupAPI.updateMessage(message)
           : await groupAPI.createMessage(message.group.id, message);
         setIsLoading(false);
-        mutate("/api/user/messages/");
+        mutateMessages();
         if (message.id) {
           mutate(
             `/api/groupes/messages/${message.id}/`,
@@ -405,11 +409,7 @@ export const useMessageActions = (
         ),
       }));
     } else if (messageAction === "delete") {
-      mutate(
-        `/api/user/messages/`,
-        (data) => data.filter((message) => message.id !== selectedMessage.id),
-        false
-      );
+      mutateMessages();
       onSelectMessage(null);
     }
     setMessageAction("");

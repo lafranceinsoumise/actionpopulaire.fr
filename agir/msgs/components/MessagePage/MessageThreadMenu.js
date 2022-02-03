@@ -60,12 +60,6 @@ const StyledMenu = styled.menu`
       font-size: 1.125rem;
     }
   }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
 `;
 
 export const StyledLoader = styled(Button)`
@@ -116,7 +110,7 @@ const MessageThreadMenu = (props) => {
     onSelect,
     writeNewMessage,
     lastItemRef,
-    isLoadingMore,
+    messageCount,
     ...rest
   } = props;
 
@@ -143,22 +137,19 @@ const MessageThreadMenu = (props) => {
           </Button>
         </StyledNewMessageButton>
       ) : null}
-      <ul>
-        {messages.map((message, i) => (
-          <li
-            key={message.id}
-            ref={i + 1 === messages.length ? lastItemRef : null}
-          >
-            <MessageThreadCard
-              message={message}
-              isSelected={message.id === selectedMessageId}
-              onClick={onSelect}
-              disabled={isLoading}
-            />
-          </li>
-        ))}
-      </ul>
-      {isLoadingMore && <StyledLoader aria-hidden="true" loading block />}
+      {messages.map((message) => (
+        <MessageThreadCard
+          key={message.id}
+          message={message}
+          isSelected={message.id === selectedMessageId}
+          onClick={onSelect}
+          disabled={isLoading}
+        />
+      ))}
+      {messageCount !== messages.length && (
+        <StyledLoader aria-hidden="true" loading block />
+      )}
+      <div ref={lastItemRef} />
     </StyledMenu>
   );
 };
@@ -166,6 +157,7 @@ const MessageThreadMenu = (props) => {
 MessageThreadMenu.propTypes = {
   isLoading: PropTypes.bool,
   messages: PropTypes.arrayOf(PropTypes.object),
+  messageCount: PropTypes.number,
   selectedMessageId: PropTypes.string,
   notificationSettingLink: PropTypes.string,
   onSelect: PropTypes.func,

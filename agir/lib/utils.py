@@ -97,13 +97,15 @@ def resize_and_autorotate(file_name, variations, storage=default_storage):
 
 
 def shorten_url(url, secret=False):
-    return requests.post(
+    response = requests.post(
         settings.DJAN_URL + "/api/shorten",
         params={
             "token": settings.DJAN_API_KEY,
         },
         data={"url": url, "length": 10 if secret else 5},
-    ).text
+    )
+    response.raise_for_status()
+    return response.text
 
 
 def get_client_ip(request):

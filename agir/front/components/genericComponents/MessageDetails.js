@@ -63,5 +63,18 @@ const MessageDetails = ({ message }) => {
     </>
   );
 };
+MessageDetails.propTypes = {
+  message: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    group: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    author: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      displayName: PropTypes.string.isRequired,
+      image: PropTypes.string,
+    }).isRequired,
+  }).isRequired,
+};
 
 export default MessageDetails;

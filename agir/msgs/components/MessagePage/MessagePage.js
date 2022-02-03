@@ -53,17 +53,20 @@ const StyledPage = styled.div`
 const MessagePage = ({ messagePk }) => {
   const isOffline = useIsOffline();
   const dispatch = useDispatch();
-  const onSelectMessage = useSelectMessage();
   const {
     user,
     messages,
+    messageCount,
     loadMore,
     isLoadingInitialData,
     isLoadingMore,
     messageRecipients,
     currentMessage,
+    mutateMessages,
     isAutoRefreshPausedRef,
   } = useMessageSWR(messagePk, onSelectMessage);
+
+  const onSelectMessage = useSelectMessage(mutateMessages);
 
   const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
@@ -90,6 +93,7 @@ const MessagePage = ({ messagePk }) => {
     messageRecipients,
     currentMessage,
     onSelectMessage,
+    mutateMessages,
     mutateComments,
   );
 
@@ -161,7 +165,7 @@ const MessagePage = ({ messagePk }) => {
                 writeNewMessage={writeNewMessage}
                 onComment={writeNewComment}
                 lastItemRef={lastItemRef}
-                isLoadingMore={isLoadingMore}
+                messageCount={messageCount}
               />
             ) : (
               <EmptyMessagePage />

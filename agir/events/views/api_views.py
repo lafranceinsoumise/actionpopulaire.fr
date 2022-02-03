@@ -20,7 +20,6 @@ from rest_framework.generics import (
     UpdateAPIView,
     RetrieveUpdateAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -42,7 +41,7 @@ from agir.events.serializers import (
     EventProjectListItemSerializer,
     EventReportPersonFormSerializer,
 )
-from agir.groups.models import SupportGroup
+from agir.groups.models import SupportGroup, Membership
 from agir.people.models import Person
 from agir.people.person_forms.models import PersonForm
 
@@ -104,7 +103,7 @@ class EventAPIView(RetrieveAPIView):
 
 
 class EventListAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     serializer_class = EventListSerializer
     queryset = Event.objects.public()
 
@@ -132,11 +131,19 @@ class EventRsvpedAPIView(EventListAPIView):
 
     def get_queryset(self):
         person = self.request.user.person
-        queryset = Event.objects.public().with_serializer_prefetch(person)
+        managed_groups = person.memberships.filter(
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
+        ).values_list("supportgroup_id", flat=True)
 
         return (
-            queryset.upcoming()
-            .filter(Q(attendees=person) | Q(organizers=person))
+            Event.objects.with_serializer_prefetch(person)
+            .listed()
+            .upcoming()
+            .filter(
+                Q(attendees=person)
+                | Q(organizers=person)
+                | Q(organizers_groups__id__in=managed_groups)
+            )
             .order_by("start_time", "end_time")
         ).distinct()
 
@@ -240,7 +247,7 @@ class GrandEventAPIView(EventListAPIView):
 
 
 class EventCreateOptionsAPIView(RetrieveAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     serializer_class = EventPropertyOptionsSerializer
     queryset = Event.objects.all()
 
@@ -469,7 +476,7 @@ class EventProjectPermission(GlobalOrObjectPermissions):
 
 
 class EventProjectsAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     serializer_class = EventProjectListItemSerializer
     queryset = Projet.objects.filter(event__isnull=False)
 
