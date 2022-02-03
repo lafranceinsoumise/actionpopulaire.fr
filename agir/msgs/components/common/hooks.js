@@ -151,6 +151,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   return {
     user,
     messages,
+    messageCount,
     errorMessages,
     isLoadingInitialData,
     isLoadingMore,

@@ -55,6 +55,7 @@ const MessagePage = ({ messagePk }) => {
   const {
     user,
     messages,
+    messageCount,
     loadMore,
     isLoadingInitialData,
     isLoadingMore,
@@ -160,7 +161,7 @@ const MessagePage = ({ messagePk }) => {
                 writeNewMessage={writeNewMessage}
                 onComment={writeNewComment}
                 lastItemRef={lastItemRef}
-                isLoadingMore={isLoadingMore}
+                messageCount={messageCount}
               />
             ) : (
               <EmptyMessagePage />

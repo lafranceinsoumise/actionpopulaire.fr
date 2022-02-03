@@ -115,16 +115,19 @@ const DesktopThreadList = (props) => {
     writeNewMessage,
     notificationSettingLink,
     lastItemRef,
-    isLoadingMore,
+    messageCount,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
     selectedMessage?.comments?.length,
     selectedMessagePk
   );
-  const groupURL = routeConfig.groupDetails.getLink({
-    groupPk: selectedMessage?.group.id,
-  });
+
+  const groupURL = selectedMessage
+    ? routeConfig.groupDetails.getLink({
+        groupPk: selectedMessage?.group.id,
+      })
+    : "";
 
   useEffect(() => {
     // Auto-select first message on desktop
@@ -144,7 +147,7 @@ const DesktopThreadList = (props) => {
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
         lastItemRef={lastItemRef}
-        isLoadingMore={isLoadingMore}
+        messageCount={messageCount}
       />
       <PageFadeIn ready={selectedMessagePk && selectedMessage}>
         {!!selectedMessage && (
@@ -191,16 +194,18 @@ const MobileThreadList = (props) => {
     writeNewMessage,
     notificationSettingLink,
     lastItemRef,
-    isLoadingMore,
+    messageCount,
   } = props;
 
   const [scrollableRef, bottomRef] = useAutoScrollToBottom(
     selectedMessage?.comments?.length,
     selectedMessagePk
   );
-  const groupURL = routeConfig.groupDetails.getLink({
-    groupPk: selectedMessage?.group.id,
-  });
+  const groupURL = selectedMessage
+    ? routeConfig.groupDetails.getLink({
+        groupPk: selectedMessage?.group.id,
+      })
+    : "";
 
   return (
     <StyledList>
@@ -212,7 +217,7 @@ const MobileThreadList = (props) => {
         onSelect={onSelect}
         writeNewMessage={writeNewMessage}
         lastItemRef={lastItemRef}
-        isLoadingMore={isLoadingMore}
+        messageCount={messageCount}
       />
       <Panel
         style={{
@@ -271,6 +276,7 @@ DesktopThreadList.propTypes =
     {
       isLoading: PropTypes.bool,
       messages: PropTypes.arrayOf(PropTypes.object),
+      messageCount: PropTypes.number,
       selectedMessagePk: PropTypes.string,
       selectedMessage: PropTypes.object,
       user: PropTypes.shape({
