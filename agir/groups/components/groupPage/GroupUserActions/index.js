@@ -1,22 +1,24 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useState } from "react";
 import { useHistory } from "react-router-dom";
+import styled from "styled-components";
 import { mutate } from "swr";
 
-import GroupUserActions from "./GroupUserActions";
-import SecondaryActions from "./SecondaryActions";
-import FollowGroupDialog from "./FollowGroupDialog";
-import JoinGroupDialog from "./JoinGroupDialog";
 import EditMembershipDialog from "./EditMembershipDialog";
+import FollowGroupDialog from "./FollowGroupDialog";
+import GroupUserActions from "./GroupUserActions";
+import JoinGroupDialog from "./JoinGroupDialog";
+import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import QuitGroupDialog from "./QuitGroupDialog";
+import SecondaryActions from "./SecondaryActions";
 
 import * as api from "@agir/groups/api";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 import { routeConfig } from "@agir/front/app/routes.config";
+import { useSelectMessage } from "@agir/msgs/common/hooks";
 import { useToast } from "@agir/front/globalContext/hooks.js";
 
-import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 
 const StyledContent = styled.div`
@@ -48,13 +50,15 @@ const ConnectedUserActions = (props) => {
     referents,
   } = props;
 
+  const user = useSelector(getUser);
+  const onSelectMessage = useSelectMessage();
+  const history = useHistory();
+  const sendToast = useToast();
+
   const [isLoading, setIsLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(null);
   const [joiningStep, setJoiningStep] = useState(0);
-
-  const user = useSelector(getUser);
-  const history = useHistory();
-  const sendToast = useToast();
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
 
   const closeDialog = useCallback(() => {
     setOpenDialog(null);
@@ -163,6 +167,23 @@ const ConnectedUserActions = (props) => {
     [joiningStep, history, id]
   );
 
+  const openMessageModal = useCallback(() => {
+    closeJoinDialog();
+    setMessageModalOpen(true);
+  }, [closeJoinDialog]);
+
+  const closeMessageModal = useCallback(() => setMessageModalOpen(false), []);
+
+  const sendPrivateMessage = useCallback(
+    async (message) => {
+      console.log(message);
+      const { subject, text } = message;
+      const result = await api.createPrivateMessage(id, { subject, text });
+      onSelectMessage(result.data.id);
+    },
+    [onSelectMessage]
+  );
+
   return (
     <>
       <StyledContent>
@@ -193,6 +214,7 @@ const ConnectedUserActions = (props) => {
         onJoin={joinGroup}
         onUpdate={updateOwnMembership}
         onClose={closeJoinDialog}
+        openMessageModal={openMessageModal}
       />
       {isMember && (
         <>
@@ -210,6 +232,14 @@ const ConnectedUserActions = (props) => {
             isLoading={isLoading}
             onClose={closeDialog}
             onQuit={quitGroup}
+          />
+          <MessageModal
+            shouldShow={messageModalOpen}
+            user={user}
+            groupPk={id}
+            onSend={sendPrivateMessage}
+            onClose={closeMessageModal}
+            onBoarding
           />
         </>
       )}
