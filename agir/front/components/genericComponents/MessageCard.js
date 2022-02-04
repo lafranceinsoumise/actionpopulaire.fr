@@ -469,7 +469,7 @@ const MessageCard = (props) => {
     comments,
     commentsCount,
     loadMore: loadMoreComments,
-    isLoadingMore: isLoadingComments
+    isLoadingMore: isLoadingComments,
   } = useCommentsSWR(message.id);
 
   const messageCardRef = useRef();
