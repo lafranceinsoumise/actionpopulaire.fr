@@ -1,24 +1,34 @@
 import React from "react";
 
 export const TABS = {
-  ALL: 0,
-  GROUPS: 1,
-  EVENTS: 2,
-};
-export const TABS_OPTIONS = [
-  {
-    id: TABS.ALL,
+  all: {
+    id: "all",
     label: "Tout",
+    searchPlaceholder: "Rechercher sur Action Populaire",
+    mapRoute: "eventMap",
+    hasFilters: false,
+    hasEvents: true,
+    hasGroups: true,
   },
-  {
-    id: TABS.GROUPS,
+  groups: {
+    id: "groups",
     label: "Groupes",
+    searchPlaceholder: "Rechercher un groupe",
+    mapRoute: "groupMap",
+    hasFilters: "groups",
+    hasGroups: true,
+    searchType: "groups",
   },
-  {
-    id: TABS.EVENTS,
+  events: {
+    id: "events",
     label: "Événements",
+    searchPlaceholder: "Rechercher un événement",
+    mapRoute: "eventMap",
+    hasFilters: "events",
+    hasEvents: true,
+    searchType: "events",
   },
-];
+};
 
 export const SORTERS = {
   DATE_ASC: "DATE_ASC",

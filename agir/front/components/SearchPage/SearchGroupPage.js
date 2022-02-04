@@ -33,7 +33,7 @@ export const SearchGroupPage = () => {
 
   return (
     <StyledContainer>
-      <HeaderSearch querySearch={search} />
+      <HeaderSearch querySearch={search} mapRoute="groupMap" />
 
       <InputSearch
         inputSearch={search}

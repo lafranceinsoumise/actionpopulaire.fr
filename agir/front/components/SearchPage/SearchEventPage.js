@@ -33,7 +33,7 @@ export const SearchEventPage = () => {
 
   return (
     <StyledContainer>
-      <HeaderSearch querySearch={search} />
+      <HeaderSearch querySearch={search} mapRoute="eventMap" />
 
       <InputSearch
         inputSearch={search}

@@ -12,6 +12,8 @@ from django.utils import timezone
 import json
 from django.conf import settings
 
+from agir.groups.utils import is_active_group_filter
+
 
 class SearchSupportGroupsAndEventsAPIView(ListAPIView):
     """Rechercher et lister des groupes et des événéments"""
@@ -33,9 +35,9 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         return serializer_class(*args, **kwargs)
 
     def get_groups(self, search_term, filters):
-
         groupType = filters.get("groupType", None)
         groupSort = filters.get("groupSort", None)
+        groupInactive = filters.get("groupInactive", None)
 
         groups = SupportGroup.objects.active()
 
@@ -51,6 +53,9 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
                 )
             else:
                 groups = groups.filter(type=groupType)
+
+        if not groupInactive == "1":
+            groups.filter(is_active_group_filter())
 
         # Query
         groups = groups.search(search_term)
