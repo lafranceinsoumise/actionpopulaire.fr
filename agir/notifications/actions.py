@@ -13,6 +13,28 @@ def get_default_person_email_subscriptions(person):
     ]
 
 
+def get_default_lfi_email_subscriptions(person):
+    return [
+        Subscription(
+            person=person,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=activity_type,
+        )
+        for activity_type in Subscription.DEFAULT_LFI__EMAIL_TYPES
+    ]
+
+
+def get_default_2022_email_subscriptions(person):
+    return [
+        Subscription(
+            person=person,
+            type=Subscription.SUBSCRIPTION_EMAIL,
+            activity_type=activity_type,
+        )
+        for activity_type in Subscription.DEFAULT_LFI__EMAIL_TYPES
+    ]
+
+
 def get_default_group_email_subscriptions(person, membership):
     return [
         Subscription(
@@ -50,6 +72,10 @@ def get_default_group_push_subscriptions(person, membership):
 
 def create_default_person_email_subscriptions(person):
     subscriptions = get_default_person_email_subscriptions(person)
+    if person.is_insoumise:
+        subscriptions += get_default_lfi_email_subscriptions(person)
+    if person.is_2022:
+        subscriptions += get_default_2022_email_subscriptions(person)
     person_memberships = Membership.objects.filter(person=person).distinct()
 
     if person_memberships.exists():

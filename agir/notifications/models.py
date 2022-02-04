@@ -1,6 +1,7 @@
 from django.db import models
 
 from agir.activity.models import Activity
+from agir.people.models import Person
 from agir.lib.models import TimeStampedModel, UUIDIdentified
 
 
@@ -35,6 +36,20 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         Activity.TYPE_GROUP_INVITATION,
         Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
     )
+
+    DEFAULT_LFI__EMAIL_TYPES = [
+        Person.NEWSLETTER_LFI,
+    ]
+
+    DEFAULT_2022_EMAIL__TYPES = [
+        Person.NEWSLETTER_2022,
+        Person.NEWSLETTER_2022_EXCEPTIONNEL,
+        Person.NEWSLETTER_2022_EN_LIGNE,
+        Person.NEWSLETTER_2022_CHEZ_MOI,
+        Person.NEWSLETTER_2022_PROGRAMME,
+        Person.NEWSLETTER_2022_LIAISON,
+        Person.NEWSLETTERS_CHOICES,
+    ]
 
     # DEFAULT PERSON/EVENT TYPES
     DEFAULT_PERSON_EMAIL_TYPES = [

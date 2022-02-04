@@ -133,7 +133,7 @@ def person_post_save_handler(sender, instance, created=False, **kwargs):
         or Subscription.objects.filter(
             person=instance,
             type=Subscription.SUBSCRIPTION_EMAIL,
-            activity_type=Subscription.DEFAULT_PERSON_EMAIL_TYPES,
+            activity_type__in=Subscription.DEFAULT_PERSON_EMAIL_TYPES,
         ).exists()
     ):
         return

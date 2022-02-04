@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import useSWR from "swr";
 
@@ -6,6 +6,8 @@ import {
   getAllNotifications,
   getNotificationStatus,
 } from "@agir/notifications/common/notifications.config";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
 import * as api from "@agir/notifications/common/api";
 
 import NotificationSettingPanel from "./NotificationSettingPanel";
@@ -21,12 +23,19 @@ const NotificationSettings = (props) => {
     isValidating,
   } = useSWR(api.ENDPOINT.getSubscriptions);
 
+  const user = useSelector(getUser);
   const [isLoading, setIsLoading] = useState(false);
 
-  const notifications = useMemo(
-    () => getAllNotifications(groupData?.groups),
-    [groupData]
-  );
+  const notifications = useMemo(() => {
+    const notifications = getAllNotifications(groupData?.groups, user);
+    return notifications.filter(
+      (n) =>
+        !(
+          (n.id === "lfi_newsletter" && !user.isInsoumise) ||
+          (n.id === "melenchon2022" && !user.is2022)
+        )
+    );
+  }, [groupData, user]);
 
   const activeNotifications = useMemo(
     () => getNotificationStatus(userNotifications),
