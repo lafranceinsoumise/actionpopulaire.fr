@@ -205,6 +205,7 @@ const GroupCard = ({
           </Button>,
           isCertified && (
             <Button
+              link
               style={{ marginTop: "1rem" }}
               key="fund"
               icon="fast-forward"
