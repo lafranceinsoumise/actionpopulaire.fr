@@ -56,8 +56,8 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             else:
                 groups = groups.filter(type=groupType)
 
-        if not groupInactive == "1":
-            groups.filter(is_active_group_filter())
+        if groupInactive != "1":
+            groups = groups.filter(is_active_group_filter())
 
         # Query
         groups = groups.search(search_term)
