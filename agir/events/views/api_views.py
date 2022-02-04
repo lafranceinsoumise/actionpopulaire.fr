@@ -151,13 +151,19 @@ class EventRsvpedAPIView(EventListAPIView):
 class PastRsvpedEventAPIView(EventListAPIView):
     def get_queryset(self):
         person = self.request.user.person
-        person_groups = person.supportgroups.all()
+        managed_groups = person.memberships.filter(
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
+        ).values_list("supportgroup_id", flat=True)
+
         return (
             Event.objects.with_serializer_prefetch(person)
+            .listed()
             .past()
-            .filter(Q(rsvps__person=person) | Q(organizers_groups__in=person_groups))
-            .distinct()
-            .order_by("-start_time")[:10]
+            .filter(
+                Q(attendees=person)
+                | Q(organizers=person)
+                | Q(organizers_groups__id__in=managed_groups)
+            )
         )
 
 
