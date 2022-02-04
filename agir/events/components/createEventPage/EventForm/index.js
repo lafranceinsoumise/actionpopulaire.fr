@@ -20,6 +20,7 @@ import UnloadPrompt from "@agir/front/app/UnloadPrompt";
 import NameField from "./NameField";
 import OrganizerGroupField from "@agir/events/common/OrganizerGroupField";
 import DateField from "./DateField";
+import DescriptionField from "./DescriptionField";
 import EventImageField from "./EventImageField";
 import SubtypeField from "./SubtypeField";
 import ContactField from "./ContactField";
@@ -328,6 +329,14 @@ const EventForm = () => {
         error={errors && errors.subtype}
         disabled={isLoading}
         required
+      />
+      <Spacer size="1.25rem" data-scroll="description" />
+      <DescriptionField
+        name="description"
+        value={formData.description}
+        onChange={updateValue}
+        error={errors && errors.description}
+        disabled={isLoading}
       />
       <Spacer size="1.25rem" data-scroll="image" />
       <EventImageField
