@@ -20,7 +20,7 @@ def get_default_lfi_email_subscriptions(person):
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=activity_type,
         )
-        for activity_type in Subscription.DEFAULT_LFI__EMAIL_TYPES
+        for activity_type in Subscription.DEFAULT_LFI_EMAIL_TYPES
     ]
 
 
@@ -31,7 +31,7 @@ def get_default_2022_email_subscriptions(person):
             type=Subscription.SUBSCRIPTION_EMAIL,
             activity_type=activity_type,
         )
-        for activity_type in Subscription.DEFAULT_LFI__EMAIL_TYPES
+        for activity_type in Subscription.DEFAULT_2022_EMAIL_TYPES
     ]
 
 
