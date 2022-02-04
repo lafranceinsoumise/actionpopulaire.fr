@@ -12,21 +12,13 @@ import GroupSuggestionCard from "@agir/groups/groupPage/GroupSuggestionCard";
 import { GroupSuggestionCarousel } from "@agir/groups/groupPage/GroupSuggestions";
 
 const StackedGroupList = styled.div`
-  display: flex;
-  flex-flow: wrap;
-  justify-content: space-between;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+  grid-gap: 1rem;
 
-  @media (max-width: ${(props) => props.theme.collapse}px) {
-    justify-content: flex-start;
-  }
   & > div {
-    flex: 0 0 310px;
-    margin-bottom: 10px;
     max-width: unset;
-    @media (max-width: ${(props) => props.theme.collapse}px) {
-      flex: 1 1 310px;
-    }
+    width: 100%;
   }
 `;
 
