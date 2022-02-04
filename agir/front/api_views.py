@@ -1,16 +1,17 @@
+import json
+
+from django.conf import settings
+from django.utils import timezone
+from rest_framework import permissions
 from rest_framework.generics import (
     ListAPIView,
 )
-from rest_framework import permissions
 from rest_framework.response import Response
 
 from agir.events.models import Event
-from agir.groups.models import SupportGroup
-from agir.groups.serializers import SupportGroupDetailSerializer
 from agir.events.serializers import EventSerializer, EventListSerializer
-from django.utils import timezone
-import json
-from django.conf import settings
+from agir.groups.models import SupportGroup
+from agir.groups.serializers import SupportGroupSearchResultSerializer
 
 from agir.groups.utils import is_active_group_filter
 
@@ -35,11 +36,12 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         return serializer_class(*args, **kwargs)
 
     def get_groups(self, search_term, filters):
+
         groupType = filters.get("groupType", None)
         groupSort = filters.get("groupSort", None)
         groupInactive = filters.get("groupInactive", None)
 
-        groups = SupportGroup.objects.active()
+        groups = SupportGroup.objects.active().with_serializer_prefetch(None)
 
         # Filter
         if groupType:
@@ -54,8 +56,8 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             else:
                 groups = groups.filter(type=groupType)
 
-        if not groupInactive == "1":
-            groups.filter(is_active_group_filter())
+        if groupInactive != "1":
+            groups = groups.filter(is_active_group_filter())
 
         # Query
         groups = groups.search(search_term)
@@ -71,21 +73,17 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
 
         groups_serializer = self.get_serializer(
             data=groups,
-            serializer_class=SupportGroupDetailSerializer,
-            fields=SupportGroupDetailSerializer.GROUP_CARD_FIELDS,
+            serializer_class=SupportGroupSearchResultSerializer,
         )
         groups_serializer.is_valid()
         return groups_serializer.data
 
     def get_events(self, search_term, filters):
-
         eventType = filters.get("eventType", None)
         eventCategory = filters.get("eventCategory", None)
         eventSort = filters.get("eventSort", None)
 
-        events = Event.objects.filter(
-            visibility=Event.VISIBILITY_PUBLIC, do_not_list=False
-        )
+        events = Event.objects.listed().with_serializer_prefetch(None)
 
         # Filters
         if eventType:
