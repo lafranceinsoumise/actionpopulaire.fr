@@ -155,7 +155,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
     )
 
     type = models.CharField(
-        "Type de dépense", max_length=5, choices=TypeDepense.choices
+        "Type de dépense", max_length=7, choices=TypeDepense.choices
     )
 
     montant = models.DecimalField(
