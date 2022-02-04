@@ -50,6 +50,7 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         Activity.TYPE_WAITING_LOCATION_EVENT,
         Activity.TYPE_REMINDER_DOCS_EVENT_EVE,
         Activity.TYPE_REMINDER_DOCS_EVENT_NEXTDAY,
+        Activity.TYPE_REMINDER_UPCOMING_EVENT_START,
     ]
 
     # DEFAULT GROUP TYPES
