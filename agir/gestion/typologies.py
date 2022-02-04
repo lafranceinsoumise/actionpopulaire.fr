@@ -10,7 +10,10 @@ class Etat(TextChoices):
 class TypeDocument(TextChoices):
     DEVIS = "DEV", "Devis"
     CONTRAT = "CON", "Contrat"
+
     FACTURE = "FAC", "Facture"
+    FACTURE_AVOIR = "FAC-AVO", "Facture d'avoir"
+
     BDL = "BDL", "Bon de livraison"
 
     JUSTIFICATIF = "JUS", "Justificatif de dépense"

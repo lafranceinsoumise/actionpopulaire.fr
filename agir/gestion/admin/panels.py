@@ -67,8 +67,10 @@ class CompteAdmin(admin.ModelAdmin):
 class FournisseurAdmin(VersionAdmin):
     list_display = ("nom", "contact_phone", "contact_email")
 
+    CHAMPS_PERSONNES_MORALES = ["siren"]
+
     fieldsets = (
-        (None, {"fields": ("nom", "contact_phone", "contact_email")}),
+        (None, {"fields": ("type", "nom", "contact_phone", "contact_email", "siren")}),
         ("Paiement", {"fields": ("iban",)}),
         (
             "Adresse de facturation",

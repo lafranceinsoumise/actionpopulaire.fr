@@ -412,6 +412,11 @@ class Reglement(TimeStampedModel):
         ordering = ("date",)
 
 
+class TypeFournisseur(models.TextChoices):
+    PERSONNE_MORALE = "M", "Personne morale"
+    PERSONNE_PHYSIQUE = "P", "Personne physique"
+
+
 @reversion.register()
 class Fournisseur(LocationMixin, TimeStampedModel):
     """Ce modèle permet d'enregistrer des fournisseurs récurrents.
@@ -419,6 +424,16 @@ class Fournisseur(LocationMixin, TimeStampedModel):
     Un fournisseur peut posséder une adresse, un IBAN pour réaliser des virements,
     et des informations de contact.
     """
+
+    Type = TypeFournisseur
+
+    type = models.CharField(
+        verbose_name="Type de fournisseur",
+        blank=False,
+        max_length=1,
+        choices=Type.choices,
+        default=Type.PERSONNE_MORALE,
+    )
 
     nom = models.CharField(
         verbose_name="Nom du fournisseur", blank=False, max_length=100
@@ -430,8 +445,33 @@ class Fournisseur(LocationMixin, TimeStampedModel):
     contact_phone = PhoneNumberField(verbose_name="Numéro de téléphone", blank=True)
     contact_email = models.EmailField(verbose_name="Adresse email", blank=True)
 
+    siren = models.CharField(verbose_name="SIREN/SIRET", max_length=14, blank=True)
+
     def __str__(self):
         return self.nom
+
+    def clean_fields(self, exclude=None):
+        try:
+            super().clean_fields()
+        except ValidationError as e:
+            errors = e.error_dict
+        else:
+            errors = {}
+
+        if exclude is None:
+            exclude = []
+
+        if "siren" not in exclude and "siren" not in errors and self.siren:
+            if len(self.siren) not in (9, 14):
+                errors["siren"] = [
+                    ValidationError(
+                        "Indiquez soit un code SIREN (9 caractères), soit un code SIRET (14 caractères).",
+                        code="siren_invalide",
+                    )
+                ]
+
+        if errors:
+            raise ValidationError(errors)
 
 
 CONDITIONS = {
