@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
-import { animated, useSpring } from "react-spring";
+import { animated, useSpring } from "@react-spring/web";
 import styled from "styled-components";
 import { A11y } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
