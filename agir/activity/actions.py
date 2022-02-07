@@ -13,6 +13,7 @@ from django.utils import timezone
 from agir.activity.models import Activity
 from .models import Announcement
 from ..events.models import Event
+from ..mailing.models import Segment
 
 
 def get_activities(person):
@@ -52,26 +53,30 @@ def get_announcements(person=None, custom_display=None):
     if custom_display is not None:
         cond = Q(custom_display__exact=custom_display) & cond
 
-    # Les annonces sont affichés :
-    # - avec les plus grandes priorités d'abord
-    # - à priorité égale, les plus récentes d'abord
-    # - à priorité et date de début égales, celles qui disparaitront les premières d'abord
-    announcements = Announcement.objects.filter(cond).order_by(
-        "-priority", "-start_date", "end_date"
-    )
+    announcements = Announcement.objects.filter(cond)
 
     if person:
-        # Automatically create an activity for the person if none exists for the announcement
-        announcements_pks = [
-            announcement.pk
-            for announcement in announcements.select_related(
-                "segment"
-            ).prefetch_related("segment__add_segments", "segment__exclude_segments")
-            if announcement.segment is None
-            or announcement.segment.is_subscriber(person)
+        # Avoid checking if the person belongs to a segment multiple times for the same segment
+        segment_ids = [
+            segment.id
+            for segment in (
+                Segment.objects.prefetch_related("add_segments", "exclude_segments")
+                .filter(
+                    pk__in=list(
+                        announcements.exclude(segment_id__isnull=True).values_list(
+                            "segment_id", flat=True
+                        )
+                    )
+                )
+                .distinct("pk")
+            )
+            if segment.is_subscriber(person)
         ]
 
-        announcements = announcements.filter(pk__in=announcements_pks).annotate(
+        # Automatically create an activity for the person if none exists for the announcement
+        announcements = announcements.filter(
+            Q(segment_id__isnull=True) | Q(segment_id__in=segment_ids)
+        ).annotate(
             activity_id=Subquery(
                 Activity.objects.filter(
                     recipient_id=person.id, announcement_id=OuterRef("id")
@@ -91,10 +96,14 @@ def get_announcements(person=None, custom_display=None):
         ]
 
         Activity.objects.bulk_create(activities, ignore_conflicts=True)
-
-        return announcements
     else:
-        return announcements.filter(segment__isnull=True)
+        announcements = announcements.filter(segment__isnull=True)
+
+    # Les annonces sont affichés dans l'ordre :
+    # - avec les plus grandes priorités d'abord
+    # - à priorité égale, les plus récentes d'abord
+    # - à priorité et date de début égales, celles qui disparaitront les premières d'abord
+    return announcements.order_by("-priority", "-start_date", "end_date")
 
 
 def get_non_custom_announcements(person=None):
