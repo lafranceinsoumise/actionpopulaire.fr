@@ -60,7 +60,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             groups = groups.filter(is_active_group_filter())
 
         # Query
-        groups = groups.search(search_term)
+        groups = groups.search(search_term).distinct()
 
         # Sort
         if groupSort:
@@ -95,7 +95,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
                 events = events.filter(end_time__gte=timezone.now())
 
         # Query
-        events = events.search(search_term)
+        events = events.search(search_term).distinct()
 
         # Sort
         if eventSort:

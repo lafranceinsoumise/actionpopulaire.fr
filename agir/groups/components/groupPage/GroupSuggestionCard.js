@@ -11,6 +11,8 @@ import Card from "@agir/front/genericComponents/Card";
 import Map from "@agir/carte/common/Map";
 import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 
+import eventCardDefaultBackground from "@agir/front/genericComponents/images/event-card-default-bg.svg";
+
 const StyledMap = styled.div``;
 const StyledBody = styled.div``;
 const StyledCard = styled(Card)`
@@ -29,10 +31,20 @@ const StyledCard = styled(Card)`
   }
 
   ${StyledMap} {
+    background-image: url(${eventCardDefaultBackground});
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-color: #fafafa;
     height: 216px;
 
     @media (max-width: ${style.collapse}px) {
       height: 159px;
+    }
+
+    img {
+      height: 100%;
+      width: auto;
     }
   }
 
@@ -82,16 +94,14 @@ const GroupSuggestionCard = (props) => {
   return (
     <StyledCard onClick={handleClick}>
       <StyledMap>
-        <Map
-          center={
-            coordinates && Array.isArray(coordinates.coordinates)
-              ? coordinates.coordinates
-              : [0, 0]
-          }
-          iconConfiguration={iconConfiguration}
-          isStatic
-          staticMapUrl={staticMapUrl}
-        />
+        {Array.isArray(coordinates?.coordinates) && (
+          <Map
+            center={coordinates.coordinates}
+            iconConfiguration={iconConfiguration}
+            staticMapUrl={staticMapUrl}
+            isStatic
+          />
+        )}
       </StyledMap>
       <StyledBody>
         <h4>{name}</h4>
