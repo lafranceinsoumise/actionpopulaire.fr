@@ -5,6 +5,7 @@ import useSWR from "swr";
 import {
   getAllNotifications,
   getNotificationStatus,
+  getNewsletterStatus,
 } from "@agir/notifications/common/notifications.config";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
@@ -14,6 +15,7 @@ import NotificationSettingPanel from "./NotificationSettingPanel";
 
 import { ProtectedComponent } from "@agir/front/app/Router";
 import { routeConfig } from "@agir/front/app/routes.config";
+import { updateProfile } from "@agir/front/authentication/api";
 
 const NotificationSettings = (props) => {
   const { data: groupData } = useSWR("/api/groupes/");
@@ -26,26 +28,51 @@ const NotificationSettings = (props) => {
   const user = useSelector(getUser);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { data: profile, mutate: mutateProfile } = useSWR("/api/user/profile/");
+
   const notifications = useMemo(() => {
-    const notifications = getAllNotifications(groupData?.groups, user);
-    return notifications.filter(
-      (n) =>
-        !(
-          (n.id === "lfi_newsletter" && !user.isInsoumise) ||
-          (n.id === "melenchon2022" && !user.is2022)
-        )
-    );
+    return getAllNotifications(groupData?.groups, user);
   }, [groupData, user]);
+
+  const activeNewsletters = useMemo(() => {
+    return getNewsletterStatus(profile?.newsletters);
+  }, [profile]);
 
   const activeNotifications = useMemo(
     () => getNotificationStatus(userNotifications),
     [userNotifications]
   );
 
+  const allActiveNotifications = {
+    ...activeNewsletters,
+    ...activeNotifications,
+  };
+
   const handleChange = useCallback(
     async (notification) => {
       setIsLoading(true);
       let result;
+
+      // Update profile newsletters
+      if (notification.isNewsletter) {
+        if (notification.action === "add") {
+          result = await updateProfile({
+            newsletters: [...profile?.newsletters, notification.id],
+          });
+        }
+        if (notification.action === "remove") {
+          result = await updateProfile({
+            newsletters: profile?.newsletters.filter(
+              (notif) => notif !== notification.id
+            ),
+          });
+        }
+        setIsLoading(false);
+        mutateProfile();
+        return;
+      }
+
+      // Update activities
       if (notification.action === "add") {
         result = await api.createSubscriptions(
           notification.activityTypes.map((activityType) => ({
@@ -72,14 +99,14 @@ const NotificationSettings = (props) => {
             )
       );
     },
-    [mutate]
+    [mutate, profile]
   );
 
   return (
     <NotificationSettingPanel
       {...props}
       notifications={notifications}
-      activeNotifications={activeNotifications}
+      activeNotifications={allActiveNotifications}
       onChange={handleChange}
       disabled={isLoading || isValidating}
       ready={!!userNotifications && !!groupData}

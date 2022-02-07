@@ -5,7 +5,8 @@ from stdimage import StdImageField
 from stdimage.validators import MinSizeValidator
 
 from agir.lib.models import TimeStampedModel, DescriptionField, BaseAPIResource
-from agir.people.models import Person
+
+#
 
 __all__ = ["Activity", "Announcement"]
 
@@ -28,8 +29,9 @@ class ActivityManager(models.Manager.from_queryset(ActivityQuerySet)):
 
 class Activity(TimeStampedModel):
 
-    # PERSON/EVENT TYPES
     TYPE_REFERRAL = "referral-accepted"
+
+    # PERSON/EVENT TYPES
     TYPE_NEW_ATTENDEE = "new-attendee"
     TYPE_EVENT_UPDATE = "event-update"
     TYPE_CANCELLED_EVENT = "cancelled-event"
@@ -171,7 +173,7 @@ class Activity(TimeStampedModel):
             TYPE_REMINDER_REPORT_FORM_FOR_EVENT,
             "Rappel au lendemain d'un événement de l'éventuel formulaire de bilan à remplir",
         ),
-    ) + Person.NEWSLETTERS_CHOICES
+    )
 
     STATUS_UNDISPLAYED = "U"
     STATUS_DISPLAYED = "S"

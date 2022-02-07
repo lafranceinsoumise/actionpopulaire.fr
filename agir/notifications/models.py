@@ -37,20 +37,6 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         Activity.TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
     )
 
-    DEFAULT_LFI_EMAIL_TYPES = [
-        Person.NEWSLETTER_LFI,
-    ]
-
-    DEFAULT_2022_EMAIL_TYPES = [
-        Person.NEWSLETTER_2022,
-        Person.NEWSLETTER_2022_EXCEPTIONNEL,
-        Person.NEWSLETTER_2022_EN_LIGNE,
-        Person.NEWSLETTER_2022_CHEZ_MOI,
-        Person.NEWSLETTER_2022_PROGRAMME,
-        Person.NEWSLETTER_2022_LIAISON,
-        Person.NEWSLETTERS_CHOICES,
-    ]
-
     # DEFAULT PERSON/EVENT TYPES
     DEFAULT_PERSON_EMAIL_TYPES = [
         Activity.TYPE_EVENT_SUGGESTION,
