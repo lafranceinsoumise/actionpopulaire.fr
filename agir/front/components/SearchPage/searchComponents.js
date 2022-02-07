@@ -226,13 +226,13 @@ export const GroupFilters = ({ filters, setFilter }) => {
         `}
       >
         <CheckboxField
-          label="Inclure les groupes moins actifs"
+          label="Uniquement les groupes les plus actifs"
           name="groupInactive"
-          value={!!filters?.groupInactive}
+          value={!filters?.groupInactive}
           onChange={({ target }) =>
             setFilter(
               "groupInactive",
-              target.checked ? { value: "1" } : undefined
+              target.checked ? undefined : { value: "1" }
             )
           }
         />
