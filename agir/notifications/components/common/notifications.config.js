@@ -75,10 +75,10 @@ const PERSON_NOTIFICATIONS = [
     type: "Événements",
     icon: "calendar",
     subtype: "Événements auxquels je participe",
-    label: "Rappel d'événement la veille",
+    label: "Rappel d'événement",
     hasEmail: false,
     hasPush: true,
-    activityTypes: [],
+    activityTypes: ["reminder-upcoming-event-start"],
   },
   {
     id: "online_event_reminders",

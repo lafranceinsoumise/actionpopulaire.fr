@@ -537,6 +537,22 @@ class ReminderReportFormForEventNotificationSerializer(ActivityNotificationSeria
         )
 
 
+class ReminderUpcomingEventStartNotificationSerializer(ActivityNotificationSerializer):
+    def get_title(self, activity):
+        return activity.event.name
+
+    def get_body(self, activity):
+        start_time = activity.event.local_start_time
+        time = start_time.strftime("%H:%M")
+
+        return f"📆 Aujourd'hui à {time}"
+
+    def get_url(self, activity):
+        return activity_notification_url(
+            "view_event", activity=activity, kwargs={"pk": activity.event_id}
+        )
+
+
 ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_GROUP_INVITATION: GroupInvitationActivityNotificationSerializer,
     Activity.TYPE_NEW_FOLLOWER: NewFollowerActivityNotificationSerializer,
@@ -565,4 +581,5 @@ ACTIVITY_NOTIFICATION_SERIALIZERS = {
     Activity.TYPE_REMINDER_DOCS_EVENT_EVE: ReminderDocsEventPreActivityNotificationSerializer,
     Activity.TYPE_REMINDER_DOCS_EVENT_NEXTDAY: ReminderDocsEventNextdayActivityNotificationSerializer,
     Activity.TYPE_REMINDER_REPORT_FORM_FOR_EVENT: ReminderReportFormForEventNotificationSerializer,
+    Activity.TYPE_REMINDER_UPCOMING_EVENT_START: ReminderUpcomingEventStartNotificationSerializer,
 }
