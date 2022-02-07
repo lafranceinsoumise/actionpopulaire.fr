@@ -35,7 +35,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         kwargs.setdefault("context", self.get_serializer_context())
         return serializer_class(*args, **kwargs)
 
-    def get_groups(self, search_term, filters):
+    def get_groups(self, search_term, filters, result_limit=20):
 
         groupType = filters.get("groupType", None)
         groupSort = filters.get("groupSort", None)
@@ -69,7 +69,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             if groupSort == self.SORT_ALPHA_DESC:
                 groups = groups.order_by("-name")
 
-        groups = groups[:20]
+        groups = groups[:result_limit]
 
         groups_serializer = self.get_serializer(
             data=groups,
@@ -78,7 +78,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         groups_serializer.is_valid()
         return groups_serializer.data
 
-    def get_events(self, search_term, filters):
+    def get_events(self, search_term, filters, result_limit=20):
         eventType = filters.get("eventType", None)
         eventCategory = filters.get("eventCategory", None)
         eventSort = filters.get("eventSort", None)
@@ -108,7 +108,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             if eventSort == self.SORT_ALPHA_DESC:
                 events = events.order_by("-name")
 
-        events = events[:20]
+        events = events[:result_limit]
 
         events_serializer = self.get_serializer(
             data=events,
@@ -128,10 +128,16 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             self.RESULT_TYPE_EVENTS: [],
         }
 
+        result_limit = 20 if type is not None else 3
+
         if type is None or type == self.RESULT_TYPE_GROUPS:
-            results[self.RESULT_TYPE_GROUPS] = self.get_groups(search_term, filters)
+            results[self.RESULT_TYPE_GROUPS] = self.get_groups(
+                search_term, filters, result_limit=result_limit
+            )
 
         if type is None or type == self.RESULT_TYPE_EVENTS:
-            results[self.RESULT_TYPE_EVENTS] = self.get_events(search_term, filters)
+            results[self.RESULT_TYPE_EVENTS] = self.get_events(
+                search_term, filters, result_limit=result_limit
+            )
 
         return Response(results)
