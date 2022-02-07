@@ -3,6 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
+import MANUAL_REVALIDATION_SWR_CONFIG from "@agir/front/allPages/SWRContext";
 import { getEventEndpoint } from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -54,7 +55,8 @@ ReportFormCard.propTypes = {
 
 const ConnectedReportFormCard = ({ eventPk }) => {
   const { data } = useSWR(
-    eventPk && getEventEndpoint("getEventReportForm", { eventPk })
+    eventPk && getEventEndpoint("getEventReportForm", { eventPk }),
+    MANUAL_REVALIDATION_SWR_CONFIG
   );
   return (
     <PageFadeIn ready={!!data?.url}>
@@ -71,7 +73,7 @@ const ConnectedReportFormCard = ({ eventPk }) => {
 };
 
 ReportFormCard.propTypes = {
-  eventPk: PropTypes.string.isRequired,
+  eventPk: PropTypes.string,
 };
 
 export default ConnectedReportFormCard;

@@ -87,7 +87,7 @@ const OnlineUrlCard = (props) => {
 OnlineUrlCard.propTypes = {
   onlineUrl: PropTypes.string,
   youtubeVideoID: PropTypes.string,
-  isPast: PropTypes.boolean,
+  isPast: PropTypes.bool,
 };
 
 export default OnlineUrlCard;
