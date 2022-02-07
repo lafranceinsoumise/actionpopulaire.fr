@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
-from agir.lib.form_fields import AdminJsonWidget
+from agir.lib.admin.form_fields import AdminJsonWidget
 from agir.lib.utils import front_url
 from .models import Poll, PollOption
 

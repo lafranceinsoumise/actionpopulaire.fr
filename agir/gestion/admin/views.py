@@ -8,10 +8,10 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, TemplateView, FormView
 
-from agir.gestion.admin.forms import ReglementForm, CommentaireForm
-from agir.gestion.models import Depense, Commentaire, Reglement
-from agir.lib.admin import AdminViewMixin
+from agir.lib.admin.panels import AdminViewMixin
 from agir.lib.display import display_price
+from .forms import ReglementForm, CommentaireForm
+from ..models import Depense, Commentaire, Reglement
 
 
 class AjouterReglementView(AdminViewMixin, CreateView):

@@ -1,7 +1,7 @@
 from django.core.mail import get_connection, EmailMultiAlternatives
 
+from agir.lib.admin.utils import admin_url
 from agir.lib.celery import emailing_task, post_save_task
-from agir.lib.utils import admin_url
 from agir.msgs.models import UserReport
 
 

@@ -8,17 +8,19 @@ from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
 from agir.events.models import Event
-from agir.gestion.admin.widgets import HierarchicalSelect, SuggestingTextInput
-from agir.gestion.models import (
+from agir.lib.admin.form_fields import SuggestingTextInput, CleavedDateInput
+
+from ..admin.widgets import HierarchicalSelect
+from ..models import (
     Commentaire,
     Depense,
     Fournisseur,
     Projet,
     Reglement,
 )
-from agir.gestion.models.documents import Document, VersionDocument
-from agir.gestion.models.commentaires import ajouter_commentaire
-from agir.gestion.typologies import TypeDocument, TypeDepense, NATURE
+from ..models.commentaires import ajouter_commentaire
+from ..models.documents import Document, VersionDocument
+from ..typologies import TypeDocument, TypeDepense, NATURE
 
 
 class DocumentForm(forms.ModelForm):
@@ -175,6 +177,9 @@ class DepenseForm(forms.ModelForm):
         widgets = {
             "type": HierarchicalSelect,
             "nature": SuggestingTextInput(suggestions=NATURE),
+            "date_depense": CleavedDateInput,
+            "date_debut": CleavedDateInput,
+            "date_fin": CleavedDateInput,
         }
 
 
@@ -447,6 +452,7 @@ class ReglementForm(forms.ModelForm):
             "location_zip_fournisseur",
             "location_country_fournisseur",
         )
+        widgets = {"date": CleavedDateInput, "date_releve": CleavedDateInput}
 
 
 class OrdreVirementForm(forms.ModelForm):

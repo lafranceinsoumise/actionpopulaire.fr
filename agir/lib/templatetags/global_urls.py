@@ -80,7 +80,7 @@ class GlobalURLNode(Node):
 
 @register.tag
 def admin_url(parser, token):
-    from ..utils import admin_url
+    from agir.lib.admin.utils import admin_url
 
     return GlobalURLNode(*parse_global_url(parser, token), url_function=admin_url)
 

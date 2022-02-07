@@ -9,7 +9,9 @@ from agir.groups.tasks import (
     send_support_group_changed_notification,
     geocode_support_group,
 )
+from agir.lib.admin.utils import admin_url
 from agir.lib.geo import get_commune
+from agir.lib.html import textify
 from agir.lib.serializers import (
     FlexibleFieldsMixin,
     LocationSerializer,
@@ -18,14 +20,13 @@ from agir.lib.serializers import (
     NestedLocationSerializer,
     PhoneField,
 )
+from agir.lib.utils import front_url
 from agir.people.serializers import PersonSerializer
 from . import models
 from .actions import get_promo_codes
 from .actions.notifications import member_to_follower_notification
 from .models import Membership, SupportGroup, SupportGroupExternalLink
 from ..front.serializer_utils import RoutesField
-from ..lib.html import textify
-from ..lib.utils import front_url, admin_url
 from ..people.models import Person
 
 

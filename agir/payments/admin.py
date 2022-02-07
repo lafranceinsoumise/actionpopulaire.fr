@@ -14,17 +14,17 @@ from rangefilter.filters import DateRangeFilter
 
 from agir.checks.models import CheckPayment
 from agir.donations.form_fields import MoneyField
-from agir.lib.admin import PersonLinkMixin, AddRelatedLinkMixin
+from agir.lib.admin.panels import PersonLinkMixin, AddRelatedLinkMixin
 from agir.lib.utils import front_url
-from agir.payments.actions.payments import (
+from . import models
+from .actions.payments import (
     notify_status_change,
     change_payment_status,
     PaymentException,
 )
-from agir.payments.actions.subscriptions import terminate_subscription
-from agir.payments.models import Subscription, Payment
-from agir.payments.payment_modes import PAYMENT_MODES
-from . import models
+from .actions.subscriptions import terminate_subscription
+from .models import Subscription, Payment
+from .payment_modes import PAYMENT_MODES
 from .types import PAYMENT_TYPES, get_payment_choices
 
 
