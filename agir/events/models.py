@@ -238,13 +238,15 @@ class EventQuerySet(models.QuerySet):
         return self.filter(calendars__slug="grands-evenements")
 
     def for_segment_subscriber(self, person):
-        segmented_events = self.exclude(suggestion_segment__isnull=True)
+        from agir.mailing.models import Segment
 
+        segmented_events = self.exclude(suggestion_segment_id__isnull=True)
+        segments = Segment.objects.filter(
+            pk__in=segmented_events.values_list("suggestion_segment_id", flat=True)
+        ).distinct("pk")
         return segmented_events.filter(
-            pk__in=[
-                event.pk
-                for event in segmented_events
-                if event.suggestion_segment.is_subscriber(person)
+            suggestion_segment_id__in=[
+                segment.id for segment in segments if segment.is_subscriber(person)
             ]
         )
 
