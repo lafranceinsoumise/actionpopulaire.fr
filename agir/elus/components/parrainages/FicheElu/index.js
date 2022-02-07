@@ -134,6 +134,13 @@ const InteractionBox = ({ elu, onStatusChange }) => {
           )}
         </InteractionBoxLayout>
       );
+    case "C":
+      return (
+        <InteractionBoxLayout>
+          Le conseil constitutionnel a déjà reçu et validé le parrainage de{" "}
+          {demonstratif} pour {elu.parrainageFinal}.
+        </InteractionBoxLayout>
+      );
   }
 };
 InteractionBox.propTypes = {
