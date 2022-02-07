@@ -169,7 +169,7 @@ export const EventFilters = ({ filters, setFilter }) => {
     <>
       <SelectField
         label="Trier par"
-        placeholder="Date"
+        placeholder="Trier par..."
         name="eventSort"
         value={filters?.eventSort}
         onChange={(value) => setFilter("eventSort", value)}

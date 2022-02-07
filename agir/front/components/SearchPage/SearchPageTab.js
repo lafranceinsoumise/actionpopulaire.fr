@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 
-import Button from "@agir/front/genericComponents/Button";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -30,40 +29,23 @@ const SearchPageTab = (props) => {
     hasError,
   } = props;
 
-  const [showFilters, setShowFilters] = useState(false);
-
   if (!tab) {
     return null;
   }
 
-  const toggleFilters = () => {
-    setShowFilters(!showFilters);
-    resetFilters();
-  };
-
   return (
     <div>
-      <div style={{ padding: "1rem 0" }}>
+      <div style={{ padding: "1.5rem 0 1rem" }}>
         {tab.hasFilters && (
-          <>
-            <div style={{ textAlign: "right" }}>
-              <Button small icon="filter" onClick={toggleFilters}>
-                Filtrer
-              </Button>
-            </div>
-            <Spacer size="1rem" />
-            {showFilters && (
-              <StyledFilters>
-                {tab.hasFilters === "events" && (
-                  <EventFilters filters={filters} setFilter={applyFilter} />
-                )}
-                {tab.hasFilters === "groups" && (
-                  <GroupFilters filters={filters} setFilter={applyFilter} />
-                )}
-                <Spacer size="1rem" />
-              </StyledFilters>
+          <StyledFilters>
+            {tab.hasFilters === "events" && (
+              <EventFilters filters={filters} setFilter={applyFilter} />
             )}
-          </>
+            {tab.hasFilters === "groups" && (
+              <GroupFilters filters={filters} setFilter={applyFilter} />
+            )}
+            <Spacer size="1rem" />
+          </StyledFilters>
         )}
       </div>
       <PageFadeIn ready={!isLoading} wait={<Skeleton />}>
