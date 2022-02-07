@@ -509,6 +509,9 @@ class CreateEventSerializer(serializers.Serializer):
     image = serializers.ImageField(
         required=False, allow_empty_file=True, allow_null=True
     )
+    description = serializers.CharField(
+        allow_blank=True, allow_null=False, required=False
+    )
 
     class Meta:
         model = Event

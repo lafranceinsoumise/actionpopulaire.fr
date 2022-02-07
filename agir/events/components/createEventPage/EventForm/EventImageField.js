@@ -41,11 +41,10 @@ const EventImageField = (props) => {
           line-height: 1.5;
         `}
       >
-        {!required && "Facultative. "}
+        {!required && <em>Facultative. </em>}
         L'image apparaîtra sur la page et sur les réseaux sociaux. Taille
         conseillée&nbsp;: 1200x630&nbsp;px ou plus.
       </span>
-      <Spacer size="0.5rem" />
       <ImageField
         name={name}
         value={value?.file || null}
@@ -54,28 +53,32 @@ const EventImageField = (props) => {
         disabled={disabled}
         required={required}
       />
-      <Spacer size="0.5rem" />
-      <CheckboxField
-        value={value?.hasLicense || false}
-        label={
-          <span>
-            En important une image, je certifie être propriétaire des droits et
-            accepte de la partager sous licence libre{" "}
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/"
-            >
-              Creative Commons CC-BY-NC 3.0
-            </a>
-            .
-          </span>
-        }
-        onChange={handleChangeLicense}
-        disabled={!value || disabled}
-        error={error}
-        required
-      />
+      {!!value?.file && (
+        <>
+          <Spacer size="0.5rem" />
+          <CheckboxField
+            value={value?.hasLicense || false}
+            label={
+              <span>
+                En important une image, je certifie être propriétaire des droits
+                et accepte de la partager sous licence libre{" "}
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://creativecommons.org/licenses/by-nc-sa/3.0/fr/"
+                >
+                  Creative Commons CC-BY-NC 3.0
+                </a>
+                .
+              </span>
+            }
+            onChange={handleChangeLicense}
+            disabled={!value || disabled}
+            error={error}
+            required
+          />
+        </>
+      )}
     </>
   );
 };
