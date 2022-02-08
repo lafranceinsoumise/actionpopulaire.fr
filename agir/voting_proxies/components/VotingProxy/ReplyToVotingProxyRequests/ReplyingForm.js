@@ -27,6 +27,11 @@ const StyledRecap = styled.div`
       flex: 0 0 auto;
       width: 0.875rem;
       height: 0.875rem;
+      margin-right: 0.5rem;
+
+      @media (max-width: 350px) {
+        display: none;
+      }
     }
   }
 
@@ -119,19 +124,19 @@ const ReplyingForm = (props) => {
         {voter.commune && (
           <p>
             <RawFeatherIcon name="map-pin" />
-            &ensp;{voter.commune}
+            {voter.commune}
           </p>
         )}
         {voter.consulate && (
           <p>
             <RawFeatherIcon name="map-pin" />
-            &ensp;{voter.consulate}
+            {voter.consulate}
           </p>
         )}
         {voter.pollingStationNumber && (
           <p>
             <RawFeatherIcon name="map-pin" />
-            &ensp;Bureau de vote&nbsp;: {voter.pollingStationNumber}
+            Bureau de vote&nbsp;: {voter.pollingStationNumber}
           </p>
         )}
         <Spacer size="1rem" />
@@ -140,7 +145,7 @@ const ReplyingForm = (props) => {
         {votingDates.map((date) => (
           <p key={date}>
             <RawFeatherIcon name="calendar" />
-            &ensp;{date}
+            {date}
           </p>
         ))}
       </StyledRecap>
@@ -168,15 +173,17 @@ const ReplyingForm = (props) => {
         )}
         <Spacer size="1.5rem" />
         <Button
+          wrap
           disabled={isLoading}
           loading={isAccepting}
           type="submit"
-          color="danger"
+          color="success"
         >
           J'accepte de voter pour {voter.firstName}
         </Button>
         <Spacer size="1rem" />
         <Button
+          wrap
           disabled={isLoading}
           loading={isDeclining}
           type="button"

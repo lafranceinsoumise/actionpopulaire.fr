@@ -109,14 +109,16 @@ const VotingProxyRequestDetails = () => {
               >
                 <Button
                   link
+                  wrap
                   href="https://www.maprocuration.gouv.fr/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  color="danger"
+                  color="success"
                   css={`
                     font-size: 1.25rem;
                     height: 4.25rem;
                     padding: 0 2.5rem;
+                    line-height: 1.2;
                   `}
                 >
                   Établir la procuration&ensp;
