@@ -38,6 +38,9 @@ class SupportGroupQuerySet(models.QuerySet):
     def active(self):
         return self.filter(published=True)
 
+    def with_messages(self):
+        return self.active().filter(is_messaging_enabled=True)
+
     def certified(self):
         return self.filter(subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES)
 

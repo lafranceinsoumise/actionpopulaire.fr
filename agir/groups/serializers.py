@@ -217,6 +217,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
     hasMessages = serializers.SerializerMethodField(
         read_only=True,
     )
+    isMessagingEnabled = serializers.BooleanField(
+        source="is_messaging_enabled", read_only=True
+    )
 
     def to_representation(self, instance):
         user = self.context["request"].user
@@ -429,7 +432,9 @@ class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_hasMessages(self, obj):
         return (
-            self.membership is not None and obj.messages.filter(deleted=False).exists()
+            obj.is_messaging_enabled
+            and self.membership is not None
+            and obj.messages.filter(deleted=False).exists()
         )
 
     def get_links(self, obj):

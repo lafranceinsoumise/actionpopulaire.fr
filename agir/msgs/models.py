@@ -28,20 +28,25 @@ class UserReport(TimeStampedModel):
         verbose_name_plural = "Signalements"
 
 
-class AbstractMessageQuerySet(models.QuerySet):
+class SupportGroupMessageQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(deleted=False, author__role__is_active=True)
+        return self.filter(
+            deleted=False,
+            author__role__is_active=True,
+            supportgroup__is_messaging_enabled=True,
+        )
 
 
-AbstractMessageManager = models.Manager.from_queryset(
-    AbstractMessageQuerySet, class_name="AbstractMessageManager"
-)
+class SupportGroupMessageCommentQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(
+            deleted=False,
+            author__role__is_active=True,
+            message__supportgroup__is_messaging_enabled=True,
+        )
 
 
 class AbstractMessage(BaseAPIResource):
-
-    objects = AbstractMessageManager()
-
     author = models.ForeignKey(
         "people.Person",
         editable=False,
@@ -60,6 +65,7 @@ class AbstractMessage(BaseAPIResource):
 
 @reversion.register()
 class SupportGroupMessage(AbstractMessage):
+    objects = SupportGroupMessageQuerySet.as_manager()
 
     subject = models.CharField(
         "Objet", max_length=150, null=False, blank=True, default=""
@@ -100,6 +106,7 @@ class SupportGroupMessage(AbstractMessage):
 
 @reversion.register()
 class SupportGroupMessageComment(AbstractMessage):
+    objects = SupportGroupMessageCommentQuerySet.as_manager()
 
     message = models.ForeignKey(
         "SupportGroupMessage",

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 import Button from "@agir/front/genericComponents/Button";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
+import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import StyledDialog from "./StyledDialog";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
@@ -14,6 +15,7 @@ export const JoinGroup = (props) => {
     isLoading,
     groupName,
     groupReferents,
+    groupContact,
     personName,
     personalInfoConsent,
     onJoin,
@@ -124,10 +126,23 @@ export const JoinGroup = (props) => {
               Envoyez-leur un message pour vous présenter&nbsp;:
               <Spacer size="1rem" />
               <footer>
-                <Button color="primary" block wrap onClick={openMessageModal}>
-                  Je me présente&nbsp;! &nbsp;
-                  <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
-                </Button>
+                {openMessageModal ? (
+                  <Button color="primary" block wrap onClick={openMessageModal}>
+                    Je me présente&nbsp;! &nbsp;
+                    <RawFeatherIcon
+                      name="mail"
+                      width="1.5rem"
+                      height="1.5rem"
+                    />
+                  </Button>
+                ) : (
+                  <ShareLink
+                    label="Copier"
+                    color="primary"
+                    url={groupContact.email}
+                    $wrap
+                  />
+                )}
                 <Button disabled={isLoading} onClick={onClose} block wrap>
                   Plus tard
                 </Button>
@@ -156,6 +171,7 @@ JoinGroup.propTypes = {
   onJoin: PropTypes.func.isRequired,
   onUpdate: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
+  openMessageModal: PropTypes.func,
 };
 
 const JoinGroupDialog = (props) => {
