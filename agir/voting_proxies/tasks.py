@@ -48,7 +48,7 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
             "voting_proxy_request_details",
             query={"vpr": ",".join([str(pk) for pk in voting_proxy_request_pks])},
         )
-        link = shorten_url(link, secret=True)
+        link = shorten_url(link, secret=True, djan_url_type="M2022")
         request_owner_message = (
             f"{voting_proxy_request.proxy.first_name} s’est porté-e volontaire pour voter en votre nom "
             f"{voting_dates} ! {link}"

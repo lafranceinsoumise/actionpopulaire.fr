@@ -833,7 +833,10 @@ PRESSERO_APPROBATOR_ID = os.environ.get("PRESSERO_APPROBATOR_ID")
 PRESSERO_GROUP_ID = os.environ.get("PRESSERO_GROUP_ID")
 
 # djan
-DJAN_URL = "https://la-fi.fr"
+DJAN_URL = {
+    "LFI": "https://la-fi.fr",
+    "M2022": "https://m2022.fr",
+}
 DJAN_API_KEY = os.environ.get("DJAN_API_KEY")
 
 # nuntius
