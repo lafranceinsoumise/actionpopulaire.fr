@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import { FaLock } from "react-icons/fa";
+import { FaLock } from "@agir/front/genericComponents/FaIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 

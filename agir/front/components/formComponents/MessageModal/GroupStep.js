@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 
-import { FaUsers } from "react-icons/fa";
+import { FaUsers } from "@agir/front/genericComponents/FaIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -106,7 +106,7 @@ const GroupStepOption = (props) => {
   return (
     <StyledOption onClick={() => onSelect(group)}>
       <i>
-        <FaUsers size={20} color={style.white} />
+        <FaUsers color={style.white} />
       </i>
       <span title={group.name}>{group.name}</span>
     </StyledOption>

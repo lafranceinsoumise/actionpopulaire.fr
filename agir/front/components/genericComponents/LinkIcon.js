@@ -1,7 +1,12 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import { FaFacebook, FaTwitter, FaYoutube, FaInstagram } from "react-icons/fa";
+import {
+  FaFacebook,
+  FaTwitter,
+  FaYoutube,
+  FaInstagram,
+} from "@agir/front/genericComponents/FaIcon";
 
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 

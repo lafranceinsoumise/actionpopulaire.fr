@@ -7,7 +7,11 @@ import Button from "@agir/front/genericComponents/Button";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 import style from "@agir/front/genericComponents/_variables.scss";
-import { FaWhatsapp, FaFacebook, FaTelegramPlane } from "react-icons/fa";
+import {
+  FaWhatsapp,
+  FaFacebook,
+  FaTelegram,
+} from "@agir/front/genericComponents/FaIcon";
 
 const StyledContainer = styled.div`
   display: inline-flex;
@@ -53,12 +57,7 @@ const ShareContentUrl = ({ url }) => {
         rel="noopener noreferrer"
         href={`https://t.me/share/url?url=${urlEncoded}`}
       >
-        <FaTelegramPlane
-          size="1.5rem"
-          height="32"
-          width="32"
-          color={style.white}
-        />
+        <FaTelegram size="1.5rem" height="32" width="32" color={style.white} />
         &nbsp; Partager sur Telegram
       </Button>
       <Button
