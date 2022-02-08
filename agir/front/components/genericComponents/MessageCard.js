@@ -463,13 +463,14 @@ const MessageCard = (props) => {
     autoScrollOnComment,
   } = props;
 
-  const { group, author, text, created, linkedEvent } = message;
+  const { group, author, text, created, linkedEvent, lastUpdate } = message;
 
   const {
     comments,
     commentsCount,
     loadMore: loadMoreComments,
     isLoadingMore: isLoadingComments,
+    mutate: mutateComments,
   } = useCommentsSWR(message.id);
 
   const messageCardRef = useRef();
@@ -539,6 +540,10 @@ const MessageCard = (props) => {
       messageCardRef.current.scrollIntoView &&
       messageCardRef.current.scrollIntoView();
   }, [scrollIn]);
+
+  useEffect(() => {
+    lastUpdate && mutateComments && mutateComments();
+  }, [lastUpdate, mutateComments]);
 
   const isOrganizerMessage =
     message.requiredMembershipType > MEMBERSHIP_TYPES.MEMBER;
