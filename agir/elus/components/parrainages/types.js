@@ -26,6 +26,18 @@ export const RequestStatus = {
 };
 
 /**
+ * Les statuts d'élus, tels que rapportés par le backend
+ */
+export const ELU_STATUTS = {
+  DISPONIBLE: "D",
+  A_CONTACTER: "A",
+  EN_COURS: "E",
+  TERMINE: "T",
+  PERSONNELLEMENT_VU: "P",
+  CC: "C",
+};
+
+/**
  * Les infos d'élus telles que transmises par le backend.
  */
 export const InfosElu = PropTypes.shape({
@@ -37,7 +49,8 @@ export const InfosElu = PropTypes.shape({
   pcsLabel: PropTypes.string,
   commune: PropTypes.string.isRequired,
   distance: PropTypes.number,
-  statut: PropTypes.oneOf(["D", "A", "E", "T", "P"]).isRequired,
+  statut: PropTypes.oneOf(Object.values(ELU_STATUTS)).isRequired,
+  parrainageFinal: PropTypes.string,
   idRechercheParrainage: PropTypes.number,
   RechercheParrainages: PropTypes.shape({
     statut: PropTypes.oneOf([2, 3, 4, 5, 6, 7]),
@@ -54,17 +67,6 @@ export const InfosElu = PropTypes.shape({
     site: PropTypes.string,
   }),
 });
-
-/**
- * Les statuts d'élus, tels que rapportés par le backend
- */
-export const ELU_STATUTS = {
-  DISPONIBLE: "D",
-  A_CONTACTER: "A",
-  EN_COURS: "E",
-  TERMINE: "T",
-  PERSONNELLEMENT_VU: "P",
-};
 
 const statutsConfig = {
   [ELU_STATUTS.DISPONIBLE]: {
@@ -91,6 +93,11 @@ const statutsConfig = {
     label: "Je l'ai vu",
     bg: style.green100,
     text: style.black1000,
+  },
+  [ELU_STATUTS.CC]: {
+    label: "Reçu par le CC",
+    bg: style.green500,
+    text: style.black25,
   },
 };
 

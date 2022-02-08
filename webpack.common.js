@@ -284,7 +284,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
     library: ["Agir", "[name]"],
     filename: `[name]-[chunkhash].${
       type === CONFIG_TYPES.ES2015 ? "mjs" : "js"
-    }?cv=2`,
+    }?cv=3`,
     path: DISTPATH,
   },
   module: {
