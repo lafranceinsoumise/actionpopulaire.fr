@@ -44,11 +44,13 @@ from agir.lib.rest_framework_permissions import (
     HasSpecificPermissions,
 )
 
-ID_RECHERCHE_PARRAINAGE_SUBQUERY = Subquery(
-    RechercheParrainage.objects.filter(
-        ~Q(statut=RechercheParrainage.Statut.ANNULEE), maire_id=OuterRef("id")
-    ).values("id")[:1]
-)
+
+def subquery_recherche_parrainage(field):
+    return Subquery(
+        RechercheParrainage.objects.filter(
+            ~Q(statut=RechercheParrainage.Statut.ANNULEE) & Q(maire_id=OuterRef("id"))
+        ).values(field)[:1]
+    )
 
 
 def queryset_elus(person, distance_geom=None):
@@ -62,6 +64,15 @@ def queryset_elus(person, distance_geom=None):
                     .bloquant()
                     .annotate(
                         statut_composite=Case(
+                            When(
+                                Q(
+                                    statut__in=[
+                                        RechercheParrainage.Statut.AUTRE_CC,
+                                        RechercheParrainage.Statut.VALIDEE_CC,
+                                    ]
+                                ),
+                                then=Value(EluMunicipalSerializer.Statut.CC),
+                            ),
                             When(
                                 Q(person_id=person.id)
                                 & ~Q(statut=StatutRechercheParrainage.EN_COURS),
@@ -93,7 +104,14 @@ def queryset_elus(person, distance_geom=None):
                             EluMunicipalSerializer.Statut.PERSONNELLEMENT_VU,
                         ]
                     ),
-                    ID_RECHERCHE_PARRAINAGE_SUBQUERY,
+                    subquery_recherche_parrainage("id"),
+                ),
+                default=None,
+            ),
+            parrainage_final=Case(
+                When(
+                    Q(statut=EluMunicipalSerializer.Statut.CC),
+                    subquery_recherche_parrainage("parrainage"),
                 ),
                 default=None,
             ),

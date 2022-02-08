@@ -57,18 +57,6 @@ def front_url(
 front_url_lazy = lazy(front_url, str)
 
 
-def admin_url(viewname, args=None, kwargs=None, query=None, absolute=True):
-    if not viewname.startswith("admin:"):
-        viewname = f"admin:{viewname}"
-
-    url = reverse(viewname, args=args, kwargs=kwargs, urlconf="agir.api.admin_urls")
-    if absolute:
-        url = urljoin(settings.API_DOMAIN, url)
-    if query:
-        url = add_query_params_to_url(url, query)
-    return url
-
-
 def is_front_url(param):
     return isinstance(param, str) and param.startswith(settings.FRONT_DOMAIN)
 
@@ -97,13 +85,15 @@ def resize_and_autorotate(file_name, variations, storage=default_storage):
 
 
 def shorten_url(url, secret=False):
-    return requests.post(
+    response = requests.post(
         settings.DJAN_URL + "/api/shorten",
         params={
             "token": settings.DJAN_API_KEY,
         },
         data={"url": url, "length": 10 if secret else 5},
-    ).text
+    )
+    response.raise_for_status()
+    return response.text
 
 
 def get_client_ip(request):

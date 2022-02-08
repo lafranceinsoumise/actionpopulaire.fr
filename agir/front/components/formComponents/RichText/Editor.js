@@ -180,8 +180,12 @@ const MODULES = {
 const Editor = (props) => {
   const { value, onChange, disabled, hasError, ...rest } = props;
   const [isFocused, setIsFocused] = useState(false);
-  const handleFocus = useCallback(() => setIsFocused(true), []);
-  const handleBlur = useCallback(() => setIsFocused(false), []);
+  const handleFocus = useCallback(() => {
+    setIsFocused(true);
+  }, []);
+  const handleBlur = useCallback(() => {
+    setIsFocused(false);
+  }, []);
 
   return (
     <StyledEditor

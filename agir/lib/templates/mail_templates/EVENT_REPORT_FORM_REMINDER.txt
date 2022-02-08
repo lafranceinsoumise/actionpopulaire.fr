@@ -1,0 +1,17 @@
+Suite à votre {{ EVENT_SUBTYPE }} du {{ EVENT_DATE }} : {{ FORM_NAME }}
+  
+Vous avez effectué une action le {{ EVENT_DATE }}.  
+
+{{ FORM_DESCRIPTION }}  
+  
+Compléter les informations:
+{{ FORM_LINK }}
+
+------------------------------------------------------------------
+Cet email a été envoyé à {{ EMAIL }}. Il est personnel, ne le transférez pas.
+
+>> Choisir les emails que vous recevez
+{{ preferences_link }}
+
+>> Arrêter complètement de recevoir des emails
+{{ unsubscribe_link }}

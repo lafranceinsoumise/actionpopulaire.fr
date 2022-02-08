@@ -43,6 +43,8 @@ class StatutRechercheParrainage(models.IntegerChoices):
     AUTRE_ENGAGEMENT = 7, "S'est engagé envers un autre candidat"
 
     VALIDEE = 3, "Promesse reçue et validée"
+    VALIDEE_CC = 8, "Parrainage confirmé par le CC"
+    AUTRE_CC = 9, "A parrainé un autre candidat"
 
 
 class RechercheParrainageQueryset(models.QuerySet):

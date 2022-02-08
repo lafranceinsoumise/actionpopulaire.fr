@@ -11,15 +11,14 @@ import EventCard from "@agir/front/genericComponents/EventCard";
 import GroupSuggestionCard from "@agir/groups/groupPage/GroupSuggestionCard";
 import { GroupSuggestionCarousel } from "@agir/groups/groupPage/GroupSuggestions";
 
-const StyledGroupsDesktop = styled.div`
-  display: flex;
-  flex-flow: wrap;
-  justify-content: space-between;
+const StackedGroupList = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+  grid-gap: 1rem;
 
-  > div {
+  & > div {
+    max-width: unset;
     width: 100%;
-    flex-basis: 310px;
-    margin-bottom: 10px;
   }
 `;
 
@@ -28,38 +27,19 @@ const CarrouselContainer = styled.div`
   margin-right: -12px;
 `;
 
-const GroupsDesktop = ({ groups }) => (
-  <StyledGroupsDesktop>
-    {groups?.map((group) => (
-      <div key={group.id}>
-        <GroupSuggestionCard {...group} />
-      </div>
-    ))}
-  </StyledGroupsDesktop>
-);
-GroupsDesktop.PropTypes = {
-  groups: PropTypes.array,
-};
-
-const GroupsMobile = ({ groups }) => (
-  <CarrouselContainer>
-    <GroupSuggestionCarousel groups={groups} />
-  </CarrouselContainer>
-);
-GroupsMobile.PropTypes = {
-  groups: PropTypes.array,
-};
-
-export const GroupList = ({ groups }) => (
-  <div>
-    <ResponsiveLayout
-      MobileLayout={GroupsMobile}
-      DesktopLayout={GroupsDesktop}
-      groups={groups}
-    />
-  </div>
-);
-GroupList.PropTypes = {
+export const GroupList = ({ groups, inline = false }) =>
+  inline ? (
+    <CarrouselContainer>
+      <GroupSuggestionCarousel groups={groups} />
+    </CarrouselContainer>
+  ) : (
+    <StackedGroupList>
+      {groups?.map((group) => (
+        <GroupSuggestionCard key={group.id} {...group} />
+      ))}
+    </StackedGroupList>
+  );
+GroupList.propTypes = {
   groups: PropTypes.array,
 };
 
@@ -69,7 +49,7 @@ const EventItem = ({ event }) => (
     <Spacer size="1rem" />
   </>
 );
-EventItem.PropTypes = {
+EventItem.propTypes = {
   event: PropTypes.object,
 };
 
@@ -106,33 +86,27 @@ export const EventList = ({ events }) => {
     </>
   );
 };
-EventList.PropTypes = {
+EventList.propTypes = {
   events: PropTypes.array,
 };
 
-export const ListTitle = ({ name, list, isShowMore, onShowMore }) => {
-  if (!list?.length) {
-    return null;
-  }
+export const ListTitle = ({ name, list, onShowMore }) => (
+  <h2>
+    <div>
+      {name} {list.length > 0 && <span>{list.length}</span>}
+    </div>
+    {onShowMore && (
+      <Button color="primary" small onClick={onShowMore}>
+        Voir tout
+      </Button>
+    )}
+  </h2>
+);
 
-  return (
-    <h2>
-      <div>
-        {name} <span>{list.length}</span>
-      </div>
-      {isShowMore && (
-        <Button color="primary" small onClick={onShowMore}>
-          Voir tout
-        </Button>
-      )}
-    </h2>
-  );
-};
-ListTitle.PropTypes = {
+ListTitle.propTypes = {
   list: PropTypes.array,
   name: PropTypes.string,
   onShowMore: PropTypes.func,
-  isShowMore: PropTypes.bool,
 };
 
 export const NoResults = ({ name, list }) => {
@@ -146,7 +120,7 @@ export const NoResults = ({ name, list }) => {
     </>
   );
 };
-NoResults.PropTypes = {
+NoResults.propTypes = {
   list: PropTypes.array,
   name: PropTypes.string,
 };

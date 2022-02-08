@@ -193,20 +193,7 @@ EventCardIllustration.propTypes = {
 };
 
 const EventCard = (props) => {
-  const {
-    id,
-    illustration,
-    hasSubscriptionForm,
-    schedule,
-    location,
-    subtype,
-    name,
-    participantCount,
-    rsvp,
-    routes,
-    groups,
-    compteRendu,
-  } = props;
+  const { id, illustration, schedule, location, subtype, name, groups } = props;
 
   const now = DateTime.local();
   const pending = now >= schedule.start && now <= schedule.end;
@@ -259,8 +246,6 @@ const EventCard = (props) => {
 EventCard.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  participantCount: PropTypes.number,
-  hasSubscriptionForm: PropTypes.bool,
   illustration: PropTypes.shape({
     thumbnail: PropTypes.string,
   }),
@@ -274,20 +259,12 @@ EventCard.propTypes = {
     }),
     staticMapUrl: PropTypes.string,
   }),
-  rsvp: PropTypes.string,
-  routes: PropTypes.shape({
-    details: PropTypes.string,
-    join: PropTypes.string,
-    cancel: PropTypes.string,
-    compteRendu: PropTypes.string,
-  }),
   groups: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
       name: PropTypes.string,
     })
   ),
-  compteRendu: PropTypes.string,
   subtype: PropTypes.object,
 };
 

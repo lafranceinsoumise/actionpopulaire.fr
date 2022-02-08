@@ -13,7 +13,7 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from django.core.exceptions import PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django.db.models import Count, Max, Func, Value, Q, Subquery, OuterRef
+from django.db.models import Count, Max, Func, Value, Q
 from django.db.models.functions import Concat, Substr
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
@@ -27,14 +27,13 @@ from rangefilter.filters import DateRangeFilter
 from agir.authentication.models import Role
 from agir.elus.models import types_elus
 from agir.groups.models import Membership
-from agir.lib.admin import (
-    DisplayContactPhoneMixin,
-    CenterOnFranceMixin,
+from agir.lib.admin.filters import (
     DepartementListFilter,
     RegionListFilter,
     CirconscriptionLegislativeFilter,
 )
-from agir.lib.autocomplete_filter import AutocompleteRelatedModelFilter
+from agir.lib.admin.panels import CenterOnFranceMixin, DisplayContactPhoneMixin
+from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.utils import generate_token_params, front_url
 from agir.mailing.models import Segment
 from agir.people.actions.stats import get_statistics_for_queryset
@@ -50,7 +49,7 @@ from agir.people.admin.views import (
     MergePersonsView,
     PersonFormSandboxView,
 )
-from agir.people.models import Person, PersonTag, PersonEmail
+from agir.people.models import Person, PersonTag
 from agir.people.person_forms.display import default_person_form_display
 from agir.people.person_forms.models import PersonForm, PersonFormSubmission
 

@@ -68,26 +68,6 @@ const DiscountCodesSection = styled.section`
   }
 `;
 
-const GroupButton = ({ to, href, children, color = "default", icon }) => (
-  <Button
-    style={{ marginTop: "1rem" }}
-    link
-    to={to}
-    href={href}
-    color={color}
-    icon={icon}
-  >
-    {children}
-  </Button>
-);
-GroupButton.propTypes = {
-  to: PropTypes.string,
-  href: PropTypes.string,
-  children: PropTypes.node,
-  color: PropTypes.string,
-  icon: PropTypes.string,
-};
-
 const GroupCard = ({
   id,
   name,
@@ -105,6 +85,7 @@ const GroupCard = ({
   displayDescription,
   displayMembership,
   isEmbedded = false,
+  isCertified,
 }) => {
   const history = useHistory();
 
@@ -200,7 +181,8 @@ const GroupCard = ({
       <Row gutter={6} style={{ paddingTop: ".5rem" }}>
         {[
           !isEmbedded && !isMember && (
-            <GroupButton
+            <Button
+              style={{ marginTop: "1rem" }}
               key="join"
               color="primary"
               link
@@ -210,30 +192,39 @@ const GroupCard = ({
               <Hide as="span" under={800}>
                 &nbsp;le groupe
               </Hide>
-            </GroupButton>
+            </Button>
           ),
-          <GroupButton
+          <Button
+            style={{ marginTop: "1rem" }}
             link
             key="browse"
             color="default"
             to={routeConfig.groupDetails.getLink({ groupPk: id })}
           >
             Voir le groupe
-          </GroupButton>,
-          routes.fund && (
-            <GroupButton key="fund" href={routes.fund} icon="fast-forward">
+          </Button>,
+          isCertified && (
+            <Button
+              link
+              style={{ marginTop: "1rem" }}
+              key="fund"
+              icon="fast-forward"
+              route="donations"
+              params={{ group: id }}
+            >
               Financer
-            </GroupButton>
+            </Button>
           ),
           isManager && (
-            <GroupButton
+            <Button
+              style={{ marginTop: "1rem" }}
               key="manage"
               link
               to={routeConfig.groupSettings.getLink({ groupPk: id })}
               icon="settings"
             >
               Gestion
-            </GroupButton>
+            </Button>
           ),
         ]
           .filter(Boolean)

@@ -129,14 +129,15 @@ class EventQuerySet(models.QuerySet):
         )
 
     def with_serializer_prefetch(self, person):
-        return (
+        qs = (
             self.select_related("subtype")
             .prefetch_related("organizer_configs")
-            .with_person_rsvps(person)
-            .with_person_organizer_configs(person)
             .with_organizer_groups()
             .with_static_map_image()
         )
+        if person:
+            qs = qs.with_person_rsvps(person).with_person_organizer_configs(person)
+        return qs
 
     def with_participants(self):
         confirmed_guests = Q(rsvps__identified_guests__status=RSVP.STATUS_CONFIRMED)

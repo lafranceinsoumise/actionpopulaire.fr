@@ -83,3 +83,23 @@ def event_report_form_reminder_notification(event_pk):
         ],
         send_post_save_signal=True,
     )
+
+
+@transaction.atomic()
+def upcoming_event_start_reminder_notification(event_pk):
+    try:
+        event = Event.objects.get(pk=event_pk)
+    except Event.DoesNotExist:
+        return
+
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                type=Activity.TYPE_REMINDER_UPCOMING_EVENT_START,
+                recipient=attendee,
+                event=event,
+            )
+            for attendee in event.attendees.all()
+        ],
+        send_post_save_signal=True,
+    )

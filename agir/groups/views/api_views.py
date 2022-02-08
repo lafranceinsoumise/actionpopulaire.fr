@@ -21,7 +21,6 @@ from rest_framework.generics import (
     CreateAPIView,
     get_object_or_404,
 )
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from agir.donations.allocations import get_balance
@@ -110,7 +109,7 @@ class LegacyGroupSearchAPIView(ListAPIView):
     filterset_class = GroupAPIFilterSet
     serializer_class = SupportGroupLegacySerializer
     pagination_class = APIPaginator
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
 
 
 class GroupSearchAPIView(ListAPIView):
@@ -119,7 +118,7 @@ class GroupSearchAPIView(ListAPIView):
     filterset_class = GroupAPIFilterSet
     serializer_class = SupportGroupDetailSerializer
     pagination_class = APIPaginator
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(
@@ -144,7 +143,7 @@ class GroupSubtypesView(ListAPIView):
 
 class UserGroupsView(ListAPIView):
     serializer_class = SupportGroupSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     queryset = SupportGroup.objects.active()
 
     def get(self, request, *args, **kwargs):
@@ -432,7 +431,7 @@ class GroupMessagesAPIView(ListCreateAPIView):
 
 # Allow anyone to send private message
 class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     membershipType = Membership.MEMBERSHIP_TYPE_REFERENT
 
     def get(self):
@@ -523,6 +522,7 @@ class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
 class GroupMessageCommentsAPIView(ListCreateAPIView):
     serializer_class = MessageCommentSerializer
     permission_classes = (GroupMessageCommentsPermissions,)
+    pagination_class = APIPaginator
 
     def initial(self, request, *args, **kwargs):
         try:
@@ -533,11 +533,10 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
             raise NotFound()
 
         self.check_object_permissions(request, self.message)
-
         super().initial(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.message.comments.active()
+        return self.message.comments.active().order_by("-created")
 
     def perform_create(self, serializer):
         with transaction.atomic():
@@ -563,7 +562,7 @@ class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
 
 
 class JoinGroupAPIView(CreateAPIView, DestroyAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     queryset = SupportGroup.objects.active()
     target_membership_type = Membership.MEMBERSHIP_TYPE_MEMBER
 
@@ -604,7 +603,7 @@ class FollowGroupAPIView(JoinGroupAPIView):
 
 
 class QuitGroupAPIView(DestroyAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPersonPermission,)
     queryset = SupportGroup.objects.all()
 
     def destroy(self, request, *args, **kwargs):

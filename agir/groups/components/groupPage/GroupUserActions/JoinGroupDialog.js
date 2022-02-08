@@ -6,13 +6,6 @@ import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import StyledDialog from "./StyledDialog";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
-
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { useSelectMessage } from "@agir/msgs/common/hooks";
-import { getUser } from "@agir/front/globalContext/reducers";
-
-import * as groupAPI from "@agir/groups/api";
 
 export const JoinGroup = (props) => {
   const {
@@ -26,21 +19,8 @@ export const JoinGroup = (props) => {
     onJoin,
     onUpdate,
     onClose,
+    openMessageModal,
   } = props;
-
-  const user = useSelector(getUser);
-  const onSelectMessage = useSelectMessage();
-  const [messageModalOpen, setMessageModalOpen] = useState(false);
-
-  const sendPrivateMessage = async (msg) => {
-    const message = {
-      subject: msg.subject,
-      text: msg.text,
-    };
-    const result = await groupAPI.createPrivateMessage(id, message);
-    onSelectMessage(result.data.id);
-    onClose();
-  };
 
   switch (step) {
     case 1:
@@ -144,12 +124,7 @@ export const JoinGroup = (props) => {
               Envoyez-leur un message pour vous présenter&nbsp;:
               <Spacer size="1rem" />
               <footer>
-                <Button
-                  color="primary"
-                  block
-                  wrap
-                  onClick={() => setMessageModalOpen(true)}
-                >
+                <Button color="primary" block wrap onClick={openMessageModal}>
                   Je me présente&nbsp;! &nbsp;
                   <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
                 </Button>
@@ -159,14 +134,6 @@ export const JoinGroup = (props) => {
               </footer>
             </article>
           </StyledDialog>
-          <MessageModal
-            shouldShow={messageModalOpen}
-            user={user}
-            groupPk={id}
-            onSend={sendPrivateMessage}
-            onClose={() => setMessageModalOpen(false)}
-            onBoarding
-          />
         </>
       );
     }

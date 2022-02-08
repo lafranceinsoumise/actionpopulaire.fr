@@ -112,6 +112,7 @@ class EluMunicipalSerializer(serializers.Serializer):
         EN_COURS = "E", "En cours"
         TERMINE = "T", "Déjà rencontré"
         PERSONNELLEMENT_VU = "P", "Je l'ai vu"
+        CC = "C", "Parrainage reçu au Conseil constitutionnel"
 
     id = serializers.IntegerField()
     nomComplet = serializers.SerializerMethodField()
@@ -130,6 +131,8 @@ class EluMunicipalSerializer(serializers.Serializer):
     )
 
     mairie = MairieSerializer(source="commune")
+
+    parrainageFinal = serializers.CharField(read_only=True, source="parrainage_final")
 
     def get_nomComplet(self, obj):
         return f"{obj.prenom} {obj.nom}"

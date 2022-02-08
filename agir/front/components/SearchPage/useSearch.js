@@ -14,6 +14,9 @@ export const useSearchResults = (search, type, filters) => {
   });
 
   useEffect(async () => {
+    if (search.length < 3) {
+      return;
+    }
     setIsLoading(true);
     setErrors(null);
     const { data, error } = await getSearch({

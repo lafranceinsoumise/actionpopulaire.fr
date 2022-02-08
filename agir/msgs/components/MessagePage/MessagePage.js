@@ -9,6 +9,7 @@ import {
   useSelectMessage,
   useMessageActions,
 } from "@agir/msgs/common/hooks";
+import { useCommentsSWR } from "@agir/msgs/common/hooks";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 import { setPageTitle } from "@agir/front/globalContext/actions";
 import { getMessageSubject } from "@agir/msgs/common/utils";
@@ -52,19 +53,23 @@ const StyledPage = styled.div`
 const MessagePage = ({ messagePk }) => {
   const isOffline = useIsOffline();
   const dispatch = useDispatch();
-  const onSelectMessage = useSelectMessage();
   const {
     user,
     messages,
+    messageCount,
     loadMore,
     isLoadingInitialData,
     isLoadingMore,
     messageRecipients,
     currentMessage,
+    mutateMessages,
     isAutoRefreshPausedRef,
+    onSelectMessage,
   } = useMessageSWR(messagePk, onSelectMessage);
 
   const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
+
+  const { mutate: mutateComments } = useCommentsSWR(messagePk);
 
   const {
     isLoading,
@@ -86,7 +91,9 @@ const MessagePage = ({ messagePk }) => {
     user,
     messageRecipients,
     currentMessage,
-    onSelectMessage
+    onSelectMessage,
+    mutateMessages,
+    mutateComments
   );
 
   // Pause messages' autorefresh while an action is ongoing
@@ -157,7 +164,7 @@ const MessagePage = ({ messagePk }) => {
                 writeNewMessage={writeNewMessage}
                 onComment={writeNewComment}
                 lastItemRef={lastItemRef}
-                isLoadingMore={isLoadingMore}
+                messageCount={messageCount}
               />
             ) : (
               <EmptyMessagePage />

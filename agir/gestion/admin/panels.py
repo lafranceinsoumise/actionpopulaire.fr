@@ -1,31 +1,35 @@
 import re
 
-from agir.events.models import Event
 from django.contrib import admin
 from django.contrib.postgres.search import SearchQuery
 from django.core.exceptions import ValidationError
 from django.db.models import Count, Sum, Subquery, OuterRef
 from django.http import QueryDict, HttpResponseRedirect
-from django.template.loader import render_to_string
 from django.urls import reverse, path
 from django.utils.html import format_html_join, format_html
 from django.utils.safestring import mark_safe
 from reversion.admin import VersionAdmin
 
-from agir.gestion.admin.base import BaseGestionModelAdmin
-from agir.gestion.admin.depenses import DepenseListMixin
-from agir.gestion.admin.filters import (
+from agir.events.models import Event
+from agir.lib.admin.panels import AddRelatedLinkMixin
+from agir.lib.admin.utils import display_list_of_links
+from agir.lib.display import display_price
+from agir.lib.geo import FRENCH_COUNTRY_CODES
+from agir.people.models import Person
+from .base import BaseGestionModelAdmin
+from .depenses import DepenseListMixin
+from .filters import (
     DepenseResponsableFilter,
     ProjetResponsableFilter,
     InclureProjetsMilitantsFilter,
 )
-from agir.gestion.admin.forms import (
+from .forms import (
     DocumentForm,
     DepenseForm,
     ProjetForm,
     OrdreVirementForm,
 )
-from agir.gestion.admin.inlines import (
+from .inlines import (
     VersionDocumentInline,
     ProjetParticipationInline,
     DepenseInline,
@@ -36,8 +40,8 @@ from agir.gestion.admin.inlines import (
     AjouterDocumentProjetInline,
     ReglementInline,
 )
-from agir.gestion.admin.views import AjouterReglementView
-from agir.gestion.models import (
+from .views import AjouterReglementView
+from ..models import (
     Compte,
     Fournisseur,
     Document,
@@ -45,16 +49,12 @@ from agir.gestion.models import (
     Projet,
     InstanceCherchable,
 )
-from agir.gestion.models.depenses import etat_initial
-from agir.gestion.models.projets import ProjetMilitant
-from agir.gestion.models.virements import OrdreVirement
-from agir.gestion.typologies import TypeDepense
-from agir.gestion.utils import lien
-from agir.lib.admin import display_list_of_links, AddRelatedLinkMixin
-from agir.lib.display import display_price
-from agir.lib.geo import FRENCH_COUNTRY_CODES
-from agir.people.models import Person
-from agir.gestion.permissions import peut_voir_montant_depense
+from ..models.depenses import etat_initial
+from ..models.projets import ProjetMilitant
+from ..models.virements import OrdreVirement
+from ..permissions import peut_voir_montant_depense
+from ..typologies import TypeDepense
+from ..utils import lien
 
 
 @admin.register(Compte)

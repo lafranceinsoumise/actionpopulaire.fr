@@ -1,5 +1,8 @@
 import styled from "styled-components";
+
 import style from "@agir/front/genericComponents/_variables.scss";
+
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 
 export const StyledContainer = styled.div`
   width: 100%;
@@ -29,18 +32,20 @@ export const StyledContainer = styled.div`
 
 export const StyledFilters = styled.div`
   display: flex;
-  > label {
+
+  @media (max-width: ${style.collapse}px) {
+    flex-direction: column;
+  }
+
+  & > label {
     flex: 1;
     margin-right: 10px;
 
     &&:last-child {
       margin-right: 0;
     }
-  }
 
-  @media (max-width: ${style.collapse}px) {
-    flex-direction: column;
-    > label {
+    @media (max-width: ${style.collapse}px) {
       margin-right: 0;
       margin-bottom: 1rem;
     }

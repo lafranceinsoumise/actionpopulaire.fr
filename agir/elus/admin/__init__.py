@@ -1,8 +1,6 @@
 from datetime import datetime
 
 import reversion
-from django.utils.safestring import mark_safe
-from reversion.admin import VersionAdmin
 from data_france.admin import (
     EluMunicipalAdmin as OriginalEluMunicipalAdmin,
     DeputeAdmin as OriginalDeputeAdmin,
@@ -21,7 +19,9 @@ from django.contrib.postgres.search import SearchQuery
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse, path
 from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from psycopg2._range import DateRange
+from reversion.admin import VersionAdmin
 
 from agir.elus.models import (
     MandatMunicipal,
@@ -37,6 +37,8 @@ from agir.elus.models import (
     Scrutin,
     Autorisation,
 )
+from agir.lib.admin.panels import AddRelatedLinkMixin
+from agir.lib.admin.utils import get_admin_link, display_list_of_links
 from agir.lib.search import PrefixSearchQuery
 from agir.people.models import Person
 from .filters import (
@@ -67,7 +69,6 @@ from .views import (
     AnnulerParrainageView,
     ExporterAccesApplication,
 )
-from ...lib.admin import display_list_of_links, get_admin_link, AddRelatedLinkMixin
 
 
 class BaseMandatAdmin(admin.ModelAdmin):

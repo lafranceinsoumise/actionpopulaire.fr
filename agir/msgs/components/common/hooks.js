@@ -14,6 +14,7 @@ import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 const MESSAGES_PAGE_SIZE = 10;
+const COMMENTS_PAGE_SIZE = 15;
 
 export const useUnreadMessageCount = () => {
   const [isReady] = useTimeout(3000);
@@ -37,7 +38,64 @@ export const useUnreadMessageCount = () => {
     : 0;
 };
 
-export const useMessageSWR = (messagePk, selectMessage) => {
+export const useCommentsSWR = (messagePk) => {
+  const { data, error, isValidating, mutate, size, setSize } = useSWRInfinite(
+    (index) =>
+      messagePk &&
+      `/api/groupes/messages/${messagePk}/comments/?page=${
+        index + 1
+      }&page_size=${COMMENTS_PAGE_SIZE}`,
+    MANUAL_REVALIDATION_SWR_CONFIG
+  );
+
+  const comments = useMemo(() => {
+    const comments = {};
+    const commentsIds = [];
+    if (Array.isArray(data)) {
+      data.forEach(({ results }) => {
+        if (Array.isArray(results)) {
+          results.forEach((comment) => {
+            if (!comments[comment.id]) {
+              comments[comment.id] = comment;
+              commentsIds.push(comment.id);
+            }
+          });
+        }
+      });
+    }
+    return commentsIds.reverse().map((id) => comments[id]);
+  }, [data]);
+
+  const isLoadingInitialData = !data && !error;
+  const isLoadingMore =
+    isLoadingInitialData ||
+    (size > 0 && data && typeof data[size - 1] === "undefined");
+
+  const commentsCount = (data && data[data.length - 1]?.count) || 0;
+  const isEmpty = commentsCount === 0;
+  const isReachingEnd =
+    isEmpty ||
+    comments.length === commentsCount ||
+    (data && data[data.length - 1]?.results?.length < COMMENTS_PAGE_SIZE);
+  const isRefreshing = isValidating && data && data.length === size;
+
+  const loadMore = useCallback(() => setSize(size + 1), [setSize, size]);
+  const isAutoRefreshPausedRef = useRef(false);
+
+  return {
+    comments,
+    commentsCount,
+    error,
+    isLoadingInitialData,
+    isLoadingMore,
+    isRefreshing,
+    loadMore: isEmpty || isReachingEnd ? undefined : loadMore,
+    mutate,
+    isAutoRefreshPausedRef,
+  };
+};
+
+export const useMessageSWR = (messagePk) => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const isAutoRefreshPausedRef = useRef(false);
@@ -107,9 +165,12 @@ export const useMessageSWR = (messagePk, selectMessage) => {
     messages.length === messageCount ||
     (data && data[data.length - 1]?.results?.length < MESSAGES_PAGE_SIZE);
   const isRefreshing = isValidatingMessages && data && data.length === size;
-  const currentMessageId = currentMessage?.id;
 
   const loadMore = useCallback(() => setSize(size + 1), [setSize, size]);
+
+  const currentMessageId = currentMessage?.id;
+
+  const onSelectMessage = useSelectMessage(mutateMessages);
 
   useEffect(() => {
     dispatch(
@@ -130,9 +191,8 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   useEffect(() => {
     !isValidating &&
       error?.response?.status === 404 &&
-      selectMessage &&
-      selectMessage(null, true);
-  }, [error, isValidating, selectMessage]);
+      onSelectMessage(null, true);
+  }, [error, isValidating, onSelectMessage]);
 
   useEffect(() => {
     if (isValidating || !Array.isArray(messages) || !currentMessage) {
@@ -151,6 +211,7 @@ export const useMessageSWR = (messagePk, selectMessage) => {
   return {
     user,
     messages,
+    messageCount,
     errorMessages,
     isLoadingInitialData,
     isLoadingMore,
@@ -160,10 +221,11 @@ export const useMessageSWR = (messagePk, selectMessage) => {
     messageRecipients,
     currentMessage,
     isAutoRefreshPausedRef,
+    onSelectMessage,
   };
 };
 
-export const useSelectMessage = () => {
+export const useSelectMessage = (mutateMessages) => {
   const history = useHistory();
   const handleSelect = useCallback(
     (messagePk, doNotPush = false) => {
@@ -172,8 +234,10 @@ export const useSelectMessage = () => {
       } else {
         history.push(routeConfig.messages.getLink({ messagePk }));
       }
+      mutateMessages();
+      mutate("/api/user/messages/unread_count/");
     },
-    [history]
+    [history, mutateMessages]
   );
 
   return handleSelect;
@@ -183,24 +247,19 @@ export const useMessageActions = (
   user,
   messageRecipients,
   selectedMessage,
-  onSelectMessage
+  onSelectMessage,
+  mutateMessages,
+  mutateComments
 ) => {
   const shouldDismissAction = useRef(false);
 
   const [isLoading, setIsLoading] = useState(false);
-
   const [selectedGroupEvents, setSelectedGroupEvents] = useState([]);
   const [selectedComment, setSelectedComment] = useState(null);
-
   const [messageAction, setMessageAction] = useState("");
 
-  const canWriteNewMessage = useMemo(
-    () =>
-      !!user &&
-      Array.isArray(messageRecipients) &&
-      messageRecipients.length > 0,
-    [user, messageRecipients]
-  );
+  const canWriteNewMessage =
+    !!user && Array.isArray(messageRecipients) && messageRecipients.length > 0;
 
   const canEditSelectedMessage = useMemo(
     () =>
@@ -247,7 +306,7 @@ export const useMessageActions = (
           ? await groupAPI.updateMessage(message)
           : await groupAPI.createMessage(message.group.id, message);
         setIsLoading(false);
-        mutate("/api/user/messages/");
+        mutateMessages();
         if (message.id) {
           mutate(
             `/api/groupes/messages/${message.id}/`,
@@ -261,7 +320,7 @@ export const useMessageActions = (
         setIsLoading(false);
       }
     },
-    [onSelectMessage]
+    [onSelectMessage, mutateMessages]
   );
 
   const writeNewComment = useCallback(
@@ -273,16 +332,7 @@ export const useMessageActions = (
           comment
         );
         setIsLoading(false);
-        mutate(
-          `/api/groupes/messages/${selectedMessage.id}/`,
-          (message) => ({
-            ...message,
-            comments: Array.isArray(message.comments)
-              ? [...message.comments, response.data]
-              : [response.data],
-          }),
-          false
-        );
+        mutateComments();
         onSelectMessage(selectedMessage.id);
       } catch (e) {
         setIsLoading(false);
@@ -357,17 +407,19 @@ export const useMessageActions = (
         ),
       }));
     } else if (messageAction === "delete") {
-      mutate(
-        `/api/user/messages/`,
-        (data) => data.filter((message) => message.id !== selectedMessage.id),
-        false
-      );
+      mutateMessages();
       onSelectMessage(null);
     }
     setMessageAction("");
     setSelectedComment(null);
     shouldDismissAction.current = false;
-  }, [messageAction, selectedComment, selectedMessage, onSelectMessage]);
+  }, [
+    messageAction,
+    selectedComment,
+    selectedMessage,
+    onSelectMessage,
+    mutateMessages,
+  ]);
 
   useEffect(() => {
     !isLoading && shouldDismissAction.current && dismissMessageAction();

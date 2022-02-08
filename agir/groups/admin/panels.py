@@ -15,13 +15,13 @@ from django.utils.translation import gettext_lazy as _
 
 from agir.events.models import Event
 from agir.groups import proxys
-from agir.lib.admin import (
-    CenterOnFranceMixin,
+from agir.lib.admin.filters import (
+    CountryListFilter,
     DepartementListFilter,
     RegionListFilter,
-    CountryListFilter,
     CirconscriptionLegislativeFilter,
 )
+from agir.lib.admin.panels import CenterOnFranceMixin
 from agir.lib.display import display_price
 from agir.lib.utils import front_url
 from . import actions

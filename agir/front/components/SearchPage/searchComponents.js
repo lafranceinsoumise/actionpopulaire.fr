@@ -1,14 +1,19 @@
 import PropTypes from "prop-types";
 import React from "react";
-
 import styled from "styled-components";
+
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import Link from "@agir/front/app/Link";
+import Button from "@agir/front/genericComponents/Button";
+import CheckboxField from "@agir/front/formComponents/CheckboxField";
 import { Hide } from "@agir/front/genericComponents/grid";
-import mapImg from "./images/Bloc_map.jpg";
+import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import SelectField from "@agir/front/formComponents/SelectField";
+import Spacer from "@agir/front/genericComponents/Spacer";
+
+import mapImg from "./images/Bloc_map.jpg";
+
 import { OPTIONS } from "./config.js";
 
 const StyledLink = styled(Link)``;
@@ -89,36 +94,46 @@ const SearchBarInput = styled.input`
   }
 `;
 
-export const MapButton = () => (
-  <StyledMapButton>
-    <StyledLink route="eventMap">
-      <div />
-      <div>Voir la carte</div>
-    </StyledLink>
-  </StyledMapButton>
-);
+export const SearchTooShort = ({ search }) => {
+  if (!search || search?.length >= 3) {
+    return null;
+  }
+  return (
+    <>
+      <Spacer size="1rem" />
+      Rentrez au moins 3 caractères pour effectuer une recherche
+    </>
+  );
+};
+SearchTooShort.propTypes = {
+  search: PropTypes.string,
+};
 
-export const HeaderSearch = ({ querySearch, showMap }) => (
+export const HeaderSearch = ({ querySearch, mapRoute }) => (
   <StyledHeaderSearch>
     <div>
       <h1>
-        {!querySearch ? (
-          "Rechercher"
-        ) : (
-          <Hide under>Recherche : "{querySearch}"</Hide>
-        )}
+        <Hide over>Rechercher</Hide>
+        {!querySearch && <Hide under>Recherche : "{querySearch}"</Hide>}
       </h1>
       <Hide under as="div" style={{ marginTop: "0.5rem" }}>
         Recherchez des événements et des groupes d'actions par nom, ville, code
         postal...
       </Hide>
     </div>
-    {showMap && <MapButton />}
+    {!!mapRoute && (
+      <StyledMapButton>
+        <StyledLink route={mapRoute}>
+          <div />
+          <div>Voir la carte</div>
+        </StyledLink>
+      </StyledMapButton>
+    )}
   </StyledHeaderSearch>
 );
-HeaderSearch.PropTypes = {
+HeaderSearch.propTypes = {
   querySearch: PropTypes.string,
-  showMap: PropTypes.bool,
+  mapRoute: PropTypes.oneOf(["eventMap", "groupMap"]),
 };
 
 export const InputSearch = ({ inputSearch, updateSearch, placeholder }) => (
@@ -143,7 +158,7 @@ export const InputSearch = ({ inputSearch, updateSearch, placeholder }) => (
     </SearchBarWrapper>
   </div>
 );
-InputSearch.PropTypes = {
+InputSearch.propTypes = {
   inputSearch: PropTypes.string,
   updateSearch: PropTypes.func,
   placeholder: PropTypes.string,
@@ -153,7 +168,6 @@ export const EventFilters = ({ filters, setFilter }) => {
   return (
     <>
       <SelectField
-        key={1}
         label="Trier par"
         placeholder="Date"
         name="eventSort"
@@ -162,7 +176,6 @@ export const EventFilters = ({ filters, setFilter }) => {
         options={OPTIONS.EventSort}
       />
       <SelectField
-        key={2}
         label="Catégorie d'événement"
         placeholder="Categories"
         name="eventCategory"
@@ -171,7 +184,6 @@ export const EventFilters = ({ filters, setFilter }) => {
         options={OPTIONS.EventCategory}
       />
       <SelectField
-        key={3}
         label="Type"
         placeholder="Types"
         name="eventType"
@@ -182,7 +194,7 @@ export const EventFilters = ({ filters, setFilter }) => {
     </>
   );
 };
-EventFilters.PropTypes = {
+EventFilters.propTypes = {
   filters: PropTypes.object,
   setFilter: PropTypes.func,
 };
@@ -191,16 +203,14 @@ export const GroupFilters = ({ filters, setFilter }) => {
   return (
     <>
       <SelectField
-        key={1}
         label="Trier par"
-        placeholder="Date"
+        placeholder="Trier par..."
         name="groupSort"
         value={filters?.groupSort}
         onChange={(value) => setFilter("groupSort", value)}
         options={OPTIONS.GroupSort}
       />
       <SelectField
-        key={2}
         label="Type"
         placeholder="Types"
         name="groupType"
@@ -208,7 +218,45 @@ export const GroupFilters = ({ filters, setFilter }) => {
         onChange={(value) => setFilter("groupType", value)}
         options={OPTIONS.GroupType}
       />
+      <div
+        css={`
+          display: flex;
+          align-items: flex-end;
+          padding: 10px 0;
+        `}
+      >
+        <CheckboxField
+          label="Inclure les groupes moins actifs"
+          name="groupInactive"
+          value={!!filters?.groupInactive}
+          onChange={({ target }) =>
+            setFilter(
+              "groupInactive",
+              target.checked ? { value: "1" } : undefined
+            )
+          }
+        />
+      </div>
     </>
   );
 };
-GroupFilters.PropTypes = EventFilters.PropTypes;
+GroupFilters.propTypes = EventFilters.propTypes;
+
+export const FilterButton = ({ showFilters, switchFilters }) => (
+  <>
+    <Spacer size="1rem" />
+    <div style={{ textAlign: "right" }}>
+      <Button
+        small
+        icon={!showFilters ? "filter" : "x-circle"}
+        onClick={switchFilters}
+      >
+        {!showFilters ? "Filtrer" : "Supprimer les filtres"}
+      </Button>
+    </div>
+  </>
+);
+FilterButton.propTypes = {
+  showFilters: PropTypes.bool,
+  switchFilters: PropTypes.func,
+};
