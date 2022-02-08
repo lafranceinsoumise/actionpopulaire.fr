@@ -163,6 +163,13 @@ class SupportGroup(
         "people.Person", related_name="supportgroups", through="Membership", blank=True
     )
 
+    is_messaging_enabled = models.BooleanField(
+        _("Messagerie activée"),
+        default=True,
+        blank=False,
+        help_text=_("La messagerie est activée ou non pour ce groupe."),
+    )
+
     @property
     def managers(self):
         return [
