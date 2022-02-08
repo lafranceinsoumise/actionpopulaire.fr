@@ -44,7 +44,8 @@ export const useCommentsSWR = (messagePk) => {
       messagePk &&
       `/api/groupes/messages/${messagePk}/comments/?page=${
         index + 1
-      }&page_size=${COMMENTS_PAGE_SIZE}`
+      }&page_size=${COMMENTS_PAGE_SIZE}`,
+    MANUAL_REVALIDATION_SWR_CONFIG
   );
 
   const comments = useMemo(() => {
@@ -236,7 +237,7 @@ export const useSelectMessage = (mutateMessages) => {
       mutateMessages();
       mutate("/api/user/messages/unread_count/");
     },
-    [history]
+    [history, mutateMessages]
   );
 
   return handleSelect;
@@ -253,19 +254,12 @@ export const useMessageActions = (
   const shouldDismissAction = useRef(false);
 
   const [isLoading, setIsLoading] = useState(false);
-
   const [selectedGroupEvents, setSelectedGroupEvents] = useState([]);
   const [selectedComment, setSelectedComment] = useState(null);
-
   const [messageAction, setMessageAction] = useState("");
 
-  const canWriteNewMessage = useMemo(
-    () =>
-      !!user &&
-      Array.isArray(messageRecipients) &&
-      messageRecipients.length > 0,
-    [user, messageRecipients]
-  );
+  const canWriteNewMessage =
+    !!user && Array.isArray(messageRecipients) && messageRecipients.length > 0;
 
   const canEditSelectedMessage = useMemo(
     () =>
@@ -326,7 +320,7 @@ export const useMessageActions = (
         setIsLoading(false);
       }
     },
-    [onSelectMessage]
+    [onSelectMessage, mutateMessages]
   );
 
   const writeNewComment = useCallback(
@@ -419,7 +413,13 @@ export const useMessageActions = (
     setMessageAction("");
     setSelectedComment(null);
     shouldDismissAction.current = false;
-  }, [messageAction, selectedComment, selectedMessage, onSelectMessage]);
+  }, [
+    messageAction,
+    selectedComment,
+    selectedMessage,
+    onSelectMessage,
+    mutateMessages,
+  ]);
 
   useEffect(() => {
     !isLoading && shouldDismissAction.current && dismissMessageAction();

@@ -104,7 +104,7 @@ ListUser.propTypes = {
       image: PropTypes.string,
     }).isRequired,
   }).isRequired,
-  participants: PropTypes.array,
+  participants: PropTypes.object,
 };
 
 export default ListUser;

@@ -204,13 +204,7 @@ const RightLinks = (props) => {
 
 RightLinks.propTypes = {
   isLoading: PropTypes.bool,
-  user: PropTypes.oneOfType([
-    PropTypes.shape({
-      displayName: PropTypes.string,
-      image: PropTypes.image,
-    }),
-    PropTypes.bool,
-  ]),
+  user: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
   path: PropTypes.string,
   unreadMessageCount: PropTypes.number,
   unreadActivityCount: PropTypes.number,
