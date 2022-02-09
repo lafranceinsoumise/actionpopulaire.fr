@@ -297,15 +297,6 @@ export const StyledWrapper = styled.div`
     box-shadow: ${style.elaborateShadow};
   }
 
-  & + & {
-    margin-top: 1.5rem;
-
-    @media (max-width: ${style.collapse}px) {
-      padding-top: 1.5rem;
-      margin-top: 1rem;
-    }
-  }
-
   ${StyledMessage} {
     flex: 1 1 auto;
     display: flex;
