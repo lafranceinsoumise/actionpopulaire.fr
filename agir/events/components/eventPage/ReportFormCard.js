@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 
-import MANUAL_REVALIDATION_SWR_CONFIG from "@agir/front/allPages/SWRContext";
+import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 import { getEventEndpoint } from "@agir/events/common/api";
 
 import Button from "@agir/front/genericComponents/Button";
