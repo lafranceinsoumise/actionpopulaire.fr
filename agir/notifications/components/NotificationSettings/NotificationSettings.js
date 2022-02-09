@@ -48,7 +48,7 @@ const NotificationSettings = (props) => {
       let result;
 
       // Update profile newsletters
-      if (notification.isNewsletter && !!profile) {
+      if ("newsletter" in notification && !!profile) {
         const newsletters =
           notification.action === "add"
             ? [...profile.newsletters, notification.id]
