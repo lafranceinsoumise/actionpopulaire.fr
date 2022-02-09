@@ -75,7 +75,7 @@ export const SearchEventPage = () => {
             </>
           )}
 
-          <ListTitle name="Evénements" list={events} />
+          <ListTitle name="Evénements" length={events.length} />
           <EventList events={events} />
           <NoResults name="événement" list={events} />
         </>
