@@ -291,7 +291,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_groups(self, obj):
         return SupportGroupSerializer(
-            obj.organizers_groups.distinct(),
+            obj.organizers_groups.distinct().with_serializer_prefetch(),
             context=self.context,
             many=True,
             fields=[
@@ -459,7 +459,11 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
 
 
 class EventOrganizerGroupField(serializers.RelatedField):
-    queryset = SupportGroup.objects.all()
+    queryset = (
+        SupportGroup.objects.active()
+        .prefetch_related("subtypes")
+        .with_static_map_image()
+    )
 
     def to_representation(self, obj):
         if obj is None:

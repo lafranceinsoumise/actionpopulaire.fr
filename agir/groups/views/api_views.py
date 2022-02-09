@@ -144,14 +144,13 @@ class GroupSubtypesView(ListAPIView):
 class UserGroupsView(ListAPIView):
     serializer_class = SupportGroupSerializer
     permission_classes = (IsPersonPermission,)
-    queryset = SupportGroup.objects.active()
+    queryset = SupportGroup.objects.active().with_serializer_prefetch()
 
     def get(self, request, *args, **kwargs):
         person = request.user.person
         person_groups = (
             self.get_queryset()
             .filter(memberships__person=self.request.user.person)
-            .active()
             .annotate(membership_type=F("memberships__membership_type"))
             .order_by("-membership_type", "name")
         )
@@ -165,9 +164,6 @@ class UserGroupsView(ListAPIView):
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")[:3]
             )
-
-            for group in group_suggestions:
-                group.membership = None
 
         group_suggestions = self.get_serializer(group_suggestions, many=True)
 

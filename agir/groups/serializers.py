@@ -75,7 +75,7 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     url = serializers.HyperlinkedIdentityField(view_name="view_group", read_only=True)
 
-    eventCount = serializers.ReadOnlyField(source="events_count", read_only=True)
+    eventCount = serializers.SerializerMethodField(read_only=True)
     membersCount = serializers.SerializerMethodField(read_only=True)
     isMember = serializers.SerializerMethodField(read_only=True)
     isActiveMember = serializers.SerializerMethodField(
@@ -88,15 +88,18 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
     isFull = serializers.SerializerMethodField(read_only=True)
 
     routes = RoutesField(routes=GROUP_ROUTES, read_only=True)
-    isCertified = serializers.BooleanField(read_only=True, source="is_certified")
+    isCertified = serializers.SerializerMethodField(read_only=True)
 
     def to_representation(self, instance):
         user = self.context["request"].user
+
         self.membership = None
         if not user.is_anonymous and user.person:
-            self.membership = instance.memberships.filter(
-                person_id=user.person.id
-            ).first()
+            for membership in instance.memberships.all():
+                if membership.person_id == user.person.id:
+                    self.membership = membership
+                    break
+
         return super().to_representation(instance)
 
     def get_membersCount(self, obj):
@@ -126,18 +129,37 @@ class SupportGroupSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_discountCodes(self, obj):
         if (
-            self.membership is not None
-            and self.membership.membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER
-            and obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
+            self.membership is None
+            or self.membership.membership_type < Membership.MEMBERSHIP_TYPE_MANAGER
         ):
-            return [
-                {"code": code, "expirationDate": date}
-                for code, date in get_promo_codes(obj)
-            ]
-        return []
+            return []
+
+        has_promo_codes = (
+            obj.has_promo_codes
+            if hasattr(obj, "has_promo_codes")
+            else obj.tags.filter(label=settings.PROMO_CODE_TAG).exists()
+        )
+
+        if not has_promo_codes:
+            return []
+
+        return [
+            {"code": code, "expirationDate": date}
+            for code, date in get_promo_codes(obj)
+        ]
 
     def get_isFull(self, obj):
         return obj.is_full
+
+    def get_eventCount(self, obj):
+        if hasattr(obj, "organized_event_count"):
+            return obj.organized_event_count
+        return obj.events_count
+
+    def get_isCertified(self, obj):
+        if hasattr(obj, "has_certification_subtype"):
+            return obj.has_certification_subtype
+        return obj.is_certified
 
 
 class SupportGroupDetailSerializer(FlexibleFieldsMixin, serializers.Serializer):
