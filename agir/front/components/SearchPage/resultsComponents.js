@@ -27,6 +27,12 @@ const CarrouselContainer = styled.div`
   margin-right: -12px;
 `;
 
+const StyledSubtitle = styled.h3`
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 600;
+`;
+
 export const GroupList = ({ groups, inline = false }) =>
   inline ? (
     <CarrouselContainer>
@@ -71,14 +77,13 @@ export const EventList = ({ events }) => {
   return (
     <>
       {!!futureEvents?.length && (
-        <h3 style={{ textAlign: "right" }}>Evénements à venir</h3>
+        <StyledSubtitle>Événements à venir</StyledSubtitle>
       )}
       {futureEvents.map((event) => (
         <EventItem key={event.id} event={event} />
       ))}
-
       {!!pastEvents?.length && (
-        <h3 style={{ textAlign: "right" }}>Evénements passés</h3>
+        <StyledSubtitle>Événements passés</StyledSubtitle>
       )}
       {pastEvents.map((event) => (
         <EventItem key={event.id} event={event} />
@@ -90,10 +95,10 @@ EventList.propTypes = {
   events: PropTypes.array,
 };
 
-export const ListTitle = ({ name, list, onShowMore }) => (
+export const ListTitle = ({ name, length = 0, onShowMore }) => (
   <h2>
     <div>
-      {name} {list.length > 0 && <span>{list.length}</span>}
+      {name} {length > 0 && <span>{length}</span>}
     </div>
     {onShowMore && (
       <Button color="primary" small onClick={onShowMore}>
@@ -104,7 +109,7 @@ export const ListTitle = ({ name, list, onShowMore }) => (
 );
 
 ListTitle.propTypes = {
-  list: PropTypes.array,
+  length: PropTypes.number,
   name: PropTypes.string,
   onShowMore: PropTypes.func,
 };

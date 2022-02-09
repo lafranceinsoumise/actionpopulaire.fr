@@ -54,7 +54,7 @@ const SearchPageTab = (props) => {
           <>
             <ListTitle
               name="Groupes"
-              list={groups}
+              length={tab.id === "groups" ? groups.length : 0}
               onShowMore={
                 tab.id !== "groups" ? () => onTabChange("groups") : undefined
               }
@@ -68,7 +68,7 @@ const SearchPageTab = (props) => {
           <>
             <ListTitle
               name="Événements"
-              list={events}
+              length={tab.id === "events" ? events.length : 0}
               onShowMore={
                 tab.id !== "events" ? () => onTabChange("events") : undefined
               }
