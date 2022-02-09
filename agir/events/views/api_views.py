@@ -193,24 +193,31 @@ class EventSuggestionsAPIView(EventListAPIView):
             .listed()
             .upcoming()
         )
-        segmented = events.for_segment_subscriber(self.request.user.person)
         national = events.national()
         near = events.none()
 
         if person.coordinates is not None:
             national = national.filter(
                 coordinates__dwithin=(person.coordinates, D(km=100))
-            )
+            )[:10]
 
             near = (
-                events.filter(start_time__lt=timezone.now() + timedelta(days=30))
+                events.exclude(pk__in=national.values_list("pk", flat=True))
+                .filter(start_time__lt=timezone.now() + timedelta(days=30))
                 .filter(coordinates__dwithin=(person.coordinates, D(km=100)))
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")
-            )
+            )[:10]
+
+        segmented = (
+            events.exclude(pk__in=national.values_list("pk", flat=True))
+            .exclude(pk__in=near.values_list("pk", flat=True))
+            .exclude(pk__in=events.grand().values_list("pk", flat=True))
+            .for_segment_subscriber(person)
+        )
 
         return sorted(
-            set(list(segmented) + list(national[:10]) + list(near[:10])),
+            list(segmented) + list(national) + list(near),
             key=lambda event: event.start_time,
         )
 
