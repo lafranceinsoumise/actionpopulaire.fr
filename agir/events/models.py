@@ -94,7 +94,15 @@ class EventQuerySet(models.QuerySet):
         return self.prefetch_related(
             Prefetch(
                 "organizer_configs",
-                queryset=OrganizerConfig.objects.filter(person=person),
+                queryset=OrganizerConfig.objects.filter(
+                    Q(person=person)
+                    | Q(
+                        as_group_id__in=Membership.objects.filter(
+                            person=person,
+                            membership_type__gte=Membership.MEMBERSHIP_TYPE_REFERENT,
+                        ).values_list("supportgroup_id", flat=True)
+                    )
+                ).distinct("pk"),
                 to_attr="_pf_person_organizer_configs",
             )
         )
