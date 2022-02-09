@@ -234,7 +234,7 @@ export const useSelectMessage = (mutateMessages) => {
       } else {
         history.push(routeConfig.messages.getLink({ messagePk }));
       }
-      mutateMessages();
+      mutateMessages && mutateMessages();
       mutate("/api/user/messages/unread_count/");
     },
     [history, mutateMessages]
