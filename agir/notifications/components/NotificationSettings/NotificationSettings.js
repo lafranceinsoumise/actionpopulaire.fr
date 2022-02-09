@@ -34,19 +34,13 @@ const NotificationSettings = (props) => {
     return getAllNotifications(groupData?.groups, user);
   }, [groupData, user]);
 
-  const activeNewsletters = useMemo(() => {
-    return getNewsletterStatus(profile?.newsletters);
-  }, [profile]);
-
-  const activeNotifications = useMemo(
-    () => getNotificationStatus(userNotifications),
-    [userNotifications]
+  const allActiveNotifications = useMemo(
+    () => ({
+      ...getNewsletterStatus(profile?.newsletters),
+      ...getNotificationStatus(userNotifications),
+    }),
+    [profile, userNotifications]
   );
-
-  const allActiveNotifications = {
-    ...activeNewsletters,
-    ...activeNotifications,
-  };
 
   const handleChange = useCallback(
     async (notification) => {
@@ -54,21 +48,17 @@ const NotificationSettings = (props) => {
       let result;
 
       // Update profile newsletters
-      if (notification.isNewsletter) {
-        if (notification.action === "add") {
-          result = await updateProfile({
-            newsletters: [...profile?.newsletters, notification.id],
-          });
-        }
-        if (notification.action === "remove") {
-          result = await updateProfile({
-            newsletters: profile?.newsletters.filter(
-              (notif) => notif !== notification.id
-            ),
-          });
-        }
+      if (notification.isNewsletter && !!profile) {
+        const newsletters =
+          notification.action === "add"
+            ? [...profile.newsletters, notification.id]
+            : profile.newsletters.filter((notif) => notif !== notification.id);
+        result = await updateProfile({ newsletters });
         setIsLoading(false);
-        mutateProfile();
+        mutateProfile(
+          (userProfile) => result?.data || { ...userProfile, newsletters },
+          false
+        );
         return;
       }
 
