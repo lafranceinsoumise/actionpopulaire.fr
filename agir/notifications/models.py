@@ -1,6 +1,7 @@
 from django.db import models
 
 from agir.activity.models import Activity
+from agir.people.models import Person
 from agir.lib.models import TimeStampedModel, UUIDIdentified
 
 
