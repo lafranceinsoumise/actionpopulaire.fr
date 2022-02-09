@@ -84,8 +84,8 @@ const VotingProxyRequestDetails = () => {
             <h5>Maintenant&nbsp;:</h5>
             <ol>
               <li>
-                Recevez les informations personnelles de la personne qui accepté
-                de voter pour vous par SMS
+                Recevez les informations personnelles de la personne qui a
+                accepté de voter pour vous par SMS
               </li>
               <li>Remplissez votre procuration en ligne</li>
               <li>
