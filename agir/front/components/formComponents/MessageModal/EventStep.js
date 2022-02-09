@@ -8,7 +8,7 @@ import {
   FaBullhorn,
   FaExclamation,
   FaCalendar,
-} from "react-icons/fa";
+} from "@agir/front/genericComponents/FaIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { displayHumanDateString } from "@agir/lib/utils/time";
@@ -159,7 +159,7 @@ const EventStepOption = (props) => {
 
   return (
     <StyledOption onClick={handleClick}>
-      <Icon size={20} color={style.primary500} />
+      <Icon color={style.primary500} />
       <span>
         <strong>{event.name}</strong>
         <br />

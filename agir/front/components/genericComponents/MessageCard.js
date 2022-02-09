@@ -9,7 +9,7 @@ import React, {
 
 import styled from "styled-components";
 
-import { FaWhatsapp, FaTelegram } from "react-icons/fa";
+import { FaWhatsapp, FaTelegram } from "@agir/front/genericComponents/FaIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { timeAgo } from "@agir/lib/utils/time";
@@ -114,17 +114,13 @@ export const StyledInlineMenuItems = styled.div`
       margin-right: 0.5rem;
       width: 1rem;
       height: 1rem;
+      font-size: 1rem;
 
       @media (max-width: ${style.collapse}px) {
         margin-right: 1rem;
         width: 1.5rem;
         height: 1.5rem;
-      }
-
-      svg {
-        width: inherit;
-        height: inherit;
-        stroke-width: 2;
+        font-size: 1.5rem;
       }
     }
   }
