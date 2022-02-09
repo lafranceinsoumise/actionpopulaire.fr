@@ -1,7 +1,5 @@
 import rules
 
-from . import models
-
 
 @rules.predicate
 def is_person(role, obj):
