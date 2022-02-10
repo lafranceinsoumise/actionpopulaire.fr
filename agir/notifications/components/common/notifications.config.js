@@ -1,13 +1,13 @@
 const NEWSLETTER_NOTIFICATIONS = [
   {
-    id: "lfi_newsletter",
+    id: "LFI",
     type: "La France Insoumise",
     icon: "rss",
     subtype: "Newsletter",
     label: "Lettres d'informations de la France Insoumise",
     hasEmail: true,
     hasPush: false,
-    newsletter: "LFI",
+    isNewsletter: true,
   },
   {
     id: "2022",
@@ -17,7 +17,7 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Informations importantes de la campagne",
     hasEmail: true,
     hasPush: false,
-    newsletter: "2022",
+    isNewsletter: true,
   },
   {
     id: "2022_exceptionnel",
@@ -27,7 +27,7 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Informations exceptionnelles",
     hasEmail: true,
     hasPush: false,
-    newsletter: "2022_exceptionnel",
+    isNewsletter: true,
   },
   {
     id: "2022_en_ligne",
@@ -37,7 +37,7 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Actions en ligne",
     hasEmail: true,
     hasPush: false,
-    newsletter: "2022_en_ligne",
+    isNewsletter: true,
   },
   {
     id: "2022_chez_moi",
@@ -47,7 +47,7 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Agir près de chez moi",
     hasEmail: true,
     hasPush: false,
-    newsletter: "2022_chez_moi",
+    isNewsletter: true,
   },
   {
     id: "2022_programme",
@@ -57,7 +57,7 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Processus programme",
     hasEmail: true,
     hasPush: false,
-    newsletter: "2022_programme",
+    isNewsletter: true,
   },
   {
     id: "2022_liaison",
@@ -67,9 +67,9 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Correspondant·e d'immeuble ou de rue",
     hasEmail: true,
     hasPush: false,
-    newsletter: "2022_liaison",
+    isNewsletter: true,
   },
-].filter((notification) => !!notification.newsletter);
+].filter((notification) => !!notification.isNewsletter);
 
 const PERSON_NOTIFICATIONS = [
   {
@@ -343,7 +343,7 @@ const getNewsletterNotifications = (user) => {
   return NEWSLETTER_NOTIFICATIONS.filter(
     (n) =>
       !(
-        (n.id === "lfi_newsletter" && !user.isInsoumise) ||
+        (n.id === "LFI" && !user.isInsoumise) ||
         (n.id === "melenchon2022" && !user.is2022)
       )
   );
@@ -361,12 +361,12 @@ export const getNewsletterStatus = (newsletters) => {
   }
   let newsletterStatus = {};
   Object.values(NEWSLETTER_NOTIFICATIONS).forEach((value) => {
-    if (!value.newsletter) {
+    if (!value.id) {
       return;
     }
     newsletterStatus = {
       ...newsletterStatus,
-      [value.newsletter]: { email: newsletters.includes(value.id) },
+      [value.id]: { email: newsletters.includes(value.id) },
     };
   });
   return newsletterStatus;

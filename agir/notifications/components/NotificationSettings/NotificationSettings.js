@@ -48,11 +48,12 @@ const NotificationSettings = (props) => {
       let result;
 
       // Update profile newsletters
-      if ("newsletter" in notification && !!profile) {
+      if ("isNewsletter" in notification && !!profile) {
         const newsletters =
           notification.action === "add"
             ? [...profile.newsletters, notification.id]
             : profile.newsletters.filter((notif) => notif !== notification.id);
+
         result = await updateProfile({ newsletters });
         setIsLoading(false);
         mutateProfile(
