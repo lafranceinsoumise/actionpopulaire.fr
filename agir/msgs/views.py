@@ -1,3 +1,5 @@
+from django.db import transaction
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
@@ -54,13 +56,24 @@ class UserMessagesAllReadAPIView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         person = self.request.user.person
         messages = get_user_messages(person)
-
-        for message in messages:
-            SupportGroupMessageRecipient.objects.update_or_create(
-                message=message,
-                recipient=person,
+        with transaction.atomic():
+            old_message_ids = SupportGroupMessageRecipient.objects.filter(
+                message__in=messages, recipient=person
+            ).values_list("message_id", flat=True)
+            SupportGroupMessageRecipient.objects.bulk_create(
+                (
+                    SupportGroupMessageRecipient(message=message, recipient=person)
+                    for message in messages
+                    if message.id not in old_message_ids
+                ),
+                ignore_conflicts=True,
             )
-        return Response(True)
+
+            SupportGroupMessageRecipient.objects.filter(
+                message_id__in=old_message_ids, recipient=person
+            ).update(modified=timezone.now())
+
+            return Response(True)
 
 
 class UserMessagesAPIView(ListAPIView):
