@@ -21,13 +21,13 @@ class SegmentTestCase(TestCase):
         self.person_without_account = Person.objects.create_person(email="b@b.b")
 
     def test_default_segment_include_anyone(self):
-        s = Segment.objects.create(newsletters=[], is_insoumise=None)
+        s = Segment.objects.create(newsletters=[], is_2022=None)
 
         self.assertIn(self.person_with_account, s.get_subscribers_queryset())
         self.assertIn(self.person_without_account, s.get_subscribers_queryset())
 
     def test_person_with_disabled_account_not_in_segment(self):
-        s = Segment.objects.create(newsletters=[], is_insoumise=None)
+        s = Segment.objects.create(newsletters=[], is_2022=None)
         role = self.person_with_account.role
         role.is_active = False
         role.save()
@@ -40,7 +40,7 @@ class SegmentTestCase(TestCase):
         )
         new_person = Person.objects.create_person(email="new@agir.local", created=now())
         s = Segment.objects.create(
-            newsletters=[], is_insoumise=None, registration_duration=1
+            newsletters=[], is_2022=None, registration_duration=1
         )
         self.assertIn(old_person, s.get_subscribers_queryset())
         self.assertNotIn(new_person, s.get_subscribers_queryset())
@@ -56,10 +56,10 @@ class SendCampaignActionTestCase(TestCase):
             "no_newsletters@agir.test", newsletters=[]
         )
         self.segment_with_newsletters = Segment.objects.create(
-            newsletters=[Person.NEWSLETTER_LFI], is_insoumise=None
+            newsletters=[Person.NEWSLETTER_LFI], is_2022=None
         )
         self.segment_without_newsletters = Segment.objects.create(
-            newsletters=[], is_insoumise=None
+            newsletters=[], is_2022=None
         )
         self.assertIn(
             self.user_without_newsletters,
