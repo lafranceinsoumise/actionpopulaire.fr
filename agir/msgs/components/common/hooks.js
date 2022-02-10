@@ -234,8 +234,11 @@ export const useSelectMessage = (mutateMessages) => {
       } else {
         history.push(routeConfig.messages.getLink({ messagePk }));
       }
-      mutateMessages && mutateMessages();
-      mutate("/api/user/messages/unread_count/");
+      // Wait query GET to be done
+      setTimeout(() => {
+        mutateMessages && mutateMessages();
+        mutate("/api/user/messages/unread_count/");
+      }, 1000);
     },
     [history, mutateMessages]
   );

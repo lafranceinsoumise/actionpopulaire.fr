@@ -4,11 +4,7 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import {
-  useMessageSWR,
-  useSelectMessage,
-  useMessageActions,
-} from "@agir/msgs/common/hooks";
+import { useMessageSWR, useMessageActions } from "@agir/msgs/common/hooks";
 import { useCommentsSWR } from "@agir/msgs/common/hooks";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 import { setPageTitle } from "@agir/front/globalContext/actions";
@@ -65,7 +61,7 @@ const MessagePage = ({ messagePk }) => {
     mutateMessages,
     isAutoRefreshPausedRef,
     onSelectMessage,
-  } = useMessageSWR(messagePk, onSelectMessage);
+  } = useMessageSWR(messagePk);
 
   const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
