@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, { useMemo, Fragment } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -8,6 +8,7 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import MessageCard from "@agir/front/genericComponents/MessageCard";
 import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import GroupEventList from "@agir/groups/groupPage/GroupEventList";
 
@@ -218,18 +219,19 @@ export const MessagesRoutePreview = (props) => {
           )}
         </h3>
         <article>
-          {Array.isArray(messages)
-            ? messages.map((message) => (
+          {Array.isArray(messages) &&
+            messages.map((message) => (
+              <Fragment key={message.id}>
                 <MessageCard
-                  key={message.id}
                   user={user}
                   message={message}
                   comments={message.comments || message.recentComments || []}
                   onClick={onClickMessage}
                   withBottomButton
                 />
-              ))
-            : null}
+                <Spacer size="1.5rem" style={{ backgroundColor: "inherit" }} />
+              </Fragment>
+            ))}
         </article>
       </PageFadeIn>
     </RoutePreview>
