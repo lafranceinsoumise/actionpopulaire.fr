@@ -25,8 +25,15 @@ const routeConfig = {
     exact: false,
     label: "Messages",
     hasTab: true,
-    hasRoute: (group) =>
-      group.isManager || (group.isMember && group.hasMessages),
+    hasRoute: (group) => {
+      if (!group.isMessagingEnabled) {
+        return false;
+      }
+      if (group.isManager) {
+        return true;
+      }
+      return group.isMember && group.hasMessages;
+    },
   },
   agenda: {
     id: "agenda",

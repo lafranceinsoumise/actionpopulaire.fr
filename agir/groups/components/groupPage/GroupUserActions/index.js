@@ -48,6 +48,7 @@ const ConnectedUserActions = (props) => {
     personalInfoConsent,
     contact,
     referents,
+    isMessagingEnabled,
   } = props;
 
   const user = useSelector(getUser);
@@ -176,7 +177,6 @@ const ConnectedUserActions = (props) => {
 
   const sendPrivateMessage = useCallback(
     async (message) => {
-      console.log(message);
       const { subject, text } = message;
       const result = await api.createPrivateMessage(id, { subject, text });
       onSelectMessage(result.data.id);
@@ -214,7 +214,8 @@ const ConnectedUserActions = (props) => {
         onJoin={joinGroup}
         onUpdate={updateOwnMembership}
         onClose={closeJoinDialog}
-        openMessageModal={openMessageModal}
+        openMessageModal={isMessagingEnabled ? openMessageModal : undefined}
+        groupContact={contact}
       />
       {isMember && (
         <>
@@ -233,14 +234,16 @@ const ConnectedUserActions = (props) => {
             onClose={closeDialog}
             onQuit={quitGroup}
           />
-          <MessageModal
-            shouldShow={messageModalOpen}
-            user={user}
-            groupPk={id}
-            onSend={sendPrivateMessage}
-            onClose={closeMessageModal}
-            onBoarding
-          />
+          {isMessagingEnabled && (
+            <MessageModal
+              shouldShow={messageModalOpen}
+              user={user}
+              groupPk={id}
+              onSend={sendPrivateMessage}
+              onClose={closeMessageModal}
+              onBoarding
+            />
+          )}
         </>
       )}
     </>

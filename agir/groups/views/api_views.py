@@ -521,13 +521,7 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
     pagination_class = APIPaginator
 
     def initial(self, request, *args, **kwargs):
-        try:
-            self.message = SupportGroupMessage.objects.filter(
-                author__role__is_active=True
-            ).get(pk=kwargs["pk"])
-        except SupportGroupMessage.DoesNotExist:
-            raise NotFound()
-
+        self.message = get_object_or_404(SupportGroupMessage.objects.active(), **kwargs)
         self.check_object_permissions(request, self.message)
         super().initial(request, *args, **kwargs)
 
