@@ -97,9 +97,7 @@ class ActivityAPIViewTestCase(TestCase):
 
 class AnnouncementTestCase(TestCase):
     def setUp(self) -> None:
-        self.insoumise = Person.objects.create_insoumise(
-            "a@a.a",
-        )
+        self.insoumise = Person.objects.create_insoumise("a@a.a")
 
         self.nsp = Person.objects.create_person("b@b.b", is_2022=True)
 
@@ -118,7 +116,9 @@ class AnnouncementTestCase(TestCase):
         self.assertCountEqual(announcements, [a2, a1])
 
     def test_can_limit_announcement_with_segment(self):
-        segment_insoumis = Segment.objects.create(is_insoumise=True)
+        segment_insoumis = Segment.objects.create(
+            is_insoumise=True, is_2022=None, newsletters=[]
+        )
         a1 = Announcement.objects.create(
             title="1ère annonce",
             link="https://lafranceinsoumise.fr",
