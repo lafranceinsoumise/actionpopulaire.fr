@@ -594,6 +594,8 @@ class MembershipSerializer(serializers.ModelSerializer):
             "membershipType",
             "personalInfoConsent",
             "hasGroupNotifications",
+            "created",
+            "modified",
         ]
 
 
