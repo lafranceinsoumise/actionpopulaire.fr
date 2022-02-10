@@ -617,7 +617,7 @@ class RSVPAdmin(admin.ModelAdmin):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return request.user.has_perm("events.delete_rsvp_for_event")
+        return request.user.has_perm("events.delete_rsvp")
 
     def has_view_permission(self, request, obj=None):
         return request.user.has_perm("events.view_rsvp")
