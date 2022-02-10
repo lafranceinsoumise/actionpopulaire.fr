@@ -7,8 +7,7 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Lettres d'informations de la France Insoumise",
     hasEmail: true,
     hasPush: false,
-    activityTypes: ["LFI"],
-    isNewsletter: true,
+    newsletter: "LFI",
   },
   {
     id: "2022",
@@ -18,8 +17,7 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Informations importantes de la campagne",
     hasEmail: true,
     hasPush: false,
-    activityTypes: ["2022"],
-    isNewsletter: true,
+    newsletter: "2022",
   },
   {
     id: "2022_exceptionnel",
@@ -29,8 +27,7 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Informations exceptionnelles",
     hasEmail: true,
     hasPush: false,
-    activityTypes: ["2022_exceptionnel"],
-    isNewsletter: true,
+    newsletter: "2022_exceptionnel",
   },
   {
     id: "2022_en_ligne",
@@ -40,8 +37,7 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Actions en ligne",
     hasEmail: true,
     hasPush: false,
-    activityTypes: ["2022_en_ligne"],
-    isNewsletter: true,
+    newsletter: "2022_en_ligne",
   },
   {
     id: "2022_chez_moi",
@@ -51,8 +47,7 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Agir près de chez moi",
     hasEmail: true,
     hasPush: false,
-    activityTypes: ["2022_chez_moi"],
-    isNewsletter: true,
+    newsletter: "2022_chez_moi",
   },
   {
     id: "2022_programme",
@@ -62,8 +57,7 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Processus programme",
     hasEmail: true,
     hasPush: false,
-    activityTypes: ["2022_programme"],
-    isNewsletter: true,
+    newsletter: "2022_programme",
   },
   {
     id: "2022_liaison",
@@ -73,10 +67,9 @@ const NEWSLETTER_NOTIFICATIONS = [
     label: "Correspondant·e d'immeuble ou de rue",
     hasEmail: true,
     hasPush: false,
-    activityTypes: ["2022_liaison"],
-    isNewsletter: true,
+    newsletter: "2022_liaison",
   },
-].filter((notification) => notification.activityTypes.length > 0);
+].filter((notification) => !!notification.newsletter);
 
 const PERSON_NOTIFICATIONS = [
   {
@@ -364,13 +357,16 @@ export const getAllNotifications = (groups = [], user) => [
 
 export const getNewsletterStatus = (newsletters) => {
   if (!newsletters || !Array.isArray(newsletters)) {
-    return [];
+    return {};
   }
   let newsletterStatus = {};
   Object.values(NEWSLETTER_NOTIFICATIONS).forEach((value) => {
+    if (!value.newsletter) {
+      return;
+    }
     newsletterStatus = {
       ...newsletterStatus,
-      [value.id]: { email: newsletters.includes(value.id) },
+      [value.newsletter]: { email: newsletters.includes(value.id) },
     };
   });
   return newsletterStatus;
