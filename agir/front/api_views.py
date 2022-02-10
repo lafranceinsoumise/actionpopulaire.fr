@@ -41,7 +41,11 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         groupSort = filters.get("groupSort", None)
         groupInactive = filters.get("groupInactive", None)
 
-        groups = SupportGroup.objects.active().with_serializer_prefetch(None)
+        groups = (
+            SupportGroup.objects.active()
+            .prefetch_related("subtypes")
+            .with_static_map_image()
+        )
 
         # Filter
         if groupType:
