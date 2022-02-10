@@ -42,13 +42,13 @@ class CommuneOrConsulateSearchAPIView(ListAPIView):
 
     def list(self, request, *args, **kwargs):
         search_term = request.GET.get(self.search_term_param)
-        consulates = CirconscriptionConsulaire.objects.search(search_term)
+        consulates = CirconscriptionConsulaire.objects.search(search_term)[:20]
         communes = self.filter_queryset(
             Commune.objects.filter(
                 type__in=(Commune.TYPE_COMMUNE, Commune.TYPE_ARRONDISSEMENT_PLM),
             )
             .exclude(code__in=("75056", "69123", "13055"))
-            .search(search_term)
+            .search(search_term)[:20]
         )
         queryset = sorted(
             list(chain(communes, consulates)), key=lambda result: result.rank

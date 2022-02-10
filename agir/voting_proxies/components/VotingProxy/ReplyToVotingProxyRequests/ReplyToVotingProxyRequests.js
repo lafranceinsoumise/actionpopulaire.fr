@@ -53,23 +53,17 @@ const ReplyToVotingProxyRequests = (props) => {
 
   return (
     <StyledPageContainer>
-      <div
-        css={`
-          padding: 1rem;
-        `}
-      >
-        <PageFadeIn ready={typeof data !== "undefined"} wait={<Skeleton />}>
-          {data && data.requests.length > 0 ? (
-            <ReplyingForm
-              votingProxyPk={votingProxyPk}
-              firstName={data.firstName}
-              requests={data.requests}
-            />
-          ) : (
-            <NoRequestFound />
-          )}
-        </PageFadeIn>
-      </div>
+      <PageFadeIn ready={typeof data !== "undefined"} wait={<Skeleton />}>
+        {data && data.requests.length > 0 ? (
+          <ReplyingForm
+            votingProxyPk={votingProxyPk}
+            firstName={data.firstName}
+            requests={data.requests}
+          />
+        ) : (
+          <NoRequestFound />
+        )}
+      </PageFadeIn>
     </StyledPageContainer>
   );
 };
