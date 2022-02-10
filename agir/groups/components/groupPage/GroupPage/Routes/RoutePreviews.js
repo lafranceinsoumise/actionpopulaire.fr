@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useMemo } from "react";
+import React, { useMemo, Fragment } from "react";
 import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
@@ -221,9 +221,8 @@ export const MessagesRoutePreview = (props) => {
         <article>
           {Array.isArray(messages) &&
             messages.map((message) => (
-              <>
+              <Fragment key={message.id}>
                 <MessageCard
-                  key={message.id}
                   user={user}
                   message={message}
                   comments={message.comments || message.recentComments || []}
@@ -231,7 +230,7 @@ export const MessagesRoutePreview = (props) => {
                   withBottomButton
                 />
                 <Spacer size="1.5rem" style={{ backgroundColor: "inherit" }} />
-              </>
+              </Fragment>
             ))}
         </article>
       </PageFadeIn>
