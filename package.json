@@ -86,7 +86,7 @@
     "swiper": "^8.0.5",
     "swr": "^1.2.1",
     "tinymce": "^5.10.3",
-    "tinymce-i18n": "^20.12.25",
+    "tinymce-i18n": "^22.2.11",
     "url": "^0.11.0",
     "validate.js": "^0.13.1",
     "workbox-cacheable-response": "^6.4.2",
