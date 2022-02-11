@@ -62,34 +62,14 @@ const SORTING_OPTIONS = [
     sortingFn: (members) => _sortBy(members, "membershipType").reverse(),
   },
   {
-    label: "↑ ordre alphabétique",
-    value: "alphaAsc",
+    label: "Ordre alphabétique",
+    value: "alpha",
     sortingFn: (members) => _sortBy(members, "displayName"),
   },
   {
-    label: "↓ ordre alphabétique",
-    value: "alphaDesc",
-    sortingFn: (members) => _sortBy(members, "displayName").reverse(),
-  },
-  {
-    label: "↑ arrivée dans le groupe",
-    value: "createdAsc",
+    label: "Arrivée dans le groupe",
+    value: "created",
     sortingFn: (members) => _sortBy(members, "created"),
-  },
-  {
-    label: "↓ arrivée dans le groupe",
-    value: "createdDesc",
-    sortingFn: (members) => _sortBy(members, "created").reverse(),
-  },
-  {
-    label: "↑ dernière mise à jour",
-    value: "modifiedAsc",
-    sortingFn: (members) => _sortBy(members, "modified"),
-  },
-  {
-    label: "↓ dernière mise à jour",
-    value: "modifiedDesc",
-    sortingFn: (members) => _sortBy(members, "modified").reverse(),
   },
 ];
 
@@ -111,10 +91,11 @@ const GroupMemberList = ({
     }
     let result = members;
     if (search) {
+      const searchTerm = search.toLowerCase();
       result = members.filter(
         ({ displayName, email }) =>
-          displayName.toLowerCase().includes(search) ||
-          email.toLowerCase().includes(search)
+          displayName.toLowerCase().includes(searchTerm) ||
+          email.toLowerCase().includes(searchTerm)
       );
     }
     if (members.length < 3) {
