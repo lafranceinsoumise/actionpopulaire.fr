@@ -126,7 +126,7 @@ export const useMessage = (group, messagePk) => {
   });
 
   return {
-    message: !group.isMessagingEnabled || error ? null : message,
+    message: !group?.isMessagingEnabled || error ? null : message,
     isLoading:
       typeof group === "undefined" ||
       (hasMessage && typeof message === "undefined" && !error),
