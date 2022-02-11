@@ -170,7 +170,7 @@ export const useMessageSWR = (messagePk) => {
 
   const currentMessageId = currentMessage?.id;
 
-  const onSelectMessage = useSelectMessage(mutateMessages);
+  const onSelectMessage = useSelectMessage();
 
   useEffect(() => {
     dispatch(
@@ -225,7 +225,7 @@ export const useMessageSWR = (messagePk) => {
   };
 };
 
-export const useSelectMessage = (mutateMessages) => {
+export const useSelectMessage = () => {
   const history = useHistory();
   const handleSelect = useCallback(
     (messagePk, doNotPush = false) => {
@@ -234,15 +234,9 @@ export const useSelectMessage = (mutateMessages) => {
       } else {
         history.push(routeConfig.messages.getLink({ messagePk }));
       }
-      // Wait query GET to be done
-      setTimeout(() => {
-        mutateMessages && mutateMessages();
-        mutate("/api/user/messages/unread_count/");
-      }, 1000);
     },
-    [history, mutateMessages]
+    [history]
   );
-
   return handleSelect;
 };
 

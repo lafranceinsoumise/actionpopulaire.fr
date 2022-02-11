@@ -16,6 +16,9 @@ import { StyledInlineMenuItems } from "@agir/front/genericComponents/MessageCard
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { setAllMessagesRead } from "@agir/groups/api.js";
 
+import { useMessageSWR } from "@agir/msgs/common/hooks";
+import { mutate } from "swr";
+
 const StyledNewMessageButton = styled.div`
   padding: 0.5rem 1.5rem 1.5rem;
 
@@ -77,8 +80,12 @@ export const MessageOptions = () => {
   const settingsRoot = pathname ? pathname.slice(1, -1) : "messages";
   const route = useNotificationSettingLink(settingsRoot);
 
-  const markAllRead = () => {
-    setAllMessagesRead();
+  const { mutateMessages } = useMessageSWR(null);
+
+  const markAllRead = async () => {
+    await setAllMessagesRead();
+    mutateMessages && mutateMessages();
+    mutate("/api/user/messages/unread_count/");
   };
 
   return (

@@ -6,6 +6,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { useMessageSWR, useMessageActions } from "@agir/msgs/common/hooks";
 import { useCommentsSWR } from "@agir/msgs/common/hooks";
+import { mutate } from "swr";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 import { setPageTitle } from "@agir/front/globalContext/actions";
 import { getMessageSubject } from "@agir/msgs/common/utils";
@@ -110,6 +111,14 @@ const MessagePage = ({ messagePk }) => {
   useEffect(() => {
     dispatch(setPageTitle(pageTitle));
   }, [dispatch, pageTitle]);
+
+  useEffect(() => {
+    if (!messagePk) {
+      return;
+    }
+    mutateMessages && mutateMessages();
+    mutate("/api/user/messages/unread_count/");
+  }, [messagePk]);
 
   return (
     <>
