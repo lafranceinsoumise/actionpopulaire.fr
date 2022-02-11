@@ -111,10 +111,11 @@ const GroupMemberList = ({
     }
     let result = members;
     if (search) {
+      const searchTerm = search.toLowerCase();
       result = members.filter(
         ({ displayName, email }) =>
-          displayName.toLowerCase().includes(search) ||
-          email.toLowerCase().includes(search)
+          displayName.toLowerCase().includes(searchTerm) ||
+          email.toLowerCase().includes(searchTerm)
       );
     }
     if (members.length < 3) {
