@@ -10,23 +10,15 @@ import {
 import ScrollMemory from "react-router-scroll-memory";
 
 import routes, { BASE_PATH, routeConfig } from "./routes.config";
-import Page from "./Page";
-import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
-
 import { useAuthentication } from "@agir/front/authentication/hooks";
+import { useAppLoader, useMobileApp } from "@agir/front/app/hooks";
 
-import Spacer from "@agir/front/genericComponents/Spacer";
-
-import {
-  useAppLoader,
-  useMobileApp,
-  useDownloadBanner,
-} from "@agir/front/app/hooks";
-
-import OpenGraphTags from "@agir/front/app/OpenGraphTags";
-import TopBar from "@agir/front/app/Navigation/TopBar";
-import Footer from "@agir/front/app/Footer";
 import ConnectivityWarning from "@agir/front/app/ConnectivityWarning";
+import Footer from "@agir/front/app/Footer";
+import NotFoundPage from "@agir/front/notFoundPage/NotFoundPage";
+import OpenGraphTags from "@agir/front/app/OpenGraphTags";
+import Page from "./Page";
+import TopBar from "@agir/front/app/Navigation/TopBar";
 
 import logger from "@agir/lib/utils/logger";
 
@@ -88,11 +80,11 @@ ProtectedComponent.propTypes = {
 
 const Router = ({ children }) => {
   const { isMobileApp } = useMobileApp();
-  const [isBannerDownload] = useDownloadBanner();
 
   return (
     <BrowserRouter basename={BASE_PATH}>
       <ScrollMemory />
+      <TopBar />
       <Switch>
         {routes.map((route) => {
           const hasTopBar =
@@ -103,18 +95,10 @@ const Router = ({ children }) => {
                 title={route.label}
                 description={route.description}
               />
-              {hasTopBar && <TopBar hasLayout={!!route.hasLayout} />}
-              {hasTopBar && isBannerDownload && <Spacer size="80px" />}
               {!route.hideConnectivityWarning && (
                 <ConnectivityWarning hasTopBar={hasTopBar} />
               )}
               <ProtectedComponent route={route} hasTopBar={hasTopBar} />
-              {!route.hideFooter && (
-                <Footer
-                  hideBanner={route.hideFooterBanner}
-                  displayOnMobileApp={route.displayFooterOnMobileApp}
-                />
-              )}
             </Route>
           );
         })}
@@ -123,6 +107,7 @@ const Router = ({ children }) => {
         </Route>
       </Switch>
       {children}
+      <Footer />
     </BrowserRouter>
   );
 };
