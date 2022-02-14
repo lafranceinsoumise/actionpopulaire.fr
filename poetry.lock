@@ -610,7 +610,7 @@ qrcode = ["qrcode"]
 
 [[package]]
 name = "django-phonenumber-field"
-version = "5.2.0"
+version = "6.0.0"
 description = "An international phone number field for django models."
 category = "main"
 optional = false
@@ -2210,7 +2210,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "c812c9192cda9eb9dd29deae4b40438ed750651b036604aa20fe1f3a48a5c7ee"
+content-hash = "b18e1142c1edb46e07c9f7fa0050762f7e9bce76579281452c11d06ae9c72c85"
 
 [metadata.files]
 amqp = [
@@ -2579,8 +2579,8 @@ django-otp = [
     {file = "django_otp-1.1.3-py3-none-any.whl", hash = "sha256:8637be826c0465d0fd1710e4472efe9fc83883853a2141fefdbace9358d20003"},
 ]
 django-phonenumber-field = [
-    {file = "django-phonenumber-field-5.2.0.tar.gz", hash = "sha256:52b2e5970133ec5ab701218b802f7ab237229854dc95fd239b7e9e77dc43731d"},
-    {file = "django_phonenumber_field-5.2.0-py3-none-any.whl", hash = "sha256:5547fb2b2cc690a306ba77a5038419afc8fa8298a486fb7895008e9067cc7e75"},
+    {file = "django-phonenumber-field-6.0.0.tar.gz", hash = "sha256:9695d3beda772c503ad4e04a4f7012a8227e9e3e4fd0ea4ffb07c43245bf4a8d"},
+    {file = "django_phonenumber_field-6.0.0-py3-none-any.whl", hash = "sha256:bbb9cb2e6fc53c476de40428e1354c313a040e8b2fb69ea8ead4ba41a60f926a"},
 ]
 django-prometheus = [
     {file = "django-prometheus-2.1.0.tar.gz", hash = "sha256:dd3f8da1399140fbef5c00d1526a23d1ade286b144281c325f8e409a781643f2"},
