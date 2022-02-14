@@ -12,7 +12,7 @@ CIB_TO_BIC = None
 def bic_from_cib(cib):
     global CIB_TO_BIC
     if CIB_TO_BIC is None:
-        with open_text("agir.lib.data", "conversion_cib_bic.csv") as f:
+        with open_text("agir.lib.iban", "conversion_cib_bic.csv") as f:
             r = csv.DictReader(f)
             CIB_TO_BIC = {b["CIB"]: b["BIC"] for b in r}
 
