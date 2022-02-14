@@ -16,6 +16,9 @@ from rest_framework.views import APIView
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     GlobalOnlyPermissions,
+    IsPersonPermission,
+    IsPersonOrTokenHasScopePermission,
+    IsActionPopulaireClientPermission,
 )
 from agir.people.actions.subscription import SUBSCRIPTION_TYPE_AP
 from agir.people.models import Person
@@ -70,7 +73,10 @@ class PersonProfilePermissions(GlobalOrObjectPermissions):
 class PersonProfileAPIView(RetrieveUpdateAPIView):
     serializer_class = PersonSerializer
     queryset = Person.objects.all()
-    permission_classes = (PersonProfilePermissions,)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        PersonProfilePermissions,
+    )
 
     def get_object(self):
         person = None
@@ -114,7 +120,10 @@ class CounterAPIView(GenericAPIView):
 class ManageNewslettersAPIView(GenericAPIView):
     serializer_class = ManageNewslettersRequestSerializer
     queryset = Person.objects.all()  # pour les permissions
-    permission_classes = (GlobalOnlyPermissions,)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        GlobalOnlyPermissions,
+    )
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -127,6 +136,7 @@ class RetrievePersonView(RetrieveAPIView):
     serializer_class = PersonSerializer
     queryset = Person.objects.all()  # pour les permissions
     permission_classes = (
+        IsActionPopulaireClientPermission,
         GlobalOrObjectPermissions,
     )  # attention si on rajoute de l'édition sur ce point
 
@@ -162,7 +172,10 @@ class NewContacPermissions(GlobalOrObjectPermissions):
 class CreateNewContactView(CreateAPIView):
     serializer_class = ContactSerializer
     queryset = Person.objects.all()
-    permission_classes = (NewContacPermissions,)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        NewContacPermissions,
+    )
 
 
 class ValidateNewContactView(CreateNewContactView):

@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.middleware.csrf import get_token
 from django.views.decorators.cache import never_cache
-
 from rest_framework import exceptions, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import RetrieveAPIView
@@ -14,6 +13,7 @@ from rest_framework.views import APIView
 from agir.authentication.serializers import SessionSerializer, SessionDonationSerializer
 from agir.authentication.tasks import send_login_email, send_no_account_email
 from agir.authentication.tokens import short_code_generator
+from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
 from agir.lib.token_bucket import TokenBucket
 from agir.lib.utils import get_client_ip
 from agir.people.models import Person, PersonEmail
@@ -34,14 +34,14 @@ check_short_code_bucket = TokenBucket("CheckShortCode", 5, 180)
 
 
 class CSRFAPIView(APIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
 
     def get(self, request, *args, **kwargs):
         return Response({"csrfToken": get_token(request)})
 
 
 class SessionContextAPIView(RetrieveAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     serializer_class = SessionSerializer
     queryset = None
 
@@ -56,7 +56,7 @@ class SessionContextAPIView(RetrieveAPIView):
 
 # Retrieve specific session filled with Donation informations
 class SessionDonationAPIView(RetrieveAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     serializer_class = SessionDonationSerializer
     queryset = None
 
@@ -72,7 +72,7 @@ def ping(request):
 
 
 class LoginAPIView(APIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     queryset = Person.objects.all()
     messages = {
         "invalid_format": "Saisissez une adresse e-mail valide.",
@@ -133,7 +133,7 @@ class LoginAPIView(APIView):
 
 
 class CheckCodeAPIView(APIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     messages = {
         "invalid_format": "Le code que vous avez entré n'est pas au bon format. Il est constitué de 5 lettres ou"
         " chiffres et se trouve dans l'email qui vous a été envoyé.",
@@ -199,7 +199,7 @@ class CheckCodeAPIView(APIView):
 
 
 class LogoutAPIView(APIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
 
     def get(self, request):
         logout(request)

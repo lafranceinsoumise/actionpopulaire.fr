@@ -16,6 +16,7 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 
 from agir.lib.export import dict_to_camelcase
+from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
 from agir.lib.token_bucket import TokenBucket
 from agir.lib.utils import get_client_ip
 from agir.voting_proxies.actions import (
@@ -84,25 +85,25 @@ class CreateVoterAPIView(CreateAPIView):
 
 
 class VotingProxyRequestCreateAPIView(CreateVoterAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     queryset = VotingProxyRequest.objects.all()
     serializer_class = VotingProxyRequestSerializer
 
 
 class VotingProxyCreateAPIView(CreateVoterAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     queryset = VotingProxy.objects.all()
     serializer_class = CreateVotingProxySerializer
 
 
 class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     queryset = VotingProxy.objects.all()
     serializer_class = VotingProxySerializer
 
 
 class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     queryset = VotingProxy.objects.filter(status=VotingProxy.STATUS_AVAILABLE)
     serializer_class = None
 
@@ -181,7 +182,7 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
 
 
 class VotingProxyForRequestRetrieveAPIView(RetrieveAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     queryset = VotingProxyRequest.objects.filter(
         status=VotingProxyRequest.STATUS_ACCEPTED, proxy__isnull=False
     )
@@ -212,7 +213,7 @@ class VotingProxyForRequestRetrieveAPIView(RetrieveAPIView):
 
 
 class VotingProxyRequestConfirmAPIView(UpdateAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     queryset = VotingProxyRequest.objects.filter(
         status=VotingProxyRequest.STATUS_ACCEPTED, proxy__isnull=False
     )
