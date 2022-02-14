@@ -17,6 +17,7 @@ from agir.donations.serializers import (
 )
 from agir.donations.tasks import send_monthly_donation_confirmation_email
 from agir.donations.views import DONATION_SESSION_NAMESPACE
+from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
 from agir.payments.actions.payments import create_payment
 from agir.payments.models import Subscription
 from agir.people.models import Person
@@ -25,14 +26,14 @@ from agir.presidentielle2022.apps import Presidentielle2022Config
 
 # 1st step : Fill session with donation infos
 class CreateSessionDonationAPIView(CreateAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     serializer_class = CreateDonationSessionSerializer
     queryset = Person.objects.none()
 
 
 # 2nd step : Create and send donation with personal infos
 class SendDonationAPIView(UpdateModelMixin, GenericAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     serializer_class = SendDonationSerializer
 
     def get_object(self):

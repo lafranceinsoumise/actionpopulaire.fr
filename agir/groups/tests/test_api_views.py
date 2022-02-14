@@ -1042,7 +1042,7 @@ class UpdateOwnMembershipAPITestCase(APITestCase):
         self.client.logout()
         data = {"personalInfoConsent": True}
         res = self.client.patch(f"/api/groupes/{self.group.id}/membre/", data=data)
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 401)
 
     def test_non_member_cannot_update_membership(self):
         self.client.force_login(self.non_member.role)
