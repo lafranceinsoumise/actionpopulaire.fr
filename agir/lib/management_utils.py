@@ -1,4 +1,5 @@
 import logging
+import sys
 from argparse import ArgumentTypeError
 from datetime import date, time
 
@@ -168,16 +169,20 @@ class LoggingCommand(BaseCommand):
     def configure_logger(self, verbosity, log_file):
         logger = logging.getLogger("agir")
 
-        if verbosity:
-            console_handler = logging.StreamHandler()
-            console_formatter = logging.Formatter(
-                "{name}/{levelname} - {message}", style="{"
-            )
-            console_handler.setFormatter(console_formatter)
-            console_handler.setLevel(
-                {1: logging.WARNING, 2: logging.INFO, 3: logging.DEBUG}[verbosity]
-            )
-            logger.addHandler(console_handler)
+        console_handler = logging.StreamHandler()
+        console_formatter = logging.Formatter(
+            "{name}/{levelname} - {message}", style="{"
+        )
+        console_handler.setFormatter(console_formatter)
+        console_handler.setLevel(
+            {
+                1: logging.WARNING,
+                2: logging.INFO,
+                3: logging.DEBUG,
+            }.get(verbosity, logging.ERROR)
+        )
+        logger.addHandler(console_handler)
+        logging.captureWarnings(True)
 
         if log_file:
             log_file_formatter = logging.Formatter(
