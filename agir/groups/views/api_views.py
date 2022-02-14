@@ -356,6 +356,14 @@ class GroupPastEventReportsAPIView(ListAPIView):
 
 
 class GroupMessagesPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "POST": []}
+    object_perms_map = {
+        "GET": ["msgs.view_supportgroupmessages"],
+        "POST": ["msgs.add_supportgroupmessage"],
+    }
+
+
+class GroupMessagePermissions(GlobalOrObjectPermissions):
     perms_map = {"GET": [], "POST": [], "PATCH": [], "PUT": [], "DELETE": []}
     object_perms_map = {
         "GET": ["msgs.view_supportgroupmessage"],
@@ -477,7 +485,7 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
         )
     )
     serializer_class = SupportGroupMessageSerializer
-    permission_classes = (GroupMessagesPermissions,)
+    permission_classes = (GroupMessagePermissions,)
 
     def get_object(self):
         message = super().get_object()
@@ -500,7 +508,7 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
 
 class GroupMessageParticipantsAPIView(RetrieveAPIView):
     serializer_class = SupportGroupMessageParticipantSerializer
-    permission_classes = (GroupMessagesPermissions,)
+    permission_classes = (GroupMessagePermissions,)
     queryset = SupportGroupMessage.objects.active()
 
 

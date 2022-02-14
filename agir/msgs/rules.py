@@ -11,55 +11,35 @@ def is_authenticated_person(role):
 
 
 @rules.predicate
-def is_own_organization_message(role, message=None):
-
-    if message is None:
-        return False
-
+def can_view_message(role, message=None):
     if not isinstance(message, SupportGroupMessage):
         return False
 
-    supportgroup = message.supportgroup
-    if supportgroup is None:
-        return False
-
-    if message.required_membership_type <= Membership.MEMBERSHIP_TYPE_FOLLOWER:
+    if message.supportgroup_id is None:
         return False
 
     # Is author
-    if message.author.pk == role.person.pk:
+    if message.author_id == role.person.id:
         return True
 
-    # Is in required roles
-    return supportgroup.memberships.filter(
-        person_id=role.person.pk, membership_type__gte=message.required_membership_type
+    # Is member and has the right membership_type
+    return Membership.objects.filter(
+        supportgroup_id=message.supportgroup_id,
+        person_id=role.person.id,
+        membership_type__gte=message.required_membership_type,
     ).exists()
 
 
 @rules.predicate
-def is_organization_message(role, message=None):
-    if message is None:
-        return False
-
-    if not isinstance(message, SupportGroupMessage):
-        return False
-
-    supportgroup = message.supportgroup
-    if supportgroup is None:
-        return False
-
-    return message.required_membership_type > Membership.MEMBERSHIP_TYPE_FOLLOWER
-
-
-@rules.predicate
 def is_msg_author(role, msg=None):
-    return msg is not None and msg.author == role.person
+    return msg is not None and msg.author_id == role.person.id
 
 
 rules.add_perm(
-    "msgs.view_supportgroupmessage",
-    is_authenticated_person
-    & (is_own_organization_message | (~is_organization_message & is_group_member)),
+    "msgs.view_supportgroupmessages", is_authenticated_person & is_group_member
+)
+rules.add_perm(
+    "msgs.view_supportgroupmessage", is_authenticated_person & can_view_message
 )
 rules.add_perm(
     "msgs.add_supportgroupmessage",
@@ -74,8 +54,7 @@ rules.add_perm(
 )
 rules.add_perm(
     "msgs.add_supportgroupmessagecomment",
-    is_authenticated_person
-    & (is_own_organization_message | (~is_organization_message & is_group_member)),
+    is_authenticated_person & can_view_message,
 )
 rules.add_perm(
     "msgs.change_supportgroupmessagecomment", is_authenticated_person & is_msg_author
