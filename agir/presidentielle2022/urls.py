@@ -3,6 +3,7 @@ from django.urls import path
 from agir.presidentielle2022.views import (
     MonthlyDonation2022EmailConfirmationView,
     PublicDonation2022AggregatesAPIView,
+    TokTokAPIView,
 )
 
 urlpatterns = [
@@ -19,5 +20,9 @@ urlpatterns = [
     path(
         "api/2022/dons/aggregats/",
         PublicDonation2022AggregatesAPIView.as_view(),
+    ),
+    path(
+        "api/2022/toktok/",
+        TokTokAPIView.as_view(),
     ),
 ]
