@@ -80,7 +80,7 @@
     "resize-observer-polyfill": "^1.5.1",
     "rxjs": "^7.5.4",
     "sass": "~1.32.13",
-    "sass-loader": "12.4.0",
+    "sass-loader": "12.6.0",
     "short-uuid": "^4.2.0",
     "styled-components": "^5.3.3",
     "swiper": "^8.0.6",
