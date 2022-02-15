@@ -178,6 +178,7 @@ class ScopeViewSetTestCase(APITestCase):
                 "edit_supportgroup",
                 "edit_membership",
                 "edit_authorization",
+                "toktok",
             ],
         )
 
