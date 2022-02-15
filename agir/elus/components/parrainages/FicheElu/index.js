@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+*import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 
@@ -27,7 +27,7 @@ const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const Horaires = ({ horaires }) => {
   return (
     <HorairesList>
-      {horaires.map(([j1, j2, hs]) => {
+      {horaires.map && horaires.map(([j1, j2, hs]) => {
         const jours = j1 === j2 ? capitalize(j1) : `${capitalize(j1)} au ${j2}`;
         const heures = hs
           .map(([h1, h2]) => `${h1.slice(0, 5)} — ${h2.slice(0, 5)}`)
