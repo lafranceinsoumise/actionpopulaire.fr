@@ -337,7 +337,7 @@ class UploadEventImageView(
     permission_denied_to_not_found = True
 
     def get_queryset(self):
-        return Event.objects.public().past(as_of=timezone.now())
+        return Event.objects.public().past()
 
     def get_success_url(self):
         return reverse("view_event", args=(self.event.pk,))
@@ -370,9 +370,12 @@ class UploadEventImageView(
             return HttpResponse(status=status.HTTP_404_NOT_FOUND)
 
         if not self.has_permission():
-            raise PermissionDenied(
-                _("Seuls les participants à l'événement peuvent poster des images")
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                "L'ajout d'images n'est pas autorisé pour cet événement.",
             )
+            return HttpResponseRedirect(redirect_to=self.get_success_url())
 
         return super().dispatch(request, *args, **kwargs)
 

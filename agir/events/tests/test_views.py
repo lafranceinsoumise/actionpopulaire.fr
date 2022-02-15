@@ -254,7 +254,7 @@ class EventPagesTestCase(TestCase):
         response = self.client.get(
             reverse("upload_event_image", kwargs={"pk": self.other_event.pk})
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_can_access_upload_image_page_if_rsvp(self):
         self.client.force_login(self.person.role)
