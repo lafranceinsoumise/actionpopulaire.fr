@@ -278,6 +278,8 @@ DATABASES = {
 if not DEBUG:
     CONN_MAX_AGE = 600
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 # Mails
 
 # by default configured for mailhog sending
