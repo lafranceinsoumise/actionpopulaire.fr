@@ -27,17 +27,19 @@ const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const Horaires = ({ horaires }) => {
   return (
     <HorairesList>
-      {horaires.map && horaires.map(([j1, j2, hs]) => {
-        const jours = j1 === j2 ? capitalize(j1) : `${capitalize(j1)} au ${j2}`;
-        const heures = hs
-          .map(([h1, h2]) => `${h1.slice(0, 5)} — ${h2.slice(0, 5)}`)
-          .join(" et ");
-        return (
-          <li key={jours}>
-            {jours} : {heures}
-          </li>
-        );
-      })}
+      {horaires.map &&
+        horaires.map(([j1, j2, hs]) => {
+          const jours =
+            j1 === j2 ? capitalize(j1) : `${capitalize(j1)} au ${j2}`;
+          const heures = hs
+            .map(([h1, h2]) => `${h1.slice(0, 5)} — ${h2.slice(0, 5)}`)
+            .join(" et ");
+          return (
+            <li key={jours}>
+              {jours} : {heures}
+            </li>
+          );
+        })}
     </HorairesList>
   );
 };
