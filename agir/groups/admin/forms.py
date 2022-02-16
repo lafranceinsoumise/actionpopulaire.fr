@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.admin.widgets import AutocompleteSelect
 from django.utils.translation import gettext_lazy as _
 
 from agir.groups.models import SupportGroupSubtype, SupportGroup, Membership
@@ -7,6 +6,7 @@ from agir.lib.form_fields import AdminRichEditorWidget
 from agir.lib.forms import CoordinatesFormMixin
 from agir.people.models import Person
 from .. import models
+from ...lib.admin.form_fields import AutocompleteSelectModel
 
 
 class SupportGroupAdminForm(CoordinatesFormMixin, forms.ModelForm):
@@ -52,8 +52,8 @@ class AddMemberForm(forms.Form):
     def __init__(self, group, model_admin, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.group = group
-        self.fields["person"].widget = AutocompleteSelect(
-            rel=Person._meta.get_field("memberships"),
+        self.fields["person"].widget = AutocompleteSelectModel(
+            Person,
             admin_site=model_admin.admin_site,
             choices=self.fields["person"].choices,
         )
