@@ -27,7 +27,7 @@
     "@react-spring/core": "^9.4.3",
     "@react-spring/shared": "^9.4.3",
     "@react-spring/web": "^9.4.3",
-    "@sentry/react": "^6.17.8",
+    "@sentry/react": "^6.17.9",
     "@sentry/tracing": "^6.17.8",
     "@storybook/manager-webpack5": "^6.4.19",
     "@use-gesture/react": "^10.2.6",
