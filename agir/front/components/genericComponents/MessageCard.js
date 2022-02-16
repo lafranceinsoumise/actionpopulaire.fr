@@ -445,7 +445,6 @@ const MessageCard = (props) => {
     onEdit,
     onReport,
     withMobileCommentField,
-    scrollIn,
     withBottomButton,
     autoScrollOnComment,
   } = props;
@@ -463,6 +462,7 @@ const MessageCard = (props) => {
   const messageCardRef = useRef();
   const isDesktop = useIsDesktop();
 
+  const [loadedComments, setLoadedComments] = useState(false);
   const event = useMemo(() => formatEvent(linkedEvent), [linkedEvent]);
 
   const isAuthor = author.id === user.id;
@@ -522,11 +522,11 @@ const MessageCard = (props) => {
   );
 
   useEffect(() => {
-    scrollIn &&
-      messageCardRef.current &&
-      messageCardRef.current.scrollIntoView &&
-      messageCardRef.current.scrollIntoView();
-  }, [scrollIn]);
+    if (messageCardRef && !loadedComments) {
+      messageCardRef.current.scrollTo(0, messageCardRef.current.scrollHeight);
+      setLoadedComments(true);
+    }
+  }, [comments]);
 
   useEffect(() => {
     lastUpdate && mutateComments && mutateComments();
@@ -669,6 +669,7 @@ const MessageCard = (props) => {
                     user={user}
                     onSend={handleComment}
                     autoScroll={autoScrollOnComment}
+                    scrollerRef={messageCardRef}
                   />
                 ) : (
                   <ResponsiveLayout
@@ -679,6 +680,7 @@ const MessageCard = (props) => {
                     onSend={handleComment}
                     onClick={onClick && handleClick}
                     autoScroll={autoScrollOnComment}
+                    scrollerRef={messageCardRef}
                   />
                 ))}
             </StyledNewComment>
@@ -726,7 +728,6 @@ MessageCard.propTypes = {
   onReport: PropTypes.func,
   isLoading: PropTypes.bool,
   withMobileCommentField: PropTypes.bool,
-  scrollIn: PropTypes.bool,
   isManager: PropTypes.bool,
   withBottomButton: PropTypes.bool,
   autoScrollOnComment: PropTypes.bool,
