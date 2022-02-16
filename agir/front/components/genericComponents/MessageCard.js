@@ -462,6 +462,7 @@ const MessageCard = (props) => {
   const messageCardRef = useRef();
   const isDesktop = useIsDesktop();
 
+  const [loadedComments, setLoadedComments] = useState(false);
   const event = useMemo(() => formatEvent(linkedEvent), [linkedEvent]);
 
   const isAuthor = author.id === user.id;
@@ -521,8 +522,9 @@ const MessageCard = (props) => {
   );
 
   useEffect(() => {
-    if (messageCardRef) {
+    if (messageCardRef && !loadedComments) {
       messageCardRef.current.scrollTo(0, messageCardRef.current.scrollHeight);
+      setLoadedComments(true);
     }
   }, [comments]);
 
