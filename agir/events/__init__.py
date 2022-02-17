@@ -4,8 +4,6 @@ from django.views.generic import RedirectView
 
 from agir.payments.abstract_payment_mode import AbstractPaymentMode
 
-default_app_config = "agir.events.apps.EventsConfig"
-
 
 class EventPayLaterView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):

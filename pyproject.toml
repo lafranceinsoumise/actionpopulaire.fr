@@ -86,6 +86,7 @@ qrcode = {extras = ["pil"], version = "^7.2"}
 xlsxwriter = "*"
 trio = "^0.19.0"
 asks = "^2.4.12"
+Django = "^3.2"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"

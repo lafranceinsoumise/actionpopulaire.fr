@@ -5,6 +5,8 @@ from django.contrib.admin.widgets import AutocompleteSelect
 from django.core.exceptions import ImproperlyConfigured
 from django.forms.widgets import Media, MEDIA_TYPES
 
+from agir.lib.admin.form_fields import AutocompleteSelectModel
+
 
 class SelectModelBaseFilter(admin.SimpleListFilter):
     template = "custom_fields/autocomplete-filter.html"
@@ -73,13 +75,8 @@ class AutocompleteSelectModelBaseFilter(SelectModelBaseFilter):
         }
 
     def get_widget_instance(self):
-        # AutoCompleteSelect demande une relation dans son constructeur, mais n'utilise en réalité
-        # que l'attribut model. On lui fournit donc un objet ad-hoc avec cet attribut.
-        pseudo_rel = lambda: None
-        pseudo_rel.model = self.filter_model
-
-        return AutocompleteSelect(
-            pseudo_rel,
+        return AutocompleteSelectModel(
+            self.filter_model,
             self.model_admin.admin_site,
         )
 
@@ -160,8 +157,8 @@ class AutocompleteRelatedModelFilter(
         }
 
     def get_widget_instance(self):
-        rel = get_fields_from_path(self.model, self.field_name)[-1].remote_field
+        field = get_fields_from_path(self.model, self.field_name)[-1]
         return AutocompleteSelect(
-            rel,
+            field,
             self.model_admin.admin_site,
         )
