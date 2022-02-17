@@ -11,9 +11,10 @@ from django.utils.html import format_html_join, format_html
 from django.utils.translation import gettext_lazy as _
 
 from agir.events.models import Event, OrganizerConfig
+from agir.groups.display import genrer_membership
 from agir.lib.celery import emailing_task, http_task, post_save_task
 from agir.lib.geo import geocode_element
-from agir.lib.html import textify
+from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url, clean_subject_email, is_absolute_url
 from agir.people.actions.subscription import make_subscription_token
@@ -21,7 +22,6 @@ from agir.people.models import Person
 from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
 from ..activity.models import Activity
-from agir.groups.display import genrer_membership
 from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from ..notifications.models import Subscription
 
@@ -341,9 +341,13 @@ def send_new_group_event_email(group_pk, event_pk):
         "LOCATION_NAME": event.location_name,
         "LOCATION_ZIP": event.location_zip,
         "EVENT_LINK": event.get_absolute_url(),
-        "EVENT_DESCRIPTION": textify(event.description) if event.description else None,
+        "EVENT_DESCRIPTION": sanitize_html(event.description)
+        if event.description
+        else None,
         "EVENT_IMAGE": event_image,
     }
+    print(event.description)
+    print(bindings["EVENT_DESCRIPTION"])
     formatted_start_date = simple_date
     if start_time - now < timezone.timedelta(days=7):
         formatted_start_date = f"Ce {_date(start_time, 'l')}"
