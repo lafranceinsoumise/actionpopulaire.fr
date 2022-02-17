@@ -16,9 +16,9 @@ from agir.authentication.tokens import subscription_confirmation_token_generator
 from agir.lib.celery import emailing_task, http_task, post_save_task
 from agir.lib.display import str_summary
 from agir.lib.geo import geocode_element
-from agir.lib.html import sanitize_html
+from agir.lib.html import sanitize_html, textify
 from agir.lib.mailing import send_mosaico_email
-from agir.lib.utils import front_url
+from agir.lib.utils import front_url, is_absolute_url
 from agir.people.models import Person
 from .models import Event, RSVP, Invitation, OrganizerConfig
 from ..activity.models import Activity
@@ -567,6 +567,11 @@ def send_event_suggestion_email(event_pk, recipient_pk):
 
     start_time = event.local_start_time
     simple_date = _date(start_time, "l j F").capitalize()
+    event_image = None
+    if event.image:
+        event_image = event.image.storage.url(event.image.banner.name)
+        if not is_absolute_url(event_image):
+            event_image = settings.FRONT_DOMAIN + event_image
 
     bindings = {
         "TITLE": subject,
@@ -575,6 +580,8 @@ def send_event_suggestion_email(event_pk, recipient_pk):
         "LOCATION_NAME": event.location_name,
         "LOCATION_ZIP": event.location_zip,
         "EVENT_LINK": event.get_absolute_url(),
+        "EVENT_DESCRIPTION": textify(event.description) if event.description else None,
+        "EVENT_IMAGE": event_image,
     }
 
     send_mosaico_email(
