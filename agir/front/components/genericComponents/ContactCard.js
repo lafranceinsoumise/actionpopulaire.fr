@@ -19,7 +19,16 @@ const ContactCard = ({ name, phone, email }) => (
     </p>
     <IconList>
       {name && <IconListItem name="user">{name}</IconListItem>}
-      {phone && <IconListItem name="phone">{phone}</IconListItem>}
+      {phone && (
+        <IconListItem name="phone">
+          <a
+            href={`tel:${phone}`}
+            style={{ color: "inherit", textDecoration: "none" }}
+          >
+            {phone}
+          </a>
+        </IconListItem>
+      )}
       {email && <IconListItem name="mail">{email}</IconListItem>}
     </IconList>
   </StyledCard>

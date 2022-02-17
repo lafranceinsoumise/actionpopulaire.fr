@@ -89,9 +89,16 @@ const StyledCard = styled.div`
         }
       }
 
+      a,
       strong {
         font-weight: 500;
         color: ${(props) => props.theme.primary500};
+      }
+
+      a,
+      a:hover,
+      &:focus {
+        text-decoration: none;
       }
     }
 
@@ -151,7 +158,7 @@ const GroupMemberCard = (props) => {
           {phone ? (
             <span>
               <FeatherIcon small name="phone" />
-              &ensp;<strong>{phone}</strong>
+              &ensp;<a href={`tel:${phone}`}>{phone}</a>
             </span>
           ) : null}
           {email ? (
