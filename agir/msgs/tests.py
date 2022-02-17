@@ -364,7 +364,7 @@ class UserMessagesAPITestCase(APITestCase):
             create_role=True,
         )
         group = SupportGroup.objects.create(
-            name="No messages !", is_messaging_enabled=False
+            name="No messages !", is_private_messaging_enabled=False
         )
         Membership.objects.create(
             person=person,
