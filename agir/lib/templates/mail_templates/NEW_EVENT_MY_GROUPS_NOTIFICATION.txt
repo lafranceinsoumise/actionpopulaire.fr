@@ -5,6 +5,10 @@ Participez à l'action de {{ GROUP }} !
 >> {{ EVENT_SCHEDULE }}
 >> {{ LOCATION_NAME }} ({{ LOCATION_ZIP }})
 
+{% if EVENT_DESCRIPTION %}
+{{ EVENT_DESCRIPTION }}
+{% endif %}
+
 >> Je participe !
 >> {{ EVENT_LINK }}
 
