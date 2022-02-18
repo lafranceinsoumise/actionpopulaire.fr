@@ -7,7 +7,6 @@ from stdimage import StdImageField
 
 from agir.lib.models import TimeStampedModel, BaseAPIResource
 from agir.groups.models import Membership
-from django.db.models import Q
 
 
 class UserReport(TimeStampedModel):
@@ -31,17 +30,19 @@ class UserReport(TimeStampedModel):
 
 class SupportGroupMessageQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(deleted=False, author__role__is_active=True,).exclude(
-            supportgroup__is_private_messaging_enabled=False,
-            required_membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        return self.filter(
+            deleted=False,
+            author__role__is_active=True,
+            supportgroup__is_messaging_enabled=True,
         )
 
 
 class SupportGroupMessageCommentQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(deleted=False, author__role__is_active=True,).exclude(
-            message__supportgroup__is_private_messaging_enabled=False,
-            message__required_membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        return self.filter(
+            deleted=False,
+            author__role__is_active=True,
+            message__supportgroup__is_messaging_enabled=True,
         )
 
 

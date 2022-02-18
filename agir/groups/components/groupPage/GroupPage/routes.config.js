@@ -26,6 +26,9 @@ const routeConfig = {
     label: "Messages",
     hasTab: true,
     hasRoute: (group) => {
+      if (!group.isMessagingEnabled) {
+        return false;
+      }
       if (group.isManager) {
         return true;
       }
