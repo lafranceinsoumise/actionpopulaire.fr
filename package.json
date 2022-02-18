@@ -84,7 +84,7 @@
     "short-uuid": "^4.2.0",
     "styled-components": "^5.3.3",
     "swiper": "^8.0.6",
-    "swr": "^1.2.1",
+    "swr": "^1.2.2",
     "tinymce": "^5.10.3",
     "tinymce-i18n": "^22.2.11",
     "url": "^0.11.0",
