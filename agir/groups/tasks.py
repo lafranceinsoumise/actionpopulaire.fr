@@ -346,8 +346,6 @@ def send_new_group_event_email(group_pk, event_pk):
         else None,
         "EVENT_IMAGE": event_image,
     }
-    print(event.description)
-    print(bindings["EVENT_DESCRIPTION"])
     formatted_start_date = simple_date
     if start_time - now < timezone.timedelta(days=7):
         formatted_start_date = f"Ce {_date(start_time, 'l')}"

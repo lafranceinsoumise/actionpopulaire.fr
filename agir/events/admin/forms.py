@@ -317,7 +317,6 @@ class NewParticipantForm(BasePersonForm):
             PAYMENT_MODES["money"],
             None,
         ):
-            print(self.cleaned_data.get("payment_mode"))
             for f in BILLING_FIELDS:
                 if f != "location_address2" and not self.cleaned_data.get(f):
                     self.add_error(
