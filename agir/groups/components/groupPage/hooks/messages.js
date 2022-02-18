@@ -113,8 +113,7 @@ export const useMessages = (group) => {
 };
 
 export const useMessage = (group, messagePk) => {
-  const hasMessage =
-    messagePk && group && group.isMember && group.isMessagingEnabled;
+  const hasMessage = messagePk && group && group.isMember;
 
   const getMessageEndpoint = useCallback(
     () => hasMessage && api.getGroupEndpoint("getMessage", { messagePk }),
@@ -126,7 +125,7 @@ export const useMessage = (group, messagePk) => {
   });
 
   return {
-    message: !group?.isMessagingEnabled || error ? null : message,
+    message: error ? null : message,
     isLoading:
       typeof group === "undefined" ||
       (hasMessage && typeof message === "undefined" && !error),
