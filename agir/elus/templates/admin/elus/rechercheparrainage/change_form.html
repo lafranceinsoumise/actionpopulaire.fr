@@ -1,7 +1,9 @@
 {% extends "admin/change_form.html" %}
 
 {% block content %}
-  <form id="statut_form" method="post" action="{% url "admin:elus_rechercheparrainage_statut" original.id %}">
+  {% if original %}
+    <form id="statut_form" method="post" action="{% url "admin:elus_rechercheparrainage_statut" original.id %}">
+  {% endif %}
   {% csrf_token %}
   </form>
   {{ block.super }}
