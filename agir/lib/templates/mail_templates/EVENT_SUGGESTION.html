@@ -430,18 +430,18 @@
                       {{ EVENT_NAME }}
                     </a>
                   </div>
-                  {% if EVENT_IMAGE %}
-                    <div style="margin: 16px 0;">
-                      <img style="width: 100%; height: auto;" src="{{ EVENT_IMAGE }}" />
-                    </div>
-                  {% endif %}
                   <div style="margin: 16px 0;">
                     <strong> {{ EVENT_SCHEDULE }}</strong>
                     <br>
                     {{ LOCATION_NAME }} ({{ LOCATION_ZIP }})
                   </div>
+                  {% if EVENT_IMAGE %}
+                    <div style="margin: 16px 0;">
+                      <img style="width: 100%; height: auto;" src="{{ EVENT_IMAGE }}" />
+                    </div>
+                  {% endif %}
                   {% if EVENT_DESCRIPTION %}
-                    <div style="margin: 16px 0; padding: 16px; background-color: #EEEEEE; border-radius: 8px;">
+                    <div style="text-align: left; margin: 16px 0; padding: 16px; background-color: #EEEEEE; border-radius: 8px;">
                       {{ EVENT_DESCRIPTION }}
                     </div>
                   {% endif %}

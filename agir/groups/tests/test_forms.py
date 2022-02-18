@@ -33,7 +33,6 @@ class TransferFormTestCase(TestCase):
             },
         )
         form.is_valid()
-        print(form.errors)
 
         self.assertTrue(form.is_valid())
 
