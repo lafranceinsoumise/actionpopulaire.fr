@@ -421,10 +421,7 @@ const MessageHeader = ({ message, subject, isManager, isAuthor }) => {
         </div>
         <div>
           {isDesktop && (isManager || isAuthor) && (
-            <ButtonLockMessage
-              message={message}
-              style={{ marginRight: "1rem" }}
-            />
+            <ButtonLockMessage message={message} />
           )}
           <Spacer size="0.5rem" style={{ display: "inline-block" }} />
           {isDesktop && <ButtonMuteMessage message={message} />}
@@ -694,6 +691,7 @@ const MessageCard = (props) => {
                   <CommentField
                     isLoading={isLoading}
                     disabled={isLocked}
+                    isLocked={isLocked}
                     user={user}
                     onSend={handleComment}
                     autoScroll={autoScrollOnComment}
@@ -705,6 +703,7 @@ const MessageCard = (props) => {
                     DesktopLayout={CommentField}
                     isLoading={isLoading}
                     disabled={isLocked}
+                    isLocked={isLocked}
                     user={user}
                     onSend={handleComment}
                     onClick={onClick && handleClick}

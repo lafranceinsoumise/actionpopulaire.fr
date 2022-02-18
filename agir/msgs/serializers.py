@@ -123,9 +123,12 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
     )
 
     def get_group(self, obj):
+        user = self.context["request"].user.person
+        is_manager = user in obj.supportgroup.managers
         return {
             "id": obj.supportgroup.id,
             "name": obj.supportgroup.name,
+            "isManager": is_manager,
         }
 
     def get_recentComments(self, obj):

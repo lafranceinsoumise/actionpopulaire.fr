@@ -48,8 +48,6 @@ const ButtonLockMessage = ({ message }) => {
     setIsModalOpen(false);
 
     mutateLocked(() => locked, false);
-    // mutate(`/messages/${message.id}/`);
-    // mutateMessages();
     mutate(`/api/groupes/messages/${message?.id}/`);
 
     const text = locked
@@ -62,11 +60,6 @@ const ButtonLockMessage = ({ message }) => {
     if (isLockedLoading) {
       return;
     }
-    // Dont show modal to enable lock
-    if (isLocked) {
-      switchLockedMessage();
-      return;
-    }
     setIsModalOpen(true);
   };
 
@@ -76,8 +69,10 @@ const ButtonLockMessage = ({ message }) => {
     () => () =>
       (
         <ModalConfirmation
-          title="Verrouiller cette conversation ?"
-          confirmationLabel="Verrouiller"
+          title={`Souhaitez-vous ${
+            isLocked ? "dé" : ""
+          }verrouiller cette conversation ?`}
+          confirmationLabel={!isLocked ? "Verrouiller" : "Déverrouiller"}
           dismissLabel="Annuler"
           shouldShow={isModalOpen}
           onConfirm={switchLockedMessage}
@@ -85,13 +80,19 @@ const ButtonLockMessage = ({ message }) => {
           shouldDismissOnClick={false}
         >
           <Spacer size="1rem" />
-          Le fil de discission sera verrouiler, personne ne pourra plus y
-          envoyer de message.
-          <Spacer size="0.5rem" />
-          Vous pourrez le déverrouiller à tout moment.
+          {!isLocked ? (
+            <>
+              Plus personne ne pourra y répondre.
+              <Spacer size="0.5rem" />
+              Souhaitez-vous déverrouiller cette conversation ? Les
+              participant·es pourront de nouveau y écrire des réponses"
+            </>
+          ) : (
+            "Les participant·es pourront de nouveau y écrire des réponses"
+          )}
         </ModalConfirmation>
       ),
-    [isModalOpen]
+    [isModalOpen, isLocked]
   );
 
   if (!isDesktop) {
@@ -102,7 +103,7 @@ const ButtonLockMessage = ({ message }) => {
           disabled={disabled}
           onClick={handleSwitchNotification}
         >
-          <RawFeatherIcon name={`bell${isLocked ? "-off" : ""}`} />
+          <RawFeatherIcon name={`${!isLocked ? "un" : ""}lock`} />
         </StyledButton>
         <CustomModal />
       </>

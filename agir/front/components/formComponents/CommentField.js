@@ -17,6 +17,7 @@ import AnimatedMoreHorizontal from "@agir/front/genericComponents/AnimatedMoreHo
 import Avatar from "@agir/front/genericComponents/Avatar";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import TextField from "@agir/front/formComponents/TextField";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 const EmojiPicker = lazy(() =>
   import("@agir/front/formComponents/EmojiPicker")
@@ -258,6 +259,7 @@ const CommentField = (props) => {
     onSend,
     isLoading,
     disabled,
+    isLocked,
     autoScroll,
     placeholder,
     scrollerRef,
@@ -398,6 +400,15 @@ const CommentField = (props) => {
   useEffect(() => {
     updateScroll();
   }, [isFocused, value]);
+
+  if (isLocked) {
+    return (
+      <StaticToast $color="grey">
+        Cette conversation a été close par les gestionnaires du groupe. Vous ne
+        pouvez plus y écrire de réponse.
+      </StaticToast>
+    );
+  }
 
   return (
     <StyledWrapper
