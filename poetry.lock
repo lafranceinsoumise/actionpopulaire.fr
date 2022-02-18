@@ -664,14 +664,14 @@ hiredis = ["redis[hiredis] (>=3,<4)"]
 
 [[package]]
 name = "django-reversion"
-version = "3.0.9"
+version = "4.0.2"
 description = "An extension to the Django web framework that provides version control for model instances."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-django = ">=1.11"
+django = ">=2.0"
 
 [[package]]
 name = "django-silk"
@@ -2210,7 +2210,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e6b388554895681ee4625a572bb46d3f1403fc834f32db6ad07c80071f38092e"
+content-hash = "3b369dc3a3b7bac565246af1c6266a16697ceb021f02dc6e9ecc7f7749c96a6c"
 
 [metadata.files]
 amqp = [
@@ -2595,8 +2595,8 @@ django-redis = [
     {file = "django_redis-5.1.0-py3-none-any.whl", hash = "sha256:bf75bce0d6f65c3a6165dd6789506c8d22238f3bfaf7c4ad447e55afbc5b68cb"},
 ]
 django-reversion = [
-    {file = "django-reversion-3.0.9.tar.gz", hash = "sha256:a5af55f086a3f9c38be2f049c251e06005b9ed48ba7a109473736b1fc95a066f"},
-    {file = "django_reversion-3.0.9-py3-none-any.whl", hash = "sha256:1b57127a136b969f4b843a915c72af271febe7f336469db6c27121f8adcad35c"},
+    {file = "django-reversion-4.0.2.tar.gz", hash = "sha256:5d33ba944dbf19c7030c9e70e3731248ae34368cf2afede10e0d08fbf89e6f8c"},
+    {file = "django_reversion-4.0.2-py3-none-any.whl", hash = "sha256:095ec684626a07b48a1a32640e30cae93eb2acd3c452a9111f77ac934c2efb91"},
 ]
 django-silk = [
     {file = "django-silk-4.2.0.tar.gz", hash = "sha256:fcc2e3b2d20aab24a0b4b856d9692c532f8071b0e678cb5f4de47b802e85fe3e"},
