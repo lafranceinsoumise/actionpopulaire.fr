@@ -68,6 +68,7 @@ __all__ = [
     "GroupPastEventReportsAPIView",
     "GroupMessagesAPIView",
     "GroupMessageNotificationStatusAPIView",
+    "GroupMessageLockedStatusAPIView",
     "GroupMessagesPrivateAPIView",
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
@@ -401,6 +402,14 @@ class GroupMessagesNotificationPermissions(GlobalOrObjectPermissions):
     }
 
 
+class GroupMessagesLockPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "PUT": []}
+    object_perms_map = {
+        "GET": ["msgs.view_supportgroupmessage"],
+        "PUT": ["msgs.delete_supportgroupmessage"],
+    }
+
+
 class GroupMessagesAPIView(ListCreateAPIView):
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (
@@ -490,6 +499,30 @@ class GroupMessageNotificationStatusAPIView(RetrieveUpdateAPIView):
             message.recipient_mutedlist.remove(person)
 
         return Response(is_muted)
+
+
+# Get or set message locked
+class GroupMessageLockedStatusAPIView(RetrieveUpdateAPIView):
+    permission_classes = (
+        IsPersonPermission,
+        GroupMessagesLockPermissions,
+    )
+    queryset = SupportGroupMessage.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        message = self.get_object()
+        return Response(message.is_locked)
+
+    def update(self, request, *args, **kwargs):
+        message = self.get_object()
+        is_locked = request.data.get("isLocked", None)
+
+        if not isinstance(is_locked, bool):
+            raise ValidationError({"isLocked": "Ce champ est obligatoire"})
+
+        message.is_locked = is_locked
+        message.save()
+        return Response(message.is_locked)
 
 
 @method_decorator(never_cache, name="get")

@@ -82,6 +82,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "recentComments",
         "commentCount",
         "requiredMembershipType",
+        "isLocked",
     )
     DETAIL_FIELDS = (
         "id",
@@ -93,6 +94,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "linkedEvent",
         "lastUpdate",
         "requiredMembershipType",
+        "isLocked",
     )
 
     lastUpdate = serializers.DateTimeField(read_only=True, source="last_update")
@@ -111,6 +113,13 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         allow_null=True,
         choices=Membership.MEMBERSHIP_TYPE_CHOICES,
         default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+    )
+    isLocked = serializers.BooleanField(
+        source="is_locked",
+        default=False,
+        allow_null=True,
+        required=False,
+        read_only=True,
     )
 
     def get_group(self, obj):
@@ -152,6 +161,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "commentCount",
             "lastUpdate",
             "requiredMembershipType",
+            "isLocked",
         )
 
 

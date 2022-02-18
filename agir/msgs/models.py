@@ -95,6 +95,9 @@ class SupportGroupMessage(AbstractMessage):
         verbose_name="Liste de personnes en sourdine",
         blank=True,
     )
+    is_locked = models.BooleanField(
+        verbose_name="Message verrouillé", default=False, null=True, blank=True
+    )
 
     def __str__(self):
         return f"id: {self.pk} | {self.author} --> '{self.text}' | required_membership_type: {str(self.required_membership_type)} | supportgroup: {self.supportgroup}"
