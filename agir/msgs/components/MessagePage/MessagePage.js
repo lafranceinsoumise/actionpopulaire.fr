@@ -112,12 +112,12 @@ const MessagePage = ({ messagePk }) => {
     dispatch(setPageTitle(pageTitle));
   }, [dispatch, pageTitle]);
 
-  useEffect(() => {
+  useEffect(async () => {
     if (!messagePk) {
       return;
     }
+    await mutate("/api/user/messages/unread_count/");
     mutateMessages && mutateMessages();
-    mutate("/api/user/messages/unread_count/");
   }, [messagePk]);
 
   return (
