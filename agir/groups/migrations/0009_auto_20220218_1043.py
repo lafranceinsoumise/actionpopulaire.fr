@@ -6,17 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('groups', '0008_supportgroup_has_messages'),
+        ("groups", "0008_supportgroup_has_messages"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='supportgroup',
-            name='is_messaging_enabled',
+            model_name="supportgroup",
+            name="is_messaging_enabled",
         ),
         migrations.AddField(
-            model_name='supportgroup',
-            name='is_private_messaging_enabled',
-            field=models.BooleanField(default=True, help_text='La messagerie privée est activée ou non pour ce groupe.', verbose_name='Messagerie privée activée'),
+            model_name="supportgroup",
+            name="is_private_messaging_enabled",
+            field=models.BooleanField(
+                default=True,
+                help_text="La messagerie privée est activée ou non pour ce groupe.",
+                verbose_name="Messagerie privée activée",
+            ),
         ),
     ]
