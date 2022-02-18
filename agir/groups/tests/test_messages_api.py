@@ -253,9 +253,9 @@ class GroupMessagesTestAPICase(APITestCase):
         res = self.client.delete(f"/api/groupes/messages/{message.pk}/")
         self.assertEqual(res.status_code, 204)
 
-    def test_cannot_retrieve_private_messages_if_group_messaging_is_disabled(self):
+    def test_cannot_retrieve_messages_if_group_messaging_is_disabled(self):
         group = SupportGroup.objects.create(
-            name="No messages !", is_private_messaging_enabled=False
+            name="No messages !", is_messaging_enabled=False
         )
         Membership.objects.create(
             person=self.manager,
@@ -263,10 +263,7 @@ class GroupMessagesTestAPICase(APITestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
         message = SupportGroupMessage.objects.create(
-            supportgroup=group,
-            author=self.manager,
-            text="Lorem",
-            required_membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+            supportgroup=group, author=self.manager, text="Lorem"
         )
         self.client.force_login(self.manager.role)
         res = self.client.get(f"/api/groupes/{group.pk}/messages/")
@@ -426,11 +423,9 @@ class GroupMessageCommentAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 204)
         self.assertEqual(self.message.comments.first().deleted, True)
 
-    def test_cannot_retrieve_private_message_comments_if_group_messaging_is_disabled(
-        self,
-    ):
+    def test_cannot_retrieve_message_comments_if_group_messaging_is_disabled(self):
         group = SupportGroup.objects.create(
-            name="No messages !", is_private_messaging_enabled=False
+            name="No messages !", is_messaging_enabled=False
         )
         Membership.objects.create(
             person=self.manager,
@@ -438,10 +433,7 @@ class GroupMessageCommentAPITestCase(APITestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
         message = SupportGroupMessage.objects.create(
-            supportgroup=group,
-            author=self.manager,
-            text="Lorem",
-            required_membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+            supportgroup=group, author=self.manager, text="Lorem"
         )
         comment = SupportGroupMessageComment.objects.create(
             message=message, author=self.manager, text="Lorem"

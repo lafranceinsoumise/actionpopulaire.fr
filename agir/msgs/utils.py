@@ -20,7 +20,9 @@ from agir.msgs.models import (
 def get_user_messages(person):
 
     person_groups = (
-        SupportGroup.objects.active().filter(memberships__person=person).values("id")
+        SupportGroup.objects.with_messages()
+        .filter(memberships__person=person)
+        .values("id")
     )
 
     user_message = SupportGroupMessageRecipient.objects.filter(

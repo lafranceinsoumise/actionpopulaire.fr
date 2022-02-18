@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="supportgroup",
-            name="is_private_messaging_enabled",
+            name="is_messaging_enabled",
             field=models.BooleanField(
                 default=True,
                 help_text="La messagerie est activée ou non pour ce groupe.",

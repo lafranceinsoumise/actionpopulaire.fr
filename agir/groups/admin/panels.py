@@ -187,7 +187,7 @@ class SupportGroupAdmin(CenterOnFranceMixin, OSMGeoAdmin):
                     "contact_email",
                     "contact_phone",
                     "contact_hide_phone",
-                    "is_private_messaging_enabled",
+                    "is_messaging_enabled",
                 )
             },
         ),
