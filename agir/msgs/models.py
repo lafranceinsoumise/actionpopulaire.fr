@@ -96,7 +96,8 @@ class SupportGroupMessage(AbstractMessage):
         blank=True,
     )
     is_locked = models.BooleanField(
-        verbose_name="Message verrouillé", default=False, null=True, blank=True
+        verbose_name="Message verrouillé",
+        default=False,
     )
 
     def __str__(self):
