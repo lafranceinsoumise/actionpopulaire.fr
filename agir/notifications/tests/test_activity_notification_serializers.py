@@ -315,7 +315,7 @@ class ActivityNotificationSerializersTestCase(APITestCase):
         self.assertIn("url", result.data)
         self.assertIn("icon", result.data)
 
-    def test_reminder_report_form_for_event_activity_type(self):
+    def test_reminder_upcoming_event_start_activity_type(self):
         self.activity.type = Activity.TYPE_REMINDER_UPCOMING_EVENT_START
         serializer = ACTIVITY_NOTIFICATION_SERIALIZERS[self.activity.type]
         result = serializer(instance=self.activity)
