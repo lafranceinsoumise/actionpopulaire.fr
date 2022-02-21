@@ -11,16 +11,17 @@ from django.utils.html import format_html_join, format_html
 from django.utils.translation import gettext_lazy as _
 
 from agir.events.models import Event, OrganizerConfig
+from agir.groups.display import genrer_membership
 from agir.lib.celery import emailing_task, http_task, post_save_task
 from agir.lib.geo import geocode_element
+from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
-from agir.lib.utils import front_url, clean_subject_email
+from agir.lib.utils import front_url, clean_subject_email, is_absolute_url
 from agir.people.actions.subscription import make_subscription_token
 from agir.people.models import Person
 from .actions.invitation import make_abusive_invitation_report_link
 from .models import SupportGroup, Membership
 from ..activity.models import Activity
-from agir.groups.display import genrer_membership
 from ..msgs.models import SupportGroupMessage, SupportGroupMessageComment
 from ..notifications.models import Subscription
 
@@ -327,6 +328,12 @@ def send_new_group_event_email(group_pk, event_pk):
     now = timezone.now()
     start_time = event.local_start_time
     simple_date = _date(start_time, "l j F").capitalize()
+    event_image = None
+    if event.image:
+        event_image = event.image.storage.url(event.image.banner.name)
+        if not is_absolute_url(event_image):
+            event_image = settings.FRONT_DOMAIN + event_image
+
     bindings = {
         "GROUP": group.name.capitalize(),
         "EVENT_NAME": event.name.capitalize(),
@@ -334,6 +341,10 @@ def send_new_group_event_email(group_pk, event_pk):
         "LOCATION_NAME": event.location_name,
         "LOCATION_ZIP": event.location_zip,
         "EVENT_LINK": event.get_absolute_url(),
+        "EVENT_DESCRIPTION": sanitize_html(event.description)
+        if event.description
+        else None,
+        "EVENT_IMAGE": event_image,
     }
     formatted_start_date = simple_date
     if start_time - now < timezone.timedelta(days=7):

@@ -1,9 +1,13 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 
+import routes from "@agir/front/app/routes.config";
+import { useMobileApp, useDownloadBanner } from "@agir/front/app/hooks";
+
 import DownloadApp from "@agir/front/genericComponents/DownloadApp";
+import Spacer from "@agir/front/genericComponents/Spacer";
 import NavBar from "./NavBar";
 
 const StyledPageHead = styled.div`
@@ -31,8 +35,28 @@ TopBar.propTypes = {
 };
 
 const RouterTopBar = (props) => {
+  const [isBannerDownload] = useDownloadBanner();
   const { pathname } = useLocation();
-  return <TopBar {...props} path={pathname} />;
+  const { isMobileApp } = useMobileApp();
+
+  const route = useMemo(
+    () => routes.find((route) => route.match(pathname)),
+    [pathname]
+  );
+
+  const hasTopBar =
+    route && !route.hideTopBar && (!route.appOnlyTopBar || isMobileApp);
+
+  if (!hasTopBar) {
+    return null;
+  }
+
+  return (
+    <>
+      <TopBar path={pathname} />
+      {isBannerDownload && <Spacer size="80px" />}
+    </>
+  );
 };
 
 export default RouterTopBar;

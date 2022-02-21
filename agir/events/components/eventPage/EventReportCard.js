@@ -12,7 +12,13 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import { routeConfig } from "@agir/front/app/routes.config";
 
-const EventReportCard = ({ id, compteRendu, isOrganizer, endTime }) => {
+const EventReportCard = ({
+  id,
+  compteRendu,
+  isOrganizer,
+  isEditable,
+  endTime,
+}) => {
   if (!compteRendu && !isOrganizer) {
     return null;
   }
@@ -30,7 +36,7 @@ const EventReportCard = ({ id, compteRendu, isOrganizer, endTime }) => {
       ) : (
         <p>Il n'y a pas encore de compte rendu de cet événement.</p>
       )}
-      {isOrganizer && (
+      {isEditable && isOrganizer && (
         <Button
           style={{ marginTop: "1rem" }}
           link
@@ -49,6 +55,7 @@ const EventReportCard = ({ id, compteRendu, isOrganizer, endTime }) => {
 EventReportCard.propTypes = {
   id: PropTypes.string,
   compteRendu: PropTypes.string,
+  isEditable: PropTypes.bool,
   isOrganizer: PropTypes.bool,
   endTime: PropTypes.object,
 };

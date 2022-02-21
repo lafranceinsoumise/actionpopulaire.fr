@@ -1,12 +1,11 @@
 import django_filters
-from django.contrib.admin.widgets import AutocompleteSelect
-from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
 from django_filters import filters
 
 from agir.events.models import Calendar, EventSubtype, Event
 from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
+from agir.lib.admin.form_fields import AutocompleteSelectModel
 
 
 class EventFilterSet(django_filters.FilterSet):
@@ -30,10 +29,8 @@ class RelatedEventFilter(AutocompleteRelatedModelFilter):
     parameter_name = "event"
 
     def get_rendered_widget(self):
-        rel = models.ForeignKey(to=Event, on_delete=models.CASCADE)
-        rel.model = Event
-        widget = AutocompleteSelect(
-            rel,
+        widget = AutocompleteSelectModel(
+            Event,
             self.model_admin.admin_site,
         )
         FieldClass = self.get_form_field()

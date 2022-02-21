@@ -20,6 +20,9 @@ edit_membership = Scope(
     "edit_membership", "Voir et éditer vos participations aux groupes d'action", []
 )
 edit_authorization = Scope("edit_authorization", "Éditer vos autorisations d'accès", [])
+toktok = Scope(
+    "toktok", "Accès aux informations nécessaires à l'application TokTok", []
+)
 
 scopes = [
     view_profile,
@@ -29,6 +32,7 @@ scopes = [
     edit_supportgroup,
     edit_membership,
     edit_authorization,
+    toktok,
 ]
 
 scopes_names = [scope.name for scope in scopes]

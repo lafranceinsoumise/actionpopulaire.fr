@@ -73,7 +73,8 @@ RootComponent.propTypes = {
 };
 
 export const renderReactComponent = (component, node) => {
-  node && ReactDOM.render(component, node);
+  node &&
+    ReactDOM.render(<React.StrictMode>{component}</React.StrictMode>, node);
 };
 
 export const mergeRefs = (...refs) => {

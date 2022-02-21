@@ -132,9 +132,8 @@ const StyledWrapper = styled.form`
   ${StyledField} {
     flex: 1 1 auto;
     display: flex;
-    flex-flow: ${({ $isExpanded }) => ($isExpanded ? "column" : "row")} nowrap;
-    align-items: ${({ $isExpanded }) => ($isExpanded ? "flex-start" : "center")}
-      nowrap;
+    flex-flow: column nowrap;
+    align-items: flex-start nowrap;
     cursor: ${({ $isExpanded, $disabled }) =>
       $disabled || $isExpanded ? "default" : "pointer"};
     font-size: 1rem;
@@ -160,6 +159,16 @@ const StyledWrapper = styled.form`
     }
 
     textarea {
+      ${({ $isExpanded }) =>
+        !$isExpanded &&
+        `
+      flex: 1 1 auto;
+      margin: 0;
+      padding: 0;
+      font-size: inherit;
+      line-height: 1.65;
+      `}
+
       &,
       &:focus,
       &:hover {
@@ -241,14 +250,6 @@ CommentButton.propTypes = {
   onClick: PropTypes.func,
 };
 
-const updateScroll = (rootElement, messageElement) => {
-  if (!rootElement) {
-    return;
-  }
-  rootElement.style.minHeight = `${messageElement?.offsetHeight || 0}px`;
-  rootElement.scrollIntoView();
-};
-
 const CommentField = (props) => {
   const {
     user,
@@ -259,6 +260,7 @@ const CommentField = (props) => {
     disabled,
     autoScroll,
     placeholder,
+    scrollerRef,
   } = props;
 
   const hasSubmitted = useRef(false);
@@ -276,14 +278,15 @@ const CommentField = (props) => {
   const isExpanded = !!value || isFocused;
   const maySend = !isLoading && value && value.trim().length <= 1000;
 
+  const updateScroll = () => {
+    setTimeout(() => {
+      scrollerRef.current.scrollTo(0, scrollerRef.current.scrollHeight);
+    }, 50);
+  };
+
   const handleFocus = () => {
     setIsFocused(true);
-    if (autoScroll) {
-      updateScroll(
-        rootElementRef.current,
-        !isDesktop ? messageRef.current : null
-      );
-    }
+    updateScroll();
   };
 
   const blurOnClickOutside = useCallback(
@@ -393,13 +396,8 @@ const CommentField = (props) => {
   );
 
   useEffect(() => {
-    if (autoScroll) {
-      updateScroll(
-        rootElementRef.current,
-        !isDesktop ? messageRef.current : null
-      );
-    }
-  }, [autoScroll, isDesktop, isExpanded, value]);
+    updateScroll();
+  }, [isFocused, value]);
 
   return (
     <StyledWrapper
@@ -414,42 +412,31 @@ const CommentField = (props) => {
         <StyledField
           ref={fieldWrapperRef}
           onClick={!disabled ? handleFocus : undefined}
+          onTouchStart={!disabled ? handleFocus : undefined}
         >
-          {isFocused ? (
-            <Suspense fallback={null}>
-              <TextField
-                ref={textFieldRef}
-                textArea
-                id={id}
-                value={value}
-                onChange={handleInputChange}
-                onFocus={handleFocus}
-                onKeyDown={handleInputKeyDown}
-                autoFocus={isFocused}
-                label={user.displayName}
-                disabled={disabled || isLoading}
-                placeholder={placeholder || PLACEHOLDER_MESSAGE}
-                maxLength={1000}
-                hasCounter={false}
-              />
+          <Suspense fallback={null}>
+            <TextField
+              ref={textFieldRef}
+              textArea
+              id={id}
+              value={value}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
+              autoFocus={isFocused}
+              label={isFocused && user.displayName}
+              disabled={disabled || isLoading}
+              placeholder={placeholder || PLACEHOLDER_MESSAGE}
+              maxLength={1000}
+              hasCounter={false}
+            />
+            {isFocused && (
               <EmojiPicker
                 onOpen={handleEmojiOpen}
                 onSelect={handleEmojiSelect}
                 small
               />
-            </Suspense>
-          ) : (
-            <>
-              <StyledCommentButton
-                onFocus={handleFocus}
-                onClick={handleFocus}
-                onTouchStart={handleFocus}
-              >
-                {placeholder || PLACEHOLDER_MESSAGE}
-              </StyledCommentButton>
-              <RawFeatherIcon name="send" color={style.primary500} small />
-            </>
-          )}
+            )}
+          </Suspense>
         </StyledField>
         {isFocused ? (
           <StyledAction>

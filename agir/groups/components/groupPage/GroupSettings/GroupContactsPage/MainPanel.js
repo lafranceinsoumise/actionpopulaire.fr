@@ -68,7 +68,12 @@ const GroupContactsMainPanel = (props) => {
       {followers.length > 0 ? (
         <>
           <Spacer size="1.5rem" />
-          <GroupMemberList members={followers} onClickMember={onClickMember} />
+          <GroupMemberList
+            searchable
+            sortable
+            members={followers}
+            onClickMember={onClickMember}
+          />
         </>
       ) : (
         <>

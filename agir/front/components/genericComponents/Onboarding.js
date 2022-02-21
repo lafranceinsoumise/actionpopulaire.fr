@@ -108,7 +108,7 @@ const ONBOARDING_TYPE = {
       route: "groupMap",
     },
     secondaryLink: {
-      route: "createGroup",
+      href: "groupes/creer/",
       label: "Créer un groupe",
     },
   },
@@ -210,7 +210,7 @@ const Onboarding = (props) => {
           </Button>
         )}
         {secondaryLink && (
-          <Button link route={secondaryLink.route}>
+          <Button link href={secondaryLink.href}>
             {secondaryLink.label || "Voir la carte"}
           </Button>
         )}

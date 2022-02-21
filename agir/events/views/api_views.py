@@ -75,6 +75,7 @@ from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     HasSpecificPermissions,
     IsPersonPermission,
+    IsActionPopulaireClientPermission,
 )
 
 from agir.lib.tasks import geocode_person
@@ -193,24 +194,31 @@ class EventSuggestionsAPIView(EventListAPIView):
             .listed()
             .upcoming()
         )
-        segmented = events.for_segment_subscriber(self.request.user.person)
         national = events.national()
         near = events.none()
 
         if person.coordinates is not None:
             national = national.filter(
                 coordinates__dwithin=(person.coordinates, D(km=100))
-            )
+            )[:10]
 
             near = (
-                events.filter(start_time__lt=timezone.now() + timedelta(days=30))
+                events.exclude(pk__in=national.values_list("pk", flat=True))
+                .filter(start_time__lt=timezone.now() + timedelta(days=30))
                 .filter(coordinates__dwithin=(person.coordinates, D(km=100)))
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")
-            )
+            )[:10]
+
+        segmented = (
+            events.exclude(pk__in=national.values_list("pk", flat=True))
+            .exclude(pk__in=near.values_list("pk", flat=True))
+            .exclude(pk__in=events.grand().values_list("pk", flat=True))
+            .for_segment_subscriber(person)
+        )
 
         return sorted(
-            set(list(segmented) + list(national[:10]) + list(near[:10])),
+            list(segmented) + list(national) + list(near),
             key=lambda event: event.start_time,
         )
 
@@ -266,7 +274,10 @@ class CreateEventPermissions(HasSpecificPermissions):
 
 
 class CreateEventAPIView(CreateAPIView):
-    permission_classes = (CreateEventPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        CreateEventPermissions,
+    )
     serializer_class = CreateEventSerializer
     queryset = Event.objects.all()
 
@@ -303,25 +314,37 @@ class EventViewPermissions(GlobalOrObjectPermissions):
 
 
 class EventDetailAPIView(RetrieveAPIView):
-    permission_classes = (EventViewPermissions,)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        EventViewPermissions,
+    )
     serializer_class = EventSerializer
     queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
 
 
 class EventDetailAdvancedAPIView(RetrieveAPIView):
-    permission_classes = (EventManagementPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        EventManagementPermissions,
+    )
     serializer_class = EventAdvancedSerializer
     queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
 
 
 class UpdateEventAPIView(UpdateAPIView):
-    permission_classes = (EventManagementPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        EventManagementPermissions,
+    )
     queryset = Event.objects.exclude(visibility=Event.VISIBILITY_ADMIN)
     serializer_class = UpdateEventSerializer
 
 
 class CreateOrganizerConfigAPIView(APIView):
-    permission_classes = (EventManagementPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        EventManagementPermissions,
+    )
     queryset = OrganizerConfig.objects.all()
 
     def post(self, request, pk):
@@ -340,7 +363,10 @@ class CreateOrganizerConfigAPIView(APIView):
 
 # Send group invitations to organize an event
 class EventGroupsOrganizersAPIView(CreateAPIView):
-    permission_classes = (EventManagementPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        EventManagementPermissions,
+    )
     # Restrict to public and upcoming events
     queryset = Event.objects.public().upcoming()
 
@@ -390,7 +416,10 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
 
 
 class CancelEventAPIView(DestroyAPIView):
-    permission_classes = (EventManagementPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        EventManagementPermissions,
+    )
     queryset = Event.objects.public().upcoming(
         as_of=timezone.now(), published_only=False
     )
@@ -411,7 +440,10 @@ class RSVPEventPermissions(GlobalOrObjectPermissions):
 
 class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
     queryset = Event.objects.public()
-    permission_classes = (RSVPEventPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        RSVPEventPermissions,
+    )
 
     @cached_property
     def user_is_already_rsvped(self):
@@ -502,7 +534,10 @@ class EventProjectsAPIView(ListAPIView):
 
 
 class EventProjectAPIView(RetrieveUpdateAPIView):
-    permission_classes = (EventProjectPermission,)
+    permission_classes = (
+        IsPersonPermission,
+        EventProjectPermission,
+    )
     serializer_class = EventProjectSerializer
     queryset = (
         Projet.objects.filter(event__isnull=False)
@@ -525,7 +560,10 @@ class CreateEventProjectDocumentPermission(GlobalOrObjectPermissions):
 
 
 class CreateEventProjectDocumentAPIView(CreateAPIView):
-    permission_classes = (CreateEventProjectDocumentPermission,)
+    permission_classes = (
+        IsPersonPermission,
+        CreateEventProjectDocumentPermission,
+    )
     serializer_class = EventProjectDocumentSerializer
     queryset = Projet.objects.filter(event__isnull=False)
     lookup_field = "event_id"
@@ -548,7 +586,10 @@ class EventReportPersonFormPermission(GlobalOrObjectPermissions):
 
 
 class EventReportPersonFormAPIView(RetrieveAPIView):
-    permission_classes = (EventReportPersonFormPermission,)
+    permission_classes = (
+        IsPersonPermission,
+        EventReportPersonFormPermission,
+    )
     serializer_class = EventReportPersonFormSerializer
 
     def get_queryset(self):

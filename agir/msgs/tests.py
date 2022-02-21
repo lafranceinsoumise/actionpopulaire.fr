@@ -358,6 +358,24 @@ class UserMessagesAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data["results"]), 1)
 
+    def test_cannot_retrieve_messages_if_group_messaging_is_disabled(self):
+        person = Person.objects.create_person(
+            email="person@example.com",
+            create_role=True,
+        )
+        group = SupportGroup.objects.create(
+            name="No messages !", is_private_messaging_enabled=False
+        )
+        Membership.objects.create(
+            person=person,
+            supportgroup=group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        self.client.force_login(person.role)
+        response = self.client.get("/api/user/messages/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["results"]), 0)
+
 
 class UpdateRecipientMessageActionTestCase(APITestCase):
     def test_recipient_message_modified_field_is_updated(self):

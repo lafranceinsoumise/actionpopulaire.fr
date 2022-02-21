@@ -90,6 +90,7 @@ __all__ = [
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     IsPersonPermission,
+    IsActionPopulaireClientPermission,
 )
 from agir.msgs.models import SupportGroupMessage, SupportGroupMessageComment
 
@@ -144,14 +145,13 @@ class GroupSubtypesView(ListAPIView):
 class UserGroupsView(ListAPIView):
     serializer_class = SupportGroupSerializer
     permission_classes = (IsPersonPermission,)
-    queryset = SupportGroup.objects.active()
+    queryset = SupportGroup.objects.active().with_serializer_prefetch()
 
     def get(self, request, *args, **kwargs):
         person = request.user.person
         person_groups = (
             self.get_queryset()
             .filter(memberships__person=self.request.user.person)
-            .active()
             .annotate(membership_type=F("memberships__membership_type"))
             .order_by("-membership_type", "name")
         )
@@ -165,9 +165,6 @@ class UserGroupsView(ListAPIView):
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")[:3]
             )
-
-            for group in group_suggestions:
-                group.membership = None
 
         group_suggestions = self.get_serializer(group_suggestions, many=True)
 
@@ -184,13 +181,19 @@ class GroupDetailPermissions(GlobalOrObjectPermissions):
 
 
 class GroupDetailAPIView(RetrieveAPIView):
-    permission_classes = (GroupDetailPermissions,)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        GroupDetailPermissions,
+    )
     serializer_class = SupportGroupDetailSerializer
     queryset = SupportGroup.objects.active()
 
 
 class NearGroupsAPIView(ListAPIView):
-    permission_classes = (GroupDetailPermissions,)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        GroupDetailPermissions,
+    )
     serializer_class = SupportGroupDetailSerializer
     queryset = SupportGroup.objects.active()
 
@@ -226,7 +229,10 @@ class NearGroupsAPIView(ListAPIView):
 
 
 class GroupEventsAPIView(ListAPIView):
-    permission_classes = (GroupDetailPermissions,)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        GroupDetailPermissions,
+    )
     serializer_class = EventListSerializer
     queryset = Event.objects.listed()
 
@@ -257,7 +263,10 @@ class GroupEventsAPIView(ListAPIView):
 
 
 class GroupUpcomingEventsAPIView(ListAPIView):
-    permission_classes = (GroupDetailPermissions,)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        GroupDetailPermissions,
+    )
     serializer_class = EventListSerializer
     queryset = Event.objects.listed().upcoming()
 
@@ -290,7 +299,10 @@ class GroupUpcomingEventsAPIView(ListAPIView):
 
 
 class GroupPastEventsAPIView(ListAPIView):
-    permission_classes = (GroupDetailPermissions,)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        GroupDetailPermissions,
+    )
     serializer_class = EventListSerializer
     queryset = Event.objects.listed().past()
     pagination_class = APIPaginator
@@ -325,7 +337,10 @@ class GroupPastEventsAPIView(ListAPIView):
 
 
 class GroupPastEventReportsAPIView(ListAPIView):
-    permission_classes = (GroupDetailPermissions,)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        GroupDetailPermissions,
+    )
     serializer_class = EventListSerializer
     queryset = Event.objects.listed().past()
 
@@ -360,6 +375,14 @@ class GroupPastEventReportsAPIView(ListAPIView):
 
 
 class GroupMessagesPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "POST": []}
+    object_perms_map = {
+        "GET": ["msgs.view_supportgroupmessages"],
+        "POST": ["msgs.add_supportgroupmessage"],
+    }
+
+
+class GroupMessagePermissions(GlobalOrObjectPermissions):
     perms_map = {"GET": [], "POST": [], "PATCH": [], "PUT": [], "DELETE": []}
     object_perms_map = {
         "GET": ["msgs.view_supportgroupmessage"],
@@ -440,7 +463,10 @@ class GroupMessagesPrivateAPIView(GroupMessagesAPIView):
 
 # Get or set muted notification in recipient_mutedlist
 class GroupMessageNotificationStatusAPIView(RetrieveUpdateAPIView):
-    permission_classes = (GroupMessagesNotificationPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupMessagesNotificationPermissions,
+    )
     queryset = SupportGroupMessage.objects.all()
 
     def get(self, request, *args, **kwargs):
@@ -481,7 +507,10 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
         )
     )
     serializer_class = SupportGroupMessageSerializer
-    permission_classes = (GroupMessagesPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupMessagePermissions,
+    )
 
     def get_object(self):
         message = super().get_object()
@@ -504,7 +533,10 @@ class GroupSingleMessageAPIView(RetrieveUpdateDestroyAPIView):
 
 class GroupMessageParticipantsAPIView(RetrieveAPIView):
     serializer_class = SupportGroupMessageParticipantSerializer
-    permission_classes = (GroupMessagesPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupMessagePermissions,
+    )
     queryset = SupportGroupMessage.objects.active()
 
 
@@ -521,17 +553,14 @@ class GroupMessageCommentsPermissions(GlobalOrObjectPermissions):
 
 class GroupMessageCommentsAPIView(ListCreateAPIView):
     serializer_class = MessageCommentSerializer
-    permission_classes = (GroupMessageCommentsPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupMessageCommentsPermissions,
+    )
     pagination_class = APIPaginator
 
     def initial(self, request, *args, **kwargs):
-        try:
-            self.message = SupportGroupMessage.objects.filter(
-                author__role__is_active=True
-            ).get(pk=kwargs["pk"])
-        except SupportGroupMessage.DoesNotExist:
-            raise NotFound()
-
+        self.message = get_object_or_404(SupportGroupMessage.objects.active(), **kwargs)
         self.check_object_permissions(request, self.message)
         super().initial(request, *args, **kwargs)
 
@@ -550,7 +579,10 @@ class GroupMessageCommentsAPIView(ListCreateAPIView):
 class GroupSingleCommentAPIView(UpdateAPIView, DestroyAPIView):
     queryset = SupportGroupMessageComment.objects.active()
     serializer_class = MessageCommentSerializer
-    permission_classes = (GroupMessageCommentsPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupMessageCommentsPermissions,
+    )
 
     def perform_update(self, serializer):
         with reversion.create_revision():
@@ -639,7 +671,10 @@ class GroupMembersViewPermissions(GlobalOrObjectPermissions):
 
 
 class GroupMembersAPIView(ListAPIView):
-    permission_classes = (GroupMembersViewPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupMembersViewPermissions,
+    )
     queryset = SupportGroup.objects.all()
     serializer_class = MembershipSerializer
 
@@ -667,14 +702,20 @@ class GroupInvitationPermission(GlobalOrObjectPermissions):
 
 
 class GroupUpdateAPIView(UpdateAPIView):
-    permission_classes = (GroupUpdatePermission,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupUpdatePermission,
+    )
     queryset = SupportGroup.objects.all()
     serializer_class = SupportGroupUpdateSerializer
 
 
 class GroupInvitationAPIView(GenericAPIView):
     queryset = SupportGroup.objects.all()
-    permission_classes = (GroupInvitationPermission,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupInvitationPermission,
+    )
 
     def post(self, request, *args, **kwargs):
         group = self.get_object()
@@ -720,7 +761,10 @@ class MemberPersonalInformationPermission(GlobalOrObjectPermissions):
 
 class MemberPersonalInformationAPIView(RetrieveAPIView):
     queryset = Membership.objects.all()
-    permission_classes = (MemberPersonalInformationPermission,)
+    permission_classes = (
+        IsPersonPermission,
+        MemberPersonalInformationPermission,
+    )
     serializer_class = MemberPersonalInformationSerializer
 
 
@@ -735,7 +779,10 @@ class GroupMemberUpdatePermission(GlobalOrObjectPermissions):
 
 class GroupMemberUpdateAPIView(UpdateAPIView):
     queryset = Membership.objects.all()
-    permission_classes = (GroupMemberUpdatePermission,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupMemberUpdatePermission,
+    )
     serializer_class = MembershipSerializer
 
     def check_request_data_permissions(self, request, obj):
@@ -773,7 +820,10 @@ class GroupFinancePermission(GlobalOrObjectPermissions):
 
 class GroupFinanceAPIView(GenericAPIView):
     queryset = SupportGroup.objects.all()
-    permission_classes = (GroupFinancePermission,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupFinancePermission,
+    )
     serializer_class = SupportGroupSerializer
 
     def get(self, request, *args, **kwargs):
@@ -812,7 +862,10 @@ class CreateSupportGroupExternalLinkPermissions(GlobalOrObjectPermissions):
 
 class CreateSupportGroupExternalLinkAPIView(CreateAPIView):
     queryset = SupportGroup.objects.all()
-    permission_classes = (CreateSupportGroupExternalLinkPermissions,)
+    permission_classes = (
+        IsPersonPermission,
+        CreateSupportGroupExternalLinkPermissions,
+    )
     serializer_class = SupportGroupExternalLinkSerializer
 
     def create(self, request, *args, **kwargs):
@@ -837,7 +890,10 @@ class RetrieveUpdateDestroySupportGroupExternalLinkAPIView(
     RetrieveUpdateDestroyAPIView
 ):
     queryset = SupportGroupExternalLink.objects.all()
-    permission_classes = (RetrieveUpdateDestroySupportGroupExternalLinkPermisns,)
+    permission_classes = (
+        IsActionPopulaireClientPermission,
+        RetrieveUpdateDestroySupportGroupExternalLinkPermisns,
+    )
     serializer_class = SupportGroupExternalLinkSerializer
 
     def check_object_permissions(self, request, obj):
@@ -855,7 +911,10 @@ class GroupUpdateOwnMembershipPermission(GlobalOrObjectPermissions):
 
 class GroupUpdateOwnMembershipAPIView(UpdateAPIView):
     queryset = Membership.objects.all()
-    permission_classes = (GroupUpdateOwnMembershipPermission,)
+    permission_classes = (
+        IsPersonPermission,
+        GroupUpdateOwnMembershipPermission,
+    )
     serializer_class = MembershipSerializer
     lookup_url_kwarg = "group_pk"
     lookup_field = "supportgroup_id"

@@ -75,7 +75,7 @@ export const SearchGroupPage = () => {
             </>
           )}
 
-          <ListTitle name="Groupes" list={groups} />
+          <ListTitle name="Groupes" length={groups.length} />
           <GroupList groups={groups} />
           <NoResults name="groupe" list={groups} />
         </>

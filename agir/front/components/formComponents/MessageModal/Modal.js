@@ -175,17 +175,10 @@ const Modal = (props) => {
     if (!selectedEvent) {
       return true;
     }
-
-    const maySend =
-      selectedEvent &&
-      subject.trim() &&
-      subject.trim().length <= SUBJECT_MAX_LENGTH &&
-      text.trim() &&
-      text.trim().length <= TEXT_MAX_LENGTH;
     if (Array.isArray(groups)) {
-      return maySend && selectedGroup;
+      return !!selectedGroup;
     }
-    return maySend;
+    return true;
   }, [isLoading, subject, text, groups, selectedEvent, selectedGroup]);
 
   const handleChangeMessage = useCallback((prop, text) => {
@@ -218,7 +211,19 @@ const Modal = (props) => {
     if (!subject || !text) {
       setErrors({
         subject: !subject && "L'objet du message est obligatoire",
-        text: !text && "Un corps message est obligatoire",
+        text: !text && "Un corps de message est obligatoire",
+      });
+      return false;
+    }
+    if (subject?.trim()?.length > SUBJECT_MAX_LENGTH) {
+      setErrors({
+        subject: `L'objet du message doit comporter moins de ${SUBJECT_MAX_LENGTH} caractères`,
+      });
+      return false;
+    }
+    if (text?.trim()?.length > TEXT_MAX_LENGTH) {
+      setErrors({
+        text: `Le message doit comporter moins de ${TEXT_MAX_LENGTH} caractères`,
       });
       return false;
     }

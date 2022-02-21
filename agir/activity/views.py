@@ -28,6 +28,7 @@ from agir.lib.pagination import APIPaginator
 from agir.lib.rest_framework_permissions import (
     GlobalOrObjectPermissions,
     IsPersonPermission,
+    IsActionPopulaireClientPermission,
 )
 from agir.lib.utils import front_url
 
@@ -70,7 +71,7 @@ class UserActivitiesAPIView(ListAPIView):
 
 
 class AnnouncementsAPIView(ListAPIView):
-    permission_classes = ()
+    permission_classes = (IsActionPopulaireClientPermission,)
     serializer_class = AnnouncementSerializer
 
     def get_queryset(self):
@@ -169,7 +170,7 @@ class ActivityStatusUpdateAllReadView(RetrieveAPIView):
 
 
 @api_view(["GET"])
-@permission_classes(())
+@permission_classes((IsActionPopulaireClientPermission,))
 def get_unread_activity_count(request):
     unread_activity_count = 0
     if request.user.is_authenticated and request.user.person is not None:

@@ -3,8 +3,6 @@ from django.conf import settings
 from agir.checks import AbstractCheckPaymentMode
 from agir.system_pay import AbstractSystemPayPaymentMode
 
-default_app_config = "agir.presidentielle2022.apps.Presidentielle2022Config"
-
 
 class AFCP2022SystemPayPaymentMode(AbstractSystemPayPaymentMode):
     id = "system_pay_afcp2022"

@@ -546,7 +546,6 @@ export const routeConfig = {
     label: "Rechercher",
     hasLayout: false,
     hideFeedbackButton: true,
-    hideFooter: true,
   }),
   searchGroup: new RouteConfig({
     id: "searchGroup",
@@ -556,7 +555,6 @@ export const routeConfig = {
     label: "Rechercher un groupe",
     hasLayout: false,
     hideFeedbackButton: true,
-    hideFooter: true,
   }),
   searchEvent: new RouteConfig({
     id: "searchEvent",
@@ -566,7 +564,6 @@ export const routeConfig = {
     label: "Rechercher un événement",
     hasLayout: false,
     hideFeedbackButton: true,
-    hideFooter: true,
   }),
 };
 

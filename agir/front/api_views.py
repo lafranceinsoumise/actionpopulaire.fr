@@ -14,12 +14,13 @@ from agir.groups.models import SupportGroup
 from agir.groups.serializers import SupportGroupSearchResultSerializer
 
 from agir.groups.utils import is_active_group_filter
+from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
 
 
 class SearchSupportGroupsAndEventsAPIView(ListAPIView):
     """Rechercher et lister des groupes et des événéments"""
 
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     RESULT_TYPE_GROUPS = "groups"
     RESULT_TYPE_EVENTS = "events"
     GROUP_FILTER_CERTIFIED = "CERTIFIED"
@@ -35,13 +36,17 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         kwargs.setdefault("context", self.get_serializer_context())
         return serializer_class(*args, **kwargs)
 
-    def get_groups(self, search_term, filters):
+    def get_groups(self, search_term, filters, result_limit=20):
 
         groupType = filters.get("groupType", None)
         groupSort = filters.get("groupSort", None)
         groupInactive = filters.get("groupInactive", None)
 
-        groups = SupportGroup.objects.active().with_serializer_prefetch(None)
+        groups = (
+            SupportGroup.objects.active()
+            .prefetch_related("subtypes")
+            .with_static_map_image()
+        )
 
         # Filter
         if groupType:
@@ -69,7 +74,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             if groupSort == self.SORT_ALPHA_DESC:
                 groups = groups.order_by("-name")
 
-        groups = groups[:20]
+        groups = groups[:result_limit]
 
         groups_serializer = self.get_serializer(
             data=groups,
@@ -78,7 +83,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
         groups_serializer.is_valid()
         return groups_serializer.data
 
-    def get_events(self, search_term, filters):
+    def get_events(self, search_term, filters, result_limit=20):
         eventType = filters.get("eventType", None)
         eventCategory = filters.get("eventCategory", None)
         eventSort = filters.get("eventSort", None)
@@ -108,7 +113,7 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             if eventSort == self.SORT_ALPHA_DESC:
                 events = events.order_by("-name")
 
-        events = events[:20]
+        events = events[:result_limit]
 
         events_serializer = self.get_serializer(
             data=events,
@@ -128,10 +133,16 @@ class SearchSupportGroupsAndEventsAPIView(ListAPIView):
             self.RESULT_TYPE_EVENTS: [],
         }
 
+        result_limit = 20 if type is not None else 3
+
         if type is None or type == self.RESULT_TYPE_GROUPS:
-            results[self.RESULT_TYPE_GROUPS] = self.get_groups(search_term, filters)
+            results[self.RESULT_TYPE_GROUPS] = self.get_groups(
+                search_term, filters, result_limit=result_limit
+            )
 
         if type is None or type == self.RESULT_TYPE_EVENTS:
-            results[self.RESULT_TYPE_EVENTS] = self.get_events(search_term, filters)
+            results[self.RESULT_TYPE_EVENTS] = self.get_events(
+                search_term, filters, result_limit=result_limit
+            )
 
         return Response(results)

@@ -30,7 +30,10 @@ DONATION_FILTER = {
 
 
 def default_newsletters():
-    return [Person.NEWSLETTER_LFI]
+    return [
+        Person.NEWSLETTER_2022,
+        Person.NEWSLETTER_2022_EXCEPTIONNEL,
+    ]
 
 
 class Segment(BaseSegment, models.Model):
@@ -49,9 +52,11 @@ class Segment(BaseSegment, models.Model):
 
     tags = models.ManyToManyField("people.PersonTag", blank=True)
 
-    is_2022 = models.BooleanField("Inscrits NSP", null=True, blank=True)
+    is_2022 = models.BooleanField("Inscrits NSP", null=True, blank=True, default=True)
     is_insoumise = models.BooleanField(
-        "Inscrits LFI", null=True, blank=True, default=True
+        "Inscrits LFI",
+        null=True,
+        blank=True,
     )
 
     newsletters = ChoiceArrayField(

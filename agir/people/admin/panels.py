@@ -8,11 +8,9 @@ from django.contrib import admin, messages
 from django.contrib.admin.options import IncorrectLookupParameters
 from django.contrib.admin.utils import display_for_value, unquote
 from django.contrib.admin.views.main import ERROR_FLAG
-from django.contrib.admin.widgets import AutocompleteSelect
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.core.exceptions import PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db import models
 from django.db.models import Count, Max, Func, Value, Q
 from django.db.models.functions import Concat, Substr
 from django.http import HttpResponseRedirect, Http404
@@ -27,13 +25,14 @@ from rangefilter.filters import DateRangeFilter
 from agir.authentication.models import Role
 from agir.elus.models import types_elus
 from agir.groups.models import Membership
+from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.admin.filters import (
     DepartementListFilter,
     RegionListFilter,
     CirconscriptionLegislativeFilter,
 )
+from agir.lib.admin.form_fields import AutocompleteSelectModel
 from agir.lib.admin.panels import CenterOnFranceMixin, DisplayContactPhoneMixin
-from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
 from agir.lib.utils import generate_token_params, front_url
 from agir.mailing.models import Segment
 from agir.people.actions.stats import get_statistics_for_queryset
@@ -67,10 +66,8 @@ class SegmentFilter(AutocompleteRelatedModelFilter):
     parameter_name = "segment"
 
     def get_rendered_widget(self):
-        rel = models.ForeignKey(to=Segment, on_delete=models.CASCADE)
-        rel.model = Segment
-        widget = AutocompleteSelect(
-            rel,
+        widget = AutocompleteSelectModel(
+            Segment,
             self.model_admin.admin_site,
         )
         FieldClass = self.get_form_field()

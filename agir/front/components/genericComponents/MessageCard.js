@@ -9,7 +9,7 @@ import React, {
 
 import styled from "styled-components";
 
-import { FaWhatsapp, FaTelegram } from "react-icons/fa";
+import { FaWhatsapp, FaTelegram } from "@agir/front/genericComponents/FaIcon";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import { timeAgo } from "@agir/lib/utils/time";
@@ -114,17 +114,13 @@ export const StyledInlineMenuItems = styled.div`
       margin-right: 0.5rem;
       width: 1rem;
       height: 1rem;
+      font-size: 1rem;
 
       @media (max-width: ${style.collapse}px) {
         margin-right: 1rem;
         width: 1.5rem;
         height: 1.5rem;
-      }
-
-      svg {
-        width: inherit;
-        height: inherit;
-        stroke-width: 2;
+        font-size: 1.5rem;
       }
     }
   }
@@ -301,15 +297,6 @@ export const StyledWrapper = styled.div`
     box-shadow: ${style.elaborateShadow};
   }
 
-  & + & {
-    margin-top: 1.5rem;
-
-    @media (max-width: ${style.collapse}px) {
-      padding-top: 1.5rem;
-      margin-top: 1rem;
-    }
-  }
-
   ${StyledMessage} {
     flex: 1 1 auto;
     display: flex;
@@ -458,7 +445,6 @@ const MessageCard = (props) => {
     onEdit,
     onReport,
     withMobileCommentField,
-    scrollIn,
     withBottomButton,
     autoScrollOnComment,
   } = props;
@@ -476,6 +462,7 @@ const MessageCard = (props) => {
   const messageCardRef = useRef();
   const isDesktop = useIsDesktop();
 
+  const [loadedComments, setLoadedComments] = useState(false);
   const event = useMemo(() => formatEvent(linkedEvent), [linkedEvent]);
 
   const isAuthor = author.id === user.id;
@@ -535,11 +522,11 @@ const MessageCard = (props) => {
   );
 
   useEffect(() => {
-    scrollIn &&
-      messageCardRef.current &&
-      messageCardRef.current.scrollIntoView &&
-      messageCardRef.current.scrollIntoView();
-  }, [scrollIn]);
+    if (messageCardRef && !loadedComments) {
+      messageCardRef.current.scrollTo(0, messageCardRef.current.scrollHeight);
+      setLoadedComments(true);
+    }
+  }, [comments]);
 
   useEffect(() => {
     lastUpdate && mutateComments && mutateComments();
@@ -682,6 +669,7 @@ const MessageCard = (props) => {
                     user={user}
                     onSend={handleComment}
                     autoScroll={autoScrollOnComment}
+                    scrollerRef={messageCardRef}
                   />
                 ) : (
                   <ResponsiveLayout
@@ -692,6 +680,7 @@ const MessageCard = (props) => {
                     onSend={handleComment}
                     onClick={onClick && handleClick}
                     autoScroll={autoScrollOnComment}
+                    scrollerRef={messageCardRef}
                   />
                 ))}
             </StyledNewComment>
@@ -739,7 +728,6 @@ MessageCard.propTypes = {
   onReport: PropTypes.func,
   isLoading: PropTypes.bool,
   withMobileCommentField: PropTypes.bool,
-  scrollIn: PropTypes.bool,
   isManager: PropTypes.bool,
   withBottomButton: PropTypes.bool,
   autoScrollOnComment: PropTypes.bool,

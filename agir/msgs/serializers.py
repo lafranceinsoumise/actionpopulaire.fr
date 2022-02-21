@@ -160,15 +160,16 @@ class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField(read_only=True)
 
     def to_representation(self, message):
+        recipient_ids = [message.author_id] + list(
+            Membership.objects.exclude(person_id=message.author_id)
+            .filter(
+                supportgroup_id=message.supportgroup_id,
+                membership_type__gte=message.required_membership_type,
+            )
+            .values_list("person_id", flat=True)
+        )
         self.participants = list(
-            Person.objects.filter(
-                Q(
-                    id__in=message.supportgroup.memberships.filter(
-                        membership_type__gte=message.required_membership_type
-                    ).values_list("person_id")
-                )
-                | Q(id=message.author.id)
-            ).annotate(
+            Person.objects.filter(id__in=recipient_ids).annotate(
                 has_commented=Exists(message.comments.filter(author_id=OuterRef("id")))
             )
         )

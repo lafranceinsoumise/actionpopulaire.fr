@@ -1,7 +1,80 @@
+const NEWSLETTER_NOTIFICATIONS = [
+  {
+    id: "LFI",
+    type: "La France Insoumise",
+    icon: "rss",
+    subtype: "Newsletter",
+    label: "Lettres d'informations de la France Insoumise",
+    hasEmail: true,
+    hasPush: false,
+    isNewsletter: true,
+  },
+  {
+    id: "2022",
+    type: "Mélenchon 2022",
+    icon: "rss",
+    subtype: "Newsletter",
+    label: "Informations importantes de la campagne",
+    hasEmail: true,
+    hasPush: false,
+    isNewsletter: true,
+  },
+  {
+    id: "2022_exceptionnel",
+    type: "Mélenchon 2022",
+    icon: "rss",
+    subtype: "Newsletter",
+    label: "Informations exceptionnelles",
+    hasEmail: true,
+    hasPush: false,
+    isNewsletter: true,
+  },
+  {
+    id: "2022_en_ligne",
+    type: "Mélenchon 2022",
+    icon: "rss",
+    subtype: "Newsletter",
+    label: "Actions en ligne",
+    hasEmail: true,
+    hasPush: false,
+    isNewsletter: true,
+  },
+  {
+    id: "2022_chez_moi",
+    type: "Mélenchon 2022",
+    icon: "rss",
+    subtype: "Newsletter",
+    label: "Agir près de chez moi",
+    hasEmail: true,
+    hasPush: false,
+    isNewsletter: true,
+  },
+  {
+    id: "2022_programme",
+    type: "Mélenchon 2022",
+    icon: "rss",
+    subtype: "Newsletter",
+    label: "Processus programme",
+    hasEmail: true,
+    hasPush: false,
+    isNewsletter: true,
+  },
+  {
+    id: "2022_liaison",
+    type: "Mélenchon 2022",
+    icon: "rss",
+    subtype: "Newsletter",
+    label: "Correspondant·e d'immeuble ou de rue",
+    hasEmail: true,
+    hasPush: false,
+    isNewsletter: true,
+  },
+].filter((notification) => !!notification.isNewsletter);
+
 const PERSON_NOTIFICATIONS = [
   {
     id: "campaign_news",
-    type: "Nouveautés",
+    type: "Mon compte Action Populaire",
     icon: "rss",
     subtype: "Nouveautés",
     label: "Informations importantes de la campagne",
@@ -11,7 +84,7 @@ const PERSON_NOTIFICATIONS = [
   },
   {
     id: "person_related_news",
-    type: "Nouveautés",
+    type: "Mon compte Action Populaire",
     icon: "rss",
     subtype: "Nouveautés",
     label: "Nouveautés qui me concernent",
@@ -263,10 +336,41 @@ const getGroupNotifications = (groups = []) =>
     []
   );
 
-export const getAllNotifications = (groups = []) => [
+const getNewsletterNotifications = (user) => {
+  if (!user) {
+    return [];
+  }
+  return NEWSLETTER_NOTIFICATIONS.filter(
+    (n) =>
+      !(
+        (n.id === "LFI" && !user.isInsoumise) ||
+        (n.id === "melenchon2022" && !user.is2022)
+      )
+  );
+};
+
+export const getAllNotifications = (groups = [], user) => [
+  ...getNewsletterNotifications(user),
   ...PERSON_NOTIFICATIONS,
   ...getGroupNotifications(groups),
 ];
+
+export const getNewsletterStatus = (newsletters) => {
+  if (!newsletters || !Array.isArray(newsletters)) {
+    return {};
+  }
+  let newsletterStatus = {};
+  Object.values(NEWSLETTER_NOTIFICATIONS).forEach((value) => {
+    if (!value.id) {
+      return;
+    }
+    newsletterStatus = {
+      ...newsletterStatus,
+      [value.id]: { email: newsletters.includes(value.id) },
+    };
+  });
+  return newsletterStatus;
+};
 
 export const getNotificationStatus = (activeNotifications) => {
   const active = {};

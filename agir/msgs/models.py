@@ -7,6 +7,7 @@ from stdimage import StdImageField
 
 from agir.lib.models import TimeStampedModel, BaseAPIResource
 from agir.groups.models import Membership
+from django.db.models import Q
 
 
 class UserReport(TimeStampedModel):
@@ -28,20 +29,23 @@ class UserReport(TimeStampedModel):
         verbose_name_plural = "Signalements"
 
 
-class AbstractMessageQuerySet(models.QuerySet):
+class SupportGroupMessageQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(deleted=False, author__role__is_active=True)
+        return self.filter(deleted=False, author__role__is_active=True,).exclude(
+            supportgroup__is_private_messaging_enabled=False,
+            required_membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
 
 
-AbstractMessageManager = models.Manager.from_queryset(
-    AbstractMessageQuerySet, class_name="AbstractMessageManager"
-)
+class SupportGroupMessageCommentQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(deleted=False, author__role__is_active=True,).exclude(
+            message__supportgroup__is_private_messaging_enabled=False,
+            message__required_membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
 
 
 class AbstractMessage(BaseAPIResource):
-
-    objects = AbstractMessageManager()
-
     author = models.ForeignKey(
         "people.Person",
         editable=False,
@@ -60,6 +64,7 @@ class AbstractMessage(BaseAPIResource):
 
 @reversion.register()
 class SupportGroupMessage(AbstractMessage):
+    objects = SupportGroupMessageQuerySet.as_manager()
 
     subject = models.CharField(
         "Objet", max_length=150, null=False, blank=True, default=""
@@ -100,6 +105,7 @@ class SupportGroupMessage(AbstractMessage):
 
 @reversion.register()
 class SupportGroupMessageComment(AbstractMessage):
+    objects = SupportGroupMessageCommentQuerySet.as_manager()
 
     message = models.ForeignKey(
         "SupportGroupMessage",

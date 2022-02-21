@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector, SearchRank
 from django.db import models
-from django.db.models import Subquery, OuterRef
+from django.db.models import Subquery, OuterRef, Count, Q, Exists
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
@@ -75,8 +75,43 @@ class SupportGroupQuerySet(models.QuerySet):
             )
         )
 
-    def with_serializer_prefetch(self, person):
-        return self.prefetch_related("memberships").with_static_map_image()
+    def with_organized_event_count(self):
+        from agir.events.models import Event
+
+        return self.annotate(
+            organized_event_count=Count(
+                "organized_events",
+                filter=Q(organized_events__visibility=Event.VISIBILITY_PUBLIC),
+                distinct=True,
+            )
+        )
+
+    def with_promo_code_tag_exists(self):
+        return self.annotate(
+            has_promo_codes=Exists(
+                SupportGroupTag.objects.filter(
+                    groups__id=OuterRef("id"), label=settings.PROMO_CODE_TAG
+                )
+            )
+        )
+
+    def with_certification_subtype_exists(self):
+        return self.annotate(
+            has_certification_subtype=Exists(
+                SupportGroupSubtype.objects.filter(
+                    supportgroups__id=OuterRef("id"),
+                    label__in=settings.CERTIFIED_GROUP_SUBTYPES,
+                )
+            )
+        )
+
+    def with_serializer_prefetch(self):
+        return (
+            self.prefetch_related("memberships", "subtypes")
+            .with_promo_code_tag_exists()
+            .with_certification_subtype_exists()
+            .with_organized_event_count()
+        )
 
 
 class MembershipQuerySet(models.QuerySet):
@@ -163,6 +198,13 @@ class SupportGroup(
         "people.Person", related_name="supportgroups", through="Membership", blank=True
     )
 
+    is_private_messaging_enabled = models.BooleanField(
+        _("Messagerie privée activée"),
+        default=True,
+        blank=False,
+        help_text=_("La messagerie privée est activée ou non pour ce groupe."),
+    )
+
     @property
     def managers(self):
         return [
@@ -183,18 +225,16 @@ class SupportGroup(
 
     @property
     def events_count(self):
-        from agir.events.models import Event
-
-        return self.organized_events.filter(visibility=Event.VISIBILITY_PUBLIC).count()
+        return self.organized_events.public().count()
 
     @property
     def members_count(self):
-        return Membership.objects.filter(supportgroup=self).count()
+        return self.memberships.count()
 
     @property
     def active_members_count(self):
-        return Membership.objects.filter(
-            membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER, supportgroup=self
+        return self.memberships.filter(
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER
         ).count()
 
     @property

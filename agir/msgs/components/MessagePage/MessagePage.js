@@ -4,12 +4,9 @@ import styled from "styled-components";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
-import {
-  useMessageSWR,
-  useSelectMessage,
-  useMessageActions,
-} from "@agir/msgs/common/hooks";
+import { useMessageSWR, useMessageActions } from "@agir/msgs/common/hooks";
 import { useCommentsSWR } from "@agir/msgs/common/hooks";
+import { mutate } from "swr";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 import { setPageTitle } from "@agir/front/globalContext/actions";
 import { getMessageSubject } from "@agir/msgs/common/utils";
@@ -65,7 +62,7 @@ const MessagePage = ({ messagePk }) => {
     mutateMessages,
     isAutoRefreshPausedRef,
     onSelectMessage,
-  } = useMessageSWR(messagePk, onSelectMessage);
+  } = useMessageSWR(messagePk);
 
   const lastItemRef = useInfiniteScroll(loadMore, isLoadingMore);
 
@@ -114,6 +111,14 @@ const MessagePage = ({ messagePk }) => {
   useEffect(() => {
     dispatch(setPageTitle(pageTitle));
   }, [dispatch, pageTitle]);
+
+  useEffect(async () => {
+    if (!messagePk) {
+      return;
+    }
+    await mutate("/api/user/messages/unread_count/");
+    mutateMessages && mutateMessages();
+  }, [messagePk]);
 
   return (
     <>

@@ -18,32 +18,40 @@ Default.args = {
   members: [
     {
       id: 0,
-      displayName: "Clément Verde",
+      displayName: "Foo Bar",
       email: "admin@example.fr",
       membershipType: 5,
       image: "https://www.fillmurray.com/200/200",
+      created: "2020-01-01 00:00:00",
+      updated: "2020-01-01 00:00:00",
     },
     {
       id: 1,
-      displayName: "Clément Verde",
+      displayName: "Bar Baz",
       email: "admin@example.fr",
       membershipType: 10,
       image: "https://www.fillmurray.com/200/200",
+      created: "2021-01-01 00:00:00",
+      updated: "2021-01-01 00:00:00",
     },
     {
       id: 2,
-      displayName: "Clément Verde",
+      displayName: "Baz Qux",
       email: "admin@example.fr",
       membershipType: 50,
       image: "https://www.fillmurray.com/200/200",
+      created: "2022-01-01 00:00:00",
+      updated: "2022-01-01 00:00:00",
       onResetMembershipType: console.log,
     },
     {
       id: 3,
-      displayName: "Clément Verde",
+      displayName: "Qux Quux",
       email: "admin@example.fr",
       membershipType: 100,
       image: "https://www.fillmurray.com/200/200",
+      created: "2023-01-01 00:00:00",
+      updated: "2023-01-01 00:00:00",
     },
   ],
 };
@@ -52,4 +60,11 @@ export const WithAddButton = Template.bind({});
 WithAddButton.args = {
   ...Default.args,
   addButtonLabel: "Ajouter votre binôme",
+};
+
+export const SortableAndSearchable = Template.bind({});
+SortableAndSearchable.args = {
+  ...Default.args,
+  sortable: true,
+  searchable: true,
 };

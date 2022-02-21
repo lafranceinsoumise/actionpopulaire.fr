@@ -54,7 +54,12 @@ const GroupMemberMainPanel = (props) => {
         $wrap
       />
       <Spacer size="1.5rem" />
-      <GroupMemberList members={activeMembers} onClickMember={onClickMember} />
+      <GroupMemberList
+        sortable
+        searchable
+        members={activeMembers}
+        onClickMember={onClickMember}
+      />
       <Spacer size="2.5rem" />
       {routes?.membershipTransfer && (
         <a

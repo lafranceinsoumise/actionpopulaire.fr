@@ -10,6 +10,8 @@ import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import ShareContentUrl from "@agir/front/genericComponents/ShareContentUrl";
+import ShareLink from "@agir/front/genericComponents/ShareLink";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import { useSelectMessage } from "@agir/msgs/common/hooks";
@@ -50,7 +52,13 @@ const StyledContainer = styled.div`
   }
 `;
 
-const SecondaryActions = ({ id, isCertified, routes }) => {
+const SecondaryActions = ({
+  id,
+  contact,
+  isCertified,
+  isMessagingEnabled,
+  routes,
+}) => {
   const user = useSelector(getUser);
   const onSelectMessage = useSelectMessage();
 
@@ -95,13 +103,32 @@ const SecondaryActions = ({ id, isCertified, routes }) => {
       >
         <ShareContentUrl url={routes.details} />
       </ModalConfirmation>
-      <MessageModal
-        shouldShow={messageModalOpen}
-        user={user}
-        groupPk={id}
-        onSend={sendPrivateMessage}
-        onClose={handleMessageClose}
-      />
+      {isMessagingEnabled ? (
+        <MessageModal
+          shouldShow={messageModalOpen}
+          user={user}
+          groupPk={id}
+          onSend={sendPrivateMessage}
+          onClose={handleMessageClose}
+        />
+      ) : (
+        <ModalConfirmation
+          shouldShow={messageModalOpen}
+          onClose={handleMessageClose}
+          title="Contactez les animateur·ices du groupe"
+        >
+          <div>
+            Vous pouvez contacter les animateur·ices du groupe par e-mail&nbsp;:
+            <Spacer size="1rem" />
+            <ShareLink
+              label="Copier"
+              color="primary"
+              url={contact?.email}
+              $wrap
+            />
+          </div>
+        </ModalConfirmation>
+      )}
     </StyledContainer>
   );
 };
@@ -109,7 +136,9 @@ const SecondaryActions = ({ id, isCertified, routes }) => {
 SecondaryActions.propTypes = {
   id: PropTypes.string.isRequired,
   isCertified: PropTypes.bool,
+  isMessagingEnabled: PropTypes.bool,
   routes: PropTypes.object,
+  contact: PropTypes.object,
 };
 
 export default SecondaryActions;

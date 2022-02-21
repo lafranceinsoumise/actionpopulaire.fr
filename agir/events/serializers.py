@@ -6,6 +6,7 @@ from django.db import transaction
 from django.utils import timezone
 from pytz import utc, InvalidTimeError
 from rest_framework import serializers
+from rest_framework.fields import empty
 
 from agir.activity.models import Activity
 from agir.events.tasks import NOTIFIED_CHANGES
@@ -182,10 +183,14 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         read_only=True, method_name="get_has_project"
     )
 
+    def __init__(self, instance=None, data=empty, fields=None, **kwargs):
+        self.is_event_card = fields == self.EVENT_CARD_FIELDS
+        super().__init__(instance=instance, data=data, fields=fields, **kwargs)
+
     def to_representation(self, instance):
         user = self.context["request"].user
 
-        if user.is_authenticated and user.person:
+        if not self.is_event_card and user.is_authenticated and user.person:
             # this allow prefetching by queryset annotation for performances
             if not hasattr(instance, "_pf_person_organizer_configs"):
                 self.organizer_config = OrganizerConfig.objects.filter(
@@ -286,7 +291,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     def get_groups(self, obj):
         return SupportGroupSerializer(
-            obj.organizers_groups.distinct(),
+            obj.organizers_groups.distinct().with_serializer_prefetch(),
             context=self.context,
             many=True,
             fields=[
@@ -454,7 +459,11 @@ class EventPropertyOptionsSerializer(FlexibleFieldsMixin, serializers.Serializer
 
 
 class EventOrganizerGroupField(serializers.RelatedField):
-    queryset = SupportGroup.objects.all()
+    queryset = (
+        SupportGroup.objects.active()
+        .prefetch_related("subtypes")
+        .with_static_map_image()
+    )
 
     def to_representation(self, obj):
         if obj is None:

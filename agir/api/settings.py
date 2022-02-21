@@ -250,6 +250,11 @@ TEMPLATES = [
 # see https://docs.djangoproject.com/en/3.1/ref/forms/renderers/#templatessetting
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
+# cf. https://docs.djangoproject.com/fr/4.0/ref/settings/#data-upload-max-number-fields
+DATA_UPLOAD_MAX_NUMBER_FIELDS = int(
+    os.environ.get("DATA_UPLOAD_MAX_NUMBER_FIELDS", 1789)
+)
+
 if ENABLE_FRONT:
     TEMPLATES[0]["OPTIONS"]["context_processors"].extend(
         [
@@ -272,6 +277,8 @@ DATABASES = {
 }
 if not DEBUG:
     CONN_MAX_AGE = 600
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Mails
 
