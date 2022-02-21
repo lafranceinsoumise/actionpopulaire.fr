@@ -150,6 +150,70 @@ export const ActionTools = () => {
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
+      <StyledCardItem as="span">
+        <i
+          aria-hidden="true"
+          css={`
+            background-color: ${(props) => props.theme.PULBleu};
+            color: ${(props) => props.theme.white};
+          `}
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19.5 21V1.5H4.5V21"
+              stroke="white"
+              strokeWidth="2.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <line
+              x1="2.625"
+              y1="21.375"
+              x2="21.375"
+              y2="21.375"
+              stroke="white"
+              strokeWidth="2.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <circle cx="15" cy="10.5" r="1.5" fill="white" />
+          </svg>
+        </i>
+        <span>
+          <strong>TokTok - Carte du porte-à-porte</strong>
+          <span>
+            Ciblez les quartiers lorsque vous préparez vos actions grâce aux
+            indications sur la carte et indiquez les portes auxquelles vous avez
+            toqué
+          </span>
+          <span
+            css={`
+              display: inline-flex;
+              flex-wrap: wrap;
+              gap: 0.5rem;
+              margin-top: 0.25rem;
+            `}
+          >
+            <Button small link route="toktokPreview">
+              En savoir plus
+            </Button>
+            <Button small link route="toktok">
+              Ouvrir la carte&ensp;{" "}
+              <RawFeatherIcon
+                width="0.813rem"
+                height="0.813rem"
+                name="external-link"
+              />
+            </Button>
+          </span>
+        </span>
+      </StyledCardItem>
       <StyledCardItem route="referralSearch">
         <i
           aria-hidden="true"
