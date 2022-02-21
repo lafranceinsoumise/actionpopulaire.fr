@@ -199,7 +199,7 @@ class AjouterDocumentDepenseInline(BaseAjouterDocumentInline):
     model = Depense.documents.through
 
 
-class ReglementInline(admin.TabularInline):
+class DepenseReglementInline(admin.TabularInline):
     classes = ("retirer-original",)
     model = Reglement
 
@@ -259,3 +259,33 @@ class ReglementInline(admin.TabularInline):
             )
 
         return "-"
+
+
+class OrdreVirementReglementInline(admin.TabularInline):
+    classes = ("retirer-original",)
+    model = Reglement
+    extra = 0
+    can_delete = False
+
+    fields = (
+        "depense_link",
+        "intitule",
+        "montant",
+        "date",
+    )
+    readonly_fields = ("depense_link",)
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def depense_link(self, obj):
+        return format_html(
+            '<a href="{}">{}</a>',
+            reverse("admin:gestion_depense_change", args=(obj.depense_id,)),
+            obj.depense.titre,
+        )
+
+    depense_link.short_description = "Dépense"

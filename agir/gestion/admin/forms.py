@@ -1,7 +1,9 @@
 from django import forms
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
+from django.db import transaction
 from django.db.models import Sum
 from django.urls import reverse
 from django.utils import timezone
@@ -9,7 +11,6 @@ from django.utils.html import format_html, format_html_join
 
 from agir.events.models import Event
 from agir.lib.admin.form_fields import SuggestingTextInput, CleavedDateInput
-
 from ..admin.widgets import HierarchicalSelect
 from ..models import (
     Commentaire,
@@ -21,6 +22,7 @@ from ..models import (
 from ..models.commentaires import ajouter_commentaire
 from ..models.documents import Document, VersionDocument
 from ..typologies import TypeDocument, TypeDepense, NATURE
+from ..virements import generer_endtoend_id
 
 
 class DocumentForm(forms.ModelForm):
@@ -273,6 +275,7 @@ class ReglementForm(forms.ModelForm):
     CHAMPS_FOURNISSEURS = [
         "nom",
         "iban",
+        "bic",
         "contact_phone",
         "contact_email",
         "location_address1",
@@ -301,6 +304,8 @@ class ReglementForm(forms.ModelForm):
         if depense.fournisseur:
             self.initial["fournisseur"] = depense.fournisseur
 
+        self.fields["intitule"].initial = depense.identifiant_facture
+
         self.fields["nom_fournisseur"].required = False
         self.fields["location_city_fournisseur"].required = False
         self.fields["location_zip_fournisseur"].required = False
@@ -317,12 +322,14 @@ class ReglementForm(forms.ModelForm):
         return self.cleaned_data["montant"]
 
     def clean(self):
-        # Pour les virements, il faut nécessairement l'IBAN pour pouvoir effectuer le virement.
-
+        # deux cas possibles pour le choix du fournisseur :
+        # - soit on a choisi un fournisseur existant sans remplir aucun champ de fournisseur dans la section en-dessous
+        # - soit on crée un nouveau fournisseur via la section inférieure
         if any(
             f"{field}_fournisseur" in self.changed_data
             for field in self.CHAMPS_FOURNISSEURS
         ):
+            # cas de la création d'un nouveau fournisseur
             for f in self.CHAMPS_FOURNISSEURS_REQUIS:
                 if not self.cleaned_data.get(f"{f}_fournisseur"):
                     self.add_error(
@@ -334,43 +341,57 @@ class ReglementForm(forms.ModelForm):
 
             self.fournisseur = Fournisseur(
                 **{
-                    f: self.cleaned_data.get(f"{f}_fournisseur")
+                    f: self.cleaned_data[f"{f}_fournisseur"]
                     for f in self.CHAMPS_FOURNISSEURS
+                    if f in self.cleaned_data
                 }
             )
 
         else:
+            # on utilise un fournisseur existant
             self.fournisseur = self.cleaned_data.get("fournisseur")
-            champs_fournisseurs_manquants = [
-                f
-                for f in self.CHAMPS_FOURNISSEURS_REQUIS
-                if not getattr(self.fournisseur, f)
-            ]
-            if champs_fournisseurs_manquants:
+            if self.fournisseur:
+                champs_fournisseurs_manquants = [
+                    f
+                    for f in self.CHAMPS_FOURNISSEURS_REQUIS
+                    if not getattr(self.fournisseur, f)
+                ]
+
+                if champs_fournisseurs_manquants:
+                    self.add_error(
+                        "fournisseur",
+                        "Les informations {} doivent être avoir été renseignées.".format(
+                            " ,".join(
+                                str(Fournisseur._meta.get_field(f).verbose_name)
+                                for f in champs_fournisseurs_manquants
+                            )
+                        ),
+                    )
+            else:
                 self.add_error(
                     "fournisseur",
-                    "Les informations {} doivent être avoir été renseignées.".format(
-                        " ,".join(
-                            str(Fournisseur._meta.get_field(f).verbose_name)
-                            for f in champs_fournisseurs_manquants
-                        )
+                    ValidationError(
+                        "Sélectionner un fournisseur, ou créez-en un nouveau grâce aux champs ci-dessous."
                     ),
                 )
 
-        if not self.fournisseur:
-            self.add_error(
-                "fournisseur",
-                ValidationError(
-                    "Sélectionner un fournisseur, ou créez-en un nouveau grâce aux champs ci-dessous."
-                ),
-            )
-
         if (
-            self.cleaned_data.get("mode") == Reglement.Mode.VIREMENT
+            self.fournisseur
+            and self.cleaned_data.get("mode") == Reglement.Mode.VIREMENT
             and "preuve" not in self.cleaned_data
         ):
             # Si on enregistre un virement à effectuer via un ordre de virement (en l'absence de preuve)
-            # il faut bien sûr avoir l'IBAN du fournisseur
+            # il faut avoir une désignation, l'IBAN et le BIC pour pouvoir effectuer un virement
+            if not self.fournisseur.nom and "nom" not in self.errors:
+                self.add_error(
+                    "nom_fournisseur"
+                    if self.fournisseur._state.adding
+                    else "fournisseur",
+                    ValidationError(
+                        "Le fournisseur doit avoir une désignation pour réaliser un virement."
+                    ),
+                )
+
             if not self.fournisseur.iban and "iban_fournisseur" not in self.errors:
                 self.add_error(
                     "iban_fournisseur"
@@ -381,6 +402,28 @@ class ReglementForm(forms.ModelForm):
                         code="iban_requis",
                     ),
                 )
+
+            # On n'indique que le BIC est requis si toutes les conditions suivantes s'appliquent
+            # - l'utilisateur a fourni un IBAN
+            # - l'utilisateur n'a pas fourni de BIC, et ce n'est pas suite à une erreur sur le champ BIC
+            # - finalement, il n'est pas possible de générer un BIC à partir de l'IBAN
+            if (
+                self.fournisseur.iban
+                and not self.fournisseur.bic
+                and "bic_fournisseur" not in self.errors
+            ):
+                try:
+                    self.fournisseur.iban.bic
+                except AttributeError:
+                    self.add_error(
+                        "bic_fournisseur"
+                        if self.fournisseur._state.adding
+                        else "fournisseur",
+                        ValidationError(
+                            "Le BIC doit être indiqué pour ce fournisseur (impossible de le déduire de l'IBAN).",
+                            code="bic_requis",
+                        ),
+                    )
 
         # Pour les autres modes, il faut fournir la preuve que le paiement a été effectué
         elif self.cleaned_data.get("mode") in [
@@ -403,7 +446,7 @@ class ReglementForm(forms.ModelForm):
 
         reglement_modifie = False
 
-        if "preuve" in self.cleaned_data:
+        if self.cleaned_data.get("preuve"):
             self.preuve = Document.objects.create(
                 titre=f"Preuve réglement {self.instance.intitule} — dépense {self.instance.depense.numero}",
                 type=TypeDocument.PAIEMENT,
@@ -427,7 +470,12 @@ class ReglementForm(forms.ModelForm):
             self.instance.save()
 
     def save(self, commit=True):
-        if "preuve" not in self.cleaned_data:
+        if not self.fournisseur._state.adding:
+            # on copie les valeurs du fournisseur existant pour les conserver sur le réglement
+            for f in self.CHAMPS_FOURNISSEURS:
+                setattr(self.instance, f"{f}_fournisseur", getattr(self.fournisseur, f))
+
+        if not self.cleaned_data.get("preuve"):
             self.instance.statut = Reglement.Statut.ATTENTE
         else:
             self.instance.statut = Reglement.Statut.REGLE
@@ -456,26 +504,48 @@ class ReglementForm(forms.ModelForm):
 
 
 class OrdreVirementForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    reglements = forms.ModelMultipleChoiceField(
+        queryset=Reglement.objects.filter(
+            statut=Reglement.Statut.ATTENTE,
+            mode=Reglement.Mode.VIREMENT,
+            ordre_virement__isnull=True,
+        ),
+        required=True,
+        widget=FilteredSelectMultiple(
+            verbose_name="Règlements à inclure", is_stacked=False
+        ),
+    )
+
+    def __init__(self, *args, compte=None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if "reglements" in self.fields:
-            self.fields["reglements"].queryset = self.fields[
-                "reglements"
-            ].queryset.filter(
-                statut=Reglement.Statut.ATTENTE, mode=Reglement.Mode.VIREMENT
+        if "reglements" in self._meta.fields:
+            if compte is not None:
+                self.fields["reglements"].queryset = self.fields[
+                    "reglements"
+                ].queryset.filter(depense__compte=compte)
+        else:
+            del self.fields["reglements"]
+
+    def clean_reglements(self):
+        value = self.cleaned_data["reglements"]
+        id_comptes = {r.depense.compte for r in value}
+
+        if len(id_comptes) > 1:
+            raise ValidationError(
+                "Impossible de créer un ordre de virement à partir de règlements provenant de plusieurs comptes.",
             )
 
-        if "date" in self.fields:
-            today = timezone.now().astimezone(timezone.get_current_timezone()).date()
-            self.fields["date"].min_value = today
-            self.fields["date"].validators.append(
-                validators.MinValueValidator(
-                    today,
-                    message="Impossible de créer un ordre de virement dans le passé",
-                )
-            )
+        return value
 
     def _save_m2m(self):
-        # TODO: créer l'ordre de virement avec sepaxml et le sauvegarder
+        reglements = self.cleaned_data["reglements"].select_for_update()
+
+        with transaction.atomic():
+            for r in reglements:
+                r.ordre_virement = self.instance
+                if not r.endtoend_id:
+                    r.endtoend_id = generer_endtoend_id()
+                r.save(update_fields=["ordre_virement", "endtoend_id"])
+
         super()._save_m2m()

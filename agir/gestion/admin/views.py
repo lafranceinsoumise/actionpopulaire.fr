@@ -1,17 +1,23 @@
+import logging
+
 import reversion
 from django.contrib import messages
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.admin.options import get_content_type_for_model
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.html import format_html
 from django.views import View
 from django.views.generic import CreateView, TemplateView, FormView
 
 from agir.lib.admin.panels import AdminViewMixin
 from agir.lib.display import display_price
 from .forms import ReglementForm, CommentaireForm
-from ..models import Depense, Commentaire, Reglement
+from ..models import Depense, Commentaire, Reglement, OrdreVirement
+
+
+logger = logging.getLogger(__name__)
 
 
 class AjouterReglementView(AdminViewMixin, CreateView):
@@ -50,17 +56,9 @@ class AjouterReglementView(AdminViewMixin, CreateView):
 
         kwargs = super().get_context_data(**kwargs)
 
-        champs_fournisseurs = (
-            "nom_fournisseur",
-            "iban_fournisseur",
-            "contact_phone_fournisseur",
-            "contact_email_fournisseur",
-            "location_address1_fournisseur",
-            "location_address2_fournisseur",
-            "location_city_fournisseur",
-            "location_zip_fournisseur",
-            "location_country_fournisseur",
-        )
+        champs_fournisseurs = [
+            f"{f}_fournisseur" for f in self.form_class.CHAMPS_FOURNISSEURS
+        ]
 
         kwargs.update(
             self.get_admin_helpers(
@@ -230,3 +228,41 @@ class TransitionView(FormHandlerView):
             )
 
         return self.retour_page_modification()
+
+
+class ObtenirFichierOrdreVirementView(View):
+    def get(self, request, *args, object_id, **kwargs):
+        obj = get_object_or_404(OrdreVirement, id=object_id)
+
+        if not obj.fichier:
+            try:
+                obj.generer_fichier_virement()
+            except ValueError as e:
+                logger.error(
+                    "Erreur lors de la génération d'un fichier de virement",
+                    exc_info=True,
+                )
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    format_html(
+                        "<p>{}</p><p>{}</p>",
+                        "Une erreur a été rencontré lors de la génération du fichier de virement. Merci de consulter les"
+                        " logs pour obtenir les détails.",
+                        e.args[0],
+                    ),
+                )
+
+                return HttpResponseRedirect(
+                    reverse("admin:gestion_ordrevirement_change", args=(obj.id,))
+                )
+
+        with obj.fichier.open("r") as fd:
+            res = HttpResponse(
+                fd.read(),
+                content_type="application/xml",
+            )
+        res[
+            "Content-Disposition"
+        ] = f'attachment; filename="ordre_virement_{obj.id}.xml"'
+        return res
