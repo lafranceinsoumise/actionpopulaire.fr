@@ -31,6 +31,13 @@ def can_view_message(role, message=None):
 
 
 @rules.predicate
+def is_locked_message(role, message=None):
+    if not isinstance(message, SupportGroupMessage):
+        return False
+    return message.is_locked
+
+
+@rules.predicate
 def is_msg_author(role, msg=None):
     return msg is not None and msg.author_id == role.person.id
 
@@ -54,7 +61,7 @@ rules.add_perm(
 )
 rules.add_perm(
     "msgs.add_supportgroupmessagecomment",
-    is_authenticated_person & can_view_message,
+    is_authenticated_person & can_view_message & ~is_locked_message,
 )
 rules.add_perm(
     "msgs.change_supportgroupmessagecomment", is_authenticated_person & is_msg_author

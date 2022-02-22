@@ -122,6 +122,11 @@ api_urlpatterns = [
         name="api_group_message_notification",
     ),
     path(
+        "messages/verrouillage/<uuid:pk>/",
+        views.GroupMessageLockedStatusAPIView.as_view(),
+        name="api_group_message_locked",
+    ),
+    path(
         "<uuid:pk>/membres/",
         views.GroupMembersAPIView.as_view(),
         name="api_group_members",
