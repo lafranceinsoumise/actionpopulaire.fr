@@ -84,6 +84,7 @@ const NewVotingProxyRequest = lazy(() =>
 const NewVotingProxy = lazy(() =>
   import("@agir/voting_proxies/VotingProxy/NewVotingProxy")
 );
+const TokTokPreview = lazy(() => import("@agir/events/TokTok/TokTokPreview"));
 
 export const BASE_PATH = "/";
 
@@ -533,6 +534,17 @@ export const routeConfig = {
     label: "Rechercher un événement",
     hasLayout: false,
     hideFeedbackButton: true,
+  }),
+  toktokPreview: new RouteConfig({
+    id: "toktokPreview",
+    path: "/toktok/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
+    label: "TokTok",
+    Component: TokTokPreview,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
   }),
 };
 
