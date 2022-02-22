@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-import style from "@agir/front/genericComponents/_variables.scss";
-
 import Card from "@agir/front/genericComponents/Card";
 import { Column, Container, Row } from "@agir/front/genericComponents/grid";
 import ContactCard from "@agir/front/genericComponents/ContactCard";
@@ -21,7 +19,6 @@ import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import Link from "@agir/front/app/Link";
 import OnlineUrlCard from "./OnlineUrlCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
-import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 const GroupCards = styled.div`
   & > * {

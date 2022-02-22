@@ -66,6 +66,8 @@ export const ConnectedEventPage = (props) => {
     api.getEventEndpoint("getEvent", { eventPk })
   );
 
+  console.log("event page , event data : ", eventData);
+
   const EventPage = useResponsiveMemo(MobileLayout, DesktopLayout);
 
   useEffect(() => {

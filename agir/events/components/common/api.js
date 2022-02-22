@@ -8,6 +8,8 @@ export const ENDPOINT = {
   getEvent: "/api/evenements/:eventPk/details/",
   rsvpEvent: "/api/evenements/:eventPk/inscription/",
   quitEvent: "/api/evenements/:eventPk/inscription/",
+  joinEventAsGroup: "/api/evenements/:eventPk/inscription-groupe/",
+  quitEventAsGroup: "/api/evenements/:eventPk/inscription-groupe/",
 
   eventPropertyOptions: "/api/evenements/options/",
   createEvent: "/api/evenements/creer/",
@@ -59,6 +61,40 @@ export const quitEvent = async (eventPk) => {
   const url = getEventEndpoint("quitEvent", { eventPk });
   try {
     const response = await axios.delete(url);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const joinEventAsGroup = async (eventPk, groupPk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getEventEndpoint("joinEventAsGroup", { eventPk });
+  const body = { groupPk };
+  try {
+    const response = await axios.post(url, body);
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const quitEventAsGroup = async (eventPk, groupPk) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getEventEndpoint("quitEventAsGroup", { eventPk });
+  const body = { groupPk };
+  try {
+    const response = await axios.delete(url, body);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

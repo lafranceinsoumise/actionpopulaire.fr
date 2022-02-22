@@ -27,7 +27,7 @@ from agir.events.actions.rsvps import (
     rsvp_to_free_event,
     is_participant,
 )
-from agir.events.models import Event, OrganizerConfig, Invitation
+from agir.events.models import Event, GroupAttendee, OrganizerConfig, Invitation
 from agir.events.models import RSVP
 from agir.events.serializers import (
     EventSerializer,
@@ -60,6 +60,7 @@ __all__ = [
     "CreateEventAPIView",
     "UpdateEventAPIView",
     "RSVPEventAPIView",
+    "RSVPEventAsGroupAPIView",
     "EventProjectAPIView",
     "CreateEventProjectDocumentAPIView",
     "EventProjectsAPIView",
@@ -502,6 +503,57 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
         rsvp.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RSVPEventAsGroupAPIView(CreateAPIView, DestroyAPIView):
+    queryset = Event.objects.public()
+    permission_classes = (
+        IsPersonPermission,
+        RSVPEventPermissions,
+    )
+
+    def initial(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        self.check_object_permissions(request, self.object)
+
+        super().initial(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+
+        # Check group exist and current user is manager
+        group = get_object_or_404(
+            SupportGroup.objects.active(), pk=request.data.get("groupPk")
+        )
+
+        # if not Membership.objects.filter(
+        #     person=self.request.user.person,
+        #     supportgroup=group,
+        #     membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        # ).exists():
+        #     raise MethodNotAllowed(
+        #         "POST",
+        #         detail={
+        #             "text": "Vous n'avez pas le rôle requis pour effectuer cette opération"
+        #         },
+        #     )
+
+        # Add to event groups attendees if not exist
+        if GroupAttendee.objects.filter(event=self.object, group=group).exists():
+            raise exceptions.ValidationError(
+                detail={"text": "Ce groupe participe déjà à l'événement !"},
+                code="invalid_format",
+            )
+
+        GroupAttendee.objects.create(
+            event=self.object, group=group, organizer=self.request.user.person
+        )
+
+        return Response(status=status.HTTP_201_CREATED)
+
+    def delete(self, request, *args, **kwags):
+        print("=== DELETE GROUP ATTENDEE ", flush=True)
+        return Response(True)
 
 
 class EventProjectPermission(GlobalOrObjectPermissions):

@@ -19,8 +19,13 @@ import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 import QuitEventButton from "./QuitEventButton";
+import Modal from "@agir/front/genericComponents/Modal";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import StaticToast from "@agir/front/genericComponents/StaticToast";
 
 import logger from "@agir/lib/utils/logger";
+
+import { getUser } from "@agir/front/globalContext/reducers";
 
 const log = logger(__filename);
 
@@ -84,10 +89,113 @@ const StyledActions = styled.div`
   }
 `;
 
+const ModalContent = styled.div`
+  background: white;
+  max-width: 500px;
+  padding: 10px 20px;
+  height: 50%;
+  width: 50%;
+  overflow: auto;
+  margin: 5% auto;
+  display: flex;
+  flex-direction: column;
+  border-radius: ${style.borderRadius};
+
+  h2 {
+    font-size: 18px;
+    margin-top: 0;
+  }
+
+  @media(max-width: ${style.collapse}px) {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
+`;
+
+const StyledIconButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  width: 2rem;
+  border: none;
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  background: inherit;
+  cursor: pointer;
+  text-align: center;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  color: ${style.black1000};
+`;
+
+const StyledModalHeader = styled.header`
+  display: ${({ $mobile }) => ($mobile ? "none" : "flex")};
+  justify-content: end;
+
+  @media (max-width: ${style.collapse}px) {
+    display: ${({ $mobile }) => ($mobile ? "flex" : "none")};
+    justify-content: end;
+  }
+`;
+
+const GroupItem = styled.div`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  :hover {
+    opacity: 0.8;
+  }
+
+  ${RawFeatherIcon} {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background-color: ${style.primary500};
+    color: #fff;
+    clip-path: circle(1rem);
+    text-align: center;
+    margin-right: 0.5rem;
+  }
+`;
+
+const JoiningDetails = ({ id, name, hasPrice, rsvped, groups }) => {
+
+  return <StaticToast $color="green" style={{ borderRadius: style.borderRadius, borderColor: "lightgrey" }}>
+      <RawFeatherIcon name="check" color="green" /> &nbsp;Vous participez
+      à l'événement
+    {!hasPrice && <>
+    {/* <Spacer size="1rem" style={{ display: "inline-block" }} /> */}
+    &nbsp;&nbsp;
+    <QuitEventButton id={id} name={name} />
+    </>}
+  </StaticToast>;
+};
+
 const RSVPButton = (props) => {
   const { id, hasPrice, routes, hasSubscriptionForm, isOrganizer } = props;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [success, setSuccess] = useState(false);
+
+  // Get groups where im manager
+  const user = useSelector(getUser);
+  // console.log("user groups ", user?.groups);
+
+  // TODO : Get groups already attendees of the event
+  const managingGroups = user?.groups.filter(
+    (group) => true || (group.id !== id && group.isManager)
+  );
+  console.log("managing groups : ", managingGroups);
 
   const handleRSVP = useCallback(
     async (e) => {
@@ -123,6 +231,29 @@ const RSVPButton = (props) => {
     [id, hasPrice, routes, hasSubscriptionForm]
   );
 
+  // If has groups : show groups that im manager who can join
+  const handleJoinAsGroup = async (groupPk) => {
+    setErrors({});
+    const { data, error } = await api.joinEventAsGroup(id, groupPk);
+
+    console.log("data error ", data, error);
+    if (error) {
+      setErrors(error);
+      return;
+    }
+    setSuccess(true);
+  };
+
+  const showModalJoinAsGroup = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModalJoin = () => {
+    setSuccess(false);
+    setIsModalOpen(false);
+    setErrors({});
+  };
+
   return (
     <StyledActions>
       <Button
@@ -134,6 +265,16 @@ const RSVPButton = (props) => {
       >
         Participer à l'événement
       </Button>
+
+      {!!managingGroups?.length && (
+        <Button
+          loading={isLoading}
+          disabled={isLoading}
+          onClick={showModalJoinAsGroup}
+        >
+          Ajouter un groupe participant
+        </Button>
+      )}
       {isOrganizer && (
         <Button
           icon="settings"
@@ -144,6 +285,61 @@ const RSVPButton = (props) => {
           Gérer l'événement
         </Button>
       )}
+      {!!managingGroups?.length && (
+        <Modal
+          shouldShow={isModalOpen}
+          isOpen={isModalOpen}
+          onClose={closeModalJoin}
+          onDismiss={closeModalJoin}
+          shouldDismissOnClick
+          noScroll
+        >
+          <ModalContent>
+            <StyledModalHeader>
+              <StyledIconButton onClick={closeModalJoin}>
+                <RawFeatherIcon name="x" />
+              </StyledIconButton>
+            </StyledModalHeader>
+            {!success ? (
+              <>
+                <h2>Ajouter un groupe participant</h2>
+                Ajoutez un groupe dont vous êtes gestionnaire comme participant
+                à l’événement.
+                <Spacer size="0.5rem" />
+                L’événement sera à ajouté à l’agenda du groupe.
+                <Spacer size="1rem" />
+                {managingGroups.map((group) => (
+                  <GroupItem
+                    key={group.id}
+                    onClick={() => handleJoinAsGroup(group.id)}
+                  >
+                    <RawFeatherIcon width="1rem" height="1rem" name="users" />
+                    <div>{group.name}</div>
+                  </GroupItem>
+                ))}
+                <Spacer size="1rem" />
+                {!!Object.keys(errors).length && (errors?.text || "Une erreur est apparue")}
+              </>
+            ) : (
+              <>
+                <h2 style={{ color: style.green500 }}>
+                  Votre groupe participe à l’évémenent&nbsp;!
+                </h2>
+                {success} est désormais indiqué comme
+                participant à l’événement.
+                <Spacer size="1rem" />
+                Tous les membres du groupe présents doivent également indiquer
+                leur présence individuelle sur Action Populaire pour aider les
+                organisateur·ices à définir le nombre de participants.
+                <Spacer size="1rem" />
+                <Button onClick={closeModalJoin}>Compris</Button>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+      )}
+
+      <JoiningDetails id={id} name={"hello"} hasPrice={false} rsvped={true} groups={[]} />
     </StyledActions>
   );
 };
@@ -212,14 +408,15 @@ const Actions = (props) => {
             </Button>
           )}
         </StyledActions>
-        <ActionDetails>
+        {/* <ActionDetails>
           <div>
             <RawFeatherIcon name="check" color="green" /> &nbsp;Vous participez
             à l'évènement
           </div>
           &nbsp;&nbsp;
           {!hasPrice && <QuitEventButton id={id} name={name} />}
-        </ActionDetails>
+        </ActionDetails> */}
+        <JoiningDetails id={id} name={name} hasPrice={hasPrice} rsvped={rsvped} groups={[]} />
       </>
     );
   }

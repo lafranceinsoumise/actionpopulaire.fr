@@ -162,6 +162,8 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
 
     groups = serializers.SerializerMethodField()
 
+    groupsAttendees = serializers.SerializerMethodField()
+
     contact = ContactMixinSerializer(source="*")
 
     distance = serializers.SerializerMethodField()
@@ -308,6 +310,11 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
                 "is2022",
             ],
         ).data
+
+    def get_groupsAttendees(self, obj):
+        return [
+            {"id": group.id, "name": group.name} for group in obj.groups_attendees.all()
+        ]
 
     def get_is_past(self, obj):
         return obj.is_past()
