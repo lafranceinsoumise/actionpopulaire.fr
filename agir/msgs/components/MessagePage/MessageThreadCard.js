@@ -52,19 +52,7 @@ const MessageThreadCard = (props) => {
   }, [onClick, id]);
 
   const unreadItemCount = (isUnread ? 1 : 0) + (unreadCommentCount || 0);
-  let subject = getMessageSubject(message);
-  if (isOrganizationMessage && !subject) {
-    subject = message.author.displayName;
-    if (group.referents.length > 1) {
-      subject += ", ";
-    } else {
-      subject += " et ";
-    }
-    subject += group.referents[0].displayName;
-    if (group.referents.length > 1) {
-      subject += ` et ${group.referents[1].displayName}`;
-    }
-  }
+  const subject = getMessageSubject(message);
   const time = timeAgo(lastUpdate).replace("il y a", "");
   const text = lastComment
     ? `${lastComment.author.displayName} : ${lastComment.text}`
