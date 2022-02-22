@@ -10,6 +10,7 @@ import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import JoinAGroupCard from "./JoinAGroupCard";
 import ActionTools from "./ActionTools";
 import DonateCard from "./DonateCard";
+import TokTokCard from "@agir/events/TokTok/TokTokCard";
 
 const StyledButtons = styled.div`
   display: flex;
@@ -28,6 +29,12 @@ const StyledPage = styled.main`
     font-weight: 600;
     line-height: 1.4;
     margin: 2rem 0 1rem;
+
+    small {
+      font-size: 0.813rem;
+      color: ${(props) => props.theme.redNSP};
+      text-transform: uppercase;
+    }
   }
 `;
 
@@ -55,6 +62,12 @@ const MobileActionToolsPage = (props) => {
         </PageFadeIn>
         <h2>Méthodes d'action</h2>
         <ActionTools />
+        <h2>
+          <small>Nouveau</small>
+          <br />
+          Carte du porte-à-porte
+        </h2>
+        <TokTokCard />
         <PageFadeIn ready={typeof donationAmount !== "undefined"}>
           {donationAmount && (
             <RenderIfVisible offset={0}>

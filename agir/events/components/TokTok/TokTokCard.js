@@ -64,8 +64,8 @@ const StyledCard = styled.div`
   }
 `;
 
-const TokTokCard = ({ flex = false }) => (
-  <StyledCard $flex={flex}>
+const TokTokCard = ({ flex = false, ...rest }) => (
+  <StyledCard $flex={flex} {...rest}>
     <StyledLogo $flex={flex} aria-hidden="true" />
     <article>
       <p>Pour préparer vos porte-à-porte, utilisez la carte collaborative</p>
