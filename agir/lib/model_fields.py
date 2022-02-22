@@ -3,6 +3,7 @@ import re
 from django import forms
 from django.contrib.postgres.fields import ArrayField
 from django.core import checks, exceptions
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.itercompat import is_iterable
 from django.utils.translation import gettext_lazy as _
@@ -100,6 +101,34 @@ class IBANField(models.Field):
 
     def check(self, **kwargs):
         return [*super().check(), *self._check_allowed_countries()]
+
+
+class BICField(models.CharField):
+    BIC_RE = re.compile(
+        r"^(?P<banque>[A-Z]{4})(?P<pays>[A-Z]{2})(?P<localisation>[A-Z0-9]{2})(?P<filiale>[A-Z0-9]{3})?"
+    )
+    message = "Indiquez un BIC correct (8 ou 11 caractères et chiffres)."
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, max_length=11, **kwargs)
+        self.validators.append(
+            RegexValidator(
+                regex=self.BIC_RE,
+                message=self.message,
+            )
+        )
+
+    def deconstruct(self):
+        *res, keywords = super().deconstruct()
+        del keywords["max_length"]
+        return (*res, keywords)
+
+    def formfield(self, **kwargs):
+        kwargs["validators"] = (
+            RegexValidator(regex=self.BIC_RE, message=self.message),
+            *kwargs.get("validators", ()),
+        )
+        return super().formfield(**kwargs)
 
 
 # https://gist.github.com/danni/f55c4ce19598b2b345ef

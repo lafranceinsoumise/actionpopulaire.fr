@@ -2,6 +2,7 @@ from functools import reduce
 from operator import add
 
 import reversion
+from agir.lib.model_fields import IBANField, BICField
 from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -115,8 +116,52 @@ class Compte(TimeStampedModel):
     )
     description = models.TextField(verbose_name="Description", blank=True)
 
+    actif = models.BooleanField(verbose_name="Compte actif", default=True)
+
+    emetteur_designation = models.CharField(
+        verbose_name="Désignation bancaire d'émetteur",
+        max_length=140,
+        blank=True,
+        help_text="La désignation bancaire utilisée pour émettre des virements à partir de ce compte.",
+    )
+
+    emetteur_iban = IBANField(
+        verbose_name="IBAN émetteur",
+        help_text="L'IBAN utilisé pour émettre des virements à partir de ce compte.",
+        blank=True,
+    )
+
+    emetteur_bic = BICField(
+        verbose_name="BIC émetteur",
+        help_text="Le BIC utilisé pour émettre des virements à partir de ce compte.",
+        blank=True,
+    )
+
+    beneficiaire_designation = models.CharField(
+        verbose_name="Désignation bancaire de créditeur",
+        max_length=140,
+        blank=True,
+        help_text="La désignation bancaire utilisée comme créditeur pour un virement vers ce compte (pour une "
+        "refacturation par exemple).",
+    )
+
+    beneficiaire_iban = IBANField(
+        verbose_name="IBAN émetteur",
+        help_text="L'IBAN utilisé comme créditeur pour un virement vers ce compte.",
+        blank=True,
+    )
+
+    beneficiaire_bic = BICField(
+        verbose_name="BIC émetteur",
+        help_text="Le BIC utilisé comme créditeur pour un virement vers ce compte.",
+        blank=True,
+    )
+
     configuration = models.JSONField(
-        verbose_name="Configuration", default=dict, null=False, blank=True
+        verbose_name="Configuration",
+        default=dict,
+        null=False,
+        blank=True,
     )
 
     engagement_automatique = EngagementAutomatique()
