@@ -22,6 +22,7 @@ export const ENDPOINT = {
   updateMessage: "/api/groupes/messages/:messagePk/",
   deleteMessage: "/api/groupes/messages/:messagePk/",
   messageNotification: "/api/groupes/messages/notification/:messagePk/",
+  messageLocked: "/api/groupes/messages/verrouillage/:messagePk/",
   messageParticipants: "/api/groupes/messages/:messagePk/participants/",
 
   getComments: "/api/groupes/messages/:messagePk/comments/",
@@ -138,6 +139,24 @@ export const updateMessageNotification = async (messagePk, isMuted) => {
   });
   try {
     const response = await axios.put(url, { isMuted });
+    result.data = response.data;
+  } catch (e) {
+    result.error = (e.response && e.response.data) || e.message;
+  }
+
+  return result;
+};
+
+export const updateMessageLock = async (messagePk, isLocked) => {
+  const result = {
+    data: null,
+    error: null,
+  };
+  const url = getGroupEndpoint("messageLocked", {
+    messagePk,
+  });
+  try {
+    const response = await axios.put(url, { isLocked });
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

@@ -1,11 +1,9 @@
-from django.db import transaction, connection
 from django.test import TestCase
 
 from agir.lib.tests.mixins import FakeDataMixin
-
-from ..models import Person, PersonForm, PersonFormSubmission
 from agir.people.person_forms.display import default_person_form_display
 from ..actions.management import merge_persons
+from ..models import Person, PersonForm, PersonFormSubmission
 
 
 class PeopleFormActionsTestCase(TestCase):

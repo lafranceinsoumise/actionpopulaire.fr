@@ -185,10 +185,7 @@ class GroupMessagesTestAPICase(APITestCase):
         # self.assertEqual(res.data["image"], None)
         self.assertEqual(
             res.data["group"],
-            {
-                "id": self.group.id,
-                "name": self.group.name,
-            },
+            {"id": self.group.id, "name": self.group.name, "isManager": False},
         )
         self.assertNotIn("recentComments", res.data)
 
@@ -253,10 +250,43 @@ class GroupMessagesTestAPICase(APITestCase):
         res = self.client.delete(f"/api/groupes/messages/{message.pk}/")
         self.assertEqual(res.status_code, 204)
 
-    def test_cannot_retrieve_messages_if_group_messaging_is_disabled(self):
+    def test_cannot_retrieve_private_messages_if_group_messaging_is_disabled(self):
         group = SupportGroup.objects.create(
-            name="No messages !", is_messaging_enabled=False
+            name="No messages !", is_private_messaging_enabled=False
         )
+        Membership.objects.create(
+            person=self.manager,
+            supportgroup=group,
+            membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        message = SupportGroupMessage.objects.create(
+            supportgroup=group,
+            author=self.manager,
+            text="Lorem",
+            required_membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
+        )
+        self.client.force_login(self.manager.role)
+        res = self.client.get(f"/api/groupes/{group.pk}/messages/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data["count"], 0)
+        res = self.client.get(f"/api/groupes/messages/{message.pk}/")
+        self.assertEqual(res.status_code, 404)
+
+    def test_cannot_lock_message_if_not_allowed(self):
+        group = SupportGroup.objects.create(name="No messages !")
+        message = SupportGroupMessage.objects.create(
+            supportgroup=group, author=self.manager, text="Lorem"
+        )
+
+        self.client.force_login(self.member.role)
+        res = self.client.patch(
+            f"/api/groupes/messages/{message.pk}/",
+            data={"isLocked": True},
+        )
+        self.assertEqual(res.status_code, 403)
+
+    def test_manager_can_lock_message(self):
+        group = SupportGroup.objects.create(name="No messages !")
         Membership.objects.create(
             person=self.manager,
             supportgroup=group,
@@ -265,12 +295,14 @@ class GroupMessagesTestAPICase(APITestCase):
         message = SupportGroupMessage.objects.create(
             supportgroup=group, author=self.manager, text="Lorem"
         )
+
         self.client.force_login(self.manager.role)
-        res = self.client.get(f"/api/groupes/{group.pk}/messages/")
+        res = self.client.patch(
+            f"/api/groupes/messages/{message.pk}/",
+            data={"isLocked": True},
+        )
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.data["count"], 0)
-        res = self.client.get(f"/api/groupes/messages/{message.pk}/")
-        self.assertEqual(res.status_code, 404)
+        pass
 
 
 class GroupMessageCommentAPITestCase(APITestCase):
@@ -423,9 +455,11 @@ class GroupMessageCommentAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 204)
         self.assertEqual(self.message.comments.first().deleted, True)
 
-    def test_cannot_retrieve_message_comments_if_group_messaging_is_disabled(self):
+    def test_cannot_retrieve_private_message_comments_if_group_messaging_is_disabled(
+        self,
+    ):
         group = SupportGroup.objects.create(
-            name="No messages !", is_messaging_enabled=False
+            name="No messages !", is_private_messaging_enabled=False
         )
         Membership.objects.create(
             person=self.manager,
@@ -433,11 +467,24 @@ class GroupMessageCommentAPITestCase(APITestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
         message = SupportGroupMessage.objects.create(
-            supportgroup=group, author=self.manager, text="Lorem"
+            supportgroup=group,
+            author=self.manager,
+            text="Lorem",
+            required_membership_type=Membership.MEMBERSHIP_TYPE_MANAGER,
         )
-        comment = SupportGroupMessageComment.objects.create(
+        SupportGroupMessageComment.objects.create(
             message=message, author=self.manager, text="Lorem"
         )
         self.client.force_login(self.manager.role)
         res = self.client.get(f"/api/groupes/messages/{message.pk}/comments/")
         self.assertEqual(res.status_code, 404)
+
+    def test_cannot_send_comments_if_message_locked(self):
+        self.message.is_locked = True
+        self.message.save()
+        self.client.force_login(self.member.role)
+        res = self.client.post(
+            f"/api/groupes/messages/{self.message.pk}/comments/",
+            data={"text": "Lorem"},
+        )
+        self.assertEqual(res.status_code, 403)

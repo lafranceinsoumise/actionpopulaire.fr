@@ -1,8 +1,7 @@
 from django import forms
-from django.contrib.admin.widgets import AutocompleteSelect
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.forms import BooleanField, CharField
+from django.forms import BooleanField
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
@@ -22,6 +21,7 @@ from .. import models
 from ..apps import DEFAULT_ADMIN_MODES
 from ..tasks import send_organizer_validation_notification
 from ...gestion.typologies import TypeDocument
+from ...lib.admin.form_fields import AutocompleteSelectModel
 from ...lib.form_fields import AdminRichEditorWidget
 from ...lib.forms import CoordinatesFormMixin
 
@@ -198,8 +198,8 @@ class AddOrganizerForm(forms.Form):
     def __init__(self, event, model_admin, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.event = event
-        self.fields["person"].widget = AutocompleteSelect(
-            rel=Person._meta.get_field("organizer_configs"),
+        self.fields["person"].widget = AutocompleteSelectModel(
+            Person,
             admin_site=model_admin.admin_site,
             choices=self.fields["person"].choices,
         )
@@ -246,8 +246,8 @@ class NewParticipantForm(BasePersonForm):
 
         self.event = event
 
-        self.fields["existing_person"].widget = AutocompleteSelect(
-            rel=Person._meta.get_field("rsvps"),
+        self.fields["existing_person"].widget = AutocompleteSelectModel(
+            Person,
             admin_site=model_admin.admin_site,
             choices=self.fields["existing_person"].choices,
         )
@@ -317,7 +317,6 @@ class NewParticipantForm(BasePersonForm):
             PAYMENT_MODES["money"],
             None,
         ):
-            print(self.cleaned_data.get("payment_mode"))
             for f in BILLING_FIELDS:
                 if f != "location_address2" and not self.cleaned_data.get(f):
                     self.add_error(

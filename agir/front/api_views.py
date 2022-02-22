@@ -14,12 +14,13 @@ from agir.groups.models import SupportGroup
 from agir.groups.serializers import SupportGroupSearchResultSerializer
 
 from agir.groups.utils import is_active_group_filter
+from agir.lib.rest_framework_permissions import IsActionPopulaireClientPermission
 
 
 class SearchSupportGroupsAndEventsAPIView(ListAPIView):
     """Rechercher et lister des groupes et des événéments"""
 
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsActionPopulaireClientPermission,)
     RESULT_TYPE_GROUPS = "groups"
     RESULT_TYPE_EVENTS = "events"
     GROUP_FILTER_CERTIFIED = "CERTIFIED"

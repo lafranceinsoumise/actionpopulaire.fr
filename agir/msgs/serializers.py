@@ -82,6 +82,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "recentComments",
         "commentCount",
         "requiredMembershipType",
+        "isLocked",
     )
     DETAIL_FIELDS = (
         "id",
@@ -93,6 +94,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         "linkedEvent",
         "lastUpdate",
         "requiredMembershipType",
+        "isLocked",
     )
 
     lastUpdate = serializers.DateTimeField(read_only=True, source="last_update")
@@ -112,11 +114,21 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
         choices=Membership.MEMBERSHIP_TYPE_CHOICES,
         default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
     )
+    isLocked = serializers.BooleanField(
+        source="is_locked",
+        default=False,
+        allow_null=True,
+        required=False,
+        read_only=True,
+    )
 
     def get_group(self, obj):
+        user = self.context["request"].user.person
+        is_manager = user in obj.supportgroup.managers
         return {
             "id": obj.supportgroup.id,
             "name": obj.supportgroup.name,
+            "isManager": is_manager,
         }
 
     def get_recentComments(self, obj):
@@ -152,6 +164,7 @@ class SupportGroupMessageSerializer(BaseMessageSerializer):
             "commentCount",
             "lastUpdate",
             "requiredMembershipType",
+            "isLocked",
         )
 
 
@@ -160,15 +173,16 @@ class SupportGroupMessageParticipantSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField(read_only=True)
 
     def to_representation(self, message):
+        recipient_ids = [message.author_id] + list(
+            Membership.objects.exclude(person_id=message.author_id)
+            .filter(
+                supportgroup_id=message.supportgroup_id,
+                membership_type__gte=message.required_membership_type,
+            )
+            .values_list("person_id", flat=True)
+        )
         self.participants = list(
-            Person.objects.filter(
-                Q(
-                    id__in=message.supportgroup.memberships.filter(
-                        membership_type__gte=message.required_membership_type
-                    ).values_list("person_id")
-                )
-                | Q(id=message.author.id)
-            ).annotate(
+            Person.objects.filter(id__in=recipient_ids).annotate(
                 has_commented=Exists(message.comments.filter(author_id=OuterRef("id")))
             )
         )

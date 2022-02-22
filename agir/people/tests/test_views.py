@@ -13,14 +13,12 @@ from rest_framework.test import APITestCase
 
 from agir.api.redis import using_separate_redis_server
 from agir.events.models import Event, EventSubtype
-from agir.lib.tasks import geocode_person
 from agir.people.actions.validation_codes import _initialize_buckets
 from agir.people.models import Person, PersonValidationSMS, generate_code
 from agir.people.tasks import (
     send_confirmation_change_email,
     send_confirmation_merge_account,
 )
-from agir.events.models import Event, EventSubtype
 
 
 class DashboardSearchTestCase(APITestCase):
@@ -163,7 +161,7 @@ class ProfileTestCase(TestCase):
         self.assertRedirects(response, url_redirect)
         patched_send_confirmation_merge_account.delay.assert_called_once()
 
-    def test_recieve_and_click_merge_account_demand(self):
+    def test_receive_and_click_merge_account_demand(self):
         regex_url = reverse("confirm_merge_account") + r'\?[^\s"]*token=[a-z0-9-]+'
         merge_emails = set(self.person_to_merge.emails.all())
         merge_pk = self.person_to_merge.pk

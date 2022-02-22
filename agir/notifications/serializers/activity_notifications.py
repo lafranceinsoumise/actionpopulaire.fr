@@ -522,6 +522,8 @@ class ReminderDocsEventNextdayActivityNotificationSerializer(
 
 
 class ReminderReportFormForEventNotificationSerializer(ActivityNotificationSerializer):
+    title = serializers.SerializerMethodField()
+
     def get_title(self, activity):
         return activity.meta.get("title")
 
@@ -538,14 +540,15 @@ class ReminderReportFormForEventNotificationSerializer(ActivityNotificationSeria
 
 
 class ReminderUpcomingEventStartNotificationSerializer(ActivityNotificationSerializer):
+    title = serializers.SerializerMethodField()
+
     def get_title(self, activity):
-        return activity.event.name
+        return f"📅 Commence bientôt : {activity.event.name}"
 
     def get_body(self, activity):
         start_time = activity.event.local_start_time
         time = start_time.strftime("%H:%M")
-
-        return f"📆 Aujourd'hui à {time}"
+        return f"Début de votre événement à {time} — Cliquez pour voir les informations"
 
     def get_url(self, activity):
         return activity_notification_url(

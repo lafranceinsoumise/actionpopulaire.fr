@@ -33,7 +33,7 @@ class UserReportAPIView(CreateAPIView):
 class UserMessageRecipientsView(ListAPIView):
     permission_classes = (IsPersonPermission,)
     serializer_class = UserMessageRecipientSerializer
-    queryset = SupportGroup.objects.with_messages()
+    queryset = SupportGroup.objects.active()
 
     def get_queryset(self):
         person = self.request.user.person

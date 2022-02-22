@@ -18,6 +18,7 @@ import { getMessageSubject } from "@agir/msgs/common/utils";
 import useCopyToClipboard from "@agir/front/genericComponents/useCopyToClipboard";
 import MessageDetails from "@agir/front/genericComponents/MessageDetails";
 
+import Spacer from "@agir/front/genericComponents/Spacer";
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import Avatar from "@agir/front/genericComponents/Avatar";
@@ -36,6 +37,7 @@ import Comment from "@agir/front/formComponents/Comment";
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import ButtonMuteMessage from "./ButtonMuteMessage";
+import ButtonLockMessage from "./ButtonLockMessage";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 
 import { useCommentsSWR } from "@agir/msgs/common/hooks";
@@ -270,7 +272,7 @@ export const StyledSubject = styled.h2`
     max-width: 360px;
   }
   @media (min-width: 1300px) {
-    max-width: 660px;
+    max-width: 560px;
   }
 
   ${RawFeatherIcon} {
@@ -389,7 +391,7 @@ const StyledLoadComments = styled.div`
   }
 `;
 
-const MessageHeader = ({ message, subject }) => {
+const MessageHeader = ({ message, subject, isManager, isAuthor }) => {
   const isDesktop = useIsDesktop();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -417,7 +419,13 @@ const MessageHeader = ({ message, subject }) => {
             <MessageDetails message={message} />
           </div>
         </div>
-        {isDesktop && <ButtonMuteMessage message={message} />}
+        <div>
+          {isDesktop && (isManager || isAuthor) && (
+            <ButtonLockMessage message={message} />
+          )}
+          <Spacer size="0.5rem" style={{ display: "inline-block" }} />
+          {isDesktop && <ButtonMuteMessage message={message} />}
+        </div>
       </StyledMessageHeader>
       <ModalConfirmation
         shouldShow={isModalOpen}
@@ -428,6 +436,14 @@ const MessageHeader = ({ message, subject }) => {
       </ModalConfirmation>
     </>
   );
+};
+MessageHeader.propTypes = {
+  message: PropTypes.shape({
+    text: PropTypes.string.isRequired,
+  }),
+  subject: PropTypes.string.isRequired,
+  isManager: PropTypes.bool,
+  isAuthor: PropTypes.bool,
 };
 
 const MessageCard = (props) => {
@@ -445,12 +461,12 @@ const MessageCard = (props) => {
     onEdit,
     onReport,
     withMobileCommentField,
-    scrollIn,
     withBottomButton,
     autoScrollOnComment,
   } = props;
 
-  const { group, author, text, created, linkedEvent, lastUpdate } = message;
+  const { group, author, text, created, linkedEvent, lastUpdate, isLocked } =
+    message;
 
   const {
     comments,
@@ -463,6 +479,7 @@ const MessageCard = (props) => {
   const messageCardRef = useRef();
   const isDesktop = useIsDesktop();
 
+  const [loadedComments, setLoadedComments] = useState(false);
   const event = useMemo(() => formatEvent(linkedEvent), [linkedEvent]);
 
   const isAuthor = author.id === user.id;
@@ -522,11 +539,11 @@ const MessageCard = (props) => {
   );
 
   useEffect(() => {
-    scrollIn &&
-      messageCardRef.current &&
-      messageCardRef.current.scrollIntoView &&
-      messageCardRef.current.scrollIntoView();
-  }, [scrollIn]);
+    if (messageCardRef && !loadedComments) {
+      messageCardRef.current.scrollTo(0, messageCardRef.current.scrollHeight);
+      setLoadedComments(true);
+    }
+  }, [comments]);
 
   useEffect(() => {
     lastUpdate && mutateComments && mutateComments();
@@ -542,7 +559,14 @@ const MessageCard = (props) => {
 
   return (
     <>
-      {isDesktop && <MessageHeader subject={subject} message={message} />}
+      {isDesktop && (
+        <MessageHeader
+          subject={subject}
+          message={message}
+          isManager={isManager}
+          isAuthor={isAuthor}
+        />
+      )}
       <StyledWrapper
         ref={messageCardRef}
         $withMobileCommentField={withMobileCommentField}
@@ -666,19 +690,25 @@ const MessageCard = (props) => {
                 (withMobileCommentField ? (
                   <CommentField
                     isLoading={isLoading}
+                    disabled={isLocked}
+                    isLocked={isLocked}
                     user={user}
                     onSend={handleComment}
                     autoScroll={autoScrollOnComment}
+                    scrollerRef={messageCardRef}
                   />
                 ) : (
                   <ResponsiveLayout
                     MobileLayout={CommentButton}
                     DesktopLayout={CommentField}
                     isLoading={isLoading}
+                    disabled={isLocked}
+                    isLocked={isLocked}
                     user={user}
                     onSend={handleComment}
                     onClick={onClick && handleClick}
                     autoScroll={autoScrollOnComment}
+                    scrollerRef={messageCardRef}
                   />
                 ))}
             </StyledNewComment>
@@ -726,7 +756,6 @@ MessageCard.propTypes = {
   onReport: PropTypes.func,
   isLoading: PropTypes.bool,
   withMobileCommentField: PropTypes.bool,
-  scrollIn: PropTypes.bool,
   isManager: PropTypes.bool,
   withBottomButton: PropTypes.bool,
   autoScrollOnComment: PropTypes.bool,

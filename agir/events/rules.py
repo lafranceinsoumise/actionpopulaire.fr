@@ -134,5 +134,6 @@ rules.add_perm(
     "events.upload_image",
     is_public_event
     & is_authenticated_person
+    & is_editable_event
     & (has_rsvp_for_event | is_organizer_of_event),
 )

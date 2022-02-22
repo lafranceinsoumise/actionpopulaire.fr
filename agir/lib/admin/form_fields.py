@@ -2,7 +2,8 @@ import json
 
 from django import forms
 from django.conf import settings
-from django.contrib.admin.widgets import SELECT2_TRANSLATIONS
+from django.contrib.admin.widgets import SELECT2_TRANSLATIONS, AutocompleteSelect
+from django.db import models
 from django.utils.translation import get_language
 
 
@@ -82,4 +83,34 @@ class CleavedDateInput(forms.DateInput):
                 "admin/js/vendor/cleave.min.js",
                 "admin/js/cleaved-date-input.js",
             ),
+        )
+
+
+class AutocompleteSelectModel(AutocompleteSelect):
+    dummies = {}
+
+    def __init__(self, model=None, *args, **kwargs):
+        # AutocompleteSelect normally works only with a model class foreign key related
+        # field. The following is a convoluted way to make it work with a model class
+        # that is not a foreign key related field of another
+        class Meta:
+            app_label = model._meta.app_label
+            proxy = True
+            managed = False
+
+        dummy_name = f"Dummy{model.__name__}"
+        if dummy_name not in self.dummies:
+            self.dummies[dummy_name] = type(
+                dummy_name,
+                (model,),
+                {
+                    "__module__": self.__module__,
+                    "self": models.ForeignKey(
+                        to=model, on_delete=models.DO_NOTHING, related_name="+"
+                    ),
+                    "Meta": Meta,
+                },
+            )
+        super().__init__(
+            self.dummies[dummy_name]._meta.get_field("self"), *args, **kwargs
         )

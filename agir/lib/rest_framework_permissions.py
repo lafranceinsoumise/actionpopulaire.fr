@@ -1,3 +1,7 @@
+from oauth2_provider.contrib.rest_framework import (
+    IsAuthenticatedOrTokenHasScope,
+    OAuth2Authentication,
+)
 from oauth2_provider.models import AccessToken
 from rest_framework import exceptions
 from rest_framework.permissions import DjangoModelPermissions, BasePermission
@@ -146,6 +150,38 @@ class HasSpecificPermissions(BasePermission):
         return request.user.has_perms(self.permissions)
 
 
-class IsPersonPermission(BasePermission):
+class IsActionPopulaireClientPermission(BasePermission):
+    """
+    Allow access only to requests that are not authenticated through an OAuth2 token
+    """
+
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.person is not None
+        if isinstance(request.successful_authenticator, OAuth2Authentication):
+            return False
+        return True
+
+
+class IsPersonPermission(IsActionPopulaireClientPermission):
+    """
+    Allow access to authenticated user with related person instance, except for
+    OAuth2 authenticated requests
+    """
+
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated or request.user.person is None:
+            return False
+
+        return super().has_permission(request, view)
+
+
+class IsPersonOrTokenHasScopePermission(IsAuthenticatedOrTokenHasScope):
+    """
+    Allow access to authenticated user with related person instance, including for
+    OAuth2 authenticated requests
+    """
+
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated or request.user.person is None:
+            return False
+
+        return super().has_permission(request, view)

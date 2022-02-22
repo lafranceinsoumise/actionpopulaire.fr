@@ -38,9 +38,6 @@ class SupportGroupQuerySet(models.QuerySet):
     def active(self):
         return self.filter(published=True)
 
-    def with_messages(self):
-        return self.active().filter(is_messaging_enabled=True)
-
     def certified(self):
         return self.filter(subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES)
 
@@ -201,11 +198,11 @@ class SupportGroup(
         "people.Person", related_name="supportgroups", through="Membership", blank=True
     )
 
-    is_messaging_enabled = models.BooleanField(
-        _("Messagerie activée"),
+    is_private_messaging_enabled = models.BooleanField(
+        _("Messagerie privée activée"),
         default=True,
         blank=False,
-        help_text=_("La messagerie est activée ou non pour ce groupe."),
+        help_text=_("La messagerie privée est activée ou non pour ce groupe."),
     )
 
     @property

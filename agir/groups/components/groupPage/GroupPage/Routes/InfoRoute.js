@@ -38,10 +38,7 @@ const MobileInfoRoute = (props) => {
         <AgendaRoutePreview {...props} />
       ) : null}
       {group && group.hasMessages ? <MessagesRoutePreview {...props} /> : null}
-      {group &&
-      group.isMessagingEnabled &&
-      !group.hasMessages &&
-      group.isManager ? (
+      {group && !group.hasMessages && group.isManager ? (
         <>
           <PromoMessage goToMessages onClick={goToMessagesTab} />
           <Spacer size="1.5rem" />
@@ -80,10 +77,7 @@ const DesktopInfoRoute = (props) => {
         <AgendaRoutePreview {...props} />
       ) : null}
       {group && group.hasMessages ? <MessagesRoutePreview {...props} /> : null}
-      {group &&
-      group.isMessagingEnabled &&
-      !group.hasMessages &&
-      group.isManager ? (
+      {group && !group.hasMessages && group.isManager ? (
         <>
           <PromoMessage goToMessages onClick={goToMessagesTab} />
           <Spacer size="1.5rem" />

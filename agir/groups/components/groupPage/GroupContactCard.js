@@ -119,9 +119,9 @@ const GroupContactCard = (props) => {
             <a href={`mailto:${contact.email}`}>{contact.email}</a>
           )}
           {contact.phone && (
-            <span>
+            <a href={`tel:${contact.phone}`} style={{ color: "inherit" }}>
               {contact.phone} {contact.hidePhone && " (caché)"}
-            </span>
+            </a>
           )}
         </StyledContactSection>
       ) : null}

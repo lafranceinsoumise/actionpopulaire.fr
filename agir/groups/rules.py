@@ -108,14 +108,16 @@ def is_group_member(role, object=None):
     if object is None:
         return False
     if isinstance(object, SupportGroup):
-        supportgroup = object
+        supportgroup_id = object.id
     elif isinstance(object, SupportGroupMessage):
-        supportgroup = object.supportgroup
+        supportgroup_id = object.supportgroup_id
     else:
         return False
     return (
-        supportgroup is not None
-        and supportgroup.members.filter(pk=role.person.pk).exists()
+        supportgroup_id is not None
+        and Membership.objects.filter(
+            supportgroup_id=supportgroup_id, person_id=role.person.pk
+        ).exists()
     )
 
 

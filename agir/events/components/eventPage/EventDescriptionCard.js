@@ -49,10 +49,11 @@ const EventDescriptionCard = ({
   illustration,
   description,
   isOrganizer,
+  isEditable,
   endTime,
 }) => {
   const image = useResponsiveMemo(null, illustration?.banner);
-  const canEdit = isOrganizer && endTime > DateTime.local();
+  const canEdit = isEditable && isOrganizer && endTime > DateTime.local();
 
   if (!description && !image && !canEdit) {
     return null;
@@ -112,6 +113,7 @@ EventDescriptionCard.propTypes = {
     banner: PropTypes.string,
   }),
   description: PropTypes.string,
+  isEditable: PropTypes.bool,
   isOrganizer: PropTypes.bool,
   endTime: PropTypes.any,
   routes: PropTypes.shape({
