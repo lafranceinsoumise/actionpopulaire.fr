@@ -65,7 +65,7 @@ export const StyledLogo = styled(Link)`
   &::after {
     content: "";
     display: block;
-    height: ${(props) => props.theme.logoHeight};
+    height: 25px;
     background-image: url(${(props) => props.theme.logo});
     background-repeat: no-repeat;
     background-position: center center;

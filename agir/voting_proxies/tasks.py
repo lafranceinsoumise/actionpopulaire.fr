@@ -1,11 +1,9 @@
 from celery import shared_task
 
 from agir.lib.celery import post_save_task
-from agir.lib.http import add_query_params_to_url
 from agir.lib.sms import send_sms, SMSSendException
-from agir.lib.utils import shorten_url
+from agir.lib.utils import shorten_url, front_url
 from agir.voting_proxies.models import VotingProxyRequest
-from agir.voting_proxies.links import VotingProxyLink
 
 SMS_SENDER = "Melenchon22"
 
@@ -31,14 +29,14 @@ def send_voting_proxy_request_confirmation(voting_proxy_request_pks):
 def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
     voting_proxy_requests = VotingProxyRequest.objects.filter(
         pk__in=voting_proxy_request_pks
-    )
+    ).order_by("voting_date")
 
     if not voting_proxy_requests.exists():
         raise VotingProxyRequest.DoesNotExist()
 
     voting_proxy_request = voting_proxy_requests.first()
     voting_dates = ",".join(
-        [vpr.voting_date.strftime("%d/%m/%Y") for vpr in voting_proxy_requests]
+        [vpr.voting_date.strftime("%d %B") for vpr in voting_proxy_requests]
     )
     if len(voting_proxy_request_pks) > 1:
         voting_dates = "les " + voting_dates
@@ -46,13 +44,13 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         voting_dates = "le " + voting_dates
 
     try:
-        link = add_query_params_to_url(
-            VotingProxyLink.ACCEPTED_VOTING_PROXY_REQUEST_DETAIL,
-            {"vpr": ",".join([str(pk) for pk in voting_proxy_request_pks])},
+        link = front_url(
+            "voting_proxy_request_details",
+            query={"vpr": ",".join([str(pk) for pk in voting_proxy_request_pks])},
         )
-        link = shorten_url(link, secret=True)
+        link = shorten_url(link, secret=True, djan_url_type="M2022")
         request_owner_message = (
-            f"{voting_proxy_request.proxy.first_name} s’est porté·e volontaire pour voter en votre nom "
+            f"{voting_proxy_request.proxy.first_name} s’est porté-e volontaire pour voter en votre nom "
             f"{voting_dates} ! {link}"
         )
         send_sms(
@@ -88,18 +86,19 @@ def send_voting_proxy_information_for_request(voting_proxy_request_pk):
 def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
     voting_proxy_requests = VotingProxyRequest.objects.filter(
         pk__in=voting_proxy_request_pks
-    )
+    ).order_by("voting_date")
 
     if not voting_proxy_requests.exists():
         raise VotingProxyRequest.DoesNotExist()
 
     voting_date_string = ", ".join(
-        [vpr.voting_date.strftime("%d/%m/%Y") for vpr in voting_proxy_requests]
+        [vpr.voting_date.strftime("%d %B") for vpr in voting_proxy_requests]
     )
     voting_proxy_request = voting_proxy_requests.first()
     message = (
         f"Procuration de vote établie ({voting_date_string}) :"
         f" {voting_proxy_request.first_name} {voting_proxy_request.last_name.upper()}"
+        f" - {voting_proxy_request.commune.nom if voting_proxy_request.commune else voting_proxy_request.consulate.nom}"
         f" - tél. {voting_proxy_request.contact_phone}"
     )
     if voting_proxy_request.polling_station_number:
