@@ -8,6 +8,9 @@ from django.db.models import (
     F,
     Exists,
     Q,
+    Max,
+    DateTimeField,
+    Prefetch,
 )
 from django.db.models.functions import Greatest, Coalesce
 
@@ -149,3 +152,48 @@ def get_message_unread_comment_count(person_pk, message_pk):
             ),
         )
     ).count()
+
+
+def get_user_messages(person):
+    return (
+        SupportGroupMessage.objects.filter(id__in=get_viewable_messages_ids(person))
+        .select_related("supportgroup", "author")
+        .prefetch_related(
+            Prefetch(
+                "comments",
+                queryset=SupportGroupMessageComment.objects.filter(
+                    id__in=Subquery(
+                        SupportGroupMessageComment.objects.active()
+                        .order_by("-created")
+                        .values_list("id", flat=True)[:1]
+                    )
+                ),
+                to_attr="_pf_last_comment",
+            ),
+        )
+        .annotate(
+            is_unread=Case(
+                When(
+                    created__lt=Subquery(
+                        Membership.objects.filter(
+                            supportgroup_id=OuterRef("supportgroup_id"),
+                            person_id=person.pk,
+                        ).values("created")[:1]
+                    ),
+                    then=False,
+                ),
+                default=~Exists(
+                    SupportGroupMessageRecipient.objects.filter(
+                        recipient=person, message_id=OuterRef("id")
+                    )
+                ),
+            )
+        )
+        .annotate(
+            last_update=Greatest(
+                Max("comments__created"), "created", output_field=DateTimeField()
+            )
+        )
+        .distinct()
+        .order_by("-last_update", "-created")
+    )

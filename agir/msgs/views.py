@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from agir.groups.models import Membership, SupportGroup
 from agir.lib.pagination import APIPaginator
-from agir.msgs.actions import get_unread_message_count
+from agir.msgs.actions import get_unread_message_count, get_viewable_messages_ids
 from agir.msgs.models import (
     SupportGroupMessage,
     SupportGroupMessageRecipient,
@@ -17,7 +17,7 @@ from agir.msgs.serializers import (
     UserMessageRecipientSerializer,
 )
 from agir.msgs.tasks import send_message_report_email
-from .utils import get_user_messages
+from .actions import get_user_messages
 from ..lib.rest_framework_permissions import IsPersonPermission
 
 
@@ -55,16 +55,18 @@ class UserMessagesAllReadAPIView(RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         person = self.request.user.person
-        messages = get_user_messages(person)
+        person_message_ids = get_viewable_messages_ids(person)
         with transaction.atomic():
             old_message_ids = SupportGroupMessageRecipient.objects.filter(
-                message__in=messages, recipient=person
+                message_id__in=person_message_ids, recipient=person
             ).values_list("message_id", flat=True)
             SupportGroupMessageRecipient.objects.bulk_create(
                 (
-                    SupportGroupMessageRecipient(message=message, recipient=person)
-                    for message in messages
-                    if message.id not in old_message_ids
+                    SupportGroupMessageRecipient(
+                        message_id=message_id, recipient=person
+                    )
+                    for message_id in person_message_ids
+                    if message_id not in old_message_ids
                 ),
                 ignore_conflicts=True,
             )
@@ -78,7 +80,7 @@ class UserMessagesAllReadAPIView(RetrieveAPIView):
 
 class UserMessagesAPIView(ListAPIView):
     serializer_class = UserMessagesSerializer
-    queryset = SupportGroupMessage.objects.exclude(deleted=True)
+    queryset = SupportGroupMessage.objects.active()
     permission_classes = (IsPersonPermission,)
     pagination_class = APIPaginator
 
