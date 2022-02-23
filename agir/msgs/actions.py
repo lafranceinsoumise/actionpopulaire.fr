@@ -82,6 +82,7 @@ def get_unread_message_count(person):
 
     unread_message_count = (
         SupportGroupMessage.objects.filter(pk__in=allowed_message_ids)
+        .exclude(id__in=person.messages_muted.values_list("pk", flat=True))
         .annotate(
             membership_created=Subquery(
                 Membership.objects.filter(
