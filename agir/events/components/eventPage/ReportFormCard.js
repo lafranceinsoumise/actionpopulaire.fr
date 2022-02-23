@@ -12,11 +12,23 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import StyledCard from "./StyledCard";
 
 const StyledReportCard = styled(StyledCard)`
-  background-color: ${(props) => props.theme.primary100};
+  box-shadow: ${(props) => props.theme.cardShadow};
+  border: none;
 
   h5 {
-    color: ${(props) =>
-      props.$submitted ? props.theme.black1000 : props.theme.primary500};
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: ${(props) => props.theme.black1000};
+  }
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 0;
+
+    @media (max-width: ${(props) => props.theme.collapse}px) {
+      font-size: 0.875rem;
+      color: ${(props) => props.theme.black700};
+    }
   }
 
   p + ${Button} {
