@@ -403,7 +403,7 @@ const CommentField = (props) => {
 
   if (isLocked) {
     return (
-      <StaticToast $color="grey">
+      <StaticToast $color="grey" style={{ marginTop: 0 }}>
         Cette conversation a été close par les gestionnaires du groupe. Vous ne
         pouvez plus y écrire de réponse.
       </StaticToast>

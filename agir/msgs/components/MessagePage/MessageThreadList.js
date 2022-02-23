@@ -14,7 +14,12 @@ import MessageThreadMenu from "./MessageThreadMenu";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 const StyledContent = styled.article`
-  height: 100%;
+  ${({ isLocked }) =>
+    !isLocked &&
+    `
+    height: 100%;
+  `}
+
   overflow-x: hidden;
   overflow-y: auto;
 
@@ -31,6 +36,7 @@ const StyledContent = styled.article`
     }
   }
 `;
+
 const StyledList = styled.main`
   height: 100%;
   width: 100%;
@@ -229,7 +235,7 @@ const MobileThreadList = (props) => {
         noScroll
         isBehindTopBar
       >
-        <StyledContent ref={scrollableRef}>
+        <StyledContent ref={scrollableRef} isLocked={selectedMessage?.isLocked}>
           {selectedMessage && (
             <MessageCard
               autoScrollOnComment
