@@ -9,7 +9,7 @@ from sepaxml import SepaTransfer
 from agir.lib.iban import IBAN
 
 
-def generer_id():
+def generer_endtoend_id():
     return base64.b64encode(secrets.token_bytes(26)).rstrip(b"=").decode("ascii")
 
 
@@ -26,7 +26,7 @@ class Virement:
     montant: int
     date_execution: date
     description: str
-    id: str = dataclasses.field(default_factory=generer_id)
+    id: str = dataclasses.field(default_factory=generer_endtoend_id)
 
 
 def generer_fichier_virement(
@@ -58,6 +58,8 @@ def generer_fichier_virement(
             "batch": batch,
             "currency": currency,
         },
+        # de façon bizarre, SepaTransfer utilise parfois la norme allemande à la place de l'européenne
+        # si ce n'est pas précisé.
         schema="pain.001.001.03",
         clean=True,
     )

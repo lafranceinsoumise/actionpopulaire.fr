@@ -3,11 +3,13 @@ from io import BytesIO
 from operator import or_
 
 import pandas as pd
+from django.contrib import messages
 from django.db.models import Q, Exists, OuterRef, Count
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
+from django.views import View
 from django.views.generic import TemplateView
 from glom import glom, Coalesce
 
@@ -20,34 +22,35 @@ from agir.lib.admin.panels import AdminViewMixin
 from agir.people.models import Person
 
 
-class ChangerStatutBaseView(AdminViewMixin, TemplateView):
-    statut = None
-
+class ChangerStatutView(AdminViewMixin, View):
     def dispatch(self, request, *args, **kwargs):
         self.object = get_object_or_404(RechercheParrainage, pk=kwargs["object_id"])
 
         return super().dispatch(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        self.object.statut = self.statut
-        self.object.save(update_fields=["statut"])
-
+    def redirect(self):
         return HttpResponseRedirect(
             reverse("admin:elus_rechercheparrainage_change", args=(self.object.id,))
         )
 
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs, object=self.object)
+    def get(self, request, *args, **kwargs):
+        return self.redirect()
 
+    def post(self, request, *args, **kwargs):
+        try:
+            statut = int(request.POST.get("statut"))
+        except ValueError:
+            statut = None
 
-class ConfirmerParrainageView(ChangerStatutBaseView):
-    statut = RechercheParrainage.Statut.VALIDEE
-    template_name = "elus/admin/confirmer_parrainage.html"
-
-
-class AnnulerParrainageView(ChangerStatutBaseView):
-    statut = RechercheParrainage.Statut.ANNULEE
-    template_name = "elus/admin/annuler_parrainage.html"
+        if statut not in RechercheParrainage.Statut.values:
+            messages.add_message(request, messages.ERROR, "Lien incorrect")
+        else:
+            self.object.statut = statut
+            self.object.save(update_fields=["statut"])
+            messages.add_message(
+                request, messages.SUCCESS, "Statut du parrainage mis à jour."
+            )
+        return self.redirect()
 
 
 class ExporterAccesApplication(AdminViewMixin):

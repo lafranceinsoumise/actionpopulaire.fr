@@ -20,7 +20,7 @@ from agir.lib.admin.filters import (
     CirconscriptionLegislativeFilter,
 )
 from agir.lib.admin.panels import CenterOnFranceMixin
-from agir.lib.utils import front_url
+from agir.lib.utils import front_url, replace_datetime_timezone
 from agir.people.admin.views import FormSubmissionViewsMixin
 from agir.people.models import PersonFormSubmission
 from agir.people.person_forms.display import PersonFormDisplay
@@ -246,6 +246,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "image",
                     "start_time",
                     "end_time",
+                    "timezone",
                     "calendars",
                     "tags",
                     "visibility",
@@ -531,6 +532,20 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
     class Media:
         # classe Media requise par le CirconscriptionLegislativeFilter, quand bien même elle est vide
         pass
+
+    def render_change_form(self, *args, obj=None, **kwargs):
+        # Display the event start and end date relative to the event timezone
+        if obj:
+            timezone.activate(obj.timezone)
+        return super().render_change_form(*args, obj=obj, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        # Update the event start and end date relative to the event timezone
+        if "timezone" in form.changed_data or "start_time" in form.changed_data:
+            obj.start_time = replace_datetime_timezone(obj.start_time, obj.timezone)
+        if "timezone" in form.changed_data or "end_time" in form.changed_data:
+            obj.end_time = replace_datetime_timezone(obj.end_time, obj.timezone)
+        return super().save_model(request, obj, form, change)
 
 
 @admin.register(models.Calendar)

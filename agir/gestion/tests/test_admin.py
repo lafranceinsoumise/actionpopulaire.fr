@@ -45,7 +45,7 @@ class ProjetAdminTestCase(BaseAdminTestCase):
         self.client.force_login(p.role, backend="agir.people.backend.PersonBackend")
 
     @settings(deadline=700)
-    @given(admin_user, st.lists(projet(), max_size=4))
+    @given(admin_user, st.lists(projet(), max_size=3))
     def test_can_see_changelist(self, p, projets):
         self.admin_login(p)
         res = self.client.get(

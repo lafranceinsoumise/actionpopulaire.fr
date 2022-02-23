@@ -46,6 +46,8 @@ class StatutRechercheParrainage(models.IntegerChoices):
     VALIDEE_CC = 8, "Parrainage confirmé par le CC"
     AUTRE_CC = 9, "A parrainé un autre candidat"
 
+    REVENU_SUR_ENGAGEMENT = 10, "Revenu sur son engagement"
+
 
 class RechercheParrainageQueryset(models.QuerySet):
     def bloquant(self):
