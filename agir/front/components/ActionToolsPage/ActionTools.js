@@ -188,7 +188,7 @@ export const ActionTools = () => {
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
-      <StyledCardItem route="newVotingProxy">
+      <StyledCardItem route="votingProxyLandingPage">
         <i
           aria-hidden="true"
           css={`

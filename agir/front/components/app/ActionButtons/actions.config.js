@@ -79,7 +79,7 @@ const ACTIONS = {
   },
   votingProxy: {
     key: "votingProxy",
-    route: "newVotingProxy",
+    route: "votingProxyLandingPage",
     label: ["Procuration", "Prendre une procuration"],
     icon: "edit-3",
     color: style.votingProxyOrange,
