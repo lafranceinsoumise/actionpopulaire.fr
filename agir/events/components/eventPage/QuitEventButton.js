@@ -63,9 +63,11 @@ const StyledWrapper = styled.div`
   font-color: ${(props) => props.theme.black500};
 `;
 
-const QuitEventButton = ({ id }) => {
+const QuitEventButton = ({ eventPk, group }) => {
   const [isQuitting, setIsQuitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const groupPk = group?.id;
 
   const handleQuit = useCallback(
     async (e) => {
@@ -73,7 +75,7 @@ const QuitEventButton = ({ id }) => {
       setIsLoading(true);
       let error = "";
       try {
-        const response = await api.quitEvent(id);
+        const response = await api.quitEvent(eventPk, groupPk);
         if (response.error) {
           error = response.error;
         }
@@ -86,12 +88,16 @@ const QuitEventButton = ({ id }) => {
         log.error(error);
         return;
       }
-      mutate(api.getEventEndpoint("getEvent", { eventPk: id }), (event) => ({
-        ...event,
-        rsvped: false,
-      }));
+      if (!groupPk) {
+        mutate(api.getEventEndpoint("getEvent", { eventPk }), (event) => ({
+          ...event,
+          rsvped: false,
+        }));
+        return;
+      }
+      mutate(api.getEventEndpoint("getEvent", { eventPk }));
     },
-    [id]
+    [eventPk]
   );
 
   const openDialog = useCallback((e) => {
@@ -122,9 +128,19 @@ const QuitEventButton = ({ id }) => {
       >
         <StyledDialog>
           <main>
-            <h4>Annuler ma participation à l'événement</h4>
+            <h4>
+              Annuler {!!groupPk ? "la" : "ma"} participation à l'événement
+            </h4>
             <p>
-              Souhaitez-vous réellement ne plus participer à l'événement&nbsp;?
+              Souhaitez-vous réellement ne plus&nbsp;
+              {!!groupPk ? (
+                <>
+                  faire participer <b>{group.name}</b>
+                </>
+              ) : (
+                "participer"
+              )}
+              &nbsp;à l'événement&nbsp;?
             </p>
           </main>
           <footer>
@@ -146,6 +162,10 @@ const QuitEventButton = ({ id }) => {
   );
 };
 QuitEventButton.propTypes = {
-  id: PropTypes.string.isRequired,
+  eventPk: PropTypes.string.isRequired,
+  group: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+  }),
 };
 export default QuitEventButton;

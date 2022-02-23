@@ -53,14 +53,14 @@ export const rsvpEvent = async (eventPk) => {
   return result;
 };
 
-export const quitEvent = async (eventPk) => {
+export const quitEvent = async (eventPk, groupPk) => {
   const result = {
     data: null,
     error: null,
   };
   const url = getEventEndpoint("quitEvent", { eventPk });
   try {
-    const response = await axios.delete(url);
+    const response = await axios.delete(url, { data: { groupPk } });
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
@@ -78,23 +78,6 @@ export const joinEventAsGroup = async (eventPk, groupPk) => {
   const body = { groupPk };
   try {
     const response = await axios.post(url, body);
-    result.data = response.data;
-  } catch (e) {
-    result.error = (e.response && e.response.data) || e.message;
-  }
-
-  return result;
-};
-
-export const quitEventAsGroup = async (eventPk, groupPk) => {
-  const result = {
-    data: null,
-    error: null,
-  };
-  const url = getEventEndpoint("quitEventAsGroup", { eventPk });
-  const body = { groupPk };
-  try {
-    const response = await axios.delete(url, body);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;

@@ -312,9 +312,21 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         ).data
 
     def get_groupsAttendees(self, obj):
-        return [
-            {"id": group.id, "name": group.name} for group in obj.groups_attendees.all()
-        ]
+        user = self.context["request"].user
+        self.person = None
+        if not user.is_anonymous and user.person:
+            self.person = user.person
+
+        groups = []
+        for group in obj.groups_attendees.all():
+            groups += [
+                {
+                    "id": group.id,
+                    "name": group.name,
+                    "isManager": self.person in group.managers,
+                }
+            ]
+        return groups
 
     def get_is_past(self, obj):
         return obj.is_past()

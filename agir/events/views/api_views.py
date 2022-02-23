@@ -491,6 +491,26 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
         return super().post(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
+        groupPk = request.data.get("groupPk", None)
+
+        # Delete group attendee if a groupPk is sent
+        if groupPk is not None:
+            group = get_object_or_404(SupportGroup.objects.active(), id=groupPk)
+            # Check permission manager
+            if not self.request.user.person in group.managers:
+                raise MethodNotAllowed(
+                    "DELETE",
+                    detail={
+                        "text": "Vous n'avez pas le rôle requis pour retirer ce groupe de l'événement"
+                    },
+                )
+            group_attendee = get_object_or_404(
+                GroupAttendee.objects.all(), group=group, event=self.object
+            )
+            group_attendee.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # Delete current user as attendee
         try:
             rsvp = (
                 RSVP.objects.filter(event__end_time__gte=now())
@@ -501,11 +521,10 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
             raise NotFound()
 
         rsvp.delete()
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class RSVPEventAsGroupAPIView(CreateAPIView, DestroyAPIView):
+class RSVPEventAsGroupAPIView(CreateAPIView):
     queryset = Event.objects.public()
     permission_classes = (
         IsPersonPermission,
@@ -514,29 +533,32 @@ class RSVPEventAsGroupAPIView(CreateAPIView, DestroyAPIView):
 
     def initial(self, request, *args, **kwargs):
         self.object = self.get_object()
-
         self.check_object_permissions(request, self.object)
-
         super().initial(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-
         # Check group exist and current user is manager
         group = get_object_or_404(
             SupportGroup.objects.active(), pk=request.data.get("groupPk")
         )
 
-        # if not Membership.objects.filter(
-        #     person=self.request.user.person,
-        #     supportgroup=group,
-        #     membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
-        # ).exists():
-        #     raise MethodNotAllowed(
-        #         "POST",
-        #         detail={
-        #             "text": "Vous n'avez pas le rôle requis pour effectuer cette opération"
-        #         },
-        #     )
+        if not Membership.objects.filter(
+            person=self.request.user.person,
+            supportgroup=group,
+            membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+        ).exists():
+            raise MethodNotAllowed(
+                "POST",
+                detail={
+                    "text": "Vous n'avez pas le rôle requis pour faire rejoindre ce groupe à l'événement"
+                },
+            )
+
+        if group in self.object.organizers_groups.all():
+            raise exceptions.ValidationError(
+                detail={"text": "Ce groupe organise déjà l'événement !"},
+                code="invalid_format",
+            )
 
         # Add to event groups attendees if not exist
         if GroupAttendee.objects.filter(event=self.object, group=group).exists():
@@ -548,12 +570,7 @@ class RSVPEventAsGroupAPIView(CreateAPIView, DestroyAPIView):
         GroupAttendee.objects.create(
             event=self.object, group=group, organizer=self.request.user.person
         )
-
         return Response(status=status.HTTP_201_CREATED)
-
-    def delete(self, request, *args, **kwags):
-        print("=== DELETE GROUP ATTENDEE ", flush=True)
-        return Response(True)
 
 
 class EventProjectPermission(GlobalOrObjectPermissions):

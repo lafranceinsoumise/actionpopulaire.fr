@@ -64,28 +64,18 @@ const ActionLink = styled(Link)`
   font-weight: 700;
   text-decoration: underline;
 `;
-const ActionDetails = styled.div`
-  margin-top: 0;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-
-  div {
-    display: inline-flex;
-    align-items: center;
-  }
-`;
 
 const StyledActions = styled.div`
-  display: inline-grid;
-  grid-gap: 0.5rem;
-  grid-template-columns: auto auto;
-  padding: 0.5rem 0;
+  display: block;
+  ${Button} {
+    margin-right: 0.5rem;
+  }
 
   @media (max-width: ${style.collapse}px) {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    ${Button} {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
   }
 `;
 
@@ -106,7 +96,7 @@ const ModalContent = styled.div`
     margin-top: 0;
   }
 
-  @media(max-width: ${style.collapse}px) {
+  @media (max-width: ${style.collapse}px) {
     width: 100vw;
     height: 100vh;
     margin: 0;
@@ -133,19 +123,15 @@ const StyledIconButton = styled.button`
 `;
 
 const StyledModalHeader = styled.header`
-  display: ${({ $mobile }) => ($mobile ? "none" : "flex")};
+  display: flex;
   justify-content: end;
-
-  @media (max-width: ${style.collapse}px) {
-    display: ${({ $mobile }) => ($mobile ? "flex" : "none")};
-    justify-content: end;
-  }
 `;
 
 const GroupItem = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+  margin-bottom: 1rem;
 
   :hover {
     opacity: 0.8;
@@ -166,36 +152,195 @@ const GroupItem = styled.div`
   }
 `;
 
-const JoiningDetails = ({ id, name, hasPrice, rsvped, groups }) => {
+const StyledJoinEntry = styled.div``;
 
-  return <StaticToast $color="green" style={{ borderRadius: style.borderRadius, borderColor: "lightgrey" }}>
-      <RawFeatherIcon name="check" color="green" /> &nbsp;Vous participez
-      à l'événement
-    {!hasPrice && <>
-    {/* <Spacer size="1rem" style={{ display: "inline-block" }} /> */}
-    &nbsp;&nbsp;
-    <QuitEventButton id={id} name={name} />
-    </>}
-  </StaticToast>;
+const GreenToast = styled(StaticToast)`
+  border-radius: ${style.borderRadius};
+  border-color: lightgrey;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+
+  ${StyledJoinEntry} {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+
+    div {
+      display: flex;
+    }
+  }
+
+  ${StyledJoinEntry}:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const JoiningDetails = ({ id, hasPrice, rsvped, groups, logged }) => {
+  if ((!rsvped || !logged) && !groups?.length) {
+    return null;
+  }
+  return (
+    <GreenToast $color="green">
+      {logged && rsvped && (
+        <StyledJoinEntry>
+          <div>
+            <RawFeatherIcon name="check" color="green" /> &nbsp;Vous participez
+            à l'événement
+          </div>
+          {!hasPrice && <QuitEventButton eventPk={id} />}
+        </StyledJoinEntry>
+      )}
+
+      {groups.map((group) => (
+        <StyledJoinEntry key={group.id}>
+          <div>
+            <RawFeatherIcon name="check" color="green" /> &nbsp;
+            <b>{group.name}</b>&nbsp;participe à l'événement
+          </div>
+          {group.isManager && <QuitEventButton eventPk={id} group={group} />}
+        </StyledJoinEntry>
+      ))}
+    </GreenToast>
+  );
+};
+JoiningDetails.propTypes = {
+  id: PropTypes.string.isRequired,
+  hasPrice: PropTypes.bool,
+  rsvped: PropTypes.bool,
+  groups: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      isManager: PropTypes.bool,
+    })
+  ),
+  logged: PropTypes.bool,
 };
 
-const RSVPButton = (props) => {
-  const { id, hasPrice, routes, hasSubscriptionForm, isOrganizer } = props;
-
-  const [isLoading, setIsLoading] = useState(false);
+const AddGroupAttendee = ({ id, groups }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errors, setErrors] = useState({});
-  const [success, setSuccess] = useState(false);
+  const [groupJoined, setGroupJoined] = useState(false);
 
   // Get groups where im manager
   const user = useSelector(getUser);
-  // console.log("user groups ", user?.groups);
 
-  // TODO : Get groups already attendees of the event
+  const eventGroupsId = groups.reduce((arr, elt) => [...arr, elt.id], []);
   const managingGroups = user?.groups.filter(
-    (group) => true || (group.id !== id && group.isManager)
+    (group) => group.isManager && !eventGroupsId.includes(group.id)
   );
-  console.log("managing groups : ", managingGroups);
+
+  const handleJoinAsGroup = async (group) => {
+    setErrors({});
+    const { data, error } = await api.joinEventAsGroup(id, group.id);
+
+    if (error) {
+      setErrors(error);
+      return;
+    }
+    setGroupJoined(group);
+    mutate(api.getEventEndpoint("getEvent", { eventPk: id }));
+  };
+
+  const showModalJoinAsGroup = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModalJoin = () => {
+    setGroupJoined(false);
+    setIsModalOpen(false);
+    setErrors({});
+  };
+
+  if (!managingGroups?.length) {
+    return null;
+  }
+
+  return (
+    <>
+      <Button onClick={showModalJoinAsGroup}>
+        Ajouter un groupe participant
+      </Button>
+      <Modal
+        shouldShow={isModalOpen}
+        isOpen={isModalOpen}
+        onClose={closeModalJoin}
+        onDismiss={closeModalJoin}
+        shouldDismissOnClick
+        noScroll
+      >
+        <ModalContent>
+          <StyledModalHeader>
+            <StyledIconButton onClick={closeModalJoin}>
+              <RawFeatherIcon name="x" />
+            </StyledIconButton>
+          </StyledModalHeader>
+          <div>
+            {!groupJoined ? (
+              <>
+                <h2>Ajouter un groupe participant</h2>
+                Ajoutez un groupe dont vous êtes gestionnaire comme participant
+                à l’événement.
+                <Spacer size="0.5rem" />
+                L’événement sera à ajouté à l’agenda du groupe.
+                <Spacer size="1rem" />
+                {managingGroups.map((group) => (
+                  <GroupItem
+                    key={group.id}
+                    onClick={() => handleJoinAsGroup(group)}
+                  >
+                    <RawFeatherIcon width="1rem" height="1rem" name="users" />
+                    <div>{group.name}</div>
+                  </GroupItem>
+                ))}
+                <Spacer size="1rem" />
+                {!!Object.keys(errors).length && (
+                  <StaticToast style={{ marginTop: 0 }}>
+                    {errors?.text || "Une erreur est apparue"}
+                  </StaticToast>
+                )}
+              </>
+            ) : (
+              <>
+                <h2 style={{ color: style.green500 }}>
+                  Votre groupe participe à l’évémenent&nbsp;!
+                </h2>
+                <b>{groupJoined.name}</b> est désormais indiqué comme
+                participant à l’événement.
+                <Spacer size="1rem" />
+                Tous les membres du groupe présents doivent également indiquer
+                leur présence individuelle sur Action Populaire pour aider les
+                organisateur·ices à définir le nombre de participants.
+                <Spacer size="1rem" />
+                <Button onClick={closeModalJoin}>Compris</Button>
+              </>
+            )}
+          </div>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+};
+
+const Actions = (props) => {
+  const {
+    id,
+    past,
+    rsvped,
+    logged,
+    isOrganizer,
+    routes,
+    hasPrice,
+    allowGuests,
+    hasSubscriptionForm,
+    groups,
+    groupsAttendees,
+  } = props;
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRSVP = useCallback(
     async (e) => {
@@ -231,133 +376,6 @@ const RSVPButton = (props) => {
     [id, hasPrice, routes, hasSubscriptionForm]
   );
 
-  // If has groups : show groups that im manager who can join
-  const handleJoinAsGroup = async (groupPk) => {
-    setErrors({});
-    const { data, error } = await api.joinEventAsGroup(id, groupPk);
-
-    console.log("data error ", data, error);
-    if (error) {
-      setErrors(error);
-      return;
-    }
-    setSuccess(true);
-  };
-
-  const showModalJoinAsGroup = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModalJoin = () => {
-    setSuccess(false);
-    setIsModalOpen(false);
-    setErrors({});
-  };
-
-  return (
-    <StyledActions>
-      <Button
-        type="submit"
-        color="primary"
-        loading={isLoading}
-        disabled={isLoading}
-        onClick={handleRSVP}
-      >
-        Participer à l'événement
-      </Button>
-
-      {!!managingGroups?.length && (
-        <Button
-          loading={isLoading}
-          disabled={isLoading}
-          onClick={showModalJoinAsGroup}
-        >
-          Ajouter un groupe participant
-        </Button>
-      )}
-      {isOrganizer && (
-        <Button
-          icon="settings"
-          link
-          to={routeConfig.eventSettings.getLink({ eventPk: id })}
-          color="primary"
-        >
-          Gérer l'événement
-        </Button>
-      )}
-      {!!managingGroups?.length && (
-        <Modal
-          shouldShow={isModalOpen}
-          isOpen={isModalOpen}
-          onClose={closeModalJoin}
-          onDismiss={closeModalJoin}
-          shouldDismissOnClick
-          noScroll
-        >
-          <ModalContent>
-            <StyledModalHeader>
-              <StyledIconButton onClick={closeModalJoin}>
-                <RawFeatherIcon name="x" />
-              </StyledIconButton>
-            </StyledModalHeader>
-            {!success ? (
-              <>
-                <h2>Ajouter un groupe participant</h2>
-                Ajoutez un groupe dont vous êtes gestionnaire comme participant
-                à l’événement.
-                <Spacer size="0.5rem" />
-                L’événement sera à ajouté à l’agenda du groupe.
-                <Spacer size="1rem" />
-                {managingGroups.map((group) => (
-                  <GroupItem
-                    key={group.id}
-                    onClick={() => handleJoinAsGroup(group.id)}
-                  >
-                    <RawFeatherIcon width="1rem" height="1rem" name="users" />
-                    <div>{group.name}</div>
-                  </GroupItem>
-                ))}
-                <Spacer size="1rem" />
-                {!!Object.keys(errors).length && (errors?.text || "Une erreur est apparue")}
-              </>
-            ) : (
-              <>
-                <h2 style={{ color: style.green500 }}>
-                  Votre groupe participe à l’évémenent&nbsp;!
-                </h2>
-                {success} est désormais indiqué comme
-                participant à l’événement.
-                <Spacer size="1rem" />
-                Tous les membres du groupe présents doivent également indiquer
-                leur présence individuelle sur Action Populaire pour aider les
-                organisateur·ices à définir le nombre de participants.
-                <Spacer size="1rem" />
-                <Button onClick={closeModalJoin}>Compris</Button>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
-      )}
-
-      <JoiningDetails id={id} name={"hello"} hasPrice={false} rsvped={true} groups={[]} />
-    </StyledActions>
-  );
-};
-
-const Actions = (props) => {
-  const {
-    id,
-    name,
-    past,
-    rsvped,
-    logged,
-    isOrganizer,
-    routes,
-    hasPrice,
-    allowGuests,
-    hasSubscriptionForm,
-  } = props;
-
   if (past) {
     return (
       <StyledActions>
@@ -384,46 +402,60 @@ const Actions = (props) => {
         <Button color="secondary" disabled={true}>
           Participer à l'événement
         </Button>
+        <JoiningDetails
+          id={id}
+          hasPrice={hasPrice}
+          rsvped={rsvped}
+          groups={groupsAttendees}
+          logged={logged}
+        />
       </StyledActions>
     );
   }
 
-  if (rsvped) {
-    return (
-      <>
-        <StyledActions>
-          {isOrganizer && (
-            <Button
-              icon="settings"
-              link
-              to={routeConfig.eventSettings.getLink({ eventPk: id })}
-              color="primary"
-            >
-              Gérer l'événement
-            </Button>
-          )}
-          {allowGuests && (hasSubscriptionForm || hasPrice) && (
-            <Button link href={routes.rsvp}>
-              Ajouter une personne
-            </Button>
-          )}
-        </StyledActions>
-        {/* <ActionDetails>
-          <div>
-            <RawFeatherIcon name="check" color="green" /> &nbsp;Vous participez
-            à l'évènement
-          </div>
-          &nbsp;&nbsp;
-          {!hasPrice && <QuitEventButton id={id} name={name} />}
-        </ActionDetails> */}
-        <JoiningDetails id={id} name={name} hasPrice={hasPrice} rsvped={rsvped} groups={[]} />
-      </>
-    );
-  }
+  return (
+    <>
+      <StyledActions>
+        {!rsvped && (
+          <Button
+            type="submit"
+            color="primary"
+            loading={isLoading}
+            disabled={isLoading}
+            onClick={handleRSVP}
+          >
+            Participer à l'événement
+          </Button>
+        )}
+        <AddGroupAttendee id={id} groups={groups} />
+        {isOrganizer && (
+          <Button
+            icon="settings"
+            link
+            to={routeConfig.eventSettings.getLink({ eventPk: id })}
+            color="primary"
+          >
+            Gérer l'événement
+          </Button>
+        )}
+        {allowGuests && (hasSubscriptionForm || hasPrice) && (
+          <Button link href={routes.rsvp}>
+            Ajouter une personne
+          </Button>
+        )}
+      </StyledActions>
 
-  return <RSVPButton {...props} />;
+      <JoiningDetails
+        id={id}
+        hasPrice={hasPrice}
+        rsvped={rsvped}
+        groups={groupsAttendees}
+        logged={logged}
+      />
+    </>
+  );
 };
-RSVPButton.propTypes = Actions.propTypes = {
+Actions.propTypes = {
   id: PropTypes.string,
   name: PropTypes.string,
   hasSubscriptionForm: PropTypes.bool,
@@ -437,6 +469,20 @@ RSVPButton.propTypes = Actions.propTypes = {
     manage: PropTypes.string,
     rsvp: PropTypes.string,
   }),
+  groups: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      isManager: PropTypes.bool,
+    })
+  ),
+  groupsAttendees: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      isManager: PropTypes.bool,
+    })
+  ),
 };
 
 const AdditionalMessage = ({ isOrganizer, logged, rsvped, price }) => {
@@ -492,17 +538,21 @@ AdditionalMessage.propTypes = {
   routes: PropTypes.object,
 };
 
-const EventHeader = ({
-  id,
-  name,
-  rsvp,
-  options,
-  schedule,
-  routes,
-  isOrganizer,
-  allowGuests,
-  hasSubscriptionForm,
-}) => {
+const EventHeader = (props) => {
+  const {
+    id,
+    name,
+    rsvp,
+    options,
+    schedule,
+    routes,
+    isOrganizer,
+    allowGuests,
+    hasSubscriptionForm,
+    groups,
+    groupsAttendees,
+  } = props;
+
   const globalRoutes = useSelector(getRoutes);
   const logged = useSelector(getIsConnected);
 
@@ -531,6 +581,8 @@ const EventHeader = ({
         hasPrice={!!options && !!options.price}
         allowGuests={allowGuests}
         hasSubscriptionForm={hasSubscriptionForm}
+        groups={groups}
+        groupsAttendees={groupsAttendees}
       />
       {!past && (
         <AdditionalMessage
