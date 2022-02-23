@@ -55,7 +55,7 @@ export const RightLink = (props) => {
         {(isManager || isAuthor) && (
           <ButtonLockMessage message={{ id: messagePk }} />
         )}
-        <Spacer size="0.5rem" style={{ display: "inline-block" }} />
+        <Spacer size="1rem" style={{ display: "inline-block" }} />
         <ButtonMuteMessage message={{ id: messagePk }} />
       </>
     );

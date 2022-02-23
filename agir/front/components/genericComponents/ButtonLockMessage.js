@@ -69,9 +69,12 @@ const ButtonLockMessage = ({ message }) => {
     () => () =>
       (
         <ModalConfirmation
-          title={`Souhaitez-vous ${
-            isLocked ? "dé" : ""
-          }verrouiller cette conversation ?`}
+          title={
+            <>
+              Souhaitez-vous {isLocked ? "dé" : ""}verrouiller cette
+              conversation&nbsp;?
+            </>
+          }
           confirmationLabel={!isLocked ? "Verrouiller" : "Déverrouiller"}
           dismissLabel="Annuler"
           shouldShow={isModalOpen}
@@ -84,8 +87,8 @@ const ButtonLockMessage = ({ message }) => {
             <>
               Plus personne ne pourra y répondre.
               <Spacer size="0.5rem" />
-              Souhaitez-vous déverrouiller cette conversation ? Les
-              participant·es pourront de nouveau y écrire des réponses"
+              Les gestionnaires du groupe pourront déverrouiller la conversation
+              n'importe quand.
             </>
           ) : (
             "Les participant·es pourront de nouveau y écrire des réponses"
