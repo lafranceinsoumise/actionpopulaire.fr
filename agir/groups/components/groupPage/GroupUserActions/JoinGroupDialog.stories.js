@@ -15,12 +15,14 @@ const Template = (args) => {
 
 export const Step1 = Template.bind({});
 Step1.args = {
+  id: group.id,
   step: 1,
   isLoading: false,
   personName: "Jane Doe",
   groupName: group.name,
   groupContact: group.contact,
   groupReferents: group.referents,
+  isGroupFull: false,
 };
 export const Step2 = Template.bind({});
 Step2.args = {
@@ -31,4 +33,9 @@ export const Step3 = Template.bind({});
 Step3.args = {
   ...Step1.args,
   step: 3,
+};
+export const FullGroup = Template.bind({});
+FullGroup.args = {
+  ...Step1.args,
+  isGroupFull: true,
 };
