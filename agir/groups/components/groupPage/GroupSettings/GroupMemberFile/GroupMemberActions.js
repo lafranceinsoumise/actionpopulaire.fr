@@ -25,10 +25,21 @@ const StyledWrapper = styled.div`
       margin: 0.5rem 0.5rem 0 0;
     }
   }
+
+  p + p {
+    color: ${(props) => props.theme.black700};
+    font-size: 0.813rem;
+    margin-top: 0.5rem;
+  }
 `;
 
-const GroupMemberFacts = (props) => {
-  const { isReferent, onChangeMembershipType, currentMembershipType } = props;
+const GroupMemberActions = (props) => {
+  const {
+    isReferent,
+    isGroupFull,
+    onChangeMembershipType,
+    currentMembershipType,
+  } = props;
 
   if (!onChangeMembershipType) {
     return null;
@@ -43,8 +54,18 @@ const GroupMemberFacts = (props) => {
       <StyledWrapper>
         <h4>Modifier les droits</h4>
         <p>
-          <Button onClick={handleClick}>Passer en membre actif</Button>
+          <Button disabled={isGroupFull} onClick={handleClick}>
+            Passer en membre actif
+          </Button>
         </p>
+        {isGroupFull && (
+          <p>
+            <strong>Impossible de passer ce contact en membre actif</strong> car
+            le groupe a atteint la limite de membres actifs. Passez des membres
+            actifs en contact ou divisez votre groupe pour renforcer le réseau
+            d'action
+          </p>
+        )}
       </StyledWrapper>
     );
   }
@@ -87,11 +108,11 @@ const GroupMemberFacts = (props) => {
   return null;
 };
 
-GroupMemberFacts.propTypes = {
+GroupMemberActions.propTypes = {
   currentMembershipType: PropTypes.oneOf(Object.values(MEMBERSHIP_TYPES))
     .isRequired,
   onChangeMembershipType: PropTypes.func,
   isReferent: PropTypes.bool,
 };
 
-export default GroupMemberFacts;
+export default GroupMemberActions;

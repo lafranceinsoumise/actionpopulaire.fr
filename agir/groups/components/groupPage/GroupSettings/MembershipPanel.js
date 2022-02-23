@@ -170,6 +170,7 @@ const MembershipPanel = (props) => {
           item && (
             <SecondaryPanel style={style}>
               <GroupMemberFile
+                isGroupFull={!!group.isFull}
                 isReferent={group.isReferent}
                 member={selectedMemberPersonalInformation}
                 onBack={unselectMember}
