@@ -5,6 +5,7 @@ import style from "@agir/front/genericComponents/_variables.scss";
 
 import GroupMemberList from "@agir/groups/groupPage/GroupSettings/GroupMemberList";
 
+import Link from "@agir/front/app/Link";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import ShareLink from "@agir/front/genericComponents/ShareLink";
 import Spacer from "@agir/front/genericComponents/Spacer";
@@ -13,8 +14,33 @@ import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styl
 
 import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
+const FullGroupWarning = () => (
+  <div
+    css={`
+      font-size: 0.875rem;
+      color: ${style.black700};
+      background-color: ${style.black100};
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin: 1rem 0;
+
+      strong {
+        font-weight: 600;
+      }
+    `}
+  >
+    <strong>
+      Action requise&nbsp;: votre équipe ne respecte plus la charte des groupes
+      d'action.
+    </strong>{" "}
+    Il est maintenant impossible que de nouvelles personnes la rejoignent.
+    Divisez votre groupe en groupes plus petits maintenant pour renforcer le
+    réseau d’action.
+  </div>
+);
+
 const GroupMemberMainPanel = (props) => {
-  const { routes, members, onClickMember } = props;
+  const { routes, members, group, onClickMember } = props;
 
   const activeMembers = useMemo(() => {
     if (!Array.isArray(members)) {
@@ -53,7 +79,9 @@ const GroupMemberMainPanel = (props) => {
         url={emails}
         $wrap
       />
-      <Spacer size="1.5rem" />
+      <Spacer size=".75rem" />
+      {group?.isFull && <FullGroupWarning />}
+      <Spacer size=".75rem" />
       <GroupMemberList
         sortable
         searchable
@@ -61,21 +89,19 @@ const GroupMemberMainPanel = (props) => {
         onClickMember={onClickMember}
       />
       <Spacer size="2.5rem" />
-      {routes?.membershipTransfer && (
-        <a
-          href={routes.membershipTransfer}
-          style={{ display: "flex", alignItems: "flex-start" }}
-        >
-          <RawFeatherIcon
-            name="arrow-right"
-            width="1rem"
-            height="1rem"
-            style={{ paddingTop: "3px" }}
-          />
-          <Spacer size="0.5rem" />
-          Transférer des membres vers un autre groupe
-        </a>
-      )}
+      <Link
+        route="membershipTransfer"
+        style={{ display: "flex", alignItems: "flex-start" }}
+      >
+        <RawFeatherIcon
+          name="arrow-right"
+          width="1rem"
+          height="1rem"
+          style={{ paddingTop: "3px" }}
+        />
+        <Spacer size="0.5rem" />
+        Transférer des membres vers un autre groupe
+      </Link>
     </>
   );
 };

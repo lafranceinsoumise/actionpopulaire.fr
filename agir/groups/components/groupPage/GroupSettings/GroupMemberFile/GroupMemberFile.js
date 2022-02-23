@@ -10,8 +10,8 @@ import GroupMemberFacts from "./GroupMemberFacts";
 import GroupMemberActions from "./GroupMemberActions";
 
 const GroupMemberFile = (props) => {
-  const { member, onBack, onChangeMembershipType, isReferent } = props;
-
+  const { member, onBack, onChangeMembershipType, isReferent, isGroupFull } =
+    props;
   return (
     <PageFadeIn
       ready={!!member}
@@ -48,6 +48,7 @@ const GroupMemberFile = (props) => {
         currentMembershipType={member?.membershipType}
         isReferent={isReferent}
         onChangeMembershipType={onChangeMembershipType}
+        isGroupFull={isGroupFull}
       />
       <Spacer size="1.5rem" />
       <p
@@ -81,6 +82,7 @@ GroupMemberFile.propTypes = {
     hasGroupNotifications: PropTypes.bool,
   }),
   isReferent: PropTypes.bool,
+  isGroupFull: PropTypes.bool,
   onBack: PropTypes.func,
   onChangeMembershipType: PropTypes.func,
 };
