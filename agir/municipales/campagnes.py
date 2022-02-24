@@ -24,6 +24,7 @@ def init_campagnes():
                 "id": payment_id,
                 "url_fragment": f"carte-{code_departement}-{slug}",
                 "label": f"Prêt par carte à {config['nom_liste']}",
+                "title": f"Prêt à {config['nom_liste']}",
                 "sp_config": sp_config,
                 "campagne": _CAMPAGNES[code_departement, slug],
             },
