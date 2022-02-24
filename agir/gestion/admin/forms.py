@@ -492,6 +492,7 @@ class ReglementForm(forms.ModelForm):
             "fournisseur",
             "nom_fournisseur",
             "iban_fournisseur",
+            "bic_fournisseur",
             "contact_phone_fournisseur",
             "contact_email_fournisseur",
             "location_address1_fournisseur",
