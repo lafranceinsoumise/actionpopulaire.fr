@@ -8,35 +8,6 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import StyledDialog from "./StyledDialog";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
-const FullGroup = ({ id, groupName }) => (
-  <StyledDialog>
-    <header>
-      <h3>{groupName} compte déjà trop de membres&nbsp;!</h3>
-    </header>
-    <article>
-      <p>Désolé, vous ne pouvez pas rejoindre ce groupe.</p>
-      <p>
-        Pour favoriser l'implication de chacun·e et la répartition de l'action
-        sur le tout le territoire, nous privilégions les petits groupes.
-      </p>
-    </article>
-    <footer>
-      <Button
-        link
-        small
-        color="secondary"
-        route="fullGroup"
-        routeParams={{ groupPk: id }}
-      >
-        Rejoignez un autre groupe à proximité
-      </Button>
-      <Button link small color="secondary" route="createGroup">
-        Créez votre propre groupe
-      </Button>
-    </footer>
-  </StyledDialog>
-);
-
 export const JoinGroup = (props) => {
   const {
     id,
@@ -51,12 +22,7 @@ export const JoinGroup = (props) => {
     onUpdate,
     onClose,
     openMessageModal,
-    isGroupFull,
   } = props;
-
-  if (isGroupFull) {
-    return <FullGroup {...props} />;
-  }
 
   switch (step) {
     case 1:
@@ -200,7 +166,6 @@ JoinGroup.propTypes = {
   onUpdate: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   openMessageModal: PropTypes.func,
-  isGroupFull: PropTypes.bool,
 };
 
 const JoinGroupDialog = (props) => {

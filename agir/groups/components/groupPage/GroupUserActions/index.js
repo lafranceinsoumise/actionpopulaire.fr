@@ -60,7 +60,6 @@ const ConnectedUserActions = (props) => {
   const [openDialog, setOpenDialog] = useState(null);
   const [joiningStep, setJoiningStep] = useState(0);
   const [messageModalOpen, setMessageModalOpen] = useState(false);
-  const [isGroupFull, setIsGroupFull] = useState(Boolean(props.isFull));
 
   const closeDialog = useCallback(() => {
     setOpenDialog(null);
@@ -89,9 +88,7 @@ const ConnectedUserActions = (props) => {
     const response = await api.joinGroup(id);
     setIsLoading(false);
     if (response?.error?.error_code === "full_group") {
-      setIsGroupFull(true);
-      !openDialog && openJoinDialog();
-      return;
+      return history.push(routeConfig.fullGroup.getLink({ groupPk: id }));
     }
     if (response.error) {
       return window.location.reload();
@@ -220,7 +217,6 @@ const ConnectedUserActions = (props) => {
         onClose={closeJoinDialog}
         openMessageModal={isMessagingEnabled ? openMessageModal : undefined}
         groupContact={contact}
-        isGroupFull={isGroupFull}
       />
       {isMember && (
         <>
