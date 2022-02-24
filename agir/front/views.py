@@ -207,8 +207,8 @@ class EventDetailView(
                 "name": sanitize_html(self.object.location_name),
             },
             "name": sanitize_html(self.object.name),
-            "startDate": self.object.start_time.isoformat(),
-            "endDate": self.object.end_time.isoformat(),
+            "startDate": self.object.local_start_time.isoformat(),
+            "endDate": self.object.local_end_time.isoformat(),
             "image": self.get_meta_image(),
         }
 
