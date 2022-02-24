@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useMemo, Suspense } from "react";
 import { StateInspector, useReducer } from "reinspect";
 import { ThemeProvider } from "styled-components";
 import useSWR from "swr";
+import * as Sentry from "@sentry/react";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -57,6 +58,15 @@ const ProdProvider = ({ hasRouter = false, hasToasts = false, children }) => {
     doDispatch(setSessionContext(sessionContext));
     log.debug("Update session context", sessionContext);
   }, [doDispatch, sessionContext]);
+
+  const userId = sessionContext?.user?.id;
+  useEffect(() => {
+    if (userId) {
+      Sentry.setUser({ id: userId });
+    } else {
+      Sentry.configureScope((scope) => scope.setUser(null));
+    }
+  }, [userId]);
 
   return (
     <GlobalContext.Provider value={{ state, dispatch: doDispatch }}>
