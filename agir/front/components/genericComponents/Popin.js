@@ -17,7 +17,7 @@ const BasePopin = styled(animated.div)`
   isolation: isolate;
   position: absolute;
   z-index: 1;
-  min-width: 250px;
+  width: max-content;
   height: auto;
   padding: 1rem;
   background-color: ${(props) => props.theme.white};

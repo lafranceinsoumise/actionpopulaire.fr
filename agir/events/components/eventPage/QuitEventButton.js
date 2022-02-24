@@ -6,6 +6,7 @@ import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import Button from "@agir/front/genericComponents/Button";
 import Modal from "@agir/front/genericComponents/Modal";
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import * as api from "@agir/events/common/api";
 import { mutate } from "swr";
@@ -63,7 +64,7 @@ const StyledWrapper = styled.div`
   font-color: ${(props) => props.theme.black500};
 `;
 
-const QuitEventButton = ({ eventPk, group }) => {
+const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
   const [isQuitting, setIsQuitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -84,6 +85,7 @@ const QuitEventButton = ({ eventPk, group }) => {
       }
       setIsLoading(false);
       setIsQuitting(false);
+      setIsOpen && setIsOpen(false);
       if (error) {
         log.error(error);
         return;
@@ -109,18 +111,21 @@ const QuitEventButton = ({ eventPk, group }) => {
 
   const closeDialog = useCallback(() => {
     setIsQuitting(false);
+    setIsOpen && setIsOpen(false);
   }, []);
 
   return (
     <StyledWrapper>
-      <a href="" onClick={openDialog}>
-        Annuler
-      </a>
+      {!setIsOpen && (
+        <a href="" onClick={openDialog}>
+          Annuler
+        </a>
+      )}
       <ResponsiveLayout
         DesktopLayout={Modal}
         MobileLayout={BottomSheet}
-        shouldShow={isQuitting}
-        isOpen={isQuitting}
+        shouldShow={isOpen || isQuitting}
+        isOpen={isOpen || isQuitting}
         onClose={closeDialog}
         onDismiss={closeDialog}
         shouldDismissOnClick
@@ -129,18 +134,26 @@ const QuitEventButton = ({ eventPk, group }) => {
         <StyledDialog>
           <main>
             <h4>
-              Annuler {!!groupPk ? "la" : "ma"} participation à l'événement
+              {!groupPk ? (
+                "Annuler ma participation à l'événement"
+              ) : (
+                <>Annuler la participation du groupe à l’évément&nbsp;?</>
+              )}
             </h4>
             <p>
-              Souhaitez-vous réellement ne plus&nbsp;
-              {!!groupPk ? (
+              {!groupPk ? (
                 <>
-                  faire participer <b>{group.name}</b>
+                  Souhaitez-vous réellement ne plus participer à
+                  l'événement&nbsp;?
                 </>
               ) : (
-                "participer"
+                <>
+                  <b>{group.name}</b> ne sera plus indiqué comme participant à
+                  l’événement.
+                  <Spacer size="1rem" />
+                  L’événement sera retiré de l’agenda du groupe.
+                </>
               )}
-              &nbsp;à l'événement&nbsp;?
             </p>
           </main>
           <footer>
@@ -150,7 +163,7 @@ const QuitEventButton = ({ eventPk, group }) => {
               isLoading={isLoading}
               disabled={isLoading}
             >
-              Quitter l'événement
+              {!groupPk ? "Quitter l'événement" : "Confirmer"}
             </Button>
             <Button color="default" onClick={closeDialog} disabled={isLoading}>
               Annuler
@@ -167,5 +180,7 @@ QuitEventButton.propTypes = {
     id: PropTypes.string,
     name: PropTypes.string,
   }),
+  isOpen: PropTypes.bool,
+  setIsOpen: PropTypes.func,
 };
 export default QuitEventButton;

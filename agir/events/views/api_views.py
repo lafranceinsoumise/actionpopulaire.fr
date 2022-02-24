@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
+from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q, Value, CharField
 from django.http.response import JsonResponse
@@ -498,12 +499,17 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
             group = get_object_or_404(SupportGroup.objects.active(), id=groupPk)
             # Check permission manager
             if not self.request.user.person in group.managers:
+                text = "Vous n'avez pas le rôle requis pour retirer ce groupe de l'événement"
+                messages.add_message(
+                    request=request,
+                    level=messages.ERROR,
+                    message=text,
+                )
                 raise MethodNotAllowed(
                     "DELETE",
-                    detail={
-                        "text": "Vous n'avez pas le rôle requis pour retirer ce groupe de l'événement"
-                    },
+                    detail={"text": text},
                 )
+
             group_attendee = get_object_or_404(
                 GroupAttendee.objects.all(), group=group, event=self.object
             )

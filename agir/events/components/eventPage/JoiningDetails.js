@@ -13,9 +13,12 @@ const StyledJoinEntry = styled.div``;
 const GreenToast = styled(StaticToast)`
   border-radius: ${style.borderRadius};
   border-color: lightgrey;
-  margin-top: 1rem;
   display: flex;
   flex-direction: column;
+
+  && {
+    margin-top: 1rem;
+  }
 
   ${StyledJoinEntry} {
     display: flex;

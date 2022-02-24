@@ -6,9 +6,12 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 import Modal from "@agir/front/genericComponents/Modal";
+import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import StaticToast from "@agir/front/genericComponents/StaticToast";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
+import * as api from "@agir/events/common/api";
+import { mutate } from "swr";
 
 const ModalContent = styled.div`
   background: white;
@@ -187,7 +190,7 @@ const AddGroupAttendee = ({ id, groups }) => {
     </>
   );
 };
-AddGroupAttendee.PropTypes = {
+AddGroupAttendee.propTypes = {
   id: PropTypes.string,
   groups: PropTypes.arrayOf(
     PropTypes.shape({

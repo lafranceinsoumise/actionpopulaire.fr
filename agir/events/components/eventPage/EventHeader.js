@@ -13,12 +13,15 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import Button from "@agir/front/genericComponents/Button";
 import Link from "@agir/front/app/Link";
 import { Hide } from "@agir/front/genericComponents/grid";
+import Popin from "@agir/front/genericComponents/Popin";
 
 import { displayHumanDate, displayIntervalEnd } from "@agir/lib/utils/time";
 import { routeConfig } from "@agir/front/app/routes.config";
 
 import JoiningDetails from "./JoiningDetails";
 import AddGroupAttendee from "./AddGroupAttendee";
+import ButtonMenu from "@agir/front/genericComponents/ButtonMenu";
+import QuitEventButton from "./QuitEventButton";
 
 import logger from "@agir/lib/utils/logger";
 
@@ -60,14 +63,22 @@ const ActionLink = styled(Link)`
   text-decoration: underline;
 `;
 
+const StyledButtonMenu = styled(ButtonMenu)``;
+
 const StyledActions = styled.div`
-  display: block;
-  ${Button} {
+  display: flex;
+  flex-wrap: wrap;
+
+  > ${Button}, > ${StyledButtonMenu} {
     margin-right: 0.5rem;
   }
 
   @media (max-width: ${style.collapse}px) {
-    ${Button} {
+    > ${Button} {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    ${StyledButtonMenu} {
       width: 100%;
       margin-bottom: 0.5rem;
     }
@@ -90,6 +101,13 @@ const Actions = (props) => {
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const [showQuitEvent, setShowQuitEvent] = useState(false);
+
+  const handleQuitEvent = (e) => {
+    e.preventDefault();
+    setShowQuitEvent(true);
+  };
 
   const handleRSVP = useCallback(
     async (e) => {
@@ -147,10 +165,12 @@ const Actions = (props) => {
 
   if (!logged) {
     return (
-      <StyledActions>
-        <Button color="secondary" disabled={true}>
-          Participer à l'événement
-        </Button>
+      <>
+        <StyledActions>
+          <Button color="secondary" disabled={true}>
+            Participer à l'événement
+          </Button>
+        </StyledActions>
         <JoiningDetails
           id={id}
           hasPrice={hasPrice}
@@ -158,14 +178,14 @@ const Actions = (props) => {
           groups={groupsAttendees}
           logged={logged}
         />
-      </StyledActions>
+      </>
     );
   }
 
   return (
     <>
       <StyledActions>
-        {!rsvped && (
+        {!rsvped ? (
           <Button
             type="submit"
             color="primary"
@@ -175,6 +195,27 @@ const Actions = (props) => {
           >
             Participer à l'événement
           </Button>
+        ) : (
+          !hasPrice && (
+            <>
+              <StyledButtonMenu
+                color="success"
+                icon="check-circle"
+                text="Je participe"
+                shouldDismissOnClick
+                MobileLayout={Popin}
+              >
+                <a href="" onClick={handleQuitEvent}>
+                  Annuler
+                </a>
+              </StyledButtonMenu>
+              <QuitEventButton
+                eventPk={id}
+                isOpen={showQuitEvent}
+                setIsOpen={setShowQuitEvent}
+              />
+            </>
+          )
         )}
         <AddGroupAttendee id={id} groups={groups} />
         {isOrganizer && (
@@ -193,7 +234,6 @@ const Actions = (props) => {
           </Button>
         )}
       </StyledActions>
-
       <JoiningDetails
         id={id}
         hasPrice={hasPrice}
