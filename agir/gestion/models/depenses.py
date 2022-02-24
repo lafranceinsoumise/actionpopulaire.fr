@@ -420,7 +420,7 @@ class Reglement(TimeStampedModel):
     )
 
     iban_fournisseur = IBANField(verbose_name="IBAN du fournisseur", blank=True)
-    bic_founisseur = BICField(verbose_name="BIC du founisseur", blank=True)
+    bic_fournisseur = BICField(verbose_name="BIC du fournisseur", blank=True)
 
     contact_phone_fournisseur = PhoneNumberField(
         verbose_name="Numéro de téléphone", blank=True
