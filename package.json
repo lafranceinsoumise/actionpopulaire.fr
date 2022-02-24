@@ -52,7 +52,7 @@
     "libphonenumber-js": "^1.9.49",
     "localized-countries": "^2.0.0",
     "lodash": "^4.17.21",
-    "luxon": "^2.3.0",
+    "luxon": "^2.3.1",
     "moment": "^2.29.1",
     "normalize.css": "^8.0.1",
     "object-hash": "^3.0.0",
@@ -89,11 +89,11 @@
     "tinymce-i18n": "^22.2.11",
     "url": "^0.11.0",
     "validate.js": "^0.13.1",
-    "workbox-cacheable-response": "^6.4.2",
-    "workbox-expiration": "^6.4.2",
-    "workbox-precaching": "^6.4.2",
-    "workbox-routing": "^6.4.2",
-    "workbox-strategies": "^6.4.2"
+    "workbox-cacheable-response": "^6.5.0",
+    "workbox-expiration": "^6.5.0",
+    "workbox-precaching": "^6.5.0",
+    "workbox-routing": "^6.5.0",
+    "workbox-strategies": "^6.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
@@ -115,7 +115,7 @@
     "babel-jest": "^27.5.1",
     "babel-loader": "^8.2.3",
     "babel-plugin-polyfill-corejs3": "^0.5.2",
-    "babel-plugin-styled-components": "^2.0.3",
+    "babel-plugin-styled-components": "^2.0.5",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "clean-webpack-plugin": "^4.0.0",
     "css-loader": "^6.6.0",
@@ -142,6 +142,6 @@
     "webpack-merge": "^5.8.0",
     "webpack-stats-plugin": "^1.0.3",
     "webpackbar": "5.0.2",
-    "workbox-webpack-plugin": "^6.4.2"
+    "workbox-webpack-plugin": "^6.5.0"
   }
 }
