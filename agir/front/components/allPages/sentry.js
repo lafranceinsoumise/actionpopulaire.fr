@@ -1,11 +1,13 @@
 import { init, reactRouterV5Instrumentation } from "@sentry/react";
 import { Integrations } from "@sentry/tracing";
 import { isMatchingPattern } from "@sentry/utils";
-
 import { createBrowserHistory } from "history";
 import { matchPath } from "react-router-dom";
+
 import routes from "@agir/front/app/routes.config";
 import groupPageRoutes from "@agir/groups/groupPage/GroupPage/routes.config";
+import groupSettingsRoutes from "@agir/groups/groupPage/GroupSettings/routes.config";
+import eventSettingsRoutes from "@agir/events/EventSettings/routes.config";
 
 const history = createBrowserHistory();
 
@@ -26,7 +28,7 @@ if (process.env.NODE_ENV === "production") {
         },
         routingInstrumentation: reactRouterV5Instrumentation(
           history,
-          routes.concat(groupPageRoutes),
+          [routes, groupPageRoutes, groupSettingsRoutes, eventSettingsRoutes],
           matchPath
         ),
       }),
