@@ -4,7 +4,7 @@ import useSWR from "swr";
 
 import { lazy } from "@agir/front/app/utils";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getIsSessionLoaded } from "@agir/front/globalContext/reducers";
+import { getUser } from "@agir/front/globalContext/reducers";
 
 import GroupsPageHeader from "./GroupsPageHeader";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
@@ -28,24 +28,26 @@ const UserGroups = lazy(() => import("./UserGroups"));
 const GroupSuggestions = lazy(() => import("./GroupSuggestions"));
 
 const GroupsPage = () => {
-  const isSessionLoaded = useSelector(getIsSessionLoaded);
-  const { data } = useSWR("/api/groupes/");
+  const user = useSelector(getUser);
+  const hasOwnGroups = Array.isArray(user?.groups) && user.groups.length > 0;
+  const { data: userGroups } = useSWR(
+    !!user && hasOwnGroups && "/api/groupes/"
+  );
+  const { data: groupSuggestions } = useSWR(
+    !!user && !hasOwnGroups && "/api/groupes/suggestions/"
+  );
+  const isReady = !!user && (userGroups || groupSuggestions);
 
   return (
     <>
       <GroupsPageHeader />
-      <PageFadeIn
-        ready={isSessionLoaded && !!data}
-        wait={<Skeleton boxes={2} />}
-      >
+      <PageFadeIn ready={isReady} wait={<Skeleton boxes={2} />}>
         <Suspense fallback={<Skeleton boxes={2} />}>
           <StyledContainer>
-            {!!data &&
-              (Array.isArray(data.groups) && data.groups.length > 0 ? (
-                <UserGroups groups={data.groups} />
-              ) : (
-                <GroupSuggestions groups={data?.suggestions} />
-              ))}
+            {isReady && userGroups && <UserGroups groups={userGroups} />}
+            {isReady && groupSuggestions && (
+              <GroupSuggestions groups={groupSuggestions} />
+            )}
           </StyledContainer>
         </Suspense>
       </PageFadeIn>
