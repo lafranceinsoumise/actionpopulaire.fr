@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useTimeout } from "react-use";
 import useSWR, { mutate } from "swr";
 import useSWRInfinite from "swr/infinite";
@@ -12,6 +12,7 @@ import { setBackLink } from "@agir/front/globalContext/actions";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 
 import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
+import { useCurrentLocation } from "@agir/front/app/utils.js";
 
 const MESSAGES_PAGE_SIZE = 10;
 const COMMENTS_PAGE_SIZE = 15;
@@ -95,12 +96,10 @@ export const useCommentsSWR = (messagePk) => {
   };
 };
 
-// nonReactLocation filled from non-React pages, to replace useLocation()
-export const useMessageSWR = (messagePk, nonReactLocation = false) => {
+export const useMessageSWR = (messagePk) => {
   const dispatch = useDispatch();
-  const pathname = !nonReactLocation
-    ? useLocation().pathname
-    : nonReactLocation;
+  const pathname = useCurrentLocation();
+
   const isAutoRefreshPausedRef = useRef(false);
 
   const { data: session } = useSWR(
