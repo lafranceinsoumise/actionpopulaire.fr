@@ -1,4 +1,5 @@
 import hashlib
+import json
 import random
 import re
 from secrets import token_urlsafe
@@ -30,8 +31,9 @@ from stdimage.models import StdImageField
 from agir.carte.models import StaticMapImage
 from agir.gestion.typologies import TypeProjet, TypeDocument
 from agir.groups.models import Membership
+from agir.lib import html
 from agir.lib.form_fields import CustomJSONEncoder, DateTimePickerWidget
-from agir.lib.html import textify
+from agir.lib.html import textify, sanitize_html
 from agir.lib.model_fields import FacebookEventField
 from agir.lib.models import (
     BaseAPIResource,
@@ -777,6 +779,55 @@ class Event(
             kwargs={"pk": self.pk, "cache_key": content_hash},
             absolute=True,
         )
+
+    def get_page_schema(self):
+        schema = {
+            "@context": "http://schema.org",
+            "@type": "Event",
+            "name": sanitize_html(self.name),
+            "startDate": self.local_start_time.isoformat(),
+            "endDate": self.local_end_time.isoformat(),
+            "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+            "eventStatus": "https://schema.org/EventScheduled",
+            "location": {
+                "@type": "Place",
+                "name": sanitize_html(self.location_name),
+                "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": sanitize_html(
+                        self.location_address1 + " " + self.location_address2
+                    ),
+                    "postalCode": sanitize_html(self.location_zip),
+                    "addressLocality": sanitize_html(self.location_city),
+                    "addressCountry": sanitize_html(self.location_country.name),
+                },
+            },
+            "image": self.get_meta_image(),
+            "description": str(html.textify(self.description)),
+        }
+
+        if self.visibility != Event.VISIBILITY_PUBLIC:
+            schema["eventStatus"] = "https://schema.org/EventCancelled"
+
+        if self.online_url:
+            schema[
+                "eventAttendanceMode"
+            ] = "https://schema.org/MixedEventAttendanceMode"
+            schema["location"] = [
+                schema["location"],
+                {"@type": "VirtualLocation", "url": self.online_url},
+            ]
+
+        organizer_group = self.organizers_groups.first()
+        if organizer_group:
+            schema["organizer"] = {
+                "name": sanitize_html(organizer_group.name),
+                "url": front_url(
+                    "view_group", absolute=True, kwargs={"pk": organizer_group.pk}
+                ),
+            }
+
+        return mark_safe(json.dumps(schema, indent=2))
 
 
 class EventSubtype(BaseSubtype):

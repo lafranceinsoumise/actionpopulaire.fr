@@ -1,4 +1,3 @@
-import json
 import os
 
 from django.conf import settings
@@ -12,7 +11,6 @@ from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.utils.safestring import mark_safe
 from django.views.decorators import cache
 from django.views.generic import View, RedirectView
 from django.views.generic.detail import BaseDetailView
@@ -30,7 +28,6 @@ from .view_mixins import (
 )
 from ..events.views.event_views import EventDetailMixin
 from ..groups.views.public_views import SupportGroupDetailMixin
-from ..lib.html import sanitize_html
 from ..lib.utils import generate_token_params
 from ..msgs.models import SupportGroupMessage
 
@@ -191,31 +188,7 @@ class EventDetailView(
         return self.object.get_meta_image()
 
     def get_page_schema(self):
-        schema = {
-            "@context": "http://schema.org",
-            "@type": "Event",
-            "location": {
-                "@type": "Place",
-                "address": {
-                    "@type": "PostalAddress",
-                    "addressLocality": sanitize_html(self.object.location_city),
-                    "postalCode": sanitize_html(self.object.location_zip),
-                    "streetAddress": sanitize_html(
-                        self.object.location_address1
-                        + " "
-                        + self.object.location_address2
-                    ),
-                    "addressCountry": sanitize_html(self.object.location_country.name),
-                },
-                "name": sanitize_html(self.object.location_name),
-            },
-            "name": sanitize_html(self.object.name),
-            "startDate": self.object.local_start_time.isoformat(),
-            "endDate": self.object.local_end_time.isoformat(),
-            "image": self.get_meta_image(),
-        }
-
-        return mark_safe(json.dumps(schema, indent=2))
+        return self.object.get_page_schema()
 
 
 class EventSettingsView(HardLoginRequiredMixin, EventDetailView):
