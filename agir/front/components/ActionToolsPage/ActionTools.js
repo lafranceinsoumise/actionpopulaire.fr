@@ -10,10 +10,10 @@ const StyledCardItem = styled(Link)`
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: ${(props) => props.theme.cardShadow};
+  box-shadow: ${({ theme }) => theme.cardShadow};
   background-color: white;
 
-  @media (max-width: ${(props) => props.theme.collapse}px) {
+  @media (max-width: ${({ theme }) => theme.collapse}px) {
     align-items: flex-start;
     padding: 1.5rem 1rem;
   }
@@ -61,13 +61,13 @@ const StyledCardItem = styled(Link)`
     & > span {
       font-size: 0.875rem;
       line-height: 1.5;
-      color: ${(props) => props.theme.black700};
+      color: ${({ theme }) => theme.black700};
     }
   }
 `;
 const StyledCard = styled.ul`
-  box-shadow: ${(props) => props.theme.cardShadow};
-  border-radius: ${(props) => props.theme.borderRadius};
+  box-shadow: ${({ theme }) => theme.cardShadow};
+  border-radius: ${({ theme }) => theme.borderRadius};
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -81,8 +81,8 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
-            background-color: ${(props) => props.theme.secondary500};
-            color: ${(props) => props.theme.black1000};
+            background-color: ${({ theme }) => theme.secondary500};
+            color: ${({ theme }) => theme.black1000};
           `}
         >
           <RawFeatherIcon name="calendar" />
@@ -116,8 +116,8 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
-            background-color: ${(props) => props.theme.green500};
-            color: ${(props) => props.theme.white};
+            background-color: ${({ theme }) => theme.green500};
+            color: ${({ theme }) => theme.white};
           `}
         >
           <RawFeatherIcon name="phone" />
@@ -135,8 +135,8 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
-            background-color: ${(props) => props.theme.primary500};
-            color: ${(props) => props.theme.white};
+            background-color: ${({ theme }) => theme.primary500};
+            color: ${({ theme }) => theme.white};
           `}
         >
           <RawFeatherIcon name="user-plus" />
@@ -150,31 +150,12 @@ export const ActionTools = () => {
         </span>
         <RawFeatherIcon aria-hidden="true" name="chevron-right" />
       </StyledCardItem>
-      <StyledCardItem route="referralSearch">
-        <i
-          aria-hidden="true"
-          css={`
-            background-color: ${(props) => props.theme.referralPink};
-            color: ${(props) => props.theme.white};
-          `}
-        >
-          <RawFeatherIcon name="pen-tool" />
-        </i>
-        <span>
-          <strong>Objectif : 500 parrainages</strong>
-          <span>
-            Soyez volontaire pour rencontrer des élu·es et obtenir leur
-            signature.
-          </span>
-        </span>
-        <RawFeatherIcon aria-hidden="true" name="chevron-right" />
-      </StyledCardItem>
       <StyledCardItem route="materiel">
         <i
           aria-hidden="true"
           css={`
-            background-color: ${(props) => props.theme.materielBlue};
-            color: ${(props) => props.theme.white};
+            background-color: ${({ theme }) => theme.materielBlue};
+            color: ${({ theme }) => theme.white};
           `}
         >
           <RawFeatherIcon name="shopping-bag" />
@@ -192,8 +173,8 @@ export const ActionTools = () => {
         <i
           aria-hidden="true"
           css={`
-            background-color: ${(props) => props.theme.votingProxyOrange};
-            color: ${(props) => props.theme.white};
+            background-color: ${({ theme }) => theme.votingProxyOrange};
+            color: ${({ theme }) => theme.white};
           `}
         >
           <RawFeatherIcon name="edit-3" />
