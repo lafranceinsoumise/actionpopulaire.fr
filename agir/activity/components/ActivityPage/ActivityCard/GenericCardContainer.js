@@ -219,7 +219,6 @@ export const GenericCardContainer = (props) => {
 GenericCardContainer.propTypes = {
   id: PropTypes.number,
   status: PropTypes.oneOf(Object.values(ACTIVITY_STATUS)),
-  type: PropTypes.string.isRequired,
   event: PropTypes.object,
   timestamp: PropTypes.string,
   children: PropTypes.node,

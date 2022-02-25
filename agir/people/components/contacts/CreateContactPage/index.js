@@ -28,12 +28,9 @@ const CreateContactPage = () => {
   const step = Math.max(STEPS.indexOf(params?.step), 0);
 
   const { data: session } = useSWR("/api/session/");
-  const { data: userGroups } = useSWR("/api/groupes/");
-
   const user = session ? session?.user : undefined;
-  const groups = userGroups ? userGroups?.groups : undefined;
-  const pageIsReady =
-    typeof user !== "undefined" && typeof groups !== "undefined";
+  const groups = user?.groups || [];
+  const pageIsReady = typeof user !== "undefined";
 
   /**
    * Handles submission of the contact form (1st step) data for validation only

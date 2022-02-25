@@ -60,6 +60,7 @@ __all__ = [
     "GroupSearchAPIView",
     "GroupSubtypesView",
     "UserGroupsView",
+    "UserGroupSuggestionsView",
     "GroupDetailAPIView",
     "NearGroupsAPIView",
     "GroupEventsAPIView",
@@ -148,30 +149,32 @@ class UserGroupsView(ListAPIView):
     permission_classes = (IsPersonPermission,)
     queryset = SupportGroup.objects.active().with_serializer_prefetch()
 
-    def get(self, request, *args, **kwargs):
-        person = request.user.person
-        person_groups = (
-            self.get_queryset()
-            .filter(memberships__person=self.request.user.person)
+    def get_queryset(self):
+        return (
+            self.request.user.person.supportgroups.active()
+            .with_serializer_prefetch()
             .annotate(membership_type=F("memberships__membership_type"))
             .order_by("-membership_type", "name")
         )
-        person_groups = self.get_serializer(person_groups, many=True)
-        group_suggestions = []
 
+
+class UserGroupSuggestionsView(ListAPIView):
+    serializer_class = SupportGroupSerializer
+    permission_classes = (IsPersonPermission,)
+    queryset = SupportGroup.objects.active().with_serializer_prefetch()
+
+    def get_queryset(self):
+        person = self.request.user.person
         if person.coordinates is not None:
-            group_suggestions = (
-                self.get_queryset()
-                .exclude(memberships__person=self.request.user.person)
+            return (
+                self.queryset.exclude(
+                    pk__in=person.supportgroups.values_list("id", flat=True)
+                )
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")[:3]
             )
 
-        group_suggestions = self.get_serializer(group_suggestions, many=True)
-
-        return Response(
-            {"groups": person_groups.data, "suggestions": group_suggestions.data}
-        )
+        return self.queryset.none()
 
 
 class GroupDetailPermissions(GlobalOrObjectPermissions):

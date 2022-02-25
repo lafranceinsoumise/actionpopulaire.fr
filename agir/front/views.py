@@ -133,7 +133,10 @@ class HomepageView(BaseAppCachedView):
 
 
 class UserSupportGroupsView(BaseAppSoftAuthView):
-    api_preloads = [reverse_lazy("api_user_groups")]
+    def get_api_preloads(self):
+        if self.request.user.person.supportgroups.active().exists():
+            return [reverse_lazy("api_user_groups")]
+        return [reverse_lazy("api_user_group_suggestions")]
 
 
 class UserMessagesView(BaseAppHardAuthView):
