@@ -7,6 +7,7 @@ from agir.events.actions.notifications import (
     event_required_document_reminder_notification,
 )
 from agir.events.actions.required_documents import get_project_missing_document_count
+from agir.events.models import Event
 from agir.events.tasks import (
     send_pre_event_required_documents_reminder_email,
     send_post_event_required_documents_reminder_email,
@@ -61,7 +62,8 @@ class Command(BaseCommand):
             yesterday_event_pks = [
                 project.event_id
                 for project in Projet.objects.filter(
-                    event__end_time__date=yesterday.date()
+                    event__visibility=Event.VISIBILITY_PUBLIC,
+                    event__end_time__date=yesterday.date(),
                 )
                 if get_project_missing_document_count(project) > 0
             ]
@@ -75,7 +77,8 @@ class Command(BaseCommand):
             tomorrow_event_pks = [
                 project.event_id
                 for project in Projet.objects.filter(
-                    event__start_time__date=tomorrow.date()
+                    event__visibility=Event.VISIBILITY_PUBLIC,
+                    event__start_time__date=tomorrow.date(),
                 )
                 if get_project_missing_document_count(project) > 0
             ]
