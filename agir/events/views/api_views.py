@@ -164,7 +164,7 @@ class PastRsvpedEventAPIView(EventListAPIView):
                 Q(attendees=person)
                 | Q(organizers=person)
                 | Q(organizers_groups__id__in=managed_groups)
-            )
+            )[:20]
         )
 
 
