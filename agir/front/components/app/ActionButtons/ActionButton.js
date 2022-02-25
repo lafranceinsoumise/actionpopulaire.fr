@@ -32,6 +32,19 @@ const StyledButton = styled(Link)`
     text-decoration: none;
   }
 
+  &[disabled],
+  &[disabled]:hover,
+  &[disabled]:focus {
+    opacity: 0.5;
+    cursor: default;
+    color: ${(props) => props.theme.green500};
+    text-decoration: line-through;
+  }
+
+  & > ${RawFeatherIcon} {
+    background-color: ${(props) => props.$color};
+  }
+
   & > span {
     flex: 0 0 50px;
     width: 50px;
@@ -59,19 +72,16 @@ const StyledButton = styled(Link)`
 `;
 
 const ActionButton = (props) => {
-  const { route, label, icon, color, className } = props;
+  const { route, label, icon, color, className, disabled = false } = props;
   return (
-    <StyledButton className={className} route={route}>
-      {typeof icon === "string" ? (
-        <RawFeatherIcon
-          css={`
-            background-color: ${color};
-          `}
-          name={icon}
-        />
-      ) : (
-        icon
-      )}
+    <StyledButton
+      $color={color}
+      disabled={disabled}
+      onClick={disabled ? (e) => e.preventDefault() : undefined}
+      className={className}
+      route={route}
+    >
+      {typeof icon === "string" ? <RawFeatherIcon name={icon} /> : icon}
       {Array.isArray(label) ? (
         <strong>
           <Hide as="span" title={label[1]} over>
@@ -96,5 +106,6 @@ ActionButton.propTypes = {
   icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   color: PropTypes.string,
   className: PropTypes.string,
+  disabled: PropTypes.bool,
 };
 export default ActionButton;
