@@ -8,39 +8,16 @@ export default {
 };
 
 const Template = (args) => {
-  const {
-    referentName,
-    referentAvatar,
-    referentGender,
-    contactName,
-    contactPhone,
-    contactEmail,
-  } = args;
-  const referents = [
-    { displayName: "Isabelle Guérini", gender: "F" },
-    {
-      displayName: referentName,
-      image: referentAvatar,
-      gender: referentGender,
-    },
-  ];
-  const contact =
-    contactName || contactEmail || contactPhone
-      ? {
-          name: contactName,
-          email: contactEmail,
-          phone: contactPhone,
-        }
-      : null;
-  return <GroupContactCard referents={referents} contact={contact} />;
+  return <GroupContactCard {...args} />;
 };
 
 export const Default = Template.bind({});
 Default.args = {
-  referentName: "Serge Buchet",
-  referentAvatar: "https://www.fillmurray.com/180/180",
-  referentGender: "O",
-  contactName: "Isabelle Guérini",
-  contactEmail: "isabelini@gmail.com",
-  contactPhone: "06 42 23 12 01",
+  contact: {
+    name: "Isabelle Guérini",
+    email: "isabelini@gmail.com",
+    phone: "06 42 23 12 01",
+    hidePhone: false,
+  },
+  editLinkTo: "/edit/",
 };
