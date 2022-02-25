@@ -107,7 +107,7 @@ from agir.groups.tasks import invite_to_group
 class LegacyGroupSearchAPIView(ListAPIView):
     "Vieille API encore utilisée par le composant js groupSelector du formulaire de dons"
 
-    queryset = SupportGroup.objects.active()
+    queryset = SupportGroup.objects.active().prefetch_related("subtypes")
     filter_backends = (DjangoFilterBackend,)
     filterset_class = GroupAPIFilterSet
     serializer_class = SupportGroupLegacySerializer
