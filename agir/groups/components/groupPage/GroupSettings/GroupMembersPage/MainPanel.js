@@ -30,7 +30,7 @@ const FullGroupWarning = () => (
     `}
   >
     <strong>
-      Action requise&nbsp;: votre équipe ne respecte plus la charte des groupes
+      Action requise&nbsp;: votre groupe ne respecte plus la charte des groupes
       d'action.
     </strong>{" "}
     Il est maintenant impossible que de nouvelles personnes la rejoignent.
@@ -40,7 +40,7 @@ const FullGroupWarning = () => (
 );
 
 const GroupMemberMainPanel = (props) => {
-  const { routes, members, group, onClickMember } = props;
+  const { members, group, onClickMember } = props;
 
   const activeMembers = useMemo(() => {
     if (!Array.isArray(members)) {
@@ -108,6 +108,7 @@ const GroupMemberMainPanel = (props) => {
 GroupMemberMainPanel.propTypes = {
   routes: PropTypes.object,
   members: PropTypes.arrayOf(PropTypes.object),
+  group: PropTypes.object,
   onClickMember: PropTypes.func,
 };
 export default GroupMemberMainPanel;
