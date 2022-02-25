@@ -27,7 +27,7 @@ export const RightLink = (props) => {
     ? pathname.slice(pathname.lastIndexOf("/") + 1)
     : undefined;
 
-  const { currentMessage } = useMessageSWR(messagePk);
+  const { currentMessage } = useMessageSWR(messagePk, pathname);
 
   if (isLoading) {
     return <IconLink as={Spacer} size="32px" />;

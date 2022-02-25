@@ -95,9 +95,12 @@ export const useCommentsSWR = (messagePk) => {
   };
 };
 
-export const useMessageSWR = (messagePk) => {
+// nonReactLocation filled from non-React pages, to replace useLocation()
+export const useMessageSWR = (messagePk, nonReactLocation = false) => {
   const dispatch = useDispatch();
-  const { pathname } = useLocation();
+  const pathname = !nonReactLocation
+    ? useLocation().pathname
+    : nonReactLocation;
   const isAutoRefreshPausedRef = useRef(false);
 
   const { data: session } = useSWR(
