@@ -78,6 +78,7 @@ const ActionButton = (props) => {
       $color={color}
       disabled={disabled}
       onClick={disabled ? (e) => e.preventDefault() : undefined}
+      onMouseDown={(e) => e.preventDefault()}
       className={className}
       route={route}
     >
