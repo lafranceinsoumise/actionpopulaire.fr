@@ -40,7 +40,7 @@ const FullGroupWarning = () => (
 );
 
 const GroupMemberMainPanel = (props) => {
-  const { members, group, onClickMember } = props;
+  const { members, group, onClickMember, routes } = props;
 
   const activeMembers = useMemo(() => {
     if (!Array.isArray(members)) {
@@ -90,7 +90,7 @@ const GroupMemberMainPanel = (props) => {
       />
       <Spacer size="2.5rem" />
       <Link
-        route="membershipTransfer"
+        href={routes?.membershipTransfer}
         style={{ display: "flex", alignItems: "flex-start" }}
       >
         <RawFeatherIcon
