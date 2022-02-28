@@ -4,8 +4,18 @@ from django.contrib.gis.admin import OSMGeoAdmin
 from django.forms import ModelForm, CheckboxSelectMultiple
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from nuntius.admin import CampaignAdmin, CampaignSentEventAdmin
-from nuntius.models import Campaign, CampaignSentEvent
+from nuntius.admin import (
+    CampaignAdmin,
+    CampaignSentEventAdmin,
+    PushCampaignAdmin,
+    PushCampaignSentEventAdmin,
+)
+from nuntius.models import (
+    Campaign,
+    CampaignSentEvent,
+    PushCampaign,
+    PushCampaignSentEvent,
+)
 
 from agir.lib.admin.panels import CenterOnFranceMixin
 from agir.mailing.models import Segment
@@ -175,6 +185,6 @@ class NuntiusCampaignAdmin(CampaignAdmin):
         )
 
 
-@admin.register(CampaignSentEvent)
-class NuntiusCampaignSentEventAdmin(CampaignSentEventAdmin):
-    pass
+admin.site.register(CampaignSentEvent, CampaignSentEventAdmin)
+admin.site.register(PushCampaign, PushCampaignAdmin)
+admin.site.register(PushCampaignSentEvent, PushCampaignSentEventAdmin)
