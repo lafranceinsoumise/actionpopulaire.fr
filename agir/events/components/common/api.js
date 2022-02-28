@@ -9,7 +9,6 @@ export const ENDPOINT = {
   rsvpEvent: "/api/evenements/:eventPk/inscription/",
   quitEvent: "/api/evenements/:eventPk/inscription/",
   joinEventAsGroup: "/api/evenements/:eventPk/inscription-groupe/",
-  quitEventAsGroup: "/api/evenements/:eventPk/inscription-groupe/",
 
   eventPropertyOptions: "/api/evenements/options/",
   createEvent: "/api/evenements/creer/",

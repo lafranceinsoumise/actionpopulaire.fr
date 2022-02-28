@@ -6,7 +6,7 @@ from PIL import Image
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
-from agir.events.models import Event, EventSubtype, OrganizerConfig, RSVP
+from agir.events.models import Event, EventSubtype, GroupAttendee, OrganizerConfig, RSVP
 from agir.events.serializers import EventProjectSerializer
 from agir.gestion.models import Projet
 from agir.gestion.typologies import TypeProjet
@@ -497,6 +497,103 @@ class RSVPEventAPITestCase(APITestCase):
                 person=self.person,
             ).exists()
         )
+
+    def test_person_can_rsvp_as_a_group(self):
+        group = SupportGroup.objects.create()
+        event = Event.objects.create(
+            name="Event", start_time=self.start_time, end_time=self.end_time
+        )
+
+        referent = Person.objects.create_person(
+            email="referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=referent,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+
+        self.client.force_login(referent.role)
+
+        res = self.client.post(
+            f"/api/evenements/{event.pk}/inscription-groupe/",
+            data={"groupPk": group.id},
+        )
+        self.assertEqual(res.status_code, 201)
+
+    def test_person_cannot_rsvp_for_group_without_permission(self):
+        group = SupportGroup.objects.create()
+        event = Event.objects.create(
+            name="Event", start_time=self.start_time, end_time=self.end_time
+        )
+        member = Person.objects.create_person(
+            email="member@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+
+        self.client.force_login(member.role)
+
+        res = self.client.post(
+            f"/api/evenements/{event.pk}/inscription-groupe/",
+            data={"groupPk": group.id},
+        )
+        self.assertEqual(res.status_code, 405)
+
+    def test_person_can_quit_event_as_group(self):
+        group = SupportGroup.objects.create()
+        event = Event.objects.create(
+            name="Event", start_time=self.start_time, end_time=self.end_time
+        )
+        referent = Person.objects.create_person(
+            email="referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=referent,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        GroupAttendee.objects.create(group=group, event=event, organizer=referent)
+
+        self.client.force_login(referent.role)
+
+        res = self.client.delete(
+            f"/api/evenements/{event.pk}/inscription/", data={"groupPk": group.id}
+        )
+        self.assertEqual(res.status_code, 204)
+
+    def test_person_cannot_quit_event_as_group_without_permission(self):
+
+        group = SupportGroup.objects.create()
+        event = Event.objects.create(
+            name="Event", start_time=self.start_time, end_time=self.end_time
+        )
+        member = Person.objects.create_person(
+            email="member@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=member,
+            membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        referent = Person.objects.create_person(
+            email="referent@agir.local", create_role=True
+        )
+        Membership.objects.create(
+            supportgroup=group,
+            person=referent,
+            membership_type=Membership.MEMBERSHIP_TYPE_REFERENT,
+        )
+        GroupAttendee.objects.create(group=group, event=event, organizer=referent)
+
+        self.client.force_login(member.role)
+        res = self.client.delete(
+            f"/api/evenements/{event.pk}/inscription/", data={"groupPk": group.id}
+        )
+        self.assertEqual(res.status_code, 405)
 
 
 class QuitEventAPITestCase(APITestCase):

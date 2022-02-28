@@ -128,7 +128,7 @@ const AddGroupAttendee = ({ id, groups }) => {
   return (
     <>
       <Button onClick={showModalJoinAsGroup}>
-        Ajouter un groupe participant
+        Participer avec mon groupe
       </Button>
       <Modal
         shouldShow={isModalOpen}
@@ -147,7 +147,7 @@ const AddGroupAttendee = ({ id, groups }) => {
           <div>
             {!groupJoined ? (
               <>
-                <h2>Ajouter un groupe participant</h2>
+                <h2>Participer avec mon groupe</h2>
                 Ajoutez un groupe dont vous êtes gestionnaire comme participant
                 à l’événement.
                 <Spacer size="0.5rem" />
