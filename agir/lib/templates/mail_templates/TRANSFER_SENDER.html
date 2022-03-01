@@ -177,8 +177,11 @@
                     À la demande de {{ TRANSFERER_NAME }}, les membres suivants ont été transférés à <strong>{{ GROUP_DESTINATION }}</strong>&nbsp;:
                   </p>
                   <p style="Margin: 1em 0px; Margin-bottom: 0px;">
-                    {{ MEMBER_LIST }}
-                    <br>
+                    <ul style="list-style-type: none; margin: 0px; padding: 16px; background:#eeeeee; border-radius:8px;">
+                      {% for MEMBER in MEMBER_LIST %}
+                        <li>&middot;&nbsp;{{ MEMBER }}</li>
+                      {% endfor %}
+                    </ul>
                     <br>
                     Ces derniers ainsi que les animateur·ices de&nbsp;{{ GROUP_DESTINATION }} ont été prévenu·es par e-mail.
                   </p>

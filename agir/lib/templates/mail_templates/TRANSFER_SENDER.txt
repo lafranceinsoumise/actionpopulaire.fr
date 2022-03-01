@@ -3,8 +3,10 @@
   
 À la demande de {{ TRANSFERER_NAME }}, les membres suivants ont été transférés à **{{ GROUP_DESTINATION }}**  :
 
-{{ MEMBER_LIST }}  
-  
+{% for MEMBER in MEMBER_LIST %}
+- {{ MEMBER }}
+{% endfor %}
+
 Ces derniers ainsi que les animateur·ices de {{ GROUP_DESTINATION }} ont été prévenu·es par e-mail.  
   
 Amitiés,
