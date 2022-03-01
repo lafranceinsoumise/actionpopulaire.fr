@@ -10,7 +10,7 @@ import ListUsers from "@agir/msgs/MessagePage/ListUsers";
 import ModalConfirmation from "@agir/front/genericComponents/ModalConfirmation";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 
-import { getGroupEndpoint } from "@agir/groups/api.js";
+import { getGroupEndpoint } from "@agir/groups/utils/api";
 import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 const Description = styled.span`

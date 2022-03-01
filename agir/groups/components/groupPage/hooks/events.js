@@ -4,7 +4,7 @@ import useSWRInfinite from "swr/infinite";
 
 import logger from "@agir/lib/utils/logger";
 
-import * as api from "@agir/groups/api";
+import * as api from "@agir/groups/utils/api";
 
 const log = logger(__filename);
 

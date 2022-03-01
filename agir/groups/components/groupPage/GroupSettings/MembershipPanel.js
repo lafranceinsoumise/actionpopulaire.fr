@@ -12,7 +12,7 @@ import GroupMemberFile from "@agir/groups/groupPage/GroupSettings/GroupMemberFil
 
 import { useToast } from "@agir/front/globalContext/hooks";
 import { useGroup } from "@agir/groups/groupPage/hooks/group";
-import { getGroupEndpoint, updateMember } from "@agir/groups/api";
+import { getGroupEndpoint, updateMember } from "@agir/groups/utils/api";
 
 const slideInTransition = {
   from: { transform: "translateX(66%)" },

@@ -18,7 +18,7 @@ import {
   getGroupEndpoint,
   saveGroupLink,
   deleteGroupLink,
-} from "@agir/groups/api";
+} from "@agir/groups/utils/api";
 import { useToast } from "@agir/front/globalContext/hooks";
 
 const slideInTransition = {

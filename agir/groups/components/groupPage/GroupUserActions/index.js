@@ -12,7 +12,7 @@ import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import QuitGroupDialog from "./QuitGroupDialog";
 import SecondaryActions from "./SecondaryActions";
 
-import * as api from "@agir/groups/api";
+import * as api from "@agir/groups/utils/api";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 import { routeConfig } from "@agir/front/app/routes.config";

@@ -6,7 +6,7 @@ import useSWRInfinite from "swr/infinite";
 import { validate as uuidValidate } from "uuid";
 
 import axios from "@agir/lib/utils/axios";
-import * as groupAPI from "@agir/groups/api";
+import * as groupAPI from "@agir/groups/utils/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { setBackLink } from "@agir/front/globalContext/actions";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";

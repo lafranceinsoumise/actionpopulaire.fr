@@ -16,7 +16,7 @@ import LocationField from "@agir/front/formComponents/LocationField";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
-import { updateGroup, getGroupEndpoint } from "@agir/groups/api";
+import { updateGroup, getGroupEndpoint } from "@agir/groups/utils/api";
 
 const StyledMap = styled(Map)`
   height: 208px;
