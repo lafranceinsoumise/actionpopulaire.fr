@@ -1,6 +1,4 @@
 from django.db.models import Q
-from django.utils.html import format_html_join
-from django.utils.safestring import mark_safe
 
 from agir.activity.models import Activity
 from agir.groups.models import SupportGroup, Membership
@@ -36,9 +34,7 @@ def send_membership_transfer_email_notifications(
         "MANAGE_GROUP_LINK": front_url(
             "view_group_settings_members", args=(target_group_pk,)
         ),
-        "MEMBER_LIST": format_html_join(
-            mark_safe("<br>"), "{}", [p.display_name for p in transferred_people]
-        ),
+        "MEMBER_LIST": [p.display_name for p in transferred_people],
         "MEMBER_COUNT": len(transferred_people_pks),
     }
 
