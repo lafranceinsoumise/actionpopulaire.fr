@@ -43,7 +43,8 @@ const AuthenticatedLogin = ({ user }) => {
   }, [state, search]);
 
   if (next) {
-    return <Redirect to={next} />;
+    window.location = next;
+    return null;
   }
 
   return (
