@@ -194,6 +194,7 @@ urlpatterns = [
     path("deconnexion/", views.LogoutView.as_view(), name="disconnect"),
     path("bienvenue/", views.BaseAppCachedView.as_view(), name="tell_more"),
     path("404/", views.NotFoundView.as_view()),
+    path("500/", views.BaseAppCachedView.as_view()),
     path("offline", views.BaseAppCachedView.as_view(), name="offline"),
     path("sw.js", (views.ServiceWorker.as_view()), name="sw.js"),
     path("sitemap.xml", sitemap_index, {"sitemaps": sitemaps}),
