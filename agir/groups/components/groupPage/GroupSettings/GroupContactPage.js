@@ -14,7 +14,7 @@ import HeaderPanel from "@agir/front/genericComponents/ObjectManagement/HeaderPa
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
-import { updateGroup, getGroupEndpoint } from "@agir/groups/api";
+import { updateGroup, getGroupEndpoint } from "@agir/groups/utils/api";
 
 const GroupContactPage = (props) => {
   const { onBack, illustration, groupPk } = props;

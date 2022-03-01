@@ -1,29 +1,27 @@
 {
-  "parser": "@babel/eslint-parser",
-  "parserOptions": {
-    "sourceType": "module",
-    "ecmaVersion": 2018
-  },
-  "plugins": ["react", "react-hooks", "jest", "prettier"],
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
-    "plugin:jest/recommended",
-    "plugin:prettier/recommended",
-    "prettier",
-    "plugin:storybook/recommended"
-  ],
-  "settings": {
-    "react": {
-      "version": "17.0.2"
-    }
-  },
   "env": {
     "browser": true,
-    "node": true,
     "es6": true
   },
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "prettier"
+  ],
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "plugins": ["react", "prettier", "react-hooks"],
   "rules": {
     "react/no-unescaped-entities": ["error", { "forbid": [">", "}"] }],
     "no-unused-vars": [
@@ -38,9 +36,15 @@
   },
   "overrides": [
     {
-      "files": ["*.stories.js"],
+      "files": ["*.stories.*"],
       "rules": {
         "react/prop-types": "off"
+      }
+    },
+    {
+      "files": ["*.test.js"],
+      "env": {
+        "jest": true
       }
     }
   ]

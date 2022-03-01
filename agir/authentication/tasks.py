@@ -20,12 +20,13 @@ def send_login_email(email, short_code, expiry_time):
     )
     local_expiry_time = timezone.localtime(utc_expiry_time)
 
+    code = interleave_spaces(short_code)
     send_mosaico_email(
         code="LOGIN_MESSAGE",
-        subject="Votre code de connexion",
+        subject=f"Votre code de connexion : {code}",
         from_email=settings.EMAIL_FROM,
         bindings={
-            "code": interleave_spaces(short_code),
+            "code": code,
             "expiry_time": local_expiry_time.strftime("%H:%M"),
         },
         recipients=[email],

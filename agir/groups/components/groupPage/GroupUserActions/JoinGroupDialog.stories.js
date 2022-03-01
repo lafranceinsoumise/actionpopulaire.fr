@@ -15,6 +15,7 @@ const Template = (args) => {
 
 export const Step1 = Template.bind({});
 Step1.args = {
+  id: group.id,
   step: 1,
   isLoading: false,
   personName: "Jane Doe",

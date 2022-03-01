@@ -6,7 +6,7 @@ from django.utils.timezone import now
 from nuntius.models import CampaignSentEvent
 
 from agir.events.models import Event, EventSubtype
-from agir.groups.models import SupportGroup
+from agir.groups.models import SupportGroup, Membership
 from agir.people.actions.subscription import (
     SUBSCRIPTION_TYPE_NSP,
     SUBSCRIPTION_TYPE_AP,
@@ -102,8 +102,24 @@ def get_general_stats(start, end):
         "membres_ga": Person.objects.filter(
             memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
             memberships__supportgroup__published=True,
+            memberships__created__range=(start, end),
         )
-        .filter(memberships__created__range=(start, end))
+        .distinct()
+        .count(),
+        "membres_ga_actifs": Person.objects.filter(
+            memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
+            memberships__supportgroup__published=True,
+            memberships__created__range=(start, end),
+            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        .distinct()
+        .count(),
+        "membres_ga_contacts": Person.objects.filter(
+            memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
+            memberships__supportgroup__published=True,
+            memberships__created__range=(start, end),
+            memberships__membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+        )
         .distinct()
         .count(),
         "liaisons": Person.objects.liaisons(from_date=start, to_date=end).count(),
@@ -152,6 +168,36 @@ def get_instant_stats():
             supportgroups__type=SupportGroup.TYPE_LOCAL_GROUP,
             supportgroups__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
             supportgroups__published=True,
+        )
+        .distinct()
+        .count(),
+        "membres_ga_actifs": Person.objects.filter(
+            memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
+            memberships__supportgroup__published=True,
+            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        .distinct()
+        .count(),
+        "membres_ga_certifies_actifs": Person.objects.filter(
+            memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
+            supportgroups__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
+            memberships__supportgroup__published=True,
+            memberships__membership_type__gte=Membership.MEMBERSHIP_TYPE_MEMBER,
+        )
+        .distinct()
+        .count(),
+        "membres_ga_contacts": Person.objects.filter(
+            memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
+            memberships__supportgroup__published=True,
+            memberships__membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER,
+        )
+        .distinct()
+        .count(),
+        "membres_ga_certifies_contacts": Person.objects.filter(
+            memberships__supportgroup__type=SupportGroup.TYPE_LOCAL_GROUP,
+            memberships__supportgroup__published=True,
+            supportgroups__subtypes__label__in=settings.CERTIFIED_GROUP_SUBTYPES,
+            memberships__membership_type=Membership.MEMBERSHIP_TYPE_FOLLOWER,
         )
         .distinct()
         .count(),

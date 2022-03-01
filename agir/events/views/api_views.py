@@ -169,7 +169,7 @@ class PastRsvpedEventAPIView(EventListAPIView):
                 | Q(organizers_groups__id__in=managed_groups)
                 | Q(groups_attendees__in=supportgroups)
             )
-        )
+        )[:20]
 
 
 class OngoingRsvpedEventsAPIView(EventListAPIView):

@@ -1,4 +1,5 @@
 import { displayShortDate } from "@agir/lib/utils/time";
+import { MEMBERSHIP_TYPES } from "@agir/groups/utils/group";
 
 export const getMessageSubject = (message) => {
   if (message?.subject) {

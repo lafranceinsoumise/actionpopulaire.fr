@@ -277,8 +277,8 @@ const DonationPage = () => {
           }
           group={group && group.isCertified ? group : null}
           hasGroups={
-            Array.isArray(userGroups?.groups) &&
-            userGroups.groups.some((group) => group.isCertified)
+            Array.isArray(userGroups) &&
+            userGroups.some((group) => group.isCertified)
           }
           isLoading={isLoading}
           error={errors?.amount}

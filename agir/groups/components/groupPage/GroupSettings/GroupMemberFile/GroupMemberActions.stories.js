@@ -33,14 +33,17 @@ const Template = (args) => <GroupMemberActions {...args} />;
 
 export const Follower = Template.bind({});
 Follower.args = {
+  isGroupFull: false,
   currentMembershipType: MEMBERSHIP_TYPES.FOLLOWER,
 };
 export const Member = Template.bind({});
 Member.args = {
+  isGroupFull: false,
   currentMembershipType: MEMBERSHIP_TYPES.MEMBER,
 };
 export const Manager = Template.bind({});
 Manager.args = {
+  isGroupFull: false,
   currentMembershipType: MEMBERSHIP_TYPES.MANAGER,
   isReferent: true,
 };

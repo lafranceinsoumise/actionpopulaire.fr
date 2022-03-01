@@ -23,6 +23,7 @@ from django_prometheus.models import ExportModelOperationsMixin
 from dynamic_filenames import FilePattern
 from nuntius.models import AbstractSubscriber
 from phonenumber_field.modelfields import PhoneNumberField
+from push_notifications.models import APNSDevice, GCMDevice
 from stdimage.models import StdImageField
 
 from agir.authentication.models import Role
@@ -720,6 +721,13 @@ class Person(
             "short_location": self.short_location(),
             "full_address": self.html_full_address(),
         }
+
+    def get_subscriber_push_devices(self):
+        apns_devices = list(
+            APNSDevice.objects.filter(user_id=self.role_id, active=True)
+        )
+        gcm_devices = list(GCMDevice.objects.filter(user_id=self.role_id, active=True))
+        return apns_devices + gcm_devices
 
     def ensure_role_exists(self):
         """Crée un compte pour cette personne si aucun n'existe.

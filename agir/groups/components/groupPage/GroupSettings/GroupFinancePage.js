@@ -14,7 +14,7 @@ import SpendingRequests from "./SpendingRequests";
 
 import { StyledTitle } from "@agir/front/genericComponents/ObjectManagement/styledComponents";
 
-import { getGroupEndpoint } from "@agir/groups/api";
+import { getGroupEndpoint } from "@agir/groups/utils/api";
 import { useGroup } from "@agir/groups/groupPage/hooks/group.js";
 
 const DonationSkeleton = styled.p`

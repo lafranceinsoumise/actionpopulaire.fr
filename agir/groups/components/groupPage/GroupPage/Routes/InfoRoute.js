@@ -45,7 +45,10 @@ const MobileInfoRoute = (props) => {
         </>
       ) : null}
 
-      <GroupContactCard {...group} editLinkTo={groupSettingsLinks?.contact} />
+      <GroupContactCard
+        contact={group?.contact}
+        editLinkTo={groupSettingsLinks?.contact}
+      />
       <GroupOrders {...group} />
       <GroupDescription {...group} editLinkTo={groupSettingsLinks?.general} />
       <GroupLinks {...group} editLinkTo={groupSettingsLinks?.links} />

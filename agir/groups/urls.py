@@ -32,6 +32,11 @@ legacy_urlpatterns = [
 api_urlpatterns = [
     path("", views.UserGroupsView.as_view(), name="api_user_groups"),
     path(
+        "suggestions/",
+        views.UserGroupSuggestionsView.as_view(),
+        name="api_user_group_suggestions",
+    ),
+    path(
         "recherche/",
         views.GroupSearchAPIView.as_view(),
         name="api_group_search",
@@ -125,6 +130,11 @@ api_urlpatterns = [
         "messages/notification/<uuid:pk>/",
         views.GroupMessageNotificationStatusAPIView.as_view(),
         name="api_group_message_notification",
+    ),
+    path(
+        "messages/verrouillage/<uuid:pk>/",
+        views.GroupMessageLockedStatusAPIView.as_view(),
+        name="api_group_message_locked",
     ),
     path(
         "<uuid:pk>/membres/",

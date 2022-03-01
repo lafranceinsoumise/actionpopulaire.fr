@@ -478,7 +478,7 @@ class VotingProxyRetrieveUpdateAPITestCase(APITestCase):
             "commune": None,
             "consulate": self.consulate.id,
             "pollingStationNumber": "Polling Office N°25",
-            "status": VotingProxy.STATUS_AVAILABLE,
+            "status": VotingProxy.STATUS_CREATED,
             "votingDates": [str(VotingProxy.VOTING_DATE_CHOICES[0][0])],
             "remarks": "I am vegetarian",
             "dateOfBirth": "1970-01-01",
@@ -542,7 +542,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
                 "person": self.person,
-                "status": VotingProxy.STATUS_AVAILABLE,
+                "status": VotingProxy.STATUS_CREATED,
                 "date_of_birth": "1970-01-01",
             }
         )
@@ -557,7 +557,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
                 "polling_station_number": "123",
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
-                "status": VotingProxy.STATUS_AVAILABLE,
+                "status": VotingProxy.STATUS_CREATED,
                 "date_of_birth": "1970-01-01",
             }
         )
@@ -632,14 +632,18 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
             self.endpoint, {"vpr": str(self.unmatching_request.pk)}
         )
         res = self.client.get(endpoint)
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("requests", res.data)
+        self.assertEqual(len(res.data["requests"]), 0)
 
     def test_cannot_retrieve_accepted_requests(self):
         endpoint = add_query_params_to_url(
             self.endpoint, {"vpr": str(self.accepted_request.pk)}
         )
         res = self.client.get(endpoint)
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("requests", res.data)
+        self.assertEqual(len(res.data["requests"]), 0)
 
     def test_can_retrieve_available_matching_requests(self):
         res = self.client.get(self.endpoint)
@@ -732,7 +736,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
     def test_can_decline_a_request(self):
         self.matching_request.proxy = None
         self.matching_request.status = VotingProxyRequest.STATUS_CREATED
-        self.voting_proxy.status = VotingProxy.STATUS_AVAILABLE
+        self.voting_proxy.status = VotingProxy.STATUS_CREATED
         data = {
             "votingProxyRequests": [str(self.matching_request.pk)],
             "isAvailable": False,
@@ -747,16 +751,10 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
             self.matching_request.status, VotingProxyRequest.STATUS_CREATED
         )
 
-    @patch(
-        "agir.voting_proxies.actions.send_voting_proxy_request_accepted_text_messages.delay"
-    )
-    def test_can_accept_a_request(
-        self, send_voting_proxy_request_accepted_text_messages
-    ):
-        send_voting_proxy_request_accepted_text_messages.assert_not_called()
+    def test_can_accept_a_request(self):
         self.matching_request.proxy = None
         self.matching_request.status = VotingProxyRequest.STATUS_CREATED
-        self.voting_proxy.status = VotingProxy.STATUS_AVAILABLE
+        self.voting_proxy.status = VotingProxy.STATUS_CREATED
         data = {
             "votingProxyRequests": [str(self.matching_request.pk)],
             "isAvailable": True,
@@ -768,7 +766,8 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
         self.assertEqual(
             self.matching_request.status, VotingProxyRequest.STATUS_ACCEPTED
         )
-        send_voting_proxy_request_accepted_text_messages.assert_called_once()
+        self.voting_proxy.refresh_from_db(fields=["status"])
+        self.assertEqual(self.voting_proxy.status, VotingProxy.STATUS_AVAILABLE)
 
 
 class VotingProxyForRequestRetrieveAPITestCase(APITestCase):
@@ -792,7 +791,7 @@ class VotingProxyForRequestRetrieveAPITestCase(APITestCase):
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
                 "person": self.person,
-                "status": VotingProxy.STATUS_AVAILABLE,
+                "status": VotingProxy.STATUS_CREATED,
                 "date_of_birth": "1970-01-01",
             }
         )
@@ -870,7 +869,7 @@ class VotingProxyRequestConfirmAPITestCase(APITestCase):
                 "voting_dates": [VotingProxy.VOTING_DATE_CHOICES[0][0]],
                 "remarks": "R.A.S.",
                 "person": self.person,
-                "status": VotingProxy.STATUS_AVAILABLE,
+                "status": VotingProxy.STATUS_CREATED,
                 "date_of_birth": "1970-01-01",
             }
         )

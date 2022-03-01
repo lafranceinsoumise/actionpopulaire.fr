@@ -15,7 +15,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 
 import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import { useSelectMessage } from "@agir/msgs/common/hooks";
-import * as groupAPI from "@agir/groups/api";
+import * as groupAPI from "@agir/groups/utils/api";
 
 const StyledLink = styled(Link)``;
 const StyledContainer = styled.div`

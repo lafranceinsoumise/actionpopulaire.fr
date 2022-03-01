@@ -18,4 +18,5 @@ export const Default = Template.bind({});
 Default.args = {
   member,
   isReferent: true,
+  isGroupFull: false,
 };

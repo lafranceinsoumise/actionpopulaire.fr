@@ -65,9 +65,8 @@ from .forms import (
     MandatRegionalForm,
 )
 from .views import (
-    ConfirmerParrainageView,
-    AnnulerParrainageView,
     ExporterAccesApplication,
+    ChangerStatutView,
 )
 
 
@@ -974,25 +973,26 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
         if obj:
             statut = obj.get_statut_display()
 
-            links = []
+            buttons = []
 
-            if obj.statut != RechercheParrainage.Statut.VALIDEE and obj.formulaire:
-                links.append(
+            if obj.statut == RechercheParrainage.Statut.VALIDEE:
+                buttons.append(
                     (
-                        reverse(
-                            "admin:elus_rechercheparrainagemaire_confirmer",
-                            args=(obj.id,),
-                        ),
-                        "Confirmer ce parrainage",
+                        RechercheParrainage.Statut.REVENU_SUR_ENGAGEMENT,
+                        "Indiquer que l'élu·e est revenu·e sur son engagement",
+                    )
+                )
+            if obj.statut != RechercheParrainage.Statut.VALIDEE and obj.formulaire:
+                buttons.append(
+                    (
+                        RechercheParrainage.Statut.VALIDEE,
+                        "Indiquer que l'engagement à parrainer est bien reçu",
                     )
                 )
             if obj.statut != RechercheParrainage.Statut.ANNULEE:
-                links.append(
+                buttons.append(
                     (
-                        reverse(
-                            "admin:elus_rechercheparrainagemaire_annuler",
-                            args=(obj.id,),
-                        ),
+                        RechercheParrainage.Statut.ANNULEE,
                         "Annuler ce parrainage",
                     )
                 )
@@ -1000,7 +1000,11 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
             return format_html(
                 "<p>{statut}</p>{liens}",
                 statut=statut,
-                liens=format_html_join("", '<a class="button" href="{}">{}</a>', links),
+                liens=format_html_join(
+                    "",
+                    '<button class="button" type="submit" form="statut_form" name="statut" value="{}">{}</button>',
+                    buttons,
+                ),
             )
 
         return "-"
@@ -1010,18 +1014,11 @@ class RechercheParrainageAdmin(admin.ModelAdmin):
 
         return [
             path(
-                "<path:object_id>/confirmer/",
+                "<path:object_id>/statut/",
                 self.admin_site.admin_view(
-                    ConfirmerParrainageView.as_view(model_admin=self),
+                    ChangerStatutView.as_view(model_admin=self),
                 ),
-                name="elus_rechercheparrainagemaire_confirmer",
-            ),
-            path(
-                "<path:object_id>/annuler/",
-                self.admin_site.admin_view(
-                    AnnulerParrainageView.as_view(model_admin=self),
-                ),
-                name="elus_rechercheparrainagemaire_annuler",
+                name="elus_rechercheparrainage_statut",
             ),
         ] + urls
 

@@ -6,11 +6,13 @@ import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import ButtonMuteMessage from "@agir/front/genericComponents/ButtonMuteMessage";
+import ButtonLockMessage from "@agir/front/genericComponents/ButtonLockMessage";
 
 import { MessageOptions } from "@agir/msgs/MessagePage/MessageThreadMenu.js";
 import { IconLink } from "./StyledBar";
 import UserMenu from "../UserMenu";
 import { routeConfig } from "@agir/front/app/routes.config";
+import { useMessageSWR } from "@agir/msgs/common/hooks";
 
 export const RightLink = (props) => {
   const { isLoading, user, settingsLink } = props;
@@ -24,6 +26,8 @@ export const RightLink = (props) => {
   const messagePk = matchMessagePage
     ? pathname.slice(pathname.lastIndexOf("/") + 1)
     : undefined;
+
+  /* const { currentMessage } = useMessageSWR(messagePk); */
 
   if (isLoading) {
     return <IconLink as={Spacer} size="32px" />;
@@ -41,10 +45,23 @@ export const RightLink = (props) => {
     return <MessageOptions />;
   }
 
+  /*
   // Show muted message settings
   if (matchMessagePage) {
-    return <ButtonMuteMessage message={{ id: messagePk }} />;
+    const isAuthor = currentMessage?.author.id === user.id;
+    const isManager = currentMessage?.group?.isManager;
+
+    return (
+      <>
+        {(isManager || isAuthor) && (
+          <ButtonLockMessage message={{ id: messagePk }} />
+        )}
+        <Spacer size="1rem" style={{ display: "inline-block" }} />
+        <ButtonMuteMessage message={{ id: messagePk }} />
+      </>
+    );
   }
+*/
 
   if (settingsLink) {
     return (

@@ -164,9 +164,19 @@ voting_proxy_patterns = [
         name="new_voting_proxy_request",
     ),
     path(
+        "reponse/",
+        views.VotingProxyRequestView.as_view(),
+        name="voting_proxy_request_details",
+    ),
+    path(
         "prendre-une-procuration/",
         views.VotingProxyView.as_view(),
         name="new_voting_proxy",
+    ),
+    path(
+        "prendre-une-procuration/<uuid:pk>/",
+        views.VotingProxyView.as_view(),
+        name="reply_to_voting_proxy_requests",
     ),
 ]
 

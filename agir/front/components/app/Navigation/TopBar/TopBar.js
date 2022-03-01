@@ -53,7 +53,7 @@ const RouterTopBar = (props) => {
 
   return (
     <>
-      <TopBar path={pathname} />
+      <TopBar path={pathname} hasLayout={route.hasLayout} />
       {isBannerDownload && <Spacer size="80px" />}
     </>
   );

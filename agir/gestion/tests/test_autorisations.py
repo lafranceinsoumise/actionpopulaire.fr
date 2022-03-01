@@ -10,13 +10,13 @@ from .strategies import compte
 
 
 class RuleTestCase(TestCase):
-    @given(person_with_role(), from_model(Compte), printable_text())
+    @given(person_with_role(), compte(), printable_text())
     def test_aucune_autorisation_par_defaut(self, person, compte, perm):
         perm_checker = permission_sur_compte(perm)
         self.assertFalse(perm_checker(person.role))
         self.assertFalse(perm_checker(person.role, obj=compte))
 
-    @given(person_with_role(), from_model(Group), from_model(Compte), printable_text())
+    @given(person_with_role(), from_model(Group), compte(), printable_text())
     def test_possible_ajouter_permission(self, person, group, compte, perm):
         group.user_set.add(person.role)
         Autorisation.objects.create(compte=compte, group=group, autorisations=[perm])
@@ -28,7 +28,7 @@ class RuleTestCase(TestCase):
     @given(
         person_with_role(),
         from_model(Group),
-        from_model(Compte),
+        compte(),
         st.lists(printable_text()),
         printable_text(),
     )

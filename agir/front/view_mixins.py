@@ -172,14 +172,19 @@ class ReactBaseView(TemplateView):
     app_mount_id = "mainApp"
     template_name = "front/react_view.html"
     api_preloads = []
+    page_schema = None
 
     def get_api_preloads(self):
         return self.api_preloads
+
+    def get_page_schema(self):
+        return self.page_schema
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("bundle_name", self.bundle_name)
         kwargs.setdefault("app_mount_id", self.app_mount_id)
         kwargs.setdefault("api_preloads", self.get_api_preloads())
+        kwargs.setdefault("page_schema", self.get_page_schema())
         return super().get_context_data(**kwargs)
 
 

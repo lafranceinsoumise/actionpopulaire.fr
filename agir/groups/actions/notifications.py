@@ -13,7 +13,6 @@ from agir.groups.tasks import (
 )
 from agir.notifications.models import Subscription
 from agir.people.models import Person
-from agir.notifications.models import Subscription
 
 
 @transaction.atomic()
@@ -76,7 +75,7 @@ def someone_joined_notification(membership, membership_count=1):
         and membership_count
         in [
             21,
-            # 30, (Temporarily disabled)
+            30,
         ]
     ):
         transaction.on_commit(

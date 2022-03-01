@@ -63,6 +63,7 @@ __all__ = [
     "GroupSearchAPIView",
     "GroupSubtypesView",
     "UserGroupsView",
+    "UserGroupSuggestionsView",
     "GroupDetailAPIView",
     "NearGroupsAPIView",
     "GroupEventsAPIView",
@@ -72,6 +73,7 @@ __all__ = [
     "GroupEventsJoinedAPIView",
     "GroupMessagesAPIView",
     "GroupMessageNotificationStatusAPIView",
+    "GroupMessageLockedStatusAPIView",
     "GroupMessagesPrivateAPIView",
     "GroupSingleMessageAPIView",
     "GroupMessageCommentsAPIView",
@@ -109,7 +111,7 @@ from agir.groups.tasks import invite_to_group
 class LegacyGroupSearchAPIView(ListAPIView):
     "Vieille API encore utilisée par le composant js groupSelector du formulaire de dons"
 
-    queryset = SupportGroup.objects.active()
+    queryset = SupportGroup.objects.active().prefetch_related("subtypes")
     filter_backends = (DjangoFilterBackend,)
     filterset_class = GroupAPIFilterSet
     serializer_class = SupportGroupLegacySerializer
@@ -151,30 +153,32 @@ class UserGroupsView(ListAPIView):
     permission_classes = (IsPersonPermission,)
     queryset = SupportGroup.objects.active().with_serializer_prefetch()
 
-    def get(self, request, *args, **kwargs):
-        person = request.user.person
-        person_groups = (
-            self.get_queryset()
-            .filter(memberships__person=self.request.user.person)
+    def get_queryset(self):
+        return (
+            self.request.user.person.supportgroups.active()
+            .with_serializer_prefetch()
             .annotate(membership_type=F("memberships__membership_type"))
             .order_by("-membership_type", "name")
         )
-        person_groups = self.get_serializer(person_groups, many=True)
-        group_suggestions = []
 
+
+class UserGroupSuggestionsView(ListAPIView):
+    serializer_class = SupportGroupSerializer
+    permission_classes = (IsPersonPermission,)
+    queryset = SupportGroup.objects.active().with_serializer_prefetch()
+
+    def get_queryset(self):
+        person = self.request.user.person
         if person.coordinates is not None:
-            group_suggestions = (
-                self.get_queryset()
-                .exclude(memberships__person=self.request.user.person)
+            return (
+                self.queryset.exclude(
+                    pk__in=person.supportgroups.values_list("id", flat=True)
+                )
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")[:3]
             )
 
-        group_suggestions = self.get_serializer(group_suggestions, many=True)
-
-        return Response(
-            {"groups": person_groups.data, "suggestions": group_suggestions.data}
-        )
+        return self.queryset.none()
 
 
 class GroupDetailPermissions(GlobalOrObjectPermissions):
@@ -422,6 +426,14 @@ class GroupMessagesNotificationPermissions(GlobalOrObjectPermissions):
     }
 
 
+class GroupMessagesLockPermissions(GlobalOrObjectPermissions):
+    perms_map = {"GET": [], "PUT": []}
+    object_perms_map = {
+        "GET": ["msgs.view_supportgroupmessage"],
+        "PUT": ["msgs.delete_supportgroupmessage"],
+    }
+
+
 class GroupMessagesAPIView(ListCreateAPIView):
     serializer_class = SupportGroupMessageSerializer
     permission_classes = (
@@ -511,6 +523,30 @@ class GroupMessageNotificationStatusAPIView(RetrieveUpdateAPIView):
             message.recipient_mutedlist.remove(person)
 
         return Response(is_muted)
+
+
+# Get or set message locked
+class GroupMessageLockedStatusAPIView(RetrieveUpdateAPIView):
+    permission_classes = (
+        IsPersonPermission,
+        GroupMessagesLockPermissions,
+    )
+    queryset = SupportGroupMessage.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        message = self.get_object()
+        return Response(message.is_locked)
+
+    def update(self, request, *args, **kwargs):
+        message = self.get_object()
+        is_locked = request.data.get("isLocked", None)
+
+        if not isinstance(is_locked, bool):
+            raise ValidationError({"isLocked": "Ce champ est obligatoire"})
+
+        message.is_locked = is_locked
+        message.save()
+        return Response(message.is_locked)
 
 
 @method_decorator(never_cache, name="get")

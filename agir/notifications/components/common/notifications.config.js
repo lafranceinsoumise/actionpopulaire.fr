@@ -349,10 +349,10 @@ const getNewsletterNotifications = (user) => {
   );
 };
 
-export const getAllNotifications = (groups = [], user) => [
+export const getAllNotifications = (user) => [
   ...getNewsletterNotifications(user),
   ...PERSON_NOTIFICATIONS,
-  ...getGroupNotifications(groups),
+  ...getGroupNotifications(user?.groups),
 ];
 
 export const getNewsletterStatus = (newsletters) => {
