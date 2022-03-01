@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
+import { Redirect, useLocation } from "react-router-dom";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 
@@ -31,6 +32,20 @@ const StyledWrapper = styled.main`
 `;
 
 const AuthenticatedLogin = ({ user }) => {
+  const { state, search } = useLocation();
+
+  const next = useMemo(() => {
+    if (state?.next) {
+      return state.next;
+    } else if (search) {
+      return new URLSearchParams(search).get("next");
+    }
+  }, [state, search]);
+
+  if (next) {
+    return <Redirect to={next} />;
+  }
+
   return (
     <>
       <TopBar />
