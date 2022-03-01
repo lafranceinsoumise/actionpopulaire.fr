@@ -129,6 +129,7 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         "location",
         "groups",
         "subtype",
+        "groupsAttendees",
     ]
 
     id = serializers.UUIDField()

@@ -157,6 +157,7 @@ class PastRsvpedEventAPIView(EventListAPIView):
         managed_groups = person.memberships.filter(
             membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER
         ).values_list("supportgroup_id", flat=True)
+        supportgroups = person.supportgroups.all()
 
         return (
             Event.objects.with_serializer_prefetch(person)
@@ -166,6 +167,7 @@ class PastRsvpedEventAPIView(EventListAPIView):
                 Q(attendees=person)
                 | Q(organizers=person)
                 | Q(organizers_groups__id__in=managed_groups)
+                | Q(groups_attendees__in=supportgroups)
             )
         )
 
@@ -174,12 +176,17 @@ class OngoingRsvpedEventsAPIView(EventListAPIView):
     def get_queryset(self):
         now = timezone.now()
         person = self.request.user.person
+        supportgroups = person.supportgroups.all()
 
         return (
             Event.objects.public()
             .with_serializer_prefetch(person)
             .upcoming()
-            .filter(Q(attendees=person) | Q(organizers=person))
+            .filter(
+                Q(attendees=person)
+                | Q(organizers=person)
+                | Q(groups_attendees__in=supportgroups)
+            )
             .filter(start_time__lte=now, end_time__gte=now)
             .distinct()
             .order_by("start_time")

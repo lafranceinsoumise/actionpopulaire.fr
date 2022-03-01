@@ -127,9 +127,7 @@ const AddGroupAttendee = ({ id, groups }) => {
 
   return (
     <>
-      <Button onClick={showModalJoinAsGroup}>
-        Participer avec mon groupe
-      </Button>
+      <Button onClick={showModalJoinAsGroup}>Participer avec mon groupe</Button>
       <Modal
         shouldShow={isModalOpen}
         isOpen={isModalOpen}

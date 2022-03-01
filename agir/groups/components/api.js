@@ -14,6 +14,8 @@ export const ENDPOINT = {
     "/api/groupes/:groupPk/evenements/passes/?page=:page&page_size=:pageSize",
   getPastEventReports: "/api/groupes/:groupPk/evenements/compte-rendus/",
 
+  getEventsJoinedByGroup: "/api/groupes/:groupPk/evenements-rejoints/",
+
   getMessages: "/api/groupes/:groupPk/messages/?page=:page&page_size=:pageSize",
   getMessage: "/api/groupes/messages/:messagePk/",
 

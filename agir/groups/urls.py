@@ -82,6 +82,11 @@ api_urlpatterns = [
         name="api_group_upcoming_events_view",
     ),
     path(
+        "<uuid:pk>/evenements-rejoints/",
+        views.GroupEventsJoinedAPIView.as_view(),
+        name="api_group_joined_events_view",
+    ),
+    path(
         "<uuid:pk>/evenements/compte-rendus/",
         views.GroupPastEventReportsAPIView.as_view(),
         name="api_group_past_event_reports_view",

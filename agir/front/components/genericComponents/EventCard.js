@@ -2,6 +2,7 @@ import { DateTime, Interval } from "luxon";
 import PropTypes from "prop-types";
 import React, { useRef } from "react";
 import styled from "styled-components";
+import style from "@agir/front/genericComponents/_variables.scss";
 
 import { displayIntervalStart, displayIntervalEnd } from "@agir/lib/utils/time";
 
@@ -12,6 +13,8 @@ import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 
 import eventCardDefaultBackground from "@agir/front/genericComponents/images/event-card-default-bg.svg";
+import { useSelector } from "@agir/front/globalContext/GlobalContext";
+import { getUser } from "@agir/front/globalContext/reducers";
 
 const StyledLink = styled(Link)``;
 const Illustration = styled.div`
@@ -68,11 +71,20 @@ const Illustration = styled.div`
   }
 `;
 
+const StyledContainer = styled.div`
+  @media (min-width: ${(props) => props.theme.collapse}px) {
+    display: flex;
+    flex-direction: row;
+  }
+`;
+
 const StyledCard = styled(Card)`
   border-radius: ${(props) => props.theme.borderRadius};
   width: 100%;
   overflow: hidden;
   padding: 0;
+  display: flex;
+  flex-direction: column;
 
   @media (min-width: ${(props) => props.theme.collapse}px) {
     display: flex;
@@ -142,6 +154,14 @@ const StyledCard = styled(Card)`
   }
 `;
 
+const StyledGroupsAttendees = styled.div`
+  padding: 10px;
+  background-color: ${style.primary50};
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
 const EventCardIllustration = (props) => {
   const { image, coordinates, subtype, staticMapUrl } = props;
 
@@ -193,7 +213,16 @@ EventCardIllustration.propTypes = {
 };
 
 const EventCard = (props) => {
-  const { id, illustration, schedule, location, subtype, name, groups } = props;
+  const {
+    id,
+    illustration,
+    schedule,
+    location,
+    subtype,
+    name,
+    groups,
+    groupsAttendees,
+  } = props;
 
   const now = DateTime.local();
   const pending = now >= schedule.start && now <= schedule.end;
@@ -207,38 +236,78 @@ const EventCard = (props) => {
     linkRef.current && linkRef.current.click();
   }, []);
 
+  const user = useSelector(getUser);
+
+  const fromUserGroups = user?.groups.reduce((arr, elt) => {
+    if (groupsAttendees.some((group) => group.id === elt.id)) {
+      return [...arr, elt];
+    }
+    return arr;
+  }, []);
+
   return (
     <StyledCard onClick={handleClick} $isPast={isPast}>
-      <EventCardIllustration
-        image={illustration?.thumbnail}
-        subtype={subtype}
-        coordinates={location?.coordinates?.coordinates}
-        staticMapUrl={location?.staticMapUrl}
-      />
-      <main>
-        <h4>
-          {`${eventDate}
-            ${
-              location && location.shortLocation
-                ? " • " + location.shortLocation
-                : ""
-            }`.trim()}
-        </h4>
-        <StyledLink
-          ref={linkRef}
-          route="eventDetails"
-          routeParams={{ eventPk: id }}
-        >
-          {name}
-        </StyledLink>
-        {Array.isArray(groups) && groups.length > 0 ? (
-          <p>
-            <RawFeatherIcon widht="1rem" height="1rem" name="users" />
-            &nbsp;
-            {groups.map((group) => group.name).join(", ")}
-          </p>
-        ) : null}
-      </main>
+      {!!groupsAttendees?.length && (
+        <StyledGroupsAttendees>
+          <RawFeatherIcon
+            name="users"
+            width="1rem"
+            height="1rem"
+            style={{ marginRight: "0.5rem" }}
+          />
+          {fromUserGroups.length ? (
+            <>
+              Votre groupe&nbsp;<b>{fromUserGroups[0].name}</b>
+            </>
+          ) : (
+            <>
+              Le groupe&nbsp;<b>{groupsAttendees[0].name}</b>
+            </>
+          )}
+          &nbsp;
+          {groupsAttendees.length > 1 ? (
+            <>
+              et {groupsAttendees.length - 1} autres groupes&nbsp;
+              {isPast ? "y ont participé" : "y participent"}
+            </>
+          ) : (
+            <> {isPast ? "y a participé" : "y participe"}</>
+          )}
+        </StyledGroupsAttendees>
+      )}
+
+      <StyledContainer>
+        <EventCardIllustration
+          image={illustration?.thumbnail}
+          subtype={subtype}
+          coordinates={location?.coordinates?.coordinates}
+          staticMapUrl={location?.staticMapUrl}
+        />
+        <main>
+          <h4>
+            {`${eventDate}
+              ${
+                location && location.shortLocation
+                  ? " • " + location.shortLocation
+                  : ""
+              }`.trim()}
+          </h4>
+          <StyledLink
+            ref={linkRef}
+            route="eventDetails"
+            routeParams={{ eventPk: id }}
+          >
+            {name}
+          </StyledLink>
+          {Array.isArray(groups) && groups.length > 0 ? (
+            <p>
+              <RawFeatherIcon widht="1rem" height="1rem" name="users" />
+              &nbsp;
+              {groups.map((group) => group.name).join(", ")}
+            </p>
+          ) : null}
+        </main>
+      </StyledContainer>
     </StyledCard>
   );
 };
@@ -260,6 +329,12 @@ EventCard.propTypes = {
     staticMapUrl: PropTypes.string,
   }),
   groups: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+    })
+  ),
+  groupsAttendees: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
       name: PropTypes.string,

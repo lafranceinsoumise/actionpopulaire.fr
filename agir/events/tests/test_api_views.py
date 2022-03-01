@@ -514,7 +514,6 @@ class RSVPEventAPITestCase(APITestCase):
         )
 
         self.client.force_login(referent.role)
-
         res = self.client.post(
             f"/api/evenements/{event.pk}/inscription-groupe/",
             data={"groupPk": group.id},
@@ -536,7 +535,6 @@ class RSVPEventAPITestCase(APITestCase):
         )
 
         self.client.force_login(member.role)
-
         res = self.client.post(
             f"/api/evenements/{event.pk}/inscription-groupe/",
             data={"groupPk": group.id},
@@ -559,14 +557,12 @@ class RSVPEventAPITestCase(APITestCase):
         GroupAttendee.objects.create(group=group, event=event, organizer=referent)
 
         self.client.force_login(referent.role)
-
         res = self.client.delete(
             f"/api/evenements/{event.pk}/inscription/", data={"groupPk": group.id}
         )
         self.assertEqual(res.status_code, 204)
 
     def test_person_cannot_quit_event_as_group_without_permission(self):
-
         group = SupportGroup.objects.create()
         event = Event.objects.create(
             name="Event", start_time=self.start_time, end_time=self.end_time
