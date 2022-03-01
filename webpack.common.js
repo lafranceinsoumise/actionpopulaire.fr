@@ -108,6 +108,11 @@ const getAppEntryFiles = (compilation) => {
     .chunks.map((c) => Array.from(c.files))
     .flat();
 
+  _cachedAppEntryFiles = [
+    ..._cachedAppEntryFiles,
+    ..._cachedAppEntryFiles.map((file) => file.replace(".mjs", ".mjs.map")),
+  ];
+
   return _cachedAppEntryFiles;
 };
 
@@ -139,6 +144,17 @@ const getOtherEntryFiles = (compilation) => {
         .flat()
     )
     .flat();
+
+  _cachedOtherEntryFiles = [
+    ..._cachedOtherEntryFiles,
+    ..._cachedOtherEntryFiles.map((file) =>
+      file.replace(".mjs", ".mjs.map").replace(".css", ".css.map")
+    ),
+  ];
+
+  _cachedOtherEntryFiles = _cachedOtherEntryFiles.filter(
+    (file) => !getAppEntryFiles(compilation).includes(file)
+  );
 
   return _cachedOtherEntryFiles;
 };
@@ -259,21 +275,13 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
           ),
           swDest: "service-worker.js",
           maximumFileSizeToCacheInBytes: 7000000,
-          include: [
-            ({ asset, compilation }) => {
-              const mainAppEntryFiles = getAppEntryFiles(compilation);
-              const otherEntryFiles = getOtherEntryFiles(compilation);
-
-              return (
-                mainAppEntryFiles.includes(asset.name) ||
-                !(
-                  otherEntryFiles.includes(asset.name) ||
-                  [/front\/skins/, /\.html$/, /\.LICENSE.txt/].some(
-                    (excluded) => excluded.test(asset.name)
-                  )
-                )
-              );
-            },
+          mode: "production",
+          exclude: [
+            new RegExp("skins\\" + path.sep),
+            /\.html$/,
+            /\.LICENSE.txt$/,
+            ({ asset, compilation }) =>
+              getOtherEntryFiles(compilation).includes(asset.name),
           ],
         })
       : null,
