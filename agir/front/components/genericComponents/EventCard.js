@@ -212,6 +212,61 @@ EventCardIllustration.propTypes = {
   staticMapUrl: PropTypes.string,
 };
 
+const EventGroupsAttendees = ({ groupsAttendees, isPast }) => {
+  const user = useSelector(getUser);
+
+  const fromUserGroups =
+    user?.groups.reduce((arr, elt) => {
+      if (groupsAttendees.some((group) => group.id === elt.id)) {
+        return [...arr, elt];
+      }
+      return arr;
+    }, []) || [];
+
+  if (!groupsAttendees.length) {
+    return <></>;
+  }
+
+  return (
+    <StyledGroupsAttendees>
+      <RawFeatherIcon
+        name="users"
+        width="1rem"
+        height="1rem"
+        style={{ marginRight: "0.5rem" }}
+      />
+      {fromUserGroups.length ? (
+        <>
+          Votre groupe&nbsp;<b>{fromUserGroups[0].name}</b>
+        </>
+      ) : (
+        <>
+          Le groupe&nbsp;<b>{groupsAttendees[0].name}</b>
+        </>
+      )}
+      &nbsp;
+      {groupsAttendees.length > 1 ? (
+        <>
+          et {groupsAttendees.length - 1} autres groupes&nbsp;
+          {isPast ? "y ont participé" : "y participent"}
+        </>
+      ) : (
+        <> {isPast ? "y a participé" : "y participe"}</>
+      )}
+    </StyledGroupsAttendees>
+  );
+};
+EventGroupsAttendees.propTypes = {
+  groupsAttendees: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      isManager: PropTypes.bool,
+    })
+  ),
+  isPast: PropTypes.bool,
+};
+
 const EventCard = (props) => {
   const {
     id,
@@ -236,46 +291,9 @@ const EventCard = (props) => {
     linkRef.current && linkRef.current.click();
   }, []);
 
-  const user = useSelector(getUser);
-
-  const fromUserGroups = user?.groups.reduce((arr, elt) => {
-    if (groupsAttendees.some((group) => group.id === elt.id)) {
-      return [...arr, elt];
-    }
-    return arr;
-  }, []);
-
   return (
     <StyledCard onClick={handleClick} $isPast={isPast}>
-      {!!groupsAttendees?.length && (
-        <StyledGroupsAttendees>
-          <RawFeatherIcon
-            name="users"
-            width="1rem"
-            height="1rem"
-            style={{ marginRight: "0.5rem" }}
-          />
-          {fromUserGroups.length ? (
-            <>
-              Votre groupe&nbsp;<b>{fromUserGroups[0].name}</b>
-            </>
-          ) : (
-            <>
-              Le groupe&nbsp;<b>{groupsAttendees[0].name}</b>
-            </>
-          )}
-          &nbsp;
-          {groupsAttendees.length > 1 ? (
-            <>
-              et {groupsAttendees.length - 1} autres groupes&nbsp;
-              {isPast ? "y ont participé" : "y participent"}
-            </>
-          ) : (
-            <> {isPast ? "y a participé" : "y participe"}</>
-          )}
-        </StyledGroupsAttendees>
-      )}
-
+      <EventGroupsAttendees groupsAttendees={groupsAttendees} isPast={isPast} />
       <StyledContainer>
         <EventCardIllustration
           image={illustration?.thumbnail}
