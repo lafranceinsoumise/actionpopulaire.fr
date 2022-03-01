@@ -49,7 +49,7 @@ CHANGE_DESCRIPTION = OrderedDict(
 )  # encodes the preferred order when showing the messages
 
 GROUP_MEMBERSHIP_LIMIT_NOTIFICATION_STEPS = [
-    0,  # 30 members
+    # 0,  # 30 members (disabled until further notice)
     -4,  # 26 members
     -9,  # 21 members
     -14,  # 16 members
