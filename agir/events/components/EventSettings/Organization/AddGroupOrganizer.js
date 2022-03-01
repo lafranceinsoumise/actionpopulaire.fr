@@ -5,7 +5,7 @@ import { mutate } from "swr";
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
 import * as api from "@agir/events/common/api";
-import * as apiGroup from "@agir/groups/api";
+import * as apiGroup from "@agir/groups/utils/api";
 
 import Spacer from "@agir/front/genericComponents/Spacer.js";
 

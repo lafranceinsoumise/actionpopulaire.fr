@@ -2,7 +2,7 @@ import useSWR from "swr";
 
 import logger from "@agir/lib/utils/logger";
 
-import * as api from "@agir/groups/api";
+import * as api from "@agir/groups/utils/api";
 import { useIsOffline } from "@agir/front/offline/hooks";
 
 const log = logger(__filename);
