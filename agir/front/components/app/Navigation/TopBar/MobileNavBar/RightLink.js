@@ -13,18 +13,19 @@ import { IconLink } from "./StyledBar";
 import UserMenu from "../UserMenu";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { useMessageSWR } from "@agir/msgs/common/hooks";
+import { useCurrentLocation } from "@agir/front/app/utils.js";
 
 export const RightLink = (props) => {
   const { isLoading, user, settingsLink } = props;
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
-  let pathname = window.location.pathname;
+  const pathname = useCurrentLocation();
   const matchMessagesPage = pathname === "/messages/";
   const matchMessagePage =
     routeConfig.messages.match(pathname) && !matchMessagesPage;
-  pathname = pathname.slice(0, pathname.length - 1);
+  const cleanPathname = pathname.slice(0, pathname.length - 1);
   const messagePk = matchMessagePage
-    ? pathname.slice(pathname.lastIndexOf("/") + 1)
+    ? cleanPathname.slice(cleanPathname.lastIndexOf("/") + 1)
     : undefined;
 
   /* const { currentMessage } = useMessageSWR(messagePk); */
