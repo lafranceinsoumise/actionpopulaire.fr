@@ -215,7 +215,6 @@ class DepenseReglementInline(admin.TabularInline):
     )
 
     readonly_fields = (
-        "intitule",
         "statut",
         "mode",
         "preuve_link",
