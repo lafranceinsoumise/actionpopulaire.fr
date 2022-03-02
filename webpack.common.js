@@ -108,11 +108,6 @@ const getAppEntryFiles = (compilation) => {
     .chunks.map((c) => Array.from(c.files))
     .flat();
 
-  _cachedAppEntryFiles = [
-    ..._cachedAppEntryFiles,
-    ..._cachedAppEntryFiles.map((file) => file.replace(".mjs", ".mjs.map")),
-  ];
-
   return _cachedAppEntryFiles;
 };
 
@@ -144,13 +139,6 @@ const getOtherEntryFiles = (compilation) => {
         .flat()
     )
     .flat();
-
-  _cachedOtherEntryFiles = [
-    ..._cachedOtherEntryFiles,
-    ..._cachedOtherEntryFiles.map((file) =>
-      file.replace(".mjs", ".mjs.map").replace(".css", ".css.map")
-    ),
-  ];
 
   _cachedOtherEntryFiles = _cachedOtherEntryFiles.filter(
     (file) => !getAppEntryFiles(compilation).includes(file)
@@ -280,6 +268,8 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
             new RegExp("skins\\" + path.sep),
             /\.html$/,
             /\.LICENSE.txt$/,
+            /\.mjs.map/,
+            /\.css.map/,
             ({ asset, compilation }) =>
               getOtherEntryFiles(compilation).includes(asset.name),
           ],
