@@ -122,7 +122,6 @@ const PERSON_NOTIFICATIONS = [
     hasPush: true,
     activityTypes: [],
   },
-
   {
     id: "event_suggestions",
     type: "Événements",
@@ -172,6 +171,16 @@ const PERSON_NOTIFICATIONS = [
     hasEmail: true,
     hasPush: true,
     activityTypes: ["new-attendee"],
+  },
+  {
+    id: "event_group_attendee_notifications",
+    type: "Événements",
+    icon: "calendar",
+    subtype: "Événements que j'organise",
+    label: "Nouveaux groupes participants",
+    hasEmail: false,
+    hasPush: true,
+    activityTypes: ["new-group-attendee"],
   },
   {
     id: "event_task_reminders",

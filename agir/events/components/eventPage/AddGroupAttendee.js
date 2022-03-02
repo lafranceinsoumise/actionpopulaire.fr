@@ -15,10 +15,9 @@ import { mutate } from "swr";
 
 const ModalContent = styled.div`
   background: white;
+  width: 50%;
   max-width: 500px;
   padding: 10px 20px;
-  height: 50%;
-  width: 50%;
   overflow: auto;
   margin: 5% auto;
   display: flex;
@@ -28,6 +27,11 @@ const ModalContent = styled.div`
   h2 {
     font-size: 18px;
     margin-top: 0;
+  }
+
+  @media (max-width: ${style.collapse}px) {
+    height: max-content;
+    max-height: 50%;
   }
 
   @media (max-width: ${style.collapse}px) {
@@ -116,9 +120,9 @@ const AddGroupAttendee = ({ id, groups }) => {
   };
 
   const closeModalJoin = () => {
-    setGroupJoined(false);
     setIsModalOpen(false);
     setErrors({});
+    setGroupJoined(false);
   };
 
   if (!managingGroups?.length) {

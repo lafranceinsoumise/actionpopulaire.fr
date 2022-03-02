@@ -42,12 +42,14 @@ class Subscription(UUIDIdentified, TimeStampedModel):
         Activity.TYPE_EVENT_SUGGESTION,
         Activity.TYPE_EVENT_UPDATE,
         Activity.TYPE_NEW_ATTENDEE,
+        Activity.TYPE_NEW_GROUP_ATTENDEE,
         Activity.TYPE_WAITING_LOCATION_EVENT,
     ]
     DEFAULT_PERSON_PUSH_TYPES = [
         Activity.TYPE_EVENT_SUGGESTION,
         Activity.TYPE_EVENT_UPDATE,
         Activity.TYPE_NEW_ATTENDEE,
+        Activity.TYPE_NEW_GROUP_ATTENDEE,
         Activity.TYPE_WAITING_LOCATION_EVENT,
         Activity.TYPE_REMINDER_DOCS_EVENT_EVE,
         Activity.TYPE_REMINDER_DOCS_EVENT_NEXTDAY,

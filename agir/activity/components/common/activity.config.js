@@ -1,5 +1,4 @@
 import { routeConfig } from "@agir/front/app/routes.config";
-import { addQueryStringParams } from "@agir/lib/utils/url";
 
 const ACTIVITY_CONFIG = {
   announcement: {
@@ -22,6 +21,9 @@ const ACTIVITY_CONFIG = {
   },
   "new-attendee": {
     icon: "user-plus",
+  },
+  "new-group-attendee": {
+    icon: "users",
   },
   "event-update": {
     icon: "info",

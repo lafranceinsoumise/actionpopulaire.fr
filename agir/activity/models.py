@@ -33,6 +33,7 @@ class Activity(TimeStampedModel):
 
     # PERSON/EVENT TYPES
     TYPE_NEW_ATTENDEE = "new-attendee"
+    TYPE_NEW_GROUP_ATTENDEE = "new-group-attendee"
     TYPE_EVENT_UPDATE = "event-update"
     TYPE_CANCELLED_EVENT = "cancelled-event"
     TYPE_WAITING_LOCATION_EVENT = "waiting-location-event"
@@ -77,6 +78,7 @@ class Activity(TimeStampedModel):
         TYPE_GROUP_MEMBERSHIP_LIMIT_REMINDER,
         TYPE_GROUP_INFO_UPDATE,
         TYPE_NEW_ATTENDEE,
+        TYPE_NEW_GROUP_ATTENDEE,
         TYPE_EVENT_UPDATE,
         TYPE_NEW_EVENT_MYGROUPS,
         TYPE_NEW_REPORT,
@@ -146,6 +148,7 @@ class Activity(TimeStampedModel):
         (TYPE_GROUP_INFO_UPDATE, "Mise à jour des informations du groupe"),
         (TYPE_ACCEPTED_INVITATION_MEMBER, "Invitation à rejoindre un groupe acceptée"),
         (TYPE_NEW_ATTENDEE, "Un nouveau participant à votre événement"),
+        (TYPE_NEW_GROUP_ATTENDEE, "Un nouveau groupe participant à votre événement"),
         (TYPE_EVENT_UPDATE, "Mise à jour d'un événement"),
         (TYPE_NEW_EVENT_MYGROUPS, "Votre groupe organise un événement"),
         (TYPE_NEW_REPORT, "Nouveau compte-rendu d'événement"),

@@ -20,7 +20,7 @@ from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url, is_absolute_url
 from agir.people.models import Person
-from .models import Event, RSVP, Invitation, OrganizerConfig
+from .models import Event, RSVP, GroupAttendee, Invitation, OrganizerConfig
 from ..activity.models import Activity
 from ..notifications.models import Subscription
 
@@ -233,13 +233,50 @@ def send_rsvp_notification(rsvp_pk):
             bindings=organizer_bindings,
         )
 
-    for r in recipients:
+    recipients_allowed_push = [
+        s.person
+        for s in Subscription.objects.prefetch_related("person__emails").filter(
+            person__in=recipients,
+            type=Subscription.SUBSCRIPTION_PUSH,
+            activity_type=Activity.TYPE_NEW_ATTENDEE,
+        )
+    ]
+
+    for r in recipients_allowed_push:
         # can merge activity with previous one if not displayed yet
         Activity.objects.create(
             recipient=r,
             type=Activity.TYPE_NEW_ATTENDEE,
             event=rsvp.event,
             individual=rsvp.person,
+        )
+
+
+@post_save_task
+def send_group_attendee_notification(group_attendee_pk):
+    group_attendee = GroupAttendee.objects.get(pk=group_attendee_pk)
+
+    recipients = [
+        organizer_config.person
+        for organizer_config in group_attendee.event.organizer_configs.all()
+        if organizer_config.person != group_attendee.organizer
+    ]
+
+    recipients_allowed_push = [
+        s.person
+        for s in Subscription.objects.prefetch_related("person__emails").filter(
+            person__in=recipients,
+            type=Subscription.SUBSCRIPTION_PUSH,
+            activity_type=Activity.TYPE_NEW_GROUP_ATTENDEE,
+        )
+    ]
+
+    for r in recipients_allowed_push:
+        Activity.objects.create(
+            recipient=r,
+            type=Activity.TYPE_NEW_GROUP_ATTENDEE,
+            event=group_attendee.event,
+            supportgroup=group_attendee.group,
         )
 
 

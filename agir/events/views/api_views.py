@@ -84,6 +84,7 @@ from agir.lib.tasks import geocode_person
 from ..tasks import (
     send_cancellation_notification,
     send_group_coorganization_invitation_notification,
+    send_group_attendee_notification,
 )
 
 
@@ -580,9 +581,10 @@ class RSVPEventAsGroupAPIView(CreateAPIView):
                 code="invalid_format",
             )
 
-        GroupAttendee.objects.create(
+        group_attendee = GroupAttendee.objects.create(
             event=self.object, group=group, organizer=self.request.user.person
         )
+        send_group_attendee_notification.delay(group_attendee.pk)
         return Response(status=status.HTTP_201_CREATED)
 
 
