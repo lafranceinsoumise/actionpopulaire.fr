@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import React from "react";
 import { ErrorBoundary as SentryErrorBoundary } from "@sentry/react";
 
+import ErrorPage from "@agir/front/errorPage/ErrorPage";
+
 import generateLogger from "@agir/lib/utils/logger";
 
 const logger = generateLogger(__filename);
@@ -36,34 +38,19 @@ class DevErrorBoundary extends React.Component {
       return <CustomFallback {...this.props} errorMessage={errorMessage} />;
     }
 
-    return (
-      <div>
-        <h2>Erreur</h2>
-        {process.env.NODE_ENV === "production" ? null : <p>{errorMessage}</p>}
-      </div>
-    );
+    return <ErrorPage errorMessage={errorMessage} />;
   }
 }
 
 const ProdErrorBoundary = (props) => {
   const { children, Fallback: CustomFallback } = props;
 
-  const fallback = ({ error }) => {
-    const errorMessage = error.toString();
-
-    if (CustomFallback) {
-      return <CustomFallback {...props} errorMessage={errorMessage} />;
-    } else {
-      return (
-        <div>
-          <h2>
-            Une erreur est survenue. Nous faisons notre possible pour la
-            corriger.
-          </h2>
-        </div>
-      );
-    }
-  };
+  const fallback = ({ error }) =>
+    CustomFallback ? (
+      <CustomFallback {...props} errorMessage={error.toString()} />
+    ) : (
+      <ErrorPage />
+    );
 
   return (
     <SentryErrorBoundary fallback={fallback}>{children}</SentryErrorBoundary>
@@ -75,11 +62,7 @@ DevErrorBoundary.propTypes = ProdErrorBoundary.propTypes = {
   Fallback: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),
 };
 
-let ErrorBoundary;
-if (process.env.NODE_ENV === "production") {
-  ErrorBoundary = ProdErrorBoundary;
-} else {
-  ErrorBoundary = DevErrorBoundary;
-}
+const ErrorBoundary =
+  process.env.NODE_ENV === "production" ? ProdErrorBoundary : DevErrorBoundary;
 
 export default ErrorBoundary;

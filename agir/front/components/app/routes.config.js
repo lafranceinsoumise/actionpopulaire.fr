@@ -90,6 +90,7 @@ const ReplyToVotingProxyRequests = lazy(() =>
 const VotingProxyRequestDetails = lazy(() =>
   import("@agir/voting_proxies/VotingProxyRequest/VotingProxyRequestDetails")
 );
+const TestErrorPage = lazy(() => import("@agir/front/errorPage/TestErrorPage"));
 
 export const BASE_PATH = "/";
 
@@ -564,6 +565,15 @@ export const routeConfig = {
     label: "Rechercher un événement",
     hasLayout: false,
     hideFeedbackButton: true,
+  }),
+  testErrorPage: new RouteConfig({
+    id: "testErrorPage",
+    path: "/500/",
+    neededAuthentication: AUTHENTICATION.NONE,
+    Component: TestErrorPage,
+    label: "Une erreur est survenue",
+    hideFeedbackButton: true,
+    hideFooter: true,
   }),
 };
 
