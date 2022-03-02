@@ -75,7 +75,7 @@ def someone_joined_notification(membership, membership_count=1):
         and membership_count
         in [
             21,
-            30,
+            # 30, (disabled until further notice)
         ]
     ):
         transaction.on_commit(
