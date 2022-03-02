@@ -513,6 +513,7 @@ class Fournisseur(LocationMixin, TimeStampedModel):
     description = models.TextField(verbose_name="Description", blank=True)
 
     iban = IBANField(verbose_name="IBAN du fournisseur", blank=True)
+    bic = BICField(verbose_name="BIC du fournisseur", blank=True)
 
     contact_phone = PhoneNumberField(verbose_name="Numéro de téléphone", blank=True)
     contact_email = models.EmailField(verbose_name="Adresse email", blank=True)
