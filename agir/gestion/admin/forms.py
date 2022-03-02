@@ -1,12 +1,10 @@
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from django.core import validators
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.db import transaction
 from django.db.models import Sum
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
 from agir.events.models import Event
@@ -100,6 +98,13 @@ class DocumentAjoutRapideForm(forms.ModelForm):
 
 
 class DepenseForm(forms.ModelForm):
+    type = forms.ChoiceField(
+        label="Type de dépense",
+        choices=TypeDepense.choices_avec_compte,
+        widget=HierarchicalSelect(),
+        required=True,
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -177,7 +182,6 @@ class DepenseForm(forms.ModelForm):
         model = Depense
         fields = ()
         widgets = {
-            "type": HierarchicalSelect,
             "nature": SuggestingTextInput(suggestions=NATURE),
             "date_depense": CleavedDateInput,
             "date_debut": CleavedDateInput,
