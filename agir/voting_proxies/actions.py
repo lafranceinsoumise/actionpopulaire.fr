@@ -88,6 +88,9 @@ def create_or_update_voting_proxy(data):
         voting_proxy, created = VotingProxy.objects.update_or_create(
             email=email, defaults={**data, "person_id": person.pk}
         )
+        if voting_proxy.status == VotingProxy.STATUS_INVITED:
+            voting_proxy.status = VotingProxy.STATUS_CREATED
+            voting_proxy.save()
 
     if is_new_person and "welcome" in SUBSCRIPTIONS_EMAILS[SUBSCRIPTION_TYPE_AP]:
         from agir.people.tasks import send_welcome_mail
@@ -119,7 +122,7 @@ def update_voting_proxy(instance, data):
 
 
 # TODO: Choose a proxy-to-request distance limit (in meters)
-PROXY_TO_REQUEST_DISTANCE_LIMIT = 30000
+PROXY_TO_REQUEST_DISTANCE_LIMIT = 30000  # 30 KM
 
 
 def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):

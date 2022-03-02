@@ -266,4 +266,5 @@ class CreateVotingProxySerializer(VotingProxySerializer):
             "address",
             "zip",
             "city",
+            "status",
         )
