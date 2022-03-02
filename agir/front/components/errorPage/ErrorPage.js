@@ -76,7 +76,11 @@ export const ErrorPage = ({ errorMessage }) => {
         <Spacer size="1rem" />
         {errorMessage && <pre>{errorMessage}</pre>}
         <Spacer size="1rem" />
-        <Button onClick={() => window.location.reload()} color="primary" block>
+        <Button link route="events" color="primary" block>
+          Revenir à l'accueil
+        </Button>
+        <Spacer size="1rem" />
+        <Button onClick={() => window.location.reload()} block>
           Recharger la page
         </Button>
         <Spacer size="1rem" />
