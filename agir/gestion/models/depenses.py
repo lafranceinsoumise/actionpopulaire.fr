@@ -96,6 +96,13 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 class_name="failure",
                 permissions=["gestion.engager_depense", "gestion.gerer_depense"],
             ),
+            Transition(
+                nom="Clôturer directement le dossier",
+                vers=Etat.CLOTURE,
+                condition=no_todos,
+                permissions=["gestion.controler_depense"],
+                class_name="warning",
+            ),
         ],
         Etat.CONSTITUTION: [
             Transition(
@@ -104,6 +111,13 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 condition=no_todos,
                 class_name="success",
                 permissions=["gestion.gerer_depense"],
+            ),
+            Transition(
+                nom="Clôturer directement le dossier",
+                vers=Etat.CLOTURE,
+                condition=no_todos,
+                permissions=["gestion.controler_depense"],
+                class_name="warning",
             ),
         ],
         Etat.COMPLET: [
