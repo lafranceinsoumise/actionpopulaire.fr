@@ -28,7 +28,7 @@ export const RightLink = (props) => {
     ? cleanPathname.slice(cleanPathname.lastIndexOf("/") + 1)
     : undefined;
 
-  /* const { currentMessage } = useMessageSWR(messagePk); */
+  const { currentMessage } = useMessageSWR(messagePk);
 
   if (isLoading) {
     return <IconLink as={Spacer} size="32px" />;
@@ -46,7 +46,6 @@ export const RightLink = (props) => {
     return <MessageOptions />;
   }
 
-  /*
   // Show muted message settings
   if (matchMessagePage) {
     const isAuthor = currentMessage?.author.id === user.id;
@@ -62,7 +61,6 @@ export const RightLink = (props) => {
       </>
     );
   }
-*/
 
   if (settingsLink) {
     return (
