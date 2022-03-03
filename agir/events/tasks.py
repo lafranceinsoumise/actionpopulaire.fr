@@ -20,6 +20,7 @@ from agir.lib.html import sanitize_html
 from agir.lib.mailing import send_mosaico_email
 from agir.lib.utils import front_url, is_absolute_url
 from agir.people.models import Person
+from agir.groups.models import Membership
 from .models import Event, RSVP, GroupAttendee, Invitation, OrganizerConfig
 from ..activity.models import Activity
 from ..notifications.models import Subscription
@@ -253,14 +254,22 @@ def send_rsvp_notification(rsvp_pk):
 
 
 @post_save_task
+# Send notification new-group-attendee to all organizers (referents from groups co-organizing)
+# Send notification group-join-event to members of group (not referents)
 def send_group_attendee_notification(group_attendee_pk):
     group_attendee = GroupAttendee.objects.get(pk=group_attendee_pk)
 
-    recipients = [
-        organizer_config.person
-        for organizer_config in group_attendee.event.organizer_configs.all()
-        if organizer_config.person != group_attendee.organizer
+    # Get all organizers (with group organizers)
+    from agir.events.serializers import EventAdvancedSerializer
+
+    organizers = EventAdvancedSerializer().get_organizers(group_attendee.event)
+    organizers_id = [
+        organizer["id"]
+        for organizer in organizers
+        if organizer["id"] != group_attendee.organizer.pk
     ]
+
+    recipients = Person.objects.filter(pk__in=organizers_id)
 
     recipients_allowed_push = [
         s.person
@@ -275,6 +284,30 @@ def send_group_attendee_notification(group_attendee_pk):
         Activity.objects.create(
             recipient=r,
             type=Activity.TYPE_NEW_GROUP_ATTENDEE,
+            event=group_attendee.event,
+            supportgroup=group_attendee.group,
+        )
+
+    # Send notification group_join_event to members
+    members = Membership.objects.filter(
+        supportgroup=group_attendee.group,
+        membership_type__lt=Membership.MEMBERSHIP_TYPE_REFERENT,
+    )
+    recipients = [member.person for member in members]
+
+    recipients_allowed_push = [
+        s.person
+        for s in Subscription.objects.prefetch_related("person__emails").filter(
+            person__in=recipients,
+            type=Subscription.SUBSCRIPTION_PUSH,
+            activity_type=Activity.TYPE_GROUP_JOIN_EVENT,
+        )
+    ]
+
+    for r in recipients_allowed_push:
+        Activity.objects.create(
+            recipient=r,
+            type=Activity.TYPE_GROUP_JOIN_EVENT,
             event=group_attendee.event,
             supportgroup=group_attendee.group,
         )

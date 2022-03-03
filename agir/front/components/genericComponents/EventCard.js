@@ -293,10 +293,7 @@ const EventCard = (props) => {
 
   return (
     <StyledCard onClick={handleClick} $isPast={isPast}>
-      <EventGroupsAttendees
-        groupsAttendees={groupsAttendees}
-        isPast={now < schedule.end}
-      />
+      <EventGroupsAttendees groupsAttendees={groupsAttendees} isPast={isPast} />
       <StyledContainer>
         <EventCardIllustration
           image={illustration?.thumbnail}

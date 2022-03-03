@@ -201,6 +201,12 @@ const GenericCard = (props) => {
           événement
         </GenericCardContainer>
       );
+    case "group-join-event":
+      return (
+        <GenericCardContainer {...props}>
+          {SupportGroup} participe à l'événement {Event}
+        </GenericCardContainer>
+      );
     case "new-report":
       return (
         <GenericCardContainer {...props}>

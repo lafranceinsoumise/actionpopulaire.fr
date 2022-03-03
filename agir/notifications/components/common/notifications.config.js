@@ -210,6 +210,17 @@ const PERSON_NOTIFICATIONS = [
 
 const GROUP_NOTIFICATIONS = [
   {
+    id: "group_join_event",
+    type: "Groupes",
+    icon: "users",
+    subtype: "Événements",
+    label: "Participation à un événement",
+    hasEmail: false,
+    hasPush: true,
+    isActive: (group) => !group.isReferent,
+    activityTypes: ["group-join-event"],
+  },
+  {
     id: "group_event_notifications",
     type: "Groupes",
     icon: "users",

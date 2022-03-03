@@ -33,6 +33,10 @@ const ACTIVITY_CONFIG = {
     icon: "calendar",
     hasEvent: true,
   },
+  "group-join-event": {
+    icon: "users",
+    hasEvent: true,
+  },
   "new-report": {
     icon: "file-text",
     hasEvent: true,
