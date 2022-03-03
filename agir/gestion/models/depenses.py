@@ -45,10 +45,10 @@ class DepenseQuerySet(NumeroQueryset):
         return self.annotate(
             prevu=models.Sum("reglement__montant"),
             regle=models.Sum(
-                Reglement.objects.filter(
+                "reglement__montant",
+                filter=Q(
                     statut__in=[Reglement.Statut.REGLE, Reglement.Statut.RAPPROCHE],
-                    depense_id=models.OuterRef("id"),
-                ).values("montant")
+                ),
             ),
         )
 
