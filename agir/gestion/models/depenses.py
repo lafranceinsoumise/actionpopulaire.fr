@@ -69,6 +69,8 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         CONSTITUTION = "C", "Constitution du dossier"
         COMPLET = "O", "Dossier complété"
         CLOTURE = "L", "Dossier clôturé"
+        EXPERTISE = "E", "En attente d'intégration au FEC"
+        FEC = "F", "Intégré au FEC"
 
     TRANSITIONS = {
         Etat.ATTENTE_VALIDATION: [
@@ -135,6 +137,20 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 vers=Etat.CLOTURE,
                 condition=no_todos,
                 permissions=["gestion.controler_depense"],
+                class_name="success",
+            ),
+        ],
+        Etat.EXPERTISE: [
+            Transition(
+                nom="Renvoyer pour corrections",
+                vers=Etat.COMPLET,
+                permissions=["gestion.expertise_comptable"],
+                class_name="failure",
+            ),
+            Transition(
+                nom="Intégrer au FEC",
+                vers=Etat.FEC,
+                permissions=["gestion.expertise_comptable"],
                 class_name="success",
             ),
         ],
