@@ -47,7 +47,10 @@ class DepenseQuerySet(NumeroQueryset):
             regle=models.Sum(
                 "reglement__montant",
                 filter=Q(
-                    statut__in=[Reglement.Statut.REGLE, Reglement.Statut.RAPPROCHE],
+                    reglement__statut__in=[
+                        Reglement.Statut.REGLE,
+                        Reglement.Statut.RAPPROCHE,
+                    ],
                 ),
             ),
         )
