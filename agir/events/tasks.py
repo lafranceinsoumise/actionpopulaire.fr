@@ -234,23 +234,19 @@ def send_rsvp_notification(rsvp_pk):
             bindings=organizer_bindings,
         )
 
-    recipients_allowed_push = [
-        s.person
-        for s in Subscription.objects.prefetch_related("person__emails").filter(
-            person__in=recipients,
-            type=Subscription.SUBSCRIPTION_PUSH,
-            activity_type=Activity.TYPE_NEW_ATTENDEE,
-        )
-    ]
-
-    for r in recipients_allowed_push:
-        # can merge activity with previous one if not displayed yet
-        Activity.objects.create(
-            recipient=r,
-            type=Activity.TYPE_NEW_ATTENDEE,
-            event=rsvp.event,
-            individual=rsvp.person,
-        )
+    # can merge activity with previous one if not displayed yet
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                recipient=r,
+                type=Activity.TYPE_NEW_ATTENDEE,
+                event=rsvp.event,
+                individual=rsvp.person,
+            )
+            for r in recipients
+        ],
+        send_post_save_signal=True,
+    )
 
 
 @post_save_task
@@ -271,22 +267,18 @@ def send_group_attendee_notification(group_attendee_pk):
 
     recipients = Person.objects.filter(pk__in=organizers_id)
 
-    recipients_allowed_push = [
-        s.person
-        for s in Subscription.objects.prefetch_related("person__emails").filter(
-            person__in=recipients,
-            type=Subscription.SUBSCRIPTION_PUSH,
-            activity_type=Activity.TYPE_NEW_GROUP_ATTENDEE,
-        )
-    ]
-
-    for r in recipients_allowed_push:
-        Activity.objects.create(
-            recipient=r,
-            type=Activity.TYPE_NEW_GROUP_ATTENDEE,
-            event=group_attendee.event,
-            supportgroup=group_attendee.group,
-        )
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                recipient=r,
+                type=Activity.TYPE_NEW_GROUP_ATTENDEE,
+                event=group_attendee.event,
+                supportgroup=group_attendee.group,
+            )
+            for r in recipients
+        ],
+        send_post_save_signal=True,
+    )
 
     # Send notification group_join_event to members
     members = Membership.objects.filter(
@@ -295,22 +287,18 @@ def send_group_attendee_notification(group_attendee_pk):
     )
     recipients = [member.person for member in members]
 
-    recipients_allowed_push = [
-        s.person
-        for s in Subscription.objects.prefetch_related("person__emails").filter(
-            person__in=recipients,
-            type=Subscription.SUBSCRIPTION_PUSH,
-            activity_type=Activity.TYPE_GROUP_JOIN_EVENT,
-        )
-    ]
-
-    for r in recipients_allowed_push:
-        Activity.objects.create(
-            recipient=r,
-            type=Activity.TYPE_GROUP_JOIN_EVENT,
-            event=group_attendee.event,
-            supportgroup=group_attendee.group,
-        )
+    Activity.objects.bulk_create(
+        [
+            Activity(
+                recipient=r,
+                type=Activity.TYPE_GROUP_JOIN_EVENT,
+                event=group_attendee.event,
+                supportgroup=group_attendee.group,
+            )
+            for r in recipients
+        ],
+        send_post_save_signal=True,
+    )
 
 
 @emailing_task
