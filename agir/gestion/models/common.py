@@ -78,7 +78,7 @@ class ModeleGestionMixin(models.Model):
     )
 
     def __str__(self):
-        titre = f"{self.titre[70:]}..." if len(self.titre) > 70 else self.titre
+        titre = f"{self.titre[:70]}..." if len(self.titre) > 70 else self.titre
         return f"« {titre} » ({self.numero})"
 
     @classmethod
