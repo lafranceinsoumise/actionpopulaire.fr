@@ -113,11 +113,13 @@ export const ActionButtonCarousel = (props) => {
         breakpoints={breakpoints}
         centerInsufficientSlides
       >
-        {actions.map((action) => (
-          <SwiperSlide key={action.key}>
-            <ActionButton {...action} />
-          </SwiperSlide>
-        ))}
+        {actions
+          .filter((action) => !action.disabled)
+          .map((action) => (
+            <SwiperSlide key={action.key}>
+              <ActionButton {...action} />
+            </SwiperSlide>
+          ))}
       </Swiper>
     </Carousel>
   );

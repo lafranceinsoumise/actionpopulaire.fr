@@ -10,7 +10,10 @@ class Etat(TextChoices):
 class TypeDocument(TextChoices):
     DEVIS = "DEV", "Devis"
     CONTRAT = "CON", "Contrat"
+
     FACTURE = "FAC", "Facture"
+    FACTURE_AVOIR = "FAC-AVO", "Facture d'avoir"
+
     BDL = "BDL", "Bon de livraison"
 
     JUSTIFICATIF = "JUS", "Justificatif de dépense"
@@ -45,46 +48,97 @@ class TypeDocument(TextChoices):
 
 
 class TypeDepense(TextChoices):
-    FOURNITURE_MARCHANDISES = "AFM", "Achats de fournitures et marchandises"
-    FOURNITURE_BUREAU = "AFM-B", "Achats de fourniture de bureau"
-    FOURNITURE_GOODIES = "AFM-G", "Achats de goodies"
+    def __new__(cls, value, compte=None):
+        """Stocke le numéro de compte à utiliser pour la comptabilité pour chaque catégorie"""
+        obj = str.__new__(cls, value)
+        obj._value_ = value
+        obj.compte = compte
+        return obj
 
-    FRAIS_BANCAIRES = "FBC", "Frais bancaires"
-
-    FRAIS_DIVERS = "FDV", "Frais divers"
-
-    FRAIS_RECEPTION_HEBERGEMENT = "FRH", "Frais de réception et d'hébergement"
-    FRAIS_HEBERGEMENT = "FRH-H", "Frais d'hébergement"
-    FRAIS_ALIMENTATION = "FRH-A", "Frais de restauration"
-
-    HONORAIRES_EXPERT_COMPTABLE = "HEC", "Honoraires de l'expert comptable"
-
-    HONORAIRES_CONSEILS_COMMUNICATION = "HCC", "Honoraires et conseils en communication"
-    GRAPHISME_MAQUETTAGE = "HCC-G", "Graphisme et maquettage"
-    CONSEIL_COMMUNICATION = "HCC-C", "Conseil en communication"
-
-    FRAIS_IMMOBILIERS = "IMM", "Location ou mise à disposition immobilière"
-    LOCATION_SALLE_EVENEMENT = "IMM-S", "Mise à disposition d'une salle"
-    LOYERS = "IMM-L", "Loyers de location"
-
-    PRODUCTION_AUDIOVISUELLE = "PAU", "Production audiovisuelle"
-
-    PUBLICATION_IMPRESSION = "PIM", "Publication et impression (hors R39)"
-
-    REUNIONS_PUBLIQUES = "REU", "Frais divers liées aux réunions publiques"
-
-    TRANSPORTS = "TRA", "Transports et déplacement"
-    TRAIN = (
-        "TRA-T",
-        "Billets de train",
+    REUNIONS_PUBLIQUES = "REU", "6130", "Frais divers liées aux réunions publiques"
+    IMPRESSION_REUNIONS = (
+        "REU-IMP",
+        "6131",
+        "Impression et envoi de cartons d'invitation pour une réunion publique",
     )
-    AVION = "TRA-A", "Billets d'avion"
-    LOCATION_VEHICULE = "TRA-L", "Location d'un véhicule"
-    FRAIS_KILOMETRIQUES = "TRA-K", "Frais kilométriques"
+    UTILISATION_LOCAL_REUNIONS = (
+        "REU-LOC",
+        "6132",
+        "Utilisation d'un local pour les besoins d'une réunion publique",
+    )
+    AMENAGEMENT_LOCAL_REUNIONS = "REU-AME", "6133", "Aménagements apportés au local "
+    ECLAIRAGE_SONORISATION_REUNIONS = "REU-EC", "6134", "Éclairage et sonorisation"
+    SERVICE_ORDRE_REUNIONS = "REU-ORD", "6135", "Service d'ordre et sécurité"
+    AUTRES_FRAIS_REUNIONS = (
+        "REU-AUT",
+        "6136",
+        "Autres frais liés à une réunion publique",
+    )
 
-    SALAIRES = "SAL"
+    PUBLICATION_IMPRESSION = "PIM", "6140", "Publication et impression (hors R39)"
+    CONCEPTION_IMPRESSION = "PIM-CON", "6141", "Frais de conception et d'impression"
+    FRAIS_POSTAUX = "PIM-POS", "6142", "Frais de distribution et postaux"
+    FRAIS_PROMOTION = "PIM-PRO", "6143", "Frais de promotion"
+    AUTRE_FRAIS_IMPRESSION = (
+        "PIM-AUT",
+        "6144",
+        "Autres frais d'impression et de publication",
+    )
 
-    REFACTURATION = "REF", "Refacturation"
+    FOURNITURE_MARCHANDISES = "AFM", None, "Achats de fournitures et marchandises"
+    FOURNITURE_BUREAU = "AFM-B", "6350", "Achats de fourniture de bureau"
+    FOURNITURE_GOODIES = "AFM-G", "6210", "Achats de goodies"
+    FOURNITURE_MATERIEL = "AFM-M", "6340", "Dépenses de matériel"
+
+    FRAIS_BANCAIRES = "FBC", "6360", "Frais bancaires"
+
+    FRAIS_DIVERS = "FDV", "6370", "Frais divers"
+
+    FRAIS_RECEPTION_HEBERGEMENT = "FRH", "6300", "Frais de réception et d'hébergement"
+    FRAIS_HEBERGEMENT = "FRH-H", "6300", "Frais d'hébergement"
+    FRAIS_ALIMENTATION = "FRH-A", "6300", "Frais de restauration"
+
+    HONORAIRES_EXPERT_COMPTABLE = "HEC", "6330", "Honoraires de l'expert comptable"
+
+    HONORAIRES_CONSEILS_COMMUNICATION = (
+        "HCC",
+        "6230",
+        "Honoraires et conseils en communication",
+    )
+
+    FRAIS_IMMOBILIERS = "IMM", "6280", "Location ou mise à disposition immobilière"
+    LOYERS_LOCAL = "IMM-L", "6281", "Loyers de location"
+    TRAVAUX_LOCAL = "IMM-T", "6282", "Travaux au local"
+    AUTRES_FRAIS_IMMOBILIERS = "IMM-AUT", "6283", "Autres frais immobiliers"
+
+    PROPAGANDE_AUDIOVISUELLE = "PAU", "6170", "Propagande audiovisuelle"
+    CONCEPTION_AUDIOVISUELLE = (
+        "PAU-CON",
+        "6171",
+        "Frais de conception et de réalisation audiovisuelle",
+    )
+    DIFFUSION_AUDIOVISUELLE = (
+        "PAU-DIS",
+        "6172",
+        "Frais de reproduction, diffusion et de distribution audiovisuelle",
+    )
+    PROMOTION_AUDIOVISUELLE = "PAU-PRO", "6173", "Frais de promotion audiovisuelle"
+    AUTRES_AUDIOVISUELLE = "PAU-AUT", "6174", "Autres frais audiovisuels"
+
+    TRANSPORTS = "TRA", "6290", "Transports et déplacement"
+    TRAIN = "TRA-T", "6290", "Billets de train"
+    AVION = "TRA-A", "6290", "Billets d'avion"
+    LOCATION_VEHICULE = "TRA-L", "6290", "Location d'un véhicule"
+    FRAIS_KILOMETRIQUES = "TRA-K", "6290", "Frais kilométriques"
+
+    SALAIRES = "SAL", "6240", "Salaires"
+
+    REFACTURATION = "REF", None, "Refacturation"
+
+
+TypeDepense.choices_avec_compte = [
+    (m.value, f"{m.label} ({m.compte})" if m.compte else m.label) for m in TypeDepense
+]
 
 
 class TypeProjet(TextChoices):

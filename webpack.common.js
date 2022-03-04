@@ -140,6 +140,10 @@ const getOtherEntryFiles = (compilation) => {
     )
     .flat();
 
+  _cachedOtherEntryFiles = _cachedOtherEntryFiles.filter(
+    (file) => !getAppEntryFiles(compilation).includes(file)
+  );
+
   return _cachedOtherEntryFiles;
 };
 
@@ -259,21 +263,15 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
           ),
           swDest: "service-worker.js",
           maximumFileSizeToCacheInBytes: 7000000,
-          include: [
-            ({ asset, compilation }) => {
-              const mainAppEntryFiles = getAppEntryFiles(compilation);
-              const otherEntryFiles = getOtherEntryFiles(compilation);
-
-              return (
-                mainAppEntryFiles.includes(asset.name) ||
-                !(
-                  otherEntryFiles.includes(asset.name) ||
-                  [/front\/skins/, /\.html$/, /\.LICENSE.txt/].some(
-                    (excluded) => excluded.test(asset.name)
-                  )
-                )
-              );
-            },
+          mode: "production",
+          exclude: [
+            new RegExp("skins\\" + path.sep),
+            /\.html$/,
+            /\.LICENSE.txt$/,
+            /\.mjs.map/,
+            /\.css.map/,
+            ({ asset, compilation }) =>
+              getOtherEntryFiles(compilation).includes(asset.name),
           ],
         })
       : null,

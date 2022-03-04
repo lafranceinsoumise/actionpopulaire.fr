@@ -138,6 +138,41 @@ class VotingProxyRequestSerializer(VoterSerializerMixin):
         )
 
 
+class AcceptedVotingProxyRequestSerializer(VoterSerializerMixin):
+    votingDate = serializers.SerializerMethodField(read_only=True)
+    commune = serializers.SerializerMethodField(read_only=True)
+    consulate = serializers.SerializerMethodField(read_only=True)
+    votingProxy = serializers.SerializerMethodField(read_only=True)
+
+    def get_votingDate(self, instance):
+        return dict(VotingProxyRequest.VOTING_DATE_CHOICES)[instance.voting_date]
+
+    def get_commune(self, instance):
+        if instance.commune:
+            return instance.commune.nom
+
+    def get_consulate(self, instance):
+        if instance.consulate:
+            return instance.consulate.nom
+
+    def get_votingProxy(self, instance):
+        if instance.proxy:
+            return {"id": instance.proxy.id, "firstName": instance.proxy.first_name}
+
+    class Meta:
+        model = VotingProxyRequest
+        fields = (
+            "id",
+            "firstName",
+            "commune",
+            "consulate",
+            "pollingStationNumber",
+            "votingDate",
+            "votingProxy",
+            "status",
+        )
+
+
 class VotingProxySerializer(VoterSerializerMixin):
     email = serializers.ReadOnlyField()
     votingDates = serializers.MultipleChoiceField(

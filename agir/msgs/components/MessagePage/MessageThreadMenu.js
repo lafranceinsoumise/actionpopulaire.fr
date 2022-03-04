@@ -14,7 +14,7 @@ import MessageThreadCard from "./MessageThreadCard";
 import InlineMenu from "@agir/front/genericComponents/InlineMenu";
 import { StyledInlineMenuItems } from "@agir/front/genericComponents/MessageCard";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
-import { setAllMessagesRead } from "@agir/groups/api.js";
+import { setAllMessagesRead } from "@agir/groups/utils/api";
 
 import { useMessageSWR } from "@agir/msgs/common/hooks";
 import { mutate } from "swr";

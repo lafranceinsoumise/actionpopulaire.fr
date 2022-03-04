@@ -10,9 +10,13 @@ from agir.lib.tests.strategies import to_strategy, printable_text
 @st.composite
 def compte(draw, **kwargs):
     kwargs = {
-        "designation": draw(printable_text(min_size=1, max_size=5)),
-        "nom": draw(printable_text(min_size=1, max_size=200)),
-        "description": draw(printable_text()),
+        "designation": printable_text(min_size=1, max_size=5),
+        "nom": printable_text(min_size=1, max_size=200),
+        "description": printable_text(),
+        "beneficiaire_iban": "",
+        "beneficiaire_bic": "",
+        "emetteur_iban": "",
+        "emetteur_bic": "",
         **kwargs,
     }
 

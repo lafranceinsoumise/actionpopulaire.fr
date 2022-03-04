@@ -1,4 +1,5 @@
 import re
+from functools import partial
 
 from django.contrib import admin
 from django.contrib.postgres.search import SearchQuery
@@ -38,9 +39,10 @@ from .inlines import (
     DepenseDocumentInline,
     AjouterDocumentDepenseInline,
     AjouterDocumentProjetInline,
-    ReglementInline,
+    DepenseReglementInline,
+    OrdreVirementReglementInline,
 )
-from .views import AjouterReglementView
+from .views import AjouterReglementView, ObtenirFichierOrdreVirementView
 from ..models import (
     Compte,
     Fournisseur,
@@ -60,16 +62,66 @@ from ..utils import lien
 @admin.register(Compte)
 class CompteAdmin(admin.ModelAdmin):
     list_display = ("designation", "nom", "description")
-    fields = ("designation", "nom", "description")
+    fieldsets = (
+        (None, {"fields": ("designation", "nom", "description")}),
+        (
+            "Informations de l'émetteur",
+            {"fields": ("emetteur_designation", "emetteur_iban", "emetteur_bic")},
+        ),
+        (
+            "Informations de créditeur",
+            {
+                "fields": (
+                    "beneficiaire_designation",
+                    "beneficiaire_iban",
+                    "beneficiaire_bic",
+                )
+            },
+        ),
+    )
+
+    readonly_fields = ()
+
+    def peut_emettre_virement(self, obj):
+        return (
+            obj.emetteur_designation
+            and obj.emetteur_iban
+            and obj.emetteur_iban.is_valid()
+            and obj.emetteur_bic
+        )
+
+    peut_emettre_virement.short_description = "Peut émettre des virements"
+    peut_emettre_virement.boolean = True
+
+    def peut_recevoir_virement(self, obj):
+        return (
+            obj.beneficiaire_designation
+            and obj.beneficiaire_iban
+            and obj.beneficiaire_iban.is_valid()
+            and obj.beneficiaire_bic
+        )
+
+    peut_recevoir_virement.short_description = "Peut recevoir des virements"
+    peut_recevoir_virement.boolean = True
 
 
 @admin.register(Fournisseur)
 class FournisseurAdmin(VersionAdmin):
     list_display = ("nom", "contact_phone", "contact_email")
 
+    CHAMPS_PERSONNES_MORALES = ["siren"]
+
     fieldsets = (
-        (None, {"fields": ("nom", "contact_phone", "contact_email")}),
-        ("Paiement", {"fields": ("iban",)}),
+        (None, {"fields": ("type", "nom", "contact_phone", "contact_email", "siren")}),
+        (
+            "Paiement",
+            {
+                "fields": (
+                    "iban",
+                    "bic",
+                )
+            },
+        ),
         (
             "Adresse de facturation",
             {
@@ -198,7 +250,11 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         "fournisseur",
         "depenses_refacturees",
     )
-    inlines = [ReglementInline, DepenseDocumentInline, AjouterDocumentDepenseInline]
+    inlines = [
+        DepenseReglementInline,
+        DepenseDocumentInline,
+        AjouterDocumentDepenseInline,
+    ]
 
     def get_fieldsets(self, request, obj=None):
         common_fields = [
@@ -598,28 +654,86 @@ class ProjetUtilisateurAdmin(BaseProjetAdmin):
 
 @admin.register(OrdreVirement)
 class OrdreVirementAdmin(BaseGestionModelAdmin, VersionAdmin):
+    change_list_template = "admin/gestion/ordrevirement/change_list.html"
     form = OrdreVirementForm
     list_display = ("numero", "statut", "created", "date", "nb_reglements", "montant")
 
-    fields = ("numero_", "statut", "created", "date", "reglements", "fichier")
-    filter_horizontal = ("reglements",)
+    fields = (
+        "numero_",
+        "statut",
+        "created",
+        "date",
+        "obtenir_fichier",
+    )
 
-    readonly_fields = ("statut", "created", "fichier")
+    readonly_fields = ("statut", "created", "date", "obtenir_fichier")
 
-    def get_readonly_fields(self, request, obj=None):
-        rof = super().get_readonly_fields(request, obj=obj)
-        if obj:
-            return [*rof, "reglements"]
-        return rof
+    inlines = ()
+
+    def get_inlines(self, request, obj):
+        inlines = super().get_inlines(request, obj)
+        if obj is not None:
+            inlines = tuple([OrdreVirementReglementInline, *inlines])
+        return inlines
+
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj=obj)
+        if not obj:
+            return ("reglements",)
+        return fields
 
     def get_queryset(self, request):
         return (
             super()
             .get_queryset(request)
             .annotate(
-                nb_reglements=Count("reglements"), montant=Sum("reglements__montant")
+                nb_reglements=Count("reglement"), montant=Sum("reglement__montant")
             )
         )
+
+    def changelist_view(self, request, extra_context=None):
+        if extra_context is None:
+            extra_context = {}
+
+        extra_context.setdefault(
+            "comptes", Compte.objects.filter(actif=True).order_by("designation")
+        )
+
+        return super(OrdreVirementAdmin, self).changelist_view(
+            request, extra_context=extra_context
+        )
+
+    def add_view(self, request, form_url="", extra_context=None):
+        if not request.GET.get("compte"):
+            return HttpResponseRedirect(
+                reverse("admin:gestion_ordrevirement_changelist")
+            )
+
+        return super().add_view(request, form_url=form_url, extra_context=extra_context)
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form_klass = super().get_form(request, obj=None, change=False, **kwargs)
+
+        if request.GET.get("compte"):
+            try:
+                form_klass = partial(
+                    form_klass,
+                    compte=Compte.objects.get(designation=request.GET["compte"]),
+                )
+            except Compte.DoesNotExist:
+                pass
+
+        return form_klass
+
+    def get_urls(self):
+        return [
+            path(
+                "fichier/<int:object_id>",
+                self.admin_site.admin_view(ObtenirFichierOrdreVirementView.as_view()),
+                name=f"gestion_ordrevirement_fichier",
+            ),
+            *super().get_urls(),
+        ]
 
     def nb_reglements(self, obj):
         return getattr(obj, "nb_reglements", "-")
@@ -633,6 +747,13 @@ class OrdreVirementAdmin(BaseGestionModelAdmin, VersionAdmin):
 
     montant.short_description = "Montant total"
     montant.admin_order_field = "montant"
+
+    def obtenir_fichier(self, obj):
+        if obj.pk:
+            return format_html(
+                '<a class="button" href="{}">Obtenir le fichier</a>',
+                reverse("admin:gestion_ordrevirement_fichier", args=(obj.pk,)),
+            )
 
 
 @admin.register(InstanceCherchable)

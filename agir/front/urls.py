@@ -164,9 +164,19 @@ voting_proxy_patterns = [
         name="new_voting_proxy_request",
     ),
     path(
+        "reponse/",
+        views.VotingProxyRequestView.as_view(),
+        name="voting_proxy_request_details",
+    ),
+    path(
         "prendre-une-procuration/",
         views.VotingProxyView.as_view(),
         name="new_voting_proxy",
+    ),
+    path(
+        "prendre-une-procuration/<uuid:pk>/",
+        views.VotingProxyView.as_view(),
+        name="reply_to_voting_proxy_requests",
     ),
 ]
 
@@ -184,6 +194,7 @@ urlpatterns = [
     path("deconnexion/", views.LogoutView.as_view(), name="disconnect"),
     path("bienvenue/", views.BaseAppCachedView.as_view(), name="tell_more"),
     path("404/", views.NotFoundView.as_view()),
+    path("500/", views.BaseAppCachedView.as_view()),
     path("offline", views.BaseAppCachedView.as_view(), name="offline"),
     path("sw.js", (views.ServiceWorker.as_view()), name="sw.js"),
     path("sitemap.xml", sitemap_index, {"sitemaps": sitemaps}),

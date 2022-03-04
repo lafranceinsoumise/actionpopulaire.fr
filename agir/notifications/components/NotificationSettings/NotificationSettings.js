@@ -18,7 +18,6 @@ import { routeConfig } from "@agir/front/app/routes.config";
 import { updateProfile } from "@agir/front/authentication/api";
 
 const NotificationSettings = (props) => {
-  const { data: groupData } = useSWR("/api/groupes/");
   const {
     data: userNotifications,
     mutate,
@@ -30,9 +29,7 @@ const NotificationSettings = (props) => {
 
   const { data: profile, mutate: mutateProfile } = useSWR("/api/user/profile/");
 
-  const notifications = useMemo(() => {
-    return getAllNotifications(groupData?.groups, user);
-  }, [groupData, user]);
+  const notifications = useMemo(() => getAllNotifications(user), [user]);
 
   const allActiveNotifications = useMemo(
     () => ({
@@ -100,7 +97,7 @@ const NotificationSettings = (props) => {
       activeNotifications={allActiveNotifications}
       onChange={handleChange}
       disabled={isLoading || isValidating}
-      ready={!!userNotifications && !!groupData}
+      ready={!!userNotifications}
     />
   );
 };

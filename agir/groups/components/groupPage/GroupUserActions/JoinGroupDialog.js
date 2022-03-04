@@ -111,45 +111,39 @@ export const JoinGroup = (props) => {
     }
     case 3: {
       return (
-        <>
-          <StyledDialog>
-            <header>
-              <h3>Présentez-vous&nbsp;!</h3>
-            </header>
-            <article>
-              <strong>
-                {personalInfoConsent
-                  ? "C’est noté, les gestionnaires du groupe pourront vous contacter sur la messagerie d’Action Populaire, par e-mail et par téléphone."
-                  : "C’est noté, les gestionnaires du groupe pourront vous contacter sur la messagerie d’Action Populaire et par e-mail."}
-              </strong>
-              <Spacer size=".5rem" />
-              Envoyez-leur un message pour vous présenter&nbsp;:
-              <Spacer size="1rem" />
-              <footer>
-                {openMessageModal ? (
-                  <Button color="primary" block wrap onClick={openMessageModal}>
-                    Je me présente&nbsp;! &nbsp;
-                    <RawFeatherIcon
-                      name="mail"
-                      width="1.5rem"
-                      height="1.5rem"
-                    />
-                  </Button>
-                ) : (
-                  <ShareLink
-                    label="Copier"
-                    color="primary"
-                    url={groupContact.email}
-                    $wrap
-                  />
-                )}
-                <Button disabled={isLoading} onClick={onClose} block wrap>
-                  Plus tard
+        <StyledDialog>
+          <header>
+            <h3>Présentez-vous&nbsp;!</h3>
+          </header>
+          <article>
+            <strong>
+              {personalInfoConsent
+                ? "C’est noté, les gestionnaires du groupe pourront vous contacter sur la messagerie d’Action Populaire, par e-mail et par téléphone."
+                : "C’est noté, les gestionnaires du groupe pourront vous contacter sur la messagerie d’Action Populaire et par e-mail."}
+            </strong>
+            <Spacer size=".5rem" />
+            Envoyez-leur un message pour vous présenter&nbsp;:
+            <Spacer size="1rem" />
+            <footer>
+              {openMessageModal ? (
+                <Button color="primary" block wrap onClick={openMessageModal}>
+                  Je me présente&nbsp;! &nbsp;
+                  <RawFeatherIcon name="mail" width="1.5rem" height="1.5rem" />
                 </Button>
-              </footer>
-            </article>
-          </StyledDialog>
-        </>
+              ) : (
+                <ShareLink
+                  label="Copier"
+                  color="primary"
+                  url={groupContact.email}
+                  $wrap
+                />
+              )}
+              <Button disabled={isLoading} onClick={onClose} block wrap>
+                Plus tard
+              </Button>
+            </footer>
+          </article>
+        </StyledDialog>
       );
     }
     default:

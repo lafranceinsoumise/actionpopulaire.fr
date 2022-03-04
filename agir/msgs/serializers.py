@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Exists, OuterRef, Q
+from django.db.models import Exists, OuterRef
 from rest_framework import serializers
 
 from agir.events.models import Event
@@ -252,6 +252,7 @@ class UserMessageRecipientSerializer(serializers.ModelSerializer):
 
 
 class UserMessagesSerializer(BaseMessageSerializer):
+    subject = serializers.SerializerMethodField(read_only=True)
     group = serializers.SerializerMethodField(read_only=True)
     unreadCommentCount = serializers.SerializerMethodField(
         read_only=True, method_name="get_unread_comment_count"
@@ -278,19 +279,24 @@ class UserMessagesSerializer(BaseMessageSerializer):
         default=Membership.MEMBERSHIP_TYPE_FOLLOWER,
     )
 
+    def get_subject(self, message):
+        if message.subject:
+            return message.subject
+
+        if message.required_membership_type >= Membership.MEMBERSHIP_TYPE_MANAGER:
+            participants = [message.author.display_name] + [
+                person.display_name for person in message.supportgroup.referents
+            ]
+            if len(participants) < 3:
+                return " et ".join(participants)
+            return f"{', '.join(participants[:-1])} et {participants[-1]}"
+
+        return ""
+
     def get_group(self, message):
         return {
             "id": message.supportgroup.id,
             "name": message.supportgroup.name,
-            "referents": [
-                {
-                    "id": referent.id,
-                    "email": referent.email,
-                    "displayName": referent.display_name,
-                    "gender": referent.gender,
-                }
-                for referent in message.supportgroup.referents
-            ],
         }
 
     def get_unread_comment_count(self, message):
@@ -304,7 +310,12 @@ class UserMessagesSerializer(BaseMessageSerializer):
         return user.is_authenticated and user.person and message.author == user.person
 
     def get_last_comment(self, message):
-        comment = message.comments.active().order_by("-created").first()
+        if hasattr(message, "_pf_last_comment"):
+            comment = (
+                message._pf_last_comment.pop() if message._pf_last_comment else None
+            )
+        else:
+            comment = message.comments.active().order_by("-created").first()
         if comment is None:
             return
         return MessageCommentSerializer(comment, context=self.context).data

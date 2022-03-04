@@ -240,11 +240,11 @@ class SupportGroup(
     @property
     def is_full(self):
         return False
-        # (Temporarily disabled)
         # return (
         #     self.type == self.TYPE_LOCAL_GROUP
         #     and self.active_members_count >= self.MEMBERSHIP_LIMIT
         # )
+        # (disabled until further notice)
 
     @property
     def is_certified(self):

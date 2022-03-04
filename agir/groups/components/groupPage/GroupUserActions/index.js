@@ -12,7 +12,7 @@ import MessageModal from "@agir/front/formComponents/MessageModal/Modal";
 import QuitGroupDialog from "./QuitGroupDialog";
 import SecondaryActions from "./SecondaryActions";
 
-import * as api from "@agir/groups/api";
+import * as api from "@agir/groups/utils/api";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { getUser } from "@agir/front/globalContext/reducers";
 import { routeConfig } from "@agir/front/app/routes.config";
@@ -69,6 +69,7 @@ const ConnectedUserActions = (props) => {
     setOpenDialog("join");
     setJoiningStep(1);
   }, []);
+
   const closeJoinDialog = useCallback(() => {
     setOpenDialog(null);
     setJoiningStep(0);
@@ -85,13 +86,13 @@ const ConnectedUserActions = (props) => {
   const joinGroup = useCallback(async () => {
     setIsLoading(true);
     const response = await api.joinGroup(id);
+    setIsLoading(false);
     if (response?.error?.error_code === "full_group") {
       return history.push(routeConfig.fullGroup.getLink({ groupPk: id }));
     }
     if (response.error) {
       return window.location.reload();
     }
-    setIsLoading(false);
     mutate(api.getGroupEndpoint("getGroup", { groupPk: id }), (group) => ({
       ...group,
       isMember: true,

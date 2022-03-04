@@ -200,7 +200,7 @@ const DesktopGroupPage = (props) => {
             <GroupOrders {...group} />
             <div style={{ backgroundColor: style.black25, padding: "1.5rem" }}>
               <GroupContactCard
-                {...group}
+                contact={group?.contact}
                 editLinkTo={groupSettingsLinks?.contact}
               />
               {allEvents && allEvents.length > 0 ? (

@@ -1,4 +1,5 @@
 import React, { lazy as reactLazy, useEffect, useMemo, useState } from "react";
+import { useHistory } from "react-router-dom";
 import { useIsOffline } from "@agir/front/offline/hooks";
 
 export const lazy = (lazyImport, fallback) => {
@@ -93,4 +94,17 @@ export const scrollToError = (errors, scrollerElement, marginTop = 30) => {
   }
 
   scrollerElement.scrollTo({ top: minOffsetTop - marginTop });
+};
+
+export const useCurrentLocation = () => {
+  const [pathname, setPathname] = useState(window.location.pathname);
+  const history = useHistory();
+
+  useEffect(() => {
+    history?.listen((location) => {
+      setPathname(location.pathname);
+    }) || setPathname(window.location.pathname);
+  }, [history]);
+
+  return pathname;
 };

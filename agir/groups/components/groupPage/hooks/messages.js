@@ -8,7 +8,7 @@ import React, {
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
 
-import * as api from "@agir/groups/api";
+import * as api from "@agir/groups/utils/api";
 
 import {
   useDispatch,

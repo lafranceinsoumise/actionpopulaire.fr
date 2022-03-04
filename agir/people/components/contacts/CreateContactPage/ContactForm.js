@@ -14,7 +14,7 @@ import TextField from "@agir/front/formComponents/TextField";
 import HowTo from "./HowTo";
 import NoGroupCard from "./NoGroupCard";
 
-import { searchGroups } from "@agir/groups/api";
+import { searchGroups } from "@agir/groups/utils/api";
 import { scrollToError } from "@agir/front/app/utils";
 
 const NEWSLETTER_2022_LIAISON = "2022_liaison";

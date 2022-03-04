@@ -18,6 +18,7 @@ from pathlib import Path
 
 import dj_database_url
 import dj_email_url
+import nuntius
 import sentry_sdk
 from django.contrib import messages
 from django.contrib.messages import ERROR
@@ -840,7 +841,10 @@ PRESSERO_APPROBATOR_ID = os.environ.get("PRESSERO_APPROBATOR_ID")
 PRESSERO_GROUP_ID = os.environ.get("PRESSERO_GROUP_ID")
 
 # djan
-DJAN_URL = "https://la-fi.fr"
+DJAN_URL = {
+    "LFI": "https://la-fi.fr",
+    "M2022": "https://m2022.fr",
+}
 DJAN_API_KEY = os.environ.get("DJAN_API_KEY")
 
 # nuntius
@@ -873,6 +877,10 @@ NUNTIUS_MAX_MESSAGES_PER_CONNECTION = int(
 )
 NUNTIUS_POLLING_INTERVAL = int(os.environ.get("NUNTIUS_POLLING_INTERVAL", 2))
 NUNTIUS_DISABLE_DEFAULT_ADMIN = True
+NUNTIUS_ENABLED_CAMPAIGN_TYPES = os.environ.get(
+    "NUNTIUS_ENABLED_CAMPAIGN_TYPES", "email,push"
+).split(",")
+
 
 ANYMAIL = {
     "AMAZON_SES_CLIENT_PARAMS": {
@@ -925,6 +933,7 @@ PUSH_NOTIFICATIONS_SETTINGS = {
     "APNS_USE_SANDBOX": os.environ.get("APNS_USE_SANDBOX", "true").lower() == "true",
     "FCM_API_KEY": os.environ.get("FCM_API_KEY"),
 }
+NUNTIUS_PUSH_NOTIFICATION_SETTINGS = PUSH_NOTIFICATIONS_SETTINGS
 
 JAWG_API_ACCES_TOKEN = os.environ.get(
     "JAWG_API_ACCESS_TOKEN",

@@ -13,7 +13,8 @@ from agir.authentication.models import Role
 from agir.gestion.actions import Todo, NiveauTodo, Transition, no_todos
 from agir.gestion.models.common import ModeleGestionMixin, NumeroQueryset
 from agir.gestion.typologies import TypeDepense, NiveauAcces, TypeDocument
-from agir.lib.model_fields import IBANField
+from agir.gestion.virements import Partie, Virement
+from agir.lib.model_fields import IBANField, BICField
 from agir.lib.models import TimeStampedModel, LocationMixin
 
 __all__ = ("Depense", "Reglement", "Fournisseur")
@@ -44,10 +45,13 @@ class DepenseQuerySet(NumeroQueryset):
         return self.annotate(
             prevu=models.Sum("reglement__montant"),
             regle=models.Sum(
-                Reglement.objects.filter(
-                    statut__in=[Reglement.Statut.REGLE, Reglement.Statut.RAPPROCHE],
-                    depense_id=models.OuterRef("id"),
-                ).values("montant")
+                "reglement__montant",
+                filter=Q(
+                    reglement__statut__in=[
+                        Reglement.Statut.REGLE,
+                        Reglement.Statut.RAPPROCHE,
+                    ],
+                ),
             ),
         )
 
@@ -95,6 +99,13 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 class_name="failure",
                 permissions=["gestion.engager_depense", "gestion.gerer_depense"],
             ),
+            Transition(
+                nom="Clôturer directement le dossier",
+                vers=Etat.CLOTURE,
+                condition=no_todos,
+                permissions=["gestion.controler_depense"],
+                class_name="warning",
+            ),
         ],
         Etat.CONSTITUTION: [
             Transition(
@@ -103,6 +114,13 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 condition=no_todos,
                 class_name="success",
                 permissions=["gestion.gerer_depense"],
+            ),
+            Transition(
+                nom="Clôturer directement le dossier",
+                vers=Etat.CLOTURE,
+                condition=no_todos,
+                permissions=["gestion.controler_depense"],
+                class_name="warning",
             ),
         ],
         Etat.COMPLET: [
@@ -155,7 +173,7 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
     )
 
     type = models.CharField(
-        "Type de dépense", max_length=5, choices=TypeDepense.choices
+        "Type de dépense", max_length=7, choices=TypeDepense.choices
     )
 
     montant = models.DecimalField(
@@ -263,6 +281,21 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
         return self.documents.filter(type=TypeDocument.FACTURE).exists()
 
     @property
+    def identifiant_facture(self):
+        """S'il existe une unique facture avec un identifiant pour cette dépense, renvoie cet identifiant."""
+        facture_avec_identifiant = self.documents.filter(
+            type__in=[
+                TypeDocument.FACTURE,
+                TypeDocument.FACTURE_AVOIR,
+            ]
+        ).exclude(identifiant="")
+
+        if facture_avec_identifiant.count() == 1:
+            return facture_avec_identifiant.first().identifiant
+
+        return None
+
+    @property
     def montant_restant(self):
         return self.montant - (
             self.reglements.aggregate(paye=models.Sum("montant"))["paye"] or 0
@@ -323,8 +356,30 @@ class Reglement(TimeStampedModel):
         on_delete=models.PROTECT,
     )
 
+    ordre_virement = models.ForeignKey(
+        to="OrdreVirement",
+        verbose_name="Ordre de virement",
+        related_name="reglements",
+        related_query_name="reglement",
+        on_delete=models.PROTECT,
+        null=True,
+    )
+
+    endtoend_id = models.CharField(
+        verbose_name="ID unique",
+        max_length=35,
+        unique=True,
+        null=True,
+        default=None,
+        help_text="Identifiant unique utilisé pour suivre une transaction de banque à banque.",
+    )
+
     intitule = models.CharField(
-        verbose_name="Intitulé du réglement", max_length=200, blank=False
+        verbose_name="Libellé dans le FEC",
+        max_length=200,
+        blank=False,
+        help_text="Ce champ est utilisé comme intitulé dans le FEC, et comme intitulé dans le relevé bancaire pour les "
+        "virements générés.",
     )
 
     mode = models.CharField(
@@ -340,6 +395,7 @@ class Reglement(TimeStampedModel):
         null=False,
         max_digits=10,
     )
+
     date = models.DateField(
         verbose_name="Date du règlement",
         blank=False,
@@ -379,6 +435,7 @@ class Reglement(TimeStampedModel):
     )
 
     iban_fournisseur = IBANField(verbose_name="IBAN du fournisseur", blank=True)
+    bic_fournisseur = BICField(verbose_name="BIC du fournisseur", blank=True)
 
     contact_phone_fournisseur = PhoneNumberField(
         verbose_name="Numéro de téléphone", blank=True
@@ -407,9 +464,44 @@ class Reglement(TimeStampedModel):
         ("description", "B"),
     )
 
+    def __repr__(self):
+        return f"<Reglement: {self.id}, dépense {self.depense.numero}>"
+
+    def __str__(self):
+        return f"{self.intitule} — {self.fournisseur.nom}"
+
+    def generer_virement(self, date):
+        if (
+            self.mode != Reglement.Mode.VIREMENT
+            or self.statut != Reglement.Statut.ATTENTE
+        ):
+            raise ValueError("Impossible de générer ")
+
+        if not self.iban_fournisseur:
+            raise ValueError("IBAN manquant pour la dépense ")
+
+        # noinspection PyTypeChecker
+        beneficiaire = Partie(
+            nom=self.nom_fournisseur,
+            iban=self.iban_fournisseur,
+            bic=self.bic_founisseur,
+        )
+
+        return Virement(
+            beneficiaire=beneficiaire,
+            montant=round(self.montant * 100),
+            date_execution=date,
+            description=self.intitule,
+        )
+
     class Meta:
         verbose_name = "règlement"
         ordering = ("date",)
+
+
+class TypeFournisseur(models.TextChoices):
+    PERSONNE_MORALE = "M", "Personne morale"
+    PERSONNE_PHYSIQUE = "P", "Personne physique"
 
 
 @reversion.register()
@@ -420,18 +512,54 @@ class Fournisseur(LocationMixin, TimeStampedModel):
     et des informations de contact.
     """
 
+    Type = TypeFournisseur
+
+    type = models.CharField(
+        verbose_name="Type de fournisseur",
+        blank=False,
+        max_length=1,
+        choices=Type.choices,
+        default=Type.PERSONNE_MORALE,
+    )
+
     nom = models.CharField(
         verbose_name="Nom du fournisseur", blank=False, max_length=100
     )
     description = models.TextField(verbose_name="Description", blank=True)
 
     iban = IBANField(verbose_name="IBAN du fournisseur", blank=True)
+    bic = BICField(verbose_name="BIC du fournisseur", blank=True)
 
     contact_phone = PhoneNumberField(verbose_name="Numéro de téléphone", blank=True)
     contact_email = models.EmailField(verbose_name="Adresse email", blank=True)
 
+    siren = models.CharField(verbose_name="SIREN/SIRET", max_length=14, blank=True)
+
     def __str__(self):
         return self.nom
+
+    def clean_fields(self, exclude=None):
+        try:
+            super().clean_fields()
+        except ValidationError as e:
+            errors = e.error_dict
+        else:
+            errors = {}
+
+        if exclude is None:
+            exclude = []
+
+        if "siren" not in exclude and "siren" not in errors and self.siren:
+            if len(self.siren) not in (9, 14):
+                errors["siren"] = [
+                    ValidationError(
+                        "Indiquez soit un code SIREN (9 caractères), soit un code SIRET (14 caractères).",
+                        code="siren_invalide",
+                    )
+                ]
+
+        if errors:
+            raise ValidationError(errors)
 
 
 CONDITIONS = {
@@ -446,13 +574,6 @@ CONDITIONS = {
         Todo(
             Q(beneficiaires__isnull=False),
             "Les dépenses de réception ou d'hébergement doivent identifier les personnes bénéficiaires de la dépense.",
-            NiveauTodo.IMPERATIF,
-        ),
-    ),
-    TypeDepense.GRAPHISME_MAQUETTAGE: (
-        Todo(
-            Q(documents__type=TypeDocument.EXEMPLAIRE),
-            "Vous devez joindre un exemplaire numérique du graphisme ou du maquettage realisé.",
             NiveauTodo.IMPERATIF,
         ),
     ),

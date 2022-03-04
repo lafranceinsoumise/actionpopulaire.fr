@@ -5,15 +5,6 @@ import style from "@agir/front/genericComponents/_variables.scss";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 
 const ACTIONS = {
-  /*
-  groups: {
-    key: "groups",
-    route: "groups",
-    label: "Carte",
-    icon: "map",
-    color: style.black700,
-  },
-  */
   donations: {
     key: "donations",
     route: "donations",
@@ -106,16 +97,9 @@ const ACTIONS = {
     ),
     color: style.primary500,
   },
-  referralSearch: {
-    key: "referralSearch",
-    route: "referralSearch",
-    label: "500 parrainages",
-    icon: "pen-tool",
-    color: style.referralPink,
-  },
   votingProxy: {
     key: "votingProxy",
-    route: "newVotingProxy",
+    route: "votingProxyLandingPage",
     label: ["Procuration", "Prendre une procuration"],
     icon: "edit-3",
     color: style.votingProxyOrange,
@@ -145,7 +129,6 @@ const DEFAULT_ACTION_ORDER = [
   "materiel",
   "createContact",
   "toktokPreview",
-  "referralSearch",
   "votingProxy",
   "actionTools",
 ];
@@ -156,7 +139,6 @@ const GROUP_MANAGER_ACTION_ORDER = [
   "toktokPreview",
   "coupDeFil",
   "donations",
-  "referralSearch",
   "groups",
   "votingProxy",
   "actionTools",

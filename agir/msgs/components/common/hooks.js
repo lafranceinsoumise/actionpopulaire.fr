@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useTimeout } from "react-use";
 import useSWR, { mutate } from "swr";
 import useSWRInfinite from "swr/infinite";
 import { validate as uuidValidate } from "uuid";
 
 import axios from "@agir/lib/utils/axios";
-import * as groupAPI from "@agir/groups/api";
+import * as groupAPI from "@agir/groups/utils/api";
 import { routeConfig } from "@agir/front/app/routes.config";
 import { setBackLink } from "@agir/front/globalContext/actions";
 import { useDispatch } from "@agir/front/globalContext/GlobalContext";
 
 import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
+import { useCurrentLocation } from "@agir/front/app/utils.js";
 
 const MESSAGES_PAGE_SIZE = 10;
 const COMMENTS_PAGE_SIZE = 15;
@@ -97,7 +98,8 @@ export const useCommentsSWR = (messagePk) => {
 
 export const useMessageSWR = (messagePk) => {
   const dispatch = useDispatch();
-  const { pathname } = useLocation();
+  const pathname = useCurrentLocation();
+
   const isAutoRefreshPausedRef = useRef(false);
 
   const { data: session } = useSWR(

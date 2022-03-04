@@ -1,5 +1,7 @@
 from copy import deepcopy
+from functools import partial
 
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import transaction
 from django.db.models import Count
@@ -116,14 +118,42 @@ def update_voting_proxy(instance, data):
     return instance
 
 
+# TODO: Choose a proxy-to-request distance limit (in meters)
+PROXY_TO_REQUEST_DISTANCE_LIMIT = 30000
+
+
 def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
     voting_proxy_requests = VotingProxyRequest.objects.filter(
         status=VotingProxyRequest.STATUS_CREATED,
         voting_date__in=voting_proxy.available_voting_dates,
-        commune_id=voting_proxy.commune_id,
-        consulate_id=voting_proxy.consulate_id,
         proxy__isnull=True,
     )
+
+    # Use consulate match for non-null consulate proxies
+    if voting_proxy.consulate_id is not None:
+        voting_proxy_requests = voting_proxy_requests.filter(
+            consulate_id=voting_proxy.consulate_id,
+        )
+    # Use voting_proxy person address to request commune distance,
+    # fallback to commune match for non-null commune proxies
+    else:
+        near_requests = None
+        if voting_proxy.person and voting_proxy.person.coordinates:
+            near_requests = (
+                voting_proxy_requests.filter(commune__mairie_localisation__isnull=False)
+                .annotate(
+                    distance=Distance(
+                        "commune__mairie_localisation", voting_proxy.person.coordinates
+                    )
+                )
+                .filter(distance__lte=PROXY_TO_REQUEST_DISTANCE_LIMIT)
+            )
+        if near_requests and near_requests.exists():
+            voting_proxy_requests = near_requests
+        else:
+            voting_proxy_requests = voting_proxy_requests.filter(
+                commune_id=voting_proxy.commune_id,
+            )
 
     if len(voting_proxy_request_pks) > 0:
         voting_proxy_requests = voting_proxy_requests.filter(
@@ -143,22 +173,24 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
 
     return VotingProxyRequest.objects.filter(
         id__in=voting_proxy_requests.first()["ids"]
-    ).values(
-        "id",
-        "first_name",
-        "polling_station_number",
-        "commune",
-        "consulate",
-        "voting_date",
-    )
+    ).order_by("voting_date")
 
 
 def accept_voting_proxy_requests(voting_proxy, voting_proxy_requests):
     voting_proxy_request_pks = list(voting_proxy_requests.values_list("pk", flat=True))
-    voting_proxy_requests.update(
-        status=VotingProxyRequest.STATUS_ACCEPTED, proxy=voting_proxy
+    with transaction.atomic():
+        voting_proxy.status = VotingProxy.STATUS_AVAILABLE
+        voting_proxy.save()
+        voting_proxy_requests.update(
+            status=VotingProxyRequest.STATUS_ACCEPTED, proxy=voting_proxy
+        )
+
+    transaction.on_commit(
+        partial(
+            send_voting_proxy_request_accepted_text_messages.delay,
+            voting_proxy_request_pks,
+        )
     )
-    send_voting_proxy_request_accepted_text_messages.delay(voting_proxy_request_pks)
 
 
 def decline_voting_proxy_requests(voting_proxy, voting_proxy_requests):

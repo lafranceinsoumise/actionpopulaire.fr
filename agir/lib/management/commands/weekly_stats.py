@@ -119,6 +119,14 @@ class Command(BaseCommand):
         self.print_line(
             f" └── dont de GA certifiés : {instant_stats['membres_ga_certifies']}"
         )
+        print_stock("Membres actifs de GA", "membres_ga_actifs")
+        self.print_line(
+            f" └── dont de GA certifiés : {instant_stats['membres_ga_certifies_actifs']}"
+        )
+        print_stock("Contacts de GA", "membres_ga_contacts")
+        self.print_line(
+            f" └── dont de GA certifiés : {instant_stats['membres_ga_certifies_contacts']}"
+        )
 
         # CONTACTS & CORRESPONDANT·ES D'IMMEUBLE
         self.print_section_title("Contacts & Correspondant·es d'immeuble")

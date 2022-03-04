@@ -62,6 +62,16 @@
     background-color: #98ad8a;
 }
 
+.gestion--button.warning {
+    background-color: #daa126;
+}
+.gestion--button.warning:hover {
+    background-color: #ffdc92;
+}
+.gestion--button.warning:disabled {
+    background-color: #ccb378;
+}
+
 .gestion--button.failure {
     background-color: #a7301e;
 }

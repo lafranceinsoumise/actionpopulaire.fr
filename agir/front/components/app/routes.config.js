@@ -84,6 +84,13 @@ const NewVotingProxyRequest = lazy(() =>
 const NewVotingProxy = lazy(() =>
   import("@agir/voting_proxies/VotingProxy/NewVotingProxy")
 );
+const ReplyToVotingProxyRequests = lazy(() =>
+  import("@agir/voting_proxies/VotingProxy/ReplyToVotingProxyRequests")
+);
+const VotingProxyRequestDetails = lazy(() =>
+  import("@agir/voting_proxies/VotingProxyRequest/VotingProxyRequestDetails")
+);
+const TestErrorPage = lazy(() => import("@agir/front/errorPage/TestErrorPage"));
 const TokTokPreview = lazy(() => import("@agir/events/TokTok/TokTokPreview"));
 
 export const BASE_PATH = "/";
@@ -507,6 +514,31 @@ export const routeConfig = {
     hideFooter: true,
     appOnlyTopBar: true,
   }),
+  replyToVotingProxyRequests: new RouteConfig({
+    id: "replyToVotingProxyRequests",
+    path: "/procuration/prendre-une-procuration/:votingProxyPk/",
+    params: { votingProxyPk: null },
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Prendre une procuration de vote",
+    Component: ReplyToVotingProxyRequests,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
+  votingProxyRequestDetails: new RouteConfig({
+    id: "votingProxyRequestDetails",
+    path: "/procuration/reponse/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.NONE,
+    label: "Procuration de vote",
+    Component: VotingProxyRequestDetails,
+    hasLayout: false,
+    hideFeedbackButton: true,
+    hideFooter: true,
+    appOnlyTopBar: true,
+  }),
   search: new RouteConfig({
     id: "search",
     path: "/recherche/",
@@ -534,6 +566,15 @@ export const routeConfig = {
     label: "Rechercher un événement",
     hasLayout: false,
     hideFeedbackButton: true,
+  }),
+  testErrorPage: new RouteConfig({
+    id: "testErrorPage",
+    path: "/500/",
+    neededAuthentication: AUTHENTICATION.NONE,
+    Component: TestErrorPage,
+    label: "Une erreur est survenue",
+    hideFeedbackButton: true,
+    hideFooter: true,
   }),
   toktokPreview: new RouteConfig({
     id: "toktokPreview",

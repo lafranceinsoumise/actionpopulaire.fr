@@ -13,7 +13,10 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import { useIsDesktop } from "@agir/front/genericComponents/grid";
 import { useToast } from "@agir/front/globalContext/hooks";
 
-import { updateMessageNotification, getGroupEndpoint } from "@agir/groups/api";
+import {
+  updateMessageNotification,
+  getGroupEndpoint,
+} from "@agir/groups/utils/api";
 import { MANUAL_REVALIDATION_SWR_CONFIG } from "@agir/front/allPages/SWRContext";
 
 const StyledMuteButton = styled.div`
