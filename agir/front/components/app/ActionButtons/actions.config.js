@@ -61,14 +61,6 @@ const ACTIONS = {
     icon: "user-plus",
     color: style.primary500,
   },
-  referralSearch: {
-    key: "referralSearch",
-    route: "referralSearch",
-    label: "500 parrainages",
-    icon: "check",
-    color: style.green500,
-    disabled: true,
-  },
   votingProxy: {
     key: "votingProxy",
     route: "votingProxyLandingPage",
@@ -101,7 +93,6 @@ const DEFAULT_ACTION_ORDER = [
   "materiel",
   "createContact",
   "votingProxy",
-  "referralSearch",
   "actionTools",
 ];
 const GROUP_MANAGER_ACTION_ORDER = [
@@ -112,7 +103,6 @@ const GROUP_MANAGER_ACTION_ORDER = [
   "donations",
   "groups",
   "votingProxy",
-  "referralSearch",
   "actionTools",
 ];
 
