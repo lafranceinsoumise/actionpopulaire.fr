@@ -113,7 +113,15 @@ class FournisseurAdmin(VersionAdmin):
 
     fieldsets = (
         (None, {"fields": ("type", "nom", "contact_phone", "contact_email", "siren")}),
-        ("Paiement", {"fields": ("iban",)}),
+        (
+            "Paiement",
+            {
+                "fields": (
+                    "iban",
+                    "bic",
+                )
+            },
+        ),
         (
             "Adresse de facturation",
             {

@@ -45,10 +45,13 @@ class DepenseQuerySet(NumeroQueryset):
         return self.annotate(
             prevu=models.Sum("reglement__montant"),
             regle=models.Sum(
-                Reglement.objects.filter(
-                    statut__in=[Reglement.Statut.REGLE, Reglement.Statut.RAPPROCHE],
-                    depense_id=models.OuterRef("id"),
-                ).values("montant")
+                "reglement__montant",
+                filter=Q(
+                    reglement__statut__in=[
+                        Reglement.Statut.REGLE,
+                        Reglement.Statut.RAPPROCHE,
+                    ],
+                ),
             ),
         )
 
@@ -96,6 +99,13 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 class_name="failure",
                 permissions=["gestion.engager_depense", "gestion.gerer_depense"],
             ),
+            Transition(
+                nom="Clôturer directement le dossier",
+                vers=Etat.CLOTURE,
+                condition=no_todos,
+                permissions=["gestion.controler_depense"],
+                class_name="warning",
+            ),
         ],
         Etat.CONSTITUTION: [
             Transition(
@@ -104,6 +114,13 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 condition=no_todos,
                 class_name="success",
                 permissions=["gestion.gerer_depense"],
+            ),
+            Transition(
+                nom="Clôturer directement le dossier",
+                vers=Etat.CLOTURE,
+                condition=no_todos,
+                permissions=["gestion.controler_depense"],
+                class_name="warning",
             ),
         ],
         Etat.COMPLET: [
@@ -358,13 +375,11 @@ class Reglement(TimeStampedModel):
     )
 
     intitule = models.CharField(
-        verbose_name="Identifiant du réglement",
+        verbose_name="Libellé dans le FEC",
         max_length=200,
         blank=False,
-        help_text="Ce champ doit permettre d'identifier facilement le réglement. Si ce réglement est par virement, "
-        "ce champ sera utilisé comme unique intitulé pour le virement, et apparaîtra ainsi dans les relevés "
-        "bancaires de l'émetteur comme du bénéficiaire. <strong>Il est donc conseillé d'utiliser le numéro "
-        "de facture ou d'accompte.",
+        help_text="Ce champ est utilisé comme intitulé dans le FEC, et comme intitulé dans le relevé bancaire pour les "
+        "virements générés.",
     )
 
     mode = models.CharField(
@@ -513,6 +528,7 @@ class Fournisseur(LocationMixin, TimeStampedModel):
     description = models.TextField(verbose_name="Description", blank=True)
 
     iban = IBANField(verbose_name="IBAN du fournisseur", blank=True)
+    bic = BICField(verbose_name="BIC du fournisseur", blank=True)
 
     contact_phone = PhoneNumberField(verbose_name="Numéro de téléphone", blank=True)
     contact_email = models.EmailField(verbose_name="Adresse email", blank=True)
@@ -558,13 +574,6 @@ CONDITIONS = {
         Todo(
             Q(beneficiaires__isnull=False),
             "Les dépenses de réception ou d'hébergement doivent identifier les personnes bénéficiaires de la dépense.",
-            NiveauTodo.IMPERATIF,
-        ),
-    ),
-    TypeDepense.GRAPHISME_MAQUETTAGE: (
-        Todo(
-            Q(documents__type=TypeDocument.EXEMPLAIRE),
-            "Vous devez joindre un exemplaire numérique du graphisme ou du maquettage realisé.",
             NiveauTodo.IMPERATIF,
         ),
     ),

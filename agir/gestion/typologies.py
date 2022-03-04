@@ -55,7 +55,7 @@ class TypeDepense(TextChoices):
         obj.compte = compte
         return obj
 
-    REUNIONS_PUBLIQUES = "REU", "613", "Frais divers liées aux réunions publiques"
+    REUNIONS_PUBLIQUES = "REU", "6130", "Frais divers liées aux réunions publiques"
     IMPRESSION_REUNIONS = (
         "REU-IMP",
         "6131",
@@ -68,14 +68,14 @@ class TypeDepense(TextChoices):
     )
     AMENAGEMENT_LOCAL_REUNIONS = "REU-AME", "6133", "Aménagements apportés au local "
     ECLAIRAGE_SONORISATION_REUNIONS = "REU-EC", "6134", "Éclairage et sonorisation"
-    SERVICE_ORDRE_REUNIONS = "REU-ORD", "6135", "Éclairage et sonorisation"
+    SERVICE_ORDRE_REUNIONS = "REU-ORD", "6135", "Service d'ordre et sécurité"
     AUTRES_FRAIS_REUNIONS = (
         "REU-AUT",
         "6136",
         "Autres frais liés à une réunion publique",
     )
 
-    PUBLICATION_IMPRESSION = "PIM", "614", "Publication et impression (hors R39)"
+    PUBLICATION_IMPRESSION = "PIM", "6140", "Publication et impression (hors R39)"
     CONCEPTION_IMPRESSION = "PIM-CON", "6141", "Frais de conception et d'impression"
     FRAIS_POSTAUX = "PIM-POS", "6142", "Frais de distribution et postaux"
     FRAIS_PROMOTION = "PIM-PRO", "6143", "Frais de promotion"
@@ -86,32 +86,32 @@ class TypeDepense(TextChoices):
     )
 
     FOURNITURE_MARCHANDISES = "AFM", None, "Achats de fournitures et marchandises"
-    FOURNITURE_BUREAU = "AFM-B", "635", "Achats de fourniture de bureau"
-    FOURNITURE_GOODIES = "AFM-G", "621", "Achats de goodies"
-    FOURNITURE_MATERIEL = "AFM-M", "634", "Dépenses de matériel"
+    FOURNITURE_BUREAU = "AFM-B", "6350", "Achats de fourniture de bureau"
+    FOURNITURE_GOODIES = "AFM-G", "6210", "Achats de goodies"
+    FOURNITURE_MATERIEL = "AFM-M", "6340", "Dépenses de matériel"
 
-    FRAIS_BANCAIRES = "FBC", "636", "Frais bancaires"
+    FRAIS_BANCAIRES = "FBC", "6360", "Frais bancaires"
 
-    FRAIS_DIVERS = "FDV", "637", "Frais divers"
+    FRAIS_DIVERS = "FDV", "6370", "Frais divers"
 
-    FRAIS_RECEPTION_HEBERGEMENT = "FRH", "630", "Frais de réception et d'hébergement"
-    FRAIS_HEBERGEMENT = "FRH-H", "630", "Frais d'hébergement"
-    FRAIS_ALIMENTATION = "FRH-A", "630", "Frais de restauration"
+    FRAIS_RECEPTION_HEBERGEMENT = "FRH", "6300", "Frais de réception et d'hébergement"
+    FRAIS_HEBERGEMENT = "FRH-H", "6300", "Frais d'hébergement"
+    FRAIS_ALIMENTATION = "FRH-A", "6300", "Frais de restauration"
 
-    HONORAIRES_EXPERT_COMPTABLE = "HEC", "633", "Honoraires de l'expert comptable"
+    HONORAIRES_EXPERT_COMPTABLE = "HEC", "6330", "Honoraires de l'expert comptable"
 
     HONORAIRES_CONSEILS_COMMUNICATION = (
         "HCC",
-        "623",
+        "6230",
         "Honoraires et conseils en communication",
     )
 
-    FRAIS_IMMOBILIERS = "IMM", None, "Location ou mise à disposition immobilière"
+    FRAIS_IMMOBILIERS = "IMM", "6280", "Location ou mise à disposition immobilière"
     LOYERS_LOCAL = "IMM-L", "6281", "Loyers de location"
     TRAVAUX_LOCAL = "IMM-T", "6282", "Travaux au local"
     AUTRES_FRAIS_IMMOBILIERS = "IMM-AUT", "6283", "Autres frais immobiliers"
 
-    PROPAGANDE_AUDIOVISUELLE = "PAU", None, "Propagande audiovisuelle"
+    PROPAGANDE_AUDIOVISUELLE = "PAU", "6170", "Propagande audiovisuelle"
     CONCEPTION_AUDIOVISUELLE = (
         "PAU-CON",
         "6171",
@@ -125,20 +125,20 @@ class TypeDepense(TextChoices):
     PROMOTION_AUDIOVISUELLE = "PAU-PRO", "6173", "Frais de promotion audiovisuelle"
     AUTRES_AUDIOVISUELLE = "PAU-AUT", "6174", "Autres frais audiovisuels"
 
-    TRANSPORTS = "TRA", "629", "Transports et déplacement"
-    TRAIN = "TRA-T", "629", "Billets de train"
-    AVION = "TRA-A", "629", "Billets d'avion"
-    LOCATION_VEHICULE = "TRA-L", "629", "Location d'un véhicule"
-    FRAIS_KILOMETRIQUES = "TRA-K", "629", "Frais kilométriques"
+    TRANSPORTS = "TRA", "6290", "Transports et déplacement"
+    TRAIN = "TRA-T", "6290", "Billets de train"
+    AVION = "TRA-A", "6290", "Billets d'avion"
+    LOCATION_VEHICULE = "TRA-L", "6290", "Location d'un véhicule"
+    FRAIS_KILOMETRIQUES = "TRA-K", "6290", "Frais kilométriques"
 
-    SALAIRES = "SAL", "624", "Salaires"
+    SALAIRES = "SAL", "6240", "Salaires"
 
     REFACTURATION = "REF", None, "Refacturation"
 
-    # OBSOLÈTE
-    GRAPHISME_MAQUETTAGE = "HCC-G", "Graphisme et maquettage", "6141"
-    CONSEIL_COMMUNICATION = "HCC-C", "Conseil en communication", "623"
-    LOCATION_SALLE_EVENEMENT = "IMM-S", "Mise à disposition d'une salle", "6132"
+
+TypeDepense.choices_avec_compte = [
+    (m.value, f"{m.label} ({m.compte})" if m.compte else m.label) for m in TypeDepense
+]
 
 
 class TypeProjet(TextChoices):
