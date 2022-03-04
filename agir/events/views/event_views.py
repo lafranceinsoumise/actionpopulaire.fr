@@ -80,6 +80,7 @@ __all__ = [
 
 # PUBLIC VIEWS
 # ============
+from ...groups.tasks import send_new_group_event_email, notify_new_group_event
 
 
 class EventOGImageView(DetailView):
@@ -502,6 +503,9 @@ class AcceptEventCoorganizationInvitationView(
             send_accepted_group_coorganization_invitation_notification.delay(
                 invitation.id, current_organizer_ids
             )
+            # Notify the group members
+            send_new_group_event_email.delay(invitation.group_id, invitation.event_id)
+            notify_new_group_event.delay(invitation.group_id, invitation.event_id)
             # Add a success flash message
             messages.add_message(
                 self.request,
