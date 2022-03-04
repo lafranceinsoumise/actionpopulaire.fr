@@ -286,13 +286,35 @@ def send_abuse_report_message(inviter_id):
 @shared_task
 @post_save_task
 def notify_new_group_event(group_pk, event_pk):
-    group = SupportGroup.objects.get(pk=group_pk)
-    event = Event.objects.get(pk=event_pk)
-
-    if not OrganizerConfig.objects.filter(event=event, as_group=group):
+    if not OrganizerConfig.objects.filter(event_id=event_pk, as_group_id=group_pk):
         return
 
-    recipients = group.members.all()
+    recipients = Person.objects.filter(
+        notification_subscriptions__membership__supportgroup_id=group_pk,
+        notification_subscriptions__type=Subscription.SUBSCRIPTION_PUSH,
+        notification_subscriptions__activity_type=Activity.TYPE_NEW_EVENT_MYGROUPS,
+    )
+    # Exclude other organizing group members from notification to avoid duplicates
+    other_organizing_group_members = (
+        Membership.objects.exclude(supportgroup_id=group_pk)
+        .filter(
+            supportgroup_id__in=(
+                OrganizerConfig.objects.filter(
+                    event_id=event_pk, as_group_id__isnull=False
+                ).values_list("as_group_id", flat=True)
+            )
+        )
+        .values_list("person_id", flat=True)
+    )
+
+    if len(other_organizing_group_members) > 0:
+        recipients = recipients.exclude(id__in=other_organizing_group_members)
+
+    if len(recipients) == 0:
+        return
+
+    group = SupportGroup.objects.get(pk=group_pk)
+    event = Event.objects.get(pk=event_pk)
     Activity.objects.bulk_create(
         [
             Activity(
@@ -310,20 +332,35 @@ def notify_new_group_event(group_pk, event_pk):
 @post_save_task
 @emailing_task
 def send_new_group_event_email(group_pk, event_pk):
-    group = SupportGroup.objects.get(pk=group_pk)
-    event = Event.objects.get(pk=event_pk)
-
-    if not OrganizerConfig.objects.filter(event=event, as_group=group):
+    if not OrganizerConfig.objects.filter(event_id=event_pk, as_group_id=group_pk):
         return
 
     recipients = Person.objects.filter(
-        notification_subscriptions__membership__supportgroup=group,
+        notification_subscriptions__membership__supportgroup_id=group_pk,
         notification_subscriptions__type=Subscription.SUBSCRIPTION_EMAIL,
         notification_subscriptions__activity_type=Activity.TYPE_NEW_EVENT_MYGROUPS,
     )
+    # Exclude other organizing group members from notification to avoid duplicates
+    other_organizing_group_members = (
+        Membership.objects.exclude(supportgroup_id=group_pk)
+        .filter(
+            supportgroup_id__in=(
+                OrganizerConfig.objects.filter(
+                    event_id=event_pk, as_group_id__isnull=False
+                ).values_list("as_group_id", flat=True)
+            )
+        )
+        .values_list("person_id", flat=True)
+    )
+
+    if len(other_organizing_group_members) > 0:
+        recipients = recipients.exclude(id__in=other_organizing_group_members)
 
     if len(recipients) == 0:
         return
+
+    group = SupportGroup.objects.get(pk=group_pk)
+    event = Event.objects.get(pk=event_pk)
 
     now = timezone.now()
     start_time = event.local_start_time

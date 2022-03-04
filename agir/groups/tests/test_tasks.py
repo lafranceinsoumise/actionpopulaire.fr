@@ -85,16 +85,37 @@ class NotificationTasksTestCase(TestCase):
             membership_type=Membership.MEMBERSHIP_TYPE_MEMBER,
         )
 
+        self.group_notification_recipients = [
+            self.creator_membership,
+            self.membership1,
+            self.membership2,
+        ]
+
         Subscription.objects.bulk_create(
             [
                 Subscription(
-                    person=p,
+                    person=m.person,
+                    membership=m,
                     type=Subscription.SUBSCRIPTION_EMAIL,
                     activity_type=t,
                 )
-                for p in [self.creator, self.member1, self.member2]
+                for m in self.group_notification_recipients
                 for t in Subscription.DEFAULT_GROUP_EMAIL_TYPES
-            ]
+            ],
+            ignore_conflicts=True,
+        )
+        Subscription.objects.bulk_create(
+            [
+                Subscription(
+                    person=m.person,
+                    membership=m,
+                    type=Subscription.SUBSCRIPTION_PUSH,
+                    activity_type=t,
+                )
+                for m in self.group_notification_recipients
+                for t in Subscription.DEFAULT_GROUP_PUSH_TYPES
+            ],
+            ignore_conflicts=True,
         )
 
         for s in Subscription.objects.filter(person=self.member_no_notification):
@@ -474,7 +495,7 @@ class NotificationTasksTestCase(TestCase):
 
     def test_new_group_event_notifications_are_sent(self):
         supportgroup = self.group
-        recipients = self.group.members.all()
+        recipients = [r.person for r in self.group_notification_recipients]
         now = timezone.now()
         day = timezone.timedelta(days=1)
         hour = timezone.timedelta(hours=1)
@@ -504,7 +525,7 @@ class NotificationTasksTestCase(TestCase):
             supportgroup=supportgroup,
             event=event,
         ).count()
-        self.assertEqual(new_activity_count - old_activity_count, recipients.count())
+        self.assertEqual(new_activity_count - old_activity_count, len(recipients))
 
     @patch("agir.groups.tasks.send_mosaico_email")
     def test_new_group_event_emails_are_sent(self, send_mosaico_email):
