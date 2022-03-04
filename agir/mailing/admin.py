@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.gis.admin import OSMGeoAdmin
+from django.db.models import Q
 from django.forms import ModelForm, CheckboxSelectMultiple
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -185,6 +186,17 @@ class NuntiusCampaignAdmin(CampaignAdmin):
         )
 
 
+@admin.register(PushCampaign)
+class NuntiusPushCampaignAdmin(PushCampaignAdmin):
+    def segment_subscribers(self, instance):
+        if not instance.segment:
+            return "-"
+        return (
+            instance.segment.get_subscribers_queryset()
+            .filter(Q(role__gcmdevice__active=True) | Q(role__apnsdevice__active=True))
+            .count()
+        )
+
+
 admin.site.register(CampaignSentEvent, CampaignSentEventAdmin)
-admin.site.register(PushCampaign, PushCampaignAdmin)
 admin.site.register(PushCampaignSentEvent, PushCampaignSentEventAdmin)
