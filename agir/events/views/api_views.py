@@ -10,6 +10,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.timezone import now
+from agir.msgs.serializers import SupportGroupMessageSerializer
+from agir.msgs.models import SupportGroupMessage
 from rest_framework import exceptions, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.generics import (
@@ -67,6 +69,7 @@ __all__ = [
     "EventGroupsOrganizersAPIView",
     "CancelEventAPIView",
     "EventReportPersonFormAPIView",
+    "EventMessagesAPIView",
 ]
 
 from agir.gestion.models import Projet
@@ -602,3 +605,43 @@ class EventReportPersonFormAPIView(RetrieveAPIView):
             event_pk=Value(event.pk, output_field=CharField())
         )
         return get_object_or_404(queryset, event_subtype=event.subtype)
+
+
+class EventMessagesAPIView(ListAPIView):
+    # Get permission on event = public messages of the group or get membership permission
+    serializer_class = SupportGroupMessageSerializer
+    permission_classes = (
+        IsPersonPermission,
+        # GroupMessagesPermissions,
+    )
+    # pagination_class = APIPaginator
+    membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
+
+    def initial(self, request, *args, **kwargs):
+        try:
+            self.event = Event.objects.get(pk=kwargs["pk"])
+        except Event.DoesNotExist:
+            raise NotFound()
+
+        super().initial(request, *args, **kwargs)
+        self.check_object_permissions(request, self.event)
+
+    def get_queryset(self):
+        person = self.request.user.person
+        # memberships = self.event.supportgroup.memberships.filter(person=person)
+        # user_permission = 0
+        # if memberships.exists():
+        #     user_permission = memberships.first().membership_type
+
+        return SupportGroupMessage.objects.filter(linked_event=self.event).order_by(
+            "-created"
+        )
+
+        # Messages where user is author or allowed
+        # return (
+        #     self.supportgroup.messages.active()
+        #     .filter(Q(required_membership_type__lte=user_permission) | Q(author=person))
+        #     .select_related("author", "linked_event", "linked_event__subtype")
+        #     .prefetch_related("comments")
+        #     .order_by("-created")
+        # )
