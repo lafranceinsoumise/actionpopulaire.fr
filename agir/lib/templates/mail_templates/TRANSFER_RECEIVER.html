@@ -149,7 +149,11 @@
         <table class="vb-container halfpad" style="border-collapse: separate; border-spacing: 9px; padding-left: 9px; padding-right: 9px; width: 100%; max-width: 570px; background-color: #ffffff;" width="570" cellspacing="9" cellpadding="0" border="0" bgcolor="#ffffff">
           <tbody><tr>
             <td style="background-color: #ffffff; font-size: 24px; font-weight: 700; font-family: Arial, Helvetica, sans-serif; color: #000a2c; text-align: left;" bgcolor="#ffffff" align="left">
-              <span>De nouveaux membres ont rejoint votre groupe suite à un transfert</span>
+              {% if MEMBER_COUNT > 1 %}
+                <span>De nouveaux membres ont rejoint votre groupe suite à un transfert</span>
+              {% else %}
+                <span>Une nouvelle personne a rejoint votre groupe suite à un transfert</span>
+              {% endif %}
             </td>
           </tr>
         </tbody></table>
@@ -170,11 +174,17 @@
                 <br>
               </p>
               <p style="Margin: 1em 0px;">
-                <strong><a href="{{ GROUP_SENDER_URL }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">{{ GROUP_SENDER }}</a> </strong>a transféré {{ MEMBERS_COUNT }} membres vers {{ GROUP_DESTINATION }} :
-                <br>
+                <strong>
+                  <a href="{{ GROUP_SENDER_URL }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">{{ GROUP_SENDER }}</a> </strong>
+                a transféré {{ MEMBER_COUNT }} membre{{ MEMBER_COUNT|pluralize:"s" }} vers
+                <a href="{{ GROUP_DESTINATION_URL }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">{{ GROUP_DESTINATION }}</a>:
               </p>
               <p style="Margin: 1em 0px;">
-                {{ MEMBERS_LIST }}
+                <ul style="list-style-type: none; margin: 0px; padding: 16px; background:#eeeeee; border-radius:8px;">
+                  {% for member in MEMBER_LIST %}
+                    <li>{{ member }}</li>
+                  {% endfor %}
+                </ul>
               </p>
               <p style="Margin: 1em 0px;">
                 <a href="{{ MANAGE_GROUP_LINK }}" style="color: #571AFF; color: #571AFF; text-decoration: underline;">Cliquez-ici</a> pour accéder à la page d'administration de {{ GROUP_DESTINATION }}.
