@@ -217,7 +217,11 @@ const Actions = (props) => {
             </>
           )
         )}
-        <AddGroupAttendee id={id} groups={groups} />
+        <AddGroupAttendee
+          id={id}
+          groups={groups}
+          groupsAttendees={groupsAttendees}
+        />
         {isOrganizer && (
           <Button
             icon="settings"

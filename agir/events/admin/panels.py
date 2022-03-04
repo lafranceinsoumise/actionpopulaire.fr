@@ -22,6 +22,7 @@ from agir.lib.admin.filters import (
 from agir.lib.admin.panels import CenterOnFranceMixin
 from agir.lib.utils import front_url, replace_datetime_timezone
 from agir.people.admin.views import FormSubmissionViewsMixin
+from agir.events.models import Event
 from agir.people.models import PersonFormSubmission
 from agir.people.person_forms.display import PersonFormDisplay
 from . import actions
@@ -267,6 +268,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
                     "allow_guests",
                     "subscription_form",
                     "participants_display",
+                    "group_participants_display",
                     "rsvps_buttons",
                     "payment_parameters",
                     "enable_jitsi",
@@ -321,6 +323,7 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         "coordinates_type",
         "rsvps_buttons",
         "participants_display",
+        "group_participants_display",
     )
     date_hierarchy = "start_time"
 
@@ -452,6 +455,13 @@ class EventAdmin(FormSubmissionViewsMixin, CenterOnFranceMixin, OSMGeoAdmin):
         return "-"
 
     participants_display.short_description = "Nombre de participants"
+
+    def group_participants_display(self, obj):
+        if obj.groups_attendees.exists():
+            return f"{obj.groups_attendees.count()}"
+        return "-"
+
+    group_participants_display.short_description = "Nombre de groupes participants"
 
     def add_organizer(self, request, pk):
         return views.add_organizer(self, request, pk)

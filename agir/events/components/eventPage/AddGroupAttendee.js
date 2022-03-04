@@ -90,7 +90,7 @@ const GroupItem = styled.div`
   }
 `;
 
-const AddGroupAttendee = ({ id, groups }) => {
+const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errors, setErrors] = useState({});
   const [groupJoined, setGroupJoined] = useState(false);
@@ -99,8 +99,15 @@ const AddGroupAttendee = ({ id, groups }) => {
   const user = useSelector(getUser);
 
   const eventGroupsId = groups.reduce((arr, elt) => [...arr, elt.id], []);
+  const eventGroupsAttendeesId = groupsAttendees.reduce(
+    (arr, elt) => [...arr, elt.id],
+    []
+  );
+  const redList = eventGroupsId.concat(eventGroupsAttendeesId);
+
+  // Get managing groups not attendees
   const managingGroups = user?.groups.filter(
-    (group) => group.isManager && !eventGroupsId.includes(group.id)
+    (group) => group.isManager && !redList.includes(group.id)
   );
 
   const handleJoinAsGroup = async (group) => {
@@ -125,13 +132,13 @@ const AddGroupAttendee = ({ id, groups }) => {
     setGroupJoined(false);
   };
 
-  if (!managingGroups?.length) {
-    return null;
-  }
-
   return (
     <>
-      <Button onClick={showModalJoinAsGroup}>Participer avec mon groupe</Button>
+      {!!managingGroups?.length && (
+        <Button onClick={showModalJoinAsGroup}>
+          Participer avec mon groupe
+        </Button>
+      )}
       <Modal
         shouldShow={isModalOpen}
         isOpen={isModalOpen}
@@ -195,6 +202,13 @@ const AddGroupAttendee = ({ id, groups }) => {
 AddGroupAttendee.propTypes = {
   id: PropTypes.string,
   groups: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+      isManager: PropTypes.bool,
+    })
+  ),
+  groupsAttendees: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
       name: PropTypes.string,
