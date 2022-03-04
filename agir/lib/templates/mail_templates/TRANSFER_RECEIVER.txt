@@ -1,16 +1,20 @@
-  
-  
-De nouveaux membres ont rejoint votre groupe suite à un transfert  
+
+{% if MEMBER_COUNT > 1 %}
+De nouveaux membres ont rejoint votre groupe suite à un transfert
+{% else %}
+Une nouvelle personne a rejoint votre groupe suite à un transfert
+{% endif %}
   
 {{ GREETINGS }},  
 
+{{ GROUP_SENDER }} ({{ GROUP_SENDER_URL }})
+a transféré {{ MEMBER_COUNT }} membre{{ MEMBER_COUNT|pluralize:"s" }} vers
+{{ GROUP_DESTINATION }} ({{ GROUP_DESTINATION_URL }}):
 
- **[{{ GROUP_SENDER }}]({{ GROUP_SENDER_URL }}) **a transféré {{ MEMBERS_COUNT }} membres vers {{ GROUP_NAME }} :  
+{{ MEMBER_LIST }}
 
-
-{{ MEMBERS_LIST }}
-
-[Cliquez-ici]({{ MANAGE_GROUP_LINK }}) pour accéder à la page d'administration de {{ GROUP_NAME }}.  
+Accédez à la page d'administration de {{ GROUP_DESTINATION }} :
+{{ MANAGE_GROUP_LINK }}
 
 
 Amitiés,  
