@@ -8,6 +8,12 @@ from pytz import utc, InvalidTimeError
 from rest_framework import serializers
 from rest_framework.fields import empty
 
+from django.db.models import (
+    OuterRef,
+    Exists,
+    Value,
+)
+
 from agir.activity.models import Activity
 from agir.events.tasks import NOTIFIED_CHANGES
 from agir.front.serializer_utils import RoutesField
@@ -318,16 +324,24 @@ class EventSerializer(FlexibleFieldsMixin, serializers.Serializer):
         if not user.is_anonymous and user.person:
             self.person = user.person
 
-        groups = []
-        for group in obj.groups_attendees.all():
-            groups += [
-                {
-                    "id": group.id,
-                    "name": group.name,
-                    "isManager": self.person in group.managers,
-                }
-            ]
-        return groups
+        if user.is_anonymous or user.person is None:
+            return (
+                obj.groups_attendees.all()
+                .annotate(isManager=Value(False))
+                .values("id", "name", "isManager")
+            )
+        return (
+            obj.groups_attendees.all()
+            .annotate(
+                isManager=Exists(
+                    self.person.memberships.filter(
+                        supportgroup_id=OuterRef("id"),
+                        membership_type__gte=Membership.MEMBERSHIP_TYPE_MANAGER,
+                    )
+                )
+            )
+            .values("id", "name", "isManager")
+        )
 
     def get_is_past(self, obj):
         return obj.is_past()

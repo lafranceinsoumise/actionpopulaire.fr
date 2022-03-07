@@ -11,10 +11,7 @@ import Link from "@agir/front/app/Link";
 import Map from "@agir/carte/common/Map";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
-
-import eventCardDefaultBackground from "@agir/front/genericComponents/images/event-card-default-bg.svg";
-import { useSelector } from "@agir/front/globalContext/GlobalContext";
-import { getUser } from "@agir/front/globalContext/reducers";
+import EventGroupsAttendees from "./EventGroupsAttendees";
 
 const StyledLink = styled(Link)``;
 const Illustration = styled.div`
@@ -154,14 +151,6 @@ const StyledCard = styled(Card)`
   }
 `;
 
-const StyledGroupsAttendees = styled.div`
-  padding: 10px;
-  background-color: ${style.primary50};
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-`;
-
 const EventCardIllustration = (props) => {
   const { image, coordinates, subtype, staticMapUrl } = props;
 
@@ -210,61 +199,6 @@ EventCardIllustration.propTypes = {
   coordinates: PropTypes.array,
   subtype: PropTypes.object,
   staticMapUrl: PropTypes.string,
-};
-
-const EventGroupsAttendees = ({ groupsAttendees, isPast }) => {
-  const user = useSelector(getUser);
-
-  const fromUserGroups =
-    user?.groups.reduce((arr, elt) => {
-      if (groupsAttendees.some((group) => group.id === elt.id)) {
-        return [...arr, elt];
-      }
-      return arr;
-    }, []) || [];
-
-  if (!groupsAttendees.length) {
-    return <></>;
-  }
-
-  return (
-    <StyledGroupsAttendees>
-      <RawFeatherIcon
-        name="users"
-        width="1rem"
-        height="1rem"
-        style={{ marginRight: "0.5rem" }}
-      />
-      {fromUserGroups.length ? (
-        <>
-          Votre groupe&nbsp;<b>{fromUserGroups[0].name}</b>
-        </>
-      ) : (
-        <>
-          Le groupe&nbsp;<b>{groupsAttendees[0].name}</b>
-        </>
-      )}
-      &nbsp;
-      {groupsAttendees.length > 1 ? (
-        <>
-          et {groupsAttendees.length - 1} autres groupes&nbsp;
-          {isPast ? "y ont participé" : "y participent"}
-        </>
-      ) : (
-        <> {isPast ? "y a participé" : "y participe"}</>
-      )}
-    </StyledGroupsAttendees>
-  );
-};
-EventGroupsAttendees.propTypes = {
-  groupsAttendees: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      name: PropTypes.string,
-      isManager: PropTypes.bool,
-    })
-  ),
-  isPast: PropTypes.bool,
 };
 
 const EventCard = (props) => {

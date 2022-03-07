@@ -251,7 +251,7 @@ def send_rsvp_notification(rsvp_pk):
 
 @post_save_task
 # Send notification new-group-attendee to all organizers (referents from groups co-organizing)
-# Send notification group-join-event to members of group (not referents)
+# Send notification new-event-participation-mygroups to members of group (not referents)
 def send_group_attendee_notification(group_attendee_pk):
     group_attendee = GroupAttendee.objects.get(pk=group_attendee_pk)
 
@@ -291,7 +291,7 @@ def send_group_attendee_notification(group_attendee_pk):
         [
             Activity(
                 recipient=r,
-                type=Activity.TYPE_GROUP_JOIN_EVENT,
+                type=Activity.TYPE_NEW_EVENT_PARTICIPATION_MYGROUPS,
                 event=group_attendee.event,
                 supportgroup=group_attendee.group,
             )

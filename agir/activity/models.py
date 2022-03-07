@@ -48,7 +48,7 @@ class Activity(TimeStampedModel):
     # GROUP TYPES
     TYPE_NEW_REPORT = "new-report"
     TYPE_NEW_EVENT_MYGROUPS = "new-event-mygroups"
-    TYPE_GROUP_JOIN_EVENT = "group-join-event"
+    TYPE_NEW_EVENT_PARTICIPATION_MYGROUPS = "new-event-participation-mygroups"
     TYPE_GROUP_INVITATION = "group-invitation"
     TYPE_NEW_FOLLOWER = "new-follower"
     TYPE_NEW_MEMBER = "new-member"
@@ -72,7 +72,7 @@ class Activity(TimeStampedModel):
     TYPE_WAITING_PAYMENT = "waiting-payment"
 
     DISPLAYED_TYPES = (
-        TYPE_GROUP_JOIN_EVENT,
+        TYPE_NEW_EVENT_PARTICIPATION_MYGROUPS,
         TYPE_GROUP_INVITATION,
         TYPE_NEW_FOLLOWER,
         TYPE_NEW_MEMBER,
@@ -106,7 +106,7 @@ class Activity(TimeStampedModel):
 
     TYPE_CHOICES = (
         (TYPE_WAITING_PAYMENT, "Paiement en attente"),
-        (TYPE_GROUP_JOIN_EVENT, "Le groupe participe à un événement"),
+        (TYPE_NEW_EVENT_PARTICIPATION_MYGROUPS, "Le groupe participe à un événement"),
         (TYPE_GROUP_INVITATION, "Invitation à un groupe"),
         (TYPE_NEW_FOLLOWER, "Nouveau·lle abonné·e dans le groupe"),
         (TYPE_NEW_MEMBER, "Nouveau membre dans le groupe"),

@@ -98,16 +98,14 @@ const AddGroupAttendee = ({ id, groups, groupsAttendees }) => {
   // Get groups where im manager
   const user = useSelector(getUser);
 
-  const eventGroupsId = groups.reduce((arr, elt) => [...arr, elt.id], []);
-  const eventGroupsAttendeesId = groupsAttendees.reduce(
-    (arr, elt) => [...arr, elt.id],
-    []
-  );
-  const redList = eventGroupsId.concat(eventGroupsAttendeesId);
+  const eventGroupsId = groups.map((group) => group.id);
+  const eventGroupsAttendeesId = groups.map((group) => group.id);
+
+  const blackList = eventGroupsId.concat(eventGroupsAttendeesId);
 
   // Get managing groups not attendees
   const managingGroups = user?.groups.filter(
-    (group) => group.isManager && !redList.includes(group.id)
+    (group) => group.isManager && !blackList.includes(group.id)
   );
 
   const handleJoinAsGroup = async (group) => {

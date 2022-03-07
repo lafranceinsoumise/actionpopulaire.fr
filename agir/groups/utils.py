@@ -22,11 +22,6 @@ def is_active_group_filter():
 
 # Get events of group + events where group is attendee
 def get_events_with_group(queryset, supportgroup):
-    group_attendees = GroupAttendee.objects.filter(group=supportgroup)
-    events_id = set(group_attendees.values_list("event", flat=True))
-
-    events = queryset.filter(
-        Q(organizers_groups__in=[supportgroup]) | Q(pk__in=events_id)
+    return queryset.filter(
+        Q(organizers_groups__in=[supportgroup]) | Q(groups_attendees__in=[supportgroup])
     )
-
-    return events

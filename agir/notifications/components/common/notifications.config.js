@@ -218,7 +218,7 @@ const GROUP_NOTIFICATIONS = [
     hasEmail: false,
     hasPush: true,
     isActive: (group) => !group.isReferent,
-    activityTypes: ["group-join-event"],
+    activityTypes: ["new-event-participation-mygroups"],
   },
   {
     id: "group_event_notifications",

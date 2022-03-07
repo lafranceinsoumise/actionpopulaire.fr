@@ -33,7 +33,7 @@ const ACTIVITY_CONFIG = {
     icon: "calendar",
     hasEvent: true,
   },
-  "group-join-event": {
+  "new-event-participation-mygroups": {
     icon: "users",
     hasEvent: true,
   },
