@@ -1,16 +1,17 @@
-const path = require("path");
 const fs = require("fs");
+const glob = require("glob");
+const path = require("path");
 
 require("dotenv").config({
   path: path.join(__dirname, ".env"),
 });
 
-const BundleAnalyzerPlugin =
-  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { InjectManifest } = require("workbox-webpack-plugin");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const StatoscopeWebpackPlugin = require("@statoscope/webpack-plugin").default;
 const WebpackBar = require("webpackbar");
 
 const DISTPATH = path.resolve(__dirname, "assets/components");
@@ -64,8 +65,15 @@ const aliases = applications.reduce(
 );
 
 // Generate an HTML fragment with all chunks tag for each entry
-const htmlPlugins = (type) =>
-  Object.keys(components).map(
+const htmlPlugins = (type) => [
+  new HtmlWebpackPlugin({
+    filename: `includes/theme.bundle.html`,
+    inject: false,
+    chunks: ["theme"],
+    templateContent: ({ htmlWebpackPlugin }) =>
+      `<link href="${htmlWebpackPlugin.files.css[0]}" rel="stylesheet">`,
+  }),
+  ...Object.keys(components).map(
     (entry) =>
       new HtmlWebpackPlugin({
         filename: `includes/${entry}.${
@@ -94,7 +102,8 @@ const htmlPlugins = (type) =>
           }
         },
       })
-  );
+  ),
+];
 
 // List all chunks on which main app depends for preloading by service worker
 let _cachedAppEntryFiles;
@@ -180,7 +189,7 @@ const configureBabelLoader = (type) => ({
           "@babel/preset-env",
           {
             modules: false,
-            corejs: "3.20",
+            corejs: "3.21",
             useBuiltIns: "usage",
             targets: type === CONFIG_TYPES.ES5 ? es5Browsers : es2015Browsers,
           },
@@ -221,6 +230,7 @@ const configureBabelLoader = (type) => ({
 });
 
 module.exports = (type = CONFIG_TYPES.ES5) => ({
+  name: type,
   context: path.resolve(__dirname, "agir/"),
   entry: Object.assign(
     {
@@ -229,53 +239,83 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
     components
   ),
   plugins: [
-    type !== CONFIG_TYPES.DEV && new WebpackBar(),
+    type !== CONFIG_TYPES.ES2015 && new CleanWebpackPlugin(),
     ...htmlPlugins(type),
-    new HtmlWebpackPlugin({
-      filename: `includes/theme.bundle.html`,
-      inject: false,
-      chunks: ["theme"],
-      templateContent: ({ htmlWebpackPlugin }) =>
-        `<link href="${htmlWebpackPlugin.files.css[0]}" rel="stylesheet">`,
-    }),
     new MiniCssExtractPlugin({ filename: "[name]-[chunkhash].css" }),
     type !== CONFIG_TYPES.DEV &&
       new webpack.IgnorePlugin({
         resourceRegExp: /^\.\/locale$/,
         contextRegExp: /moment$/,
       }),
-    type !== CONFIG_TYPES.DEV &&
-      new BundleAnalyzerPlugin({
-        analyzerMode: "static",
-        openAnalyzer: false,
-        reportFilename:
-          type === CONFIG_TYPES.ES2015 ? "es2015_report.html" : "report.html",
-        reportTitle:
-          type === CONFIG_TYPES.ES2015
-            ? "es2015+ webpack build report"
-            : "es5 webpack build report",
+    type === CONFIG_TYPES.ES2015 &&
+      new InjectManifest({
+        swSrc: path.resolve(
+          __dirname,
+          "agir/front/components/serviceWorker/serviceWorker.js"
+        ),
+        swDest: "service-worker.js",
+        maximumFileSizeToCacheInBytes: 7000000,
+        mode: "production",
+        exclude: [
+          new RegExp("skins\\" + path.sep),
+          /\.html$/,
+          /\.LICENSE.txt$/,
+          /\.mjs.map/,
+          /\.css.map/,
+          ({ asset, compilation }) =>
+            getOtherEntryFiles(compilation).includes(asset.name),
+        ],
       }),
-    type === CONFIG_TYPES.ES2015
-      ? new InjectManifest({
-          swSrc: path.resolve(
-            __dirname,
-            "agir/front/components/serviceWorker/serviceWorker.js"
-          ),
-          swDest: "service-worker.js",
-          maximumFileSizeToCacheInBytes: 7000000,
-          mode: "production",
-          exclude: [
-            new RegExp("skins\\" + path.sep),
-            /\.html$/,
-            /\.LICENSE.txt$/,
-            /\.mjs.map/,
-            /\.css.map/,
-            ({ asset, compilation }) =>
-              getOtherEntryFiles(compilation).includes(asset.name),
-          ],
-        })
-      : null,
-    new webpack.EnvironmentPlugin(["WEBPUSH_PUBLIC_KEY"]),
+    new webpack.EnvironmentPlugin({
+      WEBPUSH_PUBLIC_KEY: "",
+      SENTRY_RELEASE:
+        type !== CONFIG_TYPES.DEV
+          ? require("child_process")
+              .execSync("git rev-parse HEAD")
+              .toString()
+              .replace("\n", "")
+          : "",
+      SENTRY_ENV: type !== CONFIG_TYPES.DEV ? "production" : "",
+      DEBUG: type === CONFIG_TYPES.DEV ? "agir:*" : "",
+    }),
+    type !== CONFIG_TYPES.DEV &&
+      new WebpackBar({
+        name: type,
+        color: type === CONFIG_TYPES.ES2015 ? "#cbbfec" : "#fcfbd9",
+      }),
+    type === CONFIG_TYPES.ES2015 &&
+      new StatoscopeWebpackPlugin({
+        saveReportTo: `.coverage/statoscope/[name].html`,
+        saveStatsTo: `.coverage/statoscope/[name]-[hash].json`,
+        additionalStats: glob.sync(".coverage/statoscope/*.json"),
+        normalizeStats: true,
+        compressor: false,
+        watchMode: false,
+        open: false,
+        name: type,
+        data: () => fetchAsyncData(),
+        reports: [
+          {
+            id: "top-50-biggest-modules",
+            name: "Top 50 biggest modules",
+            view: [
+              "struct",
+              {
+                data: `#.stats.compilations.(
+                  $compilation: $;
+                    modules.({
+                      module: $,
+                      hash: $compilation.hash,
+                      size: getModuleSize($compilation.hash)
+                    })
+                  ).sort(size.size desc)[:50]`,
+                view: "list",
+                item: "module-item",
+              },
+            ],
+          },
+        ],
+      }),
   ].filter(Boolean),
   output: {
     libraryTarget: "window",
@@ -287,6 +327,10 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
   },
   module: {
     rules: [
+      {
+        test: /swiper\.esm\.js/,
+        sideEffects: false,
+      },
       configureBabelLoader(type),
       {
         test: /theme\.scss$/,

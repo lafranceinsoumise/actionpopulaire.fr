@@ -1,7 +1,5 @@
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const path = require("path");
 const merge = require("webpack-merge");
-const webpack = require("webpack");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
 const common = require("./webpack.common.js");
@@ -51,11 +49,5 @@ module.exports = merge.merge(common("dev"), {
     },
     allowedHosts: ["agir.local"],
   },
-  plugins: [
-    new CleanWebpackPlugin(),
-    new ReactRefreshWebpackPlugin(),
-    new webpack.EnvironmentPlugin({
-      DEBUG: "agir:*", // default value if not defined in .env
-    }),
-  ],
+  plugins: [new ReactRefreshWebpackPlugin()],
 });
