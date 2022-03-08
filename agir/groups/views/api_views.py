@@ -1,5 +1,6 @@
 import reversion
 from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
 from django.core.validators import validate_email
 from django.db import transaction
 from django.db.models import F, Max, DateTimeField, Q
@@ -166,13 +167,25 @@ class UserGroupSuggestionsView(ListAPIView):
     def get_queryset(self):
         person = self.request.user.person
         if person.coordinates is not None:
-            return (
-                self.queryset.exclude(
-                    pk__in=person.supportgroups.values_list("id", flat=True)
+            base_queryset = self.queryset.exclude(
+                pk__in=person.supportgroups.values_list("id", flat=True)
+            )
+            # Try to find groups within 100km distance first
+            near_groups = (
+                base_queryset.filter(
+                    coordinates__dwithin=(person.coordinates, D(km=100))
                 )
                 .annotate(distance=Distance("coordinates", person.coordinates))
                 .order_by("distance")[:3]
             )
+
+            if len(near_groups) > 0:
+                return near_groups
+
+            # Fallback on all groups
+            return base_queryset.annotate(
+                distance=Distance("coordinates", person.coordinates)
+            ).order_by("distance")[:3]
 
         return self.queryset.none()
 
