@@ -196,7 +196,6 @@ const configureBabelLoader = (type) => ({
         ],
       ],
       plugins: [
-        "@babel/plugin-syntax-dynamic-import",
         [
           "babel-plugin-styled-components",
           {

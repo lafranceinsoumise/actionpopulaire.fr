@@ -28,18 +28,20 @@ export const ProtectedComponent = (props) => {
   const { route, ...rest } = props;
   const { Component, AnonymousComponent = null } = route;
 
+  const location = useLocation();
+  const isAuthorized = useAuthentication(route);
+
+  useAppLoader(isAuthorized !== null);
   useEffect(() => {
+    if (isAuthorized === null) {
+      return;
+    }
     const PreloadedComponent = AnonymousComponent || Component;
     if (typeof PreloadedComponent?.preload === "function") {
       log.debug("Preloading", PreloadedComponent);
       PreloadedComponent.preload();
     }
-  }, [AnonymousComponent, Component]);
-
-  const location = useLocation();
-  const isAuthorized = useAuthentication(route);
-
-  useAppLoader(isAuthorized !== null);
+  }, [isAuthorized, AnonymousComponent, Component]);
 
   if (isAuthorized === null) {
     return null;

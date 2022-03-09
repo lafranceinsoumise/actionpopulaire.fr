@@ -2,95 +2,10 @@ import pathToRegexp from "path-to-regexp-es";
 
 import style from "@agir/front/genericComponents/_variables.scss";
 import logger from "@agir/lib/utils/logger";
-import { lazy } from "./utils";
 
 import { AUTHENTICATION } from "@agir/front/authentication/common";
 
-const AgendaPage = lazy(() => import("@agir/events/agendaPage/Agenda"));
-const HomePage = lazy(() => import("@agir/front/app/Homepage/Home"));
-const EventMap = lazy(() => import("@agir/carte/page__eventMap/EventMap"));
-const EventPage = lazy(() => import("@agir/events/eventPage/EventPage"));
-const CreateEvent = lazy(() =>
-  import("@agir/events/createEventPage/CreateEvent")
-);
-const MissingDocumentsPage = lazy(() =>
-  import(
-    "@agir/events/eventRequiredDocuments/MissingDocuments/MissingDocumentsPage"
-  )
-);
-const EventRequiredDocuments = lazy(() =>
-  import("@agir/events/eventRequiredDocuments/EventRequiredDocumentsPage")
-);
-const GroupsPage = lazy(() => import("@agir/groups/groupsPage/GroupsPage"));
-const FullGroupPage = lazy(() =>
-  import("@agir/groups/fullGroupPage/FullGroupPage")
-);
-const GroupPage = lazy(() => import("@agir/groups/groupPage/GroupPage"));
-
-const GroupMessagePage = lazy(() =>
-  import("@agir/groups/groupPage/GroupMessagePage")
-);
-const GroupMap = lazy(() => import("@agir/carte/page__groupMap/GroupMap"));
-
-const ActivityPage = lazy(() =>
-  import("@agir/activity/ActivityPage/ActivityPage")
-);
-
-const NavigationPage = lazy(() =>
-  import("@agir/front/navigationPage/NavigationPage")
-);
-
-const SignupPage = lazy(() =>
-  import("@agir/front/authentication/Connexion/SignupPage")
-);
-const LoginPage = lazy(() =>
-  import("@agir/front/authentication/Connexion/LoginPage")
-);
-const CodeLoginPage = lazy(() =>
-  import("@agir/front/authentication/Connexion/Code/CodeLogin")
-);
-const CodeSignupPage = lazy(() =>
-  import("@agir/front/authentication/Connexion/Code/CodeSignup")
-);
-const TellMorePage = lazy(() =>
-  import("@agir/front/authentication/Connexion/TellMore/TellMorePage")
-);
-const LogoutPage = lazy(() =>
-  import("@agir/front/authentication/Connexion/Logout")
-);
-const MessagePage = lazy(() => import("@agir/msgs/MessagePage/MessagePage"));
-const CreateContactPage = lazy(() =>
-  import("@agir/people/contacts/CreateContactPage")
-);
-const DonationPage = lazy(() =>
-  import("@agir/donations/donationPage/DonationPage")
-);
-const DonationInformationsPage = lazy(() =>
-  import("@agir/donations/donationPage/InformationsPage")
-);
-const ActionToolsPage = lazy(() =>
-  import("@agir/front/ActionToolsPage/ActionToolsPage")
-);
-const SearchPage = lazy(() => import("@agir/front/SearchPage/SearchPage"));
-const SearchGroupPage = lazy(() =>
-  import("@agir/front/SearchPage/SearchGroupPage")
-);
-const SearchEventPage = lazy(() =>
-  import("@agir/front/SearchPage/SearchEventPage")
-);
-const NewVotingProxyRequest = lazy(() =>
-  import("@agir/voting_proxies/VotingProxyRequest/NewVotingProxyRequest")
-);
-const NewVotingProxy = lazy(() =>
-  import("@agir/voting_proxies/VotingProxy/NewVotingProxy")
-);
-const ReplyToVotingProxyRequests = lazy(() =>
-  import("@agir/voting_proxies/VotingProxy/ReplyToVotingProxyRequests")
-);
-const VotingProxyRequestDetails = lazy(() =>
-  import("@agir/voting_proxies/VotingProxyRequest/VotingProxyRequestDetails")
-);
-const TestErrorPage = lazy(() => import("@agir/front/errorPage/TestErrorPage"));
+import RouteComponents from "./routes.components";
 
 export const BASE_PATH = "/";
 
@@ -156,7 +71,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Événements",
-    Component: AgendaPage,
+    Component: RouteComponents.AgendaPage,
     hasLayout: true,
     layoutProps: {
       smallBackgroundColor: style.black25,
@@ -164,7 +79,7 @@ export const routeConfig = {
     hideFeedbackButton: true,
     keepScroll: true,
     hideFooterBanner: true,
-    AnonymousComponent: HomePage,
+    AnonymousComponent: RouteComponents.HomePage,
     anonymousConfig: {
       hasLayout: false,
     },
@@ -184,7 +99,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,
     label: "Documents justificatifs",
-    Component: MissingDocumentsPage,
+    Component: RouteComponents.MissingDocumentsPage,
     hideFeedbackButton: true,
     hasLayout: false,
     backLink: {
@@ -199,7 +114,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Carte des événements",
-    Component: EventMap,
+    Component: RouteComponents.EventMap,
     hideFooter: true,
     hideFeedbackButton: true,
   }),
@@ -210,7 +125,7 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Nouvel événement",
     hideFeedbackButton: true,
-    Component: CreateEvent,
+    Component: RouteComponents.CreateEvent,
     backLink: {
       route: "events",
       label: "Liste des événements",
@@ -224,7 +139,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Détails de l'événement",
-    Component: EventPage,
+    Component: RouteComponents.EventPage,
     backLink: {
       route: "events",
       label: "Liste des événements",
@@ -237,7 +152,7 @@ export const routeConfig = {
     params: { activePanel: null },
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,
-    Component: EventPage,
+    Component: RouteComponents.EventPage,
     hideFeedbackButton: true,
   }),
   eventRequiredDocuments: new RouteConfig({
@@ -246,7 +161,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,
     label: "Documents de l'événement",
-    Component: EventRequiredDocuments,
+    Component: RouteComponents.EventRequiredDocuments,
     backLink: {
       route: "events",
       label: "Liste des événements",
@@ -259,7 +174,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Mes groupes",
-    Component: GroupsPage,
+    Component: RouteComponents.GroupsPage,
     hasLayout: true,
     layoutProps: {
       smallBackgroundColor: style.black25,
@@ -272,7 +187,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Carte des groupes",
-    Component: GroupMap,
+    Component: RouteComponents.GroupMap,
     hideFooter: true,
     hideFeedbackButton: true,
   }),
@@ -282,7 +197,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Groupe complet",
-    Component: FullGroupPage,
+    Component: RouteComponents.FullGroupPage,
     hasLayout: false,
   }),
   groupSettings: new RouteConfig({
@@ -291,7 +206,7 @@ export const routeConfig = {
     params: { activeTab: null, activePanel: null },
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,
-    Component: GroupPage,
+    Component: RouteComponents.GroupPage,
     isPartial: true,
   }),
   groupMessage: new RouteConfig({
@@ -300,7 +215,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Message du groupe",
-    Component: GroupMessagePage,
+    Component: RouteComponents.GroupMessagePage,
     hideFeedbackButton: true,
   }),
   groupDetails: new RouteConfig({
@@ -309,7 +224,7 @@ export const routeConfig = {
     exact: false,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Détails du groupe",
-    Component: GroupPage,
+    Component: RouteComponents.GroupPage,
     backLink: {
       route: "groups",
       label: "Retour à l'accueil",
@@ -322,7 +237,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Notifications",
-    Component: ActivityPage,
+    Component: RouteComponents.ActivityPage,
     hasLayout: true,
     layoutProps: {
       smallBackgroundColor: style.black25,
@@ -340,7 +255,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Agir",
-    Component: ActionToolsPage,
+    Component: RouteComponents.ActionToolsPage,
     hasLayout: false,
     hideFeedbackButton: true,
   }),
@@ -351,7 +266,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Menu",
-    Component: NavigationPage,
+    Component: RouteComponents.NavigationPage,
     hasLayout: true,
     displayFooterOnMobileApp: true,
     layoutProps: {
@@ -365,7 +280,7 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Connexion",
     description: "Connectez-vous à Action Populaire",
-    Component: LoginPage,
+    Component: RouteComponents.LoginPage,
     hideTopBar: true,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -377,7 +292,7 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Inscription",
     description: "Rejoignez Action Populaire",
-    Component: SignupPage,
+    Component: RouteComponents.SignupPage,
     hideTopBar: true,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -389,7 +304,7 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Connexion",
     description: "Connectez-vous à Action Populaire",
-    Component: CodeLoginPage,
+    Component: RouteComponents.CodeLoginPage,
     hideTopBar: true,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -401,7 +316,7 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Inscription",
     description: "Rejoignez Action Populaire",
-    Component: CodeSignupPage,
+    Component: RouteComponents.CodeSignupPage,
     hideTopBar: true,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -412,7 +327,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "J'en dis plus",
-    Component: TellMorePage,
+    Component: RouteComponents.TellMorePage,
     hideTopBar: true,
     hideFeedbackButton: true,
     hidePushModal: true,
@@ -424,7 +339,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Déconnexion",
-    Component: LogoutPage,
+    Component: RouteComponents.LogoutPage,
   }),
   messages: new RouteConfig({
     id: "messages",
@@ -433,7 +348,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.HARD,
     label: "Messages",
-    Component: MessagePage,
+    Component: RouteComponents.MessagePage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -445,7 +360,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "Nouveau contact",
-    Component: CreateContactPage,
+    Component: RouteComponents.CreateContactPage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -457,7 +372,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Faire un don",
-    Component: DonationPage,
+    Component: RouteComponents.DonationPage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -470,7 +385,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Faire un don",
-    Component: DonationInformationsPage,
+    Component: RouteComponents.DonationInformationsPage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -483,7 +398,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Faire un don",
-    Component: DonationPage,
+    Component: RouteComponents.DonationPage,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -495,7 +410,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Donner ma procuration de vote",
-    Component: NewVotingProxyRequest,
+    Component: RouteComponents.NewVotingProxyRequest,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -507,7 +422,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Prendre une procuration de vote",
-    Component: NewVotingProxy,
+    Component: RouteComponents.NewVotingProxy,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -520,7 +435,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Prendre une procuration de vote",
-    Component: ReplyToVotingProxyRequests,
+    Component: RouteComponents.ReplyToVotingProxyRequests,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -532,7 +447,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
     label: "Procuration de vote",
-    Component: VotingProxyRequestDetails,
+    Component: RouteComponents.VotingProxyRequestDetails,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
@@ -543,7 +458,7 @@ export const routeConfig = {
     path: "/recherche/",
     exact: true,
     neededAuthentication: AUTHENTICATION.NONE,
-    Component: SearchPage,
+    Component: RouteComponents.SearchPage,
     label: "Rechercher",
     hasLayout: false,
     hideFeedbackButton: true,
@@ -552,7 +467,7 @@ export const routeConfig = {
     id: "searchGroup",
     path: "/recherche/groupes/",
     neededAuthentication: AUTHENTICATION.NONE,
-    Component: SearchGroupPage,
+    Component: RouteComponents.SearchGroupPage,
     label: "Rechercher un groupe",
     hasLayout: false,
     hideFeedbackButton: true,
@@ -561,7 +476,7 @@ export const routeConfig = {
     id: "searchEvent",
     path: "/recherche/evenements/",
     neededAuthentication: AUTHENTICATION.NONE,
-    Component: SearchEventPage,
+    Component: RouteComponents.SearchEventPage,
     label: "Rechercher un événement",
     hasLayout: false,
     hideFeedbackButton: true,
@@ -570,7 +485,7 @@ export const routeConfig = {
     id: "testErrorPage",
     path: "/500/",
     neededAuthentication: AUTHENTICATION.NONE,
-    Component: TestErrorPage,
+    Component: RouteComponents.TestErrorPage,
     label: "Une erreur est survenue",
     hideFeedbackButton: true,
     hideFooter: true,
