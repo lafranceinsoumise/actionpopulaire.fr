@@ -2,6 +2,7 @@ from django.db.models import F, Prefetch
 from django.utils.decorators import method_decorator
 from django.views.decorators import cache
 from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveAPIView, get_object_or_404
 from rest_framework.permissions import AllowAny
@@ -32,6 +33,7 @@ class PublicDonation2022AggregatesAPIView(APIView):
         return Response(get_aggregates())
 
 
+@method_decorator(vary_on_headers("Authorization"), name="get")
 class TokTokAPIView(RetrieveAPIView):
     permission_classes = (IsPersonOrTokenHasScopePermission,)
     required_scopes = ("toktok",)
