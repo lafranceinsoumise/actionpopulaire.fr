@@ -23,18 +23,13 @@ const Template = ({ size, ...args }) => (
   />
 );
 
-export const OneDigit = Template.bind({});
-OneDigit.args = {
+export const LessThanTwenty = Template.bind({});
+LessThanTwenty.args = {
   value: 1,
   size: 150,
 };
-export const TwoDigits = Template.bind({});
-TwoDigits.args = {
-  ...OneDigit.args,
-  value: 10,
-};
-export const ThreeDigits = Template.bind({});
-ThreeDigits.args = {
-  ...OneDigit.args,
-  value: 100,
+export const MoreThanTwenty = Template.bind({});
+MoreThanTwenty.args = {
+  ...LessThanTwenty.args,
+  value: 27,
 };
