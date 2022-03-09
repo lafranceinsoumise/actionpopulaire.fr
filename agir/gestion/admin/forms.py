@@ -317,14 +317,6 @@ class ReglementForm(forms.ModelForm):
         self.fields["montant"].max_value = montant_restant
         self.fields["montant"].validators.append(MaxValueValidator(montant_restant))
 
-    def clean_montant(self):
-        if self.cleaned_data["montant"] <= 0:
-            raise ValidationError(
-                "Le montant réglé doit être strictement positif.",
-                code="amount_not_positive",
-            )
-        return self.cleaned_data["montant"]
-
     def clean(self):
         # deux cas possibles pour le choix du fournisseur :
         # - soit on a choisi un fournisseur existant sans remplir aucun champ de fournisseur dans la section en-dessous
