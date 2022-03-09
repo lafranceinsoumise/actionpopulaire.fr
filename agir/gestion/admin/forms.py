@@ -439,7 +439,7 @@ class ReglementForm(forms.ModelForm):
                 self.add_error(
                     "preuve",
                     ValidationError(
-                        "Vous devez fournir une preuve de paiement pour ce mode de réglement (le scan du chèque, le ticket de caisse, etc.)",
+                        "Vous devez fournir une preuve de paiement pour ce mode de règlement (le scan du chèque, le ticket de caisse, etc.)",
                         code="preuve_requise",
                     ),
                 )
@@ -452,7 +452,7 @@ class ReglementForm(forms.ModelForm):
 
         if self.cleaned_data.get("preuve"):
             self.preuve = Document.objects.create(
-                titre=f"Preuve réglement {self.instance.intitule} — dépense {self.instance.depense.numero}",
+                titre=f"Preuve règlement {self.instance.intitule} — dépense {self.instance.depense.numero}",
                 type=TypeDocument.PAIEMENT,
                 requis=Document.Besoin.NECESSAIRE,
                 fichier=self.cleaned_data["preuve"],
@@ -475,7 +475,7 @@ class ReglementForm(forms.ModelForm):
 
     def save(self, commit=True):
         if not self.fournisseur._state.adding:
-            # on copie les valeurs du fournisseur existant pour les conserver sur le réglement
+            # on copie les valeurs du fournisseur existant pour les conserver sur le règlement
             for f in self.CHAMPS_FOURNISSEURS:
                 setattr(self.instance, f"{f}_fournisseur", getattr(self.fournisseur, f))
 

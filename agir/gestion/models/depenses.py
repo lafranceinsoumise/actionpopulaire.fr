@@ -399,7 +399,7 @@ class Reglement(TimeStampedModel):
     )
 
     mode = models.CharField(
-        verbose_name="Mode de réglement",
+        verbose_name="Mode de règlement",
         max_length=1,
         choices=Mode.choices,
         blank=False,
