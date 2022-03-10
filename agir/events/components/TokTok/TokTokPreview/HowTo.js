@@ -102,6 +102,13 @@ export const HowTo = (props) => {
         </StyledHeader>
         <StyledBody style={{ opacity }}>
           <li>
+            <RawFeatherIcon strokeWidth={2} name="edit-2" />
+            <span>
+              <strong>Notez les adresses</strong> que vous avez couvertes pour
+              mieux partager le travail avec les autres groupes
+            </span>
+          </li>
+          <li>
             <RawFeatherIcon strokeWidth={2} name="map-pin" />
             <span>
               <strong>Ciblez les quartiers</strong> lorsque vous préparez vos
@@ -109,10 +116,20 @@ export const HowTo = (props) => {
             </span>
           </li>
           <li>
-            <RawFeatherIcon strokeWidth={2} name="edit-2" />
+            <RawFeatherIcon strokeWidth={2} name="bar-chart-2" />
             <span>
-              <strong>Notez les adresses</strong> que vous avez couvertes pour
-              mieux partager le travail avec les autres groupes
+              <strong>
+                Affichez les intentions de vote et taux d'absention
+              </strong>{" "}
+              par secteur en cliquant sur le menu en haut à droite
+            </span>
+          </li>
+          <li>
+            <RawFeatherIcon strokeWidth={2} name="search" />
+            <span>
+              <strong>Zoomez au niveau de votre ville et votre rue</strong> pour
+              voir les quartiers prioritaires où nos actions sont
+              attendues&nbsp;!
             </span>
           </li>
         </StyledBody>
