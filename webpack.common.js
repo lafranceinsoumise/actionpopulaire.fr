@@ -12,6 +12,7 @@ const { InjectManifest } = require("workbox-webpack-plugin");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const StatoscopeWebpackPlugin = require("@statoscope/webpack-plugin").default;
+const TerserPlugin = require("terser-webpack-plugin");
 const WebpackBar = require("webpackbar");
 
 const DISTPATH = path.resolve(__dirname, "assets/components");
@@ -79,28 +80,15 @@ const htmlPlugins = (type) => [
         filename: `includes/${entry}.${
           type === CONFIG_TYPES.ES2015 ? "modules" : "bundle"
         }.html`,
-        scriptLoading: "defer",
+        scriptLoading: type === CONFIG_TYPES.ES5 ? "defer" : "module",
         inject: false,
         chunks: [entry],
-        templateContent: ({ htmlWebpackPlugin }) => {
-          switch (type) {
-            case CONFIG_TYPES.DEV:
-              return (
-                htmlWebpackPlugin.tags.headTags +
-                htmlWebpackPlugin.tags.bodyTags
-              );
-            case CONFIG_TYPES.ES2015:
-              return htmlWebpackPlugin.files.js
-                .map((file) => `<script type="module" src="${file}"></script>`)
-                .join("");
-            case CONFIG_TYPES.ES5:
-              return (
-                htmlWebpackPlugin.files.js
-                  .map((file) => `<script nomodule src="${file}"></script>`)
-                  .join("") + `{% include "${entry}.modules.html" %}`
-              );
-          }
-        },
+        templateContent: ({ htmlWebpackPlugin }) =>
+          type === CONFIG_TYPES.ES5
+            ? htmlWebpackPlugin.files.js
+                .map((file) => `<script nomodule src="${file}"></script>`)
+                .join("") + `{% include "${entry}.modules.html" %}`
+            : htmlWebpackPlugin.tags.headTags + htmlWebpackPlugin.tags.bodyTags,
       })
   ),
 ];
@@ -156,16 +144,6 @@ const getOtherEntryFiles = (compilation) => {
   return _cachedOtherEntryFiles;
 };
 
-const es5Browsers = [
-  "> 0.5% in FR",
-  "last 2 versions",
-  "Firefox ESR",
-  "not dead",
-  "not IE 11",
-];
-
-const es2015Browsers = { esmodules: true };
-
 const configureBabelLoader = (type) => ({
   test: /\.m?js$/,
   include: [
@@ -181,19 +159,41 @@ const configureBabelLoader = (type) => ({
   use: {
     loader: "babel-loader",
     options: {
-      cacheDirectory: process.env.BABEL_CACHE_DIRECTORY || true,
+      cacheDirectory: path.join(
+        process.env.BABEL_CACHE_DIRECTORY ||
+          "node_modules/.cache/babel-loader/",
+        type
+      ),
       exclude: [/core-js/, /regenerator-runtime/, /webpack[\\/]buildin/],
       presets: [
         "@babel/preset-react",
-        [
-          "@babel/preset-env",
-          {
-            modules: false,
-            corejs: "3.21",
-            useBuiltIns: "usage",
-            targets: type === CONFIG_TYPES.ES5 ? es5Browsers : es2015Browsers,
-          },
-        ],
+        type === CONFIG_TYPES.ES5
+          ? [
+              "@babel/preset-env",
+              {
+                bugfixes: true,
+                loose: true,
+                modules: "auto",
+                useBuiltIns: "usage",
+                corejs: { version: "3.21" },
+                targets: {
+                  browsers: [
+                    "> 0.5% in FR",
+                    "last 2 versions",
+                    "Firefox ESR",
+                    "not dead",
+                    "not IE 11",
+                  ],
+                },
+              },
+            ]
+          : [
+              "babel-preset-env-modules",
+              {
+                development: type === CONFIG_TYPES.DEV,
+                modules: false,
+              },
+            ],
       ],
       plugins: [
         [
@@ -365,6 +365,16 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
     splitChunks: {
       chunks: "all",
     },
+    minimize: type !== CONFIG_TYPES.DEV,
+    minimizer: [
+      new TerserPlugin({
+        test: /\.m?js(\?.*)?$/i,
+        terserOptions: {
+          ecma: 8,
+          safari10: true,
+        },
+      }),
+    ],
   },
   target: "web",
   resolve: {
