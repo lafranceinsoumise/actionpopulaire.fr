@@ -11,31 +11,49 @@ import illustrationContact from "@agir/front/genericComponents/images/group_cont
 import illustrationLinks from "@agir/front/genericComponents/images/group_links.svg";
 
 const GroupSettingsMembers = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/GroupMembersPage")
+  import(
+    /* webpackChunkName: "r-groupsettingsmembers" */ "@agir/groups/groupPage/GroupSettings/GroupMembersPage"
+  )
 );
 const GroupSettingsContacts = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/GroupContactsPage")
+  import(
+    /* webpackChunkName: "r-groupsettingscontacts" */ "@agir/groups/groupPage/GroupSettings/GroupContactsPage"
+  )
 );
 const GroupSettingsManage = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/GroupManagementPage")
+  import(
+    /* webpackChunkName: "r-groupsettingsmanage" */ "@agir/groups/groupPage/GroupSettings/GroupManagementPage"
+  )
 );
 const GroupSettingsMateriel = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/GroupMaterielPage")
+  import(
+    /* webpackChunkName: "r-groupsettingsmateriel" */ "@agir/groups/groupPage/GroupSettings/GroupMaterielPage"
+  )
 );
 const GroupSettingsFinance = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/GroupFinancePage")
+  import(
+    /* webpackChunkName: "r-groupsettingsfinance" */ "@agir/groups/groupPage/GroupSettings/GroupFinancePage"
+  )
 );
 const GroupSettingsGeneral = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/GroupGeneralPage")
+  import(
+    /* webpackChunkName: "r-groupsettingsgeneral" */ "@agir/groups/groupPage/GroupSettings/GroupGeneralPage"
+  )
 );
 const GroupSettingsLocation = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/GroupLocalizationPage")
+  import(
+    /* webpackChunkName: "r-groupsettingslocation" */ "@agir/groups/groupPage/GroupSettings/GroupLocalizationPage"
+  )
 );
 const GroupSettingsContact = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/GroupContactPage")
+  import(
+    /* webpackChunkName: "r-groupsettingscontact" */ "@agir/groups/groupPage/GroupSettings/GroupContactPage"
+  )
 );
 const GroupSettingsLinks = lazy(() =>
-  import("@agir/groups/groupPage/GroupSettings/GroupLinksPage")
+  import(
+    /* webpackChunkName: "r-groupsettingslinks" */ "@agir/groups/groupPage/GroupSettings/GroupLinksPage"
+  )
 );
 
 export const menuRoute = {

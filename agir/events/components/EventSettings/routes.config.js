@@ -8,30 +8,50 @@ import illustrationManage from "@agir/front/genericComponents/images/group_membe
 import illustrationGeneral from "@agir/front/genericComponents/images/group_general.svg";
 import illustrationVisio from "@agir/front/genericComponents/images/video-conference.svg";
 
-const EventGeneral = lazy(() =>
-  import("@agir/events/EventSettings/EventGeneral")
+const EventSettingsGeneral = lazy(() =>
+  import(
+    /* webpackChunkName: "r-eventsettingsgeneral" */ "@agir/events/EventSettings/EventGeneral"
+  )
 );
-const EventParticipants = lazy(() =>
-  import("@agir/events/EventSettings/EventParticipants")
+const EventSettingsParticipants = lazy(() =>
+  import(
+    /* webpackChunkName: "r-eventsettingsparticipants" */ "@agir/events/EventSettings/EventParticipants"
+  )
 );
-const EventOrganization = lazy(() =>
-  import("@agir/events/EventSettings/EventOrganization")
+const EventSettingsOrganization = lazy(() =>
+  import(
+    /* webpackChunkName: "r-eventsettingsorganization" */ "@agir/events/EventSettings/EventOrganization"
+  )
 );
-const EventVisio = lazy(() => import("@agir/events/EventSettings/EventVisio"));
-const EventContact = lazy(() =>
-  import("@agir/events/EventSettings/EventContact")
+const EventSettingsVisio = lazy(() =>
+  import(
+    /* webpackChunkName: "r-eventsettingsvisio" */ "@agir/events/EventSettings/EventVisio"
+  )
 );
-const EventLocation = lazy(() =>
-  import("@agir/events/EventSettings/EventLocation")
+const EventSettingsContact = lazy(() =>
+  import(
+    /* webpackChunkName: "r-eventsettingscontact" */ "@agir/events/EventSettings/EventContact"
+  )
 );
-const EventFeedback = lazy(() =>
-  import("@agir/events/EventSettings/EventFeedback")
+const EventSettingsLocation = lazy(() =>
+  import(
+    /* webpackChunkName: "r-eventsettingslocation" */ "@agir/events/EventSettings/EventLocation"
+  )
 );
-const EventCancelation = lazy(() =>
-  import("@agir/events/EventSettings/EventCancelation")
+const EventSettingsFeedback = lazy(() =>
+  import(
+    /* webpackChunkName: "r-eventsettingsfeedback" */ "@agir/events/EventSettings/EventFeedback"
+  )
 );
-const EventDocuments = lazy(() =>
-  import("@agir/events/EventSettings/EventDocuments")
+const EventSettingsCancelation = lazy(() =>
+  import(
+    /* webpackChunkName: "r-eventsettingscancelation" */ "@agir/events/EventSettings/EventCancelation"
+  )
+);
+const EventSettingsDocuments = lazy(() =>
+  import(
+    /* webpackChunkName: "r-eventsettingsdocuments" */ "@agir/events/EventSettings/EventDocuments"
+  )
 );
 
 export const menuRoute = {
@@ -49,7 +69,7 @@ export const routeConfig = {
     label: "Général",
     icon: "file",
     illustration: illustrationGeneral,
-    Component: EventGeneral,
+    Component: EventSettingsGeneral,
     isActive: true,
     menuGroup: 1,
   },
@@ -59,7 +79,7 @@ export const routeConfig = {
     exact: true,
     label: "Participant·es",
     icon: "users",
-    Component: EventParticipants,
+    Component: EventSettingsParticipants,
     isActive: true,
     menuGroup: 1,
   },
@@ -70,7 +90,7 @@ export const routeConfig = {
     label: "Organisation",
     icon: "settings",
     illustration: illustrationManage,
-    Component: EventOrganization,
+    Component: EventSettingsOrganization,
     isActive: true,
     menuGroup: 1,
   },
@@ -80,7 +100,7 @@ export const routeConfig = {
     exact: true,
     label: "Documents",
     icon: "file-text",
-    Component: EventDocuments,
+    Component: EventSettingsDocuments,
     isActive: (event) => event.hasProject,
     menuGroup: 1,
   },
@@ -91,7 +111,7 @@ export const routeConfig = {
     label: "Vidéo-conférence",
     icon: "video",
     illustration: illustrationVisio,
-    Component: EventVisio,
+    Component: EventSettingsVisio,
     isActive: true,
     menuGroup: 2,
   },
@@ -101,7 +121,7 @@ export const routeConfig = {
     exact: true,
     label: "Contact",
     icon: "mail",
-    Component: EventContact,
+    Component: EventSettingsContact,
     isActive: true,
     menuGroup: 2,
   },
@@ -111,7 +131,7 @@ export const routeConfig = {
     exact: true,
     label: "Localisation",
     icon: "map-pin",
-    Component: EventLocation,
+    Component: EventSettingsLocation,
     isActive: true,
     menuGroup: 2,
   },
@@ -121,7 +141,7 @@ export const routeConfig = {
     exact: true,
     label: "Compte rendu",
     icon: "image",
-    Component: EventFeedback,
+    Component: EventSettingsFeedback,
     isActive: true,
     menuGroup: 2,
   },
@@ -131,7 +151,7 @@ export const routeConfig = {
     exact: true,
     label: "Annuler l'événement",
     icon: "",
-    Component: EventCancelation,
+    Component: EventSettingsCancelation,
     isActive: (event) => event.isEditable && !event.isPast,
     menuGroup: 3,
     isCancel: true,
