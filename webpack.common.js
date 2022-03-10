@@ -365,6 +365,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
     splitChunks: {
       chunks: "all",
     },
+    moduleIds: "deterministic",
     minimize: type !== CONFIG_TYPES.DEV,
     minimizer: [
       new TerserPlugin({
