@@ -109,9 +109,15 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
     }
 
     class Origin(models.TextChoices):
-        ADMINISTRATION = "A", "Créé sur l'admin"
+        ADMINISTRATION = "A", "Créé par les équipes de campagne"
         UTILISATEUR = "U", "Créé par un·e militant·e sur Action Populaire"
         REUNION_PUBLIQUE = "R", "Réunion publique suite à demande"
+
+    SHORT_ORIGIN = {
+        Origin.ADMINISTRATION: "campagne",
+        Origin.UTILISATEUR: "militant",
+        Origin.REUNION_PUBLIQUE: "réunion publique",
+    }
 
     titre = models.CharField(verbose_name="Titre du projet", max_length=200)
     type = models.CharField(
@@ -165,7 +171,17 @@ class Projet(ModeleGestionMixin, TimeStampedModel):
 
     @property
     def transitions(self):
+        # noinspection PyTypeChecker
         return self.TRANSITIONS.get(self.etat, [])
+
+    def __str__(self):
+        if len(self.titre) < 60:
+            titre = self.titre
+        else:
+            titre = f"{self.titre[:60]}…"
+
+        # noinspection PyTypeChecker
+        return f"{titre} ({self.SHORT_ORIGIN[self.origine]})"
 
     search_config = (
         ("numero", "B"),

@@ -23,6 +23,7 @@ from .filters import (
     DepenseResponsableFilter,
     ProjetResponsableFilter,
     InclureProjetsMilitantsFilter,
+    FournisseurFilter,
 )
 from .forms import (
     DocumentForm,
@@ -112,7 +113,19 @@ class FournisseurAdmin(VersionAdmin):
     CHAMPS_PERSONNES_MORALES = ["siren"]
 
     fieldsets = (
-        (None, {"fields": ("type", "nom", "contact_phone", "contact_email", "siren")}),
+        (
+            None,
+            {
+                "fields": (
+                    "type",
+                    "nom",
+                    "contact_phone",
+                    "contact_email",
+                    "siren",
+                    "depenses",
+                )
+            },
+        ),
         (
             "Paiement",
             {
@@ -136,7 +149,18 @@ class FournisseurAdmin(VersionAdmin):
         ),
     )
 
+    readonly_fields = ("depenses",)
     search_fields = ("nom", "description")
+
+    def depenses(self, obj):
+        if obj is not None:
+            return format_html(
+                '<a href="{}">voir toutes les dépenses<a>',
+                f'{reverse("admin:gestion_depense_changelist")}?fournisseur={obj.id}',
+            )
+        return "-"
+
+    depenses.short_description = "dépenses"
 
 
 @admin.register(Document)
@@ -221,6 +245,8 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
     list_filter = (
         DepenseResponsableFilter,
         "compte",
+        "etat",
+        FournisseurFilter,
         "type",
     )
 
@@ -401,6 +427,10 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         ]
 
         return additional_urls + urls
+
+    class Media:
+        # media empty pour l'autocomplete filter
+        pass
 
 
 class BaseProjetAdmin(BaseGestionModelAdmin, AddRelatedLinkMixin, VersionAdmin):
