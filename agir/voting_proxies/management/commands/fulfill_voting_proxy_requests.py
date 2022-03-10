@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.management import BaseCommand
-from django.db.models import Count, Case, When, BooleanField
+from django.db.models import Count, Case, When, BooleanField, Q
 from django.utils import timezone
 
 from agir.people.models import Person
@@ -49,6 +49,14 @@ class Command(BaseCommand):
             default=False,
             help="Print unfulfilled requests at the end of the script",
         )
+        parser.add_argument(
+            "-na",
+            "--do-not-alternate",
+            dest="do_not_alternate",
+            action="store_true",
+            default=False,
+            help="Do not alternate between odd/even days for proxy invitations",
+        )
 
     def send_matching_requests_to_proxy(self, proxy, matching_request_ids):
         if self.dry_run:
@@ -61,8 +69,19 @@ class Command(BaseCommand):
         )
 
     def invite_voting_proxy_candidates(self, candidates):
+        # Give priority with people with the most recent event rsvps
+        candidates = candidates.annotate(
+            rsvp_count=Count(
+                "rsvps",
+                filter=Q(
+                    rsvps__event__end_time__gte=timezone.now() - timedelta(days=365)
+                ),
+                distinct=True,
+            )
+        ).order_by("-rsvp_count")[:10]
+
         if self.dry_run:
-            return
+            return candidates.values_list("id", flat=True)
 
         voting_proxy_candidates = [
             VotingProxy(
@@ -86,26 +105,51 @@ class Command(BaseCommand):
             ]
         )
 
+        return candidates.values_list("id", flat=True)
+
+    def get_voting_proxy_candidates_queryset(self, request, blacklist_ids):
+        candidates = (
+            Person.objects.exclude(
+                id__in=VotingProxy.objects.values_list("person_id", flat=True)
+            )
+            .exclude(emails__address=None)
+            .filter(is_2022=True, newsletters__len__gt=0)
+        )
+        if request and request["email"]:
+            candidates = candidates.exclude(emails__address=request["email"])
+        if blacklist_ids:
+            candidates = candidates.exclude(id__in=blacklist_ids)
+
+        return candidates
+
     def find_voting_proxy_candidates_for_requests(self, pending_requests):
         possibly_fulfilled_request_ids = []
         candidate_ids = []
 
-        # Find candidates for commune requests (up to 10 for each voter)
+        # Find candidates for consulate requests
+        for request in (
+            pending_requests.exclude(consulate__pays__isnull=True)
+            .values("email", "consulate__pays")
+            .annotate(ids=ArrayAgg("id"))
+        ):
+            candidates = self.get_voting_proxy_candidates_queryset(
+                request, candidate_ids
+            ).filter(location_country__in=request["consulate__pays"].split(","))
+
+            if candidates.exists():
+                invited_candidate_ids = self.invite_voting_proxy_candidates(candidates)
+                candidate_ids += invited_candidate_ids
+                possibly_fulfilled_request_ids += request["ids"]
+
+        # Find candidates for commune requests
         for request in (
             pending_requests.exclude(commune__isnull=True)
             .values("email", "commune__mairie_localisation", "commune__code")
             .annotate(ids=ArrayAgg("id"))
         ):
-            candidates = (
-                Person.objects.exclude(
-                    id__in=VotingProxy.objects.values_list("person_id", flat=True)
-                )
-                .exclude(id__in=candidate_ids)
-                .exclude(coordinates__isnull=True)
-                .exclude(emails__address=None)
-                .exclude(emails__address=request["email"])
-                .filter(is_2022=True, newsletters__len__gt=0)
-            )
+            candidates = self.get_voting_proxy_candidates_queryset(
+                request, candidate_ids
+            ).exclude(coordinates__isnull=True)
 
             # Match by distance for geolocalised communes
             if request["commune__mairie_localisation"]:
@@ -121,16 +165,9 @@ class Command(BaseCommand):
                     location_citycode=request["commune__code"]
                 )
 
-            # Give priority with people with the most rsvps and supportgroups
-            candidates = (
-                candidates.annotate(rsvp_count=Count("rsvps"))
-                .annotate(supportgroup_count=Count("supportgroups"))
-                .order_by("-rsvp_count", "-supportgroup_count")[:10]
-            )
-
-            if candidates.count() > 0:
-                self.invite_voting_proxy_candidates(candidates)
-                candidate_ids += candidates.values_list("id", flat=True)
+            if candidates.exists():
+                invited_candidate_ids = self.invite_voting_proxy_candidates(candidates)
+                candidate_ids += invited_candidate_ids
                 possibly_fulfilled_request_ids += request["ids"]
 
         return possibly_fulfilled_request_ids
@@ -158,7 +195,14 @@ class Command(BaseCommand):
 
         return fulfilled_request_ids
 
-    def handle(self, *args, dry_run=False, print_unfulfilled=False, **kwargs):
+    def handle(
+        self,
+        *args,
+        dry_run=False,
+        print_unfulfilled=False,
+        do_not_alternate=False,
+        **kwargs,
+    ):
         self.dry_run = dry_run
         pending_requests = VotingProxyRequest.objects.filter(
             status=VotingProxyRequest.STATUS_CREATED,
@@ -180,16 +224,20 @@ class Command(BaseCommand):
 
         # Invite AP users to join the voting proxy pool for the remaining requests
         if pending_requests.count() > 0:
-            # Alternate sending of candidate invitations to leave past recipients
-            # at least one day to reply
-            is_an_odd_day = (timezone.now().day % 2) > 0
-            pending_requests = pending_requests.annotate(
-                is_odd=Case(
-                    When(created__day__iregex="[13579]$", then=True),
-                    default=False,
-                    output_field=BooleanField(),
+            if not do_not_alternate:
+                # Alternate sending of candidate invitations to leave past recipients
+                # at least one day to reply
+                is_an_odd_day = (timezone.now().day % 2) > 0
+                pending_requests = pending_requests.annotate(
+                    is_odd=Case(
+                        When(created__day__iregex="[13579]$", then=True),
+                        default=False,
+                        output_field=BooleanField(),
+                    )
+                ).filter(is_odd=is_an_odd_day)
+                self.stdout.write(
+                    f"\nToday is an {'odd' if is_an_odd_day else 'even'} day!"
                 )
-            ).filter(is_odd=is_an_odd_day)
 
             self.stdout.write(
                 f"\nLooking for voting proxy candidates for {pending_requests.count()} remaining requests..."

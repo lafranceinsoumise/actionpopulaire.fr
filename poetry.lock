@@ -412,7 +412,7 @@ python-versions = "*"
 
 [[package]]
 name = "data-france"
-version = "0.14.0"
+version = "0.14.1"
 description = "Paquet agrégeant des données administratives publiques pour en rendre l'utilisation facile."
 category = "main"
 optional = false
@@ -420,6 +420,7 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 django = ">=3.1"
+django-countries = ">=7.3.1,<8.0.0"
 
 [[package]]
 name = "decorator"
@@ -522,17 +523,20 @@ Django = ">=2.2"
 
 [[package]]
 name = "django-countries"
-version = "7.2.1"
+version = "7.3.2"
 description = "Provides a country field for Django models."
 category = "main"
 optional = false
 python-versions = "*"
 
+[package.dependencies]
+typing-extensions = "*"
+
 [package.extras]
 dev = ["tox", "black", "django", "pytest", "pytest-django", "djangorestframework", "graphene-django"]
 maintainer = ["transifex-client", "zest.releaser", "django"]
 pyuca = ["pyuca"]
-test = ["pytest", "pytest-django", "pytest-cov", "graphene-django"]
+test = ["pytest", "pytest-django", "pytest-cov", "djangorestframework", "graphene-django"]
 
 [[package]]
 name = "django-crispy-forms"
@@ -982,7 +986,7 @@ python-versions = "*"
 
 [[package]]
 name = "hypothesis"
-version = "6.37.2"
+version = "6.39.3"
 description = "A library for property-based testing"
 category = "dev"
 optional = false
@@ -2042,7 +2046,7 @@ sortedcontainers = "*"
 name = "typing-extensions"
 version = "4.0.1"
 description = "Backported and Experimental Type Hints for Python 3.6+"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -2211,7 +2215,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "5dde47fd35902559315e75ccd08df3ff50e1581ff94987b587d66ecdb847ef9a"
+content-hash = "32f50b73f9b15c270c1260f2336a0dd74537966934aca2b7ea96808e970aa7f4"
 
 [metadata.files]
 amqp = [
@@ -2512,8 +2516,8 @@ cysystemd = [
     {file = "cysystemd-1.5.2.tar.gz", hash = "sha256:c9701b260d7746fa3daca3bd3cbedc58c12bba094288e12d27fb840b443d7238"},
 ]
 data-france = [
-    {file = "data-france-0.14.0.tar.gz", hash = "sha256:fde57575202d4143526665e51cc6f3e9912249b0f792ea7a3da4f280334fb78e"},
-    {file = "data_france-0.14.0-py3-none-any.whl", hash = "sha256:7cfdc280d8845236c599280a2e57994ddd24f360b948722bcfdebba9f3e3a42d"},
+    {file = "data-france-0.14.1.tar.gz", hash = "sha256:1a6865cd0edf27ccd0f73448ef1dc16fbd7260a289948b192eebd27383c85da5"},
+    {file = "data_france-0.14.1-py3-none-any.whl", hash = "sha256:33cdef8630b21661c3b5d37d4380198019546b75aaf2c2f4ccf7e229ddbc4c35"},
 ]
 decorator = [
     {file = "decorator-5.1.0-py3-none-any.whl", hash = "sha256:7b12e7c3c6ab203a29e157335e9122cb03de9ab7264b137594103fd4a683b374"},
@@ -2552,8 +2556,8 @@ django-cors-headers = [
     {file = "django_cors_headers-3.10.1-py3-none-any.whl", hash = "sha256:1390b5846e9835b0911e2574409788af87cd9154246aafbdc8ec546c93698fe6"},
 ]
 django-countries = [
-    {file = "django-countries-7.2.1.tar.gz", hash = "sha256:26878b54d36bedff30b4535ceefcb8af6784741a8b30b1b8a662fb14a936a4ab"},
-    {file = "django_countries-7.2.1-py3-none-any.whl", hash = "sha256:adc965f1d348124274b7d918fc1aad5e29609758af999e1822baa9f2cc06d1b8"},
+    {file = "django-countries-7.3.2.tar.gz", hash = "sha256:0df6d34193667c2343da8935cbfb8a2bd4fb0c97baf01ac10db4628ba1557a82"},
+    {file = "django_countries-7.3.2-py3-none-any.whl", hash = "sha256:27fc8a0f66a87c9d839493f3926b4e0f4dd873ef66465aa8cd3e953f99758cc9"},
 ]
 django-crispy-forms = [
     {file = "django-crispy-forms-1.13.0.tar.gz", hash = "sha256:4dc9e5263c91c5f51766806a050ca2ec5c349d34c5cd91fcca3a1a0363b5e29e"},
@@ -2859,8 +2863,8 @@ hyperframe = [
     {file = "hyperframe-3.2.0.tar.gz", hash = "sha256:05f0e063e117c16fcdd13c12c93a4424a2c40668abfac3bb419a10f57698204e"},
 ]
 hypothesis = [
-    {file = "hypothesis-6.37.2-py3-none-any.whl", hash = "sha256:1c1777ccd3074fcca768d7594a284a41501c99843089d37e3235d38319e3f217"},
-    {file = "hypothesis-6.37.2.tar.gz", hash = "sha256:79321035b9174ffa506d724ca5e8af375d7bf532c80e4f602bd433792c527e6c"},
+    {file = "hypothesis-6.39.3-py3-none-any.whl", hash = "sha256:92f1c58e994e109897fd9b3c6d44eb3bd45ed95bf3c079c35f36fa0801fc5f31"},
+    {file = "hypothesis-6.39.3.tar.gz", hash = "sha256:f496dd053fb951b6da9611481fb4e54eeab1d37b594da5efe869083fad3ae621"},
 ]
 ics = [
     {file = "ics-0.7-py2.py3-none-any.whl", hash = "sha256:bf5fbdef6e1e073afdadf1b996f0271186dd114a148e38e795919a1ae644d6ac"},
