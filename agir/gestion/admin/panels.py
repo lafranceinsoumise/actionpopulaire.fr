@@ -168,9 +168,9 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
     form = DocumentForm
     list_display = (
         "numero",
-        "titre",
-        "identifiant",
         "type",
+        "identifiant",
+        "precision",
         "requis",
     )
 
@@ -563,6 +563,7 @@ class ProjetAdmin(BaseProjetAdmin):
         "numero",
         "titre",
         "type",
+        "origine",
         "etat",
         "event_name",
         "event_start_time",

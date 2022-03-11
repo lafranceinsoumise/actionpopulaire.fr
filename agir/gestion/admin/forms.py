@@ -27,6 +27,7 @@ class DocumentForm(forms.ModelForm):
     titre_version = forms.CharField(
         label="Nom de la version",
         required=False,
+        help_text="Indiquez brièvement en quoi cette version diffère de la précédente.",
     )
     fichier = forms.FileField(label="Fichier de la version", required=False)
 
@@ -64,22 +65,33 @@ class DocumentForm(forms.ModelForm):
 
 
 class DocumentAjoutRapideForm(forms.ModelForm):
-    titre = forms.CharField(
-        label="Titre",
-        max_length=200,
-        required=True,
-    )
     type = forms.ChoiceField(
         label="Type",
         choices=[("", "---")] + TypeDocument.choices,
         widget=HierarchicalSelect,
         required=True,
     )
-    fichier = forms.FileField(label="Fichier")
+
+    precision = forms.CharField(
+        label="Précision",
+        max_length=200,
+        required=False,
+        help_text="Indiquez ici tout élément qui permet de distinguer ce document d'un autre.",
+    )
+
+    identifiant = forms.CharField(
+        label="Numéro ou autre identifiant",
+        max_length=100,
+        required=False,
+        help_text="Le numéro qui identifie le document : numéro de facture, de devis, de bon de livraison, etc.",
+    )
+
+    fichier = forms.FileField(label="Fichier", required=False)
 
     def save(self, commit=False):
         self.document = Document.objects.create(
-            titre=self.cleaned_data["titre"],
+            identifiant=self.cleaned_data.get("identifiant", ""),
+            precision=self.cleaned_data.get("precision", ""),
             type=self.cleaned_data["type"],
         )
 
@@ -89,12 +101,12 @@ class DocumentAjoutRapideForm(forms.ModelForm):
 
     def _save_m2m(self):
         super()._save_m2m()
-
-        VersionDocument.objects.create(
-            document=self.document,
-            titre="Version initiale",
-            fichier=self.cleaned_data["fichier"],
-        )
+        if self.cleaned_data.get("fichier"):
+            VersionDocument.objects.create(
+                document=self.document,
+                titre="Version initiale",
+                fichier=self.cleaned_data["fichier"],
+            )
 
 
 class DepenseForm(forms.ModelForm):
