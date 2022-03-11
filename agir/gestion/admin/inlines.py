@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html_join, format_html
+from django.utils.safestring import mark_safe
 
 from agir.gestion.admin.base import SearchableModelMixin
 from agir.gestion.admin.depenses import DepenseListMixin
@@ -17,7 +18,13 @@ class BaseDocumentInline(admin.TabularInline):
     classes = ("retirer-original",)
     can_delete = False
 
-    fields = readonly_fields = ("numero", "titre", "type_document", "fichier_document")
+    fields = readonly_fields = (
+        "numero",
+        "type_document",
+        "precision",
+        "identifiant",
+        "fichier_document",
+    )
 
     def has_add_permission(self, request, obj):
         return False
@@ -37,7 +44,7 @@ class BaseDocumentInline(admin.TabularInline):
                     '<a href="{}">{}</a>', doc.fichier.url, doc.fichier.name
                 )
             else:
-                return "Pas encore de fichier"
+                return mark_safe("<strong>Fichier manquant</strong>")
         return "-"
 
     fichier_document.short_description = "Voir le fichier"
@@ -53,10 +60,19 @@ class BaseDocumentInline(admin.TabularInline):
 
     numero.short_description = "Numéro unique"
 
-    def titre(self, obj):
+    def precision(self, obj):
         if obj and obj.document:
-            return obj.document.titre
+            return obj.document.precision
         return "-"
+
+    precision.short_description = "Précision"
+
+    def identifiant(self, obj):
+        if obj and obj.document:
+            return obj.document.identifiant or "-"
+        return "-"
+
+    identifiant.short_description = "Numéro ou identifiant"
 
 
 class DepenseDocumentInline(BaseDocumentInline):
@@ -188,7 +204,7 @@ class AjouterDepenseInline(AjoutRapideMixin, admin.TabularInline):
 class BaseAjouterDocumentInline(AjouterDepenseInline, admin.TabularInline):
     verbose_name_plural = "Ajout rapide de documents justificatifs"
     form = DocumentAjoutRapideForm
-    fields = ("titre", "type", "fichier")
+    fields = ("type", "identifiant", "precision", "fichier")
 
 
 class AjouterDocumentProjetInline(BaseAjouterDocumentInline):
@@ -232,14 +248,14 @@ class DepenseReglementInline(admin.TabularInline):
                 return format_html(
                     '<a href="{}">{}</a> <a href="{}">\U0001F4C4</a>',
                     change_url,
-                    obj.preuve.titre,
+                    obj.preuve.precision or "Preuve de paiement",
                     obj.preuve.fichier.url,
                 )
 
             return format_html(
                 '<a href="{}">{}</a>',
                 change_url,
-                obj.preuve.titre,
+                obj.preuve.precision,
             )
         return "-"
 

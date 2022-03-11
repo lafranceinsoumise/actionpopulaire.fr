@@ -39,7 +39,7 @@ class TypeDocument(TextChoices):
     ATTESTATION_CONCOURS_NATURE = "ATT-CON", "Attestation de concours en nature"
     ATTESTATION_REGLEMENT_CONSOMMATIONS = (
         "ATT-REG",
-        "Attestation de réglement des consommations",
+        "Attestation de règlement des consommations",
     )
     DEMANDE_AUTORISATION_ESPACE_PUBLIC = (
         "ATT-ESP",

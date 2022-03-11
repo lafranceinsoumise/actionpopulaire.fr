@@ -399,7 +399,7 @@ class Reglement(TimeStampedModel):
     )
 
     mode = models.CharField(
-        verbose_name="Mode de réglement",
+        verbose_name="Mode de règlement",
         max_length=1,
         choices=Mode.choices,
         blank=False,
@@ -552,7 +552,9 @@ class Fournisseur(LocationMixin, TimeStampedModel):
     siren = models.CharField(verbose_name="SIREN/SIRET", max_length=14, blank=True)
 
     def __str__(self):
-        return self.nom
+        if not self.location_city:
+            return self.nom
+        return f"{self.nom} ({self.location_city})"
 
     def clean_fields(self, exclude=None):
         try:
@@ -576,6 +578,9 @@ class Fournisseur(LocationMixin, TimeStampedModel):
 
         if errors:
             raise ValidationError(errors)
+
+    class Meta:
+        ordering = ("nom", "location_city")
 
 
 CONDITIONS = {

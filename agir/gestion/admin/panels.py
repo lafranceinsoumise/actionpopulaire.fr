@@ -168,9 +168,9 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
     form = DocumentForm
     list_display = (
         "numero",
-        "titre",
-        "identifiant",
         "type",
+        "identifiant",
+        "precision",
         "requis",
     )
 
@@ -358,13 +358,13 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
 
         if obj.montant_restant > 0:
             return format_html(
-                '{}<br><a href="{}">Ajouter un réglement</a>',
+                '{}<br><a href="{}">Ajouter un règlement</a>',
                 self.reglement(obj),
                 reverse("admin:gestion_depense_reglement", args=(obj.id,)),
             )
         return self.reglement(obj)
 
-    reglements.short_description = "Statut du réglement"
+    reglements.short_description = "Statut du règlement"
 
     def save_model(self, request, obj, form, change):
         """
@@ -563,6 +563,7 @@ class ProjetAdmin(BaseProjetAdmin):
         "numero",
         "titre",
         "type",
+        "origine",
         "etat",
         "event_name",
         "event_start_time",
@@ -768,7 +769,7 @@ class OrdreVirementAdmin(BaseGestionModelAdmin, VersionAdmin):
     def nb_reglements(self, obj):
         return getattr(obj, "nb_reglements", "-")
 
-    nb_reglements.short_description = "Nombre de réglements"
+    nb_reglements.short_description = "Nombre de règlements"
     nb_reglements.admin_order_field = "nb_reglements"
 
     def montant(self, obj):
