@@ -497,7 +497,7 @@ class PersonAdmin(DisplayContactPhoneMixin, CenterOnFranceMixin, OSMGeoAdmin):
 
     def has_view_permission(self, request, obj=None):
         return super().has_view_permission(request, obj) or (
-            request.resolver_match.url_name == "people_person_autocomplete"
+            request.resolver_match.url_name == "autocomplete"
             and request.user.has_perm("people.select_person")
         )
 
