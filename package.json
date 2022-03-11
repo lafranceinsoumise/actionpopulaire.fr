@@ -25,7 +25,7 @@
   "dependencies": {
     "@babel/runtime-corejs3": "^7.17.2",
     "@react-spring/core": "^9.4.3",
-    "@react-spring/shared": "^9.4.3",
+    "@react-spring/shared": "^9.4.4",
     "@react-spring/web": "^9.4.3",
     "@sentry/react": "^6.18.2",
     "@sentry/tracing": "^6.18.2",
