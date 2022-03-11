@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from django.core.management import BaseCommand
@@ -6,6 +7,8 @@ from django.utils import timezone
 from agir.events.actions.notifications import event_report_form_reminder_notification
 from agir.events.models import Event
 from agir.events.tasks import send_event_report_form_reminder_email
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -26,15 +29,15 @@ class Command(BaseCommand):
         )
 
         if len(yesterday_event_pks) > 0:
-            self.stdout.write(
+            logger.info(
                 f"Sending report form reminder for {len(yesterday_event_pks)} event(s) ended yesterday ({yesterday})."
             )
             for event_pk in yesterday_event_pks:
                 event_report_form_reminder_notification(event_pk)
                 send_event_report_form_reminder_email.delay(event_pk)
         else:
-            self.stdout.write(
+            logger.info(
                 f"No form report found for events that ended yesterday ({yesterday})."
             )
 
-        self.stdout.write("Done!")
+        logger.info("Done!")
