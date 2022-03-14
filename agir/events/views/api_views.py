@@ -500,7 +500,7 @@ class RSVPEventAPIView(DestroyAPIView, CreateAPIView):
         return super().post(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
-        groupPk = request.data.get("groupPk", None)
+        groupPk = kwargs.get("groupPk", None)
 
         # Delete group attendee if a groupPk is sent
         if groupPk is not None:

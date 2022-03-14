@@ -20,6 +20,10 @@ const StyledGroupsAttendees = styled.div`
 export const EventGroupsAttendees = ({ groupsAttendees, isPast }) => {
   const user = useSelector(getUser);
 
+  if (!groupsAttendees?.length) {
+    return null;
+  }
+
   const fromUserGroups =
     user?.groups.reduce((arr, elt) => {
       if (groupsAttendees.some((group) => group.id === elt.id)) {
@@ -27,10 +31,6 @@ export const EventGroupsAttendees = ({ groupsAttendees, isPast }) => {
       }
       return arr;
     }, []) || [];
-
-  if (!groupsAttendees.length) {
-    return null;
-  }
 
   return (
     <StyledGroupsAttendees>

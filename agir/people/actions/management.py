@@ -174,7 +174,7 @@ MERGE_STRATEGIES = {
     "personvalidationsms": None,
     "events": None,
     "organized_events": None,
-    "organizer": None,
+    "group_event_participation": None,
     "rsvps": merge_rsvps,
     "organizer_configs": merge_organizer_configs,
     "event_images": merge_reassign_related,

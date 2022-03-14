@@ -12,6 +12,7 @@ import Map from "@agir/carte/common/Map";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { useResponsiveMemo } from "@agir/front/genericComponents/grid";
 import EventGroupsAttendees from "./EventGroupsAttendees";
+import eventCardDefaultBackground from "@agir/front/genericComponents/images/event-card-default-bg.svg";
 
 const StyledLink = styled(Link)``;
 const Illustration = styled.div`

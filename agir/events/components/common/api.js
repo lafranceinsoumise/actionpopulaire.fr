@@ -7,7 +7,7 @@ export const ENDPOINT = {
   getEventCard: "/api/evenements/:eventPk/",
   getEvent: "/api/evenements/:eventPk/details/",
   rsvpEvent: "/api/evenements/:eventPk/inscription/",
-  quitEvent: "/api/evenements/:eventPk/inscription/",
+  quitEvent: "/api/evenements/:eventPk/inscription/:groupPk/",
   joinEventAsGroup: "/api/evenements/:eventPk/inscription-groupe/",
 
   eventPropertyOptions: "/api/evenements/options/",
@@ -29,7 +29,11 @@ export const getEventEndpoint = (key, params) => {
   let endpoint = ENDPOINT[key] || "";
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
-      endpoint = endpoint.replace(`:${key}`, value);
+      if (!value) {
+        endpoint = endpoint.replace(`:${key}/`, "");
+      } else {
+        endpoint = endpoint.replace(`:${key}`, value);
+      }
     });
   }
   return endpoint;
@@ -57,9 +61,9 @@ export const quitEvent = async (eventPk, groupPk) => {
     data: null,
     error: null,
   };
-  const url = getEventEndpoint("quitEvent", { eventPk });
+  const url = getEventEndpoint("quitEvent", { eventPk, groupPk });
   try {
-    const response = await axios.delete(url, { data: { groupPk } });
+    const response = await axios.delete(url);
     result.data = response.data;
   } catch (e) {
     result.error = (e.response && e.response.data) || e.message;
