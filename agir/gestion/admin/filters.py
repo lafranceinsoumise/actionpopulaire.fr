@@ -1,3 +1,5 @@
+from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
+
 from agir.gestion.models import Projet, Depense
 from django.contrib.admin import SimpleListFilter, ListFilter
 
@@ -66,7 +68,11 @@ class DepenseResponsableFilter(SimpleListFilter):
     title = "responsable actuel"
 
     def lookups(self, request, model_admin):
-        return (("R", "Responsable du compte"), ("G", "Gestionnaire projets"))
+        return (
+            ("R", "Responsable du compte"),
+            ("G", "Gestionnaire projets"),
+            ("E", "Experts comptables"),
+        )
 
     def queryset(self, request, queryset):
         value = self.value()
@@ -81,3 +87,8 @@ class DepenseResponsableFilter(SimpleListFilter):
             )
 
         return queryset
+
+
+class FournisseurFilter(AutocompleteRelatedModelFilter):
+    field_name = "fournisseur"
+    title = "fournisseur"

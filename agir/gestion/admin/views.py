@@ -32,7 +32,7 @@ class AjouterReglementView(AdminViewMixin, CreateView):
     def form_valid(self, form):
         with reversion.create_revision():
             montant = display_price(form.cleaned_data["montant"], price_in_cents=False)
-            message = f"Ajout d'un réglement d'une valeur de {montant}"
+            message = f"Ajout d'un règlement d'une valeur de {montant}"
             reversion.set_user(self.request.user)
             reversion.set_comment(message)
             LogEntry.objects.log_action(

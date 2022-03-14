@@ -19,6 +19,11 @@ import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import Link from "@agir/front/app/Link";
 import OnlineUrlCard from "./OnlineUrlCard";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import TokTokCard from "@agir/events/TokTok/TokTokCard";
+
+import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
 
 const GroupCards = styled.div`
   & > * {
@@ -101,6 +106,10 @@ const DesktopEventPage = (props) => {
             <div>
               <EventHeader {...props} />
               {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
+              {props.logged &&
+                props.subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
+                  <TokTokCard flex />
+                )}
               <OnlineUrlCard
                 youtubeVideoID={props.youtubeVideoID}
                 onlineUrl={props.onlineUrl}

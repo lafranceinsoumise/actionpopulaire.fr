@@ -9,6 +9,7 @@ import Spacer from "@agir/front/genericComponents/Spacer";
 import JoinAGroupCard from "./JoinAGroupCard";
 import ActionTools from "./ActionTools";
 import DonateCard from "./DonateCard";
+import TokTokCard from "@agir/events/TokTok/TokTokCard";
 
 const StyledButtons = styled.div`
   display: flex;
@@ -32,6 +33,12 @@ const MainContainer = styled.div`
     font-weight: 600;
     line-height: 1.4;
     margin: 2rem 0 1rem;
+
+    small {
+      font-size: 0.813rem;
+      color: ${(props) => props.theme.redNSP};
+      text-transform: uppercase;
+    }
   }
 
   aside {
@@ -62,6 +69,12 @@ const DesktopActionToolsPage = (props) => {
             Nous contacter
           </Button>
         </StyledButtons>
+        <h2>
+          <small>Nouveau</small>
+          <br />
+          Carte du porte-à-porte
+        </h2>
+        <TokTokCard />
         <PageFadeIn ready={typeof hasGroups !== "undefined"}>
           {!hasGroups && (
             <>

@@ -855,7 +855,7 @@ class UpdateEventSerializer(serializers.ModelSerializer):
 
 
 class EventProjectDocumentSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source="titre", max_length=200)
+    name = serializers.CharField(source="precision", max_length=200)
     file = serializers.FileField(source="fichier")
 
     def validate_file(self, value):
@@ -869,7 +869,7 @@ class EventProjectDocumentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         document = Document.objects.create(
-            titre=self.validated_data["titre"],
+            precision=self.validated_data["precision"],
             type=self.validated_data["type"],
             description=self.validated_data["description"],
         )

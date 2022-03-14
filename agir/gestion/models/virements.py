@@ -48,12 +48,12 @@ class OrdreVirement(ModeleGestionMixin, TimeStampedModel):
         )
 
         if not reglements:
-            raise ValueError("Cet ordre de virement n'a pas de réglement lié.")
+            raise ValueError("Cet ordre de virement n'a pas de règlement lié.")
 
         comptes = {r.depense.compte for r in reglements}
         if len(comptes) > 1:
             raise ValueError(
-                "Les réglements impliqués dans cet ordre de virement concernent plusieurs comptes différents. Cela ne "
+                "Les règlements impliqués dans cet ordre de virement concernent plusieurs comptes différents. Cela ne "
                 "devrait pas être possible !"
             )
 

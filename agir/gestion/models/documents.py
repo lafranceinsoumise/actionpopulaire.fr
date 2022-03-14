@@ -25,7 +25,7 @@ class DocumentManager(NumeroManager):
         return document
 
 
-@reversion.register()
+@reversion.register(follow=("versions",))
 class Document(ModeleGestionMixin, TimeStampedModel):
     """Modèle représentant un élément justificatif, à associer à une instance d'un autre modèle de gestion"""
 
@@ -36,14 +36,15 @@ class Document(ModeleGestionMixin, TimeStampedModel):
         PREFERABLE = "PRE", "Préférable"
         IGNORER = "IGN", "Peut être ignoré"
 
-    titre = models.CharField(
-        verbose_name="Titre du document",
+    precision = models.CharField(
+        verbose_name="Précision sur la nature du document",
         help_text="Titre permettant d'identifier le document",
         max_length=200,
+        blank=True,
     )
 
     identifiant = models.CharField(
-        verbose_name="Identifiant ou numéro externe",
+        verbose_name="Numéro ou identifiant",
         max_length=100,
         blank=True,
         help_text="Indiquez ici si ce document a un identifiant ou un numéro (numéro de facture ou de devis, identifiant de transaction, etc.)",
@@ -68,10 +69,18 @@ class Document(ModeleGestionMixin, TimeStampedModel):
 
     search_config = (
         ("numero", "B"),
-        ("titre", "A"),
+        ("precision", "A"),
         ("identifiant", "B"),
         ("description", "C"),
     )
+
+    def __str__(self):
+        s = self.get_type_display()
+        if self.precision:
+            s = f"{s} - {self.precision}"
+        if not self.fichier:
+            s = f"{s} (MANQUANT)"
+        return s
 
     @property
     def fichier(self):
@@ -82,6 +91,7 @@ class Document(ModeleGestionMixin, TimeStampedModel):
         verbose_name_plural = "Documents justificatifs"
 
 
+@reversion.register()
 class VersionDocument(models.Model):
     document = models.ForeignKey(
         Document,

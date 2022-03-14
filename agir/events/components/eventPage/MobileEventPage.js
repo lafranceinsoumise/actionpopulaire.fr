@@ -22,6 +22,11 @@ import GroupCard from "@agir/groups/groupComponents/GroupCard";
 import OnlineUrlCard from "./OnlineUrlCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
+import Skeleton from "@agir/front/genericComponents/Skeleton";
+import Spacer from "@agir/front/genericComponents/Spacer";
+import TokTokCard from "@agir/events/TokTok/TokTokCard";
+
+import { DOOR2DOOR_EVENT_SUBTYPE_LABEL } from "@agir/events/common/utils";
 
 const CardLikeSection = styled.section``;
 const StyledMain = styled(RenderIfVisible)`
@@ -135,7 +140,19 @@ const MobileEventPage = (props) => {
       <StyledMain once style={{ overflow: "hidden" }}>
         <Card>
           <EventHeader {...props} />
-          {props.isOrganizer && <ReportFormCard eventPk={props.id} />}
+          {props.isOrganizer && (
+            <>
+              <Spacer size="1rem" />
+              <ReportFormCard eventPk={props.id} />
+            </>
+          )}
+          {props.logged &&
+            props.subtype.label === DOOR2DOOR_EVENT_SUBTYPE_LABEL && (
+              <>
+                <Spacer size="1rem" />
+                <TokTokCard />
+              </>
+            )}
         </Card>
       </StyledMain>
 

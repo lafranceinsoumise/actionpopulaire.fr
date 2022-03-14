@@ -18,6 +18,7 @@ import PageFadeIn from "@agir/front/genericComponents/PageFadeIn";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import TokTokCard from "@agir/events/TokTok/TokTokCard";
 
 import EventForm from "./EventForm";
 
@@ -134,6 +135,10 @@ const InfoBlock = (props) => (
         Organiser une réunion publique
       </Link>
     </p>
+    <Hide under>
+      <Spacer size="1.5rem" />
+      <TokTokCard />
+    </Hide>
   </StyledInfoBlock>
 );
 
