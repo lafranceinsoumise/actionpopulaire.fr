@@ -166,7 +166,7 @@ const Routes = {
   ),
   TokTokPreview: lazy(() =>
     import(
-      /* webpackChunkName: "r-testtoktokpreview" */ "@agir/events/TokTok/TokTokPreview"
+      /* webpackChunkName: "r-toktokpreview" */ "@agir/events/TokTok/TokTokPreview"
     )
   ),
 };
