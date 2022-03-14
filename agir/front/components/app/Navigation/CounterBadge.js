@@ -22,7 +22,7 @@ const Counter = ({ value, ...rest }) =>
         fontWeight="700"
         fill="#FFFFFF"
       >
-        {String(value).length > 2 ? "+99" : value}
+        {value > 20 ? "+20" : value}
       </text>
     </svg>
   ) : null;
