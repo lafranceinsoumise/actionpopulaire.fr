@@ -357,6 +357,7 @@ mapping est un objet JSON avec un champ <em>fields</em> qui liste les champs à 
 lui-même.</li>
 <li><strong>payment_modes</strong> : indique la liste des modes de paiement admissibles pour cet événement.</li>
 <li><strong>admin_payment_modes</strong> : Idem, mais à utiliser pour les modes de paiement côté admin.</li>
+<li><strong>allow_checks_upto</strong> : arrête d'accepter les chèques N jours avant l'événement (7 par défaut).</li>
 </ul>
 """
 )

@@ -300,6 +300,11 @@ urlpatterns = [
         views.BaseAppSoftAuthView.as_view(),
         name="event_required_documents_modal",
     ),
+    path(
+        "toktok/",
+        views.BaseAppSoftAuthView.as_view(),
+        name="toktok_preview",
+    ),
     ## SUPPORTGROUP VIEWS
     path(
         "groupes/",
