@@ -91,6 +91,7 @@ class Document(ModeleGestionMixin, TimeStampedModel):
         verbose_name_plural = "Documents justificatifs"
 
 
+@reversion.register()
 class VersionDocument(models.Model):
     document = models.ForeignKey(
         Document,
