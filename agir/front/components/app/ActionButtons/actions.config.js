@@ -61,13 +61,41 @@ const ACTIONS = {
     icon: "user-plus",
     color: style.primary500,
   },
-  referralSearch: {
-    key: "referralSearch",
-    route: "referralSearch",
-    label: "500 parrainages",
-    icon: "check",
-    color: style.green500,
-    disabled: true,
+  toktokPreview: {
+    key: "toktokPreview",
+    route: "toktokPreview",
+    label: ["Porte-à-porte", "TokTok - Porte-à-porte"],
+    icon: (
+      <span style={{ backgroundColor: style.PULBleu }}>
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M19.5 21V1.5H4.5V21"
+            stroke="white"
+            strokeWidth="2.25"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <line
+            x1="2.625"
+            y1="21.375"
+            x2="21.375"
+            y2="21.375"
+            stroke="white"
+            strokeWidth="2.25"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="15" cy="10.5" r="1.5" fill="white" />
+        </svg>
+      </span>
+    ),
+    color: style.primary500,
   },
   votingProxy: {
     key: "votingProxy",
@@ -100,19 +128,19 @@ const DEFAULT_ACTION_ORDER = [
   "coupDeFil",
   "materiel",
   "createContact",
+  "toktokPreview",
   "votingProxy",
-  "referralSearch",
   "actionTools",
 ];
 const GROUP_MANAGER_ACTION_ORDER = [
   "createEvent",
   "materiel",
   "createContact",
+  "toktokPreview",
   "coupDeFil",
   "donations",
   "groups",
   "votingProxy",
-  "referralSearch",
   "actionTools",
 ];
 

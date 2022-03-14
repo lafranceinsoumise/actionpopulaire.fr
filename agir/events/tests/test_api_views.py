@@ -64,12 +64,14 @@ class CreateEventAPITestCase(APITestCase):
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
         self.assertEqual(res.status_code, 401)
 
-    def test_authenticated_user_can_post(self):
+    @patch("agir.lib.geo.geocode_france")
+    def test_authenticated_user_can_post(self, geocode_france):
         self.client.force_login(self.person.role)
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
         self.assertEqual(res.status_code, 201)
 
-    def test_event_is_created_upon_posting_valid_data(self):
+    @patch("agir.lib.geo.geocode_france")
+    def test_event_is_created_upon_posting_valid_data(self, geocode_france):
         self.client.force_login(self.person.role)
         initial_event_length = Event.objects.all().count()
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
@@ -77,8 +79,9 @@ class CreateEventAPITestCase(APITestCase):
         self.assertIn("id", res.data)
         self.assertEqual(Event.objects.all().count(), initial_event_length + 1)
 
+    @patch("agir.lib.geo.geocode_france")
     def test_organizer_config_is_created_upon_posting_valid_data_with_managed_group(
-        self,
+        self, geocode_france
     ):
         self.client.force_login(self.person.role)
         res = self.client.post("/api/evenements/creer/", data=self.valid_data)
@@ -91,7 +94,10 @@ class CreateEventAPITestCase(APITestCase):
         )
         self.assertEqual(organizer_config.count(), 1)
 
-    def test_organizer_config_is_created_upon_posting_valid_data_without_group(self):
+    @patch("agir.lib.geo.geocode_france")
+    def test_organizer_config_is_created_upon_posting_valid_data_without_group(
+        self, geocode_france
+    ):
         self.client.force_login(self.person.role)
         res = self.client.post(
             "/api/evenements/creer/", data={**self.valid_data, "organizerGroup": None}
@@ -116,9 +122,10 @@ class CreateEventAPITestCase(APITestCase):
         )
         self.assertEqual(rsvp.count(), 1)
 
+    @patch("agir.lib.geo.geocode_france")
     @patch("agir.events.tasks.send_event_creation_notification.delay")
     def test_event_creation_notification_task_is_created_upon_posting_valid_data(
-        self, send_event_creation_notification
+        self, send_event_creation_notification, geocode_france
     ):
         send_event_creation_notification.assert_not_called()
         self.client.force_login(self.person.role)
@@ -136,9 +143,10 @@ class CreateEventAPITestCase(APITestCase):
         self.assertIn("id", res.data)
         geocode_event.assert_called_once()
 
+    @patch("agir.lib.geo.geocode_france")
     @patch("agir.groups.tasks.notify_new_group_event.delay")
     def test_notify_new_group_event_task_is_created_upon_posting_valid_data_with_organizer_group(
-        self, notify_new_group_event
+        self, notify_new_group_event, geocode_france
     ):
         notify_new_group_event.assert_not_called()
         self.client.force_login(self.person.role)
@@ -147,9 +155,10 @@ class CreateEventAPITestCase(APITestCase):
         self.assertIn("id", res.data)
         notify_new_group_event.assert_called_once()
 
+    @patch("agir.lib.geo.geocode_france")
     @patch("agir.groups.tasks.send_new_group_event_email.delay")
     def test_send_new_group_event_email_task_is_created_upon_posting_valid_data_with_organizer_group(
-        self, send_new_group_event_email
+        self, send_new_group_event_email, geocode_france
     ):
         send_new_group_event_email.assert_not_called()
         self.client.force_login(self.person.role)
@@ -158,9 +167,10 @@ class CreateEventAPITestCase(APITestCase):
         self.assertIn("id", res.data)
         send_new_group_event_email.assert_called_once()
 
+    @patch("agir.lib.geo.geocode_france")
     @patch("agir.groups.tasks.notify_new_group_event.delay")
     def test_notify_new_group_event_task_is_not_created_upon_posting_valid_data_without_organizer_group(
-        self, notify_new_group_event
+        self, notify_new_group_event, geocode_france
     ):
         notify_new_group_event.assert_not_called()
         self.client.force_login(self.person.role)
@@ -319,7 +329,10 @@ class CreateEventAPITestCase(APITestCase):
         self.assertEqual(res.status_code, 422)
         self.assertIn("onlineUrl", res.data)
 
-    def test_gestion_projet_is_created_for_related_new_event_subtype(self):
+    @patch("agir.lib.geo.geocode_france")
+    def test_gestion_projet_is_created_for_related_new_event_subtype(
+        self, geocode_france
+    ):
         self.client.force_login(self.person.role)
 
         subtype_without_related_project_type = EventSubtype.objects.create(

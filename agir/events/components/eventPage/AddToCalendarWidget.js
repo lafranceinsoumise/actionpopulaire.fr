@@ -9,6 +9,7 @@ import BottomSheet from "@agir/front/genericComponents/BottomSheet";
 import Popin from "@agir/front/genericComponents/Popin";
 import { RawFeatherIcon } from "@agir/front/genericComponents/FeatherIcon";
 import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
+import { useMobileApp } from "@agir/front/app/hooks";
 
 import { slugify } from "@agir/lib/utils/url";
 
@@ -86,6 +87,7 @@ const StyledWrapper = styled.div`
 `;
 
 const AddToCalendarWidget = ({ name, routes }) => {
+  const { isIOS } = useMobileApp();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const openMenu = () => setIsMenuOpen(true);
   const closeMenu = () => setIsMenuOpen(false);
@@ -113,15 +115,34 @@ const AddToCalendarWidget = ({ name, routes }) => {
             <LogoIcon aria-hidden="true" $icon={outlookLogo} />
             Sur Outlook
           </CalendarLink>
-          <CalendarLink href={routes.calendarExport} download={slugify(name)}>
-            <RawFeatherIcon
-              aria-hidden="true"
-              name="download"
-              width="1rem"
-              height="1rem"
-            />
-            Télécharger le .ics
-          </CalendarLink>
+          {isIOS ? (
+            <CalendarLink
+              href={routes.calendarExport}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <RawFeatherIcon
+                aria-hidden="true"
+                name="download"
+                width="1rem"
+                height="1rem"
+              />
+              Télécharger le .ics
+            </CalendarLink>
+          ) : (
+            <CalendarLink
+              href={routes.calendarExport}
+              download={slugify(name) + ".ics"}
+            >
+              <RawFeatherIcon
+                aria-hidden="true"
+                name="download"
+                width="1rem"
+                height="1rem"
+              />
+              Télécharger le .ics
+            </CalendarLink>
+          )}
         </StyledMenuList>
       </ResponsiveLayout>
     </StyledWrapper>

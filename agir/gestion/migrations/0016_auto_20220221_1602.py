@@ -199,9 +199,9 @@ class Migration(migrations.Migration):
             model_name="reglement",
             name="intitule",
             field=models.CharField(
-                help_text="Ce champ doit permettre d'identifier facilement le réglement. Si ce réglement est par virement, ce champ sera utilisé comme unique intitulé pour le virement, et apparaîtra ainsi dans les relevés bancaires de l'émetteur comme du bénéficiaire. <strong>Il est donc conseillé d'utiliser le numéro de facture ou d'accompte.",
+                help_text="Ce champ doit permettre d'identifier facilement le règlement. Si ce règlement est par virement, ce champ sera utilisé comme unique intitulé pour le virement, et apparaîtra ainsi dans les relevés bancaires de l'émetteur comme du bénéficiaire. <strong>Il est donc conseillé d'utiliser le numéro de facture ou d'accompte.",
                 max_length=200,
-                verbose_name="Identifiant du réglement",
+                verbose_name="Identifiant du règlement",
             ),
         ),
     ]

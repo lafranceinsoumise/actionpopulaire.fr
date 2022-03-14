@@ -184,8 +184,11 @@ class BillingForm(forms.ModelForm):
                 "payment_modes"
             ]
 
-        # si l'événement est dans moins d'une semaine, on refuse le paiement par chèque
-        if event.start_time - timezone.now() < timezone.timedelta(days=7):
+        # le moment où on stoppe les chèques peut être configuré par événement
+        allow_checks_upto = event.payment_parameters.get("allow_checks_upto", 7)
+        if event.start_time - timezone.now() < timezone.timedelta(
+            days=allow_checks_upto
+        ):
             self.fields["payment_mode"].payment_modes = [
                 p
                 for p in self.fields["payment_mode"].payment_modes

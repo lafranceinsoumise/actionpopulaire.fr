@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from django.core.management import BaseCommand
@@ -14,6 +15,8 @@ from agir.events.tasks import (
 )
 from agir.gestion.models import Projet
 from agir.lib.management_utils import event_argument
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -47,13 +50,13 @@ class Command(BaseCommand):
                 return
 
             if event.end_time < today:
-                self.stdout.write(
+                logger.info(
                     f"Sending post-event missing document reminder to event {event.id}."
                 )
                 send_post_event_required_documents_reminder_email.delay(event.pk)
                 event_required_document_reminder_notification(event.pk, post=True)
             elif event.start_time >= tomorrow:
-                self.stdout.write(
+                logger.info(
                     f"Sending pre-event missing document reminder to event {event.id}."
                 )
                 send_pre_event_required_documents_reminder_email.delay(event.pk)
@@ -67,7 +70,7 @@ class Command(BaseCommand):
                 )
                 if get_project_missing_document_count(project) > 0
             ]
-            self.stdout.write(
+            logger.info(
                 f"Sending reminder for {len(yesterday_event_pks)} event(s) ended yesterday ({yesterday.date()})."
             )
             for event_pk in yesterday_event_pks:
@@ -82,11 +85,11 @@ class Command(BaseCommand):
                 )
                 if get_project_missing_document_count(project) > 0
             ]
-            self.stdout.write(
+            logger.info(
                 f"Sending reminder for {len(tomorrow_event_pks)} event(s) starting tomorrow ({tomorrow.date()})."
             )
             for event_pk in tomorrow_event_pks:
                 send_pre_event_required_documents_reminder_email.delay(event_pk)
                 event_required_document_reminder_notification(event_pk, pre=True)
 
-        self.stdout.write("Done!")
+        logger.info("Done!")

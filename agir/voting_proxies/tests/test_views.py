@@ -332,7 +332,8 @@ class VotingProxyCreateAPITestCase(APITestCase):
         self.assertIn("zip", res.data)
         self.assertIn("city", res.data)
 
-    def test_can_create_with_valid_data(self):
+    @patch("agir.lib.geo.geocode_france")
+    def test_can_create_with_valid_data(self, geocode_france):
         data = {**self.valid_data}
         self.assertEqual(
             VotingProxy.objects.filter(email=data["email"]).count(),
@@ -354,7 +355,8 @@ class VotingProxyCreateAPITestCase(APITestCase):
             1,
         )
 
-    def test_can_update_with_valid_data(self):
+    @patch("agir.lib.geo.geocode_france")
+    def test_can_update_with_valid_data(self, geocode_france):
         VotingProxy.objects.create(
             **{
                 "first_name": self.valid_data["firstName"],

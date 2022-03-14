@@ -631,7 +631,7 @@ class Migration(migrations.Migration):
                 (
                     "intitule",
                     models.CharField(
-                        max_length=200, verbose_name="Intitulé du réglement"
+                        max_length=200, verbose_name="Intitulé du règlement"
                     ),
                 ),
                 (
@@ -645,7 +645,7 @@ class Migration(migrations.Migration):
                             ("S", "En espèces"),
                         ],
                         max_length=1,
-                        verbose_name="Mode de réglement",
+                        verbose_name="Mode de règlement",
                     ),
                 ),
                 (

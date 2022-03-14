@@ -86,6 +86,7 @@ from ..tasks import (
     send_cancellation_notification,
     send_group_coorganization_invitation_notification,
 )
+from ...groups.tasks import send_new_group_event_email, notify_new_group_event
 
 
 class EventAPIView(RetrieveAPIView):
@@ -397,6 +398,10 @@ class EventGroupsOrganizersAPIView(CreateAPIView):
                 person=member,
                 as_group=group,
             )
+            # Notify the group members
+            send_new_group_event_email.delay(group.id, event.id)
+            notify_new_group_event.delay(group.id, event.id)
+
             return Response(status=status.HTTP_201_CREATED)
 
         # Send a coorganization invitation otherwise

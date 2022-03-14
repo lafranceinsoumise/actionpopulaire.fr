@@ -2,12 +2,28 @@
 {
   const $ = django.jQuery;
 
+  function formatDate(d) {
+    const day = d.getDate().toString().padStart(2, "0");
+    const month = (d.getMonth() + 1).toString().padStart(2, "0");
+    const year = d.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  }
+
   $.fn.cleaveDateInput = function () {
     this.each(function () {
       new Cleave(this, {
         date: true,
         datePattern: ["d", "m", "Y"],
       });
+
+      const input = this;
+      $("<button class='button' type='button'>aujourd'hui</button>")
+        .click(function () {
+          input.value = formatDate(new Date());
+        })
+        .insertAfter(this);
+      return this;
     });
   };
 
@@ -17,7 +33,7 @@
   $(document).on(
     "formset:added",
     (function () {
-      return function (event, $newFormset) {
+      return function (_event, $newFormset) {
         return $newFormset.find(".cleaved-date-input").cleaveDateInput();
       };
     })(this)
