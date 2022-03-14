@@ -495,7 +495,7 @@ export const routeConfig = {
     exact: true,
     neededAuthentication: AUTHENTICATION.SOFT,
     label: "TokTok",
-    Component: TokTokPreview,
+    Component: RouteComponents.TokTokPreview,
     hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
