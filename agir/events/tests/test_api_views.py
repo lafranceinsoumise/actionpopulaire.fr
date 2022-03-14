@@ -558,7 +558,7 @@ class RSVPEventAPITestCase(APITestCase):
 
         self.client.force_login(referent.role)
         res = self.client.delete(
-            f"/api/evenements/{event.pk}/inscription/", data={"groupPk": group.id}
+            f"/api/evenements/{event.pk}/inscription/{group.id}/",
         )
         self.assertEqual(res.status_code, 204)
 
@@ -586,9 +586,7 @@ class RSVPEventAPITestCase(APITestCase):
         GroupAttendee.objects.create(group=group, event=event, organizer=referent)
 
         self.client.force_login(member.role)
-        res = self.client.delete(
-            f"/api/evenements/{event.pk}/inscription/", data={"groupPk": group.id}
-        )
+        res = self.client.delete(f"/api/evenements/{event.pk}/inscription/{group.id}/")
         self.assertEqual(res.status_code, 405)
 
 
