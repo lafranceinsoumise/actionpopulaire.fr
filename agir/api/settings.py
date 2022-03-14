@@ -615,6 +615,10 @@ if not DEBUG:
                 "level": "ERROR",
                 "class": "django.utils.log.AdminEmailHandler",
             },
+            "sentry": {
+                "level": "INFO",
+                "class": "sentry_sdk.integrations.logging.EventHandler",
+            },
         },
         "loggers": {
             "django.template": {
@@ -625,11 +629,15 @@ if not DEBUG:
             "django": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
             "celery": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
             "nuntius.signals": {
-                "handlers": ["journald"],
+                "handlers": ["journald", "sentry"],
                 "level": "INFO",
                 "propagate": False,
             },
-            "nuntius": {"handlers": ["journald"], "level": "DEBUG", "propagate": True},
+            "nuntius": {
+                "handlers": ["journald", "sentry"],
+                "level": "DEBUG",
+                "propagate": True,
+            },
             "social": {
                 "handlers": ["journald", "admins_mail"],
                 "level": "DEBUG",
