@@ -182,9 +182,9 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
             {
                 "fields": (
                     "numero_",
-                    "titre",
-                    "identifiant",
                     "type",
+                    "identifiant",
+                    "precision",
                     "requis",
                 )
             },
