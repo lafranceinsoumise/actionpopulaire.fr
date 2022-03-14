@@ -25,7 +25,7 @@ class DocumentManager(NumeroManager):
         return document
 
 
-@reversion.register(follow=("versions"))
+@reversion.register(follow=("versions",))
 class Document(ModeleGestionMixin, TimeStampedModel):
     """Modèle représentant un élément justificatif, à associer à une instance d'un autre modèle de gestion"""
 
