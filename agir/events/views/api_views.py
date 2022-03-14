@@ -608,14 +608,8 @@ class EventReportPersonFormAPIView(RetrieveAPIView):
 
 
 class EventMessagesAPIView(ListAPIView):
-    # Get permission on event = public messages of the group or get membership permission
     serializer_class = SupportGroupMessageSerializer
-    permission_classes = (
-        IsPersonPermission,
-        # GroupMessagesPermissions,
-    )
-    # pagination_class = APIPaginator
-    membershipType = Membership.MEMBERSHIP_TYPE_FOLLOWER
+    permission_classes = (IsPersonPermission,)
 
     def initial(self, request, *args, **kwargs):
         try:
@@ -628,20 +622,17 @@ class EventMessagesAPIView(ListAPIView):
 
     def get_queryset(self):
         person = self.request.user.person
-        # memberships = self.event.supportgroup.memberships.filter(person=person)
-        # user_permission = 0
-        # if memberships.exists():
-        #     user_permission = memberships.first().membership_type
-
-        return SupportGroupMessage.objects.filter(linked_event=self.event).order_by(
+        messages = SupportGroupMessage.objects.filter(linked_event=self.event).order_by(
             "-created"
         )
+        messages_allowed = []
+        for message in messages:
+            group = message.supportgroup
+            memberships = group.memberships.filter(person=person)
+            user_permission = 0
+            if memberships.exists():
+                user_permission = memberships.first().membership_type
+            if message.required_membership_type <= user_permission:
+                messages_allowed += [message]
 
-        # Messages where user is author or allowed
-        # return (
-        #     self.supportgroup.messages.active()
-        #     .filter(Q(required_membership_type__lte=user_permission) | Q(author=person))
-        #     .select_related("author", "linked_event", "linked_event__subtype")
-        #     .prefetch_related("comments")
-        #     .order_by("-created")
-        # )
+        return messages_allowed

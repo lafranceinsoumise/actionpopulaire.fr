@@ -25,6 +25,7 @@ import OnlineUrlCard from "./OnlineUrlCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
 import Skeleton from "@agir/front/genericComponents/Skeleton";
+import EventMessages from "./EventMessages";
 
 const CardLikeSection = styled.section``;
 const StyledMain = styled(RenderIfVisible)`
@@ -185,6 +186,8 @@ const MobileEventPage = (props) => {
           </CardLikeSection>
         )}
       </StyledMain>
+
+      <EventMessages eventPk={props.id} />
     </>
   );
 };

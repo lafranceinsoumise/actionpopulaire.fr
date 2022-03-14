@@ -3,7 +3,6 @@ import React, { useCallback, Fragment } from "react";
 
 import styled from "styled-components";
 import style from "@agir/front/genericComponents/_variables.scss";
-import { withMessageActions } from "@agir/groups/groupPage/hooks/messages";
 
 import Spacer from "@agir/front/genericComponents/Spacer";
 import MessageCard from "@agir/front/genericComponents/MessageCard";
@@ -14,6 +13,12 @@ import { getUser } from "@agir/front/globalContext/reducers";
 import { useSelector } from "@agir/front/globalContext/GlobalContext";
 import { useHistory } from "react-router-dom";
 import { routeConfig } from "@agir/front/app/routes.config";
+
+const StyledH3 = styled.h3`
+  @media (max-width: ${style.collapse}px) {
+    padding-left: 1rem;
+  }
+`;
 
 export const EventMessages = (props) => {
   const { eventPk } = props;
@@ -45,7 +50,7 @@ export const EventMessages = (props) => {
 
   return (
     <>
-      <h3 style={{ marginTop: "2.5rem" }}>Messages</h3>
+      <StyledH3 style={{ marginTop: "2.5rem" }}>Messages</StyledH3>
       <article>
         {Array.isArray(messages) &&
           messages.map((message) => (
@@ -69,7 +74,3 @@ EventMessages.propTypes = {
 };
 
 export default EventMessages;
-
-// const ConnectedEventMessages = withMessageActions(EventMessages);
-
-// export default ConnectedEventMessages;
