@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
                     ("ATT", "Attestation"),
                     ("ATT-GRA", "Attestation de gratuité"),
                     ("ATT-CON", "Attestation de concours en nature"),
-                    ("ATT-REG", "Attestation de réglement des consommations"),
+                    ("ATT-REG", "Attestation de règlement des consommations"),
                     (
                         "ATT-ESP",
                         "Demande d'autorisation d'occupation de l'espace public",

@@ -164,6 +164,11 @@ const Routes = {
       /* webpackChunkName: "r-testerrorpage" */ "@agir/front/errorPage/TestErrorPage"
     )
   ),
+  TokTokPreview: lazy(() =>
+    import(
+      /* webpackChunkName: "r-testtoktokpreview" */ "@agir/events/TokTok/TokTokPreview"
+    )
+  ),
 };
 
 export default Routes;

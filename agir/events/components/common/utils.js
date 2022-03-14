@@ -1,5 +1,7 @@
 import { DateTime, Interval } from "luxon";
 
+export const DOOR2DOOR_EVENT_SUBTYPE_LABEL = "porte-a-porte";
+
 export const EVENT_DEFAULT_DURATIONS = [
   {
     value: 60,

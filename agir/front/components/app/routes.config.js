@@ -6,7 +6,6 @@ import logger from "@agir/lib/utils/logger";
 import { AUTHENTICATION } from "@agir/front/authentication/common";
 
 import RouteComponents from "./routes.components";
-
 export const BASE_PATH = "/";
 
 const log = logger(__filename);
@@ -487,6 +486,17 @@ export const routeConfig = {
     neededAuthentication: AUTHENTICATION.NONE,
     Component: RouteComponents.TestErrorPage,
     label: "Une erreur est survenue",
+    hideFeedbackButton: true,
+    hideFooter: true,
+  }),
+  toktokPreview: new RouteConfig({
+    id: "toktokPreview",
+    path: "/toktok/",
+    exact: true,
+    neededAuthentication: AUTHENTICATION.SOFT,
+    label: "TokTok",
+    Component: TokTokPreview,
+    hasLayout: false,
     hideFeedbackButton: true,
     hideFooter: true,
   }),

@@ -27,6 +27,7 @@ class DocumentForm(forms.ModelForm):
     titre_version = forms.CharField(
         label="Nom de la version",
         required=False,
+        help_text="Indiquez brièvement en quoi cette version diffère de la précédente.",
     )
     fichier = forms.FileField(label="Fichier de la version", required=False)
 
@@ -64,22 +65,33 @@ class DocumentForm(forms.ModelForm):
 
 
 class DocumentAjoutRapideForm(forms.ModelForm):
-    titre = forms.CharField(
-        label="Titre",
-        max_length=200,
-        required=True,
-    )
     type = forms.ChoiceField(
         label="Type",
         choices=[("", "---")] + TypeDocument.choices,
         widget=HierarchicalSelect,
         required=True,
     )
-    fichier = forms.FileField(label="Fichier")
+
+    precision = forms.CharField(
+        label="Précision",
+        max_length=200,
+        required=False,
+        help_text="Indiquez ici tout élément qui permet de distinguer ce document d'un autre.",
+    )
+
+    identifiant = forms.CharField(
+        label="Numéro ou autre identifiant",
+        max_length=100,
+        required=False,
+        help_text="Le numéro qui identifie le document : numéro de facture, de devis, de bon de livraison, etc.",
+    )
+
+    fichier = forms.FileField(label="Fichier", required=False)
 
     def save(self, commit=False):
         self.document = Document.objects.create(
-            titre=self.cleaned_data["titre"],
+            identifiant=self.cleaned_data.get("identifiant", ""),
+            precision=self.cleaned_data.get("precision", ""),
             type=self.cleaned_data["type"],
         )
 
@@ -89,12 +101,12 @@ class DocumentAjoutRapideForm(forms.ModelForm):
 
     def _save_m2m(self):
         super()._save_m2m()
-
-        VersionDocument.objects.create(
-            document=self.document,
-            titre="Version initiale",
-            fichier=self.cleaned_data["fichier"],
-        )
+        if self.cleaned_data.get("fichier"):
+            VersionDocument.objects.create(
+                document=self.document,
+                titre="Version initiale",
+                fichier=self.cleaned_data["fichier"],
+            )
 
 
 class DepenseForm(forms.ModelForm):
@@ -317,14 +329,6 @@ class ReglementForm(forms.ModelForm):
         self.fields["montant"].max_value = montant_restant
         self.fields["montant"].validators.append(MaxValueValidator(montant_restant))
 
-    def clean_montant(self):
-        if self.cleaned_data["montant"] <= 0:
-            raise ValidationError(
-                "Le montant réglé doit être strictement positif.",
-                code="amount_not_positive",
-            )
-        return self.cleaned_data["montant"]
-
     def clean(self):
         # deux cas possibles pour le choix du fournisseur :
         # - soit on a choisi un fournisseur existant sans remplir aucun champ de fournisseur dans la section en-dessous
@@ -439,7 +443,7 @@ class ReglementForm(forms.ModelForm):
                 self.add_error(
                     "preuve",
                     ValidationError(
-                        "Vous devez fournir une preuve de paiement pour ce mode de réglement (le scan du chèque, le ticket de caisse, etc.)",
+                        "Vous devez fournir une preuve de paiement pour ce mode de règlement (le scan du chèque, le ticket de caisse, etc.)",
                         code="preuve_requise",
                     ),
                 )
@@ -452,7 +456,7 @@ class ReglementForm(forms.ModelForm):
 
         if self.cleaned_data.get("preuve"):
             self.preuve = Document.objects.create(
-                titre=f"Preuve réglement {self.instance.intitule} — dépense {self.instance.depense.numero}",
+                titre=f"Preuve règlement {self.instance.intitule} — dépense {self.instance.depense.numero}",
                 type=TypeDocument.PAIEMENT,
                 requis=Document.Besoin.NECESSAIRE,
                 fichier=self.cleaned_data["preuve"],
@@ -475,7 +479,7 @@ class ReglementForm(forms.ModelForm):
 
     def save(self, commit=True):
         if not self.fournisseur._state.adding:
-            # on copie les valeurs du fournisseur existant pour les conserver sur le réglement
+            # on copie les valeurs du fournisseur existant pour les conserver sur le règlement
             for f in self.CHAMPS_FOURNISSEURS:
                 setattr(self.instance, f"{f}_fournisseur", getattr(self.fournisseur, f))
 
