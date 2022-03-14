@@ -23,7 +23,7 @@
     "url": "https://github.com/lafranceinsoumise/agir.lafranceinsoumise.fr.git/issues"
   },
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.17.2",
+    "@babel/runtime-corejs3": "^7.17.7",
     "@react-spring/core": "^9.4.4",
     "@react-spring/shared": "^9.4.4",
     "@react-spring/web": "^9.4.4",
