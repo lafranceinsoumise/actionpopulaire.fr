@@ -6,6 +6,7 @@ import { ResponsiveLayout } from "@agir/front/genericComponents/grid";
 import Button from "@agir/front/genericComponents/Button";
 import Modal from "@agir/front/genericComponents/Modal";
 import BottomSheet from "@agir/front/genericComponents/BottomSheet";
+import Spacer from "@agir/front/genericComponents/Spacer";
 
 import * as api from "@agir/events/common/api";
 import { mutate } from "swr";
@@ -63,9 +64,11 @@ const StyledWrapper = styled.div`
   font-color: ${(props) => props.theme.black500};
 `;
 
-const QuitEventButton = ({ id }) => {
+const QuitEventButton = ({ eventPk, group, isOpen, setIsOpen }) => {
   const [isQuitting, setIsQuitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const groupPk = group?.id;
 
   const handleQuit = useCallback(
     async (e) => {
@@ -73,7 +76,7 @@ const QuitEventButton = ({ id }) => {
       setIsLoading(true);
       let error = "";
       try {
-        const response = await api.quitEvent(id);
+        const response = await api.quitEvent(eventPk, groupPk);
         if (response.error) {
           error = response.error;
         }
@@ -82,16 +85,21 @@ const QuitEventButton = ({ id }) => {
       }
       setIsLoading(false);
       setIsQuitting(false);
+      setIsOpen && setIsOpen(false);
       if (error) {
         log.error(error);
         return;
       }
-      mutate(api.getEventEndpoint("getEvent", { eventPk: id }), (event) => ({
-        ...event,
-        rsvped: false,
-      }));
+      if (!groupPk) {
+        mutate(api.getEventEndpoint("getEvent", { eventPk }), (event) => ({
+          ...event,
+          rsvped: false,
+        }));
+        return;
+      }
+      mutate(api.getEventEndpoint("getEvent", { eventPk }));
     },
-    [id]
+    [eventPk]
   );
 
   const openDialog = useCallback((e) => {
@@ -103,18 +111,21 @@ const QuitEventButton = ({ id }) => {
 
   const closeDialog = useCallback(() => {
     setIsQuitting(false);
+    setIsOpen && setIsOpen(false);
   }, []);
 
   return (
     <StyledWrapper>
-      <a href="" onClick={openDialog}>
-        Annuler
-      </a>
+      {!setIsOpen && (
+        <a href="" onClick={openDialog}>
+          Annuler
+        </a>
+      )}
       <ResponsiveLayout
         DesktopLayout={Modal}
         MobileLayout={BottomSheet}
-        shouldShow={isQuitting}
-        isOpen={isQuitting}
+        shouldShow={isOpen || isQuitting}
+        isOpen={isOpen || isQuitting}
         onClose={closeDialog}
         onDismiss={closeDialog}
         shouldDismissOnClick
@@ -122,9 +133,27 @@ const QuitEventButton = ({ id }) => {
       >
         <StyledDialog>
           <main>
-            <h4>Annuler ma participation à l'événement</h4>
+            <h4>
+              {!groupPk ? (
+                "Annuler ma participation à l'événement"
+              ) : (
+                <>Annuler la participation du groupe à l’évément&nbsp;?</>
+              )}
+            </h4>
             <p>
-              Souhaitez-vous réellement ne plus participer à l'événement&nbsp;?
+              {!groupPk ? (
+                <>
+                  Souhaitez-vous réellement ne plus participer à
+                  l'événement&nbsp;?
+                </>
+              ) : (
+                <>
+                  <b>{group.name}</b> ne sera plus indiqué comme participant à
+                  l’événement.
+                  <Spacer size="1rem" />
+                  L’événement sera retiré de l’agenda du groupe.
+                </>
+              )}
             </p>
           </main>
           <footer>
@@ -134,7 +163,7 @@ const QuitEventButton = ({ id }) => {
               isLoading={isLoading}
               disabled={isLoading}
             >
-              Quitter l'événement
+              {!groupPk ? "Quitter l'événement" : "Confirmer"}
             </Button>
             <Button color="default" onClick={closeDialog} disabled={isLoading}>
               Annuler
@@ -146,6 +175,12 @@ const QuitEventButton = ({ id }) => {
   );
 };
 QuitEventButton.propTypes = {
-  id: PropTypes.string.isRequired,
+  eventPk: PropTypes.string.isRequired,
+  group: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+  }),
+  isOpen: PropTypes.bool,
+  setIsOpen: PropTypes.func,
 };
 export default QuitEventButton;

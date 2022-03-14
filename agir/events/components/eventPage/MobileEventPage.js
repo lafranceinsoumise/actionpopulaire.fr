@@ -18,13 +18,10 @@ import EventInfoCard from "@agir/events/eventPage/EventInfoCard";
 import EventLocationCard from "./EventLocationCard";
 import EventPhotosCard from "./EventPhotosCard";
 import EventReportCard from "./EventReportCard";
-import FeatherIcon from "@agir/front/genericComponents/FeatherIcon";
 import GroupCard from "@agir/groups/groupComponents/GroupCard";
-import Link from "@agir/front/app/Link";
 import OnlineUrlCard from "./OnlineUrlCard";
 import RenderIfVisible from "@agir/front/genericComponents/RenderIfVisible";
 import ShareCard from "@agir/front/genericComponents/ShareCard";
-import Skeleton from "@agir/front/genericComponents/Skeleton";
 
 const CardLikeSection = styled.section``;
 const StyledMain = styled(RenderIfVisible)`
