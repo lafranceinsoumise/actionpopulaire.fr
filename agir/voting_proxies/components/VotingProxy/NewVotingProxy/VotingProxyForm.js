@@ -1,7 +1,6 @@
+import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
-import styled from "styled-components";
 
-import Button from "@agir/front/genericComponents/Button";
 import Spacer from "@agir/front/genericComponents/Spacer";
 import Steps, { useSteps } from "@agir/front/genericComponents/Steps";
 
@@ -41,7 +40,7 @@ const VotingProxyForm = (props) => {
   const { user } = props;
   const [formStep, goToPreviousFormStep, goToNextFormStep, setFormStep] =
     useSteps(0);
-  const [isCreated, setIsCreated] = useState(false);
+  const [newVotingProxy, setNewVotingProxy] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [votingDateOptions, setVotingDateOptions] = useState([]);
   const [data, setData] = useState(getInitialData(user));
@@ -129,27 +128,30 @@ const VotingProxyForm = (props) => {
     if (response.error) {
       return handleErrors(response.error);
     }
-    setIsCreated(true);
+    setNewVotingProxy(response.data);
   };
 
-  useEffect(async () => {
-    setIsLoading(true);
-    const options = await createVotingProxyOptions();
-    setIsLoading(false);
-    if (options.error || !options.data?.votingDates) {
-      setErrors({ detail: options.error || "Une erreur est survenue." });
-    } else {
-      setVotingDateOptions(
-        options.data.votingDates.choices.map((choice) => ({
-          value: choice.value,
-          label: choice.display_name,
-        }))
-      );
-    }
+  useEffect(() => {
+    const init = async () => {
+      setIsLoading(true);
+      const options = await createVotingProxyOptions();
+      setIsLoading(false);
+      if (options.error || !options.data?.votingDates) {
+        setErrors({ detail: options.error || "Une erreur est survenue." });
+      } else {
+        setVotingDateOptions(
+          options.data.votingDates.choices.map((choice) => ({
+            value: choice.value,
+            label: choice.display_name,
+          }))
+        );
+      }
+    };
+    init();
   }, []);
 
-  if (isCreated) {
-    return <NewVotingProxySuccess />;
+  if (newVotingProxy) {
+    return <NewVotingProxySuccess votingProxy={newVotingProxy} />;
   }
 
   return (
@@ -356,6 +358,10 @@ const VotingProxyForm = (props) => {
       </fieldset>
     </Steps>
   );
+};
+
+VotingProxyForm.propTypes = {
+  user: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
 };
 
 export default VotingProxyForm;

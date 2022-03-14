@@ -149,6 +149,12 @@ class VotingProxy(AbstractVoter):
         default=list,
     )
     remarks = models.TextField("remarques", blank=True, null=False, default="")
+    last_matched = models.DateTimeField(
+        "date de la dernière proposition de procuration",
+        null=True,
+        blank=False,
+        editable=False,
+    )
 
     class Meta:
         verbose_name = "volontaire pour le vote par procuration"

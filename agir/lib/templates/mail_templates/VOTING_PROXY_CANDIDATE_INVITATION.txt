@@ -1,0 +1,20 @@
+Bonjour,
+
+Des citoyen·nes ont besoin d'une procuration de vote près de chez vous !
+
+Si vous êtes disponible les jours de vote, inscrivez-vous comme volontaire pour prendre
+la procuration de vote d'une personne absente le jour J.
+
+Merci pour votre aide ! Notre force est dans le nombre.
+
+>> Je me porte volontaire pour prendre une procuration :
+{{ VOTING_PROXY_REQUEST_CREATION_LINK }}
+
+------------------------------------------------------------------
+Cet email a été envoyé à {{ email }}. Il est personnel, ne le transférez pas.
+
+>> Choisir les emails que vous recevez
+{{ preferences_link }}
+
+>> Arrêter complètement de recevoir des emails
+{{ unsubscribe_link }}

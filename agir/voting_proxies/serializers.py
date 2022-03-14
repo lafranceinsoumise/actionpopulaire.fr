@@ -249,6 +249,7 @@ class CreateVotingProxySerializer(VotingProxySerializer):
     class Meta:
         model = VotingProxy
         fields = (
+            "id",
             "firstName",
             "lastName",
             "email",
@@ -265,4 +266,5 @@ class CreateVotingProxySerializer(VotingProxySerializer):
             "address",
             "zip",
             "city",
+            "status",
         )
