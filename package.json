@@ -23,14 +23,14 @@
     "url": "https://github.com/lafranceinsoumise/agir.lafranceinsoumise.fr.git/issues"
   },
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.17.2",
+    "@babel/runtime-corejs3": "^7.17.7",
     "@react-spring/core": "^9.4.4",
     "@react-spring/shared": "^9.4.4",
     "@react-spring/web": "^9.4.4",
     "@sentry/react": "^6.18.2",
     "@sentry/tracing": "^6.18.2",
     "@storybook/manager-webpack5": "^6.4.19",
-    "@use-gesture/react": "^10.2.9",
+    "@use-gesture/react": "^10.2.10",
     "axios": "^0.26.1",
     "body-scroll-lock": "^3.1.5",
     "bootstrap-sass": "^3.4.1",
@@ -96,7 +96,7 @@
     "workbox-strategies": "^6.5.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.5",
+    "@babel/core": "^7.17.7",
     "@babel/eslint-parser": "^7.17.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.17.3",
     "@babel/plugin-transform-runtime": "^7.17.0",
