@@ -3,7 +3,6 @@ from functools import partial
 
 from django.contrib import admin
 from django.contrib.postgres.search import SearchQuery
-from django.core.exceptions import ValidationError
 from django.db.models import Count, Sum, Subquery, OuterRef
 from django.http import QueryDict, HttpResponseRedirect
 from django.urls import reverse, path
@@ -16,7 +15,6 @@ from agir.lib.admin.panels import AddRelatedLinkMixin
 from agir.lib.admin.utils import display_list_of_links
 from agir.lib.display import display_price
 from agir.lib.geo import FRENCH_COUNTRY_CODES
-from agir.people.models import Person
 from .base import BaseGestionModelAdmin
 from .depenses import DepenseListMixin
 from .filters import (
@@ -52,7 +50,7 @@ from ..models import (
     Projet,
     InstanceCherchable,
 )
-from ..models.depenses import etat_initial
+from ..models.depenses import etat_initial, Reglement
 from ..models.projets import ProjetMilitant
 from ..models.virements import OrdreVirement
 from ..permissions import peut_voir_montant_depense
@@ -844,3 +842,51 @@ class InstanceCherchableAdmin(admin.ModelAdmin):
         return lien(obj.lien_admin(), str(obj.instance))
 
     lien_instance.short_description = "Titre"
+
+
+@admin.register(Reglement)
+class ReglementAdmin(admin.ModelAdmin):
+    list_display = (
+        "intitule",
+        "date",
+        "montant",
+        "depense",
+        "mode",
+    )
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "intitule",
+                    "date",
+                    "date_releve",
+                    "montant",
+                    "mode",
+                )
+            },
+        ),
+        (
+            "Liens avec d'autres entités",
+            {
+                "fields": (
+                    "depense",
+                    "fournisseur",
+                    "preuve",
+                )
+            },
+        ),
+        (
+            "Autres informations",
+            {
+                "fields": (
+                    "statut",
+                    "endtoend_id",
+                    "ordre_virement",
+                )
+            },
+        ),
+    )
+
+    readonly_fields = ("statut", "endtoend_id", "ordre_virement")
