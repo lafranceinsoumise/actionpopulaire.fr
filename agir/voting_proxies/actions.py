@@ -136,7 +136,7 @@ def get_voting_proxy_requests_for_proxy(voting_proxy, voting_proxy_request_pks):
         status=VotingProxyRequest.STATUS_CREATED,
         voting_date__in=voting_proxy.available_voting_dates,
         proxy__isnull=True,
-    )
+    ).exclude(email=voting_proxy.email)
 
     # Use consulate match for non-null consulate proxies
     if voting_proxy.consulate_id is not None:
@@ -340,7 +340,8 @@ def find_voting_proxy_candidates_for_requests(
         else:
             commune = Commune.objects.get(id=request["commune__id"])
             candidates = candidates.filter(
-                Q(location_citycode=commune.code) | Q(zip__in=commune.codes_postaux)
+                Q(location_citycode=commune.code)
+                | Q(location_zip__in=commune.codes_postaux)
             ).distinct()
 
         if candidates.exists():
