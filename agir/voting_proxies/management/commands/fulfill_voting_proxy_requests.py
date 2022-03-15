@@ -1,21 +1,14 @@
-from datetime import timedelta
-
-from django.contrib.gis.measure import D
-from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.management import BaseCommand
-from django.db.models import Count, Case, When, BooleanField, Q
+from django.db.models import Case, When, BooleanField
 from django.utils import timezone
 
-from agir.people.models import Person
 from agir.voting_proxies.actions import (
-    get_voting_proxy_requests_for_proxy,
-    PROXY_TO_REQUEST_DISTANCE_LIMIT,
+    send_matching_requests_to_proxy,
+    match_available_proxies_with_requests,
+    invite_voting_proxy_candidates,
+    find_voting_proxy_candidates_for_requests,
 )
-from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
-from agir.voting_proxies.tasks import (
-    send_matching_request_to_voting_proxy,
-    send_voting_proxy_candidate_invitation_email,
-)
+from agir.voting_proxies.models import VotingProxyRequest
 
 
 class Command(BaseCommand):
@@ -62,138 +55,13 @@ class Command(BaseCommand):
         if self.dry_run:
             return
 
-        proxy.last_matched = timezone.now()
-        proxy.save()
-        send_matching_request_to_voting_proxy.delay(
-            proxy.id, list(matching_request_ids)
-        )
+        send_matching_requests_to_proxy(proxy, matching_request_ids)
 
     def invite_voting_proxy_candidates(self, candidates):
-        # Give priority with people with the most recent event rsvps
-        candidates = candidates.annotate(
-            rsvp_count=Count(
-                "rsvps",
-                filter=Q(
-                    rsvps__event__end_time__gte=timezone.now() - timedelta(days=365)
-                ),
-                distinct=True,
-            )
-        ).order_by("-rsvp_count")[:10]
-
         if self.dry_run:
             return candidates.values_list("id", flat=True)
 
-        voting_proxy_candidates = [
-            VotingProxy(
-                status=VotingProxy.STATUS_INVITED,
-                person=candidate,
-                email=candidate.email,
-                first_name=candidate.first_name if candidate.first_name else "-",
-                last_name=candidate.last_name if candidate.first_name else "-",
-                contact_phone=candidate.contact_phone if candidate.first_name else "-",
-                polling_station_number="",
-            )
-            for candidate in candidates
-        ]
-        voting_proxy_candidates = VotingProxy.objects.bulk_create(
-            voting_proxy_candidates, ignore_conflicts=True
-        )
-        send_voting_proxy_candidate_invitation_email.delay(
-            [
-                voting_proxy_candidate.pk
-                for voting_proxy_candidate in voting_proxy_candidates
-            ]
-        )
-
-        return candidates.values_list("id", flat=True)
-
-    def get_voting_proxy_candidates_queryset(self, request, blacklist_ids):
-        candidates = (
-            Person.objects.exclude(
-                id__in=VotingProxy.objects.values_list("person_id", flat=True)
-            )
-            .exclude(emails__address=None)
-            .filter(is_2022=True, newsletters__len__gt=0)
-        )
-        if request and request["email"]:
-            candidates = candidates.exclude(emails__address=request["email"])
-        if blacklist_ids:
-            candidates = candidates.exclude(id__in=blacklist_ids)
-
-        return candidates
-
-    def find_voting_proxy_candidates_for_requests(self, pending_requests):
-        possibly_fulfilled_request_ids = []
-        candidate_ids = []
-
-        # Find candidates for consulate requests
-        for request in (
-            pending_requests.exclude(consulate__pays__isnull=True)
-            .values("email", "consulate__pays")
-            .annotate(ids=ArrayAgg("id"))
-        ):
-            candidates = self.get_voting_proxy_candidates_queryset(
-                request, candidate_ids
-            ).filter(location_country__in=request["consulate__pays"].split(","))
-
-            if candidates.exists():
-                invited_candidate_ids = self.invite_voting_proxy_candidates(candidates)
-                candidate_ids += invited_candidate_ids
-                possibly_fulfilled_request_ids += request["ids"]
-
-        # Find candidates for commune requests
-        for request in (
-            pending_requests.exclude(commune__isnull=True)
-            .values("email", "commune__mairie_localisation", "commune__code")
-            .annotate(ids=ArrayAgg("id"))
-        ):
-            candidates = self.get_voting_proxy_candidates_queryset(
-                request, candidate_ids
-            ).exclude(coordinates__isnull=True)
-
-            # Match by distance for geolocalised communes
-            if request["commune__mairie_localisation"]:
-                candidates = candidates.filter(
-                    coordinates__dwithin=(
-                        request["commune__mairie_localisation"],
-                        D(m=PROXY_TO_REQUEST_DISTANCE_LIMIT),
-                    )
-                )
-            # Match by city code for non-geolocalised communes
-            else:
-                candidates = candidates.filter(
-                    location_citycode=request["commune__code"]
-                )
-
-            if candidates.exists():
-                invited_candidate_ids = self.invite_voting_proxy_candidates(candidates)
-                candidate_ids += invited_candidate_ids
-                possibly_fulfilled_request_ids += request["ids"]
-
-        return possibly_fulfilled_request_ids
-
-    def match_available_proxies_with_requests(self, pending_requests):
-        fulfilled_request_ids = []
-
-        # Retrieve all available proxy that has not been matched in the last two days
-        available_proxies = VotingProxy.objects.filter(
-            status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
-        ).exclude(last_matched__date__gt=timezone.now() - timedelta(days=2))
-
-        # Try to match available voting proxies with pending requests
-        for proxy in available_proxies:
-            remaining_requests = pending_requests.exclude(id__in=fulfilled_request_ids)
-            try:
-                matching_request_ids = get_voting_proxy_requests_for_proxy(
-                    proxy, remaining_requests
-                ).values_list("id", flat=True)
-            except VotingProxyRequest.DoesNotExist:
-                pass
-            else:
-                self.send_matching_requests_to_proxy(proxy, matching_request_ids)
-                fulfilled_request_ids += matching_request_ids
-
-        return fulfilled_request_ids
+        return invite_voting_proxy_candidates(candidates)
 
     def handle(
         self,
@@ -211,9 +79,10 @@ class Command(BaseCommand):
         self.stdout.write(
             f"\n\nTrying to fulfill {pending_requests.count()} pending requests..."
         )
-        fulfilled_request_ids = self.match_available_proxies_with_requests(
-            pending_requests
+        fulfilled_request_ids = match_available_proxies_with_requests(
+            pending_requests, notify_proxy=self.send_matching_requests_to_proxy
         )
+
         if len(fulfilled_request_ids) > 0:
             pending_requests = pending_requests.exclude(id__in=fulfilled_request_ids)
             self.stdout.write(
@@ -242,15 +111,19 @@ class Command(BaseCommand):
             self.stdout.write(
                 f"\nLooking for voting proxy candidates for {pending_requests.count()} remaining requests..."
             )
-            possibly_fulfilled_request_ids = (
-                self.find_voting_proxy_candidates_for_requests(pending_requests)
+            (
+                possibly_fulfilled_request_ids,
+                candidate_ids,
+            ) = find_voting_proxy_candidates_for_requests(
+                pending_requests, send_invitations=self.invite_voting_proxy_candidates
             )
             if len(possibly_fulfilled_request_ids) > 0:
                 pending_requests = pending_requests.exclude(
                     id__in=possibly_fulfilled_request_ids
                 )
                 self.stdout.write(
-                    f" ☑ Voting proxy invitations sent for {len(possibly_fulfilled_request_ids)} pending requests"
+                    f" ☑ {len(candidate_ids)} voting proxy invitation(s) sent "
+                    f"for {len(possibly_fulfilled_request_ids)} pending requests"
                 )
             else:
                 self.stdout.write(f" ☒ No voting proxy candidate found :-(")
