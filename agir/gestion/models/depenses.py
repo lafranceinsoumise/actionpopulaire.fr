@@ -591,13 +591,6 @@ CONDITIONS = {
             NiveauTodo.IMPERATIF,
         ),
     ),
-    TypeDepense.FRAIS_RECEPTION_HEBERGEMENT: (
-        Todo(
-            Q(beneficiaires__isnull=False),
-            "Les dépenses de réception ou d'hébergement doivent identifier les personnes bénéficiaires de la dépense.",
-            NiveauTodo.IMPERATIF,
-        ),
-    ),
 }
 
 
