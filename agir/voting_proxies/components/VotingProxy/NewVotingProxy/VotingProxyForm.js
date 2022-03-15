@@ -327,6 +327,8 @@ const VotingProxyForm = (props) => {
         <Spacer size="1rem" />
         <TextField
           textArea
+          hasCounter={data.remarks}
+          maxLength={255}
           disabled={isLoading}
           id="remarks"
           name="remarks"

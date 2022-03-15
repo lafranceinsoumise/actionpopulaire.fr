@@ -100,6 +100,15 @@ export const VOTING_PROXY_CONSTRAINTS = {
       message: "Saisissez une adresse e-mail valide.",
     },
   },
+  remarks: {
+    presence: {
+      allowEmpty: true,
+    },
+    length: {
+      maximum: 255,
+      tooLong: "Assurez-vous que ce champ comporte au plus 255 caractères.",
+    },
+  },
 };
 
 const FRANCE_VOTING_PROXY_CONSTRAINTS = {
@@ -139,8 +148,8 @@ const FRANCE_VOTING_PROXY_CONSTRAINTS = {
   },
 };
 
-export const validateVotingProxy = (data, isAbroad = false) => {
-  return validate(
+export const validateVotingProxy = (data, isAbroad = false) =>
+  validate(
     data,
     isAbroad ? VOTING_PROXY_CONSTRAINTS : FRANCE_VOTING_PROXY_CONSTRAINTS,
     {
@@ -148,4 +157,3 @@ export const validateVotingProxy = (data, isAbroad = false) => {
       fullMessages: false,
     }
   );
-};
