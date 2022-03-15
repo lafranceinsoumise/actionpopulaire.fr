@@ -105,7 +105,6 @@ class VotingProxyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 
 class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
-
     permission_classes = (IsActionPopulaireClientPermission,)
     queryset = VotingProxy.objects.filter(
         status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE)
@@ -115,6 +114,8 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
     def retrieve(self, request, *args, **kwargs):
         voting_proxy = self.get_object()
         voting_proxy_request_pks = []
+        voting_proxy_requests = []
+        is_read_only = False
 
         if request.GET.get("vpr", None):
             voting_proxy_request_pks = request.GET.get("vpr").split(",")
@@ -124,11 +125,17 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
                 voting_proxy, voting_proxy_request_pks
             )
         except VotingProxyRequest.DoesNotExist:
-            voting_proxy_requests = []
+            # Check if request exist that are already been accepted by the user
+            is_read_only = True
+            if request.user.is_authenticated and request.user.person is not None:
+                voting_proxy_requests = VotingProxyRequest.objects.filter(
+                    proxy__person=request.user.person
+                )
 
         return Response(
             {
                 "firstName": voting_proxy.first_name,
+                "readOnly": is_read_only,
                 "requests": [
                     {
                         "id": request.id,

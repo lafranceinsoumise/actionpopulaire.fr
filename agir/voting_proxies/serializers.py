@@ -208,6 +208,7 @@ class VotingProxySerializer(VoterSerializerMixin):
             "votingDates",
             "status",
             "dateOfBirth",
+            "remarks",
         )
 
 
