@@ -104,7 +104,6 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
             Transition(
                 nom="Clôturer directement le dossier",
                 vers=Etat.CLOTURE,
-                condition=no_todos,
                 permissions=["gestion.controler_depense"],
                 class_name="warning",
             ),
@@ -118,9 +117,8 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
                 permissions=["gestion.gerer_depense"],
             ),
             Transition(
-                nom="Clôturer directement le dossier",
+                nom="Clôturer directement la dépense",
                 vers=Etat.CLOTURE,
-                condition=no_todos,
                 permissions=["gestion.controler_depense"],
                 class_name="warning",
             ),
@@ -135,7 +133,6 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
             Transition(
                 nom="Clôturer le dossier",
                 vers=Etat.CLOTURE,
-                condition=no_todos,
                 permissions=["gestion.controler_depense"],
                 class_name="success",
             ),
@@ -144,13 +141,14 @@ class Depense(ModeleGestionMixin, TimeStampedModel):
             Transition(
                 nom="Renvoyer pour corrections",
                 vers=Etat.COMPLET,
-                permissions=["gestion.expertise_comptable"],
+                permissions=["gestion.validation_depense"],
                 class_name="failure",
             ),
             Transition(
                 nom="Intégrer au FEC",
                 vers=Etat.FEC,
-                permissions=["gestion.expertise_comptable"],
+                permissions=["gestion.validation_depense"],
+                condition=no_todos,
                 class_name="success",
             ),
         ],
