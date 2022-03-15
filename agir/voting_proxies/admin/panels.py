@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.contrib.admin import TabularInline
-from django.urls import reverse
+from django.urls import reverse, path
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from agir.lib.admin.autocomplete_filter import AutocompleteRelatedModelFilter
+from agir.voting_proxies.admin.actions import fulfill_voting_proxy_requests
 from agir.voting_proxies.models import VotingProxy, VotingProxyRequest
 
 
@@ -169,21 +170,76 @@ class VotingProxyRequestAdmin(VoterModelAdmin):
         "voting_date",
         ("proxy", admin.EmptyFieldListFilter),
     )
+    readonly_fields = ("matching_buttons",)
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("proxy")
 
-    def voting_date__date(self, instance):
-        return instance.voting_date.strftime("%d %B %Y")
+    def voting_date__date(self, voting_proxy_request):
+        return voting_proxy_request.voting_date.strftime("%d %B %Y")
 
     voting_date__date.short_description = "date du scrutin"
 
-    def proxy_link(self, instance):
-        if instance.proxy is None:
+    def proxy_link(self, voting_proxy_request):
+        if voting_proxy_request.proxy is None:
             return "-"
         href = reverse(
-            "admin:voting_proxies_votingproxy_change", args=(instance.proxy_id,)
+            "admin:voting_proxies_votingproxy_change",
+            args=(voting_proxy_request.proxy_id,),
         )
-        return mark_safe(format_html(f'<a href="{href}">{instance.proxy}</a>'))
+        return mark_safe(
+            format_html(f'<a href="{href}">{voting_proxy_request.proxy}</a>')
+        )
 
     proxy_link.short_description = "volontaire"
+
+    def match_voting_proxy_request_view(self, request, pk):
+        voting_proxy_request = VotingProxyRequest.objects.filter(
+            status=VotingProxyRequest.STATUS_CREATED,
+            proxy__isnull=True,
+        ).filter(pk=pk)
+
+        return fulfill_voting_proxy_requests(request, pk, voting_proxy_request)
+
+    def match_person_voting_proxy_request_view(self, request, pk):
+        voting_proxy_request = self.get_object(request, pk)
+        person_voting_proxy_requests = VotingProxyRequest.objects.filter(
+            status=VotingProxyRequest.STATUS_CREATED,
+            proxy__isnull=True,
+        ).filter(email=voting_proxy_request.email)
+
+        return fulfill_voting_proxy_requests(request, pk, person_voting_proxy_requests)
+
+    def get_urls(self):
+        return [
+            path(
+                "<uuid:pk>/match/",
+                self.admin_site.admin_view(self.match_voting_proxy_request_view),
+                name="votingproxies_votingproxyrequest_match_voting_proxy_request",
+            ),
+            path(
+                "<uuid:pk>/match-all/",
+                self.admin_site.admin_view(self.match_person_voting_proxy_request_view),
+                name="votingproxies_votingproxyrequest_match_person_voting_proxy_requests",
+            ),
+        ] + super().get_urls()
+
+    def matching_buttons(self, voting_proxy_request):
+        return format_html(
+            '<p><a href="{match_voting_proxy_request}" class="button">'
+            "  Chercher uniquement pour cette demande"
+            "</a></p>"
+            '<p style="margin-top: 4px;"><a href="{match_person_voting_proxy_requests}" class="button">'
+            "  Chercher pour toutes les demandes de cette personne"
+            "</a></p>",
+            match_voting_proxy_request=reverse(
+                "admin:votingproxies_votingproxyrequest_match_voting_proxy_request",
+                args=(voting_proxy_request.pk,),
+            ),
+            match_person_voting_proxy_requests=reverse(
+                "admin:votingproxies_votingproxyrequest_match_person_voting_proxy_requests",
+                args=(voting_proxy_request.pk,),
+            ),
+        )
+
+    matching_buttons.short_description = "Recherche de volontaires"
