@@ -23,6 +23,7 @@ from .filters import (
     DepenseResponsableFilter,
     ProjetResponsableFilter,
     InclureProjetsMilitantsFilter,
+    FournisseurFilter,
 )
 from .forms import (
     DocumentForm,
@@ -112,7 +113,19 @@ class FournisseurAdmin(VersionAdmin):
     CHAMPS_PERSONNES_MORALES = ["siren"]
 
     fieldsets = (
-        (None, {"fields": ("type", "nom", "contact_phone", "contact_email", "siren")}),
+        (
+            None,
+            {
+                "fields": (
+                    "type",
+                    "nom",
+                    "contact_phone",
+                    "contact_email",
+                    "siren",
+                    "depenses",
+                )
+            },
+        ),
         (
             "Paiement",
             {
@@ -136,7 +149,18 @@ class FournisseurAdmin(VersionAdmin):
         ),
     )
 
+    readonly_fields = ("depenses",)
     search_fields = ("nom", "description")
+
+    def depenses(self, obj):
+        if obj is not None:
+            return format_html(
+                '<a href="{}">voir toutes les dépenses<a>',
+                f'{reverse("admin:gestion_depense_changelist")}?fournisseur={obj.id}',
+            )
+        return "-"
+
+    depenses.short_description = "dépenses"
 
 
 @admin.register(Document)
@@ -144,9 +168,9 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
     form = DocumentForm
     list_display = (
         "numero",
-        "titre",
-        "identifiant",
         "type",
+        "identifiant",
+        "precision",
         "requis",
     )
 
@@ -158,9 +182,9 @@ class DocumentAdmin(BaseGestionModelAdmin, VersionAdmin):
             {
                 "fields": (
                     "numero_",
-                    "titre",
-                    "identifiant",
                     "type",
+                    "identifiant",
+                    "precision",
                     "requis",
                 )
             },
@@ -221,6 +245,8 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
     list_filter = (
         DepenseResponsableFilter,
         "compte",
+        "etat",
+        FournisseurFilter,
         "type",
     )
 
@@ -332,13 +358,13 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
 
         if obj.montant_restant > 0:
             return format_html(
-                '{}<br><a href="{}">Ajouter un réglement</a>',
+                '{}<br><a href="{}">Ajouter un règlement</a>',
                 self.reglement(obj),
                 reverse("admin:gestion_depense_reglement", args=(obj.id,)),
             )
         return self.reglement(obj)
 
-    reglements.short_description = "Statut du réglement"
+    reglements.short_description = "Statut du règlement"
 
     def save_model(self, request, obj, form, change):
         """
@@ -401,6 +427,10 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
         ]
 
         return additional_urls + urls
+
+    class Media:
+        # media empty pour l'autocomplete filter
+        pass
 
 
 class BaseProjetAdmin(BaseGestionModelAdmin, AddRelatedLinkMixin, VersionAdmin):
@@ -533,6 +563,7 @@ class ProjetAdmin(BaseProjetAdmin):
         "numero",
         "titre",
         "type",
+        "origine",
         "etat",
         "event_name",
         "event_start_time",
@@ -738,7 +769,7 @@ class OrdreVirementAdmin(BaseGestionModelAdmin, VersionAdmin):
     def nb_reglements(self, obj):
         return getattr(obj, "nb_reglements", "-")
 
-    nb_reglements.short_description = "Nombre de réglements"
+    nb_reglements.short_description = "Nombre de règlements"
     nb_reglements.admin_order_field = "nb_reglements"
 
     def montant(self, obj):

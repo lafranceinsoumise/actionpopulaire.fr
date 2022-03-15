@@ -36,8 +36,11 @@ export const ProtectedComponent = (props) => {
     if (isAuthorized === null) {
       return;
     }
-    const PreloadedComponent = AnonymousComponent || Component;
-    if (typeof PreloadedComponent?.preload === "function") {
+    const PreloadedComponent = isAuthorized ? Component : AnonymousComponent;
+    if (
+      PreloadedComponent &&
+      typeof PreloadedComponent.preload === "function"
+    ) {
       log.debug("Preloading", PreloadedComponent);
       PreloadedComponent.preload();
     }

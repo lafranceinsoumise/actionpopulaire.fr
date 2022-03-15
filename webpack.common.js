@@ -300,7 +300,7 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
             view: [
               "struct",
               {
-                data: `#.stats.compilations.(
+                data: `#.stats.compilations.sort(time desc)[0].(
                   $compilation: $;
                     modules.({
                       module: $,
@@ -364,7 +364,35 @@ module.exports = (type = CONFIG_TYPES.ES5) => ({
   optimization: {
     splitChunks: {
       chunks: "all",
+      cacheGroups: {
+        emojiMart: {
+          test: /[\\/]node_modules[\\/]emoji-mart[\\/]/,
+          name: "em",
+          chunks: "all",
+        },
+        openlayers: {
+          test: /[\\/]node_modules[\\/]ol[\\/]/,
+          name: "ol",
+          chunks: "all",
+        },
+        quill: {
+          test: /[\\/]node_modules[\\/](quill|react-quill)[\\/]/,
+          name: "ql",
+          chunks: "all",
+        },
+        react: {
+          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+          name: "rt",
+          chunks: "all",
+        },
+        sentry: {
+          test: /[\\/]node_modules[\\/]@sentry[\\/]/,
+          name: "sy",
+          chunks: "all",
+        },
+      },
     },
+    moduleIds: "deterministic",
     minimize: type !== CONFIG_TYPES.DEV,
     minimizer: [
       new TerserPlugin({
