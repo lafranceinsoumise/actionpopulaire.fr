@@ -324,13 +324,11 @@ def find_voting_proxy_candidates_for_requests(
         )
         .annotate(ids=ArrayAgg("id"))
     ):
-        candidates = get_voting_proxy_candidates_queryset(
-            request, candidate_ids
-        ).exclude(coordinates__isnull=True)
+        candidates = get_voting_proxy_candidates_queryset(request, candidate_ids)
 
         # Match by distance for geolocalised communes
         if request["commune__mairie_localisation"]:
-            candidates = candidates.filter(
+            candidates = candidates.exclude(coordinates__isnull=True).filter(
                 coordinates__dwithin=(
                     request["commune__mairie_localisation"],
                     D(m=PROXY_TO_REQUEST_DISTANCE_LIMIT),
@@ -339,10 +337,20 @@ def find_voting_proxy_candidates_for_requests(
         # Try to match by city code / zip code for non-geolocalised communes
         else:
             commune = Commune.objects.get(id=request["commune__id"])
-            candidates = candidates.filter(
-                Q(location_citycode=commune.code)
-                | Q(location_zip__in=commune.codes_postaux)
-            ).distinct()
+            candidates = (
+                candidates.exclude(
+                    location_citycode__isnull=True, location_zip__isnull=True
+                )
+                .filter(
+                    Q(location_citycode=commune.code)
+                    | Q(
+                        location_zip__in=commune.codes_postaux.values_list(
+                            "code", flat=True
+                        )
+                    )
+                )
+                .distinct()
+            )
 
         if candidates.exists():
             # Give priority with people with the most recent event rsvps
