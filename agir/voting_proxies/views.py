@@ -81,7 +81,8 @@ class CreateVoterAPIView(CreateAPIView):
             raise Throttled(detail=self.messages["throttled"], code="throttled")
 
     def perform_create(self, serializer):
-        self.throttle_requests(serializer.validated_data)
+        # TODO: restore throttling before deploying to production
+        # self.throttle_requests(serializer.validated_data)
         super().perform_create(serializer)
 
 
@@ -221,7 +222,8 @@ class VotingProxyForRequestRetrieveAPIView(RetrieveAPIView):
             )
 
     def retrieve(self, request, *args, **kwargs):
-        self.throttle_requests(request, *args, **kwargs)
+        # TODO: restore throttling before deploying to production
+        # self.throttle_requests(request, *args, **kwargs)
         voting_proxy_request = self.get_object()
         send_voting_proxy_information_for_request.delay(voting_proxy_request.pk)
         return Response(status=status.HTTP_202_ACCEPTED)
