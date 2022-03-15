@@ -272,7 +272,6 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
 
     autocomplete_fields = (
         "projet",
-        "beneficiaires",
         "fournisseur",
         "depenses_refacturees",
     )
@@ -317,7 +316,7 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
             )
 
         return (
-            (None, {"fields": [*common_fields, "beneficiaires"]}),
+            (None, {"fields": common_fields}),
             ("Gestion", {"fields": rel_fields}),
             (
                 "Nature de la dépense",
@@ -387,14 +386,6 @@ class DepenseAdmin(DepenseListMixin, BaseGestionModelAdmin, VersionAdmin):
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
-
-        if "person" in request.GET:
-            try:
-                initial["beneficiaires"] = [
-                    Person.objects.get(id=request.GET["person"])
-                ]
-            except (Person.DoesNotExist, ValidationError):
-                pass
 
         if "projet" in request.GET:
             try:
