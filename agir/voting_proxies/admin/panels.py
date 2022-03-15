@@ -1,6 +1,9 @@
+from datetime import timedelta
+
 from django.contrib import admin
 from django.contrib.admin import TabularInline
 from django.urls import reverse, path
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
@@ -25,13 +28,15 @@ class HasVotingProxyRequestsListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return (
-            (1, "Oui"),
-            (0, "Non"),
+            ("1", "Oui"),
+            ("0", "Non"),
         )
 
     def queryset(self, request, queryset):
-        if isinstance(self.value(), int):
-            return queryset.filter(voting_proxy_requests__isnull=self.value() == 1)
+        if self.value() == "0":
+            return queryset.filter(voting_proxy_requests__isnull=True)
+        if self.value() == "1":
+            return queryset.filter(voting_proxy_requests__isnull=False)
         return queryset
 
 
@@ -45,6 +50,36 @@ class IsAvailableForVotingDateListFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() is not None:
             return queryset.filter(voting_dates__contains=[self.value()])
+        return queryset
+
+
+class IsAvailableForMatchingListFilter(admin.SimpleListFilter):
+    title = "cette personne peut recevoir une proposition"
+    parameter_name = "is_available_for_matching"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("1", "Oui"),
+            ("0", "Non"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "0":
+            return queryset.exclude(
+                pk__in=queryset.filter(
+                    status__in=(
+                        VotingProxy.STATUS_CREATED,
+                        VotingProxy.STATUS_AVAILABLE,
+                    ),
+                )
+                .exclude(last_matched__date__gt=timezone.now() - timedelta(days=2))
+                .values_list("pk", flat=True)
+            )
+        if self.value() == "1":
+            return queryset.filter(
+                status__in=(VotingProxy.STATUS_CREATED, VotingProxy.STATUS_AVAILABLE),
+            ).exclude(last_matched__date__gt=timezone.now() - timedelta(days=2))
+
         return queryset
 
 
@@ -125,11 +160,13 @@ class VotingProxyAdmin(VoterModelAdmin):
     )
     list_filter = (
         *VoterModelAdmin.list_filter,
-        HasVotingProxyRequestsListFilter,
         IsAvailableForVotingDateListFilter,
+        HasVotingProxyRequestsListFilter,
+        IsAvailableForMatchingListFilter,
     )
 
     inlines = [InlineVotingProxyRequestAdmin]
+    readonly_fields = (*VoterModelAdmin.readonly_fields, "last_matched")
 
     def get_queryset(self, request):
         return (
