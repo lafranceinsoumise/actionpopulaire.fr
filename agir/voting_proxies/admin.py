@@ -62,6 +62,8 @@ class VoterModelAdmin(admin.ModelAdmin):
     autocomplete_fields = ("commune", "consulate")
     readonly_fields = ("created",)
 
+    search_fields = ["email", "commune__search", "consulate__nom", "consulate__search"]
+
     def created__date(self, instance):
         return instance.created.date()
 
