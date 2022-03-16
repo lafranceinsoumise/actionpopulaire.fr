@@ -3,7 +3,7 @@ from django.conf import settings
 
 from agir.lib.celery import post_save_task, emailing_task
 from agir.lib.mailing import send_mosaico_email
-from agir.lib.sms import send_sms, SMSSendException
+from agir.lib.sms import send_sms, SMSSendException, to_7bit_string
 from agir.lib.utils import shorten_url, front_url
 from agir.voting_proxies.models import VotingProxyRequest, VotingProxy
 
@@ -104,7 +104,7 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
         )
         link = shorten_url(link, secret=True, djan_url_type="M2022")
         request_owner_message = (
-            f"{voting_proxy_request.proxy.first_name} s’est porté-e volontaire pour voter en votre nom "
+            f"{to_7bit_string(voting_proxy_request.proxy.first_name)} s’est porté-e volontaire pour voter en votre nom "
             f"{voting_dates} ! {link}"
         )
         send_sms(
@@ -115,8 +115,9 @@ def send_voting_proxy_request_accepted_text_messages(voting_proxy_request_pks):
 
     try:
         voting_proxy_message = (
-            f"Vous avez accepté de voter pour {voting_proxy_request.first_name} {voting_dates}. "
-            f"Nous vous préviendrons lorsque {voting_proxy_request.first_name} aura établi la procuration de vote."
+            f"Vous avez accepté de voter pour {to_7bit_string(voting_proxy_request.first_name)} {voting_dates}. "
+            f"Nous vous préviendrons lorsque {to_7bit_string(voting_proxy_request.first_name)} aura établi "
+            f"la procuration de vote."
         )
         send_sms(
             voting_proxy_message,
@@ -151,10 +152,10 @@ def send_voting_proxy_request_confirmed_text_messages(voting_proxy_request_pks):
     voting_proxy_request = voting_proxy_requests.first()
     message = (
         f"Procuration de vote établie ({voting_date_string}) :"
-        f" {voting_proxy_request.first_name} {voting_proxy_request.last_name.upper()}"
-        f" - {voting_proxy_request.commune.nom if voting_proxy_request.commune else voting_proxy_request.consulate.nom}"
+        f" {to_7bit_string(voting_proxy_request.first_name)} {to_7bit_string(voting_proxy_request.last_name.upper())}"
+        f" - {to_7bit_string(voting_proxy_request.commune.nom if voting_proxy_request.commune else voting_proxy_request.consulate.nom)}"
         f" - tél. {voting_proxy_request.contact_phone}"
     )
     if voting_proxy_request.polling_station_number:
-        message += f" - bureau de vote {voting_proxy_request.polling_station_number}"
+        message += f" - bureau de vote {to_7bit_string(voting_proxy_request.polling_station_number)}"
     send_sms(message, voting_proxy_request.proxy.contact_phone, sender=SMS_SENDER)

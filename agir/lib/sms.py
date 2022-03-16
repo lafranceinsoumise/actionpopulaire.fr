@@ -7,6 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumbers import number_type, PhoneNumberType
+from unidecode import unidecode
 
 from agir.lib.utils import grouper
 from agir.people.models import PersonQueryset
@@ -164,6 +165,11 @@ GSM7_CODEPOINTS = {
 }
 
 
+def to_7bit_string(string):
+    # Remove non 7bit characters from message to avoid errors
+    return unidecode(string).encode("ascii", errors="replace").decode("utf-8")
+
+
 def _send_sms_as_email(message, recipients, params):
     """
     Sends an email with the message parameters to allow locally debugging
@@ -196,9 +202,6 @@ def _send_sms_as_email(message, recipients, params):
 
 
 def _send_sms(message, recipients, at=None, sender=settings.OVH_DEFAULT_SENDER):
-    # Remove non 7bit characters from message to avoid errors
-    message = message.encode("ascii", errors="replace").decode("utf-8")
-
     params = dict(
         charset="UTF-8",
         coding="7bit",
