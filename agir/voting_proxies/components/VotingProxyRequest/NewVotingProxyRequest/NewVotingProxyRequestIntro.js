@@ -8,7 +8,7 @@ const NewVotingProxyRequestIntro = () => (
   <div>
     <h2
       css={`
-        color: ${(props) => props.theme.primary500};
+        color: ${({ theme }) => theme.primary500};
       `}
     >
       Permettre à une personne de voter à ma place

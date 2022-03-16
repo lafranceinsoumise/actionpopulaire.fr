@@ -134,7 +134,7 @@ const VotingProxyRequestForm = (props) => {
     return <NewVotingProxyRequestSuccess />;
   }
 
-  const globalError = errors?.detail || errors?.global;
+  const globalError = errors?.global || errors?.detail;
 
   return (
     <Steps
@@ -268,7 +268,7 @@ const VotingProxyRequestForm = (props) => {
               color: ${({ theme }) => theme.redNSP};
             `}
           >
-            {globalError}
+            {Array.isArray(globalError) ? globalError[0] : globalError}
           </p>
         )}
       </fieldset>

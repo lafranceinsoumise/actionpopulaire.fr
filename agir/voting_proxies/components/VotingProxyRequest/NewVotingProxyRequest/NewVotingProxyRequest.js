@@ -8,7 +8,7 @@ import Skeleton from "@agir/front/genericComponents/Skeleton";
 import StyledPageContainer from "@agir/voting_proxies/Common/StyledPageContainer";
 import VotingProxyRequestForm from "./VotingProxyRequestForm";
 
-const NewVotingProxyRequest = (props) => {
+const NewVotingProxyRequest = () => {
   const { data: session } = useSWR("/api/session/");
 
   return (
