@@ -176,7 +176,10 @@ class ReplyToVotingProxyRequestsAPIView(RetrieveUpdateAPIView):
                     voting_proxy, voting_proxy_request_pks
                 )
             except (VotingProxyRequest.DoesNotExist, exceptions.ValidationError):
-                errors["votingProxyRequests"] = "La valeur de ce champ n'est pas valide"
+                errors["global"] = (
+                    "Cette procuration a été acceptée par un·e autre volontaire. Nous vous enverrons un SMS "
+                    "lorsqu'une nouvelle demande apparaîtra près de chez vous."
+                )
 
         if errors.keys():
             raise ValidationError(errors)

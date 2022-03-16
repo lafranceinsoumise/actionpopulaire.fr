@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import Button from "@agir/front/genericComponents/Button";
@@ -197,13 +197,13 @@ const ReplyingForm = (props) => {
               color: ${({ theme }) => theme.redNSP};
             `}
           >
-            ⚠&ensp;Une erreur est survenue.
+            ⚠&ensp;{errors?.global || "Une erreur est survenue."}
           </p>
         )}
         <Spacer size="1.5rem" />
         <Button
           wrap
-          disabled={isLoading}
+          disabled={isLoading || !!errors?.global}
           loading={isAccepting}
           type="submit"
           color="success"

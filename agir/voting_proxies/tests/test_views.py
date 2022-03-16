@@ -715,7 +715,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
         }
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 422)
-        self.assertIn("votingProxyRequests", res.data)
+        self.assertIn("global", res.data)
 
     def test_cannot_update_with_unmatching_voting_proxy_request(self):
         data = {
@@ -724,7 +724,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
         }
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 422)
-        self.assertIn("votingProxyRequests", res.data)
+        self.assertIn("global", res.data)
 
     def test_cannot_update_with_unavailable_voting_proxy_request(self):
         data = {
@@ -733,7 +733,7 @@ class ReplyToVotingProxyRequestsAPITestCase(APITestCase):
         }
         res = self.client.patch(self.endpoint, data=data)
         self.assertEqual(res.status_code, 422)
-        self.assertIn("votingProxyRequests", res.data)
+        self.assertIn("global", res.data)
 
     def test_can_decline_a_request(self):
         self.matching_request.proxy = None
