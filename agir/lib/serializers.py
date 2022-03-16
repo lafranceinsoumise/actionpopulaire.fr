@@ -54,13 +54,21 @@ class LocationSerializer(serializers.Serializer):
     zip = serializers.CharField(source="location_zip")
     city = serializers.CharField(source="location_city")
     country = CountryField(source="location_country")
-    state = serializers.CharField(source="location_state")
+    state = serializers.SerializerMethodField()
     address = serializers.SerializerMethodField()
 
     shortAddress = serializers.CharField(source="short_address", required=False)
     shortLocation = serializers.CharField(source="short_location", required=False)
     coordinates = GeometryField(required=False)
     staticMapUrl = serializers.SerializerMethodField(read_only=True)
+
+    # Set state from country code
+    def get_state(self, obj):
+        country = obj.location_country
+        if not country:
+            return
+        obj.location_state = country.name
+        obj.save()
 
     def to_representation(self, instance):
         data = super().to_representation(instance=instance)
